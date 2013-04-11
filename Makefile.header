@@ -3,18 +3,24 @@
 ##############################################################################
 
 LIBS = 
+COIN_INSTALL_DEFINES = -DCLP_BUILD -DCOINUTILS_BUILD -DOSI_BUILD -DSYMPHONY_BUILD -D__OSI_CLP__ -DCOMPILE_IN_CG -DCOMPILE_IN_CP -DCOMPILE_IN_LP -DCOMPILE_IN_TM -DUSE_CGL_CUTS -DHAVE_CONFIG_H
+
+# feel free to use "debug" and "cleandebug" for below for debug!
 
 all: release
 
 clean: cleanrelease
 
-# feel free to use "debug" and "cleandebug" for Debug!
 
-doxy:
+#generate doxygen documentation
+doc:
+	doc/build-ogdf-docs.sh
+
+# clean doxygen documentation
+clean-doc:
 	rm -rf doc/html
-	mkdir -p doc/html
-	doxygen ogdf-doxygen.cfg
-	cp -f doc/images/ftv2*.png doc/html
+
+.PHONY: clean clean-doc distclean doc
 
 ##############################################################################
 ## END Makefile.header

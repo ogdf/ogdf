@@ -11,7 +11,7 @@
 		<Platform
 			Name="Win32"
 		/>
-    		<Platform
+	<Platform
 			Name="x64"
 		/>
 	</Platforms>
@@ -21,8 +21,8 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)\$(ProjectName)"
+			ConfigurationType="<<LIBRARYTYPETAG>>"
 			CharacterSet="1"
 			>
 			<Tool
@@ -44,12 +44,12 @@
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;<<INCLUDETAG>>"
+				AdditionalIncludeDirectories="./include/;<<INCLUDETAG>>"
 				PreprocessorDefinitions="OGDF_DEBUG;<<DEFINETAG>>"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				OpenMP="true"
+				OpenMP="<<OPENMPTAG>>"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -64,7 +64,8 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="<<LINKERNAME>>"
+<<LINKTAGD32>>
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -85,8 +86,8 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)\$(ProjectName)"
+			ConfigurationType="<<LIBRARYTYPETAG>>"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -109,10 +110,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="./;<<INCLUDETAG>>"
+				AdditionalIncludeDirectories="./include/;<<INCLUDETAG>>"
 				PreprocessorDefinitions="<<DEFINETAG>>"
 				RuntimeLibrary="2"
-				OpenMP="true"
+				OpenMP="<<OPENMPTAG>>"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -127,7 +128,8 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
+				Name="<<LINKERNAME>>"
+<<LINKTAGR32>>
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -145,136 +147,138 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
-    <Configuration
+		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)\$(ProjectName)"
+			ConfigurationType="<<LIBRARYTYPETAG>>"
 			CharacterSet="1"
 			>
-      <Tool
+			<Tool
 				Name="VCPreBuildEventTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCCustomBuildTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
 			/>
-      <Tool
+			<Tool
 				Name="VCCLCompilerTool"
 				UseUnicodeResponseFiles="true"
 				Optimization="0"
-				AdditionalIncludeDirectories="./;<<INCLUDETAG>>"
+				AdditionalIncludeDirectories="./include/;<<INCLUDETAG>>"
 				PreprocessorDefinitions="OGDF_DEBUG;<<DEFINETAG>>"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				OpenMP="true"
+				OpenMP="<<OPENMPTAG>>"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
-      <Tool
+			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCResourceCompilerTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCPreLinkEventTool"
 			/>
-      <Tool
-				Name="VCLibrarianTool"
+			<Tool
+				Name="<<LINKERNAME>>"
+<<LINKTAGD64>>
 			/>
-      <Tool
+			<Tool
 				Name="VCALinkTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCXDCMakeTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCBscMakeTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCFxCopTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
-    </Configuration>
-    <Configuration
+		</Configuration>
+		<Configuration
 			Name="Release|x64"
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
-			ConfigurationType="4"
+			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)\$(ProjectName)"
+			ConfigurationType="<<LIBRARYTYPETAG>>"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
-      <Tool
+			<Tool
 				Name="VCPreBuildEventTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCCustomBuildTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCWebServiceProxyGeneratorTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
 			/>
-      <Tool
+			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="./;<<INCLUDETAG>>"
+				AdditionalIncludeDirectories="./include/;<<INCLUDETAG>>"
 				PreprocessorDefinitions="<<DEFINETAG>>"
 				RuntimeLibrary="2"
-				OpenMP="true"
+				OpenMP="<<OPENMPTAG>>"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
-      <Tool
+			<Tool
 				Name="VCManagedResourceCompilerTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCResourceCompilerTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCPreLinkEventTool"
 			/>
-      <Tool
-				Name="VCLibrarianTool"
+			<Tool
+				Name="<<LINKERNAME>>"
+<<LINKTAGR64>>
 			/>
-      <Tool
+			<Tool
 				Name="VCALinkTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCXDCMakeTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCBscMakeTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCFxCopTool"
 			/>
-      <Tool
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
-    </Configuration>
-  </Configurations>
+		</Configuration>
+	</Configurations>
 	<References>
 	</References>
 	<Files>
@@ -293,7 +297,6 @@
 			<<HTAG>>
 			<<HLEGACYTAG>>
 		</Filter>
-		<<OTHERTAG>>
 	</Files>
 	<Globals>
 	</Globals>

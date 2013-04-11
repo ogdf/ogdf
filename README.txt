@@ -21,9 +21,28 @@ to these license terms.
 If you have questions, please write to license@ogdf.net .
 
 
+************* THIRD PARTY SOFTWARE **************
+
+This distribution contains the following third-party
+software:
+
+- COIN-OR:
+  The files in include/coin and src/coin are taken from
+  the COIN-OR projects (Clp and Symphony) and are relased
+  under the Eclpise Public License 1.0;
+  see the Readme.txt in these folders for more information.
+  
+ - ABACUS:
+   The files in include/ogdf/abacus and src/ogdf/abacus
+   are based on the ABACUS project;
+   See :http://www.informatik.uni-koeln.de/abacus/
+   The modified files are licensed under the GPL (as OGDF itself)
+
+   
 ******************* COPYRIGHT *******************
 
-All files in the OGDF distribution are copyrighted:
+All files in the OGDF distribution (except for third-party
+software) are copyrighted:
 
 Copyright (C) 2005-2012
 

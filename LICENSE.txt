@@ -27,6 +27,18 @@ and distribute executables, as long as you follow the requirements
 of the GNU General Public License in regard to all of the software
 in the executable aside from these third-party libraries.
 
+Moreover, we grant a special exception to the OGDF QML
+(https://github.com/schulzch/qml-ogdf) plugin by Christoph Schulz
+(licensed under the GNU Lesser General Public License) for linking
+OGDF and distributing the plugin under LGPL v2 or v3.
+
+
+Third-party software:
+- This distribution integrates source-code from the COIN-OR
+  project. This source code is licensed under the Eclipse
+  Public License 1.0 (http://www.eclipse.org/legal/epl-v10.html).
+
+  
 See also: http://www.ogdf.net/license.html
 
 Contact: license@ogdf.net
