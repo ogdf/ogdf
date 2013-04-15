@@ -1,9 +1,9 @@
 /*
- * $Revision: 3083 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 15:51:10 +0100 (Do, 29. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -99,9 +99,9 @@ protected:
 	//! i.e. the node with parent[v] == v
 	inline node getRepresentative(node v, NodeArray<node> &parent)
 	{
-    	while (v != parent[v])
-	        v = parent[v];
-    	return v;
+		while (v != parent[v])
+			v = parent[v];
+		return v;
 	}
 
 	// Todo: Think about putting this into extended_graph_alg.h to make it

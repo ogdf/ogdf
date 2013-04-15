@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -844,15 +844,15 @@ void OrthoRep::dissect2(PlanRep* PG)
 					adjEntry adj2 = adjSplit->twin();
 					int a2 = m_angle[adj2];
 
-                    //save the angle
-                    int earSlope = m_angle[adjSplit->faceCycleSucc()];
-                    //the target node of the split operation
-                    node u;
-                    bool savevertex = (earSlope >= 2); //should be >= 2, but 2 not in cycle
-                    ListIterator<adjEntry> itsucc;
-                    //check if we cant save a bend
-                    if (!savevertex)
-                    {
+					//save the angle
+					int earSlope = m_angle[adjSplit->faceCycleSucc()];
+					//the target node of the split operation
+					node u;
+					bool savevertex = (earSlope >= 2); //should be >= 2, but 2 not in cycle
+					ListIterator<adjEntry> itsucc;
+					//check if we cant save a bend
+					if (!savevertex)
+					{
 						// We split *itBackSuccSucc ...
 
 						edge savee = adjSplit->theEdge();
@@ -890,14 +890,14 @@ void OrthoRep::dissect2(PlanRep* PG)
 					bool shiftedit = false;
 					if (savevertex)
 					{
-                        m_angle[adjSplitSucc] = earSlope - 1;
-                        //if the former split_to angle was a 270 degree angle, then it
-                        //is now 180 and we delete it
+						m_angle[adjSplitSucc] = earSlope - 1;
+						//if the former split_to angle was a 270 degree angle, then it
+						//is now 180 and we delete it
 						if (m_angle[adjSplitSucc] == 2)
 						{
 							if (itsucc == it)
-                            {
-                                shiftedit = true;
+							{
+								shiftedit = true;
 								it = faceCycle.cyclicSucc(it);
 							}
 							//cout<<"deleted itsucc              "<<*itsucc<<"\n"<<flush;
@@ -991,7 +991,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 	// assert that dissect hasn't been called before
 	OGDF_ASSERT(m_splitNodes.empty());
 	m_dissectionEdge.init(G,false);
-    m_alignmentEdge.init(G, false);
+	m_alignmentEdge.init(G, false);
 
 	m_adjExternal = E.externalFace()->firstAdj();
 
@@ -1037,7 +1037,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				//prit = faceCycle.begin();
 				//while ( prit.valid() && (prerun < faceCycle.size() + 1))
 				//check if possible
-			    ListIterator<adjEntry> itEnd, itStart, it1one, it1two, it1three, it1four; //pattern defining edges
+				ListIterator<adjEntry> itEnd, itStart, it1one, it1two, it1three, it1four; //pattern defining edges
 				//take care of prit, it will be deleted
 				for (prit = faceCycle.begin(); prit.valid() && (faceCycle.size()>7); prit++) //go clockwise around face!?
 				{
@@ -1086,13 +1086,13 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					//itEnd stays with angle value 1
 
 					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
-		        }//for
+				}//for
 			}//preprocessing pattern1
 			//if (m_people)
 			//we search for a 3111 pattern
 			if (m_pattern2)
 			{
-		        ListIterator<adjEntry> prit, savenext;
+				ListIterator<adjEntry> prit, savenext;
 
 				//only run until no more patterns left
 				//and dont iterate over the face, only check this one time
@@ -1168,7 +1168,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 
 			for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>5); (prit = savenext)) //go clockwise around face!?
 			{
-		        savenext++;
+				savenext++;
 				//es bleibt herauszufinden, in welcher reihenfolge die kanten ohnehin korrekt
 				//durchlaufen werden, dann die andere nehmen
 				itEnd = prit; //search pattern backwards
@@ -1326,7 +1326,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					//	break;
 
 					adjEntry &adjSplit = *faceCycle.cyclicSucc(itBackSucc);
-                    ListIterator<adjEntry> itsplit = faceCycle.cyclicSucc(itBackSucc);
+					ListIterator<adjEntry> itsplit = faceCycle.cyclicSucc(itBackSucc);
 					// We now have the following situation:
 					// The rectangular ear (pattern 100) consists of
 					// *itBack -> *itBackSucc -> adjSplit
@@ -1339,15 +1339,15 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					adjEntry adj2 = adjSplit->twin();
 					int a2 = m_angle[adj2];
 
-                    //save the angle
-                    int earSlope = m_angle[adjSplit->faceCycleSucc()];
-                    //the target node of the split operation
-                    node u;
-                    bool savevertex = (earSlope >= 2); //should be >= 2, but 2 not in cycle
-                    ListIterator<adjEntry> itsucc;
-                    //check if we cant save a bend
-                    if (!savevertex)
-                    {
+					//save the angle
+					int earSlope = m_angle[adjSplit->faceCycleSucc()];
+					//the target node of the split operation
+					node u;
+					bool savevertex = (earSlope >= 2); //should be >= 2, but 2 not in cycle
+					ListIterator<adjEntry> itsucc;
+					//check if we cant save a bend
+					if (!savevertex)
+					{
 						// We split *itBackSuccSucc ...
 
 						edge savee = adjSplit->theEdge();
@@ -1363,15 +1363,15 @@ void OrthoRep::gridDissect(PlanRep* PG)
 						m_splitNodes.push(u);
 						if (wasDissected) m_dissectionEdge[se] = true;
 						if (wasAlign) m_alignmentEdge[se] = true;
-                    }
-                    else
-                    {
-                        u = (adjSplit->faceCycleSucc())->theNode(); //use this node instead
-                        itsucc = faceCycle.cyclicSucc(faceCycle.cyclicSucc(itBackSucc));
-                        //cout<<"we will save a vertex\n"<<flush;
-                    }
+					}
+					else
+					{
+						u = (adjSplit->faceCycleSucc())->theNode(); //use this node instead
+						itsucc = faceCycle.cyclicSucc(faceCycle.cyclicSucc(itBackSucc));
+						//cout<<"we will save a vertex\n"<<flush;
+					}
 					adjEntry adjSplitSucc = adjSplit->faceCycleSucc();
-                    //if (savevertex) OGDF_ASSERT(adjSplitSucc == *itsucc);//doesnt work with 180 degree
+					//if (savevertex) OGDF_ASSERT(adjSplitSucc == *itsucc);//doesnt work with 180 degree
 					// and close a rectangular face
 					edge eDissect = E.splitFace(*itBack, adjSplitSucc);
 					m_dissectionEdge[eDissect] = true;
@@ -1379,40 +1379,40 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					// restore backup angles
 					m_angle[adjSplit] = a1;
 					m_angle[adj2] = a2;
-                    //but this should be splitsucccyclicpred???? why reset value if not savevertex
+					//but this should be splitsucccyclicpred???? why reset value if not savevertex
 
 					// set angles at the split node
-                    bool shiftedit = false;
-                    if (savevertex)
+					bool shiftedit = false;
+					if (savevertex)
 					{
-                        m_angle[adjSplitSucc] = earSlope - 1;
-                        //if the former split_to angle was a 270 degree angle, then it
-                        //is now 180 and we delete it
+						m_angle[adjSplitSucc] = earSlope - 1;
+						//if the former split_to angle was a 270 degree angle, then it
+						//is now 180 and we delete it
 						if (m_angle[adjSplitSucc] == 2)
 						{
 							if (itsucc == it)
-                            {
-                                shiftedit = true;
+							{
+								shiftedit = true;
 								it = faceCycle.cyclicSucc(it);
-                            }
-                            //cout<<"deleted itsucc              "<<*itsucc<<"\n"<<flush;
+							}
+							//cout<<"deleted itsucc              "<<*itsucc<<"\n"<<flush;
 							faceCycle.del(itsucc);
 						}
 
-                    }
-                    else {
+					}
+					else {
 						m_angle[adjSplitSucc] = 1;
-                        //cout << "setting adjsplitsucc angle to : " <<adjSplitSucc<<" : "<<m_angle[adjSplitSucc]<<"\n"<<flush;
-                    }
+						//cout << "setting adjsplitsucc angle to : " <<adjSplitSucc<<" : "<<m_angle[adjSplitSucc]<<"\n"<<flush;
+					}
 					//cout << "setting asscyclicsucc angle to: " <<adjSplitSucc->cyclicSucc()<<" : "<<1<<"\n"<<flush;
 					m_angle[adjSplitSucc->cyclicSucc()] = 1;
 					//m_angle[adjSplitSucc->cyclicPred()] = 2;
-                    //Achtung, geht nur, wenn nicht vorher 180, sonst abhaengig von u.U. v. dritter Kante abziehen
-                    //spaeter zusammenlegen
-                    if (!savevertex)
-                    if (earSlope != 4) //already has new value
-                      m_angle[adjSplitSucc->cyclicPred()] = 4 - 1 - m_angle[adjSplitSucc];
-                    //if (savevertex && (earSlope == 2)) m_angle[adjSplitSucc->cyclicPred()] = ???
+					//Achtung, geht nur, wenn nicht vorher 180, sonst abhaengig von u.U. v. dritter Kante abziehen
+					//spaeter zusammenlegen
+					if (!savevertex)
+					if (earSlope != 4) //already has new value
+					  m_angle[adjSplitSucc->cyclicPred()] = 4 - 1 - m_angle[adjSplitSucc];
+					//if (savevertex && (earSlope == 2)) m_angle[adjSplitSucc->cyclicPred()] = ???
 
 					adjEntry adjSucc = (*itBack)->cyclicSucc();
 					if (m_angle[*itBack] == 4) {
@@ -1430,7 +1430,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 
 						ListIterator<adjEntry> itDel = itBack;
 						itBack = faceCycle.cyclicPred(itBack);
-                        if (it == itDel)
+						if (it == itDel)
 						{
 							it = faceCycle.cyclicSucc(it); shiftedit = true;
 							//cout<<"shifted it to "<<*it<<"\n"<<flush;
@@ -1443,21 +1443,21 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					// consider instead of adjsplit if its not 180 degree
 					if ((!savevertex) || (earSlope == 2))
 						adjSplit = adjSplitSucc;
-                    else
-                    {
-                        if (itsplit == it)
-                        {
-                            //cout<<"deleting itsplit, shifting it "<<*itsplit<<", "<<*it<<" - "<<*faceCycle.cyclicSucc(it)<<"\n"<<flush;
-                            it = faceCycle.cyclicSucc(it);
+					else
+					{
+						if (itsplit == it)
+						{
+							//cout<<"deleting itsplit, shifting it "<<*itsplit<<", "<<*it<<" - "<<*faceCycle.cyclicSucc(it)<<"\n"<<flush;
+							it = faceCycle.cyclicSucc(it);
 							shiftedit = true;
-                        }
-                        //else cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+						}
+						//else cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
 						faceCycle.del(itsplit);
-                    }
+					}
 
 					// This 90 degree angle vanishes from our face
 					faceCycle.del(itBackSucc);
-                    if (shiftedit) break;
+					if (shiftedit) break;
 				}//while run backwards
 			}//if double 1
 			it = faceCycle.cyclicSucc(it);

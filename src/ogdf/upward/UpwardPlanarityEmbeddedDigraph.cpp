@@ -1,9 +1,9 @@
 /*
- * $Revision: 3337 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-03-08 14:42:40 +0100 (Fr, 08. Mär 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -164,7 +164,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 
 //constructs a flow-network corresponding to graph m_G
 void UpwardPlanarityEmbeddedDigraph::constructNetwork(EdgeArray<int> &capacity, EdgeArray<int> &flow) {
-	node u,v,w;
+	node v,w;
 	edge e;
 	face f;
 	//super-source

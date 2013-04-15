@@ -1,9 +1,9 @@
 /*
- * $Revision: 3338 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: klein $
- *   $Date: 2013-03-09 02:34:10 +0100 (Sa, 09. Mär 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -258,7 +258,7 @@ void Array2D<E>::copy(const Array2D<E> &array2)
 		E *pSrc  = array2.m_pStop;
 		E *pDest = m_pStop;
 		while(pDest > m_pStart)
- 			new (--pDest) E(*--pSrc);
+			new (--pDest) E(*--pSrc);
 	}
 }
 

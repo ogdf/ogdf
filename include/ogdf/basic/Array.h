@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3395 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-15 14:28:20 +0200 (Mo, 15. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -621,7 +621,7 @@ void Array<E,INDEX>::copy(const Array<E,INDEX> &array2)
 		E *pDest = m_pStop;
 		while(pDest > m_pStart)
 			//*--pDest = *--pSrc;
- 			new (--pDest) E(*--pSrc);
+			new (--pDest) E(*--pSrc);
 	}
 }
 
@@ -714,6 +714,7 @@ void Array<E,INDEX>::leftShift(ArrayBuffer<INDEX, INDEX> &ind) {
 
 template<class E, class INDEX>
 Array<E,INDEX>::Array(const ArrayBuffer<E, INDEX> &A) {
+	construct(0,-1);
 	A.compactCopy(*this);
 }
 

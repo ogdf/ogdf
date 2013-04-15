@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -283,7 +283,7 @@ double MinCut::minimumCutPhase() {
 	// Performing the node contraction of nodes \a s and \a t.
 	contraction(t,s);
 
- 	return cutOfThePhase;
+	return cutOfThePhase;
 }
 
 

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3366 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -212,7 +212,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 				break;
 			}
 
-            os << "\"\n";
+			os << "\"\n";
 			GraphIO::indent(os,2) << "]\n"; // graphics
 		}
 

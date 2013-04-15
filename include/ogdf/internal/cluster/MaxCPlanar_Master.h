@@ -1,9 +1,9 @@
 /*
- * $Revision: 3235 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-22 15:43:41 +0100 (Di, 22. Jan 2013) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -230,7 +230,7 @@ private:
 	void clusterConnection(cluster c, GraphCopy &GC, double &upperBound);
 
 	// Computes the graphtheoretical distances of edges incident to node \a u.
-    void nodeDistances(node u, NodeArray<NodeArray<int> > &dist);
+	void nodeDistances(node u, NodeArray<NodeArray<int> > &dist);
 
 
 	// Parameters
@@ -289,8 +289,8 @@ private:
 	double globalDualBound;
 
 	inline double getDoubleTime(const Stopwatch* act) {
-    	__int64 tempo = act->centiSeconds()+100*act->seconds()+6000*act->minutes()+360000*act->hours();
-    	return  ((double) tempo)/ 100.0;
+		__int64 tempo = act->centiSeconds()+100*act->seconds()+6000*act->minutes()+360000*act->hours();
+		return  ((double) tempo)/ 100.0;
 	}
 
 	//number of calls of the fast max planar subgraph heuristic

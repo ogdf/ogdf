@@ -1,3 +1,11 @@
+/*
+ * $Revision: 3386 $
+ *
+ * last checkin:
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ ***************************************************************/
+
 /*!\file
  * \author Matthias Elf
  * \brief status of fixed and set variables.

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2771 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Mi, 26. Sep 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -80,7 +80,7 @@ private:
 	NodeArray<bool> &visited);
 	//builds spanning tree on graph of node v in treeEdges
 	void dfsBuildSpanningTree(node v,
-				 			  EdgeArray<bool> &treeEdges,
+							  EdgeArray<bool> &treeEdges,
 							  NodeArray<bool> &visited);
 
 	//! constructs for every cluster a graph representing its
@@ -88,7 +88,7 @@ private:
 	//! only insert nodes here
 	void constructRepresentationGraphNodes(const ClusterGraph& CG,
 										   Graph& g,
-									       cluster c
+										   cluster c
 										   )
 	{
 
@@ -194,7 +194,7 @@ private:
 	//! Initializes some internally used members on CG
 	void initialize(const ClusterGraph& CG);
 
-    //****************************************************
+	//****************************************************
 	//data fields
 
 	// store status of original edge: in subclustered graph? also used to check spanning tree

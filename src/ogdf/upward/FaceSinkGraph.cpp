@@ -1,9 +1,9 @@
 /*
- * $Revision: 2559 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fr, 06. Jul 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -538,8 +538,8 @@ void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
 
 
 adjEntry FaceSinkGraph::getAdjEntry(node v, face f) {
- 	adjEntry adj = 0;
- 	forall_adj(adj, v) {
+	adjEntry adj = 0;
+	forall_adj(adj, v) {
 		if (m_pE->rightFace(adj) == f)
 			break;
 	}

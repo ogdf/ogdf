@@ -1,3 +1,11 @@
+/*
+ * $Revision: 3386 $
+ *
+ * last checkin:
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ ***************************************************************/
+
 /*!\file
 * \author Matthias Elf
 *
@@ -434,7 +442,7 @@ Master::STATUS Master::optimize()
 
 	// output the status of the optimization
 	Logger::ilout(Logger::LL_DEFAULT) << endl << "ABACUS optimization terminated with status "
-     << STATUS_[status_] << "." << endl;
+	 << STATUS_[status_] << "." << endl;
 
 	// Master::optimize(): clean up and return
 	/* Before cleaning up we call the virtual function \a terminateOptimization().

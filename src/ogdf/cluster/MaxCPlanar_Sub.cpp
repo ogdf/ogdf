@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -273,42 +273,42 @@ int MaxCPlanarSub::selectBranchingVariableCandidates(ArrayBuffer<int> &candidate
 	ArrayBuffer<int> candidatesABA(1,false);
 	int found = Sub::selectBranchingVariableCandidates(candidatesABA);
 
-    if (found == 1) return 1;
-    else {
-    	int i = candidatesABA.popRet();
-    	EdgeVar *e = (EdgeVar*)variable(i);
-    	if (e->theEdgeType() == EdgeVar::ORIGINAL) {
-    		OGDF_ASSERT( !master()->m_checkCPlanar )
-    		candidates.push(i);
-    		return 0;
-    	} else {
+	if (found == 1) return 1;
+	else {
+		int i = candidatesABA.popRet();
+		EdgeVar *e = (EdgeVar*)variable(i);
+		if (e->theEdgeType() == EdgeVar::ORIGINAL) {
+			OGDF_ASSERT( !master()->m_checkCPlanar )
+			candidates.push(i);
+			return 0;
+		} else {
 
-    		// Checking if a more appropriate o-edge can be found according to the global parameter
-    		//\a branchingOEdgeSelectGap. Candidates are stored in list \a oEdgeCandits.
-    		List<int> oEdgeCandits;
-    		for (int j=0; j<nVar(); ++j) {
-    			EdgeVar *e = (EdgeVar*)variable(j);
-    			if (e->theEdgeType() == EdgeVar::ORIGINAL) {
-    				if ( (xVal(j) >= (0.5-((MaxCPlanarMaster*)master_)->branchingOEdgeSelectGap())) &&
-    					 (xVal(j) <= (0.5+((MaxCPlanarMaster*)master_)->branchingOEdgeSelectGap())) ) {
-    					 	oEdgeCandits.pushBack(j);
-    					 }
-    			}
-    		}
-    		if (oEdgeCandits.empty()) {
-    			candidates.push(i);
-    			return 0;
-    		} else {
+			// Checking if a more appropriate o-edge can be found according to the global parameter
+			//\a branchingOEdgeSelectGap. Candidates are stored in list \a oEdgeCandits.
+			List<int> oEdgeCandits;
+			for (int j=0; j<nVar(); ++j) {
+				EdgeVar *e = (EdgeVar*)variable(j);
+				if (e->theEdgeType() == EdgeVar::ORIGINAL) {
+					if ( (xVal(j) >= (0.5-((MaxCPlanarMaster*)master_)->branchingOEdgeSelectGap())) &&
+						 (xVal(j) <= (0.5+((MaxCPlanarMaster*)master_)->branchingOEdgeSelectGap())) ) {
+							oEdgeCandits.pushBack(j);
+						 }
+				}
+			}
+			if (oEdgeCandits.empty()) {
+				candidates.push(i);
+				return 0;
+			} else {
 
-	    		// Choose one of those edges randomly.
-	    		int random = randomNumber(0,oEdgeCandits.size()-1);
-	    		int index = random;
-	    		ListConstIterator<int> it = oEdgeCandits.get(index);
-	    		candidates.push(*it);
-	    		return 0;
-    		}
-    	}
-    }
+				// Choose one of those edges randomly.
+				int random = randomNumber(0,oEdgeCandits.size()-1);
+				int index = random;
+				ListConstIterator<int> it = oEdgeCandits.get(index);
+				candidates.push(*it);
+				return 0;
+			}
+		}
+	}
 }
 
 
@@ -355,9 +355,9 @@ double MaxCPlanarSub::subdivisionLefthandSide(SListConstIterator<KuratowskiWrapp
 		SListConstIterator<edge> it;
 		for (it=(*kw).edgeList.begin(); it.valid(); ++it) {
 			if ( ((*it)->source() == gc->copy(v) && (*it)->target() == gc->copy(w) ) ||
-			 	((*it)->source() == gc->copy(w) && (*it)->target() == gc->copy(v) ) ) {
-			 		lefthandSide += xVal(i);
-			 	}
+				((*it)->source() == gc->copy(w) && (*it)->target() == gc->copy(v) ) ) {
+					lefthandSide += xVal(i);
+				}
 		}
 	}
 	return lefthandSide;
@@ -1232,113 +1232,113 @@ int MaxCPlanarSub::improve(double &primalValue) {
 //! via subclusters
 int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 {
-    const Graph& G = CG.constGraph();
-    if (G.numberOfNodes() == 0) return 0;
-    int numChunks = 0; //number of chunks (CCs) within cluster c
-    int numBags;       //number of bags (Constructs consisting of CCs connected by subclusters)
+	const Graph& G = CG.constGraph();
+	if (G.numberOfNodes() == 0) return 0;
+	int numChunks = 0; //number of chunks (CCs) within cluster c
+	int numBags;       //number of bags (Constructs consisting of CCs connected by subclusters)
 
-    //stores the nodes belonging to c
-    List<node> nodesInCluster;
-    //stores the corresponding interator to the list element for each node
-    NodeArray<ListIterator<node> > listPointer(G);
+	//stores the nodes belonging to c
+	List<node> nodesInCluster;
+	//stores the corresponding interator to the list element for each node
+	NodeArray<ListIterator<node> > listPointer(G);
 
-    NodeArray<bool> isVisited(G, false);
-    NodeArray<bool> inCluster(G, false);
-    NodeArray<node> parent(G); //parent for path to representative in bag gathering
+	NodeArray<bool> isVisited(G, false);
+	NodeArray<bool> inCluster(G, false);
+	NodeArray<node> parent(G); //parent for path to representative in bag gathering
 
-    //saves status of all nodes in hierarchy subtree at c
-    c->getClusterNodes(nodesInCluster);
-    int num = nodesInCluster.size();
-    if (num == 0) return 0;
+	//saves status of all nodes in hierarchy subtree at c
+	c->getClusterNodes(nodesInCluster);
+	int num = nodesInCluster.size();
+	if (num == 0) return 0;
 
 //    cout << "#Starting clusterBags with cluster of size " << num << "\n";
 
-    //now we store the  iterators
-    ListIterator<node> it = nodesInCluster.begin();
-    while (it.valid())
-    {
-        listPointer[(*it)] = it;
-        inCluster[(*it)] = true;
-        it++;
-    }//while
+	//now we store the  iterators
+	ListIterator<node> it = nodesInCluster.begin();
+	while (it.valid())
+	{
+		listPointer[(*it)] = it;
+		inCluster[(*it)] = true;
+		it++;
+	}//while
 
-    int count = 0;
+	int count = 0;
 
-    //now we make a traversal through the induced subgraph,
-    //jumping between the chunks
-    while (count < num)
-    {
-        numChunks++;
-        node start = nodesInCluster.popFrontRet();
+	//now we make a traversal through the induced subgraph,
+	//jumping between the chunks
+	while (count < num)
+	{
+		numChunks++;
+		node start = nodesInCluster.popFrontRet();
 
-        //do a BFS and del all visited nodes in nodesInCluster using listPointer
-        Queue<node> activeNodes; //could use arraybuffer
-        activeNodes.append(start);
-        isVisited[start] = true;
-        edge e;
-        while (!activeNodes.empty())
-        {
-            node v = activeNodes.pop(); //running node
-            parent[v] = start; //representative points to itself
+		//do a BFS and del all visited nodes in nodesInCluster using listPointer
+		Queue<node> activeNodes; //could use arraybuffer
+		activeNodes.append(start);
+		isVisited[start] = true;
+		edge e;
+		while (!activeNodes.empty())
+		{
+			node v = activeNodes.pop(); //running node
+			parent[v] = start; //representative points to itself
 //            cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
-            count++;
+			count++;
 
-            forall_adj_edges(e, v)
-            {
-                node w = e->opposite(v);
+			forall_adj_edges(e, v)
+			{
+				node w = e->opposite(v);
 
-                if (v == w) continue; // ignore self-loops
+				if (v == w) continue; // ignore self-loops
 
-                if (inCluster[w] && !isVisited[w])
-                {
-                    //use for further traversal
-                    activeNodes.append(w);
-                    isVisited[w] = true;
-                    //remove the node from the candidate list
-                    nodesInCluster.del(listPointer[w]);
-                }
-            }
-        }//while
+				if (inCluster[w] && !isVisited[w])
+				{
+					//use for further traversal
+					activeNodes.append(w);
+					isVisited[w] = true;
+					//remove the node from the candidate list
+					nodesInCluster.del(listPointer[w]);
+				}
+			}
+		}//while
 
-    }//while
+	}//while
 
 //    cout << "Number of chunks: " << numChunks << "\n";
-    //Now all node parents point to the representative of their chunk (start node in search)
-    numBags = numChunks; //We count backwards if chunks are connected by subcluster
+	//Now all node parents point to the representative of their chunk (start node in search)
+	numBags = numChunks; //We count backwards if chunks are connected by subcluster
 
-    //Now we use an idea similar to UNION FIND to gather the bags
-    //out of the chunks. Each node has a parent pointer, leading to
-    //a representative. Initially, it points to the rep of the chunk,
-    //but each time we encounter a subcluster connecting multiple
-    //chunks, we let all of them point to the same representative.
-    ListConstIterator<cluster> itC = c->cBegin();
-    while (itC.valid())
-    {
-        List<node> nodesInChild;
-        (*itC)->getClusterNodes(nodesInChild);
-        cout << nodesInChild.size() << "\n";
-        ListConstIterator<node> itN = nodesInChild.begin();
-        node bagRep; //stores the representative for the whole bag
-        if (itN.valid()) bagRep = getRepresentative(*itN, parent);
+	//Now we use an idea similar to UNION FIND to gather the bags
+	//out of the chunks. Each node has a parent pointer, leading to
+	//a representative. Initially, it points to the rep of the chunk,
+	//but each time we encounter a subcluster connecting multiple
+	//chunks, we let all of them point to the same representative.
+	ListConstIterator<cluster> itC = c->cBegin();
+	while (itC.valid())
+	{
+		List<node> nodesInChild;
+		(*itC)->getClusterNodes(nodesInChild);
+		cout << nodesInChild.size() << "\n";
+		ListConstIterator<node> itN = nodesInChild.begin();
+		node bagRep; //stores the representative for the whole bag
+		if (itN.valid()) bagRep = getRepresentative(*itN, parent);
 //        cout << " bagRep is " << bagRep->index() << "\n";
-        while (itN.valid())
-        {
-            node w = getRepresentative(*itN, parent);
+		while (itN.valid())
+		{
+			node w = getRepresentative(*itN, parent);
 //            cout << "  Rep is: " << w->index() << "\n";
-            if (w != bagRep)
-            {
-                numBags--; //found nodes with different representative, merge
-                parent[w] = bagRep;
-                parent[*itN] = bagRep; //shorten search path
+			if (w != bagRep)
+			{
+				numBags--; //found nodes with different representative, merge
+				parent[w] = bagRep;
+				parent[*itN] = bagRep; //shorten search path
 //                cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
-            }
-            itN++;
-        }//While all nodes in subcluster
+			}
+			itN++;
+		}//While all nodes in subcluster
 
-        itC++;
-    }//while all child clusters
+		itC++;
+	}//while all child clusters
 
-    return numBags;
+	return numBags;
 //    cout << "#Number of bags: " << numBags << "\n";
 }//clusterBags
 
@@ -1373,99 +1373,99 @@ bool MaxCPlanarSub::checkCConnectivity(const GraphCopy& support)
 	{
 		// For each cluster, the induced graph partitions the graph into two sets.
 		// When the cluster is empty, we still check the complement and vice versa.
-	    bool set1Connected = false;
+		bool set1Connected = false;
 
-	    //this initialization can be done faster by using the
-	    //knowledge of the cluster hierarchy and only
-	    //constructing the NA once for the graph (bottom up tree traversal)
-	    NodeArray<bool> inCluster(G, false);
-	    NodeArray<bool> isVisited(G, false);
+		//this initialization can be done faster by using the
+		//knowledge of the cluster hierarchy and only
+		//constructing the NA once for the graph (bottom up tree traversal)
+		NodeArray<bool> inCluster(G, false);
+		NodeArray<bool> isVisited(G, false);
 
-	    //saves status of all nodes in hierarchy subtree at c
-	    int num = c->getClusterNodes(inCluster);
+		//saves status of all nodes in hierarchy subtree at c
+		int num = c->getClusterNodes(inCluster);
 
-	    int count = 0;
-	    //search in graph should reach num and V-num nodes
-	    node complementStart = 0;
+		int count = 0;
+		//search in graph should reach num and V-num nodes
+		node complementStart = 0;
 
-	    //we start with a non-empty set
-	    node start = G.firstNode();
-	    bool startState = inCluster[start];
+		//we start with a non-empty set
+		node start = G.firstNode();
+		bool startState = inCluster[start];
 
-	    Queue<node> activeNodes; //could use arraybuffer
-	    activeNodes.append(start);
-	    isVisited[start] = true;
+		Queue<node> activeNodes; //could use arraybuffer
+		activeNodes.append(start);
+		isVisited[start] = true;
 
 		//could do a shortcut here for case |c| = 1, but
 		//this would make the code more complicated without large benefit
-	    edge e;
-	    node u;
-	    while (!activeNodes.empty())
-	    {
-	        node v = activeNodes.pop(); //running node
-	        count++;
-	        u = support.copy(v);
+		edge e;
+		node u;
+		while (!activeNodes.empty())
+		{
+			node v = activeNodes.pop(); //running node
+			count++;
+			u = support.copy(v);
 
-	        forall_adj_edges(e, u)
-	        {
-	            node w = support.original(e->opposite(support.copy(v)));
+			forall_adj_edges(e, u)
+			{
+				node w = support.original(e->opposite(support.copy(v)));
 
-	            if (v == w) continue; // ignore self-loops
+				if (v == w) continue; // ignore self-loops
 
-	            if (inCluster[w] != startState) complementStart = w;
-	            else if (!isVisited[w])
-	            {
-	                activeNodes.append(w);
-	                isVisited[w] = true;
-	            }
-	        }
-	    }//while
-	    //check if we reached all nodes
-	    //we assume that the graph is connected, otherwise check
-	    //fails for root cluster anyway
-	    //(we could have a connected cluster and a connected complement)
+				if (inCluster[w] != startState) complementStart = w;
+				else if (!isVisited[w])
+				{
+					activeNodes.append(w);
+					isVisited[w] = true;
+				}
+			}
+		}//while
+		//check if we reached all nodes
+		//we assume that the graph is connected, otherwise check
+		//fails for root cluster anyway
+		//(we could have a connected cluster and a connected complement)
 
-	    //condition depends on the checked set, cluster or complement
-	    set1Connected = (startState == true ? (count == num) : (count == G.numberOfNodes() - num));
-	    //cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << "\n";
+		//condition depends on the checked set, cluster or complement
+		set1Connected = (startState == true ? (count == num) : (count == G.numberOfNodes() - num));
+		//cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << "\n";
 
-	    if (!set1Connected) return false;
-	    //check if the complement of set1 is also connected
-	    //two cases: complement empty: ok
-	    //           complement not empty,
-	    //           but no complementStart found: error
-	    //In case of the root cluster, this always triggers,
-	    //therefore we have to continue
-	    if (G.numberOfNodes() == count)
-	        continue;
-	    OGDF_ASSERT(complementStart != 0);
+		if (!set1Connected) return false;
+		//check if the complement of set1 is also connected
+		//two cases: complement empty: ok
+		//           complement not empty,
+		//           but no complementStart found: error
+		//In case of the root cluster, this always triggers,
+		//therefore we have to continue
+		if (G.numberOfNodes() == count)
+			continue;
+		OGDF_ASSERT(complementStart != 0);
 
-	    activeNodes.append(complementStart);
-	    isVisited[complementStart] = true;
-	    startState = ! startState;
-	    int ccount = 0;
-	    while (!activeNodes.empty())
-	    {
-	        node v = activeNodes.pop(); //running node
-	        ccount++;
-	        u = support.copy(v);
+		activeNodes.append(complementStart);
+		isVisited[complementStart] = true;
+		startState = ! startState;
+		int ccount = 0;
+		while (!activeNodes.empty())
+		{
+			node v = activeNodes.pop(); //running node
+			ccount++;
+			u = support.copy(v);
 
-	        forall_adj_edges(e, u)
-	        {
-	            node w = support.original(e->opposite(support.copy(v)));
+			forall_adj_edges(e, u)
+			{
+				node w = support.original(e->opposite(support.copy(v)));
 
-	            if (v == w) continue; // ignore self-loops
+				if (v == w) continue; // ignore self-loops
 
-	            if (!isVisited[w])
-	            {
-	                activeNodes.append(w);
-	                isVisited[w] = true;
-	            }
-	        }
-	    }//while
-	    //Check if we reached all nodes
-	    if (!(ccount + count == G.numberOfNodes()))
-	        return false;
+				if (!isVisited[w])
+				{
+					activeNodes.append(w);
+					isVisited[w] = true;
+				}
+			}
+		}//while
+		//Check if we reached all nodes
+		if (!(ccount + count == G.numberOfNodes()))
+			return false;
 	}//forallclusters
 	return true;
 }
@@ -2542,7 +2542,7 @@ int MaxCPlanarSub::solveLp() {
 	if(master()->m_checkCPlanar) // was: master()->pricing()
 		dualBound_=master()->infinity();//666
 	Logger::slout() << "\t\tLP-relaxation: " <<  lp_->value() << "\n";
-    Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << endl;
+	Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << endl;
 	realDualBound = lp_->value();
 
 	//if(master()->m_checkCPlanar2 && dualBound()<master()->m_G->numberOfEdges()-0.79) {

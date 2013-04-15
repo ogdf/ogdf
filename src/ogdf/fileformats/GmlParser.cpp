@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -560,22 +560,22 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 	int notDefined = minId-1; //indicates not defined id key
 
 	HashArray<string,Shape> strToShape(shRect);
-    strToShape["rectangle"]        = shRect;
-    strToShape["rect"]             = shRect;
-    strToShape["roundedRect"]      = shRoundedRect;
-    strToShape["oval"]             = shEllipse;
-    strToShape["ellipse"]          = shEllipse;
-    strToShape["triangle"]         = shTriangle;
-    strToShape["pentagon"]         = shPentagon;
-    strToShape["hexagon"]          = shHexagon;
-    strToShape["octagon"]          = shOctagon;
-    strToShape["rhomb"]            = shRhomb;
+	strToShape["rectangle"]        = shRect;
+	strToShape["rect"]             = shRect;
+	strToShape["roundedRect"]      = shRoundedRect;
+	strToShape["oval"]             = shEllipse;
+	strToShape["ellipse"]          = shEllipse;
+	strToShape["triangle"]         = shTriangle;
+	strToShape["pentagon"]         = shPentagon;
+	strToShape["hexagon"]          = shHexagon;
+	strToShape["octagon"]          = shOctagon;
+	strToShape["rhomb"]            = shRhomb;
 	strToShape["trapeze"]          = shTrapeze;
-    strToShape["parallelogram"]    = shParallelogram;
-    strToShape["invTriangle"]      = shInvTriangle;
-    strToShape["invTrapeze"]       = shInvTrapeze;
-    strToShape["invParallelogram"] = shInvParallelogram;
-    strToShape["image"]            = shImage;
+	strToShape["parallelogram"]    = shParallelogram;
+	strToShape["invTriangle"]      = shInvTriangle;
+	strToShape["invTrapeze"]       = shInvTrapeze;
+	strToShape["invParallelogram"] = shInvParallelogram;
+	strToShape["image"]            = shImage;
 
 	DPolyline bends;
 
@@ -686,7 +686,7 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 
 			// create new node if necessary and assign attributes
 			if (m_mapToNode[vId] == 0) m_mapToNode[vId] = G.newNode();
-            node v = m_mapToNode[vId];
+			node v = m_mapToNode[vId];
 			if (AG.attributes() & GraphAttributes::nodeGraphics)
 			{
 				AG.x(v) = x;

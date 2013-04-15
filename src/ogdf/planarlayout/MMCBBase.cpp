@@ -1,9 +1,9 @@
 /*
- * $Revision: 2554 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fr, 06. Jul 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -198,7 +198,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 			crossingCase = 1;
 		}
 
- 	// second case: both angles are 3pi/4, in this case
+	// second case: both angles are 3pi/4, in this case
 	// i'm going to take both of them back with a row
 	//   ^     _/                 ooO      _/
 	//   O   _/                 ooO      _/
@@ -248,7 +248,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 		//             Ooo                       O
 		//               Ooo                     O
 		//                 Oo                    Ooooooooo
-	 	//
+		//
 		} else {
 			if (ew[1][2]-ew[0][2] == 2) {
 				crossingCase=4;

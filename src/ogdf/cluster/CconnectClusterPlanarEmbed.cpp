@@ -1,9 +1,9 @@
 /*
- * $Revision: 2749 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-09-06 15:37:45 +0200 (Do, 06. Sep 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -2069,7 +2069,7 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph &Ccopy,
 	treeNodes.append(root);
 
 	node correspond = Gcopy.newNode(); // Corresponds to the root node.
-		 						       // root node is either a leaf or a P-node
+									   // root node is either a leaf or a P-node
 	m_nodeTableCopy2Orig[correspond] = 0; // Node does not correspond to a node
 										 // in the original graph
 	m_wheelGraphNodes[correspond] = origOfAct;
@@ -2173,7 +2173,7 @@ void CconnectClusterPlanarEmbed::constructWheelGraph(ClusterGraph &Ccopy,
 			}
 
 		}
- 		else if (checkNode->type() == PQNodeRoot::QNode)
+		else if (checkNode->type() == PQNodeRoot::QNode)
 		{
 
 			// correspond is the achor of a hub

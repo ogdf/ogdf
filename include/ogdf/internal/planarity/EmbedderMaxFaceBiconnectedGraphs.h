@@ -1,9 +1,9 @@
 /*
- * $Revision: 2599 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (So, 15. Jul 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -539,7 +539,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::embed(
 		adjBeforeNodeArrayTarget, adjExternal, n);
 
 	node v;
- 	forall_nodes(v, G)
+	forall_nodes(v, G)
 		G.sort(v, newOrder[v]);
 }
 

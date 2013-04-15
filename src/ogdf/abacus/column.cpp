@@ -1,3 +1,11 @@
+/*
+ * $Revision: 3386 $
+ *
+ * last checkin:
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ ***************************************************************/
+
 /*!\file
  * \author Matthias Elf
  *
@@ -35,7 +43,7 @@ namespace abacus {
 ostream &operator<<(ostream &out, const Column &rhs)
 {
 	out << "objective function coefficient: " << rhs.obj() << endl
-     << "bounds: " << rhs.lBound_ << " <= x <= " << rhs.uBound_ << endl
+	 << "bounds: " << rhs.lBound_ << " <= x <= " << rhs.uBound_ << endl
 	 << "nonzero rows of column :" << endl;
 
 	for (int i = 0; i < rhs.nnz_; i++)

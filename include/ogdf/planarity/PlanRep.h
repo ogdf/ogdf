@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -223,7 +223,7 @@ public:
 		return m_vType[v];
 	}
 
- 	/**
+	/**
 	 * \brief Returns a reference to the type of node \a v.
 	 * @param v is a node in the planarized representation.
 	 */

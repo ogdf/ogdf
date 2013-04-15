@@ -1,9 +1,9 @@
 /*
- * $Revision: 2978 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-06 14:53:24 +0100 (Di, 06. Nov 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -593,7 +593,7 @@ namespace ogdf {
 									getInputFileLineCounter());
 					}
 
- 					// next token is the closing tag
+					// next token is the closing tag
 					string nextTag(m_pScanner->getCurrentTokenString());
 					// pop corresponding tag from stack
 					string s = m_tagObserver.pop();
@@ -753,7 +753,7 @@ namespace ogdf {
 	// f i n d S o n X m l T a g O b j e c t
 	//
 	bool XmlParser::findSonXmlTagObject(const XmlTagObject &father,
-			 								int sonInfoIndex,
+											int sonInfoIndex,
 											const XmlTagObject *&son) const
 	{
 		// Traverse sons

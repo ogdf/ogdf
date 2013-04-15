@@ -1,9 +1,9 @@
 /*
- * $Revision: 2815 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-10-14 23:25:34 +0200 (So, 14. Okt 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -508,7 +508,7 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 						predAdj[adjNext->theEdge()] = adj_cur;
 						dist[adjNext->theEdge()] = new_dist;
 						toAdjEntry[adjNext->theEdge()] = adjNext;
- 					}
+					}
 				}
 			} //forall
 

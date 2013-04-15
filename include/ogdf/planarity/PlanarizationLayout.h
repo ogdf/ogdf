@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -60,7 +60,7 @@
 
 namespace ogdf {
 
-    class CliqueReplacer;
+	class CliqueReplacer;
 
 
 //! The planarization approach for drawing graphs.
@@ -87,7 +87,7 @@ public:
 	 * This call perfoms a special handling for cliques, which are temporarily replaced by a star graph.
 	 * In the final drawing, the clique edges are drawn straight-line.
 	 */
-    void call(GraphAttributes &ga, Graph &g);
+	void call(GraphAttributes &ga, Graph &g);
 
 	void callSimDraw(GraphAttributes &ga);
 
@@ -182,7 +182,7 @@ public:
 
 private:
 	void arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<DPoint> &boundingBox) const;
-    void preprocessCliques(Graph &G, CliqueReplacer &cliqueReplacer);
+	void preprocessCliques(Graph &G, CliqueReplacer &cliqueReplacer);
 	void fillAdjNodes(List<node>& adjNodes,
 		PlanRep& PG,
 		node centerNode,

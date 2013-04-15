@@ -1,3 +1,11 @@
+/*
+ * $Revision: 3386 $
+ *
+ * last checkin:
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ ***************************************************************/
+
 /*!\file
 * \author Matthias Elf
 *
@@ -835,11 +843,11 @@ Sub::PHASE Sub::cutting ()
 		{
 			// output a line about the linear program
 			Logger::ifout() << setw(7) << master_->nSub() << " "
-			 << setw(7) << master_->openSub()->number() << "  "
-			 << setw(8) << id_ << " "
- 			<< setw(7) << nIter_ << " "
- 			<< setw(10) << lp_->value() << " "
- 			<< setw(10) << master_->dualBound() << " ";
+				<< setw(7) << master_->openSub()->number() << "  "
+				<< setw(8) << id_ << " "
+				<< setw(7) << nIter_ << " "
+				<< setw(10) << lp_->value() << " "
+				<< setw(10) << master_->dualBound() << " ";
 			if (master_->feasibleFound())
 				Logger::ifout() << setw(10) << master_->primalBound() << endl;
 			else
@@ -975,8 +983,8 @@ Sub::PHASE Sub::cutting ()
 				master_->totalCowTime_.exceeds(master_->maxCowTime()))
 			{
 				Logger::ilout(Logger::LL_MEDIUM) << "Maximal elapsed time "
-                 << master_->maxCowTimeAsString() << " exceeded" << endl
-				 << "Stop subproblem optimization." << endl;
+					<< master_->maxCowTimeAsString() << " exceeded" << endl
+					<< "Stop subproblem optimization." << endl;
 				master_->status(Master::MaxCowTime);
 				terminate = true;
 				forceFathom = true;

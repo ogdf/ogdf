@@ -1,9 +1,9 @@
 /*
- * $Revision: 3096 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-30 15:40:41 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -323,9 +323,9 @@ void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upper
 	// For better performance, a node array is used to indicate which nodes are contained
 	// in the currently considered cluster.
 	NodeArray<bool> vInC(gc,false);
-    // First check, if the current cluster \a c is a leaf cluster.
-    // If so, compute the number of edges that have at least to be added
-    // to make the cluster induced graph connected.
+	// First check, if the current cluster \a c is a leaf cluster.
+	// If so, compute the number of edges that have at least to be added
+	// to make the cluster induced graph connected.
 	if (c->cCount()==0) { 	//cluster \a c is a leaf cluster
 		GraphCopy *inducedC = new GraphCopy((const Graph&)gc);
 		node v,w;
@@ -417,16 +417,16 @@ double MaxCPlanarMaster::heuristicInitialLowerBound()
 	{
 		//we run both heuristics that currently exist in OGDF
 		//MaxSimple
-    	MaximalPlanarSubgraphSimple simpleHeur;
-    	List<edge> delEdgesList;
-    	simpleHeur.call(*m_G, delEdgesList);
-    	FastPlanarSubgraph fastHeur;
-    	fastHeur.runs(m_fastHeuristicRuns);
-    	List<edge> delEdgesListFast;
-    	fastHeur.call(*m_G, delEdgesListFast);
-    	lbound = m_G->numberOfEdges()-min(delEdgesList.size(), delEdgesListFast.size());
+		MaximalPlanarSubgraphSimple simpleHeur;
+		List<edge> delEdgesList;
+		simpleHeur.call(*m_G, delEdgesList);
+		FastPlanarSubgraph fastHeur;
+		fastHeur.runs(m_fastHeuristicRuns);
+		List<edge> delEdgesListFast;
+		fastHeur.call(*m_G, delEdgesListFast);
+		lbound = m_G->numberOfEdges()-min(delEdgesList.size(), delEdgesListFast.size());
 
-    	if (!isConnected(*m_G)) lbound = lbound-1.0; //#edges*epsilon
+		if (!isConnected(*m_G)) lbound = lbound-1.0; //#edges*epsilon
 	}//if heuristics used
 	return lbound;
 }//heuristicInitialLowerBound
@@ -530,28 +530,28 @@ void MaxCPlanarMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	NodeArray<bool> visited(*m_G);
 	List<node> queue;
 	visited.fill(false);
-    visited[u] = true;
-    int nodesVisited = 1;
-    adjEntry adj;
-    node v;
-    forall_adj(adj,u) {
-    	visited[adj->twinNode()] = true;
-    	nodesVisited++;
-    	dist[u][adj->twinNode()] += 1;
-    	queue.pushBack(adj->twinNode());
-    }
-    while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
-    	v = queue.front();
-    	queue.popFront();
-    	forall_adj(adj,v) {
-    		if (!visited[adj->twinNode()]) {
-    			visited[adj->twinNode()] = true;
-    			nodesVisited++;
-    			dist[u][adj->twinNode()] += (dist[u][v]+1);
-    			queue.pushBack(adj->twinNode());
-    		}
-    	}
-    }
+	visited[u] = true;
+	int nodesVisited = 1;
+	adjEntry adj;
+	node v;
+	forall_adj(adj,u) {
+		visited[adj->twinNode()] = true;
+		nodesVisited++;
+		dist[u][adj->twinNode()] += 1;
+		queue.pushBack(adj->twinNode());
+	}
+	while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
+		v = queue.front();
+		queue.popFront();
+		forall_adj(adj,v) {
+			if (!visited[adj->twinNode()]) {
+				visited[adj->twinNode()] = true;
+				nodesVisited++;
+				dist[u][adj->twinNode()] += (dist[u][v]+1);
+				queue.pushBack(adj->twinNode());
+			}
+		}
+	}
 }
 
 bool MaxCPlanarMaster::goodVar(node a, node b) {
@@ -592,43 +592,43 @@ void MaxCPlanarMaster::initializeOptimization() {
 	//cluster connectivity only necessary if there are clusters (not for max planar subgraph)
 	bool toBeConnected = (!( (m_C->numberOfClusters() == 1) && (isConnected(*m_G)) ) );
 
-    int nComplete = (m_G->numberOfNodes()*(m_G->numberOfNodes()-1))/2;
-    int nConnectionEdges = nComplete - m_G->numberOfEdges();
+	int nComplete = (m_G->numberOfNodes()*(m_G->numberOfNodes()-1))/2;
+	int nConnectionEdges = nComplete - m_G->numberOfEdges();
 
-    double perturbMe = (m_usePerturbation)? 0.2*m_epsilon : 0;
-    m_deltaCount = nConnectionEdges;
-   	m_delta  = (m_deltaCount > 0) ? perturbMe/m_deltaCount : 0;
-    //double coeff;
+	double perturbMe = (m_usePerturbation)? 0.2*m_epsilon : 0;
+	m_deltaCount = nConnectionEdges;
+	m_delta  = (m_deltaCount > 0) ? perturbMe/m_deltaCount : 0;
+	//double coeff;
 
-    // In order not to place the initial upper bound too low,
-    // we use the largest connection edge coefficient for each C-edge
-    // to lower the upper bound (since these coeffs are negative,
-    // this corresponds to the coeff that is closest to 0).
-    m_largestConnectionCoeff = 0.8*m_epsilon;
-    m_varsMax = 0;
-    node u,v;
-    forall_nodes(u,*m_G) {
-        v = u->succ();
-        while (v!=NULL) {//todo could skip searchedge if toBeConnected
-            if(m_G->searchEdge(u,v))
-            	origVars.pushBack(new EdgeVar(this,1.0+rand()*perturbMe,EdgeVar::ORIGINAL,u,v));
-            else if (toBeConnected) {
-            	if( (!m_checkCPlanar) || goodVar(u,v)) {
-	            	if(pricing())
-	            		m_inactiveVariables.pushBack(nodePair(u,v));
-	            	else
-	            		connectVars.pushBack( new EdgeVar(this, nextConnectCoeff(), EdgeVar::CONNECT, u,v) );
-            	}
-            	++m_varsMax;
-            }
-            v = v->succ();
-        }
-    }
-    m_varsPotential = m_inactiveVariables.size();
+	// In order not to place the initial upper bound too low,
+	// we use the largest connection edge coefficient for each C-edge
+	// to lower the upper bound (since these coeffs are negative,
+	// this corresponds to the coeff that is closest to 0).
+	m_largestConnectionCoeff = 0.8*m_epsilon;
+	m_varsMax = 0;
+	node u,v;
+	forall_nodes(u,*m_G) {
+		v = u->succ();
+		while (v!=NULL) {//todo could skip searchedge if toBeConnected
+			if(m_G->searchEdge(u,v))
+				origVars.pushBack(new EdgeVar(this,1.0+rand()*perturbMe,EdgeVar::ORIGINAL,u,v));
+			else if (toBeConnected) {
+				if( (!m_checkCPlanar) || goodVar(u,v)) {
+					if(pricing())
+						m_inactiveVariables.pushBack(nodePair(u,v));
+					else
+						connectVars.pushBack( new EdgeVar(this, nextConnectCoeff(), EdgeVar::CONNECT, u,v) );
+				}
+				++m_varsMax;
+			}
+			v = v->succ();
+		}
+	}
+	m_varsPotential = m_inactiveVariables.size();
 
 	//-------------------Creation of ChunkConnection-Constraints------------------------//
 
-    int nChunks = 0;
+	int nChunks = 0;
 
 	List<ChunkConnection*> constraintsCC;
 
@@ -872,7 +872,7 @@ void MaxCPlanarMaster::initializeOptimization() {
 	//if we check only for c-planarity, we cannot set bounds
 	if (!m_checkCPlanar)
 	{
-	 	double upperBound = heuristicInitialUpperBound(); // TODO-TESTING
+		double upperBound = heuristicInitialUpperBound(); // TODO-TESTING
 		dualBound(upperBound); // TODO-TESTING
 
 	//---------------------Initialize Lower Bound---------------------------//

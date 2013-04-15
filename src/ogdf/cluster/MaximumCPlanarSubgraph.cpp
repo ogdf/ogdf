@@ -1,9 +1,9 @@
  /*
- * $Revision: 3096 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-30 15:40:41 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -62,76 +62,76 @@ struct connStruct {
 };
 
 Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
-            List<edge> &delEdges,
-            List<nodePair> &addedEdges)
+												  List<edge> &delEdges,
+												  List<nodePair> &addedEdges)
 {
 #ifdef OGDF_DEBUG
-    cout << "Creating new Masterproblem for clustergraph with "<<G.constGraph().numberOfNodes()<<" nodes\n";
+	cout << "Creating new Masterproblem for clustergraph with "<<G.constGraph().numberOfNodes()<<" nodes\n";
 #endif
-    MaxCPlanarMaster* cplanMaster = new MaxCPlanarMaster(G,m_heuristicLevel,
-					m_heuristicRuns,
-					m_heuristicOEdgeBound,
-    					m_heuristicNPermLists,
-    					m_kuratowskiIterations,
-    					m_subdivisions,
-    					m_kSupportGraphs,
-    					m_kuratowskiHigh,
-    					m_kuratowskiLow,
-    					m_perturbation,
-    					m_branchingGap,
-    					m_time.c_str(),
-    					m_pricing,
-    					m_checkCPlanar,
-    					m_numAddVariables,
-    					m_strongConstraintViolation,
-    					m_strongVariableViolation);
+	MaxCPlanarMaster* cplanMaster = new MaxCPlanarMaster(G,m_heuristicLevel,
+		m_heuristicRuns,
+		m_heuristicOEdgeBound,
+		m_heuristicNPermLists,
+		m_kuratowskiIterations,
+		m_subdivisions,
+		m_kSupportGraphs,
+		m_kuratowskiHigh,
+		m_kuratowskiLow,
+		m_perturbation,
+		m_branchingGap,
+		m_time.c_str(),
+		m_pricing,
+		m_checkCPlanar,
+		m_numAddVariables,
+		m_strongConstraintViolation,
+		m_strongVariableViolation);
 
-    cplanMaster->setPortaFile(m_portaOutput);
-    cplanMaster->useDefaultCutPool() = m_defaultCutPool;
+	cplanMaster->setPortaFile(m_portaOutput);
+	cplanMaster->useDefaultCutPool() = m_defaultCutPool;
 #ifdef OGDF_DEBUG
-    cout << "Starting Optimization\n";
+	cout << "Starting Optimization\n";
 #endif
 	Master::STATUS status;
 	try {
-    	status = cplanMaster->optimize();
+		status = cplanMaster->optimize();
 	}
 	catch (...)
 	{
-		#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 		cout << "ABACUS Optimization failed...\n";
-		#endif
+#endif
 	}
-    m_totalTime    = getDoubleTime(*cplanMaster->totalTime());
-    m_heurTime     = getDoubleTime(*cplanMaster->improveTime());
-    m_sepTime      = getDoubleTime(*cplanMaster->separationTime());
-    m_lpTime       = getDoubleTime(*cplanMaster->lpTime());
-    m_lpSolverTime = getDoubleTime(*cplanMaster->lpSolverTime());
-    m_totalWTime   = getDoubleTime(*cplanMaster->totalCowTime());
-    m_numKCons     = cplanMaster->addedKConstraints();
-    m_numCCons     = cplanMaster->addedCConstraints();
-    m_numLPs       = cplanMaster->nLp();
-    m_numBCs       = cplanMaster->nSub();
-    m_numSubSelected = cplanMaster->nSubSelected();
-    m_numVars      = cplanMaster->nMaxVars()-cplanMaster->getNumInactiveVars();
+	m_totalTime    = getDoubleTime(*cplanMaster->totalTime());
+	m_heurTime     = getDoubleTime(*cplanMaster->improveTime());
+	m_sepTime      = getDoubleTime(*cplanMaster->separationTime());
+	m_lpTime       = getDoubleTime(*cplanMaster->lpTime());
+	m_lpSolverTime = getDoubleTime(*cplanMaster->lpSolverTime());
+	m_totalWTime   = getDoubleTime(*cplanMaster->totalCowTime());
+	m_numKCons     = cplanMaster->addedKConstraints();
+	m_numCCons     = cplanMaster->addedCConstraints();
+	m_numLPs       = cplanMaster->nLp();
+	m_numBCs       = cplanMaster->nSub();
+	m_numSubSelected = cplanMaster->nSubSelected();
+	m_numVars      = cplanMaster->nMaxVars()-cplanMaster->getNumInactiveVars();
 #ifdef OGDF_DEBUG
 	m_solByHeuristic = cplanMaster->m_solByHeuristic;
 #endif
 #ifdef OGDF_DEBUG
 	if(cplanMaster->pricing())
 		Logger::slout() << "Pricing was ON\n";
-   	Logger::slout()<<"ABACUS returned with status '"<< Master::STATUS_[status] <<"'\n"<<flush;
+	Logger::slout()<<"ABACUS returned with status '"<< Master::STATUS_[status] <<"'\n"<<flush;
 #endif
 
-    List<nodePair> allEdges;
-    cplanMaster->getDeletedEdges(delEdges);
-    cplanMaster->getConnectionOptimalSolutionEdges(addedEdges);
-    cplanMaster->getAllOptimalSolutionEdges(allEdges);
-    int delE = delEdges.size();
-    int addE = addedEdges.size();
+	List<nodePair> allEdges;
+	cplanMaster->getDeletedEdges(delEdges);
+	cplanMaster->getConnectionOptimalSolutionEdges(addedEdges);
+	cplanMaster->getAllOptimalSolutionEdges(allEdges);
+	int delE = delEdges.size();
+	int addE = addedEdges.size();
 
 #ifdef OGDF_DEBUG
-    cout<<delE<< " Number of deleted edges, "<<addE<<" Number of added edges "<<
-    allEdges.size()<<" gesamt"<<"\n";
+	cout<<delE<< " Number of deleted edges, "<<addE<<" Number of added edges "<<
+	allEdges.size()<<" gesamt"<<"\n";
 #endif
 
 	if (m_portaOutput)
@@ -140,13 +140,13 @@ Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
 	}
 
 	delete cplanMaster;
-    switch (status) {
-    case Master::Optimal: return Module::retOptimal; break;
-    case Master::Error: return Module::retError; break;
-    default: break;
-    }//switch
+	switch (status) {
+	case Master::Optimal: return Module::retOptimal; break;
+	case Master::Error: return Module::retError; break;
+	default: break;
+	}//switch
 
-    return Module::retError;
+	return Module::retError;
 }//docall for clustergraph
 
 
@@ -282,16 +282,16 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 
 	// Output dimension of the LP (number of variables)
 	os << "DIM = " << connPairs.size() << "\n";
-    os << "COMMENT\n";
+	os << "COMMENT\n";
 
 	switch (status) {
-     	case Master::Optimal:
+		case Master::Optimal:
 			os << "Optimal \n\n"; break;
-    	case Master::Error:
+		case Master::Error:
 			os << "Error \n\n"; break;
-    	default:
+		default:
 			os << "unknown \n\n";
-    }
+	}
 
 	for (i = 0; i < connPairs.size(); i++)
 	{
@@ -361,13 +361,13 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	os << "COMMENT\n";
 
 	switch (status) {
-     	case Master::Optimal:
+		case Master::Optimal:
 			os << "Optimal \n\n"; break;
-    	case Master::Error:
+		case Master::Error:
 			os << "Error \n\n"; break;
-    	default:
+		default:
 			os << "unknown \n\n";
-    }
+	}
 
 	// In case 0 is not a valid solution, some PORTA functions need
 	//a valid solution in the ieq file
@@ -507,8 +507,8 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
   float fl;
   while(!(std::cin >> fl))
   {
-    std::cin.clear();
-    std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
+	std::cin.clear();
+	std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
   }
 	}*/
 }//writeportaieq

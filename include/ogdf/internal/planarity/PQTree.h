@@ -1,9 +1,9 @@
 /*
- * $Revision: 2963 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mo, 05. Nov 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -93,7 +93,7 @@ public:
 
 	virtual void front(
 		PQNode<T,X,Y>* nodePtr,
-	 	SListPure<PQLeafKey<T,X,Y>*> &leafKeys);
+		SListPure<PQLeafKey<T,X,Y>*> &leafKeys);
 
 	virtual void CleanNode(PQNode<T,X,Y>* /* nodePtr */) { }
 
@@ -1810,7 +1810,7 @@ void PQTree<T,X,Y>::front(
 				OGDF_ASSERT(checkNode->m_referenceChild)
 				firstSon = checkNode->m_referenceChild;
 			}
- 			else if (checkNode->type() == PQNodeRoot::QNode)
+			else if (checkNode->type() == PQNodeRoot::QNode)
 			{
 				OGDF_ASSERT(checkNode->m_leftEndmost)
 				firstSon = checkNode->m_leftEndmost;
@@ -2491,7 +2491,7 @@ void PQTree<T,X,Y>::removeBlock(PQNode<T,X,Y> *nodePtr,bool isRoot)
 		nodePtr->m_parent->partialChildren->pushFront(nodePtr);
 
 	if (!nodePtr->partialChildren->empty())
- 												// Get a partial child.
+												// Get a partial child.
 	{
 		partial_1 = nodePtr->partialChildren->popFrontRet();
 

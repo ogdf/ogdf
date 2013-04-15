@@ -1,9 +1,9 @@
 /*
- * $Revision: 3086 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 17:08:13 +0100 (Do, 29. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -280,42 +280,58 @@ public:
 	}
 }; // class VComparer
 
+
 //! Augments any data elements of type \a X with keys of type \a Priority. This class is also its own Comparer
 /**
  * Also defines comparator function using the keys.
  * This class is intended as a helpful convenience class for using with BinaryHeapSimple, Top10Heap,..
  */
-template<class X, class Priority=double> class Prioritized {
-        X x;
-        Priority p;
-public:
-        //! Constructor of empty element. Be careful!
-        Prioritized() : x(0), p(0) { }
-        //! Constructor using a key/value pair
-        Prioritized(X xt, Priority pt) : x(xt),p(pt) { }
-        //! Copy-constructor
-        Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
-        //! Returns the key of the element
-        Priority priority() const { return p; }
-        //! Returns the data of the element
-        X item() const { return x;}
-	//! Sets priority
-	void setPriority(Priority pp) { p = pp; }
-	//! Sets value x
-	void setItem(X item) { x=item; }
-        //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-        bool operator<(const Prioritized<X,Priority>& P) const { return p<P.p; }
-        //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-        bool operator<=(const Prioritized<X,Priority>& P) const { return p<=P.p; }
-        //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-        bool operator>(const Prioritized<X,Priority>& P) const { return p>P.p; }
-        //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-        bool operator>=(const Prioritized<X,Priority>& P) const { return p>=P.p; }
-        //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-        bool operator==(const Prioritized<X,Priority>& P) const { return p==P.p; }
-        //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-        bool operator!=(const Prioritized<X,Priority>& P) const { return p!=P.p; }
-};
+ template<class X, class Priority=double>
+ class Prioritized {
+
+	 X x;
+	 Priority p;
+
+ public:
+	 //! Constructor of empty element. Be careful!
+	 Prioritized() : x(0), p(0) { }
+
+	 //! Constructor using a key/value pair
+	 Prioritized(X xt, Priority pt) : x(xt),p(pt) { }
+
+	 //! Copy-constructor
+	 Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
+
+	 //! Returns the key of the element
+	 Priority priority() const { return p; }
+
+	 //! Returns the data of the element
+	 X item() const { return x;}
+
+	 //! Sets priority
+	 void setPriority(Priority pp) { p = pp; }
+
+	 //! Sets value x
+	 void setItem(X item) { x=item; }
+
+	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	 bool operator<(const Prioritized<X,Priority>& P) const { return p<P.p; }
+
+	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	 bool operator<=(const Prioritized<X,Priority>& P) const { return p<=P.p; }
+
+	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	 bool operator>(const Prioritized<X,Priority>& P) const { return p>P.p; }
+
+	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	 bool operator>=(const Prioritized<X,Priority>& P) const { return p>=P.p; }
+
+	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	 bool operator==(const Prioritized<X,Priority>& P) const { return p==P.p; }
+
+	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	 bool operator!=(const Prioritized<X,Priority>& P) const { return p!=P.p; }
+ };
 
 template<class X, class Priority> class StdComparer< Prioritized<X,Priority> >
 {

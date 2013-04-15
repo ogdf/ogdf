@@ -1,9 +1,9 @@
  /*
- * $Revision: 3235 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-22 15:43:41 +0100 (Di, 22. Jan 2013) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -89,29 +89,29 @@ protected:
 #else // USE_ABACUS
 
 public:
-    //! Construction
-    MaximumCPlanarSubgraph() : m_heuristicLevel(1),
-    						   m_heuristicRuns(1),
+	//! Construction
+	MaximumCPlanarSubgraph() : m_heuristicLevel(1),
+							   m_heuristicRuns(1),
 							   m_heuristicOEdgeBound(0.4),
 							   m_heuristicNPermLists(5),
 							   m_kuratowskiIterations(10),
-		                       m_subdivisions(10),
-		                       m_kSupportGraphs(10),
-		                       m_kuratowskiHigh(0.8),
-		                       m_kuratowskiLow(0.8),
+							   m_subdivisions(10),
+							   m_kSupportGraphs(10),
+							   m_kuratowskiHigh(0.8),
+							   m_kuratowskiLow(0.8),
 							   m_perturbation(false),
 							   m_branchingGap(0.4),
 							   m_time("00:20:00"),
 							   m_pricing(true),
 							   m_checkCPlanar(false),
-		                       m_numAddVariables(15),
-		                       m_strongConstraintViolation(0.3),
-		                       m_strongVariableViolation(0.3),
-		                       m_totalTime(-1.0),
-		                       m_heurTime(-1.0),
-		                       m_lpTime(-1.0),
-		                       m_lpSolverTime(-1.0),
-		                       m_sepTime(-1.0),
+							   m_numAddVariables(15),
+							   m_strongConstraintViolation(0.3),
+							   m_strongVariableViolation(0.3),
+							   m_totalTime(-1.0),
+							   m_heurTime(-1.0),
+							   m_lpTime(-1.0),
+							   m_lpSolverTime(-1.0),
+							   m_sepTime(-1.0),
 							   m_totalWTime(-1.0),
 							   m_numCCons(-1),
 							   m_numKCons(-1),

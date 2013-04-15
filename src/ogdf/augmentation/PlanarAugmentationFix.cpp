@@ -1,9 +1,9 @@
 /*
- * $Revision: 2599 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (So, 15. Jul 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -76,8 +76,8 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 	L.clear();
 	m_pResult = &L;
 
- 	m_pGraph = &g;
- 	m_pEmbedding = new CombinatorialEmbedding(*m_pGraph);
+	m_pGraph = &g;
+	m_pEmbedding = new CombinatorialEmbedding(*m_pGraph);
 
 	NodeArray<bool> activeNodes(*m_pGraph, false);
 	List<node> activeNodesList;
@@ -381,7 +381,7 @@ void PlanarAugmentationFix::reduceChain(node p)
 		if (m_pBCTree->typeOfBNode(p) == BCTree::BComp)
 			cout << "[b]"<< flush;
 		else
-		 	cout << "[c]"<< flush;
+			cout << "[c]"<< flush;
 	 #endif
 
 	// parent = parent of p in the BC-Tree
@@ -561,43 +561,43 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 				if (m_belongsTo[actPendant] == l){
 					// found pendant of same label
 					adjV1 = adj->cyclicPred();
-				 	pendant1 = actPendant;
-				 	l->m_pendants.del(m_belongsToIt[pendant1]);
-				 	m_belongsToIt[pendant1] = l->m_pendants.pushFront(pendant1);
-				 	if (dominatingTree){
-				 		cutvBFNode = 0;
+					pendant1 = actPendant;
+					l->m_pendants.del(m_belongsToIt[pendant1]);
+					m_belongsToIt[pendant1] = l->m_pendants.pushFront(pendant1);
+					if (dominatingTree){
+						cutvBFNode = 0;
 					 }
 				 }
 				 else{
-				 	// found pendant of different label
-				 	if (dominatingTree){
-				 		// we have a dominating tree
-				 		if (cutvBFNode != 0){
-				 			// corrupt situation
+					// found pendant of different label
+					if (dominatingTree){
+						// we have a dominating tree
+						if (cutvBFNode != 0){
+							// corrupt situation
 
-				 			#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
-				 				cout << "findMatching(): found dominating tree: corrupt situation " << endl << flush;
-				 			#endif
+							#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
+								cout << "findMatching(): found dominating tree: corrupt situation " << endl << flush;
+							#endif
 
-				 			pendant1 = pendantFirst;
-				 			loop = false;
-				 			found = false;
-				 		}
-				 		else{
-				 			// correct situation
+							pendant1 = pendantFirst;
+							loop = false;
+							found = false;
+						}
+						else{
+							// correct situation
 
-				 			#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
-					 			cout << "findMatching(): found dominating tree: correct situation " << endl << flush;
-				 			#endif
+							#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
+								cout << "findMatching(): found dominating tree: correct situation " << endl << flush;
+							#endif
 
-					 		adjV2 = adj->cyclicPred();
-						 	pendant2 = actPendant;
-						 	loop = false;
-						 	found = true;
-				 		}
-				 	}
-				 	else{
-				 		// no dominating tree
+							adjV2 = adj->cyclicPred();
+							pendant2 = actPendant;
+							loop = false;
+							found = true;
+						}
+					}
+					else{
+						// no dominating tree
 						adjV2 = adj->cyclicPred();
 						pendant2 = actPendant;
 						loop = false;
@@ -667,8 +667,8 @@ void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjE
 					m_belongsToIt[pendant1] = l->m_pendants.pushBack(pendant1);
 				}
 				else{
-				 	// found pendant of different label
-				 	adjV2 = adj;
+					// found pendant of different label
+					adjV2 = adj;
 					pendant2 = actPendant;
 					loop = false;
 				}

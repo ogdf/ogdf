@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -82,7 +82,7 @@ public:
 	/*
 	 * \brief Calls the Mixed-Model crossings beautifier module for graph \a PG and grid layout \a gl.
 	 *
- 	 * @param PG is the input graph.
+	 * @param PG is the input graph.
 	 * @param gl is the grid layout of \a PG.
 	 */
 	void call(const PlanRep &PG, GridLayout &gl);

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -121,7 +121,7 @@ bool TopologyModule::setEmbeddingFromGraph(
 #ifdef OGDF_DEBUG
 		((PlanRepInc&)PG).writeGML("Vorplanaris.gml", AG);
 #endif
- 		planarizeFromLayout(PG, AG);
+		planarizeFromLayout(PG, AG);
 		if (!PG.representsCombEmbedding())
 			handleImprecision(PG);
 #ifdef OGDF_DEBUG

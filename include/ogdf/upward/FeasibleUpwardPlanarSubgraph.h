@@ -1,9 +1,9 @@
 /*
- * $Revision: 2566 $
+ * $Revision: 3388 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 23:10:08 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -96,8 +96,8 @@ public:
 	//! return a adjEntry of node v which right face is f. Be Carefully! The adjEntry is not always unique.
 	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f)
 	{
- 		adjEntry adj = 0;
- 		forall_adj(adj, v) {
+		adjEntry adj = 0;
+		forall_adj(adj, v) {
 			if (Gamma.rightFace(adj) == f)
 				break;
 		}

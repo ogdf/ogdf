@@ -1,9 +1,9 @@
 /*
- * $Revision: 3074 $
+ * $Revision: 3395 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 11:01:06 +0100 (Do, 29. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-15 14:28:20 +0200 (Mo, 15. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -69,13 +69,17 @@ class ArrayBuffer : private Array<E, INDEX> {
 	INDEX num; //!< The number of elements in the buffer
 	bool growable;
 public:
-	//! Constructs an empty ArrayBuffer, without initial memory allocation.
+	//! Creates an empty array buffer, without initial memory allocation.
 	ArrayBuffer() : Array<E,INDEX>(), num(0), growable(true) {}
-	//! Constructs an empty ArrayBuffer, allocating memory for up to \a size elements; you may specify that the array should not grow automatically.
+
+	//! Creates an empty array buffer, allocating memory for up to \a size elements; you may specify that the array should not grow automatically.
 	explicit ArrayBuffer(INDEX size, bool autogrow = true) : Array<E,INDEX>(size), num(0), growable(autogrow) {}
 
-	//! Constructs an ArrayBuffer, initialized by the given array; you may specify that the array should not grow.
+	//! Creates an array buffer, initialized by the given array; you may specify that the array should not grow.
 	explicit ArrayBuffer(const Array<E,INDEX>& source, bool autogrow = true) : Array<E,INDEX>(source), num(0), growable(autogrow) {}
+
+	//! Creates an array buffer that is a copy of \a buffer.
+	ArrayBuffer(const ArrayBuffer<E,INDEX> &buffer) : Array<E,INDEX>(buffer), num(buffer.num), growable(buffer.growable) { }
 
 	//! Reinitializes the array, clearing it, and without initial memory allocation.
 	void init() { Array<E,INDEX>::init(); }
@@ -157,6 +161,14 @@ public:
 	E &operator[](INDEX i) {
 		OGDF_ASSERT(0 <= i && i < num)
 		return Array<E,INDEX>::operator[](i);
+	}
+
+	//! Assignment operator.
+	ArrayBuffer<E,INDEX> &operator=(const ArrayBuffer<E,INDEX> &buffer) {
+		Array<E,INDEX>::operator=(buffer);
+		num      = buffer.num;
+		growable = buffer.growable;
+		return *this;
 	}
 
 	//! Generates a compact copy holding the current elements.

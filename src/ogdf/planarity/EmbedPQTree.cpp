@@ -1,9 +1,9 @@
 /*
- * $Revision: 2599 $
+ * $Revision: 3388 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (So, 15. Jul 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -226,7 +226,7 @@ void EmbedPQTree::ReplaceFullRoot(
 			OGDF_NEW PQLeaf<edge,IndInfo*,bool>(m_identificationNumber++,
 			PQNodeRoot::EMPTY,(PQLeafKey<edge,IndInfo*,bool>*)leafKeys.front());
 		exchangeNodes(m_pertinentRoot,(PQNode<edge,IndInfo*,bool>*) leafPtr);
- 		if (m_pertinentRoot == m_root)
+		if (m_pertinentRoot == m_root)
 			m_root = (PQNode<edge,IndInfo*,bool>*) leafPtr;
 		m_pertinentRoot = 0;  // check for this emptyAllPertinentNodes
 	}
@@ -502,7 +502,7 @@ void EmbedPQTree::front(
 			{
 				firstSon = checkNode->referenceChild();
 			}
- 			else if (checkNode->type() == PQNodeRoot::QNode)
+			else if (checkNode->type() == PQNodeRoot::QNode)
 			{
 				firstSon = checkNode->getEndmost(PQNodeRoot::RIGHT);
 				// By this, we make sure that we start on the left side
@@ -572,7 +572,7 @@ void EmbedPQTree::getFront(
 			{
 				firstSon = checkNode->referenceChild();
 			}
- 			else if (checkNode->type() == PQNodeRoot::QNode)
+			else if (checkNode->type() == PQNodeRoot::QNode)
 			{
 				firstSon = checkNode->getEndmost(PQNodeRoot::RIGHT);
 				// By this, we make sure that we start on the left side
