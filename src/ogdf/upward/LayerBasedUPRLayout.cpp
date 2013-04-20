@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3400 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -445,7 +445,7 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 	OGDF_ASSERT(m_layout.valid());
 
 	GraphCopyAttributes AGC(H, AG);
-	m_layout.get().call(H,AG);
+	m_layout.get().call(levels,AG);
 	// ********************** end postprocessing *******************************************
 
 	numberOfLevels = levels.size();

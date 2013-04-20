@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3400 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -118,8 +118,8 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 		for (int downward = 0; downward <= 1; downward++) {
 			NodeArray<NodeArray<bool> > type1Conflicts = markType1Conflicts(levels, downward == 0);
 			for (int leftToRight = 0; leftToRight <= 1; leftToRight++) {
-				verticalAlignment(H, root, align, type1Conflicts, downward == 0, leftToRight == 0);
-				horizontalCompactation(align, H, root, x[2 * downward + leftToRight], leftToRight == 0, downward == 0);
+				verticalAlignment(levels, root, align, type1Conflicts, downward == 0, leftToRight == 0);
+				horizontalCompactation(align, levels, root, x[2 * downward + leftToRight], leftToRight == 0, downward == 0);
 			}
 		}
 
@@ -174,9 +174,9 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 		}
 	} else {
 		NodeArray<int> x;
-		NodeArray<NodeArray<bool> > type1Conflicts = markType1Conflicts(H, m_downward);
-		verticalAlignment(H, root, align, type1Conflicts, m_downward, m_leftToRight);
-		horizontalCompactation(align, H, root, x, m_leftToRight, m_downward);
+		NodeArray<NodeArray<bool> > type1Conflicts = markType1Conflicts(levels, m_downward);
+		verticalAlignment(levels, root, align, type1Conflicts, m_downward, m_leftToRight);
+		horizontalCompactation(align, levels, root, x, m_leftToRight, m_downward);
 		forall_nodes(v, GC) {
 			AGC.x(v) = x[v];
 			AGC.y(v) = H.rank(v) * m_ySep;
@@ -405,8 +405,8 @@ void FastSimpleHierarchyLayout::placeBlock(node v, NodeArray<node> &sink,
 		do {
 			// if not first node on layer
 			if ((leftToRight && levels.pos(w) > 0) || (!leftToRight && levels.pos(w) < levels[H.rank(w)].high())) {
-				u = root[pred(w, H, leftToRight)];
-				placeBlock(u, sink, shift, x, align, H, root, leftToRight);
+				u = root[pred(w, levels, leftToRight)];
+				placeBlock(u, sink, shift, x, align, levels, root, leftToRight);
 				if (sink[v] == v) {
 					sink[v] = sink[u];
 				}

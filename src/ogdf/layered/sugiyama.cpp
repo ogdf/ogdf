@@ -1,9 +1,9 @@
 /*
- * $Revision: 3219 $
+ * $Revision: 3400 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 13:49:45 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -1133,7 +1133,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			reduceCrossings(levels);
 			totalCrossings += m_nCrossings;
 
-			m_layout.get().call(H,AG);
+			m_layout.get().call(levels,AG);
 
 			double
 				minX =  numeric_limits<double>::max(),
@@ -1286,7 +1286,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		reduceCrossings(levels);
 		m_compGC.init();
 
-		m_layout.get().call(H,AG);
+		m_layout.get().call(levels,AG);
 
 		if(optimizeHorizEdges)
 		{

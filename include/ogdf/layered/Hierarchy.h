@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3400 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -126,7 +126,7 @@ namespace ogdf {
 		TraversingDir m_direction; //!< The current direction of layer-by-layer sweep.
 
 	public:
-		HierarchyLevels(const Hierarchy &H);
+		explicit HierarchyLevels(const Hierarchy &H);
 		~HierarchyLevels();
 
 		const Hierarchy &hierarchy() const { return m_H; }
