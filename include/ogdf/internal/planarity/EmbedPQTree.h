@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3436 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 14:29:21 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -83,6 +83,10 @@ public:
 
 	virtual int Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
+	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+		return PQTree<edge,IndInfo*,bool>::Initialize(leafKeys);
+	}
+
 	void ReplaceRoot(
 		SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys,
 		SListPure<edge> &frontier,
@@ -91,6 +95,10 @@ public:
 		node v);
 
 	virtual bool Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+
+	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+		return PQTree<edge,IndInfo*,bool>::Reduction(leafKeys);
+	}
 
 	PQNode<edge,IndInfo*,bool>* scanSibLeft(PQNode<edge,IndInfo*,bool> *nodePtr) const {
 		return clientSibLeft(nodePtr);
@@ -141,6 +149,13 @@ protected:
 	virtual void front(
 		PQNode<edge,IndInfo*,bool>* nodePtr,
 		SListPure<PQBasicKey<edge,IndInfo*,bool>*> &leafKeys);
+
+	void front(
+		PQNode<edge,IndInfo*,bool>* nodePtr,
+		SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys)
+	{
+		PQTree<edge,IndInfo*,bool>::front(nodePtr, leafKeys);
+	}
 
 private:
 

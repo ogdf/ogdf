@@ -1,9 +1,9 @@
 /*
- * $Revision: 2559 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fr, 06. Jul 2012) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -335,8 +335,6 @@ private:
 
 	//! edge length
 	float* m_desiredEdgeLength;
-
-	double m_currentAvgEdgeLength;
 
 	//! avg edge length
 	double m_desiredAvgEdgeLength;

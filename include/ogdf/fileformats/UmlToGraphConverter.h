@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -149,14 +149,6 @@ namespace ogdf {
 		 *  The functionality is the same as for #m_idToNode.
 		 */
 		Hashing<int,EdgeElement*> m_idToEdge;
-
-		/** The log file.
-		 *  The log file is named \e umlToGraphConversionLog.txt and contains
-		 *  warnings and errors ocurred during the conversion process. Furthermore
-		 *  it contains the content of the model graph #m_modelGraph and of the
-		 *  diagram graphs #m_diagramGraphs.
-		 */
-		ofstream *m_logFile;
 
 	public:
 

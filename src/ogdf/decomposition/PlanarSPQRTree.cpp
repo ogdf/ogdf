@@ -1,9 +1,9 @@
 /*
- * $Revision: 3362 $
+ * $Revision: 3414 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-04-03 12:00:54 +0200 (Mi, 03. Apr 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-17 15:27:40 +0200 (Mi, 17. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -423,6 +423,8 @@ double PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
 		case PNode:
 			for (int i = skeleton(vT).getGraph().firstNode()->degree()-1; i >= 2; --i)
 				num *= i;
+			break;
+		case SNode:
 			break;
 	}
 	

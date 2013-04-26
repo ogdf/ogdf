@@ -1,9 +1,9 @@
 /*
- * $Revision: 3368 $
+ * $Revision: 3417 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -619,6 +619,8 @@ namespace ogdf {
 		ExpandedGraph(const BiconnectedComponent &BC, const StaticSPQRTree &T, const GraphCopy &gc, const EdgeArray<bool> *pForbidden = 0)
 			: m_T(T), m_BC(BC), m_gc(gc), m_pForbidden(pForbidden), m_GtoExp(T.originalGraph(),0), m_expToG(m_exp,0), m_primalEdge(m_dual,0)
 		{ }
+		
+		virtual ~ExpandedGraph() { }
 
 		void expand(node v, edge eIn, edge eOut);
 
@@ -667,6 +669,8 @@ namespace ogdf {
 		ExpandedGraphUML(const BiconnectedComponentUML &BC, const StaticSPQRTree &T, const GraphCopy &gc)
 			: ExpandedGraph(BC,T,gc), m_primalIsGen(m_dual,false) { }
 
+		~ExpandedGraphUML() { }
+		
 		void constructDual(node s, node t);
 
 	protected:

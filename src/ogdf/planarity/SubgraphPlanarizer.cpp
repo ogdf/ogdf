@@ -1,9 +1,9 @@
 /*
- * $Revision: 3368 $
+ * $Revision: 3417 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -304,7 +304,7 @@ SubgraphPlanarizer::SubgraphPlanarizer()
 
 // copy constructor
 SubgraphPlanarizer::SubgraphPlanarizer(const SubgraphPlanarizer &planarizer)
-	: CrossingMinimizationModule(planarizer)
+	: CrossingMinimizationModule(planarizer), Logger()
 {
 	m_subgraph.set(planarizer.m_subgraph.get().clone());
 	m_inserter.set(planarizer.m_inserter.get().clone());

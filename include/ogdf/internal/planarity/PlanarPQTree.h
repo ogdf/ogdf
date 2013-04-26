@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3434 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 13:59:08 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -74,11 +74,19 @@ public:
 	//! Initializes a new PQ-tree with a set of leaves.
 	virtual int Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
+	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+		return PQTree<edge,IndInfo*,bool>::Initialize(leafKeys);
+	}
+
 	//! Replaces the pertinent subtree by a set of new leaves.
 	void ReplaceRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
 	//! Reduces a set of leaves.
 	virtual bool Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
+
+	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+		return PQTree<edge,IndInfo*,bool>::Reduction(leafKeys);
+	}
 
 private:
 

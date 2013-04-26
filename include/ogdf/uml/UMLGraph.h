@@ -1,9 +1,9 @@
 /*
- * $Revision: 3150 $
+ * $Revision: 3429 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-12-12 14:00:51 +0100 (Mi, 12. Dez 2012) $
+ *   $Date: 2013-04-22 11:22:50 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -89,6 +89,9 @@ public:
 		m_upwardEdge.init(constGraph(), false);
 	}
 
+	virtual void init(const Graph &G, long initAttr) {
+		init(const_cast<Graph &>(G), initAttr);
+	}
 
 	//----------------------------------------------------------------------------
 	//structural changes

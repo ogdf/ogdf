@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3429 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-22 11:22:50 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -232,31 +232,33 @@ public:
 	 */
 
 	/**
-	 * \brief Calls the layout algorithm for graph \a AG.
+	 * \brief Calls the layout algorithm for graph \a GA.
 	 *
-	 * Returns the computed layout in \a AG.
+	 * Returns the computed layout in \a GA.
 	 */
-	void call(GraphAttributes &AG);
+	void call(GraphAttributes &GA);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	/**
-	 * \brief Calls the layout algorithm for clustered graph \a AG.
+	 * \brief Calls the layout algorithm for clustered graph \a CGA.
 	 *
-	 * Returns the computed layout in \a AG.
+	 * Returns the computed layout in \a CGA.
 	 */
-	void call(ClusterGraphAttributes &AG);
+	void call(ClusterGraphAttributes &CGA);
 
 	/**
 	 * \brief Calls the layout algorithm for graph \a AG with a given level assignment.
 	 *
 	 * Returns the computed layout in \a AG.
-	 * @param AG is the input graph (with node size information) and is assigned
+	 * @param GA is the input graph (with node size information) and is assigned
 	 *        the computed layout.
 	 * @param rank defines the level of each node.
 	 */
-	void call(GraphAttributes &AG, NodeArray<int> &rank);
+	void call(GraphAttributes &GA, NodeArray<int> &rank);
 
 	// special call for UML graphs
-	void callUML(GraphAttributes &AG);
+	void callUML(GraphAttributes &GA);
 
 
 	/** @}

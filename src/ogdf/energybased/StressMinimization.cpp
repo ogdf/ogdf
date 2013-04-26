@@ -1,9 +1,9 @@
 /*
- * $Revision: 3396 $
+ * $Revision: 3418 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:49:03 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2013-04-18 11:06:44 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -182,7 +182,6 @@ double StressMinimization::calcStress(
 	NodeArray<NodeArray<double> >& shortestPathMatrix,
 	NodeArray<NodeArray<double> >& weightMatrix)
 {
-	const int nodeCount = GA.constGraph().numberOfNodes() - 1;
 	double stress = 0;
 	node v;
 	node w;

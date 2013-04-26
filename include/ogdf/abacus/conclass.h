@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /*!\file
@@ -70,7 +70,6 @@ public:
 		bool bound,
 		bool varBound)
 	:
-		master_(master),
 		discrete_(discrete),
 		allVarBinary_(allVarBinary),
 		trivial_(trivial),
@@ -89,9 +88,6 @@ public:
 
 
 private:
-
-	//! A pointer to the corresponding master of the optimization.
-	const Master  *master_;
 
 	bool  discrete_;
 

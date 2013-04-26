@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3433 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 13:44:53 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -148,6 +148,19 @@ public:
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
 	void call(const Graph &G, const EdgeArray<int> &length, NodeArray<int> &rank);
+
+	//! Computes a node ranking of \a G with given minimal edge length in \a rank.
+	/**
+	 * Parameter \a cost is just ignored by the implementation.
+	 *
+	 * @param G is the input graph.
+	 * @param length specifies the minimal length of each edge.
+	 * @param cost specifies the edge costs (ignored)
+	 * @param rank is assigned the rank (layer) of each node.
+	 */
+	void call(const Graph &G, const EdgeArray<int> & length, const EdgeArray<int> & cost, NodeArray<int> &rank) {
+		call(G, length, rank);
+	}
 
 	//! Call for UML graphs with special treatement of inheritance hierarchies.
 	void callUML(const GraphAttributes &AG, NodeArray<int> &rank);

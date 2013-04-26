@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3441 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -770,7 +770,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeSNode(
 {
 	Skeleton& S = spqrTree.skeleton(mu);
 	edge referenceEdge = S.referenceEdge();
-	adjEntry startAdjEntry;
+	adjEntry startAdjEntry = 0;
 	if (leftNode == 0)
 	{
 		edge e;
@@ -782,6 +782,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeSNode(
 				break;
 			}
 		}
+		OGDF_ASSERT(startAdjEntry != 0);
 	}
 	else if (leftNode->firstAdj()->theEdge() == referenceEdge)
 		startAdjEntry = leftNode->lastAdj();

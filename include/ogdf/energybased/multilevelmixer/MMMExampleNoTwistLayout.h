@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -70,6 +70,8 @@ public:
 
 	//! calculates a drawing for the Graph GA
 	void call(GraphAttributes &GA);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	//! calculates a drawing for the Graph MLG
 	void call(MultilevelGraph &MLG);

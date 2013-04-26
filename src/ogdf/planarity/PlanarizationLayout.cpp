@@ -1,9 +1,9 @@
 /*
-* $Revision: 3219 $
+* $Revision: 3417 $
 *
 * last checkin:
 *   $Author: gutwenger $
-*   $Date: 2013-01-15 13:49:45 +0100 (Di, 15. Jan 2013) $
+*   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
 ***************************************************************/
 
 /** \file
@@ -74,7 +74,6 @@ namespace ogdf {
 
 	void PlanarizationLayout::call(GraphAttributes &ga)
 	{
-		const Graph &g = ga.constGraph();
 		m_nCrossings = 0;
 
 		PlanRep pr(ga);

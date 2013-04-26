@@ -1,9 +1,9 @@
 /*
- * $Revision: 2583 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Do, 12. Jul 2012) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -89,9 +89,9 @@ public:
 	//! Standard call using the stored parameter settings.
 	virtual void call(GraphAttributes & AG);
 
- 	/** Call using special parameter settings for fractal model
- 	 * takes radius ratio < 0.5 as parameter.
- 	 */
+	/** Call using special parameter settings for fractal model
+	 * takes radius ratio < 0.5 as parameter.
+	 */
 	virtual void callFractal(GraphAttributes & AG, double ratio = 0.3)
 	{
 		bool even = getEvenAngles();
@@ -107,30 +107,30 @@ public:
 
 
  protected:
- 	//! Computes the spanning tree that is used for the
- 	//! layout computation, the non-tree edges are
- 	//! simply added into the layout.
- 	void computeTree(const Graph &G);
- 	//! Computes tree by BFS, fills m_parent and m_childCount.
- 	void computeBFSTree(const Graph &G, node v);
- 	//! Selects the root of the spanning tree that
- 	//! is placed in the layout center.
- 	void selectRoot(const Graph &G);
- 	//------------------------------------------------
- 	//! Computes a radius for each of the vertices in G.
- 	//! fractal model: same radius on same level, such
- 	//! that r(m) = gamma* r(m-1) where gamma is predefined
- 	//! SNS model: different radii possible
- 	//! Optimal: unordered tree, order of children is optimized.
- 	#ifdef OGDF_DEBUG
- 	void computeRadii(GraphAttributes &AG);
- 	#else
- 	void computeRadii(const GraphAttributes &AG);
- 	#endif
- 	//! Computes the angle distribution: assigns m_angle each node.
- 	void computeAngles(const Graph &G);
- 	//! Computes coordinates from angles and radii.
- 	void computeCoordinates(GraphAttributes &AG);
+	//! Computes the spanning tree that is used for the
+	//! layout computation, the non-tree edges are
+	//! simply added into the layout.
+	void computeTree(const Graph &G);
+	//! Computes tree by BFS, fills m_parent and m_childCount.
+	void computeBFSTree(const Graph &G, node v);
+	//! Selects the root of the spanning tree that
+	//! is placed in the layout center.
+	void selectRoot(const Graph &G);
+	//------------------------------------------------
+	//! Computes a radius for each of the vertices in G.
+	//! fractal model: same radius on same level, such
+	//! that r(m) = gamma* r(m-1) where gamma is predefined
+	//! SNS model: different radii possible
+	//! Optimal: unordered tree, order of children is optimized.
+	#ifdef OGDF_DEBUG
+	void computeRadii(GraphAttributes &AG);
+	#else
+	void computeRadii(const GraphAttributes &AG);
+	#endif
+	//! Computes the angle distribution: assigns m_angle each node.
+	void computeAngles(const Graph &G);
+	//! Computes coordinates from angles and radii.
+	void computeCoordinates(GraphAttributes &AG);
 
 private:
 	NodeArray<double> m_radius; //! Radius at node center.
@@ -157,7 +157,6 @@ private:
 
 	double            m_estimateFactor; //!< Weight of value (largestchild / number of children) added to
 										// estimate to compute radius.
-	double            m_fractalRatio;   //!< Ratio of neighbor radii in fractal model.
 
 	ChildOrder        m_childOrder; //!< How to arrange the children.
 	TreeComputation   m_treeComputation; //!< How to derive the spanning tree.

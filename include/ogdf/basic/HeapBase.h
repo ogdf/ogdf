@@ -1,5 +1,5 @@
 /*
- * $Revision: 3141 $
+ * $Revision: 3431 $
  *
  * last checkin:
  *   $Author:klein $
@@ -99,8 +99,8 @@ public:
 	//*******************************************************
 	//Modification
 
-	//! insert a new element with priority key
-	virtual void insert(HeapObject, Priority /* key */) { }
+	// insert a new element with priority key
+	//virtual void insert(HeapObject, Priority /* key */) { }
 	//extractMin
 	//derived classes should decide themselves if they have
 	//a specific delete function

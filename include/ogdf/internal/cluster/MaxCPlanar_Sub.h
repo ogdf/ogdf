@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3419 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-18 14:17:14 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -122,7 +122,7 @@ protected:
 	 */
 
 	int separateReal(double minViolate);
-	int pricingReal(double minViolate);
+	//int pricingReal(double minViolate);
 
 	inline int separateRealO(double minViolate) {
 		Logger::slout() << "\tSeparate (minViolate=" << minViolate << ")..";
@@ -130,13 +130,13 @@ protected:
 		Logger::slout() << "..done: " << r << "\n";
 		return r;
 	}
-	inline int pricingRealO(double minViolate) {
-		Logger::slout() << "\tPricing (minViolate=" << minViolate << ")..";
-		int r = pricingReal(minViolate);
-		master()->m_varsPrice += r;
-		Logger::slout() << "..done: " << r << "\n";
-		return r;
-	}
+	//inline int pricingRealO(double minViolate) {
+	//	Logger::slout() << "\tPricing (minViolate=" << minViolate << ")..";
+	//	int r = pricingReal(minViolate);
+	//	master()->m_varsPrice += r;
+	//	Logger::slout() << "..done: " << r << "\n";
+	//	return r;
+	//}
 
 	virtual int separate() {
 		Logger::slout() << "\tReporting Separation: "<<((m_reportCreation>0)?m_reportCreation:0)<<"\n";

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3433 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-22 13:44:53 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -79,6 +79,8 @@ public:
 	 * @param ga is the input graph and will also be assigned the layout information.
 	 */
 	void call(GraphAttributes &ga);
+
+	void call(GraphAttributes &ga, GraphConstraints & gc) { call(ga); }
 
 	//! Calls planarization layout with clique handling for GraphAttributes \a ga with associated graph \a g.
 	/**

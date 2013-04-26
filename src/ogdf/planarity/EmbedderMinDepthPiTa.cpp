@@ -1,9 +1,9 @@
 /*
- * $Revision: 2599 $
+ * $Revision: 3437 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (So, 15. Jul 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-22 14:48:09 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -123,15 +123,15 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 	oneEdgeBlockNodes.clear();
 
 	//Find root Block (only node with out-degree of 0):
-	node rootBlockNode;
+	node rootBlockNode = 0;
 	forall_nodes(n, pBCTree->bcTree())
 	{
-		if (n->outdeg() == 0)
-		{
+		if (n->outdeg() == 0) {
 			rootBlockNode = n;
 			break;
 		}
 	}
+	OGDF_ASSERT(rootBlockNode != 0);
 
 	blockG.init(pBCTree->bcTree());
 	nBlockEmbedding_to_nH.init(pBCTree->bcTree());

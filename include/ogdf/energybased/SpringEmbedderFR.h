@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -233,7 +233,6 @@ private:
 
 	int    m_iterations;  //!< The number of iterations.
 	double m_fineness;    //!< The fineness of the grid.
-	double m_edgeLength;
 
 	double m_xleft;       //!< Bounding box (minimal x-coordinate).
 	double m_xright;      //!< Bounding box (maximal x-coordinate).

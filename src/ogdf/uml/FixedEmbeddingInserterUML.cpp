@@ -1,9 +1,9 @@
 /*
- * $Revision: 3368 $
+ * $Revision: 3417 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -61,6 +61,7 @@ namespace ogdf {
 
 	// copy constructor
 	FixedEmbeddingInserterUML::FixedEmbeddingInserterUML(const FixedEmbeddingInserterUML &inserter)
+		: UMLEdgeInsertionModule()
 	{
 		m_rrOption = inserter.m_rrOption;
 		m_percentMostCrossed = inserter.m_percentMostCrossed;

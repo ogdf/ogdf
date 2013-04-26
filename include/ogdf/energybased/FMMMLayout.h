@@ -1,9 +1,9 @@
 /*
- * $Revision: 2583 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Do, 12. Jul 2012) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -372,6 +372,8 @@ public:
 	//! Models cluster by simple edge length adaption based on least common ancestor
 	//! cluster of end vertices.
 	void call(ClusterGraphAttributes &GA);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	//! Extended algorithm call: Allows to pass desired lengths of the edges.
 	/**

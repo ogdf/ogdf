@@ -1,9 +1,9 @@
 /*
- * $Revision: 2593 $
+ * $Revision: 3420 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-15 15:33:53 +0200 (So, 15. Jul 2012) $
+ *   $Date: 2013-04-18 16:49:45 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -307,7 +307,6 @@ void makeParallelFreeUndirected(
 	SListConstIterator<edge> it = edges.begin();
 	edge ePrev = *it++, e;
 	bool bAppend = true;
-	int  counter = 0;
 	while(it.valid())
 	{
 		e = *it++;

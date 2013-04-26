@@ -1,9 +1,9 @@
 /*
- * $Revision: 2641 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Do, 19. Jul 2012) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -81,6 +81,8 @@ public:
 		NodeArray<float>& nodeYPosition,
 		const EdgeArray<float>& edgeLength,
 		const NodeArray<float>& nodeSize);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	//! Calls the algorithm for graph \a GA with the given edgelength and returns the layout information in \a GA.
 	void call(GraphAttributes &GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
@@ -210,7 +212,6 @@ private:
 	NodeArray<float>  m_adjustedNodeSize;
 	int				  m_iCurrentLevelNr;
 
-	Graph*			  m_pLastGraph;
 	NodeArray<float>* m_pLastNodeXPos;
 	NodeArray<float>* m_pLastNodeYPos;
 };

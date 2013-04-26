@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3438 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-22 14:48:48 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -1583,6 +1583,7 @@ bool MaxCPlanarSub::feasible() {
 	}
 }//feasible
 
+/*
 static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
 {
 	count++;
@@ -1595,7 +1596,6 @@ static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
 	}
 }
 
-/*
 bool MaxCPlanarSub::fastfeasible() {
 
 	if (!integerFeasible()) {
@@ -2318,29 +2318,33 @@ int MaxCPlanarSub::createVariablesForBufferedConstraints() {
 	return -gen;
 }
 
-int MaxCPlanarSub::pricingReal(double minViolate) {
-	if(!master()->pricing()) return 0; // no pricing
-	Top10Heap<Prioritized<ListIterator<nodePair> > > goodVar(master()->m_numAddVariables);
-	forall_nonconst_listiterators(nodePair, it, master()->m_inactiveVariables) {
-		double rc;
-		EdgeVar v(master(), -master()->m_epsilon, EdgeVar::CONNECT, (*it).v1, (*it).v2);
-		if(v.violated(rc) && rc>=minViolate) {
-			Prioritized<ListIterator<nodePair> > entry(it,rc);
-			goodVar.pushBlind( entry );
-		}
-	}
 
-	int nv = goodVar.size();
-	if(nv > 0) {
-		ArrayBuffer<Variable*> vars(nv,false);
-		for(int i = nv; i-->0;) {
-			ListIterator<nodePair> it = goodVar[i].item();
-			vars.push( master()->createVariable(it) );
-		}
-		myAddVars(vars);
-	}
-	return nv;
-}
+// !! This function is incorrect (due to uninitialized usage of variable rc)       !!
+// !! and cannot work correctly (seems to be a placeholder for further development) !!
+// Therefore it has been commented out
+//int MaxCPlanarSub::pricingReal(double minViolate) {
+//	if(!master()->pricing()) return 0; // no pricing
+//	Top10Heap<Prioritized<ListIterator<nodePair> > > goodVar(master()->m_numAddVariables);
+//	forall_nonconst_listiterators(nodePair, it, master()->m_inactiveVariables) {
+//		double rc;
+//		EdgeVar v(master(), -master()->m_epsilon, EdgeVar::CONNECT, (*it).v1, (*it).v2);
+//		if(v.violated(rc) && rc>=minViolate) {
+//			Prioritized<ListIterator<nodePair> > entry(it,rc);
+//			goodVar.pushBlind( entry );
+//		}
+//	}
+//
+//	int nv = goodVar.size();
+//	if(nv > 0) {
+//		ArrayBuffer<Variable*> vars(nv,false);
+//		for(int i = nv; i-->0;) {
+//			ListIterator<nodePair> it = goodVar[i].item();
+//			vars.push( master()->createVariable(it) );
+//		}
+//		myAddVars(vars);
+//	}
+//	return nv;
+//}
 
 int MaxCPlanarSub::repair() {
 	//warning. internal abacus stuff BEGIN
@@ -2554,22 +2558,26 @@ int MaxCPlanarSub::solveLp() {
 	if(!master()->pricing()) {
 		m_reportCreation = separateReal(minViolation);//use ...O for output
 	} else {
-		m_sepFirst = !m_sepFirst;
-		if(m_sepFirst) {
-			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< endl; return 1; }
-			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
-			if( (m_reportCreation = separateRealO(minViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< endl; return 1; }
-			m_reportCreation = -pricingRealO(minViolation);
-		} else {
-			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
-			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< endl; return 1; }
-			if( (m_reportCreation = -pricingRealO(minViolation)) ) return 0;
-			m_reportCreation = separateRealO(minViolation);
-			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< endl; return 1; }
-		}
+		// Pricing-code has been disabled since it is currently incorrect!
+		// See MaxCPlanarSub::pricingReal() above for more details.
+		OGDF_THROW(AlgorithmFailureException);
+
+		//m_sepFirst = !m_sepFirst;
+		//if(m_sepFirst) {
+		//	if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
+		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< endl; return 1; }
+		//	if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
+		//	if( (m_reportCreation = separateRealO(minViolation)) ) return 0;
+		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< endl; return 1; }
+		//	m_reportCreation = -pricingRealO(minViolation);
+		//} else {
+		//	if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
+		//	if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
+		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< endl; return 1; }
+		//	if( (m_reportCreation = -pricingRealO(minViolation)) ) return 0;
+		//	m_reportCreation = separateRealO(minViolation);
+		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< endl; return 1; }
+		//}
 	}
 	return 0;
 }
