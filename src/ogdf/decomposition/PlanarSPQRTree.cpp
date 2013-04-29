@@ -1,9 +1,9 @@
 /*
- * $Revision: 3414 $
+ * $Revision: 3471 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-17 15:27:40 +0200 (Mi, 17. Apr 2013) $
+ *   $Author: zeranski $
+ *   $Date: 2013-04-29 14:26:03 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -480,6 +480,7 @@ void PlanarSPQRTree::embed(node &vT, int x) {
 			set[ind] = true;
 		}
 		//adopt the permutation to the skeleton
+		//first vertex
 		List<adjEntry> order;
 		node nP = skeleton(vT).getGraph().firstNode();
 		skeleton(vT).getGraph().adjEntries(nP,order);
@@ -491,6 +492,14 @@ void PlanarSPQRTree::embed(node &vT, int x) {
 		for (int i = 0; i < p; i++) normalized[i] = order.popFrontRet();
 		for (int i = 0; i < p; i++) newOrder.pushBack(normalized[permutation[i]]);
 		skeleton(vT).getGraph().sort(nP,newOrder);
+		//second vertex
+		List<adjEntry> newOrderLast;
+		ListIterator<adjEntry> it = newOrder.begin();
+		while (it.valid()) {
+			newOrderLast.pushFront((*it)->twin());
+			it++;
+		}
+		skeleton(vT).getGraph().sort(skeleton(vT).getGraph().lastNode(),newOrderLast);
 		//P-node ends here
 	}
 	//if it is a R-node
@@ -556,12 +565,21 @@ void PlanarSPQRTree::firstEmbedding(node &vT)
 	//if vT is a P-node
 	if (typeOf(vT) == PNode) {
 		//then sort the adjEntries by their indices
+		//first vertex
 		List<adjEntry> order;
 		node nP = skeleton(vT).getGraph().firstNode();
 		skeleton(vT).getGraph().adjEntries(nP,order);
 		TargetComparer<AdjElement,AdjElement> comp;
 		order.quicksort(comp);
 		skeleton(vT).getGraph().sort(nP,order);
+		//second vertex
+		List<adjEntry> newOrderLast;
+		ListIterator<adjEntry> it = order.begin();
+		while (it.valid()) {
+			newOrderLast.pushFront((*it)->twin());
+			it++;
+		}
+		skeleton(vT).getGraph().sort(skeleton(vT).getGraph().lastNode(),newOrderLast);
 	}
 	
 }

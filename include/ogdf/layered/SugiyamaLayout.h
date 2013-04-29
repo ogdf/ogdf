@@ -1,9 +1,9 @@
 /*
- * $Revision: 3429 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 11:22:50 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -372,7 +372,11 @@ public:
 	int maxThreads() const { return m_maxThreads; }
 
 	//! Sets the maximal number of used threads to \a n.
-	void maxThreads(int n) { m_maxThreads = n; }
+	void maxThreads(int n) {
+#ifndef OGDF_MEMORY_POOL_NTS
+		m_maxThreads = n;
+#endif
+	}
 
 
 	/** @}

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -70,7 +70,11 @@ class OGDF_EXPORT PlanarSubgraphModule : public Module, public Timeouter {
 public:
 	//! Initializes a planar subgraph module (default constructor).
 	PlanarSubgraphModule() {
+#ifdef OGDF_MEMORY_POOL_NTS
+		m_maxThreads = 1;
+#else
 		m_maxThreads = System::numberOfProcessors();
+#endif
 	}
 
 	//! Initializes a planar subgraph module (copy constructor).
@@ -182,7 +186,11 @@ public:
 	int maxThreads() const { return m_maxThreads; }
 
 	//! Sets the maximal number of used threads to \a n.
-	void maxThreads(int n) { m_maxThreads = n; }
+	void maxThreads(int n) {
+#ifndef OGDF_MEMORY_POOL_NTS
+		m_maxThreads = n;
+#endif
+	}
 
 protected:
 	// computes set of edges delEdges, which have to be deleted

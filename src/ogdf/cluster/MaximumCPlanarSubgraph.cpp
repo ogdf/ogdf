@@ -1,9 +1,9 @@
  /*
- * $Revision: 3388 $
+ * $Revision: 3448 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-24 11:21:52 +0200 (Mi, 24. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -126,10 +126,11 @@ Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
 	cplanMaster->getDeletedEdges(delEdges);
 	cplanMaster->getConnectionOptimalSolutionEdges(addedEdges);
 	cplanMaster->getAllOptimalSolutionEdges(allEdges);
+
+#ifdef OGDF_DEBUG
 	int delE = delEdges.size();
 	int addE = addedEdges.size();
 
-#ifdef OGDF_DEBUG
 	cout<<delE<< " Number of deleted edges, "<<addE<<" Number of added edges "<<
 	allEdges.size()<<" gesamt"<<"\n";
 #endif

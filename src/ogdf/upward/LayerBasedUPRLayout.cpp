@@ -1,9 +1,9 @@
 /*
- * $Revision: 3400 $
+ * $Revision: 3448 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
+ *   $Date: 2013-04-24 11:21:52 +0200 (Mi, 24. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -1148,11 +1148,13 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 		}
 	}
 
+#ifdef OGDF_DEBUG
 	node v;
 	forall_nodes(v,stGraph) {
 		node vGC = st2GC[v];
 		OGDF_ASSERT(vGC == 0 || stRank[v] == H.rank(vGC));
 	}
+#endif
 
 	/*cout << "mapping stGraph -> GC -> G:" << endl;
 	node v;

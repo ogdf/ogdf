@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3452 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-24 13:50:34 +0200 (Mi, 24. Apr 2013) $
  ***************************************************************/
 
 /*!\file
@@ -89,28 +89,6 @@ const char* Master::OSISOLVER_[] = {
 	"GLPK", "MOSEK", "OSL", "SoPlex",
 	"SYMPHONY", "XPRESS_MP", "Gurobi", "Csdp"
 };
-
-
-// replaces disallowed characters in filenames by underscores
-static void sanitizeFilename(string &str)
-{
-	for(string::size_type i = 0; i < str.size(); ++i) {
-		switch(str[i]) {
-		case '/':
-		case '\\':
-		case ':':
-		case '\"':
-		case '<':
-		case '>':
-		case '|':
-		case '?':
-		case '*':
-			str[i] = '_';  // replace disallowed character with underscore
-		default:
-			; // nothing to do
-		}
-	}
-}
 
 
 Master::Master(

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3400 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -52,6 +52,7 @@
 #include <ogdf/packing/TileToRowsCCPacker.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Thread.h>
+#include <ogdf/basic/CriticalSection.h>
 
 #include <algorithm>
 
@@ -1035,7 +1036,11 @@ SugiyamaLayout::SugiyamaLayout()
 	m_minDistCC = 20;
 	m_pageRatio = 1.0;
 
+#ifdef OGDF_MEMORY_POOL_NTS
+	m_maxThreads = 1;
+#else
 	m_maxThreads = System::numberOfProcessors();
+#endif
 
 	m_alignBaseClasses = false;
 	m_alignSiblings = false;

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3417 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -298,7 +298,11 @@ SubgraphPlanarizer::SubgraphPlanarizer()
 	m_permutations = 1;
 	m_setTimeout = true;
 
+#ifdef OGDF_MEMORY_POOL_NTS
+	m_maxThreads = 1;
+#else
 	m_maxThreads = System::numberOfProcessors();
+#endif
 }
 
 

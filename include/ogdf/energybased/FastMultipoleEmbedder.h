@@ -1,9 +1,9 @@
 /*
- * $Revision: 3432 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -106,7 +106,11 @@ public:
 	void setDefaultNodeSize(float nodeSize) { m_defaultNodeSize = nodeSize; }
 
 	//!
-	void setNumberOfThreads(__uint32 numThreads) { m_maxNumberOfThreads = numThreads; }
+	void setNumberOfThreads(__uint32 numThreads) {
+#ifndef OGDF_MEMORY_POOL_NTS
+		m_maxNumberOfThreads = numThreads;
+#endif
+	}
 
 	//void setEnablePostProcessing(bool b) { m_doPostProcessing = b; }
 private:
