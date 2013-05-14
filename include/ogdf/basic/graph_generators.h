@@ -1,9 +1,9 @@
 /*
- * $Revision: 3442 $
+ * $Revision: 3475 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-04-23 18:10:15 +0200 (Di, 23. Apr 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -101,7 +101,7 @@ OGDF_EXPORT void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges 
  * @param G is assigned the generated graph.
  * @param n is the number of nodes of the generated graph.
  * @param m is the number of edges of the generated graph.
- * @param up to edges*p edges will be reversed preversing acyclicity; default = 0.0.
+ * @param p up to \a m * \a p edges will be reversed preversing acyclicity; default = 0.0.
  * @param multiEdges determines if the generated graph may contain
  *        multi-edges; default = false.
  */

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3425 $
+ * $Revision: 3475 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -208,49 +208,51 @@ namespace ogdf {
 
 	private:
 
-		/** Inserts known strings for tags and attributes into the hashtable
-		 *  of the parser. The info elements for the hashtable are taken from
-		 *  enum #PredefinedInfoIndex.
+		/**
+		 * Inserts known strings for tags and attributes into the hashtable
+		 * of the parser. The info elements for the hashtable are taken from
+		 * enum #PredefinedInfoIndex.
 		 */
 		void initializePredefinedInfoIndices();
 
-		/** Converts the relevant information contained in the parse tree
-		 *  into the data structure of UmlModelGraph. Error messages are
-		 *  reported in #m_logFile.
-		 *  @param modelGraph The model graph into which the nodes and edges
-		 *  corresponding to uml elements and uml relations should be inserted.
-		 *  @return Returns true if conversion was succesful, false otherwise.
+		/**
+		 * Converts the relevant information contained in the parse tree
+		 * into the data structure of UmlModelGraph.
+		 *
+		 * @param modelGraph The model graph into which the nodes and edges corresponding to
+		 *                   UML elements and UML relations should be inserted.
+		 * @return Returns true if conversion was succesful, false otherwise.
 		 */
 		bool createModelGraph(UmlModelGraph &modelGraph);
 
-		/** Traverses the package structure and identifies classifiers inside
-		 *  the parse tree (starting at \a currentRootTag) and inserts a new node
-		 *  for each classifier. This function will call itself recursively while
-		 *  traversing nested packages.
+		/**
+		 * Traverses the package structure and identifies classifiers inside the parse tree
+		 * (starting at \a currentRootTag) and inserts a new node for each classifier.
+		 * This function will call itself recursively while traversing nested packages.
 		 *
-		 *  Valid classifiers are currently: \c class and \c interface.
-		 *  @param currentRootTag The tag where to start the search for classifiers.
-		 *  @param currentPackageName This string should contain the name of the package
-		 *  path corresponding to \a currentRootTag.
-		 *  @param modelGraph The model graph into which nodes are inserted.
-		 *  @return False if something went wrong, true otherwise.
+		 * Valid classifiers are currently: \c class and \c interface.
+		 *
+		 * @param currentRootTag The tag where to start the search for classifiers.
+		 * @param currentPackageName This string should contain the name of the package
+		 *                           path corresponding to \a currentRootTag.
+		 * @param modelGraph The model graph into which nodes are inserted.
+		 * @return False if something went wrong, true otherwise.
 		 */
 		bool traversePackagesAndInsertClassifierNodes(
 			const XmlTagObject &currentRootTag,
 			const string &currentPackageName,
 			UmlModelGraph &modelGraph);
 
-		/** Tries to find all classifiers of type \a desiredClassifier inside the parse
-		 *  tree (starting at \a currentRootTag). Inserts a new node into \a modelGraph
-		 *  for each classifier found.
-		 *  @param currentRootTag The tag where to start the search for the desired
-		 *  classifier.
-		 *  @param currentPackageName This string should contain the name of the package
-		 *  path corresponding to \a currentRootTag.
-		 *  @param desiredClassifier The info index of the desired class
-		 *  (see enum #PredefinedInfoIndex).
-		 *  @param modelGraph The model graph into which nodes are inserted.
-		 *  @return False if something went wrong, true otherwise.
+		/**
+		 * Tries to find all classifiers of type \a desiredClassifier inside the parse tree
+		 * (starting at \a currentRootTag). Inserts a new node into \a modelGraph for each
+		 * classifier found.
+		 *
+		 * @param currentRootTag The tag where to start the search for the desired classifier.
+		 * @param currentPackageName This string should contain the name of the package path corresponding to \a currentRootTag.
+		 * @param desiredClassifier The info index of the desired class (see enum #PredefinedInfoIndex).
+		 * @param modelGraph The model graph into which nodes are inserted.
+		 * @return False if something went wrong, true otherwise.
 		 */
 		bool insertSpecificClassifierNodes(
 			const XmlTagObject &currentRootTag,
@@ -258,63 +260,67 @@ namespace ogdf {
 			int desiredClassifier,
 			UmlModelGraph &modelGraph);
 
-		/** Traverses the package structure and identifies associations inside
-		 *  the parse tree and inserts a new edge between the corresponding
-		 *  nodes of the involved classifiers.
+		/**
+		 * Traverses the package structure and identifies associations inside the parse tree and
+		 * inserts a new edge between the corresponding nodes of the involved classifiers.
 		 *
-		 *  Note that it is not possible to include this function into
-		 *  traversePackagesAndInsertClassifierNodes(). The reason is that it
-		 *  is possible that edges are specified prior to that one or both nodes
-		 *  have been created.
-		 *  @param currentRootTag The tag where to start the search for associations.
-		 *  @param modelGraph The model graph into which edges are inserted.
-		 *  @return False if something went wrong, true otherwise.
+		 * Note that it is not possible to include this function into traversePackagesAndInsertClassifierNodes().
+		 * The reason is that it is possible that edges are specified prior to that one or both nodes
+		 * have been created.
+		 *
+		 * @param currentRootTag The tag where to start the search for associations.
+		 * @param modelGraph The model graph into which edges are inserted.
+		 * @return False if something went wrong, true otherwise.
 		 */
 		bool traversePackagesAndInsertAssociationEdges(
 			const XmlTagObject &currentRootTag,
 			UmlModelGraph &modelGraph);
 
-		/** Traverses the package structure and identifies generalization inside
-		 *  the parse tree and inserts a new edge between the corresponding
-		 *  nodes of the involved classifiers.
+		/**
+		 * Traverses the package structure and identifies generalization inside the parse
+		 * tree and inserts a new edge between the corresponding nodes of the involved classifiers.
 		 *
-		 *  It does not make sense to put this function and
-		 *  traversePackagesAndInsertAssociationEdges() together since the generalization
-		 *  tags are inside the class tags, so first the classes have to be identified
-		 *  again in contrast to traversePackagesAndInsertAssociationEdges().
-		 *  @param currentRootTag The tag where to start the search for generalizations.
-		 *  @param modelGraph The model graph into which edges are inserted.
-		 *  @return False if something went wrong, true otherwise.
+		 * It does not make sense to put this function and traversePackagesAndInsertAssociationEdges()
+		 * together since the generalization tags are inside the class tags, so first the classes have
+		 * to be identified again in contrast to traversePackagesAndInsertAssociationEdges().
+		 *
+		 * @param currentRootTag The tag where to start the search for generalizations.
+		 * @param modelGraph The model graph into which edges are inserted.
+		 * @return False if something went wrong, true otherwise.
 		 */
 		bool traversePackagesAndInsertGeneralizationEdges(
 			const XmlTagObject &currentRootTag,
 			UmlModelGraph &modelGraph);
 
 
-		/** Identifies dependency tags inside the parse tree and inserts a
-		 *  new edge between the corresponding nodes of the involved elements.
-		 *  @param currentRootTag The tag where to start the search for dependencies.
-		 *  @param modelGraph The model graph into which edges are inserted.
-		 *  @return False if something went wrong, true otherwise.
+		/**
+		 * Identifies dependency tags inside the parse tree and inserts a new edge between
+		 * the corresponding nodes of the involved elements.
+		 *
+		 * @param currentRootTag The tag where to start the search for dependencies.
+		 * @param modelGraph The model graph into which edges are inserted.
+		 * @return False if something went wrong, true otherwise.
 		 */
 		bool insertDependencyEdges(
 			const XmlTagObject &currentRootTag,
 			UmlModelGraph &modelGraph);
 
-		/** For each diagram converts the relevant information contained in the parse tree
-		 *  into the data structure of UmlDiagramGraph. Error messages are
-		 *  reported in #m_logFile.
-		 *  @return Returns true if conversion was succesful, false otherwise.
-		 *  \todo Currently only class diagrams are handled. Must be extended to handle
-		 *  other kinds of uml diagrams.
+		/**
+		 * For each diagram converts the relevant information contained in the parse tree into the
+		 * data structure of UmlDiagramGraph.
+		 *
+		 * @return Returns true if conversion was succesful, false otherwise.
+		 *
+		 * \todo Currently only class diagrams are handled. Must be extended to handle other kinds of UML diagrams.
 		 */
 		bool createDiagramGraphs();
 
-		/** Transforms each diagram graph contained in #m_diagramGraphs into an equivalent
-		 *  Error messages are reported in #m_logFile.
-		 *  @param diagramGraphsInUMLGraphFormat The list of diagram graphs in UMLGraph
-		 *  format which have been obtained from the diagram graphs.
-		 *  @return Returns true if conversion was successful, false otherwise.
+		/**
+		 * Transforms each diagram graph contained in #m_diagramGraphs into an equivalent.
+		 *
+		 * @param diagramGraphsInUMLGraphFormat The list of diagram graphs in UMLGraph
+		 *             format which have been obtained from the diagram graphs.
+		 * @return Returns true if conversion was successful, false otherwise.
 		 */
 		bool createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &diagramGraphsInUMLGraphFormat);
 

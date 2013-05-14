@@ -1,9 +1,9 @@
 /*
- * $Revision: 3366 $
+ * $Revision: 3481 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-05-02 17:00:38 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -670,7 +670,9 @@ bool GraphIO::drawSVG(const GraphAttributes &A, ostream &os, const SVGSettings &
 	compute_bounding_box(A, xmin, ymin, xmax, ymax);
 
 	double m = settings.margin();
-	write_svg_header(os, xmin-m, ymin+m, xmax-m, ymax+m);
+	xmin -= m;
+	ymin -= m;
+	write_svg_header(os, xmin, ymin, xmax+m, ymax+m);
 
 	write_svg_node_edges(A, xmin, ymin, os, settings);
 	write_svg_footer(os);
@@ -684,7 +686,9 @@ bool GraphIO::drawSVG(const ClusterGraphAttributes &A, ostream &os, const SVGSet
 	compute_bounding_box(A, xmin, ymin, xmax, ymax);
 
 	double m = settings.margin();
-	write_svg_header(os, xmin-m, ymin+m, xmax-m, ymax+m);
+	xmin -= m;
+	ymin -= m;
+	write_svg_header(os, xmin, ymin, xmax+m, ymax+m);
 
 	write_svg_clusters(A, xmin, ymin, os, settings);
 	write_svg_node_edges(A, xmin, ymin, os, settings);

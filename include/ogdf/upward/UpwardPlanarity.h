@@ -1,9 +1,9 @@
 /*
- * $Revision: 3334 $
+ * $Revision: 3475 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-03-04 17:07:28 +0100 (Mo, 04. Mär 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -186,8 +186,8 @@ public:
 
 	//! Tests whether the embedding \a E of a single-source digraph is upward planar.
 	/**
-	 * \param E        is the given combinatorial embedding to be tested.
-	 * \param external Faces is assigned the list of possible external faces such that \a E is upward planar.
+	 * \param E             is the given combinatorial embedding to be tested.
+	 * \param externalFaces is assigned the list of possible external faces such that \a E is upward planar.
 	 * \return true if \a E is upward planar, false otherwise.
 	 */
 	static bool isUpwardPlanar_singleSource_embedded(

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3431 $
+ * $Revision: 3475 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:01:35 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -81,12 +81,6 @@ public:
 
 	virtual void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
-	///**
-	// * \brief Computes a layout of graph \a GA.
-	// *
-	// * @param GA is the input graph and will also be assigned the layout information.
-	// */
-	//void operator()(GraphAttributes &GA) { call(GA); }
 
 	/**
 	 * \brief Computes a layout of graph \a MLG.
