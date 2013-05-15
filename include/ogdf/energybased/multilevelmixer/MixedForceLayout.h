@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3433 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 13:44:53 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -59,6 +59,7 @@ public:
 	MixedForceLayout();
 
 	void call(GraphAttributes &GA);
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 	void call(MultilevelGraph &MLG);
 
 private:

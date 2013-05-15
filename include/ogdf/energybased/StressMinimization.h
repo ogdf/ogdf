@@ -1,9 +1,9 @@
 /*
- * $Revision: 3396 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:49:03 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -81,6 +81,8 @@ public:
 
 	//! Calls the layout algorithm with uniform edge costs.
 	void call(GraphAttributes& GA);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	//! Tells whether the current layout should be used or the initial layout
 	//! needs to be computed.

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3414 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-17 15:27:40 +0200 (Mi, 17. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -558,7 +558,7 @@ bool MaxCPlanarMaster::goodVar(node a, node b) {
 	return true; //add all variables even if they are bad (paper submission)
 	Logger::slout() << "Good Var? " << a << "->" << b << ": ";
 	GraphCopy GC(*m_G);
-	edge e = GC.newEdge(GC.copy(a),GC.copy(b));
+	GC.newEdge(GC.copy(a),GC.copy(b));
 	BoyerMyrvold bm;
 	bool ret =  bm.isPlanarDestructive(GC);
 	Logger::slout() << ret << "\n";

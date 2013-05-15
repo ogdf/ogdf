@@ -1,9 +1,9 @@
 /*
- * $Revision: 3005 $
+ * $Revision: 3431 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-12 14:19:48 +0100 (Mo, 12. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-22 12:01:35 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -86,7 +86,9 @@ public:
 	virtual ~BaseConstraint() { }
 
 	virtual int coeff(const nodePair& n) const = 0;
+	virtual double coeff(const abacus::Variable *v) const = 0;
 };
+
 }//end namespace ogdf
 
 #endif

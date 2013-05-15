@@ -1,9 +1,9 @@
 /*
- * $Revision: 2794 $
+ * $Revision: 3426 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-10-04 23:36:23 +0200 (Do, 04. Okt 2012) $
+ *   $Date: 2013-04-22 10:48:15 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -188,22 +188,6 @@ public:
 	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = 0);
 
 protected:
-	/**
-	 * \brief Implements the algorithm call.
-	 *
-	 * @param G is the input graph.
-	 * @param gridLayout is assigned the computed grid layout.
-	 * @param boundingBox returns the bounding box of the grid layout. The lower left
-	 *        corner of the bounding box is always (0,0), thus this IPoint defines the
-	 *        upper right corner as well as the width and height of the grid layout.
-	 */
-	virtual void doCall(
-		const Graph &G,
-		GridLayout &gridLayout,
-		IPoint &boundingBox)
-	{
-		doCall(G,0,gridLayout,boundingBox,false);
-	}
 
 	/**
 	 * \brief Implements the algorithm call.
@@ -221,12 +205,22 @@ protected:
 	 * @param fixEmbedding determines if the input graph is embedded and that embedding
 	 *        has to be preserved (true), or if an embedding needs to be computed (false).
 	 */
+
 	virtual void doCall(
 		const Graph &G,
 		adjEntry adjExternal,
 		GridLayout &gridLayout,
 		IPoint &boundingBox,
 		bool fixEmbedding) = 0;
+
+	//! Implements the GridLayoutModule::doCall().
+	virtual void doCall(
+		const Graph &G,
+		GridLayout &gridLayout,
+		IPoint &boundingBox)
+	{
+		doCall(G,0,gridLayout,boundingBox,false);
+	}
 };
 
 
@@ -318,7 +312,7 @@ protected:
 		IPoint &boundingBox,
 		bool fixEmbedding) = 0;
 
-private:
+
 	//! Implements PlanarGridLayoutModule::doCall().
 	void doCall(
 		const Graph &G,
@@ -326,6 +320,15 @@ private:
 		GridLayout &gridLayout,
 		IPoint &boundingBox,
 		bool fixEmbedding);
+
+	//! Implements the GridLayoutModule::doCall().
+	void doCall(
+		const Graph &G,
+		GridLayout &gridLayout,
+		IPoint &boundingBox)
+	{
+		PlanarGridLayoutModule::doCall(G,gridLayout,boundingBox);
+	}
 };
 
 

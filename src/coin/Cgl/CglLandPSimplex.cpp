@@ -2090,7 +2090,7 @@ struct reducedCost
     double value2;
     /** index of the row.*/
     int row;
-    bool operator<(const reducedCost & other)
+    bool operator<(const reducedCost & other) const
     {
         return (value>other.value);
     }

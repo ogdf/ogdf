@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -172,6 +172,8 @@ public:
 
 	//! Calls the multilevel layout algorithm for graph attributes \a GA.
 	void call(GraphAttributes &GA);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	/**
 	 * \brief Calls the multilevel layout algorithm for multilevel graph \a MLG.

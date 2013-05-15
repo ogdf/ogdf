@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3428 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 11:22:04 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -74,7 +74,7 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 		node mergeNode = candidates[index];
 		candidates[index] = candidates[candSize-1];
 		candSize--;
-		node parent;
+		node parent = 0;
 
 		if (mergeNode->degree() > 0) {
 			int index = randomNumber(0, mergeNode->degree()-1);

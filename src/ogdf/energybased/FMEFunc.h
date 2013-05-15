@@ -1,9 +1,9 @@
 /*
- * $Revision: 2565 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -514,7 +514,6 @@ private:
 	__uint32 numPointsPerThread;
 	__uint32 numThreads;
 	__uint32 currThread;
-	__uint32 currPointCount;
 	std::list<__uint32> l_par;
 	LinearQuadtree* tree;
 	FMELocalContext** localContexts;

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -104,6 +104,8 @@ public:
 		call(GA);
 		MLG.importAttributesSimple(GA);
 	};
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 	OGDF_MALLOC_NEW_DELETE
 };

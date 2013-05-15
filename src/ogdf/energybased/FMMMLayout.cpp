@@ -1,9 +1,9 @@
 /*
- * $Revision: 2565 $
+ * $Revision: 3430 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 11:23:21 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -1272,26 +1272,35 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 {
 	double s;
 
-	if(forceModel() == fmFruchtermanReingold)
+	switch(forceModel())
+	{
+	case  fmFruchtermanReingold:
 		s =  d*d/(ind_ideal_edge_length*ind_ideal_edge_length*ind_ideal_edge_length);
-	else if (forceModel() == fmEades)
-	{
-		double c = 10;
-		if (d == 0)
-			s = -1e10;
-		else
-			s =  c * Math::log2(d/ind_ideal_edge_length) /(ind_ideal_edge_length);
+		break;
+
+	case fmEades:
+		{
+			double c = 10;
+			if (d == 0)
+				s = -1e10;
+			else
+				s =  c * Math::log2(d/ind_ideal_edge_length) /(ind_ideal_edge_length);
+			break;
+		}
+	case fmNew:
+		{
+			double c =  Math::log2(d/ind_ideal_edge_length);
+			if (d > 0)
+				s =  c * d * d /
+				(ind_ideal_edge_length * ind_ideal_edge_length * ind_ideal_edge_length);
+			else
+				s = -1e10;
+			break;
+		}
+	default:
+		cerr << "Error FMMMLayout::f_attr_scalar" << endl;
+		OGDF_ASSERT(false);
 	}
-	else if (forceModel() == fmNew)
-	{
-		double c =  Math::log2(d/ind_ideal_edge_length);
-		if (d > 0)
-			s =  c * d * d /
-			(ind_ideal_edge_length * ind_ideal_edge_length * ind_ideal_edge_length);
-		else
-			s = -1e10;
-	}
-	else cout <<" Error FMMMLayout:: f_attr_scalar"<<endl;
 
 	return s;
 }

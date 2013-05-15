@@ -1,9 +1,9 @@
 /*
- * $Revision: 2815 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-10-14 23:25:34 +0200 (So, 14. Okt 2012) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -121,6 +121,9 @@ public:
 	//! Currently, GA.doubleWeight is NOT used to allow simple
 	//! distinction of BFS/APSS. Precondition: Graph is connected.
 	void call(GraphAttributes& GA);
+
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+
 	//! Calls the layout algorithm for graph attributes \a GA
 	//! using values in eLength for distance computation.
 	//! Precondition: Graph is connected.

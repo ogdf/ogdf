@@ -1,9 +1,9 @@
 /*
- * $Revision: 2566 $
+ * $Revision: 3441 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 23:10:08 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -92,15 +92,15 @@ void EmbedderMinDepthMaxFace::call(Graph& G, adjEntry& adjExternal)
 	// First step: calculate min depth and node lengths
 	//============================================================================
 	//Find root Block (only node with out-degree of 0):
-	node rootBlockNode;
-	forall_nodes(n, pBCTree->bcTree())
-	{
+	node rootBlockNode = 0;
+	forall_nodes(n, pBCTree->bcTree()) {
 		if (n->outdeg() == 0)
 		{
 			rootBlockNode = n;
 			break;
 		}
 	}
+	OGDF_ASSERT(rootBlockNode != 0);
 
 	/****************************************************************************/
 	/* MIN DEPTH                                                                */
@@ -864,7 +864,7 @@ void EmbedderMinDepthMaxFace::embedBlock(
 			bool no_recursion = false;
 			if (cT2 == cT)
 			{
-				node parent_bT_of_cT2;
+				node parent_bT_of_cT2 = 0;
 				edge e_cT2_to_bT2;
 				forall_adj_edges(e_cT2_to_bT2, cT2)
 				{
@@ -874,6 +874,7 @@ void EmbedderMinDepthMaxFace::embedBlock(
 						break;
 					}
 				}
+				OGDF_ASSERT(parent_bT_of_cT2 != 0);
 				if (treeNodeTreated[parent_bT_of_cT2])
 					no_recursion = true;
 			}

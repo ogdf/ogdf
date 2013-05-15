@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3433 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-22 13:44:53 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -75,6 +75,8 @@ namespace ogdf {
 		*        is represented by a bit of an <code>__uint32</code>.
 		*/
 		virtual void call(Level &L, const EdgeArray<__uint32> *esg) = 0;
+
+		void call(Level &L) = 0;
 	};
 
 

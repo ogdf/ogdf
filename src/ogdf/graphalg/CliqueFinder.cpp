@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3418 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-18 11:06:44 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -407,7 +407,7 @@ void CliqueFinder::doCall(int minDegree)
 			//TODO: cliquelist vielleicht durch einen member ersetzen
 			//und nicht das delete vergessen!
 #ifdef OGDF_DEBUG
-			int numC1 = cliqueList.size();
+			//int numC1 = cliqueList.size();
 
 			int nodeNum = 0;
 			ListIterator< List<node>* > itDeb = cliqueList.begin();

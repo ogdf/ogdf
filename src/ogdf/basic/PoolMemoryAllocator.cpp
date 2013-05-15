@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -142,7 +142,7 @@ bool PoolMemoryAllocator::checkSize(size_t nBytes) {
 
 void *PoolMemoryAllocator::allocate(size_t nBytes) {
 #if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey))+nBytes;
+	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
 #else
 	MemElemPtr &pFreeBytes = s_tp[nBytes];
 #endif
@@ -159,7 +159,7 @@ void *PoolMemoryAllocator::allocate(size_t nBytes) {
 
 void PoolMemoryAllocator::deallocate(size_t nBytes, void *p) {
 #if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey))+nBytes;
+	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
 #else
 	MemElemPtr &pFreeBytes = s_tp[nBytes];
 #endif
@@ -170,7 +170,7 @@ void PoolMemoryAllocator::deallocate(size_t nBytes, void *p) {
 
 void PoolMemoryAllocator::deallocateList(size_t nBytes, void *pHead, void *pTail) {
 #if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey))+nBytes;
+	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
 #else
 	MemElemPtr &pFreeBytes = s_tp[nBytes];
 #endif
@@ -185,9 +185,9 @@ void PoolMemoryAllocator::flushPool()
 #ifndef OGDF_MEMORY_POOL_NTS
 	for(__uint16 nBytes = 1; nBytes < eTableSize; ++nBytes) {
 #ifdef OGDF_NO_COMPILER_TLS
-		MemElemPtr p = ((MemElemPtr*)pthread_getspecific(s_tpKey))[nBytes];
+		MemElemPtr &pHead =  *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
 #else
-		MemElemPtr pHead = s_tp[nBytes];
+		MemElemPtr &pHead = s_tp[nBytes];
 #endif
 		if(pHead != 0) {
 			MemElemPtr pTail = pHead;
@@ -198,14 +198,15 @@ void PoolMemoryAllocator::flushPool()
 				++n;
 			}
 
-			s_tp[nBytes] = 0;
+			MemElemPtr pOldHead = pHead;
+			pHead = 0;
 
 			enterCS();
 
 			PoolElement &pe = s_pool[nBytes];
 
 			pTail->m_next = pe.m_gp;
-			pe.m_gp = pHead;
+			pe.m_gp = pOldHead;
 			pe.m_size += n;
 
 			leaveCS();
@@ -217,13 +218,14 @@ void PoolMemoryAllocator::flushPool()
 
 void *PoolMemoryAllocator::fillPool(MemElemPtr &pFreeBytes, __uint16 nBytes)
 {
-#ifdef OGDF_MEMORY_POOL_NTS
-	pFreeBytes = allocateBlock(nBytes);
-#else
-
 	int nWords;
 	int nSlices = slicesPerBlock(max(nBytes,(__uint16)eMinBytes),nWords);
 
+#ifdef OGDF_MEMORY_POOL_NTS
+	pFreeBytes = allocateBlock();
+	makeSlices(pFreeBytes, nWords, nSlices);
+
+#else
 	enterCS();
 
 	PoolElement &pe = s_pool[nBytes];

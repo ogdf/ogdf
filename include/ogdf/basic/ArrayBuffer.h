@@ -1,9 +1,9 @@
 /*
- * $Revision: 3395 $
+ * $Revision: 3415 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:28:20 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2013-04-17 15:40:21 +0200 (Mi, 17. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -376,6 +376,6 @@ ostream &operator<<(ostream &os, const ogdf::ArrayBuffer<E,INDEX> &a)
 	return os;
 }
 
-} //namespace
+} // end namespace ogdf
 
-#endif // OGDF_ARRAY_BUFFER_H
+#endif

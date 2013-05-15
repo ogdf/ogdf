@@ -1,9 +1,9 @@
 /*
- * $Revision: 3368 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -298,13 +298,17 @@ SubgraphPlanarizer::SubgraphPlanarizer()
 	m_permutations = 1;
 	m_setTimeout = true;
 
+#ifdef OGDF_MEMORY_POOL_NTS
+	m_maxThreads = 1;
+#else
 	m_maxThreads = System::numberOfProcessors();
+#endif
 }
 
 
 // copy constructor
 SubgraphPlanarizer::SubgraphPlanarizer(const SubgraphPlanarizer &planarizer)
-	: CrossingMinimizationModule(planarizer)
+	: CrossingMinimizationModule(planarizer), Logger()
 {
 	m_subgraph.set(planarizer.m_subgraph.get().clone());
 	m_inserter.set(planarizer.m_inserter.get().clone());

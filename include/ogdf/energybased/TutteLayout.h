@@ -1,9 +1,9 @@
 /*
- * $Revision: 3271 $
+ * $Revision: 3432 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-29 09:42:21 +0100 (Di, 29. Jan 2013) $
+ *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -96,7 +96,7 @@ public:
 
 	void call(GraphAttributes &AG);
 	void call(GraphAttributes &AG, const List<node> &givenNodes);
-
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
 
 private:
 

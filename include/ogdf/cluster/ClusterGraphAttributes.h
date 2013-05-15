@@ -1,9 +1,9 @@
 /*
- * $Revision: 3340 $
+ * $Revision: 3427 $
  *
  * last checkin:
- *   $Author: klein $
- *   $Date: 2013-03-09 03:03:04 +0100 (Sa, 09. Mär 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-04-22 10:55:42 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -116,6 +116,11 @@ namespace ogdf {
 
 		//! Initializes the cluster graph attributes for cluster graph \a cg with attributes \a initAttributes.
 		virtual void init(ClusterGraph &cg, long initAttributes = 0);
+
+		//! Forbidden initialization, use init(ClusterGraph &cg, long initAttributes) instead!
+		virtual void init(const Graph &, long) {
+			OGDF_THROW(Exception); // We need a cluster graph for initialization
+		}
 
 		//! Initializes the attributes according to \a initAttributes.
 		virtual void initAtt(long initAttributes = 0) {

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3422 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-04-19 09:30:03 +0200 (Fr, 19. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -59,6 +59,9 @@
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
 #include <Psapi.h>
 #include <process.h>
+#ifdef _MSC_VER
+#pragma comment(lib, "psapi.lib")
+#endif
 #endif
 
 #ifdef _MSC_VER

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2571 $
+ * $Revision: 3439 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-10 17:25:20 +0200 (Di, 10. Jul 2012) $
+ *   $Date: 2013-04-22 14:49:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -105,17 +105,20 @@ void NodeInfo::get_data(
 int NodeInfo::free_coord(OrthoDir s_main, OrthoDir s_to)
 {
 	int result = coord(s_main);
-	int offset;
+
 	switch (s_main)
 	{
-	case odNorth: offset = flips(odNorth, s_to)*delta(s_to, odNorth);
-	case odSouth: offset = flips(odSouth, s_to)*delta(s_to, odSouth);
-	case odWest: offset = flips(odWest, s_to)*delta(s_to, odWest);
-	case odEast: offset = -flips(odEast, s_to)*delta(s_to, odEast);
-		OGDF_NODEFAULT
+	case odNorth:
+		result += flips(odNorth, s_to)*delta(s_to, odNorth);
+	case odSouth:
+		result += flips(odSouth, s_to)*delta(s_to, odSouth);
+	case odWest:
+		result += flips(odWest, s_to)*delta(s_to, odWest);
+	case odEast:
+		result += -flips(odEast, s_to)*delta(s_to, odEast);
+	OGDF_NODEFAULT
 	}//switch
 
-	result = result + offset;
 	return result;
 }//freecoord
 

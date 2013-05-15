@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3436 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-04-22 14:29:21 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -92,6 +92,10 @@ public:
 	//! Initializes a new PQ-tree with a set of leaves.
 	virtual int Initialize(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys);
 
+	int Initialize(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) {
+		return MaxSequencePQTree<edge,bool>::Initialize(leafKeys);
+	}
+
 	//! Replaces the pertinent subtree by a set of new leaves.
 	void ReplaceRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys);
 
@@ -99,6 +103,10 @@ public:
 	virtual bool Reduction(
 		SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys,
 		SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys);
+
+	bool Reduction(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) {
+		return MaxSequencePQTree<edge,bool>::Reduction(leafKeys);
+	}
 
 private:
 

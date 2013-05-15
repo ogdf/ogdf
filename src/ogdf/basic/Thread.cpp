@@ -1,9 +1,9 @@
 /*
- * $Revision: 3385 $
+ * $Revision: 3417 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-08 14:39:35 +0200 (Mo, 08. Apr 2013) $
+ *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -311,7 +311,7 @@ namespace ogdf {
 
 
 	// not supported
-	__uint64 Thread::cpuAffinity(__uint64 /* mask */) { }
+	__uint64 Thread::cpuAffinity(__uint64 mask) { return mask; }
 
 	void Thread::start()
 	{

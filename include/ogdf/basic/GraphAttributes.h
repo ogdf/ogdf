@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3423 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-04-19 19:22:01 +0200 (Fr, 19. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -416,11 +416,11 @@ public:
 		m_edgeStroke[e].m_type = st;
 	}
 
-	//! Returns the stroke color of node \a v.
+	//! Returns the stroke color of edge \a e.
 	const Color &strokeColor(edge e) const {
 		return m_edgeStroke[e].m_color;
 	}
-	//! Returns the stroke color of node \a v.
+	//! Returns the stroke color of edge \a e.
 	Color &strokeColor(edge e) {
 		return m_edgeStroke[e].m_color;
 	}

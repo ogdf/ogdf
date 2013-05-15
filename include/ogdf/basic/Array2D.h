@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3445 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-04-24 11:08:43 +0200 (Mi, 24. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -267,19 +267,19 @@ void Array2D<E>::copy(const Array2D<E> &array2)
 template<class E>
 float Array2D<E>::det() const
 {
+	// matrix must be quadratic
+	OGDF_ASSERT(size1() == size2());
+
 	int a = m_a;
 	int b = m_b;
 	int c = m_c;
 	int d = m_d;
-	int m = m_b - m_a + 1;
 	int n = m_lenDim2;
 
 	int i, j;
 	int rem_i, rem_j, column;
 
 	float determinant = 0.0;
-
-	OGDF_ASSERT(m == n);
 
 	switch(n) {
 	case 0:

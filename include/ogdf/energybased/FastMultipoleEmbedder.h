@@ -1,9 +1,9 @@
 /*
- * $Revision: 2641 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Do, 19. Jul 2012) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -82,6 +82,8 @@ public:
 		const EdgeArray<float>& edgeLength,
 		const NodeArray<float>& nodeSize);
 
+	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+
 	//! Calls the algorithm for graph \a GA with the given edgelength and returns the layout information in \a GA.
 	void call(GraphAttributes &GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
 
@@ -104,7 +106,11 @@ public:
 	void setDefaultNodeSize(float nodeSize) { m_defaultNodeSize = nodeSize; }
 
 	//!
-	void setNumberOfThreads(__uint32 numThreads) { m_maxNumberOfThreads = numThreads; }
+	void setNumberOfThreads(__uint32 numThreads) {
+#ifndef OGDF_MEMORY_POOL_NTS
+		m_maxNumberOfThreads = numThreads;
+#endif
+	}
 
 	//void setEnablePostProcessing(bool b) { m_doPostProcessing = b; }
 private:
@@ -210,7 +216,6 @@ private:
 	NodeArray<float>  m_adjustedNodeSize;
 	int				  m_iCurrentLevelNr;
 
-	Graph*			  m_pLastGraph;
 	NodeArray<float>* m_pLastNodeXPos;
 	NodeArray<float>* m_pLastNodeYPos;
 };

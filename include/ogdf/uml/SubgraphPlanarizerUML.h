@@ -1,9 +1,9 @@
 /*
- * $Revision: 3368 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -171,7 +171,11 @@ public:
 	int maxThreads() const { return m_maxThreads; }
 
 	//! Sets the maximal number of used threads to \a n.
-	void maxThreads(int n) { m_maxThreads = n; }
+	void maxThreads(int n) {
+#ifndef OGDF_MEMORY_POOL_NTS
+		m_maxThreads = n;
+#endif
+	}
 
 private:
 	static void doWorkHelper(ThreadMaster &master, UMLEdgeInsertionModule &inserter

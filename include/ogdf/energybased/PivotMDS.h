@@ -1,9 +1,9 @@
 /*
- * $Revision: 3397 $
+ * $Revision: 3415 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:55:46 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2013-04-17 15:40:21 +0200 (Mi, 17. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -43,14 +43,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef PIVOTMDS_H_
-#define PIVOTMDS_H_
+#ifndef OGDF_PIVOT_MDS_H
+#define OGDF_PIVOT_MDS_H
 
-#include <limits>
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
 #include <ogdf/module/LayoutModule.h>
+
 
 namespace ogdf {
 
@@ -61,6 +61,7 @@ inline bool isnan(T value)
 	return value != value;
 }
 #endif
+
 
 #ifndef isinf
 // requires #include <limits>
@@ -73,29 +74,30 @@ value == std::numeric_limits<T>::infinity();
 #endif
 
 
-class OGDF_EXPORT PivotMDS: public ogdf::LayoutModule {
+class OGDF_EXPORT PivotMDS : public LayoutModule {
 public:
-	PivotMDS() :
-			m_numberOfPivots(250), m_edgeCosts(100), m_hasEdgeCostsAttribute(
-					false) {
+	PivotMDS() : m_numberOfPivots(250), m_edgeCosts(100), m_hasEdgeCostsAttribute(false) { }
 
-	}
-
-	virtual ~PivotMDS() {
-	}
+	virtual ~PivotMDS() { }
 
 	//! Sets the number of pivots. If the new value is smaller or equal 0
 	//! the default value (250) is used.
-	inline void setNumberOfPivots(int numberOfPivots);
+	void setNumberOfPivots(int numberOfPivots) {
+		m_numberOfPivots = (numberOfPivots < DIMENSION_COUNT) ? DIMENSION_COUNT : numberOfPivots;
+	}
 
 	//! Sets the desired distance between adjacent nodes. If the new value is smaller or equal
 	//! 0 the default value (100) is used.
-	inline void setEdgeCosts(double edgeCosts);
+	void setEdgeCosts(double edgeCosts){
+		m_edgeCosts = edgeCosts;
+	}
 
 	//! Calls the layout algorithm for graph attributes \a GA.
 	void call(GraphAttributes& GA);
 
-	inline void useEdgeCostsAttribute(bool useEdgeCostsAttribute);
+	void useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
+		m_hasEdgeCostsAttribute = useEdgeCostsAttribute;
+	}
 
 private:
 
@@ -135,12 +137,13 @@ private:
 	void doPathLayout(GraphAttributes& GA, const node& v);
 
 	//! Computes the eigen value decomposition based on power iteration.
-	void eigenValueDecomposition(Array<Array<double> >& K,
-			Array<Array<double> >& eVecs, Array<double>& eValues);
+	void eigenValueDecomposition(
+		Array<Array<double> >& K,
+		Array<Array<double> >& eVecs,
+		Array<double>& eValues);
 
 	//! Computes the pivot distance matrix based on the maxmin strategy
-	void getPivotDistanceMatrix(const GraphAttributes& GA,
-			Array<Array<double> >& pivDistMatrix);
+	void getPivotDistanceMatrix(const GraphAttributes& GA, Array<Array<double> >& pivDistMatrix);
 
 	//! Checks whether the given graph is a path or not.
 	node getRootedPath(const Graph& G);
@@ -155,28 +158,16 @@ private:
 	void randomize(Array<Array<double> >& matrix);
 
 	//! Computes the self product of \a d.
-	void selfProduct(const Array<Array<double> >&d,
-			Array<Array<double> >& result);
+	void selfProduct(const Array<Array<double> >&d, Array<Array<double> >& result);
 
 	//! Computes the singular value decomposition of matrix \a K.
-	void singularValueDecomposition(Array<Array<double> >& K,
-			Array<Array<double> >& eVecs, Array<double>& eVals);
+	void singularValueDecomposition(
+		Array<Array<double> >& K,
+		Array<Array<double> >& eVecs,
+		Array<double>& eVals);
 };
 
-void PivotMDS::setNumberOfPivots(int numberOfPivots) {
-	m_numberOfPivots =
-			(numberOfPivots < DIMENSION_COUNT) ?
-					DIMENSION_COUNT : numberOfPivots;
-}
 
-void PivotMDS::setEdgeCosts(double edgeCosts) {
-	m_edgeCosts = edgeCosts;
-}
+} // end namespace ogdf
 
-void PivotMDS::useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
-	m_hasEdgeCostsAttribute = useEdgeCostsAttribute;
-}
-
-}
-/* namespace ogdf */
-#endif /* PIVOTMDS_H_ */
+#endif

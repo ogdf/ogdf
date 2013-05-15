@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -53,7 +53,10 @@
 
 namespace ogdf {
 
-Graph::Graph() : m_csRegArrays(500)
+Graph::Graph()
+#ifndef OGDF_MEMORY_POOL_NTS
+	: m_csRegArrays(500)
+#endif
 {
 	m_nNodes = m_nEdges = m_nodeIdCount = m_edgeIdCount = 0;
 	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
@@ -61,7 +64,10 @@ Graph::Graph() : m_csRegArrays(500)
 }
 
 
-Graph::Graph(const Graph &G) : m_csRegArrays(500)
+Graph::Graph(const Graph &G)
+#ifndef OGDF_MEMORY_POOL_NTS
+	: m_csRegArrays(500)
+#endif
 {
 	m_nNodes = m_nEdges = m_nodeIdCount = m_edgeIdCount = 0;
 	copy(G);

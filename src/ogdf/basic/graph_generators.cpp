@@ -1,9 +1,9 @@
 /*
- * $Revision: 3265 $
+ * $Revision: 3442 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-28 13:50:21 +0100 (Mo, 28. Jan 2013) $
+ *   $Author: zeranski $
+ *   $Date: 2013-04-23 18:10:15 +0200 (Di, 23. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,6 +49,9 @@
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Array2D.h>
+
+#include <ogdf/planarity/PlanarizationGridLayout.h>
+#include <ogdf/planarlayout/SchnyderLayout.h>
 
 
 namespace ogdf {
@@ -220,7 +223,6 @@ void randomBiconnectedGraph(Graph &G, int n, int m)
 		}
 	}
 }
-
 
 void randomTriconnectedGraph(Graph &G, int n, double p1, double p2)
 {
@@ -647,6 +649,53 @@ void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 		}
 
 	}
+}
+
+void upwardPlanarBiconnectedDiGraph(Graph &G, int n, int m)
+{
+	planarBiconnectedDiGraph(G,n,m);
+}
+
+void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
+{
+	OGDF_ASSERT(p >= 0 && p < 1.0);
+	
+	GraphAttributes GA(G, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
+	
+	planarBiconnectedGraph(G,n,m,multiEdges);
+
+	SchnyderLayout sl;
+	sl.call(GA);
+	
+	edge e;
+	forall_edges(e,G) {
+		
+		node u = e->source();
+		node v = e->target();
+		
+		bool x = GA.x(u) >  GA.x(v);
+		bool y = GA.x(u) == GA.x(v) && GA.y(u) > GA.y(v);
+		
+		if (x || y) G.reverseEdge(e);
+
+	}
+	
+	const int MAX_ERR = (int)(G.numberOfEdges() * (1/(1-p)));
+	List<edge> backedges;
+	int it_dag = 0;
+	int err_dl = 0;
+	const double th = G.numberOfEdges()*p;
+	while(it_dag < th && err_dl < MAX_ERR) {
+			edge e = G.chooseEdge();
+			G.reverseEdge(e);
+			if (isAcyclic(G, backedges)) {
+				it_dag++;
+			} else {
+				err_dl++;
+				G.reverseEdge(e);
+			}
+	}
+	
 }
 
 void planarCNBGraph(Graph &G, int n, int m,	int b)

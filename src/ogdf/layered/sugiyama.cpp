@@ -1,9 +1,9 @@
 /*
- * $Revision: 3219 $
+ * $Revision: 3472 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 13:49:45 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -52,6 +52,7 @@
 #include <ogdf/packing/TileToRowsCCPacker.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Thread.h>
+#include <ogdf/basic/CriticalSection.h>
 
 #include <algorithm>
 
@@ -1035,7 +1036,11 @@ SugiyamaLayout::SugiyamaLayout()
 	m_minDistCC = 20;
 	m_pageRatio = 1.0;
 
+#ifdef OGDF_MEMORY_POOL_NTS
+	m_maxThreads = 1;
+#else
 	m_maxThreads = System::numberOfProcessors();
+#endif
 
 	m_alignBaseClasses = false;
 	m_alignSiblings = false;
@@ -1133,7 +1138,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			reduceCrossings(levels);
 			totalCrossings += m_nCrossings;
 
-			m_layout.get().call(H,AG);
+			m_layout.get().call(levels,AG);
 
 			double
 				minX =  numeric_limits<double>::max(),
@@ -1286,7 +1291,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		reduceCrossings(levels);
 		m_compGC.init();
 
-		m_layout.get().call(H,AG);
+		m_layout.get().call(levels,AG);
 
 		if(optimizeHorizEdges)
 		{

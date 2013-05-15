@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -69,8 +69,6 @@ private:
 	Array<List<node> > nodesInCC;
 	int m_numberOfComponents;
 	double m_targetRatio;
-	int m_minDistCC;
-	int m_rotatingSteps;
 	int m_border;
 
 	//! Combines drawings of connected components to

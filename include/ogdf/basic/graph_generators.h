@@ -1,9 +1,9 @@
 /*
- * $Revision: 3263 $
+ * $Revision: 3475 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-01-28 11:43:43 +0100 (Mo, 28. Jan 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -95,6 +95,25 @@ OGDF_EXPORT void planarConnectedGraph(Graph &G, int n, int m);
  *        multi-edges.
  */
 OGDF_EXPORT void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges = false);
+
+//! Creates a planar biconnected (embedded) DiGraph.
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes of the generated graph.
+ * @param m is the number of edges of the generated graph.
+ * @param p up to \a m * \a p edges will be reversed preversing acyclicity; default = 0.0.
+ * @param multiEdges determines if the generated graph may contain
+ *        multi-edges; default = false.
+ */
+OGDF_EXPORT void planarBiconnectedDiGraph(Graph &G, int n, int m, double p = 0, bool multiEdges = false);
+
+//! Creates a upward planar biconnected (embedded) DiGraph.
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes of the generated graph.
+ * @param m is the number of edges of the generated graph.
+ */
+OGDF_EXPORT void upwardPlanarBiconnectedDiGraph(Graph &G, int n, int m);
 
 //! Creates a planar graph, that is connected, but not biconnected.
 /*   @param n is the max. number of nodes in each biconencted component

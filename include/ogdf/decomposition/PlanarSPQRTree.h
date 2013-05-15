@@ -1,9 +1,9 @@
 /*
- * $Revision: 3362 $
+ * $Revision: 3477 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-04-03 12:00:54 +0200 (Mi, 03. Apr 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-02 10:49:30 +0200 (Do, 02. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -95,7 +95,7 @@ public:
 	//! Returns the number of possible embeddings of the skeleton of node \a vT.
 	/**
 	 * \pre \a vT is a node in \a T
-	 * Returns 1 if vT is a S-node, 2 if vT is a R-node, and (#edges of the sekeleton - 1)! if vT is a P-node.
+	 * Returns 1 if vT is a S-node, 2 if vT is a R-node, and (number of edges in the sekeleton - 1)! if vT is a P-node.
 	 */
 	double numberOfNodeEmbeddings(node vT);
 
@@ -158,7 +158,7 @@ public:
 	
 	//! Embeds the skeleton of the node vT with the specific embedding numbered by x.
 	/**
-	 * \pre To work correctly vT has to be a node of the SPQR-tree and 0 \le x \le # of embeddings of vT's skeleton
+	 * \pre To work correctly vT has to be a node of the SPQR-tree and 0 &le; x &le; number of embeddings of vT's skeleton
 	 * \pre It does not work at the same time with firstEmbedding and nextEmbedding
 	 */
 	void embed(node &vT, int x);

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3396 $
+ * $Revision: 3454 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:49:03 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2013-04-24 14:02:22 +0200 (Mi, 24. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -182,7 +182,6 @@ double StressMinimization::calcStress(
 	NodeArray<NodeArray<double> >& shortestPathMatrix,
 	NodeArray<NodeArray<double> >& weightMatrix)
 {
-	const int nodeCount = GA.constGraph().numberOfNodes() - 1;
 	double stress = 0;
 	node v;
 	node w;
@@ -246,8 +245,8 @@ void StressMinimization::minimizeStress(
 	const Graph& G = GA.constGraph();
 	int numberOfPerformedIterations = 0;
 
-	double prevStress;
-	double curStress;
+	double prevStress = DBL_MAX;
+	double curStress = DBL_MAX;
 
 	if (m_terminationCriterion == STRESS) {
 		curStress = calcStress(GA, shortestPathMatrix, weightMatrix);
@@ -408,7 +407,7 @@ bool StressMinimization::finished(
 			double dividend = 0;
 			double diffX;
 			double diffY;
-			// compute the translation of all node between
+			// compute the translation of all nodes between
 			// the consecutive layouts
 			forall_nodes(v, GA.constGraph())
 			{

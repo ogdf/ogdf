@@ -1,9 +1,9 @@
 /*
- * $Revision: 2988 $
+ * $Revision: 3425 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-08 11:22:19 +0100 (Do, 08. Nov 2012) $
+ *   $Date: 2013-04-22 10:19:37 +0200 (Mo, 22. Apr 2013) $
  ***************************************************************/
 
 /** \file
@@ -176,8 +176,6 @@ private:
 
 	void insertBasicArcs(const PlanRep &PG);
 
-	node m_superSource;
-	node m_superSink;
 	SList<node> m_sources;
 	SList<node> m_sinks;
 
