@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -956,10 +956,10 @@ void TricComp::pathSearch (const Graph& G, node v)
 #endif
 
 				CompStruct &C = newComp();
-				edge xy;
 				int x;
+				OGDF_ASSERT(!m_ESTACK.empty()); // otherwise undefined behavior since x is not initialized
 				while (!m_ESTACK.empty()) {
-					xy = m_ESTACK.top();
+					edge xy = m_ESTACK.top();
 					x = m_NEWNUM[xy->source()];
 					y = m_NEWNUM[xy->target()];
 

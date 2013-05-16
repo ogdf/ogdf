@@ -1,9 +1,9 @@
 /*
- * $Revision: 3472 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -1497,7 +1497,7 @@ Graph::CCsInfo::CCsInfo(const Graph& G)
 	SListConstIterator<int> it;
 	for(it = startNodes.begin(), i = 1; it.valid(); ++it, ++i)
 		m_startNode[i] = *it;
-	
+
 
 	m_startEdge.init(nComponent+1);
 	m_startEdge[0] = 0;

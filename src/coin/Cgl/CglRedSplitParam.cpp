@@ -1,5 +1,5 @@
 // Name:     CglRedSplitParam.cpp
-// Author:   Francois Margot                                                  
+// Author:   Francois Margot
 //           Tepper School of Business
 //           Carnegie Mellon University, Pittsburgh, PA 15213
 // Date:     11/24/06
@@ -36,7 +36,7 @@ void CglRedSplitParam::setMaxTab(const double value)
     maxTab_ = value;
   }
   else {
-    printf("### WARNING: CglRedSplitParam::setMaxTab(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplitParam::setMaxTab(): value: %f ignored\n",
 	   value);
   }
 }
@@ -80,7 +80,7 @@ void CglRedSplitParam::setMAXDYN(double value)
     MAXDYN = value;
   }
   else {
-    printf("### WARNING: CglRedSplit::setMAXDYN(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplit::setMAXDYN(): value: %f ignored\n",
 	   value);
   }
 } /* setMAXDYN */
@@ -92,7 +92,7 @@ void CglRedSplitParam::setMAXDYN_LUB(double value)
     MAXDYN_LUB = value;
   }
   else {
-    printf("### WARNING: CglRedSplit::setMAXDYN_LUB(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplit::setMAXDYN_LUB(): value: %f ignored\n",
 	   value);
   }
 } /* setMAXDYN_LUB */
@@ -104,7 +104,7 @@ void CglRedSplitParam::setEPS_COEFF_LUB(const double value)
     EPS_COEFF_LUB = value;
   }
   else {
-    printf("### WARNING: CglRedSplitParam::setEPS_COEFF_LUB(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplitParam::setEPS_COEFF_LUB(): value: %f ignored\n",
 	   value);
   }
 } /* setEPS_COEFF_LUB */
@@ -116,7 +116,7 @@ void CglRedSplitParam::setMINVIOL(double value)
     MINVIOL = value;
   }
   else {
-    printf("### WARNING: CglRedSplitParam::setMINVIOL(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplitParam::setMINVIOL(): value: %f ignored\n",
 	   value);
   }
 } /* setMINVIOL */
@@ -192,9 +192,9 @@ CglRedSplitParam::CglRedSplitParam(const double lub,
 /***********************************************************************/
 CglRedSplitParam::CglRedSplitParam(const CglParam &source,
 				   const double lub,
-				   const double eps_el, 
-				   const double eps_ra, 
-				   const double eps_rr, 
+				   const double eps_el,
+				   const double eps_ra,
+				   const double eps_rr,
 				   const double max_dyn,
 				   const double max_dyn_lub,
 				   const double eps_coeff_lub,
@@ -206,7 +206,7 @@ CglRedSplitParam::CglRedSplitParam(const CglParam &source,
 				   const double away,
 				   const double max_tab) :
 
-  CglParam(source), 
+  CglParam(source),
   LUB(lub),
   EPS_ELIM(eps_el),
   EPS_RELAX_ABS(eps_ra),

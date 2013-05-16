@@ -41,7 +41,7 @@ CoinPostsolveMatrix::CoinPostsolveMatrix
     cdone_(0),
     rdone_(0)
 
-{ /* nothing to do here */ 
+{ /* nothing to do here */
 
   return ; }
 

@@ -798,7 +798,7 @@ CglLandPSimplex::optimize
 
                 bool pivoted = changeBasis(incoming,leaving,direction,
 #ifndef OLD_COMPUTATION
-                                           recompute_source_row, 
+                                           recompute_source_row,
 #endif
                                            false);//params.modularize);
 
@@ -976,7 +976,7 @@ CglLandPSimplex::changeBasis(int incoming, int leaving, int leavingStatus,
 	  }
       }
 #endif
-    
+
     if (indexLeaving < ncols_)
       {
 	basis_->setStructStatus(indexLeaving, leavingStatus==1 ? CoinWarmStartBasis::atUpperBound : CoinWarmStartBasis::atLowerBound);
@@ -987,7 +987,7 @@ CglLandPSimplex::changeBasis(int incoming, int leaving, int leavingStatus,
 	basis_->setArtifStatus(iRow,  leavingStatus==1 ? CoinWarmStartBasis::atUpperBound : CoinWarmStartBasis::atLowerBound);
 	//    assert(leavingStatus==-1 || (rowLower_[iRow]>-1e50 && rowUpper_[iRow] < 1e50));
       }
-    
+
     if (nonBasics_[incoming] < ncols_)
       {
 	int & indexIncoming = nonBasics_[incoming];
@@ -1002,21 +1002,21 @@ CglLandPSimplex::changeBasis(int incoming, int leaving, int leavingStatus,
       {
 	int iRow = nonBasics_[incoming] - ncols_;
 	int & indexIncoming = nonBasics_[incoming];
-	
+
 	if (basis_->getArtifStatus(iRow)==CoinWarmStartBasis::atUpperBound)
 	  setColsolToCut(indexIncoming, getUpBound(indexIncoming) - getColsolToCut(indexIncoming));
 	else
 	  setColsolToCut(indexIncoming, getColsolToCut(indexIncoming) + getLoBound(indexIncoming));
-	
+
 	basis_->setArtifStatus(iRow,  CoinWarmStartBasis::basic);
       }
-    
+
     int swap = basics_[leaving];
     basics_[leaving] = nonBasics_[incoming];
     nonBasics_[incoming] = swap;
     //update solution of leaving variable
     colsol_[nonBasics_[incoming]] = 0;
-    
+
     //update solution for basics
     const double * lpSol = si_->getColSolution();
     const double * rowAct = si_->getRowActivity();
@@ -1100,7 +1100,7 @@ else //Update row k by hand
     VecModEqAssert(row_k_, test_row);
 #endif
 }
-    
+
     return true;
 }
 
@@ -1202,7 +1202,7 @@ CglLandPSimplex::findCutImprovingPivotRow( int &direction, int &gammaSign, doubl
         row_i_.num=bestRow;
         pullTableauRow(row_i_);
     }
-    assert (bestRow<0||direction!=0); 
+    assert (bestRow<0||direction!=0);
     return bestRow;
 }
 
@@ -1611,7 +1611,7 @@ CglLandPSimplex::fastFindCutImprovingPivotRow( int &direction, int &gammaSign,
         bestRow<<basics_[bestRow]<<direction<<gammaSign<<bestReducedCost
         <<CoinMessageEol;
     }
-    assert (bestRow<0||direction!=0); 
+    assert (bestRow<0||direction!=0);
     return bestRow;
 }
 
@@ -1690,7 +1690,7 @@ CglLandPSimplex::rescanReducedCosts( int &direction, int &gammaSign, double tole
         bestRow<<basics_[bestRow]<<direction<<gammaSign<<bestReducedCost
         <<CoinMessageEol;
     }
-    assert (bestRow<0||direction!=0); 
+    assert (bestRow<0||direction!=0);
     return bestRow;
 }
 
@@ -1766,14 +1766,14 @@ CglLandPSimplex::fastFindBestPivotColumn(int direction, int gammaSign,
 
     double fzero = getColsolToCut(basics_[row_k_.num]) - floor(getColsolToCut(basics_[row_k_.num]));
 
- 
+
 
     double p = 0;
     double q = 0;
     if(!modularize){//Take a shortcut
       p = -row_k_.rhs * (1 - fzero);
       q = row_i_.rhs * fzero;
-      
+
       if (gammaSign < 0){
 	q -= row_i_.rhs;
       }
@@ -1990,13 +1990,13 @@ CglLandPSimplex::fastFindBestPivotColumn(int direction, int gammaSign,
     {
         handler_->message(FoundBestImprovingCol, messages_)<<nonBasics_[bestColumn]<<gammaSign * elements[lastValid]<<bestSigma<<CoinMessageEol<<CoinMessageEol;
         inDegenerateSequence_ = false;
-        assert (bestColumn<0||direction!=0); 
+        assert (bestColumn<0||direction!=0);
         return bestColumn;
     }
     else if (allowDegenerate)   //Pivot is degenerate and we allow
     {
         inDegenerateSequence_ = true;
-        assert (bestColumn<0||direction!=0); 
+        assert (bestColumn<0||direction!=0);
         return bestColumn;
     }
     else   //we don't accept a degenerate pivot

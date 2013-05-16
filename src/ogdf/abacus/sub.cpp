@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /*!\file
@@ -2970,7 +2970,7 @@ int Sub::set(int i, FSVarStat::STATUS newStat, double value, bool &newValue)
 		// is variable set to a new value
 		// If a variable is fixed according to logical implications before
 		// the subproblem is processed, then no \a lp_ is available.
-		
+
 		if (lp_ == 0) newValue = false;
 		else {
 			double x = xVal_[i];
@@ -2990,7 +2990,7 @@ int Sub::set(int i, FSVarStat::STATUS newStat, double value, bool &newValue)
 		// in the subproblem. The bounds in the linear program can only be
 		// changed if the variable is not eliminated. However if the variable
 		// is set to a different bound, then we would have detected a contradiction.
-		
+
 		double newBound = fixSetNewBound(i);
 
 		(*lBound_)[i] = newBound;

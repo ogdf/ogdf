@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -143,10 +143,10 @@ public:
 	complex<double>* get_local_exp () const {return LE;}
 	complex<double>* get_multipole_exp () const {return ME;}
 	void get_contained_nodes(List<node>& L) const {L =  contained_nodes;}
-	void get_I (List <QuadTreeNodeNM*>& l){l = I;}
-	void get_D1 (List <QuadTreeNodeNM*>& l){l = D1;}
-	void get_D2 (List <QuadTreeNodeNM*>& l){l = D2;}
-	void get_M (List <QuadTreeNodeNM*>& l){l = M;}
+	void get_I (List <QuadTreeNodeNM*>& l) const {l = I;}
+	void get_D1 (List <QuadTreeNodeNM*>& l) const {l = D1;}
+	void get_D2 (List <QuadTreeNodeNM*>& l) const {l = D2;}
+	void get_M (List <QuadTreeNodeNM*>& l) const {l = M;}
 
 	QuadTreeNodeNM* get_father_ptr ()   const {return father_ptr;}
 	QuadTreeNodeNM* get_child_lt_ptr () const {return child_lt_ptr;}

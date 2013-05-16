@@ -13,7 +13,7 @@
 #include <iostream>
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiColCut::OsiColCut() :
    OsiCut(),
@@ -23,13 +23,13 @@ OsiColCut::OsiColCut() :
   // nothing to do here
 }
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiColCut::OsiColCut(const OsiColCut & source) :
    OsiCut(source),
    lbs_(source.lbs_),
    ubs_(source.ubs_)
-{  
+{
   // Nothing to do here
 }
 
@@ -41,7 +41,7 @@ OsiColCut * OsiColCut::clone() const
 { return (new OsiColCut(*this)); }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiColCut::~OsiColCut ()
 {
@@ -49,13 +49,13 @@ OsiColCut::~OsiColCut ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiColCut &
 OsiColCut::operator=(const OsiColCut& rhs)
 {
   if (this != &rhs) {
-    
+
     OsiCut::operator=(rhs);
     lbs_=rhs.lbs_;
     ubs_=rhs.ubs_;
@@ -90,11 +90,11 @@ OsiColCut::print() const
   }
   std::cout<<std::endl;
 }
-/* Returns infeasibility of the cut with respect to solution 
-    passed in i.e. is positive if cuts off that solution.  
+/* Returns infeasibility of the cut with respect to solution
+    passed in i.e. is positive if cuts off that solution.
     solution is getNumCols() long..
 */
-double 
+double
 OsiColCut::violated(const double * solution) const
 {
   const CoinPackedVector & cutLbs = lbs();

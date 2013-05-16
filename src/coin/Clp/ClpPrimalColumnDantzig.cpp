@@ -131,7 +131,7 @@ ClpPrimalColumnDantzig::pivotColumn(CoinIndexedVector * updates,
      int iSequence;
      reducedCost = model_->djRegion();
 
-#ifndef CLP_PRIMAL_SLACK_MULTIPLIER 
+#ifndef CLP_PRIMAL_SLACK_MULTIPLIER
      for (iSequence = 0; iSequence < number; iSequence++) {
           // check flagged variable
           if (!model_->flagged(iSequence)) {

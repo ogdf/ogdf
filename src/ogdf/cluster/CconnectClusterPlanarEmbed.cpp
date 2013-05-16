@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -1564,10 +1564,9 @@ bool CconnectClusterPlanarEmbed::preparation(Graph &subGraph,
 				tableEdgesBiComp2SubGraph[tableEdgesSubGraph2BiComp[*it]] = *it;
 
 			NodeArray<int> numbering(*biCompOfSubGraph,0);
-			int n;
 			if (bcIdSuperSink == i)
 			{
-				n = stNumber(*biCompOfSubGraph,numbering,0,tableNodesSubGraph2BiComp[superSink]);
+				int n = stNumber(*biCompOfSubGraph,numbering,0,tableNodesSubGraph2BiComp[superSink]);
 				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(*biCompOfSubGraph,numbering,n))
 
 				// Initialize the container class for storing all information
@@ -1585,7 +1584,7 @@ bool CconnectClusterPlanarEmbed::preparation(Graph &subGraph,
 			}
 			else
 			{
-				n = stNumber(*biCompOfSubGraph,numbering);
+				int n = stNumber(*biCompOfSubGraph,numbering);
 				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(*biCompOfSubGraph,numbering,n));
 				cPlanar = doEmbed(
 					biCompOfSubGraph,
@@ -1712,7 +1711,7 @@ bool CconnectClusterPlanarEmbed::doEmbed(Graph *biconComp,
 
 	Array<bool> toReverse(1,biconComp->numberOfNodes()+1,false);
 
-	PlanarLeafKey<IndInfo*>* stEdgeLeaf;
+	PlanarLeafKey<IndInfo*>* stEdgeLeaf = NULL;
 
 	forall_nodes(v,*biconComp)
 	{

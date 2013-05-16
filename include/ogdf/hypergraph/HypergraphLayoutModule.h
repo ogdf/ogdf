@@ -1,13 +1,13 @@
 /*
- * $Revision: 3381 $
+ * $Revision: 3505 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-08 09:11:35 +0200 (Mo, 08. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:47 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
- * \brief Declaration of an interface for hypergraph layout 
+ * \brief Declaration of an interface for hypergraph layout
  *        algorithms. Any hypergraph layout must follow this prescription.
  *
  * \author Ondrej Moris
@@ -56,39 +56,39 @@ namespace ogdf {
  * \brief Interface of hypergraph layout algorithms.
  *
  */
-class OGDF_EXPORT HypergraphLayoutModule {
-    
+class OGDF_EXPORT HypergraphLayoutModule
+{
 public:
-    
-    //! Initializes a layout module.
-    HypergraphLayoutModule() 
-    { 
-    }
-    
-    virtual ~HypergraphLayoutModule() 
-    { 
-    }
-    
-    /**
-     * \brief Computes a layout of hypergraph given by \a HA.
-     *
-     * This method is the actual algorithm call and must be implemented by
-     * derived classes.
-     * @param HA is the input hypergraph attributes class.
-     */
-    virtual void call(HypergraphAttributes &HA) = 0;
-    
-    /**
-     * \brief Computes a layout of a hypergraph given by \a HA.
-     *
-     * @param HA is the input hypergraph attributes class.
-     */
-    void operator()(HypergraphAttributes &HA) 
-    { 
-        call(HA); 
-    }
-    
-    OGDF_MALLOC_NEW_DELETE;
+
+	//! Initializes a layout module.
+	HypergraphLayoutModule()
+	{
+	}
+
+	virtual ~HypergraphLayoutModule()
+	{
+	}
+
+	/**
+	 * \brief Computes a layout of hypergraph given by \a HA.
+	 *
+	 * This method is the actual algorithm call and must be implemented by
+	 * derived classes.
+	 * @param HA is the input hypergraph attributes class.
+	 */
+	virtual void call(HypergraphAttributes &HA) = 0;
+
+	/**
+	 * \brief Computes a layout of a hypergraph given by \a HA.
+	 *
+	 * @param HA is the input hypergraph attributes class.
+	 */
+	void operator()(HypergraphAttributes &HA)
+	{
+		call(HA);
+	}
+
+	OGDF_MALLOC_NEW_DELETE;
 };
 
 } // end namespace ogdf

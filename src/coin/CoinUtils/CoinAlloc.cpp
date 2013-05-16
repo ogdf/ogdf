@@ -45,7 +45,7 @@ CoinMempool::~CoinMempool()
 
 //==============================================================================
 
-char* 
+char*
 CoinMempool::alloc()
 {
   lock_mutex();
@@ -118,25 +118,25 @@ CoinAlloc::CoinAlloc() :
 
 #if defined(COINUTILS_MEMPOOL_OVERRIDE_NEW) && (COINUTILS_MEMPOOL_OVERRIDE_NEW == 1)
 void* operator new(std::size_t sz) throw (std::bad_alloc)
-{ 
-  return CoinAllocator.alloc(sz); 
+{
+  return CoinAllocator.alloc(sz);
 }
 
 void* operator new[](std::size_t sz) throw (std::bad_alloc)
-{ 
-  return CoinAllocator.alloc(sz); 
+{
+  return CoinAllocator.alloc(sz);
 }
 
 void operator delete(void* p) throw()
-{ 
-  CoinAllocator.dealloc(p); 
+{
+  CoinAllocator.dealloc(p);
 }
-  
+
 void operator delete[](void* p) throw()
-{ 
-  CoinAllocator.dealloc(p); 
+{
+  CoinAllocator.dealloc(p);
 }
-  
+
 void* operator new(std::size_t sz, const std::nothrow_t&) throw()
 {
   void *p = NULL;
@@ -163,13 +163,13 @@ void* operator new[](std::size_t sz, const std::nothrow_t&) throw()
 
 void operator delete(void* p, const std::nothrow_t&) throw()
 {
-  CoinAllocator.dealloc(p); 
-}  
+  CoinAllocator.dealloc(p);
+}
 
 void operator delete[](void* p, const std::nothrow_t&) throw()
 {
-  CoinAllocator.dealloc(p); 
-}  
+  CoinAllocator.dealloc(p);
+}
 
 #endif
 

@@ -65,11 +65,11 @@ public:
 
 
 	//! The main call to the algorithm. AG should have nodeGraphics and EdgeGraphics attributes enabled.
-	void call(GraphAttributes &AG);			
+	void call(GraphAttributes &AG);
 
 
 	//! Sets impred option true or false.
-	void setImpred(bool option) { impred=option;};			
+	void setImpred(bool option) { impred=option;};
 
 	//! Sets the number of iterations
 	void iterno(int no) { iter_no=no; }
@@ -117,14 +117,14 @@ protected:
 	//! Calculates the repulsive force on node v due to the edge on which node i lies and adds it to total force on v
 	void f_Edge(node *v, edge *e, GraphAttributes &AG);
 
-	//! Calculates the radii of the zones of node v if node i lies on edge (a,b)   
+	//! Calculates the radii of the zones of node v if node i lies on edge (a,b)
 	void r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG);
 
 	//! Calculates the radii of the zones of node v if node i does not lie on edge (a,b)
 	void r_Calc_Outside_Edge(node *v,edge *e, GraphAttributes &AG);
 
 	//! Moves the node v according to the forces Fx and Fy on it. Also ensures that movement is within the respective zones
-	void move(node *v, GraphAttributes &AG);   
+	void move(node *v, GraphAttributes &AG);
 
 	//! Objects of this class are members of the containment heirarchy made in preprocessing stage of ImPrEd
 	class CCElement
@@ -132,7 +132,7 @@ protected:
 	public:
 		bool root;			// denotes if a element is root
 		int num;			// The number of the connected component represented by	the object
-		CCElement* parent;  // refers to parent of this object in the heirarchy 
+		CCElement* parent;  // refers to parent of this object in the heirarchy
 		int faceNum;		// the index of the face of parent in which it is contained
 		List <CCElement*> child;	//list of CCElements refering to the CCs which are contained inside this CC
 
@@ -166,7 +166,7 @@ private:
 	//! preprocessing for ImPrEd
 	void preprocess(GraphAttributes &AG);
 
-	//! labels the edges with weights which aids in surrounding edge computation 
+	//! labels the edges with weights which aids in surrounding edge computation
 	void labelling(GraphAttributes &AG);
 
 	//! Inserts a node at each edge crossing in a GraphCopy and assigns weights to the new edges formed
@@ -175,7 +175,7 @@ private:
 	//! Insert method for the data structure which stores the heirarchy of containment of Connected Components
 	int insert(CCElement *new1,CCElement *node,GraphAttributes &PAG,PlanRep &PG);
 
-	//! Checks if the first connected component is within the second one. Returns -1 if not contained. If contained, returns the index of the face of the second connected component which contains it 
+	//! Checks if the first connected component is within the second one. Returns -1 if not contained. If contained, returns the index of the face of the second connected component which contains it
 	int contained(CCElement *ele1,CCElement *ele2,GraphAttributes &PAG,PlanRep &PG);
 
 	//! Computes the surrounding edges from the data calculated so far
@@ -192,9 +192,9 @@ private:
 	NodeArray<double> F_y;      				//! Force in y direction
 	double req_length;					//! req_length is the required edge length
 	double limit;						//! limit is the max distance (between node and its projection) at which the edge force on node is considered
-	int iter_no;						//! number of iterations to be performed		
+	int iter_no;						//! number of iterations to be performed
 	bool impred;						//! sets the algorithm to ImPrEd when true
-	Array2D<bool> surr;					//! stores the indices of the surrounding edges for each node 
+	Array2D<bool> surr;					//! stores the indices of the surrounding edges for each node
 
 	OGDF_NEW_DELETE
 }; //class BertaultLayout

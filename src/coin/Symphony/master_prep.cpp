@@ -39,7 +39,7 @@ int sym_presolve(sym_environment *env)
       FREE(env->prep_mip);
    }
 
-   /* 
+   /*
     * if preprocessing level > 2, then create a copy. otherwise change the
     * existing data.
     */
@@ -51,11 +51,11 @@ int sym_presolve(sym_environment *env)
    }
 
    P->params = env->par.prep_par;
-   
+
    if (P->mip){
       termcode = prep_solve_desc(P);
    }
-   
+
    if (termcode > -1 && P->params.reduce_mip){
       prep_update_rootdesc(env);
    }
@@ -64,7 +64,7 @@ int sym_presolve(sym_environment *env)
    if (P->params.write_mps || P->params.write_lp){
       char file_name[80] = "";
       sprintf(file_name, "%s_prep", env->probname);
-      
+
       if (P->params.write_mps){
 	 sym_write_mps(env, file_name);
       }
@@ -80,22 +80,22 @@ int sym_presolve(sym_environment *env)
       for (j = 0; j < P->mip->n; j++){
 	 free_imp_list(&(P->mip->mip_inf->cols[j].ulist));
 	 free_imp_list(&(P->mip->mip_inf->cols[j].llist));
-      }      
+      }
    }
-   
-   /* 
+
+   /*
     * zero out the mip descriptions in P. since they point to the MIPs in
     * environment, we dont need to free these.
     */
    P->mip = 0;
    P->orig_mip = 0;
-   
+
    /*
     * free other data structures of P. if mip and orig_mip are not zeroed out,
     * they will also get freed.
     */
    free_prep_desc(P);
-	    
+
    return termcode;
 }
 /*===========================================================================*/
@@ -105,7 +105,7 @@ int prep_update_rootdesc(sym_environment *env)
 {
    int i, user_size = env->rootdesc->uind.size;// uind = 0;
    int *user_ind = env->rootdesc->uind.list;
-   
+
    env->base->cutnum = env->mip->m;
 
    if (user_size == env->mip->n){
@@ -115,27 +115,27 @@ int prep_update_rootdesc(sym_environment *env)
 	 user_ind[i] = i;
       }
    }
-   
+
    env->rootdesc->uind.size = env->mip->n;
-   
+
    return PREP_MODIFIED;
 }
 
 /*===========================================================================*/
 /*
-   This function is the master of the preprocessing part. It calls and 
+   This function is the master of the preprocessing part. It calls and
    controls other functions to perform preprocessing jobs.
 */
 /*===========================================================================*/
 
-int prep_solve_desc (PREPdesc * P) 
+int prep_solve_desc (PREPdesc * P)
 {
 
    int termcode = 0;		/* return status of this function, 0 normal, -1
 				   error */
    MIPdesc *mip = P->mip;
    prep_params params = P->params;
-   
+
    int verbosity = params.verbosity;
    int p_level = params.level;
 
@@ -164,7 +164,7 @@ int prep_solve_desc (PREPdesc * P)
    }
 
    /* find some information about the mip: type of rows, cols, variables etc. */
-   termcode = prep_initialize_mipinfo(P);//mip, params, &(P->stats));   
+   termcode = prep_initialize_mipinfo(P);//mip, params, &(P->stats));
    //   if (PREP_QUIT(termcode)) {
    //     return termcode;
    //   }
@@ -180,26 +180,26 @@ int prep_solve_desc (PREPdesc * P)
       prep_report(P, termcode);
    }
    if (p_level > 2){
-      PRINT(verbosity, 0, ("Total Presolve Time: %f...\n\n", 
-			   wall_clock(NULL) - start_time));   
+      PRINT(verbosity, 0, ("Total Presolve Time: %f...\n\n",
+			   wall_clock(NULL) - start_time));
    }
-   return termcode; 
+   return termcode;
 }
- 
+
 /*===========================================================================*/
 /* Load a MIP model with arrays */
 /*===========================================================================*/
 int prep_load_problem(prep_environment *prep, int numcols, int numrows,
-		      int *start, int *index, double *value,         
-		      double *collb, double *colub, char *is_int,    
-		      double *obj, double obj_offset, char *rowsen,       
+		      int *start, int *index, double *value,
+		      double *collb, double *colub, char *is_int,
+		      double *obj, double obj_offset, char *rowsen,
 		      double *rowrhs, double *rowrng, char make_copy)
 {
-   int termcode = 0;   
+   int termcode = 0;
    double inf = INF;
    int i = 0;
    MIPdesc *mip;
-   
+
    if ((!numcols && !numrows) || numcols < 0 || numrows <0){
       printf("prep_load_problem():The given problem description is"
 	     "empty or incorrect ");
@@ -207,12 +207,12 @@ int prep_load_problem(prep_environment *prep, int numcols, int numrows,
    }
 
    mip = prep->P->mip;
-   
+
    mip->m  = numrows;
    mip->n  = numcols;
 
-   if (make_copy){      
-      
+   if (make_copy){
+
       if (numcols){
 	 mip->obj    = (double *) calloc(numcols, DSIZE);
 	 mip->ub     = (double *) calloc(numcols, DSIZE);
@@ -224,17 +224,17 @@ int prep_load_problem(prep_environment *prep, int numcols, int numrows,
 	 }
 
 	 if (colub){
-	    memcpy(mip->ub, colub, DSIZE * numcols); 
+	    memcpy(mip->ub, colub, DSIZE * numcols);
 	 } else {
 	    for (i = 0; i<mip->n; i++){
 	       mip->ub[i] = inf;
 	    }
 	 }
-	 
+
 	 if (collb){
 	    memcpy(mip->lb, collb, DSIZE * numcols);
 	 }
-	 
+
 	 if (is_int){
 	    memcpy(mip->is_int, is_int, CSIZE * numcols);
 	 }
@@ -247,40 +247,40 @@ int prep_load_problem(prep_environment *prep, int numcols, int numrows,
 	 mip->rngval = (double *) calloc(numrows, DSIZE);
 
 	 if (rowsen){
-	    memcpy(mip->sense, rowsen, CSIZE * numrows); 
+	    memcpy(mip->sense, rowsen, CSIZE * numrows);
 	 } else {
 	    memset(mip->sense, 'N', CSIZE *numrows);
 	 }
-	 
+
 	 if (rowrhs){
 	    memcpy(mip->rhs, rowrhs, DSIZE * numrows);
 	 }
-	 
+
 	 if (rowrng){
 	    memcpy(mip->rngval, rowrng, DSIZE * numrows);
 	 }
       }
-      
+
       //user defined matind, matval, matbeg--fill as column ordered
-      
-      if (start){      
+
+      if (start){
 
 	 mip->nz = start[numcols];
 	 mip->matbeg = (int *) calloc(ISIZE, (numcols + 1));
 	 mip->matval = (double *) calloc(DSIZE,start[numcols]);
 	 mip->matind = (int *)    calloc(ISIZE,start[numcols]);
-	 
+
 	 memcpy(mip->matbeg, start, ISIZE *(numcols + 1));
-	 memcpy(mip->matval, value, DSIZE *start[numcols]);  
-	 memcpy(mip->matind, index, ISIZE *start[numcols]);  
+	 memcpy(mip->matval, value, DSIZE *start[numcols]);
+	 memcpy(mip->matind, index, ISIZE *start[numcols]);
       }
-      
+
    } else {
-      
+
       if (obj){
 	 mip->obj = obj;
       } else {
-	 mip->obj    = (double *) calloc(numcols, DSIZE);	 
+	 mip->obj    = (double *) calloc(numcols, DSIZE);
       }
 
       if (rowsen){
@@ -293,7 +293,7 @@ int prep_load_problem(prep_environment *prep, int numcols, int numrows,
       if (rowrhs){
 	 mip->rhs = rowrhs;
       } else {
-	 mip->rhs = (double *) calloc(numrows, DSIZE);	 
+	 mip->rhs = (double *) calloc(numrows, DSIZE);
       }
 
       if (rowrng){
@@ -314,7 +314,7 @@ int prep_load_problem(prep_environment *prep, int numcols, int numrows,
       if (collb){
 	 mip->lb = collb;
       } else {
-	 mip->lb = (double *) calloc(numcols, DSIZE);	 
+	 mip->lb = (double *) calloc(numcols, DSIZE);
       }
 
       if (is_int){
@@ -345,9 +345,9 @@ int prep_read_mps(prep_environment *prep, char *infile)
    int j, errors;
    MIPdesc *mip = prep->P->mip;
    CoinMpsIO mps;
-   
+
    mps.messageHandler()->setLogLevel(0);
-   
+
 #if 0
 
    int j, last_dot = 0, last_dir = 0;
@@ -366,7 +366,7 @@ int prep_read_mps(prep_environment *prep, char *infile)
    }
    char slash = buf[0] == '/' ? '/' : '\\';
    FREE(buf);
-   
+
    for (j = 0;; j++){
       if (infile[j] == '\0')
 	 break;
@@ -377,10 +377,10 @@ int prep_read_mps(prep_environment *prep, char *infile)
 		last_dir = j;
 	  }
    }
-   
+
    if (last_dir < last_dot){
 	   memcpy(fname, infile, CSIZE*last_dot);
-	   memcpy(ext, infile + last_dot + 1, CSIZE*(j - last_dot - 1)); 
+	   memcpy(ext, infile + last_dot + 1, CSIZE*(j - last_dot - 1));
    } else {
 	   memcpy(fname, infile, CSIZE*j);
    }
@@ -391,13 +391,13 @@ int prep_read_mps(prep_environment *prep, char *infile)
    if (mps.readMps(infile,"")){
       return(PREP_FUNC_ERROR);
    }
-   
+
    //strncpy(probname, const_cast<char *>(mps.getProblemName()), 80);
-   
+
    mip->m  = mps.getNumRows();
    mip->n  = mps.getNumCols();
    mip->nz = mps.getNumElements();
-   
+
    mip->obj    = (double *) malloc(DSIZE * mip->n);
    mip->rhs    = (double *) malloc(DSIZE * mip->m);
    mip->sense  = (char *)   malloc(CSIZE * mip->m);
@@ -405,37 +405,37 @@ int prep_read_mps(prep_environment *prep, char *infile)
    mip->ub     = (double *) malloc(DSIZE * mip->n);
    mip->lb     = (double *) malloc(DSIZE * mip->n);
    mip->is_int = (char *)   calloc(CSIZE, mip->n);
-   
+
    memcpy(mip->obj, const_cast <double *> (mps.getObjCoefficients()),
-	  DSIZE * mip->n); 
+	  DSIZE * mip->n);
    memcpy(mip->rhs, const_cast <double *> (mps.getRightHandSide()),
-	  DSIZE * mip->m); 
+	  DSIZE * mip->m);
    memcpy(mip->sense, const_cast <char *> (mps.getRowSense()),
-	  CSIZE * mip->m); 
+	  CSIZE * mip->m);
    memcpy(mip->rngval, const_cast <double *> (mps.getRowRange()),
-	  DSIZE * mip->m); 
+	  DSIZE * mip->m);
    memcpy(mip->ub, const_cast <double *> (mps.getColUpper()),
-	  DSIZE * mip->n); 
+	  DSIZE * mip->n);
    memcpy(mip->lb, const_cast <double *> (mps.getColLower()),
-	  DSIZE * mip->n); 
-   
+	  DSIZE * mip->n);
+
    //user defined matind, matval, matbeg--fill as column ordered
-   
+
    const CoinPackedMatrix * matrixByCol= mps.getMatrixByCol();
-   
+
    mip->matbeg = (int *) malloc(ISIZE * (mip->n + 1));
    memcpy(mip->matbeg, const_cast<int *>(matrixByCol->getVectorStarts()),
 	  ISIZE * (mip->n + 1));
-   
+
    mip->matval = (double *) malloc(DSIZE*mip->matbeg[mip->n]);
    mip->matind = (int *)    malloc(ISIZE*mip->matbeg[mip->n]);
-   
-   memcpy(mip->matval, const_cast<double *> (matrixByCol->getElements()),
-	  DSIZE * mip->matbeg[mip->n]);  
-   memcpy(mip->matind, const_cast<int *> (matrixByCol->getIndices()), 
-	  ISIZE * mip->matbeg[mip->n]);  
 
-   mip->colname = (char **) malloc(sizeof(char *) * mip->n);  
+   memcpy(mip->matval, const_cast<double *> (matrixByCol->getElements()),
+	  DSIZE * mip->matbeg[mip->n]);
+   memcpy(mip->matind, const_cast<int *> (matrixByCol->getIndices()),
+	  ISIZE * mip->matbeg[mip->n]);
+
+   mip->colname = (char **) malloc(sizeof(char *) * mip->n);
 
    for (j = 0; j < mip->n; j++){
       mip->is_int[j] = mps.isInteger(j);
@@ -451,7 +451,7 @@ int prep_read_mps(prep_environment *prep, char *infile)
       }
    }
 #endif
-   
+
    mip->obj_offset = -mps.objectiveOffset();
 
    return(0);
@@ -466,7 +466,7 @@ int prep_read_lp(prep_environment *prep, char *infile)
    int j;
    CoinLpIO lp;
    MIPdesc *mip = prep->P->mip;
-   
+
    lp.readLp(infile);
 
    /*
@@ -475,11 +475,11 @@ int prep_read_lp(prep_environment *prep, char *infile)
    }
    */
    //strncpy(probname, const_cast<char *>(lp.getProblemName()), 80);
-   
+
    mip->m  = lp.getNumRows();
    mip->n  = lp.getNumCols();
    mip->nz = lp.getNumElements();
-   
+
    mip->obj    = (double *) malloc(DSIZE * mip->n);
    mip->rhs    = (double *) malloc(DSIZE * mip->m);
    mip->sense  = (char *)   malloc(CSIZE * mip->m);
@@ -487,37 +487,37 @@ int prep_read_lp(prep_environment *prep, char *infile)
    mip->ub     = (double *) malloc(DSIZE * mip->n);
    mip->lb     = (double *) malloc(DSIZE * mip->n);
    mip->is_int = (char *)   calloc(CSIZE, mip->n);
-   
+
    memcpy(mip->obj, const_cast <double *> (lp.getObjCoefficients()),
-	  DSIZE * mip->n); 
+	  DSIZE * mip->n);
    memcpy(mip->rhs, const_cast <double *> (lp.getRightHandSide()),
-	  DSIZE * mip->m); 
+	  DSIZE * mip->m);
    memcpy(mip->sense, const_cast <char *> (lp.getRowSense()),
-	  CSIZE * mip->m); 
+	  CSIZE * mip->m);
    memcpy(mip->rngval, const_cast <double *> (lp.getRowRange()),
-	  DSIZE * mip->m); 
+	  DSIZE * mip->m);
    memcpy(mip->ub, const_cast <double *> (lp.getColUpper()),
-	  DSIZE * mip->n); 
+	  DSIZE * mip->n);
    memcpy(mip->lb, const_cast <double *> (lp.getColLower()),
-	  DSIZE * mip->n); 
-   
+	  DSIZE * mip->n);
+
    //user defined matind, matval, matbeg--fill as column ordered
-   
+
    const CoinPackedMatrix * matrixByCol= lp.getMatrixByCol();
-   
+
    mip->matbeg = (int *) malloc(ISIZE * (mip->n + 1));
    memcpy(mip->matbeg, const_cast<int *>(matrixByCol->getVectorStarts()),
 	  ISIZE * (mip->n + 1));
-   
+
    mip->matval = (double *) malloc(DSIZE*mip->matbeg[mip->n]);
    mip->matind = (int *)    malloc(ISIZE*mip->matbeg[mip->n]);
-   
-   memcpy(mip->matval, const_cast<double *> (matrixByCol->getElements()),
-	  DSIZE * mip->matbeg[mip->n]);  
-   memcpy(mip->matind, const_cast<int *> (matrixByCol->getIndices()), 
-	  ISIZE * mip->matbeg[mip->n]);  
 
-   mip->colname = (char **) malloc(sizeof(char *) * mip->n); 
+   memcpy(mip->matval, const_cast<double *> (matrixByCol->getElements()),
+	  DSIZE * mip->matbeg[mip->n]);
+   memcpy(mip->matind, const_cast<int *> (matrixByCol->getIndices()),
+	  ISIZE * mip->matbeg[mip->n]);
+
+   mip->colname = (char **) malloc(sizeof(char *) * mip->n);
 
    for (j = 0; j < mip->n; j++){
       mip->is_int[j] = lp.isInteger(j);
@@ -533,7 +533,7 @@ int prep_read_lp(prep_environment *prep, char *infile)
       }
    }
 #endif
-   
+
    mip->obj_offset = -lp.objectiveOffset();
 
    return 0;
@@ -547,14 +547,14 @@ void prep_write_mps(prep_environment *prep, char *outfile)
    char filename[80] = "";
    CoinMpsIO mps;
    MIPdesc *mip = prep->P->mip;
-   
-   CoinPackedMatrix mip_matrix(true, mip->m, mip->n, mip->nz, mip->matval, 
+
+   CoinPackedMatrix mip_matrix(true, mip->m, mip->n, mip->nz, mip->matval,
 			       mip->matind, mip->matbeg, 0);
 
-   mps.setMpsData(mip_matrix, mps.getInfinity(), mip->lb, mip->ub, mip->obj, 
-		  mip->is_int, mip->sense, mip->rhs, mip->rngval, 
+   mps.setMpsData(mip_matrix, mps.getInfinity(), mip->lb, mip->ub, mip->obj,
+		  mip->is_int, mip->sense, mip->rhs, mip->rngval,
 		  mip->colname, NULL);
-   mps.setObjectiveOffset(mip->obj_offset); 
+   mps.setObjectiveOffset(mip->obj_offset);
 
    sprintf(filename, "%s%s%s", outfile, ".","MPS");
    mps.writeMps(filename);
@@ -565,12 +565,12 @@ void prep_write_mps(prep_environment *prep, char *outfile)
 void prep_write_lp(prep_environment *prep, char *outfile)
 {
    int i;
-   double * rlb, * rub, infinity; 
+   double * rlb, * rub, infinity;
    char filename[80] = "";
    CoinLpIO lp;
    MIPdesc *mip = prep->P->mip;
-   
-   CoinPackedMatrix mip_matrix(true, mip->m, mip->n, mip->nz, mip->matval, 
+
+   CoinPackedMatrix mip_matrix(true, mip->m, mip->n, mip->nz, mip->matval,
 			       mip->matind, mip->matbeg, 0);
 
    rlb = (double *) malloc(DSIZE*mip->m);
@@ -601,10 +601,10 @@ void prep_write_lp(prep_environment *prep, char *outfile)
 	  break;
       }
    }
-   
-   lp.setLpDataWithoutRowAndColNames(mip_matrix, mip->lb, mip->ub, mip->obj, 
+
+   lp.setLpDataWithoutRowAndColNames(mip_matrix, mip->lb, mip->ub, mip->obj,
 				     mip->is_int, rlb, rub);
-   lp.setObjectiveOffset(mip->obj_offset); 
+   lp.setObjectiveOffset(mip->obj_offset);
    lp.setLpDataRowAndColNames(NULL, mip->colname);
    sprintf(filename, "%s%s%s", outfile, ".","LPT");
    lp.writeLp(filename);

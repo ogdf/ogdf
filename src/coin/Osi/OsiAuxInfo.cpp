@@ -13,12 +13,12 @@
 #include "OsiAuxInfo.hpp"
 
 // Default Constructor
-OsiAuxInfo::OsiAuxInfo(void * appData) 
+OsiAuxInfo::OsiAuxInfo(void * appData)
   : appData_(appData)
 {
 }
 
-// Destructor 
+// Destructor
 OsiAuxInfo::~OsiAuxInfo ()
 {
 }
@@ -30,7 +30,7 @@ OsiAuxInfo::clone() const
   return new OsiAuxInfo(*this);
 }
 
-// Copy constructor 
+// Copy constructor
 OsiAuxInfo::OsiAuxInfo(const OsiAuxInfo & rhs)
 :
   appData_(rhs.appData_)
@@ -45,7 +45,7 @@ OsiAuxInfo::operator=(const OsiAuxInfo &rhs)
   return *this;
 }
 // Default Constructor
-OsiBabSolver::OsiBabSolver(int solverType) 
+OsiBabSolver::OsiBabSolver(int solverType)
   :OsiAuxInfo(),
    bestObjectiveValue_(1.0e100),
    mipBound_(-1.0e100),
@@ -59,7 +59,7 @@ OsiBabSolver::OsiBabSolver(int solverType)
 {
 }
 
-// Destructor 
+// Destructor
 OsiBabSolver::~OsiBabSolver ()
 {
   delete [] bestSolution_;
@@ -72,7 +72,7 @@ OsiBabSolver::clone() const
   return new OsiBabSolver(*this);
 }
 
-// Copy constructor 
+// Copy constructor
 OsiBabSolver::OsiBabSolver(const OsiBabSolver & rhs)
 :
   OsiAuxInfo(rhs),
@@ -144,7 +144,7 @@ OsiBabSolver::hasSolution(double & solutionValue, double * solution)
 {
   if (! bestSolution_)
     return false;
-  
+
   int numberColumns = solver_->getNumCols();
   memcpy(solution,bestSolution_,numberColumns*sizeof(double));
   solutionValue = bestObjectiveValue_;
@@ -165,7 +165,7 @@ OsiBabSolver::setSolution(const double * solution, int numberColumns, double obj
   bestObjectiveValue_ = objectiveValue*solver_->getObjSense();
 }
 // Get objective  (well mip bound)
-double 
+double
 OsiBabSolver::mipBound() const
 {
   assert (solver_);
@@ -175,7 +175,7 @@ OsiBabSolver::mipBound() const
     return mipBound_;
 }
 // Returns true if node feasible
-bool 
+bool
 OsiBabSolver::mipFeasible() const
 {
   assert (solver_);

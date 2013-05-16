@@ -1,9 +1,9 @@
 /*
- * $Revision: 2749 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-06 15:37:45 +0200 (Do, 06. Sep 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -972,7 +972,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				sectorLength = 2*Math::pi;
 				singleRegion = true;
 			} else {
-				sectorEnd   = angleNormalize((*regions.cyclicSucc(itR1)).m_start);
+				sectorEnd = angleNormalize((*regions.cyclicSucc(itR1)).m_start);
 				ListIterator<SCRegion> itPred = regions.cyclicPred(itR1);
 				sectorStart = angleNormalize((*itPred).m_start + (*itPred).m_length);
 				sectorLength = sectorEnd - sectorStart;

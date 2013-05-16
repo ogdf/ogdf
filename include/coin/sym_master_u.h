@@ -43,9 +43,9 @@ int user_display_solution PROTO((void *user, double lpetol, int varnum,
 				 int *indices, double *values, double objval));
 int user_process_own_messages PROTO((void *user, int msgtag));
 int user_send_feas_sol PROTO((void *user, int *feas_sol_size, int **feas_sol));
-int user_ws_update_cuts PROTO((void *user, int *size, char **coef, double * rhs, 
-			       char *sense, char type, int new_col_num, 
+int user_ws_update_cuts PROTO((void *user, int *size, char **coef, double * rhs,
+			       char *sense, char type, int new_col_num,
 			       int change_type));
-			       
-			       
+
+
 #endif

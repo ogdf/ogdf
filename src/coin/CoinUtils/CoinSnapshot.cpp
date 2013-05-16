@@ -15,24 +15,24 @@
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
-CoinSnapshot::CoinSnapshot () 
+CoinSnapshot::CoinSnapshot ()
 {
   gutsOfDestructor(13);
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CoinSnapshot::CoinSnapshot (const CoinSnapshot & rhs) 
+CoinSnapshot::CoinSnapshot (const CoinSnapshot & rhs)
 {
   gutsOfDestructor(13);
   gutsOfCopy(rhs);
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinSnapshot::~CoinSnapshot ()
 {
@@ -40,7 +40,7 @@ CoinSnapshot::~CoinSnapshot ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinSnapshot &
 CoinSnapshot::operator=(const CoinSnapshot& rhs)
@@ -52,7 +52,7 @@ CoinSnapshot::operator=(const CoinSnapshot& rhs)
   return *this;
 }
 // Does main work of destructor
-void 
+void
 CoinSnapshot::gutsOfDestructor(int type)
 {
   if ((type&2)!=0) {
@@ -128,7 +128,7 @@ CoinSnapshot::gutsOfDestructor(int type)
   }
 }
 // Does main work of copy
-void 
+void
 CoinSnapshot::gutsOfCopy(const CoinSnapshot & rhs)
 {
   objSense_ = rhs.objSense_;
@@ -215,15 +215,15 @@ CoinSnapshot::gutsOfCopy(const CoinSnapshot & rhs)
    following values are the default:
    <ul>
    <li> <code>colub</code>: all columns have upper bound infinity
-   <li> <code>collb</code>: all columns have lower bound 0 
+   <li> <code>collb</code>: all columns have lower bound 0
    <li> <code>rowub</code>: all rows have upper bound infinity
    <li> <code>rowlb</code>: all rows have lower bound -infinity
    <li> <code>obj</code>: all variables have 0 objective coefficient
       </ul>
 */
-void 
+void
 CoinSnapshot::loadProblem(const CoinPackedMatrix& matrix,
-			  const double* collb, const double* colub,   
+			  const double* collb, const double* colub,
 			  const double* obj,
 			  const double* rowlb, const double* rowub,
 			  bool makeRowCopy)
@@ -249,9 +249,9 @@ CoinSnapshot::loadProblem(const CoinPackedMatrix& matrix,
   // do rhs as well
   createRightHandSide();
 }
-  
+
 // Set pointer to array[getNumCols()] of column lower bounds
-void 
+void
 CoinSnapshot::setColLower(const double * array, bool copyIn)
 {
   if (owned_.colLower)
@@ -265,7 +265,7 @@ CoinSnapshot::setColLower(const double * array, bool copyIn)
   }
 }
 // Set pointer to array[getNumCols()] of column upper bounds
-void 
+void
 CoinSnapshot::setColUpper(const double * array, bool copyIn)
 {
   if (owned_.colUpper)
@@ -279,7 +279,7 @@ CoinSnapshot::setColUpper(const double * array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of row lower bounds
-void 
+void
 CoinSnapshot::setRowLower(const double * array, bool copyIn)
 {
   if (owned_.rowLower)
@@ -293,7 +293,7 @@ CoinSnapshot::setRowLower(const double * array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of row upper bounds
-void 
+void
 CoinSnapshot::setRowUpper(const double * array, bool copyIn)
 {
   if (owned_.rowUpper)
@@ -313,7 +313,7 @@ CoinSnapshot::setRowUpper(const double * array, bool copyIn)
    else
      getRightHandSide()[i] == getRowLower()[i]
 */
-void 
+void
 CoinSnapshot::setRightHandSide(const double * array, bool copyIn)
 {
   if (owned_.rightHandSide)
@@ -333,7 +333,7 @@ CoinSnapshot::setRightHandSide(const double * array, bool copyIn)
    else
      getRightHandSide()[i] == getRowLower()[i]
 */
-void 
+void
 CoinSnapshot::createRightHandSide()
 {
   if (owned_.rightHandSide)
@@ -349,7 +349,7 @@ CoinSnapshot::createRightHandSide()
   rightHandSide_ = rightHandSide;
 }
 // Set pointer to array[getNumCols()] of objective function coefficients
-void 
+void
 CoinSnapshot::setObjCoefficients(const double * array, bool copyIn)
 {
   if (owned_.objCoefficients)
@@ -362,8 +362,8 @@ CoinSnapshot::setObjCoefficients(const double * array, bool copyIn)
     objCoefficients_ = array;
   }
 }
-// Set colType array ('B', 'I', or 'C' for Binary, Integer and Continuous) 
-void 
+// Set colType array ('B', 'I', or 'C' for Binary, Integer and Continuous)
+void
 CoinSnapshot::setColType(const char *array, bool copyIn)
 {
   if (owned_.colType)
@@ -383,7 +383,7 @@ CoinSnapshot::setColType(const char *array, bool copyIn)
   }
 }
 // Set pointer to row-wise copy of current matrix
-void 
+void
 CoinSnapshot::setMatrixByRow(const CoinPackedMatrix * matrix, bool copyIn)
 {
   if (owned_.matrixByRow)
@@ -399,7 +399,7 @@ CoinSnapshot::setMatrixByRow(const CoinPackedMatrix * matrix, bool copyIn)
   assert (matrixByRow_->getNumRows()==numRows_);
 }
 // Create row-wise copy from MatrixByCol
-void 
+void
 CoinSnapshot::createMatrixByRow()
 {
   if (owned_.matrixByRow)
@@ -411,7 +411,7 @@ CoinSnapshot::createMatrixByRow()
   matrixByRow_ = matrixByRow;
 }
 // Set pointer to column-wise copy of current matrix
-void 
+void
 CoinSnapshot::setMatrixByCol(const CoinPackedMatrix * matrix, bool copyIn)
 {
   if (owned_.matrixByCol)
@@ -427,7 +427,7 @@ CoinSnapshot::setMatrixByCol(const CoinPackedMatrix * matrix, bool copyIn)
   assert (matrixByCol_->getNumRows()==numRows_);
 }
 // Set pointer to row-wise copy of "original" matrix
-void 
+void
 CoinSnapshot::setOriginalMatrixByRow(const CoinPackedMatrix * matrix, bool copyIn)
 {
   if (owned_.originalMatrixByRow)
@@ -442,7 +442,7 @@ CoinSnapshot::setOriginalMatrixByRow(const CoinPackedMatrix * matrix, bool copyI
   assert (matrixByRow_->getNumCols()==numCols_);
 }
 // Set pointer to column-wise copy of "original" matrix
-void 
+void
 CoinSnapshot::setOriginalMatrixByCol(const CoinPackedMatrix * matrix, bool copyIn)
 {
   if (owned_.originalMatrixByCol)
@@ -457,7 +457,7 @@ CoinSnapshot::setOriginalMatrixByCol(const CoinPackedMatrix * matrix, bool copyI
   assert (matrixByCol_->getNumCols()==numCols_);
 }
 // Set pointer to array[getNumCols()] of primal variable values
-void 
+void
 CoinSnapshot::setColSolution(const double * array, bool copyIn)
 {
   if (owned_.colSolution)
@@ -471,7 +471,7 @@ CoinSnapshot::setColSolution(const double * array, bool copyIn)
   }
 }
 // Set pointer to array[getNumRows()] of dual variable values
-void 
+void
 CoinSnapshot::setRowPrice(const double * array, bool copyIn)
 {
   if (owned_.rowPrice)
@@ -485,7 +485,7 @@ CoinSnapshot::setRowPrice(const double * array, bool copyIn)
   }
 }
 // Set a pointer to array[getNumCols()] of reduced costs
-void 
+void
 CoinSnapshot::setReducedCost(const double * array, bool copyIn)
 {
   if (owned_.reducedCost)
@@ -498,8 +498,8 @@ CoinSnapshot::setReducedCost(const double * array, bool copyIn)
     reducedCost_ = array;
   }
 }
-// Set pointer to array[getNumRows()] of row activity levels (constraint matrix times the solution vector). 
-void 
+// Set pointer to array[getNumRows()] of row activity levels (constraint matrix times the solution vector).
+void
 CoinSnapshot::setRowActivity(const double * array, bool copyIn)
 {
   if (owned_.rowActivity)
@@ -513,7 +513,7 @@ CoinSnapshot::setRowActivity(const double * array, bool copyIn)
   }
 }
 // Set pointer to array[getNumCols()] of primal variable values which should not be separated (for debug)
-void 
+void
 CoinSnapshot::setDoNotSeparateThis(const double * array, bool copyIn)
 {
   if (owned_.doNotSeparateThis)

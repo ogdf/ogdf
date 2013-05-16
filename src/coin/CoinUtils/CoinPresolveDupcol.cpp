@@ -154,7 +154,7 @@ const CoinPresolveAction
   // If all coefficients positive do more simply
   bool allPositive=true;
   double * rhs = prob->usefulRowDouble_; //new double[nrows];
-  CoinMemcpyN(rup,nrows,rhs);  
+  CoinMemcpyN(rup,nrows,rhs);
 /*
   Scan the columns for candidates, and write the indices into sort. We're not
   interested in columns that are empty, prohibited, or integral.
@@ -252,7 +252,7 @@ const CoinPresolveAction
     double dval = colsum[0] ;
     int first = 0 ;
     for (int jj = 1; jj < nlook; jj++) {
-      while (colsum[jj]==dval) 
+      while (colsum[jj]==dval)
 	jj++ ;
 
       if (first + 1 < jj) {
@@ -345,7 +345,7 @@ const CoinPresolveAction
 	    bool neginf = false;
 	    double maxup = 0.0;
 	    double maxdown = 0.0;
-	    
+
 	    // compute sum of all bounds except for j1,j2
 	    CoinBigIndex kk;
 	    CoinBigIndex kre = mrstrt[iRow]+hinrow[iRow];
@@ -359,7 +359,7 @@ const CoinPresolveAction
 	      double coeff = rowels[kk];
 	      double lb = clo[col];
 	      double ub = cup[col];
-	      
+
 	      if (coeff > 0.0) {
 		if (PRESOLVE_INF <= ub) {
 		  posinf = true;
@@ -392,7 +392,7 @@ const CoinPresolveAction
 		}
 	      }
 	    }
-	    
+
 	    if (kk==kre) {
 	      assert (value1);
 	      if (value1>1.0e-5) {
@@ -452,15 +452,15 @@ const CoinPresolveAction
 	  for (k=kcs;k<kce;k++) {
 	    int iRow = hrow[k];
 	    double value = colels[k];
-	    int pInf = (value>0.0) ? positiveInf : negativeInf; 
-	    int nInf = (value>0.0) ? negativeInf : positiveInf; 
+	    int pInf = (value>0.0) ? positiveInf : negativeInf;
+	    int nInf = (value>0.0) ? negativeInf : positiveInf;
 	    int posinf = prob->infiniteUp_[iRow]-pInf;
 	    int neginf = prob->infiniteDown_[iRow]-nInf;
 	    if (posinf>0&&neginf>0)
 	      continue; // this row can't bound
 	    double maxup = prob->sumUp_[iRow];
 	    double maxdown = prob->sumDown_[iRow];
-	    
+
 	    if (value>0.0) {
 	      maxdown -= value*lo;
 	      maxup -= value*up;
@@ -513,7 +513,7 @@ const CoinPresolveAction
   doesn't move.
 */
     if (c1 == c2)
-    { 
+    {
 #ifdef PRESOLVE_INTEGER_DUPCOL
       if (!allowIntegers) {
 	if (prob->isInteger(j1)) {
@@ -550,7 +550,7 @@ const CoinPresolveAction
       PRESOLVE_STMT(printf("DUPCOL: (%d,%d) %d += %d\n",j1,j2,j1,j2)) ;
       PRESOLVE_DETAIL_PRINT(printf("pre_dupcol %dC %dC E\n",j2,j1));
 
-      action *s = &actions[nactions++] ;	  
+      action *s = &actions[nactions++] ;
       s->thislo = clo[j2] ;
       s->thisup = cup[j2] ;
       s->lastlo = clo[j1] ;
@@ -782,7 +782,7 @@ void dupcol_action::postsolve(CoinPostsolveMatrix *prob) const
 
   double *sol	= prob->sol_;
   double *dcost	= prob->cost_;
-  
+
   double *colels	= prob->colels_;
   int *hrow		= prob->hrow_;
   CoinBigIndex *mcstrt		= prob->mcstrt_;
@@ -808,7 +808,7 @@ void dupcol_action::postsolve(CoinPostsolveMatrix *prob) const
     presolve_check_free_list(prob) ;
 #   endif
     // hincol[icol] = hincol[icol2]; // right? - no - has to match number in create_col
-    hincol[icol] = f->nincol; 
+    hincol[icol] = f->nincol;
 
     double l_j = f->thislo;
     double u_j = f->thisup;
@@ -1023,7 +1023,7 @@ const CoinPresolveAction
 	    } else {
 	      /* overlapping - could merge */
 	      // rlo1>rlo2
-	      // rup1>rup2 
+	      // rup1>rup2
 	      if (rup2<rlo1-tolerance&&!fixInfeasibility) {
 		// infeasible
 		prob->status_|= 1;
@@ -1047,7 +1047,7 @@ const CoinPresolveAction
 	      }
 	    }
 	  }
-	  if (idelete>=0) 
+	  if (idelete>=0)
 	    sort[nuseless_rows++]=idelete;
 	}
       }
@@ -1177,7 +1177,7 @@ const CoinPresolveAction
 	    // can delete elements and adjust rhs
 	    affectedRows++;
 	    droppedElements += nInRow;
-	    for (CoinBigIndex kk=rStart; kk<rEnd; kk++) 
+	    for (CoinBigIndex kk=rStart; kk<rEnd; kk++)
 	      presolve_delete_from_col(iRow,hcol[kk],mcstrt,hincol,hrow,colels) ;
 	    int nInRow2 = hinrow[iRow];
 	    CoinBigIndex rStart2 = mrstrt[iRow];

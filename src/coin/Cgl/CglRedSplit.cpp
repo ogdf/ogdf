@@ -1,7 +1,7 @@
 // Last edit: 4/20/07
 //
 // Name:     CglRedSplit.cpp
-// Author:   Francois Margot                                                  
+// Author:   Francois Margot
 //           Tepper School of Business
 //           Carnegie Mellon University, Pittsburgh, PA 15213
 // Date:     2/6/05
@@ -37,11 +37,11 @@
 
 //-------------------------------------------------------------------
 // Generate Gomory Reduce-and-Split cuts
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 
 /***************************************************************************/
 // Returns (value - floor) but allowing for small errors
-inline double CglRedSplit::rs_above_integer(double value) 
+inline double CglRedSplit::rs_above_integer(double value)
 {
   double value2=floor(value);
   double value3=floor(value+0.5);
@@ -131,7 +131,7 @@ void rs_printvecINT(const char *vecstr, const int *x, const int n)
 } /* rs_printvecINT */
 
 /**********************************************************/
-void rs_printvecDBL(char const *vecstr, 
+void rs_printvecDBL(char const *vecstr,
 		    const double *x, const int n)
 {
   int num, fromto, upto, j, i;
@@ -150,7 +150,7 @@ void rs_printvecDBL(char const *vecstr,
 } /* rs_printvecDBL */
 
 /**********************************************************/
-void rs_printmatINT(char const *vecstr, const int **x, 
+void rs_printmatINT(char const *vecstr, const int **x,
 		    const int m, const int n)
 {
   int i, j;
@@ -251,13 +251,13 @@ void CglRedSplit::update_redTab(int r1, int r2, int step) {
 
   int j;
   for(j=0; j<nTab; j++) {
-    contNonBasicTab[r1][j] = 
+    contNonBasicTab[r1][j] =
                   contNonBasicTab[r1][j] - step * contNonBasicTab[r2][j];
   }
 } /* update_redTab */
 
 /***********************************************************************/
-void CglRedSplit::find_step(int r1, int r2, int *step, 
+void CglRedSplit::find_step(int r1, int r2, int *step,
 			    double *reduc, double *norm) {
 
    double btb_val = rs_dotProd(contNonBasicTab[r1], contNonBasicTab[r2], nTab);
@@ -284,8 +284,8 @@ int CglRedSplit::test_pair(int r1, int r2, double *norm) {
 
    int step;
    double reduc;
-   
-   find_step(r1, r2, &step, &reduc, norm); 
+
+   find_step(r1, r2, &step, &reduc, norm);
 
    if(reduc/norm[r1] >= param.getMinReduc()) {
      update_pi_mat(r1, r2, step);
@@ -318,14 +318,14 @@ void CglRedSplit::reduce_contNonBasicTab() {
   }
 
 #ifdef RS_TRACE
-  printf("CglRedSplit::reduce_contNonBasicTab():Initial sum of  norms: %f\n", 
+  printf("CglRedSplit::reduce_contNonBasicTab():Initial sum of  norms: %f\n",
 	 sum_norms);
 #endif
 
   int iter = 0, done = 0;
   int *changed = new int[mTab]; // changed[i]: last iter where row i updated
   int **checked; // checked[i][j]: last iter where pair (i, j) checked
-  
+
   rs_allocmatINT(&checked, mTab, mTab);
   for(i=0; i<mTab; i++) {
     changed[i] = 0;
@@ -357,7 +357,7 @@ void CglRedSplit::reduce_contNonBasicTab() {
 	      }
 	      checked[i][j] = iter;
 
-	      if((checked[j][i] < changed[i]) || 
+	      if((checked[j][i] < changed[i]) ||
 		 (checked[j][i] < changed[j])) {
 		if(test_pair(j, i, norm)) {
 		  changed[j] = iter+1;
@@ -403,7 +403,7 @@ void CglRedSplit::generate_row(int index_row, double *row) {
   for(i=0; i<ncol+nrow; i++) {
     row[i] = 0;
   }
-  if(!param.getUSE_CG2()) { 
+  if(!param.getUSE_CG2()) {
        // coeff will become zero in generate_cgcut_2() anyway
     for(i=0; i<card_intBasicVar_frac; i++) {
       row[intBasicVar_frac[i]] += pi_mat[index_row][i];
@@ -424,17 +424,17 @@ void CglRedSplit::generate_row(int index_row, double *row) {
 
 /************************************************************************/
 int CglRedSplit::generate_cgcut(double *row, double *rhs) {
-  
+
   double f0 = rs_above_integer(*rhs);
   double f0compl = 1 - f0;
 
 #ifdef RS_TRACEALL
-  rs_printvecDBL("CglRedSplit::generate_cgcut(): starting row", 
+  rs_printvecDBL("CglRedSplit::generate_cgcut(): starting row",
 		 row, ncol+nrow);
   printf("rhs: %f\n", *rhs);
 #endif
 
-  // See Wolsey "Integer Programming" (1998), p. 130, second line of proof of 
+  // See Wolsey "Integer Programming" (1998), p. 130, second line of proof of
   // Proposition 8.8
 
   if((f0 < param.getAway()) || (f0compl < param.getAway())) {
@@ -460,7 +460,7 @@ int CglRedSplit::generate_cgcut(double *row, double *rhs) {
     }
   }
   (*rhs) -= f0;
-  
+
 #ifdef RS_TRACEALL
   rs_printvecDBL("CglRedSplit::generate_cgcut: row", row, ncol+nrow);
   printf("rhs: %f\n", *rhs);
@@ -471,15 +471,15 @@ int CglRedSplit::generate_cgcut(double *row, double *rhs) {
 
 /************************************************************************/
 int CglRedSplit::generate_cgcut_2(int/* basic_ind*/, double *row, double *rhs) {
-  
+
 #ifdef RS_TRACEALL
-  rs_printvecDBL("CglRedSplit::generate_cgcut_2(): starting row", 
+  rs_printvecDBL("CglRedSplit::generate_cgcut_2(): starting row",
 		 row, ncol+nrow);
   printf("rhs: %f\n", *rhs);
 #endif
 
   // Note that basic integer variables with fractional value
-  // other than basic_ind might have a non zero integer coefficient in the 
+  // other than basic_ind might have a non zero integer coefficient in the
   // "real" row. However, these coefficients become zero anyway in the
   // cut. It is thus assumed that all basic integer variables have a
   // coefficient of zero in the given row (enforced in generate_row()).
@@ -501,8 +501,8 @@ int CglRedSplit::generate_cgcut_2(int/* basic_ind*/, double *row, double *rhs) {
   double ratf0f0compl = f0/f0compl;
   int i;
 
-  /** Not needed since coeff are already zero 
-  for(i=0; i<card_intBasicVar_frac; i++) { 
+  /** Not needed since coeff are already zero
+  for(i=0; i<card_intBasicVar_frac; i++) {
          // extra integer coefficients compared to formula.
          // They all become zero.
     int locind = intBasicVar_frac[i];
@@ -533,7 +533,7 @@ int CglRedSplit::generate_cgcut_2(int/* basic_ind*/, double *row, double *rhs) {
     }
   }
   (*rhs) = -f0;
-  
+
 #ifdef RS_TRACEALL
   rs_printvecDBL("CglRedSplit::generate_cgcut_2(): row", row, ncol+nrow);
   printf("rhs: %f\n", *rhs);
@@ -543,8 +543,8 @@ int CglRedSplit::generate_cgcut_2(int/* basic_ind*/, double *row, double *rhs) {
 } /* generate_cgcut_2 */
 
 /************************************************************************/
-void CglRedSplit::eliminate_slacks(double *row, 
-				   const double *elements, 
+void CglRedSplit::eliminate_slacks(double *row,
+				   const double *elements,
 				   const int *rowStart,
 				   const int *indices,
 				   const int *rowLength,
@@ -576,7 +576,7 @@ void CglRedSplit::eliminate_slacks(double *row,
 
 /************************************************************************/
 void CglRedSplit::flip(double *row) {
-  
+
   int i;
   for(i=0; i<card_nonBasicAtUpper; i++) {
     row[nonBasicAtUpper[i]] = -row[nonBasicAtUpper[i]];
@@ -585,7 +585,7 @@ void CglRedSplit::flip(double *row) {
 
 /************************************************************************/
 void CglRedSplit::unflip(double *row, double *tabrowrhs, double *slack_val) {
-  
+
   int i;
   for(i=0; i<card_nonBasicAtLower; i++) {
     int locind = nonBasicAtLower[i];
@@ -654,15 +654,15 @@ double CglRedSplit::row_scale_factor(double *row) {
   }
 
   if(has_lub) {
-    if((max_val > param.getEPS_COEFF_LUB()) && 
-       (max_val < param.getMAXDYN_LUB() * min_val) && 
+    if((max_val > param.getEPS_COEFF_LUB()) &&
+       (max_val < param.getMAXDYN_LUB() * min_val) &&
        (max_val >= min_val)) {
       return(retval);
     }
   }
   else {
-    if((max_val > param.getEPS_COEFF()) && 
-       (max_val < param.getMAXDYN() * min_val) && 
+    if((max_val > param.getEPS_COEFF()) &&
+       (max_val < param.getMAXDYN() * min_val) &&
        (max_val >= min_val)) {
       return(retval);
     }
@@ -679,7 +679,7 @@ double CglRedSplit::row_scale_factor(double *row) {
 /************************************************************************/
 int CglRedSplit::generate_packed_row(const double *lclXlp,
 				     double *row,
-				     int *rowind, double *rowelem, 
+				     int *rowind, double *rowelem,
 				     int *card_row, double & rhs) {
   int i;
   double scale_f = row_scale_factor(row);
@@ -689,7 +689,7 @@ int CglRedSplit::generate_packed_row(const double *lclXlp,
 
 #ifdef RS_TRACE
     printf("CglRedSplit::generate_packed_row(): Cut discarded (bad numerical behavior)\n");
-#endif	
+#endif
 
     return(0);
   }
@@ -707,16 +707,16 @@ int CglRedSplit::generate_packed_row(const double *lclXlp,
 
 #ifdef RS_TRACE
 	printf("CglRedSplit::generate_packed_row(): Cut discarded (too many non zero)\n");
-#endif	
+#endif
 	return(0);
       }
     } else {
       if((value > 0.0) && (!low_is_lub[i])) {
         rhs -= value * colLower[i];
-      } 
+      }
       else if((value < 0.0) && (!up_is_lub[i])) {
         rhs -= value * colUpper[i];
-      } 
+      }
       else if(fabs(value) > param.getEPS_COEFF_LUB()) {
         // take anyway
         rowind[*card_row] = i;
@@ -725,7 +725,7 @@ int CglRedSplit::generate_packed_row(const double *lclXlp,
         if(*card_row > param.getMAX_SUPPORT()) {
 #ifdef RS_TRACE
           printf("CglRedSplit::generate_packed_row(): Cut discarded since too many non zero coefficients\n");
-#endif	
+#endif
           return(0);
         }
       }
@@ -742,12 +742,12 @@ int CglRedSplit::generate_packed_row(const double *lclXlp,
 
 #ifdef RS_TRACE
       printf("CglRedSplit::generate_packed_row(): Cut discarded: violation: %12.10f\n", value);
-#endif	
-      
+#endif
+
       return(0);
     }
   }
-  
+
   return(1);
 } /* generate_packed_row */
 
@@ -785,7 +785,7 @@ void CglRedSplit::setMaxTab(double value)
     param.setMaxTab(value);
   }
   else {
-    printf("### WARNING: CglRedSplit::setMaxTab(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplit::setMaxTab(): value: %f ignored\n",
 	   value);
   }
 }
@@ -837,7 +837,7 @@ void CglRedSplit::setEPS_COEFF(double value)
     param.setEPS_COEFF(value);
   }
   else {
-    printf("### WARNING: CglRedSplit::setEPS_COEFF(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplit::setEPS_COEFF(): value: %f ignored\n",
 	   value);
   }
 } /* setEPS_COEFF */
@@ -855,7 +855,7 @@ void CglRedSplit::setEPS_COEFF_LUB(double value)
     param.setEPS_COEFF_LUB(value);
   }
   else {
-    printf("### WARNING: CglRedSplit::setEPS_COEFF_LUB(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplit::setEPS_COEFF_LUB(): value: %f ignored\n",
 	   value);
   }
 } /* setEPS_COEFF_LUB */
@@ -873,7 +873,7 @@ void CglRedSplit::setEPS_RELAX(double value)
     param.setEPS_RELAX_ABS(value);
   }
   else {
-    printf("### WARNING: CglRedSplit::setEPS_RELAX(): value: %f ignored\n", 
+    printf("### WARNING: CglRedSplit::setEPS_RELAX(): value: %f ignored\n",
 	   value);
   }
 } /* setEPS_RELAX */
@@ -932,7 +932,7 @@ void CglRedSplit::check_optsol(const int calling_place,
 			       const int do_flip) {
 
   if(card_given_optsol != ncol) {
-    printf("### ERROR: CglRedSplit(): card_given_optsol: %d  ncol: %d\n", 
+    printf("### ERROR: CglRedSplit(): card_given_optsol: %d  ncol: %d\n",
 	   card_given_optsol, ncol);
     exit(1);
   }
@@ -947,12 +947,12 @@ void CglRedSplit::check_optsol(const int calling_place,
   byRow->timesMinor(given_optsol, ck_slack);
   int irow;
   for(irow=0; irow<nrow; irow++) {
-    ck_slack[irow] = rowRhs[irow] - ck_slack[irow];  
+    ck_slack[irow] = rowRhs[irow] - ck_slack[irow];
                                         // slack values for optimal solution
   }
-  
+
   double *ck_row = new double[ncol+nrow];
-  
+
   for(irow=0; irow<mTab; irow++) {
     for(i=0; i<ncol+nrow; i++) {
       ck_row[i] = 0;
@@ -996,23 +996,23 @@ void CglRedSplit::check_optsol(const int calling_place,
 
     double ck_lhs = rs_dotProd(ck_row, given_optsol, ncol);
     ck_lhs += rs_dotProd(&(ck_row[ncol]), ck_slack, nrow);
-    
+
     double ck_rhs = adjust_rhs + rs_dotProd(ck_row, lclXlp, ncol);
     ck_rhs += rs_dotProd(&(ck_row[ncol]), slack_val, nrow);
-    
+
 #ifdef RS_TRACEALL
     rs_printvecDBL("ck_row", ck_row, ncol);
     rs_printvecDBL("given_optsol", given_optsol, ncol);
     rs_printvecDBL("ck_row(slacks)", &(ck_row[ncol]), nrow);
     rs_printvecDBL("ck_slack", ck_slack, nrow);
-    printf("ck_rhs: %12.8f\n", ck_rhs); 
+    printf("ck_rhs: %12.8f\n", ck_rhs);
 #endif
 
     if((ck_lhs < ck_rhs - param.getEPS()) || (ck_lhs > ck_rhs + param.getEPS())) {
-      printf("### ERROR: CglRedSplit::check_optsol(): Cut %d cuts given_optsol\n", 
+      printf("### ERROR: CglRedSplit::check_optsol(): Cut %d cuts given_optsol\n",
 	     irow);
       rs_printvecDBL("ck_row", ck_row, ncol+nrow);
-      printf("lhs: %f  rhs: %f    calling_place: %d\n", 
+      printf("lhs: %f  rhs: %f    calling_place: %d\n",
 	     ck_lhs, ck_rhs, calling_place);
       exit(1);
     }
@@ -1028,7 +1028,7 @@ void CglRedSplit::check_optsol(const int calling_place,
 			       const int cut_number, const int do_flip) {
 
   if(card_given_optsol != ncol) {
-    printf("### ERROR: CglRedSplit(): card_given_optsol: %d  ncol: %d\n", 
+    printf("### ERROR: CglRedSplit(): card_given_optsol: %d  ncol: %d\n",
 	   card_given_optsol, ncol);
     exit(1);
   }
@@ -1047,10 +1047,10 @@ void CglRedSplit::check_optsol(const int calling_place,
 
   byRow->timesMinor(given_optsol, ck_slack);
   for(irow=0; irow<nrow; irow++) {
-    ck_slack[irow] = rowRhs[irow] - ck_slack[irow];  
+    ck_slack[irow] = rowRhs[irow] - ck_slack[irow];
                                        // slack values for optimal solution
   }
-  
+
   double adjust_rhs = 0;
   if(do_flip) {
     for(i=0; i<card_nonBasicAtLower; i++) {
@@ -1077,12 +1077,12 @@ void CglRedSplit::check_optsol(const int calling_place,
 
   double ck_lhs = rs_dotProd(cpy_row, given_optsol, ncol);
   ck_lhs += rs_dotProd(&(cpy_row[ncol]), ck_slack, nrow);
-    
+
   if(ck_lhs > ck_rhs + adjust_rhs + param.getEPS()) {
-    printf("### ERROR: CglRedSplit::check_optsol(): Cut %d cuts given_optsol\n", 
+    printf("### ERROR: CglRedSplit::check_optsol(): Cut %d cuts given_optsol\n",
 	   cut_number);
     rs_printvecDBL("cpy_row", cpy_row, ncol+nrow);
-    printf("lhs: %f  rhs: %f    calling_place: %d\n", 
+    printf("lhs: %f  rhs: %f    calling_place: %d\n",
 	   ck_lhs, ck_rhs + adjust_rhs, calling_place);
     exit(1);
   }
@@ -1091,7 +1091,7 @@ void CglRedSplit::check_optsol(const int calling_place,
 } /* check_optsol */
 
 /************************************************************************/
-bool CglRedSplit::rs_are_different_vectors(const int *vect1, 
+bool CglRedSplit::rs_are_different_vectors(const int *vect1,
 					   const int *vect2,
 					   const int dim) {
   int i;
@@ -1099,13 +1099,13 @@ bool CglRedSplit::rs_are_different_vectors(const int *vect1,
     if(vect1[i] != vect2[i]) {
       printf("### ERROR: rs_are_different_vectors(): vect1[%d]: %d vect2[%d]: %d\n", i, vect1[i], i, vect2[i]);
       return(0);
-    }    
+    }
   }
   return(1);
 } /* rs_are_different_vectors */
 
 /************************************************************************/
-bool CglRedSplit::rs_are_different_vectors(const double *vect1, 
+bool CglRedSplit::rs_are_different_vectors(const double *vect1,
 					   const double *vect2,
 					   const int dim) {
   int i;
@@ -1113,26 +1113,26 @@ bool CglRedSplit::rs_are_different_vectors(const double *vect1,
     if(fabs(vect1[i] - vect2[i]) > 1e-6) {
       printf("### ERROR: rs_are_different_vectors(): vect1[%d]: %12.8f vect2[%d]: %12.8f\n", i, vect1[i], i, vect2[i]);
       return(0);
-    }    
+    }
   }
   return(1);
 } /* rs_are_different_vectors */
 
 /************************************************************************/
-bool CglRedSplit::rs_are_different_matrices(const CoinPackedMatrix *mat1, 
+bool CglRedSplit::rs_are_different_matrices(const CoinPackedMatrix *mat1,
 					    const CoinPackedMatrix *mat2,
 					    const int nmaj,
 					    const int /*nmin*/) {
-  
+
   const int *matStart1 = mat1->getVectorStarts();
   const double *matElements1 = mat1->getElements();
   const int *matIndices1 = mat1->getIndices();
-  const int *matRowLength1 = mat1->getVectorLengths(); 
+  const int *matRowLength1 = mat1->getVectorLengths();
 
   const int *matStart2 = mat2->getVectorStarts();
   const double *matElements2 = mat2->getElements();
   const int *matIndices2 = mat2->getIndices();
-  const int *matRowLength2 = mat2->getVectorLengths(); 
+  const int *matRowLength2 = mat2->getVectorLengths();
 
   int i, j;
 
@@ -1177,8 +1177,8 @@ void CglRedSplit::generateCuts(const OsiSolverInterface &si, OsiCuts & cs,
   solver = const_cast<OsiSolverInterface *>(&si);
   if(solver == NULL) {
     printf("### WARNING: CglRedSplit::generateCuts(): no solver available.\n");
-    return;    
-  }  
+    return;
+  }
 
   if(!solver->optimalBasisIsAvailable()) {
     printf("### WARNING: CglRedSplit::generateCuts(): no optimal basis available.\n");
@@ -1193,8 +1193,8 @@ void CglRedSplit::generateCuts(const OsiSolverInterface &si, OsiCuts & cs,
   card_nonBasicAtLower = 0;
 
   // Get basic problem information from solver
-  ncol = solver->getNumCols(); 
-  nrow = solver->getNumRows(); 
+  ncol = solver->getNumCols();
+  nrow = solver->getNumRows();
   colLower = solver->getColLower();
   colUpper = solver->getColUpper();
   rowLower = solver->getRowLower();
@@ -1215,21 +1215,21 @@ void CglRedSplit::generateCuts(const OsiSolverInterface &si, OsiCuts & cs,
 void CglRedSplit::generateCuts(OsiCuts &cs)
 {
   int i;
-  low_is_lub = new int[ncol]; 
-  up_is_lub = new int[ncol]; 
-  is_integer = new int[ncol]; 
-  
+  low_is_lub = new int[ncol];
+  up_is_lub = new int[ncol];
+  is_integer = new int[ncol];
+
   compute_is_lub();
   compute_is_integer();
 
   int *cstat = new int[ncol];
   int *rstat = new int[nrow];
-  solver->getBasisStatus(cstat, rstat);   // 0: free  1: basic  
+  solver->getBasisStatus(cstat, rstat);   // 0: free  1: basic
                                           // 2: upper 3: lower
 
-  int *basis_index = new int[nrow]; // basis_index[i] = 
+  int *basis_index = new int[nrow]; // basis_index[i] =
                                     //        index of pivot var in row i
-                                    //        (slack if number >= ncol) 
+                                    //        (slack if number >= ncol)
 
 #ifdef RS_TRACETAB
   rs_printvecINT("cstat", cstat, ncol);
@@ -1238,12 +1238,12 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
 
   solver->getBasics(basis_index);
 
-  cv_intBasicVar_frac = new int[ncol];  
-  intBasicVar_frac = new int[ncol];                                 
-  intNonBasicVar = new int[ncol];       
-  contNonBasicVar = new int[ncol+nrow]; 
-  nonBasicAtUpper = new int[ncol+nrow]; 
-  nonBasicAtLower = new int[ncol+nrow]; 
+  cv_intBasicVar_frac = new int[ncol];
+  intBasicVar_frac = new int[ncol];
+  intNonBasicVar = new int[ncol];
+  contNonBasicVar = new int[ncol+nrow];
+  nonBasicAtUpper = new int[ncol+nrow];
+  nonBasicAtLower = new int[ncol+nrow];
   double dist_int;
 
   for(i=0; i<ncol; i++) {
@@ -1251,23 +1251,23 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
 
     switch(cstat[i]) {
     case 1: // basic variable
-      
+
       dist_int = rs_above_integer(xlp[i]);
-      if(is_integer[i] && 
+      if(is_integer[i] &&
 	 (dist_int > param.getAway()) && (dist_int < 1 - param.getAway())) {
 	cv_intBasicVar_frac[i] = 1;
 	card_intBasicVar_frac++;
 
-	// intBasicVar_frac computed below, 
+	// intBasicVar_frac computed below,
 	// as order must be according to selected rows
 
       }
       break;
 
     case 2: // Non basic at upper bound: must be flipped and shifted
-            // so that it becomes non negative with lower bound 0 
+            // so that it becomes non negative with lower bound 0
             // It is assumed that bounds for integer variables have been
-            // tightend so that non basic integer structural variables 
+            // tightend so that non basic integer structural variables
             // have integer values
 
       nonBasicAtUpper[card_nonBasicAtUpper] = i;
@@ -1301,12 +1301,12 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
       }
       break;
 
-    default: // free variable ? Don't know how to handle 
+    default: // free variable ? Don't know how to handle
       printf("### ERROR: CglRedSplit::generateCuts(): cstat[%d]: %d\n",
 	     i, cstat[i]);
       exit(1);
       break;
-    } 
+    }
   }
 
   for(i=0; i<nrow; i++) {
@@ -1330,7 +1330,7 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
       card_contNonBasicVar++;
       break;
 
-    default: 
+    default:
       printf("### ERROR: CglRedSlpit::generateCuts(): rstat[%d]: %d\n",
 	     i, rstat[i]);
       exit(1);
@@ -1343,7 +1343,7 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
     delete[] rstat;
     delete[] basis_index;
 
-    delete[] cv_intBasicVar_frac;  
+    delete[] cv_intBasicVar_frac;
     delete[] intBasicVar_frac;
     delete[] intNonBasicVar;
     delete[] contNonBasicVar;
@@ -1356,7 +1356,7 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
     return; // no cuts can be generated
   }
 
-  /* Loop is mTab * mTab * CoinMax(mTab, nTab) so may be very expensive. 
+  /* Loop is mTab * mTab * CoinMax(mTab, nTab) so may be very expensive.
      Reduce mTab if the above value is larger than maxTab_ */
 
   int new_mTab = card_intBasicVar_frac;
@@ -1378,8 +1378,8 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
     delete[] cstat;
     delete[] rstat;
     delete[] basis_index;
-    
-    delete[] cv_intBasicVar_frac;  
+
+    delete[] cv_intBasicVar_frac;
     delete[] intBasicVar_frac;
     delete[] intNonBasicVar;
     delete[] contNonBasicVar;
@@ -1392,10 +1392,10 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
   }
 
   int start = 0;  // first row for selecting intBasicVar_frac, if too many.
-                  // Removing rows used for generation whose pivot is some 
-                  // var in intBasicVar_frac is valid since the corresponding 
-                  // column in the optimal tableau is a column of the 
-                  // identity matrix 
+                  // Removing rows used for generation whose pivot is some
+                  // var in intBasicVar_frac is valid since the corresponding
+                  // column in the optimal tableau is a column of the
+                  // identity matrix
 
   if(new_mTab < card_intBasicVar_frac) {
     // Remove some of the rows used for generation.
@@ -1403,15 +1403,15 @@ void CglRedSplit::generateCuts(OsiCuts &cs)
 
     int seed = card_intBasicVar_frac;
     start = static_cast<int> (nrow * rs_genalea(&seed));
-    
+
 #ifdef RS_TRACE
-    printf("CglRedSlpit::generateCuts(): mTab: %d  new_mTab: %d\n", 
+    printf("CglRedSlpit::generateCuts(): mTab: %d  new_mTab: %d\n",
 	   card_intBasicVar_frac, new_mTab);
 #endif
 
     card_intBasicVar_frac = new_mTab;
   }
-  
+
 double *slack_val = new double[nrow];
 
   for(i=0; i<nrow; i++) {
@@ -1446,7 +1446,7 @@ double *slack_val = new double[nrow];
 
   for(i=0; i<nrow; i++) {
 
-    if(mTab <= card_intBasicVar_frac) { 
+    if(mTab <= card_intBasicVar_frac) {
       break;
     }
 
@@ -1457,9 +1457,9 @@ double *slack_val = new double[nrow];
 
     if(basis_index[ind_row] >= ncol) {
       continue;
-    } 
+    }
 
-    if(cv_intBasicVar_frac[basis_index[ind_row]] == 1) { 
+    if(cv_intBasicVar_frac[basis_index[ind_row]] == 1) {
                                                   // row used in generation
       intBasicVar_frac[card_intBasicVar_frac] = basis_index[ind_row];
       card_intBasicVar_frac++;
@@ -1536,28 +1536,28 @@ double *slack_val = new double[nrow];
   const double *elements = byRow->getElements();
   const int *rowStart = byRow->getVectorStarts();
   const int *indices = byRow->getIndices();
-  const int *rowLength = byRow->getVectorLengths(); 
+  const int *rowLength = byRow->getVectorLengths();
 
   for(i=0; i<mTab; i++) {
     generate_row(i, row);
     flip(row);
 
     // RHS of equalities after flipping/translating non basic variables
-    // is given by the current LP solution (re-ordered according to 
-    // basis_index), i.e. what is now in rhsTab. 
-    // RHS of row i of (pi_mat * contNonBasicTab) is then simply 
+    // is given by the current LP solution (re-ordered according to
+    // basis_index), i.e. what is now in rhsTab.
+    // RHS of row i of (pi_mat * contNonBasicTab) is then simply
     // pi_mat[i] * rhsTab
 
-    double tabrowrhs = rs_dotProd(pi_mat[i], rhsTab, mTab); 
+    double tabrowrhs = rs_dotProd(pi_mat[i], rhsTab, mTab);
     int got_one = 0;
-    
+
     if(param.getUSE_CG2()) {
       got_one = generate_cgcut_2(intBasicVar_frac[i], row, &tabrowrhs);
     }
     else {
       got_one = generate_cgcut(row, &tabrowrhs);
     }
-    
+
     if(got_one) {
       unflip(row, &tabrowrhs, slack_val);
 
@@ -1565,14 +1565,14 @@ double *slack_val = new double[nrow];
 	check_optsol(3, xlp, slack_val, row, tabrowrhs, i, 0);
       }
 
-      eliminate_slacks(row, elements, rowStart, indices, 
+      eliminate_slacks(row, elements, rowStart, indices,
 		       rowLength, rowRhs, &tabrowrhs);
 
       if(given_optsol) {
 	check_optsol(4, xlp, slack_val, row, tabrowrhs, i, 0);
       }
 
-      if(generate_packed_row(xlp, row, rowind, rowelem, &card_row, 
+      if(generate_packed_row(xlp, row, rowind, rowelem, &card_row,
 			     tabrowrhs)) {
       	OsiRowCut rc;
 	rc.setRow(card_row, rowind, rowelem);
@@ -1581,7 +1581,7 @@ double *slack_val = new double[nrow];
 	if(param.getEPS_RELAX_REL() > 0.0) {
 	  adjust += fabs(tabrowrhs) * param.getEPS_RELAX_REL();
 	}
-	rc.setUb(tabrowrhs + adjust);   
+	rc.setUb(tabrowrhs + adjust);
                                   // relax the constraint slightly
 	cs.insertIfNotDuplicate(rc, CoinAbsFltEq(param.getEPS_COEFF()));
       }
@@ -1598,7 +1598,7 @@ double *slack_val = new double[nrow];
   delete[] rowind;
   delete[] rowelem;
 
-  delete[] cv_intBasicVar_frac;  
+  delete[] cv_intBasicVar_frac;
   delete[] intBasicVar_frac;
   delete[] intNonBasicVar;
   delete[] contNonBasicVar;
@@ -1647,9 +1647,9 @@ void CglRedSplit::compute_is_integer() {
 	is_integer[i] = 1;
       }
       else {
-	if((colUpper[i] - colLower[i] < param.getEPS()) && 
+	if((colUpper[i] - colLower[i] < param.getEPS()) &&
 	   (rs_above_integer(colUpper[i]) < param.getEPS())) {
-	  
+
 	  // continuous variable fixed to an integer value
 	  is_integer[i] = 1;
 	}
@@ -1665,9 +1665,9 @@ void CglRedSplit::compute_is_integer() {
 	is_integer[i] = 1;
       }
       else {
-	if((colUpper[i] - colLower[i] < param.getEPS()) && 
+	if((colUpper[i] - colLower[i] < param.getEPS()) &&
 	   (rs_above_integer(colUpper[i]) < param.getEPS())) {
-	  
+
 	  // continuous variable fixed to an integer value
 	  is_integer[i] = 1;
 	}
@@ -1675,7 +1675,7 @@ void CglRedSplit::compute_is_integer() {
 	  is_integer[i] = 0;
 	}
       }
-    }    
+    }
   }
 } /* compute_is_integer */
 
@@ -1683,13 +1683,13 @@ void CglRedSplit::compute_is_integer() {
 void CglRedSplit::print() const
 {
   rs_printvecINT("intBasicVar_frac", intBasicVar_frac, card_intBasicVar_frac);
-  rs_printmatINT("pi_mat", pi_mat, card_intBasicVar_frac, 
+  rs_printmatINT("pi_mat", pi_mat, card_intBasicVar_frac,
 		 card_intBasicVar_frac);
   rs_printvecINT("intNonBasicVar", intNonBasicVar, card_intNonBasicVar);
-  rs_printmatDBL("intNonBasicTab", intNonBasicTab, card_intBasicVar_frac, 
+  rs_printmatDBL("intNonBasicTab", intNonBasicTab, card_intBasicVar_frac,
 		 card_intNonBasicVar);
   rs_printvecINT("contNonBasicVar", contNonBasicVar, card_contNonBasicVar);
-  rs_printmatDBL("contNonBasicTab", contNonBasicTab, card_intBasicVar_frac, 
+  rs_printmatDBL("contNonBasicTab", contNonBasicTab, card_intBasicVar_frac,
 		 card_contNonBasicVar);
   rs_printvecINT("nonBasicAtLower", nonBasicAtLower, card_nonBasicAtLower);
   rs_printvecINT("nonBasicAtUpper", nonBasicAtUpper, card_nonBasicAtUpper);
@@ -1703,12 +1703,12 @@ void CglRedSplit::printOptTab(OsiSolverInterface *lclSolver) const
   int *cstat = new int[ncol];
   int *rstat = new int[nrow];
 
-  lclSolver->getBasisStatus(cstat, rstat);   // 0: free  1: basic  
+  lclSolver->getBasisStatus(cstat, rstat);   // 0: free  1: basic
                                           // 2: upper 3: lower
 
-  int *basis_index = new int[nrow]; // basis_index[i] = 
+  int *basis_index = new int[nrow]; // basis_index[i] =
                                     //        index of pivot var in row i
-                                    //        (slack if number >= ncol) 
+                                    //        (slack if number >= ncol)
   lclSolver->getBasics(basis_index);
 
   double *z = new double[ncol];  // workspace to get row of the tableau
@@ -1760,7 +1760,7 @@ void CglRedSplit::printOptTab(OsiSolverInterface *lclSolver) const
   printf("\n");
 
   for(ii=0; ii<ncol; ii++) {
-    printf("%5.2f ", rc[ii]);    
+    printf("%5.2f ", rc[ii]);
   }
   printf(" | ");
   for(ii=0; ii<nrow; ii++) {
@@ -1789,7 +1789,7 @@ card_nonBasicAtUpper(0),
 card_nonBasicAtLower(0),
 cv_intBasicVar_frac(0),
 intBasicVar_frac(0),
-intNonBasicVar(0), 
+intNonBasicVar(0),
 contNonBasicVar(0),
 nonBasicAtUpper(0),
 nonBasicAtLower(0),
@@ -1815,7 +1815,7 @@ card_nonBasicAtUpper(0),
 card_nonBasicAtLower(0),
 cv_intBasicVar_frac(0),
 intBasicVar_frac(0),
-intNonBasicVar(0), 
+intNonBasicVar(0),
 contNonBasicVar(0),
 nonBasicAtUpper(0),
 nonBasicAtLower(0),
@@ -1830,7 +1830,7 @@ card_given_optsol(0)
 {
   param = RS_param;
 }
- 
+
 /*********************************************************************/
 CglRedSplit::CglRedSplit (const CglRedSplit & source) :
   CglCutGenerator(source),
@@ -1844,7 +1844,7 @@ CglRedSplit::CglRedSplit (const CglRedSplit & source) :
   card_nonBasicAtLower(0),
   cv_intBasicVar_frac(NULL),
   intBasicVar_frac(NULL),
-  intNonBasicVar(NULL), 
+  intNonBasicVar(NULL),
   contNonBasicVar(NULL),
   nonBasicAtUpper(NULL),
   nonBasicAtLower(NULL),
@@ -1872,7 +1872,7 @@ CglRedSplit::~CglRedSplit ()
 /*********************************************************************/
 CglRedSplit &
 CglRedSplit::operator=(const CglRedSplit &source)
-{  
+{
 
   if (this != &source) {
     CglCutGenerator::operator=(source);
@@ -1884,7 +1884,7 @@ CglRedSplit::operator=(const CglRedSplit &source)
 }
 /*********************************************************************/
 // Returns true if needs optimal basis to do cuts
-bool 
+bool
 CglRedSplit::needsOptimalBasis() const
 {
   return true;
@@ -1893,7 +1893,7 @@ CglRedSplit::needsOptimalBasis() const
 /*********************************************************************/
 // Create C++ lines to get to current state
 std::string
-CglRedSplit::generateCpp(FILE * fp) 
+CglRedSplit::generateCpp(FILE * fp)
 {
   CglRedSplit other;
   fprintf(fp,"0#include \"CglRedSplit.hpp\"\n");

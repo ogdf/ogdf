@@ -81,7 +81,7 @@ typedef struct CGL_PARAMS{
    int               clique_max_depth;
    int               oddhole_max_depth;
    int               knapsack_max_depth;
-   
+
    int               use_chain_strategy;
    int               chain_status;
    int               max_chain_backtrack;
@@ -105,13 +105,13 @@ typedef struct LP_PARAMS{
     * information is loaded separately in both cases for a warm start. Cant be
     * set by user.
     */
-   int               should_reuse_lp; 
+   int               should_reuse_lp;
 
    /* these two are passed directly to the lp solver */
    int               scaling;
    int               fastmip;
 
-   /* 
+   /*
     * should we do initial_solve() or dual_simplex() when we start a new
     * chain. both have pros and cons and asm4 is not sure what to do.
     */
@@ -182,7 +182,7 @@ typedef struct LP_PARAMS{
 
    /* CGL parameters */
    cgl_params        cgl;
-   
+
    /* Parameters affecting branching */
    int               max_presolve_iter;
 
@@ -209,11 +209,11 @@ typedef struct LP_PARAMS{
    double            rel_br_max_imp;
 
    int               rel_br_threshold; /* how many times to do strong branching
-                                          on each variable before using pseudo 
+                                          on each variable before using pseudo
                                           cost estimates */
-   int               rel_br_cand_threshold; /* how many candidates to solve 
-                                               using strong branching without 
-                                               any improvement in score before 
+   int               rel_br_cand_threshold; /* how many candidates to solve
+                                               using strong branching without
+                                               any improvement in score before
                                                stopping */
    int               rel_br_max_solves; /* stop after these many LP-solve calls
                                            regardless of improvement */

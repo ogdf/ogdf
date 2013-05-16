@@ -26,7 +26,7 @@ def bailout(msg):
 	print(msg)
 	print('Please use the original makeVCProj.config as a template')
 	sys.exit()
-	
+
 def loadConfig(sect, key, noError = False ):
 	if config.has_option(sect, key):
 		v = config.get(sect, key)
@@ -34,7 +34,7 @@ def loadConfig(sect, key, noError = False ):
 		return v
 	else:
 		if noError:
-			return None		
+			return None
 		else:
 			bailout('Option "' + key + '" in section "' + sect + '" is missing')
 
@@ -121,35 +121,35 @@ if useCoin:
 	coinEnableOpenMP = loadConfig('COIN', 'OpenMP', True)
 	if coinEnableOpenMP and coinEnableOpenMP.startswith('t'):
 		coinOpenMP = 'true'
-	
+
 	defaultSolver   = loadConfig('COIN', 'defaultSolver')
 	externalSolvers = loadConfig('COIN', 'externalSolvers').split(';')
 	solverIncludes  = loadConfig('COIN', 'solverIncludes').split(';')
 
 	addOsiCpx = checkSolver('CPX', defaultSolver, externalSolvers)
 	addOsiGrb = checkSolver('GRB', defaultSolver, externalSolvers)
-	
+
 	config_defines += '#define USE_COIN\n'
 	config_defines += '#define COIN_OSI_' + defaultSolver + '\n'
-	
+
 	for s in externalSolvers:
 		s = s.strip();
 		if s != '':
 			config_defines += '#define OSI_' + s.strip() + '\n'
-	
+
 	for p in solverIncludes:
 		p = p.strip()
 		if p != '':
 			addIncludes += p + ';'
-	
+
 	if createDLL and createDLL.startswith('t'):
 		addLibs += 'coin.lib '
-		
+
 		addLibsDebugWin32   += getLibs(loadConfig('COIN', 'solverLibs_win32_debug'))
 		addLibsReleaseWin32 += getLibs(loadConfig('COIN', 'solverLibs_win32_release'))
 		addLibsDebugX64     += getLibs(loadConfig('COIN', 'solverLibs_x64_debug'))
 		addLibsReleaseX64   += getLibs(loadConfig('COIN', 'solverLibs_x64_release'))
-	
+
 linkSectionD32 = ''
 linkSectionR32 = ''
 linkSectionD64 = ''
@@ -163,7 +163,7 @@ if createDLL and createDLL.startswith('t'):
 	linkSectionEnd = '\"\n\
 				AdditionalLibraryDirectories="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"\
 				LinkTimeCodeGeneration="0"'
-	
+
 	linkSectionD32 = linkSectionBegin + addLibs + addLibsDebugWin32   + linkSectionEnd
 	linkSectionR32 = linkSectionBegin + addLibs + addLibsReleaseWin32 + linkSectionEnd
 	linkSectionD64 = linkSectionBegin + addLibs + addLibsDebugX64     + linkSectionEnd
@@ -182,7 +182,7 @@ config_autogen.write('// Do not change this file manually, instead reconfigure O
 config_autogen.write('\n')
 config_autogen.write(config_defines)
 config_autogen.close()
-	
+
 addIncludes = addIncludes[:-1]
 
 libraryTypeTag = '<<LIBRARYTYPETAG>>'
@@ -195,7 +195,7 @@ linkTagD64 = '<<LINKTAGD64>>'
 linkTagR64 = '<<LINKTAGR64>>'
 openMPTag = '<<OPENMPTAG>>'
 
-# Params are: 
+# Params are:
 # - Tag in template-File
 # - Directory to start search & subfilters from
 # - File Patterns
@@ -217,7 +217,7 @@ coinStuff = [ cppCoinStuff, hCoinStuff ]
 def Walk( curdir, pats, intro ):
 	names = os.listdir( curdir)
 	names.sort()
-	
+
 	for name in names:
 		# OGDF ignores
 		if name.startswith('.') or name.startswith('_') or (name=='legacy' and not includeLegacyCode):
@@ -230,7 +230,7 @@ def Walk( curdir, pats, intro ):
 
 		outpath = curdir + '\\' + name
 		fullname = os.path.normpath(outpath)
-		
+
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
 				if Walk( outpath, pats, intro + '<Filter Name="' + name + '">\n'):
@@ -295,7 +295,7 @@ if useCoin:
 
 	vcproj = open(filename_coin_vcproj,'w')
 	template = open(filename_coin_template)
-	
+
 	check = 0
 	for line in template:
 		if check < len(coinStuff) and line.find(coinStuff[check].tag) > -1:
@@ -307,7 +307,7 @@ if useCoin:
 			vcproj.write(line.replace(includeTag,addIncludes,1))
 		else:
 			vcproj.write(line)
-			
+
 	template.close()
 	vcproj.close()
 

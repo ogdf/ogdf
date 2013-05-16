@@ -25,7 +25,7 @@ CglMixedIntegerRoundingUnitTest(const OsiSolverInterface *baseSiP,
   {
     CglMixedIntegerRounding aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglMixedIntegerRounding rhs;
@@ -76,20 +76,20 @@ CglMixedIntegerRoundingUnitTest(const OsiSolverInterface *baseSiP,
     else {
       fclose(in_f);
       siP->readMps(fn.c_str(),"mps");
- 
+
       siP->initialSolve();
       double lpRelax = siP->getObjValue();
-      
+
       OsiCuts cs;
       gct.generateCuts(*siP, cs);
       int nRowCuts = cs.sizeRowCuts();
       std::cout<<"There are "<<nRowCuts<<" MIR cuts"<<std::endl;
       assert(cs.sizeRowCuts() > 0);
       OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cs);
-      
+
       siP->resolve();
-      
-      double lpRelaxAfter= siP->getObjValue(); 
+
+      double lpRelaxAfter= siP->getObjValue();
       std::cout<<"Initial LP value: "<<lpRelax<<std::endl;
       std::cout<<"LP value with cuts: "<<lpRelaxAfter<<std::endl;
       assert( lpRelax < lpRelaxAfter );

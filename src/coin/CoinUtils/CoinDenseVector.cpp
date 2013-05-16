@@ -93,7 +93,7 @@ CoinDenseVector<T>::append(const CoinDenseVector<T> & caboose)
 //#############################################################################
 
 template <typename T> void
-CoinDenseVector<T>::operator+=(T value) 
+CoinDenseVector<T>::operator+=(T value)
 {
   for(int i=0; i<nElements_; i++)
     elements_[i] += value;
@@ -102,7 +102,7 @@ CoinDenseVector<T>::operator+=(T value)
 //-----------------------------------------------------------------------------
 
 template <typename T> void
-CoinDenseVector<T>::operator-=(T value) 
+CoinDenseVector<T>::operator-=(T value)
 {
   for(int i=0; i<nElements_; i++)
     elements_[i] -= value;
@@ -111,7 +111,7 @@ CoinDenseVector<T>::operator-=(T value)
 //-----------------------------------------------------------------------------
 
 template <typename T> void
-CoinDenseVector<T>::operator*=(T value) 
+CoinDenseVector<T>::operator*=(T value)
 {
   for(int i=0; i<nElements_; i++)
     elements_[i] *= value;
@@ -120,7 +120,7 @@ CoinDenseVector<T>::operator*=(T value)
 //-----------------------------------------------------------------------------
 
 template <typename T> void
-CoinDenseVector<T>::operator/=(T value) 
+CoinDenseVector<T>::operator/=(T value)
 {
   for(int i=0; i<nElements_; i++)
     elements_[i] /= value;
@@ -132,10 +132,10 @@ template <typename T> CoinDenseVector<T>::CoinDenseVector():
    nElements_(0),
    elements_(NULL)
 {}
-  
+
 //#############################################################################
 
-template <typename T> 
+template <typename T>
 CoinDenseVector<T>::CoinDenseVector(int size, const T * elems):
    nElements_(0),
    elements_(NULL)
@@ -154,7 +154,7 @@ template <typename T> CoinDenseVector<T>::CoinDenseVector(int size, T value):
 
 //-----------------------------------------------------------------------------
 
-template <typename T> 
+template <typename T>
 CoinDenseVector<T>::CoinDenseVector(const CoinDenseVector<T> & rhs):
    nElements_(0),
    elements_(NULL)

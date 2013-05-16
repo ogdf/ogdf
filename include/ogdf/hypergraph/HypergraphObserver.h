@@ -1,14 +1,14 @@
 /*
- * $Revision: 3381 $
+ * $Revision: 3505 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-08 09:11:35 +0200 (Mo, 08. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:47 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
- * \brief Abstract base class for observers on hypergraphs, that 
- *        need to be informed about hypergraph changes 
+ * \brief Abstract base class for observers on hypergraphs, that
+ *        need to be informed about hypergraph changes
  *        (e.g. associated graph edge standard representation).
  *
  * Follows the observer pattern: hypergraphs are observable
@@ -59,74 +59,74 @@
 #include <ogdf/hypergraph/Hypergraph.h>
 
 namespace ogdf {
-    
-// HypergraphObserver
-class OGDF_EXPORT HypergraphObserver {
 
-    friend class Hypergraph;
-    
+// HypergraphObserver
+class OGDF_EXPORT HypergraphObserver
+{
+	friend class Hypergraph;
+
 protected:
-    
-    //! Observed hypergraph.
-    const Hypergraph *m_hypergraph; 
-    
-    //! List of all registered hypergraph observers.
-    ListIterator<HypergraphObserver *> m_itObserver;
-    
+
+	//! Observed hypergraph.
+	const Hypergraph *m_hypergraph;
+
+	//! List of all registered hypergraph observers.
+	ListIterator<HypergraphObserver *> m_itObserver;
+
 public:
-    
-    //! Constructor.
-    HypergraphObserver() 
-        : m_hypergraph(0) 
-    { 
-    }
-    
-    //! Constructor assigning \a pH hypergraph to the observer.
-    HypergraphObserver(const Hypergraph *pH)
-    {
-        m_hypergraph = pH;
-        m_itObserver = pH->registerObserver(this);
-    }
-    
-    //! Destructor.
-    virtual ~HypergraphObserver()
-    {
-        if (m_hypergraph) 
-            m_hypergraph->unregisterObserver(m_itObserver);
-    }
-    
-    //! Associates an observer instance with hypergraph \a H
-    void init(const Hypergraph *pH) {
-        if (m_hypergraph) 
-            m_hypergraph->unregisterObserver(m_itObserver);
-        
-        if (pH) {
-            m_hypergraph = pH;
-            m_itObserver = pH->registerObserver(this);
-        }
-    }
-    
-    //! Called by an observed hypergraph when a hypernode is deleted.
-    virtual void hypernodeDeleted(hypernode v) = 0;
-    
-    //! Called by an observed hypergraph when a hypernode is added.
-    virtual void hypernodeAdded(hypernode v) = 0;
-    
-    //! Called by an observed hypergraph when a hyperedge is deleted.
-    virtual void hyperedgeDeleted(hyperedge e) = 0;
-    
-    //! Called by an observed hypergraph when a hyperedge is added.
-    virtual void hyperedgeAdded(hyperedge e) = 0;
-    
-    //! Called by the observed hypergraph when it is cleared.
-    virtual void cleared() = 0;
-    
-    //! Retunrs the observer hypergraph.
-    const Hypergraph * hypergraph() const 
-    { 
-        return m_hypergraph; 
-    }
-    
+
+	//! Constructor.
+	HypergraphObserver()
+	  : m_hypergraph(0)
+	{
+	}
+
+	//! Constructor assigning \a pH hypergraph to the observer.
+	HypergraphObserver(const Hypergraph *pH)
+	{
+		m_hypergraph = pH;
+		m_itObserver = pH->registerObserver(this);
+	}
+
+	//! Destructor.
+	virtual ~HypergraphObserver()
+	{
+		if (m_hypergraph)
+			m_hypergraph->unregisterObserver(m_itObserver);
+	}
+
+	//! Associates an observer instance with hypergraph \a H
+	void init(const Hypergraph *pH) {
+		if (m_hypergraph)
+			m_hypergraph->unregisterObserver(m_itObserver);
+
+		if (pH) {
+			m_hypergraph = pH;
+			m_itObserver = pH->registerObserver(this);
+		}
+	}
+
+	//! Called by an observed hypergraph when a hypernode is deleted.
+	virtual void hypernodeDeleted(hypernode v) = 0;
+
+	//! Called by an observed hypergraph when a hypernode is added.
+	virtual void hypernodeAdded(hypernode v) = 0;
+
+	//! Called by an observed hypergraph when a hyperedge is deleted.
+	virtual void hyperedgeDeleted(hyperedge e) = 0;
+
+	//! Called by an observed hypergraph when a hyperedge is added.
+	virtual void hyperedgeAdded(hyperedge e) = 0;
+
+	//! Called by the observed hypergraph when it is cleared.
+	virtual void cleared() = 0;
+
+	//! Retunrs the observer hypergraph.
+	const Hypergraph * hypergraph() const
+	{
+		return m_hypergraph;
+	}
+
 };
 
 } //end namespace ogdf

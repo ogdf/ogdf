@@ -81,7 +81,7 @@ CoinPresolveMatrix::CoinPresolveMatrix
     infiniteDown_(NULL),
     sumDown_(NULL)
 
-{ /* nothing to do here */ 
+{ /* nothing to do here */
 
   return ; }
 
@@ -93,7 +93,7 @@ CoinPresolveMatrix::~CoinPresolveMatrix()
 
 { delete[] clink_ ;
   delete[] rlink_ ;
-  
+
   delete[] mrstrt_ ;
   delete[] hinrow_ ;
   delete[] rowels_ ;
@@ -242,9 +242,9 @@ void CoinPresolveMatrix::setMatrix (const CoinPackedMatrix *mtx)
   if (originalColumn_ == 0) originalColumn_ = new int [ncols0_] ;
   if (originalRow_ == 0) originalRow_ = new int [nrows0_] ;
 
-  for ( j = 0 ; j < ncols0_ ; j++) 
+  for ( j = 0 ; j < ncols0_ ; j++)
     originalColumn_[j] = j ;
-  for ( i = 0 ; i < nrows0_ ; i++) 
+  for ( i = 0 ; i < nrows0_ ; i++)
     originalRow_[i] = i ;
 /*
   We have help to set up the clink_ and rlink_ vectors (aids for matrix bulk
@@ -320,25 +320,25 @@ CoinPresolveMatrix::recomputeSums(int iRow)
       CoinBigIndex rEnd = rowStart[iRow]+rowLength[iRow];
       CoinBigIndex j;
       // Compute possible lower and upper ranges
-      
+
       for (j = rStart; j < rEnd; ++j) {
 	double value=element[j];
 	int iColumn = column[j];
 	if (value > 0.0) {
-	  if (columnUpper[iColumn] < large) 
+	  if (columnUpper[iColumn] < large)
 	    maximumUp += columnUpper[iColumn] * value;
 	  else
 	    ++infiniteUpper;
-	  if (columnLower[iColumn] > -large) 
+	  if (columnLower[iColumn] > -large)
 	    maximumDown += columnLower[iColumn] * value;
 	  else
 	    ++infiniteLower;
 	} else if (value<0.0) {
-	  if (columnUpper[iColumn] < large) 
+	  if (columnUpper[iColumn] < large)
 	    maximumDown += columnUpper[iColumn] * value;
 	  else
 	    ++infiniteLower;
-	  if (columnLower[iColumn] > -large) 
+	  if (columnLower[iColumn] > -large)
 	    maximumUp += columnLower[iColumn] * value;
 	  else
 	    ++infiniteUpper;
@@ -355,7 +355,7 @@ CoinPresolveMatrix::recomputeSums(int iRow)
       sumDown_[iRow]=maximumDown;
       double maxUp = maximumUp+infiniteUpper*1.0e31;
       double maxDown = maximumDown-infiniteLower*1.0e31;
-      if (maxUp <= rowUpper[iRow] + tolerance && 
+      if (maxUp <= rowUpper[iRow] + tolerance &&
 	  maxDown >= rowLower[iRow] - tolerance) {
 	// redundant
 	infiniteUp_[iRow]=numberColumns+1;
@@ -405,8 +405,8 @@ CoinPresolveMatrix::initializeStuff()
   // return recomputeSums(-1);
   return 0;
 }
-// Delete useful arrays 
-void 
+// Delete useful arrays
+void
 CoinPresolveMatrix::deleteStuff()
 {
   delete[] usefulRowInt_;
@@ -497,12 +497,12 @@ void CoinPresolveMatrix::initColsToDo ()
   numberNextColsToDo_ = 0 ;
 
   if (anyProhibited_ == false)
-  { for (j = 0 ; j < ncols_ ; j++) 
+  { for (j = 0 ; j < ncols_ ; j++)
     { colsToDo_[j] = j ; }
       numberColsToDo_ = ncols_ ; }
   else
   { numberColsToDo_ = 0 ;
-    for (j = 0 ; j < ncols_ ; j++) 
+    for (j = 0 ; j < ncols_ ; j++)
     if (colProhibited(j) == false)
     { colsToDo_[numberColsToDo_++] = j ; } }
 
@@ -520,12 +520,12 @@ void CoinPresolveMatrix::initRowsToDo ()
   numberNextRowsToDo_ = 0 ;
 
   if (anyProhibited_ == false)
-  { for (i = 0 ; i < nrows_ ; i++) 
+  { for (i = 0 ; i < nrows_ ; i++)
     { rowsToDo_[i] = i ; }
       numberRowsToDo_ = nrows_ ; }
   else
   { numberRowsToDo_ = 0 ;
-    for (i = 0 ; i < nrows_ ; i++) 
+    for (i = 0 ; i < nrows_ ; i++)
     if (rowProhibited(i) == false)
     { rowsToDo_[numberRowsToDo_++] = i ; } }
 
@@ -565,7 +565,7 @@ int CoinPresolveMatrix::stepRowsToDo ()
 
   return (numberRowsToDo_) ; }
 // Say we want statistics - also set time
-void 
+void
 CoinPresolveMatrix::statistics()
 {
   tuning_=true;

@@ -25,7 +25,7 @@ CglResidualCapacityUnitTest(const OsiSolverInterface *baseSiP,
   {
     CglResidualCapacity aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglResidualCapacity rhs;
@@ -39,7 +39,7 @@ CglResidualCapacityUnitTest(const OsiSolverInterface *baseSiP,
   // Test get/set methods
   {
     CglResidualCapacity getset;
-    
+
     double geps = 10 * getset.getEpsilon();
     getset.setEpsilon(geps);
     double geps2 = getset.getEpsilon();
@@ -70,10 +70,10 @@ CglResidualCapacityUnitTest(const OsiSolverInterface *baseSiP,
     else {
       fclose(in_f);
       siP->readMps(fn.c_str(),"mps");
- 
+
       siP->initialSolve();
       double lpRelax = siP->getObjValue();
-      
+
       OsiCuts cs;
       gct.setDoPreproc(1); // Needed for DyLP
       gct.generateCuts(*siP, cs);
@@ -81,10 +81,10 @@ CglResidualCapacityUnitTest(const OsiSolverInterface *baseSiP,
       std::cout<<"There are "<<nRowCuts<<" Residual Capacity cuts"<<std::endl;
       assert(cs.sizeRowCuts() > 0);
       OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cs);
-      
+
       siP->resolve();
-      
-      double lpRelaxAfter= siP->getObjValue(); 
+
+      double lpRelaxAfter= siP->getObjValue();
       std::cout<<"Initial LP value: "<<lpRelax<<std::endl;
       std::cout<<"LP value with cuts: "<<lpRelaxAfter<<std::endl;
       assert( lpRelax < lpRelaxAfter );

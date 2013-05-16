@@ -92,7 +92,7 @@ CoinPackedVector::assignVector(int size, int*& inds, double*& elems,
     capacity_ = size;
   }
   if (testForDuplicateIndex) {
-    try {    
+    try {
       CoinPackedVectorBase::setTestForDuplicateIndex(testForDuplicateIndex);
     }
     catch (CoinError e) {
@@ -129,14 +129,14 @@ CoinPackedVector::setConstant(int size, const int * inds, double value,
 
 void
 CoinPackedVector::setFull(int size, const double * elems,
-			 bool testForDuplicateIndex) 
+			 bool testForDuplicateIndex)
 {
   // Clear out any values presently stored
   clear();
-  
+
   // Allocate storage
   if ( size!=0 ) {
-    reserve(size);  
+    reserve(size);
     nElements_ = size;
 
     CoinIotaN(origIndices_, size, 0);
@@ -153,7 +153,7 @@ CoinPackedVector::setFull(int size, const double * elems,
 
 void
 CoinPackedVector::setFullNonZero(int size, const double * elems,
-			 bool testForDuplicateIndex) 
+			 bool testForDuplicateIndex)
 {
   // Clear out any values presently stored
   clear();
@@ -161,7 +161,7 @@ CoinPackedVector::setFullNonZero(int size, const double * elems,
   // For now waste space
   // Allocate storage
   if ( size!=0 ) {
-    reserve(size);  
+    reserve(size);
     nElements_ = 0;
     int i;
     for (i=0;i<size;i++) {
@@ -183,9 +183,9 @@ void
 CoinPackedVector::setElement(int index, double element)
 {
 #ifndef COIN_FAST_CODE
-   if ( index >= nElements_ ) 
+   if ( index >= nElements_ )
       throw CoinError("index >= size()", "setElement", "CoinPackedVector");
-   if ( index < 0 ) 
+   if ( index < 0 )
       throw CoinError("index < 0" , "setElement", "CoinPackedVector");
 #endif
    elements_[index] = element;
@@ -251,13 +251,13 @@ CoinPackedVector::append(const CoinPackedVectorBase & caboose)
 void
 CoinPackedVector::swap(int i, int j)
 {
-   if ( i >= nElements_ ) 
+   if ( i >= nElements_ )
       throw CoinError("index i >= size()","swap","CoinPackedVector");
-   if ( i < 0 ) 
+   if ( i < 0 )
       throw CoinError("index i < 0" ,"swap","CoinPackedVector");
-   if ( i >= nElements_ ) 
+   if ( i >= nElements_ )
       throw CoinError("index j >= size()","swap","CoinPackedVector");
-   if ( i < 0 ) 
+   if ( i < 0 )
       throw CoinError("index j < 0" ,"swap","CoinPackedVector");
 
    // Swap positions i and j of the
@@ -271,9 +271,9 @@ CoinPackedVector::swap(int i, int j)
 void
 CoinPackedVector::truncate( int n )
 {
-   if ( n > nElements_ ) 
+   if ( n > nElements_ )
       throw CoinError("n > size()","truncate","CoinPackedVector");
-   if ( n < 0 ) 
+   if ( n < 0 )
       throw CoinError("n < 0","truncate","CoinPackedVector");
    nElements_ = n;
    clearBase();
@@ -282,7 +282,7 @@ CoinPackedVector::truncate( int n )
 //#############################################################################
 
 void
-CoinPackedVector::operator+=(double value) 
+CoinPackedVector::operator+=(double value)
 {
    std::transform(elements_, elements_ + nElements_, elements_,
 		  std::bind2nd(std::plus<double>(), value) );
@@ -291,7 +291,7 @@ CoinPackedVector::operator+=(double value)
 //-----------------------------------------------------------------------------
 
 void
-CoinPackedVector::operator-=(double value) 
+CoinPackedVector::operator-=(double value)
 {
    std::transform(elements_, elements_ + nElements_, elements_,
 		  std::bind2nd(std::minus<double>(), value) );
@@ -300,7 +300,7 @@ CoinPackedVector::operator-=(double value)
 //-----------------------------------------------------------------------------
 
 void
-CoinPackedVector::operator*=(double value) 
+CoinPackedVector::operator*=(double value)
 {
    std::transform(elements_, elements_ + nElements_, elements_,
 		  std::bind2nd(std::multiplies<double>(), value) );
@@ -309,7 +309,7 @@ CoinPackedVector::operator*=(double value)
 //-----------------------------------------------------------------------------
 
 void
-CoinPackedVector::operator/=(double value) 
+CoinPackedVector::operator/=(double value)
 {
    std::transform(elements_, elements_ + nElements_, elements_,
 		  std::bind2nd(std::divides<double>(), value) );
@@ -444,7 +444,7 @@ CoinPackedVector::CoinPackedVector(const CoinPackedVectorBase & rhs) :
    nElements_(0),
    origIndices_(NULL),
    capacity_(0)
-{  
+{
    gutsOfSetVector(rhs.getNumElements(), rhs.getIndices(), rhs.getElements(),
 		   rhs.testForDuplicateIndex(), "copy constructor from base");
 }
@@ -458,7 +458,7 @@ CoinPackedVector::CoinPackedVector(const CoinPackedVector & rhs) :
    nElements_(0),
    origIndices_(NULL),
    capacity_(0)
-{  
+{
    gutsOfSetVector(rhs.getNumElements(), rhs.getIndices(), rhs.getElements(),
 		   rhs.testForDuplicateIndex(), "copy constructor");
 }

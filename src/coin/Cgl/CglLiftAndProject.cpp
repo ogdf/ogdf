@@ -21,23 +21,23 @@
 
 //-----------------------------------------------------------------------------
 // Generate Lift-and-Project cuts
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
 				     const CglTreeInfo /*info*/) const
 {
-  // Assumes the mixed 0-1 problem 
+  // Assumes the mixed 0-1 problem
   //
-  //   min {cx: <Atilde,x> >= btilde} 
+  //   min {cx: <Atilde,x> >= btilde}
   //
   // is in canonical form with all bounds,
   // including x_t>=0, -x_t>=-1 for x_t binary,
-  // explicitly stated in the constraint matrix. 
-  // See ~/COIN/Examples/Cgl2/cgl2.cpp 
-  // for a general purpose "convert" function. 
+  // explicitly stated in the constraint matrix.
+  // See ~/COIN/Examples/Cgl2/cgl2.cpp
+  // for a general purpose "convert" function.
 
   // Reference [BCC]: Balas, Ceria, and Corneujols,
   // "A lift-and-project cutting plane algorithm
-  // for mixed 0-1 program", Math Prog 58, (1993) 
+  // for mixed 0-1 program", Math Prog 58, (1993)
   // 295-324.
 
   // This implementation uses Normalization 1.
@@ -47,16 +47,16 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   // the LAP cut generator attempts to construct
   // a cut for every x_j such that 0<x_j<1
   // [BCC:307]
- 
+
 
   // x_j is the strictly fractional binary variable
   // the cut is generated from
-  int j = 0; 
+  int j = 0;
 
   // Get basic problem information
   // let Atilde be an m by n matrix
-  const int m = si.getNumRows(); 
-  const int n = si.getNumCols(); 
+  const int m = si.getNumRows();
+  const int n = si.getNumCols();
   const double * x = si.getColSolution();
 
   // Remember - Atildes may have gaps..
@@ -64,33 +64,33 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   const double * AtildeElements =  Atilde->getElements();
   const int * AtildeIndices =  Atilde->getIndices();
   const CoinBigIndex * AtildeStarts = Atilde->getVectorStarts();
-  const int * AtildeLengths = Atilde->getVectorLengths();  
+  const int * AtildeLengths = Atilde->getVectorLengths();
   const int AtildeFullSize = AtildeStarts[m];
   const double * btilde = si.getRowLower();
 
   // Set up memory for system (10) [BCC:307]
-  // (the problem over the norm intersected 
+  // (the problem over the norm intersected
   //  with the polar cone)
-  // 
+  //
   // min <<x^T,Atilde^T>,u> + x_ju_0
   // s.t.
   //     <B,w> = (0,...,0,beta_,beta)^T
   //        w  is nonneg for all but the
   //           last two entries, which are free.
-  // where 
-  // w = (u,v,v_0,u_0)in BCC notation 
+  // where
+  // w = (u,v,v_0,u_0)in BCC notation
   //      u and v are m-vectors; u,v >=0
   //      v_0 and u_0 are free-scalars, and
-  //  
+  //
   // B = Atilde^T  -Atilde^T  -e_j e_j
   //     btilde^T   e_0^T      0   0
   //     e_0^T      btilde^T   1   0
 
   // ^T indicates Transpose
-  // e_0 is a (AtildeNCols x 1) vector of all zeros 
+  // e_0 is a (AtildeNCols x 1) vector of all zeros
   // e_j is e_0 with a 1 in the jth position
 
-  // Storing B in column order. B is a (n+2 x 2m+2) matrix 
+  // Storing B in column order. B is a (n+2 x 2m+2) matrix
   // But need to allow for possible gaps in Atilde.
   // At each iteration, only need to change 2 cols and objfunc
   // Sane design of OsiSolverInterface does not permit mucking
@@ -99,7 +99,7 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   // and we can only add columns on the end of the matrix
   // put the v_0 and u_0 columns on the end.
   // rather than as described in [BCC]
- 
+
   // Initially allocating B with space for v_0 and u_O cols
   // but not populating, for efficiency.
 
@@ -150,15 +150,15 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   const double solverINFINITY = si.getInfinity();
   double * BColLowers = new double[BNumCols];
   double * BColUppers = new double[BNumCols];
-  CoinFillN(BColLowers,BNumCols,0.0);  
-  CoinFillN(BColUppers,BNumCols,solverINFINITY); 
+  CoinFillN(BColLowers,BNumCols,0.0);
+  CoinFillN(BColUppers,BNumCols,solverINFINITY);
 
   // Set row lowers and uppers.
   // The rhs is zero, for but the last two rows.
   // For these the rhs is beta_
   double * BRowLowers = new double[BNumRows];
   double * BRowUppers = new double[BNumRows];
-  CoinFillN(BRowLowers,BNumRows,0.0);  
+  CoinFillN(BRowLowers,BNumRows,0.0);
   CoinFillN(BRowUppers,BNumRows,0.0);
   BRowLowers[BNumRows-2]=beta_;
   BRowUppers[BNumRows-2]=beta_;
@@ -175,7 +175,7 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   double * Atildex = new double[m];
   CoinFillN(BObjective,BNumCols,0.0);
   Atilde->times(x,Atildex); // Atildex is size m, x is size n
-  CoinDisjointCopyN(Atildex,m,BObjective); 
+  CoinDisjointCopyN(Atildex,m,BObjective);
 
   // Number of cols and size of Elements vector
   // in B without the v_0 and u_0 cols
@@ -183,18 +183,18 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
 
   // Load B matrix into a column orders CoinPackedMatrix
   CoinPackedMatrix * BMatrix = new CoinPackedMatrix(true, BNumRows,
-						  BNumColsLessTwo, 
+						  BNumColsLessTwo,
 						  BFullSizeLessThree,
-						  BElements,BIndices, 
+						  BElements,BIndices,
 						  BStarts,BLengths);
-  // Assign problem into a solver interface 
+  // Assign problem into a solver interface
   // Note: coneSi will cleanup the memory itself
   OsiSolverInterface * coneSi = si.clone(false);
-  coneSi->assignProblem (BMatrix, BColLowers, BColUppers, 
+  coneSi->assignProblem (BMatrix, BColLowers, BColUppers,
 		      BObjective,
 		      BRowLowers, BRowUppers);
 
-  // Problem sense should default to "min" by default, 
+  // Problem sense should default to "min" by default,
   // but just to be virtuous...
   coneSi->setObjSense(1.0);
 
@@ -207,8 +207,8 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   //   // IMPROVEME: if(haveWarmStart) check if j attractive
   //   add {-e_j,0,-1} matrix column for v_0
   //   add {e_j,0,0} matrix column for u_0
-  //   objective coefficient for u_0 is  x_j 
-  //   if (haveWarmStart) 
+  //   objective coefficient for u_0 is  x_j
+  //   if (haveWarmStart)
   //      set warmstart info
   //   solve min{objw:Bw=0; w>=0,except v_0, u_0 free}
   //   if (bounded)
@@ -218,7 +218,7 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   //      ustar_0 = optimal u_0 solution
   //      alpha^T= <ustar^T,Atilde> -ustar_0e_j^T
   //      (double check <alpha^T,x> >= beta_ should be violated)
-  //      add <alpha^T,x> >= beta_ to cutset 
+  //      add <alpha^T,x> >= beta_ to cutset
   //   endif
   //   delete column for u_0 // this deletes all column info.
   //   delete column for v_0
@@ -245,7 +245,7 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
   CoinFillN(alpha, n, 0.0);
 
   for (j=0;j<n;j++){
-    if (!si.isBinary(j)) continue; // Better to ask coneSi? No! 
+    if (!si.isBinary(j)) continue; // Better to ask coneSi? No!
                                    // coneSi has no binInfo.
     equalObj1=eq(x[j],0);
     equalObj2=eq(x[j],1);
@@ -257,7 +257,7 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
     // (Could "insert". Seems inefficient)
     int v_0Indices[2]={j,nPlus1};
     int u_0Indices[1]={j};
-    // 
+    //
     CoinPackedVector  v_0(2,v_0Indices,v_0Elements,false);
     CoinPackedVector  u_0(1,u_0Indices,u_0Elements,false);
 
@@ -285,8 +285,8 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
       const double * wstar = coneSi->getColSolution();
       CoinDisjointCopyN(wstar, m, ustar);
       Atilde->transposeTimes(ustar,alpha);
-      alpha[j]+=wstar[BNumCols-1]; 
-      
+      alpha[j]+=wstar[BNumCols-1];
+
 #if debug
       int p;
       double sum;
@@ -323,7 +323,7 @@ void CglLiftAndProject::generateCuts(const OsiSolverInterface& si, OsiCuts& cs,
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglLiftAndProject::CglLiftAndProject ()
 :
@@ -336,7 +336,7 @@ onetol_(1-epsilon_)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglLiftAndProject::CglLiftAndProject (const CglLiftAndProject & source) :
    CglCutGenerator(source),
@@ -357,7 +357,7 @@ CglLiftAndProject::clone() const
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglLiftAndProject::~CglLiftAndProject ()
 {
@@ -365,7 +365,7 @@ CglLiftAndProject::~CglLiftAndProject ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglLiftAndProject &
 CglLiftAndProject::operator=(
@@ -381,7 +381,7 @@ CglLiftAndProject::operator=(
 }
 // Create C++ lines to get to current state
 std::string
-CglLiftAndProject::generateCpp( FILE * fp) 
+CglLiftAndProject::generateCpp( FILE * fp)
 {
   CglLiftAndProject other;
   fprintf(fp,"0#include \"CglLiftAndProject.hpp\"\n");

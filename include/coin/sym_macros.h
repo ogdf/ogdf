@@ -18,7 +18,7 @@
 /*-------------------------- Random number generator ------------------------*/
 
 #if defined(_MSC_VER) || defined (__MNO_CYGWIN) || defined(__MINGW32__) /* Different function call in
-						  Windows */ 
+						  Windows */
 #define SRANDOM(seed) srand(seed)
 #define RANDOM() rand()
 #else
@@ -71,7 +71,7 @@
       receive_char_array(cptr, cnum);                           \
    }								\
 }
-      
+
 #define READ_STR_LIST(snum, ssize, cptr, sptr)		\
 {								\
    if (snum > 0){						\
@@ -159,7 +159,7 @@ switch (f){                                                                \
  default:                                                                  \
    break;                                                                  \
 }
-   
+
 /*------------- Macro for calling wrapper functions -------------------------*/
 
 #define CALL_WRAPPER_FUNCTION(f)                                           \

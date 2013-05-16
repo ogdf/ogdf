@@ -616,7 +616,7 @@ ClpSimplexDual::dual(int ifValuesPass, int startFinishOptions)
        if (averageInfeasibility<factor*largestPrimalError_)
 	 problemStatus_= 10;
      }
-       
+
      if (problemStatus_ == 10)
           startFinishOptions |= 1;
      finishSolve(startFinishOptions);
@@ -5493,7 +5493,7 @@ ClpSimplexDual::perturb()
      numberNonZero = 0;
      if (perturbation_ >= 50) {
           perturbation = 1.0e-8;
-	  if (perturbation_ > 50 && perturbation_ < 60) 
+	  if (perturbation_ > 50 && perturbation_ < 60)
 	    perturbation = CoinMax(1.0e-8,maximumFraction);
           bool allSame = true;
           double lastValue = 0.0;
@@ -5871,7 +5871,7 @@ int ClpSimplexDual::strongBranching(int numberVariables, const int * variables,
 #ifdef CLP_DEBUG
 	  printf("first status %d obj %g\n",problemStatus_,objectiveValue_);
 #endif
-	  if(problemStatus_==10) 
+	  if(problemStatus_==10)
  	      problemStatus_=3;
           // make sure plausible
           double obj = CoinMax(objectiveValue_, saveObjectiveValue);
@@ -5942,7 +5942,7 @@ int ClpSimplexDual::strongBranching(int numberVariables, const int * variables,
 #ifdef CLP_DEBUG
 	  printf("second status %d obj %g\n",problemStatus_,objectiveValue_);
 #endif
-	  if(problemStatus_==10) 
+	  if(problemStatus_==10)
 	      problemStatus_=3;
           // make sure plausible
           obj = CoinMax(objectiveValue_, saveObjectiveValue);

@@ -93,7 +93,7 @@ CglClique::selectRowCliques(const OsiSolverInterface& si,int numOriginalRows) co
    std::vector<int> clique(numrows, 1);
 
    int i, j, k;
-   
+
    // First scan through the binary fractional variables and see where do they
    // have a 1 coefficient
    const CoinPackedMatrix& mcol = *si.getMatrixByCol();
@@ -109,7 +109,7 @@ CglClique::selectRowCliques(const OsiSolverInterface& si,int numOriginalRows) co
    }
 
    // Now check the sense and rhs (by checking rowupper) and the rest of the
-   // coefficients 
+   // coefficients
    const CoinPackedMatrix& mrow = *si.getMatrixByRow();
    const double* rub = si.getRowUpper();
    for (i = 0; i < numrows; ++i) {
@@ -348,12 +348,12 @@ CglClique::createNodeNode() const
 void
 CglClique::deleteSetPackingSubMatrix() const
 {
-   delete[] sp_orig_row_ind; sp_orig_row_ind = 0; 
-   delete[] sp_orig_col_ind; sp_orig_col_ind = 0; 
-   delete[] sp_colsol;	     sp_colsol = 0;       
-   delete[] sp_col_start;    sp_col_start = 0;    
-   delete[] sp_col_ind;	     sp_col_ind = 0;      
-   delete[] sp_row_start;    sp_row_start = 0;    
+   delete[] sp_orig_row_ind; sp_orig_row_ind = 0;
+   delete[] sp_orig_col_ind; sp_orig_col_ind = 0;
+   delete[] sp_colsol;	     sp_colsol = 0;
+   delete[] sp_col_start;    sp_col_start = 0;
+   delete[] sp_col_ind;	     sp_col_ind = 0;
+   delete[] sp_row_start;    sp_row_start = 0;
    delete[] sp_row_ind;      sp_row_ind = 0;
 }
 

@@ -20,7 +20,7 @@
 #include "CoinFinite.hpp"
 
 // Default Constructor
-OsiObject::OsiObject() 
+OsiObject::OsiObject()
   :infeasibility_(0.0),
    whichWay_(0),
    numberWays_(2),
@@ -29,12 +29,12 @@ OsiObject::OsiObject()
 }
 
 
-// Destructor 
+// Destructor
 OsiObject::~OsiObject ()
 {
 }
 
-// Copy constructor 
+// Copy constructor
 OsiObject::OsiObject ( const OsiObject & rhs)
 {
   infeasibility_ = rhs.infeasibility_;
@@ -43,8 +43,8 @@ OsiObject::OsiObject ( const OsiObject & rhs)
   numberWays_ = rhs.numberWays_;
 }
 
-// Assignment operator 
-OsiObject & 
+// Assignment operator
+OsiObject &
 OsiObject::operator=( const OsiObject& rhs)
 {
   if (this!=&rhs) {
@@ -56,25 +56,25 @@ OsiObject::operator=( const OsiObject& rhs)
   return *this;
 }
 // Return "up" estimate (default 1.0e-5)
-double 
+double
 OsiObject::upEstimate() const
 {
   return 1.0e-5;
 }
 // Return "down" estimate (default 1.0e-5)
-double 
+double
 OsiObject::downEstimate() const
 {
   return 1.0e-5;
 }
 // Column number if single column object -1 otherwise
-int 
+int
 OsiObject::columnNumber() const
 {
   return -1;
 }
 // Infeasibility - large is 0.5
-double 
+double
 OsiObject::infeasibility(const OsiSolverInterface * solver, int & preferredWay) const
 {
   // Can't guarantee has matrix
@@ -82,7 +82,7 @@ OsiObject::infeasibility(const OsiSolverInterface * solver, int & preferredWay) 
   return infeasibility(&info,preferredWay);
 }
 // This does NOT set mutable stuff
-double 
+double
 OsiObject::checkInfeasibility(const OsiBranchingInformation * info) const
 {
   int way;
@@ -98,8 +98,8 @@ OsiObject::checkInfeasibility(const OsiBranchingInformation * info) const
    look at the current solution and set bounds to match the solution.
    Returns measure of how much it had to move solution to make feasible
 */
-double 
-OsiObject::feasibleRegion(OsiSolverInterface * solver) const 
+double
+OsiObject::feasibleRegion(OsiSolverInterface * solver) const
 {
   // Can't guarantee has matrix
   OsiBranchingInformation info(solver,false,false);
@@ -107,7 +107,7 @@ OsiObject::feasibleRegion(OsiSolverInterface * solver) const
 }
 
 // Default Constructor
-OsiObject2::OsiObject2() 
+OsiObject2::OsiObject2()
   : OsiObject(),
     preferredWay_(-1),
     otherInfeasibility_(0.0)
@@ -115,12 +115,12 @@ OsiObject2::OsiObject2()
 }
 
 
-// Destructor 
+// Destructor
 OsiObject2::~OsiObject2 ()
 {
 }
 
-// Copy constructor 
+// Copy constructor
 OsiObject2::OsiObject2 ( const OsiObject2 & rhs)
   : OsiObject(rhs),
     preferredWay_(rhs.preferredWay_),
@@ -128,8 +128,8 @@ OsiObject2::OsiObject2 ( const OsiObject2 & rhs)
 {
 }
 
-// Assignment operator 
-OsiObject2 & 
+// Assignment operator
+OsiObject2 &
 OsiObject2::operator=( const OsiObject2& rhs)
 {
   if (this!=&rhs) {
@@ -139,7 +139,7 @@ OsiObject2::operator=( const OsiObject2& rhs)
   }
   return *this;
 }
-// Default Constructor 
+// Default Constructor
 OsiBranchingObject::OsiBranchingObject()
 {
   originalObject_=NULL;
@@ -158,7 +158,7 @@ OsiBranchingObject::OsiBranchingObject (OsiSolverInterface * ,
   numberBranches_=2;
 }
 
-// Copy constructor 
+// Copy constructor
 OsiBranchingObject::OsiBranchingObject ( const OsiBranchingObject & rhs)
 {
   originalObject_=rhs.originalObject_;
@@ -167,8 +167,8 @@ OsiBranchingObject::OsiBranchingObject ( const OsiBranchingObject & rhs)
   numberBranches_=rhs.numberBranches_;
 }
 
-// Assignment operator 
-OsiBranchingObject & 
+// Assignment operator
+OsiBranchingObject &
 OsiBranchingObject::operator=( const OsiBranchingObject& rhs)
 {
   if (this != &rhs) {
@@ -180,12 +180,12 @@ OsiBranchingObject::operator=( const OsiBranchingObject& rhs)
   return *this;
 }
 
-// Destructor 
+// Destructor
 OsiBranchingObject::~OsiBranchingObject ()
 {
 }
 // For debug
-int 
+int
 OsiBranchingObject::columnNumber() const
 {
   if (originalObject_)
@@ -278,7 +278,7 @@ OsiBranchingInformation::OsiBranchingInformation (const OsiSolverInterface * sol
     columnLength_ = NULL;
   }
 }
-// Copy constructor 
+// Copy constructor
 OsiBranchingInformation::OsiBranchingInformation ( const OsiBranchingInformation & rhs)
 {
   objectiveValue_ = rhs.objectiveValue_;
@@ -322,8 +322,8 @@ OsiBranchingInformation::clone() const
   return new OsiBranchingInformation(*this);
 }
 
-// Assignment operator 
-OsiBranchingInformation & 
+// Assignment operator
+OsiBranchingInformation &
 OsiBranchingInformation::operator=( const OsiBranchingInformation& rhs)
 {
   if (this!=&rhs) {
@@ -364,13 +364,13 @@ OsiBranchingInformation::operator=( const OsiBranchingInformation& rhs)
   return *this;
 }
 
-// Destructor 
+// Destructor
 OsiBranchingInformation::~OsiBranchingInformation ()
 {
-  if (owningSolution_) 
+  if (owningSolution_)
     delete[] solution_;
 }
-// Default Constructor 
+// Default Constructor
 OsiTwoWayBranchingObject::OsiTwoWayBranchingObject()
   :OsiBranchingObject()
 {
@@ -378,7 +378,7 @@ OsiTwoWayBranchingObject::OsiTwoWayBranchingObject()
 }
 
 // Useful constructor
-OsiTwoWayBranchingObject::OsiTwoWayBranchingObject (OsiSolverInterface * solver, 
+OsiTwoWayBranchingObject::OsiTwoWayBranchingObject (OsiSolverInterface * solver,
 						      const OsiObject * object,
 						      int way , double value)
   :OsiBranchingObject(solver,value)
@@ -386,16 +386,16 @@ OsiTwoWayBranchingObject::OsiTwoWayBranchingObject (OsiSolverInterface * solver,
   originalObject_ = object;
   firstBranch_=way;
 }
-  
 
-// Copy constructor 
+
+// Copy constructor
 OsiTwoWayBranchingObject::OsiTwoWayBranchingObject ( const OsiTwoWayBranchingObject & rhs) :OsiBranchingObject(rhs)
 {
   firstBranch_=rhs.firstBranch_;
 }
 
-// Assignment operator 
-OsiTwoWayBranchingObject & 
+// Assignment operator
+OsiTwoWayBranchingObject &
 OsiTwoWayBranchingObject::operator=( const OsiTwoWayBranchingObject& rhs)
 {
   if (this != &rhs) {
@@ -405,7 +405,7 @@ OsiTwoWayBranchingObject::operator=( const OsiTwoWayBranchingObject& rhs)
   return *this;
 }
 
-// Destructor 
+// Destructor
 OsiTwoWayBranchingObject::~OsiTwoWayBranchingObject ()
 {
 }
@@ -435,7 +435,7 @@ OsiSimpleInteger::OsiSimpleInteger (const OsiSolverInterface * solver, int iColu
   originalUpper_ = solver->getColUpper()[columnNumber_] ;
 }
 
-  
+
 // Useful constructor - passed solver index and original bounds
 OsiSimpleInteger::OsiSimpleInteger ( int iColumn, double lower, double upper)
   : OsiObject2()
@@ -445,7 +445,7 @@ OsiSimpleInteger::OsiSimpleInteger ( int iColumn, double lower, double upper)
   originalUpper_ = upper;
 }
 
-// Copy constructor 
+// Copy constructor
 OsiSimpleInteger::OsiSimpleInteger ( const OsiSimpleInteger & rhs)
   :OsiObject2(rhs)
 
@@ -462,8 +462,8 @@ OsiSimpleInteger::clone() const
   return new OsiSimpleInteger(*this);
 }
 
-// Assignment operator 
-OsiSimpleInteger & 
+// Assignment operator
+OsiSimpleInteger &
 OsiSimpleInteger::operator=( const OsiSimpleInteger& rhs)
 {
   if (this!=&rhs) {
@@ -475,23 +475,23 @@ OsiSimpleInteger::operator=( const OsiSimpleInteger& rhs)
   return *this;
 }
 
-// Destructor 
+// Destructor
 OsiSimpleInteger::~OsiSimpleInteger ()
 {
 }
 /* Reset variable bounds to their original values.
-   
+
 Bounds may be tightened, so it may be good to be able to reset them to
 their original values.
 */
-void 
-OsiSimpleInteger::resetBounds(const OsiSolverInterface * solver) 
+void
+OsiSimpleInteger::resetBounds(const OsiSolverInterface * solver)
 {
   originalLower_ = solver->getColLower()[columnNumber_] ;
   originalUpper_ = solver->getColUpper()[columnNumber_] ;
 }
 // Redoes data when sequence numbers change
-void 
+void
 OsiSimpleInteger::resetSequenceEtc(int numberColumns, const int * originalColumns)
 {
   int i;
@@ -506,14 +506,14 @@ OsiSimpleInteger::resetSequenceEtc(int numberColumns, const int * originalColumn
 }
 
 // Infeasibility - large is 0.5
-double 
+double
 OsiSimpleInteger::infeasibility(const OsiBranchingInformation * info, int & whichWay) const
 {
   double value = info->solution_[columnNumber_];
   value = CoinMax(value, info->lower_[columnNumber_]);
   value = CoinMin(value, info->upper_[columnNumber_]);
   double nearest = floor(value+(1.0-0.5));
-  if (nearest>value) { 
+  if (nearest>value) {
     whichWay=1;
   } else {
     whichWay=0;
@@ -549,9 +549,9 @@ OsiSimpleInteger::infeasibility(const OsiBranchingInformation * info, int & whic
     double tolerance = info->primalTolerance_;
     for (CoinBigIndex j=start;j<end;j++) {
       int iRow = row[j];
-      if (lower[iRow]<-1.0e20) 
+      if (lower[iRow]<-1.0e20)
 	assert (pi[iRow]<=1.0e-4);
-      if (upper[iRow]>1.0e20) 
+      if (upper[iRow]>1.0e20)
 	assert (pi[iRow]>=-1.0e-4);
       valueP = pi[iRow]*direction;
       double el2 = element[j];
@@ -611,14 +611,14 @@ OsiSimpleInteger::feasibleRegion(OsiSolverInterface * solver,
    so returns >= 0
    Used by heuristics
 */
-int 
+int
 OsiSimpleInteger::columnNumber() const
 {
   return columnNumber_;
 }
 // Creates a branching object
-OsiBranchingObject * 
-OsiSimpleInteger::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const 
+OsiBranchingObject *
+OsiSimpleInteger::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const
 {
   double value = info->solution_[columnNumber_];
   value = CoinMax(value, info->lower_[columnNumber_]);
@@ -633,7 +633,7 @@ OsiSimpleInteger::createBranch(OsiSolverInterface * solver, const OsiBranchingIn
   return branch;
 }
 // Return "down" estimate
-double 
+double
 OsiSimpleInteger::downEstimate() const
 {
   if (whichWay_)
@@ -642,7 +642,7 @@ OsiSimpleInteger::downEstimate() const
     return infeasibility_;
 }
 // Return "up" estimate
-double 
+double
 OsiSimpleInteger::upEstimate() const
 {
   if (!whichWay_)
@@ -651,7 +651,7 @@ OsiSimpleInteger::upEstimate() const
     return infeasibility_;
 }
 
-// Default Constructor 
+// Default Constructor
 OsiIntegerBranchingObject::OsiIntegerBranchingObject()
   :OsiTwoWayBranchingObject()
 {
@@ -662,7 +662,7 @@ OsiIntegerBranchingObject::OsiIntegerBranchingObject()
 }
 
 // Useful constructor
-OsiIntegerBranchingObject::OsiIntegerBranchingObject (OsiSolverInterface * solver, 
+OsiIntegerBranchingObject::OsiIntegerBranchingObject (OsiSolverInterface * solver,
 						      const OsiSimpleInteger * object,
 						      int way , double value)
   :OsiTwoWayBranchingObject(solver,object, way, value)
@@ -679,10 +679,10 @@ OsiIntegerBranchingObject::OsiIntegerBranchingObject (OsiSolverInterface * solve
    Specify way = -1 to set the object state to perform the down arm first,
    way = 1 for the up arm.
 */
-OsiIntegerBranchingObject::OsiIntegerBranchingObject (OsiSolverInterface * solver, 
+OsiIntegerBranchingObject::OsiIntegerBranchingObject (OsiSolverInterface * solver,
 						      const OsiSimpleInteger * object,
-						      int way , double value, double downUpperBound, 
-						      double upLowerBound) 
+						      int way , double value, double downUpperBound,
+						      double upLowerBound)
   :OsiTwoWayBranchingObject(solver,object, way, value)
 {
   int iColumn = object->columnNumber();
@@ -691,9 +691,9 @@ OsiIntegerBranchingObject::OsiIntegerBranchingObject (OsiSolverInterface * solve
   up_[0] = upLowerBound;
   up_[1] = solver->getColUpper()[iColumn];
 }
-  
 
-// Copy constructor 
+
+// Copy constructor
 OsiIntegerBranchingObject::OsiIntegerBranchingObject ( const OsiIntegerBranchingObject & rhs) :OsiTwoWayBranchingObject(rhs)
 {
   down_[0] = rhs.down_[0];
@@ -702,8 +702,8 @@ OsiIntegerBranchingObject::OsiIntegerBranchingObject ( const OsiIntegerBranching
   up_[1] = rhs.up_[1];
 }
 
-// Assignment operator 
-OsiIntegerBranchingObject & 
+// Assignment operator
+OsiIntegerBranchingObject &
 OsiIntegerBranchingObject::operator=( const OsiIntegerBranchingObject& rhs)
 {
   if (this != &rhs) {
@@ -715,14 +715,14 @@ OsiIntegerBranchingObject::operator=( const OsiIntegerBranchingObject& rhs)
   }
   return *this;
 }
-OsiBranchingObject * 
+OsiBranchingObject *
 OsiIntegerBranchingObject::clone() const
-{ 
+{
   return (new OsiIntegerBranchingObject(*this));
 }
 
 
-// Destructor 
+// Destructor
 OsiIntegerBranchingObject::~OsiIntegerBranchingObject ()
 {
 }
@@ -754,7 +754,7 @@ OsiIntegerBranchingObject::branch(OsiSolverInterface * solver)
 	   down_[0],down_[1],up_[0],up_[1]);
     const double * lower = solver->getColLower();
     const double * upper = solver->getColUpper();
-    for (int i=0;i<8;i++) 
+    for (int i=0;i<8;i++)
       printf(" [%d (%g,%g)]",i,lower[i],upper[i]);
     printf("\n");
   }
@@ -800,7 +800,7 @@ OsiIntegerBranchingObject::branch(OsiSolverInterface * solver)
   branchIndex_++;
   return 0.0;
 }
-// Print what would happen  
+// Print what would happen
 void
 OsiIntegerBranchingObject::print(const OsiSolverInterface * solver)
 {
@@ -823,7 +823,7 @@ OsiIntegerBranchingObject::print(const OsiSolverInterface * solver)
 	   iColumn,olb,oub,up_[0],up_[1]) ; }
   }
 }
-// Default Constructor 
+// Default Constructor
 OsiSOS::OsiSOS ()
   : OsiObject2(),
     members_(NULL),
@@ -868,7 +868,7 @@ OsiSOS::OsiSOS (const OsiSolverInterface * ,  int numberMembers,
   assert (sosType_>0&&sosType_<3);
 }
 
-// Copy constructor 
+// Copy constructor
 OsiSOS::OsiSOS ( const OsiSOS & rhs)
   :OsiObject2(rhs)
 {
@@ -893,8 +893,8 @@ OsiSOS::clone() const
   return new OsiSOS(*this);
 }
 
-// Assignment operator 
-OsiSOS & 
+// Assignment operator
+OsiSOS &
 OsiSOS::operator=( const OsiSOS& rhs)
 {
   if (this!=&rhs) {
@@ -917,7 +917,7 @@ OsiSOS::operator=( const OsiSOS& rhs)
   return *this;
 }
 
-// Destructor 
+// Destructor
 OsiSOS::~OsiSOS ()
 {
   delete [] members_;
@@ -925,7 +925,7 @@ OsiSOS::~OsiSOS ()
 }
 
 // Infeasibility - large is 0.5
-double 
+double
 OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
 {
   int j;
@@ -960,7 +960,7 @@ OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
 #endif
 	if (value>upper[iColumn]) {
 	  value=upper[iColumn];
-	} 
+	}
 	sum += value;
 	weight += weights_[j]*value;
 	if (firstNonZero<0)
@@ -986,7 +986,7 @@ OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
       // Using pseudo shadow prices
       weight /= sum;
       int iWhere;
-      for (iWhere=firstNonZero;iWhere<lastNonZero;iWhere++) 
+      for (iWhere=firstNonZero;iWhere<lastNonZero;iWhere++)
 	if (weight<weights_[iWhere+1])
 	  break;
       assert (iWhere!=lastNonZero);
@@ -1005,7 +1005,7 @@ OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
 	  lastDown ++;
 	} else if (lastDown==lastNonFixed) {
 	  lastDown --;
-	} 
+	}
 	firstUp=lastDown;
       }
       // Now get current contribution and compute weight for end points
@@ -1048,7 +1048,7 @@ OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
 	  }
 	}
       }
-      if (sosType_==2) 
+      if (sosType_==2)
 	assert (fabs(weightUp+weightDown-sum-solution[members_[lastDown]])<1.0e-4);
       int startX[2];
       int endX[2];
@@ -1106,9 +1106,9 @@ OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
 	  useful[iRow]=0.0;
 	  useful2[iRow]=0.0;
 	  double valueP = pi[iRow]*direction;
-	  if (lower[iRow]<-1.0e20) 
+	  if (lower[iRow]<-1.0e20)
 	    assert (valueP<=1.0e-4);
-	  if (upper[iRow]>1.0e20) 
+	  if (upper[iRow]>1.0e20)
 	    assert (valueP>=-1.0e-4);
 	  double value2 = valueP*movement;
 	  double thisEstimate = (value2>0.0) ? value2 : 0;
@@ -1126,9 +1126,9 @@ OsiSOS::infeasibility(const OsiBranchingInformation * info,int & whichWay) const
 	  useful2[iRow]=0.0;
 	  if (movement) {
 	    double valueP = pi[iRow]*direction;
-	    if (lower[iRow]<-1.0e20) 
+	    if (lower[iRow]<-1.0e20)
 	      assert (valueP<=1.0e-4);
-	    if (upper[iRow]>1.0e20) 
+	    if (upper[iRow]>1.0e20)
 	      assert (valueP>=-1.0e-4);
 	    double value2 = valueP*movement;
 	    double thisEstimate = (value2>0.0) ? value2 : 0;
@@ -1215,7 +1215,7 @@ OsiSOS::feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformatio
   return movement;
 }
 // Redoes data when sequence numbers change
-void 
+void
 OsiSOS::resetSequenceEtc(int numberColumns, const int * originalColumns)
 {
   int n2=0;
@@ -1237,7 +1237,7 @@ OsiSOS::resetSequenceEtc(int numberColumns, const int * originalColumns)
   }
 }
 // Return "down" estimate
-double 
+double
 OsiSOS::downEstimate() const
 {
   if (whichWay_)
@@ -1246,7 +1246,7 @@ OsiSOS::downEstimate() const
     return infeasibility_;
 }
 // Return "up" estimate
-double 
+double
 OsiSOS::upEstimate() const
 {
   if (!whichWay_)
@@ -1256,7 +1256,7 @@ OsiSOS::upEstimate() const
 }
 
 // Creates a branching object
-OsiBranchingObject * 
+OsiBranchingObject *
 OsiSOS::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const
 {
   int j;
@@ -1291,7 +1291,7 @@ OsiSOS::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation 
   weight /= sum;
   int iWhere;
   double separator=0.0;
-  for (iWhere=firstNonZero;iWhere<lastNonZero;iWhere++) 
+  for (iWhere=firstNonZero;iWhere<lastNonZero;iWhere++)
     if (weight<weights_[iWhere+1])
       break;
   if (sosType_==1) {
@@ -1308,7 +1308,7 @@ OsiSOS::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation 
   branch = new OsiSOSBranchingObject(solver,this,way,separator);
   return branch;
 }
-// Default Constructor 
+// Default Constructor
 OsiSOSBranchingObject::OsiSOSBranchingObject()
   :OsiTwoWayBranchingObject()
 {
@@ -1323,13 +1323,13 @@ OsiSOSBranchingObject::OsiSOSBranchingObject (OsiSolverInterface * solver,
 {
 }
 
-// Copy constructor 
+// Copy constructor
 OsiSOSBranchingObject::OsiSOSBranchingObject ( const OsiSOSBranchingObject & rhs) :OsiTwoWayBranchingObject(rhs)
 {
 }
 
-// Assignment operator 
-OsiSOSBranchingObject & 
+// Assignment operator
+OsiSOSBranchingObject &
 OsiSOSBranchingObject::operator=( const OsiSOSBranchingObject& rhs)
 {
   if (this != &rhs) {
@@ -1337,14 +1337,14 @@ OsiSOSBranchingObject::operator=( const OsiSOSBranchingObject& rhs)
   }
   return *this;
 }
-OsiBranchingObject * 
+OsiBranchingObject *
 OsiSOSBranchingObject::clone() const
-{ 
+{
   return (new OsiSOSBranchingObject(*this));
 }
 
 
-// Destructor 
+// Destructor
 OsiSOSBranchingObject::~OsiSOSBranchingObject ()
 {
 }
@@ -1369,7 +1369,7 @@ OsiSOSBranchingObject::branch(OsiSolverInterface * solver)
 	break;
     }
     assert (i<numberMembers);
-    for (;i<numberMembers;i++) 
+    for (;i<numberMembers;i++)
       solver->setColUpper(which[i],0.0);
   } else {
     int i;
@@ -1383,7 +1383,7 @@ OsiSOSBranchingObject::branch(OsiSolverInterface * solver)
   }
   return 0.0;
 }
-// Print what would happen  
+// Print what would happen
 void
 OsiSOSBranchingObject::print(const OsiSolverInterface * solver)
 {
@@ -1461,7 +1461,7 @@ OsiLotsize::OsiLotsize ()
 
   Loads actual upper & lower bounds for the specified variable.
 */
-OsiLotsize::OsiLotsize (const OsiSolverInterface * , 
+OsiLotsize::OsiLotsize (const OsiSolverInterface * ,
 				    int iColumn, int numberPoints,
 			const double * points, bool range)
   : OsiObject2()
@@ -1488,7 +1488,7 @@ OsiLotsize::OsiLotsize (const OsiSolverInterface * ,
     bound_ = new double[numberPoints+1];
     bound_[0]=weight[0];
     for (i=1;i<numberPoints;i++) {
-      if (weight[i]!=weight[i-1]) 
+      if (weight[i]!=weight[i-1])
 	bound_[numberRanges_++]=weight[i];
     }
     // and for safety
@@ -1531,7 +1531,7 @@ OsiLotsize::OsiLotsize (const OsiSolverInterface * ,
   range_=0;
 }
 
-// Copy constructor 
+// Copy constructor
 OsiLotsize::OsiLotsize ( const OsiLotsize & rhs)
   :OsiObject2(rhs)
 
@@ -1557,8 +1557,8 @@ OsiLotsize::clone() const
   return new OsiLotsize(*this);
 }
 
-// Assignment operator 
-OsiLotsize & 
+// Assignment operator
+OsiLotsize &
 OsiLotsize::operator=( const OsiLotsize& rhs)
 {
   if (this!=&rhs) {
@@ -1580,15 +1580,15 @@ OsiLotsize::operator=( const OsiLotsize& rhs)
   return *this;
 }
 
-// Destructor 
+// Destructor
 OsiLotsize::~OsiLotsize ()
 {
   delete [] bound_;
 }
-/* Finds range of interest so value is feasible in range range_ or infeasible 
+/* Finds range of interest so value is feasible in range range_ or infeasible
    between hi[range_] and lo[range_+1].  Returns true if feasible.
 */
-bool 
+bool
 OsiLotsize::findRange(double value, double integerTolerance) const
 {
   assert (range_>=0&&range_<numberRanges_+1);
@@ -1702,7 +1702,7 @@ OsiLotsize::findRange(double value, double integerTolerance) const
 }
 /* Returns floor and ceiling
  */
-void 
+void
 OsiLotsize::floorCeiling(double & floorLotsize, double & ceilingLotsize, double value,
 			 double tolerance) const
 {
@@ -1724,7 +1724,7 @@ OsiLotsize::floorCeiling(double & floorLotsize, double & ceilingLotsize, double 
 }
 
 // Infeasibility - large is 0.5
-double 
+double
 OsiLotsize::infeasibility(const OsiBranchingInformation * info, int & preferredWay) const
 {
   const double * solution = info->solution_;
@@ -1778,7 +1778,7 @@ OsiLotsize::infeasibility(const OsiBranchingInformation * info, int & preferredW
    so returns >= 0
    Used by heuristics
 */
-int 
+int
 OsiLotsize::columnNumber() const
 {
   return columnNumber_;
@@ -1789,7 +1789,7 @@ OsiLotsize::columnNumber() const
    if required, then set the bounds to fix the variable at the integer
    nearest the solution value.  Returns amount it had to move variable.
 */
-double 
+double
 OsiLotsize::feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const
 {
   const double * lower = solver->getColLower();
@@ -1808,9 +1808,9 @@ OsiLotsize::feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInform
     // ranges
     solver->setColLower(columnNumber_,bound_[2*range_]);
     solver->setColUpper(columnNumber_,bound_[2*range_+1]);
-    if (value>bound_[2*range_+1]) 
+    if (value>bound_[2*range_+1])
       nearest=bound_[2*range_+1];
-    else if (value<bound_[2*range_]) 
+    else if (value<bound_[2*range_])
       nearest = bound_[2*range_];
     else
       nearest = value;
@@ -1825,8 +1825,8 @@ OsiLotsize::feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInform
 
 // Creates a branching object
 // Creates a branching object
-OsiBranchingObject * 
-OsiLotsize::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const 
+OsiBranchingObject *
+OsiLotsize::createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const
 {
   const double * solution = info->solution_;
   const double * lower = solver->getColLower();
@@ -1839,17 +1839,17 @@ OsiLotsize::createBranch(OsiSolverInterface * solver, const OsiBranchingInformat
 					     value);
 }
 
-  
+
 /*
   Bounds may be tightened, so it may be good to be able to refresh the local
   copy of the original bounds.
  */
-void 
+void
 OsiLotsize::resetBounds(const OsiSolverInterface * )
 {
 }
 // Return "down" estimate
-double 
+double
 OsiLotsize::downEstimate() const
 {
   if (whichWay_)
@@ -1858,7 +1858,7 @@ OsiLotsize::downEstimate() const
     return infeasibility_;
 }
 // Return "up" estimate
-double 
+double
 OsiLotsize::upEstimate() const
 {
   if (!whichWay_)
@@ -1867,7 +1867,7 @@ OsiLotsize::upEstimate() const
     return infeasibility_;
 }
 // Redoes data when sequence numbers change
-void 
+void
 OsiLotsize::resetSequenceEtc(int numberColumns, const int * originalColumns)
 {
   int i;
@@ -1882,7 +1882,7 @@ OsiLotsize::resetSequenceEtc(int numberColumns, const int * originalColumns)
 }
 
 
-// Default Constructor 
+// Default Constructor
 OsiLotsizeBranchingObject::OsiLotsizeBranchingObject()
   :OsiTwoWayBranchingObject()
 {
@@ -1893,8 +1893,8 @@ OsiLotsizeBranchingObject::OsiLotsizeBranchingObject()
 }
 
 // Useful constructor
-OsiLotsizeBranchingObject::OsiLotsizeBranchingObject (OsiSolverInterface * solver, 
-						      const OsiLotsize * originalObject, 
+OsiLotsizeBranchingObject::OsiLotsizeBranchingObject (OsiSolverInterface * solver,
+						      const OsiLotsize * originalObject,
 						      int way , double value)
   :OsiTwoWayBranchingObject(solver,originalObject,way,value)
 {
@@ -1905,7 +1905,7 @@ OsiLotsizeBranchingObject::OsiLotsizeBranchingObject (OsiSolverInterface * solve
   up_[1] = solver->getColUpper()[iColumn];
 }
 
-// Copy constructor 
+// Copy constructor
 OsiLotsizeBranchingObject::OsiLotsizeBranchingObject ( const OsiLotsizeBranchingObject & rhs) :OsiTwoWayBranchingObject(rhs)
 {
   down_[0] = rhs.down_[0];
@@ -1914,8 +1914,8 @@ OsiLotsizeBranchingObject::OsiLotsizeBranchingObject ( const OsiLotsizeBranching
   up_[1] = rhs.up_[1];
 }
 
-// Assignment operator 
-OsiLotsizeBranchingObject & 
+// Assignment operator
+OsiLotsizeBranchingObject &
 OsiLotsizeBranchingObject::operator=( const OsiLotsizeBranchingObject& rhs)
 {
   if (this != &rhs) {
@@ -1927,14 +1927,14 @@ OsiLotsizeBranchingObject::operator=( const OsiLotsizeBranchingObject& rhs)
   }
   return *this;
 }
-OsiBranchingObject * 
+OsiBranchingObject *
 OsiLotsizeBranchingObject::clone() const
-{ 
+{
   return (new OsiLotsizeBranchingObject(*this));
 }
 
 
-// Destructor 
+// Destructor
 OsiLotsizeBranchingObject::~OsiLotsizeBranchingObject ()
 {
 }
@@ -2003,4 +2003,4 @@ OsiLotsizeBranchingObject::print(const OsiSolverInterface * solver)
 	   iColumn,olb,oub,up_[0],up_[1]) ; }
   }
 }
-  
+

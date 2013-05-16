@@ -27,8 +27,8 @@
 /*===========================================================================*/
 
 /*===========================================================================*\
- * This is the main() that is used if the CG is running as a separate        
- * process. This file is only used in that case.                             
+ * This is the main() that is used if the CG is running as a separate
+ * process. This file is only used in that case.
 \*===========================================================================*/
 
 int main(void)
@@ -40,13 +40,13 @@ int main(void)
    struct timeval tout = {15, 0};
 
    p = (cg_prob *) calloc(1, sizeof(cg_prob));
-   
+
    cg_initialize(p, 0);
-  
+
    /*------------------------------------------------------------------------*\
-    * The main loop -- executes continuously until the program exits         
+    * The main loop -- executes continuously until the program exits
    \*------------------------------------------------------------------------*/
-  
+
    while (TRUE){
       /* Wait until a message arrives */
       do{
@@ -91,7 +91,7 @@ int main(void)
 	 FREE(p->cur_sol.xval);
       }
    }
-   
+
    return(0);
 }
 

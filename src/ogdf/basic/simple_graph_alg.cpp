@@ -1,9 +1,9 @@
 /*
- * $Revision: 2594 $
+ * $Revision: 3501 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-15 15:35:29 +0200 (So, 15. Jul 2012) $
+ *   $Author: zeranski $
+ *   $Date: 2013-05-15 10:24:00 +0200 (Mi, 15. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -934,6 +934,39 @@ int strongComponents(const Graph& G, NodeArray<int>& component)
 	return scnt;
 }
 
+//---------------------------------------------------------
+// makeBimodal()
+// makes the DiGraph bimodal such that all embeddings of the
+// graph are bimodal embeddings!
+//---------------------------------------------------------
+
+void makeBimodal(Graph &G, List<edge> &newEdge)
+{
+	List<node> nodes;
+	G.allNodes(nodes);
+	ListIterator<node> it_n = nodes.begin();
+	while( it_n.valid() ) {
+		node v = *it_n;
+		if (v->indeg() < 2 || v->outdeg() < 2) { it_n++; continue; }
+		List<adjEntry> newOrder;
+		adjEntry adj;
+		forall_adj(adj,v) {
+			if (adj->theEdge()->target() == v) newOrder.pushFront(adj);
+				else newOrder.pushBack(adj);
+		}
+		G.sort(v,newOrder);
+		ListIterator<adjEntry> it = newOrder.begin();
+		while ((*it)->theEdge()->target() == v) it++;
+		node newNode = G.splitNode(newOrder.front(),*it);
+		forall_adj(adj,newNode) {
+			if (adj->theEdge()->target() == newNode) {
+				newEdge.pushBack(adj->theEdge());
+				break;
+			}
+		}
+		it_n++;
+	}
+}
 
 //---------------------------------------------------------
 // isFreeForest()

@@ -10,10 +10,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstdio>
-#include <cfloat> 
+#include <cfloat>
 #include <cassert>
 
-#include "CglSimpleRounding.hpp" 
+#include "CglSimpleRounding.hpp"
 #include "CoinPackedVector.hpp"
 #include "CoinSort.hpp"
 #include "CoinPackedMatrix.hpp"
@@ -26,18 +26,18 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   int nRows=si.getNumRows(); // number of rows in the coefficient matrix
   int nCols=si.getNumCols(); // number of columns in the coefficient matrix
   int rowIndex;             // index into the constraint matrix stored in row
-                            // order 
+                            // order
   CoinPackedVector irow;     // "integer row": working space to hold the integer
                             // <= inequality derived from the rowIndex-th
-                            // constraint 
+                            // constraint
   double b=0;             // working space for the rhs of integer <= inequality
-  bool * negative= new bool[nCols]; // negative[i]= true if coefficient of the 
+  bool * negative= new bool[nCols]; // negative[i]= true if coefficient of the
                                     // ith variable is negative and false
-                                    // otherwise 
-  int k;                  // dummy iterator variable 
+                                    // otherwise
+  int k;                  // dummy iterator variable
   for ( k=0; k<nCols; k++ ) negative[k] = false;
-  
-  const CoinPackedMatrix * rowCopy = 
+
+  const CoinPackedMatrix * rowCopy =
     si.getMatrixByRow(); // row copy: matrix stored in row order
 
   /////////////////////////////////////////////////////////////////////////////
@@ -51,20 +51,20 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   for (rowIndex=0; rowIndex<nRows; rowIndex++){
 
     // Only look at tight rows
-    // double * pi=ekk_rowduals(model); 
+    // double * pi=ekk_rowduals(model);
     // if (fabs(pi[row]) < epsilon_){
    //  continue;
     // }
 
-    // Try to derive an <= inequality in integer variables from the row 
+    // Try to derive an <= inequality in integer variables from the row
     // by netting out the continuous variables.
     // Store the value and the sign of the coefficients separately:
     // irow.getElements() contains the absolute values of the coefficients.
     // negative is a boolean vector indicating the sign of the coeffcients.
     // b is the rhs of the <= integer inequality
 
-    if (!deriveAnIntegerRow( si, 
-                             rowIndex, 
+    if (!deriveAnIntegerRow( si,
+                             rowIndex,
                              rowCopy->getVector(rowIndex),
                              irow, b, negative))
     {
@@ -73,31 +73,31 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
       for(k=0; k<irow.getNumElements(); k++) negative[irow.getIndices()[k]]=false;
       irow.setVector(0,NULL,NULL);
       continue;
-    } 
- 
+    }
+
     // Euclid's greatest common divisor (gcd) algorithm applies to positive
-    // INTEGERS. 
+    // INTEGERS.
     // Determine the power of 10 needed, so that multipylying the integer
     // inequality through by 10**power makes all coefficients essentially
-    // integral. 
+    // integral.
     int power = power10ToMakeDoubleAnInt(irow.getNumElements(),irow.getElements(),epsilon_*1.0e-4);
 
-    // Now a vector to store the integer-ized values. For instance, 
+    // Now a vector to store the integer-ized values. For instance,
     // if x[i] is .66 and power is 1000 then xInt[i] will be 660
     int * xInt = NULL;
     if (power >=0) {
 
-      xInt = new int[irow.getNumElements()]; 
+      xInt = new int[irow.getNumElements()];
       double dxInt; // a double version of xInt for error trapping
-      
-      
-#ifdef CGL_DEBUG      
+
+
+#ifdef CGL_DEBUG
       printf("The (double) coefficients and their integer-ized counterparts:\n");
 #endif
 
       for (k=0; k<irow.getNumElements(); k++){
 	dxInt = irow.getElements()[k]*pow(10.0,power);
-	xInt[k]= static_cast<int> (dxInt+0.5); // Need to add the 0.5 
+	xInt[k]= static_cast<int> (dxInt+0.5); // Need to add the 0.5
 	// so that a dxInt=9.999 will give a xInt=1
 
 #ifdef CGL_DEBUG
@@ -108,7 +108,7 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 
     } else {
 
-      // If overflow is detected, one warning message is printed and 
+      // If overflow is detected, one warning message is printed and
       // the row is skipped.
 #ifdef CGL_DEBUG
       printf("SimpleRounding: Warning: Overflow detected \n");
@@ -125,10 +125,10 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
     int gcd = gcdv(irow.getNumElements(), xInt);
 
 #ifdef CGL_DEBUG
-    printf("The gcd of xInt is %i\n",gcd);    
+    printf("The gcd of xInt is %i\n",gcd);
 #endif
 
-    // construct new cut by dividing through by gcd and 
+    // construct new cut by dividing through by gcd and
     // rounding down rhs and accounting for negatives
     CoinPackedVector cut;
     for (k=0; k<irow.getNumElements(); k++){
@@ -151,11 +151,11 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 
     // Create the row cut and add it to the set of cuts
     // It may not be violated
-    if (fabs(cutRhs*gcd-b)> epsilon_){ // if the cut and row are different. 
+    if (fabs(cutRhs*gcd-b)> epsilon_){ // if the cut and row are different.
       OsiRowCut rc;
       rc.setRow(cut.getNumElements(),cut.getIndices(),cut.getElements());
       rc.setLb(-COIN_DBL_MAX);
-      rc.setUb(cutRhs);   
+      rc.setUb(cutRhs);
       cs.insert(rc);
 
 #ifdef CGL_DEBUG
@@ -183,22 +183,22 @@ CglSimpleRounding::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 
 //-------------------------------------------------------------------
 // deriveAnIntegerRow:  dervies a <=  inequality
-//                  in integer variables of the form ax<=b 
+//                  in integer variables of the form ax<=b
 //                  from a row in the model, if possible by
 //                  netting out the continuous variables
 //-------------------------------------------------------------------
 bool
 CglSimpleRounding::deriveAnIntegerRow(
-       const OsiSolverInterface & si, 
+       const OsiSolverInterface & si,
        int rowIndex,
        const CoinShallowPackedVector & matrixRow,
-       CoinPackedVector & irow, 
+       CoinPackedVector & irow,
        double & b,
        bool * negative) const
 {
   irow.clear();
   int i;           // dummy iterator variable
-  double sign=1.0; // +1 if le row, -1 if ge row  
+  double sign=1.0; // +1 if le row, -1 if ge row
 
   // number of columns in the row
   int sizeOfRow=matrixRow.getNumElements();
@@ -206,33 +206,33 @@ CglSimpleRounding::deriveAnIntegerRow(
   // Get the sense of the row constraint
   const char  rowsense = si.getRowSense()[rowIndex];
 
-  // Skip equality rows  
+  // Skip equality rows
   if  (rowsense=='E' || rowsense=='N') {
-    return 0; 
+    return 0;
   }
-  // le row  
+  // le row
   if (rowsense=='L'){
     b=si.getRightHandSide()[rowIndex];
   }
   // ge row
-  // Multiply through by -1 to convert it to a le row 
+  // Multiply through by -1 to convert it to a le row
   if (rowsense=='G'){
     b=-si.getRightHandSide()[rowIndex];
     sign=-1.0;
   }
-  
-  // Finite, but unequal row bounds  
-  // Could derive an simple rounding inequality from either 
-  // (or from both!) but for expediency, 
-  // use the le relationship as the default for now  
+
+  // Finite, but unequal row bounds
+  // Could derive an simple rounding inequality from either
+  // (or from both!) but for expediency,
+  // use the le relationship as the default for now
   if  (rowsense=='R') {
     b=si.getRightHandSide()[rowIndex];
   }
-  
+
    // Try to net out the continuous variables from the constraint.
-  // Multipy through by sign to convert the inequality to a le inequality  
+  // Multipy through by sign to convert the inequality to a le inequality
   // If the coefficient on a continuous variable is positive, replace
-  // the continous variable with its lower bound 
+  // the continous variable with its lower bound
   // If the coefficient on a continuous variable is negative, replace
   // the continuous variable with its upper bound.
   // example:
@@ -259,8 +259,8 @@ CglSimpleRounding::deriveAnIntegerRow(
         if (colupper[matrixRow.getIndices()[i]] < si.getInfinity()){
           // then replace the variable with its upper bound.
           b=b-(sign*matrixRow.getElements()[i]*colupper[matrixRow.getIndices()[i]]);
-        } 
-        else 
+        }
+        else
           return 0;
       }
       // if the coefficient in strictly positive
@@ -274,7 +274,7 @@ CglSimpleRounding::deriveAnIntegerRow(
           return 0;
       }
       // else the coefficient is essentially an explicitly stored zero; do
-      // nothing   
+      // nothing
     }
     // else: the variable is integer
     else{
@@ -290,12 +290,12 @@ CglSimpleRounding::deriveAnIntegerRow(
       }
     }
   }
-  
+
   // if there are no free integer variables, then abandon this row;
   if(irow.getNumElements() == 0){
     return 0;
   }
-  
+
   // Store the values and the signs of the coefficients separately.
   // irow.elements stores the absolute values of the coefficients
   // negative indicates the sign.
@@ -307,7 +307,7 @@ CglSimpleRounding::deriveAnIntegerRow(
      double * elements = irow.getElements();
      for(i=0; i<s; i++){
 	if (elements[i] < -epsilon_) {
-	   negative[indices[i]]= true; // store indicator of the sign 
+	   negative[indices[i]]= true; // store indicator of the sign
 	   elements[i] *= -1;          // store only positive values
 	}
     }
@@ -318,21 +318,21 @@ CglSimpleRounding::deriveAnIntegerRow(
 
 
 //-------------------------------------------------------------------
-// power10ToMakeDoubleAnInt: 
+// power10ToMakeDoubleAnInt:
 //   given a vector of positive doubles x_i, i=1, size, and a positive
 //   tolerance dataTol, determine the smallest power of 10 needed so that
 //   x[i]*10**power is integer for all i.
 
 //   dataTol_ should be correlated to the accuracy of the data,
 //   and choosen to be the largest value that's tolerable.
-//   
+//
 //   (Easily extended to take an input vector of arbitrary sign)
 //-------------------------------------------------------------------
 //
 int
-CglSimpleRounding::power10ToMakeDoubleAnInt( 
+CglSimpleRounding::power10ToMakeDoubleAnInt(
     int size,             // the length of the input vector x
-    const double * x,     // the input vector of postive values  
+    const double * x,     // the input vector of postive values
     double dataTol) const // the (strictly postive) precision of the data
 
 {
@@ -340,12 +340,12 @@ CglSimpleRounding::power10ToMakeDoubleAnInt(
   assert( dataTol > 0 );
 
 
-  int i;           // loop iterator 
+  int i;           // loop iterator
   int maxPower=0;  // maximum power of 10 used to convert any x[i] to an
-                   // integer 
+                   // integer
                    // this is the number we are after.
   int power = 0;   // power of 10 used to convert a particular x[i] to an
-                   // integer 
+                   // integer
 
 #ifdef OLD_MULT
   double intPart;  // the integer part of the number
@@ -353,7 +353,7 @@ CglSimpleRounding::power10ToMakeDoubleAnInt(
   double fracPart; // the fractional part of the number
                    // we keep multiplying by 10 until the fractional part is 0
                    // (well, really just until the factional part is less than
-                   // dataTol) 
+                   // dataTol)
 
   // JJF - code seems to fail sometimes as multiplying by 10 - so
   // definition of dataTol changed - see header file
@@ -366,10 +366,10 @@ CglSimpleRounding::power10ToMakeDoubleAnInt(
   for (i=0; i<size; i++){
     power = 0;
 
-#ifdef OLD_MULT 
+#ifdef OLD_MULT
     // look at the fractional part of x[i]
     // FYI: if you want to modify this member function to take an input
-    // vector x of arbitary sign, change this line below to 
+    // vector x of arbitary sign, change this line below to
     // fracPart = modf(fabs(x[i]),&intPart);
     fracPart = modf(x[i],&intPart);
 
@@ -377,10 +377,10 @@ CglSimpleRounding::power10ToMakeDoubleAnInt(
     // value
     while(!(fracPart < dataTol || 1-fracPart < dataTol )) {
        // otherwise, multiply by 10 and look at the fractional part of the
-       // result. 
+       // result.
        ++power;
        fracPart = fracPart*10.0;
-       fracPart = modf(fracPart,&intPart);     
+       fracPart = modf(fracPart,&intPart);
     }
 #else
     // use fabs as safer and does no harm
@@ -402,12 +402,12 @@ CglSimpleRounding::power10ToMakeDoubleAnInt(
 #endif
       return -1;
     }
-#endif    
+#endif
 #ifdef CGL_DEBUG
     printf("The smallest power of 10 to make %g  integral = %i\n",x[i],power);
 #endif
 
-    
+
     // keep track of the largest power needed so that at the end of the for
     // loop
     // x[i]*10**maxPower will be integral for all i
@@ -418,7 +418,7 @@ CglSimpleRounding::power10ToMakeDoubleAnInt(
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglSimpleRounding::CglSimpleRounding ()
 :
@@ -428,14 +428,14 @@ epsilon_(1.0e-08)
   // nothing to do here
 }
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglSimpleRounding::CglSimpleRounding (
                   const CglSimpleRounding & source)
 :
 CglCutGenerator(source),
 epsilon_(source.epsilon_)
-{  
+{
   // Nothing to do here
 }
 
@@ -450,7 +450,7 @@ CglSimpleRounding::clone() const
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglSimpleRounding::~CglSimpleRounding ()
 {
@@ -458,7 +458,7 @@ CglSimpleRounding::~CglSimpleRounding ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglSimpleRounding &
 CglSimpleRounding::operator=(
@@ -472,7 +472,7 @@ CglSimpleRounding::operator=(
 }
 // Create C++ lines to get to current state
 std::string
-CglSimpleRounding::generateCpp( FILE * fp) 
+CglSimpleRounding::generateCpp( FILE * fp)
 {
   CglSimpleRounding other;
   fprintf(fp,"0#include \"CglSimpleRounding.hpp\"\n");

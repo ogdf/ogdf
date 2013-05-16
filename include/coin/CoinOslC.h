@@ -46,11 +46,11 @@ int c_ekketsj( register /*const*/ EKKfactinfo *fact,
 	    int *mpt2, double dalpha, int orig_nincol,
 	    int npivot, int *nuspikp,
 	    const int ipivrw, int * spare);
-int c_ekkftrn( register const EKKfactinfo *fact, 
+int c_ekkftrn( register const EKKfactinfo *fact,
 	    double *dwork1,
 	    double * dpermu,int * mpt, int numberNonZero);
 
-int c_ekkftrn_ft( register EKKfactinfo *fact, 
+int c_ekkftrn_ft( register EKKfactinfo *fact,
 	       double *dwork1, int *mpt, int *nincolp);
 void c_ekkftrn2( register EKKfactinfo *fact, double *dwork1,
 	      double * dpermu1,int * mpt1, int *nincolp,
@@ -59,9 +59,9 @@ void c_ekkftrn2( register EKKfactinfo *fact, double *dwork1,
 int c_ekklfct( register EKKfactinfo *fact);
 int c_ekkslcf( register const EKKfactinfo *fact);
 inline void c_ekkscpy(int n, const int *marr1,int *marr2)
-{ CoinMemcpyN(marr1,n,marr2);} 
+{ CoinMemcpyN(marr1,n,marr2);}
 inline void c_ekkdcpy(int n, const double *marr1,double *marr2)
-{ CoinMemcpyN(marr1,n,marr2);} 
+{ CoinMemcpyN(marr1,n,marr2);}
 int c_ekk_IsSet(const int * array,int bit);
 void c_ekk_Set(int * array,int bit);
 void c_ekk_Unset(int * array,int bit);
@@ -76,7 +76,7 @@ inline void c_ekkczero(int n, char *marray)
 #ifdef __cplusplus
           }
 #endif
- 
+
 #define c_ekkscpy_0_1(s,ival,array) CoinFillN(array,s,ival)
 #define c_ekks1cpy( n,marr1,marr2)  CoinMemcpyN(marr1,n, marr2)
 void clp_setup_pointers(EKKfactinfo * fact);
@@ -158,7 +158,7 @@ void clp_free(void * oldArray);
   int *mcstrt	= fact->xcsadr;
   int *hinrow	= fact->xrnadr;
   int *hincol	= fact->xcnadr;
-  int *hpivro	= fact->krpadr; 
+  int *hpivro	= fact->krpadr;
   int *hpivco	= fact->kcpadr;
 #endif
   int nnentl	= fact->nnentl;
@@ -243,7 +243,7 @@ void clp_free(void * oldArray);
 			 rlink, clink,
 			 mwork,nfirst,
 			 nsingp,
-			 
+
 		     &xnewco, &xnewro,
 		     &nnentu,
 		     &kmxeta, &ncompactions,
@@ -254,7 +254,7 @@ void clp_free(void * oldArray);
 	    goto L1050;
 	  }
 	  /* ASSERT:  irtcod == 7 - pivot too small */
-	  /* why don't we return with an error? */	    
+	  /* why don't we return with an error? */
 	}
 	if (fact->npivots >= nrow) {
 	    goto L1050;
@@ -420,7 +420,7 @@ void clp_free(void * oldArray);
 #endif
       kstart = knpre;
       fill = kfill;
-      
+
       if (cancel) {
 	/* KSTART is used as a stack pointer for nonzeros in factored row */
 	kstart = knprs - 1;
@@ -458,7 +458,7 @@ void clp_free(void * oldArray);
       else {
 	naft = mwork[npr].suc;
 	kqq = mrstrt[naft] - knpre - 1;
-	
+
 	if (fill > kqq) {
 	  /* Fill-in exceeds space left. Check if there is enough */
 	  /* space in row file for the new row. */
@@ -479,17 +479,17 @@ void clp_free(void * oldArray);
 	      xnewro = iput - 1;
 	      ++ncompactions;
 	    }
-	    
+
 	    kipis = mrstrt[ipivot] + 1;
 	    kipie = kipis + epivr1 - 1;
 	    knprs = mrstrt[npr];
 	  }
-	  
+
 	  /* I think this assignment should be inside the previous if-stmt */
 	  /* otherwise, it does nothing */
 	  /*assert(knpre == knprs + enpr - 1);*/
-	  knpre = knprs + enpr - 1; 
-	  
+	  knpre = knprs + enpr - 1;
+
 	  /*
 	   * copy this row to the end of the row file and adjust its links.
 	   * The links keep track of the order of rows in memory.
@@ -521,7 +521,7 @@ void clp_free(void * oldArray);
 	  } else {
 	    kstart = knpre;
 	  }
-	  
+
 	  /* extra space ? */
 	  /*
 	   * The mystery of iadd32.
@@ -549,7 +549,7 @@ void clp_free(void * oldArray);
 	      xnewro = kstart;
 	    }
 	  }
-	  
+
 	  hinrow[npr] = enpr;
 	} else if (! (nnentu + kqq + 2 < lstart)) {
 	  irtcod = -5;
@@ -578,7 +578,7 @@ void clp_free(void * oldArray);
 		    if (nnentu + nz + 1 < lstart) {
 		      xnewco = c_ekkclco(fact,hrowi, mcstrt, hincol, xnewco);
 		      ++ncompactions;
-		      
+
 		      kcpiv = mcstrt[jpivot] - 1;
 		      kcs = mcstrt[j];
 		      /*                  HINCOL MAY HAVE CHANGED? (JJHF) ??? */
@@ -608,7 +608,7 @@ void clp_free(void * oldArray);
 		  if (nnentu + nz + 1 < lstart) {
 		    xnewco = c_ekkclco(fact,hrowi, mcstrt, hincol, xnewco);
 		    ++ncompactions;
-		    
+
 		    kcpiv = mcstrt[jpivot] - 1;
 		    kcs = mcstrt[j];
 		    /*                  HINCOL MAY HAVE CHANGED? (JJHF) ??? */
@@ -646,7 +646,7 @@ void clp_free(void * oldArray);
       if (! (xnewco + 1 < lstart)) {
 	xnewco = c_ekkclco(fact,hrowi, mcstrt, hincol, xnewco);
 	++ncompactions;
-	
+
 	kcpiv = mcstrt[jpivot] - 1;
       }
       if (! (xnewro + 1 < lstart)) {
@@ -654,7 +654,7 @@ void clp_free(void * oldArray);
 	kmxeta += xnewro - iput ;
 	xnewro = iput - 1;
 	++ncompactions;
-	
+
 	kipis = mrstrt[ipivot] + 1;
 	kipie = kipis + epivr1 - 1;
       }
@@ -663,7 +663,7 @@ void clp_free(void * oldArray);
       --nnentu;
       --lstart;
       dluval[lstart] = multip;
-      
+
       hrowi[lstart] = SHIFT_INDEX(npr);
 #define INLINE_AFPV 3
       /* We could do this while computing values but
@@ -713,7 +713,7 @@ void clp_free(void * oldArray);
 	  maxaij=fabs(els[0]);
 	  j=1;
 	}
-	
+
 	while (j<nel) {
 	  UNROLL_LOOP_BODY2({
 	      double d = fabs(els[j]);
@@ -800,7 +800,7 @@ void clp_free(void * oldArray);
 	  kmxeta += xnewro - iput ;
 	  xnewro = iput - 1;
 	  ++ncompactions;
-	  
+
 	  --ncompactions;
 	  if (xnewro + nspare + ndense * ndense >= lstart) {
 	    c_ekkizero( nrow, reinterpret_cast<int *> (maction+1));

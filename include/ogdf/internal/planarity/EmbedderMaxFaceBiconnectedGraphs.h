@@ -1,9 +1,9 @@
 /*
- * $Revision: 3441 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -1030,7 +1030,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 	edge referenceEdge = S.referenceEdge();
 
 	//compute biggest face containing the reference edge:
-	face maxFaceContEdge;
+	face maxFaceContEdge = NULL;
 	List<node> maxFaceNodes;
 	planarEmbed(S.getGraph());
 	CombinatorialEmbedding combinatorialEmbedding(S.getGraph());
@@ -1080,6 +1080,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 			adjExternal = orgEdge->adjTarget();
 	}
 
+	OGDF_ASSERT(maxFaceContEdge);
 	adjEntry adjMaxFace = maxFaceContEdge->firstAdj();
 
 	//if embedding is mirror symmetrical embedding of desired embedding,

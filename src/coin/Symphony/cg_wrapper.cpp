@@ -38,12 +38,12 @@
 int receive_cg_data_u(cg_prob *p)
 {
    int r_bufid;
-   
+
    r_bufid = receive_msg(p->master, CG_DATA);
    receive_char_array((char *)&p->par, sizeof(cg_params));
    receive_int_array(&p->draw_graph, 1);
 
-#ifdef USE_SYM_APPLICATION 
+#ifdef USE_SYM_APPLICATION
   switch( user_receive_cg_data(&p->user, p->draw_graph) ){
     case USER_SUCCESS:
     case USER_AND_PP:
@@ -79,8 +79,8 @@ int receive_lp_solution_cg_u(cg_prob *p)
 
 int find_cuts_u(cg_prob *p, LPdata *lp_data, int *num_cuts)
 {
-   int tmp = p->cuts_to_add_num; 
-   
+   int tmp = p->cuts_to_add_num;
+
 #ifdef USE_SYM_APPLICATION
    CALL_USER_FUNCTION( user_find_cuts(p->user, p->cur_sol.xlength,
 				      p->cur_sol.xiter_num, p->cur_sol.xlevel,
@@ -92,7 +92,7 @@ int find_cuts_u(cg_prob *p, LPdata *lp_data, int *num_cuts)
 #endif
 
    *num_cuts += p->cuts_to_add_num - tmp;
-   
+
    return(FUNCTION_TERMINATED_NORMALLY);
 }
 
@@ -106,7 +106,7 @@ int free_cg_u(cg_prob *p)
 #else
    FREE(p->cur_sol.xind);
    FREE(p->cur_sol.xval);
-#endif   
+#endif
 
 #ifdef USE_SYM_APPLICATION
    CALL_USER_FUNCTION( user_free_cg(&p->user) );
@@ -126,7 +126,7 @@ int check_validity_of_cut_u(cg_prob *p, cut_data *new_cut)
     case EXPLICIT_ROW:
 
       /* Not implemented yet */
-	 
+
        return (FUNCTION_TERMINATED_NORMALLY);
 
     default:

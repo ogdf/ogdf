@@ -44,7 +44,7 @@ const CoinPresolveAction *isolated_constraint_action::presolve(CoinPresolveMatri
 
   CoinBigIndex krs = mrstrt[irow];
   CoinBigIndex kre = krs + hinrow[irow];
-  
+
   double *dcost	= prob->cost_;
   const double maxmin	= prob->maxmin_;
 
@@ -141,7 +141,7 @@ void isolated_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   CoinBigIndex *mcstrt		= prob->mcstrt_;
   int *link		= prob->link_;
   int *hincol		= prob->hincol_;
-  
+
   double *rowduals	= prob->rowduals_;
   double *rowacts	= prob->acts_;
   double *sol		= prob->sol_;

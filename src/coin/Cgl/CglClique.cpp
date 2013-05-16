@@ -107,9 +107,9 @@ CglClique::generateCuts(const OsiSolverInterface& si, OsiCuts & cs,
 	 sp_orig_row_ind[i] = i;
    }
    // Just original rows
-   if (justOriginalRows_&&info.inTree) 
+   if (justOriginalRows_&&info.inTree)
      sp_numrows = CoinMin(info.formulation_rows,sp_numrows);
-     
+
 
    createSetPackingSubMatrix(si);
    fgraph.edgenum = createNodeNode();
@@ -250,14 +250,14 @@ CglClique::find_rcl(OsiCuts& cs) const
  * Algorithm: Take min degree node. Check for violated cuts in the subgraph
  * consisting of this node and its neighbors (the "star" of this node). Then
  * delete the node and continue with the now min degree node.
- * 
+ *
  * Implementation: Two arrays are defined, one contains the indices the other
  * the degrees of all the nodes still in the graph. If the min degree is 0
  * or 1 then the min degree node can be deleted at once.
  * All cliques are enumerated in v U star(v) if the min degree is smaller
  * than the threshold  scl_candidate_length_threshold, otherwise attemp to
  * find maximal clique greedily.
- * 
+ *
  * Note: Indices in current_indices are always kept in increasing order.
  *===========================================================================*/
 
@@ -295,7 +295,7 @@ CglClique::find_scl(OsiCuts& cs) const
       current_degrees[i] = nodes[i].degree;
       current_values[i] = nodes[i].val;
    }
-   
+
    /* find first node to be checked */
    int best_ind = scl_choose_next_node(current_nodenum, current_indices,
 				       current_degrees, current_values);
@@ -303,7 +303,7 @@ CglClique::find_scl(OsiCuts& cs) const
    int v = current_indices[best_ind];
    int v_deg = current_degrees[best_ind];
    double v_val = current_values[best_ind];
-      
+
    /* while there are nodes left in the graph ... (more precisely, while
       there are at least 3 nodes in the graph) */
    while (current_nodenum > 2) {
@@ -347,7 +347,7 @@ CglClique::find_scl(OsiCuts& cs) const
 	    be maximal wrt to entire fractional graph, only for the current
 	    subset of it (some nodes might be already deleted...)
 	    Note that star is the same as cl_indices and start_length is
-	    cl_length... 
+	    cl_length...
 	 */
 	 if (v_deg < scl_candidate_length_threshold) { // par
 	    /* enumerate if v_deg is small enough */
@@ -488,7 +488,7 @@ CglClique::scl_delete_node(const int del_ind, int& current_nodenum,
 {
    const int v = current_indices[del_ind];
 
-   /* delete the entry corresponding to del_ind from current_indices, 
+   /* delete the entry corresponding to del_ind from current_indices,
       current_degrees and current_values */
    memmove(reinterpret_cast<char *>(current_indices + del_ind),
 	   reinterpret_cast<char *>(current_indices + (del_ind+1)),
@@ -500,7 +500,7 @@ CglClique::scl_delete_node(const int del_ind, int& current_nodenum,
 	   reinterpret_cast<char *>(current_values + (del_ind+1)),
 	   (current_nodenum-del_ind-1) * sizeof(double));
    current_nodenum--;
-   
+
    /* decrease the degrees of v's neighbors by 1 */
    const bool* node_node_start = node_node + (fgraph.nodenum * v);
    for (int i = 0; i < current_nodenum; ++i)
@@ -537,7 +537,7 @@ CglClique::scl_delete_node(const int del_ind, int& current_nodenum,
  *===========================================================================*/
 
 int
-CglClique::enumerate_maximal_cliques(int& pos, bool* label, OsiCuts& cs) const 
+CglClique::enumerate_maximal_cliques(int& pos, bool* label, OsiCuts& cs) const
 {
    const fnode *nodes = fgraph.nodes;
    const int nodenum = fgraph.nodenum;
@@ -581,7 +581,7 @@ CglClique::enumerate_maximal_cliques(int& pos, bool* label, OsiCuts& cs) const
 	 delete[] coef;
 	 return(found);
       }
-      
+
       /* check if the clique can be extended on cl_indices */
       for (k = cl_length - 1; k >= 0; k--) {
 	 if (!label[k]) {
@@ -602,7 +602,7 @@ CglClique::enumerate_maximal_cliques(int& pos, bool* label, OsiCuts& cs) const
 	 fill relative indices into coef */
       for (j = 0; j < cl_perm_length; j++)
 	 coef[cnt++] = cl_perm_indices[j];
-      
+
       /* check if clique is violated */
       double lhs = 0;
       for (j = 0; j < cnt; j++)
@@ -611,7 +611,7 @@ CglClique::enumerate_maximal_cliques(int& pos, bool* label, OsiCuts& cs) const
 	 delete[] coef;
 	 return(found);
       }
-      
+
       /* if clique can be extended on cl_del_indices then it can be
 	 discarded (was already counted) */
       for (i = 0; i < cl_del_length; i++) {
@@ -628,7 +628,7 @@ CglClique::enumerate_maximal_cliques(int& pos, bool* label, OsiCuts& cs) const
 
       recordClique(cnt, coef, cs);
       delete[] coef;
-      
+
       ++found;
    }
 
@@ -724,7 +724,7 @@ CglClique::clone() const
 /*****************************************************************************/
 // Create C++ lines to get to current state
 std::string
-CglClique::generateCpp( FILE * fp) 
+CglClique::generateCpp( FILE * fp)
 {
   CglClique other;
   fprintf(fp,"0#include \"CglClique.hpp\"\n");
@@ -799,7 +799,7 @@ CglFakeClique::CglFakeClique(OsiSolverInterface * solver, bool setPacking) :
   } else {
     probing_ = NULL;
   }
-			      
+
 }
 // Copy constructor
 CglFakeClique::CglFakeClique(const CglFakeClique& rhs)
@@ -831,7 +831,7 @@ CglFakeClique::~CglFakeClique()
   delete probing_;
 }
 // Assign solver (generator takes over ownership)
-void 
+void
 CglFakeClique::assignSolver(OsiSolverInterface * fakeSolver)
 {
   delete fakeSolver_;

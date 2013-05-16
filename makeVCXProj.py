@@ -26,7 +26,7 @@ def bailout(msg):
 	print(msg)
 	print('Please use the original makeVCXProj.config as a template')
 	sys.exit()
-	
+
 def loadConfig(sect, key, noError = False ):
 	if config.has_option(sect, key):
 		v = config.get(sect, key)
@@ -34,7 +34,7 @@ def loadConfig(sect, key, noError = False ):
 		return v
 	else:
 		if noError:
-			return None		
+			return None
 		else:
 			bailout('Option "' + key + '" in section "' + sect + '" is missing')
 
@@ -130,35 +130,35 @@ if useCoin:
 	coinEnableOpenMP = loadConfig('COIN', 'OpenMP', True)
 	if coinEnableOpenMP and coinEnableOpenMP.startswith('t'):
 		coinOpenMP = 'true'
-	
+
 	defaultSolver   = loadConfig('COIN', 'defaultSolver')
 	externalSolvers = loadConfig('COIN', 'externalSolvers').split(';')
 	solverIncludes  = loadConfig('COIN', 'solverIncludes').split(';')
 
 	addOsiCpx = checkSolver('CPX', defaultSolver, externalSolvers)
 	addOsiGrb = checkSolver('GRB', defaultSolver, externalSolvers)
-	
+
 	config_defines += '#define USE_COIN\n'
 	config_defines += '#define COIN_OSI_' + defaultSolver + '\n'
-	
+
 	for s in externalSolvers:
 		s = s.strip();
 		if s != '':
 			config_defines += '#define OSI_' + s.strip() + '\n'
-	
+
 	for p in solverIncludes:
 		p = p.strip()
 		if p != '':
 			addIncludes += p + ';'
-	
+
 	if createDLL and createDLL.startswith('t'):
 		addLibs += 'coin.lib;'
-		
+
 		addLibsDebugWin32   += getLibs(loadConfig('COIN', 'solverLibs_win32_debug'))
 		addLibsReleaseWin32 += getLibs(loadConfig('COIN', 'solverLibs_win32_release'))
 		addLibsDebugX64     += getLibs(loadConfig('COIN', 'solverLibs_x64_debug'))
 		addLibsReleaseX64   += getLibs(loadConfig('COIN', 'solverLibs_x64_release'))
-	
+
 linkSectionD32 = ''
 linkSectionR32 = ''
 linkSectionD64 = ''
@@ -167,7 +167,7 @@ if createDLL and createDLL.startswith('t'):
 	libraryType = 'DynamicLibrary'
 	config_defines += '#define OGDF_DLL\n'
 	addDefines += 'OGDF_INSTALL'
-	
+
 	linkSectionBegin = '    <Link>\n\
 	<AdditionalDependencies>';
 	linkSectionEnd = 'kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
@@ -175,12 +175,12 @@ if createDLL and createDLL.startswith('t'):
 	</LinkTimeCodeGeneration>\n\
     <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
     </Link>'
-	
+
 	linkSectionD32 = linkSectionBegin + addLibs + addLibsDebugWin32   + linkSectionEnd
 	linkSectionR32 = linkSectionBegin + addLibs + addLibsReleaseWin32 + linkSectionEnd
 	linkSectionD64 = linkSectionBegin + addLibs + addLibsDebugX64     + linkSectionEnd
 	linkSectionR64 = linkSectionBegin + addLibs + addLibsReleaseX64   + linkSectionEnd
-	
+
 else:
 	libraryType = 'StaticLibrary'
 
@@ -197,7 +197,7 @@ config_autogen.write('\n#ifndef _WIN32_WINNT\n')
 config_autogen.write('#define _WIN32_WINNT ' + windowsVersion + '\n')
 config_autogen.write('#endif\n')
 config_autogen.close()
-	
+
 addIncludes = addIncludes[:-1]
 libraryTypeTag = '<<LIBRARYTYPETAG>>'
 defineTag = '<<DEFINETAG>>'
@@ -210,7 +210,7 @@ filtersTag = '<<FTAG>>'
 openMPTag = '<<OPENMPTAG>>'
 toolsetTag = '<<TOOLSET>>'
 
-# Params are: 
+# Params are:
 # - Tag in template-File
 # - Directory to start search & subfilters from
 # - File Patterns
@@ -232,7 +232,7 @@ coinStuff = [ cppCoinStuff, hCoinStuff ]
 def Walk( curdir, pats, command ):
 	names = os.listdir( curdir)
 	names.sort()
-	
+
 	for name in names:
 		# OGDF ignores
 		if name.startswith('.') or name.startswith('_') or (name=='legacy' and not includeLegacyCode):
@@ -245,7 +245,7 @@ def Walk( curdir, pats, command ):
 
 		outpath = curdir + '\\' + name
 		fullname = os.path.normpath(outpath)
-		
+
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
 				Walk( outpath, pats, command)
@@ -257,7 +257,7 @@ def Walk( curdir, pats, command ):
 def WalkFilterFiles( curdir, pats, command, filter ):
 	names = os.listdir( curdir)
 	names.sort()
-	
+
 	for name in names:
 		# OGDF ignores
 		if name.startswith('.') or name.startswith('_') or (name=='legacy' and not includeLegacyCode):
@@ -270,7 +270,7 @@ def WalkFilterFiles( curdir, pats, command, filter ):
 
 		outpath = curdir + '\\' + name
 		fullname = os.path.normpath(outpath)
-		
+
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			WalkFilterFiles( outpath, pats, command, filter + '\\' + name )
 		else:
@@ -283,14 +283,14 @@ def WalkFilterFiles( curdir, pats, command, filter ):
 def WalkFilters( curdir, filter ):
 	names = os.listdir( curdir)
 	names.sort()
-	
+
 	for name in names:
 		if name.startswith('.') or name.startswith('_') or (name=='legacy' and not includeLegacyCode):
 			continue
 
 		outpath = curdir + '\\' + name
 		fullname = os.path.normpath(outpath)
-		
+
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
 				filtername = filter + '\\' + name
@@ -411,14 +411,14 @@ if useCoin:
 
 if createSolution:
 	print ('Generating Solution...', end='')
-	
+
 	GUID_sln = '{0F7C385F-D08C-494E-8715-70CD736C75B2}'
 	GUID_ogdf = '{7801D1BE-E2FE-476B-A4B4-5D27F387F479}'
 	GUID_coin = '{FB212DCC-D374-430B-B594-5CEC25BC7A75}'
-	
+
 	Configurations = [ 'Debug', 'Release' ]
 	Platforms = [ 'Win32', 'x64' ]
-	
+
 	sln = open(filename_sln, 'w')
 	sln.write('Microsoft Visual Studio Solution File, Format Version 11.00\n')
 	sln.write('Project("' + GUID_sln + '") = "ogdf", "' + filename_vcxproj + '", "' + GUID_ogdf + '"\n')
@@ -431,7 +431,7 @@ if createSolution:
 	if useCoin:
 		sln.write('Project("' + GUID_sln + '") = "coin", "' + filename_coin_vcxproj + '", "' + GUID_coin + '"\n')
 		sln.write('EndProject\n')
-	
+
 	sln.write('Global\n')
 	sln.write('\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\n')
 	sln.write('\t\tDebug|Win32 = Debug|Win32\n')
@@ -440,7 +440,7 @@ if createSolution:
 	sln.write('\t\tRelease|x64 = Release|x64\n')
 	sln.write('\tEndGlobalSection\n')
 	sln.write('\tGlobalSection(ProjectConfigurationPlatforms) = postSolution\n')
-	
+
 	if useCoin:
 		projectGUIDs = [ GUID_ogdf, GUID_coin ]
 	else:
@@ -455,6 +455,6 @@ if createSolution:
 	sln.write('\t\tHideSolutionNode = FALSE\n')
 	sln.write('\tEndGlobalSection\n')
 	sln.write('EndGlobal\n')
-	
+
 	sln.close()
 	print ('done')

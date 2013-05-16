@@ -27,7 +27,7 @@ double used_time(double *T)
    double t, oldT =  T ? *T : 0;
    struct timeval tp;
 
-#if defined(_MSC_VER) || defined(__MNO_CYGWIN) 
+#if defined(_MSC_VER) || defined(__MNO_CYGWIN)
    clock_t tp_clock;
    long tp_long;
    tp_clock = clock();
@@ -41,14 +41,14 @@ double used_time(double *T)
    t = (double)tp.tv_sec + ((double)tp.tv_usec)/1000000;
    if (T) *T = t;
    return (t - oldT);
-#else   
+#else
 
    /* FIXME: Windows CPU timing does not currently work */
 
 #if defined(_MSC_VER) || defined (__MNO_CYGWIN) || defined(__MINGW32__)
    return (0);
 #else
-   
+
    double oldT =  *T;
    struct rusage x;
 

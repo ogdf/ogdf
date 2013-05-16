@@ -14,7 +14,7 @@
 
 #include <cassert>
 
-#include "CglSimpleRounding.hpp" 
+#include "CglSimpleRounding.hpp"
 #include <stdio.h>
 
 //--------------------------------------------------------------------------
@@ -75,7 +75,7 @@ CglSimpleRoundingUnitTest(
   // Test generate cuts method on exmip1.5.mps
   {
     CglSimpleRounding cg;
-    
+
     OsiSolverInterface * siP = baseSiP->clone();
     std::string fn = mpsDir+"exmip1.5.mps";
     siP->readMps(fn.c_str(),"");
@@ -87,7 +87,7 @@ CglSimpleRoundingUnitTest(
     assert(nRowCuts==3);
 
     // get the last "sr"=simple rounding cut that was derived
-    OsiRowCut srRowCut2 = cuts.rowCut(2); 
+    OsiRowCut srRowCut2 = cuts.rowCut(2);
     CoinPackedVector srRowCutPV2 = srRowCut2.row();
 
     // this is what the last cut should look like: i.e. the "solution"
@@ -103,7 +103,7 @@ CglSimpleRoundingUnitTest(
 
     // Note: testing two OsiRowCuts are equal invokes testing two
     // CoinPackedVectors are equal which invokes testing two doubles
-    // are equal.  Usually not a good idea to test that two doubles are equal, 
+    // are equal.  Usually not a good idea to test that two doubles are equal,
     // but in this cut the "doubles" represent integer values. Also allow that
     // different solvers have different orderings in packed vectors, which may
     // not match the ordering defined for solRowCut.
@@ -119,7 +119,7 @@ CglSimpleRoundingUnitTest(
   // Test generate cuts method on p0033
   {
     CglSimpleRounding cg;
-    
+
     OsiSolverInterface * siP = baseSiP->clone();
     std::string fn = mpsDir+"p0033";
     siP->readMps(fn.c_str(),"mps");
@@ -127,7 +127,7 @@ CglSimpleRoundingUnitTest(
     cg.generateCuts(*siP,cuts);
 
     // p0033 is the optimal solution to p0033
-    int objIndices[14] = { 
+    int objIndices[14] = {
        0,  6,  7,  9, 13, 17, 18,
       22, 24, 25, 26, 27, 28, 29 };
     CoinPackedVector p0033(14,objIndices,1.0);
@@ -146,13 +146,13 @@ CglSimpleRoundingUnitTest(
       assert (p0033Sum <= rcutub);
     }
 
-    // test that the cuts improve the 
+    // test that the cuts improve the
     // lp objective function value
     siP->initialSolve();
     double lpRelaxBefore=siP->getObjValue();
     OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cuts);
     siP->resolve();
-    double lpRelaxAfter=siP->getObjValue(); 
+    double lpRelaxAfter=siP->getObjValue();
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
     printf("Final LP min=%f\n\n",lpRelaxAfter);

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2771 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Mi, 26. Sep 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -539,16 +539,15 @@ bool CconnectClusterPlanar::preparation(Graph  &G,
 
 			// Compute st-numbering
 			NodeArray<int> numbering(C,0);
-			int n;
 			if (bcIdSuperSink == i)
 			{
-				n = stNumber(C,numbering,0,tableNodes[superSink]);
+				int n = stNumber(C,numbering,0,tableNodes[superSink]);
 				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(C,numbering,n))
 				cPlanar = doTest(C,numbering,cl,tableNodes[superSink],backTableEdges);
 			}
 			else
 			{
-				n = stNumber(C,numbering);
+				int n = stNumber(C,numbering);
 				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(C,numbering,n))
 				cPlanar = doTest(C,numbering,cl,0,backTableEdges);
 			}

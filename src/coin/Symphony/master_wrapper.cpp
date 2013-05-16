@@ -46,7 +46,7 @@ int initialize_u(sym_environment *env)
    CALL_USER_FUNCTION( user_initialize(&env->user) );
 #else
    env->user = NULL;
-#endif   
+#endif
 
    env->mip = (MIPdesc *) calloc(1, sizeof(MIPdesc));
 
@@ -71,18 +71,18 @@ int readparams_u(sym_environment *env, int argc, char **argv)
    switch(user_res){
 
     case USER_DEFAULT:
-      
+
       foundF = foundD = FALSE;
       for (i = 1; i < argc; i++){
 	 sscanf(argv[i], "%c %c", &tmp, &c);
 	 if (tmp != '-')
 	    continue;
 	 switch (c) {
-	  case 'L':  
+	  case 'L':
 	    env->par.file_type = LP_FORMAT;
 	  case 'F':
 	    if (i < argc - 1){
-	      sscanf(argv[i+1], "%c", &tmp); 
+	      sscanf(argv[i+1], "%c", &tmp);
 	      if (tmp == '-'){
 		printf("Warning: Missing argument to command-line switch -%c\n",
 		       c);
@@ -93,10 +93,10 @@ int readparams_u(sym_environment *env, int argc, char **argv)
 	    }else{
 	      printf("Warning: Missing argument to command-line switch -%c\n",c);
 	    }
-	    break;	     
+	    break;
 	 case 'D':
 	   if (i < argc - 1){
-	     sscanf(argv[i+1], "%c", &tmp); 
+	     sscanf(argv[i+1], "%c", &tmp);
 	     if (tmp == '-'){
 	       printf("Warning: Missing argument to command-line switch -%c\n",
 		      c);
@@ -107,7 +107,7 @@ int readparams_u(sym_environment *env, int argc, char **argv)
 	   }else{
 	     printf("Warning: Missing argument to command-line switch -%c\n",c);
 	   }
-	   break;	     
+	   break;
 	 case 'T':
 	   env->par.test = TRUE;
 	   if(i+1 < argc){
@@ -118,10 +118,10 @@ int readparams_u(sym_environment *env, int argc, char **argv)
 	   }else{
 	     printf("Warning: Missing argument to command-line switch -%c\n",c);
 	   }
-	   break;	     
+	   break;
 	 default:
 	   break;
-	 }	   
+	 }
 	 if (foundF && foundD){
 	   break;
 	 }
@@ -130,14 +130,14 @@ int readparams_u(sym_environment *env, int argc, char **argv)
     case USER_NO_PP:
     case USER_AND_PP:
       break;
-      
+
     case USER_ERROR:
-      
+
       printf("\n\n*********User error detected -- aborting***********\n\n");
       return(ERROR__USER);
 
     default:
-      break;	 	       
+      break;
    }
 
    return(FUNCTION_TERMINATED_NORMALLY);
@@ -157,12 +157,12 @@ int io_u(sym_environment *env)
 
    switch( user_res ){
 
-    case USER_DEFAULT: 
+    case USER_DEFAULT:
 
       if (strcmp(env->par.infile, "") == 0){
 	 printf("\nNo input file specified\n");
 	 return (ERROR__READING_MPS_FILE);
-      }	 
+      }
 
       if (env->par.verbosity >= 0){
 	 printf("Reading input file...\n\n");
@@ -184,7 +184,7 @@ int io_u(sym_environment *env)
 	 }
       }else{
 #ifdef USE_GLPMPL
-	 err = read_gmpl(env->mip, env->par.infile, 
+	 err = read_gmpl(env->mip, env->par.infile,
 			 env->par.datafile, env->probname);
 	 env->par.file_type = MPS_FORMAT;
 	 if(!err){
@@ -198,7 +198,7 @@ int io_u(sym_environment *env)
 	 return (ERROR__READING_GMPL_FILE);
 #endif
       }
-      
+
       break;
 
     case USER_ERROR:
@@ -280,7 +280,7 @@ int start_heurs_u(sym_environment *env)
 	 printf("\nError opening vbc emulation file\n\n");
       }else{
 	 fprintf(f, "00:00:00.00 U %.2f \n", env->ub);
-	 fclose(f); 
+	 fclose(f);
       }
    }else if (env->par.tm_par.vbc_emulation == VBC_EMULATION_LIVE){
       printf("$U %.2f\n", env->ub);
@@ -297,30 +297,30 @@ int initialize_root_node_u(sym_environment *env)
 
    base_desc *base = env->base = (base_desc *) calloc(1, sizeof(base_desc));
    node_desc *root = env->rootdesc = (node_desc *) calloc(1,sizeof(node_desc));
-   
+
 
 #ifdef USE_SYM_APPLICATION
    user_res = user_initialize_root_node(env->user, &base->varnum,
 					&base->userind,
 					&base->cutnum, &root->uind.size,
 					&root->uind.list, &env->mip->obj_sense,
-					&env->mip->obj_offset, 
+					&env->mip->obj_offset,
 					&env->mip->colname,
 					env->par.tm_par.colgen_strat);
 #else
    user_res = USER_DEFAULT;
 #endif
 
-   switch (user_res){ 
-      
+   switch (user_res){
+
     case USER_ERROR:
-      
+
       printf("\n\n*********User error detected -- aborting***********\n\n");
       return(ERROR__USER);
 
     case USER_SUCCESS:
     case USER_NO_PP:
-    case USER_AND_PP:  
+    case USER_AND_PP:
       if (base->varnum)
 	 qsort_i(base->userind, base->varnum);
       if (root->uind.size && !env->par.warm_start)
@@ -332,19 +332,19 @@ int initialize_root_node_u(sym_environment *env)
 	 but we can't because we don't have access to the user's LP
 	 data structures. Right now, this means that we cannot answer
 	 queries through the OSI interface. */
-      
+
       userind = (int *) malloc((base->varnum + root->uind.size) * ISIZE);
-      
+
       memcpy((char *)userind, (char *)base->userind, base->varnum * ISIZE);
       memcpy((char *)(userind + base->varnum), (char *)root->uind.list,
-	     root->uind.size * ISIZE); 
-      
+	     root->uind.size * ISIZE);
+
       user_create_subproblem(env->user, userind, env->mip, &maxn, &maxm,
 			    &maxnz);
 #endif
       break;
-      
-    case USER_DEFAULT: 
+
+    case USER_DEFAULT:
 
        root->uind.size = env->mip->n;
        base->cutnum = env->mip->m;
@@ -382,7 +382,7 @@ int initialize_root_node_u(sym_environment *env)
 	 qsort_i(root->uind.list, root->uind.size);
       }
 #endif
-      
+
       break;
 
     default:
@@ -394,7 +394,7 @@ int initialize_root_node_u(sym_environment *env)
       FREE(root->uind.list);
       return(FUNCTION_TERMINATED_NORMALLY);
    }
-   
+
    root->uind.type = EXPLICIT_LIST;
    root->cutind.type = EXPLICIT_LIST;
    root->not_fixed.type = EXPLICIT_LIST;
@@ -429,7 +429,7 @@ int receive_feasible_solution_u(sym_environment *env, int msgtag)
       env->ub = env->best_sol.objval;
    }
    env->best_sol.has_sol = TRUE;
-   
+
    switch (msgtag){
     case FEASIBLE_SOLUTION_NONZEROS:
       break;
@@ -501,7 +501,7 @@ int send_lp_data_u(sym_environment *env, int sender)
    }
 #endif
 
-#else   
+#else
    int s_bufid;
 
    s_bufid = init_send(DataInPlace);
@@ -556,7 +556,7 @@ int send_lp_data_u(sym_environment *env, int sender)
 	 }
       }else{
 	 send_char_array(&has_colnames, 1);
-      }	 
+      }
    }else{
       char has_desc = FALSE;
       send_char_array(&has_desc, 1);
@@ -582,12 +582,12 @@ int send_cg_data_u(sym_environment *env, int sender)
 #pragma omp parallel for
    for (i = 0; i < tm->par.max_active_nodes; i++){
       tm->lpp[i]->cgp = tm->cgp[i] = (cg_prob *) calloc(1, sizeof(cg_prob));
-      
+
       tm->cgp[i]->par = env->par.cg_par;
-      
+
       tm->cgp[i]->draw_graph = env->dg_tid;
    }
-#ifdef USE_SYM_APPLICATION      
+#ifdef USE_SYM_APPLICATION
    for (i = 0; i < tm->par.max_active_nodes; i++){
       CALL_USER_FUNCTION( user_send_cg_data(env->user,
 					    &(tm->lpp[i]->cgp->user)) );
@@ -648,13 +648,13 @@ int display_solution_u(sym_environment *env, int thread_num)
    lp_sol sol;
 
    memset(&sol, 0, sizeof(lp_sol));
-   
+
    sol.xlength = 0;
 
    if (env->par.verbosity < -1){
        return(FUNCTION_TERMINATED_NORMALLY);
-   }     
-   
+   }
+
 #if defined(COMPILE_IN_TM) && defined(COMPILE_IN_LP)
    if (env->tm && env->tm->lpp[thread_num]){
       sol = env->tm->lpp[thread_num]->best_sol;
@@ -676,27 +676,27 @@ int display_solution_u(sym_environment *env, int thread_num)
 	  printf("\nThe problem is infeasible!");
 	  break;
        default:
-	  break;		    
+	  break;
       }
       printf("\nNo Solution Found\n\n");
       return(FUNCTION_TERMINATED_NORMALLY);
    }
-   
+
    printf("\nSolution Found: Node %i, Level %i\n", sol.xindex, sol.xlevel);
    if (env->par.multi_criteria){
       printf("First Objective: %.10f\n", env->obj[0]);
       printf("Second Objective: %.10f\n", env->obj[1]);
    }else{
-      printf("Solution Cost: %.10f\n", env->mip->obj_sense == SYM_MINIMIZE ? 
-	     sol.objval + env->mip->obj_offset : 
+      printf("Solution Cost: %.10f\n", env->mip->obj_sense == SYM_MINIMIZE ?
+	     sol.objval + env->mip->obj_offset :
 	     -sol.objval + env->mip->obj_offset);
    }
    qsort_id(sol.xind, sol.xval, sol.xlength);
 
-#ifdef USE_SYM_APPLICATION   
+#ifdef USE_SYM_APPLICATION
    user_res = user_display_solution(env->user, sol.lpetol, sol.xlength,
 				    sol.xind, sol.xval, sol.objval);
-   
+
 #else
    user_res = USER_DEFAULT;
 #endif
@@ -707,7 +707,7 @@ int display_solution_u(sym_environment *env, int thread_num)
 	  return(FUNCTION_TERMINATED_NORMALLY);
        case USER_DEFAULT:
 	  if (sol.xlength){
-	     if (env->mip->colname){ 
+	     if (env->mip->colname){
 		printf("+++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 		printf("Column names and values of nonzeros in the solution\n");
 		printf("+++++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -723,7 +723,7 @@ int display_solution_u(sym_environment *env, int thread_num)
 			  env->orig_mip->colname[env->mip->fixed_ind[i]],
 			  env->mip->fixed_val[i]);
 		}
-		
+
 		printf("\n");
 	     }else{
 		printf("+++++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -747,7 +747,7 @@ int display_solution_u(sym_environment *env, int thread_num)
 		}
 		printf("\n");
 	     }
-	     
+
 	     return(FUNCTION_TERMINATED_NORMALLY);
 	  }else{
 	     printf("+++++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -757,12 +757,12 @@ int display_solution_u(sym_environment *env, int thread_num)
 	  }
        case USER_ERROR:
 	  return(FUNCTION_TERMINATED_NORMALLY);
-	  
+
        default:
 	  return(FUNCTION_TERMINATED_NORMALLY);
       }
    }
-   
+
    return(FUNCTION_TERMINATED_NORMALLY);
 }
 
@@ -787,7 +787,7 @@ int free_master_u(sym_environment *env)
 #endif
    FREE(env->best_sol.xind);
    FREE(env->best_sol.xval);
-   
+
    if (env->mip){
       free_mip_desc(env->mip);
       FREE(env->mip);
@@ -797,7 +797,7 @@ int free_master_u(sym_environment *env)
       free_mip_desc(env->prep_mip);
       FREE(env->prep_mip);
    }
-   
+
    if (env->rootdesc){
       FREE(env->rootdesc->desc);
       FREE(env->rootdesc->uind.list);
@@ -840,8 +840,8 @@ int free_master_u(sym_environment *env)
    }
 #endif
 #endif
-      
-   return(FUNCTION_TERMINATED_NORMALLY);   
+
+   return(FUNCTION_TERMINATED_NORMALLY);
 }
 
 /*===========================================================================*/

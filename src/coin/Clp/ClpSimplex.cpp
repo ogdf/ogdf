@@ -7299,7 +7299,7 @@ ClpSimplex::checkSolution(int setToBounds)
      deleteRim(0);
 }
 // Check unscaled primal solution but allow for rounding error
-void 
+void
 ClpSimplex::checkUnscaledSolution()
 {
   if (problemStatus_==1 && matrix_->getNumElements()) {
@@ -7351,7 +7351,7 @@ ClpSimplex::checkUnscaledSolution()
 	if (value<rowLower_[i]-useTolerance) {
 	  sumPrimalInfeasibilities_ -= value - (rowLower_[i]-useTolerance);
 	  numberPrimalInfeasibilities_++;
-	} 
+	}
       }
     }
     char line[1000];
@@ -7364,7 +7364,7 @@ ClpSimplex::checkUnscaledSolution()
 	<< CoinMessageEol;
     }
     if (!numberPrimalInfeasibilities_) {
-      if (!numberDualInfeasibilities_) 
+      if (!numberDualInfeasibilities_)
 	problemStatus_=0;
     } else {
       sprintf(line,"%d relaxed row infeasibilities - summing to %g",
@@ -10095,7 +10095,7 @@ ClpSimplex::fathom(void * stuff)
      getDblParam(ClpDualObjectiveLimit, saveObjLimit);
      if (perturbation_<100) {
        double limit = saveObjLimit * optimizationDirection_;
-       setDblParam(ClpDualObjectiveLimit, 
+       setDblParam(ClpDualObjectiveLimit,
 		   (limit+1.0e-2+1.0e-7*fabs(limit))*optimizationDirection_);
      }
  #if 0
@@ -10513,7 +10513,7 @@ ClpSimplex::fathom(void * stuff)
 #ifdef COIN_DEVELOP
                if ((numberNodes % printFrequency) == 0) {
                     printf("Fathoming from node %d - %d nodes (%d iterations) - current depth %d\n",
-                           info->nodeCalled_,numberNodes, 
+                           info->nodeCalled_,numberNodes,
 			   numberIterations, depth+info->startingDepth_);
                     printFrequency *= 2;
                }
@@ -10521,7 +10521,7 @@ ClpSimplex::fathom(void * stuff)
                if ((numberNodes % printFrequency) == 0) {
 		 if ((moreSpecialOptions_&2048)!=0)
 		   info->handler_->message(CLP_FATHOM_STATUS, messages_)
-		     << info->nodeCalled_ << numberNodes 
+		     << info->nodeCalled_ << numberNodes
 		     << numberIterations << depth+info->startingDepth_
 		     << CoinMessageEol;
 		 printFrequency *= 2;
@@ -10630,12 +10630,12 @@ ClpSimplex::fathom(void * stuff)
                     if (objectiveValue < bestObjective) {
 #ifdef COIN_DEVELOP
 		      printf("Fathoming from node %d - solution of %g after %d nodes at depth %d\n",
-			     info->nodeCalled_,objectiveValue, 
+			     info->nodeCalled_,objectiveValue,
 			     numberNodes, depth+info->startingDepth_);
 #elif !defined(NO_FATHOM_PRINT)
 		      if ((moreSpecialOptions_&2048)!=0)
 			info->handler_->message(CLP_FATHOM_SOLUTION, messages_)
-			  << info->nodeCalled_ << objectiveValue 
+			  << info->nodeCalled_ << objectiveValue
 			  << numberNodes << depth+info->startingDepth_
 			  << CoinMessageEol;
 #endif
@@ -10647,7 +10647,7 @@ ClpSimplex::fathom(void * stuff)
                          delete [] bestStatus;
                          bestStatus = CoinCopyOfArray(status_, numberTotal);
                          bestObjective = objectiveValue - increment;
-			 if (perturbation_<100) 
+			 if (perturbation_<100)
 			   bestObjective += 1.0e-2+1.0e-7*fabs(bestObjective);
                          setDblParam(ClpDualObjectiveLimit, bestObjective * optimizationDirection_);
                     } else {

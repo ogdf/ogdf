@@ -1,9 +1,9 @@
 /*
-* $Revision: 3417 $
+* $Revision: 3504 $
 *
 * last checkin:
-*   $Author: gutwenger $
-*   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
+*   $Author: beyer $
+*   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
 ***************************************************************/
 
 /** \file
@@ -323,7 +323,7 @@ namespace ogdf {
 
 				}
 			}
-		
+
 			for(int i = pr.startNode(); i < pr.stopNode(); ++i) {
 				node vG = pr.v(i);
 

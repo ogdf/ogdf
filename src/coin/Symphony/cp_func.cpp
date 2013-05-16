@@ -50,7 +50,7 @@ void cp_initialize(cut_pool *cp, int master_tid)
 #if !defined(COMPILE_IN_TM) || !defined(COMPILE_IN_LP)
    int s_bufid, r_bufid;
 #endif
-   
+
    /*------------------------------------------------------------------------*\
     * Receive tid info; request and receive problem specific data
    \*------------------------------------------------------------------------*/
@@ -66,22 +66,22 @@ void cp_initialize(cut_pool *cp, int master_tid)
    setvbuf(stdout, (char *)NULL, _IOLBF, 0);
 
    register_process();
-   
+
    r_bufid = receive_msg(ANYONE, MASTER_TID_INFO);
    bufinfo(r_bufid, &bytes, &cp->msgtag, &cp->tree_manager);
    receive_int_array(&cp->master, 1);
    freebuf(r_bufid);
 
 #endif
-   
+
 #if !defined(COMPILE_IN_TM) || !defined(COMPILE_IN_CP)
-       
+
    s_bufid = init_send(DataInPlace);
    send_msg(cp->master, REQUEST_FOR_CP_DATA);
    freebuf(s_bufid);
-   
+
    receive_cp_data_u(cp);
-   
+
 #endif
 
    if (cp->par.warm_start == READ_CP_LIST){
@@ -94,7 +94,7 @@ void cp_initialize(cut_pool *cp, int master_tid)
       cp->allocated_cut_num = cp->par.block_size;
    }
 }
-  
+
 /*===========================================================================*/
 
 int unsigned_memcmp(char *coef0, char *coef1, int size)
@@ -170,15 +170,15 @@ int delete_ineffective_cuts(cut_pool *cp)
 
    if (min_to_delete > cp->cut_num)
       min_to_delete = (int)(0.2*cp->cut_num);
-   
+
    switch (cp->par.delete_which){
 
     case DELETE_BY_QUALITY:
-   
+
       order_cuts_by_quality(cp);
-      
+
       cuts_to_leave = MIN(cp->par.cuts_to_check, cp->cut_num-min_to_delete);
-      
+
       for (cp_cut1 = cuts + cuts_to_leave, num = cuts_to_leave;
 	   num < cp->cut_num; cp_cut1++, num++){
 	 del_cuts++;
@@ -214,7 +214,7 @@ int delete_ineffective_cuts(cut_pool *cp)
       break;
 
    }
-   
+
    if (cp->par.verbosity > 5)
       printf("******* CUT_POOL : Deleted %i ineffective cuts leaving %i\n",
 	     del_cuts, cp->cut_num);
@@ -231,7 +231,7 @@ int delete_duplicate_cuts(cut_pool *cp)
    int del_cuts = 0;
    cp_cut_data **cp_cut1, **cp_cut2;
    int touches, level;
-   
+
    /* order the cuts according to the function "cutcmp" */
    qsort(cuts, cp->cut_num, sizeof(cp_cut_data *), cutcmp);
    /* go through and remove duplicates */
@@ -327,7 +327,7 @@ int read_cp_cut_list(cut_pool *cp, char *file)
    FILE *f;
    int i, j, tmp1 = 0, tmp2 = 0;
    char str[20];
-   
+
    if (!(f = fopen(file, "r"))){
       printf("\nError opening cut file\n\n");
       return(0);
@@ -356,7 +356,7 @@ int read_cp_cut_list(cut_pool *cp, char *file)
    fclose(f);
 
    return(1);
-}   
+}
 
 /*===========================================================================*/
 
@@ -365,7 +365,7 @@ int cp_read_tm_cut_list(cut_pool *cp, char *file)
    FILE *f;
    int i, j, tmp1 = 0, tmp2 = 0;
    char str[20];
-   
+
    if (!(f = fopen(file, "r"))){
       printf("\nError opening cut file\n\n");
       return(0);
@@ -382,7 +382,7 @@ int cp_read_tm_cut_list(cut_pool *cp, char *file)
 	     &tmp2, &cp->cuts[i]->cut.rhs, &cp->cuts[i]->cut.range);
       cp->cuts[i]->cut.type = (char)tmp1;
       cp->cuts[i]->cut.branch = (char)tmp2;
-      cp->cuts[i]->cut.coef = 
+      cp->cuts[i]->cut.coef =
 	(char *) malloc(cp->cuts[i]->cut.size*sizeof(char));
       cp->size += cp->cuts[i]->cut.size + (int) sizeof(cp_cut_data);
       for (j = 0; j < cp->cuts[i]->cut.size; j++){
@@ -394,7 +394,7 @@ int cp_read_tm_cut_list(cut_pool *cp, char *file)
    fclose(f);
 
    return(1);
-}   
+}
 
 /*===========================================================================*/
 
@@ -402,7 +402,7 @@ void cp_close(cut_pool *cp)
 {
 #ifndef COMPILE_IN_CP
    int s_bufid;
-      
+
    s_bufid = init_send(DataInPlace);
    send_dbl_array(&cp->cut_pool_time, 1);
    send_int_array(&cp->total_cut_num, 1);

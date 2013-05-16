@@ -19,7 +19,7 @@
 #endif
 #ifdef DENSE_CODE
 // using simple lapack interface
-extern "C" 
+extern "C"
 {
   /** LAPACK Fortran subroutine DGETRF. */
   void F77_FUNC(dgetrf,DGETRF)(ipfint * m, ipfint *n,
@@ -40,7 +40,7 @@ CoinDenseFactorization::CoinDenseFactorization (  )
   gutsOfInitialize();
 }
 
-/// Copy constructor 
+/// Copy constructor
 CoinDenseFactorization::CoinDenseFactorization ( const CoinDenseFactorization &other)
   : CoinOtherFactorization(other)
 {
@@ -48,8 +48,8 @@ CoinDenseFactorization::CoinDenseFactorization ( const CoinDenseFactorization &o
   gutsOfCopy(other);
 }
 // Clone
-CoinOtherFactorization * 
-CoinDenseFactorization::clone() const 
+CoinOtherFactorization *
+CoinDenseFactorization::clone() const
 {
   return new CoinDenseFactorization(*this);
 }
@@ -98,7 +98,7 @@ CoinDenseFactorization::~CoinDenseFactorization (  )
 }
 //  =
 CoinDenseFactorization & CoinDenseFactorization::operator = ( const CoinDenseFactorization & other ) {
-  if (this != &other) {    
+  if (this != &other) {
     gutsOfDestructor();
     gutsOfInitialize();
     gutsOfCopy(other);
@@ -168,14 +168,14 @@ CoinDenseFactorization::getAreas ( int numberOfRows,
   }
 }
 
-//  preProcess.  
+//  preProcess.
 void
 CoinDenseFactorization::preProcess ()
 {
   // could do better than this but this only a demo
   CoinBigIndex put = numberRows_*numberRows_;
   int *indexRow = reinterpret_cast<int *> (elements_+put);
-  CoinBigIndex * starts = reinterpret_cast<CoinBigIndex *> (pivotRow_); 
+  CoinBigIndex * starts = reinterpret_cast<CoinBigIndex *> (pivotRow_);
   put = numberRows_*numberColumns_;
   for (int i=numberColumns_-1;i>=0;i--) {
     put -= numberRows_;
@@ -291,13 +291,13 @@ CoinDenseFactorization::factor ( )
   return status_;
 }
 // Makes a non-singular basis by replacing variables
-void 
+void
 CoinDenseFactorization::makeNonSingular(int * sequence, int numberColumns)
 {
   // Replace bad ones by correct slack
   int * workArea = reinterpret_cast<int *> (workArea_);
   int i;
-  for ( i=0;i<numberRows_;i++) 
+  for ( i=0;i<numberRows_;i++)
     workArea[i]=-1;
   for ( i=0;i<numberGoodU_;i++) {
     int iOriginal = pivotRow_[i+numberRows_];
@@ -325,7 +325,7 @@ CoinDenseFactorization::makeNonSingular(int * sequence, int numberColumns)
 }
 #define DENSE_PERMUTE
 // Does post processing on valid factorization - putting variables on correct rows
-void 
+void
 CoinDenseFactorization::postProcess(const int * sequence, int * pivotVariable)
 {
 #ifdef DENSE_CODE
@@ -361,7 +361,7 @@ CoinDenseFactorization::postProcess(const int * sequence, int * pivotVariable)
    speed considerations.  You could just do this on first iteration
    after factorization and thereafter re-factorize
    partial update already in U */
-int 
+int
 CoinDenseFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
 					int pivotRow,
 					double pivotCheck ,
@@ -432,7 +432,7 @@ CoinDenseFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
 }
 /* This version has same effect as above with FTUpdate==false
    so number returned is always >=0 */
-int 
+int
 CoinDenseFactorization::updateColumn ( CoinIndexedVector * regionSparse,
 				       CoinIndexedVector * regionSparse2,
 				       bool noPermute) const
@@ -620,7 +620,7 @@ CoinDenseFactorization::updateColumn ( CoinIndexedVector * regionSparse,
 }
 
 
-int 
+int
 CoinDenseFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 					  CoinIndexedVector * regionSparse2,
 					  CoinIndexedVector * regionSparse3,
@@ -759,10 +759,10 @@ CoinDenseFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 }
 
 /* Updates one column (BTRAN) from regionSparse2
-   regionSparse starts as zero and is zero at end 
+   regionSparse starts as zero and is zero at end
    Note - if regionSparse2 packed on input - will be packed on output
 */
-int 
+int
 CoinDenseFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
 						CoinIndexedVector * regionSparse2) const
 {
@@ -933,7 +933,7 @@ CoinOtherFactorization::CoinOtherFactorization (  )
       solveMode_(0)
 {
 }
-// Copy constructor 
+// Copy constructor
 CoinOtherFactorization::CoinOtherFactorization ( const CoinOtherFactorization &other)
    :  pivotTolerance_(other.pivotTolerance_),
   zeroTolerance_(other.zeroTolerance_),
@@ -958,7 +958,7 @@ CoinOtherFactorization::~CoinOtherFactorization (  )
 // = copy
 CoinOtherFactorization & CoinOtherFactorization::operator = ( const CoinOtherFactorization & other )
 {
-  if (this != &other) {    
+  if (this != &other) {
     pivotTolerance_ = other.pivotTolerance_;
     zeroTolerance_ = other.zeroTolerance_;
 #ifndef COIN_FAST_CODE
@@ -998,7 +998,7 @@ void CoinOtherFactorization::slackValue (  double value )
   }
 }
 #endif
-void 
+void
 CoinOtherFactorization::maximumPivots (  int value )
 {
   if (value>maximumPivots_) {
@@ -1008,35 +1008,35 @@ CoinOtherFactorization::maximumPivots (  int value )
   maximumPivots_ = value;
 }
 // Number of entries in each row
-int * 
+int *
 CoinOtherFactorization::numberInRow() const
 { return reinterpret_cast<int *> (workArea_);}
 // Number of entries in each column
-int * 
+int *
 CoinOtherFactorization::numberInColumn() const
 { return (reinterpret_cast<int *> (workArea_))+numberRows_;}
 // Returns array to put basis starts in
-CoinBigIndex * 
+CoinBigIndex *
 CoinOtherFactorization::starts() const
 { return reinterpret_cast<CoinBigIndex *> (pivotRow_);}
 // Returns array to put basis elements in
-CoinFactorizationDouble * 
+CoinFactorizationDouble *
 CoinOtherFactorization::elements() const
 { return elements_;}
-// Returns pivot row 
-int * 
+// Returns pivot row
+int *
 CoinOtherFactorization::pivotRow() const
 { return pivotRow_;}
 // Returns work area
-CoinFactorizationDouble * 
+CoinFactorizationDouble *
 CoinOtherFactorization::workArea() const
 { return workArea_;}
 // Returns int work area
-int * 
+int *
 CoinOtherFactorization::intWorkArea() const
 { return reinterpret_cast<int *> (workArea_);}
 // Returns permute back
-int * 
+int *
 CoinOtherFactorization::permuteBack() const
 { return pivotRow_+numberRows_;}
 // Returns true if wants tableauColumn in replaceColumn
@@ -1047,6 +1047,6 @@ CoinOtherFactorization::wantsTableauColumn() const
    0 - iteration number
    whereFrom is 0 for factorize and 1 for replaceColumn
 */
-void 
+void
 CoinOtherFactorization::setUsefulInformation(const int * ,int )
 { }

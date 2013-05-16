@@ -73,15 +73,15 @@ int sym_gcd(int i1, int i2)
    if (i1==0 && i2==0) {
       return 0;
    }
-   
+
    if (i1<0) {
       i1 = -1*i1;
    }
-   
+
    if (i2<0) {
       i2 = -1*i2;
    }
-   
+
    if (i1==0) {
       return i2;
    }

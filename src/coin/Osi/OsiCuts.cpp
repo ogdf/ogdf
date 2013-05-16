@@ -13,7 +13,7 @@
 #include "OsiCuts.hpp"
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiCuts::OsiCuts ()
 :
@@ -24,19 +24,19 @@ colCutPtrs_()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiCuts::OsiCuts (const OsiCuts & source)
 :
 rowCutPtrs_(),
-colCutPtrs_()     
-{  
+colCutPtrs_()
+{
   gutsOfCopy( source );
 }
 
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiCuts::~OsiCuts ()
 {
@@ -44,7 +44,7 @@ OsiCuts::~OsiCuts ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiCuts &
 OsiCuts::operator=(const OsiCuts& rhs)
@@ -76,21 +76,21 @@ void OsiCuts::gutsOfCopy(const OsiCuts& source)
 void OsiCuts::gutsOfDestructor()
 {
   int i;
-  
+
   int ne = static_cast<int>(rowCutPtrs_.size());
   for (i=0; i<ne; i++) {
     if (rowCutPtrs_[i]->globallyValidAsInteger()!=2)
       delete rowCutPtrs_[i];
   }
   rowCutPtrs_.clear();
-  
+
   ne = static_cast<int>(colCutPtrs_.size());
   for (i=0; i<ne; i++) {
     if (colCutPtrs_[i]->globallyValidAsInteger()!=2)
       delete colCutPtrs_[i];
   }
   colCutPtrs_.clear();
-  
+
   assert( sizeRowCuts()==0 );
   assert( sizeColCuts()==0 );
   assert( sizeCuts()   ==0 );
@@ -103,7 +103,7 @@ void OsiCuts::gutsOfDestructor()
 //
 //------------------------------------------------------------
 OsiCuts::iterator::iterator(OsiCuts& cuts)
-: 
+:
 cuts_(cuts),
 rowCutIndex_(-1),
 colCutIndex_(-1),
@@ -113,7 +113,7 @@ cutP_(NULL)
 }
 
 OsiCuts::iterator::iterator(const OsiCuts::iterator &src)
-: 
+:
 cuts_(src.cuts_),
 rowCutIndex_(src.rowCutIndex_),
 colCutIndex_(src.colCutIndex_),
@@ -164,7 +164,7 @@ OsiCuts::iterator OsiCuts::iterator::operator++() {
     // Only update cutP if there is a column cut.
     // This is necessary for the iterator to work for
     // OsiCuts that don't have any cuts.
-    if ( cuts_.sizeColCuts() > 0 && colCutIndex_<cuts_.sizeColCuts() ) 
+    if ( cuts_.sizeColCuts() > 0 && colCutIndex_<cuts_.sizeColCuts() )
       cutP_= cuts_.colCutPtr(colCutIndex_);
   }
 
@@ -172,7 +172,7 @@ OsiCuts::iterator OsiCuts::iterator::operator++() {
   else if ( (colCutIndex_+1)>=cuts_.sizeColCuts() ) {
     // Only row cuts left
     rowCutIndex_++;
-    if ( rowCutIndex_<cuts_.sizeRowCuts() ) 
+    if ( rowCutIndex_<cuts_.sizeRowCuts() )
       cutP_= cuts_.rowCutPtr(rowCutIndex_);
   }
 
@@ -198,7 +198,7 @@ OsiCuts::iterator OsiCuts::iterator::operator++() {
 //
 //------------------------------------------------------------
 OsiCuts::const_iterator::const_iterator(const OsiCuts& cuts)
-: 
+:
 cutsPtr_(&cuts),
 rowCutIndex_(-1),
 colCutIndex_(-1),
@@ -208,7 +208,7 @@ cutP_(NULL)
 }
 
 OsiCuts::const_iterator::const_iterator(const OsiCuts::const_iterator &src)
-: 
+:
 cutsPtr_(src.cutsPtr_),
 rowCutIndex_(src.rowCutIndex_),
 colCutIndex_(src.colCutIndex_),
@@ -251,7 +251,7 @@ OsiCuts::const_iterator OsiCuts::const_iterator::end()
 }
 
 
-OsiCuts::const_iterator OsiCuts::const_iterator::operator++() { 
+OsiCuts::const_iterator OsiCuts::const_iterator::operator++() {
   cutP_ = NULL;
 
   // Are there any more row cuts to consider?
@@ -261,7 +261,7 @@ OsiCuts::const_iterator OsiCuts::const_iterator::operator++() {
     // Only update cutP if there is a column cut.
     // This is necessary for the iterator to work for
     // OsiCuts that don't have any cuts.
-    if ( cutsPtr_->sizeRowCuts() > 0 && colCutIndex_<cutsPtr_->sizeColCuts() ) 
+    if ( cutsPtr_->sizeRowCuts() > 0 && colCutIndex_<cutsPtr_->sizeColCuts() )
       cutP_= cutsPtr_->colCutPtr(colCutIndex_);
   }
 
@@ -269,7 +269,7 @@ OsiCuts::const_iterator OsiCuts::const_iterator::operator++() {
   else if ( (colCutIndex_+1)>=cutsPtr_->sizeColCuts() ) {
     // Only row cuts left
     rowCutIndex_++;
-    if ( rowCutIndex_<cutsPtr_->sizeRowCuts() ) 
+    if ( rowCutIndex_<cutsPtr_->sizeRowCuts() )
       cutP_= cutsPtr_->rowCutPtr(rowCutIndex_);
   }
 
@@ -290,7 +290,7 @@ OsiCuts::const_iterator OsiCuts::const_iterator::operator++() {
 }
 
 /* Insert a row cut unless it is a duplicate (CoinAbsFltEq)*/
-void 
+void
 OsiCuts::insertIfNotDuplicate( OsiRowCut & rc , CoinAbsFltEq treatAsSame)
 {
   double newLb = rc.lb();
@@ -335,7 +335,7 @@ OsiCuts::insertIfNotDuplicate( OsiRowCut & rc , CoinAbsFltEq treatAsSame)
 }
 
 /* Insert a row cut unless it is a duplicate (CoinRelFltEq)*/
-void 
+void
 OsiCuts::insertIfNotDuplicate( OsiRowCut & rc , CoinRelFltEq treatAsSame)
 {
   double newLb = rc.lb();

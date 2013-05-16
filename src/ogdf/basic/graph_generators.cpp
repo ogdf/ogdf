@@ -1,9 +1,9 @@
 /*
- * $Revision: 3442 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-04-23 18:10:15 +0200 (Di, 23. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -659,27 +659,27 @@ void upwardPlanarBiconnectedDiGraph(Graph &G, int n, int m)
 void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
 {
 	OGDF_ASSERT(p >= 0 && p < 1.0);
-	
+
 	GraphAttributes GA(G, GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
-	
+
 	planarBiconnectedGraph(G,n,m,multiEdges);
 
 	SchnyderLayout sl;
 	sl.call(GA);
-	
+
 	edge e;
 	forall_edges(e,G) {
-		
+
 		node u = e->source();
 		node v = e->target();
-		
+
 		bool x = GA.x(u) >  GA.x(v);
 		bool y = GA.x(u) == GA.x(v) && GA.y(u) > GA.y(v);
-		
+
 		if (x || y) G.reverseEdge(e);
 
 	}
-	
+
 	const int MAX_ERR = (int)(G.numberOfEdges() * (1/(1-p)));
 	List<edge> backedges;
 	int it_dag = 0;
@@ -695,7 +695,7 @@ void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
 				G.reverseEdge(e);
 			}
 	}
-	
+
 }
 
 void planarCNBGraph(Graph &G, int n, int m,	int b)
@@ -1134,18 +1134,21 @@ void completeBipartiteGraph(Graph &G, int n, int m)
 void wheelGraph(Graph &G, int n)
 {
 	G.clear();
-	if(n <= 2) return;
+	if (n <= 2) return;
 
 	node center = G.newNode();
 
-	node n0,n1=0,n2;
-	for(; n-->0;) {
-		G.newEdge(center, n2 = G.newNode());
-		if(n1) G.newEdge(n1,n2);
-		else n0 = n2;
+	node n0, n1 = NULL;
+	while (n--) {
+		node n2 = G.newNode();
+		G.newEdge(center, n2);
+		if (n1)
+			G.newEdge(n1, n2);
+		else
+			n0 = n2;
 		n1 = n2;
 	}
-	G.newEdge(n1,n0);
+	G.newEdge(n1, n0);
 }
 
 void suspension(Graph &G, int n)
@@ -1155,10 +1158,10 @@ void suspension(Graph &G, int n)
 
 	List<node> nds;
 	G.allNodes(nds);
-	for(; n-->0;) {
+	while (n--) {
 		node n0 = G.newNode();
 		forall_listiterators(node, it, nds)
-			G.newEdge(n0,*it);
+			G.newEdge(n0, *it);
 	}
 }
 
@@ -1256,7 +1259,7 @@ void randomDiGraph(Graph &G, int n, double p) {
 void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt) {
 
 	OGDF_ASSERT(edges>=0 && p<=1 && p>=0 && flt<1 && flt>=0);
-	
+
 	NodeArray<node> sT(G);
 	List<node> stList;
 	for(int i=0;i<edges;i++) {
@@ -1300,12 +1303,12 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt) {
 				node t_new = G.contract(f);
 				sT[s_new] = t_new;
 				stList.del(it_1);
-				stList.del(it_2);			
+				stList.del(it_2);
 				stList.pushBack(s_new);
 			}
 	}
 	makeSimple(G);
-	
+
 	const int MAX_ERR = (int)(G.numberOfEdges() * (1/(1-flt)));
 	List<edge> backedges;
 	int it_dag = 0;

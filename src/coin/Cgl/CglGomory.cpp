@@ -43,7 +43,7 @@ int gomory_try=CGL_DEBUG_GOMORY;
 #endif
 //-------------------------------------------------------------------
 // Generate Gomory cuts
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void CglGomory::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 			     const CglTreeInfo info) const
 {
@@ -51,8 +51,8 @@ void CglGomory::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   gomory_try++;
 #endif
   // Get basic problem information
-  int numberColumns=si.getNumCols(); 
-  
+  int numberColumns=si.getNumCols();
+
   // get integer variables and basis
   char * intVar = new char[numberColumns];
   int i;
@@ -120,7 +120,7 @@ void CglGomory::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
       const CoinPackedMatrix * rowCopy = si.getMatrixByRow();
       const int * column = rowCopy->getIndices();
       const CoinBigIndex * rowStart = rowCopy->getVectorStarts();
-      const int * rowLength = rowCopy->getVectorLengths(); 
+      const int * rowLength = rowCopy->getVectorLengths();
       const double * rowElements = rowCopy->getElements();
       const double * rowLower = si.getRowLower();
       const double * rowUpper = si.getRowUpper();
@@ -241,10 +241,10 @@ void CglGomory::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   int numberRowCutsBefore = cs.sizeRowCuts();
 
   if (warmstart)
-    generateCuts(debugger, cs, *useSolver->getMatrixByCol(), 
+    generateCuts(debugger, cs, *useSolver->getMatrixByCol(),
 		 *useSolver->getMatrixByRow(),
 		 useSolver->getColSolution(),
-		 useSolver->getColLower(), useSolver->getColUpper(), 
+		 useSolver->getColLower(), useSolver->getColUpper(),
 		 useSolver->getRowLower(), useSolver->getRowUpper(),
 		 intVar,warm,info);
 #ifdef COIN_HAS_CLP_GOMORY
@@ -323,10 +323,10 @@ inline double above_integer(double value) {
   return value-value2;
 }
 //-------------------------------------------------------------------
-// Returns the greatest common denominator of two 
-// positive integers, a and b, found using Euclid's algorithm 
+// Returns the greatest common denominator of two
+// positive integers, a and b, found using Euclid's algorithm
 //-------------------------------------------------------------------
-static int gcd(int a, int b) 
+static int gcd(int a, int b)
 {
   int remainder = -1;
 #if CGL_DEBUG>1
@@ -375,7 +375,7 @@ typedef struct {
   int numerator;
   int denominator;
 } Rational;
-inline Rational nearestRational(double value, int maxDenominator) 
+inline Rational nearestRational(double value, int maxDenominator)
 {
   Rational tryThis;
   Rational tryA;
@@ -434,11 +434,11 @@ inline Rational nearestRational(double value, int maxDenominator)
 }
 // Does actual work - returns number of cuts
 int
-CglGomory::generateCuts( 
+CglGomory::generateCuts(
 #ifdef CGL_DEBUG
-			const OsiRowCutDebugger * debugger, 
+			const OsiRowCutDebugger * debugger,
 #else
-			const OsiRowCutDebugger * , 
+			const OsiRowCutDebugger * ,
 #endif
                          OsiCuts & cs,
                          const CoinPackedMatrix & columnCopy,
@@ -456,7 +456,7 @@ CglGomory::generateCuts(
   // get what to look at
   double away = info.inTree ? away_ : CoinMin(away_,awayAtRoot_);
   int numberRows=columnCopy.getNumRows();
-  int numberColumns=columnCopy.getNumCols(); 
+  int numberColumns=columnCopy.getNumCols();
   int numberElements=columnCopy.getNumElements();
   // Allow bigger length on initial matrix (if special setting)
   //if (limit==512&&!info.inTree&&!info.pass)
@@ -511,7 +511,7 @@ CglGomory::generateCuts(
       if (status==-99) areaFactor *= 2.0;
     }
 #endif
-  } 
+  }
   if (status) {
 #ifdef COIN_DEVELOP
     std::cout<<"Bad factorization of basis - status "<<status<<std::endl;
@@ -521,7 +521,7 @@ CglGomory::generateCuts(
     return -1;
   }
   // End of creation of factorization (A) ====
-  
+
 #ifdef CLP_OSL
   double relaxation = !alternateFactorization_ ? factorization.conditionNumber() :
     factorization2->conditionNumber();
@@ -538,11 +538,11 @@ CglGomory::generateCuts(
 
   const int * column = rowCopy.getIndices();
   const CoinBigIndex * rowStart = rowCopy.getVectorStarts();
-  const int * rowLength = rowCopy.getVectorLengths(); 
+  const int * rowLength = rowCopy.getVectorLengths();
   const double * rowElements = rowCopy.getElements();
   const int * row = columnCopy.getIndices();
   const CoinBigIndex * columnStart = columnCopy.getVectorStarts();
-  const int * columnLength = columnCopy.getVectorLengths(); 
+  const int * columnLength = columnCopy.getVectorLengths();
   const double * columnElements = columnCopy.getElements();
 
   // we need to do book-keeping for variables at ub
@@ -642,14 +642,14 @@ CglGomory::generateCuts(
   CoinIndexedVector cutVector;
   cutVector.reserve(numberColumns+1);
   int * cutIndex = cutVector.getIndices();
-  double * cutElement = cutVector.denseVector(); 
+  double * cutElement = cutVector.denseVector();
   // and for packed form (as not necessarily in order)
   // also space for sort
   bool doSorted = (infoOptions&256)!=0;
   int lengthArray = static_cast<int>(numberColumns+1+((numberColumns+1)*sizeof(int))/sizeof(double));
   if (doSorted)
     lengthArray+=numberColumns;
-  double * packed = new double[lengthArray]; 
+  double * packed = new double[lengthArray];
   double * sort = packed+numberColumns+1;
   int * which = reinterpret_cast<int *>(doSorted ? (sort+numberColumns): (sort));
   double tolerance1=1.0e-6;
@@ -663,8 +663,8 @@ CglGomory::generateCuts(
 #else
 #if MORE_GOMORY_CUTS==2||MORE_GOMORY_CUTS==3
   int saveLimit;
-#endif  
-#endif  
+#endif
+#endif
   // get limit on length of cut
   int limit = 0;
   if (!limit_)
@@ -690,12 +690,12 @@ CglGomory::generateCuts(
       } else {
 	limit=numberColumns;
 	numberTimesStalled_++;
-      } 
+      }
     }
   } else {
     limit = limit_;
     if (!limit) {
-      if (!info.pass) 
+      if (!info.pass)
 	limit = dynamicLimitInTree_;
       else
 	limit=50;
@@ -705,7 +705,7 @@ CglGomory::generateCuts(
   if (limit>=numberColumns)
     limit += numberRows;
 #ifdef CLP_INVESTIGATE2
-  if (limit>saveLimit&&!info.inTree&&(infoOptions&512)==0) 
+  if (limit>saveLimit&&!info.inTree&&(infoOptions&512)==0)
     printf("Gomory limit changed from %d to %d, inTree %c, pass %d, r %d,c %d,e %d\n",
 	   saveLimit,limit,info.inTree ? 'Y' : 'N',info.pass,
 	   numberRows,numberColumns,numberElements);
@@ -848,7 +848,7 @@ CglGomory::generateCuts(
 	  largestFactor = CoinMax(largestFactor,fabs(value));
 	}
 	//reducedValue=colsol[iColumn];
-	// coding from pg 130 of Wolsey 
+	// coding from pg 130 of Wolsey
 	// adjustment to rhs
 	double rhs=0.0;
 	int number=0;
@@ -904,7 +904,7 @@ CglGomory::generateCuts(
 		coefficient = above_integer(value);
 		if (coefficient > reducedValue) {
 		  coefficient = ratio * (1.0-coefficient);
-		} 
+		}
 	      } else {
 		// continuous
 		numberNonInteger++;
@@ -926,7 +926,7 @@ CglGomory::generateCuts(
 		cutElement[j] = coefficient;
 		cutIndex[number++]=j;
 		// If too many - break from loop
-		if (number>limit) 
+		if (number>limit)
 		  break;
 	      }
 	    }
@@ -965,7 +965,7 @@ CglGomory::generateCuts(
 	      coefficient = above_integer(value);
 	      if (coefficient > reducedValue) {
 		coefficient = ratio * (1.0-coefficient);
-	      } 
+	      }
 	    } else {
 	      numberNonInteger++;
 	      // continuous
@@ -1030,7 +1030,7 @@ CglGomory::generateCuts(
               sum+=value*colsol[jColumn];
               packed[number]=value;
               cutIndex[number++]=jColumn;
-            } 
+            }
           }
 	}
 	// Final test on number
@@ -1052,9 +1052,9 @@ CglGomory::generateCuts(
 #if MORE_GOMORY_CUTS==1||MORE_GOMORY_CUTS==3
 	double difference2=fabs((sum-rhs)-violation2);
 #if MORE_GOMORY_CUTS==1
-	if (difference2<useTolerance&&doSorted) 
+	if (difference2<useTolerance&&doSorted)
 #else
-	if (difference2<useTolerance&&doSorted&&number<saveLimit) 
+	if (difference2<useTolerance&&doSorted&&number<saveLimit)
 #endif
 	  accurate2=true;
 #endif
@@ -1085,7 +1085,7 @@ CglGomory::generateCuts(
 	    packed[number]=rhs;
 	    int numberNonSmall=0;
 	    int lcm = 1;
-	    
+
 	    for (j=0;j<number+1;j++) {
 	      double value=above_integer(fabs(packed[j]));
 	      if (fabs(value)<tolerance3) {
@@ -1094,7 +1094,7 @@ CglGomory::generateCuts(
 	      } else {
 		numberNonSmall++;
 	      }
-	      
+
 	      cleaned[j]=nearestRational(value,100000);
 	      if (cleaned[j].denominator<0) {
 		// bad rational
@@ -1108,11 +1108,11 @@ CglGomory::generateCuts(
 	    }
 	    if (lcm>0&&numberNonSmall) {
 	      double multiplier = lcm;
-	      int nOverflow = 0; 
+	      int nOverflow = 0;
 	      for (j=0; j<number+1;j++) {
 		double value = fabs(packed[j]);
 		double dxInt = value*multiplier;
-		xInt[j]= static_cast<int> (dxInt+0.5); 
+		xInt[j]= static_cast<int> (dxInt+0.5);
 #if CGL_DEBUG>1
 		printf("%g => %g   \n",value,dxInt);
 #endif
@@ -1121,14 +1121,14 @@ CglGomory::generateCuts(
 		  break;
 		}
 	      }
-	      
+
 	      if (nOverflow){
 #ifdef CGL_DEBUG
 		printf("Gomory Scaling: Warning: Overflow detected \n");
 #endif
 		numberNonInteger=-1;
 	      } else {
-		
+
 		// find greatest common divisor of the elements
 		j=0;
 		while (!xInt[j])
@@ -1154,13 +1154,13 @@ CglGomory::generateCuts(
 		    printf("Fix this test 456 - just skip\n");
 		    abort();
 		  }
-		} 
-#endif		  
-#if CGL_DEBUG>1
-		printf("The gcd of xInt is %i\n",thisGcd);    
+		}
 #endif
-		
-		// construct new cut by dividing through by gcd and 
+#if CGL_DEBUG>1
+		printf("The gcd of xInt is %i\n",thisGcd);
+#endif
+
+		// construct new cut by dividing through by gcd and
 		double minMultiplier=1.0e100;
 		double maxMultiplier=0.0;
 		for (j=0; j<number+1;j++) {
@@ -1212,7 +1212,7 @@ CglGomory::generateCuts(
 		int iColumn = cutIndex[i];
 		if (colUpper[iColumn]-colLower[iColumn]<LARGE_BOUND) {
 		  // weaken cut
-		  if (packed[i]>0.0) 
+		  if (packed[i]>0.0)
 		    rhs -= value*colLower[iColumn];
 		  else
 		    rhs += value*colUpper[iColumn];
@@ -1271,7 +1271,7 @@ CglGomory::generateCuts(
 	      OsiRowCut rc;
 	      rc.setRow(number,cutIndex,packed,false);
 	      rc.setLb(bounds[0]);
-	      rc.setUb(bounds[1]);   
+	      rc.setUb(bounds[1]);
 #if MORE_GOMORY_CUTS<2
 	      nTotalEls -= number;
 	      cs.insert(rc);
@@ -1291,7 +1291,7 @@ CglGomory::generateCuts(
 	      OsiRowCut rc;
 	      rc.setRow(number,cutIndex,packed,false);
 	      rc.setLb(bounds[0]);
-	      rc.setUb(bounds[1]);   
+	      rc.setUb(bounds[1]);
 	      secondaryCuts.insert(rc);
 #endif
 	    }
@@ -1308,7 +1308,7 @@ CglGomory::generateCuts(
 #ifdef CGL_DEBUG
 	  std::cout<<"first violation "<<violation<<" now "
 		   <<sum-rhs<<" why?, rhs= "<<rhs<<std::endl;
-	  
+
 	  for (j=0;j<number;j++) {
 	    int jColumn =cutIndex[j];
 	    double value=packed[j];
@@ -1364,7 +1364,7 @@ CglGomory::generateCuts(
   int numberInaccurate = secondaryCuts.sizeRowCuts();
 #ifdef CLP_INVESTIGATE2
   int numberOrdinary = numberAdded-numberInaccurate;
-  if (!info.inTree&&(infoOptions&512)==0) 
+  if (!info.inTree&&(infoOptions&512)==0)
     printf("Gomory has %d ordinary and %d less accurate cuts(%d els)\n",
 	   numberOrdinary,numberInaccurate,saveTotalEls-nTotalEls);
 #endif
@@ -1372,7 +1372,7 @@ CglGomory::generateCuts(
   int numberLong = longCuts.sizeRowCuts();
 #ifdef CLP_INVESTIGATE2
   int numberOrdinary = numberAdded-numberLong;
-  if (!info.inTree&&(infoOptions&512)==0) 
+  if (!info.inTree&&(infoOptions&512)==0)
     printf("Gomory has %d ordinary and %d long cuts(%d els)\n",
 	   numberOrdinary,numberLong,saveTotalEls-nTotalEls);
 #endif
@@ -1381,7 +1381,7 @@ CglGomory::generateCuts(
   int numberInaccurate = secondaryCuts.sizeRowCuts();
 #ifdef CLP_INVESTIGATE2
   int numberOrdinary = numberAdded-numberLong-numberInaccurate;
-  if (!info.inTree&&(infoOptions&512)==0) 
+  if (!info.inTree&&(infoOptions&512)==0)
     printf("Gomory has %d ordinary, %d long and %d less accurate cuts(%d els)\n",
 	   numberOrdinary,numberLong,numberInaccurate,saveTotalEls-nTotalEls);
 #endif
@@ -1416,7 +1416,7 @@ CglGomory::generateCuts(
   }
 #else
 #ifdef CLP_INVESTIGATE2
-  if (!info.inTree&&(infoOptions&512)==0) 
+  if (!info.inTree&&(infoOptions&512)==0)
     printf("Gomory added %d cuts(%d els)\n",numberAdded,saveTotalEls-nTotalEls);
 #endif
 #endif
@@ -1426,7 +1426,7 @@ CglGomory::generateCuts(
 void CglGomory::setLimit(int limit)
 {
   if (limit>=0)
-    limit_=limit; 
+    limit_=limit;
 }
 int CglGomory::getLimit() const
 {
@@ -1443,7 +1443,7 @@ int CglGomory::getLimitAtRoot() const
   return limitAtRoot_;
 }
 // Return maximum length of cut in tree
-int 
+int
 CglGomory::maximumLengthOfCutInTree() const
 {
   if (limit_)
@@ -1497,7 +1497,7 @@ double CglGomory::getLargestFactorMultiplier() const
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglGomory::CglGomory ()
 :
@@ -1517,7 +1517,7 @@ gomoryType_(0)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglGomory::CglGomory (const CglGomory & source) :
   CglCutGenerator(source),
@@ -1531,7 +1531,7 @@ CglGomory::CglGomory (const CglGomory & source) :
   dynamicLimitInTree_(source.dynamicLimitInTree_),
   alternateFactorization_(source.alternateFactorization_),
   gomoryType_(source.gomoryType_)
-{ 
+{
   if (source.originalSolver_)
     originalSolver_ = source.originalSolver_->clone();
 }
@@ -1546,7 +1546,7 @@ CglGomory::clone() const
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglGomory::~CglGomory ()
 {
@@ -1554,7 +1554,7 @@ CglGomory::~CglGomory ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglGomory &
 CglGomory::operator=(const CglGomory& rhs)
@@ -1568,7 +1568,7 @@ CglGomory::operator=(const CglGomory& rhs)
     limit_=rhs.limit_;
     limitAtRoot_=rhs.limitAtRoot_;
     dynamicLimitInTree_ = rhs.dynamicLimitInTree_;
-    alternateFactorization_=rhs.alternateFactorization_; 
+    alternateFactorization_=rhs.alternateFactorization_;
     gomoryType_ = rhs.gomoryType_;
     delete originalSolver_;
     if (rhs.originalSolver_)
@@ -1579,7 +1579,7 @@ CglGomory::operator=(const CglGomory& rhs)
   return *this;
 }
 // Pass in a copy of original solver (clone it)
-void 
+void
 CglGomory::passInOriginalSolver(OsiSolverInterface * solver)
 {
   delete originalSolver_;
@@ -1593,14 +1593,14 @@ CglGomory::passInOriginalSolver(OsiSolverInterface * solver)
   }
 }
 // Returns true if needs optimal basis to do cuts
-bool 
+bool
 CglGomory::needsOptimalBasis() const
 {
   return true;
 }
 // Does actual work - returns number of cuts
 int
-CglGomory::generateCuts( const OsiRowCutDebugger * debugger, 
+CglGomory::generateCuts( const OsiRowCutDebugger * debugger,
                          OsiCuts & cs,
                          const CoinPackedMatrix & columnCopy,
                          const double * colsol,
@@ -1618,7 +1618,7 @@ CglGomory::generateCuts( const OsiRowCutDebugger * debugger,
 }
 // Create C++ lines to get to current state
 std::string
-CglGomory::generateCpp( FILE * fp) 
+CglGomory::generateCpp( FILE * fp)
 {
   CglGomory other;
   fprintf(fp,"0#include \"CglGomory.hpp\"\n");

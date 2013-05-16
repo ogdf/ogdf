@@ -23,20 +23,20 @@
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiSolverBranch::OsiSolverBranch () :
-  indices_(NULL), 
+  indices_(NULL),
   bound_(NULL)
 {
   memset(start_,0,sizeof(start_));
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-OsiSolverBranch::OsiSolverBranch (const OsiSolverBranch & rhs) 
-{  
+OsiSolverBranch::OsiSolverBranch (const OsiSolverBranch & rhs)
+{
   memcpy(start_,rhs.start_,sizeof(start_));
   int size = start_[4];
   if (size) {
@@ -49,7 +49,7 @@ OsiSolverBranch::OsiSolverBranch (const OsiSolverBranch & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiSolverBranch::~OsiSolverBranch ()
 {
@@ -58,7 +58,7 @@ OsiSolverBranch::~OsiSolverBranch ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiSolverBranch &
 OsiSolverBranch::operator=(const OsiSolverBranch& rhs)
@@ -102,11 +102,11 @@ OsiSolverBranch::addBranch(int iColumn, double value)
   assert (bound_[0]!=bound_[1]);
 }
 //-----------------------------------------------------------------------------
-// Add bounds - way =-1 is first , +1 is second 
+// Add bounds - way =-1 is first , +1 is second
 //-----------------------------------------------------------------------------
 
 void
-OsiSolverBranch::addBranch(int way,int numberTighterLower, const int * whichLower, 
+OsiSolverBranch::addBranch(int way,int numberTighterLower, const int * whichLower,
                            const double * newLower,
                            int numberTighterUpper, const int * whichUpper, const double * newUpper)
 {
@@ -145,11 +145,11 @@ OsiSolverBranch::addBranch(int way,int numberTighterLower, const int * whichLowe
   }
 }
 //-----------------------------------------------------------------------------
-// Add bounds - way =-1 is first , +1 is second 
+// Add bounds - way =-1 is first , +1 is second
 //-----------------------------------------------------------------------------
 
 void
-OsiSolverBranch::addBranch(int way,int numberColumns, const double * oldLower, 
+OsiSolverBranch::addBranch(int way,int numberColumns, const double * oldLower,
                            const double * newLower2,
                            const double * oldUpper, const double * newUpper2)
 {
@@ -212,7 +212,7 @@ OsiSolverBranch::addBranch(int way,int numberColumns, const double * oldLower,
   delete [] newUpper;
 }
 // Apply bounds
-void 
+void
 OsiSolverBranch::applyBounds(OsiSolverInterface & solver,int way) const
 {
   int base = way+1;
@@ -247,7 +247,7 @@ OsiSolverBranch::applyBounds(OsiSolverInterface & solver,int way) const
   }
 }
 // Returns true if current solution satsifies one side of branch
-bool 
+bool
 OsiSolverBranch::feasibleOneWay(const OsiSolverInterface & solver) const
 {
   bool feasible = false;
@@ -296,11 +296,11 @@ OsiSolverBranch::feasibleOneWay(const OsiSolverInterface & solver) const
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiSolverResult::OsiSolverResult () :
   objectiveValue_(COIN_DBL_MAX),
-  primalSolution_(NULL), 
+  primalSolution_(NULL),
   dualSolution_(NULL)
  {
 }
@@ -311,7 +311,7 @@ OsiSolverResult::OsiSolverResult () :
 OsiSolverResult::OsiSolverResult (const OsiSolverInterface & solver,const double * lowerBefore,
                                   const double * upperBefore) :
   objectiveValue_(COIN_DBL_MAX),
-  primalSolution_(NULL), 
+  primalSolution_(NULL),
   dualSolution_(NULL)
 {
   if (solver.isProvenOptimal()&&!solver.isDualObjectiveLimitReached()) {
@@ -332,10 +332,10 @@ OsiSolverResult::OsiSolverResult (const OsiSolverInterface & solver,const double
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-OsiSolverResult::OsiSolverResult (const OsiSolverResult & rhs) 
-{  
+OsiSolverResult::OsiSolverResult (const OsiSolverResult & rhs)
+{
   objectiveValue_ = rhs.objectiveValue_;
   basis_ = rhs.basis_;
   fixed_ = rhs.fixed_;
@@ -351,7 +351,7 @@ OsiSolverResult::OsiSolverResult (const OsiSolverResult & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiSolverResult::~OsiSolverResult ()
 {
@@ -360,7 +360,7 @@ OsiSolverResult::~OsiSolverResult ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiSolverResult &
 OsiSolverResult::operator=(const OsiSolverResult& rhs)
@@ -384,7 +384,7 @@ OsiSolverResult::operator=(const OsiSolverResult& rhs)
   return *this;
 }
 // Create result
-void 
+void
 OsiSolverResult::createResult(const OsiSolverInterface & solver, const double * lowerBefore,
                               const double * upperBefore)
 {
@@ -412,7 +412,7 @@ OsiSolverResult::createResult(const OsiSolverInterface & solver, const double * 
   }
 }
 // Restore result
-void 
+void
 OsiSolverResult::restoreResult(OsiSolverInterface & solver) const
 {
   //solver.setObjValue(objectiveValue_)*solver.getObjSense();

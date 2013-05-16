@@ -25,16 +25,16 @@
 #define ERROR__NUMERICAL_INSTABILITY   -103
 #define ERROR__ILLEGAL_BRANCHING       -104
 #define ERROR__COMM_ERROR              -105
-#define ERROR__DUAL_INFEASIBLE         -106  
+#define ERROR__DUAL_INFEASIBLE         -106
 /*---------------------------- type of the problem --------------------------*/
 #define ZERO_ONE_PROBLEM         0
 #define INTEGER_PROBLEM          1
 #define MIXED_INTEGER_PROBLEM    2
 
 /*---------------------------- input format ---------------------------------*/
-#define MPS_FORMAT               0 
-#define LP_FORMAT                1 
-#define GMPL_FORMAT              2 
+#define MPS_FORMAT               0
+#define LP_FORMAT                1
+#define GMPL_FORMAT              2
 
 /*--------------------------- modes of giving a list ------------------------*/
 #define WRT_PARENT               0
@@ -78,7 +78,7 @@
 #define NOT_PRUNED_HAS_CAN_SOLUTION    12
 
 /*------------------- possible node types for VBC Tool ----------------------*/
-#define VBC_INTERIOR_NODE       1 /*Dark Red*/ 
+#define VBC_INTERIOR_NODE       1 /*Dark Red*/
 #define VBC_PRUNED              2 /*Green*/
 #define VBC_ACTIVE_NODE         3 /*White*/
 #define VBC_CAND_NODE           4 /*Light Red*/
@@ -137,7 +137,7 @@
 #define MOVE_TO_LB               0
 #define MOVE_TO_UB               1
 
-#define LOWER_THAN_LB            0 
+#define LOWER_THAN_LB            0
 #define HIGHER_THAN_UB           1
 
 /*----------------------------- LP status -----------------------------------*/
@@ -197,7 +197,7 @@
 #define CGL_CHAIN_START             0
 #define CGL_CHAIN_CONTINUE          1
 #define CGL_CHAIN_CHECK             2
-#define CGL_CHAIN_PAUSE             3  
+#define CGL_CHAIN_PAUSE             3
 #define CGL_CHAIN_STOP              4
 
 /*---------------- what is the status of a particular constraint ------------*/
@@ -214,7 +214,7 @@
 #define PERM_FIXED_TO_LB            0x04
 #define TEMP_PERM_LB__SWITCH        0x06
 #define NOT_FIXED__TEMP_LB__SWITCH  0x03
-#define NOT_FIXED__PERM_LB__SWITCH  0x05 
+#define NOT_FIXED__PERM_LB__SWITCH  0x05
 
 #define TEMP_FIXED_TO_UB            0x08
 #define PERM_FIXED_TO_UB            0x10
@@ -287,11 +287,11 @@
 
 /*---------------- possible return values of branch() -----------------------*/
 #define NEW_NODE                     -1
-#define FATHOMED_NODE                -2 
+#define FATHOMED_NODE                -2
 #define FEAS_SOL_FOUND               -3
 /* asm4: added this return code for the case when the node can be pruned by
  * branching */
-#define BRANCHING_INF_NODE           -4 
+#define BRANCHING_INF_NODE           -4
 
 /*------------- normal return value of various functions --------------------*/
 
@@ -375,9 +375,9 @@
 
 /*------------------------- display_solution --------------------------------*/
 #define DISP_NOTHING             0
-#define DISP_NZ_INT              1 
+#define DISP_NZ_INT              1
 #define DISP_NZ_HEXA             2
-#define DISP_FRAC_INT            3 
+#define DISP_FRAC_INT            3
 #define DISP_FRAC_HEXA           4
 /* no result */
 
@@ -462,7 +462,7 @@
 
 /*----------------------- cut pool warm start -------------------------------*/
 #define NO_WARM_START            0
-#define READ_CP_LIST             1 
+#define READ_CP_LIST             1
 #define READ_TM_LIST             2
 
 /*--------------- parameter values for "check_which_cuts" -------------------*/
@@ -483,10 +483,10 @@
 #define NOTHING_CHANGED                   0
 #define RHS_CHANGED                       1
 #define OBJ_COEFF_CHANGED                 2
-#define CONSTRAINT_MATRIX_CHANGED         3 
-#define COL_BOUNDS_CHANGED                4  
+#define CONSTRAINT_MATRIX_CHANGED         3
+#define COL_BOUNDS_CHANGED                4
 #define OBJ_SENSE_CHANGED                 5
-#define RHS_SENSE_CHANGED                 6 
+#define RHS_SENSE_CHANGED                 6
 #define COLS_ADDED                        7
 
 /*--------------- parameter values for restart/sens analysis ----------------*/
@@ -507,7 +507,7 @@
 /*-----------------  return codes for presolve functions --------------------*/
 /* preprocessor exited without modifying the MIP in any way */
 #define PREP_UNMODIFIED     0
-/* preprocessor modified the MIP in some way */  
+/* preprocessor modified the MIP in some way */
 #define PREP_MODIFIED       1
 /* preprocessor found the MIP infeasible */
 #define PREP_INFEAS         2
@@ -540,7 +540,7 @@
 #define BIN_INT_ROW              4
 #define INT_CONT_ROW             5
 #define ALL_MIXED_ROW            6
-#endif 
+#endif
 
 /* row bound type*/
 #define OPEN_ROW                 0

@@ -31,7 +31,7 @@
 
 #define  DONT_WAIT_FOR_CLICK              0
 #define  WAIT_FOR_CLICK_AND_REPORT        1
-#define  WAIT_FOR_CLICK_NO_REPORT         2 
+#define  WAIT_FOR_CLICK_NO_REPORT         2
 
 
 #define MAX_NAME_LENGTH                   36
@@ -100,7 +100,7 @@
 
 /* Window description keycodes */
 #define CANVAS_WIDTH                      1
-#define CANVAS_HEIGHT                     2 
+#define CANVAS_HEIGHT                     2
 #define VIEWABLE_WIDTH                    3
 #define VIEWABLE_HEIGHT                   4
 #define DISP_NODELABELS                   5

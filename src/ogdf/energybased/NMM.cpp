@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -1909,8 +1909,8 @@ void NMM::find_small_cell_by_formula(
 	{//else
 		int k,a1,a2,A,j_minus_k;
 		double h1,h2;
-		int Sm_x_level,Sm_y_level;
-		int Sm_x_position,Sm_y_position;
+		int Sm_x_level, Sm_y_level;
+		int Sm_x_position, Sm_y_position;
 
 		if(x_min != x_max)
 		{//if1
@@ -1989,6 +1989,7 @@ void NMM::find_small_cell_by_formula(
 		}//if3
 		else if(x_min == x_max) //a vertical line
 		{//if4
+			OGDF_ASSERT(y_min != y_max); // otherwise Sm_y_{level,position} is undefined
 			Sm_level = Sm_y_level;
 			Sm_position.m_x = static_cast<int> (floor((x_min*power_of_two(Sm_level))/
 				Sm_boxlength));
@@ -1996,6 +1997,7 @@ void NMM::find_small_cell_by_formula(
 		}//if4
 		else //y_min == y_max (a horizontal line)
 		{//if5
+			OGDF_ASSERT(x_min != x_max); // otherwise Sm_x_{level,position} is undefined
 			Sm_level = Sm_x_level;
 			Sm_position.m_x = Sm_x_position;
 			Sm_position.m_y = static_cast<int> (floor((y_min*power_of_two(Sm_level))/
@@ -2180,12 +2182,9 @@ void NMM::calculate_local_expansions_and_WSPRLS(
 	QuadTreeNodeNM* act_node_ptr)
 {
 	List<QuadTreeNodeNM*> I,L,L2,E,D1,D2,M;
-	QuadTreeNodeNM *father_ptr,*selected_node_ptr;
+	QuadTreeNodeNM *selected_node_ptr;
 	ListIterator<QuadTreeNodeNM*> ptr_it;
 
-	//Step 0: Initializations
-	if(! act_node_ptr->is_root())
-		father_ptr = act_node_ptr->get_father_ptr();
 	I.clear();L.clear();L2.clear();D1.clear();D2.clear();M.clear();
 
 	//Step 1: calculate Lists I (min. ill sep. set), L (interaction List of well sep.
@@ -2197,8 +2196,7 @@ void NMM::calculate_local_expansions_and_WSPRLS(
 	//are ill separated;empty if the actual node is an interior node)
 
 	//special case: act_node is the root of T
-	if (act_node_ptr->is_root())
-	{//if
+	if (act_node_ptr->is_root()) {
 		E.clear();
 		if(act_node_ptr->child_lt_exists())
 			E.pushBack(act_node_ptr->get_child_lt_ptr());
@@ -2208,16 +2206,12 @@ void NMM::calculate_local_expansions_and_WSPRLS(
 			E.pushBack(act_node_ptr->get_child_lb_ptr());
 		if(act_node_ptr->child_rb_exists())
 			E.pushBack(act_node_ptr->get_child_rb_ptr());
-	}//if
-
-	//usual case: act_node is an interior node of T
-	else
-	{
+	} else { //usual case: act_node is an interior node of T
+		const QuadTreeNodeNM *father_ptr = act_node_ptr->get_father_ptr();
 		father_ptr->get_D1(E); //bordering leaves of father
 		father_ptr->get_I(I);  //min ill sep. nodes of father
 
-
-		for(ptr_it = I.begin();ptr_it.valid();++ptr_it)
+		for (ptr_it = I.begin(); ptr_it.valid(); ++ptr_it)
 			E.pushBack(*ptr_it);
 		I.clear();
 	}

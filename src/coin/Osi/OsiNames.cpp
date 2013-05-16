@@ -153,7 +153,7 @@ OsiSolverInterface::dfltRowColName (char rc, int ndx, unsigned digits) const
   { return (invRowColName('u',ndx)) ; }
   if (ndx < 0)
   { return (invRowColName(rc,ndx)) ; }
-  
+
   if (digits <= 0)
   { digits = 7 ; }
 
@@ -172,7 +172,7 @@ OsiSolverInterface::dfltRowColName (char rc, int ndx, unsigned digits) const
 */
 std::string OsiSolverInterface::getObjName (unsigned maxLen) const
 { std::string name ;
-  
+
   if (objName_.length() == 0)
   { name = dfltRowColName('o',0,maxLen) ; }
   else
@@ -284,7 +284,7 @@ const OsiSolverInterface::OsiNameVec &OsiSolverInterface::getRowNames ()
   assert(false) ;
 
   return (zeroLengthNameVec) ; }
-  
+
 
 /*
   Return a column name, according to the current name discipline, truncated if
@@ -380,7 +380,7 @@ const OsiSolverInterface::OsiNameVec &OsiSolverInterface::getColNames ()
   assert(false) ;
 
   return (zeroLengthNameVec) ; }
-  
+
 
 /*
   Set a single row name. Quietly does nothing if the index or name discipline
@@ -509,7 +509,7 @@ void OsiSolverInterface::deleteRowNames (int tgtStart, int len)
   rowNames_.erase(firstIter,lastIter) ;
 
   return ; }
-  
+
 
 /*
   Set a single column name. Quietly does nothing if the index or name

@@ -77,7 +77,7 @@ void symusage(void)
 	  "          (MPS format is assumed unless -D is also present)",
 	  "-L model: LP format model should be read in from file 'model'",
 	  "-D data: model is in AMPL format and data is in file 'data'");
-#endif   
+#endif
 }
 
 /*===========================================================================*/
@@ -101,18 +101,18 @@ int parse_command_line(sym_environment *env, int argc, char **argv)
 	   symusage();
       exit(0);
    }
-   
+
    for (i = 0; i < argc; i++){
       if (!strcmp(argv[i], "-f"))
 	 break;
    }
-   
+
    if (i == argc){
       goto EXIT;
    }else{
       strncpy(env->par.param_file, argv[i+1], MAX_FILE_NAME_LENGTH);
    }
-   
+
    if ((f = fopen(env->par.param_file, "r")) == NULL){
       (void) fprintf(stderr, "Readparams: file '%s' can't be opened\n\n",
 		     env->par.param_file);
@@ -264,7 +264,7 @@ int parse_command_line(sym_environment *env, int argc, char **argv)
       }
       else if (strcmp(key, "vbc_emulation") == 0 ||
 	       strcmp(key, "TM_vbc_emulation") == 0){
-	 if (tm_par->vbc_emulation == VBC_EMULATION_FILE || 
+	 if (tm_par->vbc_emulation == VBC_EMULATION_FILE ||
 	       tm_par->vbc_emulation == VBC_EMULATION_FILE_NEW){
 	    if (fgets(line, MAX_LINE_LENGTH, f) == NULL){
 	       printf("No vbc emulation file!\n\n");
@@ -364,9 +364,9 @@ int parse_command_line(sym_environment *env, int argc, char **argv)
    }
 
    printf("\n====================================================\n\n");
-   
+
  EXIT:
-   
+
    for (i = 1; i < argc; i++){
       sscanf(argv[i], "%c %c", &tmp, &c);
       if (tmp != '-')
@@ -406,7 +406,7 @@ int parse_command_line(sym_environment *env, int argc, char **argv)
 		 "          (MPS format is assumed unless -D is also present)",
 		 "-L model: LP format model should be read in from file 'model'",
 		 "-D data: model is in AMPL format and data is in file 'data'");
-#endif 
+#endif
 	  exit(0);
        case 'a':
 	 lp_par->first_lp.first_cut_time_out = 0;
@@ -658,7 +658,7 @@ int parse_command_line(sym_environment *env, int argc, char **argv)
 	       }else{
 		  fprintf(f2,"# ");
 		  fprintf(f2, "file created\n");
-		  fclose(f2); 
+		  fclose(f2);
 	       }
 	    }
 	 }else{
@@ -725,7 +725,7 @@ void read_string(char *target, char *line, int maxlen)
       quote1++;
       len = (int)(quote2 - quote1);
    }
-   
+
    if (len > maxlen)
       READPAR_ERROR(key);
    if (len > 0)
@@ -738,10 +738,10 @@ void read_string(char *target, char *line, int maxlen)
 /*===========================================================================*/
 /*===========================================================================*/
 
-void print_statistics(node_times *tim, problem_stat *stat, 
+void print_statistics(node_times *tim, problem_stat *stat,
                       lp_stat_desc *lp_stat, double ub,
 		      double lb, double initial_time, double start_time,
-		      double finish_time, double obj_offset, char obj_sense, 
+		      double finish_time, double obj_offset, char obj_sense,
 		      int has_ub, sp_desc *solpool)
 {
    double gap = 0.0;
@@ -775,8 +775,8 @@ void print_statistics(node_times *tim, problem_stat *stat,
    printf("  Variable Fixing           %.3f\n", tim->fixing);
    printf("  Pricing                   %.3f\n", tim->pricing);
    printf("  Strong Branching          %.3f\n", tim->strong_branching);
-   printf("  Separation                %.3f\n", tim->separation); 
-   printf("  Primal Heuristics         %.3f\n", tim->primal_heur); 
+   printf("  Separation                %.3f\n", tim->separation);
+   printf("  Primal Heuristics         %.3f\n", tim->primal_heur);
    printf("  Communication             %.3f\n", tim->communication);
 #ifndef COMPILE_IN_LP
    printf("=================== Parallel Overhead ======================\n");
@@ -850,8 +850,8 @@ void print_statistics(node_times *tim, problem_stat *stat,
       printf("%i\n", lp_stat->fp_calls);
       printf ("Number of solutions found by feasibility pump:  ");
       printf("%i\n", lp_stat->fp_num_sols);
-      printf ("Time spent in feasibility pump:                 %.2f\n", 
-            tim->fp); 
+      printf ("Time spent in feasibility pump:                 %.2f\n",
+            tim->fp);
 
       printf ("\n=========================== Cuts ==========================");
       printf ("\n");
@@ -883,7 +883,7 @@ void print_statistics(node_times *tim, problem_stat *stat,
             lp_stat->lift_and_project_cuts);
       printf ("total landp cuts generated:            %d\n",
             lp_stat->landp_cuts);
-     
+
       printf ("\n");
 
       printf ("cuts removed because of bad coeffs:    %d\n",
@@ -892,7 +892,7 @@ void print_statistics(node_times *tim, problem_stat *stat,
             lp_stat->num_duplicate_cuts);
       printf ("insufficiently violated cuts:          %d\n",
             lp_stat->num_unviolated_cuts);
-      
+
       printf ("\n");
 
       printf ("cuts in root:                          %d\n",
@@ -919,23 +919,23 @@ void print_statistics(node_times *tim, problem_stat *stat,
             lp_stat->lift_and_project_cuts_root);
       printf ("landp cuts in root:                    %d\n",
             lp_stat->landp_cuts_root);
-     
+
       printf ("\n");
-      
+
       printf ("time in cut generation: %.2f\n", tim->cuts);
-      printf ("time in gomory cuts in %d calls: %.2f\n", 
+      printf ("time in gomory cuts in %d calls: %.2f\n",
             lp_stat->gomory_calls, tim->gomory_cuts);
       printf ("time in knapsack cuts in %d calls: %.2f\n",
             lp_stat->knapsack_calls, tim->knapsack_cuts);
-      printf ("time in oddhole cuts in %d calls: %.2f\n", 
+      printf ("time in oddhole cuts in %d calls: %.2f\n",
             lp_stat->oddhole_calls, tim->oddhole_cuts);
-      printf ("time in clique cuts in %d calls: %.2f\n", 
+      printf ("time in clique cuts in %d calls: %.2f\n",
             lp_stat->clique_calls, tim->clique_cuts);
-      printf ("time in probing cuts in %d calls: %.2f\n", 
+      printf ("time in probing cuts in %d calls: %.2f\n",
             lp_stat->probing_calls, tim->probing_cuts);
-      printf ("time in mir cuts in %d calls: %.2f\n", 
+      printf ("time in mir cuts in %d calls: %.2f\n",
             lp_stat->mir_calls, tim->mir_cuts);
-      printf ("time in twomir cuts in %d calls: %.2f\n", 
+      printf ("time in twomir cuts in %d calls: %.2f\n",
             lp_stat->twomir_calls, tim->twomir_cuts);
       printf ("time in flow and cover cuts in %d calls: %.2f\n",
             lp_stat->flowcover_calls, tim->flowcover_cuts);
@@ -943,13 +943,13 @@ void print_statistics(node_times *tim, problem_stat *stat,
             lp_stat->rounding_calls, tim->rounding_cuts);
       printf ("time in lift and project cuts in %d calls: %.2f\n",
             lp_stat->lift_and_project_calls, tim->lift_and_project_cuts);
-      printf ("time in landp cuts in %d calls: %.2f\n", 
+      printf ("time in landp cuts in %d calls: %.2f\n",
             lp_stat->landp_calls, tim->landp_cuts);
-      printf ("time in redsplit cuts in %d calls: %.2f\n", 
+      printf ("time in redsplit cuts in %d calls: %.2f\n",
             lp_stat->redsplit_calls, tim->redsplit_cuts);
-      printf ("time in checking quality and adding: %.2f\n", 
+      printf ("time in checking quality and adding: %.2f\n",
             tim->dupes_and_bad_coeffs_in_cuts);
-     
+
    }
    if (has_ub){
      gap = fabs(100*(ub-lb)/ub);

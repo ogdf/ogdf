@@ -23,9 +23,9 @@
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
-CoinModelLink::CoinModelLink () 
+CoinModelLink::CoinModelLink ()
  : row_(-1),
    column_(-1),
    value_(0.0),
@@ -35,9 +35,9 @@ CoinModelLink::CoinModelLink ()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CoinModelLink::CoinModelLink (const CoinModelLink & rhs) 
+CoinModelLink::CoinModelLink (const CoinModelLink & rhs)
   : row_(rhs.row_),
     column_(rhs.column_),
     value_(rhs.value_),
@@ -47,14 +47,14 @@ CoinModelLink::CoinModelLink (const CoinModelLink & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinModelLink::~CoinModelLink ()
 {
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinModelLink &
 CoinModelLink::operator=(const CoinModelLink& rhs)
@@ -90,9 +90,9 @@ namespace {
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
-CoinModelHash::CoinModelHash () 
+CoinModelHash::CoinModelHash ()
   : names_(NULL),
     hash_(NULL),
     numberItems_(0),
@@ -102,9 +102,9 @@ CoinModelHash::CoinModelHash ()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CoinModelHash::CoinModelHash (const CoinModelHash & rhs) 
+CoinModelHash::CoinModelHash (const CoinModelHash & rhs)
   : names_(NULL),
     hash_(NULL),
     numberItems_(rhs.numberItems_),
@@ -121,24 +121,24 @@ CoinModelHash::CoinModelHash (const CoinModelHash & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinModelHash::~CoinModelHash ()
 {
-  for (int i=0;i<maximumItems_;i++) 
+  for (int i=0;i<maximumItems_;i++)
     free(names_[i]);
   delete [] names_;
   delete [] hash_;
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinModelHash &
 CoinModelHash::operator=(const CoinModelHash& rhs)
 {
   if (this != &rhs) {
-    for (int i=0;i<maximumItems_;i++) 
+    for (int i=0;i<maximumItems_;i++)
       free(names_[i]);
     delete [] names_;
     delete [] hash_;
@@ -159,14 +159,14 @@ CoinModelHash::operator=(const CoinModelHash& rhs)
   return *this;
 }
 // Set number of items
-void 
+void
 CoinModelHash::setNumberItems(int number)
 {
   assert (number>=0&&number<=numberItems_);
   numberItems_=number;
 }
 // Resize hash (also re-hashs)
-void 
+void
 CoinModelHash::resize(int maxItems,bool forceReHash)
 {
   assert (numberItems_<=maximumItems_);
@@ -176,9 +176,9 @@ CoinModelHash::resize(int maxItems,bool forceReHash)
   maximumItems_=maxItems;
   char ** names = new char * [maximumItems_];
   int i;
-  for ( i=0;i<n;i++) 
+  for ( i=0;i<n;i++)
     names[i]=names_[i];
-  for ( ;i<maximumItems_;i++) 
+  for ( ;i<maximumItems_;i++)
     names[i]=NULL;
   delete [] names_;
   names_ = names;
@@ -214,7 +214,7 @@ CoinModelHash::resize(int maxItems,bool forceReHash)
    */
   lastSlot_ = -1;
   for ( i = 0; i < numberItems_; ++i ) {
-    if (!names_[i]) 
+    if (!names_[i])
       continue;
     char *thisName = names[i];
     ipos = hashValue ( thisName);
@@ -257,10 +257,10 @@ CoinModelHash::resize(int maxItems,bool forceReHash)
       }
     }
   }
-  
+
 }
 // validate
-void 
+void
 CoinModelHash::validateHash() const
 {
   for (int i = 0; i < numberItems_; ++i ) {
@@ -270,7 +270,7 @@ CoinModelHash::validateHash() const
   }
 }
 // Returns index or -1
-int 
+int
 CoinModelHash::hash(const char * name) const
 {
   int found = -1;
@@ -301,7 +301,7 @@ CoinModelHash::hash(const char * name) const
       }
     } else {
       int k = hash_[ipos].next;
-      
+
       if ( k != -1 )
         ipos = k;
       else
@@ -311,11 +311,11 @@ CoinModelHash::hash(const char * name) const
   return found;
 }
 // Adds to hash
-void 
+void
 CoinModelHash::addHash(int index, const char * name)
 {
   // resize if necessary
-  if (numberItems_>=maximumItems_) 
+  if (numberItems_>=maximumItems_)
     resize(1000+3*numberItems_/2);
   assert (!names_[index]);
   names_[index]=CoinStrdup(name);
@@ -326,7 +326,7 @@ CoinModelHash::addHash(int index, const char * name)
   } else {
     while ( true ) {
       int j1 = hash_[ipos].index;
-      
+
       if ( j1 == index )
 	break; // duplicate?
       else {
@@ -338,7 +338,7 @@ CoinModelHash::addHash(int index, const char * name)
             break;
           } else {
             int k = hash_[ipos].next;
-            
+
             if ( k == -1 ) {
               while ( true ) {
                 ++lastSlot_;
@@ -368,11 +368,11 @@ CoinModelHash::addHash(int index, const char * name)
   }
 }
 // Deletes from hash
-void 
+void
 CoinModelHash::deleteHash(int index)
 {
   if (index<numberItems_&&names_[index]) {
-    
+
     int ipos = hashValue ( names_[index] );
 
     while ( ipos>=0 ) {
@@ -390,7 +390,7 @@ CoinModelHash::deleteHash(int index)
   }
 }
 // Returns name at position (or NULL)
-const char * 
+const char *
 CoinModelHash::name(int which) const
 {
   if (which<numberItems_)
@@ -399,7 +399,7 @@ CoinModelHash::name(int which) const
     return NULL;
 }
 // Returns non const name at position (or NULL)
-char * 
+char *
 CoinModelHash::getName(int which) const
 {
   if (which<numberItems_)
@@ -408,17 +408,17 @@ CoinModelHash::getName(int which) const
     return NULL;
 }
 // Sets name at position (does not create)
-void 
-CoinModelHash::setName(int which,char * name ) 
+void
+CoinModelHash::setName(int which,char * name )
 {
   if (which<numberItems_)
     names_[which]=name;
 }
 // Returns a hash value
-int 
+int
 CoinModelHash::hashValue(const char * name) const
 {
-  
+
   int n = 0;
   int j;
   int length =  static_cast<int> (strlen(name));
@@ -439,9 +439,9 @@ CoinModelHash::hashValue(const char * name) const
 // Constructors / Destructor / Assignment
 //#############################################################################
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
-CoinModelHash2::CoinModelHash2 () 
+CoinModelHash2::CoinModelHash2 ()
  :   hash_(NULL),
     numberItems_(0),
     maximumItems_(0),
@@ -450,9 +450,9 @@ CoinModelHash2::CoinModelHash2 ()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CoinModelHash2::CoinModelHash2 (const CoinModelHash2 & rhs) 
+CoinModelHash2::CoinModelHash2 (const CoinModelHash2 & rhs)
   : hash_(NULL),
     numberItems_(rhs.numberItems_),
     maximumItems_(rhs.maximumItems_),
@@ -464,7 +464,7 @@ CoinModelHash2::CoinModelHash2 (const CoinModelHash2 & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinModelHash2::~CoinModelHash2 ()
 {
@@ -472,7 +472,7 @@ CoinModelHash2::~CoinModelHash2 ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinModelHash2 &
 CoinModelHash2::operator=(const CoinModelHash2& rhs)
@@ -491,14 +491,14 @@ CoinModelHash2::operator=(const CoinModelHash2& rhs)
   return *this;
 }
 // Set number of items
-void 
+void
 CoinModelHash2::setNumberItems(int number)
 {
   assert (number>=0&&(number<=numberItems_||!numberItems_));
   numberItems_=number;
 }
 // Resize hash (also re-hashs)
-void 
+void
 CoinModelHash2::resize(int maxItems, const CoinModelTriple * triples,bool forceReHash)
 {
   assert (numberItems_<=maximumItems_||!maximumItems_);
@@ -548,7 +548,7 @@ CoinModelHash2::resize(int maxItems, const CoinModelTriple * triples,bool forceR
 
       while ( true ) {
         int j1 = hash_[ipos].index;
-        
+
         if ( j1 == i )
           break;
         else {
@@ -560,7 +560,7 @@ CoinModelHash2::resize(int maxItems, const CoinModelTriple * triples,bool forceR
             break;
           } else {
             int k = hash_[ipos].next;
-            
+
             if ( k == -1 ) {
               while ( true ) {
                 ++lastSlot_;
@@ -584,10 +584,10 @@ CoinModelHash2::resize(int maxItems, const CoinModelTriple * triples,bool forceR
       }
     }
   }
-  
+
 }
 // Returns index or -1
-int 
+int
 CoinModelHash2::hash(int row, int column, const CoinModelTriple * triples) const
 {
   int found = -1;
@@ -607,7 +607,7 @@ CoinModelHash2::hash(int row, int column, const CoinModelTriple * triples) const
       int column2 = triples[j1].column;
       if ( row!=row2||column!=column2 ) {
 	int k = hash_[ipos].next;
-        
+
 	if ( k != -1 )
 	  ipos = k;
 	else
@@ -618,7 +618,7 @@ CoinModelHash2::hash(int row, int column, const CoinModelTriple * triples) const
       }
     } else {
       int k = hash_[ipos].next;
-      
+
       if ( k != -1 )
         ipos = k;
       else
@@ -628,11 +628,11 @@ CoinModelHash2::hash(int row, int column, const CoinModelTriple * triples) const
   return found;
 }
 // Adds to hash
-void 
+void
 CoinModelHash2::addHash(int index, int row, int column, const CoinModelTriple * triples)
 {
   // resize if necessary
-  if (numberItems_>=maximumItems_||index+1>=maximumItems_) 
+  if (numberItems_>=maximumItems_||index+1>=maximumItems_)
     resize(CoinMax(1000+3*numberItems_/2,index+1), triples);
   int ipos = hashValue ( row, column);
   numberItems_ = CoinMax(numberItems_,index+1);
@@ -642,7 +642,7 @@ CoinModelHash2::addHash(int index, int row, int column, const CoinModelTriple * 
   } else {
     while ( true ) {
       int j1 = hash_[ipos].index;
-      
+
       if ( j1 == index ) {
 	break; // duplicate??
       } else {
@@ -655,7 +655,7 @@ CoinModelHash2::addHash(int index, int row, int column, const CoinModelTriple * 
             break;
           } else {
             int k = hash_[ipos].next;
-            
+
             if ( k ==-1 ) {
               while ( true ) {
                 ++lastSlot_;
@@ -685,11 +685,11 @@ CoinModelHash2::addHash(int index, int row, int column, const CoinModelTriple * 
   }
 }
 // Deletes from hash
-void 
+void
 CoinModelHash2::deleteHash(int index,int row, int column)
 {
   if (index<numberItems_) {
-    
+
     int ipos = hashValue ( row, column );
 
     while ( ipos>=0 ) {
@@ -710,14 +710,14 @@ namespace {
   };
 }
 // Returns a hash value
-int 
+int
 CoinModelHash2::hashValue(int row, int column) const
 {
-  
+
   // Optimizer should take out one side of if
   if (sizeof(int)==4*sizeof(char)) {
     unsigned char tempChar[4];
-    
+
     unsigned int n = 0;
     int * temp = reinterpret_cast<int *> (tempChar);
     *temp=row;
@@ -734,7 +734,7 @@ CoinModelHash2::hashValue(int row, int column) const
   } else {
     // ints are 8
     unsigned char tempChar[8];
-    
+
     int n = 0;
     unsigned int j;
     int * temp = reinterpret_cast<int *> (tempChar);
@@ -759,9 +759,9 @@ CoinModelHash2::hashValue(int row, int column) const
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
-CoinModelLinkedList::CoinModelLinkedList () 
+CoinModelLinkedList::CoinModelLinkedList ()
   : previous_(NULL),
     next_(NULL),
     first_(NULL),
@@ -775,9 +775,9 @@ CoinModelLinkedList::CoinModelLinkedList ()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CoinModelLinkedList::CoinModelLinkedList (const CoinModelLinkedList & rhs) 
+CoinModelLinkedList::CoinModelLinkedList (const CoinModelLinkedList & rhs)
   : numberMajor_(rhs.numberMajor_),
     maximumMajor_(rhs.maximumMajor_),
     numberElements_(rhs.numberElements_),
@@ -798,7 +798,7 @@ CoinModelLinkedList::CoinModelLinkedList (const CoinModelLinkedList & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinModelLinkedList::~CoinModelLinkedList ()
 {
@@ -809,7 +809,7 @@ CoinModelLinkedList::~CoinModelLinkedList ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinModelLinkedList &
 CoinModelLinkedList::operator=(const CoinModelLinkedList& rhs)
@@ -839,7 +839,7 @@ CoinModelLinkedList::operator=(const CoinModelLinkedList& rhs)
   return *this;
 }
 // Resize list - for row list maxMajor is maximum rows
-void 
+void
 CoinModelLinkedList::resize(int maxMajor,int maxElements)
 {
   maxMajor=CoinMax(maxMajor,maximumMajor_);
@@ -896,7 +896,7 @@ CoinModelLinkedList::resize(int maxMajor,int maxElements)
   }
 }
 // Create list - for row list maxMajor is maximum rows
-void 
+void
 CoinModelLinkedList::create(int maxMajor,int maxElements,
                             int numberMajor,int /*numberMinor*/, int type,
                             int numberElements, const CoinModelTriple * triples)
@@ -985,7 +985,7 @@ CoinModelLinkedList::create(int maxMajor,int maxElements,
 /* Adds to list - easy case i.e. add row to row list
    Returns where chain starts
 */
-int 
+int
 CoinModelLinkedList::addEasy(int majorIndex, int numberOfElements, const int * indices,
                              const double * elements, CoinModelTriple * triples,
                              CoinModelHash2 & hash)
@@ -1056,7 +1056,7 @@ CoinModelLinkedList::addEasy(int majorIndex, int numberOfElements, const int * i
 }
 /* Adds to list - hard case i.e. add row to column list
  */
-void 
+void
 CoinModelLinkedList::addHard(int minorIndex, int numberOfElements, const int * indices,
                              const double * elements, CoinModelTriple * triples,
                              CoinModelHash2 & hash)
@@ -1112,7 +1112,7 @@ CoinModelLinkedList::addHard(int minorIndex, int numberOfElements, const int * i
 /* Adds to list - hard case i.e. add row to column list
    This is when elements have been added to other copy
 */
-void 
+void
 CoinModelLinkedList::addHard(int first, const CoinModelTriple * triples,
                              int firstFree, int lastFree,const int * next)
 {
@@ -1159,7 +1159,7 @@ CoinModelLinkedList::addHard(int first, const CoinModelTriple * triples,
 }
 /* Deletes from list - same case i.e. delete row from row list
 */
-void 
+void
 CoinModelLinkedList::deleteSame(int which, CoinModelTriple * triples,
                                 CoinModelHash2 & hash, bool zapTriples)
 {
@@ -1198,7 +1198,7 @@ CoinModelLinkedList::deleteSame(int which, CoinModelTriple * triples,
 /* Deletes from list - other case i.e. delete row from column list
    This is when elements have been deleted from other copy
 */
-void 
+void
 CoinModelLinkedList::updateDeleted(int /*which*/, CoinModelTriple * triples,
                                    CoinModelLinkedList & otherList)
 {
@@ -1322,7 +1322,7 @@ CoinModelLinkedList::updateDeleted(int /*which*/, CoinModelTriple * triples,
 }
 /* Deletes one element from Row list
  */
-void 
+void
 CoinModelLinkedList::deleteRowOne(int position, CoinModelTriple * triples,
                                   CoinModelHash2 & hash)
 {
@@ -1360,7 +1360,7 @@ CoinModelLinkedList::deleteRowOne(int position, CoinModelTriple * triples,
 /* Update column list for one element when
    one element deleted from row copy
 */
-void 
+void
 CoinModelLinkedList::updateDeletedOne(int position, const CoinModelTriple * triples)
 {
   assert (maximumMajor_);
@@ -1392,7 +1392,7 @@ CoinModelLinkedList::updateDeletedOne(int position, const CoinModelTriple * trip
   }
 }
 // Fills first,last with -1
-void 
+void
 CoinModelLinkedList::fill(int first,int last)
 {
   for (int i=first;i<last;i++) {
@@ -1401,7 +1401,7 @@ CoinModelLinkedList::fill(int first,int last)
   }
 }
 /* Puts in free list from other list */
-void 
+void
 CoinModelLinkedList::synchronize(CoinModelLinkedList & other)
 {
   int first = other.first_[other.maximumMajor_];
@@ -1416,7 +1416,7 @@ CoinModelLinkedList::synchronize(CoinModelLinkedList & other)
   }
 }
 // Checks that links are consistent
-void 
+void
 CoinModelLinkedList::validateLinks(const CoinModelTriple * triples) const
 {
   char * mark = new char[maximumElements_];

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3454 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-24 14:02:22 +0200 (Mi, 24. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -123,7 +123,7 @@ void StressMinimization::computeInitialLayout(GraphAttributes& GA)
 		// the graph might be disconnected therefore we need
 		// the component layouter
 		//design decision: should that parameter be passed to CSL?
-		ComponentSplitterLayout compLayouter;//(m_hasEdgeCostsAttribute); 
+		ComponentSplitterLayout compLayouter;//(m_hasEdgeCostsAttribute);
 		compLayouter.setLayoutModule(pivMDS);
 		compLayouter.call(GA);
 	} else {
@@ -255,7 +255,7 @@ void StressMinimization::minimizeStress(
 	NodeArray<double> newX;
 	NodeArray<double> newY;
 	NodeArray<double> newZ;
-			
+
 	if (m_terminationCriterion == POSITION_DIFFERENCE) {
 		newX.init(G);
 		newY.init(G);

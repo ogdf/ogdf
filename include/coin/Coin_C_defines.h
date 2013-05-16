@@ -40,10 +40,10 @@
 #if defined (COIN_EXTERN_C)
 #   define COINLIBAPI extern "C"
 #else
-#   define COINLIBAPI 
+#   define COINLIBAPI
 #endif
 #   define COINLINKAGE
-#   define COINLINKAGE_CB 
+#   define COINLINKAGE_CB
 #endif
 
 #endif

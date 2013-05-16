@@ -666,7 +666,7 @@ void BertaultLayout::crossingPlanarize(GraphAttributes &AG)
 
 	edge e;
 	forall_edges(e,G)
-	{      
+	{
 		edge i;
 		forall_rev_edges(i,G)
 		{
@@ -725,7 +725,7 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 		}
 	//*/
 		if((*element).child.size()!=0)
-		{            
+		{
 
 			for(i=0;i<(*element).child.size();i++)
 			{
@@ -749,7 +749,7 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 		}
 
 		if(flag==0)
-		{            
+		{
 			(*new1).parent=&(*element);
 			(*new1).faceNum=contface;
 			(*element).child.pushBack(&(*new1));
@@ -811,7 +811,7 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 
 
 int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes &PAG,PlanRep &PG)
-{    
+{
 	//PlanRep &PG= (PlanRep&)(const_cast<Graph&> (PAG.constGraph()));
 
 	PG.initCC(new1->num);
@@ -839,7 +839,7 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 
 			if(edges.search(adj->theEdge()->index())==-1)
 			{
-				edges.pushBack(adj->theEdge()->index());                
+				edges.pushBack(adj->theEdge()->index());
 				node x=adj->theEdge()->source();
 				node y=adj->theEdge()->target();
 				double m= (PAG.y(PG.original(x))-PAG.y(PG.original(y)))/(PAG.x(PG.original(x))-PAG.x(PG.original(y)));
@@ -1051,28 +1051,21 @@ double BertaultLayout::nodeDistribution(GraphAttributes &AG)
 	const Graph &G = AG.constGraph();
 	if(G.numberOfNodes()<2)
 		return -1;
-	node v;
-	double minx,maxx,miny,maxy;
-	forall_nodes(v,G)
-	{
-		if(v->index()==0)
-		{
-			minx=AG.x(v);
-			maxx=AG.x(v);
-			miny=AG.y(v);
-			maxy=AG.y(v);
-		}
-		else
-		{
-		if(AG.x(v)>maxx)
-			maxx=AG.x(v);
-		if(AG.x(v)<minx)
-			minx=AG.x(v);
-		if(AG.y(v)>maxy)
-			maxy=AG.y(v);
-		if(AG.y(v)<miny)
-			miny=AG.y(v);
-		}
+	node v = G.firstNode();
+	double
+	  minx = AG.x(v),
+	  maxx = AG.x(v),
+	  miny = AG.y(v),
+	  maxy = AG.y(v);
+	for (v = v->succ(); v; v = v->succ()) {
+		if (AG.x(v) > maxx)
+			maxx = AG.x(v);
+		if (AG.x(v) < minx)
+			minx = AG.x(v);
+		if (AG.y(v) > maxy)
+			maxy = AG.y(v);
+		if (AG.y(v) < miny)
+			miny = AG.y(v);
 	}
 
 	int rows=8,columns=8,i,j;

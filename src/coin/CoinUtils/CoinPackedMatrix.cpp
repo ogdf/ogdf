@@ -217,7 +217,7 @@ CoinPackedMatrix::appendCols(const int numcols,
 #endif
 //-----------------------------------------------------------------------------
 
-int 
+int
 CoinPackedMatrix::appendCols(const int numcols,
                              const CoinBigIndex * columnStarts, const int * row,
                              const double * element, int numberRows)
@@ -270,7 +270,7 @@ CoinPackedMatrix::appendRows(const int numrows,
     for (i = numrows - 1; i >= 0; --i) {
       const int vecsize = rows[i]->getNumElements();
       const int* vecind = rows[i]->getIndices();
-      for (int j = vecsize - 1; j >= 0; --j) 
+      for (int j = vecsize - 1; j >= 0; --j)
 	maxDim = CoinMax(maxDim,vecind[j]);
     }
     maxDim++;
@@ -290,7 +290,7 @@ CoinPackedMatrix::appendRows(const int numrows,
 #endif
 //-----------------------------------------------------------------------------
 
-int 
+int
 CoinPackedMatrix::appendRows(const int numrows,
                              const CoinBigIndex * rowStarts, const int * column,
                              const double * element, int numberColumns)
@@ -374,9 +374,9 @@ CoinPackedMatrix::deleteRows(const int numDel, const int * indDel)
 /* Replace the elements of a vector.  The indices remain the same.
    At most the number specified will be replaced.
    The index is between 0 and major dimension of matrix */
-void 
+void
 CoinPackedMatrix::replaceVector(const int index,
-			       const int numReplace, 
+			       const int numReplace,
 			       const double * newElements)
 {
   if (index >= 0 && index < majorDim_) {
@@ -391,7 +391,7 @@ CoinPackedMatrix::replaceVector(const int index,
 /* Modify one element of packed matrix.  An element may be added.
    If the new element is zero it will be deleted unless
    keepZero true */
-void 
+void
 CoinPackedMatrix::modifyCoefficient(int row, int column, double newElement,
 				    bool keepZero)
 {
@@ -467,7 +467,7 @@ CoinPackedMatrix::modifyCoefficient(int row, int column, double newElement,
 /* Return one element of packed matrix.
    This works for either ordering
    If it is not present will return 0.0 */
-double 
+double
 CoinPackedMatrix::getCoefficient(int row, int column) const
 {
   int minorIndex,majorIndex;
@@ -505,12 +505,12 @@ CoinPackedMatrix::getCoefficient(int row, int column) const
 }
 
 //#############################################################################
-/* Eliminate all elements in matrix whose 
+/* Eliminate all elements in matrix whose
    absolute value is less than threshold.
    The column starts are not affected.  Returns number of elements
    eliminated.  Elements eliminated are at end of each vector
 */
-int 
+int
 CoinPackedMatrix::compress(double threshold)
 {
   CoinBigIndex numberEliminated =0;
@@ -545,12 +545,12 @@ CoinPackedMatrix::compress(double threshold)
   return numberEliminated;
 }
 //#############################################################################
-/* Eliminate all elements in matrix whose 
+/* Eliminate all elements in matrix whose
    absolute value is less than threshold.ALSO removes duplicates
    The column starts are not affected.  Returns number of elements
-   eliminated. 
+   eliminated.
 */
-int 
+int
 CoinPackedMatrix::eliminateDuplicates(double threshold)
 {
   CoinBigIndex numberEliminated =0;
@@ -665,13 +665,13 @@ CoinPackedMatrix::removeGaps(double removeValue)
 //#############################################################################
 
 /* Really clean up matrix.
-   a) eliminate all duplicate AND small elements in matrix 
+   a) eliminate all duplicate AND small elements in matrix
    b) remove all gaps and set extraGap_ and extraMajor_ to 0.0
    c) reallocate arrays and make max lengths equal to lengths
    d) orders elements
    returns number of elements eliminated
 */
-int 
+int
 CoinPackedMatrix::cleanMatrix(double threshold)
 {
   if (!majorDim_) {
@@ -807,7 +807,7 @@ CoinPackedMatrix::submatrixOfWithDuplicates(const CoinPackedMatrix& matrix,
   extraGap_ = 0;
   colOrdered_ = matrix.colOrdered_;
   maxMajorDim_ = numMajor ;
-  
+
   const int* length = matrix.getVectorLengths();
   length_ = new int[maxMajorDim_];
   start_ = new CoinBigIndex[maxMajorDim_+1];
@@ -872,9 +872,9 @@ CoinPackedMatrix::copyOf(const bool colordered,
 }
 //#############################################################################
 /* Copy method. This method makes an exact replica of the argument,
-   including the extra space parameters. 
+   including the extra space parameters.
    If there is room it will re-use arrays */
-void 
+void
 CoinPackedMatrix::copyReuseArrays(const CoinPackedMatrix& rhs)
 {
   assert (colOrdered_==rhs.colOrdered_);
@@ -943,7 +943,7 @@ CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix& rhs)
 
 
    // Allocate sufficient space (resizeForAddingMinorVectors())
-   
+
    const int newMaxMajorDim_ =
      CoinMax(maxMajorDim_, CoinLengthWithExtra(majorDim_, extraMajor_));
 
@@ -984,7 +984,7 @@ CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix& rhs)
    }
 
    // now insert the entries of matrix
-   
+
    minorDim_ = rhs.majorDim_;
    const CoinBigIndex * COIN_RESTRICT start = rhs.start_;
    const int * COIN_RESTRICT index = rhs.index_;
@@ -993,7 +993,7 @@ CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix& rhs)
    assert (start[0]==0);
    CoinBigIndex first = 0;
    for (i = 0; i < minorDim_; ++i) {
-     CoinBigIndex last = first + length[i]; 
+     CoinBigIndex last = first + length[i];
      CoinBigIndex j = first;
      first = start[i+1];
 #if 0
@@ -1034,7 +1034,7 @@ CoinPackedMatrix::reverseOrderedCopyOf(const CoinPackedMatrix& rhs)
      start_[i] -= length_[i];
    }
 }
-   
+
 //#############################################################################
 
 void
@@ -1128,7 +1128,7 @@ CoinPackedMatrix::swap(CoinPackedMatrix& m)
 //#############################################################################
 
 void
-CoinPackedMatrix::times(const double * x, double * y) const 
+CoinPackedMatrix::times(const double * x, double * y) const
 {
    if (colOrdered_)
       timesMajor(x, y);
@@ -1139,7 +1139,7 @@ CoinPackedMatrix::times(const double * x, double * y) const
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
 void
-CoinPackedMatrix::times(const CoinPackedVectorBase& x, double * y) const 
+CoinPackedMatrix::times(const CoinPackedVectorBase& x, double * y) const
 {
    if (colOrdered_)
       timesMajor(x, y);
@@ -1150,7 +1150,7 @@ CoinPackedMatrix::times(const CoinPackedVectorBase& x, double * y) const
 //-----------------------------------------------------------------------------
 
 void
-CoinPackedMatrix::transposeTimes(const double * x, double * y) const 
+CoinPackedMatrix::transposeTimes(const double * x, double * y) const
 {
    if (colOrdered_)
       timesMinor(x, y);
@@ -1188,7 +1188,7 @@ CoinPackedMatrix::countOrthoLength(int * orthoLength) const
       }
     }
   } else {
-    // no gaps 
+    // no gaps
     const CoinBigIndex last = start_[majorDim_];
     for (CoinBigIndex j = 0; j < last; ++j) {
       assert( index_[j] < minorDim_ && index_[j]>=0);
@@ -1213,7 +1213,7 @@ CoinPackedMatrix::countOrthoLength() const
     to a triple format.
     The returned array is allocated with <code>new int[]</code>,
     free it with  <code>delete[]</code>. */
-int * 
+int *
 CoinPackedMatrix::getMajorIndices() const
 {
   // Check valid
@@ -1239,7 +1239,7 @@ CoinPackedMatrix::appendMajorVector(const int vecsize,
       throw CoinError("out of range index",
 		     "appendMajorVector", "CoinPackedMatrix");
   }
-#if 0   
+#if 0
   if (std::find_if(vecind, vecind + vecsize,
 		   compose2(logical_or<bool>(),
 			    bind2nd(less<int>(), 0),
@@ -1249,7 +1249,7 @@ CoinPackedMatrix::appendMajorVector(const int vecsize,
 		   "appendMajorVector", "CoinPackedMatrix");
 #endif
 #endif
-  
+
   if (majorDim_ == maxMajorDim_ || vecsize > maxSize_ - getLastStart()) {
     resizeForAddingMajorVectors(1, &vecsize);
   }
@@ -1333,7 +1333,7 @@ CoinPackedMatrix::appendMinorVector(const int vecsize,
 
   // test that there's a gap at the end of every major-dimension vector where
   // we want to add a new entry
-   
+
   for (i = vecsize - 1; i >= 0; --i) {
     const int j = vecind[i];
     if (start_[j] + length_[j] == start_[j+1])
@@ -1395,7 +1395,7 @@ CoinPackedMatrix::appendMinorVectors(const int numvecs,
       ++addedEntries[vecind[j]];
     }
   }
- 
+
   for (i = majorDim_ - 1; i >= 0; --i) {
     if (start_[i] + length_[i] + addedEntries[i] > start_[i+1])
       break;
@@ -1469,7 +1469,7 @@ CoinPackedMatrix::majorAppendSameOrdered(const CoinPackedMatrix& matrix)
 }
 
 //-----------------------------------------------------------------------------
-   
+
 void
 CoinPackedMatrix::minorAppendSameOrdered(const CoinPackedMatrix& matrix)
 {
@@ -1502,9 +1502,9 @@ CoinPackedMatrix::minorAppendSameOrdered(const CoinPackedMatrix& matrix)
    minorDim_ += matrix.minorDim_;
    size_ += matrix.size_;
 }
-   
+
 //-----------------------------------------------------------------------------
-   
+
 void
 CoinPackedMatrix::majorAppendOrthoOrdered(const CoinPackedMatrix& matrix)
 {
@@ -1554,7 +1554,7 @@ CoinPackedMatrix::majorAppendOrthoOrdered(const CoinPackedMatrix& matrix)
 	 index_[start_[ind] + (length_[ind]++)] = i;
       }
    }
-   
+
    length_ -= majorDim_;
    start_ -= majorDim_;
 
@@ -1566,7 +1566,7 @@ CoinPackedMatrix::majorAppendOrthoOrdered(const CoinPackedMatrix& matrix)
 }
 
 //-----------------------------------------------------------------------------
-   
+
 void
 CoinPackedMatrix::minorAppendOrthoOrdered(const CoinPackedMatrix& matrix)
 {
@@ -1665,7 +1665,7 @@ CoinPackedMatrix::deleteMajorVectors(const int numDel,
      int *sortedDelPtr = CoinTestIndexSet(numDel, indDel, majorDim_,
 					  "deleteMajorVectors");
      const int * sortedDel = sortedDelPtr == 0 ? indDel : sortedDelPtr;
-     
+
      CoinBigIndex deleted = 0;
      const int last = numDel - 1;
      for (int i = 0; i < last; ++i) {
@@ -1677,7 +1677,7 @@ CoinPackedMatrix::deleteMajorVectors(const int numDel,
 	 CoinCopy(length_ + (ind + 1), length_ + ind1, length_ + (ind - i));
        }
      }
-     
+
      // copy the last block of length_ and start_
      const int ind = sortedDel[last];
      deleted += length_[ind];
@@ -1690,7 +1690,7 @@ CoinPackedMatrix::deleteMajorVectors(const int numDel,
      const int lastlength = CoinLengthWithExtra(length_[majorDim_-1], extraGap_);
      start_[majorDim_] = CoinMin(start_[majorDim_-1] + lastlength, maxSize_);
      size_ -= deleted;
-     
+
      // if the very first major vector was deleted then copy the new first major
      // vector to the beginning to make certain that start_[0] is 0. This may
      // not be necessary, but better safe than sorry...
@@ -1699,7 +1699,7 @@ CoinPackedMatrix::deleteMajorVectors(const int numDel,
        CoinCopyN(element_ + start_[0], length_[0], element_);
        start_[0] = 0;
      }
-     
+
      delete[] sortedDelPtr;
    }
 }
@@ -1816,7 +1816,7 @@ CoinPackedMatrix::deleteMinorVectors(const int numDel,
 //#############################################################################
 
 void
-CoinPackedMatrix::timesMajor(const double * x, double * y) const 
+CoinPackedMatrix::timesMajor(const double * x, double * y) const
 {
    memset(y, 0, minorDim_ * sizeof(double));
    for (int i = majorDim_ - 1; i >= 0; --i) {
@@ -1832,7 +1832,7 @@ CoinPackedMatrix::timesMajor(const double * x, double * y) const
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
 void
-CoinPackedMatrix::timesMajor(const CoinPackedVectorBase& x, double * y) const 
+CoinPackedMatrix::timesMajor(const CoinPackedVectorBase& x, double * y) const
 {
    memset(y, 0, minorDim_ * sizeof(double));
    for (CoinBigIndex i = x.getNumElements() - 1; i >= 0; --i) {
@@ -1849,7 +1849,7 @@ CoinPackedMatrix::timesMajor(const CoinPackedVectorBase& x, double * y) const
 //-----------------------------------------------------------------------------
 
 void
-CoinPackedMatrix::timesMinor(const double * x, double * y) const 
+CoinPackedMatrix::timesMinor(const double * x, double * y) const
 {
    memset(y, 0, majorDim_ * sizeof(double));
    for (int i = majorDim_ - 1; i >= 0; --i) {
@@ -1864,7 +1864,7 @@ CoinPackedMatrix::timesMinor(const double * x, double * y) const
 //-----------------------------------------------------------------------------
 #ifndef CLP_NO_VECTOR
 void
-CoinPackedMatrix::timesMinor(const CoinPackedVectorBase& x, double * y) const 
+CoinPackedMatrix::timesMinor(const CoinPackedVectorBase& x, double * y) const
 {
    memset(y, 0, majorDim_ * sizeof(double));
    for (int i = majorDim_ - 1; i >= 0; --i) {
@@ -1883,14 +1883,14 @@ CoinPackedMatrix::CoinPackedMatrix() :
    colOrdered_(true),
    extraGap_(0.0),
    extraMajor_(0.0),
-   element_(0), 
+   element_(0),
    index_(0),
    length_(0),
    majorDim_(0),
    minorDim_(0),
    size_(0),
    maxMajorDim_(0),
-   maxSize_(0) 
+   maxSize_(0)
 {
   start_ = new CoinBigIndex[1];
   start_[0] = 0;
@@ -1904,7 +1904,7 @@ CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
    colOrdered_(colordered),
    extraGap_(extraGap),
    extraMajor_(extraMajor),
-   element_(0), 
+   element_(0),
    index_(0),
    length_(0),
    majorDim_(0),
@@ -1943,7 +1943,7 @@ CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
 }
 
 //-----------------------------------------------------------------------------
-   
+
 CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
 				 const int minor, const int major,
          const CoinBigIndex numels,
@@ -1964,12 +1964,12 @@ CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
 {
      gutsOfOpEqual(colordered, minor, major, numels, elem, ind, start, len);
 }
-  
+
 //-----------------------------------------------------------------------------
-// makes column ordered from triplets and takes out duplicates 
-// will be sorted 
+// makes column ordered from triplets and takes out duplicates
+// will be sorted
 //
-// This is an interesting in-place sorting algorithm; 
+// This is an interesting in-place sorting algorithm;
 // We have triples, and want to sort them so that triples with the same column
 // are adjacent.
 // We begin by computing how many entries there are for each column (columnCount)
@@ -1982,9 +1982,9 @@ CoinPackedMatrix::CoinPackedMatrix(const bool colordered,
 // Going back to front,
 //    if that entry is where it wants to go
 //    then leave it there
-//    otherwise pick it up (which leaves a hole), and 
+//    otherwise pick it up (which leaves a hole), and
 //	      for as long as you have an entry in your right hand,
-//	- pick up the entry (with your left hand) in the position where the one in 
+//	- pick up the entry (with your left hand) in the position where the one in
 //		your right hand wants to go;
 //	- pass the entry in your left hand to your right hand;
 //	- was that entry really just the "hole"?  If so, stop.
@@ -2005,8 +2005,8 @@ CoinPackedMatrix::CoinPackedMatrix(
      const bool colordered,
      const int * indexRow ,
      const int * indexColumn,
-     const double * element, 
-     CoinBigIndex numberElements ) 
+     const double * element,
+     CoinBigIndex numberElements )
      :
    colOrdered_(colordered),
      extraGap_(0.0),
@@ -2150,7 +2150,7 @@ CoinPackedMatrix::CoinPackedMatrix(
   startColumn[numberColumns]=numberElements;
 #if 0
   gutsOfOpEqual(colordered,numberRows,numberColumns,numberElements,elements,rowIndices,startColumn,lengths);
-  
+
   delete [] rowCount;
   delete [] columnCount;
   delete [] startColumn;
@@ -2161,7 +2161,7 @@ CoinPackedMatrix::CoinPackedMatrix(
   delete [] elements;
 #else
   assignMatrix(colordered,numberRows,numberColumns,numberElements,
-    elements,rowIndices,startColumn,lengths); 
+    elements,rowIndices,startColumn,lengths);
   delete [] rowCount;
   delete [] columnCount;
   delete [] lengths;
@@ -2176,7 +2176,7 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs) :
    colOrdered_(true),
    extraGap_(0.0),
    extraMajor_(0.0),
-   element_(0), 
+   element_(0),
    index_(0),
    start_(0),
    length_(0),
@@ -2202,12 +2202,12 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs) :
    extraForMajor is exact extra after any possible reverse ordering.
    extraMajor_ and extraGap_ set to zero.
 */
-CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix& rhs, int extraForMajor, 
+CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix& rhs, int extraForMajor,
 				   int extraElements, bool reverseOrdering)
   :  colOrdered_(rhs.colOrdered_),
    extraGap_(0),
    extraMajor_(0),
-   element_(0), 
+   element_(0),
    index_(0),
    start_(0),
    length_(0),
@@ -2312,7 +2312,7 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix& rhs, int extraForMajo
 	}
       }
     } else {
-      // no gaps 
+      // no gaps
       const CoinBigIndex last = rhs.start_[rhs.majorDim_];
       for (CoinBigIndex j = 0; j < last; ++j) {
        assert( rhs.index_[j] < rhs.minorDim_ && rhs.index_[j]>=0);
@@ -2347,12 +2347,12 @@ CoinPackedMatrix::CoinPackedMatrix(const CoinPackedMatrix& rhs, int extraForMajo
 // Subset constructor (without gaps)
 CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs,
 				    int numberRows, const int * whichRow,
-				    int numberColumns, 
+				    int numberColumns,
 				    const int * whichColumn) :
    colOrdered_(true),
    extraGap_(0.0),
    extraMajor_(0.0),
-   element_(NULL), 
+   element_(NULL),
    index_(NULL),
    start_(NULL),
    length_(NULL),
@@ -2390,7 +2390,7 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs,
     // Array to say if an old row is in new copy
     int * newRow = new int [rhs.minorDim_];
     int iRow;
-    for (iRow=0;iRow<rhs.minorDim_;iRow++) 
+    for (iRow=0;iRow<rhs.minorDim_;iRow++)
       newRow[iRow] = -1;
     // and array for duplicating rows
     int * duplicateRow = new int [numberRows];
@@ -2417,7 +2417,7 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs,
     }
 
     if (numberBad)
-      throw CoinError("bad minor entries", 
+      throw CoinError("bad minor entries",
 		      "subset constructor", "CoinPackedMatrix");
     // now get size and check columns
     size_ = 0;
@@ -2458,7 +2458,7 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs,
 	  length_[iColumn] = size_ - start_[iColumn];
 	}
 	if (numberBad)
-	  throw CoinError("bad major entries", 
+	  throw CoinError("bad major entries",
 			  "subset constructor", "CoinPackedMatrix");
       } else {
 	for (iColumn=0;iColumn<numberColumns;iColumn++) {
@@ -2477,7 +2477,7 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs,
 	  }
 	}
 	if (numberBad)
-	  throw CoinError("bad major entries", 
+	  throw CoinError("bad major entries",
 			  "subset constructor", "CoinPackedMatrix");
 	// now create arrays
 	maxSize_=CoinMax(static_cast<CoinBigIndex> (1),size_);
@@ -2523,7 +2523,7 @@ CoinPackedMatrix::CoinPackedMatrix (const CoinPackedMatrix & rhs,
 	}
       }
       if (numberBad)
-	throw CoinError("bad major entries", 
+	throw CoinError("bad major entries",
 			"subset constructor", "CoinPackedMatrix");
       // now create arrays
       maxSize_=CoinMax(static_cast<CoinBigIndex> (1),size_);
@@ -2664,7 +2664,7 @@ CoinPackedMatrix::gutsOfCopyOfNoGaps(const bool colordered,
    delete [] start_;
    delete [] element_;
    delete [] index_;
-   
+
    if (maxMajorDim_ > 0) {
      length_ = new int[maxMajorDim_];
      assert (!start[0]);
@@ -2731,9 +2731,9 @@ CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
      CoinMemcpyN(ind,numels,index_);
      CoinMemcpyN(elem,numels,element_);
    } else {
-     
+
      maxMajorDim_ = CoinLengthWithExtra(majorDim_, extraMajor_);
-     
+
      int i;
      if (maxMajorDim_ > 0) {
        delete [] length_;
@@ -2761,10 +2761,10 @@ CoinPackedMatrix::gutsOfOpEqual(const bool colordered,
        start_ = new CoinBigIndex[1];
        start_[0] = 0;
      }
-     
+
      maxSize_ = maxMajorDim_ > 0 ? start_[major] : 0;
      maxSize_ = CoinLengthWithExtra(maxSize_, extraMajor_);
-     
+
      if (maxSize_ > 0) {
        delete [] element_;
        delete [] index_;
@@ -2958,7 +2958,7 @@ CoinPackedMatrix::printMatrixElement (const int row_val,
   }
 }
 #ifndef CLP_NO_VECTOR
-bool 
+bool
 CoinPackedMatrix::isEquivalent2(const CoinPackedMatrix& rhs) const
 {
   CoinRelFltEq eq;
@@ -2983,7 +2983,7 @@ CoinPackedMatrix::isEquivalent2(const CoinPackedMatrix& rhs) const
       " rhs - "<<rhs.getNumElements()<<std::endl;
     return false;
   }
-  
+
   for (int i=getMajorDim()-1; i >= 0; --i) {
     CoinShallowPackedVector pv = getVector(i);
     CoinShallowPackedVector rhsPv = rhs.getVector(i);
@@ -3015,10 +3015,10 @@ CoinPackedMatrix::isEquivalent2(const CoinPackedMatrix& rhs) const
 #else
 /* Equivalence.
    Two matrices are equivalent if they are both by rows or both by columns,
-   they have the same dimensions, and each vector is equivalent. 
-   In this method the FloatEqual function operator can be specified. 
+   they have the same dimensions, and each vector is equivalent.
+   In this method the FloatEqual function operator can be specified.
 */
-bool 
+bool
 CoinPackedMatrix::isEquivalent(const CoinPackedMatrix& rhs, const CoinRelFltEq& eq) const
 {
   // Both must be column order or both row ordered and must be of same size
@@ -3027,7 +3027,7 @@ CoinPackedMatrix::isEquivalent(const CoinPackedMatrix& rhs, const CoinRelFltEq& 
       (getNumRows() != rhs.getNumRows()) ||
       (getNumElements() != rhs.getNumElements()))
     return false;
-  
+
   const int major = getMajorDim();
   const int minor = getMinorDim();
   double * values = new double[minor];
@@ -3066,7 +3066,7 @@ bool CoinPackedMatrix::isEquivalent(const CoinPackedMatrix& rhs) const
    return isEquivalent(rhs,CoinRelFltEq());
 }
 /* Sort all columns so indices are increasing.in each column */
-void 
+void
 CoinPackedMatrix::orderMatrix()
 {
   for (int i=0;i<majorDim_;i++) {
@@ -3077,9 +3077,9 @@ CoinPackedMatrix::orderMatrix()
 }
 /* Append a set of rows/columns to the end of the matrix. Returns number of errors
    i.e. if any of the new rows/columns contain an index that's larger than the
-   number of columns-1/rows-1 (if numberOther>0) or duplicates 
+   number of columns-1/rows-1 (if numberOther>0) or duplicates
    This version is easy one i.e. adding columns to column ordered */
-int 
+int
 CoinPackedMatrix::appendMajor(const int number,
                               const CoinBigIndex * starts, const int * index,
                               const double * element, int numberOther)
@@ -3159,7 +3159,7 @@ CoinPackedMatrix::appendMajor(const int number,
         }
         for ( j=starts[i];j<starts[i+1];j++) {
           int iIndex = index[j];
-          if (iIndex>=0&&iIndex<numberOther) 
+          if (iIndex>=0&&iIndex<numberOther)
             which[iIndex]=0;
         }
       }
@@ -3219,7 +3219,7 @@ CoinPackedMatrix::appendMajor(const int number,
         length_[majorDim_+i] = put-start_[majorDim_+i];;
         for ( j=starts[i];j<starts[i+1];j++) {
           int iIndex = index[j];
-          if (iIndex>=0&&iIndex<numberOther) 
+          if (iIndex>=0&&iIndex<numberOther)
             which[iIndex]=0;
         }
       }
@@ -3281,7 +3281,7 @@ CoinPackedMatrix::appendMajor(const int number,
    i.e. if any of the new rows/columns contain an index that's larger than the
    number of columns-1/rows-1 (if numberOther>0) or duplicates
    This version is harder one i.e. adding columns to row ordered */
-int 
+int
 CoinPackedMatrix::appendMinor(const int number,
                               const CoinBigIndex * starts, const int * index,
                               const double * element, int numberOther)
@@ -3313,7 +3313,7 @@ CoinPackedMatrix::appendMinor(const int number,
       }
       for ( j=starts[i];j<starts[i+1];j++) {
         int iIndex = index[j];
-        if (iIndex>=0&&iIndex<numberOther) 
+        if (iIndex>=0&&iIndex<numberOther)
           which[iIndex]=0;
       }
     }
@@ -3330,7 +3330,7 @@ CoinPackedMatrix::appendMinor(const int number,
     if (largest+1>majorDim_) {
       if (isColOrdered())
         setDimensions(-1,largest+1);
-      else 
+      else
         setDimensions(largest+1,-1);
     }
     addedEntries = new int[majorDim_];
@@ -3484,7 +3484,7 @@ CoinPackedMatrix::appendMinorFast(const int number,
       }
 #endif
     }
-    
+
     delete [] start_;
     delete [] index_;
     delete [] element_;

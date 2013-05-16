@@ -1,9 +1,9 @@
 /*
- * $Revision: 3417 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -105,7 +105,7 @@ namespace ogdf {
 			insert(m_pr.copy(eOrig->source()), m_pr.copy(eOrig->target()), eip);
 
 			m_pr.insertEdgePath(eOrig,eip);
-			
+
 			if(doIncrementalPostprocessing) {
 				currentOrigEdges.pushBack(eOrig);
 
@@ -619,7 +619,7 @@ namespace ogdf {
 		ExpandedGraph(const BiconnectedComponent &BC, const StaticSPQRTree &T, const GraphCopy &gc, const EdgeArray<bool> *pForbidden = 0)
 			: m_T(T), m_BC(BC), m_gc(gc), m_pForbidden(pForbidden), m_GtoExp(T.originalGraph(),0), m_expToG(m_exp,0), m_primalEdge(m_dual,0)
 		{ }
-		
+
 		virtual ~ExpandedGraph() { }
 
 		void expand(node v, edge eIn, edge eOut);
@@ -670,7 +670,7 @@ namespace ogdf {
 			: ExpandedGraph(BC,T,gc), m_primalIsGen(m_dual,false) { }
 
 		~ExpandedGraphUML() { }
-		
+
 		void constructDual(node s, node t);
 
 	protected:
@@ -858,7 +858,6 @@ namespace ogdf {
 			faceNode[f] = m_dual.newNode();
 		}
 
-		edge eDual;
 		// construct dual edges (for primal edges in exp)
 		node v;
 		forall_nodes(v,m_exp)
@@ -891,13 +890,13 @@ namespace ogdf {
 		{
 			adjEntry adj;
 			forall_adj(adj,m_GtoExp[s]) {
-				eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(adj)]);
+				edge eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(adj)]);
 				OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
 			}
 		}
 		else
 		{
-			eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjSource())]);
+			edge eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjSource())]);
 			OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
 
 			eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjTarget())]);
@@ -909,13 +908,13 @@ namespace ogdf {
 		{
 			adjEntry adj;
 			forall_adj(adj,m_GtoExp[t]) {
-				eDual = m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
+				edge eDual = m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
 				OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
 			}
 		}
 		else
 		{
-			eDual = m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
+			edge eDual = m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
 			OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
 
 			eDual = m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjTarget())], m_vT);

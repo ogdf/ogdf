@@ -25,7 +25,7 @@
 
 CoinWarmStartDiff*
 CoinWarmStartPrimalDual::generateDiff (const CoinWarmStart *const oldCWS) const
-{ 
+{
 /*
   Make sure the parameter is CoinWarmStartPrimalDual or derived class.
 */

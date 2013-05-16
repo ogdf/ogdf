@@ -35,7 +35,7 @@ CglProbingUnitTest(
   {
     CglProbing aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglProbing rhs;
@@ -52,7 +52,7 @@ CglProbingUnitTest(
     OsiSolverInterface  * siP = baseSiP->clone();
     int nColCuts;
     int nRowCuts;
-    
+
     std::string fn = mpsDir+"p0033";
     siP->readMps(fn.c_str(),"mps");
     siP->initialSolve();

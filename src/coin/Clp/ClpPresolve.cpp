@@ -148,7 +148,7 @@ ClpPresolve::originalModel() const
      return originalModel_;
 }
 // Return presolve status (0,1,2)
-int 
+int
 ClpPresolve::presolveStatus() const
 {
   if (nelems_>=0) {
@@ -458,7 +458,7 @@ static bool break2(CoinPresolveMatrix *prob)
   return (counter<=0);
 }
 #define possibleBreak if (break2(prob)) break
-#define possibleSkip  if (!break2(prob)) 
+#define possibleSkip  if (!break2(prob))
 #else
 #define possibleBreak
 #define possibleSkip
@@ -697,7 +697,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
 		      for (int i = 0; i < nNext; i++) {
 			int index = nextToDo[i];
 			prob->unsetRowChanged(index);
-			if (count[index]) 
+			if (count[index])
 			  toDo[n++] = index;
 		      }
 		      prob->numberRowsToDo_ = n;
@@ -710,7 +710,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
 		      for (int i = 0; i < nNext; i++) {
 			int index = nextToDo[i];
 			prob->unsetColChanged(index);
-			if (count[index]) 
+			if (count[index])
 			  toDo[n++] = index;
 		      }
 		      prob->numberColsToDo_ = n;
@@ -727,7 +727,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
 		 int n = 0;
 		 for (int i = 0; i < nrows_; i++) {
 		   prob->unsetRowChanged(i);
-		   if (count[i]) 
+		   if (count[i])
 		     toDo[n++] = i;
 		 }
 		 prob->numberRowsToDo_ = n;
@@ -737,7 +737,7 @@ const CoinPresolveAction *ClpPresolve::presolve(CoinPresolveMatrix *prob)
 		 n = 0;
 		 for (int i = 0; i < ncols_; i++) {
 		   prob->unsetColChanged(i);
-		   if (count[i]) 
+		   if (count[i])
 		     toDo[n++] = i;
 		 }
 		 prob->numberColsToDo_ = n;
@@ -1742,7 +1742,7 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex * originalModel,
 		 //memset(prob.acts_,0,prob.nrows_*sizeof(double));
 		 presolvedModel_->matrix()->times(prob.sol_,rsol);
 		 int i;
-		 
+
 		 for (i = 0; i < n; i++) {
 		   double gap=up[i]-lo[i];
 		   if (rsol[i]<lo[i]-feasibilityTolerance&&fabs(rsol[i]-lo[i])<1.0e-3) {

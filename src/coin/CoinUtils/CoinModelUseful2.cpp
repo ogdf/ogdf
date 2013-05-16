@@ -722,7 +722,7 @@ static     symrec *
        symtable = ptr;
        return ptr;
      }
-     
+
 static     symrec *
      getsym ( symrec *symtable,char const *sym_name)
      {
@@ -733,7 +733,7 @@ static     symrec *
            return ptr;
        return 0;
      }
-     
+
 static     void
      freesym ( symrec *symtable)
      {
@@ -745,7 +745,7 @@ static     void
          ptr=ptrNext;
        }
      }
-     
+
      /* Called by yyparse on error.  */
 static     void
 yyerror (char const * /*s*/)
@@ -753,7 +753,7 @@ yyerror (char const * /*s*/)
        // Put back if needed
        //printf ("%s\n", s);
      }
-     
+
      struct init
      {
        char const *fname;
@@ -780,9 +780,9 @@ yyerror (char const * /*s*/)
        {"abs", fabs_wrapper},
        {NULL, 0}
      };
-     
+
      /* The symbol table: a chain of `struct symrec'.  */
-     
+
      /* Put arithmetic functions in table.  */
 static     void
      init_table ( symrec * &symtable)
@@ -795,9 +795,9 @@ static     void
            ptr->value.fnctptr = arith_fncts[i].fnct;
          }
      }
-     
 
-     
+
+
 static     int
      yylex ( symrec *&symtable, const char * line, int * position, char * & symbuf, int & length,
              const double * associated, const CoinModelHash & string,
@@ -809,10 +809,10 @@ static     int
        /* Ignore white space, get first nonwhite character.  */
        while ((c = line[ipos]) == ' ' || c == '\t')
          ipos++;
-     
-       if (c == EOF) 
+
+       if (c == EOF)
          return 0;
-     
+
        /* Char starts a number => parse the number.         */
        if (c == '.' || isdigit (c))
          {
@@ -840,18 +840,18 @@ static     int
            *position = ipos;
            return NUM;
          }
-     
+
        /* Char starts an identifier => read the name.       */
        if (isalpha (c))
          {
            symrec *s;
            int i;
-     
+
            /* Initially make the buffer long enough
               for a 40-character symbol name.  */
            if (length == 0)
              length = 40, symbuf = reinterpret_cast<char *>(malloc (length + 1));
-     
+
            i = 0;
            do
              {
@@ -868,9 +868,9 @@ static     int
                c = line[ipos];
              }
            while (isalnum (c));
-     
+
            symbuf[i] = '\0';
-     
+
            s = getsym ( symtable, symbuf);
            if (s == 0) {
              // Find in strings
@@ -893,7 +893,7 @@ static     int
            *position = ipos;
            return s->type;
          }
-     
+
        /* Any other character is a token by itself.        */
        if (c) {
          *position = ipos+1;
@@ -914,7 +914,7 @@ static double yyparse ( symrec *& symtable, const char * line, char * & symbuf, 
                         double unsetValue,
                         int & yychar, YYSTYPE &yylval, int & yynerrs)
 {
-  
+
   int position=0;
   int nEof=0; // Number of time send of string
   register int yystate;
@@ -1459,10 +1459,10 @@ CoinModel::getDoubleFromString(CoinYacc & info,const char * string)
   // Here to make thread safe
   /* The lookahead symbol.  */
   int yychar;
-  
+
   /* The semantic value of the lookahead symbol.  */
   YYSTYPE yylval;
-  
+
   /* Number of syntax errors so far.  */
   int yynerrs;
 
@@ -1484,7 +1484,7 @@ CoinModel::getDoubleFromString(CoinYacc & info,const char * string)
   return value;
 }
 // Frees value memory
-void 
+void
 CoinModel::freeStringMemory(CoinYacc & info)
 {
   freesym( info.symtable);
@@ -1492,7 +1492,7 @@ CoinModel::freeStringMemory(CoinYacc & info)
   info.length=0;
 }
 // Adds one string, returns index
-static int 
+static int
 addString(CoinModelHash & stringX, const char * string)
 {
   int position = stringX.hash(string);
@@ -1521,15 +1521,15 @@ getFunctionValueFromString(const char * string, const char * x, double xValue)
   CoinModelHash stringX;
   addString(stringX,x);
   addString(stringX,string);
-  
+
 
   // Here to make thread safe
   /* The lookahead symbol.  */
   int yychar;
-  
+
   /* The semantic value of the lookahead symbol.  */
   YYSTYPE yylval;
-  
+
   /* Number of syntax errors so far.  */
   int yynerrs;
 

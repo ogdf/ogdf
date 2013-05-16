@@ -19,7 +19,7 @@
 #include "CoinFinite.hpp"
 #if DENSE_CODE==1
 // using simple lapack interface
-extern "C" 
+extern "C"
 {
   /** LAPACK Fortran subroutine DGETRF. */
   void F77_FUNC(dgetrf,DGETRF)(ipfint * m, ipfint *n,
@@ -106,7 +106,7 @@ CoinFactorization::factorSparseSmall (  )
 	    //take out this bit of indexColumnU
 	    int next = nextRow[iRow];
 	    int last = lastRow[iRow];
-	    
+
 	    nextRow[last] = next;
 	    lastRow[next] = last;
 	    nextRow[iRow] = numberGoodU_;	//use for permute
@@ -200,11 +200,11 @@ CoinFactorization::factorSparseSmall (  )
           look = nextCount[look];
         } else {
           int iColumn = look - numberRows_;
-          
+
           assert ( numberInColumn[iColumn] == count );
           CoinBigIndex start = startColumnU[iColumn];
           int iRow = indexRow[start];
-          
+
           iPivotRow = iRow;
           pivotRowPosition = start;
           iPivotColumn = iColumn;
@@ -222,7 +222,7 @@ CoinFactorization::factorSparseSmall (  )
     while ( look >= 0 ) {
       if ( look < numberRows_ ) {
         int iRow = look;
-#ifndef NDEBUG        
+#ifndef NDEBUG
         if ( numberInRow[iRow] != count ) {
           printf("failed on %d entry to factorSparse and %d try\n",
                  counter1,counter2);
@@ -234,17 +234,17 @@ CoinFactorization::factorSparseSmall (  )
         bool rejected = false;
         CoinBigIndex start = startRow[iRow];
         CoinBigIndex end = start + count;
-        
+
         CoinBigIndex i;
         for ( i = start; i < end; i++ ) {
           int iColumn = indexColumn[i];
           assert (numberInColumn[iColumn]>0);
           double cost = ( count - 1 ) * numberInColumn[iColumn];
-          
+
           if ( cost < minimumCost ) {
             CoinBigIndex where = startColumn[iColumn];
             double minimumValue = element[where];
-            
+
             minimumValue = fabs ( minimumValue ) * pivotTolerance;
             while ( indexRow[where] != iRow ) {
               where++;
@@ -252,7 +252,7 @@ CoinFactorization::factorSparseSmall (  )
             assert ( where < startColumn[iColumn] +
                      numberInColumn[iColumn]);
             CoinFactorizationDouble value = element[where];
-            
+
             value = fabs ( value );
             if ( value >= minimumValue ) {
               minimumCost = cost;
@@ -285,25 +285,25 @@ CoinFactorization::factorSparseSmall (  )
         }
       } else {
         int iColumn = look - numberRows;
-        
+
         assert ( numberInColumn[iColumn] == count );
         look = nextCount[look];
         CoinBigIndex start = startColumn[iColumn];
         CoinBigIndex end = start + numberInColumn[iColumn];
         CoinFactorizationDouble minimumValue = element[start];
-        
+
         minimumValue = fabs ( minimumValue ) * pivotTolerance;
         CoinBigIndex i;
         for ( i = start; i < end; i++ ) {
           CoinFactorizationDouble value = element[i];
-          
+
           value = fabs ( value );
           if ( value >= minimumValue ) {
             int iRow = indexRow[i];
             int nInRow = numberInRow[iRow];
             assert (nInRow>0);
             double cost = ( count - 1 ) * nInRow;
-            
+
             if ( cost < minimumCost ) {
               minimumCost = cost;
               minimumCount = nInRow;
@@ -330,7 +330,7 @@ CoinFactorization::factorSparseSmall (  )
       assert (iPivotRow<numberRows_);
       int numberDoRow = numberInRow[iPivotRow] - 1;
       int numberDoColumn = numberInColumn[iPivotColumn] - 1;
-      
+
       totalElements_ -= ( numberDoRow + numberDoColumn + 1 );
       if ( numberDoColumn > 0 ) {
 	if ( numberDoRow > 0 ) {
@@ -339,16 +339,16 @@ CoinFactorization::factorSparseSmall (  )
 	    //need to adjust more for cache and SMP
 	    //allow at least 4 extra
 	    int increment = numberDoColumn + 1 + 4;
-            
+
 	    if ( increment & 15 ) {
 	      increment = increment & ( ~15 );
 	      increment += 16;
 	    }
 	    int increment2 =
-	      
+
 	      ( increment + COINFACTORIZATION_BITS_PER_INT - 1 ) >> COINFACTORIZATION_SHIFT_PER_INT;
 	    CoinBigIndex size = increment2 * numberDoRow;
-            
+
 	    if ( size > workSize ) {
 	      workSize = size;
 	      workArea2_.conditionalNew(workSize);
@@ -356,10 +356,10 @@ CoinFactorization::factorSparseSmall (  )
 	    }
 	    bool goodPivot;
 #ifndef UGLY_COIN_FACTOR_CODING
-	    //branch out to best pivot routine 
+	    //branch out to best pivot routine
 	    goodPivot = pivot ( iPivotRow, iPivotColumn,
 				pivotRowPosition, pivotColumnPosition,
-				workArea, workArea2, 
+				workArea, workArea2,
 				increment2,  markRow ,
 				SMALL_SET);
 #else
@@ -400,7 +400,7 @@ CoinFactorization::factorSparseSmall (  )
       pivotColumn[numberGoodU_] = iPivotColumn;
       numberGoodU_++;
       // This should not need to be trapped here - but be safe
-      if (numberGoodU_==numberRows_) 
+      if (numberGoodU_==numberRows_)
 	count=biggerDimension_+1;
 #if COIN_DEBUG==2
       checkConsistency (  );
@@ -416,14 +416,14 @@ CoinFactorization::factorSparseSmall (  )
         double ratio;
         if (leftRows>2000)
           ratio=4.0;
-        else 
+        else
           ratio=3.0;
-        if (ratio*leftElements>full) 
+        if (ratio*leftElements>full)
           denseThreshold=1;
       }
 #endif
       if (denseThreshold) {
-        // see whether to go dense 
+        // see whether to go dense
         int leftRows=numberRows_-numberGoodU_;
         double full = leftRows;
         full *= full;
@@ -446,7 +446,7 @@ CoinFactorization::factorSparseSmall (  )
             break;
           int check=0;
           for (int iColumn=0;iColumn<numberColumns_;iColumn++) {
-            if (numberInColumn[iColumn]) 
+            if (numberInColumn[iColumn])
               check++;
           }
           if (check!=leftRows&&denseThreshold_) {
@@ -454,7 +454,7 @@ CoinFactorization::factorSparseSmall (  )
             denseThreshold=0;
           } else {
             status=2;
-            if ((messageLevel_&4)!=0) 
+            if ((messageLevel_&4)!=0)
               std::cout<<"      Went dense at "<<leftRows<<" rows "<<
                 totalElements_<<" "<<full<<" "<<leftElements<<std::endl;
             if (!denseThreshold_)
@@ -468,7 +468,7 @@ CoinFactorization::factorSparseSmall (  )
     } else {
       //end of this - onto next
       count++;
-    } 
+    }
   }				/* endwhile */
   workArea_.conditionalDelete() ;
   workArea2_.conditionalDelete() ;
@@ -483,9 +483,9 @@ int CoinFactorization::factorDense()
   numberDense_=numberRows_-numberGoodU_;
   if (sizeof(CoinBigIndex)==4&&numberDense_>=2<<15) {
     abort();
-  } 
+  }
   CoinBigIndex full;
-  if (denseThreshold_>0) 
+  if (denseThreshold_>0)
     full = numberDense_*numberDense_;
   else
     full = - denseThreshold_*numberDense_;
@@ -514,7 +514,7 @@ int CoinFactorization::factorDense()
       densePermute_[which]=i;
       which++;
     }
-  } 
+  }
   //for L part
   CoinBigIndex * startColumnL = startColumnL_.array();
   CoinFactorizationDouble * elementL = elementL_.array();
@@ -550,8 +550,8 @@ int CoinFactorization::factorDense()
       pivotColumn[numberGoodU_]=iColumn;
       pivotRegion[numberGoodU_]=1.0;
       numberGoodU_++;
-    } 
-  } 
+    }
+  }
 #ifdef DENSE_CODE
   if (denseThreshold_>0) {
     assert(numberGoodU_==numberRows_);
@@ -565,7 +565,7 @@ int CoinFactorization::factorDense()
     if(info)
       status = -1;
     return status;
-  } 
+  }
 #endif
   numberGoodU_ = numberRows_-numberDense_;
   int base = numberGoodU_;
@@ -582,7 +582,7 @@ int CoinFactorization::factorDense()
     iColumn = pivotColumnConst[base+iDense];
     int next = nextColumn[iColumn];
     int numberInPivotColumn = iDense;
-    CoinBigIndex space = startColumnU[next] 
+    CoinBigIndex space = startColumnU[next]
       - startColumnU[iColumn]
       - numberInColumnPlus[next];
     //assume no zero elements
@@ -600,10 +600,10 @@ int CoinFactorization::factorDense()
     nextRow[iColumn]=iColumn;
     startColumnL[iColumn+1]=endL;
     pivotRegion[iColumn]=1.0;
-  } 
+  }
   if ( lengthL_ + full*0.5 > lengthAreaL_ ) {
     //need more memory
-    if ((messageLevel_&4)!=0) 
+    if ((messageLevel_&4)!=0)
       std::cout << "more memory needed in middle of invert" << std::endl;
     return -99;
   }
@@ -696,7 +696,7 @@ int CoinFactorization::factorDense()
   return status;
 }
 // Separate out links with same row/column count
-void 
+void
 CoinFactorization::separateLinks(int count,bool rowsFirst)
 {
   int *nextCount = nextCount_.array();
@@ -745,7 +745,7 @@ CoinFactorization::separateLinks(int count,bool rowsFirst)
     nextCount[lastColumn]=firstRow;
     if (firstRow>=0)
       lastCount[firstRow]=lastColumn;
-  } 
+  }
 }
 // Debug - save on file
 int
@@ -832,8 +832,8 @@ CoinFactorization::saveFactorization (const char * file  ) const
   return 0;
 }
 // Debug - restore from file
-int 
-CoinFactorization::restoreFactorization (const char * file , bool factorIt ) 
+int
+CoinFactorization::restoreFactorization (const char * file , bool factorIt )
 {
   FILE * fp = fopen(file,"rb");
   if (fp) {
@@ -961,7 +961,7 @@ CoinFactorization::restoreFactorization (const char * file , bool factorIt )
     if (CoinFromFile(pivotRowL,numberRows_ + 1 , fp, newSize )==1)
       return 1;
     assert (newSize==numberRows_+1);
-    int * pivotColumn = pivotColumn_.array(); 
+    int * pivotColumn = pivotColumn_.array();
     if (CoinFromFile(pivotColumn,maximumColumnsExtra_ + 1 , fp, newSize )==1)
       return 1;
     assert (newSize==maximumColumnsExtra_+1);
@@ -1045,7 +1045,7 @@ CoinFactorization::factorSparseLarge (  )
 	    //take out this bit of indexColumnU
 	    int next = nextRow[iRow];
 	    int last = lastRow[iRow];
-	    
+
 	    nextRow[last] = next;
 	    lastRow[next] = last;
 	    nextRow[iRow] = numberGoodU_;	//use for permute
@@ -1136,11 +1136,11 @@ CoinFactorization::factorSparseLarge (  )
           look = nextCount[look];
         } else {
           int iColumn = look - numberRows_;
-          
+
           assert ( numberInColumn[iColumn] == count );
           CoinBigIndex start = startColumnU[iColumn];
           int iRow = indexRow[start];
-          
+
           iPivotRow = iRow;
           pivotRowPosition = start;
           iPivotColumn = iColumn;
@@ -1158,7 +1158,7 @@ CoinFactorization::factorSparseLarge (  )
     while ( look >= 0 ) {
       if ( look < numberRows_ ) {
         int iRow = look;
-#ifndef NDEBUG        
+#ifndef NDEBUG
         if ( numberInRow[iRow] != count ) {
           printf("failed on %d entry to factorSparse and %d try\n",
                  counter1,counter2);
@@ -1170,17 +1170,17 @@ CoinFactorization::factorSparseLarge (  )
         bool rejected = false;
         CoinBigIndex start = startRow[iRow];
         CoinBigIndex end = start + count;
-        
+
         CoinBigIndex i;
         for ( i = start; i < end; i++ ) {
           int iColumn = indexColumn[i];
           assert (numberInColumn[iColumn]>0);
           double cost = ( count - 1 ) * numberInColumn[iColumn];
-          
+
           if ( cost < minimumCost ) {
             CoinBigIndex where = startColumn[iColumn];
             CoinFactorizationDouble minimumValue = element[where];
-            
+
             minimumValue = fabs ( minimumValue ) * pivotTolerance;
             while ( indexRow[where] != iRow ) {
               where++;
@@ -1188,7 +1188,7 @@ CoinFactorization::factorSparseLarge (  )
             assert ( where < startColumn[iColumn] +
                      numberInColumn[iColumn]);
             CoinFactorizationDouble value = element[where];
-            
+
             value = fabs ( value );
             if ( value >= minimumValue ) {
               minimumCost = cost;
@@ -1221,25 +1221,25 @@ CoinFactorization::factorSparseLarge (  )
         }
       } else {
         int iColumn = look - numberRows;
-        
+
         assert ( numberInColumn[iColumn] == count );
         look = nextCount[look];
         CoinBigIndex start = startColumn[iColumn];
         CoinBigIndex end = start + numberInColumn[iColumn];
         CoinFactorizationDouble minimumValue = element[start];
-        
+
         minimumValue = fabs ( minimumValue ) * pivotTolerance;
         CoinBigIndex i;
         for ( i = start; i < end; i++ ) {
           CoinFactorizationDouble value = element[i];
-          
+
           value = fabs ( value );
           if ( value >= minimumValue ) {
             int iRow = indexRow[i];
             int nInRow = numberInRow[iRow];
             assert (nInRow>0);
             double cost = ( count - 1 ) * nInRow;
-            
+
             if ( cost < minimumCost ) {
               minimumCost = cost;
               minimumCount = nInRow;
@@ -1266,7 +1266,7 @@ CoinFactorization::factorSparseLarge (  )
       if ( iPivotRow >= 0 ) {
         int numberDoRow = numberInRow[iPivotRow] - 1;
         int numberDoColumn = numberInColumn[iPivotColumn] - 1;
-        
+
         totalElements_ -= ( numberDoRow + numberDoColumn + 1 );
         if ( numberDoColumn > 0 ) {
           if ( numberDoRow > 0 ) {
@@ -1275,29 +1275,29 @@ CoinFactorization::factorSparseLarge (  )
               //need to adjust more for cache and SMP
               //allow at least 4 extra
               int increment = numberDoColumn + 1 + 4;
-              
+
               if ( increment & 15 ) {
                 increment = increment & ( ~15 );
                 increment += 16;
               }
               int increment2 =
-                
+
                 ( increment + COINFACTORIZATION_BITS_PER_INT - 1 ) >> COINFACTORIZATION_SHIFT_PER_INT;
               CoinBigIndex size = increment2 * numberDoRow;
-              
+
               if ( size > workSize ) {
                 workSize = size;
 		workArea2_.conditionalNew(workSize);
 		workArea2 = workArea2_.array();
               }
               bool goodPivot;
-              
+
 	      //might be able to do better by permuting
 #ifndef UGLY_COIN_FACTOR_CODING
-	      //branch out to best pivot routine 
+	      //branch out to best pivot routine
 	      goodPivot = pivot ( iPivotRow, iPivotColumn,
 				  pivotRowPosition, pivotColumnPosition,
-				  workArea, workArea2, 
+				  workArea, workArea2,
 				  increment2, markRow ,
 				  LARGE_SET);
 #else
@@ -1337,7 +1337,7 @@ CoinFactorization::factorSparseLarge (  )
         pivotColumn[numberGoodU_] = iPivotColumn;
         numberGoodU_++;
         // This should not need to be trapped here - but be safe
-        if (numberGoodU_==numberRows_) 
+        if (numberGoodU_==numberRows_)
           count=biggerDimension_+1;
       }
 #if COIN_DEBUG==2
@@ -1354,14 +1354,14 @@ CoinFactorization::factorSparseLarge (  )
         double ratio;
         if (leftRows>2000)
           ratio=4.0;
-        else 
+        else
           ratio=3.0;
-        if (ratio*leftElements>full) 
+        if (ratio*leftElements>full)
           denseThreshold=1;
       }
 #endif
       if (denseThreshold) {
-        // see whether to go dense 
+        // see whether to go dense
         int leftRows=numberRows_-numberGoodU_;
         double full = leftRows;
         full *= full;
@@ -1384,7 +1384,7 @@ CoinFactorization::factorSparseLarge (  )
             break;
           int check=0;
           for (int iColumn=0;iColumn<numberColumns_;iColumn++) {
-            if (numberInColumn[iColumn]) 
+            if (numberInColumn[iColumn])
               check++;
           }
           if (check!=leftRows&&denseThreshold_) {
@@ -1392,7 +1392,7 @@ CoinFactorization::factorSparseLarge (  )
             denseThreshold=0;
           } else {
             status=2;
-            if ((messageLevel_&4)!=0) 
+            if ((messageLevel_&4)!=0)
               std::cout<<"      Went dense at "<<leftRows<<" rows "<<
                 totalElements_<<" "<<full<<" "<<leftElements<<std::endl;
             if (!denseThreshold_)
@@ -1406,7 +1406,7 @@ CoinFactorization::factorSparseLarge (  )
     } else {
       //end of this - onto next
       count++;
-    } 
+    }
   }				/* endwhile */
   workArea_.conditionalDelete() ;
   workArea2_.conditionalDelete() ;

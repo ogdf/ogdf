@@ -1,9 +1,9 @@
 /*
- * $Revision: 3342 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: klein $
- *   $Date: 2013-03-09 23:55:15 +0100 (Sa, 09. Mär 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -236,7 +236,7 @@ private:
 	DPoint calculate_position(DPoint P,DPoint Q, double dist_P, double dist_Q);
 
 	/// Calculates the angle between PQ and PS in [0,2pi)
-	double angle(DPoint& P, DPoint& Q, DPoint& R);
+	double angle(const DPoint& P, const DPoint& Q, const DPoint& R);
 };
 
 }//namespace ogdf

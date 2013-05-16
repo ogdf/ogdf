@@ -32,8 +32,8 @@ struct buildFormat {
   double objective;
   double lower;
   double upper;
-  double restDouble[1]; 
-  int restInt[1]; // just to make correct size 
+  double restDouble[1];
+  int restInt[1]; // just to make correct size
 } ;
 
 //#############################################################################
@@ -41,9 +41,9 @@ struct buildFormat {
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
-CoinBuild::CoinBuild () 
+CoinBuild::CoinBuild ()
   : numberItems_(0),
     numberOther_(0),
     numberElements_(0),
@@ -56,7 +56,7 @@ CoinBuild::CoinBuild ()
 //-------------------------------------------------------------------
 // Constructor with type
 //-------------------------------------------------------------------
-CoinBuild::CoinBuild (int type) 
+CoinBuild::CoinBuild (int type)
   : numberItems_(0),
     numberOther_(0),
     numberElements_(0),
@@ -70,9 +70,9 @@ CoinBuild::CoinBuild (int type)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CoinBuild::CoinBuild (const CoinBuild & rhs) 
+CoinBuild::CoinBuild (const CoinBuild & rhs)
   : numberItems_(rhs.numberItems_),
     numberOther_(rhs.numberOther_),
     numberElements_(rhs.numberElements_),
@@ -110,7 +110,7 @@ CoinBuild::CoinBuild (const CoinBuild & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinBuild::~CoinBuild ()
 {
@@ -123,7 +123,7 @@ CoinBuild::~CoinBuild ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinBuild &
 CoinBuild::operator=(const CoinBuild& rhs)
@@ -171,9 +171,9 @@ CoinBuild::operator=(const CoinBuild& rhs)
   return *this;
 }
 // add a row
-void 
+void
 CoinBuild::addRow(int numberInRow, const int * columns,
-                 const double * elements, double rowLower, 
+                 const double * elements, double rowLower,
                  double rowUpper)
 {
   if (type_<0) {
@@ -182,12 +182,12 @@ CoinBuild::addRow(int numberInRow, const int * columns,
     printf("CoinBuild:: unable to add a row in column mode\n");
     abort();
   }
-  addItem(numberInRow, columns, elements, 
+  addItem(numberInRow, columns, elements,
           rowLower,rowUpper,0.0);
 }
 /*  Returns number of elements in a row and information in row
  */
-int 
+int
 CoinBuild::row(int whichRow, double & rowLower, double & rowUpper,
               const int * & indices, const double * & elements) const
 {
@@ -199,7 +199,7 @@ CoinBuild::row(int whichRow, double & rowLower, double & rowUpper,
 /*  Returns number of elements in current row and information in row
     Used as rows may be stored in a chain
 */
-int 
+int
 CoinBuild::currentRow(double & rowLower, double & rowUpper,
                      const int * & indices, const double * & elements) const
 {
@@ -208,24 +208,24 @@ CoinBuild::currentRow(double & rowLower, double & rowUpper,
   return currentItem(rowLower,rowUpper,dummyObjective,indices,elements);
 }
 // Set current row
-void 
+void
 CoinBuild::setCurrentRow(int whichRow)
 {
   assert (type_==0);
   setMutableCurrent(whichRow);
 }
 // Returns current row number
-int 
+int
 CoinBuild::currentRow() const
 {
   assert (type_==0);
   return currentItem();
 }
 // add a column
-void 
+void
 CoinBuild::addColumn(int numberInColumn, const int * rows,
-                     const double * elements, 
-                     double columnLower, 
+                     const double * elements,
+                     double columnLower,
                      double columnUpper, double objectiveValue)
 {
   if (type_<0) {
@@ -239,9 +239,9 @@ CoinBuild::addColumn(int numberInColumn, const int * rows,
 }
 /*  Returns number of elements in a column and information in column
  */
-int 
+int
 CoinBuild::column(int whichColumn,
-                  double & columnLower, double & columnUpper, double & objectiveValue, 
+                  double & columnLower, double & columnUpper, double & objectiveValue,
                   const int * & indices, const double * & elements) const
 {
   assert (type_==1);
@@ -251,32 +251,32 @@ CoinBuild::column(int whichColumn,
 /*  Returns number of elements in current column and information in column
     Used as columns may be stored in a chain
 */
-int 
-CoinBuild::currentColumn( double & columnLower, double & columnUpper, double & objectiveValue, 
+int
+CoinBuild::currentColumn( double & columnLower, double & columnUpper, double & objectiveValue,
                          const int * & indices, const double * & elements) const
 {
   assert (type_==1);
   return currentItem(columnLower,columnUpper,objectiveValue,indices,elements);
 }
 // Set current column
-void 
+void
 CoinBuild::setCurrentColumn(int whichColumn)
 {
   assert (type_==1);
   setMutableCurrent(whichColumn);
 }
 // Returns current column number
-int 
+int
 CoinBuild::currentColumn() const
 {
   assert (type_==1);
   return currentItem();
 }
 // add a item
-void 
+void
 CoinBuild::addItem(int numberInItem, const int * indices,
-                  const double * elements, 
-                  double itemLower, 
+                  const double * elements,
+                  double itemLower,
                   double itemUpper, double objectiveValue)
 {
   buildFormat * lastItem = reinterpret_cast<buildFormat *> ( lastItem_);
@@ -313,9 +313,9 @@ CoinBuild::addItem(int numberInItem, const int * indices,
 }
 /*  Returns number of elements in a item and information in item
  */
-int 
-CoinBuild::item(int whichItem, 
-                double & itemLower, double & itemUpper, double & objectiveValue, 
+int
+CoinBuild::item(int whichItem,
+                double & itemLower, double & itemUpper, double & objectiveValue,
                 const int * & indices, const double * & elements) const
 {
   setMutableCurrent(whichItem);
@@ -324,9 +324,9 @@ CoinBuild::item(int whichItem,
 /*  Returns number of elements in current item and information in item
     Used as items may be stored in a chain
 */
-int 
+int
 CoinBuild::currentItem(double & itemLower, double & itemUpper,
-                       double & objectiveValue, 
+                       double & objectiveValue,
                        const int * & indices, const double * & elements) const
 {
   buildFormat * item = reinterpret_cast<buildFormat *> ( currentItem_);
@@ -343,13 +343,13 @@ CoinBuild::currentItem(double & itemLower, double & itemUpper,
   }
 }
 // Set current item
-void 
+void
 CoinBuild::setCurrentItem(int whichItem)
 {
   setMutableCurrent(whichItem);
 }
 // Set current item
-void 
+void
 CoinBuild::setMutableCurrent(int whichItem) const
 {
   if (whichItem>=0&&whichItem<numberItems_) {
@@ -369,7 +369,7 @@ CoinBuild::setMutableCurrent(int whichItem) const
   }
 }
 // Returns current item number
-int 
+int
 CoinBuild::currentItem() const
 {
   buildFormat * item = reinterpret_cast<buildFormat *> ( currentItem_);

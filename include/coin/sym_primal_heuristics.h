@@ -53,7 +53,7 @@ typedef struct FP_DATA {
    double       *obj;           /* obj function for pumping lp */
    char          can_check_sos; /* whether we can check sos rows while fixing bin vars */
    char         *sos_row_filled;/*to keep track of the sos variables while flipping */
-   char         *sos_var_fixed_zero;/*to keep track of the sos variables while flipping */ 
+   char         *sos_var_fixed_zero;/*to keep track of the sos variables while flipping */
    double        norm_c;        /* norm of mip_obj */
    double        alpha;
    double        alpha_decr;
@@ -78,7 +78,7 @@ int fp_round (lp_prob *p, FPdata *fp_data, LPdata *lp_data);
 int fp_is_feasible (LPdata *lp_data, const CoinPackedMatrix *matrix, const double *r_low, const double *r_up, FPdata *fp_data, char *is_feasible );
 int fp_initialize_lp_solver(lp_prob *p, LPdata *new_lp_data, FPdata *fp_data);
 int fp_solve_lp(LPdata *lp_data, FPdata *fp_data, char *is_feasible) ;
-int fp_should_call_fp(lp_prob *p, int branching, int *should_call, 
+int fp_should_call_fp(lp_prob *p, int branching, int *should_call,
       char is_last_iter);
 int fp_add_obj_row(LPdata *new_lp_data, int n, const double *obj, double rhs);
 int fp_can_sos_var_fix(lp_prob *p, FPdata *fp_data, int ind, int *filled_row_count);

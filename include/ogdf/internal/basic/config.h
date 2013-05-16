@@ -1,9 +1,9 @@
 /*
- * $Revision: 3129 $
+ * $Revision: 3504 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2012-12-10 13:51:01 +0100 (Mo, 10. Dez 2012) $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -182,7 +182,7 @@ using std::string;
 
 // warning C4251: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 #pragma warning(disable : 4251)
-// warning C4275: non – DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier' 
+// warning C4275: non – DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
 #pragma warning(disable : 4275)
 #endif
 

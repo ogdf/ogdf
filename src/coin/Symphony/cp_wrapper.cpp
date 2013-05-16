@@ -38,7 +38,7 @@
 int receive_cp_data_u(cut_pool *cp)
 {
    int r_bufid;
-   
+
    r_bufid = receive_msg(cp->master, CP_DATA);
    receive_char_array((char *)&cp->par, sizeof(cp_params));
 #ifdef USE_SYM_APPLICATION
@@ -67,7 +67,7 @@ int receive_cp_data_u(cut_pool *cp)
 int receive_lp_solution_cp_u(cut_pool *cp)
 {
    int termcode = 0;
-#ifdef USE_SYM_APPLICATION   
+#ifdef USE_SYM_APPLICATION
    CALL_USER_FUNCTION( user_receive_lp_solution_cp(&cp->user) );
 #endif
    return(termcode);
@@ -88,7 +88,7 @@ int check_cuts_u(cut_pool *cp, lp_sol *cur_sol)
       return(0);
    }
 #endif
-   
+
    switch(cp->par.check_which){ /* decide which cuts to check for violation */
 
     case CHECK_ALL_CUTS: /* check all cuts in the pool */
@@ -109,7 +109,7 @@ int check_cuts_u(cut_pool *cp, lp_sol *cur_sol)
 	 }
       }
       break;
-      
+
     case CHECK_LEVEL: /* only check cuts generated at a level higher
 			 than the current level. This prevents checking
 			 cuts generated in other parts of the tree which
@@ -133,7 +133,7 @@ int check_cuts_u(cut_pool *cp, lp_sol *cur_sol)
 	 }
       }
       break;
-      
+
     case CHECK_TOUCHES: /* only check cuts which have been recently
 			   violated */
       for (i = 0, pcp_cut = cp->cuts; i < cuts_to_check; i++, pcp_cut++){
@@ -155,7 +155,7 @@ int check_cuts_u(cut_pool *cp, lp_sol *cur_sol)
 	 }
       }
       break;
-      
+
     case CHECK_LEVEL_AND_TOUCHES: /* a combination of the above two
 				     options */
       for (i = 0, pcp_cut = cp->cuts; i < cuts_to_check; i++, pcp_cut++){
@@ -178,12 +178,12 @@ int check_cuts_u(cut_pool *cp, lp_sol *cur_sol)
 	 }
       }
       break;
-      
+
    default:
       printf("Unknown rule for checking cuts \n\n");
       break;
    }
-#ifdef USE_SYM_APPLICATION   
+#ifdef USE_SYM_APPLICATION
    user_finished_checking_cuts(cp->user);
 #endif
 
@@ -200,9 +200,9 @@ int check_cut_u(cut_pool *cp, lp_sol *cur_sol, cut_data *cut, int *is_violated,
    double *values = cur_sol->xval, *matval;
    double lhs = 0, etol = cur_sol->lpetol;
    int i, j;
-   
+
    switch (cut->type){
-      
+
     case EXPLICIT_ROW:
       nzcnt = ((int *) (cut->coef))[0];
       matval = (double *) (cut->coef + DSIZE);
@@ -216,16 +216,16 @@ int check_cut_u(cut_pool *cp, lp_sol *cur_sol, cut_data *cut, int *is_violated,
 	    j++;
 	 }
       }
-      
+
       switch (cut->sense){
 
        case 'G':
-	 
+
 	 *is_violated = (lhs < cut->rhs - etol);
 	 *quality = cut->rhs - lhs;
 
        case 'L':
-	 
+
 	 *is_violated = (lhs > cut->rhs + etol);
 	 *quality = lhs - cut->rhs;
 
@@ -244,13 +244,13 @@ int check_cut_u(cut_pool *cp, lp_sol *cur_sol, cut_data *cut, int *is_violated,
 	 }
       }
       return(0);
-      
+
     default:
 #ifdef USE_SYM_APPLICATION
       return(user_check_cut(cp->user, cur_sol->lpetol, varnum, indices, values,
 			    cut, is_violated, quality));
 #else
-      return(USER_DEFAULT); 
+      return(USER_DEFAULT);
 #endif
    }
 }
@@ -261,7 +261,7 @@ int check_cut_u(cut_pool *cp, lp_sol *cur_sol, cut_data *cut, int *is_violated,
 void free_cut_pool_u(cut_pool *cp)
 {
    int i;
-#ifdef USE_SYM_APPLICATION	   
+#ifdef USE_SYM_APPLICATION
    user_free_cp(&cp->user);
 #endif
    for (i = cp->cut_num - 1; i >= 0; i--){

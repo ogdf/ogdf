@@ -20,7 +20,7 @@
 #include "CglOddHole.hpp"
 //#define CGL_DEBUG
 // We may want to sort cut
-typedef struct {double dj;double element; int sequence;} 
+typedef struct {double dj;double element; int sequence;}
 double_double_int_triple;
 class double_double_int_triple_compare {
 public:
@@ -28,25 +28,25 @@ public:
   {
     return ( x.dj < y.dj);
   }
-}; 
+};
 //-------------------------------------------------------------------------------
 // Generate three cycle cuts
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void CglOddHole::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 			      const CglTreeInfo info) const
 {
   // Get basic problem information
-  int nRows=si.getNumRows(); 
-  int nCols=si.getNumCols(); 
-  
+  int nRows=si.getNumRows();
+  int nCols=si.getNumCols();
+
   const CoinPackedMatrix * rowCopy = si.getMatrixByRow();
 
   // Could do cliques and extra OSL cliques
   // For moment just easy ones
-  
+
   // If no information exists then get a list of suitable rows
   // If it does then suitable rows are subset of information
-  
+
   CglOddHole temp;
   int * checkRow = new int[nRows];
   int i;
@@ -65,13 +65,13 @@ void CglOddHole::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   memcpy(solution,si.getColSolution(),nCols*sizeof(double));
   const int * column = rowCopy->getIndices();
   const CoinBigIndex * rowStart = rowCopy->getVectorStarts();
-  const int * rowLength = rowCopy->getVectorLengths(); 
+  const int * rowLength = rowCopy->getVectorLengths();
   const double * collower = si.getColLower();
   const double * colupper = si.getColUpper();
   int * suitable = temp.suitableRows_;
 
   // At present I am using new and delete as easier to see arrays in debugger
-  int * fixed = new int[nCols]; // mark fixed columns 
+  int * fixed = new int[nCols]; // mark fixed columns
 
   for (i=0;i<nCols;i++) {
     if (si.isBinary(i) ) {
@@ -139,17 +139,17 @@ void CglOddHole::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
       }
     }
   }
-  if (doCover&&nsuitable) 
+  if (doCover&&nsuitable)
     temp.generateCuts(debugger, *rowCopy,solution,si.getReducedCost(),
 		      cs,suitable,fixed,info,false);
   delete [] checkRow;
   delete [] solution;
   delete [] fixed;
-    
+
 }
 void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
-			      const CoinPackedMatrix & rowCopy, 
-				 const double * solution, 
+			      const CoinPackedMatrix & rowCopy,
+				 const double * solution,
 			      const double * dj, OsiCuts & cs,
 				 const int * suitableRow,
 			      const int * fixedColumn,
@@ -160,16 +160,16 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
   columnCopy.reverseOrdering();
 
   // Get basic problem information
-  int nRows=columnCopy.getNumRows(); 
-  int nCols=columnCopy.getNumCols(); 
-  
+  int nRows=columnCopy.getNumRows();
+  int nCols=columnCopy.getNumCols();
+
   const int * column = rowCopy.getIndices();
   const CoinBigIndex * rowStart = rowCopy.getVectorStarts();
-  const int * rowLength = rowCopy.getVectorLengths(); 
-  
+  const int * rowLength = rowCopy.getVectorLengths();
+
   const int * row = columnCopy.getIndices();
   const CoinBigIndex * columnStart = columnCopy.getVectorStarts();
-  const int * columnLength = columnCopy.getVectorLengths(); 
+  const int * columnLength = columnCopy.getVectorLengths();
 
   // we need only look at suitable rows and variables with unsatisfied 0-1
   // lookup from true row to compressed matrix
@@ -200,7 +200,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
 #define MAXELS 50000
   int maxels=MAXELS;
   //How do I do reallocs in C++?
-  // 1.0 - value x(i) - value x(j) for each node pair (or reverse if cover) 
+  // 1.0 - value x(i) - value x(j) for each node pair (or reverse if cover)
   double * cost = reinterpret_cast<double *> (malloc(maxels*sizeof(double)));
   // arc i.e. j which can be reached from i
   int * to= reinterpret_cast<int *> (malloc(maxels*sizeof(int)));
@@ -271,7 +271,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
       }
     }
   }
-  // we are going to double size 
+  // we are going to double size
 
   if (2*n>maxels) {
     maxels=2*n;
@@ -329,7 +329,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
   int * candidate = new int[CoinMax(nSmall2,nCols)];
   double * element = new double[nCols];
   // in case we want to sort
-  double_double_int_triple * sortit = 
+  double_double_int_triple * sortit =
     new double_double_int_triple [nCols];
   memset(mark,0,nSmall2*sizeof(int));
   int * countcol = new int[nCols];
@@ -453,7 +453,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
 	  printf("true constraint %d",nrow2);
 #endif
 	  nrow2=nrow2>>1;
-	  double rhs=nrow2; 
+	  double rhs=nrow2;
 	  if (!packed) rhs++; // +1 for cover
 	  ii=0;
 	  for (k=0;k<nincut;k++) {
@@ -480,12 +480,12 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
 	  if (packed) {
 	    violation = sum-rhs;
 	    rc.setLb(-COIN_DBL_MAX);
-	    rc.setUb(rhs);   
+	    rc.setUb(rhs);
 	  } else {
 	    // other way for cover
 	    violation = rhs-sum;
 	    rc.setUb(COIN_DBL_MAX);
-	    rc.setLb(rhs);   
+	    rc.setLb(rhs);
 	  }
 	  if (violation<minimumViolation_) {
 #ifdef CGL_DEBUG
@@ -511,7 +511,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
 		  sortit[k].element=element[k];
 		  sortit[k].sequence=jcol;
 		}
-		// sort 
+		// sort
 		std::sort(sortit,sortit+nincut,double_double_int_triple_compare());
 		nincut = CoinMin(nincut,maximumEntries_);
 		sum=0.0;
@@ -526,7 +526,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
 		if (violation<minimumViolation_) {
 		  good=false;
 		}
-	      } else { 
+	      } else {
 		good=false;
 	      }
 	    }
@@ -562,8 +562,8 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
 	      rc.setRow(ii,candidate,element);
 #ifdef CGL_DEBUG
 	      printf("sum %g rhs %g %d\n",sum,rhs,ii);
-	      if (debugger) 
-		assert(!debugger->invalidCut(rc)); 
+	      if (debugger)
+		assert(!debugger->invalidCut(rc));
 #endif
 	      cs.insert(rc);
 	    }
@@ -597,14 +597,14 @@ void CglOddHole::createRowList( const OsiSolverInterface & si,
 		      const int * possible)
 {
   // Get basic problem information
-  int nRows=si.getNumRows(); 
-  
+  int nRows=si.getNumRows();
+
   const CoinPackedMatrix * rowCopy = si.getMatrixByRow();
 
   const int * column = rowCopy->getIndices();
   const CoinBigIndex * rowStart = rowCopy->getVectorStarts();
-  const int * rowLength = rowCopy->getVectorLengths(); 
-  
+  const int * rowLength = rowCopy->getVectorLengths();
+
   int rowIndex;
   delete [] suitableRows_;
   numberRows_=nRows;
@@ -691,7 +691,7 @@ int CglOddHole::numberPossible()
 
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglOddHole::CglOddHole ()
 :
@@ -711,7 +711,7 @@ onetol_(1-epsilon_)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglOddHole::CglOddHole (
                                                               const CglOddHole & source)
@@ -719,7 +719,7 @@ CglOddHole::CglOddHole (
 CglCutGenerator(source),
 epsilon_(source.epsilon_),
 onetol_(source.onetol_)
-{  
+{
   // copy list of suitable rows
   numberRows_=source.numberRows_;
   if (numberRows_) {
@@ -755,7 +755,7 @@ CglOddHole::clone() const
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglOddHole::~CglOddHole ()
 {
@@ -766,7 +766,7 @@ CglOddHole::~CglOddHole ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglOddHole &
 CglOddHole::operator=(
@@ -802,36 +802,36 @@ CglOddHole::operator=(
   return *this;
 }
 // Minimum violation
-double 
+double
 CglOddHole::getMinimumViolation() const
 {
   return minimumViolation_;
 }
-void 
+void
 CglOddHole::setMinimumViolation(double value)
 {
   if (value>1.0e-8&&value<=0.5)
     minimumViolation_=value;
 }
 // Minimum violation per entry
-double 
+double
 CglOddHole::getMinimumViolationPer() const
 {
   return minimumViolationPer_;
 }
-void 
+void
 CglOddHole::setMinimumViolationPer(double value)
 {
   if (value>1.0e-8&&value<=0.25)
     minimumViolationPer_=value;
 }
 // Maximum number of entries in a cut
-int 
+int
 CglOddHole::getMaximumEntries() const
 {
   return maximumEntries_;
 }
-void 
+void
 CglOddHole::setMaximumEntries(int value)
 {
   if (value>2)
@@ -839,7 +839,7 @@ CglOddHole::setMaximumEntries(int value)
 }
 
 // This can be used to refresh any inforamtion
-void 
+void
 CglOddHole::refreshSolver(OsiSolverInterface * )
 {
 }

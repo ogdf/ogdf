@@ -120,7 +120,7 @@ typedef OsiGlpkSolverInterface OsiXSolverInterface;
 #error # and define LP_SOLVER properly.
 #error ###################################
 
-#endif 
+#endif
 
 /*****************************************************************************/
 /*******                  end LP solver definitions                    *******/
@@ -198,7 +198,7 @@ typedef struct LPDATA{
    double    *slacks;      /* maxm */
    double    *ub;
    double    *lb;
-   
+
    row_data  *rows;      /* maxm */
 
    temporary  tmp;
@@ -272,7 +272,7 @@ void get_lb PROTO((LPdata *lp_data, int j, double *lb));
 void get_bounds PROTO((LPdata *lp_data));
 void get_objcoef PROTO((LPdata *lp_data, int j, double *objcoef));
 void get_objcoeffs(LPdata *lp_data);
-void change_objcoeff(LPdata *lp_data, const int* indexFirst, 
+void change_objcoeff(LPdata *lp_data, const int* indexFirst,
       const int* indexLast, double *coeffs);
 void get_rhs_rng_sense(LPdata *lp_data);
 int copy_lp_data(LPdata *lp_data, LPdata *new_data);
@@ -290,21 +290,21 @@ void write_mip_desc_lp PROTO((MIPdesc *mip, char *fname));
 void write_sav PROTO((LPdata *lp_data, char *fname));
 #ifdef USE_CGL_CUTS
 void generate_cgl_cuts(LPdata *lp_data, int *num_cuts, cut_data ***cuts,
-		       char send_to_pool, int bc_index, int bc_level, 
+		       char send_to_pool, int bc_index, int bc_level,
                        int node_iter_limit, int max_cuts_before_resolve,
                        double ub, int *bnd_changes,
                        lp_stat_desc *lp_stat, node_times *comp_times,
                        int verbosity);
 int check_cuts(OsiCuts &cutlist, LPdata *lp_data, int bc_level, int
-      *num_cuts, cut_data ***cuts, char send_to_pool, int *bnd_changes, 
+      *num_cuts, cut_data ***cuts, char send_to_pool, int *bnd_changes,
       lp_stat_desc *lp_stat, node_times *compe_times, int verbosity);
-int should_generate_this_cgl_cut(int cut_num, int max_cuts_before_resolve, 
-      int generation_flag, int freq, int bc_level, int bc_index, 
+int should_generate_this_cgl_cut(int cut_num, int max_cuts_before_resolve,
+      int generation_flag, int freq, int bc_level, int bc_index,
       int cuts_in_root, int *should_generate);
 /*
 void generate_cgl_cuts PROTO((LPdata * lp_data, int *num_cuts,
 			      cut_data ***cuts, char send_to_pool,
-			      int is_rootnode, lp_stat_desc *lp_stat, 
+			      int is_rootnode, lp_stat_desc *lp_stat,
                               node_times *comp_times, int verbosity));
 */
 #endif

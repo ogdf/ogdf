@@ -28,7 +28,7 @@ namespace {	/* begin unnamed local namespace */
 /*
    This routine does the grunt work needed to substitute x for y in all rows i
    where coeff[i,y] != 0. We have
-  
+
   	 y = (c - a*x)/b = c/b + (-a/b)*x
 
    Suppose we're fixing row i. We need to adjust the row bounds by
@@ -50,7 +50,7 @@ namespace {	/* begin unnamed local namespace */
         in the column rep, add coeff[i,x]; mcstrt is modified if the column
 	must be moved;
 	in the row rep, convert coeff[i,y] to coeff[i,x].
-  
+
    The row and column reps are inconsistent during the routine and at
    completion.  In the row rep, column x and y are updated except for
    the doubleton row, and in the column rep only column x is updated
@@ -58,12 +58,12 @@ namespace {	/* begin unnamed local namespace */
    and consistency will be restored.
 */
 
-  bool elim_doubleton (const char * 
+  bool elim_doubleton (const char *
 #ifdef PRESOLVE_DEBUG
 msg
 #endif
 		       ,
-		     CoinBigIndex *mcstrt, 
+		     CoinBigIndex *mcstrt,
 		     double *rlo, double *rup,
 		     double *colels,
 		     int *hrow, int *hcol,
@@ -128,7 +128,7 @@ msg
 					clink,ncols,icolx) ;
 	if (no_mem)
 	  return (true) ;
-	  
+
       kcsx = mcstrt[icolx] ;
       kcex = mcstrt[icolx]+hincol[icolx] ;
       // recompute y as well
@@ -241,7 +241,7 @@ const CoinPresolveAction
       CoinBigIndex krs = mrstrt[irow];
       int icolx, icoly;
       CoinBigIndex k;
-      
+
       icolx = hcol[krs];
       icoly = hcol[krs+1];
       if (hincol[icolx]<=0||hincol[icoly]<=0) {
@@ -256,7 +256,7 @@ const CoinPresolveAction
       // See if prohibited for any reason
       if (prob->colProhibited(icolx) || prob->colProhibited(icolx))
 	continue;
-      
+
       // don't bother with fixed variables
       if (!(fabs(cup[icolx] - clo[icolx]) < ZTOLDP) &&
 	  !(fabs(cup[icoly] - clo[icoly]) < ZTOLDP)) {
@@ -432,30 +432,30 @@ const CoinPresolveAction
 	{
 	  PRESOLVE_DETAIL_PRINT(printf("pre_doubleton %dC %dC %dR E\n",
 				       icoly,icolx,irow));
-	  action *s = &actions[nactions];	  
+	  action *s = &actions[nactions];
 	  nactions++;
-	  
+
 	  s->row = irow;
 	  s->icolx = icolx;
-	  
+
 	  s->clox = clo[icolx];
 	  s->cupx = cup[icolx];
 	  s->costx = cost[icolx];
-	  
+
 	  s->icoly = icoly;
 	  s->costy = cost[icoly];
-	  
+
 	  s->rlo = rlo[irow];
-	  
+
 	  s->coeffx = coeffx;
-	  
+
 	  s->coeffy = coeffy;
-	  
+
 	  s->ncolx	= hincol[icolx];
-	  
+
 	  s->ncoly	= hincol[icoly];
 	  if (s->ncoly<s->ncolx) {
-	    // Take out row 
+	    // Take out row
 	    s->colel	= presolve_dupmajor(colels,hrow,hincol[icoly],
 					    mcstrt[icoly],irow) ;
 	    s->ncolx=0;
@@ -481,39 +481,39 @@ const CoinPresolveAction
 	{
 	  double lo1 = -PRESOLVE_INF;
 	  double up1 = PRESOLVE_INF;
-	  
+
 	  //PRESOLVEASSERT((coeffx < 0) == (coeffy/-coeffx < 0));
-	  // (coeffy/-coeffx < 0) == (coeffy<0 == coeffx<0) 
+	  // (coeffy/-coeffx < 0) == (coeffy<0 == coeffx<0)
 	  if (-PRESOLVE_INF < clo[icoly]) {
 	    if (coeffx * coeffy < 0)
 	      lo1 = (coeffy * clo[icoly] - rhs) / -coeffx;
-	    else 
+	    else
 	      up1 = (coeffy * clo[icoly] - rhs) / -coeffx;
 	  }
-	  
+
 	  if (cup[icoly] < PRESOLVE_INF) {
 	    if (coeffx * coeffy < 0)
 	      up1 = (coeffy * cup[icoly] - rhs) / -coeffx;
-	    else 
+	    else
 	      lo1 = (coeffy * cup[icoly] - rhs) / -coeffx;
 	  }
-	  
+
 	  // costy y = costy ((c - a x) / b) = (costy c)/b + x (costy -a)/b
 	  // the effect of maxmin cancels out
 	  cost[icolx] += cost[icoly] * (-coeffx / coeffy);
-	  
+
 	  prob->change_bias(cost[icoly] * rhs / coeffy);
-	  
+
 	  if (0    /*integerType[icolx]*/) {
 	    abort();
 	    /* no change possible for now */
 #if 0
 	    lo1 = trunc(lo1);
 	    up1 = trunc(up1);
-	    
+
 	    /* trunc(3.5) == 3.0 */
 	    /* trunc(-3.5) == -3.0 */
-	    
+
 	    /* I think this is ok */
 	    if (lo1 > clo[icolx]) {
 	      (clo[icolx] <= 0.0)
@@ -637,12 +637,12 @@ const CoinPresolveAction
 	bool no_mem = elim_doubleton("ELIMD",
 				     mcstrt, rlo, rup, colels,
 				     hrow, hcol, hinrow, hincol,
-				     clink, ncols, 
+				     clink, ncols,
 				     mrstrt, rowels,
 				     -coeffx / coeffy,
 				     rhs / coeffy,
 				     irow, icolx, icoly);
-	if (no_mem) 
+	if (no_mem)
 	  throwCoinError("out of memory",
 			 "doubleton_action::presolve");
 
@@ -662,7 +662,7 @@ const CoinPresolveAction
 	// because the solution/activity would be 0, whereas the
 	// bounds may be non-zero.
       }
-      
+
 #     if PRESOLVE_CONSISTENCY
       presolve_consistent(prob) ;
       presolve_links_ok(prob) ;
@@ -856,7 +856,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
   constant correction removed in presolve), and accumulate contributions to
   the reduced cost for y.
 
-  The PRESOLVEASSERT says this row should already be present. 
+  The PRESOLVEASSERT says this row should already be present.
 */
       int ystart = NO_LINK;
       int nX=0;
@@ -945,7 +945,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	  colels[k]=value;
 	  last=k;
 	  k = link[k];
-	  if (iRow != irow) 
+	  if (iRow != irow)
 	    djx -= rowduals[iRow] * value;
 	} else {
 	  numberInColumn--;
@@ -987,11 +987,11 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	  last = k;
 	}
       }
-	  
+
 #     if PRESOLVE_CONSISTENCY
       presolve_check_free_list(prob) ;
 #     endif
-	  
+
 /*
   Whew! Tidy up column x and we're done.
 */
@@ -1139,17 +1139,17 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	k = link[k];
 
 	if (row != irow) {
-	  
+
 	  // undo elim_doubleton(1)
 	  if (-PRESOLVE_INF < rlo[row])
 	    rlo[row] += coeff * bounds_factor;
-	  
+
 	  // undo elim_doubleton(2)
 	  if (rup[row] < PRESOLVE_INF)
 	    rup[row] += coeff * bounds_factor;
-	  
+
 	  acts[row] += coeff * bounds_factor;
-	  
+
 	  djy -= rowduals[row] * coeff;
 	}
       }
@@ -1161,7 +1161,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
       k = mcstrt[jcolx];
       int nx = hincol[jcolx];
-      
+
       for ( i=0; i<nx; ++i) {
 	int row = hrow[k];
 	double coeff = colels[k];
@@ -1199,7 +1199,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
   means we should calculate rowduals[dblton] so that rcost[jcoly] == 0. We
   may need to change the status of x (an artifact of loosening a bound when
   x was previously a fixed variable).
-  
+
   If we need to push x into the basis, then we calculate rowduals[dblton] so
   that rcost[jcolx] == 0 and make y nonbasic.
 */
@@ -1241,7 +1241,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       rowduals[irow] = djy / coeffy;
       rcosts[jcoly] = 0.0;
     }
-    
+
 # if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
 /*
   Mark the column and row as processed by doubleton action. The check integrity
@@ -1259,7 +1259,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       CoinBigIndex k = mcstrt[jcolx];
       int nx = hincol[jcolx];
       double dj = maxmin * dcost[jcolx];
-      
+
       for (int i=0; i<nx; ++i) {
 	int row = hrow[k];
 	double coeff = colels[k];
@@ -1276,7 +1276,7 @@ void doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
       CoinBigIndex k = mcstrt[jcoly];
       int ny = hincol[jcoly];
       double dj = maxmin * dcost[jcoly];
-      
+
       for (int i=0; i<ny; ++i) {
 	int row = hrow[k];
 	double coeff = colels[k];
@@ -1317,12 +1317,12 @@ static int *doubleton_id;
 void check_doubletons(const CoinPresolveAction * paction)
 {
   const CoinPresolveAction * paction0 = paction;
-  
+
   if (paction) {
     check_doubletons(paction->next);
-    
+
     if (strcmp(paction0->name(), "doubleton_action") == 0) {
-      const doubleton_action *daction = 
+      const doubleton_action *daction =
 	reinterpret_cast<const doubleton_action *>(paction0);
       for (int i=daction->nactions_-1; i>=0; --i) {
 	int icolx = daction->actions_[i].icolx;

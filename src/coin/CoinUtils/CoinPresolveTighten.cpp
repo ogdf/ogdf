@@ -38,7 +38,7 @@ const char *do_tighten_action::name() const
 //
 // If the variable *is* bounded in that direction,
 // there is no reason not to set it to that bound.
-// This effectively weakens the constraints, and in fact 
+// This effectively weakens the constraints, and in fact
 // may be subsequently presolved away.
 //
 // Note that none of the constraints may be bounded both above and below,
@@ -98,7 +98,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
 
   int *useless_rows	= prob->usefulRowInt_; //new int[nrows];
   int nuseless_rows	= 0;
-  
+
   action *actions	= new action [ncols];
   int nactions		= 0;
 
@@ -198,7 +198,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
 	  } else
 	    limit++;
 
-	  printf("TIGHTEN STATS %d %g %g %d:  \n", j, clo[j], cup[j], integerType[j]); 
+	  printf("TIGHTEN STATS %d %g %g %d:  \n", j, clo[j], cup[j], integerType[j]);
   double *rowels	= prob->rowels_;
   int *hcol		= prob->hcol_;
   int *mrstrt		= prob->mrstrt_;
@@ -216,7 +216,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
 #endif
 
 	  {
-	    action *s = &actions[nactions];	  
+	    action *s = &actions[nactions];
 	    nactions++;
 	    s->col = j;
 	    PRESOLVE_DETAIL_PRINT(printf("pre_tighten %dC E\n",j));
@@ -283,7 +283,7 @@ const CoinPresolveAction *do_tighten_action::presolve(CoinPresolveMatrix *prob,
   //delete[]useless_rows;
 
   if (nfixdown_cols<ncols) {
-    int * fixdown_cols = fix_cols+nfixdown_cols; 
+    int * fixdown_cols = fix_cols+nfixdown_cols;
     nfixdown_cols = ncols-nfixdown_cols;
     next = make_fixed_action::presolve(prob, fixdown_cols, nfixdown_cols,
 				       true,
@@ -364,7 +364,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
     // The correction should only ever be forced to move in one direction.
     //    double orig_sol = sol[jcol];
     double correction = 0.0;
-    
+
     int last_corrected = -1;
     CoinBigIndex k = mcstrt[jcol];
     int nk = hincol[jcol];
@@ -417,12 +417,12 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
 
     if (last_corrected>=0) {
       sol[jcol] += correction;
-      
+
       // by construction, the last row corrected (if there was one)
       // must be at its bound, so it can be non-basic.
       // All other rows may not be at a bound (but may if the difference
       // is very small, causing a new correction by a tiny amount).
-      
+
       // now adjust the activities
       k = mcstrt[jcol];
       for (i=0; i<nk; ++i) {
@@ -437,7 +437,7 @@ void do_tighten_action::postsolve(CoinPostsolveMatrix *prob) const
       // we may as well leave it non-basic.
       if (fabs(sol[jcol] - clo[jcol]) > ZTOLDP &&
           fabs(sol[jcol] - cup[jcol]) > ZTOLDP) {
-        
+
         prob->setColumnStatus(jcol,CoinPrePostsolveMatrix::basic);
 	if (acts[last_corrected]-rlo[last_corrected]<rup[last_corrected]-acts[last_corrected])
 	  prob->setRowStatus(last_corrected,CoinPrePostsolveMatrix::atLowerBound);

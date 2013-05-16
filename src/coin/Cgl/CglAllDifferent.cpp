@@ -29,7 +29,7 @@ namespace { int nPath = 0 ; }
 #endif
 //-------------------------------------------------------------------
 // Generate cuts
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 			      const CglTreeInfo ) const
 {
@@ -105,7 +105,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   int numberTotal = start_[numberLook];
   for (i=0;i<numberTotal;i++) {
     int k=which_[i];
-    // note +1 
+    // note +1
     backStart[k+1]++;
   }
   int n=0;
@@ -118,7 +118,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   for (i=0;i<numberLook;i++) {
     for (int j=start_[i];j<start_[i+1];j++) {
       int k=which_[j];
-      // note +1 
+      // note +1
       int iPut = backStart[k+1];
       back[iPut]=i;
       backStart[k+1]=iPut+1;
@@ -240,8 +240,8 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
           int k=which[j];
           char * allowed = possible + k*gap;
           int jj;
-          for (jj=0;jj<gap;jj++) 
-            if (allowed[jj]) 
+          for (jj=0;jj<gap;jj++)
+            if (allowed[jj])
               break;
           assert (jj<gap);
           first[j]=jj;
@@ -254,7 +254,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
             jj++;
             for (;jj<gap;jj++) {
               iBit  = iBit << 1;
-              if (allowed[jj]&&(covered&iBit)==0) 
+              if (allowed[jj]&&(covered&iBit)==0)
                 break;
             }
             if (jj<gap) {
@@ -272,8 +272,8 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
           int k=which[j];
           char * allowed = possible + k*gap;
           int jj;
-          for (jj=0;jj<gap;jj++) 
-            if (allowed[jj]) 
+          for (jj=0;jj<gap;jj++)
+            if (allowed[jj])
               break;
           assert (jj<gap);
           first[j]=jj;
@@ -284,7 +284,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
           if (good) {
 #if 0
             printf("con %d = ",i);
-            for (j=0;j<n;j++) 
+            for (j=0;j<n;j++)
               printf("%d ",stack[j]+1);
             printf("\n");
 #endif
@@ -314,7 +314,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
             char * allowed = possible + k*gap;
             for (;jj<gap;jj++) {
               iBit  = 1 << jj;
-              if (allowed[jj]&&(covered&iBit)==0) 
+              if (allowed[jj]&&(covered&iBit)==0)
                 break;
             }
             if (jj<gap) {
@@ -363,7 +363,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
     // create infeasible cut
     OsiRowCut rc;
     rc.setLb(COIN_DBL_MAX);
-    rc.setUb(0.0);   
+    rc.setUb(0.0);
     cs.insert(rc);
   } else {
     // check to see if can tighten bounds
@@ -414,7 +414,7 @@ void CglAllDifferent::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglAllDifferent::CglAllDifferent ()
 :
@@ -430,7 +430,7 @@ originalWhich_(NULL)
 }
 
 //-------------------------------------------------------------------
-// Useful Constructor 
+// Useful Constructor
 //-------------------------------------------------------------------
 CglAllDifferent::CglAllDifferent (int numberSets,
                                   const int * starts, const int * which)
@@ -465,7 +465,7 @@ originalWhich_(NULL)
     }
     numberDifferent_=0;
     for (i=0;i<maxValue;i++) {
-      if (!translate[i]) 
+      if (!translate[i])
         translate[i]=numberDifferent_++;
     }
     // Now translate
@@ -480,7 +480,7 @@ originalWhich_(NULL)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglAllDifferent::CglAllDifferent (  const CglAllDifferent & rhs)
                                                               :
@@ -489,7 +489,7 @@ CglAllDifferent::CglAllDifferent (  const CglAllDifferent & rhs)
   numberDifferent_(rhs.numberDifferent_),
   maxLook_(rhs.maxLook_),
   logLevel_(rhs.logLevel_)
-{  
+{
   if (numberSets_) {
     int n = rhs.start_[numberSets_];
     start_ = CoinCopyOfArray(rhs.start_,numberSets_+1);
@@ -512,7 +512,7 @@ CglAllDifferent::clone() const
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglAllDifferent::~CglAllDifferent ()
 {
@@ -523,7 +523,7 @@ CglAllDifferent::~CglAllDifferent ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglAllDifferent &
 CglAllDifferent::operator=(
@@ -554,13 +554,13 @@ CglAllDifferent::operator=(
 }
 
 /// This can be used to refresh any inforamtion
-void 
+void
 CglAllDifferent::refreshSolver(OsiSolverInterface * )
 {
 }
 // Create C++ lines to get to current state
 std::string
-CglAllDifferent::generateCpp( FILE * fp) 
+CglAllDifferent::generateCpp( FILE * fp)
 {
   CglAllDifferent other;
   fprintf(fp,"0#include \"CglAllDifferent.hpp\"\n");

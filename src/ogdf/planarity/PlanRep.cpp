@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -764,8 +764,8 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 		node lowerLeft  = vi->m_corner[odNorth]->theNode();
 		node lowerRight = vi->m_corner[odWest ]->theNode();
 		node upperLeft  = vi->m_corner[odEast ]->theNode();
-		drawing.x(vCenter) = 0.5*(drawing.x(lowerLeft)+drawing.x(lowerRight));
-		drawing.y(vCenter) = 0.5*(drawing.y(lowerLeft)+drawing.y(upperLeft ));
+		drawing.x(vCenter) = (drawing.x(lowerLeft)+drawing.x(lowerRight)) >> 1;
+		drawing.y(vCenter) = (drawing.y(lowerLeft)+drawing.y(upperLeft )) >> 1;
 
 		edge eOrig;
 		forall_adj_edges(eOrig,vOrig) {

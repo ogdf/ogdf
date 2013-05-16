@@ -40,7 +40,7 @@ inline void prepend_elem(int jcol, double coeff, int irow,
 }
 
 // add coeff_factor * rowy to rowx
-static bool add_row(CoinBigIndex *mrstrt, 
+static bool add_row(CoinBigIndex *mrstrt,
 	     double *rlo, double * acts, double *rup,
 	     double *rowels,
 	     int *hcol,
@@ -165,7 +165,7 @@ static bool add_row(CoinBigIndex *mrstrt,
 	krowy = mrstrt[irowy] + (krowy - krs);
 	krs = mrstrt[irowy];			// do this for ease of debugging
 	kre = mrstrt[irowy] + hinrow[irowy];
-	    
+
 	kcolx = mrstrt[irowx] + (kcolx - krsx);	// don't really need to do this
 	krex0 = mrstrt[irowx] + (krex0 - krsx);
 	krsx = mrstrt[irowx];
@@ -200,9 +200,9 @@ static bool add_row(CoinBigIndex *mrstrt,
 // It assumes both hincol/hinrow are correct.
 // Note that such routines automatically sort the target rep by index,
 // because they sweep the rows in ascending order.
-void copyrep(const int * mrstrt, const int *hcol, const double *rowels, 
+void copyrep(const int * mrstrt, const int *hcol, const double *rowels,
 	     const int *hinrow, int nrows,
-	     int *mcstrt, int *hrow, double *colels, 
+	     int *mcstrt, int *hrow, double *colels,
 	     int *hincol, int ncols)
 {
   int pos = 0;
@@ -221,7 +221,7 @@ void copyrep(const int * mrstrt, const int *hcol, const double *rowels,
       int iput = hincol[icol];
       hincol[icol] = iput + 1;
       iput += mcstrt[icol];
-      
+
       hrow[iput] = i;
       colels[iput] = rowels[kr];
     }
@@ -367,18 +367,18 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
     look2 = new int[ncols];
     look=look2;
     if (!prob->anyProhibited()) {
-      for (iLook=0;iLook<ncols;iLook++) 
+      for (iLook=0;iLook<ncols;iLook++)
 	look[iLook]=iLook;
       numberLook=ncols;
     } else {
       // some prohibited
       numberLook=0;
-      for (iLook=0;iLook<ncols;iLook++) 
+      for (iLook=0;iLook<ncols;iLook++)
 	if (!prob->colProhibited(iLook))
 	  look[numberLook++]=iLook;
     }
  }
- 
+
 
   int * rowsUsed = prob->usefulRowInt_+prob->nrows_;
   int nRowsUsed=0;
@@ -389,7 +389,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
       continue;
     CoinBigIndex kcs = mcstrt[jcoly];
     CoinBigIndex kce = kcs + hincol[jcoly];
-    
+
     int bestrowy_size = 0;
     int bestrowy_row=-1;
     int bestrowy_k=-1;
@@ -398,22 +398,22 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
     for (k=kcs; k<kce; ++k) {
       int row = hrow[k];
       double coeffj = colels[k];
-      
+
       // we don't clean up zeros in the middle of the routine.
       // if there is one, skip this candidate.
       if (fabs(coeffj) <= ZTOLDP2 || prob->rowUsed(row)) {
 	bestrowy_size = 0;
 	break;
       }
-      
+
       if (row==whichRow) {
 	// if its row is an equality constraint...
 	if (hinrow[row] > 1 &&	// don't bother with singleton rows
-	    
+
 	    fabs(rlo[row] - rup[row]) < tol &&
 	    !prob->rowUsed(row)) {
 	  // both column bounds implied by the constraint bounds
-	  
+
 	  // we want coeffy to be smaller than x, BACKWARDS from in doubleton
 	  bestrowy_size = hinrow[row];
 	  bestrowy_row = row;
@@ -422,10 +422,10 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	}
       }
     }
-    
+
     if (bestrowy_size == 0)
       continue;
-    
+
     bool all_ok = true;
     for (k=kcs; k<kce; ++k) {
       double coeff_factor = fabs(colels[k] / bestrowy_coeff);
@@ -439,34 +439,34 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
       int row1 = -1;
       int row2=-1;
       CoinBigIndex kk;
-      for (kk=kcs; kk<kce; ++kk) 
+      for (kk=kcs; kk<kce; ++kk)
 	if (kk != bestrowy_k) {
 	  if (row1 == -1)
 	    row1 = hrow[kk];
 	  else
 	    row2 = hrow[kk];
 	}
-      
-      
+
+
       CoinBigIndex krs = mrstrt[bestrowy_row];
       CoinBigIndex kre = krs + hinrow[bestrowy_row];
       CoinBigIndex krs1 = mrstrt[row1];
       CoinBigIndex kre1 = krs + hinrow[row1];
       CoinBigIndex krs2 = mrstrt[row2];
       CoinBigIndex kre2 = krs + hinrow[row2];
-      
+
       CoinSort_2(hcol+krs,hcol+krs+hinrow[bestrowy_row],rowels+krs);
       CoinSort_2(hcol+krs1,hcol+krs1+hinrow[row1],rowels+krs1);
       CoinSort_2(hcol+krs2,hcol+krs2+hinrow[row2],rowels+krs2);
       //ekk_sort2(hcol+krs,  rowels+krs,  hinrow[bestrowy_row]);
       //ekk_sort2(hcol+krs1, rowels+krs1, hinrow[row1]);
       //ekk_sort2(hcol+krs2, rowels+krs2, hinrow[row2]);
-      
+
       int nfill = -hinrow[bestrowy_row];
       CoinBigIndex kcol1 = krs1;
       for (kk=krs; kk<kre; ++kk) {
 	int jcol = hcol[kk];
-	
+
 	while (kcol1 < kre1 && hcol[kcol1] < jcol)
 	  kcol1++;
 	if (! (kcol1 < kre1 && hcol[kcol1] == jcol))
@@ -475,7 +475,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
       CoinBigIndex kcol2 = krs2;
       for (kk=krs; kk<kre; ++kk) {
 	int jcol = hcol[kk];
-	
+
 	while (kcol2 < kre2 && hcol[kcol2] < jcol)
 	  kcol2++;
 	if (! (kcol2 < kre2 && hcol[kcol2] == jcol))
@@ -484,18 +484,18 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 #if	PRESOLVE_DEBUG
       printf("FILL:  %d\n", nfill);
 #endif
-      
+
 #if 0
       static int maxfill = atoi(getenv("MAXFILL"));
-      
+
       if (nfill > maxfill)
 	all_ok = false;
 #endif
-      
+
       // not too much
       if (nfill <= 0)
 	ngood++;
-      
+
 #if 0
       static int nts = 0;
       if (++nts > atoi(getenv("NTS")))
@@ -508,11 +508,11 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
     // probably never happens
     if (all_ok && nzerocols + hinrow[bestrowy_row] >= ncols)
       all_ok = false;
-    
+
     if (nsubst >= maxsubst) {
       all_ok = false;
-    } 
-    
+    }
+
     if (all_ok) {
       nsubst++;
 #if 0
@@ -521,20 +521,20 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	printf("found last one?? %d\n", jcoly);
       }
 #endif
-      
+
       CoinBigIndex kcs = mcstrt[jcoly];
       int rowy = bestrowy_row;
       double coeffy = bestrowy_coeff;
-      
+
       PRESOLVEASSERT(fabs(colels[kcs]) > ZTOLDP);
       PRESOLVEASSERT(fabs(colels[kcs+1]) > ZTOLDP);
-      
+
       PRESOLVEASSERT(hinrow[rowy] > 1);
-      
+
       const bool nonzero_cost = (fabs(dcost[jcoly]) > tol);
-      
+
       double *costsx = nonzero_cost ? new double[hinrow[rowy]] : 0;
-      
+
       int ntotels = 0;
       for (k=kcs; k<kce; ++k) {
 	int irow = hrow[k];
@@ -544,29 +544,29 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	prob->setRowUsed(irow);
 	rowsUsed[nRowsUsed++]=irow;
       }
-      
+
       {
 	action *ap = &actions[nactions++];
 	int nincol = hincol[jcoly];
-	
+
 	ap->col = jcoly;
 	ap->rowy = rowy;
 	PRESOLVE_DETAIL_PRINT(printf("pre_subst %dC %dR E\n",jcoly,rowy));
-	
+
 	ap->nincol = nincol;
 	ap->rows = new int[nincol];
 	ap->rlos = new double[nincol];
 	ap->rups = new double[nincol];
-	
+
 	// coefficients in deleted col
 	ap->coeffxs = new double[nincol];
-	
+
 	ap->ninrowxs = new int[nincol];
 	ap->rowcolsxs = new int[ntotels];
 	ap->rowelsxs = new double[ntotels];
-	
+
 	ap->costsx = costsx;
-	
+
 	// copy all the rows for restoring later - wasteful
 	{
 	  int nel = 0;
@@ -592,25 +592,25 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	      }
 	    }
 #endif
-	    
+
 	    prob->addRow(irow);
 	    ap->rows[k-kcs] = irow;
 	    ap->ninrowxs[k-kcs] = hinrow[irow];
 	    ap->rlos[k-kcs] = rlo[irow];
 	    ap->rups[k-kcs] = rup[irow];
-	    
+
 	    ap->coeffxs[k-kcs] = colels[k];
-	    
+
 	    CoinMemcpyN( &hcol[krs],hinrow[irow], &ap->rowcolsxs[nel]);
 	    CoinMemcpyN( &rowels[krs],hinrow[irow], &ap->rowelsxs[nel]);
 	    nel += hinrow[irow];
 	  }
 	}
       }
-      
+
       // rowy is supposed to be an equality row
       PRESOLVEASSERT(fabs(rup[rowy] - rlo[rowy]) < ZTOLDP);
-      
+
       // now adjust for the implied free row - COPIED
       if (nonzero_cost) {
 #if	0&&PRESOLVE_DEBUG
@@ -621,18 +621,18 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	double coeffj = coeffy;
 	CoinBigIndex krs = mrstrt[rowy];
 	CoinBigIndex kre = krs + hinrow[rowy];
-	
+
 	double rhs = rlo[rowy];
 	double costj = cost[jcoly];
-	
+
 	for (CoinBigIndex k=krs; k<kre; k++) {
 	  int jcol = hcol[k];
 	  prob->addCol(jcol);
 	  save_costs[k-krs] = cost[jcol];
-	  
+
 	  if (jcol != jcoly) {
 	    double coeff = rowels[k];
-	    
+
 	    /*
 	     * Similar to eliminating doubleton:
 	     *   cost1 x = cost1 (c - b y) / a = (c cost1)/a - (b cost1)/a
@@ -641,14 +641,14 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	    cost[jcol] += costj * (-coeff / coeffj);
 	  }
 	}
-	
+
 	// I'm not sure about this
 	prob->change_bias(costj * rhs / coeffj);
-	
+
 	// ??
 	cost[jcoly] = 0.0;
       }
-      
+
 #if	0&&PRESOLVE_DEBUG
       if (hincol[jcoly] == 3) {
 	CoinBigIndex krs = mrstrt[rowy];
@@ -662,14 +662,14 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	printf("\n");
       }
 #endif
-      
+
       if (hincol[jcoly] != 2) {
 	CoinBigIndex krs = mrstrt[rowy];
 	//	      CoinBigIndex kre = krs + hinrow[rowy];
 	CoinSort_2(hcol+krs,hcol+krs+hinrow[rowy],rowels+krs);
 	//ekk_sort2(hcol+krs,  rowels+krs,  hinrow[rowy]);
       }
-      
+
       // substitute away jcoly in the other rows
       // Use ap as mcstrt etc may move if compacted
       kce = hincol[jcoly];
@@ -681,7 +681,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	if (rowx != rowy) {
 	  double coeffx = ap->coeffxs[k];
 	  double coeff_factor = -coeffx / coeffy;	// backwards from doubleton
-	  
+
 #if	0&&PRESOLVE_DEBUG
 	  {
 	    CoinBigIndex krs = mrstrt[rowx];
@@ -708,13 +708,13 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	    CoinBigIndex krsx = mrstrt[rowx];
 	    CoinBigIndex krex = krsx + hinrow[rowx];
 	    int i;
-	    for (i=krsx;i<krex;i++) 
+	    for (i=krsx;i<krex;i++)
 	      prob->addCol(hcol[i]);
-	    if (hincol[jcoly] != 2) 
+	    if (hincol[jcoly] != 2)
 	      CoinSort_2(hcol+krsx,hcol+krsx+hinrow[rowx],rowels+krsx);
 	    //ekk_sort2(hcol+krsx, rowels+krsx, hinrow[rowx]);
 	  }
-	  
+
 	  // add (coeff_factor * <rowy>) to rowx
 	  // does not affect rowy
 	  // may introduce (or cancel) elements in rowx
@@ -729,7 +729,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	  if (outOfSpace)
 	    throwCoinError("out of memory",
 			   "CoinImpliedFree::presolve");
-	  
+
 	  // update col rep of rowx from row rep:
 	  // for every col in rowy, copy the elem for that col in rowx
 	  // from the row rep to the col rep
@@ -737,7 +737,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	    CoinBigIndex krs = mrstrt[rowy];
 	    //		  CoinBigIndex kre = krs + hinrow[rowy];
 	    int niny = hinrow[rowy];
-	    
+
 	    CoinBigIndex krsx = mrstrt[rowx];
 	    //		  CoinBigIndex krex = krsx + hinrow[rowx];
 	    for (CoinBigIndex ki=0; ki<niny; ++ki) {
@@ -746,17 +746,17 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	      prob->addCol(jcol);
 	      CoinBigIndex kcs = mcstrt[jcol];
 	      CoinBigIndex kce = kcs + hincol[jcol];
-	      
+
 	      //double coeff = rowels[presolve_find_col(jcol, krsx, krex, hcol)];
 	      if (hcol[krsx + x_to_y[ki]] != jcol)
 		abort();
 	      double coeff = rowels[krsx + x_to_y[ki]];
-	      
+
 	      // see if rowx appeared in jcol in the col rep
 	      CoinBigIndex k2 = presolve_find_row1(rowx, kcs, kce, hrow);
-	      
+
 	      //PRESOLVEASSERT(fabs(coeff) > ZTOLDP);
-	      
+
 	      if (k2 < kce) {
 		// yes - just update the entry
 		colels[k2] = coeff;
@@ -771,7 +771,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 		krs = mrstrt[rowy];
 		kcs = mcstrt[jcol];
 		kce = kcs + hincol[jcol];
-		
+
 		hrow[kce] = rowx;
 		colels[kce] = coeff;
 		hincol[jcol]++;
@@ -779,7 +779,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 	    }
 	  }
 	  // now colels[k] == 0.0
-	  
+
 #if 1
 	  // now remove jcoly from rowx in the row rep
 	  // better if this were first
@@ -806,26 +806,26 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
 #endif
 	  }
 #endif
-	  
+
 	  // don't have to update col rep, since entire col deleted later
 	}
       }
-      
+
 #if	0&&PRESOLVE_DEBUG
       printf("\n");
 #endif
-      
+
       // the addition of rows may have created zero coefficients
       CoinMemcpyN( &hcol[mrstrt[rowy]],hinrow[rowy], &zerocols[nzerocols]);
       nzerocols += hinrow[rowy];
-      
+
       // delete rowy in col rep
       {
 	CoinBigIndex krs = mrstrt[rowy];
 	CoinBigIndex kre = krs + hinrow[rowy];
 	for (CoinBigIndex k=krs; k<kre; ++k) {
 	  int jcol = hcol[k];
-	  
+
 	  // delete rowy from the jcol
 	  presolve_delete_from_col(rowy,jcol,mcstrt,hincol,hrow,colels) ;
 	  if (hincol[jcol] == 0)
@@ -834,20 +834,20 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
       }
       // delete rowy in row rep
       hinrow[rowy] = 0;
-      
+
       // This last is entirely dual to doubleton, but for the cost adjustment
-      
+
       // eliminate col entirely from the col rep
       PRESOLVE_REMOVE_LINK(clink, jcoly);
       hincol[jcoly] = 0;
-      
+
       // eliminate rowy entirely from the row rep
       PRESOLVE_REMOVE_LINK(rlink, rowy);
       //cost[irowy] = 0.0;
-      
+
       rlo[rowy] = 0.0;
       rup[rowy] = 0.0;
-      
+
 #if	0 && PRESOLVE_DEBUG
       printf("ROWY COLS:  ");
       for (CoinBigIndex k=0; k<save_ninrowy; ++k)
@@ -863,7 +863,7 @@ subst_constraint_action::presolve(CoinPresolveMatrix *prob,
       presolve_consistent(prob) ;
 #       endif
     }
-      
+
   }
 
   // Clear row used flags
@@ -939,7 +939,7 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
     int *ninrowxs = f->ninrowxs;
     const int *rowcolsxs = f->rowcolsxs;
     const double *rowelsxs = f->rowelsxs;
-    
+
     /* the row was in the reduced problem */
     for (int i=0; i<nincoly; ++i) {
       if (rows[i] != jrowy)
@@ -1022,12 +1022,12 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 
       if (! (sol[icol] > clo[icol] - ztolzb &&
 	     cup[icol] + ztolzb > sol[icol]))
-	printf("NEW SOL OUT-OF-TOL:  %g %g %g\n", clo[icol], 
+	printf("NEW SOL OUT-OF-TOL:  %g %g %g\n", clo[icol],
 	       sol[icol], cup[icol]);
 #     endif
     }
 
-    // since this row is fixed 
+    // since this row is fixed
     acts[jrowy] = rloy;
 
     // acts[irow] always ok, since slack is fixed
@@ -1166,7 +1166,7 @@ void subst_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 	      int col = rowcolsx[k];
 	      actx += rowelsx[k] * sol[col];
 	    }
-	    PRESOLVEASSERT(rlo[jrowx] - prob->ztolzb_ <= actx 
+	    PRESOLVEASSERT(rlo[jrowx] - prob->ztolzb_ <= actx
 			   && actx <= rup[jrowx] + prob->ztolzb_);
 	    acts[jrowx] = actx;
 	    if (prob->getRowStatus(jrowx)!=CoinPrePostsolveMatrix::basic) {

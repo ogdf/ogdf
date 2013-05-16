@@ -1,9 +1,9 @@
 /*
- * $Revision: 3319 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-02-11 09:37:55 +0100 (Mo, 11. Feb 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -203,7 +203,7 @@ void FastPlanarSubgraph::doWorkHelper(ThreadMaster &master)
 				// compute (randomized) st-numbering
 				NodeArray<int> numbering(B,0);
 				stNumber(B,numbering,0,0,true);
-				
+
 				List<edge> *pCurrentDelEdges = new List<edge>;
 				planarize(B,numbering,*pCurrentDelEdges);
 
@@ -323,7 +323,7 @@ void FastPlanarSubgraph::seqCall(const Array<BlockType> &block, const EdgeArray<
 				// compute (randomized) st-numbering
 				NodeArray<int> numbering(B,0);
 				stNumber(B,numbering,0,0,randomize);
-				
+
 				List<edge> *pCurrentDelEdges = new List<edge>;
 				planarize(B,numbering,*pCurrentDelEdges);
 

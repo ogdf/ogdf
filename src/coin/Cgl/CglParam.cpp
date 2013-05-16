@@ -1,5 +1,5 @@
 // Name:     CglParam.cpp
-// Author:   Francois Margot                                                  
+// Author:   Francois Margot
 //           Tepper School of Business
 //           Carnegie Mellon University, Pittsburgh, PA 15213
 // Date:     11/24/06
@@ -50,7 +50,7 @@ void CglParam::setMAX_SUPPORT(const int max_s)
 } /* setMAX_SUPPORT */
 
 /***********************************************************************/
-CglParam::CglParam(const double inf, const double eps, const double eps_c, 
+CglParam::CglParam(const double inf, const double eps, const double eps_c,
 		   const int max_s) :
   INFINIT(inf),
   EPS(eps),

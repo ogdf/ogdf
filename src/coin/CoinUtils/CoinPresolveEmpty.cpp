@@ -91,7 +91,7 @@ const CoinPresolveAction
     }
     e.cost	= dcost[jcol];
 
-    // there are no more constraints on this variable, 
+    // there are no more constraints on this variable,
     // so we had better be able to compute the answer now
     if (fabs(dcost[jcol])<ztoldj)
       dcost[jcol]=0.0;
@@ -143,7 +143,7 @@ const CoinPresolveAction
     if (!colmapping[i]) {
       mcstrt[ncols2] = mcstrt[i];
       hincol[ncols2] = hincol[i];
-    
+
       clo[ncols2]   = clo[i];
       cup[ncols2]   = cup[i];
 
@@ -183,7 +183,7 @@ const CoinPresolveAction
       { newlnk.pre = NO_LINK ; } }
     delete [] clink ;
     prob->clink_ = newclink ; }
-  
+
   delete [] colmapping;
   prob->ncols_ = ncols2;
 
@@ -279,7 +279,7 @@ void drop_empty_cols_action::postsolve(CoinPostsolveMatrix *prob) const
       ncols--;
       mcstrt[i] = mcstrt[ncols];
       hincol[i] = hincol[ncols];
-    
+
       clo[i]   = clo[ncols];
       cup[i]   = cup[ncols];
 
@@ -291,7 +291,7 @@ void drop_empty_cols_action::postsolve(CoinPostsolveMatrix *prob) const
       if (rcosts)
         rcosts[i] = rcosts[ncols];
 
-      if (colstat) 
+      if (colstat)
 	colstat[i] = colstat[ncols];
 #     if PRESOLVE_DEBUG
       cdone[i] = cdone[ncols];
@@ -299,13 +299,13 @@ void drop_empty_cols_action::postsolve(CoinPostsolveMatrix *prob) const
     }
   }
   assert (!ncols);
-  
+
   delete [] colmapping;
 
   for (action_i = 0; action_i < nactions; action_i++) {
     const action *e = &actions[action_i];
     int jcol = e->jcol;
-    
+
     // now recreate jcol
     clo[jcol] = e->clo;
     cup[jcol] = e->cup;
@@ -321,7 +321,7 @@ void drop_empty_cols_action::postsolve(CoinPostsolveMatrix *prob) const
 # if PRESOLVE_DEBUG
     cdone[jcol] = DROP_COL;
 # endif
-    if (colstat) 
+    if (colstat)
       prob->setColumnStatusUsingValue(jcol);
   }
 
@@ -348,7 +348,7 @@ const CoinPresolveAction *drop_empty_rows_action::presolve(CoinPresolveMatrix *p
   //int *mrstrt	= prob->mrstrt_;
   int *hinrow	= prob->hinrow_;
   //int *hcol	= prob->hcol_;
-  
+
   double *rlo	= prob->rlo_;
   double *rup	= prob->rup_;
 
@@ -360,7 +360,7 @@ const CoinPresolveAction *drop_empty_rows_action::presolve(CoinPresolveMatrix *p
   bool fixInfeasibility = (prob->presolveOptions_&16384)!=0;
   // Relax tolerance
   double tolerance = 10.0*prob->feasibilityTolerance_;
-  
+
 
   int i;
   int nactions = 0;
@@ -433,7 +433,7 @@ const CoinPresolveAction *drop_empty_rows_action::presolve(CoinPresolveMatrix *p
     // remap matrix
     for (i=0;i<ncols;i++) {
       int j;
-      for (j=mcstrt[i];j<mcstrt[i]+hincol[i];j++) 
+      for (j=mcstrt[i];j<mcstrt[i]+hincol[i];j++)
 	hrow[j] = rowmapping[hrow[j]];
     }
     delete [] rowmapping;
@@ -508,7 +508,7 @@ void drop_empty_rows_action::postsolve(CoinPostsolveMatrix *prob) const
   for (int j=0; j<ncols; j++) {
     CoinBigIndex start = mcstrt[j];
     CoinBigIndex end   = start + hincol[j];
-    
+
     for (CoinBigIndex k=start; k<end; ++k) {
       hrow[k] = rowmapping[hrow[k]];
     }

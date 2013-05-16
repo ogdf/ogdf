@@ -21,16 +21,16 @@
 #include "CglStored.hpp"
 #include "OsiRowCut.hpp"
 
-// Default constructor 
+// Default constructor
 CglTreeInfo::CglTreeInfo ()
   : level(-1), pass(-1), formulation_rows(-1), options(0), inTree(false),
     strengthenRow(NULL),randomNumberGenerator(NULL) {}
 
-// Copy constructor 
+// Copy constructor
 CglTreeInfo::CglTreeInfo (const CglTreeInfo & rhs)
-  : level(rhs.level), 
-    pass(rhs.pass), 
-    formulation_rows(rhs.formulation_rows), 
+  : level(rhs.level),
+    pass(rhs.pass),
+    formulation_rows(rhs.formulation_rows),
     options(rhs.options),
     inTree(rhs.inTree),
     strengthenRow(rhs.strengthenRow),
@@ -38,21 +38,21 @@ CglTreeInfo::CglTreeInfo (const CglTreeInfo & rhs)
 {
 }
 // Clone
-CglTreeInfo * 
+CglTreeInfo *
 CglTreeInfo::clone() const
 {
   return new CglTreeInfo(*this);
 }
 
-// Assignment operator 
+// Assignment operator
 CglTreeInfo &
 CglTreeInfo::operator=(const CglTreeInfo& rhs)
 {
   if (this != &rhs) {
     //CglCutGenerator::operator=(rhs);
-    level = rhs.level; 
-    pass = rhs.pass; 
-    formulation_rows = rhs.formulation_rows; 
+    level = rhs.level;
+    pass = rhs.pass;
+    formulation_rows = rhs.formulation_rows;
     options = rhs.options;
     inTree = rhs.inTree;
     strengthenRow = rhs.strengthenRow;
@@ -60,13 +60,13 @@ CglTreeInfo::operator=(const CglTreeInfo& rhs)
   }
   return *this;
 }
-  
- // Destructor 
+
+ // Destructor
 CglTreeInfo::~CglTreeInfo ()
 {
 }
 
-// Default constructor 
+// Default constructor
 CglTreeProbingInfo::CglTreeProbingInfo ()
   : CglTreeInfo(),
     fixEntry_(NULL),
@@ -95,7 +95,7 @@ CglTreeProbingInfo::CglTreeProbingInfo (const OsiSolverInterface * model)
     maximumEntries_(0),
     numberEntries_(-1)
 {
-  numberVariables_=model->getNumCols(); 
+  numberVariables_=model->getNumCols();
   // Too many ... but
   integerVariable_ = new int [numberVariables_];
   backward_ = new int [numberVariables_];
@@ -121,7 +121,7 @@ CglTreeProbingInfo::CglTreeProbingInfo (const OsiSolverInterface * model)
   CoinZeroN(toZero_,numberIntegers_+1);
 }
 
-// Copy constructor 
+// Copy constructor
 CglTreeProbingInfo::CglTreeProbingInfo (const CglTreeProbingInfo & rhs)
   : CglTreeInfo(rhs),
     fixEntry_(NULL),
@@ -151,13 +151,13 @@ CglTreeProbingInfo::CglTreeProbingInfo (const CglTreeProbingInfo & rhs)
   }
 }
 // Clone
-CglTreeInfo * 
+CglTreeInfo *
 CglTreeProbingInfo::clone() const
 {
   return new CglTreeProbingInfo(*this);
 }
 
-// Assignment operator 
+// Assignment operator
 CglTreeProbingInfo &
 CglTreeProbingInfo::operator=(const CglTreeProbingInfo& rhs)
 {
@@ -202,8 +202,8 @@ CglTreeProbingInfo::operator=(const CglTreeProbingInfo& rhs)
   }
   return *this;
 }
-  
- // Destructor 
+
+ // Destructor
 CglTreeProbingInfo::~CglTreeProbingInfo ()
 {
   delete [] fixEntry_;
@@ -214,7 +214,7 @@ CglTreeProbingInfo::~CglTreeProbingInfo ()
   delete [] fixingEntry_;
 }
 static int outDupsEtc(int numberIntegers, int & numberCliques, int & numberMatrixCliques,
-		      int * & cliqueStart, char * & cliqueType, cliqueEntry *& entry, 
+		      int * & cliqueStart, char * & cliqueType, cliqueEntry *& entry,
 		      int numberLastTime, int printit)
 {
   bool allNew=false;
@@ -268,7 +268,7 @@ static int outDupsEtc(int numberIntegers, int & numberCliques, int & numberMatri
   for (iClique=0;iClique<numberCliques;iClique++) {
     int j = cliqueStart[iClique];
     int n = cliqueStart[iClique+1]-j;
-    for (int i=0;i<n;i++) 
+    for (int i=0;i<n;i++)
       whichP[i]=sequenceInCliqueEntry(entry[i+j]);
     CoinSort_2(whichP,whichP+n,(reinterpret_cast<int *>(entry))+j);
   }
@@ -329,7 +329,7 @@ static int outDupsEtc(int numberIntegers, int & numberCliques, int & numberMatri
       for (jClique=jFirst;jClique<jLast;jClique++) {
 	int kClique = which [jClique];
 	int iValue = value[kClique];
-	if (iValue<numberIntegers) 
+	if (iValue<numberIntegers)
 	  break;
 	iLowest = CoinMin(iLowest,kClique);
       }
@@ -393,8 +393,8 @@ static int outDupsEtc(int numberIntegers, int & numberCliques, int & numberMatri
 	  }
 	  value[iClique]=iValue;
 	}
-      } 
-      if (iValue>kValue) 
+      }
+      if (iValue>kValue)
 	continue; // not a candidate
       // See if subset (remember duplicates have gone)
       if (cliqueStart[iClique+1]-position[iClique]>
@@ -434,7 +434,7 @@ static int outDupsEtc(int numberIntegers, int & numberCliques, int & numberMatri
     }
   }
   if (nOut) {
-    if(printit) 
+    if(printit)
       printf("Can get rid of %d cliques\n",nOut);
     // make new copy
     int nNewC=numberCliques-nOut;
@@ -520,7 +520,7 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
   int * whichP = new int [numberIntegers_];
   int * whichM = new int [numberIntegers_];
   int *whichClique=NULL;
-  int numberRows=si.getNumRows(); 
+  int numberRows=si.getNumRows();
   int numberMatrixCliques=0;
   const CoinPackedMatrix * rowCopy = si.getMatrixByRow();
   assert(numberRows&&si.getNumCols());
@@ -528,7 +528,7 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
   const int * column = rowCopy->getIndices();
   const double * elementByRow = rowCopy->getElements();
   const CoinBigIndex * rowStart = rowCopy->getVectorStarts();
-  const int * rowLength = rowCopy->getVectorLengths(); 
+  const int * rowLength = rowCopy->getVectorLengths();
   const double * lower = si.getColLower();
   const double * upper = si.getColUpper();
   const double * rowLower = si.getRowLower();
@@ -942,7 +942,7 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
       n=0;
       for (i=zeroStart[iColumn];i<oneStart[iColumn];i++) {
 	int jClique = whichClique[i];
-	//if (jClique<numberMatrixCliques) 
+	//if (jClique<numberMatrixCliques)
 	//continue;
 	int j = cliqueStart[jClique];
 	//assert (cliqueStart[jClique+1]==j+2);
@@ -956,14 +956,14 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
 	    if (oneFixesInCliqueEntry(eJ)) {
 	      for (int k=oneStart[jColumn];k<zeroStart[jColumn+1];k++) {
 		int jClique = whichClique[k];
-		if (!count[jClique]) 
+		if (!count[jClique])
 		  whichCount[nCount++]=jClique;
 		count[jClique]++;
 	      }
 	    } else {
 	      for (int k=zeroStart[jColumn];k<oneStart[jColumn];k++) {
 		int jClique = whichClique[k];
-		if (!count[jClique]) 
+		if (!count[jClique])
 		  whichCount[nCount++]=jClique;
 		count[jClique]++;
 	      }
@@ -1027,7 +1027,7 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
       n=0;
       for (i=oneStart[iColumn];i<zeroStart[iColumn+1];i++) {
 	int jClique = whichClique[i];
-	//if (jClique<numberMatrixCliques) 
+	//if (jClique<numberMatrixCliques)
 	//continue;
 	int j = cliqueStart[jClique];
 	//assert (cliqueStart[jClique+1]==j+2);
@@ -1041,14 +1041,14 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
 	    if (oneFixesInCliqueEntry(eJ)) {
 	      for (int k=oneStart[jColumn];k<zeroStart[jColumn+1];k++) {
 		int jClique = whichClique[k];
-		if (!count[jClique]) 
+		if (!count[jClique])
 		  whichCount[nCount++]=jClique;
 		count[jClique]++;
 	      }
 	    } else {
 	      for (int k=zeroStart[jColumn];k<oneStart[jColumn];k++) {
 		int jClique = whichClique[k];
-		if (!count[jClique]) 
+		if (!count[jClique])
 		  whichCount[nCount++]=jClique;
 		count[jClique]++;
 	      }
@@ -1141,11 +1141,11 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
 	}
       }
       stored->addCut(-COIN_DBL_MAX,rhs,n,whichP,element);
-    } 
+    }
     delete [] element;
   }
 #endif
-  OsiSolverInterface * newSolver=NULL; 
+  OsiSolverInterface * newSolver=NULL;
   if (numberCliques>numberMatrixCliques) {
     newSolver = si.clone();
     // Delete all rows
@@ -1244,7 +1244,7 @@ CglTreeProbingInfo::fixes(int variable, int toValue, int fixedVariable,bool fixe
 }
 // Initalizes fixing arrays etc - returns true if we want to save info
 int
-CglTreeProbingInfo::initializeFixing(const OsiSolverInterface * model) 
+CglTreeProbingInfo::initializeFixing(const OsiSolverInterface * model)
 {
   if (numberEntries_>=0)
     return 2; // already got arrays
@@ -1256,7 +1256,7 @@ CglTreeProbingInfo::initializeFixing(const OsiSolverInterface * model)
   delete [] integerVariable_;
   delete [] backward_;
   delete [] fixingEntry_;
-  numberVariables_=model->getNumCols(); 
+  numberVariables_=model->getNumCols();
   // Too many ... but
   integerVariable_ = new int [numberVariables_];
   backward_ = new int [numberVariables_];
@@ -1284,7 +1284,7 @@ CglTreeProbingInfo::initializeFixing(const OsiSolverInterface * model)
   return 1;
 }
 // Converts to ordered and takes out duplicates
-void 
+void
 CglTreeProbingInfo::convert() const
 {
   if (numberEntries_>=0) {
@@ -1351,7 +1351,7 @@ CglTreeProbingInfo::convert() const
   }
 }
 // Fix entries in a solver using implications
-int 
+int
 CglTreeProbingInfo::fixColumns(OsiSolverInterface & si) const
 {
   int nFix=0;
@@ -1427,7 +1427,7 @@ CglTreeProbingInfo::fixColumns(OsiSolverInterface & si) const
   return nFix;
 }
 // Fix entries in a solver using implications for one variable
-int 
+int
 CglTreeProbingInfo::fixColumns(int iColumn,int value, OsiSolverInterface & si) const
 {
   assert (value==0||value==1);
@@ -1503,7 +1503,7 @@ CglTreeProbingInfo::fixColumns(int iColumn,int value, OsiSolverInterface & si) c
   return nFix;
 }
 // Packs down entries
-int 
+int
 CglTreeProbingInfo::packDown()
 {
   convert();
@@ -1513,14 +1513,14 @@ CglTreeProbingInfo::packDown()
     int j;
     for ( j=iLast;j<toOne_[jColumn];j++) {
       int kColumn=sequenceInCliqueEntry(fixEntry_[j]);
-      if (kColumn<numberIntegers_) 
+      if (kColumn<numberIntegers_)
 	fixEntry_[iPut++]=fixEntry_[j];
     }
     iLast=toOne_[jColumn];
     toOne_[jColumn]=iPut;
     for ( j=iLast;j<toZero_[jColumn+1];j++) {
       int kColumn=sequenceInCliqueEntry(fixEntry_[j]);
-      if (kColumn<numberIntegers_) 
+      if (kColumn<numberIntegers_)
 	fixEntry_[iPut++]=fixEntry_[j];
     }
     iLast=toZero_[jColumn+1];
@@ -1563,7 +1563,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	      index[1]=kColumn;
 	      element[1]= 1.0;
 	      rc.setLb(1.0);
-	      rc.setUb(COIN_DBL_MAX);   
+	      rc.setUb(COIN_DBL_MAX);
 	      rc.setRow(2,index,element,false);
 	      cs.insert(rc);
 	    }
@@ -1577,7 +1577,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	      index[1]=kColumn;
 	      element[1]= -1.0;
 	      rc.setLb(0.0);
-	      rc.setUb(COIN_DBL_MAX);   
+	      rc.setUb(COIN_DBL_MAX);
 	      rc.setRow(2,index,element,false);
 	      cs.insert(rc);
 	    }
@@ -1602,7 +1602,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	      index[1]=kColumn;
 	      element[1]= -1.0;
 	      rc.setLb(-COIN_DBL_MAX);
-	      rc.setUb(0.0);   
+	      rc.setUb(0.0);
 	      rc.setRow(2,index,element,false);
 	      cs.insert(rc);
 	    }
@@ -1616,7 +1616,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	      index[1]=kColumn;
 	      element[1]= 1.0;
 	      rc.setLb(-COIN_DBL_MAX);
-	      rc.setUb(1.0);   
+	      rc.setUb(1.0);
 	      rc.setRow(2,index,element,false);
 	      cs.insert(rc);
 	    }
@@ -1652,7 +1652,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	  // generate infeasible cut and return
 	  OsiRowCut rc;
 	  rc.setLb(COIN_DBL_MAX);
-	  rc.setUb(0.0);   
+	  rc.setUb(0.0);
 	  cs.insert(rc);
 	  //printf("IMPINFEAS!\n");
 	  return;
@@ -1687,7 +1687,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	  // generate infeasible cut and return
 	  OsiRowCut rc;
 	  rc.setLb(COIN_DBL_MAX);
-	  rc.setUb(0.0);   
+	  rc.setUb(0.0);
 	  cs.insert(rc);
 	  //printf("IMPINFEAS!\n");
 	  return;
@@ -1716,7 +1716,7 @@ CglTreeProbingInfo::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
       // generate infeasible cut
       OsiRowCut rc;
       rc.setLb(COIN_DBL_MAX);
-      rc.setUb(0.0);   
+      rc.setUb(0.0);
       cs.insert(rc);
       //printf("IMPINFEAS!\n");
     }

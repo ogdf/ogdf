@@ -182,7 +182,7 @@ void CoinPrePostsolveMatrix::setColLower (const double *colLower, int lenParam)
   CoinMemcpyN(colLower,len,clo_) ;
 
   return ; }
-  
+
 void CoinPrePostsolveMatrix::setColUpper (const double *colUpper, int lenParam)
 
 { int len ;
@@ -200,7 +200,7 @@ void CoinPrePostsolveMatrix::setColUpper (const double *colUpper, int lenParam)
   CoinMemcpyN(colUpper,len,cup_) ;
 
   return ; }
-  
+
 void CoinPrePostsolveMatrix::setColSolution (const double *colSol,
 					     int lenParam)
 
@@ -219,7 +219,7 @@ void CoinPrePostsolveMatrix::setColSolution (const double *colSol,
   CoinMemcpyN(colSol,len,sol_) ;
 
   return ; }
-  
+
 void CoinPrePostsolveMatrix::setCost (const double *cost, int lenParam)
 
 { int len ;
@@ -275,7 +275,7 @@ void CoinPrePostsolveMatrix::setRowLower (const double *rowLower, int lenParam)
   CoinMemcpyN(rowLower,len,rlo_) ;
 
   return ; }
-  
+
 void CoinPrePostsolveMatrix::setRowUpper (const double *rowUpper, int lenParam)
 
 { int len ;
@@ -293,7 +293,7 @@ void CoinPrePostsolveMatrix::setRowUpper (const double *rowUpper, int lenParam)
   CoinMemcpyN(rowUpper,len,rup_) ;
 
   return ; }
-  
+
 void CoinPrePostsolveMatrix::setRowPrice (const double *rowSol, int lenParam)
 
 { int len ;
@@ -311,7 +311,7 @@ void CoinPrePostsolveMatrix::setRowPrice (const double *rowSol, int lenParam)
   CoinMemcpyN(rowSol,len,rowduals_) ;
 
   return ; }
-  
+
 void CoinPrePostsolveMatrix::setRowActivity (const double *rowAct, int lenParam)
 
 { int len ;
@@ -425,14 +425,14 @@ CoinWarmStartBasis *CoinPrePostsolveMatrix::getStatus ()
   CoinWarmStartBasis *wsb = new CoinWarmStartBasis() ;
   wsb->setSize(n,m) ;
   for (int j = 0 ; j < n ; j++)
-  { CoinWarmStartBasis::Status statj = 
+  { CoinWarmStartBasis::Status statj =
 	CoinWarmStartBasis::Status(getColumnStatus(j)) ;
     wsb->setStructStatus(j,statj) ; }
   for (int i = 0 ; i < m ; i++)
   { CoinWarmStartBasis::Status stati =
 	CoinWarmStartBasis::Status(getRowStatus(i)) ;
     wsb->setArtifStatus(i,stati) ; }
-  
+
   return (wsb) ; }
 #endif
 /*

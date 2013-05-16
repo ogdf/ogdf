@@ -16,31 +16,31 @@
 
 
 
-#define ARRAY 0 
+#define ARRAY 0
 
 
 
 FactorPointers::FactorPointers( int numRows, int numColumns,
-				int *UrowLengths_, 
+				int *UrowLengths_,
 				int *UcolLengths_ ){
-    
+
     rowMax = new double[numRows];
     double *current=rowMax;
     const double *end=current+numRows;
     for ( ; current!=end; ++current ) *current=-1.0;
 
     firstRowKnonzeros = new int[numRows+1];
-    CoinFillN(firstRowKnonzeros, numRows+1, -1 ); 
+    CoinFillN(firstRowKnonzeros, numRows+1, -1 );
 
     prevRow = new int[numRows];
     nextRow = new int[numRows];
     firstColKnonzeros = new int[numRows+1];
-    memset(firstColKnonzeros, -1, (numRows+1)*sizeof(int) ); 
+    memset(firstColKnonzeros, -1, (numRows+1)*sizeof(int) );
 
     prevColumn = new int[numColumns];
     nextColumn = new int[numColumns];
     newCols = new int[numRows];
-    
+
 
     for ( int i=numRows-1; i>=0; --i ){
 	int length=UrowLengths_[i];
@@ -77,7 +77,7 @@ CoinSimpFactorization::CoinSimpFactorization (  )
   gutsOfInitialize();
 }
 
-/// Copy constructor 
+/// Copy constructor
 CoinSimpFactorization::CoinSimpFactorization ( const CoinSimpFactorization &other)
   : CoinOtherFactorization(other)
 {
@@ -85,8 +85,8 @@ CoinSimpFactorization::CoinSimpFactorization ( const CoinSimpFactorization &othe
   gutsOfCopy(other);
 }
 // Clone
-CoinOtherFactorization * 
-CoinSimpFactorization::clone() const 
+CoinOtherFactorization *
+CoinSimpFactorization::clone() const
 {
   return new CoinSimpFactorization(*this);
 }
@@ -104,7 +104,7 @@ void CoinSimpFactorization::gutsOfDestructor()
   numberGoodU_ = 0;
   status_ = -1;
   maximumRows_=0;
-  maximumSpace_=0;  
+  maximumSpace_=0;
   numberSlacks_=0;
   firstNumberSlacks_=0;
   //
@@ -113,24 +113,24 @@ void CoinSimpFactorization::gutsOfDestructor()
   delete [] workArea3_;
   delete [] vecLabels_;
   delete [] indVector_;
-  
+
   delete [] auxVector_;
   delete [] auxInd_;
-  
+
   delete [] vecKeep_;
   delete [] indKeep_;
-   
+
   delete [] LrowStarts_;
   delete [] LrowLengths_;
   delete [] Lrows_;
   delete [] LrowInd_;
-    
-  
+
+
   delete [] LcolStarts_;
   delete [] LcolLengths_;
   delete [] Lcolumns_;
   delete [] LcolInd_;
-  
+
   delete [] UrowStarts_;
   delete [] UrowLengths_;
 #ifdef COIN_SIMP_CAPACITY
@@ -138,10 +138,10 @@ void CoinSimpFactorization::gutsOfDestructor()
 #endif
   delete [] Urows_;
   delete [] UrowInd_;
-  
+
   delete [] prevRowInU_;
   delete [] nextRowInU_;
-  
+
   delete [] UcolStarts_;
   delete [] UcolLengths_;
 #ifdef COIN_SIMP_CAPACITY
@@ -152,45 +152,45 @@ void CoinSimpFactorization::gutsOfDestructor()
   delete [] prevColInU_;
   delete [] nextColInU_;
   delete [] colSlack_;
-  
+
   delete [] invOfPivots_;
-  
+
   delete [] colOfU_;
   delete [] colPosition_;
   delete [] rowOfU_;
   delete [] rowPosition_;
   delete [] secRowOfU_;
   delete [] secRowPosition_;
-  
+
   delete [] EtaPosition_;
   delete [] EtaStarts_;
   delete [] EtaLengths_;
   delete [] EtaInd_;
   delete [] Eta_;
- 
+
   denseVector_=NULL;
   workArea2_=NULL;
   workArea3_=NULL;
   vecLabels_=NULL;
   indVector_=NULL;
-  
+
   auxVector_=NULL;
   auxInd_=NULL;
-  
+
   vecKeep_=NULL;
   indKeep_=NULL;
-   
+
   LrowStarts_=NULL;
   LrowLengths_=NULL;
   Lrows_=NULL;
   LrowInd_=NULL;
-  
-  
+
+
   LcolStarts_=NULL;
   LcolLengths_=NULL;
   Lcolumns_=NULL;
   LcolInd_=NULL;
-  
+
   UrowStarts_=NULL;
   UrowLengths_=NULL;
 #ifdef COIN_SIMP_CAPACITY
@@ -198,10 +198,10 @@ void CoinSimpFactorization::gutsOfDestructor()
 #endif
   Urows_=NULL;
   UrowInd_=NULL;
-  
+
   prevRowInU_=NULL;
   nextRowInU_=NULL;
-  
+
   UcolStarts_=NULL;
   UcolLengths_=NULL;
 #ifdef COIN_SIMP_CAPACITY
@@ -212,16 +212,16 @@ void CoinSimpFactorization::gutsOfDestructor()
   prevColInU_=NULL;
   nextColInU_=NULL;
   colSlack_=NULL;
-  
+
   invOfPivots_=NULL;
-  
+
   colOfU_=NULL;
   colPosition_=NULL;
   rowOfU_=NULL;
   rowPosition_=NULL;
   secRowOfU_=NULL;
   secRowPosition_=NULL;
-  
+
   EtaPosition_=NULL;
   EtaStarts_=NULL;
   EtaLengths_=NULL;
@@ -243,7 +243,7 @@ void CoinSimpFactorization::gutsOfInitialize()
   status_ = -1;
   numberPivots_ = 0;
   maximumRows_=0;
-  maximumSpace_=0;  
+  maximumSpace_=0;
   numberSlacks_=0;
   firstNumberSlacks_=0;
   elements_ = NULL;
@@ -255,24 +255,24 @@ void CoinSimpFactorization::gutsOfInitialize()
   workArea3_=NULL;
   vecLabels_=NULL;
   indVector_=NULL;
-  
+
   auxVector_=NULL;
   auxInd_=NULL;
-  
+
   vecKeep_=NULL;
   indKeep_=NULL;
-  
+
   LrowStarts_=NULL;
   LrowLengths_=NULL;
   Lrows_=NULL;
   LrowInd_=NULL;
-  
-  
+
+
   LcolStarts_=NULL;
   LcolLengths_=NULL;
   Lcolumns_=NULL;
   LcolInd_=NULL;
-  
+
   UrowStarts_=NULL;
   UrowLengths_=NULL;
 #ifdef COIN_SIMP_CAPACITY
@@ -280,10 +280,10 @@ void CoinSimpFactorization::gutsOfInitialize()
 #endif
   Urows_=NULL;
   UrowInd_=NULL;
-  
+
   prevRowInU_=NULL;
   nextRowInU_=NULL;
-  
+
   UcolStarts_=NULL;
   UcolLengths_=NULL;
 #ifdef COIN_SIMP_CAPACITY
@@ -294,16 +294,16 @@ void CoinSimpFactorization::gutsOfInitialize()
   prevColInU_=NULL;
   nextColInU_=NULL;
   colSlack_=NULL;
-  
+
   invOfPivots_=NULL;
-  
+
   colOfU_=NULL;
   colPosition_=NULL;
   rowOfU_=NULL;
   rowPosition_=NULL;
   secRowOfU_=NULL;
   secRowPosition_=NULL;
-  
+
   EtaPosition_=NULL;
   EtaStarts_=NULL;
   EtaLengths_=NULL;
@@ -319,19 +319,19 @@ void CoinSimpFactorization::initialSomeNumbers(){
     // UrowMaxCap_ in allocateSomeArrays
     UrowEnd_=-1;
     firstRowInU_=-1;
-    lastRowInU_=-1; 
+    lastRowInU_=-1;
     firstColInU_=-1;
     lastColInU_=-1;
     //UcolMaxCap_ in allocateSomeArrays
     UcolEnd_=-1;
-    
-    
+
+
     EtaSize_=0;
     lastEtaRow_=-1;
     //maxEtaRows_ in allocateSomeArrays
     //EtaMaxCap_ in allocateSomeArrays
-        
-    // minIncrease_ in allocateSomeArrays 
+
+    // minIncrease_ in allocateSomeArrays
     updateTol_=1.0e12;
 
     doSuhlHeuristic_=true;
@@ -339,7 +339,7 @@ void CoinSimpFactorization::initialSomeNumbers(){
     maxGrowth_=1.e12;
     maxA_=-1.0;
     pivotCandLimit_=4;
-    minIncrease_=10; 
+    minIncrease_=10;
 
 }
 
@@ -350,7 +350,7 @@ CoinSimpFactorization::~CoinSimpFactorization (  )
 }
 //  =
 CoinSimpFactorization & CoinSimpFactorization::operator = ( const CoinSimpFactorization & other ) {
-  if (this != &other) {    
+  if (this != &other) {
     gutsOfDestructor();
     gutsOfInitialize();
     gutsOfCopy(other);
@@ -389,18 +389,18 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
   }
 
   keepSize_ = other.keepSize_;
-  
+
   LrowSize_ = other.LrowSize_;
   LrowCap_ = other.LrowCap_;
- 
+
   LcolSize_ = other.LcolSize_;
   LcolCap_ = other.LcolCap_;
-  
+
   UrowMaxCap_ = other.UrowMaxCap_;
   UrowEnd_ = other.UrowEnd_;
   firstRowInU_ = other.firstRowInU_;
   lastRowInU_ = other.lastRowInU_;
-  
+
   firstColInU_ = other.firstColInU_;
   lastColInU_ = other.lastColInU_;
   UcolMaxCap_ = other.UcolMaxCap_;
@@ -410,8 +410,8 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
   lastEtaRow_ = other.lastEtaRow_;
   maxEtaRows_ = other.maxEtaRows_;
   EtaMaxCap_ = other.EtaMaxCap_;
-  
-  
+
+
   minIncrease_ = other.minIncrease_;
   updateTol_ = other.updateTol_;
 
@@ -442,10 +442,10 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  indVector_ = new int[maximumRows_];
 	  memcpy(indVector_ ,other.indVector_ , maximumRows_ *sizeof(int ));
       } else indVector_=NULL;
-  
+
   if (other.auxVector_)
       {
-	  auxVector_ = new double[maximumRows_]; 
+	  auxVector_ = new double[maximumRows_];
 	  memcpy(auxVector_ ,other.auxVector_ , maximumRows_ *sizeof(double ));
       } else auxVector_=NULL;
   if (other.auxInd_)
@@ -453,10 +453,10 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  auxInd_ = new int[maximumRows_];
 	  memcpy(auxInd_ , other.auxInd_, maximumRows_ *sizeof(int));
       } else auxInd_=NULL;
-  
+
   if (other.vecKeep_)
       {
-	  vecKeep_ = new double[maximumRows_]; 
+	  vecKeep_ = new double[maximumRows_];
 	  memcpy(vecKeep_ ,other.vecKeep_ , maximumRows_ *sizeof(double));
       } else vecKeep_=NULL;
   if (other.indKeep_)
@@ -466,17 +466,17 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
       } else indKeep_=NULL;
   if (other.LrowStarts_)
       {
-	  LrowStarts_ = new int[maximumRows_]; 
+	  LrowStarts_ = new int[maximumRows_];
 	  memcpy(LrowStarts_ , other.LrowStarts_, maximumRows_ *sizeof(int));
       } else LrowStarts_=NULL;
   if (other.LrowLengths_)
       {
-	  LrowLengths_ = new int[maximumRows_]; 
+	  LrowLengths_ = new int[maximumRows_];
 	  memcpy(LrowLengths_ , other.LrowLengths_ , maximumRows_ *sizeof(int));
       } else LrowLengths_=NULL;
   if (other.Lrows_)
       {
-	  Lrows_ = new double[other.LrowCap_]; 
+	  Lrows_ = new double[other.LrowCap_];
 	  memcpy(Lrows_ , other.Lrows_, other.LrowCap_*sizeof(double));
       } else Lrows_=NULL;
   if (other.LrowInd_)
@@ -484,7 +484,7 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  LrowInd_ = new int[other.LrowCap_];
 	  memcpy(LrowInd_, other.LrowInd_,  other.LrowCap_*sizeof(int));
       } else LrowInd_=NULL;
-  
+
   if (other.LcolStarts_)
       {
 	  LcolStarts_ = new int[maximumRows_];
@@ -502,10 +502,10 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
       } else Lcolumns_=NULL;
   if (other.LcolInd_)
       {
-	  LcolInd_ = new int[other.LcolCap_];  
+	  LcolInd_ = new int[other.LcolCap_];
 	  memcpy(LcolInd_ , other.LcolInd_, other.LcolCap_*sizeof(int));
       } else LcolInd_=NULL;
-  
+
   if (other.UrowStarts_)
       {
 	  UrowStarts_ = new int[maximumRows_];
@@ -533,7 +533,7 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  UrowInd_ = new int[other.UrowMaxCap_];
 	  memcpy(UrowInd_,other.UrowInd_, other.UrowMaxCap_*sizeof(int));
       } else UrowInd_=NULL;
-  
+
   if (other.prevRowInU_)
       {
 	  prevRowInU_ = new int[maximumRows_];
@@ -544,21 +544,21 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  nextRowInU_ = new int[maximumRows_];
 	  memcpy(nextRowInU_, other.nextRowInU_, maximumRows_*sizeof(int));
       } else nextRowInU_=NULL;
-  
+
   if (other.UcolStarts_)
       {
-	  UcolStarts_ = new int[maximumRows_]; 
+	  UcolStarts_ = new int[maximumRows_];
 	  memcpy(UcolStarts_ , other.UcolStarts_, maximumRows_*sizeof(int));
       } else UcolStarts_=NULL;
   if (other.UcolLengths_)
       {
-	  UcolLengths_ = new int[maximumRows_]; 
+	  UcolLengths_ = new int[maximumRows_];
 	  memcpy(UcolLengths_ , other.UcolLengths_,  maximumRows_*sizeof(int));
       } else UcolLengths_=NULL;
 #ifdef COIN_SIMP_CAPACITY
   if (other.UcolCapacities_)
       {
-	  UcolCapacities_ = new int[maximumRows_]; 
+	  UcolCapacities_ = new int[maximumRows_];
 	  memcpy(UcolCapacities_ ,other.UcolCapacities_ , maximumRows_*sizeof(int));
       } else UcolCapacities_=NULL;
 #endif
@@ -588,13 +588,13 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  memcpy(colSlack_, other.colSlack_, maximumRows_*sizeof(int));
       }
 
-  
+
   if (other.invOfPivots_)
       {
 	  invOfPivots_ = new double[maximumRows_];
 	  memcpy(invOfPivots_ , other.invOfPivots_,  maximumRows_*sizeof(double));
       } else invOfPivots_=NULL;
-  
+
   if (other.colOfU_)
       {
 	  colOfU_ = new int[maximumRows_];
@@ -625,7 +625,7 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  secRowPosition_ = new int[maximumRows_];
 	  memcpy(secRowPosition_ , other.secRowPosition_, maximumRows_*sizeof(int));
       } else secRowPosition_=NULL;
-  
+
   if (other.EtaPosition_)
       {
 	  EtaPosition_ = new int[other.maxEtaRows_];
@@ -651,9 +651,9 @@ void CoinSimpFactorization::gutsOfCopy(const CoinSimpFactorization &other)
 	  Eta_ = new double[other.EtaMaxCap_];
 	  memcpy(Eta_ , other.Eta_,  other.EtaMaxCap_*sizeof(double));
       } else Eta_=NULL;
-  
-  
-  
+
+
+
   doSuhlHeuristic_ = other.doSuhlHeuristic_;
   maxU_ = other.maxU_;
   maxGrowth_ = other.maxGrowth_;
@@ -683,18 +683,18 @@ CoinSimpFactorization::getAreas ( int numberOfRows,
     delete [] pivotRow_;
     delete [] workArea_;
     pivotRow_ = new int [2*maximumRows_+maximumPivots_];
-    workArea_ = new CoinFactorizationDouble [maximumRows_];    
-    allocateSomeArrays(); 
+    workArea_ = new CoinFactorizationDouble [maximumRows_];
+    allocateSomeArrays();
   }
 }
 
-//  preProcess.  
+//  preProcess.
 void
 CoinSimpFactorization::preProcess ()
 {
     CoinBigIndex put = numberRows_*numberRows_;
     int *indexRow = reinterpret_cast<int *> (elements_+put);
-    CoinBigIndex * starts = reinterpret_cast<CoinBigIndex *> (pivotRow_); 
+    CoinBigIndex * starts = reinterpret_cast<CoinBigIndex *> (pivotRow_);
     initialSomeNumbers();
 
     // compute sizes for Urows_ and Ucolumns_
@@ -714,7 +714,7 @@ CoinSimpFactorization::preProcess ()
 	//k+=UcolLengths_[column]+minIncrease_;
 	k+=numberRows_;
     }
-    
+
     // create space for Urows_
     k=0;
     for ( int row=0; row < numberRows_; ++row ){
@@ -751,7 +751,7 @@ CoinSimpFactorization::preProcess ()
 	    int iRow = indexRow[j];
 	    UcolInd_[UcolStarts_[column] + k]=iRow;
 	    ++k;
-	    // Urow_	    
+	    // Urow_
 	    int ind=UrowStarts_[iRow]+UrowLengths_[iRow];
 	    UrowInd_[ind]=column;
 	    Urows_[ind]=elements_[j];
@@ -771,11 +771,11 @@ CoinSimpFactorization::preProcess ()
     memset(LcolStarts_,-1,numberRows_ * sizeof(int));
     memset(LcolLengths_,0,numberRows_ * sizeof(int));
 
-    // initialize permutations    
+    // initialize permutations
     for ( int i=0; i<numberRows_; ++i ){
 	rowOfU_[i]=i;
 	rowPosition_[i]=i;
-    } 
+    }
     for ( int i=0; i<numberColumns_; ++i ){
 	colOfU_[i]=i;
 	colPosition_[i]=i;
@@ -798,7 +798,7 @@ void CoinSimpFactorization::factorize(int numberOfRows,
 
     CoinBigIndex put = numberRows_*numberRows_;
     int *indexRow = reinterpret_cast<int *> (elements_+put);
-    CoinBigIndex * starts = reinterpret_cast<CoinBigIndex *> (pivotRow_); 
+    CoinBigIndex * starts = reinterpret_cast<CoinBigIndex *> (pivotRow_);
     for ( int column=0; column <= numberColumns_; ++column ){
 	starts[column]=colStarts[column];
     }
@@ -833,7 +833,7 @@ CoinSimpFactorization::factor ( )
 
   //copyLbyRows();
   copyUbyColumns();
-  copyRowPermutations();  
+  copyRowPermutations();
   firstNumberSlacks_=numberSlacks_;
   // row permutations
   if ( status_==-1 || numberColumns_ < numberRows_ ){
@@ -857,13 +857,13 @@ CoinSimpFactorization::factor ( )
 
 
 // Makes a non-singular basis by replacing variables
-void 
+void
 CoinSimpFactorization::makeNonSingular(int * sequence, int numberColumns)
 {
   // Replace bad ones by correct slack
   int * workArea= reinterpret_cast<int *> (workArea_);
   int i;
-  for ( i=0;i<numberRows_;i++) 
+  for ( i=0;i<numberRows_;i++)
     workArea[i]=-1;
   for ( i=0;i<numberGoodU_;i++) {
     int iOriginal = pivotRow_[i+numberRows_];
@@ -890,7 +890,7 @@ CoinSimpFactorization::makeNonSingular(int * sequence, int numberColumns)
   }
 }
 // Does post processing on valid factorization - putting variables on correct rows
-void 
+void
 CoinSimpFactorization::postProcess(const int * sequence, int * pivotVariable)
 {
   for (int i=0;i<numberRows_;i++) {
@@ -905,15 +905,15 @@ CoinSimpFactorization::postProcess(const int * sequence, int * pivotVariable)
    speed considerations.  You could just do this on first iteration
    after factorization and thereafter re-factorize
    partial update already in U */
-int 
+int
 CoinSimpFactorization::replaceColumn ( CoinIndexedVector * ,
 				      int pivotRow,
 				      double pivotCheck ,
 				       bool ,
 				       double )
 {
-    if (numberPivots_==maximumPivots_) 
-	return 3; 
+    if (numberPivots_==maximumPivots_)
+	return 3;
 
     double pivotValue = pivotCheck;
     if (fabs(pivotValue)<zeroTolerance_)
@@ -922,30 +922,30 @@ CoinSimpFactorization::replaceColumn ( CoinIndexedVector * ,
 
     LUupdate(pivotRow);
 
-    pivotRow_[2*numberRows_+numberPivots_]=realPivotRow; 
-    numberPivots_++; 
+    pivotRow_[2*numberRows_+numberPivots_]=realPivotRow;
+    numberPivots_++;
 
     return 0;
 }
-int 
+int
 CoinSimpFactorization::updateColumn ( CoinIndexedVector * regionSparse,
 				       CoinIndexedVector * regionSparse2,
 				       bool noPermute) const
 {
     return upColumn(regionSparse, regionSparse2, noPermute, false);
 }
-int 
+int
 CoinSimpFactorization::updateColumnFT( CoinIndexedVector * regionSparse,
 				       CoinIndexedVector * regionSparse2,
 				       bool noPermute)
-{    
+{
 
     int rc=upColumn(regionSparse, regionSparse2, noPermute, true);
     return rc;
 }
 
 
-int 
+int
 CoinSimpFactorization::upColumn( CoinIndexedVector * regionSparse,
 				  CoinIndexedVector * regionSparse2,
 				  bool , bool save) const
@@ -957,13 +957,13 @@ CoinSimpFactorization::upColumn( CoinIndexedVector * regionSparse,
     double *region=regionSparse->denseVector (  );
     if (!regionSparse2->packedMode()) {
 	region=regionSparse2->denseVector (  );
-    } 
+    }
     else { // packed mode
 	for (int j=0;j<numberNonZero;j++) {
 	    region[regionIndex[j]]=region2[j];
 	    region2[j]=0.0;
 	}
-    } 
+    }
 
     double *solution=workArea2_;
     ftran(region, solution, save);
@@ -978,9 +978,9 @@ CoinSimpFactorization::upColumn( CoinIndexedVector * regionSparse,
 		regionIndex[numberNonZero++]=i;
 	    }
 	    else
-		region[i]=0.0;	
+		region[i]=0.0;
 	}
-    } 
+    }
     else { // packed mode
 	memset(region,0,numberRows_*sizeof(double));
 	for (int i=0;i<numberRows_;i++) {
@@ -996,7 +996,7 @@ CoinSimpFactorization::upColumn( CoinIndexedVector * regionSparse,
 }
 
 
-int 
+int
 CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 					  CoinIndexedVector * regionSparse2,
 					  CoinIndexedVector * regionSparse3,
@@ -1011,7 +1011,7 @@ CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
     double *vec1=regionSparse1->denseVector (  );
     if (!regionSparse2->packedMode()) {
 	vec1=regionSparse2->denseVector (  );
-    } 
+    }
     else { // packed mode
 	for (int j=0;j<numberNonZero2;j++) {
 	    vec1[regionIndex2[j]]=region2[j];
@@ -1025,7 +1025,7 @@ CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
     double *vec2=auxVector_;
     if (!regionSparse3->packedMode()) {
 	vec2=regionSparse3->denseVector (  );
-    } 
+    }
     else { // packed mode
 	memset(vec2,0,numberRows_*sizeof(double));
 	for (int j=0;j<numberNonZero3;j++) {
@@ -1049,9 +1049,9 @@ CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 		regionIndex2[numberNonZero2++]=i;
 	    }
 	    else
-		vec1[i]=0.0;	
+		vec1[i]=0.0;
 	}
-    } 
+    }
     else { // packed mode
 	double value;
 	for (int i=0;i<numberRows_;i++) {
@@ -1075,9 +1075,9 @@ CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 		regionIndex3[numberNonZero3++]=i;
 	    }
 	    else
-		vec2[i]=0.0;	
+		vec2[i]=0.0;
 	}
-    } 
+    }
     else { // packed mode
 	double value;
 	for (int i=0;i<numberRows_;i++) {
@@ -1094,7 +1094,7 @@ CoinSimpFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 
 
 
-int 
+int
 CoinSimpFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
 					       CoinIndexedVector * regionSparse2) const
 {
@@ -1102,7 +1102,7 @@ CoinSimpFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
     return 0;
 }
 
-int 
+int
 CoinSimpFactorization::upColumnTranspose ( CoinIndexedVector * regionSparse,
 					       CoinIndexedVector * regionSparse2) const
 {
@@ -1117,7 +1117,7 @@ CoinSimpFactorization::upColumnTranspose ( CoinIndexedVector * regionSparse,
     else { // packed
 	for (int j=0;j<numberNonZero;j++) {
 	    region[regionIndex[j]]=region2[j];
-	    region2[j]=0.0;  
+	    region2[j]=0.0;
 	}
     }
     double *solution=workArea2_;
@@ -1133,9 +1133,9 @@ CoinSimpFactorization::upColumnTranspose ( CoinIndexedVector * regionSparse,
 		regionIndex[numberNonZero++]=i;
 	    }
 	    else
-		region[i]=0.0;	
+		region[i]=0.0;
 	}
-    } 
+    }
     else { // packed mode
 	memset(region,0,numberRows_*sizeof(double));
 	for (int i=0;i<numberRows_;i++) {
@@ -1160,7 +1160,7 @@ CoinSimpFactorization::mainLoopFactor (FactorPointers &pointers )
     bool ifSlack=true;
     for ( int i=0; i<numberColumns_; ++i ){
 	int r, s;
-	//s=i; 
+	//s=i;
 	if ( findPivot(pointers,r,s,ifSlack) ){
 	    return -1;
 	}
@@ -1209,7 +1209,7 @@ int CoinSimpFactorization::findPivot(FactorPointers &pointers, int &r,
 	if ( !colSlack_[column] )
 	    ifSlack=false;
 	return 0;
-    } 
+    }
     // from now on no more slacks
     ifSlack=false;
     // if there is a  row with one element choose it
@@ -1242,7 +1242,7 @@ int CoinSimpFactorization::findPivot(FactorPointers &pointers, int &r,
 		if ( numCandidates == pivotCandLimit_ ) return 0;
 	    }
 	    else {
-		if ( doSuhlHeuristic_ ){ 
+		if ( doSuhlHeuristic_ ){
 		    // this column did not give a candidate, it will be
 		    // removed until it becomes a singleton
 		    removeColumnFromActSet(column, pointers);
@@ -1272,7 +1272,7 @@ int CoinSimpFactorization::findPivot(FactorPointers &pointers, int &r,
 	}// end for ( row= ...
     }// end for ( int length= ...
     if ( r== -1 || s==-1 ) return 1;
-    else return 0; 
+    else return 0;
 }
 //
 int CoinSimpFactorization::findPivotShCol(FactorPointers &pointers, int &r, int &s)
@@ -1315,7 +1315,7 @@ int CoinSimpFactorization::findPivotShCol(FactorPointers &pointers, int &r, int 
 
 int CoinSimpFactorization::findPivotSimp(FactorPointers &, int &r, int &s){
     r=-1;
-    int column=s;    
+    int column=s;
     const int colBeg=UcolStarts_[column];
     const int colEnd=colBeg+UcolLengths_[column];
     double largest=0.0;
@@ -1333,13 +1333,13 @@ int CoinSimpFactorization::findPivotSimp(FactorPointers &, int &r, int &s){
 	r=rowLargest;
 	return 0;
     }
-    else return 1; 
+    else return 1;
 }
 
 
 int CoinSimpFactorization::findShortRow(const int column,
 				       const int length,
-				       int &minRow, 
+				       int &minRow,
 				       int &minRowLength,
 				       FactorPointers &pointers)
 {
@@ -1366,9 +1366,9 @@ int CoinSimpFactorization::findShortColumn(const int row,
 					  int &minCol,
 					  int &minColLength,
 					  FactorPointers &pointers)
-{	
+{
     const int rowBeg=UrowStarts_[row];
-    const int rowEnd=rowBeg+UrowLengths_[row];    
+    const int rowEnd=rowBeg+UrowLengths_[row];
     minCol=-1;
     minColLength=COIN_INT_MAX;
     double largestInRow=findMaxInRrow(row,pointers);
@@ -1395,12 +1395,12 @@ void CoinSimpFactorization::GaussEliminate(FactorPointers &pointers, int &pivotR
     double *denseRow=denseVector_;
     removeRowFromActSet(pivotRow, pointers);
     removeColumnFromActSet(pivotCol, pointers);
-    // find column s 
+    // find column s
     int indxColS=findInRow(pivotRow, pivotCol);
     assert( indxColS >= 0 );
     // store the inverse of the pivot and remove it from row
     double invPivot=1.0/Urows_[indxColS];
-    invOfPivots_[pivotRow]=invPivot;    
+    invOfPivots_[pivotRow]=invPivot;
     int rowBeg=UrowStarts_[pivotRow];
     int rowEnd=rowBeg+UrowLengths_[pivotRow];
     Urows_[indxColS]=Urows_[rowEnd-1];
@@ -1429,7 +1429,7 @@ void CoinSimpFactorization::GaussEliminate(FactorPointers &pointers, int &pivotR
     }
     //
     pivoting(pivotRow, pivotCol, invPivot, pointers);
-    //    
+    //
     rowBeg=UrowStarts_[pivotRow];
     rowEnd=rowBeg+UrowLengths_[pivotRow];
     for ( int i=rowBeg; i<rowEnd; ++i ){
@@ -1439,7 +1439,7 @@ void CoinSimpFactorization::GaussEliminate(FactorPointers &pointers, int &pivotR
 	denseRow[column]=0.0;
 	// column goes into a bucket, if Suhl' heuristic had removed it, it
 	// can go back only if it is a singleton
-	if ( UcolLengths_[column] != 1 || 
+	if ( UcolLengths_[column] != 1 ||
 	     prevColumn[column]!=column || nextColumn[column]!=column )
 	    {
 		prevColumn[column]=-1;
@@ -1454,7 +1454,7 @@ void CoinSimpFactorization::pivoting(const int pivotRow,
 				    const int pivotColumn,
 				    const double invPivot,
 				    FactorPointers &pointers)
-{   
+{
     // initialize the new column of L
     LcolStarts_[pivotRow]=LcolSize_;
     // go trough pivot column
@@ -1464,7 +1464,7 @@ void CoinSimpFactorization::pivoting(const int pivotRow,
 	int row=UcolInd_[i];
 	// remove row from bucket because it will change
 	removeRowFromActSet(row, pointers);
-	// find pivot column 
+	// find pivot column
 	int pivotColInRow=findInRow(row,pivotColumn);
 	assert(pivotColInRow >= 0);
 	const double multiplier=Urows_[pivotColInRow]*invPivot;
@@ -1474,8 +1474,8 @@ void CoinSimpFactorization::pivoting(const int pivotRow,
 	UrowInd_[pivotColInRow]=UrowInd_[currentRowEnd-1];
 	--UrowLengths_[row];
 	int newNonZeros=UrowLengths_[pivotRow];
-	updateCurrentRow(pivotRow, row, multiplier, pointers, 
-			 newNonZeros); 
+	updateCurrentRow(pivotRow, row, multiplier, pointers,
+			 newNonZeros);
 	// store multiplier
 	if ( LcolSize_ == LcolCap_ ) increaseLsize();
 	Lcolumns_[LcolSize_]=multiplier;
@@ -1503,12 +1503,12 @@ void CoinSimpFactorization::pivoting(const int pivotRow,
 
 
 void CoinSimpFactorization::updateCurrentRow(const int pivotRow,
-					    const int row, 
+					    const int row,
 					    const double multiplier,
 					    FactorPointers &pointers,
 					    int &newNonZeros)
-{   
-    double *rowMax=pointers.rowMax; 
+{
+    double *rowMax=pointers.rowMax;
     int *firstRowKnonzeros=pointers.firstRowKnonzeros;
     int *prevRow=pointers.prevRow;
     int *nextRow=pointers.nextRow;
@@ -1541,7 +1541,7 @@ void CoinSimpFactorization::updateCurrentRow(const int pivotRow,
 	    else
 		{
 		    if ( maxU_ < absNewCoeff )
-			maxU_=absNewCoeff;	
+			maxU_=absNewCoeff;
 		}
 	}
     }
@@ -1577,7 +1577,7 @@ void CoinSimpFactorization::updateCurrentRow(const int pivotRow,
 	if ( UcolLengths_[column] + 1 > UcolCapacities_[column] ){
 	    increaseColSize(column, UcolLengths_[column] + 1, false);
 	}
-#endif 
+#endif
 	const int newInd=UcolStarts_[column]+UcolLengths_[column];
 	UcolInd_[newInd]=row;
 	++UcolLengths_[column];
@@ -1626,7 +1626,7 @@ void CoinSimpFactorization::increaseRowSize(const int row,
     prevRowInU_[row]=lastRowInU_;
     lastRowInU_=row;
 }
-#endif 
+#endif
 #ifdef COIN_SIMP_CAPACITY
 void CoinSimpFactorization::increaseColSize(const int column,
 					   const int newSize,
@@ -1643,7 +1643,7 @@ void CoinSimpFactorization::increaseColSize(const int column,
 	    UcolLengths_[column] * sizeof(int));
     if ( ifElements ){
 	memcpy(&Ucolumns_[UcolEnd_], &Ucolumns_[UcolStarts_[column]],
-	       UcolLengths_[column] * sizeof(double) );       
+	       UcolLengths_[column] * sizeof(double) );
     }
     UcolStarts_[column]=UcolEnd_;
     UcolCapacities_[column]=newNumElements;
@@ -1664,13 +1664,13 @@ void CoinSimpFactorization::increaseColSize(const int column,
     nextColInU_[lastColInU_]=column;
     nextColInU_[column]=-1;
     prevColInU_[column]=lastColInU_;
-    lastColInU_=column;    
+    lastColInU_=column;
 }
-#endif 
+#endif
 double CoinSimpFactorization::findMaxInRrow(const int row,
 					    FactorPointers &pointers)
 {
-    double *rowMax=pointers.rowMax; 
+    double *rowMax=pointers.rowMax;
     double largest=rowMax[row];
     if ( largest >= 0.0 ) return largest;
     const int rowBeg=UrowStarts_[row];
@@ -1691,7 +1691,7 @@ void CoinSimpFactorization::increaseLsize()
     memcpy(aux, Lcolumns_, LcolCap_ * sizeof(double));
     delete [] Lcolumns_;
     Lcolumns_=aux;
-    
+
     int *iaux=new int[newcap];
     memcpy(iaux, LcolInd_, LcolCap_ * sizeof(int));
     delete [] LcolInd_;
@@ -1721,7 +1721,7 @@ void CoinSimpFactorization::enlargeUrow(const int numNewElements)
     memcpy(iaux, UrowInd_, UrowMaxCap_*sizeof(int) );
     delete [] UrowInd_;
     UrowInd_=iaux;
-    
+
     double *aux=new double[UrowMaxCap_+numNewElements];
     memcpy(aux, Urows_, UrowMaxCap_*sizeof(double) );
     delete [] Urows_;
@@ -1736,7 +1736,7 @@ void CoinSimpFactorization::copyUbyColumns()
     for ( int column=0; column<numberColumns_; ++column ){
 	prevColInU_[column]=column-1;
 	nextColInU_[column]=column+1;
-    }   
+    }
     nextColInU_[numberColumns_-1]=-1;
     firstColInU_=0;
     lastColInU_=numberColumns_-1;
@@ -1748,11 +1748,11 @@ void CoinSimpFactorization::copyUbyColumns()
     //   ++UcolCapacities_[UrowInd_[j]];
     //	nonZeros+=UrowLengths_[row];
     //   }
-    // 
+    //
     //memset(UcolCapacities_, numberRows_, numberColumns_ * sizeof(int));
 #ifdef COIN_SIMP_CAPACITY
     for ( int i=0; i<numberColumns_; ++i ) UcolCapacities_[i]=numberRows_;
-#endif 
+#endif
     int k=0;
     for ( int column=0; column<numberColumns_; ++column ){
 	UcolStarts_[column]=k;
@@ -1845,7 +1845,7 @@ void CoinSimpFactorization::copyLbyRows()
 int CoinSimpFactorization::findInRow(const int row,
 				    const int column)
 {
-    const int rowBeg=UrowStarts_[row]; 
+    const int rowBeg=UrowStarts_[row];
     const int rowEnd=rowBeg+UrowLengths_[row];
     int columnIndx=-1;
     for ( int i=rowBeg; i<rowEnd; ++i ){
@@ -1859,7 +1859,7 @@ int CoinSimpFactorization::findInRow(const int row,
 int CoinSimpFactorization::findInColumn(const int column,
 				       const int row)
 {
-    int indxRow=-1; 
+    int indxRow=-1;
     const int colBeg=UcolStarts_[column];
     const int colEnd=colBeg+UcolLengths_[column];
     for ( int i=colBeg; i<colEnd; ++i ){
@@ -1870,9 +1870,9 @@ int CoinSimpFactorization::findInColumn(const int column,
     }
     return indxRow;
 }
-void CoinSimpFactorization::removeRowFromActSet(const int row, 
+void CoinSimpFactorization::removeRowFromActSet(const int row,
 					       FactorPointers &pointers)
-{    
+{
     int *firstRowKnonzeros=pointers.firstRowKnonzeros;
     int *prevRow=pointers.prevRow;
     int *nextRow=pointers.nextRow;
@@ -1892,7 +1892,7 @@ void CoinSimpFactorization::removeColumnFromActSet(const int column,
 	firstColKnonzeros[UcolLengths_[column]]=nextColumn[column];
     else nextColumn[prevColumn[column]]=nextColumn[column];
     if ( nextColumn[column] != -1 )
-	prevColumn[nextColumn[column]]=prevColumn[column];	
+	prevColumn[nextColumn[column]]=prevColumn[column];
 }
 void CoinSimpFactorization::allocateSomeArrays()
 {
@@ -1904,14 +1904,14 @@ void CoinSimpFactorization::allocateSomeArrays()
     if(workArea3_) delete [] workArea3_;
     workArea3_ = new double[numberRows_];
 
-    if(vecLabels_) delete [] vecLabels_; 
+    if(vecLabels_) delete [] vecLabels_;
     vecLabels_ = new int[numberRows_];
-    memset(vecLabels_,0, numberRows_*sizeof(int)); 
+    memset(vecLabels_,0, numberRows_*sizeof(int));
     if(indVector_) delete [] indVector_;
     indVector_ = new int[numberRows_];
 
     if (auxVector_) delete [] auxVector_;
-    auxVector_ = new double[numberRows_]; 
+    auxVector_ = new double[numberRows_];
     if (auxInd_) delete [] auxInd_;
     auxInd_ = new int[numberRows_];
 
@@ -1941,14 +1941,14 @@ void CoinSimpFactorization::allocateSomeArrays()
     if (LcolInd_) delete [] LcolInd_;
     LcolInd_ = new int[LcolCap_];
 
-    if (UrowStarts_) delete [] UrowStarts_; 
+    if (UrowStarts_) delete [] UrowStarts_;
     UrowStarts_ = new int[numberRows_];
     if (UrowLengths_) delete [] UrowLengths_;
     UrowLengths_ = new int[numberRows_];
 #ifdef COIN_SIMP_CAPACITY
     if (UrowCapacities_) delete [] UrowCapacities_;
     UrowCapacities_ = new int[numberRows_];
-#endif 
+#endif
 
     minIncrease_=10;
     UrowMaxCap_=numberRows_*(numberRows_+minIncrease_);
@@ -1968,8 +1968,8 @@ void CoinSimpFactorization::allocateSomeArrays()
     UcolLengths_ = new int[numberRows_];
 #ifdef COIN_SIMP_CAPACITY
     if (UcolCapacities_) delete [] UcolCapacities_;
-    UcolCapacities_ = new int[numberRows_]; 
-#endif 
+    UcolCapacities_ = new int[numberRows_];
+#endif
 
     UcolMaxCap_=UrowMaxCap_;
     if (Ucolumns_) delete [] Ucolumns_;
@@ -1978,11 +1978,11 @@ void CoinSimpFactorization::allocateSomeArrays()
     UcolInd_ = new int[UcolMaxCap_];
 
     if (prevColInU_) delete [] prevColInU_;
-    prevColInU_ = new int[numberRows_]; 
+    prevColInU_ = new int[numberRows_];
     if (nextColInU_) delete [] nextColInU_;
     nextColInU_ = new int[numberRows_];
     if (colSlack_) delete [] colSlack_;
-    colSlack_ = new int[numberRows_]; 
+    colSlack_ = new int[numberRows_];
 
     if (invOfPivots_) delete [] invOfPivots_;
     invOfPivots_ = new double[numberRows_];
@@ -1999,7 +1999,7 @@ void CoinSimpFactorization::allocateSomeArrays()
     secRowOfU_ = new int[numberRows_];
     if (secRowPosition_) delete [] secRowPosition_;
     secRowPosition_ = new int[numberRows_];
-    
+
     if (EtaPosition_) delete [] EtaPosition_;
     EtaPosition_ = new int[maximumPivots_];
     if (EtaStarts_) delete [] EtaStarts_;
@@ -2013,7 +2013,7 @@ void CoinSimpFactorization::allocateSomeArrays()
     EtaInd_ = new int[EtaMaxCap_];
     if (Eta_) delete [] Eta_;
     Eta_ = new double[EtaMaxCap_];
- 
+
 }
 
 void CoinSimpFactorization::Lxeqb(double *b) const
@@ -2024,7 +2024,7 @@ void CoinSimpFactorization::Lxeqb(double *b) const
     // now solve
     for ( int j=firstNumberSlacks_; j<numberRows_; ++j ){
 	k=rowOfU_[j];
-	xk=rhs[k];	
+	xk=rhs[k];
 	if ( xk!=0.0 ) {
 	    //if ( fabs(xk)>zeroTolerance_ ) {
 	    colBeg=LcolStarts_[k];
@@ -2035,7 +2035,7 @@ void CoinSimpFactorization::Lxeqb(double *b) const
 		rhs[ *ind ]-= (*Lcol) * xk;
 		++Lcol;
 	    }
-	} 
+	}
     }
 }
 
@@ -2046,12 +2046,12 @@ void CoinSimpFactorization::Lxeqb2(double *b1, double *b2) const
     double *rhs1=b1;
     double *rhs2=b2;
     double x1, x2, *Lcol;
-    int k, colBeg, *ind, *indEnd, j; 
+    int k, colBeg, *ind, *indEnd, j;
     // now solve
     for ( j=firstNumberSlacks_; j<numberRows_; ++j ){
 	k=rowOfU_[j];
 	x1=rhs1[k];
-	x2=rhs2[k];	
+	x2=rhs2[k];
 	if ( x1 == 0.0 ) {
 	    if (x2 == 0.0 ) {
 	    } else {
@@ -2103,7 +2103,7 @@ void CoinSimpFactorization::Lxeqb2(double *b1, double *b2) const
 		}
 	    }
 	}
-    } 
+    }
 }
 
 void CoinSimpFactorization::Uxeqb(double *b, double *sol) const
@@ -2112,10 +2112,10 @@ void CoinSimpFactorization::Uxeqb(double *b, double *sol) const
     int row, column, colBeg, *ind, *indEnd, k;
     double x, *uCol;
     // now solve
-    for ( k=numberRows_-1; k>=numberSlacks_; --k ){ 
+    for ( k=numberRows_-1; k>=numberSlacks_; --k ){
 	row=secRowOfU_[k];
 	x=rhs[row];
-	column=colOfU_[k];	
+	column=colOfU_[k];
 	if ( x!=0.0 ) {
 	    //if ( fabs(x) > zeroTolerance_ ) {
 	    x*=invOfPivots_[row];
@@ -2124,7 +2124,7 @@ void CoinSimpFactorization::Uxeqb(double *b, double *sol) const
 	    indEnd=ind+UcolLengths_[column];
 	    uCol=Ucolumns_+colBeg;
 	    for ( ; ind!=indEnd; ++ind ){
-#if 0 
+#if 0
 		rhs[ *ind ]-= (*uCol) * x;
 #else
 		double value=rhs[ *ind ];
@@ -2136,7 +2136,7 @@ void CoinSimpFactorization::Uxeqb(double *b, double *sol) const
 	}
 	else sol[column]=0.0;
     }
-    for ( k=numberSlacks_-1; k>=0; --k ){ 
+    for ( k=numberSlacks_-1; k>=0; --k ){
 	row=secRowOfU_[k];
 	column=colOfU_[k];
 	sol[column]=-rhs[row];
@@ -2152,11 +2152,11 @@ void CoinSimpFactorization::Uxeqb2(double *b1, double *sol1, double *b2, double 
     int row, column, colBeg, *ind, *indEnd;
     double x1, x2, *uCol;
     // now solve
-    for ( int k=numberRows_-1; k>=numberSlacks_; --k ){ 
+    for ( int k=numberRows_-1; k>=numberSlacks_; --k ){
 	row=secRowOfU_[k];
 	x1=rhs1[row];
 	x2=rhs2[row];
-	column=colOfU_[k];	
+	column=colOfU_[k];
 	if (x1 == 0.0) {
 	    if (x2 == 0.0) {
 		sol1[column]=0.0;
@@ -2177,7 +2177,7 @@ void CoinSimpFactorization::Uxeqb2(double *b1, double *sol1, double *b2, double 
 		    ++uCol;
 		}
 		sol1[column]=0.0;
-		sol2[column]=x2;  
+		sol2[column]=x2;
 	    }
 	} else {
 	    if (x2 == 0.0) {
@@ -2196,7 +2196,7 @@ void CoinSimpFactorization::Uxeqb2(double *b1, double *sol1, double *b2, double 
 		    ++uCol;
 		}
 		sol1[column]=x1;
-		sol2[column]=0.0;  
+		sol2[column]=0.0;
 	    } else {
 		x1*=invOfPivots_[row];
 		x2*=invOfPivots_[row];
@@ -2210,7 +2210,7 @@ void CoinSimpFactorization::Uxeqb2(double *b1, double *sol1, double *b2, double 
 		    rhs2[ *ind ]-= (*uCol) * x2;
 #else
 		    double value1=rhs1[ *ind ];
-		    rhs1[ *ind ] = value1 - (*uCol) * x1; 
+		    rhs1[ *ind ] = value1 - (*uCol) * x1;
 		    double value2=rhs2[ *ind ];
 		    rhs2[ *ind ] = value2 - (*uCol) * x2;
 #endif
@@ -2221,12 +2221,12 @@ void CoinSimpFactorization::Uxeqb2(double *b1, double *sol1, double *b2, double 
 	    }
 	}
     }
-    for ( int k=numberSlacks_-1; k>=0; --k ){ 
+    for ( int k=numberSlacks_-1; k>=0; --k ){
 	row=secRowOfU_[k];
 	column=colOfU_[k];
 	sol1[column]=-rhs1[row];
 	sol2[column]=-rhs2[row];
-    }	 
+    }
 }
 
 
@@ -2234,7 +2234,7 @@ void CoinSimpFactorization::xLeqb(double *b) const
 {
     double *rhs=b;
     int k, *ind, *indEnd, j;
-    int colBeg; 
+    int colBeg;
     double x, *Lcol;
     // find last nonzero
     int last;
@@ -2254,11 +2254,11 @@ void CoinSimpFactorization::xLeqb(double *b) const
 		x -= (*Lcol) * rhs[ *ind ];
 		++Lcol;
 	    }
-	    rhs[k]=x; 
+	    rhs[k]=x;
 	}
     } // if ( last >= 0 ){
 }
- 
+
 
 
 void CoinSimpFactorization::xUeqb(double *b, double *sol) const
@@ -2273,7 +2273,7 @@ void CoinSimpFactorization::xUeqb(double *b, double *sol) const
     for ( k=0; k<numberSlacks_; ++k ){
 	row=secRowOfU_[k];
 	col=colOfU_[k];
-	xr=rhs[col];	
+	xr=rhs[col];
 	if ( xr!=0.0 ) {
 	    //if ( fabs(xr)> zeroTolerance_ ) {
 	    xr=-xr;
@@ -2292,7 +2292,7 @@ void CoinSimpFactorization::xUeqb(double *b, double *sol) const
     for ( k=numberSlacks_; k<numberRows_; ++k ){
 	row=secRowOfU_[k];
 	col=colOfU_[k];
-	xr=rhs[col];	
+	xr=rhs[col];
 	if ( xr!=0.0 ) {
 	    //if ( fabs(xr)> zeroTolerance_ ) {
 	    xr*=invOfPivots_[row];
@@ -2317,7 +2317,7 @@ void CoinSimpFactorization::xUeqb(double *b, double *sol) const
     for ( k=numberSlacks_; k<numberRows_; ++k ){
 	row=secRowOfU_[k];
 	col=colOfU_[k];
-	xr=rhs[col];	
+	xr=rhs[col];
 	int colBeg=UcolStarts_[col];
 	ind=UcolInd_+colBeg;
 	indEnd=ind+UcolLengths_[col];
@@ -2338,9 +2338,9 @@ void CoinSimpFactorization::xUeqb(double *b, double *sol) const
 }
 
 
-	
+
 int CoinSimpFactorization::LUupdate(int newBasicCol)
-{    
+{
     //checkU();
     // recover vector kept in ftran
     double *newColumn=vecKeep_;
@@ -2370,24 +2370,24 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
 #ifdef COIN_SIMP_CAPACITY
 	if ( UrowLengths_[row] + 1 > UrowCapacities_[row] )
 	    increaseRowSize(row, UrowLengths_[row] + 1);
-#endif 
+#endif
 	const int rowEnd=UrowStarts_[row]+UrowLengths_[row];
 	UrowInd_[rowEnd]=newBasicCol;
 	Urows_[rowEnd]=newColumn[i];
 	++UrowLengths_[row];
 	if ( lastRowInU < secRowPosition_[row] ) lastRowInU=secRowPosition_[row];
-    }	
+    }
     // add to Ucolumns
 #ifdef COIN_SIMP_CAPACITY
     if ( sizeNewColumn > UcolCapacities_[newBasicCol] )
 	increaseColSize(newBasicCol, sizeNewColumn , true);
-#endif 
-    memcpy(&Ucolumns_[ UcolStarts_[newBasicCol] ], &newColumn[0], 
+#endif
+    memcpy(&Ucolumns_[ UcolStarts_[newBasicCol] ], &newColumn[0],
 	   sizeNewColumn * sizeof(double) );
     memcpy(&UcolInd_[ UcolStarts_[newBasicCol] ], &indNewColumn[0],
 	   sizeNewColumn * sizeof(int) );
     UcolLengths_[newBasicCol]=sizeNewColumn;
- 
+
 
     const int posNewCol=colPosition_[newBasicCol];
     if ( lastRowInU < posNewCol ){
@@ -2408,10 +2408,10 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
     secRowOfU_[lastRowInU]=rowInU;
     secRowPosition_[rowInU]=lastRowInU;
     colOfU_[lastRowInU]=colInU;
-    colPosition_[colInU]=lastRowInU;    
+    colPosition_[colInU]=lastRowInU;
     if ( posNewCol < numberSlacks_ ){
 	if ( lastRowInU >= numberSlacks_ )
-	    --numberSlacks_; 
+	    --numberSlacks_;
 	else
 	    numberSlacks_= lastRowInU;
     }
@@ -2453,7 +2453,7 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
 	int *indEnd=UrowInd_+rowEnd;
 	double *uRow=Urows_+rowBeg;
 	for ( ; ind!=indEnd; ++ind ){
-	    denseVector_[ *ind ]-= multiplier * (*uRow); 
+	    denseVector_[ *ind ]-= multiplier * (*uRow);
 	    ++uRow;
 	}
 #endif
@@ -2479,7 +2479,7 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
 	if ( UcolLengths_[column] + 1 > UcolCapacities_[column] ){
 	    increaseColSize(column, UcolLengths_[column] + 1, true);
 	}
-#endif 
+#endif
 	const int newInd=UcolStarts_[column]+UcolLengths_[column];
 	UcolInd_[newInd]=rowInU;
 	Ucolumns_[newInd]=coeff;
@@ -2490,7 +2490,7 @@ int CoinSimpFactorization::LUupdate(int newBasicCol)
 #ifdef COIN_SIMP_CAPACITY
     if ( UrowCapacities_[rowInU] < newEls )
 	increaseRowSize(rowInU, newEls);
-#endif 
+#endif
     const int startRow=UrowStarts_[rowInU];
     memcpy(&Urows_[startRow],&workArea2_[0], newEls*sizeof(double) );
     memcpy(&UrowInd_[startRow],&indVector_[0], newEls*sizeof(int) );
@@ -2535,16 +2535,16 @@ void CoinSimpFactorization::newEta(int row, int numNewElements){
 	delete [] Eta_;
 	Eta_=aux;
 
-	EtaMaxCap_+=number;	
+	EtaMaxCap_+=number;
     }
     EtaPosition_[++lastEtaRow_]=row;
     EtaStarts_[lastEtaRow_]=EtaSize_;
     EtaLengths_[lastEtaRow_]=0;
-    
+
 }
 void CoinSimpFactorization::copyRowPermutations()
 {
-    memcpy(&secRowOfU_[0], &rowOfU_[0], 
+    memcpy(&secRowOfU_[0], &rowOfU_[0],
 	   numberRows_ * sizeof(int) );
     memcpy(&secRowPosition_[0], &rowPosition_[0],
 	   numberRows_ * sizeof(int) );
@@ -2555,7 +2555,7 @@ void CoinSimpFactorization::Hxeqb(double *b) const
     double *rhs=b;
     int row, rowBeg, *ind, *indEnd;
     double xr, *eta;
-    // now solve 
+    // now solve
     for ( int k=0; k <= lastEtaRow_; ++k ){
 	row=EtaPosition_[k];
 	rowBeg=EtaStarts_[k];
@@ -2579,7 +2579,7 @@ void CoinSimpFactorization::Hxeqb2(double *b1, double *b2) const
     double *rhs2=b2;
     int row, rowBeg, *ind, *indEnd;
     double x1, x2, *eta;
-    // now solve 
+    // now solve
     for ( int k=0; k <= lastEtaRow_; ++k ){
 	row=EtaPosition_[k];
 	rowBeg=EtaStarts_[k];
@@ -2602,11 +2602,11 @@ void CoinSimpFactorization::Hxeqb2(double *b1, double *b2) const
 
 
 void CoinSimpFactorization::xHeqb(double *b) const
-{    
+{
     double *rhs=b;
     int row, rowBeg, *ind, *indEnd;
-    double xr, *eta; 
-    // now solve 
+    double xr, *eta;
+    // now solve
     for ( int k=lastEtaRow_; k >= 0; --k ){
 	row=EtaPosition_[k];
 	xr=rhs[row];
@@ -2626,7 +2626,7 @@ void CoinSimpFactorization::xHeqb(double *b) const
 
 
 void CoinSimpFactorization::ftran(double *b, double *sol, bool save) const
-{    
+{
     Lxeqb(b);
     Hxeqb(b);
     if ( save ){
@@ -2642,7 +2642,7 @@ void CoinSimpFactorization::ftran(double *b, double *sol, bool save) const
 }
 
 void CoinSimpFactorization::ftran2(double *b1, double *sol1, double *b2, double *sol2) const
-{    
+{
     Lxeqb2(b1,b2);
     Hxeqb2(b1,b2);
     // keep vector
@@ -2658,7 +2658,7 @@ void CoinSimpFactorization::ftran2(double *b1, double *sol1, double *b2, double 
 
 
 void CoinSimpFactorization::btran(double *b, double *sol) const
-{    
+{
     xUeqb(b, sol);
     xHeqb(sol);
     xLeqb(sol);

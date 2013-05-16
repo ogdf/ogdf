@@ -19,7 +19,7 @@ else:
 	configparser = ConfigParser
 
 
-class versionclass: 
+class versionclass:
 	def call(self):
 		return '$(' + self.var + ')'
 	def library(self):
@@ -41,7 +41,7 @@ def bailout(msg):
 	print(msg)
 	print('Please use the original makeMakefile.config as a template')
 	sys.exit()
-	
+
 def loadConfig(sect, key, noError = False ):
 	if config.has_option(sect, key):
 		v = config.get(sect, key)
@@ -49,7 +49,7 @@ def loadConfig(sect, key, noError = False ):
 		return v
 	else:
 		if noError:
-			return None		
+			return None
 		else:
 			bailout('Option "' + key + '" in section "' + sect + '" is missing')
 
@@ -62,7 +62,7 @@ def checkSolver(name, defSolver, extSolvers):
 			return True
 	return False
 
-	
+
 #########################################################
 # LOAD CONFIGURATION
 
@@ -119,7 +119,7 @@ if sharedLib:
 		libs = ' '.join( [libs, '-lpsapi'] )
 	else:
 		compiler = ' '.join( [compiler, '-fPIC'] )
-	
+
 if memoryManager:
 	config_defines += '#define ' + memoryManager + '\n'
 
@@ -131,27 +131,27 @@ if useCoin:
 	shutil.copyfile('config/coinstuff/config.h', 'include/coin/config.h')
 	coinLibName = loadConfig('COIN', 'libName')
 	coinSharedLibName = loadConfig('COIN', 'sharedlibName')
-	
+
 	defaultSolver   = loadConfig('COIN', 'defaultSolver')
 	externalSolvers = loadConfig('COIN', 'externalSolvers').split(';')
 	solverIncludes  = loadConfig('COIN', 'solverIncludes').split(';')
 
 	addOsiCpx = checkSolver('CPX', defaultSolver, externalSolvers)
 	addOsiGrb = checkSolver('GRB', defaultSolver, externalSolvers)
-	
+
 	config_defines += '#define USE_COIN\n'
 	config_defines += '#define COIN_OSI_' + defaultSolver + '\n'
-	
+
 	for s in externalSolvers:
 		s = s.strip();
 		if s != '':
 			config_defines += '#define OSI_' + s.strip() + '\n'
-	
+
 	for p in solverIncludes:
 		p = p.strip()
 		if p != '':
 			addIncludes += '-I' + p + ' '
-	
+
 	if sharedLib and (sys.platform == 'win32' or sys.platform == 'cygwin'):
 		libs = ' '.join( [libs, '-lCOIN'] )
 
@@ -238,7 +238,7 @@ def Walk( curdir ):
 	objs = []
 	names = os.listdir( curdir)
 	names.sort()
-	
+
 	for name in names:
 		# OGDF ignores
 		if name.startswith('.') or name.startswith('_') or (name=='legacy' and not includeLegacyCode):
@@ -250,7 +250,7 @@ def Walk( curdir ):
 			continue
 
 		fullname = posixpath.normpath(posixpath.join(curdir, name))
-		
+
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
 				objs = objs + Walk( fullname )
@@ -259,33 +259,33 @@ def Walk( curdir ):
 				if fnmatch.fnmatch(name, pat):
 					objfullname = fullname[:-len(pat)+2] + 'o'
 					objs.append(objfullname)
-					
+
 					callForDeps = ogdfCompiler + '-MM ' + fullname + ' > targetAndDepend'
-					os.system( callForDeps )					
+					os.system( callForDeps )
 					t = open('targetAndDepend')
 					targetAndDepend = t.read()
 					t.close()
-					
+
 					for v in versions:
 						# print target&depend: add full path spec, incl. version & ignore extra line
 						path = v.call() + '/' +fullname[:-len(name)]
 						makefile.write(path + targetAndDepend[:-1] + '\n')
 
-						# ensure folder					
+						# ensure folder
 						makefile.write('\t' + mkdirCommand + ' ' + v.call() + '/' + fullname[:-len(name)-1] + '\n')
 						# what to do: call the compiler
 						makefile.write('\t' + ogdfCompiler + ' ' + v.params + ' -o ' + v.call() + '/' + objfullname + ' -c ' + fullname + '\n\n')
-					
+
 					# pattern found: don't try other suffix
-					break			
+					break
 	return objs
 
 def WalkCoin( curdir ):
-	
+
 	objs = []
 	names = os.listdir( curdir)
 	names.sort()
-	
+
 	for name in names:
 		# OGDF ignores
 		if name.startswith('.') or name.startswith('_') or (name=='legacy' and not includeLegacyCode):
@@ -297,7 +297,7 @@ def WalkCoin( curdir ):
 			continue
 
 		fullname = posixpath.normpath(posixpath.join(curdir, name))
-		
+
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
 				objs = objs + WalkCoin( fullname )
@@ -307,14 +307,14 @@ def WalkCoin( curdir ):
 					objfullname = fullname[:-len(pat)+2] + 'o'
 					if not name.startswith('unitTest'): #conflict if in library!
 						objs.append(objfullname)
-					
+
 					#callForDeps = coinCompiler + '-MM ' + fullname + ' > targetAndDepend'
 					#print callForDeps
-					#os.system( callForDeps )					
+					#os.system( callForDeps )
 					#t = open('targetAndDepend')
 					#targetAndDepend = t.read()
 					#t.close()
-					
+
 					for v in versions:
 						# print target&depend: add full path spec, incl. version & ignore extra line
 						#path = v.call() + '/' + fullname[:-len(name)]
@@ -322,16 +322,16 @@ def WalkCoin( curdir ):
 						#makefile.write(path + targetAndDepend[:-1] + '\n')
 						makefile.write(path + ': ' + fullname + '\n')
 
-						# ensure folder					
+						# ensure folder
 						makefile.write('\t' + mkdirCommand + ' ' + v.call() + '/' + fullname[:-len(name)-1] + '\n')
 						# what to do: call the compiler
 						makefile.write('\t' + coinCompiler + ' ' + v.params + ' -o ' + v.call() + '/' + objfullname + ' -c ' + fullname + '\n\n')
-					
+
 					# pattern found: don't try other suffix
-					break			
+					break
 	return objs
 
- 	
+
 # OGDF
 objs = Walk( './src/ogdf' )
 # Clean up
@@ -349,7 +349,7 @@ if useCoin:
 	objsCoin = WalkCoin( './src/coin' )
 	# Clean up
 	#os.system(rmCommand + ' targetAndDepend')
-	
+
 	# List all Objs for use in lib-generation and clear
 	for v in versions:
 		makefile.write(v.coinObjects()[2:-1] + ' = \\\n')
@@ -360,18 +360,18 @@ if useCoin:
 # generate alls and cleans etc...
 
 for v in versions:
-	
+
 	makefile.write('\n#######################################################')
 	makefile.write('\n# all, clean, etc. for ' + v.var + '\n\n')
-	
+
 	if sharedLib:
 		if useCoin:
 			makefile.write(v.coinSharedLibrary() + ': ' + v.coinObjects() + '\n')
 			makefile.write('\t' + sharedlibCommand  + ' -shared -o ' + v.coinSharedLibrary() + ' ' + v.coinObjects() + '\n\n')
-		
+
 		makefile.write(v.sharedlibrary() + ': ' + v.objects() + '\n')
 		makefile.write('\t' + sharedlibCommand  + ' -shared -o ' + v.sharedlibrary() + ' ' + v.objects() + ' ' + libs + ' $(LIBS)\n\n')
-		
+
 		makefile.write(v.var + ': ' + v.sharedlibrary())
 		if useCoin:
 			makefile.write(' ' + v.coinSharedLibrary())
@@ -390,16 +390,16 @@ for v in versions:
 		if ranlibCommand != '':
 			makefile.write('\t' + ranlibCommand + ' ' + v.library() + '\n')
 		makefile.write('\n')
-		
+
 		makefile.write(v.var + ': ' + v.library())
 		if useCoin:
 			makefile.write(' ' + v.coinLibrary())
 		makefile.write('\n\n')
-	
+
 	makefile.write('clean' + v.var + ':\n')
 #	makefile.write('\t' + rmCommand + ' ' + v.objects() + ' ' + v.library() + '\n\n')
 	makefile.write('\t' + rmCommand + ' ' + v.call() + '\n\n')
-	
+
 	if useCoin:
 		makefile.write('clean' + v.var + '-coin:\n')
 		makefile.write('\t' + rmCommand + ' ' + v.coinLibrary() + ' ' + v.coinSharedLibrary() + ' ' + v.call() +'/src/coin\n\n')

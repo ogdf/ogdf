@@ -165,7 +165,7 @@ ClpDynamicMatrix::ClpDynamicMatrix(ClpSimplex * model, int numberSets,
      // Number of columns needed
      int frequency = model->factorizationFrequency();
      int numberGubInSmall = numberRows + frequency + CoinMin(frequency, numberSets_) + 4;
-     // But we may have two per row + one for incoming (make it two) 
+     // But we may have two per row + one for incoming (make it two)
      numberGubInSmall = CoinMax(2*numberRows+2,numberGubInSmall);
      // for small problems this could be too big
      //numberGubInSmall = CoinMin(numberGubInSmall,numberGubColumns_);
@@ -545,7 +545,7 @@ ClpDynamicMatrix::partialPricing(ClpSimplex * model, double startFraction, doubl
 				       // of ones at ub
 				       numberWanted++;
 				     } else {
-				     
+
                                         bestDj = value;
                                         bestSequence = structuralOffset + iSequence;
                                         bestDjMod = djMod;
@@ -768,7 +768,7 @@ ClpDynamicMatrix::rhsOffset(ClpSimplex * model, bool forceRefresh,
                     }
                     for (iSet = 0; iSet < numberSets_; iSet++) {
                          int kRow = toIndex_[iSet];
-                         if (kRow >= 0) 
+                         if (kRow >= 0)
 			   kRow += numberStaticRows_;
 			 int j = startSet_[iSet];
 			 while (j >= 0) {
@@ -2349,7 +2349,7 @@ ClpDynamicMatrix::initialProblem()
 	 }
        }
        for (int i=CoinMax(put,0);i<numberRows;i++) {
-	 if (pivotVariable[i]==-1) 
+	 if (pivotVariable[i]==-1)
 	   pivotVariable[i]=i+numberColumns;
        }
      }
@@ -2391,7 +2391,7 @@ ClpDynamicMatrix::initialProblem()
      return;
 }
 // Writes out model (without names)
-void 
+void
 ClpDynamicMatrix::writeMps(const char * name)
 {
   int numberTotalRows = numberStaticRows_+numberSets_;
@@ -2468,7 +2468,7 @@ ClpDynamicMatrix::writeMps(const char * name)
   delete [] rowLower;
   delete [] rowUpper;
   delete [] start;
-  delete [] row; 
+  delete [] row;
   delete [] element;
 }
 // Adds in a column to gub structure (called from descendant)

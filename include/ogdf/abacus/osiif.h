@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /*!\file
@@ -205,7 +205,7 @@ private:
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int  _maxCol() const {		
+	virtual int  _maxCol() const {
 		return numCols_;  // Size management is completely done by Osi!
 	}
 

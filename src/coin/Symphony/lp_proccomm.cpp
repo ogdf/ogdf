@@ -62,7 +62,7 @@ void check_ub(lp_prob *p)
 
 /*===========================================================================*\
  * This function processes the messages arriving to the LP. It is invoked
- * first from 
+ * first from
  * This function returns TRUE only if an ACTIVE_NODE_DATA has been received
  * and it will be processed (i.e., not too expensive, or has to be priced)
 \*===========================================================================*/
@@ -270,7 +270,7 @@ int receive_active_node(lp_prob *p)
 	 exit(-129);
       }
 #endif
-   
+
    if (desc->cutind.size > 0){
       desc->cuts = (cut_data **) malloc(desc->cutind.size*sizeof(cut_data *));
       for (i = 0; i < desc->cutind.size; i++)
@@ -346,7 +346,7 @@ int receive_cuts(lp_prob *p, int first_lp, int no_more_cuts_count)
 	    /* for 'why MAXINT' see comment in
 	       order_waiting_rows_based_on_sender() */
 	    for (i = new_row_num - 1; i >= 0; --i)
-	       new_rows[i]->source_pid = LEFTOVER; 
+	       new_rows[i]->source_pid = LEFTOVER;
 	    memcpy(p->waiting_rows, new_rows,
 		   new_row_num * sizeof(waiting_row *));
 	    free(new_rows);
@@ -381,7 +381,7 @@ int receive_cuts(lp_prob *p, int first_lp, int no_more_cuts_count)
 	 all_cuts_time_out = p->par.later_lp.all_cuts_time_out;
       }
 
-      timeout = (old_waiting_row_num = p->waiting_row_num) == 0 ? 
+      timeout = (old_waiting_row_num = p->waiting_row_num) == 0 ?
 	 first_cut_time_out : all_cuts_time_out;
       DBLTOTV(timeout, tvtimeout);
       ptimeout = timeout ? (&tvtimeout) : NULL;
@@ -501,7 +501,7 @@ if (newad.size > 0){                                                        \
    if (newad.type == EXPLICIT_LIST)                                         \
       newad.added = newad.size;                                             \
 }
-      
+
 /*===========================================================================*/
 
 void send_node_desc(lp_prob *p, int node_type)
@@ -510,14 +510,14 @@ void send_node_desc(lp_prob *p, int node_type)
    node_desc *lp_desc = p->desc;
    char repricing = (p->colgen_strategy & COLGEN_REPRICING) ? 1 : 0;
    int deal_with_nf;
-   
+
    LPdata *lp_data = p->lp_data;
 
 #ifdef COMPILE_IN_LP
    tm_prob *tm = p->tm;
    bc_node *n = repricing ? (bc_node *) calloc(1, sizeof(bc_node)) :
       tm->active_nodes[p->proc_index];
-   node_desc *tm_desc = &n->desc;   
+   node_desc *tm_desc = &n->desc;
 
    if (p->bc_level > 0) {
       n->num_cut_iters_in_path =
@@ -531,7 +531,7 @@ void send_node_desc(lp_prob *p, int node_type)
 
       n->avg_br_obj_impr_in_path =
          p->lp_stat.avg_br_obj_impr_in_path;
-      
+
    } else {
       n->num_cut_iters_in_path = 0;
       n->num_cuts_added_in_path = 0;
@@ -549,7 +549,7 @@ void send_node_desc(lp_prob *p, int node_type)
    n->num_str_br_cands_in_path =
       p->lp_stat.num_str_br_cands_in_path;
    n->num_fp_calls_in_path =
-      p->lp_stat.num_fp_calls_in_path;   
+      p->lp_stat.num_fp_calls_in_path;
 
 #else
    int s_bufid;
@@ -557,7 +557,7 @@ void send_node_desc(lp_prob *p, int node_type)
 #endif
 
 #ifdef SENSITIVITY_ANALYSIS
-      if (tm->par.sensitivity_analysis && 
+      if (tm->par.sensitivity_analysis &&
 	  !(node_type == INFEASIBLE_PRUNED || node_type == DISCARDED_NODE)){
 	 if (n->duals){
 	    FREE(n->duals);
@@ -565,7 +565,7 @@ void send_node_desc(lp_prob *p, int node_type)
 	 n->duals = (double *) malloc (DSIZE * p->base.cutnum);
 	 memcpy(n->duals, lp_data->dualsol, DSIZE*p->base.cutnum);
       }
-#endif	 
+#endif
 
 #ifdef COMPILE_IN_LP
    int *indices;
@@ -575,10 +575,10 @@ void send_node_desc(lp_prob *p, int node_type)
 
       n->node_status = NODE_STATUS__PRUNED;
 
-      if (tm->par.keep_description_of_pruned == KEEP_IN_MEMORY){       
+      if (tm->par.keep_description_of_pruned == KEEP_IN_MEMORY){
 	 if (node_type == INFEASIBLE_PRUNED || node_type == DISCARDED_NODE){
 	    if (n->feasibility_status != NOT_PRUNED_HAS_CAN_SOLUTION){
-	       n->feasibility_status = INFEASIBLE_PRUNED;      
+	       n->feasibility_status = INFEASIBLE_PRUNED;
 	    }
 	 }
 	 if (node_type == FEASIBLE_PRUNED) {
@@ -590,14 +590,14 @@ void send_node_desc(lp_prob *p, int node_type)
 	    n->sol = (double *) malloc (DSIZE * n->sol_size);
 	    memcpy(n->sol, values, DSIZE*n->sol_size);
 	    memcpy(n->sol_ind, indices, ISIZE*n->sol_size);
-	    n->feasibility_status = FEASIBLE_PRUNED;      
+	    n->feasibility_status = FEASIBLE_PRUNED;
 	 }
-      
+
 	 if (node_type == OVER_UB_PRUNED ){
-	    n->feasibility_status = OVER_UB_PRUNED;      
-	    if (n->feasibility_status == NOT_PRUNED_HAS_CAN_SOLUTION){	    
-	       n->feasibility_status = FEASIBLE_PRUNED;      
-	    } 
+	    n->feasibility_status = OVER_UB_PRUNED;
+	    if (n->feasibility_status == NOT_PRUNED_HAS_CAN_SOLUTION){
+	       n->feasibility_status = FEASIBLE_PRUNED;
+	    }
 	 }
       }
 
@@ -661,12 +661,12 @@ void send_node_desc(lp_prob *p, int node_type)
       n->lower_bound = lp_data->objval;
 
       new_lp_desc = create_explicit_node_desc(p);
-      
+
       deal_with_nf = (new_lp_desc->nf_status == NF_CHECK_AFTER_LAST ||
 		      new_lp_desc->nf_status == NF_CHECK_UNTIL_LAST) ?
 	              TRUE : FALSE;
-      
-      new_tm_desc = (node_desc *) calloc(1, sizeof(node_desc)); 
+
+      new_tm_desc = (node_desc *) calloc(1, sizeof(node_desc));
 
       if (p->bc_level == 0){
 	 COPY_ARRAY_DESC(new_tm_desc->uind, new_lp_desc->uind);
@@ -695,11 +695,11 @@ void send_node_desc(lp_prob *p, int node_type)
 						    &new_lp_desc->cutind,
 						    lp_data->tmp.i1); /* m */
 	 MAKE_TM_ARRAY_DESC(new_tm_desc->cutind, new_lp_desc->cutind);
-	 
+
 	 if (!new_lp_desc->basis.basis_exists ||
 	     !lp_desc->basis.basis_exists){
 	    new_tm_desc->basis = new_lp_desc->basis;
-	    
+
 	    COPY_STAT(new_tm_desc->basis.basevars,
 		      new_lp_desc->basis.basevars);
 	    COPY_STAT(new_tm_desc->basis.extravars,
@@ -716,23 +716,23 @@ void send_node_desc(lp_prob *p, int node_type)
 	    new_tm_desc->basis.basis_exists = new_lp_desc->basis.basis_exists;
 	 }
       }
-      
+
       tm_desc->desc_size = new_lp_desc->desc_size;
       FREE(tm_desc->desc);
-      
+
       if (new_lp_desc->desc_size > 0)
 	 memcpy((char *)tm_desc->desc, (char *)new_lp_desc->desc,
 		new_lp_desc->desc_size);
-      
+
       merge_descriptions(tm_desc, new_tm_desc);
-      /* 
+      /*
        * new_lp_desc used by "lp_prob p" does not need bnd_change. it is meant
        * only for bc_node->node_desc. hence we insert bnd_change in tm_desc
        * only
        */
       add_bound_changes_to_desc(tm_desc,p);
       free_node_desc(&new_tm_desc);
-      
+
       if (p->par.verbosity > 10){
 	 printf("TM: node %4i: ", n->bc_index);
 	 if (tm_desc->uind.type == WRT_PARENT)
@@ -755,7 +755,7 @@ void send_node_desc(lp_prob *p, int node_type)
 		tm_desc->basis.extrarows.type==EXPLICIT_LIST ? "EXP" : "WRT");
       }
    }
-   
+
    if (! repricing){
       /* If it's not repricing then we have to insert the node into the
        * appropriate heap */
@@ -772,7 +772,7 @@ void send_node_desc(lp_prob *p, int node_type)
 	 if (n->cp)
 #ifdef COMPILE_IN_CP
 	    tm->nodes_per_cp[n->cp]++;
-#else	    
+#else
 	    tm->nodes_per_cp[find_process_index(&tm->cp, n->cp)]++;
 #endif
 	 break;
@@ -786,7 +786,7 @@ void send_node_desc(lp_prob *p, int node_type)
 	    }else{
 	       PRINT_TIME(p->tm, f);
 	       fprintf(f, "P %i %i\n", n->bc_index + 1, VBC_INTERIOR_NODE);
-	       fclose(f); 
+	       fclose(f);
 	    }
 	 } else if (p->tm->par.vbc_emulation == VBC_EMULATION_FILE_NEW){
 	    FILE *f;
@@ -832,7 +832,7 @@ void send_node_desc(lp_prob *p, int node_type)
 		       lp_data->objval+p->mip->obj_offset, sum_inf, num_inf);
 	       fprintf(f, "%s\n", reason);
 	       FREE(reason);
-	       fclose(f); 
+	       fclose(f);
 	    }
 	 }else if (p->tm->par.vbc_emulation == VBC_EMULATION_LIVE){
 	    printf("$P %i %i\n", n->bc_index + 1, VBC_INTERIOR_NODE);
@@ -890,7 +890,7 @@ void send_node_desc(lp_prob *p, int node_type)
 	    for ( ; i < usize; i++, k++)
 	       ulist[k] = ulist[i];
 	 }
-	 
+
 	 if ((usize = k) > 0){
 	    if ((nsize = n->desc.not_fixed.size) == 0){
 	       /* All we got is from uind */
@@ -923,7 +923,7 @@ void send_node_desc(lp_prob *p, int node_type)
 	    }
 	 }
       }
-      
+
       /* PROCESS_OK, now every new thingy is in n->desc.not_fixed */
       nsize = n->desc.not_fixed.size;
       if (nsize == 0){
@@ -959,7 +959,7 @@ void send_node_desc(lp_prob *p, int node_type)
       tm->stat.vars_not_priced = tm->rootnode->desc.not_fixed.size;
       free_tree_node(n);
    }
-      
+
    if (n->node_status == NODE_STATUS__PRUNED){
 #ifdef TRACE_PATH
       if (n->optimal_path){
@@ -1048,7 +1048,7 @@ void send_node_desc(lp_prob *p, int node_type)
 
    deal_with_nf = (new_lp_desc->nf_status == NF_CHECK_AFTER_LAST ||
       new_lp_desc->nf_status == NF_CHECK_UNTIL_LAST) ? TRUE : FALSE;
-   
+
    if (p->bc_level == 0){ /*we have the root node: send back explicit lists*/
       pack_array_desc(&new_lp_desc->uind);
       if (deal_with_nf)
@@ -1057,7 +1057,7 @@ void send_node_desc(lp_prob *p, int node_type)
       pack_basis(&new_lp_desc->basis, FALSE);
    }else{ /* we may want to pack the differences */
 
-      new_tm_desc = (node_desc *) calloc(1, sizeof(node_desc)); 
+      new_tm_desc = (node_desc *) calloc(1, sizeof(node_desc));
 
       new_tm_desc->uind = pack_array_desc_diff(&lp_desc->uind,
 					       &new_lp_desc->uind,
@@ -1194,7 +1194,7 @@ array_desc pack_array_desc_diff(array_desc *ad, array_desc *new_ad, int *itmp)
       which2.stat = (int *) malloc(which2.size*ISIZE);                       \
       memcpy(which2.stat, newdesc->which2.stat, which2.size*ISIZE);          \
    }
-   
+
 /*===========================================================================*/
 
 basis_desc pack_basis_diff(node_desc *oldnode, node_desc *newnode,
@@ -1224,9 +1224,9 @@ basis_desc pack_basis_diff(node_desc *oldnode, node_desc *newnode,
       printf("pack_basis_diff: size differences!!!\n\n");
       exit(-5);
    }
-#endif      
+#endif
    PACK_EXTRA_DIFF(newnode, oldnode, cutind, basis.extrarows, cutind_type);
-   
+
    /* take care of base variables */
    PACK_BASE_DIFF(newnode, oldnode, basis.basevars);
 
@@ -1255,7 +1255,7 @@ basis_desc pack_basis_diff(node_desc *oldnode, node_desc *newnode,
    }
 #endif
    pack_extra_diff(&oldnode->cutind, oldnode->basis.extrarows.stat,
-		   &newnode->cutind, newnode->basis.extrarows.stat, 
+		   &newnode->cutind, newnode->basis.extrarows.stat,
 		   oldnode->basis.extrarows.type, cutind_type, itmp, &size);
    /*m*/
 
@@ -1304,7 +1304,7 @@ char pack_base_diff(int *size, int *oldstat, int *newstat, int *itmp)
 	 send_int_array(stat, k);
       }
 #endif
-   }else{ /* explicit shorter */ 
+   }else{ /* explicit shorter */
       type = EXPLICIT_LIST;
 #ifndef COMPILE_IN_LP
       send_char_array(&type, 1);
@@ -1415,10 +1415,10 @@ char pack_extra_diff(array_desc *olddesc, int *oldstat,
    }
    return(type);
 }
-   
+
 /*===========================================================================*/
 
-void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep) 
+void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
 {
    LPdata *lp_data = p->lp_data;
 #ifndef COMPILE_IN_LP
@@ -1460,7 +1460,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
       fractional_dive = TRUE;
    }
 #endif
-      
+
    dive = generate_children(tm, node, bobj, can->objval, can->feasible,
 			    action, dive, keep, i);
 
@@ -1476,7 +1476,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
       memcpy((char *)can->rhs, (char *)bobj->rhs, bobj->child_num*DSIZE);
       memcpy((char *)can->range, (char *)bobj->range, bobj->child_num*DSIZE);
       memcpy((char *)can->branch, (char *)bobj->branch, bobj->child_num*ISIZE);
-#endif   
+#endif
       p->dive = fractional_dive ? olddive : dive;
       if (dive == DO_DIVE || dive == CHECK_BEFORE_DIVE /*next time*/){
 	 /* get the new node index */
@@ -1488,7 +1488,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
 	    PRINT(p->par.verbosity, 4,
 		  ("The real cut name is %i \n",lp_data->rows[pos].cut->name));
 	 }
-	 node->children[*keep]->cg = node->cg;	 
+	 node->children[*keep]->cg = node->cg;
 	 tm->active_nodes[p->proc_index] = node->children[*keep];
 	 tm->stat.analyzed++;
 	 PRINT(p->par.verbosity, 1, ("Decided to dive...\n"));
@@ -1533,7 +1533,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
       fractional_dive = TRUE;
    }
 #endif
-   
+
    /* Number of descendants */
    send_int_array(&can->child_num, 1);
 
@@ -1557,7 +1557,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
    /* Our diving status and what we would keep */
    send_char_array(&dive, 1);
    send_int_array(keep, 1);
-   
+
    send_msg(p->tree_manager, LP__BRANCHING_INFO);
    freebuf(s_bufid);
 
@@ -1597,7 +1597,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
       p->dive = fractional_dive ? olddive : dive;
    }
 #endif
-   
+
    /* Print some statistics */
    for (i = can->child_num-1; i >= 0; i--){
       switch (action[i]){
@@ -1607,7 +1607,7 @@ void send_branching_info(lp_prob *p, branch_obj *can, char *action, int *keep)
 	 PRINT(p->par.verbosity, 2, ("child %i is pruned by rule\n", i));
 	 break;
        case PRUNE_THIS_CHILD_FATHOMABLE:
-       case PRUNE_THIS_CHILD_INFEASIBLE: 
+       case PRUNE_THIS_CHILD_INFEASIBLE:
 	  PRINT(p->par.verbosity, 2, ("child %i is fathomed [%i, %i]\n",
 				     i, can->termcode[i], can->iterd[i]));
 	 break;
@@ -1625,7 +1625,7 @@ void send_lp_is_free(lp_prob *p)
    send_int_array(&p->cut_pool, 1);
    send_msg(p->tree_manager, LP__IS_FREE);
    freebuf(s_bufid);
-   
+
    /* clear out stuff here */
    free_node_dependent(p);
 }
@@ -1647,7 +1647,7 @@ void send_cuts_to_pool(lp_prob *p, int eff_cnt_limit)
 
    if (! p->cut_pool)
       return;
-#endif   
+#endif
 
    /* Count how many to send */
    for (i = p->lp_data->m - p->base.cutnum - 1; i >= 0; i--){

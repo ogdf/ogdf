@@ -68,8 +68,8 @@ OsiChooseVariable::OsiChooseVariable(const OsiSolverInterface * solver) :
   useful_ = new double [numberObjects];
 }
 
-OsiChooseVariable::OsiChooseVariable(const OsiChooseVariable & rhs) 
-{  
+OsiChooseVariable::OsiChooseVariable(const OsiChooseVariable & rhs)
+{
   goodObjectiveValue_ = rhs.goodObjectiveValue_;
   upChange_ = rhs.upChange_;
   downChange_ = rhs.downChange_;
@@ -162,8 +162,8 @@ OsiChooseVariable::clone() const
   return new OsiChooseVariable(*this);
 }
 // Set solver and redo arrays
-void 
-OsiChooseVariable::setSolver (const OsiSolverInterface * solver) 
+void
+OsiChooseVariable::setSolver (const OsiSolverInterface * solver)
 {
   solver_ = solver;
   delete [] list_;
@@ -176,7 +176,7 @@ OsiChooseVariable::setSolver (const OsiSolverInterface * solver)
 
 
 // Initialize
-int 
+int
 OsiChooseVariable::setupList ( OsiBranchingInformation *info, bool initialize)
 {
   if (initialize) {
@@ -230,7 +230,7 @@ OsiChooseVariable::setupList ( OsiBranchingInformation *info, bool initialize)
 	}
 	bestPriority = priorityLevel;
 	check=0.0;
-      } 
+      }
       if (priorityLevel==bestPriority) {
 	if (value>check) {
 	  //add to list
@@ -273,16 +273,16 @@ OsiChooseVariable::setupList ( OsiBranchingInformation *info, bool initialize)
       }
     }
     if (numberOnList_) {
-      // Sort 
+      // Sort
       CoinSort_2(useful_,useful_+numberOnList_,list_);
       // move others
       i = numberOnList_;
-      for (;putOther<numberObjects;putOther++) 
+      for (;putOther<numberObjects;putOther++)
 	list_[i++]=list_[putOther];
       assert (i==numberUnsatisfied_);
       if (!numberStrong_)
 	numberOnList_=0;
-    } 
+    }
   } else {
     // not feasible
     numberUnsatisfied_=-1;
@@ -290,7 +290,7 @@ OsiChooseVariable::setupList ( OsiBranchingInformation *info, bool initialize)
   return numberUnsatisfied_;
 }
 /* Choose a variable
-   Returns - 
+   Returns -
    -1 Node is infeasible
    0  Normal termination - we have a candidate
    1  All looks satisfied - no candidate
@@ -301,7 +301,7 @@ OsiChooseVariable::setupList ( OsiBranchingInformation *info, bool initialize)
    We can pick up a forced branch (can change bound) from whichForcedObject() and whichForcedWay()
    If we have a solution then we can pick up from goodObjectiveValue() and goodSolution()
 */
-int 
+int
 OsiChooseVariable::chooseVariable( OsiSolverInterface * solver, OsiBranchingInformation *, bool )
 {
   if (numberUnsatisfied_) {
@@ -315,7 +315,7 @@ OsiChooseVariable::chooseVariable( OsiSolverInterface * solver, OsiBranchingInfo
   }
 }
 // Returns true if solution looks feasible against given objects
-bool 
+bool
 OsiChooseVariable::feasibleSolution(const OsiBranchingInformation * info,
 				    const double * solution,
 				    int numberObjects,
@@ -335,7 +335,7 @@ OsiChooseVariable::feasibleSolution(const OsiBranchingInformation * info,
   return satisfied;
 }
 // Saves a good solution
-void 
+void
 OsiChooseVariable::saveSolution(const OsiSolverInterface * solver)
 {
   delete [] goodSolution_;
@@ -344,7 +344,7 @@ OsiChooseVariable::saveSolution(const OsiSolverInterface * solver)
   goodObjectiveValue_ = solver->getObjSense()*solver->getObjValue();
 }
 // Clears out good solution after use
-void 
+void
 OsiChooseVariable::clearGoodSolution()
 {
   delete [] goodSolution_;
@@ -360,11 +360,11 @@ OsiChooseVariable::clearGoodSolution()
     -1 - one branch was infeasible both ways
      0 - all inspected - nothing can be fixed
      1 - all inspected - some can be fixed (returnCriterion==0)
-     2 - may be returning early - one can be fixed (last one done) (returnCriterion==1) 
+     2 - may be returning early - one can be fixed (last one done) (returnCriterion==1)
      3 - returning because max time
 */
-int 
-OsiChooseStrong::doStrongBranching( OsiSolverInterface * solver, 
+int
+OsiChooseStrong::doStrongBranching( OsiSolverInterface * solver,
 				    OsiBranchingInformation *info,
 				    int numberToDo, int returnCriterion)
 {
@@ -391,20 +391,20 @@ OsiChooseStrong::doStrongBranching( OsiSolverInterface * solver,
       specified branch and advances the branch object state to the next branch
       alternative.)
     */
-    OsiSolverInterface * thisSolver = solver; 
+    OsiSolverInterface * thisSolver = solver;
     if (branch->boundBranch()) {
       // ordinary
       branch->branch(solver);
       // maybe we should check bounds for stupidities here?
       solver->solveFromHotStart() ;
     } else {
-      // adding cuts or something 
+      // adding cuts or something
       thisSolver = solver->clone();
       branch->branch(thisSolver);
       // set hot start iterations
       int limit;
       thisSolver->getIntParam(OsiMaxNumIterationHotStart,limit);
-      thisSolver->setIntParam(OsiMaxNumIteration,limit); 
+      thisSolver->setIntParam(OsiMaxNumIteration,limit);
       thisSolver->resolve();
     }
     // can check if we got solution
@@ -430,20 +430,20 @@ OsiChooseStrong::doStrongBranching( OsiSolverInterface * solver,
     /*
       Try the next direction
     */
-    thisSolver = solver; 
+    thisSolver = solver;
     if (branch->boundBranch()) {
       // ordinary
       branch->branch(solver);
       // maybe we should check bounds for stupidities here?
       solver->solveFromHotStart() ;
     } else {
-      // adding cuts or something 
+      // adding cuts or something
       thisSolver = solver->clone();
       branch->branch(thisSolver);
       // set hot start iterations
       int limit;
       thisSolver->getIntParam(OsiMaxNumIterationHotStart,limit);
-      thisSolver->setIntParam(OsiMaxNumIteration,limit); 
+      thisSolver->setIntParam(OsiMaxNumIteration,limit);
       thisSolver->resolve();
     }
     // can check if we got solution
@@ -505,7 +505,7 @@ OsiChooseStrong::doStrongBranching( OsiSolverInterface * solver,
 }
 
 // Given a candidate fill in useful information e.g. estimates
-void 
+void
 OsiChooseVariable::updateInformation(const OsiBranchingInformation *info,
 				  int , OsiHotInfo * hotInfo)
 {
@@ -518,8 +518,8 @@ OsiChooseVariable::updateInformation(const OsiBranchingInformation *info,
 }
 #if 1
 // Given a branch fill in useful information e.g. estimates
-void 
-OsiChooseVariable::updateInformation( int index, int branch, 
+void
+OsiChooseVariable::updateInformation( int index, int branch,
 				      double , double ,
 				      int )
 {
@@ -613,7 +613,7 @@ OsiPseudoCosts::initialize(int n)
     CoinZeroN(downNumber_,numberObjects_);
   }
 }
-  
+
 
 //##############################################################################
 
@@ -643,7 +643,7 @@ OsiChooseStrong::OsiChooseStrong(const OsiChooseStrong & rhs) :
   pseudoCosts_(rhs.pseudoCosts_),
   results_(NULL),
   numResults_(0)
-{  
+{
 }
 
 OsiChooseStrong &
@@ -674,7 +674,7 @@ OsiChooseStrong::clone() const
 }
 #define MAXMIN_CRITERION 0.85
 // Initialize
-int 
+int
 OsiChooseStrong::setupList ( OsiBranchingInformation *info, bool initialize)
 {
   if (initialize) {
@@ -718,7 +718,7 @@ OsiChooseStrong::setupList ( OsiBranchingInformation *info, bool initialize)
       int numberRows = solver_->getNumRows();
       const double * pi = info->pi_;
       double sumPi=0.0;
-      for (i=0;i<numberRows;i++) 
+      for (i=0;i<numberRows;i++)
 	sumPi += fabs(pi[i]);
       sumPi /= static_cast<double> (numberRows);
       // and scale back
@@ -785,7 +785,7 @@ OsiChooseStrong::setupList ( OsiBranchingInformation *info, bool initialize)
 	bestPriority = priorityLevel;
 	check=-COIN_DBL_MAX;
 	checkIndex=0;
-      } 
+      }
       if (priorityLevel==bestPriority) {
 	// Modify value
 	sumUp = upTotalChange[i]+1.0e-30;
@@ -859,11 +859,11 @@ OsiChooseStrong::setupList ( OsiBranchingInformation *info, bool initialize)
       }
     }
     if (numberOnList_) {
-      // Sort 
+      // Sort
       CoinSort_2(useful_,useful_+numberOnList_,list_);
       // move others
       i = numberOnList_;
-      for (;putOther<numberObjects;putOther++) 
+      for (;putOther<numberObjects;putOther++)
 	list_[i++]=list_[putOther];
       assert (i==numberUnsatisfied_);
       if (!numberStrong_)
@@ -887,9 +887,9 @@ OsiChooseStrong::resetResults(int num)
   numResults_ = 0;
   results_ = new OsiHotInfo[num];
 }
-  
+
 /* Choose a variable
-   Returns - 
+   Returns -
    -1 Node is infeasible
    0  Normal termination - we have a candidate
    1  All looks satisfied - no candidate
@@ -900,7 +900,7 @@ OsiChooseStrong::resetResults(int num)
    We can pick up a forced branch (can change bound) from whichForcedObject() and whichForcedWay()
    If we have a solution then we can pick up from goodObjectiveValue() and goodSolution()
 */
-int 
+int
 OsiChooseStrong::chooseVariable( OsiSolverInterface * solver, OsiBranchingInformation *info, bool fixVariables)
 {
   if (numberUnsatisfied_) {
@@ -1030,7 +1030,7 @@ OsiChooseStrong::chooseVariable( OsiSolverInterface * solver, OsiBranchingInform
   }
 }
 // Given a candidate  fill in useful information e.g. estimates
-void 
+void
 OsiPseudoCosts::updateInformation(const OsiBranchingInformation *info,
 				  int branch, OsiHotInfo * hotInfo)
 {
@@ -1067,12 +1067,12 @@ OsiPseudoCosts::updateInformation(const OsiBranchingInformation *info,
 	downTotalChange_[index] += 2.0*fabs(info->objectiveValue_)/object->downEstimate();
 #endif
     }
-  }  
+  }
 }
 #if 1
 // Given a branch fill in useful information e.g. estimates
-void 
-OsiPseudoCosts::updateInformation(int index, int branch, 
+void
+OsiPseudoCosts::updateInformation(int index, int branch,
 				  double changeInObjective,
 				  double changeInValue,
 				  int status)
@@ -1093,7 +1093,7 @@ OsiPseudoCosts::updateInformation(int index, int branch,
       downTotalChange_[index] += changeInObjective/changeInValue;
       downNumber_[index]++;
     }
-  }  
+  }
 }
 #endif
 
@@ -1128,8 +1128,8 @@ OsiHotInfo::OsiHotInfo(OsiSolverInterface * solver,
   CoinFillN(statuses_,numberBranches,-1);
 }
 
-OsiHotInfo::OsiHotInfo(const OsiHotInfo & rhs) 
-{  
+OsiHotInfo::OsiHotInfo(const OsiHotInfo & rhs)
+{
   originalObjectiveValue_ = rhs.originalObjectiveValue_;
   whichObject_ = rhs.whichObject_;
   if (rhs.branchingObject_) {
@@ -1187,7 +1187,7 @@ OsiHotInfo::clone() const
 {
   return new OsiHotInfo(*this);
 }
-/* Fill in useful information after strong branch 
+/* Fill in useful information after strong branch
  */
 int OsiHotInfo::updateInformation( const OsiSolverInterface * solver, const OsiBranchingInformation * info,
 				   OsiChooseVariable * choose)
@@ -1200,7 +1200,7 @@ int OsiHotInfo::updateInformation( const OsiSolverInterface * solver, const OsiB
     status=0; // optimal
   else if (solver->isIterationLimitReached()
 	   &&!solver->isDualObjectiveLimitReached())
-    status=2; // unknown 
+    status=2; // unknown
   else
     status=1; // infeasible
   // Could do something different if we can't trust

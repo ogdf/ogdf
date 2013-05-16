@@ -1,11 +1,11 @@
-// LAST EDIT: 
+// LAST EDIT:
 //-----------------------------------------------------------------------------
 // Implementation of Residual Capacity Inequalities
 // Francisco Barahona (barahon@us.ibm.com)
-//  
+//
 // date: May 18 2006
 //-----------------------------------------------------------------------------
-// Copyright (C) 2004, International Business Machines Corporation and others. 
+// Copyright (C) 2004, International Business Machines Corporation and others.
 // All Rights Reserved.
 // This code is published under the Eclipse Public License.
 
@@ -26,7 +26,7 @@
 //#define CGL_DEBUG 1
 //-----------------------------------------------------------------------------
 // Generate Mixed Integer Rounding inequality
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void
 CglResidualCapacity::generateCuts(const OsiSolverInterface& si,
 				      OsiCuts& cs,
@@ -41,20 +41,20 @@ CglResidualCapacity::generateCuts(const OsiSolverInterface& si,
   si.getHintParam(OsiDoPresolveInResolve, preReso);
   if (preInit == false &&  preReso == false &&
       doPreproc_ == -1 ) { // Do once
-    if (doneInitPre_ == false) {   
+    if (doneInitPre_ == false) {
       resCapPreprocess(si);
       doneInitPre_ = true;
     }
   }
-  else  
-      if ( doPreproc_ == 1 ){ // Do everytime       
+  else
+      if ( doPreproc_ == 1 ){ // Do everytime
 	  resCapPreprocess(si);
 	  doneInitPre_ = true;
       } else
-	if (doneInitPre_ == false) {   
+	if (doneInitPre_ == false) {
 	  resCapPreprocess(si);
 	  doneInitPre_ = true;
-	}  
+	}
 
 
   const double* xlp        = si.getColSolution();  // LP solution
@@ -75,40 +75,40 @@ CglResidualCapacity::generateCuts(const OsiSolverInterface& si,
 
   generateResCapCuts(si, xlp, colUpperBound, colLowerBound,
 		     matrixByRow, LHS, coefByRow,
-		     colInds, rowStarts, rowLengths, 
+		     colInds, rowStarts, rowLengths,
 		     cs);
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglResidualCapacity::CglResidualCapacity ()
     :
     CglCutGenerator()
-{ 
+{
     gutsOfConstruct(1.0e-6);
 }
 
 
 //-------------------------------------------------------------------
-// Alternate Constructor 
+// Alternate Constructor
 //-------------------------------------------------------------------
 CglResidualCapacity::CglResidualCapacity (const double epsilon)
   :
   CglCutGenerator()
-{ 
+{
   gutsOfConstruct(epsilon);
 }
 
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CglResidualCapacity::CglResidualCapacity ( 
+CglResidualCapacity::CglResidualCapacity (
 				 const CglResidualCapacity & rhs)
   :
   CglCutGenerator(rhs)
-{ 
+{
   gutsOfCopy(rhs);
 }
 
@@ -123,7 +123,7 @@ CglResidualCapacity::clone() const
 }
 
 //------------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglResidualCapacity &
 CglResidualCapacity::operator=(const CglResidualCapacity& rhs)
@@ -138,8 +138,8 @@ CglResidualCapacity::operator=(const CglResidualCapacity& rhs)
 
 
 //-------------------------------------------------------------------
-// Destructor 
-//-------------------------------------------------------------------  
+// Destructor
+//-------------------------------------------------------------------
 CglResidualCapacity::~CglResidualCapacity ()
 {
   gutsOfDelete();
@@ -147,11 +147,11 @@ CglResidualCapacity::~CglResidualCapacity ()
 
 //-------------------------------------------------------------------
 // Construct
-//-------------------------------------------------------------------  
+//-------------------------------------------------------------------
 void
 CglResidualCapacity::gutsOfConstruct (const double epsilon)
 {
-  
+
     EPSILON_ = epsilon;
     TOLERANCE_ = 1.0e-4;
     doPreproc_ = -1;
@@ -161,7 +161,7 @@ CglResidualCapacity::gutsOfConstruct (const double epsilon)
     rowTypes_ = 0;
     indRows_ = 0;
     sense_=NULL;
-    RHS_=NULL; 
+    RHS_=NULL;
     numRowL_ = 0;
     indRowL_ = 0;
     numRowG_ = 0;
@@ -170,11 +170,11 @@ CglResidualCapacity::gutsOfConstruct (const double epsilon)
 
 //-------------------------------------------------------------------
 // Delete
-//-------------------------------------------------------------------  
+//-------------------------------------------------------------------
 void
 CglResidualCapacity::gutsOfDelete ()
 {
-  if (rowTypes_ != 0) { delete [] rowTypes_; rowTypes_ = 0; } 
+  if (rowTypes_ != 0) { delete [] rowTypes_; rowTypes_ = 0; }
   if (indRows_ != 0) { delete [] indRows_; indRows_ = 0; }
   if (indRowL_ != 0) { delete [] indRowL_; indRowL_ = 0; }
   if (indRowG_ != 0) { delete [] indRowG_; indRowG_ = 0; }
@@ -184,7 +184,7 @@ CglResidualCapacity::gutsOfDelete ()
 
 //-------------------------------------------------------------------
 // Copy
-//-------------------------------------------------------------------  
+//-------------------------------------------------------------------
 void
 CglResidualCapacity::gutsOfCopy (const CglResidualCapacity& rhs)
 {
@@ -234,8 +234,8 @@ CglResidualCapacity::gutsOfCopy (const CglResidualCapacity& rhs)
 //-------------------------------------------------------------------
 // Do preprocessing
 // It determines the type of each row.
-//-------------------------------------------------------------------  
-void 
+//-------------------------------------------------------------------
+void
 CglResidualCapacity::
 resCapPreprocess(const OsiSolverInterface& si) const
 {
@@ -256,18 +256,18 @@ resCapPreprocess(const OsiSolverInterface& si) const
     }
     sense_ = CoinCopyOfArray(si.getRowSense(),numRows_);
     RHS_  = CoinCopyOfArray(si.getRightHandSide(),numRows_);
-    
+
     if (rowTypes_ != 0) {
 	delete [] rowTypes_; rowTypes_ = 0;
     }
     rowTypes_ = new RowType [numRows_];     // Destructor will free memory
-    
+
     // Summarize the row type infomation.
     int numOTHER   = 0;
     int numL       = 0;
     int numG       = 0;
     int numB       = 0;
-    
+
     int iRow;
     const double* rowActivity        = si.getRowActivity();
     const double* rowLower        = si.getRowLower();
@@ -287,23 +287,23 @@ resCapPreprocess(const OsiSolverInterface& si) const
 	    }
 	}
 	// get the type of a row
-	const RowType rowType = 
+	const RowType rowType =
 	    determineRowType(si, rowLengths[iRow], colInds+rowStarts[iRow],
 			     coefByRow+rowStarts[iRow], sense_[iRow], RHS_[iRow],
 			     colLowerBound, colUpperBound);
 	// store the type of the current row
 	rowTypes_[iRow] = rowType;
-	
+
 	// Summarize information about row types
 	switch(rowType) {
 	case  ROW_OTHER:
-	    ++numOTHER; 
+	    ++numOTHER;
 	    break;
 	case  ROW_L:
-	    ++numL; 
+	    ++numL;
 	    break;
 	case  ROW_G:
-	    ++numG; 
+	    ++numG;
 	    break;
 	case ROW_BOTH:
 	    ++numB;
@@ -313,7 +313,7 @@ resCapPreprocess(const OsiSolverInterface& si) const
 			    "CglResidualCapacity");
 	}
     }
-    
+
     // allocate memory for vector of indices of all rows
     if (indRows_ != 0) { delete [] indRows_; indRows_ = 0; }
     if (numRows_ > 0)
@@ -328,25 +328,25 @@ resCapPreprocess(const OsiSolverInterface& si) const
     if (indRowG_ != 0) { delete [] indRowG_; indRowG_ = 0; }
     if (numRowG_ > 0)
 	indRowG_ = new int [numRowG_];     // Destructor will free memory
-    
-    
+
+
 #if CGL_DEBUG
     std::cout << "The num of rows = "  << numRows_        << std::endl;
     std::cout << "Summary of Row Type" << std::endl;
     std::cout << "numL          = " << numL        << std::endl;
     std::cout << "numG          = " << numG        << std::endl;
 #endif
-    
-    
+
+
     int countL = 0;
     int countG = 0;
     for ( iRow = 0; iRow < numRows_; ++iRow) {
-	
+
 	RowType rowType = rowTypes_[iRow];
-	
+
 	// fill the vector indRows_ with the indices of all rows
 	indRows_[iRow] = iRow;
-	
+
 	// fill the vector indRowL_ with the indices of the rows of type ROW_L and ROW_BOTH
 	if (rowType == ROW_L || rowType == ROW_BOTH) {
 	    indRowL_[countL] = iRow;
@@ -358,21 +358,21 @@ resCapPreprocess(const OsiSolverInterface& si) const
 	    countG++;
 	}
     }
-    
+
 }
 
 //-------------------------------------------------------------------
-// Determine the type of a given row 
+// Determine the type of a given row
 //-------------------------------------------------------------------
 CglResidualCapacity::RowType
 CglResidualCapacity::determineRowType(const OsiSolverInterface& si,
-				      const int rowLen, const int* ind, 
-				      const double* coef, const char sense, 
+				      const int rowLen, const int* ind,
+				      const double* coef, const char sense,
 				      const double rhs,
 				      const double* colLowerBound,
 				      const double* colUpperBound) const
 {
-    if (rowLen == 0) 
+    if (rowLen == 0)
 	return ROW_OTHER;
     RowType rowType = ROW_OTHER;
     double *negCoef;
@@ -395,7 +395,7 @@ CglResidualCapacity::determineRowType(const OsiSolverInterface& si,
     case 'E':
 	flag1=treatAsLessThan(si, rowLen, ind, coef, rhs, colLowerBound,
 				   colUpperBound);
-	
+
 	negCoef = new double[rowLen];
 	for ( int i=0; i < rowLen; ++i )
 	    negCoef[i]=-coef[i];
@@ -415,10 +415,10 @@ CglResidualCapacity::determineRowType(const OsiSolverInterface& si,
 //--------------------------------------------
 // determine if an ineq of type <= is a good candidate
 //--------------------------------------------
-	
+
 bool
 CglResidualCapacity::treatAsLessThan(const OsiSolverInterface& si,
-				     const int rowLen, const int* ind, 
+				     const int rowLen, const int* ind,
 				     const double* coef,
 				     const double /*rhs*/,
 				     const double* colLowerBound,
@@ -428,7 +428,7 @@ CglResidualCapacity::treatAsLessThan(const OsiSolverInterface& si,
     bool contFound=false;
     bool goodIneq=true;
     double intCoef=-1;
-    
+
     // look for a_1 c_1 +   + a_k c_k  - d z_1 -   - d z_p <= b
     // where c_i continuous, z_j integer
     for ( int i = 0; i < rowLen; ++i ) {
@@ -459,7 +459,7 @@ CglResidualCapacity::treatAsLessThan(const OsiSolverInterface& si,
 // Generate Residual capacity cuts
 //-------------------------------------------------------------------
 void
-CglResidualCapacity::generateResCapCuts( 
+CglResidualCapacity::generateResCapCuts(
 				     const OsiSolverInterface& si,
 				     const double* xlp,
 				     const double* colUpperBound,
@@ -472,12 +472,12 @@ CglResidualCapacity::generateResCapCuts(
 				     const int* rowLengths,
 				     OsiCuts& cs ) const
 {
-    
+
 #if CGL_DEBUG
     // OPEN FILE
     std::ofstream fout("stats.dat");
 #endif
-    
+
     for (int iRow = 0; iRow < numRowL_; ++iRow) {
 	int rowToUse=indRowL_[iRow];
 	OsiRowCut resCapCut;
@@ -486,9 +486,9 @@ CglResidualCapacity::generateResCapCuts(
 				       colInds+rowStarts[rowToUse],
 				       coefByRow+rowStarts[rowToUse],
 				       RHS_[rowToUse],
-				       xlp, colUpperBound, colLowerBound, 
+				       xlp, colUpperBound, colLowerBound,
 				       resCapCut);
-	
+
 	// if a cut was found, insert it into cs
 	if (hasCut)  {
 #if CGL_DEBUG
@@ -497,7 +497,7 @@ CglResidualCapacity::generateResCapCuts(
 	    cs.insert(resCapCut);
 	}
     }
-    
+
     for (int iRow = 0; iRow < numRowG_; ++iRow) {
 	int rowToUse=indRowG_[iRow];
 	OsiRowCut resCapCut;
@@ -511,7 +511,7 @@ CglResidualCapacity::generateResCapCuts(
 				       colInds+rowStarts[rowToUse],
 				       negCoef,
 				       -RHS_[rowToUse],
-				       xlp, colUpperBound, colLowerBound, 
+				       xlp, colUpperBound, colLowerBound,
 				       resCapCut);
 	delete [] negCoef;
 	// if a cut was found, insert it into cs
@@ -527,7 +527,7 @@ CglResidualCapacity::generateResCapCuts(
     // CLOSE FILE
     fout.close();
 #endif
-    
+
     return;
 }
 
@@ -536,14 +536,14 @@ CglResidualCapacity::generateResCapCuts(
 //-------------------------------------------------------------------
 bool
 CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
-				      const int rowLen, const int* ind, 
+				      const int rowLen, const int* ind,
 				      const double* coef,
 				      const double rhs,
-				      const double *xlp,  
+				      const double *xlp,
 				      const double* colUpperBound,
 				      const double* /*colLowerBound*/,
 				      OsiRowCut& resCapCut) const
-{ 
+{
     // process original row to create row in canonical form
     std::vector<int> positionIntVar;
     double ybar=0.0;
@@ -560,7 +560,7 @@ CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
 	    ybar+=xlp[ind[i]];
 	    positionIntVar.push_back(i);
 	}
-	else 
+	else
 	    ++contCount;
     }
     xbar = new double [contCount];
@@ -568,7 +568,7 @@ CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
     positionContVar = new int [contCount];
     contCount=0;
     newRowRHS=rhs;
-    for ( int i = 0; i < rowLen; ++i ) 
+    for ( int i = 0; i < rowLen; ++i )
 	if ( coef[i] > EPSILON_ || !si.isInteger(ind[i]) ){
 	    newRowCoef[contCount]=coef[i]*colUpperBound[ind[i]];
 	    xbar[contCount]=xlp[ind[i]]/colUpperBound[ind[i]];
@@ -579,7 +579,7 @@ CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
 	    }
 	    positionContVar[contCount++]=i;
 	}
-    
+
     // now separate
     std::vector<int> setSbar;
     const double lambda = ybar - floor(ybar);
@@ -608,7 +608,7 @@ CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
 	    const int originalRowPosition=positionContVar[newRowPosition];
 	    cutInd[i]=ind[originalRowPosition];
 	    cutCoef[i]=coef[originalRowPosition];
-	    if ( cutCoef[i] < -EPSILON_ ) 
+	    if ( cutCoef[i] < -EPSILON_ )
 		complCoef+= cutCoef[i]*colUpperBound[ind[originalRowPosition]];
 	    violation+=cutCoef[i]*xlp[ind[originalRowPosition]];
 	}
@@ -635,16 +635,16 @@ CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
 	    for(int i=0; i<cutLen; ++i)
 		std::cout << colUpperBound[cutInd[i]] << " ";
 	    std::cout << std::endl << " rhs " << cutRHS << std::endl;
-#endif	    
+#endif
 	}
 	else
 	    generated=false;
 	delete [] cutCoef;
 	delete [] cutInd;
     }
-    // free memory	
+    // free memory
     delete [] positionContVar;
-    delete [] newRowCoef; 
+    delete [] newRowCoef;
     delete [] xbar;
     return generated;
 }
@@ -652,7 +652,7 @@ CglResidualCapacity::resCapSeparation(const OsiSolverInterface& si,
 
 
 // This can be used to refresh preprocessing
-void 
+void
 CglResidualCapacity::refreshPrep()
 {
   doneInitPre_ = false;
@@ -661,7 +661,7 @@ CglResidualCapacity::refreshPrep()
 //
 void CglResidualCapacity::setEpsilon(double value)
 {
-    EPSILON_ = value;  
+    EPSILON_ = value;
 }
 double CglResidualCapacity::getEpsilon() const
 {
@@ -683,7 +683,7 @@ void CglResidualCapacity::setDoPreproc(int value)
 	throw CoinError("setDoPrepoc", "invalid value",
 			"CglResidualCapacity");
     else
-	doPreproc_ = value;  
+	doPreproc_ = value;
 }
 bool CglResidualCapacity::getDoPreproc() const
 {

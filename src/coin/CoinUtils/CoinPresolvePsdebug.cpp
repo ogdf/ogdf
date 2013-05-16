@@ -48,18 +48,18 @@ namespace { // begin unnamed file-local namespace
   coefficient, use presolve_find_row to search the remainder of the column
   for an entry with the same row index. We don't want to find anything.
 */
-  
+
 void no_majvec_dups (const char *majdones, const CoinBigIndex *majstrts,
 		     const int *minndxs, const int *majlens, int nmaj)
 
-{ for (int maj = 0 ; maj < nmaj ; maj++) 
+{ for (int maj = 0 ; maj < nmaj ; maj++)
   { if ((!majdones || majdones[maj]) && majlens[maj] > 0)
     { CoinBigIndex ks = majstrts[maj] ;
       CoinBigIndex ke = ks+majlens[maj] ;
       for (CoinBigIndex k = ks ; k < ke ; k++)
-      { 
+      {
 /*
-  Assert we fell off the end of the column without finding the entry. 
+  Assert we fell off the end of the column without finding the entry.
 */
 	PRESOLVEASSERT(presolve_find_minor1(minndxs[k],k+1,
 					    ke,minndxs) == ke) ; } } }
@@ -71,7 +71,7 @@ void no_majvec_dups (const char *majdones, const CoinBigIndex *majstrts,
 void check_majvec_nozeros (const CoinBigIndex *majstrts, const double *majels,
 			   const int *majlens, int nmaj)
 
-{ for (int maj = 0 ; maj < nmaj ; maj++) 
+{ for (int maj = 0 ; maj < nmaj ; maj++)
   { if (majlens[maj] > 0)
     { CoinBigIndex ks = majstrts[maj] ;
       CoinBigIndex ke = ks+majlens[maj] ;
@@ -106,7 +106,7 @@ void links_ok (presolvehlink *majlink, int *majstrts, int *majlens, int nmaj)
 /*
   There must be a first vector.
 */
-  for (maj = 0 ; maj < nmaj ; maj++) 
+  for (maj = 0 ; maj < nmaj ; maj++)
   { if (majlink[maj].pre == NO_LINK)
       break ; }
   PRESOLVEASSERT(nmaj == 0 || maj < nmaj) ;
@@ -115,7 +115,7 @@ void links_ok (presolvehlink *majlink, int *majstrts, int *majlens, int nmaj)
   major vector start & length arrays.
 */
   while (maj != NO_LINK)
-  { if (majlink[maj].suc != NO_LINK) 
+  { if (majlink[maj].suc != NO_LINK)
     { PRESOLVEASSERT(majstrts[maj]+majlens[maj] <=
 				majstrts[majlink[maj].suc]) ; }
     maj = majlink[maj].suc ; }
@@ -183,7 +183,7 @@ void matrix_consistent (const CoinBigIndex *mrstrt, const int *hinrow,
   for presence in the row-major matrix given presence in the column-major
   matrix. If testvals == true (default), the check also tests that the
   coefficients have equal value.
-  
+
   See further comments with matrix_consistent.
 */
 
@@ -198,7 +198,7 @@ void presolve_consistent(const CoinPresolveMatrix *preObj, bool testvals)
   matrix_consistent(preObj->mcstrt_,preObj->hincol_,preObj->hrow_,
 		    preObj->colels_,
 		    preObj->mrstrt_,preObj->hinrow_,preObj->hcol_,
-		    preObj->rowels_, 
+		    preObj->rowels_,
 		    preObj->ncols_,testvals,"col","row") ;
 }
 
@@ -206,7 +206,7 @@ void presolve_consistent(const CoinPresolveMatrix *preObj, bool testvals)
   Check the column- and/or row-major matrices for duplicates. By default, both
   will be checked.
 */
-  
+
 void presolve_no_dups (const CoinPresolveMatrix *preObj,
 		       bool doCol, bool doRow)
 
@@ -249,12 +249,12 @@ void presolve_hincol_ok(const int *mcstrt, const int *hincol,
 {
   int jcol;
 
-  for (jcol=0; jcol<ncols; jcol++) 
+  for (jcol=0; jcol<ncols; jcol++)
     if (hincol[jcol] > 0) {
       int kcs = mcstrt[jcol];
       int kce = kcs + hincol[jcol];
       int n=0;
-      
+
       int k;
       for (k=kcs; k<kce; k++) {
 	int row = hrow[k];
@@ -295,7 +295,7 @@ void presolve_links_ok (const CoinPresolveMatrix *preObj,
 */
 void presolve_check_threads (const CoinPostsolveMatrix *obj)
 
-{ 
+{
 
   CoinBigIndex *mcstrt = obj->mcstrt_ ;
   int *hincol = obj->hincol_ ;
@@ -329,7 +329,7 @@ void presolve_check_threads (const CoinPostsolveMatrix *obj)
 
 void presolve_check_free_list (const CoinPostsolveMatrix *obj, bool chkElemCnt)
 
-{ 
+{
 
   CoinBigIndex k = obj->free_list_ ;
   CoinBigIndex freeCnt = 0 ;
@@ -903,7 +903,7 @@ void presolve_check_sol (const CoinPostsolveMatrix *postObj,
       double evali = rsol[i] ;
       double li = rlo[i] ;
       double ui = rup[i] ;
-      
+
       if (CoinIsnan(evali) || CoinIsnan(lhsi))
       { printf("NaN RSOL: %d  : lb = %g eval = %g (expected %g) ub = %g\n",
 	       i,li,evali,lhsi,ui) ; }
@@ -942,12 +942,12 @@ void presolve_check_nbasic (const CoinPostsolveMatrix *postObj)
 
   int nbasic = 0 ;
   int ncdone = 0;
-  int nrdone = 0; 
+  int nrdone = 0;
   int ncb = 0;
   int nrb = 0;
 
   for (int j = 0 ; j < ncols0 ; j++)
-  { 
+  {
     if (cdone[j] != 0 && postObj->columnIsBasic(j))
     { nbasic++ ;
       ncb++ ; }
@@ -993,7 +993,7 @@ void presolve_check_nbasic (const CoinPresolveMatrix *preObj)
   int nrb = 0;
 
   for (int j = 0 ; j < ncols ; j++)
-  { 
+  {
     if (preObj->columnIsBasic(j))
     { nbasic++ ;
       ncb++ ; }

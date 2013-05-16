@@ -21,7 +21,7 @@ BitVector128::setBit(int i)
   int bit = i & 31;
   bits_[byte] |= (1 << bit);
 }
-  
+
 void
 BitVector128::clearBit(int i)
 {
@@ -39,7 +39,7 @@ BitVector128::str() const
 	  bits_[3], bits_[2], bits_[1], bits_[0]);
   return output;
 }
-  
+
 bool
 operator<(const BitVector128& b0, const BitVector128& b1)
 {

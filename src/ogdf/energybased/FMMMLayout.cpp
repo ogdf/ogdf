@@ -1,9 +1,9 @@
 /*
- * $Revision: 3430 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 11:23:21 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -874,33 +874,28 @@ Rectangle FMMMLayout::calculate_bounding_rectangle(
 	int componenet_index)
 {
 	Rectangle r;
-	node v;
-	double x_min,x_max,y_min,y_max,act_x_min,act_x_max,act_y_min,act_y_max;
-	double max_boundary;//the maximum of half of the width and half of the height of
-	//each node; (needed to be able to tipp rectangles over without
-	//having access to the height and width of each node)
+	node v = G.firstNode();
+	// max_boundary is the maximum of half of the width and half of the
+	// height of each node; (needed to be able to tip rectangles over
+	// without having access to the height and width of each node)
+	double max_boundary = max(A[v].get_width() / 2, A[v].get_height() / 2);
+	double
+	  x_min = A[v].get_x() - max_boundary,
+	  x_max = A[v].get_x() + max_boundary,
+	  y_min = A[v].get_y() - max_boundary,
+	  y_max = A[v].get_y() + max_boundary;
 
-	forall_nodes(v,G)
-	{
+	for (v = v->succ(); v; v = v->succ()) {
 		max_boundary = max(A[v].get_width()/2, A[v].get_height()/2);
-		if(v == G.firstNode())
-		{
-			x_min = A[v].get_x() - max_boundary;
-			x_max = A[v].get_x() + max_boundary;
-			y_min = A[v].get_y() - max_boundary;
-			y_max = A[v].get_y() + max_boundary;
-		}
-		else
-		{
-			act_x_min = A[v].get_x() - max_boundary;
-			act_x_max = A[v].get_x() + max_boundary;
-			act_y_min = A[v].get_y() - max_boundary;
-			act_y_max = A[v].get_y() + max_boundary;
-			if(act_x_min < x_min) x_min = act_x_min;
-			if(act_x_max > x_max) x_max = act_x_max;
-			if(act_y_min < y_min) y_min = act_y_min;
-			if(act_y_max > y_max) y_max = act_y_max;
-		}
+		const double
+		  act_x_min = A[v].get_x() - max_boundary,
+		  act_x_max = A[v].get_x() + max_boundary,
+		  act_y_min = A[v].get_y() - max_boundary,
+		  act_y_max = A[v].get_y() + max_boundary;
+		if (act_x_min < x_min) x_min = act_x_min;
+		if (act_x_max > x_max) x_max = act_x_max;
+		if (act_y_min < y_min) y_min = act_y_min;
+		if (act_y_max > y_max) y_max = act_y_max;
 	}
 
 	//add offset
@@ -1272,12 +1267,10 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 {
 	double s;
 
-	switch(forceModel())
-	{
-	case  fmFruchtermanReingold:
+	switch (forceModel()) {
+	case fmFruchtermanReingold:
 		s =  d*d/(ind_ideal_edge_length*ind_ideal_edge_length*ind_ideal_edge_length);
 		break;
-
 	case fmEades:
 		{
 			double c = 10;

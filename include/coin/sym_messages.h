@@ -120,7 +120,7 @@
 #define FEASIBLE_SOLUTION_FRACTIONS 411
 #define FEASIBLE_SOLUTION_USER      412
 
-/* lp-->cutgen,cutpool; a solution to be checked to find violated cuts 
+/* lp-->cutgen,cutpool; a solution to be checked to find violated cuts
    and the solution is in a default format (userinds and values). Maybe
    nonzeros or fractions at this time */
 #define LP_SOLUTION_NONZEROS  420

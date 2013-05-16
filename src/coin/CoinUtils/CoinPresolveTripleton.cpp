@@ -39,7 +39,7 @@
  *	if icolx is also has an entry for row
  *		modify the icolx entry for row
  *		drop the icoly entry from row and modify the icolx entry
- *	else 
+ *	else
  *		add a new entry to icolx column
  *		create a new icolx entry
  *		(this may require moving the column in memory)
@@ -60,12 +60,12 @@
  * In the row rep, irow will be eliminated entirely, but not here;
  * icoly is removed from the rows it occurs in.
  */
-static bool elim_tripleton(const char * 
+static bool elim_tripleton(const char *
 #ifdef PRESOLVE_DEBUG
 msg
 #endif
 			   ,
-			   CoinBigIndex *mcstrt, 
+			   CoinBigIndex *mcstrt,
 			   double *rlo, double * acts, double *rup,
 			   double *colels,
 			   int *hrow, int *hcol,
@@ -96,7 +96,7 @@ msg
     PRESOLVEASSERT(kcex == kcsx + hincol[icolx]);
     PRESOLVEASSERT(kcez == kcsz + hincol[icolz]);
 
-    // we don't need to update the row being eliminated 
+    // we don't need to update the row being eliminated
     if (row != row0/* && hinrow[row] > 0*/) {
       if (bounds_factor != 0.0) {
 	// (1)
@@ -157,7 +157,7 @@ msg
 	  // before:  both z and y are in the row
 	  // after:   only z is in the row
 	  // so: number of elems in col z unchanged, and num elems in row is one less
-	  
+
 	  // update col rep - just modify coefficent
 	  // column y is deleted as a whole at the end of the loop
 	  colels[kcolz] += colels[kcoly] * coeff_factorz;
@@ -171,43 +171,43 @@ msg
 	  // before:  only y is in the row
 	  // after:   only z is in the row
 	  // so: number of elems in col z is one greater, but num elems in row remains same
-	  // update entry corresponding to icolz in row rep 
+	  // update entry corresponding to icolz in row rep
 	  // by just overwriting the icoly entry
 	  {
 	    CoinBigIndex k2 = presolve_find_col(icoly, mrstrt[row], mrstrt[row]+hinrow[row], hcol);
 	    hcol[k2] = icolz;
 	    rowels[k2] = colels[kcoly] * coeff_factorz;
 	  }
-	  
+
 	  {
 	    bool no_mem = presolve_expand_col(mcstrt,colels,hrow,hincol,
 					      clink,ncols,icolz);
 	    if (no_mem)
 	      return (true);
-	    
+
 	    // have to adjust various induction variables
  	    kcolx = mcstrt[icolx] + (kcolx - kcsx);
- 	    kcsx = mcstrt[icolx];			
+ 	    kcsx = mcstrt[icolx];
  	    kcex = mcstrt[icolx] + hincol[icolx];
 	    kcoly = mcstrt[icoly] + (kcoly - kcs);
 	    kcs = mcstrt[icoly];			// do this for ease of debugging
 	    kce = mcstrt[icoly] + hincol[icoly];
-	    
+
 	    kcolz = mcstrt[icolz] + (kcolz - kcs);	// don't really need to do this
 	    kcsz = mcstrt[icolz];
 	    kcez = mcstrt[icolz] + hincol[icolz];
 	  }
-	  
+
 	  // there is now an unused entry in the memory after the column - use it
 	  // mcstrt[ncols] == penultimate index of arrays hrow/colels
 	  hrow[kcez] = row;
-	  colels[kcez] = colels[kcoly] * coeff_factorz;	// y factor is 0.0 
+	  colels[kcez] = colels[kcoly] * coeff_factorz;	// y factor is 0.0
 	  hincol[icolz]++, kcez++;	// expand the col
 	}
       } else {
 	// before:  only y is in the row
 	// after:   only x and z are in the row
-	// update entry corresponding to icolx in row rep 
+	// update entry corresponding to icolx in row rep
 	// by just overwriting the icoly entry
 	{
 	  CoinBigIndex k2 = presolve_find_col(icoly, mrstrt[row], mrstrt[row]+hinrow[row], hcol);
@@ -231,7 +231,7 @@ msg
 	  kcoly = mcstrt[icoly] + (kcoly - kcs);
 	  kcs = mcstrt[icoly];			// do this for ease of debugging
 	  kce = mcstrt[icoly] + hincol[icoly];
-	    
+
 	  kcolx = mcstrt[icolx] + (kcolx - kcs);	// don't really need to do this
 	  kcsx = mcstrt[icolx];
 	  kcex = mcstrt[icolx] + hincol[icolx];
@@ -242,7 +242,7 @@ msg
 
 	// there is now an unused entry in the memory after the column - use it
 	hrow[kcex] = row;
-	colels[kcex] = colels[kcoly] * coeff_factorx;	// y factor is 0.0 
+	colels[kcex] = colels[kcoly] * coeff_factorx;	// y factor is 0.0
 	hincol[icolx]++, kcex++;	// expand the col
 
 	{
@@ -255,7 +255,7 @@ msg
 	  kcoly = mcstrt[icoly] + (kcoly - kcs);
 	  kcs = mcstrt[icoly];			// do this for ease of debugging
 	  kce = mcstrt[icoly] + hincol[icoly];
-	    
+
 	  kcsx = mcstrt[icolx];
 	  kcex = mcstrt[icolx] + hincol[icolx];
 	  kcsz = mcstrt[icolz];
@@ -264,7 +264,7 @@ msg
 
 	// there is now an unused entry in the memory after the column - use it
 	hrow[kcez] = row;
-	colels[kcez] = colels[kcoly] * coeff_factorz;	// y factor is 0.0 
+	colels[kcez] = colels[kcoly] * coeff_factorz;	// y factor is 0.0
 	hincol[icolz]++, kcez++;	// expand the col
       }
     }
@@ -361,7 +361,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       int icolx, icoly, icolz;
       double coeffx, coeffy, coeffz;
       CoinBigIndex k;
-      
+
       /* locate first column */
       for (k=krs; k<kre; k++) {
 	if (hincol[hcol[k]] > 0) {
@@ -373,8 +373,8 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       if (fabs(coeffx) < ZTOLDP2)
 	continue;
       icolx = hcol[k];
-      
-      
+
+
       /* locate second column */
       for (k++; k<kre; k++) {
 	if (hincol[hcol[k]] > 0) {
@@ -386,7 +386,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       if (fabs(coeffy) < ZTOLDP2)
 	continue;
       icoly = hcol[k];
-      
+
       /* locate third column */
       for (k++; k<kre; k++) {
 	if (hincol[hcol[k]] > 0) {
@@ -398,10 +398,10 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
       if (fabs(coeffz) < ZTOLDP2)
 	continue;
       icolz = hcol[k];
-      
+
       // For now let's do obvious one
       if (coeffx*coeffz>0.0) {
-	if(coeffx*coeffy>0.0) 
+	if(coeffx*coeffy>0.0)
 	  continue;
       } else if (coeffx*coeffy>0.0) {
 	int iTemp = icoly;
@@ -459,7 +459,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 	  int jrow=hrow[k];
 	  if (hinrow[jrow]==1)
 	    singleton=true;
-	  if (jrow == irow) 
+	  if (jrow == irow)
 	    krowy=k;
 	  else
 	    prob->setRowUsed(jrow);
@@ -467,14 +467,14 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 	int nDuplicate=0;
 	for (k=mcstrt[icolx]; k<mcstrt[icolx]+hincol[icolx]; k++) {
 	  int jrow=hrow[k];
-	  if (jrow == irow) 
+	  if (jrow == irow)
 	    krowx=k;
 	  else if (prob->rowUsed(jrow))
 	    nDuplicate++;;
 	}
 	for (k=mcstrt[icolz]; k<mcstrt[icolz]+hincol[icolz]; k++) {
 	  int jrow=hrow[k];
-	  if (jrow == irow) 
+	  if (jrow == irow)
 	    krowz=k;
 	  else if (prob->rowUsed(jrow))
 	    nDuplicate++;;
@@ -487,7 +487,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 	// let singleton rows be taken care of first
 	if (singleton)
 	  continue;
-	//if (nAdded<=1) 
+	//if (nAdded<=1)
 	//printf("%d elements added, hincol %d , dups %d\n",nAdded,hincol[icoly],nDuplicate);
 	if (nAdded>2)
 	  continue;
@@ -499,27 +499,27 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 
 	// common equations are of the form ax + by = 0, or x + y >= lo
 	{
-	  action *s = &actions[nactions];	  
+	  action *s = &actions[nactions];
 	  nactions++;
 	  PRESOLVE_DETAIL_PRINT(printf("pre_tripleton %dR %dC %dC %dC E\n",
 				       irow,icoly,icolx,icolz));
-	  
+
 	  s->row = irow;
 	  s->icolx = icolx;
 	  s->icolz = icolz;
-	  
+
 	  s->icoly = icoly;
 	  s->cloy = clo[icoly];
 	  s->cupy = cup[icoly];
 	  s->costy = cost[icoly];
-	  
+
 	  s->rlo = rlo[irow];
 	  s->rup = rup[irow];
-	  
+
 	  s->coeffx = coeffx;
 	  s->coeffy = coeffy;
 	  s->coeffz = coeffz;
-	  
+
 	  s->ncoly	= hincol[icoly];
 	  s->colel	= presolve_dupmajor(colels, hrow, hincol[icoly],
 					    mcstrt[icoly]);
@@ -549,7 +549,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 	      prob->setColumnStatus(icolz,CoinPrePostsolveMatrix::basic);
 	  }
 	}
-	  
+
 	// Update next set of actions
 	{
 	  prob->addCol(icolx);
@@ -585,7 +585,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 				     cz,
 				     rhs / coeffy,
 				     irow, icolx, icoly,icolz);
-	if (no_mem) 
+	if (no_mem)
 	  throwCoinError("out of memory",
 			 "tripleton_action::presolve");
 
@@ -616,7 +616,7 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 	  zeros[nzeros++]=icolz;
 	}
       }
-      
+
 #     if PRESOLVE_CONSISTENCY
       presolve_links_ok(prob) ;
       presolve_consistent(prob);
@@ -735,8 +735,8 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
     // this is why we want coeffx < coeffy (55)
     sol[jcoly] = (rhs - coeffx * sol[jcolx] - coeffz * sol[jcolz]) / coeffy;
-	  
-    // since this row is fixed 
+
+    // since this row is fixed
     acts[irow] = rhs;
 
     // acts[irow] always ok, since slack is fixed
@@ -748,7 +748,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     // if the new pi value is chosen to keep the reduced cost
     // of col x at its prior value, then the reduced cost of
     // col y will be 0.
-    
+
     // also have to update row activities and bounds for rows affected by jcoly
     //
     // sol[jcolx] was found for coeffx that
@@ -797,8 +797,8 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	acts[iRow] += yValue * bounds_factor;
 
 	djy -= rowduals[iRow] * yValue;
-      } 
-      
+      }
+
       hrow[k] = iRow;
       PRESOLVEASSERT(rdone[hrow[k]] || hrow[k] == irow);
       colels[k] = yValue;
@@ -828,7 +828,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	colels[k]=value;
 	last=k;
 	k = link[k];
-	if (iRow != irow) 
+	if (iRow != irow)
 	  djx -= rowduals[iRow] * value;
       } else {
 	numberInColumn--;
@@ -885,7 +885,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	colels[k]=value;
 	last=k;
 	k = link[k];
-	if (iRow != irow) 
+	if (iRow != irow)
 	  djz -= rowduals[iRow] * value;
       } else {
 	numberInColumn--;
@@ -929,9 +929,9 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
     link[last]=NO_LINK;
     assert(numberInColumn);
     hincol[jcolz] = numberInColumn;
-    
-    
-    
+
+
+
     // The only problem with keeping the reduced costs the way they were
     // was that the variable's bound may have moved, requiring it
     // to become basic.
@@ -977,14 +977,14 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       rowduals[irow] = djy / coeffy;
       rcosts[jcoly] = 0.0;
     }
-    
+
     // DEBUG CHECK
 #   if PRESOLVE_DEBUG
     {
       CoinBigIndex k = mcstrt[jcolx];
       int nx = hincol[jcolx];
       double dj = maxmin * dcost[jcolx];
-      
+
       for (int i=0; i<nx; ++i) {
 	int row = hrow[k];
 	double coeff = colels[k];
@@ -1001,7 +1001,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       CoinBigIndex k = mcstrt[jcoly];
       int ny = hincol[jcoly];
       double dj = maxmin * dcost[jcoly];
-      
+
       for (int i=0; i<ny; ++i) {
 	int row = hrow[k];
 	double coeff = colels[k];
@@ -1018,7 +1018,7 @@ void tripleton_action::postsolve(CoinPostsolveMatrix *prob) const
       //exit(0);
     }
 #   endif
-    
+
 #   if PRESOLVE_DEBUG || PRESOLVE_CONSISTENCY
     cdone[jcoly] = TRIPLETON;
     rdone[irow] = TRIPLETON;
@@ -1051,10 +1051,10 @@ static int *tripleton_id;
 void check_tripletons(const CoinPresolveAction * paction)
 {
   const CoinPresolveAction * paction0 = paction;
-  
+
   if (paction) {
     check_tripletons(paction->next);
-    
+
     if (strcmp(paction0->name(), "tripleton_action") == 0) {
       const tripleton_action *daction = reinterpret_cast<const tripleton_action *>(paction0);
       for (int i=daction->nactions_-1; i>=0; --i) {
