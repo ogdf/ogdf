@@ -16,3 +16,5 @@ config_autogen.h
 Debug/
 Release/
 
+CMakeLists.txt.user
+build/
