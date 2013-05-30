@@ -27,9 +27,13 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 endif()
 
 if(MSVC)
-    # Enable Build with Multiple Processes for Visual Studio.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+    # /MP Enable build with multiple processes.
+    # /D _VARIADIC_MAX=10 Set max. amount of variadic arguments.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /D _VARIADIC_MAX=10")
 endif()
+
+# Include macros.
+include(${CMAKE_CURRENT_SOURCE_DIR}/config/source_dirs.cmake)
 
 # We can't use add_subdirectory() here, because of OGDF's special directory
 # structure. Thus we'll have to include projects (order is important!).

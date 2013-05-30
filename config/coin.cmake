@@ -4,8 +4,9 @@
 #
 
 # Add COIN target.
-file(GLOB_RECURSE COIN_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    "src/coin/*.cpp" "src/coin/*.h" "include/coin/*.h" "include/coin/*.hpp")
+source_dirs(COIN_SOURCES
+    "src/coin"
+    "include/coin")
 list(REMOVE_ITEM COIN_SOURCES "src/coin/Osi/OsiGrbSolverInterface.cpp")
 list(REMOVE_ITEM COIN_SOURCES "src/coin/Osi/OsiCpxSolverInterface.cpp")
 include_directories("include/coin")

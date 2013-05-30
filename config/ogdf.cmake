@@ -7,8 +7,9 @@
 option(OGDF_DLL "Build OGDF as shared library" FALSE)
 
 # Add OGDF target.
-file(GLOB_RECURSE OGDF_SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-    "src/ogdf/*.cpp" "src/ogdf/*.h" "include/ogdf/*.h")
+source_dirs(OGDF_SOURCES
+    "src/ogdf"
+    "include/ogdf")
 include_directories("include")
 if(OGDF_DLL)
     add_library(ogdf SHARED ${OGDF_SOURCES})
