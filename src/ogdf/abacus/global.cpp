@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /*!\file
@@ -178,7 +178,7 @@ void AbacusGlobal::assignParameter(bool &param, const char *name) const
 void AbacusGlobal::assignParameter(
 	string &param,
 	const char *name,
-	unsigned nFeasible, 
+	unsigned nFeasible,
 	const char *feasible[]) const
 {
 	if(getParameter(name, param)){

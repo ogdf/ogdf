@@ -56,7 +56,7 @@ void kill_proc PROTO((int tid));
 void comm_exit PROTO((void));
 void setsbuf PROTO((int sbufid));
 void setrbuf PROTO((int rbufid));
-     
+
 void PVM_ERROR(int info);
 
 #endif

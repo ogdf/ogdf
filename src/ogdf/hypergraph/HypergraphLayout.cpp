@@ -1,13 +1,13 @@
 /*
- * $Revision: 3381 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-08 09:11:35 +0200 (Mo, 08. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
- * \brief Implementation of classes HypergraphLayoutES and 
+ * \brief Implementation of classes HypergraphLayoutES and
  *        HypergraphLayoutSS.
  *
  * \author Ondrej Moris
@@ -74,7 +74,7 @@ HypergraphLayoutES::HypergraphLayoutES()
 
 
 void HypergraphLayoutES::call(HypergraphAttributes &pHA)
-{   
+{
 	if (pHA.constHypergraph().empty())
 		return;
 
@@ -98,12 +98,12 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 		forall_nodes(v, gc) {
 			if (HA.type(gc.original(v)) == HypernodeElement::INPUT) {
 				src.pushBack(v);
-			} else if (HA.type(gc.original(v)) == 
+			} else if (HA.type(gc.original(v)) ==
 				HypernodeElement::OUTPUT) {
 					tgt.pushBack(v);
-			} 
+			}
 		}
-		//std::pair<node, node> *st = 
+		//std::pair<node, node> *st =
 		insertShell(gc, src, tgt, fixedShell);
 	}
 
@@ -150,7 +150,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 			HA.setY(vG, ccPlaneRep.y(planarRep.copy(vGC)));
 
 			adjEntry adj;
-			forall_adj(adj, vG) 
+			forall_adj(adj, vG)
 				if ((adj->index() & 1) != 0)
 					ccPlaneRep.computePolylineClear
 					(planarRep, adj->theEdge(), HA.bends(adj->theEdge()));
@@ -166,9 +166,9 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 }
 
 
-//void HypergraphLayoutES::planarizeCC(PlanRep &ccPlanarRep, 
-//	List<edge> &fixedShell) 
-//{    
+//void HypergraphLayoutES::planarizeCC(PlanRep &ccPlanarRep,
+//	List<edge> &fixedShell)
+//{
 //	//int ccPlanarRepSize = ccPlanarRep.numberOfNodes();
 //
 //	EdgeArray<int> costs(ccPlanarRep.original(), 1);
@@ -181,7 +181,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 //}
 
 
-void HypergraphLayoutES::packAllCC(PlanRep &planarRep, 
+void HypergraphLayoutES::packAllCC(PlanRep &planarRep,
 	HypergraphAttributesES &pHA,
 	Array<DPoint> &bounding)
 {
@@ -205,25 +205,25 @@ void HypergraphLayoutES::packAllCC(PlanRep &planarRep,
 			pHA.setY(vG, pHA.y(vG) + position[i].m_y);
 
 			adjEntry entry;
-			forall_adj(entry, vG) 
-				for(ListIterator<DPoint> ite = pHA.bends(entry->theEdge()).begin(); 
-					ite.valid(); ++ite) 
+			forall_adj(entry, vG)
+				for(ListIterator<DPoint> ite = pHA.bends(entry->theEdge()).begin();
+					ite.valid(); ++ite)
 					(*ite).m_x += position[i].m_x, (*ite).m_y += position[i].m_y;
 		}
 }
 
 
 std::pair<node, node> * HypergraphLayoutES::insertShell
-	(GraphCopySimple &G, List<node> &src, List<node> &tgt, List<edge> &fixedShell)    
+	(GraphCopySimple &G, List<node> &src, List<node> &tgt, List<edge> &fixedShell)
 {
 	OGDF_ASSERT(src.size() > 0 && tgt.size() > 0);
 
 	node s = G.newNode();
-	for (ListIterator<node> it = src.begin(); it.valid(); ++it) 
+	for (ListIterator<node> it = src.begin(); it.valid(); ++it)
 		fixedShell.pushBack(G.newEdge(s, *it));
 
 	node t = G.newNode();
-	for (ListIterator<node> it = tgt.begin(); it.valid(); ++it) 
+	for (ListIterator<node> it = tgt.begin(); it.valid(); ++it)
 		fixedShell.pushBack(G.newEdge(*it, t));
 
 	G.newEdge(s, t);
@@ -233,13 +233,13 @@ std::pair<node, node> * HypergraphLayoutES::insertShell
 
 
 void HypergraphLayoutES::removeShell(PlanRep &G, std::pair<node, node> &st)
-{  
+{
 	G.delNode(st.first);
 	G.delNode(st.second);
 }
 
 
-void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA) 
+void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 {
 	switch (m_profile) {
 
@@ -259,7 +259,7 @@ void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 	case HypergraphLayoutES::ElectricCircuit:
 
 		// TODO:
-		// a) all gates should be depicted 
+		// a) all gates should be depicted
 
 		break;
 	}

@@ -79,7 +79,7 @@ typedef struct TM_PROB{
 #ifdef COMPILE_IN_CP
    cut_pool     **cpp;
 #endif
-   
+
    int            *nodes_per_cp;        /* for each cut_pool it contains how
 					   many nodes are assigned to it */
    int            *active_nodes_per_cp; /* same for active_nodes */
@@ -112,7 +112,7 @@ typedef struct TM_PROB{
 
    node_times      comp_times;         /* keeps track of the computation times
 			                  for the problem */
-   lp_stat_desc    lp_stat;         
+   lp_stat_desc    lp_stat;
    rc_desc        *reduced_costs;
 
    /* pseudo costs and reliability measures */
@@ -123,7 +123,7 @@ typedef struct TM_PROB{
    int            *br_rel_cand_list;
    int            *br_rel_down_min_level;
    int            *br_rel_up_min_level;
-   
+
    /* some temporary stuff */
    bc_node      ***rpath;
    int            *rpath_size;
@@ -234,6 +234,6 @@ void unpack_cut_set PROTO((tm_prob *tm, int sender, int cutnum,
 int receive_lp_timing PROTO((tm_prob *tm));
 
 void sym_catch_c PROTO((int num));
-int merge_bound_changes PROTO((bounds_change_desc **bnd_change_ptr, 
+int merge_bound_changes PROTO((bounds_change_desc **bnd_change_ptr,
                                bounds_change_desc  *p_bnd_change));
 #endif

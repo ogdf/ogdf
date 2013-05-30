@@ -85,10 +85,10 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
 #endif
    int *termcodes = NULL;
 #if !defined(_MSC_VER) && !defined(__MNO_CYGWIN) && defined(SIGHANDLER)
-   signal(SIGINT, sym_catch_c);    
-#endif   
+   signal(SIGINT, sym_catch_c);
+#endif
    par = &tm->par;
-   
+
 #ifdef _OPENMP
    tm->rpath =
       (bc_node ***) calloc(par->max_active_nodes, sizeof(bc_node **));
@@ -104,7 +104,7 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
    tm->bpath_size = (int *) calloc(1, sizeof(int));
    termcodes = (int *) calloc(1, sizeof(int));
 #endif
-   
+
    /*------------------------------------------------------------------------*\
     * Receives data from the master
    \*------------------------------------------------------------------------*/
@@ -136,10 +136,10 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
       tm->feas_sol = (int *) calloc (tm->feas_sol_size, sizeof(int));
       receive_int_array(tm->feas_sol, tm->feas_sol_size);
    }
-#endif   
+#endif
    freebuf(r_bufid);
-#endif   
-   
+#endif
+
    SRANDOM(par->random_seed);
 
 #ifdef COMPILE_IN_LP
@@ -168,7 +168,7 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
    for (i = 0; i < par->max_active_nodes; i++){
       if ((termcodes[i] = lp_initialize(tm->lpp[i], 0)) < 0){
 	 printf("LP initialization failed with error code %i in thread %i\n\n",
-		termcodes[i], i); 
+		termcodes[i], i);
       }
       tm->lpp[i]->tm = tm;
    }
@@ -202,7 +202,7 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
 #ifndef COMPILE_IN_CG
       tm->cg = start_processes(tm, par->max_active_nodes, par->cg_exe,
 			       par->cg_debug, par->cg_mach_num, par->cg_machs);
-      
+
 #ifdef COMPILE_IN_LP
       for (i = 0; i < par->max_active_nodes; i++)
 	 tm->lpp[i]->cut_gen = tm->cg.procs[i];
@@ -215,7 +215,7 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
 #endif
 #endif
    }
-   
+
    if (par->max_cp_num){
 #ifdef COMPILE_IN_CP
 #ifndef COMPILE_IN_TM
@@ -243,11 +243,11 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
       tm->cpp = (cut_pool **) calloc(1, sizeof(cut_pool *));
 #endif
    }
-   
+
    /*------------------------------------------------------------------------*\
     * Receive the root node and send out initial data to the LP processes
    \*------------------------------------------------------------------------*/
-   
+
    FREE(termcodes);
    if (tm->par.warm_start){
       if (!tm->rootnode){
@@ -302,7 +302,7 @@ int tm_initialize(tm_prob *tm, base_desc *base, node_desc *rootdesc)
 
    return(FUNCTION_TERMINATED_NORMALLY);
 }
-   
+
 /*===========================================================================*/
 
 /*===========================================================================*\
@@ -376,7 +376,7 @@ int solve(tm_prob *tm)
 	       ramp_down_time += (wall_clock(NULL) -
 				  no_work_start) * (tm->lp.free_num + 1);
 	    }
-	       
+
 	    if (!tm->lp.free_num){
 	       ramp_down = FALSE;
 	       ramp_up = FALSE;
@@ -399,40 +399,40 @@ int solve(tm_prob *tm)
 	    }
 
 	    switch(process_chain(tm->lpp[thread_num])){
-	       
+
 	     case FUNCTION_TERMINATED_NORMALLY:
 	       break;
-	       
+
 	     case ERROR__NO_BRANCHING_CANDIDATE:
 	       termcode = TM_ERROR__NO_BRANCHING_CANDIDATE;
 	       break;
-	       
+
 	     case ERROR__ILLEGAL_RETURN_CODE:
 	       termcode = TM_ERROR__ILLEGAL_RETURN_CODE;
 	       break;
-	       
+
 	     case ERROR__NUMERICAL_INSTABILITY:
 	       termcode = TM_ERROR__NUMERICAL_INSTABILITY;
 	       break;
-	       
+
 	     case ERROR__COMM_ERROR:
 	       termcode = TM_ERROR__COMM_ERROR;
-	       
+
 	     case ERROR__USER:
 	       termcode = TM_ERROR__USER;
 	       break;
 
 	     case ERROR__DUAL_INFEASIBLE:
-	       if(tm->lpp[thread_num]->bc_index < 1 ) {		  
+	       if(tm->lpp[thread_num]->bc_index < 1 ) {
 		  termcode = TM_UNBOUNDED;
 	       }else{
 		  termcode = TM_ERROR__NUMERICAL_INSTABILITY;
 	       }
-	       break;	       
+	       break;
 	    }
 #endif
 #pragma omp master
-{	    
+{
             now = wall_clock(NULL);
 	    if (now - then2 > timeout2){
 	       if(tm->par.verbosity >= -1 ){
@@ -452,7 +452,7 @@ int solve(tm_prob *tm)
 	    c_count = 0;
 	    break;
 	 }
-	 
+
 	 if (tm->par.time_limit >= 0.0 &&
 	     wall_clock(NULL) - start_time > tm->par.time_limit &&
 	     termcode != TM_FINISHED){
@@ -460,7 +460,7 @@ int solve(tm_prob *tm)
 	    break;
 	 }
 
-	 if (tm->par.node_limit >= 0 && tm->stat.analyzed >= 
+	 if (tm->par.node_limit >= 0 && tm->stat.analyzed >=
 	     tm->par.node_limit && termcode != TM_FINISHED){
 	    if (tm->active_node_num + tm->samephase_candnum > 0){
 	       termcode = TM_NODE_LIMIT_EXCEEDED;
@@ -616,7 +616,7 @@ void print_tree_status(tm_prob *tm)
 
    widths = (int *) calloc (tm->stat.max_depth + 1, ISIZE);
    gamma = (double *) calloc (tm->stat.max_depth + 1, DSIZE);
-   
+
    calculate_widths(tm->rootnode, widths);
 
    last_full_level = tm->stat.max_depth;
@@ -635,7 +635,7 @@ void print_tree_status(tm_prob *tm)
    }
 
    waist_level = (first_waist_level + last_waist_level)/2;
-   
+
    for (i = 0; i < tm->stat.max_depth; i++){
       if (i < last_full_level){
 	 gamma[i] = 2.0;
@@ -663,13 +663,13 @@ void print_tree_status(tm_prob *tm)
    elapsed_time = wall_clock(NULL) - tm->start_time;
 
 #endif
-   
+
 #ifdef SHOULD_SHOW_MEMORY_USAGE
    pid = getpid();
    //printf("process id = %d\n",pid);
    sprintf(proc_filename,"/proc/%d/stat",pid);
    proc_file = fopen (proc_filename, "r");
-   fscanf (proc_file, "%d %s %s", &tmp_int, tmp_str, tmp_str); 
+   fscanf (proc_file, "%d %s %s", &tmp_int, tmp_str, tmp_str);
    for (i=0; i<19;i++) {
       fscanf (proc_file, "%d", &tmp_int);
    }
@@ -725,7 +725,7 @@ void print_tree_status(tm_prob *tm)
    printf("Estimated time remaining:          %i\n",
 	  (int)(estimated_time_remaining));
 #endif
-   
+
    if (tm->par.vbc_emulation == VBC_EMULATION_FILE){
       FILE *f;
 #pragma omp critical(write_vbc_emulation_file)
@@ -734,7 +734,7 @@ void print_tree_status(tm_prob *tm)
       }else{
 	 PRINT_TIME(tm, f);
 	 fprintf(f, "L %.2f \n", tm->lb);
-	 fclose(f); 
+	 fclose(f);
       }
    }else if (tm->par.vbc_emulation == VBC_EMULATION_LIVE){
       printf("$L %.2f\n", tm->lb);
@@ -751,9 +751,9 @@ void print_tree_status(tm_prob *tm)
 void calculate_widths(bc_node *node, int* widths)
 {
    int i;
-   
+
    widths[node->bc_level] += 1;
-   for (i = 0; i < node->bobj.child_num; i ++){ 
+   for (i = 0; i < node->bobj.child_num; i ++){
       calculate_widths(node->children[i], widths);
    }
 }
@@ -770,7 +770,7 @@ int start_node(tm_prob *tm, int thread_num)
    double time;
 
    time = wall_clock(NULL);
-   
+
    /*------------------------------------------------------------------------*\
     * First choose the "best" node from the list of candidate nodes.
     * If the list for the current phase is empty then we return NEW_NODE__NONE.
@@ -784,10 +784,10 @@ int start_node(tm_prob *tm, int thread_num)
 	 return(NEW_NODE__NONE);
 
       if (best_node->node_status == NODE_STATUS__WARM_STARTED){
-	 if(best_node->lower_bound >= MAXDOUBLE) 
+	 if(best_node->lower_bound >= MAXDOUBLE)
 	    break;
       }
-      
+
       /* if no UB yet or lb is lower than UB then go ahead */
       if (!tm->has_ub ||
 	  (tm->has_ub && best_node->lower_bound < tm->ub-tm->par.granularity))
@@ -810,7 +810,7 @@ int start_node(tm_prob *tm, int thread_num)
 	     }
 	     best_node->node_status = NODE_STATUS__PRUNED;
 	     best_node->feasibility_status = OVER_UB_PRUNED;
-	 
+
 	     if (tm->par.verbosity > 0){
 		printf("++++++++++++++++++++++++++++++++++++++++++++++++++\n");
 		printf("+ TM: Pruning NODE %i LEVEL %i instead of sending it.\n",
@@ -902,9 +902,9 @@ bc_node *del_best_node(tm_prob *tm)
       return(NULL);
 
    best_node = list[1];
-   
+
    temp = list[1] = list[size];
-   
+
    tm->samephase_candnum = --size;
 
    if (tm->par.verbosity > 10)
@@ -944,7 +944,7 @@ void insert_new_node(tm_prob *tm, bc_node *node)
    int pos, ch, size = tm->samephase_candnum;
    bc_node **list;
    int rule = tm->par.node_selection_rule;
-  
+
    tm->samephase_candnum = pos = ++size;
 
    if (tm->par.verbosity > 10)
@@ -1005,7 +1005,7 @@ int assign_pool(tm_prob *tm, int oldpool, process_set *pools,
    int s_bufid, r_bufid;
    struct timeval timeout = {5, 0};
 #endif
-   
+
    if (pools->free_num == 0){
       /* No change in the pool assigned to this node */
       return(oldpool);
@@ -1030,7 +1030,7 @@ int assign_pool(tm_prob *tm, int oldpool, process_set *pools,
 #else
    pool = pools->procs[ind];
 #endif
-   
+
    if (! oldpool){
       /* If no pool is assigned yet then just assign the free one */
       active_nodes_per_pool[ind] = 1;
@@ -1082,7 +1082,7 @@ int generate_children(tm_prob *tm, bc_node *node, branch_obj *bobj,
 #ifdef TRACE_PATH
    int optimal_path = -1;
 #endif
-      
+
    /* before we start to generate the children we must figure out if we'll
     * dive so that we can put the kept child into the right location */
    if (*keep >= 0 && (olddive == CHECK_BEFORE_DIVE || olddive == DO_DIVE))
@@ -1184,7 +1184,7 @@ int generate_children(tm_prob *tm, bc_node *node, branch_obj *bobj,
 	 /* this last can happen if the TM got the new bound but it hasn't
 	   * been propagated to the LP yet */
 #else /*We only want to process the root node in this case - discard others*/
-      if (TRUE){	 
+      if (TRUE){
 #endif
 	 if (tm->par.verbosity > 0){
 	    printf("++++++++++++++++++++++++++++++++++++++++++++++++++++\n");
@@ -1281,7 +1281,7 @@ int generate_children(tm_prob *tm, bc_node *node, branch_obj *bobj,
        * desc->uind.size = 0;
        * desc->uind.added = 0;
        * desc->uind.list = NULL;
-       
+
        * desc->not_fixed.type = 0;       WRT_PARENT and no change
        * desc->not_fixed.size = 0;
        * desc->not_fixed.added = 0;
@@ -1327,7 +1327,7 @@ int generate_children(tm_prob *tm, bc_node *node, branch_obj *bobj,
 
 
 #ifdef SENSITIVITY_ANALYSIS
-      if (tm->par.sensitivity_analysis && 
+      if (tm->par.sensitivity_analysis &&
 	  action[i] != PRUNE_THIS_CHILD_INFEASIBLE){
 	 child->duals = bobj->duals[i];
 	 bobj->duals[i] = 0;
@@ -1344,20 +1344,20 @@ int generate_children(tm_prob *tm, bc_node *node, branch_obj *bobj,
 	    child->feasibility_status = NOT_PRUNED_HAS_CAN_SOLUTION;
 	 }
       }
-      
+
       if (child->node_status == NODE_STATUS__PRUNED){
 
 	 if(tm->par.keep_description_of_pruned == KEEP_IN_MEMORY){
-	 
-	    child->feasibility_status = OVER_UB_PRUNED;	   
-	    
+
+	    child->feasibility_status = OVER_UB_PRUNED;
+
 	    if (feasible[i]){
 	       child->sol_size = bobj->sol_sizes[i];
 	       child->sol_ind = bobj->sol_inds[i];
 	       bobj->sol_inds[i] = 0;
 	       child->sol = bobj->solutions[i];
 	       bobj->solutions[i] = 0;
-	       child->feasibility_status = FEASIBLE_PRUNED;	   	    
+	       child->feasibility_status = FEASIBLE_PRUNED;
 	    }
 
 	    if (action[i] == PRUNE_THIS_CHILD_INFEASIBLE){
@@ -1452,7 +1452,7 @@ int generate_children(tm_prob *tm, bc_node *node, branch_obj *bobj,
 #else
       tm->nodes_per_cp[find_process_index(&tm->cp, node->cp)] += np_cp;
 #endif
-   
+
    return(dive);
 }
 
@@ -1480,14 +1480,14 @@ char shall_we_dive(tm_prob *tm, double objval)
    if (tm->par.node_limit >= 0 && tm->stat.analyzed >= tm->par.node_limit){
       return(FALSE);
    }
-   
+
    if (tm->has_ub && (tm->par.gap_limit >= 0.0)){
       find_tree_lb(tm);
       if (100*(tm->ub-tm->lb)/(fabs(tm->ub)+etol) <= tm->par.gap_limit){
 	 return(FALSE);
       }
    }
-   
+
    rand_num = ((double)(RANDOM()))/((double)(MAXINT));
    if (tm->par.unconditional_dive_frac > 1 - rand_num){
       dive = CHECK_BEFORE_DIVE;
@@ -1505,7 +1505,7 @@ char shall_we_dive(tm_prob *tm, double objval)
 	 }
        case COMP_BEST_K:
 	 average_lb = 0;
-#pragma omp critical (tree_update) 
+#pragma omp critical (tree_update)
 	 for (k = 0, i = MIN(tm->samephase_candnum, tm->par.diving_k);
 	      i > 0; i--)
 	    if (tm->samephase_cand[i]->lower_bound < MAXDOUBLE/2){
@@ -1581,8 +1581,8 @@ int purge_pruned_nodes(tm_prob *tm, bc_node *node, int category)
    char reason[30];
    char branch_dir = 'M';
 
-   if (tm->par.vbc_emulation != VBC_EMULATION_FILE_NEW && 
-	 (category == VBC_PRUNED_INFEASIBLE || category == VBC_PRUNED_FATHOMED 
+   if (tm->par.vbc_emulation != VBC_EMULATION_FILE_NEW &&
+	 (category == VBC_PRUNED_INFEASIBLE || category == VBC_PRUNED_FATHOMED
 	  || category == VBC_IGNORE)) {
       printf("Error in purge_pruned_nodes.");
       printf("category refers to VBC_EMULATION_FILE_NEW");
@@ -1648,7 +1648,7 @@ int purge_pruned_nodes(tm_prob *tm, bc_node *node, int category)
 	 break;
       }
    }
-   
+
    if (node->parent == NULL){
       return(1);
    }
@@ -1680,7 +1680,7 @@ int purge_pruned_nodes(tm_prob *tm, bc_node *node, int category)
 	 fclose(f);
       }
    }
-   
+
    if ((new_child_num = --bobj->child_num) == 0){
       if (tm->par.vbc_emulation == VBC_EMULATION_FILE_NEW) {
 	 purge_pruned_nodes(tm, node->parent, VBC_IGNORE);
@@ -1709,14 +1709,14 @@ int purge_pruned_nodes(tm_prob *tm, bc_node *node, int category)
 
 /*===========================================================================*\
  * This routine is for writing the pruned nodes to disk before deleting them
- * from memory. 
+ * from memory.
 \*===========================================================================*/
 
 int write_pruned_nodes(tm_prob *tm, bc_node *node)
 {
    FILE *f = NULL;
    branch_obj *bobj = &node->parent->bobj;
-   
+
    if (tm->par.keep_description_of_pruned == KEEP_ON_DISK_FULL ||
        tm->par.keep_description_of_pruned == KEEP_ON_DISK_VBC_TOOL){
       if (!(f = fopen(tm->par.pruned_node_file_name, "a"))){
@@ -1724,15 +1724,15 @@ int write_pruned_nodes(tm_prob *tm, bc_node *node)
 	 return(0);
       }
    }
-   
+
    if (node->parent == NULL){
       return(1);
    }
-   
+
    if (bobj->child_num == 1){
       write_pruned_nodes(tm, node->parent);
    }
-   
+
    if (tm->par.keep_description_of_pruned == KEEP_ON_DISK_VBC_TOOL){
       if (node->parent)
 	 fprintf(f, "%i %i\n", node->parent->bc_index + 1, node->bc_index + 1);
@@ -1761,7 +1761,7 @@ int find_process_index(process_set *pset, int tid)
       printf("TM: process index not found !!!\n\n");
       exit(-5);
    }
-#endif   
+#endif
    return(i);
 }
 
@@ -1860,7 +1860,7 @@ void install_new_ub(tm_prob *tm, double new_ub, int opt_thread_num,
 	 }else{
 	    fprintf (f, "%s %i %i %c %f\n", "integer", 1, 0, 'M', new_ub);
 	 }
-	    
+
       }
       if (f){
 	 fclose(f);
@@ -2436,27 +2436,27 @@ int tasks_before_phase_two(tm_prob *tm)
        * also, incorporate that list into the not_fixed field of everything */
 #ifdef COMPILE_IN_LP
       switch(process_chain(tm->lpp[0])){
-	 
+
       case FUNCTION_TERMINATED_NORMALLY:
 	 break;
-	 
+
       case ERROR__NO_BRANCHING_CANDIDATE:
 	 return(TM_ERROR__NO_BRANCHING_CANDIDATE);
-	 
+
       case ERROR__ILLEGAL_RETURN_CODE:
 	 return(TM_ERROR__ILLEGAL_RETURN_CODE);
-	 
+
       case ERROR__NUMERICAL_INSTABILITY:
 	 return(TM_ERROR__NUMERICAL_INSTABILITY);
-	 
+
       case ERROR__USER:
 	 return(TM_ERROR__USER);
-	 
+
       }
 #else
       char go_on;
       int nsize, nf_status;
-      
+
       do{
 	 r_bufid = receive_msg(tm->rootnode->lp, ANYTHING);
 	 bufinfo(r_bufid, &bytes, &msgtag, &sender);
@@ -2593,7 +2593,7 @@ int tasks_before_phase_two(tm_prob *tm)
       }while (go_on);
 #endif
    }
-   
+
 #ifdef COMPILE_IN_TM
    if (tm->samephase_candnum > 0){
       printf( "\n");
@@ -2601,8 +2601,8 @@ int tasks_before_phase_two(tm_prob *tm)
       printf( "* Branch and Cut First Phase Finished!!!!    *\n");
       printf( "* Now displaying stats and best solution...  *\n");
       printf( "**********************************************\n\n");
-      
-      print_statistics(&(tm->comp_times), &(tm->stat), &(tm->lp_stat), 
+
+      print_statistics(&(tm->comp_times), &(tm->stat), &(tm->lp_stat),
                        tm->ub, tm->lb, 0,
 		       tm->start_time, wall_clock(NULL),
 		       tm->obj_offset,
@@ -2617,7 +2617,7 @@ int tasks_before_phase_two(tm_prob *tm)
    send_char_array((char *)&tm->stat, sizeof(tm_stat));
    send_msg(tm->master, TM_FIRST_PHASE_FINISHED);
 #endif
-   
+
    tm->nextphase_candnum = 0;
 
    return(FUNCTION_TERMINATED_NORMALLY);
@@ -2756,7 +2756,7 @@ int write_node(bc_node *node, char *file, FILE* f, char append)
 {
    int i;
    char close = FALSE;
-   
+
    if (!f){
       if (!(f = fopen(file, append ? "a" : "w"))){
 	 printf("\nError opening node file\n\n");
@@ -2834,7 +2834,7 @@ int write_node(bc_node *node, char *file, FILE* f, char append)
    else
       for (i = 0; i < node->desc.basis.extrarows.size; i++)
 	 fprintf(f, "%i\n", node->desc.basis.extrarows.stat[i]);
-      
+
    if (close)
       fclose(f);
 
@@ -2909,8 +2909,8 @@ int read_node(tm_prob *tm, bc_node *node, FILE *f, int **children)
 	 node->desc.basis.basevars.stat =
 	    (int *) malloc(node->desc.basis.basevars.size*ISIZE);
 	 if (node->desc.basis.basevars.type == WRT_PARENT){
-	    node->desc.basis.basevars.list = 
-	       (int *) malloc(node->desc.basis.basevars.size*ISIZE);   
+	    node->desc.basis.basevars.list =
+	       (int *) malloc(node->desc.basis.basevars.size*ISIZE);
 	    for (i = 0; i < node->desc.basis.basevars.size; i++)
 	       fscanf(f, "%i %i", node->desc.basis.basevars.list+i,
 		      node->desc.basis.basevars.stat+i);
@@ -2926,8 +2926,8 @@ int read_node(tm_prob *tm, bc_node *node, FILE *f, int **children)
 	 node->desc.basis.extravars.stat =
 	    (int *) malloc(node->desc.basis.extravars.size*ISIZE);
 	 if (node->desc.basis.extravars.type == WRT_PARENT){
-	    node->desc.basis.extravars.list = 
-	       (int *) malloc(node->desc.basis.extravars.size*ISIZE);   
+	    node->desc.basis.extravars.list =
+	       (int *) malloc(node->desc.basis.extravars.size*ISIZE);
 	    for (i = 0; i < node->desc.basis.extravars.size; i++)
 	       fscanf(f, "%i %i", node->desc.basis.extravars.list+i,
 		      node->desc.basis.extravars.stat+i);
@@ -2943,8 +2943,8 @@ int read_node(tm_prob *tm, bc_node *node, FILE *f, int **children)
 	 node->desc.basis.baserows.stat =
 	    (int *) malloc(node->desc.basis.baserows.size*ISIZE);
 	 if (node->desc.basis.baserows.type == WRT_PARENT){
-	    node->desc.basis.baserows.list = 
-	       (int *) malloc(node->desc.basis.baserows.size*ISIZE);   
+	    node->desc.basis.baserows.list =
+	       (int *) malloc(node->desc.basis.baserows.size*ISIZE);
 	    for (i = 0; i < node->desc.basis.baserows.size; i++)
 	       fscanf(f, "%i %i", node->desc.basis.baserows.list+i,
 		      node->desc.basis.baserows.stat+i);
@@ -2960,8 +2960,8 @@ int read_node(tm_prob *tm, bc_node *node, FILE *f, int **children)
 	 node->desc.basis.extrarows.stat =
 	    (int *) malloc(node->desc.basis.extrarows.size*ISIZE);
 	 if (node->desc.basis.extrarows.type == WRT_PARENT){
-	    node->desc.basis.extrarows.list = 
-	       (int *) malloc(node->desc.basis.extrarows.size*ISIZE);   
+	    node->desc.basis.extrarows.list =
+	       (int *) malloc(node->desc.basis.extrarows.size*ISIZE);
 	    for (i = 0; i < node->desc.basis.extrarows.size; i++)
 	       fscanf(f, "%i %i", node->desc.basis.extrarows.list+i,
 		      node->desc.basis.extrarows.stat+i);
@@ -2971,7 +2971,7 @@ int read_node(tm_prob *tm, bc_node *node, FILE *f, int **children)
 	 }
       }
    }
-   
+
    switch (node->node_status){
     case NODE_STATUS__HELD:
       REALLOC(tm->nextphase_cand, bc_node *,
@@ -3001,12 +3001,12 @@ int read_node(tm_prob *tm, bc_node *node, FILE *f, int **children)
 }
 
 /*===========================================================================*/
-   
+
 int write_subtree(bc_node *root, char *file, FILE *f, char append, int logging)
 {
    int i;
    char close = FALSE;
-   
+
    if (!f){
       if (!(f = fopen(file, append ? "a" : "w"))){
 	 printf("\nError opening subtree file\n\n");
@@ -3026,7 +3026,7 @@ int write_subtree(bc_node *root, char *file, FILE *f, char append, int logging)
 
    if (close)
       fclose(f);
-	 
+
    return(1);
 }
 
@@ -3036,7 +3036,7 @@ int read_subtree(tm_prob *tm, bc_node *root, FILE *f)
 {
    int parent, i;
    int *children;
-   
+
    parent = read_node(tm, root, f, &children);
    if (f && root->bobj.child_num){
       root->children = (bc_node **)
@@ -3052,7 +3052,7 @@ int read_subtree(tm_prob *tm, bc_node *root, FILE *f)
 
    return(parent);
 }
-			 
+
 /*===========================================================================*/
 
 int write_tm_cut_list(tm_prob *tm, char *file, char append)
@@ -3087,7 +3087,7 @@ int read_tm_cut_list(tm_prob *tm, char *file)
    FILE *f;
    int i, j, tmp1 = 0, tmp2 = 0;
    char str[20];
-   
+
    if (!(f = fopen(file, "r"))){
       printf("\nError opening cut file\n\n");
       return(0);
@@ -3112,14 +3112,14 @@ int read_tm_cut_list(tm_prob *tm, char *file)
    fclose(f);
 
    return(1);
-}   
+}
 
 /*===========================================================================*/
 
 int write_tm_info(tm_prob *tm, char *file, FILE* f, char append)
 {
    char close = FALSE;
-   
+
    if (!f){
       if (!(f = fopen(file, append ? "a" : "w"))){
 	 printf("\nError opening TM info file\n\n");
@@ -3136,10 +3136,10 @@ int write_tm_info(tm_prob *tm, char *file, FILE* f, char append)
       fprintf(f, "#NODE_NUMBER: NONE\n");
       if (close)
 	 fclose(f);
-      
+
       return(1);
    }
-   
+
    fprintf(f, "UPPER BOUND: ");
    if (tm->has_ub)
       fprintf(f, "   %f\n", tm->ub);
@@ -3166,10 +3166,10 @@ int write_tm_info(tm_prob *tm, char *file, FILE* f, char append)
    fprintf(f, " BRANCHING:     %f\n", tm->comp_times.strong_branching);
    fprintf(f, " CUT POOL:      %f\n", tm->comp_times.cut_pool);
    fprintf(f, " REAL TIME:     %f\n", wall_clock(NULL) - tm->start_time);
-   
+
    if (close)
       fclose(f);
-   
+
    return(1);
 }
 
@@ -3183,7 +3183,7 @@ int read_tm_info(tm_prob *tm, FILE *f)
 
    if (!f)
       return(0);
-      
+
    fscanf(f, "%s %s", str1, str2);
    if (fscanf(f, "%lf", &tm->ub) != 0)
       tm->has_ub = TRUE;
@@ -3220,7 +3220,7 @@ int write_base(base_desc *base, char *file, FILE *f, char append)
 {
    int i;
    char close = FALSE;
-   
+
    if (!f){
       if (!(f = fopen(file, append ? "a" : "w"))){
 	 printf("\nError opening base file\n\n");
@@ -3245,7 +3245,7 @@ int read_base(base_desc *base, FILE *f)
 {
    char str1[20], str2[20];
    int i;
-   
+
    fscanf(f, "%s %s %i %i", str1, str2, &base->varnum, &base->cutnum);
    base->userind = (int *) malloc(base->varnum*ISIZE);
    for (i = 0; i < base->varnum; i++)
@@ -3269,7 +3269,7 @@ void free_tm(tm_prob *tm)
 #else
    int num_threads = 1;
 #endif
-   
+
 #if defined(COMPILE_IN_TM) && defined(COMPILE_IN_LP)
    for (i = 0; i < num_threads; i++)
       free_lp(tm->lpp[i]);
@@ -3278,7 +3278,7 @@ void free_tm(tm_prob *tm)
    FREE(tm->cgp);
 #endif
 #endif
-   
+
    if (tm->par.lp_machs){
       FREE(tm->par.lp_machs[0]);
       FREE(tm->par.lp_machs);
@@ -3308,7 +3308,7 @@ void free_tm(tm_prob *tm)
    /* Go over the tree and free the nodes */
    free_subtree(tm->rootnode);
 #endif
-   
+
    /* Go over the cuts stored and free them all */
 #pragma omp critical (cut_pool)
    if (cuts){
@@ -3367,7 +3367,7 @@ void free_tm(tm_prob *tm)
       FREE(tm->br_rel_down_min_level);
       FREE(tm->br_rel_up_min_level);
    }
-   
+
    FREE(tm);
 }
 
@@ -3378,7 +3378,7 @@ void free_subtree(bc_node *n)
    int i;
 
    if (n == NULL) return;
-   
+
    for (i = n->bobj.child_num - 1; i >= 0; i--)
       free_subtree(n->children[i]);
    free_tree_node(n);
@@ -3451,7 +3451,7 @@ int tm_close(tm_prob *tm, int termcode)
    double new_time;
 #endif
    int i;
-   
+
 #if defined(DO_TESTS) && 0
    if (tm->cp.free_num != tm->cp.procnum)
       printf(" Something is fishy! tm->cp.freenum != tm->cp.procnum\n");
@@ -3460,7 +3460,7 @@ int tm_close(tm_prob *tm, int termcode)
    if (tm->par.vbc_emulation == VBC_EMULATION_LIVE){
       printf("$#END_OF_OUTPUT");
    }
-      
+
    /*------------------------------------------------------------------------*\
     * Kill the processes. Some of them will send back statistics.
    \*------------------------------------------------------------------------*/
@@ -3508,13 +3508,13 @@ int tm_close(tm_prob *tm, int termcode)
    if (receive_lp_timing(tm) < 0){
       printf("\nWarning: problem receiving LP timing. LP process is dead\n\n");
    }
-   
+
 #ifdef COMPILE_IN_LP
    for (i = 0; i < tm->par.max_active_nodes; i ++){
       lp_close(lp[i]);
    }
 #endif
-   
+
    tm->stat.root_lb = tm->rootnode->lower_bound;
    find_tree_lb(tm);
    return(termcode);
@@ -3533,12 +3533,12 @@ int tm_close(tm_prob *tm, int termcode)
    freebuf(s_bufid);
 
    free_tm(tm);
-   
+
 #endif
-   
+
    return(termcode);
-}   
-   
+}
+
 /*===========================================================================*/
 /*===========================================================================*/
 #if !defined(_MSC_VER) && !defined(__MNO_CYGWIN) && defined(SIGHANDLER)
@@ -3552,24 +3552,24 @@ void sym_catch_c(int num)
    signal(SIGINT, sym_catch_c);
 
    char temp [MAX_LINE_LENGTH + 1];
-   
+
    sigfillset(&mask_set);
    sigprocmask(SIG_SETMASK, &mask_set, &old_set);
-   
+
    strcpy(temp, "");
    printf("\nDo you want to abort immediately, exit gracefully (from the current solve call only), or continue? [a/e/c]: ");
-   fflush(stdout);   
+   fflush(stdout);
    fgets(temp, MAX_LINE_LENGTH, stdin);
    if(temp[1] == '\n' && (temp[0] == 'a' || temp[0] == 'A')){
       printf("\nTerminating...\n");
       fflush(stdout);
       exit(0);
-   }else if(temp[1] == '\n' && (temp[0] == 'e' || temp[0] == 'E')){    
-      c_count++;	    
+   }else if(temp[1] == '\n' && (temp[0] == 'e' || temp[0] == 'E')){
+      c_count++;
    } else{
       printf("\nContinuing...\n");
       fflush(stdout);
-      c_count = 0;      
+      c_count = 0;
    }
 
 }
@@ -3600,7 +3600,7 @@ int find_tree_lb(tm_prob *tm)
       lb = tm->ub;
    }
    /*
-   if (lb >= MAXDOUBLE / 2){ 
+   if (lb >= MAXDOUBLE / 2){
       lb = tm->ub;
    }
    */

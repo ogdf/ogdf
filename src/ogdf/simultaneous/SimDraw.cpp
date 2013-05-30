@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -317,45 +317,37 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 	edge e, f;
 	Graph G = GA.constGraph();
 
-	forall_edges(e,G)
-	{
-		forall_edges(f,m_G)
-		{
-			if(compare(m_GA, f->source(), GA, e->source()) &&
-				compare(m_GA, f->target(), GA, e->target()))
-			{
+	forall_edges(e,G) {
+		forall_edges(f,m_G) {
+			if (compare(m_GA, f->source(), GA, e->source())
+			 && compare(m_GA, f->target(), GA, e->target())) {
 				foundEdge = true;
 				m_GA.addSubGraph(f,max);
 			}
 		}
 
-		if(!foundEdge)
-		{
+		if (!foundEdge) {
 			node s, t;
 			bool srcFound = false;
 			bool tgtFound = false;
-			forall_nodes(v,m_G)
-			{
-				if(compare(m_GA, v, GA, e->source()))
-				{
+			forall_nodes(v,m_G) {
+				if (compare(m_GA, v, GA, e->source())) {
 					s = v;
 					srcFound = true;
 				}
-
-				if(compare(m_GA, v, GA, e->target()))
-				{
+				if (compare(m_GA, v, GA, e->target())) {
 					t = v;
 					tgtFound = true;
 				}
 			}
 
-			if(!srcFound)
+			if (!srcFound)
 				s = m_G.newNode(e->source()->index());
 
-			if(!tgtFound)
+			if (!tgtFound)
 				t = m_G.newNode(e->target()->index());
 
-			edge d = m_G.newEdge(s,t);
+			edge d = m_G.newEdge(s, t);
 			if(compareBy() == label)
 				m_GA.label(d) = GA.label(e);
 

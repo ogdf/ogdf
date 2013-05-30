@@ -25,7 +25,7 @@ CglMixedIntegerRounding2UnitTest(const OsiSolverInterface *baseSiP,
   {
     CglMixedIntegerRounding2 aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglMixedIntegerRounding2 rhs;
@@ -76,10 +76,10 @@ CglMixedIntegerRounding2UnitTest(const OsiSolverInterface *baseSiP,
     else {
       fclose(in_f);
       siP->readMps(fn.c_str(),"mps");
- 
+
       siP->initialSolve();
       double lpRelax = siP->getObjValue();
-      
+
       OsiCuts cs;
       gct.setDoPreproc(1); // Needed for DyLP
       gct.generateCuts(*siP, cs);
@@ -87,10 +87,10 @@ CglMixedIntegerRounding2UnitTest(const OsiSolverInterface *baseSiP,
       std::cout<<"There are "<<nRowCuts<<" MIR2 cuts"<<std::endl;
       assert(cs.sizeRowCuts() > 0);
       OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cs);
-      
+
       siP->resolve();
-      
-      double lpRelaxAfter= siP->getObjValue(); 
+
+      double lpRelaxAfter= siP->getObjValue();
       printf("Initial LP value: %f\n", lpRelax);
       printf("LP value with cuts: %f\n", lpRelaxAfter);
       assert( lpRelax < lpRelaxAfter );

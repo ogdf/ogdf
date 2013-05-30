@@ -1,9 +1,9 @@
 /*
- * $Revision: 3385 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-08 14:39:35 +0200 (Mo, 08. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -82,7 +82,7 @@ public:
 	//! Initializes a thread, but does not create a system thread yet.
 	Thread();
 
-	//! Destructor. Frees resources.	
+	//! Destructor. Frees resources.
 	virtual ~Thread();
 
 	//! Returns the ID of the system thread associated with the thread object.

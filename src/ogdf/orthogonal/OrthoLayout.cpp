@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -163,6 +163,7 @@ void OrthoLayout::call(PlanRep &PG,
 		pInfoExp = OR.cageInfo(v);
 		if (pInfoExp) break;
 	}
+	OGDF_ASSERT(pInfoExp);
 
 	FlowCompaction fca;
 	fca.constructiveHeuristics(PG,OR,rcGrid,gridDrawing);

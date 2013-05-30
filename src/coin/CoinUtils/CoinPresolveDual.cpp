@@ -123,7 +123,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
       continue; // even if it has infinite bound now ....
     bool no_ub = (cup[j] >= ekkinf);
     bool no_lb = (clo[j] <= -ekkinf);
-    
+
     if (hincol[j] == 1 &&
 
 	// we need singleton cols that have exactly one bound
@@ -187,7 +187,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 	for (CoinBigIndex k = kcs; k < kce; k++) {
 	  int i = hrow[k];
 	  double coeff = colels[k];
-	  
+
 	  if (coeff > 0.0) {
 	    if (rdmin[i] >= -ekkinf2) {
 	      ddjhi -= coeff * rdmin[i];
@@ -225,7 +225,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 	      for (CoinBigIndex k = kcs; k < kce; k++) {
 		int i = hrow[k];
 		double coeff = colels[k];
-		
+
 		if (coeff > 0.0&&rdmin[i] < -ekkinf2) {
 		  // rdmax[i] has upper bound
 		  if (ddjhi<rdmax[i]*coeff-ztoldj) {
@@ -268,7 +268,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 	      for (CoinBigIndex k = kcs; k < kce; k++) {
 		int i = hrow[k];
 		double coeff = colels[k];
-		
+
 		if (coeff > 0.0) {
 		  rdmax[i] += ddjlo/coeff;
 		  ddjlo =0.0;
@@ -295,7 +295,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 	      for (CoinBigIndex k = kcs; k < kce; k++) {
 		int i = hrow[k];
 		double coeff = colels[k];
-		
+
 		if (coeff < 0.0&&rdmin[i] < -ekkinf2) {
 		  // rdmax[i] has upper bound
 		  if (ddjlo>rdmax[i]*coeff+ztoldj) {
@@ -337,7 +337,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 	      for (CoinBigIndex k = kcs; k < kce; k++) {
 		int i = hrow[k];
 		double coeff = colels[k];
-		
+
 		if (coeff < 0.0) {
 		  rdmax[i] += ddjhi/coeff;
 		  ddjhi =0.0;
@@ -527,7 +527,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
     for (int i = 0; i < nrows; i++) {
       bool no_ub = (rup[i] >= ekkinf);
       bool no_lb = (rlo[i] <= -ekkinf);
-      
+
       if ((no_ub ^ no_lb) == true) {
 	CoinBigIndex krs = mrstrt[i];
 	CoinBigIndex kre = krs + hinrow[i];
@@ -607,7 +607,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
   }
 
   if (nfixdown_cols<ncols) {
-    int * fixdown_cols = fix_cols+nfixdown_cols; 
+    int * fixdown_cols = fix_cols+nfixdown_cols;
     nfixdown_cols = ncols-nfixdown_cols;
 #if	PRESOLVE_DEBUG
     printf("NDUAL: %d down", nfixdown_cols);
@@ -617,7 +617,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
     next = make_fixed_action::presolve(prob, fixdown_cols, nfixdown_cols, true, next);
   }
   // If dual says so then we can make equality row
-  // Also if cost is in right direction and only one binding row for variable 
+  // Also if cost is in right direction and only one binding row for variable
   // We may wish to think about giving preference to rows with 2 or 3 elements
 /*
   Gack! Ok, I can appreciate the thought here, but I'm seriously skeptical
@@ -631,7 +631,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
     bool no_ub = (rup[i] >= ekkinf);
     canFix[i]=0;
     if (no_ub && !no_lb ) {
-      if ( rdmin[i]>0.0) 
+      if ( rdmin[i]>0.0)
 	canFix[i]=-1;
       else
 	canFix[i]=-2;
@@ -645,7 +645,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
   for (j = 0; j<ncols; j++) {
     if (hincol[j]<=1)
       continue;
-    if (integerType[j]) 
+    if (integerType[j])
       continue; // even if it has infinite bound now ....
     CoinBigIndex kcs = mcstrt[j];
     CoinBigIndex kce = kcs + hincol[j];

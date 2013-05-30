@@ -198,7 +198,7 @@ void tighten_bounds(lp_prob *p)
 	 get_bounds(lp_data);
 	 ub = lp_data->ub;
 	 lb = lp_data->lb;
-	 
+
 	 p->vars_deletable = 0;
 	 memset((char *)delstat, 0, n * ISIZE);
 	 lb_vars = perm_lb_vars = ub_vars = perm_ub_vars = 0;
@@ -259,7 +259,7 @@ void tighten_bounds(lp_prob *p)
        * cuts. whenever ub is updated, we can come back and update bounds in
        * the root
        */
-      save_root_reduced_costs(p); 
+      save_root_reduced_costs(p);
    }
 #endif
 
@@ -270,7 +270,7 @@ void tighten_bounds(lp_prob *p)
    /*========================================================================*\
     * Logical fixing is done only if the number of variables recently fixed
     * to upper bound reaches a given constant AND is at least a certain
-    * fraction of the total number of variables. 
+    * fraction of the total number of variables.
     \*=======================================================================*/
 
    if ((p->par.do_logical_fixing) &&
@@ -281,15 +281,15 @@ void tighten_bounds(lp_prob *p)
       logical_fixing_u(p);
       did_logical_fixing = TRUE;
    }
-   
+
    if (! did_reduced_cost_fixing && ! did_logical_fixing)
       return;
-   
+
    if (did_reduced_cost_fixing)
       p->last_gap = gap;
    if (did_logical_fixing)
       p->vars_recently_fixed_to_ub = 0;
-   
+
    if (p->par.verbosity > 3){
       if (ub_vars)
 	 printf("total of %i variables with temp adjusted UB ...\n",ub_vars);
@@ -302,12 +302,12 @@ void tighten_bounds(lp_prob *p)
    }
    p->vars_at_lb = lb_vars;
    p->vars_at_ub = ub_vars;
-   
+
    /* if enough variables have been fixed, then physically compress the matrix,
     * eliminating the columns that are fixed to zero */
    if (p->vars_deletable > p->par.mat_col_compress_num &&
        p->vars_deletable > n * p->par.mat_col_compress_ratio){
-      
+
       PRINT(p->par.verbosity,3, ("Compressing constraint matrix (col) ...\n"));
       del_vars = delete_cols(lp_data, p->vars_deletable, delstat);
       if (del_vars > 0){
@@ -463,7 +463,7 @@ our_col_set *price_all_vars(lp_prob *p)
    must_add = FALSE;
    dual_feas = TDF_HAS_ALL;
    check_ub(p);
-   gap = p->has_ub ? p->ub - p->par.granularity - lp_data->objval : 
+   gap = p->has_ub ? p->ub - p->par.granularity - lp_data->objval :
       SYM_INFINITY;
 
    /*========================================================================*\
@@ -476,7 +476,7 @@ our_col_set *price_all_vars(lp_prob *p)
     * based on i and j.
     * -- If we have run out of non-fixables and
     *   - nf_status == NF_CHECK_UNTIL_LAST then, we know of all non-fixable
-    *     non-base variable and we are past them, then only base vars can be 
+    *     non-base variable and we are past them, then only base vars can be
     *     left to be checked. And nextind is processed.
     *   - nf_status == NF_CHECK_AFTER_LAST then there are more non-fixables,
     *     but we don't know what they are, then the user has to tell about the
@@ -504,7 +504,7 @@ our_col_set *price_all_vars(lp_prob *p)
 	 }
 	 break;
       }
-      
+
       /*=====================================================================*\
        * If we have a chance to prove TDF   or
        * If we proved NOT_TDF but still have enough space to add new cols,
@@ -512,7 +512,7 @@ our_col_set *price_all_vars(lp_prob *p)
        * col is what we have next), otherwise the next col is what we have
        * next.
       \*=====================================================================*/
-       
+
       if ((dual_feas != NOT_TDF) ||
 	  (dual_feas == NOT_TDF && new_vars < max_ndf_vars)){
 	 if (k < not_fixed_num){
@@ -639,7 +639,7 @@ our_col_set *price_all_vars(lp_prob *p)
 	 }else{
 	    new_nf_status = NF_CHECK_AFTER_LAST;
 	 }
-      }   
+      }
    }
 
    new_cols->num_vars = new_vars;
@@ -699,9 +699,9 @@ our_col_set *price_all_vars(lp_prob *p)
        * as well just wait for the call to restore_feasibility and only add in
        * the one (if there is one) that destroys the proof of infeasibility.
       \*=====================================================================*/
-      
+
       new_vars = rel_ub = rel_lb = 0;
-      
+
       /* Update which variables have to be priced out. */
       lp_data->nf_status = new_nf_status;
       lp_data->not_fixed_num = tmp_not_fixed_num;
@@ -823,7 +823,7 @@ int restore_lp_feasibility(lp_prob *p, our_col_set *new_cols)
    get_binvrow(lp_data, infind, binvrow);
 
    check_ub(p);
-   gap = p->has_ub ? p->ub - p->par.granularity - lp_data->objval : 
+   gap = p->has_ub ? p->ub - p->par.granularity - lp_data->objval :
       SYM_INFINITY;
 
    /* First check those released from their lower bound in price_all_vars(),
@@ -845,7 +845,7 @@ int restore_lp_feasibility(lp_prob *p, our_col_set *new_cols)
       }
    }
    new_cols->rel_lb = 0; /*We don't need these anymore*/
-   
+
    /* Now check those released from their upper bound */
    for (i=new_cols->rel_ub-1; i>=0; i--){
       j = new_cols->rel_ub_ind[i];
@@ -883,9 +883,9 @@ int restore_lp_feasibility(lp_prob *p, our_col_set *new_cols)
 	    new_cols->objx[0] = new_cols->objx[i];
 	    new_cols->lb[0] = lb;
 	    new_cols->ub[0] = ub;
-	    memmove(new_cols->matind, new_cols->matind + new_cols->matbeg[i], 
+	    memmove(new_cols->matind, new_cols->matind + new_cols->matbeg[i],
 		    new_cols->nzcnt * ISIZE);
-	    memmove(new_cols->matval, new_cols->matval + new_cols->matbeg[i], 
+	    memmove(new_cols->matval, new_cols->matval + new_cols->matbeg[i],
 		    new_cols->nzcnt * DSIZE);
 	    new_cols->matbeg[1] = new_cols->nzcnt;
 	 }
@@ -1079,7 +1079,7 @@ int save_root_reduced_costs(lp_prob *p)
    values = (double *)malloc(cnt*DSIZE);
    lb = (double *)malloc(cnt*DSIZE);
    ub = (double *)malloc(cnt*DSIZE);
-   
+
    for (i = 0; i < cnt; i++){
       j = tind[i];
       indices[i] = vars[j]->userind;
@@ -1132,7 +1132,7 @@ int save_root_reduced_costs(lp_prob *p)
 /*===========================================================================*/
 int tighten_root_bounds(lp_prob *p)
 {
-   /* 
+   /*
     * using the reduced costs that are saved from the root node, try to
     * improve variable bounds.
     * should be called whenever ub is updated.
@@ -1199,11 +1199,11 @@ int tighten_root_bounds(lp_prob *p)
       if (p->tm->rootnode->desc.bnd_change) {
          bnd_change = p->tm->rootnode->desc.bnd_change;
       } else {
-         p->tm->rootnode->desc.bnd_change = bnd_change = 
+         p->tm->rootnode->desc.bnd_change = bnd_change =
             (bounds_change_desc *)calloc(1,sizeof(bounds_change_desc));
       }
       if (bnd_change->num_changes>0) {
-         /* 
+         /*
           * update existing changes and store the new ones in a separate array
           */
          num_new_bounds=0;
@@ -1243,7 +1243,7 @@ int tighten_root_bounds(lp_prob *p)
             l = bnd_change->num_changes;
             for (j=0; j<num_new_bounds; j++) {
                total_changes++;
-               k = new_ind[j]; 
+               k = new_ind[j];
                oldindex[l] = ind[k];
                oldlu[l]    = lu[k];
                oldvalue[l] = bd[k];
@@ -1257,7 +1257,7 @@ int tighten_root_bounds(lp_prob *p)
          bnd_change->value = (double *)malloc(cnt*DSIZE);
          bnd_change->index = (int *) memcpy(bnd_change->index, ind, ISIZE*cnt);
          bnd_change->lbub  = (char *) memcpy(bnd_change->lbub, lu, CSIZE*cnt);
-         bnd_change->value = (double *) memcpy(bnd_change->value, bd, 
+         bnd_change->value = (double *) memcpy(bnd_change->value, bd,
                DSIZE*cnt);
          bnd_change->num_changes = cnt;
       }

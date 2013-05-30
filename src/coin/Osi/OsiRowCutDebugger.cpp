@@ -20,21 +20,21 @@
 
 /*
   Check if any cuts cut off the known solution.
-   
+
    If so then print offending cuts and return non-zero code
 */
 
 
-int OsiRowCutDebugger::validateCuts (const OsiCuts & cs, 
+int OsiRowCutDebugger::validateCuts (const OsiCuts & cs,
 				     int first, int last) const
 {
-  int nbad=0; 
+  int nbad=0;
   int i;
   const double epsilon=1.0e-8;
   const int nRowCuts = CoinMin(cs.sizeRowCuts(),last);
-  
+
   for (i=first; i<nRowCuts; i++){
-    
+
     OsiRowCut rcut = cs.rowCut(i);
     CoinPackedVector rpv = rcut.row();
     const int n = rpv.getNumElements();
@@ -43,9 +43,9 @@ int OsiRowCutDebugger::validateCuts (const OsiCuts & cs,
     int k;
     double lb=rcut.lb();
     double ub=rcut.ub();
-    
+
     double sum=0.0;
-    
+
     for (k=0; k<n; k++){
       int column=indices[k];
       sum += knownSolution_[column]*elements[k];
@@ -84,25 +84,25 @@ int OsiRowCutDebugger::validateCuts (const OsiCuts & cs,
 
 /* If we are on the path to the known integer solution then
    check out if generated cut cuts off the known solution!
-   
+
    If so then print offending cut and return non-zero code
 */
 
-bool OsiRowCutDebugger::invalidCut(const OsiRowCut & rcut) const 
+bool OsiRowCutDebugger::invalidCut(const OsiRowCut & rcut) const
 {
-  bool bad=false; 
+  bool bad=false;
   const double epsilon=1.0e-6;
-  
+
   CoinPackedVector rpv = rcut.row();
   const int n = rpv.getNumElements();
   const int * indices = rpv.getIndices();
   const double * elements = rpv.getElements();
   int k;
-  
+
   double lb=rcut.lb();
   double ub=rcut.ub();
   double sum=0.0;
-  
+
   for (k=0; k<n; k++){
     int column=indices[k];
     sum += knownSolution_[column]*elements[k];
@@ -146,7 +146,7 @@ bool OsiRowCutDebugger::invalidCut(const OsiRowCut & rcut) const
 bool OsiRowCutDebugger::onOptimalPath(const OsiSolverInterface & si) const
 {
   if (integerVariable_) {
-    int nCols=si.getNumCols(); 
+    int nCols=si.getNumCols();
     if (nCols!=numberColumns_)
       return false; // check user has not modified problem
     int i;
@@ -160,7 +160,7 @@ bool OsiRowCutDebugger::onOptimalPath(const OsiSolverInterface & si) const
       }
       if (si.isInteger(i)) {
 	// value of integer variable in solution
-	double value=knownSolution_[i]; 
+	double value=knownSolution_[i];
 	if (value>colupper[i]+1.0e-3 || value<collower[i]-1.0e-3) {
 	  onOptimalPath=false;
 	  break;
@@ -199,7 +199,7 @@ bool OsiRowCutDebugger::active() const
 int
 OsiRowCutDebugger::printOptimalSolution(const OsiSolverInterface & si) const
 {
-  int nCols = si.getNumCols() ; 
+  int nCols = si.getNumCols() ;
   if (integerVariable_ && nCols == numberColumns_) {
 
     const double *collower = si.getColLower() ;
@@ -246,7 +246,7 @@ OsiRowCutDebugger::printOptimalSolution(const OsiSolverInterface & si) const
 
   Returns true if the debugger is successfully activated.
 */
-bool OsiRowCutDebugger::activate( const OsiSolverInterface & si, 
+bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
 				   const char * model)
 {
   // set to true to print an activation message
@@ -262,9 +262,9 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   enum {undefined, pure0_1, continuousWith0_1, generalMip } probType;
 
 
-  // Convert input parameter model to be lowercase and 
+  // Convert input parameter model to be lowercase and
   // only consider characters between '/' and '.'
-  std::string modelL; //name in lowercase 
+  std::string modelL; //name in lowercase
   int iput=0;
   for (i=0;i<static_cast<int> (strlen(model));i++) {
     char value=static_cast<char>(tolower(model[i]));
@@ -285,13 +285,13 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   //--------------------------------------------------------
   //
   // Define additional problems by adding it as an additional
-  // "else if ( modelL == '???' ) { ... }" 
+  // "else if ( modelL == '???' ) { ... }"
   // stanza below.
   //
   // Assign values to probType and intSoln.
   //
   // probType - pure0_1, continuousWith0_1, or generalMip
-  // 
+  //
   // intSoln -
   //    when probType is pure0_1
   //       intSoln contains the indices of the variables
@@ -363,7 +363,7 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   // mas76
   else if ( modelL == "mas76" ) {
     probType=continuousWith0_1;
-    int intIndicesAt1[]={ 4,11,13,18,42,46,48,52,85,93,114,119,123,128,147}; 
+    int intIndicesAt1[]={ 4,11,13,18,42,46,48,52,85,93,114,119,123,128,147};
     int numIndices = sizeof(intIndicesAt1)/sizeof(int);
     intSoln.setConstant(numIndices,intIndicesAt1,1.0);
     expectedNumberColumns=151;
@@ -620,10 +620,10 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   else if ( modelL == "air03" ) {
     probType=pure0_1;
     int intIndicesAt1[]={
-      1, 3, 5, 13, 14, 28, 38, 49, 75, 76, 
-      151, 185, 186, 271, 370, 466, 570, 614, 732, 819, 
-      1151, 1257, 1490, 2303, 2524, 3301, 3616, 4129, 4390, 4712, 
-      5013, 5457, 5673, 6436, 7623, 8122, 8929, 10689, 10694, 10741, 
+      1, 3, 5, 13, 14, 28, 38, 49, 75, 76,
+      151, 185, 186, 271, 370, 466, 570, 614, 732, 819,
+      1151, 1257, 1490, 2303, 2524, 3301, 3616, 4129, 4390, 4712,
+      5013, 5457, 5673, 6436, 7623, 8122, 8929, 10689, 10694, 10741,
       10751
     };
     int numIndices = sizeof(intIndicesAt1)/sizeof(int);
@@ -635,16 +635,16 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   else if ( modelL == "air04" ) {
     probType=pure0_1;
     int intIndicesAt1[]={
-      0, 1, 3, 4, 5, 6, 7, 9, 11, 12, 
-      13, 17, 19, 20, 21, 25, 26, 27, 28, 29, 
-      32, 35, 36, 39, 40, 42, 44, 45, 47, 48, 
-      49, 50, 51, 52, 53, 56, 57, 58, 60, 63, 
-      64, 66, 67, 68, 73, 74, 80, 81, 83, 85, 
-      87, 92, 93, 94, 95, 99, 101, 102, 105, 472, 
-      616, 680, 902, 1432, 1466, 1827, 2389, 2535, 2551, 2883, 
-      3202, 3215, 3432, 3438, 3505, 3517, 3586, 3811, 3904, 4092, 
-      4685, 4700, 4834, 4847, 4892, 5189, 5211, 5394, 5878, 6045, 
-      6143, 6493, 6988, 7511, 7664, 7730, 7910, 8041, 8350, 8615, 
+      0, 1, 3, 4, 5, 6, 7, 9, 11, 12,
+      13, 17, 19, 20, 21, 25, 26, 27, 28, 29,
+      32, 35, 36, 39, 40, 42, 44, 45, 47, 48,
+      49, 50, 51, 52, 53, 56, 57, 58, 60, 63,
+      64, 66, 67, 68, 73, 74, 80, 81, 83, 85,
+      87, 92, 93, 94, 95, 99, 101, 102, 105, 472,
+      616, 680, 902, 1432, 1466, 1827, 2389, 2535, 2551, 2883,
+      3202, 3215, 3432, 3438, 3505, 3517, 3586, 3811, 3904, 4092,
+      4685, 4700, 4834, 4847, 4892, 5189, 5211, 5394, 5878, 6045,
+      6143, 6493, 6988, 7511, 7664, 7730, 7910, 8041, 8350, 8615,
       8635, 8670
     };
     int numIndices = sizeof(intIndicesAt1)/sizeof(int);
@@ -656,12 +656,12 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   else if ( modelL == "air05" ) {
     probType=pure0_1;
     int intIndicesAt1[]={
-      2, 4, 5, 6, 7, 8, 9, 10, 14, 15, 
-      19, 20, 25, 34, 35, 37, 39, 40, 41, 42, 
-      43, 44, 45, 47, 48, 50, 52, 55, 57, 58, 
-      66, 72, 105, 218, 254, 293, 381, 695, 1091, 1209, 
-      1294, 1323, 1348, 1580, 1769, 2067, 2156, 2162, 2714, 2732, 
-      3113, 3131, 3145, 3323, 3398, 3520, 3579, 4295, 5025, 5175, 
+      2, 4, 5, 6, 7, 8, 9, 10, 14, 15,
+      19, 20, 25, 34, 35, 37, 39, 40, 41, 42,
+      43, 44, 45, 47, 48, 50, 52, 55, 57, 58,
+      66, 72, 105, 218, 254, 293, 381, 695, 1091, 1209,
+      1294, 1323, 1348, 1580, 1769, 2067, 2156, 2162, 2714, 2732,
+      3113, 3131, 3145, 3323, 3398, 3520, 3579, 4295, 5025, 5175,
       5317, 5340, 6324, 6504, 6645, 6809
     };
     int numIndices = sizeof(intIndicesAt1)/sizeof(int);
@@ -674,48 +674,48 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
     probType=pure0_1;
     int intIndicesAt1[]=
       {
-	1, 2, 3, 5, 6, 7, 9, 11, 12, 16, 
-	18, 22, 23, 25, 27, 31, 32, 34, 35, 36, 
-	38, 39, 40, 42, 44, 45, 46, 49, 50, 51, 
-	52, 54, 55, 56, 58, 61, 63, 65, 67, 68, 
-	69, 70, 71, 75, 79, 81, 82, 84, 85, 86, 
-	87, 88, 89, 91, 93, 95, 97, 98, 99, 100, 
-	101, 102, 103, 106, 108, 112, 116, 118, 119, 120, 
-	122, 123, 124, 125, 126, 129, 130, 132, 135, 137, 
-	140, 141, 142, 143, 144, 148, 150, 151, 154, 156, 
-	159, 160, 162, 163, 164, 165, 167, 169, 170, 174, 
-	177, 178, 180, 181, 182, 183, 188, 189, 192, 194, 
-	200, 201, 202, 203, 204, 211, 214, 218, 226, 227, 
-	228, 231, 232, 237, 240, 242, 244, 247, 248, 249, 
-	251, 253, 256, 257, 259, 261, 264, 265, 266, 268, 
-	270, 272, 278, 280, 284, 286, 288, 289, 291, 292, 
-	296, 299, 302, 305, 307, 308, 311, 312, 313, 314, 
-	315, 316, 317, 319, 321, 325, 328, 332, 334, 335, 
-	337, 338, 339, 340, 343, 346, 355, 357, 358, 365, 
-	369, 372, 373, 374, 375, 376, 378, 381, 383, 386, 
-	392, 396, 399, 402, 403, 412, 416, 419, 424, 425, 
-	426, 427, 430, 431, 432, 436, 437, 438, 440, 441, 
-	443, 450, 451, 452, 453, 456, 460, 461, 462, 467, 
-	469, 475, 476, 477, 478, 479, 485, 486, 489, 491, 
-	493, 498, 500, 501, 508, 513, 515, 516, 518, 519, 
-	520, 524, 527, 541, 545, 547, 548, 559, 562, 563, 
-	564, 566, 567, 570, 572, 575, 576, 582, 583, 587, 
-	589, 595, 599, 602, 610, 611, 615, 622, 631, 646, 
-	647, 649, 652, 658, 662, 665, 667, 671, 676, 679, 
-	683, 685, 686, 688, 689, 691, 699, 705, 709, 711, 
-	712, 716, 721, 722, 724, 726, 729, 732, 738, 739, 
-	741, 745, 746, 747, 749, 752, 757, 765, 767, 768, 
-	775, 779, 780, 791, 796, 798, 808, 809, 812, 813, 
-	817, 819, 824, 825, 837, 839, 849, 851, 852, 857, 
-	865, 874, 883, 885, 890, 897, 902, 907, 913, 915, 
-	923, 924, 927, 931, 933, 936, 938, 941, 945, 949, 
-	961, 970, 971, 978, 984, 985, 995, 997, 999, 1001, 
-	1010, 1011, 1012, 1025, 1027, 1035, 1043, 1055, 1056, 1065, 
-	1077, 1089, 1091, 1096, 1100, 1104, 1112, 1126, 1130, 1131, 
-	1132, 1134, 1136, 1143, 1149, 1162, 1163, 1164, 1183, 1184, 
-	1191, 1200, 1201, 1209, 1215, 1220, 1226, 1228, 1229, 1233, 
-	1241, 1243, 1244, 1258, 1277, 1279, 1285, 1291, 1300, 1303, 
-	1306, 1311, 1320, 1323, 1333, 1344, 1348, 1349, 1351, 1356, 
+	1, 2, 3, 5, 6, 7, 9, 11, 12, 16,
+	18, 22, 23, 25, 27, 31, 32, 34, 35, 36,
+	38, 39, 40, 42, 44, 45, 46, 49, 50, 51,
+	52, 54, 55, 56, 58, 61, 63, 65, 67, 68,
+	69, 70, 71, 75, 79, 81, 82, 84, 85, 86,
+	87, 88, 89, 91, 93, 95, 97, 98, 99, 100,
+	101, 102, 103, 106, 108, 112, 116, 118, 119, 120,
+	122, 123, 124, 125, 126, 129, 130, 132, 135, 137,
+	140, 141, 142, 143, 144, 148, 150, 151, 154, 156,
+	159, 160, 162, 163, 164, 165, 167, 169, 170, 174,
+	177, 178, 180, 181, 182, 183, 188, 189, 192, 194,
+	200, 201, 202, 203, 204, 211, 214, 218, 226, 227,
+	228, 231, 232, 237, 240, 242, 244, 247, 248, 249,
+	251, 253, 256, 257, 259, 261, 264, 265, 266, 268,
+	270, 272, 278, 280, 284, 286, 288, 289, 291, 292,
+	296, 299, 302, 305, 307, 308, 311, 312, 313, 314,
+	315, 316, 317, 319, 321, 325, 328, 332, 334, 335,
+	337, 338, 339, 340, 343, 346, 355, 357, 358, 365,
+	369, 372, 373, 374, 375, 376, 378, 381, 383, 386,
+	392, 396, 399, 402, 403, 412, 416, 419, 424, 425,
+	426, 427, 430, 431, 432, 436, 437, 438, 440, 441,
+	443, 450, 451, 452, 453, 456, 460, 461, 462, 467,
+	469, 475, 476, 477, 478, 479, 485, 486, 489, 491,
+	493, 498, 500, 501, 508, 513, 515, 516, 518, 519,
+	520, 524, 527, 541, 545, 547, 548, 559, 562, 563,
+	564, 566, 567, 570, 572, 575, 576, 582, 583, 587,
+	589, 595, 599, 602, 610, 611, 615, 622, 631, 646,
+	647, 649, 652, 658, 662, 665, 667, 671, 676, 679,
+	683, 685, 686, 688, 689, 691, 699, 705, 709, 711,
+	712, 716, 721, 722, 724, 726, 729, 732, 738, 739,
+	741, 745, 746, 747, 749, 752, 757, 765, 767, 768,
+	775, 779, 780, 791, 796, 798, 808, 809, 812, 813,
+	817, 819, 824, 825, 837, 839, 849, 851, 852, 857,
+	865, 874, 883, 885, 890, 897, 902, 907, 913, 915,
+	923, 924, 927, 931, 933, 936, 938, 941, 945, 949,
+	961, 970, 971, 978, 984, 985, 995, 997, 999, 1001,
+	1010, 1011, 1012, 1025, 1027, 1035, 1043, 1055, 1056, 1065,
+	1077, 1089, 1091, 1096, 1100, 1104, 1112, 1126, 1130, 1131,
+	1132, 1134, 1136, 1143, 1149, 1162, 1163, 1164, 1183, 1184,
+	1191, 1200, 1201, 1209, 1215, 1220, 1226, 1228, 1229, 1233,
+	1241, 1243, 1244, 1258, 1277, 1279, 1285, 1291, 1300, 1303,
+	1306, 1311, 1320, 1323, 1333, 1344, 1348, 1349, 1351, 1356,
 	1363, 1364, 1365, 1366};
     int numIndices = sizeof(intIndicesAt1)/sizeof(int);
     intSoln.setConstant(numIndices,intIndicesAt1,1.0);
@@ -1273,12 +1273,12 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
     expectedNumberColumns=1372;
   }
 
-  // check to see if the model parameter is 
+  // check to see if the model parameter is
   // a known problem.
   if ( probType != undefined && si.getNumCols() == expectedNumberColumns) {
 
     // Specified model is a known problem
-    
+
     numberColumns_ = si.getNumCols();
 
     integerVariable_= new bool[numberColumns_];
@@ -1287,7 +1287,7 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
     //CoinFillN(knownSolution_,numberColumns_,0.0);
 
     if ( probType == pure0_1 ) {
-      
+
       // mark all variables as integer
       CoinFillN(integerVariable_,numberColumns_,true);
       // set solution to 0.0 for all not mentioned
@@ -1302,7 +1302,7 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
 
     }
     else {
-      // Probtype is continuousWith0_1 or generalMip 
+      // Probtype is continuousWith0_1 or generalMip
       assert( probType==continuousWith0_1 || probType==generalMip );
 
       OsiSolverInterface * siCopy = si.clone();
@@ -1317,7 +1317,7 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
           // integer variable found
           integerVariable_[i]=true;
 
-    
+
           // Determine optimal solution value for integer i
           // from values saved in intSoln and probType.
           double soln;
@@ -1345,23 +1345,23 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
               soln = 0.0;
             }
           }
-          
-          // Set bounds in copyied problem to fix variable to its solution     
+
+          // Set bounds in copyied problem to fix variable to its solution
           siCopy->setColUpper(i,soln);
           siCopy->setColLower(i,soln);
-          
+
         }
         else {
           // this is not an integer variable
           integerVariable_[i]=false;
         }
       }
- 
+
       // All integers have been fixed at optimal value.
       // Now solve to get continuous values
 #if 0
-      assert( siCopy->getNumRows()==5);        
-      assert( siCopy->getNumCols()==8); 
+      assert( siCopy->getNumRows()==5);
+      assert( siCopy->getNumCols()==8);
       int r,c;
       for ( r=0; r<siCopy->getNumRows(); r++ ) {
         std::cerr <<"rhs[" <<r <<"]=" <<(si.rhs())[r] <<" " <<(siCopy->rhs())[r] <<std::endl;
@@ -1404,7 +1404,7 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
 	<< model << "; cannot activate." << std::endl ;
     }
   }
- 
+
   //if (integerVariable_!=NULL) si.rowCutDebugger_=this;
 
   return (integerVariable_!=NULL);
@@ -1421,7 +1421,7 @@ bool OsiRowCutDebugger::activate( const OsiSolverInterface & si,
   example) it's useful to keep the given values, as they reflect constraints
   that are not present in the linear relaxation.
 */
-bool 
+bool
 OsiRowCutDebugger::activate (const OsiSolverInterface &si,
 			     const double *solution,
 			     bool keepContinuous)
@@ -1436,7 +1436,7 @@ OsiRowCutDebugger::activate (const OsiSolverInterface &si,
   numberColumns_ = siCopy->getNumCols() ;
   integerVariable_ = new bool[numberColumns_] ;
   knownSolution_ = new double[numberColumns_] ;
-  
+
 /*
   Fix the integer variables from the supplied solution (making sure that the
   values are integer).
@@ -1503,7 +1503,7 @@ OsiRowCutDebugger::activate (const OsiSolverInterface &si,
 
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiRowCutDebugger::OsiRowCutDebugger ()
   :knownValue_(COIN_DBL_MAX),
@@ -1518,8 +1518,8 @@ OsiRowCutDebugger::OsiRowCutDebugger ()
 // Alternate Constructor with model name
 //-------------------------------------------------------------------
 // Constructor with name of model
-OsiRowCutDebugger::OsiRowCutDebugger ( 
-        const OsiSolverInterface & si, 
+OsiRowCutDebugger::OsiRowCutDebugger (
+        const OsiSolverInterface & si,
         const char * model)
   :knownValue_(COIN_DBL_MAX),
    numberColumns_(0),
@@ -1529,7 +1529,7 @@ OsiRowCutDebugger::OsiRowCutDebugger (
   activate(si,model);
 }
 // Constructor with full solution (only integers need be correct)
-OsiRowCutDebugger::OsiRowCutDebugger (const OsiSolverInterface &si, 
+OsiRowCutDebugger::OsiRowCutDebugger (const OsiSolverInterface &si,
                                       const double *solution,
 				      bool enforceOptimality)
   :knownValue_(COIN_DBL_MAX),
@@ -1541,11 +1541,11 @@ OsiRowCutDebugger::OsiRowCutDebugger (const OsiSolverInterface &si,
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiRowCutDebugger::OsiRowCutDebugger (const OsiRowCutDebugger & source)
 : knownValue_(COIN_DBL_MAX), numberColumns_(0), integerVariable_(NULL), knownSolution_(NULL)
-{  
+{
   // copy
 	if (source.active()) {
 		assert(source.integerVariable_ != NULL);
@@ -1560,7 +1560,7 @@ OsiRowCutDebugger::OsiRowCutDebugger (const OsiRowCutDebugger & source)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiRowCutDebugger::~OsiRowCutDebugger ()
 {
@@ -1570,7 +1570,7 @@ OsiRowCutDebugger::~OsiRowCutDebugger ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiRowCutDebugger &
 OsiRowCutDebugger::operator=(const OsiRowCutDebugger& rhs)
@@ -1579,7 +1579,7 @@ OsiRowCutDebugger::operator=(const OsiRowCutDebugger& rhs)
     delete [] integerVariable_;
     delete [] knownSolution_;
     knownValue_ = COIN_DBL_MAX;
-    // copy 
+    // copy
     if (rhs.active()) {
       assert(rhs.integerVariable_ != NULL);
       assert(rhs.knownSolution_ != NULL);
@@ -1602,7 +1602,7 @@ OsiRowCutDebugger::operator=(const OsiRowCutDebugger& rhs)
   indices, shrink the solution to match. The transform is irreversible
   (in the sense that the debugger doesn't keep a record of the changes).
 */
-void 
+void
 OsiRowCutDebugger::redoSolution(int numberColumns,const int * originalColumns)
 {
   const bool printRecalcMessage = false ;

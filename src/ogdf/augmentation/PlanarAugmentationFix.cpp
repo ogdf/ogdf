@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -247,7 +247,7 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 	List<node> pendants;
 
 	node v;
-	node root;
+	node root = NULL;
 
 	// init pendants
 	forall_nodes(v, m_pBCTree->bcTree()){
@@ -261,6 +261,7 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 			}
 		}
 	}
+	OGDF_ASSERT(root);
 
 	if (root != bFaceNode){
 		// change root of the bc-tree to the b-node that includes the actual face
@@ -763,24 +764,21 @@ void PlanarAugmentationFix::connectSingleLabel()
 	pa_label l = m_labels.front();
 	node pendant1 = l->getFirstPendant();
 
-	adjEntry adj;
 	node cutV = m_pBCTree->m_hNode_gNode[m_pBCTree->m_bNode_hParNode[pendant1]];
 	adjEntry adjRun = cutV->firstAdj();
 	m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge());
 
 	if (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1){
 		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == pendant1){
-			adj = adjRun->twin();
 			adjRun = adjRun->cyclicSucc();
 		}
 	}
 	else{
 		while (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) != pendant1)
 			adjRun = adjRun->cyclicPred();
-		adj = adjRun->twin();
 		adjRun = adjRun->cyclicSucc();
 	}
-
+	adjEntry adj = adjRun->twin();
 	adjEntry adjFirst = adj;
 	adj = adj->cyclicPred();
 

@@ -266,7 +266,7 @@ ClpNode::gutsOfConstructor (ClpSimplex * model, const ClpNodeStuff * stuff,
 #ifdef WEIGHT_PRODUCT
      double smallChange = stuff->smallChange_;
 #endif
-#ifndef INFEAS_MULTIPLIER 
+#ifndef INFEAS_MULTIPLIER
 #define INFEAS_MULTIPLIER 1.0
 #endif
      for (iColumn = 0; iColumn < numberColumns; iColumn++) {
@@ -1204,7 +1204,7 @@ namespace {
 int
 ClpHashValue::hash ( double value) const
 {
-     
+
      union {
           double d;
           char c[8];

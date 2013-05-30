@@ -1,9 +1,9 @@
 /*
- * $Revision: 3334 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-03-04 17:07:28 +0100 (Mo, 04. Mär 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -64,7 +64,7 @@ namespace ogdf {
 			}
 			return false;
 	}
-	
+
 
 	bool UpwardPlanarity::isUpwardPlanar_embedded(const Graph &G, List<adjEntry> &possibleExternalFaces)
 	{
@@ -102,7 +102,7 @@ namespace ogdf {
 		}
 		return false;
 	}
-	
+
 	//
 	// Single-source digraphs
 	//

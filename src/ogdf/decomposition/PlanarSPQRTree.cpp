@@ -1,9 +1,9 @@
 /*
- * $Revision: 3471 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-04-29 14:26:03 +0200 (Mo, 29. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -413,12 +413,12 @@ void PlanarSPQRTree::randomEmbed()
 //***************************************************************
 
 double PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
-	
+
 	double num = 1.0;
 
 	switch(typeOf(vT)) {
 		case RNode:
-			num = 2; 
+			num = 2;
 			break;
 		case PNode:
 			for (int i = skeleton(vT).getGraph().firstNode()->degree()-1; i >= 2; --i)
@@ -427,15 +427,15 @@ double PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
 		case SNode:
 			break;
 	}
-	
+
 	return num;
 }
 
 void PlanarSPQRTree::embed(node &vT, int x) {
-	
+
 	OGDF_ASSERT(x >= 0);
 	OGDF_ASSERT(x < numberOfNodeEmbeddings(vT));
-	
+
 	//if it is a P-node
 	if (typeOf(vT) == PNode) {
 		//encode the id of the permutation
@@ -509,7 +509,7 @@ void PlanarSPQRTree::embed(node &vT, int x) {
 		if (x == 1 && nP->firstAdj()->index() < nP->lastAdj()->index()) reverse(vT);
 		//R-node ends here
 	}
-	
+
 }
 
 //
@@ -517,12 +517,12 @@ void PlanarSPQRTree::embed(node &vT, int x) {
 //
 void PlanarSPQRTree::firstEmbedding(Graph &G)
 {
-	
+
 	OGDF_ASSERT(&G == &originalGraph());
-	
+
 	m_finished = false;
 	node vT;
-	forall_nodes(vT,tree()) { 
+	forall_nodes(vT,tree()) {
 		firstEmbedding(vT);
 	}
 	embed(G);
@@ -534,10 +534,10 @@ void PlanarSPQRTree::firstEmbedding(Graph &G)
 //
 bool PlanarSPQRTree::nextEmbedding(Graph &G)
 {
-	
+
 	OGDF_ASSERT(&G == &originalGraph());
-	
-	//if there is at least one new embedding: compute it using 
+
+	//if there is at least one new embedding: compute it using
 	//nextEmbedding(n) to the first node of the SPQR-tree (represented by a list-iterator)
 	List<node> nodes;
 	tree().allNodes(nodes);
@@ -557,7 +557,7 @@ void PlanarSPQRTree::firstEmbedding(node &vT)
 {
 	//if vT is a R-node
 	if (typeOf(vT) == RNode) {
-		//if the R-node were reversed in former steps 
+		//if the R-node were reversed in former steps
 		//then reverse it to its original embedding
 		node nP = skeleton(vT).getGraph().firstNode();
 		if (nP->firstAdj()->index() > nP->lastAdj()->index()) reverse(vT);
@@ -581,10 +581,10 @@ void PlanarSPQRTree::firstEmbedding(node &vT)
 		}
 		skeleton(vT).getGraph().sort(skeleton(vT).getGraph().lastNode(),newOrderLast);
 	}
-	
+
 }
 
-void PlanarSPQRTree::reverse(node &vP, adjEntry &first, adjEntry &last) 
+void PlanarSPQRTree::reverse(node &vP, adjEntry &first, adjEntry &last)
 {
 	//swap the first and the last adjEntry
 	adjEntry it_f = first;
@@ -594,7 +594,7 @@ void PlanarSPQRTree::reverse(node &vP, adjEntry &first, adjEntry &last)
 	it_f = it_l->succ();
 	it_l = temp->pred();
 	//while there are swapable adjEntries: swap it, i.e.
-	//if left == right or left->pred() == right->succ() then stop  
+	//if left == right or left->pred() == right->succ() then stop
 	while (it_f != it_l && it_l->succ() != it_f) {
 			swap(vP,it_f,it_l);
 			temp = it_f;
@@ -613,7 +613,7 @@ bool PlanarSPQRTree::nextEmbedding(node &vT)
 	if (typeOf(vT) == RNode) {
 		node nP = skeleton(vT).getGraph().firstNode();
 		//compute the next embedding (might be the first embedding)
-		//of the sekeleton of vT 
+		//of the sekeleton of vT
 		reverse(vT);
 		//if next embedding = first embedding then return false
 		//otherwise return true

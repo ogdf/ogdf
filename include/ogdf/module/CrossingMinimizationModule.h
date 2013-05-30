@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -139,7 +139,7 @@ namespace ogdf {
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
 			const EdgeArray<__uint32> *pEdgeSubGraphs,
-			int &crossingNumber) = 0;	
+			int &crossingNumber) = 0;
 
 		OGDF_MALLOC_NEW_DELETE
 	};

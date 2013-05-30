@@ -37,8 +37,8 @@
 \*===========================================================================*/
 
 /*===========================================================================*\
- * This function receives the problem data (if we are running in parallel)   
- * and intitializes the data structures.                                     
+ * This function receives the problem data (if we are running in parallel)
+ * and intitializes the data structures.
 \*===========================================================================*/
 
 int lp_initialize(lp_prob *p, int master_tid)
@@ -77,7 +77,7 @@ int lp_initialize(lp_prob *p, int master_tid)
 
    p->lp_data = (LPdata *) calloc(1, sizeof(LPdata));
    p->lp_data->mip = (MIPdesc *) calloc(1, sizeof(MIPdesc));
-   
+
 #pragma omp critical (lp_solver)
    open_lp_solver(p->lp_data);
 
@@ -87,10 +87,10 @@ int lp_initialize(lp_prob *p, int master_tid)
    s_bufid = init_send(DataInPlace);
    send_msg(p->master, REQUEST_FOR_LP_DATA);
    freebuf(s_bufid);
-   int termcode; 
+   int termcode;
    CALL_WRAPPER_FUNCTION( receive_lp_data_u(p) );
 #endif
-   
+
    if (p->par.tailoff_gap_backsteps > 0 ||
        p->par.tailoff_obj_backsteps > 1){
       i = MAX(p->par.tailoff_gap_backsteps, p->par.tailoff_obj_backsteps);
@@ -133,24 +133,24 @@ int lp_initialize(lp_prob *p, int master_tid)
    if (!p->cgp){
       p->cgp = (cg_prob *) calloc(1, sizeof(cg_prob));
    }
-   
+
    cg_initialize(p->cgp, p->master);
 #endif
 
    return(FUNCTION_TERMINATED_NORMALLY);
-}   
+}
 
 /*===========================================================================*/
 
 /*===========================================================================*\
  * This function continues to dive down the current chain until told to stop
- * by the tree manager. 
+ * by the tree manager.
 \*===========================================================================*/
 
 int process_chain(lp_prob *p)
 {
    int termcode;
-   
+
    p->comp_times.lp += used_time(&p->tt);
    /* Create the LP */
    if ((termcode = create_subproblem_u(p)) < 0){
@@ -163,10 +163,10 @@ int process_chain(lp_prob *p)
    p->last_gap = 0.0;
    p->dive = CHECK_BEFORE_DIVE;
    if (p->has_ub && p->par.set_obj_upper_lim) {
-      set_obj_upper_lim(p->lp_data, p->ub - p->par.granularity + 
+      set_obj_upper_lim(p->lp_data, p->ub - p->par.granularity +
             p->lp_data->lpetol);
    }
-   
+
    if (p->colgen_strategy & COLGEN_REPRICING){
       if (p->par.verbosity > 0){
 	 printf("****************************************************\n");
@@ -234,8 +234,8 @@ int fathom_branch(lp_prob *p)
 
    if(p->bc_level > 0){
       update_cut_parameters(p);
-   }   
-   
+   }
+
    // TODO: replace check_bounds with a better preprocessor
    termcode = LP_OPTIMAL; // just to initialize
    check_bounds(p, &termcode);
@@ -246,7 +246,7 @@ int fathom_branch(lp_prob *p)
       }
    }
 
-  
+
    /*------------------------------------------------------------------------*\
     * The main loop -- continue solving relaxations until no new cuts
     * are found
@@ -273,7 +273,7 @@ int fathom_branch(lp_prob *p)
 	    ("\n\n**** Starting iteration %i ****\n\n", p->iter_num));
 
       p->bound_changes_in_iter = 0;
-      if (p->iter_num < 2 && (p->par.should_warmstart_chain == FALSE || 
+      if (p->iter_num < 2 && (p->par.should_warmstart_chain == FALSE ||
                p->bc_level < 1)) {
          if (p->bc_level < 1) {
             PRINT(verbosity, -1, ("solving root lp relaxation\n"));
@@ -299,7 +299,7 @@ int fathom_branch(lp_prob *p)
 		 oldobjval, lp_data->objval);
       }
 #endif
-      
+
       /* Get relevant data */
       get_dj_pi(lp_data);
       get_slacks(lp_data);
@@ -361,7 +361,7 @@ int fathom_branch(lp_prob *p)
 	    PRINT(verbosity, 1, ("Terminating due to high cost -- "));
 	 }else{ /* optimal and not too high cost */
 #ifdef COMPILE_IN_LP
-            if (p->node_iter_num < 2 && p->bc_index > 0 && 
+            if (p->node_iter_num < 2 && p->bc_index > 0 &&
                   p->par.should_use_rel_br) {
                update_pcost(p);
             }
@@ -373,9 +373,9 @@ int fathom_branch(lp_prob *p)
                   p->lp_stat.num_cuts_added_in_path += cuts;
                }
                if (p->lp_stat.avg_cuts_obj_impr_in_path > 0) {
-                  p->lp_stat.avg_cuts_obj_impr_in_path = 
+                  p->lp_stat.avg_cuts_obj_impr_in_path =
                      (p->lp_stat.avg_cuts_obj_impr_in_path *
-                      (p->lp_stat.num_cut_iters_in_path-1) + p->lp_data->objval - 
+                      (p->lp_stat.num_cut_iters_in_path-1) + p->lp_data->objval -
                       obj_before_cuts)/p->lp_stat.num_cut_iters_in_path;
                }
             }
@@ -490,7 +490,7 @@ int fathom_branch(lp_prob *p)
 	 p->tm->active_nodes[p->proc_index]->cuts_tried = TRUE;
 #endif
       }
-      
+
       comp_times->lp += used_time(&p->tt);
 
       switch (cuts = branch(p, cuts)){
@@ -591,7 +591,7 @@ int fathom(lp_prob *p, int primal_feasible)
    int new_vars;
    int colgen = p->colgen_strategy & COLGEN__FATHOM;
    int termcode = p->lp_data->termcode;
-   
+
    if (p->lp_data->nf_status == NF_CHECK_NOTHING){
       PRINT(p->par.verbosity, 1,
 	    ("fathoming node (no more cols to check)\n\n"));
@@ -612,7 +612,7 @@ int fathom(lp_prob *p, int primal_feasible)
       }
       return(TRUE);
    }
-	 
+
    if (p->colgen_strategy & COLGEN_REPRICING)
       colgen = FATHOM__GENERATE_COLS__RESOLVE;
 
@@ -729,10 +729,10 @@ int repricing(lp_prob *p)
    our_col_set *new_cols = NULL;
    int dual_feas, new_vars, cuts, no_more_cuts_count;
    int cut_term = 0;
-   
+
    check_ub(p);
    p->iter_num = 0;
-  
+
    /*------------------------------------------------------------------------*\
     * The main loop -- continue solving relaxations until TDF
    \*------------------------------------------------------------------------*/
@@ -770,7 +770,7 @@ int repricing(lp_prob *p)
 	 if (p->par.try_to_recover_from_error && (++num_errors == 1)){
 	    /* Try to resolve it from scratch */
 	    printf("######## Trying to recover by resolving from scratch...\n");
-	    
+
 	    continue;
 	 }else{
 	    char name[50] = "";
@@ -1022,7 +1022,7 @@ node_desc *create_explicit_node_desc(lp_prob *p)
    if (cutcnt > 0){
 #ifdef COMPILE_IN_LP
       row_data *tmp_rows = (row_data *) malloc(cutcnt*sizeof(row_data));
-      
+
       for (j = 0, i = bcutnum; j < cutcnt; i++){
 	 if (rows[i].cut->name < 0 &&
 	     (!rows[i].free || (rows[i].free && rstat[i] != SLACK_BASIC)))
@@ -1158,21 +1158,21 @@ int check_tailoff(lp_prob *p)
    int obj_backsteps = p->par.tailoff_obj_backsteps;
    double *obj_hist = p->obj_history;
    double tailoff_obj_frac = p->par.tailoff_obj_frac;
-   
+
    int i;
    double sum, ub;
    int maxsteps = MAX(gap_backsteps, obj_backsteps);
 
    p->has_tailoff = TRUE;
    if (gap_backsteps >= 1 || obj_backsteps >= 2) {
-      
+
       /* shift the data in obj_hist by one to the right and insert the
 	 most recent objval to be the 0th */
       for (i = MIN(p->node_iter_num-1, maxsteps) - 1; i >= 0; i--) {
 	 obj_hist[i+1] = obj_hist[i];
       }
       obj_hist[0] = p->lp_data->objval;
-      
+
       if (p->bc_index == 0) {
 
 	 /*
@@ -1180,14 +1180,14 @@ int check_tailoff(lp_prob *p)
 	  * if obj value doesnt improve in last
           * tailoff_max_no_impr_iters_root, then stop.
           */
-	 
-	 //tailoff_obj_frac /= 2;  
+
+	 //tailoff_obj_frac /= 2;
 	 double obj_gap = 0.0;
-	 
+
 	 if(obj_hist[0] >= obj_hist[1] + p->lp_data->lpetol){
 	    obj_gap = fabs(obj_hist[1]/obj_hist[0] - 1.0);
 	 }
-	 
+
 	 int weighted_iter = p->lp_stat.lp_total_iter_num/(p->iter_num + 1);
 	 if(p->mip->nz > 2.5e4){
 	    weighted_iter = (int) ((weighted_iter * p->mip->nz) / 2.5e4);
@@ -1201,9 +1201,9 @@ int check_tailoff(lp_prob *p)
 	    }
 	 }
 
-	 
+
 	 if(weighted_iter <= 400){
-	    if (p->obj_no_impr_iters > 
+	    if (p->obj_no_impr_iters >
 		p->par.tailoff_max_no_iterative_impr_iters_root) {
 	       for(i = 7; i >=0; --i){
 		  if(weighted_iter >= 50*i &&
@@ -1219,7 +1219,7 @@ int check_tailoff(lp_prob *p)
 	       return (TRUE);
 	    }else{
 	       p->has_tailoff = FALSE;
-	       return (FALSE);	       
+	       return (FALSE);
 	    }
 	 }
 
@@ -1230,7 +1230,7 @@ int check_tailoff(lp_prob *p)
 	       return (TRUE);
 	    }
 	 }
-	 
+
 	 if (p->node_iter_num >= p->par.min_root_cut_rounds) {
 	    p->has_tailoff = TRUE;
 	    return (TRUE);
@@ -1272,9 +1272,9 @@ int check_tailoff(lp_prob *p)
       }
 
       /* Another check. All other checks seem to show that there is no
-       * tailoff yet. 
+       * tailoff yet.
        */
-      if (p->bc_level > 0 && p->node_iter_num>1 && 
+      if (p->bc_level > 0 && p->node_iter_num>1 &&
 	    obj_hist[0] - obj_hist[1] < p->par.tailoff_absolute){
 	 PRINT(p->par.verbosity, 3, ("Branching because of tailoff in "
 				     "value of objective function!\n"));
@@ -1314,7 +1314,7 @@ void lp_close(lp_prob *p)
 {
 #ifndef COMPILE_IN_LP
    int s_bufid;
-   
+
    /* Send back the timing data for the whole algorithm */
    s_bufid = init_send(DataInPlace);
    send_char_array((char *)&(p->comp_times), sizeof(node_times));
@@ -1345,10 +1345,10 @@ void lp_close(lp_prob *p)
    p->tm->comp_times.rounding_cuts    += p->comp_times.rounding_cuts;
    p->tm->comp_times.landp_cuts       += p->comp_times.landp_cuts;
    p->tm->comp_times.flowcover_cuts   += p->comp_times.flowcover_cuts;
-   p->tm->comp_times.lift_and_project_cuts += 
+   p->tm->comp_times.lift_and_project_cuts +=
       p->comp_times.lift_and_project_cuts;
    p->tm->comp_times.redsplit_cuts += p->comp_times.redsplit_cuts;
-   p->tm->comp_times.dupes_and_bad_coeffs_in_cuts += 
+   p->tm->comp_times.dupes_and_bad_coeffs_in_cuts +=
       p->comp_times.dupes_and_bad_coeffs_in_cuts;
 
    p->tm->lp_stat.lp_calls                += p->lp_stat.lp_calls;
@@ -1382,9 +1382,9 @@ void lp_close(lp_prob *p)
    p->tm->lp_stat.rounding_cuts_root      += p->lp_stat.rounding_cuts_root;
    p->tm->lp_stat.landp_cuts_root         += p->lp_stat.landp_cuts_root;
    p->tm->lp_stat.flowcover_cuts_root     += p->lp_stat.flowcover_cuts_root;
-   p->tm->lp_stat.lift_and_project_cuts_root += 
+   p->tm->lp_stat.lift_and_project_cuts_root +=
       p->lp_stat.lift_and_project_cuts_root;
-   p->tm->lp_stat.redsplit_cuts_root += 
+   p->tm->lp_stat.redsplit_cuts_root +=
       p->lp_stat.redsplit_cuts_root;
 
    p->tm->lp_stat.num_poor_cuts           += p->lp_stat.num_poor_cuts;
@@ -1430,7 +1430,7 @@ void lp_close(lp_prob *p)
 int add_bound_changes_to_desc(node_desc *desc, lp_prob *p)
 {
 #ifdef COMPILE_IN_LP
-   LPdata                *lp_data = p->lp_data; 
+   LPdata                *lp_data = p->lp_data;
    var_desc             **vars = lp_data->vars;
    int                    i, num_bnd_changes, cnt;
    bounds_change_desc    *bnd_change;
@@ -1448,7 +1448,7 @@ int add_bound_changes_to_desc(node_desc *desc, lp_prob *p)
       }
    }
    if (num_bnd_changes>0) {
-      bnd_change = desc->bnd_change = (bounds_change_desc *) 
+      bnd_change = desc->bnd_change = (bounds_change_desc *)
          calloc (1, sizeof(bounds_change_desc));
       bnd_change->num_changes = num_bnd_changes;
       index = bnd_change->index = (int *)malloc(num_bnd_changes*ISIZE);
@@ -1480,7 +1480,7 @@ int add_bound_changes_to_desc(node_desc *desc, lp_prob *p)
 }
 
 /*===========================================================================*/
-int str_br_bound_changes(lp_prob *p, int num_bnd_changes, double *bnd_val, 
+int str_br_bound_changes(lp_prob *p, int num_bnd_changes, double *bnd_val,
       int *bnd_ind, char *bnd_sense)
 {
 #ifdef COMPILE_IN_LP
@@ -1505,7 +1505,7 @@ int str_br_bound_changes(lp_prob *p, int num_bnd_changes, double *bnd_val,
       bnd_change = p->tm->active_nodes[p->proc_index]->desc.bnd_change;
       j = bnd_change->num_changes;
       bnd_change->num_changes += num_bnd_changes;
-      index = bnd_change->index = (int *)realloc(bnd_change->index, 
+      index = bnd_change->index = (int *)realloc(bnd_change->index,
             bnd_change->num_changes*ISIZE);
       lbub = bnd_change->lbub = (char *)realloc(bnd_change->lbub,
             bnd_change->num_changes*CSIZE);
@@ -1537,7 +1537,7 @@ int update_cut_parameters(lp_prob *p)
    cgl_params   *data_par = &(p->lp_data->cgl);
 
 
-#ifdef COMPILE_IN_LP   
+#ifdef COMPILE_IN_LP
    if(data_par->use_chain_strategy){
 
       int init_chain_trial_freq = p->par.cgl.chain_trial_freq;
@@ -1547,14 +1547,14 @@ int update_cut_parameters(lp_prob *p)
       }else if(p->bc_level <= 20){
 	 init_chain_trial_freq = MAX(2, (int)(0.2*init_chain_trial_freq));
       }
-      
+
       /* TODO: Have these for each cut separately */
-      if(data_par->chain_status == CGL_CHAIN_START ||      
+      if(data_par->chain_status == CGL_CHAIN_START ||
 	 data_par->chain_status == CGL_CHAIN_CONTINUE ||
 	 data_par->chain_status == CGL_CHAIN_CHECK){
 	 /* here, we are at the top of the chain, or keep generating
 	    due to improvement or we just passed a check_point after
-	    paused for a while*/      
+	    paused for a while*/
 
 	    bc_node * node = p->tm->active_nodes[p->proc_index];
 	    double weighted_gap = 0.0;
@@ -1562,15 +1562,15 @@ int update_cut_parameters(lp_prob *p)
 	    int chain_cut_backtrack = 0;
 	    char first_found = FALSE;
 	    if(data_par->chain_status == CGL_CHAIN_START){
-	       
+
 	       /* find the first predecessor node where we generated cuts and
 		  see if it helped us there */
-	       
+
 	       data_par->chain_check_index = node->bc_index;
 	       node = node->parent;
 	       while(node){
 		  if(node->cuts_tried){
-		     if(node->start_objval < node->end_objval){ 
+		     if(node->start_objval < node->end_objval){
 			weighted_gap +=
 			   fabs(node->end_objval/node->start_objval - 1.0);
 		     }
@@ -1593,13 +1593,13 @@ int update_cut_parameters(lp_prob *p)
 		     if(node->bc_index == data_par->chain_check_index){
 			break;
 		     }else{
-			node = node->parent;	       
+			node = node->parent;
 		     }
 		  }else{
 		     break;
 		  }
 	       }
-	    }	       
+	    }
 	    if(weighted_gap < data_par->chain_weighted_gap){
 	       if(data_par->chain_status == CGL_CHAIN_START  &&
 		  backtrack > init_chain_trial_freq){
@@ -1612,7 +1612,7 @@ int update_cut_parameters(lp_prob *p)
 	       }else{
 		  if(--(data_par->max_chain_trial_num) >= -1){
 		     data_par->chain_status = CGL_CHAIN_PAUSE;
-		     data_par->chain_trial_freq = init_chain_trial_freq; 
+		     data_par->chain_trial_freq = init_chain_trial_freq;
 		  }else{
 		     data_par->chain_status = CGL_CHAIN_STOP;
 		  }
@@ -1642,29 +1642,29 @@ int update_cut_parameters(lp_prob *p)
 #endif
 
    /* probing cuts */
-   if (data_par->generate_cgl_probing_cuts == GENERATE_IF_IN_ROOT && 
+   if (data_par->generate_cgl_probing_cuts == GENERATE_IF_IN_ROOT &&
        lp_stat.probing_cuts_root<1) {
       data_par->generate_cgl_probing_cuts_freq = -1;
    }
    if (data_par->generate_cgl_probing_cuts == GENERATE_DEFAULT) {
 
-#ifdef COMPILE_IN_LP      
+#ifdef COMPILE_IN_LP
       if(data_par->use_chain_strategy){
 	 if(p->bc_level > 0 && p->tm->lp_stat.probing_calls +
 	    p->lp_stat.probing_calls > 50 &&
 	    p->tm->lp_stat.probing_cuts + p->lp_stat.probing_cuts < 10){
 	    data_par->generate_cgl_probing_cuts = DO_NOT_GENERATE;
-	 }else{	 
+	 }else{
 	    if((data_par->chain_status == CGL_CHAIN_CONTINUE ||
 		data_par->chain_status == CGL_CHAIN_CHECK)){
 	       if(lp_stat.probing_cuts_root >= 1){
-		  if(p->mip->mip_inf){		     
+		  if(p->mip->mip_inf){
 		     if(p->mip->mip_inf->cont_var_num > 0){
 			if(p->mip->mip_inf->bin_row_ratio > 0.05){
 			   if(p->par.cgl.probing_root_max_look < 21 &&
 			      p->mip->nz > 1e5 &&
 			      p->mip->mip_inf->cont_var_ratio > 0.5){
-			      //probably isn't worth it... 
+			      //probably isn't worth it...
 			      if(p->bc_level <= 10){
 				 data_par->generate_cgl_probing_cuts_freq = 1;
 			      }else{
@@ -1676,7 +1676,7 @@ int update_cut_parameters(lp_prob *p)
 			}else{
 			   data_par->generate_cgl_probing_cuts_freq = -1;
 			}
-		     }else{			
+		     }else{
 			data_par->generate_cgl_probing_cuts_freq = 1;
 		     }
 		  }else{
@@ -1695,14 +1695,14 @@ int update_cut_parameters(lp_prob *p)
 			      data_par->generate_cgl_probing_cuts_freq = -1;
 			   }
 			}else{
-			   if(p->bc_level <= 20){			   
+			   if(p->bc_level <= 20){
 			      data_par->generate_cgl_probing_cuts_freq = 1;
 			   }else{
 			      data_par->generate_cgl_probing_cuts_freq = -1;
 			   }
 			}
 		     }else{
-			data_par->generate_cgl_probing_cuts_freq = -1; 
+			data_par->generate_cgl_probing_cuts_freq = -1;
 		     }
 		  }else{
 		     data_par->generate_cgl_probing_cuts_freq = -1;
@@ -1715,15 +1715,15 @@ int update_cut_parameters(lp_prob *p)
 	    }
 	 }
       }else{
-#endif	 
+#endif
 	 if (lp_stat.probing_cuts_root<1) {
-	    data_par->generate_cgl_probing_cuts_freq = 
+	    data_par->generate_cgl_probing_cuts_freq =
 	       par->generate_cgl_probing_cuts_freq = 1000;
 	 } else if(p->bc_level < 20){
-	    data_par->generate_cgl_probing_cuts_freq = 
+	    data_par->generate_cgl_probing_cuts_freq =
 	       par->generate_cgl_probing_cuts_freq = 50;
 	 } else{
-	    data_par->generate_cgl_probing_cuts_freq = 
+	    data_par->generate_cgl_probing_cuts_freq =
 	       par->generate_cgl_probing_cuts_freq = 100;
 	 }
 #ifdef COMPILE_IN_LP
@@ -1732,7 +1732,7 @@ int update_cut_parameters(lp_prob *p)
    }
 
    /* twomir cuts */
-   if (data_par->generate_cgl_twomir_cuts == GENERATE_IF_IN_ROOT && 
+   if (data_par->generate_cgl_twomir_cuts == GENERATE_IF_IN_ROOT &&
        lp_stat.twomir_cuts_root<1) {
       data_par->generate_cgl_twomir_cuts_freq = -1;
    }
@@ -1743,7 +1743,7 @@ int update_cut_parameters(lp_prob *p)
 	    p->lp_stat.twomir_calls > 50 &&
 	    p->tm->lp_stat.twomir_cuts + p->lp_stat.twomir_cuts < 10){
 	    data_par->generate_cgl_twomir_cuts = DO_NOT_GENERATE;
-	 }else{	 
+	 }else{
 	    if((data_par->chain_status == CGL_CHAIN_CONTINUE ||
 		data_par->chain_status == CGL_CHAIN_CHECK) &&
 	       lp_stat.twomir_cuts_root >= 1){
@@ -1755,15 +1755,15 @@ int update_cut_parameters(lp_prob *p)
 	    }
 	 }
       }else{
-#endif	 
+#endif
 	 if (lp_stat.twomir_cuts_root<1) {
-	    data_par->generate_cgl_twomir_cuts_freq = 
+	    data_par->generate_cgl_twomir_cuts_freq =
 	       par->generate_cgl_twomir_cuts_freq = 1000;
 	 } else if(p->bc_level < 20){
-	    data_par->generate_cgl_twomir_cuts_freq = 
+	    data_par->generate_cgl_twomir_cuts_freq =
 	       par->generate_cgl_twomir_cuts_freq = 50;
 	 } else{
-	    data_par->generate_cgl_twomir_cuts_freq = 
+	    data_par->generate_cgl_twomir_cuts_freq =
 	       par->generate_cgl_twomir_cuts_freq = 100;
 	 }
 #ifdef COMPILE_IN_LP
@@ -1772,8 +1772,8 @@ int update_cut_parameters(lp_prob *p)
    }
 
    /* cliques cuts */
-   
-   if (data_par->generate_cgl_clique_cuts == GENERATE_IF_IN_ROOT && 
+
+   if (data_par->generate_cgl_clique_cuts == GENERATE_IF_IN_ROOT &&
        lp_stat.clique_cuts_root<1) {
       data_par->generate_cgl_clique_cuts_freq = -1;
    }
@@ -1783,7 +1783,7 @@ int update_cut_parameters(lp_prob *p)
 	 if(p->bc_level > 0 && p->tm->lp_stat.clique_calls + p->lp_stat.clique_calls > 50 &&
 	    p->tm->lp_stat.clique_cuts + p->lp_stat.clique_cuts < 10){
 	    data_par->generate_cgl_clique_cuts = DO_NOT_GENERATE;
-	 }else{	 
+	 }else{
 	    if((data_par->chain_status == CGL_CHAIN_CONTINUE ||
 		data_par->chain_status == CGL_CHAIN_CHECK) &&
 	       lp_stat.clique_cuts_root >= 1) {
@@ -1809,13 +1809,13 @@ int update_cut_parameters(lp_prob *p)
       }
 #endif
    }
-   
+
    /* flow and cover cuts */
-   if (data_par->generate_cgl_flowcover_cuts == GENERATE_IF_IN_ROOT && 
+   if (data_par->generate_cgl_flowcover_cuts == GENERATE_IF_IN_ROOT &&
        lp_stat.flowcover_cuts_root<1) {
       data_par->generate_cgl_flowcover_cuts_freq = -1;
    }
-   
+
    if (data_par->generate_cgl_flowcover_cuts == GENERATE_DEFAULT) {
 #ifdef COMPILE_IN_LP
       if(data_par->use_chain_strategy){
@@ -1823,16 +1823,16 @@ int update_cut_parameters(lp_prob *p)
 	    p->lp_stat.flowcover_calls > 50 &&
 	    p->tm->lp_stat.flowcover_cuts + p->lp_stat.flowcover_cuts < 10){
 	    data_par->generate_cgl_flowcover_cuts = DO_NOT_GENERATE;
-	 }else{	 	    
+	 }else{
 	    if((data_par->chain_status == CGL_CHAIN_CONTINUE ||
 		data_par->chain_status == CGL_CHAIN_CHECK)){
-	       if(lp_stat.flowcover_cuts_root >= 1) { 
+	       if(lp_stat.flowcover_cuts_root >= 1) {
 		  data_par->generate_cgl_flowcover_cuts_freq = 1;
 	       }else{
 		  data_par->generate_cgl_flowcover_cuts_freq = -1;
 	       }
 	    }else if(data_par->chain_status == CGL_CHAIN_STOP){
-	       data_par->generate_cgl_flowcover_cuts = DO_NOT_GENERATE;	 
+	       data_par->generate_cgl_flowcover_cuts = DO_NOT_GENERATE;
 	    }else{
 	       data_par->generate_cgl_flowcover_cuts_freq = -1;
 	    }
@@ -1854,19 +1854,19 @@ int update_cut_parameters(lp_prob *p)
    }
 
    /* knapsack */
-   
-   if (data_par->generate_cgl_knapsack_cuts == GENERATE_IF_IN_ROOT && 
+
+   if (data_par->generate_cgl_knapsack_cuts == GENERATE_IF_IN_ROOT &&
        lp_stat.knapsack_cuts_root<1) {
       data_par->generate_cgl_knapsack_cuts_freq = -1;
    }
-   
+
    if (data_par->generate_cgl_knapsack_cuts == GENERATE_DEFAULT) {
 #ifdef COMPILE_IN_LP
       if(data_par->use_chain_strategy){
 	 if(p->bc_level > 0 && p->tm->lp_stat.knapsack_calls + p->lp_stat.knapsack_calls > 50 &&
 	    p->tm->lp_stat.knapsack_cuts + p->lp_stat.knapsack_cuts < 10){
 	    data_par->generate_cgl_knapsack_cuts = DO_NOT_GENERATE;
-	 }else{	 	    	    
+	 }else{
 	    if((data_par->chain_status == CGL_CHAIN_CONTINUE ||
 		data_par->chain_status == CGL_CHAIN_CHECK)){
 	       if(lp_stat.knapsack_cuts_root >= 1 ) {
@@ -1897,19 +1897,19 @@ int update_cut_parameters(lp_prob *p)
    }
 
    /* gomory cuts */
-   
-    if (data_par->generate_cgl_gomory_cuts == GENERATE_IF_IN_ROOT && 
+
+    if (data_par->generate_cgl_gomory_cuts == GENERATE_IF_IN_ROOT &&
        lp_stat.gomory_cuts_root<1) {
       data_par->generate_cgl_gomory_cuts_freq = -1;
    }
-   
+
    if (data_par->generate_cgl_gomory_cuts == GENERATE_DEFAULT) {
 #ifdef COMPILE_IN_LP
       if(data_par->use_chain_strategy){
 	 if(p->bc_level > 0 && p->tm->lp_stat.gomory_calls + p->lp_stat.gomory_calls > 200 &&
 	    p->tm->lp_stat.gomory_cuts + p->lp_stat.gomory_cuts < 10){
 	    data_par->generate_cgl_gomory_cuts = DO_NOT_GENERATE;
-	 }else{	 	    	    
+	 }else{
 	    if((data_par->chain_status == CGL_CHAIN_CONTINUE ||
 		data_par->chain_status == CGL_CHAIN_CHECK)){
 	       data_par->generate_cgl_gomory_cuts_freq = 1;
@@ -1933,14 +1933,14 @@ int update_cut_parameters(lp_prob *p)
 #ifdef COMPILE_IN_LP
       }
 #endif
-   }   
+   }
 
 #endif
    return 0;
 }
 
 /*===========================================================================*/
-int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts, 
+int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts,
       int send_to_pool, int *bound_changes)
 {
 
@@ -1951,13 +1951,13 @@ int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts,
    OsiXSolverInterface  *si    = p->lp_data->si;
    var_desc             **vars = p->lp_data->vars;
    int                  was_tried = FALSE;
-   
+
    if (p->iter_num < 2) {
      for (i = 0; i < n; i++) {
 	if (vars[i]->is_int) { // integer or binary
             si->setInteger(i);
          }
-      }  
+      }
    }
 
 #ifdef COMPILE_IN_LP
@@ -1968,13 +1968,13 @@ int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts,
 	 //printf("max_col_size: %i\t", p->mip->mip_inf->max_col_size);
 	 //printf("row den: %i\t, max_row_size: %i\t", row_den,
 	 //p->mip->mip_inf->max_row_size);
-	 	 
+
 	 //printf("sos_ratio %f \t", bin_sos_ratio);
 	 //printf("cont_bin_ratio %f\n", cont_ratio);
 	 if(p->mip->mip_inf->sos_bin_row_ratio > 0.6){
 	    p->par.max_cut_length *= 2;
 	 }
-	
+
 	 if(p->mip->mip_inf->max_row_ratio < 0.01 &&
 	    p->mip->mip_inf->prob_type != BIN_CONT_TYPE){
 	    p->par.cgl.chain_trial_freq = (int)1.5*p->par.cgl.chain_trial_freq;
@@ -1982,7 +1982,7 @@ int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts,
 	 if(p->mip->mip_inf->cont_var_ratio > 0.1 &&
 	    p->mip->mip_inf->max_row_ratio > 0.1)
 	    p->par.max_cut_length = p->par.max_cut_length/3 + 1;
-	
+
 	 if(p->mip->mip_inf->max_row_size <= 500){
 	    int max_const_size = p->mip->mip_inf->max_row_size;
 	    if(p->mip->mip_inf->prob_type == BINARY_TYPE ||
@@ -2021,38 +2021,38 @@ int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts,
 		  MIN(p->mip->mip_inf->max_row_size,
 		      (int)(1.0*p->par.max_cut_length *
 			    p->mip->mip_inf->max_row_size/500.0) + row_den);
-			    
+
 	    }else{
 	       p->par.max_cut_length = MAX(2*p->mip->mip_inf->max_row_size,
 					   (int)(1.0*p->par.max_cut_length *
 						 p->mip->mip_inf->max_row_size/
-						 500.0) + row_den);	       
+						 500.0) + row_den);
 	    }
 	 }
       }else{
 	 p->par.max_cut_length =
 	    MIN(p->par.max_cut_length,
 		(int)(5.0*row_den*p->mip->n/(row_den + p->mip->n)) + 5);
-		      
+
       }
       //     printf("sos/m %f\n", (1.0*p->mip->mip_inf->binary_sos_row_num)/p->mip->m);
       //  printf("max_cut_length %i\n", p->par.max_cut_length);
    }
 #endif
-   
+
    max_cut_length = p->par.max_cut_length;
    if (p->par.tried_long_cuts == TRUE) {
       repeat_with_long = FALSE;
    }
    for (i=0; i<CGL_NUM_GENERATORS; i++) {
       generate_cgl_cut_of_type(p, i, &cutlist, &was_tried);
-      check_and_add_cgl_cuts(p, i, cuts, num_cuts, bound_changes, &cutlist, 
+      check_and_add_cgl_cuts(p, i, cuts, num_cuts, bound_changes, &cutlist,
             send_to_pool);
       should_stop_adding_cgl_cuts(p, i, &should_stop);
       if (should_stop == TRUE) {
          break;
       }
-      if (i==CGL_NUM_GENERATORS-1 && p->bc_index < 1 && *num_cuts < 1 && 
+      if (i==CGL_NUM_GENERATORS-1 && p->bc_index < 1 && *num_cuts < 1 &&
             repeat_with_long == TRUE) {
          p->par.max_cut_length = 1000;
          i = 0;
@@ -2072,7 +2072,7 @@ int generate_cgl_cuts_new(lp_prob *p, int *num_cuts, cut_data ***cuts,
 }
 
 /*===========================================================================*/
-int should_use_cgl_generator(lp_prob *p, int *should_generate, 
+int should_use_cgl_generator(lp_prob *p, int *should_generate,
       int which_generator, void *generator)
 {
 
@@ -2080,7 +2080,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
    int bc_index = p->bc_index;
    int bc_level = p->bc_level;
    int max_cut_length = p->par.max_cut_length;
-   cgl_params   *data_par = &(p->lp_data->cgl);   
+   cgl_params   *data_par = &(p->lp_data->cgl);
 
    *should_generate = FALSE;
 
@@ -2095,7 +2095,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
             *should_generate = FALSE;
             break;
          } else if (param == GENERATE_DEFAULT &&
-		    (bc_level > max_bc_level || 
+		    (bc_level > max_bc_level ||
 		     freq < 1 || bc_index % freq != 0 ||
 		     data_par->chain_status == CGL_CHAIN_PAUSE)){
             *should_generate = FALSE;
@@ -2103,23 +2103,23 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
          } else if (param == GENERATE_ONLY_IN_ROOT && bc_index > 0) {
             *should_generate = FALSE;
             break;
-         } else if (param == GENERATE_IF_IN_ROOT && (freq < 1 || 
+         } else if (param == GENERATE_IF_IN_ROOT && (freq < 1 ||
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } else if (param == GENERATE_PERIODICALLY && (freq < 1 || 
+         } else if (param == GENERATE_PERIODICALLY && (freq < 1 ||
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } 
+         }
 
 
 #ifdef COMPILE_IN_LP
 	 if(data_par->use_chain_strategy){
-	    probing->setRowCuts(3); 
+	    probing->setRowCuts(3);
 	    probing->setMode(2);
 	    probing->setUsingObjective(1);
-	    
+
 	    probing->setMaxPassRoot(1);
 	    if(p->bc_level < 1){
 	       if(p->iter_num < 2){
@@ -2127,7 +2127,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
 		  if(p->mip->nz > 2e5){
 		     probing->setMaxProbeRoot(25);
 		  }else if(p->mip->nz > 1e5){
-		     probing->setMaxProbeRoot(50);		  
+		     probing->setMaxProbeRoot(50);
 		  }else if(p->mip->nz > 0.75e5){
 		     probing->setMaxProbeRoot(75);
 		  }else if(p->mip->nz > 0.5e5){
@@ -2174,9 +2174,9 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
 	       }else{
 		  probing->setMaxProbeRoot(100);
 	       }
-	       
+
 	       probing->setMaxElementsRoot(1000);
-	       probing->setMaxLookRoot 
+	       probing->setMaxLookRoot
 		  (MAX(11, (int)(p->par.cgl.probing_root_max_look)/2 + 10));
 
 	       if(p->par.cgl.probing_is_expensive){
@@ -2203,10 +2203,10 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
 	       }
 	    }
 
-	    probing->setRowCuts(3); 
+	    probing->setRowCuts(3);
 	    probing->setMode(2);
 	    probing->setUsingObjective(1);
-	    
+
 	    if (p->bc_index < 1 &&
 		!p->lp_data->cgl.probing_is_expensive) {
 	       probing->setMaxPass(10); /* default is 3 */
@@ -2255,7 +2255,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } 
+         }
          *should_generate = TRUE;
          clique->setStarCliqueReport(FALSE);
          clique->setRowCliqueReport(FALSE);
@@ -2291,10 +2291,10 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } 
+         }
          *should_generate = TRUE;
          knapsack->setMaxInKnapsack(max_cut_length); // default is 50
-         knapsack->switchOffExpensive(); // gets into infinite loop if on 
+         knapsack->switchOffExpensive(); // gets into infinite loop if on
          p->lp_stat.knapsack_calls++;
          break;
       }
@@ -2316,11 +2316,11 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
          } else if (param == GENERATE_ONLY_IN_ROOT && bc_index > 0) {
             *should_generate = FALSE;
             break;
-         } else if (param == GENERATE_IF_IN_ROOT && (freq < 1 || 
+         } else if (param == GENERATE_IF_IN_ROOT && (freq < 1 ||
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } else if (param == GENERATE_PERIODICALLY && (freq < 1 || 
+         } else if (param == GENERATE_PERIODICALLY && (freq < 1 ||
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
@@ -2356,7 +2356,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
                   bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } 
+         }
          *should_generate = TRUE;
          twomir->setMaxElements(max_cut_length);
          twomir->setCutTypes (TRUE, TRUE, TRUE, TRUE);
@@ -2375,7 +2375,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
          } else if (param == GENERATE_DEFAULT &&
 		    (bc_level > max_bc_level ||
 		     freq < 1 || bc_index % freq != 0  ||
-		     data_par->chain_status == CGL_CHAIN_PAUSE)) { 
+		     data_par->chain_status == CGL_CHAIN_PAUSE)) {
             *should_generate = FALSE;
             break;
          } else if (param == GENERATE_ONLY_IN_ROOT && bc_index > 0) {
@@ -2389,7 +2389,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } 
+         }
          *should_generate = TRUE;
          flowcover->setNumFlowCuts(0); //needs to be called because static
          p->lp_stat.flowcover_calls++;
@@ -2421,7 +2421,7 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
                bc_index % freq != 0)) {
             *should_generate = FALSE;
             break;
-         } 
+         }
          *should_generate = TRUE;
 	 oddhole->setMinimumViolation(0.005);
 	 oddhole->setMinimumViolationPer(0.00002);
@@ -2436,17 +2436,17 @@ int should_use_cgl_generator(lp_prob *p, int *should_generate,
 
 /*===========================================================================*/
 #ifdef USE_CGL_CUTS
-int generate_cgl_cut_of_type(lp_prob *p, int i, OsiCuts *cutlist_p, 
+int generate_cgl_cut_of_type(lp_prob *p, int i, OsiCuts *cutlist_p,
       int *was_tried)
 {
    OsiCuts cutlist = *cutlist_p;
    int should_generate = FALSE;
-   double total_time, cut_time;   
-   
+   double total_time, cut_time;
+
    /* two times is necessary */
    cut_time     = used_time(&total_time);
    cut_time     = used_time(&total_time);
-   
+
    switch (i) {
      case CGL_PROBING_GENERATOR:
        {
@@ -2549,17 +2549,17 @@ int generate_cgl_cut_of_type(lp_prob *p, int i, OsiCuts *cutlist_p,
 
 /*===========================================================================*/
 #ifdef USE_CGL_CUTS
-int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts, 
-      int *num_cuts, int *bound_changes, OsiCuts *cutlist, int send_to_pool) 
+int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
+      int *num_cuts, int *bound_changes, OsiCuts *cutlist, int send_to_pool)
 {
    int          i, j, k, num_row_cuts, *is_deleted, num_elements,
       *indices, discard_cut, num_poor_quality = 0, num_unviolated = 0,
-      num_duplicate = 0, *cut_size, *matind; 
-   int    max_elements = p->par.max_cut_length, 
+      num_duplicate = 0, *cut_size, *matind;
+   int    max_elements = p->par.max_cut_length,
       verbosity = p->par.verbosity;
    LPdata       *lp_data = p->lp_data;
    int          *tmp_matind = lp_data->tmp.i1;
-   double       *hashes, *elements, rhs, max_coeff, min_coeff, hash_value, 
+   double       *hashes, *elements, rhs, max_coeff, min_coeff, hash_value,
                 violation, *matval, total_time, cut_time;
    double       *random_hash = lp_data->random_hash;
    const double lpetol = lp_data->lpetol;
@@ -2569,7 +2569,7 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
    var_desc     **vars = lp_data->vars;
    const int    is_userind_in_order = p->par.is_userind_in_order;
    cut_data     *sym_cut;
-   
+
    /* two times is necessary */
    cut_time     = used_time(&total_time);
    cut_time     = used_time(&total_time);
@@ -2623,7 +2623,7 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
       hashes[i] = hash_value;
       /* see rhs as well */
       if (fabs(rhs) > lpetol) {
-         if (fabs(rhs) < min_coeff) { 
+         if (fabs(rhs) < min_coeff) {
             min_coeff = fabs(rhs);
          }
          if (fabs(rhs) > max_coeff) {
@@ -2643,14 +2643,14 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
       }
 
       /* check violation */
-      if (violation < lpetol){// && generator != CGL_PROBING_GENERATOR) {	 
-         PRINT(verbosity,5,("violation = %f. Threw out cut.\n", 
+      if (violation < lpetol){// && generator != CGL_PROBING_GENERATOR) {
+         PRINT(verbosity,5,("violation = %f. Threw out cut.\n",
                   violation));
          num_unviolated++;
          is_deleted[i] = TRUE;
          continue;
       }
-    
+
       /* check quality */
       if (num_elements>0) {
          if ( (max_coeff > 0 && min_coeff/max_coeff < etol1000)||
@@ -2669,7 +2669,7 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
             if (is_deleted[k] == TRUE) {
                continue;
             }
-            if (cut_size[k] != num_elements || 
+            if (cut_size[k] != num_elements ||
                   fabs(hashes[k]-hash_value) > lpetol) {
                continue;
             } else {
@@ -2704,7 +2704,7 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
    k = *num_cuts;
 
    int p_cnt = 0;
-   
+
    for (i=0; i<num_row_cuts; i++) {
       if (is_deleted[i] == TRUE) {
          continue;
@@ -2747,26 +2747,26 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
 
       sym_cut->deletable = TRUE;
 
-#ifdef COMPILE_IN_LP      
+#ifdef COMPILE_IN_LP
       if(p->bc_level < 1 && p->mip->mip_inf && (generator == CGL_PROBING_GENERATOR ||
 						generator == CGL_CLIQUE_GENERATOR)){
 
 	 double sos_ratio = 1.0*p->mip->mip_inf->binary_sos_row_num/(p->mip->m + 1);
-	 
+
 	 if( ((sos_ratio >= 0.9 && p->iter_num < 2) ||
 	      (sos_ratio > 0.1 && sos_ratio < 0.9 && p->mip->mip_inf->prob_type == BINARY_TYPE) ||
-	      (sos_ratio > 0.5 && sos_ratio < 0.9 && p->mip->mip_inf->prob_type == BIN_CONT_TYPE)) && 
+	      (sos_ratio > 0.5 && sos_ratio < 0.9 && p->mip->mip_inf->prob_type == BIN_CONT_TYPE)) &&
 	     p->node_iter_num < 5 && p_cnt < 50 && cut_size[i] > 2){
 	    sym_cut->deletable = FALSE;
 	    p_cnt++;
 	 }
       }
-#endif      
+#endif
       if (send_to_pool){
          sym_cut->name = CUT__SEND_TO_CP;
       }else{
          sym_cut->name = CUT__DO_NOT_SEND_TO_CP;
-      }	    
+      }
       k++;
    }
    *num_cuts = k;
@@ -2835,7 +2835,7 @@ int check_and_add_cgl_cuts(lp_prob *p, int generator, cut_data ***cuts,
 
    cut_time = used_time(&total_time);
    p->comp_times.dupes_and_bad_coeffs_in_cuts += cut_time;
-        
+
    return 0;
 }
 #endif
@@ -2863,7 +2863,7 @@ int add_col_cuts(lp_prob *p, OsiCuts *cutlist, int *bound_changes)
       for (j=0;j<col_cut.lbs().getNumElements();j++) {
          if (vars[indices[j]]->new_lb < elements[j]) {
             vars[indices[j]]->new_lb = elements[j];
-            change_lbub(lp_data, indices[j], elements[j], 
+            change_lbub(lp_data, indices[j], elements[j],
                   vars[indices[j]]->new_ub);
             (*bound_changes)++;
          }
@@ -2881,7 +2881,7 @@ int add_col_cuts(lp_prob *p, OsiCuts *cutlist, int *bound_changes)
    }
 
 
-   
+
    for (i=0; i<num_col_cuts; i++) {
       cutlist->eraseColCut(0);
    }
@@ -2953,7 +2953,7 @@ int check_bounds(lp_prob *p, int *termcode)
    const double lpetol = p->lp_data->lpetol;
    const int n = p->lp_data->n;
    LPdata *lp_data = p->lp_data;
-   
+
    get_bounds(lp_data);
    lb = lp_data->lb;
    ub = lp_data->ub;

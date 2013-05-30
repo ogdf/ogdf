@@ -25,7 +25,7 @@ CoinFactorization::CoinFactorization (  )
   gutsOfInitialize(7);
 }
 
-/// Copy constructor 
+/// Copy constructor
 CoinFactorization::CoinFactorization ( const CoinFactorization &other)
 {
   persistenceFlag_=0;
@@ -106,7 +106,7 @@ void CoinFactorization::gutsOfDestructor(int )
   numberDense_=0;
   //persistenceFlag_=0;
   ////denseThreshold_=0;
-  
+
 }
 // type - 1 bit tolerances etc, 2 rest
 void CoinFactorization::gutsOfInitialize(int type)
@@ -193,7 +193,7 @@ void CoinFactorization::gutsOfInitialize(int type)
     nextColumn_.conditionalNew(1);
     lastColumn_.conditionalNew(1);
     collectStatistics_=false;
-    
+
     // Below are all to collect
     ftranCountInput_=0.0;
     ftranCountAfterL_=0.0;
@@ -203,18 +203,18 @@ void CoinFactorization::gutsOfInitialize(int type)
     btranCountAfterU_=0.0;
     btranCountAfterR_=0.0;
     btranCountAfterL_=0.0;
-    
+
     // We can roll over factorizations
     numberFtranCounts_=0;
     numberBtranCounts_=0;
-    
-    // While these are averages collected over last 
+
+    // While these are averages collected over last
     ftranAverageAfterL_=0;
     ftranAverageAfterR_=0;
     ftranAverageAfterU_=0;
     btranAverageAfterU_=0;
     btranAverageAfterR_=0;
-    btranAverageAfterL_=0; 
+    btranAverageAfterL_=0;
 #ifdef ZEROFAULT
     startColumnL_.array()[0] = 0;
     startColumnR_.array()[0] = 0;
@@ -252,7 +252,7 @@ int CoinFactorization::factorize (
     areaFactor_ = areaFactor;
   const int * row = matrix.getIndices();
   const CoinBigIndex * columnStart = matrix.getVectorStarts();
-  const int * columnLength = matrix.getVectorLengths(); 
+  const int * columnLength = matrix.getVectorLengths();
   const double * element = matrix.getElements();
   int numberRows=matrix.getNumRows();
   int numberColumns=matrix.getNumCols();
@@ -338,18 +338,18 @@ int CoinFactorization::factorize (
     // mark as basic or non basic
     for (i=0;i<numberRows_;i++) {
       if (rowIsBasic[i]>=0) {
-	if (pivotColumn[numberBasic]>=0) 
+	if (pivotColumn[numberBasic]>=0)
 	  rowIsBasic[i]=pivotColumn[numberBasic];
-	else 
+	else
 	  rowIsBasic[i]=-1;
 	numberBasic++;
       }
     }
     for (i=0;i<numberColumns;i++) {
       if (columnIsBasic[i]>=0) {
-	if (pivotColumn[numberBasic]>=0) 
+	if (pivotColumn[numberBasic]>=0)
 	  columnIsBasic[i]=pivotColumn[numberBasic];
-	 else 
+	 else
 	  columnIsBasic[i]=-1;
 	numberBasic++;
       }
@@ -418,9 +418,9 @@ int CoinFactorization::factorize (
    This part creates arrays for user to fill.
    maximumL is guessed maximum size of L part of
    final factorization, maximumU of U part.  These are multiplied by
-   areaFactor which can be computed by user or internally.  
+   areaFactor which can be computed by user or internally.
    returns 0 -okay, -99 memory */
-int 
+int
 CoinFactorization::factorizePart1 ( int numberOfRows,
 				   int ,
 				   CoinBigIndex numberOfElements,
@@ -451,7 +451,7 @@ CoinFactorization::factorizePart1 ( int numberOfRows,
    If status is singular, then basic variables have +1 and ones thrown out have -COIN_INT_MAX
    to say thrown out.
    returns 0 -okay, -1 singular, -99 memory */
-int 
+int
 CoinFactorization::factorizePart2 (int permutation[],int exactNumberElements)
 {
   lengthU_ = exactNumberElements;
@@ -560,7 +560,7 @@ CoinFactorization::getAreas ( int numberOfRows,
 			 CoinBigIndex maximumL,
 			 CoinBigIndex maximumU )
 {
-  
+
   numberRows_ = numberOfRows;
   numberColumns_ = numberOfColumns;
   maximumRowsExtra_ = numberRows_ + maximumPivots_;
@@ -573,7 +573,7 @@ CoinFactorization::getAreas ( int numberOfRows,
     areaFactor_ = 1.0;
   }
   if ( areaFactor_ != 1.0 ) {
-    if ((messageLevel_&16)!=0) 
+    if ((messageLevel_&16)!=0)
       printf("Increasing factorization areas by %g\n",areaFactor_);
     lengthAreaU_ =  static_cast<CoinBigIndex> (areaFactor_*lengthAreaU_);
     lengthAreaL_ =  static_cast<CoinBigIndex> (areaFactor_*lengthAreaL_);
@@ -850,7 +850,7 @@ CoinFactorization::preProcess ( int state,
 	  // use pivotRegion and startRow for remaining elements
 	  CoinBigIndex first = startColumn[iColumn];
 	  CoinBigIndex largest = -1;
-	  
+
 	  double valueLargest = -1.0;
 	  int nOther=0;
 	  k = first;
@@ -1016,7 +1016,7 @@ CoinFactorization::factor (  )
 	for ( i = 0; i < numberColumns_; i++ ) {
 	  pivotColumn[i] = lastColumn[i];
 	}
-	if ((messageLevel_&4)!=0) 
+	if ((messageLevel_&4)!=0)
 	  std::cout <<"Factorization has "<<numberRows_-k
 		    <<" singularities"<<std::endl;
 	status_ = -1;
@@ -1026,11 +1026,11 @@ CoinFactorization::factor (  )
     // dense
   case 2:
     status_=factorDense();
-    if(!status_) 
+    if(!status_)
       break;
   default:
     //singular ? or some error
-    if ((messageLevel_&4)!=0) 
+    if ((messageLevel_&4)!=0)
       std::cout << "Error " << status_ << std::endl;
     break;
   }				/* endswitch */
@@ -1078,7 +1078,7 @@ CoinFactorization::pivotRowSingleton ( int pivotRow,
 
   if ( l + numberDoColumn > lengthAreaL_ ) {
     //need more memory
-    if ((messageLevel_&4)!=0) 
+    if ((messageLevel_&4)!=0)
       std::cout << "more memory needed in middle of invert" << std::endl;
     return false;
   }
@@ -1481,7 +1481,7 @@ CoinFactorization::getRowSpace ( int iRow,
 #if COIN_ONE_ETA_COPY
 /* Reorders U so contiguous and in order (if there is space)
    Returns true if it could */
-bool 
+bool
 CoinFactorization::reorderU()
 {
 #if 1
@@ -1494,7 +1494,7 @@ CoinFactorization::reorderU()
   int * numberInColumnPlus = numberInColumnPlus_.array();
   int iColumn;
   CoinBigIndex put = 0;
-  for (iColumn =0;iColumn<numberRows_;iColumn++) 
+  for (iColumn =0;iColumn<numberRows_;iColumn++)
     put += numberInColumnPlus[iColumn];
   CoinBigIndex space = lengthAreaU_ - startColumnU[maximumColumnsExtra_];
   if (space<put) {
@@ -1535,7 +1535,7 @@ CoinFactorization::reorderU()
     }
   }
   put=0;
-  for (iColumn =0;iColumn<numberRows_;iColumn++) { 
+  for (iColumn =0;iColumn<numberRows_;iColumn++) {
     int n = numberInColumn[iColumn];
     startColumnU[iColumn]=put;
     put += n;
@@ -1670,7 +1670,7 @@ CoinFactorization::cleanup (  )
 #endif
     for ( i = 0; i < numberColumns_; i++ ) {
       int iColumn = pivotColumn[i];
-      
+
       pivotColumnB[iColumn] = i;
       if ( iColumn >= 0 ) {
 	//wanted
@@ -1685,16 +1685,16 @@ CoinFactorization::cleanup (  )
     for ( i = 0; i < numberColumns_; i++ ) {
       int number = numberInColumn[i];	//always 0?
       int where = numberInColumnPlus[i];
-      
+
       numberInColumnPlus[i] = -1;
       CoinBigIndex start = startColumnU[i];
-      
+
       while ( where >= 0 ) {
 	//put where it should be
 	int numberNext = numberInColumn[where];	//always 0?
 	int whereNext = numberInColumnPlus[where];
 	CoinBigIndex startNext = startColumnU[where];
-	
+
 	numberInColumn[where] = number;
 	numberInColumnPlus[where] = -1;
 	startColumnU[where] = start;
@@ -1706,11 +1706,11 @@ CoinFactorization::cleanup (  )
     //sort - using indexColumn
     CoinFillN ( indexColumnU_.array(), lastU, -1 );
     CoinBigIndex k = 0;
-    
+
     for ( i = numberSlacks_; i < numberRows_; i++ ) {
       CoinBigIndex start = startColumn[i];
       CoinBigIndex end = start + numberInColumn[i];
-      
+
       CoinBigIndex j;
       for ( j = start; j < end; j++ ) {
 	indexColumnU[j] = k++;
@@ -1719,18 +1719,18 @@ CoinFactorization::cleanup (  )
     for ( i = numberSlacks_; i < numberRows_; i++ ) {
       CoinBigIndex start = startColumn[i];
       CoinBigIndex end = start + numberInColumn[i];
-      
+
       CoinBigIndex j;
       for ( j = start; j < end; j++ ) {
 	CoinBigIndex k = indexColumnU[j];
 	int iRow = indexRowU[j];
 	CoinFactorizationDouble element = elementU[j];
-	
+
 	while ( k != -1 ) {
 	  CoinBigIndex kNext = indexColumnU[k];
 	  int iRowNext = indexRowU[k];
 	  CoinFactorizationDouble elementNext = elementU[k];
-	  
+
 	  indexColumnU[k] = -1;
 	  indexRowU[k] = iRow;
 	  elementU[k] = element;
@@ -1818,30 +1818,30 @@ CoinFactorization::cleanup (  )
     CoinBigIndex *convertRowToColumn = convertRowToColumnU_.array();
     CoinBigIndex j = 0;
     CoinBigIndex *startRow = startRowU_.array();
-    
+
     int iRow;
     for ( iRow = 0; iRow < numberRows_; iRow++ ) {
       startRow[iRow] = j;
       j += numberInRow[iRow];
     }
     CoinBigIndex numberInU = j;
-    
+
     CoinZeroN ( numberInRow_.array(), numberRows_ );
-    
+
     for ( i = numberSlacks_; i < numberRows_; i++ ) {
       CoinBigIndex start = startColumnU[i];
       CoinBigIndex end = start + numberInColumn[i];
-      
+
       CoinFactorizationDouble pivotValue = pivotRegion[i];
 
       CoinBigIndex j;
       for ( j = start; j < end; j++ ) {
 	int iRow = indexRowU[j];
 	int iLook = numberInRow[iRow];
-	
+
 	numberInRow[iRow] = iLook + 1;
 	CoinBigIndex k = startRow[iRow] + iLook;
-	
+
 	indexColumnU[k] = i;
 	convertRowToColumn[k] = j;
 	//multiply by pivot
@@ -1865,10 +1865,10 @@ CoinFactorization::cleanup (  )
     for ( i = numberSlacks_; i < numberU; i++ ) {
       CoinBigIndex start = startColumnU[i];
       CoinBigIndex end = start + numberInColumn[i];
-      
+
       CoinBigIndex j;
       CoinFactorizationDouble pivotValue = pivotRegion[i];
-      
+
       for ( j = start; j < end; j++ ) {
 	//multiply by pivot
 	elementU[j] *= pivotValue;
@@ -1946,7 +1946,7 @@ CoinFactorization::cleanup (  )
   numberR_ = 0;
 }
 // Returns areaFactor but adjusted for dense
-double 
+double
 CoinFactorization::adjustedAreaFactor() const
 {
   double factor = areaFactor_;
@@ -2031,7 +2031,7 @@ CoinFactorization::checkConsistency (  )
   }
 }
   //  pivotOneOtherRow.  When just one other row so faster
-bool 
+bool
 CoinFactorization::pivotOneOtherRow ( int pivotRow,
 					   int pivotColumn )
 {
@@ -2061,7 +2061,7 @@ CoinFactorization::pivotOneOtherRow ( int pivotRow,
 
   if ( l + 1 > lengthAreaL_ ) {
     //need more memory
-    if ((messageLevel_&4)!=0) 
+    if ((messageLevel_&4)!=0)
       std::cout << "more memory needed in middle of invert" << std::endl;
     return false;
   }
@@ -2342,9 +2342,9 @@ CoinFactorization::pivotOneOtherRow ( int pivotRow,
   deleteLink ( pivotColumn + numberRows_ );
   return true;
 }
-void 
+void
 CoinFactorization::setPersistenceFlag(int flag)
-{ 
+{
   persistenceFlag_=flag;
   workArea_.setPersistence(flag,maximumRowsExtra_+1);
   workArea2_.setPersistence(flag,maximumRowsExtra_+1);
@@ -2382,7 +2382,7 @@ CoinFactorization::setPersistenceFlag(int flag)
   sparse_.setPersistence( flag, 0 );
 }
 // Delete all stuff
-void 
+void
 CoinFactorization::almostDestructor()
 {
   gutsOfDestructor(1);

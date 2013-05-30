@@ -88,14 +88,14 @@ int OsiSolverInterface::getNumElements() const
 // stored in the column bounds.
 //#############################################################################
 
-bool 
+bool
 OsiSolverInterface::isBinary(int colIndex) const
 {
-  if ( isContinuous(colIndex) ) return false; 
+  if ( isContinuous(colIndex) ) return false;
   const double * cu = getColUpper();
   const double * cl = getColLower();
   if (
-    (cu[colIndex]== 1 || cu[colIndex]== 0) && 
+    (cu[colIndex]== 1 || cu[colIndex]== 0) &&
     (cl[colIndex]== 0 || cl[colIndex]==1)
     ) return true;
   else return false;
@@ -104,15 +104,15 @@ OsiSolverInterface::isBinary(int colIndex) const
 
 //#############################################################################
 // Method for getting a column solution that is guaranteed to be
-// between the column lower and upper bounds. 
-// 
+// between the column lower and upper bounds.
+//
 // This method is was introduced for Cgl. Osi developers can
-// improve performance for their favorite solvers by 
+// improve performance for their favorite solvers by
 // overriding this method and providing an implementation that caches
 // strictColSolution_.
 //#############################################################################
 
-const double * 
+const double *
 OsiSolverInterface::getStrictColSolution()
 {
   const double * colSolution = getColSolution();
@@ -139,7 +139,7 @@ OsiSolverInterface::getStrictColSolution()
 
 
 //-----------------------------------------------------------------------------
-bool 
+bool
 OsiSolverInterface::isInteger(int colIndex) const
 {
    return !isContinuous(colIndex);
@@ -169,15 +169,15 @@ OsiSolverInterface::getNumIntegers () const
   }
 }
 //-----------------------------------------------------------------------------
-bool 
+bool
 OsiSolverInterface::isIntegerNonBinary(int colIndex) const
 {
   if ( isInteger(colIndex) && !isBinary(colIndex) )
-    return true; 
+    return true;
   else return false;
 }
 //-----------------------------------------------------------------------------
-bool 
+bool
 OsiSolverInterface::isFreeBinary(int colIndex) const
 {
   if ( isContinuous(colIndex) ) return false;
@@ -194,7 +194,7 @@ OsiSolverInterface::isFreeBinary(int colIndex) const
     1 - binary (may get fixed later)
     2 - general integer (may get fixed later)
 */
-const char * 
+const char *
 OsiSolverInterface::getColType(bool refresh) const
 {
   if (!columnType_||refresh) {
@@ -205,7 +205,7 @@ OsiSolverInterface::getColType(bool refresh) const
     const double * cl = getColLower();
     for (int i = 0 ; i < numCols ; ++i) {
       if (!isContinuous(i)) {
-	if ((cu[i]== 1 || cu[i]== 0) && 
+	if ((cu[i]== 1 || cu[i]== 0) &&
 	    (cl[i]== 0 || cl[i]==1))
 	  columnType_[i]=1;
 	else
@@ -352,24 +352,24 @@ void OsiSolverInterface::addCol(int numberElements,
 }
 
 /* Convenience alias for addCol */
-void 
+void
 OsiSolverInterface::addCol(int numberElements,
 			   const int* rows, const double* elements,
-			   const double collb, const double colub,   
-			   const double obj) 
+			   const double collb, const double colub,
+			   const double obj)
 {
   CoinPackedVector column(numberElements, rows, elements);
   addCol(column,collb,colub,obj);
 }
 //-----------------------------------------------------------------------------
 /* Add a set of columns (primal variables) to the problem.
-   
+
   Default implementation simply makes repeated calls to addCol().
 */
 void
 OsiSolverInterface::addCols(const int numcols,
 			    const CoinPackedVectorBase* const* cols,
-			    const double* collb, const double* colub,   
+			    const double* collb, const double* colub,
 			    const double* obj)
 {
   for (int i = 0; i < numcols; ++i) {
@@ -379,7 +379,7 @@ OsiSolverInterface::addCols(const int numcols,
 
 void OsiSolverInterface::addCols(const int numcols, const int* columnStarts,
 				 const int* rows, const double* elements,
-				 const double* collb, const double* colub,   
+				 const double* collb, const double* colub,
 				 const double* obj)
 {
   double infinity = getInfinity();
@@ -387,14 +387,14 @@ void OsiSolverInterface::addCols(const int numcols, const int* columnStarts,
     int start = columnStarts[i];
     int number = columnStarts[i+1]-start;
     assert (number>=0);
-    addCol(number, rows+start, elements+start, collb ? collb[i] : 0.0, 
-	   colub ? colub[i] : infinity, 
+    addCol(number, rows+start, elements+start, collb ? collb[i] : 0.0,
+	   colub ? colub[i] : infinity,
 	   obj ? obj[i] : 0.0);
   }
 }
 //-----------------------------------------------------------------------------
 // Add columns from a build object
-void 
+void
 OsiSolverInterface::addCols(const CoinBuild & buildObject)
 {
   assert (buildObject.type()==1); // check correct
@@ -412,12 +412,12 @@ OsiSolverInterface::addCols(const CoinBuild & buildObject)
       int numberElements = buildObject.column(iColumn,lower[iColumn],
                                               upper[iColumn],objective[iColumn],
                                               rows,elements);
-      columns[iColumn] = 
+      columns[iColumn] =
 	new CoinPackedVector(numberElements,
 			     rows,elements);
     }
     addCols(number, columns, lower, upper,objective);
-    for (iColumn=0;iColumn<number;iColumn++) 
+    for (iColumn=0;iColumn<number;iColumn++)
       delete columns[iColumn];
     delete [] columns;
     delete [] objective;
@@ -427,7 +427,7 @@ OsiSolverInterface::addCols(const CoinBuild & buildObject)
   return;
 }
 // Add columns from a model object
-int 
+int
 OsiSolverInterface::addCols( CoinModel & modelObject)
 {
   bool goodState=true;
@@ -437,9 +437,9 @@ OsiSolverInterface::addCols( CoinModel & modelObject)
     const double * rowLower = modelObject.rowLowerArray();
     const double * rowUpper = modelObject.rowUpperArray();
     for (int i=0;i<numberRows2;i++) {
-      if (rowLower[i]!=-COIN_DBL_MAX) 
+      if (rowLower[i]!=-COIN_DBL_MAX)
         goodState=false;
-      if (rowUpper[i]!=COIN_DBL_MAX) 
+      if (rowUpper[i]!=COIN_DBL_MAX)
         goodState=false;
     }
   }
@@ -482,12 +482,12 @@ OsiSolverInterface::addCols( CoinModel & modelObject)
       assert (columnLower);
       for (iColumn=0;iColumn<numberColumns2;iColumn++) {
         int start = columnStart[iColumn];
-        columns[iColumn] = 
+        columns[iColumn] =
           new CoinPackedVector(columnLength[iColumn],
                                row+start,element+start);
       }
       addCols(numberColumns2, columns, columnLower, columnUpper,objective);
-      for (iColumn=0;iColumn<numberColumns2;iColumn++) 
+      for (iColumn=0;iColumn<numberColumns2;iColumn++)
         delete columns[iColumn];
       delete [] columns;
       // Do integers if wanted
@@ -545,20 +545,20 @@ void OsiSolverInterface::addRow(const CoinPackedVectorBase& vec,
 }
 
 /* Convenience alias for addRow. */
-void 
+void
 OsiSolverInterface::addRow(int numberElements,
 			   const int *columns, const double *elements,
-			   const double rowlb, const double rowub) 
+			   const double rowlb, const double rowub)
 {
   CoinPackedVector row(numberElements,columns,elements);
   addRow(row,rowlb,rowub);
 }
 //-----------------------------------------------------------------------------
 /* Add a set of rows (constraints) to the problem.
-   
+
   The default implementation simply makes repeated calls to addRow().
 */
-void 
+void
 OsiSolverInterface::addRows(const int numrows, const int* rowStarts,
 			    const int* columns, const double* elements,
 			    const double* rowlb, const double* rowub)
@@ -568,7 +568,7 @@ OsiSolverInterface::addRows(const int numrows, const int* rowStarts,
     int start = rowStarts[i];
     int number = rowStarts[i+1]-start;
     assert (number>=0);
-    addRow(number, columns+start, elements+start, rowlb ? rowlb[i] : -infinity, 
+    addRow(number, columns+start, elements+start, rowlb ? rowlb[i] : -infinity,
 	   rowub ? rowub[i] : infinity);
   }
 }
@@ -586,7 +586,7 @@ OsiSolverInterface::addRows(const int numrows,
 void
 OsiSolverInterface::addRows(const int numrows,
 			    const CoinPackedVectorBase* const* rows,
-			    const char* rowsen, const double* rowrhs,   
+			    const char* rowsen, const double* rowrhs,
 			    const double* rowrng)
 {
   for (int i = 0; i < numrows; ++i) {
@@ -609,12 +609,12 @@ OsiSolverInterface::addRows(const CoinBuild & buildObject)
       const double * elements;
       int numberElements = buildObject.row(iRow,lower[iRow],upper[iRow],
                                            columns,elements);
-      rows[iRow] = 
+      rows[iRow] =
 	new CoinPackedVector(numberElements,
 			     columns,elements);
     }
     addRows(number, rows, lower, upper);
-    for (iRow=0;iRow<number;iRow++) 
+    for (iRow=0;iRow<number;iRow++)
       delete rows[iRow];
     delete [] rows;
     delete [] lower;
@@ -634,11 +634,11 @@ OsiSolverInterface::addRows( CoinModel & modelObject)
     const double * objective = modelObject.objectiveArray();
     const int * integerType = modelObject.integerTypeArray();
     for (int i=0;i<numberColumns2;i++) {
-      if (columnLower[i]!=0.0) 
+      if (columnLower[i]!=0.0)
         goodState=false;
-      if (columnUpper[i]!=COIN_DBL_MAX) 
+      if (columnUpper[i]!=COIN_DBL_MAX)
         goodState=false;
-      if (objective[i]!=0.0) 
+      if (objective[i]!=0.0)
         goodState=false;
       if (integerType[i]!=0)
         goodState=false;
@@ -684,12 +684,12 @@ OsiSolverInterface::addRows( CoinModel & modelObject)
       assert (rowLower);
       for (iRow=0;iRow<numberRows2;iRow++) {
         int start = rowStart[iRow];
-        rows[iRow] = 
+        rows[iRow] =
           new CoinPackedVector(rowLength[iRow],
                                column+start,element+start);
       }
       addRows(numberRows2, rows, rowLower, rowUpper);
-      for (iRow=0;iRow<numberRows2;iRow++) 
+      for (iRow=0;iRow<numberRows2;iRow++)
         delete rows[iRow];
       delete [] rows;
     }
@@ -719,7 +719,7 @@ OsiSolverInterface::addRows( CoinModel & modelObject)
 /*  Strip off rows to get to this number of rows.
     If solver wants it can restore a copy of "base" (continuous) model here
 */
-void 
+void
 OsiSolverInterface::restoreBaseModel(int numberRows)
 {
   int currentNumberCuts = getNumRows()-numberRows;
@@ -729,9 +729,9 @@ OsiSolverInterface::restoreBaseModel(int numberRows)
   deleteRows(currentNumberCuts,which);
   delete [] which;
 }
-  
+
 // This loads a model from a coinModel object - returns number of errors
-int 
+int
 OsiSolverInterface::loadFromCoinModel (  CoinModel & modelObject, bool keepSolution)
 {
   int numberErrors = 0;
@@ -770,7 +770,7 @@ OsiSolverInterface::loadFromCoinModel (  CoinModel & modelObject, bool keepSolut
   CoinWarmStart * ws = getWarmStart();
   bool restoreBasis = keepSolution && numberRows&&numberRows==getNumRows()&&
     numberColumns==getNumCols();
-  loadProblem(matrix, 
+  loadProblem(matrix,
               columnLower, columnUpper, objective, rowLower, rowUpper);
   setRowColNames(modelObject) ;
   if (restoreBasis)
@@ -811,7 +811,7 @@ double OsiSolverInterface::getObjValue() const
   const double * colSol  = getColSolution();
   double objOffset=0.0;
   getDblParam(OsiObjOffset,objOffset);
-  
+
   // Compute dot product of objCoef and colSol and then adjust by offset
   // Jean-Sebastien pointed out this is overkill - lets just do it simply
   //double retVal = CoinPackedVector(nc,objCoef).dotProduct(colSol)-objOffset;
@@ -826,7 +826,7 @@ double OsiSolverInterface::getObjValue() const
 //#############################################################################
 
 OsiSolverInterface::ApplyCutsReturnCode
-OsiSolverInterface::applyCuts( const OsiCuts & cs, double effectivenessLb ) 
+OsiSolverInterface::applyCuts( const OsiCuts & cs, double effectivenessLb )
 {
   OsiSolverInterface::ApplyCutsReturnCode retVal;
   int i;
@@ -874,14 +874,14 @@ OsiSolverInterface::applyCuts( const OsiCuts & cs, double effectivenessLb )
     applyRowCut( cs.rowCut(i) );
     retVal.incrementApplied();
   }
-  
+
   return retVal;
 }
 /* Apply a collection of row cuts which are all effective.
    applyCuts seems to do one at a time which seems inefficient.
    The default does slowly, but solvers can override.
 */
-void 
+void
 OsiSolverInterface::applyRowCuts(int numberCuts, const OsiRowCut * cuts)
 {
   int i;
@@ -890,7 +890,7 @@ OsiSolverInterface::applyRowCuts(int numberCuts, const OsiRowCut * cuts)
   }
 }
 // And alternatively
-void 
+void
 OsiSolverInterface::applyRowCuts(int numberCuts, const OsiRowCut ** cuts)
 {
   int i;
@@ -915,14 +915,14 @@ void * OsiSolverInterface::getApplicationData() const
 {
   return appDataEtc_->getApplicationData();
 }
-void 
+void
 OsiSolverInterface::setAuxiliaryInfo(OsiAuxInfo * auxiliaryInfo)
-{ 
+{
   delete appDataEtc_;
   appDataEtc_ = auxiliaryInfo->clone();
 }
 // Get pointer to auxiliary info object
-OsiAuxInfo * 
+OsiAuxInfo *
 OsiSolverInterface::getAuxiliaryInfo() const
 {
   return appDataEtc_;
@@ -936,7 +936,7 @@ OsiSolverInterface::getAuxiliaryInfo() const
 // Activate Row Cut Debugger<br>
 // If the model name passed is on list of known models
 // then all cuts are checked to see that they do NOT cut
-// off the known optimal solution.  
+// off the known optimal solution.
 
 void OsiSolverInterface::activateRowCutDebugger (const char * modelName)
 {
@@ -986,7 +986,7 @@ OsiRowCutDebugger * OsiSolverInterface::getRowCutDebuggerAlways() const
 //#############################################################################
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiSolverInterface::OsiSolverInterface () :
   rowCutDebugger_(NULL),
@@ -999,7 +999,7 @@ OsiSolverInterface::OsiSolverInterface () :
   setInitialData();
 }
 // Set data for default constructor
-void 
+void
 OsiSolverInterface::setInitialData()
 {
   delete rowCutDebugger_;
@@ -1007,7 +1007,7 @@ OsiSolverInterface::setInitialData()
   delete ws_;
   ws_ = NULL;
   delete appDataEtc_;
-  appDataEtc_ = new OsiAuxInfo(); 
+  appDataEtc_ = new OsiAuxInfo();
   if (defaultHandler_) {
     delete handler_;
     handler_ = NULL;
@@ -1050,12 +1050,12 @@ OsiSolverInterface::setInitialData()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiSolverInterface::OsiSolverInterface (const OsiSolverInterface & rhs) :
   rowCutDebugger_(NULL),
   ws_(NULL)
-{  
+{
   appDataEtc_ = rhs.appDataEtc_->clone();
   if ( rhs.rowCutDebugger_!=NULL )
     rowCutDebugger_ = new OsiRowCutDebugger(*rhs.rowCutDebugger_);
@@ -1076,7 +1076,7 @@ OsiSolverInterface::OsiSolverInterface (const OsiSolverInterface & rhs) :
   numberIntegers_=rhs.numberIntegers_;
   if (numberObjects_) {
     object_ = new OsiObject * [numberObjects_];
-    for (int i=0;i<numberObjects_;i++) 
+    for (int i=0;i<numberObjects_;i++)
       object_[i] = rhs.object_[i]->clone();
   } else {
     object_=NULL;
@@ -1090,7 +1090,7 @@ OsiSolverInterface::OsiSolverInterface (const OsiSolverInterface & rhs) :
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiSolverInterface::~OsiSolverInterface ()
 {
@@ -1104,14 +1104,14 @@ OsiSolverInterface::~OsiSolverInterface ()
     delete handler_;
     handler_ = NULL;
   }
-  for (int i=0;i<numberObjects_;i++) 
+  for (int i=0;i<numberObjects_;i++)
     delete object_[i];
   delete [] object_;
   delete [] columnType_;
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiSolverInterface &
 OsiSolverInterface::operator=(const OsiSolverInterface& rhs)
@@ -1143,14 +1143,14 @@ OsiSolverInterface::operator=(const OsiSolverInterface& rhs)
     }
     // objects
     int i;
-    for (i=0;i<numberObjects_;i++) 
+    for (i=0;i<numberObjects_;i++)
       delete object_[i];
     delete [] object_;
     numberObjects_=rhs.numberObjects_;
     numberIntegers_=rhs.numberIntegers_;
     if (numberObjects_) {
       object_ = new OsiObject * [numberObjects_];
-      for (i=0;i<numberObjects_;i++) 
+      for (i=0;i<numberObjects_;i++)
 	object_[i] = rhs.object_[i]->clone();
     } else {
       object_=NULL;
@@ -1181,7 +1181,7 @@ int OsiSolverInterface::readMps(const char * filename,
   else
   { m.messageHandler()->setLogLevel(0) ; }
   m.setInfinity(getInfinity());
-  
+
   int numberErrors = m.readMps(filename,extension);
   handler_->message(COIN_SOLVER_MPS,messages_)
     <<m.getProblemName()<< numberErrors <<CoinMessageEol;
@@ -1215,10 +1215,10 @@ int OsiSolverInterface::readMps(const char * filename,
   return numberErrors;
 }
 /* Read a problem in GMPL format from the given filenames.
-   
+
   Will only work if glpk installed
 */
-int 
+int
 OsiSolverInterface::readGMPL(const char *filename, const char * dataname)
 {
   CoinMpsIO m;
@@ -1258,18 +1258,18 @@ OsiSolverInterface::readGMPL(const char *filename, const char * dataname)
   return numberErrors;
 }
  /* Read a problem in MPS format from the given full filename.
-   
+
 This uses CoinMpsIO::readMps() to read
 the MPS file and returns the number of errors encountered.
 It also may return an array of set information
 */
-int 
+int
 OsiSolverInterface::readMps(const char *filename, const char*extension,
 			    int & numberSets, CoinSet ** & sets)
 {
   CoinMpsIO m;
   m.setInfinity(getInfinity());
-  
+
   int numberErrors = m.readMps(filename,extension,numberSets,sets);
   handler_->message(COIN_SOLVER_MPS,messages_)
     <<m.getProblemName()<< numberErrors <<CoinMessageEol;
@@ -1302,9 +1302,9 @@ OsiSolverInterface::readMps(const char *filename, const char*extension,
   return numberErrors;
 }
 
-int 
-OsiSolverInterface::writeMpsNative(const char *filename, 
-				   const char ** rowNames, 
+int
+OsiSolverInterface::writeMpsNative(const char *filename,
+				   const char ** rowNames,
 				   const char ** columnNames,
 				   int formatType,
 				   int numberAcross,
@@ -1330,7 +1330,7 @@ OsiSolverInterface::writeMpsNative(const char *filename,
    //if (objSense*getObjSense()<0.0) {
    double locObjSense = (objSense == 0 ? 1 : objSense);
    if(getObjSense() * locObjSense < 0.0) {
-     for (int i = 0; i < numcols; ++i) 
+     for (int i = 0; i < numcols; ++i)
        objective [i] = - objective[i];
    }
 
@@ -1388,7 +1388,7 @@ void OsiSolverInterface::writeLp(const char * filename,
 	}
 
   // Fall back on Osi version
-  OsiSolverInterface::writeLpNative(fullname.c_str(), 
+  OsiSolverInterface::writeLpNative(fullname.c_str(),
 				    rownames, colnames, epsilon, numberAcross,
 				    decimals, objSense, useRowNames);
 
@@ -1428,7 +1428,7 @@ void OsiSolverInterface::writeLp(FILE *fp,
 	}
 
   // Fall back on Osi version
-  OsiSolverInterface::writeLpNative(fp, 
+  OsiSolverInterface::writeLpNative(fp,
 				    rownames, colnames, epsilon, numberAcross,
 				    decimals, objSense, useRowNames);
 
@@ -1461,7 +1461,7 @@ OsiSolverInterface::writeLpNative(const char *filename,
     exit(1);
   }
   int nerr = writeLpNative(fp,rowNames, columnNames,
-			   epsilon, numberAcross, decimals, 
+			   epsilon, numberAcross, decimals,
 			   objSense, useRowNames);
   fclose(fp);
   return(nerr);
@@ -1524,7 +1524,7 @@ OsiSolverInterface::writeLpNative(FILE *fp,
    //writer.print();
    delete [] objective;
    delete[] integrality;
-   return writer.writeLp(fp, epsilon, numberAcross, decimals, 
+   return writer.writeLp(fp, epsilon, numberAcross, decimals,
 			 useRowNames);
 
 } /*writeLpNative */
@@ -1579,7 +1579,7 @@ int OsiSolverInterface::readLp(FILE *fp, const double epsilon) {
 /*************************************************************************/
 
 // Pass in Message handler (not deleted at end)
-void 
+void
 OsiSolverInterface::passInMessageHandler(CoinMessageHandler * handler)
 {
   if (defaultHandler_) {
@@ -1590,7 +1590,7 @@ OsiSolverInterface::passInMessageHandler(CoinMessageHandler * handler)
   handler_=handler;
 }
 // Set language
-void 
+void
 OsiSolverInterface::newLanguage(CoinMessages::Language language)
 {
   messages_ = CoinMessage(language);
@@ -1616,7 +1616,7 @@ OsiSolverInterface::isDualObjectiveLimitReached() const
     return false;
 }
 // copy all parameters in this section from one solver to another
-void 
+void
 OsiSolverInterface::copyParameters(OsiSolverInterface & rhs)
 {
   /*
@@ -1652,7 +1652,7 @@ OsiSolverInterface::copyParameters(OsiSolverInterface & rhs)
   CoinDisjointCopyN(rhs.hintStrength_, OsiLastHintParam, hintStrength_);
 }
 // Resets as if default constructor
-void 
+void
 OsiSolverInterface::reset()
 {
   // Throw an exception
@@ -1665,28 +1665,28 @@ OsiSolverInterface::reset()
   and can be queried by other methods.  says whether will be
   doing primal or dual
 */
-void 
+void
 OsiSolverInterface::enableSimplexInterface(bool ) {}
 
 //Undo whatever setting changes the above method had to make
-void 
+void
 OsiSolverInterface::disableSimplexInterface() {}
 /* Returns 1 if can just do getBInv etc
    2 if has all OsiSimplex methods
    and 0 if it has none */
-int 
+int
 OsiSolverInterface::canDoSimplexInterface() const
 {
   return 0;
 }
 
 /* Tells solver that calls to getBInv etc are about to take place.
-   Underlying code may need mutable as this may be called from 
+   Underlying code may need mutable as this may be called from
    CglCut:;generateCuts which is const.  If that is too horrific then
    each solver e.g. BCP or CBC will have to do something outside
    main loop.
 */
-void 
+void
 OsiSolverInterface::enableFactorization() const
 {
   // Throw an exception
@@ -1694,7 +1694,7 @@ OsiSolverInterface::enableFactorization() const
 		  "OsiSolverInterface");
 }
 // and stop
-void 
+void
 OsiSolverInterface::disableFactorization() const
 {
   // Throw an exception
@@ -1703,8 +1703,8 @@ OsiSolverInterface::disableFactorization() const
 }
 
 //Returns true if a basis is available
-bool 
-OsiSolverInterface::basisIsAvailable() const 
+bool
+OsiSolverInterface::basisIsAvailable() const
 {
   return false;
 }
@@ -1714,7 +1714,7 @@ OsiSolverInterface::basisIsAvailable() const
    1. OsiWarmStartBasis resize operation is implemented
    more efficiently and
    2. It is ensured that effects on the solver are the same
- 
+
    (lh 100818)
    1. CoinWarmStartBasis is the relevant resize, and John's right, it needs
       to be reworked. The problem is that when new columns or rows are added,
@@ -1723,8 +1723,8 @@ OsiSolverInterface::basisIsAvailable() const
       be addressed at the same time.
    2. setWarmStart followed by resolve should do it.
 */
-void 
-OsiSolverInterface::getBasisStatus(int* , int* ) const 
+void
+OsiSolverInterface::getBasisStatus(int* , int* ) const
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "getBasisStatus",
@@ -1732,45 +1732,45 @@ OsiSolverInterface::getBasisStatus(int* , int* ) const
 }
 
 /* Set the status of structural/artificial variables and
-   factorize, update solution etc 
-   
+   factorize, update solution etc
+
    NOTE  artificials are treated as +1 elements so for <= rhs
    artificial will be at lower bound if constraint is tight
 */
-int 
-OsiSolverInterface::setBasisStatus(const int* , const int* ) 
+int
+OsiSolverInterface::setBasisStatus(const int* , const int* )
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "setBasisStatus",
 		  "OsiSolverInterface");
 }
 
-/* Perform a pivot by substituting a colIn for colOut in the basis. 
+/* Perform a pivot by substituting a colIn for colOut in the basis.
    The status of the leaving variable is given in statOut. Where
    1 is to upper bound, -1 to lower bound
 */
-int 
-OsiSolverInterface::pivot(int , int , int ) 
+int
+OsiSolverInterface::pivot(int , int , int )
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "pivot",
 		  "OsiSolverInterface");
 }
 
-/* Obtain a result of the primal pivot 
+/* Obtain a result of the primal pivot
    Outputs: colOut -- leaving column, outStatus -- its status,
    t -- step size, and, if dx!=NULL, *dx -- primal ray direction.
    Inputs: colIn -- entering column, sign -- direction of its change (+/-1).
    Both for colIn and colOut, artificial variables are index by
    the negative of the row index minus 1.
-   Return code (for now): 0 -- leaving variable found, 
+   Return code (for now): 0 -- leaving variable found,
    -1 -- everything else?
-   Clearly, more informative set of return values is required 
+   Clearly, more informative set of return values is required
    Primal and dual solutions are updated
 */
-int 
-OsiSolverInterface::primalPivotResult(int, int , 
-                                      int& , int& , 
+int
+OsiSolverInterface::primalPivotResult(int, int ,
+                                      int& , int& ,
                                       double& , CoinPackedVector* )
 {
   // Throw an exception
@@ -1784,19 +1784,19 @@ OsiSolverInterface::primalPivotResult(int, int ,
    If dx!=NULL, then *dx contains dual ray
    Return code: same
 */
-int 
-OsiSolverInterface::dualPivotResult(int& , int& , 
-                                    int , int , 
-                                    double& , CoinPackedVector* ) 
+int
+OsiSolverInterface::dualPivotResult(int& , int& ,
+                                    int , int ,
+                                    double& , CoinPackedVector* )
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "dualPivotResult",
 		  "OsiSolverInterface");
 }
 
-//Get the reduced gradient for the cost vector c 
-void 
-OsiSolverInterface::getReducedGradient(double* , 
+//Get the reduced gradient for the cost vector c
+void
+OsiSolverInterface::getReducedGradient(double* ,
                                        double * ,
                                        const double * ) const
 {
@@ -1806,8 +1806,8 @@ OsiSolverInterface::getReducedGradient(double* ,
 }
 
 //Get a row of the tableau (slack part in slack if not NULL)
-void 
-OsiSolverInterface::getBInvARow(int , double* , double * ) const 
+void
+OsiSolverInterface::getBInvARow(int , double* , double * ) const
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "getBInvARow",
@@ -1815,7 +1815,7 @@ OsiSolverInterface::getBInvARow(int , double* , double * ) const
 }
 
 //Get a row of the basis inverse
-void OsiSolverInterface::getBInvRow(int , double* ) const 
+void OsiSolverInterface::getBInvRow(int , double* ) const
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "getBInvRow",
@@ -1823,8 +1823,8 @@ void OsiSolverInterface::getBInvRow(int , double* ) const
 }
 
 //Get a column of the tableau
-void 
-OsiSolverInterface::getBInvACol(int , double* ) const 
+void
+OsiSolverInterface::getBInvACol(int , double* ) const
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "getBInvACol",
@@ -1832,8 +1832,8 @@ OsiSolverInterface::getBInvACol(int , double* ) const
 }
 
 //Get a column of the basis inverse
-void 
-OsiSolverInterface::getBInvCol(int , double* ) const 
+void
+OsiSolverInterface::getBInvCol(int , double* ) const
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "getBInvCol",
@@ -1842,13 +1842,13 @@ OsiSolverInterface::getBInvCol(int , double* ) const
 /* Get warm start information.
    Return warm start information for the current state of the solver
    interface. If there is no valid warm start information, an empty warm
-   start object wil be returned.  This does not necessarily create an 
+   start object wil be returned.  This does not necessarily create an
    object - may just point to one.  must Delete set true if user
    should delete returned object.
    OsiClp version always returns pointer and false.
 */
-CoinWarmStart* 
-OsiSolverInterface::getPointerToWarmStart(bool & mustDelete) 
+CoinWarmStart*
+OsiSolverInterface::getPointerToWarmStart(bool & mustDelete)
 {
   mustDelete = true;
   return getWarmStart();
@@ -1858,8 +1858,8 @@ OsiSolverInterface::getPointerToWarmStart(bool & mustDelete)
    order of elements in a vector retured by getBInvACol() and
    getBInvCol()).
 */
-void 
-OsiSolverInterface::getBasics(int* ) const 
+void
+OsiSolverInterface::getBasics(int* ) const
 {
   // Throw an exception
   throw CoinError("Needs coding for this interface", "getBasics",
@@ -1887,7 +1887,7 @@ OsiSolverInterface::snapshot(bool createArrays) const
 		      getObjCoefficients(),getRowLower(),
 		      getRowUpper());
     snap->createRightHandSide();
-    // Solution 
+    // Solution
     snap->setColSolution(getColSolution(),true);
     snap->setRowPrice(getRowPrice(),true);
     snap->setReducedCost(getReducedCost(),true);
@@ -1902,7 +1902,7 @@ OsiSolverInterface::snapshot(bool createArrays) const
     snap->setObjCoefficients(getObjCoefficients(),false);
     snap->setRowLower(getRowLower(),false);
     snap->setRowUpper(getRowUpper(),false);
-    // Solution 
+    // Solution
     snap->setColSolution(getColSolution(),false);
     snap->setRowPrice(getRowPrice(),false);
     snap->setReducedCost(getReducedCost(),false);
@@ -1923,7 +1923,7 @@ OsiSolverInterface::snapshot(bool createArrays) const
       type[i]='C';
     }
   }
-  if (numberIntegers) 
+  if (numberIntegers)
     snap->setColType(type,true);
   else
     snap->setNumIntegers(0);
@@ -1932,19 +1932,19 @@ OsiSolverInterface::snapshot(bool createArrays) const
 }
 #endif
 /* Identify integer variables and create corresponding objects.
-  
+
    Record integer variables and create an OsiSimpleInteger object for each
    one.  All existing OsiSimpleInteger objects will be destroyed.
-   New 
+   New
 */
-void 
+void
 OsiSolverInterface::findIntegers(bool justCount)
 {
   numberIntegers_=0;
   int numberColumns = getNumCols();
   int iColumn;
   for (iColumn=0;iColumn<numberColumns;iColumn++) {
-    if (isInteger(iColumn)) 
+    if (isInteger(iColumn))
       numberIntegers_++;
   }
   if (justCount) {
@@ -1957,7 +1957,7 @@ OsiSolverInterface::findIntegers(bool justCount)
   for (iObject = 0;iObject<numberObjects_;iObject++) {
     OsiSimpleInteger * obj =
       dynamic_cast <OsiSimpleInteger *>(object_[iObject]) ;
-    if (obj) 
+    if (obj)
       numberIntegers++;
   }
   // if same number return
@@ -1994,7 +1994,7 @@ OsiSolverInterface::findIntegers(bool justCount)
   for (iColumn=0;iColumn<numberColumns;iColumn++) {
     if(isInteger(iColumn)) {
       iObject=marked[iColumn];
-      if (iObject>=0) 
+      if (iObject>=0)
 	object_[numberObjects_++] = oldObject[iObject];
       else
 	object_[numberObjects_++] =
@@ -2005,7 +2005,7 @@ OsiSolverInterface::findIntegers(bool justCount)
   for (iObject = 0;iObject<nObjects;iObject++) {
     OsiSimpleInteger * obj =
       dynamic_cast <OsiSimpleInteger *>(oldObject[iObject]) ;
-    if (!obj) 
+    if (!obj)
       object_[numberObjects_++] = oldObject[iObject];
   }
   // Delete old array (just array)
@@ -2013,7 +2013,7 @@ OsiSolverInterface::findIntegers(bool justCount)
   delete [] marked;
 }
 /* Identify integer variables and SOS and create corresponding objects.
-  
+
       Record integer variables and create an OsiSimpleInteger object for each
       one.  All existing OsiSimpleInteger objects will be destroyed.
       If the solver supports SOS then do the same for SOS.
@@ -2021,17 +2021,17 @@ OsiSolverInterface::findIntegers(bool justCount)
       If justCount then no objects created and we just store numberIntegers_
       Returns number of SOS
 */
-int 
+int
 OsiSolverInterface::findIntegersAndSOS(bool justCount)
 {
   findIntegers(justCount);
   return 0;
 }
 // Delete all object information
-void 
+void
 OsiSolverInterface::deleteObjects()
 {
-  for (int i=0;i<numberObjects_;i++) 
+  for (int i=0;i<numberObjects_;i++)
     delete object_[i];
   delete [] object_;
   object_=NULL;
@@ -2039,10 +2039,10 @@ OsiSolverInterface::deleteObjects()
 }
 
 /* Add in object information.
-  
+
    Objects are cloned; the owner can delete the originals.
 */
-void 
+void
 OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
 {
   // Create integers if first time
@@ -2059,7 +2059,7 @@ OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
     mark[i]=-1;
   int newNumberObjects = numberObjects;
   int newIntegers=0;
-  for (i=0;i<numberObjects;i++) { 
+  for (i=0;i<numberObjects;i++) {
     OsiSimpleInteger * obj =
       dynamic_cast <OsiSimpleInteger *>(objects[i]) ;
     if (obj) {
@@ -2069,7 +2069,7 @@ OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
     }
   }
   // and existing
-  for (i=0;i<numberObjects_;i++) { 
+  for (i=0;i<numberObjects_;i++) {
     OsiSimpleInteger * obj =
       dynamic_cast <OsiSimpleInteger *>(object_[i]) ;
     if (obj) {
@@ -2086,7 +2086,7 @@ OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
     } else {
       newNumberObjects++;
     }
-  } 
+  }
   numberIntegers_ = newIntegers;
   OsiObject ** temp  = new OsiObject * [newNumberObjects];
   // Put integers first
@@ -2109,7 +2109,7 @@ OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
   }
   int n=numberIntegers_;
   // Now rest of old
-  for (i=0;i<numberObjects_;i++) { 
+  for (i=0;i<numberObjects_;i++) {
     if (object_[i]) {
       OsiSimpleInteger * obj =
         dynamic_cast <OsiSimpleInteger *>(object_[i]) ;
@@ -2119,7 +2119,7 @@ OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
     }
   }
   // and rest of new
-  for (i=0;i<numberObjects;i++) { 
+  for (i=0;i<numberObjects;i++) {
     OsiSimpleInteger * obj =
       dynamic_cast <OsiSimpleInteger *>(objects[i]) ;
     if (!obj) {
@@ -2132,12 +2132,12 @@ OsiSolverInterface::addObjects(int numberObjects, OsiObject ** objects)
   numberObjects_ = newNumberObjects;
 }
 // Deletes branching information before columns deleted
-void 
+void
 OsiSolverInterface::deleteBranchingInfo(int numberDeleted, const int * which)
 {
   if (numberObjects_) {
     int numberColumns = getNumCols();
-    // mark is -1 if deleted and new number if not deleted 
+    // mark is -1 if deleted and new number if not deleted
     int * mark = new int[numberColumns];
     int i;
     int iColumn;
@@ -2158,7 +2158,7 @@ OsiSolverInterface::deleteBranchingInfo(int numberDeleted, const int * which)
     int oldNumberObjects = numberObjects_;
     numberIntegers_=0;
     numberObjects_=0;
-    for (i=0;i<oldNumberObjects;i++) { 
+    for (i=0;i<oldNumberObjects;i++) {
       OsiSimpleInteger * obj =
 	dynamic_cast <OsiSimpleInteger *>(object_[i]) ;
       if (obj) {
@@ -2204,7 +2204,7 @@ OsiSolverInterface::deleteBranchingInfo(int numberDeleted, const int * which)
    Only feasible bounds will be used, even if current solution outside bounds.  The amount of
    such violation will be returned (and if small can be ignored)
 */
-double 
+double
 OsiSolverInterface::forceFeasible()
 {
   /*
@@ -2221,11 +2221,11 @@ OsiSolverInterface::forceFeasible()
     infeasibility += object_[i]->feasibleRegion(this,&info);
   return infeasibility;
 }
-/* 
+/*
    For variables currently at bound, fix at bound if reduced cost >= gap
    Returns number fixed
 */
-int 
+int
 OsiSolverInterface::reducedCostFix(double gap, bool justInteger)
 {
   double direction = getObjSense() ;
@@ -2248,7 +2248,7 @@ OsiSolverInterface::reducedCostFix(double gap, bool justInteger)
       if (upper[iColumn]-lower[iColumn] > tolerance) {
 	if (solution[iColumn] < lower[iColumn]+tolerance && djValue > gap) {
 	  setColUpper(iColumn,lower[iColumn]) ;
-	  numberFixed++ ; 
+	  numberFixed++ ;
 	} else if (solution[iColumn] > upper[iColumn]-tolerance && -djValue > gap) {
 	  setColLower(iColumn,upper[iColumn]) ;
 	  numberFixed++ ;
@@ -2256,18 +2256,18 @@ OsiSolverInterface::reducedCostFix(double gap, bool justInteger)
       }
     }
   }
-  
+
   return numberFixed;
 }
 #ifdef COIN_FACTORIZATION_INFO
 // Return number of entries in L part of current factorization
-CoinBigIndex 
+CoinBigIndex
 OsiSolverInterface::getSizeL() const
 {
   return -1;
 }
 // Return number of entries in U part of current factorization
-CoinBigIndex 
+CoinBigIndex
 OsiSolverInterface::getSizeU() const
 {
   return -1;
@@ -2280,18 +2280,18 @@ OsiSolverInterface::getSizeU() const
   as given by branch.  The user should provide an array of (empty)
   results which will be filled in.  See OsiSolveResult for more details
   (in OsiSolveBranch.?pp) but it will include a basis and primal solution.
-  
+
   The order of results is left to right at feasible leaf nodes so first one
   is down, down, .....
-  
+
   Returns number of feasible leaves.  Also sets number of solves done and number
   of iterations.
-  
+
   This is provided so a solver can do faster.
-  
+
   If forceBranch true then branch done even if satisfied
 */
-int 
+int
 OsiSolverInterface::solveBranches(int depth,const OsiSolverBranch * branch,
                                   OsiSolverResult * result,
                                   int & numberSolves, int & numberIterations,
@@ -2317,7 +2317,7 @@ OsiSolverInterface::solveBranches(int depth,const OsiSolverBranch * branch,
     val[iDepth]=branch[iDepth].bounds()[0];
     printf("depth %d seq %d nominal value %g\n",iDepth,seq[iDepth],val[iDepth]+0.5);
   }
-#endif  
+#endif
   int numberColumns = getNumCols();
   double * lowerBefore = CoinCopyOfArray(getColLower(),numberColumns);
   double * upperBefore = CoinCopyOfArray(getColUpper(),numberColumns);

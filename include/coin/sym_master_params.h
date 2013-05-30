@@ -53,8 +53,8 @@ typedef struct PARAMS{
    int        do_draw_graph;
    int        use_permanent_cut_pools;
    char       infile[MAX_FILE_NAME_LENGTH +1]; /* For MPS file name
-						  or GNUMP modelfile */   
-   int        file_type; 
+						  or GNUMP modelfile */
+   int        file_type;
    char       datafile[MAX_FILE_NAME_LENGTH +1]; /* GNUMP datafile */
    char       test_dir[MAX_FILE_NAME_LENGTH +1];  /* Test files directory */
    double     obj_offset;

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2816 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-15 09:07:22 +0200 (Mo, 15. Okt 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -1904,7 +1904,6 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 	if (lvert_size && !vertical_merger)
 	{
 		//fill l_vert
-		edge e;
 		//fill l_vert sorting by righte, remember entry for edges sorted by lefte
 		//all inf.inList[odEast] and [odWest], sorted by lefte
 
@@ -1926,6 +1925,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		tcount = bcount = tlcount = blcount = 0;
 		for (int k = 0; k < lvert_size; k++)
 		{
+			edge e = NULL;
 			if (li_t.valid() || li_b.valid())
 			{
 				//righter value
@@ -1970,6 +1970,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				//lefte_b = (li_lb.valid() ? lefte[*li_lb] : 100000.0);
 				lefte_b = (blcount < inf.inList(odWest).size() ? alefte[outEntry(inf, odWest, blcount)] : numeric_limits<int>::max());
 			}
+			OGDF_ASSERT(e);
 			l_vertl.pushBack(e);
 		}//for
 	}//if vert

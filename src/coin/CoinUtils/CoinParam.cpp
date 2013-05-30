@@ -20,7 +20,7 @@
 /*
   Default constructor.
 */
-CoinParam::CoinParam () 
+CoinParam::CoinParam ()
   : type_(coinParamInvalid),
     name_(),
     lengthName_(0),
@@ -250,7 +250,7 @@ CoinParam::~CoinParam ()
 
 /*
   Process the parameter name.
-  
+
   Process the name for efficient matching: determine if an `!' is present. If
   so, locate and record the position and remove the `!'.
 */
@@ -282,7 +282,7 @@ int CoinParam::matches (std::string input) const
   if (inputLen <= lengthName_)
   { size_t i ;
     for (i = 0 ; i < inputLen ; i++)
-    { if (tolower(name_[i]) != tolower(input[i])) 
+    { if (tolower(name_[i]) != tolower(input[i]))
 	break ; }
     if (i < inputLen)
     { return (0) ; }
@@ -291,7 +291,7 @@ int CoinParam::matches (std::string input) const
     { return (1) ; }
     else
     { return (2) ; } }
-  
+
   return (0) ;
 }
 
@@ -301,8 +301,8 @@ int CoinParam::matches (std::string input) const
   E.g., some!Name will come back as some(Name).
 */
 std::string CoinParam::matchName () const
-{ 
-  if (lengthMatch_ == lengthName_) 
+{
+  if (lengthMatch_ == lengthName_)
   { return name_ ; }
   else
   { return name_.substr(0,lengthMatch_)+"("+name_.substr(lengthMatch_)+")" ; }
@@ -366,7 +366,7 @@ void CoinParam::printLongHelp() const
   Add a keyword to the list for a keyword parameter.
 */
 void CoinParam::appendKwd (std::string kwd)
-{ 
+{
   assert (type_ == coinParamKwd) ;
 
   definedKwds_.push_back(kwd) ;
@@ -407,7 +407,7 @@ int CoinParam::kwdIndex (std::string input) const
       if (inputLen <= kwdLen)
       { unsigned int i ;
 	for (i = 0 ; i < inputLen ; i++)
-	{ if (tolower(kwd[i]) != tolower(input[i])) 
+	{ if (tolower(kwd[i]) != tolower(input[i]))
 	    break ; }
 	if (i >= inputLen && i >= matchLen)
 	{ whichItem = static_cast<int>(it) ;
@@ -451,7 +451,7 @@ void CoinParam::setKwdVal (int value, bool printIt)
 std::string CoinParam::kwdVal() const
 {
   assert (type_ == coinParamKwd) ;
-  
+
   return (definedKwds_[currentKwd_]) ;
 }
 
@@ -493,7 +493,7 @@ void CoinParam::printKwds () const
 */
 
 void CoinParam::setStrVal (std::string value)
-{ 
+{
   assert (type_ == coinParamStr) ;
 
   strValue_ = value ;
@@ -512,7 +512,7 @@ std::string CoinParam::strVal () const
 */
 
 void CoinParam::setDblVal (double value)
-{ 
+{
   assert (type_ == coinParamDbl) ;
 
   dblValue_ = value ;
@@ -531,7 +531,7 @@ double CoinParam::dblVal () const
 */
 
 void CoinParam::setIntVal (int value)
-{ 
+{
   assert (type_ == coinParamInt) ;
 
   intValue_ = value ;

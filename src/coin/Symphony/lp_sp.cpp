@@ -25,15 +25,15 @@
 
 /*===========================================================================*/
 /*===========================================================================*/
-int sp_add_solution (lp_prob *p, int cnt, int *indices, double *values, 
+int sp_add_solution (lp_prob *p, int cnt, int *indices, double *values,
       double obj_value, int bc_index)
 {
    sp_desc *sp = p->tm->sp;
    sp_solution *sol;
 
    //TODO: check duplicates
-   
-   if (sp->num_solutions == sp->max_solutions && 
+
+   if (sp->num_solutions == sp->max_solutions &&
          sp->solutions[0]->objval>=obj_value+p->lp_data->lpetol) {
       /* delete first solution and move everything up by 1 */
       sp_delete_solution(sp,0);
@@ -57,7 +57,7 @@ int sp_add_solution (lp_prob *p, int cnt, int *indices, double *values,
    sol->node_index = bc_index;
    sp->num_solutions++;
    sp->total_num_sols_found++;
-   PRINT(p->par.verbosity,5,("sp: solution pool size = %d \n", 
+   PRINT(p->par.verbosity,5,("sp: solution pool size = %d \n",
             sp->num_solutions));
    return 0;
 }
@@ -87,7 +87,7 @@ int sp_delete_solution (sp_desc *sp, int position)
 
 /*===========================================================================*/
 /*===========================================================================*/
-int sp_is_solution_in_sp (lp_prob *p, int cnt, int *indices, double *values, 
+int sp_is_solution_in_sp (lp_prob *p, int cnt, int *indices, double *values,
       double obj_value)
 {
    /* not implemented yet */

@@ -12,9 +12,9 @@
 /*                                                                           */
 /*===========================================================================*/
 
-#ifndef COMPILE_IN_LP 
+#ifndef COMPILE_IN_LP
 
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <math.h>
 #include <memory.h>
 
@@ -29,8 +29,8 @@
 /*===========================================================================*/
 
 /*===========================================================================*\
- * This is the main() that is used if the LP is running as a separate        
- * process. This file is only used in that case.                             
+ * This is the main() that is used if the LP is running as a separate
+ * process. This file is only used in that case.
 \*===========================================================================*/
 
 int main(void)
@@ -41,7 +41,7 @@ int main(void)
    struct timeval timeout = {10, 0};
    char first_node_rec = FALSE;
    int termcode;
-   
+
    p = (lp_prob *) calloc(1, sizeof(lp_prob));
 
    p->start_time = wall_clock(NULL);
@@ -50,7 +50,7 @@ int main(void)
       printf("LP initialization failed with error code %i\n\n", termcode);
       lp_exit(p);
    }
-   
+
    /*------------------------------------------------------------------------*\
     * Continue receiving node data and fathoming branches until this
     * process is killed
@@ -74,7 +74,7 @@ int main(void)
       }else{
 	 first_node_rec = TRUE;
 	 p->comp_times.ramp_up_lp += diff;
-      }	 
+      }
       do{
 	 r_bufid = nreceive_msg(ANYONE, ANYTHING);
 	 if (r_bufid)
@@ -91,7 +91,7 @@ int main(void)
    }
 
    p->comp_times.wall_clock_lp = wall_clock(NULL) - p->start_time;
-   
+
    lp_exit(p);
 
    return(0);

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3506 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-05-16 16:00:17 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -48,7 +48,6 @@
 #include <ogdf/cluster/ClusterOrthoLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
 #include <ogdf/basic/HashArray.h>
-#include <ogdf/cluster/CPlanarEdgeInserter.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
 

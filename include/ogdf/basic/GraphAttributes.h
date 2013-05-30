@@ -1,9 +1,9 @@
 /*
- * $Revision: 3423 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-19 19:22:01 +0200 (Fr, 19. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -229,7 +229,7 @@ public:
 	double &y(node v) {
 		return m_y[v];
 	}
-	
+
 	//! Returns the z-coordinate of node \a v.
 	double z(node v) const {
 		return m_z[v];

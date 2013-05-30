@@ -32,7 +32,7 @@ const char *CoinFileIOBase::getFileName () const
 
 
 // ------------------------------------------------------
-//   next we implement some subclasses of CoinFileInput 
+//   next we implement some subclasses of CoinFileInput
 //   for plain text and compressed files
 // ------------------------------------------------------
 
@@ -51,8 +51,8 @@ public:
     if (fileName!="stdin") {
       f_ = fopen (fileName.c_str (), "r");
       if (f_ == 0)
-        throw CoinError ("Could not open file for reading!", 
-                         "CoinPlainFileInput", 
+        throw CoinError ("Could not open file for reading!",
+                         "CoinPlainFileInput",
                          "CoinPlainFileInput");
     } else {
       f_ = stdin;
@@ -89,10 +89,10 @@ private:
 class CoinGetslessFileInput: public CoinFileInput
 {
 public:
-  CoinGetslessFileInput (const std::string &fileName): 
-    CoinFileInput (fileName), 
-    dataBuffer_ (8*1024), 
-    dataStart_ (&dataBuffer_[0]), 
+  CoinGetslessFileInput (const std::string &fileName):
+    CoinFileInput (fileName),
+    dataBuffer_ (8*1024),
+    dataStart_ (&dataBuffer_[0]),
     dataEnd_ (&dataBuffer_[0])
   {}
 
@@ -143,7 +143,7 @@ public:
     char *destLast = dest + size - 2; // last position allowed to be written
 
     bool initiallyEmpty = (dataStart_ == dataEnd_);
-    
+
     for (;;)
       {
 	// refill dataBuffer if needed
@@ -153,10 +153,10 @@ public:
 	    int count = readRaw (dataStart_, static_cast<int>(dataBuffer_.size ()));
 
 	    // at EOF?
-	    if (count <= 0) 
+	    if (count <= 0)
 	      {
 		*dest = 0;
-		// if it was initially empty we had nothing written and should 
+		// if it was initially empty we had nothing written and should
 		// return 0, otherwise at least the buffer contents were
 		// transfered and buffer has to be returned.
 		return initiallyEmpty ? 0 : buffer;
@@ -176,11 +176,11 @@ public:
 	  }
 
 	++dest;
-      } 
+      }
 
     // we should never reach this place
-    throw CoinError ("Reached unreachable code!", 
-		     "gets", 
+    throw CoinError ("Reached unreachable code!",
+		     "gets",
 		     "CoinGetslessFileInput");
   }
 
@@ -191,7 +191,7 @@ protected:
   virtual int readRaw (void *buffer, int size) = 0;
 
 private:
-  std::vector<char> dataBuffer_; // memory used for buffering 
+  std::vector<char> dataBuffer_; // memory used for buffering
   char *dataStart_; // pointer to currently buffered data
   char *dataEnd_; // pointer to "one behind last data element"
 };
@@ -205,7 +205,7 @@ private:
 #include <zlib.h>
 
 // This class handles gzip'ed files using libz.
-// While zlib offers the gzread and gzgets functions which do all we want, 
+// While zlib offers the gzread and gzgets functions which do all we want,
 // the gzgets is _very_ slow as it gets single bytes via the complex gzread.
 // So we use the CoinGetslessFileInput as base.
 class CoinGzipFileInput: public CoinGetslessFileInput
@@ -217,8 +217,8 @@ public:
     readType_="zlib";
     gzf_ = gzopen (fileName.c_str (), "r");
     if (gzf_ == 0)
-      throw CoinError ("Could not open file for reading!", 
-		       "CoinGzipFileInput", 
+      throw CoinError ("Could not open file for reading!",
+		       "CoinGzipFileInput",
 		       "CoinGzipFileInput");
   }
 
@@ -259,13 +259,13 @@ public:
     readType_="bzlib";
 
     f_ = fopen (fileName.c_str (), "r");
-    
+
     if (f_ != 0)
       bzf_ = BZ2_bzReadOpen (&bzError, f_, 0, 0, 0, 0);
 
     if (f_ == 0 || bzError != BZ_OK || bzf_ == 0)
-      throw CoinError ("Could not open file for reading!", 
-		       "CoinBzip2FileInput", 
+      throw CoinError ("Could not open file for reading!",
+		       "CoinBzip2FileInput",
 		       "CoinBzip2FileInput");
   }
 
@@ -287,7 +287,7 @@ protected:
 
     if (bzError == BZ_OK || bzError == BZ_STREAM_END)
       return count;
-    
+
     // Error?
     return 0;
   }
@@ -322,7 +322,7 @@ bool CoinFileInput::haveBzip2Support() {
 
 CoinFileInput *CoinFileInput::create (const std::string &fileName)
 {
-  // first try to open file, and read first bytes 
+  // first try to open file, and read first bytes
   unsigned char header[4];
   size_t count ; // So stdin will be plain file
   if (fileName!="stdin") {
@@ -368,16 +368,16 @@ CoinFileInput *CoinFileInput::create (const std::string &fileName)
   return new CoinPlainFileInput (fileName);
 }
 
-CoinFileInput::CoinFileInput (const std::string &fileName): 
+CoinFileInput::CoinFileInput (const std::string &fileName):
   CoinFileIOBase (fileName)
 {}
 
-CoinFileInput::~CoinFileInput () 
+CoinFileInput::~CoinFileInput ()
 {}
 
 
 // ------------------------------------------------------
-//   Some subclasses of CoinFileOutput 
+//   Some subclasses of CoinFileOutput
 //   for plain text and compressed files
 // ------------------------------------------------------
 
@@ -388,7 +388,7 @@ CoinFileInput::~CoinFileInput ()
 class CoinPlainFileOutput: public CoinFileOutput
 {
 public:
-  CoinPlainFileOutput (const std::string &fileName): 
+  CoinPlainFileOutput (const std::string &fileName):
     CoinFileOutput (fileName), f_ (0)
   {
     if (fileName == "-" || fileName == "stdout") {
@@ -402,7 +402,7 @@ public:
     }
   }
 
-  virtual ~CoinPlainFileOutput () 
+  virtual ~CoinPlainFileOutput ()
   {
     if (f_ != 0 && f_ != stdout)
       fclose (f_);
@@ -434,7 +434,7 @@ private:
 class CoinGzipFileOutput: public CoinFileOutput
 {
 public:
-  CoinGzipFileOutput (const std::string &fileName): 
+  CoinGzipFileOutput (const std::string &fileName):
     CoinFileOutput (fileName), gzf_ (0)
   {
     gzf_ = gzopen (fileName.c_str (), "w");
@@ -444,7 +444,7 @@ public:
 		       "CoinGzipFileOutput");
   }
 
-  virtual ~CoinGzipFileOutput () 
+  virtual ~CoinGzipFileOutput ()
   {
     if (gzf_ != 0)
       gzclose (gzf_);
@@ -454,10 +454,10 @@ public:
   {
     return gzwrite (gzf_, const_cast<void *> (buffer), size);
   }
-  
+
   // as zlib's gzputs is no more clever than our own, there's
   // no need to replace the default.
-  
+
 private:
   gzFile gzf_;
 };
@@ -475,15 +475,15 @@ private:
 class CoinBzip2FileOutput: public CoinFileOutput
 {
 public:
-  CoinBzip2FileOutput (const std::string &fileName): 
+  CoinBzip2FileOutput (const std::string &fileName):
     CoinFileOutput (fileName), f_ (0), bzf_ (0)
   {
     int bzError = BZ_OK;
 
     f_ = fopen (fileName.c_str (), "w");
-    
+
     if (f_ != 0)
-      bzf_ = BZ2_bzWriteOpen (&bzError, f_, 
+      bzf_ = BZ2_bzWriteOpen (&bzError, f_,
 			      9, /* Number of 100k blocks used for compression.
 				    Must be between 1 and 9 inclusive. As 9
 				    gives best compression and I guess we can
@@ -497,7 +497,7 @@ public:
 		       "CoinBzip2FileOutput");
   }
 
-  virtual ~CoinBzip2FileOutput () 
+  virtual ~CoinBzip2FileOutput ()
   {
     int bzError = BZ_OK;
     if (bzf_ != 0)
@@ -513,7 +513,7 @@ public:
     BZ2_bzWrite (&bzError, bzf_, const_cast<void *> (buffer), size);
     return (bzError == BZ_OK) ? size : 0;
   }
-  
+
 private:
   FILE *f_;
   BZFILE *bzf_;
@@ -528,7 +528,7 @@ bool CoinFileOutput::compressionSupported (Compression compression)
 {
   switch (compression)
     {
-    case COMPRESS_NONE: 
+    case COMPRESS_NONE:
       return true;
 
     case COMPRESS_GZIP:
@@ -550,12 +550,12 @@ bool CoinFileOutput::compressionSupported (Compression compression)
     }
 }
 
-CoinFileOutput *CoinFileOutput::create (const std::string &fileName, 
+CoinFileOutput *CoinFileOutput::create (const std::string &fileName,
 					Compression compression)
 {
   switch (compression)
     {
-    case COMPRESS_NONE: 
+    case COMPRESS_NONE:
       return new CoinPlainFileOutput (fileName);
 
     case COMPRESS_GZIP:
@@ -563,7 +563,7 @@ CoinFileOutput *CoinFileOutput::create (const std::string &fileName,
       return new CoinGzipFileOutput (fileName);
 #endif
       break;
-      
+
     case COMPRESS_BZIP2:
 #ifdef COIN_HAS_BZLIB
       return new CoinBzip2FileOutput (fileName);
@@ -621,7 +621,7 @@ bool fileAbsPath (const std::string &path)
 
 
 /*
-   Tests if file readable and may change name to add 
+   Tests if file readable and may change name to add
    compression extension.  Here to get ZLIB etc in one place
 
    stdin goes by unmolested by all the fussing with file names. We shouldn't

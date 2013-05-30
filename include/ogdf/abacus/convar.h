@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /*!\file
@@ -162,7 +162,7 @@ public:
 	 * Attention: Data that is compacted/compressed needs to be marked as mutable, as
 	 * this function is supposed to be applicable for const objects! Compressing/expanding
 	 * is NOT expected to change the "outer" status of this class, and compression/expansion
-	 * is done automatically on the fly on an as-needed basis. 
+	 * is done automatically on the fly on an as-needed basis.
 	 */
 	virtual void expand() const { }
 
@@ -172,7 +172,7 @@ public:
 	 * Attention: Data that is compacted/compressed needs to be marked as mutable, as
 	 * this function is supposed to be applicable for const objects! Compressing/expanding
 	 * is NOT expected to change the "outer" status of this class, and compression/expansion
-	 * is done automatically on the fly on an as-needed basis. 
+	 * is done automatically on the fly on an as-needed basis.
 	 */
 	virtual void compress() const { }
 

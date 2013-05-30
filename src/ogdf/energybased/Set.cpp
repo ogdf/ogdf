@@ -1,9 +1,9 @@
 /*
- * $Revision: 2963 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mo, 05. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -165,8 +165,8 @@ node Set::get_random_node_with_lowest_star_mass(int rand_tries)
 	//with the lowest mass
 
 	int last_trie_index = last_selectable_index_of_S_node;
-	while( (i<= rand_tries) && (last_trie_index >= 0) )
-	{//while
+	while ((i <= rand_tries)
+	    && (last_trie_index >= 0)) {
 		last_trie_node = S_node[last_trie_index];
 		new_rand_index = randomNumber(0,last_trie_index);
 		new_rand_node = S_node[new_rand_index];
@@ -175,15 +175,15 @@ node Set::get_random_node_with_lowest_star_mass(int rand_tries)
 		position_in_node_set[new_rand_node] = last_trie_index;
 		position_in_node_set[last_trie_node] = new_rand_index;
 
-		if( (i == 1) || (min_mass > mass_of_star[S_node[last_trie_index]]) )
-		{
+		if ((i == 1)
+		 || (min_mass > mass_of_star[S_node[last_trie_index]])) {
 			rand_index = last_trie_index;
 			random_node = S_node[last_trie_index];
 			min_mass = mass_of_star[random_node];
 		}
-		i++;
-		last_trie_index -=1;
-	}//while
+		++i;
+		--last_trie_index;
+	}
 
 	//now rand_index and random_node have been fixed
 	last_selectable_node = S_node[last_selectable_index_of_S_node];
@@ -191,7 +191,7 @@ node Set::get_random_node_with_lowest_star_mass(int rand_tries)
 	S_node[rand_index] = last_selectable_node;
 	position_in_node_set[random_node] = last_selectable_index_of_S_node;
 	position_in_node_set[last_selectable_node] = rand_index;
-	last_selectable_index_of_S_node -=1;
+	--last_selectable_index_of_S_node;
 	return random_node;
 }
 
@@ -208,8 +208,8 @@ node Set::get_random_node_with_highest_star_mass(int rand_tries)
 	//with the lowest mass
 
 	int last_trie_index = last_selectable_index_of_S_node;
-	while( (i<= rand_tries) && (last_trie_index >= 0) )
-	{//while
+	while ((i <= rand_tries)
+	    && (last_trie_index >= 0)) {
 		last_trie_node = S_node[last_trie_index];
 		new_rand_index = randomNumber(0,last_trie_index);
 		new_rand_node = S_node[new_rand_index];
@@ -218,14 +218,14 @@ node Set::get_random_node_with_highest_star_mass(int rand_tries)
 		position_in_node_set[new_rand_node] = last_trie_index;
 		position_in_node_set[last_trie_node] = new_rand_index;
 
-		if( (i == 1) || (min_mass < mass_of_star[S_node[last_trie_index]]) )
-		{
+		if ((i == 1)
+		 || (min_mass < mass_of_star[S_node[last_trie_index]])) {
 			rand_index = last_trie_index;
 			random_node = S_node[last_trie_index];
 			min_mass = mass_of_star[random_node];
 		}
-		i++;
-		last_trie_index -=1;
+		++i;
+		--last_trie_index;
 	}//while
 
 	//now rand_index and random_node have been fixed
@@ -234,7 +234,7 @@ node Set::get_random_node_with_highest_star_mass(int rand_tries)
 	S_node[rand_index] = last_selectable_node;
 	position_in_node_set[random_node] = last_selectable_index_of_S_node;
 	position_in_node_set[last_selectable_node] = rand_index;
-	last_selectable_index_of_S_node -=1;
+	--last_selectable_index_of_S_node;
 	return random_node;
 }
 

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -543,9 +543,10 @@ class OgmlParser::OgmlTag
 			s += "optional";
 			break;
 
+		OGDF_NODEFAULT
 		}
 
-		if(list->empty())
+		if (list->empty())
 			os << "Tag \"<" << getName() <<">\" doesn't include " << s << " tag(s).\n";
 		else {
 			os << "Tag \"<" << getName() <<">\" includes the following " << s << " tag(s): \n";
@@ -576,6 +577,7 @@ class OgmlParser::OgmlTag
 			s += "optional";
 			break;
 
+		OGDF_NODEFAULT
 		}
 
 		if(list->empty())

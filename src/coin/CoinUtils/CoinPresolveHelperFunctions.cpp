@@ -25,7 +25,7 @@
   This next block of functions handles the problems associated with expanding
   a column in a column-major representation or a row in a row-major
   representation.
-  
+
   We need to be able to answer the questions:
     * Is there room to expand a major vector in place?
     * Is there sufficient free space at the end of the element and minor
@@ -33,7 +33,7 @@
 
   When the answer to the first question is `no', we need to be able to move
   the major vector to the free space at the end of bulk storage.
-  
+
   When the answer to the second question is `no', we need to be able to
   compact the major vectors in the bulk storage area in order to regain a
   block of useable space at the end.
@@ -120,7 +120,7 @@ void presolve_make_memlists (/*CoinBigIndex *starts,*/ int *lengths,
 {
   int i ;
   int pre = NO_LINK ;
-  
+
   for (i=0; i<n; i++) {
     if (lengths[i]) {
       link[i].pre = pre ;
@@ -371,14 +371,14 @@ void presolve_delete_from_major (int majndx, int minndx,
   minndxs[kmi] = minndxs[ke-1] ;
   els[kmi] = els[ke-1] ;
   majlens[majndx]-- ;
-  
+
   return ; }
 // Delete all marked and zero marked
 void presolve_delete_many_from_major (int majndx, char * marked,
 				 const CoinBigIndex *majstrts,
 				 int *majlens, int *minndxs, double *els)
 
-{ 
+{
   CoinBigIndex ks = majstrts[majndx] ;
   CoinBigIndex ke = ks + majlens[majndx] ;
   CoinBigIndex put=ks;
@@ -390,7 +390,7 @@ void presolve_delete_many_from_major (int majndx, char * marked,
     } else {
       marked[iMinor]=0;
     }
-  } 
+  }
   majlens[majndx] = put-ks ;
   return ;
 }
@@ -403,7 +403,7 @@ void presolve_delete_many_from_major (int majndx, char * marked,
 */
 void presolve_delete_from_major2 (int majndx, int minndx,
 				  CoinBigIndex *majstrts, int *majlens,
-				  int *minndxs, /*double *els,*/ int *majlinks, 
+				  int *minndxs, /*double *els,*/ int *majlinks,
 				  CoinBigIndex *free_listp)
 
 { CoinBigIndex k = majstrts[majndx] ;

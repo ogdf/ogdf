@@ -27,8 +27,8 @@
 /*===========================================================================*/
 
 /*===========================================================================*\
- * This is the main() that is used if the CP is running as a separate        
- * process. This file is only used in that case.                             
+ * This is the main() that is used if the CP is running as a separate
+ * process. This file is only used in that case.
 \*===========================================================================*/
 
 int main(void)
@@ -40,13 +40,13 @@ int main(void)
    struct timeval tout = {10, 0};
 
    cp = (cut_pool *) calloc(1, sizeof(cut_pool));
-   
+
    cp_initialize(cp, 0);
-   
+
    (void) used_time(&tt);
 
    /*------------------------------------------------------------------------*\
-    * The main loop -- this keeps executing until the process dies           
+    * The main loop -- this keeps executing until the process dies
    \*------------------------------------------------------------------------*/
 
    while(TRUE){
@@ -64,7 +64,7 @@ int main(void)
 	  cp->msgtag==LP_SOLUTION_FRACTIONS){
 
 	 num_cuts = check_cuts_u(cp, &cp->cur_sol);
-	 
+
 	 if (cp->par.check_which == CHECK_ALL_CUTS ||
 	     cp->par.check_which == CHECK_LEVEL ||
 	     cp->par.check_which == CHECK_TOUCHES ||

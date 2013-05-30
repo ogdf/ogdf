@@ -26,8 +26,8 @@ void OsiRowCut::setUb(double ub) { ub_ = ub; }
 
 //-------------------------------------------------------------------
 // Set row elements
-//------------------------------------------------------------------- 
-void OsiRowCut::setRow(int size, 
+//-------------------------------------------------------------------
+void OsiRowCut::setRow(int size,
 		       const int* colIndices, const double* elements,
 		       bool testForDuplicateIndex)
 {
@@ -42,21 +42,21 @@ void OsiRowCut::setRow( const CoinPackedVector & v )
 //-------------------------------------------------------------------
 // Get the row
 //-------------------------------------------------------------------
-const CoinPackedVector & OsiRowCut::row() const 
-{ 
-   return row_; 
+const CoinPackedVector & OsiRowCut::row() const
+{
+   return row_;
 }
 
 //-------------------------------------------------------------------
 // Get the row for changing
 //-------------------------------------------------------------------
 CoinPackedVector & OsiRowCut::mutableRow()
-{ 
-   return row_; 
+{
+   return row_;
 }
 
 //----------------------------------------------------------------
-// == operator 
+// == operator
 //-------------------------------------------------------------------
 bool
 OsiRowCut::operator==(const OsiRowCut& rhs) const
@@ -77,7 +77,7 @@ OsiRowCut::operator!=(const OsiRowCut& rhs) const
 
 
 //----------------------------------------------------------------
-// consistent & infeasible 
+// consistent & infeasible
 //-------------------------------------------------------------------
 bool OsiRowCut::consistent() const
 {
@@ -88,7 +88,7 @@ bool OsiRowCut::consistent() const
 }
 
 bool OsiRowCut::consistent(const OsiSolverInterface& im) const
-{  
+{
    const CoinPackedVector& r = row();
    if ( r.getMaxIndex() >= im.getNumCols() ) return false;
 
@@ -103,11 +103,11 @@ bool OsiRowCut::infeasible(const OsiSolverInterface &) const
 }
 
 #endif
-/* Returns infeasibility of the cut with respect to solution 
-    passed in i.e. is positive if cuts off that solution.  
+/* Returns infeasibility of the cut with respect to solution
+    passed in i.e. is positive if cuts off that solution.
     solution is getNumCols() long..
 */
-double 
+double
 OsiRowCut::violated(const double * solution) const
 {
    int i;
@@ -158,7 +158,7 @@ double OsiRowCut::range() const
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiRowCut::OsiRowCut () : OsiCut(),
 			  row_(),
@@ -171,7 +171,7 @@ OsiRowCut::OsiRowCut () : OsiCut(),
 }
 
 //-------------------------------------------------------------------
-// Ownership constructor 
+// Ownership constructor
 //-------------------------------------------------------------------
 
 OsiRowCut::OsiRowCut(double cutlb, double cutub,
@@ -184,7 +184,7 @@ OsiRowCut::OsiRowCut(double cutlb, double cutub,
 {}
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiRowCut::OsiRowCut (const OsiRowCut & source) :
    OsiCut(source),
@@ -204,7 +204,7 @@ OsiRowCut * OsiRowCut::clone() const
 
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiRowCut::~OsiRowCut ()
 {
@@ -212,7 +212,7 @@ OsiRowCut::~OsiRowCut ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiRowCut &
 OsiRowCut::operator=(const OsiRowCut& rhs)
@@ -236,9 +236,9 @@ OsiRowCut::print() const
    int i;
    std::cout << "Row cut has " << row_.getNumElements()
 	     << " elements";
-   if ( lb_ < -1.0e20 && ub_<1.0e20 ) 
+   if ( lb_ < -1.0e20 && ub_<1.0e20 )
       std::cout << " with upper rhs of " << ub_;
-   else if ( lb_ > -1.0e20 && ub_ > 1.0e20 ) 
+   else if ( lb_ > -1.0e20 && ub_ > 1.0e20 )
       std::cout << " with lower rhs of " << lb_;
    else
       std::cout << " !!! with lower, upper rhs of " << lb_ << " and " << ub_;
@@ -254,7 +254,7 @@ OsiRowCut::print() const
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiRowCut2::OsiRowCut2(int row) :
    OsiRowCut(),
@@ -264,12 +264,12 @@ OsiRowCut2::OsiRowCut2(int row) :
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiRowCut2::OsiRowCut2(const OsiRowCut2 & source) :
    OsiRowCut(source),
    whichRow_(source.whichRow_)
-{  
+{
   // Nothing to do here
 }
 
@@ -282,7 +282,7 @@ OsiRowCut * OsiRowCut2::clone() const
 
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiRowCut2::~OsiRowCut2 ()
 {
@@ -290,7 +290,7 @@ OsiRowCut2::~OsiRowCut2 ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiRowCut2 &
 OsiRowCut2::operator=(const OsiRowCut2& rhs)

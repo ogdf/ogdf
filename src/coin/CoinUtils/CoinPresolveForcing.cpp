@@ -210,7 +210,7 @@ const char *forcing_constraint_action::name() const
 // defed out to avoid compiler warning
 #if 0
 static bool some_col_was_fixed(const int *hcol, CoinBigIndex krs, CoinBigIndex kre,
-			       const double *clo, 
+			       const double *clo,
 			       const double *cup)
 {
   CoinBigIndex k;
@@ -441,7 +441,7 @@ const CoinPresolveAction
 #if	PRESOLVE_SUMMARY
     printf("NFORCED:  %d\n", nactions);
 #endif
-    next = new forcing_constraint_action(nactions, 
+    next = new forcing_constraint_action(nactions,
 					 CoinCopyOfArray(actions,nactions), next);
   }
   deleteAction(actions,action*);
@@ -599,7 +599,7 @@ void forcing_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
       for (k=0; k<ninrow; k++) {
 	int jcol = rowcols[k];
 	CoinBigIndex kk = presolve_find_row2(irow, mcstrt[jcol], hincol[jcol], hrow, link);
-	      
+
 	rcosts[jcol] -= (rowduals[irow] * colels[kk]);
       }
     }
@@ -854,7 +854,7 @@ postsolve for implied_bound
 		int col = rowcols[k];
 		if (cdone[col] &&
 		    (colstat[col] & PRESOLVE_XBASIC) &&
-		    ((fabs(clo[col] - sol[col]) <= ztolzb && rcosts[col] >= -ztoldj) || 
+		    ((fabs(clo[col] - sol[col]) <= ztolzb && rcosts[col] >= -ztoldj) ||
 		     (fabs(cup[col] - sol[col]) <= ztolzb && rcosts[col] <= ztoldj)))
 		  break;
 	      }
@@ -894,7 +894,7 @@ postsolve for implied_bound
 	    for (k=0; k<ninrow; k++) {
 	      int jcol = rowcols[k];
 	      CoinBigIndex kk = presolve_find_row(irow, mcstrt[jcol], mcstrt[jcol] + hincol[jcol], hrow);
-	      
+
 	      rcosts[jcol] -= (rdual_adjust * colels[kk]);
 	    }
 
@@ -934,8 +934,8 @@ postsolve for implied_bound
 #endif		// #if 0	// (B)
 #endif		// #if 0	// (A)
 
-forcing_constraint_action::~forcing_constraint_action() 
-{ 
+forcing_constraint_action::~forcing_constraint_action()
+{
   int i;
   for (i=0;i<nactions_;i++) {
     //delete [] actions_[i].rowcols; MS Visual C++ V6 can not compile

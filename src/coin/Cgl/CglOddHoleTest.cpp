@@ -33,7 +33,7 @@ CglOddHoleUnitTest(
   {
     CglOddHole aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglOddHole rhs;
@@ -46,7 +46,7 @@ CglOddHoleUnitTest(
 
 
   // test on simple case
-  {  
+  {
     const int nRows=3;
     const int nCols=3;
     const int nEls=6;
@@ -75,19 +75,19 @@ CglOddHoleUnitTest(
     rpv.sortIncrIndex();
     assert (check==rpv);
   }
-  
+
   // Testcase /u/rlh/osl2/mps/scOneInt.mps
   // Model has 3 continous, 2 binary, and 1 general
   // integer variable.
   {
     OsiSolverInterface  * siP = baseSiP->clone();
-    
+
     std::string fn = mpsDir+"scOneInt";
     siP->readMps(fn.c_str(),"mps");
 #if 0
     CglOddHole cg;
     int nCols=siP->getNumCols();
-    
+
     // Test the siP methods for detecting
     // variable type
     int numCont=0, numBinary=0, numIntNonBinary=0, numInt=0;
@@ -101,8 +101,8 @@ CglOddHoleUnitTest(
     assert(numBinary==2);
     assert(numIntNonBinary==1);
     assert(numInt==3);
-    
-    
+
+
     // Test initializeCutGenerator
     siP->initialSolve();
     assert(xstar !=NULL);
@@ -114,9 +114,9 @@ CglOddHoleUnitTest(
     int vectorsize = siP->getMatrixByRow()->getVectorSize(i);
     assert(vectorsize==2);
     }
-    
+
     kccg.cleanUpCutGenerator(complement,xstar);
-#endif  
+#endif
     delete siP;
   }
 

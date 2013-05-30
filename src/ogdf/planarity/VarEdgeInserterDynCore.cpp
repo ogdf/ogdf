@@ -1,9 +1,9 @@
 /*
- * $Revision: 3368 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Do, 04. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -74,7 +74,7 @@ namespace ogdf {
 		int cost (edge e) const { return m_cost[e]; }
 	};
 
-	
+
 	class VarEdgeInserterDynUMLCore::BCandSPQRtreesUML : public VarEdgeInserterDynCore::BCandSPQRtrees
 	{
 	private:

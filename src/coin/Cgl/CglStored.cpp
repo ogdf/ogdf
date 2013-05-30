@@ -22,8 +22,8 @@
 #include "CoinFinite.hpp"
 //-------------------------------------------------------------------
 // Generate Stored cuts
-//------------------------------------------------------------------- 
-void 
+//-------------------------------------------------------------------
+void
 CglStored::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 			const CglTreeInfo /*info*/) const
 {
@@ -198,7 +198,7 @@ CglStored::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   }
 }
 // Add cuts
-void 
+void
 CglStored::addCut(const OsiCuts & cs)
 {
   int numberRowCuts = cs.sizeRowCuts();
@@ -207,35 +207,35 @@ CglStored::addCut(const OsiCuts & cs)
   }
 }
 // Add a row cut
-void 
+void
 CglStored::addCut(const OsiRowCut & cut)
 {
   cuts_.insert(cut);
 }
 // Add a row cut from a packed vector
-void 
+void
 CglStored::addCut(double lb, double ub, const CoinPackedVector & vector)
 {
   OsiRowCut rc;
   rc.setRow(vector);
   rc.mutableRow().setTestForDuplicateIndex(false);
   rc.setLb(lb);
-  rc.setUb(ub);   
+  rc.setUb(ub);
   cuts_.insert(rc);
 }
 // Add a row cut from elements
-void 
+void
 CglStored::addCut(double lb, double ub, int size, const int * colIndices, const double * elements)
 {
   OsiRowCut rc;
   rc.setRow(size,colIndices,elements,false);
   rc.setLb(lb);
-  rc.setUb(ub);   
+  rc.setUb(ub);
   cuts_.insert(rc);
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglStored::CglStored (int numberColumns)
 :
@@ -249,7 +249,7 @@ CglStored::CglStored (int numberColumns)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglStored::CglStored (const CglStored & source) :
   CglCutGenerator(source),
@@ -259,7 +259,7 @@ CglStored::CglStored (const CglStored & source) :
   numberColumns_(source.numberColumns_),
   bestSolution_(NULL),
   bounds_(NULL)
-{  
+{
   if (source.probingInfo_)
     probingInfo_ = new CglTreeProbingInfo(*source.probingInfo_);
   if (numberColumns_) {
@@ -277,7 +277,7 @@ CglStored::CglStored (const char * fileName) :
   numberColumns_(0),
   bestSolution_(NULL),
   bounds_(NULL)
-{  
+{
   FILE * fp = fopen(fileName,"rb");
   if (fp) {
     size_t numberRead;
@@ -307,7 +307,7 @@ CglStored::CglStored (const char * fileName) :
       OsiRowCut rc;
       rc.setRow(n,index,coefficient,false);
       rc.setLb(rhs[0]);
-      rc.setUb(rhs[1]);   
+      rc.setUb(rhs[1]);
       cuts_.insert(rc);
     }
     delete [] index;
@@ -326,7 +326,7 @@ CglStored::clone() const
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglStored::~CglStored ()
 {
@@ -336,7 +336,7 @@ CglStored::~CglStored ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglStored &
 CglStored::operator=(const CglStored& rhs)
@@ -363,7 +363,7 @@ CglStored::operator=(const CglStored& rhs)
   return *this;
 }
 // Save stuff
-void 
+void
 CglStored::saveStuff(double bestObjective, const double * bestSolution,
 		     const double * lower, const double * upper)
 {
@@ -382,7 +382,7 @@ CglStored::saveStuff(double bestObjective, const double * bestSolution,
   memcpy(bounds_+numberColumns_,upper,numberColumns_*sizeof(double));
 }
 // Best objective
-double 
+double
 CglStored::bestObjective() const
 {
   if (bestSolution_)

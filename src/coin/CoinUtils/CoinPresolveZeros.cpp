@@ -157,7 +157,7 @@ const CoinPresolveAction
   int *hincol		= prob->hincol_;
   presolvehlink *clink	= prob->clink_ ;
   presolvehlink *rlink	= prob->rlink_ ;
- 
+
   //  int i;
   int nzeros;
   if (ncheckcols==prob->ncols_) {
@@ -245,7 +245,7 @@ void drop_zero_coefficients_action::postsolve(CoinPostsolveMatrix *prob) const
       link[k] = mcstrt[jcol];
       mcstrt[jcol] = k;
     }
-    
+
     hincol[jcol]++;
   }
 
@@ -253,4 +253,4 @@ void drop_zero_coefficients_action::postsolve(CoinPostsolveMatrix *prob) const
   presolve_check_free_list(prob) ;
 # endif
 
-} 
+}

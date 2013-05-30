@@ -18,7 +18,7 @@
 #include "sym_proto.h"
 
 /*===========================================================================*\
- * The params structure contains all of the user-specified parameters   
+ * The params structure contains all of the user-specified parameters
  * to be read in from the parameter file.
 \*===========================================================================*/
 
@@ -80,7 +80,7 @@ typedef struct TM_PARAMS{
    int         find_first_feasible;
 
    int         sensitivity_analysis;
-   
+
 }tm_params;
 
 #endif

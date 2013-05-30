@@ -1,9 +1,9 @@
 /*
- * $Revision: 2559 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fr, 06. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -182,7 +182,7 @@ void VisibilityLayout::constructDualGraph(UpwardPlanRep &UPR)
 			s_D = faceToNode[f] ;
 
 		//compute face switches
-		node s, t;
+		node s = NULL, t = NULL;
 		adjEntry adj;
 		forall_face_adj(adj, f) {
 			adjEntry adjNext = adj->faceCycleSucc();
@@ -191,6 +191,7 @@ void VisibilityLayout::constructDualGraph(UpwardPlanRep &UPR)
 			if (adjNext->theEdge()->target() == adj->theEdge()->target())
 				t = adjNext->theEdge()->target();
 		}
+		OGDF_ASSERT(s && t);
 
 		//compute left and right face
 		bool passSource = false;

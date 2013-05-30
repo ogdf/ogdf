@@ -133,7 +133,7 @@ const remove_fixed_action*
     for (k = kcs ; k < kce ; k++) {
       int row = hrow[k];
       double coeff = colels[k];
-     
+
       els_action[actsize]=coeff;
       rstrt[row]++; // increase counts
       rows_action[actsize++]=row;
@@ -285,7 +285,7 @@ remove_fixed_action::~remove_fixed_action()
  * This involved subtracting clo*coeff from ub/lb for each row the
  * variable occurred in.
  * Now when we put the variable back in, by construction the variable
- * is within tolerance, the non-slacks are unchanged, and the 
+ * is within tolerance, the non-slacks are unchanged, and the
  * distances of the affected slacks from their bounds should remain
  * unchanged (ignoring roundoff errors).
  * It may be that by adding the term back in, the affected constraints
@@ -360,11 +360,11 @@ void remove_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
     int cs = NO_LINK ;
     int start = f->start;
     double dj = maxmin * dcost[icol];
-    
+
     for (int i=start; i<end; ++i) {
       int row = rows_action[i];
       double coeff =els_action[i];
-      
+
       // pop free_list
       CoinBigIndex k = free_list;
       assert(k >= 0 && k < prob->bulk0_) ;
@@ -380,16 +380,16 @@ void remove_fixed_action::postsolve(CoinPostsolveMatrix *prob) const
       if (rup[row] < PRESOLVE_INF)
 	rup[row] += coeff * thesol;
       acts[row] += coeff * thesol;
-      
+
       dj -= rowduals[row] * coeff;
     }
 
 #   if PRESOLVE_CONSISTENCY
     presolve_check_free_list(prob) ;
 #   endif
-      
+
     mcstrt[icol] = cs;
-    
+
     rcosts[icol] = dj;
     hincol[icol] = end-start;
     end=start;
@@ -638,7 +638,7 @@ const CoinPresolveAction *make_fixed (CoinPresolveMatrix *prob,
 
   for (int i = 0 ; i < ncols ; i++)
   { if (hincol[i] > 0 &&
-	fabs(cup[i] - clo[i]) < ZTOLDP && !prob->colProhibited2(i)) 
+	fabs(cup[i] - clo[i]) < ZTOLDP && !prob->colProhibited2(i))
     { fcols[nfcols++] = i ; } }
 
 /*
@@ -651,7 +651,7 @@ const CoinPresolveAction *make_fixed (CoinPresolveMatrix *prob,
   delete[]fcols ;
   return (next) ; }
 // Transfers costs
-void 
+void
 transferCosts(CoinPresolveMatrix * prob)
 {
   double *colels	= prob->colels_;

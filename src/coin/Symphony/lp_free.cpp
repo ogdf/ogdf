@@ -92,7 +92,7 @@ void free_candidate(branch_obj **cand)
       if (can->solutions){
          for (i = MAX_CHILDREN_NUM - 1; i >= 0; i--){
 #endif
-	    FREE(can->sol_inds[i]);	    
+	    FREE(can->sol_inds[i]);
 	    FREE(can->solutions[i]);
 	 }
       }
@@ -116,7 +116,7 @@ void free_candidate(branch_obj **cand)
 #ifdef SENSITIVITY_ANALYSIS
       FREE(can->duals);
 #endif
-      
+
       FREE(*cand);
    }
 }
@@ -155,7 +155,7 @@ void free_waiting_row(waiting_row **wrow)
       *wrow = NULL;
    }
 }
-   
+
 /*===========================================================================*/
 
 void free_waiting_rows(waiting_row **rows, int row_num)
@@ -165,7 +165,7 @@ void free_waiting_rows(waiting_row **rows, int row_num)
       for (i=row_num-1; i>=0; i--)
 	 free_waiting_row(rows+i);
 }
-   
+
 /*===========================================================================*/
 
 void free_waiting_row_array(waiting_row ***rows, int row_num)

@@ -31,7 +31,7 @@ CglKnapsackCoverUnitTest(
   {
     CglKnapsackCover kccGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglKnapsackCover rhs;
@@ -44,7 +44,7 @@ CglKnapsackCoverUnitTest(
 
 
   // test exactSolveKnapsack
-  {  
+  {
     CglKnapsackCover kccg;
     const int n=7;
     double c=50;
@@ -76,7 +76,7 @@ CglKnapsackCoverUnitTest(
     siP->readMps("../Mps/scOneInt","mps");
     CglKnapsackCover kccg;
     int nCols=siP->getNumCols();
-    
+
     // Test the siP methods for detecting
     // variable type
     int numCont=0, numBinary=0, numIntNonBinary=0, numInt=0;
@@ -90,8 +90,8 @@ CglKnapsackCoverUnitTest(
     assert(numBinary==2);
     assert(numIntNonBinary==1);
     assert(numInt==3);
-    
-    
+
+
     // Test initializeCutGenerator
     siP->initialSolve();
     assert(xstar !=NULL);
@@ -103,12 +103,12 @@ CglKnapsackCoverUnitTest(
     int vectorsize = siP->getMatrixByRow()->vectorSize(i);
     assert(vectorsize==2);
     }
-    
+
     kccg.cleanUpCutGenerator(complement,xstar);
     delete siP;
   }
-  */  
-  
+  */
+
   // Testcase /u/rlh/osl2/mps/tp3.mps
   // Models has 3 cols, 3 rows
   // Row 0 yields a knapsack, others do not.
@@ -116,12 +116,12 @@ CglKnapsackCoverUnitTest(
     // setup
     OsiSolverInterface  * siP = baseSiP->clone();
     std::string fn(mpsDir+"tp3");
-    siP->readMps(fn.c_str(),"mps");     
+    siP->readMps(fn.c_str(),"mps");
     // All integer variables should be binary.
     // Assert that this is true.
     for ( i = 0;  i < siP->getNumCols();  i++ )
-      if ( siP->isInteger(i) ) 
-        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));  
+      if ( siP->isInteger(i) )
+        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));
     OsiCuts cs;
     CoinPackedVector krow;
     double b=0;
@@ -139,13 +139,13 @@ CglKnapsackCoverUnitTest(
     assert( eq(siP->getObjValue(), 97.185) );
     double mycs[] = {.627, .667558333333, .038};
     siP->setColSolution(mycs);
-    const double *colsol = siP->getColSolution(); 
+    const double *colsol = siP->getColSolution();
     int k;
     for (k=0; k<nCols; k++){
       xstar[k]=colsol[k];
       complement[k]=0;
     }
-    
+
     // test deriveAKnapsack
     int rind = ( siP->getRowSense()[0] == 'N' ) ? 1 : 0;
     const CoinShallowPackedVector reqdBySunCC = siP->getMatrixByRow()->getVector(rind) ;
@@ -159,9 +159,9 @@ CglKnapsackCoverUnitTest(
     CoinPackedVector r;
     r.setVector(3,inx,el);
     assert (krow == r);
-    //assert (b == 183.0); ????? but x1 and x2 at 1 is valid 
-    
-    // test findGreedyCover 
+    //assert (b == 183.0); ????? but x1 and x2 at 1 is valid
+
+    // test findGreedyCover
     CoinPackedVector cover,remainder;
 #if 0
     int findgreedy =  kccg.findGreedyCover( 0, krow, b, xstar, cover, remainder );
@@ -191,15 +191,15 @@ CglKnapsackCoverUnitTest(
     assert( cut.getElements()[0] == 1 );
     assert( cut.getElements()[1] == 1 );
     assert( eq(cut.getElements()[2], 0.087719) );
-    
+
     // test liftAndUncomplementAndAdd
-    OsiCuts cuts;    
+    OsiCuts cuts;
     kccg.liftAndUncomplementAndAdd(*siP.getRowUpper()[0],krow,b,complement,0,
-      cover,remainder,cuts);   
+      cover,remainder,cuts);
     int sizerowcuts = cuts.sizeRowCuts();
     assert ( sizerowcuts== 1 );
     OsiRowCut testRowCut = cuts.rowCut(0);
-    CoinPackedVector testRowPV = testRowCut.row(); 
+    CoinPackedVector testRowPV = testRowCut.row();
     OsiRowCut sampleRowCut;
     const int sampleSize = 3;
     int sampleCols[sampleSize]={0,1,2};
@@ -210,24 +210,24 @@ CglKnapsackCoverUnitTest(
     bool equiv =  testRowPV.equivalent(sampleRowCut.row(),CoinRelFltEq(1.0e-05) );
     assert ( equiv );
 #endif
-    
+
     // test find PseudoJohnAndEllisCover
     cover.setVector(0,NULL, NULL);
     remainder.setVector(0,NULL,NULL);
 
     rind = ( siP->getRowSense()[0] == 'N' ) ? 1 : 0;
-    int findPJE =  kccg.findPseudoJohnAndEllisCover( rind, krow, 
+    int findPJE =  kccg.findPseudoJohnAndEllisCover( rind, krow,
 						     b, xstar, cover, remainder );
     assert( findPJE == 1 );
     assert ( cover.getIndices()[0] == 0 );
     assert ( cover.getIndices()[1] == 2 );
-    assert ( cover.getElements()[0] == 161 );    
-    assert ( cover.getElements()[1] == 68 );    
+    assert ( cover.getElements()[0] == 161 );
+    assert ( cover.getElements()[1] == 68 );
     assert ( remainder.getIndices()[0] == 1 );
-    assert ( remainder.getElements()[0] == 120 );    
-    OsiCuts cuts;    
+    assert ( remainder.getElements()[0] == 120 );
+    OsiCuts cuts;
     kccg.liftAndUncomplementAndAdd((*siP).getRowUpper()[rind],krow,b, complement, rind,
-      cover,remainder,cuts);   
+      cover,remainder,cuts);
     assert (cuts.sizeRowCuts() == 1 );
 
     OsiRowCut testRowCut = cuts.rowCut(0);
@@ -241,7 +241,7 @@ CglKnapsackCoverUnitTest(
     sampleRowCut.setRow(sampleSize,sampleCols,sampleElems);
     sampleRowCut.setLb(-COIN_DBL_MAX);
     sampleRowCut.setUb(-1.0);
-    
+
     // test for 'close enough'
     assert( testRowPV.isEquivalent(sampleRowCut.row(),CoinRelFltEq(1.0e-05) ) );
     // Reset complement & test next row
@@ -253,7 +253,7 @@ CglKnapsackCoverUnitTest(
     const CoinShallowPackedVector reqdBySunCC2 = siP->getMatrixByRow()->getVector(rind) ;
     deriveaknap = kccg.deriveAKnapsack(*siP,cuts,krow,b,complement,xstar,rind,reqdBySunCC2);
     assert(deriveaknap==0);
-    
+
     // Reset complement & test next row
     for (i=0; i<nCols; i++){
       complement[i]=0;
@@ -262,20 +262,20 @@ CglKnapsackCoverUnitTest(
     deriveaknap = kccg.deriveAKnapsack(*siP,cuts,krow,b,complement,xstar,2,
 				       reqdBySunCC3);
     assert(deriveaknap == 0);
-    
+
     // Clean up
     delete [] complement;
     delete [] xstar;
-    
+
     delete siP;
   }
 
 #if 0
   // Testcase /u/rlh/osl2/mps/tp4.mps
-  // Models has 6 cols, 1 knapsack row and 
+  // Models has 6 cols, 1 knapsack row and
   // 3 rows explicily bounding variables
-  // Row 0 yields a knapsack cover cut 
-  // using findGreedyCover which moves the 
+  // Row 0 yields a knapsack cover cut
+  // using findGreedyCover which moves the
   // LP objective function value.
   {
     // Setup
@@ -284,18 +284,18 @@ CglKnapsackCoverUnitTest(
     OsiSolverInterface si(model);
     ekk_importModel(model, "tp4.mps");
     CglKnapsackCover kccg;
-    kccg.ekk_validateIntType(si);     
-    
+    kccg.ekk_validateIntType(si);
+
     // Solve the LP relaxation of the model and
-    // print out ofv for sake of comparison 
+    // print out ofv for sake of comparison
     ekk_allSlackBasis(model);
-    ekk_crash(model,1); 
+    ekk_crash(model,1);
     ekk_primalSimplex(model,1);
     double lpRelaxBefore=ekk_getRobjvalue(model);
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
 #endif
-    
+
     // Determine if lp sol is ip optimal
     // Note: no ekk_function to do this
     int nCols=ekk_getInumcols(model);
@@ -305,34 +305,34 @@ CglKnapsackCoverUnitTest(
     while (i++<nCols && ipOpt){
       if(optLpSol[i] < 1.0-1.0e-08 && optLpSol[i]> 1.0e-08) ipOpt = 0;
     }
-    
+
     if (ipOpt){
 #ifdef CGL_DEBUG
       printf("Lp solution is within ip optimality tolerance\n");
 #endif
-    }    
+    }
     else {
       OsiSolverInterface iModel(model);
-      OsiCuts cuts;    
-      
+      OsiCuts cuts;
+
       // Test generateCuts method
       kccg.generateCuts(iModel,cuts);
       OsiSolverInterface::ApplyCutsReturnCode rc = iModel.applyCuts(cuts);
-      
-      ekk_mergeBlocks(model,1);         
+
+      ekk_mergeBlocks(model,1);
       ekk_dualSimplex(model);
-      double lpRelaxAfter=ekk_getRobjvalue(model); 
+      double lpRelaxAfter=ekk_getRobjvalue(model);
 #ifdef CGL_DEBUG
       printf("\n\nFinal LP min=%f\n",lpRelaxAfter);
 #endif
       assert( lpRelaxBefore < lpRelaxAfter );
-      
-      // This may need to be updated as other 
+
+      // This may need to be updated as other
       // minimal cover finders are added
       assert( cuts.sizeRowCuts() == 1 );
       OsiRowCut testRowCut = cuts.rowCut(0);
       CoinPackedVector testRowPV = testRowCut.row();
-      
+
       OsiRowCut sampleRowCut;
       const int sampleSize = 6;
       int sampleCols[sampleSize]={0,1,2,3,4,5};
@@ -343,20 +343,20 @@ CglKnapsackCoverUnitTest(
       bool equiv = testRowPV.equivalent(sampleRowCut.row(),CoinRelFltEq(1.0e-05) );
       assert( testRowPV.equivalent(sampleRowCut.row(),CoinRelFltEq(1.0e-05) ) );
     }
-    
+
     // Exit out of OSL
     ekk_deleteModel(model);
     ekk_endContext(env);
-    
+
   }
 #endif
 
 
   // Testcase /u/rlh/osl2/mps/tp5.mps
-  // Models has 6 cols, 1 knapsack row and 
+  // Models has 6 cols, 1 knapsack row and
   // 3 rows explicily bounding variables
-  // Row 0 yields a knapsack cover cut 
-  // using findGreedyCover which moves the 
+  // Row 0 yields a knapsack cover cut
+  // using findGreedyCover which moves the
   // LP objective function value.
   {
     // Setup
@@ -366,12 +366,12 @@ CglKnapsackCoverUnitTest(
     // All integer variables should be binary.
     // Assert that this is true.
     for ( i = 0;  i < siP->getNumCols();  i++ )
-      if ( siP->isInteger(i) ) 
-        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));  
+      if ( siP->isInteger(i) )
+        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));
     CglKnapsackCover kccg;
-    
+
     // Solve the LP relaxation of the model and
-    // print out ofv for sake of comparison 
+    // print out ofv for sake of comparison
     siP->initialSolve();
     double lpRelaxBefore=siP->getObjValue();
     assert( eq(lpRelaxBefore, -51.66666666667) );
@@ -380,7 +380,7 @@ CglKnapsackCoverUnitTest(
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
 #endif
-    
+
     // Determine if lp sol is 0/1 optimal
     int nCols=siP->getNumCols();
     const double * optLpSol = siP->getColSolution();
@@ -389,21 +389,21 @@ CglKnapsackCoverUnitTest(
     while (i++<nCols && ipOpt){
       if(optLpSol[i] > kccg.epsilon_ && optLpSol[i] < kccg.onetol_) ipOpt = false;
     }
-    
+
     if (ipOpt){
 #ifdef CGL_DEBUG
       printf("Lp solution is within ip optimality tolerance\n");
 #endif
-    }    
+    }
     else {
       // set up
-      OsiCuts cuts;    
+      OsiCuts cuts;
       CoinPackedVector krow;
       double b=0.0;
       int * complement=new int[nCols];
       double * xstar=new double[nCols];
       // initialize cut generator
-      const double *colsol = siP->getColSolution(); 
+      const double *colsol = siP->getColSolution();
       for (i=0; i<nCols; i++){
 	xstar[i]=colsol[i];
 	complement[i]=0;
@@ -412,13 +412,13 @@ CglKnapsackCoverUnitTest(
       // transform row into canonical knapsack form
       const CoinShallowPackedVector reqdBySunCC = siP->getMatrixByRow()->getVector(row) ;
       if (kccg.deriveAKnapsack(*siP, cuts, krow, b, complement, xstar, row,reqdBySunCC)){
-        CoinPackedVector cover, remainder;  
+        CoinPackedVector cover, remainder;
         // apply greedy logic to detect violated minimal cover inequalities
         if (kccg.findGreedyCover(row, krow, b, xstar, cover, remainder) == 1){
           // lift, uncomplements, and add cut to cut set
-          kccg.liftAndUncomplementAndAdd((*siP).getRowUpper()[row],krow, b, complement, row, cover, remainder, cuts);   
-        }  
-        // reset optimal column solution (xstar) information in OSL     
+          kccg.liftAndUncomplementAndAdd((*siP).getRowUpper()[row],krow, b, complement, row, cover, remainder, cuts);
+        }
+        // reset optimal column solution (xstar) information in OSL
         const double * rowupper = siP->getRowUpper();
 	int k;
         if (fabs(b-rowupper[row]) > 1.0e-05) {
@@ -428,14 +428,14 @@ CglKnapsackCoverUnitTest(
               complement[krow.getIndices()[k]]=0;
             }
           }
-        }  
+        }
         // clean up
         delete [] complement;
 	delete [] xstar;
       }
       // apply the cuts
       OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cuts);
-      
+
       siP->resolve();
       double lpRelaxAfter=siP->getObjValue();
       assert( eq(lpRelaxAfter, -30.0) );
@@ -456,10 +456,10 @@ CglKnapsackCoverUnitTest(
       sampleRowCut.setUb(3.0);
       assert(testRowPV.isEquivalent(sampleRowCut.row(),CoinRelFltEq(1.0e-05)));
     }
-    
+
     delete siP;
   }
- 
+
 
   // Testcase /u/rlh/osl2/mps/p0033
   // Miplib3 problem p0033
@@ -472,46 +472,46 @@ CglKnapsackCoverUnitTest(
     // All integer variables should be binary.
     // Assert that this is true.
     for ( i = 0;  i < siP->getNumCols();  i++ )
-      if ( siP->isInteger(i) ) 
-        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));  
+      if ( siP->isInteger(i) )
+        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));
     int nCols=siP->getNumCols();
     CglKnapsackCover kccg;
 
     // Solve the LP relaxation of the model and
-    // print out ofv for sake of comparison 
+    // print out ofv for sake of comparison
     siP->initialSolve();
     double lpRelaxBefore=siP->getObjValue();
     assert( eq(lpRelaxBefore, 2520.5717391304347) );
     double mycs[] = {0, 1, 0, 0, -2.0837010502455788e-19, 1, 0, 0, 1,
-		       0.021739130434782594, 0.35652173913043478, 
-		       -6.7220534694101275e-18, 5.3125906451789717e-18, 
+		       0.021739130434782594, 0.35652173913043478,
+		       -6.7220534694101275e-18, 5.3125906451789717e-18,
 		       1, 0, 1.9298798670241979e-17, 0, 0, 0,
-		       7.8875708048320448e-18, 0.5, 0, 
+		       7.8875708048320448e-18, 0.5, 0,
 		       0.85999999999999999, 1, 1, 0.57999999999999996,
 		       1, 0, 1, 0, 0.25, 0, 0.67500000000000004};
     siP->setColSolution(mycs);
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
 #endif
-    
-    OsiCuts cuts;    
-    
+
+    OsiCuts cuts;
+
     // Test generateCuts method
     kccg.generateCuts(*siP,cuts);
     OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cuts);
-    
+
     siP->resolve();
-    double lpRelaxAfter=siP->getObjValue(); 
+    double lpRelaxAfter=siP->getObjValue();
     assert( eq(lpRelaxAfter, 2829.0597826086955) );
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
     printf("\n\nFinal LP min=%f\n",lpRelaxAfter);
 #endif
     assert( lpRelaxBefore < lpRelaxAfter );
-    
+
     // the CoinPackedVector p0033 is the optimal
     // IP solution to the miplib problem p0033
-    int objIndices[14] = { 
+    int objIndices[14] = {
        0,  6,  7,  9, 13, 17, 18,
       22, 24, 25, 26, 27, 28, 29 };
     CoinPackedVector p0033(14,objIndices,1.0);
@@ -535,9 +535,9 @@ CglKnapsackCoverUnitTest(
       double p0033Sum = (rpv*p0033).sum();
       assert (p0033Sum <= rcut.ub() );
     }
-  
+
     delete siP;
-  } 
+  }
 
   // if a debug file is there then look at it
   {
@@ -567,7 +567,7 @@ CglKnapsackCoverUnitTest(
       printf("\n");
       // Setup
       OsiSolverInterface  * siP = baseSiP->clone();
-      
+
       double lo=-1.0e30;
       double * upper = new double[ncol];
       start[ncol]=nel;
@@ -595,9 +595,9 @@ CglKnapsackCoverUnitTest(
       delete [] row;
       delete [] upper;
       CglKnapsackCover kccg;
-      
-      OsiCuts cuts;    
-      
+
+      OsiCuts cuts;
+
       // Test generateCuts method
       kccg.generateCuts(*siP,cuts);
       // print out and compare to known cuts
@@ -632,55 +632,55 @@ CglKnapsackCoverUnitTest(
     // All integer variables should be binary.
     // Assert that this is true.
     for ( i = 0;  i < siP->getNumCols();  i++ )
-      if ( siP->isInteger(i) ) 
-        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));    
+      if ( siP->isInteger(i) )
+        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));
 
     const int nCols=siP->getNumCols();
     CglKnapsackCover kccg;
-    
+
     // Solve the LP relaxation of the model and
-    // print out ofv for sake of comparisn 
+    // print out ofv for sake of comparisn
     siP->initialSolve();
     double lpRelaxBefore=siP->getObjValue();
     assert( eq(lpRelaxBefore, 6875.) );
     double mycs[] =
-      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-       0, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 
-       0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 
-       0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 
-       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 
-       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 
-       0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 
-       0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 
-       0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-       0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5,
+       0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0,
+       0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5,
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+       0, 0, 1, 0.5, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
        1};
     siP->setColSolution(mycs);
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
 #endif
-    
-    OsiCuts cuts;    
-    
+
+    OsiCuts cuts;
+
     // Test generateCuts method
     kccg.generateCuts(*siP,cuts);
     OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cuts);
-    
+
     siP->resolve();
-    double lpRelaxAfter=siP->getObjValue(); 
+    double lpRelaxAfter=siP->getObjValue();
     assert( eq(lpRelaxAfter, 7125) );
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
     printf("\n\nFinal LP min=%f\n",lpRelaxAfter);
 #endif
     assert( lpRelaxBefore < lpRelaxAfter );
- 
-    // Optimal IP solution to p0201    
+
+    // Optimal IP solution to p0201
     int objIndices[22] = { 8, 10,  21,  38,  39,  56,
-      60,   74, 79,  92, 94, 110, 111, 128, 132, 146, 
+      60,   74, 79,  92, 94, 110, 111, 128, 132, 146,
       151,164, 166, 182,183, 200 };
     CoinPackedVector p0201(22,objIndices,1.0);
-    
+
     // Sanity check
     const double *  objective=siP->getObjCoefficients();
     double ofv =0 ;
@@ -690,7 +690,7 @@ CglKnapsackCoverUnitTest(
     }
     CoinRelFltEq eq;
     assert( eq(ofv,7615.0) );
-    //printf("p0201 optimal ofv = %g\n",ofv); 
+    //printf("p0201 optimal ofv = %g\n",ofv);
 
     int nRowCuts = cuts.sizeRowCuts();
     OsiRowCut rcut;
@@ -701,39 +701,39 @@ CglKnapsackCoverUnitTest(
       double p0201Sum = (rpv*p0201).sum();
       assert (p0201Sum <= rcut.ub() );
     }
-  
-    delete siP;
-  } 
 
- 
+    delete siP;
+  }
+
+
   // see if I get the same covers that N&W get
   {
     OsiSolverInterface * siP=baseSiP->clone();
     std::string fn(mpsDir+"nw460");
-    siP->readMps(fn.c_str(),"mps");   
+    siP->readMps(fn.c_str(),"mps");
     // All integer variables should be binary.
     // Assert that this is true.
     for ( i = 0;  i < siP->getNumCols();  i++ )
-      if ( siP->isInteger(i) ) 
-        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));  
+      if ( siP->isInteger(i) )
+        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));
     CglKnapsackCover kccg;
-    
+
     // Solve the LP relaxation of the model and
-    // print out ofv for sake of comparison 
+    // print out ofv for sake of comparison
     siP->initialSolve();
     double lpRelaxBefore=siP->getObjValue();
     assert( eq(lpRelaxBefore, -225.68951787852194) );
     double mycs[] = {0.7099213482046447, 0, 0.34185802225477174, 1, 1, 0, 1, 1, 0};
     siP->setColSolution(mycs);
 
-    OsiCuts cuts;    
-    
+    OsiCuts cuts;
+
     // Test generateCuts method
     kccg.generateCuts(*siP,cuts);
     OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cuts);
-    
+
     siP->resolve();
-    double lpRelaxAfter=siP->getObjValue(); 
+    double lpRelaxAfter=siP->getObjValue();
     assert( eq(lpRelaxAfter, -176) );
 #ifdef CGL_DEBUG
     printf("\n\nOrig LP min=%f\n",lpRelaxBefore);
@@ -741,8 +741,8 @@ CglKnapsackCoverUnitTest(
 #endif
 #ifdef MJS
     assert( lpRelaxBefore < lpRelaxAfter );
-#endif    
-    
+#endif
+
     int nRowCuts = cuts.sizeRowCuts();
     OsiRowCut rcut;
     CoinPackedVector rpv;
@@ -756,7 +756,7 @@ CglKnapsackCoverUnitTest(
       }
       printf("\n");
     }
-    delete siP; 
+    delete siP;
   }
 
   // Debugging: try "exmip1.mps"
@@ -764,26 +764,26 @@ CglKnapsackCoverUnitTest(
     // Setup
     OsiSolverInterface  * siP = baseSiP->clone();
     std::string fn(mpsDir+"exmip1");
-    siP->readMps(fn.c_str(),"mps");   
+    siP->readMps(fn.c_str(),"mps");
     // All integer variables should be binary.
     // Assert that this is true.
     for ( i = 0;  i < siP->getNumCols();  i++ )
-      if ( siP->isInteger(i) ) 
-        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));  
+      if ( siP->isInteger(i) )
+        assert(siP->getColUpper()[i]==1.0 && siP->isBinary(i));
     CglKnapsackCover kccg;
-    
+
     // Solve the LP relaxation of the model and
-    // print out ofv for sake of comparison 
+    // print out ofv for sake of comparison
     siP->initialSolve();
     double lpRelaxBefore=siP->getObjValue();
     assert( eq(lpRelaxBefore, 3.2368421052631575) );
     double mycs[] = {2.5, 0, 0, 0.6428571428571429, 0.5, 4, 0, 0.26315789473684253};
     siP->setColSolution(mycs);
     // Test generateCuts method
-    OsiCuts cuts;    
+    OsiCuts cuts;
     kccg.generateCuts(*siP,cuts);
     OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cuts);
-    
+
     siP->resolve();
     double lpRelaxAfter=siP->getObjValue();
     assert( eq(lpRelaxAfter, 3.2368421052631575) );
@@ -794,7 +794,7 @@ CglKnapsackCoverUnitTest(
     assert( lpRelaxBefore <= lpRelaxAfter );
 
     delete siP;
-  } 
+  }
 
 #ifdef CGL_DEBUG
   // See what findLPMostViolatedMinCover for knapsack with 2 elements does
@@ -817,7 +817,7 @@ CglKnapsackCoverUnitTest(
       printf(" index %i element % g\n", cover.getIndices()[j], cover.getElements()[j]);
     }
   }
-#endif 
+#endif
 
 #ifdef CGL_DEBUG
   // see what findLPMostViolatedMinCover does

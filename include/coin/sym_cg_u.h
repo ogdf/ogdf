@@ -21,7 +21,7 @@ int cg_add_explicit_cut PROTO((int nzcnt, int *indices, double *values,
 			       double rhs, double range, char sense,
 			       char send_to_cp, int *num_cuts, int *alloc_cuts,
 			       cut_data ***cuts));
-int cg_add_user_cut PROTO((cut_data *new_cut, int *num_cuts, int *alloc_cuts, 
+int cg_add_user_cut PROTO((cut_data *new_cut, int *num_cuts, int *alloc_cuts,
 			   cut_data ***cuts));
 int cg_send_cut PROTO((cut_data *new_cut, int *num_cuts, int *alloc_cuts,
 		       cut_data ***cuts));

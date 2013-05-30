@@ -166,7 +166,7 @@ namespace ogdf {
 				} while (improved);
 			}
 		}
-	
+
 		if(!doIncrementalPostprocessing) {
 			// postprocessing (remove-reinsert heuristc)
 			const int m = m_pr.original().numberOfEdges();
@@ -247,7 +247,7 @@ namespace ogdf {
 				}
 			} while (improved);
 		}
-	
+
 		// verify computed planarization
 		OGDF_ASSERT(m_pr.representsCombEmbedding());
 
@@ -539,7 +539,7 @@ namespace ogdf {
 		node t = m_pr.copy(eOrig->target());
 		OGDF_ASSERT(s != t);
 
-		int eSubgraph = (m_pSubgraph != 0) ? (*m_pSubgraph)[eOrig] : 0; 
+		int eSubgraph = (m_pSubgraph != 0) ? (*m_pSubgraph)[eOrig] : 0;
 
 		EdgeArray<int> costDual(m_dual, 0);
 		int maxCost = 0;

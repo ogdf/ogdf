@@ -1,9 +1,9 @@
 /*
- * $Revision: 2565 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sa, 07. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -289,7 +289,7 @@ int ExtractKuratowskis::whichKuratowskiArray(
 					//const NodeArray<int>& /* m_dfi */,
 					EdgeArray<int>& edgenumber)
 {
-	edge e,ed;
+	edge e;
 	node v;
 	NodeArray<int> nodenumber(m_g,0);
 	int K33Partition[6] = {0,-1,-1,-1,-1,-1};
@@ -346,6 +346,7 @@ int ExtractKuratowskis::whichKuratowskiArray(
 					// traverse nodedegree-2 path until degree-3 node found
 					while (nodenumber[v] != 3) {
 						nodenumber[v] = -2; // visited
+						edge ed;
 						forall_adj_edges(ed,v) if (edgenumber[ed] > 0) break;
 						OGDF_ASSERT(edgenumber[ed] > 0);
 						edgenumber[ed] = -2; // visited
@@ -386,6 +387,7 @@ int ExtractKuratowskis::whichKuratowskiArray(
 					// traverse nodedegree-2 path until degree-4 node found
 					while (nodenumber[v] != 4) {
 						nodenumber[v] = -2; // visited
+						edge ed;
 						forall_adj_edges(ed,v) if (edgenumber[ed] > 0) break;
 						if (edgenumber[ed] <= 0) break;
 						edgenumber[ed] = -2; // visited

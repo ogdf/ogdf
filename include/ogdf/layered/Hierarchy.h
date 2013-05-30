@@ -1,9 +1,9 @@
 /*
- * $Revision: 3400 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-16 09:10:39 +0200 (Di, 16. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -117,7 +117,7 @@ namespace ogdf {
 
 		Array<Level *> m_pLevel; //!< The array of all levels.
 		NodeArray<int> m_pos;    //!< The position of a node on its level.
-		
+
 		NodeArray<Array<node> > m_lowerAdjNodes; //!< (Sorted) adjacent nodes on lower level.
 		NodeArray<Array<node> > m_upperAdjNodes; //!< (Sorted) adjacent nodes on upper level.
 

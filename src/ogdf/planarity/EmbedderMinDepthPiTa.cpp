@@ -1,9 +1,9 @@
 /*
- * $Revision: 3437 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 14:48:09 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -303,7 +303,7 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	}
 
-	node m_rootOfBlockCutfaceTree;
+	node m_rootOfBlockCutfaceTree = NULL;
 	forall_nodes(n, m_blockCutfaceTree.bcTree())
 	{
 		if (n->outdeg() == 0)
@@ -312,6 +312,7 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 			break;
 		}
 	}
+	OGDF_ASSERT(m_rootOfBlockCutfaceTree);
 
 	//if only one cutface exists, this face is the optimum external face:
 	if (m_blockCutfaceTree.numberOfCComps() == 1)
@@ -422,7 +423,7 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 					node connectingNode = 0;
 					while (connectingNode == 0)
 					{
-						node parent_bBCTree;
+						node parent_bBCTree = NULL;
 						edge eParent;
 						forall_adj_edges(eParent, bBCTree)
 						{
@@ -432,6 +433,7 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 								break;
 							}
 						}
+						OGDF_ASSERT(parent_bBCTree);
 						if (childrenOfKnotInBCTree.search(parent_bBCTree) != -1)
 						{
 							connectingNode = parent_bBCTree;
@@ -1313,7 +1315,7 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 			if (cTp != nBCTree_to_npBCTree[parent_cT])
 			{
 				//find adjacency entry of n_blockG_bT which lies on external face of G_nT[cTp]:
-				adjEntry ae_G_cT;
+				adjEntry ae_G_cT = NULL;
 				adjEntry aeFace = Gamma_adjExt_nT[cTp];
 				do
 				{
@@ -1338,6 +1340,7 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 					ListIterator<adjEntry>* pAfter;
 					if (nG2 == nG)
 					{
+						OGDF_ASSERT(ae_G_cT);
 						ae = ae_G_cT;
 						pAfter = &after;
 					}

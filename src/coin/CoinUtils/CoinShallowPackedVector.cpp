@@ -105,11 +105,11 @@ CoinShallowPackedVector::CoinShallowPackedVector(bool testForDuplicateIndex) :
 		     "CoinShallowPackedVector");
    }
 }
-   
+
 //-------------------------------------------------------------------
 // Explicit
 //-------------------------------------------------------------------
-CoinShallowPackedVector::CoinShallowPackedVector(int size, 
+CoinShallowPackedVector::CoinShallowPackedVector(int size,
 					       const int * inds,
 					       const double * elems,
 					       bool testForDuplicateIndex) :

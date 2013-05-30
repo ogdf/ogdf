@@ -99,7 +99,7 @@
 #ifdef CLP_USER_DRIVEN1
 /* Returns true if variable sequenceOut can leave basis when
    model->sequenceIn() enters.
-   This function may be entered several times for each sequenceOut.  
+   This function may be entered several times for each sequenceOut.
    The first time realAlpha will be positive if going to lower bound
    and negative if going to upper bound (scaled bounds in lower,upper) - then will be zero.
    currentValue is distance to bound.

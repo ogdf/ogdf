@@ -1,15 +1,15 @@
 /*
- * $Revision: 3337 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-03-08 14:42:40 +0100 (Fr, 08. Mär 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
  * \brief Declaration of class UpwardPlanarityEmbeddedDigraph, which implements
  *        the upward-planarity testing algorithm for
- *        digraphs with a fixed embedding by Bertolazzi et al. 
+ *        digraphs with a fixed embedding by Bertolazzi et al.
  *
  * \author Robert Zeranski
  *
@@ -87,14 +87,14 @@ class UpwardPlanarityEmbeddedDigraph {
 	public:
 		//tests whether the embedded Digraph is upward planar by using the private class methods
 		//returns true iff G is upward planar observing the fixed embedding
-		bool isUpwardPlanarEmbedded(); 
+		bool isUpwardPlanarEmbedded();
 		//get the set of feasible external faces (represented by the first AdjEntry) if G is upward planar observing the fixed embedding
-		bool isUpwardPlanarEmbedded(List<adjEntry> &possibleExternalFaces); 
+		bool isUpwardPlanarEmbedded(List<adjEntry> &possibleExternalFaces);
 	private:
 		//tests whether the embedded Digraph is upward planar
 		//val = true forces a break if the first feasible external face was found
 		void isUpwardPlanarEmbedded(const bool val, List<adjEntry> &possibleExternalFaces);
-		//constructs flow-network of the corresponding Graph G 
+		//constructs flow-network of the corresponding Graph G
 		void constructNetwork(EdgeArray<int> &capacity, EdgeArray<int> &flow);
 		//tests whether a flow of power r is possible in the flow-network by executing augmentation steps
 		bool isFlow(EdgeArray<int> &capacity, EdgeArray<int> &flow, const int r);
@@ -103,7 +103,7 @@ class UpwardPlanarityEmbeddedDigraph {
 		//returns the value for one augmentation step
 		int getMin(Stack<node> stack, EdgeArray<int> &capacity, EdgeArray<int> &flow);
 
-}; 
+};
 
 } // end namespace ogdf
 

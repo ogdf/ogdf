@@ -1,9 +1,9 @@
 /*
- * $Revision: 3432 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -177,7 +177,7 @@ private:
 	//! Convenience method copying the layout of the graph in case of epsilon convergence.
 	void copyLayout(const GraphAttributes& GA, NodeArray<double>& newX,
 			NodeArray<double>& newY);
-	
+
 	//! Convenience method copying the layout of the graph in case of epsilon convergence for 3D.
 	void copyLayout(const GraphAttributes& GA, NodeArray<double>& newX,
 			NodeArray<double>& newY, NodeArray<double>& newZ);

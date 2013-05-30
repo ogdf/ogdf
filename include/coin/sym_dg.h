@@ -70,9 +70,9 @@ typedef struct DG_EDGE{
    char    weight[MAX_WEIGHT_LENGTH +1];
    char    dash[MAX_DASH_PATTERN_LENGTH +1];
 }dg_edge;
-      
+
 /*===========================================================================*/
-   
+
 typedef struct DG_GRAPH{
    int         nodenum;
    int         deleted_nodenum;

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3385 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-08 14:39:35 +0200 (Mo, 08. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -187,7 +187,7 @@ double usedTime(double& T)
 	FILETIME exitTime;
 	FILETIME kernelTime;
 	FILETIME userTime;
-	
+
 	BOOL res = GetProcessTimes(GetCurrentProcess(), &creationTime, &exitTime, &kernelTime, &userTime);
 	ULARGE_INTEGER user;
 	user.LowPart = userTime.dwLowDateTime;

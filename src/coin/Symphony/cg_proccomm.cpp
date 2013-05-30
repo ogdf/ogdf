@@ -29,24 +29,24 @@
 \*===========================================================================*/
 
 /*===========================================================================*\
- * Process a message from the queue -- this function is only used when the   
- * cut generator is run as a separate process.                               
+ * Process a message from the queue -- this function is only used when the
+ * cut generator is run as a separate process.
 \*===========================================================================*/
 
 int cg_process_message(cg_prob *p, int r_bufid)
 {
    int bytes;
-   
+
    bufinfo(r_bufid, &bytes, &p->msgtag, &p->cur_sol.lp);
-   
+
    switch(p->msgtag){
-      
+
     case YOU_CAN_DIE:
       cg_close(p);
       freebuf(r_bufid);
       comm_exit();
       exit(1);
-      
+
     case LP_SOLUTION_NONZEROS:
     case LP_SOLUTION_FRACTIONS:
       /* receive a new LP solution for which cuts are to be generated */
@@ -67,7 +67,7 @@ int cg_process_message(cg_prob *p, int r_bufid)
       receive_dbl_array(p->cur_sol.xval, p->cur_sol.xlength);
       freebuf(r_bufid);
       break;
-      
+
     case LP_SOLUTION_USER:
       receive_int_array(&p->cur_sol.xlevel, 1);
       receive_int_array(&p->cur_sol.xindex, 1);
@@ -80,7 +80,7 @@ int cg_process_message(cg_prob *p, int r_bufid)
       if (receive_lp_solution_cg_u(p) == USER_ERROR)
 	 return(USER_ERROR);
       break;
-      
+
     default:
       printf("Unrecognized message type %i from %i!!!\n",
 	     p->msgtag, p->cur_sol.lp);

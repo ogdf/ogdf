@@ -55,7 +55,7 @@ int check_row_effectiveness(lp_prob *p)
     * violated, loose or tight */
 
    //int base_m = orig_eff ? bcutnum : 0;
-   
+
    for (i = m - 1; i >= 0; i--){
       slack = slacks[i];
       switch (rows[i].cut->sense){
@@ -88,11 +88,11 @@ int check_row_effectiveness(lp_prob *p)
 	       stat[i] = TIGHT_ROW;
 	    else
 	       stat[i] = VIOLATED_ROW;
-	 }	    
+	 }
 	 break;
       }
    }
-   
+
    /* Now set the branch values appropriately */
    if (p->par.branch_on_cuts){
       for (i=m-1; i>=0; i--){
@@ -120,7 +120,7 @@ int check_row_effectiveness(lp_prob *p)
     * are not deletable.
     *   So be careful!
    \*========================================================================*/
-   
+
    violated = ineffective = 0;
 
    /* we'll first use slackstat then outrhsind. no conflict */
@@ -135,7 +135,7 @@ int check_row_effectiveness(lp_prob *p)
 	    rows[i].eff_cnt = 0;
 	    rows[i].ineff_cnt = 0;
 	    inrhsind[violated++] = i;
-	 } 
+	 }
       }
       /* Collect the rows that are deemed ineffective now */
       switch (p->par.ineffective_constraints){
@@ -175,7 +175,7 @@ int check_row_effectiveness(lp_prob *p)
 
    deletable = k = 0;
    for (j = ineffective - 1; j >= 0; j--){
-      
+
       row = rows + (i = now_ineff[j]);
 
       if(p->bc_level > 100 && !(row->deletable))row->deletable = TRUE;
@@ -184,7 +184,7 @@ int check_row_effectiveness(lp_prob *p)
 	 row->free = TRUE;
 	 row->ineff_cnt = stat[i] == TIGHT_ROW ? 0 : ((MAXINT) >> 1);
 	 outrhsind[k++] = i;
-      } 
+      }
       row->ineff_cnt++;
       if (i >= bcutnum && ! (row->cut->branch & CUT_BRANCHED_ON) &&
 	  row->deletable && row->ineff_cnt >= ineff_cnt_to_delete )
@@ -213,7 +213,7 @@ int check_row_effectiveness(lp_prob *p)
       }
       printf("\n");
    }
-   
+
    /*------------------------------------------------------------------------*\
     * Finally, remove the deletable rows if there are enough to remove
    \*------------------------------------------------------------------------*/
@@ -286,7 +286,7 @@ void add_row_set(lp_prob *p, waiting_row **wrows, int length)
 
    free_waiting_rows(wrows, length);
 }
-   
+
 /*===========================================================================*/
 
 void add_new_rows_to_waiting_rows(lp_prob *p, waiting_row **new_rows,
@@ -313,7 +313,7 @@ void add_new_rows_to_waiting_rows(lp_prob *p, waiting_row **new_rows,
  * arrival.
  * The ordering is done in ascending order wrt the source_pid field of each
  * waiting_row. Newly arriving cuts have the correct value here, cuts already
- * in the local pool get MAXINT, so they are considered last.  
+ * in the local pool get MAXINT, so they are considered last.
 
  * NOTE: This ensures that results are reproducible, even with with multiple
  * cut pools/generators, as long as we never time out.
@@ -365,13 +365,13 @@ int add_best_waiting_rows(lp_prob *p)
 	 rows[i].eff_cnt = 1;
       }
       if (added_rows < p->waiting_row_num)
-	 memmove(p->waiting_rows, p->waiting_rows + added_rows, 
+	 memmove(p->waiting_rows, p->waiting_rows + added_rows,
 	       (p->waiting_row_num - added_rows) * sizeof(waiting_row *));
       p->waiting_row_num -= added_rows;
    }
    return(added_rows);
 }
- 
+
 /*===========================================================================*/
 
 void add_waiting_rows(lp_prob *p, waiting_row **wrows, int add_row_num)
@@ -390,7 +390,7 @@ void add_waiting_rows(lp_prob *p, waiting_row **wrows, int add_row_num)
 
    sense = lp_data->tmp.c; /* m */
    rhs = lp_data->tmp.d; /* m */
-   REMALLOC(lp_data->tmp.dv, double, lp_data->tmp.dv_size, nzcnt, 
+   REMALLOC(lp_data->tmp.dv, double, lp_data->tmp.dv_size, nzcnt,
          5*(int)BB_BUNCH);
    rmatval = lp_data->tmp.dv; /* nzcnt */
    rmatbeg = lp_data->tmp.i1;
@@ -468,7 +468,7 @@ void compress_slack_cuts(lp_prob *p)
 {
    int i, snum = p->slack_cut_num;
    cut_data **slack_cuts = p->slack_cuts;
-   
+
    for (i=0; i<snum; ){
       if (slack_cuts[i] == NULL){
 	 slack_cuts[i] = slack_cuts[--snum];

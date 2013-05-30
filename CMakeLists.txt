@@ -26,6 +26,11 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         "\n  * Windows: cmake -G \"Visual Studio 10\" ..")
 endif()
 
+if(MSVC)
+    # Enable Build with Multiple Processes for Visual Studio.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+endif()
+
 # We can't use add_subdirectory() here, because of OGDF's special directory
 # structure. Thus we'll have to include projects (order is important!).
 include(${CMAKE_CURRENT_SOURCE_DIR}/config/coin.cmake)

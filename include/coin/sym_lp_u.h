@@ -34,7 +34,7 @@ void branch_close_to_one_and_cheap PROTO((int max_cand_num, int *cand_num,
 
 int user_receive_lp_data PROTO((void **user));
 int user_free_lp PROTO((void **user));
-int user_create_subproblem PROTO((void *user, int *indices, MIPdesc *mip, 
+int user_create_subproblem PROTO((void *user, int *indices, MIPdesc *mip,
 				  int *maxn, int *maxm, int *maxnz));
 int user_is_feasible PROTO((void *user, double lpetol, int varnum,
 			    int *indices, double *values, int *feasible,

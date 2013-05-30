@@ -1,6 +1,6 @@
 //
 // Name:     CglRedSplit.cpp
-// Author:   Francois Margot                                                  
+// Author:   Francois Margot
 //           Tepper School of Business
 //           Carnegie Mellon University, Pittsburgh, PA 15213
 // Date:     2/6/05
@@ -34,7 +34,7 @@ CglRedSplitUnitTest(const OsiSolverInterface *baseSiP,
   {
     CglRedSplit aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglRedSplit rhs;
@@ -49,7 +49,7 @@ CglRedSplitUnitTest(const OsiSolverInterface *baseSiP,
   {
     CglRedSplit getset;
     CglRedSplitParam gsparam = getset.getParam();
-    
+
     double geps = 10 * gsparam.getEPS();
     gsparam.setEPS(geps);
     double geps2 = gsparam.getEPS();
@@ -85,10 +85,10 @@ CglRedSplitUnitTest(const OsiSolverInterface *baseSiP,
     else {
       fclose(in_f);
       siP->readMps(fn.c_str(),"mps");
- 
+
       siP->initialSolve();
       double lpRelax = siP->getObjValue();
-      
+
       OsiCuts cs;
       gct.getParam().setMAX_SUPPORT(34);
       gct.getParam().setUSE_CG2(1);
@@ -98,10 +98,10 @@ CglRedSplitUnitTest(const OsiSolverInterface *baseSiP,
       std::cout<<"There are "<<nRowCuts<<" Reduce-and-Split cuts"<<std::endl;
       assert(cs.sizeRowCuts() > 0);
       OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cs);
-      
+
       siP->resolve();
-      
-      double lpRelaxAfter= siP->getObjValue(); 
+
+      double lpRelaxAfter= siP->getObjValue();
       std::cout<<"Initial LP value: "<<lpRelax<<std::endl;
       std::cout<<"LP value with cuts: "<<lpRelaxAfter<<std::endl;
       assert( lpRelax < lpRelaxAfter );

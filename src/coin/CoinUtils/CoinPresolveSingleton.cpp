@@ -24,7 +24,7 @@
  * What I refer to as a row singleton would be called a doubleton
  * in the paper, since my terminology doesn't refer to the slacks.
  * In terms of the paper, we transfer the bounds of the slack onto
- * the variable (vii) and then "substitute" the slack out of the problem 
+ * the variable (vii) and then "substitute" the slack out of the problem
  * (which is a noop).
  */
 const CoinPresolveAction *
@@ -136,7 +136,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
 	lo = -lo;
 	up = -up;
       }
-      
+
       if (lo <= -PRESOLVE_INF)
 	lo = -PRESOLVE_INF;
       else {
@@ -152,7 +152,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
 	if (up > PRESOLVE_INF)
 	  up = PRESOLVE_INF;
       }
-      
+
       if (clo[jcol] < lo) {
 	// If integer be careful
 	if (integerType[jcol]) {
@@ -166,7 +166,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
 	  if (lo!=lo2&&fabs(lo-floor(lo+0.5))<0.01)
 	    printf("first lo %g second %g orig %g\n",lo2,lo,clo[jcol]);
 #endif
-	  if (clo[jcol] < lo) 
+	  if (clo[jcol] < lo)
 	    clo[jcol] = lo;
 	} else {
 	  clo[jcol] = lo;
@@ -185,7 +185,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
 	  if (up!=up2&&fabs(up-floor(up+0.5))<0.01)
 	    printf("first up %g second %g orig %g\n",up2,up,cup[jcol]);
 #endif
-	  if (cup[jcol] > up) 
+	  if (cup[jcol] > up)
 	    cup[jcol] = up;
 	} else {
 	  cup[jcol] = up;
@@ -310,7 +310,7 @@ slack_doubleton_action::presolve(CoinPresolveMatrix *prob,
   std::cout << "Leaving slack_doubleton_action::presolve." << std::endl ;
 # endif
   delete [] actions;
-  
+
   return (next);
 }
 
@@ -401,7 +401,7 @@ void slack_doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
 	/* the slack is basic and its reduced cost is 0 */
       } else if ((fabs(sol[jcol] - lo0) <= ztolzb &&
 		  rcosts[jcol] >= 0) ||
-		 
+
 		 (fabs(sol[jcol] - up0) <= ztolzb &&
 		  rcosts[jcol] <= 0)) {
 	/* up against its bound but the rcost is still ok */
@@ -453,7 +453,7 @@ void slack_doubleton_action::postsolve(CoinPostsolveMatrix *prob) const
   std::cout << "Leaving slack_doubleton_action::postsolve." << std::endl ;
 # endif
 
-  return ; 
+  return ;
 }
 /*
     If we have a variable with one entry and no cost then we can
@@ -630,7 +630,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
           delete [] actions;
           actions=temp;
         }
-          
+
 	action *s = &actions[nactions];
 	nactions++;
 
@@ -649,7 +649,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
           PRESOLVE_REMOVE_LINK(prob->rlink_,iRow) ;
         // put row on stack of things to do next time
         prob->addRow(iRow);
-#ifdef PRINTCOST        
+#ifdef PRINTCOST
         if (rowObjective&&dcost[iCol]) {
           printf("Singleton %d had coeff of %g in row %d - bounds %g %g - cost %g\n",
                  iCol,coeff,iRow,clo[iCol],cup[iCol],dcost[iCol]);
@@ -686,7 +686,7 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
 	    movement = cup[iCol]-sol[iCol] ;
 	    sol[iCol]=cup[iCol];
 	  }
-	  if (movement) 
+	  if (movement)
 	    acts[iRow] += movement*coeff;
 	}
         /*
@@ -694,15 +694,15 @@ slack_singleton_action::presolve(CoinPresolveMatrix *prob,
         */
         presolve_delete_from_col(iRow,iCol,mcstrt,hincol,hrow,colels) ;
         assert (hincol[iCol] == 0);
-        PRESOLVE_REMOVE_LINK(prob->clink_,iCol) ; 
+        PRESOLVE_REMOVE_LINK(prob->clink_,iCol) ;
 	//clo[iCol] = 0.0;
 	//cup[iCol] = 0.0;
 	fixed_cols[nfixed_cols++] = iCol;
         //presolve_consistent(prob);
       }
-    }   
+    }
   }
-  
+
   if (nactions) {
 #   if PRESOLVE_SUMMARY
     printf("SINGLETON COLS:  %d\n", nactions);
@@ -822,7 +822,7 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
     double movement=0.0;
     // acts was without coefficient - adjust
     acts[iRow] += coeff*sol[iCol];
-    if (acts[iRow]<rlo[iRow]-ztolzb) 
+    if (acts[iRow]<rlo[iRow]-ztolzb)
       movement = rlo[iRow]-acts[iRow];
     else if (acts[iRow]>rup[iRow]+ztolzb)
       movement = rup[iRow]-acts[iRow];
@@ -832,9 +832,9 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
     if (!dcost[iCol]) {
       // and to get column feasible
       cMove=0.0;
-      if (sol[iCol]>cup[iCol]+ztolzb) 
+      if (sol[iCol]>cup[iCol]+ztolzb)
         cMove = cup[iCol]-sol[iCol];
-      else if (sol[iCol]<clo[iCol]-ztolzb) 
+      else if (sol[iCol]<clo[iCol]-ztolzb)
         cMove = clo[iCol]-sol[iCol];
       sol[iCol] += cMove;
       acts[iRow] += cMove*coeff;
@@ -844,9 +844,9 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
        */
       if (colstat) {
         int numberBasic =0;
-        if (prob->columnIsBasic(iCol)) 
+        if (prob->columnIsBasic(iCol))
           numberBasic++;
-        if (prob->rowIsBasic(iRow)) 
+        if (prob->rowIsBasic(iRow))
           numberBasic++;
 #ifdef COIN_DEVELOP
         if (numberBasic>1)
@@ -877,24 +877,24 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
       // adjust for coefficient
       cost -= rowduals[iRow]*coeff;
       bool basic=true;
-      if (fabs(sol[iCol]-cup[iCol])<ztolzb&&cost<-1.0e-6) 
+      if (fabs(sol[iCol]-cup[iCol])<ztolzb&&cost<-1.0e-6)
         basic=false;
-      else if (fabs(sol[iCol]-clo[iCol])<ztolzb&&cost>1.0e-6) 
+      else if (fabs(sol[iCol]-clo[iCol])<ztolzb&&cost>1.0e-6)
         basic=false;
       //printf("Singleton %d had coeff of %g in row %d (dual %g) - bounds %g %g - cost %g, (dj %g)\n",
       //     iCol,coeff,iRow,rowduals[iRow],clo[iCol],cup[iCol],dcost[iCol],rcosts[iCol]);
-      //if (prob->columnIsBasic(iCol)) 
+      //if (prob->columnIsBasic(iCol))
       //printf("column basic! ");
-      //if (prob->rowIsBasic(iRow)) 
+      //if (prob->rowIsBasic(iRow))
       //printf("row basic ");
       //printf("- make column basic %s\n",basic ? "yes" : "no");
       if (basic&&!prob->rowIsBasic(iRow)) {
-#ifdef PRINTCOST        
+#ifdef PRINTCOST
         printf("Singleton %d had coeff of %g in row %d (dual %g) - bounds %g %g - cost %g, (dj %g - new %g)\n",
                iCol,coeff,iRow,rowduals[iRow],clo[iCol],cup[iCol],dcost[iCol],rcosts[iCol],cost);
 #endif
 #ifdef COIN_DEVELOP
-        if (prob->columnIsBasic(iCol)) 
+        if (prob->columnIsBasic(iCol))
           printf("column basic!\n");
 #endif
         basic=false;
@@ -902,7 +902,7 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
       if (fabs(rowduals[iRow])>1.0e-6&&prob->rowIsBasic(iRow))
         basic=true;
       if (basic) {
-        // Make basic have zero reduced cost 
+        // Make basic have zero reduced cost
 	rowduals[iRow] = rcosts[iCol] / coeff;
 	rcosts[iCol] = 0.0;
       } else {
@@ -990,6 +990,6 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
   std::cout << "Leaving slack_singleton_action::postsolve." << std::endl ;
 # endif
 
-  return ; 
+  return ;
 }
 

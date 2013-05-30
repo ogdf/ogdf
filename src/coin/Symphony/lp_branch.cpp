@@ -85,7 +85,7 @@ void add_slacks_to_matrix(lp_prob *p, int cand_num, branch_obj **candidates)
  * waiting_rows; add the appropriate number of cuts to the problem and
  * continue the node (this second part is just like the end of receive_cuts().
 \*===========================================================================*/
-   
+
 int add_violated_slacks(lp_prob *p, int cand_num, branch_obj **candidates)
 {
    LPdata *lp_data = p->lp_data;
@@ -159,14 +159,14 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
    int max_presolve_iter;
    const int bc_level = p->bc_level;
    int strong_br_min_level = p->par.strong_br_min_level;
- 
+
    /*------------------------------------------------------------------------*\
     * First we call select_candidates_u() to select candidates. It can
     * -- return with DO_BRANCH and a bunch of candidates, or
     * -- return with DO_NOT_BRANCH along with a bunch of violated cuts
     *    in the matrix and/or among the slack_cuts, or
     * -- return with DO_NOT_BRANCH__FATHOMED, i.e., the node can be fathomed.
-   \*------------------------------------------------------------------------*/      
+   \*------------------------------------------------------------------------*/
 
    j = select_candidates_u(p, cuts, &new_vars, &cand_num, &candidates);
 
@@ -220,10 +220,10 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
    if (p->par.branch_on_cuts)
       add_slacks_to_matrix(p, cand_num, candidates);
    m = lp_data->m;
-   rows = lp_data->rows;   
+   rows = lp_data->rows;
 
 
-#ifndef MAX_CHILDREN_NUM   
+#ifndef MAX_CHILDREN_NUM
    /* The part below is not needed when we have MAX_CHILDREN_NUM specified */
    /* Count how many objval/termcode/feasible entry we might need
       and allocate space for it */
@@ -249,13 +249,13 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
    pfeas = (int *) malloc(maxnum * ISIZE);
    piter = (int *) malloc(maxnum * ISIZE);
 #endif
-   
+
    /* Look at the candidates one-by-one and presolve them. */
    vars = lp_data->vars;
    oldobjval   = lp_data->objval;
    st_time     = used_time(&total_time);
    total_iters = 0;
-   
+
    if (should_use_rel_br==TRUE) {
 
       const double lpetol100 = lp_data->lpetol*100;
@@ -265,9 +265,9 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       char *bnd_sense = (char *)malloc (2*lp_data->n*CSIZE);
       int num_bnd_changes = 0;
       double xval, floorx, ceilx, var_score;
-      int full_solves = 0, down_is_est, up_is_est, 
-          max_solves_since_impr = p->par.rel_br_cand_threshold, 
-          stop_solving = FALSE, both_children_inf = FALSE, rel_up, 
+      int full_solves = 0, down_is_est, up_is_est,
+          max_solves_since_impr = p->par.rel_br_cand_threshold,
+          stop_solving = FALSE, both_children_inf = FALSE, rel_up,
           rel_down, solves_since_impr = 0;
       int max_solves = p->par.rel_br_max_solves;
       double alpha = p->par.strong_branching_high_low_weight;
@@ -276,7 +276,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       int check_level = 0;
       int num_up_iters = 0, num_down_iters = 0;
       int up_status = -1, down_status = -1;
-      
+
       best_var = -1;
       best_var_score = -SYM_INFINITY;
       memcpy(x, lp_data->x, lp_data->n*DSIZE);
@@ -285,35 +285,35 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 
       int hotstart_reg_cand = 0;
       int hotstart_ch_cand = 0;
-      int check_off = TRUE;      
-      
+      int check_off = TRUE;
+
       if(p->par.rel_br_override_default && p->mip->mip_inf){
 
 
 	 int weighted_iter =
 	    p->lp_stat.lp_total_iter_num/(p->lp_stat.lp_calls -
 					  p->lp_stat.str_br_lp_calls -
-					  p->lp_stat.fp_lp_calls + 1);	 
+					  p->lp_stat.fp_lp_calls + 1);
 	 if(p->mip->nz > 5e3){
 	    weighted_iter = (int)
 	       ((1.0*weighted_iter * p->mip->nz) / 5e3);
 	 }
-	 
+
 	 if(p->mip->nz > 5e4){
 	    rel_threshold = MAX(2, (int)(1.0 * rel_threshold * 5e4/p->mip->nz));
 	 }
-	 
+
 	 if(p->bc_level < 1){
 	    if(p->iter_num > 2 && weighted_iter <= 1000){
 	       if(p->mip->mip_inf){
 		  if(p->mip->mip_inf->prob_type == BINARY_TYPE){
-		     strong_br_min_level = 
+		     strong_br_min_level =
 			MIN(p->par.strong_br_min_level,
 			    (int)((p->mip->mip_inf->binary_var_num)/10.0) + 1);
 		  }
 		  if(p->mip->mip_inf->prob_type == BIN_CONT_TYPE){
 		     if(p->mip->mip_inf->bin_var_ratio < 0.1){
-			strong_br_min_level = 
+			strong_br_min_level =
 			   MIN(MAX(p->par.strong_br_min_level,
 				   (int)((p->mip->mip_inf->binary_var_num)/10.0)
 				   + 1), 10);
@@ -325,13 +325,13 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	       }
 	    }
 	 }
-	 
+
 	 if(weighted_iter * p->bc_index < 5e7){
 	    check_off = FALSE;
 	 }
-	 
-	 
-	 if(p->mip->mip_inf && p->mip->mip_inf->bin_cont_row_num > 0 && 
+
+
+	 if(p->mip->mip_inf && p->mip->mip_inf->bin_cont_row_num > 0 &&
 	    (p->mip->mip_inf->bin_cont_row_num >= p->mip->m ||
 	     (p->mip->mip_inf->bin_var_ratio < 0.2) ||
 	     p->mip->n - p->mip->mip_inf->cont_var_num <= 100 ||
@@ -343,18 +343,18 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	       -less number of bin vars
 	       -small number of int vars
 	       -large bin but less sos rows
-	       -small max_row_size - if rest are all binary, skip to latter 
+	       -small max_row_size - if rest are all binary, skip to latter
 	    */
-	    
-	    if(p->mip->mip_inf->bin_cont_row_num >= p->mip->m){ 
+
+	    if(p->mip->mip_inf->bin_cont_row_num >= p->mip->m){
 	       max_solves = MIN(max_solves, 2*cand_num);
-	       
+
 	    }else if(p->mip->mip_inf->bin_var_ratio < 0.2){
 	       max_solves = MIN(max_solves, 2*cand_num);
 	       if(p->mip->mip_inf->bin_var_ratio > 0.05){
 		  strong_br_min_level = (int)strong_br_min_level/2;
 	       }
-	    }else{// if(p->mip->mip_inf->max_row_ratio < 0.01){	       
+	    }else{// if(p->mip->mip_inf->max_row_ratio < 0.01){
 	       max_solves = MIN(2*max_solves, 2*cand_num);
 	       if(p->mip->mip_inf->sos_bin_row_ratio > 0.05){
 		  //  max_solves = MIN(2*max_solves, 2*cand_num);
@@ -370,31 +370,31 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	    //printf("here");
 	    //max_solves = 2*cand_num;
 	    //rel_threshold = MAX(2, rel_threshold/2);
-	    //printf("rel_the %i\n",rel_threshold);	       
+	    //printf("rel_the %i\n",rel_threshold);
 	    // }
 	    // }
-	 }else{	 
+	 }else{
 	    double imp_avg = 0.0;
 	    int backtrack = 0;
 
-	    bc_node *node = p->tm->active_nodes[p->proc_index];	    
-	    node = p->tm->active_nodes[p->proc_index];      
-	    /*	    
+	    bc_node *node = p->tm->active_nodes[p->proc_index];
+	    node = p->tm->active_nodes[p->proc_index];
+	    /*
 	    if(p->bc_level > 0){
-		  
+
 		  //if(node->start_objval > node->parent->end_objval + lp_data->lpetol){
 
 	       if(weighted_iter * p->bc_index < 5e7){
 		  check_off = FALSE;
 	       }
-	       
+
 	       if(p->mip->mip_inf && (p->mip->mip_inf->prob_type == BIN_CONT_TYPE ||
 				      p->mip->mip_inf->prob_type == BINARY_TYPE)){
 		  if(!check_off) check_first = TRUE;
 	       }
 	    }
 	    */
-	    if(p->bc_level >= 1){   
+	    if(p->bc_level >= 1){
 	       while(node->parent){
 		  if(node->start_objval > node->parent->end_objval){
 		     imp_avg +=
@@ -402,7 +402,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 		  }
 		  node = node->parent;
 		  if(backtrack++ > p->par.rel_br_chain_backtrack) break;
-	       }	       
+	       }
 	    }
 
 	    if(backtrack > 0){
@@ -417,7 +417,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 		  max_solves = MIN(2*max_solves, 2*cand_num);
 	       }
 	    }else{
-	       
+
 	       int c_cnt = 0;
 	       double d_avg = 0.0;
 
@@ -434,8 +434,8 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 		     d_avg += xval - floorx;
 		  }
 	       }
-	       
-	       d_avg /= cand_num;	 
+
+	       d_avg /= cand_num;
 
 	       for (i=0; i<cand_num; i++) {
 		  branch_var = p->br_rel_cand_list[i];
@@ -460,17 +460,17 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	    }
 
 	    max_solves_since_impr  = 5;
-	    
-	    //printf("level - set to : %i %i\n", p->bc_level, max_solves);	    
+
+	    //printf("level - set to : %i %i\n", p->bc_level, max_solves);
 	    //printf("c_cnt - cand num - max_solves : %i %i %i\n\n",
 	    //c_cnt,cand_num, max_solves);
 	    //if(check_off){
 	    int int_num = p->mip->n - p->mip->mip_inf->cont_var_num;
-	    int max_level = (p->mip->mip_inf == 0) ? 500 : 
+	    int max_level = (p->mip->mip_inf == 0) ? 500 :
 	       (int_num)/2;
 	    max_level = MIN(500, MAX(100, max_level));
 	    // if(cand_num > 0.25*(p->mip->n -
-	    //		   p->mip->mip_inf->cont_var_num))  
+	    //		   p->mip->mip_inf->cont_var_num))
 	    //  max_level = MIN(50, max_level);
 	    //if(cand_num > 500) max_level = MIN(100, max_level);
 	    //max_level = 50;
@@ -482,7 +482,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 		  max_level /= 2;
 	       }
 	    }
-	    
+
 	    if(bc_level > max_level){
 	       rel_threshold = max_solves = 0;
 	       strong_br_min_level = 1;
@@ -495,10 +495,10 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	    branch_var = p->br_rel_cand_list[i];
 	    printf("x - xval %s %f\n", p->mip->colname[branch_var], lp_data->x[branch_var]);
 	 }
-	 */	 
+	 */
 
 	 max_solves = MIN(p->par.rel_br_override_max_solves, max_solves);
-	 
+
 	 double rel_limit = 0.05;
 	 if((p->mip->mip_inf && ((p->mip->mip_inf->mat_density < rel_limit &&
 				 p->mip->mip_inf->int_var_ratio > rel_limit &&
@@ -514,24 +514,24 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 
 	 if(p->mip->mip_inf && !check_off &&
 	    (p->mip->mip_inf->prob_type == BINARY_TYPE ||
-	     p->mip->mip_inf->prob_type == BIN_CONT_TYPE) && 
+	     p->mip->mip_inf->prob_type == BIN_CONT_TYPE) &&
 	    (p->mip->n - p->mip->mip_inf->cont_var_num < 100 ||
 	     (p->mip->mip_inf->int_var_ratio > rel_limit &&
 	      p->mip->mip_inf->row_density/(p->mip->n + 1) > rel_limit/5))){//
 	    //	      && p->mip->mip_inf->int_var_ratio < 1-rel_limit))){
 	    check_first = TRUE;
 	 }
-      
+
 	 //  printf("c_cnt - cand num - max_solves : %i %i %i\n\n",
 	 //c_cnt,cand_num, max_solves);
 	 //printf("cand num - max_solves : %i %i \n\n", cand_num, max_solves);
 	 //    printf("str_level - thresh: %i %i \n",strong_br_min_level, rel_threshold);
-         
+
 	 if(p->mip->mip_inf->binary_sos_row_num > 0){
 	    double bin_den = (1.0*p->mip->mip_inf->binary_sos_row_num)/
 	       (p->mip->m + 1);
 	    //1.0*p->mip->mip_inf->binary_sos_row_num/(p->mip->m+1));
-	    if( bin_den > rel_limit && ((bin_den < 10*rel_limit && 
+	    if( bin_den > rel_limit && ((bin_den < 10*rel_limit &&
 					 p->mip->mip_inf->prob_type != BINARY_TYPE &&
 					 p->mip->mip_inf->bin_var_ratio > 10*rel_limit) ||
 					(bin_den < 2*rel_limit &&
@@ -556,65 +556,65 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 		  qsort_ii(sos_tot_var, sos_ind, sos_cnt);
 		  int *sos_chosen = (int *)(calloc)(ISIZE,cand_num);
 		  int *new_ord = (int *)(malloc)(ISIZE*cand_num);
-		  
-		  for (i=0; i<MIN(max_solves/2 + 1, sos_cnt); i++) {	       
+
+		  for (i=0; i<MIN(max_solves/2 + 1, sos_cnt); i++) {
 		     new_ord[i] = p->br_rel_cand_list[sos_ind[i]];
 		     sos_chosen[sos_ind[i]] = TRUE;
 		  }
-		  
+
 		  if(i < cand_num){
 		     int rest_cnt = 0;
 		  for(j = 0; j < cand_num; j++){
 		     if(sos_chosen[j]) continue;
 		     else new_ord[i+rest_cnt++] = p->br_rel_cand_list[j];
 		  }
-		  }	       
-		  
+		  }
+
 		  memcpy(p->br_rel_cand_list, new_ord, ISIZE*cand_num);
-		  
+
 		  FREE(sos_chosen);
 		  FREE(new_ord);
 	       }
-	       
+
 	       FREE(sos_ind);
-	       FREE(sos_tot_var);	 
+	       FREE(sos_tot_var);
 	    }
 	 }
       }
-      
+
       for (i=0; i<cand_num; i++) {
 	 branch_var = p->br_rel_cand_list[i];
 	 rel_down = br_rel_down[branch_var];
 	 rel_up = br_rel_up[branch_var];
-	 
-	 if (rel_down <= rel_threshold || 
+
+	 if (rel_down <= rel_threshold ||
 	     bc_level <= strong_br_min_level){
 	    hotstart_reg_cand++;
 	 }
-	 if(rel_up <= rel_threshold || 
+	 if(rel_up <= rel_threshold ||
 	    bc_level <= strong_br_min_level){
 	    hotstart_reg_cand++;
 	 }
-	 
+
 	 if(check_first && i < check_level + 1){
 	    hotstart_ch_cand += 2;
 	 }
       }
-      
-      if(p->par.use_hot_starts && !p->par.branch_on_cuts && 
+
+      if(p->par.use_hot_starts && !p->par.branch_on_cuts &&
 	 (hotstart_reg_cand > 0 || hotstart_ch_cand > 0)){
-	 should_use_hot_starts = TRUE;	    
+	 should_use_hot_starts = TRUE;
       }else{
 	 should_use_hot_starts = FALSE;
       }
 #else
-      if(p->par.use_hot_starts && !p->par.branch_on_cuts){ 
-	 should_use_hot_starts = TRUE;	    
+      if(p->par.use_hot_starts && !p->par.branch_on_cuts){
+	 should_use_hot_starts = TRUE;
       }else{
 	 should_use_hot_starts = FALSE;
       }
 #endif
-      
+
       if (should_use_hot_starts) {
 	 mark_hotstart(lp_data);
       }
@@ -624,7 +624,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       if (p->par.max_presolve_iter > 0) {
 	 max_presolve_iter = p->par.max_presolve_iter - bc_level;
 
-#ifdef COMPILE_IN_LP	 
+#ifdef COMPILE_IN_LP
 	 if(p->mip->nz > 5e4){
 	    max_presolve_iter = (int)(1.0 * max_presolve_iter * 5e4/p->mip->nz);
 	 }
@@ -632,13 +632,13 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	 if (max_presolve_iter < 5) {
 	    max_presolve_iter = 5;
 	 }
-	 
+
 	 if(should_use_hot_starts){
 	   set_itlim_hotstart(lp_data, max_presolve_iter);
 	 }
 	 set_itlim(lp_data, max_presolve_iter);
       }
-       
+
       for (i=0; i<cand_num; i++) {
          branch_var = p->br_rel_cand_list[i];
          lb = vars[branch_var]->new_lb;
@@ -649,26 +649,26 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
          rel_down = br_rel_down[branch_var];
          rel_up = br_rel_up[branch_var];
 
-	 if ((rel_down > rel_threshold && 
+	 if ((rel_down > rel_threshold &&
 	      bc_level > strong_br_min_level) &&
 	     (i > check_level || (i < check_level + 1 && !check_first ))){
 	    down_obj = oldobjval + pcost_down[branch_var] * (xval - floorx);
-            down_is_est = TRUE; 
+            down_is_est = TRUE;
 	    p->lp_stat.rel_br_pc_down_num++;
          } else {
-            if (stop_solving == TRUE){ 
+            if (stop_solving == TRUE){
                continue;
             }
             if (strong_branch(p, branch_var, lb, ub, lb, floorx, &down_obj,
 			      should_use_hot_starts, &down_status, &num_down_iters)) {
                // lp was abandoned
                continue;
-            }	    
+            }
             down_is_est = FALSE;
-	    if(p->bc_level < p->br_rel_down_min_level[branch_var]){ 
+	    if(p->bc_level < p->br_rel_down_min_level[branch_var]){
 	       p->br_rel_down_min_level[branch_var] =  p->bc_level;
 	    }
-            if (down_status == LP_D_INFEASIBLE || down_status == LP_D_OBJLIM || 
+            if (down_status == LP_D_INFEASIBLE || down_status == LP_D_OBJLIM ||
                 down_status == LP_D_UNBOUNDED) {
                // update bounds
                bnd_val[num_bnd_changes] = ceilx;
@@ -707,11 +707,11 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                // lp was abandoned
                continue;
             }
-	    if(p->bc_level < p->br_rel_up_min_level[branch_var]){ 
+	    if(p->bc_level < p->br_rel_up_min_level[branch_var]){
 	       p->br_rel_up_min_level[branch_var] =  p->bc_level;
 	    }
             up_is_est = FALSE;
-            if (up_status == LP_D_INFEASIBLE || up_status == LP_D_OBJLIM || 
+            if (up_status == LP_D_INFEASIBLE || up_status == LP_D_OBJLIM ||
                 up_status == LP_D_UNBOUNDED) {
                // update bounds
                bnd_val[num_bnd_changes] = floorx;
@@ -725,7 +725,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
             } else {
               // update pcost
                pcost_up[branch_var] = (pcost_up[branch_var]*
-	         rel_up + (up_obj - oldobjval)/(ceilx-xval))/ 
+	         rel_up + (up_obj - oldobjval)/(ceilx-xval))/
 	         (rel_up + 1);
                br_rel_up[branch_var]++;
 	       p->lp_stat.rel_br_up_update++;
@@ -757,7 +757,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 		  p->lp_stat.rel_br_impr_num++;
 	       }
 	    }
-	    
+
             best_var_score = var_score;
             best_var = branch_var;
             best_can = candidates[0];
@@ -775,9 +775,9 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
               best_can->objval[0] = down_obj;
               best_can->iterd[0] = num_down_iters;
               best_can->termcode[0] = down_status;
-              // added by asm4 because  hot starts dont generate a reliable 
+              // added by asm4 because  hot starts dont generate a reliable
               // bound.
-              //if (should_use_hot_starts && down_status==LP_D_ITLIM) { 
+              //if (should_use_hot_starts && down_status==LP_D_ITLIM) {
               //  down_is_est = TRUE;
               //  best_can->objval[0] = oldobjval;
               //}
@@ -790,9 +790,9 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
               best_can->objval[1] = up_obj;
               best_can->iterd[1] = num_up_iters;
               best_can->termcode[1] = up_status;
-              // added by asm4 because  hot starts dont generate a reliable 
+              // added by asm4 because  hot starts dont generate a reliable
               // bound.
-              //if (should_use_hot_starts && up_status==LP_D_ITLIM) { 
+              //if (should_use_hot_starts && up_status==LP_D_ITLIM) {
               //  up_is_est = TRUE;
               //  best_can->objval[1] = oldobjval;
               //}
@@ -803,7 +803,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
             best_can->rhs[1] = ceilx;
             best_can->value = xval;
          }
-         if (solves_since_impr > max_solves_since_impr || 
+         if (solves_since_impr > max_solves_since_impr ||
 	     full_solves >= max_solves) {
             //printf("breaking because of no gain at iter %d\n", i);
             stop_solving = TRUE;
@@ -815,7 +815,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
          str_br_bound_changes(p, num_bnd_changes, bnd_val, bnd_ind, bnd_sense);
       }
 #endif
-      
+
       cand_num = 1;
       FREE(x);
       FREE(bnd_val);
@@ -829,18 +829,18 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
          if (should_use_hot_starts){
             unmark_hotstart(lp_data);
             set_itlim_hotstart(lp_data, -1);
-         } 
+         }
          set_itlim(lp_data, -1); //both limits should be set for hotstarts
          return (DO_NOT_BRANCH__FATHOMED);
       }
-   } else {      
+   } else {
       /* do the default symphony branching */
 
-      /* 
+      /*
        * see if hot-starts should be used. in theory if strong branching is used
        * and only variable bounds are changed then, hot-starts should be faster
        */
-      
+
       if (p->par.use_hot_starts && !p->par.branch_on_cuts) {
 	 should_use_hot_starts = TRUE;
       } else {
@@ -851,10 +851,10 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       if (should_use_hot_starts) {
 	 mark_hotstart(lp_data);
       }
-      
+
       if (p->par.max_presolve_iter > 0) {
 	 max_presolve_iter = p->par.max_presolve_iter - bc_level;
-	 
+
 	 if (max_presolve_iter < 5) {
 	    max_presolve_iter = 5;
 	 }
@@ -863,7 +863,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 	 }
 	 set_itlim(lp_data, max_presolve_iter);
       }
-      
+
       for (i=0; i<cand_num; i++){
          can = candidates[i];
 
@@ -873,16 +873,16 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
          can->feasible = pfeas;
          can->iterd = piter;
          if (p->tm->par.keep_description_of_pruned == KEEP_IN_MEMORY){
-            can->solutions = (double **) calloc(maxnum, sizeof(double *));	
-            can->sol_inds = (int **) calloc(maxnum, sizeof(int *));	
-            can->sol_size = (int *) calloc(maxnum, ISIZE);	
+            can->solutions = (double **) calloc(maxnum, sizeof(double *));
+            can->sol_inds = (int **) calloc(maxnum, sizeof(int *));
+            can->sol_size = (int *) calloc(maxnum, ISIZE);
          }
 
 #ifdef SENSITIVITY_ANALYSIS
-         if (p->tm->par.sensitivity_analysis){      
+         if (p->tm->par.sensitivity_analysis){
             can->duals = (double **) calloc(maxnum, sizeof(double *));
          }else{
-            can->duals = NULL;	 
+            can->duals = NULL;
          }
 #endif
 #ifdef COMPILE_FRAC_BRANCHING
@@ -892,18 +892,18 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
 #endif
 
 #else
-         if (p->par.keep_description_of_pruned == KEEP_IN_MEMORY){	 	 
-            can->solutions = (double **) calloc (MAX_CHILDREN_NUM, 
+         if (p->par.keep_description_of_pruned == KEEP_IN_MEMORY){
+            can->solutions = (double **) calloc (MAX_CHILDREN_NUM,
                   sizeof(double *));
-            can->sol_inds = (int **) calloc(MAX_CHILDREN_NUM, 
-                  sizeof(int *));	
-            can->sol_sizes = (int *) calloc(MAX_CHILDREN_NUM, ISIZE);	
+            can->sol_inds = (int **) calloc(MAX_CHILDREN_NUM,
+                  sizeof(int *));
+            can->sol_sizes = (int *) calloc(MAX_CHILDREN_NUM, ISIZE);
          }
 #ifdef SENSITIVITY_ANALYSIS
-         if (p->par.sensitivity_analysis){      
+         if (p->par.sensitivity_analysis){
             can->duals = (double **) calloc (MAX_CHILDREN_NUM, sizeof(double *));
          }else{
-            can->duals = NULL;	 
+            can->duals = NULL;
          }
 #endif
 #endif
@@ -960,7 +960,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                get_x(lp_data);
 
 #ifdef SENSITIVITY_ANALYSIS
-               if (p->par.sensitivity_analysis){      
+               if (p->par.sensitivity_analysis){
                   get_dj_pi(lp_data);
                   can->duals[j] = (double *) malloc (DSIZE*p->base.cutnum);
                   memcpy(can->duals[j], lp_data->dualsol, DSIZE*p->base.cutnum);
@@ -1001,7 +1001,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                    default:
                      break;
                   }
-               } else if (can->termcode[j] == LP_D_OBJLIM || 
+               } else if (can->termcode[j] == LP_D_OBJLIM ||
                      can->termcode[j] == LP_D_UNBOUNDED ||
                      can->termcode[j] == LP_D_INFEASIBLE){
                   //p->bound_changes_in_iter++;
@@ -1066,7 +1066,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                get_x(lp_data);
 
 #ifdef SENSITIVITY_ANALYSIS
-               if (p->par.sensitivity_analysis){      
+               if (p->par.sensitivity_analysis){
                   get_dj_pi(lp_data);
                   can->duals[j] = (double *) malloc (DSIZE*p->base.cutnum);
                   memcpy(can->duals[j], lp_data->dualsol, DSIZE*p->base.cutnum);
@@ -1150,13 +1150,13 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                      if (min_ind < 0){
                         min_obj = SYM_INFINITY;
                         for (l = best_can->child_num - 1; l >= 0; l--){
-                           if (best_can->feasible[l] && best_can->objval[k] < 
+                           if (best_can->feasible[l] && best_can->objval[k] <
                                  min_obj){
-                              min_obj = best_can->objval[l]; 
-                              min_ind = l;		      
+                              min_obj = best_can->objval[l];
+                              min_ind = l;
                            }
                         }
-                     }		   
+                     }
                      if (min_ind > -1){
                         if(can->objval[k] > best_can->objval[min_ind]){
                            best_can->feasible[k] = TRUE;
@@ -1211,13 +1211,13 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                         if (min_ind < 0){
                            min_obj = SYM_INFINITY;
                            for (l = can->child_num - 1; l >= 0; l--){
-                              if (can->feasible[l] && can->objval[k] < 
+                              if (can->feasible[l] && can->objval[k] <
                                     min_obj){
-                                 min_obj = can->objval[l]; 
-                                 min_ind = l;		      
+                                 min_obj = can->objval[l];
+                                 min_ind = l;
                               }
                            }
-                        }		   
+                        }
                         if (min_ind > -1){
                            if(best_can->objval[k] > can->objval[min_ind]){
                               can->feasible[k] = TRUE;
@@ -1228,7 +1228,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
                         }
                      }
                   }
-               }	
+               }
                else{
                   for (k = can->child_num - 1; k >= 0; k--){
                      /* Again, this is only for tracking that there was a feasible
@@ -1251,7 +1251,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
          should_continue_strong_branching(p,i,cand_num,st_time,total_iters,
                &should_continue);
          if (should_continue==FALSE) {
-            PRINT(p->par.verbosity, 0, 
+            PRINT(p->par.verbosity, 0,
                   ("too much time in strong branching, breaking\n"));
             break;
          }
@@ -1271,7 +1271,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       printf("SYMPHONY has encountered numerical difficulties \n");
       printf("with the LP solver. Exiting...\n\n");
    }
-   
+
    if (best_can->type == CANDIDATE_VARIABLE &&
        best_can->rhs[0] < vars[best_can->position]->lb ||
        best_can->rhs[1] > vars[best_can->position]->ub){
@@ -1280,7 +1280,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       printf("with the LP solver. Exiting...\n\n");
    }
 #endif
-   
+
 #ifndef MAX_CHILDREN_NUM
    FREE(pobj); FREE(pterm); FREE(pfeas); FREE(piter);
 #  ifdef COMPILE_FRAC_BRANCHING
@@ -1291,7 +1291,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
    if (p->par.max_presolve_iter > 0) {
       if (should_use_hot_starts == TRUE) {
          set_itlim_hotstart(lp_data, -1);
-      } 
+      }
       set_itlim(lp_data, -1); // both limits should be set if using hotstarts
    }
 
@@ -1313,17 +1313,17 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
       values = lp_data->tmp.d;
       for (k = best_can->child_num - 1; k >= 0; k--){
 	 if (best_can->feasible[k]){
-	    best_can->sol_sizes[k] = collect_nonzeros(p, 
+	    best_can->sol_sizes[k] = collect_nonzeros(p,
 						      best_can->solutions[k],
 						     indices, values);
 	    FREE(best_can->solutions[k]);
-	    best_can->sol_inds[k] = (int *) malloc(best_can->sol_sizes[k]* 
+	    best_can->sol_inds[k] = (int *) malloc(best_can->sol_sizes[k]*
 						   ISIZE);
-	    best_can->solutions[k] = (double *) malloc(best_can->sol_sizes[k]* 
+	    best_can->solutions[k] = (double *) malloc(best_can->sol_sizes[k]*
 						       DSIZE);
-	    memcpy(best_can->sol_inds[k], indices, best_can->sol_sizes[k] * 
+	    memcpy(best_can->sol_inds[k], indices, best_can->sol_sizes[k] *
 		   ISIZE);
-	    memcpy(best_can->solutions[k], values, best_can->sol_sizes[k]* 
+	    memcpy(best_can->solutions[k], values, best_can->sol_sizes[k]*
 		   DSIZE);
 	    break;
 	 }
@@ -1331,7 +1331,7 @@ int select_branching_object(lp_prob *p, int *cuts, branch_obj **candidate)
    }
 
    *candidate = best_can;
-   
+
    return(DO_BRANCH);
 }
 
@@ -1347,13 +1347,13 @@ int branch(lp_prob *p, int cuts)
    cut_data *cut;
    node_desc *desc;
    int termcode;
-   
+
    termcode = select_branching_object(p, &cuts, &can);
-   
+
    if (termcode == ERROR__NO_BRANCHING_CANDIDATE){
       return(termcode);
    }
-   
+
    if (can == NULL){
       if (termcode == DO_NOT_BRANCH__FEAS_SOL) {
          /* a better feasible solution was found. return to do reduced cost
@@ -1403,7 +1403,7 @@ int branch(lp_prob *p, int cuts)
 	 var->new_lb = var->new_ub = can->rhs[keep];
 	 var->lb = var->ub = can->rhs[keep];                             break;
        case 'R':
-	 var->new_lb = can->rhs[keep]; 
+	 var->new_lb = can->rhs[keep];
          var->new_ub = var->lb + can->range[keep];
 	 var->lb = can->rhs[keep]; var->ub = var->lb + can->range[keep]; break;
        case 'L':
@@ -1496,14 +1496,14 @@ int branch(lp_prob *p, int cuts)
    p->desc->basis.extrarows.type = WRT_PARENT;
 
    free_candidate_completely(&can);
-   
+
    /* the new p->bc_index is received in send_branching_info() */
    p->bc_level++;
    /*p->iter_num = 0;*/
 
    return(NEW_NODE);
 }
-   
+
 /*===========================================================================*/
 
 int col_gen_before_branch(lp_prob *p, int *new_vars)
@@ -1582,7 +1582,7 @@ void branch_close_to_half(lp_prob *p, int max_cand_num, int *cand_num,
       }
       *cand_num = cnt;
    }
-   
+
    if (should_use_rel_br == TRUE) {
       *candidates = (branch_obj **) malloc(1 * sizeof(branch_obj *));
       cand = (*candidates)[0] = (branch_obj *) calloc(1, sizeof(branch_obj) );
@@ -1594,7 +1594,7 @@ void branch_close_to_half(lp_prob *p, int max_cand_num, int *cand_num,
       qsort_di(xval, xind, cnt);
    } else {
       qsort_di(xval, xind, cnt);
-      if (p->bc_level>p->par.strong_br_all_candidates_level || 
+      if (p->bc_level>p->par.strong_br_all_candidates_level ||
             p->par.user_set_strong_branching_cand_num) {
          for (j = 0, i = 0; i < cnt;){
             if (xval[i] > lim[j]){
@@ -1655,7 +1655,7 @@ void branch_close_to_half_and_expensive(lp_prob *p, int max_cand_num,
 	 xval[cnt++] = fabs(fracx - .5);
        }
    }
-   
+
    qsort_di(xval, xind, cnt);
 
    for (j=0, i=0; i<cnt; i++){
@@ -1760,7 +1760,7 @@ void branch_close_to_one_and_cheap(lp_prob *p, int max_cand_num, int *cand_num,
 
 /*===========================================================================*/
 int should_continue_strong_branching(lp_prob *p, int i, int cand_num,
-                                     double st_time, int total_iters, 
+                                     double st_time, int total_iters,
                                      int *should_continue)
 {
    double allowed_time = 0;
@@ -1795,7 +1795,7 @@ int should_continue_strong_branching(lp_prob *p, int i, int cand_num,
    } else {
       /* we will not be able to evaluate all candidates in given time. we
        * reduce the number of iterations */
-      double min_iters = 
+      double min_iters =
          (allowed_time-st_time)*total_iters/st_time/(cand_num-i+1);
       if (min_iters<10) {
          /*
@@ -1820,16 +1820,16 @@ int should_continue_strong_branching(lp_prob *p, int i, int cand_num,
 }
 
 /*===========================================================================*/
-int strong_branch(lp_prob *p, int branch_var, double lb, double ub, 
-		  double new_lb, double new_ub, double *obj, int should_use_hot_starts, 
+int strong_branch(lp_prob *p, int branch_var, double lb, double ub,
+		  double new_lb, double new_ub, double *obj, int should_use_hot_starts,
                   int *termstatus, int *iterd)
 {
    int status = 0;
    LPdata *lp_data = p->lp_data;
-   
+
    // TODO: LP_ABANDONED
    /* change the lb and ub */
-   change_lbub(lp_data, branch_var, new_lb, new_ub);   
+   change_lbub(lp_data, branch_var, new_lb, new_ub);
 
 
    //   if (p->par.use_hot_starts && !p->par.branch_on_cuts) {
@@ -1838,8 +1838,8 @@ int strong_branch(lp_prob *p, int branch_var, double lb, double ub,
    } else {
       *termstatus = dual_simplex(lp_data, iterd);
    }
-   
-   if (*termstatus == LP_D_INFEASIBLE || *termstatus == LP_D_OBJLIM || 
+
+   if (*termstatus == LP_D_INFEASIBLE || *termstatus == LP_D_OBJLIM ||
          *termstatus == LP_D_UNBOUNDED) {
       *obj = SYM_INFINITY;
       p->lp_stat.str_br_bnd_changes++;

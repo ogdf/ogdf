@@ -227,7 +227,7 @@ CoinLpIO::convertBoundToSense(const double lower, const double upper,
   if(rowsense_  == NULL) {
     int nr=numberRows_;
     rowsense_ = reinterpret_cast<char *> (malloc(nr*sizeof(char)));
-    
+
     double dum1,dum2;
     int i;
     for(i=0; i<nr; i++) {
@@ -277,7 +277,7 @@ const double * CoinLpIO::getObjCoefficients() const
 {
   return objective_;
 }
- 
+
 /*************************************************************************/
 const CoinPackedMatrix * CoinLpIO::getMatrixByRow() const
 {
@@ -299,7 +299,7 @@ const char * CoinLpIO::getObjName() const
 {
   return objName_;
 }
- 
+
 /*************************************************************************/
 void CoinLpIO::checkRowNames() {
 
@@ -316,7 +316,7 @@ void CoinLpIO::checkRowNames() {
   const char *rSense = getRowSense();
   char rName[256];
 
-  // Check that row names and objective function name are all distinct, 
+  // Check that row names and objective function name are all distinct,
   /// even after adding "_low" to ranged constraint names
 
   for(i=0; i<nrow; i++) {
@@ -348,39 +348,39 @@ void CoinLpIO::checkColNames() {
 } /* checkColNames */
 
 /*************************************************************************/
-void CoinLpIO::getPreviousRowNames(char const * const * prev, 
+void CoinLpIO::getPreviousRowNames(char const * const * prev,
 				   int *card_prev) const
 {
   *card_prev = card_previous_names_[0];
   prev = previous_names_[0];
 }
- 
+
 /*************************************************************************/
-void CoinLpIO::getPreviousColNames(char const * const * prev, 
+void CoinLpIO::getPreviousColNames(char const * const * prev,
 				   int *card_prev) const
 {
   *card_prev = card_previous_names_[1];
   prev = previous_names_[1];
 }
- 
+
 /*************************************************************************/
 char const * const * CoinLpIO::getRowNames() const
 {
   return names_[0];
 }
- 
+
 /*************************************************************************/
 char const * const * CoinLpIO::getColNames() const
 {
   return names_[1];
 }
- 
+
 /*************************************************************************/
 const char * CoinLpIO::rowName(int index) const {
 
   if((names_[0] != NULL) && (index >= 0) && (index < numberRows_+1)) {
     return names_[0][index];
-  } 
+  }
   else {
     return NULL;
   }
@@ -391,7 +391,7 @@ const char * CoinLpIO::columnName(int index) const {
 
   if((names_[1] != NULL) && (index >= 0) && (index < numberColumns_)) {
     return names_[1][index];
-  } 
+  }
   else {
     return NULL;
   }
@@ -422,11 +422,11 @@ double CoinLpIO::getInfinity() const
 }
 
 /************************************************************************/
-void CoinLpIO::setInfinity(const double value) 
+void CoinLpIO::setInfinity(const double value)
 {
   if (value >= 1.0e20) {
     infinity_ = value;
-  } 
+  }
   else {
     char str[8192];
     sprintf(str,"### ERROR: value: %f\n", value);
@@ -441,11 +441,11 @@ double CoinLpIO::getEpsilon() const
 }
 
 /************************************************************************/
-void CoinLpIO::setEpsilon(const double value) 
+void CoinLpIO::setEpsilon(const double value)
 {
   if (value < 0.1) {
     epsilon_ = value;
-  } 
+  }
   else {
     char str[8192];
     sprintf(str,"### ERROR: value: %f\n", value);
@@ -460,11 +460,11 @@ int CoinLpIO::getNumberAcross() const
 }
 
 /************************************************************************/
-void CoinLpIO::setNumberAcross(const int value) 
+void CoinLpIO::setNumberAcross(const int value)
 {
   if (value > 0) {
     numberAcross_ = value;
-  } 
+  }
   else {
     char str[8192];
     sprintf(str,"### ERROR: value: %d\n", value);
@@ -479,11 +479,11 @@ int CoinLpIO::getDecimals() const
 }
 
 /************************************************************************/
-void CoinLpIO::setDecimals(const int value) 
+void CoinLpIO::setDecimals(const int value)
 {
   if (value > 0) {
     decimals_ = value;
-  } 
+  }
   else {
     char str[8192];
     sprintf(str,"### ERROR: value: %d\n", value);
@@ -528,13 +528,13 @@ CoinLpIO::setLpDataWithoutRowAndColNames(
   if (m.isColOrdered()) {
     matrixByRow_ = new CoinPackedMatrix();
     matrixByRow_->reverseOrderedCopyOf(m);
-  } 
+  }
   else {
     matrixByRow_ = new CoinPackedMatrix(m);
   }
   numberColumns_ = matrixByRow_->getNumCols();
   numberRows_ = matrixByRow_->getNumRows();
-  
+
   rowlower_ = reinterpret_cast<double *> (malloc (numberRows_ * sizeof(double)));
   rowupper_ = reinterpret_cast<double *> (malloc (numberRows_ * sizeof(double)));
   collower_ = reinterpret_cast<double *> (malloc (numberColumns_ * sizeof(double)));
@@ -549,7 +549,7 @@ CoinLpIO::setLpDataWithoutRowAndColNames(
   if (is_integer) {
     integerType_ = reinterpret_cast<char *> (malloc (numberColumns_ * sizeof(char)));
     std::copy(is_integer, is_integer + numberColumns_, integerType_);
-  } 
+  }
   else {
     integerType_ = 0;
   }
@@ -621,7 +621,7 @@ void CoinLpIO::setLpDataRowAndColNames(char const * const * const rownames,
       handler_->message(COIN_GENERAL_WARNING,messages_)<<
       "### CoinLpIO::setLpDataRowAndColNames(): Invalid row names\nUse getPreviousNames() to get the old row names.\nNow using default row names."
 						<<CoinMessageEol;
-    } 
+    }
     else {
       stopHash(0);
       startHash(rownames, nrow+1, 0);
@@ -631,7 +631,7 @@ void CoinLpIO::setLpDataRowAndColNames(char const * const * const rownames,
   }
   else {
     if(objName_ == NULL) {
-      objName_ = CoinStrdup("obj");      
+      objName_ = CoinStrdup("obj");
     }
   }
 
@@ -641,7 +641,7 @@ void CoinLpIO::setLpDataRowAndColNames(char const * const * const rownames,
       handler_->message(COIN_GENERAL_WARNING,messages_)<<
       "### CoinLpIO::setLpDataRowAndColNames(): Invalid column names\nNow using default row names."
 						<<CoinMessageEol;
-    } 
+    }
     else {
       stopHash(1);
       startHash(colnames, ncol, 1);
@@ -753,7 +753,7 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
    const char *integerType = integerColumns();
    char const * const * rowNames = getRowNames();
    char const * const * colNames = getColNames();
-   
+
    char buff[256];
 
    if(rowNames == NULL) {
@@ -780,10 +780,10 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
    }
 
 #ifdef LPIO_DEBUG
-   printf("CoinLpIO::writeLp(): numberRows: %d numberColumns: %d\n", 
+   printf("CoinLpIO::writeLp(): numberRows: %d numberColumns: %d\n",
 	  nrow, ncol);
 #endif
- 
+
    fprintf(fp, "\\Problem name: %s\n\n", getProblemName());
    fprintf(fp, "Minimize\n");
 
@@ -805,7 +805,7 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
        }
      }
    }
- 
+
    if((cnt_print > 0) && (objectiveOffset_ > lp_eps)) {
      fprintf(fp, " +");
    }
@@ -817,20 +817,20 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
    if(cnt_print % numberAcross != 0) {
      fprintf(fp, "\n");
    }
-   
+
    fprintf(fp, "Subject To\n");
-   
+
    int cnt_out_rows = 0;
 
    for(i=0; i<nrow; i++) {
      cnt_print = 0;
-     
+
      if(useRowNames) {
        fprintf(fp, "%s: ", rowNames[i]);
      }
      cnt_out_rows++;
 
-     for(j=matrixByRow_->getVectorFirst(i); 
+     for(j=matrixByRow_->getVectorFirst(i);
 	 j<matrixByRow_->getVectorLast(i); j++) {
        if((cnt_print > 0) && (elements[j] > lp_eps)) {
 	 fprintf(fp, " +");
@@ -853,7 +853,7 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
      else {
        if(rowup[i] < lp_inf) {
 	 fprintf(fp, " <=");
-	 out_coeff(fp, rowup[i], 1);	 
+	 out_coeff(fp, rowup[i], 1);
 	 fprintf(fp, "\n");
 
 	 if(rowlower_[i] > -lp_inf) {
@@ -864,8 +864,8 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
 	     fprintf(fp, "%s_low:", rowNames[i]);
 	   }
 	   cnt_out_rows++;
-	   
-	   for(j=matrixByRow_->getVectorFirst(i); 
+
+	   for(j=matrixByRow_->getVectorFirst(i);
 	       j<matrixByRow_->getVectorLast(i); j++) {
 	     if((cnt_print>0) && (elements[j] > lp_eps)) {
 	       fprintf(fp, " +");
@@ -887,7 +887,7 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
        }
        else {
 	 fprintf(fp, " >=");
-	 out_coeff(fp, rowlow[i], 1);	 
+	 out_coeff(fp, rowlow[i], 1);
 	 fprintf(fp, "\n");
        }
      }
@@ -898,11 +898,11 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
 #endif
 
    fprintf(fp, "Bounds\n");
-   
+
    for(j=0; j<ncol; j++) {
      if((collow[j] > -lp_inf) && (colup[j] < lp_inf)) {
        out_coeff(fp, collow[j], 1);
-       fprintf(fp, " <= %s <=", colNames[j]); 
+       fprintf(fp, " <= %s <=", colNames[j]);
        out_coeff(fp, colup[j], 1);
        fprintf(fp, "\n");
      }
@@ -912,13 +912,13 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
        fprintf(fp, "\n");
      }
      if((collow[j] > -lp_inf) && (colup[j] == lp_inf)) {
-       if(fabs(collow[j]) > lp_eps) { 
+       if(fabs(collow[j]) > lp_eps) {
 	 out_coeff(fp, collow[j], 1);
 	 fprintf(fp, " <= %s\n", colNames[j]);
        }
      }
      if(collow[j] == -lp_inf) {
-       fprintf(fp, " %s Free\n", colNames[j]); 
+       fprintf(fp, " %s Free\n", colNames[j]);
      }
    }
 
@@ -973,7 +973,7 @@ CoinLpIO::writeLp(FILE *fp, const bool useRowNames)
 } /* writeLp */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::find_obj(FILE *fp) const {
 
   char buff[1024];
@@ -988,7 +988,7 @@ CoinLpIO::find_obj(FILE *fp) const {
 
     scan_next(buff, fp);
     lbuff = strlen(buff);
-    
+
     if(feof(fp)) {
       char str[8192];
       sprintf(str,"### ERROR: Unable to locate objective function\n");
@@ -1021,7 +1021,7 @@ CoinLpIO::is_subject_to(const char *buff) const {
 } /* is_subject_to */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::first_is_number(const char *buff) const {
 
   size_t pos;
@@ -1035,7 +1035,7 @@ CoinLpIO::first_is_number(const char *buff) const {
 } /* first_is_number */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::is_sense(const char *buff) const {
 
   size_t pos;
@@ -1052,14 +1052,14 @@ CoinLpIO::is_sense(const char *buff) const {
     if(strcmp(buff, ">=") == 0) {
       return(2);
     }
-    
+
     printf("### ERROR: CoinLpIO: is_sense(): string: %s \n", buff);
   }
   return(-1);
 } /* is_sense */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::is_free(const char *buff) const {
 
   size_t lbuff = strlen(buff);
@@ -1071,7 +1071,7 @@ CoinLpIO::is_free(const char *buff) const {
 } /* is_free */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::is_inf(const char *buff) const {
 
   size_t lbuff = strlen(buff);
@@ -1083,7 +1083,7 @@ CoinLpIO::is_inf(const char *buff) const {
 } /* is_inf */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::is_comment(const char *buff) const {
 
   if((buff[0] == '/') || (buff[0] == '\\')) {
@@ -1107,10 +1107,10 @@ CoinLpIO::skip_comment(char *buff, FILE *fp) const {
       sprintf(str,"### ERROR: error while skipping comment\n");
       throw CoinError(str, "skip_comment", "CoinLpIO", __FILE__, __LINE__);
     }
-    char * x=fgets(buff, sizeof(buff), fp);    
+    char * x=fgets(buff, sizeof(buff), fp);
     if (!x)
       throw("bad fgets");
-  } 
+  }
 } /* skip_comment */
 
 /*************************************************************************/
@@ -1134,8 +1134,8 @@ CoinLpIO::scan_next(char *buff, FILE *fp) const {
 } /* scan_next */
 
 /*************************************************************************/
-int 
-CoinLpIO::is_invalid_name(const char *name, 
+int
+CoinLpIO::is_invalid_name(const char *name,
 			  const bool ranged) const {
 
   size_t pos, lname, valid_lname = 100;
@@ -1159,7 +1159,7 @@ CoinLpIO::is_invalid_name(const char *name,
   }
   if(lname > valid_lname) {
 	char printBuffer[512];
-	sprintf(printBuffer,"### CoinLpIO::is_invalid_name(): Name %s is too long", 
+	sprintf(printBuffer,"### CoinLpIO::is_invalid_name(): Name %s is too long",
 	   name);
 	handler_->message(COIN_GENERAL_WARNING,messages_)<<printBuffer
 							 <<CoinMessageEol;
@@ -1189,9 +1189,9 @@ CoinLpIO::is_invalid_name(const char *name,
 } /* is_invalid_name */
 
 /*************************************************************************/
-int 
-CoinLpIO::are_invalid_names(char const * const * const vnames, 
-			    const int card_vnames, 
+int
+CoinLpIO::are_invalid_names(char const * const * const vnames,
+			    const int card_vnames,
 			    const bool check_ranged) const {
 
   int i, invalid = 0, flag, nrows = getNumRows();
@@ -1227,8 +1227,8 @@ CoinLpIO::are_invalid_names(char const * const * const vnames,
 } /* are_invalid_names */
 
 /*************************************************************************/
-int 
-CoinLpIO::read_monom_obj(FILE *fp, double *coeff, char **name, int *cnt, 
+int
+CoinLpIO::read_monom_obj(FILE *fp, double *coeff, char **name, int *cnt,
 						 char **obj_name) {
 
   double mult;
@@ -1277,7 +1277,7 @@ CoinLpIO::read_monom_obj(FILE *fp, double *coeff, char **name, int *cnt,
       start = &(buff[1]);
     }
   }
-  
+
   if(buff[0] == '-') {
     mult = -1;
     if(strlen(buff) == 1) {
@@ -1288,9 +1288,9 @@ CoinLpIO::read_monom_obj(FILE *fp, double *coeff, char **name, int *cnt,
       start = &(buff[1]);
     }
   }
-  
+
   if(first_is_number(start)) {
-    coeff[*cnt] = atof(start);       
+    coeff[*cnt] = atof(start);
     sprintf(loc_name, "aa");
     scan_next(loc_name, fp);
   }
@@ -1328,9 +1328,9 @@ CoinLpIO::read_monom_obj(FILE *fp, double *coeff, char **name, int *cnt,
 } /* read_monom_obj */
 
 /*************************************************************************/
-int 
-CoinLpIO::read_monom_row(FILE *fp, char *start_str, 
-			 double *coeff, char **name, 
+int
+CoinLpIO::read_monom_row(FILE *fp, char *start_str,
+			 double *coeff, char **name,
 			 int cnt_coeff) const {
 
   double mult;
@@ -1355,7 +1355,7 @@ CoinLpIO::read_monom_row(FILE *fp, char *start_str,
       start = &(buff[1]);
     }
   }
-  
+
   if(buff[0] == '-') {
     mult = -1;
     if(strlen(buff) == 1) {
@@ -1366,9 +1366,9 @@ CoinLpIO::read_monom_row(FILE *fp, char *start_str,
       start = &(buff[1]);
     }
   }
-  
+
   if(first_is_number(start)) {
-    coeff[cnt_coeff] = atof(start);       
+    coeff[cnt_coeff] = atof(start);
     scan_next(loc_name, fp);
   }
   else {
@@ -1387,17 +1387,17 @@ CoinLpIO::read_monom_row(FILE *fp, char *start_str,
 #endif
 
 #ifdef LPIO_DEBUG
-  printf("CoinLpIO: read_monom_row: (%f)  (%s)\n", 
+  printf("CoinLpIO: read_monom_row: (%f)  (%s)\n",
 	 coeff[cnt_coeff], name[cnt_coeff]);
-#endif  
+#endif
   return(read_sense);
 } /* read_monom_row */
 
 /*************************************************************************/
 void
-CoinLpIO::realloc_coeff(double **coeff, char ***colNames, 
+CoinLpIO::realloc_coeff(double **coeff, char ***colNames,
 			int *maxcoeff) const {
-  
+
   *maxcoeff *= 5;
 
   *colNames = reinterpret_cast<char **> (realloc ((*colNames), (*maxcoeff+1) * sizeof(char *)));
@@ -1407,7 +1407,7 @@ CoinLpIO::realloc_coeff(double **coeff, char ***colNames,
 
 /*************************************************************************/
 void
-CoinLpIO::realloc_row(char ***rowNames, int **start, double **rhs, 
+CoinLpIO::realloc_row(char ***rowNames, int **start, double **rhs,
 		      double **rowlow, double **rowup, int *maxrow) const {
 
   *maxrow *= 5;
@@ -1423,7 +1423,7 @@ CoinLpIO::realloc_row(char ***rowNames, int **start, double **rhs,
 void
 CoinLpIO::realloc_col(double **collow, double **colup, char **is_int,
 		      int *maxcol) const {
-  
+
   *maxcol += 100;
   *collow = reinterpret_cast<double *> (realloc ((*collow), (*maxcol+1) * sizeof(double)));
   *colup = reinterpret_cast<double *> (realloc ((*colup), (*maxcol+1) * sizeof(double)));
@@ -1432,17 +1432,17 @@ CoinLpIO::realloc_col(double **collow, double **colup, char **is_int,
 } /* realloc_col */
 
 /*************************************************************************/
-void 
+void
 CoinLpIO::read_row(FILE *fp, char *buff,
-		   double **pcoeff, char ***pcolNames, 
+		   double **pcoeff, char ***pcolNames,
 		   int *cnt_coeff,
 		   int *maxcoeff,
-		   double *rhs, double *rowlow, double *rowup, 
+		   double *rhs, double *rowlow, double *rowup,
 		   int *cnt_row, double inf) const {
 
   int read_sense = -1;
   char start_str[1024];
-  
+
   sprintf(start_str, "%s", buff);
 
   while(read_sense < 0) {
@@ -1450,7 +1450,7 @@ CoinLpIO::read_row(FILE *fp, char *buff,
     if((*cnt_coeff) == (*maxcoeff)) {
       realloc_coeff(pcoeff, pcolNames, maxcoeff);
     }
-    read_sense = read_monom_row(fp, start_str, 
+    read_sense = read_monom_row(fp, start_str,
 				*pcoeff, *pcolNames, *cnt_coeff);
 #ifdef KILL_ZERO_READLP
     if (read_sense!=-2) // see if zero
@@ -1474,7 +1474,7 @@ CoinLpIO::read_row(FILE *fp, char *buff,
     break;
   case 1: rowlow[*cnt_row] = rhs[*cnt_row]; rowup[*cnt_row] = rhs[*cnt_row];
     break;
-  case 2: rowlow[*cnt_row] = rhs[*cnt_row]; rowup[*cnt_row] = inf; 
+  case 2: rowlow[*cnt_row] = rhs[*cnt_row]; rowup[*cnt_row] = inf;
     break;
   default: break;
   }
@@ -1483,7 +1483,7 @@ CoinLpIO::read_row(FILE *fp, char *buff,
 } /* read_row */
 
 /*************************************************************************/
-int 
+int
 CoinLpIO::is_keyword(const char *buff) const {
 
   size_t lbuff = strlen(buff);
@@ -1497,7 +1497,7 @@ CoinLpIO::is_keyword(const char *buff) const {
      ((lbuff == 8) && (CoinStrNCaseCmp(buff, "integers", 8) == 0))) {
     return(2);
   }
-  
+
   if(((lbuff == 7) && (CoinStrNCaseCmp(buff, "general", 7) == 0)) ||
      ((lbuff == 8) && (CoinStrNCaseCmp(buff, "generals", 8) == 0))) {
     return(2);
@@ -1507,7 +1507,7 @@ CoinLpIO::is_keyword(const char *buff) const {
      ((lbuff == 8) && (CoinStrNCaseCmp(buff, "binaries", 8) == 0))) {
     return(3);
   }
-  
+
   if((lbuff == 3) && (CoinStrNCaseCmp(buff, "end", 3) == 0)) {
     return(4);
   }
@@ -1582,7 +1582,7 @@ CoinLpIO::readLp(FILE* fp)
       realloc_coeff(&coeff, &colNames, &maxcoeff);
     }
   }
-  
+
   start[0] = cnt_obj;
   cnt_coeff = cnt_obj;
 
@@ -1598,7 +1598,7 @@ CoinLpIO::readLp(FILE* fp)
       throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
     }
   }
-  
+
   scan_next(buff, fp);
 
   while(!is_keyword(buff)) {
@@ -1614,11 +1614,11 @@ CoinLpIO::readLp(FILE* fp)
     }
     else {
       char rname[15];
-      sprintf(rname, "cons%d", cnt_row); 
+      sprintf(rname, "cons%d", cnt_row);
       rowNames[cnt_row] = CoinStrdup(rname);
     }
-    read_row(fp, buff, 
-	     &coeff, &colNames, &cnt_coeff, &maxcoeff, rhs, rowlow, rowup, 
+    read_row(fp, buff,
+	     &coeff, &colNames, &cnt_coeff, &maxcoeff, rhs, rowlow, rowup,
 	     &cnt_row, lp_inf);
     scan_next(buff, fp);
     start[cnt_row] = cnt_coeff;
@@ -1633,7 +1633,7 @@ CoinLpIO::readLp(FILE* fp)
 
   stopHash(1);
   startHash(colNames, cnt_coeff, 1);
-  
+
   COINColumnIndex icol;
   int read_sense1,  read_sense2;
   double bnd1 = 0, bnd2 = 0;
@@ -1656,7 +1656,7 @@ CoinLpIO::readLp(FILE* fp)
   while(!done) {
     switch(is_keyword(buff)) {
 
-    case 1: /* Bounds section */ 
+    case 1: /* Bounds section */
       scan_next(buff, fp);
 
       while(is_keyword(buff) == 0) {
@@ -1763,7 +1763,7 @@ CoinLpIO::readLp(FILE* fp)
 	      if(read_sense1 == 1) {
 		if(fabs(bnd1 - bnd2) > lp_eps) {
 		  char str[8192];
-		  sprintf(str,"### ERROR: Bounds; variable: %s read_sense1: %d  read_sense2: %d  bnd1: %f  bnd2: %f\n", 
+		  sprintf(str,"### ERROR: Bounds; variable: %s read_sense1: %d  read_sense2: %d  bnd1: %f  bnd2: %f\n",
 			  buff, read_sense1, read_sense2, bnd1, bnd2);
 		  throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
 		}
@@ -1772,11 +1772,11 @@ CoinLpIO::readLp(FILE* fp)
 	      }
 	      if(read_sense1 == 0) {
 		collow[icol] = bnd1;
-		colup[icol] = bnd2;	    
+		colup[icol] = bnd2;
 	      }
 	      if(read_sense1 == 2) {
 		colup[icol] = bnd1;
-		collow[icol] = bnd2;	    
+		collow[icol] = bnd2;
 	      }
 	    }
 	  }
@@ -1803,13 +1803,13 @@ CoinLpIO::readLp(FILE* fp)
     case 2: /* Integers/Generals section */
 
       scan_next(buff, fp);
-    
+
       while(is_keyword(buff) == 0) {
-      
+
 	icol = findHash(buff, 1);
 
 #ifdef LPIO_DEBUG
-	printf("CoinLpIO::readLp(): Integer: colname: (%s)  icol: %d\n", 
+	printf("CoinLpIO::readLp(): Integer: colname: (%s)  icol: %d\n",
 	       buff, icol);
 #endif
 
@@ -1823,12 +1823,12 @@ CoinLpIO::readLp(FILE* fp)
 	  if(icol == maxcol) {
 	    realloc_col(&collow, &colup, &is_int, &maxcol);
 	  }
-	  
+
 #ifdef LPIO_DEBUG
-	  printf("CoinLpIO::readLp(): Integer: colname: (%s)  icol: %d\n", 
+	  printf("CoinLpIO::readLp(): Integer: colname: (%s)  icol: %d\n",
 		 buff, icol);
 #endif
-	  
+
 	}
 	is_int[icol] = 1;
 	has_int = 1;
@@ -1837,15 +1837,15 @@ CoinLpIO::readLp(FILE* fp)
       break;
 
     case 3: /* Binaries section */
-  
+
       scan_next(buff, fp);
-      
+
       while(is_keyword(buff) == 0) {
 
 	icol = findHash(buff, 1);
 
 #ifdef LPIO_DEBUG
-	printf("CoinLpIO::readLp(): binary: colname: (%s)  icol: %d\n", 
+	printf("CoinLpIO::readLp(): binary: colname: (%s)  icol: %d\n",
 	       buff, icol);
 #endif
 
@@ -1860,10 +1860,10 @@ CoinLpIO::readLp(FILE* fp)
 	    realloc_col(&collow, &colup, &is_int, &maxcol);
 	  }
 #ifdef LPIO_DEBUG
-	  printf("CoinLpIO::readLp(): binary: colname: (%s)  icol: %d\n", 
+	  printf("CoinLpIO::readLp(): binary: colname: (%s)  icol: %d\n",
 		 buff, icol);
 #endif
-	  
+
 	}
 
 	is_int[icol] = 1;
@@ -1877,10 +1877,10 @@ CoinLpIO::readLp(FILE* fp)
 	scan_next(buff, fp);
       }
       break;
-      
+
     case 4: done = 1; break;
-      
-    default: 
+
+    default:
       char str[8192];
       sprintf(str,"### ERROR: Lost while reading: (%s)\n", buff);
       throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
@@ -1898,7 +1898,7 @@ CoinLpIO::readLp(FILE* fp)
     ind[i] = findHash(colNames[i], 1);
 
 #ifdef LPIO_DEBUG
-    printf("CoinLpIO::readLp(): name[%d]: (%s)   ind: %d\n", 
+    printf("CoinLpIO::readLp(): name[%d]: (%s)   ind: %d\n",
 	   i, colNames[i], ind[i]);
 #endif
 
@@ -1908,7 +1908,7 @@ CoinLpIO::readLp(FILE* fp)
       throw CoinError(str, "readLp", "CoinLpIO", __FILE__, __LINE__);
     }
   }
-  
+
   numberColumns_ = numberHash_[1];
   numberElements_ = cnt_coeff - start[0];
 
@@ -1937,13 +1937,13 @@ CoinLpIO::readLp(FILE* fp)
     start[i] -= cnt_obj;
   }
 
-  CoinPackedMatrix *matrix = 
+  CoinPackedMatrix *matrix =
     new CoinPackedMatrix(false,
 			 numberColumns_, numberRows_, numberElements_,
 			 &(coeff[cnt_obj]), &(ind[cnt_obj]), start, NULL);
 
 #ifdef LPIO_DEBUG
-  matrix->dumpMatrix();  
+  matrix->dumpMatrix();
 #endif
 
   setLpDataWithoutRowAndColNames(*matrix, collow, colup,
@@ -1965,8 +1965,8 @@ CoinLpIO::readLp(FILE* fp)
     handler_->message(COIN_GENERAL_WARNING,messages_)<<
       "### CoinLpIO::readLp(): Invalid column names\nNow using default column names."
 						     <<CoinMessageEol;
-  } 
-  
+  }
+
   for(i=0; i<cnt_coeff; i++) {
     free(colNames[i]);
   }
@@ -2007,7 +2007,7 @@ CoinLpIO::print() const {
   printf("numberColumns_: %d\n", numberColumns_);
 
   printf("matrixByRows_:\n");
-  matrixByRow_->dumpMatrix();  
+  matrixByRow_->dumpMatrix();
 
   int i;
   printf("rowlower_:\n");
@@ -2021,7 +2021,7 @@ CoinLpIO::print() const {
     printf("%.5f ", rowupper_[i]);
   }
   printf("\n");
-  
+
   printf("collower_:\n");
   for(i=0; i<numberColumns_; i++) {
     printf("%.5f ", collower_[i]);
@@ -2033,13 +2033,13 @@ CoinLpIO::print() const {
     printf("%.5f ", colupper_[i]);
   }
   printf("\n");
-  
+
   printf("objective_:\n");
   for(i=0; i<numberColumns_; i++) {
     printf("%.5f ", objective_[i]);
   }
   printf("\n");
-  
+
   if(integerType_ != NULL) {
     printf("integerType_:\n");
     for(i=0; i<numberColumns_; i++) {
@@ -2076,7 +2076,7 @@ namespace {
   };
  int compute_hash(const char *name, int maxsiz, int length)
 {
-  
+
   int n = 0;
   int j;
 
@@ -2091,11 +2091,11 @@ namespace {
 
 /************************************************************************/
 //  startHash.  Creates hash list for names
-//  setup names_[section] with names in the same order as in the parameter, 
+//  setup names_[section] with names in the same order as in the parameter,
 //  but removes duplicates
 
 void
-CoinLpIO::startHash(char const * const * const names, 
+CoinLpIO::startHash(char const * const * const names,
 		    const COINColumnIndex number, int section)
 {
   maxHash_[section] = 4 * number;
@@ -2104,31 +2104,31 @@ CoinLpIO::startHash(char const * const * const names,
 
   names_[section] = reinterpret_cast<char **> (malloc(maxhash * sizeof(char *)));
   hash_[section] = new CoinHashLink[maxhash];
-  
+
   CoinHashLink * hashThis = hash_[section];
   char **hashNames = names_[section];
-  
+
   for ( i = 0; i < maxhash; i++ ) {
     hashThis[i].index = -1;
     hashThis[i].next = -1;
   }
-  
+
   /*
    * Initialize the hash table.  Only the index of the first name that
    * hashes to a value is entered in the table; subsequent names that
    * collide with it are not entered.
    */
-  
+
   for (i=0; i<number; i++) {
     const char *thisName = names[i];
     int length = CoinStrlenAsInt(thisName);
-    
+
     ipos = compute_hash(thisName, maxhash, length);
     if (hashThis[ipos].index == -1) {
       hashThis[ipos].index = i; // will be changed below
     }
   }
-  
+
   /*
    * Now take care of the names that collided in the preceding loop,
    * by finding some other entry in the table for them.
@@ -2138,17 +2138,17 @@ CoinLpIO::startHash(char const * const * const names,
    */
 
   int cnt_distinct = 0;
-  
+
   iput = -1;
   for (i=0; i<number; i++) {
     const char *thisName = names[i];
     int length = CoinStrlenAsInt(thisName);
-    
+
     ipos = compute_hash(thisName, maxhash, length);
-    
+
     while (1) {
       COINColumnIndex j1 = hashThis[ipos].index;
-      
+
       if(j1 == i) {
 
 	// first occurence of thisName in the parameter "names"
@@ -2200,11 +2200,11 @@ CoinLpIO::startHash(char const * const * const names,
 	    hashNames[cnt_distinct] = CoinStrdup(thisName);
 	    cnt_distinct++;
 	    break;
-	  } 
+	  }
 	  else {
 	    ipos = k;
 
-	    // continue the check with names in collision 
+	    // continue the check with names in collision
 
 	  }
 	}
@@ -2269,12 +2269,12 @@ CoinLpIO::findHash(const char *name, int section) const
 	  ipos = k;
 	else
 	  break;
-      } 
+      }
       else {
 	found = j1;
 	break;
       }
-    } 
+    }
     else {
       found = -1;
       break;
@@ -2301,14 +2301,14 @@ CoinLpIO::insertHash(const char *thisName, int section)
 
   while (1) {
     COINColumnIndex j1 = hashThis[ipos].index;
-    
+
     if (j1 == -1) {
       hashThis[ipos].index = number;
       break;
     }
     else {
       char *thisName2 = hashNames[j1];
-      
+
       if ( strcmp (thisName, thisName2) != 0 ) {
 	COINColumnIndex k = hashThis[ipos].next;
 
@@ -2328,7 +2328,7 @@ CoinLpIO::insertHash(const char *thisName, int section)
 	  hashThis[ipos].next = iput;
 	  hashThis[iput].index = number;
 	  break;
-	} 
+	}
 	else {
 	  ipos = k;
 	  /* nothing worked - try it again */
@@ -2342,16 +2342,16 @@ CoinLpIO::insertHash(const char *thisName, int section)
 
 }
 // Pass in Message handler (not deleted at end)
-void 
+void
 CoinLpIO::passInMessageHandler(CoinMessageHandler * handler)
 {
-  if (defaultHandler_) 
+  if (defaultHandler_)
     delete handler_;
   defaultHandler_=false;
   handler_=handler;
 }
 // Set language
-void 
+void
 CoinLpIO::newLanguage(CoinMessages::Language language)
 {
   messages_ = CoinMessage(language);

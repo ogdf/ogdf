@@ -39,7 +39,7 @@ namespace {
    1.0,1.0e1,1.0e2,1.0e3,1.0e4,1.0e5,1.0e6,1.0e7,1.0e8,1.0e9};
 
 } // end file-local namespace
-double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type) 
+double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type)
 {
 
   double value = 0.0;
@@ -64,7 +64,7 @@ double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type)
     while (value<1.0e30) {
       thisChar = *ptr;
       ptr++;
-      if (thisChar>='0'&&thisChar<='9') 
+      if (thisChar>='0'&&thisChar<='9')
 	value = value*10.0+thisChar-'0';
       else
 	break;
@@ -123,7 +123,7 @@ double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type)
 	} else {
 	  value = COIN_DBL_MAX;
 	}
-      } 
+      }
       if (thisChar==0||thisChar=='\t'||thisChar==' ') {
 	// okay
 	*output=ptr;
@@ -165,7 +165,7 @@ double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type)
 	  } else if (thisChar >= '*' && thisChar <= '*' + 1) {
 	    thisValue = static_cast<unsigned short>(thisValue | (thisChar - '*' + 62));
 	  } else {
-	    // error 
+	    // error
 	    *output=save;
 	  }
 	}
@@ -194,7 +194,7 @@ double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type)
 	  } else if (thisChar >= '*' && thisChar <= '*' + 1) {
 	    thisValue = static_cast<unsigned short>(thisValue | (thisChar - '*' + 62));
 	  } else {
-	    // error 
+	    // error
 	    *output=save;
 	  }
 	}
@@ -206,8 +206,8 @@ double CoinMpsCardReader::osi_strtod(char * ptr, char ** output, int type)
   }
   return value;
 }
-// for strings 
-double CoinMpsCardReader::osi_strtod(char * ptr, char ** output) 
+// for strings
+double CoinMpsCardReader::osi_strtod(char * ptr, char ** output)
 {
   char * save = ptr;
   double value=-1.0e100;
@@ -231,7 +231,7 @@ double CoinMpsCardReader::osi_strtod(char * ptr, char ** output)
 //#############################################################################
 // sections
 const static char *section[] = {
-  "", "NAME", "ROW", "COLUMN", "RHS", "RANGES", "BOUNDS", "ENDATA", " ","QSECTION", "CSECTION", 
+  "", "NAME", "ROW", "COLUMN", "RHS", "RANGES", "BOUNDS", "ENDATA", " ","QSECTION", "CSECTION",
   "QUADOBJ" , "SOS", "BASIS",
   " "
 };
@@ -243,7 +243,7 @@ const static COINMpsType startType[] = {
   COIN_BLANK_COLUMN, COIN_BLANK_COLUMN,
   COIN_UP_BOUND, COIN_UNKNOWN_MPS_TYPE,
   COIN_UNKNOWN_MPS_TYPE,
-  COIN_BLANK_COLUMN, COIN_BLANK_COLUMN, COIN_BLANK_COLUMN, COIN_S1_BOUND, 
+  COIN_BLANK_COLUMN, COIN_BLANK_COLUMN, COIN_BLANK_COLUMN, COIN_S1_BOUND,
   COIN_BS_BASIS, COIN_UNKNOWN_MPS_TYPE
 };
 const static COINMpsType endType[] = {
@@ -443,7 +443,7 @@ CoinMpsCardReader::readToNextSection (  )
   return section_;
 }
 
-CoinMpsCardReader::CoinMpsCardReader (  CoinFileInput *input, 
+CoinMpsCardReader::CoinMpsCardReader (  CoinFileInput *input,
 					CoinMpsIO * reader)
 {
   memset ( card_, 0, MAX_CARD_LENGTH );
@@ -541,7 +541,7 @@ CoinMpsCardReader::nextField (  )
 	}
 	mpsType_ = COIN_BLANK_COLUMN;
 	// special coding if RHS or RANGES, not free format and blanks
-	if ( ( section_ != COIN_RHS_SECTION 
+	if ( ( section_ != COIN_RHS_SECTION
 	       && section_ != COIN_RANGES_SECTION )
 	     || freeFormat_ || strncmp ( card_ + 4, "        ", 8 ) ) {
 	  // if columns section only look for first field if MARKER
@@ -656,7 +656,7 @@ CoinMpsCardReader::nextField (  )
 	      // error unless row section or conic section
 	      position_ = eol_;
 	      value_ = -1.0e100;
-	      if ( section_ != COIN_ROW_SECTION && 
+	      if ( section_ != COIN_ROW_SECTION &&
 		   section_!= COIN_CONIC_SECTION)
 		mpsType_ = COIN_UNKNOWN_MPS_TYPE;
 	      else
@@ -723,7 +723,7 @@ CoinMpsCardReader::nextField (  )
 		// error unless bounds or basis
 		position_ = eol_;
 		if ( section_ != COIN_BOUNDS_SECTION ) {
-		  if ( section_ != COIN_BASIS_SECTION ) 
+		  if ( section_ != COIN_BASIS_SECTION )
 		    mpsType_ = COIN_UNKNOWN_MPS_TYPE;
 		  value_ = -1.0e100;
 		} else {
@@ -793,7 +793,7 @@ CoinMpsCardReader::nextField (  )
 	    }
 	  }
 	  if ( next == eol_ ) {
-	    // error 
+	    // error
 	    position_ = eol_;
 	    value_ = -1.0e100;
 	    mpsType_ = COIN_UNKNOWN_MPS_TYPE;
@@ -920,7 +920,7 @@ static char *
 nextNonBlank ( char *image )
 {
   while ( 1 ) {
-    if ( *image != ' ' && *image != '\t' ) 
+    if ( *image != ' ' && *image != '\t' )
       break;
     else
       image++;
@@ -935,7 +935,7 @@ nextNonBlank ( char *image )
     1 - not what we expected
     2 - equation type when expecting value name pair
     leading blanks always ignored
-    input types 
+    input types
     0 - anything - stops on non blank card
     1 - name (in columnname)
     2 - value
@@ -943,7 +943,7 @@ nextNonBlank ( char *image )
     4 - equation type
     5 - ;
 */
-int 
+int
 CoinMpsCardReader::nextGmsField ( int expectedType )
 {
   int returnCode=-1;
@@ -1200,7 +1200,7 @@ const int mmult[] = {
 
 int hash ( const char *name, int maxsiz, int length )
 {
-  
+
   int n = 0;
   int j;
 
@@ -1213,7 +1213,7 @@ int hash ( const char *name, int maxsiz, int length )
 }
 } // end file-local namespace
 
-// Define below if you are reading a Cnnnnnn file 
+// Define below if you are reading a Cnnnnnn file
 // Will not do row names (for electricfence)
 //#define NONAMES
 #ifndef NONAMES
@@ -1236,7 +1236,7 @@ CoinMpsIO::startHash ( int section ) const
 
   //hash_=(CoinHashLink *) malloc(maxhash*sizeof(CoinHashLink));
   hash_[section] = new CoinHashLink[maxhash];
-  
+
   CoinHashLink * hashThis = hash_[section];
 
   for ( i = 0; i < maxhash; i++ ) {
@@ -1399,7 +1399,7 @@ double CoinMpsIO::getInfinity() const
 //------------------------------------------------------------------
 // Set value for infinity
 //------------------------------------------------------------------
-void CoinMpsIO::setInfinity(double value) 
+void CoinMpsIO::setInfinity(double value)
 {
   if ( value >= 1.020 ) {
     infinity_ = value;
@@ -1447,7 +1447,7 @@ CoinMpsIO::dealWithFileName(const char * filename,  const char * extension,
 	// There was an extension - but see if user gave .xxx
 	int i = static_cast<int>(strlen(filename))-1;
 	strcpy(newName,filename);
-	bool foundDot=false; 
+	bool foundDot=false;
 	for (;i>=0;i--) {
 	  char character = filename[i];
 	  if (character=='/'||character=='\\') {
@@ -1466,7 +1466,7 @@ CoinMpsIO::dealWithFileName(const char * filename,  const char * extension,
 	strcpy(newName,filename);
       }
     } else {
-      strcpy(newName,"stdin");    
+      strcpy(newName,"stdin");
     }
     // See if new name
     if (fileName_&&!strcmp(newName,fileName_)) {
@@ -1475,7 +1475,7 @@ CoinMpsIO::dealWithFileName(const char * filename,  const char * extension,
     } else {
       // new file
       free(fileName_);
-      fileName_=CoinStrdup(newName);    
+      fileName_=CoinStrdup(newName);
       if (strcmp(fileName_,"stdin")) {
 
 	// be clever with extensions here
@@ -1499,7 +1499,7 @@ CoinMpsIO::dealWithFileName(const char * filename,  const char * extension,
     // reset section ?
     goodFile=0;
   }
-  if (goodFile<0) 
+  if (goodFile<0)
     handler_->message(COIN_MPS_FILE,messages_)<<fileName_
 					      <<CoinMessageEol;
   return goodFile;
@@ -1599,7 +1599,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 						 <<fileName_
 						  <<CoinMessageEol;
 
-    if (cardReader_->fileInput()->getReadType()!="plain") 
+    if (cardReader_->fileInput()->getReadType()!="plain")
       handler_->message(COIN_MPS_BADFILE2,messages_)
         <<cardReader_->fileInput()->getReadType()
         <<CoinMessageEol;
@@ -1648,7 +1648,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
       }
       if (!direction)
 	printf("No MAX/MIN found after OBJSENSE\n");
-      else 
+      else
 	printf("%s found after OBJSENSE - Coin ignores\n",
 	       (direction>0 ? "MIN" : "MAX"));
       cardReader_->nextField();
@@ -1970,7 +1970,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 	reinterpret_cast<COINMpsType *> (realloc ( columnType,
 						   numberColumns_ * sizeof ( COINMpsType )));
       columnName =
-	
+
 	reinterpret_cast<char **> (realloc ( columnName, numberColumns_ * sizeof ( char * )));
       objective_ = reinterpret_cast<double *>
 	(realloc ( objective_, numberColumns_ * sizeof ( double )));
@@ -1979,7 +1979,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 	reinterpret_cast<COINMpsType *> (realloc ( columnType,
 				     sizeof ( COINMpsType )));
       columnName =
-	
+
 	reinterpret_cast<char **> (realloc ( columnName, sizeof ( char * )));
       objective_ = reinterpret_cast<double *>
 	(realloc ( objective_, sizeof ( double )));
@@ -2256,7 +2256,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
       colupper_[i]=infinity_;
     }
     // set up integer region just in case
-    if (numberColumns_) 
+    if (numberColumns_)
       integerType_ = reinterpret_cast<char *> (malloc (numberColumns_*sizeof(char)));
     else
       integerType_ = reinterpret_cast<char *> (malloc (sizeof(char)));
@@ -2421,7 +2421,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 	      addString(numberRows_+2,icolumn,s+1);
 	    }
 #if 0
-	    if ( value == -1.0e100 ) 
+	    if ( value == -1.0e100 )
 	      ifError = true;
 	    if ( columnType[icolumn] == COIN_UNSET_BOUND ) {
 	    } else if ( columnType[icolumn] == COIN_LO_BOUND ) {
@@ -2540,7 +2540,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
     numberSets=0;
     //delete [] sets;
     sets=NULL;
-    
+
     // Do SOS if found
     if ( cardReader_->whichSection (  ) == COIN_SOS_SECTION ) {
       // Go to free format
@@ -2607,9 +2607,9 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 	if ( integerType_[icolumn] ) {
 	  collower_[icolumn] = CoinMax( collower_[icolumn] , -MAX_INTEGER );
 	  // if 0 infinity make 0-1 ???
-	  if ( columnType[icolumn] == COIN_UNSET_BOUND ) 
+	  if ( columnType[icolumn] == COIN_UNSET_BOUND )
 	    colupper_[icolumn] = defaultBound_;
-	  if ( colupper_[icolumn] > MAX_INTEGER ) 
+	  if ( colupper_[icolumn] > MAX_INTEGER )
 	    colupper_[icolumn] = MAX_INTEGER;
 	  // clean up to allow for bad reads on 1.0e2 etc
 	  if (colupper_[icolumn]<1.0e10) {
@@ -2643,8 +2643,8 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
   } else {
     // This is very simple format - what should we use?
     COINColumnIndex i;
-    
-    /* old: 
+
+    /* old:
        FILE * fp = cardReader_->filePointer();
        fscanf ( fp, "%d %d %d\n", &numberRows_, &numberColumns_, &i);
     */
@@ -2682,13 +2682,13 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
       int n;
 
       /* old:
-	 fscanf ( fp, "%d %d %lg %lg %lg\n", &j, &n, 
+	 fscanf ( fp, "%d %d %lg %lg %lg\n", &j, &n,
 	          &collower_[i], &colupper_[i],
 	          &objective_[i] );
       */
-      // new: 
+      // new:
       cardReader_->fileInput ()->gets (buffer, 1000);
-      sscanf (buffer, "%d %d %lg %lg %lg\n", &j, &n, 
+      sscanf (buffer, "%d %d %lg %lg %lg\n", &j, &n,
 	      &collower_[i], &colupper_[i], &objective_[i] );
 
       assert ( i == j );
@@ -2697,7 +2697,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 	   fscanf ( fp, "       %d %lg\n", &row[numberElements_],
 		 &element[numberElements_] );
 	*/
-	// new: 
+	// new:
 	cardReader_->fileInput ()->gets (buffer, 1000);
 	sscanf (buffer, "       %d %lg\n", &row[numberElements_],
 		 &element[numberElements_] );
@@ -2708,7 +2708,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
     }
   }
   // construct packed matrix
-  matrixByColumn_ = 
+  matrixByColumn_ =
     new CoinPackedMatrix(true,
 			numberRows_,numberColumns_,numberElements_,
 			element,row,start,NULL);
@@ -2731,7 +2731,7 @@ glp_prob* cbc_glp_prob = NULL;
 /* Read a problem in GMPL (subset of AMPL)  format from the given filenames.
    Thanks to Ted Ralphs - I just looked at his coding rather than look at the GMPL documentation.
  */
-int 
+int
 CoinMpsIO::readGMPL(const char * modelName, const char * dataName,
                     bool keepNames)
 {
@@ -2804,11 +2804,11 @@ CoinMpsIO::readGMPL(const char * modelName, const char * dataName,
     int rowType;
     rowLower = glp_get_row_lb(cbc_glp_prob, iRow+1);
     rowUpper = glp_get_row_ub(cbc_glp_prob, iRow+1);
-    rowType  = glp_get_row_type(cbc_glp_prob, iRow+1); 
-    switch(rowType) {                                           
-    case GLP_LO: 
+    rowType  = glp_get_row_type(cbc_glp_prob, iRow+1);
+    switch(rowType) {
+    case GLP_LO:
       rowUpper =  COIN_DBL_MAX;
-      break;	 
+      break;
     case GLP_UP:
       rowLower = -COIN_DBL_MAX;
       break;
@@ -2873,10 +2873,10 @@ CoinMpsIO::readGMPL(const char * modelName, const char * dataName,
     double columnLower = glp_get_col_lb(cbc_glp_prob, iColumn+1);
     double columnUpper = glp_get_col_ub(cbc_glp_prob, iColumn+1);
     int columnType = glp_get_col_type(cbc_glp_prob, iColumn+1);
-    switch(columnType) {                                           
-    case GLP_LO: 
+    switch(columnType) {
+    case GLP_LO:
       columnUpper =  COIN_DBL_MAX;
-      break;	 
+      break;
     case GLP_UP:
       columnLower = -COIN_DBL_MAX;
       break;
@@ -2894,9 +2894,9 @@ CoinMpsIO::readGMPL(const char * modelName, const char * dataName,
       integerType_[iColumn]=1;
       numberIntegers++;
       //assert ( collower_[iColumn] >= -MAX_INTEGER );
-      if ( collower_[iColumn] < -MAX_INTEGER ) 
+      if ( collower_[iColumn] < -MAX_INTEGER )
         collower_[iColumn] = -MAX_INTEGER;
-      if ( colupper_[iColumn] > MAX_INTEGER ) 
+      if ( colupper_[iColumn] > MAX_INTEGER )
         colupper_[iColumn] = MAX_INTEGER;
     } else if (columnType==GLP_BV) {
       numberIntegers++;
@@ -3110,7 +3110,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/,CoinSet ** &/*sets*/)
     assert (*next==','||*next==';');
     cardReader_->setPosition(next+1);
     columnName[i]=CoinStrdup(cardReader_->columnName());
-    // Default is free? 
+    // Default is free?
     collower_[i]=-COIN_DBL_MAX;
     // Surely not - check
     collower_[i]=0.0;
@@ -3212,7 +3212,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/,CoinSet ** &/*sets*/)
     char rowName[COIN_MAX_FIELD_LENGTH];
     strcpy(rowName,cardReader_->columnName());
     char * dot = strchr(rowName,'.');
-    assert (dot); 
+    assert (dot);
     *dot='\0';
     assert (*(dot+1)=='.');
 #ifndef NDEBUG
@@ -3252,7 +3252,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/,CoinSet ** &/*sets*/)
 	  char temp2[100];
 	  temp2[0]='\0';
 	  double value = cardReader_->value();
-	  if (value&&value!=1.0) 
+	  if (value&&value!=1.0)
 	    sprintf(temp2,"%g*",value);
 	  if (allowStringElements_==1)
 	    strcat(temp2,ast+1);
@@ -3424,9 +3424,9 @@ int CoinMpsIO::readGms(int & /*numberSets*/,CoinSet ** &/*sets*/)
     for ( iColumn = 0; iColumn < numberColumns_; iColumn++ ) {
       if ( integerType_[iColumn] ) {
         //assert ( collower_[iColumn] >= -MAX_INTEGER );
-        if ( collower_[iColumn] < -MAX_INTEGER ) 
+        if ( collower_[iColumn] < -MAX_INTEGER )
           collower_[iColumn] = -MAX_INTEGER;
-        if ( colupper_[iColumn] > MAX_INTEGER ) 
+        if ( colupper_[iColumn] > MAX_INTEGER )
           colupper_[iColumn] = MAX_INTEGER;
       }
     }
@@ -3475,7 +3475,7 @@ int CoinMpsIO::readGms(int & /*numberSets*/,CoinSet ** &/*sets*/)
   matrixByColumn_->reverseOrderedCopyOf(matrixByRow);
   if (!convertObjective_)
     assert (matrixByColumn_->getVectorLengths()[iObjCol]==1);
-  
+
   handler_->message(COIN_MPS_STATS,messages_)<<problemName_
 					    <<numberRows_
 					    <<numberColumns_
@@ -3489,10 +3489,10 @@ int CoinMpsIO::readGms(int & /*numberSets*/,CoinSet ** &/*sets*/)
 /* Read a basis in MPS format from the given filename.
    If VALUES on NAME card and solution not NULL fills in solution
    status values as for CoinWarmStartBasis (but one per char)
-   
+
    Use "stdin" or "-" to read from stdin.
 */
-int 
+int
 CoinMpsIO::readBasis(const char *filename, const char *extension ,
 		     double * solution, unsigned char * rowStatus, unsigned char * columnStatus,
 		     const std::vector<std::string> & colnames,int numberColumns,
@@ -3514,13 +3514,13 @@ CoinMpsIO::readBasis(const char *filename, const char *extension ,
     // Get whether to use values (passed back by freeFormat)
     if (!cardReader_->freeFormat())
       solution = NULL;
-    
+
   } else if ( cardReader_->whichSection (  ) == COIN_UNKNOWN_SECTION ) {
     handler_->message(COIN_MPS_BADFILE1,messages_)<<cardReader_->card()
 						  <<1
 						 <<fileName_
 						 <<CoinMessageEol;
-    if (cardReader_->fileInput()->getReadType()!="plain") 
+    if (cardReader_->fileInput()->getReadType()!="plain")
       handler_->message(COIN_MPS_BADFILE2,messages_)
         <<cardReader_->fileInput()->getReadType()
         <<CoinMessageEol;
@@ -3570,7 +3570,7 @@ CoinMpsIO::readBasis(const char *filename, const char *extension ,
     if (gotNames) {
       iColumn = findHash (cardReader_->columnName(),1);
     } else {
-      // few checks 
+      // few checks
       char check;
       sscanf(cardReader_->columnName(),"%c%d",&check,&iColumn);
       assert (check=='C'&&iColumn>=0);
@@ -3592,7 +3592,7 @@ CoinMpsIO::readBasis(const char *filename, const char *extension ,
 	if (gotNames) {
 	  iRow = findHash (cardReader_->rowName(),0);
 	} else {
-	  // few checks 
+	  // few checks
 	  char check;
 	  sscanf(cardReader_->rowName(),"%c%d",&check,&iRow);
 	  assert (check=='R'&&iRow>=0);
@@ -3609,7 +3609,7 @@ CoinMpsIO::readBasis(const char *filename, const char *extension ,
 	if (gotNames) {
 	  iRow = findHash (cardReader_->rowName(),0);
 	} else {
-	  // few checks 
+	  // few checks
 	  char check;
 	  sscanf(cardReader_->rowName(),"%c%d",&check,&iRow);
 	  assert (check=='R'&&iRow>=0);
@@ -3670,7 +3670,7 @@ convertRowName(int formatType, const char * name, char outputRow[100])
       if (outputRow[i]=='\0')
 	break;
     }
-    for (;i<8;i++) 
+    for (;i<8;i++)
       outputRow[i]=' ';
     outputRow[8]='\0';
   } else if (formatType>1&&formatType<8) {
@@ -3680,7 +3680,7 @@ convertRowName(int formatType, const char * name, char outputRow[100])
       if (outputRow[i]=='\0')
 	break;
     }
-    for (;i<8;i++) 
+    for (;i<8;i++)
       outputRow[i]=' ';
     outputRow[8]='\0';
   }
@@ -3754,7 +3754,7 @@ CoinConvertDouble(int section, int formatType, double value, char outputValue[24
           if (outputValue[12]!=' '&&outputValue[12]!='\0') {
             assert (outputValue[0]==' ');
             int j;
-            for (j=0;j<12;j++) 
+            for (j=0;j<12;j++)
               outputValue[j]=outputValue[j+1];
           }
 	  outputValue[12]='\0';
@@ -3787,7 +3787,7 @@ CoinConvertDouble(int section, int formatType, double value, char outputValue[24
 	}
       }
       // overwrite if very very small
-      if (fabs(value)<1.0e-20) 
+      if (fabs(value)<1.0e-20)
 	strcpy(outputValue,"0.0");
     } else {
       if (section==2) {
@@ -3803,7 +3803,7 @@ CoinConvertDouble(int section, int formatType, double value, char outputValue[24
       if (outputValue[i]=='\0')
 	break;
     }
-    for (;i<12;i++) 
+    for (;i<12;i++)
       outputValue[i]=' ';
     outputValue[12]='\0';
   } else if (formatType==1) {
@@ -3904,7 +3904,7 @@ static void outputCard(int formatType,int numberFields,
 	 if (outputColumn[i]=='\0')
 	    break;
       }
-      for (;i<8;i++) 
+      for (;i<8;i++)
 	 outputColumn[i]=' ';
       outputColumn[8]='\0';
       // fprintf(fp,"%s  ",outputColumn);
@@ -3931,7 +3931,7 @@ static void outputCard(int formatType,int numberFields,
 	 line += outputValue[i];
       }
    }
-   
+
    // fprintf(fp,"\n");
    line += "\n";
    writeString(output, line.c_str());
@@ -4094,7 +4094,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
      freeFormat=true;
      numberAcross=1;
    }
-   
+
    // NAME card
 
    line = "NAME          ";
@@ -4141,7 +4141,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
    memcpy( sense , getRowSense(), numberRows_);
    const double * rowLower = getRowLower();
    const double * rowUpper = getRowUpper();
-  
+
    for (i=0;i<numberRows_;i++) {
       line = " ";
       if (sense[i]!='R') {
@@ -4500,7 +4500,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
                        header[1]=" UP ";
                      else
                        header[1]=" UI ";
-                     if (upperValue<largeValue) 
+                     if (upperValue<largeValue)
                        value[1] = upperValue;
                      else
                        value[1] = largeValue;
@@ -4518,7 +4518,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
 		     if (isInteger(i)) {
 			// Integer variable so UI
 			header[1]=" UI ";
-                        if (upperValue<largeValue) 
+                        if (upperValue<largeValue)
                           value[1] = upperValue;
                         else
                           value[1] = largeValue;
@@ -4539,7 +4539,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
 			} else {
 			   // UI
 			   header[0]=" UI ";
-                           if (upperValue<largeValue) 
+                           if (upperValue<largeValue)
                              value[0] = upperValue;
                            else
                              value[0] = largeValue;
@@ -4569,7 +4569,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
 	 }
       }
    }
-   
+
    // do any quadratic part
    if (quadratic) {
 
@@ -4619,7 +4619,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
        int n=setInfo[i].numberEntries();
        const int * which = setInfo[i].which();
        const double * weights = setInfo[i].weights();
-       
+
        for (int j=0;j<n;j++) {
 	 int k=which[j];
 	 convertDouble(2,formatType,
@@ -4643,7 +4643,7 @@ CoinMpsIO::writeMps(const char *filename, int compression,
    delete output;
    return 0;
 }
-   
+
 //------------------------------------------------------------------
 // Problem name
 const char * CoinMpsIO::getProblemName() const
@@ -4689,7 +4689,7 @@ int CoinMpsIO::getNumElements() const
 
 //------------------------------------------------------------------
 // Get pointer to column lower and upper bounds.
-//------------------------------------------------------------------  
+//------------------------------------------------------------------
 const double * CoinMpsIO::getColLower() const
 {
   return collower_;
@@ -4701,7 +4701,7 @@ const double * CoinMpsIO::getColUpper() const
 
 //------------------------------------------------------------------
 // Get pointer to row lower and upper bounds.
-//------------------------------------------------------------------  
+//------------------------------------------------------------------
 const double * CoinMpsIO::getRowLower() const
 {
   return rowlower_;
@@ -4710,7 +4710,7 @@ const double * CoinMpsIO::getRowUpper() const
 {
   return rowupper_;
 }
- 
+
 /** A quick inlined function to convert from lb/ub style constraint
     definition to sense/rhs/range style */
 inline void
@@ -4775,7 +4775,7 @@ CoinMpsIO::convertSenseToBound(const char sense, const double right,
 }
 //------------------------------------------------------------------
 // Get sense of row constraints.
-//------------------------------------------------------------------ 
+//------------------------------------------------------------------
 const char * CoinMpsIO::getRowSense() const
 {
   if ( rowsense_==NULL ) {
@@ -4795,7 +4795,7 @@ const char * CoinMpsIO::getRowSense() const
 
 //------------------------------------------------------------------
 // Get the rhs of rows.
-//------------------------------------------------------------------ 
+//------------------------------------------------------------------
 const double * CoinMpsIO::getRightHandSide() const
 {
   if ( rhs_==NULL ) {
@@ -4817,7 +4817,7 @@ const double * CoinMpsIO::getRightHandSide() const
 //------------------------------------------------------------------
 // Get the range of rows.
 // Length of returned vector is getNumRows();
-//------------------------------------------------------------------ 
+//------------------------------------------------------------------
 const double * CoinMpsIO::getRowRange() const
 {
   if ( rowrange_==NULL ) {
@@ -4840,7 +4840,7 @@ const double * CoinMpsIO::getObjCoefficients() const
 {
   return objective_;
 }
- 
+
 //------------------------------------------------------------------
 // Create a row copy of the matrix ...
 //------------------------------------------------------------------
@@ -4884,7 +4884,7 @@ CoinMpsIO::setMpsDataWithoutRowAndColNames(
   defaultBound_ = 1;
   infinity_ = infinity;
   objectiveOffset_ = 0;
-  
+
   rowlower_ = reinterpret_cast<double *> (malloc (numberRows_ * sizeof(double)));
   rowupper_ = reinterpret_cast<double *> (malloc (numberRows_ * sizeof(double)));
   collower_ = reinterpret_cast<double *> (malloc (numberColumns_ * sizeof(double)));
@@ -4901,7 +4901,7 @@ CoinMpsIO::setMpsDataWithoutRowAndColNames(
   } else {
     integerType_ = NULL;
   }
-    
+
   problemName_ = CoinStrdup("");
   objectiveName_ = CoinStrdup("");
   rhsName_ = CoinStrdup("");
@@ -4974,7 +4974,7 @@ void
 CoinMpsIO::setMpsDataColAndRowNames(
 		      const std::vector<std::string> & colnames,
 		      const std::vector<std::string> & rownames)
-{  
+{
    // If long names free format
   names_[0] = reinterpret_cast<char **> (malloc(numberRows_ * sizeof(char *)));
   names_[1] = reinterpret_cast<char **> (malloc (numberColumns_ * sizeof(char *)));
@@ -5113,7 +5113,7 @@ const char * CoinMpsIO::integerColumns() const
   return integerType_;
 }
 // Pass in array saying if each variable integer
-void 
+void
 CoinMpsIO::copyInIntegerInformation(const char * integerType)
 {
   if (integerType) {
@@ -5221,11 +5221,11 @@ void CoinMpsIO::releaseMatrixInformation()
   delete matrixByColumn_;
   matrixByColumn_=NULL;
 }
-  
+
 
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CoinMpsIO::CoinMpsIO ()
 :
@@ -5272,7 +5272,7 @@ stringElements_(NULL)
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CoinMpsIO::CoinMpsIO(const CoinMpsIO & rhs)
 :
@@ -5398,7 +5398,7 @@ void CoinMpsIO::gutsOfCopy(const CoinMpsIO & rhs)
 }
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CoinMpsIO::~CoinMpsIO ()
 {
@@ -5406,12 +5406,12 @@ CoinMpsIO::~CoinMpsIO ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinMpsIO &
 CoinMpsIO::operator=(const CoinMpsIO& rhs)
 {
-  if (this != &rhs) {    
+  if (this != &rhs) {
     gutsOfDestructor();
     if ( rhs.rowlower_ !=NULL || rhs.collower_ != NULL) {
       gutsOfCopy(rhs);
@@ -5428,7 +5428,7 @@ CoinMpsIO::operator=(const CoinMpsIO& rhs)
 
 //-------------------------------------------------------------------
 void CoinMpsIO::gutsOfDestructor()
-{  
+{
   freeAll();
   if (defaultHandler_) {
     delete handler_;
@@ -5440,7 +5440,7 @@ void CoinMpsIO::gutsOfDestructor()
 
 
 void CoinMpsIO::freeAll()
-{  
+{
   releaseRedundantInformation();
   releaseRowNames();
   releaseColumnNames();
@@ -5480,7 +5480,7 @@ void CoinMpsIO::freeAll()
 /* Release all information which can be re-calculated e.g. rowsense
     also any row copies OR hash tables for names */
 void CoinMpsIO::releaseRedundantInformation()
-{  
+{
   free( rowsense_);
   free( rhs_);
   free( rowrange_);
@@ -5495,31 +5495,31 @@ void CoinMpsIO::releaseRedundantInformation()
   matrixByRow_=NULL;
 }
 // Pass in Message handler (not deleted at end)
-void 
+void
 CoinMpsIO::passInMessageHandler(CoinMessageHandler * handler)
 {
-  if (defaultHandler_) 
+  if (defaultHandler_)
     delete handler_;
   defaultHandler_=false;
   handler_=handler;
 }
 // Set language
-void 
+void
 CoinMpsIO::newLanguage(CoinMessages::Language language)
 {
   messages_ = CoinMessage(language);
 }
 
-/* Read in a quadratic objective from the given filename.  
+/* Read in a quadratic objective from the given filename.
    If filename is NULL then continues reading from previous file.  If
    not then the previous file is closed.
-   
+
    No assumption is made on symmetry, positive definite etc.
    No check is made for duplicates or non-triangular
-   
+
    Returns number of errors
 */
-int 
+int
 CoinMpsIO::readQuadraticMps(const char * filename,
 			    int * &columnStart, int * &column2, double * &elements,
 			    int checkSymmetry)
@@ -5538,9 +5538,9 @@ CoinMpsIO::readQuadraticMps(const char * filename,
     cardReader_->setWhichSection(COIN_QUADRATIC_SECTION);
   } else {
     cardReader_->readToNextSection();
-    
+
     // Skip NAME
-    if ( cardReader_->whichSection (  ) == COIN_NAME_SECTION ) 
+    if ( cardReader_->whichSection (  ) == COIN_NAME_SECTION )
       cardReader_->readToNextSection();
     if ( cardReader_->whichSection (  ) == COIN_QUADRATIC_SECTION ) {
       // save name of section
@@ -5557,7 +5557,7 @@ CoinMpsIO::readQuadraticMps(const char * filename,
 						  <<CoinMessageEol;
     return -2;
     }
-  }    
+  }
 
   int numberErrors = 0;
 
@@ -5638,7 +5638,7 @@ CoinMpsIO::readQuadraticMps(const char * filename,
   memset(count,0,numberColumns_*sizeof(int));
   CoinBigIndex i;
   // See about lower triangular
-  if (checkSymmetry&&numberErrors) 
+  if (checkSymmetry&&numberErrors)
     checkSymmetry=2; // force corrections
   if (checkSymmetry) {
     if (checkSymmetry==1) {
@@ -5693,7 +5693,7 @@ CoinMpsIO::readQuadraticMps(const char * filename,
   free(elementTemp);
 
   // Now in column order - deal with duplicates
-  for (i=0;i<numberColumns_;i++) 
+  for (i=0;i<numberColumns_;i++)
     count[i] = -1;
 
   int start = 0;
@@ -5728,20 +5728,20 @@ CoinMpsIO::readQuadraticMps(const char * filename,
   delete [] count;
   return numberErrors;
 }
-/* Read in a list of cones from the given filename.  
+/* Read in a list of cones from the given filename.
    If filename is NULL (or same) then continues reading from previous file.
    If not then the previous file is closed.  Code should be added to
    general MPS reader to read this if CSECTION
-   
+
    No checking is done that in unique cone
-   
+
    Arrays should be deleted by delete []
-   
+
    Returns number of errors, -1 bad file, -2 no conic section, -3 empty section
-   
+
    columnStart is numberCones+1 long, other number of columns in matrix
 */
-int 
+int
 CoinMpsIO::readConicMps(const char * filename,
 		     int * &columnStart, int * &column, int & numberCones)
 {
@@ -5758,7 +5758,7 @@ CoinMpsIO::readConicMps(const char * filename,
   cardReader_->readToNextSection();
 
   // Skip NAME
-  if ( cardReader_->whichSection (  ) == COIN_NAME_SECTION ) 
+  if ( cardReader_->whichSection (  ) == COIN_NAME_SECTION )
     cardReader_->readToNextSection();
   numberCones=0;
 
@@ -5769,8 +5769,8 @@ CoinMpsIO::readConicMps(const char * filename,
   columnStart[0]=0;
   int numberElements=0;
   startHash(1);
-  
-  //if (cardReader_->whichSection()==COIN_CONIC_SECTION) 
+
+  //if (cardReader_->whichSection()==COIN_CONIC_SECTION)
   //cardReader_->cleanCard(); // skip doing last
   while ( cardReader_->nextField (  ) == COIN_CONIC_SECTION ) {
     // should check QUAD
@@ -5788,7 +5788,7 @@ CoinMpsIO::readConicMps(const char * filename,
     case COIN_BLANK_COLUMN:
       // get index
       iColumn1 = findHash ( cardReader_->columnName (  ) , 1 );
-      
+
       if ( iColumn1 >= 0 ) {
 	column[numberElements++]=iColumn1;
       } else {
@@ -5845,7 +5845,7 @@ CoinMpsIO::readConicMps(const char * filename,
   return numberErrors;
 }
 // Add string to list
-void 
+void
 CoinMpsIO::addString(int iRow,int iColumn, const char * value)
 {
   char id [20];
@@ -5865,7 +5865,7 @@ CoinMpsIO::addString(int iRow,int iColumn, const char * value)
   strcat(line,value);
 }
 // Decode string
-void 
+void
 CoinMpsIO::decodeString(int iString, int & iRow, int & iColumn, const char * & value) const
 {
   iRow=-1;
@@ -5883,7 +5883,7 @@ CoinMpsIO::decodeString(int iString, int & iRow, int & iColumn, const char * & v
   }
 }
 // copies in strings from a CoinModel - returns number
-int 
+int
 CoinMpsIO::copyStringElements(const CoinModel * model)
 {
   if (!model->stringsExist())
@@ -5955,7 +5955,7 @@ CoinMpsIO::copyStringElements(const CoinModel * model)
   }
   return numberStringElements_;
 }
-// Constructor 
+// Constructor
 CoinSet::CoinSet ( int numberEntries, const int * which)
 {
   numberEntries_ = numberEntries;
@@ -5964,7 +5964,7 @@ CoinSet::CoinSet ( int numberEntries, const int * which)
   memcpy(which_,which,numberEntries_*sizeof(int));
   setType_=1;
 }
-// Default constructor 
+// Default constructor
 CoinSet::CoinSet ()
 {
   numberEntries_ = 0;
@@ -5973,7 +5973,7 @@ CoinSet::CoinSet ()
   setType_=1;
 }
 
-// Copy constructor 
+// Copy constructor
 CoinSet::CoinSet (const CoinSet & rhs)
 {
   numberEntries_ = rhs.numberEntries_;
@@ -5981,14 +5981,14 @@ CoinSet::CoinSet (const CoinSet & rhs)
   which_ = CoinCopyOfArray(rhs.which_,numberEntries_);
   weights_ = CoinCopyOfArray(rhs.weights_,numberEntries_);
 }
-  
+
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CoinSet &
 CoinSet::operator=(const CoinSet& rhs)
 {
-  if (this != &rhs) {    
+  if (this != &rhs) {
     delete [] which_;
     delete [] weights_;
     numberEntries_ = rhs.numberEntries_;
@@ -6005,7 +6005,7 @@ CoinSet::~CoinSet (  )
   delete [] which_;
   delete [] weights_;
 }
-// Constructor 
+// Constructor
 CoinSosSet::CoinSosSet ( int numberEntries, const int * which, const double * weights, int type)
   : CoinSet(numberEntries,which)
 {
@@ -6022,7 +6022,7 @@ CoinSosSet::CoinSosSet ( int numberEntries, const int * which, const double * we
     }
   }
   if (allSame) {
-    for (i=0;i<numberEntries_;i++) 
+    for (i=0;i<numberEntries_;i++)
       weights_[i] = i;
   }
 }
@@ -6035,8 +6035,8 @@ CoinSosSet::~CoinSosSet (  )
 #include "SbbModel.hpp"
 #include "SbbBranchActual.hpp"
 // returns an object of type SbbObject
-SbbObject * 
-CoinSosSet::sbbObject(SbbModel * model) const 
+SbbObject *
+CoinSosSet::sbbObject(SbbModel * model) const
 {
   // which are matrix here - need to put as integer index
   abort();

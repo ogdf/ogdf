@@ -18,7 +18,7 @@
 
 //#############################################################################
 
-void 
+void
 CoinWarmStartBasis::setSize(int ns, int na) {
   // Round all so arrays multiple of 4
   int nintS = (ns+15) >> 4;
@@ -40,8 +40,8 @@ CoinWarmStartBasis::setSize(int ns, int na) {
   numStructural_ = ns;
 }
 
-void 
-CoinWarmStartBasis::assignBasisStatus(int ns, int na, char*& sStat, 
+void
+CoinWarmStartBasis::assignBasisStatus(int ns, int na, char*& sStat,
 				     char*& aStat) {
   // Round all so arrays multiple of 4
   int nintS = (ns+15) >> 4;
@@ -66,7 +66,7 @@ CoinWarmStartBasis::assignBasisStatus(int ns, int na, char*& sStat,
   sStat = NULL;
   aStat = NULL;
 }
-CoinWarmStartBasis::CoinWarmStartBasis(int ns, int na, 
+CoinWarmStartBasis::CoinWarmStartBasis(int ns, int na,
 				     const char* sStat, const char* aStat) :
   numStructural_(ns), numArtificial_(na),
   structuralStatus_(NULL), artificialStatus_(NULL) {
@@ -107,7 +107,7 @@ CoinWarmStartBasis::CoinWarmStartBasis(const CoinWarmStartBasis& ws) :
   }
 }
 
-CoinWarmStartBasis& 
+CoinWarmStartBasis&
 CoinWarmStartBasis::operator=(const CoinWarmStartBasis& rhs)
 {
   if (this != &rhs) {
@@ -133,8 +133,8 @@ CoinWarmStartBasis::operator=(const CoinWarmStartBasis& rhs)
   return *this;
 }
 
-// Resizes 
-void 
+// Resizes
+void
 CoinWarmStartBasis::resize (int newNumberRows, int newNumberColumns)
 {
   int i , nCharNewS, nCharOldS, nCharNewA, nCharOldA;
@@ -160,9 +160,9 @@ CoinWarmStartBasis::resize (int newNumberRows, int newNumberColumns)
       delete [] structuralStatus_;
       structuralStatus_ = array;
       artificialStatus_ = array+nCharNewS;
-      for (i=numStructural_;i<newNumberColumns;i++) 
+      for (i=numStructural_;i<newNumberColumns;i++)
 	setStructStatus(i, atLowerBound);
-      for (i=numArtificial_;i<newNumberRows;i++) 
+      for (i=numArtificial_;i<newNumberRows;i++)
 	setArtifStatus(i, basic);
     } else {
       // can do faster
@@ -171,7 +171,7 @@ CoinWarmStartBasis::resize (int newNumberRows, int newNumberColumns)
 		(nCharOldA>nCharNewA)?nCharNewA:nCharOldA);
 	artificialStatus_ = structuralStatus_+4*nIntS;
       }
-      for (i=numArtificial_;i<newNumberRows;i++) 
+      for (i=numArtificial_;i<newNumberRows;i++)
 	setArtifStatus(i, basic);
     }
     numStructural_ = newNumberColumns;
@@ -186,7 +186,7 @@ CoinWarmStartBasis::resize (int newNumberRows, int newNumberColumns)
   need to preprocess the target indices to satisfy the conditions.
 */
 void CoinWarmStartBasis::compressRows (int tgtCnt, const int *tgts)
-{ 
+{
   int i,keep,t,blkStart,blkEnd ;
 /*
   Depending on circumstances, constraint indices may be larger than the size
@@ -251,7 +251,7 @@ void CoinWarmStartBasis::compressRows (int tgtCnt, const int *tgts)
   removes them from the basis. The strategy is to preprocesses the list into
   an ascending list without duplicates, suitable for compressRows.
 */
-void 
+void
 CoinWarmStartBasis::deleteRows (int rawTgtCnt, const int *rawTgts)
 { if (rawTgtCnt <= 0) return ;
 
@@ -284,7 +284,7 @@ CoinWarmStartBasis::deleteRows (int rawTgtCnt, const int *rawTgts)
   return  ; }
 
 // Deletes columns
-void 
+void
 CoinWarmStartBasis::deleteColumns(int number, const int * which)
 {
   int i ;
@@ -335,7 +335,7 @@ CoinWarmStartBasis::deleteColumns(int number, const int * which)
   Merge the specified entries from the source basis (src) into the target
   basis (this). For each entry in xferCols, xferRows, first is the source index,
   second is the target index, and third is the run length.
-  
+
   This routine was originally created to solve the problem of correctly
   expanding an existing basis but can be used in a general context to merge
   two bases.
@@ -385,20 +385,20 @@ void CoinWarmStartBasis::mergeBasis (const CoinWarmStartBasis *src,
   return ; }
 
 // Prints in readable format (for debug)
-void 
+void
 CoinWarmStartBasis::print() const
 {
   int i ;
   int numberBasic=0;
   for (i=0;i<numStructural_;i++) {
     Status status = getStructStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
   int numberStructBasic = numberBasic;
   for (i=0;i<numArtificial_;i++) {
     Status status = getArtifStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
   std::cout<<"Basis "<<this<<" has "<<numArtificial_<<" rows and "
@@ -408,18 +408,18 @@ CoinWarmStartBasis::print() const
   std::cout<<"Rows:"<<std::endl;
   char type[]={'F','B','U','L'};
 
-  for (i=0;i<numArtificial_;i++) 
+  for (i=0;i<numArtificial_;i++)
     std::cout<<type[getArtifStatus(i)];
   std::cout<<std::endl;
   std::cout<<"Columns:"<<std::endl;
 
-  for (i=0;i<numStructural_;i++) 
+  for (i=0;i<numStructural_;i++)
     std::cout<<type[getStructStatus(i)];
   std::cout<<std::endl;
 }
 CoinWarmStartBasis::CoinWarmStartBasis()
 {
-  
+
   numStructural_ = 0;
   numArtificial_ = 0;
   maxSize_ = 0;
@@ -438,25 +438,25 @@ CoinWarmStartBasis::numberBasicStructurals() const
   int numberBasic=0;
   for (i=0;i<numStructural_;i++) {
     Status status = getStructStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
   return numberBasic;
 }
 // Returns true if full basis (for debug)
-bool 
+bool
 CoinWarmStartBasis::fullBasis() const
 {
   int i ;
   int numberBasic=0;
   for (i=0;i<numStructural_;i++) {
     Status status = getStructStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
   for (i=0;i<numArtificial_;i++) {
     Status status = getArtifStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
 #ifdef COIN_DEVELOP
@@ -467,19 +467,19 @@ CoinWarmStartBasis::fullBasis() const
   return numberBasic==numArtificial_;
 }
 // Returns true if full basis and fixes up (for debug)
-bool 
-CoinWarmStartBasis::fixFullBasis() 
+bool
+CoinWarmStartBasis::fixFullBasis()
 {
   int i ;
   int numberBasic=0;
   for (i=0;i<numStructural_;i++) {
     Status status = getStructStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
   for (i=0;i<numArtificial_;i++) {
     Status status = getArtifStatus(i);
-    if (status==CoinWarmStartBasis::basic) 
+    if (status==CoinWarmStartBasis::basic)
       numberBasic++;
   }
 #ifdef COIN_DEVELOP
@@ -491,7 +491,7 @@ CoinWarmStartBasis::fixFullBasis()
   if (numberBasic>numArtificial_) {
     for (i=0;i<numStructural_;i++) {
       Status status = getStructStatus(i);
-      if (status==CoinWarmStartBasis::basic) 
+      if (status==CoinWarmStartBasis::basic)
 	setStructStatus(i,atLowerBound);
 	numberBasic--;
 	if (numberBasic==numArtificial_)
@@ -527,7 +527,7 @@ CoinWarmStartBasis::generateDiff (const CoinWarmStart *const oldCWS) const
 */
   const CoinWarmStartBasis *oldBasis =
       dynamic_cast<const CoinWarmStartBasis *>(oldCWS) ;
-#ifndef NDEBUG 
+#ifndef NDEBUG
   if (!oldBasis)
   { throw CoinError("Old basis not derived from CoinWarmStartBasis.",
 		    "generateDiff","CoinWarmStartBasis") ; }
@@ -551,8 +551,8 @@ CoinWarmStartBasis::generateDiff (const CoinWarmStart *const oldCWS) const
   int sizeNewStruct = (newStructCnt+15)>>4 ;
   int maxBasisLength = sizeNewArtif+sizeNewStruct ;
 
-  unsigned int *diffNdx = new unsigned int [2*maxBasisLength]; 
-  unsigned int *diffVal = diffNdx + maxBasisLength; 
+  unsigned int *diffNdx = new unsigned int [2*maxBasisLength];
+  unsigned int *diffVal = diffNdx + maxBasisLength;
 /*
   Ok, setup's over. Now scan the logicals (aka artificials, standing in for
   constraints). For the portion of the status arrays which overlap, create
@@ -567,7 +567,7 @@ CoinWarmStartBasis::generateDiff (const CoinWarmStart *const oldCWS) const
 */
   const unsigned int *oldStatus =
       reinterpret_cast<const unsigned int *>(oldBasis->getArtificialStatus()) ;
-  const unsigned int *newStatus = 
+  const unsigned int *newStatus =
       reinterpret_cast<const unsigned int *>(newBasis->getArtificialStatus()) ;
   int numberChanged = 0 ;
   int i ;
@@ -619,7 +619,7 @@ void CoinWarmStartBasis::applyDiff (const CoinWarmStartDiff *const cwsdDiff)
 */
   const CoinWarmStartBasisDiff *diff =
     dynamic_cast<const CoinWarmStartBasisDiff *>(cwsdDiff) ;
-#ifndef NDEBUG 
+#ifndef NDEBUG
   if (!diff)
   { throw CoinError("Diff not derived from CoinWarmStartBasisDiff.",
 		    "applyDiff","CoinWarmStartBasis") ; }
@@ -636,7 +636,7 @@ void CoinWarmStartBasis::applyDiff (const CoinWarmStartDiff *const cwsdDiff)
   if (numberChanges>=0) {
     const unsigned int *diffNdxs = diff->difference_ ;
     const unsigned int *diffVals = diffNdxs+numberChanges ;
-    
+
     for (int i = 0 ; i < numberChanges ; i++)
       { unsigned int diffNdx = diffNdxs[i] ;
       unsigned int diffVal = diffVals[i] ;
@@ -671,7 +671,7 @@ CoinWarmStartBasisDiff::CoinWarmStartBasisDiff (int sze,
   { difference_ = new unsigned int[2*sze] ;
     CoinMemcpyN(diffNdxs,sze,difference_);
     CoinMemcpyN(diffVals,sze,difference_+sze_); }
-  
+
   return ; }
 /*
   Constructor when full is smaller than diff!
@@ -748,7 +748,7 @@ CoinWarmStartBasisDiff::operator= (const CoinWarmStartBasisDiff &rhs)
     }
     else
     { difference_ = 0 ; } }
-  
+
   return (*this) ; }
 /*brief Destructor */
 CoinWarmStartBasisDiff::~CoinWarmStartBasisDiff()

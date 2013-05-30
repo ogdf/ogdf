@@ -26,7 +26,7 @@ CglTwomirUnitTest(const OsiSolverInterface *baseSiP,
   {
     CglTwomir aGenerator;
   }
-  
+
   // Test copy & assignment
   {
     CglTwomir rhs;
@@ -40,7 +40,7 @@ CglTwomirUnitTest(const OsiSolverInterface *baseSiP,
   // Test get/set methods
   {
     CglTwomir getset;
-    
+
     int gtmin = getset.getTmin() + 1;
     int gtmax = getset.getTmax() + 1;
     getset.setMirScale(gtmin, gtmax);
@@ -68,20 +68,20 @@ CglTwomirUnitTest(const OsiSolverInterface *baseSiP,
     else {
       fclose(in_f);
       siP->readMps(fn.c_str(),"mps");
- 
+
       siP->initialSolve();
       double lpRelax = siP->getObjValue();
-      
+
       OsiCuts cs;
       gct.generateCuts(*siP, cs);
       int nRowCuts = cs.sizeRowCuts();
       std::cout<<"There are "<<nRowCuts<<" Twomir cuts"<<std::endl;
       assert(cs.sizeRowCuts() > 0);
       OsiSolverInterface::ApplyCutsReturnCode rc = siP->applyCuts(cs);
-      
+
       siP->resolve();
-      
-      double lpRelaxAfter= siP->getObjValue(); 
+
+      double lpRelaxAfter= siP->getObjValue();
       std::cout<<"Initial LP value: "<<lpRelax<<std::endl;
       std::cout<<"LP value with cuts: "<<lpRelaxAfter<<std::endl;
       assert( lpRelax < lpRelaxAfter );

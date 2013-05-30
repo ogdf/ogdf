@@ -34,7 +34,7 @@ SymWarmStart::SymWarmStart(warm_start_desc * ws)
 
 SymWarmStart::SymWarmStart(char * fileName)
 {
-   
+
    warmStart_ = sym_read_warm_start(fileName);
 }
 

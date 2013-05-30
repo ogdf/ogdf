@@ -174,7 +174,7 @@ void send_active_node(tm_prob *tm, bc_node *node, int colgen_strat,
       }else{
 	 PRINT_TIME(tm, f);
 	 fprintf(f, "P %i %i\n",node->bc_index+1,VBC_ACTIVE_NODE);
-	 fclose(f); 
+	 fclose(f);
       }
    }else if (tm->par.vbc_emulation == VBC_EMULATION_LIVE){
       printf("$P %i %i\n", node->bc_index+1, VBC_ACTIVE_NODE);
@@ -285,7 +285,7 @@ void send_active_node(tm_prob *tm, bc_node *node, int colgen_strat,
    basis.baserows.stat = basis.extravars.stat + extravar.size;
    basis.extrarows.stat = basis.baserows.stat + tm->bcutnum;
 #endif
-   
+
    /* The extra variables (uind) and the corresponding basis part */
    if (varexp_ind >= 0){
       extravar.size = (n = path[varexp_ind]) -> desc.uind.size;
@@ -428,11 +428,11 @@ void send_active_node(tm_prob *tm, bc_node *node, int colgen_strat,
       printf("NULL\n");
    }
    */
-   
+
 #ifdef COMPILE_IN_LP
 
 #if 0
-   if(!tm->par.sensitivity_analysis){   
+   if(!tm->par.sensitivity_analysis){
       /* Again, here, we need to do some things directly if the LP
 	 function is being performed within the tree manager. Otherwise,
 	 we just send out the data below */
@@ -544,7 +544,7 @@ void send_active_node(tm_prob *tm, bc_node *node, int colgen_strat,
       memcpy((char *)new_desc->desc, (char *)desc->desc, new_desc->desc_size);
 
 #else
-   
+
    /*------------------------------------------------------------------------*\
     * Now put together the message
    \*------------------------------------------------------------------------*/
@@ -591,7 +591,7 @@ void send_active_node(tm_prob *tm, bc_node *node, int colgen_strat,
 /*===========================================================================*\
  * Receive the description of the node back from the LP process.
 \*===========================================================================*/
-   
+
 void receive_node_desc(tm_prob *tm, bc_node *n)
 {
    char node_type, repricing;
@@ -620,7 +620,7 @@ void receive_node_desc(tm_prob *tm, bc_node *n)
        node_type == DISCARDED_NODE || node_type == FEASIBLE_PRUNED){
       n->node_status = NODE_STATUS__PRUNED;
       if (node_type == FEASIBLE_PRUNED) {
-	 if (!tm->par.sensitivity_analysis){ 
+	 if (!tm->par.sensitivity_analysis){
 	    receive_int_array(&(n->sol_size), 1);
 	    n->sol = (double *) malloc (DSIZE * n->sol_size);
 	    receive_dbl_array(n->sol, n->sol_size);
@@ -685,7 +685,7 @@ void receive_node_desc(tm_prob *tm, bc_node *n)
       insert_new_node(tm, n);
       return;
    }
-   
+
    newdesc = (node_desc *) calloc(1, sizeof(node_desc));
    /* Unpack the new description */
    receive_int_array(&newdesc->nf_status, 1);
@@ -706,7 +706,7 @@ void receive_node_desc(tm_prob *tm, bc_node *n)
    merge_descriptions(desc, newdesc);
 
    FREE(newdesc);
-   
+
    if (tm->par.verbosity > 10){
       printf("TM: node %4i: ", n->bc_index);
       if (desc->uind.type == WRT_PARENT){
@@ -760,7 +760,7 @@ void receive_node_desc(tm_prob *tm, bc_node *n)
 	       PRINT_TIME(tm, f);
 	       fprintf(f, "P %i %i\n", n->bc_index + 1,
 		       VBC_INTERIOR_NODE);
-	       fclose(f); 
+	       fclose(f);
 	    }
 	 }
 #ifdef COMPILE_IN_LP
@@ -806,7 +806,7 @@ void receive_node_desc(tm_prob *tm, bc_node *n)
 		       tm->lpp[n->lp]->lp_data->objval+
 		       tm->lpp[n->lp]->mip->obj_offset, sum_inf, num_inf);
 	       fprintf(f, "%s\n", reason);
-	       fclose(f); 
+	       fclose(f);
 	    }
 	 }
 #endif
@@ -923,7 +923,7 @@ void process_branching_info(tm_prob *tm, bc_node *node)
       if (feasible[i]){
 #if 0
 	 bobj->solutions[i] = (double *)
-	    malloc(DSIZE*tm->rootnode->desc.uind.size); 
+	    malloc(DSIZE*tm->rootnode->desc.uind.size);
 	 receive_dbl_array(bobj->solutions[i], tm->rootnode->desc.uind.size);
 #endif
       }
@@ -935,9 +935,9 @@ void process_branching_info(tm_prob *tm, bc_node *node)
    receive_int_array(&keep, 1);
    oldkeep = keep;
    lp = node->lp;
-   
+
    dive = generate_children(tm, node, bobj, objval, feasible, action, olddive,
-			    &keep, new_branching_cut); 
+			    &keep, new_branching_cut);
 
    if (oldkeep >= 0 && (olddive == CHECK_BEFORE_DIVE || olddive == DO_DIVE)){
       /* We have to reply */
@@ -1003,7 +1003,7 @@ char process_messages(tm_prob *tm, int r_bufid)
 	 tm->best_sol.has_sol = TRUE;
 	 break;
 #endif
-	 
+
        case UPPER_BOUND:
 	 process_ub_message(tm);
 	 break;
@@ -1070,7 +1070,7 @@ void process_ub_message(tm_prob *tm)
    int s_bufid, bc_index, feasible;
    double new_ub;
    char branching;
-      
+
    /* A new best solution has been found. The solution is sent
     * to the master, but the bound comes here, too.*/
    receive_dbl_array(&new_ub, 1);
@@ -1096,7 +1096,7 @@ void unpack_cut_set(tm_prob *tm, int sender, int cutnum, row_data *rows)
 {
    int old_cutnum = tm->cut_num, new_cutnum = cutnum, *itmp, i;
    cut_data **cuts;
-#ifndef COMPILE_IN_LP   
+#ifndef COMPILE_IN_LP
    int s_bufid;
 
    /* If the LP solver exists as a separate process, we have to
@@ -1114,7 +1114,7 @@ void unpack_cut_set(tm_prob *tm, int sender, int cutnum, row_data *rows)
 #ifdef COMPILE_IN_LP
 	 cuts[old_cutnum + i] = rows[i].cut;
 	 cuts[old_cutnum + i]->name = old_cutnum + i;
-#else   
+#else
 	 REMALLOC(tm->tmp.i, int, tm->tmp.i_size, new_cutnum, BB_BUNCH);
 	 itmp = tm->tmp.i;
 	 cuts[(itmp[i] = old_cutnum + i)] = unpack_cut(NULL);
@@ -1146,7 +1146,7 @@ int receive_lp_timing(tm_prob *tm)
    double start_node = tm->comp_times.start_node;
    int lp, cp;
    bc_node *node;
-   
+
    memset(&tm->comp_times, 0, sizeof(node_times));
    memset(&tm->lp_stat, 0, sizeof(lp_stat_desc));
    tm->comp_times.ramp_up_tm = ramp_up_tm;
@@ -1160,7 +1160,7 @@ int receive_lp_timing(tm_prob *tm)
 	 if (r_bufid > 0){
 	    bufinfo(r_bufid, &bytes, &msgtag, &sender);
 	    switch(msgtag){
-	       
+
 #ifdef COMPILE_IN_TM
 	     case FEASIBLE_SOLUTION_NONZEROS:
 	     case FEASIBLE_SOLUTION_USER:
@@ -1187,35 +1187,35 @@ int receive_lp_timing(tm_prob *tm)
 	       tm->best_sol.has_sol = TRUE;
 	       break;
 #endif
-	       
+
 	     case UPPER_BOUND:
 	       process_ub_message(tm);
 	       break;
-	       
+
 	     case LP__IS_FREE:
 	       receive_int_array(&cp, 1);
 	       tm->stat.chains++;
 	       mark_lp_process_free(tm,find_process_index(&tm->lp, sender),cp);
 	       break;
-	       
-	       
+
+
 	     case LP__NODE_DESCRIPTION:
 	       node = tm->active_nodes[find_process_index(&tm->lp, sender)];
 	       receive_node_desc(tm, node);
 	       break;
-	       
-	       
+
+
 	     case LP__BRANCHING_INFO:
 	       node = tm->active_nodes[find_process_index(&tm->lp, sender)];
 	       process_branching_info(tm, node);
 	       break;
-	       
-	       
+
+
 	     case LP__CUT_NAMES_REQUESTED:
 	       unpack_cut_set(tm, sender, 0, NULL);
 	       break;
-	       
-	       
+
+
 	     case LP__NODE_RESHELVED: /* implies LP__IS_FREE !! */
 	       lp = find_process_index(&tm->lp, sender);
 	       tm->active_nodes[lp]->node_status = NODE_STATUS__HELD;
@@ -1225,15 +1225,15 @@ int receive_lp_timing(tm_prob *tm)
 		  tm->active_nodes[lp];
 	       mark_lp_process_free(tm, lp, tm->active_nodes[lp]->cp);
 	       break;
-	       
-	       
+
+
 	     case LP__NODE_DISCARDED: /* implies LP__IS_FREE !! */
 	       lp = find_process_index(&tm->lp, sender);
 	       tm->active_nodes[lp]->node_status = NODE_STATUS__PRUNED;
 	       mark_lp_process_free(tm, lp, tm->active_nodes[lp]->cp);
 	       break;
-	       
-	       
+
+
 	     case SOMETHING_DIED:
 	       printf("Something has died... Halting the machine.\n\n");
 	       return(FALSE);
@@ -1269,10 +1269,10 @@ int receive_lp_timing(tm_prob *tm)
                tm->comp_times.rounding_cuts    += tim.rounding_cuts;
                tm->comp_times.landp_cuts       += tim.landp_cuts;
                tm->comp_times.flowcover_cuts   += tim.flowcover_cuts;
-               tm->comp_times.lift_and_project_cuts += 
+               tm->comp_times.lift_and_project_cuts +=
                  tim.lift_and_project_cuts;
                tm->comp_times.redsplit_cuts    += tim.redsplit_cuts;
-               tm->comp_times.dupes_and_bad_coeffs_in_cuts += 
+               tm->comp_times.dupes_and_bad_coeffs_in_cuts +=
                  tim.dupes_and_bad_coeffs_in_cuts;
 
 	       receive_char_array((char *)&lp_stat, sizeof(lp_stat_desc));
@@ -1293,7 +1293,7 @@ int receive_lp_timing(tm_prob *tm)
                tm->lp_stat.rounding_cuts         += lp_stat.rounding_cuts;
                tm->lp_stat.landp_cuts            += lp_stat.landp_cuts;
                tm->lp_stat.flowcover_cuts        += lp_stat.flowcover_cuts;
-               tm->lp_stat.lift_and_project_cuts += 
+               tm->lp_stat.lift_and_project_cuts +=
                  lp_stat.lift_and_project_cuts;
                tm->lp_stat.redsplit_cuts         += lp_stat.redsplit_cuts;
 
@@ -1310,13 +1310,13 @@ int receive_lp_timing(tm_prob *tm)
                tm->lp_stat.flowcover_cuts_root   += lp_stat.flowcover_cuts_root;
                tm->lp_stat.lift_and_project_cuts_root +=
                  lp_stat.lift_and_project_cuts_root;
-               tm->lp_stat.redsplit_cuts_root += 
+               tm->lp_stat.redsplit_cuts_root +=
                  lp_stat.redsplit_cuts_root;
 
                tm->lp_stat.num_poor_cuts         += lp_stat.num_poor_cuts;
                tm->lp_stat.num_duplicate_cuts    += lp_stat.num_duplicate_cuts;
                tm->lp_stat.num_unviolated_cuts   += lp_stat.num_unviolated_cuts;
-               tm->lp_stat.cuts_deleted_from_lps += 
+               tm->lp_stat.cuts_deleted_from_lps +=
                  lp_stat.cuts_deleted_from_lps;
                tm->lp_stat.cuts_added_to_lps     += lp_stat.cuts_added_to_lps;
 
@@ -1330,7 +1330,7 @@ int receive_lp_timing(tm_prob *tm)
                tm->lp_stat.rounding_calls         += lp_stat.rounding_calls;
                tm->lp_stat.landp_calls            += lp_stat.landp_calls;
                tm->lp_stat.flowcover_calls        += lp_stat.flowcover_calls;
-               tm->lp_stat.lift_and_project_calls += 
+               tm->lp_stat.lift_and_project_calls +=
                  lp_stat.lift_and_project_calls;
                tm->lp_stat.redsplit_calls         += lp_stat.redsplit_calls;
 
@@ -1360,17 +1360,17 @@ int receive_lp_timing(tm_prob *tm)
       }
    }
 #endif
-   
+
    return(something_died ? FUNCTION_TERMINATED_ABNORMALLY :
 	  FUNCTION_TERMINATED_NORMALLY);
 }
 
 /*===========================================================================*/
 /*===========================================================================*/
-/* 
+/*
  * merge p_bnd_change into bnd_change
  */
-int merge_bound_changes(bounds_change_desc **bnd_change_ptr, 
+int merge_bound_changes(bounds_change_desc **bnd_change_ptr,
                         bounds_change_desc  *p_bnd_change)
 {
 
@@ -1387,7 +1387,7 @@ int merge_bound_changes(bounds_change_desc **bnd_change_ptr,
       double *value, *p_value = p_bnd_change->value;
       bounds_change_desc *bnd_change = *bnd_change_ptr;
       int m_stepsize = 200;
-      
+
       if (p_bnd_change->num_changes>0) {
          if (bnd_change == NULL) {
              bnd_change = (bounds_change_desc *)calloc(1,

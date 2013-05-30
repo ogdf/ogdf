@@ -1,9 +1,9 @@
  /*
- * $Revision: 2800 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-10 11:28:48 +0200 (Mi, 10. Okt 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -81,6 +81,7 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 
 	// Determine biconnected components
 	int bcCount = biconnectedComponents(G,componentID);
+	OGDF_ASSERT(bcCount >= 1);
 
 	// Determine edges per biconnected component
 	Array<SList<edge> > blockEdges(0,bcCount-1);
@@ -119,12 +120,9 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 
 	// Perform computation for every biconnected component
 	ReturnType mr;
-
 	if (bcCount == 1) {
 		ClusterGraph CG(G);
 		mr = mc.call(CG, delEdges, addEdges);
-
-		return mr;
 	}
 	else
 	{
@@ -164,7 +162,7 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 			mr = mc.call(CG, delEdgesOfBC, addEdges);
 			// Abort if no optimal solution found, i.e., feasible is also not allowed
 			if (mr != retOptimal)
-				return mr;
+				break;
 
 			// Get the original edges that are deleted and
 			// put them on the list delEdges.

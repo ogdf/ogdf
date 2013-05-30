@@ -1,9 +1,9 @@
 /*
- * $Revision: 2641 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Do, 19. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -253,9 +253,9 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	const OrthoRep::VertexInfoUML *pInfoExp;
 	forall_nodes(v,PG) {
 		pInfoExp = OR.cageInfo(v);
-
 		if (pInfoExp) break;
 	}
+	OGDF_ASSERT(pInfoExp);
 
 	FlowCompaction fca(0,m_costGen,m_costAssoc);
 	fca.constructiveHeuristics(PG,OR,rcGrid,gridDrawing);

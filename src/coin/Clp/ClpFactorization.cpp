@@ -2587,7 +2587,7 @@ ClpFactorization::updateTwoColumnsFT ( CoinIndexedVector * regionSparse1,
 		    tempInfo[1] = model_->sequenceIn();
 		    coinFactorizationB_->setUsefulInformation(tempInfo, 3);
 #endif
-		    returnCode = 
+		    returnCode =
 		      coinFactorizationB_->updateTwoColumnsFT(
 							      regionSparse1,
 							      regionSparse2,

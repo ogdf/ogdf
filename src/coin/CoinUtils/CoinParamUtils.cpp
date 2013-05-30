@@ -13,7 +13,7 @@
 #include <cstring>
 #include <cstdio>
 
-#ifdef COIN_HAS_READLINE     
+#ifdef COIN_HAS_READLINE
 #include <readline/readline.h>
 #include <readline/history.h>
 #endif
@@ -141,7 +141,7 @@ void setInputSrc (FILE *src)
 bool isCommandLine ()
 
 { assert(cmdField != 0) ;
-  
+
   if (cmdField > 0)
   { return (true) ; }
   else
@@ -154,7 +154,7 @@ bool isCommandLine ()
 bool isInteractive ()
 
 { assert(cmdField != 0) ;
-  
+
   if (cmdField < 0 && readSrc == stdin)
   { return (true) ; }
   else
@@ -294,7 +294,7 @@ int lookupParam (std::string name, CoinParamVec &paramVec,
   if (queryCntp != 0)
   { *queryCntp = 0 ; }
 /*
-  Is there anything here at all? 
+  Is there anything here at all?
 */
   if (name.length() == 0)
   { return (retval) ; }
@@ -532,7 +532,7 @@ double getDoubleField (int argc, const char *argv[], int *valid)
 int matchParam (const CoinParamVec &paramVec, std::string name,
 		int &matchNdx, int &shortCnt)
 
-{ 
+{
   int vecLen = static_cast<int>(paramVec.size()) ;
   int matchCnt = 0 ;
 
@@ -607,10 +607,10 @@ void shortOrHelpOne (CoinParamVec &paramVec,
   For a short match, we need to look up the parameter again. This should find
   a short match, given the conditions where this routine is called. But be
   prepared to find a full match.
-  
+
   If matchNdx >= 0, just use the index we're handed.
 */
-  if (matchNdx < 0) 
+  if (matchNdx < 0)
   { int match = 0 ;
     for (i = 0 ; i < numParams ; i++)
     { CoinParam *param =  paramVec[i] ;
@@ -673,7 +673,7 @@ void shortOrHelpMany (CoinParamVec &paramVec, std::string name, int numQuery)
     if (match > 0)
     { std::string nme = param->matchName() ;
       int len = static_cast<int>(nme.length()) ;
-      if (numQuery >= 2) 
+      if (numQuery >= 2)
       { std::cout << nme << " : " << param->shortHelp() ;
 	std::cout << std::endl ; }
       else
@@ -725,7 +725,7 @@ void printGenericHelp ()
   std::cout
     << "match, a longer help message and current value are printed."
     << std::endl ;
-  
+
   return ; }
 
 
@@ -795,6 +795,6 @@ void printHelp (CoinParamVec &paramVec, int firstParam, int lastParam,
 
   std::cout << std::endl ;
 
-  return ; }   
+  return ; }
 
 } // end namespace CoinParamUtils

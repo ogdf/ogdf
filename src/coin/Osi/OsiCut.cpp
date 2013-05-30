@@ -10,7 +10,7 @@
 #include "OsiCut.hpp"
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 OsiCut::OsiCut ()
 :
@@ -22,7 +22,7 @@ OsiCut::OsiCut ()
   // nothing to do here
 }
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 OsiCut::OsiCut (
                   const OsiCut & source)
@@ -31,7 +31,7 @@ OsiCut::OsiCut (
   globallyValid_(source.globallyValid_)
 //timesUsed_(source.timesUsed_),
 //timesTested_(source.timesTested_)
-{  
+{
   // nothing to do here
 }
 
@@ -44,7 +44,7 @@ OsiCut * OsiCut::clone() const
 #endif
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 OsiCut::~OsiCut ()
 {
@@ -52,7 +52,7 @@ OsiCut::~OsiCut ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 OsiCut &
 OsiCut::operator=(const OsiCut& rhs)

@@ -72,7 +72,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
     } else {
       markRow[iRow]=1;
       if (rowLength[iRow]>0) {
-	// Row is redundant 
+	// Row is redundant
 	useless_rows[nuseless_rows++] = iRow;
 	prob->addRow(iRow);
       }
@@ -89,10 +89,10 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
   while(numberChanged>numberCheck) {
 
     numberChanged = 0; // Bounds tightened this pass
-    
+
     if (iPass==MAXPASS) break;
     iPass++;
-    
+
     for (iRow = 0; iRow < numberRows; iRow++) {
 
       if (markRow[iRow]==-1) {
@@ -108,25 +108,25 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	CoinBigIndex rEnd = rowStart[iRow]+rowLength[iRow];
 	CoinBigIndex j;
 	// Compute possible lower and upper ranges
-      
+
 	for (j = rStart; j < rEnd; ++j) {
 	  double value=element[j];
 	  iColumn = column[j];
 	  if (value > 0.0) {
-	    if (columnUpper[iColumn] < large) 
+	    if (columnUpper[iColumn] < large)
 	      maximumUp += columnUpper[iColumn] * value;
 	    else
 	      ++infiniteUpper;
-	    if (columnLower[iColumn] > -large) 
+	    if (columnLower[iColumn] > -large)
 	      maximumDown += columnLower[iColumn] * value;
 	    else
 	      ++infiniteLower;
 	  } else if (value<0.0) {
-	    if (columnUpper[iColumn] < large) 
+	    if (columnUpper[iColumn] < large)
 	      maximumDown += columnUpper[iColumn] * value;
 	    else
 	      ++infiniteLower;
-	    if (columnLower[iColumn] > -large) 
+	    if (columnLower[iColumn] > -large)
 	      maximumUp += columnLower[iColumn] * value;
 	    else
 	      ++infiniteUpper;
@@ -137,9 +137,9 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	maximumDown -= 1.0e-8*fabs(maximumDown);
 	double maxUp = maximumUp+infiniteUpper*1.0e31;
 	double maxDown = maximumDown-infiniteLower*1.0e31;
-	if (maxUp <= rowUpper[iRow] + tolerance && 
+	if (maxUp <= rowUpper[iRow] + tolerance &&
 	    maxDown >= rowLower[iRow] - tolerance) {
-	  
+
 	} else {
 	  if (maxUp < rowLower[iRow] -relaxedTolerance ||
 	      maxDown > rowUpper[iRow]+relaxedTolerance) {
@@ -174,7 +174,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	      if (lower>-large) {
 		if (!infiniteUpper) {
 		  assert(nowUpper < large2);
-		  newBound = nowUpper + 
+		  newBound = nowUpper +
 		    (lower - maximumUp) / value;
 		  // relax if original was large
 		  if (fabs(maximumUp)>1.0e8)
@@ -188,7 +188,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  newBound = -COIN_DBL_MAX;
 		}
 		if (newBound > nowLower + 1.0e-12&&newBound>-large) {
-		  // Tighten the lower bound 
+		  // Tighten the lower bound
 		  columnLower[iColumn] = newBound;
 		  markRow[iRow]=1;
 		  numberChanged++;
@@ -204,7 +204,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    }
 		  }
 		  // check infeasible (relaxed)
-		  if (nowUpper - newBound < 
+		  if (nowUpper - newBound <
 		      -relaxedTolerance) {
 		    numberInfeasible++;
 		  }
@@ -230,12 +230,12 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumDown += columnLower[iColumn] * value;
 			else
 			  ++infiniteLower;
 		      } else if (value<0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumDown += columnUpper[iColumn] * value;
 			else
 			  ++infiniteLower;
@@ -246,8 +246,8 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    if (maximumDown > upper && maximumDown < upper +relaxedTolerance)
 		      maximumDown=upper;
 		  }
-#endif 
-#if FREE_DEBUG 
+#endif
+#if FREE_DEBUG
 #define DEBUG_TOLERANCE 1.0e-10
 		  { // DEBUG
 		    int infiniteUpper2 = 0;
@@ -260,20 +260,20 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumUp2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteUpper2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumDown2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteLower2;
 		      } else if (value<0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumDown2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteLower2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumUp2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteUpper2;
@@ -293,11 +293,11 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  } // END DEBUG
 #endif
 		}
-	      } 
+	      }
 	      if (upper <large) {
 		if (!infiniteLower) {
 		  assert(nowLower >- large2);
-		  newBound = nowLower + 
+		  newBound = nowLower +
 		    (upper - maximumDown) / value;
 		  // relax if original was large
 		  if (fabs(maximumDown)>1.0e8)
@@ -311,7 +311,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  newBound = COIN_DBL_MAX;
 		}
 		if (newBound < nowUpper - 1.0e-12&&newBound<large) {
-		  // Tighten the upper bound 
+		  // Tighten the upper bound
 		  columnUpper[iColumn] = newBound;
 		  markRow[iRow]=1;
 		  numberChanged++;
@@ -327,11 +327,11 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    }
 		  }
 		  // check infeasible (relaxed)
-		  if (newBound - nowLower < 
+		  if (newBound - nowLower <
 		      -relaxedTolerance) {
 		    numberInfeasible++;
 		  }
-		  // adjust 
+		  // adjust
 		  double now;
 		  if (nowUpper>=large) {
 		    now=0.0;
@@ -343,7 +343,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  nowUpper = newBound;
 #if FREE_DEBUG >1
 		  if (fabs((newBound-now)*value)>1.0e8) {
-		    // recompute 
+		    // recompute
 		    infiniteUpper = 0;
 		    maximumUp = 0.0;
 		    CoinBigIndex j2;
@@ -352,12 +352,12 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumUp += columnUpper[iColumn] * value;
 			else
 			  ++infiniteUpper;
 		      } else if (value<0.0) {
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumUp += columnLower[iColumn] * value;
 			else
 			  ++infiniteUpper;
@@ -367,9 +367,9 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    maximumUp += 1.0e-8*fabs(maximumUp);
 		    if (maximumUp < lower && maximumUp > lower -relaxedTolerance)
 		      maximumUp=lower;
-		  } 
-#endif 
-#if FREE_DEBUG 
+		  }
+#endif
+#if FREE_DEBUG
 		  { // DEBUG
 		    int infiniteUpper2 = 0;
 		    int infiniteLower2 = 0;
@@ -381,20 +381,20 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumUp2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteUpper2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumDown2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteLower2;
 		      } else if (value<0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumDown2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteLower2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumUp2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteUpper2;
@@ -420,7 +420,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	      if (lower>-large) {
 		if (!infiniteUpper) {
 		  assert(nowLower < large2);
-		  newBound = nowLower + 
+		  newBound = nowLower +
 		    (lower - maximumUp) / value;
 		  // relax if original was large
 		  if (fabs(maximumUp)>1.0e8)
@@ -434,7 +434,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  newBound = COIN_DBL_MAX;
 		}
 		if (newBound < nowUpper - 1.0e-12&&newBound<large) {
-		  // Tighten the upper bound 
+		  // Tighten the upper bound
 		  columnUpper[iColumn] = newBound;
 		  markRow[iRow]=1;
 		  numberChanged++;
@@ -450,7 +450,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    }
 		  }
 		  // check infeasible (relaxed)
-		  if (newBound - nowLower < 
+		  if (newBound - nowLower <
 		      -relaxedTolerance) {
 		    numberInfeasible++;
 		  }
@@ -475,12 +475,12 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumDown += columnLower[iColumn] * value;
 			else
 			  ++infiniteLower;
 		      } else if (value<0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumDown += columnUpper[iColumn] * value;
 			else
 			  ++infiniteLower;
@@ -490,9 +490,9 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    maximumDown -= 1.0e-8*fabs(maximumDown);
 		    if (maximumDown > upper && maximumDown < upper +relaxedTolerance)
 		      maximumDown=upper;
-		  } 
-#endif 
-#if FREE_DEBUG 
+		  }
+#endif
+#if FREE_DEBUG
 		  { // DEBUG
 		    int infiniteUpper2 = 0;
 		    int infiniteLower2 = 0;
@@ -504,20 +504,20 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumUp2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteUpper2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumDown2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteLower2;
 		      } else if (value<0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumDown2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteLower2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumUp2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteUpper2;
@@ -541,7 +541,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	      if (upper <large) {
 		if (!infiniteLower) {
 		  assert(nowUpper < large2);
-		  newBound = nowUpper + 
+		  newBound = nowUpper +
 		    (upper - maximumDown) / value;
 		  // relax if original was large
 		  if (fabs(maximumDown)>1.0e8)
@@ -555,7 +555,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  newBound = -COIN_DBL_MAX;
 		}
 		if (newBound > nowLower + 1.0e-12&&newBound>-large) {
-		  // Tighten the lower bound 
+		  // Tighten the lower bound
 		  columnLower[iColumn] = newBound;
 		  markRow[iRow]=1;
 		  numberChanged++;
@@ -571,7 +571,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    }
 		  }
 		  // check infeasible (relaxed)
-		  if (nowUpper - newBound < 
+		  if (nowUpper - newBound <
 		      -relaxedTolerance) {
 		    numberInfeasible++;
 		  }
@@ -587,7 +587,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		  nowLower = newBound;
 #if FREE_DEBUG >1
 		  if (fabs((newBound-now)*value)>1.0e8) {
-		    // recompute 
+		    // recompute
 		    infiniteUpper = 0;
 		    maximumUp = 0.0;
 		    CoinBigIndex j2;
@@ -596,12 +596,12 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumUp += columnUpper[iColumn] * value;
 			else
 			  ++infiniteUpper;
 		      } else if (value<0.0) {
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumUp += columnLower[iColumn] * value;
 			else
 			  ++infiniteUpper;
@@ -611,9 +611,9 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		    maximumUp += 1.0e-8*fabs(maximumUp);
 		    if (maximumUp < lower && maximumUp > lower -relaxedTolerance)
 		      maximumUp=lower;
-		  } 
-#endif 
-#if FREE_DEBUG 
+		  }
+#endif
+#if FREE_DEBUG
 		  { // DEBUG
 		    int infiniteUpper2 = 0;
 		    int infiniteLower2 = 0;
@@ -625,20 +625,20 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 		      double value=element[j2];
 		      int iColumn = column[j2];
 		      if (value > 0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumUp2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteUpper2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumDown2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteLower2;
 		      } else if (value<0.0) {
-			if (columnUpper[iColumn] < large) 
+			if (columnUpper[iColumn] < large)
 			  maximumDown2 += columnUpper[iColumn] * value;
 			else
 			  ++infiniteLower2;
-			if (columnLower[iColumn] > -large) 
+			if (columnLower[iColumn] > -large)
 			  maximumUp2 += columnLower[iColumn] * value;
 			else
 			  ++infiniteUpper2;
@@ -683,7 +683,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
     double * clo = prob->clo_;
     double * cup = prob->cup_;
     double *csol  = prob->sol_ ;
-    int * fixed = prob->usefulColumnInt_; 
+    int * fixed = prob->usefulColumnInt_;
     for (int i=0;i<numberColumns;i++) {
       if (cup[i]>clo[i]+tolerance)
 	fixed[i]=0;
@@ -692,7 +692,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
     }
 #endif
     for (iRow = 0; iRow < numberRows; iRow++) {
-      
+
       if (markRow[iRow]<0) {
 
 	// possible row
@@ -709,20 +709,20 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	  double value=element[j];
 	  iColumn = column[j];
 	  if (value > 0.0) {
-	    if (columnUpper[iColumn] < large) 
+	    if (columnUpper[iColumn] < large)
 	      maximumUp += columnUpper[iColumn] * value;
 	    else
 	      ++infiniteUpper;
-	    if (columnLower[iColumn] > -large) 
+	    if (columnLower[iColumn] > -large)
 	      maximumDown += columnLower[iColumn] * value;
 	    else
 	      ++infiniteLower;
 	  } else if (value<0.0) {
-	    if (columnUpper[iColumn] < large) 
+	    if (columnUpper[iColumn] < large)
 	      maximumDown += columnUpper[iColumn] * value;
 	    else
 	      ++infiniteLower;
-	    if (columnLower[iColumn] > -large) 
+	    if (columnLower[iColumn] > -large)
 	      maximumUp += columnLower[iColumn] * value;
 	    else
 	      ++infiniteUpper;
@@ -733,16 +733,16 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	maximumDown -= 1.0e-8*fabs(maximumDown);
 	double maxUp = maximumUp+infiniteUpper*1.0e31;
 	double maxDown = maximumDown-infiniteLower*1.0e31;
-	if (maxUp <= rowUpper[iRow] + tolerance && 
+	if (maxUp <= rowUpper[iRow] + tolerance &&
 	    maxDown >= rowLower[iRow] - tolerance) {
 #ifndef NO_FORCING
-	  // Row is redundant 
+	  // Row is redundant
 	  useless_rows[nuseless_rows++] = iRow;
 	  prob->addRow(iRow);
 #else
-	  if (maxUp <= rowUpper[iRow] - tolerance && 
+	  if (maxUp <= rowUpper[iRow] - tolerance &&
 	      maxDown >= rowLower[iRow] + tolerance) {
-	    // Row is redundant 
+	    // Row is redundant
 	    useless_rows[nuseless_rows++] = iRow;
 	    prob->addRow(iRow);
 	  } else {
@@ -803,14 +803,14 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	      PRESOLVEASSERT(uk == lk);
 	      if (numActions==maxActions) {
 		maxActions = (11*maxActions)/10+10;
-		forcing_constraint_action::action * temp = 
+		forcing_constraint_action::action * temp =
 		  new forcing_constraint_action::action [maxActions];
 		for (int i=0;i<numActions;i++)
 		  temp[i]=actions[i];
 		delete [] actions;
 		actions = temp;
 	      }
-	      
+
 	      forcing_constraint_action::action * f = &actions[numActions];
 	      numActions++;
 	      PRESOLVE_DETAIL_PRINT(printf("pre_impliedfree %dR E\n",iRow));
@@ -820,12 +820,12 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	      f->rowcols = rowcols;
 	      f->bounds = bounds;
 	    } else if (!nFree&&!bad) {
-	      // Row is redundant 
+	      // Row is redundant
 	      useless_rows[nuseless_rows++] = iRow;
 	      prob->addRow(iRow);
 	    }
 	  }
-#endif	  
+#endif
 	}
       }
     }
@@ -834,7 +834,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 #if	PRESOLVE_SUMMARY
       printf("NFORCED_FROM_IMPLIED:  %d\n", numActions);
 #endif
-      next = new forcing_constraint_action(numActions, 
+      next = new forcing_constraint_action(numActions,
       				   CoinCopyOfArray(actions,numActions), next);
       deleteAction(actions,action*);
       actions=NULL;
@@ -857,7 +857,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
     //delete [] clo2;
     //delete [] cup2;
     if (numActions) {
-      //int * fixed = prob->usefulColumnInt_; 
+      //int * fixed = prob->usefulColumnInt_;
       // See if any columns fixed
       int nFixed=0;
       for (int i=0;i<numberColumns;i++) {
@@ -870,7 +870,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
       }
       //if (nFixed)
       //printf("could fix %d\n",nFixed);
-      //next = remove_fixed_action::presolve(prob,fixed,nFixed,next) ; 
+      //next = remove_fixed_action::presolve(prob,fixed,nFixed,next) ;
     }
 #endif
     if ((prob->presolveOptions_&16)!=0) {
@@ -879,7 +879,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
       double *csol  = prob->sol_ ;
       double * clo = prob->clo_;
       double * cup = prob->cup_;
-      int * fixed = prob->usefulColumnInt_; 
+      int * fixed = prob->usefulColumnInt_;
       int nFixed=0;
       int nChanged=0;
       for (int i=0;i<numberColumns;i++) {
@@ -896,14 +896,14 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	if (upper-lower<1.0e-8) {
 	  if (upper-lower<-tolerance)
 	    numberInfeasible++;
-	  if (CoinMin(fabs(upper),fabs(lower))<=1.0e-7) 
+	  if (CoinMin(fabs(upper),fabs(lower))<=1.0e-7)
 	    upper=0.0;
 	  fixed[nFixed++]=i;
 	  //printf("fixing %d to %g\n",i,upper);
 	  prob->addCol(i);
 	  cup[i]=upper;
 	  clo[i]=upper;
-	  if (csol != 0) 
+	  if (csol != 0)
 	    csol[i] = upper;
 	} else {
 	  if (integerType[i]) {
@@ -925,7 +925,7 @@ const CoinPresolveAction *testRedundant (CoinPresolveMatrix *prob,
 	printf("%d fixed in impliedfree, %d changed\n",nFixed,nChanged);
 #endif
       if (nFixed)
-	next = remove_fixed_action::presolve(prob,fixed,nFixed,next) ; 
+	next = remove_fixed_action::presolve(prob,fixed,nFixed,next) ;
     }
   }
 
@@ -1007,7 +1007,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
   bool stopSomeStuff = (prob->presolveOptions()&4)!=0;
 
   const double tol = prob->feasibilityTolerance_;
-#if 1  
+#if 1
   // This needs to be made faster
   int numberInfeasible;
   //printf("Imp pass %d\n",prob->pass_);
@@ -1025,7 +1025,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 #ifdef COIN_LIGHTWEIGHT_PRESOLVE
   }
 #endif
-  if (prob->pass_>15&&(prob->presolveOptions_&0x10000)!=0) { 
+  if (prob->pass_>15&&(prob->presolveOptions_&0x10000)!=0) {
     fill_level=2;
     return next;
   }
@@ -1075,13 +1075,13 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
     look = prob->usefulColumnInt_+ncols; //new int[ncols];
     //look=look2;
     if (!prob->anyProhibited()) {
-      for (iLook=0;iLook<ncols;iLook++) 
+      for (iLook=0;iLook<ncols;iLook++)
 	look[iLook]=iLook;
       numberLook=ncols;
     } else {
       // some prohibited
       numberLook=0;
-      for (iLook=0;iLook<ncols;iLook++) 
+      for (iLook=0;iLook<ncols;iLook++)
 	if (!prob->colProhibited(iLook))
 	  look[numberLook++]=iLook;
     }
@@ -1100,7 +1100,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
       for (k=kcs; k<kce; ++k) {
 	int row = hrow[k];
 	double coeffj = colels[k];
-	
+
 	// if its row is an equality constraint...
 	if (hinrow[row] > 1 ) {
 	  if ( fabs(rlo[row] - rup[row]) < tol &&
@@ -1134,20 +1134,20 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		double value=rowels[kk];
 		int iColumn = hcol[kk];
 		if (value > 0.0) {
-		  if (cup[iColumn] < large) 
+		  if (cup[iColumn] < large)
 		    maximumUp += cup[iColumn] * value;
 		  else
 		    ++infiniteUpper;
-		  if (clo[iColumn] > -large) 
+		  if (clo[iColumn] > -large)
 		    maximumDown += clo[iColumn] * value;
 		  else
 		    ++infiniteLower;
 		} else if (value<0.0) {
-		  if (cup[iColumn] < large) 
+		  if (cup[iColumn] < large)
 		    maximumDown += cup[iColumn] * value;
 		  else
 		    ++infiniteLower;
-		  if (clo[iColumn] > -large) 
+		  if (clo[iColumn] > -large)
 		    maximumUp += clo[iColumn] * value;
 		  else
 		    ++infiniteUpper;
@@ -1155,12 +1155,12 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 	      }
 	      double maxUpx = maximumUp+infiniteUpper*1.0e31;
 	      double maxDownx = maximumDown-infiniteLower*1.0e31;
-	      if (maxUpx <= rup[row] + tol && 
+	      if (maxUpx <= rup[row] + tol &&
 		  maxDownx >= rlo[row] - tol) {
-		
-		// Row is redundant 
+
+		// Row is redundant
 		infiniteUp[row]=-3;
-		
+
 	      } else if (maxUpx < rlo[row] -tol &&!fixInfeasibility) {
 		/* there is an upper bound and it can't be reached */
 		prob->status_|= 1;
@@ -1206,7 +1206,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		if (lower>-large) {
 		  if (!infiniteUpper) {
 		    assert(nowUpper < large);
-		    newBound = nowUpper + 
+		    newBound = nowUpper +
 		      (lower - maximumUp) / value;
 		    // relax if original was large
 		    if (fabs(maximumUp)>1.0e8&&!singletonColumn)
@@ -1222,7 +1222,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		  if (newBound<=-large)
 		    newBound = -COIN_DBL_MAX;
 		  if (newBound > nowLower + 1.0e-12) {
-		    // Tighten the lower bound 
+		    // Tighten the lower bound
 		    // adjust
 		    double now;
 		    if (nowLower<-large) {
@@ -1235,11 +1235,11 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		    nowLower = newBound;
 		  }
 		  low=CoinMax(low,newBound);
-		} 
+		}
 		if (upper <large) {
 		  if (!infiniteLower) {
 		    assert(nowLower >- large);
-		    newBound = nowLower + 
+		    newBound = nowLower +
 		      (upper - maximumDown) / value;
 		    // relax if original was large
 		    if (fabs(maximumDown)>1.0e8&&!singletonColumn)
@@ -1255,8 +1255,8 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		  if (newBound>=large)
 		    newBound = COIN_DBL_MAX;
 		  if (newBound < nowUpper - 1.0e-12) {
-		    // Tighten the upper bound 
-		    // adjust 
+		    // Tighten the upper bound
+		    // adjust
 		    double now;
 		    if (nowUpper>large) {
 		      now=0.0;
@@ -1274,7 +1274,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		if (lower>-large) {
 		  if (!infiniteUpper) {
 		    assert(nowLower >- large);
-		    newBound = nowLower + 
+		    newBound = nowLower +
 		      (lower - maximumUp) / value;
 		    // relax if original was large
 		    if (fabs(maximumUp)>1.0e8&&!singletonColumn)
@@ -1290,7 +1290,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		  if (newBound>=large)
 		    newBound = COIN_DBL_MAX;
 		  if (newBound < nowUpper - 1.0e-12) {
-		    // Tighten the upper bound 
+		    // Tighten the upper bound
 		    // adjust
 		    double now;
 		    if (nowUpper>large) {
@@ -1307,7 +1307,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		if (upper <large) {
 		  if (!infiniteLower) {
 		    assert(nowUpper < large);
-		    newBound = nowUpper + 
+		    newBound = nowUpper +
 		      (upper - maximumDown) / value;
 		    // relax if original was large
 		    if (fabs(maximumDown)>1.0e8&&!singletonColumn)
@@ -1323,7 +1323,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		  if (newBound<=-large)
 		    newBound = -COIN_DBL_MAX;
 		  if (newBound > nowLower + 1.0e-12) {
-		    // Tighten the lower bound 
+		    // Tighten the lower bound
 		    // adjust
 		    double now;
 		    if (nowLower<-large) {
@@ -1347,7 +1347,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 	  }
 	}
 	if (clo[j] <= low && high <= cup[j]) {
-	  
+
 	  // both column bounds implied by the constraints of the problem
 	  // get row
 	  // If more than one equality is present, how do I know the one I
@@ -1391,7 +1391,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 		  }
 		}
 		if (rlo[krow]==1.0&&hinrow[krow]>=5&&stopSomeStuff&&allOnes)
-		  goodRow=false; // may spoil SOS 
+		  goodRow=false; // may spoil SOS
 	      } else {
 		goodRow=false;
 	      }
@@ -1449,7 +1449,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
 
       {
 	action *s = &actions[nactions++];
-	      
+
 	s->row = row;
 	s->col = j;
 	PRESOLVE_DETAIL_PRINT(printf("pre_impliedfree2 %dC %dR E\n",j,row));
@@ -1520,7 +1520,7 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
       PRESOLVE_REMOVE_LINK(clink, j);
       hincol[j] = 0;
 
-      implied_free[iLook] = -1;	
+      implied_free[iLook] = -1;
     }
   }
 
@@ -1532,18 +1532,18 @@ const CoinPresolveAction *implied_free_action::presolve(CoinPresolveMatrix *prob
     action *actions1 = new action[nactions];
     CoinMemcpyN(actions, nactions, actions1);
     next = new implied_free_action(nactions, actions1, next);
-  } 
+  }
   delete [] actions;
 
   if (isolated_row != -1) {
-    const CoinPresolveAction *nextX = isolated_constraint_action::presolve(prob, 
+    const CoinPresolveAction *nextX = isolated_constraint_action::presolve(prob,
 						isolated_row, next);
     if (nextX)
       next = nextX; // may fail
   }
   // try more complex ones
   if (fill_level) {
-    next = subst_constraint_action::presolve(prob, implied_free, 
+    next = subst_constraint_action::presolve(prob, implied_free,
 					     whichFree,numberFree,
 					     next,fill_level);
   }
@@ -1604,7 +1604,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
 
     int irow = f->row;
     int icol = f->col;
-	  
+
     int ninrow = f->ninrow;
     const double *rowels = f->rowels;
     const int *rowcols = reinterpret_cast<const int *>(rowels+ninrow) ;
@@ -1670,7 +1670,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
 	  PRESOLVE_STMT(CoinBigIndex kk = presolve_find_row2(irow, columnStart[jcol], numberInColumn[jcol], hrow, link));
 	  act += rowels[k] * sol[jcol];
 	}
-	    
+
       PRESOLVEASSERT(fabs(coeff) > ZTOLDP);
       double thisCost = maxmin*dcost[icol];
       double loActivity,upActivity;
@@ -1709,7 +1709,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
 	    } else if (sol[jcol]>cup[jcol]-ZTOLDP) {
 	      if (rcosts[jcol]>worst)
 		worst=rcosts[jcol];
-	    } 
+	    }
 	  }
 	}
 	if (worst>prob->ztoldj_) {
@@ -1731,7 +1731,7 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
 	      } else if (sol[jcol]>cup[jcol]-ZTOLDP) {
 		if (newDj>worst2)
 		  worst2=newDj;
-	      } 
+	      }
 	    }
 	  }
 	  if (worst2<worst)
@@ -1813,12 +1813,12 @@ void implied_free_action::postsolve(CoinPostsolveMatrix *prob) const
   Why do we delete costs during postsolve() execution, but none of the other
   components of the action?
 */
-implied_free_action::~implied_free_action() 
-{ 
+implied_free_action::~implied_free_action()
+{
   int i;
   for (i=0;i<nactions_;i++) {
     deleteAction(actions_[i].rowels,double *);
-    deleteAction( actions_[i].costs,double *); 
+    deleteAction( actions_[i].costs,double *);
   }
   deleteAction(actions_,action *);
 }

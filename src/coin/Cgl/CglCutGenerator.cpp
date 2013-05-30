@@ -14,10 +14,10 @@
 
 #include "CglCutGenerator.hpp"
 #include "CoinHelperFunctions.hpp"
- 
+
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglCutGenerator::CglCutGenerator ()
   : aggressive_(0)
@@ -26,18 +26,18 @@ CglCutGenerator::CglCutGenerator ()
 }
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglCutGenerator::CglCutGenerator (
-                  const CglCutGenerator & source)         
+                  const CglCutGenerator & source)
   : aggressive_(source.aggressive_)
-{  
+{
   // nothing to do here
 }
 
 
 //-------------------------------------------------------------------
-// Destructor 
+// Destructor
 //-------------------------------------------------------------------
 CglCutGenerator::~CglCutGenerator ()
 {
@@ -45,7 +45,7 @@ CglCutGenerator::~CglCutGenerator ()
 }
 
 //----------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglCutGenerator &
 CglCutGenerator::operator=(
@@ -56,13 +56,13 @@ CglCutGenerator::operator=(
   }
   return *this;
 }
-bool 
+bool
 CglCutGenerator::mayGenerateRowCutsInTree() const
 {
   return true;
 }
 // Return true if needs optimal basis to do cuts
-bool 
+bool
 CglCutGenerator::needsOptimalBasis() const
 {
   return false;

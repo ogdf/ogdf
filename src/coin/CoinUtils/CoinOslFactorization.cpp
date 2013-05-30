@@ -26,7 +26,7 @@ CoinOslFactorization::CoinOslFactorization (  )
   gutsOfInitialize();
 }
 
-/// Copy constructor 
+/// Copy constructor
 CoinOslFactorization::CoinOslFactorization ( const CoinOslFactorization &other)
   : CoinOtherFactorization(other)
 {
@@ -34,8 +34,8 @@ CoinOslFactorization::CoinOslFactorization ( const CoinOslFactorization &other)
   gutsOfCopy(other);
 }
 // Clone
-CoinOtherFactorization * 
-CoinOslFactorization::clone() const 
+CoinOtherFactorization *
+CoinOslFactorization::clone() const
 {
   return new CoinOslFactorization(*this);
 }
@@ -95,7 +95,7 @@ CoinOslFactorization::~CoinOslFactorization (  )
 }
 //  =
 CoinOslFactorization & CoinOslFactorization::operator = ( const CoinOslFactorization & other ) {
-  if (this != &other) {    
+  if (this != &other) {
     bool noGood = factInfo_.nrowmx!=other.factInfo_.nrowmx&&
       factInfo_.eta_size!=other.factInfo_.eta_size;
     gutsOfDestructor(noGood);
@@ -157,7 +157,7 @@ CoinOslFactorization::getAreas ( int numberOfRows,
   factInfo_.lastEtaCount = factInfo_.nnentu+factInfo_.nnentl;
   int oldnnetas=factInfo_.last_eta_size;
   // If we are going to increase then be on safe side
-  if (size>oldnnetas) 
+  if (size>oldnnetas)
     size = static_cast<int>(1.1*size);
   factInfo_.eta_size=CoinMax(size,oldnnetas);
   //printf("clp size %d, old %d now %d - iteration %d - last count %d - rows %d,%d,%d\n",
@@ -174,7 +174,7 @@ CoinOslFactorization::getAreas ( int numberOfRows,
   factInfo_.ifvsol= ((solveMode_&4)!=0) ? 1 : 0;
   if ((solveMode_&8)!=0) {
     factInfo_.ifvsol=0;
-    factInfo_.invok=1; 
+    factInfo_.invok=1;
   } else {
     factInfo_.iter0=factInfo_.iterno;
     factInfo_.invok=-1;
@@ -186,9 +186,9 @@ CoinOslFactorization::getAreas ( int numberOfRows,
       numberRows_>=C_EKK_GO_SPARSE) {
     printf("count %d rows %d etasize %d\n",
 	   factInfo_.lastEtaCount,factInfo_.nrow,factInfo_.eta_size);
-    
+
   }
-#endif 
+#endif
   if (!factInfo_.if_sparse_update &&
       factInfo_.iterno>factInfo_.iter0 &&
       numberRows_>=C_EKK_GO_SPARSE &&
@@ -204,21 +204,21 @@ CoinOslFactorization::getAreas ( int numberOfRows,
     factInfo_.if_sparse_update=2;
   }
   c_ekksmem(&factInfo_,numberRows_,maximumPivots_);
-  if (numberRows_>maximumRows_) { 
+  if (numberRows_>maximumRows_) {
     maximumRows_ = numberRows_;
     //delete [] pivotRow_;
-    //delete [] workArea_; 
+    //delete [] workArea_;
     //pivotRow_ = new int [2*maximumRows_+maximumPivots_];
     //workArea_ = new CoinFactorizationDouble [maximumRows_*WORK_MULT];
   }
-}  
+}
 
-//  preProcess.  
+//  preProcess.
 void
 CoinOslFactorization::preProcess ()
 {
   factInfo_.zpivlu=pivotTolerance_;
-  // Go to Fortran  
+  // Go to Fortran
   int * hcoli=factInfo_.xecadr+1;
   int * indexRowU = factInfo_.xeradr+1;
   CoinBigIndex * startColumnU=factInfo_.xcsadr+1;
@@ -227,7 +227,7 @@ CoinOslFactorization::preProcess ()
     startColumnU[i]++; // to Fortran
     for (int j=start;j<startColumnU[i+1];j++) {
       indexRowU[j]++; // to Fortran
-      hcoli[j]=i+1; // to Fortran     
+      hcoli[j]=i+1; // to Fortran
     }
   }
   startColumnU[numberRows_]++; // to Fortran
@@ -235,7 +235,7 @@ CoinOslFactorization::preProcess ()
   /* can do in column order - no zeros or duplicates */
 #ifndef NDEBUG
   int ninbas =
-#endif 
+#endif
     c_ekkslcf(&factInfo_);
   assert (ninbas>0);
 }
@@ -246,11 +246,11 @@ CoinOslFactorization::factor ( )
 {
   /*     Uwe's factorization (sort of) */
   int irtcod = c_ekklfct(&factInfo_);
-  
+
   /*       Check return code */
   /*       0 - Fine , 1 - Backtrack, 2 - Singularities on initial, 3-Fatal */
   /*       now 5-Need more memory */
-  
+
   status_= 0;
   if (factInfo_.eta_size>factInfo_.last_eta_size) {
     factInfo_.areaFactor *= factInfo_.eta_size;
@@ -272,7 +272,7 @@ CoinOslFactorization::factor ( )
   return status_;
 }
 // Makes a non-singular basis by replacing variables
-void 
+void
 CoinOslFactorization::makeNonSingular(int * sequence, int numberColumns)
 {
   const EKKHlink *rlink	= factInfo_.kp1adr;
@@ -281,7 +281,7 @@ CoinOslFactorization::makeNonSingular(int * sequence, int numberColumns)
   //int * mark = reinterpret_cast<int *>(factInfo_.kw1adr);
   //int nr=0;
   //int nc=0;
-#if 0  
+#if 0
   for (int i=0;i<numberRows_;i++) {
     //mark[i]=-1;
     if (rlink[i].pre>=0||rlink[i].pre==-(numberRows_+1)) {
@@ -304,7 +304,7 @@ CoinOslFactorization::makeNonSingular(int * sequence, int numberColumns)
       for (;nextRow<numberRows_;nextRow++) {
 	int rRow =(-rlink[nextRow].pre)-1;
 	if (rRow==numberRows_||rRow<0)
-	  break;  
+	  break;
       }
       if (nextRow<numberRows_) {
 	sequence[i]=nextRow+numberColumns;
@@ -319,23 +319,23 @@ CoinOslFactorization::makeNonSingular(int * sequence, int numberColumns)
     }
   }
 #ifndef NDEBUG
-  if (goodPass) { 
+  if (goodPass) {
     for (;nextRow<numberRows_;nextRow++) {
       int rRow =(-rlink[nextRow].pre)-1;
-      assert (!(rRow==numberRows_||rRow<0)); 
+      assert (!(rRow==numberRows_||rRow<0));
     }
   }
 #endif
 }
-// Does post processing on valid factorization - putting variables on correct rows  
-void 
+// Does post processing on valid factorization - putting variables on correct rows
+void
 CoinOslFactorization::postProcess(const int * sequence, int * pivotVariable)
 {
   factInfo_.iterin=factInfo_.iterno;
   factInfo_.npivots=0;
   numberPivots_=0;
   const int * permute3 = factInfo_.mpermu+1;
-  assert (permute3==reinterpret_cast<const int *> 
+  assert (permute3==reinterpret_cast<const int *>
 	  (factInfo_.kadrpm+numberRows_+1));
   // this is ridiculous - must be better way
   int * permute2 = reinterpret_cast<int *>(factInfo_.kw1adr);
@@ -379,7 +379,7 @@ CoinOslFactorization::postProcess(const int * sequence, int * pivotVariable)
    speed considerations.  You could just do this on first iteration
    after factorization and thereafter re-factorize
    partial update already in U */
-int 
+int
 CoinOslFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
 					int pivotRow,
 					double pivotCheck ,
@@ -416,7 +416,7 @@ CoinOslFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
 }
 /* This version has same effect as above with FTUpdate==false
    so number returned is always >=0 */
-int 
+int
 CoinOslFactorization::updateColumn ( CoinIndexedVector * regionSparse,
 				       CoinIndexedVector * regionSparse2,
 				     bool /*noPermute*/) const
@@ -461,7 +461,7 @@ CoinOslFactorization::updateColumn ( CoinIndexedVector * regionSparse,
    regionSparse starts as zero and is zero at end.
    Note - if regionSparse2 packed on input - will be packed on output
 */
-int 
+int
 CoinOslFactorization::updateColumnFT ( CoinIndexedVector * regionSparse,
 				      CoinIndexedVector * regionSparse2,
 				       bool /*noPermute*/)
@@ -487,7 +487,7 @@ CoinOslFactorization::updateColumnFT ( CoinIndexedVector * regionSparse,
 }
 
 
-int 
+int
 CoinOslFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 					  CoinIndexedVector * regionSparse2,
 					  CoinIndexedVector * regionSparse3,
@@ -536,10 +536,10 @@ CoinOslFactorization::updateTwoColumnsFT(CoinIndexedVector * regionSparse1,
 }
 
 /* Updates one column (BTRAN) from regionSparse2
-   regionSparse starts as zero and is zero at end 
+   regionSparse starts as zero and is zero at end
    Note - if regionSparse2 packed on input - will be packed on output
 */
-int  
+int
 CoinOslFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
 						CoinIndexedVector * regionSparse2) const
 {
@@ -569,7 +569,7 @@ CoinOslFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
 				   reinterpret_cast<int *>(factInfo_.kp1adr));
     }
   } else {
-#ifndef NDEBUG    
+#ifndef NDEBUG
     {
       int *mcstrt	= factInfo_.xcsadr;
       int * hpivco_new=factInfo_.kcpadr+1;
@@ -593,7 +593,7 @@ CoinOslFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
 	for (int j=0;j<numberNonZero;j++) {
 	  int jRow = regionIndex2[j];
 	  int iRow = permuteIn[jRow];
-	  regionIndex2[j]=iRow; 
+	  regionIndex2[j]=iRow;
 	  region[iRow]=region2[jRow];
 	  region2[jRow]=0.0;
 	}
@@ -601,7 +601,7 @@ CoinOslFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
 	for (int j=0;j<numberNonZero;j++) {
 	  int jRow = regionIndex2[j];
 	  int iRow = permuteIn[jRow];
-	  regionIndex2[j]=iRow; 
+	  regionIndex2[j]=iRow;
 	  region[iRow]=region2[jRow];
 	  if (mcstrt[iRow]<iSmallest) {
 	    iPiv=iRow;
@@ -628,39 +628,39 @@ CoinOslFactorization::updateColumnTranspose ( CoinIndexedVector * regionSparse,
   return 0;
 }
 // Number of entries in each row
-int * 
+int *
 CoinOslFactorization::numberInRow() const
 { return reinterpret_cast<int *> (factInfo_.xrnadr+1);}
 // Number of entries in each column
-int * 
+int *
 CoinOslFactorization::numberInColumn() const
 { return reinterpret_cast<int *> (factInfo_.xcnadr+1);}
 // Returns array to put basis starts in
-CoinBigIndex * 
+CoinBigIndex *
 CoinOslFactorization::starts() const
 { return reinterpret_cast<CoinBigIndex *> (factInfo_.xcsadr+1);}
 // Returns array to put basis elements in
-CoinFactorizationDouble * 
+CoinFactorizationDouble *
 CoinOslFactorization::elements() const
 { return factInfo_.xeeadr+1;}
-// Returns pivot row 
-int * 
+// Returns pivot row
+int *
 CoinOslFactorization::pivotRow() const
 { return factInfo_.krpadr+1;}
 // Returns work area
-CoinFactorizationDouble * 
+CoinFactorizationDouble *
 CoinOslFactorization::workArea() const
 { return factInfo_.kw1adr;}
 // Returns int work area
-int * 
+int *
 CoinOslFactorization::intWorkArea() const
 { return reinterpret_cast<int *> (factInfo_.kw1adr);}
 // Returns permute back
-int * 
+int *
 CoinOslFactorization::permuteBack() const
 { return factInfo_.kcpadr+1;}
 // Returns array to put basis indices in
-int * 
+int *
 CoinOslFactorization::indices() const
 { return factInfo_.xeradr+1;}
 // Returns true if wants tableauColumn in replaceColumn
@@ -672,10 +672,10 @@ CoinOslFactorization::wantsTableauColumn() const
    whereFrom is 0 for factorize and 1 for replaceColumn
 */
 #ifdef CLP_REUSE_ETAS
-void 
+void
 CoinOslFactorization::setUsefulInformation(const int * info,int whereFrom)
-{ 
-  factInfo_.iterno=info[0]; 
+{
+  factInfo_.iterno=info[0];
   if (whereFrom) {
     factInfo_.reintro=-1;
     if( factInfo_.first_dense>=factInfo_.last_dense) {
@@ -708,7 +708,7 @@ CoinOslFactorization::setUsefulInformation(const int * info,int /*whereFrom*/)
 #endif
 
 // Get rid of all memory
-void 
+void
 CoinOslFactorization::clearArrays()
 {
   factInfo_.nR_etas=0;
@@ -719,7 +719,7 @@ CoinOslFactorization::clearArrays()
   factInfo_.last_eta_size=0;
   gutsOfDestructor(false);
 }
-void 
+void
 CoinOslFactorization::maximumPivots (  int value )
 {
   maximumPivots_ = value;
@@ -764,8 +764,8 @@ void clp_memory(int type)
     malloc_struct * previous = (malloc_struct *) endM.previous;
     printf("count %g bytes %g - average %g\n",malloc_times,malloc_total,average);
     printf("current bytes %g - maximum %g\n",malloc_current,malloc_max);
-    
-    for ( i=0;i<malloc_n;i++) 
+
+    for ( i=0;i<malloc_n;i++)
       printf("%g ",malloc_counts[i]);
     printf("\n");
     malloc_counts_on=0;
@@ -949,8 +949,8 @@ static void clp_adjust_pointers(EKKfactinfo * fact, int adjust)
     fact->xeeadr += adjust;
   }
 }
-/* deals with memory for complicated array 
-   0 just do addresses 
+/* deals with memory for complicated array
+   0 just do addresses
    1 just get memory */
 static double *
 clp_alloc_memory(EKKfactinfo * fact,int type, int * length)
@@ -1168,7 +1168,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact,const EKKfactinfo * rhsFact)
     {
       int n2 = rhsFact->nR_etas;
       int n3 = n2 ? rhsFact->R_etas_start[1+n2]: 0;
-      int * startR = rhsFact->R_etas_index+n3; 
+      int * startR = rhsFact->R_etas_index+n3;
       nCopyEnd=static_cast<int>((rhsFact->xeradr+nnetas)-startR);
       nCopyStart=rhsFact->nnentu;
       nCopyEnd = CoinMin(nCopyEnd+20,nnetas);
@@ -1190,7 +1190,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact,const EKKfactinfo * rhsFact)
     /* if malloc fails - we have lost memory - start again */
     if (!fact->ndenuc &&fact->if_sparse_update) {
       /* allow second copy of elements */
-      if (!canReuseEtas) 
+      if (!canReuseEtas)
 	fact->xe2adr = clp_double(nnetas);
       if (!fact->xe2adr) {
 	fact->maxNNetas=nnetas; /* dont allow any increase */
@@ -1210,8 +1210,8 @@ static void c_ekksmem_copy(EKKfactinfo *fact,const EKKfactinfo * rhsFact)
       fact->xe2adr = 0;
       fact->if_sparse_update=0;
     }
-    
-    if (!canReuseEtas) 
+
+    if (!canReuseEtas)
       fact->xeradr= clp_int(nnetas);
     if (!fact->xeradr) {
       nnetas=0;
@@ -1219,7 +1219,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact,const EKKfactinfo * rhsFact)
 #ifndef NDEBUG
       memset(fact->xeradr,CLP_FILL,nnetas*sizeof(int));
 #endif
-      
+
       /* copy */
       if(nCopyStart||nCopyEnd) {
 #if 0
@@ -1232,7 +1232,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact,const EKKfactinfo * rhsFact)
       }
     }
     if (nnetas) {
-      if (!canReuseEtas) 
+      if (!canReuseEtas)
 	fact->xecadr= clp_int(nnetas);
       if (!fact->xecadr) {
 	nnetas=0;
@@ -1289,7 +1289,7 @@ static void c_ekksmem_copy(EKKfactinfo *fact,const EKKfactinfo * rhsFact)
       }
     }
     if (nnetas) {
-      if (!canReuseEtas) 
+      if (!canReuseEtas)
 	fact->xeeadr= clp_double(nnetas);
       if (!fact->xeeadr) {
 	nnetas=0;
@@ -1387,27 +1387,27 @@ int CoinOslFactorization::factorize (
     factInfo_.areaFactor = areaFactor;
   const int * row = matrix.getIndices();
   const CoinBigIndex * columnStart = matrix.getVectorStarts();
-  const int * columnLength = matrix.getVectorLengths(); 
+  const int * columnLength = matrix.getVectorLengths();
   const double * element = matrix.getElements();
   int numberRows=matrix.getNumRows();
   int numberColumns=matrix.getNumCols();
   int numberBasic = 0;
   CoinBigIndex numberElements=0;
   int numberRowBasic=0;
-  
+
   // compute how much in basis
-  
+
   int i;
   // Move pivot variables across if they look good
   int * pivotTemp = new int [numberRows];
-  
+
   for (i=0;i<numberRows;i++) {
-    if (rowIsBasic[i]>=0) 
+    if (rowIsBasic[i]>=0)
       pivotTemp[numberRowBasic++]=i;
   }
-  
+
   numberBasic = numberRowBasic;
-  
+
   for (i=0;i<numberColumns;i++) {
     if (columnIsBasic[i]>=0) {
       pivotTemp[numberBasic++]=i;
@@ -1481,7 +1481,7 @@ int CoinOslFactorization::factorize (
   return status_;
 }
 // Condition number - product of pivots after factorization
-double 
+double
 CoinOslFactorization::conditionNumber() const
 {
   double condition = 1.0;

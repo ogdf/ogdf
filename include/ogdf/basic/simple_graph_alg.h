@@ -1,9 +1,9 @@
 /*
- * $Revision: 3420 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 16:49:45 +0200 (Do, 18. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -739,6 +739,28 @@ OGDF_EXPORT void topologicalNumbering(const Graph &G, NodeArray<int> &num);
  */
 OGDF_EXPORT int strongComponents(const Graph& G, NodeArray<int>& component);
 
+
+//! Makes the digraph \a G bimodal.
+/**
+ * The implementation splits all non-bimodal vertices into two vertices.
+ *
+ * @param G is the input graph.
+ * @param newEdges is the list containing the new edges.
+ *
+ */
+OGDF_EXPORT void makeBimodal(Graph &G, List<edge> &newEdges);
+
+
+//! Makes the digraph \a G bimodal.
+/**
+ * The implementation splits all non-bimodal vertices into two vertices.
+ *
+ * @param G is the input graph.
+ */
+inline void makeBimodal(Graph &G) {
+	List<edge> dummy;
+	makeBimodal(G, dummy);
+}
 
 
 //---------------------------------------------------------

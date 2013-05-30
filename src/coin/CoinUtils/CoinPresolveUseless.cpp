@@ -99,12 +99,12 @@ const CoinPresolveAction *useless_constraint_action::presolve(CoinPresolveMatrix
 // Put constructors here
 useless_constraint_action::useless_constraint_action(int nactions,
                                                      const action *actions,
-                                                     const CoinPresolveAction *next) 
+                                                     const CoinPresolveAction *next)
   :   CoinPresolveAction(next),
       nactions_(nactions),
       actions_(actions)
 {}
-useless_constraint_action::~useless_constraint_action() 
+useless_constraint_action::~useless_constraint_action()
 {
   for (int i=0;i<nactions_;i++) {
     deleteAction(actions_[i].rowcols, int *);
@@ -128,7 +128,7 @@ void useless_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
   CoinBigIndex *mcstrt		= prob->mcstrt_;
   int *link		= prob->link_;
   int *hincol		= prob->hincol_;
-  
+
   //  double *rowduals	= prob->rowduals_;
   double *rowacts	= prob->acts_;
   const double *sol	= prob->sol_;
@@ -164,14 +164,14 @@ void useless_constraint_action::postsolve(CoinPostsolveMatrix *prob) const
 	link[kk] = mcstrt[jcol];
 	mcstrt[jcol] = kk;
       }
-      
+
       rowact += rowels[k] * sol[jcol];
       hincol[jcol]++;
     }
 #   if PRESOLVE_CONSISTENCY
     presolve_check_free_list(prob) ;
 #   endif
-    
+
     // I don't know if this is always true
     PRESOLVEASSERT(prob->getRowStatus(irow)==CoinPrePostsolveMatrix::basic);
     // rcosts are unaffected since rowdual is 0

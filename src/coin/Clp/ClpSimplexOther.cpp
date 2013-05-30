@@ -26,7 +26,7 @@
 #include <cassert>
 #include <string>
 #include <stdio.h>
-#include <iostream> 
+#include <iostream>
 /* Dual ranging.
    This computes increase/decrease in cost for each given variable and corresponding
    sequence numbers which would change basis.  Sequence numbers are 0..numberColumns
@@ -1960,7 +1960,7 @@ ClpSimplexOther::parametrics(double startingTheta, double & endingTheta, double 
                }
 	       if (maxTheta < endingTheta) {
 		 char line[100];
-		 sprintf(line,"Crossover considerations reduce ending  theta from %g to %g\n", 
+		 sprintf(line,"Crossover considerations reduce ending  theta from %g to %g\n",
 			 endingTheta,maxTheta);
 		 handler_->message(CLP_GENERAL,messages_)
 		   << line << CoinMessageEol;
@@ -2095,7 +2095,7 @@ ClpSimplexOther::parametrics(double startingTheta, double & endingTheta, double 
 /* Version of parametrics which reads from file
    See CbcClpParam.cpp for details of format
    Returns -2 if unable to open file */
-int 
+int
 ClpSimplexOther::parametrics(const char * dataFile)
 {
   int returnCode=-2;
@@ -2169,7 +2169,7 @@ ClpSimplexOther::parametrics(const char * dataFile)
 	if (comma)
 	  *comma = '\0';
 	detail = atoi(pos);
-	if (comma) 
+	if (comma)
 	*comma = ',';
       }
     }
@@ -2728,7 +2728,7 @@ ClpSimplexOther::parametricsLoop(double startingTheta, double & endingTheta, dou
           }
 
           // exit if victory declared
-          if (problemStatus_ >= 0 && 
+          if (problemStatus_ >= 0 &&
 	      (canTryQuick || startingTheta>=endingTheta-1.0e-7) )
                break;
 
@@ -2948,7 +2948,7 @@ ClpSimplexOther::whileIterating(double startingTheta, double & endingTheta, doub
 	    lower_[i] += change * changeLower[i];
 	    upper_[i] += change * changeUpper[i];
 	    switch(getStatus(i)) {
-	      
+
 	    case basic:
 	    case isFree:
 	    case superBasic:
@@ -3219,32 +3219,32 @@ ClpSimplexOther::whileIterating(double startingTheta, double & endingTheta, doub
 		      char in[200],out[200];
 		      int iSequence=sequenceIn_;
 		      if (iSequence<numberColumns_) {
-			if (lengthNames_) 
+			if (lengthNames_)
 			  strcpy(in,columnNames_[iSequence].c_str());
-			 else 
+			 else
 			  sprintf(in,"C%7.7d",iSequence);
 		      } else {
 			iSequence -= numberColumns_;
-			if (lengthNames_) 
+			if (lengthNames_)
 			  strcpy(in,rowNames_[iSequence].c_str());
-			 else 
+			 else
 			  sprintf(in,"R%7.7d",iSequence);
 		      }
 		      iSequence=sequenceOut_;
 		      if (iSequence<numberColumns_) {
-			if (lengthNames_) 
+			if (lengthNames_)
 			  strcpy(out,columnNames_[iSequence].c_str());
-			 else 
+			 else
 			  sprintf(out,"C%7.7d",iSequence);
 		      } else {
 			iSequence -= numberColumns_;
-			if (lengthNames_) 
+			if (lengthNames_)
 			  strcpy(out,rowNames_[iSequence].c_str());
-			 else 
+			 else
 			  sprintf(out,"R%7.7d",iSequence);
 		      }
 		      handler_->message(CLP_PARAMETRICS_STATS2, messages_)
-			<< useTheta << objectiveValue() 
+			<< useTheta << objectiveValue()
 			<< in << out << CoinMessageEol;
 		    }
 		    if (useTheta>lastTheta+1.0e-9) {
@@ -4070,7 +4070,7 @@ ClpSimplexOther::cleanupAfterPostsolve()
      checkSolutionInternal();
 }
 // Returns gub version of model or NULL
-ClpSimplex * 
+ClpSimplex *
 ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
 			    int neededGub,
 			    int factorizationFrequency)
@@ -4115,7 +4115,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
     for (int j = rowStart[iRow]; j < rowStart[iRow] + rowLength[iRow]; j++) {
       int iColumn = column[j];
       double value = columnLower[iColumn];
-      if (value) 
+      if (value)
 	sumFixed += element[j] * value;
     }
     fixedRow[iRow]=rowUpper[iRow]-sumFixed;
@@ -4153,7 +4153,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
       }
       for (int j = rowStart[iRow]; j < rowStart[iRow] + rowLength[iRow]; j++) {
 	int iColumn = column[j];
-	if (columnIsGub[iColumn]!=-2) 
+	if (columnIsGub[iColumn]!=-2)
 	  columnIsGub[iColumn] = iRow;
       }
       rowIsGub[iRow] = 0;
@@ -4171,7 +4171,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
   delete [] fixedRow;
   char message[100];
   int numberGub = numberEmpty - numberNonGub;
-  if (numberGub >= neededGub) { 
+  if (numberGub >= neededGub) {
     sprintf(message,"%d gub rows", numberGub);
     handler_->message(CLP_GENERAL2, messages_)
       << message << CoinMessageEol;
@@ -4187,7 +4187,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
 	<< message << CoinMessageEol;
       rowIsGub[smallestGubRow]=-1;
       whichRows[numberNonGub++] = smallestGubRow;
-      for (int j = rowStart[smallestGubRow]; 
+      for (int j = rowStart[smallestGubRow];
 	   j < rowStart[smallestGubRow] + rowLength[smallestGubRow]; j++) {
 	int iColumn = column[j];
 	if (columnIsGub[iColumn]>=0) {
@@ -4212,7 +4212,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
       if (columnIsGub[iColumn] ==-2) {
 	whichColumns[put2++] = iColumn;
 	double value = columnLower[iColumn];
-	for (int j = columnStart[iColumn]; 
+	for (int j = columnStart[iColumn];
 	     j < columnStart[iColumn] + columnLength[iColumn]; j++) {
 	  int iRow = row[j];
 	  if (lower[iRow]>-1.0e20)
@@ -4256,7 +4256,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
       const CoinBigIndex * columnStart = matrix->getVectorStarts();
       double * element = matrix->getMutableElements();
       for (int i=0;i<numberNormal;i++) {
-	for (int j = columnStart[i]; 
+	for (int j = columnStart[i];
 	     j < columnStart[i] + columnLength[i]; j++) {
 	  int iRow = row[j];
 	  iRow = whichRows[iRow];
@@ -4349,7 +4349,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
     // redo rowIsGub to give lookup
     for (int i=0;i<numberRows;i++)
       rowIsGub[i]=-1;
-    for (int i=0;i<numberNonGub;i++) 
+    for (int i=0;i<numberNonGub;i++)
       rowIsGub[whichRows[i]]=i;
     start2[0]=0;
     numberElements = 0;
@@ -4359,7 +4359,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
 	cost2[i] = cost[iColumn];
 	lowerColumn2[i] = columnLower[iColumn];
 	upperColumn2[i] = columnUpper[iColumn];
-	upperColumn2[i] = COIN_DBL_MAX; 
+	upperColumn2[i] = COIN_DBL_MAX;
 	for (int j = columnStart[iColumn]; j < columnStart[iColumn] + columnLength[iColumn]; j++) {
 	  int iRow = row[j];
 	  double scaleBy = scaleArray[iRow];
@@ -4404,7 +4404,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
     delete [] scaleArray;
     delete [] temp1;
     model2->setFactorizationFrequency(factorizationFrequency);
-    ClpDynamicMatrix * newMatrix = 
+    ClpDynamicMatrix * newMatrix =
       new ClpDynamicMatrix(model2, numberGub,
 				  numberGubColumnsPlus, gubStart,
 				  lower, upper,
@@ -4452,7 +4452,7 @@ ClpSimplexOther::gubVersion(int * whichRows, int * whichColumns,
   }
 }
 // Sets basis from original
-void 
+void
 ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
 			     const int * whichColumns)
 {
@@ -4587,7 +4587,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
 	}
       }
       assert (gap<1.0e-8);
-    } 
+    }
     if (fabs(sum-upperSet[i])>1.0e-7)
       printf("Sum for set %d is %g - lower %g, upper %g\n",i,
 	     sum,lowerSet[i],upperSet[i]);
@@ -4596,7 +4596,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
     // See if we can improve solution
     // first reduce if over
     double * gaps = new double [numberNonGub];
-    double direction = optimizationDirection_; 
+    double direction = optimizationDirection_;
     const double * cost = gubMatrix->cost();
     bool over=false;
     for (int i=0;i<numberNonGub;i++) {
@@ -4624,7 +4624,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
 	  if (value>columnLower[j]&&j!=iSlack) {
 	    if(thisCost<slackCost) {
 	      double sum = 1.0e-30;
-	      for (CoinBigIndex k = columnStart[j]; 
+	      for (CoinBigIndex k = columnStart[j];
 		   k < columnStart[j+1] ; k++) {
 		int iRow = row[k];
 		sum += gaps[iRow]*element[k];
@@ -4638,7 +4638,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
 	      newSolution[iSlack]=CoinMin(upperSet[i],
 					  newSolution[iSlack]+move);
 	      newSolution[j]=columnLower[j];
-	      for (CoinBigIndex k = columnStart[j]; 
+	      for (CoinBigIndex k = columnStart[j];
 		   k < columnStart[j+1] ; k++) {
 		int iRow = row[k];
 		rowActivity[iRow] -= move*element[k];
@@ -4655,7 +4655,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
 	int iSlack = slacks[iSet];
 	assert (iSlack>=0);
 	double move = 0.0;
-	for (CoinBigIndex k = columnStart[j]; 
+	for (CoinBigIndex k = columnStart[j];
 	     k < columnStart[j+1] ; k++) {
 	  int iRow = row[k];
 	  if(rowActivity[iRow]-rowUpper_[iRow]>move*element[k]) {
@@ -4666,7 +4666,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
 	if (move) {
 	  newSolution[j] -= move;
 	  newSolution[iSlack] += move;
-	  for (CoinBigIndex k = columnStart[j]; 
+	  for (CoinBigIndex k = columnStart[j];
 	       k < columnStart[j+1] ; k++) {
 	    int iRow = row[k];
 	    rowActivity[iRow] -= move*element[k];
@@ -4746,7 +4746,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
       // Set slack
       int iSet = iOrig - numberColumns;
       int iRow = whichRows[iSet+numberNonGub];
-      if (original.getRowStatus(iRow)==ClpSimplex::basic) 
+      if (original.getRowStatus(iRow)==ClpSimplex::basic)
 	numberKey[iRow]++;
     }
   }
@@ -4798,7 +4798,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
     int iRow = whichRows[numberNonGub+i];
     if (!numberKey[iRow]) {
       double upper = upperSet[i]-1.0e-7;
-      if (original.getRowStatus(iRow)==ClpSimplex::basic) 
+      if (original.getRowStatus(iRow)==ClpSimplex::basic)
 	gubMatrix->setStatus(i,ClpSimplex::basic);
       // If not at lb make key otherwise one with smallest number els
       double largest=0.0;
@@ -4857,7 +4857,7 @@ ClpSimplexOther::setGubBasis(ClpSimplex &original,const int * whichRows,
   delete [] columnIsGub;
 }
 // Restores basis to original
-void 
+void
 ClpSimplexOther::getGubBasis(ClpSimplex &original,const int * whichRows,
 			     const int * whichColumns) const
 {
@@ -4988,7 +4988,7 @@ ClpSimplexOther::getGubBasis(ClpSimplex &original,const int * whichRows,
 	}
       } else {
 	// slack
-	if (original.getRowStatus(iRow)==ClpSimplex::basic) 
+	if (original.getRowStatus(iRow)==ClpSimplex::basic)
 	  numberKey[iRow]++;
       }
     }

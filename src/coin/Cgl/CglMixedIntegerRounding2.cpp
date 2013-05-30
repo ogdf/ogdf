@@ -1,11 +1,11 @@
-// LAST EDIT: 
+// LAST EDIT:
 //-----------------------------------------------------------------------------
 // name: Mixed Integer Rounding Cut Generator
-// authors: Joao Goncalves (jog7@lehigh.edu) 
-//          Laszlo Ladanyi (ladanyi@us.ibm.com) 
-// date: August 11, 2004 
+// authors: Joao Goncalves (jog7@lehigh.edu)
+//          Laszlo Ladanyi (ladanyi@us.ibm.com)
+// date: August 11, 2004
 //-----------------------------------------------------------------------------
-// Copyright (C) 2004, International Business Machines Corporation and others. 
+// Copyright (C) 2004, International Business Machines Corporation and others.
 // All Rights Reserved.
 // This code is published under the Eclipse Public License.
 
@@ -25,7 +25,7 @@
 
 //-----------------------------------------------------------------------------
 // Generate Mixed Integer Rounding inequality
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void
 CglMixedIntegerRounding2::generateCuts(const OsiSolverInterface& si,
 				      OsiCuts& cs,
@@ -40,21 +40,21 @@ CglMixedIntegerRounding2::generateCuts(const OsiSolverInterface& si,
   si.getHintParam(OsiDoPresolveInResolve, preReso);
 
   if (preInit == false &&  preReso == false && doPreproc_ == -1 ) { // Do once
-    if (doneInitPre_ == false) {   
+    if (doneInitPre_ == false) {
       mixIntRoundPreprocess(si);
       doneInitPre_ = true;
     }
   }
   else {
-    if(doPreproc_ == 1){ // Do everytime       
+    if(doPreproc_ == 1){ // Do everytime
       mixIntRoundPreprocess(si);
       doneInitPre_ = true;
-    } 
+    }
     else {
-      if (doneInitPre_ == false) {   
+      if (doneInitPre_ == false) {
 	mixIntRoundPreprocess(si);
 	doneInitPre_ = true;
-      }  
+      }
     }
   }
 
@@ -97,18 +97,18 @@ CglMixedIntegerRounding2::generateCuts(const OsiSolverInterface& si,
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglMixedIntegerRounding2::CglMixedIntegerRounding2 ()
   :
   CglCutGenerator()
-{ 
+{
   gutsOfConstruct(1, true, 1, -1);
 }
 
 
 //-------------------------------------------------------------------
-// Alternate Constructor 
+// Alternate Constructor
 //-------------------------------------------------------------------
 CglMixedIntegerRounding2::CglMixedIntegerRounding2 (const int maxaggr,
 						    const bool multiply,
@@ -116,19 +116,19 @@ CglMixedIntegerRounding2::CglMixedIntegerRounding2 (const int maxaggr,
 						    const int preproc)
   :
   CglCutGenerator()
-{ 
+{
   gutsOfConstruct(maxaggr, multiply, criterion, preproc);
 }
 
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
-CglMixedIntegerRounding2::CglMixedIntegerRounding2 ( 
+CglMixedIntegerRounding2::CglMixedIntegerRounding2 (
 				 const CglMixedIntegerRounding2 & rhs)
   :
   CglCutGenerator(rhs)
-{ 
+{
   gutsOfCopy(rhs);
 }
 
@@ -143,7 +143,7 @@ CglMixedIntegerRounding2::clone() const
 }
 
 //------------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglMixedIntegerRounding2 &
 CglMixedIntegerRounding2::operator=(const CglMixedIntegerRounding2& rhs)
@@ -158,8 +158,8 @@ CglMixedIntegerRounding2::operator=(const CglMixedIntegerRounding2& rhs)
 
 
 //-------------------------------------------------------------------
-// Destructor 
-//-------------------------------------------------------------------  
+// Destructor
+//-------------------------------------------------------------------
 CglMixedIntegerRounding2::~CglMixedIntegerRounding2 ()
 {
   gutsOfDelete();
@@ -167,7 +167,7 @@ CglMixedIntegerRounding2::~CglMixedIntegerRounding2 ()
 
 //-------------------------------------------------------------------
 // Construct
-//-------------------------------------------------------------------  
+//-------------------------------------------------------------------
 void
 CglMixedIntegerRounding2::gutsOfConstruct (const int maxaggr,
 					   const bool multiply,
@@ -221,13 +221,13 @@ CglMixedIntegerRounding2::gutsOfConstruct (const int maxaggr,
 
 //-------------------------------------------------------------------
 // Delete
-//-------------------------------------------------------------------  
+//-------------------------------------------------------------------
 void
 CglMixedIntegerRounding2::gutsOfDelete ()
 {
   if (vubs_ != 0) { delete [] vubs_; vubs_ = 0; }
   if (vlbs_ != 0) { delete [] vlbs_; vlbs_ = 0; }
-  if (rowTypes_ != 0) { delete [] rowTypes_; rowTypes_ = 0; } 
+  if (rowTypes_ != 0) { delete [] rowTypes_; rowTypes_ = 0; }
   if (indRows_ != 0) { delete [] indRows_; indRows_ = 0; }
   if (indRowMix_ != 0) { delete [] indRowMix_; indRowMix_ = 0; }
   if (indRowCont_ != 0) { delete [] indRowCont_; indRowCont_ = 0; }
@@ -240,7 +240,7 @@ CglMixedIntegerRounding2::gutsOfDelete ()
 
 //-------------------------------------------------------------------
 // Copy
-//-------------------------------------------------------------------  
+//-------------------------------------------------------------------
 void
 CglMixedIntegerRounding2::gutsOfCopy (const CglMixedIntegerRounding2& rhs)
 {
@@ -320,8 +320,8 @@ CglMixedIntegerRounding2::gutsOfCopy (const CglMixedIntegerRounding2& rhs)
 // Do preprocessing
 // It determines the type of each row. It also identifies the variable
 // upper bounds and variable lower bounds.
-//-------------------------------------------------------------------  
-void 
+//-------------------------------------------------------------------
+void
 CglMixedIntegerRounding2::
 mixIntRoundPreprocess(const OsiSolverInterface& si) const
 {
@@ -341,7 +341,7 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
   sense_ = CoinCopyOfArray(si.getRowSense(),numRows_);
   RHS_  = CoinCopyOfArray(si.getRightHandSide(),numRows_);
   // Save integer type for speed
-  if (integerType_) 
+  if (integerType_)
     delete [] integerType_;
   integerType_ = new char [numCols_];
   int iColumn;
@@ -386,7 +386,7 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
       }
     }
     // get the type of a row
-    const RowType rowType = 
+    const RowType rowType =
       determineRowType(/*si,*/ rowLengths[iRow], colInds+rowStarts[iRow],
 		       coefByRow+rowStarts[iRow], sense_[iRow], RHS_[iRow]);
     // store the type of the current row
@@ -395,28 +395,28 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
     // Summarize information about row types
     switch(rowType) {
     case  ROW_UNDEFINED:
-      ++numUNDEFINED; 
+      ++numUNDEFINED;
       break;
     case  ROW_VARUB:
-      ++numVARUB; 
+      ++numVARUB;
       break;
     case  ROW_VARLB:
-      ++numVARLB; 
+      ++numVARLB;
       break;
     case  ROW_VAREQ:
-      ++numVAREQ; 
+      ++numVAREQ;
       break;
     case  ROW_MIX:
-      ++numMIX; 
+      ++numMIX;
       break;
     case  ROW_CONT:
-      ++numCONT; 
+      ++numCONT;
       break;
     case  ROW_INT:
-      ++numINT; 
+      ++numINT;
       break;
     case  ROW_OTHER:
-      ++numOTHER; 
+      ++numOTHER;
       break;
     default:
       throw CoinError("Unknown row type", "MixIntRoundPreprocess",
@@ -470,7 +470,7 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
     vubs_[iCol].setVar(UNDEFINED_);
     vlbs_[iCol].setVar(UNDEFINED_);
   }
-  
+
   int countM = 0;
   int countC = 0;
   int countI = 0;
@@ -497,10 +497,10 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
       countI++;
     }
     // create vectors with variable lower and upper bounds
-    else if ( (rowType == ROW_VARUB) || 
-	      (rowType == ROW_VARLB) || 
-	      (rowType == ROW_VAREQ) )  { 
-      
+    else if ( (rowType == ROW_VARUB) ||
+	      (rowType == ROW_VARLB) ||
+	      (rowType == ROW_VAREQ) )  {
+
       int startPos = rowStarts[iRow];
       int stopPos  = startPos + rowLengths[iRow];
       int    xInd = 0,  yInd = 0;   // x is continuous, y is integer
@@ -536,7 +536,7 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
 	break;
       default:
         // I am getting compiler bug which gets here - I am disabling - JJF
-	//throw CoinError("Unknown row type: impossible", 
+	//throw CoinError("Unknown row type: impossible",
         //	"MixIntRoundPreprocess",
         //	"CglMixedIntegerRounding2");
         break;
@@ -572,15 +572,15 @@ mixIntRoundPreprocess(const OsiSolverInterface& si) const
 }
 
 //-------------------------------------------------------------------
-// Determine the type of a given row 
+// Determine the type of a given row
 //-------------------------------------------------------------------
 CglMixedIntegerRounding2::RowType
 CglMixedIntegerRounding2::determineRowType(//const OsiSolverInterface& si,
-				  const int rowLen, const int* ind, 
-				  const double* coef, const char sense, 
+				  const int rowLen, const int* ind,
+				  const double* coef, const char sense,
 				  const double rhs) const
 {
-  if (rowLen == 0) 
+  if (rowLen == 0)
     return ROW_UNDEFINED;
 
   RowType rowType = ROW_UNDEFINED;
@@ -624,7 +624,7 @@ CglMixedIntegerRounding2::determineRowType(//const OsiSolverInterface& si,
 
   //-------------------------------------------------------------------------
   // Classify row type based on the types of variables.
-    
+
   if ((numInt > 0) && (numCon > 0)) {
     if ((numInt == 1) && (numCon == 1) && (fabs(rhs) <= EPSILON_)) {
       // It's a variable bound constraint
@@ -653,7 +653,7 @@ CglMixedIntegerRounding2::determineRowType(//const OsiSolverInterface& si,
     rowType = ROW_CONT;
   }
   else if ((numCon == 0) && ((sense == 'L') || (sense == 'G'))) {
-    // It's a <= or >= constraint with only integer variables 
+    // It's a <= or >= constraint with only integer variables
     rowType = ROW_INT;
   }
   else
@@ -668,7 +668,7 @@ CglMixedIntegerRounding2::determineRowType(//const OsiSolverInterface& si,
 // Generate MIR cuts
 //-------------------------------------------------------------------
 void
-CglMixedIntegerRounding2::generateMirCuts( 
+CglMixedIntegerRounding2::generateMirCuts(
 			    const OsiSolverInterface& si,
 			    const double* xlp,
 			    const double* colUpperBound,
@@ -696,7 +696,7 @@ CglMixedIntegerRounding2::generateMirCuts(
     upperLimit = 2;
   else
     upperLimit = 1;
-  
+
   // create a vector with the columns that were used in the aggregation
   int* listColsSelected = new int[MAXAGGR_];
   // create a vector with the rows that were aggregated
@@ -704,7 +704,7 @@ CglMixedIntegerRounding2::generateMirCuts(
   // create a vector with the LP solutions of the slack variables
   double* xlpExtra = new double[MAXAGGR_];
 
-  // loop until maximum number of aggregated rows is reached or a 
+  // loop until maximum number of aggregated rows is reached or a
   // violated cut is found
   int numRowMixAndRowContVB = numRowMix_ + numRowContVB_;
   int numRowMixAndRowContVBAndRowInt = numRowMixAndRowContVB + numRowInt_;
@@ -745,18 +745,18 @@ CglMixedIntegerRounding2::generateMirCuts(
 	}
 
 	copyRowSelected(iAggregate, rowSelected, setRowsAggregated,
-			listRowsAggregated, xlpExtra, sense_[rowSelected], 
-			RHS_[rowSelected], LHS[rowSelected], 
+			listRowsAggregated, xlpExtra, sense_[rowSelected],
+			RHS_[rowSelected], LHS[rowSelected],
 			matrixByRow, rowAggregated, rhsAggregated);
 
-      } 
+      }
       else {
 
 	// search for a row to aggregate
 	bool foundRowToAggregate = selectRowToAggregate(
 							/*si,*/ rowAggregated,
-					colUpperBound, colLowerBound, 
-					setRowsAggregated, xlp, 
+					colUpperBound, colLowerBound,
+					setRowsAggregated, xlp,
 					coefByCol, rowInds, colStarts,
 					rowSelected, colSelected);
 
@@ -769,12 +769,12 @@ CglMixedIntegerRounding2::generateMirCuts(
 	  listColsSelected[iAggregate] = colSelected;
 
 	  copyRowSelected(iAggregate, rowSelected, setRowsAggregated,
-			  listRowsAggregated, xlpExtra, sense_[rowSelected], 
-			  RHS_[rowSelected], LHS[rowSelected], 
+			  listRowsAggregated, xlpExtra, sense_[rowSelected],
+			  RHS_[rowSelected], LHS[rowSelected],
 			  matrixByRow, rowToAggregate, rhsToAggregate);
 
 	  // call aggregate row heuristic
-	  aggregateRow(colSelected, rowToAggregate, rhsToAggregate, 
+	  aggregateRow(colSelected, rowToAggregate, rhsToAggregate,
 		       rowAggregated, rhsAggregated);
 
 	}
@@ -783,10 +783,10 @@ CglMixedIntegerRounding2::generateMirCuts(
       }
 
       // construct cMIR with current rowAggregated
-      // and, if upperLimit=2 construct also a cMIR with 
+      // and, if upperLimit=2 construct also a cMIR with
       // the current rowAggregated multiplied by -1
       for (int i = 0; i < upperLimit; ++i) {
-      
+
 	// create vector for mixed knapsack constraint
 	double rhsMixedKnapsack;
         rowToUse.copy(rowAggregated);
@@ -795,7 +795,7 @@ CglMixedIntegerRounding2::generateMirCuts(
 	} else {
           rowToUse *= -1.0;
 	  rhsMixedKnapsack  = - rhsAggregated;
-	}	  
+	}
 	mixedKnapsack.clear();
 	double sStar = 0.0;
 
@@ -804,18 +804,18 @@ CglMixedIntegerRounding2::generateMirCuts(
 
 	// call bound substitution heuristic
 	bool foundMixedKnapsack = boundSubstitution(
-					si, rowToUse, 
-					xlp, xlpExtra, 
+					si, rowToUse,
+					xlp, xlpExtra,
 					colUpperBound, colLowerBound,
-					mixedKnapsack, rhsMixedKnapsack, 
+					mixedKnapsack, rhsMixedKnapsack,
 					sStar, contVariablesInS);
-    
+
 	// if it did not find a mixed knapsack it is because there is at
 	// least one integer variable with lower bound different than zero
 	// or there are no integer or continuous variables.
 	// In this case, we continue without trying to generate a c-MIR
 	if (!foundMixedKnapsack) {
-#if CGL_DEBUG	  
+#if CGL_DEBUG
 	  std::cout << "couldn't create mixed knapsack" << std::endl;
 #endif
 	  continue;
@@ -826,8 +826,8 @@ CglMixedIntegerRounding2::generateMirCuts(
 	// Find a c-MIR cut with the current mixed knapsack constraint
 	bool hasCut = cMirSeparation(si, matrixByRow, rowToUse,
 				     listRowsAggregated, sense_, RHS_,
-				     //coefByRow, colInds, rowStarts, 
-				     xlp, sStar, colUpperBound, colLowerBound, 
+				     //coefByRow, colInds, rowStarts,
+				     xlp, sStar, colUpperBound, colLowerBound,
 				     mixedKnapsack,
 				     rhsMixedKnapsack, contVariablesInS,
 				     workVectors,cMirCut);
@@ -835,7 +835,7 @@ CglMixedIntegerRounding2::generateMirCuts(
 #if CGL_DEBUG
 	// PRINT STATISTICS
 	printStats(fout, hasCut, si, rowAggregated, rhsAggregated, xlp,
-		   xlpExtra, listRowsAggregated, listColsSelected, 
+		   xlpExtra, listRowsAggregated, listColsSelected,
 		   iAggregate+1, colUpperBound, colLowerBound );
 #endif
 
@@ -848,7 +848,7 @@ CglMixedIntegerRounding2::generateMirCuts(
 	}
 
       }
-	
+
     }
 
   }
@@ -857,7 +857,7 @@ CglMixedIntegerRounding2::generateMirCuts(
   delete [] listColsSelected; listColsSelected = 0;
   delete [] listRowsAggregated; listRowsAggregated = 0;
   delete [] xlpExtra; xlpExtra = 0;
-  
+
 #if CGL_DEBUG
   // CLOSE FILE
   fout.close();
@@ -910,7 +910,7 @@ CglMixedIntegerRounding2::copyRowSelected(
 // Construct the set P* and select a row to aggregate
 //-------------------------------------------------------------------
 bool
-CglMixedIntegerRounding2::selectRowToAggregate( 
+CglMixedIntegerRounding2::selectRowToAggregate(
 					       //const OsiSolverInterface& si,
 			    const CoinIndexedVector& rowAggregated,
 			    const double* colUpperBound,
@@ -927,7 +927,7 @@ CglMixedIntegerRounding2::selectRowToAggregate(
   double deltaMax = 0.0;  // maximum delta
   const int numColsAggregated = rowAggregated.getNumElements();
   const int *rowAggregatedIndices = rowAggregated.getIndices();
-  const double *rowAggregatedElements = rowAggregated.denseVector();  
+  const double *rowAggregatedElements = rowAggregated.denseVector();
 
   for (int j = 0; j < numColsAggregated; ++j) {
 
@@ -941,12 +941,12 @@ CglMixedIntegerRounding2::selectRowToAggregate(
 
     // Compute current lower bound
     CglMixIntRoundVLB2 VLB = vlbs_[indCol];
-    double LB = ( VLB.getVar() != UNDEFINED_ ) ? 
+    double LB = ( VLB.getVar() != UNDEFINED_ ) ?
                       VLB.getVal() * xlp[VLB.getVar()] : colLowerBound[indCol];
-    
+
     // Compute current upper bound
     CglMixIntRoundVUB2 VUB = vubs_[indCol];
-    double UB = ( VUB.getVar() != UNDEFINED_ ) ? 
+    double UB = ( VUB.getVar() != UNDEFINED_ ) ?
                       VUB.getVal() * xlp[VUB.getVar()] : colUpperBound[indCol];
 
     // Compute distances from current solution to upper and lower bounds
@@ -967,7 +967,7 @@ CglMixedIntegerRounding2::selectRowToAggregate(
 	if (!setRowsAggregated.denseVector()[rowInd]) {
 	  // if the row was not already selected, select it
 	  RowType rType = rowTypes_[rowInd];
-	  if ( ((rType == ROW_MIX) || (rType == ROW_CONT)) 
+	  if ( ((rType == ROW_MIX) || (rType == ROW_CONT))
 	       && (fabs(coefByCol[i]) > EPSILON_) ) {
 	    //	    rowPossible.push_back(rowInd);
 	    rowSelected = rowInd;
@@ -984,28 +984,28 @@ CglMixedIntegerRounding2::selectRowToAggregate(
       //	rowSelected = rowPossible[rand() % count];
       //      std::cout << count << std::endl;
     }
-	
+
   }
 
   return foundRowToAggregate;
 
 }
-      
+
 //-------------------------------------------------------------------
 // Aggregate the selected row with the current aggregated row
 //-------------------------------------------------------------------
 void
-CglMixedIntegerRounding2::aggregateRow( 
+CglMixedIntegerRounding2::aggregateRow(
 			    const int colSelected,
 			    CoinIndexedVector& rowToAggregate, double rhs,
-			    CoinIndexedVector& rowAggregated, 
+			    CoinIndexedVector& rowAggregated,
 			    double& rhsAggregated ) const
 {
 
   // quantity to multiply by the coefficients of the row to aggregate
   double multiCoef = rowAggregated[colSelected] / rowToAggregate[colSelected];
 
-  rowToAggregate *= multiCoef; 
+  rowToAggregate *= multiCoef;
   rhs *= multiCoef;
 
   rowAggregated = rowAggregated - rowToAggregate;
@@ -1017,10 +1017,10 @@ CglMixedIntegerRounding2::aggregateRow(
 // Choose the bound substitution based on the criteria defined by the user
 //-------------------------------------------------------------------
 inline bool
-CglMixedIntegerRounding2::isLowerSubst(const double inf, 
+CglMixedIntegerRounding2::isLowerSubst(const double inf,
 				      const double aj,
-				      const double xlp, 
-				      const double LB, 
+				      const double xlp,
+				      const double LB,
 				      const double UB) const
 {
   if (CRITERION_ == 1) {
@@ -1028,11 +1028,11 @@ CglMixedIntegerRounding2::isLowerSubst(const double inf,
     return xlp - LB < UB - xlp;
   }
   else {
-    if (UB == inf || xlp == LB) 
+    if (UB == inf || xlp == LB)
       return true;
     if (LB == -inf || xlp == UB)
       return false;
-    if (CRITERION_ == 2) 
+    if (CRITERION_ == 2)
       // criterion 2 (the same as criterion (b) in the paper)
       return aj < 0;
     else
@@ -1047,7 +1047,7 @@ CglMixedIntegerRounding2::isLowerSubst(const double inf,
 // Bound substitution heuristic
 //-------------------------------------------------------------------
 bool
-CglMixedIntegerRounding2::boundSubstitution( 
+CglMixedIntegerRounding2::boundSubstitution(
 			    const OsiSolverInterface& si,
 			    const CoinIndexedVector& rowAggregated,
 			    const double* xlp,
@@ -1062,9 +1062,9 @@ CglMixedIntegerRounding2::boundSubstitution(
   bool generated = false;
   const int numColsAggregated = rowAggregated.getNumElements();
   const int *rowAggregatedIndices = rowAggregated.getIndices();
-  const double *rowAggregatedElements = rowAggregated.denseVector();  
+  const double *rowAggregatedElements = rowAggregated.denseVector();
 
-  // go through all the variables and if it is continuous and delta is 
+  // go through all the variables and if it is continuous and delta is
   // negative, store variable in the vector contVariablesInS.
   // If it is integer, store variable in the vector mixedKnapsack
   int numCont = 0;
@@ -1091,18 +1091,18 @@ CglMixedIntegerRounding2::boundSubstitution(
       continue;
     }
 
-    // Select the continuous variables and copy the ones in s to 
+    // Select the continuous variables and copy the ones in s to
     // the vector contVariablesInS
     if (indCol < numCols_) {  // variable is model variable
 
       // Compute lower bound for variable indCol
       const CglMixIntRoundVLB2 VLB = vlbs_[indCol];
-      const double LB = ( VLB.getVar() != UNDEFINED_ ) ? 
+      const double LB = ( VLB.getVar() != UNDEFINED_ ) ?
 	        VLB.getVal() * xlp[VLB.getVar()] : colLowerBound[indCol];
-    
+
       // Compute upper bound for variable indCol
       const CglMixIntRoundVUB2 VUB = vubs_[indCol];
-      const double UB = ( VUB.getVar() != UNDEFINED_ ) ? 
+      const double UB = ( VUB.getVar() != UNDEFINED_ ) ?
 	        VUB.getVal() * xlp[VUB.getVar()] : colUpperBound[indCol];
 
       // if both bounds are infinite, then we cannot form a mixed knapsack
@@ -1178,7 +1178,7 @@ CglMixedIntegerRounding2::boundSubstitution(
 #endif
   if (numInt == 0) return generated;
   const int *knapsackIndices = mixedKnapsack.getIndices();
-  const double *knapsackElements = mixedKnapsack.denseVector();  
+  const double *knapsackElements = mixedKnapsack.denseVector();
 
   for ( j = 0; j < numInt; ++j) {
     int indCol = knapsackIndices[j];
@@ -1197,7 +1197,7 @@ CglMixedIntegerRounding2::boundSubstitution(
 // c-MIR separation heuristic
 //-------------------------------------------------------------------
 bool
-CglMixedIntegerRounding2::cMirSeparation( 
+CglMixedIntegerRounding2::cMirSeparation(
 			    const OsiSolverInterface& si,
 			    const CoinPackedMatrix& matrixByRow,
 			    const CoinIndexedVector& rowAggregated,
@@ -1225,9 +1225,9 @@ CglMixedIntegerRounding2::cMirSeparation(
   CoinIndexedVector * bestCut = &workVectors[1];
   double rhsBestCut = 0.0;
   double sCoefBestCut = 0.0;
-  const int numInt = mixedKnapsack.getNumElements();  
+  const int numInt = mixedKnapsack.getNumElements();
   const int *knapsackIndices = mixedKnapsack.getIndices();
-  const double *knapsackElements = mixedKnapsack.denseVector();  
+  const double *knapsackElements = mixedKnapsack.denseVector();
   const int *contVarInSIndices = contVariablesInS.getIndices();
   const double *contVarInSElements = contVariablesInS.denseVector();
 
@@ -1249,7 +1249,7 @@ CglMixedIntegerRounding2::cMirSeparation(
 	setC.insert(j,1.0);
 	numeratorBeta -= knapsackElements[indCol] * colUpperBound[indCol];
       } else {
-	if ( (xlp[indCol] <= EPSILON_) || 
+	if ( (xlp[indCol] <= EPSILON_) ||
 	     (xlp[indCol] >= colUpperBound[indCol] - EPSILON_))
 	  continue;
 	complT->insert(j, fabs(xlp[indCol] - colUpperBound[indCol]/2));
@@ -1257,7 +1257,7 @@ CglMixedIntegerRounding2::cMirSeparation(
     }
   }
 
-  // Sort the indices in complT by nondecreasing values 
+  // Sort the indices in complT by nondecreasing values
   // (which are  $|y^*_j-u_j/2|$)
   if (complT->getNumElements() > 0) {
     complT->sortIncrElement();
@@ -1266,7 +1266,7 @@ CglMixedIntegerRounding2::cMirSeparation(
   // Construct c-MIR inequalities and take the one with the largest violation
   for ( j = 0; j < numInt; ++j) {
     int indCol = knapsackIndices[j];
-    if ( (xlp[indCol] <= EPSILON_) || 
+    if ( (xlp[indCol] <= EPSILON_) ||
 	 (xlp[indCol] >= colUpperBound[indCol] - EPSILON_))
       continue;
     double delta = knapsackElements[indCol];
@@ -1277,7 +1277,7 @@ CglMixedIntegerRounding2::cMirSeparation(
     double sCoef = 0.0;
 
     // form a cMIR inequality
-    cMirInequality(numInt, delta, numeratorBeta, knapsackIndices, 
+    cMirInequality(numInt, delta, numeratorBeta, knapsackIndices,
 		   knapsackElements, xlp, sStar, colUpperBound, setC, *cMIR,
 		   rhscMIR, sCoef, violation);
 
@@ -1306,7 +1306,7 @@ CglMixedIntegerRounding2::cMirSeparation(
     double sCoef = 0.0;
 
     // form a cMIR inequality
-    cMirInequality(numInt, delta, numeratorBeta, knapsackIndices, 
+    cMirInequality(numInt, delta, numeratorBeta, knapsackIndices,
 		   knapsackElements, xlp, sStar, colUpperBound, setC, *cMIR,
 		   rhscMIR, sCoef, violation);
 
@@ -1340,7 +1340,7 @@ CglMixedIntegerRounding2::cMirSeparation(
 	mixedKnapsack[indCol] * colUpperBound[indCol];
 
       // form a cMIR inequality
-      cMirInequality(numInt, bestDelta, localNumeratorBeta, knapsackIndices, 
+      cMirInequality(numInt, bestDelta, localNumeratorBeta, knapsackIndices,
 		     knapsackElements, xlp, sStar, colUpperBound, setC, *cMIR,
 		     rhscMIR, sCoef, violation);
 
@@ -1363,22 +1363,22 @@ CglMixedIntegerRounding2::cMirSeparation(
   for ( j = 0; j < numCont; ++j) {
     int indCol = contVarInSIndices[j];
     double coefCol = contVarInSElements[indCol];
-      
+
     if (indCol < numCols_) {  // variable is model variable
 
       // Compute lower bound for variable indCol
       CglMixIntRoundVLB2 VLB = vlbs_[indCol];
-      double LB = ( VLB.getVar() != UNDEFINED_ ) ? 
+      double LB = ( VLB.getVar() != UNDEFINED_ ) ?
 	VLB.getVal() * xlp[VLB.getVar()] : colLowerBound[indCol];
-    
+
       // Compute upper bound for variable indCol
       CglMixIntRoundVUB2 VUB = vubs_[indCol];
-      double UB = ( VUB.getVar() != UNDEFINED_ ) ? 
+      double UB = ( VUB.getVar() != UNDEFINED_ ) ?
 	VUB.getVal() * xlp[VUB.getVar()] : colUpperBound[indCol];
 
       // Select the bound substitution
       if (isLowerSubst(infinity, rowAggregated[indCol],
-			 xlp[indCol], LB, UB)) { 
+			 xlp[indCol], LB, UB)) {
 	if (VLB.getVar() != UNDEFINED_ ) {
 	  int indVLB = VLB.getVar();
           bestCut->add(indVLB, - sCoefBestCut * coefCol * VLB.getVal());
@@ -1420,7 +1420,7 @@ CglMixedIntegerRounding2::cMirSeparation(
       int nElements = row.getNumElements();
       const int * column = row.getIndices();
       const double * element = row.getElements();
-      for (int i=0;i<nElements;i++) 
+      for (int i=0;i<nElements;i++)
         bestCut->add(column[i],element[i]*multiplier);
     }
   }
@@ -1502,13 +1502,13 @@ CglMixedIntegerRounding2::cMirSeparation(
 //-------------------------------------------------------------------
 void
 CglMixedIntegerRounding2::cMirInequality(
-				  const int numInt, 
+				  const int numInt,
 				  const double delta,
 				  const double numeratorBeta,
 				  const int *knapsackIndices,
 				  const double* knapsackElements,
-				  const double* xlp, 
-				  const double sStar,	       
+				  const double* xlp,
+				  const double sStar,
 				  const double* colUpperBound,
 				  const CoinIndexedVector& setC,
 				  CoinIndexedVector& cMIR,
@@ -1537,7 +1537,7 @@ CglMixedIntegerRounding2::cMirInequality(
 	  violation -= (G * xlp[iIndex]);
 	  normCut += G * G;
 	  rhscMIR -= G * colUpperBound[iIndex];
-	  cMIR.setElement(i, -G);	  
+	  cMIR.setElement(i, -G);
 	}
       }
       sCoef = 1.0 / (delta * (1.0 - f));
@@ -1582,7 +1582,7 @@ CglMixedIntegerRounding2::printStats(
 
   const int numColsAggregated = rowAggregated.getNumElements();
   const int *rowAggregatedIndices = rowAggregated.getIndices();
-  const double *rowAggregatedElements = rowAggregated.denseVector();  
+  const double *rowAggregatedElements = rowAggregated.denseVector();
 
   fout << "Rows ";
   for (int i = 0; i < level; ++i) {
@@ -1592,7 +1592,7 @@ CglMixedIntegerRounding2::printStats(
 
   int numColsBack = 0;
 
-  // go through all the variables 
+  // go through all the variables
   for (int j = 0; j < numColsAggregated; ++j) {
 
     // get index and coefficient of column j in the aggregated row
@@ -1622,14 +1622,14 @@ CglMixedIntegerRounding2::printStats(
     // integer variables
     if ( (indCol < numCols_)  && (integerType_[indCol]) ) {
 
-      // print 
+      // print
       fout << "I " << xlp[indCol] << " " << colLowerBound[indCol] <<
 	" " << colUpperBound[indCol] << std::endl;
 
       continue;
     }
 
-    // continuous variables 
+    // continuous variables
     if (indCol < numCols_) {  // variable is model variable
 
       // print
@@ -1658,7 +1658,7 @@ CglMixedIntegerRounding2::printStats(
 	fout << "-1 -1 -1 -1 ";
       }
 
-    }	  
+    }
     else {  // variable is slack variable
       // in this case the LB = 0 and the UB = infinity
       // print
@@ -1683,14 +1683,14 @@ CglMixedIntegerRounding2::printStats(
 
 }
 // This can be used to refresh any inforamtion
-void 
+void
 CglMixedIntegerRounding2::refreshSolver(OsiSolverInterface * )
 {
   doneInitPre_ = false;
 }
 // Create C++ lines to get to current state
 std::string
-CglMixedIntegerRounding2::generateCpp( FILE * fp) 
+CglMixedIntegerRounding2::generateCpp( FILE * fp)
 {
   CglMixedIntegerRounding2 other;
   fprintf(fp,"0#include \"CglMixedIntegerRounding2.hpp\"\n");
@@ -1721,7 +1721,7 @@ void CglMixedIntegerRounding2::setDoPreproc(int value)
   }
   else {
     doPreproc_ = value;
-  }  
+  }
 }
 
 bool CglMixedIntegerRounding2::getDoPreproc() const

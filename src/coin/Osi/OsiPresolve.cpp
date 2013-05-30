@@ -67,7 +67,7 @@ OsiPresolve::~OsiPresolve()
   gutsOfDestroy();
 }
 // Gets rid of presolve actions (e.g.when infeasible)
-void 
+void
 OsiPresolve::gutsOfDestroy()
 {
  const CoinPresolveAction *paction = paction_;
@@ -83,7 +83,7 @@ OsiPresolve::gutsOfDestroy()
   originalRow_=NULL;
 }
 
-/* This version of presolve returns a pointer to a new presolved 
+/* This version of presolve returns a pointer to a new presolved
    model.  NULL if infeasible
 
    doStatus controls activities required to transform an existing
@@ -94,7 +94,7 @@ OsiPresolve::gutsOfDestroy()
    that this is the less common case. The more common situation is to apply
    presolve before optimising.
 */
-OsiSolverInterface * 
+OsiSolverInterface *
 OsiPresolve::presolvedModel(OsiSolverInterface & si,
 			    double feasibilityTolerance,
 			    bool keepIntegers,
@@ -115,14 +115,14 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
   delete [] originalRow_;
   originalRow_ = new int[nrows_];
   int i;
-  for (i=0;i<ncols_;i++) 
+  for (i=0;i<ncols_;i++)
     originalColumn_[i]=i;
-  for (i=0;i<nrows_;i++) 
+  for (i=0;i<nrows_;i++)
     originalRow_[i]=i;
 
   // result is 0 - okay, 1 infeasible, -1 go round again
   int result = -1;
-  
+
   // User may have deleted - its their responsibility
   presolvedModel_=NULL;
   // Messages
@@ -143,7 +143,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
 	presolvedModel_->setContinuous(i);
     }
 
-    
+
     CoinPresolveMatrix prob(ncols_,
 			    maxmin,
 			    presolvedModel_,
@@ -156,8 +156,8 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
       CoinBigIndex *mcstrt		= prob.mcstrt_;
       int *hincol		= prob.hincol_;
       int ncols		= prob.ncols_;
-      
-      
+
+
       double * csol = prob.sol_;
       double * acts = prob.acts_;
       int nrows = prob.nrows_;
@@ -165,7 +165,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
       int colx;
 
       memset(acts,0,nrows*sizeof(double));
-      
+
       for (colx = 0; colx < ncols; ++colx) {
 	double solutionValue = csol[colx];
 	for (int i=mcstrt[colx]; i<mcstrt[colx]+hincol[colx]; ++i) {
@@ -184,7 +184,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
   (i.e., we're feasible but no postsolve actions are queued.
 */
     paction_ = presolve(&prob) ;
-    result = 0 ; 
+    result = 0 ;
     // Get rid of useful arrays
     prob.deleteStuff();
 /*
@@ -196,7 +196,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
       double * lo = prob.clo_;
       double * up = prob.cup_;
       int i;
-      
+
       for (i=0;i<n;i++) {
 	if (up[i]<lo[i]) {
 	  if (up[i]<lo[i]-1.0e-8) {
@@ -207,7 +207,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
 	  }
 	}
       }
-      
+
       n = prob.nrows_;
       lo = prob.rlo_;
       up = prob.rup_;
@@ -229,7 +229,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
   no action.
 */
     if (prob.status_ == 0) {
-    
+
       prob.update_model(presolvedModel_, nrows_, ncols_, nelems_);
 
 # if PRESOLVE_CONSISTENCY
@@ -286,17 +286,17 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
 */
       if (doStatus) {
 	presolvedModel_->setColSolution(prob.sol_);
-	CoinWarmStartBasis *basis = 
+	CoinWarmStartBasis *basis =
 	  dynamic_cast<CoinWarmStartBasis *>(presolvedModel_->getEmptyWarmStart());
 	basis->resize(prob.nrows_,prob.ncols_);
 	int i;
 	for (i=0;i<prob.ncols_;i++) {
-	  CoinWarmStartBasis::Status status = 
+	  CoinWarmStartBasis::Status status =
 	    static_cast<CoinWarmStartBasis::Status> (prob.getColumnStatus(i));
 	  basis->setStructStatus(i,status);
 	}
 	for (i=0;i<prob.nrows_;i++) {
-	  CoinWarmStartBasis::Status status = 
+	  CoinWarmStartBasis::Status status =
 	    static_cast<CoinWarmStartBasis::Status> (prob.getRowStatus(i));
 	  basis->setArtifStatus(i,status);
 	}
@@ -356,7 +356,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
 	      originalModel_->setColUpper(iOriginal,upperValue);
 	      numberChanges++;
 	    }
-	  }	  
+	  }
 	}
 	if (numberChanges) {
 	  presolvedModel_->messageHandler()->message(COIN_PRESOLVE_INTEGERMODS,
@@ -377,7 +377,7 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
 	  }
 	}
       }
-    } else if (prob.status_ != 0) { 
+    } else if (prob.status_ != 0) {
       // infeasible or unbounded
       result = 1 ;
     }
@@ -400,18 +400,18 @@ OsiPresolve::presolvedModel(OsiSolverInterface & si,
 }
 
 // Return pointer to presolved model
-OsiSolverInterface * 
+OsiSolverInterface *
 OsiPresolve::model() const
 {
   return presolvedModel_;
 }
 // Return pointer to original model
-OsiSolverInterface * 
+OsiSolverInterface *
 OsiPresolve::originalModel() const
 {
   return originalModel_;
 }
-void 
+void
 OsiPresolve::postsolve(bool updateStatus)
 {
   // Messages
@@ -439,10 +439,10 @@ OsiPresolve::postsolve(bool updateStatus)
   double *sol = new double [ncols0];
   CoinZeroN(acts,nrows0);
   CoinZeroN(sol,ncols0);
-  
+
   unsigned char * rowstat=NULL;
   unsigned char * colstat = NULL;
-  CoinWarmStartBasis * presolvedBasis  = 
+  CoinWarmStartBasis * presolvedBasis  =
     dynamic_cast<CoinWarmStartBasis*>(presolvedModel_->getWarmStart());
   if (!presolvedBasis)
     updateStatus=false;
@@ -459,7 +459,7 @@ OsiPresolve::postsolve(bool updateStatus)
     for (i=0;i<nrows;i++) {
       rowstat[i] = presolvedBasis->getArtifStatus(i);
     }
-  } 
+  }
   delete presolvedBasis;
 
 # if PRESOLVE_CONSISTENCY > 0
@@ -501,7 +501,7 @@ OsiPresolve::postsolve(bool updateStatus)
 
   originalModel_->setColSolution(sol);
   if (updateStatus) {
-    CoinWarmStartBasis *basis = 
+    CoinWarmStartBasis *basis =
       dynamic_cast<CoinWarmStartBasis *>(presolvedModel_->getEmptyWarmStart());
     basis->setSize(ncols0,nrows0);
     int i;
@@ -521,24 +521,24 @@ OsiPresolve::postsolve(bool updateStatus)
     }
     originalModel_->setWarmStart(basis);
     delete basis ;
-  } 
+  }
 
 }
 
 // return pointer to original columns
-const int * 
+const int *
 OsiPresolve::originalColumns() const
 {
   return originalColumn_;
 }
 // return pointer to original rows
-const int * 
+const int *
 OsiPresolve::originalRows() const
 {
   return originalRow_;
 }
 // Set pointer to original model
-void 
+void
 OsiPresolve::setOriginalModel(OsiSolverInterface * model)
 {
   originalModel_=model;
@@ -625,7 +625,7 @@ static bool break2(CoinPresolveMatrix *prob)
   return (counter<=0);
 }
 #define possibleBreak if (break2(prob)) break
-#define possibleSkip  if (!break2(prob)) 
+#define possibleSkip  if (!break2(prob))
 #else
 #define possibleBreak
 #define possibleSkip
@@ -666,7 +666,7 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
       if (presolvedModel_->isInteger(i))
 	doDualStuff=false;
   }
-  
+
 
 # if CHECK_CONSISTENCY
   presolve_links_ok(prob->rlink_, prob->mrstrt_, prob->hinrow_, prob->nrows_);
@@ -734,12 +734,12 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
     // switch on gub stuff
     if ((presolveActions_&32)!=0)
       prob->setPresolveOptions(prob->presolveOptions()|32);
-    
+
     /*
       The main loop (just below) starts with a minor loop that does
       inexpensive presolve transforms until convergence. At each iteration
       of this loop, next[Rows,Cols]ToDo is copied over to [rows,cols]ToDo.
-      
+
       Then there's a block like the one here, which sets [rows,cols]ToDo for
       all rows & cols, followed by executions of a set of expensive
       transforms. Then we come back around for another iteration of the main
@@ -750,20 +750,20 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
     int i;
     // say look at all
     if (!prob->anyProhibited()) {
-      for (i=0;i<nrows_;i++) 
+      for (i=0;i<nrows_;i++)
 	prob->rowsToDo_[i]=i;
       prob->numberRowsToDo_=nrows_;
-      for (i=0;i<ncols_;i++) 
+      for (i=0;i<ncols_;i++)
 	prob->colsToDo_[i]=i;
       prob->numberColsToDo_=ncols_;
     } else {
       // some stuff must be left alone
       prob->numberRowsToDo_=0;
-      for (i=0;i<nrows_;i++) 
+      for (i=0;i<nrows_;i++)
 	if (!prob->rowProhibited(i))
 	    prob->rowsToDo_[prob->numberRowsToDo_++]=i;
       prob->numberColsToDo_=0;
-      for (i=0;i<ncols_;i++) 
+      for (i=0;i<ncols_;i++)
 	if (!prob->colProhibited(i))
 	    prob->colsToDo_[prob->numberColsToDo_++]=i;
     }
@@ -904,21 +904,21 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
 
 #	if 0 && PRESOLVE_DEBUG
 
-    /* 
+    /*
       For reasons that escape me just now, the linker is unable to find
       this function. Copying the code from CoinPresolvePsdebug to the head
       of this routine works just fine. Library loading order looks ok. Other
       routines from CoinPresolvePsdebug are found. I'm stumped. -- lh --
     */
 
-	presolve_no_zeros(prob->mcstrt_, prob->colels_, prob->hincol_, 
+	presolve_no_zeros(prob->mcstrt_, prob->colels_, prob->hincol_,
 			  prob->ncols_);
 #	endif
 #	if CHECK_CONSISTENCY
 	prob->consistent();
 #	endif
 
-	  
+
 	// set up for next pass
 	// later do faster if many changes i.e. memset and memcpy
 	prob->numberRowsToDo_ = prob->numberNextRowsToDo_;
@@ -961,20 +961,20 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
       // say look at all
       int i;
       if (!prob->anyProhibited()) {
-	for (i=0;i<nrows_;i++) 
+	for (i=0;i<nrows_;i++)
 	  prob->rowsToDo_[i]=i;
 	prob->numberRowsToDo_=nrows_;
-	for (i=0;i<ncols_;i++) 
+	for (i=0;i<ncols_;i++)
 	  prob->colsToDo_[i]=i;
 	prob->numberColsToDo_=ncols_;
       } else {
 	// some stuff must be left alone
 	prob->numberRowsToDo_=0;
-	for (i=0;i<nrows_;i++) 
+	for (i=0;i<nrows_;i++)
 	  if (!prob->rowProhibited(i))
 	    prob->rowsToDo_[prob->numberRowsToDo_++]=i;
 	prob->numberColsToDo_=0;
-	for (i=0;i<ncols_;i++) 
+	for (i=0;i<ncols_;i++)
 	  if (!prob->colProhibited(i))
 	    prob->colsToDo_[prob->numberColsToDo_++]=i;
       }
@@ -1044,7 +1044,7 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
 	if (prob->status_)
 	  break;
       }
-      
+
       if (duprow) {
 	possibleBreak;
 	paction_ = duprow_action::presolve(prob, paction_);
@@ -1058,12 +1058,12 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
 	possibleBreak;
 	paction_ = gubrow_action::presolve(prob, paction_);
       }
-	  
+
       bool stopLoop=false;
       {
 	int * hinrow = prob->hinrow_;
 	int numberDropped=0;
-	for (i=0;i<nrows_;i++) 
+	for (i=0;i<nrows_;i++)
 	  if (!hinrow[i])
 	    numberDropped++;
 	//printf("%d rows dropped after pass %d\n",numberDropped,
@@ -1091,7 +1091,7 @@ const CoinPresolveAction *OsiPresolve::presolve(CoinPresolveMatrix *prob)
 #endif
       if (paction_ == paction0||stopLoop)
 	break;
-	  
+
     } // End of major pass loop
   }
 /*
@@ -1150,15 +1150,15 @@ void OsiPresolve::postsolve(CoinPostsolveMatrix &prob)
     presolve_check_sol(&prob); }
   presolve_check_duals(&prob);
 #endif
-  
-  
+
+
   while (paction) {
 #   if PRESOLVE_DEBUG
     printf("POSTSOLVING %s\n", paction->name());
 #   endif
 
     paction->postsolve(&prob);
-    
+
 #   if PRESOLVE_DEBUG
     if (prob.colstat_)
     { presolve_check_nbasic(&prob);
@@ -1168,11 +1168,11 @@ void OsiPresolve::postsolve(CoinPostsolveMatrix &prob)
 #   if PRESOLVE_DEBUG
     presolve_check_duals(&prob);
 #   endif
-  }    
+  }
 # if PRESOLVE_DEBUG
     printf("End POSTSOLVING\n") ;
 # endif
-  
+
 #if	0 && PRESOLVE_DEBUG
 
   << This block of checks will require some work to get it to compile. >>
@@ -1183,24 +1183,24 @@ void OsiPresolve::postsolve(CoinPostsolveMatrix &prob)
       abort();
     }
   }
-  
+
   for (int i=0; i<nrows0; i++) {
     if (!rdone[i]) {
       printf("!rdone[%d]\n", i);
       abort();
     }
   }
-  
-  
+
+
   for (i=0; i<ncols0; i++) {
     if (sol[i] < -1e10 || sol[i] > 1e10)
       printf("!!!%d %g\n", i, sol[i]);
-    
+
   }
-  
-  
+
+
 #endif
-  
+
 #if	0 && PRESOLVE_DEBUG
 
   << This block of checks will require some work to get it to compile. >>
@@ -1208,7 +1208,7 @@ void OsiPresolve::postsolve(CoinPostsolveMatrix &prob)
   // debug check:  make sure we ended up with same original matrix
   {
     int identical = 1;
-    
+
     for (int i=0; i<ncols0; i++) {
       PRESOLVEASSERT(hincol[i] == &prob->mcstrt0[i+1] - &prob->mcstrt0[i]);
       CoinBigIndex kcs0 = &prob->mcstrt0[i];
@@ -1280,7 +1280,7 @@ void OsiPresolve::postsolve(CoinPostsolveMatrix &prob)
   } else {
     originalModel_->setProblemStatus( presolvedModel_->status());
   }
-#endif  
+#endif
 }
 
 
@@ -1369,9 +1369,9 @@ CoinPrePostsolveMatrix::CoinPrePostsolveMatrix(const OsiSolverInterface * si,
 	rup_[i]=COIN_DBL_MAX;
     }
   }
-  for (i=0;i<ncols_in;i++) 
+  for (i=0;i<ncols_in;i++)
     originalColumn_[i]=i;
-  for (i=0;i<nrows_in;i++) 
+  for (i=0;i<nrows_in;i++)
     originalRow_[i]=i;
   sol_=NULL;
   rowduals_=NULL;
@@ -1503,7 +1503,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
   {
     int i;
     for (i=0;i<ncols_;i++) {
-      if (si->isInteger(i))  
+      if (si->isInteger(i))
 	integerType_[i] = 1;
       else
 	integerType_[i] = 0;
@@ -1552,7 +1552,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
     memcpy(sol_,presol,ncols_*sizeof(double));;
     acts_ = new double [nrows_];
     memcpy(acts_,si->getRowActivity(),nrows_*sizeof(double));
-    CoinWarmStartBasis * basis  = 
+    CoinWarmStartBasis * basis  =
     dynamic_cast<CoinWarmStartBasis*>(si->getWarmStart());
     colstat_ = new unsigned char [nrows_+ncols_];
     rowstat_ = colstat_+ncols_;
@@ -1576,7 +1576,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
       }
     }
     delete basis;
-  } 
+  }
 
 #if 0
   for (i=0; i<nrows; ++i)
@@ -1612,7 +1612,7 @@ void CoinPresolveMatrix::update_model(OsiSolverInterface * si,
 {
   int nels=0;
   int i;
-  for ( i=0; i<ncols_; i++) 
+  for ( i=0; i<ncols_; i++)
     nels += hincol_[i];
   CoinPackedMatrix m(true,nrows_,ncols_,nels, colels_, hrow_,mcstrt_,hincol_);
   si->loadProblem(m, clo_, cup_, cost_, rlo_, rup_);
@@ -1650,7 +1650,7 @@ CoinPostsolveMatrix::CoinPostsolveMatrix(OsiSolverInterface*  si,
 				       int ncols0_in,
 				       int nrows0_in,
 				       CoinBigIndex nelems0,
-				   
+
 				       double maxmin,
 				       // end prepost members
 

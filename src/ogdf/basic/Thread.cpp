@@ -1,9 +1,9 @@
 /*
- * $Revision: 3417 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -109,7 +109,7 @@ namespace ogdf {
 			InitializeConditionVariable(&pData->m_cvStart);
 
 			pData->m_pWork = this;
-				
+
 			m_handle     = 0;
 			m_poolThread = pData;
 			m_id         = 0;
@@ -169,7 +169,7 @@ namespace ogdf {
 		// wait for pool threads to exit
 		for(int i = 0; i < s_numPoolThreads; ++i) {
 			WaitForSingleObject(s_poolThreads[i]->m_handle, INFINITE);
-			
+
 		}
 
 		AcquireSRWLockExclusive(&s_poolLock);
@@ -235,7 +235,7 @@ namespace ogdf {
 		m_handle = (HANDLE) _beginthreadex(0, 0, threadProc, this, 0, &m_id);
 	}
 
-	
+
 	HANDLE Thread::getThreadHandle()
 	{
 		return m_handle;

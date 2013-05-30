@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3503 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -264,45 +264,42 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 	double dist_to_nearest_neighbour, dedicated_sun_distance;
 	bool first_adj_edge;
 	int neighbour_type;
-	edge moon_edge;
+	edge moon_edge = NULL;
 
-	forall_nodes(v,*G_mult_ptr[act_level])
-		if((*A_mult_ptr[act_level])[v].get_type() == 0) //a moon node
-		{//forall
+	forall_nodes(v,*G_mult_ptr[act_level]) {
+		if ((*A_mult_ptr[act_level])[v].get_type() == 0) { //a moon node
 			//find nearest neighbour node
 			first_adj_edge = true;
-			forall_adj_edges(e,v)
-			{//forall2
-				if(v == e->source())
+			forall_adj_edges(e, v) {
+				if (v == e->source())
 					neighbour_node = e->target();
 				else
 					neighbour_node = e->source();
 				neighbour_type = (*A_mult_ptr[act_level])[neighbour_node].get_type();
-				if( (neighbour_type == 2) || (neighbour_type == 3) )
-				{//if_1
-					if(first_adj_edge)
-					{//if
+				if ((neighbour_type == 2)
+				 || (neighbour_type == 3)) {
+					if (first_adj_edge) {
 						first_adj_edge = false;
 						moon_edge = e;
 						dist_to_nearest_neighbour = (*E_mult_ptr[act_level])[e].get_length();
 						nearest_neighbour_node =  neighbour_node;
-					}//if
-					else if(dist_to_nearest_neighbour >(*E_mult_ptr[act_level])[e].get_length())
-					{//else
+					}
+					else if (dist_to_nearest_neighbour >(*E_mult_ptr[act_level])[e].get_length()) {
 						moon_edge = e;
 						dist_to_nearest_neighbour = (*E_mult_ptr[act_level])[e].get_length();
 						nearest_neighbour_node = neighbour_node;
-					}//else
-				}//if_1
-			}//forall2
+					}
+				}
+			}
 			//find dedic. solar system for v and update information in *A_mult_ptr[act_level]
 			//and *E_mult_ptr[act_level]
 
+			OGDF_ASSERT(moon_edge) // otherwise undefined behavior; implicitly affected: dist_to_nearest_neighbor and neares_neighbour_node
 			(*E_mult_ptr[act_level])[moon_edge].make_moon_edge(); //mark this edge
 			dedicated_sun_node = (*A_mult_ptr[act_level])[nearest_neighbour_node].
 				get_dedicated_sun_node();
-			dedicated_sun_distance = dist_to_nearest_neighbour + (*A_mult_ptr[act_level])
-				[nearest_neighbour_node].get_dedicated_sun_distance();
+			dedicated_sun_distance = dist_to_nearest_neighbour
+			  + (*A_mult_ptr[act_level])[nearest_neighbour_node].get_dedicated_sun_distance();
 			(*A_mult_ptr[act_level])[v].set_type(4);
 			(*A_mult_ptr[act_level])[v].set_dedicated_sun_node(dedicated_sun_node);
 			(*A_mult_ptr[act_level])[v].set_dedicated_sun_distance(dedicated_sun_distance);
@@ -313,7 +310,8 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 			(*A_mult_ptr[act_level])[nearest_neighbour_node].set_type(3);
 			(*A_mult_ptr[act_level])[nearest_neighbour_node].
 				get_dedicated_moon_node_List_ptr()->pushBack(v);
-		}//forall
+		}
+	}
 }
 
 
@@ -617,27 +615,17 @@ void Multilevel::create_all_placement_sectors(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int level)
 {
-	node v_high, w_high, sun_node, v, ded_sun;
-	edge e_high;
-	List<DPoint> adj_pos;
-	double angle_1, angle_2, act_angle_1, act_angle_2, next_angle, min_next_angle;
-	DPoint start_pos, end_pos;
-	int MAX = 10; //the biggest of at most MAX random selected sectors is choosen
-	int steps;
-	ListIterator<DPoint> it, next_pos_ptr;
-	bool first_angle;
-
-
-	forall_nodes(v_high,(*G_mult_ptr[level+1]))
-	{//forall
+	node v_high;
+	forall_nodes(v_high, (*G_mult_ptr[level+1])) {
+		double angle_1, angle_2;
 		//find pos of adjacent nodes
-		adj_pos.clear();
-		DPoint v_high_pos ((*A_mult_ptr[level+1])[v_high].get_x(),
-			(*A_mult_ptr[level+1])[v_high].get_y());
-		forall_adj_edges(e_high,v_high)
-			if(!(*E_mult_ptr[level+1])[e_high].is_extra_edge())
-			{
-				if(v_high == e_high->source())
+		List<DPoint> adj_pos;
+		DPoint v_high_pos((*A_mult_ptr[level+1])[v_high].get_x(), (*A_mult_ptr[level+1])[v_high].get_y());
+		edge e_high;
+		forall_adj_edges(e_high,v_high) {
+			if (!(*E_mult_ptr[level+1])[e_high].is_extra_edge()) {
+				node w_high;
+				if (v_high == e_high->source())
 					w_high = e_high->target();
 				else
 					w_high = e_high->source();
@@ -646,70 +634,62 @@ void Multilevel::create_all_placement_sectors(
 					(*A_mult_ptr[level+1])[w_high].get_y());
 				adj_pos.pushBack(w_high_pos);
 			}
-			if(adj_pos.empty()) //easy case
-			{
-				angle_1 = 0;
-				angle_2 = 6.2831853;
-			}
-			else if(adj_pos.size() == 1) //special case
-			{
-				//create angle_1
-				start_pos = *adj_pos.begin();
-				DPoint x_parallel_pos (v_high_pos.m_x + 1, v_high_pos.m_y);
-				angle_1 = angle(v_high_pos,x_parallel_pos,start_pos);
-				//create angle_2
-				angle_2 = angle_1 + Math::pi;
-			}
-			else //usual case
-			{//else
-				steps = 1;
-				it = adj_pos.begin();
-				do
-				{
-					//create act_angle_1
-					start_pos = *it;
-					DPoint x_parallel_pos (v_high_pos.m_x + 1, v_high_pos.m_y);
-					act_angle_1 = angle(v_high_pos,x_parallel_pos,start_pos);
-					//create act_angle_2
-					first_angle = true;
-
-					for(next_pos_ptr = adj_pos.begin();next_pos_ptr.valid();++next_pos_ptr)
-					{
-						next_angle = angle(v_high_pos,start_pos,*next_pos_ptr);
-
-						if(start_pos != *next_pos_ptr && (first_angle || next_angle <
-							min_next_angle))
-						{
-							min_next_angle = next_angle;
-							first_angle = false;
-						}
+		}
+		if (adj_pos.empty()) { //easy case
+			angle_1 = 0;
+			angle_2 = 6.2831853;
+		} else if (adj_pos.size() == 1) { //special case
+			//create angle_1
+			const DPoint x_parallel_pos (v_high_pos.m_x + 1, v_high_pos.m_y);
+			angle_1 = angle(v_high_pos, x_parallel_pos, *adj_pos.begin());
+			//create angle_2
+			angle_2 = angle_1 + Math::pi;
+		} else { //usual case
+			const int MAX = 10; //the biggest of at most MAX random selected sectors is choosen
+			int steps = 1;
+			ListIterator<DPoint> it = adj_pos.begin();
+			do {
+				//create act_angle_1
+				const DPoint x_parallel_pos(v_high_pos.m_x + 1, v_high_pos.m_y);
+				double act_angle_1 = angle(v_high_pos, x_parallel_pos, *it);
+				//create act_angle_2
+				ListIterator<DPoint> next_pos_ptr = adj_pos.begin();
+				double min_next_angle = numeric_limits<double>::max();
+				for (; next_pos_ptr.valid(); ++next_pos_ptr) {
+					const double next_angle = angle(v_high_pos, *it, *next_pos_ptr);
+					if (*it != *next_pos_ptr
+					 && next_angle < min_next_angle) {
+						min_next_angle = next_angle;
 					}
-					act_angle_2 = act_angle_1 + min_next_angle;
-					if((it == adj_pos.begin())||((act_angle_2-act_angle_1)>(angle_2-angle_1)))
-					{
-						angle_1 = act_angle_1;
-						angle_2 = act_angle_2;
-					}
-					if(it != adj_pos.rbegin())
-						it = adj_pos.cyclicSucc(it);
-					steps++;
 				}
-				while((steps <= MAX) && (it != adj_pos.rbegin()));
+				OGDF_ASSERT(min_next_angle < numeric_limits<double>::max());
 
-				if(angle_1 == angle_2)
-					angle_2 = angle_1 + Math::pi;
-			}//else
+				double act_angle_2 = act_angle_1 + min_next_angle;
+				if ((it == adj_pos.begin())
+				 || (act_angle_2 - act_angle_1 > angle_2 - angle_1)) {
+					angle_1 = act_angle_1;
+					angle_2 = act_angle_2;
+				}
+				if (it != adj_pos.rbegin())
+					it = adj_pos.cyclicSucc(it);
+				steps++;
+			} while ((steps <= MAX) && (it != adj_pos.rbegin()));
 
-			//import angle_1 and angle_2 to the dedicated suns at level level
-			sun_node = (*A_mult_ptr[level+1])[v_high].get_lower_level_node();
-			(*A_mult_ptr[level])[sun_node].set_angle_1(angle_1);
-			(*A_mult_ptr[level])[sun_node].set_angle_2(angle_2);
-	}//forall
+			if (angle_1 == angle_2)
+				angle_2 = angle_1 + Math::pi;
+		}
+
+		//import angle_1 and angle_2 to the dedicated suns at level level
+		node sun_node = (*A_mult_ptr[level+1])[v_high].get_lower_level_node();
+		(*A_mult_ptr[level])[sun_node].set_angle_1(angle_1);
+		(*A_mult_ptr[level])[sun_node].set_angle_2(angle_2);
+	}
 
 	//import the angle values from the values of the dedicated sun nodes
-	forall_nodes(v,*G_mult_ptr[level])
+	node v;
+	forall_nodes(v, *G_mult_ptr[level])
 	{
-		ded_sun = (*A_mult_ptr[level])[v].get_dedicated_sun_node();
+		node ded_sun = (*A_mult_ptr[level])[v].get_dedicated_sun_node();
 		(*A_mult_ptr[level])[v].set_angle_1((*A_mult_ptr[level])[ded_sun].get_angle_1());
 		(*A_mult_ptr[level])[v].set_angle_2((*A_mult_ptr[level])[ded_sun].get_angle_2());
 	}
@@ -857,7 +837,7 @@ void Multilevel::delete_multilevel_representations(
 }
 
 
-double Multilevel::angle(DPoint& P, DPoint& Q, DPoint& R)
+double Multilevel::angle(const DPoint& P, const DPoint& Q, const DPoint& R)
 {
 	double dx1 = Q.m_x - P.m_x;
 	double dy1 = Q.m_y - P.m_y;

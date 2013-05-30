@@ -1,9 +1,9 @@
 /*
- * $Revision: 3475 $
+ * $Revision: 3504 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -96,7 +96,7 @@ OGDF_EXPORT void planarConnectedGraph(Graph &G, int n, int m);
  */
 OGDF_EXPORT void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges = false);
 
-//! Creates a planar biconnected (embedded) DiGraph.
+//! Creates a planar biconnected acyclic (embedded) DiGraph.
 /**
  * @param G is assigned the generated graph.
  * @param n is the number of nodes of the generated graph.
@@ -345,9 +345,9 @@ OGDF_EXPORT void randomDiGraph(Graph &G, int n, double p);
 /**
  * This function creates a random series parallel biconnected DAG.
  * Note, that the resulting graph is trivially upward planar!
- * To use this generator for experiments, e.g. concerning upward planarity, 
+ * To use this generator for experiments, e.g. concerning upward planarity,
  * you can fit the graph by reversing some edges with the parameter 0 < flt < 1.
- * 
+ *
  * @param G is assigned the generated graph.
  * @param edges is the number of edges in the generated graph.
  * @param p   = probability of a series composition; default = 0.5

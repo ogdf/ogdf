@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3505 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-05-16 14:49:47 +0200 (Do, 16. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -67,34 +67,34 @@ class OGDF_EXPORT MaximumPlanarSubgraph : public PlanarSubgraphModule
 
 #ifndef USE_ABACUS
 protected:
-    virtual ReturnType doCall(const Graph &G,
-            const List<edge> &preferedEdges,
-            List<edge> &delEdges,
-            const EdgeArray<int>  *pCost,
-            bool preferedImplyPlanar)
-    { THROW_NO_ABACUS_EXCEPTION; return retError; }
+	virtual ReturnType doCall(const Graph &G,
+			const List<edge> &preferedEdges,
+			List<edge> &delEdges,
+			const EdgeArray<int>  *pCost,
+			bool preferedImplyPlanar)
+	{ THROW_NO_ABACUS_EXCEPTION; return retError; }
 };
 #else // Use_ABACUS
 
 public:
-    // Construction
-    MaximumPlanarSubgraph() {}
-    // Destruction
-    virtual ~MaximumPlanarSubgraph() {}
+	// Construction
+	MaximumPlanarSubgraph() {}
+	// Destruction
+	virtual ~MaximumPlanarSubgraph() {}
 
 protected:
-    // Implements the Planar Subgraph interface.
-    // For the given graph \a G, a clustered graph with only
-    // a single root cluster is generated.
-    // Computes set of edges delEdges, which have to be deleted
-    // in order to get a planar subgraph; edges in preferredEdges
-    // should be contained in planar subgraph.
-    // Status: pCost and preferredEdges are ignored in current implementation.
-    virtual ReturnType doCall(const Graph &G,
-            const List<edge> &preferredEdges,
-            List<edge> &delEdges,
-            const EdgeArray<int>  *pCost,
-            bool preferredImplyPlanar);
+	// Implements the Planar Subgraph interface.
+	// For the given graph \a G, a clustered graph with only
+	// a single root cluster is generated.
+	// Computes set of edges delEdges, which have to be deleted
+	// in order to get a planar subgraph; edges in preferredEdges
+	// should be contained in planar subgraph.
+	// Status: pCost and preferredEdges are ignored in current implementation.
+	virtual ReturnType doCall(const Graph &G,
+			const List<edge> &preferredEdges,
+			List<edge> &delEdges,
+			const EdgeArray<int>  *pCost,
+			bool preferredImplyPlanar);
 };
 
 #endif // USE_ABACUS

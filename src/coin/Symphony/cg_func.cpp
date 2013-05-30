@@ -33,8 +33,8 @@
 /*===========================================================================*/
 
 /*===========================================================================*\
- * This function receives the problem data (if we are running in parallel)   
- * and intitializes the data structures.                                     
+ * This function receives the problem data (if we are running in parallel)
+ * and intitializes the data structures.
 \*===========================================================================*/
 
 
@@ -51,7 +51,7 @@ void cg_initialize(cg_prob *p, int master_tid)
 #endif
 
    /*------------------------------------------------------------------------
-    * Receive the problem data 
+    * Receive the problem data
     *------------------------------------------------------------------------*/
 
 #ifdef COMPILE_IN_CG
@@ -63,10 +63,10 @@ void cg_initialize(cg_prob *p, int master_tid)
    /* We only need to do this part if the CG is running as a separate process*/
    /* Otherwise, all of this setup is done in the master in the function     */
    /* pack_cg_data_u()*/
-   
+
    /* set stdout to be line buffered */
    setvbuf(stdout, (char *)NULL, _IOLBF, 0);
-   
+
    register_process();
 
    r_bufid = receive_msg(ANYONE, MASTER_TID_INFO);
@@ -74,12 +74,12 @@ void cg_initialize(cg_prob *p, int master_tid)
    receive_int_array(&p->master, 1);
    receive_int_array(&p->proc_index, 1);
    freebuf(r_bufid);
-   
+
 #endif
-   
+
 #if !defined(COMPILE_IN_TM) || !defined(COMPILE_IN_LP) || \
    !defined(COMPILE_IN_CG)
-      
+
    /* This part, we only need to do if we are not running in full serial mode*/
 
    s_bufid = init_send(DataInPlace);
@@ -87,9 +87,9 @@ void cg_initialize(cg_prob *p, int master_tid)
    freebuf(s_bufid);
 
    receive_cg_data_u(p);
-   
+
 #endif
-   
+
    (void) used_time(&p->tt);
 }
 
@@ -98,7 +98,7 @@ void cg_initialize(cg_prob *p, int master_tid)
 /*===========================================================================*\
  * This function is provided for the user to send cuts. This function is
  * retained for backwards compatibility, but is deprecated. See
- * cg_add_user_cut() below.                       
+ * cg_add_user_cut() below.
 \*===========================================================================*/
 
 int cg_send_cut(cut_data *new_cut, int *num_cuts, int *alloc_cuts,
@@ -134,18 +134,18 @@ int cg_send_cut(cut_data *new_cut, int *num_cuts, int *alloc_cuts,
    }
    REALLOC((*cuts), cut_data *, (*alloc_cuts), (*num_cuts + 1), BB_BUNCH);
    (*cuts)[(*num_cuts)++] = tmp_cut;
-   
+
 #else
 
    int s_bufid;
-   
+
    if (new_cut->name != CUT__DO_NOT_SEND_TO_CP)
       new_cut->name = CUT__SEND_TO_CP;
    s_bufid = init_send(DataInPlace);
    pack_cut(new_cut);
    send_msg(p->cur_sol.lp, PACKED_CUT);
    freebuf(s_bufid);
-   
+
 #endif
 
    return(1);
@@ -239,14 +239,14 @@ int cg_add_user_cut(cut_data *new_cut, int *num_cuts, int *alloc_cuts,
 #else
 
    int s_bufid;
-   
+
    if (new_cut->name != CUT__DO_NOT_SEND_TO_CP)
       new_cut->name = CUT__SEND_TO_CP;
    s_bufid = init_send(DataInPlace);
    pack_cut(new_cut);
    send_msg(p->cur_sol.lp, PACKED_CUT);
    freebuf(s_bufid);
-   
+
 #endif
 
    return(1);

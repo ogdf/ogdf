@@ -31,7 +31,7 @@
 #ifdef INF
 #undef INF
 #endif
-#ifdef SYM_INFINITY 
+#ifdef SYM_INFINITY
 #define INF SYM_INFINITY
 #else
 #define INF 1e20
@@ -59,7 +59,7 @@
 #define RND_FLOOR           0
 #define RND_CEIL            1
 
-#define VAR_NEW             0 
+#define VAR_NEW             0
 #define VAR_IN_BOUND        1
 
 #define UB_SIDE             0
@@ -105,7 +105,7 @@ typedef struct PREP_STATS
 
    /* regarding coeffs changes and bounds tightening */
    int coeffs_changed;
-   char *nz_coeff_changed; 
+   char *nz_coeff_changed;
 
    int bounds_tightened;
 
@@ -125,7 +125,7 @@ typedef struct SRDESC{
    int prob_type;
    char sense;
    double rhs;
-   
+
    int max_n;    /* all variables which are not fixed yet */
    double *obj_max;
    double *matval_max;
@@ -138,7 +138,7 @@ typedef struct SRDESC{
    double sum_c_max;
    double sum_a_max;
 
-   char ub_updated; 
+   char ub_updated;
    double ub;
 
    int min_n;
@@ -153,11 +153,11 @@ typedef struct SRDESC{
    double sum_c_min;
    double sum_a_min;
 
-   char lb_updated; 
+   char lb_updated;
    double lb;
 
    /* for sorting purposes */
-   int * fixed_ind; 
+   int * fixed_ind;
    int * tmp_ind;
 
    /* for variable fixing, bound tightening purpose*/
@@ -165,14 +165,14 @@ typedef struct SRDESC{
    int * var_stat_max;
    int * var_stat_min;
 
-   double *var_obj_max; 
-   double *var_matval_max; 
+   double *var_obj_max;
+   double *var_matval_max;
 
-   double *var_obj_min; 
-   double *var_matval_min; 				    
-   
-   double *var_min_opt; /* for solving the same problem for 
-			   each variable fixed 
+   double *var_obj_min;
+   double *var_matval_min;
+
+   double *var_min_opt; /* for solving the same problem for
+			   each variable fixed
 			*/
    double *var_max_opt;
 
@@ -185,20 +185,20 @@ typedef struct PREPDesc
 {
    MIPdesc * mip;
    MIPdesc * orig_mip;
-   prep_stats stats; 
+   prep_stats stats;
    prep_params params;
 
    /* for logical fixing */
-   int impl_limit; 
+   int impl_limit;
    //int impl_var_cnt; /* fixed ones */
    IMPlist *list; /* the list under inspection */
    int      impl_col_ind;
    prep_stats impl_stats;
-   int      impl_row_cnt; 
-   int      impl_var_cnt; 
-   char     *impl_vars; 
+   int      impl_row_cnt;
+   int      impl_var_cnt;
+   char     *impl_vars;
 
-   ROWinfo *impl_rows; 
+   ROWinfo *impl_rows;
    COLinfo *impl_cols;
 
    double *impl_ub;
@@ -208,13 +208,13 @@ typedef struct PREPDesc
    char *llist_checked;
 
    /* trying single/aggr row relaxations to improve bounds*/
-   int max_sr_cnt; 
-   int max_aggr_cnt; 
+   int max_sr_cnt;
+   int max_aggr_cnt;
    SRdesc *sr; /* for 'L', 'G' constraints */
-   SRdesc *d_sr; /* additionally, for 'E' constraints */    
+   SRdesc *d_sr; /* additionally, for 'E' constraints */
    /* for subproblems checking purposes */
-   char *rows_checked;    
-   double alloc_time; 
+   char *rows_checked;
+   double alloc_time;
 
    /* will need for sorting etc */
    int * user_col_ind;
@@ -228,14 +228,14 @@ typedef struct PREPDesc
 /*===========================================================================*/
 /* Data structure to keep relevant info of a column */
 
-/* User accessible environment to manage preprocessing 
+/* User accessible environment to manage preprocessing
    -added for user in another package
    -not used in symphony */
 /*=========================================================================*/
 
 typedef struct PREP_ENVIRONMENT{
-   PREPdesc * P; 
-   prep_stats stats; 
+   PREPdesc * P;
+   prep_stats stats;
    prep_params params;
    int termcode;
 }prep_environment;
@@ -246,15 +246,15 @@ typedef struct PREP_ENVIRONMENT{
 int sym_presolve(sym_environment *env);
 
 /* some data structures in root description are initialized before calling
- * preprocessor. update these after the preprocessor has changed the problem 
+ * preprocessor. update these after the preprocessor has changed the problem
  * size. */
 int prep_update_rootdesc(sym_environment *env);
 
 /*load a problem through MIP model description arrays*/
 int prep_load_problem(prep_environment *prep, int numcols, int numrows,
-		      int *start, int *index, double *value,         
-		      double *collb, double *colub, char *is_int,    
-		      double *obj, double obj_offset, char *rowsen,       
+		      int *start, int *index, double *value,
+		      double *collb, double *colub, char *is_int,
+		      double *obj, double obj_offset, char *rowsen,
 		      double *rowrhs, double *rowrng, char make_copy);
 
 /*==========================================================================*/
@@ -285,20 +285,20 @@ int prep_integerize_var(PREPdesc *P, int col_ind);
 int prep_basic(PREPdesc *P);
 
 /* try to improve the bounds of a variable*/
-int prep_improve_variable(PREPdesc *P, int col_ind, int row_ind, int a_loc, 
-			  int dive_level, char check_improve, char impl_mode,  
-			  char use_sr_bounds, 
+int prep_improve_variable(PREPdesc *P, int col_ind, int row_ind, int a_loc,
+			  int dive_level, char check_improve, char impl_mode,
+			  char use_sr_bounds,
 			  double sr_ub, double sr_lb, int use_mip);
 
 /* check if the given row is redundant */
-int prep_check_redundancy(PREPdesc *P, int row_ind, char use_sr_bounds, 
+int prep_check_redundancy(PREPdesc *P, int row_ind, char use_sr_bounds,
 			  double sr_ub, double sr_lb, char impl_mode,
 			  int dive_level);
 
 /* if a column is modified, then update the model*/
-int prep_modified_cols_update_info(PREPdesc *P, int col_cnt, int *col_start, 
-				   int row_ind, int dive_level, 
-				   double fixed_bound,  int fix_type, 
+int prep_modified_cols_update_info(PREPdesc *P, int col_cnt, int *col_start,
+				   int row_ind, int dive_level,
+				   double fixed_bound,  int fix_type,
 				   char check_redundancy, char impl_mode);
 
 /* for the unbounded variables, check if we can tighten their bounds*/
@@ -309,7 +309,7 @@ int prep_force_row_bounds(PREPdesc *P, int row_ind, int col_ind, int a_loc);
 int prep_deleted_row_update_info(MIPdesc *mip, int row_ind);
 
 /* try to find duplicate rows and columns */
-int prep_delete_duplicate_rows_cols(PREPdesc *P, char check_rows, 
+int prep_delete_duplicate_rows_cols(PREPdesc *P, char check_rows,
 				    char check_cols);
 /* utility functions */
 void prep_sos_fill_var_cnt(PREPdesc *P);
@@ -323,20 +323,20 @@ char prep_is_integral(double val, double etol);
 
 /* reporting functions */
 int prep_declare_fixed_var(int col_ind, char *name, double fixed_bound);
-int prep_declare_redundant_row(ROWinfo row, int row_ind, char sense, 
+int prep_declare_redundant_row(ROWinfo row, int row_ind, char sense,
 			       double rhs);
-int prep_declare_coef_change(int row_ind, int col_ind, 
-			     char *name, double a_val, 
+int prep_declare_coef_change(int row_ind, int col_ind,
+			     char *name, double a_val,
 			     double rhs);
 int prep_report(PREPdesc *P, int termcode);
 
 /* implications - under development*/
-int prep_add_to_impl_list(IMPlist *list, int ind, int fix_type, 
+int prep_add_to_impl_list(IMPlist *list, int ind, int fix_type,
 			  double val);
 int prep_initialize_impl_lists(PREPdesc *P);
 
 /* experimental - under development */
-int prep_solve_sr_rlx(PREPdesc *P, int row_cnt, int *row_indices); 
+int prep_solve_sr_rlx(PREPdesc *P, int row_cnt, int *row_indices);
 
 /*==========================================================================*/
 /*==========================================================================*/
@@ -351,32 +351,32 @@ void sr_initialize(SRdesc **sr, int n);
 void sr_allocate(SRdesc **sr, int n);
 
 /* solve the single row (indexed by row_ind) relaxation*/
-int sr_solve_bounded_prob(PREPdesc *P, SRdesc *sr, SRdesc *d_sr, 
-			  int obj_ind, int row_ind, 
-			  int *r_matbeg, int *r_matind, double *r_matval, 
+int sr_solve_bounded_prob(PREPdesc *P, SRdesc *sr, SRdesc *d_sr,
+			  int obj_ind, int row_ind,
+			  int *r_matbeg, int *r_matind, double *r_matval,
 			  COLinfo *cols, double *ub, double *lb, double etol);
 /* internal functions: */
 /* add a new column to the problem: the description of column is passed in
    through function arguments*/
-int sr_add_new_col(SRdesc *sr, SRdesc *d_sr, double c_val, double a_val, 
-		   int col_ind, char col_var_type, double col_ub, 
-		   double col_lb, char sense, int col_type, 
+int sr_add_new_col(SRdesc *sr, SRdesc *d_sr, double c_val, double a_val,
+		   int col_ind, char col_var_type, double col_ub,
+		   double col_lb, char sense, int col_type,
 		   int col_bound_type);
 /* add a new column to the problem: the description of column is passed in
    through function arguments - here we know that it is bounded*/
 int sr_add_new_bounded_col(SRdesc *sr, double c_val, double a_val,
-			   int col_ind, 
-			   double rhs_ub_offset, double rhs_lb_offset, 
+			   int col_ind,
+			   double rhs_ub_offset, double rhs_lb_offset,
 			   double obj_ub_offset, double obj_lb_offset,
-			   double col_ub, double col_lb, int obj_sense, 
+			   double col_ub, double col_lb, int obj_sense,
 			   char var_type);
 /* helper functions */
-int sr_find_opt_bounded(PREPdesc *P, SRdesc *sr, int obj_ind, 
+int sr_find_opt_bounded(PREPdesc *P, SRdesc *sr, int obj_ind,
 			double *ub, double *lb);
 
-int sr_solve_open_prob(PREPdesc *P, SRdesc *sr, int obj_ind, 
-		       int row_ind, int *r_matbeg, 
-		       int *r_matind, double *r_matval, COLinfo *cols, 
+int sr_solve_open_prob(PREPdesc *P, SRdesc *sr, int obj_ind,
+		       int row_ind, int *r_matbeg,
+		       int *r_matind, double *r_matval, COLinfo *cols,
 		       double *ub, double *lb, double etol);
 
 void free_prep_desc(PREPdesc *P);

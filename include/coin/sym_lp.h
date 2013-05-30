@@ -49,7 +49,7 @@ typedef struct OUR_COL_SET{
 
    int           num_vars;
    int          *userind;
-   
+
    double       *objx;
    double       *lb;
    double       *ub;
@@ -72,11 +72,11 @@ typedef struct LP_PROB{
    double        ub;
 
    double        root_objval;
-   
+
    int           phase;
 
    double        start_time;
-   
+
    base_desc     base;
 
    branch_desc  *bdesc;        /* there are p->bc_level branch_desc's */
@@ -100,7 +100,7 @@ typedef struct LP_PROB{
    double        utopia[2];
    int           has_mc_ub;
    double        mc_ub;
-   
+
    double        tt;
    node_times    comp_times;
    lp_stat_desc  lp_stat;
@@ -123,7 +123,7 @@ typedef struct LP_PROB{
    int           vars_recently_fixed_to_ub;
    LPdata       *lp_data;
    MIPdesc      *mip; /* Holds the MIP description when read in from MPS */
-   
+
    double        last_gap;
    double       *obj_history;
    int           has_tailoff;
@@ -158,7 +158,7 @@ typedef struct LP_PROB{
    int            *br_rel_cand_list;
    char            str_br_check;
    int            *br_rel_down_min_level;
-   int            *br_rel_up_min_level;   
+   int            *br_rel_up_min_level;
    double          str_check_obj;
    int             str_check_trial;
    int             str_check_freq;
@@ -181,23 +181,23 @@ int collect_nonzeros PROTO((lp_prob *p, double *x, int *tind, double *tx));
 int collect_fractions PROTO((lp_prob *p, double *x, int *tind, double *tx));
 node_desc *create_explicit_node_desc PROTO((lp_prob *p));
 int check_tailoff PROTO((lp_prob *p));
-int round_solution PROTO((lp_prob *p, double *solution_value, 
+int round_solution PROTO((lp_prob *p, double *solution_value,
 			  double *betterSolution));
-int local_search PROTO((lp_prob *p, double *solution_value, 
+int local_search PROTO((lp_prob *p, double *solution_value,
 			double *col_solution, double *better_solution));
 void lp_exit PROTO((lp_prob *p));
 void lp_close PROTO((lp_prob *p));
-int generate_cgl_cuts_new PROTO((lp_prob *p, int *num_cuts, cut_data ***cuts, 
+int generate_cgl_cuts_new PROTO((lp_prob *p, int *num_cuts, cut_data ***cuts,
       int send_to_pool, int *bound_changes));
-int should_use_cgl_generator PROTO ((lp_prob *p, int *should_generate, 
+int should_use_cgl_generator PROTO ((lp_prob *p, int *should_generate,
       int which_generator, void *generator));
-int generate_cgl_cut_of_type PROTO((lp_prob *p, int i, OsiCuts *cutlist_p, 
+int generate_cgl_cut_of_type PROTO((lp_prob *p, int i, OsiCuts *cutlist_p,
          int *was_tried));
 int check_and_add_cgl_cuts PROTO((lp_prob *p, int i, cut_data ***cuts, int *num_cuts, int *bound_changes, OsiCuts *cutlist, int send_to_pool));
 int should_stop_adding_cgl_cuts PROTO((lp_prob *p, int i, int *should_stop));
 int add_col_cuts PROTO((lp_prob *p, OsiCuts *cutlist, int *bound_changes));
 int update_pcost PROTO ((lp_prob *p));
-int str_br_bound_changes PROTO((lp_prob *p, int num_bnd_changes, 
+int str_br_bound_changes PROTO((lp_prob *p, int num_bnd_changes,
          double *bnd_val, int *bnd_ind, char *bnd_sense));
 
 /*===========================================================================*/
@@ -244,10 +244,10 @@ int add_violated_slacks PROTO((lp_prob *p, int cand_num,
 int select_branching_object PROTO((lp_prob *p, int *cuts,
 				   branch_obj **can));
 int should_continue_strong_branching PROTO((lp_prob *p, int i, int cand_num,
-                                     double st_time, int total_iters, 
+                                     double st_time, int total_iters,
                                      int *should_continue));
-int strong_branch(lp_prob *p, int branch_var, double lb, double ub, 
-		  double new_lb, double new_ub, double *obj, int should_use_hot_starts, 
+int strong_branch(lp_prob *p, int branch_var, double lb, double ub,
+		  double new_lb, double new_ub, double *obj, int should_use_hot_starts,
                   int *termstatus, int *iterd);
 int branch PROTO((lp_prob *p, int cuts));
 int col_gen_before_branch PROTO((lp_prob *p, int *new_vars));
@@ -282,8 +282,8 @@ char pack_extra_diff PROTO((array_desc *olddesc, int *oldstat,
 			    array_desc *newdesc, int *newstat,
 			    char oldbasis_type_in_tm, char newdesc_type_in_tm,
 			    int *itmp, int *size));
-void send_branching_info PROTO((lp_prob *p, branch_obj *can, char *action, 
-				int *keep)); 
+void send_branching_info PROTO((lp_prob *p, branch_obj *can, char *action,
+				int *keep));
 void send_lp_is_free PROTO((lp_prob *p));
 void send_cuts_to_pool PROTO((lp_prob *p, int eff_cnt_limit));
 int add_bound_changes_to_desc PROTO((node_desc *new_tm_desc, lp_prob *p));

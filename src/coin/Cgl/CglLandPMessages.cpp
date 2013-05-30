@@ -15,7 +15,7 @@ namespace LAP
 {
 
 #ifdef LAP_ADD_MSG
-#error "Macro ADD_MSG already defined"    
+#error "Macro ADD_MSG already defined"
 #endif
 #define LAP_ADD_MSG(Id,Type,Level,MSG) addMessage(Id, CoinOneMessage( Type(Id), Level, MSG))
 inline int std_m(int n)

@@ -7,7 +7,7 @@
 // date:     05/01/2003
 // comments: please scan this file for '???' and read the comments
 //-----------------------------------------------------------------------------
-// Copyright (C) 2003, Yan Xu, Jeff Linderoth, Martin Savelsberg and others. 
+// Copyright (C) 2003, Yan Xu, Jeff Linderoth, Martin Savelsberg and others.
 // All Rights Reserved.
 // This code is published under the Eclipse Public License.
 
@@ -33,27 +33,27 @@ static bool doLift=true;
 #include <iomanip>
 //-------------------------------------------------------------------
 // Overloaded operator<< for printing VUB and VLB.
-//-------------------------------------------------------------------  
-std::ostream& operator<<( std::ostream& os, const CglFlowVUB &v ) 
-{ 
-  os << " VAR = " << v.getVar() << "\t VAL = " << v.getVal() << std::endl; 
-  return os; 
+//-------------------------------------------------------------------
+std::ostream& operator<<( std::ostream& os, const CglFlowVUB &v )
+{
+  os << " VAR = " << v.getVar() << "\t VAL = " << v.getVal() << std::endl;
+  return os;
 }
 
 // Initialize static memeber
 int CglFlowCover::numFlowCuts_ = 0;
 
 //-------------------------------------------------------------------
-// Determine row types. Find the VUBS and VLBS. 
-//-------------------------------------------------------------------  
-void 
+// Determine row types. Find the VUBS and VLBS.
+//-------------------------------------------------------------------
+void
 CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
 {
   CoinPackedMatrix matrixByRow(*si.getMatrixByRow());
 
   int numRows = si.getNumRows();
   int numCols = si.getNumCols();
-  
+
   const char* sense        = si.getRowSense();
   const double* RHS        = si.getRightHandSide();
 
@@ -61,7 +61,7 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
   const int* colInds       = matrixByRow.getIndices();
   const int* rowStarts     = matrixByRow.getVectorStarts();
   const int* rowLengths    = matrixByRow.getVectorLengths();
-  int iRow      = -1; 
+  int iRow      = -1;
   int iCol      = -1;
 
   numCols_ = numCols;     // Record col and row numbers for copy constructor
@@ -73,7 +73,7 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
   rowTypes_ = new CglFlowRowType [numRows];// Destructor will free memory
   // Get integer types
   const char * columnType = si.getColType (true);
-    
+
   // Summarize the row type infomation.
   int numUNDEFINED   = 0;
   int numVARUB       = 0;
@@ -96,42 +96,42 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
 
     CoinDisjointCopyN(colInds + rowStarts[iRow], rowLen, ind);
     CoinDisjointCopyN(coefByRow + rowStarts[iRow], rowLen, coef);
- 
-    CglFlowRowType rowType = determineOneRowType(si, rowLen, ind, coef, 
+
+    CglFlowRowType rowType = determineOneRowType(si, rowLen, ind, coef,
 						 sen, rhs);
 
     rowTypes_[iRow] = rowType;
 
     switch(rowType) {
     case  CGLFLOW_ROW_UNDEFINED:
-      ++numUNDEFINED; 
+      ++numUNDEFINED;
       break;
     case  CGLFLOW_ROW_VARUB:
-      ++numVARUB; 
+      ++numVARUB;
       break;
     case  CGLFLOW_ROW_VARLB:
-      ++numVARLB; 
+      ++numVARLB;
       break;
     case  CGLFLOW_ROW_VAREQ:
-      ++numVAREQ; 
+      ++numVAREQ;
       break;
     case  CGLFLOW_ROW_MIXUB:
-      ++numMIXUB; 
+      ++numMIXUB;
       break;
     case  CGLFLOW_ROW_MIXEQ:
-      ++numMIXEQ; 
+      ++numMIXEQ;
       break;
     case  CGLFLOW_ROW_NOBINUB:
-      ++numNOBINUB; 
+      ++numNOBINUB;
       break;
     case  CGLFLOW_ROW_NOBINEQ:
-      ++numNOBINEQ; 
+      ++numNOBINEQ;
       break;
     case  CGLFLOW_ROW_SUMVARUB:
-      ++numSUMVARUB; 
+      ++numSUMVARUB;
       break;
     case  CGLFLOW_ROW_SUMVAREQ:
-      ++numSUMVAREQ; 
+      ++numSUMVAREQ;
       break;
     case  CGLFLOW_ROW_UNINTERSTED:
       ++numUNINTERSTED;
@@ -140,7 +140,7 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
       throw CoinError("Unknown row type", "flowPreprocess",
 		      "CglFlowCover");
     }
-    
+
   }
   delete [] ind;  ind  = NULL;
   delete [] coef; coef = NULL;
@@ -172,21 +172,21 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
     vubs_[iCol].setVar(UNDEFINED_);     // but, need redo since may call
     vlbs_[iCol].setVar(UNDEFINED_);     // preprocess(...) more than once
   }
-  
+
   for (iRow = 0; iRow < numRows; ++iRow) {
-	
+
     CglFlowRowType rowType2 = rowTypes_[iRow];
-    
-    if ( (rowType2 == CGLFLOW_ROW_VARUB) || 
-	 (rowType2 == CGLFLOW_ROW_VARLB) || 
-	 (rowType2 == CGLFLOW_ROW_VAREQ) )  { 
-      
+
+    if ( (rowType2 == CGLFLOW_ROW_VARUB) ||
+	 (rowType2 == CGLFLOW_ROW_VARLB) ||
+	 (rowType2 == CGLFLOW_ROW_VAREQ) )  {
+
       int startPos = rowStarts[iRow];
       int index0   = colInds[startPos];
       int index1   = colInds[startPos + 1];
       double coef0 = coefByRow[startPos];
       double coef1 = coefByRow[startPos + 1];
-	    
+
       int    xInd,  yInd;   // x is binary
       double xCoef, yCoef;
 
@@ -215,7 +215,7 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
 	vlbs_[yInd].setVal(-xCoef / yCoef);
 	break;
       default:
-	throw CoinError("Unknown row type: impossible", 
+	throw CoinError("Unknown row type: impossible",
 			"flowPreprocess", "CglFlowCover");
       }
     }
@@ -229,13 +229,13 @@ CglFlowCover::flowPreprocess(const OsiSolverInterface& si) const
 
 //-----------------------------------------------------------------------------
 // Generate LSGFC cuts
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-				const CglTreeInfo info) const 
+				const CglTreeInfo info) const
 {
   static int count=0;
   if (getMaxNumCuts() <= 0) return;
-    
+
   if (getNumFlowCuts() >= getMaxNumCuts()) return;
   ++count;
 
@@ -246,7 +246,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   si.getHintParam(OsiDoPresolveInResolve, preReso);
 
   if (preInit == false &&  preReso == false) { // Do once
-    if (doneInitPre_ == false) {   
+    if (doneInitPre_ == false) {
       flowPreprocess(si);
       doneInitPre_ = true;
     }
@@ -254,7 +254,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   else
 #endif
     int numberRowCutsBefore = cs.sizeRowCuts();
-    
+
   flowPreprocess(si);
 
   CoinPackedMatrix matrixByRow(*si.getMatrixByRow());
@@ -265,7 +265,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
   const int* colInd = matrixByRow.getIndices();
   const CoinBigIndex* rowStart = matrixByRow.getVectorStarts();
   const int* rowLength = matrixByRow.getVectorLengths();
-    
+
   int* ind        = 0;
   double* coef    = 0;
   int iRow, iCol;
@@ -280,7 +280,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	( rType != CGLFLOW_ROW_NOBINEQ ) &&
 	( rType != CGLFLOW_ROW_SUMVARUB ) &&
 	( rType != CGLFLOW_ROW_SUMVAREQ ) )
-      continue;  
+      continue;
 
     const int sta = rowStart[iRow];     // Start position of iRow
     const int rowLen = rowLength[iRow]; // iRow length / non-zero elements
@@ -301,7 +301,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
     bool hasCut = false;
 
     if (sense[iRow] == 'E') {
-      hasCut = generateOneFlowCut(si, rowLen, ind, coef, 'L', 
+      hasCut = generateOneFlowCut(si, rowLen, ind, coef, 'L',
 				  rhs[iRow], flowCut1, violation);
       if (hasCut)  {                         // If find a cut
 	cs.insert(flowCut1);
@@ -310,7 +310,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 	  break;
       }
       hasCut = false;
-      hasCut = generateOneFlowCut(si, rowLen, ind, coef, 'G', 
+      hasCut = generateOneFlowCut(si, rowLen, ind, coef, 'G',
 				  rhs[iRow], flowCut2, violation);
       if (hasCut)  {
 	cs.insert(flowCut2);
@@ -320,7 +320,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
       }
     }
     if (sense[iRow] == 'L' || sense[iRow] == 'G') {
-      hasCut = generateOneFlowCut(si, rowLen, ind, coef, sense[iRow], 
+      hasCut = generateOneFlowCut(si, rowLen, ind, coef, sense[iRow],
 				  rhs[iRow], flowCut3, violation);
       if (hasCut)  {
 	cs.insert(flowCut3);
@@ -349,7 +349,7 @@ void CglFlowCover::generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
 }
 
 //-------------------------------------------------------------------
-// Default Constructor 
+// Default Constructor
 //-------------------------------------------------------------------
 CglFlowCover::CglFlowCover()
   :
@@ -366,17 +366,17 @@ CglFlowCover::CglFlowCover()
   vubs_(0),
   vlbs_(0),
   rowTypes_(0)
-{ 
+{
   // DO NOTHING
 }
 
 
 //-------------------------------------------------------------------
-// Copy constructor 
+// Copy constructor
 //-------------------------------------------------------------------
 CglFlowCover::CglFlowCover (const CglFlowCover & source)
   :
-  CglCutGenerator(source), 
+  CglCutGenerator(source),
   maxNumCuts_(source.maxNumCuts_),
   EPSILON_(source.EPSILON_),
   UNDEFINED_(source.UNDEFINED_),
@@ -386,7 +386,7 @@ CglFlowCover::CglFlowCover (const CglFlowCover & source)
   numRows_(source.numRows_),
   numCols_(source.numCols_),
   doneInitPre_(source.doneInitPre_)
-{ 
+{
   setNumFlowCuts(source.numFlowCuts_);
   if (numCols_ > 0) {
     vubs_ = new CglFlowVUB [numCols_];
@@ -418,7 +418,7 @@ CglFlowCover::clone() const
 }
 
 //------------------------------------------------------------------
-// Assignment operator 
+// Assignment operator
 //-------------------------------------------------------------------
 CglFlowCover &
 CglFlowCover::operator=(const CglFlowCover& rhs)
@@ -451,23 +451,23 @@ CglFlowCover::operator=(const CglFlowCover& rhs)
 
 
 //-------------------------------------------------------------------
-// Destructor 
-//-------------------------------------------------------------------  
+// Destructor
+//-------------------------------------------------------------------
 CglFlowCover::~CglFlowCover ()
 {
   if (vubs_ != 0) { delete [] vubs_; vubs_ = 0; }
   if (vlbs_ != 0) { delete [] vlbs_; vlbs_ = 0; }
-  if (rowTypes_ != 0) { delete [] rowTypes_; rowTypes_ = 0; } 
+  if (rowTypes_ != 0) { delete [] rowTypes_; rowTypes_ = 0; }
 }
 
 
 //-------------------------------------------------------------------
-//  Given the model data, a row of the model, and a LP solution, 
-//  this function tries to generate a violated lifted simple generalized 
+//  Given the model data, a row of the model, and a LP solution,
+//  this function tries to generate a violated lifted simple generalized
 //  flow cover.
-//-------------------------------------------------------------------  
-bool 
-CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si, 
+//-------------------------------------------------------------------
+bool
+CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 				  const int rowLen,
 				  int* ind,
 				  double* coef,
@@ -479,15 +479,15 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   bool generated       = false;
   const double* xlp    = si.getColSolution();
   const int numCols    = si.getNumCols();
-    
+
   double* up           = new double [rowLen];
   double* x            = new double [rowLen];
   double* y            = new double [rowLen];
   CglFlowColType* sign = new CglFlowColType [rowLen];
-    
-  int i, j;  
+
+  int i, j;
   double value, LB, UB;
-    
+
   CglFlowVLB VLB;
   CglFlowVUB VUB;
   static int count=0;
@@ -503,9 +503,9 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 
   if (i == rowLen)  {
     delete [] sign;
-    delete [] up; 
-    delete [] x;   
-    delete [] y; 
+    delete [] up;
+    delete [] x;
+    delete [] y;
     return generated;
   }
 
@@ -513,49 +513,49 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 
   if (sense == 'G') flipRow(rowLen, coef, rhs); // flips everything,
   // but the sense
-					  
+
 
   if(CGLFLOW_DEBUG) {
     std::cout << "***************************" << std::endl;
     std::cout << "Generate Flow cover -- initial constraint, converted to L sense..." << std::endl;
     std::cout << "Rhs = " << rhs << std::endl;
     std::cout << "coef [var_index]" << " -- " <<  "xlp[var_index]" << '\t' << "vub_coef[vub_index] vub_lp_value OR var_index_col_ub" << std::endl;
-   
+
     for(int iD = 0; iD < rowLen; ++iD) {
       VUB = getVubs(ind[iD]);
 
-      std::cout << std::setw(5) << coef[iD] << "["  << std::setw(5)  << ind[iD] << "] -- " 
+      std::cout << std::setw(5) << coef[iD] << "["  << std::setw(5)  << ind[iD] << "] -- "
 		<< std::setw(20) << xlp[ind[iD]] << '\t';
-      if (VUB.getVar() != UNDEFINED_) {  
-	std::cout << std::setw(20) << VUB.getVal() << "[" << std::setw(5) << VUB.getVar() << "]" 
-		  << std::setw(20) << xlp[VUB.getVar()] << std::endl; 
+      if (VUB.getVar() != UNDEFINED_) {
+	std::cout << std::setw(20) << VUB.getVal() << "[" << std::setw(5) << VUB.getVar() << "]"
+		  << std::setw(20) << xlp[VUB.getVar()] << std::endl;
       }
       else
 	std::cout << std::setw(20) << si.getColUpper()[ind[iD]] << "       " << std::setw(20) << 1.0 << std::endl;
-	
+
     }
   }
 
   //-------------------------------------------------------------------------
-  // Generate conservation inequality and capacity equalities from 
+  // Generate conservation inequality and capacity equalities from
   // the given row.
-  
+
   for (i = 0; i < rowLen; ++i) {
-	
+
     VLB = getVlbs(ind[i]);
-    LB = ( VLB.getVar() != UNDEFINED_ ) ? 
+    LB = ( VLB.getVar() != UNDEFINED_ ) ?
       VLB.getVal() : si.getColLower()[ind[i]];
 
     VUB = getVubs(ind[i]);
-    UB = ( VUB.getVar() != UNDEFINED_ ) ? 
+    UB = ( VUB.getVar() != UNDEFINED_ ) ?
       VUB.getVal() : si.getColUpper()[ind[i]];
 
     if (LB < -EPSILON_) {   // Only consider rows whose variables are all
-      delete [] sign;       // non-negative (LB>= 0). 
-      delete [] up; 
-      delete [] x;   
-      delete [] y;  
-      return generated;     
+      delete [] sign;       // non-negative (LB>= 0).
+      delete [] up;
+      delete [] x;
+      delete [] y;
+      return generated;
     }
 
     if ( columnType[ind[i]]==1 ) {   // Binary variable
@@ -565,12 +565,12 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       else {
 	sign[i] = CGLFLOW_COL_BINNEG;
 	value = -value;
-      }    
+      }
       up[i] = value;
       x[i] =  xlp[ind[i]];
       y[i] = value * x[i];
     }
-    else {   
+    else {
       value = coef[i];
       if (value > EPSILON_)
 	sign[i] = CGLFLOW_COL_CONTPOS;
@@ -596,7 +596,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   for (i = 0; i < rowLen; ++i) {
     candidate[i] = label[i] = CGLFLOW_COL_OUTCUT;
     ratio[i] = INFTY_;
-	
+
     switch(sign[i]) {
     case CGLFLOW_COL_CONTPOS:
     case CGLFLOW_COL_BINPOS:
@@ -625,19 +625,19 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 	}
       }
       break;
-    }    
+    }
   }
-    
+
   double diff, tempD, lambda;
   int xID = -1;
   if (knapRHS >1.0e10) {
     if(CGLFLOW_DEBUG) {
-      std::cout << "knapsack RHS too large. RETURN." << std::endl; 
+      std::cout << "knapsack RHS too large. RETURN." << std::endl;
     }
-    delete [] sign;                              
-    delete [] up; 
-    delete [] x;   
-    delete [] y;  
+    delete [] sign;
+    delete [] up;
+    delete [] x;
+    delete [] y;
     delete [] candidate;
     delete [] label;
     delete [] ratio;
@@ -655,12 +655,12 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 	}
       }
     }
-    
+
     if( diff > (1.0 - EPSILON_) * INFTY_  ) {   // NO cover exits.
-      delete [] sign;                              
-      delete [] up; 
-      delete [] x;   
-      delete [] y;  
+      delete [] sign;
+      delete [] up;
+      delete [] x;
+      delete [] y;
       delete [] candidate;
       delete [] label;
       delete [] ratio;
@@ -681,15 +681,15 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       tempSum += up[i];
     }
   }
-  
+
   while (tempSum < knapRHS + EPSILON_) {
     tempMin = INFTY_;
     xID=-1;
     for (i = 0; i < rowLen; i++) {   // Search the col with  minimum ratio
-      if (candidate[i] == CGLFLOW_COL_PRIME && label[i] == 0 && 
+      if (candidate[i] == CGLFLOW_COL_PRIME && label[i] == 0 &&
 	  ratio[i] < tempMin) {
-	tempMin = ratio[i];  
-	xID = i; 
+	tempMin = ratio[i];
+	xID = i;
       }
     }
     if (xID>=0) {
@@ -697,19 +697,19 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       tempSum += up[xID];
     } else {
       if(CGLFLOW_DEBUG) {
-	std::cout << "knapsack RHS too large B. RETURN." << std::endl; 
+	std::cout << "knapsack RHS too large B. RETURN." << std::endl;
       }
-      delete [] sign;                              
-      delete [] up; 
-      delete [] x;   
-      delete [] y;  
+      delete [] sign;
+      delete [] up;
+      delete [] x;
+      delete [] y;
       delete [] candidate;
       delete [] label;
       delete [] ratio;
       return generated;
     }
   }
-  
+
   // Reduce to a minimal cover
   for (i = 0; i < rowLen; ++i) {
     if (label[i] == CGLFLOW_COL_INCUT && ratio[i] > EPSILON_) {
@@ -727,33 +727,33 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       }
     }
   }
-    
+
   // Due to the way to handle N-
   for(i = 0; i < rowLen; ++i) {
-    if( sign[i] < 0 ) 
+    if( sign[i] < 0 )
       label[i] = label[i]==CGLFLOW_COL_OUTCUT?CGLFLOW_COL_INCUT:CGLFLOW_COL_OUTCUT;
   }
 
-  // No cover, no cut. 
-  bool emptyCover = true; 
+  // No cover, no cut.
+  bool emptyCover = true;
   for (i = 0; i < rowLen; ++i) {
     if (label[i] == CGLFLOW_COL_INCUT) {
-      emptyCover = false; 
+      emptyCover = false;
       break;
     }
   }
-  if (emptyCover) {	
+  if (emptyCover) {
     if(CGLFLOW_DEBUG) {
-      std::cout << "No cover. RETURN." << std::endl; 
+      std::cout << "No cover. RETURN." << std::endl;
     }
-    delete [] sign;                              
-    delete [] up; 
-    delete [] x;   
-    delete [] y;  
+    delete [] sign;
+    delete [] up;
+    delete [] x;
+    delete [] y;
     delete [] candidate;
     delete [] label;
     delete [] ratio;
-    return generated;  
+    return generated;
   }
 
   lambda = tempSum - knapRHS;
@@ -764,14 +764,14 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
     // double checkLambda; // variable not used anywhere (LL)
     // print out the knapsack variables
     std::cout << "Knapsack Cover: C+" << std::endl;
-    for (i = 0; i < rowLen; ++i) { 
+    for (i = 0; i < rowLen; ++i) {
       if ( label[i] == CGLFLOW_COL_INCUT && sign[i] > 0 ) {
 	std::cout << ind[i] << '\t' << up[i] << std::endl;
 	sum_mj_Cplus += up[i];
       }
-    } 
+    }
     std::cout << "Knapsack Cover: C-" << std::endl;
-    for (i = 0; i < rowLen; ++i) { 
+    for (i = 0; i < rowLen; ++i) {
       if ( label[i] == CGLFLOW_COL_INCUT && sign[i] < 0 ) {
 	std::cout << ind[i] << '\t' << up[i] << std::endl;
 	sum_mj_Cminus += up[i];
@@ -790,7 +790,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   int numCMinus = 0;
   int numPlusPlus = 0;
   double* rho     = new double [rowLen];
-  double* xCoef   = new double [rowLen]; 
+  double* xCoef   = new double [rowLen];
   double* yCoef   = new double [rowLen];
   double cutRHS   = rhs;
   double temp     = 0.0;
@@ -803,10 +803,10 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
     xCoef[i] = 0.0;
     yCoef[i] = 0.0;
   }
-    
+
   // Project out variables in C-
   // d^' = d + sum_{i in C^-} m_i. Now cutRHS = d^'
-  for (i = 0; i < rowLen; ++i) { 
+  for (i = 0; i < rowLen; ++i) {
     if ( label[i] == CGLFLOW_COL_INCUT && sign[i] < 0 ) {
       cutRHS += up[i];
       ++numCMinus;
@@ -821,7 +821,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   // minNegM = min_{i in L-} m_i
 
   temp = cutRHS;
-    
+
   for (i = 0; i < rowLen; ++i) {
     if (label[i] == CGLFLOW_COL_INCUT  && sign[i] > 0) { // C+
       yCoef[i] = 1.0;
@@ -836,9 +836,9 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       else {  // C+\C++
 	xCoef[i] = 0.0;  // rlh: is this necesarry? (xCoef initialized to zero)
 	sum += up[i];
-      } 
+      }
     }
-	
+
     if (label[i] != CGLFLOW_COL_INCUT && sign[i] < 0) { // N-\C-
       temp += up[i];
       if ( up[i] > lambda) {      // L-
@@ -848,7 +848,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 	yCoef[i] = 0.0;
 	xCoef[i] = -lambda;
 	label[i] = CGLFLOW_COL_INLMIN;
-	if ( up[i] < minNegM ) { 
+	if ( up[i] < minNegM ) {
 	  minNegM = up[i];
 	}
       }
@@ -863,7 +863,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       }
     }
   }
-   
+
   // Sort the upper bounds (m_i) of variables in C++ and L-.
 
   int     ix;
@@ -875,8 +875,8 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   int * order = new int [rowLen];
   int nLook=0;
   for (int i = 0; i < rowLen; ++i) {
-    if ( (label[i] == CGLFLOW_COL_INCUT && sign[i] > 0) || 
-	 label[i] == CGLFLOW_COL_INLMIN ) {     //  C+ || L- 
+    if ( (label[i] == CGLFLOW_COL_INCUT && sign[i] > 0) ||
+	 label[i] == CGLFLOW_COL_INLMIN ) {     //  C+ || L-
       // possible
       M[nLook]=-up[i];
       order[nLook++]=i;
@@ -884,23 +884,23 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   }
   CoinSort_2(M,M+nLook,order);
   int kLook=0;
-  
+
   while (kLook<nLook) {
     ix = UNDEFINED_;
     i = order[kLook];
     kLook++;
-    if ( (label[i] == CGLFLOW_COL_INCUT && sign[i] > 0) || 
-	 label[i] == CGLFLOW_COL_INLMIN ) {     //  C+ || L- 
+    if ( (label[i] == CGLFLOW_COL_INCUT && sign[i] > 0) ||
+	 label[i] == CGLFLOW_COL_INLMIN ) {     //  C+ || L-
       if ( up[i] > lambda ) {       // C++ || L-(up[i] > lambda)
 	ix = i;
       }
     }
-      
+
     if( ix == UNDEFINED_ )  break;
-      
+
     mt[index++] = up[ix];  // Record m_i in C++ and L-(not all) in descending order.
-	
-    if( label[ix] == CGLFLOW_COL_INLMIN )  
+
+    if( label[ix] == CGLFLOW_COL_INLMIN )
       label[ix] = CGLFLOW_COL_INLMINDONE;
     else
       label[ix] = CGLFLOW_COL_INCUTDONE;
@@ -909,20 +909,20 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   if( index == 0 || numPlusPlus == 0) {
     // No column in C++ and L-(not all). RETURN.
     if(CGLFLOW_DEBUG) {
-      std::cout << "index = 0. RETURN." << std::endl; 
+      std::cout << "index = 0. RETURN." << std::endl;
     }
     delete [] sign;
-    delete [] up; 
-    delete [] x;   
-    delete [] y;  
+    delete [] up;
+    delete [] x;
+    delete [] y;
     delete [] candidate;
     delete [] label;
     delete [] ratio;
     delete [] rho;
     delete [] xCoef;
     delete [] yCoef;
-    delete [] mt; 
-    delete [] M; 
+    delete [] mt;
+    delete [] M;
     delete [] order;
     return generated;
   }
@@ -944,48 +944,48 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
       break;
     }
   }
-    
+
   temp1 = temp;
-    
+
   /* Get t */
   t = 0;
   for ( i = 0; i < index; ++i ) {
     if ( mt[i] < minPlsM ) {
       t = i;
       break;
-    } 
+    }
   }
 
   if (i == index) {
     t = index;
   }
-    
+
   /* Compute M_i */
   M[0] = 0.0;
   for ( i = 1; i <= index; ++i ) {
     M[i] = M[(i-1)] + mt[(i-1)];
     if(CGLFLOW_DEBUG) {
-      std::cout << "t = " << t << std::endl; 
+      std::cout << "t = " << t << std::endl;
       std::cout << "mt[" << std::setw(5) << (i-1) << "]=" << std::setw(2) << ", M[" << std::setw(5) << i << "]=" << std::setw(20) << M[i] << std::endl;
     }
   }
   // Exit if very big M
-  if (M[index]>1.0e30) { // rlh: should test for huge col UB earler 
+  if (M[index]>1.0e30) { // rlh: should test for huge col UB earler
     // no sense doing all this work in that case.
     if(CGLFLOW_DEBUG) {
-      std::cout << "M[index]>1.0e30. RETURN." << std::endl; 
+      std::cout << "M[index]>1.0e30. RETURN." << std::endl;
       delete [] sign;
-      delete [] up; 
-      delete [] x;   
-      delete [] y;  
+      delete [] up;
+      delete [] x;
+      delete [] y;
       delete [] candidate;
       delete [] label;
       delete [] ratio;
       delete [] rho;
       delete [] xCoef;
       delete [] yCoef;
-      delete [] mt; 
-      delete [] M; 
+      delete [] mt;
+      delete [] M;
       delete [] order;
       return generated;
     }
@@ -995,7 +995,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   double ml = CoinMin(sum, lambda);
   if(CGLFLOW_DEBUG) {
     // sum = sum_{i in C+\C++} m_i + sum_{i in L--} m_i = m. Page 15.
-    std::cout << "ml = CoinMin(m, lambda) = CoinMin(" << sum << ", " << lambda << ") =" << ml << std::endl; 
+    std::cout << "ml = CoinMin(m, lambda) = CoinMin(" << sum << ", " << lambda << ") =" << ml << std::endl;
   }
   /* rho_i = max[0, m_i - (minPlsM - lamda) - ml */
   if (t < index ) { /* rho exits only for t <= index-1 */
@@ -1012,10 +1012,10 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   for ( i = 0; i < rowLen; ++i ) {
 #ifdef CGLFLOW_DEBUG2
     if(CGLFLOW_DEBUG) {
-      std::cout << "i = " << i << " ind = " << ind[i] << " sign = " 
-		<< sign[i] 
-		<< " coef = " << coef[i] << " x = " << x[i] << " xCoef = " 
-		<< xCoef[i] << " y = " << y[i] << " yCoef = " << yCoef[i] 
+      std::cout << "i = " << i << " ind = " << ind[i] << " sign = "
+		<< sign[i]
+		<< " coef = " << coef[i] << " x = " << x[i] << " xCoef = "
+		<< xCoef[i] << " y = " << y[i] << " yCoef = " << yCoef[i]
 		<< " up = " << up[i] << " label = " << label[i] << std::endl;
     }
 #endif
@@ -1029,40 +1029,40 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   if(doLift && fabs(violation) > TOLERANCE_ ) {  // LIFTING
     double estY, estX;
     double movement = 0.0;
-    double dPrimePrime = temp + cutRHS; 
+    double dPrimePrime = temp + cutRHS;
     bool lifted = false;
     for( i = 0; i < rowLen; ++i ) {
       if ( (label[i] != CGLFLOW_COL_INCUT) && (sign[i] > 0) ) {/* N+\C+*/
 	lifted = liftPlus(estY, estX,
 			  index, up[i],
 			  lambda,
-			  y[i], x[i], 
+			  y[i], x[i],
 			  dPrimePrime, M);
-	    
+
 	xCoef[i] = -estX;
 	yCoef[i] = estY;
 	if(CGLFLOW_DEBUG) {
 	  if (lifted) {
-	    printf("Success: Lifted col %i (up_i=%f,yCoef[i]=%f,xCoef[i]=%f) in N+\\C+\n", 
+	    printf("Success: Lifted col %i (up_i=%f,yCoef[i]=%f,xCoef[i]=%f) in N+\\C+\n",
 		   ind[i], up[i], yCoef[i], xCoef[i]);
 	  }
 	  else {
-	    printf("Failed to Lift col %i (m_i=%f) in N+\\C+\n", 
+	    printf("Failed to Lift col %i (m_i=%f) in N+\\C+\n",
 		   ind[i], up[i]);
-	  }       
+	  }
 	}
       }
-      if (label[i] == CGLFLOW_COL_INCUT && sign[i] < 0) { 
+      if (label[i] == CGLFLOW_COL_INCUT && sign[i] < 0) {
 	/* C- */
 	liftMinus(movement, t,
-		  index, up[i], 
-		  dPrimePrime, 
+		  index, up[i],
+		  dPrimePrime,
 		  lambda, ml,
 		  M, rho);
-                
+
 	if(movement > EPSILON_) {
 	  if(CGLFLOW_DEBUG) {
-	    printf("Success: Lifted col %i in C-, movement=%f\n", 
+	    printf("Success: Lifted col %i in C-, movement=%f\n",
 		   ind[i], movement);
 	  }
 	  lifted = true;
@@ -1080,16 +1080,16 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   }
   //-------------------------------------------------------------------
 
-    
+
   // Calculate the violation
   violation = -cutRHS;
   for ( i = 0; i < rowLen; ++i ) {
 #ifdef CGLFLOW_DEBUG2
     if(CGLFLOW_DEBUG) {
-      std::cout << "i = " << i << " ind = " << ind[i] << " sign = " 
-		<< sign[i] 
-		<< " coef = " << coef[i] << " x = " << x[i] << " xCoef = " 
-		<< xCoef[i] << " y = " << y[i] << " yCoef = " << yCoef[i] 
+      std::cout << "i = " << i << " ind = " << ind[i] << " sign = "
+		<< sign[i]
+		<< " coef = " << coef[i] << " x = " << x[i] << " xCoef = "
+		<< xCoef[i] << " y = " << y[i] << " yCoef = " << yCoef[i]
 		<< " up = " << up[i] << " label = " << label[i] << std::endl;
     }
 #endif
@@ -1099,7 +1099,7 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
   if(CGLFLOW_DEBUG) {
     std::cout << "violation = " << violation << std::endl;
   }
-    
+
   int     cutLen     = 0;
   char    cutSense   = 'L';
   int*    cutInd     = 0;
@@ -1111,20 +1111,20 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
     cutSense = 'L';
     cutInd  = new int [numCols];
     cutCoef = new double [numCols];
-      
+
     for ( i = 0; i < rowLen; ++i )  {
       VUB = getVubs(ind[i]);
-      
-      if ( ( sign[i] == CGLFLOW_COL_CONTPOS ) || 
+
+      if ( ( sign[i] == CGLFLOW_COL_CONTPOS ) ||
 	   ( sign[i] == CGLFLOW_COL_CONTNEG ) ) {
 
 	if ( fabs( yCoef[i] ) > EPSILON_ ) {
-		    
-	  if ( sign[i] == CGLFLOW_COL_CONTPOS ) 
+
+	  if ( sign[i] == CGLFLOW_COL_CONTPOS )
 	    cutCoef[cutLen] = coef[i] * yCoef[i];
-	  else 
+	  else
 	    cutCoef[cutLen] = -coef[i] * yCoef[i];
-		  
+
 	  cutInd[cutLen++] = ind[i];
 	}
 
@@ -1137,19 +1137,19 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 	    cutRHS -= xCoef[i];
 	}
       }
-            
-      if ( ( sign[i] == CGLFLOW_COL_BINPOS ) || 
+
+      if ( ( sign[i] == CGLFLOW_COL_BINPOS ) ||
 	   ( sign[i] == CGLFLOW_COL_BINNEG ) ) {
 	if (fabs(yCoef[i]) > EPSILON_ || fabs(xCoef[i]) > EPSILON_) {
-	  if (sign[i] == CGLFLOW_COL_BINPOS) 
+	  if (sign[i] == CGLFLOW_COL_BINPOS)
 	    cutCoef[cutLen] = coef[i] * yCoef[i] + xCoef[i];
-	  else 
+	  else
 	    cutCoef[cutLen] = -coef[i] * yCoef[i] + xCoef[i];
 	  cutInd[cutLen++] = ind[i];
 	}
       }
     }
-    
+
     for ( i = 0; i < cutLen; ++i ) {
       for ( j = 0; j < i; j++ ) {
 	if ( cutInd[j] == cutInd[i] ) { /* Duplicate*/
@@ -1169,16 +1169,16 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 	j++;
       }
     }
-    
+
     cutLen = j;
     // Skip if no elements ? - bug somewhere
     assert (cutLen);
-        
+
     // Recheck the violation.
     violation = 0.0;
-    for (i = 0; i < cutLen; ++i) 
+    for (i = 0; i < cutLen; ++i)
       violation += cutCoef[i] * xlp[cutInd[i]];
-    
+
     violation -= cutRHS;
 
     if ( violation > TOLERANCE_ ) {
@@ -1201,63 +1201,63 @@ CglFlowCover::generateOneFlowCut( const OsiSolverInterface & si,
 
   //-------------------------------------------------------------------------
   delete [] sign;
-  delete [] up; 
-  delete [] x;   
-  delete [] y;  
+  delete [] up;
+  delete [] x;
+  delete [] y;
   delete [] candidate;
   delete [] label;
   delete [] ratio;
   delete [] rho;
   delete [] xCoef;
   delete [] yCoef;
-  delete [] mt; 
-  delete [] M; 
+  delete [] mt;
+  delete [] M;
   delete [] order;
   delete [] cutInd;
   delete [] cutCoef;
-    
+
   return generated;
 }
 
 
 //-------------------------------------------------------------------
-// Flip a row from ">=" to "<=", and vice versa. 
+// Flip a row from ">=" to "<=", and vice versa.
 //-------------------------------------------------------------------
-void 
+void
 CglFlowCover::flipRow(int rowLen, double* coef, double& rhs) const
 {
-  for(int i = 0; i < rowLen; ++i) coef[i] = -coef[i]; 
-  rhs = -rhs;  
+  for(int i = 0; i < rowLen; ++i) coef[i] = -coef[i];
+  rhs = -rhs;
 }
 
 //-------------------------------------------------------------------
 // Flip a row from ">=" to "<=", and vice versa. Have 'sense'.
 //-------------------------------------------------------------------
-void 
+void
 CglFlowCover::flipRow(int rowLen, double* coef, char& sen,
 		      double& rhs) const
 {
-  for(int i = 0; i < rowLen; ++i) coef[i] = -coef[i]; 
+  for(int i = 0; i < rowLen; ++i) coef[i] = -coef[i];
   sen = (sen == 'G') ?  'L' : 'G';
-  rhs = -rhs;  
+  rhs = -rhs;
 }
 
 //-------------------------------------------------------------------
-// Determine the type of a given row 
+// Determine the type of a given row
 //-------------------------------------------------------------------
 CglFlowRowType
 CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
-				  int rowLen, int* ind, 
-				  double* coef, char sense, 
+				  int rowLen, int* ind,
+				  double* coef, char sense,
 				  double rhs) const
 {
-  if (rowLen == 0) 
+  if (rowLen == 0)
     return CGLFLOW_ROW_UNDEFINED;
-    
+
   CglFlowRowType rowType = CGLFLOW_ROW_UNDEFINED;
   // Get integer types
   const char * columnType = si.getColType ();
-    
+
   int  numPosBin = 0;      // num of positive binary variables
   int  numNegBin = 0;      // num of negative binary variables
   int  numBin    = 0;      // num of binary variables
@@ -1268,10 +1268,10 @@ CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
 
   // Range row will only consider as 'L'
   if (sense == 'G') {        // Transform to " <= "
-    flipRow(rowLen, coef, sense, rhs);                
+    flipRow(rowLen, coef, sense, rhs);
     flipped = true;
   }
-    
+
   // Summarize the variable types of the given row.
   for ( i = 0; i < rowLen; ++i ) {
     if ( coef[i] < -EPSILON_ ) {
@@ -1282,7 +1282,7 @@ CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
     else {
       ++numPosCol;
       if( columnType[ind[i]]==1 )
-	++numPosBin;    
+	++numPosBin;
     }
   }
   numBin = numNegBin + numPosBin;
@@ -1293,29 +1293,29 @@ CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
     std::cout << "numBin = " << numBin << std::endl;
     std::cout << "rowLen = " << rowLen << std::endl;
   }
-    
-    
+
+
   //------------------------------------------------------------------------
   // Classify row type based on the types of variables.
-    
+
   // All variables are binary. NOT interested in this type of row right now
-  if (numBin == rowLen) 
+  if (numBin == rowLen)
     rowType = CGLFLOW_ROW_UNINTERSTED;
 
   // All variables are NOT binary
   if (rowType == CGLFLOW_ROW_UNDEFINED && numBin == 0) {
     if (sense == 'L')
       rowType = CGLFLOW_ROW_NOBINUB;
-    else 
+    else
       rowType = CGLFLOW_ROW_NOBINEQ;
   }
 
-  // There are binary and other types of variables   
-  if (rowType == CGLFLOW_ROW_UNDEFINED) {  
+  // There are binary and other types of variables
+  if (rowType == CGLFLOW_ROW_UNDEFINED) {
     if ((rhs < -EPSILON_) || (rhs > EPSILON_) || (numBin != 1)) {
       if (sense == 'L')
 	rowType = CGLFLOW_ROW_MIXUB;
-      else 
+      else
 	rowType = CGLFLOW_ROW_MIXEQ;
     }
     else {                               // EXACTLY one binary
@@ -1330,7 +1330,7 @@ CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
 	  rowType = CGLFLOW_ROW_VAREQ;
       }
       else {               // One binary and 2 or more other types
-	if (numNegCol==1 && numNegBin==1) {// Binary has neg coef and 
+	if (numNegCol==1 && numNegBin==1) {// Binary has neg coef and
 	  if (sense == 'L')  // other are positive
 	    rowType = CGLFLOW_ROW_SUMVARUB;
 	  else
@@ -1339,16 +1339,16 @@ CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
       }
     }
   }
-  
+
   // Still undefined
   if (rowType == CGLFLOW_ROW_UNDEFINED) {
-    if (sense == 'L') 
+    if (sense == 'L')
       rowType = CGLFLOW_ROW_MIXUB;
     else
       rowType = CGLFLOW_ROW_MIXEQ;
   }
   if (flipped == true) {
-    flipRow(rowLen, coef, sense, rhs);                
+    flipRow(rowLen, coef, sense, rhs);
   }
 
   return rowType;
@@ -1357,11 +1357,11 @@ CglFlowCover::determineOneRowType(const OsiSolverInterface& si,
 /*===========================================================================*/
 
 void
-CglFlowCover::liftMinus(double &movement, /* Output */ 
+CglFlowCover::liftMinus(double &movement, /* Output */
 			int t,
 			int r,
 			double z,
-			double dPrimePrime, 
+			double dPrimePrime,
 			double lambda,
 			double ml,
 			double *M,
@@ -1369,7 +1369,7 @@ CglFlowCover::liftMinus(double &movement, /* Output */
 {
   int i;
   movement = 0.0;
-    
+
   if (z > dPrimePrime) {
     movement = z - M[r] + r * lambda;
   }
@@ -1380,42 +1380,42 @@ CglFlowCover::liftMinus(double &movement, /* Output */
 	return;
       }
     }
-        
+
     for (i = 1; i < t; ++i) {
       if ( (z >= M[i] - lambda) && (z <= M[i]) ) {
 	movement = z - M[i] + i * lambda;
 	return;
       }
     }
-        
+
     for (i = t; i < r; ++i) {
       if ( (z >= M[i] - lambda) && (z <= M[i] - lambda + ml + rho[i]) ) {
 	movement = z - M[i] + i * lambda;
 	return;
       }
     }
-        
+
     for (i = t; i < r; ++i) {
       if ( (z >= M[i]-lambda+ml+rho[i]) && (z <= M[(i+1)]-lambda) ) {
 	movement = i * lambda;
 	return;
       }
     }
-    
+
     if ((z >= M[r] - lambda) && z <= dPrimePrime) {
       movement = z - M[r] + r * lambda;
     }
   }
-    
+
 }
 
 /*===========================================================================*/
 
 bool
-CglFlowCover::liftPlus(double &alpha, 
+CglFlowCover::liftPlus(double &alpha,
 		       double &beta,
 		       int r,
-		       double m_j, 
+		       double m_j,
 		       double lambda,
 		       double y_j,
 		       double x_j,
@@ -1427,12 +1427,12 @@ CglFlowCover::liftPlus(double &alpha,
   double value;
   alpha = 0.0;
   beta = 0.0;
-    
+
   if (m_j > M[r] - lambda + EPSILON_) {
     if (m_j < dPrimePrime - EPSILON_) {
       if ((m_j > (M[r] - lambda)) && (m_j <= M[r])){ /* FIXME: Test */
 	value = y_j - x_j * (M[r] - r * lambda);
-                
+
 	/* FIXME: Is this "if" useful */
 	if (value > 0.0) {
 	  status = true;
@@ -1450,7 +1450,7 @@ CglFlowCover::liftPlus(double &alpha,
 	}
       }
     }
-    else {    
+    else {
       if(CGLFLOW_DEBUG) {
 	printf("liftPlus:1: too big number\n");
       }
@@ -1459,7 +1459,7 @@ CglFlowCover::liftPlus(double &alpha,
   else {
     for (i = 1; i <= r; ++i) {
       if ((m_j > (M[i] - lambda)) && (m_j <= M[i])){ /* FIXME: Test */
-                
+
 	value = y_j - x_j * (M[i] - i * lambda);
 
 	/* FIXME: Is this "if" useful */
@@ -1481,12 +1481,12 @@ CglFlowCover::liftPlus(double &alpha,
       }
     }
   }
-    
+
   return status;
 }
 // Create C++ lines to get to current state
 std::string
-CglFlowCover::generateCpp( FILE * fp) 
+CglFlowCover::generateCpp( FILE * fp)
 {
   CglFlowCover other;
   fprintf(fp,"0#include \"CglFlowCover.hpp\"\n");

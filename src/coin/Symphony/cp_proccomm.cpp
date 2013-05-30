@@ -39,7 +39,7 @@ void cp_process_message(cut_pool *cp, int r_bufid)
    double tt= 0;
    static struct timeval tout = {10, 0};
    int termcode = 0;
-   
+
    bufinfo(r_bufid, &bytes, &cp->msgtag, &cp->cur_sol.lp);
 
    switch (cp->msgtag){
@@ -175,7 +175,7 @@ void cp_process_message(cut_pool *cp, int r_bufid)
 /*===========================================================================*/
 
 /*===========================================================================*\
- * Send a packed cut to another process                                      
+ * Send a packed cut to another process
 \*===========================================================================*/
 
 void cut_pool_send_cut(cut_pool *cp, cut_data *new_cut, int tid)
@@ -183,7 +183,7 @@ void cut_pool_send_cut(cut_pool *cp, cut_data *new_cut, int tid)
 #ifdef COMPILE_IN_CP
 
    cut_data *tmp_cut;
-     
+
    tmp_cut = (cut_data *) malloc (sizeof(cut_data));
    memcpy((char *)tmp_cut, (char *)new_cut, sizeof(cut_data));
    tmp_cut->coef = (char *) malloc (new_cut->size * sizeof(char));
@@ -201,7 +201,7 @@ void cut_pool_send_cut(cut_pool *cp, cut_data *new_cut, int tid)
    send_msg(tid, PACKED_CUT);
    freebuf(s_bufid);
 
-#endif   
+#endif
 }
 
 /*===========================================================================*/
@@ -222,7 +222,7 @@ void cut_pool_receive_cuts(cut_pool *cp, int bc_level)
 #else
    receive_int_array(&cnt, 1);
 #endif
-   
+
    if (cnt + cp->cut_num > cp->allocated_cut_num &&
        (cnt > cp->par.block_size ||
 	cnt > cp->par.max_number_of_cuts - cp->par.cuts_to_check)){
@@ -261,7 +261,7 @@ void cut_pool_receive_cuts(cut_pool *cp, int bc_level)
 	 cp->cuts = (cp_cut_data **) realloc
 	    (cp->cuts, cp->allocated_cut_num * sizeof(cp_cut_data *));
 	 break;
-      }else{ 
+      }else{
 	 /* If the maximum number of cuts allowed in the pool is exceeded,
 	    then the pool is purged to make room */
 	 if (!deleted_duplicates){
@@ -316,7 +316,7 @@ void cut_pool_receive_cuts(cut_pool *cp, int bc_level)
 		cp->par.max_size){
 	    del_cuts += delete_ineffective_cuts(cp);
 	 }
-	 
+
 	 if (cp->par.verbosity > 4)
 	    printf("Maximum CP size exceeded -- deleted %i cuts, leaving %i\n",
 		   del_cuts, cp->cut_num);
