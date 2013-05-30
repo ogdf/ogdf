@@ -27,7 +27,7 @@ if(WIN32)
         "_CRT_SECURE_NO_WARNINGS"
         "_SCL_SECURE_NO_WARNINGS")
 else()
-    list(APPEND OGDF_DEFINES
+    list(APPEND COIN_DEFINES
         "HAVE_CONFIG_H")
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/coinstuff/config.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/coin/config.h
@@ -35,4 +35,3 @@ else()
 endif()
 set_target_properties(coin PROPERTIES
     COMPILE_DEFINITIONS "${COIN_DEFINES}")
-    
