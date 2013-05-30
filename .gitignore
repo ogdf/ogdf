@@ -4,7 +4,8 @@
 *.tlog
 *.log
 
-config_autogen.h
+include/ogdf/internal/config_autogen.h
+include/coin/config.h
 
 *.user
 *.sln

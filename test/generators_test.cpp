@@ -46,15 +46,15 @@
 #include "ogdf/basic/graph_generators.h"
 #include <cstdlib>
 
-double random()
+double randomValue()
 {
 	return static_cast<double>(rand()) / RAND_MAX;
 }
 
 void randomGraph(ogdf::Graph &G, size_t index)
 {
-	int n = static_cast<int>(random() * 10 + 5);
-	int m = std::max(n + 1, static_cast<int>((random() * n * (n - 1) / 2)));
+    int n = static_cast<int>(randomValue() * 10 + 5);
+    int m = std::max(n + 1, static_cast<int>((randomValue() * n * (n - 1) / 2)));
 	double p = 0.618;
 	switch (index) {
 	case 0:

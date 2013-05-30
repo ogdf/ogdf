@@ -32,6 +32,9 @@ else()
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/coinstuff/config.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/coin/config.h
         COPYONLY)
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/ogdfstuff/config_autogen.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/ogdf/internal/config_autogen.h
+        COPYONLY)
 endif()
 set_target_properties(coin PROPERTIES
     COMPILE_DEFINITIONS "${COIN_DEFINES}")
