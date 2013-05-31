@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -47,7 +47,6 @@
 #include<ogdf/planarity/SubgraphPlanarizer.h>
 #include<ogdf/planarity/VariableEmbeddingInserter.h>
 
-#include <iostream>
 
 namespace ogdf {
 

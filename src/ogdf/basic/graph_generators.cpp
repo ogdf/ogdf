@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3518 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 09:56:47 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -1256,59 +1256,64 @@ void randomDiGraph(Graph &G, int n, double p) {
 
 
 
-void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt) {
-
+void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt)
+{
 	OGDF_ASSERT(edges>=0 && p<=1 && p>=0 && flt<1 && flt>=0);
 
+	G.clear();
+	
 	NodeArray<node> sT(G);
 	List<node> stList;
 	for(int i=0;i<edges;i++) {
-			node s = G.newNode();
-			node t = G.newNode();
-			sT[s] = t;
-			stList.pushBack(s);
-			G.newEdge(s,t);
+		node s = G.newNode();
+		node t = G.newNode();
+		sT[s] = t;
+		stList.pushBack(s);
+		G.newEdge(s,t);
 	}
 	while(stList.size() > 1) {
-			ListIterator<node> it_1 = stList.chooseIterator();
-			node s_1 = *it_1;
-			ListIterator<node> it_2 = stList.chooseIterator();
-			node s_2 = *it_2;
-			while(s_1 == s_2) {
-				it_2 = stList.chooseIterator();
-				s_2 = *it_2;
+		ListIterator<node> it_1 = stList.chooseIterator();
+		node s_1 = *it_1;
+		ListIterator<node> it_2 = stList.chooseIterator();
+		node s_2 = *it_2;
+		while(s_1 == s_2) {
+			it_2 = stList.chooseIterator();
+			s_2 = *it_2;
+		}
+		bool serial = randomDouble(0,1) < p;
+		if (!serial) {
+			adjEntry adj;
+			bool fnd_1, fnd_2 = false;
+			forall_adj(adj, s_1) {
+				if (adj->twinNode() == sT[s_1]) fnd_1 = true;
 			}
-			bool serial = randomDouble(0,1) < p;
-			if (!serial) {
-					adjEntry adj;
-					bool fnd_1, fnd_2 = false;
-					forall_adj(adj, s_1) {
-							if (adj->twinNode() == sT[s_1]) fnd_1 = true;
-					}
-					forall_adj(adj, s_2) {
-							if (adj->twinNode() == sT[s_2]) fnd_2 = true;
-					}
-					if (fnd_1 && fnd_2) serial = true;
+			forall_adj(adj, s_2) {
+				if (adj->twinNode() == sT[s_2]) fnd_2 = true;
 			}
-			if (stList.size() == 2) serial = false;
-			if (serial) {
-				edge e = G.newEdge(sT[s_1], s_2);
-				sT[s_1] = sT[s_2];
-				G.contract(e);
-				stList.del(it_2);
-			} else {
-				edge e = G.newEdge(s_1, s_2);
-				edge f = G.newEdge(sT[s_1], sT[s_2]);
-				node s_new = G.contract(e);
-				node t_new = G.contract(f);
-				sT[s_new] = t_new;
-				stList.del(it_1);
-				stList.del(it_2);
-				stList.pushBack(s_new);
-			}
+			if (fnd_1 && fnd_2) serial = true;
+		}
+		if (stList.size() == 2) serial = false;
+		if (serial) {
+			edge e = G.newEdge(sT[s_1], s_2);
+			sT[s_1] = sT[s_2];
+			G.contract(e);
+			stList.del(it_2);
+		} else {
+			edge e = G.newEdge(s_1, s_2);
+			edge f = G.newEdge(sT[s_1], sT[s_2]);
+			node s_new = G.contract(e);
+			node t_new = G.contract(f);
+			sT[s_new] = t_new;
+			stList.del(it_1);
+			stList.del(it_2);
+			stList.pushBack(s_new);
+		}
 	}
 	makeSimple(G);
 
+	node s_pol = stList.popFrontRet();
+	node t_pol = sT[s_pol];
+	
 	const int MAX_ERR = (int)(G.numberOfEdges() * (1/(1-flt)));
 	List<edge> backedges;
 	int it_dag = 0;
@@ -1316,6 +1321,8 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt) {
 	const double th = G.numberOfEdges()*flt;
 	while(it_dag < th && err_dl < MAX_ERR) {
 			edge e = G.chooseEdge();
+			while (e->target() == t_pol || e->source() == s_pol)
+				e = G.chooseEdge();
 			G.reverseEdge(e);
 			if (isAcyclic(G, backedges)) {
 				it_dag++;

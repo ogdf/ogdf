@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3507 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: zeranski $
+ *   $Date: 2013-05-21 14:13:26 +0200 (Di, 21. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -412,9 +412,9 @@ void PlanarSPQRTree::randomEmbed()
 //***************************************************************
 //***************************************************************
 
-double PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
+long long PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
 
-	double num = 1.0;
+	long long num = 1;
 
 	switch(typeOf(vT)) {
 		case RNode:
@@ -431,7 +431,7 @@ double PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
 	return num;
 }
 
-void PlanarSPQRTree::embed(node &vT, int x) {
+void PlanarSPQRTree::embed(node &vT, long long x) {
 
 	OGDF_ASSERT(x >= 0);
 	OGDF_ASSERT(x < numberOfNodeEmbeddings(vT));
@@ -439,7 +439,7 @@ void PlanarSPQRTree::embed(node &vT, int x) {
 	//if it is a P-node
 	if (typeOf(vT) == PNode) {
 		//encode the id of the permutation
-		int id = x;
+		long long id = x;
 		//number of elements of the permutation
 		const int p = skeleton(vT).getGraph().numberOfEdges() - 1;
 		//sequence for the edges

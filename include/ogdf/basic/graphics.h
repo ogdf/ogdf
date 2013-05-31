@@ -1,9 +1,9 @@
 /*
- * $Revision: 3373 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-05 14:02:17 +0200 (Fr, 05. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -375,6 +375,7 @@ namespace ogdf {
 		StrokeLineJoin m_join : 8; //!< line-join of the stroke
 
 		Stroke() : m_color(Color::Black), m_width(1.0f), m_type(stSolid), m_cap(slcButt), m_join(sljMiter) { }
+		Stroke(Color c) : m_color(c), m_width(1.0f), m_type(stSolid), m_cap(slcButt), m_join(sljMiter) { }
 	};
 
 
@@ -385,6 +386,9 @@ namespace ogdf {
 		FillPattern m_pattern; //!< fill pattern
 
 		Fill() : m_color(Color::White), m_bgColor(Color::Black), m_pattern(fpSolid) { }
+		Fill(Color c) : m_color(c), m_bgColor(Color::Black), m_pattern(fpSolid) { }
+		Fill(Color c, FillPattern pattern) : m_color(c), m_bgColor(Color::Black), m_pattern(pattern) { }
+		Fill(Color c, Color bgColor, FillPattern pattern) : m_color(c), m_bgColor(bgColor), m_pattern(pattern) { }
 	};
 
 

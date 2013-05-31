@@ -1,9 +1,9 @@
 /*
- * $Revision: 3438 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 14:48:48 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -66,8 +66,6 @@
 //output intermediate results when new sons are generated
 //#define IM_OUTPUT
 #ifdef IM_OUTPUT
-#include <fstream>
-#include <iostream>
 #include <ogdf/basic/GraphAttributes.h>
 #endif
 

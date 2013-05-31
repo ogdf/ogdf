@@ -1,9 +1,9 @@
 /*
- * $Revision: 3426 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:48:15 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -78,7 +78,7 @@ class OGDF_EXPORT GridLayoutModule : public LayoutModule
 
 public:
 	//! Initializes a grid layout module.
-	GridLayoutModule() : LayoutModule(), m_separation(40) { }
+	GridLayoutModule() : LayoutModule(), m_separation(LayoutStandards::defaultNodeSeparation()) { }
 
 	virtual ~GridLayoutModule() { }
 

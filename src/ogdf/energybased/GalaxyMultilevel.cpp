@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -41,7 +41,6 @@
  ***************************************************************/
 
 #include "GalaxyMultilevel.h"
-#include <algorithm>
 #include "FastUtils.h"
 #include <ogdf/basic/Array.h>
 

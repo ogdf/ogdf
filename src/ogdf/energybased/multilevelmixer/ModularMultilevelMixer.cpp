@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -42,7 +42,6 @@
 
 
 
-#include <ogdf/basic/basic.h>
 #include <ogdf/energybased/multilevelmixer/ModularMultilevelMixer.h>
 #include <ogdf/energybased/multilevelmixer/SolarMerger.h>
 #include <ogdf/energybased/multilevelmixer/BarycenterPlacer.h>
@@ -52,7 +51,6 @@
 
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
 #include <sstream>
-#include <string>
 #endif
 
 

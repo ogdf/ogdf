@@ -1,9 +1,9 @@
 /*
- * $Revision: 2977 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-06 14:33:34 +0100 (Di, 06. Nov 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -41,8 +41,12 @@
  ***************************************************************/
 
 
+// disable VC++ warnings when using strcpy
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <ogdf/fileformats/LineBuffer.h>
 #include <ogdf/basic/Logger.h>
+#include <cstring>
 
 
 namespace ogdf {
@@ -339,7 +343,7 @@ namespace ogdf {
 		// has already been overwritten, i.e. the string is too long
 		if (!isValidPosition(startPosition))
 		{
-			ogdf::strcpy(targetString, LineBuffer::c_maxStringLength, "String too long!");
+			strcpy(targetString, "String too long!");
 			return false;
 		}
 
@@ -367,7 +371,7 @@ namespace ogdf {
 			// String too long
 			if (targetStringIndex >= LineBuffer::c_maxStringLength - 1){
 
-				ogdf::strcpy(targetString, LineBuffer::c_maxStringLength, "String too long!");
+				strcpy(targetString, "String too long!");
 
 				// Set back the original current position
 				setCurrentPosition(originalCurrentPosition);

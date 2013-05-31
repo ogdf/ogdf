@@ -1,9 +1,9 @@
 /*
- * $Revision: 3503 $
+ * $Revision: 3521 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -56,9 +56,9 @@ namespace ogdf {
 OrthoLayout::OrthoLayout()
 {
 	// options
-	m_separation = 40.0;
+	m_separation = LayoutStandards::defaultNodeSeparation();
+	m_margin     = LayoutStandards::defaultNodeSeparation();
 	m_cOverhang  = 0.2;
-	m_margin     = 40.0;
 
 	m_progressive = true;
 	m_bendBound = 2;

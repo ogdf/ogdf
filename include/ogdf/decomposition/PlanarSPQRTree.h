@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3507 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: zeranski $
+ *   $Date: 2013-05-21 14:13:26 +0200 (Di, 21. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -97,7 +97,7 @@ public:
 	 * \pre \a vT is a node in \a T
 	 * Returns 1 if vT is a S-node, 2 if vT is a R-node, and (number of edges in the sekeleton - 1)! if vT is a P-node.
 	 */
-	double numberOfNodeEmbeddings(node vT);
+	long long numberOfNodeEmbeddings(node vT);
 
 	//
 	// b) Update operations
@@ -161,7 +161,7 @@ public:
 	 * \pre To work correctly vT has to be a node of the SPQR-tree and 0 &le; x &le; number of embeddings of vT's skeleton
 	 * \pre It does not work at the same time with firstEmbedding and nextEmbedding
 	 */
-	void embed(node &vT, int x);
+	void embed(node &vT, long long x);
 
 
 protected:

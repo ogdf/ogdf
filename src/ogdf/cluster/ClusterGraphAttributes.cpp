@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -47,11 +47,9 @@
 namespace ogdf {
 
 
-ClusterGraphAttributes::ClusterGraphAttributes(
-	ClusterGraph& cg,
-	long initAttributes)
-: GraphAttributes(cg.constGraph(), initAttributes | edgeType | nodeType |
-		nodeGraphics | edgeGraphics), m_pClusterGraph(&cg), m_clusterInfo(cg), m_clusterTemplate(cg)
+ClusterGraphAttributes::ClusterGraphAttributes(ClusterGraph& cg, long initAttributes)
+	: GraphAttributes(cg.constGraph(), initAttributes | edgeType | nodeType | nodeGraphics | edgeGraphics),
+	m_pClusterGraph(&cg), m_clusterInfo(cg), m_clusterTemplate(cg)
 {
 	//should we always fill the cluster infos here?
 }//constructor
@@ -60,12 +58,11 @@ ClusterGraphAttributes::ClusterGraphAttributes(
 //reinitialize graph
 void ClusterGraphAttributes::init(ClusterGraph &cg, long initAttributes)
 {
-	m_pClusterGraph = &cg;
+	GraphAttributes::init(cg.constGraph(), initAttributes);
 
-	//need to initialize GraphAttributes with getGraph()
-	//we only use parameter initAttributes here in constrast
-	//to the initialization in the constructor
-	GraphAttributes::init(cg, initAttributes );
+	m_pClusterGraph = &cg;
+	m_clusterInfo.init(cg);
+	m_clusterTemplate.init(cg);
 }
 
 

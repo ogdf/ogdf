@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -66,7 +66,6 @@ GraphAttributes::GraphAttributes(const Graph &G, long initAttr) :
 }
 
 
-
 void GraphAttributes::initAttributes(long attr)
 {
 	m_attributes |= attr;
@@ -77,11 +76,11 @@ void GraphAttributes::initAttributes(long attr)
 	OGDF_ASSERT( (m_attributes & edgeGraphics) != 0 || (m_attributes & edgeStyle) == 0);
 
 	if (attr & nodeGraphics) {
-		m_x        .init(*m_pGraph,0.0);
-		m_y        .init(*m_pGraph,0.0);
-		m_width    .init(*m_pGraph,0.0);
-		m_height   .init(*m_pGraph,0.0);
-		m_nodeShape.init(*m_pGraph,shRect);
+		m_x        .init( *m_pGraph, 0.0 );
+		m_y        .init( *m_pGraph, 0.0 );
+		m_width    .init( *m_pGraph, LayoutStandards::defaultNodeWidth () );
+		m_height   .init( *m_pGraph, LayoutStandards::defaultNodeHeight() );
+		m_nodeShape.init( *m_pGraph, LayoutStandards::defaultNodeShape () );
 	}
 
 	if (attr & threeD) {
@@ -90,27 +89,27 @@ void GraphAttributes::initAttributes(long attr)
 
 	if (attr & nodeStyle)
 	{
-		m_nodeStroke.init(*m_pGraph);
-		m_nodeFill.init(*m_pGraph);
+		m_nodeStroke.init( *m_pGraph, LayoutStandards::defaultNodeStroke() );
+		m_nodeFill  .init( *m_pGraph, LayoutStandards::defaultNodeFill  () );
 	}
 
 	if (attr & edgeGraphics) {
-		m_bends.init(*m_pGraph,DPolyline());
+		m_bends.init( *m_pGraph, DPolyline() );
 	}
 
 	if (attr & edgeStyle)
 	{
-		m_edgeStroke.init(*m_pGraph);
+		m_edgeStroke.init( *m_pGraph, LayoutStandards::defaultEdgeStroke() );
 	}
 
 	if (attr & nodeWeight) {
-		m_nodeIntWeight.init(*m_pGraph,0);
+		m_nodeIntWeight.init( *m_pGraph, 0 );
 	}
 	if (attr & edgeIntWeight) {
-		m_intWeight.init(*m_pGraph,1);
+		m_intWeight.init( *m_pGraph, 1 );
 	}
 	if (attr & edgeDoubleWeight) {
-		m_doubleWeight.init(*m_pGraph,1.0);
+		m_doubleWeight.init( *m_pGraph, 1.0 );
 	}
 	if (attr & nodeLabel) {
 		m_nodeLabel.init(*m_pGraph);
@@ -119,24 +118,25 @@ void GraphAttributes::initAttributes(long attr)
 		m_edgeLabel.init(*m_pGraph);
 	}
 	if (attr & edgeType) {
-		m_eType.init(*m_pGraph,Graph::association);//should be Graph::standard end explicitly set
+		m_eType.init( *m_pGraph, Graph::association ); //should be Graph::standard and explicitly set
 	}
 	if (attr & nodeType) {
-		m_vType.init(*m_pGraph,Graph::vertex);
+		m_vType.init( *m_pGraph, Graph::vertex );
 	}
 	if (attr & nodeId) {
-		m_nodeId.init(*m_pGraph, -1);
+		m_nodeId.init( *m_pGraph, -1 );
 	}
 	if (attr & edgeArrow) {
-		m_edgeArrow.init(*m_pGraph, eaUndefined);
+		m_edgeArrow.init( *m_pGraph, LayoutStandards::defaultEdgeArrow() );
 	}
 	if (attr & nodeTemplate) {
 		m_nodeTemplate.init(*m_pGraph);
 	}
 	if (attr & edgeSubGraphs) {
-		m_subGraph.init(*m_pGraph,0);
+		m_subGraph.init( *m_pGraph, 0 );
 	}
 }
+
 
 void GraphAttributes::destroyAttributes(long attr)
 {

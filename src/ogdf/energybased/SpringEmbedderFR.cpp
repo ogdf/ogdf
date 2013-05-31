@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -68,7 +68,7 @@ SpringEmbedderFR::SpringEmbedderFR()
 	m_bbYmin = 0.0;
 	m_bbYmax = 100.0;
 
-	m_minDistCC = 20;
+	m_minDistCC = LayoutStandards::defaultCCSeparation();
 	m_pageRatio = 1.0;
 }
 

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3522 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-05-31 14:58:02 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -57,8 +57,8 @@ namespace ogdf {
 //---------------------------------------------------------
 OptimalHierarchyLayout::OptimalHierarchyLayout()
 {
-	m_nodeDistance       = 3;
-	m_layerDistance      = 3;
+	m_nodeDistance       = LayoutStandards::defaultNodeSeparation();
+	m_layerDistance      = 1.5 * LayoutStandards::defaultNodeSeparation();
 	m_fixedLayerDistance = false;
 	m_weightSegments     = 2.0;
 	m_weightBalancing    = 0.1;

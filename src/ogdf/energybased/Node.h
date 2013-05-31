@@ -1,9 +1,9 @@
 /*
- * $Revision: 2559 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fr, 06. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -51,8 +51,7 @@
 #define OGDF_NODE_H
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/Graph_d.h>
-#include <iostream>
+
 
 namespace ogdf {
 

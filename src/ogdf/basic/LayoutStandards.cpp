@@ -1,15 +1,16 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3523 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Date: 2013-05-31 15:03:27 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
- * \brief Declaration of class PlanarLeafKey.
+ * \brief Declares class LayoutStandards which specifies default /
+ *        standard values used in graph layouts.
  *
- * \author Sebastian Leipert
+ * \author Carsten Gutwenger
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -40,43 +41,24 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
-#pragma once
-#endif
-
-
-#ifndef OGDF_PLANAR_LEAFKEY_H
-#define OGDF_PLANAR_LEAFKEY_H
-
-
-#include <ogdf/internal/planarity/PQLeafKey.h>
+#include <ogdf/basic/LayoutStandards.h>
 
 
 namespace ogdf {
 
+	double LayoutStandards::s_defNodeWidth = 20.0;
+	double LayoutStandards::s_defNodeHeight = 20.0;
+	Shape  LayoutStandards::s_defNodeShape = shRect;
+	Stroke LayoutStandards::s_defNodeStroke(Color::Black);
+	Fill   LayoutStandards::s_defNodeFill(Color::White);
 
-template<class X>
-class PlanarLeafKey : public PQLeafKey<edge,X,bool>
-{
-public:
+	Stroke    LayoutStandards::s_defEdgeStroke(Color::Black);
+	EdgeArrow LayoutStandards::s_defEdgeArrow = eaLast;
 
-	PlanarLeafKey(edge e) : PQLeafKey<edge,X,bool>(e) { }
+	Stroke LayoutStandards::s_defClusterStroke(Color::Gray);
+	Fill   LayoutStandards::s_defClusterFill(Color::White, fpNone);
 
-	virtual ~PlanarLeafKey() { }
+	double LayoutStandards::s_defNodeSeparation = 20.0;
+	double LayoutStandards::s_defCCSeparation = 30.0;
 
-	ostream &print(ostream &os)
-	{
-		int sId = this->m_userStructKey->source()->index();
-		int tId = this->m_userStructKey->target()->index();
-
-		os << " (" << sId << "," << tId << ")";
-
-		return os;
-	}
-
-};
-
-}
-
-#endif
+} // end namespace ogdf

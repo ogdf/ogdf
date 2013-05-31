@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -172,9 +172,9 @@ public:
 
 FastHierarchyLayout::FastHierarchyLayout()
 {
-	m_minNodeDist    = 3;
-	m_minLayerDist   = 3;
-	m_fixedLayerDist = 0;
+	m_minNodeDist    = LayoutStandards::defaultNodeSeparation();
+	m_minLayerDist   = 1.5 * LayoutStandards::defaultNodeSeparation();
+	m_fixedLayerDist = false;
 }
 
 

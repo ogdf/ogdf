@@ -1,9 +1,9 @@
 /*
- * $Revision: 2565 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -57,14 +57,14 @@ GEMLayout::GEMLayout() :
 	m_minimalTemperature(0.005),
 	m_initialTemperature(12.0),
 	m_gravitationalConstant(1.0/16.0), //original paper value
-	m_desiredLength(5.0),
+	m_desiredLength(LayoutStandards::defaultNodeSeparation()),
 	m_maximalDisturbance(0),
 	m_rotationAngle(Math::pi/3.0),
 	m_oscillationAngle(Math::pi_2),
 	m_rotationSensitivity(0.01),
 	m_oscillationSensitivity(0.3),
 	m_attractionFormula(1),
-	m_minDistCC(20),
+	m_minDistCC(LayoutStandards::defaultCCSeparation()),
 	m_pageRatio(1.0)
 { }
 

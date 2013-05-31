@@ -1,9 +1,9 @@
 /*
- * $Revision: 2552 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Do, 05. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -160,8 +160,11 @@ SpringEmbedderFRExact::SpringEmbedderFRExact()
 	m_coolFactor_x = 0.9;
 	m_coolFactor_y = 0.9;
 
-	m_idealEdgeLength = 10;
-	m_minDistCC       = 20;
+	double def_nw = LayoutStandards::defaultNodeWidth();
+	double def_nh = LayoutStandards::defaultNodeHeight();
+	m_idealEdgeLength = LayoutStandards::defaultNodeSeparation() + sqrt( def_nw*def_nw + def_nh*def_nh);
+
+	m_minDistCC = LayoutStandards::defaultCCSeparation();
 	m_pageRatio       = 1.0;
 	m_useNodeWeight = false;
 	m_checkConvergence = true;

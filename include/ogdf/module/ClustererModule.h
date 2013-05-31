@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -57,8 +57,6 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
-
-#include <iostream>
 
 namespace ogdf {
 

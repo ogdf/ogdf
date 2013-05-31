@@ -1,9 +1,9 @@
 /*
- * $Revision: 3188 $
+ * $Revision: 3522 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Do, 10. Jan 2013) $
+ *   $Date: 2013-05-31 14:58:02 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -187,19 +187,18 @@ typedef unsigned long long __uint64;
 // common includes
 //---------------------------------------------------------
 
+// stdlib
+#include <cmath>
+#include <ctime>
 #include <fstream>
 #include <algorithm>
 #include <limits>
 
-using std::ifstream;
-using std::ofstream;
-using std::min;
-using std::max;
-using std::numeric_limits;
-
-#include <time.h>
-#include <string.h>
-#include <math.h>
+using std::ifstream;		// from <fstream>
+using std::ofstream;		// from <fstream>
+using std::min;				// from <algorithm>
+using std::max;				// from <algorithm>
+using std::numeric_limits;	// from <limits>
 
 #ifdef OGDF_SYSTEM_UNIX
 #include <stdint.h>
@@ -210,6 +209,7 @@ using std::numeric_limits;
 #endif
 
 
+// ogdf
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/System.h>
@@ -450,24 +450,6 @@ public:
 	virtual int getBucket(const E &x) = 0;
 };
 
-
-
-#if _MSC_VER >= 1400
-
-inline int strcpy(char *strDest, size_t sizeOfDest, const char *strSource)
-{
-	return (int)strcpy_s(strDest, sizeOfDest, strSource);
-}
-
-#else
-
-inline int strcpy(char *strDest, size_t, const char *strSource)
-{
-	::strcpy(strDest, strSource);
-	return 0;
-}
-
-#endif
 
 
 /**

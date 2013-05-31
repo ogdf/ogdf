@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -41,6 +41,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+
+// disable VC++ warnings when using strcpy
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <ogdf/fileformats/GmlParser.h>
 #include <ogdf/basic/HashArray.h>
@@ -184,7 +187,7 @@ GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 			char *pChar = new char[len];
 			if (pChar == 0) OGDF_THROW(InsufficientMemoryException);
 
-			ogdf::strcpy(pChar,len,m_stringSymbol);
+			strcpy(pChar,m_stringSymbol);
 			object = OGDF_NEW GmlObject(key,pChar); }
 			break;
 

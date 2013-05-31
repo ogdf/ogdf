@@ -1,9 +1,9 @@
 /*
- * $Revision: 3472 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -54,7 +54,6 @@
 #include <ogdf/basic/Thread.h>
 #include <ogdf/basic/CriticalSection.h>
 
-#include <algorithm>
 
 #ifdef OGDF_HAVE_CPP11
 #include <random>
@@ -1033,7 +1032,7 @@ SugiyamaLayout::SugiyamaLayout()
 	m_permuteFirst = false;
 
 	m_arrangeCCs = true;
-	m_minDistCC = 20;
+	m_minDistCC = LayoutStandards::defaultCCSeparation();
 	m_pageRatio = 1.0;
 
 #ifdef OGDF_MEMORY_POOL_NTS

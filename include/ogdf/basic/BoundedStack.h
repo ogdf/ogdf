@@ -1,9 +1,9 @@
 /*
- * $Revision: 2615 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mo, 16. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -115,7 +115,7 @@ public:
 	}
 
 	//! Returns current size of the stack.
-	INDEX size() const { return m_pTop - (m_pStart-1); }
+	INDEX size() const { return (m_pStart != 0) ? (INDEX)(m_pTop+1 - m_pStart) : 0; }
 
 	//! Returns true iff the stack is empty.
 	bool empty() { return m_pTop == (m_pStart-1); }
@@ -127,7 +127,7 @@ public:
 	bool valid() const { return m_pStart != 0; }
 
 	//! Returns the capacity of the bounded stack.
-	INDEX capacity() const { return m_pStop - m_pStart; }
+	INDEX capacity() const { return (INDEX)(m_pStop - m_pStart); }
 
 	//! Reinitializes the stack for no elements at all (actually frees memory).
 	void init() {
@@ -172,8 +172,10 @@ public:
 	//! Prints the stack to output stream \a os.
 	void print(ostream &os, char delim = ' ') const
 	{
-		for (const E *pX = m_pStart; pX != m_pTop; )
-			os << *++pX << delim;
+		if(m_pStart != 0) {
+			for (const E *pX = m_pStart; pX <= m_pTop; ++pX)
+				os << *pX << delim;
+		}
 	}
 
 private:

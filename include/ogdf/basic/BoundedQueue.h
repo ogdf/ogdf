@@ -1,9 +1,9 @@
 /*
- * $Revision: 3235 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-22 15:43:41 +0100 (Di, 22. Jan 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -142,12 +142,12 @@ public:
 	//! Returns current size of the queue.
 	INDEX size() const {
 		return (m_pEnd >= m_pStart) ?
-			(m_pEnd - m_pStart) :
-			(m_pEnd-m_pFirst)+(m_pStop-m_pStart);
+			(INDEX)(m_pEnd - m_pStart) :
+			(INDEX)((m_pEnd-m_pFirst)+(m_pStop-m_pStart));
 	}
 
 	//! Returns the capacity of the bounded queue.
-	INDEX capacity() const { return (m_pStop - m_pFirst)-1; }
+	INDEX capacity() const { return (INDEX)((m_pStop - m_pFirst)-1); }
 
 	//! Returns true iff the queue is empty.
 	bool empty() { return m_pStart == m_pEnd; }
@@ -155,7 +155,7 @@ public:
 	//! Returns true iff the queue is full.
 	bool full() {
 		INDEX h = m_pEnd-m_pStart
-		return ( h>=0 ) ?
+		return ( h >= 0 ) ?
 			(h == m_pStop-m_pFirst-1) :
 			(h == -1);
 	}

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3521 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -66,6 +66,7 @@
 
 // Unix includes
 #ifdef OGDF_SYSTEM_UNIX
+#include <cstring>
 #include <unistd.h>
 #include <dirent.h>
 #include <sys/types.h>

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,7 +49,7 @@
 
 #include "FMEKernel.h"
 #include "FMEFunc.h"
-#include <algorithm>
+
 
 namespace ogdf {
 

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -99,6 +99,7 @@ public:
 		static bool equal  (const type &x, const type &y) { return x == y; } \
 	};
 
+OGDF_STD_COMPARER(short)
 OGDF_STD_COMPARER(int)
 OGDF_STD_COMPARER(float)
 OGDF_STD_COMPARER(double)
@@ -342,9 +343,6 @@ public:
 	static bool geq    (const Prioritized<X,Priority> &x, const Prioritized<X,Priority> &y) { return x >= y; }
 	static bool equal  (const Prioritized<X,Priority> &x, const Prioritized<X,Priority> &y) { return x == y; }
 };
-
-
-
 
 
 } //namespace

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2524 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-03 09:54:22 +0200 (Di, 03. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -50,11 +50,6 @@
 
 
 #include <ogdf/basic/GraphCopy.h>
-
-#include <iostream>
-
-//class SubgraphUpwardPlanarizer;
-
 
 
 namespace ogdf {

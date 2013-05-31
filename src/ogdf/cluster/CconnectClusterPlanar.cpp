@@ -1,9 +1,9 @@
 /*
- * $Revision: 3503 $
+ * $Revision: 3521 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -248,7 +248,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 	treeNodes.append(root);
 
 	node correspond = G.newNode(); // Corresponds to the root node.
-		 						   // root node is either a leaf or a P-node
+								   // root node is either a leaf or a P-node
 	C.reassignNode(correspond,parent);
 
 	Queue<node> graphNodes;
@@ -328,7 +328,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 			}
 
 		}
- 		else if (checkNode->type() == PQNodeRoot::QNode)
+		else if (checkNode->type() == PQNodeRoot::QNode)
 		{
 			// correspond is the anchor of a hub
 			OGDF_ASSERT(checkNode->getEndmost(PQNodeRoot::LEFT))

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3415 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-17 15:40:21 +0200 (Mi, 17. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -48,6 +48,8 @@
 #define OGDF_ARRAY_BUFFER_H
 
 #include <ogdf/basic/Array.h>
+#include <cstring>
+
 
 namespace ogdf {
 

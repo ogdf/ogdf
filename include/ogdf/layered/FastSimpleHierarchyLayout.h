@@ -1,16 +1,16 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
  * \brief declaration of the FastSimpleHierarchyLayout
  * (third phase of sugiyama)
  *
- * \author Till Sch&auml;fer
+ * \author Till Sch&auml;fer, Carsten Gutwenger
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -68,10 +68,7 @@ namespace ogdf {
  * - Balancing
  *
  * The <i>Alignment</i> and <i>Horzontal Compactation</i> phase are calculated downward, upward,
- * leftToRight and rightToLeft. The four resulting layouts are combined in a balancing step.
- *
- * <b>Warning:</b> The implementation is known to not always produce a correct layout.
- * Therefore this Algorithm is for testing purpose only.
+ * left-to-right and right-to-left. The four resulting layouts are combined in a balancing step.
  *
  * The implementation is based on:
  *
@@ -84,55 +81,105 @@ namespace ogdf {
  *   <tr>
  *     <th>Option</th><th>Type</th><th>Default</th><th>Description</th>
  *   </tr><tr>
- *     <td><i>minimal x separation</i></td><td>int</td><td>150</td>
+ *     <td><i>node distance</i></td><td>int</td><td>150</td>
  *     <td>the minimal horizontal distance between two nodes on the same layer</td>
  *   </tr><tr>
  *     <td><i>layer distance</i></td><td>int</td><td>75</td>
  *     <td>the minimal vertical distance between two nodes on adjacent layers</td>
+ *   </tr><tr>
+ *     <td><i>balanced</i></td><td>bool</td><td>true</td>
+ *     <td>determines whether balancing is used</td>
+ *   </tr><tr>
+ *     <td><i>left-to-right</i></td><td>bool</td><td>true</td>
+ *     <td>determines whether block alignment is computed by a left-to-right (true) or right-to-left traversal</td>
+ *   </tr><tr>
+ *     <td><i>downward</i></td><td>bool</td><td>true</td>
+ *     <td>determines whether block alignment is computed by a downward (true) or upward traversal</td>
  *   </tr>
  * </table>
  */
 class OGDF_EXPORT FastSimpleHierarchyLayout : public HierarchyLayoutModule
 {
 private:
-	int m_minXSep;
-	int m_ySep;
-	bool m_balanced;
-	bool m_downward;
-	bool m_leftToRight;
+	double m_minXSep;	//!< stores the option <i>node distance</i>.
+	double m_ySep;		//!< stores the option <i>layer distance</i>.
+	bool   m_balanced;	//!< stores the option <i>balanced</i>.
+	bool   m_downward;	//!< stores the option <i>downward</i>.
+	bool   m_leftToRight;	//!< stores the option <i>left-to-right</i>.
 
 protected:
 	void doCall(const HierarchyLevels &levels, GraphCopyAttributes &AGC);
 
 public:
+	//! Creates an instance of fast simple hierarchy layout.
 	/**
-	 * Constructor for balanced layout. This is usually the best choice!
-	 *
-	 * @param minXSep Mimimum separation between each node in x-direction.
-	 * @param ySep Distance between adjacent layers in y-direction.
+	 * Sets the options to default values, i.e., use balanced layout with left-to-right node
+	 * direction on each layer, node distance as given by LayoutStandards, and layer distance as
+	 * 1.5 times node distance.
 	 */
-	FastSimpleHierarchyLayout(int minXSep = 150, int ySep = 75);
+	FastSimpleHierarchyLayout();
 
-	/**
-	 * Constructor for specific unbalanced layout.
-	 * This is for scientific purpose and debugging. If you are not sure then use the other Constructor
-	 *
-	 * @param downward The level direction
-	 * @param leftToRight The node direction on each level
-	 * @param ySep Distance between adjacent layers in y-direction.
-	 * @param minXSep Mimimum separation between nodes in x-direction.
-	 */
-	FastSimpleHierarchyLayout(bool downward, bool leftToRight, int minXSep = 150, int ySep = 75);
 
 	//! Copy constructor.
 	FastSimpleHierarchyLayout(const FastSimpleHierarchyLayout &);
 
 	// destructor
-	virtual ~FastSimpleHierarchyLayout();
+	virtual ~FastSimpleHierarchyLayout() { }
 
 
 	//! Assignment operator
 	FastSimpleHierarchyLayout &operator=(const FastSimpleHierarchyLayout &);
+
+
+	//! Returns the option <i>node distance</i>.
+	double nodeDistance() const {
+		return m_minXSep;
+	}
+
+	//! Sets the option node distance to \a dist.
+	void nodeDistance(double dist) {
+		m_minXSep = dist;
+	}
+
+	//! Returns the option <i>layer distance</i>.
+	double layerDistance() const {
+		return m_ySep;
+	}
+
+	//! Sets the option <i>layer distance</i> to \a dist.
+	void layerDistance(double dist) {
+		m_ySep = dist;
+	}
+
+	//! Returns the option <i>downward</i>.
+	bool downward() const {
+		return m_downward;
+	}
+
+	//! Sets the option <i>downward</i> to \a d.
+	void downward(bool d) {
+		m_downward = d;
+	}
+
+	//! Returns the option <i>left-to-right</i>.
+	bool leftToRight() const {
+		return m_leftToRight;
+	}
+
+	//! Sets the option <i>left-to-right</i> to \a b.
+	void leftToRight(bool b) {
+		m_leftToRight = b;
+	}
+
+	//! Returns the option <i>balanced</i>.
+	bool balanced() const {
+		return m_balanced;
+	}
+
+	//! Sets the option <i>balanced</i> to \a b.
+	void balanced(bool b) {
+		m_balanced = b;
+	}
 
 
 private:
@@ -144,9 +191,9 @@ private:
 	 *
 	 * @param levels The Hierarchy
 	 * @param downward The level direction
-	 * @return (type1Conflicts[v])[u]=true means (u,v) is marked, u is the upper node
+	 * @param type1Conflicts is assigned the conflicts, (type1Conflicts[v])[u]=true means (u,v) is marked, u is the upper node
 	 */
-	NodeArray<NodeArray<bool> > markType1Conflicts(const HierarchyLevels &levels, bool downward);
+	void markType1Conflicts(const HierarchyLevels &levels, bool downward, NodeArray<NodeArray<bool> > &type1Conflicts);
 
 	/**
 	 * Align each node to a node on the next higher level. The result is a blockgraph where each
@@ -168,11 +215,27 @@ private:
 		const bool leftToRight);
 
 	/**
+	 * Computes the width of each block, i.e., the maximal width of a node in the block, and 
+	 * stores it in blockWidth for the root of the block.
+	 *
+	 * @param GC The input graph copy
+	 * @param GCA The input graph copies (gives in particular the widths of nodes)
+	 * @param root The root for each node (calculated by this method)
+	 * @param blockWidth Is assigned the width of each block (stored for the root)
+	 */
+	void computeBlockWidths(
+		const GraphCopy &GC,
+		const GraphCopyAttributes &GCA,
+		NodeArray<node> &root,
+		NodeArray<double> &blockWidth);
+
+	/**
 	 * Calculate the coordinates for each node
 	 *
 	 * @param align The alignment to the next level node (align(v)=u <=> u is aligned to v)
 	 * @param levels The Hierarchy
 	 * @param root The root for each node
+	 * @param blockWidth The width of each block
 	 * @param x The x-coordinates for each node (calculated by this method)
 	 * @param leftToRight The node direction on each level
 	 * @param downward The level direction
@@ -180,8 +243,9 @@ private:
 	void horizontalCompactation(
 		const NodeArray<node> &align,
 		const HierarchyLevels &levels,
-		const NodeArray<node> root,
-		NodeArray<int> &x,
+		const NodeArray<node> &root,
+		const NodeArray<double> &blockWidth,
+		NodeArray<double> &x,
 		const bool leftToRight,
 		bool downward);
 
@@ -194,18 +258,26 @@ private:
 	 * @param x The class relative x-coordinate for each node (calculated by this method)
 	 * @param align The alignment to the next level node (align(v)=u <=> u is aligned to v)
 	 * @param levels The Hierarchy
+	 * @param blockWidth The width of each block
 	 * @param root The root for each node
 	 * @param leftToRight The node direction on each level
 	 */
-	void placeBlock(node v, NodeArray<node> &sink, NodeArray<int> &shift,
-					NodeArray<int> &x, const NodeArray<node> &align,
-					const HierarchyLevels &levels, const NodeArray<node> &root, const bool leftToRight);
+	void placeBlock(
+		node v,
+		NodeArray<node> &sink,
+		NodeArray<double> &shift,
+		NodeArray<double> &x,
+		const NodeArray<node> &align,
+		const HierarchyLevels &levels,
+		const NodeArray<double> &blockWidth,
+		const NodeArray<node> &root,
+		const bool leftToRight);
 
 	/**
 	 * The twin of an inner Segment
 	 *
 	 * @return Parent node which is connected by an inner segment.
-	 * NULL if there is no parent segment or if the segment is not an inner segment.
+	 * nullptr if there is no parent segment or if the segment is not an inner segment.
 	 */
 	node virtualTwinNode(const HierarchyLevels &levels, const node v, const HierarchyLevels::TraversingDir dir) const;
 
@@ -215,7 +287,7 @@ private:
 	 * @param v The node for which the predecessor should be calculated.
 	 * @param levels The Hierarchy
 	 * @param leftToRight If true the left predecessor is choosen. Otherwise the right predecessor.
-	 * @return Predescessor on the same level. NULL if there is no predecessor.
+	 * @return Predescessor on the same level. nullptr if there is no predecessor.
 	 */
 	node pred(const node v, const HierarchyLevels &levels, const bool leftToRight);
 };

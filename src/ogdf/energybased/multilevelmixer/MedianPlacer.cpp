@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -41,7 +41,6 @@
  ***************************************************************/
 
 #include <ogdf/energybased/multilevelmixer/MedianPlacer.h>
-#include <algorithm>
 #include <vector>
 
 namespace ogdf {

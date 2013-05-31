@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3517 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 09:36:50 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -155,28 +155,44 @@ namespace ogdf {
 
 	void Thread::cleanupPool()
 	{
+		// test if threads were terminated.
+		for (int i = 0; i < s_numPoolThreads; ++i) {
+			DWORD exitCode = 0;
+			GetExitCodeThread(s_poolThreads[i]->m_handle, &exitCode);
+			if (exitCode != STILL_ACTIVE) {
+				delete s_poolThreads[i];
+				s_poolThreads[i] = 0;
+			}
+		}
+
 		// wait for all work to be done
 		for(int i = 0; i < s_numPoolThreads; ++i) {
-			if(s_poolThreads[i]->m_pWork != 0) {
+			if(s_poolThreads[i] && s_poolThreads[i]->m_pWork != 0) {
 				WaitForSingleObject(s_poolThreads[i]->m_pWork->m_evFinished, INFINITE);
 			}
 		}
 
 		// tell all pool threads to finish
-		for(int i = 0; i < s_numPoolThreads; ++i)
-			WakeConditionVariable(&s_poolThreads[i]->m_cvStart);
+		for(int i = 0; i < s_numPoolThreads; ++i) {
+			if (s_poolThreads[i]) {
+				WakeConditionVariable(&s_poolThreads[i]->m_cvStart);
+			}
+		}
 
 		// wait for pool threads to exit
 		for(int i = 0; i < s_numPoolThreads; ++i) {
-			WaitForSingleObject(s_poolThreads[i]->m_handle, INFINITE);
-
+			if (s_poolThreads[i]) {
+				WaitForSingleObject(s_poolThreads[i]->m_handle, INFINITE);
+			}
 		}
 
 		AcquireSRWLockExclusive(&s_poolLock);
 
 		for(int i = 0; i < s_numPoolThreads; ++i) {
-			CloseHandle(s_poolThreads[i]->m_handle);
-			delete s_poolThreads[i];
+			if (s_poolThreads[i]) {
+				CloseHandle(s_poolThreads[i]->m_handle);
+				delete s_poolThreads[i];
+			}
 		}
 
 		delete [] s_poolThreads;

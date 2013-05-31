@@ -1,9 +1,9 @@
 /*
- * $Revision: 3503 $
+ * $Revision: 3521 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -284,40 +284,63 @@ void FMMMLayout::call_POSTPROCESSING_step(
 void FMMMLayout::initialize_all_options()
 {
 	//setting high level options
-	useHighLevelOptions(false); pageFormat(pfSquare); unitEdgeLength(100);
-	newInitialPlacement(false); qualityVersusSpeed(qvsBeautifulAndFast);
+	useHighLevelOptions(false);
+	pageFormat(pfSquare);
+	unitEdgeLength(LayoutStandards::defaultNodeSeparation());
+	newInitialPlacement(false);
+	qualityVersusSpeed(qvsBeautifulAndFast);
 
 	//setting low level options
 	//setting general options
-	randSeed(100);edgeLengthMeasurement(elmBoundingCircle);
-	allowedPositions(apInteger);maxIntPosExponent(40);
+	randSeed(100);
+	edgeLengthMeasurement(elmBoundingCircle);
+	allowedPositions(apInteger);
+	maxIntPosExponent(40);
 
 	//setting options for the divide et impera step
-	pageRatio(1.0);stepsForRotatingComponents(10);
-	tipOverCCs(toNoGrowingRow);minDistCC(100);
+	pageRatio(1.0);
+	stepsForRotatingComponents(10);
+	tipOverCCs(toNoGrowingRow);
+	minDistCC(LayoutStandards::defaultCCSeparation());
 	presortCCs(psDecreasingHeight);
 
 	//setting options for the multilevel step
-	minGraphSize(50);galaxyChoice(gcNonUniformProbLowerMass);randomTries(20);
-	maxIterChange(micLinearlyDecreasing);maxIterFactor(10);
+	minGraphSize(50);
+	galaxyChoice(gcNonUniformProbLowerMass);
+	randomTries(20);
+	maxIterChange(micLinearlyDecreasing);
+	maxIterFactor(10);
 	initialPlacementMult(ipmAdvanced);
 	m_singleLevel = false;
 
 	//setting options for the force calculation step
-	forceModel(fmNew);springStrength(1);repForcesStrength(1);
-	repulsiveForcesCalculation(rfcNMM);stopCriterion(scFixedIterationsOrThreshold);
-	threshold(0.01);fixedIterations(30);forceScalingFactor(0.05);
-	coolTemperature(false);coolValue(0.99);initialPlacementForces(ipfRandomRandIterNr);
+	forceModel(fmNew);
+	springStrength(1);
+	repForcesStrength(1);
+	repulsiveForcesCalculation(rfcNMM);
+	stopCriterion(scFixedIterationsOrThreshold);
+	threshold(0.01);
+	fixedIterations(30);
+	forceScalingFactor(0.05);
+	coolTemperature(false);
+	coolValue(0.99);
+	initialPlacementForces(ipfRandomRandIterNr);
 
 	//setting options for postprocessing
-	resizeDrawing(true);resizingScalar(1);fineTuningIterations(20);
-	fineTuneScalar(0.2);adjustPostRepStrengthDynamically(true);
-	postSpringStrength(2.0);postStrengthOfRepForces(0.01);
+	resizeDrawing(true);
+	resizingScalar(1);
+	fineTuningIterations(20);
+	fineTuneScalar(0.2);
+	adjustPostRepStrengthDynamically(true);
+	postSpringStrength(2.0);
+	postStrengthOfRepForces(0.01);
 
 	//setting options for different repulsive force calculation methods
 	frGridQuotient(2);
-	nmTreeConstruction(rtcSubtreeBySubtree);nmSmallCell(scfIteratively);
-	nmParticlesInLeaves(25); nmPrecision(4);
+	nmTreeConstruction(rtcSubtreeBySubtree);
+	nmSmallCell(scfIteratively);
+	nmParticlesInLeaves(25);
+	nmPrecision(4);
 }
 
 

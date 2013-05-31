@@ -1,9 +1,9 @@
 /*
- * $Revision: 3197 $
+ * $Revision: 3521 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-01-11 18:21:48 +0100 (Fr, 11. Jan 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -336,6 +336,17 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 {
 	DPolygon hullPoly(false);
 	if (points.empty()) {
+		return hullPoly;
+	}
+
+	if (points.size() <= 2)
+	{
+		hullPoly.pushBack(points.front());
+		
+		if (points.back() != points.front())
+		{
+			hullPoly.pushBack(points.back());
+		}
 		return hullPoly;
 	}
 

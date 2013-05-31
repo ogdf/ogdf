@@ -1,9 +1,9 @@
 /*
- * $Revision: 2804 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-10-11 13:58:53 +0200 (Do, 11. Okt 2012) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -45,7 +45,6 @@
 #include <ogdf/basic/geometry.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/basic/Math.h>
-#include <cmath>
 
 
 namespace ogdf {

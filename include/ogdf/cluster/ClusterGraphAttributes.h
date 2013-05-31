@@ -1,9 +1,9 @@
 /*
- * $Revision: 3427 $
+ * $Revision: 3521 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:55:42 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
  ***************************************************************/
 
 /** \file
@@ -67,6 +67,13 @@ namespace ogdf {
 
 		Stroke m_stroke;	//!< stroke (style of boundary)
 		Fill   m_fill;		//!< fill (style of interior)
+
+		ClusterInfo()
+			: m_stroke(LayoutStandards::defaultClusterStroke()), m_fill(LayoutStandards::defaultClusterFill())
+		{
+			m_x = m_y = 0.0;
+			m_w = m_h = 0.0;
+		}
 	};
 
 
