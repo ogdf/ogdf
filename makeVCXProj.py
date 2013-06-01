@@ -63,8 +63,8 @@ config = configparser.ConfigParser()
 
 makecfg = 'makeVCXProj.config'
 for x in sys.argv[1:]:
-    if x[:7] == "config=":
-        makecfg = x[7:]
+	if x[:7] == "config=":
+		makecfg = x[7:]
 
 print('Loading ' + makecfg + '...')
 
@@ -75,6 +75,8 @@ except IOError:
 
 if not config.has_section('OGDF'):
 	bailout('Section "OGDF" is missing')
+if not config.has_section('OGDF-TEST'):
+	bailout('Section "OGDF-TEST" is missing')
 if not config.has_section('COIN'):
 	bailout('Section "COIN" is missing')
 
@@ -156,7 +158,7 @@ if useCoin:
 
 		addLibsDebugWin32   += getLibs(loadConfig('COIN', 'solverLibs_win32_debug'))
 		addLibsReleaseWin32 += getLibs(loadConfig('COIN', 'solverLibs_win32_release'))
-		addLibsDebugX64     += getLibs(loadConfig('COIN', 'solverLibs_x64_debug'))
+		addLibsDebugX64	 += getLibs(loadConfig('COIN', 'solverLibs_x64_debug'))
 		addLibsReleaseX64   += getLibs(loadConfig('COIN', 'solverLibs_x64_release'))
 
 linkSectionD32 = ''
@@ -168,22 +170,26 @@ if createDLL and createDLL.startswith('t'):
 	config_defines += '#define OGDF_DLL\n'
 	addDefines += 'OGDF_INSTALL'
 
-	linkSectionBegin = '    <Link>\n\
+	linkSectionBegin = '	<Link>\n\
 	<AdditionalDependencies>';
 	linkSectionEnd = 'kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
 	<LinkTimeCodeGeneration>\n\
 	</LinkTimeCodeGeneration>\n\
-    <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
-    </Link>'
+	<AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
+	</Link>'
 
 	linkSectionD32 = linkSectionBegin + addLibs + addLibsDebugWin32   + linkSectionEnd
 	linkSectionR32 = linkSectionBegin + addLibs + addLibsReleaseWin32 + linkSectionEnd
-	linkSectionD64 = linkSectionBegin + addLibs + addLibsDebugX64     + linkSectionEnd
+	linkSectionD64 = linkSectionBegin + addLibs + addLibsDebugX64	 + linkSectionEnd
 	linkSectionR64 = linkSectionBegin + addLibs + addLibsReleaseX64   + linkSectionEnd
 
 else:
 	libraryType = 'StaticLibrary'
 
+filename_ogdf_test_vcxproj =  loadConfig('OGDF-TEST', 'projectFile')
+filename_ogdf_test_template = loadConfig('OGDF-TEST', 'templateFile')
+filename_ogdf_test_vcxfilters =  loadConfig('OGDF-TEST', 'projectFiltersFile')
+filename_ogdf_test_template_filters = loadConfig('OGDF-TEST', 'templateFiltersFile')
 
 print('Generating config_autogen.h ...')
 config_autogen = open('include\\ogdf\\internal\\config_autogen.h','w')
@@ -223,6 +229,9 @@ cppCoinStuff = stuff( '<<CPPTAG>>', 'src\\coin', [ '*.c', '*.cpp' ], 'ClCompile'
 hCoinStuff = stuff( '<<HTAG>>', 'include\\coin', [ '*.h', '*.hpp' ], 'ClInclude', 'Header Files' )
 coinStuff = [ cppCoinStuff, hCoinStuff ]
 
+cppTestStuff = stuff( '<<CPPTAG>>', 'test', [ '*.c', '*.cpp' ], 'ClCompile', 'Source Files' )
+hTestStuff = stuff( '<<HTAG>>', 'test', [ '*.h', '*.hpp' ], 'ClInclude', 'Header Files' )
+testStuff = [ cppTestStuff, hTestStuff ]
 
 #########################################################
 #########################################################
@@ -252,7 +261,7 @@ def Walk( curdir, pats, command ):
 		else:
 			for pat in pats:
 				if fnmatch.fnmatch(name, pat):
-					vcxproj.write('    <' + command + ' Include="' + outpath + '" />\n')
+					vcxproj.write('	<' + command + ' Include="' + outpath + '" />\n')
 
 def WalkFilterFiles( curdir, pats, command, filter ):
 	names = os.listdir( curdir)
@@ -276,9 +285,9 @@ def WalkFilterFiles( curdir, pats, command, filter ):
 		else:
 			for pat in pats:
 				if fnmatch.fnmatch(name, pat):
-					vcxfilters.write('    <' + command + ' Include="' + outpath + '">\n')
-					vcxfilters.write('      <Filter>' + filter + '</Filter>\n')
-					vcxfilters.write('    </' + command + '>\n')
+					vcxfilters.write('	<' + command + ' Include="' + outpath + '">\n')
+					vcxfilters.write('	  <Filter>' + filter + '</Filter>\n')
+					vcxfilters.write('	</' + command + '>\n')
 
 def WalkFilters( curdir, filter ):
 	names = os.listdir( curdir)
@@ -294,8 +303,8 @@ def WalkFilters( curdir, filter ):
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
 				filtername = filter + '\\' + name
-				vcxfilters.write('    <Filter Include="' + filtername + '">\n')
-				vcxfilters.write('    </Filter>\n')
+				vcxfilters.write('	<Filter Include="' + filtername + '">\n')
+				vcxfilters.write('	</Filter>\n')
 				WalkFilters( outpath, filtername )
 
 
@@ -409,13 +418,55 @@ if useCoin:
 
 	print ('done')
 
+print ('Generating OGDF-TEST VCXProj...', end='')
+
+vcxproj = open(filename_ogdf_test_vcxproj,'w')
+template = open(filename_ogdf_test_template)
+
+check = 0
+for line in template:
+	if check < len(testStuff) and line.find(testStuff[check].tag) > -1:
+		Walk(testStuff[check].path, testStuff[check].pats, testStuff[check].command)
+		check = check + 1
+	elif line.find(includeTag) > -1:
+		vcxproj.write(line.replace(includeTag,addIncludes,1))
+	elif line.find(toolsetTag) > -1:
+		vcxproj.write(line.replace(toolsetTag,platformToolset,1))
+	else:
+		vcxproj.write(line)
+
+template.close()
+vcxproj.close()
+
+# Creation of filters file...
+
+vcxfilters = open(filename_ogdf_test_vcxfilters,'w')
+template_filters = open(filename_ogdf_test_template_filters)
+
+check = 0
+for line in template_filters:
+	if check < len(testStuff) and line.find(testStuff[check].tag) > -1:
+		WalkFilterFiles(testStuff[check].path, testStuff[check].pats, testStuff[check].command, testStuff[check].filter)
+		check = check + 1
+	elif line.find(filtersTag) > -1:
+		for s in testStuff:
+			WalkFilters(s.path, s.filter)
+	else:
+		vcxfilters.write(line)
+
+template_filters.close()
+vcxfilters.close()
+
+print ('done')
+
 if createSolution:
 	print ('Generating Solution...', end='')
 
 	GUID_sln = '{0F7C385F-D08C-494E-8715-70CD736C75B2}'
 	GUID_ogdf = '{7801D1BE-E2FE-476B-A4B4-5D27F387F479}'
 	GUID_coin = '{FB212DCC-D374-430B-B594-5CEC25BC7A75}'
-
+	GUID_ogdf_test = '{278A54D6-588A-4110-9E44-DA24DB9D5E85}'
+	
 	Configurations = [ 'Debug', 'Release' ]
 	Platforms = [ 'Win32', 'x64' ]
 
@@ -432,6 +483,9 @@ if createSolution:
 		sln.write('Project("' + GUID_sln + '") = "coin", "' + filename_coin_vcxproj + '", "' + GUID_coin + '"\n')
 		sln.write('EndProject\n')
 
+	sln.write('Project("' + GUID_sln + '") = "ogdf-test", "' + filename_ogdf_test_vcxproj + '", "' + GUID_ogdf_test + '"\n')
+	sln.write('EndProject\n')
+		
 	sln.write('Global\n')
 	sln.write('\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\n')
 	sln.write('\t\tDebug|Win32 = Debug|Win32\n')
@@ -442,9 +496,9 @@ if createSolution:
 	sln.write('\tGlobalSection(ProjectConfigurationPlatforms) = postSolution\n')
 
 	if useCoin:
-		projectGUIDs = [ GUID_ogdf, GUID_coin ]
+		projectGUIDs = [ GUID_ogdf, GUID_coin, GUID_ogdf_test ]
 	else:
-		projectGUIDs = [ GUID_ogdf ]
+		projectGUIDs = [ GUID_ogdf, GUID_ogdf_test ]
 	for g in projectGUIDs:
 		for c in Configurations:
 			for p in Platforms:
