@@ -1,9 +1,9 @@
 /*
- * $Revision: 3501 $
+ * $Revision: 3550 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-05-15 10:24:00 +0200 (Mi, 15. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -978,15 +978,13 @@ bool isFreeForest(const Graph &G)
 	NodeArray<bool> visited(G,false);
 
 	node vFirst;
-	forall_nodes(vFirst,G)
-	{
-		if(visited[vFirst]) continue;
+	forall_nodes(vFirst, G) {
+		if (visited[vFirst]) continue;
 
 		StackPure<Tuple2<node,node> > S;
 		S.push(Tuple2<node,node>(vFirst,0));
 
-		while(!S.empty())
-		{
+		while (!S.empty()) {
 			Tuple2<node,node> t = S.pop();
 			node v      = t.x1();
 			node parent = t.x2();
@@ -994,8 +992,7 @@ bool isFreeForest(const Graph &G)
 			visited[v] = true;
 
 			adjEntry adj;
-			forall_adj(adj,v)
-			{
+			forall_adj(adj,v) {
 				node w = adj->twinNode();
 
 				// skip edge to parent, but only once!
@@ -1017,8 +1014,8 @@ bool isFreeForest(const Graph &G)
 
 
 //---------------------------------------------------------
-// isForest(), isTree()
-// testing if graph represents a forest/tree
+// isForest(), isArborescence()
+// testing if graph represents a forest / an arborescence
 //---------------------------------------------------------
 static bool dfsIsForest (node v,
 	NodeArray<bool> &visited,
@@ -1074,7 +1071,7 @@ bool isForest(const Graph& G, List<node> &roots)
 }
 
 
-bool isTree (const Graph& G, node &root)
+bool isArborescence (const Graph& G, node &root)
 {
 	List<node> roots;
 

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2599 $
+ * $Revision: 3569 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (So, 15. Jul 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -232,7 +232,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 					adjEntry a;
 					forall_adj(a,v)
 					{
-						edge e = backTableEdges[a->theEdge()];
+						e = backTableEdges[a->theEdge()];
 						adjEntry adj = (e->adjSource()->theNode() == w)?
 										e->adjSource() : e->adjTarget();
 						entireEmbedding[w].pushBack(adj);
@@ -463,19 +463,19 @@ bool BoothLueker::doEmbed(
 					// This original edge is the reference edge
 					// of a bundle of parallel edges
 
-					ListIterator<edge> it;
+					ListIterator<edge> itE;
 					// If v is source of e, insert the parallel edges
 					// in the order stored in the list.
 					if (e->adjSource()->theNode() == v)
 					{
 						adjEntry adj = e->adjSource();
 						newEntireEmbedding[v].pushBack(adj);
-						for (it = m_parallelEdges[trans].begin(); it.valid(); it++)
+						for (itE = m_parallelEdges[trans].begin(); itE.valid(); itE++)
 						{
-							edge parallel = forwardTableEdges[*it];
-							adjEntry adj = parallel->adjSource()->theNode() == v ?
+							edge parallel = forwardTableEdges[*itE];
+							adjEntry adjParallel = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
-							newEntireEmbedding[v].pushBack(adj);
+							newEntireEmbedding[v].pushBack(adjParallel);
 						}
 					}
 					else
@@ -483,9 +483,9 @@ bool BoothLueker::doEmbed(
 					// in the opposite order stored in the list.
 					// This keeps the embedding.
 					{
-						for (it = m_parallelEdges[trans].rbegin(); it.valid(); it--)
+						for (itE = m_parallelEdges[trans].rbegin(); itE.valid(); itE--)
 						{
-							edge parallel = forwardTableEdges[*it];
+							edge parallel = forwardTableEdges[*itE];
 							adjEntry adj = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
 							newEntireEmbedding[v].pushBack(adj);

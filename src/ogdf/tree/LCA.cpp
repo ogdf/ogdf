@@ -1,9 +1,9 @@
 /*
- * $Revision: 3378 $
+ * $Revision: 3550 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-05 16:28:17 +0200 (Fr, 05. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -73,7 +73,7 @@ node LCA::call(node u, node v) const
 void LCA::dfs(const Graph &G, node root)
 {
 	OGDF_ASSERT(isSimple(G));
-	OGDF_ASSERT(isTree(G));
+	OGDF_ASSERT(isArborescence(G));
 	List< std::pair<node,int> > todo;
 	List< adjEntry > adjStack;
 	int dfscounter = 0;

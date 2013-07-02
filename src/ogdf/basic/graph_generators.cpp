@@ -1,9 +1,9 @@
 /*
- * $Revision: 3518 $
+ * $Revision: 3533 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 09:56:47 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -1261,7 +1261,7 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt)
 	OGDF_ASSERT(edges>=0 && p<=1 && p>=0 && flt<1 && flt>=0);
 
 	G.clear();
-	
+
 	NodeArray<node> sT(G);
 	List<node> stList;
 	for(int i=0;i<edges;i++) {
@@ -1313,7 +1313,7 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt)
 
 	node s_pol = stList.popFrontRet();
 	node t_pol = sT[s_pol];
-	
+
 	const int MAX_ERR = (int)(G.numberOfEdges() * (1/(1-flt)));
 	List<edge> backedges;
 	int it_dag = 0;

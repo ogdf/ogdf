@@ -1,9 +1,9 @@
 /*
- * $Revision: 3096 $
+ * $Revision: 3580 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-30 15:40:41 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-06-24 13:40:53 +0200 (Mo, 24. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -44,12 +44,10 @@
 #pragma once
 #endif
 
-#include <stdio.h>
-#include <ogdf/basic/basic.h>
-
-
 #ifndef OGDF_EXCEPTIONS_H
 #define OGDF_EXCEPTIONS_H
+
+#include <ogdf/basic/basic.h>
 
 
 namespace ogdf {

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -51,7 +51,7 @@
 
 
 #include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/List.h>
+#include <ogdf/basic/SList.h>
 
 
 

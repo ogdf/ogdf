@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -50,6 +50,7 @@
 #define OGDF_PLANAR_LEAFKEY_H
 
 
+#include <ogdf/basic/Graph.h>
 #include <ogdf/internal/planarity/PQLeafKey.h>
 
 

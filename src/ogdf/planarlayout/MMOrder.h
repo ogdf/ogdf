@@ -1,9 +1,9 @@
 /*
- * $Revision: 2571 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-10 17:25:20 +0200 (Di, 10. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -48,7 +48,8 @@
 #ifndef OGDF_MM_ORDER_H
 #define OGDF_MM_ORDER_H
 
-
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/module/ShellingOrderModule.h>
 #include <ogdf/planarlayout/ShellingOrder.h>
 
 

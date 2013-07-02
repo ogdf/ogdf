@@ -1,9 +1,9 @@
 /*
- * $Revision: 2963 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mo, 05. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -54,7 +54,7 @@
 
 
 #include <string.h>
-
+#include <ogdf/basic/Graph.h>
 #include <ogdf/internal/planarity/PQTree.h>
 #include <ogdf/internal/planarity/PQLeafKey.h>
 #include <ogdf/internal/planarity/whaInfo.h>

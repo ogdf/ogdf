@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3609 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-07-01 20:33:08 +0200 (Mo, 01. Jul 2013) $
  ***************************************************************/
 
 /** \file
@@ -124,7 +124,7 @@ public:
 	//modification:
 
 	//! Inserts a new element \a obj with priority \a p and pointer for index update.
-	void insert(HeapObject& obj, key& p, int* keyUpdate = 0);
+	void insert(const HeapObject& obj, key& p, int* keyUpdate = 0);
 
 	//! Obtains heap property, only needed if the elements are not inserted by insert method.
 	virtual void makeHeap();
@@ -466,7 +466,7 @@ HeapObject BinaryHeap2<key, HeapObject>::extractMin()
 //place a copy of the given input element in the queue, doubles
 //array size if necessary
 template <class key, class HeapObject>
-void BinaryHeap2<key, HeapObject>::insert(HeapObject& ho, key& priority, int* keyUpdate)
+void BinaryHeap2<key, HeapObject>::insert(const HeapObject& ho, key& priority, int* keyUpdate)
 {
 	OGDF_ASSERT((HeapBase<key,HeapObject>::m_size) < m_arraySize);
 	HeapBase<key,HeapObject>::m_size++;

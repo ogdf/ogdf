@@ -1,9 +1,9 @@
 /*
- * $Revision: 3432 $
+ * $Revision: 3554 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:05 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -295,7 +295,7 @@ private:
 
 	double allpairsspBFS(const Graph& G, NodeArray< NodeArray<double> >& distance);
 	double allpairssp(const Graph& G, const EdgeArray<double>& eLengths,
-		NodeArray< NodeArray<double> >& distance,	const double threshold = DBL_MAX);
+		NodeArray< NodeArray<double> >& distance,	const double threshold = numeric_limits<double>::max());
 };//SpringEmbedderKK
 
 //Things that potentially could be added

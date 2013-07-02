@@ -1,9 +1,9 @@
 /*
- * $Revision: 3366 $
+ * $Revision: 3572 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-06-20 14:39:41 +0200 (Do, 20. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -291,7 +291,7 @@ namespace ogdf {
 
 	inline __uint8 fromHex(char c)
 	{
-		return (__uint8)((isdigit(c) ? (c - '0') : (tolower(c) - 'a' + 10)) & 0xf);
+		return (__uint8)((isdigit((int)c) ? (c - '0') : (tolower((int)c) - 'a' + 10)) & 0xf);
 	}
 
 
@@ -302,7 +302,7 @@ namespace ogdf {
 
 		if(str[0] != '#') return false;
 		for(string::size_type i = 1; i < str.length(); ++i) {
-			if(!isxdigit(str[i]))
+			if(!isxdigit((int)str[i]))
 				return false;
 		}
 
@@ -321,6 +321,8 @@ namespace ogdf {
 			v = fromHex(str[3]);
 			m_blue = (__uint8)( (v << 4) + v );
 		}
+
+		m_alpha = 255;
 
 		return true;
 	}

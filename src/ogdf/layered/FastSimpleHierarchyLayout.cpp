@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3533 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -94,7 +94,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 	node v;
 	NodeArray<node> align(GC);
 	NodeArray<node> root(GC);
-	
+
 #ifdef DEBUG_OUTPUT
 	for(int i = 0; i <= levels.high(); ++i) {
 		cout << "level " << i << ": ";

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2615 $
+ * $Revision: 3553 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mo, 16. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:02 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,12 +49,12 @@
 #pragma once
 #endif
 
+#ifndef OGDF_HASH_ARRAY_2D_H
+#define OGDF_HASH_ARRAY_2D_H
+
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/tuples.h>
 #include <ogdf/basic/HashIterator2D.h>
-
-#ifndef OGDF_HASH_ARRAY_2D_H
-#define OGDF_HASH_ARRAY_2D_H
 
 
 namespace ogdf {

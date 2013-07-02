@@ -31,14 +31,14 @@ software:
   the COIN-OR projects (Clp and Symphony) and are relased
   under the Eclpise Public License 1.0;
   see the Readme.txt in these folders for more information.
-  
+
  - ABACUS:
    The files in include/ogdf/abacus and src/ogdf/abacus
    are based on the ABACUS project;
    See :http://www.informatik.uni-koeln.de/abacus/
    The modified files are licensed under the GPL (as OGDF itself)
 
-   
+
 ******************* COPYRIGHT *******************
 
 All files in the OGDF distribution (except for third-party
@@ -54,8 +54,8 @@ install OGDF.
 
 Build OGDF (gcc Compiler [Linux, Mac OS]):
 
-  1. Edit makeMakefile.config for your configuration 
-     (if necessary): check the [GENERAL] section. If 
+  1. Edit makeMakefile.config for your configuration
+     (if necessary): check the [GENERAL] section. If
      you do not use Coin, the default parameters should
      be suitable.
 
@@ -68,10 +68,10 @@ Build OGDF (gcc Compiler [Linux, Mac OS]):
 Build OGDF (Visual Studio [Windows]):
 
   1. Create Visual Studio project file:
-  
+
      Visual Studio 2008: Execute the python script makeVCProj.py
        to generate a Visual Studio 2008 project file ogdf.vcproj.
-	   
+
      Visual Studio 2010: Execute the python script makeVCXProj.py
        to generate a Visual Studio 2010 project file ogdf.vcxproj.
 

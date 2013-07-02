@@ -1,9 +1,9 @@
 /*
- * $Revision: 3503 $
+ * $Revision: 3569 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -338,7 +338,6 @@ void CconnectClusterPlanarEmbed::copyEmbedding(
 					// This edge is the reference edge
 					// of a bundle of parallel edges
 
-					ListIterator<edge> it;
 					// If v is source of e, insert the parallel edges
 					// in the order stored in the list.
 					if (e->adjSource()->theNode() == v)
@@ -351,18 +350,18 @@ void CconnectClusterPlanarEmbed::copyEmbedding(
 						parallelEntryPoint[e->adjSource()] = adj;
 						parallelToBeIgnored[adjTableOrig2Copy[adj]] = true;
 
-						for (it = m_parallelEdges[e].begin(); it.valid(); it++)
+						for(ListIterator<edge> itE = m_parallelEdges[e].begin(); itE.valid(); ++itE)
 						{
-							edge parallel = (*it);
-							adjEntry adj = parallel->adjSource()->theNode() == v ?
+							edge parallel = (*itE);
+							adjEntry adjP = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
-							parallelToBeIgnored[adjTableOrig2Copy[adj]] = true;
-							#ifdef OGDF_DEBUG
+							parallelToBeIgnored[adjTableOrig2Copy[adjP]] = true;
+#ifdef OGDF_DEBUG
 							if (int(ogdf::debugLevel) >= int(dlHeavyChecks)){
-								cout << adj << " " << adj->index() << "\t twin " << adj->twin()->index() << endl;}
-							#endif
-							newEntireEmbedding[v].pushBack(adj);
-							newEntireEmbeddingCopy[m_nodeTableOrig2Copy[v]].pushBack(adjTableOrig2Copy[adj]);
+								cout << adjP << " " << adjP->index() << "\t twin " << adjP->twin()->index() << endl;}
+#endif
+							newEntireEmbedding[v].pushBack(adjP);
+							newEntireEmbeddingCopy[m_nodeTableOrig2Copy[v]].pushBack(adjTableOrig2Copy[adjP]);
 						}
 					}
 					else
@@ -371,9 +370,9 @@ void CconnectClusterPlanarEmbed::copyEmbedding(
 					// This keeps the embedding.
 					{
 						bool first = true;
-						for (it = m_parallelEdges[e].rbegin(); it.valid(); it--)
+						for (ListIterator<edge> itE = m_parallelEdges[e].rbegin(); itE.valid(); --itE)
 						{
-							edge parallel = (*it);
+							edge parallel = (*itE);
 							adjEntry adj = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
 							parallelToBeIgnored[adjTableOrig2Copy[adj]] = true;
@@ -1035,10 +1034,10 @@ void CconnectClusterPlanarEmbed::recursiveEmbed(ClusterGraph &Ccopy,Graph &Gcopy
 			SListIterator<adjEntry> it;
 			while (!biCompEmbedding[v].empty())
 			{
-				adjEntry adj = biCompEmbedding[v].popFrontRet();
-				(*embedding)[v].pushBack(adj);
+				adjEntry adjNext = biCompEmbedding[v].popFrontRet();
+				(*embedding)[v].pushBack(adjNext);
 				embeddingGcopy[nodeTableSubGraph2Gcopy[v]].pushBack(
-					tableAdjEntrySubGraph2Gcopy[adj]);
+					tableAdjEntrySubGraph2Gcopy[adjNext]);
 			}
 		}
 
@@ -1055,11 +1054,11 @@ void CconnectClusterPlanarEmbed::recursiveEmbed(ClusterGraph &Ccopy,Graph &Gcopy
 		SListPure<adjEntry> embeddingClusterList;
 		while (!biCompEmbedding[t].empty())
 		{
-			adjEntry adj = biCompEmbedding[t].popFrontRet();
-			(*embedding)[t].pushBack(adj);
-			// Choose the twin of adj, since adj is associated with t
+			adjEntry adjNext = biCompEmbedding[t].popFrontRet();
+			(*embedding)[t].pushBack(adjNext);
+			// Choose the twin of adjNext, since adjNext is associated with t
 			// which is the outside of the cluster.
-			embeddingClusterList.pushFront(tableAdjEntrySubGraph2Gcopy[adj->twin()]);
+			embeddingClusterList.pushFront(tableAdjEntrySubGraph2Gcopy[adjNext->twin()]);
 		}
 
 		Ccopy.makeAdjEntries(newCluster,embeddingClusterList.begin());

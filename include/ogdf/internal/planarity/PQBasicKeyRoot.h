@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,6 +49,7 @@
 #ifndef OGDF_PQ_BASIC_KEY_ROOT_H
 #define OGDF_PQ_BASIC_KEY_ROOT_H
 
+#include <ogdf/basic/basic.h>
 
 
 namespace ogdf {

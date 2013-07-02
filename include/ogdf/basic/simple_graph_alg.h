@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3550 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -767,24 +767,35 @@ inline void makeBimodal(Graph &G) {
 // Methods for trees and forests
 //---------------------------------------------------------
 
-//! Returns true iff \a G is a free forest, i.e. contains no undirected cycle.
+//! Returns true iff \a G is an forest, i.e. contains no undirected cycle.
 /**
  * @param G is the input graph.
  * @return true if \ G is contains no undirected cycle, false otherwise.
  */
 OGDF_EXPORT bool isFreeForest(const Graph &G);
 
+//! Returns true iff \a G is a tree, i.e. contains no undirected
+//  cycle and is connected
+/**
+ * @param G is the input graph.
+ * @return true if \a G is a tree, false otherwise.
+ */
+inline bool isTree(const Graph &G)
+{
+	return (G.numberOfNodes() == G.numberOfEdges() + 1) && isConnected(G);
+}
 
-//! Returns true iff \a G represents a forest, i.e., a collection of rooted trees.
+
+//! Returns true iff \a G represents a forest, i.e., a collection of arborescences.
 /**
  * @param G     is the input graph.
- * @param roots is assigned the list of root nodes of the trees in the forest.
+ * @param roots is assigned the list of root nodes of the arborescences in the forest.
  * @return true if \a G represents a forest, false otherwise.
  */
 OGDF_EXPORT bool isForest(const Graph& G, List<node> &roots);
 
 
-//! Returns true iff \a G represents a forest, i.e. a collection of rooted trees.
+//! Returns true iff \a G represents a forest, i.e. a collection of arborescences.
 /**
  * @param G is the input graph.
  * @return true if \a G represents a forest, false otherwise.
@@ -802,17 +813,17 @@ inline bool isForest(const Graph &G)
  * @param root is assigned the root node (if true is returned).
  * @return true if \a G represents a tree, false otherwise.
  */
-OGDF_EXPORT bool isTree (const Graph& G, node &root);
+OGDF_EXPORT bool isArborescence (const Graph& G, node &root);
 
 
-//! Returns true iff \a G represents a tree
+//! Returns true iff \a G represents an arborescence
 /**
  * @param G    is the input graph.
- * @return true if \a G represents a tree, false otherwise.
+ * @return true if \a G represents a arborescence, false otherwise.
  */
-inline bool isTree(const Graph &G) {
+inline bool isArborescence(const Graph &G) {
 	node root;
-	return isTree(G,root);
+	return isArborescence(G,root);
 }
 
 

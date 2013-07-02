@@ -1,9 +1,9 @@
 /*
- * $Revision: 3369 $
+ * $Revision: 3554 $
  *
  * last checkin:
- *   $Author: klein $
- *   $Date: 2013-04-05 05:19:14 +0200 (Fr, 05. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:05 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -109,8 +109,8 @@ public:
 					continue;
 				}
 				if (distance[w] > distance[v] + weight[e]) {
-					if (DBL_MAX - weight[e] < distance[v]) cerr << "Overflow\n";
-					if (-DBL_MAX - weight[e] > distance[v]) cerr << "Overflow\n";
+					if (numeric_limits<double>::max() - weight[e] < distance[v]) cerr << "Overflow\n";
+					if (-numeric_limits<double>::max() - weight[e] > distance[v]) cerr << "Overflow\n";
 					queue.decreaseKey(qpos[w], (distance[w] = distance[v] + weight[e]));
 					predecessor[w] = e;
 				}

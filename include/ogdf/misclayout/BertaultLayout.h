@@ -37,6 +37,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+#ifdef _MSC_VER
+#pragma once
+#endif
+
+#ifndef OGDF_BERTAULT_LAYOUT_H
+#define OGDF_BERTAULT_LAYOUT_H
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/List.h>
@@ -153,12 +159,12 @@ private:
 	public:
 		double R[9];					//! Ri is radius of ith section
 
-		//! Radii are initiallised to DBL_MAX at the start
+		//! Radii are initialised to numeric_limits<double>::max() at the start
 		void initialize()
 		{
 			int i;
 			for(i=0;i<9;i++)
-				R[i]=DBL_MAX;
+				R[i] = numeric_limits<double>::max();
 		}
 	};
 
@@ -201,3 +207,5 @@ private:
 
 
 }//end namespace ogdf
+
+#endif // OGDF_BERTAULT_LAYOUT_H

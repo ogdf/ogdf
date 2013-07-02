@@ -1,9 +1,9 @@
 /*
- * $Revision: 2589 $
+ * $Revision: 3568 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-12 23:31:45 +0200 (Do, 12. Jul 2012) $
+ *   $Date: 2013-06-18 11:02:35 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -290,8 +290,8 @@ private:
 	 * \param eG_to_eSG is mapping edges in G to edges in SG
 	 */
 	static void recursion(Graph& SG,
-		bool* nodeVisited,
-		bool* edgeVisited,
+		NodeArray<bool> &nodeVisited,
+		EdgeArray<bool> &edgeVisited,
 		const node& nG,
 		const NodeArray<T>& nodeLengthG,
 		NodeArray<T>& nodeLengthSG,
@@ -305,43 +305,44 @@ private:
 
 
 template<class T>
-void ConnectedSubgraph<T>::recursion(Graph& SG,
-	 bool* nodeVisited,
-	 bool* edgeVisited,
-	 const node& nG,
-	 const NodeArray<T>& nodeLengthG,
-	 NodeArray<T>& nodeLengthSG,
-	 const EdgeArray<T>& edgeLengthG,
-	 EdgeArray<T>& edgeLengthSG,
-	 NodeArray<node>& nSG_to_nG,
-	 EdgeArray<edge>& eSG_to_eG,
-	 NodeArray<node>& nG_to_nSG,
-	 EdgeArray<edge>& eG_to_eSG)
+void ConnectedSubgraph<T>::recursion(
+	Graph& SG,
+	NodeArray<bool> &nodeVisited,
+	EdgeArray<bool> &edgeVisited,
+	const node& nG,
+	const NodeArray<T>& nodeLengthG,
+	NodeArray<T>& nodeLengthSG,
+	const EdgeArray<T>& edgeLengthG,
+	EdgeArray<T>& edgeLengthSG,
+	NodeArray<node>& nSG_to_nG,
+	EdgeArray<edge>& eSG_to_eG,
+	NodeArray<node>& nG_to_nSG,
+	EdgeArray<edge>& eG_to_eSG)
 {
 	node nSG = SG.newNode();
 	nodeLengthSG[nSG] = nodeLengthG[nG];
 	nG_to_nSG[nG] = nSG;
 	nSG_to_nG[nSG] = nG;
-	nodeVisited[nG->index()] = true;
+	nodeVisited[nG] = true;
 
 	edge eG;
 	forall_adj_edges(eG, nG)
 	{
-		if (!nodeVisited[eG->source()->index()])
+		if (!nodeVisited[eG->source()])
 			recursion(SG, nodeVisited, edgeVisited, eG->source(),
 				nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
 				nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
-		else if (!nodeVisited[eG->target()->index()])
+		else if (!nodeVisited[eG->target()])
 			recursion(SG, nodeVisited, edgeVisited, eG->target(),
 				nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
 				nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
-		if (!edgeVisited[eG->index()])
+		if (!edgeVisited[eG])
 		{
 			edge eSG = SG.newEdge(nG_to_nSG[eG->source()], nG_to_nSG[eG->target()]);
 			edgeLengthSG[eSG] = edgeLengthG[eG];
 			eG_to_eSG[eG] = eSG;
 			eSG_to_eG[eSG] = eG;
-			edgeVisited[eG->index()] = true;
+			edgeVisited[eG] = true;
 		}
 	}
 }
@@ -362,12 +363,19 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 	EdgeArray<T>& edgeLengthSG)
 {
 	SG.clear();
-	bool* nodeVisited = new bool[G.numberOfNodes()];
-	bool* edgeVisited = new bool[G.numberOfEdges()];
-	for (int i = 0; i < G.numberOfNodes(); i++)
-		nodeVisited[i] = false;
-	for (int i = 0; i < G.numberOfEdges(); i++)
-		edgeVisited[i] = false;
+
+	NodeArray<bool> nodeVisited(G,false);
+	EdgeArray<bool> edgeVisited(G,false);
+
+	//const int n = G.numberOfNodes();
+	//const int m = G.numberOfEdges();
+
+	//bool* nodeVisited = new bool[n];
+	//bool* edgeVisited = new bool[m];
+	//for (int i = 0; i < n; i++)
+	//	nodeVisited[i] = false;
+	//for (int i = 0; i < m; i++)
+	//	edgeVisited[i] = false;
 	nSG_to_nG.init(SG);
 	eSG_to_eG.init(SG);
 	nodeLengthSG.init(SG);
@@ -380,8 +388,8 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 		nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
 	nSG = nG_to_nSG[nG];
 
-	delete nodeVisited;
-	delete edgeVisited;
+	//delete [] nodeVisited;
+	//delete [] edgeVisited;
 }
 
 
@@ -395,12 +403,16 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 	EdgeArray<edge>& eG_to_eSG)
 {
 	SG.clear();
-	bool* nodeVisited = new bool[G.numberOfNodes()];
-	bool* edgeVisited = new bool[G.numberOfEdges()];
-	for (int i = 0; i < G.numberOfNodes(); i++)
-		nodeVisited[i] = false;
-	for (int i = 0; i < G.numberOfEdges(); i++)
-		edgeVisited[i] = false;
+
+	NodeArray<bool> nodeVisited(G,false);
+	EdgeArray<bool> edgeVisited(G,false);
+
+	//bool* nodeVisited = new bool[G.numberOfNodes()];
+	//bool* edgeVisited = new bool[G.numberOfEdges()];
+	//for (int i = 0; i < G.numberOfNodes(); i++)
+	//	nodeVisited[i] = false;
+	//for (int i = 0; i < G.numberOfEdges(); i++)
+	//	edgeVisited[i] = false;
 	nSG_to_nG.init(SG);
 	eSG_to_eG.init(SG);
 	NodeArray<T> nodeLengthG(G, 0);
@@ -414,8 +426,8 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 		nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
 		nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
 
-	delete nodeVisited;
-	delete edgeVisited;
+	//delete [] nodeVisited;
+	//delete [] edgeVisited;
 }
 
 

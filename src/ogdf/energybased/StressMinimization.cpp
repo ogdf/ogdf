@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3554 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Date: 2013-06-07 19:36:05 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -245,8 +245,8 @@ void StressMinimization::minimizeStress(
 	const Graph& G = GA.constGraph();
 	int numberOfPerformedIterations = 0;
 
-	double prevStress = DBL_MAX;
-	double curStress = DBL_MAX;
+	double prevStress = numeric_limits<double>::max();
+	double curStress = numeric_limits<double>::max();
 
 	if (m_terminationCriterion == STRESS) {
 		curStress = calcStress(GA, shortestPathMatrix, weightMatrix);

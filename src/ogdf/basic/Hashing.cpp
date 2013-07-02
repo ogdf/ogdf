@@ -1,9 +1,9 @@
 /*
- * $Revision: 2912 $
+ * $Revision: 3570 $
  *
  * last checkin:
- *   $Author: lewe $
- *   $Date: 2012-10-31 12:19:50 +0100 (Mi, 31. Okt 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-06-19 13:18:34 +0200 (Mi, 19. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -208,9 +208,8 @@ size_t DefHashFunc<string>::hash(const string &key) const
 {
 	size_t hashValue = 0;
 
-	string::const_iterator it;
-	for(it = key.begin(); it < key.end(); ++it)
-		hashValue += int(*it);
+	for(string::size_type i = 0; i < key.size(); ++i)
+		hashValue += int(key[i]);
 
 	return hashValue;
 }

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3366 $
+ * $Revision: 3569 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Do, 04. Apr 2013) $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -1549,7 +1549,7 @@ public:
 	 * \pre \a c must be a white-space character (e.g., a space or a tab).
 	 */
 	static void setIndentChar(char c) {
-		OGDF_ASSERT(isspace(c));
+		OGDF_ASSERT(isspace((int)c));
 		s_indentChar = c;
 	}
 

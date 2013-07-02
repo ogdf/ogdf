@@ -1,9 +1,9 @@
 /*
- * $Revision: 2524 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-03 09:54:22 +0200 (Di, 03. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -48,9 +48,8 @@
 #define OGDF_UPR_LAYOUT_MODULE_H
 
 
-
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/basic/GraphCopyAttributes.h>
+#include <ogdf/upward/UpwardPlanRep.h>
 
 
 namespace ogdf {

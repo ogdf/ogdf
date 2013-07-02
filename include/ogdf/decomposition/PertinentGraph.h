@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,6 +49,7 @@
 #ifndef OGDF_PERTINENT_GRAPH_H
 #define OGDF_PERTINENT_GRAPH_H
 
+#include <ogdf/basic/Graph.h>
 
 namespace ogdf {
 

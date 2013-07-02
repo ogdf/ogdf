@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3569 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -255,7 +255,7 @@ bool GmlParser::getLine()
 		if (m_is->fail())
 			return false;
 		for(m_pCurrent = m_lineBuffer;
-			*m_pCurrent && isspace(*m_pCurrent); ++m_pCurrent) ;
+			*m_pCurrent && isspace((int)*m_pCurrent); ++m_pCurrent) ;
 	} while (*m_pCurrent == '#' || *m_pCurrent == 0);
 
 	return true;
@@ -267,7 +267,7 @@ GmlObjectType GmlParser::getNextSymbol()
 	*m_pStore = m_cStore;
 
 	// eat whitespace
-	for(; *m_pCurrent && isspace(*m_pCurrent); ++m_pCurrent) ;
+	for(; *m_pCurrent && isspace((int)*m_pCurrent); ++m_pCurrent) ;
 
 	// get new line if required
 	if (*m_pCurrent == 0) {
@@ -367,17 +367,17 @@ GmlObjectType GmlParser::getNextSymbol()
 	}
 
 	// identify end of current symbol
-	while(*m_pCurrent != 0 && !isspace(*m_pCurrent)) ++m_pCurrent;
+	while(*m_pCurrent != 0 && !isspace((int)*m_pCurrent)) ++m_pCurrent;
 
 	m_cStore = *(m_pStore = m_pCurrent);
 	*m_pCurrent = 0;
 
-	if(isalpha(*pStart)) { // key
+	if(isalpha((int)*pStart)) { // key
 
 		// check if really a correct key (error if not)
 		if (m_doCheck) {
 			for (char *p = pStart+1; *p; ++p)
-				if (!(isalpha(*p) || isdigit(*p))) {
+				if (!(isalpha((int)*p) || isdigit((int)*p))) {
 					setError("malformed key");
 					return gmlError;
 				}
@@ -392,9 +392,9 @@ GmlObjectType GmlParser::getNextSymbol()
 	} else if (*pStart == ']') {
 		return gmlListEnd;
 
-	} else if (*pStart == '-' || isdigit(*pStart)) { // int or double
+	} else if (*pStart == '-' || isdigit((int)*pStart)) { // int or double
 		char *p = pStart+1;
-		while(isdigit(*p)) ++p;
+		while(isdigit((int)*p)) ++p;
 
 		if (*p == '.') { // double
 			// check to be done
@@ -953,9 +953,9 @@ bool GmlParser::clusterRead(
 
 				//we only allow a vertex id as string identification
 				if ((vIDString[0] != 'v') &&
-					(!isdigit(vIDString[0])))return false; //do not allow labels
+					(!isdigit((int)vIDString[0])))return false; //do not allow labels
 				//if old style entry "v"i
-				if (!isdigit(vIDString[0])) //should check prefix?
+				if (!isdigit((int)vIDString[0])) //should check prefix?
 					vIDString[0] = '0'; //leading zero to allow conversion
 				int vID = stoi(vIDString);
 
@@ -1021,9 +1021,9 @@ bool GmlParser::attributedClusterRead(
 
 				//we only allow a vertex id as string identification
 				if ((vIDString[0] != 'v') &&
-					(!isdigit(vIDString[0])))return false; //do not allow labels
+					(!isdigit((int)vIDString[0])))return false; //do not allow labels
 				//if old style entry "v"i
-				if (!isdigit(vIDString[0])) //should check prefix?
+				if (!isdigit((int)vIDString[0])) //should check prefix?
 					vIDString[0] = '0'; //leading zero to allow conversion
 				int vID = stoi(vIDString);
 
@@ -1154,9 +1154,9 @@ bool GmlParser::recursiveClusterRead(GmlObject* clusterObject,
 
 					//if old style entry "v"i
 					if ((vIDString[0] != 'v') &&
-						(!isdigit(vIDString[0])))return false; //do not allow labels
+						(!isdigit((int)vIDString[0])))return false; //do not allow labels
 					//if old style entry "v"i
-					if (!isdigit(vIDString[0])) //should check prefix?
+					if (!isdigit((int)vIDString[0])) //should check prefix?
 						vIDString[0] = '0'; //leading zero to allow conversion
 					int vID = stoi(vIDString);
 
@@ -1230,9 +1230,9 @@ bool GmlParser::recursiveAttributedClusterRead(GmlObject* clusterObject,
 					string vIDString = clusterSon->m_stringValue;
 
 					if ((vIDString[0] != 'v') &&
-						(!isdigit(vIDString[0])))return false; //do not allow labels
+						(!isdigit((int)vIDString[0])))return false; //do not allow labels
 					//if old style entry "v"i
-					if (!isdigit(vIDString[0])) //should check prefix?
+					if (!isdigit((int)vIDString[0])) //should check prefix?
 						vIDString[0] = '0'; //leading zero to allow conversion
 					int vID = stoi(vIDString);
 

@@ -1,0 +1,20 @@
+#ifndef NDEBUG
+#	define OGDF_DEBUG 1
+#endif
+
+#if @OGDF_DLL@
+#	define OGDF_DLL 1
+#endif
+
+@OGDF_MEMORY_MANAGER@
+
+#if @COIN_ENABLED@
+#	define USE_COIN 1
+#	define @COIN_DEFAULT_SOLVER@ 1
+#endif
+
+#if @WIN32@
+#	ifndef _WIN32_WINNT
+#		define _WIN32_WINNT 0x0502
+#	endif
+#endif

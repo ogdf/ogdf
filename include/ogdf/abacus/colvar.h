@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /*!\file
@@ -42,6 +42,7 @@
 #include <ogdf/abacus/vartype.h>
 #include <ogdf/abacus/column.h>
 #include <ogdf/abacus/numcon.h>
+#include <ogdf/abacus/bheap.h>
 
 namespace abacus {
 

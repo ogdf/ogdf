@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3554 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Date: 2013-06-07 19:36:05 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -48,7 +48,7 @@
 #endif
 
 namespace ogdf {
-const double SpringEmbedderKK::startVal = DBL_MAX - 1.0;
+const double SpringEmbedderKK::startVal = numeric_limits<double>::max() - 1.0;
 const double SpringEmbedderKK::minVal = DBL_MIN;
 const double SpringEmbedderKK::desMinLength = 0.0001;
 const int SpringEmbedderKK::maxVal = numeric_limits<int>::max();
@@ -73,7 +73,7 @@ void SpringEmbedderKK::initialize(
 		shufflePositions(GA);
 
 	//the shortest path lengths
-	forall_nodes (v, G) oLength[v].init(G, DBL_MAX);
+	forall_nodes (v, G) oLength[v].init(G, numeric_limits<double>::max());
 
 	//-------------------------------------
 	//computes shortest path distances d_ij
@@ -99,7 +99,7 @@ void SpringEmbedderKK::initialize(
 		adaptLengths(G, GA, eLength, adaptedLength);
 		//we use simply the BFM n times or Floyd instead, leading to cubic runtime
 		//TODO experimentally compare speed, also with bintree dijkstra
-		maxDist = allpairssp(G, adaptedLength, oLength, DBL_MAX);
+		maxDist = allpairssp(G, adaptedLength, oLength, numeric_limits<double>::max());
 	}
 	//------------------------------------
 	//computes original spring length l_ij
@@ -161,7 +161,7 @@ void SpringEmbedderKK::initialize(
 		forall_nodes(w, G)
 		{
 			dij = oLength[v][w];
-			if (dij == DBL_MAX)
+			if (dij == numeric_limits<double>::max())
 			{
 				sstrength[v][w] = minVal;
 			}
@@ -597,8 +597,8 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 		double yt = GA.y(e->target());
 		double xdist = xs-xt;
 		double ydist = ys-yt;
-		if ((fabs(xs) > (DBL_MAX / 2.0)-1) || (fabs(xt)> (DBL_MAX/2.0)-1) ||
-			(fabs(ys)> (DBL_MAX/2.0)-1) || (fabs(yt)> (DBL_MAX/2.0)-1))
+		if ((fabs(xs) > (numeric_limits<double>::max() / 2.0)-1) || (fabs(xt)> (numeric_limits<double>::max()/2.0)-1) ||
+			(fabs(ys)> (numeric_limits<double>::max()/2.0)-1) || (fabs(yt)> (numeric_limits<double>::max()/2.0)-1))
 			scale = false; //never scale with huge numbers
 		//(even though the drawing may be small and could be shifted to origin)
 		double elength = sqrt(xdist*xdist+ydist*ydist);
@@ -614,7 +614,7 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 	}
 
 
-	if (maxFac > 1.0 && (maxFac < (DBL_MAX/2.0)-1) && scale) //only scale to increase distance
+	if (maxFac > 1.0 && (maxFac < (numeric_limits<double>::max()/2.0)-1) && scale) //only scale to increase distance
 	{
 		//if maxFac is large, we scale in steps until we reach a threshold
 		if (maxFac > 2048)
@@ -629,7 +629,7 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 			{
 				GA.x(v) = GA.x(v)*base;
 				GA.y(v) = GA.y(v)*base;
-				if (GA.x(v) > (DBL_MAX / base)-1 || GA.y(v) > (DBL_MAX / base) - 1)
+				if (GA.x(v) > (numeric_limits<double>::max() / base)-1 || GA.y(v) > (numeric_limits<double>::max() / base) - 1)
 					scale = false;
 			}
 			maxFac *= base;

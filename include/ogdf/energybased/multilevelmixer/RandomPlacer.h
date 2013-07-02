@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3553 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:02 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -40,15 +40,15 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include <ogdf/energybased/multilevelmixer/InitialPlacer.h>
-#include <ogdf/basic/geometry.h>
-
 #ifdef _MSC_VER
 #pragma once
 #endif
 
 #ifndef OGDF_RANDOM_PLACER_H
 #define OGDF_RANDOM_PLACER_H
+
+#include <ogdf/energybased/multilevelmixer/InitialPlacer.h>
+#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
 

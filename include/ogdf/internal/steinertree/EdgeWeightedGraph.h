@@ -1,9 +1,9 @@
 /*
- * $Revision: 3383 $
+ * $Revision: 3609 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-08 10:17:33 +0200 (Mo, 08. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-07-01 20:33:08 +0200 (Mo, 01. Jul 2013) $
  ***************************************************************/
 
 /** \file
@@ -54,56 +54,46 @@ namespace ogdf {
 template<typename T>
 class EdgeWeightedGraph: public Graph {
 public:
-	EdgeWeightedGraph();
-	EdgeWeightedGraph(GraphCopy &gC);
-	virtual ~EdgeWeightedGraph();
-	edge newEdge(node v, node w, T weight);
-	node newNode();
-	T weight(edge e) const;
-	EdgeArray<T> edgeWeights() const;
+	EdgeWeightedGraph()
+	  : Graph()
+	  , m_edgeWeight(*this)
+	{
+	}
+
+	EdgeWeightedGraph(GraphCopy &gC)
+	{
+	}
+
+	virtual ~EdgeWeightedGraph()
+	{
+	}
+
+	edge newEdge(const node v, const node w, T weight)
+	{
+		edge e = Graph::newEdge(v, w);
+		m_edgeWeight[e] = weight;
+		return e;
+	}
+
+	node newNode()
+	{
+		node u = Graph::newNode();
+		return u;
+	}
+
+	T weight(const edge e) const
+	{
+		return m_edgeWeight[e];
+	}
+
+	EdgeArray<T> edgeWeights() const
+	{
+		return m_edgeWeight;
+	}
 
 protected:
 	EdgeArray<T> m_edgeWeight;
 };
-
-}
-
-//Implementation
-
-namespace ogdf {
-
-template<typename T>
-EdgeWeightedGraph<T>::EdgeWeightedGraph() :
-		Graph() {
-	m_edgeWeight = EdgeArray<T>(*this);
-}
-
-template<typename T>
-EdgeWeightedGraph<T>::~EdgeWeightedGraph() {
-}
-
-template<typename T>
-edge EdgeWeightedGraph<T>::newEdge(node v, node w, T weight) {
-	edge e = Graph::newEdge(v, w);
-	m_edgeWeight[e] = weight;
-	return e;
-}
-
-template<typename T>
-node EdgeWeightedGraph<T>::newNode() {
-	node u = Graph::newNode();
-	return u;
-}
-
-template<typename T>
-T EdgeWeightedGraph<T>::weight(edge e) const {
-	return m_edgeWeight[e];
-}
-
-template<typename T>
-EdgeArray<T> EdgeWeightedGraph<T>::edgeWeights() const {
-	return m_edgeWeight;
-}
 
 }
 

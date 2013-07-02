@@ -1,9 +1,9 @@
 /*
- * $Revision: 3331 $
+ * $Revision: 3547 $
  *
  * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-03-01 11:40:20 +0100 (Fr, 01. Mär 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-06 14:47:08 +0200 (Do, 06. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -869,7 +869,7 @@ public:
 	 */
 	void moveSource(edge e, adjEntry adjSrc, Direction dir);
 
-	//! Searches and returns an edge connecting nodes \a v and \a w.
+	//! Searches and returns an edge connecting nodes \a v and \a w in time O(min(deg(v), deg(w))).
 	/**
 	 * @param v is the source node of the edge to be searched.
 	 * @param w is the target node of the edge to be searched.

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3573 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-06-20 14:40:25 +0200 (Do, 20. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -88,6 +88,7 @@ public:
 	 */
 	explicit CriticalSection(int spinCount) {
 #if _WIN32_WINNT >= 0x0600
+#pragma warning( suppress : 4100 )
 		InitializeSRWLock(&m_srwLock);
 #else
 		InitializeCriticalSectionAndSpinCount(&m_cs, spinCount);

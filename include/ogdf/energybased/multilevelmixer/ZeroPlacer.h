@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3553 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:02 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -40,14 +40,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include <ogdf/energybased/multilevelmixer/InitialPlacer.h>
-
 #ifdef _MSC_VER
 #pragma once
 #endif
 
 #ifndef OGDF_ZERO_PLACER_H
 #define OGDF_ZERO_PLACER_H
+
+#include <ogdf/energybased/multilevelmixer/InitialPlacer.h>
 
 namespace ogdf {
 

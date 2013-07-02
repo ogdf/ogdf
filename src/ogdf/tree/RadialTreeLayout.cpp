@@ -1,9 +1,9 @@
 /*
- * $Revision: 2559 $
+ * $Revision: 3550 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fr, 06. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -89,7 +89,7 @@ void RadialTreeLayout::call(GraphAttributes &AG)
 	const Graph &tree = AG.constGraph();
 	if(tree.numberOfNodes() == 0) return;
 
-	if (!isTree(tree))
+	if (!isArborescence(tree))
 		OGDF_THROW_PARAM(PreconditionViolatedException, pvcForest);
 
 	OGDF_ASSERT(m_levelDistance > 0);

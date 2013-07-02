@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3533 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -215,7 +215,7 @@ private:
 		const bool leftToRight);
 
 	/**
-	 * Computes the width of each block, i.e., the maximal width of a node in the block, and 
+	 * Computes the width of each block, i.e., the maximal width of a node in the block, and
 	 * stores it in blockWidth for the root of the block.
 	 *
 	 * @param GC The input graph copy

@@ -38,7 +38,7 @@ Third-party software:
   project. This source code is licensed under the Eclipse
   Public License 1.0 (http://www.eclipse.org/legal/epl-v10.html).
 
-  
+
 See also: http://www.ogdf.net/license.html
 
 Contact: license@ogdf.net

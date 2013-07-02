@@ -1,9 +1,9 @@
 /*
- * $Revision: 3378 $
+ * $Revision: 3550 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-05 16:28:17 +0200 (Fr, 05. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -61,10 +61,10 @@ namespace ogdf {
 class LCA {
 public:
 	/*!
-	 * \brief Builds the LCA data structure for an aborescence
+	 * \brief Builds the LCA data structure for an arborescence
 	 * @param G a tree
 	 * @param root root node of the tree
-	 * \pre Each node in G is reachable from the root via a unique directed path, that is, G is an aborescence.
+	 * \pre Each node in G is reachable from the root via a unique directed path, that is, G is an arborescence.
 	 */
 	LCA(const Graph &G, node root);
 

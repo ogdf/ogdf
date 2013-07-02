@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3547 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Date: 2013-06-06 14:47:08 +0200 (Do, 06. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -1071,9 +1071,14 @@ edge Graph::searchEdge(node v, node w) const
 {
 	OGDF_ASSERT(v != 0 && v->graphOf() == this)
 	OGDF_ASSERT(w != 0 && w->graphOf() == this)
+	if (w->degree() < v->degree()) {
+		swap(v,w);
+	}
 	adjEntry adj;
 	forall_adj(adj,v) {
-		if(adj->twinNode() == w) return adj->twin()->theEdge();
+		if (adj->twinNode() == w) {
+			return adj->theEdge();
+		}
 	}
 	return 0;
 }

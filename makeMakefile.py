@@ -9,7 +9,7 @@
 # use Python 3 print function on both Python 2.x and Python 3.x
 from __future__ import print_function
 
-import os, sys, fnmatch, posixpath, shutil
+import os, sys, fnmatch, posixpath, shutil, subprocess
 
 # Simple hack for using "configparser" on both Python 2 and 3
 if sys.hexversion > 0x03000000:
@@ -42,7 +42,7 @@ def bailout(msg):
 	print('Please use the original makeMakefile.config as a template')
 	sys.exit()
 
-def loadConfig(sect, key, noError = False ):
+def loadConfig(sect, key, noError = False):
 	if config.has_option(sect, key):
 		v = config.get(sect, key)
 		print('   [', sect, ']', key, '=', v)
@@ -70,28 +70,26 @@ config = configparser.ConfigParser()
 print('Loading makeMakefile.config...')
 
 try:
-	config.readfp( open('makeMakefile.config') )
+	config.readfp(open('makeMakefile.config'))
 except IOError:
 	bailout('makeMakefile.config not found')
 
 if not config.has_section('GENERAL'):
 	bailout('Section "GENERAL" is missing')
 if not config.has_section('OGDF'):
-	bailout('Section "GENERAL" is missing')
+	bailout('Section "OGDF" is missing')
 if not config.has_section('VERSIONS'):
 	bailout('Section "VERSIONS" is missing')
 if not config.has_section('COIN'):
 	bailout('Section "COIN" is missing')
 
 compilerCommand = loadConfig('GENERAL', 'compilerCommand')
-compilerParams = loadConfig('GENERAL', 'compilerParams')
+compilerFlags = loadConfig('GENERAL', 'compilerParams')
 libCommand = loadConfig('GENERAL', 'libCommand')
 sharedlibCommand = loadConfig('GENERAL', 'sharedlibCommand')
 rmCommand = loadConfig('GENERAL', 'rmCommand')
 mkdirCommand = loadConfig('GENERAL', 'mkdirCommand')
 ranlibCommand = loadConfig('GENERAL', 'ranlibCommand', True)
-if ranlibCommand == None:
-	ranlibCommand = ''
 installPrefix = loadConfig('GENERAL', 'installPrefix', True)
 
 sharedLib = loadConfig('GENERAL', 'sharedLib').startswith('t')
@@ -104,21 +102,17 @@ memoryManager = loadConfig('OGDF', 'memoryManager', True)
 config_defines = ''
 
 gccMessageLength = loadConfig('GENERAL', 'gccMessageLength', True)
-if gccMessageLength == None:
-	gccMessageLength = ''
-else:
-	gccMessageLength = '-fmessage-length=' + gccMessageLength
-
-compiler = ' '.join( [ compilerCommand, gccMessageLength, compilerParams ] )
+if gccMessageLength:
+	compilerFlags = '-fmessage-length=' + gccMessageLength + ' ' + compilerFlags
 
 libs = ''
 
 if sharedLib:
 	config_defines += '#define OGDF_DLL\n'
 	if sys.platform == 'win32' or sys.platform == 'cygwin':
-		libs = ' '.join( [libs, '-lpsapi'] )
+		libs += ' -lpsapi'
 	else:
-		compiler = ' '.join( [compiler, '-fPIC'] )
+		compilerFlags += ' -fPIC'
 
 if memoryManager:
 	config_defines += '#define ' + memoryManager + '\n'
@@ -153,14 +147,13 @@ if useCoin:
 			addIncludes += '-I' + p + ' '
 
 	if sharedLib and (sys.platform == 'win32' or sys.platform == 'cygwin'):
-		libs = ' '.join( [libs, '-lCOIN'] )
+		libs += ' -lCOIN'
 
-ogdfCompiler = compiler + ' -I./include ' + addIncludes
-coinCompiler = compiler + ' $(COIN_INSTALL_DEFINES) -I./include/coin ' + addIncludes
+ogdfFlags = '-I./include ' + addIncludes
+coinFlags = '$(COIN_INSTALL_DEFINES) -I./include/coin ' + addIncludes
 
 if sharedLib:
-	ogdfCompiler = ' '.join( [ogdfCompiler, '-DOGDF_INSTALL ' ] )
-
+	ogdfFlags += ' -DOGDF_INSTALL'
 
 versions = []
 V = config.items('VERSIONS')
@@ -173,9 +166,9 @@ else:
 		print('   [ VERSIONS ] Name:', v.var, ', Cmd:',v.params)
 		versions.append(v)
 
-print('Resulting compiler call (OGDF):', ogdfCompiler)
+print('Resulting compiler call (OGDF):', ' '.join([compilerCommand, compilerFlags, ogdfFlags]))
 if useCoin:
-	print('Resulting compiler call (COIN):', coinCompiler)
+	print('Resulting compiler call (COIN):', ' '.join([compilerCommand, compilerFlags, coinFlags]))
 
 print('Finished loading makeMakefile.config')
 
@@ -226,17 +219,30 @@ headercontent = header.read()
 header.close()
 makefile.write(headercontent)
 
+# define general variables
+
+makefile.write('CC = ' + compilerCommand + '\n')
+makefile.write('CXXFLAGS = ' + compilerFlags + '\n')
+makefile.write('OGDFFLAGS = ' + ogdfFlags + '\n')
+makefile.write('COINFLAGS = ' + coinFlags + '\n')
+if ranlibCommand:
+	makefile.write('RANLIB = ' + ranlibCommand + '\n')
+makefile.write('RM = ' + rmCommand + '\n')
+makefile.write('AR = ' + libCommand + '\n')
+makefile.write('LD = ' + sharedlibCommand + '\n')
+makefile.write('MKDIR = ' + mkdirCommand + '\n')
+
 # define release & debug
 
 for v in versions:
 	makefile.write(v.var + ' = ' + v.path() + '\n')
+	makefile.write('CXXFLAGS_' + v.var + ' = ' + v.params + '\n')
 makefile.write('\n');
 
 # just the def. nothing happens yet
-def Walk( curdir ):
-
+def Walk(curdir):
 	objs = []
-	names = os.listdir( curdir)
+	names = os.listdir(curdir)
 	names.sort()
 
 	for name in names:
@@ -253,37 +259,31 @@ def Walk( curdir ):
 
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
-				objs = objs + Walk( fullname )
+				objs = objs + Walk(fullname)
 		else:
 			for pat in [ '*.c', '*.cpp' ]:
 				if fnmatch.fnmatch(name, pat):
 					objfullname = fullname[:-len(pat)+2] + 'o'
 					objs.append(objfullname)
 
-					callForDeps = ogdfCompiler + '-MM ' + fullname + ' > targetAndDepend'
-					os.system( callForDeps )
-					t = open('targetAndDepend')
-					targetAndDepend = t.read()
-					t.close()
-
+					targetAndDepend = subprocess.check_output(' '.join([compilerCommand, compilerFlags, ogdfFlags, '-MM', fullname]), shell=True)
 					for v in versions:
 						# print target&depend: add full path spec, incl. version & ignore extra line
 						path = v.call() + '/' +fullname[:-len(name)]
 						makefile.write(path + targetAndDepend[:-1] + '\n')
 
 						# ensure folder
-						makefile.write('\t' + mkdirCommand + ' ' + v.call() + '/' + fullname[:-len(name)-1] + '\n')
+						makefile.write('\t$(MKDIR) ' + v.call() + '/' + fullname[:-len(name)-1] + '\n')
 						# what to do: call the compiler
-						makefile.write('\t' + ogdfCompiler + ' ' + v.params + ' -o ' + v.call() + '/' + objfullname + ' -c ' + fullname + '\n\n')
+						makefile.write('\t$(CC) $(CXXFLAGS) $(OGDFFLAGS) $(CXXFLAGS_' + v.var + ') -o $@ -c ' + fullname + '\n\n')
 
 					# pattern found: don't try other suffix
 					break
 	return objs
 
-def WalkCoin( curdir ):
-
+def WalkCoin(curdir):
 	objs = []
-	names = os.listdir( curdir)
+	names = os.listdir(curdir)
 	names.sort()
 
 	for name in names:
@@ -300,7 +300,7 @@ def WalkCoin( curdir ):
 
 		if os.path.isdir(fullname) and not os.path.islink(fullname):
 			if name != 'abacus' or useCoin == True:
-				objs = objs + WalkCoin( fullname )
+				objs = objs + WalkCoin(fullname)
 		else:
 			for pat in [ '*.c', '*.cpp' ]:
 				if fnmatch.fnmatch(name, pat):
@@ -308,69 +308,71 @@ def WalkCoin( curdir ):
 					if not name.startswith('unitTest'): #conflict if in library!
 						objs.append(objfullname)
 
-					#callForDeps = coinCompiler + '-MM ' + fullname + ' > targetAndDepend'
-					#print callForDeps
-					#os.system( callForDeps )
-					#t = open('targetAndDepend')
-					#targetAndDepend = t.read()
-					#t.close()
+					# skip .h dependency check here
 
 					for v in versions:
-						# print target&depend: add full path spec, incl. version & ignore extra line
-						#path = v.call() + '/' + fullname[:-len(name)]
 						path = v.call() + '/' +objfullname
-						#makefile.write(path + targetAndDepend[:-1] + '\n')
 						makefile.write(path + ': ' + fullname + '\n')
 
 						# ensure folder
-						makefile.write('\t' + mkdirCommand + ' ' + v.call() + '/' + fullname[:-len(name)-1] + '\n')
+						makefile.write('\t$(MKDIR) ' + v.call() + '/' + fullname[:-len(name)-1] + '\n')
 						# what to do: call the compiler
-						makefile.write('\t' + coinCompiler + ' ' + v.params + ' -o ' + v.call() + '/' + objfullname + ' -c ' + fullname + '\n\n')
+						makefile.write('\t$(CC) $(CXXFLAGS) $(COINFLAGS) $(CXXFLAGS_' + v.var + ') -o $@ -c ' + fullname + '\n\n')
 
 					# pattern found: don't try other suffix
 					break
 	return objs
 
-
 # OGDF
-objs = Walk( './src/ogdf' )
-# Clean up
-os.system(rmCommand + ' targetAndDepend')
+objs = Walk('./src/ogdf')
 
 # List all Objs for use in lib-generation and clear
 for v in versions:
 	makefile.write(v.objects()[2:-1] + ' = \\\n')
 	for o in objs:
-		makefile.write(v.call() + '/' + o + ' \\\n')
+		makefile.write('\t' + v.call() + '/' + o + ' \\\n')
 	makefile.write('\n')
 
 # Coin
 if useCoin:
-	objsCoin = WalkCoin( './src/coin' )
-	# Clean up
-	#os.system(rmCommand + ' targetAndDepend')
+	objsCoin = WalkCoin('./src/coin')
 
 	# List all Objs for use in lib-generation and clear
 	for v in versions:
 		makefile.write(v.coinObjects()[2:-1] + ' = \\\n')
 		for o in objsCoin:
-			makefile.write(v.call() + '/' + o + ' \\\n')
+			makefile.write('\t' + v.call() + '/' + o + ' \\\n')
 		makefile.write('\n')
+
+# generate test binary targets
+
+makefile.write('\n#######################################################')
+makefile.write('\n# test binary targets\n\n')
+
+objsTest = Walk('./test')
+
+for v in versions:
+	makefile.write('test/test-' + v.var + ': ' + ' '.join([v.call() + '/' + x for x in objsTest]) + '\n')
+	makefile.write('\t$(CC) -o $@ $^ -pthread -L' + v.call() + ' -lOGDF')
+	if useCoin:
+		makefile.write(' -lCOIN')
+	makefile.write('\n\n')
 
 # generate alls and cleans etc...
 
 for v in versions:
-
 	makefile.write('\n#######################################################')
 	makefile.write('\n# all, clean, etc. for ' + v.var + '\n\n')
+
+	makefile.write('.PHONY: ' + v.var + ' install' + v.var + ' clean' + v.var + ' clean' + v.var + '-coin\n\n')
 
 	if sharedLib:
 		if useCoin:
 			makefile.write(v.coinSharedLibrary() + ': ' + v.coinObjects() + '\n')
-			makefile.write('\t' + sharedlibCommand  + ' -shared -o ' + v.coinSharedLibrary() + ' ' + v.coinObjects() + '\n\n')
+			makefile.write('\t$(LD) -shared -o ' + v.coinSharedLibrary() + ' ' + v.coinObjects() + '\n\n')
 
 		makefile.write(v.sharedlibrary() + ': ' + v.objects() + '\n')
-		makefile.write('\t' + sharedlibCommand  + ' -shared -o ' + v.sharedlibrary() + ' ' + v.objects() + ' ' + libs + ' $(LIBS)\n\n')
+		makefile.write('\t$(LD) -shared -o ' + v.sharedlibrary() + ' ' + v.objects() + ' ' + libs + ' $(LIBS)\n\n')
 
 		makefile.write(v.var + ': ' + v.sharedlibrary())
 		if useCoin:
@@ -380,30 +382,29 @@ for v in versions:
 	else:
 		if useCoin:
 			makefile.write(v.coinLibrary() + ': ' + v.coinObjects() + '\n')
-			makefile.write('\t' + libCommand + ' -r ' + v.coinLibrary() + ' '  + v.coinObjects() + '\n')
-			if ranlibCommand != '':
-				makefile.write('\t' + ranlibCommand + ' ' + v.coinLibrary() + '\n')
+			makefile.write('\t$(AR) -r ' + v.coinLibrary() + ' '  + v.coinObjects() + '\n')
+			if ranlibCommand:
+				makefile.write('\t$(RANLIB) ' + v.coinLibrary() + '\n')
 			makefile.write('\n')
 
 		makefile.write(v.library() + ': ' + v.objects() + '\n')
-		makefile.write('\t' + libCommand + ' -r ' + v.library() + ' '  + v.objects() + ' $(LIBS)\n')
-		if ranlibCommand != '':
-			makefile.write('\t' + ranlibCommand + ' ' + v.library() + '\n')
+		makefile.write('\t$(AR) -r ' + v.library() + ' '  + v.objects() + ' $(LIBS)\n')
+		if ranlibCommand:
+			makefile.write('\t$(RANLIB) ' + v.library() + '\n')
 		makefile.write('\n')
 
 		makefile.write(v.var + ': ' + v.library())
 		if useCoin:
 			makefile.write(' ' + v.coinLibrary())
-		makefile.write('\n\n')
+		makefile.write(' test/test-' + v.var + '\n\n')
 
 	makefile.write('clean' + v.var + ':\n')
-#	makefile.write('\t' + rmCommand + ' ' + v.objects() + ' ' + v.library() + '\n\n')
-	makefile.write('\t' + rmCommand + ' ' + v.call() + '\n\n')
+#	makefile.write('\t$(RM) ' + v.objects() + ' ' + v.library() + '\n\n')
+	makefile.write('\t$(RM) ' + v.call() + ' test/test-' + v.var + '\n\n')
 
 	if useCoin:
 		makefile.write('clean' + v.var + '-coin:\n')
-		makefile.write('\t' + rmCommand + ' ' + v.coinLibrary() + ' ' + v.coinSharedLibrary() + ' ' + v.call() +'/src/coin\n\n')
-
+		makefile.write('\t$(RM) ' + v.coinLibrary() + ' ' + v.coinSharedLibrary() + ' ' + v.call() +'/src/coin\n\n')
 
 	if installPrefix:
 		makefile.write('install' + v.var + ':\n')
@@ -430,6 +431,7 @@ def InstallHeaders(curdir, makefile, installPrefix):
 			makefile.write('\tinstall -m 0644 ' + filename + ' $(DESTDIR)' + installPrefix + '/' + curdir + '\n')
 
 if installPrefix:
+	makefile.write('.PHONY: install-headers install-pkgconfig\n')
 	makefile.write('install: installrelease install-headers install-pkgconfig\n\n')
 	makefile.write('install-headers:\n')
 	InstallHeaders('include/ogdf', makefile, installPrefix)
@@ -442,7 +444,7 @@ if installPrefix:
 makefile.write('\ndistclean: clean-doc')
 for v in versions:
 	makefile.write(' clean' + v.var)
-makefile.write('\n\trm -rf Makefile ogdf.pc include/ogdf/internal/config_autogen.h include/coin/config.h\n')
+makefile.write('\n\t$(RM) Makefile ogdf.pc include/ogdf/internal/config_autogen.h include/coin/config.h\n')
 
 makefile.close()
 

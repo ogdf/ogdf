@@ -1,9 +1,9 @@
 /*
- * $Revision: 3339 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: klein $
- *   $Date: 2013-03-09 02:44:04 +0100 (Sa, 09. Mär 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -53,8 +53,8 @@
 #ifndef OGDF_PRECONDITION_H
 #define OGDF_PRECONDITION_H
 
-
 #include <ogdf/orthogonal/EdgeRouter.h>
+#include <ogdf/uml/UMLGraph.h>
 
 
 namespace ogdf {

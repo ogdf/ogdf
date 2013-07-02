@@ -1,9 +1,9 @@
 /*
- * $Revision: 2565 $
+ * $Revision: 3569 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -89,7 +89,7 @@ void BoyerMyrvoldInit::computeDFS() {
 		m_g.allNodes(list);
 		list.permute();
 		for (it = list.begin(); it.valid(); ++it) {
-			node& v(*it);
+			v = *it;
 			// permute adjEntries
 			if (v->degree() == 0) {
 				m_dfi[v] = nextDFI;

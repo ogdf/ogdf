@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3556 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -42,6 +42,8 @@
 
 #ifndef OGDF_FME_FUNCTIONAL_H
 #define OGDF_FME_FUNCTIONAL_H
+
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 

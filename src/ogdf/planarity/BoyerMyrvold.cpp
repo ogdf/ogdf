@@ -1,9 +1,9 @@
 /*
- * $Revision: 2599 $
+ * $Revision: 3569 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (So, 15. Jul 2012) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -93,22 +93,22 @@ void BoyerMyrvold::transform(
 {
 	// init linear counting structure
 	node kn[6];
-	int k = 0;
+	int p = 0;
 	SListConstIterator<edge> itE;
 	for (itE = source.edgeList.begin(); itE.valid(); ++itE) {
 		const edge& e(*itE);
 		OGDF_ASSERT(!countEdge[e]);
 		countEdge[e] = 1;
-		if (++count[e->source()] == 3) kn[k++] = e->source();
-		if (++count[e->target()] == 3) kn[k++] = e->target();
+		if (++count[e->source()] == 3) kn[p++] = e->source();
+		if (++count[e->target()] == 3) kn[p++] = e->target();
 	}
 
 	// transform edgelist of KuratowskiSubdivision to KuratowskiWrapper
-	OGDF_ASSERT(k==5 || k==6);
+	OGDF_ASSERT(p==5 || p==6);
 	node n;
 	edge e,f,h;
 	List<edge> L;
-	if (k==5) { // K5
+	if (p==5) { // K5
 		kn[5] = 0;
 		target.init(10);
 		for (int k = 0; k<5; k++) {
@@ -168,7 +168,7 @@ void BoyerMyrvold::transform(
 
 	// destruct linear counting structure
 	for (itE = source.edgeList.begin(); itE.valid(); ++itE) {
-		const edge& e(*itE);
+		e = *itE;
 		countEdge[e] = 0;
 		count[e->source()] = 0;
 		count[e->target()] = 0;

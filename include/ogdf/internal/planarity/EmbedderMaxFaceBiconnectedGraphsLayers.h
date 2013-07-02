@@ -1,9 +1,9 @@
 /*
- * $Revision: 3441 $
+ * $Revision: 3567 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-06-17 08:25:08 +0200 (Mo, 17. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -595,7 +595,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::embed(
 				i++;
 			}
 		}
-		delete mus;
+		delete [] mus;
 	}
 
 	bigFaceMu = spqrTree.rootTreeAt(bigFaceMu);
@@ -1994,7 +1994,7 @@ T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
 			i++;
 		}
 	}
-	delete mus;
+	delete [] mus;
 
 	return biggestFace;
 }

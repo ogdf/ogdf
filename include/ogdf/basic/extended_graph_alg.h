@@ -1,9 +1,9 @@
 /*
- * $Revision: 2975 $
+ * $Revision: 3608 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-06 14:05:03 +0100 (Di, 06. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-07-01 20:12:35 +0200 (Mo, 01. Jul 2013) $
  ***************************************************************/
 
 /** \file
@@ -305,72 +305,49 @@ T computeMinST(const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred
 template<typename T>
 T computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred, EdgeArray<bool> &isInTree)
 {
-	//our priority queue storing the front vertices
-	BinaryHeap2<T, node> pq;
+	BinaryHeap2<T, node> pq(G.numberOfNodes()); // priority queue of front vertices
+	NodeArray<int> pqpos(G, -1); // position of each node in pq
 
-	//initialize tree flag for edges
-	edge e;
-	forall_edges(e, G)
-	{
-		isInTree[e] = false;
+	// insert start node
+	T tmp(0);
+	pq.insert(s, tmp, &pqpos[s]);
+
+	// extract the nodes again along a minimum ST
+	NodeArray<bool> processed(G, false);
+	pred.init(G, NULL);
+	while (!pq.empty()) {
+		const node v = pq.extractMin();
+		processed[v] = true;
+		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
+			const node w = adj->twinNode();
+			const edge e = adj->theEdge();
+			const int wPos = pqpos[w];
+			if (wPos == -1) {
+				tmp = weight[e];
+				pq.insert(w, tmp, &pqpos[w]);
+				pred[w] = e;
+			} else
+			if (!processed[w]
+			 && weight[e] < pq.getPriority(wPos)) {
+				pq.decreaseKey(wPos, weight[e]);
+				pred[w] = e;
+			}
+		}
 	}
 
-	//array to save the position information from pq
-	int* pqpos = new int[G.numberOfNodes()];
-
-	int i = 0;
-	NodeArray<int> vIndex(G);
-	//array that tells us if node is already processed
-	NodeArray<bool> processed(G);
-	//predecessor of node v is given by an edge (w,v)
-
-	//insert nodes into pr
-	node v = G.firstNode();
-	T prio = numeric_limits<T>::max();;
-	while (v != 0)
-	{
-		vIndex[v] = i;
-		pq.insert(v, prio, &(pqpos[i++]));
-		processed[v] = false;
-		pred[v] = 0;
-		v = v->succ();
-	}//while all nodes
-	// decrease start node
-	pq.decreaseKey(pqpos[vIndex[s]], 0);
-
-	//extract the nodes again along a minimum ST
-	while (!pq.empty())
-	{
-		v = pq.extractMin();
-		processed[v] = true;
-		forall_adj_edges(e, v)
-		{
-			node w = e->opposite(v);
-
-			int posofw = pqpos[vIndex[w]];
-			if ((!processed[w]) && (weight[e] < pq.getPriority(posofw)))
-			{
-				pq.decreaseKey(posofw, weight[e]);
-				pred[w] = e;
-			}//if improvement
-		}
-	}//while pq
-
-	//only for connected graphs
 	int rootcount = 0;
 	T treeWeight = 0;
-	forall_nodes(v, G)
-	{
-		if (pred[v] == 0) rootcount++;
-		else
-		{
+	isInTree.init(G, false);
+	for (node v = G.firstNode(); v; v = v->succ()) {
+		if (!pred[v]) {
+			++rootcount;
+		} else {
 			isInTree[pred[v]] = true;
 			treeWeight += weight[pred[v]];
 		}
 	}
-	OGDF_ASSERT(rootcount == 1);
+	OGDF_ASSERT(rootcount == 1); // is connected
 
-	delete[] pqpos;
 	return treeWeight;
 }//computeMinST
 

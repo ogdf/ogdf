@@ -1,9 +1,9 @@
 /*
- * $Revision: 3235 $
+ * $Revision: 3569 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-22 15:43:41 +0100 (Di, 22. Jan 2013) $
+ *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
  ***************************************************************/
 
 /** \file
@@ -127,7 +127,7 @@ void FMEThreadPool::allocate()
 
 	m_pSyncBarrier = new Barrier(m_numThreads);
 	m_pThreads = new FMEThreadPtr[m_numThreads];
-	for (__uint32 i=0; i < numThreads(); i++)
+	for (__uint32 i=0; i < m_numThreads; i++)
 	{
 		m_pThreads[i] = new FMEThread(this, i);
 #ifdef OGDF_SYSTEM_WINDOWS

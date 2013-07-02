@@ -1,6 +1,6 @@
 #ifndef OGDF_VERSION_H
 #define OGDF_VERSION_H
 
-#define OGDF_VERSION "2013.05"
+#define OGDF_VERSION "2013.07"
 
 #endif // OGDF_VERSION_H
