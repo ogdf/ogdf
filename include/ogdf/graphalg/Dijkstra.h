@@ -1,9 +1,9 @@
 /*
- * $Revision: 3554 $
+ * $Revision: 3643 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:05 +0200 (Fr, 07. Jun 2013) $
+ *   $Date: 2013-07-07 14:00:35 +0200 (So, 07. Jul 2013) $
  ***************************************************************/
 
 /** \file
@@ -71,7 +71,7 @@ public:
 	 */
 	void call(const Graph &G, //!< The original input graph
 		  const EdgeArray<T> &weight, //!< The edge weights
-		  const List<node> sources, //!< A list of source nodes
+		  const List<node> &sources, //!< A list of source nodes
 		  NodeArray<edge> &predecessor, //!< The resulting predecessor relation
 		  NodeArray<T> &distance, //!< The resulting distances to all other nodes
 		  bool directed = false) //!< True iff G should be interpreted as directed graph

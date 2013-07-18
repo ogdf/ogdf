@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3642 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-07-06 18:17:45 +0200 (Sa, 06. Jul 2013) $
  ***************************************************************/
 
 /** \file
@@ -299,9 +299,9 @@ public:
 	 * \brief Returns the first edge in the list of edges coresponding to edge \a e.
 	 * @param e is an edge in the original graph.
 	 * \return the first edge in the corresponding list of edges in
-	 * the graph copy.
+	 * the graph copy or NULL if it does not exist.
 	 */
-	edge copy(edge e) const { return m_eCopy[e].front(); }
+	edge copy(edge e) const { return (m_eCopy[e].empty() ? NULL : m_eCopy[e].front()); }
 
 	/**
 	 * \brief Returns true iff \a v has no corresponding node in the original graph.
