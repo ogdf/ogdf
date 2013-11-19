@@ -1,9 +1,9 @@
 /*
- * $Revision: 3472 $
+ * $Revision: 3833 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mo, 29. Apr 2013) $
+ *   $Date: 2013-11-13 11:23:15 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -155,7 +155,7 @@ namespace ogdf {
  *     <td><i>ranking</i><td>RankingModule<td>LongestPathRanking
  *     <td>The ranking module determines the layering of the graph.
  *   </tr><tr>
- *     <td><i>crossMin</i><td>TwoLayerCrossMin<td>BarycenterHeuristic
+ *     <td><i>crossMin</i><td>LayerByLayerSweep<td>BarycenterHeuristic
  *     <td>The crossMin module performs two-layer crossing
  *     minimization and is applied during the top-down bottom-up traversals.
  *   </tr><tr>
@@ -177,8 +177,8 @@ namespace ogdf {
  */
 class OGDF_EXPORT SugiyamaLayout : public LayoutModule {
 
-	class CrossMinMaster;
-	class CrossMinWorker;
+	//class CrossMinMaster;
+	//class CrossMinWorker;
 
 protected:
 
@@ -186,7 +186,7 @@ protected:
 	ModuleOption<RankingModule>                m_ranking;
 
 	//! the module for two-layer crossing minimization
-	ModuleOption<TwoLayerCrossMin>             m_crossMin;
+	ModuleOption<LayeredCrossMinModule>        m_crossMin;
 
 	ModuleOption<TwoLayerCrossMinSimDraw>      m_crossMinSimDraw;
 
@@ -404,7 +404,7 @@ public:
 	 * This module is called within the top-down and bottom-up traversal
 	 * of the Sugiyama crossing minimization procedure.
 	 */
-	void setCrossMin(TwoLayerCrossMin *pCrossMin) {
+	void setCrossMin(LayeredCrossMinModule *pCrossMin) {
 		m_crossMin.set(pCrossMin);
 	}
 
@@ -461,10 +461,17 @@ public:
 
 	double timeReduceCrossings() { return m_timeReduceCrossings; }
 
+	// needed by LayerByLayerSweep::
+	const EdgeArray<__uint32> *subgraphs() const { return m_subgraphs; };
+	int numCC() const { return m_numCC; };
+	const NodeArray<int>& compGC() const { return m_compGC; };
+
 protected:
 
-	void reduceCrossings(HierarchyLevels &levels);
+	//void reduceCrossings(HierarchyLevels &levels);
 	void reduceCrossings(ExtendedNestingGraph &H);
+
+	const HierarchyLevelsBase *reduceCrossings(Hierarchy &H);
 
 private:
 	int m_numCC;

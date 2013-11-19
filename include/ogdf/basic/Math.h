@@ -1,9 +1,9 @@
 /*
- * $Revision: 2963 $
+ * $Revision: 3703 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mo, 05. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2013-07-23 12:21:55 +0200 (Di, 23. Jul 2013) $
  ***************************************************************/
 
 /** \file
@@ -44,6 +44,7 @@
 #define OGDF_MATH_H
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
@@ -134,6 +135,51 @@ public:
 				result += 1;
 			}
 			return result;
+		}
+	}
+
+	//! Returns the greatest common divisor of two numbers.
+	static int gcd(int a, int b)
+	{
+		// If b > a, they will be swapped in the first iteration.
+		do {
+			int c = a % b;
+			a = b;
+			b = c;
+		} while (b > 0);
+		return a;
+	}
+
+	//! Returns the least common multipler of two numbers.
+	static int lcm(int a, int b)
+	{
+		return a*b / gcd(a,b);
+	}
+
+	//! Converts a double to a fraction.
+	static void getFraction(double d, int &num, int &denom, const double epsilon = 5e-10, const int count = 10)
+	{
+		Stack<int> continuedFrac;
+
+		// build continued fraction
+		int z((int)d);
+		continuedFrac.push(z);
+		d = d - z;
+		int i = 0;
+		while (d > epsilon && i++ < count) {
+			d = 1 / d;
+			z = (int)d;
+			continuedFrac.push(z);
+			d = d - z;
+		}
+
+		// simplify continued fraction to simple fraction
+		num = 1;
+		denom = 0;
+		while (!continuedFrac.empty()) {
+			int last = continuedFrac.pop();
+			swap(num, denom);
+			num += last * denom;
 		}
 	}
 };

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3832 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -57,7 +57,7 @@
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/FastHierarchyLayout.h>
 #include <ogdf/layered/OptimalRanking.h>
-
+#include <ogdf/layered/HierarchyLevels.h>
 
 namespace ogdf {
 

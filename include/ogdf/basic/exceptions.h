@@ -1,9 +1,9 @@
 /*
- * $Revision: 3580 $
+ * $Revision: 3840 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-06-24 13:40:53 +0200 (Mo, 24. Jun 2013) $
+ *   $Date: 2013-11-19 08:27:44 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -40,14 +40,17 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+// must be included first here
+#include <ogdf/basic/basic.h>
+
+
 #ifdef _MSC_VER
 #pragma once
 #endif
 
+
 #ifndef OGDF_EXCEPTIONS_H
 #define OGDF_EXCEPTIONS_H
-
-#include <ogdf/basic/basic.h>
 
 
 namespace ogdf {

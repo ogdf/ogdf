@@ -1,9 +1,9 @@
 /*
- * $Revision: 3522 $
+ * $Revision: 3804 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:58:02 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: chimani $
+ *   $Date: 2013-10-29 12:02:20 +0100 (Di, 29. Okt 2013) $
  ***************************************************************/
 
 /** \file
@@ -64,7 +64,7 @@
  *
  * The OGDF project is a cooperation between
  * - [Chair of Algorithm Engineering](http://ls11-www.cs.uni-dortmund.de/), Faculty of Computer Science, TU Dortmund, Germany
- * - [Juniorprofessorship of Algorithm Engineering](http://www.ae.uni-jena.de/), Faculty of Mathematics and Computer Science, Friedrich-Schiller-University Jena, Germany
+ * - [Theoretical Computer Science](http://www.cs.uos.de/theoinf), Department of Mathematics/Computer Science, Uni Osnabrück, Germany
  * - [Chair of Prof. J&uuml;nger](http://www.informatik.uni-koeln.de/ls_juenger/), Department of Computer Science, University of Cologne, Germany
  * - [University of Sydney](http://sydney.edu.au/engineering/it/), Australia
  * - [oreas GmbH](http://www.oreas.com/), Cologne, Germany

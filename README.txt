@@ -32,11 +32,11 @@ software:
   under the Eclpise Public License 1.0;
   see the Readme.txt in these folders for more information.
 
- - ABACUS:
-   The files in include/ogdf/abacus and src/ogdf/abacus
-   are based on the ABACUS project;
-   See :http://www.informatik.uni-koeln.de/abacus/
-   The modified files are licensed under the GPL (as OGDF itself)
+- ABACUS:
+  The files in include/ogdf/abacus and src/ogdf/abacus
+  are based on the ABACUS project;
+  See :http://www.informatik.uni-koeln.de/abacus/
+  The modified files are licensed under the GPL (as OGDF itself)
 
 
 ******************* COPYRIGHT *******************
@@ -44,7 +44,7 @@ software:
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 2005-2012
+Copyright (C) 2005-2013
 
 
 ****************** INSTALLATION *****************

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2965 $
+ * $Revision: 3831 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:10:26 +0100 (Mo, 05. Nov 2012) $
+ *   $Date: 2013-11-13 10:00:32 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -309,7 +309,6 @@ public:
 	{
 		return doRead(is, G, &CG, &CGA, &CGA);
 	}
-
 };//end class OGMLParser
 
 }//end namespace ogdf

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3569 $
+ * $Revision: 3831 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-06-18 11:04:33 +0200 (Di, 18. Jun 2013) $
+ *   $Date: 2013-11-13 10:00:32 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -107,7 +107,7 @@ void GmlParser::createObjectTree(istream &is, bool doCheck)
 }
 
 // we use predefined id constants for all relevant keys
-// this allows us to use efficient switch() statemnts in read() methods
+// this allows us to use efficient switch() statements in read() methods
 void GmlParser::initPredefinedKeys()
 {
 	m_hashTable.fastInsert("id",       idPredefKey);
@@ -598,8 +598,9 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 			string line;  // the line color attribute
 			string shape; //the shape type
 			float lineWidth = 1.0f; //node line width
-			int    pattern = 1; //node brush pattern
-			int    stipple = 1; //line style pattern
+			int pattern = 1; //node brush pattern
+			int stipple = 1; //line style pattern
+			int weight = 0; // node weight
 
 			// read all relevant attributes
 			GmlObject *nodeSon = son->m_pFirstSon;
@@ -669,14 +670,17 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 
 				case templatePredefKey:
 					if (nodeSon->m_valueType != gmlStringValue) break;
-
 					templ = nodeSon->m_stringValue;
 					break;
 
 				case labelPredefKey:
 					if (nodeSon->m_valueType != gmlStringValue) break;
-
 					label = nodeSon->m_stringValue;
+					break;
+
+				case edgeWeightPredefKey: //sic!
+					if (nodeSon->m_valueType != gmlIntValue) break;
+					weight = nodeSon->m_intValue;
 					break;
 				}
 			}
@@ -704,6 +708,8 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 				AG.templateNode(m_mapToNode[vId]) = templ;
 			if (AG.attributes() & GraphAttributes::nodeId)
 				AG.idNode(m_mapToNode[vId]) = vId;
+			if (AG.attributes() & GraphAttributes::nodeWeight)
+				AG.weight(m_mapToNode[vId]) = weight;
 			if (AG.attributes() & GraphAttributes::nodeStyle)
 			{
 				AG.fillColor(m_mapToNode[vId]) = fill;

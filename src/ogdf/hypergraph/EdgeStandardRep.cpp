@@ -1,9 +1,9 @@
 /*
- * $Revision: 3505 $
+ * $Revision: 3830 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:47 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -48,13 +48,12 @@
 namespace ogdf {
 
 EdgeStandardRep::EdgeStandardRep()
-  : m_type(EdgeStandardType::star)
-  , m_hypergraph(0)
+	: m_type(EdgeStandardType::star), m_hypergraph(0)
 {
 }
 
 EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType::Type pType = EdgeStandardType::star)
-  : HypergraphObserver(&pH)
+	: HypergraphObserver(&pH)
 {
 	m_type = pType;
 	m_hypergraph = &pH;

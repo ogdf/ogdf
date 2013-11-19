@@ -1,9 +1,9 @@
 /*
- * $Revision: 3533 $
+ * $Revision: 3832 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -108,7 +108,7 @@ private:
 	bool   m_leftToRight;	//!< stores the option <i>left-to-right</i>.
 
 protected:
-	void doCall(const HierarchyLevels &levels, GraphCopyAttributes &AGC);
+	void doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC);
 
 public:
 	//! Creates an instance of fast simple hierarchy layout.
@@ -193,7 +193,7 @@ private:
 	 * @param downward The level direction
 	 * @param type1Conflicts is assigned the conflicts, (type1Conflicts[v])[u]=true means (u,v) is marked, u is the upper node
 	 */
-	void markType1Conflicts(const HierarchyLevels &levels, bool downward, NodeArray<NodeArray<bool> > &type1Conflicts);
+	void markType1Conflicts(const HierarchyLevelsBase &levels, bool downward, NodeArray<NodeArray<bool> > &type1Conflicts);
 
 	/**
 	 * Align each node to a node on the next higher level. The result is a blockgraph where each
@@ -207,7 +207,7 @@ private:
 	 * @param leftToRight The node direction on each level
 	 */
 	void verticalAlignment(
-		const HierarchyLevels &levels,
+		const HierarchyLevelsBase &levels,
 		NodeArray<node> &root,
 		NodeArray<node> &align,
 		const NodeArray<NodeArray<bool> > &type1Conflicts,
@@ -242,7 +242,7 @@ private:
 	 */
 	void horizontalCompactation(
 		const NodeArray<node> &align,
-		const HierarchyLevels &levels,
+		const HierarchyLevelsBase &levels,
 		const NodeArray<node> &root,
 		const NodeArray<double> &blockWidth,
 		NodeArray<double> &x,
@@ -268,7 +268,7 @@ private:
 		NodeArray<double> &shift,
 		NodeArray<double> &x,
 		const NodeArray<node> &align,
-		const HierarchyLevels &levels,
+		const HierarchyLevelsBase &levels,
 		const NodeArray<double> &blockWidth,
 		const NodeArray<node> &root,
 		const bool leftToRight);
@@ -279,7 +279,7 @@ private:
 	 * @return Parent node which is connected by an inner segment.
 	 * nullptr if there is no parent segment or if the segment is not an inner segment.
 	 */
-	node virtualTwinNode(const HierarchyLevels &levels, const node v, const HierarchyLevels::TraversingDir dir) const;
+	node virtualTwinNode(const HierarchyLevelsBase &levels, const node v, const HierarchyLevelsBase::TraversingDir dir) const;
 
 	/**
 	 * Predecessor of v on the same level,
@@ -289,7 +289,7 @@ private:
 	 * @param leftToRight If true the left predecessor is choosen. Otherwise the right predecessor.
 	 * @return Predescessor on the same level. nullptr if there is no predecessor.
 	 */
-	node pred(const node v, const HierarchyLevels &levels, const bool leftToRight);
+	node pred(const node v, const HierarchyLevelsBase &levels, const bool leftToRight);
 };
 
 } // end namespace ogdf

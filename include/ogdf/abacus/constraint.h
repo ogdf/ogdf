@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3830 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /*!\file
@@ -284,8 +284,8 @@ protected:
 	 */
 	bool liftable_;
 
-  private:
-	  const Constraint &operator=(const Constraint &rhs);
+private:
+	const Constraint &operator=(const Constraint &rhs);
 };
 
 }

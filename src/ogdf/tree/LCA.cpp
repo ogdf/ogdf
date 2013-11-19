@@ -1,9 +1,9 @@
 /*
- * $Revision: 3550 $
+ * $Revision: 3830 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -51,14 +51,14 @@
 namespace ogdf {
 
 LCA::LCA(const Graph &G, node root)
-  : m_root(root)
-  , m_n(G.numberOfNodes())
-  , m_len(2 * m_n - 1)
-  , m_rangeJ(Math::floorLog2(m_len))
-  , m_euler(m_len)
-  , m_representative(G)
-  , m_level(m_len)
-  , m_table(m_len * m_rangeJ)
+	: m_root(root)
+	, m_n(G.numberOfNodes())
+	, m_len(2 * m_n - 1)
+	, m_rangeJ(Math::floorLog2(m_len))
+	, m_euler(m_len)
+	, m_representative(G)
+	, m_level(m_len)
+	, m_table(m_len * m_rangeJ)
 {
 	dfs(G, m_root);
 	buildTable();

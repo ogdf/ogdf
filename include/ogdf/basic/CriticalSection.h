@@ -1,9 +1,9 @@
 /*
- * $Revision: 3573 $
+ * $Revision: 3840 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-06-20 14:40:25 +0200 (Do, 20. Jun 2013) $
+ *   $Date: 2013-11-19 08:27:44 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -40,6 +40,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+// must be included first here
+#include <ogdf/basic/basic.h>
+
 
 #ifdef _MSC_VER
 #pragma once
@@ -48,6 +51,7 @@
 
 #ifndef OGDF_CRITICAL_SECTION_H
 #define OGDF_CRITICAL_SECTION_H
+
 
 #if !defined(OGDF_SYSTEM_WINDOWS)
 #include <pthread.h>

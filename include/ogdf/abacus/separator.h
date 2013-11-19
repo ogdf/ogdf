@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3842 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-11-19 09:32:03 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /*!\file
@@ -99,7 +99,7 @@ public:
 		nDuplications_(0),
 		pool_(0)
 	{
-		if(testDuplications)
+		if(nonDuplications)
 			hash_=new AbaHash<unsigned, BaseType *>((AbacusGlobal*)master_, 3*maxGen);
 	}
 

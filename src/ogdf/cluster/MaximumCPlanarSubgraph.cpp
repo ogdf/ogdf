@@ -1,9 +1,9 @@
  /*
- * $Revision: 3448 $
+ * $Revision: 3830 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-24 11:21:52 +0200 (Mi, 24. Apr 2013) $
+ *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -505,12 +505,12 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 			case CSense::Equal: cout << "=" << "\n"; break;
 			default: cout << "doesn't make any sense \n"; break;
 		}//switch
-  float fl;
-  while(!(std::cin >> fl))
-  {
-	std::cin.clear();
-	std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
-  }
+		float fl;
+		while(!(std::cin >> fl))
+		{
+			std::cin.clear();
+			std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
+		}
 	}*/
 }//writeportaieq
 

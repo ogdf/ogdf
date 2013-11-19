@@ -1,9 +1,9 @@
 /*
- * $Revision: 3386 $
+ * $Revision: 3840 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2013-11-19 08:27:44 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /*!\file
@@ -94,7 +94,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const NumCon &rhs) const {
+	friend ostream &operator<<(ostream &out, const NumCon &rhs) {
 		return out << "number = " << rhs.number_ << "  rhs = " << rhs.rhs_ << endl;
 	}
 
@@ -129,7 +129,7 @@ private:
 
 namespace abacus {
 
-inline double NumCon::coeff(const Variable *v)
+inline double NumCon::coeff(const Variable *v) const
 {
 	const ColVar *colvar = (const ColVar *) v;
 	return colvar->coeff(number_);

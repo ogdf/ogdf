@@ -1,9 +1,9 @@
 /*
- * $Revision: 3556 $
+ * $Revision: 3841 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-19 09:03:39 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /*!\file
@@ -35,13 +35,16 @@
  * \see http://www.gnu.org/copyleft/gpl.html
  */
 
+// must be included first here
+#include <ogdf/abacus/numcon.h>
+
+
 #ifndef ABA__COLVAR_H
 #define ABA__COLVAR_H
 
 #include <ogdf/abacus/variable.h>
 #include <ogdf/abacus/vartype.h>
 #include <ogdf/abacus/column.h>
-#include <ogdf/abacus/numcon.h>
 #include <ogdf/abacus/bheap.h>
 
 namespace abacus {
@@ -138,7 +141,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const ColVar &rhs) const;
+	friend ostream &operator<<(ostream &out, const ColVar &rhs);
 
 
 	//! Writes the column representing the variable to output stream \a out.

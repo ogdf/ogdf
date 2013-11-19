@@ -1,9 +1,9 @@
 /*
- * $Revision: 3533 $
+ * $Revision: 3832 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -196,7 +196,7 @@ FastHierarchyLayout &FastHierarchyLayout::operator=(const FastHierarchyLayout &f
 }
 
 
-void FastHierarchyLayout::doCall(const HierarchyLevels &levels,
+void FastHierarchyLayout::doCall(const HierarchyLevelsBase &levels,
 	GraphCopyAttributes &AGC)
 {
 	const Hierarchy &H  = levels.hierarchy();

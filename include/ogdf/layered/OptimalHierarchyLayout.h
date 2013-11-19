@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3832 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -95,7 +95,7 @@ class OGDF_EXPORT OptimalHierarchyLayout : public HierarchyLayoutModule
 {
 #ifndef OGDF_LP_SOLVER
 protected:
-	void doCall(const HierarchyLevels& /*levels*/, GraphCopyAttributes & /*AGC*/) {
+	void doCall(const HierarchyLevelsBase& /*levels*/, GraphCopyAttributes & /*AGC*/) {
 		OGDF_THROW_PARAM(LibraryNotSupportedException, lnscCoin);
 	}
 
@@ -183,14 +183,14 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	void doCall(const HierarchyLevels &levels,GraphCopyAttributes &AGC);
+	void doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC);
 
 private:
 	void computeXCoordinates(
-		const HierarchyLevels &levels,
+		const HierarchyLevelsBase &levels,
 		GraphCopyAttributes &AGC);
 	void computeYCoordinates(
-		const HierarchyLevels &levels,
+		const HierarchyLevelsBase &levels,
 		GraphCopyAttributes &AGC);
 
 	// options

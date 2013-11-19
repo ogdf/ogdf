@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3832 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -53,7 +53,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/tuples.h>
-
+#include <ogdf/layered/CrossingMinInterfaces.h>
 
 namespace ogdf {
 
@@ -77,7 +77,7 @@ public:
 /**
  * \see Hierarchy, SugiyamaLayout
  */
-class OGDF_EXPORT Level {
+class OGDF_EXPORT Level : public LevelBase {
 
 	friend class HierarchyLevels;
 	friend class HierarchyLayoutModule;

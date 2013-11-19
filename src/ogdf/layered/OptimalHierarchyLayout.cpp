@@ -1,9 +1,9 @@
 /*
- * $Revision: 3522 $
+ * $Revision: 3832 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:58:02 +0200 (Fr, 31. Mai 2013) $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -96,7 +96,7 @@ OptimalHierarchyLayout &OptimalHierarchyLayout::operator=(const OptimalHierarchy
 //---------------------------------------------------------
 // Call for Graphs
 //---------------------------------------------------------
-void OptimalHierarchyLayout::doCall(const HierarchyLevels &levels,GraphCopyAttributes &AGC)
+void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC)
 {
 	// trivial cases
 	const GraphCopy &GC = levels.hierarchy();
@@ -122,7 +122,7 @@ void OptimalHierarchyLayout::doCall(const HierarchyLevels &levels,GraphCopyAttri
 // Compute x-coordinates (LP-based approach) (for graphs)
 //---------------------------------------------------------
 void OptimalHierarchyLayout::computeXCoordinates(
-	const HierarchyLevels &levels,
+	const HierarchyLevelsBase &levels,
 	GraphCopyAttributes &AGC)
 {
 	const Hierarchy &H  = levels.hierarchy();
@@ -137,7 +137,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	int i;
 	for(i = 0; i < k; ++i)
 	{
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		int last = -1;
 		for(int j = 0; j < L.size(); ++j)
 		{
@@ -182,7 +182,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 	for(i = 0; i < k; ++i)
 	{
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j) {
 			node v = L[j];
 			if(isVirtual[v] == true)
@@ -259,7 +259,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	}
 
 	for(int jj = 0; jj < k; ++jj) {
-		const Level &L = levels[jj];
+		const LevelBase &L = levels[jj];
 		for(int j = 0; j < L.size(); ++j) {
 			node v = L[j];
 
@@ -393,7 +393,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	//   x[v_i] - x[v_(i-1)] >= nodeDistance + 0.5*(width(v_i)+width(v_(i-1))
 	for(i = 0; i < k; ++i)
 	{
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 1; j < L.size(); ++j)
 		{
 			node u = L[j-1];
@@ -429,7 +429,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	if(nBalanced > 0) {
 		for(i = 0; i < k; ++i)
 		{
-			const Level &L = levels[i];
+			const LevelBase &L = levels[i];
 			for(int j = 0; j < L.size(); ++j)
 			{
 				node v = L[j];
@@ -587,7 +587,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 // Compute y-coordinates (for graphs)
 //---------------------------------------------------------
 void OptimalHierarchyLayout::computeYCoordinates(
-	const HierarchyLevels &levels,
+	const HierarchyLevelsBase &levels,
 	GraphCopyAttributes &AGC)
 {
 	const int k = levels.size();
@@ -597,7 +597,7 @@ void OptimalHierarchyLayout::computeYCoordinates(
 	Array<double> height(0,k-1,0.0);
 
 	for(i = 0; i < k; ++i) {
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j) {
 			double h = AGC.getHeight(L[j]);
 			if(h > height[i])
@@ -611,7 +611,7 @@ void OptimalHierarchyLayout::computeYCoordinates(
 
 	for(i = 0; ; ++i)
 	{
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j)
 			AGC.y(L[j]) = yPos;
 

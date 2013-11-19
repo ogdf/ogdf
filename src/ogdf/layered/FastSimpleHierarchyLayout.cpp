@@ -1,9 +1,9 @@
 /*
- * $Revision: 3533 $
+ * $Revision: 3832 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -86,7 +86,7 @@ FastSimpleHierarchyLayout &FastSimpleHierarchyLayout::operator=(const FastSimple
 }
 
 
-void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyAttributes &AGC)
+void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC)
 {
 	const Hierarchy &H  = levels.hierarchy();
 	const GraphCopy &GC = H;
@@ -98,7 +98,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 #ifdef DEBUG_OUTPUT
 	for(int i = 0; i <= levels.high(); ++i) {
 		cout << "level " << i << ": ";
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 0; j <= L.high(); ++j)
 			cout << L[j] << " ";
 		cout << endl;
@@ -207,7 +207,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 	Array<double> height(0,k-1,0.0);
 
 	for(int i = 0; i < k; ++i) {
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j) {
 			double h = AGC.getHeight(L[j]);
 			if(h > height[i])
@@ -220,7 +220,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 
 	for(int i = 0; ; ++i)
 	{
-		const Level &L = levels[i];
+		const LevelBase &L = levels[i];
 		for(int j = 0; j < L.size(); ++j)
 			AGC.y(L[j]) = yPos;
 
@@ -232,7 +232,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevels &levels, GraphCopyA
 }
 
 
-void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevels &levels, const bool downward, NodeArray<NodeArray<bool> > &type1Conflicts)
+void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &levels, const bool downward, NodeArray<NodeArray<bool> > &type1Conflicts)
 {
 	const GraphCopy& GC = levels.hierarchy();
 	node v;
@@ -245,19 +245,19 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevels &levels
 		int upper, lower; 	// iteration bounds
 		int k0, k1; 		// node position boundaries of closest inner segments
 		int l; 				// node position on current level
-		HierarchyLevels::TraversingDir relupward; // upward relativ to the direction from downward
+		HierarchyLevelsBase::TraversingDir relupward; // upward relativ to the direction from downward
 
 		if (downward) {
 			lower = 1;
 			upper = levels.high() - 2;
 
-			relupward = HierarchyLevels::downward;
+			relupward = HierarchyLevelsBase::downward;
 		}
 		else {
 			lower = levels.high() - 1;
 			upper = 2;
 
-			relupward = HierarchyLevels::upward;
+			relupward = HierarchyLevelsBase::upward;
 		}
 
 		/*
@@ -269,8 +269,8 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevels &levels
 		{
 			k0 = 0;
 			l = 0; 			// index of first node on layer
-			const Level &currentLevel = levels[i];
-			const Level &nextLevel = downward ? levels[i+1] : levels[i-1];
+			const LevelBase &currentLevel = levels[i];
+			const LevelBase &nextLevel = downward ? levels[i+1] : levels[i-1];
 
 			// for all nodes on next level
 			for (int l1 = 0; l1 <= nextLevel.high(); l1++) {
@@ -307,7 +307,7 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevels &levels
 
 
 void FastSimpleHierarchyLayout::verticalAlignment(
-	const HierarchyLevels &levels,
+	const HierarchyLevelsBase &levels,
 	NodeArray<node> &root,
 	NodeArray<node> &align,
 	const NodeArray<NodeArray<bool> > &type1Conflicts,
@@ -318,11 +318,11 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 	node v, u;
 	int r;
 	int median;
-	HierarchyLevels::TraversingDir relupward;		// upward relativ to the direction from downward
+	HierarchyLevelsBase::TraversingDir relupward;		// upward relativ to the direction from downward
 
 	int medianCount;
 
-	relupward = downward ? HierarchyLevels::downward : HierarchyLevels::upward;
+	relupward = downward ? HierarchyLevelsBase::downward : HierarchyLevelsBase::upward;
 
 	// initialize root and align
 	forall_nodes(v, GC) {
@@ -335,7 +335,7 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 		(downward && i <= levels.high()) || (!downward && i >= 0);
 		i = downward ? i + 1 : i - 1)
 	{
-		const Level &currentLevel = levels[i];
+		const LevelBase &currentLevel = levels[i];
 		r = leftToRight ? -1 : numeric_limits<int>::max();
 
 		// for all nodes on Level i (with direction leftToRight)
@@ -396,7 +396,7 @@ void FastSimpleHierarchyLayout::computeBlockWidths(
 
 void FastSimpleHierarchyLayout::horizontalCompactation(
 	const NodeArray<node> &align,
-	const HierarchyLevels &levels,
+	const HierarchyLevelsBase &levels,
 	const NodeArray<node> &root,
 	const NodeArray<double> &blockWidth,
 	NodeArray<double> &x,
@@ -423,7 +423,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 		(downward && i <= levels.high()) || (!downward && i >= 0);
 		i = downward ? i + 1 : i - 1)
 	{
-		const Level &currentLevel = levels[i];
+		const LevelBase &currentLevel = levels[i];
 
 		for (int j = leftToRight ? 0 : currentLevel.high();
 			(leftToRight && j <= currentLevel.high()) || (!leftToRight && j >= 0);
@@ -441,7 +441,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 		(downward && i <= levels.high()) || (!downward && i >= 0);
 		i = downward ? i + 1 : i - 1)
 	{
-		const Level &currentLevel = levels[i];
+		const LevelBase &currentLevel = levels[i];
 
 		v = currentLevel[leftToRight ? 0 : currentLevel.high()];
 
@@ -484,7 +484,7 @@ void FastSimpleHierarchyLayout::placeBlock(
 	NodeArray<double> &shift,
 	NodeArray<double> &x,
 	const NodeArray<node> &align,
-	const HierarchyLevels &levels,
+	const HierarchyLevelsBase &levels,
 	const NodeArray<double> &blockWidth,
 	const NodeArray<node> &root,
 	const bool leftToRight)
@@ -550,7 +550,7 @@ void FastSimpleHierarchyLayout::placeBlock(
 }
 
 
-node FastSimpleHierarchyLayout::virtualTwinNode(const HierarchyLevels &levels, const node v, const HierarchyLevels::TraversingDir dir) const
+node FastSimpleHierarchyLayout::virtualTwinNode(const HierarchyLevelsBase &levels, const node v, const HierarchyLevelsBase::TraversingDir dir) const
 {
 	const Hierarchy &H = levels.hierarchy();
 
@@ -567,14 +567,14 @@ node FastSimpleHierarchyLayout::virtualTwinNode(const HierarchyLevels &levels, c
 }
 
 
-node FastSimpleHierarchyLayout::pred(const node v, const HierarchyLevels &levels, const bool leftToRight)
+node FastSimpleHierarchyLayout::pred(const node v, const HierarchyLevelsBase &levels, const bool leftToRight)
 {
 	const Hierarchy &H = levels.hierarchy();
 
 	int pos = levels.pos(v);
 	int rank = H.rank(v);
 
-	const Level &level = levels[rank];
+	const LevelBase &level = levels[rank];
 	if ((leftToRight && pos != 0) || (!leftToRight && pos != level.high())) {
 		return level[leftToRight ? pos - 1 : pos + 1];
 	}

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 3840 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Date: 2013-11-19 08:27:44 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -53,7 +53,6 @@
 #ifndef OGDF_CLUSTER_PQ_CONTAINER_H
 #define OGDF_CLUSTER_PQ_CONTAINER_H
 
-#include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
 #include <ogdf/internal/planarity/EmbedPQTree.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>

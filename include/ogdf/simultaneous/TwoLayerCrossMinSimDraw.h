@@ -1,9 +1,9 @@
 /*
- * $Revision: 3433 $
+ * $Revision: 3833 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 13:44:53 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2013-11-13 11:23:15 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -50,17 +50,17 @@
 #define OGDF_TWO_LAYER_CROSS_MIN_SIMDRAW_H
 
 
-#include <ogdf/module/TwoLayerCrossMin.h>
+#include <ogdf/module/LayerByLayerSweep.h>
 
 
 namespace ogdf {
 
 
-	class OGDF_EXPORT TwoLayerCrossMinSimDraw : public TwoLayerCrossMin
+	class OGDF_EXPORT TwoLayerCrossMinSimDraw : public LayerByLayerSweep
 	{
 	public:
 		//! Initializes a two-layer crossing minimization module.
-		TwoLayerCrossMinSimDraw() : TwoLayerCrossMin() { }
+		TwoLayerCrossMinSimDraw() : LayerByLayerSweep() { }
 
 		//! Returns a new instance of the two-layer crossing minimization module with the same option settings.
 		virtual TwoLayerCrossMinSimDraw *clone() const = 0;

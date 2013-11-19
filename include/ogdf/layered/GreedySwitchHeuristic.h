@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3833 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-11-13 11:23:15 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,7 +49,7 @@
 #define OGDF_GREEDY_SWITCH_HEURISTIC_H
 
 
-#include <ogdf/module/TwoLayerCrossMin.h>
+#include <ogdf/module/LayerByLayerSweep.h>
 #include <ogdf/layered/CrossingsMatrix.h>
 
 
@@ -58,7 +58,7 @@ namespace ogdf
 
 
 //! The greedy-switch heuristic for 2-layer crossing minimization.
-class OGDF_EXPORT GreedySwitchHeuristic : public TwoLayerCrossMin
+class OGDF_EXPORT GreedySwitchHeuristic : public LayerByLayerSweep
 {
 public:
 	//! Creates a new instance of the greedy-switch heuristic.
@@ -68,7 +68,7 @@ public:
 	GreedySwitchHeuristic(const GreedySwitchHeuristic &crossMin) { }
 
 	//! Returns a new instance of the greed-switch heuristic with the same option settings.
-	TwoLayerCrossMin *clone() const { return new GreedySwitchHeuristic; }
+	LayerByLayerSweep *clone() const { return new GreedySwitchHeuristic; }
 
 	//! Initializes crossing minimization for hierarchy \a H.
 	void init (const HierarchyLevels &levels);

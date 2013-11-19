@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3832 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -494,11 +494,11 @@ void HierarchyLevels::separateCCs(int numCC, const NodeArray<int> &component)
 }
 
 
-int HierarchyLevels::calculateCrossings() const
+int HierarchyLevelsBase::calculateCrossings() const
 {
 	int nCrossings = 0;
 
-	for(int i = 0; i < m_pLevel.high(); ++i) {
+	for(int i = 0; i < this -> high(); ++i) {
 		nCrossings += calculateCrossings(i);
 	}
 
@@ -510,10 +510,13 @@ int HierarchyLevels::calculateCrossings() const
 // implementation by Michael Juenger, Decembre 2000, adapted by Carsten Gutwenger
 // implements the algorithm by Barth, Juenger, Mutzel
 
-int HierarchyLevels::calculateCrossings(int i) const
+int HierarchyLevelsBase::calculateCrossings(int i) const
 {
-	const Level &L = *m_pLevel[i];             // level i
-	const int nUpper = m_pLevel[i+1]->size();  // number of nodes on level i+1
+	// const Level &L = *m_pLevel[i];             // level i
+	// const int nUpper = m_pLevel[i+1]->size();  // number of nodes on level i+1
+
+	const LevelBase &L = (*this)[i];             // level i
+	const int nUpper = (*this)[i+1].size();  // number of nodes on level i+1
 
 	int nc = 0; // number of crossings
 
@@ -528,11 +531,14 @@ int HierarchyLevels::calculateCrossings(int i) const
 
 	for(int j = 0; j < L.size(); ++j)
 	{
-		const Array<node> &adjNodes = m_upperAdjNodes[L[j]];
+		// const Array<node> &adjNodes = m_upperAdjNodes[L[j]];
+		const Array<node> &adjNodes = this->adjNodes(L[j], upward); // m_upperAdjNodes[L[j]];
+
 		for(int k = 0; k < adjNodes.size(); ++k)
 		{
 			// index of tree node for vertex adjNode[k]
-			int index = m_pos[adjNodes[k]] + fa;
+			//int index = m_pos[adjNodes[k]] + fa;
+			int index = pos(adjNodes[k]) + fa;
 			nin[index]++;
 
 			while (index>0) {
@@ -683,13 +689,13 @@ void HierarchyLevels::check() const
 
 
 //---------------------------------------------------------
-// SugiyamaLayout
-// Sugiyama drawing algorithm for hierarchical graphs
+// LayerByLayerSweep
+// Crossing reduction algorithm using 2-level heuristic.
 //---------------------------------------------------------
 
-// SugiyamaLayout::CrossMinMaster
+// LayerByLayerSweep::CrossMinMaster
 
-class SugiyamaLayout::CrossMinMaster {
+class LayerByLayerSweep::CrossMinMaster {
 
 	NodeArray<int>  *m_pBestPos;
 	int              m_bestCR;
@@ -714,7 +720,7 @@ public:
 	void restore(HierarchyLevels &levels, int &cr);
 
 	void doWorkHelper(
-		TwoLayerCrossMin        *pCrossMin,
+		LayerByLayerSweep        *pCrossMin,
 		TwoLayerCrossMinSimDraw *pCrossMinSimDraw,
 		HierarchyLevels         &levels,
 		NodeArray<int>          &bestPos,
@@ -725,13 +731,13 @@ public:
 		);
 
 private:
-	const EdgeArray<__uint32> *subgraphs() const { return m_sugi.m_subgraphs; }
+	const EdgeArray<__uint32> *subgraphs() const { return m_sugi.subgraphs(); }
 	int fails() const { return m_sugi.fails(); }
 	bool transpose() { return m_sugi.transpose(); }
 
 	bool arrangeCCs() const { return m_sugi.arrangeCCs(); }
-	int arrange_numCC() const { return m_sugi.m_numCC; }
-	const NodeArray<int> &arrange_compGC() const { return m_sugi.m_compGC; }
+	int arrange_numCC() const { return m_sugi.numCC(); }
+	const NodeArray<int> &arrange_compGC() const { return m_sugi.compGC(); }
 
 	bool transposeLevel(int i, HierarchyLevels &levels, Array<bool> &levelChanged);
 	void doTranspose(HierarchyLevels &levels, Array<bool> &levelChanged);
@@ -739,13 +745,13 @@ private:
 
 	int traverseTopDown(
 		HierarchyLevels &levels,
-		TwoLayerCrossMin *pCrossMin,
+		LayerByLayerSweep *pCrossMin,
 		TwoLayerCrossMinSimDraw *pCrossMinSimDraw,
 		Array<bool>             *pLevelChanged);
 
 	int traverseBottomUp(
 		HierarchyLevels &levels,
-		TwoLayerCrossMin *pCrossMin,
+		LayerByLayerSweep *pCrossMin,
 		TwoLayerCrossMinSimDraw *pCrossMinSimDraw,
 		Array<bool>             *pLevelChanged);
 
@@ -756,7 +762,7 @@ private:
 
 
 
-SugiyamaLayout::CrossMinMaster::CrossMinMaster(
+LayerByLayerSweep::CrossMinMaster::CrossMinMaster(
 	const SugiyamaLayout &sugi,
 	const Hierarchy &H,
 	int seed,
@@ -764,7 +770,7 @@ SugiyamaLayout::CrossMinMaster::CrossMinMaster(
 	: m_pBestPos(0), m_bestCR(numeric_limits<int>::max()), m_sugi(sugi), m_H(H), m_seed(seed), m_runs(runs) { }
 
 
-bool SugiyamaLayout::CrossMinMaster::postNewResult(int cr, NodeArray<int> *pPos)
+bool LayerByLayerSweep::CrossMinMaster::postNewResult(int cr, NodeArray<int> *pPos)
 {
 	bool storeResult = false;
 	m_criticalSection.enter();
@@ -783,20 +789,20 @@ bool SugiyamaLayout::CrossMinMaster::postNewResult(int cr, NodeArray<int> *pPos)
 }
 
 
-bool SugiyamaLayout::CrossMinMaster::getNextRun()
+bool LayerByLayerSweep::CrossMinMaster::getNextRun()
 {
 	return atomicDec(&m_runs) >= 0;
 }
 
 
-void SugiyamaLayout::CrossMinMaster::restore(HierarchyLevels &levels, int &cr)
+void LayerByLayerSweep::CrossMinMaster::restore(HierarchyLevels &levels, int &cr)
 {
 	levels.restorePos(*m_pBestPos);
 	cr = m_bestCR;
 }
 
 
-bool SugiyamaLayout::CrossMinMaster::transposeLevel(int i, HierarchyLevels &levels, Array<bool> &levelChanged)
+bool LayerByLayerSweep::CrossMinMaster::transposeLevel(int i, HierarchyLevels &levels, Array<bool> &levelChanged)
 {
 	bool improved = false;
 
@@ -813,7 +819,7 @@ bool SugiyamaLayout::CrossMinMaster::transposeLevel(int i, HierarchyLevels &leve
 }
 
 
-void SugiyamaLayout::CrossMinMaster::doTranspose(HierarchyLevels &levels, Array<bool> &levelChanged)
+void LayerByLayerSweep::CrossMinMaster::doTranspose(HierarchyLevels &levels, Array<bool> &levelChanged)
 {
 	levelChanged.fill(true);
 
@@ -827,7 +833,7 @@ void SugiyamaLayout::CrossMinMaster::doTranspose(HierarchyLevels &levels, Array<
 }
 
 
-void SugiyamaLayout::CrossMinMaster::doTransposeRev(HierarchyLevels &levels, Array<bool> &levelChanged)
+void LayerByLayerSweep::CrossMinMaster::doTransposeRev(HierarchyLevels &levels, Array<bool> &levelChanged)
 {
 	levelChanged.fill(true);
 
@@ -841,9 +847,9 @@ void SugiyamaLayout::CrossMinMaster::doTransposeRev(HierarchyLevels &levels, Arr
 }
 
 
-int SugiyamaLayout::CrossMinMaster::traverseTopDown(
+int LayerByLayerSweep::CrossMinMaster::traverseTopDown(
 	HierarchyLevels           &levels,
-	TwoLayerCrossMin          *pCrossMin,
+	LayerByLayerSweep          *pCrossMin,
 	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw,
 	Array<bool>               *pLevelChanged)
 {
@@ -865,9 +871,9 @@ int SugiyamaLayout::CrossMinMaster::traverseTopDown(
 }
 
 
-int SugiyamaLayout::CrossMinMaster::traverseBottomUp(
+int LayerByLayerSweep::CrossMinMaster::traverseBottomUp(
 	HierarchyLevels           &levels,
-	TwoLayerCrossMin          *pCrossMin,
+	LayerByLayerSweep          *pCrossMin,
 	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw,
 	Array<bool>               *pLevelChanged)
 {
@@ -889,8 +895,8 @@ int SugiyamaLayout::CrossMinMaster::traverseBottomUp(
 }
 
 
-void SugiyamaLayout::CrossMinMaster::doWorkHelper(
-	TwoLayerCrossMin        *pCrossMin,
+void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
+	LayerByLayerSweep        *pCrossMin,
 	TwoLayerCrossMinSimDraw *pCrossMinSimDraw,
 	HierarchyLevels         &levels,
 	NodeArray<int>          &bestPos,
@@ -978,18 +984,18 @@ void SugiyamaLayout::CrossMinMaster::doWorkHelper(
 }
 
 
-// SugiyamaLayout::CrossMinWorker
+// LayerByLayerSweep::CrossMinWorker
 
-class SugiyamaLayout::CrossMinWorker : public Thread {
+class LayerByLayerSweep::CrossMinWorker : public Thread {
 
-	CrossMinMaster &m_master;
-	TwoLayerCrossMin        *m_pCrossMin;
+	LayerByLayerSweep::CrossMinMaster &m_master;
+	LayerByLayerSweep        *m_pCrossMin;
 	TwoLayerCrossMinSimDraw *m_pCrossMinSimDraw;
 
 	NodeArray<int>   m_bestPos;
 
 public:
-	CrossMinWorker(CrossMinMaster &master, TwoLayerCrossMin *pCrossMin, TwoLayerCrossMinSimDraw *pCrossMinSimDraw)
+	CrossMinWorker(LayerByLayerSweep::CrossMinMaster &master, LayerByLayerSweep *pCrossMin, TwoLayerCrossMinSimDraw *pCrossMinSimDraw)
 		: m_master(master), m_pCrossMin(pCrossMin), m_pCrossMinSimDraw(pCrossMinSimDraw)
 	{
 		OGDF_ASSERT( (pCrossMin != 0 && pCrossMinSimDraw == 0) || (pCrossMin == 0 && pCrossMinSimDraw != 0));
@@ -1001,7 +1007,7 @@ protected:
 	virtual void doWork();
 };
 
-void SugiyamaLayout::CrossMinWorker::doWork()
+void LayerByLayerSweep::CrossMinWorker::doWork()
 {
 	HierarchyLevels levels(m_master.hierarchy());
 
@@ -1014,6 +1020,10 @@ void SugiyamaLayout::CrossMinWorker::doWork()
 }
 
 
+//---------------------------------------------------------
+// SugiyamaLayout
+// Sugiyama drawing algorithm for hierarchical graphs
+//---------------------------------------------------------
 
 // SugiyamaLayout
 
@@ -1107,12 +1117,10 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 
 		Hierarchy H;
 		H.createEmpty(G);
-		const GraphCopy &GC = H;
 
 		EdgeArray<edge> auxCopy(G);
 		Array<DPoint> boundingBox(m_numCC);
 		Array<DPoint> offset1(m_numCC);
-		NodeArray<bool> mark(GC);
 
 		m_numLevels = m_maxLevelSize = 0;
 
@@ -1130,12 +1138,16 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 				for(it = nodesInCC[i].begin(); it.valid(); ++it)
 					rank[*it] -= minRank;
 			}
-
+			H.createEmpty(G);
 			H.initByNodes(nodesInCC[i],auxCopy,rank);
-			HierarchyLevels levels(H);
-
-			reduceCrossings(levels);
+			//HierarchyLevels levels(H);
+			//reduceCrossings(levels);
+			const HierarchyLevelsBase *pLevels = reduceCrossings(H);
+			const HierarchyLevelsBase &levels = *pLevels;
 			totalCrossings += m_nCrossings;
+
+			const GraphCopy &GC = H;
+			NodeArray<bool> mark(GC);
 
 			m_layout.get().call(levels,AG);
 
@@ -1161,7 +1173,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			if(optimizeHorizEdges)
 			{
 				for(int i = 0; i < levels.size(); ++i) {
-					const Level &L = levels[i];
+					const LevelBase &L = levels[i];
 					for(int j = 0; j < L.size(); ++j) {
 						node v = L[j];
 						if(!GC.isDummy(v)) continue;
@@ -1175,7 +1187,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 							if(minPos > maxPos) std::swap(minPos,maxPos);
 
 							bool straight = true;
-							const Level &L_e = levels[H.rank(src)];
+							const LevelBase &L_e = levels[H.rank(src)];
 							for(int p = minPos+1; p < maxPos; ++p) {
 								if(!H.isLongEdgeDummy(L_e[p]) && mark[L_e[p]] == false) {
 									straight = false; break;
@@ -1215,9 +1227,10 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 
 			m_numLevels = max(m_numLevels, levels.size());
 			for(int i = 0; i <= levels.high(); i++) {
-				Level &l = levels[i];
+				const LevelBase &l = levels[i];
 				m_maxLevelSize = max(m_maxLevelSize, l.size());
 			}
+			delete pLevels;
 		}
 
 		m_nCrossings = totalCrossings;
@@ -1275,20 +1288,27 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		}
 
 		Hierarchy H(G,rank);
-		HierarchyLevels levels(H);
-		const GraphCopy &GC = H;
 
-		m_compGC.init(GC);
-		forall_nodes(v,GC) {
-			node vOrig = GC.original(v);
-			if(vOrig == 0)
-				vOrig = GC.original(v->firstAdj()->theEdge())->source();
+		{  // GC's scope is limited to allow reassignment after crossing reduction phase
+			const GraphCopy &GC = H;
 
-			m_compGC[v] = component[vOrig];
+			m_compGC.init(GC);
+			forall_nodes(v,GC) {
+				node vOrig = GC.original(v);
+				if(vOrig == 0)
+					vOrig = GC.original(v->firstAdj()->theEdge())->source();
+
+				m_compGC[v] = component[vOrig];
+			}
 		}
 
-		reduceCrossings(levels);
+		const HierarchyLevelsBase *pLevels = reduceCrossings(H);
+		const HierarchyLevelsBase &levels = *pLevels;
+		//HierarchyLevels levels(H);
+		//reduceCrossings(levels);
 		m_compGC.init();
+
+		const GraphCopy &GC = H;
 
 		m_layout.get().call(levels,AG);
 
@@ -1296,7 +1316,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		{
 			NodeArray<bool> mark(GC,false);
 			for(int i = 0; i < levels.size(); ++i) {
-				const Level &L = levels[i];
+				const LevelBase &L = levels[i];
 				for(int j = 0; j < L.size(); ++j) {
 					node v = L[j];
 					if(!GC.isDummy(v)) continue;
@@ -1310,7 +1330,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 						if(minPos > maxPos) std::swap(minPos,maxPos);
 
 						bool straight = true;
-						const Level &L_e = levels[H.rank(src)];
+						const LevelBase &L_e = levels[H.rank(src)];
 						for(int p = minPos+1; p < maxPos; ++p) {
 							if(!H.isLongEdgeDummy(L_e[p]) && mark[L_e[p]] == false) {
 								straight = false; break;
@@ -1328,10 +1348,11 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		m_numLevels = levels.size();
 		m_maxLevelSize = 0;
 		for(int i = 0; i <= levels.high(); i++) {
-			Level &l = levels[i];
+			const LevelBase &l = levels[i];
 			if (l.size() > m_maxLevelSize)
 				m_maxLevelSize = l.size();
 		}
+		delete pLevels;
 	}
 }
 
@@ -1341,15 +1362,16 @@ void SugiyamaLayout::callUML(GraphAttributes &AG)
 	doCall(AG,true);
 }
 
-
+/*
 void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 {
 	OGDF_ASSERT(m_runs >= 1);
 
+
 	__int64 t;
 	System::usedRealTime(t);
 
-	TwoLayerCrossMin          *pCrossMin = 0;
+	LayerByLayerSweep          *pCrossMin = 0;
 	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw = 0;
 
 	if(useSubgraphs() == false)
@@ -1364,11 +1386,11 @@ void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 	minstd_rand rng(seed);
 #endif
 
-	CrossMinMaster master(*this, levels.hierarchy(), seed, m_runs - nThreads);
+	LayerByLayerSweep::CrossMinMaster master(*this, levels.hierarchy(), seed, m_runs - nThreads);
 
-	Array<CrossMinWorker *> thread(nThreads-1);
+	Array<LayerByLayerSweep::CrossMinWorker *> thread(nThreads-1);
 	for(int i = 0; i < nThreads-1; ++i) {
-		thread[i] = new CrossMinWorker(master,
+		thread[i] = new LayerByLayerSweep::CrossMinWorker(master,
 			(pCrossMin        != 0) ? pCrossMin       ->clone() : 0,
 			(pCrossMinSimDraw != 0) ? pCrossMinSimDraw->clone() : 0);
 		thread[i]->start();
@@ -1392,6 +1414,116 @@ void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 	t = System::usedRealTime(t);
 	m_timeReduceCrossings = double(t) / 1000;
 }
+//*/
+const HierarchyLevels *LayerByLayerSweep::reduceCrossings(const SugiyamaLayout &sugi, const Hierarchy &H)
+{
+	HierarchyLevels *levels = new HierarchyLevels(H);
+	OGDF_ASSERT(sugi.runs() >= 1);
 
+	int nThreads = min( sugi.maxThreads(), sugi.runs() );
+
+	int seed = rand();
+#ifdef OGDF_HAVE_CPP11
+	minstd_rand rng(seed);
+#endif
+
+	LayerByLayerSweep::CrossMinMaster master(sugi, levels->hierarchy(), seed, sugi.runs() - nThreads);
+
+	Array<LayerByLayerSweep::CrossMinWorker *> thread(nThreads-1);
+	for ( int i = 0; i < nThreads - 1; ++i ) {
+		thread[i] = new LayerByLayerSweep::CrossMinWorker(master,
+			clone(), 0);
+		thread[i] -> start();
+	}
+
+	NodeArray<int> bestPos;
+	master.doWorkHelper(this, 0, *levels, bestPos, sugi.permuteFirst()
+#ifdef OGDF_HAVE_CPP11
+		, rng
+#endif
+		);
+
+	for (int i = 0; i < nThreads - 1; ++i )
+		thread[i] -> join();
+
+	// ??
+	int x = 0;
+	master.restore(*levels, x );
+
+	for ( int i = 0; i < nThreads - 1; ++i )
+		delete thread[i];
+
+	return levels;
+}
+
+const HierarchyLevelsBase *SugiyamaLayout::reduceCrossings(Hierarchy &H)
+{
+	OGDF_ASSERT(m_runs >= 1);
+
+
+	if (useSubgraphs() == false) {
+		__int64 t;
+		System::usedRealTime(t);
+		const HierarchyLevelsBase *levels = m_crossMin.get().reduceCrossings(*this,H);
+		t = System::usedRealTime(t);
+		m_timeReduceCrossings = double(t) / 1000;
+		m_nCrossings = levels -> calculateCrossings();
+		return levels;
+	}
+
+
+
+	//unchanged crossing reduction of subgraphs
+	HierarchyLevels *pLevels = new HierarchyLevels(H);
+	HierarchyLevels levels = *pLevels;
+
+	__int64 t;
+	System::usedRealTime(t);
+
+	LayerByLayerSweep          *pCrossMin = 0;
+	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw = 0;
+
+	//if(useSubgraphs() == false)
+	//	pCrossMin = &m_crossMin.get();
+	//else
+		pCrossMinSimDraw = &m_crossMinSimDraw.get();
+
+	int nThreads = min(m_maxThreads, m_runs);
+
+	int seed = rand();
+#ifdef OGDF_HAVE_CPP11
+	minstd_rand rng(seed);
+#endif
+
+	LayerByLayerSweep::CrossMinMaster master(*this, levels.hierarchy(), seed, m_runs - nThreads);
+
+	Array<LayerByLayerSweep::CrossMinWorker *> thread(nThreads-1);
+	for(int i = 0; i < nThreads-1; ++i) {
+		thread[i] = new LayerByLayerSweep::CrossMinWorker(master,
+			(pCrossMin        != 0) ? pCrossMin       ->clone() : 0,
+			(pCrossMinSimDraw != 0) ? pCrossMinSimDraw->clone() : 0);
+		thread[i]->start();
+	}
+
+	NodeArray<int> bestPos;
+	master.doWorkHelper(pCrossMin, pCrossMinSimDraw, levels, bestPos, m_permuteFirst
+#ifdef OGDF_HAVE_CPP11
+		, rng
+#endif
+		);
+
+	for(int i = 0; i < nThreads-1; ++i)
+		thread[i]->join();
+
+	master.restore(levels, m_nCrossings);
+
+	for(int i = 0; i < nThreads-1; ++i)
+		delete thread[i];
+
+	t = System::usedRealTime(t);
+	m_timeReduceCrossings = double(t) / 1000;
+
+	return pLevels;
+}
 
 } // end namespace ogdf

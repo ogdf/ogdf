@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3816 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2013-10-29 17:07:00 +0100 (Di, 29. Okt 2013) $
  ***************************************************************/
 
 /** \file
@@ -150,6 +150,9 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 			GraphIO::indent(os,2) << "label ";
 			writeLongString(os, A.label(v));
 			os << "\n";
+		}
+		if (A.attributes() & GraphAttributes::nodeWeight) {
+			GraphIO::indent(os,2) << "weight "  << A.weight(v) << "\n";
 		}
 		if (A.attributes() & GraphAttributes::nodeGraphics) {
 			GraphIO::indent(os,2) << "graphics [\n";

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3832 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-11-13 11:16:27 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -370,7 +370,7 @@ namespace ogdf {
 
 
 
-void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, HierarchyLevels &levels)
+void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, HierarchyLevelsBase &levels)
 {
 	if (levels.high() < 1)
 		return;
@@ -381,7 +381,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 	double y_low = AGC.y(levels[0][0]);
 	double maxH_low = 0; // the height of the node with maximal height on lvl i-1
 
-	const Level &lvl0 = levels[0];
+	const LevelBase &lvl0 = levels[0];
 	for (int j = 0; j <= lvl0.high(); j++) {
 		node v = lvl0[j];
 		if (maxH_low < AGC.getHeight(v))
@@ -389,8 +389,8 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 	}
 
 	for (int i = 1; i <= levels.high(); i++) { // all level
-		const Level &lvl = levels[i];
-		const Level &lvl_low = levels[i-1];
+		const LevelBase &lvl = levels[i];
+		const LevelBase &lvl_low = levels[i-1];
 		double y_cur = AGC.y(lvl[0]); //current y-coord. of the lvl
 		double maxH_cur = 0;
 		int count = 0; //number of edges, which overlap a node
@@ -480,7 +480,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 		if (newY != y_cur) {
 			double b = fabs(newY - y_cur);
 			for (int ii = i; ii <= levels.high(); ii++) {
-				const Level &lvlTmp = levels[ii];
+				const LevelBase &lvlTmp = levels[ii];
 				for (int j = 0; j <= lvlTmp.high(); j++) {
 					node z = lvlTmp[j];
 					AGC.y(z) = AGC.y(z) + b;
@@ -493,11 +493,11 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 }
 
 
-void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::HierarchyLevels &levels, ogdf::node s, ogdf::node t, int i, int &ci, int &cj)
+void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::HierarchyLevelsBase &levels, ogdf::node s, ogdf::node t, int i, int &ci, int &cj)
 {
 	const Hierarchy &H = levels.hierarchy();
 
-	const Level &lvl_cur = levels[i];
+	const LevelBase &lvl_cur = levels[i];
 	DLine line(DPoint(AGC.x(s), AGC.y(s)), DPoint(AGC.x(t), AGC.y(t)));
 
 	//iterate over all node of level lvl_cur
@@ -526,7 +526,7 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 	}
 
 	if (i-1 >= 0) {
-		const Level &lvl_low = levels[i-1];
+		const LevelBase &lvl_low = levels[i-1];
 
 		//iterate over all node of lvl_low
 		for(int k = 0; k <= lvl_low.high(); k++) {

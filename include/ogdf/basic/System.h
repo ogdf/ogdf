@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 3841 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Date: 2013-11-19 09:03:39 +0100 (Di, 19. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -41,6 +41,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+// must be included first here
+#include <ogdf/basic/basic.h>
+
 
 #ifdef _MSC_VER
 #pragma once
@@ -50,7 +53,6 @@
 #define OGDF_SYSTEM_H
 
 
-#include <ogdf/basic/basic.h>
 #if defined(OGDF_SYSTEM_OSX)
 #include <stdlib.h>
 #elif defined(OGDF_SYSTEM_UNIX) || defined(__MINGW32__)

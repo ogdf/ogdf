@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3830 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -155,7 +155,7 @@ namespace ogdf {
 
 inline bool charCompareIgnoreCase(char a, char b)
 {
-   return (toupper(a) == toupper(b));
+	return (toupper(a) == toupper(b));
 }
 
 

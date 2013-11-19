@@ -1,9 +1,9 @@
 /*
- * $Revision: 3210 $
+ * $Revision: 3833 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Di, 15. Jan 2013) $
+ *   $Date: 2013-11-13 11:23:15 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -49,7 +49,7 @@
 #define OGDF_SIFTING_HEURISTIC_H
 
 
-#include <ogdf/module/TwoLayerCrossMin.h>
+#include <ogdf/module/LayerByLayerSweep.h>
 #include <ogdf/layered/CrossingsMatrix.h>
 
 
@@ -58,7 +58,7 @@ namespace ogdf
 
 
 //! The sifting heuristic for 2-layer crossing minimization.
-class OGDF_EXPORT SiftingHeuristic : public TwoLayerCrossMin
+class OGDF_EXPORT SiftingHeuristic : public LayerByLayerSweep
 {
 public:
 	//! Creates a new instance of the sifting heuristic with default option settings.
@@ -68,7 +68,7 @@ public:
 	SiftingHeuristic(const SiftingHeuristic &crossMin);
 
 	//! Returns a new instance of the sifting heuristic with the same option settings.
-	TwoLayerCrossMin *clone() const { return new SiftingHeuristic(*this); }
+	LayerByLayerSweep *clone() const { return new SiftingHeuristic(*this); }
 
 	//! Enumerates the different sifting strategies
 	enum Strategy { left_to_right, desc_degree, random };

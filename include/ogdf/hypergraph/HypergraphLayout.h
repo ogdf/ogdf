@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3830 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -111,7 +111,7 @@ private:
 	 */
 	Method representationHelper;
 
-  public:
+public:
 
 	//! Creates an instance of subset standard hypergraph layout.
 	HypergraphLayoutSS();
@@ -136,7 +136,7 @@ private:
 	  layout(HA);
 	}
 
-  private:
+private:
 
 	/**
 	 * Let a hypergraph H be given. The algorithm works as follows:
