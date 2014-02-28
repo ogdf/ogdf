@@ -1,9 +1,9 @@
 /*
- * $Revision: 3608 $
+ * $Revision: 3927 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-07-01 20:12:35 +0200 (Mo, 01. Jul 2013) $
+ *   $Date: 2014-02-20 14:03:30 +0100 (Do, 20. Feb 2014) $
  ***************************************************************/
 
 /** \file
@@ -50,6 +50,7 @@
 
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/basic/BinaryHeap2.h>
+#include <ogdf/basic/DisjointSets.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 
 
@@ -351,6 +352,43 @@ T computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<edg
 	return treeWeight;
 }//computeMinST
 
+//! Reduce a graph to its minimum spanning tree (MST) using Kruskal's algorithm
+/**
+ * @tparam T        is the numeric type for edge weights.
+ * @param  G        is the input graph.
+ * @param  weight   is an edge array with the edge weights.
+ * @return the sum of the edge weights in the computed tree.
+ **/
+template<typename T>
+T makeMinimumSpanningTree(Graph &G, const EdgeArray<T> &weight)
+{
+	T total(0);
+	List< Prioritized<edge, T> > sortEdges;
+	for (edge e = G.firstEdge(); e; e = e->succ()) {
+		sortEdges.pushBack(Prioritized<edge,T>(e, weight[e]));
+	}
+	sortEdges.quicksort();
+
+	// now let's do Kruskal's algorithm
+	NodeArray<int> setID(G);
+	DisjointSets<> uf(G.numberOfNodes());
+	for (node v = G.firstNode(); v; v = v->succ()) {
+		setID[v] = uf.makeSet();
+	}
+
+	for (ListConstIterator< Prioritized<edge,T> > it = sortEdges.begin(); it.valid(); ++it) {
+		const edge e = (*it).item();
+		const int v = setID[e->source()];
+		const int w = setID[e->target()];
+		if (uf.find(v) != uf.find(w)) {
+			uf.link(uf.find(v), uf.find(w));
+			total += weight[e];
+		} else {
+			G.delEdge(e);
+		}
+	}
+	return total;
+}
 
 //! Returns true, if G is planar, false otherwise.
 /**

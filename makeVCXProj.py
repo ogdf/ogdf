@@ -155,13 +155,12 @@ if useCoin:
 		if p != '':
 			addIncludes += p + ';'
 
-	if createDLL and createDLL.startswith('t'):
-		addLibs += 'coin.lib;'
+	addLibs += 'coin.lib;'
 
-		addLibsDebugWin32   += getLibs(loadConfig('COIN', 'solverLibs_win32_debug'))
-		addLibsReleaseWin32 += getLibs(loadConfig('COIN', 'solverLibs_win32_release'))
-		addLibsDebugX64     += getLibs(loadConfig('COIN', 'solverLibs_x64_debug'))
-		addLibsReleaseX64   += getLibs(loadConfig('COIN', 'solverLibs_x64_release'))
+	addLibsDebugWin32   += getLibs(loadConfig('COIN', 'solverLibs_win32_debug'))
+	addLibsReleaseWin32 += getLibs(loadConfig('COIN', 'solverLibs_win32_release'))
+	addLibsDebugX64     += getLibs(loadConfig('COIN', 'solverLibs_x64_debug'))
+	addLibsReleaseX64   += getLibs(loadConfig('COIN', 'solverLibs_x64_release'))
 
 linkSectionD32 = ''
 linkSectionR32 = ''
@@ -188,6 +187,19 @@ if createDLL and createDLL.startswith('t'):
 else:
 	libraryType = 'StaticLibrary'
 
+linkSectionProgramBegin = '    <Link>\n\
+    <SubSystem>Console</SubSystem>\n\
+    <AdditionalDependencies>';
+linkSectionProgramEnd = 'ogdf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
+    <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
+    </Link>'
+
+linkSectionProgramD32 = linkSectionProgramBegin + addLibs + addLibsDebugWin32   + linkSectionProgramEnd
+linkSectionProgramR32 = linkSectionProgramBegin + addLibs + addLibsReleaseWin32 + linkSectionProgramEnd
+linkSectionProgramD64 = linkSectionProgramBegin + addLibs + addLibsDebugX64     + linkSectionProgramEnd
+linkSectionProgramR64 = linkSectionProgramBegin + addLibs + addLibsReleaseX64   + linkSectionProgramEnd
+
+	
 filename_ogdf_test_vcxproj =  loadConfig('OGDF-TEST', 'projectFile')
 filename_ogdf_test_template = loadConfig('OGDF-TEST', 'templateFile')
 filename_ogdf_test_vcxfilters =  loadConfig('OGDF-TEST', 'projectFiltersFile')
@@ -432,6 +444,14 @@ for line in template:
 		check = check + 1
 	elif line.find(includeTag) > -1:
 		vcxproj.write(line.replace(includeTag,addIncludes,1))
+	elif line.find(linkTagD32) > -1:
+		vcxproj.write(line.replace(linkTagD32,linkSectionProgramD32,1))
+	elif line.find(linkTagR32) > -1:
+		vcxproj.write(line.replace(linkTagR32,linkSectionProgramR32,1))
+	elif line.find(linkTagD64) > -1:
+		vcxproj.write(line.replace(linkTagD64,linkSectionProgramD64,1))
+	elif line.find(linkTagR64) > -1:
+		vcxproj.write(line.replace(linkTagR64,linkSectionProgramR64,1))
 	elif line.find(toolsetTag) > -1:
 		vcxproj.write(line.replace(toolsetTag,platformToolset,1))
 	else:

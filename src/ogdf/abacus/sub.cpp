@@ -1,9 +1,9 @@
 /*
- * $Revision: 3504 $
+ * $Revision: 3881 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+ *   $Author: zey $
+ *   $Date: 2014-01-23 15:12:45 +0100 (Do, 23. Jan 2014) $
  ***************************************************************/
 
 /*!\file
@@ -198,6 +198,8 @@ master_(master),
 	}
 
 	//! register the subproblem at the master
+	master_->newSub(level_);
+	master_->treeInterfaceNodeBounds(id_, lowerBound(), upperBound());
 }
 
 

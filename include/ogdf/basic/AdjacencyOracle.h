@@ -1,15 +1,15 @@
 /*
- * $Revision: 3916 $
+ * $Revision: 3931 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2014-02-20 14:03:05 +0100 (Do, 20. Feb 2014) $
+ *   $Date: 2014-02-20 14:56:42 +0100 (Do, 20. Feb 2014) $
  ***************************************************************/
 
 /** \file
- * \brief Declaration of class EdgeWeightedGraph
+ * \brief Declares class AdjacencyOracle.
  *
- * \author Matthias Woste
+ * \author Rene Weiskircher
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -40,66 +40,36 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+
 #ifdef _MSC_VER
 #pragma once
 #endif
 
-#ifndef OGDF_EDGE_WEIGHTED_GRAPH_H_
-#define OGDF_EDGE_WEIGHTED_GRAPH_H_
+#ifndef OGDF_ADJACENCY_ORACLE_H
+#define OGDF_ADJACENCY_ORACLE_H
 
-#include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/Array2D.h>
 
 namespace ogdf {
 
-template<typename T>
-class EdgeWeightedGraph: public Graph {
+//! Tells you in constant time if two nodes are adjacent
+/**
+ * AdjacencyOracle is initialized with a Graph and returns for
+ * any pair of nodes in constant time if they are adajcent.
+ */
+class AdjacencyOracle {
 public:
-	EdgeWeightedGraph()
-	  : Graph()
-	  , m_edgeWeight(*this)
-	{
-	}
-
-	EdgeWeightedGraph(GraphCopy &gC)
-	{
-	}
-
-	virtual ~EdgeWeightedGraph()
-	{
-	}
-
-	edge newEdge(node v, node w, T weight)
-	{
-		edge e = Graph::newEdge(v, w);
-		m_edgeWeight[e] = weight;
-		return e;
-	}
-
-	node newNode()
-	{
-		node u = Graph::newNode();
-		return u;
-	}
-
-	T weight(const edge e) const
-	{
-		return m_edgeWeight[e];
-	}
-
-	const EdgeArray<T> &edgeWeights() const
-	{
-		return m_edgeWeight;
-	}
-
-	void setWeight(const edge e, T weight)
-	{
-		m_edgeWeight[e] = weight;
-	}
-
-protected:
-	EdgeArray<T> m_edgeWeight;
+	//! The constructor for the class, needs time O(n + m)
+	AdjacencyOracle(const Graph &G);
+	//! The destructor
+	~AdjacencyOracle() { }
+	//! This returns true if the two nodes are adjacent in G, false otherwise
+	bool adjacent(const node, const node) const;
+private:
+	NodeArray<int> m_nodeNum; //!< The internal number given to each node
+	Array2D<bool> m_adjacencyMatrix; //!< A 2D-array where the entry is true if the nodes with the corresponding number are adjacent
 };
 
 }
-
-#endif /* OGDF_EDGE_WEIGHTED_GRAPH_H_ */
+#endif

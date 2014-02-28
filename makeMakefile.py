@@ -129,6 +129,7 @@ if useCoin:
 	defaultSolver   = loadConfig('COIN', 'defaultSolver')
 	externalSolvers = loadConfig('COIN', 'externalSolvers').split(';')
 	solverIncludes  = loadConfig('COIN', 'solverIncludes').split(';')
+	solverLDFlags   = loadConfig('COIN', 'solverLDFlags')
 
 	addOsiCpx = checkSolver('CPX', defaultSolver, externalSolvers)
 	addOsiGrb = checkSolver('GRB', defaultSolver, externalSolvers)
@@ -355,7 +356,7 @@ for v in versions:
 	makefile.write('test/test-' + v.var + ': ' + ' '.join([v.call() + '/' + x for x in objsTest]) + '\n')
 	makefile.write('\t$(CC) -o $@ $^ -pthread -L' + v.call() + ' -lOGDF')
 	if useCoin:
-		makefile.write(' -lCOIN')
+		makefile.write(' -lCOIN ' + solverLDFlags)
 	makefile.write('\n\n')
 
 # generate alls and cleans etc...

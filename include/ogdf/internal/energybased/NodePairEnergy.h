@@ -1,9 +1,9 @@
 /*
- * $Revision: 2641 $
+ * $Revision: 3931 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Do, 19. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-02-20 14:56:42 +0100 (Do, 20. Feb 2014) $
  ***************************************************************/
 
 /** \file
@@ -51,7 +51,7 @@
 #define OGDF_NODE_PAIR_ENERGY_H
 
 
-#include <ogdf/internal/energybased/AdjacencyOracle.h>
+#include <ogdf/basic/AdjacencyOracle.h>
 #include <ogdf/internal/energybased/EnergyFunction.h>
 #include <ogdf/internal/energybased/IntersectionRectangle.h>
 

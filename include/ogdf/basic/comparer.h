@@ -1,9 +1,9 @@
 /*
- * $Revision: 3556 $
+ * $Revision: 3851 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fr, 07. Jun 2013) $
+ *   $Author: klein $
+ *   $Date: 2013-11-20 07:26:56 +0100 (Mi, 20. Nov 2013) $
  ***************************************************************/
 
 /** \file
@@ -53,7 +53,7 @@
 namespace ogdf {
 
 //--------------------------------------------------------------------
-// A comparer interface is has to define
+// A comparer interface has to define
 // bool less (const E &x, const E &y);
 // bool leq  (const E &x, const E &y);
 // bool equal(const E &x, const E &y);

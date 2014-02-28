@@ -1,9 +1,9 @@
 /*
- * $Revision: 3396 $
+ * $Revision: 3941 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:49:03 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2014-02-28 11:33:37 +0100 (Fr, 28. Feb 2014) $
  ***************************************************************/
 
 /** \file
@@ -40,8 +40,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef SHORTESTPATHALGORITHMS_H_
-#define SHORTESTPATHALGORITHMS_H_
+#ifdef _MSC_VER
+#pragma once
+#endif
+
+#ifndef OGDF_SHORTEST_PATH_ALGORITHMS_H_
+#define OGDF_SHORTEST_PATH_ALGORITHMS_H_
 
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/Graph_d.h>
@@ -49,6 +53,7 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/BinaryHeap2.h>
+
 
 namespace ogdf {
 

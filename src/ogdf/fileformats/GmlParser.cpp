@@ -1,9 +1,9 @@
 /*
- * $Revision: 3831 $
+ * $Revision: 3880 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 10:00:32 +0100 (Mi, 13. Nov 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-01-16 15:27:36 +0100 (Do, 16. Jan 2014) $
  ***************************************************************/
 
 /** \file
@@ -77,6 +77,10 @@ void GmlParser::doInit(istream &is, bool doCheck)
 
 	int minId, maxId;
 	m_graphObject = getNodeIdRange(minId, maxId);
+	if (!m_graphObject) {
+		setError("Cannot open file.");
+		return;
+	}
 	m_mapToNode.init(minId,maxId,0);
 }
 
@@ -436,7 +440,9 @@ GmlObject *GmlParser::getNodeIdRange(int &minId,int &maxId)
 	for(; graphObject; graphObject = graphObject->m_pBrother)
 		if (id(graphObject) == graphPredefKey) break;
 
-	if (!graphObject || graphObject->m_valueType != gmlListBegin) return 0;
+	if (!graphObject || graphObject->m_valueType != gmlListBegin) {
+		return NULL;
+	}
 
 	bool first = true;
 	GmlObject *son = graphObject->m_pFirstSon;
