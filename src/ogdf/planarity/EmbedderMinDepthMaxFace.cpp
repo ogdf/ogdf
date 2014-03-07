@@ -1,9 +1,9 @@
 /*
- * $Revision: 3441 $
+ * $Revision: 3949 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -189,7 +189,7 @@ void EmbedderMinDepthMaxFace::call(Graph& G, adjEntry& adjExternal)
 	{
 		if (pBCTree->typeOfBNode(bT) != BCTree::BComp)
 			continue;
-		if (   md_minDepth[bT] < d_opt
+		if (md_minDepth[bT] < d_opt
 			|| (md_minDepth[bT] == d_opt && mf_maxFaceSize[bT] > ell_opt))
 		{
 			d_opt = md_minDepth[bT];
@@ -249,7 +249,7 @@ int EmbedderMinDepthMaxFace::md_bottomUpTraversal(const node& bT, const node& cH
 				M_B.clear();
 				M_B.pushBack(cV_in_bT);
 			}
-			else if ( m_B == md_m_cB[e_cT_bT2] && M_B.search(pBCTree->cutVertex(cT, bT)) == -1)
+			else if (m_B == md_m_cB[e_cT_bT2] && !M_B.search(pBCTree->cutVertex(cT, bT)).valid())
 			{
 				node cV_in_bT = pBCTree->cutVertex(cT, bT);
 				M_B.pushBack(cV_in_bT);
@@ -314,7 +314,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 					md_M_B[bT].clear();
 					md_M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
-				else if ( m_B == md_m_cB[e_cT_bT2] && md_M_B[bT].search(pBCTree->cutVertex(cT, bT)) == -1)
+				else if (m_B == md_m_cB[e_cT_bT2] && !md_M_B[bT].search(pBCTree->cutVertex(cT, bT)).valid())
 				{
 					md_M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
@@ -342,7 +342,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 
 	//compute size of a maximum external face of block graph:
 	StaticSPQRTree* spqrTree = 0;
-	if (   !blockGraph_bT.empty()
+	if (!blockGraph_bT.empty()
 		&& blockGraph_bT.numberOfNodes() != 1
 		&& blockGraph_bT.numberOfEdges() > 2)
 	{
@@ -395,7 +395,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 							md_M2[bT].clear();
 							md_M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 						}
-						else if ( m2 == md_m_cB[e_cT2_bT2] && md_M2[bT].search(pBCTree->cutVertex(cT2, bT)) == -1)
+						else if (m2 == md_m_cB[e_cT2_bT2] && !md_M2[bT].search(pBCTree->cutVertex(cT2, bT)).valid())
 						{
 							md_M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 						}
@@ -493,7 +493,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 						md_M2[bT].clear();
 						md_M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
-					else if ( m2 == md_m_cB[e_cT2_bT2] && md_M2[bT].search(pBCTree->cutVertex(cT2, bT)) == -1)
+					else if (m2 == md_m_cB[e_cT2_bT2] && !md_M2[bT].search(pBCTree->cutVertex(cT2, bT)).valid())
 					{
 						md_M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
@@ -530,7 +530,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 						md_M2[bT].clear();
 						md_M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
-					else if ( m2 == md_m_cB[e_cT2_bT2] && md_M2[bT].search(pBCTree->cutVertex(cT2, bT)) == -1)
+					else if (m2 == md_m_cB[e_cT2_bT2] && !md_M2[bT].search(pBCTree->cutVertex(cT2, bT)).valid())
 					{
 						md_M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
@@ -578,7 +578,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 					md_M_B[bT].clear();
 					md_M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
-				else if ( m_B == md_m_cB[e_cT_bT2] && md_M_B[bT].search(pBCTree->cutVertex(cT, bT)) == -1)
+				else if (m_B == md_m_cB[e_cT_bT2] && !md_M_B[bT].search(pBCTree->cutVertex(cT, bT)).valid())
 				{
 					md_M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
@@ -604,8 +604,8 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 						md_M2[bT].clear();
 						md_M2[bT].pushBack(pBCTree->cutVertex(cT, bT));
 					}
-					else if (   m2 == md_m_cB[e_cT_bT2]
-									 && md_M2[bT].search(pBCTree->cutVertex(cT, bT)) == -1)
+					else if (m2 == md_m_cB[e_cT_bT2]
+									 && !md_M2[bT].search(pBCTree->cutVertex(cT, bT)).valid())
 					{
 						md_M2[bT].pushBack(pBCTree->cutVertex(cT, bT));
 					}
@@ -676,7 +676,7 @@ void EmbedderMinDepthMaxFace::mf_maximumFaceRec(const node& bT, node& bT_opt, in
 		(*(pBCTree->hEdges(bT).begin()))->source(), mf_nodeLength, nodeLengthSG, nG_to_nSG);
 	EdgeArray<int> edgeLengthSG(blockGraph_bT, 1);
 	StaticSPQRTree* spqrTree = 0;
-	if ( !blockGraph_bT.empty()
+	if (!blockGraph_bT.empty()
 		&& blockGraph_bT.numberOfNodes() != 1
 		&& blockGraph_bT.numberOfEdges() > 2)
 	{
@@ -743,7 +743,7 @@ void EmbedderMinDepthMaxFace::mf_maximumFaceRec(const node& bT, node& bT_opt, in
 	bT_opt = m_bT_opt;
 	ell_opt = m_ell_opt;
 
-	//if (   !blockGraph_bT.empty()
+	//if (!blockGraph_bT.empty()
 	//    && blockGraph_bT.numberOfNodes() != 1
 	//    && blockGraph_bT.numberOfEdges() != 1)
 	//{

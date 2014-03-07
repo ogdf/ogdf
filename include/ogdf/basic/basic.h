@@ -1,9 +1,9 @@
 /*
- * $Revision: 3804 $
+ * $Revision: 3944 $
  *
  * last checkin:
- *   $Author: chimani $
- *   $Date: 2013-10-29 12:02:20 +0100 (Di, 29. Okt 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-02-28 16:19:23 +0100 (Fr, 28. Feb 2014) $
  ***************************************************************/
 
 /** \file
@@ -67,7 +67,6 @@
  * - [Theoretical Computer Science](http://www.cs.uos.de/theoinf), Department of Mathematics/Computer Science, Uni Osnabrück, Germany
  * - [Chair of Prof. J&uuml;nger](http://www.informatik.uni-koeln.de/ls_juenger/), Department of Computer Science, University of Cologne, Germany
  * - [University of Sydney](http://sydney.edu.au/engineering/it/), Australia
- * - [oreas GmbH](http://www.oreas.com/), Cologne, Germany
  */
 
 

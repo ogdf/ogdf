@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 3950 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Date: 2014-03-03 09:59:54 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -338,11 +338,11 @@ public:
 		return m_nodeFill[v].m_bgColor;
 	}
 
-	//! Returns the label of node \ v.
+	//! Returns the label of node \a v.
 	const string &label(node v) const {
 		return m_nodeLabel[v];
 	}
-	//! Returns the label of node \ v.
+	//! Returns the label of node \a v.
 	string &label(node v) {
 		return m_nodeLabel[v];
 	}

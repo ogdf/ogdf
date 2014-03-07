@@ -1,9 +1,9 @@
 /*
- * $Revision: 3643 $
+ * $Revision: 3951 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-07-07 14:00:35 +0200 (So, 07. Jul 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-03-03 13:57:46 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -89,6 +89,7 @@ public:
 		forall_listiterators(node, s, sources) {
 			queue.decreaseKey(qpos[*s], (distance[*s] = 0));
 		}
+
 #ifdef OGDF_DEBUG
 		edge de;
 		forall_edges(de, G){

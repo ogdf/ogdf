@@ -1,9 +1,9 @@
 /*
- * $Revision: 2615 $
+ * $Revision: 3949 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mo, 16. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -255,8 +255,8 @@ private:
 	 */
 	List< List<adjEntry> > faces;
 
-	/** mapping faces in G to nodes in DG */
-	List<node> fPG_to_nDG;
+	/** mapping faces (by ID) in G to nodes in DG */
+	ArrayBuffer<node> fPG_to_nDG;
 
 	/** mapping nodes in DG to faces in DG */
 	NodeArray<int> nDG_to_fPG;

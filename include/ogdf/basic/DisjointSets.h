@@ -1,9 +1,9 @@
 /*
- * $Revision: 3888 $
+ * $Revision: 3947 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-02-03 18:45:17 +0100 (Mo, 03. Feb 2014) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-03-02 16:27:52 +0100 (So, 02. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -40,12 +40,21 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef DISJOINTSETS_H
-#define DISJOINTSETS_H
+#ifdef _MSC_VER
+#pragma once
+#endif
+
+#ifndef OGDF_DISJOINT_SETS_H
+#define OGDF_DISJOINT_SETS_H
+
+
+#include <ogdf/basic/basic.h>
+
 
 namespace ogdf {
 
 #define INTERMEDIATE_PARENT_CHECK
+
 struct AnyOption {};
 
 /**

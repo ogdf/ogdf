@@ -773,21 +773,14 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 	else
 	{
 		contface=contained(element,new1,PAG,PG);
-		if(contface!=-1)
-		{
+		if (contface!=-1) {
 			//ListIterator<CCElement*> l;
-			if(!(*element).root)
-			{
-				//cout << "deleting " << (**(*element).parent->child.get((*element).parent->child.search(&(*element)))).num << "\n";
-				(*element).parent->child.del((*element).parent->child.get((*element).parent->child.search(&(*element))));
+			if (!(*element).root) { // delete from children list
+				(*element).parent->child.removeFirst(element);
 			}
-		   /*
-			else
-				cout << (*element).num << " is a root :(\n";
-			//*/
-			(*element).faceNum=contface;
-			(*element).parent=&(*new1);
-			(*new1).child.pushBack(&(*element));
+			(*element).faceNum = contface;
+			(*element).parent = new1;
+			(*new1).child.pushBack(element);
 
 			/*
 			cout << "Pushed " << (*element).num << " into " << (*new1).num << "\n";
@@ -837,7 +830,7 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 		forall_face_adj(adj,f)
 		{
 
-			if(edges.search(adj->theEdge()->index())==-1)
+			if (!edges.search(adj->theEdge()->index()).valid())
 			{
 				edges.pushBack(adj->theEdge()->index());
 				node x=adj->theEdge()->source();

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3503 $
+ * $Revision: 3949 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
+ *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -197,22 +197,16 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 		adjEntry adj;
 		forall_adj(adj, n)
 		{
-			if (adjEntryTreated[n].search(adj) != -1)
+			if (adjEntryTreated[n].search(adj).valid())
 				continue;
 
 			List<adjEntry> newFace;
 			adjEntry adj2 = adj;
-			do
-			{
+			do {
 				newFace.pushBack(adj2);
 				adjEntryTreated[adj2->theNode()].pushBack(adj2);
-				node tn = adj2->twinNode();
-				int idx = adjacencyList[tn].search(adj2->twin());
-				if (idx - 1 < 0)
-					idx = adjacencyList[tn].size() - 1;
-				else
-					idx -= 1;
-				adj2 = *(adjacencyList[tn].get(idx));
+				List<adjEntry> &ladj = adjacencyList[adj2->twinNode()];
+				adj2 = *ladj.cyclicPred(ladj.search(adj2->twin()));
 			} while (adj2 != adj);
 			faces.pushBack(newFace);
 		}
@@ -222,10 +216,10 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 	fPG_to_nDG.clear();
 	nDG_to_fPG.init(DG);
 
-	for (ListIterator< List<adjEntry> > it = faces.begin(); it.valid(); it++)
-	{
+	for (ListIterator< List<adjEntry> > it = faces.begin(); it.valid(); ++it) {
 		node nn = DG.newNode();
-		nDG_to_fPG[nn] = fPG_to_nDG.search(*(fPG_to_nDG.pushBack(nn)));
+		nDG_to_fPG[nn] = fPG_to_nDG.size();
+		fPG_to_nDG.push(nn);
 	}
 
 	int extFaceID = 0;
@@ -255,12 +249,12 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 				j++;
 			}
 
-			if (   f1_id != f2_id
-					&& adjFaces[*(fPG_to_nDG.get(f1_id))].search(*(fPG_to_nDG.get(f2_id))) == -1
-					&& adjFaces[*(fPG_to_nDG.get(f2_id))].search(*(fPG_to_nDG.get(f1_id))) == -1)
+			if (f1_id != f2_id
+			 && !adjFaces[fPG_to_nDG[f1_id]].search(fPG_to_nDG[f2_id]).valid()
+			 && !adjFaces[fPG_to_nDG[f2_id]].search(fPG_to_nDG[f1_id]).valid())
 			{
-				adjFaces[*(fPG_to_nDG.get(f1_id))].pushBack(*(fPG_to_nDG.get(f2_id)));
-				DG.newEdge(*(fPG_to_nDG.get(f1_id)), *(fPG_to_nDG.get(f2_id)));
+				adjFaces[fPG_to_nDG[f1_id]].pushBack(fPG_to_nDG[f2_id]);
+				DG.newEdge(fPG_to_nDG[f1_id], fPG_to_nDG[f2_id]);
 			}
 
 			if (*it2 == tmpAdjExtFace)
@@ -346,7 +340,7 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 	//Root tree at external face. If external face is not a cutface in the
 	//block-cutface tree, choose an arbitrary cutface as root, because
 	//current external face cannot be the optimum external face.
-	node rDG = *(fPG_to_nDG.get(extFaceID));
+	node rDG = fPG_to_nDG[extFaceID];
 	node rmBCFT = m_blockCutfaceTree.bcproper(rDG);
 	if (m_blockCutfaceTree.typeOfBNode(rmBCFT) != BCTree::CComp)
 	{
@@ -387,100 +381,85 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 		}
 
 		//c) if needed, modify the embedding into a minimum depth diameter embedding
-		if (   m_blockCutfaceTree.typeOfBNode(m_knot) == BCTree::BComp
-				&& rootOfBlockCutfaceTree != knotTdiam)
-		{
+		if (m_blockCutfaceTree.typeOfBNode(m_knot) == BCTree::BComp
+		 && rootOfBlockCutfaceTree != knotTdiam) {
 			//node bT = bDG_to_bPG[knot];
 			List<node> childrenOfKnot;
 			List<node> childrenOfKnot_bT;
 			List<node> childrenOfKnotInBCTree;
 			edge e_kBC_to_cBC;
-			{
-				forall_adj_edges(e_kBC_to_cBC, bDG_to_bPG[knot])
-				{
-					if (e_kBC_to_cBC->target() != bDG_to_bPG[knot])
-						continue;
+			forall_adj_edges(e_kBC_to_cBC, bDG_to_bPG[knot]) {
+				if (e_kBC_to_cBC->target() != bDG_to_bPG[knot])
+					continue;
 
-					childrenOfKnotInBCTree.pushBack(e_kBC_to_cBC->source());
-				}
+				childrenOfKnotInBCTree.pushBack(e_kBC_to_cBC->source());
 			}
 			edge e_knot_to_w;
-			forall_adj_edges(e_knot_to_w, knotTdiam)
-			{
+			forall_adj_edges(e_knot_to_w, knotTdiam) {
 				if (e_knot_to_w->target() != knotTdiam)
 					continue;
 
 				node child = nTdiam_to_nBlockCutfaceTree[e_knot_to_w->source()];
 				node childBCFTree = nBlockCutfaceTree_to_nm_blockCutfaceTree[child];
 				edge e_childBCFTree_to_b;
-				forall_adj_edges(e_childBCFTree_to_b, childBCFTree)
-				{
+				forall_adj_edges(e_childBCFTree_to_b, childBCFTree) {
 					if (e_childBCFTree_to_b->target() != childBCFTree)
 						continue;
 
 					node bT = e_childBCFTree_to_b->target();
 					node bBCTree = bDG_to_bPG[bT];
-					node connectingNode = 0;
-					while (connectingNode == 0)
-					{
+					node connectingNode = NULL;
+					while (!connectingNode) {
 						node parent_bBCTree = NULL;
 						edge eParent;
-						forall_adj_edges(eParent, bBCTree)
-						{
-							if (eParent->source() == bBCTree)
-							{
+						forall_adj_edges(eParent, bBCTree) {
+							if (eParent->source() == bBCTree) {
 								parent_bBCTree = eParent->target();
 								break;
 							}
 						}
 						OGDF_ASSERT(parent_bBCTree);
-						if (childrenOfKnotInBCTree.search(parent_bBCTree) != -1)
-						{
+						if (childrenOfKnotInBCTree.search(parent_bBCTree).valid()) {
 							connectingNode = parent_bBCTree;
 							childrenOfKnot_bT.pushBack(bBCTree);
+							childrenOfKnot.pushBack(pBCTree->original(connectingNode));
 						}
 						else
 						{
-							forall_adj_edges(eParent, parent_bBCTree)
-							{
-								if (eParent->source() == parent_bBCTree)
-								{
+							forall_adj_edges(eParent, parent_bBCTree) {
+								if (eParent->source() == parent_bBCTree) {
 									bBCTree = eParent->target();
 									break;
 								}
 							}
 						}
 					}
-					childrenOfKnot.pushBack(pBCTree->original(connectingNode));
 				}
 			}
 			CombinatorialEmbedding CE(blockG[bDG_to_bPG[m_knot]]);
 			face f;
-			forall_faces(f, CE)
-			{
+			forall_faces(f, CE) {
 				int numOfEntriesFromList = 0;
 				adjEntry ae;
-				forall_face_adj(ae, f)
-				{
+				forall_face_adj(ae, f) {
 					node orgNode = pBCTree->original(nBlockEmbedding_to_nH[bDG_to_bPG[m_knot]] [ae->theNode()]);
-					if (childrenOfKnot.search(orgNode) != -1)
-						numOfEntriesFromList++;
+					if (childrenOfKnot.search(orgNode).valid())
+						++numOfEntriesFromList;
 				}
-				if (numOfEntriesFromList == childrenOfKnot.size())
-				{
+				if (numOfEntriesFromList == childrenOfKnot.size()) {
 					//i) remove embedding of blocks
 					NodeArray< NodeArray< List<adjEntry> > > adjList(pBCTree->bcTree(), G);
-					for (ListIterator<node> it = childrenOfKnot.begin(); it.valid(); it++)
-					{
+					i = 0;
+					for (ListIterator<node> it = childrenOfKnot.begin(); it.valid(); ++it) {
 						node nG = *it;
-						node bT = *(childrenOfKnot_bT.get(childrenOfKnot.search(*it)));
+						node bT = *childrenOfKnot_bT.get(i);
 						List<node> nodeList;
 						blockG[bT].allNodes(nodeList);
 						ListIterator<adjEntry> it_ae;
 						for (it_ae = newOrder[nG].begin(); it_ae.valid(); it_ae++)
 						{
 							node otherNode = (*it_ae)->twinNode();
-							if (nodeList.search(otherNode) != -1)
+							if (nodeList.search(otherNode).valid())
 							{
 								ListIterator<adjEntry> pred_it = it_ae.pred();
 								adjList[bT][nG].pushBack(*it_ae);
@@ -491,28 +470,25 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 									it_ae = newOrder[nG].begin();
 							}
 						}
+						++i;
 					}
 
 					//ii) embed blocks into f
-					for (ListIterator<node> it = childrenOfKnot.begin(); it.valid(); it++)
-					{
+					i = 0;
+					for (ListIterator<node> it = childrenOfKnot.begin(); it.valid(); ++it) {
 						node nG = *it;
-						node bT = *(childrenOfKnot_bT.get(childrenOfKnot.search(*it)));
+						node bT = *childrenOfKnot_bT.get(i);
 						//find adjEntry of nG in f
 						adjEntry ae;
-						forall_face_adj(ae, f)
-						{
+						forall_face_adj(ae, f) {
 							if (pBCTree->original(nBlockEmbedding_to_nH[bT][ae->theNode()]) == nG)
-							{
 								break;
-							}
 						}
-						ListIterator<adjEntry> after = newOrder[nG].get(newOrder[nG].search(ae));
-						for (ListIterator<adjEntry> it_cpy = adjList[bT][nG].begin(); it_cpy.valid(); it_cpy++)
+						ListIterator<adjEntry> after = newOrder[nG].search(ae);
+						for (ListIterator<adjEntry> it_cpy = adjList[bT][nG].begin(); it_cpy.valid(); ++it_cpy)
 							after = newOrder[nG].insertAfter(*it_cpy, after);
+						++i;
 					}
-
-					//done:
 					break;
 				}
 			}
@@ -531,21 +507,21 @@ void EmbedderMinDepthPiTa::call(Graph& G, adjEntry& adjExternal)
 	eccentricity_alt.init(blockCutfaceTree, 0);
 	eccentricityBottomUp(rootOfBlockCutfaceTree);
 	eccentricityTopDown(rootOfBlockCutfaceTree);
-	node cf_opt;
+	node cf_opt = NULL;
 	int ecc_opt = -1;
 	node nBCFT;
-	forall_nodes(nBCFT, blockCutfaceTree)
-	{
+	forall_nodes(nBCFT, blockCutfaceTree) {
 		node n_mBCFT = nBlockCutfaceTree_to_nm_blockCutfaceTree[nBCFT];
 		if (m_blockCutfaceTree.typeOfBNode(n_mBCFT) != BCTree::CComp)
 			continue;
 
-		if (eccentricity[nBCFT] < ecc_opt || ecc_opt == -1)
-		{
+		if (eccentricity[nBCFT] < ecc_opt
+		 || ecc_opt == -1) {
 			ecc_opt = eccentricity[nBCFT];
 			cf_opt = nBCFT;
 		}
 	}
+	OGDF_ASSERT(cf_opt);
 	node cf_opt_mBCFT = nBlockCutfaceTree_to_nm_blockCutfaceTree[cf_opt];
 	node cf_opt_H = m_blockCutfaceTree.cutVertex(cf_opt_mBCFT, cf_opt_mBCFT);
 	node cf_opt_DG = m_blockCutfaceTree.original(cf_opt_H);
@@ -657,8 +633,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 		}
 
 		List<node> m_childNodes = childNodes;
-		for (ListIterator<node> it = m_childNodes.begin(); it.valid(); it++)
-		{
+		for (ListIterator<node> it = m_childNodes.begin(); it.valid(); ++it) {
 			node n = *it;
 			bool delete_node = false;
 
@@ -688,7 +663,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 				forall_adj_edges(e_cT_bT, cT)
 				{
 					node bT = (e_cT_bT->source() == cT) ? e_cT_bT->target() : e_cT_bT->source();
-					if (childBlocks.search(bT) != -1)
+					if (childBlocks.search(bT).valid())
 						numOfBlocksInList++;
 				}
 				if (numOfBlocksInList == cT->degree())
@@ -696,7 +671,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 			}
 
 			if (delete_node)
-				childNodes.del(childNodes.get(childNodes.search(n)));
+				childNodes.removeFirst(n);
 		}
 	}
 
@@ -720,9 +695,9 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 		for (ListIterator<adjEntry> it = beginIt; it.valid(); it++)
 		{
 			node nPG = (*it)->theNode();
-			if (childNodes.search(nPG) == -1
-				&& blockNodesDG.search(nPG) == -1
-				&& oneEdgeBlockNodes.search(nPG) == -1)
+			if (!childNodes.search(nPG).valid()
+			 && !blockNodesDG.search(nPG).valid()
+			 && !oneEdgeBlockNodes.search(nPG).valid())
 			{
 				blockNodesDG.pushBack(nPG);
 			}
@@ -739,7 +714,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 		node n;
 		forall_nodes(n, blockG[bT])
 		{
-			if (blockNodesDG.search(pBCTree->original(nBlockEmbedding_to_nH[bT][n])) == -1)
+			if (!blockNodesDG.search(pBCTree->original(nBlockEmbedding_to_nH[bT][n])).valid())
 			{
 				isSearchedBlock = false;
 				break;
@@ -1188,11 +1163,11 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 	forall_adj(ae_parent_cB, parent_cB)
 	{
 		face lf = CE.leftFace(ae_parent_cB);
-		if (candidateCutfaces.search(lf) == -1)
+		if (!candidateCutfaces.search(lf).valid())
 			candidateCutfaces.pushBack(lf);
 
 		face rf = CE.rightFace(ae_parent_cB);
-		if (candidateCutfaces.search(rf) == -1)
+		if (!candidateCutfaces.search(rf).valid())
 			candidateCutfaces.pushBack(rf);
 	}
 
@@ -1517,7 +1492,7 @@ void EmbedderMinDepthPiTa::deleteDummyNodes(Graph& G, adjEntry& adjExternal)
 
 	node adjExtNode = adjExternal->theNode();
 	node adjExtTwinNode = adjExternal->twinNode();
-	if (dummyNodes.search(adjExtNode) != -1)
+	if (dummyNodes.search(adjExtNode).valid())
 	{
 		adjEntry succ = adjExternal->succ();
 		if (!succ)
@@ -1535,7 +1510,7 @@ void EmbedderMinDepthPiTa::deleteDummyNodes(Graph& G, adjEntry& adjExternal)
 			}
 		}
 	}
-	else if (dummyNodes.search(adjExtTwinNode) != -1)
+	else if (dummyNodes.search(adjExtTwinNode).valid())
 	{
 		adjEntry succ = adjExternal->twin()->succ();
 		if (!succ)

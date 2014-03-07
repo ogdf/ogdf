@@ -1,9 +1,9 @@
 /*
- * $Revision: 2615 $
+ * $Revision: 3949 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mo, 16. Jul 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -583,21 +583,38 @@ public:
 		permute(size());
 	}
 
-	//! Scans the list for the specified element and returns its position in the list, or -1 if not found.
-	int search (const E& e) const {
-		int x = 0;
-		for(SListConstIterator<E> i = begin(); i.valid(); ++i, ++x)
-			if(*i == e) return x;
-		return -1;
+	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	SListConstIterator<E> search(const E &e) const {
+		SListConstIterator<E> i;
+		for (i = begin(); i.valid(); ++i)
+			if (*i == e) return i;
+		return i;
 	}
 
-	//! Scans the list for the specified element (using the user-defined comparer) and returns its position in the list, or -1 if not found.
+	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	SListIterator<E> search(const E &e) {
+		SListIterator<E> i;
+		for (i = begin(); i.valid(); ++i)
+			if (*i == e) return i;
+		return i;
+	}
+
+	//! Scans the list for the specified element (using the user-defined comparer) and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
 	template<class COMPARER>
-	int search (const E& e, const COMPARER &comp) const {
-		int x = 0;
-		for(SListConstIterator<E> i = begin(); i.valid(); ++i, ++x)
-			if(comp.equal(*i,e)) return x;
-		return -1;
+	SListConstIterator<E> search(const E &e, const COMPARER &comp) const {
+		SListConstIterator<E> i;
+		for (i = begin(); i.valid(); ++i)
+			if (comp.equal(*i, e)) return i;
+		return i;
+	}
+
+	//! Scans the list for the specified element (using the user-defined comparer) and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	template<class COMPARER>
+	SListIterator<E> search(const E &e, const COMPARER &comp) {
+		SListIterator<E> i;
+		for (i = begin(); i.valid(); ++i)
+			if (comp.equal(*i, e)) return i;
+		return i;
 	}
 
 protected:
@@ -883,14 +900,25 @@ public:
 		SListPure<E>::permute(m_count);
 	}
 
-	//! Scans the list for the specified element and returns its position in the list, or -1 if not found.
-	int search (const E& e) const {
+	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	SListConstIterator<E> search(const E &e) const {
 		return SListPure<E>::search(e);
 	}
 
-	//! Scans the list for the specified element (using the user-defined comparer) and returns its position in the list, or -1 if not found.
+	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	SListIterator<E> search(const E &e) {
+		return SListPure<E>::search(e);
+	}
+
+	//! Scans the list for the specified element (using the user-defined comparer) and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
 	template<class COMPARER>
-	int search (const E& e, const COMPARER &comp) const {
+	SListConstIterator<E> search(const E &e, const COMPARER &comp) const {
+		return SListPure<E>::search(e, comp);
+	}
+
+	//! Scans the list for the specified element (using the user-defined comparer) and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
+	template<class COMPARER>
+	SListIterator<E> search(const E &e, const COMPARER &comp) {
 		return SListPure<E>::search(e, comp);
 	}
 

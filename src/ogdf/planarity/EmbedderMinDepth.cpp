@@ -1,9 +1,9 @@
 /*
- * $Revision: 3441 $
+ * $Revision: 3949 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -199,7 +199,7 @@ void EmbedderMinDepth::computeBlockGraphs(const node& bT, const node& cH)
 		nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT],
 		nH_to_nBlockEmbedding[bT], eH_to_eBlockEmbedding[bT]);
 
-	if ( !blockG[bT].empty()
+	if (!blockG[bT].empty()
 		&& blockG[bT].numberOfNodes() != 1
 		&& blockG[bT].numberOfEdges() > 2)
 	{
@@ -241,7 +241,7 @@ int EmbedderMinDepth::bottomUpTraversal(const node& bT, const node& cH)
 				M_B.clear();
 				M_B.pushBack(cV_in_bT);
 			}
-			else if (m_B == m_cB[e_cT_bT2] && M_B.search(pBCTree->cutVertex(cT, bT)) == -1)
+			else if (m_B == m_cB[e_cT_bT2] && !M_B.search(pBCTree->cutVertex(cT, bT)).valid())
 			{
 				node cV_in_bT = pBCTree->cutVertex(cT, bT);
 				M_B.pushBack(cV_in_bT);
@@ -303,7 +303,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					M_B[bT].clear();
 					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
-				else if (   m_B == m_cB[e_cT_bT2] && M_B[bT].search(pBCTree->cutVertex(cT, bT)) == -1)
+				else if (m_B == m_cB[e_cT_bT2] && !M_B[bT].search(pBCTree->cutVertex(cT, bT)).valid())
 				{
 					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
@@ -374,7 +374,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 							M2[bT].clear();
 							M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 						}
-						else if (   m2 == m_cB[e_cT2_bT2] && M2[bT].search(pBCTree->cutVertex(cT2, bT)) == -1)
+						else if (m2 == m_cB[e_cT2_bT2] && !M2[bT].search(pBCTree->cutVertex(cT2, bT)).valid())
 						{
 							M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 						}
@@ -472,7 +472,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 						M2[bT].clear();
 						M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
-					else if (   m2 == m_cB[e_cT2_bT2] && M2[bT].search(pBCTree->cutVertex(cT2, bT)) == -1)
+					else if (m2 == m_cB[e_cT2_bT2] && !M2[bT].search(pBCTree->cutVertex(cT2, bT)).valid())
 					{
 						M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
@@ -509,7 +509,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 						M2[bT].clear();
 						M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
-					else if (   m2 == m_cB[e_cT2_bT2] && M2[bT].search(pBCTree->cutVertex(cT2, bT)) == -1)
+					else if (m2 == m_cB[e_cT2_bT2] && !M2[bT].search(pBCTree->cutVertex(cT2, bT)).valid())
 					{
 						M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
@@ -557,7 +557,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					M_B[bT].clear();
 					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
-				else if (   m_B == m_cB[e_cT_bT2] && M_B[bT].search(pBCTree->cutVertex(cT, bT)) == -1)
+				else if (m_B == m_cB[e_cT_bT2] && !M_B[bT].search(pBCTree->cutVertex(cT, bT)).valid())
 				{
 					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
@@ -583,8 +583,8 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 						M2[bT].clear();
 						M2[bT].pushBack(pBCTree->cutVertex(cT, bT));
 					}
-					else if (   m2 == m_cB[e_cT_bT2]
-									 && M2[bT].search(pBCTree->cutVertex(cT, bT)) == -1)
+					else if (m2 == m_cB[e_cT_bT2]
+									 && !M2[bT].search(pBCTree->cutVertex(cT, bT)).valid())
 					{
 						M2[bT].pushBack(pBCTree->cutVertex(cT, bT));
 					}
@@ -764,7 +764,7 @@ void EmbedderMinDepth::embedBlock(
 				//		adjEntry aeF = m_f->firstAdj();
 				//		do
 				//		{
-				//			if (extFaceEdges.search(aeF->theEdge()) != -1)
+				//			if (extFaceEdges.search(aeF->theEdge()).valid())
 				//			{
 				//				ae = adjEdge->adjSource();
 				//				foundIt = true;

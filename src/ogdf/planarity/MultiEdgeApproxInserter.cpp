@@ -1,9 +1,9 @@
 /*
- * $Revision: 3417 $
+ * $Revision: 3949 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 10:27:30 +0200 (Do, 18. Apr 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
@@ -940,14 +940,14 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 	dfsPathSPQR( v1, v2, 0, path );
 
 	node x;
-	while(!path.empty() && vAllocNodes.search(x = path.front()->opposite(v1)) >= 0) {
+	while(!path.empty() && vAllocNodes.search(x = path.front()->opposite(v1)).valid()) {
 		v1 = x;
 		path.popFront();
 	}
 
 	B.m_pathSPQR[k].m_start = v1;
 
-	while(!path.empty() && wAllocNodes.search(x = path.back()->opposite(v2)) >= 0) {
+	while(!path.empty() && wAllocNodes.search(x = path.back()->opposite(v2)).valid()) {
 		v2 = x;
 		path.popBack();
 	}

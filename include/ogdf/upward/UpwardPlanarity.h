@@ -1,18 +1,18 @@
 /*
- * $Revision: 3475 $
+ * $Revision: 3951 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-05-02 10:43:51 +0200 (Do, 02. Mai 2013) $
+ *   $Date: 2014-03-03 13:57:46 +0100 (Mo, 03. Mär 2014) $
  ***************************************************************/
 
 /** \file
  * \brief Declaration of class UpwardPlanarity, which implements different types
- * 			of algorithms testing upward planarity of graphs with different restrictions.
- * 			Actually, restrictions are:
- * 			- fixed embedding
- *          - single source
- *          - triconnected
+ * of algorithms testing upward planarity of graphs with different restrictions.
+ * Actually, restrictions are:
+ *   - fixed embedding
+ *   - single source
+ *   - triconnected
  *
  * \author Robert Zeranski
  *
