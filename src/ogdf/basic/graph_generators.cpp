@@ -91,7 +91,7 @@ bool randomSimpleGraph(Graph &G, int n, int m)
 		return false;
 
 	int max = n * (n-1) / 2;
-	if(m > max || m < n)
+	if(m > max)
 		return false;
 
 	Array<node> v(n);
