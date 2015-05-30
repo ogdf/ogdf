@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 4018 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-30 05:25:51 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -58,11 +58,6 @@ namespace ogdf
 class Ogml
 {
 public:
-
-	//! Max count of ogml tags (used for setting maxOccurs).
-	static const int MAX_TAG_COUNT = 4000;
-
-
 	//! This enumeration is used for identifying OGML tags.
 	enum TagId
 	{
@@ -127,6 +122,7 @@ public:
 	enum AttributeId
 	{
 		a_none = -1,
+		a_xmlns,
 		a_textAlign,
 		a_verticalAlign,
 		a_angle,
@@ -307,18 +303,19 @@ public:
 	};
 
 
-	//! This enumeration is used for indentifying graph types.
+	//! This enumeration is used for identifying graph types.
 	enum GraphType
 	{
 		graph,
 		clusterGraph,
 		compoundGraph,
-		corruptCompoundGraph
+		corruptCompoundGraph,
+
+		GRAPH_TYPE_NUM					//!< number of graph types
 	};
 
-
 	//! Stores the names of graph types.
-	static const string s_graphTypeS[];
+	static const string s_graphTypeS[GRAPH_TYPE_NUM];
 };
 
 } //namspace ogdf

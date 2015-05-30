@@ -1,9 +1,9 @@
 /*
- * $Revision: 3831 $
+ * $Revision: 4015 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 10:00:32 +0100 (Mi, 13. Nov 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-30 05:25:44 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -92,6 +92,7 @@ private:
 	static Hashing<int, OgmlAttribute>      *s_attributes; //!< Hashtable for saving all ogml attributes.
 	static Hashing<int, OgmlAttributeValue> *s_attValues;  //!< Hashtable for saving all values of ogml attributes.
 
+	enum Mode { compMode = 0, choiceMode, optMode };
 
 	//! Builds hashtables for tags and attributes.
 	static void buildHashTables();
@@ -237,10 +238,6 @@ private:
 	//! Returns the integer value of the id at the end of the string (if it exists).
 	bool getIdFromString(string str, int &id);
 
-	//! Validiation method.
-	void validate(istream &is);
-
-
 	//! Unified read method for graphs.
 	bool doRead(
 		istream &is,
@@ -252,7 +249,10 @@ private:
 public:
 
 	//! Constructs an OGML parser.
-	OgmlParser() { }
+	OgmlParser() {
+		// build the required hash tables (once!)
+		buildHashTables();
+	}
 
 	~OgmlParser() { }
 

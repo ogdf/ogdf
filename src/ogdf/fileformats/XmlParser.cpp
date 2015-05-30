@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 4023 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2014-03-31 11:12:42 +0200 (Mon, 31 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -100,7 +100,7 @@ namespace ogdf {
 		const string &sonsName,
 		List<XmlTagObject*> &sons) const
 	{
-		bool found;
+		bool found = false;
 		XmlTagObject *currentSon = this->m_pFirstSon;
 		while(currentSon)
 		{

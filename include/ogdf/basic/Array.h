@@ -1,9 +1,9 @@
 /*
- * $Revision: 3395 $
+ * $Revision: 3975 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-15 14:28:20 +0200 (Mo, 15. Apr 2013) $
+ *   $Date: 2014-03-25 12:53:46 +0100 (Tue, 25 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -505,11 +505,11 @@ void Array<E,INDEX>::grow(INDEX add, const E &x)
 
 	// expand allocated memory block
 	if(m_pStart != 0) {
-		E *p = (E *)realloc(m_pStart, sNew*sizeof(E));
+		E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
 		if(p == 0) OGDF_THROW(InsufficientMemoryException);
 		m_pStart = p;
 	} else {
-		m_pStart = (E *)malloc(sNew*sizeof(E));
+		m_pStart = static_cast<E *>( malloc(sNew*sizeof(E)) );
 		if (m_pStart == 0) OGDF_THROW(InsufficientMemoryException);
 	}
 
@@ -532,11 +532,11 @@ void Array<E,INDEX>::grow(INDEX add)
 
 	// expand allocated memory block
 	if(m_pStart != 0) {
-		E *p = (E *)realloc(m_pStart, sNew*sizeof(E));
+		E *p = static_cast<E *>( realloc(m_pStart, sNew*sizeof(E)) );
 		if(p == 0) OGDF_THROW(InsufficientMemoryException);
 		m_pStart = p;
 	} else {
-		m_pStart = (E *)malloc(sNew*sizeof(E));
+		m_pStart = static_cast<E *>( malloc(sNew*sizeof(E)) );
 		if (m_pStart == 0) OGDF_THROW(InsufficientMemoryException);
 	}
 
@@ -559,7 +559,7 @@ void Array<E,INDEX>::construct(INDEX a, INDEX b)
 		m_pStart = m_vpStart = m_pStop = 0;
 
 	} else {
-		m_pStart = (E *)malloc(s*sizeof(E));
+		m_pStart = static_cast<E *>( malloc(s*sizeof(E)) );
 		if (m_pStart == 0) OGDF_THROW(InsufficientMemoryException);
 
 		m_vpStart = m_pStart - a;

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3550 $
+ * $Revision: 3995 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 14:16:24 +0200 (Fr, 07. Jun 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-03-28 13:46:48 +0100 (Fri, 28 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -58,7 +58,7 @@ namespace ogdf {
  * (M. Bender, M. Farach-Colton, The LCA problem revisited, LATIN '00, volume 1776 of LNCS,
  * pages 88-94, Springer, 2000)
  */
-class LCA {
+class OGDF_EXPORT LCA {
 public:
 	/*!
 	 * \brief Builds the LCA data structure for an arborescence

@@ -1508,7 +1508,8 @@ ClpSimplexNonlinear::pivotColumn(CoinIndexedVector * longArray,
 #if MINTYPE==1
                     if (conjugate) {
                          double djNorm2 = djNorm;
-                         if (numberNonBasic && 0) {
+#if 0
+                         if (numberNonBasic) {
                               int iIndex;
                               djNorm2 = 0.0;
                               for (iIndex = 0; iIndex < numberNonBasic; iIndex++) {
@@ -1520,6 +1521,7 @@ ClpSimplexNonlinear::pivotColumn(CoinIndexedVector * longArray,
                               }
                               //printf("a %.18g b %.18g\n",djNorm,djNorm2);
                          }
+#endif
                          djNorm = djNorm2;
                          double beta = djNorm2 / djNormSave;
                          // reset beta every so often

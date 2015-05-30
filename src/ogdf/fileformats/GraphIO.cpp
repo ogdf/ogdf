@@ -1,9 +1,9 @@
 /*
- * $Revision: 3831 $
+ * $Revision: 4026 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-11-13 10:00:32 +0100 (Mi, 13. Nov 2013) $
+ *   $Date: 2014-03-31 11:22:37 +0200 (Mon, 31 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -1511,8 +1511,14 @@ bool GraphIO::readGraphML(Graph &G, const string &filename)
 
 bool GraphIO::readGraphML(Graph &G, istream &is)
 {
-	GraphMLParser parser(is);
-	return parser.read(G);
+	try {
+		GraphMLParser parser(is);
+		return parser.read(G);
+
+	} catch(...) {
+		// exception thrown by XML paser
+		return false;
+	}
 }
 
 bool GraphIO::writeGraphML(const Graph &G, const char *filename)
@@ -1855,8 +1861,14 @@ bool GraphIO::readGEXF(Graph &G, const string &filename)
 
 bool GraphIO::readGEXF(Graph &G, istream &is)
 {
-	gexf::Parser parser(is);
-	return parser.read(G);
+	try {
+		gexf::Parser parser(is);
+		return parser.read(G);
+
+	} catch(...) {
+		// exception thrown by XML paser
+		return false;
+	}
 }
 
 bool GraphIO::writeGEXF(const Graph &G, const char *filename)

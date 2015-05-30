@@ -1,9 +1,9 @@
 /*
-* $Revision: 3504 $
+* $Revision: 4180 $
 *
 * last checkin:
-*   $Author: beyer $
-*   $Date: 2013-05-16 14:49:39 +0200 (Do, 16. Mai 2013) $
+*   $Author: klein $
+*   $Date: 2014-06-05 16:01:57 +0200 (Thu, 05 Jun 2014) $
 ***************************************************************/
 
 /** \file
@@ -123,7 +123,7 @@ namespace ogdf {
 		}
 
 		//--------------------------------------
-		// 4. arange CCs
+		// 4. arrange CCs
 		//--------------------------------------
 		arrangeCCs(pr, ga, boundingBox);
 
@@ -343,7 +343,7 @@ namespace ogdf {
 		}
 
 		//--------------------------------------
-		// 4. arange CCs
+		// 4. arrange CCs
 		//--------------------------------------
 		arrangeCCs(pr, ga, boundingBox);
 
@@ -540,7 +540,7 @@ namespace ogdf {
 		}
 
 		//--------------------------------------
-		// 4. arange CCs
+		// 4. arrange CCs
 		//--------------------------------------
 		arrangeCCs(pr, ga, boundingBox);
 

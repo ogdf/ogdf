@@ -1,9 +1,9 @@
 /*
- * $Revision: 3837 $
+ * $Revision: 4020 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Mi, 13. Nov 2013) $
+ *   $Date: 2014-03-30 13:05:25 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -281,10 +281,15 @@ bool Lexer::identifier(Token &token)
 	// Check whether identifier is a numeric literal. Quite ugly and slow but works.
 	std::istringstream ss(m_buffer.c_str() + m_col);
 	double temp;
-	if(ss >> temp) {
-		size_t length = static_cast<size_t>(ss.tellg());
-		token.value = new std::string(m_buffer.substr(m_col, length));
-		m_col += length;
+	if (ss >> temp) {
+		std::istringstream::pos_type length = ss.tellg();
+		if (length < 0) { // end of line
+			token.value = new std::string(ss.str());
+			m_col = m_buffer.size();
+		} else {
+			token.value = new std::string(m_buffer.substr(m_col, length));
+			m_col += length;
+		}
 		return true;
 	}
 

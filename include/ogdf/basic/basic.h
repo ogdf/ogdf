@@ -1,9 +1,9 @@
 /*
- * $Revision: 3944 $
+ * $Revision: 4617 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-02-28 16:19:23 +0100 (Fr, 28. Feb 2014) $
+ *   $Author: beyer $
+ *   $Date: 2015-05-28 19:43:44 +0200 (Thu, 28 May 2015) $
  ***************************************************************/
 
 /** \file
@@ -61,12 +61,6 @@
  * Here, you find the library's code documentation. For more general information
  * on OGDF see http://www.ogdf.net. There, you can also find further explanations,
  * how-tos, and example code.
- *
- * The OGDF project is a cooperation between
- * - [Chair of Algorithm Engineering](http://ls11-www.cs.uni-dortmund.de/), Faculty of Computer Science, TU Dortmund, Germany
- * - [Theoretical Computer Science](http://www.cs.uos.de/theoinf), Department of Mathematics/Computer Science, Uni Osnabrück, Germany
- * - [Chair of Prof. J&uuml;nger](http://www.informatik.uni-koeln.de/ls_juenger/), Department of Computer Science, University of Cologne, Germany
- * - [University of Sydney](http://sydney.edu.au/engineering/it/), Australia
  */
 
 
@@ -274,13 +268,13 @@ static Initialization s_ogdfInitializer;
 	//! with mean m and standard deviation sd
 	inline double randomDoubleNormal(double m, double sd)
 	{
-		double x1, x2, y1, w, rndVal;
+		double x1, y1, w;
 
 		do {
-			rndVal = randomDouble(0,1);
+			double rndVal = randomDouble(0,1);
 			x1 = 2.0 * rndVal - 1.0;
 			rndVal = randomDouble(0,1);
-			x2 = 2.0 * rndVal - 1.0;
+			double x2 = 2.0 * rndVal - 1.0;
 			w = x1*x1 + x2*x2;
 		} while (w >= 1.0);
 

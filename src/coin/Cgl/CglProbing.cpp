@@ -4685,7 +4685,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
                   index[0]=icol;
                   element[0]=1.0;
                   index[1]=j;
-                  element[1]=- boundChange;
+                  element[1] = -boundChange;
                   // effectiveness is how far j moves
                   double newSol = (colsol[icol]-colLower[icol])/
                     boundChange;
@@ -6747,7 +6747,7 @@ int CglProbing::probeCliques( const OsiSolverInterface & si,
 		    index[0]=icol;
 		    element[0]=1.0;
 		    index[1]=j;
-		    element[1]=- boundChange;
+		    element[1] = -boundChange;
 		    // effectiveness is how far j moves
 		    double newSol = (colsol[icol]-colLower[icol])/
 		      boundChange;

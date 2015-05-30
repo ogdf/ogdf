@@ -1,9 +1,9 @@
 /*
- * $Revision: 3837 $
+ * $Revision: 4007 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Mi, 13. Nov 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-30 05:25:25 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -48,6 +48,7 @@ namespace ogdf {
 
 GraphMLParser::GraphMLParser(istream &in) : m_xml(in)
 {
+	m_error = false;
 	m_xml.createParseTree();
 
 	const XmlTagObject &rootTag = m_xml.getRootTag();

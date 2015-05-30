@@ -24,7 +24,7 @@ class versionclass:
 		return '$(' + self.var + ')'
 	def library(self):
 		return self.call() + '/' + libName
-	def sharedlibrary(self):
+	def sharedLibrary(self):
 		return self.call() + '/' + sharedlibName
 	def objects(self):
 		return '$(' +self.var + '_OBJS)'
@@ -34,6 +34,10 @@ class versionclass:
 		return self.call() + '/' + coinLibName
 	def coinSharedLibrary(self):
 		return self.call() + '/' + coinSharedLibName
+	def coinName(self):
+		return coinLibName[3:coinLibName.find('.')]
+	def coinSharedName(self):
+		return coinSharedLibName[3:coinSharedLibName.find('.')]
 	def coinObjects(self):
 		return '$(' +self.var + '_COIN_OBJS)'
 
@@ -148,7 +152,7 @@ if useCoin:
 			addIncludes += '-I' + p + ' '
 
 	if sharedLib and (sys.platform == 'win32' or sys.platform == 'cygwin'):
-		libs += ' -lCOIN'
+		libs += ' -l' + v.coinSharedName()
 
 ogdfFlags = '-I./include ' + addIncludes
 coinFlags = '$(COIN_INSTALL_DEFINES) -I./include/coin ' + addIncludes
@@ -206,7 +210,10 @@ if installPrefix:
 	pc.write('Cflags: -I${includedir}\n')
 	pc.write('Libs: -L${libdir} -lOGDF')
 	if useCoin:
-		pc.write(' -lCOIN')
+		if sharedLib:
+			pc.write(' -l' + v.coinSharedName())
+		else:
+			pc.write(' -l' + v.coinName())
 	pc.write('\n')
 	pc.close()
 
@@ -353,10 +360,22 @@ makefile.write('\n# test binary targets\n\n')
 objsTest = Walk('./test')
 
 for v in versions:
-	makefile.write('test/test-' + v.var + ': ' + ' '.join([v.call() + '/' + x for x in objsTest]) + '\n')
+	libdependencies = ''
+	if sharedLib:
+		if useCoin:
+			libdependencies += ' ' + v.coinSharedLibrary()
+		libdependencies += ' ' + v.sharedLibrary()
+	else:
+		if useCoin:
+			libdependencies += ' ' + v.coinLibrary()
+		libdependencies += ' ' + v.library()
+	makefile.write('test/test-' + v.var + ': ' + ' '.join([v.call() + '/' + x for x in objsTest]) + libdependencies + '\n')
 	makefile.write('\t$(CC) -o $@ $^ -pthread -L' + v.call() + ' -lOGDF')
 	if useCoin:
-		makefile.write(' -lCOIN ' + solverLDFlags)
+		if sharedLib:
+			makefile.write(' -l' + v.coinSharedName() + ' ' + solverLDFlags)
+		else:
+			makefile.write(' -l' + v.coinName() + ' ' + solverLDFlags)
 	makefile.write('\n\n')
 
 # generate alls and cleans etc...
@@ -372,13 +391,13 @@ for v in versions:
 			makefile.write(v.coinSharedLibrary() + ': ' + v.coinObjects() + '\n')
 			makefile.write('\t$(LD) -shared -o ' + v.coinSharedLibrary() + ' ' + v.coinObjects() + '\n\n')
 
-		makefile.write(v.sharedlibrary() + ': ' + v.objects() + '\n')
-		makefile.write('\t$(LD) -shared -o ' + v.sharedlibrary() + ' ' + v.objects() + ' ' + libs + ' $(LIBS)\n\n')
+		makefile.write(v.sharedLibrary() + ': ' + v.objects() + '\n')
+		makefile.write('\t$(LD) -shared -o ' + v.sharedLibrary() + ' ' + v.objects() + ' ' + libs + ' $(LIBS)\n\n')
 
-		makefile.write(v.var + ': ' + v.sharedlibrary())
+		makefile.write(v.var + ': ' + v.sharedLibrary())
 		if useCoin:
 			makefile.write(' ' + v.coinSharedLibrary())
-		makefile.write('\n\n')
+		makefile.write(' test/test-' + v.var + '\n\n')
 
 	else:
 		if useCoin:
@@ -411,7 +430,7 @@ for v in versions:
 		makefile.write('install' + v.var + ':\n')
 		makefile.write('\tinstall -d $(DESTDIR)' + installPrefix + '/lib\n')
 		if sharedLib:
-			makefile.write('\tinstall -m 0644 ' + v.sharedlibrary() + ' $(DESTDIR)' + installPrefix + '/lib/\n')
+			makefile.write('\tinstall -m 0644 ' + v.sharedLibrary() + ' $(DESTDIR)' + installPrefix + '/lib/\n')
 		else:
 			makefile.write('\tinstall -m 0644 ' + v.library() + ' $(DESTDIR)' + installPrefix + '/lib/\n')
 		if useCoin:

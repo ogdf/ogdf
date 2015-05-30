@@ -3133,7 +3133,8 @@ int sym_get_col_solution(sym_environment *env, double *colsol)
 
    sol = env->best_sol;
 
-   if (!sol.xlength || sol.xlength && (!sol.xind || !sol.xval)){
+   if (!sol.xlength
+    || (sol.xlength && (!sol.xind || !sol.xval))) {
       if(env->par.verbosity >= 1){
 	 printf("sym_get_col_solution(): There is no solution!\n");
       }

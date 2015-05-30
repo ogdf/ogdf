@@ -1,9 +1,9 @@
 /*
- * $Revision: 2641 $
+ * $Revision: 4180 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Do, 19. Jul 2012) $
+ *   $Author: klein $
+ *   $Date: 2014-06-05 16:01:57 +0200 (Thu, 05 Jun 2014) $
  ***************************************************************/
 
 /** \file
@@ -149,7 +149,7 @@ public:
 	void importAttributes(const GraphAttributes &GA);
 	void importAttributesSimple(const GraphAttributes &GA);
 	void reInsertGraph(MultilevelGraph &MLG);
-	void reInsertAll(std::vector<MultilevelGraph *> components);
+	void reInsertAll(std::vector<MultilevelGraph *> &components);
 	void copyNodeTo(node v, MultilevelGraph &MLG, std::map<node, node> &tempNodeAssociations, bool associate, int index = -1);
 	void copyEdgeTo(edge e, MultilevelGraph &MLG, std::map<node, node> &tempNodeAssociations, bool associate, int index = -1);
 	void writeGML(ostream &os);

@@ -20,9 +20,8 @@ This Git repository contains the [official releases](http://ogdf.net/doku.php/te
 [snapshots](http://ogdf.net/doku.php/tech:download#download_snapshots) from the OGDF homepage.
 
 However, [@sbeyer](https://github.com/sbeyer)
-and [@schulzch](https://github.com/schulzch)
-are more or less responsible for this repository.
-We try to take care of issues and pull requests.
+is more or less responsible for this repository.
+I try to take care of issues and pull requests.
 
 ### Do you use OGDF?
 

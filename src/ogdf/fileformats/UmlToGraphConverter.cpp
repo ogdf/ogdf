@@ -1,9 +1,9 @@
 /*
- * $Revision: 2976 $
+ * $Revision: 3974 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-06 14:10:17 +0100 (Di, 06. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-24 21:25:00 +0100 (Mon, 24 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -483,16 +483,23 @@ namespace ogdf {
 			// We assume binary associations
 
 			// Investigate association ends
-			const XmlTagObject *end1 = 0;
+			const XmlTagObject *end1;
 			m_xmlParser->findSonXmlTagObject(*connection, umlAssociationEnd, end1);
-			const XmlTagObject *end2 = 0;
+
+			// Something wrong
+			if (!end1) {
+				// Next association
+				// Warning: Current association tag does not contain both end tags!
+				m_xmlParser->findBrotherXmlTagObject(*associationSon, umlAssociation, associationSon);
+				continue;
+			}
+
+			const XmlTagObject *end2;
 			m_xmlParser->findBrotherXmlTagObject(*end1, umlAssociationEnd, end2);
 
 			// Something wrong
-			if (!end1 || !end2){
-
+			if (!end2) {
 				// Warning: Current association tag does not contain both end tags!
-
 				// Next association
 				m_xmlParser->findBrotherXmlTagObject(*associationSon, umlAssociation, associationSon);
 				continue;

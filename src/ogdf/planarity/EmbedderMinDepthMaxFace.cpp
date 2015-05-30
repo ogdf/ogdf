@@ -1,9 +1,9 @@
 /*
- * $Revision: 3949 $
+ * $Revision: 3977 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-03-25 13:59:42 +0100 (Tue, 25 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -348,9 +348,10 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 	{
 		spqrTree = new StaticSPQRTree(blockGraph_bT);
 	}
+
 	NodeArray< EdgeArray<int> > edgeLengthSkel;
 	int cstrLength_B_c = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-		blockGraph_bT, nodeLengthSG, edgeLengthBlock, *spqrTree, edgeLengthSkel);
+		blockGraph_bT, nodeLengthSG, edgeLengthBlock, spqrTree, edgeLengthSkel);
 
 	//Prepare recursion by setting m_{c, B} for all edges {B, c} \in bcTree:
 	if (md_M_B[bT].size() > 0)
@@ -452,7 +453,7 @@ void EmbedderMinDepthMaxFace::md_topDownTraversal(const node& bT)
 					cInBlockGraph_bT,
 					nodeLengthSG,
 					edgeLengthBlock,
-					*spqrTree,
+					spqrTree,
 					edgeLengthSkel);
 				if (md_M_B[bT].size() == 0)
 					md_m_cB[e_bT_cT] = 1;
@@ -684,7 +685,7 @@ void EmbedderMinDepthMaxFace::mf_maximumFaceRec(const node& bT, node& bT_opt, in
 	}
 	NodeArray< EdgeArray<int> > edgeLengthSkel;
 	int m_ell_opt = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-		blockGraph_bT, nodeLengthSG, edgeLengthSG, *spqrTree, edgeLengthSkel);
+		blockGraph_bT, nodeLengthSG, edgeLengthSG, spqrTree, edgeLengthSkel);
 	mf_maxFaceSize[bT] = m_ell_opt;
 
 	edge e;
@@ -699,7 +700,7 @@ void EmbedderMinDepthMaxFace::mf_maximumFaceRec(const node& bT, node& bT_opt, in
 		node cInBlockGraph_bT = nG_to_nSG[cH];
 		mf_cstrLength[cH]
 			= EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-				blockGraph_bT, cInBlockGraph_bT, nodeLengthSG, edgeLengthSG, *spqrTree, edgeLengthSkel);
+				blockGraph_bT, cInBlockGraph_bT, nodeLengthSG, edgeLengthSG, spqrTree, edgeLengthSkel);
 
 		//L := \sum_{(B', c) \in bcTree} cstrLength(B', c)
 		int L = 0;

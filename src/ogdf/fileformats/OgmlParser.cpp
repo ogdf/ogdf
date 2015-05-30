@@ -1,9 +1,9 @@
 /*
- * $Revision: 3503 $
+ * $Revision: 4025 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Do, 16. Mai 2013) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-03-31 11:17:26 +0200 (Mon, 31 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -121,13 +121,23 @@ class OgmlParser::OgmlAttributeValue
 {
 	int id; //!< Id of the attribute value; for possible ones see Ogml.h.
 
+protected:
+	int checkExpectedTagname(HashElement<string, const XmlTagObject*> *he, Ogml::TagId tag) const
+	{
+		if (he
+		 && he->info()->getName() == Ogml::s_tagNames[tag]) {
+			return Ogml::vs_valid;
+		}
+		return Ogml::vs_idRefErr;
+	}
+
 public:
 	// Construction
 	OgmlAttributeValue() : id(Ogml::av_any) { }
 
 	OgmlAttributeValue(int id) {
 		if(id >= 0 && id < Ogml::ATT_VAL_NUM) this->id = id;
-		else this->id = Ogml::av_any;
+		else id = Ogml::av_any;
 	}
 
 	// Destruction
@@ -140,7 +150,7 @@ public:
 	// Setter
 	void setId(int id) {
 		if(id >= 0 && id < Ogml::ATT_VAL_NUM) this->id = id;
-		else this->id = Ogml::av_any;
+		else id = Ogml::av_any;
 	}
 
 
@@ -156,7 +166,7 @@ public:
 		// | '.'  |     46      |
 		// | '-'  |     45      |
 		// | '+'  |     43      |
-		// | '#'  |		35		|
+		// | '#'  |     35      |
 
 		// bool values
 		bool isInt = true;
@@ -219,7 +229,7 @@ public:
 
 			// check every input char
 			// and set bool value to false if char-type is wrong
-			for(size_t it=1; ( (it<input.length()) && ((isInt) || (isNum) || (isHex)) ); it++)
+			for(size_t it=1; ( (it<input.length()) && ((isInt) || (isNum) || (isHex)) ); ++it)
 			{
 				actChar = input[it];
 				actCharInt = static_cast<int>(actChar);
@@ -277,126 +287,75 @@ public:
 		Hashing<string,
 		const XmlTagObject*>& ids) const //hashtable with id-tagName pairs
 	{
-		//get attribute value type of string
+		// get attribute value type of string
 		Ogml::AttributeValueId stringType = getTypeOfString(attributeValue);
 
-		HashElement<string, const XmlTagObject*>* he;
-
-		int valid = Ogml::vs_attValueErr;
-
-		switch(id) {
+		switch (id) {
 		case Ogml::av_any:
-			valid = Ogml::vs_valid;
-			break;
-
+			return Ogml::vs_valid;
 		case Ogml::av_int:
-			if (stringType == Ogml::av_int) valid = Ogml::vs_valid;
-			break;
-
-		case Ogml::av_num:
-			if (stringType == Ogml::av_num) valid = Ogml::vs_valid;
-			if (stringType == Ogml::av_int) valid = Ogml::vs_valid;
-			break;
-
-		case Ogml::av_bool:
-			if (stringType == Ogml::av_bool) valid = Ogml::vs_valid;
-			break;
-
-		case Ogml::av_string:
-			valid = Ogml::vs_valid;
-			break;
-
-		case Ogml::av_uri:
-			valid = Ogml::vs_valid;  // not yet checked in detail
-			break;
-
-		case Ogml::av_hex:
-			if (stringType == Ogml::av_hex) valid = Ogml::vs_valid;
-			if (stringType == Ogml::av_int) valid = Ogml::vs_valid;
-			break;
-
-		case Ogml::av_oct:
-			valid = Ogml::vs_attValueErr;
-			break;
-
-		case Ogml::av_id:
-			// id mustn't exist
-			if( !(he = ids.lookup(attributeValue)) ) {
-				ids.fastInsert(attributeValue, xmlTag);
-				valid = Ogml::vs_valid;
+			if (stringType == Ogml::av_int) {
+				return Ogml::vs_valid;
 			}
-			else valid = Ogml::vs_idNotUnique;
 			break;
-
-		// attribute idRef of elements source, target, nodeRef, nodeStyle
-		case Ogml::av_nodeIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_node]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
+		case Ogml::av_num:
+			if (stringType == Ogml::av_num) {
+				return Ogml::vs_valid;
+			}
+			if (stringType == Ogml::av_int) {
+				return Ogml::vs_valid;
+			}
 			break;
-
-		// attribute idRef of elements edgeRef, edgeStyle
-		case Ogml::av_edgeIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_edge]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
+		case Ogml::av_bool:
+			if (stringType == Ogml::av_bool) {
+				return Ogml::vs_valid;
+			}
 			break;
-
-		// attribute idRef of elements labelRef, labelStyle
-		case Ogml::av_labelIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_label]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
+		case Ogml::av_string:
+			return Ogml::vs_valid;
+		case Ogml::av_uri:
+			return Ogml::vs_valid;  // not yet checked in detail
+		case Ogml::av_hex:
+			if (stringType == Ogml::av_hex) {
+				return Ogml::vs_valid;
+			}
+			if (stringType == Ogml::av_int) {
+				return Ogml::vs_valid;
+			}
 			break;
-
-		// attribute idRef of element endpoint
-		case Ogml::av_sourceIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_source]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
-			break;
-
-		// attribute idRef of element endpoint
-		case Ogml::av_targetIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_target]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
-			break;
-
-		// attribute idRef of subelement template of element nodeStyle
-		case Ogml::av_nodeStyleTemplateIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_nodeStyleTemplate]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
-			break;
-
-		// attribute idRef of subelement template of element edgeStyle
-		case Ogml::av_edgeStyleTemplateIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_edgeStyleTemplate]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
-			break;
-
-		// attribute idRef of subelement template of element labelStyle
-		case Ogml::av_labelStyleTemplateIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_labelStyleTemplate]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
-			break;
-
-		case Ogml::av_pointIdRef:
-			// element exists && is tagname expected
-			if( (he = ids.lookup(attributeValue)) && (he->info()->getName() == Ogml::s_tagNames[Ogml::t_point]) ) valid = Ogml::vs_valid;
-			else valid = Ogml::vs_idRefErr;
-			break;
-
+		case Ogml::av_oct:
+			return Ogml::vs_attValueErr; // not implemented?!
+		case Ogml::av_id:
+			if (!ids.lookup(attributeValue)) { // id does not exist
+				ids.fastInsert(attributeValue, xmlTag);
+				return Ogml::vs_valid;
+			}
+			return Ogml::vs_idNotUnique;
+		case Ogml::av_nodeIdRef: // idRef of source, target, nodeRef, nodeStyle
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_node);
+		case Ogml::av_edgeIdRef: // idRef of elements edgeRef, edgeStyle
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_edge);
+		case Ogml::av_labelIdRef: // idRef of labelRef, labelStyle
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_label);
+		case Ogml::av_pointIdRef: // idRef of endpoint point
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_point);
+		case Ogml::av_sourceIdRef: // idRef of endpoint source
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_source);
+		case Ogml::av_targetIdRef: // idRef of endpoint target
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_target);
+		case Ogml::av_nodeStyleTemplateIdRef: // idRef of nodeStyle::template
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_nodeStyleTemplate);
+		case Ogml::av_edgeStyleTemplateIdRef: // idRef of edgeStyle::template
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_edgeStyleTemplate);
+		case Ogml::av_labelStyleTemplateIdRef: // idRef of labelStyle::template
+			return checkExpectedTagname(ids.lookup(attributeValue), Ogml::t_labelStyleTemplate);
 		default:
 			// Proof string for equality
-			if(getValue() == attributeValue) valid = Ogml::vs_valid;
-			break;
+			if (getValue() == attributeValue) {
+				return Ogml::vs_valid;
+			}
 		}
-
-		return valid;
+		return Ogml::vs_attValueErr;
 	}
 
 };//class OgmlAttributeValue
@@ -461,9 +420,8 @@ public:
 
 	// Prints the value set of the attribute.
 	void print(ostream &os) const {
-		ListConstIterator<OgmlAttributeValue*> it;
 		os << "\"" << getName() << "\"={ ";
-		for(it = values.begin(); it.valid(); it++) {
+		for (ListConstIterator<OgmlAttributeValue*> it = values.begin(); it.valid(); ++it) {
 			os << (**it).getValue() << " ";
 		}
 		os << "}\n";
@@ -479,16 +437,16 @@ public:
 		const XmlTagObject* xmlTag,
 		Hashing<string, const XmlTagObject*>& ids) const
 	{
-		int valid = Ogml::vs_expAttNotFound;
-
-		if( xmlAttribute.getName() == getName() ) {
-			ListConstIterator<OgmlAttributeValue*> it;
-			for(it = values.begin(); it.valid(); it++) {
-				if ( (valid = (**it).validValue( xmlAttribute.getValue(), xmlTag, ids )) == Ogml::vs_valid ) break;
+		if (xmlAttribute.getName() != getName()) { // does this ever happen?
+			return Ogml::vs_invalid;
+		}
+		for (ListConstIterator<OgmlAttributeValue*> it = values.begin(); it.valid(); ++it) {
+			int valid;
+			if ((valid = (**it).validValue(xmlAttribute.getValue(), xmlTag, ids)) < 0) {
+				return valid;
 			}
 		}
-
-		return valid;
+		return Ogml::vs_valid;
 	}
 };//class OgmlAttribute
 
@@ -521,88 +479,70 @@ class OgmlParser::OgmlTag
 	List<OgmlTag*> choiceTags;
 	List<OgmlTag*> optionalTags;
 
-
-	void printOwnedTags(ostream &os, int mode) const
+	void printOwnedTags(ostream &os, Mode mode) const
 	{
 		string s;
-		const List<OgmlTag*> *list;
-
+		const List<OgmlTag*> *list = NULL;
 		switch(mode) {
-		case 0:
+		case compMode:
 			list = &compulsiveTags;
 			s += "compulsive";
 			break;
-
-		case 1:
+		case choiceMode:
 			list = &choiceTags;
 			s += "selectable";
 			break;
-
-		case 2:
+		case optMode:
 			list = &optionalTags;
 			s += "optional";
 			break;
-
-		OGDF_NODEFAULT
 		}
 
 		if (list->empty())
-			os << "Tag \"<" << getName() <<">\" doesn't include " << s << " tag(s).\n";
+			os << "Tag \"<" << getName() <<">\" does not include " << s << " tag(s).\n";
 		else {
 			os << "Tag \"<" << getName() <<">\" includes the following " << s << " tag(s): \n";
-			ListConstIterator<OgmlTag*> currTag;
-			for(currTag = list->begin(); currTag.valid(); currTag++)
+			for (ListConstIterator<OgmlTag*> currTag = list->begin(); currTag.valid(); ++currTag) {
 				os << "\t<" << (**currTag).getName() << ">\n";
+			}
 		}
 	}
 
-	void printOwnedAttributes(ostream &os, int mode) const
+	void printOwnedAttributes(ostream &os, Mode mode) const
 	{
 		string s;
-		const List<OgmlAttribute*> *list;
+		const List<OgmlAttribute*> *list = NULL;
 
 		switch(mode)
-		case 0: {
+		case compMode: {
 			list = &compulsiveAttributes;
 			s += "compulsive";
 			break;
-
-		case 1:
+		case choiceMode:
 			list = &choiceAttributes;
 			s += "selectable";
 			break;
-
-		case 2:
+		case optMode:
 			list = &optionalAttributes;
 			s += "optional";
 			break;
-
-		OGDF_NODEFAULT
 		}
 
 		if(list->empty())
-			os << "Tag \"<" << getName() <<">\" doesn't include " << s << " attribute(s).\n";
+			os << "Tag \"<" << getName() <<">\" does not include " << s << " attribute(s).\n";
 		else {
 			cout << "Tag \"<" << getName() <<">\" includes the following " << s << " attribute(s): \n";
-			ListConstIterator<OgmlAttribute*> currAtt;
-			for(currAtt = list->begin(); currAtt.valid(); currAtt++)
+			for (ListConstIterator<OgmlAttribute*> currAtt = list->begin(); currAtt.valid(); ++currAtt) {
 				os << "\t"  << (**currAtt);
+			}
 		}
 	}
 
 
 public:
 
-	bool ownsCompulsiveTags() {
-		return !compulsiveTags.empty();
-	}
-
-	bool ownsChoiceTags() {
+	bool hasChoiceTags() {
 		return !choiceTags.empty();
-	}
-
-	bool ownsOptionalTags() {
-		return !optionalTags.empty();
 	}
 
 	const List<OgmlTag*>& getCompulsiveTags() const { return compulsiveTags; }
@@ -625,11 +565,26 @@ public:
 	void setIgnoreContent(bool ignore) { ignoreContent = ignore; }
 
 	//Construction
-	OgmlTag() : id(Ogml::t_none), ignoreContent(0) { }
+	OgmlTag()
+	 : id(Ogml::t_none)
+	 , minOccurs(0)
+	 , maxOccurs(numeric_limits<int>::max())
+	 , ignoreContent(0)
+	{
+	}
 
-	OgmlTag(int id) : id(Ogml::t_none), ignoreContent(0) {
-		if(id >= 0 && id < Ogml::TAG_NUM) this->id = id;
-		else this->id = Ogml::a_none;
+	OgmlTag(int id)
+	 : id(Ogml::t_none)
+	 , minOccurs(0)
+	 , maxOccurs(numeric_limits<int>::max())
+	 , ignoreContent(0)
+	{
+		if (id >= 0
+		 && id < Ogml::TAG_NUM) {
+			this->id = id;
+		} else {
+			 id = Ogml::a_none;
+		}
 	}
 
 	//Destruction
@@ -642,20 +597,20 @@ public:
 	//Setter
 	void setId(int id){
 		if(id >= 0 && id < Ogml::TAG_NUM) this->id = id;
-		else this->id = Ogml::a_none;
+		else id = Ogml::a_none;
 	}
 
 
 	void printOwnedTags(ostream& os) const {
-		printOwnedTags(os, 0);
-		printOwnedTags(os, 1);
-		printOwnedTags(os, 2);
+		printOwnedTags(os, compMode);
+		printOwnedTags(os, choiceMode);
+		printOwnedTags(os, optMode);
 	}
 
 	void printOwnedAttributes(ostream& os) const {
-		printOwnedAttributes(os, 0);
-		printOwnedAttributes(os, 1);
-		printOwnedAttributes(os, 2);
+		printOwnedAttributes(os, compMode);
+		printOwnedAttributes(os, choiceMode);
+		printOwnedAttributes(os, optMode);
 	}
 
 	/**Pushes pointers to OgmlAttribute objects back to list reqAttributes.
@@ -663,12 +618,20 @@ public:
 	*/
 
 	template < size_t n >
-	void pushAttributes(int mode, Hashing<int, OgmlAttribute> *attrib, int (&keys)[n])
+	void pushAttributes(Mode mode, Hashing<int, OgmlAttribute> *attrib, int (&keys)[n])
 	{
-		List<OgmlAttribute*> *list;
-		if(mode==0) list = &compulsiveAttributes;
-		else if(mode==1) list = &choiceAttributes;
-		else list = &optionalAttributes;
+		List<OgmlAttribute*> *list = NULL;
+		switch(mode) {
+		case compMode:
+			list = &compulsiveAttributes;
+			break;
+		case choiceMode:
+			list = &choiceAttributes;
+			break;
+		case optMode:
+			list = &optionalAttributes;
+			break;
+		}
 
 		for(size_t i = 0; i < n; ++i) {
 			HashElement<int, OgmlAttribute>* he = attrib->lookup(keys[i]);
@@ -677,12 +640,20 @@ public:
 		}
 	}
 
-	void pushAttribute(int mode, Hashing<int, OgmlAttribute> *attrib, int key)
+	void pushAttribute(Mode mode, Hashing<int, OgmlAttribute> *attrib, int key)
 	{
-		List<OgmlAttribute*> *list;
-		if(mode==0) list = &compulsiveAttributes;
-		else if(mode==1) list = &choiceAttributes;
-		else list = &optionalAttributes;
+		List<OgmlAttribute*> *list = NULL;
+		switch(mode) {
+		case compMode:
+			list = &compulsiveAttributes;
+			break;
+		case choiceMode:
+			list = &choiceAttributes;
+			break;
+		case optMode:
+			list = &optionalAttributes;
+			break;
+		}
 
 		HashElement<int, OgmlAttribute>* he = attrib->lookup(key);
 		if(he != 0)
@@ -695,12 +666,20 @@ public:
 	*/
 
 	template < size_t n >
-	void pushTags(int mode, Hashing<int, OgmlTag> *tag, int (&keys)[n])
+	void pushTags(Mode mode, Hashing<int, OgmlTag> *tag, int (&keys)[n])
 	{
-		List<OgmlTag*> *list;
-		if(mode==0) list = &compulsiveTags;
-		else if(mode==1) list = &choiceTags;
-		else list = &optionalTags;
+		List<OgmlTag*> *list = NULL;
+		switch(mode) {
+		case compMode:
+			list = &compulsiveTags;
+			break;
+		case choiceMode:
+			list = &choiceTags;
+			break;
+		case optMode:
+			list = &optionalTags;
+			break;
+		}
 
 		for(size_t i = 0; i < n; ++i) {
 			HashElement<int, OgmlTag>* he = tag->lookup(keys[i]);
@@ -709,12 +688,20 @@ public:
 		}
 	}
 
-	void pushTag(int mode, Hashing<int, OgmlTag> *tag, int key)
+	void pushTag(Mode mode, Hashing<int, OgmlTag> *tag, int key)
 	{
-		List<OgmlTag*> *list;
-		if(mode==0) list = &compulsiveTags;
-		else if(mode==1) list = &choiceTags;
-		else list = &optionalTags;
+		List<OgmlTag*> *list = NULL;
+		switch(mode) {
+		case compMode:
+			list = &compulsiveTags;
+			break;
+		case choiceMode:
+			list = &choiceTags;
+			break;
+		case optMode:
+			list = &optionalTags;
+			break;
+		}
 
 		HashElement<int, OgmlTag>* he = tag->lookup(key);
 		if(he != 0)
@@ -730,72 +717,61 @@ public:
 	int validTag(const XmlTagObject &o,
 		Hashing<string, const XmlTagObject*>& ids) const
 	{
-		int valid = Ogml::vs_unexpTag;
-
-		if( o.getName() == getName() ) {
-
-			ListConstIterator<OgmlAttribute*> it;
-			XmlAttributeObject* att;
-
-			//Tag requires attributes
-			if(!compulsiveAttributes.empty()) {
-
-				for(it = compulsiveAttributes.begin(); it.valid(); it++) {
-					//Att not found or invalid
-					if(!o.findXmlAttributeObjectByName((**it).getName(), att) )
-						return valid = Ogml::vs_expAttNotFound;
-					if( (valid = (**it).validAttribute(*att, &o, ids) ) <0 )
-						return valid;
-					//Att is valid
-					att->setValid();
-				}
-			}
-
-			//Choice attributes
-			if(!choiceAttributes.empty()) {
-
-				bool tookChoice = false;
-
-				for(it = choiceAttributes.begin(); it.valid(); it++) {
-					//Choice att found
-					if( o.findXmlAttributeObjectByName((**it).getName(), att) ) {
-						//Proof if valid
-						if( (valid = (**it).validAttribute(*att, &o, ids)) <0 )
-							return valid;
-						tookChoice = true;
-						att->setValid();
-					}
-				}
-
-				if(!tookChoice)
-					return valid = Ogml::vs_expAttNotFound;
-
-			}
-
-			if(!optionalAttributes.empty() && !o.isAttributeLess()) {
-
-				//Check optional attributes
-				for(it = optionalAttributes.begin(); it.valid(); it++) {
-					if( o.findXmlAttributeObjectByName((**it).getName(), att) ) {
-						if( (valid = (**it).validAttribute(*att, &o, ids)) <0 )
-							return valid;
-						att->setValid();
-					}
-				}
-			}
-
-			//Are there still invalid attributes?
-			att = o.m_pFirstAttribute;
-			while(att) {
-				if(!att->valid())
-					return valid = Ogml::vs_unexpAtt;
-				att = att->m_pNextAttribute;
-			}
-
-			valid = Ogml::vs_valid;
+		if (o.getName() != getName()) {
+			return Ogml::vs_unexpTag;
+		}
+		if (o.isAttributeLess()) {
+			return Ogml::vs_valid;
 		}
 
-		return valid;
+		// check for compulsive attributes
+		for (ListConstIterator<OgmlAttribute*> it = compulsiveAttributes.begin(); it.valid(); ++it) {
+			XmlAttributeObject *att;
+			if (!o.findXmlAttributeObjectByName((**it).getName(), att)) { // attribute not found
+				return Ogml::vs_expAttNotFound;
+			}
+			int valid;
+			if ((valid = (**it).validAttribute(*att, &o, ids)) < 0) { // attribute invalid
+				return valid;
+			}
+			// attribute is valid
+			att->setValid();
+		}
+
+		// check for selectable attributes
+		bool tookChoice = false;
+		for (ListConstIterator<OgmlAttribute*> it = choiceAttributes.begin(); it.valid(); ++it) {
+			XmlAttributeObject *att;
+			if (o.findXmlAttributeObjectByName((**it).getName(), att)) {
+				int valid;
+				if ((valid = (**it).validAttribute(*att, &o, ids)) < 0) {
+					return valid;
+				}
+				tookChoice = true;
+				att->setValid();
+			}
+		}
+		if (!choiceAttributes.empty() && !tookChoice)
+			return Ogml::vs_expAttNotFound;
+
+		// check for optional attributes
+		for (ListConstIterator<OgmlAttribute*> it = optionalAttributes.begin(); it.valid(); ++it) {
+			XmlAttributeObject *att;
+			if (o.findXmlAttributeObjectByName((**it).getName(), att)) {
+				int valid;
+				if ((valid = (**it).validAttribute(*att, &o, ids)) < 0) {
+					return valid;
+				}
+				att->setValid();
+			}
+		}
+
+		// check for remaining (invalid) attributes
+		for (XmlAttributeObject *att = o.m_pFirstAttribute; att; att = att->m_pNextAttribute) {
+			if (!att->valid())
+				return Ogml::vs_unexpAtt;
+		}
+		return Ogml::vs_valid;
 	}
 
 };//class OgmlTag
@@ -875,8 +851,6 @@ void OgmlParser::buildHashTables()
 		Ogml::av_lineThrough,
 		Ogml::av_none };
 
-	int sourceTargetIdRefValues[] = { Ogml::av_nodeIdRef, Ogml::av_edgeIdRef };
-
 	int endpointIdRefValues[] = { Ogml::av_pointIdRef, Ogml::av_sourceIdRef, Ogml::av_targetIdRef };
 
 	int patternValues[] = {
@@ -943,6 +917,10 @@ void OgmlParser::buildHashTables()
 
 		switch (i) {
 
+		case Ogml::a_xmlns:
+			att.pushValue(s_attValues, Ogml::av_any);
+			break;
+
 		case Ogml::a_textAlign:
 			att.pushValues(s_attValues, textAlignValues);
 			break;
@@ -1000,11 +978,11 @@ void OgmlParser::buildHashTables()
 			break;
 
 		case Ogml::a_sourceIdRef:
-			att.pushValues(s_attValues, sourceTargetIdRefValues);
+			att.pushValue(s_attValues, Ogml::av_nodeIdRef);
 			break;
 
 		case Ogml::a_targetIdRef:
-			att.pushValues(s_attValues, sourceTargetIdRefValues);
+			att.pushValue(s_attValues, Ogml::av_nodeIdRef);
 			break;
 
 		case Ogml::a_nodeStyleTemplateIdRef:
@@ -1128,8 +1106,6 @@ void OgmlParser::buildHashTables()
 		s_tags->fastInsert(i, OgmlTag(i));
 
 
-	enum Mode { compMode = 0, choiceMode, optMode };
-
 	// Create tag relations.
 
 	int constraintChoiceAttrs[] = { Ogml::a_id, Ogml::a_name, Ogml::a_disabled };
@@ -1168,89 +1144,69 @@ void OgmlParser::buildHashTables()
 	int nodeStyleTemplateOptTags[] = { Ogml::t_data, Ogml::t_nodeStyleTemplateRef };
 	int segmentOptTags[] = { Ogml::t_data, Ogml::t_line };
 	int sourceOptTags[] = { Ogml::t_data, Ogml::t_label };
-	int structureOptTags[] = { Ogml::t_edge, Ogml::t_label, Ogml::t_data };
+	int structureOptTags[] = { Ogml::t_node, Ogml::t_edge, Ogml::t_label, Ogml::t_data };
 	int stylesChoiceTags[] = { Ogml::t_nodeStyle, Ogml::t_edgeStyle, Ogml::t_labelStyle };
 	int stylesOptTags[] = { Ogml::t_graphStyle, Ogml::t_data };
 	int styleTemplatesChoiceTags[] = { Ogml::t_nodeStyleTemplate, Ogml::t_edgeStyleTemplate, Ogml::t_labelStyleTemplate };
 	int targetOptTags[] = { Ogml::t_data, Ogml::t_label };
 
-	for (int i = 0; i < Ogml::TAG_NUM; i++)
-	{
+	for (int i = 0; i < Ogml::TAG_NUM; ++i) {
 		OgmlTag &tag = s_tags->lookup(i)->info();
 
 		switch (i) {
 		case Ogml::t_bool:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_boolValue);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			break;
 
 		case Ogml::t_composed:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			tag.pushTags(choiceMode, s_tags, composedChoiceTags);
 			break;
 
 		case Ogml::t_constraint:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_constraintType);
 			tag.pushAttributes(choiceMode, s_attributes, constraintChoiceAttrs);
 			tag.pushTags(choiceMode, s_tags, constraintChoiceTags);
 			break;
 
 		case Ogml::t_constraints:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushTag(compMode, s_tags, Ogml::t_constraint);
 			break;
 
 		case Ogml::t_content:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.setIgnoreContent(true);
 			break;
 
 		case Ogml::t_data:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			tag.pushTags(choiceMode, s_tags, dataChoiceTags);
 			break;
 
 		case Ogml::t_default:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			break;
 
 		case Ogml::t_edge:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_id);
 			tag.pushTags(choiceMode, s_tags, edgeChoiceTags);
 			tag.pushTags(optMode, s_tags, edgeOptTags);
 			break;
 
 		case Ogml::t_edgeRef:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_edgeIdRef);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			break;
 
 		case Ogml::t_edgeStyle:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_edgeIdRef);
 			tag.pushTags(choiceMode, s_tags, edgeStyleChoiceTags);
 			tag.pushTag(optMode, s_tags, Ogml::t_data);
 			break;
 
 		case Ogml::t_edgeStyleTemplate:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_id);
 			tag.pushTags(choiceMode, s_tags, edgeStyleTemplateChoiceTags);
 			tag.pushTags(optMode, s_tags, edgeStyleTemplateOptTags);
@@ -1264,13 +1220,11 @@ void OgmlParser::buildHashTables()
 			break;
 
 		case Ogml::t_fill:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(compMode, s_attributes, fillCompAttrs);
 			break;
 
 		case Ogml::t_font:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_family);
 			tag.pushAttributes(optMode, s_attributes, fontOptAttrs);
@@ -1284,62 +1238,48 @@ void OgmlParser::buildHashTables()
 			break;
 
 		case Ogml::t_graphStyle:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(choiceMode, s_attributes, graphStyleChoiceAttrs);
 			break;
 
 		case Ogml::t_int:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_intValue);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			break;
 
 		case Ogml::t_label:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_id);
 			tag.pushTag(compMode, s_tags, Ogml::t_content);
 			tag.pushTag(optMode, s_tags, Ogml::t_data);
 			break;
 
 		case Ogml::t_labelRef:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_labelIdRef);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			break;
 
 		case Ogml::t_labelStyle:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_labelIdRef);
 			tag.pushTags(choiceMode, s_tags, labelStyleChoiceTags);
 			break;
 
 		case Ogml::t_labelStyleTemplate:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_id);
 			tag.pushTags(compMode, s_tags, labelStyleTemplateCompTags);
 			tag.pushTags(optMode, s_tags, labelStyleTemplateOptTags);
 			break;
 
 		case Ogml::t_layout:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushTags(optMode, s_tags, layoutOptTags);
 			break;
 
 		case Ogml::t_line:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(choiceMode, s_attributes, lineChoiceAttrs);
 			break;
 
 		case Ogml::t_location:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(compMode, s_attributes, locationCompAttrs);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_z);
@@ -1347,21 +1287,16 @@ void OgmlParser::buildHashTables()
 
 		case Ogml::t_node:
 			tag.setMinOccurs(1);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_id);
 			tag.pushTags(optMode, s_tags, nodeOptTags);
 			break;
 
 		case Ogml::t_nodeRef:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_nodeIdRef);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			break;
 
 		case Ogml::t_nodeStyle:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_nodeIdRef);
 			tag.pushTags(choiceMode, s_tags, nodeStyleChoiceTags);
 			tag.pushTags(optMode, s_tags, nodeStyleOptTags);
@@ -1369,16 +1304,12 @@ void OgmlParser::buildHashTables()
 
 
 		case Ogml::t_nodeStyleTemplate:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_id);
 			tag.pushTags(choiceMode, s_tags, nodeStyleTemplateChoiceTags);
 			tag.pushTags(optMode, s_tags, nodeStyleTemplateOptTags);
 			break;
 
 		case Ogml::t_num:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_numValue);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			break;
@@ -1386,54 +1317,43 @@ void OgmlParser::buildHashTables()
 		case Ogml::t_ogml:
 			tag.setMinOccurs(1);
 			tag.setMaxOccurs(1);
+			tag.pushAttribute(optMode, s_attributes, Ogml::a_xmlns);
 			tag.pushTag(compMode, s_tags, Ogml::t_graph);
 			break;
 
 		case Ogml::t_point:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttributes(compMode, s_attributes, pointCompAttrs);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_z);
 			tag.pushTag(optMode, s_tags, Ogml::t_data);
 			break;
 
 		case Ogml::t_port:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttributes(compMode, s_attributes, portCompAttrs);
 			break;
 
 		case Ogml::t_segment:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushTag(compMode, s_tags, Ogml::t_endpoint);
 			tag.pushTags(optMode, s_tags, segmentOptTags);
 			break;
 
 		case Ogml::t_shape:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(choiceMode, s_attributes, shapeChoiceAttrs);
 			// comment (BZ): uri is obsolete, images got an own tag
 			break;
 
 		case Ogml::t_source:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_sourceIdRef);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_id);
 			tag.pushTags(optMode, s_tags, sourceOptTags);
 			break;
 
 		case Ogml::t_sourceStyle:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(choiceMode, s_attributes, sourceTargetStyleChoiceAttrs);
 			break;
 
 		case Ogml::t_string:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_name);
 			tag.setIgnoreContent(true);
 			break;
@@ -1441,58 +1361,48 @@ void OgmlParser::buildHashTables()
 		case Ogml::t_structure:
 			tag.setMinOccurs(1);
 			tag.setMaxOccurs(1);
-			tag.pushTag(compMode, s_tags, Ogml::t_node);
 			tag.pushTags(optMode, s_tags, structureOptTags);
 			break;
 
 		case Ogml::t_styles:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushTags(choiceMode, s_tags, stylesChoiceTags);
 			tag.pushTags(optMode, s_tags, stylesOptTags);
 			break;
 
 		case Ogml::t_styleTemplates:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushTags(choiceMode, s_tags, styleTemplatesChoiceTags);
 			tag.pushTag(optMode, s_tags, Ogml::t_data);
 			break;
 
 		case Ogml::t_target:
-			tag.setMinOccurs(0);
-			tag.setMaxOccurs(Ogml::MAX_TAG_COUNT);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_targetIdRef);
 			tag.pushAttribute(optMode, s_attributes, Ogml::a_id);
 			tag.pushTags(optMode, s_tags, targetOptTags);
 			break;
 
 		case Ogml::t_targetStyle:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(choiceMode, s_attributes, sourceTargetStyleChoiceAttrs);
 			break;
 
 		case Ogml::t_labelStyleTemplateRef:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_labelStyleTemplateIdRef);
 			break;
 
 		case Ogml::t_nodeStyleTemplateRef:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_nodeStyleTemplateIdRef);
 			break;
 
 		case Ogml::t_edgeStyleTemplateRef:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttribute(compMode, s_attributes, Ogml::a_edgeStyleTemplateIdRef);
 			break;
 
 		case Ogml::t_text:
-			tag.setMinOccurs(0);
 			tag.setMaxOccurs(1);
 			tag.pushAttributes(choiceMode, s_attributes, textChoiceAttrs);
 			break;
@@ -1508,168 +1418,147 @@ void OgmlParser::buildHashTables()
 // ********************************************************
 int OgmlParser::validate(const XmlTagObject * xmlTag, int ogmlTagId)
 {
+	// Perhaps xmlTag is already valid
+	if (xmlTag->valid())
+		return Ogml::vs_valid;
 
 	OgmlTag *ogmlTag = &s_tags->lookup(ogmlTagId)->info();
-	ListConstIterator < OgmlTag * > it;
-	XmlTagObject *sonTag;
-	int valid;
-
-	// Perhaps xmlTag is already valid
-	if(xmlTag->valid())
-		return valid = Ogml::vs_valid;
-
-	if(!ogmlTag) {
-		cerr << "Didn't found tag with id \"" << ogmlTagId << "\" in hashtable in OgmlParser::validate! Aborting.\n";
-		return false;
+	if (!ogmlTag) {
+		cerr << "Did not find tag with id \"" << ogmlTagId << "\" in hashtable in OgmlParser::validate! Aborting.\n";
+		return Ogml::vs_unexpTag;
 	}
 
-	if((valid = ogmlTag->validTag(*xmlTag, m_ids)) < 0) {
+	// abort if tag is not valid
+	int valid;
+	if ((valid = ogmlTag->validTag(*xmlTag, m_ids)) < 0) {
+#ifdef OGDF_DEBUG
 		this->printValidityInfo(*ogmlTag, *xmlTag, valid, __LINE__);
+#endif
 		return valid;
 	}
 
 	// if tag ignores its content simply return
-	if(ogmlTag->ignoresContent()) {
+	if (ogmlTag->ignoresContent()) {
 		xmlTag->setValid();
 #ifdef OGDF_DEBUG
-		this->printValidityInfo(*ogmlTag, *xmlTag, valid = Ogml::vs_valid, __LINE__);
+		this->printValidityInfo(*ogmlTag, *xmlTag, Ogml::vs_valid, __LINE__);
 #endif
-		return valid = Ogml::vs_valid;
+		return Ogml::vs_valid;
 	}
 
-	// Check if all required son tags exist
-	if(ogmlTag->ownsCompulsiveTags())
-	{
-		// find all obligatoric sons: all obligatoric sons
-		for (it = ogmlTag->getCompulsiveTags().begin(); it.valid(); it++)
-		{
-			int cnt = 0;
+	// check if all required son tags exist
+	for (ListConstIterator<OgmlTag *> it = ogmlTag->getCompulsiveTags().begin(); it.valid(); ++it) {
+		int cnt = 0;
 
-			// search for untested sons
-			sonTag = xmlTag->m_pFirstSon;
-			while(sonTag) {
-				if(sonTag->getName() == (**it).getName()) {
-					cnt++;
-					if((valid = validate(sonTag, (**it).getId())) < 0)
-						return valid;
+		// search for untested sons
+		for (XmlTagObject *sonTag = xmlTag->m_pFirstSon; sonTag; sonTag = sonTag->m_pBrother) {
+			if (sonTag->getName() == (**it).getName()) {
+				++cnt;
+				if ((valid = validate(sonTag, (**it).getId())) < 0) {
+					return valid;
 				}
-				sonTag = sonTag->m_pBrother;
 			}
+		}
 
-			// Exp. son not found
-			if(cnt == 0) {
-				this->printValidityInfo(*ogmlTag, *xmlTag, valid = Ogml::vs_expTagNotFound, __LINE__);
-				return valid;
-			}
+		// Exp. son not found
+		if (cnt == 0) {
+#ifdef OGDF_DEBUG
+			this->printValidityInfo(*ogmlTag, *xmlTag, Ogml::vs_expTagNotFound, __LINE__);
+#endif
+			return Ogml::vs_expTagNotFound;
+		}
 
-			// Check cardinality
-			if(cnt < (**it).getMinOccurs() || cnt > (**it).getMaxOccurs()) {
-				this->printValidityInfo((**it), *xmlTag, valid = Ogml::vs_cardErr, __LINE__);
-				return valid;
-			}
+		// Check cardinality
+		if (cnt < (**it).getMinOccurs()
+		 || cnt > (**it).getMaxOccurs()) {
+#ifdef OGDF_DEBUG
+			this->printValidityInfo((**it), *xmlTag, Ogml::vs_cardErr, __LINE__);
+#endif
+			return Ogml::vs_cardErr;
 		}
 	}
 
 	// Check if choice son tags exist
-	if(ogmlTag->ownsChoiceTags())
-	{
+	if (ogmlTag->hasChoiceTags()) {
 		bool tookChoice = false;
 
 		// find all obligatoric sons: all obligatoric sons
-		for (it = ogmlTag->getChoiceTags().begin(); it.valid(); it++)
-		{
+		for (ListConstIterator<OgmlTag *> it = ogmlTag->getChoiceTags().begin(); it.valid(); ++it) {
 			int cnt = 0;
 
 			// search for untested sons
-			sonTag = xmlTag->m_pFirstSon;
-			while(sonTag) {
-				if(sonTag->getName() == (**it).getName()) {
-					if((valid = validate(sonTag, (**it).getId())) < 0)
-						return valid;
+			for (XmlTagObject *sonTag = xmlTag->m_pFirstSon; sonTag; sonTag = sonTag->m_pBrother) {
+				if (sonTag->getName() == (**it).getName()) {
 					tookChoice = true;
-					cnt++;
+					++cnt;
+					if ((valid = validate(sonTag, (**it).getId())) < 0) {
+						return valid;
+					}
 				}
-				sonTag = sonTag->m_pBrother;
 			}
 
 			// Check cardinality
-			if(cnt > 0 && (cnt < (**it).getMinOccurs()
-				|| cnt > (**it).getMaxOccurs())) {
-					this->printValidityInfo((**it), *xmlTag, valid = Ogml::vs_cardErr, __LINE__);
-					return valid;
+			if (cnt > 0
+			 && (cnt < (**it).getMinOccurs()
+			  || cnt > (**it).getMaxOccurs())) {
+#ifdef OGDF_DEBUG
+				this->printValidityInfo((**it), *xmlTag, Ogml::vs_cardErr, __LINE__);
+#endif
+				return Ogml::vs_cardErr;
 			}
-
 		}
-		if ((!tookChoice) && (xmlTag->m_pFirstSon)) {
-			this->printValidityInfo((**it), *xmlTag, valid = Ogml::vs_tagEmptIncl, __LINE__);
-			return valid;
+		if ((!tookChoice)
+		 && (xmlTag->m_pFirstSon)) {
+#ifdef OGDF_DEBUG
+			this->printValidityInfo(*ogmlTag, *xmlTag, Ogml::vs_tagEmptIncl, __LINE__);
+#endif
+			return Ogml::vs_tagEmptIncl;
 		}
-
 	}	//Check choice son tags
 
-	// Check if opt son tags exist
-	if(ogmlTag->ownsOptionalTags())
-	{
-		// find all obligatoric sons: all obligatoric sons
-		for (it = ogmlTag->getOptionalTags().begin(); it.valid(); ++it)
-		{
-			int cnt = 0;
+	// find all optional sons: all optional sons
+	for (ListConstIterator<OgmlTag *> it = ogmlTag->getOptionalTags().begin(); it.valid(); ++it) {
+		int cnt = 0;
 
-			// search for untested sons
-			sonTag = xmlTag->m_pFirstSon;
-			while(sonTag) {
-
-				if(sonTag->getName() == (**it).getName()) {
-					if((valid = validate(sonTag, (**it).getId())) < 0)
-						return valid;
-					cnt++;
+		// search for untested sons
+		for (XmlTagObject *sonTag = xmlTag->m_pFirstSon; sonTag; sonTag = sonTag->m_pBrother) {
+			if (sonTag->getName() == (**it).getName()) {
+				++cnt;
+				if ((valid = validate(sonTag, (**it).getId())) < 0) {
+					return valid;
 				}
-				sonTag = sonTag->m_pBrother;
 			}
+		}
 
-			// Check cardinality
-			// if( (cnt<(**it).getMinOccurs() || cnt>(**it).getMaxOccurs()) ) {
-			if(cnt > (**it).getMaxOccurs()) {
-				this->printValidityInfo((**it), *xmlTag, valid = Ogml::vs_cardErr, __LINE__);
-				return valid;
-			}
+		// Check cardinality
+		// if( (cnt<(**it).getMinOccurs() || cnt>(**it).getMaxOccurs()) )
+		if (cnt > (**it).getMaxOccurs()) {
+#ifdef OGDF_DEBUG
+			this->printValidityInfo((**it), *xmlTag, Ogml::vs_cardErr, __LINE__);
+#endif
+			return Ogml::vs_cardErr;
 		}
 	}
 
 	// Are there invalid son tags left?
-	sonTag = xmlTag->m_pFirstSon;
-	while(sonTag) {
-		// tag already valid
-		if(!sonTag->valid()) {
-			this->printValidityInfo(*ogmlTag, *xmlTag, valid = Ogml::vs_unexpTag, __LINE__);
-			return valid;
+	for (XmlTagObject *sonTag = xmlTag->m_pFirstSon; sonTag; sonTag = sonTag->m_pBrother) {
+		if (!sonTag->valid()) {
+#ifdef OGDF_DEBUG
+			this->printValidityInfo(*ogmlTag, *xmlTag, Ogml::vs_unexpTag, __LINE__);
+#endif
+			return Ogml::vs_unexpTag;
 		}
-		sonTag = sonTag->m_pBrother;
 	}
 
 	// Finally xmlTag is valid :-)
 	xmlTag->setValid();
 
 #ifdef OGDF_DEBUG
-	this->printValidityInfo(*ogmlTag, *xmlTag, valid = Ogml::vs_valid, __LINE__);
+	this->printValidityInfo(*ogmlTag, *xmlTag, Ogml::vs_valid, __LINE__);
 #endif
-
 	return Ogml::vs_valid;
 }
 
-
-//
-// v a l i d a t e
-//
-void OgmlParser::validate(istream &is)
-{
-	XmlParser p(is);
-	p.createParseTree();
-
-	const XmlTagObject *root = &p.getRootTag();
-	buildHashTables();
-	validate(root, Ogml::t_ogml);
-}
 
 
 //
@@ -1737,14 +1626,14 @@ void OgmlParser::printValidityInfo(const OgmlTag & ot, const XmlTagObject & xto,
 		break;
 
 	case Ogml::vs_expTagNotFound:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" doesn't own compulsive tag(s)! ";
+		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" does not own compulsive tag(s)! ";
 		cerr << "(Input source line: " << xto.
 			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
 		ot.printOwnedTags(cerr);
 		break;
 
 	case Ogml::vs_expAttNotFound:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" doesn't own compulsive attribute(s)! ";
+		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" does not own compulsive attribute(s)! ";
 		cerr << "(Input source line: " << xto.
 			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
 		ot.printOwnedAttributes(cerr);
@@ -1864,24 +1753,19 @@ bool OgmlParser::checkGraphType(const XmlTagObject *xmlTag) const
 	if(edges.empty()) return true;
 
 	// Traverse edges
-	ListConstIterator<const XmlTagObject*> edgeIt;
-	for(edgeIt = edges.begin(); edgeIt.valid() && m_graphType != Ogml::compoundGraph; edgeIt++)
-	{
-		// Traverse the sources/targets
-		son = (*edgeIt)->m_pFirstSon;
-
+	for (ListConstIterator<const XmlTagObject*> edgeIt = edges.begin(); edgeIt.valid() && m_graphType != Ogml::compoundGraph; ++edgeIt) {
+		// Traverse the sources/targets.
 		// Parse tree is valid so one edge contains at least one source/target
 		// with idRef attribute
-		while(son) {
+		for (son = (*edgeIt)->m_pFirstSon; son; son = son->m_pBrother) {
 			XmlAttributeObject* att;
-			if(son->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_nodeIdRef], att)) {
+			if (son->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_nodeIdRef], att)) {
 				const XmlTagObject *refTag = m_ids.lookup(att->getValue())->info();
 				if(isNodeHierarchical(refTag)) {
 					m_graphType = Ogml::compoundGraph;
 					break;
 				}
 			}
-			son = son->m_pBrother;
 		}
 	}
 
@@ -2153,7 +2037,7 @@ bool OgmlParser::addAttributes(
 	HashConstIterator<string, const XmlTagObject*> it;
 
 	if(!root) {
-		cout << "WARNING: can't determine layout information, no parse tree available!\n";
+		cout << "WARNING: cannot determine layout information, no parse tree available!\n";
 
 	} else {
 		// root tag isn't a NULL pointer... let's start...
@@ -3211,7 +3095,7 @@ bool OgmlParser::addAttributes(
 																		}
 																		inserted = true;
 															} // first if
-															segIt++;
+															++segIt;
 														} //while
 														if (!inserted) {
 															// segment doesn't found matching segment,
@@ -3280,7 +3164,7 @@ bool OgmlParser::addAttributes(
 													}
 													//}
 													if (!invertSegments){
-														for (segIt = segments.begin(); segIt.valid(); segIt++) {
+														for (segIt = segments.begin(); segIt.valid(); ++segIt) {
 															dpl.pushBack((*segIt).point1);
 															dpl.pushBack((*segIt).point2);
 														}
@@ -3774,11 +3658,8 @@ bool OgmlParser::doRead(
 		// get root object of the parse tree
 		const XmlTagObject *root = &p.getRootTag();
 
-		// build the required hash tables
-		buildHashTables();
-
-		// valide the document
-		if ( !validate(root, Ogml::t_ogml) == Ogml::vs_valid )
+		// validate the document
+		if (validate(root, Ogml::t_ogml) != Ogml::vs_valid)
 			return false;
 
 		checkGraphType(root);
@@ -3802,6 +3683,10 @@ bool OgmlParser::doRead(
 
 	} catch(const char *error) {
 		cout << error << endl << flush;
+		return false;
+
+	} catch(...) {
+		// exception thwon by XML parser
 		return false;
 	}
 

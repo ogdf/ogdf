@@ -1,9 +1,9 @@
 /*
- * $Revision: 3841 $
+ * $Revision: 3979 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 09:03:39 +0100 (Di, 19. Nov 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-25 15:50:44 +0100 (Tue, 25 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -174,14 +174,13 @@ public:
 	//@{
 
 	static void *alignedMemoryAlloc16(size_t size) {
-		size_t alignment = 16;
 #ifdef OGDF_SYSTEM_WINDOWS
-		return _aligned_malloc(size,alignment);
+		return _aligned_malloc(size, 16);
 #elif defined(OGDF_SYSTEM_OSX)
 		// malloc returns 16 byte aligned memory on OS X.
 		return malloc(size);
 #else
-		return memalign(alignment,size);
+		return memalign(16, size);
 #endif
 	}
 

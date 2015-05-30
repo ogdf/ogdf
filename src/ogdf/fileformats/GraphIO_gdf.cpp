@@ -1,9 +1,9 @@
 /*
- * $Revision: 3837 $
+ * $Revision: 4005 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Mi, 13. Nov 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-30 05:25:21 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -64,7 +64,7 @@ static inline void writeNodeHeader(
 	os << "nodedef>";
 	os << toString(na_name);
 
-	const long attrs = GA ? 0 : GA->attributes();
+	const long attrs = GA ? GA->attributes() : 0;
 	if(attrs & GraphAttributes::nodeLabel) {
 		os << "," << toString(na_label);
 	}
@@ -103,7 +103,7 @@ static inline void writeNode(
 	 */
 	os << "n" << v->index();
 
-	const long attrs = GA ? 0 : GA->attributes();
+	const long attrs = GA ? GA->attributes() : 0;
 	if(attrs & GraphAttributes::nodeLabel) {
 		os << "," << GA->label(v);
 	}
@@ -145,7 +145,7 @@ static inline void writeEdgeHeader(
 		os << "," << toString(ea_directed);
 	}
 
-	const long attrs = GA ? 0 : GA->attributes();
+	const long attrs = GA ? GA->attributes() : 0;
 	if(attrs & GraphAttributes::edgeLabel) {
 		os << "," << toString(ea_label);
 	}
@@ -175,7 +175,7 @@ static inline void writeEdge(
 		os << "," << "true";
 	}
 
-	const long attrs = GA ? 0 : GA->attributes();
+	const long attrs = GA ? GA->attributes() : 0;
 	if(attrs & GraphAttributes::edgeLabel) {
 		os << "," << GA->label(e);
 	}

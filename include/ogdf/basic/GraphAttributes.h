@@ -1,9 +1,9 @@
 /*
- * $Revision: 3950 $
+ * $Revision: 3959 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2014-03-03 09:59:54 +0100 (Mo, 03. Mär 2014) $
+ *   $Date: 2014-03-13 10:54:42 +0100 (Thu, 13 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -159,7 +159,7 @@ public:
 	 * @param G is the associated graph.
 	 * @param initAttributes specifies the set of attributes that can be accessed.
 	 */
-	GraphAttributes(const Graph &G, long initAttributes = nodeGraphics | edgeGraphics);
+	explicit GraphAttributes(const Graph &G, long initAttributes = nodeGraphics | edgeGraphics);
 
 	virtual ~GraphAttributes() {
 	}

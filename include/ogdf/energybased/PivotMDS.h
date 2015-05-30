@@ -1,9 +1,9 @@
 /*
- * $Revision: 3415 $
+ * $Revision: 4377 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-17 15:40:21 +0200 (Mi, 17. Apr 2013) $
+ *   $Author: klein $
+ *   $Date: 2014-08-31 12:45:39 +0200 (Sun, 31 Aug 2014) $
  ***************************************************************/
 
 /** \file
@@ -104,7 +104,7 @@ private:
 	//! The dimension count determines the number of evecs that
 	//! will be computed. Nevertheless PivotMDS only takes the first two
 	//! with the highest eigenwert into account.
-	const static int DIMENSION_COUNT = 3;
+	const static int DIMENSION_COUNT = 2;
 
 	//! Convergence factor used for power iteration.
 	const static double EPSILON;
@@ -145,7 +145,7 @@ private:
 	//! Computes the pivot distance matrix based on the maxmin strategy
 	void getPivotDistanceMatrix(const GraphAttributes& GA, Array<Array<double> >& pivDistMatrix);
 
-	//! Checks whether the given graph is a path or not.
+	//! Checks whether the given graph is a path or not. Only works if no size 2 cycles exist
 	node getRootedPath(const Graph& G);
 
 	//! Normalizes the vector \a x.

@@ -13,30 +13,14 @@ This archive contains the source-code of OGDF.
 ******************** LICENSE ********************
 
 This software is distributed under the terms of the GNU
-General Public License v2 or v3, with special exceptions
-allowing to link against LP-solvers (see the LICENSE.txt
-file for details!). By installing this software you agree
-to these license terms.
+General Public License v2 or v3, with special exceptions.
+By installing this software you agree to these license terms.
 
-If you have questions, please write to license@ogdf.net .
+See LICENSE.txt for more information on the license and
+included third-party software, like frameworks for
+linear programming or unit testing.
 
-
-************* THIRD PARTY SOFTWARE **************
-
-This distribution contains the following third-party
-software:
-
-- COIN-OR:
-  The files in include/coin and src/coin are taken from
-  the COIN-OR projects (Clp and Symphony) and are relased
-  under the Eclpise Public License 1.0;
-  see the Readme.txt in these folders for more information.
-
-- ABACUS:
-  The files in include/ogdf/abacus and src/ogdf/abacus
-  are based on the ABACUS project;
-  See :http://www.informatik.uni-koeln.de/abacus/
-  The modified files are licensed under the GPL (as OGDF itself)
+If you have questions, please contact us.
 
 
 ******************* COPYRIGHT *******************
@@ -44,7 +28,7 @@ software:
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 2005-2013
+Copyright (C) 2005-2015
 
 
 ****************** INSTALLATION *****************
@@ -52,35 +36,38 @@ Copyright (C) 2005-2013
 Unpack the OGDF archive in the directory, where you want to
 install OGDF.
 
-Build OGDF (gcc Compiler [Linux, Mac OS]):
+Build OGDF [Linux, Mac OS]:
 
   1. Edit makeMakefile.config for your configuration
      (if necessary): check the [GENERAL] section. If
-     you do not use Coin, the default parameters should
-     be suitable.
+     you do not want to use CPLEX or Gurobi LP solvers,
+     the default parameters should be suitable.
 
   2. Execute makeMakefile.sh to generate a suitable Makefile.
 
-  3. Call make to build the OGDF library (you may also call
-     make debug_all to generate a debuggable version).
+     MAC USERS: If step 2 fails, go back to step 1 and use
+     the alternative compilerCommand configuration!
+
+  3. Call make to build the OGDF library. You may also call
+     make debug to generate a debuggable version.
 
 
-Build OGDF (Visual Studio [Windows]):
+Build OGDF [Microsoft Visual Studio]:
 
   1. Create Visual Studio project file:
 
      Visual Studio 2008: Execute the python script makeVCProj.py
        to generate a Visual Studio 2008 project file ogdf.vcproj.
 
-     Visual Studio 2010: Execute the python script makeVCXProj.py
-       to generate a Visual Studio 2010 project file ogdf.vcxproj.
+     Visual Studio 2010 (2012, 2013):
+           Execute the python script makeVCXProj.py to generate a
+           Visual Studio 2010 project file ogdf.vcxproj.
+           For VS 2012, 2013, you can edit makeVCXProj.config and
+           set the compiler version.
 
   2. Open the created project file (.vcproj or .vcxproj) with
      Visual Studio and call build.
 
-OGDF also contains some optional features which require COIN
-Osi as LP solver. It is also possible to generate project
-files for Visual Studio 2003 & 2005.
 
 Please refer to the OGDF Wiki for more detailed information:
 
@@ -97,10 +84,8 @@ http://www.ogdf.net/doku.php?id=tech:versions
 
 ******************** CONTACT ********************
 
-Email: info@ogdf.net
-
-Web:   http://www.ogdf.net
-Forum: http://www.ogdf.net/forum
+Web:          http://www.ogdf.net
+Mailing list: https://groups.google.com/group/ogdf
 
 
 Enjoy!

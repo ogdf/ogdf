@@ -32,13 +32,19 @@ Moreover, we grant a special exception to the OGDF QML
 (licensed under the GNU Lesser General Public License) for linking
 OGDF and distributing the plugin under LGPL v2 or v3.
 
-
-Third-party software:
-- This distribution integrates source-code from the COIN-OR
-  project. This source code is licensed under the Eclipse
-  Public License 1.0 (http://www.eclipse.org/legal/epl-v10.html).
-
-
 See also: http://www.ogdf.net/license.html
 
-Contact: license@ogdf.net
+
+Third-party software:
+
+  - the ABACUS framework, licensed under the GNU GPL
+    (see http://www.informatik.uni-koeln.de/abacus/).
+    The files are located in {src,include}/ogdf/abacus.
+
+  - the COIN-OR project, licensed under the Eclipse Public License 1.0
+    (see http://www.eclipse.org/legal/epl-v10.html).
+    The files are located in {src,include}/coin.
+
+  - the GTest framework, licensed under the 3-clause BSD license
+    (see test/gtest/gtest.h header).
+    The files are located in test/gtest.

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3441 $
+ * $Revision: 3977 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-22 15:29:23 +0200 (Mo, 22. Apr 2013) $
+ *   $Date: 2014-03-25 13:59:42 +0100 (Tue, 25 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -225,7 +225,7 @@ int EmbedderMaxFace::constraintMaxFace(const node& bT, const node& cH)
 		nH_to_nBlockEmbedding[bT][cH],
 		nodeLength[bT],
 		edgeLength,
-		*spqrTrees[bT]);
+		spqrTrees[bT]);
 	cstrLength[bT][nH_to_nBlockEmbedding[bT][cH]] = cstrLengthBc;
 	return cstrLengthBc;
 }
@@ -238,7 +238,7 @@ void EmbedderMaxFace::maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt)
 	EdgeArray<int> edgeLength(blockG[bT], 1);
 	NodeArray< EdgeArray<int> > edgeLengthSkel;
 	int m_ell_opt = EmbedderMaxFaceBiconnectedGraphs<int>::computeSize(
-		blockG[bT], nodeLength[bT], edgeLength, *spqrTrees[bT], edgeLengthSkel);
+		blockG[bT], nodeLength[bT], edgeLength, spqrTrees[bT], edgeLengthSkel);
 
 	edge e;
 	forall_adj_edges(e, bT)
@@ -254,7 +254,7 @@ void EmbedderMaxFace::maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt)
 				nH_to_nBlockEmbedding[bT][cH],
 				nodeLength[bT],
 				edgeLength,
-				*spqrTrees[bT],
+				spqrTrees[bT],
 				edgeLengthSkel);
 
 		//L := \sum_{(B', c) \in bcTree} cstrLength(B', c)

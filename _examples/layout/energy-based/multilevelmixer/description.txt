@@ -1,0 +1,6 @@
+Introduction for Multilevelmixer:
+
+Multilevel layout computation is an iterative process that can be roughly divided in three phases: coarsening, placement, and single level layout. Starting with the smallest graph, the ﬁnal layout for the input graph is obtained by successively computing layouts for the graph sequence computed by the coarsening phase. At each level, the additional vertices need to be placed into the layout of the preceding level, optionally after a scaling to provide the necessary space.
+It helps to overcome some problems of single level energybased graph layouts (such as finding a local optimal solution) and it speeds up the computation.
+
+The Modular Multilevel Mixer is a abstract class that can be used to build energybased multilevel layouts. Since it is modular you can easily assemble different layouts by using different coarsening techniques (merger), placer and single level layouts.

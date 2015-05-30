@@ -1,9 +1,9 @@
 /*
- * $Revision: 2966 $
+ * $Revision: 4012 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:26:11 +0100 (Mo, 05. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-30 05:25:37 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -83,18 +83,19 @@ namespace ogdf {
 		/** Pointer to the next attribute and 0 if this is the only attribute. */
 		XmlAttributeObject *m_pNextAttribute;
 
+		/** Flag denotes whether attribute is valid or not (default: invalid). */
+		bool m_valid;
+
 		/** Constructor */
-		XmlAttributeObject(HashedString *name, HashedString *value) :
-			m_pAttributeName(name),
-			m_pAttributeValue(value),
-			m_pNextAttribute(0)
-			{};
+		XmlAttributeObject(HashedString *name, HashedString *value)
+		 : m_pAttributeName(name)
+		 , m_pAttributeValue(value)
+		 , m_pNextAttribute(0)
+		 , m_valid(false)
+		{}
 
 		/** Destructor; will be performed in destroyParseTree(). */
 		~XmlAttributeObject(){};
-
-		/** Flag denotes whether attribute is valid or not. */
-		bool m_valid;
 
 		/** Getter. */
 		const string& getName() const {
@@ -105,7 +106,7 @@ namespace ogdf {
 			return m_pAttributeValue->key();
 		}
 
-		const bool& valid() const {
+		bool valid() const {
 			return m_valid;
 		}
 

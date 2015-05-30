@@ -1,9 +1,9 @@
 /*
- * $Revision: 3533 $
+ * $Revision: 4046 $
  *
  * last checkin:
  *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mo, 03. Jun 2013) $
+ *   $Date: 2014-04-03 17:40:29 +0200 (Thu, 03 Apr 2014) $
  ***************************************************************/
 
 /** \file
@@ -1283,7 +1283,7 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt)
 		bool serial = randomDouble(0,1) < p;
 		if (!serial) {
 			adjEntry adj;
-			bool fnd_1, fnd_2 = false;
+			bool fnd_1 = false, fnd_2 = false;
 			forall_adj(adj, s_1) {
 				if (adj->twinNode() == sT[s_1]) fnd_1 = true;
 			}

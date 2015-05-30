@@ -1,9 +1,9 @@
 /*
- * $Revision: 3257 $
+ * $Revision: 3975 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-01-25 10:41:13 +0100 (Fr, 25. Jan 2013) $
+ *   $Date: 2014-03-25 12:53:46 +0100 (Tue, 25 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -66,7 +66,7 @@ namespace ogdf {
 		 * After creation the stopwatch is not running, i.e., it has to be started explicitly
 		 * for measuring time.
 		 */
-		Stopwatch() : m_totalTime(0), m_running(false) { }
+		Stopwatch() : m_startTime(0), m_totalTime(0), m_running(false) { }
 
 		//! Initializes a stopwatch and sets its total time to \a milliSecs.
 		/**
@@ -75,7 +75,7 @@ namespace ogdf {
 		 *
 		 * \param milliSecs The intial value of the total time in milliseconds.
 		 */
-		Stopwatch(__int64 milliSecs) : m_totalTime(milliSecs), m_running(false) { }
+		Stopwatch(__int64 milliSecs) : m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
 
 
 		virtual ~Stopwatch() { }

@@ -1,9 +1,9 @@
 /*
- * $Revision: 2564 $
+ * $Revision: 3960 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sa, 07. Jul 2012) $
+ *   $Date: 2014-03-13 11:36:28 +0100 (Thu, 13 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -72,6 +72,15 @@ class EdgeLeg;
 //      sort the edges in AG, no crossing insertion
 //===============================================
 
+//! Constructs embeddings from given layout.
+/**
+ * This class comprises functions for constructing the combinatorial embedding of a graph
+ * or a planarized representation from a given layout.
+ *
+ * The main functions of the class are the following:
+ *   - setEmbeddingFromGraph(PlanRep &PG, GraphAttributes &GA)
+ *   - sortEdgesFromLayout(GraphAttributes &GA)
+ */
 class OGDF_EXPORT TopologyModule
 {
 public:
@@ -79,49 +88,55 @@ public:
 		opCrossFlip | opLoop | opFlipUML) {}
 	virtual ~TopologyModule() {}
 
-	//the (pre/post)processing options
-	//opCrossFlip increases running time by const*n,
-	//opLoop increases running time by const*m
+	//! The (pre/post)processing options
+	/**
+	 * opCrossFlip increases running time by constant * n,
+	 * opLoop increases running time by constant * m
+	 */
 	enum Options {
-		opDegOneCrossings = 0x0001, //should degree one node's edge be crossed
-		opGenToAss        = 0x0002, //should generalizations be turned into associations
-		opCrossFlip       = 0x0004, //if there is a crossing (first ~) between two edges with
-									//same start or end point, should there position
-									//at the node be flipped and the crossing be skipped?
-									//(postprocessing)
-		opFlipUML         = 0x0010, //only flip if same edge type
-		opLoop            = 0x0008  //should loops between crossings (consecutive on both
-									//crossing edges) be deleted (we dont check for enclosed
-									//CC's. Therefore it is safe to remove the crossing
+		opDegOneCrossings = 0x0001, //!< should degree one node's edge be crossed
+		opGenToAss        = 0x0002, //!< should generalizations be turned into associations
+		opCrossFlip       = 0x0004, //!< if there is a crossing between two edges with the same start or end point,
+		                            //!< should their position at the node be flipped and the crossing be skipped?
+		opFlipUML         = 0x0010, //!< only flip if same edge type
+		opLoop            = 0x0008  //!< should loops between crossings (consecutive on both crossing edges) be deleted
+		                            //!< (we dont check for enclosed CC's; therefore it is safe to remove the crossing).
 	};
 
-	void setOptions(int i) {m_options = i;}
-	void addOption(TopologyModule::Options o)  {m_options = (m_options | o);}
-	//use AG layout to determine an embedding for PG.
-	//non-constness of AG in the following methods is only
-	//used when resolving problems, e.g. setting edge types
-	//if two generalizations cross in the input layout
+	void setOptions(int i) { m_options = i; }
+	void addOption(TopologyModule::Options o)  { m_options = (m_options | o); }
 
-	//Parameter setExternal: run over faces to compute external face
-	//Parameter reuseAGEmbedding: If true, the call only
-	//checks for a correct embedding of PG and tries to insert
-	//crossings detected in the given layout otherwise.
-	//this allows to assign already sorted UMLGraphs
-	//NOTE: if the sorting of the edges does not correspond
-	//to the layout given in AG, this cannot work correctly
-	//returns false if planarization fails
+	//! Uses the layout \a GA to determine an embedding for \a PG.
+	/**
+	 * Non-constness of GA in the following methods is only used when resolving problems,
+	 * e.g., setting edge types if two generalizations cross in the input layout
+	 *
+	 * @param PG  is the input graph.
+	 * @param GA  is the input layout.
+	 * @param adjExternal  is assigned the external face (if \a setExternal is true).
+	 * @param setExternal if true, we run over faces to compute the external face.
+	 * @param reuseGAEmbedding If true, the call only checks for a correct embedding of \a PG
+	 *                         and tries to insert crossings detected in the given layout otherwise.
+	 *                         This allows to assign already sorted UMLGraphs.
+	 *                         NOTE: if the sorting of the edges does not correspond to the layout given in \a GA,
+	 *                         this cannot work correctly
+	 * @return false if planarization fails; true otherwise.
+	 */
 	bool setEmbeddingFromGraph(
 		PlanRep &PG,
-		GraphAttributes &AG,
+		GraphAttributes &GA,
 		adjEntry &adjExternal,
 		bool setExternal = true,
-		bool reuseAGEmbedding = false);
+		bool reuseGAEmbedding = false);
 
-	//sorts the edges around all nodes of AG corresponding to the
-	//layout given in AG
-	//there is no check of the embedding afterwards because this
-	//method could be used as a first step of a planarization
-	void sortEdgesFromLayout(Graph &G, GraphAttributes &AG);
+	//! Sorts the edges around all nodes of \a GA corresponding to the layout given in \a GA.
+	/**
+	 * There is no check of the embedding afterwards because this method could be used as a first step of a planarization
+	 *
+	 * @param G  is the input graph whose adjacency lists get sorted.
+	 * @param GA is the input layout.
+	 */
+	void sortEdgesFromLayout(Graph &G, GraphAttributes &GA);
 
 	face getExternalFace(PlanRep &PG, const GraphAttributes &AG);
 
@@ -163,7 +178,7 @@ private:
 };//TopologyModule
 
 
-//sorts EdgeLegs according to their xp distance to a reference point
+//! Sorts EdgeLegs according to their xp distance to a reference point.
 class PointComparer {
 public:
 	PointComparer(DPoint refPoint) : m_refPoint(refPoint) {}
@@ -179,12 +194,12 @@ private:
 	const DPoint m_refPoint;
 };//PointComparer
 
-//helper class for the computation of crossings
-//represents a part of the edge between two consecutive
-//bends (in the layout, there are no bends allowed in
-//the representation) or crossings
-//there can be multiple EdgeLegs associated to one copy
-//edge in the PlanRep because of bends
+//! Helper class for the computation of crossings
+/**
+ * Represents a part of the edge between two consecutive bends (in the layout, there are no bends
+ *  allowed in the representation) or crossings. There can be multiple EdgeLegs associated to one
+ * copy edge in the PlanRep because of bends.
+ */
 class EdgeLeg
 {
 public:
@@ -220,13 +235,6 @@ private:
 };//edgeleg
 
 
-/*
-EdgeArray<ListIterator<edge> > m_eIterator; // position of copy edge in chain
-
-	NodeArray<node> m_vCopy; // corresponding node in graph copy
-	EdgeArray<List<edge> > m_eCopy; // corresponding chain of edges in graph copy
-
-*/
 } // end namespace ogdf
 
 #endif

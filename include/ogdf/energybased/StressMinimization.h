@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 4000 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-28 20:18:18 +0100 (Fri, 28 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -44,8 +44,8 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef StressMinimization_H_
-#define StressMinimization_H_
+#ifndef OGDF_STRESS_MINIMIZATION_H
+#define OGDF_STRESS_MINIMIZATION_H
 
 
 #include <ogdf/module/LayoutModule.h>
@@ -243,5 +243,5 @@ void StressMinimization::useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
 	m_hasEdgeCostsAttribute = useEdgeCostsAttribute;
 }
 
-}
-#endif
+} // end namespace
+#endif // OGDF_STRESS_MINIMIZATION_H

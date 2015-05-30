@@ -4,7 +4,7 @@
 // This code is licensed under the terms of the Eclipse Public License (EPL).
 
 #ifndef CoinPresolveImpliedFree_H
-#define CoinPresolveInpliedFree_H
+#define CoinPresolveImpliedFree_H
 
 /*!
   \file

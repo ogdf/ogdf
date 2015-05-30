@@ -1,9 +1,9 @@
 /*
- * $Revision: 3091 $
+ * $Revision: 4014 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fr, 30. Nov 2012) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-30 05:25:42 +0200 (Sun, 30 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -48,8 +48,7 @@ namespace ogdf
 {
 
 	/// This vector contains the real names of all OGML tags
-	const string Ogml::s_tagNames[TAG_NUM] =
-	{
+	const string Ogml::s_tagNames[TAG_NUM] = {
 		//"none"
 		"bool",
 		"composed",
@@ -102,8 +101,8 @@ namespace ogdf
 
 
 	// This vector contains the real names of all OGML attributes.
-	const string Ogml::s_attributeNames[ATT_NUM] =
-	{
+	const string Ogml::s_attributeNames[ATT_NUM] = {
+		"xmlns",
 		"textAlign",
 		"verticalAlign",
 		"angle",
@@ -253,8 +252,7 @@ namespace ogdf
 	};
 
 
-	static const string s_graphTypeS[] =
-	{
+	const string Ogml::s_graphTypeS[GRAPH_TYPE_NUM] = {
 		"graph",
 		"clusterGraph",
 		"compoundGraph",

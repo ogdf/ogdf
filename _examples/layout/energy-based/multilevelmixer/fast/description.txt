@@ -1,0 +1,8 @@
+We first declare a Graph G with GraphAttributes GA and load it from the GML file sierpinski_04.gml. Since this file does not contain any format information (it is just the pure graph structure), we can load it via the Graph object G and not its attributes GA. We assign a width and height of 10.0 to each node. Than we create a MultilevelGraph from the GraphAttributes.
+The FastMultipoleEmbedder is used for the single level layout. It will use 1000 iterations at each level. The SolarMerger is used for the coarsening phase and the SolarPlacer for the placement.
+To minimise dispersion of the graph when more nodes are added, a ScalingLayout can be used to scale up the graph on each level. In this example it is used to scale with fixed factor 2 relative to the graph drawing. The FastMultipoleEmbedder is nested into this ScalingLayout.
+Then the ModularMultilevelMixer is created and the single level layout, the placer and the merger are set.
+Postprocessing is applied at each level after the single level layout. It is turned off in this example.
+Since energybased algorithms are not doing well for discontiguous graphs, the ComponentSplitterLayout is used to split the graph and computation is done separately for each fraction. The TileToRowsPacker merges these fractions after computation.
+At last the PreprozessorLayout is used remove double edges and loops.
+After the computation the MultilevelGraph is exported to the GraphAttributes and written do disk.

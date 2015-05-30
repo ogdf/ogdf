@@ -188,15 +188,19 @@ else:
 	libraryType = 'StaticLibrary'
 
 linkSectionProgramBegin = '    <Link>\n\
-    <SubSystem>Console</SubSystem>\n\
-    <AdditionalDependencies>';
+      <SubSystem>Console</SubSystem>\n\
+      <AdditionalDependencies>';
 linkSectionProgramEnd = 'ogdf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
-    <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
+    </Link>'
+linkSectionProgramEndDebug = 'ogdf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
+      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
+      <GenerateDebugInformation>true</GenerateDebugInformation>\n\
     </Link>'
 
-linkSectionProgramD32 = linkSectionProgramBegin + addLibs + addLibsDebugWin32   + linkSectionProgramEnd
+linkSectionProgramD32 = linkSectionProgramBegin + addLibs + addLibsDebugWin32   + linkSectionProgramEndDebug
 linkSectionProgramR32 = linkSectionProgramBegin + addLibs + addLibsReleaseWin32 + linkSectionProgramEnd
-linkSectionProgramD64 = linkSectionProgramBegin + addLibs + addLibsDebugX64     + linkSectionProgramEnd
+linkSectionProgramD64 = linkSectionProgramBegin + addLibs + addLibsDebugX64     + linkSectionProgramEndDebug
 linkSectionProgramR64 = linkSectionProgramBegin + addLibs + addLibsReleaseX64   + linkSectionProgramEnd
 
 	
@@ -494,6 +498,15 @@ if createSolution:
 
 	sln = open(filename_sln, 'w')
 	sln.write('Microsoft Visual Studio Solution File, Format Version 11.00\n')
+	
+	sln.write('Project("' + GUID_sln + '") = "ogdf-test", "' + filename_ogdf_test_vcxproj + '", "' + GUID_ogdf_test + '"\n')
+	sln.write('\tProjectSection(ProjectDependencies) = postProject\n')
+	sln.write('\t\t' + GUID_ogdf + ' = ' + GUID_ogdf + '\n')
+	if useCoin:
+		sln.write('\t\t' + GUID_coin + ' = ' + GUID_coin + '\n')
+	sln.write('\tEndProjectSection\n')
+	sln.write('EndProject\n')
+
 	sln.write('Project("' + GUID_sln + '") = "ogdf", "' + filename_vcxproj + '", "' + GUID_ogdf + '"\n')
 	if createDLL and createDLL.startswith('t') and useCoin:
 		sln.write('\tProjectSection(ProjectDependencies) = postProject\n')
@@ -504,9 +517,6 @@ if createSolution:
 	if useCoin:
 		sln.write('Project("' + GUID_sln + '") = "coin", "' + filename_coin_vcxproj + '", "' + GUID_coin + '"\n')
 		sln.write('EndProject\n')
-
-	sln.write('Project("' + GUID_sln + '") = "ogdf-test", "' + filename_ogdf_test_vcxproj + '", "' + GUID_ogdf_test + '"\n')
-	sln.write('EndProject\n')
 
 	sln.write('Global\n')
 	sln.write('\tGlobalSection(SolutionConfigurationPlatforms) = preSolution\n')

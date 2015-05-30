@@ -2227,12 +2227,14 @@ CglPreProcess::preProcessNonDefault(OsiSolverInterface & model,
                 integer2 = valueB;
               }
             }
-            if (debug&&0) {
+#if 0
+            if (debug) {
               printf("%d %d elements%selement %g and %d %d elements%selement %g <= %g\n",
                      iColumn1,columnLength[iColumn1],integer1 ? " (integer) " : " ",value1,
                      iColumn2,columnLength[iColumn2],integer2 ? " (integer) " : " ",value2,
                      upper);
             }
+#endif
             if (debug>0) {
               if (value1>0.0&&objective[iColumn1]*direction<0.0) {
                 // will push as high as possible so make ==

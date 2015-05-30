@@ -1,9 +1,9 @@
 /*
- * $Revision: 3830 $
+ * $Revision: 4000 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Mi, 13. Nov 2013) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-28 20:18:18 +0100 (Fri, 28 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -53,8 +53,8 @@
 #pragma once
 #endif
 
-#ifndef HYPERGRAPH_LAYOUT_H
-#define HYPERGRAPH_LAYOUT_H
+#ifndef OGDF_HYPERGRAPH_LAYOUT_H
+#define OGDF_HYPERGRAPH_LAYOUT_H
 
 #include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
@@ -316,4 +316,4 @@ private:
 
 } // end namespace ogdf
 
-#endif
+#endif // OGDF_HYPERGRAPH_LAYOUT_H

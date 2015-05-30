@@ -1,9 +1,9 @@
 /*
- * $Revision: 3837 $
+ * $Revision: 4024 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Mi, 13. Nov 2013) $
+ *   $Date: 2014-03-31 11:15:28 +0200 (Mon, 31 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -252,7 +252,7 @@ Ast::AList::~AList()
 
 
 Ast::Ast(const Tokens &tokens)
-: m_tokens(tokens), m_tend(tokens.end()), m_graph(NULL)
+: m_tokens(tokens), m_tend(m_tokens.end()), m_graph(NULL)
 {
 }
 

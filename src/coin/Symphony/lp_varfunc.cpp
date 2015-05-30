@@ -914,7 +914,8 @@ int restore_lp_feasibility(lp_prob *p, our_col_set *new_cols)
 
    prevind = new_cols->userind[new_cols->num_vars-1];
    i = bvarnum > 0 ? bfind(prevind, p->base.userind, bvarnum) + 1 : 0;
-   for (j = extranum - 1; j >= 0 && extra[j]->userind > prevind; j--); j++;
+   for (j = extranum - 1; j >= 0 && extra[j]->userind > prevind; j--);
+   j++;
    k = not_fixed_num > 0 ? bfind(prevind, not_fixed, not_fixed_num) + 1 : 0;
 
    for (; ; prevind = curind){

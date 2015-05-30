@@ -363,7 +363,7 @@ void clp_free(void * oldArray);
       jj1 = maction[j1];
       for (kr = nres; kr < knpre; kr += 2) {
 	jj2 = maction[j2];
-	if ( (jj1 == 0)) {
+	if (jj1 == 0) {
 	  ++kfill;
 	} else {
 	  maction[j1] = static_cast<MACTION_T>(-maction[j1]);
@@ -372,7 +372,7 @@ void clp_free(void * oldArray);
 	  d1 = fabs(dluval[kr]);
 	}
 	j1 = hcoli[kr + 2];
-	if ( (jj2 == 0)) {
+	if (jj2 == 0) {
 	  ++kfill;
 	} else {
 	  maction[j2] = static_cast<MACTION_T>(-maction[j2]);

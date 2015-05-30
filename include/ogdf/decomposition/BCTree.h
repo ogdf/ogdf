@@ -1,9 +1,9 @@
 /*
- * $Revision: 2523 $
+ * $Revision: 4378 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mo, 02. Jul 2012) $
+ *   $Author: klein $
+ *   $Date: 2014-08-31 12:48:43 +0200 (Sun, 31 Aug 2014) $
  ***************************************************************/
 
 /** \file
@@ -110,7 +110,7 @@ protected:
 /**
  * \brief The biconnected components graph.
  *
- * This graph contains copies of the the biconnected components (B-components)
+ * This graph contains copies of the biconnected components (B-components)
  * and the cut-vertices (C-components) of the original graph. The copies of the
  * B- and C-components of the original graph are not interconnected, i.e. the
  * biconnected components graph is representing B-components as isolated
@@ -521,7 +521,7 @@ public:
  * \param vG is a vertex of the original graph.
  * \return If \a uG and \a vG are belonging to the same B-component, the very
  * vertex of the BC-tree representing this B-component is returned. Otherwise,
- * \e NULL is returned. This member function returns the representant of the
+ * \e NULL is returned. This member function returns the representative of the
  * correct B-component even if \a uG or \a vG or either are cut-vertices and
  * are therefore belonging to C-components, too.
  */

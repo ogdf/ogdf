@@ -1,9 +1,9 @@
 /*
- * $Revision: 3947 $
+ * $Revision: 4000 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-02 16:27:52 +0100 (So, 02. Mär 2014) $
+ *   $Author: beyer $
+ *   $Date: 2014-03-28 20:18:18 +0100 (Fri, 28 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -53,7 +53,7 @@
 
 namespace ogdf {
 
-#define INTERMEDIATE_PARENT_CHECK
+#define OGDF_DISJOINT_SETS_INTERMEDIATE_PARENT_CHECK
 
 struct AnyOption {};
 
@@ -331,7 +331,7 @@ int DisjointSets<linkOption,compressionOption,interleavingOption>::find(Compress
 template <LinkOptions linkOption, CompressionOptions compressionOption, InterleavingOptions interleavingOption>
 bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(AnyOption,InterleavingOption<NI>,int set1,int set2)
 {
-#ifdef INTERMEDIATE_PARENT_CHECK
+#ifdef OGDF_DISJOINT_SETS_INTERMEDIATE_PARENT_CHECK
 	if (parents[set1]==parents[set2]) return false;
 #endif
 	set1 = find(set1);
@@ -347,7 +347,7 @@ bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(A
 template <LinkOptions linkOption, CompressionOptions compressionOption, InterleavingOptions interleavingOption>
 bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(LinkOption<NL>,InterleavingOption<IR0>,int set1,int set2)
 {
-#ifdef INTERMEDIATE_PARENT_CHECK
+#ifdef OGDF_DISJOINT_SETS_INTERMEDIATE_PARENT_CHECK
 	if (parents[set1]==parents[set2]) return false;
 #endif
 	int root = set2;
@@ -415,7 +415,7 @@ bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(L
 template <LinkOptions linkOption, CompressionOptions compressionOption, InterleavingOptions interleavingOption>
 bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(LinkOption<LI>,InterleavingOption<IPSPC>,int set1,int set2)
 {
-#ifdef INTERMEDIATE_PARENT_CHECK
+#ifdef OGDF_DISJOINT_SETS_INTERMEDIATE_PARENT_CHECK
 	if (parents[set1]==parents[set2]) return false;
 #endif
 	int set = set1;

@@ -1,9 +1,9 @@
 /*
- * $Revision: 3949 $
+ * $Revision: 3977 $
  *
  * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-03 01:25:50 +0100 (Mo, 03. Mär 2014) $
+ *   $Author: gutwenger $
+ *   $Date: 2014-03-25 13:59:42 +0100 (Tue, 25 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -267,7 +267,7 @@ int EmbedderMinDepth::bottomUpTraversal(const node& bT, const node& cH)
 		nH_to_nBlockEmbedding[bT][cH],
 		nodeLength[bT],
 		edgeLength,
-		*spqrTrees[bT]);
+		spqrTrees[bT]);
 
 	if (cstrLength_B_c == M_B.size())
 		return m_B;
@@ -328,7 +328,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 		blockG[bT],
 		m_nodeLength,
 		edgeLengthBlock,
-		*spqrTrees[bT],
+		spqrTrees[bT],
 		edgeLengthSkel);
 
 	//Prepare recursion by setting m_{c, B} for all edges {B, c} \in bcTree:
@@ -396,7 +396,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					nH_to_nBlockEmbedding[bT][cH],
 					nodeLength[bT],
 					edgeLength,
-					*spqrTrees[bT]);
+					spqrTrees[bT]);
 				if (M2[bT].size() == 0)
 					m_cB[e_bT_cT] = 1;
 				else
@@ -431,7 +431,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					nH_to_nBlockEmbedding[bT][cH],
 					nodeLength[bT],
 					edgeLength,
-					*spqrTrees[bT],
+					spqrTrees[bT],
 					edgeLengthSkel);
 				if (M_B[bT].size() == 0)
 					m_cB[e_bT_cT] = 1;

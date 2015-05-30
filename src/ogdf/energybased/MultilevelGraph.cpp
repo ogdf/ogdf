@@ -1,9 +1,9 @@
 /*
- * $Revision: 3521 $
+ * $Revision: 4180 $
  *
  * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fr, 31. Mai 2013) $
+ *   $Author: klein $
+ *   $Date: 2014-06-05 16:01:57 +0200 (Thu, 05 Jun 2014) $
  ***************************************************************/
 
 /** \file
@@ -56,11 +56,14 @@ MultilevelGraph::~MultilevelGraph()
 		m_changes.pop_back();
 	}
 
-	// only delete the Graph if it was created!
+	delete m_GA;
+	m_reverseNodeIndex.clear();
+	//only delete the Graph if it was created!
 	if (m_createdGraph)	{
 		delete m_G;
 	}
-	delete m_GA;
+	
+	m_reverseEdgeIndex.clear();
 }
 
 //initialize internal structures such as the GraphAttributes that store the layout
@@ -109,7 +112,7 @@ MultilevelGraph::MultilevelGraph(GraphAttributes &GA)
 	prepareGraphAttributes(GA);
 	importAttributes(GA);
 
-	initReverseIndizes();
+	//initReverseIndizes();
 }
 
 
@@ -412,7 +415,7 @@ void MultilevelGraph::reInsertGraph(MultilevelGraph &MLG)
 }
 
 
-void MultilevelGraph::reInsertAll(std::vector<MultilevelGraph *> components)
+void MultilevelGraph::reInsertAll(std::vector<MultilevelGraph *> &components)
 {
 	for(std::vector<MultilevelGraph *>::iterator i = components.begin();
 		i != components.end(); i++)

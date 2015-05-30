@@ -1,9 +1,9 @@
 /*
- * $Revision: 3388 $
+ * $Revision: 3960 $
  *
  * last checkin:
  *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Mi, 10. Apr 2013) $
+ *   $Date: 2014-03-13 11:36:28 +0100 (Thu, 13 Mar 2014) $
  ***************************************************************/
 
 /** \file
@@ -56,20 +56,20 @@
 namespace ogdf {
 
 //----------------------------------------------------------
-//sets the embedding in PG corresponding to the layout in AG
+//sets the embedding in PG corresponding to the layout in GA
 //returns false if planarization fails (there may be diagram-
 //inherent reasons for that)
 bool TopologyModule::setEmbeddingFromGraph(
 	PlanRep &PG,
-	GraphAttributes &AG,
+	GraphAttributes &GA,
 	adjEntry &adjExternal,
 	bool setExternal,
 	bool reuseAGEmbedding)
 {
-	const Graph & GG = AG.constGraph();
+	const Graph & GG = GA.constGraph();
 	m_eLegs.init(GG);
 	//TODO: we have to check consistency:
-	//input: (same graph in AG and PG)
+	//input: (same graph in GA and PG)
 	//after planarize: is planar
 
 
@@ -82,13 +82,13 @@ bool TopologyModule::setEmbeddingFromGraph(
 		//we order the edges around each node corresponding to
 		//the input embedding in the GraphAttributes layout.
 		//we could use the sorting in UMLGraph/GraphAttributes
-		//here, but AG can't access its graph non-const.
+		//here, but GA can't access its graph non-const.
 		NodeArray<SListPure<adjEntry> > adjList(PG);
 
 		adjExternal = 0;
 
 		//sorts edges by layout information
-		EdgeComparer* ec = new EdgeComparer(AG, PG);
+		EdgeComparer* ec = new EdgeComparer(GA, PG);
 
 		//we only allow PlanReps that have no bend nodes for the bends
 		node v;
@@ -119,13 +119,13 @@ bool TopologyModule::setEmbeddingFromGraph(
 	if(!PG.representsCombEmbedding())
 	{
 #ifdef OGDF_DEBUG
-		((PlanRepInc&)PG).writeGML("Vorplanaris.gml", AG);
+		((PlanRepInc&)PG).writeGML("Vorplanaris.gml", GA);
 #endif
-		planarizeFromLayout(PG, AG);
+		planarizeFromLayout(PG, GA);
 		if (!PG.representsCombEmbedding())
 			handleImprecision(PG);
 #ifdef OGDF_DEBUG
-		((PlanRepInc&)PG).writeGML("Nachplanaris.gml", AG);
+		((PlanRepInc&)PG).writeGML("Nachplanaris.gml", GA);
 #endif
 	}
 
@@ -168,7 +168,7 @@ bool TopologyModule::setEmbeddingFromGraph(
 	//now compute the external face
 	if(setExternal &&(PG.numberOfEdges() > 0))
 	{
-		face f = getExternalFace(PG, AG);
+		face f = getExternalFace(PG, GA);
 		adjExternal = f->firstAdj();
 	}
 
@@ -352,7 +352,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 
 
 void TopologyModule::planarizeFromLayout(PlanRep &PG,
-							 GraphAttributes &AG)
+							 GraphAttributes &GA)
 {
 	//------------------------
 	//Debug
@@ -362,8 +362,8 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 	{
 		if (PG.original(u))
 		{
-			xy.x(u) = AG.x(PG.original(u));
-			xy.y(u) = AG.y(PG.original(u));
+			xy.x(u) = GA.x(PG.original(u));
+			xy.y(u) = GA.y(PG.original(u));
 		}
 
 	}
@@ -406,11 +406,11 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 
 			m_eLegs[e].clear();
 
-		const DPolyline &bends1 = AG.bends(e);
+		const DPolyline &bends1 = GA.bends(e);
 		int legNumber = 0; //start legcount at 0
 		//run over all segments
-		double startX = AG.x(e->source());
-		double startY = AG.y(e->source());
+		double startX = GA.x(e->source());
+		double startY = GA.y(e->source());
 		double endX;
 		double endY;
 
@@ -440,8 +440,8 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 		}
 
 		//create the final leg
-		endX = AG.x(e->target());
-		endY = AG.y(e->target());
+		endX = GA.x(e->target());
+		endY = GA.y(e->target());
 		EdgeLeg* eLeg = new EdgeLeg(PG.copy(e),legNumber,
 			DPoint(startX, startY), DPoint(endX, endY));
 		//insert the leg into the list of legs for e
@@ -515,7 +515,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 							 (PG.typeOf(converter->target()) == Graph::generalizationMerger) )
 							 converter = (*runIt)->copyEdge();
 						//TODO: converter may still be incident to merger
-						AG.type( PG.original(converter) ) = Graph::association;
+						GA.type( PG.original(converter) ) = Graph::association;
 						PG.oriEdgeTypes(PG.original(converter) ) = Graph::association;
 						ListConstIterator<edge> it =
 							PG.chain(PG.original(converter)).begin();
@@ -540,7 +540,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				//crosslegs startpoint -> runitleg startpoint lies
 				//clockwise before the segment defined by
 				//crossleg
-				EdgeComparer ec(AG, PG);
+				EdgeComparer ec(GA, PG);
 				DPoint u = crossLeg->start();
 				DPoint v = (*runIt)->start();
 				DPoint w = crossLeg->end();
@@ -680,7 +680,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 
 //compute sum of angles in face
 double TopologyModule::faceSum(PlanRep &PG,
-	const GraphAttributes &AG, face f)
+	const GraphAttributes &GA, face f)
 {
 	DPolyline l; double rho = 0; DPolyline B;
 
@@ -704,7 +704,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 		//only the source node is considered in CASE A
 		//we do not use endpoints(would be doublettes)
 		node srcNode = PG.original((iti)->theNode());
-		DPolyline dp = AG.bends(eOrig);
+		DPolyline dp = GA.bends(eOrig);
 		//check direction
 		bool reversed = (iti)->theNode() != (iti)->theEdge()->source();
 		if (reversed)
@@ -716,7 +716,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			OGDF_ASSERT(PG.original((iti)->theNode()))
 			OGDF_ASSERT(PG.original((iti->twin())->theNode()))
 
-			B.pushFront(DPoint(AG.x(srcNode), AG.y(srcNode)));
+			B.pushFront(DPoint(GA.x(srcNode), GA.y(srcNode)));
 
 			B.conc(dp);
 			l.conc(B);
@@ -730,7 +730,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 		{
 			DPoint dp1;
 			if (srcNode)
-				dp1 = DPoint(AG.x(srcNode), AG.y(srcNode));
+				dp1 = DPoint(GA.x(srcNode), GA.y(srcNode));
 			else
 				dp1 = DPoint(m_crossPosition[(iti)->theNode()]);
 
@@ -764,7 +764,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 		{
 			OGDF_ASSERT(!case2)
 			OGDF_ASSERT((iti->twin())->theNode()->degree() == 4)
-			DPoint sNode = DPoint(AG.x(srcNode), AG.y(srcNode));
+			DPoint sNode = DPoint(GA.x(srcNode), GA.y(srcNode));
 			//sourceNode is on face border
 			B.pushFront(sNode);
 			//search segment with crossing point
@@ -802,8 +802,8 @@ double TopologyModule::faceSum(PlanRep &PG,
 			B.pushFront(dp1);
 			//we start searching from the edge's original start node
 			node srcONode = (reversed ? eOrig->target() : eOrig->source());
-			DPoint sNode = DPoint(AG.x(srcONode), AG.y(srcONode));
-				//AG.x(srcNode), AG.y(srcNode));
+			DPoint sNode = DPoint(GA.x(srcONode), GA.y(srcONode));
+				//GA.x(srcNode), GA.y(srcNode));
 
 			//Searchloop
 			ListIterator<DPoint> it = dp.begin();
@@ -837,8 +837,8 @@ double TopologyModule::faceSum(PlanRep &PG,
 			B.pushFront(dp1);
 			//we start searching from the edge's original start node
 			node srcONode = (reversed ? eOrig->target() : eOrig->source());
-			DPoint sNode = DPoint(AG.x(srcONode), AG.y(srcONode));
-			//DPoint sNode = DPoint(AG.x(srcNode), AG.y(srcNode));
+			DPoint sNode = DPoint(GA.x(srcONode), GA.y(srcONode));
+			//DPoint sNode = DPoint(GA.x(srcNode), GA.y(srcNode));
 			//Searchloop1
 			ListIterator<DPoint> it = dp.begin();
 			DPoint tNode = (*it);
@@ -894,14 +894,14 @@ double TopologyModule::faceSum(PlanRep &PG,
 
 face TopologyModule::getExternalFace(
 	PlanRep &PG,
-	const GraphAttributes &AG)
+	const GraphAttributes &GA)
 {
 	CombinatorialEmbedding E(PG); //computes faces
 
 	face f;
 	forall_faces(f, E)
 	{
-		if (faceSum(PG, AG, f) < 0) return f;
+		if (faceSum(PG, GA, f) < 0) return f;
 
 	}//forall faces
 
@@ -1137,36 +1137,34 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 }//checkflipcrossing
 
 
-/*copied back from umlgraph
-//sorts the edges around all nodes of AG corresponding to the
-//layout given in AG
+///*copied back from umlgraph
+//sorts the edges around all nodes of GA corresponding to the
+//layout given in GA
 //there is no check of the embedding afterwards because this
 //method could be used as a first step of a planarization
-void TopologyModule::sortEdgesFromLayout(GraphAttributes& AG)
+void TopologyModule::sortEdgesFromLayout(Graph &G, GraphAttributes& GA)
 {
 	//we order the edges around each node corresponding to
 	//the input embedding in the GraphAttributes layout
-	NodeArray<SListPure<adjEntry> > adjList(*m_pG);
+	NodeArray<SListPure<adjEntry> > adjList(G);
 
-	EdgeComparer* ec = new EdgeComparer(*this);
+	EdgeComparer ec(GA);
 
 	node v;
 	adjEntry ae;
-	forall_nodes(v, *m_pG)
+	forall_nodes(v, G)
 	{
 		forall_adj(ae, v)
 		{
 			adjList[v].pushBack(ae);
 		}//forall adjacency edges
 		//sort the entries
-		adjList[v].quicksort(*ec);
-		m_pG->sort(v, adjList[v]);
+		adjList[v].quicksort(ec);
+		G.sort(v, adjList[v]);
 
 	}//forall nodes
-
-	delete ec;
 }//sortedgesfromlayout
-*/
+//*/
 
 //computes angle between vectors, used to compute external face
 double TopologyModule::angle(DPoint p, DPoint q, DPoint r)
