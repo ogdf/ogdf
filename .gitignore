@@ -1,4 +1,4 @@
-makeMakefile.config
+Makefile
 ogdf.pc
 main
 /test/test-debug
