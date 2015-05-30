@@ -301,7 +301,7 @@ public:
 	  if (whichRow) {
 	    int iRow= rowCut_[i]->whichRow();
 	    if (iRow>=0&&!whichRow[iRow])
-	      whichRow[iRow]=cs.rowCutPtr(numberCuts);;
+	      whichRow[iRow]=cs.rowCutPtr(numberCuts);
 	  }
 	  numberCuts++;
 	}
@@ -311,7 +311,7 @@ public:
 	  if (whichRow) {
 	    int iRow= rowCut_[i]->whichRow();
 	    if (iRow>=0&&!whichRow[iRow])
-	      whichRow[iRow]=cs.rowCutPtr(numberCuts);;
+	      whichRow[iRow]=cs.rowCutPtr(numberCuts);
 	  }
 	  numberCuts++;
 	}
@@ -339,7 +339,7 @@ public:
           if (whichRow) {
             int iRow= rowCut_[i]->whichRow();
             if (iRow>=0&&!whichRow[iRow])
-              whichRow[iRow]=cs.rowCutPtr(numberCuts);;
+              whichRow[iRow]=cs.rowCutPtr(numberCuts);
           }
           numberCuts++;
         }
@@ -3127,7 +3127,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
           if (colUpper[jColumn] > colLower[jColumn]+1.0e-8) {
             if (!intVar[jColumn]) {
               if (colLower[jColumn]||colUpper[jColumn]>1.0)
-                continue;;
+                continue;
               double upper = colUpper[jColumn];
               if (colsol[jColumn]>intSol*upper+1.0e-4) {
                 nCut++;
@@ -3827,7 +3827,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 		      break;
@@ -3942,7 +3942,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 		      break;
@@ -4057,7 +4057,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 		      break;
@@ -4271,7 +4271,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 		      break;
@@ -4386,7 +4386,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 		      break;
@@ -4501,7 +4501,7 @@ int CglProbing::probe( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 		      break;
@@ -6540,7 +6540,7 @@ int CglProbing::probeCliques( const OsiSolverInterface & si,
 		      }
 		    }
 		    if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-		      notFeasible=1;;
+		      notFeasible=1;
 		      k=columnStart[jcol]+columnLength[jcol];
 		      istackC=nstackC+1;
 #ifdef PRINT_DEBUG
@@ -7974,7 +7974,7 @@ CglProbing::probeSlacks( const OsiSolverInterface & si,
                     }
                   }
                   if (colLower[kcol]>colUpper[kcol]+primalTolerance_) {
-                    notFeasible=1;;
+                    notFeasible=1;
                     k=columnStart[jcol]+columnLength[jcol];
                     istackC=nstackC+1;
 #ifdef PRINT_DEBUG

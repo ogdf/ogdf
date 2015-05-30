@@ -49,7 +49,7 @@ public:
      void dualRanging(int numberCheck, const int * which,
                       double * costIncrease, int * sequenceIncrease,
                       double * costDecrease, int * sequenceDecrease,
-                      double * valueIncrease = NULL, double * valueDecrease = NULL);
+                      double * valueIncrease = nullptr, double * valueDecrease = nullptr);
      /** Primal ranging.
          This computes increase/decrease in value for each given variable and corresponding
          sequence numbers which would change basis.  Sequence numbers are 0..numberColumns

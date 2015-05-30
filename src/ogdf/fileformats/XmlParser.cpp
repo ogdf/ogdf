@@ -1,11 +1,3 @@
-/*
- * $Revision: 4023 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-31 11:12:42 +0200 (Mon, 31 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of XML parser (class XmlParser)
  * (used for parsing and reading XML files)
@@ -48,13 +40,14 @@
 
 namespace ogdf {
 
-	static void reportError(
+	void XmlParser::reportError(
 		const char *functionName,
 		int sourceLine,
 		const char *message,
-		int inputFileLine = -1,
-		bool abort = true)
+		int inputFileLine)
 	{
+		m_parseError = true;
+
 		Logger::slout()
 			<< "Error reported!\n"
 			<< "\tFunction: " << functionName
@@ -63,9 +56,6 @@ namespace ogdf {
 		if (inputFileLine != -1) {
 			Logger::slout() << "\tCurrent line of input file: " << inputFileLine;
 		}
-
-		if (abort)
-			OGDF_THROW_PARAM(AlgorithmFailureException, afcUnknown);
 	} // reportError
 
 
@@ -92,7 +82,7 @@ namespace ogdf {
 			return true;
 		}
 
-		son = 0;
+		son = nullptr;
 		return false;
 	}
 
@@ -120,10 +110,12 @@ namespace ogdf {
 		{
 
 			//Proof if name of currentSon is inequal to all in sonsName
-			ListConstIterator<string> it;
 			bool found = false;
-			for(it = sonNamesToIgnore.begin(); it.valid() && !found; it++) {
-					if(*it == currentSon->m_pTagName->key()) found = true;
+			for(const string &str : sonNamesToIgnore) {
+				if (str == currentSon->m_pTagName->key()) {
+					found = true;
+					break;
+				}
 			}
 			if(!found) return true;
 			currentSon = currentSon->m_pBrother;
@@ -137,20 +129,20 @@ namespace ogdf {
 		XmlAttributeObject*& attribute) const
 	{
 		XmlAttributeObject *currentAttribute = this->m_pFirstAttribute;
-		while ((currentAttribute != 0) &&
+		while ((currentAttribute != nullptr) &&
 			(currentAttribute->m_pAttributeName->key() != attName))
 		{
 			currentAttribute = currentAttribute->m_pNextAttribute;
 		}
 
 		// Attribute found
-		if (currentAttribute != 0){
+		if (currentAttribute != nullptr){
 			attribute = currentAttribute;
 			return true;
 		}
 
 		// Not found
-		attribute = 0;
+		attribute = nullptr;
 		return false;
 	}
 
@@ -168,14 +160,14 @@ namespace ogdf {
 	// C o n s t r u c t o r
 	//
 	XmlParser::XmlParser(istream &is) :
-		m_pRootTag(0),
+		m_pRootTag(nullptr),
 		m_hashTableInfoIndex(0),
-		m_recursionDepth(0)
+		m_recursionDepth(0),
+		m_parseError(false)
 	{
 		// Create scanner
 		m_pScanner = new XmlScanner(is);
-
-	} // XmlParser::XmlParser
+	}
 
 	//
 	// D e s t r u c t o r
@@ -189,25 +181,25 @@ namespace ogdf {
 		// Delete scanner
 		delete m_pScanner;
 
-	} // XmlParser::~XmlParser
+	}
 
 
 	//
 	//  c r e a t e P a r s e T r e e
 	//
-	void XmlParser::createParseTree()
+	bool XmlParser::createParseTree()
 	{
-
-		// Info
-		//cout << "Parsing..." << endl;
-
 		// create parse tree
+		m_parseError = false;
 		m_pRootTag = parse();
 
 		// recursion depth not correct
 		if (m_recursionDepth != 0) {
 			reportError("XmlParser::createParseTree", __LINE__, "Recursion depth not equal to zero after parsing!");
+			return false;
 		}
+
+		return !m_parseError;
 
 	} // createParseTree
 
@@ -218,7 +210,7 @@ namespace ogdf {
 	{
 		// Destroy all attributes of root
 		XmlAttributeObject *currentAttribute = root->m_pFirstAttribute;
-		while (currentAttribute != 0){
+		while (currentAttribute != nullptr){
 			XmlAttributeObject *nextAttribute = currentAttribute->m_pNextAttribute;
 			delete currentAttribute;
 			currentAttribute = nextAttribute;
@@ -226,7 +218,7 @@ namespace ogdf {
 
 		// Traverse children of root and destroy them
 		XmlTagObject *currentChild = root->m_pFirstSon;
-		while (currentChild != 0){
+		while (currentChild != nullptr){
 			XmlTagObject *nextChild = currentChild->m_pBrother;
 			destroyParseTree(currentChild);
 			currentChild = nextChild;
@@ -253,7 +245,7 @@ namespace ogdf {
 
 		// currentTagObject is the tag object we want to create
 		// in this invocation of parse()
-		XmlTagObject *currentTagObject = 0;
+		XmlTagObject *currentTagObject = nullptr;
 
 		// Now we are in the start state of the state machine
 		for( ; ; )
@@ -266,6 +258,7 @@ namespace ogdf {
 							__LINE__,
 							"Opening Bracket expected!",
 							getInputFileLineCounter());
+				return currentTagObject;
 			}
 
 			// Let's look what comes after "<"
@@ -280,6 +273,7 @@ namespace ogdf {
 								__LINE__,
 								"Could not found the matching '?'",
 								getInputFileLineCounter());
+					return currentTagObject;
 				}
 
 				// Consume ">", otherwise failure
@@ -289,6 +283,7 @@ namespace ogdf {
 								__LINE__,
 								"Closing Bracket expected!",
 								getInputFileLineCounter());
+					return currentTagObject;
 				}
 
 				// Go to start state of the state machine
@@ -309,6 +304,7 @@ namespace ogdf {
 							__LINE__,
 							"Could not find closing comment bracket!",
 							getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					continue;
@@ -324,6 +320,7 @@ namespace ogdf {
 							__LINE__,
 							"Closing --> of comment not found!",
 							getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					// The next characters must be -> (note that one minus is already consumed)
@@ -349,9 +346,10 @@ namespace ogdf {
 
 				// Create new tag object
 				currentTagObject = new XmlTagObject(tagName);
-				if (currentTagObject == 0){
+				if (currentTagObject == nullptr){
 					OGDF_THROW(InsufficientMemoryException);
 				}
+
 				//push (opening) tagName to stack
 				m_tagObserver.push(tagName->key());
 				// set depth of current tag object
@@ -380,6 +378,7 @@ namespace ogdf {
 										__LINE__,
 										"Equal Sign expected!",
 										getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						// Read value
@@ -392,12 +391,13 @@ namespace ogdf {
 										__LINE__,
 										"No valid attribute value!",
 										getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						// Create a new XmlAttributeObject
 						XmlAttributeObject *currentAttributeObject =
 							new XmlAttributeObject(attributeName, hashString(m_pScanner->getCurrentTokenString()));
-						if (currentAttributeObject == 0){
+						if (currentAttributeObject == nullptr){
 							OGDF_THROW(InsufficientMemoryException);
 						}
 
@@ -424,6 +424,7 @@ namespace ogdf {
 									__LINE__,
 									"Closing Bracket expected!",
 									getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					// The tag is closed and ended so we return
@@ -455,6 +456,7 @@ namespace ogdf {
 								__LINE__,
 								"Opening Bracket expected!",
 								getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						token = m_pScanner->getNextToken();
@@ -464,6 +466,7 @@ namespace ogdf {
 										__LINE__,
 										"Slash expected!",
 										getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						token = m_pScanner->getNextToken();
@@ -473,6 +476,7 @@ namespace ogdf {
 										__LINE__,
 										"Identifier expected!",
 										getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						// next token is the closing tag
@@ -487,6 +491,7 @@ namespace ogdf {
 										__LINE__,
 										"wrong closing tag!",
 										getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						token = m_pScanner->getNextToken();
@@ -496,6 +501,7 @@ namespace ogdf {
 										__LINE__,
 										"Closing Bracket expected!",
 										getInputFileLineCounter());
+							return currentTagObject;
 						}
 
 						// The tag is closed so we return
@@ -530,6 +536,7 @@ namespace ogdf {
 									__LINE__,
 									"Comment must start with <!--",
 									getInputFileLineCounter());
+								return currentTagObject;
 							}
 
 							// Find end of comment
@@ -542,6 +549,7 @@ namespace ogdf {
 										__LINE__,
 										"Closing --> of comment not found!",
 										getInputFileLineCounter());
+									return currentTagObject;
 								}
 
 								// The next characters must be -> (note that one minus is already consumed)
@@ -573,6 +581,7 @@ namespace ogdf {
 									__LINE__,
 									"Opening Bracket expected!",
 									getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					token = m_pScanner->getNextToken();
@@ -582,6 +591,7 @@ namespace ogdf {
 									__LINE__,
 									"Slash expected!",
 									getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					token = m_pScanner->getNextToken();
@@ -591,6 +601,7 @@ namespace ogdf {
 									__LINE__,
 									"Identifier expected!",
 									getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					// next token is the closing tag
@@ -605,6 +616,7 @@ namespace ogdf {
 									__LINE__,
 									"wrong closing tag!",
 									getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					token = m_pScanner->getNextToken();
@@ -614,6 +626,7 @@ namespace ogdf {
 									__LINE__,
 									"Closing Bracket expected!",
 									getInputFileLineCounter());
+						return currentTagObject;
 					}
 
 					--m_recursionDepth;
@@ -626,6 +639,7 @@ namespace ogdf {
 									__LINE__,
 									"Document contains code after the last closing bracket!",
 									getInputFileLineCounter());
+							return currentTagObject;
 						}
 					}
 
@@ -653,7 +667,7 @@ namespace ogdf {
 	{
 
 		// No attribute exists yet
-		if (tagObject->m_pFirstAttribute == 0) {
+		if (tagObject->m_pFirstAttribute == nullptr) {
 			tagObject->m_pFirstAttribute = attributeObject;
 		}
 		// At least one attribute exists
@@ -662,7 +676,7 @@ namespace ogdf {
 			XmlAttributeObject *currentAttribute = tagObject->m_pFirstAttribute;
 
 			// Find the last attribute
-			while (currentAttribute->m_pNextAttribute != 0){
+			while (currentAttribute->m_pNextAttribute != nullptr){
 				currentAttribute = currentAttribute->m_pNextAttribute;
 			}
 
@@ -681,7 +695,7 @@ namespace ogdf {
 		XmlTagObject *sonTagObject)
 	{
 		// No Son exists yet
-		if (currentTagObject->m_pFirstSon == 0) {
+		if (currentTagObject->m_pFirstSon == nullptr) {
 			currentTagObject->m_pFirstSon = sonTagObject;
 		}
 		// At least one son exists
@@ -690,7 +704,7 @@ namespace ogdf {
 			XmlTagObject *currentSon = currentTagObject->m_pFirstSon;
 
 			// Find the last son
-			while (currentSon->m_pBrother != 0){
+			while (currentSon->m_pBrother != nullptr){
 				currentSon = currentSon->m_pBrother;
 			}
 
@@ -758,20 +772,20 @@ namespace ogdf {
 	{
 		// Traverse sons
 		const XmlTagObject *currentSon = father.m_pFirstSon;
-		while ((currentSon != 0) &&
+		while ((currentSon != nullptr) &&
 			(currentSon->m_pTagName->info() != sonInfoIndex))
 		{
 			currentSon = currentSon->m_pBrother;
 		}
 
 		// Son found
-		if (currentSon != 0){
+		if (currentSon != nullptr){
 			son = currentSon;
 			return true;
 		}
 
 		// Not found
-		son = 0;
+		son = nullptr;
 		return false;
 
 	} // findSonXmlTagObject
@@ -785,20 +799,20 @@ namespace ogdf {
 	{
 
 		const XmlTagObject *currentBrother = currentTag.m_pBrother;
-		while ((currentBrother != 0) &&
+		while ((currentBrother != nullptr) &&
 			(currentBrother->m_pTagName->info() != brotherInfoIndex))
 		{
 			currentBrother = currentBrother->m_pBrother;
 		}
 
 		// brother found
-		if (currentBrother != 0){
+		if (currentBrother != nullptr){
 			brother = currentBrother;
 			return true;
 		}
 
 		// Not found
-		brother = 0;
+		brother = nullptr;
 		return false;
 
 	} // findBrotherXmlTagObject
@@ -812,20 +826,20 @@ namespace ogdf {
 		const XmlAttributeObject *&attribute) const
 	{
 		const XmlAttributeObject *currentAttribute = currentTag.m_pFirstAttribute;
-		while ((currentAttribute != 0) &&
+		while ((currentAttribute != nullptr) &&
 			(currentAttribute->m_pAttributeName->info() != attributeInfoIndex))
 		{
 			currentAttribute = currentAttribute->m_pNextAttribute;
 		}
 
 		// Attribute found
-		if (currentAttribute != 0){
+		if (currentAttribute != nullptr){
 			attribute = currentAttribute;
 			return true;
 		}
 
 		// Not found
-		attribute = 0;
+		attribute = nullptr;
 		return false;
 
 	} // findXmlAttributeObject
@@ -863,7 +877,7 @@ namespace ogdf {
 
 		// Attributes
 		XmlAttributeObject *currentAttribute = rootObject.m_pFirstAttribute;
-		while (currentAttribute != 0){
+		while (currentAttribute != nullptr){
 
 			outs << " "
 				 << currentAttribute->m_pAttributeName->key()
@@ -881,7 +895,7 @@ namespace ogdf {
 
 		// Children
 		const XmlTagObject *currentChild = rootObject.m_pFirstSon;
-		while (currentChild != 0){
+		while (currentChild != nullptr){
 
 			// Proceed recursively
 			printXmlTagObjectTree(outs, *currentChild, indent + 2);
@@ -892,7 +906,7 @@ namespace ogdf {
 		} // while
 
 		// Content
-		if (rootObject.m_pTagValue != 0){
+		if (rootObject.m_pTagValue != nullptr){
 
 			printSpaces(outs, indent + 2);
 

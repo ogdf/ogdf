@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GraphCopy Attributes which manages
  *        access on a copy of an attributed graph.
@@ -61,6 +53,11 @@ namespace ogdf {
 // GraphCopyAttributes
 // manages access on copy of an attributed graph
 //---------------------------------------------------------
+/**
+ * \brief Helper class for accessing graph attributes from a copy of the graph.
+ *
+ * @ingroup gd-helper
+ */
 class OGDF_EXPORT GraphCopyAttributes {
 
 	const GraphCopy *m_pGC;

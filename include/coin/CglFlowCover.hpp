@@ -169,7 +169,7 @@ public:
 	in the collection of cuts cs. 
     */
     virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-			      const CglTreeInfo info = CglTreeInfo()) const;
+			      const CglTreeInfo info = CglTreeInfo()) const override;
     //@}
 
     /**@name Functions to query and set maximum number of cuts can be 
@@ -198,7 +198,7 @@ public:
 	const CglFlowCover &);
 
     /// Clone
-    virtual CglCutGenerator * clone() const;
+    virtual CglCutGenerator * clone() const override;
 
     /// Assignment operator 
     CglFlowCover &
@@ -209,7 +209,7 @@ public:
     virtual
     ~CglFlowCover ();
     /// Create C++ lines to get to current state
-    virtual std::string generateCpp( FILE * fp);
+    virtual std::string generateCpp( FILE * fp) override;
     //@}
 
 private:
@@ -271,9 +271,9 @@ private:
 	{ return rowTypes_[i]; }
     /** Set rowtypes, take over the ownership. */
     inline void setRowTypes(CglFlowRowType* rt) 
-	{ rowTypes_ = rt; rt = 0; }  
+	{ rowTypes_ = rt; rt = nullptr; }
     inline void setRowTypes(const CglFlowRowType rt, const int i) {
-	if (rowTypes_ != 0) 
+	if (rowTypes_ != nullptr)
 	    rowTypes_[i] = rt;
 	else {
 	    std::cout << "ERROR: Should allocate memory for rowType_ before "
@@ -290,9 +290,9 @@ private:
     inline const CglFlowVUB* getVubs() const          { return vubs_; }
     inline const CglFlowVUB& getVubs(int i) const     { return vubs_[i]; }
     /** Set CglFlowVUBs,take over the ownership. */
-    inline void setVubs(CglFlowVUB* vubs) { vubs_ = vubs; vubs = 0; }
+    inline void setVubs(CglFlowVUB* vubs) { vubs_ = vubs; vubs = nullptr; }
     inline void setVubs(const CglFlowVUB& vub, int i) { 
-	if (vubs_ != 0) 
+	if (vubs_ != nullptr)
 	    vubs_[i] = vub;
 	else {
 	    std::cout << "ERROR: Should allocate memory for vubs_ before "
@@ -314,9 +314,9 @@ private:
     inline const CglFlowVLB* getVlbs() const          { return vlbs_; }
     inline const CglFlowVLB& getVlbs(int i) const     { return vlbs_[i]; }
     /** Set CglFlowVLBs,take over the ownership. */
-    inline void setVlbs(CglFlowVLB* vlbs)          { vlbs_ = vlbs; vlbs = 0; }
+    inline void setVlbs(CglFlowVLB* vlbs)          { vlbs_ = vlbs; vlbs = nullptr; }
     inline void setVlbs(const CglFlowVLB& vlb, int i) { 
-	if (vlbs_ != 0) 
+	if (vlbs_ != nullptr)
 	    vlbs_[i] = vlb;
 	else {
 	    std::cout << "ERROR: Should allocate memory for vlbs_ before "

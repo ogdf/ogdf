@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements GraphML write functionality of class GraphIO.
  *
@@ -299,8 +291,7 @@ static inline void writeGraphMLEdge(
 	if(GA.attributes() & GraphAttributes::edgeGraphics) {
 		std::stringstream sstream; // For code consistency.
 
-		forall_listiterators(DPoint, it, GA.bends(e)) {
-			const DPoint &p = *it;
+		for(const DPoint &p : GA.bends(e)) {
 			sstream << p.m_x << " " << p.m_y << " ";
 		}
 
@@ -335,7 +326,7 @@ static inline void writeGraphMLEdge(
 	}
 
 	if(GA.attributes() & GraphAttributes::edgeSubGraphs) {
-		const __uint32 mask = GA.subGraphBits(e);
+		const uint32_t mask = GA.subGraphBits(e);
 
 		// Iterate over all subgraphs and print avaliable.
 		for(size_t sg = 0; sg < sizeof(mask) * 8; sg++) {
@@ -366,11 +357,11 @@ static void writeGraphMLCluster(
 	}
 	clusterId++;
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 		writeGraphMLCluster(out, depth, C, *cit, clusterId);
 	}
 
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); nit++) {
+	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
 		writeGraphMLNode(out, depth, C, *nit);
 	}
 
@@ -399,11 +390,11 @@ static void writeGraphMLCluster(
 	}
 	clusterId++;
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 		writeGraphMLCluster(out, depth, CA, *cit, clusterId);
 	}
 
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); nit++) {
+	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
 		writeGraphMLNode(out, depth, CA, *nit);
 	}
 
@@ -457,13 +448,11 @@ bool GraphIO::writeGraphML(const Graph &G, std::ostream &out)
 	writeGraphMLHeader(out);
 	GraphIO::indent(out, 1) << "<graph id=\"G\" edgedefault=\"directed\">\n";
 
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		writeGraphMLNode(out, 2, G, v);
 	}
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		writeGraphMLEdge(out, 2, G, e);
 	}
 
@@ -484,8 +473,7 @@ bool GraphIO::writeGraphML(const ClusterGraph &C, std::ostream &out)
 	int clusterId = 0;
 	writeGraphMLCluster(out, 2, G, C.rootCluster(), clusterId);
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		writeGraphMLEdge(out, 2, G, e);
 	}
 
@@ -508,13 +496,11 @@ bool GraphIO::writeGraphML(const GraphAttributes &GA, std::ostream &out)
 	                        << "edgedefault=\"" << edgeDefault << "\""
 	                        << ">\n";
 
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		writeGraphMLNode(out, 2, GA, v);
 	}
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		writeGraphMLEdge(out, 2, GA, e);
 	}
 
@@ -539,8 +525,7 @@ bool GraphIO::writeGraphML(const ClusterGraphAttributes &CA, std::ostream &out)
 	int clusterId = 0;
 	writeGraphMLCluster(out, 2, CA, C.rootCluster(), clusterId);
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		writeGraphMLEdge(out, 2, CA, e);
 	}
 

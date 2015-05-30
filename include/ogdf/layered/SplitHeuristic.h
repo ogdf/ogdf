@@ -1,11 +1,3 @@
-/*
- * $Revision: 3210 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Tue, 15 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class SplitHeuristic.
  *
@@ -56,14 +48,19 @@ namespace ogdf {
 
 
 //! The split heuristic for 2-layer crossing minimization.
+/**
+ * @ingroup gd-layered-crossmin
+ */
 class OGDF_EXPORT SplitHeuristic : public TwoLayerCrossMinSimDraw
 {
 public:
 	//! Creates a new instance of the split heuristic.
-	SplitHeuristic() { }
+	SplitHeuristic() : m_cm(nullptr) { }
 
 	//! Creates a new instance of the split heuristic.
-	SplitHeuristic(const SplitHeuristic &crossMin) { }
+	SplitHeuristic(const SplitHeuristic &crossMin) : m_cm(nullptr) { }
+
+	~SplitHeuristic() { delete m_cm; }
 
 	//! Returns a new instance of the splitheurisitc with the same option settings.
 	TwoLayerCrossMinSimDraw *clone() const { return new SplitHeuristic(*this); }
@@ -75,14 +72,14 @@ public:
 	void call (Level &L);
 
 	//! Calls the median heuristic for level \a L (simultaneous drawing).
-	void call (Level &L, const EdgeArray<__uint32> *edgeSubGraphs);
+	void call (Level &L, const EdgeArray<uint32_t> *edgeSubGraphs);
 
 	//! Does some clean-up after calls.
 	void cleanup ();
 
 private:
 	CrossingsMatrix *m_cm;
-	Array<node> buffer;
+	Array<node> m_buffer;
 
 	void recCall(Level&, int low, int high);
 };

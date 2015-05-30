@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class Layout
  *
@@ -59,9 +51,9 @@ namespace ogdf {
 
 
 /**
- * \brief Stores a layout of a graph (coordinates of nodes, bend
- *        points of edges).
+ * \brief Stores a layout of a graph (coordinates of nodes, bend points of edges).
  *
+ * @ingroup graph-drawing
  */
 class OGDF_EXPORT Layout
 {

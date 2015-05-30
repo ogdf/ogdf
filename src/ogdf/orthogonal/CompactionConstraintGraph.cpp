@@ -1,11 +1,3 @@
-/*
- * $Revision: 2668 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-24 14:50:57 +0200 (Tue, 24 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class CompactionConstraintGraphBase.
  *
@@ -63,7 +55,7 @@ CompactionConstraintGraphBase::CompactionConstraintGraphBase(
 	bool align
 ) :
 	m_pathNode(OR),
-	m_edgeToBasicArc(OR,0)
+	m_edgeToBasicArc(OR,nullptr)
 {
 	OGDF_ASSERT(&PG == &(const Graph &)OR);
 
@@ -74,8 +66,8 @@ CompactionConstraintGraphBase::CompactionConstraintGraphBase(
 	m_verticalArc .init(*this, false);
 	m_border      .init(*this, false);
 	m_alignmentArc.init(*this, false);
-	m_pathToEdge  .init(*this, 0);
-	m_originalEdge.init(*this, 0);
+	m_pathToEdge  .init(*this, nullptr);
+	m_originalEdge.init(*this, nullptr);
 
 	m_pPR       = &PG;//only used in detecting cage visibility arcs
 	m_pOR       = &OR;
@@ -85,8 +77,7 @@ CompactionConstraintGraphBase::CompactionConstraintGraphBase(
 	m_edgeCost[Graph::generalization] = costGen;
 	m_edgeCost[Graph::association   ] = costAssoc;
 
-	edge e;
-	forall_edges(e, PG)
+	for(edge e : PG.edges)
 	{
 		if ((PG.typeOf(e) == Graph::generalization) && (!PG.isExpansionEdge(e)))
 			m_verticalGen[e] = true;
@@ -100,17 +91,16 @@ CompactionConstraintGraphBase::CompactionConstraintGraphBase(
 // insert vertex for each segment
 void CompactionConstraintGraphBase::insertPathVertices(const PlanRep &PG)
 {
-	NodeArray<node> genOpposite(PG,0);
+	NodeArray<node> genOpposite(PG,nullptr);
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		const OrthoRep::VertexInfoUML *vi = m_pOR->cageInfo(v);
-		if (vi == 0 || PG.typeOf(v) == Graph::generalizationMerger) continue;
+		if (vi == nullptr || PG.typeOf(v) == Graph::generalizationMerger) continue;
 
 		adjEntry adjGen = vi->m_side[m_arcDir   ].m_adjGen;
 		adjEntry adjOpp = vi->m_side[m_oppArcDir].m_adjGen;
-		if (adjGen != 0 && adjOpp != 0)
+		if (adjGen != nullptr && adjOpp != nullptr)
 		{
 			node v1 = adjGen->theNode();
 			node v2 = adjOpp->theNode();
@@ -124,7 +114,7 @@ void CompactionConstraintGraphBase::insertPathVertices(const PlanRep &PG)
 
 	NodeArray<bool> visited(PG,false);
 
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		if (!visited[v]) {
 			node pathVertex = newNode();
@@ -139,7 +129,7 @@ void CompactionConstraintGraphBase::insertPathVertices(const PlanRep &PG)
 			{
 
 			}//if original segment
-			else m_pathToEdge[pathVertex] = 0;
+			else m_pathToEdge[pathVertex] = nullptr;
 		}
 	}
 }
@@ -156,8 +146,7 @@ void CompactionConstraintGraphBase::dfsInsertPathVertex(
 	m_path[pathVertex].pushFront(v);
 	m_pathNode[v] = pathVertex;
 
-	adjEntry adj;
-	forall_adj(adj,v)
+	for(adjEntry adj : v->adjEdges)
 	{
 		OrthoDir dirAdj = m_pOR->direction(adj);
 		OGDF_ASSERT(dirAdj != odUndefined);
@@ -180,7 +169,7 @@ void CompactionConstraintGraphBase::dfsInsertPathVertex(
 	}
 
 	node w = genOpposite[v];
-	if (w != 0 && !visited[w])
+	if (w != nullptr && !visited[w])
 		dfsInsertPathVertex(w, pathVertex, visited, genOpposite);
 }
 
@@ -192,13 +181,11 @@ void CompactionConstraintGraphBase::insertBasicArcs(const PlanRep &PG)
 {
 	const Graph &G = *m_pOR;
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		node start = m_pathNode[v];
 
-		adjEntry adj;
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			if (m_pOR->direction(adj) == m_arcDir) {
 				edge e = newEdge(start, m_pathNode[adj->theEdge()->opposite(v)]);
 				m_edgeToBasicArc[adj] = e;
@@ -246,15 +233,13 @@ void CompactionConstraintGraphBase::embed()
 	const CombinatorialEmbedding &E = *m_pOR;
 	face fExternal = E.externalFace();
 
-	adjEntry adj;
-	forall_face_adj(adj,fExternal)
+	for(adjEntry adj : fExternal->entries)
 		onExternal[m_pathNode[adj->theNode()]] = true;
 
 	// compute lists of sources and sinks
 	SList<node> sources, sinks;
 
-	node v;
-	forall_nodes(v,*this) {
+	for(node v : nodes) {
 		if (onExternal[v]) {
 			if (v->indeg() == 0)
 				sources.pushBack(v);
@@ -268,9 +253,8 @@ void CompactionConstraintGraphBase::embed()
 	if (sources.size() > 1)
 	{
 		s = newNode();
-		SListIterator<node> it;
-		for (it = sources.begin(); it.valid(); it++)
-			newEdge(s,*it);
+		for (node v : sources)
+			newEdge(s,v);
 	}
 	else
 		s = sources.front();
@@ -278,9 +262,8 @@ void CompactionConstraintGraphBase::embed()
 	if (sinks.size() > 1)
 	{
 		t = newNode();
-		SListIterator<node> it;
-		for (it = sinks.begin(); it.valid(); it++)
-			newEdge(*it,t);
+		for (node v : sinks)
+			newEdge(v,t);
 	}
 	else
 		t = sinks.front();
@@ -310,8 +293,7 @@ void CompactionConstraintGraphBase::computeTopologicalSegmentNum(
 	NodeArray<int> indeg(*this);
 	StackPure<node> sources;
 
-	node v;
-	forall_nodes(v,*this) {
+	for(node v : nodes) {
 		topNum[v] = 0;
 		indeg[v] = v->indeg();
 		if(indeg[v] == 0)
@@ -342,7 +324,7 @@ void CompactionConstraintGraphBase::computeTopologicalSegmentNum(
 class BucketFirstIndex : public BucketFunc<Tuple2<node,node> >
 {
 public:
-	int getBucket(const Tuple2<node,node> &t) {
+	int getBucket(const Tuple2<node,node> &t) override {
 		return t.x1()->index();
 	}
 };
@@ -350,7 +332,7 @@ public:
 class BucketSecondIndex : public BucketFunc<Tuple2<node,node> >
 {
 public:
-	int getBucket(const Tuple2<node,node> &t) {
+	int getBucket(const Tuple2<node,node> &t) override {
 		return t.x2()->index();
 	}
 };
@@ -418,13 +400,14 @@ void CompactionConstraintGraphBase::removeRedundantVisibArcs(
 	//special treatment for cage visibility
 	//two cases: input node cage: just compare arbitrary node
 	//           merger cage: check first if there are mergers
-	itPrev = 0;
+	itPrev = nullptr;
 	for(it = visibArcs.begin(); it.valid(); it = itNext)
 	{
 
 		itNext = it.succ();
 
-		OGDF_ASSERT(!(m_path[(*it).x1()].empty()) && !(m_path[(*it).x1()].empty()));
+		OGDF_ASSERT(!m_path[(*it).x1()].empty());
+		OGDF_ASSERT(!m_path[(*it).x1()].empty());
 
 		node boundRepresentant1 = m_path[(*it).x1()].front();
 		node boundRepresentant2 = m_path[(*it).x2()].front();
@@ -441,21 +424,20 @@ void CompactionConstraintGraphBase::removeRedundantVisibArcs(
 		else
 		{
 			//check if its a genmergerspanning vis arc, merge cases later
-			node firstn = 0, secondn = 0;
-			SListIterator< node > itn;
-			for (itn = m_path[(*it).x1()].begin(); itn.valid(); itn++)
+			node firstn = nullptr, secondn = nullptr;
+			for (node n : m_path[(*it).x1()])
 			{
-				node en = m_pPR->expandedNode(*itn);
+				node en = m_pPR->expandedNode(n);
 				if (!en) continue;
-				if (!(m_pPR->typeOf(*itn) == Graph::generalizationExpander)) continue;
-				else {firstn = en; break;}
+				if (!(m_pPR->typeOf(n) == Graph::generalizationExpander)) continue;
+				else { firstn = en; break; }
 			}//for
-			for (itn = m_path[(*it).x2()].begin(); itn.valid(); itn++)
+			for (node n : m_path[(*it).x2()])
 			{
-				node en = m_pPR->expandedNode(*itn);
+				node en = m_pPR->expandedNode(n);
 				if (!en) continue;
-				if (!(m_pPR->typeOf(*itn) == Graph::generalizationExpander)) continue;
-				else {secondn = en; break;}
+				if (!(m_pPR->typeOf(n) == Graph::generalizationExpander)) continue;
+				else { secondn = en; break; }
 			}//for
 			if ((firstn && secondn) && (firstn == secondn))
 			{
@@ -497,8 +479,7 @@ void CompactionConstraintGraphBase::writeGML(ostream &os) const
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "  node [\n";
 
 		os << "    id " << (id[v] = nextId++) << "\n";
@@ -516,8 +497,7 @@ void CompactionConstraintGraphBase::writeGML(ostream &os) const
 	}
 
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << "  edge [\n";
 
 		os << "    source " << id[e->source()] << "\n";
@@ -584,8 +564,7 @@ void CompactionConstraintGraphBase::writeGML(ostream &os, NodeArray<bool> one) c
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "  node [\n";
 
 		os << "    id " << (id[v] = nextId++) << "\n";
@@ -606,8 +585,7 @@ void CompactionConstraintGraphBase::writeGML(ostream &os, NodeArray<bool> one) c
 	}
 
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << "  edge [\n";
 
 		os << "    source " << id[e->source()] << "\n";

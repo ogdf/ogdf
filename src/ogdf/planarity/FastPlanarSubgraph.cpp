@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the FastPlanarSubgraph.
  *
@@ -45,16 +37,20 @@
  ***************************************************************/
 
 
-#include <ogdf/basic/basic.h>
-#include <ogdf/basic/Array.h>
+#include <ogdf/planarity/FastPlanarSubgraph.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/CriticalSection.h>
-#include <ogdf/basic/Thread.h>
 #include <ogdf/internal/planarity/PlanarSubgraphPQTree.h>
 #include <ogdf/internal/planarity/PlanarLeafKey.h>
-#include <ogdf/planarity/FastPlanarSubgraph.h>
+
+#include <ogdf/basic/Thread.h>
+#include <mutex>
+#include <atomic>
+
+using std::atomic;
+using std::mutex;
+using std::lock_guard;
 
 
 namespace ogdf {
@@ -99,9 +95,9 @@ class FastPlanarSubgraph::ThreadMaster {
 	int m_nBlocks;  // number of blocks
 	const Array<BlockType> &m_block;  // the blocks (graph and edge mapping)
 	const EdgeArray<int>   *m_pCost;  // edge cost (may be 0)
-	__int32 m_runs;
+	atomic<int>             m_runs;
 
-	CriticalSection     m_criticalSection; // thread synchronization
+	mutex                   m_mutex; // thread synchronization
 
 public:
 	ThreadMaster(const Array<BlockType> &block, const EdgeArray<int> *pCost, int runs);
@@ -117,12 +113,12 @@ public:
 	void buildSolution(List<edge> &delEdges);
 
 	bool getNextRun() {
-		return atomicDec(&m_runs) >= 0;
+		return --m_runs >= 0;
 	}
 };
 
 
-class FastPlanarSubgraph::Worker : public Thread {
+class FastPlanarSubgraph::Worker {
 
 	ThreadMaster *m_pMaster;  // associated master
 
@@ -130,10 +126,13 @@ public:
 	Worker(ThreadMaster *pMaster) : m_pMaster(pMaster) { }
 	~Worker() { }
 
-protected:
-	virtual void doWork() {
+	void operator()() {
 		doWorkHelper(*m_pMaster);
 	}
+
+private:
+	Worker(const Worker &other); // = delete
+	Worker &operator=(const Worker &other); // = delete
 };
 
 
@@ -141,8 +140,8 @@ FastPlanarSubgraph::ThreadMaster::ThreadMaster(const Array<BlockType> &block, co
 	: m_bestSolution(block.size()), m_bestDelEdges(block.size()), m_nBlocks(block.size()), m_block(block), m_pCost(pCost), m_runs(runs)
 {
 	for(int i = 0; i < m_nBlocks; ++i) {
-		m_bestDelEdges[i] = 0;
-		m_bestSolution[i] = (m_block[i].first != 0) ? numeric_limits<int>::max() : 0;
+		m_bestDelEdges[i] = nullptr;
+		m_bestSolution[i] = (m_block[i].first != nullptr) ? numeric_limits<int>::max() : 0;
 	}
 }
 
@@ -151,25 +150,23 @@ FastPlanarSubgraph::ThreadMaster::ThreadMaster(const Array<BlockType> &block, co
 List<edge> *FastPlanarSubgraph::ThreadMaster::postNewResult(int i, List<edge> *pNewDelEdges)
 {
 	int newSolution;
-	if(m_pCost == 0) {
+	if(m_pCost == nullptr) {
 		newSolution = pNewDelEdges->size();
 
 	} else {
 		const EdgeArray<edge> &origEdge = *m_block[i].second;
 
 		newSolution = 0;
-		for(ListConstIterator<edge> it = pNewDelEdges->begin(); it.valid(); ++it)
-			newSolution += (*m_pCost)[origEdge[*it]];
+		for(edge e : *pNewDelEdges)
+			newSolution += (*m_pCost)[origEdge[e]];
 	}
 
-	m_criticalSection.enter();
+	lock_guard<mutex> guard(m_mutex);
 
 	if(newSolution < m_bestSolution[i]) {
 		std::swap(pNewDelEdges, m_bestDelEdges[i]);
 		m_bestSolution[i] = newSolution;
 	}
-
-	m_criticalSection.leave();
 
 	return pNewDelEdges;
 }
@@ -180,10 +177,10 @@ List<edge> *FastPlanarSubgraph::ThreadMaster::postNewResult(int i, List<edge> *p
 void FastPlanarSubgraph::ThreadMaster::buildSolution(List<edge> &delEdges)
 {
 	for(int i = 0; i < m_nBlocks; ++i) {
-		if(m_bestDelEdges[i] != 0) {
+		if(m_bestDelEdges[i] != nullptr) {
 			const EdgeArray<edge> &origEdge = *m_block[i].second;
-			for(ListConstIterator<edge> it = m_bestDelEdges[i]->begin(); it.valid(); ++it)
-				delEdges.pushBack(origEdge[*it]);
+			for(edge e : *m_bestDelEdges[i])
+				delEdges.pushBack(origEdge[e]);
 			delete m_bestDelEdges[i];
 		}
 	}
@@ -202,7 +199,7 @@ void FastPlanarSubgraph::doWorkHelper(ThreadMaster &master)
 
 				// compute (randomized) st-numbering
 				NodeArray<int> numbering(B,0);
-				stNumber(B,numbering,0,0,true);
+				stNumber(B,numbering,nullptr,nullptr,true);
 
 				List<edge> *pCurrentDelEdges = new List<edge>;
 				planarize(B,numbering,*pCurrentDelEdges);
@@ -236,37 +233,34 @@ Module::ReturnType FastPlanarSubgraph::doCall(
 
 	// Determine edges per biconnected component
 	Array<SList<edge> > blockEdges(0,nBlocks-1);
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		if (!e->isSelfLoop())
 			blockEdges[componentID[e]].pushFront(e);
 	}
 
 	// Build non-trivial blocks
 	Array<BlockType> block(nBlocks);
-	NodeArray<node> copyV(G,0);
+	NodeArray<node> copyV(G,nullptr);
 
 	for(int i = 0; i < nBlocks; i++)
 	{
 		if(blockEdges[i].size() < 9) {
-			block[i] = BlockType((Graph*)0, (EdgeArray<edge>*)0); // explicit casts required for VS2010
+			block[i] = BlockType((Graph*)nullptr, (EdgeArray<edge>*)nullptr); // explicit casts required for VS2010
 			continue;
 		}
 
 		Graph *bc = new Graph;
-		EdgeArray<edge> *origE = new EdgeArray<edge>(*bc,0);
+		EdgeArray<edge> *origE = new EdgeArray<edge>(*bc,nullptr);
 		block[i] = BlockType(bc,origE);
 
 		SList<node> marked;
-		SListIterator<edge> it;
-		for (it = blockEdges[i].begin(); it.valid(); ++it)
+		for (edge e : blockEdges[i])
 		{
-			e = *it;
-			if (copyV[e->source()] == 0) {
+			if (copyV[e->source()] == nullptr) {
 				copyV[e->source()] = bc->newNode();
 				marked.pushBack(e->source());
 			}
-			if (copyV[e->target()] == 0) {
+			if (copyV[e->target()] == nullptr) {
 				copyV[e->target()] = bc->newNode();
 				marked.pushBack(e->target());
 			}
@@ -274,14 +268,13 @@ Module::ReturnType FastPlanarSubgraph::doCall(
 			(*origE)[bc->newEdge(copyV[e->source()],copyV[e->target()])] = e;
 		}
 
-		SListIterator<node> itn;
-		for (itn = marked.begin(); itn.valid(); ++itn)
-			copyV[*itn] = 0;
+		for (node v : marked)
+			copyV[v] = nullptr;
 	}
 	copyV.init();
 
 	int nRuns = max(1, m_nRuns);
-	int nThreads = min(maxThreads(), nRuns);
+	unsigned int nThreads = min(maxThreads(), (unsigned int)nRuns);
 
 	if(nThreads == 1)
 		seqCall(block, pCost, nRuns, (m_nRuns == 0), delEdges);
@@ -309,8 +302,8 @@ void FastPlanarSubgraph::seqCall(const Array<BlockType> &block, const EdgeArray<
 	Array<List<edge> *> bestDelEdges(nBlocks);
 
 	for(int i = 0; i < nBlocks; ++i) {
-		bestDelEdges[i] = 0;
-		bestSolution[i] = (block[i].first != 0) ? numeric_limits<int>::max() : 0;
+		bestDelEdges[i] = nullptr;
+		bestSolution[i] = (block[i].first != nullptr) ? numeric_limits<int>::max() : 0;
 	}
 
 	for(int run = 0; run < nRuns; ++run)
@@ -322,18 +315,18 @@ void FastPlanarSubgraph::seqCall(const Array<BlockType> &block, const EdgeArray<
 
 				// compute (randomized) st-numbering
 				NodeArray<int> numbering(B,0);
-				stNumber(B,numbering,0,0,randomize);
+				stNumber(B,numbering,nullptr,nullptr,randomize);
 
 				List<edge> *pCurrentDelEdges = new List<edge>;
 				planarize(B,numbering,*pCurrentDelEdges);
 
 				int currentSolution;
-				if(pCost == 0) {
+				if(pCost == nullptr) {
 					currentSolution = pCurrentDelEdges->size();
 				} else {
 					currentSolution = 0;
-					for(ListConstIterator<edge> it = pCurrentDelEdges->begin(); it.valid(); ++it)
-						currentSolution += (*pCost)[origEdge[*it]];
+					for(edge e : *pCurrentDelEdges)
+						currentSolution += (*pCost)[origEdge[e]];
 				}
 
 				if(currentSolution < bestSolution[i]) {
@@ -348,10 +341,10 @@ void FastPlanarSubgraph::seqCall(const Array<BlockType> &block, const EdgeArray<
 
 	// build final solution from block solutions
 	for(int i = 0; i < nBlocks; ++i) {
-		if(bestDelEdges[i] != 0) {
+		if(bestDelEdges[i] != nullptr) {
 			const EdgeArray<edge> &origEdge = *block[i].second;
-			for(ListConstIterator<edge> it = bestDelEdges[i]->begin(); it.valid(); ++it)
-				delEdges.pushBack(origEdge[*it]);
+			for(edge e : *bestDelEdges[i])
+				delEdges.pushBack(origEdge[e]);
 			delete bestDelEdges[i];
 		}
 	}
@@ -361,21 +354,22 @@ void FastPlanarSubgraph::seqCall(const Array<BlockType> &block, const EdgeArray<
 //
 // parallel implementation
 //
-void FastPlanarSubgraph::parCall(const Array<BlockType> &block, const EdgeArray<int> *pCost, int nRuns, int nThreads, List<edge> &delEdges)
+void FastPlanarSubgraph::parCall(const Array<BlockType> &block, const EdgeArray<int> *pCost, int nRuns, unsigned int nThreads, List<edge> &delEdges)
 {
 	ThreadMaster master(block, pCost, nRuns-nThreads);
 
-	Array<Worker *> thread(nThreads-1);
-	for(int i = 0; i < nThreads-1; ++i) {
-		thread[i] = new Worker(&master);
-		thread[i]->start();
+	Array<Worker *> worker(nThreads-1);
+	Array<Thread> thread(nThreads-1);
+	for(unsigned int i = 0; i < nThreads-1; ++i) {
+		worker[i] = new Worker(&master);
+		thread[i] = Thread(*worker[i]);
 	}
 
 	doWorkHelper(master);
 
-	for(int i = 0; i < nThreads-1; ++i) {
-		thread[i]->join();
-		delete thread[i];
+	for(unsigned int i = 0; i < nThreads-1; ++i) {
+		thread[i].join();
+		delete worker[i];
 	}
 
 	master.buildSolution(delEdges);
@@ -389,13 +383,11 @@ void FastPlanarSubgraph::planarize(
 	NodeArray<int> &numbering,
 	List<edge> &delEdges)
 {
-	node v;
-
 	NodeArray<SListPure<PlanarLeafKey<whaInfo*>* > > inLeaves(G);
 	NodeArray<SListPure<PlanarLeafKey<whaInfo*>* > > outLeaves(G);
 	Array<node> table(G.numberOfNodes()+1);
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		edge e;
 		forall_adj_edges(e,v)
@@ -410,12 +402,10 @@ void FastPlanarSubgraph::planarize(
 		table[numbering[v]] = v;
 	}
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		SListIterator<PlanarLeafKey<whaInfo*>* > it;
-		for (it = inLeaves[v].begin(); it.valid(); ++it)
+		for (PlanarLeafKey<whaInfo*> *L : inLeaves[v])
 		{
-			PlanarLeafKey<whaInfo*>* L = *it;
 			outLeaves[L->userStructKey()->opposite(v)].pushFront(L);
 		}
 	}
@@ -435,15 +425,14 @@ void FastPlanarSubgraph::planarize(
 	}
 
 
-	SListIterator<PQLeafKey<edge,whaInfo*,bool>* > it;
-	for (it = totalEliminatedKeys.begin(); it.valid(); ++it)
+	for (PQLeafKey<edge, whaInfo*, bool> *key : totalEliminatedKeys)
 	{
-		edge e = (*it)->userStructKey();
+		edge e = key->userStructKey();
 		delEdges.pushBack(e);
 	}
 
 	//cleanup
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		while (!inLeaves[v].empty())
 		{

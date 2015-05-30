@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of orthogonal representation of planar graphs.
  *
@@ -90,7 +82,7 @@ class OGDF_EXPORT BendString
 public:
 	// constructs empty bend string
 	BendString() {
-		m_pBend = 0;
+		m_pBend = nullptr;
 		m_len = 0;
 	}
 
@@ -109,6 +101,12 @@ public:
 	// copy constructor
 	BendString(const BendString &bs) {
 		init(bs);
+	}
+
+	// copy constructor (move semantics)
+	BendString(BendString &&bs) : m_pBend(bs.m_pBend), m_len(bs.m_len) {
+		bs.m_pBend = nullptr;
+		bs.m_len = 0;
 	}
 
 
@@ -169,6 +167,18 @@ public:
 	BendString &operator=(const BendString &bs) {
 		delete [] m_pBend;
 		init(bs);
+		return *this;
+	}
+
+	// assignment operator (move semantics)
+	BendString &operator=(BendString &&bs) {
+		if (&bs != this) {
+			delete [] m_pBend;
+			m_pBend = bs.m_pBend;
+			m_len = bs.m_len;
+			bs.m_pBend = nullptr;
+			bs.m_len = 0;
+		}
 		return *this;
 	}
 
@@ -423,7 +433,7 @@ public:
 	// is an orthogonal embedding realizing this shape (if 0-degree angles are
 	// present, the condition is necessary but not sufficient).
 	// If false is returned, error contains a description of the reason.
-	bool check(string &error);
+	bool check(string &error) const;
 
 
 	//
@@ -448,9 +458,8 @@ public:
 	}
 
 	friend ostream &operator<<(ostream &os, const OrthoRep &op) {
-		edge e;
 		const Graph& E = op;
-		forall_edges(e, E)
+		for(edge e : E.edges)
 		{
 			os << e <<": src angle "<<op.angle(e->adjSource())<<" bend "<<op.bend(e->adjSource())
 				<<"\n"<<" tgt angle "<<op.angle(e->adjTarget())<<" bend "<<op.bend(e->adjTarget())

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the master class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -123,7 +115,7 @@ public:
 	void updateBestSubGraph(List<nodePair> &original, List<nodePair> &connection, List<edge> &deleted);
 
 	// Returns the optimal solution induced Clustergraph
-	Graph *solutionInducedGraph() {return (Graph*)m_solutionGraph;}
+	Graph *solutionInducedGraph() {return static_cast<Graph*>(m_solutionGraph);}
 
 	// Returns nodePairs of original, connection, deleted or all optimal solution edges in list \a edges.
 	void getAllOptimalSolutionEdges(List<nodePair> &edges) const;
@@ -289,7 +281,7 @@ private:
 	double globalDualBound;
 
 	inline double getDoubleTime(const Stopwatch* act) {
-		__int64 tempo = act->centiSeconds()+100*act->seconds()+6000*act->minutes()+360000*act->hours();
+		int64_t tempo = act->centiSeconds()+100*act->seconds()+6000*act->minutes()+360000*act->hours();
 		return  ((double) tempo)/ 100.0;
 	}
 

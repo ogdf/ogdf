@@ -1,11 +1,3 @@
-/*
- * $Revision: 3135 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-12-11 11:11:27 +0100 (Tue, 11 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of class EdgeInsertionModuleOld
  *
@@ -49,15 +41,13 @@ namespace ogdf {
 
 bool UMLCrossingMinimizationModule::checkCrossingGens(const PlanRepUML &prUML)
 {
-	edge e;
-	forall_edges(e,prUML) {
+	for(edge e : prUML.edges) {
 		Graph::EdgeType et = prUML.typeOf(e);
 		if (et != Graph::generalization && et != Graph::association)
 			return false;
 	}
 
-	node v;
-	forall_nodes(v,prUML)
+	for(node v : prUML.nodes)
 	{
 		if (prUML.typeOf(v) == PlanRepUML::dummy && v->degree() == 4) {
 			adjEntry adj = v->firstAdj();

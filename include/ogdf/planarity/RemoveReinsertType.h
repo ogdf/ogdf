@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Definition of RemoveReinsertType (used for postprocessing
  *        in edge insertion algorithms).
@@ -52,6 +44,9 @@
 namespace ogdf {
 
 	//! The postprocessing method for edge insertion algorithms.
+	/**
+	 * @ingroup ga-insert
+	 */
 	enum RemoveReinsertType {
 		rrNone,        //!< No postprocessing.
 		rrInserted,    //!< Postprocessing only with the edges that have to be inserted.

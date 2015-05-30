@@ -1,11 +1,3 @@
-/*
- * $Revision: 2559 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of dominance layout algorithm.
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 #include <ogdf/upward/DominanceLayout.h>
-#include <math.h>
+
 
 namespace ogdf {
 
@@ -64,8 +56,7 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	UpwardPlanRep UPR = UPROrig;
 
 	//clear some data
-	edge e;
-	forall_edges(e, GA.constGraph()) {
+	for(edge e : GA.constGraph().edges) {
 		GA.bends(e).clear();
 	}
 
@@ -73,21 +64,21 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	List<edge> splitMe;
 	findTransitiveEdges(UPR, splitMe);
 
-	forall_listiterators(edge, it, splitMe) {
-		UPR.getEmbedding().split(*it);
+	for(edge eSplit : splitMe) {
+		UPR.getEmbedding().split(eSplit);
 	}
 
 	// set up first-/lastout, first-/lastin
-	firstout.init(UPR, 0);
-	lastout.init(UPR, 0);
-	firstin.init(UPR, 0);
-	lastin.init(UPR, 0);
+	firstout.init(UPR, nullptr);
+	lastout.init(UPR, nullptr);
+	firstin.init(UPR, nullptr);
+	lastin.init(UPR, nullptr);
 
 	node s = UPR.getSuperSource();
 	node t = UPR.getSuperSink();
 
-	firstout[t] = lastout[t] = 0;
-	firstin[s] = lastin[s] = 0;
+	firstout[t] = lastout[t] = nullptr;
+	firstin[s] = lastin[s] = nullptr;
 	firstin[t] = lastin[t] =t->firstAdj()->theEdge();
 	adjEntry adjRun = s->firstAdj();
 	while (UPR.getEmbedding().rightFace(adjRun) != UPR.getEmbedding().externalFace()) {
@@ -96,8 +87,7 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	lastout[s] = adjRun->theEdge();
 	firstout[s] = adjRun->cyclicSucc()->theEdge();
 
-	node v;
-	forall_nodes(v, UPR) {
+	for(node v : UPR.nodes) {
 		if (v == t || v == s) continue;
 
 		adjEntry adj = UPR.leftInEdge(v);
@@ -116,7 +106,7 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	//compute m_L and m_R for min. area drawing
 	m_L = 0;
 	m_R = 0;
-	forall_edges(e, UPR) {
+	for(edge e : UPR.edges) {
 		node src = e->source();
 		node tgt = e->target();
 		if (lastin[tgt] == e && firstout[src] == e)
@@ -137,16 +127,16 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	compact(UPR, GA);
 
 	// map coordinate to GA
-	forall_nodes(v, GA.constGraph()) {
+	for(node v : GA.constGraph().nodes) {
 		node vUPR = UPR.copy(v);
 		GA.x(v) = xCoord[vUPR];
 		GA.y(v) = yCoord[vUPR];
 	}
 	// add bends to original edges
-	forall_edges(e, GA.constGraph()) {
-		List<edge> chain = UPR.chain(e);
-		forall_nonconst_listiterators(edge, it, chain) {
-			node tgtUPR = (*it)->target();
+	for(edge e : GA.constGraph().edges) {
+		const List<edge> &chain = UPR.chain(e);
+		for(edge eChain : chain) {
+			node tgtUPR = eChain->target();
 			if (tgtUPR != chain.back()->target()) {
 				DPoint p(xCoord[tgtUPR], yCoord[tgtUPR]);
 				GA.bends(e).pushBack(p);
@@ -156,7 +146,7 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 
 
 	//rotate the drawing
-	forall_nodes(v, GA.constGraph()) {
+	for(node v : GA.constGraph().nodes) {
 		double r = sqrt(GA.x(v)*GA.x(v) + GA.y(v)*GA.y(v));
 		if (r == 0)
 			continue;
@@ -167,23 +157,23 @@ void DominanceLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 		GA.y(v) = yNew;
 	}
 
-	forall_edges(e, GA.constGraph()) {
+	for(edge e : GA.constGraph().edges) {
 		DPolyline &poly = GA.bends(e);
 		DPoint pSrc(GA.x(e->source()), GA.y(e->source()));
 		DPoint pTgt(GA.x(e->target()), GA.y(e->target()));
 		poly.normalize(pSrc, pTgt);
 
-		forall_nonconst_listiterators(DPoint, it, poly) {
-			double r = (*it).distance(DPoint(0,0));
+		for(DPoint &p : poly) {
+			double r = p.distance(DPoint(0,0));
 
 			if (r == 0)
 				continue;
 
-			double alpha = asin( (*it).m_y/r);
+			double alpha = asin( p.m_y/r);
 			double yNew = sin(alpha + m_angle)*r;
 			double xNew = cos(alpha + m_angle)*r;
-			(*it).m_x = xNew;
-			(*it).m_y = yNew;
+			p.m_x = xNew;
+			p.m_y = yNew;
 		}
 
 	}
@@ -228,8 +218,7 @@ void DominanceLayout::labelY(const UpwardPlanRep &UPR, node v, int &count)
 void DominanceLayout::compact(const UpwardPlanRep &UPR, GraphAttributes &GA)
 {
 	double maxNodeSize = 0;
-	node v;
-	forall_nodes(v, GA.constGraph()) {
+	for(node v : GA.constGraph().nodes) {
 		if (GA.width(v) > maxNodeSize || GA.height(v) > maxNodeSize)
 			maxNodeSize = max(GA.width(v), GA.height(v));
 	}
@@ -245,7 +234,7 @@ void DominanceLayout::compact(const UpwardPlanRep &UPR, GraphAttributes &GA)
 
 	OGDF_ASSERT(!xNodes.empty());
 
-	v = xNodes.popFrontRet();
+	node v = xNodes.popFrontRet();
 	xCoord[v] = 0;
 	while (!xNodes.empty()) {
 		node u = xNodes.popFrontRet();
@@ -279,17 +268,17 @@ void DominanceLayout::findTransitiveEdges(const UpwardPlanRep &UPR, List<edge> &
 {
 	// for st-graphs:
 	// e = (u,v) transitive <=> ex. face f: e in f and u source-switch and v = sink-switch
-	face f;
-	forall_faces(f, UPR.getEmbedding()) {
+	for(face f : UPR.getEmbedding().faces) {
 		if (f == UPR.getEmbedding().externalFace())
 			continue;
 
-		adjEntry adj;
-		forall_face_adj(adj, f) {
+		for(adjEntry adj : f->entries)
+		{
 			node src = adj->theEdge()->source();
 			node tgt = adj->theEdge()->target();
 			if ( (adj->faceCycleSucc()->theEdge()->source() == src && adj->faceCyclePred()->theEdge()->target() == tgt)
-				|| (adj->faceCycleSucc()->theEdge()->target() == tgt && adj->faceCyclePred()->theEdge()->source() == src)) {
+				|| (adj->faceCycleSucc()->theEdge()->target() == tgt && adj->faceCyclePred()->theEdge()->source() == src))
+			{
 					edges.pushBack(adj->theEdge());
 					break;
 			}

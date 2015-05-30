@@ -1,11 +1,3 @@
-/*
- * $Revision: 2535 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-04 12:19:10 +0200 (Wed, 04 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class StaticPlanarSPQRTree.
  *
@@ -70,6 +62,8 @@ template<class A, class B> class Tuple2;
 
 //! SPQR-trees of planar graphs.
 /**
+ * @ingroup decomp
+ *
  * The class StaticPlanarSPQRTree maintains the triconnected components of a
  * planar biconnected graph G and represents all possible embeddings
  * of G. Each skeleton graph is embedded.

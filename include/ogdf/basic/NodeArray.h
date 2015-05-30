@@ -1,11 +1,3 @@
-/*
- * $Revision: 3074 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 11:01:06 +0100 (Thu, 29 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of NodeArray class
  *
@@ -71,10 +63,18 @@ public:
 	const Graph *m_pGraph; //!< The associated graph.
 
 	//! Initializes an node array not associated with a graph.
-	NodeArrayBase() : m_pGraph(0) { }
+	NodeArrayBase() : m_pGraph(nullptr) { }
+
 	//! Initializes an node array associated with \a pG.
 	NodeArrayBase(const Graph *pG) : m_pGraph(pG) {
 		if(pG) m_it = pG->registerArray(this);
+	}
+
+	//! Moves node array \a base to this node array.
+	NodeArrayBase(NodeArrayBase &base) : m_it(base.m_it), m_pGraph(base.m_pGraph) {
+		if(m_pGraph) m_pGraph->moveRegisterArray(m_it, this);
+		base.m_pGraph = nullptr;
+		base.m_it     = ListIterator<NodeArrayBase*>();
 	}
 
 	// destructor, unregisters the array
@@ -93,13 +93,27 @@ public:
 	//! Associates the array with a new graph.
 	void reregister(const Graph *pG) {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
-		if ((m_pGraph = pG) != 0) m_it = pG->registerArray(this);
+		if ((m_pGraph = pG) != nullptr) m_it = pG->registerArray(this);
 	}
+
+	//! Moves array registration from \a base to this array.
+	void moveRegister(NodeArrayBase &base) {
+		if (m_pGraph) m_pGraph->unregisterArray(m_it);
+		m_pGraph = base.m_pGraph;
+		m_it     = base.m_it;
+		base.m_pGraph = nullptr;
+		base.m_it     = ListIterator<NodeArrayBase*>();
+		if (m_pGraph != nullptr)
+			m_pGraph->moveRegisterArray(m_it, this);
+	}
+
 }; // class NodeArrayBase
 
 
 //! Dynamic arrays indexed with nodes.
 /**
+ * @ingroup graph-containers
+ *
  * Node arrays represent a mapping from nodes to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
@@ -109,10 +123,19 @@ template<class T> class NodeArray : private Array<T>, protected NodeArrayBase {
 	T m_x; //!< The default value for array elements.
 
 public:
+	typedef node key_type;    //!< The type for array keys.
+	typedef T    value_type;  //!< The type for array entries.
+
+	typedef internal::GraphArrayIterator<NodeArray<T>> iterator;  //!< The type for node array iterators.
+	typedef internal::GraphArrayConstIterator<NodeArray<T>> const_iterator;  //!< The type for node array const iterators.
+
+
 	//! Constructs an empty node array associated with no graph.
 	NodeArray() : Array<T>(), NodeArrayBase() { }
+
 	//! Constructs a node array associated with \a G.
 	NodeArray(const Graph &G) : Array<T>(G.nodeArrayTableSize()), NodeArrayBase(&G) { }
+
 	//! Constructs a node array associated with \a G.
 	/**
 	 * @param G is the associated graph.
@@ -120,11 +143,25 @@ public:
 	 */
 	NodeArray(const Graph &G, const T &x) :
 		Array<T>(0,G.nodeArrayTableSize()-1,x), NodeArrayBase(&G), m_x(x) { }
+
 	//! Constructs a node array that is a copy of \a A.
 	/**
 	 * Associates the array with the same graph as \a A and copies all elements.
 	 */
 	NodeArray(const NodeArray<T> &A) : Array<T>(A), NodeArrayBase(A.m_pGraph), m_x(A.m_x) { }
+
+	//! Constructs a node array containing the elements of \a A (move semantics).
+	/**
+	 * Node array \a A is empty afterwards and not associated with any graph.
+	 */
+	NodeArray(NodeArray<T> &&A) : Array<T>(std::move(A)), NodeArrayBase(A), m_x(A.m_x) { }
+
+
+	/**
+	 * @name Access methods
+	 * These methods provide access to elements, size, and corresponding graph.
+	 */
+	//@{
 
 	//! Returns true iff the array is associated with a graph.
 	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
@@ -136,45 +173,145 @@ public:
 
 	//! Returns a reference to the element with index \a v.
 	const T &operator[](node v) const {
-		OGDF_ASSERT(v != 0 && v->graphOf() == m_pGraph)
+		OGDF_ASSERT(v != nullptr)
+		OGDF_ASSERT(v->graphOf() == m_pGraph)
 		return Array<T>::operator [](v->index());
 	}
 
 	//! Returns a reference to the element with index \a v.
 	T &operator[](node v) {
-		OGDF_ASSERT(v != 0 && v->graphOf() == m_pGraph)
+		OGDF_ASSERT(v != nullptr)
+		OGDF_ASSERT(v->graphOf() == m_pGraph)
+		return Array<T>::operator [](v->index());
+	}
+
+	//! Returns a reference to the element with index \a v.
+	const T &operator()(node v) const {
+		OGDF_ASSERT(v != nullptr)
+		OGDF_ASSERT(v->graphOf() == m_pGraph)
+		return Array<T>::operator [](v->index());
+	}
+
+	//! Returns a reference to the element with index \a v.
+	T &operator()(node v) {
+		OGDF_ASSERT(v != nullptr)
+		OGDF_ASSERT(v->graphOf() == m_pGraph)
 		return Array<T>::operator [](v->index());
 	}
 
 	//! Returns a reference to the element with index \a index.
 	/**
-	 * \attention Make sure that \a index is a valid index for a node
-	 * in the associated graph!
+	 * \attention Make sure that \a index is a valid index for a node in the associated graph!
+	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
+	 *             Node arrays should be index by a node, not an integer index.
 	 */
-	const T &operator[](int index) const {
-		return Array<T>::operator [](index);
-	}
+	OGDF_DEPRECATED_BEGIN
+	const T &operator[](int index) const
+	OGDF_DEPRECATED_END
+		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
 	/**
-	 * \attention Make sure that \a index is a valid index for a node
-	 * in the associated graph!
+	 * \attention Make sure that \a index is a valid index for a node in the associated graph!
+	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
+	 *             Node arrays should be index by a node, not an integer index.
 	 */
-	T &operator[](int index) {
-		return Array<T>::operator [](index);
-	}
+	OGDF_DEPRECATED_BEGIN
+	T &operator[](int index)
+	OGDF_DEPRECATED_END
+		{ return Array<T>::operator [](index); }
 
-	//! Assignment operator.
-	NodeArray<T> &operator=(const NodeArray<T> &a) {
-		Array<T>::operator =(a);
-		m_x = a.m_x;
-		reregister(a.m_pGraph);
-		return *this;
-	}
+
+	//@}
+	/**
+	 * @name Iterators
+	 * These methods return bidirectional iterators to elements in the array.
+	 */
+	//@{
+
+	//! Returns an iterator to the first entry in the node array.
+	/**
+	 * If the node array is empty, a null pointer iterator is returned.
+	 */
+	iterator begin() { return iterator(m_pGraph->firstNode(), this); }
+
+	//! Returns a const iterator to the first entry in the node array.
+	/**
+	 * If the node array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator begin() const { return const_iterator(m_pGraph->firstNode(), this); }
+
+	//! Returns a const iterator to the first entry in the node array.
+	/**
+	 * If the node array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator cbegin() const { return const_iterator(m_pGraph->firstNode(), this); }
+
+	//! Returns an iterator to one-past-last entry in the node array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator end() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the node array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator end() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the node array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator cend() const { return const_iterator(nullptr, this); }
+
+	//! Returns an iterator to the last entry in the node array.
+	/**
+	 * If the node array is empty, a null pointer iterator is returned.
+	 */
+	iterator rbegin() { return iterator(m_pGraph->lastNode(), this); }
+
+	//! Returns a const iterator to the last entry in the node array.
+	/**
+	 * If the node array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator rbegin() const { return const_iterator(m_pGraph->lastNode(), this); }
+
+	//! Returns a const iterator to the last entry in the node array.
+	/**
+	 * If the node array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator crbegin() const { return const_iterator(m_pGraph->lastNode(), this); }
+
+	//! Returns an iterator to one-before-first entry in the node array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator rend() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the node array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator rend() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the node array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator crend() const { return const_iterator(nullptr, this); }
+
+
+	//@}
+	/**
+	 * @name Initialization and assignment
+	 * These methods can be used to reinitialize the array, or to initialize all elements with a given value.
+	 */
+	//@{
 
 	//! Reinitializes the array. Associates the array with no graph.
 	void init() {
-		Array<T>::init(); reregister(0);
+		Array<T>::init(); reregister(nullptr);
 	}
 
 	//! Reinitializes the array. Associates the array with \a G.
@@ -198,6 +335,38 @@ public:
 			Array<T>::fill(0,high,x);
 	}
 
+	//! Assignment operator.
+	NodeArray<T> &operator=(const NodeArray<T> &a) {
+		Array<T>::operator =(a);
+		m_x = a.m_x;
+		reregister(a.m_pGraph);
+		return *this;
+	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * Node array \a a is empty afterwards and not associated with any graph.
+	 */
+	NodeArray<T> &operator=(NodeArray<T> &&a) {
+		Array<T>::operator=(std::move(a));
+		m_x = a.m_x;
+		moveRegister(a);
+		return *this;
+	}
+
+
+	//@}
+	/**
+	 * @name Helper functions
+	 * These methods are mainly intended for internal use.
+	 */
+	//@{
+
+	static key_type findSuccKey(key_type key) { return key->succ(); }
+	static key_type findPredKey(key_type key) { return key->pred(); }
+
+	//@}
+
 private:
 	virtual void enlargeTable(int newTableSize) {
 		Array<T>::resize(newTableSize,m_x);
@@ -209,7 +378,7 @@ private:
 
 	virtual void disconnect() {
 		Array<T>::init();
-		m_pGraph = 0;
+		m_pGraph = nullptr;
 	}
 
 	OGDF_NEW_DELETE

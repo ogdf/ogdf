@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of GDF format parsing utilities
  *
@@ -48,7 +40,7 @@ namespace ogdf {
 namespace gdf {
 
 
-Parser::Parser(std::istream &is) : m_istream(is), m_nodeId(NULL)
+	Parser::Parser(std::istream &is) : m_istream(is), m_nodeId(nullptr)
 {
 }
 
@@ -191,7 +183,7 @@ bool Parser::readEdgeStmt(
 
 	// First, we scan a list for source, target and edge direction.
 	bool directed = false;
-	node source = NULL, target = NULL;
+	node source = nullptr, target = nullptr;
 	for(size_t i = 0; i < values.size(); i++) {
 		switch(m_edgeAttrs[i]) {
 		case ea_directed:
@@ -223,7 +215,7 @@ bool Parser::readEdgeStmt(
 	}
 
 	edge st = G.newEdge(source, target);
-	edge ts = directed ? NULL : G.newEdge(target, source);
+	edge ts = directed ? nullptr : G.newEdge(target, source);
 
 	if(GA && st && !readAttributes(*GA, st, values)) {
 		return false;
@@ -429,7 +421,7 @@ bool Parser::readAttributes(
  * Just checks wheter beginning of the string is equal to the pattern.
  * Returns number of matched letters (length of the pattern).
  */
-size_t match(const std::string &text, const std::string pattern) {
+size_t match(const std::string &text, const std::string &pattern) {
 	const size_t len = pattern.length();
 	if(len > text.length()) {
 		return 0;

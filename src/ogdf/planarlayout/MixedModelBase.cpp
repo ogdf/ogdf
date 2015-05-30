@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Mixed-Model basic functionality.
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 
-#include "MixedModelBase.h"
+#include <ogdf/internal/planarlayout/MixedModelBase.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
@@ -117,18 +109,18 @@ void MixedModelBase::computeOrder(
 			node cr = (i == V.len()) ? V.right() : V[i+1];
 
 			//edge e, er = 0, el = 0;
-			adjEntry adj, adjR = 0, adjL = 0;
-			forall_adj(adj,v)
+			adjEntry adjR = nullptr, adjL = nullptr;
+			for(adjEntry adj : v->adjEdges)
 			{
 				node t = adj->twinNode();
 				if (t == cr) adjR = adj;
 				if (t == cl) adjL = adj;
 			}
 			// one of adjL and adjR is not 0 by definition of the ordering
-			if (adjR == 0) adjR = adjL;
-			if (adjL == 0) adjL = adjR;
+			if (adjR == nullptr) adjR = adjL;
+			if (adjL == nullptr) adjL = adjR;
 
-			adj = adjR;
+			adjEntry adj = adjR;
 			do {
 				if (exists(adj))
 					m_iops.pushInpoint(adj);
@@ -144,8 +136,8 @@ void MixedModelBase::computeOrder(
 			adjR = m_iops.switchEndIn  (v);
 
 			// has a left- or right edge ?
-			bool has_el = (adjL != 0);
-			bool has_er = (adjR != 0);
+			bool has_el = (adjL != nullptr);
+			bool has_er = (adjR != nullptr);
 			if (adjL && adjL == adjR) {
 				has_el = (adjL->twinNode() != cr);
 				has_er = !has_el;
@@ -175,9 +167,8 @@ void MixedModelBase::computeOrder(
 	}
 
 	// remove augmented edges
-	ListConstIterator<edge> itE;
-	for(itE = augmentedEdges.begin(); itE.valid(); ++itE)
-		m_PG.delEdge(*itE);
+	for(edge e : augmentedEdges)
+		m_PG.delEdge(e);
 }
 
 
@@ -189,12 +180,11 @@ void MixedModelBase::computeOrder(
 
 void MixedModelBase::removeDeg1Nodes()
 {
-	NodeArray<bool> mark(m_PG,false);
-	node v;
+	NodeArray<bool> mark(m_PG, false);
 
 	// mark all deg-1-nodes we want to remove
 	int n = m_PG.numberOfNodes();
-	forall_nodes(v,m_PG) {
+	for (node v : m_PG.nodes) {
 		if (n <= 3) break;
 		if ((mark[v] = (v->degree() == 1)) == true) {
 			node w = v->firstAdj()->twinNode();
@@ -202,7 +192,7 @@ void MixedModelBase::removeDeg1Nodes()
 		}
 	}
 
-	m_PG.removeDeg1Nodes(m_deg1RestoreStack,mark);
+	m_PG.removeDeg1Nodes(m_deg1RestoreStack, mark);
 }
 
 
@@ -351,36 +341,31 @@ void MixedModelBase::computeXCoords()
 {
 	NodeArray<int> &x = m_gridLayout.x();
 
-	int  k, i;
-	node v;
-
 	// representation of the contour
 	NodeArray<node> prev(m_PG), next(m_PG);
-	NodeArray<node> father(m_PG, 0);
+	NodeArray<node> father(m_PG, nullptr);
 
 	// maintaining of free space for shifting
 	Array<int> shiftSpace(1,m_mmo.length(), 0);
 	NodeArray<int> comp(m_PG,0);
 
-	forall_nodes(v,m_PG) {
+	for(node v : m_PG.nodes) {
 		m_nextLeft [v] = m_iops.firstRealOut(v);
 		m_nextRight[v] = m_iops.lastRealOut (v);
 	}
 
 	// last_right[v] = last vertex of highest set with right vertex v
-	NodeArray<node> lastRight(m_PG,0);
-	for(k = 2; k <= m_mmo.length(); ++k) {
+	NodeArray<node> lastRight(m_PG,nullptr);
+	for(int k = 2; k <= m_mmo.length(); ++k) {
 		const ShellingOrderSet &V = m_mmo[k];
 		lastRight[m_mmo.m_right[k]] = V[V.len()];
 	}
 
 	NodeArray<int> high(m_PG,0);
-	forall_nodes(v,m_PG) {
-		InOutPoint op;
-		ListConstIterator<InOutPoint> it;
-		for(it = m_iops.outpoints(v).begin(); it.valid(); ++it) {
-			if (!m_iops.marked((*it).m_adj))
-				high[v] = max(m_mmo.rank((*it).m_adj->twinNode()), high[v]);
+	for(node v : m_PG.nodes) {
+		for(const InOutPoint &op : m_iops.outpoints(v)) {
+			if (!m_iops.marked(op.m_adj))
+				high[v] = max(m_mmo.rank(op.m_adj->twinNode()), high[v]);
 		}
 	}
 
@@ -389,18 +374,18 @@ void MixedModelBase::computeXCoords()
 	int p = V1.len();
 
 	x[V1[1]] = m_iops.outLeft(V1[1]);
-	for (i = 2; i <= p; i++) {
+	for (int i = 2; i <= p; i++) {
 		x[V1[i]] = m_iops.maxRight(V1[i-1]) + m_iops.maxLeft(V1[i]) + 1;
 	}
 
-	for (i = 1; i <= p; i++) {
+	for (int i = 1; i <= p; i++) {
 		if (i < p) next[V1[i]] = V1[i+1];
 		if (i > 1) prev[V1[i]] = V1[i-1];
 	}
-	prev [V1[1]] = next [V1[p]] = 0;
+	prev [V1[1]] = next [V1[p]] = nullptr;
 
 	// main loop
-	for(k = 2; k <= m_mmo.length(); ++k)
+	for(int k = 2; k <= m_mmo.length(); ++k)
 	{
 		// consider set Vk
 		const ShellingOrderSet &Vk = m_mmo[k];
@@ -416,7 +401,7 @@ void MixedModelBase::computeXCoords()
 
 		// determine temporarily the x-coordinates of c_l+1,...,c_r relative to cl
 		int sum = 0;
-		for (v = next[cl]; v != cr; v = next[v]) {
+		for (node v = next[cl]; v != cr; v = next[v]) {
 			sum += x[v]; x[v] = sum;
 		}
 		x[cr] += sum;
@@ -476,7 +461,7 @@ void MixedModelBase::computeXCoords()
 			int x_0 = x[ct] + op_ct.m_dx - ip_ct.m_dx;
 
 			int sum = 0;
-			for (v = prev[ct]; v != cl; v = prev[v]) {
+			for (node v = prev[ct]; v != cl; v = prev[v]) {
 				x[v] -= sum;
 				if (m_nextRight[v].valid() && (*m_nextRight[v]).m_adj->twinNode() == z1) {
 					InOutPoint op_v = *m_nextRight[v];
@@ -489,13 +474,13 @@ void MixedModelBase::computeXCoords()
 				}
 			}
 
-			for (v = next[cl]; v != next[ct]; v = next[v])
+			for (node v = next[cl]; v != next[ct]; v = next[v])
 				x[v] += sum;
 			x_0 += sum;
 
 			sum += delta;
 
-			for (v = next[ct]; v != next[cr]; v = next[v]) {
+			for (node v = next[ct]; v != next[cr]; v = next[v]) {
 				x[v] += sum;
 				if (m_nextRight[v].valid() && (*m_nextRight[v]).m_adj->twinNode() == z1) {
 					InOutPoint op_v = *m_nextRight[v];
@@ -513,7 +498,7 @@ void MixedModelBase::computeXCoords()
 			old_x_cr = x[cr] - x[z1];
 			x[cr] = max(old_x_cr, m_iops.maxPlusRight(z1) - dxr);
 
-			for (v = next[cl]; v != cr; v = next[v]) {
+			for (node v = next[cl]; v != cr; v = next[v]) {
 				x[v]      = x[v] - x[z1];
 				father[v] = z1;
 			}
@@ -521,7 +506,7 @@ void MixedModelBase::computeXCoords()
 		// chain case
 		} else {
 			int sum = x[z1] = m_iops.maxPlusLeft(z1) + dxl;
-			for (i = 2; i <= p; i++)
+			for (int i = 2; i <= p; i++)
 				sum += (x[Vk[i]] = m_iops.maxRight(Vk[i-1]) + m_iops.maxLeft(Vk[i]) + 1);
 
 			old_x_cr = x[cr] - sum;
@@ -529,7 +514,7 @@ void MixedModelBase::computeXCoords()
 			x[cr] = max(old_x_cr, new_x_cr);
 			shiftSpace[k] = max(0, old_x_cr - new_x_cr);
 
-			for (v = next[cl]; v != cr; v = next[v]) {
+			for (node v = next[cl]; v != cr; v = next[v]) {
 				x[v]      = x[v] - x[z1];
 				father[v] = z1;
 			}
@@ -545,7 +530,7 @@ void MixedModelBase::computeXCoords()
 		}
 
 		// update contour after insertion of z1,...,zp
-		for (i = 1; i <= p; i++) {
+		for (int i = 1; i <= p; i++) {
 			if (i < p) next[Vk[i]] = Vk[i+1];
 			if (i > 1) prev[Vk[i]] = Vk[i-1];
 		}
@@ -557,14 +542,14 @@ void MixedModelBase::computeXCoords()
 
 	// compute final x-coordinates for nodes on final contour
 	int sum = 0;
-	for (v = V1[1]; v != 0; v = next[v])
+	for (node v = V1[1]; v != nullptr; v = next[v])
 		x [v] = (sum += x[v]);
 
 	// compute final x-coordinates for inner nodes
-	for (k = m_mmo.length(); k >= 1; k--) {
-		for (i = 1; i <= m_mmo.len(k); i++) {
-			v = m_mmo(k,i);
-			if (father[v] != 0) {
+	for (int k = m_mmo.length(); k >= 1; k--) {
+		for (int i = 1; i <= m_mmo.len(k); i++) {
+			node v = m_mmo(k,i);
+			if (father[v] != nullptr) {
 				x[v] = x[v] + x[father[v]] - comp[father[v]];
 			}
 		}
@@ -764,7 +749,7 @@ void MixedModelBase::computeYCoords()
 		if (i < p) next[V1[i]] = V1[i+1];
 		if (i > 1) prev[V1[i]] = V1[i-1];
 	}
-	prev [V1[1]] = next [V1[p]] = 0;
+	prev [V1[1]] = next [V1[p]] = nullptr;
 
 	// main loop
 	for (k = 2; k <= m_mmo.length(); ++k)
@@ -900,8 +885,7 @@ void MixedModelBase::setBends ()
 		for (int i = 1; i <= m_mmo[k].len(); ++i)
 		{
 			node v_s = m_mmo(k,i);
-			adjEntry adj;
-			forall_adj(adj,v_s)
+			for(adjEntry adj : v_s->adjEdges)
 			{
 				node v_t = adj->twinNode();
 				edge e = adj->theEdge();
@@ -1009,8 +993,7 @@ void MixedModelBase::postprocessing2()
 {
 	m_gridLayout.compactAllBends();
 
-	node v;
-	forall_nodes(v,m_PG)
+	for(node v : m_PG.nodes)
 	{
 		if(v->degree() != 2) continue;
 
@@ -1077,23 +1060,20 @@ void MixedModelBase::printMMOrder(ostream &os)
 
 void MixedModelBase::printInOutPoints(ostream &os)
 {
-	node v;
-
 	os << "\n\nin- and outpoint lists:\n";
-	forall_nodes(v,m_PG) {
+	for(node v : m_PG.nodes) {
 		const List<InOutPoint> &in  = m_iops.inpoints (v);
 		const List<InOutPoint> &out = m_iops.outpoints(v);
 
 		os << "\n" << v << ":\n";
 		os << "  outpoints: ";
-		ListConstIterator<InOutPoint> it;
-		for(it = out.begin(); it.valid(); ++it) {
-			print(os,*it);
+		for(const InOutPoint &op : out) {
+			print(os,op);
 			os << " ";
 		}
 		os << "\n  inpoints:  ";
-		for(it = in.begin(); it.valid(); ++it) {
-			print(os,*it);
+		for(const InOutPoint &ip : in) {
+			print(os,ip);
 			os << " ";
 		}
 	}
@@ -1112,10 +1092,8 @@ void MixedModelBase::print(ostream &os, const InOutPoint &iop)
 
 void MixedModelBase::printNodeCoords(ostream &os)
 {
-	node v;
-
 	os << "\nx- and y-coordinates:\n\n";
-	forall_nodes(v,m_PG)
+	for(node v : m_PG.nodes)
 		os << v << ": (" << m_gridLayout.x(v) << "," << m_gridLayout.y(v) << ")\n";
 }
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3553 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:02 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class HashArray2D.
  *
@@ -62,6 +54,8 @@ namespace ogdf {
 
 //! Indexed 2-dimensional arrays using hashing for element access.
 /**
+ * @ingroup containers
+ *
  * @tparam I1 is the first index type.
  * @tparam I2 is the second index type.
  * @tparam E  is the element type.

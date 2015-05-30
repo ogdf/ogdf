@@ -1,11 +1,3 @@
-/*
- * $Revision: 2584 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 02:38:07 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class DynamicBCTree
  *
@@ -54,6 +46,8 @@ namespace ogdf {
 
 /**
  * \brief Dynamic BC-trees.
+ *
+ * @ingroup decomp
  *
  * This class provides dynamic BC-trees.\n
  * The main difference of the dynamic BC-tree structure compared to the static
@@ -126,9 +120,9 @@ protected:
 
 /** @} @{
  * \brief returns the parent of a given BC-tree-vertex.
- * \param vB is any vertex of \e m_B or \e NULL.
+ * \param vB is any vertex of \e m_B or \e nullptr.
  * \return the parent of \a vB in the BC-tree structure, if \a vB is not the
- * root of the BC-tree, and \e NULL, if \a vB is \e NULL or the root of the
+ * root of the BC-tree, and \e nullptr, if \a vB is \e nullptr or the root of the
  * BC-tree. The UNION/FIND-tree structures are considered.
  */
 	node parent (node vB) const;
@@ -205,7 +199,7 @@ public:
  *   then rep(\a uG,\a vB) returns the very vertex of the biconnected
  *   components graph corresponding to \a uG within the representation of
  *   \a vB.
- * - Otherwise, \e NULL is returned.
+ * - Otherwise, \e nullptr is returned.
  *
  * The difference between BCTree::repVertex() and DynamicBCTree::repVertex()
  * is, that the latter one considers the UNION/FIND-tree structures.
@@ -228,7 +222,7 @@ public:
  * \param vB is any vertex of \e m_B.
  * \return a vertex of the biconnected components graph:
  * - If \a uB == \a vB and they are representing a B-component, then
- *   cutVertex(\a uB,\a vB) returns \e NULL.
+ *   cutVertex(\a uB,\a vB) returns \e nullptr.
  * - If \a uB == \a vB and they are representing a C-component, then
  *   cutVertex(\a uB,\a vB) returns the single isolated vertex in the
  *   biconnected components graph which is the copy of the C-component.
@@ -238,7 +232,7 @@ public:
  *   returns the very copy of this vertex within the biconnected components
  *   graph which belongs to the copy of the biconnected component represented
  *   by \a vB.
- * - Otherwise, cutVertex(\a uB,\a vB) returns \e NULL.
+ * - Otherwise, cutVertex(\a uB,\a vB) returns \e nullptr.
  *
  * The difference between BCTree::cutVertex() and DynamicBCTree::cutVertex()
  * is, that the latter one considers the UNION/FIND-tree structures.
@@ -308,7 +302,7 @@ public:
  * \param vG is a vertex of the original graph.
  * \return If \a uG and \a vG are belonging to the same B-component, the very
  * vertex of the BC-tree representing this B-component is returned. Otherwise,
- * \e NULL is returned. This member function returns the representant of the
+ * \e nullptr is returned. This member function returns the representant of the
  * correct B-component even if \a uG or \a vG or either are cut-vertices and
  * are therefore belonging to C-components, too.
  *

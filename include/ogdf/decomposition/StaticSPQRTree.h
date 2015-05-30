@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class StaticSPQRTree
  *
@@ -65,6 +57,8 @@ namespace ogdf {
 
 /**
  * \brief Linear-time implementation of static SPQR-trees.
+ *
+ * @ingroup decomp
  *
  * The class StaticSPQRTree maintains the arrangement of the triconnected
  * components of a biconnected multi-graph \a G [Hopcroft, Tarjan 1973]
@@ -230,15 +224,15 @@ protected:
 	 */
 	void cpRec(node v, PertinentGraph &Gp) const
 	{
-		edge e;
 		const Skeleton &S = skeleton(v);
 
-		forall_edges(e,S.getGraph()) {
+		for(edge e : S.getGraph().edges) {
 			edge eOrig = S.realEdge(e);
 			if (eOrig != 0) cpAddEdge(eOrig,Gp);
 		}
 
-		forall_adj_edges(e,v) {
+		edge e;
+		forall_adj_edges(e, v) {
 			node w = e->target();
 			if (w != v) cpRec(w,Gp);
 		}

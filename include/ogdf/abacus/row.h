@@ -1,11 +1,3 @@
-/*
- * $Revision: 3975 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-25 12:53:46 +0100 (Tue, 25 Mar 2014) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief row.

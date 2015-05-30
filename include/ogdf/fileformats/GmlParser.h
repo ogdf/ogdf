@@ -1,11 +1,3 @@
-/*
- * $Revision: 2641 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of classes GmlObject and GmlParser.
  *

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Places nodes on a circle around the barycenter of its neighbors.
  *
@@ -80,13 +72,12 @@ void CirclePlacer::placeOneLevel(MultilevelGraph &MLG)
 	Graph &G = MLG.getGraph();
 	double n = G.numberOfNodes();
 	if (n > 0) {
-		node v;
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			oldNodes[v] = true;
 			center = center + DPoint( MLG.x(v), MLG.y(v) );
 		}
 		center = DPoint(center.m_x / n, center.m_y / n);
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			double r = sqrt( MLG.x(v) * MLG.x(v) + MLG.y(v) * MLG.y(v) );
 			if (r > radius) radius = r;
 		}
@@ -98,8 +89,7 @@ void CirclePlacer::placeOneLevel(MultilevelGraph &MLG)
 	BarycenterPlacer BP;
 	BP.placeOneLevel(MLG);
 
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		if (!m_fixedRadius) {
 			radius = (float)center.distance(DPoint(MLG.x(v), MLG.y(v))) + m_circleSize;
 		}

@@ -976,7 +976,7 @@ ClpSimplexPrimal::statusOfProblemInPrimal(int & lastCleaned, int type,
      bool goToDual = false;
      // really for free variables in
      //if((progressFlag_&2)!=0)
-     //problemStatus_=-1;;
+     //problemStatus_=-1;
      progressFlag_ = 0; //reset progress flag
 
      handler_->message(CLP_SIMPLEX_STATUS, messages_)
@@ -1080,7 +1080,7 @@ ClpSimplexPrimal::statusOfProblemInPrimal(int & lastCleaned, int type,
                double take = -dj_[which] * infeasibilityCost_;
                //printf("XXXXZ inf cost %g take %g (range %g %g)\n",infeasibilityCost_,take,-dj_[0]*infeasibilityCost_,-dj_[n-1]*infeasibilityCost_);
                take = -dj_[0] * infeasibilityCost_;
-               infeasibilityCost_ = CoinMin(CoinMax(1000.0 * take, 1.0e8), 1.0000001e10);;
+               infeasibilityCost_ = CoinMin(CoinMax(1000.0 * take, 1.0e8), 1.0000001e10);
                //printf("XXXX increasing weight to %g\n",infeasibilityCost_);
           }
           delete [] dj_;
@@ -1261,7 +1261,7 @@ ClpSimplexPrimal::statusOfProblemInPrimal(int & lastCleaned, int type,
                               // so will exit
                               infeasibilityCost_ = 1.0e30;
                               // reset infeasibilities
-                              sumPrimalInfeasibilities_ = nonLinearCost_->sumInfeasibilities();;
+                              sumPrimalInfeasibilities_ = nonLinearCost_->sumInfeasibilities();
                               numberPrimalInfeasibilities_ =
                                    nonLinearCost_->numberInfeasibilities();
                          }

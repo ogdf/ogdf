@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class RoutingChannel which maintains
  *        required size of routing channels and separation, cOverhang.
@@ -97,8 +89,7 @@ public:
 	{
 		const Graph &G = OR;
 
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 		{
 			const OrthoRep::VertexInfoUML *pInfo = OR.cageInfo(v);
 

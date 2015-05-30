@@ -1,11 +1,3 @@
-/*
- * $Revision: 3432 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Fast Multipole Multilevel Method (FM^3).
  *
@@ -63,6 +55,8 @@ namespace ogdf {
 /**
  * \brief The fast multipole multilevel layout algorithm.
  *
+ * @ingroup gd-energy
+ *
  * The class FMMMLayout implements a force-directed graph drawing
  * method suited also for very large graphs. It is based on a
  * combination of an efficient multilevel scheme and a strategy for
@@ -71,7 +65,7 @@ namespace ogdf {
  *
  * The implementation is based on the following publication:
  *
- * Stefan Hachul, Michael J�nger: <i>Drawing Large Graphs with a
+ * Stefan Hachul, Michael J&uuml;nger: <i>Drawing Large Graphs with a
  * Potential-Field-Based Multilevel Algorithm</i>. 12th International
  * Symposium on %Graph Drawing 1998, New York (GD '04), LNCS 3383,
  * pp. 285-295, 2004.
@@ -366,14 +360,14 @@ public:
 	 */
 
 	//! Calls the algorithm for graph \a GA and returns the layout information in \a AG.
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	//! Calls the algorithm for clustered graph \a GA and returns the layout information in \a AG.
 	//! Models cluster by simple edge length adaption based on least common ancestor
 	//! cluster of end vertices.
 	void call(ClusterGraphAttributes &GA);
 
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	//! Extended algorithm call: Allows to pass desired lengths of the edges.
 	/**

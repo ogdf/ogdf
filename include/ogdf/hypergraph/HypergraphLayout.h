@@ -1,11 +1,3 @@
-/*
- * $Revision: 4000 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-28 20:18:18 +0100 (Fri, 28 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Layout algorithms for hypergraph based on edge standard
  *        representations (clique / star / tree) - HypergraphLayoutES
@@ -106,7 +98,7 @@ private:
 	 *
 	 * 3. Steiner Tree - each hyperedge is represented by a Steiner
 	 *            tree such that its leaves are hypernodes incident
-	 *            with the hyperedge, steiner vertices are represented
+	 *            with the hyperedge, Steiner vertices are represented
 	 *            by newly created nodes.
 	 */
 	Method representationHelper;
@@ -146,7 +138,7 @@ private:
 	 * 2. Iterate the following (m_iterations):
 	 *
 	 *    a) Transform H into a simple graph H based on a chosen
-	 *       representation method (dummy, spanning tree or steiner trees).
+	 *       representation method (dummy, spanning tree or Steiner trees).
 	 *       Make sure hypernodes positions in G are preserved. See below
 	 *       for more details about representation methods.
 	 *    b) Apply any energy-based layout algorithm to get a layout of G.

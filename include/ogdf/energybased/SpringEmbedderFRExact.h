@@ -1,11 +1,3 @@
-/*
- * $Revision: 2524 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-03 09:54:22 +0200 (Tue, 03 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Spring-Embedder (Fruchterman,Reingold)
  *        algorithm with exact force computations.
@@ -73,7 +65,7 @@ public:
 
 
 	//! Calls the layout algorithm for graph attributes \a GA.
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 
 	//! Returns the current setting of iterations.

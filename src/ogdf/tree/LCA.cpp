@@ -1,11 +1,3 @@
-/*
- * $Revision: 3830 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief The Sparse Table Algorithm for the Least Common Ancestor
  *  problem as proposed by Bender and Farach-Colton.
@@ -66,7 +58,8 @@ LCA::LCA(const Graph &G, node root)
 
 node LCA::call(node u, node v) const
 {
-	OGDF_ASSERT(u && v);
+	OGDF_ASSERT(u);
+	OGDF_ASSERT(v);
 	return m_euler[rmq(m_representative[v], m_representative[u])];
 }
 
@@ -115,11 +108,13 @@ void LCA::buildTable()
 		for (int i = 0; i < m_len; ++i) {
 			int &tn = sparseTable(i, j);
 			int &t1 = sparseTable(i, j - 1);
-			OGDF_ASSERT(t1 >= 0 && t1 < m_len);
+			OGDF_ASSERT(t1 >= 0);
+			OGDF_ASSERT(t1 < m_len);
 			int ri = i + (1 << (j-1));
 			if (ri < m_len) {
 				int &t2 = sparseTable(ri, j - 1);
-				OGDF_ASSERT(t2 >= 0 && t2 < m_len);
+				OGDF_ASSERT(t2 >= 0);
+				OGDF_ASSERT(t2 < m_len);
 				if (m_level[t1] < m_level[t2]) {
 					tn = t1;
 				} else {
@@ -146,8 +141,10 @@ int LCA::rmq(int i, int j) const
 	const int k = Math::floorLog2(j - i);
 	const int interval1 = sparseTable(i, k);
 	const int interval2 = sparseTable(j - (1 << k) + 1, k);
-	OGDF_ASSERT(interval1 >= 0 && interval1 < m_len);
-	OGDF_ASSERT(interval2 >= 0 && interval2 < m_len);
+	OGDF_ASSERT(interval1 >= 0);
+	OGDF_ASSERT(interval1 < m_len);
+	OGDF_ASSERT(interval2 >= 0);
+	OGDF_ASSERT(interval2 < m_len);
 	// return the smaller one
 	return (m_level[interval1] < m_level[interval2] ? interval1 : interval2);
 }

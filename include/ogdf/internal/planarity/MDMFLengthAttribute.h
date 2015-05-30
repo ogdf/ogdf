@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Length attribute used in EmbedderMinDepthMaxFace.
  * It contains two components (d, l) and a linear order is defined by:
@@ -63,8 +55,8 @@ public:
 	MDMFLengthAttribute(const MDMFLengthAttribute& x) : d(x.d), l(x.l) { }
 	~MDMFLengthAttribute() { }
 
-	MDMFLengthAttribute operator=(const MDMFLengthAttribute& x);
-	MDMFLengthAttribute operator=(const int& x);
+	MDMFLengthAttribute &operator=(const MDMFLengthAttribute& x);
+	MDMFLengthAttribute &operator=(int x);
 	bool operator==(const MDMFLengthAttribute& x);
 	bool operator!=(const MDMFLengthAttribute& x);
 	bool operator>(const MDMFLengthAttribute& x);

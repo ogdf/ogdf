@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of base class of shortest path algorithms
  *        including some useful functions dealing with
@@ -74,69 +66,6 @@ public:
 		NodeArray<edge> &pi
 	) = 0;
 
-
-
-protected:
-	//
-	// static functions
-	//
-
-	// generates a shortest path problem instance with n nodes and m+n edges
-	/*
-	static void generateProblem(
-		Graph &G,
-		int n,
-		int m,
-		EdgeArray<int> &lowerBound,
-		EdgeArray<int> &upperBound,
-		EdgeArray<int> &cost,
-		NodeArray<int> &supply);
-
-
-	// checks if a given min-cost flow problem instance satisfies
-	// the preconditions
-	//
-	//    lowerBound[e] <= upperBound[e] for all edges e
-	//    cost[e] >= 0 for all edges e
-	//    sum over all supply[v] = 0
-	static bool checkProblem(
-		const Graph &G,
-		const EdgeArray<int> &lowerBound,
-		const EdgeArray<int> &upperBound,
-		const EdgeArray<int> &cost,
-		const NodeArray<int> &supply);
-
-
-
-	// checks if a computed flow is a feasible solution to the given problem
-	// instance, i.e., checks if
-	//    lowerBound[e] <= flow[e] <= upperBound[e]
-	//    sum flow[e], e is outgoing edge of v -
-	//      sum flow[e], e is incoming edge of v = supply[v] for each v
-	// returns true iff the solution is feasible and in value the value of
-	//   the computed flow
-	static bool checkComputedFlow(
-		Graph &G,
-		EdgeArray<int> &lowerBound,
-		EdgeArray<int> &upperBound,
-		EdgeArray<int> &cost,
-		NodeArray<int> &supply,
-		EdgeArray<int> &flow,
-		int &value);
-
-	static bool checkComputedFlow(
-		Graph &G,
-		EdgeArray<int> &lowerBound,
-		EdgeArray<int> &upperBound,
-		EdgeArray<int> &cost,
-		NodeArray<int> &supply,
-		EdgeArray<int> &flow)
-	{
-		int value;
-		return checkComputedFlow(
-			G,lowerBound,upperBound,cost,supply,flow,value);
-	}
-	*/
 };
 
 

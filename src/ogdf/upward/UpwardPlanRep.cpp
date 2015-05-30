@@ -1,11 +1,3 @@
-/*
- * $Revision: 2559 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of PlanRep base class for planar rep.
  *
@@ -54,8 +46,8 @@ namespace ogdf {
 UpwardPlanRep::UpwardPlanRep(const CombinatorialEmbedding &Gamma) :
 	GraphCopy(Gamma.getGraph()),
 	isAugmented(false),
-	t_hat(0),
-	extFaceHandle(0),
+	t_hat(nullptr),
+	extFaceHandle(nullptr),
 	crossings(0)
 {
 	OGDF_ASSERT(Gamma.externalFace() != 0);
@@ -83,8 +75,8 @@ UpwardPlanRep::UpwardPlanRep(const CombinatorialEmbedding &Gamma) :
 UpwardPlanRep::UpwardPlanRep(const GraphCopy &GC, ogdf::adjEntry adj_ext) :
 	GraphCopy(GC),
 	isAugmented(false),
-	t_hat(0),
-	extFaceHandle(0),
+	t_hat(nullptr),
+	extFaceHandle(nullptr),
 	crossings(0)
 {
 	OGDF_ASSERT(adj_ext != 0);
@@ -102,8 +94,7 @@ UpwardPlanRep::UpwardPlanRep(const GraphCopy &GC, ogdf::adjEntry adj_ext) :
 		extFaceHandle = extFaceHandle->twin();
 	m_Gamma.setExternalFace(m_Gamma.rightFace(extFaceHandle));
 
-	adjEntry adj;
-	forall_adj(adj, s_hat)
+	for(adjEntry adj : s_hat->adjEdges)
 		m_isSourceArc[adj->theEdge()] = true;
 
 	computeSinkSwitches();
@@ -125,27 +116,27 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep &UPR)
 	NodeArray<node> vCopy;
 	EdgeArray<edge> eCopy;
 
-	Graph::construct(UPR,vCopy,eCopy);
+	Graph::construct(UPR, vCopy, eCopy);
 
 	// initGC
 	m_pGraph = UPR.m_pGraph;
 
-	m_vOrig.init(*this,0); m_eOrig.init(*this,0);
-	m_vCopy.init(*m_pGraph,0); m_eCopy.init(*m_pGraph);
-	m_eIterator.init(*this,0);
+	m_vOrig.init(*this, nullptr); m_eOrig.init(*this, nullptr);
+	m_vCopy.init(*m_pGraph, nullptr); m_eCopy.init(*m_pGraph);
+	m_eIterator.init(*this, nullptr);
 
-	node v, w;
-	forall_nodes(v,UPR)
+	for (node v : UPR.nodes)
 		m_vOrig[vCopy[v]] = UPR.m_vOrig[v];
 
-	edge e;
-	forall_edges(e,UPR)
+	for (edge e : UPR.edges)
 		m_eOrig[eCopy[e]] = UPR.m_eOrig[e];
 
-	forall_nodes(v,*this)
-		if ((w = m_vOrig[v]) != 0) m_vCopy[w] = v;
+	for (node v : nodes) {
+		node w = m_vOrig[v];
+		if (w != nullptr) m_vCopy[w] = v;
+	}
 
-	forall_edges(e,*m_pGraph) {
+	for(edge e : m_pGraph->edges) {
 		ListConstIterator<edge> it;
 		for (it = UPR.m_eCopy[e].begin(); it.valid(); ++it)
 			m_eIterator[eCopy[*it]] = m_eCopy[e].pushBack(eCopy[*it]);
@@ -165,16 +156,16 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep &UPR)
 
 	OGDF_ASSERT(UPR.extFaceHandle != 0);
 
-	e = eCopy[UPR.extFaceHandle->theEdge()];
-	v = vCopy[UPR.extFaceHandle->theNode()];
-	if (e->adjSource()->theNode() == v)
-		extFaceHandle = e->adjSource();
+	edge eC = eCopy[UPR.extFaceHandle->theEdge()];
+	node vC = vCopy[UPR.extFaceHandle->theNode()];
+	if (eC->adjSource()->theNode() == vC)
+		extFaceHandle = eC->adjSource();
 	else
-		extFaceHandle = e->adjTarget();
+		extFaceHandle = eC->adjTarget();
 
 	m_Gamma.setExternalFace(m_Gamma.rightFace(extFaceHandle));
 
-	forall_edges(e, UPR) {
+	for(edge e : UPR.edges) {
 		edge a = eCopy[e];
 		if (UPR.isSinkArc(e))
 			m_isSinkArc[a] = true;
@@ -192,7 +183,7 @@ UpwardPlanRep & UpwardPlanRep::operator =(const UpwardPlanRep &cp)
 	clear();
 	createEmpty(cp.original());
 	isAugmented = cp.isAugmented;
-	extFaceHandle = 0;
+	extFaceHandle = nullptr;
 	crossings = cp.crossings;
 	copyMe(cp);
 	return *this;
@@ -210,19 +201,18 @@ void UpwardPlanRep::augment()
 	List<adjEntry> switches;
 
 	hasSingleSource(*this, s_hat);
+	OGDF_ASSERT(this == &m_Gamma.getGraph());
 
-	adjEntry adj;
-	forall_adj(adj, s_hat)
+	for(adjEntry adj : s_hat->adjEdges)
 		m_isSourceArc[adj->theEdge()] = true;
 
 	FaceSinkGraph fsg(m_Gamma, s_hat);
 	List<adjEntry> dummyList;
 	FaceArray< List<adjEntry> > sinkSwitches(m_Gamma, dummyList);
 	fsg.sinkSwitches(sinkSwitches);
-	m_sinkSwitchOf.init(*this, 0);
+	m_sinkSwitchOf.init(*this, nullptr);
 
-	face f;
-	forall_faces(f, m_Gamma) {
+	for(face f : m_Gamma.faces) {
 		adjEntry adj_top;
 		switches = sinkSwitches[f];
 		if (switches.empty() || f == m_Gamma.externalFace())
@@ -275,15 +265,17 @@ void UpwardPlanRep::augment()
 		Tuple2<adjEntry, adjEntry> pair = l.popFrontRet();
 
 
-		edge e_new;
+		edge e_new = nullptr;
 		if (pair.x2()->theNode()->degree() == 0 ) {
 			e_new = m_Gamma.splitFace(pair.x1(), pair.x2()->theNode());
 		}
 		else {
 			adjEntry adjTgt = getAdjEntry(m_Gamma, pair.x2()->theNode(), m_Gamma.rightFace(pair.x1()));
-			e_new = m_Gamma.splitFace(pair.x1(), adjTgt);
+			if(!m_Gamma.getGraph().searchEdge(pair.x1()->theNode(),adjTgt->theNode())) // post-hoi-ming bugfix: prohibit the same edge twice...
+					e_new = m_Gamma.splitFace(pair.x1(), adjTgt);
 		}
-		m_isSinkArc[e_new] = true;
+		if(e_new!=nullptr)
+			m_isSinkArc[e_new] = true;
 	}
 
 	isAugmented = true;
@@ -347,7 +339,7 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 			isASourceArc = true;
 
 		int c = 0;
-		if (original(adj->theEdge()) != 0)
+		if (original(adj->theEdge()) != nullptr)
 			c = costOrig[original(adj->theEdge())];
 
 		// split edge
@@ -405,9 +397,9 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 
 	//construct sinkArc for the dirty faces
 	List< Tuple2<adjEntry, adjEntry> > l;
-	forall_listiterators(adjEntry, it, dirtyList) {
-		face fLeft = m_Gamma.leftFace(*it);
-		face fRight = m_Gamma.rightFace(*it);
+	for(adjEntry adj : dirtyList) {
+		face fLeft = m_Gamma.leftFace(adj);
+		face fRight = m_Gamma.rightFace(adj);
 		List<adjEntry> switches = sinkSwitches[fLeft];
 
 		OGDF_ASSERT(!switches.empty());
@@ -432,8 +424,7 @@ void UpwardPlanRep::constructSinkArcs(face f, node t)
 	adjEntry adjTgt;
 
 	if (f != m_Gamma.externalFace()) {
-		adjEntry adj;
-		forall_face_adj(adj, f) {
+		for(adjEntry adj : f->entries) {
 			node v = adj->theNode();
 			if (v == adj->theEdge()->target() && adj->faceCyclePred()->theEdge()->target() == v) {
 				if (v != t)
@@ -456,8 +447,7 @@ void UpwardPlanRep::constructSinkArcs(face f, node t)
 		}
 	}
 	else {
-		adjEntry adj;
-		forall_face_adj(adj, f) {
+		for(adjEntry adj : f->entries) {
 			node v = adj->theNode();
 
 			OGDF_ASSERT(s_hat != 0);
@@ -487,19 +477,18 @@ void UpwardPlanRep::computeSinkSwitches()
 {
 	OGDF_ASSERT(m_Gamma.externalFace() != 0);
 
-	if (s_hat == 0)
+	if (s_hat == nullptr)
 		hasSingleSource(*this, s_hat);
 	FaceSinkGraph fsg(m_Gamma, s_hat);
 	List<adjEntry> dummyList;
 	FaceArray< List<adjEntry> > sinkSwitches(m_Gamma, dummyList);
 	fsg.sinkSwitches(sinkSwitches);
-	m_sinkSwitchOf.init(*this, 0);
+	m_sinkSwitchOf.init(*this, nullptr);
 
-	face f;
-	forall_faces(f, m_Gamma) {
+	for(face f : m_Gamma.faces) {
 		List<adjEntry> switches = sinkSwitches[f];
 		ListIterator<adjEntry> it = switches.begin();
-		for (it = it.succ(); it.valid(); it++) {
+		for (it = it.succ(); it.valid(); ++it) {
 			m_sinkSwitchOf[(*it)->theNode()] = (*it);
 		}
 	}
@@ -517,18 +506,17 @@ void UpwardPlanRep::initMe()
 
 	OGDF_ASSERT(!extFaces.empty());
 
-	face f_ext = 0;
-	forall_slistiterators(face, it, extFaces) {
-		if (f_ext == 0)
-			f_ext = *it;
+	face f_ext = nullptr;
+	for(face f : extFaces) {
+		if (f_ext == nullptr)
+			f_ext = f;
 		else {
-			if (f_ext->size() < (*it)->size())
-				f_ext = *it;
+			if (f_ext->size() < f->size())
+				f_ext = f;
 		}
 	}
 	m_Gamma.setExternalFace(f_ext);
-	adjEntry adj;
-	forall_adj(adj, s_hat) {
+	for(adjEntry adj : s_hat->adjEdges) {
 		if (m_Gamma.rightFace(adj) == m_Gamma.externalFace()) {
 			extFaceHandle = adj;
 			break;
@@ -537,6 +525,21 @@ void UpwardPlanRep::initMe()
 
 	computeSinkSwitches();
 }
+
+adjEntry UpwardPlanRep::getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f) const {
+	adjEntry adjFound = nullptr;
+	for(adjEntry adj : v->adjEdges) {
+		if (Gamma.rightFace(adj) == f) {
+			adjFound = adj;
+			break;
+		}
+	}
+	OGDF_ASSERT(adjFound != nullptr);
+	OGDF_ASSERT(Gamma.rightFace(adjFound) == f);
+
+	return adjFound;
+}
+
 
 
 }

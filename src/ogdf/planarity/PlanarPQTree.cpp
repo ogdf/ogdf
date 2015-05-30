@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class PlanarPQTree.
  *
@@ -85,10 +77,8 @@ void PlanarPQTree::ReplaceRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 // [[emptyAllPertinentNodes]].
 void PlanarPQTree::emptyAllPertinentNodes()
 {
-	ListIterator<PQNode<edge,IndInfo*,bool>*> it;
-	for (it = m_pertinentNodes->begin(); it.valid(); it++)
+	for (PQNode<edge, IndInfo*, bool>* nodePtr : *m_pertinentNodes)
 	{
-		PQNode<edge,IndInfo*,bool>* nodePtr = (*it);
 		if (nodePtr->status() == PQNodeRoot::FULL)
 			destroyNode(nodePtr);
 	}
@@ -103,12 +93,11 @@ void PlanarPQTree::emptyAllPertinentNodes()
 // the set of Keys stored in leafKeys.
 int PlanarPQTree::Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 {
-	SListIterator<PlanarLeafKey<IndInfo*>* >  it;
-	SListPure<PQLeafKey<edge,IndInfo*,bool>*> castLeafKeys;
-	for (it = leafKeys.begin(); it.valid(); ++it)
-		castLeafKeys.pushBack((PQLeafKey<edge,IndInfo*,bool>*) *it);
+	SListPure<PQLeafKey<edge, IndInfo*, bool>*> castLeafKeys;
+	for (PQLeafKey<edge, IndInfo*, bool> *leafPtr : leafKeys)
+		castLeafKeys.pushBack(static_cast<PQLeafKey<edge, IndInfo*, bool>*>(leafPtr));
 
-	return PQTree<edge,IndInfo*,bool>::Initialize(castLeafKeys);
+	return PQTree<edge, IndInfo*, bool>::Initialize(castLeafKeys);
 }
 
 
@@ -116,12 +105,11 @@ int PlanarPQTree::Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 // in leafKeys. Integer redNumber is for debugging only.
 bool PlanarPQTree::Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 {
-	SListIterator<PlanarLeafKey<IndInfo*>* >  it;
-	SListPure<PQLeafKey<edge,IndInfo*,bool>*> castLeafKeys;
-	for (it = leafKeys.begin(); it.valid(); ++it)
-		castLeafKeys.pushBack((PQLeafKey<edge,IndInfo*,bool>*) *it);
+	SListPure<PQLeafKey<edge, IndInfo*, bool>*> castLeafKeys;
+	for (PQLeafKey<edge, IndInfo*, bool> *leafPtr : leafKeys)
+		castLeafKeys.pushBack(static_cast<PQLeafKey<edge, IndInfo*, bool>*>(leafPtr));
 
-	return PQTree<edge,IndInfo*,bool>::Reduction(castLeafKeys);
+	return PQTree<edge, IndInfo*, bool>::Reduction(castLeafKeys);
 }
 
 
@@ -140,12 +128,12 @@ void PlanarPQTree::ReplaceFullRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys
 		exchangeNodes(m_pertinentRoot,(PQNode<edge,IndInfo*,bool>*) leafPtr);
 		if (m_pertinentRoot == m_root)
 			m_root = (PQNode<edge,IndInfo*,bool>*) leafPtr;
-		m_pertinentRoot = 0;  // check for this emptyAllPertinentNodes
+		m_pertinentRoot = nullptr;  // check for this emptyAllPertinentNodes
 	}
 
 	else if (!leafKeys.empty()) // at least two leaves
 	{
-		PQInternalNode<edge,IndInfo*,bool> *nodePtr = 0; // dummy
+		PQInternalNode<edge,IndInfo*,bool> *nodePtr = nullptr; // dummy
 		//replace pertinent root by a $P$-node
 		if ((m_pertinentRoot->type() == PQNodeRoot::PNode) ||
 			(m_pertinentRoot->type() == PQNodeRoot::QNode))
@@ -161,14 +149,13 @@ void PlanarPQTree::ReplaceFullRoot(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys
 			nodePtr = OGDF_NEW PQInternalNode<edge,IndInfo*,bool>(m_identificationNumber++,
 														 PQNodeRoot::PNode,PQNodeRoot::EMPTY);
 			exchangeNodes(m_pertinentRoot,nodePtr);
-			m_pertinentRoot = 0;  // check for this emptyAllPertinentNodes
+			m_pertinentRoot = nullptr;  // check for this emptyAllPertinentNodes
 		}
 
-		SListPure<PQLeafKey<edge,IndInfo*,bool>*> castLeafKeys;
-		SListIterator<PlanarLeafKey<IndInfo*>* >  it;
-		for (it = leafKeys.begin(); it.valid(); ++it)
-			castLeafKeys.pushBack((PQLeafKey<edge,IndInfo*,bool>*) *it);
-		addNewLeavesToTree(nodePtr,castLeafKeys);
+		SListPure<PQLeafKey<edge, IndInfo*, bool>*> castLeafKeys;
+		for (PQLeafKey<edge, IndInfo*, bool>*leafPtr : leafKeys)
+			castLeafKeys.pushBack(static_cast<PQLeafKey<edge, IndInfo*, bool>*>(leafPtr));
+		addNewLeavesToTree(nodePtr, castLeafKeys);
 	}
 }
 

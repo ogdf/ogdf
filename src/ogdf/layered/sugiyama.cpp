@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Sugiyama algorithm (classes Hierarchy,
  * Level, SugiyamaLayout)
@@ -52,13 +44,15 @@
 #include <ogdf/packing/TileToRowsCCPacker.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Thread.h>
-#include <ogdf/basic/CriticalSection.h>
 
-
-#ifdef OGDF_HAVE_CPP11
+#include <mutex>
+#include <atomic>
 #include <random>
+
+using std::atomic;
+using std::mutex;
+using std::lock_guard;
 using std::minstd_rand;
-#endif
 
 
 namespace ogdf {
@@ -71,8 +65,7 @@ namespace ogdf {
 
 void GraphCopyAttributes::transform()
 {
-	node v;
-	forall_nodes(v,*m_pGC)
+	for(node v : m_pGC->nodes)
 	{
 		node vG = m_pGC->original(v);
 		if(vG) {
@@ -81,11 +74,10 @@ void GraphCopyAttributes::transform()
 		}
 	}
 
-	edge e;
-	forall_edges(e,*m_pGC)
+	for(edge e : m_pGC->edges)
 	{
 		edge eG = m_pGC->original(e);
-		if(eG == 0 || e != m_pGC->chain(eG).front())
+		if(eG == nullptr || e != m_pGC->chain(eG).front())
 			continue;
 		// current implementation does not layout self-loops;
 		// they are simply ignored
@@ -123,8 +115,7 @@ void GraphCopyAttributes::transform()
 
 void ClusterGraphCopyAttributes::transform()
 {
-	node v;
-	forall_nodes(v,*m_pH)
+	for(node v : m_pH->nodes)
 	{
 		node vG = m_pH->origNode(v);
 		if(vG) {
@@ -133,11 +124,10 @@ void ClusterGraphCopyAttributes::transform()
 		}
 	}
 
-	edge e;
-	forall_edges(e,*m_pH)
+	for(edge e : m_pH->edges)
 	{
 		edge eG = m_pH->origEdge(e);
-		if(eG == 0 || e != m_pH->chain(eG).front())
+		if(eG == nullptr || e != m_pH->chain(eG).front())
 			continue;
 		// current implementation does not layout self-loops;
 		// they are simply ignored
@@ -210,7 +200,7 @@ void Level::setIsolatedNodes(SListPure<Tuple2<node,int> > &isolated)
 {
 	const int sizeL = size();
 	Array<node> sortedNodes(sizeL);
-	isolated.pushBack(Tuple2<node,int>(0,sizeL));
+	isolated.pushBack(Tuple2<node,int>(nullptr,sizeL));
 	SListConstIterator<Tuple2<node,int> > itIsolated = isolated.begin();
 
 	int nextPos = (*itIsolated).x2();
@@ -238,7 +228,7 @@ class WeightBucket : public BucketFunc<node> {
 public:
 	WeightBucket(const NodeArray<int> *pWeight) : m_pWeight(pWeight) { }
 
-	int getBucket(const node &v) { return (*m_pWeight)[v]; }
+	int getBucket(const node &v) override { return (*m_pWeight)[v]; }
 };
 
 
@@ -312,8 +302,7 @@ void Hierarchy::doInit(const NodeArray<int> &rank)
 
 	int maxRank = 0;
 
-	node v;
-	forall_nodes(v,m_GC) {
+	for(node v : m_GC.nodes) {
 		int r = m_rank[v] = rank[m_GC.original(v)];
 		OGDF_ASSERT(r >= 0)
 		if (r > maxRank) maxRank = r;
@@ -321,11 +310,8 @@ void Hierarchy::doInit(const NodeArray<int> &rank)
 
 	SListPure<edge> edges;
 	m_GC.allEdges(edges);
-	SListConstIterator<edge> it;
-	for(it = edges.begin(); it.valid(); ++it)
+	for(edge e : edges)
 	{
-		edge e = *it;
-
 		int rankSrc = m_rank[e->source()], rankTgt = m_rank[e->target()];
 
 		if (rankSrc > rankTgt) {
@@ -345,7 +331,7 @@ void Hierarchy::doInit(const NodeArray<int> &rank)
 	}
 
 	m_size.init(0,maxRank,0);
-	forall_nodes(v,m_GC)
+	for(node v : m_GC.nodes)
 		m_size[m_rank[v]]++;
 }
 
@@ -365,8 +351,7 @@ HierarchyLevels::HierarchyLevels(const Hierarchy &H) : m_H(H), m_pLevel(0,H.maxR
 
 	Array<int> next(0,maxRank,0);
 
-	node v;
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
 		int r = H.rank(v), pos = next[r]++;
 		m_pos[(*m_pLevel[r])[pos] = v] = pos;
 
@@ -436,8 +421,7 @@ void HierarchyLevels::restorePos (const NodeArray<int> &newPos)
 
 	m_pos = newPos;
 
-	node v;
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
 		(*m_pLevel[m_H.rank(v)])[m_pos[v]] = v;
 	}
 
@@ -476,15 +460,13 @@ void HierarchyLevels::separateCCs(int numCC, const NodeArray<int> &component)
 
 	Array<int> count(0, m_pLevel.high(), 0);
 	for(int c = 0; c < numCC; ++c) {
-		SListConstIterator<node> it;
-		for(it = table[c].begin(); it.valid(); ++it)
-			m_pos[*it] = count[m_H.rank(*it)]++;
+		for(node v : table[c])
+			m_pos[v] = count[m_H.rank(v)]++;
 	}
 
 	const GraphCopy &GC = m_H;
 
-	node v;
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
 		(*m_pLevel[m_H.rank(v)])[m_pos[v]] = v;
 	}
 
@@ -555,7 +537,7 @@ int HierarchyLevelsBase::calculateCrossings(int i) const
 }
 
 
-int HierarchyLevels::calculateCrossingsSimDraw(const EdgeArray<__uint32> *edgeSubGraphs) const
+int HierarchyLevels::calculateCrossingsSimDraw(const EdgeArray<uint32_t> *edgeSubGraphs) const
 {
 	int nCrossings = 0;
 
@@ -570,7 +552,7 @@ int HierarchyLevels::calculateCrossingsSimDraw(const EdgeArray<__uint32> *edgeSu
 // naive calculation of edge crossings between level i and i+1
 // for SimDraw-calculation by Michael Schulz
 
-int HierarchyLevels::calculateCrossingsSimDraw(int i, const EdgeArray<__uint32> *edgeSubGraphs) const
+int HierarchyLevels::calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t> *edgeSubGraphs) const
 {
 	const int maxGraphs = 32;
 
@@ -662,8 +644,7 @@ void HierarchyLevels::print(ostream &os) const
 
 	const GraphCopy &GC = m_H;
 
-	node v;
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
 		os << v << ": lower: " << (m_lowerAdjNodes[v]) <<
 			", upper: " << (m_upperAdjNodes[v]) << endl;
 	}
@@ -703,19 +684,16 @@ class LayerByLayerSweep::CrossMinMaster {
 	const SugiyamaLayout &m_sugi;
 	const Hierarchy      &m_H;
 
-	int              m_seed;
-	__int32          m_runs;
-	CriticalSection  m_criticalSection;
+	atomic<int>  m_runs;
+	mutex        m_mutex;
 
 public:
 	CrossMinMaster(
 		const SugiyamaLayout &sugi,
 		const Hierarchy &H,
-		int seed,
 		int runs);
 
 	const Hierarchy &hierarchy() const { return m_H; }
-	int rseed(long id) const { return (int)id * m_seed; }
 
 	void restore(HierarchyLevels &levels, int &cr);
 
@@ -724,14 +702,11 @@ public:
 		TwoLayerCrossMinSimDraw *pCrossMinSimDraw,
 		HierarchyLevels         &levels,
 		NodeArray<int>          &bestPos,
-		bool                     permuteFirst
-#ifdef OGDF_HAVE_CPP11
-		, std::minstd_rand      &rng
-#endif
-		);
+		bool                     permuteFirst,
+		std::minstd_rand        &rng);
 
 private:
-	const EdgeArray<__uint32> *subgraphs() const { return m_sugi.subgraphs(); }
+	const EdgeArray<uint32_t> *subgraphs() const { return m_sugi.subgraphs(); }
 	int fails() const { return m_sugi.fails(); }
 	bool transpose() { return m_sugi.transpose(); }
 
@@ -765,15 +740,15 @@ private:
 LayerByLayerSweep::CrossMinMaster::CrossMinMaster(
 	const SugiyamaLayout &sugi,
 	const Hierarchy &H,
-	int seed,
 	int runs)
-	: m_pBestPos(0), m_bestCR(numeric_limits<int>::max()), m_sugi(sugi), m_H(H), m_seed(seed), m_runs(runs) { }
+	: m_pBestPos(nullptr), m_bestCR(numeric_limits<int>::max()), m_sugi(sugi), m_H(H), m_runs(runs) { }
 
 
 bool LayerByLayerSweep::CrossMinMaster::postNewResult(int cr, NodeArray<int> *pPos)
 {
 	bool storeResult = false;
-	m_criticalSection.enter();
+
+	lock_guard<mutex> guard(m_mutex);
 
 	if(cr < m_bestCR) {
 		m_bestCR = cr;
@@ -784,14 +759,13 @@ bool LayerByLayerSweep::CrossMinMaster::postNewResult(int cr, NodeArray<int> *pP
 			m_runs = 0;
 	}
 
-	m_criticalSection.leave();
 	return storeResult;
 }
 
 
 bool LayerByLayerSweep::CrossMinMaster::getNextRun()
 {
-	return atomicDec(&m_runs) >= 0;
+	return --m_runs >= 0;
 }
 
 
@@ -856,18 +830,18 @@ int LayerByLayerSweep::CrossMinMaster::traverseTopDown(
 	levels.direction(HierarchyLevels::downward);
 
 	for (int i = 1; i <= levels.high(); ++i) {
-		if(pCrossMin != 0)
+		if(pCrossMin != nullptr)
 			pCrossMin->call(levels[i]);
 		else
 			pCrossMinSimDraw->call(levels[i], subgraphs());
 	}
 
-	if(pLevelChanged != 0)
+	if(pLevelChanged != nullptr)
 		doTranspose(levels, *pLevelChanged);
 	if(arrangeCCs() == false)
 		levels.separateCCs(arrange_numCC(), arrange_compGC());
 
-	return (pCrossMin != 0) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
+	return (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
 }
 
 
@@ -880,18 +854,18 @@ int LayerByLayerSweep::CrossMinMaster::traverseBottomUp(
 	levels.direction(HierarchyLevels::upward);
 
 	for (int i = levels.high()-1; i >= 0; i--) {
-		if(pCrossMin != 0)
+		if(pCrossMin != nullptr)
 			pCrossMin->call(levels[i]);
 		else
 			pCrossMinSimDraw->call(levels[i], subgraphs());
 	}
 
-	if (pLevelChanged != 0)
+	if (pLevelChanged != nullptr)
 		doTransposeRev(levels, *pLevelChanged);
 	if(arrangeCCs() == false)
 		levels.separateCCs(arrange_numCC(), arrange_compGC());
 
-	return (pCrossMin != 0) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
+	return (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
 }
 
 
@@ -900,32 +874,25 @@ void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
 	TwoLayerCrossMinSimDraw *pCrossMinSimDraw,
 	HierarchyLevels         &levels,
 	NodeArray<int>          &bestPos,
-	bool                     permuteFirst
-#ifdef OGDF_HAVE_CPP11
-	, minstd_rand &rng
-#endif
-	)
+	bool                     permuteFirst,
+	minstd_rand             &rng)
 {
 	if(permuteFirst)
-#ifdef OGDF_HAVE_CPP11
 		levels.permute(rng);
-#else
-		levels.permute();
-#endif
 
-	int nCrossingsOld = (pCrossMin != 0) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
+	int nCrossingsOld = (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
 	if(postNewResult(nCrossingsOld, &bestPos) == true)
 		levels.storePos(bestPos);
 
 	if(queryBestKnown() == 0)
 		return;
 
-	if(pCrossMin != 0)
+	if(pCrossMin != nullptr)
 		pCrossMin->init(levels);
 	else
 		pCrossMinSimDraw->init(levels);
 
-	Array<bool> *pLevelChanged = 0;
+	Array<bool> *pLevelChanged = nullptr;
 	if(transpose()) {
 		pLevelChanged = new Array<bool>(-1,levels.size());
 		(*pLevelChanged)[-1] = (*pLevelChanged)[levels.size()] = false;
@@ -964,20 +931,16 @@ void LayerByLayerSweep::CrossMinMaster::doWorkHelper(
 		if(getNextRun() == false)
 			break;
 
-#ifdef OGDF_HAVE_CPP11
 		levels.permute(rng);
-#else
-		levels.permute();
-#endif
 
-		nCrossingsOld = (pCrossMin != 0) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
+		nCrossingsOld = (pCrossMin != nullptr) ? levels.calculateCrossings() : levels.calculateCrossingsSimDraw(subgraphs());
 		if(nCrossingsOld < queryBestKnown() && postNewResult(nCrossingsOld, &bestPos) == true)
 			levels.storePos(bestPos);
 	}
 
 	delete pLevelChanged;
 
-	if(pCrossMin != 0)
+	if(pCrossMin != nullptr)
 		pCrossMin->cleanup();
 	else
 		pCrossMinSimDraw->cleanup();
@@ -1003,20 +966,19 @@ public:
 
 	~CrossMinWorker() { delete m_pCrossMin; }
 
-protected:
-	virtual void doWork();
+	void operator()();
+
+private:
+	CrossMinWorker(const CrossMinWorker &); // = delete
+	CrossMinWorker &operator=(const CrossMinWorker &); // = delete
 };
 
-void LayerByLayerSweep::CrossMinWorker::doWork()
+void LayerByLayerSweep::CrossMinWorker::operator()()
 {
 	HierarchyLevels levels(m_master.hierarchy());
 
-#ifdef OGDF_HAVE_CPP11
-	minstd_rand rng(m_master.rseed(threadID())); // different seeds per thread
+	minstd_rand rng(randomSeed()); // different seeds per worker
 	m_master.doWorkHelper(m_pCrossMin, m_pCrossMinSimDraw, levels, m_bestPos, true, rng);
-#else
-	m_master.doWorkHelper(m_pCrossMin, m_pCrossMinSimDraw, levels, m_bestPos, true);
-#endif
 }
 
 
@@ -1046,15 +1008,15 @@ SugiyamaLayout::SugiyamaLayout()
 	m_pageRatio = 1.0;
 
 #ifdef OGDF_MEMORY_POOL_NTS
-	m_maxThreads = 1;
+	m_maxThreads = 1u;
 #else
-	m_maxThreads = System::numberOfProcessors();
+	m_maxThreads = max(1u, Thread::hardware_concurrency());
 #endif
 
 	m_alignBaseClasses = false;
 	m_alignSiblings = false;
 
-	m_subgraphs = 0;
+	m_subgraphs = nullptr;
 
 	m_maxLevelSize = -1;
 	m_numLevels = -1;
@@ -1111,8 +1073,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		// intialize the array of lists of nodes contained in a CC
 		Array<List<node> > nodesInCC(m_numCC);
 
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 			nodesInCC[component[v]].pushBack(v);
 
 		Hierarchy H;
@@ -1129,14 +1090,13 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 		{
 			// adjust ranks in cc to start with 0
 			int minRank = numeric_limits<int>::max();
-			ListConstIterator<node> it;
-			for(it = nodesInCC[i].begin(); it.valid(); ++it)
-				if(rank[*it] < minRank)
-					minRank = rank[*it];
+			for(node v : nodesInCC[i])
+				if(rank[v] < minRank)
+					minRank = rank[v];
 
 			if(minRank != 0) {
-				for(it = nodesInCC[i].begin(); it.valid(); ++it)
-					rank[*it] -= minRank;
+				for(node v : nodesInCC[i])
+					rank[v] -= minRank;
 			}
 			H.createEmpty(G);
 			H.initByNodes(nodesInCC[i],auxCopy,rank);
@@ -1157,12 +1117,11 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 				minY =  numeric_limits<double>::max(),
 				maxY = -numeric_limits<double>::max();
 
-			node vCopy;
-			forall_nodes(vCopy,GC)
+			for(node vCopy : GC.nodes)
 			{
 				mark[vCopy] = false;
 				node v = GC.original(vCopy);
-				if(v == 0) continue;
+				if(v == nullptr) continue;
 
 				if(AG.x(v)-AG.width (v)/2 < minX) minX = AG.x(v)-AG.width(v) /2;
 				if(AG.x(v)+AG.width (v)/2 > maxX) maxX = AG.x(v)+AG.width(v) /2;
@@ -1178,7 +1137,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 						node v = L[j];
 						if(!GC.isDummy(v)) continue;
 						edge e = GC.original(v->firstAdj()->theEdge());
-						if(e == 0) continue;
+						if(e == nullptr) continue;
 						node src = GC.copy(e->source());
 						node tgt = GC.copy(e->target());
 
@@ -1202,20 +1161,18 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 				}
 			}
 
-			edge eCopy;
-			forall_edges(eCopy,GC)
+			for(edge eCopy : GC.edges)
 			{
 				edge e = GC.original(eCopy);
-				if(e == 0 || eCopy != GC.chain(e).front()) continue;
+				if(e == nullptr || eCopy != GC.chain(e).front()) continue;
 
 				const DPolyline &dpl = AG.bends(e);
-				ListConstIterator<DPoint> it;
-				for(it = dpl.begin(); it.valid(); ++it)
+				for(const DPoint &dp : dpl)
 				{
-					if((*it).m_x < minX) minX = (*it).m_x;
-					if((*it).m_x > maxX) maxX = (*it).m_x;
-					if((*it).m_y < minY) minY = (*it).m_y;
-					if((*it).m_y > maxY) maxY = (*it).m_y;
+					if(dp.m_x < minX) minX = dp.m_x;
+					if(dp.m_x > maxX) maxX = dp.m_x;
+					if(dp.m_y < minY) minY = dp.m_y;
+					if(dp.m_y > maxY) maxY = dp.m_y;
 				}
 			}
 
@@ -1251,11 +1208,8 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			const double dy = offset[i].m_y - offset1[i].m_y;
 
 			// iterate over all nodes in ith CC
-			ListConstIterator<node> it;
-			for(it = nodes.begin(); it.valid(); ++it)
+			for(node v : nodes)
 			{
-				node v = *it;
-
 				AG.x(v) += dx;
 				AG.y(v) += dy;
 
@@ -1265,11 +1219,10 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 					if(e->isSelfLoop() || e->source() != v) continue;
 
 					DPolyline &dpl = AG.bends(e);
-					ListIterator<DPoint> it;
-					for(it = dpl.begin(); it.valid(); ++it)
+					for(DPoint &dp : dpl)
 					{
-						(*it).m_x += dx;
-						(*it).m_y += dy;
+						dp.m_x += dx;
+						dp.m_y += dy;
 					}
 				}
 			}
@@ -1277,13 +1230,12 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 
 	} else {
 		int minRank = numeric_limits<int>::max();
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 			if(rank[v] < minRank)
 				minRank = rank[v];
 
 		if(minRank != 0) {
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 				rank[v] -= minRank;
 		}
 
@@ -1293,9 +1245,9 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			const GraphCopy &GC = H;
 
 			m_compGC.init(GC);
-			forall_nodes(v,GC) {
+			for(node v : GC.nodes) {
 				node vOrig = GC.original(v);
-				if(vOrig == 0)
+				if(vOrig == nullptr)
 					vOrig = GC.original(v->firstAdj()->theEdge())->source();
 
 				m_compGC[v] = component[vOrig];
@@ -1321,7 +1273,7 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 					node v = L[j];
 					if(!GC.isDummy(v)) continue;
 					edge e = GC.original(v->firstAdj()->theEdge());
-					if(e == 0) continue;
+					if(e == nullptr) continue;
 					node src = GC.copy(e->source());
 					node tgt = GC.copy(e->target());
 
@@ -1368,7 +1320,7 @@ void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 	OGDF_ASSERT(m_runs >= 1);
 
 
-	__int64 t;
+	int64_t t;
 	System::usedRealTime(t);
 
 	LayerByLayerSweep          *pCrossMin = 0;
@@ -1379,12 +1331,9 @@ void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 	else
 		pCrossMinSimDraw = &m_crossMinSimDraw.get();
 
-	int nThreads = min(m_maxThreads, m_runs);
+	unsigned int nThreads = min(m_maxThreads, (unsigned int)m_runs);
 
-	int seed = rand();
-#ifdef OGDF_HAVE_CPP11
-	minstd_rand rng(seed);
-#endif
+	minstd_rand rng(randomSeed());
 
 	LayerByLayerSweep::CrossMinMaster master(*this, levels.hierarchy(), seed, m_runs - nThreads);
 
@@ -1393,78 +1342,66 @@ void SugiyamaLayout::reduceCrossings(HierarchyLevels &levels)
 		thread[i] = new LayerByLayerSweep::CrossMinWorker(master,
 			(pCrossMin        != 0) ? pCrossMin       ->clone() : 0,
 			(pCrossMinSimDraw != 0) ? pCrossMinSimDraw->clone() : 0);
-		thread[i]->start();
+		thread[i] = Thread(*worker[i]);
 	}
 
 	NodeArray<int> bestPos;
-	master.doWorkHelper(pCrossMin, pCrossMinSimDraw, levels, bestPos, m_permuteFirst
-#ifdef OGDF_HAVE_CPP11
-		, rng
-#endif
-		);
+	master.doWorkHelper(pCrossMin, pCrossMinSimDraw, levels, bestPos, m_permuteFirst, rng);
 
-	for(int i = 0; i < nThreads-1; ++i)
-		thread[i]->join();
+	for(unsigned int i = 0; i < nThreads-1; ++i)
+		thread[i].join();
 
 	master.restore(levels, m_nCrossings);
 
-	for(int i = 0; i < nThreads-1; ++i)
-		delete thread[i];
+	for(unsigned int i = 0; i < nThreads-1; ++i)
+		delete worker[i];
 
 	t = System::usedRealTime(t);
 	m_timeReduceCrossings = double(t) / 1000;
 }
 //*/
-const HierarchyLevels *LayerByLayerSweep::reduceCrossings(const SugiyamaLayout &sugi, const Hierarchy &H)
+const HierarchyLevels *LayerByLayerSweep::reduceCrossings(const SugiyamaLayout &sugi, const Hierarchy &H, int &nCrossings)
 {
 	HierarchyLevels *levels = new HierarchyLevels(H);
+
 	OGDF_ASSERT(sugi.runs() >= 1);
 
-	int nThreads = min( sugi.maxThreads(), sugi.runs() );
+	unsigned int nThreads = min(sugi.maxThreads(), (unsigned int) sugi.runs());
 
-	int seed = rand();
-#ifdef OGDF_HAVE_CPP11
-	minstd_rand rng(seed);
-#endif
+	minstd_rand rng(randomSeed());
 
-	LayerByLayerSweep::CrossMinMaster master(sugi, levels->hierarchy(), seed, sugi.runs() - nThreads);
+	LayerByLayerSweep::CrossMinMaster master(sugi, levels->hierarchy(), sugi.runs() - nThreads);
 
-	Array<LayerByLayerSweep::CrossMinWorker *> thread(nThreads-1);
-	for ( int i = 0; i < nThreads - 1; ++i ) {
-		thread[i] = new LayerByLayerSweep::CrossMinWorker(master,
-			clone(), 0);
-		thread[i] -> start();
+	Array<LayerByLayerSweep::CrossMinWorker *> worker(nThreads-1);
+	Array<Thread>                              thread(nThreads - 1);
+	for (unsigned int i = 0; i < nThreads - 1; ++i) {
+		worker[i] = new LayerByLayerSweep::CrossMinWorker(master, clone(), nullptr);
+		thread[i] = Thread(*worker[i]);
 	}
 
 	NodeArray<int> bestPos;
-	master.doWorkHelper(this, 0, *levels, bestPos, sugi.permuteFirst()
-#ifdef OGDF_HAVE_CPP11
-		, rng
-#endif
-		);
+	master.doWorkHelper(this, nullptr, *levels, bestPos, sugi.permuteFirst(), rng);
 
-	for (int i = 0; i < nThreads - 1; ++i )
-		thread[i] -> join();
+	for (unsigned int i = 0; i < nThreads - 1; ++i )
+		thread[i].join();
 
-	// ??
-	int x = 0;
-	master.restore(*levels, x );
+	master.restore(*levels, nCrossings);
 
-	for ( int i = 0; i < nThreads - 1; ++i )
-		delete thread[i];
+	for ( unsigned int i = 0; i < nThreads - 1; ++i )
+		delete worker[i];
 
 	return levels;
 }
+
 
 const HierarchyLevelsBase *SugiyamaLayout::reduceCrossings(Hierarchy &H)
 {
 	OGDF_ASSERT(m_runs >= 1);
 
-
 	if (useSubgraphs() == false) {
-		__int64 t;
+		int64_t t;
 		System::usedRealTime(t);
-		const HierarchyLevelsBase *levels = m_crossMin.get().reduceCrossings(*this,H);
+		const HierarchyLevelsBase *levels = m_crossMin.get().reduceCrossings( *this, H, m_nCrossings);
 		t = System::usedRealTime(t);
 		m_timeReduceCrossings = double(t) / 1000;
 		m_nCrossings = levels -> calculateCrossings();
@@ -1472,53 +1409,44 @@ const HierarchyLevelsBase *SugiyamaLayout::reduceCrossings(Hierarchy &H)
 	}
 
 
-
 	//unchanged crossing reduction of subgraphs
 	HierarchyLevels *pLevels = new HierarchyLevels(H);
 	HierarchyLevels levels = *pLevels;
 
-	__int64 t;
+	int64_t t;
 	System::usedRealTime(t);
 
-	LayerByLayerSweep          *pCrossMin = 0;
-	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw = 0;
+	LayerByLayerSweep          *pCrossMin = nullptr;
+	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw = nullptr;
 
-	//if(useSubgraphs() == false)
-	//	pCrossMin = &m_crossMin.get();
-	//else
-		pCrossMinSimDraw = &m_crossMinSimDraw.get();
+	pCrossMinSimDraw = &m_crossMinSimDraw.get();
 
-	int nThreads = min(m_maxThreads, m_runs);
+	unsigned int nThreads = min(m_maxThreads, (unsigned int)m_runs);
 
 	int seed = rand();
-#ifdef OGDF_HAVE_CPP11
 	minstd_rand rng(seed);
-#endif
 
-	LayerByLayerSweep::CrossMinMaster master(*this, levels.hierarchy(), seed, m_runs - nThreads);
+	LayerByLayerSweep::CrossMinMaster master(*this, levels.hierarchy(), m_runs - nThreads);
 
-	Array<LayerByLayerSweep::CrossMinWorker *> thread(nThreads-1);
-	for(int i = 0; i < nThreads-1; ++i) {
-		thread[i] = new LayerByLayerSweep::CrossMinWorker(master,
-			(pCrossMin        != 0) ? pCrossMin       ->clone() : 0,
-			(pCrossMinSimDraw != 0) ? pCrossMinSimDraw->clone() : 0);
-		thread[i]->start();
+	Array<LayerByLayerSweep::CrossMinWorker *> worker(nThreads - 1);
+	Array<Thread>                              thread(nThreads - 1);
+	for (unsigned int i = 0; i < nThreads - 1; ++i) {
+		worker[i] = new LayerByLayerSweep::CrossMinWorker(master,
+			(pCrossMin        != nullptr) ? pCrossMin       ->clone() : nullptr,
+			(pCrossMinSimDraw != nullptr) ? pCrossMinSimDraw->clone() : nullptr);
+		thread[i] = Thread(*worker[i]);
 	}
 
 	NodeArray<int> bestPos;
-	master.doWorkHelper(pCrossMin, pCrossMinSimDraw, levels, bestPos, m_permuteFirst
-#ifdef OGDF_HAVE_CPP11
-		, rng
-#endif
-		);
+	master.doWorkHelper(pCrossMin, pCrossMinSimDraw, levels, bestPos, m_permuteFirst, rng);
 
-	for(int i = 0; i < nThreads-1; ++i)
-		thread[i]->join();
+	for (unsigned int i = 0; i < nThreads - 1; ++i)
+		thread[i].join();
 
 	master.restore(levels, m_nCrossings);
 
-	for(int i = 0; i < nThreads-1; ++i)
-		delete thread[i];
+	for (unsigned int i = 0; i < nThreads - 1; ++i)
+		delete worker[i];
 
 	t = System::usedRealTime(t);
 	m_timeReduceCrossings = double(t) / 1000;

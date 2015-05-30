@@ -126,7 +126,7 @@ public:
   inline CoinBigIndex numberElementBlocks() const
   { return numberElementBlocks_;}
    /// Return number of elements
-  CoinBigIndex numberElements() const;
+  CoinBigIndex numberElements() const override;
   /// Return the i'th row block name
   inline const std::string & getRowBlock(int i) const
   { return rowBlockNames_[i];}
@@ -204,7 +204,7 @@ public:
   /// =
    CoinStructuredModel& operator=(const CoinStructuredModel&);
   /// Clone
-  virtual CoinBaseModel * clone() const;
+  virtual CoinBaseModel * clone() const override;
    //@}
 
 private:

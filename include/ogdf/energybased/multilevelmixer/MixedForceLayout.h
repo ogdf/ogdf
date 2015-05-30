@@ -1,11 +1,3 @@
-/*
- * $Revision: 3433 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 13:44:53 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Uses Fruchtermann Rheingold and Fast Multipole Embedder for faster and better FR results.
  *

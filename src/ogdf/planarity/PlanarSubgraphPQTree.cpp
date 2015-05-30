@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class PlanarSubgraphPQTree.
  *
@@ -64,31 +56,28 @@ ReplaceRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 int PlanarSubgraphPQTree::
 Initialize(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 {
-	SListIterator<PlanarLeafKey<whaInfo*>* >  it;
+	SListPure<PQLeafKey<edge, whaInfo*, bool>*> castLeafKeys;
+	for (PlanarLeafKey<whaInfo*> *leafPtr : leafKeys)
+		castLeafKeys.pushBack(static_cast<PQLeafKey<edge, whaInfo*, bool>*>(leafPtr));
 
-	SListPure<PQLeafKey<edge,whaInfo*,bool>*> castLeafKeys;
-	for (it = leafKeys.begin(); it.valid(); ++it)
-		castLeafKeys.pushBack((PQLeafKey<edge,whaInfo*,bool>*) *it);
-
-	return PQTree<edge,whaInfo*,bool>::Initialize(castLeafKeys);
+	return PQTree<edge, whaInfo*, bool>::Initialize(castLeafKeys);
 }
 
 
 // Reduction reduced a set of leaves determined by their keys stored
 // in leafKeys. Integer redNumber is for debugging only.
 bool PlanarSubgraphPQTree::Reduction(
-	SListPure<PlanarLeafKey<whaInfo*>*>   &leafKeys,
-	SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys)
+	SListPure<PlanarLeafKey<whaInfo*>*>     &leafKeys,
+	SList<PQLeafKey<edge, whaInfo*, bool>*> &eliminatedKeys)
 {
-	SListPure<PQLeafKey<edge,whaInfo*,bool>*> castLeafKeys;
+	SListPure<PQLeafKey<edge, whaInfo*, bool>*> castLeafKeys;
 
-	SListIterator<PlanarLeafKey<whaInfo*>* >  it;
-	for (it = leafKeys.begin(); it.valid(); ++it)
+	for (PlanarLeafKey<whaInfo*>*leafPtr : leafKeys)
 	{
-		castLeafKeys.pushBack((PQLeafKey<edge,whaInfo*,bool>*) *it);
+		castLeafKeys.pushBack(static_cast<PQLeafKey<edge, whaInfo*, bool>*>(leafPtr));
 	}
 
-	determineMinRemoveSequence(castLeafKeys,eliminatedKeys);
+	determineMinRemoveSequence(castLeafKeys, eliminatedKeys);
 	removeEliminatedLeaves(eliminatedKeys);
 
 	SListIterator<PQLeafKey<edge,whaInfo*,bool>* >  itn = castLeafKeys.begin();
@@ -97,7 +86,7 @@ bool PlanarSubgraphPQTree::Reduction(
 	{
 		if ((*itn)->nodePointer()->status()== PQNodeRoot::WHA_DELETE)
 		{
-			itn++;
+			++itn;
 			castLeafKeys.delSucc(itp);
 		}
 		else
@@ -120,19 +109,18 @@ void PlanarSubgraphPQTree::
 ReplaceFullRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 {
 
-	PQLeaf<edge,whaInfo*,bool>          *leafPtr     = 0; // dummy
-	PQInternalNode<edge,whaInfo*,bool>	*nodePtr     = 0; // dummy
-	PQNode<edge,whaInfo*,bool>		    *currentNode = 0; // dummy
-	SListIterator<PlanarLeafKey<whaInfo*>* >  it;
+	PQLeaf<edge, whaInfo*, bool>          *leafPtr = nullptr; // dummy
+	PQInternalNode<edge, whaInfo*, bool>	*nodePtr = nullptr; // dummy
+	PQNode<edge, whaInfo*, bool>		    *currentNode = nullptr; // dummy
 
 	if (!leafKeys.empty() && leafKeys.front() == leafKeys.back())
 	{
 		//ReplaceFullRoot: replace pertinent root by a single leaf
-		leafPtr = OGDF_NEW PQLeaf<edge,whaInfo*,bool>(m_identificationNumber++,
-			PQNodeRoot::EMPTY,(PQLeafKey<edge,whaInfo*,bool>*)leafKeys.front());
-		exchangeNodes(m_pertinentRoot,(PQNode<edge,whaInfo*,bool>*) leafPtr);
+		leafPtr = OGDF_NEW PQLeaf<edge, whaInfo*, bool>(m_identificationNumber++,
+			PQNodeRoot::EMPTY, (PQLeafKey<edge, whaInfo*, bool>*)leafKeys.front());
+		exchangeNodes(m_pertinentRoot, (PQNode<edge, whaInfo*, bool>*) leafPtr);
 		if (m_pertinentRoot == m_root)
-			m_root = (PQNode<edge,whaInfo*,bool>*) leafPtr;
+			m_root = (PQNode<edge, whaInfo*, bool>*) leafPtr;
 	}
 	else if (!leafKeys.empty()) // at least two leaves
 	{
@@ -140,7 +128,7 @@ ReplaceFullRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 		if ((m_pertinentRoot->type() == PQNodeRoot::PNode) ||
 			(m_pertinentRoot->type() == PQNodeRoot::QNode))
 		{
-			nodePtr = (PQInternalNode<edge,whaInfo*,bool>*)m_pertinentRoot;
+			nodePtr = (PQInternalNode<edge, whaInfo*, bool>*)m_pertinentRoot;
 			nodePtr->type(PQNodeRoot::PNode);
 			nodePtr->status(PQNodeRoot::PERTROOT);
 			nodePtr->childCount(0);
@@ -152,14 +140,15 @@ ReplaceFullRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 		}
 		else if (m_pertinentRoot->type() == PQNodeRoot::leaf)
 		{
-			nodePtr = OGDF_NEW PQInternalNode<edge,whaInfo*,bool>(m_identificationNumber++,
-														 PQNodeRoot::PNode,PQNodeRoot::EMPTY);
-			exchangeNodes(m_pertinentRoot,nodePtr);
+			nodePtr = OGDF_NEW PQInternalNode<edge, whaInfo*, bool>(m_identificationNumber++,
+				PQNodeRoot::PNode, PQNodeRoot::EMPTY);
+			exchangeNodes(m_pertinentRoot, nodePtr);
 		}
-		SListPure<PQLeafKey<edge,whaInfo*,bool>*> castLeafKeys;
-		for (it = leafKeys.begin(); it.valid(); ++it)
-			castLeafKeys.pushBack((PQLeafKey<edge,whaInfo*,bool>*) *it);
-		addNewLeavesToTree(nodePtr,castLeafKeys);
+
+		SListPure<PQLeafKey<edge, whaInfo*, bool>*> castLeafKeys;
+		for (PlanarLeafKey<whaInfo*>* leafPtr : leafKeys)
+			castLeafKeys.pushBack(static_cast<PQLeafKey<edge, whaInfo*, bool>*>(leafPtr));
+		addNewLeavesToTree(nodePtr, castLeafKeys);
 	}
 
 }
@@ -171,7 +160,7 @@ void PlanarSubgraphPQTree::
 	ReplacePartialRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 
 {
-	PQNode<edge,whaInfo*,bool>  *currentNode = NULL;
+	PQNode<edge,whaInfo*,bool>  *currentNode = nullptr;
 
 	m_pertinentRoot->childCount(m_pertinentRoot->childCount() + 1 -
 		fullChildren(m_pertinentRoot)->size());
@@ -195,22 +184,19 @@ void PlanarSubgraphPQTree::
 The function removeEliminatedLeaves handles the difficult task of
 cleaning up after every reduction.
 
-After a reduction is complete, different kind of garbage has to be
-handled.
-\begin{itemize}
-\item Pertinent leaves that are not in the maximal pertinent sequence.
-	from the $PQ$-tree in order to get it reducable have to be deleted.
-\item The memory of some pertinent nodes, that have only pertinent leaves not beeing
-	in the maximal pertinent sequence in their frontier has to be freed.
-\item Pertinent nodes that have only one child left after the removal
-	of pertinent leaves not beeing in the maximal pertinent sequence
-	have to be deleted.
-\item The memory of all full nodes has to be freed, since the complete
-	pertinent subtree is replaced by a $P$-node after the reduction.
-\item Nodes, that have been removed during the call of the function [[Reduce]]
-	of the base class template [[PQTree]] from the $PQ$-tree have to be
-	kept but marked as nonexisting.
-\end{itemize}.
+After a reduction is complete, different kind of garbage has to be handled.
+- Pertinent leaves that are not in the maximal pertinent sequence.
+  from the $PQ$-tree in order to get it reducable have to be deleted.
+- The memory of some pertinent nodes, that have only pertinent leaves not beeing
+  in the maximal pertinent sequence in their frontier has to be freed.
+- Pertinent nodes that have only one child left after the removal
+  of pertinent leaves not beeing in the maximal pertinent sequence
+  have to be deleted.
+- The memory of all full nodes has to be freed, since the complete
+  pertinent subtree is replaced by a $P$-node after the reduction.
+- Nodes, that have been removed during the call of the function [[Reduce]]
+  of the base class template [[PQTree]] from the $PQ$-tree have to be
+  kept but marked as nonexisting.
 */
 
 /**************************************************************************************
@@ -218,21 +204,16 @@ handled.
 ***************************************************************************************/
 
 void PlanarSubgraphPQTree::
-removeEliminatedLeaves(SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys)
+removeEliminatedLeaves(SList<PQLeafKey<edge, whaInfo*, bool>*> &eliminatedKeys)
 {
-	PQNode<edge,whaInfo*,bool>*  nodePtr = 0;
-	PQNode<edge,whaInfo*,bool>*  parent  = 0;
-	PQNode<edge,whaInfo*,bool>*  sibling = 0;
-
-	SListIterator<PQLeafKey<edge,whaInfo*,bool>*> it;
-	for (it = eliminatedKeys.begin(); it.valid(); it++)
+	for (PQLeafKey<edge, whaInfo*, bool> *key : eliminatedKeys)
 	{
-		nodePtr = (*it)->nodePointer();
-		parent = nodePtr->parent();
-		sibling = nodePtr->getNextSib(NULL);
+		PQNode<edge, whaInfo*, bool>* nodePtr = key->nodePointer();
+		PQNode<edge, whaInfo*, bool>* parent = nodePtr->parent();
+		PQNode<edge, whaInfo*, bool>* sibling = nodePtr->getNextSib(nullptr);
 
-		removeNodeFromTree(parent,nodePtr);
-		checkIfOnlyChild(sibling,parent);
+		removeNodeFromTree(parent, nodePtr);
+		checkIfOnlyChild(sibling, parent);
 		if (parent->status() == PQNodeRoot::TO_BE_DELETED)
 		{
 			parent->status(PQNodeRoot::WHA_DELETE);
@@ -240,7 +221,6 @@ removeEliminatedLeaves(SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys)
 		nodePtr->status(PQNodeRoot::WHA_DELETE);
 	}
 }
-
 
 
 }

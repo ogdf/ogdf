@@ -1,11 +1,3 @@
-/*
- * $Revision: 3830 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of basic functionality (incl. file and
  * directory handling)
@@ -44,10 +36,18 @@
 
 #include <ogdf/basic/Thread.h>
 #include <ogdf/basic/List.h>
-#include <time.h>
+#include <random>
+
 
 // Windows includes
 #ifdef OGDF_SYSTEM_WINDOWS
+
+#define WIN32_EXTRA_LEAN
+#define WIN32_LEAN_AND_MEAN
+#undef NOMINMAX
+#define NOMINMAX
+#include <windows.h>
+
 #include <direct.h>
 #if defined(_MSC_VER) && defined(UNICODE)
 #undef GetFileAttributes
@@ -130,18 +130,12 @@ Initialization::Initialization()
 	if (s_count++ == 0) {
 		ogdf::PoolMemoryAllocator::init();
 		ogdf::System::init();
-#ifdef OGDF_USE_THREAD_POOL
-		ogdf::Thread::initPool();
-#endif
 	}
 }
 
 Initialization::~Initialization()
 {
 	if (--s_count == 0) {
-#ifdef OGDF_USE_THREAD_POOL
-		ogdf::Thread::cleanupPool();
-#endif
 		ogdf::PoolMemoryAllocator::cleanup();
 	}
 }
@@ -173,10 +167,54 @@ bool prefixIgnoreCase(const string &prefix, const string &str)
 }
 
 
-	// debug level (in debug build only)
+// debug level (in debug build only)
 #ifdef OGDF_DEBUG
-	DebugLevel debugLevel;
+DebugLevel debugLevel;
 #endif
+
+
+static std::mt19937 s_random;
+
+#ifndef OGDF_MEMORY_POOL_NTS
+static std::mutex s_randomMutex;
+#endif
+
+long unsigned int randomSeed()
+{
+#ifndef OGDF_MEMORY_POOL_NTS
+	std::lock_guard<std::mutex> guard(s_randomMutex);
+#endif
+	return 7*s_random()+3;  // do not directly return seed, add a bit of variation
+}
+
+void setSeed(int val)
+{
+	s_random.seed(val);
+}
+
+int randomNumber(int low, int high)
+{
+	OGDF_ASSERT(low <= high);
+
+	std::uniform_int_distribution<> dist(low,high);
+
+#ifndef OGDF_MEMORY_POOL_NTS
+	std::lock_guard<std::mutex> guard(s_randomMutex);
+#endif
+	return dist(s_random);
+}
+
+double randomDouble(double low, double high)
+{
+	OGDF_ASSERT(low <= high);
+
+	std::uniform_real_distribution<> dist(low,high);
+
+#ifndef OGDF_MEMORY_POOL_NTS
+	std::lock_guard<std::mutex> guard(s_randomMutex);
+#endif
+	return dist(s_random);
+}
 
 
 double usedTime(double& T)
@@ -189,7 +227,7 @@ double usedTime(double& T)
 	FILETIME kernelTime;
 	FILETIME userTime;
 
-	BOOL res = GetProcessTimes(GetCurrentProcess(), &creationTime, &exitTime, &kernelTime, &userTime);
+	GetProcessTimes(GetCurrentProcess(), &creationTime, &exitTime, &kernelTime, &userTime);
 	ULARGE_INTEGER user;
 	user.LowPart = userTime.dwLowDateTime;
 	user.HighPart = userTime.dwHighDateTime;
@@ -300,10 +338,10 @@ void getEntriesAppend(const char *dirName,
 	DIR* dir_p = opendir(dirName);
 
 	dirent* dir_e;
-	while ( (dir_e = readdir(dir_p)) != NULL )
+	while ( (dir_e = readdir(dir_p)) != nullptr )
 	{
 		const char *fname = dir_e->d_name;
-		if (pattern != 0 && fnmatch(pattern,fname,0)) continue;
+		if (pattern != nullptr && fnmatch(pattern,fname,0)) continue;
 
 		string fullName = string(dirName) + "/" + fname;
 
@@ -385,127 +423,3 @@ void getEntriesAppend(const char *dirName,
 
 
 } // end namespace ogdf
-
-
-//---------------------------------------------------------
-// additional C++11 functions
-//---------------------------------------------------------
-
-#ifndef OGDF_HAVE_CPP11
-
-#include <iomanip>
-#include <sstream>
-
-
-int stoi(
-	const string& _Str,
-	size_t *_Idx,
-	int _Base)
-{
-	std::istringstream sstr(_Str);
-	int val;
-	sstr >> std::setbase(_Base) >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-long long stoll(
-	const string& _Str,
-	size_t *_Idx,
-	int _Base)
-{
-	std::istringstream sstr(_Str);
-	long long val;
-	sstr >> std::setbase(_Base) >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-unsigned long stoul(
-	const string& _Str,
-	size_t *_Idx,
-	int _Base)
-{
-	std::istringstream sstr(_Str);
-	unsigned long val;
-	sstr >> std::setbase(_Base) >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-unsigned long long stoull(
-	const string& _Str,
-	size_t *_Idx,
-	int _Base)
-{
-	std::istringstream sstr(_Str);
-	unsigned long long val;
-	sstr >> std::setbase(_Base) >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-float stof(
-	const string& _Str,
-	size_t *_Idx)
-{
-	std::istringstream sstr(_Str);
-	float val;
-	sstr >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-double stod(
-	const string& _Str,
-	size_t *_Idx)
-{
-	std::istringstream sstr(_Str);
-	double val;
-	sstr >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-long double stold(
-	const string& _Str,
-	size_t *_Idx)
-{
-	std::istringstream sstr(_Str);
-	long double val;
-	sstr >> val;
-	if(_Idx) *_Idx = sstr.tellg();
-	return val;
-}
-
-
-string to_string(long long _Val)
-{
-	std::ostringstream sstr;
-	sstr << _Val;
-	return sstr.str();
-}
-
-
-string to_string(unsigned long long _Val)
-{
-	std::ostringstream sstr;
-	sstr << _Val;
-	return sstr.str();
-}
-
-
-string to_string(long double _Val)
-{
-	std::ostringstream sstr;
-	sstr << _Val;
-	return sstr.str();
-}
-
-#endif

@@ -25,7 +25,7 @@ ClpCholeskyDense::ClpCholeskyDense ()
      : ClpCholeskyBase(),
        borrowSpace_(false)
 {
-     type_ = 11;;
+     type_ = 11;
 }
 
 /*-------------------------------------------------------------------*/
@@ -174,7 +174,7 @@ ClpCholeskyDense::factorize(const CoinWorkDouble * diagonal, int * rowsDropped)
           /*if (model_->model()->logLevel()&4) */
           std::cout << "large perturbation " << perturbation << std::endl;
 #endif
-          perturbation = CoinSqrt(perturbation);;
+          perturbation = CoinSqrt(perturbation);
           perturbation = 1.0;
      }
      int iRow;
@@ -441,7 +441,7 @@ ClpCholeskyDense::factorizePart3( int * rowsDropped)
      work--;
      for (iColumn = 0; iColumn < numberRows_; iColumn++) {
           int iRow;
-          int addOffsetNow = numberRows_ - 1;;
+          int addOffsetNow = numberRows_ - 1;
           longDouble * workNow = sparseFactor_ - 1 + iColumn;
           CoinWorkDouble diagonalValue = diagonal_[iColumn];
           for (iRow = 0; iRow < iColumn; iRow++) {
@@ -483,7 +483,7 @@ ClpCholeskyDense::factorizePart3( int * rowsDropped)
                for (iRow = iColumn + 1; iRow < numberRows_; iRow++) {
                     double value = work[iRow];
                     workNow = sparseFactor_ - 1;
-                    int addOffsetNow = numberRows_ - 1;;
+                    int addOffsetNow = numberRows_ - 1;
                     for (int jColumn = 0; jColumn < iColumn; jColumn++) {
                          double aj = workNow[iColumn];
                          double multiplier = workDouble_[jColumn];

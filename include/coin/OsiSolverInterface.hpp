@@ -286,7 +286,7 @@ public:
     */
     virtual bool setHintParam(OsiHintParam key, bool yesNo=true,
 			      OsiHintStrength strength=OsiHintTry,
-			      void * /*otherInformation*/ = NULL) {
+			      void * /*otherInformation*/ = nullptr) {
       if (key==OsiLastHintParam)
 	return false; 
       hintParam_[key] = yesNo;
@@ -330,7 +330,7 @@ public:
 	return false; 
       yesNo = hintParam_[key];
       strength = hintStrength_[key];
-      otherInformation=NULL;
+      otherInformation=nullptr;
       return true;
     }
     /*! \brief Get a hint parameter (sense and strength only)
@@ -610,14 +610,14 @@ public:
       Returns NULL if the request is not meaningful (i.e., the OSI will not
       recognise any modifications to the matrix).
     */
-    virtual CoinPackedMatrix * getMutableMatrixByRow() const {return NULL;}
+    virtual CoinPackedMatrix * getMutableMatrixByRow() const {return nullptr;}
 
     /*! \brief Get a pointer to a mutable column-wise copy of the matrix
     
       Returns NULL if the request is not meaningful (i.e., the OSI will not
       recognise any modifications to the matrix).
     */
-    virtual CoinPackedMatrix * getMutableMatrixByCol() const {return NULL;}
+    virtual CoinPackedMatrix * getMutableMatrixByCol() const {return nullptr;}
 
     /// Get the solver's value for infinity
     virtual double getInfinity() const = 0;
@@ -1431,7 +1431,7 @@ public:
       The default implementation uses CoinMpsIO::readGMPL(). This capability
       is available only if the third-party package Glpk is installed.
     */
-    virtual int readGMPL (const char *filename, const char *dataname=NULL);
+    virtual int readGMPL (const char *filename, const char *dataname=nullptr);
 
     /*! \brief Write the problem in MPS format to the specified file.
 
@@ -1460,7 +1460,7 @@ public:
 		        const char ** rowNames, const char ** columnNames,
 		        int formatType=0,int numberAcross=2,
 		        double objSense=0.0, int numberSOS=0,
-		        const CoinSet * setInfo=NULL) const ;
+		        const CoinSet * setInfo=nullptr) const ;
 
 /***********************************************************************/
 // Lp files 
@@ -1848,7 +1848,7 @@ public:
     If \p slack is not null, it will be loaded with the coefficients for
     the artificial (logical) variables (i.e., the row of the basis inverse).
   */
-  virtual void getBInvARow(int row, double* z, double* slack = NULL) const ;
+  virtual void getBInvARow(int row, double* z, double* slack = nullptr) const ;
 
   /*! \brief Get a row of the basis inverse */
   virtual void getBInvRow(int row, double* z) const ;

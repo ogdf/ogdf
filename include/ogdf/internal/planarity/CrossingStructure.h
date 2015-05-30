@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class CrossingStructure.
  *
@@ -53,7 +45,7 @@ namespace ogdf {
 	class CrossingStructure
 	{
 	public:
-		CrossingStructure() : m_numCrossings(0) { }
+		CrossingStructure() : m_numCrossings(0), m_weightedCrossingNumber(0) { }
 
 		void init(PlanRepLight &PG, int weightedCrossingNumber);
 		void restore(PlanRep &PG, int cc);

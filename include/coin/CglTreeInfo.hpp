@@ -93,7 +93,7 @@ public:
   CglTreeProbingInfo (
     const CglTreeProbingInfo &);
   /// Clone
-  virtual CglTreeInfo * clone() const;
+  virtual CglTreeInfo * clone() const override;
 
   /// Assignment operator 
   CglTreeProbingInfo &
@@ -107,10 +107,10 @@ public:
   /** Take action if cut generator can fix a variable 
       (toValue -1 for down, +1 for up)
       Returns true if still room, false if not  */
-  virtual bool fixes(int variable, int toValue, int fixedVariable,bool fixedToLower);
+  virtual bool fixes(int variable, int toValue, int fixedVariable,bool fixedToLower) override;
   /** Initalizes fixing arrays etc - returns >0 if we want to save info
       0 if we don't and -1 if is to be used */
-  virtual int initializeFixing(const OsiSolverInterface * model) ;
+  virtual int initializeFixing(const OsiSolverInterface * model) override ;
   /// Fix entries in a solver using implications
   int fixColumns(OsiSolverInterface & si) const;
   /// Fix entries in a solver using implications for one variable

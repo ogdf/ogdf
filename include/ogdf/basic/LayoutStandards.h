@@ -1,11 +1,3 @@
-/*
- * $Revision: 3523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 15:03:27 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares class LayoutStandards which specifies default /
  *        standard values used in graph layouts.
@@ -55,6 +47,9 @@
 namespace ogdf {
 
 	//! Standard values for graphical attributes and layouts.
+	/**
+	 * @ingroup graph-drawing
+	 */
 	class LayoutStandards {
 
 		static double s_defNodeWidth;	//!< the default width of a node (must be positive).

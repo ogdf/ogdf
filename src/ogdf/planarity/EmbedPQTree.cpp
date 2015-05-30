@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class EmbedPQTree.
  *
@@ -85,7 +77,7 @@ void EmbedPQTree::ReplaceRoot(
 	if (leafKeys.empty() && m_pertinentRoot == m_root)
 	{
 		front(m_pertinentRoot,nodeFrontier);
-		m_pertinentRoot = 0;  // check for this emptyAllPertinentNodes
+		m_pertinentRoot = nullptr;  // check for this emptyAllPertinentNodes
 
 	} else {
 		if (m_pertinentRoot->status() == PQNodeRoot::FULL)
@@ -117,11 +109,8 @@ void EmbedPQTree::ReplaceRoot(
 // [[emptyAllPertinentNodes]].
 void EmbedPQTree::emptyAllPertinentNodes()
 {
-	ListIterator<PQNode<edge,IndInfo*,bool>*> it;
-
-	for (it = m_pertinentNodes->begin(); it.valid(); it++)
+	for (PQNode<edge, IndInfo*, bool>* nodePtr : *m_pertinentNodes)
 	{
-		PQNode<edge,IndInfo*,bool>* nodePtr = (*it);
 		if (nodePtr->status() == PQNodeRoot::FULL)
 			destroyNode(nodePtr);
 	}
@@ -147,13 +136,11 @@ void EmbedPQTree::clientDefinedEmptyNode(PQNode<edge,IndInfo*,bool>* nodePtr)
 // the set of Keys stored in leafKeys.
 int EmbedPQTree::Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 {
-	SListIterator<PlanarLeafKey<IndInfo*>* > it;
+	SListPure<PQLeafKey<edge, IndInfo*, bool>*> castLeafKeys;
+	for (PlanarLeafKey<IndInfo*> *key : leafKeys)
+		castLeafKeys.pushBack(static_cast<PQLeafKey<edge, IndInfo*, bool>*>(key));
 
-	SListPure<PQLeafKey<edge,IndInfo*,bool>*> castLeafKeys;
-	for (it = leafKeys.begin(); it.valid(); ++it)
-		castLeafKeys.pushBack((PQLeafKey<edge,IndInfo*,bool>*) *it);
-
-	return PQTree<edge,IndInfo*,bool>::Initialize(castLeafKeys);
+	return PQTree<edge, IndInfo*, bool>::Initialize(castLeafKeys);
 }
 
 
@@ -161,13 +148,11 @@ int EmbedPQTree::Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 // in leafKeys. Integer redNumber is for debugging only.
 bool EmbedPQTree::Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys)
 {
-	SListIterator<PlanarLeafKey<IndInfo*>* >  it;
+	SListPure<PQLeafKey<edge, IndInfo*, bool>*> castLeafKeys;
+	for (PlanarLeafKey<IndInfo*> *key : leafKeys)
+		castLeafKeys.pushBack(static_cast<PQLeafKey<edge, IndInfo*, bool>*>(key));
 
-	SListPure<PQLeafKey<edge,IndInfo*,bool>*> castLeafKeys;
-	for (it = leafKeys.begin(); it.valid(); ++it)
-		castLeafKeys.pushBack((PQLeafKey<edge,IndInfo*,bool>*) *it);
-
-	return PQTree<edge,IndInfo*,bool>::Reduction(castLeafKeys);
+	return PQTree<edge, IndInfo*, bool>::Reduction(castLeafKeys);
 }
 
 
@@ -190,7 +175,7 @@ void EmbedPQTree::ReplaceFullRoot(
 	bool addIndicator,
 	PQNode<edge,IndInfo*,bool> *opposite)
 {
-	EmbedIndicator *newInd = 0;
+	EmbedIndicator *newInd = nullptr;
 
 	front(m_pertinentRoot,frontier);
 	if (addIndicator)
@@ -213,12 +198,12 @@ void EmbedPQTree::ReplaceFullRoot(
 				addNodeToNewParent(m_pertinentRoot->parent(), newInd, m_pertinentRoot, opposite);
 			}
 			else
-				addNodeToNewParent(0,newInd,m_pertinentRoot,opposite);
+				addNodeToNewParent(nullptr,newInd,m_pertinentRoot,opposite);
 
 			// Setting the sibling pointers into opposite direction of
 			// scanning the front allows to track swaps of the indicator
-			newInd->changeSiblings(m_pertinentRoot,0);
-			newInd->changeSiblings(opposite,0);
+			newInd->changeSiblings(m_pertinentRoot,nullptr);
+			newInd->changeSiblings(opposite,nullptr);
 			newInd->putSibling(m_pertinentRoot,PQNodeRoot::LEFT);
 			newInd->putSibling(opposite,PQNodeRoot::RIGHT);
 		}
@@ -228,7 +213,7 @@ void EmbedPQTree::ReplaceFullRoot(
 		exchangeNodes(m_pertinentRoot,(PQNode<edge,IndInfo*,bool>*) leafPtr);
 		if (m_pertinentRoot == m_root)
 			m_root = (PQNode<edge,IndInfo*,bool>*) leafPtr;
-		m_pertinentRoot = 0;  // check for this emptyAllPertinentNodes
+		m_pertinentRoot = nullptr;  // check for this emptyAllPertinentNodes
 	}
 
 	else if (!leafKeys.empty()) // at least two leaves
@@ -242,17 +227,17 @@ void EmbedPQTree::ReplaceFullRoot(
 				addNodeToNewParent(m_pertinentRoot->parent(), newInd, m_pertinentRoot, opposite);
 			}
 			else
-				addNodeToNewParent(0, newInd, m_pertinentRoot, opposite);
+				addNodeToNewParent(nullptr, newInd, m_pertinentRoot, opposite);
 
 			// Setting the sibling pointers into opposite direction of
 			// scanning the front allows to track swaps of the indicator
-			newInd->changeSiblings(m_pertinentRoot,0);
-			newInd->changeSiblings(opposite,0);
+			newInd->changeSiblings(m_pertinentRoot,nullptr);
+			newInd->changeSiblings(opposite,nullptr);
 			newInd->putSibling(m_pertinentRoot,PQNodeRoot::LEFT);
 			newInd->putSibling(opposite,PQNodeRoot::RIGHT);
 		}
 
-		PQInternalNode<edge,IndInfo*,bool> *nodePtr = 0; // dummy
+		PQInternalNode<edge,IndInfo*,bool> *nodePtr = nullptr; // dummy
 		if ((m_pertinentRoot->type() == PQNodeRoot::PNode) ||
 			(m_pertinentRoot->type() == PQNodeRoot::QNode))
 		{
@@ -271,14 +256,13 @@ void EmbedPQTree::ReplaceFullRoot(
 			nodePtr = OGDF_NEW PQInternalNode<edge,IndInfo*,bool>(m_identificationNumber++,
 														 PQNodeRoot::PNode,PQNodeRoot::EMPTY);
 			exchangeNodes(m_pertinentRoot,nodePtr);
-			m_pertinentRoot = 0;  // check for this emptyAllPertinentNodes
+			m_pertinentRoot = nullptr;  // check for this emptyAllPertinentNodes
 		}
 
-		SListPure<PQLeafKey<edge,IndInfo*,bool>*> castLeafKeys;
-		SListIterator<PlanarLeafKey<IndInfo*>* > it;
-		for (it = leafKeys.begin(); it.valid(); ++it)
-			castLeafKeys.pushBack((PQLeafKey<edge,IndInfo*,bool>*) *it);
-		addNewLeavesToTree(nodePtr,castLeafKeys);
+		SListPure<PQLeafKey<edge, IndInfo*, bool>*> castLeafKeys;
+		for (PlanarLeafKey<IndInfo*> *key : leafKeys)
+			castLeafKeys.pushBack(static_cast<PQLeafKey<edge, IndInfo*, bool>*>(key));
+		addNewLeavesToTree(nodePtr, castLeafKeys);
 	}
 }
 
@@ -298,10 +282,10 @@ void EmbedPQTree::ReplacePartialRoot(
 	m_pertinentRoot->childCount(m_pertinentRoot->childCount() + 1 -
 								fullChildren(m_pertinentRoot)->size());
 
-	PQNode<edge,IndInfo*,bool> *predNode = 0; // dummy
-	PQNode<edge,IndInfo*,bool> *beginSequence = 0; // marks begin consecuitve seqeunce
-	PQNode<edge,IndInfo*,bool> *endSequence	= 0; // marks end consecutive sequence
-	PQNode<edge,IndInfo*,bool> *beginInd = 0;	// initially, marks direct sibling indicator
+	PQNode<edge,IndInfo*,bool> *predNode = nullptr; // dummy
+	PQNode<edge,IndInfo*,bool> *beginSequence = nullptr; // marks begin consecuitve seqeunce
+	PQNode<edge,IndInfo*,bool> *endSequence	= nullptr; // marks end consecutive sequence
+	PQNode<edge,IndInfo*,bool> *beginInd = nullptr;	// initially, marks direct sibling indicator
 												// next to beginSequence not contained
 												// in consectuive sequence
 
@@ -428,7 +412,7 @@ PQNode<edge,IndInfo*,bool>* EmbedPQTree::clientLeftEndmost(
 	if (!left || left->status() != PQNodeRoot::INDICATOR)
 		return left;
 	else
-		return clientNextSib(left,NULL);
+		return clientNextSib(left,nullptr);
 }
 
 
@@ -443,7 +427,7 @@ PQNode<edge,IndInfo*,bool>* EmbedPQTree::clientRightEndmost(
 	if (!right || right->status() != PQNodeRoot::INDICATOR)
 		return right;
 	else
-		return clientNextSib(right,NULL);
+		return clientNextSib(right,nullptr);
 }
 
 
@@ -460,7 +444,7 @@ PQNode<edge,IndInfo*,bool>* EmbedPQTree::clientNextSib(
 	PQNode<edge,IndInfo*,bool> *right = clientSibRight(nodePtr);
 	if (right != other) return right;
 
-	return 0;
+	return nullptr;
 }
 
 
@@ -497,7 +481,7 @@ void EmbedPQTree::front(
 			keys.pushBack((PQBasicKey<edge,IndInfo*,bool>*) checkNode->getKey());
 		else
 		{
-			PQNode<edge,IndInfo*,bool>* firstSon = 0;
+			PQNode<edge,IndInfo*,bool>* firstSon = nullptr;
 			if (checkNode->type() == PQNodeRoot::PNode)
 			{
 				firstSon = checkNode->referenceChild();
@@ -518,7 +502,7 @@ void EmbedPQTree::front(
 			else
 				S.push(firstSon);
 
-			PQNode<edge,IndInfo*,bool> *nextSon = firstSon->getNextSib(0);
+			PQNode<edge,IndInfo*,bool> *nextSon = firstSon->getNextSib(nullptr);
 			PQNode<edge,IndInfo*,bool> *oldSib = firstSon;
 			while (nextSon && nextSon != firstSon)
 			{
@@ -567,7 +551,7 @@ void EmbedPQTree::getFront(
 			keys.pushBack((PQBasicKey<edge,IndInfo*,bool>*) checkNode->getKey());
 		else
 		{
-			PQNode<edge,IndInfo*,bool>* firstSon  = 0;
+			PQNode<edge,IndInfo*,bool>* firstSon  = nullptr;
 			if (checkNode->type() == PQNodeRoot::PNode)
 			{
 				firstSon = checkNode->referenceChild();
@@ -586,7 +570,7 @@ void EmbedPQTree::getFront(
 			else
 				S.push(firstSon);
 
-			PQNode<edge,IndInfo*,bool> *nextSon = firstSon->getNextSib(0);
+			PQNode<edge,IndInfo*,bool> *nextSon = firstSon->getNextSib(nullptr);
 			PQNode<edge,IndInfo*,bool> *oldSib = firstSon;
 			while (nextSon && nextSon != firstSon)
 			{

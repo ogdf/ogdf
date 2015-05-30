@@ -1,11 +1,3 @@
-/*
- * $Revision: 4000 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-28 20:18:18 +0100 (Fri, 28 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declration of stress minimized layout based on majorization.
  * It can be applied to connected as well as unconnected graphs. If
@@ -57,6 +49,10 @@
 namespace ogdf {
 
 
+//! Energy-based layout using stress minimization.
+/**
+ * @ingroup gd-energy
+ */
 class OGDF_EXPORT StressMinimization: public LayoutModule {
 
 public:
@@ -79,9 +75,9 @@ public:
 	}
 
 	//! Calls the layout algorithm with uniform edge costs.
-	void call(GraphAttributes& GA);
+	virtual void call(GraphAttributes& GA) override;
 
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	//! Tells whether the current layout should be used or the initial layout
 	//! needs to be computed.
@@ -205,7 +201,7 @@ private:
 			NodeArray<NodeArray<double> >& weightMatrix);
 
 	//! Replaces infinite distances to the given value
-	void replaceInfinityDistances(const int dimension,
+	void replaceInfinityDistances(
 			NodeArray<NodeArray<double> >& shortestPathMatrix, double newVal);
 
 }

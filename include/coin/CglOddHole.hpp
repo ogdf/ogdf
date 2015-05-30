@@ -39,7 +39,7 @@ public:
 
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
   /**@name Create Row List */
@@ -48,7 +48,7 @@ public:
   /// this is to speed up process
   /// The possible parameter is a list to cut down search
   void createRowList( const OsiSolverInterface & si,
-		      const int * possible=NULL);
+		      const int * possible=nullptr);
   /// This version passes in a list - 1 marks possible
   void createRowList(int numberRows, const int * whichRow);
   //@}
@@ -89,7 +89,7 @@ public:
     const CglOddHole &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglOddHole &
@@ -101,7 +101,7 @@ public:
     ~CglOddHole ();
 
   /// This can be used to refresh any inforamtion
-  virtual void refreshSolver(OsiSolverInterface * solver);
+  virtual void refreshSolver(OsiSolverInterface * solver) override;
   //@}
       
 private:

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a base class for planar representations
  *        of graphs and cluster graphs.
@@ -82,7 +74,7 @@ public:
 
 	UpwardPlanRep(const CombinatorialEmbedding &Gamma); //upward planar embedding with a fixed ext. face
 
-	UpwardPlanRep(const GraphCopy &GC, // muss be upward embedded and single source
+	UpwardPlanRep(const GraphCopy &GC, // must be upward embedded and single source
 		adjEntry adj_ext); // the right face of this adjEntry is the external face
 
 	//! copy constructor
@@ -135,51 +127,42 @@ public:
 	//! else v is sink-switch of the right face of the adjEntry.
 	adjEntry sinkSwitchOf(node v) {return m_sinkSwitchOf[v];}
 
-	// return the adjEntry of v which right face is f.
-	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f) const {
-		adjEntry adj;
-		forall_adj(adj, v) {
-			if (Gamma.rightFace(adj) == f)
-				break;
-		}
-
-		OGDF_ASSERT(Gamma.rightFace(adj) == f);
-
-		return adj;
-	}
+	//! return the adjEntry of v which right face is f.
+	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f) const;
 
 	//return the left in edge of node v.
 	adjEntry leftInEdge(node v) const
 	{
 		if (v->indeg() == 0)
-			return 0;
-		adjEntry adj;
-		forall_adj(adj, v) {
-			if (adj->theEdge()->target() == v && adj->cyclicSucc()->theEdge()->source() == v)
+			return nullptr;
+
+		adjEntry adjFound = nullptr;
+		for(adjEntry adj : v->adjEdges) {
+			if (adj->theEdge()->target() == v && adj->cyclicSucc()->theEdge()->source() == v) {
+				adjFound = adj;
 				break;
+			}
 		}
-		return adj;
+		return adjFound;
 	}
 
 	//*************************** debug ********************************
-	void outputFaces (const CombinatorialEmbedding &embedding) const {
+	void outputFaces(const CombinatorialEmbedding &embedding) const {
 		cout << endl << "Face UPR " << endl;
-		face f;
-		forall_faces(f, embedding) {
+		for (face f : embedding.faces) {
 			cout << "face " << f->index() << ": ";
 			adjEntry adjNext = f->firstAdj();
 			do {
 				cout << adjNext->theEdge() << "; ";
 				adjNext = adjNext->faceCycleSucc();
-			} while(adjNext != f->firstAdj());
+			} while (adjNext != f->firstAdj());
 			cout << endl;
 		}
 		if (embedding.externalFace() != 0)
 			cout << "ext. face of the graph is: " << embedding.externalFace()->index() << endl;
 		else
-		cout << "no ext. face set." << endl;
-		}
-
+			cout << "no ext. face set." << endl;
+	}
 
 
 protected:

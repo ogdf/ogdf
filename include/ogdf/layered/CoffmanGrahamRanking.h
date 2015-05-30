@@ -1,11 +1,3 @@
-/*
- * $Revision: 2526 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-03 22:32:03 +0200 (Tue, 03 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of coffman graham ranking algorithm for Sugiyama
  *        algorithm.
@@ -61,6 +53,8 @@ namespace ogdf {
 
 //! The coffman graham ranking algorithm.
 /**
+ * @ingroup gd-ranking
+ *
  * The class CoffmanGrahamRanking implements a node ranking algorithmn based on
  * the coffman graham scheduling algorithm, which can be used as first phase
  * in SugiyamaLayout. The aim of the algorithm is to ensure that the height of
@@ -79,7 +73,7 @@ public:
 	 */
 
 	//! Computes a node ranking of \a G in \a rank.
-	void call(const Graph &G, NodeArray<int> &rank);
+	virtual void call(const Graph &G, NodeArray<int> &rank) override;
 
 
 	/** @}
@@ -110,8 +104,8 @@ private:
 	class _int_set {
 		int *A, l, p;
 	public:
-		_int_set() : A(NULL), l(0), p(0) { }
-		_int_set(int len) : A(NULL), l(len), p(len) {
+		_int_set() : A(nullptr), l(0), p(0) { }
+		_int_set(int len) : A(nullptr), l(len), p(len) {
 			if (len > 0)
 				A = new int[l];
 		}
@@ -120,7 +114,7 @@ private:
 		void init(int len) {
 			delete A;
 			if ((l = len) == 0)
-				A = NULL;
+				A = nullptr;
 			else
 				A = new int[l];
 			p = len;

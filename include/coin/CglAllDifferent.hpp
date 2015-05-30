@@ -27,7 +27,7 @@ public:
   /** This fixes (or reduces bounds) on sets of all different variables
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
 
@@ -44,7 +44,7 @@ public:
     const CglAllDifferent &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglAllDifferent &
@@ -55,10 +55,10 @@ public:
   virtual
     ~CglAllDifferent ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
 
   /// This can be used to refresh any inforamtion
-  virtual void refreshSolver(OsiSolverInterface * solver);
+  virtual void refreshSolver(OsiSolverInterface * solver) override;
   /**
      Returns true if may generate Row cuts in tree (rather than root node).
      Used so know if matrix will change in tree.  Really
@@ -66,7 +66,7 @@ public:
      without worrying code.
      Default is true
   */
-  virtual bool mayGenerateRowCutsInTree() const
+  virtual bool mayGenerateRowCutsInTree() const override
   { return false;}
   //@}
   /**@name Sets and Gets */

@@ -1,11 +1,3 @@
-/*
- * $Revision: 4014 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-30 05:25:42 +0200 (Sun, 30 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Contains diverse enumerations and string constants.
  *

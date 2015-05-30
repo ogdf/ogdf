@@ -1,11 +1,3 @@
-/*
- * $Revision: 2641 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief  Iimplementation of class DavidsonHarel
  *
@@ -49,7 +41,7 @@
 
 #include <ogdf/energybased/DavidsonHarel.h>
 #include <ogdf/basic/Math.h>
-#include <time.h>
+
 
 //TODO: in addition to the layout size, node sizes should be used in
 //the initial radius computation in case of "all central" layouts with
@@ -74,7 +66,7 @@ namespace ogdf {
 	m_energy(0.0),
 	m_numberOfIterations(0)
 	{
-		srand((unsigned)time(NULL));
+		srand((unsigned)time(nullptr));
 	}
 
 
@@ -115,18 +107,16 @@ namespace ogdf {
 	List<string> DavidsonHarel::returnEnergyFunctionNames()
 	{
 		List<string> names;
-		ListIterator<EnergyFunction*> it;
-		for(it = m_energyFunctions.begin(); it.valid(); it = it.succ())
-			names.pushBack((*it)->getName());
+		for (EnergyFunction *f : m_energyFunctions)
+			names.pushBack(f->getName());
 		return names;
 	}
 
 	List<double> DavidsonHarel::returnEnergyFunctionWeights()
 	{
 		List<double> weights;
-		ListIterator<double> it;
-		for(it = m_weightsOfEnergyFunctions.begin(); it.valid(); it = it.succ())
-			weights.pushBack(*it);
+		for(double x : m_weightsOfEnergyFunctions)
+			weights.pushBack(x);
 		return weights;
 	}
 
@@ -173,7 +163,8 @@ namespace ogdf {
 		newPos.m_x = oldx+cos(randomAngle)*m_diskRadius;
 #ifdef OGDF_DEBUG
 		double dist = sqrt((newPos.m_x - oldx)*(newPos.m_x - oldx)+(newPos.m_y-oldy)*(newPos.m_y-oldy));
-		OGDF_ASSERT(dist > 0.99 * m_diskRadius && dist < 1.01 * m_diskRadius);
+		OGDF_ASSERT(dist > 0.99 * m_diskRadius);
+		OGDF_ASSERT(dist < 1.01 * m_diskRadius);
 #endif
 		return v;
 	}
@@ -183,12 +174,12 @@ namespace ogdf {
 	void DavidsonHarel::computeFirstRadius(const GraphAttributes &AG)
 	{
 		const Graph &G = AG.constGraph();
-		node v = G.firstNode();
-		double minX = AG.x(v);
-		double minY = AG.y(v);
+		node vFirst = G.firstNode();
+		double minX = AG.x(vFirst);
+		double minY = AG.y(vFirst);
 		double maxX = minX;
 		double maxY = minY;
-		forall_nodes(v,G) {
+		for(node v : G.nodes) {
 			minX = min(minX,AG.x(v));
 			maxX = max(maxX,AG.x(v));
 			minY = min(minY,AG.y(v));
@@ -209,8 +200,7 @@ namespace ogdf {
 		//TODO: also use node sizes
 		/*
 		double lengthSum(0.0);
-		node v;
-		forall_nodes(v,m_G) {
+		for(node v : m_G.nodes) {
 			const IntersectionRectangle &i = shape(v);
 			lengthSum += i.width();
 			lengthSum += i.width();
@@ -252,50 +242,46 @@ namespace ogdf {
 		double minX = 0.0;
 		double minY = 0.0;
 		double maxX = 0.0;
-		double maxY = 0.0;
 
-		if(!m_nonIsolatedNodes.empty()) {
+		if (!m_nonIsolatedNodes.empty()) {
 			//compute a rectangle that includes all non-isolated vertices
-			node v = m_nonIsolatedNodes.front();
-			minX = AG.x(v);
-			minY = AG.y(v);
+			node vFirst = m_nonIsolatedNodes.front();
+			minX = AG.x(vFirst);
+			minY = AG.y(vFirst);
 			maxX = minX;
-			maxY = minY;
-			ListConstIterator<node> it;
-			for(it = m_nonIsolatedNodes.begin(); it.valid(); ++it) {
-				v = *it;
+			double maxY = minY;
+			for (node v : m_nonIsolatedNodes) {
 				double xVal = AG.x(v);
 				double yVal = AG.y(v);
 				double halfHeight = AG.height(v) / 2.0;
 				double halfWidth = AG.width(v) / 2.0;
-				if(xVal - halfWidth < minX) minX = xVal - halfWidth;
-				if(xVal + halfWidth > maxX) maxX = xVal + halfWidth;
-				if(yVal - halfHeight < minY) minY = yVal - halfHeight;
-				if(yVal + halfHeight > maxY) maxY = yVal + halfHeight;
+				if (xVal - halfWidth < minX) minX = xVal - halfWidth;
+				if (xVal + halfWidth > maxX) maxX = xVal + halfWidth;
+				if (yVal - halfHeight < minY) minY = yVal - halfHeight;
+				if (yVal + halfHeight > maxY) maxY = yVal + halfHeight;
 			}
 		}
 
 		// compute the width and height of the largest isolated node
 		List<node> isolated;
-		node v;
 		const Graph &G = AG.constGraph();
 		double maxWidth = 0;
 		double maxHeight = 0;
-		forall_nodes(v,G) if(v->degree() == 0) {
+		for (node v : G.nodes)
+		if (v->degree() == 0) {
 			isolated.pushBack(v);
-			if(AG.height(v) > maxHeight) maxHeight = AG.height(v);
-			if(AG.width(v) > maxWidth) maxWidth = AG.width(v);
+			if (AG.height(v) > maxHeight) maxHeight = AG.height(v);
+			if (AG.width(v) > maxWidth) maxWidth = AG.width(v);
 		}
 		// The nodes are placed on a line in the middle under the non isolated vertices.
 		// Each node gets a box sized 2 maxWidth.
 		double boxWidth = 2.0*maxWidth;
-		double commonYCoord = minY-(1.5*maxHeight);
-		double XCenterOfDrawing = minX + ((maxX-minX)/2.0);
+		double commonYCoord = minY - (1.5*maxHeight);
+		double XCenterOfDrawing = minX + ((maxX - minX) / 2.0);
 		double startXCoord = XCenterOfDrawing - 0.5*(isolated.size()*boxWidth);
 		ListIterator<node> it;
 		double xcoord = startXCoord;
-		for(it = isolated.begin(); it.valid(); ++it) {
-			v = *it;
+		for (node v : isolated) {
 			AG.x(v) = xcoord;
 			AG.y(v) = commonYCoord;
 			xcoord += boxWidth;
@@ -334,19 +320,18 @@ namespace ogdf {
 					//choose random vertex and new position for vertex
 					node v = computeCandidateLayout(AG,newPos);
 					//compute candidate energy and decide if new layout is chosen
-					ListIterator<EnergyFunction*> it;
 					ListIterator<double> it2 = m_weightsOfEnergyFunctions.begin();
 					double newEnergy = 0.0;
-					for(it = m_energyFunctions.begin(); it.valid(); it = it.succ()) {
-						newEnergy += (*it)->computeCandidateEnergy(v,newPos) * (*it2);
-						it2 = it2.succ();
+					for(EnergyFunction *f : m_energyFunctions) {
+						newEnergy += f->computeCandidateEnergy(v,newPos) * (*it2);
+						++it2;
 					}
 					OGDF_ASSERT(newEnergy >= 0.0);
 					//this tests if the new layout is accepted. If this is the case,
 					//all energy functions are informed that the new layout is accepted
 					if(testEnergyValue(newEnergy)) {
-						for(it = m_energyFunctions.begin(); it.valid(); it = it.succ())
-							(*it)->candidateTaken();
+						for(EnergyFunction *f : m_energyFunctions)
+							f->candidateTaken();
 						AG.x(v) = newPos.m_x;
 						AG.y(v) = newPos.m_y;
 						m_energy = newEnergy;

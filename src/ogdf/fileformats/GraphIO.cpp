@@ -1,11 +1,3 @@
-/*
- * $Revision: 4026 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-31 11:22:37 +0200 (Mon, 31 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class GraphIO which provides access to all
  *        graph read and write functionality.
@@ -42,6 +34,8 @@
  ***************************************************************/
 
 #include <ogdf/basic/Logger.h>
+#include <ogdf/basic/AdjacencyOracle.h>
+#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GmlParser.h>
 #include <ogdf/fileformats/OgmlParser.h>
@@ -90,7 +84,7 @@ bool GraphIO::readGML(Graph &G, const char *filename)
 
 bool GraphIO::readGML(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readGML(G, is);
 }
@@ -112,7 +106,7 @@ bool GraphIO::writeGML(const Graph &G, const char *filename)
 
 bool GraphIO::writeGML(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGML(G, os);
 }
@@ -131,7 +125,7 @@ bool GraphIO::readOGML(Graph &G, const char *filename)
 
 bool GraphIO::readOGML(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readOGML(G, is);
 }
@@ -152,7 +146,7 @@ bool GraphIO::writeOGML(const Graph &G, const char *filename)
 
 bool GraphIO::writeOGML(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeOGML(G, os);
 }
@@ -171,7 +165,7 @@ bool GraphIO::readRome(Graph &G, const char *filename)
 
 bool GraphIO::readRome(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readRome(G, is);
 }
@@ -238,7 +232,7 @@ bool GraphIO::writeRome(const Graph &G, const char *filename)
 
 bool GraphIO::writeRome(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeRome(G, os);
 }
@@ -250,8 +244,7 @@ bool GraphIO::writeRome(const Graph &G, ostream &os)
 	NodeArray<int> index(G);
 
 	int i = 0;
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		index[v] = ++i;
 		// write node v
 		os << i << " " << "0\n";
@@ -260,8 +253,7 @@ bool GraphIO::writeRome(const Graph &G, ostream &os)
 	os << "#\n"; // write node-edge separator
 
 	i = 0;
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		// write edge e
 		os << ++i << " 0 " << index[e->source()] << " " << index[e->target()] << "\n";
 	}
@@ -283,7 +275,7 @@ bool GraphIO::readLEDA(Graph &G, const char *filename)
 
 bool GraphIO::readLEDA(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readLEDA(G, is);
 }
@@ -298,7 +290,7 @@ bool GraphIO::writeLEDA(const Graph &G, const char *filename)
 
 bool GraphIO::writeLEDA(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeLEDA(G, os);
 }
@@ -317,7 +309,7 @@ bool GraphIO::readChaco(Graph &G, const char *filename)
 
 bool GraphIO::readChaco(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readChaco(G, is);
 }
@@ -340,7 +332,7 @@ bool GraphIO::readChaco(Graph &G, istream &is)
 
 	if (numN == 0) return true;
 
-	Array<node> indexToNode(1,numN,0);
+	Array<node> indexToNode(1,numN,nullptr);
 	for (int i = 1; i <= numN; i++)
 		indexToNode[i] = G.newNode();
 
@@ -350,7 +342,7 @@ bool GraphIO::readChaco(Graph &G, istream &is)
 		if(buffer.empty())
 			continue;
 
-		if(vid > numN) {
+		if(vid >= numN) {
 			Logger::slout() << "GraphIO::readChaco: More lines with adjacency lists than expected.\n";
 			return false;
 		}
@@ -369,6 +361,11 @@ bool GraphIO::readChaco(Graph &G, istream &is)
 		}
 	}
 
+	if(G.numberOfEdges() != numE) {
+		Logger::slout() << "GraphIO::readChaco: Invalid number of edges: " << G.numberOfEdges() << " but expected " << numE << "\n";
+		return false;
+	}
+
 	return true;
 }
 
@@ -382,7 +379,7 @@ bool GraphIO::writeChaco(const Graph &G, const char *filename)
 
 bool GraphIO::writeChaco(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeChaco(G, os);
 }
@@ -393,14 +390,12 @@ bool GraphIO::writeChaco(const Graph &G, ostream &os)
 
 	NodeArray<int> index(G);
 
-	node v;
 	int count = 0;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		index[v] = ++count;
 
-	forall_nodes(v,G) {
-		adjEntry adj;
-		forall_adj(adj,v)
+	for(node v : G.nodes) {
+		for(adjEntry adj : v->adjEdges)
 			os << " " << index[adj->twinNode()];
 		os << "\n";
 	}
@@ -422,7 +417,7 @@ bool GraphIO::readYGraph(Graph &G, const char *filename)
 
 bool GraphIO::readYGraph(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readYGraph(G, is);
 }
@@ -490,7 +485,7 @@ bool GraphIO::readPMDissGraph(Graph &G, const char *filename)
 
 bool GraphIO::readPMDissGraph(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readPMDissGraph(G, is);
 }
@@ -544,7 +539,7 @@ bool GraphIO::readPMDissGraph(Graph &G, istream &is)
 	if (numN == 0)
 		return true;
 
-	Array<node> indexToNode(1,numN,0);
+	Array<node> indexToNode(1,numN,nullptr);
 	for (int i = 1; i <= numN; i++)
 	{
 		indexToNode[i] = G.newNode();
@@ -583,7 +578,7 @@ bool GraphIO::writePMDissGraph(const Graph &G, const char *filename)
 
 bool GraphIO::writePMDissGraph(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writePMDissGraph(G, os);
 }
@@ -595,12 +590,10 @@ bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 
 	NodeArray<int> index(G);
 	int nextIndex = 1;
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		index[v] = nextIndex++;
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		os << index[e->source()] << " " << index[e->target()] << "\n";
 
 	os << "*CHECKSUM -1\n";
@@ -609,6 +602,203 @@ bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 	return true;
 }
 
+
+//---------------------------------------------------------
+// Graph: Graph6 format
+//---------------------------------------------------------
+
+bool
+GraphIO::readGraph6(Graph &G, istream &is)
+{
+	Array<node> index;
+	int sourceIdx = 0;
+	int targetIdx = 1;
+	int numberOfNodes = 0;
+	auto addEdge = [&](int add) {
+		if (add) {
+			G.newEdge(index[sourceIdx], index[targetIdx]);
+		}
+		++sourceIdx;
+		if (sourceIdx == targetIdx) {
+			sourceIdx = 0;
+			++targetIdx;
+		}
+	};
+	unsigned char byte;
+	enum {
+		STATE_START,
+		STATE_18BIT,
+		STATE_REMAINING_BITS,
+		STATE_TRIANGLE,
+	} state = STATE_START;
+	auto addNodes = [&]() {
+		index.init(numberOfNodes);
+		for (int i = 0; i < numberOfNodes; ++i) {
+			index[i] = G.newNode();
+		}
+		state = STATE_TRIANGLE;
+	};
+	int remainingBits;
+	while (is >> byte) {
+		switch (state) {
+		case STATE_TRIANGLE:
+			if (byte >= '?' && byte <= '~') {
+				OGDF_ASSERT(numberOfNodes == G.numberOfNodes());
+				OGDF_ASSERT(sourceIdx < targetIdx);
+				if (targetIdx >= numberOfNodes) {
+					return false;
+				}
+				byte -= 63;
+				addEdge(byte & 040);
+				addEdge(byte & 020);
+				addEdge(byte & 010);
+				addEdge(byte & 04);
+				addEdge(byte & 02);
+				addEdge(byte & 01);
+			}
+			break;
+		case STATE_18BIT:
+			if (byte == '~') {
+				state = STATE_REMAINING_BITS;
+				remainingBits = 6;
+			} else
+			if (byte >= '?' && byte < '~') {
+				numberOfNodes |= ((byte - 63) << 12);
+				state = STATE_REMAINING_BITS;
+				remainingBits = 2;
+			}
+			break;
+		case STATE_REMAINING_BITS:
+			if (byte >= '?' && byte <= '~') {
+				--remainingBits;
+				numberOfNodes |= ((byte - 63) << (6*remainingBits));
+				if (remainingBits == 0) {
+					addNodes();
+				}
+			}
+			break;
+		case STATE_START:
+		default:
+			if (byte == '>') {
+				string header;
+				header.resize(9);
+				is.read(&header[0], 9);
+				if (header != ">graph6<<") {
+					return false;
+				}
+			} else
+			if (byte == '~') {
+				state = STATE_18BIT;
+			} else
+			if (byte >= '?' && byte < '~') {
+				numberOfNodes = byte - 63;
+				addNodes();
+			}
+			// ignore others
+		}
+	}
+	if (numberOfNodes != G.numberOfNodes()) { // stopped in STATE_*BIT*
+		return false;
+	}
+
+	return true;
+}
+
+bool
+GraphIO::readGraph6(Graph &G, const char *filename)
+{
+	ifstream is(filename);
+	if (!is.is_open()) {
+		return false;
+	}
+	return readGraph6(G, is);
+}
+
+bool
+GraphIO::readGraph6(Graph &G, const string &filename)
+{
+	ifstream is(filename);
+	if (!is.is_open()) {
+		return false;
+	}
+	return readGraph6(G, is);
+}
+
+bool
+GraphIO::writeGraph6(const Graph &G, ostream &os)
+{
+	os << ">>graph6<<";
+	int n = G.numberOfNodes();
+	auto sixtetChar = [&n](int sixtet) {
+		return static_cast<unsigned char>(((n >> (6*sixtet)) & 63) + 63);
+	};
+	if (n < 64) {
+		os << sixtetChar(0);
+	}
+	else
+	if (n < 258048) {
+		os
+		  << '~'
+		  << sixtetChar(2)
+		  << sixtetChar(1)
+		  << sixtetChar(0);
+	}
+	else { // XXX: < 68719476736
+		os
+		  << "~~"
+		  << sixtetChar(5)
+		  << sixtetChar(4)
+		  << sixtetChar(3)
+		  << sixtetChar(2)
+		  << sixtetChar(1)
+		  << sixtetChar(0);
+	}
+
+	AdjacencyOracle oracle(G);
+	int shift = 6;
+	unsigned char sixtet = 0;
+	for (node v : G.nodes) {
+		for (node w : G.nodes) {
+			if (v == w) {
+				break;
+			}
+			int bit = oracle.adjacent(v, w);
+			--shift;
+			sixtet |= (bit << shift);
+			if (shift == 0) {
+				os << static_cast<unsigned char>(sixtet + 63);
+				shift = 6;
+				sixtet = 0;
+			}
+		}
+	}
+	if (shift != 6) {
+		os << static_cast<unsigned char>(sixtet + 63);
+	}
+	os << "\n";
+
+	return true;
+}
+
+bool
+GraphIO::writeGraph6(const Graph &G, const char *filename)
+{
+	ofstream os(filename);
+	if (!os.is_open()) {
+		return false;
+	}
+	return writeGraph6(G, os);
+}
+
+bool
+GraphIO::writeGraph6(const Graph &G, const string &filename)
+{
+	ofstream os(filename);
+	if (!os.is_open()) {
+		return false;
+	}
+	return writeGraph6(G, os);
+}
 
 //---------------------------------------------------------
 // ClusterGraph: GML format
@@ -623,7 +813,7 @@ bool GraphIO::readGML(ClusterGraph &C, Graph &G, const char *filename)
 
 bool GraphIO::readGML(ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readGML(C, G, is);
 }
@@ -649,7 +839,7 @@ bool GraphIO::writeGML(const ClusterGraph &C, const char *filename)
 
 bool GraphIO::writeGML(const ClusterGraph &C, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGML(C, os);
 }
@@ -668,7 +858,7 @@ bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const char *filename)
 
 bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readOGML(C, G, is);
 }
@@ -688,7 +878,7 @@ bool GraphIO::writeOGML(const ClusterGraph &C, const char *filename)
 
 bool GraphIO::writeOGML(const ClusterGraph &C, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeOGML(C, os);
 }
@@ -707,7 +897,7 @@ bool GraphIO::readGML(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readGML(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readGML(A, G, is);
 }
@@ -729,7 +919,7 @@ bool GraphIO::writeGML(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeGML(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGML(A, os);
 }
@@ -748,7 +938,7 @@ bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readOGML(A, G, is);
 }
@@ -769,7 +959,7 @@ bool GraphIO::writeOGML(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeOGML(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeOGML(A, os);
 }
@@ -788,7 +978,7 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readRudy(A, G, is);
 }
@@ -807,7 +997,7 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 		return false;
 	}
 
-	Array<node> mapToNode(0,n-1,0);
+	Array<node> mapToNode(0,n-1,nullptr);
 	for(int i = 0; i < n; ++i)
 		mapToNode[i] = G.newNode();
 
@@ -844,7 +1034,7 @@ bool GraphIO::writeRudy(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeRudy(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeRudy(A, os);
 }
@@ -858,14 +1048,12 @@ bool GraphIO::writeRudy(const GraphAttributes &A, ostream &os)
 	NodeArray<int> index(G);
 
 	int i = 0;
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		index[v] = ++i;
 
 	bool haveDoubleWeight = (A.attributes() & GraphAttributes::edgeDoubleWeight) != 0;
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		double w = (haveDoubleWeight) ? A.doubleWeight(e) : 1.0;
 		os << index[e->source()] << " " << index[e->target()] << " " << w << "\n";
 	}
@@ -887,7 +1075,7 @@ bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, cons
 
 bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readGML(A, C, G, is);
 }
@@ -914,7 +1102,7 @@ bool GraphIO::writeGML(const ClusterGraphAttributes &A, const char *filename)
 
 bool GraphIO::writeGML(const ClusterGraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGML(A, os);
 }
@@ -934,7 +1122,7 @@ bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, con
 
 bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readOGML(A, C, G, is);
 }
@@ -955,11 +1143,119 @@ bool GraphIO::writeOGML(const ClusterGraphAttributes &A, const char *filename)
 
 bool GraphIO::writeOGML(const ClusterGraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeOGML(A, os);
 }
 
+bool GraphIO::readMatrixMarket(Graph& G, istream &inStream)
+{
+	// check if the stream is good
+	if (!inStream.good())
+		return false;
+
+	// clear the graph
+	G.clear();
+
+	// flag for reading the first triplet because it is special
+	bool isFirstEntry = true;
+
+	// simple map to map from indices to nodes
+	std::map<int, node> idToNodeMap;
+
+	// while there is somethng to read
+	while (!inStream.eof())
+	{
+		// the current line
+		std::string line;
+
+		// read one line at a time
+		getline(inStream, line);
+
+		// skip empty lines
+		if (line.empty())
+			continue;
+
+		// skip comments
+		if (line.at(0) == '%')
+			continue;
+
+		// stringstream for the single line
+		std::stringstream fin(line);
+
+		// if this is the real line (triplet
+		if (isFirstEntry)
+		{
+			// read the number of rows, columns and non zero entries
+			int numRows, numCols, numNonZero;
+
+			// read triplet
+			fin >> numRows;
+			fin >> numCols;
+			fin >> numNonZero;
+
+			// set flag that we parsed that line
+			isFirstEntry = false;
+		} else
+		{
+			// the usual triplet ( row and column indices and the corresponding weight
+			int rowIndex, colIndex;
+			double weight;
+
+			// read the triplet
+			fin >> rowIndex;
+			fin >> colIndex;
+			fin >> weight;
+
+			// node corresponding to the row
+			node s = nullptr;
+
+			// and to the column
+			node t = nullptr;
+
+			// look up the nodes in the map
+			std::map<int, node>::const_iterator s_it = idToNodeMap.find(rowIndex);
+			std::map<int, node>::const_iterator t_it = idToNodeMap.find(colIndex);
+
+			// check if we already created the node
+			if (s_it == idToNodeMap.end())
+			{
+				// no we did not, create it
+				s = G.newNode();
+				// and put it in the map
+				idToNodeMap[rowIndex] = s;
+			} else {
+				// we did, get it
+				s = (*s_it).second;
+			}
+
+			// check if we already created the node
+			if (t_it == idToNodeMap.end())
+			{
+				// no we did not, create it
+				t = G.newNode();
+				// and put it in the map
+				idToNodeMap[colIndex] = t;
+			} else {
+				 // we did, get it
+				t = (*t_it).second;
+			}
+
+			// both nodes are there now, create the edge
+			G.newEdge(s, t);
+		}
+	}
+
+	makeParallelFree(G);
+	return true;
+}
+
+bool GraphIO::readMatrixMarket(Graph& G, const string& filename)
+{
+	ifstream inStream(filename);
+	if(!inStream.is_open()) return false;
+	return readMatrixMarket(G, inStream);
+}
 
 //---------------------------------------------------------
 // Hypergraphs (point-based expansion): PLA format
@@ -974,7 +1270,7 @@ bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, con
 
 bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readBENCH(G, hypernodes, shell, is);
 }
@@ -989,7 +1285,7 @@ bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const
 
 bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readPLA(G, hypernodes, shell, is);
 }
@@ -1008,7 +1304,7 @@ bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const char *filename)
 
 bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readChallengeGraph(G, gl, is);
 }
@@ -1068,7 +1364,7 @@ bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, istream &is)
 			iss >> symbol;
 			if(symbol != "[") return false;
 
-			IPolyline &ipl = gl.bends(e);;
+			IPolyline &ipl = gl.bends(e);
 			for(;;) {
 				if(iss.eof()) return false;
 				iss >> symbol;
@@ -1096,7 +1392,7 @@ bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, const ch
 
 bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeChallengeGraph(G, gl, os);
 }
@@ -1111,19 +1407,17 @@ bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, ostream 
 	os << "# Nodes\n";
 	NodeArray<int> index(G);
 	int i = 0;
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << gl.x(v) << " " << gl.y(v) << "\n";
 		index[v] = i++;
 	}
 
 	os << "# Edges\n";
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << index[e->source()] << " " << index[e->target()] << " [";
 		const IPolyline &ipl = gl.bends(e);
-		for(ListConstIterator<IPoint> it = ipl.begin(); it.valid(); ++it)
-			os << " " << (*it).m_x << " " << (*it).m_y;
+		for(const IPoint &ip : ipl)
+			os << " " << ip.m_x << " " << ip.m_y;
 		os << " ]\n";
 	}
 
@@ -1144,7 +1438,7 @@ bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const char *f
 
 bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) return false;
 	return readEdgeListSubgraph(G, delEdges, is);
 }
@@ -1202,7 +1496,7 @@ bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, 
 
 bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeEdgeListSubgraph(G, delEdges, os);
 }
@@ -1218,239 +1512,23 @@ bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, 
 	os << n << " " << m << " " << m_del << "\n";
 
 	EdgeArray<bool> markSub(G,true);
-	for(ListConstIterator<edge> it = delEdges.begin(); it.valid(); ++it)
-		markSub[*it] = false;
+	for(edge e : delEdges)
+		markSub[e] = false;
 
 	NodeArray<int> index(G);
 	int i = 0;
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		index[v] = i++;
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		if(markSub[e])
 			os << index[e->source()] << " " << index[e->target()] << "\n";
 
-	for(ListConstIterator<edge> it = delEdges.begin(); it.valid(); ++it)
-		os << index[(*it)->source()] << " " << index[(*it)->target()] << "\n";
+	for(edge e : delEdges)
+		os << index[e->source()] << " " << index[e->target()] << "\n";
 
 
 	return true;
-}
-
-
-//---------------------------------------------------------
-// SteinLib parser
-//---------------------------------------------------------
-
-bool GraphIO::readSTP(
-	EdgeWeightedGraph<double> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	const char           *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readSTP(wG, terminals, isTerminal, is);
-}
-
-bool GraphIO::readSTP(
-	EdgeWeightedGraph<int> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	const char           *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readSTP(wG, terminals, isTerminal, is);
-}
-
-bool GraphIO::readSTP(
-	EdgeWeightedGraph<double> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	const string         &filename)
-{
-	ifstream is(OGDF_STRING_OPEN(filename));
-	if(!is.is_open()) return false;
-	return readSTP(wG, terminals, isTerminal, is);
-}
-
-bool GraphIO::readSTP(
-	EdgeWeightedGraph<int> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	const string         &filename)
-{
-	ifstream is(OGDF_STRING_OPEN(filename));
-	if(!is.is_open()) return false;
-	return readSTP(wG, terminals, isTerminal, is);
-}
-
-template<typename T>
-static bool read_SteinLib(
-	EdgeWeightedGraph<T> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	istream              &is)
-{
-	wG.clear();
-	terminals.clear();
-
-	string buffer;
-	std::istringstream iss;
-
-	int section = 0;
-	int nextSection = 1;
-
-	string key, value;
-
-	int n = 0;
-	Array<node> indexToNode;
-	//node root; // root terminal (directed case)
-
-	string name, date, creator, remark;
-
-	// 1. line = identifier
-	if(!std::getline(is, buffer))
-		return false;
-
-	// these three variants are used in the SteinLib
-	if (!equalIgnoreCase(buffer, "33D32945 STP File, STP Format Version 1.0")
-	 && !equalIgnoreCase(buffer, "33D32945 STP File, STP Format Version 1.00")
-	 && !equalIgnoreCase(buffer, "33d32945 STP File, STP Format Version  1.00")) {
-		return false;
-	}
-
-	while (std::getline(is, buffer))
-	{
-		if (buffer.empty() || buffer[0] == '#' || buffer[0] == '\n') {
-			continue;
-		}
-
-		iss.str(buffer); iss.clear();
-
-		switch (section) {
-		case 0:
-			if (equalIgnoreCase(buffer, "SECTION Comment")
-				&& nextSection == 1) {
-					section = 1;
-			} else if (equalIgnoreCase(buffer, "SECTION Graph")
-				&& nextSection == 2) {
-					section = 2;
-			} else if (equalIgnoreCase(buffer, "SECTION Terminals")
-				&& nextSection == 3) {
-					section = 3;
-			} else if (equalIgnoreCase(buffer, "SECTION Coordinates")
-				&& nextSection == 4) {
-					section = 4;
-			} else if (equalIgnoreCase(buffer, "EOF") && nextSection >= 4) {
-				return true;
-			}
-			break;
-
-		case 1: // comment section
-			iss >> key >> value;
-			if (key == "Name") {
-				name = value;
-			} else if (equalIgnoreCase(key, "Date")) {
-				date = value;
-			} else if (equalIgnoreCase(key, "Creator")) {
-				creator = value;
-			} else if (equalIgnoreCase(key, "Remark")) {
-				remark = value;
-			} else if (equalIgnoreCase(key, "END")) {
-				nextSection = 2;
-				section = 0;
-			} else {
-				return false;
-			}
-			break;
-
-		case 2: // graph section
-			iss >> key;
-
-			if(equalIgnoreCase(key, "END")) {
-				nextSection = 3;
-				section = 0;
-
-			} else if(equalIgnoreCase(key, "Nodes")) {
-				n = -1; iss >> n;
-				if(n < 0)
-					return false;
-
-				indexToNode = Array<node>(1, n, 0);
-				for (int i = 1; i <= n; i++) {
-					indexToNode[i] = wG.newNode();
-					isTerminal[indexToNode[i]] = false;
-				}
-
-			} else if (equalIgnoreCase(key,"E") || equalIgnoreCase(key,"A")) {
-				int src = -1, tgt = -1, w = 1;
-				iss >> src >> tgt >> w;
-
-				if(src <= 0 || src > n || tgt <= 0 || tgt > n)
-					return false;
-
-				wG.newEdge(indexToNode[src], indexToNode[tgt], w);
-			}
-
-			// ignored keys: Edges, Arcs
-
-			break;
-
-		case 3: // terminals section
-			iss >> key;
-			if(equalIgnoreCase(key, "T")) {
-				int v = -1;
-				iss >> v;
-
-				if(v <= 0 || v > n)
-					return false;
-
-				terminals.pushBack(indexToNode[v]);
-				isTerminal[indexToNode[v]] = true;
-			} else if (equalIgnoreCase(key, "END")) {
-				nextSection = 4;
-				section = 0;
-			}
-
-			// ignored keys: Root
-
-			break;
-
-		case 4: // coordinates section (omitted)
-			iss >> key;
-			if (equalIgnoreCase(key, "END")) {
-				nextSection = 5;
-				section = 0;
-			}
-			break;
-		default:
-			return false;
-		}
-	}
-	return false;
-}
-
-
-bool GraphIO::readSTP(
-	EdgeWeightedGraph<double> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	istream              &is)
-{
-	return read_SteinLib(wG, terminals, isTerminal, is);
-}
-
-bool GraphIO::readSTP(
-	EdgeWeightedGraph<int> &wG,
-	List<node>           &terminals,
-	NodeArray<bool>      &isTerminal,
-	istream              &is)
-{
-	return read_SteinLib(wG, terminals, isTerminal, is);
 }
 
 
@@ -1467,7 +1545,7 @@ bool GraphIO::drawSVG(const GraphAttributes &A, const char *filename, const SVGS
 
 bool GraphIO::drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return drawSVG(A, os, settings);
 }
@@ -1481,7 +1559,7 @@ bool GraphIO::drawSVG(const ClusterGraphAttributes &A, const char *filename, con
 
 bool GraphIO::drawSVG(const ClusterGraphAttributes &A, const string &filename, const SVGSettings &settings)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return drawSVG(A, os, settings);
 }
@@ -1502,7 +1580,7 @@ bool GraphIO::readGraphML(Graph &G, const char *filename)
 
 bool GraphIO::readGraphML(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1511,14 +1589,8 @@ bool GraphIO::readGraphML(Graph &G, const string &filename)
 
 bool GraphIO::readGraphML(Graph &G, istream &is)
 {
-	try {
-		GraphMLParser parser(is);
-		return parser.read(G);
-
-	} catch(...) {
-		// exception thrown by XML paser
-		return false;
-	}
+	GraphMLParser parser(is);
+	return parser.read(G);
 }
 
 bool GraphIO::writeGraphML(const Graph &G, const char *filename)
@@ -1530,7 +1602,7 @@ bool GraphIO::writeGraphML(const Graph &G, const char *filename)
 
 bool GraphIO::writeGraphML(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGraphML(G, os);
 }
@@ -1551,7 +1623,7 @@ bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const char *filename)
 
 bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1573,7 +1645,7 @@ bool GraphIO::writeGraphML(const ClusterGraph &C, const char *filename)
 
 bool GraphIO::writeGraphML(const ClusterGraph &C, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGraphML(C, os);
 }
@@ -1594,7 +1666,7 @@ bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1616,7 +1688,7 @@ bool GraphIO::writeGraphML(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeGraphML(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGraphML(A, os);
 }
@@ -1637,7 +1709,7 @@ bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, 
 
 bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1659,7 +1731,7 @@ bool GraphIO::writeGraphML(const ClusterGraphAttributes &A, const char *filename
 
 bool GraphIO::writeGraphML(const ClusterGraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGraphML(A, os);
 }
@@ -1680,7 +1752,7 @@ bool GraphIO::readDOT(Graph &G, const char *filename)
 
 bool GraphIO::readDOT(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1702,7 +1774,7 @@ bool GraphIO::writeDOT(const Graph &G, const char *filename)
 
 bool GraphIO::writeDOT(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeDOT(G, os);
 }
@@ -1723,7 +1795,7 @@ bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const char *filename)
 
 bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1745,7 +1817,7 @@ bool GraphIO::writeDOT(const ClusterGraph &C, const char *filename)
 
 bool GraphIO::writeDOT(const ClusterGraph &C, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeDOT(C, os);
 }
@@ -1766,7 +1838,7 @@ bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1788,7 +1860,7 @@ bool GraphIO::writeDOT(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeDOT(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeDOT(A, os);
 }
@@ -1809,7 +1881,7 @@ bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, cons
 
 bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1831,7 +1903,7 @@ bool GraphIO::writeDOT(const ClusterGraphAttributes &A, const char *filename)
 
 bool GraphIO::writeDOT(const ClusterGraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeDOT(A, os);
 }
@@ -1852,7 +1924,7 @@ bool GraphIO::readGEXF(Graph &G, const char *filename)
 
 bool GraphIO::readGEXF(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1861,14 +1933,8 @@ bool GraphIO::readGEXF(Graph &G, const string &filename)
 
 bool GraphIO::readGEXF(Graph &G, istream &is)
 {
-	try {
-		gexf::Parser parser(is);
-		return parser.read(G);
-
-	} catch(...) {
-		// exception thrown by XML paser
-		return false;
-	}
+	gexf::Parser parser(is);
+	return parser.read(G);
 }
 
 bool GraphIO::writeGEXF(const Graph &G, const char *filename)
@@ -1880,7 +1946,7 @@ bool GraphIO::writeGEXF(const Graph &G, const char *filename)
 
 bool GraphIO::writeGEXF(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGEXF(G, os);
 }
@@ -1901,7 +1967,7 @@ bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const char *filename)
 
 bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1923,7 +1989,7 @@ bool GraphIO::writeGEXF(const ClusterGraph &C, const char *filename)
 
 bool GraphIO::writeGEXF(const ClusterGraph &C, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGEXF(C, os);
 }
@@ -1944,7 +2010,7 @@ bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -1966,7 +2032,7 @@ bool GraphIO::writeGEXF(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeGEXF(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGEXF(A, os);
 }
@@ -1987,7 +2053,7 @@ bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, con
 
 bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2009,7 +2075,7 @@ bool GraphIO::writeGEXF(const ClusterGraphAttributes &A, const char *filename)
 
 bool GraphIO::writeGEXF(const ClusterGraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGEXF(A, os);
 }
@@ -2030,7 +2096,7 @@ bool GraphIO::readGDF(Graph &G, const char *filename)
 
 bool GraphIO::readGDF(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2052,7 +2118,7 @@ bool GraphIO::writeGDF(const Graph &G, const char *filename)
 
 bool GraphIO::writeGDF(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGDF(G, os);
 }
@@ -2073,7 +2139,7 @@ bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2095,7 +2161,7 @@ bool GraphIO::writeGDF(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeGDF(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeGDF(A, os);
 }
@@ -2116,7 +2182,7 @@ bool GraphIO::readTLP(Graph &G, const char *filename)
 
 bool GraphIO::readTLP(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2138,7 +2204,7 @@ bool GraphIO::writeTLP(const Graph &G, const char *filename)
 
 bool GraphIO::writeTLP(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeTLP(G, os);
 }
@@ -2159,7 +2225,7 @@ bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const char *filename)
 
 bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2181,7 +2247,7 @@ bool GraphIO::writeTLP(const ClusterGraph &C, const char *filename)
 
 bool GraphIO::writeTLP(const ClusterGraph &C, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeTLP(C, os);
 }
@@ -2202,7 +2268,7 @@ bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2224,7 +2290,7 @@ bool GraphIO::writeTLP(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeTLP(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeTLP(A, os);
 }
@@ -2245,7 +2311,7 @@ bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, cons
 
 bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2267,7 +2333,7 @@ bool GraphIO::writeTLP(const ClusterGraphAttributes &A, const char *filename)
 
 bool GraphIO::writeTLP(const ClusterGraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeTLP(A, os);
 }
@@ -2288,7 +2354,7 @@ bool GraphIO::readDL(Graph &G, const char *filename)
 
 bool GraphIO::readDL(Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2310,7 +2376,7 @@ bool GraphIO::writeDL(const Graph &G, const char *filename)
 
 bool GraphIO::writeDL(const Graph &G, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeDL(G, os);
 }
@@ -2331,7 +2397,7 @@ bool GraphIO::readDL(GraphAttributes &A, Graph &G, const char *filename)
 
 bool GraphIO::readDL(GraphAttributes &A, Graph &G, const string &filename)
 {
-	ifstream is(OGDF_STRING_OPEN(filename));
+	ifstream is(filename);
 	if(!is.is_open()) {
 		return false;
 	}
@@ -2353,7 +2419,7 @@ bool GraphIO::writeDL(const GraphAttributes &A, const char *filename)
 
 bool GraphIO::writeDL(const GraphAttributes &A, const string &filename)
 {
-	ofstream os(OGDF_STRING_OPEN(filename));
+	ofstream os(filename);
 	if(!os.is_open()) return false;
 	return writeDL(A, os);
 }

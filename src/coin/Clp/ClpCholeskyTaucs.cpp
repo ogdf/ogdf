@@ -265,7 +265,7 @@ ClpCholeskyTaucs::factorize(const double * diagonal, int * rowsDropped)
      if (perturbation > 1.0) {
           //if (model_->model()->logLevel()&4)
           std::cout << "large perturbation " << perturbation << std::endl;
-          perturbation = sqrt(perturbation);;
+          perturbation = sqrt(perturbation);
           perturbation = 1.0;
      }
      for (iRow = 0; iRow < numberRows_; iRow++) {
@@ -371,7 +371,7 @@ ClpCholeskyTaucs::factorize(const double * diagonal, int * rowsDropped)
                newDropped = 0;
                for (int i = 0; i < numberRows_; i++) {
                     char dropped = rowsDropped[i];
-                    int oldDropped = rowsDropped_[i];;
+                    int oldDropped = rowsDropped_[i];
                     rowsDropped_[i] = dropped;
                     if (dropped == 2) {
                          assert (!oldDropped);

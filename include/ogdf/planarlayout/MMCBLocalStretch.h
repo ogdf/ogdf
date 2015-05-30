@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a Mixed-Model crossings beautifier
  * that local stretching.
@@ -69,7 +61,7 @@ public:
 
 protected:
 	//! Implements the module call.
-	void doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L);
+	virtual void doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L) override;
 };
 
 

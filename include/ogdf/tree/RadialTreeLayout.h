@@ -1,11 +1,3 @@
-/*
- * $Revision: 2566 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 23:10:08 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of linear time layout algorithm for free
  *        trees (class RadialTreeLayout).
@@ -176,7 +168,7 @@ public:
 	 * \pre The graph is a tree.
 	 * @param GA represents the input graph and is assigned the computed layout.
 	 */
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 
 	// option that determines the minimal vertical distance

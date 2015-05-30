@@ -1,11 +1,3 @@
-/*
- * $Revision: 3977 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-25 13:59:42 +0100 (Tue, 25 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Computes an embedding of a graph with maximum external face.
  * See paper "Graph Embedding with Minimum Depth and Maximum External
@@ -50,7 +42,7 @@ namespace ogdf {
 
 void EmbedderMaxFace::call(Graph& G, adjEntry& adjExternal)
 {
-	adjExternal = 0;
+	adjExternal = nullptr;
 	pAdjExternal = &adjExternal;
 
 	//simple base cases:
@@ -84,9 +76,8 @@ void EmbedderMaxFace::call(Graph& G, adjEntry& adjExternal)
 	//***************************************************************************/
 
 	//Find root Block (root node is only node with out-degree of 0):
-	node rootBlockNode = 0;
-	node n;
-	forall_nodes(n, pBCTree->bcTree())
+	node rootBlockNode = nullptr;
+	for(node n : pBCTree->bcTree().nodes)
 	{
 		if (n->outdeg() == 0) {
 			rootBlockNode = n;
@@ -103,8 +94,8 @@ void EmbedderMaxFace::call(Graph& G, adjEntry& adjExternal)
 	eH_to_eBlockEmbedding.init(pBCTree->bcTree());
 	nodeLength.init(pBCTree->bcTree());
 	cstrLength.init(pBCTree->bcTree());
-	spqrTrees.init(pBCTree->bcTree(),0);
-	computeBlockGraphs(rootBlockNode, 0);
+	spqrTrees.init(pBCTree->bcTree(),nullptr);
+	computeBlockGraphs(rootBlockNode, nullptr);
 
 	//Bottom-Up-Traversal:
 	edge e;
@@ -142,11 +133,10 @@ void EmbedderMaxFace::call(Graph& G, adjEntry& adjExternal)
 	treeNodeTreated.init(pBCTree->bcTree(), false);
 	embedBlock(bT_opt);
 
-	node v;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 		G.sort(v, newOrder[v]);
 
-	forall_nodes(v, pBCTree->bcTree())
+	for(node v : pBCTree->bcTree().nodes)
 		delete spqrTrees[v];
 
 	delete pBCTree;
@@ -175,7 +165,7 @@ void EmbedderMaxFace::computeBlockGraphs(const node& bT, const node& cH)
 
 	//embed block bT:
 	node m_cH = cH;
-	if (m_cH == 0)
+	if (m_cH == nullptr)
 		m_cH = pBCTree->cutVertex(bT->firstAdj()->twinNode(), bT);
 	ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockG[bT], m_cH,
 		nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT],
@@ -307,7 +297,7 @@ void EmbedderMaxFace::maximumFaceRec(const node& bT, node& bT_opt, int& ell_opt)
 void EmbedderMaxFace::embedBlock(const node& bT)
 {
 	ListIterator<adjEntry> after;
-	node cT = 0;
+	node cT = nullptr;
 	embedBlock(bT, cT, after);
 }
 
@@ -318,16 +308,16 @@ void EmbedderMaxFace::embedBlock(
 	ListIterator<adjEntry>& after)
 {
 	treeNodeTreated[bT] = true;
-	node cH = 0;
-	if (!(cT == 0))
+	node cH = nullptr;
+	if (!(cT == nullptr))
 		cH = pBCTree->cutVertex(cT, bT);
 
 	//***************************************************************************
 	// 1. Compute embedding of block
 	//***************************************************************************
 	EdgeArray<int> edgeLength(blockG[bT], 1);
-	adjEntry m_adjExternal = 0;
-	if (cH == 0)
+	adjEntry m_adjExternal = nullptr;
+	if (cH == nullptr)
 		EmbedderMaxFaceBiconnectedGraphs<int>::embed(blockG[bT], m_adjExternal,
 			nodeLength[bT], edgeLength);
 	else
@@ -341,7 +331,7 @@ void EmbedderMaxFace::embedBlock(
 	CombinatorialEmbedding CE(blockG[bT]);
 	face f = CE.leftFace(m_adjExternal);
 
-	if (*pAdjExternal == 0)
+	if (*pAdjExternal == nullptr)
 	{
 		node on = pBCTree->original(nBlockEmbedding_to_nH[bT][m_adjExternal->theNode()]);
 		adjEntry ae1 = on->firstAdj();
@@ -355,8 +345,7 @@ void EmbedderMaxFace::embedBlock(
 		}
 	}
 
-	node nSG;
-	forall_nodes(nSG, blockG[bT])
+	for(node nSG : blockG[bT].nodes)
 	{
 		node nH = nBlockEmbedding_to_nH[bT][nSG];
 		node nG = pBCTree->original(nH);
@@ -373,7 +362,7 @@ void EmbedderMaxFace::embedBlock(
 			bool no_recursion = false;
 			if (cT2 == cT)
 			{
-				node parent_bT_of_cT2 = 0;
+				node parent_bT_of_cT2 = nullptr;
 				edge e_cT2_to_bT2;
 				forall_adj_edges(e_cT2_to_bT2, cT2)
 				{
@@ -462,7 +451,7 @@ void EmbedderMaxFace::embedBlock(
 
 		if (!(*pAfter == after))
 			delete pAfter;
-	} //forall_nodes(nSG, blockG[bT])
+	}
 }
 
 } // end namespace ogdf

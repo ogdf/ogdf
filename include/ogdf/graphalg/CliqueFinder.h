@@ -1,11 +1,3 @@
-/*
- * $Revision: 2641 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares CliqueFinder class.
  * CliqueFinder searches for complete (dense) subgraphs.
@@ -59,6 +51,8 @@ namespace ogdf{
 
 //! Finds cliques and dense subgraphs.
 /**
+ * @ingroup ga-induced
+ *
  * The class CliqueFinder can be called on a graph
  * to retrieve (disjoint) cliques or dense subgraphs
  * respectively. Uses SPQR trees to find 3-connected
@@ -143,7 +137,9 @@ protected:
 	//the higher the return value, the better the node
 	//uses only edges with usableEdge == true
 	int evaluate(node v, EdgeArray<bool> &usableEdge);
+#ifdef OGDF_DEBUG
 	void checkCliques(List< List<node>* > &cliqueList, bool sizeCheck = true);
+#endif
 	bool cliqueOK(List<node> *clique);
 	void findClique(node v, List<node> &neighbours,
 						int numRandom = 0);

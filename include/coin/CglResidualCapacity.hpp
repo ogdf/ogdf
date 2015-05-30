@@ -95,7 +95,7 @@ public:
 	in the collection of cuts cs. 
     */
     virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-			      const CglTreeInfo info = CglTreeInfo()) const;
+			      const CglTreeInfo info = CglTreeInfo()) const override;
     //@}
     
     //---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ public:
 			 const CglResidualCapacity &);
     
     /// Clone
-    virtual CglCutGenerator * clone() const;
+    virtual CglCutGenerator * clone() const override;
     
     /// Assignment operator 
     CglResidualCapacity &

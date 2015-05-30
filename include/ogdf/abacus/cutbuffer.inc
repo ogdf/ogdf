@@ -1,11 +1,3 @@
-/*
- * $Revision: 3830 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -99,7 +91,6 @@ int CutBuffer<BaseType, CoType>::insert(
 template<class BaseType, class CoType>
 void CutBuffer<BaseType, CoType>::remove(ArrayBuffer<int> &index)
 {
-	PoolSlot<BaseType, CoType> *ps;
 	PoolSlotRef<BaseType, CoType> *psr;
 
 	const int nIndex = index.size();
@@ -107,7 +98,7 @@ void CutBuffer<BaseType, CoType>::remove(ArrayBuffer<int> &index)
 	for (int i = 0; i < nIndex; i++) {
 		psr = psRef_[index[i]];
 		psr->conVar()->unlock();
-		ps = psr->slot();
+		PoolSlot<BaseType, CoType> *ps = psr->slot();
 		delete psr;
 		if (ps->conVar()->deletable())
 			ps->removeConVarFromPool();

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of FME kernel.
  *
@@ -40,8 +32,8 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "FMEKernel.h"
-#include "ComplexDouble.h"
+#include <ogdf/internal/energybased/FMEKernel.h>
+#include <ogdf/internal/energybased/ComplexDouble.h>
 
 using namespace ogdf::sse;
 
@@ -53,7 +45,7 @@ inline void eval_direct_aligned_SSE(
 	float* ptr_x1, float* ptr_y1, float* ptr_s1, float* ptr_fx1, float* ptr_fy1, size_t n1,
 	float* ptr_x2, float* ptr_y2, float* ptr_s2, float* ptr_fx2, float* ptr_fy2, size_t n2)
 {
-	for (__uint32 i=0; i < n1; i+=4)
+	for (uint32_t i=0; i < n1; i+=4)
 	{
 		// register for i
 		__m128 x      = _mm_load_ps( ptr_x1 + i );
@@ -68,7 +60,7 @@ inline void eval_direct_aligned_SSE(
 		__m128 fx_sum_shuffled;
 		__m128 fy_sum_shuffled;
 
-		for (__uint32 j=i+4; j < n2; j+=4)
+		for (uint32_t j=i+4; j < n2; j+=4)
 		{
 			x_shuffled		= _mm_load_ps( ptr_x2 +j );
 			y_shuffled		= _mm_load_ps( ptr_y2 +j );
@@ -224,7 +216,7 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 
 inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, float* ptr_fx, float* ptr_fy, size_t n)
 {
-	for (__uint32 i=0; i < n; i+=4)
+	for (uint32_t i=0; i < n; i+=4)
 	{
 		// register for i
 		__m128 x      = _mm_load_ps( ptr_x + i );
@@ -272,7 +264,7 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 		fy_sum = _mm_add_ps(fy_sum, fy);
 
 		// end copy paste from above
-		for (__uint32 j=i+4; j < n; j+=4)
+		for (uint32_t j=i+4; j < n; j+=4)
 		{
 			x_shuffled		= _mm_load_ps( ptr_x +j );
 			y_shuffled		= _mm_load_ps( ptr_y +j );
@@ -421,7 +413,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 //  |AxA|            |   |
 //  |___|____________|___|
 //   x   fence1    fence2 x+n
-/*void eval_direct_sse(float* x, float* y, float* s, float* fx, float* fy, __uint32 n)
+/*void eval_direct_sse(float* x, float* y, float* s, float* fx, float* fy, uint32_t n)
 {
 	if (n>8)
 	{
@@ -454,9 +446,9 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		eval_direct(x+numAB, y+numAB, s+numAB, fx+numAB, fy+numAB, numC);
 	} else
 	{
-		for (__uint32 i=0; i < n; i++)
+		for (uint32_t i=0; i < n; i++)
 		{
-			for (__uint32 j=i+1; j < n; j++)
+			for (uint32_t j=i+1; j < n; j++)
 			{
 				float dx = x[i] - x[j];
 				float dy = y[i] - y[j];
@@ -671,9 +663,9 @@ inline __w64 int align_16_end(T* ptr, const N n)
 	}
 	} else
 	{
-		for (__uint32 i=0; i < n; i++)
+		for (uint32_t i=0; i < n; i++)
 		{
-			for (__uint32 j=i+1; j < n; j++)
+			for (uint32_t j=i+1; j < n; j++)
 			{
 				float dx = x[i] - x[j];
 				float dy = y[i] - y[j];
@@ -690,7 +682,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 
 
 
-void fast_multipole_l2p(double* localCoeffiecients, __uint32 numCoeffiecients, double centerX, double centerY,
+void fast_multipole_l2p(double* localCoeffiecients, uint32_t numCoeffiecients, double centerX, double centerY,
 				float x, float y, float q, float& fx, float&fy)
 {
 	double* source_coeff = localCoeffiecients; //+ source*(m_numCoeff << 1);
@@ -698,7 +690,7 @@ void fast_multipole_l2p(double* localCoeffiecients, __uint32 numCoeffiecients, d
 	ComplexDouble res;
 	ComplexDouble delta(ComplexDouble(x,y) - ComplexDouble(centerX, centerY));// + (source << 1))); //m_x[source], y - m_y[source]);
 	ComplexDouble delta_k(1);
-	for (__uint32 k=1; k<numCoeffiecients; k++)
+	for (uint32_t k=1; k<numCoeffiecients; k++)
 	{
 		ak.load(source_coeff+(k<<1));
 		res += ak*delta_k*(double)k;
@@ -717,7 +709,7 @@ void fast_multipole_l2p(double* localCoeffiecients, __uint32 numCoeffiecients, d
 }
 
 
-void fast_multipole_p2m(double* mulitCoeffiecients, __uint32 numCoeffiecients, double centerX, double centerY,
+void fast_multipole_p2m(double* mulitCoeffiecients, uint32_t numCoeffiecients, double centerX, double centerY,
 					float x, float y, float q)
 {
 	double* receiv_coeff = mulitCoeffiecients;
@@ -729,7 +721,7 @@ void fast_multipole_p2m(double* mulitCoeffiecients, __uint32 numCoeffiecients, d
 	ComplexDouble delta(ComplexDouble(x, y) - ComplexDouble(centerX, centerY));
 	// (p - z0)^k
 	ComplexDouble delta_k(delta);
-	for (__uint32 k=1; k<numCoeffiecients; k++)
+	for (uint32_t k=1; k<numCoeffiecients; k++)
 	{
 		ak.load(receiv_coeff+(k<<1));
 		ak -= delta_k*(q/(double)k);

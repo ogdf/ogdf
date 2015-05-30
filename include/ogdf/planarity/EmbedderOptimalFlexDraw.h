@@ -1,11 +1,3 @@
-/*
- * $Revision: 3835 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 13:18:01 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief The algorithm computes a planar embedding with minimum cost.
  *
@@ -62,10 +54,13 @@
 
 namespace ogdf {
 
-/// The algorithm computes a planar embedding with minimum cost.
-///
-/// See paper "Optimal Orthogonal Graph Drawing with Convex Bend Costs"
-/// by Thomas Blasius, Ignaz Rutter, Dorothea Wagner (2012) for details.
+//! The algorithm computes a planar embedding with minimum cost.
+/**
+ * @ingroup ga-planembed
+ *
+ * See paper "Optimal Orthogonal Graph Drawing with Convex Bend Costs"
+ * by Thomas Blasius, Ignaz Rutter, Dorothea Wagner (2012) for details.
+ */
 class OGDF_EXPORT EmbedderOptimalFlexDraw : public EmbedderModule
 {
 public:
@@ -74,10 +69,10 @@ public:
 
 	~EmbedderOptimalFlexDraw() { }
 
-	void call(Graph &G, adjEntry &adjExternal);
+	virtual void call(Graph &G, adjEntry &adjExternal) override;
 
 	/// Sets the module option to compute min-cost flow.
-	void setMinCostFlowComputer(MinCostFlowModule *pMinCostFlowComputer) {
+	void setMinCostFlowComputer(MinCostFlowModule<int> *pMinCostFlowComputer) {
 		m_minCostFlowComputer.set(pMinCostFlowComputer);
 	}
 
@@ -88,7 +83,7 @@ public:
 
 private:
 
-	ModuleOption<MinCostFlowModule> m_minCostFlowComputer;
+	ModuleOption<MinCostFlowModule<int>> m_minCostFlowComputer;
 
 	EdgeArray<int> *m_cost;
 

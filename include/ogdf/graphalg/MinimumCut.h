@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares & implements a minimum-cut algorithm according
  * to an approach of Stoer and Wagner 1997. However, no Priority Queues
@@ -58,6 +50,10 @@
 namespace ogdf {
 
 
+//! Computes a minimum cut in a graph.
+/**
+ * @ingroup graph-alg
+ */
 class OGDF_EXPORT MinCut {
 
 public:

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2802 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-11 13:55:26 +0200 (Thu, 11 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class MultilevelLayout which realizes a
  * wrapper for the multilevel layout computation using the
@@ -62,6 +54,10 @@
 
 namespace ogdf {
 
+	//! The multilevel drawing framework.
+	/**
+	 * @ingroup gd-energy
+	 */
 	class OGDF_EXPORT MultilevelLayout : public LayoutModule
 	{
 		public:
@@ -72,11 +68,11 @@ namespace ogdf {
 			virtual ~MultilevelLayout() {delete m_pp;}
 
 			//! Calculates a drawing for the Graph GA.
-			void call(GraphAttributes &GA);
+			virtual void call(GraphAttributes &GA) override;
 
 			//! Calculates a drawing for the Graph GA and tries to satisfy
 			//! the constraints in CG if supported.
-			virtual void call(GraphAttributes &GA, GraphConstraints &GC);
+			virtual void call(GraphAttributes &GA, GraphConstraints &GC) override;
 
 			//Setting of the three main phases' methods
 			//! Sets the single level layout

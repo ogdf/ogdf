@@ -1,11 +1,3 @@
-/*
- * $Revision: 3419 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 14:17:14 +0200 (Thu, 18 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the sub-problem class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem
@@ -175,7 +167,7 @@ protected:
 
 private:
 
-	MaxCPlanarMaster* master() { return (MaxCPlanarMaster*)master_; }
+	MaxCPlanarMaster* master() { return static_cast<MaxCPlanarMaster*>(master_); }
 
 	// A flag indicating if constraints have been found in the current separation step.
 	// Is used to check, if the primal heuristic should be run or not.
@@ -196,8 +188,11 @@ private:
 		ArrayBuffer<bool> keep(num,false);
 		for(int i=num; i-->0;)
 			keep.push(true);
-		int r = addVars(b,0,&keep);
-		OGDF_ASSERT( r==num )
+#ifdef OGDF_DEBUG
+		int r =
+#endif
+		addVars(b, 0, &keep);
+		OGDF_ASSERT(r == num);
 	}
 
 
@@ -255,23 +250,23 @@ private:
 	//! Adds the given constraints to the connectivity cut pool
 	inline int addCutCons(ArrayBuffer<abacus::Constraint *> cons)
 	{
-		return addPoolCons(cons, ((MaxCPlanarMaster*)master_)->getCutConnPool());
+		return addPoolCons(cons, static_cast<MaxCPlanarMaster*>(master_)->getCutConnPool());
 	}
 	//! Adds the given constraints to the planarity cut pool
 	inline int addKuraCons(ArrayBuffer<abacus::Constraint *> cons)
 	{
-		return addPoolCons(cons, ((MaxCPlanarMaster*)master_)->getCutKuraPool());
+		return addPoolCons(cons, static_cast<MaxCPlanarMaster*>(master_)->getCutKuraPool());
 	}
 
 	//tries to regenerate connectivity cuts
 	inline int separateConnPool(double minViolation)
 	{
-		return separateCutPool(((MaxCPlanarMaster*)master_)->getCutConnPool(),minViolation);
+		return separateCutPool(static_cast<MaxCPlanarMaster*>(master_)->getCutConnPool(), minViolation);
 	}
 	//tries to regenerate kuratowski cuts
 	inline int separateKuraPool(double minViolation)
 	{
-		return separateCutPool(((MaxCPlanarMaster*)master_)->getCutKuraPool(),minViolation);
+		return separateCutPool(static_cast<MaxCPlanarMaster*>(master_)->getCutKuraPool(), minViolation);
 	}
 	/*
 	void minimumSpanningTree(

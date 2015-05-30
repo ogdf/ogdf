@@ -1,11 +1,3 @@
-/*
- * $Revision: 3975 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-25 12:53:46 +0100 (Tue, 25 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of stopwatch classes
  *
@@ -54,10 +46,14 @@
 
 namespace ogdf {
 
+	//! Realizes a stopwatch for measuring elapsed time.
+	/**
+	 * @ingroup date-time
+	 */
 	class OGDF_EXPORT Stopwatch {
 
-		__int64 m_startTime;  //!< The start time of the timer in milliseconds.
-		__int64 m_totalTime;  //!< The total time in milliseconds.
+		int64_t m_startTime;  //!< The start time of the timer in milliseconds.
+		int64_t m_totalTime;  //!< The total time in milliseconds.
 		bool    m_running;    //!< true, if the timer is running.
 
 	public:
@@ -75,7 +71,7 @@ namespace ogdf {
 		 *
 		 * \param milliSecs The intial value of the total time in milliseconds.
 		 */
-		Stopwatch(__int64 milliSecs) : m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
+		Stopwatch(int64_t milliSecs) :  m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
 
 
 		virtual ~Stopwatch() { }
@@ -110,7 +106,7 @@ namespace ogdf {
 		/**
 		 * It is not necessary to stop the timer to get the correct time.
 		 */
-		__int64 milliSeconds() const {
+		int64_t milliSeconds() const {
 			return (m_running) ? (m_totalTime + theTime() - m_startTime) : m_totalTime;
 		}
 
@@ -118,32 +114,32 @@ namespace ogdf {
 		/**
 		 * It is not necessary to stop the timer to get the correct time.
 		 */
-		__int64 centiSeconds() const { return milliSeconds()/10; }
+		int64_t centiSeconds() const { return milliSeconds()/10; }
 
 		//! Returns the currently elapsed time in seconds.
 		/**
 		 * It is not necessary to stop the timer to get the correct time.
 		 * The result is rounded down to the next integer value.
 		 */
-		__int64 seconds() const { return milliSeconds()/1000; }
+		int64_t seconds() const { return milliSeconds()/1000; }
 
 		//! Returns the currently elapsed time in minutes.
 		/**
 		 * It is not necessary to stop the timer to get the correct time.
 		 * The result is rounded down to the next integer value.
 		 */
-		__int64 minutes() const { return seconds()/60; }
+		int64_t minutes() const { return seconds()/60; }
 
 		//! Returns the currently elapsed time in hours.
 		/**
 		 * It is not necessary to stop the timer to get the correct time.
 		 * The result is rounded down to the next integer value.
 		 */
-		__int64 hours() const { return seconds()/3600; }
+		int64_t hours() const { return seconds()/3600; }
 
 
 		//! Returns true iff the currently elapsed time exceeds \a maxSeconds.
-		bool exceeds(__int64 maxSeconds) const {
+		bool exceeds(int64_t maxSeconds) const {
 			return (seconds() >= maxSeconds);
 		}
 
@@ -151,7 +147,7 @@ namespace ogdf {
 		/**
 		 * \param centiSeconds The number of centiseconds to be added.
 		 */
-		void addCentiSeconds(__int64 centiSeconds) {
+		void addCentiSeconds(int64_t centiSeconds) {
 			m_totalTime += 10*centiSeconds;
 		}
 
@@ -173,7 +169,7 @@ namespace ogdf {
 		 *
 		 * \return The time since some starting point (e.g., the program start) in milliseconds.
 		 */
-		virtual __int64 theTime() const = 0;
+		virtual int64_t theTime() const = 0;
 
 	};
 
@@ -195,13 +191,13 @@ namespace ogdf {
 		 *
 		 * \param milliSecs The intial value of the total time in milliseconds.
 		 */
-		StopwatchCPU(__int64 milliSecs) : Stopwatch(milliSecs) { }
+		StopwatchCPU(int64_t milliSecs) : Stopwatch(milliSecs) { }
 
 		virtual ~StopwatchCPU() { }
 
 	private:
 		//! Returns the current CPU time in milliseconds (from some fixed starting point).
-		virtual __int64 theTime() const;
+		virtual int64_t theTime() const;
 	};
 
 
@@ -222,13 +218,13 @@ namespace ogdf {
 		 *
 		 * \param milliSecs The intial value of the total time in milliseconds.
 		 */
-		StopwatchWallClock(__int64 milliSecs) : Stopwatch(milliSecs) { }
+		StopwatchWallClock(int64_t milliSecs) : Stopwatch(milliSecs) { }
 
 		virtual ~StopwatchWallClock() { }
 
 	private:
 		//! Returns the current wall-clock time in milliseconds (from some fixed starting point).
-		virtual __int64 theTime() const;
+		virtual int64_t theTime() const;
 	};
 
 }

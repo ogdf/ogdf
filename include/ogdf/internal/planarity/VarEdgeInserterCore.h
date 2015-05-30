@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class VarEdgeInserterCore and VarEdgeInserterUMLCore,
  * which are the implementation classes for edge insertion with variable embedding.
@@ -68,7 +60,7 @@ namespace ogdf {
 			PlanRepLight &pr,
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraphs)
+			const EdgeArray<uint32_t> *pEdgeSubgraphs)
 			: m_pr(pr), m_pCost(pCostOrig), m_pForbidden(pForbiddenOrig), m_pSubgraph(pEdgeSubgraphs) { }
 
 		virtual ~VarEdgeInserterCore() { }
@@ -93,7 +85,7 @@ namespace ogdf {
 		int costCrossed(edge eOrig) const;
 
 		bool dfsVertex(node v, int parent);
-		bool dfsComp(int i, node parent, node &repT);
+		node dfsComp(int i, node parent);
 
 		void blockInsert(
 			const BiconnectedComponent &G,
@@ -118,7 +110,7 @@ namespace ogdf {
 
 		const EdgeArray<int>		*m_pCost;
 		const EdgeArray<bool>		*m_pForbidden;
-		const EdgeArray<__uint32>	*m_pSubgraph;
+		const EdgeArray<uint32_t>	*m_pSubgraph;
 
 		node   m_s, m_t;
 		edge   m_st;
@@ -142,7 +134,7 @@ namespace ogdf {
 		VarEdgeInserterUMLCore(
 			PlanRepLight &pr,
 			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraph) : VarEdgeInserterCore(pr, pCostOrig, 0, pEdgeSubgraph) { }
+			const EdgeArray<uint32_t> *pEdgeSubgraph) : VarEdgeInserterCore(pr, pCostOrig, 0, pEdgeSubgraph) { }
 
 	protected:
 		class BiconnectedComponentUML;

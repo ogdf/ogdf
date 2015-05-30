@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Module for simdraw manipulator classes
  *

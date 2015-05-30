@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of PlanRepUML class
  *
@@ -67,11 +59,10 @@ PlanRepInc::PlanRepInc(const UMLGraph &UG, const NodeArray<bool> &fixed)
 
 	const Graph &G = UG.constGraph();
 	//we start the node activation status with the fixed input values
-	node v;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		m_activeNodes[v] = fixed[v];
-	}//forallnodes
+	}
 
 }//constructor
 
@@ -103,7 +94,7 @@ void PlanRepInc::initActiveCC(int i)
 node PlanRepInc::initActiveCCGen(int i, bool minNode)
 {
 	//node to be returned
-	node minActive = 0;
+	node minActive = nullptr;
 	//list to be filled wih activated nodes
 	List<node> activeOrigCCNodes;
 	// a) delete copy / chain fields for originals of nodes in current cc,
@@ -120,17 +111,16 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 
 		if (m_currentCC >= 0)
 		{
-			m_vCopy[vG] = 0;
+			m_vCopy[vG] = nullptr;
 
-			adjEntry adj;
-			forall_adj(adj,vG)
+			for(adjEntry adj : vG->adjEdges)
 			{
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
 
 				m_eCopy[eG].clear();
 			}
-		}//if currentCC
+		}
 	}//for originals
 	//}//if non-empty
 
@@ -141,7 +131,7 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 		{
 			//Simple strategy: take the first node
 			minActive = m_ccInfo.v(m_ccInfo.startNode(i));
-			if (minActive != 0)
+			if (minActive != nullptr)
 			{
 				m_activeNodes[minActive] = true;
 				activeOrigCCNodes.pushFront(minActive);
@@ -155,9 +145,8 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 	GraphCopy::initByActiveNodes(activeOrigCCNodes, m_activeNodes, m_eAuxCopy);
 
 	// set type of edges (gen. or assoc.) in the current CC
-	edge e;
 	if (m_pGraphAttributes->attributes() & GraphAttributes::edgeType)
-		forall_edges(e,*this)
+		for(edge e : edges)
 		{
 			m_eType[e] = m_pGraphAttributes->type(original(e));
 			if (original(e))
@@ -170,9 +159,9 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 				}//switch
 			}//if original
 		}
-	node v;
+
 	if (m_pGraphAttributes->attributes() & GraphAttributes::nodeType)
-		forall_nodes(v,*this)
+		for(node v : nodes)
 			m_vType[v] = m_pGraphAttributes->type(original(v));
 	//TODO:check only in CCs or global?
 	m_treeInit = false;
@@ -224,8 +213,7 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 	TopologyModule tm;
 	List<adjEntry> extAdjs;
 	//we run through all faces searching for all outer faces
-	face f;
-	forall_faces(f, E)
+	for(face f : E.faces)
 	{
 		//TODO: check if we should select special adjEntry instead of first
 		if (tm.faceSum(*this, *m_pGraphAttributes, f) < 0)
@@ -244,7 +232,7 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 	//OGDF_ASSERT(extAdjs.size() == numPartialCC)
 
 	const int n1 = numPartialCC-1;
-	m_eTreeArray.init(0, n1, 0, n1, 0);
+	m_eTreeArray.init(0, n1, 0, n1, nullptr);
 	m_treeInit = true;
 
 	//Three cases: only CCs, only isolated nodes, and both (where
@@ -252,7 +240,7 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 
 	//now we connect all partial CCs by inserting edges at the adjEntries
 	//in extAdjs and adding all isolated nodes
-	adjEntry lastAdj = 0;
+	adjEntry lastAdj = nullptr;
 	ListIterator<adjEntry> it = extAdjs.begin();
 	while(it.valid())
 	{
@@ -274,7 +262,7 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 				= eTree;
 		}//if CCs left to connect
 
-		it++;
+		++it;
 	}//while
 	while (!isolatedNodes.empty())
 	{
@@ -326,8 +314,8 @@ void PlanRepInc::deleteTreeConnection(int i, int j)
 {
 
 	edge e = m_eTreeArray(i, j);
-	if (e == 0) return;
-	edge nexte = 0;
+	if (e == nullptr) return;
+	edge nexte = nullptr;
 	OGDF_ASSERT(e);
 	OGDF_ASSERT(m_treeEdge[e]);
 	//we have to take care of treeConnection edges that
@@ -341,8 +329,8 @@ void PlanRepInc::deleteTreeConnection(int i, int j)
 		e = nexte;
 	}
 	delEdge(e);
-	m_eTreeArray(i, j) = 0;
-	m_eTreeArray(j, i) = 0;
+	m_eTreeArray(i, j) = nullptr;
+	m_eTreeArray(j, i) = nullptr;
 
 	OGDF_ASSERT(isConnected(*this));
 
@@ -353,8 +341,8 @@ void PlanRepInc::deleteTreeConnection(int i, int j, CombinatorialEmbedding &E)
 {
 
 	edge e = m_eTreeArray(i, j);
-	if (e == 0) return;
-	edge nexte = 0;
+	if (e == nullptr) return;
+	edge nexte = nullptr;
 	OGDF_ASSERT(e);
 	OGDF_ASSERT(m_treeEdge[e]);
 	//we have to take care of treeConnection edges that
@@ -368,8 +356,8 @@ void PlanRepInc::deleteTreeConnection(int i, int j, CombinatorialEmbedding &E)
 		e = nexte;
 	}
 	E.joinFaces(e);
-	m_eTreeArray(i, j) = 0;
-	m_eTreeArray(j, i) = 0;
+	m_eTreeArray(i, j) = nullptr;
+	m_eTreeArray(j, i) = nullptr;
 
 	OGDF_ASSERT(isConnected(*this));
 
@@ -399,8 +387,7 @@ void PlanRepInc::getExtAdjs(List<adjEntry> & /* extAdjs */)
 	Array<List<node> >  nodesInPartialCC;
 	nodesInPartialCC.init(numPartialCC);
 
-	node v;
-	forall_nodes(v, *this)
+	for(node v : nodes)
 		nodesInPartialCC[component[v]].pushBack(v);
 
 	int i = 0;
@@ -426,10 +413,10 @@ void PlanRepInc::getExtAdjs(List<adjEntry> & /* extAdjs */)
 		//we only take the given partial CC and its layout
 		//adjEntry extAdj = getExtAdj(GC, E);
 
-		//forall_nodes(v, GC)
+		//for(node v : GC.nodes)
 		//{
 		//
-		//}//forallnodes
+		//}
 	}//for
 
 
@@ -478,8 +465,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 	if (numberOfNodes() == 0) return 0;
 
 	int nIsolated = 0;
-	node v;
-	forall_nodes(v,*this)
+	for(node v : nodes)
 		if (v->degree() == 0) ++nIsolated;
 
 	NodeArray<int> component(*this);
@@ -490,7 +476,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 
 	int colBase = 3;
 	int colBase2 = 250;
-	forall_nodes(v,*this)
+	for(node v : nodes)
 	{
 		Color col =Color(colBase,colBase2,colBase);
 		colBase = (colBase*3) % 233;
@@ -507,8 +493,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 			AG.strokeWidth(u) = 8;
 		}//if
 
-		adjEntry adj1;
-		forall_adj(adj1,v) {
+		for(adjEntry adj1 : v->adjEdges) {
 			bool handled = visited[adj1];
 			adjEntry adj = adj1;
 
@@ -556,9 +541,9 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 
 			++nFaceCycles;
 		}
-	}//forallnodes
+	}
 	//insert the current embedding order by setting bends
-	//forall_nodes(v, testGraph)
+	//for(node v : testGraph.nodes)
 	//{
 	//	adjEntry ad1 = v->firstAdj();
 	//}
@@ -597,8 +582,7 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (!original(v)) continue;
 		os << "  node [\n";
 
@@ -644,8 +628,7 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 		os << "]\n"; // node
 	}
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		if (!(original(e->source()) && original(e->target()))) continue;
 		os << "  edge [\n";
 
@@ -766,8 +749,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "  node [\n";
 
 		os << "    id " << (id[v] = nextId++) << "\n";
@@ -814,8 +796,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 
 
 	NodeArray<bool> proc(*this, false);
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		os << "  edge [\n";
 
@@ -922,7 +903,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 						case 5: os << "      fill \"#4000E0\"\n";break;
 						case 6: os << "      fill \"#5000F0\"\n";break;
 						case 7: os << "      fill \"#8000FF\"\n";break;
-						default: os << "      fill \"#000000\"\n";;
+						default: os << "      fill \"#000000\"\n";
 					}
 				}
 

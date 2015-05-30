@@ -1,18 +1,13 @@
-/*
- * $Revision: 4047 $
- *
- * last checkin:
- *   $Author: zeranski $
- *   $Date: 2014-04-04 15:49:11 +0200 (Fri, 04 Apr 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class UpwardPlanarity, which implements different types
  * of algorithms testing upward planarity of graphs with different restrictions.
  * Actually, restrictions are:
+ *   - general acyclic digraphs (using satisfiability)
  *   - fixed embedding
  *   - single source
  *   - triconnected
+ *
+ * Also allows to compute a maximal feasible upward planar subgraph.
  *
  * \author Robert Zeranski
  *
@@ -92,7 +87,35 @@ public:
 	 */
 	//@{
 
-	//! Tests whether graph \a G is upward planarly embedded.
+	//! Tests whether graph \a G is upward planar (using satisfiability).
+	/**
+	 * \param G is the input graph to be tested.
+	 * \return true if \a G is upward planar, false otherwise.
+	 */
+	static bool isUpwardPlanar(Graph &G);
+
+	//! Tests whether graph \a G is upward planar and embeds the graph by a upward planar embedding if possible (using satisfiability).
+	/**
+	 * \param G is the input graph to be embedded if it allows an upward planar embedding.
+	 * \return true if \a G is upward planar, false otherwise.
+	 */
+	static bool embedUpwardPlanar(Graph &G, adjEntry& externalToItsRight);
+
+//	//! Computes a maximal feasible upward planar subgraph (MFUPS).
+//	/**
+//	 * \param G is the input graph, GC has to be a GraphCopy of G.
+//	 * \return number of edges of the MFUPS.
+//	 * 		   GC is the graph copy of G containing the upward planar embedding of the MFUPS
+//	 */
+//	static int maximalFeasibleUpwardPlanarSubgraph(const Graph &G, GraphCopy &GC);
+
+	//@}
+	/**
+	 * @name Biconnected digraphs
+	 */
+	//@{
+
+	//! Tests whether a biconnected graph \a G is upward planarly embedded.
 	/**
 	 * The fixed embedding of \a G is given by the order of \a G's adjacency lists.
 	 *
@@ -101,9 +124,8 @@ public:
 	 */
 	static bool isUpwardPlanar_embedded(const Graph &G);
 
-	//! Tests whether graph \a G is upward planarly embedded and computes the set of possible external faces.
+	//! Tests whether a biconnected graph \a G is upward planarly embedded and computes the set of possible external faces.
 	static bool isUpwardPlanar_embedded(const Graph &G, List<adjEntry> &possibleExternalFaces);
-
 
 	//@}
 	/**

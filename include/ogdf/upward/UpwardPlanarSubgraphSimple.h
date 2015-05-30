@@ -1,11 +1,3 @@
-/*
- * $Revision: 3261 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-25 14:48:05 +0100 (Fri, 25 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class UpwardPlanarSubgraphSimple which
  *        computes an upward planar subgraph by using upward planarity testing.
@@ -75,7 +67,7 @@ public:
 	// computes set of edges delEdges, which have to be deleted
 	// in order to get a planar subgraph; edges in preferedEdges
 	// should be contained in planar subgraph
-	void call(const Graph &G, List<edge> &delEdges);
+	virtual void call(const Graph &G, List<edge> &delEdges) override;
 
 	void call(GraphCopy &GC, List<edge> &delEdges);
 

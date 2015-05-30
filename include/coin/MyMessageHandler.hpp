@@ -30,7 +30,7 @@ class MyMessageHandler : public CoinMessageHandler {
 public:
      /**@name Overrides */
      //@{
-     virtual int print();
+     virtual int print() override;
      //@}
      /**@name set and get */
      //@{
@@ -49,7 +49,7 @@ public:
      MyMessageHandler();
      /// Constructor with pointer to model
      MyMessageHandler(ClpSimplex * model,
-                      FILE * userPointer = NULL);
+                      FILE * userPointer = nullptr);
      /** Destructor */
      virtual ~MyMessageHandler();
      //@}
@@ -63,7 +63,7 @@ public:
 
      MyMessageHandler& operator=(const MyMessageHandler&);
      /// Clone
-     virtual CoinMessageHandler * clone() const ;
+     virtual CoinMessageHandler * clone() const override ;
      //@}
 
 

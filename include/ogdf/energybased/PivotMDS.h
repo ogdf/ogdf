@@ -1,11 +1,3 @@
-/*
- * $Revision: 4377 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2014-08-31 12:45:39 +0200 (Sun, 31 Aug 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the pivot MDS. By setting the number of pivots to
  * infinity this algorithm behaves just like classical MDS.
@@ -54,26 +46,19 @@
 
 namespace ogdf {
 
-#ifndef isnan
-template<typename T>
-inline bool isnan(T value)
-{
-	return value != value;
-}
-#endif
 
-
-#ifndef isinf
-// requires #include <limits>
 template<typename T>
 inline bool isinf(T value)
 {
-return std::numeric_limits<T>::has_infinity &&
-value == std::numeric_limits<T>::infinity();
+	return std::numeric_limits<T>::has_infinity &&
+		value == std::numeric_limits<T>::infinity();
 }
-#endif
 
 
+//! The Pivot MDS (multi-dimensional scaling) layout algorithm.
+/**
+ * @ingroup gd-energy
+ */
 class OGDF_EXPORT PivotMDS : public LayoutModule {
 public:
 	PivotMDS() : m_numberOfPivots(250), m_edgeCosts(100), m_hasEdgeCostsAttribute(false) { }
@@ -93,10 +78,15 @@ public:
 	}
 
 	//! Calls the layout algorithm for graph attributes \a GA.
-	void call(GraphAttributes& GA);
+	virtual void call(GraphAttributes& GA) override;
+
 
 	void useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
 		m_hasEdgeCostsAttribute = useEdgeCostsAttribute;
+	}
+
+	bool useEdgeCostsAttribute() const {
+		return m_hasEdgeCostsAttribute;
 	}
 
 private:
@@ -145,7 +135,7 @@ private:
 	//! Computes the pivot distance matrix based on the maxmin strategy
 	void getPivotDistanceMatrix(const GraphAttributes& GA, Array<Array<double> >& pivDistMatrix);
 
-	//! Checks whether the given graph is a path or not. Only works if no size 2 cycles exist
+	//! Checks whether the given graph is a path or not.
 	node getRootedPath(const Graph& G);
 
 	//! Normalizes the vector \a x.

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2615 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mon, 16 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of list-based queues
  *        (classes QueuePure<E> and Queue<E>).
@@ -58,6 +50,8 @@ namespace ogdf {
 
 //! The parameterized class \a QueuePure<E> implements list-based queues.
 /**
+ * @ingroup containers
+ *
  * In contrast to Queue<E>, instances of \a QueuePure<E> do not store the
  * number of elements contained in the queue.
  *
@@ -65,37 +59,104 @@ namespace ogdf {
  */
 template<class E> class QueuePure : private SListPure<E> {
 public:
+	//! Represents the data type stored in a queue element.
+	typedef E value_type;
+	//! Provides a reference to an element stored in a queue.
+	typedef E &reference;
+	//! Provides a reference to a const element stored in a queue for reading and performing const operations.
+	typedef const E &const_reference;
+	//! Provides a forward iterator that can read a const element in a queue.
+	typedef SListConstIterator<E> const_iterator;
+	//! Provides a forward iterator that can read or modify any element in a queue.
+	typedef SListIterator<E> iterator;
+
 	//! Constructs an empty queue.
 	QueuePure() { }
+
+	//! Constructs a queue and appends the elements in \a initList to it.
+	QueuePure(std::initializer_list<E> initList) : SListPure<E>(initList) { }
 
 	//! Constructs a queue that is a copy of \a Q.
 	QueuePure(const QueuePure<E> &Q) : SListPure<E>(Q) { }
 
+	//! Constructs a queue containing the elements of \a Q (move semantics).
+	/**
+	 * Queue \a Q is empty afterwards.
+	 */
+	QueuePure(QueuePure<E> &&Q) : SListPure<E>(std::move(Q)) { }
+
 	// destruction
 	~QueuePure() { }
+
+	/**
+	* @name Access methods
+	* These methods provide simple access without changing the list.
+	*/
+	//@{
 
 	//! Returns true iff the queue is empty.
 	bool empty() const { return SListPure<E>::empty(); }
 
 	//! Returns a reference to the front element.
-	const E &top() const {
+	const_reference top() const {
 		return SListPure<E>::front();
 	}
 
 	//! Returns a reference to the front element.
-	E &top() {
+	reference top() {
 		return SListPure<E>::front();
 	}
 
 	//! Returns a reference to the back element.
-	const E &bottom() const {
+	const_reference bottom() const {
 		return SListPure<E>::back();
 	}
 
 	//! Returns a reference to the back element.
-	E &bottom() {
+	reference bottom() {
 		return SListPure<E>::back();
 	}
+
+	//@}
+	/**
+	* @name Iterators
+	* These methods return forward iterators to elements in the queue.
+	*/
+	//@{
+
+	//! Returns an iterator to the first element of the queue.
+	iterator begin() { return SListPure<E>::begin(); }
+
+	//! Returns a const iterator to the first element of the queue.
+	const_iterator begin() const { return SListPure<E>::begin(); }
+
+	//! Returns a const iterator to the first element of the queue.
+	const_iterator cbegin() const { return SListPure<E>::cbegin(); }
+
+	//! Returns an iterator to one-past-last element of the queue.
+	iterator end() { return SListPure<E>::end(); }
+
+	//! Returns a const iterator to one-past-last element of the queue.
+	const_iterator end() const { return SListPure<E>::end(); }
+
+	//! Returns a const iterator to one-past-last element of the queue.
+	const_iterator cend() const { return SListPure<E>::cend(); }
+
+	//! Returns an iterator to the last element of the queue.
+	iterator rbegin() { return SListPure<E>::rbegin(); }
+
+	//! Returns a const iterator to the last element of the queue.
+	const_iterator rbegin() const { return SListPure<E>::rbegin(); }
+
+	//! Returns a const iterator to the last element of the queue.
+	const_iterator crbegin() const { return SListPure<E>::crbegin(); }
+
+	//@}
+	/**
+	* @name Operators
+	* The following operators are provided by lists.
+	*/
+	//@{
 
 	//! Assignment operator.
 	QueuePure<E> &operator=(const QueuePure<E> &Q) {
@@ -103,9 +164,37 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * Queue \a Q is empty afterwards.
+	 */
+	QueuePure<E> &operator=(QueuePure<E> &&Q) {
+		SListPure<E>::operator=(std::move(Q));
+		return *this;
+	}
+
+	//! Conversion to const SListPure.
+	const SListPure<E> &getListPure() const { return *this; }
+
+	//@}
+	/**
+	* @name Adding and removing elements
+	* These method add elements to the list and remove elements from the list.
+	*/
+	//@{
+
 	//! Adds \a x at the end of queue.
-	SListIterator<E> append(const E &x) {
+	iterator append(const E &x) {
 		return SListPure<E>::pushBack(x);
+	}
+
+	//! Adds a new element at the end of the queue.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	iterator emplace(Args && ... args) {
+		return SListPure<E>::emplaceBack(std::forward<Args>(args)...);
 	}
 
 	//! Removes front element and returns it.
@@ -118,15 +207,14 @@ public:
 	//! Makes the queue empty.
 	void clear() { SListPure<E>::clear(); }
 
-	//! Conversion to const SListPure.
-	const SListPure<E> &getListPure() const { return *this; }
-
 	OGDF_NEW_DELETE
 }; // class QueuePure
 
 
 //! The parameterized class \a Queue<E> implements list-based queues.
 /**
+ * @ingroup containers
+ *
  * In contrast to QueuePure<E>, instances of \a Queue<E> store the
  * number of elements contained in the queue.
  *
@@ -134,14 +222,40 @@ public:
  */
 template<class E> class Queue : private SList<E> {
 public:
+	//! Represents the data type stored in a queue element.
+	typedef E value_type;
+	//! Provides a reference to an element stored in a queue.
+	typedef E &reference;
+	//! Provides a reference to a const element stored in a queue for reading and performing const operations.
+	typedef const E &const_reference;
+	//! Provides a forward iterator that can read a const element in a queue.
+	typedef SListConstIterator<E> const_iterator;
+	//! Provides a forward iterator that can read or modify any element in a queue.
+	typedef SListIterator<E> iterator;
+
 	//! Constructs an empty queue.
 	Queue() { }
+
+	//! Constructs a queue and appends the elements in \a initList to it.
+	Queue(std::initializer_list<E> initList) : SList<E>(initList) { }
 
 	//! Constructs a queue that is a copy of \a Q.
 	Queue(const Queue<E> &Q) : SList<E>(Q) { }
 
+	//! Constructs a queue containing the elements of \a Q (move semantics).
+	/**
+	 * Queue \a Q is empty afterwards.
+	 */
+	Queue(Queue<E> &&Q) : SList<E>(std::move(Q)) { }
+
 	// destruction
 	~Queue() { }
+
+	/**
+	* @name Access methods
+	* These methods provide simple access without changing the list.
+	*/
+	//@{
 
 	//! Returns true iff the queue is empty.
 	bool empty() const { return SList<E>::empty(); }
@@ -150,24 +264,65 @@ public:
 	int size() const { return SList<E>::size(); }
 
 	//! Returns a reference to the front element.
-	const E &top() const {
+	const_reference top() const {
 		return SList<E>::front();
 	}
 
 	//! Returns a reference to the front element.
-	E &top() {
+	reference top() {
 		return SList<E>::front();
 	}
 
 	//! Returns a reference to the back element.
-	const E &bottom() const {
+	const_reference bottom() const {
 		return SListPure<E>::back();
 	}
 
 	//! Returns a reference to the back element.
-	E &bottom() {
+	reference bottom() {
 		return SListPure<E>::back();
 	}
+
+	//@}
+	/**
+	* @name Iterators
+	* These methods return forward iterators to elements in the queue.
+	*/
+	//@{
+
+	//! Returns an iterator to the first element of the queue.
+	iterator begin() { return SList<E>::begin(); }
+
+	//! Returns a const iterator to the first element of the queue.
+	const_iterator begin() const { return SList<E>::begin(); }
+
+	//! Returns a const iterator to the first element of the queue.
+	const_iterator cbegin() const { return SList<E>::cbegin(); }
+
+	//! Returns an iterator to one-past-last element of the queue.
+	iterator end() { return SList<E>::end(); }
+
+	//! Returns a const iterator to one-past-last element of the queue.
+	const_iterator end() const { return SList<E>::end(); }
+
+	//! Returns a const iterator to one-past-last element of the queue.
+	const_iterator cend() const { return SList<E>::cend(); }
+
+	//! Returns an iterator to the last element of the queue.
+	iterator rbegin() { return SList<E>::rbegin(); }
+
+	//! Returns a const iterator to the last element of the queue.
+	const_iterator rbegin() const { return SList<E>::rbegin(); }
+
+	//! Returns a const iterator to the last element of the queue.
+	const_iterator crbegin() const { return SList<E>::crbegin(); }
+
+	//@}
+	/**
+	* @name Operators
+	* The following operators are provided by lists.
+	*/
+	//@{
 
 	//! Assignment operator.
 	Queue<E> &operator=(const Queue<E> &Q) {
@@ -175,9 +330,37 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * Queue \a Q is empty afterwards.
+	 */
+	Queue<E> &operator=(Queue<E> &&Q) {
+		SList<E>::operator=(std::move(Q));
+		return *this;
+	}
+
+	//! Conversion to const SList.
+	const SList<E> &getList() const { return *this; }
+
+	//@}
+	/**
+	* @name Adding and removing elements
+	* These method add elements to the list and remove elements from the list.
+	*/
+	//@{
+
 	//! Adds \a x at the end of queue.
-	SListIterator<E> append(const E &x) {
+	iterator append(const E &x) {
 		return SList<E>::pushBack(x);
+	}
+
+	//! Adds a new element at the end of the queue.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	iterator emplace(Args && ... args) {
+		return SList<E>::emplaceBack(std::forward<Args>(args)...);
 	}
 
 	//! Removes front element and returns it.
@@ -190,10 +373,7 @@ public:
 	//! Makes the queue empty.
 	void clear() { SList<E>::clear(); }
 
-	//! Conversion to const SList.
-	const SList<E> &getList() const { return *this; }
-	//! Conversion to const SListPure.
-	const SListPure<E> &getListPure() const { return SList<E>::getListPure(); }
+	//@{
 
 	OGDF_NEW_DELETE
 }; // class Queue
@@ -207,7 +387,7 @@ void print(ostream &os, const QueuePure<E> &Q, char delim = ' ')
 // prints queue to output stream os using delimiter delim
 template<class E>
 void print(ostream &os, const Queue<E> &Q, char delim = ' ')
-{ print(os,Q.getListPure(),delim); }
+{ print(os,Q.getList(),delim); }
 
 
 // output operator

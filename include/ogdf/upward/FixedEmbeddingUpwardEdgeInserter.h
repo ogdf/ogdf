@@ -1,11 +1,3 @@
-/*
- * $Revision: 3261 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-25 14:48:05 +0100 (Fri, 25 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief declaration of class FixedEmbeddingInserterOld
  *
@@ -55,9 +47,7 @@
 
 
 
-
 namespace ogdf {
-
 
 
 //! Edge insertion module that inserts each edge optimally into a fixed embedding.
@@ -90,7 +80,7 @@ private:
 		const List<edge> &origEdges,
 		const EdgeArray<int>  *costOrig = 0,
 		const EdgeArray<bool> *forbiddenEdgeOrig = 0
-		);
+		) override;
 
 
 	ReturnType insertAll(UpwardPlanRep &UPR,

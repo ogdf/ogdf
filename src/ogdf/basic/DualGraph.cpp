@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of dual graph
  *
@@ -61,8 +53,7 @@ DualGraph::DualGraph(CombinatorialEmbedding &CE)
 	m_primalEdge.init(dualGraph);
 
 	// create dual nodes
-	face f;
-	forall_faces(f, CE)
+	for(face f : CE.faces)
 	{
 		node vDual = dualGraph.newNode();
 		m_dualNode[f] = vDual;
@@ -70,8 +61,7 @@ DualGraph::DualGraph(CombinatorialEmbedding &CE)
 	}
 
 	// create dual edges
-	edge e;
-	forall_edges(e, primalGraph)
+	for(edge e : primalGraph.edges)
 	{
 		adjEntry aE = e->adjSource();
 		node vDualSource = m_dualNode[CE.rightFace(aE)];
@@ -83,7 +73,7 @@ DualGraph::DualGraph(CombinatorialEmbedding &CE)
 
 	// sort adjElements of every dual node corresponding to dual embedding
 	EdgeArray<bool> visited(dualGraph, false);   // needed for self-loops
-	forall_faces(f, CE)
+	for(face f : CE.faces)
 	{
 		node vDual = m_dualNode[f];
 		adjEntry aePrimal = f->firstAdj();
@@ -104,8 +94,7 @@ DualGraph::DualGraph(CombinatorialEmbedding &CE)
 
 	// calculate dual faces and links to corresponding primal nodes
 	computeFaces();
-	node v;
-	forall_nodes(v, primalGraph)
+	for(node v : primalGraph.nodes)
 	{
 		edge ePrimal = v->firstAdj()->theEdge();
 		edge eDual = m_dualEdge[ePrimal];

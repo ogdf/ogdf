@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of useful methods for processing various fileformats.
  *
@@ -71,21 +63,21 @@ std::istream &operator >>(std::istream &is, TokenIgnorer token);
 template <typename E>
 static inline E toEnum(
 	const std::string &str, // A string we want to convert.
-	Hashing<std::string, E> *&map, // A map to be lazily evaluated.
+	Hashing<std::string, E> &map, // A map to be lazily evaluated.
 	std::string toString(const E&),
 	const E first, const E last, const E def) // Enum informations.
 {
-	if(!map) {
-		map = new Hashing<std::string, E>();
+	if(map.empty()) {
+		//map = new Hashing<std::string, E>();
 
 		// Iterating over enums is potentially unsafe... (fixable in C++11).
 		for(int it = last; it >= first; it--) {
 			const E e = static_cast<E>(it);
-			map->insert(toString(e), e);
+			map.insert(toString(e), e);
 		}
 	}
 
-	HashElement<std::string, E> *elem = map->lookup(str);
+	HashElement<std::string, E> *elem = map.lookup(str);
 	return elem ? elem->info() : def;
 }
 

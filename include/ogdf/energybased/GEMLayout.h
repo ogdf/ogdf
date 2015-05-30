@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GEMLayout.
  *
@@ -53,6 +45,7 @@
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/Math.h>
+#include <random>
 
 
 namespace ogdf {
@@ -60,17 +53,11 @@ namespace ogdf {
 	class OGDF_EXPORT GraphCopy;
 	class OGDF_EXPORT GraphCopyAttributes;
 
-//---------------------------------------------------------
-// GEMLayout
-//
-// Fast force-directed layout algorithm. See
-// - A. Frick, A. Ludwig, H. Mehldau: "A Fast Adaptive
-//	 Layout Algorithm for Undirected Graphs"
-//
-//---------------------------------------------------------
 
 //! The energy-based GEM layout algorithm.
 /**
+ * @ingroup gd-energy
+ *
  * The implementation used in GEMLayout is based on the following publication:
  *
  * Arne Frick, Andreas Ludwig, Heiko Mehldau: <i>A Fast Adaptive %Layout
@@ -161,6 +148,8 @@ class OGDF_EXPORT GEMLayout : public LayoutModule
 	double m_cos; //!< Cosine of m_oscillationAngle / 2.
 	double m_sin; //!< Sine of (pi + m_rotationAngle) / 2.
 
+	std::minstd_rand m_rng;
+
 public:
 
 	//! Creates an instance of GEM layout.
@@ -176,7 +165,7 @@ public:
 	GEMLayout &operator=(const GEMLayout &fl);
 
 	//! Calls the layout algorithm for graph attributes \a GA.
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	//! Returns the maximal number of rounds per node.
 	int numberOfRounds() const { return m_numberOfRounds; }

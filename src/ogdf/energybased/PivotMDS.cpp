@@ -1,11 +1,3 @@
-/*
- * $Revision: 3418 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 11:06:44 +0200 (Thu, 18 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the pivot MDS.
  *
@@ -51,9 +43,6 @@ const double PivotMDS::FACTOR = -0.5;
 
 void PivotMDS::call(GraphAttributes& GA)
 {
-	if (DIMENSION_COUNT > 2) {
-		OGDF_ASSERT(GA.attributes() & GraphAttributes::threeD);
-	}
 	if (!isConnected(GA.constGraph())) {
 		OGDF_THROW_PARAM(PreconditionViolatedException,pvcConnected);
 		return;
@@ -105,23 +94,29 @@ void PivotMDS::centerPivotmatrix(Array<Array<double> >& pivotMatrix)
 void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 {
 	const Graph& G = GA.constGraph();
-	if (G.numberOfNodes() <= 1) {
-		// make it exception save
-		node v;
-		forall_nodes(v,G)
-		{
-			GA.x(v) = 0.0;
-			GA.y(v) = 0.0;
-			if (DIMENSION_COUNT > 2)
-				GA.z(v) = 0.0;
-		}
+	bool use3D = GA.haveAttributes(GraphAttributes::threeD) && DIMENSION_COUNT > 2;
+
+	const int n = G.numberOfNodes();
+
+	// trivial cases
+	if (n == 0)
+		return;
+
+	if (n == 1) {
+		node v1 = G.firstNode();
+		GA.x(v1) = 0.0;
+		GA.y(v1) = 0.0;
+		if (use3D)
+			GA.z(v1) = 0.0;
 		return;
 	}
+
 	// check whether the graph is a path or not
 	const node head = getRootedPath(G);
-	if (head != 0) {
+	if (head != nullptr) {
 		doPathLayout(GA, head);
-	} else {
+	}
+	else {
 		Array<Array<double> > pivDistMatrix;
 		// compute the pivot matrix
 		getPivotDistanceMatrix(GA, pivDistMatrix);
@@ -130,7 +125,7 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 		// init the coordinate matrix
 		Array<Array<double> > coord(DIMENSION_COUNT);
 		for (int i = 0; i < coord.size(); i++) {
-			coord[i].init(G.numberOfNodes());
+			coord[i].init(n);
 		}
 		// init the eigen values array
 		Array<double> eVals(DIMENSION_COUNT);
@@ -138,18 +133,17 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 		// compute the correct aspect ratio
 		for (int i = 0; i < coord.size(); i++) {
 			eVals[i] = sqrt(eVals[i]);
-			for (int j = 0; j < G.numberOfNodes(); j++) {
+			for (int j = 0; j < n; j++) {
 				coord[i][j] *= eVals[i];
 			}
 		}
 		// set the new positions to the graph
 		int i = 0;
-		node v;
-		forall_nodes(v,G)
+		for (node v : G.nodes)
 		{
 			GA.x(v) = coord[0][i];
 			GA.y(v) = coord[1][i];
-			if (DIMENSION_COUNT > 2){
+			if (use3D){
 				GA.z(v) = coord[2][i];//cout << coord[2][i] << "\n";
 			}
 			++i;
@@ -201,7 +195,7 @@ void PivotMDS::eigenValueDecomposition(
 		eValues[i] = normalize(eVecs[i]);
 	}
 	while (r < EPSILON) {
-		if (isnan(r) || isinf(r)) {
+        if (std::isnan(r) || isinf(r)) {
 			// Throw arithmetic exception (Shouldn't occur
 			// for DIMEMSION_COUNT = 2
 			OGDF_THROW(AlgorithmFailureException);
@@ -256,12 +250,14 @@ void PivotMDS::getPivotDistanceMatrix(
 	Array<Array<double> >& pivDistMatrix)
 {
 	const Graph& G = GA.constGraph();
+	const int n = G.numberOfNodes();
+
 	// lower the number of pivots if necessary
-	int numberOfPivots = min(G.numberOfNodes(), m_numberOfPivots);
+	int numberOfPivots = min(n, m_numberOfPivots);
 	// number of pivots times n matrix used to store the graph distances
 	pivDistMatrix.init(numberOfPivots);
 	for (int i = 0; i < numberOfPivots; i++) {
-		pivDistMatrix[i].init(G.numberOfNodes());
+		pivDistMatrix[i].init(n);
 	}
 	// edges costs array
 	EdgeArray<double> edgeCosts;
@@ -269,8 +265,7 @@ void PivotMDS::getPivotDistanceMatrix(
 	// already checked whether this attribute exists or not (see call method)
 	if (m_hasEdgeCostsAttribute) {
 		edgeCosts.init(G);
-		edge e;
-		forall_edges(e, G)
+		for(edge e : G.edges)
 		{
 			edgeCosts[e] = GA.doubleWeight(e);
 		}
@@ -294,8 +289,7 @@ void PivotMDS::getPivotDistanceMatrix(
 		// update the pivot and the minDistances array ... to ensure the
 		// correctness set minDistance of the pivot node to zero
 		minDistances[pivNode] = 0;
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 		{
 			minDistances[v] = min(minDistances[v], shortestPathSingleSource[v]);
 			if (minDistances[v] > minDistances[pivNode]) {
@@ -308,30 +302,31 @@ void PivotMDS::getPivotDistanceMatrix(
 
 void PivotMDS::copySPSS(Array<double>& copyTo, NodeArray<double>& copyFrom)
 {
-	for (int i = 0; i < copyTo.size(); i++) {
-		copyTo[i] = copyFrom[i];
+	const Graph &G = *copyFrom.graphOf();
+
+	int i = 0;
+	for (node v : G.nodes) {
+		copyTo[i++] = copyFrom[v];
 	}
 }
 
 
 node PivotMDS::getRootedPath(const Graph& G)
 {
-	node head = 0;
-	int degree;
-	edge e;
-	node v;
-	node adj;
+	node head = nullptr;
 	NodeArray<bool> visited(G, false);
 	SListPure<node> neighbors;
 	// in every path there are two nodes with degree 1 and
 	// each node has at most degree 2
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		degree = 0;
+		int degree = 0;
 		visited[v] = true;
 		neighbors.pushBack(v);
+
+		edge e;
 		forall_adj_edges(e,v) {
-			adj = e->opposite(v);
+			node adj = e->opposite(v);
 			if (!visited[adj])
 			{
 				neighbors.pushBack(adj);
@@ -341,13 +336,13 @@ node PivotMDS::getRootedPath(const Graph& G)
 		}
 		if (degree > 2) {
 			neighbors.clear();
-			return 0;
+			return nullptr;
 		}
 		if (degree == 1) {
 			head = v;
 		}
-		for(SListConstIterator<node> it = neighbors.begin(); it.valid(); ++it) {
-			visited[*it] = false;
+		for(node u : neighbors) {
+			visited[u] = false;
 		}
 		neighbors.clear();
 	}

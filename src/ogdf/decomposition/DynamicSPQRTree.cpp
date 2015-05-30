@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of classes DynamicSkeleton and DynamicSPQRTree
  *
@@ -50,44 +42,44 @@ namespace ogdf {
 //                          DynamicSkeleton
 //-------------------------------------------------------------------
 
-DynamicSkeleton::DynamicSkeleton (const DynamicSPQRTree* T, node vB) : Skeleton(vB), m_owner(T)
+DynamicSkeleton::DynamicSkeleton(const DynamicSPQRTree* T, node vB) : Skeleton(vB), m_owner(T)
 {
-	m_origNode.init(m_M,0);
-	m_origEdge.init(m_M,0);
+	m_origNode.init(m_M, nullptr);
+	m_origEdge.init(m_M, nullptr);
 }
 
 
-const SPQRTree &DynamicSkeleton::owner () const
+const SPQRTree &DynamicSkeleton::owner() const
 {
 	return *m_owner;
 }
 
 
-node DynamicSkeleton::original (node vM) const
+node DynamicSkeleton::original(node vM) const
 {
 	return m_owner->m_hNode_gNode[m_origNode[vM]];
 }
 
 
-edge DynamicSkeleton::realEdge (edge eM) const
+edge DynamicSkeleton::realEdge(edge eM) const
 {
 	return m_owner->m_hEdge_gEdge[m_origEdge[eM]];
 }
 
 
-edge DynamicSkeleton::twinEdge (edge eM) const
+edge DynamicSkeleton::twinEdge(edge eM) const
 {
 	edge eH = m_owner->m_hEdge_twinEdge[m_origEdge[eM]];
-	if (!eH) return 0;
+	if (!eH) return nullptr;
 	m_owner->skeleton(m_owner->spqrproper(eH));
 	return m_owner->m_skelEdge[eH];
 }
 
 
-node DynamicSkeleton::twinTreeNode (edge eM) const
+node DynamicSkeleton::twinTreeNode(edge eM) const
 {
 	edge eH = m_owner->m_hEdge_twinEdge[m_origEdge[eM]];
-	if (!eH) return 0;
+	if (!eH) return nullptr;
 	return m_owner->spqrproper(eH);
 }
 
@@ -99,29 +91,28 @@ node DynamicSkeleton::twinTreeNode (edge eM) const
 //
 // initialization: builds tree, skeleton graphs and cross references
 //
-void DynamicSPQRTree::init (edge eG)
+void DynamicSPQRTree::init(edge eG)
 {
 	createSPQR(bcproper(eG));
 	rootTreeAt(eG);
-	m_sk.init(m_T,0);
-	m_skelEdge.init(m_H,0);
-	m_mapV.init(m_H,0);
-	m_cpV = 0;
+	m_sk.init(m_T, nullptr);
+	m_skelEdge.init(m_H, nullptr);
+	m_mapV.init(m_H, nullptr);
+	m_cpV = nullptr;
 }
 
 
 //
 // createSkeleton: creates a skeleton graph
 //
-DynamicSkeleton& DynamicSPQRTree::createSkeleton (node vT) const
+DynamicSkeleton& DynamicSPQRTree::createSkeleton(node vT) const
 {
-	DynamicSkeleton& S = *OGDF_NEW DynamicSkeleton(this,vT);
+	DynamicSkeleton& S = *OGDF_NEW DynamicSkeleton(this, vT);
 
 	SList<node> inMapV;
 
-	for (ListConstIterator<edge> itH=m_tNode_hEdges[vT].begin(); itH.valid(); ++itH)
+	for (edge eH : m_tNode_hEdges[vT])
 	{
-		edge eH = *itH;
 		node sH = eH->source();
 		node tH = eH->target();
 
@@ -141,14 +132,14 @@ DynamicSkeleton& DynamicSPQRTree::createSkeleton (node vT) const
 			inMapV.pushBack(tH);
 		}
 
-		eM = S.m_M.newEdge(sM,tM);
+		eM = S.m_M.newEdge(sM, tM);
 		S.m_origEdge[eM] = eH;
 	}
 
-	while(!inMapV.empty()) m_mapV[inMapV.popFrontRet()] = 0;
+	while (!inMapV.empty()) m_mapV[inMapV.popFrontRet()] = nullptr;
 
 	S.m_referenceEdge = m_tNode_hRefEdge[vT];
-	if(S.m_referenceEdge) S.m_referenceEdge = m_skelEdge[S.m_referenceEdge];
+	if (S.m_referenceEdge) S.m_referenceEdge = m_skelEdge[S.m_referenceEdge];
 
 	m_sk[vT] = &S;
 	return S;
@@ -158,29 +149,30 @@ DynamicSkeleton& DynamicSPQRTree::createSkeleton (node vT) const
 //
 // destructor: deletes skeleton graphs
 //
-DynamicSPQRTree::~DynamicSPQRTree ()
+DynamicSPQRTree::~DynamicSPQRTree()
 {
-	node vB;
-	forall_nodes (vB,m_T) delete m_sk[vB];
+	for (node vB : m_T.nodes)
+		delete m_sk[vB];
 
 	delete m_cpV;
 }
 
 
-List<node> DynamicSPQRTree::nodesOfType (NodeType t) const
+List<node> DynamicSPQRTree::nodesOfType(NodeType t) const
 {
-	TNodeType tt = (TNodeType)t;
+	TNodeType tt = (TNodeType) t;
 	List<node> L;
-	node vT;
-	forall_nodes (vT,m_T) {
-		if (m_tNode_owner[vT]!=vT) continue;
-		if (m_tNode_type[vT]==tt) L.pushBack(vT);
+	for (node vT : m_T.nodes) {
+		if (m_tNode_owner[vT] != vT)
+			continue;
+		if (m_tNode_type[vT] == tt)
+			L.pushBack(vT);
 	}
 	return L;
 }
 
 
-node DynamicSPQRTree::rootTreeAt (edge eG)
+node DynamicSPQRTree::rootTreeAt(edge eG)
 {
 	node vT = rootTreeAt(spqrproper(m_gEdge_hEdge[eG]));
 	m_rootEdge = eG;
@@ -188,42 +180,43 @@ node DynamicSPQRTree::rootTreeAt (edge eG)
 }
 
 
-node DynamicSPQRTree::rootTreeAt (node vT)
+node DynamicSPQRTree::rootTreeAt(node vT)
 {
 	vT = findSPQR(vT);
 	node uT = vT;
-	edge eH = 0;
-	for( ; ; ) {
+	edge eH = nullptr;
+	for (;;) {
 		edge fH = m_tNode_hRefEdge[uT];
 		m_tNode_hRefEdge[uT] = eH;
 		if (!fH) break;
 		eH = m_hEdge_twinEdge[fH];
 		uT = spqrproper(eH);
 	}
-	m_rootEdge = 0;
+	m_rootEdge = nullptr;
 	return m_bNode_SPQR[m_B.firstNode()] = vT;
 }
 
 
-edge DynamicSPQRTree::updateInsertedEdge (edge eG)
+edge DynamicSPQRTree::updateInsertedEdge(edge eG)
 {
 	SList<node> marked;
 	node sH = m_gNode_hNode[eG->source()];
 	node tH = m_gNode_hNode[eG->target()];
-	adjEntry aH;
-	forall_adj (aH,sH) {
+	for (adjEntry aH : sH->adjEdges) {
 		edge fH = aH->theEdge();
 		node vT = spqrproper(fH);
-		if (fH->opposite(sH)==tH) {
-			if (m_tNode_type[vT]==PComp) {
+		if (fH->opposite(sH) == tH) {
+			if (m_tNode_type[vT] == PComp) {
 				DynamicSPQRForest::updateInsertedEdge(eG);
 				if (m_sk[vT]) {
 					edge eH = m_gEdge_hEdge[eG];
 					edge fM = m_skelEdge[fH];
 					node sM = fM->source();
 					node tM = fM->target();
-					if (eH->source()==m_sk[vT]->m_origNode[tM]) { node uM = sM; sM = tM; tM = uM; }
-					m_skelEdge[eH] = m_sk[vT]->getGraph().newEdge(sM,tM);
+					if (eH->source() == m_sk[vT]->m_origNode[tM]) {
+						node uM = sM; sM = tM; tM = uM;
+					}
+					m_skelEdge[eH] = m_sk[vT]->getGraph().newEdge(sM, tM);
 					m_sk[vT]->m_origEdge[m_skelEdge[eH]] = eH;
 				}
 				return eG;
@@ -249,7 +242,7 @@ edge DynamicSPQRTree::updateInsertedEdge (edge eG)
 	}
 	int count = 0;
 	node found[2];
-	forall_adj (aH,tH) {
+	for (adjEntry aH : tH->adjEdges) {
 		edge fH = aH->theEdge();
 		node vT = spqrproper(fH);
 		if (!m_tNode_isMarked[vT]) continue;
@@ -257,33 +250,34 @@ edge DynamicSPQRTree::updateInsertedEdge (edge eG)
 		m_tNode_isMarked[vT] = false;
 	}
 	while (!marked.empty()) m_tNode_isMarked[marked.popFrontRet()] = false;
-	if (count==0) {
+	if (count == 0) {
 		node rT;
-		SList<node>& pT = findPathSPQR(sH,tH,rT);
-		for (SListIterator<node> iT=pT.begin(); iT.valid(); ++iT)
-			if (m_sk[*iT]) {
-				delete m_sk[*iT];
-				m_sk[*iT] = 0;
+		SList<node>& pT = findPathSPQR(sH, tH, rT);
+		for (node vT : pT) {
+			if (m_sk[vT]) {
+				delete m_sk[vT];
+				m_sk[vT] = nullptr;
 			}
+		}
 		delete &pT;
 	}
-	else if (count==1) {
+	else if (count == 1) {
 		node vT = found[0];
 		if (m_sk[vT]) {
 			delete m_sk[vT];
-			m_sk[vT] = 0;
+			m_sk[vT] = nullptr;
 		}
 	}
 	return DynamicSPQRForest::updateInsertedEdge(eG);
 }
 
 
-node DynamicSPQRTree::updateInsertedNode (edge eG, edge fG)
+node DynamicSPQRTree::updateInsertedNode(edge eG, edge fG)
 {
 	edge eH = m_gEdge_hEdge[eG];
 	node vT = spqrproper(eH);
-	if (m_tNode_type[vT]==SComp) {
-		DynamicSPQRForest::updateInsertedNode(eG,fG);
+	if (m_tNode_type[vT] == SComp) {
+		DynamicSPQRForest::updateInsertedNode(eG, fG);
 		if (m_sk[vT]) {
 			edge fH = m_gEdge_hEdge[fG];
 			edge fM = m_skelEdge[fH] = m_sk[vT]->getGraph().split(m_skelEdge[eH]);
@@ -292,7 +286,7 @@ node DynamicSPQRTree::updateInsertedNode (edge eG, edge fG)
 		}
 	}
 	else {
-		DynamicSPQRForest::updateInsertedNode(eG,fG);
+		DynamicSPQRForest::updateInsertedNode(eG, fG);
 		if (m_sk[vT]) {
 			edge gH = m_hEdge_twinEdge[m_tNode_hEdges[spqrproper(eH)].front()];
 			edge gM = m_skelEdge[gH] = m_skelEdge[eH];

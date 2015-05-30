@@ -562,7 +562,7 @@ Idiot::IdiSolve(
                                         double value2 = colsol[i];
                                         double delta;
                                         int irow = i - (ncols - nrows);
-                                        double oldSum = allsum[0][irow];;
+                                        double oldSum = allsum[0][irow];
                                         if (value2 > lower[i] + tolerance && value2 < upper[i] - tolerance) {
                                              delta = history[0][i] - history[1][i];
                                         } else {
@@ -660,7 +660,7 @@ Idiot::IdiSolve(
                               for (i = 0; i < ncols - nrows; i++) {
                                    if (colsol[i] <= lower[i] + tolerance
                                              || colsol[i] >= (upper[i] - tolerance)) {
-                                        history[HISTORY][i] = 0.0;;
+                                        history[HISTORY][i] = 0.0;
                                    }
                               }
                               tolerance = -tolerance; /* switch off test */

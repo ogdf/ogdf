@@ -1,11 +1,3 @@
-/*
- * $Revision: 3425 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:19:37 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares CompactionConstraintGraph.
  *
@@ -328,7 +320,7 @@ public:
 
 	//set min sep for multi edge original
 	void setMinimumSeparation(const PlanRep &PG,
-		const NodeArray<int> coord,
+		const NodeArray<int> &coord,
 		const MinimumEdgeDistances<ATYPE> &minDist);
 
 
@@ -633,8 +625,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 
 	const ATYPE overhang = rc.overhang();
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		if (PG.expandAdj(v) == 0) continue;
 
@@ -739,8 +730,7 @@ template<class ATYPE>
 void CompactionConstraintGraph<ATYPE>::setBasicArcsZeroLength(
 	const PlanRep &PG)
 {
-	edge e;
-	forall_edges(e,PG)
+	for(edge e : PG.edges)
 	{
 		edge arc = m_edgeToBasicArc[e];
 		if (arc == 0) continue;
@@ -783,8 +773,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 	OrthoDir dirMin = OrthoRep::prevDir(m_arcDir);
 	OrthoDir dirMax = OrthoRep::nextDir(m_arcDir);
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		if (PG.expandAdj(v) == 0) continue;
 
@@ -1070,10 +1059,7 @@ ATYPE CompactionConstraintGraph<ATYPE>::computeTotalCosts(
 	const NodeArray<ATYPE> &pos) const
 {
 	ATYPE c = 0;
-
-	edge e;
-	forall_edges(e,*this)
-	{
+	for(edge e : edges) {
 		c += cost(e) * (pos[e->target()] - pos[e->source()]);
 	}
 
@@ -1119,8 +1105,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 {
 	MinimumEdgeDistances<ATYPE> minDist(PG, m_sep);
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		if(PG.expandAdj(v) == 0) continue;
 
@@ -1169,8 +1154,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	// than separation to each other. Possible solution: Remove visibility
 	// arcs of segments which are connected by orthogonal segments to the
 	// same vertex and bend in opposite directions.
-	node v;
-	forall_nodes(v,*this) {
+	for(node v : nodes) {
 
 		//special case nodes
 		if (m_path[v].empty()) continue;
@@ -1193,16 +1177,18 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 		if(typeLow == Graph::dummy || typeLow == Graph::generalizationExpander) {
 			/*bool subtractSep = true;
 			if (nodeLow->degree() == 2) {
-				adjEntry adj;
-				forall_adj(adj,nodeLow) {
-					if(m_pOR->direction(adj) == m_arcDir || m_pOR->direction(adj) == m_oppArcDir)
+				adjEntry adjFound = nullptr;
+				for(adjEntry adj : nodeLow->adjEdges) {
+					if(m_pOR->direction(adj) == m_arcDir || m_pOR->direction(adj) == m_oppArcDir) {
+						adjFound = adj;
 						break;
+					}
 				}
-				if (adj) {
-					for(adjEntry adj2 = adj->faceCycleSucc();
-						m_pOR->direction(adj2) == m_pOR->direction(adj);
+				if (adjFound) {
+					for(adjEntry adj2 = adjFound->faceCycleSucc();
+						m_pOR->direction(adj2) == m_pOR->direction(adjFound);
 					adj2 = adj2->twin()->faceCycleSucc()) ;
-					if(posDir[adj->theNode()] == posDir[adj2->twinNode()])
+					if(posDir[adjFound->theNode()] == posDir[adj2->twinNode()])
 					subtractSep = false;
 				}
 			}
@@ -1217,7 +1203,8 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	bool isCaseA = (m_arcDir == odEast || m_arcDir == odSouth);
 	const int angleAtMin = (m_arcDir == odEast || m_arcDir == odSouth) ? 3 : 1;
 	const int angleAtMax = (m_arcDir == odEast || m_arcDir == odSouth) ? 1 : 3;
-	forall_nodes(v,PG)
+
+	for(node v : PG.nodes)
 	{
 		if(PG.expandAdj(v) == 0) continue;
 		const OrthoRep::VertexInfoUML &vi = *m_pOR->cageInfo(v);
@@ -1497,10 +1484,10 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	// of the edge; if they see each other from different sides the arc is
 	// essential!
 	NodeArray<adjEntry> correspEdge(getGraph(),0);
-	forall_nodes(v,PG) {
+
+	for(node v : PG.nodes) {
 		node seg = m_pathNode[v];
-		adjEntry adj;
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			if(m_pOR->direction(adj) != segDir) continue;
 			edge eAdj = adj->theEdge();
 			edge eOrig = PG.original(eAdj);
@@ -1572,10 +1559,9 @@ template<class ATYPE>
 bool CompactionConstraintGraph<ATYPE>::isFeasible(
 	const NodeArray<ATYPE> &pos)
 {
-	edge e;
-	forall_edges(e, getGraph()) {
+	for(edge e : getGraph().edges) {
 		node v = m_path[e->source()].front();
-		node w = m_path[e->target()].front();;
+		node w = m_path[e->target()].front();
 		if (pos[w] - pos[v] < length(e)) {
 			cout << "feasibility check failed for edge " << e << endl;
 			cout << "  representatives: " << v << ", " << w << endl;
@@ -1626,8 +1612,7 @@ void CompactionConstraintGraph<ATYPE>::writeGML(ostream &os) const
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "  node [\n";
 		os << "    id " << (id[v] = nextId++) << "\n";
 
@@ -1651,8 +1636,7 @@ void CompactionConstraintGraph<ATYPE>::writeGML(ostream &os) const
 		os << "  ]\n"; // node
 	}
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << "  edge [\n";
 		os << "    source " << id[e->source()] << "\n";
 		os << "    target " << id[e->target()] << "\n";

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class Attraction.
  *
@@ -59,13 +51,12 @@ Attraction::Attraction(GraphAttributes &AG) : NodePairEnergy("Attraction", AG) {
 void Attraction::reinitializeEdgeLength(double multi)
 {
 	double lengthSum(0.0);
-	node v;
-	forall_nodes(v,m_G) {
+	for (node v : m_G.nodes) {
 		const IntersectionRectangle &i = shape(v);
 		lengthSum += i.width();
 		lengthSum += i.height();
 	}
-	lengthSum /= (2*m_G.numberOfNodes());
+	lengthSum /= (2 * m_G.numberOfNodes());
 	// lengthSum is now the average of all lengths and widths
 	m_preferredEdgeLength = multi * lengthSum;
 

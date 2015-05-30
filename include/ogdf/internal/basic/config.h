@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Basic configuration file
  *
@@ -121,23 +113,27 @@ using std::string;
 
 
 //---------------------------------------------------------
-// C++ standard
+// C++11 standard
 //---------------------------------------------------------
 
-#if __cplusplus >= 201103
-#define OGDF_HAVE_CPP11
+#if __cplusplus < 201103
 
-#elif defined(_MSC_VER)
-#if _MSC_VER >= 1600
-#define OGDF_HAVE_CPP11
+#if defined(_MSC_VER)
+#if _MSC_VER < 1700
+#error "Compiling OGDF requires Visual C++ 11 (Visual Studio 2012) or higher!"
 #endif
 
 #elif defined(__GNUC__)
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-#define OGDF_HAVE_CPP11
+#ifndef __GXX_EXPERIMENTAL_CXX0X__
+#error "No C++11 support activated for g++ (compile with -std=c++0x or -std=c++11)!"
+#endif
+
+#else
+#error "Compiling OGDF requires a C++11 compliant compiler!"
 #endif
 
 #endif
+
 
 
 #if defined(__CYGWIN__) || defined(__APPLE__) || defined(__sparc__)
@@ -216,6 +212,10 @@ using std::string;
 
 namespace ogdf {
 
+	//! Provides information about how OGDF has been configured.
+	/**
+	* @ingroup system
+	*/
 	class OGDF_EXPORT Configuration {
 	public:
 		//! Specifies the operating system for which OGDF has been configured/built.

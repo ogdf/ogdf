@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the static functions.
  *
@@ -81,12 +73,10 @@ namespace ogdf {
 //		for(int j = 0; j <= lvl_cur.high(); j++) {
 //			node v = lvl_cur[j];
 //
-//			adjEntry adj;
-//
 //			/*
 //			compute the edges, which overlap a node in lvl_cur
 //			*/
-//			forall_adj(adj, v) {
+//			for(adjEntry adj : v->adjEdges) {
 //				edge e = adj->theEdge();
 //
 //				if (done[e] == i)
@@ -123,7 +113,7 @@ namespace ogdf {
 //
 //				} // for k
 //
-//			}// forall_adj
+//			}
 //		}
 //
 //		NodeArray<bool> isNewNode(H, false);
@@ -181,8 +171,7 @@ namespace ogdf {
 //				int num = 0;
 //				int edgeNum = 1;
 //
-//				adjEntry adj;
-//				forall_adj(adj, v) {
+//				for(adjEntry adj : v->adjEdges) {
 //					edge eTmp = adj->theEdge();
 //
 //					if (incomming && eTmp->target() == v) {
@@ -247,7 +236,7 @@ namespace ogdf {
 //						a = AGC.x(v) + AGC.getWidth(v)/2;
 //						b = AGC.x(w) - AGC.getWidth(w)/2;
 //					}
-//					forall_adj(adj, w) {
+//					for(adjEntry adj : w->adjEdges) {
 //						edge eTmp = adj->theEdge();
 //						if (incomming && toRight && eTmp->target() == w && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
 //							num++;
@@ -350,8 +339,7 @@ namespace ogdf {
 //			for(int z = 0; z <= lvl_cur.high(); z++) {
 //				node uu = lvl_cur[z];
 //
-//				adjEntry adj;
-//				forall_adj(adj, uu) {
+//				for(adjEntry adj : uu->adjEdges) {
 //					edge ee = adj->theEdge();
 //
 //					DLine line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
@@ -401,10 +389,9 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 			if (maxH_cur < AGC.getHeight(v))
 				maxH_cur = AGC.getHeight(v);
 
-			adjEntry adj;
 			int ci = 0;
 			int cj = 0;
-			forall_adj(adj, v) {
+			for(adjEntry adj : v->adjEdges) {
 				edge e = adj->theEdge();
 				node w = e->source();
 
@@ -446,8 +433,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 			if (v->indeg() == 0)
 				continue;
 
-			adjEntry adj;
-			forall_adj(adj, v) {
+			for(adjEntry adj : v->adjEdges) {
 				edge e = adj->theEdge();
 				node w = e->source();
 				if (w == v)
@@ -461,7 +447,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 
 		//increase visibility, if there are a lot of edges overlap nodes
 		double factor = 0;
-		if (count >= 1 && 3 <= count)
+		if (count >= 1 && count <= 3)
 			factor = 0.4;
 		if ( count > 3)
 			factor = 0.8;
@@ -521,7 +507,7 @@ void HierarchyLayoutModule::overlap(ogdf::GraphCopyAttributes &AGC, ogdf::Hierar
 		bool intersectBottom = line.intersection(bottom, ipoint);
 
 		if (intersecLeft || intersecRight || intersectBottom)
-			ci++;;
+			ci++;
 
 	}
 

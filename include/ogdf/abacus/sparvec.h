@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief sparse vector.
@@ -141,7 +133,7 @@ public:
 	 *
 	 * \return A reference to the left hand side.
 	 */
-	const SparVec& operator=(const SparVec& rhs);
+	SparVec& operator=(const SparVec& rhs);
 
 	//! The output operator.
 	/**

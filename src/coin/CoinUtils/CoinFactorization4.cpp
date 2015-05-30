@@ -482,7 +482,7 @@ CoinFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
   permute_.array()[numberRowsExtra_] = realPivotRow;
   // and other way
   permuteBack_.array()[realPivotRow] = numberRowsExtra_;
-  permuteBack_.array()[numberRowsExtra_] = -1;;
+  permuteBack_.array()[numberRowsExtra_] = -1;
   //and for safety
   permute_.array()[numberRowsExtra_ + 1] = 0;
 

@@ -66,7 +66,7 @@ public:
 
      //@{
      /** Default constructor. */
-     ClpEventHandler(ClpSimplex * model = NULL);
+     ClpEventHandler(ClpSimplex * model = nullptr);
      /** Destructor */
      virtual ~ClpEventHandler();
      // Copy
@@ -126,7 +126,7 @@ public:
 
      //@{
      /** Default constructor. */
-     ClpDisasterHandler(ClpSimplex * model = NULL);
+     ClpDisasterHandler(ClpSimplex * model = nullptr);
      /** Destructor */
      virtual ~ClpDisasterHandler();
      // Copy

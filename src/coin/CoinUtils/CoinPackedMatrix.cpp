@@ -406,7 +406,7 @@ CoinPackedMatrix::modifyCoefficient(int row, int column, double newElement,
   if (majorIndex >= 0 && majorIndex < majorDim_) {
     if (minorIndex >= 0 && minorIndex < minorDim_) {
       CoinBigIndex j;
-      CoinBigIndex end=start_[majorIndex]+length_[majorIndex];;
+      CoinBigIndex end=start_[majorIndex]+length_[majorIndex];
       for (j=start_[majorIndex];j<end;j++) {
 	if (minorIndex==index_[j]) {
 	  // replacement
@@ -482,7 +482,7 @@ CoinPackedMatrix::getCoefficient(int row, int column) const
   if (majorIndex >= 0 && majorIndex < majorDim_) {
     if (minorIndex >= 0 && minorIndex < minorDim_) {
       CoinBigIndex j;
-      CoinBigIndex end=start_[majorIndex]+length_[majorIndex];;
+      CoinBigIndex end=start_[majorIndex]+length_[majorIndex];
       for (j=start_[majorIndex];j<end;j++) {
 	if (minorIndex==index_[j]) {
           value = element_[j];
@@ -1623,7 +1623,7 @@ CoinPackedMatrix::deleteMajorVectors(const int numDel,
       length_ = NULL;
       delete [] start_;
       start_ = new CoinBigIndex[1];
-      start_[0]=0;;
+      start_[0]=0;
       delete [] element_;
       element_=NULL;
       delete [] index_;
@@ -3216,7 +3216,7 @@ CoinPackedMatrix::appendMajor(const int number,
           index_[put++]=iIndex;
         }
         start_[majorDim_+i+1] = put;
-        length_[majorDim_+i] = put-start_[majorDim_+i];;
+        length_[majorDim_+i] = put-start_[majorDim_+i];
         for ( j=starts[i];j<starts[i+1];j++) {
           int iIndex = index[j];
           if (iIndex>=0&&iIndex<numberOther)

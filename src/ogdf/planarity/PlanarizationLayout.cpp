@@ -1,11 +1,3 @@
-/*
-* $Revision: 4180 $
-*
-* last checkin:
-*   $Author: klein $
-*   $Date: 2014-06-05 16:01:57 +0200 (Thu, 05 Jun 2014) $
-***************************************************************/
-
 /** \file
  * \brief implementation of class PlanarizationLayout.
  *
@@ -110,8 +102,7 @@ namespace ogdf {
 				ga.x(vG) = drawing.x(pr.copy(vG));
 				ga.y(vG) = drawing.y(pr.copy(vG));
 
-				adjEntry adj;
-				forall_adj(adj,vG) {
+				for(adjEntry adj : vG->adjEdges) {
 					if ((adj->index() & 1) == 0)
 						continue;
 					edge eG = adj->theEdge();
@@ -158,8 +149,7 @@ namespace ogdf {
 		// all deleted and replacement edges to generalization to
 		// avoid crossings
 
-		edge eOrig;
-		forall_edges(eOrig,g)
+		for(edge eOrig : g.edges)
 		{
 			if (cliqueReplacer.isReplacement(eOrig)) {
 				costOrig[eOrig] = 10;
@@ -194,11 +184,9 @@ namespace ogdf {
 			// (is needed to guarantee the size of the replacement boundary)
 			// conserve external face information
 			const SListPure<node> &centerNodes = cliqueReplacer.centerNodes();
-			SListConstIterator<node> itNode = centerNodes.begin();
-			while (itNode.valid())
+			for(node centerNode : centerNodes)
 			{
-				pr.insertBoundary(*itNode, adjExternal);
-				itNode++;
+				pr.insertBoundary(centerNode, adjExternal);
 			}
 
 			Layout drawing(pr);
@@ -216,10 +204,8 @@ namespace ogdf {
 			// end of this if and can later be removed
 			NodeArray<bool> isClique(pr, false);
 
-			itNode = centerNodes.begin();
-			while (itNode.valid())
+			for(node centerNode : centerNodes)
 			{
-				node centerNode = (*itNode);
 				adjEntry adjBoundary = pr.boundaryAdj(centerNode);
 				//-----------------------------------------------------
 				// derive the boundary size
@@ -252,7 +238,7 @@ namespace ogdf {
 				}//if boundary exists
 				else
 				{
-					forall_adj(adjBoundary, centerNode)
+					for(adjEntry adjBoundary : centerNode->adjEdges)
 					{
 						node w = adjBoundary->twinNode();
 						double vx = drawing.x(pr.copy(w));
@@ -294,20 +280,17 @@ namespace ogdf {
 				// the clique
 
 				// assign shifted coordinates to drawing
-				forall_adj(adjBoundary, centerNode)
+				for(adjEntry adjBoundary : centerNode->adjEdges)
 				{
 					node w = adjBoundary->twinNode();
 					drawing.x(pr.copy(w)) = centralX-circleX+cliqueReplacer.cliquePos(w).m_x;
 					drawing.y(pr.copy(w)) = centralY-circleY+cliqueReplacer.cliquePos(w).m_y;
 				}
-
-				itNode++;
-			}//while
+			}
 
 			// simple strategy to move anchor positions too (they are not needed:
 			// move to same position)
-			node w;
-			forall_nodes(w, pr)
+			for(node w : pr.nodes)
 			{
 				// forall clique nodes shift the anchor points
 				if (isClique[w])
@@ -330,8 +313,7 @@ namespace ogdf {
 				ga.x(vG) = drawing.x(pr.copy(vG));
 				ga.y(vG) = drawing.y(pr.copy(vG));
 
-				adjEntry adj;
-				forall_adj(adj,vG) {
+				for(adjEntry adj : vG->adjEdges) {
 					if ((adj->index() & 1) == 0)
 						continue;
 					edge eG = adj->theEdge();
@@ -380,7 +362,7 @@ namespace ogdf {
 		OGDF_ASSERT(cCopy->degree() == centerNode->degree());
 		OGDF_ASSERT(cCopy->degree() > 1);
 		// store the node with mostright position TODO: consider cage
-		node rightNode = 0;
+		node rightNode = nullptr;
 
 		// due to the implementation in PlanRepUML::collapseVertices, the
 		// ordering of the nodes in the copy does not correspond to the
@@ -460,7 +442,7 @@ namespace ogdf {
 			} while (adjURun != uCopy->firstAdj());
 
 			// check if node is better suited to lie at the right position
-			if (rightNode != 0) {
+			if (rightNode != nullptr) {
 				if (drawing.x(PG.copy(u)) > drawing.x(PG.copy(rightNode)))
 					rightNode = u;
 
@@ -487,10 +469,9 @@ namespace ogdf {
 		m_nCrossings = 0;
 
 		EdgeArray<int> costOrig(g,1);
-		EdgeArray<__uint32> esgOrig(g,0);
+		EdgeArray<uint32_t> esgOrig(g,0);
 
-		edge e;
-		forall_edges(e,g)
+		for(edge e : g.edges)
 			esgOrig[e] = ga.subGraphBits(e);
 
 		PlanRep pr(ga);
@@ -504,7 +485,7 @@ namespace ogdf {
 			// 1. crossing minimization
 			//--------------------------------------
 			int cr;
-			m_crossMin.get().call(pr, cc, cr, &costOrig, 0, &esgOrig);
+			m_crossMin.get().call(pr, cc, cr, &costOrig, nullptr, &esgOrig);
 			m_nCrossings += cr;
 			OGDF_ASSERT(isPlanar(pr));
 
@@ -527,8 +508,7 @@ namespace ogdf {
 				ga.x(vG) = drawing.x(pr.copy(vG));
 				ga.y(vG) = drawing.y(pr.copy(vG));
 
-				adjEntry adj;
-				forall_adj(adj,vG) {
+				for(adjEntry adj : vG->adjEdges) {
 					if ((adj->index() & 1) == 0)
 						continue;
 					edge eG = adj->theEdge();
@@ -567,16 +547,15 @@ namespace ogdf {
 				ga.x(v) += dx;
 				ga.y(v) += dy;
 
-				adjEntry adj;
-				forall_adj(adj,v) {
+				for(adjEntry adj : v->adjEdges) {
 					if ((adj->index() & 1) == 0) continue;
 					edge e = adj->theEdge();
 
 					DPolyline &dpl = ga.bends(e);
 					ListIterator<DPoint> it;
-					for(it = dpl.begin(); it.valid(); ++it) {
-						(*it).m_x += dx;
-						(*it).m_y += dy;
+					for(DPoint &dp : dpl) {
+						dp.m_x += dx;
+						dp.m_y += dy;
 					}
 				}
 			}

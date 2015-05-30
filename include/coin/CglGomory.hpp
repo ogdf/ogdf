@@ -32,7 +32,7 @@ public:
       from integer.
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   /** Generates cuts given matrix and solution etc,
       returns number of cuts generated */
   int generateCuts( const OsiRowCutDebugger * debugger, 
@@ -58,7 +58,7 @@ public:
                     const CglTreeInfo info = CglTreeInfo()) const;
 
   /// Return true if needs optimal basis to do cuts (will return true)
-  virtual bool needsOptimalBasis() const;
+  virtual bool needsOptimalBasis() const override;
   //@}
 
   /**@name Change way Gomory works */
@@ -87,7 +87,7 @@ public:
   /// Get at root
   int getLimitAtRoot() const;
   /// Return maximum length of cut in tree
-  virtual int maximumLengthOfCutInTree() const;
+  virtual int maximumLengthOfCutInTree() const override;
   //@}
 
   /**@name Change criterion on which variables to look at.  All ones
@@ -143,7 +143,7 @@ public:
     const CglGomory &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglGomory &
@@ -154,7 +154,7 @@ public:
   virtual
     ~CglGomory ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
       
 private:

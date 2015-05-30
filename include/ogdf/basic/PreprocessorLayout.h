@@ -1,11 +1,3 @@
-/*
- * $Revision: 3432 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Preprocessor Layout simplifies Graphs for use in other Algorithms
  *
@@ -58,6 +50,8 @@ namespace ogdf {
 
 /** \brief The PreprocessorLayout removes multi-edges and self-loops.
  *
+ * @ingroup graph-drawing
+ *
  * To draw a graph using the ModularMultilevelMixer or other layouts the
  * graph must be simple, i.e., contain neither multi-edges nor self-loops.
  * Edges that conflict with these rules are deleted in the PreprocessorLayout.
@@ -100,13 +94,13 @@ public:
 	~PreprocessorLayout() { }
 
 
+	using MultilevelLayoutModule::call;
+
 	//! Calculates a drawing for the Graph \a MLG.
-	void call(MultilevelGraph &MLG);
+	virtual void call(MultilevelGraph &MLG) override;
 
 	//! Calculates a drawing for the Graph \a GA.
-	void call(GraphAttributes &GA);
-
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA) override;
 
 	//! Sets the secondary layout.
 	void setLayoutModule(LayoutModule *layout) {

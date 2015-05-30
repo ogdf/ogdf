@@ -83,12 +83,12 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      void loadProblem (  const CoinPackedMatrix& matrix,
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
 
      /** Just like the other loadProblem() method except that the matrix is
        given in a standard column major ordered format (without gaps). */
@@ -98,7 +98,7 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      /** This loads a model from a coinModel object - returns number of errors.
 
          modelObject not const as may be changed as part of process
@@ -112,7 +112,7 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      /** Load up quadratic objective.  This is stored as a CoinPackedMatrix */
      void loadQuadraticObjective(const int numberColumns,
                                  const CoinBigIndex * start,
@@ -641,25 +641,25 @@ public:
      inline double * objective() const {
           if (objective_) {
                double offset;
-               return objective_->gradient(NULL, NULL, offset, false);
+               return objective_->gradient(nullptr, nullptr, offset, false);
           } else {
-               return NULL;
+               return nullptr;
           }
      }
      inline double * objective(const double * solution, double & offset, bool refresh = true) const {
           offset = 0.0;
           if (objective_) {
-               return objective_->gradient(NULL, solution, offset, refresh);
+               return objective_->gradient(nullptr, solution, offset, refresh);
           } else {
-               return NULL;
+               return nullptr;
           }
      }
      inline const double * getObjCoefficients() const {
           if (objective_) {
                double offset;
-               return objective_->gradient(NULL, NULL, offset, false);
+               return objective_->gradient(nullptr, nullptr, offset, false);
           } else {
-               return NULL;
+               return nullptr;
           }
      }
      /// Row Objective
@@ -685,7 +685,7 @@ public:
      }
      /// Matrix (if not ClpPackedmatrix be careful about memory leak
      inline CoinPackedMatrix * matrix() const {
-          if ( matrix_ == NULL ) return NULL;
+          if ( matrix_ == nullptr ) return nullptr;
           else return matrix_->getPackedMatrix();
      }
      /// Number of elements in matrix
@@ -754,16 +754,16 @@ public:
      double * unboundedRay() const;
      /// just test if infeasibility or unbounded Ray exists
      inline bool rayExists() const {
-         return (ray_!=NULL);
+         return (ray_!=nullptr);
      }
      /// just delete ray if exists
      inline void deleteRay() {
          delete [] ray_;
-         ray_=NULL;
+         ray_=nullptr;
      }
      /// See if status (i.e. basis) array exists (partly for OsiClp)
      inline bool statusExists() const {
-          return (status_ != NULL);
+          return (status_ != nullptr);
      }
      /// Return address of status (i.e. basis) array (char[numberRows+numberColumns])
      inline unsigned char *  statusArray() const {
@@ -912,7 +912,7 @@ public:
      }
      /** Solve a problem with no elements - return status and
          dual and primal infeasibilites */
-     int emptyProblem(int * infeasNumber = NULL, double * infeasSum = NULL, bool printMessage = true);
+     int emptyProblem(int * infeasNumber = nullptr, double * infeasSum = nullptr, bool printMessage = true);
 
      //@}
 
@@ -1049,7 +1049,7 @@ protected:
                             const double* collb, const double* colub,
                             const double* obj,
                             const double* rowlb, const double* rowub,
-                            const double * rowObjective = NULL);
+                            const double * rowObjective = nullptr);
      /// Does much of scaling
      void gutsOfScaling();
      /// Objective value - always minimize

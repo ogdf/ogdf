@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of EdgeComparer.
  *
@@ -141,13 +133,13 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 			//move one step further
 			if (it1.valid())
 			{
-				if (sAdj1) it1++;
-				else it1--;
+				if (sAdj1) ++it1;
+				else --it1;
 			}
 			if (it2.valid())
 			{
-				if (sAdj2) it2++;
-				else it2--;
+				if (sAdj2) ++it2;
+				else --it2;
 			}
 
 			if (it1.valid())
@@ -233,13 +225,13 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 				if (s1->firstAdj()==ed3->adjSource())
 				{
 					itb = bends3.begin();
-					itb++;
+					++itb;
 					dp = (*itb);
 				}
 				else
 				{
 					itb = bends3.rbegin();
-					itb--;
+					--itb;
 					dp = (*itb);
 				}
 			}//if >= 2 bends, e.g. merger
@@ -255,7 +247,8 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 			dp = DPoint(m_AG->x(uvw)-2, m_AG->y(uvw)+1);
 		double w1 = angle(DPoint(x1a, y1a), dp, DPoint(x1b, y1b));
 		double w2 = angle(DPoint(x1a, y1a), dp, DPoint(x2b, y2b));
-		OGDF_ASSERT(w1 >= 0 && (w2 >= 0))
+		OGDF_ASSERT(w1 >= 0);
+		OGDF_ASSERT(w2 >= 0);
 
 		//workaround shortcut (can be inserted above)
 		if (ed1 == ed3)
@@ -288,7 +281,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 }//compare
 
 
-bool EdgeComparer::before(const DPoint u, const DPoint v, const DPoint w) const
+bool EdgeComparer::before(const DPoint &u, const DPoint &v, const DPoint &w) const
 {
 	/*
 	double dx1 = v.m_x - u.m_x;
@@ -309,9 +302,9 @@ bool EdgeComparer::before(const DPoint u, const DPoint v, const DPoint w) const
 //respects the flipping of y axis!!
 //TODO: shift into geometric
 int EdgeComparer::orientation(
-	const DPoint u,
-	const DPoint v,
-	const DPoint w) const
+	const DPoint &u,
+	const DPoint &v,
+	const DPoint &w) const
 {
 	double plus1 = v.m_x*w.m_y;
 	double plus2 = w.m_x*u.m_y;
@@ -327,28 +320,6 @@ int EdgeComparer::orientation(
 	return 0;
 
 }//orientation
-
-
-//counterclockwise with respect to their angle to the x-axis
-int EdgeComparer::compareVectors(const double& x1,
-									const double& y1,
-									const double& x2,
-									const double& y2) const
-{
-	if (x1 == x2 && y1 == y2) return 0;
-	if (x1 == 0 && y1 == 0) return -1;
-	if (x2 == 0 && y2 == 0) return +1;
-	// vectors are distinct and non-zero
-
-	int sy1 = signOf(y1);  int sy2 = signOf(y2);
-
-	int upper1 = ( sy1 != 0 ? sy1 : signOf(x1) );
-	int upper2 = ( sy2 != 0 ? sy2 : signOf(x2) );
-
-	if ( upper1 == upper2 ) return signOf(x2*y1 - x1*y2);
-
-	return upper2 - upper1;
-}//comparevectors
 
 
 //computes angle between vectors

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class FixEdgeInserterCore and FixEdgeInserterUMLCore,
  * which are the implementation classes for edge insertion with fixed embedding.
@@ -52,6 +44,7 @@
 
 #include <ogdf/basic/Timeouter.h>
 #include <ogdf/basic/Module.h>
+#include <ogdf/basic/FaceArray.h>
 #include <ogdf/planarity/PlanRepLight.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
 
@@ -69,7 +62,7 @@ namespace ogdf {
 			PlanRepLight &pr,
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraphs)
+			const EdgeArray<uint32_t> *pEdgeSubgraphs)
 			: m_pr(pr), m_pCost(pCostOrig), m_pForbidden(pForbiddenOrig), m_pSubgraph(pEdgeSubgraphs) { }
 
 		virtual ~FixEdgeInserterCore() { }
@@ -106,7 +99,7 @@ namespace ogdf {
 
 		const EdgeArray<int>		*m_pCost;
 		const EdgeArray<bool>		*m_pForbidden;
-		const EdgeArray<__uint32>	*m_pSubgraph;
+		const EdgeArray<uint32_t>	*m_pSubgraph;
 
 		Graph m_dual;   //!< (Extended) dual graph, constructed/destructed during call.
 
@@ -129,7 +122,7 @@ namespace ogdf {
 		FixEdgeInserterUMLCore(
 			PlanRepLight &pr,
 			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraph) : FixEdgeInserterCore(pr, pCostOrig, 0, pEdgeSubgraph) { }
+			const EdgeArray<uint32_t> *pEdgeSubgraph) : FixEdgeInserterCore(pr, pCostOrig, 0, pEdgeSubgraph) { }
 
 	protected:
 		void storeTypeOfCurrentEdge(edge eOrig) { m_typeOfCurrentEdge = m_pr.typeOrig(eOrig); }

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares ClusterOrthoLayout which represents an orthogonal
  * planar drawing algorithm for c-planar c-connected Clustergraphs.
@@ -58,14 +50,10 @@
 
 namespace ogdf {
 
-	enum OrthoDir;
-
-
-//---------------------------------------------------------
-// ClusterOrthoLayout
-// represents planar orthogonal drawing algorithm for
-// c-planar c-connected Clustergraphs
-//---------------------------------------------------------
+//! Represents a planar orthogonal drawing algorithm for c-planar, c-connected clustered graphs.
+/**
+ * @ingroup gd-cluster
+ */
 class OGDF_EXPORT ClusterOrthoLayout : public LayoutClusterPlanRepModule
 {
 public:
@@ -80,26 +68,26 @@ public:
 	 * representation in \a drawing.
 	 */
 	void call(ClusterPlanRep &PG, adjEntry adjExternal, Layout &drawing);
+
 	//! Call method for non c-planar graphs
-	void call(
+	virtual void call(
 		ClusterPlanRep &PG,
 		adjEntry adjExternal,
 		Layout &drawing,
 		List<NodePair>& npEdges,
 		List<edge>& newEdges,
-		Graph& originalGraph);
+		Graph& originalGraph) override;
 
-	//void call(PlanRepUML & /* PG */, adjEntry /* adjExternal */, Layout & /* drawing */) {}
 
 	//
 	// options
 
 	//! Returns the minimum distance between edges and vertices.
-	double separation() const {
+	virtual double separation() const override {
 		return m_separation;
 	}
 	//! Sets the minimum distance between edges and vertices.
-	void separation(double sep) {
+	virtual void separation(double sep) override {
 		m_separation = sep;
 	}
 
@@ -166,7 +154,7 @@ public:
 	//bit 1 = scaling
 	//bit 2 = progressive/traditional
 	//=> 0 is standard
-	virtual void setOptions(int optionField)
+	virtual void setOptions(int optionField) override
 	{
 		if (optionField & 1) m_align = true;
 		else m_align = false;

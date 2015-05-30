@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of initial cut-constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -79,7 +71,7 @@ public:
 
 	// Computes and returns the coefficient for the given variable
 	virtual double coeff(const abacus::Variable *v) const {
-		const EdgeVar *ev = (const EdgeVar *)v;
+		const EdgeVar *ev = static_cast<const EdgeVar *>(v);
 		//Safe for both clustered planarity testing and maximum c-planar subgraph
 		return (ev->theEdgeType() != EdgeVar::CONNECT) ? 0.0 : (double)coeff(ev->sourceNode(), ev->targetNode());
 	}

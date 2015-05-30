@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanRepInc.
  *
@@ -158,7 +150,7 @@ public:
 	{
 		const GraphAttributes &AG = getUMLGraph();
 		ofstream os(fileName);
-		PlanRepInc::writeGML(os, AG);//getUMLGraph());//l);
+		writeGML(os, AG);//getUMLGraph());//l);
 	}
 	void writeGML(const char *fileName, const Layout &drawing)
 	{

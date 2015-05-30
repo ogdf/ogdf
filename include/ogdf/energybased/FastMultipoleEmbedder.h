@@ -1,11 +1,3 @@
-/*
- * $Revision: 3472 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mon, 29 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Fast-Multipole-Embedder layout algorithm.
  *
@@ -61,6 +53,10 @@ class FMEThread;
 struct FMEGlobalOptions;
 class GalaxyMultilevel;
 
+//! The fast multipole embedder approach for force-directed layout.
+/**
+ * @ingroup gd-energy
+ */
 class OGDF_EXPORT FastMultipoleEmbedder : public LayoutModule
 {
 public:
@@ -82,19 +78,19 @@ public:
 		const EdgeArray<float>& edgeLength,
 		const NodeArray<float>& nodeSize);
 
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	//! Calls the algorithm for graph \a GA with the given edgelength and returns the layout information in \a GA.
 	void call(GraphAttributes &GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
 
 	//! Calls the algorithm for graph \a GA and returns the layout information in \a GA.
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	//! sets the maximum number of iterations
-	void setNumIterations(__uint32 numIterations) { m_numIterations = numIterations; }
+	void setNumIterations(uint32_t numIterations) { m_numIterations = numIterations; }
 
 	//! sets the number of coefficients for the expansions. default = 4
-	void setMultipolePrec(__uint32 precision) { m_precisionParameter = precision; }
+	void setMultipolePrec(uint32_t precision) { m_precisionParameter = precision; }
 
 	//! if true, layout algorithm will randomize the layout in the beginning
 	void setRandomize(bool b) { m_randomize = b; }
@@ -106,7 +102,7 @@ public:
 	void setDefaultNodeSize(float nodeSize) { m_defaultNodeSize = nodeSize; }
 
 	//!
-	void setNumberOfThreads(__uint32 numThreads) {
+	void setNumberOfThreads(uint32_t numThreads) {
 #ifndef OGDF_MEMORY_POOL_NTS
 		m_maxNumberOfThreads = numThreads;
 #endif
@@ -121,15 +117,15 @@ private:
 	void runSingle();
 
 	//! runs the simulation with the given number of iterations
-	void run(__uint32 numIterations);
+	void run(uint32_t numIterations);
 
 	//! allocates the memory
-	void allocate(__uint32 numNodes, __uint32 numEdges);
+	void allocate(uint32_t numNodes, uint32_t numEdges);
 
 	//! frees the memory
 	void deallocate();
 
-	__uint32 m_numIterations;
+	uint32_t m_numIterations;
 
 	ArrayGraph* m_pGraph;
 
@@ -137,7 +133,7 @@ private:
 
 	FMEGlobalOptions* m_pOptions;
 
-	__uint32 m_precisionParameter;
+	uint32_t m_precisionParameter;
 
 	bool m_randomize;
 
@@ -145,12 +141,16 @@ private:
 
 	float m_defaultNodeSize;
 
-	__uint32 m_numberOfThreads;
+	uint32_t m_numberOfThreads;
 
-	__uint32 m_maxNumberOfThreads;
+	uint32_t m_maxNumberOfThreads;
 };
 
 
+//! The fast multipole multilevel embedder approach for force-directed multilevel layout.
+/**
+* @ingroup gd-energy
+*/
 class OGDF_EXPORT FastMultipoleMultilevelEmbedder : public LayoutModule
 {
 public:
@@ -198,7 +198,7 @@ private:
 	void dumpCurrentLevel(const char *filename);
 
 	//! computes the maximum number of iterations by level nr
-	__uint32 numberOfIterationsByLevelNr(__uint32 levelNr);
+	uint32_t numberOfIterationsByLevelNr(uint32_t levelNr);
 
 	int				  m_iMaxNumThreads;
 	int				  m_iNumLevels;

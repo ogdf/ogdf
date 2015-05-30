@@ -1,11 +1,3 @@
-/*
- * $Revision: 2663 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-24 11:21:20 +0200 (Tue, 24 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Cluster planarity tests and cluster planar embedding
  * for c-connected clustered graphs. Based on the algorithm
@@ -58,6 +50,10 @@
 
 namespace ogdf {
 
+//! C-planarity test and embedding by Cohen, Feng and Eades.
+/**
+ * @ingroup ga-cplanarity
+ */
 class OGDF_EXPORT CconnectClusterPlanarEmbed
 {
 public:
@@ -80,7 +76,7 @@ public:
 	// Destructor
 	virtual ~CconnectClusterPlanarEmbed();
 
-	// Tests if a ClusterGraph is C-planar and embedds it.
+	//! Tests if a clustered graph (\a C, \a G) is C-planar and embeds it.
 	virtual bool embed(ClusterGraph &C,Graph &G);
 
 

@@ -1447,7 +1447,7 @@ CoinFactorization::getRowSpace ( int iRow,
       //if we can allocate bigger then do so and copy
       //if not then return so code can start again
       status_ = -99;
-      return false;;
+      return false;
     }
   }
   CoinBigIndex put = startRowU[maximumRowsExtra_];
@@ -2135,7 +2135,7 @@ CoinFactorization::pivotOneOtherRow ( int pivotRow,
       CoinBigIndex positionLargest = -1;
       CoinFactorizationDouble thisPivotValue = 0.0;
       CoinFactorizationDouble otherElement = 0.0;
-      CoinFactorizationDouble nextValue = elementU[put];;
+      CoinFactorizationDouble nextValue = elementU[put];
       int nextIRow = indexRowU[put];
 
       //compress column and find largest not updated
@@ -2163,7 +2163,7 @@ CoinFactorization::pivotOneOtherRow ( int pivotRow,
 	      if ( iRow != otherRow ) {
 		//keep
 		indexRowU[put] = iRow;
-		elementU[put] = value;;
+		elementU[put] = value;
 		put++;
 	      } else {
 		otherElement = value;
@@ -2194,7 +2194,7 @@ CoinFactorization::pivotOneOtherRow ( int pivotRow,
 	    if ( iRow != pivotRow ) {
 	      //keep
 	      indexRowU[put] = iRow;
-	      elementU[put] = value;;
+	      elementU[put] = value;
 	      double absValue = fabs ( value );
 
 	      if ( absValue > largest ) {
@@ -2227,7 +2227,7 @@ CoinFactorization::pivotOneOtherRow ( int pivotRow,
 	  if ( iRow != otherRow ) {
 	    //keep
 	    indexRowU[put] = iRow;
-	    elementU[put] = value;;
+	    elementU[put] = value;
 	    double absValue = fabs ( value );
 
 	    if ( absValue > largest ) {

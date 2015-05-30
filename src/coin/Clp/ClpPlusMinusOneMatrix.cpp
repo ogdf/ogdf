@@ -1103,7 +1103,7 @@ void
 ClpPlusMinusOneMatrix::deleteCols(const int numDel, const int * indDel)
 {
      int iColumn;
-     CoinBigIndex newSize = startPositive_[numberColumns_];;
+     CoinBigIndex newSize = startPositive_[numberColumns_];
      int numberBad = 0;
      // Use array to make sure we can have duplicates
      int * which = new int[numberColumns_];

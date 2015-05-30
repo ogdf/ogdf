@@ -1,11 +1,3 @@
-/*
- * $Revision: 4180 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2014-06-05 16:01:57 +0200 (Thu, 05 Jun 2014) $
- ***************************************************************/
-
 /** \file
  * \brief MLG is the main data structure for ModularMultilevelMixer
  *
@@ -73,7 +65,7 @@ struct NodeMerge
 	int m_level;
 
 
-	NodeMerge(int level) : m_level(level) { }
+	NodeMerge(int level) : m_mergedNode(-1), m_level(level) { }
 	~NodeMerge() { }
 };
 
@@ -156,7 +148,9 @@ public:
 	void writeGML(const char *fileName);
 
 	// the original graph will be cleared to save Memory
+	OGDF_DEPRECATED_BEGIN
 	std::vector<MultilevelGraph *> splitIntoComponents();
+	OGDF_DEPRECATED_END
 
 	bool postMerge(NodeMerge * NM, node merged);
 	//\a merged is the node now represented by \a theNode

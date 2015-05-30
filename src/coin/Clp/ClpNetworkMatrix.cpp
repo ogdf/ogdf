@@ -47,7 +47,7 @@ ClpNetworkMatrix::ClpNetworkMatrix(int numberColumns, const int * head,
      setType(11);
      matrix_ = NULL;
      lengths_ = NULL;
-     indices_ = new int[2*numberColumns];;
+     indices_ = new int[2*numberColumns];
      numberRows_ = -1;
      numberColumns_ = numberColumns;
      trueNetwork_ = true;
@@ -1226,7 +1226,7 @@ ClpNetworkMatrix::ClpNetworkMatrix (
      setType(11);
      matrix_ = NULL;
      lengths_ = NULL;
-     indices_ = new int[2*numberColumns];;
+     indices_ = new int[2*numberColumns];
      numberRows_ = numberRows;
      numberColumns_ = numberColumns;
      trueNetwork_ = true;

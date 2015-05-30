@@ -1,11 +1,3 @@
-/*
- * $Revision: 2749 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-06 15:37:45 +0200 (Thu, 06 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class FastMultipoleEmbedder.
  *
@@ -42,13 +34,13 @@
 
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/fileformats/GraphIO.h>
-#include "FastUtils.h"
-#include "ArrayGraph.h"
-#include "LinearQuadtree.h"
-#include "LinearQuadtreeExpansion.h"
-#include "FMEThread.h"
-#include "GalaxyMultilevel.h"
-#include "FMEMultipoleKernel.h"
+#include <ogdf/internal/energybased/FastUtils.h>
+#include <ogdf/internal/energybased/ArrayGraph.h>
+#include <ogdf/internal/energybased/LinearQuadtree.h>
+#include <ogdf/internal/energybased/LinearQuadtreeExpansion.h>
+#include <ogdf/internal/energybased/FMEThread.h>
+#include <ogdf/internal/energybased/GalaxyMultilevel.h>
+#include <ogdf/internal/energybased/FMEMultipoleKernel.h>
 
 
 namespace ogdf {
@@ -105,14 +97,13 @@ void FastMultipoleEmbedder::call(GraphAttributes &GA)
 {
 	EdgeArray<float> edgeLength(GA.constGraph());
 	NodeArray<float> nodeSize(GA.constGraph());
-	node v;
-	edge e;
-	forall_nodes(v, GA.constGraph())
+
+	for(node v : GA.constGraph().nodes)
 	{
 		nodeSize[v] = (float)sqrt(GA.width(v)*GA.width(v) + GA.height(v)*GA.height(v)) * 0.5f;
 	}
 
-	forall_edges(e, GA.constGraph())
+	for(edge e : GA.constGraph().edges)
 	{
 		edgeLength[e] = nodeSize[e->source()] + nodeSize[e->target()];
 	}
@@ -127,14 +118,13 @@ void FastMultipoleEmbedder::call(GraphAttributes &GA, const EdgeArray<float>& ed
 	m_pGraph->writeTo(GA);
 	deallocate();
 
-	edge e;
-	forall_edges(e, GA.constGraph())
+	for(edge e : GA.constGraph().edges)
 	{
 		GA.bends(e).clear();
 	}
 }
 
-void FastMultipoleEmbedder::run(__uint32 numIterations)
+void FastMultipoleEmbedder::run(uint32_t numIterations)
 {
 	if (m_pGraph->numNodes() == 0) return;
 	if (m_pGraph->numNodes() == 1)
@@ -147,13 +137,13 @@ void FastMultipoleEmbedder::run(__uint32 numIterations)
 	if (m_randomize)
 	{
 		double avgNodeSize = 0.0;
-		for (__uint32 i = 0; i < m_pGraph->numNodes(); i++)
+		for (uint32_t i = 0; i < m_pGraph->numNodes(); i++)
 		{
 			avgNodeSize += m_pGraph->nodeSize()[i];
 		}
 
 		avgNodeSize = (avgNodeSize / (double)m_pGraph->numNodes());
-		for (__uint32 i = 0; i < m_pGraph->numNodes(); i++)
+		for (uint32_t i = 0; i < m_pGraph->numNodes(); i++)
 		{
 			m_pGraph->nodeXPos()[i] = (float)(randomDouble(-(double)m_pGraph->numNodes(), (double)m_pGraph->numNodes())*avgNodeSize*2);
 			m_pGraph->nodeYPos()[i] = (float)(randomDouble(-(double)m_pGraph->numNodes(), (double)m_pGraph->numNodes())*avgNodeSize*2);
@@ -184,25 +174,25 @@ void FastMultipoleEmbedder::runSingle()
 }
 
 
-void FastMultipoleEmbedder::allocate(__uint32 numNodes, __uint32 numEdges)
+void FastMultipoleEmbedder::allocate(uint32_t numNodes, uint32_t numEdges)
 {
 	m_pOptions = new FMEGlobalOptions();
 	m_pGraph = new ArrayGraph(numNodes, numEdges);
 	initOptions();
 	if (!m_maxNumberOfThreads)
 	{
-		__uint32 availableThreads = System::numberOfProcessors();
-		__uint32 minNodesPerThread = 100;
+		uint32_t availableThreads = System::numberOfProcessors();
+		uint32_t minNodesPerThread = 100;
 		m_numberOfThreads = numNodes / minNodesPerThread;
-		m_numberOfThreads = max<__uint32>(1, m_numberOfThreads);
-		m_numberOfThreads = prevPowerOfTwo(min<__uint32>(m_numberOfThreads, availableThreads));
+		m_numberOfThreads = max<uint32_t>(1, m_numberOfThreads);
+		m_numberOfThreads = prevPowerOfTwo(min<uint32_t>(m_numberOfThreads, availableThreads));
 	} else
 	{
-		__uint32 availableThreads = min<__uint32>(m_maxNumberOfThreads, System::numberOfProcessors());
-		__uint32 minNodesPerThread = 100;
+		uint32_t availableThreads = min<uint32_t>(m_maxNumberOfThreads, System::numberOfProcessors());
+		uint32_t minNodesPerThread = 100;
 		m_numberOfThreads = numNodes / minNodesPerThread;
-		m_numberOfThreads = max<__uint32>(1, m_numberOfThreads);
-		m_numberOfThreads = prevPowerOfTwo(min<__uint32>(m_numberOfThreads, availableThreads));
+		m_numberOfThreads = max<uint32_t>(1, m_numberOfThreads);
+		m_numberOfThreads = prevPowerOfTwo(min<uint32_t>(m_numberOfThreads, availableThreads));
 	}
 	m_threadPool = new FMEThreadPool(m_numberOfThreads);
 }
@@ -221,8 +211,8 @@ void FastMultipoleMultilevelEmbedder::dumpCurrentLevel(const char *filename)
 {
 	const Graph& G = *(m_pCurrentLevel->m_pGraph);
 	GraphAttributes GA(G);
-	node v = 0;
-	forall_nodes(v, G)
+
+	for(node v : G.nodes)
 	{
 		GalaxyMultilevel::LevelNodeInfo& nodeInfo = (*(m_pCurrentLevel->m_pNodeInfo))[v];
 		GA.x(v) = (*m_pCurrentNodeXPos)[v];
@@ -250,8 +240,7 @@ void FastMultipoleMultilevelEmbedder::call(GraphAttributes &GA)
 
 	run(GA, edgeLengthAuto);
 
-	edge e;
-	forall_edges(e, GA.constGraph())
+	for(edge e : GA.constGraph().edges)
 	{
 		GA.bends(e).clear();
 	}
@@ -259,13 +248,10 @@ void FastMultipoleMultilevelEmbedder::call(GraphAttributes &GA)
 
 void FastMultipoleMultilevelEmbedder::computeAutoEdgeLength(const GraphAttributes& GA, EdgeArray<float>& edgeLength, float factor)
 {
-	edge e = 0;
-	node v = 0;
-	node w = 0;
-	forall_edges(e, GA.constGraph())
+	for(edge e : GA.constGraph().edges)
 	{
-		v = e->source();
-		w = e->target();
+		node v = e->source();
+		node w = e->target();
 		float radius_v = (float)sqrt(GA.width(v)*GA.width(v) + GA.height(v)*GA.height(v)) * 0.5f;
 		float radius_w = (float)sqrt(GA.width(w)*GA.width(w) + GA.height(w)*GA.height(w)) * 0.5f;
 		float sum = radius_v + radius_w;
@@ -346,8 +332,7 @@ void FastMultipoleMultilevelEmbedder::createMultiLevelGraphs(Graph* pGraph, Grap
 
 void FastMultipoleMultilevelEmbedder::writeCurrentToGraphAttributes(GraphAttributes& GA)
 {
-	node v;
-	forall_nodes(v, (*m_pCurrentGraph))
+	for(node v : m_pCurrentGraph->nodes)
 	{
 		GA.x(v) = (*m_pCurrentNodeXPos)[v];
 		GA.y(v) = (*m_pCurrentNodeYPos)[v];
@@ -364,11 +349,8 @@ void FastMultipoleMultilevelEmbedder::nextLevel()
 
 void FastMultipoleMultilevelEmbedder::initFinestLevel(GraphAttributes &GA, const EdgeArray<float>& edgeLength)
 {
-	node v = 0;
-	node w = 0;
-	edge e = 0;
 	//NodeArray<float> perimeter(GA.constGraph(), 0.0);
-	forall_nodes(v, GA.constGraph())
+	for(node v : GA.constGraph().nodes)
 	{
 		GalaxyMultilevel::LevelNodeInfo& nodeInfo = (*(m_pFinestLevel->m_pNodeInfo))[v];
 		nodeInfo.mass = 1.0;
@@ -376,11 +358,11 @@ void FastMultipoleMultilevelEmbedder::initFinestLevel(GraphAttributes &GA, const
 		nodeInfo.radius = r;
 	}
 
-	forall_edges(e, GA.constGraph())
+	for(edge e : GA.constGraph().edges)
 	{
 		GalaxyMultilevel::LevelEdgeInfo& edgeInfo = (*(m_pFinestLevel->m_pEdgeInfo))[e];
-		v = e->source();
-		w = e->target();
+		node v = e->source();
+		node w = e->target();
 		GalaxyMultilevel::LevelNodeInfo& vNodeInfo = (*(m_pFinestLevel->m_pNodeInfo))[v];
 		GalaxyMultilevel::LevelNodeInfo& wNodeInfo = (*(m_pFinestLevel->m_pNodeInfo))[w];
 		edgeInfo.length = (vNodeInfo.radius +  wNodeInfo.radius) + edgeLength[e];
@@ -395,16 +377,14 @@ void FastMultipoleMultilevelEmbedder::initCurrentLevel()
 	m_pCurrentEdgeLength->init(*m_pCurrentGraph, 1.0f);
 	m_pCurrentNodeSize->init(*m_pCurrentGraph, 1.0f);
 	const Graph& G = *(m_pCurrentLevel->m_pGraph);
-	node v = 0;
 
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		GalaxyMultilevel::LevelNodeInfo& nodeInfo = (*(m_pCurrentLevel->m_pNodeInfo))[v];
 		(*m_pCurrentNodeSize)[v] = ((float)nodeInfo.radius);//(((float)nodeInfo.radius));
 	}
 
-	edge e = 0;
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		GalaxyMultilevel::LevelEdgeInfo& edgeInfo = (*(m_pCurrentLevel->m_pEdgeInfo))[e];
 		(*m_pCurrentEdgeLength)[e] = edgeInfo.length*0.25f;
@@ -416,8 +396,8 @@ void FastMultipoleMultilevelEmbedder::assignPositionsFromPrevLevel()
 	float scaleFactor = 1.4f;// 1.4f;//1.4f; //1.4f
 	// init m_pCurrent Pos from m_pLast Pos
 	const Graph& G = *(m_pCurrentLevel->m_pGraph);
-	node v = 0;
-	forall_nodes(v, G)
+
+	for(node v : G.nodes)
 	{
 		GalaxyMultilevel::LevelNodeInfo& nodeInfo = (*(m_pCurrentLevel->m_pNodeInfo))[v];
 		float x = (float)((*m_pLastNodeXPos)[nodeInfo.parent] + (float)randomDouble(-1.0, 1.0));
@@ -452,7 +432,7 @@ void FastMultipoleMultilevelEmbedder::deleteMultiLevelGraphs()
 	}
 }
 
-__uint32 FastMultipoleMultilevelEmbedder::numberOfIterationsByLevelNr(__uint32 levelNr)
+uint32_t FastMultipoleMultilevelEmbedder::numberOfIterationsByLevelNr(uint32_t levelNr)
 {
 	return 200*(levelNr+1)*(levelNr+1);
 }

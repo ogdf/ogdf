@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class DynamicSPQRTree
  *
@@ -64,6 +56,8 @@ namespace ogdf {
 
 /**
  * \brief Linear-time implementation of dynamic SPQR-trees.
+ *
+ * @ingroup decomp
  *
  * The class DynamicSPQRTree maintains the arrangement of the triconnected
  * components of a biconnected multi-graph \e G [Hopcroft, Tarjan 1973]

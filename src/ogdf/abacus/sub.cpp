@@ -1,11 +1,3 @@
-/*
- * $Revision: 3881 $
- *
- * last checkin:
- *   $Author: zey $
- *   $Date: 2014-01-23 15:12:45 +0100 (Thu, 23 Jan 2014) $
- ***************************************************************/
-
 /*!\file
 * \author Matthias Elf
 *
@@ -70,34 +62,34 @@ Sub::Sub(
 	ArrayBuffer<PoolSlot<Variable, Constraint> *> *variables)
 	:
 master_(master),
-	actCon_(0),
-	actVar_(0),
-	father_(0),
-	lp_(0),
-	fsVarStat_(0),
-	lpVarStat_(0),
-	lBound_(0),
-	uBound_(0),
-	slackStat_(0),
-	tailOff_(0),
+	actCon_(nullptr),
+	actVar_(nullptr),
+	father_(nullptr),
+	lp_(nullptr),
+	fsVarStat_(nullptr),
+	lpVarStat_(nullptr),
+	lBound_(nullptr),
+	uBound_(nullptr),
+	slackStat_(nullptr),
+	tailOff_(nullptr),
 	dualBound_(master->dualBound()),
 	nIter_(0),
 	lastIterConAdd_(0),
 	lastIterVarAdd_(0),
-	branchRule_(0),
+	branchRule_(nullptr),
 	allBranchOnSetVars_(true),
 	lpMethod_(LP::Primal),
-	addVarBuffer_(0),
-	addConBuffer_(0),
-	removeVarBuffer_(0),
-	removeConBuffer_(0),
-	xVal_(0),
-	yVal_(0),
+	addVarBuffer_(nullptr),
+	addConBuffer_(nullptr),
+	removeVarBuffer_(nullptr),
+	removeConBuffer_(nullptr),
+	xVal_(nullptr),
+	yVal_(nullptr),
 	genNonLiftCons_(false),
 	level_(1),
 	id_(1),
 	status_(Unprocessed),
-	sons_(0),
+	sons_(nullptr),
 	maxIterations_(master->maxIterations()),
 	nOpt_(0),
 	relativeReserve_(relativeRes),
@@ -206,34 +198,34 @@ master_(master),
 Sub::Sub(Master *master, Sub *father, BranchRule *branchRule)
 	:
 	master_(master),
-	actCon_(0),
-	actVar_(0),
+	actCon_(nullptr),
+	actVar_(nullptr),
 	father_(father),
-	lp_(0),
-	fsVarStat_(0),
-	lpVarStat_(0),
-	lBound_(0),
-	uBound_(0),
-	slackStat_(0),
-	tailOff_(0),
+	lp_(nullptr),
+	fsVarStat_(nullptr),
+	lpVarStat_(nullptr),
+	lBound_(nullptr),
+	uBound_(nullptr),
+	slackStat_(nullptr),
+	tailOff_(nullptr),
 	dualBound_(father->dualBound_),
 	nIter_(0),
 	lastIterConAdd_(0),
 	lastIterVarAdd_(0),
 	branchRule_(branchRule),
 	lpMethod_(LP::Dual),
-	addVarBuffer_(0),
-	addConBuffer_(0),
-	removeVarBuffer_(0),
-	removeConBuffer_(0),
-	xVal_(0),
-	yVal_(0),
-	bInvRow_(0),
+	addVarBuffer_(nullptr),
+	addConBuffer_(nullptr),
+	removeVarBuffer_(nullptr),
+	removeConBuffer_(nullptr),
+	xVal_(nullptr),
+	yVal_(nullptr),
+	bInvRow_(nullptr),
 	genNonLiftCons_(false),
 	level_(father->level() + 1),
 	id_(master->nSub() + 1),
 	status_(Unprocessed),
-	sons_(0),
+	sons_(nullptr),
 	maxIterations_(master->maxIterations()),
 	nOpt_(0),
 	relativeReserve_(father_->relativeReserve_),
@@ -440,7 +432,7 @@ Sub::PHASE Sub::_activate()
 	int nVariables = nVar();
 
 	for (int i = 0; i < nVariables; i++)
-		if ((*actVar_)[i] == 0) {
+		if ((*actVar_)[i] == nullptr) {
 			removeVars.push(i);
 			if ((*fsVarStat_)[i]->fixedOrSet()) {
 				Logger::ifout() << "Sub::_activate(): active fixed or set variable not available in pool\n";
@@ -465,7 +457,7 @@ Sub::PHASE Sub::_activate()
 
 		const int nConstraints = nCon();
 		for (int i = 0; i < nConstraints; i++)
-			if ((*actCon_)[i] == 0) {
+			if ((*actCon_)[i] == nullptr) {
 				removeCons.push(i);
 				delete (*slackStat_)[i];
 			}
@@ -511,14 +503,12 @@ Sub::PHASE Sub::_activate()
 			*   already fixed variables can lead to an immediate \a Fathoming
 			*   of the node.
 			*/
-			FSVarStat *global;     //!< global status of a variable
-			FSVarStat *local;      //!< local status of a variable
 			double     newBound;   //!< the new local bound
 
 			nVariables = nVar();
 			for (int i = 0; i < nVariables; i++) {
-				global = variable(i)->fsVarStat();
-				local  = (*fsVarStat_)[i];
+				FSVarStat *global = variable(i)->fsVarStat();     //!< global status of a variable
+				FSVarStat *local = (*fsVarStat_)[i];      //!< local status of a variable
 				if (global->fixed()) {
 					if (global->contradiction(local)) {
 						infeasibleSub();
@@ -613,7 +603,7 @@ void Sub::_deactivate()
 
 	// delete members redundant for inactive subproblems
 	delete tailOff_;
-	tailOff_ = 0;
+	tailOff_ = nullptr;
 
 	localTimer_.start(true);
 
@@ -621,20 +611,20 @@ void Sub::_deactivate()
 
 	master_->lpTime_.addCentiSeconds(localTimer_.centiSeconds());
 
-	lp_ = 0;
+	lp_ = nullptr;
 
 	delete addVarBuffer_;
-	addVarBuffer_ = 0;
+	addVarBuffer_ = nullptr;
 	delete addConBuffer_;
-	addConBuffer_ = 0;
+	addConBuffer_ = nullptr;
 	delete removeVarBuffer_;
-	removeVarBuffer_ = 0;
+	removeVarBuffer_ = nullptr;
 	delete removeConBuffer_;
-	removeConBuffer_ = 0;
+	removeConBuffer_ = nullptr;
 	delete [] xVal_;
-	xVal_ = 0;
+	xVal_ = nullptr;
 	delete [] yVal_;
-	yVal_ = 0;
+	yVal_ = nullptr;
 
 	// reset the active flags of variables and constraints
 	/* If the node being deactivated has just been fathomed then
@@ -708,7 +698,6 @@ Sub::PHASE Sub::cutting ()
 	*   branching indeed. Only for convenience we modify the active constraints
 	*   at the beginning of the cutting plane algorithm in this case.
 	*/
-	int status;      //!< return status of some called functions
 	bool newValues;  //!< \a true if variable fix or set to new value
 	bool lastIteration = false;
 
@@ -837,7 +826,8 @@ Sub::PHASE Sub::cutting ()
 		*/
 		++nIter_;
 
-		status = solveLp();
+		//!< return status of some called functions
+		int status = solveLp();
 		if (status == 1) return Fathoming;
 		if (status == 2) continue;
 
@@ -1298,7 +1288,7 @@ int Sub::_makeFeasible()
 	status = makeFeasible();
 
 	delete bInvRow_;
-	bInvRow_ = 0;
+	bInvRow_ = nullptr;
 
 	if (status) return 1;
 	else        return 0;
@@ -1540,17 +1530,16 @@ int Sub::addCons(
 {
 	int       status;
 	int       nAdded = 0;
-	PoolSlot<Constraint, Variable> *slot;
 	bool      keepIt;
 	const int nConstraints = constraints.size();
 
 	int       lastInserted = nConstraints;
 
-	if (pool == 0) pool = master_->cutPool();
+	if (pool == nullptr) pool = master_->cutPool();
 
 	for (int i = 0; i < nConstraints; i++) {
-		slot = pool->insert(constraints[i]);
-		if (slot == 0) {
+		PoolSlot<Constraint, Variable> *slot = pool->insert(constraints[i]);
+		if (slot == nullptr) {
 			lastInserted = i - 1;
 			break;
 		}
@@ -1602,7 +1591,7 @@ int Sub::addCons(
 	// get the constraints from the pool slots
 	for (i = 0; i < nNewCons; i++) {
 		newCons[i]->conVar()->activate();
-		cons.push((Constraint*) newCons[i]->conVar());
+		cons.push(static_cast<Constraint*>(newCons[i]->conVar()));
 	}
 
 	// compute the average distance of the added cuts
@@ -1643,17 +1632,16 @@ int Sub::addVars(
 
 	int       status;
 	int       nAdded = 0;
-	PoolSlot<Variable, Constraint> *slot;
 	bool      keepIt;
 	const int nVariables = variables.size();
 	int       lastInserted = nVariables;
 
 
-	if (pool == 0) pool = master_->varPool();
+	if (pool == nullptr) pool = master_->varPool();
 
 	for (int i = 0; i < nVariables; i++) {
-		slot = pool->insert(variables[i]);
-		if (slot == 0) {
+		PoolSlot<Variable, Constraint> *slot = pool->insert(variables[i]);
+		if (slot == nullptr) {
 			lastInserted = i - 1;
 			break;
 		}
@@ -1812,42 +1800,40 @@ Sub::PHASE Sub::branching()
 			return Done;
 		}
 
-		// generate the branching rules
-		/* If no branching rule is found we can fathom the subproblem.
-		*   A branch rule defines the modifications of the current subproblem for
-		*   a new subproblem.
-		*/
-		ArrayBuffer<BranchRule*> rules(nVar(),false);
+	// generate the branching rules
+	/* If no branching rule is found we can fathom the subproblem.
+	*   A branch rule defines the modifications of the current subproblem for
+	*   a new subproblem.
+	*/
+	ArrayBuffer<BranchRule*> rules(nVar(),false);
 
-		localTimer_.start(true);
-		int status = generateBranchRules(rules);
-		master_->branchingTime_.addCentiSeconds( localTimer_.centiSeconds() );
+	localTimer_.start(true);
+	int status = generateBranchRules(rules);
+	master_->branchingTime_.addCentiSeconds( localTimer_.centiSeconds() );
 
-		if (status)
-			return Fathoming;
+	if (status)
+		return Fathoming;
 
-		// generate the sons
-		/* For each branch rule a new subproblem is generated.
-		*/
+	// generate the sons
+	/* For each branch rule a new subproblem is generated.
+	*/
 
-		const int nRules = rules.size();
+	const int nRules = rules.size();
 
-		Logger::ilout(Logger::LL_MEDIUM) << "Number of new problems : " << nRules << endl;
+	Logger::ilout(Logger::LL_MEDIUM) << "Number of new problems : " << nRules << endl;
 
-		sons_ = new ArrayBuffer<Sub*>(nRules,false);
+	sons_ = new ArrayBuffer<Sub*>(nRules,false);
 
-		Sub *newSub;
+	for (int i = 0; i < nRules; i++) {
+		Sub *newSub = generateSon(rules[i]);
+		master_->openSub()->insert(newSub);
+		sons_->push(newSub);
+		master_->treeInterfaceNewNode(newSub);
+	}
 
-		for (int i = 0; i < nRules; i++) {
-			newSub = generateSon(rules[i]);
-			master_->openSub()->insert(newSub);
-			sons_->push(newSub);
-			master_->treeInterfaceNewNode(newSub);
-		}
+	status_ = Processed;
 
-		status_ = Processed;
-
-		return Done;
+	return Done;
 }
 
 
@@ -2510,30 +2496,30 @@ void Sub::fathom(bool reoptimize)
 	}
 
 	delete fsVarStat_;
-	fsVarStat_ = 0;
+	fsVarStat_ = nullptr;
 	delete lpVarStat_;
-	lpVarStat_ = 0;
+	lpVarStat_ = nullptr;
 
 	delete lBound_;
-	lBound_ = 0;
+	lBound_ = nullptr;
 	delete uBound_;
-	uBound_ = 0;
+	uBound_ = nullptr;
 
 	if (slackStat_) {
 		const int nConstraints = nCon();
 		for (int i = 0; i < nConstraints; i++)
 			delete (*slackStat_)[i];
 		delete slackStat_;
-		slackStat_ = 0;
+		slackStat_ = nullptr;
 	}
 
 	delete actCon_;
-	actCon_ = 0;
+	actCon_ = nullptr;
 	delete actVar_;
-	actVar_ = 0;
+	actVar_ = nullptr;
 
 	delete branchRule_;
-	branchRule_ = 0;
+	branchRule_ = nullptr;
 
 	// check if the root node is fathomed
 	if (this == master_->root()) {
@@ -2639,13 +2625,12 @@ int Sub::fixByRedCost(bool &newValues, bool saveCand)
 	*   variable is detected we immediately stop such that the subproblem can
 	*   be fathomed.
 	*/
-	FSVarStat *global;
 	bool       lNewValues;
 
 	const int nVariables = nVar();
 
 	for (int i = 0; i < nVariables; i++) {
-		global = variable(i)->fsVarStat();
+		FSVarStat *global = variable(i)->fsVarStat();
 		if (global->fixed() && global->status() != (*fsVarStat_)[i]->status()) {
 			if (fix(i, global, lNewValues))
 				return 1;
@@ -2669,7 +2654,6 @@ int Sub::_fixByLogImp(bool &newValues)
 
 	// check if \a fixByLogImp() caused contradictions or fixed variables to new values
 	int contra = 0;
-	int stat;
 	bool lNewValues;
 
 	newValues = false;
@@ -2677,7 +2661,7 @@ int Sub::_fixByLogImp(bool &newValues)
 	const int nVariables = variables.size();
 
 	for (int i = 0; i < nVariables; i++) {
-		stat = fix(variables[i], status[i], lNewValues);
+		int stat = fix(variables[i], status[i], lNewValues);
 		if (stat)       contra    = 1;
 		if (lNewValues) newValues = true;
 	}
@@ -2878,12 +2862,11 @@ void Sub::getBase()
 		*   Hence we assign to them the status \a Unknown if the status
 		*   is not \a Basic.
 		*/
-		LPVARSTAT::STATUS newStat;
 
 		const int nVariables = nVar();
 
 		for (int i = 0; i < nVariables; i++) {
-			newStat = lp_->lpVarStat(i);
+			LPVARSTAT::STATUS newStat = lp_->lpVarStat(i);
 			if (newStat != LPVARSTAT::Eliminated) {
 				if ((*fsVarStat_)[i]->fixedOrSet() && newStat != LPVARSTAT::Basic)
 					(*lpVarStat_)[i]->status(LPVARSTAT::Unknown);
@@ -2973,7 +2956,7 @@ int Sub::set(int i, FSVarStat::STATUS newStat, double value, bool &newValue)
 		// If a variable is fixed according to logical implications before
 		// the subproblem is processed, then no \a lp_ is available.
 
-		if (lp_ == 0) newValue = false;
+		if (lp_ == nullptr) newValue = false;
 		else {
 			double x = xVal_[i];
 			if ((newStat == FSVarStat::SetToLowerBound
@@ -3007,7 +2990,7 @@ int Sub::set(int i, FSVarStat::STATUS newStat, double value, bool &newValue)
 
 void Sub::updateBoundInLp(int i)
 {
-	if (lp_ == 0 || lp_->eliminated(i)) return;
+	if (lp_ == nullptr || lp_->eliminated(i)) return;
 
 	double newBound = (*lBound_)[i];
 
@@ -3261,7 +3244,7 @@ void Sub::activateVars(ArrayBuffer<PoolSlot<Variable, Constraint> *> &newVars)
 	const int nNewVars = newVars.size();
 
 	for (int i = 0; i < nNewVars; i++) {
-		v = (Variable *) newVars[i]->conVar();
+		v = static_cast<Variable *>(newVars[i]->conVar());
 
 		(*fsVarStat_)[n + i] = new FSVarStat(v->fsVarStat());
 		(*lpVarStat_)[n + i] = new LPVARSTAT(LPVARSTAT::Unknown);
@@ -3286,11 +3269,10 @@ void Sub::addVarsToLp(ArrayBuffer<PoolSlot<Variable, Constraint>*> &newVars,
 	ArrayBuffer<FSVarStat*> stat(nNewVars,false);
 	ArrayBuffer<double>     lb(nNewVars,false);
 	ArrayBuffer<double>     ub(nNewVars,false);
-	Variable          *v;
 
 	// get the new variables together with their status and bounds
 	for (int i = 0; i < nNewVars; i++) {
-		v = (Variable *) newVars[i]->conVar();
+		Variable *v = static_cast<Variable *>(newVars[i]->conVar());
 
 		vars.push(v);
 
@@ -3499,7 +3481,7 @@ int Sub::_initMakeFeas()
 	// problem specifically in the function \a initMakeFeas().
 	ArrayBuffer<InfeasCon*>   *infeasCon = lp_->infeasCon();
 	ArrayBuffer<Variable*>  newVars(infeasCon->size(),false);
-	Pool<Variable, Constraint> *pool = 0;
+	Pool<Variable, Constraint> *pool = nullptr;
 
 	int status = initMakeFeas(*infeasCon, newVars, &pool);
 
@@ -3511,14 +3493,13 @@ int Sub::_initMakeFeas()
 	const int nNewVars = newVars.size();
 
 	ArrayBuffer<PoolSlot<Variable, Constraint> *> newSlots(nNewVars,false);
-	PoolSlot<Variable, Constraint> *slot;
 
-	if (pool == 0) pool = master_->varPool();
+	if (pool == nullptr) pool = master_->varPool();
 
 	for (int i = 0; i < nNewVars; i++) {
-		slot = pool->insert(newVars[i]);
+		PoolSlot<Variable, Constraint> *slot = pool->insert(newVars[i]);
 
-		if (slot == 0) {
+		if (slot == nullptr) {
 			Logger::ifout() << "Sub::_initMakeFeas(): pool too small to insert all constraints\n";
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcMakeFeasible);
 		}

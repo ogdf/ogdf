@@ -86,7 +86,7 @@ public:
      /** Returns a new matrix in reverse order without gaps
          Is allowed to return NULL if doesn't want to have row copy */
      virtual ClpMatrixBase * reverseOrderedCopy() const {
-          return NULL;
+          return nullptr;
      }
 
      /// Returns number of elements in column part of basis
@@ -102,7 +102,7 @@ public:
      /** Creates scales for column copy (rowCopy in model may be modified)
          default does not allow scaling
          returns non-zero if no scaling done */
-     virtual int scale(ClpModel * , const ClpSimplex * = NULL) const {
+     virtual int scale(ClpModel * , const ClpSimplex * = nullptr) const {
           return 1;
      }
      /** Scales rowCopy if column copy scaled
@@ -283,7 +283,7 @@ public:
                                  const double * x, double * y,
                                  const double * rowScale,
                                  const double * columnScale,
-                                 double * spare = NULL) const;
+                                 double * spare = nullptr) const;
 #if COIN_LONG_WORK
      // For long double versions (aborts if not supported)
      virtual void times(CoinWorkDouble scalar,

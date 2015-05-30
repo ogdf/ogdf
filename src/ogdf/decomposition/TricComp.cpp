@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements Hopcroft/Tarjan algorithm for finding the
  * triconnected components of a biconnected multi-graph
@@ -42,7 +34,7 @@
  ***************************************************************/
 
 
-#include "TricComp.h"
+#include <ogdf/internal/decomposition/TricComp.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/NodeSet.h>
@@ -95,8 +87,7 @@ TricComp::TricComp (const Graph& G) :
 	if (n <= 2) {
 		OGDF_ASSERT(m >= 3);
 		CompStruct &C = newComp();
-		edge e;
-		forall_edges(e,GC)
+		for (edge e : GC.edges)
 			C << e;
 		C.m_type = bond;
 		return;
@@ -107,17 +98,16 @@ TricComp::TricComp (const Graph& G) :
 
 	// initialize arrays
 	m_NUMBER.init(GC,0); m_LOWPT1.init(GC);
-	m_LOWPT2.init(GC);   m_FATHER.init(GC,0);
+	m_LOWPT2.init(GC);   m_FATHER.init(GC,nullptr);
 	m_ND    .init(GC);   m_DEGREE.init(GC);
-	m_TREE_ARC.init(GC,0);
+	m_TREE_ARC.init(GC,nullptr);
 	m_NODEAT = Array<node>(1,n);
 
 	m_numCount = 0;
 	m_start = GC.firstNode();
-	DFS1(GC,m_start,0);
+	DFS1(GC,m_start,nullptr);
 
-	edge e;
-	forall_edges(e,GC) {
+	for (edge e : GC.edges) {
 		bool up = (m_NUMBER[e->target()] - m_NUMBER[e->source()] > 0);
 		if ((up && m_TYPE[e] == frond) || (!up && m_TYPE[e] == tree))
 			GC.reverseEdge(e);
@@ -125,8 +115,7 @@ TricComp::TricComp (const Graph& G) :
 
 #ifdef TRIC_COMP_OUTPUT
 	cout << "\nnode\tNUMBER\tFATHER\tLOWPT1\tLOWPT2\tND" << endl;
-	node v;
-	forall_nodes(v,GC) {
+	for (node v : GC.nodes) {
 		cout << GC.original(v) << ":  \t" << m_NUMBER[v] << "   \t";
 		if (m_FATHER[v] == 0) cout << "nil \t";
 		else cout << GC.original(m_FATHER[v]) << "   \t";
@@ -135,16 +124,15 @@ TricComp::TricComp (const Graph& G) :
 #endif
 
 	m_A.init(GC);
-	m_IN_ADJ.init(GC,0);
+	m_IN_ADJ.init(GC,nullptr);
 	buildAcceptableAdjStruct(GC);
 
 #ifdef TRIC_COMP_OUTPUT
 	cout << "\nadjaceny lists:" << endl;
-	forall_nodes(v,GC) {
+	for (node v : GC.nodes) {
 		cout << v << "\t";
-		ListConstIterator<edge> itE;
-		for(itE = m_A[v].begin(); itE.valid(); ++itE) {
-			printOs(*itE);
+		for(edge ei : m_A[v]) {
+			printOs(ei);
 		}
 		cout << endl;
 	}
@@ -154,17 +142,17 @@ TricComp::TricComp (const Graph& G) :
 
 #ifdef TRIC_COMP_OUTPUT
 	cout << "\nnode\tNEWNUM\tLOWPT1\tLOWPT2\tHIGHPT" << endl;
-	forall_nodes(v,GC) {
+	for (node v : GC.nodes) {
 		cout << GC.original(v) << ":  \t" << m_NEWNUM[v] << "   \t";
 		cout << m_LOWPT1[v] << "   \t" << m_LOWPT2[v] << "   \t";
 		ListConstIterator<int> itH;
-		for(itH = m_HIGHPT[v].begin(); itH.valid(); ++itH)
-			cout << *itH << " ";
+		for(int i : m_HIGHPT[v])
+			cout << i << " ";
 		cout << endl;
 	}
 
 	cout << "\nedges starting a path:" << endl;
-	forall_edges(e,GC) {
+	for (edge e : GC.edges) {
 		if (m_START[e]) {
 			printOs(e);
 		}
@@ -223,8 +211,8 @@ TricComp::TricComp (const Graph& G) :
 		}
 
 		ListConstIterator<edge> itE;
-		for(itE = L.begin(); itE.valid(); ++itE)
-			printOs(*itE);
+		for(edge ei : L)
+			printOs(ei);
 		cout << "\n";
 	}
 #endif
@@ -246,7 +234,7 @@ TricComp::TricComp(const Graph &G, bool &isTric, node &s1, node &s2)
 	const int n = GC.numberOfNodes();
 	const int m = GC.numberOfEdges();
 
-	s1 = s2 = 0;
+	s1 = s2 = nullptr;
 
 	if(n == 0) {
 		isTric = true; return;
@@ -258,38 +246,37 @@ TricComp::TricComp(const Graph &G, bool &isTric, node &s1, node &s2)
 	// initialize arrays
 	m_TYPE.init(GC,unseen);
 	m_NUMBER.init(GC,0); m_LOWPT1.init(GC);
-	m_LOWPT2.init(GC);   m_FATHER.init(GC,0);
+	m_LOWPT2.init(GC);   m_FATHER.init(GC,nullptr);
 	m_ND    .init(GC);   m_DEGREE.init(GC);
 	m_NODEAT.init(1,n);
 
-	m_TREE_ARC.init(GC,0); // probably not required
+	m_TREE_ARC.init(GC,nullptr); // probably not required
 
 	m_numCount = 0;
 	m_start = GC.firstNode();
-	DFS1(GC,m_start,0,s1);
+	DFS1(GC,m_start,nullptr,s1);
 
 	// graph not even connected?
 	if(m_numCount < n) {
-		s1 = 0; isTric = false;
+		s1 = nullptr; isTric = false;
 		return;
 	}
 
 	// graph no biconnected?
-	if(s1 != 0) {
+	if(s1 != nullptr) {
 		s1 = GC.original(s1);
 		isTric = false; // s1 is a cut vertex
 		return;
 	}
 
-	edge e;
-	forall_edges(e,GC) {
+	for (edge e : GC.edges) {
 		bool up = (m_NUMBER[e->target()] - m_NUMBER[e->source()] > 0);
 		if ((up && m_TYPE[e] == frond) || (!up && m_TYPE[e] == tree))
 			GC.reverseEdge(e);
 	}
 
 	m_A.init(GC);
-	m_IN_ADJ.init(GC,0);
+	m_IN_ADJ.init(GC,nullptr);
 	buildAcceptableAdjStruct(GC);
 
 	DFS2(GC);
@@ -386,19 +373,14 @@ bool TricComp::checkComp()
 		cout << "GC contains loops!" << endl;
 	}
 
-	int i;
-	edge e;
-	node v;
-
 	EdgeArray<int> count(GC,0);
-	for (i = 0; i < m_numComp; i++) {
-		ListIterator<edge> itE;
-		for(itE = m_component[i].m_edges.begin(); itE.valid(); ++itE)
-			count[*itE]++;
+	for (int i = 0; i < m_numComp; i++) {
+		for(edge e : m_component[i].m_edges)
+			count[e]++;
 	}
 
-	forall_edges(e,GC) {
-		if (GC.original(e) == 0) {
+	for (edge e : GC.edges) {
+		if (GC.original(e) == nullptr) {
 			if (count[e] != 2) {
 				ok = false;
 				cout << "virtual edge contained " << count[e];
@@ -422,17 +404,16 @@ bool TricComp::checkComp()
 	NodeSet S(GC);
 	NodeArray<node> map(GC);
 
-	for(i = 0; i < m_numComp; i++) {
+	for(int i = 0; i < m_numComp; i++) {
 		CompStruct &C = m_component[i];
 		const List<edge> &L = C.m_edges;
 		if (L.size() == 0) continue;
 
 		S.clear();
 
-		ListConstIterator<edge> itE;
-		for(itE = L.begin(); itE.valid(); ++itE) {
-			S.insert((*itE)->source());
-			S.insert((*itE)->target());
+		for(edge e : L) {
+			S.insert(e->source());
+			S.insert(e->target());
 		}
 
 		const int n = S.size();
@@ -457,13 +438,12 @@ bool TricComp::checkComp()
 
 			} else {
 				Graph Gp;
-				ListConstIterator<node> itV;
-				for(itV = S.nodes().begin(); itV.valid(); ++itV)
-					map[*itV] = Gp.newNode();
-				for(itE = L.begin(); itE.valid(); ++itE)
-					Gp.newEdge(map[(*itE)->source()],map[(*itE)->target()]);
+				for(node v : S.nodes())
+					map[v] = Gp.newNode();
+				for(edge e : L)
+					Gp.newEdge(map[e->source()],map[e->target()]);
 
-				forall_nodes(v,Gp)
+				for (node v : Gp.nodes)
 					if (v->degree() != 2) {
 						ok = false;
 						cout << "polygon [" << i << "] contains node with degree " << v->degree() << endl;
@@ -484,10 +464,10 @@ bool TricComp::checkComp()
 			{
 			Graph Gp;
 			ListConstIterator<node> itV;
-			for(itV = S.nodes().begin(); itV.valid(); ++itV)
-				map[*itV] = Gp.newNode();
-			for(itE = L.begin(); itE.valid(); ++itE)
-				Gp.newEdge(map[(*itE)->source()],map[(*itE)->target()]);
+			for(node v : S.nodes())
+				map[v] = Gp.newNode();
+			for(edge e : L)
+				Gp.newEdge(map[e->source()],map[e->target()]);
 
 			if (!isTriconnectedPrimitive(Gp)) {
 				ok = false;
@@ -556,7 +536,7 @@ void TricComp::assembleTriconnectedComponents()
 				itNext = it.succ();
 				edge e  = *it;
 
-				if (GC.original(e) != 0) continue;
+				if (GC.original(e) != nullptr) continue;
 
 				int j = comp1[e];
 				ListIterator<edge> it2;
@@ -652,7 +632,7 @@ void TricComp::DFS1 (const Graph& G, node v, node u)
 
 void TricComp::DFS1 (const Graph& G, node v, node u, node &s1)
 {
-	node firstSon = 0;
+	node firstSon = nullptr;
 	edge e;
 
 	m_NUMBER[v] = ++m_numCount;
@@ -671,14 +651,14 @@ void TricComp::DFS1 (const Graph& G, node v, node u, node &s1)
 
 		if (m_NUMBER[w] == 0) {
 			m_TYPE[e] = tree;
-			if(firstSon == 0) firstSon = w;
+			if(firstSon == nullptr) firstSon = w;
 
 			m_TREE_ARC[w] = e;
 
 			DFS1(G,w,v,s1);
 
 			// check for cut vertex
-			if(m_LOWPT1[w] >= m_NUMBER[v] && (w != firstSon || u != 0))
+			if(m_LOWPT1[w] >= m_NUMBER[v] && (w != firstSon || u != nullptr))
 				s1 = v;
 
 			if (m_LOWPT1[w] < m_LOWPT1[v]) {
@@ -716,11 +696,10 @@ void TricComp::DFS1 (const Graph& G, node v, node u, node &s1)
 
 void TricComp::buildAcceptableAdjStruct(const Graph& G)
 {
-	edge e;
 	int max = 3*G.numberOfNodes()+2;
 	Array<List<edge> > BUCKET(1,max);
 
-	forall_edges(e,G) {
+	for (edge e : G.edges) {
 		edgeType t = m_TYPE[e];
 		if (t == removed) continue;
 
@@ -732,11 +711,8 @@ void TricComp::buildAcceptableAdjStruct(const Graph& G)
 	}
 
 	for (int i = 1; i <= max; i++) {
-		ListConstIterator<edge> it;
-		for(it = BUCKET[i].begin(); it.valid(); ++it) {
-			e = *it;
+		for (edge e : BUCKET[i])
 			m_IN_ADJ[e] = m_A[e->source()].pushBack(e);
-		}
 	}
 }
 
@@ -749,9 +725,7 @@ void TricComp::pathFinder(const Graph& G, node v)
 {
 	m_NEWNUM[v] = m_numCount - m_ND[v] + 1;
 
-	ListConstIterator<edge> it;
-	for(it = m_A[v].begin(); it.valid(); ++it) {
-		edge e = *it;
+	for(edge e : m_A[v]) {
 		node w = e->opposite(v);
 
 		if (m_newPath) {
@@ -782,13 +756,12 @@ void TricComp::DFS2 (const Graph& G)
 
 	pathFinder(G,m_start);
 
-	node v;
 	Array<int> old2new(1,G.numberOfNodes());
 
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 		old2new[m_NUMBER[v]] = m_NEWNUM[v];
 
-	forall_nodes(v,G) {
+	for (node v : G.nodes) {
 		m_NODEAT[m_NEWNUM[v]] = v;
 		m_LOWPT1[v] = old2new[m_LOWPT1[v]];
 		m_LOWPT2[v] = old2new[m_LOWPT2[v]];
@@ -804,9 +777,8 @@ void TricComp::DFS2 (const Graph& G)
 
 void TricComp::pathSearch (const Graph& G, node v)
 {
-	node w;
 	edge e;
-	int y, vnum = m_NEWNUM[v], wnum;
+	int y, vnum = m_NEWNUM[v];
 	int a, b;
 
 	List<edge> &Adj = m_A[v];
@@ -817,7 +789,8 @@ void TricComp::pathSearch (const Graph& G, node v)
 	{
 		itNext = it.succ();
 		e = *it;
-		w = e->target(); wnum = m_NEWNUM[w];
+		node w = e->target();
+		int wnum = m_NEWNUM[w];
 
 		if (m_TYPE[e] == tree) {
 
@@ -854,7 +827,7 @@ void TricComp::pathSearch (const Graph& G, node v)
 				}
 
 				else {
-					edge e_ab = 0;
+					edge e_ab = nullptr;
 
 					if (m_DEGREE[w] == 2 && m_NEWNUM[m_A[w].front()->target()] > wnum) {
 #ifdef TRIC_COMP_OUTPUT
@@ -924,7 +897,7 @@ void TricComp::pathSearch (const Graph& G, node v)
 						x = m_NODEAT[b];
 					}
 
-					if (e_ab != 0) {
+					if (e_ab != nullptr) {
 						CompStruct &C = newComp(bond);
 						C << e_ab << eVirt;
 
@@ -1054,9 +1027,8 @@ void TricComp::pathSearch (const Graph& G, node v)
 // simplified path search for triconnectivity test
 bool TricComp::pathSearch (const Graph &G, node v, node &s1, node &s2)
 {
-	node w;
 	edge e;
-	int y, vnum = m_NEWNUM[v], wnum;
+	int y, vnum = m_NEWNUM[v];
 	int a, b;
 
 	List<edge> &Adj = m_A[v];
@@ -1067,7 +1039,8 @@ bool TricComp::pathSearch (const Graph &G, node v, node &s1, node &s2)
 	{
 		itNext = it.succ();
 		e = *it;
-		w = e->target(); wnum = m_NEWNUM[w];
+		node w = e->target();
+		int wnum = m_NEWNUM[w];
 
 		if (m_TYPE[e] == tree) {
 

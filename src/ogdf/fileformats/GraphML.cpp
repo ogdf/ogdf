@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of GraphML string conversion functions.
  *
@@ -175,7 +167,7 @@ static inline E toEnum(
 
 
 // Map is lazily-evaluated (this could be avoided with C++11 constexpr).
-static Hashing<std::string, Attribute> *attrMap = NULL;
+static Hashing<std::string, Attribute> *attrMap = nullptr;
 
 Attribute toAttribute(const std::string &str)
 {
@@ -186,7 +178,7 @@ Attribute toAttribute(const std::string &str)
 
 
 // Same as attrMap but with shapes.
-static Hashing<std::string, Shape> *shapeMap = NULL;
+static Hashing<std::string, Shape> *shapeMap = nullptr;
 
 Shape toShape(const std::string &str)
 {
@@ -195,7 +187,7 @@ Shape toShape(const std::string &str)
 
 
 // Same as attrMap but with arrows.
-static Hashing<std::string, EdgeArrow> *arrowMap = NULL;
+static Hashing<std::string, EdgeArrow> *arrowMap = nullptr;
 
 EdgeArrow toArrow(const std::string &str)
 {
@@ -204,7 +196,7 @@ EdgeArrow toArrow(const std::string &str)
 
 
 // Same as attrMap but with node types.
-static Hashing<std::string, Graph::NodeType> *nodeTypeMap = NULL;
+static Hashing<std::string, Graph::NodeType> *nodeTypeMap = nullptr;
 
 Graph::NodeType toNodeType(const std::string &str)
 {
@@ -214,7 +206,7 @@ Graph::NodeType toNodeType(const std::string &str)
 }
 
 // Same as attrMap but with edge types.
-static Hashing<std::string, Graph::EdgeType> *edgeTypeMap = NULL;
+static Hashing<std::string, Graph::EdgeType> *edgeTypeMap = nullptr;
 
 Graph::EdgeType toEdgeType(const std::string &str)
 {

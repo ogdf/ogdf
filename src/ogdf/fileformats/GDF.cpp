@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief String conversions and Hashing for GDF fileformat
  *
@@ -104,7 +96,7 @@ std::string toString(const Shape &shape)
 }
 
 
-static Hashing<std::string, NodeAttribute> *nodeAttrMap = NULL;
+static Hashing<std::string, NodeAttribute> nodeAttrMap;
 
 NodeAttribute toNodeAttribute(const std::string &str)
 {
@@ -114,7 +106,7 @@ NodeAttribute toNodeAttribute(const std::string &str)
 }
 
 
-static Hashing<std::string, EdgeAttribute> *edgeAttrMap = NULL;
+static Hashing<std::string, EdgeAttribute> edgeAttrMap;
 
 EdgeAttribute toEdgeAttribute(const std::string &str)
 {
@@ -124,7 +116,7 @@ EdgeAttribute toEdgeAttribute(const std::string &str)
 }
 
 
-static Hashing<std::string, Shape> *shapeMap = NULL;
+static Hashing<std::string, Shape> shapeMap;
 
 Shape toShape(const std::string &str)
 {

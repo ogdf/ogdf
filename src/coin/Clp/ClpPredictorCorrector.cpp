@@ -1040,7 +1040,7 @@ CoinWorkDouble ClpPredictorCorrector::findStepLength( int phase)
                     }
                }
                if (upperBound(iColumn)) {
-                    CoinWorkDouble delta = - deltaSU_[iColumn];;
+                    CoinWorkDouble delta = - deltaSU_[iColumn];
                     CoinWorkDouble w1 = deltaW_[iColumn];
                     CoinWorkDouble newT = wVec_[iColumn] + w1;
                     if (wVec_[iColumn] > tolerance) {
@@ -1995,7 +1995,7 @@ int ClpPredictorCorrector::createSolution()
                setFixedOrFree(iColumn);
                setLowerBound(iColumn);
                setUpperBound(iColumn);
-               dj_[iColumn] = primalValue;;
+               dj_[iColumn] = primalValue;
                solution_[iColumn] = lower_[iColumn];
                diagonal_[iColumn] = 0.0;
                deltaX_[iColumn] = 0.0;
@@ -2073,7 +2073,7 @@ int ClpPredictorCorrector::createSolution()
      //printf("normal safe dual value of %g, primal value of %g\n",
      // safeObjectiveValue,initialValue);
      //safeObjectiveValue=CoinMax(2.0,1.0e-1*safeObjectiveValue);
-     //initialValue=CoinMax(100.0,1.0e-1*initialValue);;
+     //initialValue=CoinMax(100.0,1.0e-1*initialValue);
      //printf("temp safe dual value of %g, primal value of %g\n",
      // safeObjectiveValue,initialValue);
      CoinWorkDouble zwLarge = 1.0e2 * initialValue;

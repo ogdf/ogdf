@@ -1,11 +1,3 @@
-/*
- * $Revision: 2965 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:10:26 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class Constraint, which is a base
  * class for classes responsible for specifying and storing
@@ -64,7 +56,7 @@ bool Constraint::storeToOgml(int id, ostream & os, int indentStep)
 /*
 void Constraint::generateIndent(char ** indent, const int & indentSize)
 {
-	// free memory block (INFO: indent must point to an array of chars or to NULL)
+	// free memory block (INFO: indent must point to an array of chars or to nullptr)
 	delete [] *indent;
 	// instantiate array of chars
 	*indent = new char[indentSize + 1];

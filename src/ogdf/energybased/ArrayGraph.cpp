@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class ArrayGraph.
  *
@@ -40,33 +32,33 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "ArrayGraph.h"
-#include "FastUtils.h"
+#include <ogdf/internal/energybased/ArrayGraph.h>
+#include <ogdf/internal/energybased/FastUtils.h>
 
 namespace ogdf {
 
 ArrayGraph::ArrayGraph():   m_numNodes(0),
 							m_numEdges(0),
-							m_nodeXPos(0),
-							m_nodeYPos(0),
-							m_nodeSize(0),
-							m_nodeMoveRadius(0),
-							m_desiredEdgeLength(0),
-							m_nodeAdj(0),
-							m_edgeAdj(0)
+							m_nodeXPos(nullptr),
+							m_nodeYPos(nullptr),
+							m_nodeSize(nullptr),
+							m_nodeMoveRadius(nullptr),
+							m_desiredEdgeLength(nullptr),
+							m_nodeAdj(nullptr),
+							m_edgeAdj(nullptr)
 {
 }
 
-ArrayGraph::ArrayGraph(__uint32 maxNumNodes, __uint32 maxNumEdges) :
+ArrayGraph::ArrayGraph(uint32_t maxNumNodes, uint32_t maxNumEdges) :
 							m_numNodes(maxNumNodes),
 							m_numEdges(maxNumEdges),
-							m_nodeXPos(0),
-							m_nodeYPos(0),
-							m_nodeSize(0),
-							m_nodeMoveRadius(0),
-							m_desiredEdgeLength(0),
-							m_nodeAdj(0),
-							m_edgeAdj(0)
+							m_nodeXPos(nullptr),
+							m_nodeYPos(nullptr),
+							m_nodeSize(nullptr),
+							m_nodeMoveRadius(nullptr),
+							m_desiredEdgeLength(nullptr),
+							m_nodeAdj(nullptr),
+							m_edgeAdj(nullptr)
 {
 	allocate(maxNumNodes, maxNumEdges);
 }
@@ -74,13 +66,13 @@ ArrayGraph::ArrayGraph(__uint32 maxNumNodes, __uint32 maxNumEdges) :
 ArrayGraph::ArrayGraph(const GraphAttributes& GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize) :
 							m_numNodes(0),
 							m_numEdges(0),
-							m_nodeXPos(0),
-							m_nodeYPos(0),
-							m_nodeSize(0),
-							m_nodeMoveRadius(0),
-							m_desiredEdgeLength(0),
-							m_nodeAdj(0),
-							m_edgeAdj(0)
+							m_nodeXPos(nullptr),
+							m_nodeYPos(nullptr),
+							m_nodeSize(nullptr),
+							m_nodeMoveRadius(nullptr),
+							m_desiredEdgeLength(nullptr),
+							m_nodeAdj(nullptr),
+							m_edgeAdj(nullptr)
 {
 	allocate(GA.constGraph().numberOfNodes(), GA.constGraph().numberOfEdges());
 	readFrom(GA, edgeLength, nodeSize);
@@ -92,17 +84,17 @@ ArrayGraph::~ArrayGraph(void)
 		deallocate();
 }
 
-void ArrayGraph::allocate(__uint32 numNodes, __uint32 numEdges)
+void ArrayGraph::allocate(uint32_t numNodes, uint32_t numEdges)
 {
-	m_nodeXPos = (float*)MALLOC_16(numNodes*sizeof(float));
-	m_nodeYPos = (float*)MALLOC_16(numNodes*sizeof(float));
-	m_nodeSize = (float*)MALLOC_16(numNodes*sizeof(float));
-	m_nodeMoveRadius = (float*)MALLOC_16(numNodes*sizeof(float));
-	m_nodeAdj = (NodeAdjInfo*)MALLOC_16(numNodes*sizeof(NodeAdjInfo));
-	m_desiredEdgeLength = (float*)MALLOC_16(numEdges*sizeof(float));
-	m_edgeAdj = (EdgeAdjInfo*)MALLOC_16(numEdges*sizeof(EdgeAdjInfo));
+	m_nodeXPos = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
+	m_nodeYPos = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
+	m_nodeSize = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
+	m_nodeMoveRadius = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
+	m_nodeAdj = static_cast<NodeAdjInfo*>(MALLOC_16(numNodes*sizeof(NodeAdjInfo)));
+	m_desiredEdgeLength = static_cast<float*>(MALLOC_16(numEdges*sizeof(float)));
+	m_edgeAdj = static_cast<EdgeAdjInfo*>(MALLOC_16(numEdges*sizeof(EdgeAdjInfo)));
 
-	for (__uint32 i=0; i < numNodes; i++)
+	for (uint32_t i=0; i < numNodes; i++)
 		nodeInfo(i).degree = 0;
 }
 
@@ -117,10 +109,10 @@ void ArrayGraph::deallocate()
 	FREE_16(m_edgeAdj);
 }
 
-void ArrayGraph::pushBackEdge(__uint32 a, __uint32 b, float desiredEdgeLength)
+void ArrayGraph::pushBackEdge(uint32_t a, uint32_t b, float desiredEdgeLength)
 {
 	// get the index of a free element
-	__uint32 e_index = m_numEdges++;
+	uint32_t e_index = m_numEdges++;
 
 	// get the pair entry
 	EdgeAdjInfo& e = edgeInfo(e_index);
@@ -177,14 +169,13 @@ void ArrayGraph::pushBackEdge(__uint32 a, __uint32 b, float desiredEdgeLength)
 void ArrayGraph::readFrom(const GraphAttributes& GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize)
 {
 	const Graph& G = GA.constGraph();
-	NodeArray<__uint32> nodeIndex(G);
+	NodeArray<uint32_t> nodeIndex(G);
 
-	node v;
 	m_numNodes = 0;
 	m_numEdges = 0;
 	m_avgNodeSize = 0;
 	m_desiredAvgEdgeLength = 0;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		m_nodeXPos[m_numNodes] = (float)GA.x(v);
 		m_nodeYPos[m_numNodes] = (float)GA.y(v);
@@ -195,8 +186,7 @@ void ArrayGraph::readFrom(const GraphAttributes& GA, const EdgeArray<float>& edg
 	}
 	m_avgNodeSize = m_avgNodeSize / (double)m_numNodes;
 
-	edge e;
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		pushBackEdge(nodeIndex[e->source()], nodeIndex[e->target()], (float)edgeLength[e]);
 	}
@@ -206,9 +196,8 @@ void ArrayGraph::readFrom(const GraphAttributes& GA, const EdgeArray<float>& edg
 void ArrayGraph::writeTo(GraphAttributes& GA)
 {
 	const Graph& G = GA.constGraph();
-	node v;
-	__uint32 i = 0;
-	forall_nodes(v, G)
+	uint32_t i = 0;
+	for(node v : G.nodes)
 	{
 		GA.x(v) = m_nodeXPos[i];
 		GA.y(v) = m_nodeYPos[i];
@@ -218,7 +207,7 @@ void ArrayGraph::writeTo(GraphAttributes& GA)
 
 void ArrayGraph::transform(float translate, float scale)
 {
-	for (__uint32 i=0; i < m_numNodes; i++)
+	for (uint32_t i=0; i < m_numNodes; i++)
 	{
 		m_nodeXPos[i] = (m_nodeXPos[i] + translate)*scale;
 		m_nodeYPos[i] = (m_nodeYPos[i] + translate)*scale;
@@ -230,7 +219,7 @@ void ArrayGraph::centerGraph()
 	double dx_sum = 0;
 	double dy_sum = 0;
 
-	for (__uint32 i=0; i < m_numNodes; i++)
+	for (uint32_t i=0; i < m_numNodes; i++)
 	{
 		dx_sum += m_nodeXPos[i];
 		dy_sum += m_nodeYPos[i];
@@ -238,7 +227,7 @@ void ArrayGraph::centerGraph()
 
 	dx_sum /= (double)m_numNodes;
 	dy_sum /= (double)m_numNodes;
-	for (__uint32 i=0; i < m_numNodes; i++)
+	for (uint32_t i=0; i < m_numNodes; i++)
 	{
 		m_nodeXPos[i] -= (float)dx_sum;
 		m_nodeYPos[i] -= (float)dy_sum;

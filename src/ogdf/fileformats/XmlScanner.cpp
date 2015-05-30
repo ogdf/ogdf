@@ -1,11 +1,3 @@
-/*
- * $Revision: 2977 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-06 14:33:34 +0100 (Tue, 06 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class XmlScanner serving the
  *        class XmlParser
@@ -57,7 +49,7 @@ namespace ogdf {
 
 		// Create current token string
 		m_pCurrentTokenString = new char[LineBuffer::c_maxStringLength];
-		if (m_pCurrentTokenString == 0)
+		if (m_pCurrentTokenString == nullptr)
 			OGDF_THROW(InsufficientMemoryException);
 		for (int i = 0; i < LineBuffer::c_maxStringLength; i++){
 			m_pCurrentTokenString[i] = '0';
@@ -226,7 +218,7 @@ namespace ogdf {
 			(currentCharacter == '.'))
 		{
 			// Put a pointer to the beginning of the quoted text
-			LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();;
+			LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
 
 			// Read until until an invalid character occurs
 			currentCharacter = m_pLineBuffer->moveToNextCharacter();

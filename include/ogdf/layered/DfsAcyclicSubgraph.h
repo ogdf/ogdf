@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class DfsAcyclicSubgraph
  *
@@ -65,7 +57,7 @@ class GraphAttributes;
 class OGDF_EXPORT DfsAcyclicSubgraph : public AcyclicSubgraphModule {
 public:
 	//! Computes the set of edges \a arcSet, which have to be deleted in the acyclic subgraph.
-	void call (const Graph &G, List<edge> &arcSet);
+	virtual void call (const Graph &G, List<edge> &arcSet) override;
 
 	//! Call for UML graph.
 	/**

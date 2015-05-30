@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements the class NonPlanarCore.
  *
@@ -47,16 +39,19 @@
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceArray.h>
+#include <ogdf/basic/simple_graph_alg.h>
 
 
 namespace ogdf {
 
 
 NonPlanarCore::NonPlanarCore(const Graph &G) : m_pOriginal(&G), m_orig(m_graph),
-	m_real(m_graph,0), m_mincut(m_graph), m_cost(m_graph)
+	m_real(m_graph,nullptr), m_mincut(m_graph), m_cost(m_graph)
 {
 	if(G.numberOfNodes() <= 4)
 		return; // nothing to do; planar graph => empty core
+
+	OGDF_ASSERT(isBiconnected(G));
 
 	// Build SPQR-tree of graph
 	StaticSPQRTree T(G);
@@ -65,25 +60,23 @@ NonPlanarCore::NonPlanarCore(const Graph &G) : m_pOriginal(&G), m_orig(m_graph),
 	NodeArray<bool> mark;
 	markCore(T,mark);
 
-	NodeArray<node> map(G,0);
-	NodeArray<node> mapAux(G,0);
+	NodeArray<node> map(G,nullptr);
+	NodeArray<node> mapAux(G,nullptr);
 	const Graph &tree = T.tree();
 
-	node v;
-	forall_nodes(v,tree) {
+	for (node v : tree.nodes) {
 		if(mark[v] == false)
 			continue;
 
 		Skeleton &S = T.skeleton(v);
-		edge e;
-		forall_edges(e,S.getGraph()) {
+		for (edge e : S.getGraph().edges) {
 			node src = S.original(e->source());
 			node tgt = S.original(e->target());
 
-			if(map[src] == 0) {
+			if(map[src] == nullptr) {
 				m_orig[map[src] = m_graph.newNode()] = S.original(e->source());
 			}
-			if(map[tgt] == 0) {
+			if(map[tgt] == nullptr) {
 				m_orig[map[tgt] = m_graph.newNode()] = S.original(e->target());
 			}
 
@@ -104,8 +97,7 @@ NonPlanarCore::NonPlanarCore(const Graph &G) : m_pOriginal(&G), m_orig(m_graph),
 		}
 	}
 
-	edge e;
-	forall_edges(e, m_graph) {
+	for (edge e : m_graph.edges) {
 		m_cost[e] = m_mincut[e].size();
 	}
 }
@@ -123,8 +115,7 @@ void NonPlanarCore::markCore(const SPQRTree &T, NodeArray<bool> &mark)
 
 	Queue<node> Q;
 
-	node v;
-	forall_nodes(v,tree) {
+	for (node v : tree.nodes) {
 		degree[v] = v->degree();
 		if(degree[v] <= 1) // also append deg-0 node (T has only one node)
 			Q.append(v);
@@ -132,7 +123,7 @@ void NonPlanarCore::markCore(const SPQRTree &T, NodeArray<bool> &mark)
 
 	while(!Q.empty())
 	{
-		v = Q.pop();
+		node v = Q.pop();
 
 		// if v has a planar skeleton
 		if(T.typeOf(v) != SPQRTree::RNode ||
@@ -140,16 +131,15 @@ void NonPlanarCore::markCore(const SPQRTree &T, NodeArray<bool> &mark)
 		{
 			mark[v] = false; // unmark this leaf
 
-			node w = 0;
-			adjEntry adj;
-			forall_adj(adj,v) {
+			node w = nullptr;
+			for (adjEntry adj : v->adjEdges) {
 				node x = adj->twinNode();
 				if(mark[x] == true) {
 					w = x; break;
 				}
 			}
 
-			if(w != 0) {
+			if(w != nullptr) {
 				--degree[w];
 				if(degree[w] == 1)
 					Q.append(w);
@@ -173,7 +163,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 	//-----------------------------------------------------
 	// Build the graph representing the planar st-component
 	Graph H;
-	EdgeArray<edge> mapE(H,0);
+	EdgeArray<edge> mapE(H,nullptr);
 	SListPure<node> nodes;
 
 	Queue<QueueEntry> Q;
@@ -187,19 +177,18 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 
 		const Skeleton &S = T.skeleton(current);
 
-		edge e;
-		forall_edges(e,S.getGraph()) {
+		for (edge e : S.getGraph().edges) {
 			if(S.isVirtual(e) == true)
 				continue;
 
 			node src = S.original(e->source());
 			node tgt = S.original(e->target());
 
-			if(mapV[src] == 0) {
+			if(mapV[src] == nullptr) {
 				nodes.pushBack(src);
 				mapV[src] = H.newNode();
 			}
-			if(mapV[tgt] == 0) {
+			if(mapV[tgt] == nullptr) {
 				nodes.pushBack(tgt);
 				mapV[tgt] = H.newNode();
 			}
@@ -207,8 +196,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 			mapE[H.newEdge(mapV[src],mapV[tgt])] = S.realEdge(e);
 		}
 
-		adjEntry adj;
-		forall_adj(adj,current) {
+		for (adjEntry adj : current->adjEdges) {
 			node w = adj->twinNode();
 			if(w != parent)
 				Q.append(QueueEntry(current,w));
@@ -233,8 +221,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 	EdgeArray<adjEntry> primalAdj(dual);
 
 	// insert a node in the dual graph for each face in E
-	face f;
-	forall_faces(f,E)
+	for (face f : E.faces)
 		nodeOf[f] = dual.newNode();
 
 
@@ -243,11 +230,9 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 
 	// Insert an edge into the dual graph for each adjacency entry in E.
 	// The edges are directed from the left face to the right face.
-	node v;
-	forall_nodes(v,H)
+	for (node v : H.nodes)
 	{
-		adjEntry adj;
-		forall_adj(adj,v)
+		for (adjEntry adj : v->adjEdges)
 		{
 			// do not insert edges crossing e_st
 			if(adj->theEdge() == e_st)
@@ -262,7 +247,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 
 	//---------------------------
 	// Find shortest path in dual
-	NodeArray<edge> spPred(dual,0);
+	NodeArray<edge> spPred(dual,nullptr);
 	QueuePure<edge> queue;
 
 	edge eDual;
@@ -279,7 +264,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 		node v = eCand->target();
 
 		// leads to an unvisited node?
-		if (spPred[v] == 0)
+		if (spPred[v] == nullptr)
 		{
 			// yes, then we set v's predecessor in search tree
 			spPred[v] = eCand;
@@ -316,9 +301,8 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 
 	//---------
 	// Clean-up
-	SListConstIterator<node> it;
-	for(it = nodes.begin(); it.valid(); ++it)
-		mapV[*it] = 0;
+	for(node v : nodes)
+		mapV[v] = nullptr;
 }
 
 

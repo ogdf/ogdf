@@ -26,14 +26,14 @@ public:
      //@{
 
      /// Returns pivot row, -1 if none
-     virtual int pivotRow();
+     virtual int pivotRow() override;
 
      /** Updates weights and returns pivot alpha.
          Also does FT update */
      virtual double updateWeights(CoinIndexedVector * input,
                                   CoinIndexedVector * spare,
                                   CoinIndexedVector * spare2,
-                                  CoinIndexedVector * updatedColumn);
+                                  CoinIndexedVector * updatedColumn) override;
 
      /** Updates primal solution (and maybe list of candidates)
          Uses input vector which it deletes
@@ -41,7 +41,7 @@ public:
      */
      virtual void updatePrimalSolution(CoinIndexedVector * input,
                                        double theta,
-                                       double & changeInObjective);
+                                       double & changeInObjective) override;
 
      /** Saves any weights round factorization as pivot rows may change
          Save model
@@ -53,15 +53,15 @@ public:
          4) as 2 but restore weights from previous snapshot
          5) for strong branching - initialize (uninitialized) , infeasibilities
      */
-     virtual void saveWeights(ClpSimplex * model, int mode);
+     virtual void saveWeights(ClpSimplex * model, int mode) override;
      /// Gets rid of last update
-     virtual void unrollWeights();
+     virtual void unrollWeights() override;
      /// Gets rid of all arrays
-     virtual void clearArrays();
+     virtual void clearArrays() override;
      /// Returns true if would not find any row
-     virtual bool looksOptimal() const;
+     virtual bool looksOptimal() const override;
      /// Called when maximum pivots changes
-     virtual void maximumPivotsChanged();
+     virtual void maximumPivotsChanged() override;
      //@}
 
      /** enums for persistence
@@ -95,7 +95,7 @@ public:
      virtual ~ClpDualRowSteepest ();
 
      /// Clone
-     virtual ClpDualRowPivot * clone(bool copyData = true) const;
+     virtual ClpDualRowPivot * clone(bool copyData = true) const override;
 
      //@}
      /**@name gets and sets */

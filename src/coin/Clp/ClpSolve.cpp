@@ -3951,7 +3951,7 @@ ClpSimplex::solveDW(CoinStructuredModel * model)
           int iBlock;
           columnAdd[0] = 0;
           for (iBlock = 0; iBlock < numberBlocks; iBlock++) {
-               int iRow = iBlock + numberMasterRows;;
+               int iRow = iBlock + numberMasterRows;
                rowLower[iRow] = 1.0;
                rowUpper[iRow] = 1.0;
                rowAdd[iBlock] = iRow;

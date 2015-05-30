@@ -1,11 +1,3 @@
-/*
- * $Revision: 2771 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Wed, 26 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Offers colorizer for SimDraw.
  *

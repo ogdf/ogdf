@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares class DavidsonHarelLayout, which is a front-end
  * for the fDavidsonHarel class.
@@ -60,6 +52,8 @@ namespace ogdf {
 
 //! The Davidson-Harel layout algorithm.
 /**
+ * @ingroup gd-energy
+ *
  * The implementation used in DavidsonHarelLayout is based on
  * the following publication:
  *
@@ -81,7 +75,7 @@ public:
 	~DavidsonHarelLayout(){}
 
 	//! Calls the layout algorithm for graph attributes \a GA.
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	//! Fixes the cost values to special configurations.
 	void fixSettings(SettingsParameter sp);

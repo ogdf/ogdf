@@ -31,7 +31,7 @@ struct TabRow: public CoinIndexedVector
     bool modularized_;
 
     TabRow():
-            CoinIndexedVector(), si_(NULL), modularized_(false) {}
+            CoinIndexedVector(), si_(nullptr), modularized_(false) {}
 
     TabRow(const CglLandPSimplex *si):
             CoinIndexedVector(), num(-1), rhs(0), si_(si), modularized_(false) {}
@@ -60,7 +60,7 @@ struct TabRow: public CoinIndexedVector
 
     void modularize(const bool * integerVar);
 
-    void print(std::ostream & os, int width = 9, const int * nonBasics = NULL,
+    void print(std::ostream & os, int width = 9, const int * nonBasics = nullptr,
                int m = 0);
     inline
     const double& operator[](const int &index) const

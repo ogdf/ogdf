@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Fast Multipole Multilevel Method (FM^3).
  *
@@ -43,16 +35,16 @@
 
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/basic/Math.h>
-#include "numexcept.h"
-#include "MAARPacking.h"
-#include "Multilevel.h"
-#include "Edge.h"
+#include <ogdf/internal/energybased/numexcept.h>
+#include <ogdf/internal/energybased/MAARPacking.h>
+#include <ogdf/internal/energybased/Multilevel.h>
+#include <ogdf/internal/energybased/Edge.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/basic.h>
 
 #include <ogdf/internal/energybased/NodeAttributes.h>
 #include <ogdf/internal/energybased/EdgeAttributes.h>
-#include "Rectangle.h"
+#include <ogdf/internal/energybased/Rectangle.h>
 
 namespace ogdf {
 
@@ -80,8 +72,7 @@ void FMMMLayout::call(ClusterGraphAttributes &GA)
 	int cdepth = CG.treeDepth();
 	EdgeArray<double> edgeLength(G);
 	//compute lca of end vertices for each edge
-	edge e;
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		edgeLength[e] = cdepth - CG.clusterDepth(CG.commonCluster(e->source(),e->target())) + 1;
 		OGDF_ASSERT(edgeLength[e] > 0)
@@ -397,14 +388,13 @@ void FMMMLayout::import_NodeAttributes(
 	GraphAttributes& GA,
 	NodeArray<NodeAttributes>& A)
 {
-	node v;
 	DPoint position;
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		position.m_x = GA.x(v);
 		position.m_y = GA.y(v);
-		A[v].set_NodeAttributes(GA.width(v),GA.height(v),position,NULL,NULL);
+		A[v].set_NodeAttributes(GA.width(v),GA.height(v),position,nullptr,nullptr);
 	}
 }
 
@@ -414,17 +404,16 @@ void FMMMLayout::import_EdgeAttributes(
 	const EdgeArray<double>& edgeLength,
 	EdgeArray<EdgeAttributes>& E)
 {
-	edge e;
 	double length;
 
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		if(edgeLength[e] > 0) //no negative edgelength allowed
 			length = edgeLength[e];
 		else
 			length = 1;
 
-		E[e].set_EdgeAttributes(length,NULL,NULL);
+		E[e].set_EdgeAttributes(length,nullptr,nullptr);
 	}
 }
 
@@ -434,16 +423,14 @@ void FMMMLayout::init_ind_ideal_edgelength(
 	NodeArray<NodeAttributes>& A,
 	EdgeArray<EdgeAttributes>& E)
 {
-	edge e;
-
 	if (edgeLengthMeasurement() == elmMidpoint)
-		forall_edges(e,G)
+		for(edge e : G.edges)
 			E[e].set_length(E[e].get_length() * unitEdgeLength());
 
 	else //(edgeLengthMeasurement() == elmBoundingCircle)
 	{
 		set_radii(G,A);
-		forall_edges(e,G)
+		for(edge e : G.edges)
 			E[e].set_length(E[e].get_length() * unitEdgeLength() + radius[e->source()]
 				+ radius[e->target()]);
 	}
@@ -452,13 +439,11 @@ void FMMMLayout::init_ind_ideal_edgelength(
 
 void FMMMLayout::set_radii(const Graph& G, NodeArray<NodeAttributes>& A)
 {
-	node v;
 	radius.init(G);
-	double w,h;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		w = A[v].get_width()/2;
-		h = A[v].get_height()/2;
+		double w = A[v].get_width()/2;
+		double h = A[v].get_height()/2;
 		radius[v] = sqrt(w*w+ h*h);
 	}
 }
@@ -469,8 +454,7 @@ void FMMMLayout::export_NodeAttributes(
 	NodeArray<NodeAttributes>& A_reduced,
 	GraphAttributes& GA)
 {
-	node v_copy;
-	forall_nodes(v_copy,G_reduced)
+	for(node v_copy : G_reduced.nodes)
 	{
 		GA.x(A_reduced[v_copy].get_original_node()) =  A_reduced[v_copy].get_position().m_x;
 		GA.y(A_reduced[v_copy].get_original_node()) =  A_reduced[v_copy].get_position().m_y;
@@ -486,31 +470,29 @@ void FMMMLayout::make_simple_loopfree(
 	NodeArray<NodeAttributes>& A_reduced,
 	EdgeArray<EdgeAttributes>& E_reduced)
 {
-	node u_orig,v_orig,v_reduced;
-	edge e_reduced,e_orig;
-
 	//create the reduced Graph G_reduced and save in A/E links to node/edges of G_reduced
 	//create G_reduced as a copy of G without selfloops!
 
 	G_reduced.clear();
-	forall_nodes(v_orig,G)
+	for (node v_orig : G.nodes)
 		A[v_orig].set_copy_node(G_reduced.newNode());
-	forall_edges(e_orig,G)
+
+	for (edge e_orig : G.edges)
 	{
-		u_orig = e_orig->source();
-		v_orig = e_orig->target();
-		if(u_orig != v_orig)
-			E[e_orig].set_copy_edge(G_reduced.newEdge (A[u_orig].get_copy_node(),
+		node u_orig = e_orig->source();
+		node v_orig = e_orig->target();
+		if (u_orig != v_orig)
+			E[e_orig].set_copy_edge(G_reduced.newEdge(A[u_orig].get_copy_node(),
 			A[v_orig].get_copy_node()));
 		else
-			E[e_orig].set_copy_edge(NULL);//mark this edge as deleted
+			E[e_orig].set_copy_edge(nullptr);//mark this edge as deleted
 	}
 
 	//remove parallel (and reversed) edges from G_reduced
 	EdgeArray<double> new_edgelength(G_reduced);
 	List<edge> S;
 	S.clear();
-	delete_parallel_edges(G,E,G_reduced,S,new_edgelength);
+	delete_parallel_edges(G, E, G_reduced, S, new_edgelength);
 
 	//make A_reduced, E_reduced valid for G_reduced
 	A_reduced.init(G_reduced);
@@ -518,23 +500,23 @@ void FMMMLayout::make_simple_loopfree(
 
 	//import information for A_reduced, E_reduced and links to the original nodes/edges
 	//of the copy nodes/edges
-	forall_nodes(v_orig,G)
+	for (node v_orig : G.nodes)
 	{
-		v_reduced = A[v_orig].get_copy_node();
+		node v_reduced = A[v_orig].get_copy_node();
 		A_reduced[v_reduced].set_NodeAttributes(A[v_orig].get_width(), A[v_orig].
-			get_height(),A[v_orig].get_position(),
-			v_orig,NULL);
+			get_height(), A[v_orig].get_position(),
+			v_orig, nullptr);
 	}
-	forall_edges(e_orig,G)
+	for (edge e_orig : G.edges)
 	{
-		e_reduced = E[e_orig].get_copy_edge();
-		if(e_reduced != NULL)
-			E_reduced[e_reduced].set_EdgeAttributes(E[e_orig].get_length(),e_orig,NULL);
+		edge e_reduced = E[e_orig].get_copy_edge();
+		if (e_reduced != nullptr)
+			E_reduced[e_reduced].set_EdgeAttributes(E[e_orig].get_length(), e_orig, nullptr);
 	}
 
 	//update edgelength of copy edges in G_reduced associated with a set of parallel
 	//edges in G
-	update_edgelength(S,new_edgelength,E_reduced);
+	update_edgelength(S, new_edgelength, E_reduced);
 }
 
 
@@ -547,21 +529,19 @@ void FMMMLayout::delete_parallel_edges(
 {
 	EdgeMaxBucketFunc MaxSort;
 	EdgeMinBucketFunc MinSort;
-	ListIterator<Edge> EdgeIterator;
-	edge e_act,e_save;
 	Edge f_act;
 	List<Edge> sorted_edges;
 	EdgeArray<edge> original_edge (G_reduced); //helping array
-	int save_s_index,save_t_index,act_s_index,act_t_index;
+	int save_s_index,save_t_index;
 	int counter = 1;
 	Graph* Graph_ptr = &G_reduced;
 
 	//save the original edges for each edge in G_reduced
-	forall_edges(e_act,G)
-		if(E[e_act].get_copy_edge() != NULL) //e_act is no self_loops
+	for(edge e_act : G.edges)
+		if(E[e_act].get_copy_edge() != nullptr) //e_act is no self_loops
 			original_edge[E[e_act].get_copy_edge()] = e_act;
 
-	forall_edges(e_act,G_reduced)
+	for(edge e_act : G_reduced.edges)
 	{
 		f_act.set_Edge(e_act,Graph_ptr);
 		sorted_edges.pushBack(f_act);
@@ -570,14 +550,17 @@ void FMMMLayout::delete_parallel_edges(
 	sorted_edges.bucketSort(0,G_reduced.numberOfNodes()-1,MaxSort);
 	sorted_edges.bucketSort(0,G_reduced.numberOfNodes()-1,MinSort);
 
-	//now parallel edges are consecutive in sorted_edges
-	for(EdgeIterator = sorted_edges.begin();EdgeIterator.valid();++EdgeIterator)
-	{//for
-		e_act = (*EdgeIterator).get_edge();
-		act_s_index = e_act->source()->index();
-		act_t_index = e_act->target()->index();
+	edge e_save = nullptr;
 
-		if(EdgeIterator != sorted_edges.begin())
+	//now parallel edges are consecutive in sorted_edges
+	bool firstEdge = true;
+	for (const Edge &ei : sorted_edges)
+	{//for
+		edge e_act = ei.get_edge();
+		int act_s_index = e_act->source()->index();
+		int act_t_index = e_act->target()->index();
+
+		if(!firstEdge)
 		{//if
 			if( (act_s_index == save_s_index && act_t_index == save_t_index) ||
 				(act_s_index == save_t_index && act_t_index == save_s_index) )
@@ -591,7 +574,7 @@ void FMMMLayout::delete_parallel_edges(
 				else //more then two parallel edges
 					new_edgelength[e_save] +=E[original_edge[e_act]].get_length();
 
-				E[original_edge[e_act]].set_copy_edge(NULL); //mark copy of edge as deleted
+				E[original_edge[e_act]].set_copy_edge(nullptr); //mark copy of edge as deleted
 				G_reduced.delEdge(e_act);                    //delete copy edge in G_reduced
 				counter++;
 			}
@@ -609,6 +592,7 @@ void FMMMLayout::delete_parallel_edges(
 		}//if
 		else //first edge
 		{
+			firstEdge = false;
 			save_s_index = act_s_index;
 			save_t_index = act_t_index;
 			e_save = e_act;
@@ -626,10 +610,9 @@ void FMMMLayout::update_edgelength(
 	EdgeArray<double>& new_edgelength,
 	EdgeArray<EdgeAttributes>& E_reduced)
 {
-	edge e;
 	while (!S.empty())
 	{
-		e = S.popFrontRet();
+		edge e = S.popFrontRet();
 		E_reduced[e].set_length(new_edgelength[e]);
 	}
 }
@@ -643,88 +626,85 @@ void FMMMLayout::update_edgelength(
 
 void FMMMLayout::make_positions_integer(Graph& G, NodeArray<NodeAttributes>& A)
 {
-	node v;
-	double new_x,new_y;
-
-	if(allowedPositions() == apInteger)
-	{//if
+	if (allowedPositions() == apInteger)
+	{
 		//calculate value of max_integer_position
 		max_integer_position = 100 * average_ideal_edgelength * G.numberOfNodes() *
 			G.numberOfNodes();
-	}//if
+	}
 
 	//restrict positions to lie in [-max_integer_position,max_integer_position]
 	//X [-max_integer_position,max_integer_position]
-	forall_nodes(v,G)
-		if( (A[v].get_x() > max_integer_position) ||
+	for (node v : G.nodes) {
+		if ((A[v].get_x() > max_integer_position) ||
 			(A[v].get_y() > max_integer_position) ||
 			(A[v].get_x() < max_integer_position * (-1.0)) ||
-			(A[v].get_y() < max_integer_position * (-1.0)) )
+			(A[v].get_y() < max_integer_position * (-1.0)))
 		{
 			DPoint cross_point;
-			DPoint nullpoint (0,0);
-			DPoint old_pos (A[v].get_x(),A[v].get_y());
-			DPoint lt ( max_integer_position * (-1.0),max_integer_position);
-			DPoint rt ( max_integer_position,max_integer_position);
-			DPoint lb ( max_integer_position * (-1.0),max_integer_position * (-1.0));
-			DPoint rb ( max_integer_position,max_integer_position * (-1.0));
-			DLine s (nullpoint,old_pos);
-			DLine left_bound (lb,lt);
-			DLine right_bound (rb,rt);
-			DLine top_bound (lt,rt);
-			DLine bottom_bound (lb,rb);
+			DPoint nullpoint(0, 0);
+			DPoint old_pos(A[v].get_x(), A[v].get_y());
+			DPoint lt(max_integer_position * (-1.0), max_integer_position);
+			DPoint rt(max_integer_position, max_integer_position);
+			DPoint lb(max_integer_position * (-1.0), max_integer_position * (-1.0));
+			DPoint rb(max_integer_position, max_integer_position * (-1.0));
+			DLine s(nullpoint, old_pos);
+			DLine left_bound(lb, lt);
+			DLine right_bound(rb, rt);
+			DLine top_bound(lt, rt);
+			DLine bottom_bound(lb, rb);
 
-			if(s.intersection(left_bound,cross_point))
+			if (s.intersection(left_bound, cross_point))
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else if(s.intersection(right_bound,cross_point))
+			else if (s.intersection(right_bound, cross_point))
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else if(s.intersection(top_bound,cross_point))
+			else if (s.intersection(top_bound, cross_point))
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else if(s.intersection(bottom_bound,cross_point))
+			else if (s.intersection(bottom_bound, cross_point))
 			{
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else cout<<"Error FMMMLayout:: make_positions_integer()"<<endl;
+			else cout << "Error FMMMLayout:: make_positions_integer()" << endl;
 		}
-
-		//make positions integer
-		forall_nodes(v,G)
+	}
+	//make positions integer
+	for (node v : G.nodes)
+	{
+		double new_x = floor(A[v].get_x());
+		double new_y = floor(A[v].get_y());
+		if (new_x < down_left_corner.m_x)
 		{
-			new_x = floor(A[v].get_x());
-			new_y = floor(A[v].get_y());
-			if(new_x < down_left_corner.m_x)
-			{
-				boxlength += 2;
-				down_left_corner.m_x = down_left_corner.m_x-2;
-			}
-			if(new_y < down_left_corner.m_y)
-			{
-				boxlength += 2;
-				down_left_corner.m_y = down_left_corner.m_y-2;
-			}
-			A[v].set_x(new_x);
-			A[v].set_y(new_y);
+			boxlength += 2;
+			down_left_corner.m_x = down_left_corner.m_x - 2;
 		}
+		if (new_y < down_left_corner.m_y)
+		{
+			boxlength += 2;
+			down_left_corner.m_y = down_left_corner.m_y - 2;
+		}
+		A[v].set_x(new_x);
+		A[v].set_y(new_y);
+	}
 }
 
 
 void FMMMLayout::create_postscript_drawing(GraphAttributes& AG, char* ps_file)
 {
-	ofstream out_fmmm (ps_file,ios::out);
-	if (!ps_file) cout<<ps_file<<" could not be opened !"<<endl;
+	ofstream out_fmmm(ps_file, ios::out);
+	if (!ps_file)
+		cout << ps_file << " could not be opened !" << endl;
+
 	const Graph& G = AG.constGraph();
-	node v;
-	edge e;
 	double x_min = AG.x(G.firstNode());
 	double x_max = x_min;
 	double y_min = AG.y(G.firstNode());
@@ -732,71 +712,74 @@ void FMMMLayout::create_postscript_drawing(GraphAttributes& AG, char* ps_file)
 	double max_dist;
 	double scale_factor;
 
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 	{
-		if(AG.x(v) < x_min)
+		if (AG.x(v) < x_min)
 			x_min = AG.x(v);
-		else if(AG.x(v) > x_max)
+		else if (AG.x(v) > x_max)
 			x_max = AG.x(v);
-		if(AG.y(v) < y_min)
+		if (AG.y(v) < y_min)
 			y_min = AG.y(v);
-		else if(AG.y(v) > y_max)
+		else if (AG.y(v) > y_max)
 			y_max = AG.y(v);
 	}
-	max_dist = max(x_max -x_min,y_max-y_min);
-	scale_factor = 500.0/max_dist;
+	max_dist = max(x_max - x_min, y_max - y_min);
+	scale_factor = 500.0 / max_dist;
 
-	out_fmmm<<"%!PS-Adobe-2.0 "<<endl;
-	out_fmmm<<"%%Pages:  1 "<<endl;
-	out_fmmm<<"% %BoundingBox: "<<x_min<<" "<<x_max<<" "<<y_min<<" "<<y_max<<endl;
-	out_fmmm<<"%%EndComments "<<endl;
-	out_fmmm<<"%%"<<endl;
-	out_fmmm<<"%% Circle"<<endl;
-	out_fmmm<<"/ellipse_dict 4 dict def"<<endl;
-	out_fmmm<<"/ellipse {"<<endl;
-	out_fmmm<<"  ellipse_dict"<<endl;
-	out_fmmm<<"  begin"<<endl;
-	out_fmmm<<"   newpath"<<endl;
-	out_fmmm<<"   /yrad exch def /xrad exch def /ypos exch def /xpos exch def"<<endl;
-	out_fmmm<<"   matrix currentmatrix"<<endl;
-	out_fmmm<<"   xpos ypos translate"<<endl;
-	out_fmmm<<"   xrad yrad scale"<<endl;
-	out_fmmm<<"  0 0 1 0 360 arc"<<endl;
-	out_fmmm<<"  setmatrix"<<endl;
-	out_fmmm<<"  closepath"<<endl;
-	out_fmmm<<" end"<<endl;
-	out_fmmm<<"} def"<<endl;
-	out_fmmm<<"%% Nodes"<<endl;
-	out_fmmm<<"/v { "<<endl;
-	out_fmmm<<" /y exch def"<<endl;
-	out_fmmm<<" /x exch def"<<endl;
-	out_fmmm<<"1.000 1.000 0.894 setrgbcolor"<<endl;
-	out_fmmm<<"x y 10.0 10.0 ellipse fill"<<endl;
-	out_fmmm<<"0.000 0.000 0.000 setrgbcolor"<<endl;
-	out_fmmm<<"x y 10.0 10.0 ellipse stroke"<<endl;
-	out_fmmm<<"} def"<<endl;
-	out_fmmm<<"%% Edges"<<endl;
-	out_fmmm<<"/e { "<<endl;
-	out_fmmm<<" /b exch def"<<endl;
-	out_fmmm<<" /a exch def"<<endl;
-	out_fmmm<<" /y exch def"<<endl;
-	out_fmmm<<" /x exch def"<<endl;
-	out_fmmm<<"x y moveto a b lineto stroke"<<endl;
-	out_fmmm<<"} def"<<endl;
-	out_fmmm<<"%% "<<endl;
-	out_fmmm<<"%% INIT "<<endl;
-	out_fmmm<<"20  200 translate"<<endl;
-	out_fmmm<<scale_factor<<"  "<<scale_factor<<"  scale "<<endl;
-	out_fmmm<<"1 setlinewidth "<<endl;
-	out_fmmm<<"%%BeginProgram "<<endl;
-	forall_edges(e,G)
-		out_fmmm<<AG.x(e->source())<<" "<<AG.y(e->source())<<" "
-		<<AG.x(e->target())<<" "<<AG.y(e->target())<<" e"<<endl;
-	forall_nodes(v,G)
-		out_fmmm<<AG.x(v)<<" "<<AG.y(v) <<" v"<<endl;
-	out_fmmm<<"%%EndProgram "<<endl;
-	out_fmmm<<"showpage "<<endl;
-	out_fmmm<<"%%EOF "<<endl;
+	out_fmmm << "%!PS-Adobe-2.0 " << endl;
+	out_fmmm << "%%Pages:  1 " << endl;
+	out_fmmm << "% %BoundingBox: " << x_min << " " << x_max << " " << y_min << " " << y_max << endl;
+	out_fmmm << "%%EndComments " << endl;
+	out_fmmm << "%%" << endl;
+	out_fmmm << "%% Circle" << endl;
+	out_fmmm << "/ellipse_dict 4 dict def" << endl;
+	out_fmmm << "/ellipse {" << endl;
+	out_fmmm << "  ellipse_dict" << endl;
+	out_fmmm << "  begin" << endl;
+	out_fmmm << "   newpath" << endl;
+	out_fmmm << "   /yrad exch def /xrad exch def /ypos exch def /xpos exch def" << endl;
+	out_fmmm << "   matrix currentmatrix" << endl;
+	out_fmmm << "   xpos ypos translate" << endl;
+	out_fmmm << "   xrad yrad scale" << endl;
+	out_fmmm << "  0 0 1 0 360 arc" << endl;
+	out_fmmm << "  setmatrix" << endl;
+	out_fmmm << "  closepath" << endl;
+	out_fmmm << " end" << endl;
+	out_fmmm << "} def" << endl;
+	out_fmmm << "%% Nodes" << endl;
+	out_fmmm << "/v { " << endl;
+	out_fmmm << " /y exch def" << endl;
+	out_fmmm << " /x exch def" << endl;
+	out_fmmm << "1.000 1.000 0.894 setrgbcolor" << endl;
+	out_fmmm << "x y 10.0 10.0 ellipse fill" << endl;
+	out_fmmm << "0.000 0.000 0.000 setrgbcolor" << endl;
+	out_fmmm << "x y 10.0 10.0 ellipse stroke" << endl;
+	out_fmmm << "} def" << endl;
+	out_fmmm << "%% Edges" << endl;
+	out_fmmm << "/e { " << endl;
+	out_fmmm << " /b exch def" << endl;
+	out_fmmm << " /a exch def" << endl;
+	out_fmmm << " /y exch def" << endl;
+	out_fmmm << " /x exch def" << endl;
+	out_fmmm << "x y moveto a b lineto stroke" << endl;
+	out_fmmm << "} def" << endl;
+	out_fmmm << "%% " << endl;
+	out_fmmm << "%% INIT " << endl;
+	out_fmmm << "20  200 translate" << endl;
+	out_fmmm << scale_factor << "  " << scale_factor << "  scale " << endl;
+	out_fmmm << "1 setlinewidth " << endl;
+	out_fmmm << "%%BeginProgram " << endl;
+
+	for (edge e : G.edges)
+		out_fmmm << AG.x(e->source()) << " " << AG.y(e->source()) << " "
+		<< AG.x(e->target()) << " " << AG.y(e->target()) << " e" << endl;
+
+	for (node v : G.nodes)
+		out_fmmm << AG.x(v) << " " << AG.y(v) << " v" << endl;
+
+	out_fmmm << "%%EndProgram " << endl;
+	out_fmmm << "showpage " << endl;
+	out_fmmm << "%%EOF " << endl;
 }
 
 
@@ -806,28 +789,25 @@ void FMMMLayout::create_maximum_connected_subGraphs(
 	Graph& G,
 	NodeArray<NodeAttributes>& A,
 	EdgeArray<EdgeAttributes>&E,
-	Graph G_sub[],
-	NodeArray<NodeAttributes> A_sub[],
-	EdgeArray<EdgeAttributes> E_sub[],
+	Graph G_sub [],
+	NodeArray<NodeAttributes> A_sub [],
+	EdgeArray<EdgeAttributes> E_sub [],
 	NodeArray<int>& component)
 {
-	node u_orig,v_orig,v_sub;
-	edge e_sub,e_orig;
-	int i;
-
 	//create the subgraphs and save links to subgraph nodes/edges in A
-	forall_nodes(v_orig,G)
+	for (node v_orig : G.nodes)
 		A[v_orig].set_subgraph_node(G_sub[component[v_orig]].newNode());
-	forall_edges(e_orig,G)
+
+	for (edge e_orig : G.edges)
 	{
-		u_orig = e_orig->source();
-		v_orig = e_orig->target();
-		E[e_orig].set_subgraph_edge( G_sub[component[u_orig]].newEdge
-			(A[u_orig].get_subgraph_node(),A[v_orig].get_subgraph_node()));
+		node u_orig = e_orig->source();
+		node v_orig = e_orig->target();
+		E[e_orig].set_subgraph_edge(G_sub[component[u_orig]].newEdge
+			(A[u_orig].get_subgraph_node(), A[v_orig].get_subgraph_node()));
 	}
 
 	//make A_sub,E_sub valid for the subgraphs
-	for(i = 0; i< number_of_components;i++)
+	for (int i = 0; i < number_of_components; i++)
 	{
 		A_sub[i].init(G_sub[i]);
 		E_sub[i].init(G_sub[i]);
@@ -836,19 +816,18 @@ void FMMMLayout::create_maximum_connected_subGraphs(
 	//import information for A_sub,E_sub and links to the original nodes/edges
 	//of the subGraph nodes/edges
 
-	forall_nodes(v_orig,G)
+	for (node v_orig : G.nodes)
 	{
-		v_sub = A[v_orig].get_subgraph_node();
+		node v_sub = A[v_orig].get_subgraph_node();
 		A_sub[component[v_orig]][v_sub].set_NodeAttributes(A[v_orig].get_width(),
-			A[v_orig].get_height(),A[v_orig].get_position(),
-			v_orig,NULL);
+			A[v_orig].get_height(), A[v_orig].get_position(),
+			v_orig, nullptr);
 	}
-	forall_edges(e_orig,G)
+	for (edge e_orig : G.edges)
 	{
-		e_sub = E[e_orig].get_subgraph_edge();
-		v_orig = e_orig->source();
-		E_sub[component[v_orig]][e_sub].set_EdgeAttributes(E[e_orig].get_length(),
-			e_orig,NULL);
+		edge e_sub = E[e_orig].get_subgraph_edge();
+		node v_orig = e_orig->source();
+		E_sub[component[v_orig]][e_sub].set_EdgeAttributes(E[e_orig].get_length(), e_orig, nullptr);
 	}
 }
 
@@ -934,72 +913,70 @@ Rectangle FMMMLayout::calculate_bounding_rectangle(
 
 void FMMMLayout::rotate_components_and_calculate_bounding_rectangles(
 	List<Rectangle>&R,
-	Graph G_sub[],
-	NodeArray<NodeAttributes> A_sub[])
+	Graph G_sub [],
+	NodeArray<NodeAttributes> A_sub [])
 {
-	int i,j;
-	double sin_j,cos_j;
-	double angle,act_area,act_area_PI_half_rotated,best_area;
-	double ratio,new_width,new_height;
 	Array<NodeArray<DPoint> > best_coords(number_of_components);
 	Array<NodeArray<DPoint> > old_coords(number_of_components);
-	node v_sub;
-	Rectangle r_act,r_best;
-	DPoint new_pos,new_dlc;
+	//node v_sub;
+	Rectangle r_act, r_best;
+	DPoint new_pos, new_dlc;
 
 	R.clear(); //make R empty
 
-	for(i=0;i<number_of_components;i++)
+	for (int i = 0; i < number_of_components; i++)
 	{//allcomponents
 
 		//init r_best, best_area and best_(old)coords
-		r_best = calculate_bounding_rectangle(G_sub[i],A_sub[i],i);
-		best_area =  calculate_area(r_best.get_width(),r_best.get_height(),
+		r_best = calculate_bounding_rectangle(G_sub[i], A_sub[i], i);
+		double best_area = calculate_area(r_best.get_width(), r_best.get_height(),
 			number_of_components);
 		best_coords[i].init(G_sub[i]);
 		old_coords[i].init(G_sub[i]);
 
-		forall_nodes(v_sub,G_sub[i])
+		for (node v_sub : G_sub[i].nodes)
 			old_coords[i][v_sub] = best_coords[i][v_sub] = A_sub[i][v_sub].get_position();
 
 		//rotate the components
-		for(j=1;j<=stepsForRotatingComponents();j++)
+		for (int j = 1; j <= stepsForRotatingComponents(); j++)
 		{
 			//calculate new positions for the nodes, the new rectangle and area
-			angle = Math::pi_2 * (double(j)/double(stepsForRotatingComponents()+1));
-			sin_j = sin(angle);
-			cos_j = cos(angle);
-			forall_nodes(v_sub,G_sub[i])
+			double angle = Math::pi_2 * (double(j) / double(stepsForRotatingComponents() + 1));
+			double sin_j = sin(angle);
+			double cos_j = cos(angle);
+			for (node v_sub : G_sub[i].nodes)
 			{
-				new_pos.m_x =  cos_j * old_coords[i][v_sub].m_x
+				new_pos.m_x = cos_j * old_coords[i][v_sub].m_x
 					- sin_j * old_coords[i][v_sub].m_y;
-				new_pos.m_y =   sin_j * old_coords[i][v_sub].m_x
+				new_pos.m_y = sin_j * old_coords[i][v_sub].m_x
 					+ cos_j * old_coords[i][v_sub].m_y;
 				A_sub[i][v_sub].set_position(new_pos);
 			}
 
-			r_act = calculate_bounding_rectangle(G_sub[i],A_sub[i],i);
-			act_area =  calculate_area(r_act.get_width(),r_act.get_height(),
+			r_act = calculate_bounding_rectangle(G_sub[i], A_sub[i], i);
+			double act_area = calculate_area(r_act.get_width(), r_act.get_height(),
 				number_of_components);
-			if(number_of_components == 1)
-				act_area_PI_half_rotated =calculate_area(r_act.get_height(),
+
+			double act_area_PI_half_rotated;
+			if (number_of_components == 1)
+				act_area_PI_half_rotated = calculate_area(r_act.get_height(),
 				r_act.get_width(),
 				number_of_components);
 
 			//store placement of the nodes with minimal area (in case that
 			//number_of_components >1) else store placement with minimal aspect ratio area
-			if(act_area < best_area)
+			if (act_area < best_area)
 			{
 				r_best = r_act;
 				best_area = act_area;
-				forall_nodes(v_sub,G_sub[i])
+				for (node v_sub : G_sub[i].nodes)
 					best_coords[i][v_sub] = A_sub[i][v_sub].get_position();
 			}
 			else if ((number_of_components == 1) && (act_area_PI_half_rotated < best_area))
 			{ //test if rotating further with PI_half would be an improvement
 				r_best = r_act;
 				best_area = act_area_PI_half_rotated;
-				forall_nodes(v_sub,G_sub[i])
+				for (node v_sub : G_sub[i].nodes)
 					best_coords[i][v_sub] = A_sub[i][v_sub].get_position();
 				//the needed rotation step follows in the next if statement
 			}
@@ -1007,11 +984,11 @@ void FMMMLayout::rotate_components_and_calculate_bounding_rectangles(
 
 		//tipp the smallest rectangle over by angle PI/2 around the origin if it makes the
 		//aspect_ratio of r_best more similar to the desired aspect_ratio
-		ratio = r_best.get_width()/r_best.get_height();
+		double ratio = r_best.get_width() / r_best.get_height();
 
-		if( (pageRatio() <  1 && ratio > 1) ||  (pageRatio() >= 1 && ratio < 1) )
+		if ((pageRatio() <  1 && ratio > 1) || (pageRatio() >= 1 && ratio < 1))
 		{
-			forall_nodes(v_sub,G_sub[i])
+			for (node v_sub : G_sub[i].nodes)
 			{
 				new_pos.m_x = best_coords[i][v_sub].m_y*(-1);
 				new_pos.m_y = best_coords[i][v_sub].m_x;
@@ -1019,17 +996,18 @@ void FMMMLayout::rotate_components_and_calculate_bounding_rectangles(
 			}
 
 			//calculate new rectangle
-			new_dlc.m_x = r_best.get_old_dlc_position().m_y*(-1)-r_best.get_height();
+			new_dlc.m_x = r_best.get_old_dlc_position().m_y*(-1) - r_best.get_height();
 			new_dlc.m_y = r_best.get_old_dlc_position().m_x;
-			new_width = r_best.get_height();
-			new_height = r_best.get_width();
+
+			double new_width = r_best.get_height();
+			double new_height = r_best.get_width();
 			r_best.set_width(new_width);
 			r_best.set_height(new_height);
 			r_best.set_old_dlc_position(new_dlc);
 		}
 
 		//save the computed information in A_sub and R
-		forall_nodes(v_sub,G_sub[i])
+		for (node v_sub : G_sub[i].nodes)
 			A_sub[i][v_sub].set_position(best_coords[i][v_sub]);
 		R.pushBack(r_best);
 
@@ -1040,37 +1018,29 @@ void FMMMLayout::rotate_components_and_calculate_bounding_rectangles(
 void FMMMLayout::export_node_positions(
 	NodeArray<NodeAttributes>& A,
 	List<Rectangle>&  R,
-	Graph G_sub[],
-	NodeArray<NodeAttributes> A_sub[])
+	Graph G_sub [],
+	NodeArray<NodeAttributes> A_sub [])
 {
-	ListIterator<Rectangle> RectIterator;
-	Rectangle r;
-	int i;
-	node v_sub;
-	DPoint newpos,tipped_pos,tipped_dlc;
-
-	for(RectIterator = R.begin();RectIterator.valid();++RectIterator)
-	{//for
-		r = *RectIterator;
-		i = r.get_component_index();
-		if(r.is_tipped_over())
-		{//if
+	for (const Rectangle &r : R)
+	{
+		int i = r.get_component_index();
+		if (r.is_tipped_over())
+		{
 			//calculate tipped coordinates of the nodes
-			forall_nodes(v_sub,G_sub[i])
+			for (node v_sub : G_sub[i].nodes)
 			{
-				tipped_pos.m_x = A_sub[i][v_sub].get_y()*(-1);
-				tipped_pos.m_y = A_sub[i][v_sub].get_x();
+				DPoint tipped_pos(-A_sub[i][v_sub].get_y(), A_sub[i][v_sub].get_x());
 				A_sub[i][v_sub].set_position(tipped_pos);
 			}
-		}//if
+		}
 
-		forall_nodes(v_sub,G_sub[i])
+		for (node v_sub : G_sub[i].nodes)
 		{
-			newpos = A_sub[i][v_sub].get_position() + r.get_new_dlc_position()
+			DPoint newpos = A_sub[i][v_sub].get_position() + r.get_new_dlc_position()
 				- r.get_old_dlc_position();
 			A[A_sub[i][v_sub].get_original_node()].set_position(newpos);
 		}
-	}//for
+	}
 }
 
 
@@ -1133,7 +1103,7 @@ inline void FMMMLayout::calculate_forces(
 }
 
 
-void FMMMLayout::init_boxlength_and_cornercoordinate (
+void FMMMLayout::init_boxlength_and_cornercoordinate(
 	Graph& G,
 	NodeArray<NodeAttributes>& A)
 {
@@ -1141,16 +1111,15 @@ void FMMMLayout::init_boxlength_and_cornercoordinate (
 
 	const double MIN_NODE_SIZE = 10;
 	const double BOX_SCALING_FACTOR = 1.1;
-	double w=0,h=0;       //helping variables
 
-	node v;
-	forall_nodes(v,G)
+	double w = 0, h = 0;
+	for (node v : G.nodes)
 	{
-		w  += max(A[v].get_width(),MIN_NODE_SIZE);
-		h  += max(A[v].get_height(),MIN_NODE_SIZE);
+		w += max(A[v].get_width(), MIN_NODE_SIZE);
+		h += max(A[v].get_height(), MIN_NODE_SIZE);
 	}
 
-	boxlength = ceil(max(w,h) * BOX_SCALING_FACTOR);
+	boxlength = ceil(max(w, h) * BOX_SCALING_FACTOR);
 
 	//down left corner of comp. box is the origin
 	down_left_corner.m_x = 0;
@@ -1158,42 +1127,41 @@ void FMMMLayout::init_boxlength_and_cornercoordinate (
 }
 
 
-void FMMMLayout::create_initial_placement (Graph& G, NodeArray<NodeAttributes>& A)
+void FMMMLayout::create_initial_placement(Graph& G, NodeArray<NodeAttributes>& A)
 {
 	const int BILLION = 1000000000;
-	int i,j,k;
-	node v;
 
 	if (initialPlacementForces() == ipfKeepPositions) // don't change anything
 	{
-		init_boxlength_and_cornercoordinate(G,A);
+		init_boxlength_and_cornercoordinate(G, A);
+
 	}
 	else if (initialPlacementForces() == ipfUniformGrid) //set nodes to the midpoints of a  grid
-	{//(uniform on a grid)
-		init_boxlength_and_cornercoordinate(G,A);
-		int level = static_cast<int>( ceil(Math::log4(G.numberOfNodes())));
-		int m     = static_cast<int>(pow(2.0,level))-1;
+	{ //(uniform on a grid)
+		init_boxlength_and_cornercoordinate(G, A);
+		int level = static_cast<int>(ceil(Math::log4(G.numberOfNodes())));
+		int m = static_cast<int>(pow(2.0, level)) - 1;
 		bool finished = false;
-		double blall = boxlength/(m+1); //boxlength for boxes at the lowest level (depth)
+		double blall = boxlength / (m + 1); //boxlength for boxes at the lowest level (depth)
 		Array<node> all_nodes(G.numberOfNodes());
 
-		k = 0;
-		forall_nodes(v,G)
+		int k = 0;
+		for (node v : G.nodes)
 		{
 			all_nodes[k] = v;
 			k++;
 		}
-		v = all_nodes[0];
+		node v = all_nodes[0];
 		k = 0;
-		i = 0;
+		int i = 0;
 		while ((!finished) && (i <= m))
-		{//while1
-			j = 0;
-			while((!finished) && (j <= m))
-			{//while2
-				A[v].set_x(boxlength*i/(m+1) + blall/2);
-				A[v].set_y(boxlength*j/(m+1) + blall/2);
-				if(k == G.numberOfNodes()-1)
+		{
+			int j = 0;
+			while ((!finished) && (j <= m))
+			{
+				A[v].set_x(boxlength*i / (m + 1) + blall / 2);
+				A[v].set_y(boxlength*j / (m + 1) + blall / 2);
+				if (k == G.numberOfNodes() - 1)
 					finished = true;
 				else
 				{
@@ -1201,50 +1169,49 @@ void FMMMLayout::create_initial_placement (Graph& G, NodeArray<NodeAttributes>& 
 					v = all_nodes[k];
 				}
 				j++;
-			}//while2
+			}
 			i++;
-		}//while1
-	}//(uniform on a grid)
+		}
+	} //(uniform on a grid)
 	else //randomised distribution of the nodes;
-	{//(random)
-		init_boxlength_and_cornercoordinate(G,A);
-		if(initialPlacementForces() == ipfRandomTime)//(RANDOM based on actual CPU-time)
-			srand((unsigned int)time(0));
-		else if(initialPlacementForces() == ipfRandomRandIterNr)//(RANDOM based on seed)
+	{ //(random)
+		init_boxlength_and_cornercoordinate(G, A);
+		if (initialPlacementForces() == ipfRandomTime)//(RANDOM based on actual CPU-time)
+			srand((unsigned int) time(nullptr));
+		else if (initialPlacementForces() == ipfRandomRandIterNr)//(RANDOM based on seed)
 			srand(randSeed());
 
-		forall_nodes(v,G)
+		for (node v : G.nodes)
 		{
 			DPoint rndp;
-			rndp.m_x = double(randomNumber(0,BILLION))/BILLION;//rand_x in [0,1]
-			rndp.m_y = double(randomNumber(0,BILLION))/BILLION;//rand_y in [0,1]
-			A[v].set_x(rndp.m_x*(boxlength-2)+ 1);
-			A[v].set_y(rndp.m_y*(boxlength-2)+ 1);
+			rndp.m_x = double(randomNumber(0, BILLION)) / BILLION; //rand_x in [0,1]
+			rndp.m_y = double(randomNumber(0, BILLION)) / BILLION; //rand_y in [0,1]
+			A[v].set_x(rndp.m_x*(boxlength - 2) + 1);
+			A[v].set_y(rndp.m_y*(boxlength - 2) + 1);
 		}
-	}//(random)
-	update_boxlength_and_cornercoordinate(G,A);
+	} //(random)
+	update_boxlength_and_cornercoordinate(G, A);
 }
 
 
-inline void FMMMLayout::init_F(Graph& G, NodeArray<DPoint>& F)
+void FMMMLayout::init_F(Graph& G, NodeArray<DPoint>& F)
 {
-	DPoint nullpoint (0,0);
-	node v;
-	forall_nodes(v,G)
+	DPoint nullpoint(0, 0);
+	for (node v : G.nodes)
 		F[v] = nullpoint;
 }
 
 
-inline void FMMMLayout::make_initialisations_for_rep_calc_classes(Graph& G)
+void FMMMLayout::make_initialisations_for_rep_calc_classes(Graph& G)
 {
-	if(repulsiveForcesCalculation() == rfcExact)
-		FR.make_initialisations(boxlength,down_left_corner,frGridQuotient());
-	else if(repulsiveForcesCalculation() == rfcGridApproximation)
-		FR.make_initialisations(boxlength,down_left_corner,frGridQuotient());
+	if (repulsiveForcesCalculation() == rfcExact)
+		FR.make_initialisations(boxlength, down_left_corner, frGridQuotient());
+	else if (repulsiveForcesCalculation() == rfcGridApproximation)
+		FR.make_initialisations(boxlength, down_left_corner, frGridQuotient());
 	else //(repulsiveForcesCalculation() == rfcNMM
-		NM.make_initialisations(G,boxlength,down_left_corner,
-		nmParticlesInLeaves(),nmPrecision(),
-		nmTreeConstruction(),nmSmallCell());
+		NM.make_initialisations(G, boxlength, down_left_corner,
+		nmParticlesInLeaves(), nmPrecision(),
+		nmTreeConstruction(), nmSmallCell());
 }
 
 
@@ -1255,34 +1222,31 @@ void FMMMLayout::calculate_attractive_forces(
 	NodeArray<DPoint>& F_attr)
 {
 	numexcept N;
-	edge e;
-	node u,v;
-	double norm_v_minus_u,scalar;
-	DPoint vector_v_minus_u,f_u;
+	DPoint f_u;
 	DPoint nullpoint (0,0);
 
 	//initialisation
 	init_F(G,F_attr);
 
 	//calculation
-	forall_edges (e,G)
-	{//for
-		u = e->source();
-		v = e->target();
-		vector_v_minus_u  = A[v].get_position() - A[u].get_position();
-		norm_v_minus_u = vector_v_minus_u.norm();
+	for(edge e : G.edges)
+	{
+		node u = e->source();
+		node v = e->target();
+		DPoint vector_v_minus_u  = A[v].get_position() - A[u].get_position();
+		double norm_v_minus_u = vector_v_minus_u.norm();
 		if(vector_v_minus_u == nullpoint)
 			f_u = nullpoint;
 		else if(!N.f_near_machine_precision(norm_v_minus_u,f_u))
 		{
-			scalar = f_attr_scalar(norm_v_minus_u,E[e].get_length())/norm_v_minus_u;
+			double scalar = f_attr_scalar(norm_v_minus_u,E[e].get_length())/norm_v_minus_u;
 			f_u.m_x = scalar * vector_v_minus_u.m_x;
 			f_u.m_y = scalar * vector_v_minus_u.m_y;
 		}
 
 		F_attr[v] = F_attr[v] - f_u;
 		F_attr[u] = F_attr[u] + f_u;
-	}//for
+	}
 }
 
 
@@ -1296,7 +1260,7 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 		break;
 	case fmEades:
 		{
-			double c = 10;
+			const double c = 10;
 			if (d == 0)
 				s = -1e10;
 			else
@@ -1305,7 +1269,7 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 		}
 	case fmNew:
 		{
-			double c =  Math::log2(d/ind_ideal_edge_length);
+			const double c =  Math::log2(d/ind_ideal_edge_length);
 			if (d > 0)
 				s =  c * d * d /
 				(ind_ideal_edge_length * ind_ideal_edge_length * ind_ideal_edge_length);
@@ -1331,40 +1295,37 @@ void FMMMLayout::add_attr_rep_forces(
 	int fine_tuning_step)
 {
 	numexcept N;
-	node v;
-	DPoint f,force;
-	DPoint nullpoint (0,0);
-	double norm_f,scalar;
-	double act_spring_strength,act_rep_force_strength;
+	DPoint nullpoint(0, 0);
 
 	//set cool_factor
-	if(coolTemperature() == false)
+	if (coolTemperature() == false)
 		cool_factor = 1.0;
-	else if((coolTemperature() == true) && (fine_tuning_step == 0))
+	else if ((coolTemperature() == true) && (fine_tuning_step == 0))
 	{
-		if(iter == 1)
+		if (iter == 1)
 			cool_factor = coolValue();
 		else
 			cool_factor *= coolValue();
 	}
 
-	if(fine_tuning_step == 1)
+	if (fine_tuning_step == 1)
 		cool_factor /= 10.0; //decrease the temperature rapidly
 	else if (fine_tuning_step == 2)
 	{
-		if(iter <= fineTuningIterations() -5)
+		if (iter <= fineTuningIterations() - 5)
 			cool_factor = fineTuneScalar(); //decrease the temperature rapidly
 		else
-			cool_factor = (fineTuneScalar()/10.0);
+			cool_factor = (fineTuneScalar() / 10.0);
 	}
 
 	//set the values for the spring strength and strength of the rep. force field
-	if(fine_tuning_step <= 1)//usual case
+	double act_spring_strength, act_rep_force_strength;
+	if (fine_tuning_step <= 1)//usual case
 	{
 		act_spring_strength = springStrength();
 		act_rep_force_strength = repForcesStrength();
 	}
-	else if(!adjustPostRepStrengthDynamically())
+	else if (!adjustPostRepStrengthDynamically())
 	{
 		act_spring_strength = postSpringStrength();
 		act_rep_force_strength = postStrengthOfRepForces();
@@ -1375,22 +1336,24 @@ void FMMMLayout::add_attr_rep_forces(
 		act_rep_force_strength = get_post_rep_force_strength(G.numberOfNodes());
 	}
 
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 	{
+		DPoint f;
 		f.m_x = act_spring_strength * F_attr[v].m_x + act_rep_force_strength * F_rep[v].m_x;
 		f.m_y = act_spring_strength * F_attr[v].m_y + act_rep_force_strength * F_rep[v].m_y;
 		f.m_x = average_ideal_edgelength * average_ideal_edgelength * f.m_x;
 		f.m_y = average_ideal_edgelength * average_ideal_edgelength * f.m_y;
 
-		norm_f = f.norm();
-		if(f == nullpoint)
+		double norm_f = f.norm();
+
+		DPoint force;
+		if (f == nullpoint)
 			force = nullpoint;
-		else if(N.f_near_machine_precision(norm_f,force))
+		else if (N.f_near_machine_precision(norm_f, force))
 			restrict_force_to_comp_box(force);
 		else
 		{
-			scalar = min (norm_f * cool_factor * forceScalingFactor(),
-				max_radius(iter))/norm_f;
+			double scalar = min(norm_f * cool_factor * forceScalingFactor(), max_radius(iter)) / norm_f;
 			force.m_x = scalar * f.m_x;
 			force.m_y = scalar * f.m_y;
 		}
@@ -1404,9 +1367,7 @@ void FMMMLayout::move_nodes(
 	NodeArray<NodeAttributes>& A,
 	NodeArray<DPoint>& F)
 {
-	node v;
-
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		A[v].set_position(A[v].get_position() + F[v]);
 }
 
@@ -1415,26 +1376,23 @@ void FMMMLayout::update_boxlength_and_cornercoordinate(
 	Graph& G,
 	NodeArray<NodeAttributes>&A)
 {
-	node v;
-	double xmin,xmax,ymin,ymax;
-	DPoint midpoint;
+	node vFirst = G.firstNode();
+	DPoint midpoint = A[vFirst].get_position();
 
-
-	v = G.firstNode();
-	midpoint = A[v].get_position();
+	double xmin, xmax, ymin, ymax;
 	xmin = xmax = midpoint.m_x;
 	ymin = ymax = midpoint.m_y;
 
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 	{
 		midpoint = A[v].get_position();
-		if (midpoint.m_x < xmin )
+		if (midpoint.m_x < xmin)
 			xmin = midpoint.m_x;
-		if (midpoint.m_x > xmax )
+		if (midpoint.m_x > xmax)
 			xmax = midpoint.m_x;
-		if (midpoint.m_y < ymin )
+		if (midpoint.m_y < ymin)
 			ymin = midpoint.m_y;
-		if (midpoint.m_y > ymax )
+		if (midpoint.m_y > ymax)
 			ymax = midpoint.m_y;
 	}
 
@@ -1442,23 +1400,23 @@ void FMMMLayout::update_boxlength_and_cornercoordinate(
 
 	down_left_corner.m_x = floor(xmin - 1);
 	down_left_corner.m_y = floor(ymin - 1);
-	boxlength = ceil(max(ymax-ymin, xmax-xmin) *1.01 + 2);
+	boxlength = ceil(max(ymax - ymin, xmax - xmin) *1.01 + 2);
 
 	//exception handling: all nodes have same x and y coordinate
-	if(boxlength <= 2 )
+	if (boxlength <= 2)
 	{
-		boxlength = G.numberOfNodes()* 20;
-		down_left_corner.m_x = floor(xmin) - (boxlength/2);
-		down_left_corner.m_y = floor(ymin) - (boxlength/2);
+		boxlength = G.numberOfNodes() * 20;
+		down_left_corner.m_x = floor(xmin) - (boxlength / 2);
+		down_left_corner.m_y = floor(ymin) - (boxlength / 2);
 	}
 
 	//export the boxlength and down_left_corner values to the rep. calc. classes
 
-	if(repulsiveForcesCalculation() == rfcExact ||
+	if (repulsiveForcesCalculation() == rfcExact ||
 		repulsiveForcesCalculation() == rfcGridApproximation)
-		FR.update_boxlength_and_cornercoordinate(boxlength,down_left_corner);
+		FR.update_boxlength_and_cornercoordinate(boxlength, down_left_corner);
 	else //repulsiveForcesCalculation() == rfcNMM
-		NM.update_boxlength_and_cornercoordinate(boxlength,down_left_corner);
+		NM.update_boxlength_and_cornercoordinate(boxlength, down_left_corner);
 }
 
 
@@ -1466,12 +1424,10 @@ void FMMMLayout::set_average_ideal_edgelength(
 	Graph& G,
 	EdgeArray<EdgeAttributes>& E)
 {
-	double averagelength = 0;
-	edge e;
-
 	if(G.numberOfEdges() > 0)
 	{
-		forall_edges(e,G)
+		double averagelength = 0;
+		for(edge e : G.edges)
 			averagelength += E[e].get_length();
 		average_ideal_edgelength = averagelength/G.numberOfEdges();
 	}
@@ -1480,13 +1436,12 @@ void FMMMLayout::set_average_ideal_edgelength(
 }
 
 
-double FMMMLayout::get_average_forcevector_length (Graph& G, NodeArray<DPoint>& F)
+double FMMMLayout::get_average_forcevector_length(Graph& G, NodeArray<DPoint>& F)
 {
 	double lengthsum = 0;
-	node v;
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 		lengthsum += F[v].norm();
-	lengthsum /=G.numberOfNodes();
+	lengthsum /= G.numberOfNodes();
 	return lengthsum;
 }
 
@@ -1497,7 +1452,6 @@ void FMMMLayout::prevent_oscilations(
 	NodeArray<DPoint>& last_node_movement,
 	int iter)
 {
-
 	const double pi_times_1_over_6 = 0.52359878;
 	const double pi_times_2_over_6 = 2 * pi_times_1_over_6;
 	const double pi_times_3_over_6 = 3 * pi_times_1_over_6;
@@ -1510,24 +1464,22 @@ void FMMMLayout::prevent_oscilations(
 	const double pi_times_11_over_6 = 11 * pi_times_1_over_6;
 
 	DPoint nullpoint (0,0);
-	double fi; //angle in [0,2pi) measured counterclockwise
-	double norm_old,norm_new,quot_old_new;
 
-	if (iter > 1) //usual case
-	{//if1
-		node v;
-		forall_nodes(v,G)
+	if (iter > 1) // usual case
+	{
+		for(node v : G.nodes)
 		{
 			DPoint force_new (F[v].m_x,F[v].m_y);
 			DPoint force_old (last_node_movement[v].m_x,last_node_movement[v].m_y);
-			norm_new = F[v].norm();
-			norm_old  = last_node_movement[v].norm();
+			double norm_new = F[v].norm();
+			double norm_old  = last_node_movement[v].norm();
 			if ((norm_new > 0) && (norm_old > 0))
-			{//if2
-				quot_old_new =  norm_old / norm_new;
+			{
+				double quot_old_new =  norm_old / norm_new;
 
-				//prevent oszilations
-				fi = angle(nullpoint,force_old,force_new);
+				// prevent oszilations
+				// angle in [0,2pi) measured counterclockwise
+				double fi = angle(nullpoint,force_old,force_new);
 				if(((fi <= pi_times_1_over_6)||(fi >= pi_times_11_over_6))&&
 					((norm_new > (norm_old*2.0))) )
 				{
@@ -1588,10 +1540,10 @@ void FMMMLayout::prevent_oscilations(
 					F[v].m_x = quot_old_new * 1.5 * F[v].m_x;
 					F[v].m_y = quot_old_new * 1.5 * F[v].m_y;
 				}
-			}//if2
+			}
 			last_node_movement[v]= F[v];
 		}
-	}//if1
+	}
 	else if (iter == 1)
 		init_last_node_movement(G,F,last_node_movement);
 }
@@ -1628,8 +1580,7 @@ void FMMMLayout::init_last_node_movement(
 	NodeArray<DPoint>& F,
 	NodeArray<DPoint>& last_node_movement)
 {
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		last_node_movement[v]= F[v];
 }
 
@@ -1639,25 +1590,22 @@ void FMMMLayout::adapt_drawing_to_ideal_average_edgelength(
 	NodeArray<NodeAttributes>& A,
 	EdgeArray<EdgeAttributes>& E)
 {
-	edge e;
-	node v;
 	double sum_real_edgelength = 0;
 	double sum_ideal_edgelength = 0;
-	double area_scaling_factor;
-	DPoint new_pos;
-
-	forall_edges(e,G)
+	for (edge e : G.edges)
 	{
 		sum_ideal_edgelength += E[e].get_length();
 		sum_real_edgelength += (A[e->source()].get_position() - A[e->target()].get_position()).norm();
 	}
 
-	if(sum_real_edgelength == 0) //very very unlike case
+	double area_scaling_factor;
+	if (sum_real_edgelength == 0) // very very unlikly case
 		area_scaling_factor = 1;
 	else
-		area_scaling_factor = sum_ideal_edgelength/sum_real_edgelength;
+		area_scaling_factor = sum_ideal_edgelength / sum_real_edgelength;
 
-	forall_nodes(v,G)
+	DPoint new_pos;
+	for (node v : G.nodes)
 	{
 		new_pos.m_x = resizingScalar() * area_scaling_factor * A[v].get_position().m_x;
 		new_pos.m_y = resizingScalar() * area_scaling_factor * A[v].get_position().m_y;

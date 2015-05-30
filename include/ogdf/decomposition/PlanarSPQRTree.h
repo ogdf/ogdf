@@ -1,11 +1,3 @@
-/*
- * $Revision: 3507 $
- *
- * last checkin:
- *   $Author: zeranski $
- *   $Date: 2013-05-21 14:13:26 +0200 (Tue, 21 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanarSPQRTree
  *
@@ -62,6 +54,8 @@ namespace ogdf {
 
 //! SPQR-trees of planar graphs.
 /**
+ * @ingroup decomp
+ *
  * The class PlanarSPQRTree maintains the triconnected components of a
  * planar biconnected graph G and represents all possible embeddings
  * of G. Each skeleton graph is embedded.

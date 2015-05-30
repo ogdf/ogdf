@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief  Declares CPlanarEdgeInserter class.
  *
@@ -65,6 +57,10 @@ public:
 	node m_src, m_tgt;
 };
 
+//! Edge insertion algorithm for clustered graphs.
+/**
+ * @ingroup ga-cplanarity
+ */
 class OGDF_EXPORT CPlanarEdgeInserter
 {
 	//postprocessing options

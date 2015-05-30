@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of the optimal third
  *        phase of the Sugiyama algorithm.
@@ -59,6 +51,8 @@ namespace ogdf {
 
 //! The LP-based hierarchy layout algorithm.
 /**
+ * @ingroup gd-hlm
+ *
  * OptimalHierarchyLayout implements a hierarchy layout algorithm that is based
  * on an LP-formulation. It is only available if OGDF is compiled with LP-solver
  * support (e.g., Coin).
@@ -95,7 +89,7 @@ class OGDF_EXPORT OptimalHierarchyLayout : public HierarchyLayoutModule
 {
 #ifndef OGDF_LP_SOLVER
 protected:
-	void doCall(const HierarchyLevelsBase& /*levels*/, GraphCopyAttributes & /*AGC*/) {
+	virtual void doCall(const HierarchyLevelsBase& /*levels*/, GraphCopyAttributes & /*AGC*/) override {
 		OGDF_THROW_PARAM(LibraryNotSupportedException, lnscCoin);
 	}
 
@@ -183,7 +177,7 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	void doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC);
+	virtual void doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC) override;
 
 private:
 	void computeXCoordinates(

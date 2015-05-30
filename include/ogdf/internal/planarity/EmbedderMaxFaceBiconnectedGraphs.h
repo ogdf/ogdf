@@ -1,11 +1,3 @@
-/*
- * $Revision: 3977 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-25 13:59:42 +0100 (Tue, 25 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Computes an embedding of a biconnected graph with maximum
  * external face.
@@ -477,8 +469,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::embed(
 	node bigFaceMu;
 	if (n == 0)
 	{
-		node mu;
-		forall_nodes(mu, spqrTree.tree())
+		for(node mu : spqrTree.tree().nodes)
 		{
 			//Expand all faces in skeleton(mu) and get size of the largest of them:
 			T sizeMu = largestFaceInSkeleton(spqrTree, mu, nodeLength, edgeLengthSkel);
@@ -538,8 +529,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::embed(
 		edgeLengthSkel, newOrder, adjBeforeNodeArraySource,
 		adjBeforeNodeArrayTarget, adjExternal, n);
 
-	node v;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 		G.sort(v, newOrder[v]);
 }
 
@@ -685,11 +675,10 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeSNode(
 {
 	Skeleton& S = spqrTree.skeleton(mu);
 	edge referenceEdge = S.referenceEdge();
-	adjEntry startAdjEntry = NULL;
+	adjEntry startAdjEntry = nullptr;
 	if (!leftNode)
 	{
-		edge e;
-		forall_edges(e, S.getGraph())
+		for(edge e : S.getGraph().edges)
 		{
 			if (!S.isVirtual(e))
 			{
@@ -786,7 +775,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 	//Choose face defined by virtual edge and the longest edge different from it.
 	Skeleton& S = spqrTree.skeleton(mu);
 	edge referenceEdge = S.referenceEdge();
-	edge altReferenceEdge = NULL;
+	edge altReferenceEdge = nullptr;
 
 	node m_leftNode = leftNode;
 	if (!m_leftNode) {
@@ -796,10 +785,9 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 	}
 	node m_rightNode = m_leftNode->firstAdj()->twinNode();
 
-	edge e;
 	if (!referenceEdge)
 	{
-		forall_edges(e, S.getGraph())
+		for(edge e : S.getGraph().edges)
 		{
 			if (!S.isVirtual(e))
 			{
@@ -815,8 +803,9 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 		}
 	}
 
-	edge longestEdge = NULL;
-	forall_edges(e, S.getGraph()) {
+	edge longestEdge = nullptr;
+	for(edge e : S.getGraph().edges)
+	{
 		if (e == referenceEdge || e == altReferenceEdge)
 			continue;
 		if (!longestEdge || edgeLength[mu][e] > edgeLength[mu][longestEdge])
@@ -885,13 +874,14 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 		if (i == 0)
 		{
 			//all virtual edges
-			for (ListIterator<edge> it = edgeList.begin(); it.valid(); it++)
+			for (edge e : edgeList)
 			{
-				if (*it == referenceEdge || *it == longestEdge || *it == altReferenceEdge || !S.isVirtual(*it))
+				if (e == referenceEdge || e == longestEdge || e == altReferenceEdge || !S.isVirtual(e))
 					continue;
 
-				node nu = S.twinTreeNode(*it);
-				if (referenceEdge && (*it)->source() == n) {
+				node nu = S.twinTreeNode(e);
+				if (!(referenceEdge == 0) && e->source() == n)
+				{
 					if (referenceEdge->source() == n)
 						adjBeforeNodeArrayTarget[nu] = adjBeforeNodeArrayTarget[mu];
 					else
@@ -904,12 +894,12 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 						adjBeforeNodeArraySource[nu] = adjBeforeNodeArraySource[mu];
 				}
 
-				rightEdgeOrder.pushFront(*it);
+				rightEdgeOrder.pushFront(e);
 
-				if ((*it)->source() == n)
-					ae = (*it)->adjSource();
+				if (e->source() == n)
+					ae = e->adjSource();
 				else
-					ae = (*it)->adjTarget();
+					ae = e->adjTarget();
 
 				adjEntryForNode(ae, before, spqrTree, treeNodeTreated, mu,
 					m_leftNode, nodeLength, edgeLength, newOrder,
@@ -918,17 +908,17 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 			}
 
 			//all real edges
-			for (ListIterator<edge> it = edgeList.begin(); it.valid(); it++)
+			for (edge e : edgeList)
 			{
-				if (*it == referenceEdge || *it == longestEdge || *it == altReferenceEdge || S.isVirtual(*it))
+				if (e == referenceEdge || e == longestEdge || e == altReferenceEdge || S.isVirtual(e))
 					continue;
 
-				rightEdgeOrder.pushFront(*it);
+				rightEdgeOrder.pushFront(e);
 
-				if ((*it)->source() == n)
-					ae = (*it)->adjSource();
+				if (e->source() == n)
+					ae = e->adjSource();
 				else
-					ae = (*it)->adjTarget();
+					ae = e->adjTarget();
 
 				adjEntryForNode(ae, before, spqrTree, treeNodeTreated, mu,
 					m_leftNode, nodeLength, edgeLength, newOrder,
@@ -938,12 +928,12 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgePNode(
 		}
 		else
 		{
-			for (ListIterator<edge> it = rightEdgeOrder.begin(); it.valid(); it++)
+			for (edge e : rightEdgeOrder)
 			{
-				if ((*it)->source() == n)
-					ae = (*it)->adjSource();
+				if (e->source() == n)
+					ae = e->adjSource();
 				else
-					ae = (*it)->adjTarget();
+					ae = e->adjTarget();
 
 				adjEntryForNode(ae, before, spqrTree, treeNodeTreated, mu,
 					m_leftNode, nodeLength, edgeLength, newOrder,
@@ -1022,21 +1012,20 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 	edge referenceEdge = S.referenceEdge();
 
 	//compute biggest face containing the reference edge:
-	face maxFaceContEdge = NULL;
+	face maxFaceContEdge = nullptr;
 	List<node> maxFaceNodes;
 	planarEmbed(S.getGraph());
 	CombinatorialEmbedding combinatorialEmbedding(S.getGraph());
 	T bigFaceSize = -1;
 	adjEntry m_adjExternal = 0;
-	face f;
-	forall_faces(f, combinatorialEmbedding)
+	for(face f : combinatorialEmbedding.faces)
 	{
 		bool containsVirtualEdgeOrN = false;
 		adjEntry this_m_adjExternal = 0;
 		T sizeOfFace = 0;
 		List<node> faceNodes;
-		adjEntry ae;
-		forall_face_adj(ae, f) {
+		for(adjEntry ae : f->entries)
+		{
 			faceNodes.pushBack(ae->theNode());
 			if ((n == 0 && (ae->theEdge() == referenceEdge || !referenceEdge))
 			 || S.original(ae->theNode()) == n) {
@@ -1084,8 +1073,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 			succ_virtualEdge_leftNode = leftNode->firstAdj();
 
 		bool succVELNAEInExtFace = false;
-		adjEntry aeExtFace;
-		forall_face_adj(aeExtFace, maxFaceContEdge)
+		for(adjEntry aeExtFace : maxFaceContEdge->entries)
 		{
 			if (aeExtFace->theEdge() == succ_virtualEdge_leftNode->theEdge())
 			{
@@ -1096,8 +1084,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 
 		if (!succVELNAEInExtFace)
 		{
-			node v;
-			forall_nodes(v, S.getGraph())
+			for(node v : S.getGraph().nodes)
 			{
 				List<adjEntry> newAdjOrder;
 				for (adjEntry ae = v->firstAdj(); ae; ae = ae->succ())
@@ -1242,8 +1229,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 
 	//Simple copy of not treated node's adjacency lists (internal nodes). Setting
 	//of left node not necessary, because all nodes are not in external face.
-	node v;
-	forall_nodes(v, S.getGraph())
+	for(node v : S.getGraph().nodes)
 	{
 		if (nodeTreated[v])
 			continue;
@@ -1270,7 +1256,7 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::expandEdgeRNode(
 			else
 			{
 				buffer[ae->theEdge()].reverse();
-				for (ListIterator<adjEntry> it = buffer[ae->theEdge()].begin(); it.valid(); it++)
+				for (ListIterator<adjEntry> it = buffer[ae->theEdge()].begin(); it.valid(); ++it)
 				{
 					if (!before.valid())
 						before = newOrder[v_original].pushFront(*it);
@@ -1298,12 +1284,10 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::compute(
 	//set length for all real edges in skeletons to length of the original edge
 	//and initialize edge lengths for virtual edges with 0:
 	edgeLengthSkel.init(spqrTree->tree());
-	node v;
-	forall_nodes(v, spqrTree->tree())
+	for(node v : spqrTree->tree().nodes)
 	{
 		edgeLengthSkel[v].init(spqrTree->skeleton(v).getGraph());
-		edge e;
-		forall_edges(e, spqrTree->skeleton(v).getGraph())
+		for(edge e : spqrTree->skeleton(v).getGraph().edges)
 		{
 			if (spqrTree->skeleton(v).isVirtual(e))
 				edgeLengthSkel[v][e] = 0;
@@ -1369,12 +1353,10 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::computeSize(
 	//set length for all real edges in skeletons to length of the original edge
 	//and initialize edge lengths for virtual edges with 0:
 	edgeLengthSkel.init(spqrTree->tree());
-	node v;
-	forall_nodes(v, spqrTree->tree())
+	for(node v : spqrTree->tree().nodes)
 	{
 		edgeLengthSkel[v].init(spqrTree->skeleton(v).getGraph());
-		edge e;
-		forall_edges(e, spqrTree->skeleton(v).getGraph())
+		for(edge e : spqrTree->skeleton(v).getGraph().edges)
 		{
 			if (spqrTree->skeleton(v).isVirtual(e))
 				edgeLengthSkel[v][e] = 0;
@@ -1389,8 +1371,7 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::computeSize(
 	topDownTraversal(*spqrTree, spqrTree->rootNode(), nodeLength, edgeLengthSkel);
 
 	T biggestFace = -1;
-	node mu;
-	forall_nodes(mu, spqrTree->tree())
+	for(node mu : spqrTree->tree().nodes)
 	{
 		//Expand all faces in skeleton(mu) and get size of the largest of them:
 		T sizeMu = largestFaceInSkeleton(*spqrTree, mu, nodeLength, edgeLengthSkel);
@@ -1508,15 +1489,14 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::bottomUpTraversal(
 	NodeArray< EdgeArray<T> >& edgeLength)
 {
 	//Recursion:
-	edge ed;
-	forall_adj_edges(ed, mu)
+	for(adjEntry adj : mu->adjEdges)
 	{
+		edge ed = adj->theEdge();
 		if (ed->source() == mu)
 			bottomUpTraversal(spqrTree, ed->target(), nodeLength, edgeLength);
 	}
 
-	edge e;
-	forall_edges(e, spqrTree.skeleton(mu).getGraph())
+	for(edge e : spqrTree.skeleton(mu).getGraph().edges)
 	{
 		//do not treat real edges here and do not treat reference edges:
 		if (!spqrTree.skeleton(mu).isVirtual(e) || e == spqrTree.skeleton(mu).referenceEdge())
@@ -1537,12 +1517,10 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::bottomUpTraversal(
 		{
 			//size of a face in skeleton(nu) minus ell
 			T sizeOfFace = 0;
-			node nS;
-			forall_nodes(nS, spqrTree.skeleton(nu).getGraph())
+			for(node nS : spqrTree.skeleton(nu).getGraph().nodes)
 				sizeOfFace += nodeLength[spqrTree.skeleton(nu).original(nS)];
 
-			edge eS;
-			forall_edges(eS, spqrTree.skeleton(nu).getGraph())
+			for(edge eS : spqrTree.skeleton(nu).getGraph().edges)
 				sizeOfFace += edgeLength[nu][eS];
 
 			edgeLength[mu][e] = sizeOfFace - ell;
@@ -1550,8 +1528,8 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::bottomUpTraversal(
 		else if (spqrTree.typeOf(nu) == SPQRTree::PNode)
 		{
 			//length of the longest edge different from er in skeleton(nu)
-			edge longestEdge = NULL;
-			forall_edges(ed, spqrTree.skeleton(nu).getGraph())
+			edge longestEdge = nullptr;
+			for(edge ed : spqrTree.skeleton(nu).getGraph().edges)
 			{
 				if (!(ed == er)
 				 && (!longestEdge || edgeLength[nu][ed] > edgeLength[nu][longestEdge])) {
@@ -1568,13 +1546,11 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::bottomUpTraversal(
 			planarEmbed(spqrTree.skeleton(nu).getGraph());
 			CombinatorialEmbedding combinatorialEmbedding(spqrTree.skeleton(nu).getGraph());
 			T biggestFaceSize = -1;
-			face f;
-			forall_faces(f, combinatorialEmbedding)
+			for(face f : combinatorialEmbedding.faces)
 			{
 				T sizeOfFace = 0;
 				bool containsEr = false;
-				adjEntry ae;
-				forall_face_adj(ae, f)
+				for(adjEntry ae : f->entries)
 				{
 					if (ae->theEdge() == er)
 						containsEr = true;
@@ -1620,11 +1596,9 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::topDownTraversal(
 			//length of the reference edge of nu is L minus the length of e_{S, nu} minus
 			//the lengths of the two vertices incident to e_{S, nu}.
 			T L = 0;
-			edge ed2;
-			forall_edges(ed2, S.getGraph())
+			for(edge ed2 : S.getGraph().edges)
 				L += edgeLength[mu][ed2];
-			node no;
-			forall_nodes(no, S.getGraph())
+			for(node no : S.getGraph().nodes)
 				L += nodeLength[S.original(no)];
 
 			edgeLength[nu][referenceEdgeOfNu] =
@@ -1634,9 +1608,8 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::topDownTraversal(
 		{
 			//The component length of the reference edge of nu is the length of the longest
 			//edge in S different from e_{S, nu}.
-			edge ed2;
-			edge longestEdge = NULL;
-			forall_edges(ed2, S.getGraph())
+			edge longestEdge = nullptr;
+			for(edge ed2 : S.getGraph().edges)
 			{
 				if (ed2 != eSnu && (!longestEdge || edgeLength[mu][ed2] > edgeLength[mu][longestEdge])) {
 					longestEdge = ed2;
@@ -1655,13 +1628,11 @@ void EmbedderMaxFaceBiconnectedGraphs<T>::topDownTraversal(
 			planarEmbed(S.getGraph());
 			CombinatorialEmbedding combinatorialEmbedding(S.getGraph());
 			T biggestFaceSize = -1;
-			face f;
-			forall_faces(f, combinatorialEmbedding)
+			for(face f : combinatorialEmbedding.faces)
 			{
 				T sizeOfFace = 0;
 				bool containsESnu = false;
-				adjEntry ae;
-				forall_face_adj(ae, f)
+				for(adjEntry ae : f->entries)
 				{
 					if (ae->theEdge() == eSnu)
 						containsESnu = true;
@@ -1700,14 +1671,12 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceContainingNode(
 		planarEmbed(spqrTree.skeleton(mu).getGraph());
 		CombinatorialEmbedding combinatorialEmbedding(spqrTree.skeleton(mu).getGraph());
 		T biggestFaceSize = -1;
-		face f;
-		forall_faces(f, combinatorialEmbedding)
+		for(face f : combinatorialEmbedding.faces)
 		{
 			T sizeOfFace = 0;
 			bool containingN = false;
 			bool m_containsARealEdge = false;
-			adjEntry ae;
-			forall_face_adj(ae, f)
+			for(adjEntry ae : f->entries)
 			{
 				if (spqrTree.skeleton(mu).original(ae->theNode()) == n)
 					containingN = true;
@@ -1730,9 +1699,8 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceContainingNode(
 	else if (spqrTree.typeOf(mu) == SPQRTree::PNode)
 	{
 		//Find the two longest edges, they define the largest face containg n.
-		edge edgeWalker;
 		edge longestEdges[2] = {0, 0};
-		forall_edges(edgeWalker, spqrTree.skeleton(mu).getGraph())
+		for(edge edgeWalker : spqrTree.skeleton(mu).getGraph().edges)
 		{
 			if (!longestEdges[1]
 			 || edgeLength[mu][edgeWalker] > edgeLength[mu][longestEdges[1]]) {
@@ -1761,12 +1729,10 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceContainingNode(
 	{
 		//The largest face containing n is any face in the single existing embedding of S.
 		T sizeOfFace = 0;
-		node nS;
-		forall_nodes(nS, spqrTree.skeleton(mu).getGraph())
+		for(node nS : spqrTree.skeleton(mu).getGraph().nodes)
 			sizeOfFace += nodeLength[spqrTree.skeleton(mu).original(nS)];
 
-		edge eS;
-		forall_edges(eS, spqrTree.skeleton(mu).getGraph())
+		for(edge eS : spqrTree.skeleton(mu).getGraph().edges)
 		{
 			if (!spqrTree.skeleton(mu).isVirtual(eS))
 				containsARealEdge = true;
@@ -1798,13 +1764,11 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceInSkeleton(
 		planarEmbed(spqrTree.skeleton(mu).getGraph());
 		CombinatorialEmbedding combinatorialEmbedding(spqrTree.skeleton(mu).getGraph());
 		T biggestFaceSize = -1;
-		face f;
-		forall_faces(f, combinatorialEmbedding)
+		for(face f : combinatorialEmbedding.faces)
 		{
 			bool m_containsARealEdge = false;
 			T sizeOfFace = 0;
-			adjEntry ae;
-			forall_face_adj(ae, f)
+			for(adjEntry ae : f->entries)
 			{
 				//node originalNode = spqrTree.skeleton(mu).original(ae->theNode());
 				if (!spqrTree.skeleton(mu).isVirtual(ae->theEdge()))
@@ -1828,9 +1792,8 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceInSkeleton(
 	else if (spqrTree.typeOf(mu) == SPQRTree::PNode)
 	{
 		//Find the two longest edges, they define the largest face.
-		edge edgeWalker;
 		edge longestEdges[2] = {0, 0};
-		forall_edges(edgeWalker, spqrTree.skeleton(mu).getGraph())
+		for(edge edgeWalker : spqrTree.skeleton(mu).getGraph().edges)
 		{
 			if (!longestEdges[1]
 			 || edgeLength[mu][edgeWalker] > edgeLength[mu][longestEdges[1]]) {
@@ -1859,12 +1822,10 @@ T EmbedderMaxFaceBiconnectedGraphs<T>::largestFaceInSkeleton(
 	{
 		//The largest face is any face in the single existing embedding of S.
 		T sizeOfFace = 0;
-		node nS;
-		forall_nodes(nS, spqrTree.skeleton(mu).getGraph())
+		for(node nS : spqrTree.skeleton(mu).getGraph().nodes)
 			sizeOfFace += nodeLength[spqrTree.skeleton(mu).original(nS)];
 
-		edge eS;
-		forall_edges(eS, spqrTree.skeleton(mu).getGraph())
+		for(edge eS : spqrTree.skeleton(mu).getGraph().edges)
 		{
 			if (!spqrTree.skeleton(mu).isVirtual(eS))
 				containsARealEdge = true;

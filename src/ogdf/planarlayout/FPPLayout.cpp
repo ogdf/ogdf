@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Definition of the Fraysseix, Pach, Pollack Algorithm (FPPLayout)
  *
@@ -100,7 +92,7 @@ void FPPLayout::doCall(
 
 	// get edges for outer face (triangle)
 	adjEntry e_12;
-	if (adjExternal != 0) {
+	if (adjExternal != nullptr) {
 		edge eG  = adjExternal->theEdge();
 		edge eGC = GC.copy(eG);
 		e_12 = (adjExternal == eG->adjSource()) ? eGC->adjSource() : eGC->adjTarget();
@@ -131,7 +123,7 @@ void FPPLayout::computeOrder(
 {
 	NodeArray<int> num_diag(G, 0);							// number of chords
 	// link[v] = Iterator in possible, that points to v (if diag[v] = 0 and outer[v] = TRUE)
-	NodeArray<ListIterator<node> > link(G, 0);
+	NodeArray<ListIterator<node> > link(G, nullptr);
 	// outer[v] = TRUE <=> v is a node of the actual outer face
 	NodeArray<bool> outer(G, false);
 	// List of all nodes v with outer[v] = TRUE and diag[v] = 0
@@ -141,7 +133,7 @@ void FPPLayout::computeOrder(
 	node v_1 = e_12->theNode();
 	node v_2 = e_2n->theNode();
 	node v_n = e_n1->theNode();
-	node v_k, wp, wq, u;
+	node u;
 	adjEntry e, e2;
 	int k;
 
@@ -164,13 +156,13 @@ void FPPLayout::computeOrder(
 
 	// select next v_k and delete it
 	for (k = G.numberOfNodes(); k >= 3; k--) {
-		v_k = possible.popFrontRet();	// select arbitrary node from possible as v_k
+		node v_k = possible.popFrontRet();	// select arbitrary node from possible as v_k
 
 		num[v_k] = k;
 
 		// predecessor wp and successor wq from vk in C_k (actual outer face)
-		wq = (e_wq [v_k])->twinNode();
-		wp = (e_wp [v_k])->twinNode();
+		node wq = (e_wq [v_k])->twinNode();
+		node wp = (e_wp [v_k])->twinNode();
 
 		// v_k not in C_k-1 anymore
 		outer[v_k] = false;
@@ -224,11 +216,11 @@ void FPPLayout::computeCoordinates(const GraphCopy &G, IPoint &boundingBox, Grid
 	NodeArray<node> upper(G);
 	NodeArray<node> next(G);
 	Array<node, int> v(1, n);
-	node w, vk, wp, wq;
-	int k, xq, dx;
+	node vk, wp, wq;
+	int k;
 
-	forall_nodes(w, G) {
-		v[num[w]] = (node) w;
+	for(node w : G.nodes) {
+		v[num[w]] = w;
 	}
 
 	x_rel[v[1]] = 0;
@@ -237,15 +229,15 @@ void FPPLayout::computeCoordinates(const GraphCopy &G, IPoint &boundingBox, Grid
 	y[G.original(v[2])] = 0;
 
 	next[v[1]] = v[2];
-	next[v[2]] = 0;
+	next[v[2]] = nullptr;
 
 	for (k = 3; k <= n; k++) {
 		vk = v[k];
 		wp = e_wp [vk]->twinNode();
 		wq = e_wq [vk]->twinNode();
 
-		xq = 2;
-		w = wp;
+		int xq = 2;
+		node w = wp;
 		do {
 			w = next [w];
 			xq += x_rel[w];
@@ -256,7 +248,7 @@ void FPPLayout::computeCoordinates(const GraphCopy &G, IPoint &boundingBox, Grid
 		y[G.original(vk)] = (xq + y[G.original(wq)] + y[G.original(wp)]) / 2;
 		x_rel[wq] = xq - x_rel[vk];
 
-		dx = 1;
+		int dx = 1;
 		for (w = next[wp]; w != wq; w = next[w]) {
 			dx += x_rel[w];
 			x[G.original(w)] = dx - x_rel[vk];

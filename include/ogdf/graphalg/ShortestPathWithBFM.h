@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class ShortestPathWithBFM which computes
  *        shortest paths via Bellman-Ford-Moore.
@@ -55,6 +47,10 @@
 
 namespace ogdf {
 
+//! Computes single-source shortest-paths with Bellman-Ford-Moore's algorithm.
+/**
+ * @ingroup ga-sp
+ */
 class OGDF_EXPORT ShortestPathWithBFM : public ShortestPathModule
 {
 public:
@@ -64,14 +60,13 @@ public:
 	// Precond.:
 	//
 	// returns false iff the graph contains a negative cycle
-	bool call(
+	virtual bool call(
 		const Graph &G,                   // directed graph
 		const node s,					  // source node
 		const EdgeArray<int> &length,     // length of an edge
 		NodeArray<int> &d,				  // contains shortest path distances after call
 		NodeArray<edge> &pi
-	);
-
+	) override;
 
 };
 

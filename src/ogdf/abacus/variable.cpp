@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -46,13 +38,12 @@ int Variable::genColumn(
 {
 	double eps      = master_->machineEps();
 	double minusEps = -eps;
-	double co;
 	int    n        = actCon->number();
 
 	expand();
 
 	for (int i = 0; i < n; i++) {
-		co = (*actCon)[i]->coeff(this);
+		double co = (*actCon)[i]->coeff(this);
 		if (co > eps || co < minusEps) col.insert(i,co);
 	}
 
@@ -95,7 +86,6 @@ double Variable::redCost(
 	Active<Constraint, Variable> *actCon,
 	double *y) const
 {
-	double c;
 	double eps = master_->machineEps();
 	double minusEps = -eps;
 	double rc = obj();
@@ -104,7 +94,7 @@ double Variable::redCost(
 	expand();
 
 	for (int i = 0; i < n; i++) {
-		c = (*actCon)[i]->coeff(this);
+		double c = (*actCon)[i]->coeff(this);
 		if (c > eps || c < minusEps)
 			rc -= y[i] * c;
 	}

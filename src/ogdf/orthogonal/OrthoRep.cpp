@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of classes BendString and OrthoRep.
  *
@@ -72,7 +64,7 @@ void BendString::init(const char *str)
 		while ((*p++ = *str++) != 0) ;
 
 	} else
-		m_pBend = 0;
+		m_pBend = nullptr;
 }
 
 
@@ -92,7 +84,7 @@ void BendString::init(char c, size_t n)
 	}
 	else
 	{
-		m_pBend = 0;
+		m_pBend = nullptr;
 	}
 }
 
@@ -104,7 +96,7 @@ void BendString::init(const BendString &bs)
 
 	if (m_len == 0) {
 		m_len = 0;
-		m_pBend = 0;
+		m_pBend = nullptr;
 
 	} else {
 		m_pBend = new char[m_len+1];
@@ -153,9 +145,9 @@ void OrthoRep::init(CombinatorialEmbedding &E)
 //    * the shape of each face is rectagonal, i.e., if
 //        #zeros(f) - #ones(f) - 2|f| + sum of angles at vertices in f
 //      is 4 if f is an internal face or -4 if f is the external face.
-bool OrthoRep::check(string &error)
+bool OrthoRep::check(string &error) const
 {
-	const Graph &G = (Graph&) *m_pE;
+	const Graph &G = m_pE->getGraph();
 	std::ostringstream oss;
 
 	// is the associated graph embedded ?
@@ -165,12 +157,10 @@ bool OrthoRep::check(string &error)
 	}
 
 	// sum of angles at each vertex equals 4 ?
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		int sumAngles = 0;
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 			sumAngles += angle(adj);
 		if(sumAngles != 4) {
 			oss << "Angle sum at vertex " << v->index() << " is " << sumAngles << ".";
@@ -180,8 +170,7 @@ bool OrthoRep::check(string &error)
 	}
 
 	// corresponding bend strings are consistent ?
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		const BendString &bs1 = bend(e->adjSource());
 		const BendString &bs2 = bend(e->adjTarget());
@@ -205,19 +194,17 @@ bool OrthoRep::check(string &error)
 
 
 	// external face set ?
-	if (m_pE->externalFace() == 0) {
+	if (m_pE->externalFace() == nullptr) {
 		error = "External face is not set!";
 		return false;
 	}
 
 	// is shape of each face rectagonal ?
-	face f;
-	forall_faces(f,*m_pE)
+	for(face f : m_pE->faces)
 	{
 		int rho = 0;
 
-		adjEntry adj;
-		forall_face_adj(adj,f) {
+		for(adjEntry adj : f->entries) {
 			const BendString &bs = bend(adj);
 			int zeroes = 0, ones = 0;
 			for(size_t i = 0; i < bs.size(); ++i) {
@@ -254,15 +241,14 @@ bool OrthoRep::check(string &error)
 // representation
 void OrthoRep::normalize()
 {
-	const Graph &G = (Graph &) *m_pE;
+	const Graph &G = m_pE->getGraph();
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		// store current bend string in bs
 		BendString bs(m_bends[e->adjSource()]);
 		const char *str = bs.toString();
-		if (str == 0) continue;
+		if (str == nullptr) continue;
 
 		m_bends[e->adjSource()].set();
 		m_bends[e->adjTarget()].set();
@@ -290,10 +276,9 @@ void OrthoRep::normalize()
 // checks if each bends string is empty
 bool OrthoRep::isNormalized() const
 {
-	const Graph &G = (Graph &) *m_pE;
+	const Graph &G = m_pE->getGraph();
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		if (m_bends[e->adjSource()].size() != 0)
 			return false;
@@ -330,8 +315,7 @@ void OrthoRep::dissect()
 	adjEntry saveExt = E.externalFace()->firstAdj(); //should check supersink
 	m_adjExternal = saveExt;
 
-	face f;
-	forall_faces(f, E)
+	for(face f : E.faces)
 	{
 		// dissect face f
 
@@ -340,8 +324,7 @@ void OrthoRep::dissect()
 		// (180 degree angles do not contribute to the shape of the face)
 		List<adjEntry> faceCycle;
 
-		adjEntry adj;
-		forall_face_adj(adj,f) {
+		for(adjEntry adj : f->entries) {
 			// dissection does not work for graphs with 0 degree angles!
 			OGDF_ASSERT(m_angle[adj] != 0);
 			if (m_angle[adj] != 2)
@@ -350,7 +333,7 @@ void OrthoRep::dissect()
 
 		// We iterate over faceCycle and look for occurrences of two
 		// consecutive 90 degree angles
-		ListIterator<adjEntry> it;;
+		ListIterator<adjEntry> it;
 		for(it = faceCycle.begin(); faceCycle.size() > 4 && it.valid(); ++it)
 		{
 			if (m_angle[*it] == 1 && m_angle[*faceCycle.cyclicPred(it)] == 1)
@@ -454,7 +437,7 @@ void OrthoRep::dissect()
 void OrthoRep::dissect2(PlanRep* PG)
 {
 	string msg;
-	m_adjAlign = 0;
+	m_adjAlign = nullptr;
 	// dissect() requires a normalized orthogonal representation
 	OGDF_ASSERT(isNormalized());
 
@@ -468,8 +451,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 
 	m_adjExternal = E.externalFace()->firstAdj();
 
-	face f;
-	forall_faces(f, E)
+	for(face f : E.faces)
 	{
 		// dissect face f
 
@@ -478,8 +460,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 		// (180 degree angles do not contribute to the shape of the face)
 		List<adjEntry> faceCycle;
 
-		adjEntry adj;
-		forall_face_adj(adj,f) {
+		for(adjEntry adj : f->entries) {
 			// dissection does not work for graphs with 0 degree angles!
 			OGDF_ASSERT(m_angle[adj] != 0);
 			if (m_angle[adj] != 2)
@@ -512,7 +493,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 				//check if possible
 				ListIterator<adjEntry> itEnd, itStart, it1one, it1two, it1three, it1four; //pattern defining edges
 				//take care of prit, it will be deleted
-				for (prit = faceCycle.begin(); prit.valid() && (faceCycle.size()>7); prit++) //go clockwise around face!?
+				for (prit = faceCycle.begin(); prit.valid() && (faceCycle.size()>7); ++prit) //go clockwise around face!?
 				{
 					itEnd = prit; //search pattern backwards
 					if (m_angle[*itEnd]    != 3) continue;
@@ -559,7 +540,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 					edge eDissect = E.splitFace(adStart, adEnd);
 
 					//alignment part
-					if (PG != 0)
+					if (PG != nullptr)
 					{
 						if ( (PG->typeOf((*it1two)->theEdge()->source()) == Graph::generalizationExpander) &&
 							(PG->typeOf((*it1two)->theEdge()->target()) == Graph::generalizationExpander))
@@ -586,7 +567,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 					adStart = adStart->cyclicSucc();//use reference
 					//itEnd stays with angle value 1
 
-					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+					//OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
 				}//for
 			}//preprocessing pattern1
 			//if (m_people)
@@ -603,7 +584,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 				savenext = faceCycle.begin();
 				for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>6); (prit = savenext)) //go clockwise around face!?
 				{
-					savenext++;
+					++savenext;
 					itTopSucc = prit; //search pattern backwards
 					it1Top = faceCycle.cyclicPred(itTopSucc);
 					if (m_angle[*it1Top]  != 1) continue;
@@ -659,7 +640,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 		//search for ears in connection between two cages and fill them in a preprocessing
 		//step to avoid the separation, works only in combination with segment-saving
 		//and if PlanRep-ifnormation is known, maybe use degree1-simplification
-		if (PG != 0)
+		if (PG != nullptr)
 		{
 			ListIterator<adjEntry> prit, savenext;
 			//check if possible
@@ -669,7 +650,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 
 			for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>5); (prit = savenext)) //go clockwise around face!?
 			{
-				savenext++;
+				++savenext;
 				//es bleibt herauszufinden, in welcher reihenfolge die kanten ohnehin korrekt
 				//durchlaufen werden, dann die andere nehmen
 				itEnd = prit; //search pattern backwards
@@ -683,16 +664,16 @@ void OrthoRep::dissect2(PlanRep* PG)
 				if (m_angle[*itToe]   != 3) continue; //andersherum anders
 
 				node ov = PG->expandedNode( (*itEar)->theNode() );
-				if (ov == 0) continue;
+				if (ov == nullptr) continue;
 				ov = PG->original( ov );
-				if (ov == 0) continue;
+				if (ov == nullptr) continue;
 
 				//zweiter Knoten reicht auch, andere Seite
 				node ov2;
 				ov2 = PG->expandedNode( (*itHead)->theNode() );
-				if (ov2 == 0) continue;
+				if (ov2 == nullptr) continue;
 				ov2 = PG->original( ov2 );
-				if (ov2 == 0) continue;
+				if (ov2 == nullptr) continue;
 
 				if ( (ov2->degree() != 1) && (ov->degree() != 1) ) continue;
 				///if ( PG->typeOf((*itEar)->theEdge()) == -1) continue;
@@ -706,15 +687,12 @@ void OrthoRep::dissect2(PlanRep* PG)
 				adjEntry& adHead = *itHead;
 				adjEntry& adToe = *itToe;
 				adjEntry adjHeadSucc;
-				adjEntry adj2;
 
 				adjHeadSucc = adHead->faceCycleSucc();
 
 				int a1 = m_angle[adjHeadSucc];
-				int a2;
 				//bool splitted = false;
 				edge eDissect;
-				node u;
 
 				//Hier noch einfuegen: natuerlich muss head.fcsucc statt faceCycle.succ getestet werden, da auch 180 Grad zulaessig
 
@@ -736,8 +714,8 @@ void OrthoRep::dissect2(PlanRep* PG)
 
 					//split edge
 					a1 = m_angle[adHead];
-					adj2 = adHead->twin();
-					a2 = m_angle[adj2];
+					adjEntry adj2 = adHead->twin();
+					int a2 = m_angle[adj2];
 
 					edge savee = adHead->theEdge();
 					bool wasDissected =  m_dissectionEdge[savee];
@@ -748,7 +726,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 					if (PG) PG->typeOf(se) = savetype;
 					adjHeadSucc = adHead->faceCycleSucc();
 
-					u = se->source();
+					node u = se->source();
 
 					if (m_dissectionEdge[adHead] == false)
 						m_splitNodes.push(u);
@@ -995,8 +973,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 
 	m_adjExternal = E.externalFace()->firstAdj();
 
-	face f;
-	forall_faces(f, E)
+	for(face f : E.faces)
 	{
 		// dissect face f
 
@@ -1005,8 +982,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 		// (180 degree angles do not contribute to the shape of the face)
 		List<adjEntry> faceCycle;
 
-		adjEntry adj;
-		forall_face_adj(adj,f) {
+		for(adjEntry adj : f->entries) {
 			// dissection does not work for graphs with 0 degree angles!
 			OGDF_ASSERT(m_angle[adj] != 0);
 			if (m_angle[adj] != 2)
@@ -1039,7 +1015,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				//check if possible
 				ListIterator<adjEntry> itEnd, itStart, it1one, it1two, it1three, it1four; //pattern defining edges
 				//take care of prit, it will be deleted
-				for (prit = faceCycle.begin(); prit.valid() && (faceCycle.size()>7); prit++) //go clockwise around face!?
+				for (prit = faceCycle.begin(); prit.valid() && (faceCycle.size()>7); ++prit) //go clockwise around face!?
 				{
 					itEnd = prit; //search pattern backwards
 					if (m_angle[*itEnd]    != 3) continue;
@@ -1085,7 +1061,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					adStart = adStart->cyclicSucc();//use reference
 					//itEnd stays with angle value 1
 
-					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+					//OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
 				}//for
 			}//preprocessing pattern1
 			//if (m_people)
@@ -1102,7 +1078,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				savenext = faceCycle.begin();
 				for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>6); (prit = savenext)) //go clockwise around face!?
 				{
-					savenext++;
+					++savenext;
 					itTopSucc = prit; //search pattern backwards
 					it1Top = faceCycle.cyclicPred(itTopSucc);
 					if (m_angle[*it1Top]  != 1) continue;
@@ -1158,7 +1134,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 		//search for ears in connection between two cages and fill them in a preprocessing
 		//step to avoid the separation, works only in combination with segment-saving
 		//and if PlanRep-information is known, maybe use degree1-simplification
-		if (PG != 0)
+		if (PG != nullptr)
 		{
 			ListIterator<adjEntry> prit, savenext;
 			//check if possible
@@ -1168,7 +1144,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 
 			for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>5); (prit = savenext)) //go clockwise around face!?
 			{
-				savenext++;
+				++savenext;
 				//es bleibt herauszufinden, in welcher reihenfolge die kanten ohnehin korrekt
 				//durchlaufen werden, dann die andere nehmen
 				itEnd = prit; //search pattern backwards
@@ -1181,16 +1157,16 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				if (m_angle[*itToe]   != 3) continue; //andersherum anders
 
 				node ov = PG->expandedNode( (*itEar)->theNode() );
-				if (ov == 0) continue;
+				if (ov == nullptr) continue;
 				ov = PG->original( ov );
-				if (ov == 0) continue;
+				if (ov == nullptr) continue;
 
 				//zweiter Knoten reicht auch, andere Seite
 				node ov2;
 				ov2 = PG->expandedNode( (*itHead)->theNode() );
-				if (ov2 == 0) continue;
+				if (ov2 == nullptr) continue;
 				ov2 = PG->original( ov2 );
-				if (ov2 == 0) continue;
+				if (ov2 == nullptr) continue;
 
 				if ( (ov2->degree() != 1) && (ov->degree() != 1) ) continue;
 				///if ( PG->typeOf((*itEar)->theEdge()) == -1) continue;
@@ -1204,15 +1180,12 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				adjEntry& adHead = *itHead;
 				adjEntry& adToe = *itToe;
 				adjEntry adjHeadSucc;
-				adjEntry adj2;
 
 				adjHeadSucc = adHead->faceCycleSucc();
 
 				int a1 = m_angle[adjHeadSucc];
-				int a2;
 				//bool splitted = false;
 				edge eDissect;
-				node u;
 
 				//Hier noch einfuegen: natuerlich muss head.fcsucc statt faceCycle.succ getestet werden, da auch 180 Grad zulaessig
 
@@ -1234,8 +1207,8 @@ void OrthoRep::gridDissect(PlanRep* PG)
 
 					//split edge
 					a1 = m_angle[adHead];
-					adj2 = adHead->twin();
-					a2 = m_angle[adj2];
+					adjEntry adj2 = adHead->twin();
+					int a2 = m_angle[adj2];
 
 					edge savee = adHead->theEdge();
 					bool wasDissected =  m_dissectionEdge[savee];
@@ -1246,7 +1219,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					if (PG) PG->typeOf(se) = savetype;
 					adjHeadSucc = adHead->faceCycleSucc();
 
-					u = se->source();
+					node u = se->source();
 
 					if (m_dissectionEdge[adHead] == false)
 					  m_splitNodes.push(u);
@@ -1481,7 +1454,7 @@ void OrthoRep::undissect(bool align) //default false
 
 	// remove all dissection edges
 	edge e, eSucc;
-	for(e = G.firstEdge(); e != 0; e = eSucc)
+	for(e = G.firstEdge(); e != nullptr; e = eSucc)
 	{
 		eSucc = e->succ();
 		if (m_dissectionEdge[e] == true) {
@@ -1520,7 +1493,7 @@ void OrthoRep::undissect(bool align) //default false
 	m_pE->computeFaces();
 
 	//may be the external face is still in the alignment part
-	if (align && (m_adjAlign != 0))
+	if (align && (m_adjAlign != nullptr))
 	{
 		m_pE->setExternalFace(m_pE->rightFace(m_adjAlign));
 		//m_adjAlign = 0;
@@ -1556,8 +1529,7 @@ void OrthoRep::orientate(const PlanRep &PG, OrthoDir preferedDir)
 
 	// count how many adjacency entries are orientated in a direction
 	Array<int> num(0,3,0);
-	edge e;
-	forall_edges(e,PG) {
+	for(edge e : PG.edges) {
 		if (PG.typeOf(e) == Graph::generalization)
 			++num[m_dir[e->adjSource()]];
 	}
@@ -1584,7 +1556,7 @@ void OrthoRep::orientate(adjEntry adj, OrthoDir dir)
 		dir == odEast || dir == odWest || dir == odNorth || dir == odSouth
 	);
 
-	const Graph &G = (Graph &) *m_pE;
+	const Graph &G = m_pE->getGraph();
 
 	m_dir.init(G, odUndefined);
 
@@ -1618,14 +1590,13 @@ void OrthoRep::orientateFace(adjEntry adj, OrthoDir dir)
 // rotate directions of adjacency entries by r
 void OrthoRep::rotate(int r)
 {
-	const Graph &G = (Graph &) *m_pE;
+	const Graph &G = m_pE->getGraph();
 
 	if (r < 0) {
 		r = r + (-r / 4 + 1) * 4;
 	}
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		m_dir[e->adjSource()] =
 			OrthoDir((m_dir[e->adjSource()] + r) & 3);
 
@@ -1645,14 +1616,13 @@ void OrthoRep::computeCageInfoUML(
 	if (m_umlCageInfo.valid())
 		freeCageInfoUML();
 
-	m_umlCageInfo.init(PG,0);
+	m_umlCageInfo.init(PG,nullptr);
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		adjEntry adj = PG.expandAdj(v);
 
-		if (adj == 0) continue;
+		if (adj == nullptr) continue;
 
 		m_umlCageInfo[v] = OGDF_NEW VertexInfoUML;
 		VertexInfoUML &vi = *m_umlCageInfo[v];
@@ -1685,7 +1655,7 @@ void OrthoRep::computeCageInfoUML(
 				if (PG.typeOf(eAttached) == Graph::generalization) {
 					vi.m_side[m_dir[adj]].m_adjGen = adjAttached;
 					++attSide;
-				} else if (PG.original(eAttached) != 0) {
+				} else if (PG.original(eAttached) != nullptr) {
 					vi.m_side[m_dir[adj]].m_nAttached[attSide]++;
 				}
 			}
@@ -1698,10 +1668,9 @@ void OrthoRep::freeCageInfoUML()
 {
 	if( !m_umlCageInfo.valid() ) return;
 
-	const Graph &G = (Graph &) *m_pE;
+	const Graph &G = m_pE->getGraph();
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		delete m_umlCageInfo[v];
 	}
 }

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3452 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-24 13:50:34 +0200 (Wed, 24 Apr 2013) $
- ***************************************************************/
-
 /*!\file
 * \author Matthias Elf
 *
@@ -105,10 +97,10 @@ Master::Master(
 	problemName_(problemName),
 	readParamFromFile_(readParamFromFile),
 	optSense_(optSense),
-	root_(0),
-	rRoot_(0),
-	openSub_(0),
-	history_(0),
+	root_(nullptr),
+	rRoot_(nullptr),
+	openSub_(nullptr),
+	history_(nullptr),
 	enumerationStrategy_(BestFirst),
 	branchingStrategy_(CloseHalfExpensive),
 	nBranchingVariableCandidates_(1),
@@ -124,22 +116,22 @@ Master::Master(
 	Clp
 #endif
 	),
-	lpMasterOsi_(0),
-	conPool_(0),
-	cutPool_(0),
-	varPool_(0),
-	fixCand_(0),
+	lpMasterOsi_(nullptr),
+	conPool_(nullptr),
+	cutPool_(nullptr),
+	varPool_(nullptr),
+	fixCand_(nullptr),
 	cutting_(cutting),
 	pricing_(pricing),
 	solveApprox_(false),
 	nSubSelected_(0),
 	VbcLog_(NoVbc),
-	treeStream_(0),
+	treeStream_(nullptr),
 	requiredGuarantee_(0.0),
 	maxLevel_(numeric_limits<int>::max()),
 	maxNSub_(numeric_limits<int>::max()),
-	maxCpuTime_(__int64(999999)*3600+59*60+59),
-	maxCowTime_(__int64(999999)*3600+59*60+59),
+	maxCpuTime_(int64_t(999999)*3600+59*60+59),
+	maxCowTime_(int64_t(999999)*3600+59*60+59),
 	objInteger_(false),
 	tailOffNLp_(0),
 	tailOffPercent_(0.000001),
@@ -229,7 +221,7 @@ Master::STATUS Master::optimize()
 	*/
 	if (VbcLog_ == File) {
 		string treeStreamName = problemName_ + "." + to_string(ogdf::System::getProcessID()) + ".tree";
-		treeStream_ = new ofstream(OGDF_STRING_OPEN(treeStreamName));
+		treeStream_ = new ofstream(treeStreamName);
 	}
 	else if (VbcLog_ == Pipe)
 	{
@@ -378,7 +370,7 @@ Master::STATUS Master::optimize()
 	double totcsecs = (double) totalTime_.centiSeconds();
 
 	// miscellaneous time in centi-seconds
-	__int64 misTime = totalTime_.centiSeconds()
+	int64_t misTime = totalTime_.centiSeconds()
 		- lpTime_.centiSeconds()
 		- separationTime_.centiSeconds()
 		- improveTime_.centiSeconds()
@@ -537,7 +529,7 @@ Sub* Master::select()
 		 << "Stop optimization." << endl;
 		root_->fathomTheSubTree();
 		status_ = MaxCpuTime;
-		return 0;
+		return nullptr;
 	}
 
 	if (totalCowTime_.exceeds(maxCowTime())) {
@@ -545,7 +537,7 @@ Sub* Master::select()
 		 << "Stop optimization." << endl;
 		root_->fathomTheSubTree();
 		status_ = MaxCowTime;
-		return 0;
+		return nullptr;
 	}
 
 	if (guaranteed()) {
@@ -554,7 +546,7 @@ Sub* Master::select()
 		 << "Terminate optimization." << endl;
 		status_ = Guaranteed;
 		root_->fathomTheSubTree();
-		return 0;
+		return nullptr;
 	}
 
 	if (nSubSelected_ >= maxNSub()) {
@@ -563,7 +555,7 @@ Sub* Master::select()
 		 << "Terminate optimization." << endl;
 		status_ = MaxNSub;
 		root_->fathomTheSubTree();
-		return 0;
+		return nullptr;
 	}
 
 	return openSub_->select();
@@ -609,14 +601,14 @@ int Master::equalSubCompare(const Sub *s1, const Sub *s2) const
 
 	if (s1->branchRule()->branchOnSetVar() && s2->branchRule()->branchOnSetVar())
 	{
-		if (((SetBranchRule*) s1->branchRule())->setToUpperBound())
+		if (static_cast<SetBranchRule*>(s1->branchRule())->setToUpperBound())
 		{
-			if (((SetBranchRule*) s2->branchRule())->setToUpperBound())
+			if (static_cast<SetBranchRule*>(s2->branchRule())->setToUpperBound())
 				return 0;
 			else
 				return 1;
 		}
-		else if (((SetBranchRule*) s2->branchRule())->setToUpperBound())
+		else if (static_cast<SetBranchRule*>(s2->branchRule())->setToUpperBound())
 			return -1;
 		return 0;
 	}
@@ -1286,7 +1278,7 @@ void Master::maxCpuTime(int hour, int min, int sec)
 		Logger::ifout() << "Master::setCpuTime() invalid argument \n - correct value: sec,min <=60\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
 	}
-	maxCpuTime_ = __int64(hour)*3600 + min*60 + sec;
+	maxCpuTime_ = int64_t(hour)*3600 + min*60 + sec;
 }
 
 
@@ -1390,12 +1382,12 @@ bool Master::setSolverParameters(OsiSolverInterface* /* interface */, bool /* so
 }
 
 
-static __int64 getSecondsFromString(const string &str)
+static int64_t getSecondsFromString(const string &str)
 {
 	// convert time string in seconds
-	__int64 s  = 0;   //!< seconds in \a maxTime
-	__int64 m  = 0;   //!< minutes in \a maxTime
-	__int64 h  = 0;   //!< hours in \a maxTime
+	int64_t s  = 0;   //!< seconds in \a maxTime
+	int64_t m  = 0;   //!< minutes in \a maxTime
+	int64_t h  = 0;   //!< hours in \a maxTime
 
 	// begin at the end of \a maxTime and read the seconds
 	/* We start at the end of \a buf and go left until a \a ':' is found
@@ -1456,10 +1448,10 @@ string Master::maxCowTimeAsString() const
 {
 	string str;
 
-	__int64 rest = maxCowTime_;
-	__int64 sec  = rest % 60;
+	int64_t rest = maxCowTime_;
+	int64_t sec  = rest % 60;
 	rest /= 60;
-	__int64 min  = rest % 60;
+	int64_t min  = rest % 60;
 	rest /= 60;
 
 	str = to_string(rest) + ":";
@@ -1477,10 +1469,10 @@ string Master::maxCpuTimeAsString() const
 {
 	string str;
 
-	__int64 rest = maxCpuTime_;
-	__int64 sec  = rest % 60;
+	int64_t rest = maxCpuTime_;
+	int64_t sec  = rest % 60;
 	rest /= 60;
-	__int64 min  = rest % 60;
+	int64_t min  = rest % 60;
 	rest /= 60;
 
 	str = to_string(rest) + ":";

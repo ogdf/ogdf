@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -90,10 +82,10 @@ Active<BaseType, CoType>::~Active()
 template <class BaseType, class CoType>
 ostream &operator<<(ostream &out, const Active<BaseType, CoType> &rhs)
 {
-	BaseType *cv;
 	for (int i = 0; i < rhs.n_; i++) {
 		out << i << ": ";
-		if ((cv = rhs.active_[i]->conVar()) != 0)
+		BaseType *cv = rhs.active_[i]->conVar();
+		if (cv != 0)
 			cv->print(out);
 		else
 			out << "void" << endl;

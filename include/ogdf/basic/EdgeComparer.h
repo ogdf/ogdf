@@ -1,11 +1,3 @@
-/*
- * $Revision: 2528 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-03 23:05:08 +0200 (Tue, 03 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares EdgeComparer class.
  *
@@ -62,6 +54,8 @@ namespace ogdf {
 
 //! The EdgeComparer compares adjacency entries on base of the position of the nodes given by an Attributed Graph's layout information
 /**
+ * @ingroup comparer
+ *
  * helper function for ordering / sorting
  * assumes that PG is a planrep on original AG and that PG is
  * not normalized, i.e., if there are bends in AG, they do not
@@ -85,32 +79,18 @@ public:
 	int compare(const adjEntry &e1, const adjEntry &e2) const;
 
 	//! check if vector u->v lies within 180degree halfcircle before vector u->w in clockwise order (i.e. twelve o'clock lies before 1)
-	bool before(const DPoint u, const DPoint v, const DPoint w) const;
+	bool before(const DPoint &u, const DPoint &v, const DPoint &w) const;
 
 private:
 
 	//! returns a value > 0, if vector uv lies "before" vector uw
 	int orientation(
-		const DPoint u,
-		const DPoint v,
-		const DPoint w) const;
+		const DPoint &u,
+		const DPoint &v,
+		const DPoint &w) const;
 
-	//! compares by angle relative to x-axis
-	int compareVectors(
-		const double& x1,
-		const double& y1,
-		const double& x2,
-		const double& y2) const;
 	//! computes angle between vectors p->q, p->r
 	double angle(DPoint p, DPoint q, DPoint r) const;
-
-	inline int signOf(const double& x) const
-	{
-		if ( x == 0 ) return 0;
-		else if (x > 0 ) return 1;
-		else return -1;
-	}
-
 
 	const GraphAttributes *m_AG;
 	const PlanRep *m_PR;

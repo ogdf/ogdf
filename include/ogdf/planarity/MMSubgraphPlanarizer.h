@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class MMSubgraphPlanarizer.
  *
@@ -56,6 +48,7 @@ namespace ogdf
 /**
  * \brief Planarization approach for minor-monotone crossing minimization.
  *
+ * @ingroup ga-crossmin
  */
 class OGDF_EXPORT MMSubgraphPlanarizer : public MMCrossingMinimizationModule
 {
@@ -85,7 +78,7 @@ protected:
 		const EdgeArray<bool> *forbid,
 		int& crossingNumber,
 		int& numNS,
-		int& numSN);
+		int& numSN) override;
 
 private:
 	ModuleOption<PlanarSubgraphModule>  m_subgraph; //!< The planar subgraph module.

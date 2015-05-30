@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class EdgeAttributes.
  *
@@ -102,7 +94,7 @@ public:
 	bool is_extra_edge() const { return extra_edge; }
 	void make_extra_edge() { extra_edge = true; }
 	void mark_as_normal_edge() { extra_edge = false; }
-	void init_mult_values() { e_subgraph = NULL; moon_edge = false; }
+	void init_mult_values() { e_subgraph = nullptr; moon_edge = false; }
 
 private:
 	double length;

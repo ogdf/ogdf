@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Splits and packs the components of a Graph
  *
@@ -70,21 +62,15 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 		const Graph& G = GA.constGraph();
 
 		NodeArray<int> componentNumber(G);
-		m_numberOfComponents = connectedComponents(G, componentNumber);
-		if (m_numberOfComponents == 0) {
+		int numberOfComponents = connectedComponents(G, componentNumber);
+		if (numberOfComponents == 0) {
 			return;
 		}
 
-		//std::vector< std::vector<node> > componentArray;
-		//componentArray.resize(numComponents);
-		//Array<GraphAttributes *> components(numComponents);
-		//
-
 		// intialize the array of lists of nodes contained in a CC
-		nodesInCC.init(m_numberOfComponents);
+		Array<List<node> > nodesInCC(numberOfComponents);
 
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 			nodesInCC[componentNumber[v]].pushBack(v);
 
 		// Create copies of the connected components and corresponding
@@ -94,12 +80,12 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 
 		EdgeArray<edge> auxCopy(G);
 
-		for (int i = 0; i < m_numberOfComponents; i++)
+		for (int i = 0; i < numberOfComponents; i++)
 		{
 			GC.initByNodes(nodesInCC[i],auxCopy);
 			GraphAttributes cGA(GC, GA.attributes());
 			//copy information into copy GA
-			forall_nodes(v, GC)
+			for(node v : GC.nodes)
 			{
 				cGA.width(v) = GA.width(GC.original(v));
 				cGA.height(v) = GA.height(GC.original(v));
@@ -108,18 +94,17 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 			}
 			// copy information on edges
 			if (GA.attributes() & GraphAttributes::edgeDoubleWeight) {
-				edge e;
-				forall_edges(e, GC) {
-				cGA.doubleWeight(e) = GA.doubleWeight(GC.original(e));
+				for (edge e : GC.edges) {
+					cGA.doubleWeight(e) = GA.doubleWeight(GC.original(e));
 				}
 			}
 			m_secondaryLayout.get().call(cGA);
 
 			//copy layout information back into GA
-			forall_nodes(v, GC)
+			for(node v : GC.nodes)
 			{
 				node w = GC.original(v);
-				if (w != 0)
+				if (w != nullptr)
 				{
 					GA.x(w) = cGA.x(v);
 					GA.y(w) = cGA.y(v);
@@ -130,14 +115,10 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 			}
 		}
 
-
-	// rotate component drawings and call the packer
-	reassembleDrawings(GA);
-	// free
-	nodesInCC.init();
+		// rotate component drawings and call the packer
+		reassembleDrawings(GA, nodesInCC);
 
 	}//if valid
-
 }
 
 
@@ -149,16 +130,15 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 void moveToZero()
 {
 	// move Graph to zero
-	node v;
 	double avg_x = 0.0;
 	double avg_y = 0.0;
-	forall_nodes(v, getGraph()) {
+	for(node v : getGraph().nodes) {
 		avg_x += x(v);
 		avg_y += y(v);
 	}
 	avg_x /= getGraph().numberOfNodes();
 	avg_y /= getGraph().numberOfNodes();
-	forall_nodes(v, getGraph()) {
+	for(node v : getGraph().nodes) {
 		x(v, x(v) - avg_x);
 		y(v, y(v) - avg_y);
 	}
@@ -193,8 +173,10 @@ double atan2ex(double y, double x)
 
 //TODO: Regard some kind of aspect ration (input)
 //(then also the rotation of a single component makes sense)
-void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
+void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Array<List<node> > &nodesInCC)
 {
+	int numberOfComponents = nodesInCC.size();
+
 	Array<IPoint> box;
 	Array<IPoint> offset;
 	Array<DPoint> oldOffset;
@@ -204,7 +186,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
 	// rotate components and create bounding rectangles
 
 	//iterate through all components and compute convex hull
-	for (int j = 0; j < m_numberOfComponents; j++)
+	for (int j = 0; j < numberOfComponents; j++)
 	{
 		//todo: should not use std::vector, but in order not
 		//to have to change all interfaces, we do it anyway
@@ -212,34 +194,29 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
 
 		//collect node positions and at the same time center average
 		// at origin
-		//node v;
-		ListConstIterator<node> it = nodesInCC[j].begin();
 		double avg_x = 0.0;
 		double avg_y = 0.0;
-		while (it.valid())
+		for (node v : nodesInCC[j])
 		{
-			DPoint dp(GA.x(*it), GA.y(*it));
+			DPoint dp(GA.x(v), GA.y(v));
 			avg_x += dp.m_x;
 			avg_y += dp.m_y;
 			points.push_back(dp);
-			it++;
 		}
 		avg_x /= nodesInCC[j].size();
 		avg_y /= nodesInCC[j].size();
 
 		//adapt positions to origin
-		it = nodesInCC[j].begin();
 		int count = 0;
 		//assume same order of vertices and positions
-		while (it.valid())
+		for (node v : nodesInCC[j])
 		{
 			//TODO: I am not sure if we need to update both
-			GA.x(*it) = GA.x(*it) - avg_x;
-			GA.y(*it) = GA.y(*it) - avg_y;
+			GA.x(v) = GA.x(v) - avg_x;
+			GA.y(v) = GA.y(v) - avg_y;
 			points.at(count).m_x -= avg_x;
 			points.at(count).m_y -= avg_y;
 
-			it++;
 			count++;
 		}
 
@@ -252,13 +229,13 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
 		double best_height = 0.0;
 
 		// find best rotation by using every face as rectangle border once.
-		for (DPolygon::iterator j = hull.begin(); j != hull.end(); j++) {
+		for (DPolygon::iterator j = hull.begin(); j != hull.end(); ++j) {
 			DPolygon::iterator k = hull.cyclicSucc(j);
 
 			double dist = 0.0;
 			DPoint norm = CH.calcNormal(*k, *j);
-			for (DPolygon::iterator z = hull.begin(); z != hull.end(); z++) {
-				double d = CH.leftOfLine(norm, *z, *k);
+			for (const DPoint &z : hull) {
+				double d = CH.leftOfLine(norm, z, *k);
 				if (d > dist) {
 					dist = d;
 				}
@@ -267,8 +244,8 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
 			double left = 0.0;
 			double right = 0.0;
 			norm = CH.calcNormal(DPoint(0, 0), norm);
-			for (DPolygon::iterator z = hull.begin(); z != hull.end(); z++) {
-				double d = CH.leftOfLine(norm, *z, *k);
+			for (const DPoint &z : hull) {
+				double d = CH.leftOfLine(norm, z, *k);
 				if (d > left) {
 					left = d;
 				}
@@ -310,8 +287,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
 		double top = hull.front().m_y;
 		double bottom = hull.front().m_y;
 		// apply rotation to hull and calc offset
-		for (DPolygon::iterator j = hull.begin(); j != hull.end(); j++) {
-			DPoint tempP = *j;
+		for (DPoint tempP : hull) {
 			double ang = atan2(tempP.m_y, tempP.m_x);
 			double len = sqrt(tempP.m_x*tempP.m_x + tempP.m_y*tempP.m_y);
 			ang += angle;
@@ -343,53 +319,39 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA)
 
 	int index = 0;
 	// Apply offset and rebuild Graph
-	for (int j = 0; j < m_numberOfComponents; j++)
+	for (int j = 0; j < numberOfComponents; j++)
 	{
-	//for (std::vector<MultilevelGraph *>::iterator i = m_components.begin();
-	//	i != m_components.end(); i++, index++)
-	//{
-	//	MultilevelGraph *temp = *i;
+		double angle = rotation[index];
+		// apply rotation and offset to all nodes
 
-	//	if (temp != 0)
-	//	{
-			double angle = rotation[index];
-			// apply rotation and offset to all nodes
-			node v;
+		for (node v : nodesInCC[j])
+		{
+			double x = GA.x(v);
+			double y = GA.y(v);
+			double ang = atan2(y, x);
+			double len = sqrt(x*x + y*y);
+			ang += angle;
+			x = cos(ang) * len;
+			y = sin(ang) * len;
 
-			ListConstIterator<node> it = nodesInCC[j].begin();
-			while (it.valid())
-			{
-				v = *it;
-				double x = GA.x(v);
-				double y = GA.y(v);
-				double ang = atan2(y, x);
-				double len = sqrt(x*x + y*y);
-				ang += angle;
-				x = cos(ang) * len;
-				y = sin(ang) * len;
+			x += static_cast<double>(offset[index].m_x);
+			y += static_cast<double>(offset[index].m_y);
 
-				x += static_cast<double>(offset[index].m_x);
-				y += static_cast<double>(offset[index].m_y);
+			x -= oldOffset[index].m_x;
+			y -= oldOffset[index].m_y;
 
-				x -= oldOffset[index].m_x;
-				y -= oldOffset[index].m_y;
+			GA.x(v) = x;
+			GA.y(v) = y;
 
-				GA.x(v) = x;
-				GA.y(v) = y;
+		}// while nodes in component
 
-				it++;
-
-			}// while nodes in component
-
-//			MLG.reInsertGraph(*temp);
-		//}
-			index++;
+		index++;
 	} // for components
 
 	//now we center the whole graph again
 	//TODO: why?
 	//const Graph& G = GA.constGraph();
-	//forall_nodes(v, G)
+	//for(node v : G.nodes)
 	//MLG.moveToZero();
 }
 

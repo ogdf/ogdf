@@ -1,11 +1,3 @@
-/*
- * $Revision: 3428 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 11:22:04 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with neighbour to get a Multilevel Graph
  *
@@ -59,10 +51,9 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 		return false;
 	}
 
-	node v;
 	int index = 0;
 	Array<node> candidates(numNodes);
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		candidates[index] = v;
 		index++;
 	}
@@ -74,13 +65,12 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 		node mergeNode = candidates[index];
 		candidates[index] = candidates[candSize-1];
 		candSize--;
-		node parent = 0;
+		node parent = nullptr;
 
 		if (mergeNode->degree() > 0) {
 			int index = randomNumber(0, mergeNode->degree()-1);
 			int i = 0;
-			adjEntry adj;
-			forall_adj(adj, mergeNode) {
+			for(adjEntry adj : mergeNode->adjEdges) {
 				if (i == index) {
 					parent = adj->twinNode();
 					break;

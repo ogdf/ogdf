@@ -1,11 +1,3 @@
-/*
- * $Revision: 3840 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 08:27:44 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of ClusterPQContainer.
  *
@@ -150,8 +142,7 @@ public:
 			delete m_inLeaves;
 		if (m_outLeaves)
 		{
-			node v;
-			forall_nodes(v,*m_subGraph)
+			for(node v : m_subGraph->nodes)
 			{
 				while (!(*m_outLeaves)[v].empty())
 				{

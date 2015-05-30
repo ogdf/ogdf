@@ -1,11 +1,3 @@
-/*
- * $Revision: 3432 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for energy-based layout algorithms
  * (class ForceLayoutModule)

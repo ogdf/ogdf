@@ -1,11 +1,3 @@
-/*
-* $Revision: 3159 $
-*
-* last checkin:
-*   $Author: gutwenger $
-*   $Date: 2012-12-13 09:01:58 +0100 (Thu, 13 Dec 2012) $
-***************************************************************/
-
 /** \file
  * \brief implementation of class PlanarizationLayoutUML.
  *
@@ -112,7 +104,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 		//---------------------------------------
 		// 2. embed resulting planar graph
 		//---------------------------------------
-		adjEntry adjExternal = 0;
+		adjEntry adjExternal = nullptr;
 		m_embedder.get().call(pr, adjExternal);
 
 
@@ -135,8 +127,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 			GA.x(vG) = drawing.x(pr.copy(vG));
 			GA.y(vG) = drawing.y(pr.copy(vG));
 
-			adjEntry adj;
-			forall_adj(adj,vG) {
+			for(adjEntry adj : vG->adjEdges) {
 				if ((adj->index() & 1) == 0)
 					continue;
 				edge eG = adj->theEdge();
@@ -210,8 +201,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		//edgearray for reinserter call: which edge may never be crossed?
 		EdgeArray<bool> noCrossingEdge(pr.original(), false);
 
-		edge e;
-		forall_edges(e,pr)
+		for(edge e : pr.edges)
 		{
 			edge eOrig = pr.original(e);
 
@@ -248,7 +238,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		if(!pr.representsCombEmbedding())
 			planarEmbed(pr);
 
-		adjEntry adjExternal = 0;
+		adjEntry adjExternal = nullptr;
 		if(pr.numberOfEdges() > 0) {
 			CombinatorialEmbedding E(pr);
 			face fExternal = findBestExternalFace(pr,E);
@@ -282,8 +272,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 			umlGraph.x(vG) = drawing.x(pr.copy(vG));
 			umlGraph.y(vG) = drawing.y(pr.copy(vG));
 
-			adjEntry adj;
-			forall_adj(adj,vG) {
+			for(adjEntry adj : vG->adjEdges) {
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
 
@@ -326,8 +315,7 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 	const Graph& G = UG.constGraph();
 
 	//check for selfloops and handle them
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		if (e->isSelfLoop())
 			OGDF_THROW_PARAM(PreconditionViolatedException, pvcSelfLoop);
 	}
@@ -342,7 +330,7 @@ void PlanarizationLayoutUML::assureDrawability(UMLGraph &UG)
 		ListConstIterator<edge> itE = m_fakedGens.begin();
 		while (itE.valid()) {
 			UG.type(*itE) = Graph::association;
-			itE++;
+			++itE;
 		}
 	}
 }//assureDrawability
@@ -358,7 +346,7 @@ void PlanarizationLayoutUML::preProcess(UMLGraph &UG)
 	while (it.valid())
 	{
 		UG.modelAssociationClass((*it));
-		it++;
+		++it;
 	}
 }//preprocess
 
@@ -372,7 +360,7 @@ void PlanarizationLayoutUML::postProcess(UMLGraph& UG)
 		while (itE.valid())
 		{
 			UG.type(*itE) = Graph::generalization;
-			itE++;
+			++itE;
 		}
 	}
 
@@ -387,29 +375,28 @@ face PlanarizationLayoutUML::findBestExternalFace(
 {
 	FaceArray<int> weight(E);
 
-	face f;
-	forall_faces(f,E)
+	for(face f : E.faces)
 		weight[f] = f->size();
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		if(PG.typeOf(v) != Graph::generalizationMerger)
 			continue;
 
-		adjEntry adj;
-		forall_adj(adj,v) {
-			if(adj->theEdge()->source() == v)
+		adjEntry adjOut = nullptr;
+		for(adjEntry adj : v->adjEdges) {
+			if (adj->theEdge()->source() == v) {
+				adjOut = adj;
 				break;
+			}
 		}
 
-		OGDF_ASSERT(adj->theEdge()->source() == v);
+		OGDF_ASSERT(adjOut != nullptr);
 
-		node w = adj->theEdge()->target();
+		node w = adjOut->theEdge()->target();
 		bool isBase = true;
 
-		adjEntry adj2;
-		forall_adj(adj2, w) {
+		for(adjEntry adj2 : w->adjEdges) {
 			edge e = adj2->theEdge();
 			if(e->target() != w && PG.typeOf(e) == Graph::generalization) {
 				isBase = false;
@@ -420,8 +407,8 @@ face PlanarizationLayoutUML::findBestExternalFace(
 		if(isBase == false)
 			continue;
 
-		face f1 = E.leftFace(adj);
-		face f2 = E.rightFace(adj);
+		face f1 = E.leftFace(adjOut);
+		face f2 = E.rightFace(adjOut);
 
 		weight[f1] += v->indeg();
 		if(f2 != f1)
@@ -429,7 +416,7 @@ face PlanarizationLayoutUML::findBestExternalFace(
 	}
 
 	face fBest = E.firstFace();
-	forall_faces(f,E)
+	for(face f : E.faces)
 		if(weight[f] > weight[fBest])
 			fBest = f;
 
@@ -460,8 +447,7 @@ void PlanarizationLayoutUML::arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<
 			GA.x(v) += dx;
 			GA.y(v) += dy;
 
-			adjEntry adj;
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				if ((adj->index() & 1) == 0) continue;
 				edge e = adj->theEdge();
 
@@ -628,15 +614,14 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 			umlGraph.x(vG) = drawing.x(PG.copy(vG));
 			umlGraph.y(vG) = drawing.y(PG.copy(vG));
 
-			adjEntry adj;
-			forall_adj(adj,vG)
+			for(adjEntry adj : vG->adjEdges)
 			{
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
 
 				drawing.computePolylineClear(PG,eG,umlGraph.bends(eG));
-			}//foralladj
-		}//for orig nodes
+			}
+		}
 
 		if (!umlMerge)
 		{
@@ -680,7 +665,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 				}
 				else //currently all nodes are expanded, but this is not guaranteed
 				{
-					forall_adj(adjMerger, vMerger)
+					for(adjEntry adjMerger : vMerger->adjEdges)
 					{
 						if (adjMerger->theEdge()->target() == vMerger)
 						{
@@ -691,7 +676,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 								drawing.y(vMerger)));
 
 						}
-					}//forall adj
+					}
 				}
 				itMerger++;
 			}//while merger nodes

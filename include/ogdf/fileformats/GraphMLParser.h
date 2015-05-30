@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declarations for GraphML Parser
  *
@@ -86,8 +78,8 @@ private:
 		List<XmlTagObject *> dataTags;
 		elemTag.findSonXmlTagObjectByName("data", dataTags);
 
-		forall_listiterators(XmlTagObject *, it, dataTags) {
-			const bool result = readData(GA, elem, **it);
+		for(XmlTagObject *obj :dataTags) {
+			const bool result = readData(GA, elem, *obj);
 
 			if(!result) {
 				return false;

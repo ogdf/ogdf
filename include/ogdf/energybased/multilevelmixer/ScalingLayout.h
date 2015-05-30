@@ -1,11 +1,3 @@
-/*
- * $Revision: 2802 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-11 13:55:26 +0200 (Thu, 11 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief ScalingLayout scales and calls a secondary layout
  *
@@ -55,8 +47,10 @@
 
 namespace ogdf {
 
-/*! Scales a Graph relative to the ScalingType.
- *
+
+//! Scales a graph layout and calls a secondary layout algorithm.
+/**
+ * @ingroup gd-multi
  * For use with ModularMultilevelMixer.
  */
 class OGDF_EXPORT ScalingLayout : public MultilevelLayoutModule
@@ -82,19 +76,21 @@ public:
 
 	ScalingLayout();
 
+	using MultilevelLayoutModule::call;
+
 	/**
 	 * \brief Computes a layout of graph \a GA.
 	 *
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	/**
 	 * \brief Computes a layout of graph \a MLG.
 	 *
 	 * @param MLG is the input graph and will also be assigned the layout information.
 	 */
-	void call(MultilevelGraph &MLG);
+	virtual void call(MultilevelGraph &MLG) override;
 
 	/*!
 	 * \brief Sets the minimum and the maximum scaling factor.

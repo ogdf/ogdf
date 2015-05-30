@@ -89,9 +89,9 @@ public:
     }
     void freeSi()
     {
-        assert(si_ != NULL);
+        assert(si_ != nullptr);
         delete si_;
-        si_ = NULL;
+        si_ = nullptr;
 #ifdef COIN_HAS_OSICLP
         clp_ = NULL;
 #endif

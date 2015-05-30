@@ -1,11 +1,3 @@
-/*
- * $Revision: 3445 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-24 11:08:43 +0200 (Wed, 24 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of class Array2D which implements
  * dynamic two dimensional arrays.
@@ -51,7 +43,6 @@
 
 
 #include <ogdf/basic/basic.h>
-#include <math.h>
 
 
 namespace ogdf {
@@ -59,6 +50,8 @@ namespace ogdf {
 
 //! The parameterized class \a Array2D<E> implements dynamic two-dimensional arrays.
 /**
+ * @ingroup containers
+ *
  * @tparam E denotes the element type.
  */
 template<class E> class Array2D
@@ -80,8 +73,19 @@ public:
 	}
 
 	//! Creates a two-dimensional array that is a copy of \a A.
-	Array2D(const Array2D<E> &array2) {
-		copy(array2);
+	Array2D(const Array2D<E> &A) {
+		copy(A);
+	}
+
+	//! Creates a two-dimensional array containing the elements of \a A (move semantics).
+	/**
+	 * The array \a A is empty afterwards.
+	 */
+	Array2D(Array2D<E> &&A)
+		: m_vpStart(A.m_vpStart), m_lenDim2(A.m_lenDim2), m_pStart(A.m_pStart), m_pStop(A.m_pStop),
+		  m_a(A.m_a), m_b(A.m_b), m_c(A.m_c), m_d(A.m_d)
+	{
+		A.construct(0,-1,0,-1);
 	}
 
 	// destructor
@@ -116,14 +120,20 @@ public:
 
 	//! Returns a reference to the element with index (\a i,\a j).
 	const E &operator()(int i, int j) const {
-		OGDF_ASSERT(m_a <= i && i <= m_b && m_c <= j && j <= m_d);
-		return m_vpStart[(i-m_a)*m_lenDim2+j];
+		OGDF_ASSERT(m_a <= i);
+		OGDF_ASSERT(i <= m_b);
+		OGDF_ASSERT(m_c <= j);
+		OGDF_ASSERT(j <= m_d);
+		return m_vpStart[size_t(i-m_a)*m_lenDim2+j];
 	}
 
 	//! Returns a reference to the element with index (\a i,\a j).
 	E &operator()(int i, int j) {
-		OGDF_ASSERT(m_a <= i && i <= m_b && m_c <= j && j <= m_d);
-		return m_vpStart[(i-m_a)*m_lenDim2+j];
+		OGDF_ASSERT(m_a <= i);
+		OGDF_ASSERT(i <= m_b);
+		OGDF_ASSERT(m_c <= j);
+		OGDF_ASSERT(j <= m_d);
+		return m_vpStart[size_t(i-m_a)*m_lenDim2+j];
 	}
 
 	//! Reinitializes the array to an array with empty index set.
@@ -150,6 +160,26 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * Array \a A is empty afterwards.
+	 */
+	Array2D<E> &operator=(Array2D<E> &&A) {
+		deconstruct();
+
+		m_vpStart = A.m_vpStart;
+		m_pStart  = A.m_pStart;
+		m_pStop   = A.m_pStop;
+		m_lenDim2 = A.m_lenDim2;
+		m_a       = A.m_a;
+		m_b       = A.m_b;
+		m_c       = A.m_c;
+		m_d       = A.m_d;
+
+		A.construct(0,-1,0,-1);
+		return *this;
+	}
+
 	//! Sets all elements to \a x.
 	void fill(const E &x) {
 		E *pDest = m_pStop;
@@ -159,10 +189,11 @@ public:
 
 private:
 	E   *m_vpStart; //!< The virtual start of the array (address of A[0,0]).
-	int  m_a; //!< The lowest index in dimension 1.
 	int  m_lenDim2; //!< The  number of elements in dimension 2.
 	E   *m_pStart; //!< The real start of the array (address of A[low1,low2]).
 	E   *m_pStop; //!< Successor of last element (address of A[high1,high2+1]).
+
+	int  m_a; //!< The lowest index in dimension 1.
 	int  m_b; //!< The highest index in dimension 1.
 	int  m_c; //!< The lowest index in dimension 2.
 	int  m_d; //!< The highest index in dimension 2.
@@ -175,7 +206,6 @@ private:
 	void deconstruct();
 
 	void copy(const Array2D<E> &array2);
-
 };
 
 
@@ -188,15 +218,15 @@ void Array2D<E>::construct(int a, int b, int c, int d)
 	m_c = c;
 	m_d = d;
 
-	int lenDim1 = b-a+1;
+	size_t lenDim1 = b-a+1;
 	m_lenDim2   = d-c+1;
 
 	if (lenDim1 < 1 || m_lenDim2 < 1) {
 		m_pStart = m_vpStart = m_pStop = 0;
 
 	} else {
-		int len = lenDim1*m_lenDim2;
-		m_pStart = (E *)malloc(len*sizeof(E));
+		size_t len = lenDim1*m_lenDim2;
+		m_pStart = static_cast<E *>( malloc(len*sizeof(E)) );
 		if (m_pStart == 0)
 			OGDF_THROW(InsufficientMemoryException);
 
@@ -277,7 +307,7 @@ float Array2D<E>::det() const
 	int n = m_lenDim2;
 
 	int i, j;
-	int rem_i, rem_j, column;
+	int column;
 
 	float determinant = 0.0;
 
@@ -295,8 +325,8 @@ float Array2D<E>::det() const
 	default:
 		Array2D<E> remMatrix(0, n-2, 0, n-2);             // the remaining matrix
 		for(column = c; column <= d; column++) {
-			rem_i = 0;
-			rem_j = 0;
+			int rem_i = 0;
+			int rem_j = 0;
 			for(i = a; i <= b; i++) {
 				for(j = c; j <= d; j++) {
 					if(i != a && j != column) {

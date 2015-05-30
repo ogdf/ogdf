@@ -1,11 +1,3 @@
-/*
- * $Revision: 2771 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Wed, 26 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class CPlanarSubClusteredGraph.
  * Constructs a c-planar subclustered graph of the input on
@@ -107,15 +99,14 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 	EdgeArray<bool> visited(origG,false);
 
 	//delete the non-ST edges
-	edge e;
-	forall_edges(e, origG)
+	for(edge e : origG.edges)
 	{
 		if (!inSub[e])
 		{
 			leftOver.pushBack(e); //original edges
 			testG.delEdge(edgeCopy[e]);
 		}//if
-	}//foralledges
+	}
 
 	//todo: cope with preferred edges
 	//simple reinsertion strategy: just iterate over list and test
@@ -133,12 +124,12 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 		if (!cplanar)
 		{
 			testG.delEdge(newCopy);
-			itE++;
+			++itE;
 		}//if
 		else
 		{
 			ListIterator<edge> itDel = itE;
-			itE++;
+			++itE;
 			leftOver.del(itDel);
 		}
 	}//while

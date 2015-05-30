@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of st-numbering algorithm
  *
@@ -99,14 +91,14 @@ int stNumber(const Graph &G,
 	EdgeArray<bool> markedEdge(G,false);
 
 	// Stores for every node its ingoing edge of the dfs tree.
-	NodeArray<edge> dfsInEdge(G,0);
+	NodeArray<edge> dfsInEdge(G,nullptr);
 
 	// Stores a path of vertices that have not been visited.
 	StackPure<node> path;
 
 	//Stores for every node the outgoing, first edge on the
 	// path that defines the low number of the node.
-	NodeArray<edge> followLowPath(G,0);
+	NodeArray<edge> followLowPath(G,nullptr);
 
 	edge st;
 	node v;
@@ -144,10 +136,10 @@ int stNumber(const Graph &G,
 			t = st->target();
 
 		} else {
-			forall_nodes(s,G)
+			for(node v : G.nodes)
 			{
-				if (s->degree() > 0)
-				{
+				if (v->degree() > 0) {
+					s = v;
 					st = s->firstAdj()->theEdge();
 					t = st->opposite(s);
 					break;
@@ -176,14 +168,14 @@ int stNumber(const Graph &G,
 	nodeStack.push(s);
 	count = 1;
 	v = nodeStack.pop();
-	adjEntry adj = 0;
+	adjEntry adj = nullptr;
 	while (v != t)
 	{
 		if (!stPath(path,v,adj,markedNode,markedEdge,dfn,dfsInEdge,followLowPath))
 		{
 			numbering[v] = count;
 			count++;
-			adj = 0;
+			adj = nullptr;
 		}
 		else
 		{
@@ -212,11 +204,10 @@ void stSearch(
 	count++;
 	low[v] = dfn[v];
 
-	node adj = 0;
 	edge e;
 	forall_adj_edges(e,v)
 	{
-		adj = e->opposite(v);
+		node adj = e->opposite(v);
 
 		if(!dfn[adj]) // node not visited yet
 		{
@@ -288,7 +279,7 @@ bool stPath(StackPure<node>	&path,
 			return true;
 		}
 
-	}while (adj != 0);
+	}while (adj != nullptr);
 
 	return false;
 }
@@ -299,9 +290,8 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 	bool   foundLow = false;
 	bool   foundHigh = false;
 	bool   it_is = true;
-	node   v;
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		if (v->degree() == 0)
 			continue;
@@ -309,8 +299,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 		foundHigh = foundLow = 0;
 		if (st_no[v] == 1)
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				if (st_no[adj->theEdge()->opposite(v)] == max)
 					foundLow = foundHigh = 1;
@@ -319,8 +308,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 
 		else if (st_no[v] == max)
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				if (st_no[adj->theEdge()->opposite(v)] == 1)
 					foundLow = foundHigh = 1;
@@ -329,8 +317,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 
 		else
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				if (st_no[adj->theEdge()->opposite(v)] < st_no[v])
 					foundLow = 1;
@@ -341,6 +328,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 		if (!foundLow || !foundHigh)
 			it_is = 0;
 	}
+
 	return it_is;
 }
 

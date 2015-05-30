@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -55,11 +47,10 @@ using namespace ogdf;
 using namespace abacus;
 
 ClusterKuratowskiConstraint::ClusterKuratowskiConstraint(Master *master, int nEdges, SListPure<nodePair> &ks) :
-	Constraint(master, 0, CSense::Less, nEdges-1, true, false, true)
+	Constraint(master, nullptr, CSense::Less, nEdges-1, true, false, true)
 {
-	SListConstIterator<nodePair> it;
-	for (it = ks.begin(); it.valid(); ++it) {
-		m_subdivision.pushBack(*it);
+	for (const nodePair &np : ks) {
+		m_subdivision.pushBack(np);
 	}
 }
 
@@ -68,11 +59,13 @@ ClusterKuratowskiConstraint::~ClusterKuratowskiConstraint() {}
 
 
 double ClusterKuratowskiConstraint::coeff(const Variable *v) const {
-	const EdgeVar *e = (const EdgeVar*)v;
-	for (ListConstIterator<nodePair> it = m_subdivision.begin(); it.valid(); ++it) {
-		if( ((*it).v1 == e->sourceNode() && (*it).v2 == e->targetNode()) ||
-			((*it).v1 == e->targetNode() && (*it).v2 == e->sourceNode()) )
-		{return 1.0;}
+	const EdgeVar *e = static_cast<const EdgeVar*>(v);
+	for (const nodePair &np : m_subdivision) {
+		if( (np.v1 == e->sourceNode() && np.v2 == e->targetNode()) ||
+			(np.v1 == e->targetNode() && np.v2 == e->sourceNode()) )
+		{
+			return 1.0;
+		}
 	}
 	return 0.0;
 }

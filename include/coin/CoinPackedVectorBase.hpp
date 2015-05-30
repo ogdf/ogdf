@@ -92,8 +92,8 @@ public:
    int getMinIndex() const;
 
    /// Throw an exception if there are duplicate indices
-   void duplicateIndex(const char* methodName = NULL,
-		       const char * className = NULL) const;
+   void duplicateIndex(const char* methodName = nullptr,
+		       const char * className = nullptr) const;
 
    /** Return true if the i'th element of the full storage vector exists in
        the packed storage vector.*/
@@ -234,8 +234,8 @@ protected:
    void findMaxMinIndices() const;
 
    /// Return indexSetPtr_ (create it if necessary).
-   std::set<int> * indexSet(const char* methodName = NULL,
-			    const char * className = NULL) const;
+   std::set<int> * indexSet(const char* methodName = nullptr,
+			    const char * className = nullptr) const;
 
    /// Delete the indexSet
    void clearIndexSet() const;

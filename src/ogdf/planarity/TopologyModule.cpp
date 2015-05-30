@@ -1,11 +1,3 @@
-/*
- * $Revision: 3960 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-13 11:36:28 +0100 (Thu, 13 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of TopologyModule (sets embedding
  * from layout)
@@ -85,17 +77,15 @@ bool TopologyModule::setEmbeddingFromGraph(
 		//here, but GA can't access its graph non-const.
 		NodeArray<SListPure<adjEntry> > adjList(PG);
 
-		adjExternal = 0;
+		adjExternal = nullptr;
 
 		//sorts edges by layout information
 		EdgeComparer* ec = new EdgeComparer(GA, PG);
 
 		//we only allow PlanReps that have no bend nodes for the bends
-		node v;
-		adjEntry ae;
-		forall_nodes(v, PG)
+		for(node v : PG.nodes)
 		{
-			forall_adj(ae, v)
+			for(adjEntry ae : v->adjEdges)
 			{
 				adjList[v].pushBack(ae);
 			}//forall adjacency edges
@@ -178,14 +168,12 @@ bool TopologyModule::setEmbeddingFromGraph(
 //debug
 #ifdef OGDF_DEBUG
 	ofstream f("AdjSortCopy.txt");
-	node v;
-	adjEntry ae;
-	forall_nodes(v, PG)
+	for(node v : PG.nodes)
 	{
 		if (PG.original(v))
 		{
 			f << "\nNode: " << PG.original(v)->index() <<"\n";
-			forall_adj(ae, v)
+			for(adjEntry ae : v->adjEdges)
 			{
 				node w = PG.original(ae->twinNode());
 				if (w)
@@ -205,11 +193,10 @@ bool TopologyModule::setEmbeddingFromGraph(
 void TopologyModule::handleImprecision(PlanRep &PG)
 {
 	List<node> problems;
-	node v;
 	//we don't need to check processing from both sides as long
 	//as we only process crossings at original nodes
 	//EdgeArray<bool> processed(PG, false);
-	forall_nodes(v, PG)
+	for(node v : PG.nodes)
 	{
 		if (PG.isCrossingType(v))
 		{
@@ -240,13 +227,13 @@ void TopologyModule::handleImprecision(PlanRep &PG)
 				adRun = adNext;
 			} while (adRun != adFirst);
 		}//iscrossing
-	}//forallnodes
+	}
 	ListIterator<node> it = problems.begin();
 	while (it.valid())
 	{
 		//hier entweder switchen oder Kreuzung entfernen
 		//PG.removeCrossing((*it));
-		it++;
+		++it;
 	}//while
 
 	//TODO: take care not to handle crossing cascades
@@ -264,10 +251,9 @@ void TopologyModule::postProcess(PlanRep &PG)
 	//remove consecutive crossings between two edges
 	if (m_options & opLoop)
 	{
-		node v;
 		List<node> obsoleteCrossings;
 		NodeArray<bool> processed(PG, false);
-		forall_nodes(v, PG)
+		for(node v : PG.nodes)
 		{
 			if (processed[v]) continue;
 			if (v->degree() != 4) continue;
@@ -302,14 +288,14 @@ void TopologyModule::postProcess(PlanRep &PG)
 				adRun2 = adRun2->cyclicSucc();
 			} while (adRun1 != ad1);
 
-		}//forallnodes
+		}
 
 		OGDF_ASSERT((obsoleteCrossings.size() % 2) == 0)
 		ListIterator<node> it = obsoleteCrossings.begin();
 		while (it.valid())
 		{
 			PG.removeCrossing((*it));
-			it++;
+			++it;
 		}//while obsolete crossings
 	}//if oploop
 
@@ -323,26 +309,23 @@ void TopologyModule::postProcess(PlanRep &PG)
 		//removeunnecessaryCrossings, then flip
 		//slow, should be detected when inserting crossings
 		List<node> flipper;
-		node v;
-		forall_nodes(v, PG)
+		for(node v : PG.nodes)
 		{
-			bool flip = false;
-
 			//we remove the crossing and flip the edge order
 			if (PG.isCrossingType(v))//(v->degree() == 4)
 			{
-				flip = checkFlipCrossing(PG, v, false);
+				bool flip = checkFlipCrossing(PG, v, false);
 				if (flip)
 					flipper.pushBack(v);
 
 			}
-		}//forallnodes
+		}
 		//TODO: we should reuse the computation above
 		ListIterator<node> itFlip = flipper.begin();
 		while (itFlip.valid())
 		{
 			checkFlipCrossing(PG, (*itFlip), true);
-			itFlip++;
+			++itFlip;
 		}
 	}//if opcrossflip
 
@@ -357,8 +340,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 	//------------------------
 	//Debug
 	Layout xy(PG);
-	node u;
-	forall_nodes(u, PG)
+	for(node u : PG.nodes)
 	{
 		if (PG.original(u))
 		{
@@ -436,7 +418,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 			startX = endX;
 			startY = endY;
 
-			it++;
+			++it;
 		}
 
 		//create the final leg
@@ -522,7 +504,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 						while (it.valid())
 						{
 							PG.setAssociation((*it));
-							it++;
+							++it;
 						}
 					}//if option set
 
@@ -551,7 +533,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				else (*runIt)->m_topDown = true;
 
 			}//if crossing detected
-			runIt++;
+			++runIt;
 		}//while running over all edgeLegs
 		if (iterList.size() > 0)
 		{
@@ -583,12 +565,12 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				//the same copy edge to update the afterwards
 				List<EdgeLeg*> affectedSegments;
 				ListIterator< EdgeLeg* > itSearch2 = crossLeg->m_eIterator;
-				itSearch2++; //crossLeg itself is automatically updated in insertcrossing
+				++itSearch2; //crossLeg itself is automatically updated in insertcrossing
 				while (itSearch2.valid() &&
 					( (*itSearch2)->copyEdge() ==  crossLeg->copyEdge()) )
 				{
 					affectedSegments.pushBack((*itSearch2));
-					itSearch2++;
+					++itSearch2;
 				}
 				//TODO: check if automatic update of new crossleg
 				//copyedge works after first crossing
@@ -633,11 +615,11 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				//We update (depending on the direction) all
 				//following edgelegs with the same copy edge to newedge
 				ListIterator< EdgeLeg* > itSearch = eLeg->m_eIterator;
-				itSearch++; //eLeg itself is ok
+				++itSearch; //eLeg itself is ok
 				while (itSearch.valid() && ( (*itSearch)->copyEdge() == searchEdge ) )
 				{
 					(*itSearch)->copyEdge() = newEdge;
-					itSearch++;
+					++itSearch;
 				}
 				//We update (depending on the direction) all
 				//following edgelegs with the same copy edge to newedge
@@ -645,7 +627,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				while (itSearch2.valid())
 				{
 					(*itSearch2)->copyEdge() = crossLeg->copyEdge();
-					itSearch2++;
+					++itSearch2;
 				}
 
 				//TODO: we simply push the new leg into the list,
@@ -653,7 +635,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				legList.pushBack(eLeg);
 
 				//itXp++;
-				it++;
+				++it;
 			}//while valid crossings
 
 		}//if crossings
@@ -666,7 +648,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 	{
 		EdgeLeg* el = (*legIt);
 		delete el;
-		legIt++;
+		++legIt;
 	}//while all edgeLegs
 
 	//-----------------------------------------------
@@ -696,7 +678,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 	//when inserting crossings
 
 	adjEntry iti = f->firstAdj();
-	while (iti != 0)
+	while (iti != nullptr)
 	{
 		//list of points along copy iti
 		B.clear();
@@ -747,9 +729,9 @@ double TopologyModule::faceSum(PlanRep &PG,
 		node tgtNode = PG.original((iti->twin())->theNode());
 		//three cases:
 		//1) From original to crossing
-		bool case1 = (srcNode != 0);
+		bool case1 = (srcNode != nullptr);
 		//2) From crossing to original
-		bool case2 = (tgtNode != 0);
+		bool case2 = (tgtNode != nullptr);
 		//3) From crossing to crossing
 		//fuers debuggen eigentlich testen: beide Kreuzungen
 		bool case3 = !(case1 || case2);
@@ -823,7 +805,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 			while (it.valid())
 			{
 				B.pushBack((*it));
-				it++;
+				++it;
 			}//while valid
 
 		}//case2
@@ -885,7 +867,7 @@ double TopologyModule::faceSum(PlanRep &PG,
 		//DPoint p = (*it), r = (*( l.cyclicPred(it) )), q = (*( l.cyclicSucc(it) ));
 		DPoint p = (*it), r = (*( l.cyclicSucc(it) )), q = (*( l.cyclicPred(it) ));
 		rho += angle(p, r, q) - Math::pi;
-		it++;
+		++it;
 	}
 
 	return rho;
@@ -898,12 +880,11 @@ face TopologyModule::getExternalFace(
 {
 	CombinatorialEmbedding E(PG); //computes faces
 
-	face f;
-	forall_faces(f, E)
+	for(face f : E.faces)
 	{
 		if (faceSum(PG, GA, f) < 0) return f;
 
-	}//forall faces
+	}
 
 	//debug or release? sollte das abgefangen werden??
 	throw AlgorithmFailureException(afcExternalFace);
@@ -1150,11 +1131,9 @@ void TopologyModule::sortEdgesFromLayout(Graph &G, GraphAttributes& GA)
 
 	EdgeComparer ec(GA);
 
-	node v;
-	adjEntry ae;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
-		forall_adj(ae, v)
+		for(adjEntry ae : v->adjEdges)
 		{
 			adjList[v].pushBack(ae);
 		}//forall adjacency edges

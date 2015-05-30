@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements simple labeling algorithm
  *
@@ -66,7 +58,7 @@ static DLine segment(DPolyline &bends, double fraction)
 	double pos = 0.0;
 
 	ListConstIterator<DPoint> iter, next;
-	for (iter = next = bends.begin(), next++; next.valid(); iter++, next++) {
+	for (iter = next = bends.begin(), ++next; next.valid(); ++iter, ++next) {
 		pos += (*iter).distance(*next);
 		if (pos >= targetpos)
 			return DLine(*iter, *next);
@@ -86,11 +78,10 @@ static DPoint leftOfSegment(const DLine &segment, const DPoint &p, double newLen
 	else
 		v = p - segment.start();
 
-	DVector newPos;
-	if (left) newPos = ++v;
-	else      newPos = --v;
+	DVector newPos(v.orthogonal());
+	if (!left) newPos *= -1;
 
-	// newPos hat immer L?nge != 0
+	// newPos has nonzero length
 	newPos = (newPos * newLen) / newPos.length();
 
 	return p + newPos;
@@ -100,8 +91,7 @@ static DPoint leftOfSegment(const DLine &segment, const DPoint &p, double newLen
 void ELabelPosSimple::call(GraphAttributes &ug, ELabelInterface<double> &eli)
 {
 	//ug.addNodeCenter2Bends();
-	edge e;
-	forall_edges(e, ug.constGraph()) {
+	for(edge e : ug.constGraph().edges) {
 		EdgeLabel<double> &el = eli.getLabel(e);
 		DPolyline       bends = ug.bends(e);
 

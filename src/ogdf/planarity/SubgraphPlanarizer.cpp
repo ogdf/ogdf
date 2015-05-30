@@ -1,11 +1,3 @@
-/*
- * $Revision: 3472 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mon, 29 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class SubgraphPlanarizer.
  *
@@ -43,15 +35,17 @@
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/FastPlanarSubgraph.h>
-#include <ogdf/basic/CriticalSection.h>
-#include <ogdf/basic/Thread.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/internal/planarity/CrossingStructure.h>
 
+#include <ogdf/basic/Thread.h>
+#include <mutex>
+#include <atomic>
 
-#ifdef OGDF_HAVE_CPP11
+using std::atomic;
+using std::mutex;
+using std::lock_guard;
 using std::minstd_rand;
-#endif
 
 
 namespace ogdf
@@ -67,13 +61,13 @@ class SubgraphPlanarizer::ThreadMaster {
 
 	const EdgeArray<int>      *m_pCost;
 	const EdgeArray<bool>     *m_pForbid;
-	const EdgeArray<__uint32> *m_pEdgeSubGraph;
+	const EdgeArray<uint32_t> *m_pEdgeSubGraph;
 	const List<edge>          &m_delEdges;
 
-	int             m_seed;
-	__int32         m_perms;
-	__int64         m_stopTime;
-	CriticalSection m_criticalSection;
+	int         m_seed;
+	atomic<int> m_perms;
+	int64_t     m_stopTime;
+	mutex       m_mutex;
 
 public:
 	ThreadMaster(
@@ -81,11 +75,11 @@ public:
 		int cc,
 		const EdgeArray<int>  *pCost,
 		const EdgeArray<bool> *pForbid,
-		const EdgeArray<__uint32> *pEdgeSubGraphs,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs,
 		const List<edge> &delEdges,
 		int seed,
 		int perms,
-		__int64 stopTime);
+		int64_t stopTime);
 
 	~ThreadMaster() { delete m_pCS; }
 
@@ -94,7 +88,7 @@ public:
 
 	const EdgeArray<int> *cost() const { return m_pCost; }
 	const EdgeArray<bool> *forbid() const { return m_pForbid; }
-	const EdgeArray<__uint32> *edgeSubGraphs() const { return m_pEdgeSubGraph; }
+	const EdgeArray<uint32_t> *edgeSubGraphs() const { return m_pEdgeSubGraph; }
 	const List<edge> &delEdges() const { return m_delEdges; }
 
 	int rseed(long id) const { return (int)id * m_seed; }
@@ -107,17 +101,21 @@ public:
 };
 
 
-class SubgraphPlanarizer::Worker : public Thread {
+class SubgraphPlanarizer::Worker {
 
-	ThreadMaster *m_pMaster;
+	int                  m_id;
+	ThreadMaster        *m_pMaster;
 	EdgeInsertionModule *m_pInserter;
 
 public:
-	Worker(ThreadMaster *pMaster, EdgeInsertionModule *pInserter) : m_pMaster(pMaster), m_pInserter(pInserter) { }
+	Worker(int id, ThreadMaster *pMaster, EdgeInsertionModule *pInserter) : m_id(id), m_pMaster(pMaster), m_pInserter(pInserter) { }
 	~Worker() { delete m_pInserter; }
 
-protected:
-	virtual void doWork();
+	void operator()();
+
+private:
+	Worker(const Worker &other); // = delete
+	Worker &operator=(const Worker &other); // = delete
 };
 
 
@@ -126,13 +124,13 @@ SubgraphPlanarizer::ThreadMaster::ThreadMaster(
 	int cc,
 	const EdgeArray<int>  *pCost,
 	const EdgeArray<bool> *pForbid,
-	const EdgeArray<__uint32> *pEdgeSubGraphs,
+	const EdgeArray<uint32_t> *pEdgeSubGraphs,
 	const List<edge> &delEdges,
 	int seed,
 	int perms,
-	__int64 stopTime)
+	int64_t stopTime)
 	:
-	m_pCS(0), m_bestCR(numeric_limits<int>::max()), m_pr(pr), m_cc(cc),
+	m_pCS(nullptr), m_bestCR(numeric_limits<int>::max()), m_pr(pr), m_cc(cc),
 	m_pCost(pCost), m_pForbid(pForbid), m_pEdgeSubGraph(pEdgeSubGraphs),
 	m_delEdges(delEdges), m_seed(seed), m_perms(perms), m_stopTime(stopTime)
 { }
@@ -142,14 +140,12 @@ CrossingStructure *SubgraphPlanarizer::ThreadMaster::postNewResult(CrossingStruc
 {
 	int newCR = pCS->numberOfCrossings();
 
-	m_criticalSection.enter();
+	lock_guard<mutex> guard(m_mutex);
 
 	if(newCR < m_bestCR) {
 		std::swap(pCS, m_pCS);
 		m_bestCR = newCR;
 	}
-
-	m_criticalSection.leave();
 
 	return pCS;
 }
@@ -159,7 +155,8 @@ bool SubgraphPlanarizer::ThreadMaster::getNextPerm()
 {
 	if(m_stopTime >= 0 && System::realTime() >= m_stopTime)
 		return false;
-	return atomicDec(&m_perms) >= 0;
+
+	return --m_perms >= 0;
 }
 
 
@@ -175,14 +172,11 @@ bool SubgraphPlanarizer::doSinglePermutation(
 	int cc,
 	const EdgeArray<int>  *pCost,
 	const EdgeArray<bool> *pForbid,
-	const EdgeArray<__uint32> *pEdgeSubGraphs,
+	const EdgeArray<uint32_t> *pEdgeSubGraphs,
 	Array<edge> &deletedEdges,
 	EdgeInsertionModule &inserter,
-#ifdef OGDF_HAVE_CPP11
 	minstd_rand &rng,
-#endif
-	int &crossingNumber
-	)
+	int &crossingNumber)
 {
 	prl.initCC(cc);
 
@@ -192,34 +186,24 @@ bool SubgraphPlanarizer::doSinglePermutation(
 	for(int j = 0; j <= high; ++j)
 		prl.delEdge(prl.copy(deletedEdges[j]));
 
-	// permute
-#ifdef OGDF_HAVE_CPP11
-	std::uniform_int_distribution<int> dist(0,high);
-
-	for(int j = 0; j <= high; ++j)
-		deletedEdges.swap(j, dist(rng));
-#else
-	for(int j = 0; j <= high; ++j)
-		deletedEdges.swap(j, randomNumber(0,high));
-#endif
+	deletedEdges.permute(rng);
 
 	ReturnType ret = inserter.callEx(prl, deletedEdges, pCost, pForbid, pEdgeSubGraphs);
 
 	if(isSolution(ret) == false)
 		return false; // no solution found, that's bad...
 
-	if(pCost == 0)
+	if(pCost == nullptr)
 		crossingNumber = prl.numberOfNodes() - nG;
 	else {
 		crossingNumber = 0;
-		node n;
-		forall_nodes(n, prl) {
-			if(prl.original(n) == 0) { // dummy found -> calc cost
+		for(node n : prl.nodes) {
+			if(prl.original(n) == nullptr) { // dummy found -> calc cost
 				edge e1 = prl.original(n->firstAdj()->theEdge());
 				edge e2 = prl.original(n->lastAdj()->theEdge());
-				if(pEdgeSubGraphs != 0) {
+				if(pEdgeSubGraphs != nullptr) {
 					int subgraphCounter = 0;
-					for(int i=0; i<32; i++) {
+					for(int i = 0; i < 32; i++) {
 						if((((*pEdgeSubGraphs)[e1] & (1<<i))!=0) && (((*pEdgeSubGraphs)[e2] & (1<<i)) != 0))
 							subgraphCounter++;
 					}
@@ -233,34 +217,26 @@ bool SubgraphPlanarizer::doSinglePermutation(
 	return true;
 }
 
-void SubgraphPlanarizer::doWorkHelper(ThreadMaster &master, EdgeInsertionModule &inserter
-#ifdef OGDF_HAVE_CPP11
-	, minstd_rand &rng
-#endif
-)
+void SubgraphPlanarizer::doWorkHelper(ThreadMaster &master, EdgeInsertionModule &inserter, minstd_rand &rng)
 {
 	const List<edge> &delEdges = master.delEdges();
 
 	const int m = delEdges.size();
 	Array<edge> deletedEdges(m);
 	int j = 0;
-	for(ListConstIterator<edge> it = delEdges.begin(); it.valid(); ++it)
-		deletedEdges[j++] = *it;
+	for(edge e : delEdges)
+		deletedEdges[j++] = e;
 
 	PlanRepLight prl(master.planRep());
 	int cc = master.currentCC();
 
 	const EdgeArray<int>  *pCost = master.cost();
 	const EdgeArray<bool> *pForbid = master.forbid();
-	const EdgeArray<__uint32> *pEdgeSubGraphs = master.edgeSubGraphs();
+	const EdgeArray<uint32_t> *pEdgeSubGraphs = master.edgeSubGraphs();
 
 	do {
 		int crossingNumber;
-		if(doSinglePermutation(prl, cc, pCost, pForbid, pEdgeSubGraphs, deletedEdges, inserter,
-#ifdef OGDF_HAVE_CPP11
-			rng,
-#endif
-			crossingNumber)
+		if(doSinglePermutation(prl, cc, pCost, pForbid, pEdgeSubGraphs, deletedEdges, inserter, rng, crossingNumber)
 			&& crossingNumber < master.queryBestKnown())
 		{
 			CrossingStructure *pCS = new CrossingStructure;
@@ -273,14 +249,10 @@ void SubgraphPlanarizer::doWorkHelper(ThreadMaster &master, EdgeInsertionModule 
 }
 
 
-void SubgraphPlanarizer::Worker::doWork()
+void SubgraphPlanarizer::Worker::operator()()
 {
-#ifdef OGDF_HAVE_CPP11
-	minstd_rand rng(m_pMaster->rseed(threadID())); // different seeds per thread
+	minstd_rand rng(m_pMaster->rseed(11+7*m_id)); // different seeds per thread
 	doWorkHelper(*m_pMaster, *m_pInserter, rng);
-#else
-	doWorkHelper(*m_pMaster, *m_pInserter);
-#endif
 }
 
 
@@ -299,9 +271,9 @@ SubgraphPlanarizer::SubgraphPlanarizer()
 	m_setTimeout = true;
 
 #ifdef OGDF_MEMORY_POOL_NTS
-	m_maxThreads = 1;
+	m_maxThreads = 1u;
 #else
-	m_maxThreads = System::numberOfProcessors();
+	m_maxThreads = max(1u, Thread::hardware_concurrency());
 #endif
 }
 
@@ -345,7 +317,7 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 	int      cc,
 	const EdgeArray<int>      *pCostOrig,
 	const EdgeArray<bool>     *pForbiddenOrig,
-	const EdgeArray<__uint32> *pEdgeSubGraphs,
+	const EdgeArray<uint32_t> *pEdgeSubGraphs,
 	int                       &crossingNumber)
 {
 	OGDF_ASSERT(m_permutations >= 1);
@@ -353,11 +325,11 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 	PlanarSubgraphModule &subgraph = m_subgraph.get();
 	EdgeInsertionModule  &inserter = m_inserter.get();
 
-	int nThreads = min(m_maxThreads, m_permutations);
+	unsigned int nThreads = min(m_maxThreads, (unsigned int)m_permutations);
 
-	__int64 startTime;
+	int64_t startTime;
 	System::usedRealTime(startTime);
-	__int64 stopTime = (m_timeLimit >= 0) ? (startTime + __int64(1000.0*m_timeLimit)) : -1;
+	int64_t stopTime = (m_timeLimit >= 0) ? (startTime + int64_t(1000.0*m_timeLimit)) : -1;
 
 	//
 	// Compute subgraph
@@ -372,8 +344,7 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 
 	if(pCostOrig) {
 		EdgeArray<int> costPG(pr);
-		edge e;
-		forall_edges(e,pr)
+		for(edge e : pr.edges)
 			costPG[e] = (*pCostOrig)[pr.original(e)];
 
 		retValue = subgraph.call(pr, costPG, delEdges);
@@ -387,17 +358,15 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 	if(m == 0)
 		return retOptimal;  // graph is planar
 
-	for(ListIterator<edge> it = delEdges.begin(); it.valid(); ++it)
-		*it = pr.original(*it);
+	for(edge &eDel : delEdges)
+		eDel = pr.original(eDel);
 
 	//
 	// Permutation phase
 	//
 
 	int seed = rand();
-#ifdef OGDF_HAVE_CPP11
 	minstd_rand rng(seed);
-#endif
 
 	if(nThreads > 1) {
 		//
@@ -411,21 +380,18 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 			m_permutations - nThreads,
 			stopTime);
 
-		Array<Worker *> thread(nThreads-1);
-		for(int i = 0; i < nThreads-1; ++i) {
-			thread[i] = new Worker(&master, inserter.clone());
-			thread[i]->start();
+		Array<Worker *>    worker(nThreads-1);
+		Array<Thread> thread(nThreads-1);
+		for(unsigned int i = 0; i < nThreads-1; ++i) {
+			worker[i] = new Worker(i, &master, inserter.clone());
+			thread[i] = Thread(*worker[i]);
 		}
 
-#ifdef OGDF_HAVE_CPP11
 		doWorkHelper(master, inserter, rng);
-#else
-		doWorkHelper(master, inserter);
-#endif
 
-		for(int i = 0; i < nThreads-1; ++i) {
-			thread[i]->join();
-			delete thread[i];
+		for(unsigned int i = 0; i < nThreads-1; ++i) {
+			thread[i].join();
+			delete worker[i];
 		}
 
 		master.restore(pr, crossingNumber);
@@ -438,19 +404,15 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 
 		Array<edge> deletedEdges(m);
 		int j = 0;
-		for(ListIterator<edge> it = delEdges.begin(); it.valid(); ++it)
-			deletedEdges[j++] = *it;
+		for(edge eDel : delEdges)
+			deletedEdges[j++] = eDel;
 
 		bool foundSolution = false;
 		CrossingStructure cs;
 		for(int i = 1; i <= m_permutations; ++i)
 		{
 			int cr;
-			bool ok = doSinglePermutation(prl, cc, pCostOrig, pForbiddenOrig, pEdgeSubGraphs, deletedEdges, inserter,
-#ifdef OGDF_HAVE_CPP11
-				rng,
-#endif
-				cr);
+			bool ok = doSinglePermutation(prl, cc, pCostOrig, pForbiddenOrig, pEdgeSubGraphs, deletedEdges, inserter, rng, cr);
 
 			if(ok && (foundSolution == false || cr < cs.weightedCrossingNumber())) {
 				foundSolution = true;

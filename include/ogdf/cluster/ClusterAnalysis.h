@@ -1,11 +1,3 @@
-/*
- * $Revision: 3954 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-07 09:33:18 +0100 (Fri, 07 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the ClusterAnalysis class for the Branch&Cut algorithm
  * for c-planarity testing via an extension to complete connectivity.
@@ -60,6 +52,8 @@
 namespace ogdf {
 
 /***
+ * @ingroup ga-cplanarity
+ *
  * Although most parts of the code are written with efficiency in mind,
  * this class is meant to be used in a static one-time analysis way,
  * not for dynamic checks over and over again.

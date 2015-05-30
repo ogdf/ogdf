@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class SPQRTree
  *
@@ -64,6 +56,8 @@ namespace ogdf {
 
 /**
  * \brief Linear-time implementation of static SPQR-trees.
+ *
+ * @ingroup decomp
  *
  * The class SPQRTree maintains the arrangement of the triconnected
  * components of a biconnected multi-graph \a G [Hopcroft, Tarjan 1973]
@@ -197,7 +191,8 @@ public:
 
 	void directSkEdge(node vT, edge e, node src)
 	{
-		OGDF_ASSERT(e != 0 && (src == e->source() || src == e->target()))
+		OGDF_ASSERT(e != 0);
+		OGDF_ASSERT(src == e->source() || src == e->target());
 
 		if(e->source() != src) skeleton(vT).getGraph().reverseEdge(e);
 	}

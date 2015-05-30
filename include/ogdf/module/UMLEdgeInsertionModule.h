@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for edge insertion algorithms
  *
@@ -122,7 +114,7 @@ namespace ogdf {
 			PlanRepLight              &pr,
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig = 0,
-			const EdgeArray<__uint32> *pEdgeSubGraphs = 0)
+			const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
 		{
 			return doCall(pr, origEdges, pCostOrig, pEdgeSubGraphs);
 		}
@@ -143,7 +135,7 @@ namespace ogdf {
 			PlanRepLight              &pr,
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<__uint32> *pEdgeSubGraphs) = 0;
+			const EdgeArray<uint32_t> *pEdgeSubGraphs) = 0;
 
 
 		OGDF_MALLOC_NEW_DELETE

@@ -1,11 +1,3 @@
- /*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of an exact c-planar subgraph algorithm, i.e.,
  * a maximum c-planar subgraph is computed using a branch and cut approach.
@@ -60,24 +52,15 @@
 
 namespace ogdf {
 
+//! Exact computation of a maximum c-planar subgraph.
 /**
- * MaximumCPlanarSubgraph
- * \brief Exact computation of a maximum c-planar subgraph.
+ * @ingroup ga-cplanarity
  */
 class OGDF_EXPORT MaximumCPlanarSubgraph : public CPlanarSubgraphModule
 {
 
 #ifndef USE_ABACUS
 protected:
-	ReturnType doCall(
-		const ClusterGraph &G,
-		List<edge> &delEdges,
-		List<edge> &addedEdges)
-	{
-		THROW_NO_ABACUS_EXCEPTION;
-		return retError;
-	}
-
 	virtual ReturnType doCall(
 		const ClusterGraph &G,
 		List<edge> &delEdges)
@@ -191,7 +174,7 @@ protected:
 	//! if delEdges is empty on return, the clustered
 	//! graph G is c-planar
 	virtual ReturnType doCall(const ClusterGraph &G,
-		List<edge> &delEdges)
+		List<edge> &delEdges) override
 	{
 		List<nodePair> addEdges;
 		return doCall(G, delEdges, addEdges);
@@ -206,7 +189,7 @@ protected:
 
 	double getDoubleTime(const Stopwatch &act)
 	{
-		__int64 tempo = act.centiSeconds()+100*act.seconds()+6000*act.minutes()+360000*act.hours();
+		int64_t tempo = act.centiSeconds()+100*act.seconds()+6000*act.minutes()+360000*act.hours();
 		return  ((double) tempo)/ 100.0;
 	}//getdoubletime
 

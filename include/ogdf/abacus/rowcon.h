@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief constraint using row.
@@ -143,7 +135,7 @@ public:
 	 * \return The coefficient of the variable \a v.
 	 */
 	virtual double coeff(const Variable *v) const {
-		const NumVar *numVar = (const NumVar *) v;
+		const NumVar *numVar = static_cast<const NumVar *>(v);
 		return row_.origCoeff(numVar->number());
 	}
 

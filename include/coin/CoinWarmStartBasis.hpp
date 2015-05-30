@@ -160,7 +160,7 @@ public:
   */
 
   virtual CoinWarmStartDiff*
-  generateDiff (const CoinWarmStart *const oldCWS) const ;
+  generateDiff (const CoinWarmStart *const oldCWS) const override ;
 
   /*! \brief Apply \p diff to this basis
 
@@ -169,7 +169,7 @@ public:
   */
 
   virtual void
-  applyDiff (const CoinWarmStartDiff *const cwsdDiff) ;
+  applyDiff (const CoinWarmStartDiff *const cwsdDiff) override ;
 
 //@}
 
@@ -281,7 +281,7 @@ public:
   CoinWarmStartBasis(const CoinWarmStartBasis& ws) ;
 
   /** `Virtual constructor' */
-  virtual CoinWarmStart *clone() const
+  virtual CoinWarmStart *clone() const override
   {
      return new CoinWarmStartBasis(*this);
   }
@@ -392,7 +392,7 @@ class CoinWarmStartBasisDiff : public virtual CoinWarmStartDiff
 { public:
 
   /*! \brief `Virtual constructor' */
-  virtual CoinWarmStartDiff *clone() const
+  virtual CoinWarmStartDiff *clone() const override
   { CoinWarmStartBasisDiff *cwsbd =  new CoinWarmStartBasisDiff(*this) ;
     return (dynamic_cast<CoinWarmStartDiff *>(cwsbd)) ; }
 
@@ -411,7 +411,7 @@ class CoinWarmStartBasisDiff : public virtual CoinWarmStartDiff
     see it when they make <i>their</i> default constructor protected or
     private.
   */
-  CoinWarmStartBasisDiff () : sze_(0), difference_(0) { } 
+  CoinWarmStartBasisDiff () : sze_(0), difference_(nullptr) { }
 
   /*! \brief Copy constructor
   

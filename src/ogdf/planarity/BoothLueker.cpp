@@ -1,11 +1,3 @@
-/*
- * $Revision: 3569 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-18 11:04:33 +0200 (Tue, 18 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief  Implementation of the Booth-Lueker planarity test.
  *
@@ -87,16 +79,13 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 	else if (G.numberOfEdges() < 3 && embed)
 		return true;
 
-	node v;
-	edge e;
-
 	SListPure<node> selfLoops;
 	makeLoopFree(G,selfLoops);
 
 	prepareParallelEdges(G);
 
 	int  isolated = 0;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		if (v->degree() == 0)
 			isolated++;
 
@@ -106,8 +95,8 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 
 	bool planar = true;
 
-	NodeArray<node> tableNodes(G,0);
-	EdgeArray<edge> tableEdges(G,0);
+	NodeArray<node> tableNodes(G,nullptr);
+	EdgeArray<edge> tableEdges(G,nullptr);
 	NodeArray<bool> mark(G,0);
 
 	EdgeArray<int> componentID(G);
@@ -117,7 +106,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 
 	// Determine edges per biconnected component
 	Array<SList<edge> > blockEdges(0,bcCount-1);
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		blockEdges[componentID[e]].pushFront(e);
 	}
@@ -127,10 +116,8 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 	int i;
 	for (i = 0; i < bcCount; i++)
 	{
-		SListIterator<edge> it;
-		for (it = blockEdges[i].begin(); it.valid(); ++it)
+		for (edge e : blockEdges[i])
 		{
-			e = *it;
 			if (!mark[e->source()])
 			{
 				blockNodes[i].pushBack(e->source());
@@ -142,9 +129,9 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 				mark[e->target()] = true;
 			}
 		}
-		SListIterator<node> itn;
-		for (itn = blockNodes[i].begin(); itn.valid(); ++itn)
-			mark[*itn] = false;
+
+		for (node v : blockNodes[i])
+			mark[v] = false;
 	}
 
 	// Perform Planarity Test for every biconnected component
@@ -161,8 +148,8 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 				stNumber(G,numbering);
 			OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(G,numbering,n))
 
-			EdgeArray<edge> backTableEdges(G,0);
-			forall_edges(e,G)
+			EdgeArray<edge> backTableEdges(G,nullptr);
+			for(edge e : G.edges)
 				backTableEdges[e] = e;
 
 			if (embed)
@@ -178,32 +165,28 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 		{
 			Graph C;
 
-			SListIterator<node> itn;
-			for (itn = blockNodes[i].begin(); itn.valid(); ++ itn)
+			for (node v : blockNodes[i])
 			{
-				v = *itn;
 				node w = C.newNode();
 				tableNodes[v] = w;
 			}
 
-			NodeArray<node> backTableNodes(C,0);
+			NodeArray<node> backTableNodes(C,nullptr);
 			if (embed)
 			{
-				for (itn = blockNodes[i].begin(); itn.valid(); ++ itn)
-					backTableNodes[tableNodes[*itn]] = *itn;
+				for (node v : blockNodes[i])
+					backTableNodes[tableNodes[v]] = v;
 			}
 
-			SListIterator<edge> it;
-			for (it = blockEdges[i].begin(); it.valid(); ++it)
+			for (edge e : blockEdges[i])
 			{
-				e = *it;
 				edge f = C.newEdge(tableNodes[e->source()],tableNodes[e->target()]);
 				tableEdges[e] = f;
 			}
 
-			EdgeArray<edge> backTableEdges(C,0);
-			for (it = blockEdges[i].begin(); it.valid(); ++it)
-				backTableEdges[tableEdges[*it]] = *it;
+			EdgeArray<edge> backTableEdges(C,nullptr);
+			for (edge e : blockEdges[i])
+				backTableEdges[tableEdges[e]] = e;
 
 			if (C.numberOfEdges() >= 2)
 			{
@@ -226,13 +209,12 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 
 			if (embed)
 			{
-				forall_nodes(v,C)
+				for(node v : C.nodes)
 				{
 					node w = backTableNodes[v];
-					adjEntry a;
-					forall_adj(a,v)
+					for(adjEntry a : v->adjEdges)
 					{
-						e = backTableEdges[a->theEdge()];
+						edge e = backTableEdges[a->theEdge()];
 						adjEntry adj = (e->adjSource()->theNode() == w)?
 										e->adjSource() : e->adjTarget();
 						entireEmbedding[w].pushBack(adj);
@@ -243,7 +225,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 
 		if (planar && embed)
 		{
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 				G.sort(v,entireEmbedding[v]);
 		}
 
@@ -251,7 +233,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 
 	while (!selfLoops.empty())
 	{
-		v = selfLoops.popFrontRet();
+		node v = selfLoops.popFrontRet();
 		G.newEdge(v,v);
 	}
 
@@ -272,8 +254,7 @@ bool BoothLueker::doTest(Graph &G,NodeArray<int> &numbering)
 	NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > > outLeaves(G);
 	Array<node> table(G.numberOfNodes()+1);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		edge e;
 		forall_adj_edges(e,v)
@@ -288,12 +269,10 @@ bool BoothLueker::doTest(Graph &G,NodeArray<int> &numbering)
 		table[numbering[v]] = v;
 	}
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		SListIterator<PlanarLeafKey<IndInfo*>* > it;
-		for (it = inLeaves[v].begin(); it.valid(); ++it)
+		for (PlanarLeafKey<IndInfo*>* L : inLeaves[v])
 		{
-			PlanarLeafKey<IndInfo*>* L = *it;
 			outLeaves[L->userStructKey()->opposite(v)].pushFront(L);
 		}
 	}
@@ -320,7 +299,7 @@ bool BoothLueker::doTest(Graph &G,NodeArray<int> &numbering)
 
 
 	// Cleanup
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		while (!inLeaves[v].empty())
 		{
@@ -351,11 +330,9 @@ bool BoothLueker::doEmbed(
 	Array<node> table(G.numberOfNodes()+1);
 	Array<bool> toReverse(1,G.numberOfNodes()+1,false);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		edge e;
-
 		forall_adj_edges(e,v)
 		{
 			if (numbering[e->opposite(v)] > numbering[v])
@@ -367,12 +344,10 @@ bool BoothLueker::doEmbed(
 		table[numbering[v]] = v;
 	}
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		SListIterator<PlanarLeafKey<IndInfo*>* > it;
-		for (it = inLeaves[v].begin(); it.valid(); ++it)
+		for (PlanarLeafKey<IndInfo*>* L : inLeaves[v])
 		{
-			PlanarLeafKey<IndInfo*>* L = *it;
 			outLeaves[L->userStructKey()->opposite(v)].pushFront(L);
 		}
 	}
@@ -391,7 +366,7 @@ bool BoothLueker::doEmbed(
 		else
 		{
 			// Cleanup
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 			{
 				while (!inLeaves[v].empty())
 				{
@@ -411,7 +386,7 @@ bool BoothLueker::doEmbed(
 		{
 			while (!nonOpposed[table[i]].empty())
 			{
-				v = nonOpposed[table[i]].popFrontRet();
+				node v = nonOpposed[table[i]].popFrontRet();
 				toReverse[numbering[v]] =  true;
 			}
 			frontier[table[i]].reverse();
@@ -420,7 +395,7 @@ bool BoothLueker::doEmbed(
 		{
 			while (!opposed[table[i]].empty())
 			{
-				v = opposed[table[i]].popFrontRet();
+				node v = opposed[table[i]].popFrontRet();
 				toReverse[numbering[v]] =  true;
 			}
 		}
@@ -430,7 +405,7 @@ bool BoothLueker::doEmbed(
 
 	// Compute the entire embedding
 	NodeArray<SListPure<adjEntry> > entireEmbedding(G);
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		while (!frontier[v].empty())
 		{
@@ -441,38 +416,35 @@ bool BoothLueker::doEmbed(
 	}
 
 	NodeArray<bool> mark(G,false);
-	NodeArray<SListIterator<adjEntry> > adjMarker(G,0);
-	forall_nodes(v,G)
+	NodeArray<SListIterator<adjEntry> > adjMarker(G,nullptr);
+	for(node v : G.nodes)
 		adjMarker[v] = entireEmbedding[v].begin();
-	v = table[G.numberOfNodes()];
-	entireEmbed(G,entireEmbedding,adjMarker,mark,v);
+
+	entireEmbed(G, entireEmbedding, adjMarker, mark, table[G.numberOfNodes()]);
 
 	NodeArray<SListPure<adjEntry> > newEntireEmbedding(G);
 	if (m_parallelCount > 0)
 	{
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 		{
-			//adjEntry a;
-			SListIterator<adjEntry> it;
-			for(it=entireEmbedding[v].begin();it.valid();it++)
+			for(adjEntry a : entireEmbedding[v])
 			{
-				edge e = (*it)->theEdge(); // edge in biconnected component
+				edge e = a->theEdge(); // edge in biconnected component
 				edge trans = backTableEdges[e]; // edge in original graph.
 				if (!m_parallelEdges[trans].empty())
 				{
 					// This original edge is the reference edge
 					// of a bundle of parallel edges
 
-					ListIterator<edge> itE;
 					// If v is source of e, insert the parallel edges
 					// in the order stored in the list.
 					if (e->adjSource()->theNode() == v)
 					{
 						adjEntry adj = e->adjSource();
 						newEntireEmbedding[v].pushBack(adj);
-						for (itE = m_parallelEdges[trans].begin(); itE.valid(); itE++)
+						for (edge ei : m_parallelEdges[trans])
 						{
-							edge parallel = forwardTableEdges[*itE];
+							edge parallel = forwardTableEdges[ei];
 							adjEntry adjParallel = parallel->adjSource()->theNode() == v ?
 								parallel->adjSource() : parallel->adjTarget();
 							newEntireEmbedding[v].pushBack(adjParallel);
@@ -483,7 +455,7 @@ bool BoothLueker::doEmbed(
 					// in the opposite order stored in the list.
 					// This keeps the embedding.
 					{
-						for (itE = m_parallelEdges[trans].rbegin(); itE.valid(); itE--)
+						for (ListConstIterator<edge> itE = m_parallelEdges[trans].rbegin(); itE.valid(); --itE)
 						{
 							edge parallel = forwardTableEdges[*itE];
 							adjEntry adj = parallel->adjSource()->theNode() == v ?
@@ -505,18 +477,18 @@ bool BoothLueker::doEmbed(
 			}
 		}
 
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 			G.sort(v,newEntireEmbedding[v]);
 	}
 	else
 	{
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 			G.sort(v,entireEmbedding[v]);
 	}
 
 
 	//cleanup
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		while (!inLeaves[v].empty())
 		{
@@ -556,22 +528,19 @@ void BoothLueker::entireEmbed(
 
 void BoothLueker::prepareParallelEdges(Graph &G)
 {
-	edge e;
-
 	// Stores for one reference edge all parallel edges.
 	m_parallelEdges.init(G);
 	// Is true for any multiedge, except for the reference edge.
 	m_isParallel.init(G,false);
 	getParallelFreeUndirected(G,m_parallelEdges);
 	m_parallelCount = 0;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		if (!m_parallelEdges[e].empty())
 		{
-			ListIterator<edge> it;
-			for (it = m_parallelEdges[e].begin(); it.valid(); it++)
+			for (edge ei : m_parallelEdges[e])
 			{
-				m_isParallel[*it] = true;
+				m_isParallel[ei] = true;
 				m_parallelCount++;
 			}
 		}

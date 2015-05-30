@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements planarization with grid layout.
  *
@@ -96,22 +88,20 @@ namespace ogdf {
 				gridLayout.x(vG) = gridLayoutPG.x(pr.copy(vG));
 				gridLayout.y(vG) = gridLayoutPG.y(pr.copy(vG));
 
-				adjEntry adj;
-				forall_adj(adj,vG) {
+				for(adjEntry adj : vG->adjEdges) {
 					if ((adj->index() & 1) == 0) continue;
 					edge eG = adj->theEdge();
 					IPolyline &ipl = gridLayout.bends(eG);
 					ipl.clear();
 
 					bool firstTime = true;
-					ListConstIterator<edge> itE;
-					for(itE = pr.chain(eG).begin(); itE.valid(); ++itE) {
+					for(edge e : pr.chain(eG)) {
 						if(!firstTime) {
-							node v = (*itE)->source();
+							node v = e->source();
 							ipl.pushBack(IPoint(gridLayoutPG.x(v),gridLayoutPG.y(v)));
 						} else
 							firstTime = false;
-						ipl.conc(gridLayoutPG.bends(*itE));
+						ipl.conc(gridLayoutPG.bends(e));
 					}
 				}
 			}
@@ -143,15 +133,13 @@ namespace ogdf {
 				gridLayout.x(vG) += dx;
 				gridLayout.y(vG) += dy;
 
-				adjEntry adj;
-				forall_adj(adj,vG) {
+				for(adjEntry adj : vG->adjEdges) {
 					if ((adj->index() & 1) == 0) continue;
 					edge eG = adj->theEdge();
 
-					ListIterator<IPoint> it;
-					for(it = gridLayout.bends(eG).begin(); it.valid(); ++it) {
-						(*it).m_x += dx;
-						(*it).m_y += dy;
+					for(IPoint &ip : gridLayout.bends(eG)) {
+						ip.m_x += dx;
+						ip.m_y += dy;
 					}
 				}
 			}

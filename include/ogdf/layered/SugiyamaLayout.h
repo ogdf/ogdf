@@ -1,11 +1,3 @@
-/*
- * $Revision: 3833 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:23:15 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Sugiyama algorithm.
  *
@@ -66,6 +58,8 @@ namespace ogdf {
 
 /**
  * \brief Sugiyama's layout algorithm.
+ *
+ * @ingroup gd-layered
  *
  * The class SugiyamaLayout represents a customizable implementation
  * of Sugiyama's layout algorithm. The class provides three different
@@ -206,7 +200,7 @@ protected:
 	double m_minDistCC;		//!< Option for distance between connected components.
 	double m_pageRatio;		//!< Option for desired page ratio.
 	bool   m_permuteFirst;
-	int    m_maxThreads;	//!< The maximal number of used threads.
+	unsigned int m_maxThreads;	//!< The maximal number of used threads.
 
 	int m_nCrossings;    //!< Number of crossings in computed layout.
 	RCCrossings m_nCrossingsCluster;
@@ -215,7 +209,7 @@ protected:
 	bool m_alignBaseClasses; //!< Option for aligning base classes.
 	bool m_alignSiblings;    //!< Option for aligning siblings in inheritance trees.
 
-	EdgeArray<__uint32> *m_subgraphs; //!< Defines the subgraphs for simultaneous drawing.
+	EdgeArray<uint32_t> *m_subgraphs; //!< Defines the subgraphs for simultaneous drawing.
 
 public:
 
@@ -236,9 +230,9 @@ public:
 	 *
 	 * Returns the computed layout in \a GA.
 	 */
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	/**
 	 * \brief Calls the layout algorithm for clustered graph \a CGA.
@@ -360,7 +354,7 @@ public:
 	void alignSiblings(bool b) { m_alignSiblings = b; }
 
 	//! Sets the subgraphs for simultaneous drawing.
-	void setSubgraphs(EdgeArray<__uint32> *esg) { m_subgraphs = esg; }
+	void setSubgraphs(EdgeArray<uint32_t> *esg) { m_subgraphs = esg; }
 
 	//! Returns true iff subgraphs for simultaneous drawing are set.
 	bool useSubgraphs() const { return (m_subgraphs != 0); }
@@ -369,10 +363,10 @@ public:
 	void permuteFirst(bool b) { m_permuteFirst = b; }
 
 	//! Returns the maximal number of used threads.
-	int maxThreads() const { return m_maxThreads; }
+	unsigned int maxThreads() const { return m_maxThreads; }
 
 	//! Sets the maximal number of used threads to \a n.
-	void maxThreads(int n) {
+	void maxThreads(unsigned int n) {
 #ifndef OGDF_MEMORY_POOL_NTS
 		m_maxThreads = n;
 #endif
@@ -462,7 +456,7 @@ public:
 	double timeReduceCrossings() { return m_timeReduceCrossings; }
 
 	// needed by LayerByLayerSweep::
-	const EdgeArray<__uint32> *subgraphs() const { return m_subgraphs; };
+	const EdgeArray<uint32_t> *subgraphs() const { return m_subgraphs; };
 	int numCC() const { return m_numCC; };
 	const NodeArray<int>& compGC() const { return m_compGC; };
 

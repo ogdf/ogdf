@@ -1,11 +1,3 @@
-/*
- * $Revision: 3949 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-03 01:25:50 +0100 (Mon, 03 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of doubly linked lists and iterators
  *
@@ -49,6 +41,7 @@
 
 
 #include <ogdf/internal/basic/list_templates.h>
+#include <random>
 
 
 namespace ogdf {
@@ -73,12 +66,16 @@ class ListElement {
 	E m_x; //!< Stores the content.
 
 	//! Constructs a ListElement.
-	ListElement() : m_next(0), m_prev(0) { }
+	ListElement() : m_next(nullptr), m_prev(nullptr) { }
 	//! Constructs a ListElement.
-	ListElement(const E &x) : m_next(0), m_prev(0), m_x(x) { }
+	ListElement(const E &x) : m_next(nullptr), m_prev(nullptr), m_x(x) { }
 	//! Constructs a ListElement.
 	ListElement(const E &x, ListElement<E> *next, ListElement<E> *prev) :
 		m_next(next), m_prev(prev), m_x(x) { }
+	//! Constructs a ListElement with given arguments \a args for constructor of element type.
+	template<class ... Args>
+	ListElement(ListElement<E> *next, ListElement<E> *prev, Args && ... args)
+		: m_next(next), m_prev(prev), m_x(std::forward<Args>(args)...) { }
 
 	OGDF_NEW_DELETE
 }; // class ListElement
@@ -105,14 +102,14 @@ template<class E> class ListIterator {
 
 public:
 	//! Constructs an iterator pointing to no element.
-	ListIterator() : m_pX(NULL) { }
+	ListIterator() : m_pX(nullptr) { }
 	//! Constructs an iterator pointing to \a pX.
 	ListIterator(ListElement<E> *pX) : m_pX(pX) { }
 	//! Constructs an iterator that is a copy of \a it.
 	ListIterator(const ListIterator<E> &it) : m_pX(it.m_pX) { }
 
 	//! Returns true iff the iterator points to an element.
-	bool valid() const { return m_pX != NULL; }
+	bool valid() const { return m_pX != nullptr; }
 
 	//! Equality operator.
 	bool operator==(const ListIterator<E> &it) const {
@@ -192,7 +189,7 @@ template<class E> class ListConstIterator {
 
 public:
 	//! Constructs an iterator pointing to no element.
-	ListConstIterator() : m_pX(NULL) { }
+	ListConstIterator() : m_pX(nullptr) { }
 
 	//! Constructs an iterator pointing to \a pX.
 	ListConstIterator(const ListElement<E> *pX) : m_pX(pX) { }
@@ -203,7 +200,7 @@ public:
 	ListConstIterator(const ListConstIterator &it) : m_pX(it.m_pX) { }
 
 	//! Returns true iff the iterator points to an element.
-	bool valid() const { return m_pX != NULL; }
+	bool valid() const { return m_pX != nullptr; }
 
 	//! Equality operator.
 	bool operator==(const ListConstIterator<E> &it) const {
@@ -261,12 +258,14 @@ public:
 
 
 
-//! The parameterized class \a ListPure<E> represents doubly linked lists with content type \a E.
+//! Doubly linked lists.
 /**
- * Elements of the list are instances of type ListElement<E>.
- * Use ListConstIterator<E> or ListIterator<E> in order to iterate over the list.
+ * @ingroup containers
  *
- * In contrast to List<E>, instances of \a ListPure<E> do not store the length of the list.
+ * Elements of the list are instances of type ListElement.
+ * Use ListConstIterator or ListIterator in order to iterate over the list.
+ *
+ * In contrast to List, instances of ListPure do not store the length of the list.
  *
  * @tparam E is the data type stored in list elements.
  */
@@ -278,28 +277,56 @@ protected:
 	ListElement<E> *m_tail; //!< Pointer to last element.
 
 public:
+	//! Represents the data type stored in a list element.
+	typedef E value_type;
+	//! Provides a reference to an element stored in a list.
+	typedef E &reference;
+	//! Provides a reference to a const element stored in a list for reading and performing const operations.
+	typedef const E &const_reference;
+	//! Provides a bidirectional iterator that can read a const element in a list.
+	typedef ListConstIterator<E> const_iterator;
+	//! Provides a bidirectional iterator that can read or modify any element in a list.
+	typedef ListIterator<E> iterator;
+
 	//! Constructs an empty doubly linked list.
-	ListPure() : m_head(0), m_tail(0) { }
+	ListPure() : m_head(nullptr), m_tail(nullptr) { }
+
+	//! Constructs a doubly linked list containing the elements in \a init.
+	ListPure(std::initializer_list<E> init) : m_head(nullptr), m_tail(nullptr) {
+		for (const E &x : init)
+			pushBack(x);
+	}
 
 	//! Constructs a doubly linked list that is a copy of \a L.
-	ListPure(const ListPure<E> &L) : m_head(0), m_tail(0) {
+	ListPure(const ListPure<E> &L) : m_head(nullptr), m_tail(nullptr) {
 		copy(L);
 	}
 
-	// destruction
+	//! Constructs a doubly linked list containing the elements of \a L (move semantics).
+	/**
+	 * The list \a L is empty afterwards.
+	 */
+	ListPure(ListPure<E> &&L) : m_head(L.m_head), m_tail(L.m_tail) {
+		L.m_head = L.m_tail = nullptr;
+	}
+
+	//! Destructor.
 	~ListPure() { clear(); }
 
-	typedef E value_type;
-	typedef ListElement<E> element_type;
-	typedef ListConstIterator<E> const_iterator;
-	typedef ListIterator<E> iterator;
+
+	/**
+	 * @name Access methods
+	 * These methods provide simple access without changing the list.
+	 */
+	//@{
 
 	//! Returns true iff the list is empty.
-	bool empty() const { return m_head == 0; }
+	bool empty() const { return m_head == nullptr; }
 
-	//! Returns the length of the list
+	//! Returns the number of elements in the list.
 	/**
-	 * Notice that this method requires to run through the whole list and takes linear running time!
+	 * Notice that this method requires to iterate over the whole list and takes linear running time!
+	 * If you require frequent access to the size of the list, consider using List instead of ListPure.
 	 */
 	int size() const {
 		int count = 0;
@@ -308,56 +335,12 @@ public:
 		return count;
 	}
 
-	//! Returns an iterator to the first element of the list.
-	/**
-	 * If the list is empty, a null pointer iterator is returned.
-	 */
-	const ListConstIterator<E> begin() const { return m_head; }
-	//! Returns an iterator to the first element of the list.
-	/**
-	 * If the list is empty, a null pointer iterator is returned.
-	 */
-	ListIterator<E> begin() { return m_head; }
-
-	//! Returns an iterator to one-past-last element of the list.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	ListConstIterator<E> end() const { return ListConstIterator<E>(); }
-	//! Returns an iterator to one-past-last element of the list.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	ListIterator<E> end() { return ListIterator<E>(); }
-
-	//! Returns an iterator to the last element of the list.
-	/**
-	 * If the list is empty, a null pointer iterator is returned.
-	 */
-	const ListConstIterator<E> rbegin() const { return m_tail; }
-	//! Returns an iterator to the last element of the list.
-	/**
-	 * If the list is empty, a null pointer iterator is returned.
-	 */
-	ListIterator<E> rbegin() { return m_tail; }
-
-	//! Returns an iterator to one-before-first element of the list.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	ListConstIterator<E> rend() const { return ListConstIterator<E>(); }
-	//! Returns an iterator to one-before-first element of the list.
-	/**
-	 * This is always a null pointer iterator.
-	 */
-	ListIterator<E> rend() { return ListIterator<E>(); }
-
-	//! Returns a reference to the first element.
+	//! Returns a const reference to the first element.
 	/**
 	 * \pre The list is not empty!
 	 */
-	const E &front() const {
-		OGDF_ASSERT(m_head != 0)
+	const_reference front() const {
+		OGDF_ASSERT(m_head != nullptr)
 		return m_head->m_x;
 	}
 
@@ -365,17 +348,17 @@ public:
 	/**
 	 * \pre The list is not empty!
 	 */
-	E &front() {
-		OGDF_ASSERT(m_head != 0)
+	reference front() {
+		OGDF_ASSERT(m_head != nullptr)
 		return m_head->m_x;
 	}
 
-	//! Returns a reference to the last element.
+	//! Returns a const reference to the last element.
 	/**
 	 * \pre The list is not empty!
 	 */
-	const E &back() const {
-		OGDF_ASSERT(m_tail != 0)
+	const_reference back() const {
+		OGDF_ASSERT(m_tail != nullptr)
 		return m_tail->m_x;
 	}
 
@@ -383,54 +366,18 @@ public:
 	/**
 	 * \pre The list is not empty!
 	 */
-	E &back() {
-		OGDF_ASSERT(m_tail != 0)
+	reference back() {
+		OGDF_ASSERT(m_tail != nullptr)
 		return m_tail->m_x;
 	}
 
-	//! Returns an iterator to the cyclic successor of \a it.
-	/**
-	 * \pre \a it points to an element in this list or to NULL!
-	 */
-	ListConstIterator<E> cyclicSucc(ListConstIterator<E> it) const {
-		const ListElement<E> *pX = it;
-		return (pX && pX->m_next) ? pX->m_next : m_head;
-	}
-
-	//! Returns an iterator to the cyclic successor of \a it.
-	/**
-	 * \pre \a it points to an element in this list or to NULL!
-	 */
-	ListIterator<E> cyclicSucc(ListIterator<E> it) {
-		ListElement<E> *pX = it;
-		return (pX && pX->m_next) ? pX->m_next : m_head;
-	}
-
-	//! Returns an iterator to the cyclic predecessor of \a it.
-	/**
-	 * \pre \a it points to an element in this list or to NULL!
-	 */
-	ListConstIterator<E> cyclicPred(ListConstIterator<E> it) const {
-		const ListElement<E> *pX = it;
-		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
-	}
-
-	//! Returns an iterator to the cyclic predecessor of \a it.
-	/**
-	 * \pre \a it points to an element in this list or to NULL!
-	 */
-	ListIterator<E> cyclicPred(ListIterator<E> it) {
-		ListElement<E> *pX = it;
-		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
-	}
-
-	//! Returns an iterator pointing to the element at position \a pos.
+	//! Returns a const iterator pointing to the element at position \a pos.
 	/**
 	 * The running time of this method is linear in \a pos.
 	 */
-	ListConstIterator<E> get(int pos) const {
+	const_iterator get(int pos) const {
 		ListElement<E> *pX;
-		for(pX = m_head; pX != 0; pX = pX->m_next)
+		for(pX = m_head; pX != nullptr; pX = pX->m_next)
 			if (pos-- == 0) break;
 		return pX;
 	}
@@ -439,9 +386,9 @@ public:
 	/**
 	 * The running time of this method is linear in \a pos.
 	 */
-	ListIterator<E> get(int pos) {
+	iterator get(int pos) {
 		ListElement<E> *pX;
-		for(pX = m_head; pX != 0; pX = pX->m_next)
+		for(pX = m_head; pX != nullptr; pX = pX->m_next)
 			if (pos-- == 0) break;
 		return pX;
 	}
@@ -450,50 +397,137 @@ public:
 	/**
 	 * \pre \a it is a valid iterator pointing to an element in this list!
 	 */
-	int pos(ListConstIterator<E> it) const {
+	int pos(const_iterator it) const {
 		OGDF_ASSERT(it.valid())
 		int p = 0;
-		for(ListElement<E> *pX = m_head; pX != 0; pX = pX->m_next, ++p)
+		for(ListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next, ++p)
 			if (pX == it) break;
 		return p;
 	}
 
-	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty)
+
+	//@}
 	/**
-	 * This method takes linear time.
+	 * @name Iterators
+	 * These methods return bidirectional iterators to elements in the list and allow to iterate over the elements in linear or cyclic order.
 	 */
-	ListConstIterator<E> chooseIterator() const {
-		return empty() ? ListConstIterator<E>() : get(randomNumber(0,size()-1));
+	//@{
+
+	//! Returns an iterator to the first element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	iterator begin() { return m_head; }
+
+	//! Returns a const iterator to the first element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator begin() const { return m_head; }
+
+	//! Returns a const iterator to the first element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator cbegin() const { return m_head; }
+
+	//! Returns an iterator to one-past-last element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator end() { return iterator(); }
+
+	//! Returns a const iterator to one-past-last element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator end() const { return const_iterator(); }
+
+	//! Returns a const iterator to one-past-last element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator cend() const { return const_iterator(); }
+
+	//! Returns an iterator to the last element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	iterator rbegin() { return m_tail; }
+
+	//! Returns a const iterator to the last element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator rbegin() const { return m_tail; }
+
+	//! Returns a const iterator to the last element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator crbegin() const { return m_tail; }
+
+	//! Returns an iterator to one-before-first element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator rend() { return iterator(); }
+
+	//! Returns a const iterator to one-before-first element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator rend() const { return const_iterator(); }
+
+	//! Returns a const iterator to one-before-first element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator crend() const { return const_iterator(); }
+
+	//! Returns a const iterator to the cyclic successor of \a it.
+	/**
+	 * \pre \a it points to an element in this list or to nullptr!
+	 */
+	const_iterator cyclicSucc(const_iterator it) const {
+		const ListElement<E> *pX = it;
+		return (pX && pX->m_next) ? pX->m_next : m_head;
 	}
 
-	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty)
+	//! Returns an iterator to the cyclic successor of \a it.
 	/**
-	 * This method takes linear time.
+	 * \pre \a it points to an element in this list or to nullptr!
 	 */
-	ListIterator<E> chooseIterator() {
-		return empty() ? ListIterator<E>() : get(randomNumber(0,size()-1));
+	iterator cyclicSucc(iterator it) {
+		ListElement<E> *pX = it;
+		return (pX && pX->m_next) ? pX->m_next : m_head;
 	}
 
-	//! Returns a random element from the list.
+	//! Returns a const iterator to the cyclic predecessor of \a it.
 	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
+	 * \pre \a it points to an element in this list or to nullptr!
 	 */
-	const E chooseElement() const {
-		OGDF_ASSERT(m_head != 0)
-		return *chooseIterator();
+	const_iterator cyclicPred(const_iterator it) const {
+		const ListElement<E> *pX = it;
+		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
 
-	//! Returns a random element from the list.
+	//! Returns an iterator to the cyclic predecessor of \a it.
 	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
+	 * \pre \a it points to an element in this list or to nullptr!
 	 */
-	E chooseElement() {
-		return *chooseIterator();
+	iterator cyclicPred(iterator it) {
+		ListElement<E> *pX = it;
+		return (pX && pX->m_prev) ? pX->m_prev : m_tail;
 	}
+
+
+	//@}
+	/**
+	 * @name Operators
+	 * The following operators are provided by lists.
+	 */
+	//@{
 
 	//! Assignment operator.
 	ListPure<E> &operator=(const ListPure<E> &L) {
@@ -501,16 +535,28 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * The list \a L is empty afterwards.
+	 */
+	ListPure<E> &operator=(ListPure<E> &&L) {
+		clear();
+		m_head = L.m_head;
+		m_tail = L.m_tail;
+		L.m_head = L.m_tail = nullptr;
+		return *this;
+	}
+
 	//! Equality operator.
 	bool operator==(const ListPure<E> &L) const {
 		ListElement<E> *pX = m_head, *pY = L.m_head;
-		while(pX != 0 && pY != 0) {
+		while(pX != nullptr && pY != nullptr) {
 			if(pX->m_x != pY->m_x)
 				return false;
 			pX = pX->m_next;
 			pY = pY->m_next;
 		}
-		return (pX == 0 && pY == 0);
+		return (pX == nullptr && pY == nullptr);
 	}
 
 	//! Inequality operator.
@@ -518,9 +564,31 @@ public:
 		return !operator==(L);
 	}
 
-	//! Adds element \a x at the begin of the list.
-	ListIterator<E> pushFront(const E &x) {
-		ListElement<E> *pX = OGDF_NEW ListElement<E>(x,m_head,0);
+
+	//@}
+	/**
+	 * @name Adding elements
+	 * These method add elements to the list.
+	 */
+	//@{
+
+	//! Adds element \a x at the beginning of the list.
+	iterator pushFront(const E &x) {
+		ListElement<E> *pX = OGDF_NEW ListElement<E>(x,m_head,nullptr);
+		if (m_head)
+			m_head = m_head->m_prev = pX;
+		else
+			m_head = m_tail = pX;
+		return m_head;
+	}
+
+	//! Adds a new element at the beginning of the list.
+	/**
+	 * The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	 */
+	template<class ... Args>
+	iterator emplaceFront(Args && ... args) {
+		ListElement<E> *pX = OGDF_NEW ListElement<E>(m_head, nullptr, std::forward<Args>(args)...);
 		if (m_head)
 			m_head = m_head->m_prev = pX;
 		else
@@ -529,8 +597,22 @@ public:
 	}
 
 	//! Adds element \a x at the end of the list.
-	ListIterator<E> pushBack(const E &x) {
-		ListElement<E> *pX = OGDF_NEW ListElement<E>(x,0,m_tail);
+	iterator pushBack(const E &x) {
+		ListElement<E> *pX = OGDF_NEW ListElement<E>(x,nullptr,m_tail);
+		if (m_head)
+			m_tail = m_tail->m_next = pX;
+		else
+			m_tail = m_head = pX;
+		return m_tail;
+	}
+
+	//! Adds a new element at the end of the list.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	iterator emplaceBack(Args && ... args) {
+		ListElement<E> *pX = OGDF_NEW ListElement<E>(nullptr, m_tail, std::forward<Args>(args)...);
 		if (m_head)
 			m_tail = m_tail->m_next = pX;
 		else
@@ -546,7 +628,7 @@ public:
 	 *   Possible values are \c ogdf::before and \c ogdf::after.
 	 * \pre \a it points to an element in this list.
 	 */
-	ListIterator<E> insert(const E &x, ListIterator<E> it, Direction dir = after) {
+	iterator insert(const E &x, iterator it, Direction dir = after) {
 		OGDF_ASSERT(it.valid())
 		OGDF_ASSERT(dir == after || dir == before)
 		ListElement<E> *pY = it, *pX;
@@ -568,7 +650,7 @@ public:
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	ListIterator<E> insertBefore(const E &x, ListIterator<E> it) {
+	iterator insertBefore(const E &x, iterator it) {
 		OGDF_ASSERT(it.valid())
 		ListElement<E> *pY = it, *pX;
 		ListElement<E> *pYprev = pY->m_prev;
@@ -582,7 +664,7 @@ public:
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	ListIterator<E> insertAfter(const E &x, ListIterator<E> it) {
+	iterator insertAfter(const E &x, iterator it) {
 		OGDF_ASSERT(it.valid())
 		ListElement<E> *pY = it, *pX;
 		ListElement<E> *pYnext = pY->m_next;
@@ -592,17 +674,25 @@ public:
 		return pX;
 	}
 
+
+	//@}
+	/**
+	 * @name Removing elements
+	 * These method remove elements from the list.
+	 */
+	//@{
+
 	//! Removes the first element from the list.
 	/**
 	 * \pre The list is not empty!
 	 */
 	void popFront() {
-		OGDF_ASSERT(m_head != 0)
+		OGDF_ASSERT(m_head != nullptr)
 		ListElement<E> *pX = m_head;
 		m_head = m_head->m_next;
 		delete pX;
-		if (m_head) m_head->m_prev = 0;
-		else m_tail = 0;
+		if (m_head) m_head->m_prev = nullptr;
+		else m_tail = nullptr;
 	}
 
 	//! Removes the first element from the list and returns it.
@@ -620,12 +710,12 @@ public:
 	 * \pre The list is not empty!
 	 */
 	void popBack() {
-		OGDF_ASSERT(m_tail != 0)
+		OGDF_ASSERT(m_tail != nullptr)
 		ListElement<E> *pX = m_tail;
 		m_tail = m_tail->m_prev;
 		delete pX;
-		if (m_tail) m_tail->m_next = 0;
-		else m_head = 0;
+		if (m_tail) m_tail->m_next = nullptr;
+		else m_head = nullptr;
 	}
 
 	//! Removes the last element from the list and returns it.
@@ -642,7 +732,7 @@ public:
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	void del(ListIterator<E> it) {
+	void del(iterator it) {
 		OGDF_ASSERT(it.valid())
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		delete pX;
@@ -660,19 +750,42 @@ public:
 	 * \return true if one element has been removed, false otherwise.
 	 */
 	bool removeFirst(const E &x) {
-		for(ListElement<E> *pX = m_head; pX != 0; pX = pX->m_next)
+		for(ListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next)
 			if(pX->m_x == x) {
 				del(pX); return true;
 			}
 		return false;
 	}
 
+	//! Removes all elements from the list.
+	void clear() {
+		if (m_head == nullptr) return;
+
+		if (doDestruction((E*)nullptr)) {
+			for(ListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next)
+				pX->m_x.~E();
+		}
+		OGDF_ALLOCATOR::deallocateList(sizeof(ListElement<E>),m_head,m_tail);
+
+		m_head = m_tail = nullptr;
+	}
+
+
+	//@}
+	/**
+	 * @name Moving elements
+	 * The method allow to change the order of elements within the list, or to move elements to another list.
+	 */
+	//@{
+
 	//! Exchanges the positions of \a it1 and \a it2 in the list.
 	/**
 	 * \pre \a it1 and \a it2 point to elements in this list.
 	 */
-	void exchange(ListIterator<E> it1, ListIterator<E> it2) {
-		OGDF_ASSERT(it1.valid() && it2.valid() && it1 != it2)
+	void exchange(iterator it1, iterator it2) {
+		OGDF_ASSERT(it1.valid());
+		OGDF_ASSERT(it2.valid());
+		OGDF_ASSERT(it1 != it2);
 		ListElement<E> *pX = it1, *pY = it2;
 
 		std::swap(pX->m_next,pY->m_next);
@@ -702,7 +815,7 @@ public:
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	void moveToFront(ListIterator<E> it) {
+	void moveToFront(iterator it) {
 		OGDF_ASSERT(it.valid())
 		// remove it
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
@@ -714,16 +827,16 @@ public:
 		if (pNext) pNext->m_prev = pPrev;
 		else m_tail = pPrev;
 		// insert it at front
-		pX->m_prev = 0;
+		pX->m_prev = nullptr;
 		pX->m_next = m_head;
 		m_head = m_head->m_prev = pX;
-	}//move
+	}
 
 	//! Moves \a it to the end of the list.
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	void moveToBack(ListIterator<E> it) {
+	void moveToBack(iterator it) {
 		OGDF_ASSERT(it.valid())
 		// remove it
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
@@ -736,16 +849,17 @@ public:
 		if (pNext) pNext->m_prev = pPrev;
 		// insert it at back
 		pX->m_prev = m_tail;
-		pX->m_next = 0;
+		pX->m_next = nullptr;
 		m_tail = m_tail->m_next = pX;
-	}//move
+	}
 
 	//! Moves \a it after \a itBefore.
 	/**
 	 * \pre \a it and \a itBefore point to elements in this list.
 	 */
-	void moveToSucc(ListIterator<E> it, ListIterator<E> itBefore) {
-		OGDF_ASSERT(it.valid() && itBefore.valid())
+	void moveToSucc(iterator it, iterator itBefore) {
+		OGDF_ASSERT(it.valid());
+		OGDF_ASSERT(itBefore.valid());
 		// move it
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		//the same of already in place
@@ -762,14 +876,15 @@ public:
 		(pX->m_prev = pY)->m_next = pX;
 		if (pYnext) pYnext->m_prev = pX;
 		else m_tail = pX;
-	}//move
+	}
 
 	//! Moves \a it before \a itAfter.
 	/**
 	 * \pre \a it and \a itAfter point to elements in this list.
 	 */
-	void moveToPrec(ListIterator<E> it, ListIterator<E> itAfter) {
-		OGDF_ASSERT(it.valid() && itAfter.valid())
+	void moveToPrec(iterator it, iterator itAfter) {
+		OGDF_ASSERT(it.valid());
+		OGDF_ASSERT(itAfter.valid());
 		// move it
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
 		//the same of already in place
@@ -786,13 +901,13 @@ public:
 		(pX->m_next = pY)->m_prev = pX;
 		if (pYprev) pYprev->m_next = pX;
 		else m_head = pX;
-	}//move
+	}
 
 	//! Moves \a it to the begin of \a L2.
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	void moveToFront(ListIterator<E> it, ListPure<E> &L2) {
+	void moveToFront(iterator it, ListPure<E> &L2) {
 		OGDF_ASSERT(it.valid())
 		OGDF_ASSERT(this != &L2)
 		// remove it
@@ -802,8 +917,8 @@ public:
 		if (pNext) pNext->m_prev = pPrev;
 		else m_tail = pPrev;
 		// insert it at front of L2
-		pX->m_prev = 0;
-		if ((pX->m_next = L2.m_head) != 0)
+		pX->m_prev = nullptr;
+		if ((pX->m_next = L2.m_head) != nullptr)
 			L2.m_head = L2.m_head->m_prev = pX;
 		else
 			L2.m_head = L2.m_tail = pX;
@@ -813,7 +928,7 @@ public:
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	void moveToBack(ListIterator<E> it, ListPure<E> &L2) {
+	void moveToBack(iterator it, ListPure<E> &L2) {
 		OGDF_ASSERT(it.valid())
 		OGDF_ASSERT(this != &L2)
 		// remove it
@@ -823,8 +938,8 @@ public:
 		if (pNext) pNext->m_prev = pPrev;
 		else m_tail = pPrev;
 		// insert it at back of L2
-		pX->m_next = 0;
-		if ((pX->m_prev = L2.m_tail) != 0)
+		pX->m_next = nullptr;
+		if ((pX->m_prev = L2.m_tail) != nullptr)
 			L2.m_tail = L2.m_tail->m_next = pX;
 		else
 			L2.m_head = L2.m_tail = pX;
@@ -835,8 +950,9 @@ public:
 	 * \pre \a it points to an element in this list, and \a itBefore
 	 *      points to an element in \a L2.
 	 */
-	void moveToSucc(ListIterator<E> it, ListPure<E> &L2, ListIterator<E> itBefore) {
-		OGDF_ASSERT(it.valid() && itBefore.valid())
+	void moveToSucc(iterator it, ListPure<E> &L2, iterator itBefore) {
+		OGDF_ASSERT(it.valid());
+		OGDF_ASSERT(itBefore.valid());
 		OGDF_ASSERT(this != &L2)
 		// remove it
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
@@ -857,8 +973,9 @@ public:
 	 * \pre \a it points to an element in this list, and \a itAfter
 	 *      points to an element in \a L2.
 	 */
-	void moveToPrec(ListIterator<E> it, ListPure<E> &L2, ListIterator<E> itAfter) {
-		OGDF_ASSERT(it.valid() && itAfter.valid())
+	void moveToPrec(iterator it, ListPure<E> &L2, iterator itAfter) {
+		OGDF_ASSERT(it.valid());
+		OGDF_ASSERT(itAfter.valid());
 		OGDF_ASSERT(this != &L2)
 		// remove it
 		ListElement<E> *pX = it, *pPrev = pX->m_prev, *pNext = pX->m_next;
@@ -885,7 +1002,7 @@ public:
 			L2.m_head->m_prev = m_tail;
 			m_tail = L2.m_tail;
 		}
-		L2.m_head = L2.m_tail = 0;
+		L2.m_head = L2.m_tail = nullptr;
 	}
 
 	//! Prepends \a L2 to this list and makes \a L2 empty.
@@ -899,22 +1016,24 @@ public:
 			L2.m_tail->m_next = m_head;
 			m_head = L2.m_head;
 		}
-		L2.m_head = L2.m_tail = 0;
+		L2.m_head = L2.m_tail = nullptr;
 	}
 
-	//! Exchanges too complete lists in O(1).
-	/**
-	 * The list's content is moved to L2 and vice versa.
-	 */
-	void exchange(ListPure<E>& L2) {
-		ListElement<E>* t;
-		t = this->m_head;
-		this->m_head = L2.m_head;
-		L2.m_head = t;
-		t = this->m_tail;
-		this->m_tail = L2.m_tail;
-		L2.m_tail = t;
+	//! Exchanges the contents of this list and \a other in constant time.
+	void swap(ListPure<E> &other) {
+		std::swap(m_head, other.m_head);
+		std::swap(m_tail, other.m_tail);
 	}
+
+	//! Deprecated, use swap instead.
+	/**
+	 * \deprecated This method has been marked as deprecated and might be removed in a future version of the library.
+	 *             Use the equivalent swap() method instead.
+	 */
+	OGDF_DEPRECATED_BEGIN
+	void exchange(List<E>& L2)
+	OGDF_DEPRECATED_END
+		{ swap(L2); }
 
 	//! Splits the list at element \a it into lists \a L1 and \a L2.
 	/**
@@ -926,7 +1045,7 @@ public:
 	 * \pre \a it points to an element in this list.
 	 */
 
-	void split(ListIterator<E> it,ListPure<E> &L1,ListPure<E> &L2,Direction dir = before) {
+	void split(iterator it,ListPure<E> &L1,ListPure<E> &L2,Direction dir = before) {
 		if (&L1 != this) L1.clear();
 		if (&L2 != this) L2.clear();
 
@@ -941,45 +1060,45 @@ public:
 				L1.m_tail = it;
 				L2.m_head = L1.m_tail->m_next;
 			}
-			L2.m_head->m_prev = L1.m_tail->m_next = 0;
+			L2.m_head->m_prev = L1.m_tail->m_next = nullptr;
 
 		} else {
-			L1.m_head = L1.m_tail = 0;
+			L1.m_head = L1.m_tail = nullptr;
 			L2.m_head = m_head;
 			L2.m_tail = m_tail;
 		}
 
 		if (this != &L1 && this != &L2) {
-			m_head = m_tail = 0;
+			m_head = m_tail = nullptr;
 		}
 	}
 
 	//! Splits the list after \a it.
-	void splitAfter(ListIterator<E> it, ListPure<E> &L2) {
+	void splitAfter(iterator it, ListPure<E> &L2) {
 		OGDF_ASSERT(it.valid())
 		OGDF_ASSERT(this != &L2)
 		L2.clear();
 		ListElement<E> *pX = it;
 		if (pX != m_tail) {
-			(L2.m_head = pX->m_next)->m_prev = 0;
-			pX->m_next = 0;
+			(L2.m_head = pX->m_next)->m_prev = nullptr;
+			pX->m_next = nullptr;
 			L2.m_tail = m_tail;
 			m_tail = pX;
 		}
 	}
 
 	//! Splits the list before \a it.
-	void splitBefore(ListIterator<E> it, ListPure<E> &L2) {
+	void splitBefore(iterator it, ListPure<E> &L2) {
 		OGDF_ASSERT(it.valid())
 		OGDF_ASSERT(this != &L2)
 		L2.clear();
 		ListElement<E> *pX = it;
 		L2.m_head = pX; L2.m_tail = m_tail;
-		if ((m_tail = pX->m_prev) == 0)
-			m_head = 0;
+		if ((m_tail = pX->m_prev) == nullptr)
+			m_head = nullptr;
 		else
-			m_tail->m_next = 0;
-		pX->m_prev = 0;
+			m_tail->m_next = nullptr;
+		pX->m_prev = nullptr;
 	}
 
 	//! Reverses the order of the list elements.
@@ -994,54 +1113,13 @@ public:
 		}
 	}
 
-	//! Removes all elements from the list.
-	void clear() {
-		if (m_head == 0) return;
 
-#if (_MSC_VER == 1100)
-// workaround for bug in Visual Studio 5.0
-
-		while (!empty())
-			popFront();
-
-#else
-
-		if (doDestruction((E*)0)) {
-			for(ListElement<E> *pX = m_head; pX != 0; pX = pX->m_next)
-				pX->m_x.~E();
-		}
-		OGDF_ALLOCATOR::deallocateList(sizeof(ListElement<E>),m_head,m_tail);
-
-#endif
-
-		m_head = m_tail = 0;
-	}
-
-	//! Sorts the list using Quicksort.
-	void quicksort() {
-		ogdf::quicksortTemplate(*this);
-	}
-
-	//! Sorts the list using Quicksort and comparer \a comp.
-	template<class COMPARER>
-	void quicksort(const COMPARER &comp) {
-		ogdf::quicksortTemplate(*this,comp);
-	}
-
-	//! Sorts the list using bucket sort.
+	//@}
 	/**
-	 * @param l is the lowest bucket that will occur.
-	 * @param h is the highest bucket that will occur.
-	 * @param f returns the bucket for each element.
-	 * \pre The bucket function \a f will only return bucket values between \a l
-	 * and \a h for this list.
+	 * @name Searching and sorting
+	 * These methods provide searching for values and sorting the list.
 	 */
-	void bucketSort(int l, int h, BucketFunc<E> &f);
-
-	//! Randomly permutes the elements in the list.
-	void permute() {
-		permute(size());
-	}
+	//@{
 
 	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
 	ListConstIterator<E> search(const E& e) const {
@@ -1077,99 +1155,108 @@ public:
 		return i;
 	}
 
+	//! Sorts the list using Quicksort.
+	void quicksort() {
+		ogdf::quicksortTemplate(*this);
+	}
+
+	//! Sorts the list using Quicksort and comparer \a comp.
+	template<class COMPARER>
+	void quicksort(const COMPARER &comp) {
+		ogdf::quicksortTemplate(*this,comp);
+	}
+
+	//! Sorts the list using bucket sort.
+	/**
+	 * @param l is the lowest bucket that will occur.
+	 * @param h is the highest bucket that will occur.
+	 * @param f returns the bucket for each element.
+	 * \pre The bucket function \a f will only return bucket values between \a l
+	 * and \a h for this list.
+	 */
+	void bucketSort(int l, int h, BucketFunc<E> &f);
+
+
+	//@}
+	/**
+	 * @name Random elements and permutations
+	 * These methods allow to select a random element in the list, or to randomly permute the list.
+	 */
+	//@{
+
+	//! Returns a const iterator to a random element in the list (or an invalid iterator if the list is empty).
+	/**
+	 * This method takes linear time.
+	 */
+	const_iterator chooseIterator() const {
+		return empty() ? const_iterator() : get(randomNumber(0,size()-1));
+	}
+
+	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty).
+	/**
+	 * This method takes linear time.
+	 */
+	iterator chooseIterator() {
+		return empty() ? iterator() : get(randomNumber(0,size()-1));
+	}
+
+	//! Returns a random element from the list.
+	/**
+	 * \pre The list is not empty!
+	 *
+	 * This method takes linear time.
+	 */
+	const_reference chooseElement() const {
+		OGDF_ASSERT(m_head != nullptr)
+		return *chooseIterator();
+	}
+
+	//! Returns a random element from the list.
+	/**
+	 * \pre The list is not empty!
+	 *
+	 * This method takes linear time.
+	 */
+	reference chooseElement() {
+		return *chooseIterator();
+	}
+
+	//! Randomly permutes the elements in the list.
+	void permute() {
+		std::minstd_rand rng(randomSeed());
+		permute(size(), rng);
+	}
+
+	//! Randomly permutes the elements in the list using random number generator \a rng.
+	template<class RNG>
+	void permute(RNG &rng) {
+		permute(size(), rng);
+	}
+
+	//@}
+
 protected:
 	void copy(const ListPure<E> &L) {
-		for(ListElement<E> *pX = L.m_head; pX != 0; pX = pX->m_next)
+		for(ListElement<E> *pX = L.m_head; pX != nullptr; pX = pX->m_next)
 			pushBack(pX->m_x);
 	}
 
-	void permute(const int n);
+	template<class RNG>
+	void permute(const int n, RNG &rng);
 
 	OGDF_NEW_DELETE
 }; // class ListPure
 
 
 
-//! Iteration over all iterators \a it of a list \a L, where L is of Type \c List<\a type>.
+//! Doubly linked lists (maintaining the length of the list).
 /**
- * Automagically creates a \c ListConstIterator<\a type> named \a it, and runs through the List \a L.
+ * @ingroup containers
  *
- * <h3>Example</h3>
+ * Elements of the list are instances of type ListElement.
+ * Use ListConstIterator or ListIterator in order to iterate over the list.
  *
- * The following code runs through the list \a L, and prints each item
- *   \code
- *   List<double> L;
- *   ...
- *   forall_listiterators(double, it, L) {
- *     cout << *it << endl;
- *   }
- *   \endcode
- *
- *   Note that this code is equivalent to the following tedious long version
- *
- *   \code
- *   List<double> L;
- *   ...
- *   for( ListConstIterator<double> it = L.begin(); it.valid(); ++it) {
- *     cout << *it << endl;
- *   }
- *   \endcode
- */
-#define forall_listiterators(type, it, L) \
-	for(ListConstIterator< type > it = (L).begin(); it.valid(); ++it)
-
-//! Iteration over all iterators \a it of a list \a L, where L is of Type \c List<\a type>, in reverse order.
-/**
- * Automagically creates a \c ListConstIterator<\a type> named \a it, and runs through the List \a L, in reverse order.
- * See \c #forall_listiterators for an example.
- */
-#define forall_rev_listiterators(type, it, L) \
-	for(ListConstIterator< type > it = (L).rbegin(); it.valid(); --it)
-
-//! Iteration over all non-const iterators \a it of a list \a L, where L is of Type \c List<\a type>.
-/**
- * Automagically creates a \c ListIterator<\a type> named \a it, and runs through the List \a L.
- * See \c #forall_listiterators for an example.
- */
-#define forall_nonconst_listiterators(type, it, L) \
-	for(ListIterator< type > it = (L).begin(); it.valid(); ++it)
-
-//! Iteration over all non-const iterators \a it of a list \a L, where L is of Type \c List<\a type>, in reverse order.
-/**
- * Automagically creates a \c ListIterator<\a type> named \a it, and runs through the List \a L, in reverse order.
- * See \c #forall_listiterators for an example.
- */
-#define forall_rev_nonconst_listiterators(type, it, L) \
-	for(ListIterator< type > it = (L).rbegin(); it.valid(); --it)
-
-//! Iteration over all iterators \a it of a list \a L, where L is of Type \c SList<\a type>.
-/**
- * Automagically creates a \c SListConstIterator<\a type> named \a it, and runs through the SList \a L.
- * See \c #forall_listiterators for an example.
- */
-#define forall_slistiterators(type, it, L) \
-	for(SListConstIterator< type > it = (L).begin(); it.valid(); ++it)
-
-//! Iteration over all non-const iterators \a it of a list \a L, where L is of Type \c SList<\a type>.
-/**
- * Automagically creates a \c SListIterator<\a type> named \a it, and runs through the SList \a L.
- * See \c #forall_listiterators for an example.
- */
-#define forall_nonconst_slistiterators(type, it, L) \
-	for(SListIterator< type > it = (L).begin(); it.valid(); ++it)
-
-
-
-
-//! The parameterized class \a ListPure<E> represents doubly linked lists with content type \a E.
-/**
- * Elements of the list are instances of type ListElement<E>.
- * Use ListConstIterator<E> or ListIterator<E> in order to iterate over the list.
- *
- * In contrast to ListPure<E>, instances of \a List<E> store the length of the list.
- *
- * See the \c #forall_listiterators macros for the recommended way how to easily iterate through a
- * list.
+ * In contrast to ListPure, instances of List store the length of the list.
  *
  * @tparam E is the data type stored in list elements.
  */
@@ -1179,85 +1266,94 @@ class List : private ListPure<E> {
 	int m_count; //!< The length of the list.
 
 public:
+	//! Represents the data type stored in a list element.
+	typedef E value_type;
+	//! Provides a reference to an element stored in a list.
+	typedef E &reference;
+	//! Provides a reference to a const element stored in a list for reading and performing const operations.
+	typedef const E &const_reference;
+	//! Provides a bidirectional iterator that can read a const element in a list.
+	typedef ListConstIterator<E> const_iterator;
+	//! Provides a bidirectional iterator that can read or modify any element in a list.
+	typedef ListIterator<E> iterator;
+
 	//! Constructs an empty doubly linked list.
 	List() : m_count(0) { }
+
+	//! Constructs a doubly linked list containing the elements in \a init.
+	List(std::initializer_list<E> init) : ListPure<E>(init), m_count((int)init.size()) { }
 
 	//! Constructs a doubly linked list that is a copy of \a L.
 	List(const List<E> &L) : ListPure<E>(L), m_count(L.m_count) { }
 
-	// destruction
+	//! Constructs a doubly linked list containing the elements of \a L (move semantics).
+	/**
+	 * The list \a L is empty afterwards.
+	 */
+	List(List<E> &&L) : ListPure<E>(std::move(L)), m_count(L.m_count) {
+		L.m_count = 0;
+	}
+
+	//! Destructor.
 	~List() { }
 
-	typedef E value_type;
-	typedef ListElement<E> element_type;
-	typedef ListConstIterator<E> const_iterator;
-	typedef ListIterator<E> iterator;
+
+	/**
+	 * @name Access methods
+	 * These methods provide simple access without changing the list.
+	 */
+	//@{
 
 	//! Returns true iff the list is empty.
 	bool empty() const { return ListPure<E>::empty(); }
 
-	// returns length of list
+	//! Returns the number of elements in the list.
+	/**
+	 * This method has constant runtime (in contrast to ListPure::size()), since the list maintains the current size.
+	 */
 	int size() const { return m_count; }
 
-	// returns first element of list (0 if empty)
-	const ListConstIterator<E> begin() const { return ListPure<E>::begin(); }
-	// returns first element of list (0 if empty)
-	ListIterator<E> begin() { return ListPure<E>::begin(); }
+	//! Returns a const reference to the first element.
+	/**
+	 * \pre The list is not empty!
+	 */
+	const_reference front() const { return ListPure<E>::front(); }
 
-	// returns iterator to one-past-last element of list
-	ListConstIterator<E> end() const { return ListConstIterator<E>(); }
-	// returns iterator to one-past-last element of list
-	ListIterator<E> end() { return ListIterator<E>(); }
+	//! Returns a reference to the first element.
+	/**
+	 * \pre The list is not empty!
+	 */
+	reference front() { return ListPure<E>::front(); }
 
-	// returns last element of list (0 if empty)
-	const ListConstIterator<E> rbegin() const { return ListPure<E>::rbegin(); }
-	// returns last element of list (0 if empty)
-	ListIterator<E> rbegin() { return ListPure<E>::rbegin(); }
+	//! Returns a const reference to the last element.
+	/**
+	 * \pre The list is not empty!
+	 */
+	const_reference back() const { return ListPure<E>::back(); }
 
-	// returns iterator to one-before-first element of list
-	ListConstIterator<E> rend() const { return ListConstIterator<E>(); }
-	// returns iterator to one-before-first element of list
-	ListIterator<E> rend() { return ListIterator<E>(); }
+	//! Returns a reference to the last element.
+	/**
+	 * \pre The list is not empty!
+	 */
+	reference back() { return ListPure<E>::back(); }
 
-	// returns reference to first element
-	const E &front() const { return ListPure<E>::front(); }
-	// returns reference to first element
-	E &front() { return ListPure<E>::front(); }
-
-	// returns reference to last element
-	const E &back() const { return ListPure<E>::back(); }
-	// returns reference to last element
-	E &back() { return ListPure<E>::back(); }
-
-	// returns cyclic successor
-	ListConstIterator<E> cyclicSucc(ListConstIterator<E> it) const {
-		return ListPure<E>::cyclicSucc(it);
-	}
-
-	// returns cyclic successor
-	ListIterator<E> cyclicSucc(ListIterator<E> it) {
-		return ListPure<E>::cyclicSucc(it);
-	}
-
-	// returns cyclic predecessor
-	ListConstIterator<E> cyclicPred(ListConstIterator<E> it) const {
-		return ListPure<E>::cyclicPred(it);
-	}
-
-	// returns cyclic predecessor
-	ListIterator<E> cyclicPred(ListIterator<E> it) {
-		return ListPure<E>::cyclicPred(it);
-	}
-
-	// returns the iterator at position pos. Note that this takes time linear in pos.
-	ListConstIterator<E> get(int pos) const {
-		OGDF_ASSERT(0 <= pos && pos < m_count)
+	//! Returns a const iterator pointing to the element at position \a pos.
+	/**
+	 * The running time of this method is linear in \a pos.
+	 */
+	const_iterator get(int pos) const {
+		OGDF_ASSERT(0 <= pos);
+		OGDF_ASSERT(pos < m_count)
 		return ListPure<E>::get(pos);
 	}
 
-	// returns the iterator at position pos. Note that this takes time linear in pos.
-	ListIterator<E> get(int pos) {
-		OGDF_ASSERT(0 <= pos && pos < m_count)
+	//! Returns an iterator pointing to the element at position \a pos.
+	/**
+	 * The running time of this method is linear in \a pos.
+	 */
+	iterator get(int pos) {
+		OGDF_ASSERT(0 <= pos);
+		OGDF_ASSERT(pos < m_count)
 		return ListPure<E>::get(pos);
 	}
 
@@ -1265,69 +1361,155 @@ public:
 	/**
 	 * \pre \a it is a valid iterator pointing to an element in this list!
 	 */
-	int pos(ListConstIterator<E> it) const {
+	int pos(const_iterator it) const {
 		OGDF_ASSERT(it.valid())
 		return ListPure<E>::pos(it);
 	}
 
-	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty)
+	//! Conversion to const ListPure.
+	const ListPure<E> &getListPure() const { return *this; }
+
+
+	//@}
 	/**
-	 * This method takes linear time.
+	 * @name Iterators
+	 * These methods return bidirectional iterators to elements in the list and allow to iterate over the elements in linear or cyclic order.
 	 */
-	ListConstIterator<E> chooseIterator() const {
-		return (m_count > 0) ? get(randomNumber(0,m_count-1)) : ListConstIterator<E>();
+	//@{
+
+	//! Returns an iterator to the first element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	iterator begin() { return ListPure<E>::begin(); }
+
+	//! Returns a const iterator to the first element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator begin() const { return ListPure<E>::begin(); }
+
+	//! Returns a const iterator to the first element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator cbegin() const { return ListPure<E>::cbegin(); }
+
+	//! Returns an iterator to one-past-last element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator end() { return iterator(); }
+
+	//! Returns a const iterator to one-past-last element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator end() const { return const_iterator(); }
+
+	//! Returns a const iterator to one-past-last element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator cend() const { return const_iterator(); }
+
+	//! Returns an iterator to the last element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	iterator rbegin() { return ListPure<E>::rbegin(); }
+
+	//! Returns a const iterator to the last element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator rbegin() const { return ListPure<E>::rbegin(); }
+
+	//! Returns a const iterator to the last element of the list.
+	/**
+	 * If the list is empty, a null pointer iterator is returned.
+	 */
+	const_iterator crbegin() const { return ListPure<E>::crbegin(); }
+
+	//! Returns an iterator to one-before-first element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator rend() { return iterator(); }
+
+	//! Returns a const iterator to one-before-first element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator rend() const { return const_iterator(); }
+
+	//! Returns a const iterator to one-before-first element of the list.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator crend() const { return const_iterator(); }
+
+	//! Returns a const iterator to the cyclic successor of \a it.
+	/**
+	 * \pre \a it points to an element in this list!
+	 */
+	const_iterator cyclicSucc(const_iterator it) const {
+		return ListPure<E>::cyclicSucc(it);
 	}
 
-	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty)
+	//! Returns an iterator to the cyclic successor of \a it.
 	/**
-	 * This method takes linear time.
+	 * \pre \a it points to an element in this list!
 	 */
-	ListIterator<E> chooseIterator() {
-		return (m_count > 0) ? get(randomNumber(0,m_count-1)) : ListIterator<E>();
+	iterator cyclicSucc(iterator it) {
+		return ListPure<E>::cyclicSucc(it);
 	}
 
-	//! Returns a random element from the list.
+	//! Returns a const iterator to the cyclic predecessor of \a it.
 	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
+	 * \pre \a it points to an element in this list!
 	 */
-	const E chooseElement() const {
-		OGDF_ASSERT(!empty());
-		return *chooseIterator();
+	const_iterator cyclicPred(const_iterator it) const {
+		return ListPure<E>::cyclicPred(it);
 	}
 
-	//! Returns a random element from the list.
+	//! Returns an iterator to the cyclic predecessor of \a it.
 	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
+	 * \pre \a it points to an element in this list!
 	 */
-	E chooseElement() {
-		OGDF_ASSERT(!empty());
-		return *chooseIterator();
+	iterator cyclicPred(iterator it) {
+		return ListPure<E>::cyclicPred(it);
 	}
 
-	// assignment
+
+	//@}
+	/**
+	 * @name Operators
+	 * The following operators are provided by lists.
+	 */
+	//@{
+
+	//! Assignment operator
 	List<E> &operator=(const List<E> &L) {
 		ListPure<E>::operator=(L);
 		m_count = L.m_count;
 		return *this;
 	}
 
+	//! Assignment operator (move semantics)
+	/**
+	 * The list \a L is empty afterwards.
+	 */
+	List<E> &operator=(List<E> &&L) {
+		m_count = L.m_count;
+		ListPure<E>::operator=(std::move(L));
+		L.m_count = 0;
+		return *this;
+	}
+
 	//! Equality operator.
 	bool operator==(const List<E> &L) const {
-		if(m_count != L.m_count)
-			return false;
-
-		ListElement<E> *pX = ListPure<E>::m_head, *pY = L.m_head;
-		while(pX != 0) {
-			if(pX->m_x != pY->m_x)
-				return false;
-			pX = pX->m_next;
-			pY = pY->m_next;
-		}
-		return true;
+		return (m_count == L.m_count) && ListPure<E>::operator==(L);
 	}
 
 	//! Inequality operator.
@@ -1335,133 +1517,128 @@ public:
 		return !operator==(L);
 	}
 
-	// adds element x at beginning
-	ListIterator<E> pushFront(const E &x) {
+
+	//@}
+	/**
+	 * @name Adding elements
+	 * These method add elements to the list.
+	 */
+	//@{
+
+	//! Adds element \a x at the beginning of the list.
+	iterator pushFront(const E &x) {
 		++m_count;
 		return ListPure<E>::pushFront(x);
 	}
 
-	// adds element x at end
-	ListIterator<E> pushBack(const E &x) {
+	//! Adds a new element at the beginning of the list.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	iterator emplaceFront(Args && ... args) {
+		++m_count;
+		return ListPure<E>::emplaceFront(std::forward<Args>(args)...);
+	}
+
+	//! Adds element \a x at the end of the list.
+	iterator pushBack(const E &x) {
 		++m_count;
 		return ListPure<E>::pushBack(x);
 	}
 
-	// inserts x before or after it
-	ListIterator<E> insert(const E &x, ListIterator<E> it, Direction dir = after) {
+	//! Adds a new element at the end of the list.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	iterator emplaceBack(Args && ... args) {
+		++m_count;
+		return ListPure<E>::emplaceBack(std::forward<Args>(args)...);
+	}
+
+	//! Inserts element \a x before or after \a it.
+	/**
+	 * @param x is the element to be inserted.
+	 * @param it is a list iterator in this list.
+	 * @param dir determines if \a x is inserted before or after \a it.
+	 *   Possible values are \c ogdf::before and \c ogdf::after.
+	 * \pre \a it points to an element in this list.
+	 */
+	iterator insert(const E &x, iterator it, Direction dir = after) {
 		++m_count;
 		return ListPure<E>::insert(x,it,dir);
 	}
 
-	// inserts x before it
-	ListIterator<E> insertBefore(const E &x, ListIterator<E> it) {
+	//! Inserts element \a x before \a it.
+	/**
+	 * \pre \a it points to an element in this list.
+	 */
+	iterator insertBefore(const E &x, iterator it) {
 		++m_count;
 		return ListPure<E>::insertBefore(x,it);
 	}
 
-	// inserts x after it
-	ListIterator<E> insertAfter(const E &x, ListIterator<E> it) {
+	//! Inserts element \a x after \a it.
+	/**
+	 * \pre \a it points to an element in this list.
+	 */
+	iterator insertAfter(const E &x, iterator it) {
 		++m_count;
 		return ListPure<E>::insertAfter(x,it);
 	}
 
-	// removes first element
+
+	//@}
+	/**
+	 * @name Removing elements
+	 * These method remove elements from the list.
+	 */
+	//@{
+
+	//! Removes the first element from the list.
+	/**
+	 * \pre The list is not empty!
+	 */
 	void popFront() {
 		--m_count;
 		ListPure<E>::popFront();
 	}
 
-	// removes first element and returns it
+	//! Removes the first element from the list and returns it.
+	/**
+	 * \pre The list is not empty!
+	 */
 	E popFrontRet() {
 		E el = front();
 		popFront();
 		return el;
 	}
 
-	// removes last element
+	//! Removes the last element from the list.
+	/**
+	 * \pre The list is not empty!
+	 */
 	void popBack() {
 		--m_count;
 		ListPure<E>::popBack();
 	}
 
-	// removes last element and returns it
+	//! Removes the last element from the list and returns it.
+	/**
+	 * \pre The list is not empty!
+	 */
 	E popBackRet() {
 		E el = back();
 		popBack();
 		return el;
 	}
 
-	void exchange(ListIterator<E> it1, ListIterator<E> it2) {
-		ListPure<E>::exchange(it1,it2);
-	}
-
-	//! Moves \a it to the beginning of the list
-	/**
-	 * \pre \a it points to an element in the list.
-	 */
-	void moveToFront(ListIterator<E> it) {
-		ListPure<E>::moveToFront(it);
-	}
-	//! Moves \a it to the end of the list
-	/**
-	 * \pre \a it points to an element in the list.
-	 */
-	void moveToBack(ListIterator<E> it) {
-		ListPure<E>::moveToBack(it);
-	}
-	//! Moves \a it after \a itBefore.
-	/**
-	 * \pre \a it and \a itBefore point to elements in this list.
-	 */
-	void moveToSucc(ListIterator<E> it, ListIterator<E> itBefore) {
-		ListPure<E>::moveToSucc(it,itBefore);
-	}
-	//! Moves \a it before \a itAfter.
-	/**
-	 * \pre \a it and \a itAfter point to elements in this list.
-	 */
-	void moveToPrec(ListIterator<E> it, ListIterator<E> itAfter) {
-		ListPure<E>::moveToPrec(it,itAfter);
-	}
-
-	//! Moves \a it to the beginning of \a L2.
+	//! Removes \a it from the list.
 	/**
 	 * \pre \a it points to an element in this list.
 	 */
-	void moveToFront(ListIterator<E> it, List<E> &L2) {
-		ListPure<E>::moveToFront(it,L2);
-		--m_count; ++L2.m_count;
-	}
-	//! Moves \a it to the end of \a L2.
-	/**
-	 * \pre \a it points to an element in this list.
-	 */
-	void moveToBack(ListIterator<E> it, List<E> &L2) {
-		ListPure<E>::moveToBack(it,L2);
-		--m_count; ++L2.m_count;
-	}
-
-	//! Moves \a it to list \a L2 and inserts it after \a itBefore.
-	/**
-	 * \pre \a it points to an element in this list, and \a itBefore
-	 *      points to an element in \a L2.
-	 */
-	void moveToSucc(ListIterator<E> it, List<E> &L2, ListIterator<E> itBefore) {
-		ListPure<E>::moveToSucc(it,L2,itBefore);
-		--m_count; ++L2.m_count;
-	}
-	//! Moves \a it to list \a L2 and inserts it after \a itBefore.
-	/**
-	 * \pre \a it points to an element in this list, and \a itBefore
-	 *      points to an element in \a L2.
-	 */
-	void moveToPrec(ListIterator<E> it, List<E> &L2, ListIterator<E> itAfter) {
-		ListPure<E>::moveToPrec(it,L2,itAfter);
-		--m_count; ++L2.m_count;
-	}
-
-	// removes it and frees memory
-	void del(ListIterator<E> it) {
+	void del(iterator it) {
 		--m_count;
 		ListPure<E>::del(it);
 	}
@@ -1476,6 +1653,93 @@ public:
 		if(hasRemoved)
 			--m_count;
 		return hasRemoved;
+	}
+
+	//! Removes all elements from the list.
+	void clear() {
+		m_count = 0;
+		ListPure<E>::clear();
+	}
+
+
+	//@}
+	/**
+	 * @name Moving elements
+	 * The method allow to change the order of elements within the list, or to move elements to another list.
+	 */
+	//@{
+
+	//! Exchanges the positions of \a it1 and \a it2 in the list.
+	/**
+	 * \pre \a it1 and \a it2 point to elements in this list.
+	 */
+	void exchange(iterator it1, iterator it2) {
+		ListPure<E>::exchange(it1,it2);
+	}
+
+	//! Moves \a it to the beginning of the list
+	/**
+	 * \pre \a it points to an element in the list.
+	 */
+	void moveToFront(iterator it) {
+		ListPure<E>::moveToFront(it);
+	}
+	//! Moves \a it to the end of the list
+	/**
+	 * \pre \a it points to an element in the list.
+	 */
+	void moveToBack(iterator it) {
+		ListPure<E>::moveToBack(it);
+	}
+	//! Moves \a it after \a itBefore.
+	/**
+	 * \pre \a it and \a itBefore point to elements in this list.
+	 */
+	void moveToSucc(iterator it, iterator itBefore) {
+		ListPure<E>::moveToSucc(it,itBefore);
+	}
+	//! Moves \a it before \a itAfter.
+	/**
+	 * \pre \a it and \a itAfter point to elements in this list.
+	 */
+	void moveToPrec(iterator it, iterator itAfter) {
+		ListPure<E>::moveToPrec(it,itAfter);
+	}
+
+	//! Moves \a it to the beginning of \a L2.
+	/**
+	 * \pre \a it points to an element in this list.
+	 */
+	void moveToFront(iterator it, List<E> &L2) {
+		ListPure<E>::moveToFront(it,L2);
+		--m_count; ++L2.m_count;
+	}
+	//! Moves \a it to the end of \a L2.
+	/**
+	 * \pre \a it points to an element in this list.
+	 */
+	void moveToBack(iterator it, List<E> &L2) {
+		ListPure<E>::moveToBack(it,L2);
+		--m_count; ++L2.m_count;
+	}
+
+	//! Moves \a it to list \a L2 and inserts it after \a itBefore.
+	/**
+	 * \pre \a it points to an element in this list, and \a itBefore
+	 *      points to an element in \a L2.
+	 */
+	void moveToSucc(iterator it, List<E> &L2, iterator itBefore) {
+		ListPure<E>::moveToSucc(it,L2,itBefore);
+		--m_count; ++L2.m_count;
+	}
+	//! Moves \a it to list \a L2 and inserts it after \a itBefore.
+	/**
+	 * \pre \a it points to an element in this list, and \a itBefore
+	 *      points to an element in \a L2.
+	 */
+	void moveToPrec(iterator it, List<E> &L2, iterator itAfter) {
+		ListPure<E>::moveToPrec(it,L2,itAfter);
+		--m_count; ++L2.m_count;
 	}
 
 
@@ -1493,16 +1757,21 @@ public:
 		L2.m_count = 0;
 	}
 
-	//! Exchanges too complete lists in O(1).
-	/**
-	 * The list's content is moved to L2 and vice versa.
-	 */
-	void exchange(List<E>& L2) {
-		ListPure<E>::exchange(L2);
-		int t = this->m_count;
-		this->m_count = L2.m_count;
-		L2.m_count = t;
+	//! Exchanges the contents of this list and \a other in constant time.
+	void swap(List<E> &other) {
+		ListPure<E>::swap(other);
+		std::swap(m_count, other.m_count);
 	}
+
+	//! Deprecated, use swap instead.
+	/**
+	* \deprecated This method has been marked as deprecated and might be removed in a future version of the library.
+	*             Use the equivalent swap() method instead.
+	*/
+	OGDF_DEPRECATED_BEGIN
+	void exchange(List<E>& L2)
+	OGDF_DEPRECATED_END
+		{ swap(L2); }
 
 	//! Splits the list at element \a it into lists \a L1 and \a L2.
 	/**
@@ -1513,49 +1782,27 @@ public:
 	 *
 	 * \pre \a it points to an element in this list.
 	 */
-	void split(ListIterator<E> it,List<E> &L1,List<E> &L2,Direction dir = before) {
+	void split(iterator it, List<E> &L1, List<E> &L2, Direction dir = before) {
 		ListPure<E>::split(it,L1,L2,dir);
 		int countL = m_count, countL1 = 0;
-		for(ListElement<E> *pX = L1.m_head; pX != 0; pX = pX->m_next)
+		for(ListElement<E> *pX = L1.m_head; pX != nullptr; pX = pX->m_next)
 			++countL1;
 
 		L1.m_count = countL1;
 		L2.m_count = countL - countL1;
-		if (this->m_head == 0) m_count = 0;
+		if (this->m_head == nullptr) m_count = 0;
 	}
 
-	// reverses the order of the list elements
+	//! Reverses the order of the list elements.
 	void reverse() { ListPure<E>::reverse(); }
 
-	// removes all elements from list
-	void clear() {
-		m_count = 0;
-		ListPure<E>::clear();
-	}
 
-	//! Conversion to const SListPure.
-	const ListPure<E> &getListPure() const { return *this; }
-
-	// sorts list using quicksort
-	void quicksort() {
-		ogdf::quicksortTemplate(*this);
-	}
-
-	// sorts list using quicksort and parameterized compare element comp
-	template<class COMPARER>
-	void quicksort(const COMPARER &comp) {
-		ogdf::quicksortTemplate(*this,comp);
-	}
-
-	// sorts list using bucket sort
-	void bucketSort(int l, int h, BucketFunc<E> &f) {
-		ListPure<E>::bucketSort(l,h,f);
-	}
-
-	// permutes elements in list randomly
-	void permute() {
-		ListPure<E>::permute(m_count);
-	}
+	//@}
+	/**
+	 * @name Searching and sorting
+	 * These methods provide searching for values and sorting the list.
+	 */
+	//@{
 
 	//! Scans the list for the specified element and returns an iterator to the first occurrence in the list, or an invalid iterator if not found.
 	ListConstIterator<E> search(const E &e) const {
@@ -1579,6 +1826,89 @@ public:
 		return ListPure<E>::search(e, comp);
 	}
 
+	//! Sorts the list using Quicksort.
+	void quicksort() {
+		ogdf::quicksortTemplate(*this);
+	}
+
+	//! Sorts the list using Quicksort and comparer \a comp.
+	template<class COMPARER>
+	void quicksort(const COMPARER &comp) {
+		ogdf::quicksortTemplate(*this,comp);
+	}
+
+	//! Sorts the list using bucket sort.
+	/**
+	 * @param l is the lowest bucket that will occur.
+	 * @param h is the highest bucket that will occur.
+	 * @param f returns the bucket for each element.
+	 * \pre The bucket function \a f will only return bucket values between \a l
+	 * and \a h for this list.
+	 */
+	void bucketSort(int l, int h, BucketFunc<E> &f) {
+		ListPure<E>::bucketSort(l,h,f);
+	}
+
+
+	//@}
+	/**
+	 * @name Random elements and permutations
+	 * These methods allow to select a random element in the list, or to randomly permute the list.
+	 */
+	//@{
+
+	//! Returns a const iterator to a random element in the list (or an invalid iterator if the list is empty).
+	/**
+	 * This method takes linear time.
+	 */
+	const_iterator chooseIterator() const {
+		return (m_count > 0) ? get(randomNumber(0,m_count-1)) : const_iterator();
+	}
+
+	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty).
+	/**
+	 * This method takes linear time.
+	 */
+	iterator chooseIterator() {
+		return (m_count > 0) ? get(randomNumber(0,m_count-1)) : iterator();
+	}
+
+	//! Returns a random element from the list.
+	/**
+	 * \pre The list is not empty!
+	 *
+	 * This method takes linear time.
+	 */
+	const_reference chooseElement() const {
+		OGDF_ASSERT(!empty());
+		return *chooseIterator();
+	}
+
+	//! Returns a random element from the list.
+	/**
+	 * \pre The list is not empty!
+	 *
+	 * This method takes linear time.
+	 */
+	reference chooseElement() {
+		OGDF_ASSERT(!empty());
+		return *chooseIterator();
+	}
+
+	//! Randomly permutes the elements in the list.
+	void permute() {
+		std::minstd_rand rng(randomSeed());
+		permute(rng);
+	}
+
+	//! Randomly permutes the elements in the list using random number generator \a rng.
+	template<class RNG>
+	void permute(RNG &rng) {
+		ListPure<E>::permute(m_count,rng);
+	}
+
+	//@}
+
 	OGDF_NEW_DELETE
 }; // class List
 
@@ -1600,36 +1930,40 @@ void ListPure<E>::bucketSort(int l, int h, BucketFunc<E> &f)
 			head[i] = tail[i] = pX;
 	}
 
-	ListElement<E> *pY = 0;
+	ListElement<E> *pY = nullptr;
 	for (int i = l; i <= h; i++) {
 		pX = head[i];
 		if (pX) {
 			if (pY) {
 				(pY->m_next = pX)->m_prev = pY;
 			} else
-				(m_head = pX)->m_prev = 0;
+				(m_head = pX)->m_prev = nullptr;
 			pY = tail[i];
 		}
 	}
 
 	m_tail = pY;
-	pY->m_next = 0;
+	pY->m_next = nullptr;
 }
 
 
 // permutes elements in list randomly; n is the length of the list
 template<class E>
-void ListPure<E>::permute(const int n)
+template<class RNG>
+void ListPure<E>::permute(const int n, RNG &rng)
 {
+	//if n==0 do nothing
+	if (n == 0) { return; }
+
 	Array<ListElement<E> *> A(n+2);
-	A[0] = A[n+1] = 0;
+	A[0] = A[n+1] = nullptr;
 
 	int i = 1;
 	ListElement<E> *pX;
 	for (pX = m_head; pX; pX = pX->m_next)
 		A[i++] = pX;
 
-	A.permute(1,n);
+	A.permute(1,n,rng);
 
 	for (i = 1; i <= n; i++) {
 		pX = A[i];
@@ -1646,7 +1980,7 @@ void ListPure<E>::permute(const int n)
 template<class E>
 void print(ostream &os, const ListPure<E> &L, char delim = ' ')
 {
-	ListConstIterator<E> pX = L.begin();
+	typename ListPure<E>::const_iterator pX = L.begin();
 	if (pX.valid()) {
 		os << *pX;
 		for(++pX; pX.valid(); ++pX)
@@ -1675,6 +2009,33 @@ ostream &operator<<(ostream &os, const List<E> &L)
 {
 	return os << L.getListPure();
 }
+
+
+template<class E, class Master>
+class ListContainer : public List<E> {
+
+	friend Master;
+
+public:
+	//! Provides a bidirectional iterator to an object in the container.
+	typedef typename List<E>::const_iterator iterator;
+
+	//! Returns an iterator to the first element in the container.
+	iterator begin() const { return List<E>::cbegin(); }
+
+	//! Returns an iterator to the one-past-last element in the container.
+	iterator end() const { return List<E>::cend(); }
+
+	//! Returns an iterator to the last element in the container.
+	iterator rbegin() const { return List<E>::crbegin(); }
+
+	//! Returns an iterator to the one-before-first element in the container.
+	iterator rend() const { return List<E>::crend(); }
+
+	//! Returns the number of elements in the container.
+	int size() const { return List<E>::size(); }
+};
+
 
 
 } // end namespace ogdf

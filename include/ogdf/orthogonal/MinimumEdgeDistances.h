@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class MinimumEdgeDistances which maintains
  *        minimum distances between attached edges at a vertex
@@ -74,23 +66,31 @@ public:
 
 	// returns delta_s(v)^i (with i = 0 => l, i = 1 => r)
 	const ATYPE &delta(node v, OrthoDir s, int i) const {
-		OGDF_ASSERT(0 <= int(s) && int(s) <= 3 && 0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= int(s));
+		OGDF_ASSERT(int(s) <= 3);
+		OGDF_ASSERT(0 <= i && i <= 1);
 		return m_delta[v].info[s][i];
 	}
 
 	ATYPE &delta(node v, OrthoDir s, int i) {
-		OGDF_ASSERT(0 <= int(s) && int(s) <= 3 && 0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= int(s));
+		OGDF_ASSERT(int(s) <= 3);
+		OGDF_ASSERT(0 <= i && i <= 1);
 		return m_delta[v].info[s][i];
 	}
 
 	// returns epsilon_s(v)^i (with i = 0 => l, i = 1 => r)
 	const ATYPE &epsilon(node v, OrthoDir s, int i) const {
-		OGDF_ASSERT(0 <= int(s) && int(s) <= 3 && 0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= int(s));
+		OGDF_ASSERT(int(s) <= 3);
+		OGDF_ASSERT(0 <= i && i <= 1);
 		return m_epsilon[v].info[s][i];
 	}
 
 	ATYPE &epsilon(node v, OrthoDir s, int i) {
-		OGDF_ASSERT(0 <= int(s) && int(s) <= 3 && 0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= int(s));
+		OGDF_ASSERT(int(s) <= 3);
+		OGDF_ASSERT(0 <= i && i <= 1);
 		return m_epsilon[v].info[s][i];
 	}
 

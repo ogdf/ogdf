@@ -35,13 +35,13 @@ class isolated_constraint_action : public CoinPresolveAction {
     rowcols_(rowcols), rowels_(rowels), costs_(costs) {}
       
  public:
-  const char *name() const;
+  const char *name() const override;
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix * prob,
 					 int row,
 					 const CoinPresolveAction *next);
 
-  void postsolve(CoinPostsolveMatrix *prob) const;
+  void postsolve(CoinPostsolveMatrix *prob) const override;
 
   ~isolated_constraint_action();
 };

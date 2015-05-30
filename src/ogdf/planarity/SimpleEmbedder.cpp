@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief A simple embedder algorithm.
  *
@@ -41,6 +33,7 @@
  ***************************************************************/
 
 #include <ogdf/planarity/SimpleEmbedder.h>
+#include <ogdf/basic/FaceArray.h>
 
 namespace ogdf {
 
@@ -60,7 +53,7 @@ namespace ogdf {
 		// embedding, otherwise crossing nodes can turn into "touching points"
 		// of edges (alternatively, we could compute a new embedding and
 		// finally "remove" such unnecessary crossings).
-		adjExternal = 0;
+		adjExternal = nullptr;
 		if(!G.representsCombEmbedding())
 			planarEmbed(G);
 
@@ -80,30 +73,29 @@ namespace ogdf {
 	{
 		FaceArray<int> weight(E);
 
-		face f;
-		forall_faces(f,E)
+		for(face f : E.faces)
 			weight[f] = f->size();
 
-		node v;
-		forall_nodes(v,PG)
+		for(node v : PG.nodes)
 		{
 			if(PG.typeOf(v) != Graph::generalizationMerger)
 				continue;
 
-			adjEntry adj;
-			forall_adj(adj,v) {
-				if(adj->theEdge()->source() == v)
+			adjEntry adjFound = nullptr;
+			for(adjEntry adj : v->adjEdges) {
+				if (adj->theEdge()->source() == v) {
+					adjFound = adj;
 					break;
+				}
 			}
 
-			OGDF_ASSERT(adj->theEdge()->source() == v);
+			OGDF_ASSERT(adjFound->theEdge()->source() == v);
 
-			node w = adj->theEdge()->target();
+			node w = adjFound->theEdge()->target();
 			bool isBase = true;
 
-			adjEntry adj2;
-			forall_adj(adj2, w) {
-				edge e = adj2->theEdge();
+			for(adjEntry adj : w->adjEdges) {
+				edge e = adj->theEdge();
 				if(e->target() != w && PG.typeOf(e) == Graph::generalization) {
 					isBase = false;
 					break;
@@ -113,8 +105,8 @@ namespace ogdf {
 			if(isBase == false)
 				continue;
 
-			face f1 = E.leftFace(adj);
-			face f2 = E.rightFace(adj);
+			face f1 = E.leftFace(adjFound);
+			face f2 = E.rightFace(adjFound);
 
 			weight[f1] += v->indeg();
 			if(f2 != f1)
@@ -122,7 +114,7 @@ namespace ogdf {
 		}
 
 		face fBest = E.firstFace();
-		forall_faces(f,E)
+		for(face f : E.faces)
 			if(weight[f] > weight[fBest])
 				fBest = f;
 

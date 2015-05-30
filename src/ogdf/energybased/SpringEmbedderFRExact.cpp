@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Spring-Embedder (Fruchterman,Reingold)
  *        algorithm with exact force computations.
@@ -62,10 +54,10 @@ SpringEmbedderFRExact::ArrayGraph::ArrayGraph(GraphAttributes &ga) : m_ga(&ga), 
 	const Graph &G = ga.constGraph();
 	m_numNodes = m_numEdges = 0;
 
-	m_orig = 0;
-	m_src = m_tgt = 0;
-	m_x = m_y = 0;
-	m_nodeWeight = 0;
+	m_orig = nullptr;
+	m_src = m_tgt = nullptr;
+	m_x = m_y = nullptr;
+	m_nodeWeight = nullptr;
 	m_useNodeWeight = false;
 
 	// compute connected components of G
@@ -74,8 +66,7 @@ SpringEmbedderFRExact::ArrayGraph::ArrayGraph(GraphAttributes &ga) : m_ga(&ga), 
 
 	m_nodesInCC.init(m_numCC);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		m_nodesInCC[component[v]].pushBack(v);
 }
 
@@ -109,10 +100,7 @@ void SpringEmbedderFRExact::ArrayGraph::initCC(int i)
 	m_nodeWeight = (double *) System::alignedMemoryAlloc16(m_numNodes*sizeof(double));
 
 	int j = 0;
-	SListConstIterator<node> it;
-	for(it = m_nodesInCC[i].begin(); it.valid(); ++it, ++j) {
-		node v = *it;
-
+	for(node v : m_nodesInCC[i]) {
 		m_orig[j] = v;
 		m_mapNode[v] = j;
 
@@ -123,22 +111,19 @@ void SpringEmbedderFRExact::ArrayGraph::initCC(int i)
 			m_nodeWeight[j] = (m_ga->attributes() & GraphAttributes::nodeWeight) ? m_ga->weight(v) : 1.0;
 		else
 			m_nodeWeight[j] = 1.0;
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 			if(v->index() < adj->twinNode()->index())
 				++m_numEdges;
+		++j;
 	}
 
 	m_src = (int *) System::alignedMemoryAlloc16(m_numEdges*sizeof(int));
 	m_tgt = (int *) System::alignedMemoryAlloc16(m_numEdges*sizeof(int));
 
 	j = 0;
-	int srcId;
-	for(it = m_nodesInCC[i].begin(), srcId = 0; it.valid(); ++it, ++srcId) {
-		node v = *it;
-
-		adjEntry adj;
-		forall_adj(adj,v) {
+	int srcId = 0;
+	for(node v : m_nodesInCC[i]) {
+		for(adjEntry adj : v->adjEdges) {
 			node w = adj->twinNode();
 			if(v->index() < w->index()) {
 				m_src[j] = srcId;
@@ -146,6 +131,7 @@ void SpringEmbedderFRExact::ArrayGraph::initCC(int i)
 				++j;
 			}
 		}
+		++srcId;
 	}
 }
 
@@ -247,11 +233,8 @@ void SpringEmbedderFRExact::call(GraphAttributes &AG)
 		const double dy = offset[i].m_y;
 
 		// iterate over all nodes in ith CC
-		SListConstIterator<node> it;
-		for(it = nodes.begin(); it.valid(); ++it)
+		for(node v : nodes)
 		{
-			node v = *it;
-
 			AG.x(v) += dx;
 			AG.y(v) += dy;
 		}

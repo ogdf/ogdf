@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class QuadTreeNM.
  *
@@ -49,8 +41,7 @@
 #define OGDF_QUAD_TREE_NM_H
 
 #include <ogdf/internal/energybased/QuadTreeNodeNM.h>
-#include "ParticleInfo.h"
-
+#include <ogdf/internal/energybased/ParticleInfo.h>
 
 namespace ogdf {
 
@@ -89,7 +80,7 @@ public:
 	//Sets act_ptr to the father_ptr.
 	void go_to_father()
 	{
-		if (act_ptr->get_father_ptr() != NULL)
+		if (act_ptr->get_father_ptr() != nullptr)
 			act_ptr = act_ptr->get_father_ptr();
 		else
 			cout<<"Error QuadTreeNM: No father Node exists";

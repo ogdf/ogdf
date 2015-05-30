@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of doubly linked lists and iterators
  *
@@ -41,8 +33,7 @@
  ***************************************************************/
 
 #include <ogdf/graphalg/ConvexHull.h>
-#include <float.h>
-#include <algorithm>
+#include <cfloat>
 
 namespace ogdf {
 
@@ -280,7 +271,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 				DPolygon inner2(inner);
 				DPolygon::iterator nearest = inner2.begin();
 				dist = p.distance(*nearest);
-				for (DPolygon::iterator ip = inner2.begin(); ip != inner2.end(); ip++) {
+				for (DPolygon::iterator ip = inner2.begin(); ip != inner2.end(); ++ip) {
 					double d = p.distance(*ip);
 					if (d > dist) {
 						dist = d;
@@ -407,19 +398,19 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 
 	// Subdivide into Pointlists
 	std::vector<DPoint> normals;
-	for (DPolygon::iterator i = poly.begin(); i != poly.end(); i++) {
+	for (DPolygon::iterator i = poly.begin(); i != poly.end(); ++i) {
 		DPolygon::iterator j = poly.cyclicSucc(i);
 		normals.push_back(calcNormal(*i, *j));
 	}
 	std::vector< std::vector<DPoint> > pointArray;
 	pointArray.resize(poly.size());
-	for (std::vector<DPoint>::iterator p = points.begin(); p != points.end(); p++) {
+	for (const DPoint &p : points) {
 		int component = 0;
 		DPolygon::iterator sp = poly.begin();
 		DPolygon::iterator spn = poly.cyclicSucc(sp);
-		for (std::vector<DPoint>::iterator n = normals.begin(); n != normals.end(); n++, sp++) {
-			if ((*sp != *p) && (*spn != *p) && DIsGreater(leftOfLine(*n, *p, *sp), 0.0)) {
-				pointArray[component].push_back(*p);
+		for (std::vector<DPoint>::iterator n = normals.begin(); n != normals.end(); ++n, ++sp) {
+			if ((*sp != p) && (*spn != p) && DIsGreater(leftOfLine(*n, p, *sp), 0.0)) {
+				pointArray[component].push_back(p);
 				break;
 			}
 			component++;
@@ -427,7 +418,7 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 	}
 
 	int component = 0;
-	for (DPolygon::iterator i = poly.begin(); i != poly.end(); i++, component++) {
+	for (DPolygon::iterator i = poly.begin(); i != poly.end(); ++i, ++component) {
 		hullPoly.pushBack(*i);
 		DPolygon::iterator j = poly.cyclicSucc(i);
 		leftHull(pointArray[component], *i, *j, hullPoly);
@@ -441,8 +432,7 @@ DPolygon ConvexHull::call(MultilevelGraph &MLG) const
 {
 	std::vector<DPoint> points;
 
-	node v;
-	forall_nodes(v, MLG.getGraph()) {
+	for(node v : MLG.getGraph().nodes) {
 		points.push_back(DPoint(MLG.x(v), MLG.y(v)));
 	}
 
@@ -454,8 +444,7 @@ DPolygon ConvexHull::call(GraphAttributes &GA) const
 {
 	std::vector<DPoint> points;
 
-	node v;
-	forall_nodes(v, GA.constGraph()) {
+	for(node v : GA.constGraph().nodes) {
 		points.push_back(DPoint(GA.x(v), GA.y(v)));
 	}
 

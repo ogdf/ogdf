@@ -1,4 +1,3 @@
-
 /** \file
  * \brief Declaration of class BertaultLayout.
  * Computes a force directed layout (Bertault Layout) for preserving the planar embedding in the graph.
@@ -6,7 +5,7 @@
  * "A force-directed algorithm that preserves
  * edge-crossing properties" by Francois Bertault
  *
- * \author Smit Sanghavi;
+ * \author Smit Sanghavi
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -40,9 +39,6 @@
 
 #include <ogdf/misclayout/BertaultLayout.h>
 #include <ogdf/basic/Math.h>
-#include <algorithm>
-#include <math.h>
-#include <stdlib.h>
 #include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
@@ -85,8 +81,7 @@ void BertaultLayout::call(GraphAttributes &AG)
 		iter_no=G.numberOfNodes()*10;
 	if(req_length==0)
 	{
-		edge e;
-		forall_edges(e,G)
+		for(edge e : G.edges)
 		{
 			node a=e->source();
 			node b=e->target();
@@ -106,8 +101,7 @@ void BertaultLayout::call(GraphAttributes &AG)
 
 	for(int k=0;k<iter_no;k++)
 	{
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 		{
 				//initialise everything
 			F_x[v]=0;
@@ -123,26 +117,23 @@ void BertaultLayout::call(GraphAttributes &AG)
 
 		}
 
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 		{
-			node j;
 			//calculate total node-node repulsive force
-			forall_nodes(j,G)
+			for(node j : G.nodes)
 			{
 				if(j!=v)
 				f_Node_Repulsive(&v,&j,AG);
 			}
 
 			//calculate total node-node attractive force
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				node ad=adj->twinNode();
 				f_Node_Attractive(&v,&ad,AG);
 			}
 			//calculate total node-edge repulsive force
-			edge e;
-			forall_edges(e,G)
+			for(edge e : G.edges)
 			{
 				if(e->target()!=v&&e->source()!=v)
 				{
@@ -166,7 +157,7 @@ void BertaultLayout::call(GraphAttributes &AG)
 			}
 		}
 
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 		{
 			/*   cout << "F_x : ";
 			cout << F_x[v];
@@ -419,9 +410,8 @@ void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 		int m = (int) sqrt((double)G.numberOfNodes());
 		int cnth=0,cntc=0;
 		int dim = (int)(req_length*G.numberOfNodes()/2);
-		node v;
-		srand ( (unsigned int) time(NULL) );
-		forall_nodes(v,G)
+		srand ( (unsigned int) time(nullptr) );
+		for(node v : G.nodes)
 		{
 			if(c=='r')
 			{
@@ -431,8 +421,7 @@ void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 					AG.x(v)=(double)(rand()%dim)-dim/2;
 					AG.y(v)=(double)(rand()%dim)-dim/2;
 					flag=0;
-					node x;
-					forall_nodes(x,G)
+					for(node x : G.nodes)
 					{
 						if(x==v)
 							break;
@@ -488,9 +477,8 @@ void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 						AG.y(v)=req_length*cntc/2;
 					}
 
-					node x;
 					flag=0;
-					forall_nodes(x,G)
+					for(node x : G.nodes)
 					{
 						if(x==v)
 							break;
@@ -519,13 +507,12 @@ void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 
 void BertaultLayout::preprocess(GraphAttributes &AG)
 {
-	node v;
 	const Graph &G = AG.constGraph();
 	surr.init(0,G.numberOfNodes()-1,0,G.numberOfEdges()-1,0);
 	GraphCopy G1(G);
 	GraphAttributes AG1(G1);
 	AG1.setDirected(AG.directed());
-	forall_nodes(v,G1)
+	for(node v : G1.nodes)
 	{
 		AG1.x(v)=AG.x(G1.original(v));
 		AG1.y(v)=AG.y(G1.original(v));
@@ -538,10 +525,10 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 
 
 	/*surr.init(G);
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		surr[v].init(G);
-		forall_edges(e,G)
+		for(edge e : G.edges)
 		{
 			surr[v][e]=0;
 		}
@@ -628,19 +615,9 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 //*/
 
 /*
-	forall_nodes(v,G)
-	{
-		forall_edges(e,G)
-		{
-			cout<< surr(v->index(),e->index()) <<" ";
-		}
-		cout << "\n";
-	}
-	//*/
-/*
 	node n=G.chooseNode();
 	AG.fillColor(n)="RED";
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		if(surr(n->index(),e->index())==true)
 			AG.strokeColor(e)="RED";
@@ -653,8 +630,7 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 void BertaultLayout::labelling(GraphAttributes &AG)
 {
 	AG.initAttributes(GraphAttributes::edgeIntWeight);
-	edge e;
-	forall_edges(e,AG.constGraph())
+	for(edge e : AG.constGraph().edges)
 	{
 		AG.intWeight(e)=e->index();
 	}
@@ -664,8 +640,7 @@ void BertaultLayout::crossingPlanarize(GraphAttributes &AG)
 {
 	Graph &G= const_cast<Graph&> (AG.constGraph());
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		edge i;
 		forall_rev_edges(i,G)
@@ -716,10 +691,10 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 	int contface=contained(new1,element,PAG,PG);
 	if(contface!=-1)
 	{
-		int flag=0,i;
+		int flag=0;
 	/*
 		cout << "Children of " << (*element).num <<"bfor :\n";
-		for(i=0;i<(*element).child.size();i++)
+		for(int i=0;i<(*element).child.size();i++)
 		{
 			cout << (*((*element).child.get(i)))->num << "\n";
 		}
@@ -727,20 +702,20 @@ int BertaultLayout::insert(CCElement *new1,CCElement *element,GraphAttributes &P
 		if((*element).child.size()!=0)
 		{
 
-			for(i=0;i<(*element).child.size();i++)
+			for (int i = 0; i < (*element).child.size(); i++)
 			{
-				CCElement *child=&(**((*element).child.get(i)));
-				if(child->faceNum==contface)
+				CCElement *child = &(**((*element).child.get(i)));
+				if (child->faceNum == contface)
 				{
 					//cout << "Gonna insert " << (*new1).num << " in " << child->num << "\n";
 
-					int retv=insert(new1,child,PAG,PG);
-					if(retv==2)
+					int retv = insert(new1, child, PAG, PG);
+					if (retv == 2)
 					{
-						flag=1;
+						flag = 1;
 						break;
 					}
-					else if(retv==1)
+					else if (retv == 1)
 					{
 						i--;
 					}
@@ -821,24 +796,22 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 	//cout << "Chosen " << xc;
 	ConstCombinatorialEmbedding E(PG);
 	E.computeFaces();
-	face f;
-	forall_faces(f,E)
+	for (face f : E.faces)
 	{
-		int crossings=0;
-		adjEntry adj;
+		int crossings = 0;
 		List< int > edges;
-		forall_face_adj(adj,f)
+		for (adjEntry adj : f->entries)
 		{
 
 			if (!edges.search(adj->theEdge()->index()).valid())
 			{
 				edges.pushBack(adj->theEdge()->index());
-				node x=adj->theEdge()->source();
-				node y=adj->theEdge()->target();
-				double m= (PAG.y(PG.original(x))-PAG.y(PG.original(y)))/(PAG.x(PG.original(x))-PAG.x(PG.original(y)));
+				node x = adj->theEdge()->source();
+				node y = adj->theEdge()->target();
+				double m = (PAG.y(PG.original(x)) - PAG.y(PG.original(y))) / (PAG.x(PG.original(x)) - PAG.x(PG.original(y)));
 
-				double c= PAG.y(PG.original(x))-m*PAG.x(PG.original(x));
-				if((PAG.y(PG.original(x))-yc)*(PAG.y(PG.original(y))-yc)<=0&&((yc-c)/m)>=xc)
+				double c = PAG.y(PG.original(x)) - m*PAG.x(PG.original(x));
+				if ((PAG.y(PG.original(x)) - yc)*(PAG.y(PG.original(y)) - yc) <= 0 && ((yc - c) / m) >= xc)
 				{
 					crossings++;
 				}
@@ -847,7 +820,7 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 
 		}
 
-		if(crossings%2!=0)
+		if (crossings % 2 != 0)
 		{
 			//cout << "yo";
 			return f->index();
@@ -857,88 +830,84 @@ int BertaultLayout::contained(CCElement* new1,CCElement* element,GraphAttributes
 }
 
 
-void BertaultLayout::compute(CCElement* element,PlanRep &PG,GraphAttributes &AG1,GraphCopy &G1)
+void BertaultLayout::compute(CCElement* element, PlanRep &PG, GraphAttributes &AG1, GraphCopy &G1)
 {
-	int num=element->num;
+	int num = element->num;
 	PG.initCC(num);
 	ConstCombinatorialEmbedding E(PG);
 	//E.computeFaces();
 	//FaceArray< List<edge> > farray(E);
-	face f;
-	forall_faces(f,E)
+	for (face f : E.faces)
 	{
 		//cout<<"yeah";
-		adjEntry adj;
-		forall_face_adj(adj,f)
+		for (adjEntry adj : f->entries)
 		{
-			node ver=adj->theNode();
-			node ver2=adj->twinNode();
-			bool dum=false,dum2=false;
-			if(G1.isDummy(PG.original(ver)))
-				dum=true;
-			if(G1.isDummy(PG.original(ver2)))
-				dum2=true;
+			node ver = adj->theNode();
+			node ver2 = adj->twinNode();
+			bool dum = false, dum2 = false;
+			if (G1.isDummy(PG.original(ver)))
+				dum = true;
+			if (G1.isDummy(PG.original(ver2)))
+				dum2 = true;
 
-			node v=G1.original(PG.original(ver));
-			node v2=G1.original(PG.original(ver2));
+			node v = G1.original(PG.original(ver));
+			node v2 = G1.original(PG.original(ver2));
 
 			//cout << v->index() << "\n";
 			adjEntry adj1 = f->firstAdj(), adj3 = adj1;
 			do {
-			//cout<<"lala\n";
-			if(!dum)
-				surr(v->index(),AG1.intWeight(PG.original(adj3->theEdge())))=true;
-			if(!dum2)
-				surr(v2->index(),AG1.intWeight(PG.original(adj3->theEdge())))=true;
-			adj3 = adj3->faceCycleSucc();
+				//cout<<"lala\n";
+				if (!dum)
+					surr(v->index(), AG1.intWeight(PG.original(adj3->theEdge()))) = true;
+				if (!dum2)
+					surr(v2->index(), AG1.intWeight(PG.original(adj3->theEdge()))) = true;
+				adj3 = adj3->faceCycleSucc();
 			} while (adj3->index() != adj1->index());
 
 			int j;
-			for(j=0;j<element->child.size();j++)
+			for (j = 0; j < element->child.size(); j++)
 			{
-				if((*(element->child.get(j)))->faceNum==f->index())
+				if ((*(element->child.get(j)))->faceNum == f->index())
 				{
 					PG.initCC((*(element->child.get(j)))->num);
 					ConstCombinatorialEmbedding E2(PG);
 					E2.computeFaces();
-					face f2;
-					adjEntry adj2;
-					forall_faces(f2,E2)
+					for (face f2 : E2.faces)
 					{
-						forall_face_adj(adj2,f2)
+						for(adjEntry adj2 : f2->entries)
 						{
-							if(!dum)
-								surr(v->index(),AG1.intWeight(PG.original(adj2->theEdge())))=true;
-							if(!dum2)
-								surr(v2->index(),AG1.intWeight(PG.original(adj2->theEdge())))=true;
+							if (!dum)
+								surr(v->index(), AG1.intWeight(PG.original(adj2->theEdge()))) = true;
+							if (!dum2)
+								surr(v2->index(), AG1.intWeight(PG.original(adj2->theEdge()))) = true;
 						}
 					}
 				}
 			}
 
-			if(element->faceNum!=-1)
+			if (element->faceNum != -1)
 			{
 				PG.initCC(element->parent->num);
 				ConstCombinatorialEmbedding E3(PG);
 				E3.computeFaces();
-				face f2;
 				//int flag=0;
-				forall_faces(f2,E3)
+				face f2 = nullptr;
+				for (face fi : E3.faces)
 				{
-					if(f2->index()==element->faceNum)
+					if (fi->index() == element->faceNum)
 					{
 						//flag=1;
+						f2 = fi;
 						break;
 					}
 				}
 
-				adjEntry adj2;
-				forall_face_adj(adj2,f2)
+				for(adjEntry adj2 : f2->entries)
 				{
-					if(!dum)
-						surr(v->index(),AG1.intWeight(PG.original(adj2->theEdge())))=true;
-					if(!dum2)
-						surr(v2->index(),AG1.intWeight(PG.original(adj2->theEdge())))=true;
+					if (!dum)
+						surr(v->index(), AG1.intWeight(PG.original(adj2->theEdge()))) = true;
+					if (!dum2)
+						surr(v2->index(), AG1.intWeight(PG.original(adj2->theEdge()))) = true;
 				}
 			}
 			PG.initCC(num);
@@ -947,64 +916,63 @@ void BertaultLayout::compute(CCElement* element,PlanRep &PG,GraphAttributes &AG1
 	//cout << num <<" Done\n";
 
 	int i;
-	for(i=0;i<element->child.size();i++)
+	for (i = 0; i < element->child.size(); i++)
 	{
-		compute(*(element->child.get(i)),PG,AG1,G1);
+		compute(*(element->child.get(i)), PG, AG1, G1);
 	}
-
 }
+
 
 int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 {
 	const Graph &G = AG.constGraph();
-	int crossings=0;
-	edge e;
-	forall_edges(e,G)
+	int crossings = 0;
+	for (edge e : G.edges)
 	{
-		node a=e->source();
-		node b=e->target();
-		double m=(AG.y(a)-AG.y(b))/(AG.x(a)-AG.x(b));
-		double c=AG.y(a)-m*AG.x(a);
+		node a = e->source();
+		node b = e->target();
+		double m = (AG.y(a) - AG.y(b)) / (AG.x(a) - AG.x(b));
+		double c = AG.y(a) - m*AG.x(a);
 		edge i;
-		forall_rev_edges(i,G)
+		forall_rev_edges(i, G)
 		{
-			if(i==e)
+			if (i == e)
 				break;
 
-			node x=i->source();
-			node y=i->target();
-			double m2=(AG.y(x)-AG.y(y))/(AG.x(x)-AG.x(y));
-			double c2=AG.y(x)-m2*AG.x(x);
-			double distab=sqrt((AG.x(a)-AG.x(b))*(AG.x(a)-AG.x(b))+(AG.y(a)-AG.y(b))*(AG.y(a)-AG.y(b)));
-			double distxy=sqrt((AG.x(x)-AG.x(y))*(AG.x(x)-AG.x(y))+(AG.y(x)-AG.y(y))*(AG.y(x)-AG.y(y)));
-			double distax=sqrt((AG.x(a)-AG.x(x))*(AG.x(a)-AG.x(x))+(AG.y(a)-AG.y(x))*(AG.y(a)-AG.y(x)));
-			double distay=sqrt((AG.x(a)-AG.x(y))*(AG.x(a)-AG.x(y))+(AG.y(a)-AG.y(y))*(AG.y(a)-AG.y(y)));
-			double distbx=sqrt((AG.x(x)-AG.x(b))*(AG.x(x)-AG.x(b))+(AG.y(x)-AG.y(b))*(AG.y(x)-AG.y(b)));
-			double distby=sqrt((AG.x(y)-AG.x(b))*(AG.x(y)-AG.x(b))+(AG.y(y)-AG.y(b))*(AG.y(y)-AG.y(b)));
-			double d=distab+distxy;
+			node x = i->source();
+			node y = i->target();
+			double m2 = (AG.y(x) - AG.y(y)) / (AG.x(x) - AG.x(y));
+			double c2 = AG.y(x) - m2*AG.x(x);
+			double distab = sqrt((AG.x(a) - AG.x(b))*(AG.x(a) - AG.x(b)) + (AG.y(a) - AG.y(b))*(AG.y(a) - AG.y(b)));
+			double distxy = sqrt((AG.x(x) - AG.x(y))*(AG.x(x) - AG.x(y)) + (AG.y(x) - AG.y(y))*(AG.y(x) - AG.y(y)));
+			double distax = sqrt((AG.x(a) - AG.x(x))*(AG.x(a) - AG.x(x)) + (AG.y(a) - AG.y(x))*(AG.y(a) - AG.y(x)));
+			double distay = sqrt((AG.x(a) - AG.x(y))*(AG.x(a) - AG.x(y)) + (AG.y(a) - AG.y(y))*(AG.y(a) - AG.y(y)));
+			double distbx = sqrt((AG.x(x) - AG.x(b))*(AG.x(x) - AG.x(b)) + (AG.y(x) - AG.y(b))*(AG.y(x) - AG.y(b)));
+			double distby = sqrt((AG.x(y) - AG.x(b))*(AG.x(y) - AG.x(b)) + (AG.y(y) - AG.y(b))*(AG.y(y) - AG.y(b)));
+			double d = distab + distxy;
 
-			if(a!=x&&a!=y&&b!=x&&b!=y)
+			if (a != x&&a != y&&b != x&&b != y)
 			{
-				double ainc=(AG.y(a)-m2*AG.x(a)-c2),binc=(AG.y(b)-m2*AG.x(b)-c2),xinc=AG.y(x)-m*AG.x(x)-c,yinc=AG.y(y)-m*AG.x(y)-c;
+				double ainc = (AG.y(a) - m2*AG.x(a) - c2), binc = (AG.y(b) - m2*AG.x(b) - c2), xinc = AG.y(x) - m*AG.x(x) - c, yinc = AG.y(y) - m*AG.x(y) - c;
 
-				if(((xinc*yinc<0&&ainc*binc<0)||(xinc*yinc==0&&ainc*binc<0)||(xinc*yinc<0&&ainc*binc==0)))
+				if (((xinc*yinc < 0 && ainc*binc < 0) || (xinc*yinc == 0 && ainc*binc < 0) || (xinc*yinc < 0 && ainc*binc == 0)))
 				{
-				 // cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "\n";
+					// cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "\n";
 					crossings++;
 				}
 				else
 				{
-					if(m==m2&&c==c2&&distax<d&&distay<d&&distbx<d&&distby<d)
+					if (m == m2&&c == c2&&distax < d&&distay < d&&distbx < d&&distby < d)
 					{
 						//cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "OVERLAP\n";
-						crossings+=2;
+						crossings += 2;
 					}
 				}
 			}
-			else if(m==m2&&c==c2&&distax<d&&distay<d&&distbx<d&&distby<d&&((a!=y&&b!=x&&b!=y)||(a!=x&&b!=x&&b!=y)||(a!=y&&a!=x&&b!=y)||(a!=y&&a!=x&&b!=x)))
+			else if (m == m2&&c == c2&&distax < d&&distay < d&&distbx < d&&distby < d && ((a != y&&b != x&&b != y) || (a != x&&b != x&&b != y) || (a != y&&a != x&&b != y) || (a != y&&a != x&&b != x)))
 			{
 				//cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "OVERLAP\n";
-				crossings+=1;
+				crossings += 1;
 			}
 
 		}
@@ -1012,44 +980,46 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 	return crossings;
 }
 
+
 double BertaultLayout::edgelength(GraphAttributes &AG)
 {
 	EdgeArray<double> el;
 	const Graph &G = AG.constGraph();
 	el.init(G);
-	edge e;
-	double mean=0,stdev=0;
-	forall_edges(e,G)
+	double mean = 0, stdev = 0;
+	for (edge e : G.edges)
 	{
-		node a=e->source();
-		node b=e->target();
-		el[e]=sqrt((AG.x(a)-AG.x(b))*(AG.x(a)-AG.x(b))+(AG.y(a)-AG.y(b))*(AG.y(a)-AG.y(b)));
-		mean+=el[e];
+		node a = e->source();
+		node b = e->target();
+		el[e] = sqrt((AG.x(a) - AG.x(b))*(AG.x(a) - AG.x(b)) + (AG.y(a) - AG.y(b))*(AG.y(a) - AG.y(b)));
+		mean += el[e];
 	}
-	mean=mean/(G.numberOfEdges());
-	forall_edges(e,G)
+	mean = mean / (G.numberOfEdges());
+	for (edge e : G.edges)
 	{
-		stdev+=(el[e]-mean)*(el[e]-mean);
+		stdev += (el[e] - mean)*(el[e] - mean);
 	}
-	stdev=sqrt(stdev/(G.numberOfEdges()))/mean;
-   /* cout << "\n";
-	cout << "mean : ";
-	cout << mean;
-	cout << "\n";*/
+	stdev = sqrt(stdev / (G.numberOfEdges())) / mean;
+	/* cout << "\n";
+	 cout << "mean : ";
+	 cout << mean;
+	 cout << "\n";*/
 	return stdev;
 }
+
 
 double BertaultLayout::nodeDistribution(GraphAttributes &AG)
 {
 	const Graph &G = AG.constGraph();
-	if(G.numberOfNodes()<2)
+	if (G.numberOfNodes()<2)
 		return -1;
 	node v = G.firstNode();
 	double
-	  minx = AG.x(v),
-	  maxx = AG.x(v),
-	  miny = AG.y(v),
-	  maxy = AG.y(v);
+		minx = AG.x(v),
+		maxx = AG.x(v),
+		miny = AG.y(v),
+		maxy = AG.y(v);
+
 	for (v = v->succ(); v; v = v->succ()) {
 		if (AG.x(v) > maxx)
 			maxx = AG.x(v);
@@ -1061,33 +1031,34 @@ double BertaultLayout::nodeDistribution(GraphAttributes &AG)
 			miny = AG.y(v);
 	}
 
-	int rows=8,columns=8,i,j;
-	double sizex = (maxx-minx)/(double)(columns-1), sizey = (maxy-miny)/(double)(columns-1);
-	double startx = minx-sizex/2, /* endx = maxx+sizex/2, */ starty = miny-sizey/2 /* , endy = maxy+sizey/2 */ ;
+	int rows = 8, columns = 8, i, j;
+	double sizex = (maxx - minx) / (double) (columns - 1), sizey = (maxy - miny) / (double) (columns - 1);
+	double startx = minx - sizex / 2, /* endx = maxx+sizex/2, */ starty = miny - sizey / 2 /* , endy = maxy+sizey/2 */;
 	//int box[rows][columns];
-	Array2D<int> box(0,rows-1,0,columns-1);
+	Array2D<int> box(0, rows - 1, 0, columns - 1);
 
-	for(i=0; i<rows; i++)
-		for(j=0; j<columns; j++)
-			box(i,j) = 0;
-	if(maxy != miny && maxx != minx)
+	for (i = 0; i < rows; i++) {
+		for (j = 0; j < columns; j++)
+			box(i, j) = 0;
+	}
+	if (maxy != miny && maxx != minx)
 	{
-		forall_nodes(v,G)
+		for (node v : G.nodes)
 		{
-			box((int)((AG.y(v)-starty)/sizey), (int)((AG.x(v)-startx)/sizex))++;
+			box((int) ((AG.y(v) - starty) / sizey), (int) ((AG.x(v) - startx) / sizex))++;
 		}
 
-		double mean=(double)G.numberOfNodes()/(double)(rows*columns);
+		double mean = (double) G.numberOfNodes() / (double) (rows*columns);
 		double stdev = 0;
-		for(i=0;i<rows;i++)
-			for(j=0;j<columns;j++)
-			{
-			  //  cout << box(i,j);
-				stdev+=((double)(box(i,j))-mean)*((double)(box(i,j))-mean);
-			}
+		for (i = 0; i < rows; i++)
+		for (j = 0; j < columns; j++)
+		{
+			//  cout << box(i,j);
+			stdev += ((double) (box(i, j)) - mean)*((double) (box(i, j)) - mean);
+		}
 
-	   // cout << "\n";
-		stdev=sqrt(stdev/(rows*columns))/mean;
+		// cout << "\n";
+		stdev = sqrt(stdev / (rows*columns)) / mean;
 		return stdev;
 	}
 	else

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3505 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:47 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Hypergraph class.
  *
@@ -63,10 +55,10 @@ Hypergraph::~Hypergraph()
 	while (!m_hyperedgeArrays.empty())
 		(*(m_hyperedgeArrays.rbegin()))->disconnect();
 
-	for (hypernode v = m_hypernodes.begin(); v; v = v->succ())
+	for (hypernode v = m_hypernodes.head(); v; v = v->succ())
 		v->m_adjHyperedges.~GraphList<AdjHypergraphElement>();
 
-	for (hyperedge e = m_hyperedges.begin(); e; e = e->succ())
+	for (hyperedge e = m_hyperedges.head(); e; e = e->succ())
 		e->m_adjHypernodes.~GraphList<AdjHypergraphElement>();
 }
 
@@ -172,9 +164,9 @@ void Hypergraph::delHypernode(hypernode v)
 
 	--m_nHypernodes;
 
-	for (adjHypergraphEntry adj = v->m_adjHyperedges.begin();
+	for (adjHypergraphEntry adj = v->m_adjHyperedges.head();
 			adj; adj = adj->succ()) {
-		hyperedge e = (hyperedge) adj->twin()->element();
+		hyperedge e = reinterpret_cast<hyperedge>(adj->twin()->element());
 
 		v->m_adjHyperedges.del(adj->twin());
 		e->m_adjHypernodes.del(adj);
@@ -199,12 +191,12 @@ void Hypergraph::delHyperedge(hyperedge e)
 
 		--m_nHyperedges;
 
-	for (adjHypergraphEntry adj = e->m_adjHypernodes.begin(); adj;
+	for (adjHypergraphEntry adj = e->m_adjHypernodes.head(); adj;
 			adj = adj->succ()) {
 
-		((hypernode) adj->element())->m_degree--;
-		((hypernode) adj->element())->m_adjHyperedges.del(adj->twin());
-		((hyperedge) adj->twin()->element())->m_adjHypernodes.del(adj);
+		static_cast<hypernode>(adj->element())->m_degree--;
+		static_cast<hypernode>(adj->element())->m_adjHyperedges.del(adj->twin());
+		static_cast<hyperedge>(adj->twin()->element())->m_adjHypernodes.del(adj);
 
 		e->m_cardinality--;
 	}
@@ -219,10 +211,10 @@ void Hypergraph::clear()
 	for (ListIterator<HypergraphObserver *> it = m_observers.begin();
 			it.valid(); (*it)->cleared(), ++it);
 
-	for (hyperedge e = m_hyperedges.begin(); e; e = e->succ())
+	for (hyperedge e = m_hyperedges.head(); e; e = e->succ())
 		e->m_adjHypernodes.~GraphList<AdjHypergraphElement>();
 
-	for (hypernode v = m_hypernodes.begin(); v; v = v->succ()) {
+	for (hypernode v = m_hypernodes.head(); v; v = v->succ()) {
 		v->m_adjHyperedges.~GraphList<AdjHypergraphElement>();
 	}
 
@@ -241,7 +233,7 @@ void Hypergraph::clear()
 hypernode Hypergraph::randomHypernode() const
 {
 	if (m_nHypernodes == 0)
-		return 0;
+		return nullptr;
 
 	hypernode v = firstHypernode();
 	for (int i = ogdf::randomNumber(0, m_nHypernodes - 1); i; i--, v = v->succ());
@@ -252,7 +244,7 @@ hypernode Hypergraph::randomHypernode() const
 hyperedge Hypergraph::randomHyperedge() const
 {
 	if (m_nHyperedges == 0)
-		return 0;
+		return nullptr;
 
 	hyperedge e = firstHyperedge();
 	for (int i = ogdf::randomNumber(0, m_nHyperedges - 1); i; i--, e = e->succ());
@@ -319,7 +311,7 @@ bool Hypergraph::consistency() const
 	if (m_nHyperedges > m_hyperedgeIdCount)
 		return false;
 
-	for (hypernode v = m_hypernodes.begin(); v ; v = v->succ()) {
+	for (hypernode v = m_hypernodes.head(); v ; v = v->succ()) {
 
 		if (v->m_hypergraph != this)
 			return false;
@@ -327,13 +319,13 @@ bool Hypergraph::consistency() const
 		if (v->m_adjHyperedges.size() != v->m_degree)
 			return false;
 
-		for (adjHypergraphEntry adj = v->m_adjHyperedges.begin(); adj;
+		for (adjHypergraphEntry adj = v->m_adjHyperedges.head(); adj;
 				adj = adj->succ())
-			if (((hypernode) adj->twin()->element()) != v)
+			if (reinterpret_cast<hypernode>(adj->twin()->element()) != v)
 				return false;
 	}
 
-	for (hyperedge e = m_hyperedges.begin(); e ; e = e->succ()) {
+	for (hyperedge e = m_hyperedges.head(); e ; e = e->succ()) {
 
 		if (e->m_hypergraph != this)
 			return false;
@@ -341,9 +333,9 @@ bool Hypergraph::consistency() const
 		if (e->m_adjHypernodes.size() != e->m_cardinality)
 			return false;
 
-		for (adjHypergraphEntry adj = e->m_adjHypernodes.begin(); adj;
+		for (adjHypergraphEntry adj = e->m_adjHypernodes.head(); adj;
 				adj = adj->succ())
-			if (((hyperedge) adj->twin()->element()) != e)
+			if (reinterpret_cast<hyperedge>(adj->twin()->element()) != e)
 				return false;
 
 		if (e->m_cardinality < 2)
@@ -363,9 +355,9 @@ ostream & operator<<(ostream &os, ogdf::hyperedge e)
 {
 	if (e) {
 		os << e->index() << " " << e->cardinality() << " ";
-		for (adjHypergraphEntry adj = e->m_adjHypernodes.begin();
+		for (adjHypergraphEntry adj = e->m_adjHypernodes.head();
 				adj; adj = adj->succ())
-			os << ((hypernode) adj->element())->index() << " ";
+			os << reinterpret_cast<hypernode>(adj->element())->index() << " ";
 	}
 	else
 		os << "nil";
@@ -427,7 +419,7 @@ istream & operator>>(istream &is, ogdf::Hypergraph &H)
 void Hypergraph::readBenchHypergraph(istream &is)
 {
 	// The map from identifiers to hypernodes.
-	HashArray<string, hypernode> map(0);
+	HashArray<string, hypernode> map(nullptr);
 
 	while(!is.eof()) {
 

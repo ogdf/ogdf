@@ -1,11 +1,3 @@
-/*
- * $Revision: 3005 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-12 14:19:48 +0100 (Mon, 12 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.

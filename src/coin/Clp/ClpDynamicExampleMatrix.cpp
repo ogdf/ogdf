@@ -50,8 +50,8 @@ ClpDynamicExampleMatrix::ClpDynamicExampleMatrix (const ClpDynamicExampleMatrix 
      numberColumns_ = rhs.numberColumns_;
      startColumnGen_ = ClpCopyOfArray(rhs.startColumnGen_, numberColumns_ + 1);
      CoinBigIndex numberElements = startColumnGen_[numberColumns_];
-     rowGen_ = ClpCopyOfArray(rhs.rowGen_, numberElements);;
-     elementGen_ = ClpCopyOfArray(rhs.elementGen_, numberElements);;
+     rowGen_ = ClpCopyOfArray(rhs.rowGen_, numberElements);
+     elementGen_ = ClpCopyOfArray(rhs.elementGen_, numberElements);
      costGen_ = ClpCopyOfArray(rhs.costGen_, numberColumns_);
      fullStartGen_ = ClpCopyOfArray(rhs.fullStartGen_, numberSets_ + 1);
      dynamicStatusGen_ = ClpCopyOfArray(rhs.dynamicStatusGen_, numberColumns_);
@@ -408,8 +408,8 @@ ClpDynamicExampleMatrix::operator=(const ClpDynamicExampleMatrix& rhs)
           delete [] columnUpperGen_;
           startColumnGen_ = ClpCopyOfArray(rhs.startColumnGen_, numberColumns_ + 1);
           CoinBigIndex numberElements = startColumnGen_[numberColumns_];
-          rowGen_ = ClpCopyOfArray(rhs.rowGen_, numberElements);;
-          elementGen_ = ClpCopyOfArray(rhs.elementGen_, numberElements);;
+          rowGen_ = ClpCopyOfArray(rhs.rowGen_, numberElements);
+          elementGen_ = ClpCopyOfArray(rhs.elementGen_, numberElements);
           costGen_ = ClpCopyOfArray(rhs.costGen_, numberColumns_);
           fullStartGen_ = ClpCopyOfArray(rhs.fullStartGen_, numberSets_ + 1);
           dynamicStatusGen_ = ClpCopyOfArray(rhs.dynamicStatusGen_, numberColumns_);

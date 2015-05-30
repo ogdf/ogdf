@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Places Nodes at the Positio of the merge-partner
  *
@@ -48,7 +40,7 @@ namespace ogdf {
 void MedianPlacer::placeOneLevel(MultilevelGraph &MLG)
 {
 	int level = MLG.getLevel();
-	while (MLG.getLevel() == level && MLG.getLastMerge() != 0)
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
 	{
 		placeOneNode(MLG);
 	}
@@ -61,8 +53,7 @@ void MedianPlacer::placeOneNode(MultilevelGraph &MLG)
 	int i = 0;
 	std::vector<double> xVector;
 	std::vector<double> yVector;
-	adjEntry adj;
-	forall_adj(adj, merged) {
+	for(adjEntry adj : merged->adjEdges) {
 		i++;
 		xVector.push_back(MLG.x(adj->twinNode()));
 		yVector.push_back(MLG.y(adj->twinNode()));

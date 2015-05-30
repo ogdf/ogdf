@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with neighbour to get a Multilevel Graph
  *
@@ -68,8 +60,7 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 	std::vector<edge> matching;
 	std::vector<node> candidates;
 
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		candidates.push_back(v);
 	}
 
@@ -87,9 +78,8 @@ bool MatchingMerger::buildOneLevel(MultilevelGraph &MLG)
 
 		std::vector<node> candNeighbors;
 		std::vector<edge> candEdges;
-		adjEntry adj;
 		unsigned int minMass = numeric_limits<unsigned int>::max();
-		forall_adj(adj, one) {
+		for(adjEntry adj : one->adjEdges) {
 			node cand = adj->twinNode();
 			if (!nodeMarks[cand] && (!m_selectByMass || m_mass[cand] <= minMass))
 			{

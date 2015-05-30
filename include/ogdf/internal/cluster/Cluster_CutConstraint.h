@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -64,14 +56,17 @@ public:
 	virtual ~CutConstraint();
 
 	// Computes and returns the coefficient for the given variable
-	virtual double coeff(const abacus::Variable *v) const { const EdgeVar *ev = (const EdgeVar *)v; return (double)coeff(ev->sourceNode(), ev->targetNode()); }
+	virtual double coeff(const abacus::Variable *v) const {
+		const EdgeVar *ev = static_cast<const EdgeVar *>(v);
+		return static_cast<double>(coeff(ev->sourceNode(), ev->targetNode()));
+	}
 	inline int coeff(const nodePair& n) const { return coeff(n.v1,n.v2); }
 	int coeff(node n1, node n2) const;
 
 	void printMe(ostream& out) const {
 		out << "[CutCon: ";
-		forall_listiterators(nodePair, it, m_cutEdges) {
-			(*it).printMe(out);
+		for(const nodePair &p : m_cutEdges) {
+			p.printMe(out);
 			out << ",";
 		}
 		out << "]";

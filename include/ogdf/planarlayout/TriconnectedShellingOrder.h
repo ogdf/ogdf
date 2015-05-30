@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares the class TriconnectedShellingOrder...
  *
@@ -69,9 +61,10 @@ public:
 protected:
 	// does the actual computation; must be overridden by derived classes
 	// the computed order is returned in partition
-	virtual void doCall(const Graph &G,
+	virtual void doCall(
+		const Graph &G,
 		adjEntry adj,
-		List<ShellingOrderSet> &partition);
+		List<ShellingOrderSet> &partition) override;
 
 };
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements DOT write functionality of class GraphIO.
  *
@@ -132,8 +124,7 @@ static inline void writeAttributes(
 	if(flags & GraphAttributes::edgeGraphics) {
 		// This should be legal cubic B-Spline in the future.
 		std::stringstream sstream;
-		forall_listiterators(DPoint, it, GA.bends(e)) {
-			const DPoint &p = *it;
+		for(const DPoint &p : GA.bends(e)) {
 			sstream << p.m_x << "," << p.m_y << " ";
 		}
 
@@ -267,7 +258,7 @@ static void writeCluster(
 
 	// Recursively export all subclusters.
 	whitespace = false;
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 		writeCluster(out, depth, edgeMap, C, CA, *cit, clusterId);
 		whitespace = true;
 	}
@@ -278,7 +269,7 @@ static void writeCluster(
 
 	// Then, print all nodes whithout an adjacent edge.
 	whitespace = false;
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); nit++) {
+	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
 		whitespace |= writeNode(out, depth, CA, *nit);
 	}
 
@@ -301,7 +292,7 @@ static void writeGraph(
 	std::ostream &out,
 	const Graph &G, const GraphAttributes *GA)
 {
-	bool whitespace = false;;
+	bool whitespace = false;
 
 	whitespace |= writeHeader(out, 0, GA);
 
@@ -310,9 +301,8 @@ static void writeGraph(
 	}
 
 	// We need to print all the nodes that do not have any adjacent edge.
-	node v;
 	whitespace = false;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		whitespace |= dot::writeNode(out, 1, GA, v);
 	}
 
@@ -322,9 +312,8 @@ static void writeGraph(
 
 	// In this dummy version we just output list of all edges. It works, sure,
 	// but is ugly as hell. A nicer approach has to be developed in future.
-	edge e;
 	whitespace = false;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		whitespace |= dot::writeEdge(out, 1, GA, e);
 	}
 
@@ -337,7 +326,7 @@ static void writeGraph(
 
 bool GraphIO::writeDOT(const Graph &G, std::ostream &out)
 {
-	dot::writeGraph(out, G, NULL);
+	dot::writeGraph(out, G, nullptr);
 	return true;
 }
 
@@ -358,13 +347,12 @@ bool GraphIO::writeDOT(const ClusterGraph &C, std::ostream &out)
 	// here needs reconsideration - vector is fast but usage of STL iterators
 	// is ugly without C++11 for-each loop.
 	ClusterArray< std::vector<edge> > edgeMap(C);
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		const node s = e->source(), t = e->target();
 		edgeMap[C.commonCluster(s, t)].push_back(e);
 	}
 
-	dot::writeCluster(out, 0, edgeMap, C, NULL, C.rootCluster(), id);
+	dot::writeCluster(out, 0, edgeMap, C, nullptr, C.rootCluster(), id);
 	return true;
 }
 
@@ -379,8 +367,7 @@ bool GraphIO::writeDOT(const ClusterGraphAttributes &CA, std::ostream &out)
 	// here needs reconsideration - vector is fast but usage of STL iterators
 	// is ugly without C++11 for-each loop.
 	ClusterArray< std::vector<edge> > edgeMap(C);
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		const node s = e->source(), t = e->target();
 		edgeMap[C.commonCluster(s, t)].push_back(e);
 	}

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2576 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2012-07-11 07:50:24 +0200 (Wed, 11 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GridLayout.
  *
@@ -61,6 +53,8 @@ namespace ogdf {
 
 /**
  * \brief Representation of a graph's grid layout
+ *
+ * @ingroup graph-drawing
  */
 class OGDF_EXPORT GridLayout
 {

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3927 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-02-20 14:03:30 +0100 (Thu, 20 Feb 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of extended graph algorithms
  *
@@ -49,7 +41,7 @@
 
 
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/basic/BinaryHeap2.h>
+#include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/basic/DisjointSets.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 
@@ -63,6 +55,8 @@ namespace ogdf {
 
 //! Computes the subgraph induced by a list of nodes.
 /**
+ * @ingroup ga-induced
+ *
  * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
  * @param G        is the input graph.
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
@@ -78,6 +72,8 @@ void inducedSubGraph(const Graph &G, LISTITERATOR start, Graph &subGraph)
 
 //! Computes the subgraph induced by a list of nodes (plus a mapping from original nodes to new copies).
 /**
+ * @ingroup ga-induced
+ *
  * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
  * @param G        is the input graph.
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
@@ -101,11 +97,11 @@ void inducedSubGraph(
 	for (its = start; its.valid(); its++)
 	{
 		node w = (*its);
-		OGDF_ASSERT(w != 0 && w->graphOf() == &G);
+		OGDF_ASSERT(w != nullptr);
+		OGDF_ASSERT(w->graphOf() == &G);
 		nodeTableOrig2New[w] = subGraph.newNode();
 
-		adjEntry adj = w->firstAdj();
-		forall_adj(adj,w)
+		for(adjEntry adj : w->adjEdges)
 		{
 			edge e = adj->theEdge();
 			if (nodeTableOrig2New[e->source()] && nodeTableOrig2New[e->target()] && !mark[e])
@@ -120,6 +116,8 @@ void inducedSubGraph(
 
 //! Computes the subgraph induced by a list of nodes (plus mappings from original nodes and edges to new copies).
 /**
+ * @ingroup ga-induced
+ *
  * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
  * @param G        is the input graph.
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
@@ -146,11 +144,11 @@ void inducedSubGraph(
 	for (its = start; its.valid(); its++)
 	{
 		node w = (*its);
-		OGDF_ASSERT(w != 0 && w->graphOf() == &G);
+		OGDF_ASSERT(w != nullptr);
+		OGDF_ASSERT(w->graphOf() == &G);
 		nodeTableOrig2New[w] = subGraph.newNode();
 
-		adjEntry adj = w->firstAdj();
-		forall_adj(adj,w)
+		for(adjEntry adj : w->adjEdges)
 		{
 			edge e = adj->theEdge();
 			if (nodeTableOrig2New[e->source()] &&
@@ -170,6 +168,8 @@ void inducedSubGraph(
 
 //! Computes the edges in a node-induced subgraph.
 /**
+ * @ingroup ga-induced
+ *
  * @tparam NODELISTITERATOR is the type of iterators for the input list of nodes.
  * @tparam EDGELIST         is the type of the returned edge list.
  * @param  G  is the input graph.
@@ -189,8 +189,7 @@ void inducedSubgraph(Graph &G, NODELISTITERATOR &it, EDGELIST &E)
 	for (;it.valid();it++)
 	{
 		node v = (*it);
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 		{
 			edge e = adj->theEdge();
 			if (mark[e->source()] && mark[e->target()])
@@ -206,10 +205,15 @@ void inducedSubgraph(Graph &G, NODELISTITERATOR &it, EDGELIST &E)
 
 
 //! Returns true iff cluster graph \a C is c-connected.
+/**
+ * @ingroup ga-connectivity
+ */
 OGDF_EXPORT bool isCConnected(const ClusterGraph &C);
 
 //! Makes a cluster graph c-connected by adding edges.
 /**
+ * @ingroup ga-connectivity
+ *
  * @param C is the input cluster graph.
  * @param G is the graph associated with the cluster graph \a C; the function adds new edges to this graph.
  * @param addedEdges is assigned the list of newly created edges.
@@ -232,6 +236,8 @@ OGDF_EXPORT void makeCConnected(
 
 //! Computes an st-Numbering of \a G.
 /**
+ * @ingroup ga-orient
+ *
  * \pre \a G must be biconnected and simple, with the exception that
  * the graph is allowed to have isolated nodes. If both \a s and \a t
  * are set to nodes (both are not 0), they must be adjacent.
@@ -253,6 +259,8 @@ OGDF_EXPORT int stNumber(const Graph &G,
 
 //! Tests, whether a numbering of the nodes is an st-numbering.
 /**
+ * @ingroup ga-orient
+ *
  * \pre \a G must be biconnected and simple, with the exception that
  * the graph is allowed to have isolated nodes.
  */
@@ -265,6 +273,8 @@ OGDF_EXPORT bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max);
 
 //! Computes a minimum spanning tree using Prim's algorithm
 /**
+ * @ingroup ga-mst
+ *
  * @tparam T        is the numeric type for edge weights.
  * @param  G        is the input graph.
  * @param  weight   is an edge array with the edge weights.
@@ -272,14 +282,16 @@ OGDF_EXPORT bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max);
  * @return the sum of the edge weights in the computed tree.
  **/
 template<typename T>
-T computeMinST(const Graph &G, const EdgeArray<T> &weight, EdgeArray<bool> &isInTree) {
+inline T computeMinST(const Graph &G, const EdgeArray<T> &weight, EdgeArray<bool> &isInTree)
+{
 	NodeArray<edge> pred(G, 0);
 	return computeMinST(G.firstNode(), G, weight, pred, isInTree);
 }
 
-
 //! Computes a minimum spanning tree (MST) using Prim's algorithm
 /**
+ * @ingroup ga-mst
+ *
  * @tparam T        is the numeric type for edge weights.
  * @param  G        is the input graph.
  * @param  weight   is an edge array with the edge weights.
@@ -288,10 +300,67 @@ T computeMinST(const Graph &G, const EdgeArray<T> &weight, EdgeArray<bool> &isIn
  * @return the sum of the edge weights in the computed tree.
  **/
 template<typename T>
-T computeMinST(const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred, EdgeArray<bool> &isInTree) {
+inline T computeMinST(const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred, EdgeArray<bool> &isInTree)
+{
 	return computeMinST(G.firstNode(), G, weight, pred, isInTree);
 }
 
+//! Computes a minimum spanning tree (MST) using Prim's algorithm
+/**
+ * @tparam T        is the numeric type for edge weights.
+ * @param  G        is the input graph.
+ * @param  weight   is an edge array with the edge weights.
+ * @param  pred     is assigned for each node the edge from its parent in the MST.
+ **/
+template<typename T>
+inline void computeMinST(const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred)
+{
+	computeMinST(G.firstNode(), G, weight, pred);
+}
+
+//! Computes a minimum spanning tree (MST) using Prim's algorithm
+/**
+ * @ingroup ga-mst
+ *
+ * @tparam T        is the numeric type for edge weights.
+ * @param  s        is the start node for Prim's algorithm and will be the root of the MST.
+ * @param  G        is the input graph.
+ * @param  weight   is an edge array with the edge weights.
+ * @param  pred     is assigned for each node the edge from its parent in the MST.
+ **/
+template<typename T>
+void computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred)
+{
+	PrioritizedMapQueue<node, T> pq(G); // priority queue of front vertices
+
+	// insert start node
+	T tmp(0);
+	pq.push(s, tmp);
+
+	// extract the nodes again along a minimum ST
+	NodeArray<bool> processed(G, false);
+	pred.init(G, nullptr);
+
+	while (!pq.empty()) {
+		const node v = pq.topElement();
+		pq.pop();
+		processed[v] = true;
+		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
+			const node w = adj->twinNode();
+			const edge e = adj->theEdge();
+			if (pred[w] == nullptr && w != s) {
+				tmp = weight[e];
+				pq.push(w, tmp);
+				pred[w] = e;
+			} else
+			if (!processed[w]
+			 && weight[e] < pq.priority(w)) {
+				pq.decrease(w, weight[e]);
+				pred[w] = e;
+			}
+		}
+	}
+}
 
 //! Computes a minimum spanning tree (MST) using Prim's algorithm
 /**
@@ -299,43 +368,16 @@ T computeMinST(const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred
  * @param  s        is the start node for Prim's algorithm and will be the root of the MST.
  * @param  G        is the input graph.
  * @param  weight   is an edge array with the edge weights.
- * @param  isInTree is assigned the result, i.e. \a isInTree[\a e] is true iff edge \a e is in the computed MST.
  * @param  pred     is assigned for each node the edge from its parent in the MST.
+ * @param  isInTree is assigned the result, i.e. \a isInTree[\a e] is true iff edge \a e is in the computed MST.
  * @return the sum of the edge weights in the computed tree.
  **/
 template<typename T>
 T computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<edge> &pred, EdgeArray<bool> &isInTree)
 {
-	BinaryHeap2<T, node> pq(G.numberOfNodes()); // priority queue of front vertices
-	NodeArray<int> pqpos(G, -1); // position of each node in pq
+	computeMinST(s, G, weight, pred);
 
-	// insert start node
-	T tmp(0);
-	pq.insert(s, tmp, &pqpos[s]);
-
-	// extract the nodes again along a minimum ST
-	NodeArray<bool> processed(G, false);
-	pred.init(G, NULL);
-	while (!pq.empty()) {
-		const node v = pq.extractMin();
-		processed[v] = true;
-		for (adjEntry adj = v->firstAdj(); adj; adj = adj->succ()) {
-			const node w = adj->twinNode();
-			const edge e = adj->theEdge();
-			const int wPos = pqpos[w];
-			if (wPos == -1) {
-				tmp = weight[e];
-				pq.insert(w, tmp, &pqpos[w]);
-				pred[w] = e;
-			} else
-			if (!processed[w]
-			 && weight[e] < pq.getPriority(wPos)) {
-				pq.decreaseKey(wPos, weight[e]);
-				pred[w] = e;
-			}
-		}
-	}
-
+	// now just compute isInTree and total weight
 	int rootcount = 0;
 	T treeWeight = 0;
 	isInTree.init(G, false);
@@ -352,8 +394,11 @@ T computeMinST(node s, const Graph &G, const EdgeArray<T> &weight, NodeArray<edg
 	return treeWeight;
 }//computeMinST
 
+
 //! Reduce a graph to its minimum spanning tree (MST) using Kruskal's algorithm
 /**
+ * @ingroup ga-mst
+ *
  * @tparam T        is the numeric type for edge weights.
  * @param  G        is the input graph.
  * @param  weight   is an edge array with the edge weights.
@@ -392,6 +437,8 @@ T makeMinimumSpanningTree(Graph &G, const EdgeArray<T> &weight)
 
 //! Returns true, if G is planar, false otherwise.
 /**
+ * @ingroup ga-planembed
+ *
  * This is a shortcut for BoyerMyrvold::isPlanar().
  *
  * @param G is the input graph.
@@ -401,9 +448,35 @@ inline bool isPlanar(const Graph &G) {
 	return BoyerMyrvold().isPlanar(G);
 }
 
+/**
+ * Returns whether G is s-t-planar (i.e. it can be planarly embedded with s and t sharing a face).
+ *
+ * @param graph The graph to be tested
+ * @param s The node to be incident to the same face as t nodes
+ * @param t The other node
+ *
+ * @return true iff the graph is s-t-planar
+ */
+inline bool isSTPlanar(
+  const Graph &graph,
+  const node s,
+  const node t)
+{
+	OGDF_ASSERT(s != nullptr);
+	OGDF_ASSERT(t != nullptr);
+	OGDF_ASSERT(s->graphOf() == &graph);
+	OGDF_ASSERT(t->graphOf() == &graph);
+
+	GraphCopy copy(graph);
+	copy.newEdge(copy.copy(s), copy.copy(t));
+
+	return isPlanar(copy);
+}
 
 //! Returns true, if G is planar, false otherwise. If true is returned, G will be planarly embedded.
 /**
+ * @ingroup ga-planembed
+ *
  * This is a shortcut for BoyerMyrvold::planarEmbed
  *
  * @param G is the input graph.
@@ -413,9 +486,29 @@ inline bool planarEmbed(Graph &G) {
 	return BoyerMyrvold().planarEmbed(G);
 }
 
+/**
+ * s-t-planarly embeds a graph.
+ *
+ * @param graph The graph to be embedded
+ * @param s The node to be incident to the same face as t nodes
+ * @param t The other node
+ *
+ * @return true iff the graph was successfully embedded
+ */
+inline bool planarSTEmbed(Graph &graph, node s, node t)
+{
+	edge e = graph.newEdge(s, t);
+	bool result = planarEmbed(graph);
+	graph.delEdge(e);
+
+	return result;
+}
+
 
 //! Constructs a planar embedding of G. It assumes that \a G is planar!
 /**
+ * @ingroup ga-planembed
+ *
  * This routine is slightly faster than planarEmbed(), but requires \a G to be planar.
  * If \a G is not planar, the graph will be destroyed while trying to embed it!
  *
@@ -429,6 +522,7 @@ inline bool planarEmbed(Graph &G) {
 inline bool planarEmbedPlanarGraph(Graph &G) {
 	return BoyerMyrvold().planarEmbedPlanarGraph(G);
 }
+
 
 } // end namespace ogdf
 

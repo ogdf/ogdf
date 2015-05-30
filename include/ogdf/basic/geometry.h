@@ -1,11 +1,3 @@
-/*
- * $Revision: 2816 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-15 09:07:22 +0200 (Mon, 15 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of classes DPoint, DPolyline, DLine, DRect, DScaler.
  *
@@ -49,8 +41,7 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Hashing.h>
-#include <float.h>
-#include <math.h>
+#include <cfloat>
 
 #define OGDF_GEOM_EPS  1e-06
 
@@ -135,23 +126,31 @@ public:
 	GenericPoint(NUMBER x, NUMBER y) : m_x(x), m_y(y) { }
 
 	//! Copy constructor.
-	GenericPoint(const GenericPoint &ip) : m_x(ip.m_x), m_y(ip.m_y) { }
+	GenericPoint(const GenericPoint &p) : m_x(p.m_x), m_y(p.m_y) { }
 
 	//! Assignment operator.
-	GenericPoint operator=(const GenericPoint &ip) {
-		m_x = ip.m_x;
-		m_y = ip.m_y;
+	GenericPoint &operator=(const GenericPoint &p) {
+		m_x = p.m_x;
+		m_y = p.m_y;
 		return *this;
 	}
 
 	//! Equality operator.
-	bool operator==(const GenericPoint &ip) const {
-		return m_x == ip.m_x && m_y == ip.m_y;
+	bool operator==(const GenericPoint &p) const {
+		return m_x == p.m_x && m_y == p.m_y;
 	}
 
 	//! Inequality operator.
-	bool operator!=(const GenericPoint &ip) const {
-		return m_x != ip.m_x || m_y != ip.m_y;
+	bool operator!=(const GenericPoint &p) const {
+		return m_x != p.m_x || m_y != p.m_y;
+	}
+
+	bool operator<(const GenericPoint &p) {
+		return (m_x < p.m_x || (m_x == p.m_x && m_y < p.m_y));
+	}
+
+	bool operator>(const GenericPoint &p) {
+		return !operator<(p);
 	}
 
 };//class GenericPoint
@@ -253,6 +252,34 @@ public:
 	//! Subtraction of real points.
 	DPoint operator-(const DPoint &p) const;
 
+	DPoint &operator+=(const DPoint &p) {
+		m_x += p.m_x;
+		m_y += p.m_y;
+		return *this;
+	}
+
+	DPoint &operator-=(const DPoint &p) {
+		m_x -= p.m_x;
+		m_y -= p.m_y;
+		return *this;
+	}
+
+	DPoint &operator*=(double c) {
+		m_x *= c;
+		m_y *= c;
+		return *this;
+	}
+
+	DPoint &operator/=(double c) {
+		m_x /= c;
+		m_y /= c;
+		return *this;
+	}
+
+	friend DPoint operator*(double c, const DPoint &p) {
+		return DPoint(c*p.m_x, c*p.m_y);
+	}
+
 	//! Returns the euclidean distance between \a p and this point.
 	double distance(const DPoint &p) const;
 };
@@ -276,6 +303,9 @@ public:
 	//! Copy constructor.
 	DVector(const DVector &dv) : DPoint(dv) { }
 
+	//! Copy constructor from DPoint
+	DVector(const DPoint &dv) : DPoint(dv) { }
+
 	//! Assignment operator.
 	DVector operator=(const DPoint &ip) {
 		if (this != &ip)
@@ -285,6 +315,12 @@ public:
 		}
 		return *this;
 	}
+
+	//! Addition of vectors
+	DVector operator+(const DVector &dv) const;
+
+	//! Subtraction of vectors
+	DVector operator-(const DVector &dv) const;
 
 	//! Multiplies all coordinates with \a val.
 	DVector operator*(const double val) const;
@@ -307,15 +343,7 @@ public:
 	* Returns the vector \f$(y/x,1)\f$ if \f$x\neq 0\f$, or \f$(1,0)\f$
 	* otherwise, where \f$(x,y)\f$ is this vector.
 	*/
-	DVector operator++() const;
-
-	/**
-	* \brief Returns a vector that is orthogonal to this vector.
-	*
-	* Returns the vector \f$(-y/x,-1)\f$ if \f$x\neq 0\f$, or \f$(-1,0)\f$
-	* otherwise, where \f$(x,y)\f$ is this vector.
-	*/
-	DVector operator--() const;
+	DVector orthogonal() const;
 };
 
 
@@ -447,6 +475,8 @@ public:
 	 * @param endpoints determines if common endpoints are treated as intersection.
 	 */
 	bool intersection(const DLine &line, DPoint &inter, bool endpoints = true) const;
+
+	bool intersectionOfLines(const DLine &line, DPoint &inter) const;
 
 	//! Returns true iff \a p lie on this line.
 	bool contains(const DPoint &p) const;
@@ -771,6 +801,16 @@ public:
 
 //! Output operator for polygons.
 OGDF_EXPORT ostream &operator<<(ostream &os, const DPolygon &dop);
+
+
+int orientation(const DPoint &p, const DPoint &q, const DPoint &r);
+
+
+inline int orientation(const DSegment &s, const DPoint &p)
+{
+	return orientation(s.start(), s.end(), p);
+}
+
 
 
 

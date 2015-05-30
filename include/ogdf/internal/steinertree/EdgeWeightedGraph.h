@@ -1,11 +1,3 @@
-/*
- * $Revision: 3916 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-02-20 14:03:05 +0100 (Thu, 20 Feb 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class EdgeWeightedGraph
  *

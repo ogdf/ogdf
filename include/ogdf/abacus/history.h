@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief solution history
@@ -109,7 +101,7 @@ private:
 	Array<double> dualBound_;
 
 	//! The CPU time in seconds, when the entry in the table was made.
-	Array<__int64> time_;
+	Array<int64_t> time_;
 
 	//! The number of entries in the history table.
 	int n_;

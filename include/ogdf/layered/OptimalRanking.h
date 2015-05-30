@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of optimal ranking algorithm for Sugiyama
  *        algorithm.
@@ -61,6 +53,8 @@ namespace ogdf {
 
 //! The optimal ranking algorithm.
 /**
+ * @ingroup gd-ranking
+ *
  * The class OptimalRanking implements the LP-based algorithm for computing
  * a node ranking with minimal edge lengths, which can be used as first phase
  * in SugiyamaLayout.
@@ -105,7 +99,7 @@ public:
 	 */
 
 	//! Computes a node ranking of \a G in \a rank.
-	void call(const Graph &G, NodeArray<int> &rank);
+	virtual void call(const Graph &G, NodeArray<int> &rank) override;
 
 	//! Computes a node ranking of \a G with given minimal edge length in \a rank.
 	/**
@@ -122,11 +116,11 @@ public:
 	 * @param cost specifies the cost of each edge.
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
-	void call(
+	virtual void call(
 		const Graph &G,
 		const EdgeArray<int> &length,
 		const EdgeArray<int> &cost,
-		NodeArray<int> &rank);
+		NodeArray<int> &rank) override;
 
 
 	/** @}

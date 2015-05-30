@@ -1,11 +1,3 @@
-/*
- * $Revision: 3266 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-28 13:53:46 +0100 (Mon, 28 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class UpwardPlanaritySingleSource, which represents
  * the upward planarity testing and embedding algorithm for single-source digraphs.
@@ -137,14 +129,12 @@ UpwardPlanaritySingleSource::ConstraintRooting::ConstraintRooting(const SPQRTree
 
 	m_internalNode.init(GT);
 
-	node v;
-	forall_nodes(v,GT)
+	for(node v : GT.nodes)
 		m_internalNode[v] = m_tree.newNode();
 
 	m_treeToConstraint.init(GT);
 
-	edge e;
-	forall_edges(e,GT) {
+	for(edge e : GT.edges) {
 		m_treeToConstraint[e] = m_tree.newEdge(
 			m_internalNode[e->source()],m_internalNode[e->target()]);
 	}
@@ -153,7 +143,7 @@ UpwardPlanaritySingleSource::ConstraintRooting::ConstraintRooting(const SPQRTree
 	const Graph &G = T.originalGraph();
 	m_realToConstraint.init(G);
 
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		node qNode = m_tree.newNode();
 		node internal = m_internalNode[T.skeletonOfReal(e).treeNode()];
 		// An edge adjacent with a Q-node qNode is always directed leaving
@@ -174,14 +164,13 @@ void UpwardPlanaritySingleSource::ConstraintRooting::outputConstraints(ostream &
 	os << "constrained edges in tree:\n";
 	os << "real edges:";
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		if (m_isConstrained[m_realToConstraint[e]])
 			os << " " << e;
 	}
 
 	os << "\ntree edges:";
-	forall_edges(e,GT) {
+	for(edge e : GT.edges) {
 		if (m_isConstrained[m_treeToConstraint[e]]) {
 			if(m_internalNode[e->source()] == m_treeToConstraint[e]->source())
 				os << " " << e->source() << "->" << e->target();
@@ -240,25 +229,24 @@ edge UpwardPlanaritySingleSource::ConstraintRooting::findRooting()
 	// such a constraint constrains the complete subtree rooted at
 	// e->source(), hence procedure checkEdge() recursively checks
 	// all (not-checked) edges in this subtree
-	edge e;
-	forall_edges(e,m_tree) {
+	for(edge e : m_tree.edges) {
 		if (m_isConstrained[e]) {
 			if (checkEdge(e,e->target(),checked) == false)
-				return 0;
+				return nullptr;
 		}
 	}
 
 	// if all constraints are checked, we can find a rooting iff there is
 	// a Q-node whose (only) adjacent edge was not constrained
 	const Graph &G = m_T.originalGraph();
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		edge eQ = m_realToConstraint[e];
 
 		if(checked[eQ] == false)
 			return e;
 	}
 
-	return 0;
+	return nullptr;
 }
 
 
@@ -339,8 +327,7 @@ void UpwardPlanaritySingleSource::embedAndAugment(
 	node &superSink,
 	SList<edge> &augmentedEdges)
 {
-	node vG;
-	forall_nodes(vG,G) {
+	for(node vG : G.nodes) {
 		G.sort(vG, adjacentEdges[vG]);
 	}
 
@@ -397,8 +384,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 				node src = eST->source();
 				node tgt = eST->target();
 
-				edge e;
-				forall_edges(e,exp) {
+				for(edge e : exp.edges) {
 					edge eG = exp.original(e);
 					adjacentEdges[src].pushBack(eG->adjSource());
 					adjacentEdges[tgt].pushFront(eG->adjTarget());
@@ -425,8 +411,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 		// nodes in expansion graph of virtual edges, if expansion graph
 		// constains the single source
 		NodeArray<SkeletonInfo> skInfo(tree);
-		node vT;
-		forall_nodes(vT,tree)
+		for(node vT : tree.nodes)
 			skInfo[vT].init(T.skeleton(vT));
 
 		// the single source in exp
@@ -459,7 +444,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 		edge eRoot = directSkeletons(T,skInfo);
 
 
-		if (eRoot == 0)
+		if (eRoot == nullptr)
 			return false;
 
 		OGDF_ASSERT(exp.consistencyCheck());
@@ -487,36 +472,36 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 
 			face extFace = externalFaces.front();
 
-			NodeArray<face> assignedFace(exp,0);
+			NodeArray<face> assignedFace(exp,nullptr);
 			assignSinks(F,extFace,assignedFace);
 
-			adjEntry adj1 = 0;
-			forall_adj(adj1,s) {
-				if(E.leftFace(adj1) == extFace)
+			adjEntry adj1 = nullptr;
+			for(adjEntry adj : s->adjEdges) {
+				if (E.leftFace(adj) == extFace) {
+					adj1 = adj;
 					break;
+				}
 			}
 
-			OGDF_ASSERT(adj1 != 0);
+			OGDF_ASSERT(adj1 != nullptr);
 
 			// handle (single) source
 			adjacentEdges[sG].pushBack(
 				exp.original(adj1->theEdge())->adjSource());
 
-			adjEntry adj;
-			for(adj = adj1->cyclicSucc(); adj != adj1; adj = adj->cyclicSucc()) {
+			for(adjEntry adj = adj1->cyclicSucc(); adj != adj1; adj = adj->cyclicSucc()) {
 				adjacentEdges[sG].pushBack(
 					exp.original(adj->theEdge())->adjSource());
 			}
 
 			// handle internal vertices
-			edge e;
-			forall_edges(e,exp)
+			for(edge e : exp.edges)
 			{
 				if(exp.original(e)) continue;
 
 				node vG = exp.original(e->source());
 				adj1 = e->adjSource();
-				for(adj = adj1->cyclicSucc(); adj != adj1;
+				for(adjEntry adj = adj1->cyclicSucc(); adj != adj1;
 					adj = adj->cyclicSucc())
 				{
 					adjacentEdges[vG].pushBack(
@@ -524,7 +509,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 				}
 
 				adj1 = e->adjTarget();
-				for(adj = adj1->cyclicSucc(); adj != adj1;
+				for(adjEntry adj = adj1->cyclicSucc(); adj != adj1;
 					adj = adj->cyclicSucc())
 				{
 					adjacentEdges[vG].pushBack(
@@ -533,24 +518,25 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 			} // iterate over internal vertices (associated expansion edge)
 
 			// handle sinks
-			node v;
-			forall_nodes(v,exp)
+			for(node v : exp.nodes)
 			{
 				if (v->outdeg() > 0) continue;
 				node vG = exp.original(v);
 
-				adj1 = 0;
-				forall_adj(adj1,v) {
-					if(E.leftFace(adj1) == assignedFace[v])
+				adj1 = nullptr;
+				for(adjEntry adj : v->adjEdges) {
+					if (E.leftFace(adj) == assignedFace[v]) {
+						adj1 = adj;
 						break;
+					}
 				}
 
-				OGDF_ASSERT(adj1 != 0);
+				OGDF_ASSERT(adj1 != nullptr);
 
 				adjacentEdges[vG].pushBack(
 					exp.original(adj1->theEdge())->adjTarget());
 
-				for(adj = adj1->cyclicSucc(); adj != adj1; adj = adj->cyclicSucc()) {
+				for(adjEntry adj = adj1->cyclicSucc(); adj != adj1; adj = adj->cyclicSucc()) {
 					adjacentEdges[vG].pushBack(
 						exp.original(adj->theEdge())->adjTarget());
 				}
@@ -560,8 +546,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 
 		// for each cut-vertex, process all components different from i
 		SListPure<node> origNodes;
-		node v;
-		forall_nodes(v,exp) {
+		for(node v : exp.nodes) {
 			node vG = exp.original(v);
 
 			if (vG && vG != sG)
@@ -591,18 +576,16 @@ bool UpwardPlanaritySingleSource::checkDegrees(
 {
 	const Graph &tree = T.tree();
 
-	node vT;
-	forall_nodes(vT,tree)
+	for(node vT : tree.nodes)
 	{
 		T.rootTreeAt(vT);
 
 		const Skeleton &S = T.skeleton(vT);
 		const Graph &M = S.getGraph();
 
-		edge e;
-		forall_edges(e,M) {
+		for(edge e : M.edges) {
 			node wT = S.twinTreeNode(e);
-			if (wT == 0) continue;
+			if (wT == nullptr) continue;
 
 			PertinentGraph P;
 			T.pertinentGraph(wT,P);
@@ -612,15 +595,16 @@ bool UpwardPlanaritySingleSource::checkDegrees(
 			if (P.referenceEdge())
 				Gp.delEdge(P.referenceEdge());
 
-			node x = 0, y = 0, v;
-			forall_nodes(v,Gp) {
+			node x = nullptr, y = nullptr;
+			for(node v : Gp.nodes) {
 				if (P.original(v) == S.original(e->source()))
 					x = v;
 				if (P.original(v) == S.original(e->target()))
 					y = v;
 			}
 
-			OGDF_ASSERT(x != 0 && y != 0);
+			OGDF_ASSERT(x != nullptr);
+			OGDF_ASSERT(y != nullptr);
 
 			const DegreeInfo &degInfo = skInfo[vT].m_degInfo[e];
 			if(x->indeg() != degInfo.m_indegSrc)
@@ -633,7 +617,7 @@ bool UpwardPlanaritySingleSource::checkDegrees(
 				return false;
 
 			bool contSource = false;
-			forall_nodes(v,Gp) {
+			for(node v : Gp.nodes) {
 				if (v != x && v != y && P.original(v) == s)
 					contSource = true;
 			}
@@ -675,16 +659,14 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	node tgt  = eRef->target();
 
 	bool contSource = false;
-	node v;
-	forall_nodes(v,M) {
+	for(node v : M.nodes) {
 		if (v != src && v != tgt && S.original(v) == s)
 			contSource = true;
 	}
 
 	// the in- and outdegree at real edges is obvious ...
 	// m_containsSource is set to false by default
-	edge e;
-	forall_edges(e,M) {
+	for(edge e : M.edges) {
 		if (S.isVirtual(e) == false) {
 			degInfo[e].m_indegSrc  = 0;
 			degInfo[e].m_outdegSrc = 1;
@@ -703,31 +685,39 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	// compute in- and outdegree of poles of reference edge in pertinent graph
 	// of reference edge
 
-	int indegSrc  = 0;
+	int indegSrc = 0;
 	int outdegSrc = 0;
-	{forall_adj_edges(e,src) {
-		if (e == eRef) continue;
-		if (e->source() == src) {
-			indegSrc  += degInfo[e].m_indegSrc;
-			outdegSrc += degInfo[e].m_outdegSrc;
-		} else {
-			indegSrc  += degInfo[e].m_indegTgt;
-			outdegSrc += degInfo[e].m_outdegTgt;
+	{
+		edge e;
+		forall_adj_edges(e, src) {
+			if (e == eRef) continue;
+			if (e->source() == src) {
+				indegSrc += degInfo[e].m_indegSrc;
+				outdegSrc += degInfo[e].m_outdegSrc;
+			}
+			else {
+				indegSrc += degInfo[e].m_indegTgt;
+				outdegSrc += degInfo[e].m_outdegTgt;
+			}
 		}
-	}}
+	}
 
-	int indegTgt  = 0;
+	int indegTgt = 0;
 	int outdegTgt = 0;
-	{forall_adj_edges(e,tgt) {
-		if (e == eRef) continue;
-		if (e->source() == tgt) {
-			indegTgt  += degInfo[e].m_indegSrc;
-			outdegTgt += degInfo[e].m_outdegSrc;
-		} else {
-			indegTgt  += degInfo[e].m_indegTgt;
-			outdegTgt += degInfo[e].m_outdegTgt;
+	{
+		edge e;
+		forall_adj_edges(e, tgt) {
+			if (e == eRef) continue;
+			if (e->source() == tgt) {
+				indegTgt += degInfo[e].m_indegSrc;
+				outdegTgt += degInfo[e].m_outdegSrc;
+			}
+			else {
+				indegTgt += degInfo[e].m_indegTgt;
+				outdegTgt += degInfo[e].m_outdegTgt;
+			}
 		}
-	}}
+	}
 
 	// set degrees at reference edge
 	node srcOrig = S.original(src);
@@ -758,17 +748,15 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 // this procedure serves to assert that this really holds!
 bool UpwardPlanaritySingleSource::virtualEdgesDirectedEqually(const SPQRTree &T)
 {
-	node v;
-	forall_nodes(v,T.tree())
+	for(node v : T.tree().nodes)
 	{
 		const Skeleton &S = T.skeleton(v);
 		const Graph &M = S.getGraph();
 
-		edge e;
-		forall_edges(e,M) {
+		for(edge e : M.edges) {
 			edge eTwin = S.twinEdge(e);
 
-			if (eTwin == 0) continue;
+			if (eTwin == nullptr) continue;
 
 			const Skeleton &STwin = T.skeleton(S.twinTreeNode(e));
 
@@ -800,16 +788,14 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 	// of the targets are equal
 	OGDF_ASSERT(virtualEdgesDirectedEqually(T));
 
-	node vT;
-	forall_nodes(vT,tree)
+	for(node vT : tree.nodes)
 	{
 		const StaticSkeleton &S = *dynamic_cast<StaticSkeleton*>(&T.skeleton(vT));
 		const Graph &M = S.getGraph();
 
-		edge e;
-		forall_edges(e,M) {
+		for (edge e : M.edges) {
 			edge eTwin = S.twinEdge(e);
-			if (eTwin == 0) continue;
+			if (eTwin == nullptr) continue;
 
 			const DegreeInfo &degInfo    = skInfo[vT].m_degInfo[e];
 			bool              contSource = skInfo[vT].m_containsSource[e];
@@ -903,8 +889,8 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 
 		// if the source is not in skeleton(vT), let eWithSource be the virtual
 		// edge in skeleton(vT) whose expansion graph contains the source
-		edge eWithSource = 0;
-		forall_edges(e,M) {
+		edge eWithSource = nullptr;
+		for(edge e : M.edges) {
 			if (skInfo[vT].m_containsSource[e]) {
 				eWithSource = e;
 				break;
@@ -915,14 +901,14 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 		// leaving vT
 		if (eWithSource) {
 			if (rooting.constrainTreeEdge(S.treeEdge(eWithSource),vT) == false)
-				return 0;
+				return nullptr;
 		}
 
 
 		// test whether the sT-skeletonof vT is upward planar and determine
 		// the possible external faces
 		if (!isAcyclic(M))
-			return 0;
+			return nullptr;
 
 		// for S- and P-nodes, we know already that they are upward planar
 		if (T.typeOf(vT) != SPQRTree::RNode)
@@ -933,24 +919,22 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 		SList<face> &externalFaces = skInfo[vT].m_externalFaces;
 
 		if(initFaceSinkGraph(M,skInfo[vT]) == false)
-			return 0;
+			return nullptr;
 
 
 		// mark the edges of the skeleton of vT whose endpoints are on the
 		// external face of some upward drawing of the sT-skeleton of vT
 		EdgeArray<bool> marked(M,false);
 
-		SListConstIterator<face> it;
-		for(it = externalFaces.begin(); it.valid(); ++it) {
-			adjEntry adj;
-			forall_face_adj(adj,*it) {
+		for(face f : externalFaces) {
+			for(adjEntry adj : f->entries) {
 				marked[adj] = true;
 			}
 		}
 
 		// for each unmarked edge e of the skeleton of vT, constrain the tree
 		// edge associated with e to be directed towards vT
-		forall_edges(e,M) {
+		for(edge e : M.edges) {
 			if (marked[e]) continue;
 
 			edge eT = S.treeEdge(e);
@@ -959,7 +943,7 @@ edge UpwardPlanaritySingleSource::directSkeletons(
 				rooting.constrainRealEdge(eR);
 			else if (eT) {
 				if (!rooting.constrainTreeEdge(eT,S.twinTreeNode(e)))
-					return 0;
+					return nullptr;
 			}
 		}
 	}
@@ -1028,13 +1012,12 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 		adjEntry adjRef     = eRef->adjSource();
 		adjEntry adjRefTwin = adjRef->twin();
 
-		adjEntry adj;
-		forall_adj(adj, lowerPole) {
+		for(adjEntry adj : lowerPole->adjEdges) {
 			// ignore reference edge
 			if (adj == adjRef) continue;
 
 			adjEntry adjTwin = adj->twin();
-			if (S.original(adjTwin->theNode()) == 0) { // peak
+			if (S.original(adjTwin->theNode()) == nullptr) { // peak
 				lowerAdjs.pushFront(adj);
 				upperAdjs.pushBack (adjTwin->cyclicSucc()->twin());
 
@@ -1048,7 +1031,7 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 		// (without reference edge)
 
 		// is reference edge a peak
-		bool isRefPeak = (S.original(eRef->target()) == 0);
+		bool isRefPeak = (S.original(eRef->target()) == nullptr);
 		adjEntry adjRefUpper = (isRefPeak) ?
 			(adjRefTwin->cyclicSucc()->twin()) :
 			adjRefTwin;
@@ -1089,7 +1072,7 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 	// determine a possible external face extFace adjacent to eRef
 	face fLeft  = E.leftFace (eRef->adjSource());
 	face fRight = E.rightFace(eRef->adjSource());
-	face extFace = 0;
+	face extFace = nullptr;
 
 	SListConstIterator<face> it;
 	for(it = externalFaces.begin(); it.valid(); ++it) {
@@ -1105,25 +1088,24 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 
 	// assign sinks to faces (a sink t is assigned to the face above t in
 	// an upward planar drawing)
-	NodeArray<face> assignedFace(M,0);
+	NodeArray<face> assignedFace(M,nullptr);
 	assignSinks(F,extFace,assignedFace);
 
 
 	// Traverse SPQR-tree by depth-first search.
 	// This kind of traversal is required for correctly embedding the
 	// skeletons (see paper).
-	edge e;
-	forall_edges(e,M)
+	for(edge e : M.edges)
 	{
 		edge eT = S.treeEdge(e);
-		if (eT == 0) continue;
+		if (eT == nullptr) continue;
 
 		node wT = eT->target();
 		if (wT == vT) continue;
 
 		bool eExtFaceLeft = true;
 		node p = e->target();
-		if(S.original(p) == 0) {
+		if(S.original(p) == nullptr) {
 			const Skeleton &S2 = T.skeleton(wT);
 			node vOrig = S2.original(S2.referenceEdge()->source());
 			adjEntry adj = e->adjSource();
@@ -1161,13 +1143,14 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 	{
 		vSucc = v->succ();
 
-		if (S.original(v) == 0) {
-			OGDF_ASSERT(v->indeg() == 2 && v->outdeg() == 0);
+		if (S.original(v) == nullptr) {
+			OGDF_ASSERT(v->indeg() == 2);
+			OGDF_ASSERT(v->outdeg() == 0);
 
 			edge e1 = v->firstAdj()->theEdge();
 			edge e2 = v->lastAdj ()->theEdge();
 
-			if(S.realEdge(e1) != 0 || S.twinEdge(e1) != 0) {
+			if(S.realEdge(e1) != nullptr || S.twinEdge(e1) != nullptr) {
 				M.reverseEdge(e2);
 			} else {
 				OGDF_ASSERT(S.realEdge(e2) != 0 || S.twinEdge(e2) != 0);
@@ -1189,9 +1172,8 @@ void UpwardPlanaritySingleSource::assignSinks(
 	NodeArray<face> &assignedFace)
 {
 	// find the representative h of face extFace in face-sink graph F
-	node h = 0;
-	node v;
-	forall_nodes(v,F) {
+	node h = nullptr;
+	for (node v : F.nodes) {
 		if (F.originalFace(v) == extFace) {
 			h = v; break;
 		}
@@ -1200,18 +1182,18 @@ void UpwardPlanaritySingleSource::assignSinks(
 	// find all roots of trees in F different from (the unique tree T)
 	// rooted at h
 	SListPure<node> roots;
-	forall_nodes(v,F) {
+	for(node v : F.nodes) {
 		node vOrig = F.originalNode(v);
-		if (vOrig != 0 && vOrig->indeg() > 0 && vOrig->outdeg() > 0)
+		if (vOrig != nullptr && vOrig->indeg() > 0 && vOrig->outdeg() > 0)
 			roots.pushBack(v);
 	}
 
 	// recursively assign faces to sinks
-	dfsAssignSinks(F,h,0,assignedFace);
+	dfsAssignSinks(F,h,nullptr,assignedFace);
 
 	SListConstIterator<node> itRoots;
 	for(itRoots = roots.begin(); itRoots.valid(); ++itRoots)
-		dfsAssignSinks(F,*itRoots,0,assignedFace);
+		dfsAssignSinks(F,*itRoots,nullptr,assignedFace);
 }
 
 
@@ -1221,12 +1203,11 @@ node UpwardPlanaritySingleSource::dfsAssignSinks(
 	node parent,                 // its parent
 	NodeArray<face> &assignedFace)
 {
-	bool isFace = (F.originalFace(v) != 0);
-	node vf = 0;
+	bool isFace = (F.originalFace(v) != nullptr);
+	node vf = nullptr;
 
 	// we perform a dfs-traversal (underlying graph is a tree)
-	adjEntry adj;
-	forall_adj(adj,v)
+	for(adjEntry adj : v->adjEdges)
 	{
 		node w = adj->twinNode();
 

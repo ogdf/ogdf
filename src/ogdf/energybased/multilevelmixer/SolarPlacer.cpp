@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Places Nodes with Solar System rules
  *
@@ -47,7 +39,7 @@ namespace ogdf {
 void SolarPlacer::placeOneLevel(MultilevelGraph &MLG)
 {
 	int level = MLG.getLevel();
-	while (MLG.getLevel() == level && MLG.getLastMerge() != 0)
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
 	{
 		placeOneNode(MLG);
 	}
@@ -67,9 +59,9 @@ void SolarPlacer::placeOneNode(MultilevelGraph &MLG)
 	node merged = MLG.undoLastMerge();
 
 	if (positions.size() > 0) {
-		for (std::vector< std::pair<int, double> >::iterator j = positions.begin(); j != positions.end(); j++) {
-			double factor = (*j).second;
-			node other_sun = MLG.getNode((*j).first);
+		for (const std::pair<int, double> &p : positions) {
+			double factor = p.second;
+			node other_sun = MLG.getNode(p.first);
 			i++;
 			x += MLG.x(sun) * factor + MLG.x(other_sun) * (1.0f-factor);
 			y += MLG.y(sun) * factor + MLG.y(other_sun) * (1.0f-factor);

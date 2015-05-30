@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of doubly linked lists and iterators
  *
@@ -54,7 +46,12 @@
 
 namespace ogdf {
 
-// all returned Polygons are clockwise (cw)
+//! Computes the convex hull of a set of points or a layout.
+/**
+ * @ingroup graph-algs
+ *
+ * All returned polygons are clockwise (cw).
+ */
 class OGDF_EXPORT ConvexHull {
 private:
 	bool sameDirection(const DPoint &start, const DPoint &end, const DPoint &s, const DPoint &e) const;

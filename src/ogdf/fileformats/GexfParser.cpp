@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of GEXF format parsing utilities.
  *
@@ -50,7 +42,7 @@ namespace ogdf {
 namespace gexf {
 
 
-Parser::Parser(std::istream &is) : m_xml(is), m_nodeId(NULL), m_clusterId(NULL)
+Parser::Parser(std::istream &is) : m_xml(is), m_nodeId(nullptr), m_clusterId(nullptr)
 {
 }
 
@@ -61,8 +53,8 @@ static inline bool readAttrDefs(
 {
 	List<XmlTagObject *> attrTags;
 	attrsTag.findSonXmlTagObjectByName("attributes", attrTags);
-	forall_listiterators(XmlTagObject *, jt, attrTags) {
-		const XmlTagObject &attrTag = **jt;
+	for(XmlTagObject *obj : attrTags) {
+		const XmlTagObject &attrTag = *obj;
 
 		XmlAttributeObject *idAttr, *titleAttr;
 		attrTag.findXmlAttributeObjectByName("id", idAttr);
@@ -87,9 +79,10 @@ bool Parser::init()
 	m_nodeAttr.clear();
 	m_edgeAttr.clear();
 
-	m_xml.createParseTree();
+	if(m_xml.createParseTree() == false)
+		return false;
 
-	const XmlTagObject gexfTag = m_xml.getRootTag();
+	const XmlTagObject &gexfTag = m_xml.getRootTag();
 	if(gexfTag.getName() != "gexf") {
 		std::cerr << "ERROR: Root tag must be \"gexf\".\n";
 		return false;
@@ -117,8 +110,8 @@ bool Parser::init()
 	// if GraphAttributes is given.
 	List<XmlTagObject *> attrsTags;
 	m_graphTag->findSonXmlTagObjectByName("attributes", attrsTags);
-	forall_listiterators(XmlTagObject *, it, attrsTags) {
-		const XmlTagObject &attrsTag = **it;
+	for(XmlTagObject *obj : attrsTags) {
+		const XmlTagObject &attrsTag = *obj;
 
 		XmlAttributeObject *classAttr;
 		attrsTag.findXmlAttributeObjectByName("class", classAttr);
@@ -153,8 +146,8 @@ bool Parser::readNodes(Graph &G, GraphAttributes *GA)
 	List<XmlTagObject *> nodeTags;
 	m_nodesTag->findSonXmlTagObjectByName("node", nodeTags);
 
-	forall_listiterators(XmlTagObject *, it, nodeTags) {
-		const XmlTagObject &nodeTag = **it;
+	for(XmlTagObject *obj : nodeTags) {
+		const XmlTagObject &nodeTag = *obj;
 
 		XmlAttributeObject *idAttr;
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
@@ -183,8 +176,8 @@ bool Parser::readCluster(
 	List<XmlTagObject *> nodeTags;
 	rootTag.findSonXmlTagObjectByName("node", nodeTags);
 
-	forall_listiterators(XmlTagObject *, it, nodeTags) {
-		const XmlTagObject &nodeTag = **it;
+	for(XmlTagObject *obj : nodeTags) {
+		const XmlTagObject &nodeTag = *obj;
 
 		XmlAttributeObject *idAttr;
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
@@ -222,13 +215,14 @@ bool Parser::readCluster(
 
 /*
  * Just a helper method to avoid ugly code in Parser#readEdges method. It just
- * populates \a nodes list with either a given \a v node (if not NULL) or all
+ * populates \a nodes list with either a given \a v node (if not nullptr) or all
  * nodes in certain cluster found by performing a lookup with given \a id in
  * \a clusterId association.
  */
 static inline bool edgeNodes(
 	node v,
-	const std::string &id, const HashArray<std::string, cluster> clusterId,
+	const std::string &id,
+	const HashArray<std::string, cluster> &clusterId,
 	List<node> &nodes)
 {
 	if(v) {
@@ -255,8 +249,8 @@ bool Parser::readEdges(Graph &G, ClusterGraph *C, GraphAttributes *GA)
 
 	List<node> sourceNodes, targetNodes;
 
-	forall_listiterators(XmlTagObject *, it, edgeTags) {
-		const XmlTagObject &edgeTag = **it;
+	for(XmlTagObject *obj : edgeTags) {
+		const XmlTagObject &edgeTag = *obj;
 
 		XmlAttributeObject *sourceAttr, *targetAttr;
 
@@ -289,9 +283,9 @@ bool Parser::readEdges(Graph &G, ClusterGraph *C, GraphAttributes *GA)
 		            && edgeNodes(target, targetId, m_clusterId, targetNodes))
 		{
 			// So, we perform cartesian product on two sets with Graph#newEdge.
-			forall_listiterators(node, sit, sourceNodes) {
-				forall_listiterators(node, tit, targetNodes) {
-					 const edge e = G.newEdge(*sit, *tit);
+			for(node s : sourceNodes) {
+				for(node t : targetNodes) {
+					 const edge e = G.newEdge(s, t);
 					 if(GA) {
 					 	readAttributes(*GA, e, edgeTag);
 					 }
@@ -329,23 +323,23 @@ static inline bool readColor(Color &color, const XmlTagObject &tag)
 	is.clear();
 	is.str(redAttr->getValue());
 	is >> compound;
-	color.red(static_cast<__uint8>(compound));
+	color.red(static_cast<uint8_t>(compound));
 
 	is.clear();
 	is.str(greenAttr->getValue());
 	is >> compound;
-	color.green(static_cast<__uint8>(compound));
+	color.green(static_cast<uint8_t>(compound));
 
 	is.clear();
 	is.str(blueAttr->getValue());
 	is >> compound;
-	color.blue(static_cast<__uint8>(compound));
+	color.blue(static_cast<uint8_t>(compound));
 
 	if(alphaAttr) {
 		is.clear();
 		is.str(alphaAttr->getValue());
 		is >> compound;
-		color.alpha(static_cast<__uint8>(compound));
+		color.alpha(static_cast<uint8_t>(compound));
 	}
 
 	return true;
@@ -538,8 +532,8 @@ static inline bool readAttValues(
 	List<XmlTagObject *> attVals;
 	tag.findSonXmlTagObjectByName("attvalue", attVals);
 
-	forall_listiterators(XmlTagObject *, it, attVals) {
-		const XmlTagObject &attVal = **it;
+	for(XmlTagObject *obj : attVals) {
+		const XmlTagObject &attVal = *obj;
 
 		XmlAttributeObject *forAttr, *valueAttr;
 		attVal.findXmlAttributeObjectByName("for", forAttr);
@@ -602,7 +596,7 @@ bool Parser::read(Graph &G)
 
 	G.clear();
 
-	return readNodes(G, NULL) && readEdges(G, NULL, NULL);
+	return readNodes(G, nullptr) && readEdges(G, nullptr, nullptr);
 }
 
 
@@ -615,7 +609,7 @@ bool Parser::read(Graph &G, GraphAttributes &GA)
 
 	G.clear();
 
-	return readNodes(G, &GA) && readEdges(G, NULL, &GA);
+	return readNodes(G, &GA) && readEdges(G, nullptr, &GA);
 }
 
 
@@ -628,8 +622,8 @@ bool Parser::read(Graph &G, ClusterGraph &C)
 
 	G.clear();
 
-	return readCluster(G, C, NULL, C.rootCluster(), *m_nodesTag) &&
-	       readEdges(G, &C, NULL);
+	return readCluster(G, C, nullptr, C.rootCluster(), *m_nodesTag) &&
+		readEdges(G, &C, nullptr);
 }
 
 

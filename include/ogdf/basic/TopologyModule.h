@@ -1,11 +1,3 @@
-/*
- * $Revision: 3960 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-13 11:36:28 +0100 (Thu, 13 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class TopologyModule.
  *
@@ -203,17 +195,16 @@ private:
 class EdgeLeg
 {
 public:
-	EdgeLeg() : m_topDown(false)
-		{m_copyEdge = 0; m_xp = DPoint(0.0, 0.0);}
-	EdgeLeg(edge e, int number, DPoint p1, DPoint p2) :
-		m_xp(DPoint(0.0,0.0)), m_topDown(false),
-		m_copyEdge(e), m_p1(p1), m_p2(p2), m_number(number)
-		{}
+	EdgeLeg() : m_xp(0.0, 0.0), m_topDown(false), m_copyEdge(nullptr) { }
 
-	DPoint& start() {return m_p1;}
-	DPoint& end()   {return m_p2;}
-	int& number()    {return m_number;}
-	edge& copyEdge() { return m_copyEdge;}
+	EdgeLeg(edge e, int number, DPoint p1, DPoint p2) :
+		m_xp(DPoint(0.0,0.0)), m_topDown(false), m_copyEdge(e), m_p1(p1), m_p2(p2), m_number(number)
+		{ }
+
+	DPoint& start() { return m_p1; }
+	DPoint& end()   { return m_p2; }
+	int& number()    { return m_number; }
+	edge& copyEdge() { return m_copyEdge; }
 
 	//to avoid sorting both edgelegs and crossing points,
 	//do not store a pair of them, but allow the xp to be

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class DynamicSPQRForest
  *
@@ -43,7 +35,7 @@
 
 #include <ogdf/decomposition/DynamicSPQRForest.h>
 #include <ogdf/basic/GraphCopy.h>
-#include "TricComp.h"
+#include <ogdf/internal/decomposition/TricComp.h>
 
 
 namespace ogdf {
@@ -51,7 +43,7 @@ namespace ogdf {
 
 void DynamicSPQRForest::init ()
 {
-	m_bNode_SPQR.init(m_B,0);
+	m_bNode_SPQR.init(m_B,nullptr);
 	m_bNode_numS.init(m_B,0);
 	m_bNode_numP.init(m_B,0);
 	m_bNode_numR.init(m_B,0);
@@ -62,7 +54,7 @@ void DynamicSPQRForest::init ()
 	m_tNode_isMarked.init(m_T,false);
 	m_hEdge_position.init(m_H);
 	m_hEdge_tNode.init(m_H);
-	m_hEdge_twinEdge.init(m_H,0);
+	m_hEdge_twinEdge.init(m_H,nullptr);
 	m_htogc.init(m_H);
 }
 
@@ -70,30 +62,28 @@ void DynamicSPQRForest::init ()
 void DynamicSPQRForest::createSPQR (node vB) const
 {
 	Graph GC;
-	NodeArray<node> origNode(GC,0);
-	EdgeArray<edge> origEdge(GC,0);
-	SListConstIterator<edge> iH;
+	NodeArray<node> origNode(GC,nullptr);
+	EdgeArray<edge> origEdge(GC,nullptr);
 
-	for (iH=m_bNode_hEdges[vB].begin(); iH.valid(); ++iH)
-		m_htogc[(*iH)->source()] = m_htogc[(*iH)->target()] = 0;
+	for (edge eH : m_bNode_hEdges[vB])
+		m_htogc[eH->source()] = m_htogc[eH->target()] = nullptr;
 
-	for (iH=m_bNode_hEdges[vB].begin(); iH.valid(); ++iH) {
-		edge eH = *iH;
+	for (edge eH : m_bNode_hEdges[vB]) {
 		node sH = eH->source();
 		node tH = eH->target();
 		node& sGC = m_htogc[sH];
 		node& tGC = m_htogc[tH];
 		if (!sGC) { sGC = GC.newNode(); origNode[sGC] = sH; }
 		if (!tGC) { tGC = GC.newNode(); origNode[tGC] = tH; }
-		origEdge[GC.newEdge(sGC,tGC)] = eH;
+		origEdge[GC.newEdge(sGC, tGC)] = eH;
 	}
 
 	TricComp tricComp(GC);
 
 	const GraphCopySimple& GCC = *tricComp.m_pGC;
 
-	EdgeArray<node> partnerNode(GCC,0);
-	EdgeArray<edge> partnerEdge(GCC,0);
+	EdgeArray<node> partnerNode(GCC,nullptr);
+	EdgeArray<edge> partnerEdge(GCC,nullptr);
 
 	for (int i=0; i<tricComp.m_numComp; ++i) {
 		const TricComp::CompStruct &C = tricComp.m_component[i];
@@ -118,8 +108,7 @@ void DynamicSPQRForest::createSPQR (node vB) const
 				break;
 		}
 
-		for (ListConstIterator<edge> iGCC=C.m_edges.begin(); iGCC.valid(); ++iGCC) {
-			edge eGCC = *iGCC;
+		for (edge eGCC : C.m_edges) {
 			edge eH = GCC.original(eGCC);
 			if (eH) eH = origEdge[eH];
 			else {
@@ -143,16 +132,15 @@ void DynamicSPQRForest::createSPQR (node vB) const
 	}
 
 	m_bNode_SPQR[vB] = m_hEdge_tNode[origEdge[GC.firstEdge()]];
-	m_tNode_hRefEdge[m_bNode_SPQR[vB]] = 0;
+	m_tNode_hRefEdge[m_bNode_SPQR[vB]] = nullptr;
 
 	SList<node> lT;
 	lT.pushBack(m_bNode_SPQR[vB]);
-	lT.pushBack(0);
+	lT.pushBack(nullptr);
 	while (!lT.empty()) {
 		node vT = lT.popFrontRet();
 		node wT = lT.popFrontRet();
-		for (ListConstIterator<edge> iH=m_tNode_hEdges[vT].begin(); iH.valid(); ++iH) {
-			edge eH = *iH;
+		for (edge eH : m_tNode_hEdges[vT]) {
 			edge fH = m_hEdge_twinEdge[eH];
 			if (!fH) continue;
 			node uT = m_hEdge_tNode[fH];
@@ -197,7 +185,7 @@ node DynamicSPQRForest::findNCASPQR (node sT, node tT) const
 {
 	if (m_tNode_isMarked[sT]) return sT;
 	m_tNode_isMarked[sT] = true;
-	node uT = m_tNode_hRefEdge[sT] ? spqrproper(m_hEdge_twinEdge[m_tNode_hRefEdge[sT]]) : 0;
+	node uT = m_tNode_hRefEdge[sT] ? spqrproper(m_hEdge_twinEdge[m_tNode_hRefEdge[sT]]) : nullptr;
 	if (uT) uT = findNCASPQR(tT,uT);
 	else for (uT=tT; !m_tNode_isMarked[uT]; uT=spqrproper(m_hEdge_twinEdge[m_tNode_hRefEdge[uT]]));
 	m_tNode_isMarked[sT] = false;
@@ -263,7 +251,7 @@ edge DynamicSPQRForest::virtualEdge (node vT, node wT) const
 	if (eH) {
 		if (spqrproper(m_hEdge_twinEdge[eH])==vT) return eH;
 	}
-	return 0;
+	return nullptr;
 }
 
 
@@ -277,8 +265,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 	m_gEdge_hEdge[eG] = eH;
 	m_hEdge_gEdge[eH] = eG;
 
-	adjEntry aH;
-	forall_adj (aH,sH) {
+	for (adjEntry aH : sH->adjEdges) {
 		edge fH = aH->theEdge();
 		if (fH==eH) continue;
 		if (fH->opposite(sH)!=tH) continue;
@@ -385,9 +372,9 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 			m_hEdge_tNode[v1] = sT;
 			m_hEdge_tNode[v2] = m_hEdge_tNode[eH] = m_hEdge_tNode[v3] = pT;
 			m_hEdge_tNode[v4] = rT;
-			for (SListConstIterator<edge> iH=bH.begin(); iH.valid(); ++iH) {
-				m_hEdge_position[*iH] = m_tNode_hEdges[sT].pushBack(*iH);
-				m_hEdge_tNode[*iH] = sT;
+			for (edge eH : bH) {
+				m_hEdge_position[eH] = m_tNode_hEdges[sT].pushBack(eH);
+				m_hEdge_tNode[eH] = sT;
 			}
 			if (a_is_parent) {
 				m_tNode_hRefEdge[sT] = v1;
@@ -402,7 +389,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 		}
 	}
 	else {
-		node xT = 0;
+		node xT = nullptr;
 		SList<edge> absorbedEdges;
 		SList<edge> virtualEdgesInPath;
 		SList<edge> newVirtualEdges;
@@ -412,7 +399,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 		SListIterator<node> iT = pT.begin();
 		SListIterator<node> jT = iT;
 
-		virtualEdgesInPath.pushBack(0);
+		virtualEdgesInPath.pushBack(nullptr);
 		for (++jT; jT.valid(); ++iT, ++jT) {
 			edge gH,fH = m_tNode_hRefEdge[*iT];
 			if (!fH) {
@@ -429,18 +416,18 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 			virtualEdgesInPath.pushBack(fH);
 			virtualEdgesInPath.pushBack(gH);
 		}
-		virtualEdgesInPath.pushBack(0);
+		virtualEdgesInPath.pushBack(nullptr);
 
-		for (iT=pT.begin(); iT.valid(); ++iT) {
+		for (node vT : pT) {
 			edge fH = virtualEdgesInPath.popFrontRet();
 			edge gH = virtualEdgesInPath.popFrontRet();
-			if (m_tNode_type[*iT]==SComp) {
-				List<edge>& aH = m_tNode_hEdges[*iT];
+			if (m_tNode_type[vT]==SComp) {
+				List<edge>& aH = m_tNode_hEdges[vT];
 				SList<edge> bH;
 				ListIterator<edge> iH,jH;
 				node zH;
 
-				node uH = 0;
+				node uH = nullptr;
 				if (!fH) { fH = gH; uH = sH; }
 				else if (!gH) uH = tH;
 
@@ -479,7 +466,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 					}
 					if (bH.size()==1) {
 						edge nH = bH.front();
-						if (nH==rH) rT = 0;
+						if (nH==rH) rT = nullptr;
 						absorbedEdges.pushBack(nH);
 					}
 					else {
@@ -504,13 +491,13 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 						else m_tNode_hRefEdge[nT] = nH;
 						newVirtualEdges.pushBack(nH);
 					}
-					if (m_tNode_hEdges[*iT].size()==1) xT = uniteSPQR(vB,xT,*iT);
+					if (m_tNode_hEdges[vT].size()==1) xT = uniteSPQR(vB,xT,vT);
 					else {
 						edge nH = m_H.newEdge(wH,vH);
-						m_hEdge_position[nH] = m_tNode_hEdges[*iT].pushBack(nH);
-						m_hEdge_tNode[nH] = *iT;
-						if (*iT==rT) rH = nH;
-						else m_tNode_hRefEdge[*iT] = nH;
+						m_hEdge_position[nH] = m_tNode_hEdges[vT].pushBack(nH);
+						m_hEdge_tNode[nH] = vT;
+						if (vT==rT) rH = nH;
+						else m_tNode_hRefEdge[vT] = nH;
 						newVirtualEdges.pushBack(nH);
 					}
 				}
@@ -519,21 +506,21 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 					aH.del(m_hEdge_position[gH]);
 					m_H.delEdge(fH);
 					m_H.delEdge(gH);
-					xT = uniteSPQR(vB,xT,*iT);
+					xT = uniteSPQR(vB,xT,vT);
 				}
 				else {
 					node xH = gH->source();
 					node yH = gH->target();
-					edge nH = 0;
+					edge nH = nullptr;
 					if (vH==xH) nH = m_H.newEdge(wH,yH);
 					else if (vH==yH) nH = m_H.newEdge(wH,xH);
 					else if (wH==xH) nH = m_H.newEdge(vH,yH);
 					else if (wH==yH) nH = m_H.newEdge(vH,xH);
 					if (nH) {
 						m_hEdge_position[nH] = aH.insertAfter(nH,m_hEdge_position[gH]);
-						m_hEdge_tNode[nH] = *iT;
-						if (*iT==rT) rH = nH;
-						else m_tNode_hRefEdge[*iT] = nH;
+						m_hEdge_tNode[nH] = vT;
+						if (vT==rT) rH = nH;
+						else m_tNode_hRefEdge[vT] = nH;
 						aH.del(m_hEdge_position[fH]);
 						aH.del(m_hEdge_position[gH]);
 						m_H.delEdge(fH);
@@ -576,7 +563,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 						m_H.delEdge(gH);
 						if (bH.size()==1) {
 							edge nH = bH.front();
-							if (nH==rH) rT = 0;
+							if (nH==rH) rT = nullptr;
 							absorbedEdges.pushBack(nH);
 						}
 						else {
@@ -601,13 +588,13 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 							else m_tNode_hRefEdge[nT] = nH;
 							newVirtualEdges.pushBack(nH);
 						}
-						if (m_tNode_hEdges[*iT].size()==1) xT = uniteSPQR(vB,xT,*iT);
+						if (m_tNode_hEdges[vT].size()==1) xT = uniteSPQR(vB,xT,vT);
 						else {
 							edge nH = m_H.newEdge(wH,vH==pH?qH:pH);
-							m_hEdge_position[nH] = m_tNode_hEdges[*iT].pushBack(nH);
-							m_hEdge_tNode[nH] = *iT;
-							if (*iT==rT) rH = nH;
-							else m_tNode_hRefEdge[*iT] = nH;
+							m_hEdge_position[nH] = m_tNode_hEdges[vT].pushBack(nH);
+							m_hEdge_tNode[nH] = vT;
+							if (vT==rT) rH = nH;
+							else m_tNode_hRefEdge[vT] = nH;
 							newVirtualEdges.pushBack(nH);
 						}
 					}
@@ -615,26 +602,26 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 			}
 			else {
 				if (fH) {
-					m_tNode_hEdges[*iT].del(m_hEdge_position[fH]);
+					m_tNode_hEdges[vT].del(m_hEdge_position[fH]);
 					m_H.delEdge(fH);
 				}
 				if (gH) {
-					m_tNode_hEdges[*iT].del(m_hEdge_position[gH]);
+					m_tNode_hEdges[vT].del(m_hEdge_position[gH]);
 					m_H.delEdge(gH);
 				}
-				if (m_tNode_type[*iT]==PComp) {
-					if (m_tNode_hEdges[*iT].size()>1) {
-						edge nH = m_tNode_hEdges[*iT].front();
+				if (m_tNode_type[vT]==PComp) {
+					if (m_tNode_hEdges[vT].size()>1) {
+						edge nH = m_tNode_hEdges[vT].front();
 						nH = m_H.newEdge(nH->source(),nH->target());
-						m_hEdge_position[nH] = m_tNode_hEdges[*iT].pushBack(nH);
-						m_hEdge_tNode[nH] = *iT;
-						if (*iT==rT) rH = nH;
-						else m_tNode_hRefEdge[*iT] = nH;
+						m_hEdge_position[nH] = m_tNode_hEdges[vT].pushBack(nH);
+						m_hEdge_tNode[nH] = vT;
+						if (vT==rT) rH = nH;
+						else m_tNode_hRefEdge[vT] = nH;
 						newVirtualEdges.pushBack(nH);
 					}
-					else xT = uniteSPQR(vB,xT,*iT);
+					else xT = uniteSPQR(vB,xT,vT);
 				}
-				else xT = uniteSPQR(vB,xT,*iT);
+				else xT = uniteSPQR(vB,xT,vT);
 			}
 		}
 		if (!xT) {
@@ -725,7 +712,7 @@ edge DynamicSPQRForest::updateInsertedEdge (edge eG)
 		else DynamicBCTree::updateInsertedEdge(eG);
 	}
 	else {
-		node nT = 0;
+		node nT = nullptr;
 		int numS,numP,numR;
 		SList<node>& pB = findPath(sG,tG);
 		SListIterator<node> jB = pB.begin();
@@ -735,7 +722,7 @@ edge DynamicSPQRForest::updateInsertedEdge (edge eG)
 			nT = m_T.newNode();
 			m_tNode_type[nT] = SComp;
 			m_tNode_owner[nT] = nT;
-			m_tNode_hRefEdge[nT] = 0;
+			m_tNode_hRefEdge[nT] = nullptr;
 			numS = 1;
 			numP = 0;
 			numR = 0;
@@ -780,7 +767,7 @@ edge DynamicSPQRForest::updateInsertedEdge (edge eG)
 						mH = m_gEdge_hEdge[mG];
 						mT = spqrproper(mH);
 						m_G.delEdge(mG);
-						m_hEdge_gEdge[mH] = 0;
+						m_hEdge_gEdge[mH] = nullptr;
 						nH = m_H.newEdge(sH,tH);
 						m_hEdge_position[nH] = m_tNode_hEdges[nT].pushBack(nH);
 						m_hEdge_tNode[nH] = nT;

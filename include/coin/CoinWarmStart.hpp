@@ -28,7 +28,7 @@ public:
   virtual CoinWarmStart *clone() const = 0 ;
    
   virtual CoinWarmStartDiff*
-  generateDiff (const CoinWarmStart *const ) const { return 0; }
+  generateDiff (const CoinWarmStart *const ) const { return nullptr; }
    
    
   virtual void

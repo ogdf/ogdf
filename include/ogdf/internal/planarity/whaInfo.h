@@ -1,11 +1,3 @@
-/*
- * $Revision: 2555 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 12:12:10 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class whaInfo.
  *

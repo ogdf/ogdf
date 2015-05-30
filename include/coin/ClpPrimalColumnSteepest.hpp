@@ -38,7 +38,7 @@ public:
                              CoinIndexedVector * spareRow1,
                              CoinIndexedVector * spareRow2,
                              CoinIndexedVector * spareColumn1,
-                             CoinIndexedVector * spareColumn2);
+                             CoinIndexedVector * spareColumn2) override;
      /// For quadratic or funny nonlinearities
      int pivotColumnOldMethod(CoinIndexedVector * updates,
                               CoinIndexedVector * spareRow1,
@@ -91,7 +91,7 @@ public:
                           CoinIndexedVector * spare, double scaleFactor);
 
      /// Updates weights - part 1 - also checks accuracy
-     virtual void updateWeights(CoinIndexedVector * input);
+     virtual void updateWeights(CoinIndexedVector * input) override;
 
      /// Checks accuracy - just for debug
      void checkAccuracy(int sequence, double relativeTolerance,
@@ -109,15 +109,15 @@ public:
          4) restore weights
          5) at end of values pass (so need initialization)
      */
-     virtual void saveWeights(ClpSimplex * model, int mode);
+     virtual void saveWeights(ClpSimplex * model, int mode) override;
      /// Gets rid of last update
      virtual void unrollWeights();
      /// Gets rid of all arrays
-     virtual void clearArrays();
+     virtual void clearArrays() override;
      /// Returns true if would not find any column
-     virtual bool looksOptimal() const;
+     virtual bool looksOptimal() const override;
      /// Called when maximum pivots changes
-     virtual void maximumPivotsChanged();
+     virtual void maximumPivotsChanged() override;
      //@}
 
      /**@name gets and sets */
@@ -129,9 +129,9 @@ public:
      /** Returns number of extra columns for sprint algorithm - 0 means off.
          Also number of iterations before recompute
      */
-     virtual int numberSprintColumns(int & numberIterations) const;
+     virtual int numberSprintColumns(int & numberIterations) const override;
      /// Switch off sprint idea
-     virtual void switchOffSprint();
+     virtual void switchOffSprint() override;
 
 //@}
 
@@ -164,7 +164,7 @@ public:
      virtual ~ClpPrimalColumnSteepest ();
 
      /// Clone
-     virtual ClpPrimalColumnPivot * clone(bool copyData = true) const;
+     virtual ClpPrimalColumnPivot * clone(bool copyData = true) const override;
 
      //@}
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class Multlevel (used by FMMMLayout).
  *
@@ -41,9 +33,9 @@
  ***************************************************************/
 
 
-#include "Multilevel.h"
-#include "Set.h"
-#include "Node.h"
+#include <ogdf/internal/energybased/Multilevel.h>
+#include <ogdf/internal/energybased/Set.h>
+#include <ogdf/internal/energybased/Node.h>
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -120,18 +112,16 @@ bool Multilevel::edgenumbersum_of_all_levels_is_linear(
 }
 
 
-inline void  Multilevel::init_multilevel_values(
+void  Multilevel::init_multilevel_values(
 	Array<Graph*> &G_mult_ptr,
 	Array<NodeArray<NodeAttributes>*> &A_mult_ptr,
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int level)
 {
-	node v;
-	forall_nodes(v,*G_mult_ptr[level])
+	for(node v : G_mult_ptr[level]->nodes)
 		(*A_mult_ptr[level])[v].init_mult_values();
 
-	edge e;
-	forall_edges(e,*G_mult_ptr[level])
+	for(edge e : G_mult_ptr[level]->edges)
 		(*E_mult_ptr[level])[e].init_mult_values();
 }
 
@@ -161,28 +151,28 @@ void Multilevel::create_suns_and_planets(
 	int act_level)
 {
 	Set Node_Set;
-	node v, sun_node, planet_node, newNode, pos_moon_node;
-	edge sun_edge, e;
-	double dist_to_sun;
 	List<node> planet_nodes;
 	List<node> sun_nodes;
 
 	//make initialisations
 	sun_nodes.clear();
 	Node_Set.set_seed(rand_seed); //set seed for random number generator
-	forall_nodes(v,*G_mult_ptr[act_level])
-		if(act_level == 0) (*A_mult_ptr[act_level])[v].set_mass(1);
-	if(galaxy_choice == FMMMLayout::gcUniformProb)
+
+	for (node v : G_mult_ptr[act_level]->nodes)
+	if (act_level == 0)
+		(*A_mult_ptr[act_level])[v].set_mass(1);
+	if (galaxy_choice == FMMMLayout::gcUniformProb)
 		Node_Set.init_node_set(*G_mult_ptr[act_level]);
 	else //galaxy_choice != gcUniformProb in FMMMLayout
-		Node_Set.init_node_set(*G_mult_ptr[act_level],*A_mult_ptr[act_level]);
+		Node_Set.init_node_set(*G_mult_ptr[act_level], *A_mult_ptr[act_level]);
 
 
 	while (!Node_Set.empty_node_set())
 	{//while
 		//randomly select a sun node
 		planet_nodes.clear();
-		if(galaxy_choice == FMMMLayout::gcUniformProb)
+		node sun_node;
+		if (galaxy_choice == FMMMLayout::gcUniformProb)
 			sun_node = Node_Set.get_random_node();
 		else if (galaxy_choice == FMMMLayout::gcNonUniformProbLowerMass)
 			sun_node = Node_Set.get_random_node_with_lowest_star_mass(random_tries);
@@ -191,7 +181,7 @@ void Multilevel::create_suns_and_planets(
 		sun_nodes.pushBack(sun_node);
 
 		//create new node at higher level that represents the collapsed solar_system
-		newNode = G_mult_ptr[act_level+1]->newNode();
+		node newNode = G_mult_ptr[act_level + 1]->newNode();
 
 		//update information for sun_node
 		(*A_mult_ptr[act_level])[sun_node].set_higher_level_node(newNode);
@@ -200,13 +190,15 @@ void Multilevel::create_suns_and_planets(
 		(*A_mult_ptr[act_level])[sun_node].set_dedicated_sun_distance(0);
 
 		//update information for planet_nodes
-		forall_adj_edges(sun_edge,sun_node)
+		edge sun_edge;
+		forall_adj_edges(sun_edge, sun_node)
 		{
-			dist_to_sun = (*E_mult_ptr[act_level])[sun_edge].get_length();
+			double dist_to_sun = (*E_mult_ptr[act_level])[sun_edge].get_length();
+			node planet_node;
 			if (sun_edge->source() != sun_node)
 				planet_node = sun_edge->source();
 			else
-				planet_node =  sun_edge->target();
+				planet_node = sun_edge->target();
 			(*A_mult_ptr[act_level])[planet_node].set_type(2);
 			(*A_mult_ptr[act_level])[planet_node].set_dedicated_sun_node(sun_node);
 			(*A_mult_ptr[act_level])[planet_node].set_dedicated_sun_distance(dist_to_sun);
@@ -215,40 +207,33 @@ void Multilevel::create_suns_and_planets(
 
 		//delete all planet_nodes and possible_moon_nodes from Node_Set
 
-		ListConstIterator<node> planet_node_ptr;
-		//forall_listiterators(node,planet_node_ptr,planet_nodes)
-		for(planet_node_ptr = planet_nodes.begin(); planet_node_ptr.valid(); ++planet_node_ptr)
-			if(!Node_Set.is_deleted(*planet_node_ptr))
-				Node_Set.delete_node(*planet_node_ptr);
+		for (node planet_node : planet_nodes)
+		if (!Node_Set.is_deleted(planet_node))
+			Node_Set.delete_node(planet_node);
 
-		for(planet_node_ptr = planet_nodes.begin(); planet_node_ptr.valid(); ++planet_node_ptr)
-			//forall_listiterators(node,planet_node_ptr,planet_nodes)
+		for (node planet_node : planet_nodes)
 		{
-			forall_adj_edges(e,*planet_node_ptr)
+			edge e;
+			forall_adj_edges(e, planet_node)
 			{
-				if(e->source() == *planet_node_ptr)
-					pos_moon_node = e->target();
-				else
-					pos_moon_node = e->source();
-				if(!Node_Set.is_deleted(pos_moon_node))
+				node pos_moon_node = (e->source() == planet_node) ? e->target() : e->source();
+				if (!Node_Set.is_deleted(pos_moon_node))
 					Node_Set.delete_node(pos_moon_node);
 			}
 		}
 	}//while
 
 	//init *A_mult_ptr[act_level+1] and set NodeAttributes information for new nodes
-	A_mult_ptr[act_level+1]->init(*G_mult_ptr[act_level+1]);
-	forall_listiterators(node, sun_node_ptr, sun_nodes)
+	A_mult_ptr[act_level + 1]->init(*G_mult_ptr[act_level + 1]);
+	for (node sun_node : sun_nodes)
 	{
-		newNode = (*A_mult_ptr[act_level])[*sun_node_ptr].get_higher_level_node();
-		(*A_mult_ptr[act_level+1])[newNode].set_NodeAttributes((*A_mult_ptr[act_level])
-			[*sun_node_ptr].get_width(),
-			(*A_mult_ptr[act_level])
-			[*sun_node_ptr].get_height(),
-			(*A_mult_ptr[act_level])
-			[*sun_node_ptr].get_position(),
-			*sun_node_ptr,NULL);
-		(*A_mult_ptr[act_level+1])[newNode].set_mass(0);
+		node newNode = (*A_mult_ptr[act_level])[sun_node].get_higher_level_node();
+		(*A_mult_ptr[act_level + 1])[newNode].set_NodeAttributes(
+			(*A_mult_ptr[act_level])[sun_node].get_width(),
+			(*A_mult_ptr[act_level])[sun_node].get_height(),
+			(*A_mult_ptr[act_level])[sun_node].get_position(),
+			sun_node, nullptr);
+		(*A_mult_ptr[act_level + 1])[newNode].set_mass(0);
 	}
 }
 
@@ -259,32 +244,27 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int act_level)
 {
-	edge e;
-	node v, nearest_neighbour_node, neighbour_node, dedicated_sun_node;
-	double dist_to_nearest_neighbour, dedicated_sun_distance;
-	bool first_adj_edge;
-	int neighbour_type;
-	edge moon_edge = NULL;
+	node nearest_neighbour_node;
+	double dist_to_nearest_neighbour;
+	edge moon_edge = nullptr;
 
-	forall_nodes(v,*G_mult_ptr[act_level]) {
+	for (node v : G_mult_ptr[act_level]->nodes) {
 		if ((*A_mult_ptr[act_level])[v].get_type() == 0) { //a moon node
 			//find nearest neighbour node
-			first_adj_edge = true;
+			bool first_adj_edge = true;
+			edge e;
 			forall_adj_edges(e, v) {
-				if (v == e->source())
-					neighbour_node = e->target();
-				else
-					neighbour_node = e->source();
-				neighbour_type = (*A_mult_ptr[act_level])[neighbour_node].get_type();
+				node neighbour_node = (v == e->source()) ? e->target() : e->source();
+				int neighbour_type = (*A_mult_ptr[act_level])[neighbour_node].get_type();
 				if ((neighbour_type == 2)
 				 || (neighbour_type == 3)) {
 					if (first_adj_edge) {
 						first_adj_edge = false;
 						moon_edge = e;
 						dist_to_nearest_neighbour = (*E_mult_ptr[act_level])[e].get_length();
-						nearest_neighbour_node =  neighbour_node;
+						nearest_neighbour_node = neighbour_node;
 					}
-					else if (dist_to_nearest_neighbour >(*E_mult_ptr[act_level])[e].get_length()) {
+					else if (dist_to_nearest_neighbour > (*E_mult_ptr[act_level])[e].get_length()) {
 						moon_edge = e;
 						dist_to_nearest_neighbour = (*E_mult_ptr[act_level])[e].get_length();
 						nearest_neighbour_node = neighbour_node;
@@ -295,11 +275,11 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 			//and *E_mult_ptr[act_level]
 
 			OGDF_ASSERT(moon_edge) // otherwise undefined behavior; implicitly affected: dist_to_nearest_neighbor and neares_neighbour_node
-			(*E_mult_ptr[act_level])[moon_edge].make_moon_edge(); //mark this edge
-			dedicated_sun_node = (*A_mult_ptr[act_level])[nearest_neighbour_node].
+				(*E_mult_ptr[act_level])[moon_edge].make_moon_edge(); //mark this edge
+			node dedicated_sun_node = (*A_mult_ptr[act_level])[nearest_neighbour_node].
 				get_dedicated_sun_node();
-			dedicated_sun_distance = dist_to_nearest_neighbour
-			  + (*A_mult_ptr[act_level])[nearest_neighbour_node].get_dedicated_sun_distance();
+			double dedicated_sun_distance = dist_to_nearest_neighbour
+				+ (*A_mult_ptr[act_level])[nearest_neighbour_node].get_dedicated_sun_distance();
 			(*A_mult_ptr[act_level])[v].set_type(4);
 			(*A_mult_ptr[act_level])[v].set_dedicated_sun_node(dedicated_sun_node);
 			(*A_mult_ptr[act_level])[v].set_dedicated_sun_distance(dedicated_sun_distance);
@@ -330,20 +310,17 @@ inline void Multilevel::collaps_solar_systems(
 }
 
 
-inline void Multilevel::calculate_mass_of_collapsed_nodes(
+void Multilevel::calculate_mass_of_collapsed_nodes(
 	Array<Graph*> &G_mult_ptr,
 	Array<NodeArray <NodeAttributes>*> &A_mult_ptr,
 	int act_level)
 {
-	node v;
-	node dedicated_sun,high_level_node;
-
-	forall_nodes(v,*G_mult_ptr[act_level])
+	for (node v : G_mult_ptr[act_level]->nodes)
 	{
-		dedicated_sun = (*A_mult_ptr[act_level])[v].get_dedicated_sun_node();
-		high_level_node =  (*A_mult_ptr[act_level])[dedicated_sun].get_higher_level_node();
-		(*A_mult_ptr[act_level+1])[high_level_node].set_mass((*A_mult_ptr[act_level+1])
-			[high_level_node].get_mass()+1);
+		node dedicated_sun = (*A_mult_ptr[act_level])[v].get_dedicated_sun_node();
+		node high_level_node = (*A_mult_ptr[act_level])[dedicated_sun].get_higher_level_node();
+		(*A_mult_ptr[act_level + 1])[high_level_node].set_mass((*A_mult_ptr[act_level + 1])
+			[high_level_node].get_mass() + 1);
 	}
 }
 
@@ -352,65 +329,58 @@ void Multilevel::create_edges_edgedistances_and_lambda_Lists(
 	Array<Graph*> &G_mult_ptr,
 	Array<NodeArray<NodeAttributes>*> &A_mult_ptr,
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
-	EdgeArray<double>& new_edgelength,int
+	EdgeArray<double>& new_edgelength, int
 	act_level)
 {
-	edge e, e_new;
-	node s_node, t_node;
-	node s_sun_node, t_sun_node;
-	node high_level_sun_s, high_level_sun_t;
-	double length_e, length_s_edge, length_t_edge, newlength;
-	double lambda_s, lambda_t;
+	edge e_new;
 	List<edge> inter_solar_system_edges;
 
 	//create new edges at act_level+1 and create for each inter solar system edge  at
 	//act_level a link to its corresponding edge
 
-	forall_edges(e,*G_mult_ptr[act_level])
+	for (edge e : G_mult_ptr[act_level]->edges)
 	{//forall
-		s_node = e->source();
-		t_node = e->target();
-		s_sun_node =  (*A_mult_ptr[act_level])[s_node].get_dedicated_sun_node();
-		t_sun_node =  (*A_mult_ptr[act_level])[t_node].get_dedicated_sun_node();
-		if( s_sun_node != t_sun_node) //a inter solar system edge
-		{//if
-			high_level_sun_s = (*A_mult_ptr[act_level])[s_sun_node].get_higher_level_node();
-			high_level_sun_t = (*A_mult_ptr[act_level])[t_sun_node].get_higher_level_node();
+		node s_node = e->source();
+		node t_node = e->target();
+		node s_sun_node = (*A_mult_ptr[act_level])[s_node].get_dedicated_sun_node();
+		node t_sun_node = (*A_mult_ptr[act_level])[t_node].get_dedicated_sun_node();
+		if (s_sun_node != t_sun_node) //a inter solar system edge
+		{
+			node high_level_sun_s = (*A_mult_ptr[act_level])[s_sun_node].get_higher_level_node();
+			node high_level_sun_t = (*A_mult_ptr[act_level])[t_sun_node].get_higher_level_node();
 
 			//create new edge in *G_mult_ptr[act_level+1]
-			e_new = G_mult_ptr[act_level+1]->newEdge(high_level_sun_s,high_level_sun_t);
+			e_new = G_mult_ptr[act_level + 1]->newEdge(high_level_sun_s, high_level_sun_t);
 			(*E_mult_ptr[act_level])[e].set_higher_level_edge(e_new);
 			inter_solar_system_edges.pushBack(e);
-		}//if
+		}
 	}//forall
 
 	//init new_edgelength calculate the values of new_edgelength and the lambda Lists
 
-	new_edgelength.init(*G_mult_ptr[act_level+1]);
-	forall_listiterators(edge, e_ptr, inter_solar_system_edges)
+	new_edgelength.init(*G_mult_ptr[act_level + 1]);
+	for (edge e : inter_solar_system_edges)
 	{//forall
-		s_node = (*e_ptr)->source();
-		t_node = (*e_ptr)->target();
-		s_sun_node =  (*A_mult_ptr[act_level])[s_node].get_dedicated_sun_node();
-		t_sun_node =  (*A_mult_ptr[act_level])[t_node].get_dedicated_sun_node();
-		length_e = (*E_mult_ptr[act_level])[*e_ptr].get_length();
-		length_s_edge =(*A_mult_ptr[act_level])[s_node].get_dedicated_sun_distance();
-		length_t_edge =(*A_mult_ptr[act_level])[t_node].get_dedicated_sun_distance();
-		newlength = length_s_edge + length_e + length_t_edge;
+		node s_node = e->source();
+		node t_node = e->target();
+		node s_sun_node = (*A_mult_ptr[act_level])[s_node].get_dedicated_sun_node();
+		node t_sun_node = (*A_mult_ptr[act_level])[t_node].get_dedicated_sun_node();
+		double length_e = (*E_mult_ptr[act_level])[e].get_length();
+		double length_s_edge = (*A_mult_ptr[act_level])[s_node].get_dedicated_sun_distance();
+		double length_t_edge = (*A_mult_ptr[act_level])[t_node].get_dedicated_sun_distance();
+		double newlength = length_s_edge + length_e + length_t_edge;
 
 		//set new edge_length in *G_mult_ptr[act_level+1]
-		e_new = (*E_mult_ptr[act_level])[*e_ptr].get_higher_level_edge();
+		e_new = (*E_mult_ptr[act_level])[e].get_higher_level_edge();
 		new_edgelength[e_new] = newlength;
 
 		//create entries in lambda Lists
-		lambda_s = length_s_edge/newlength;
-		lambda_t = length_t_edge/newlength;
+		double lambda_s = length_s_edge / newlength;
+		double lambda_t = length_t_edge / newlength;
 		(*A_mult_ptr[act_level])[s_node].get_lambda_List_ptr()->pushBack(lambda_s);
 		(*A_mult_ptr[act_level])[t_node].get_lambda_List_ptr()->pushBack(lambda_t);
-		(*A_mult_ptr[act_level])[s_node].get_neighbour_sun_node_List_ptr()->pushBack(
-			t_sun_node);
-		(*A_mult_ptr[act_level])[t_node].get_neighbour_sun_node_List_ptr()->pushBack(
-			s_sun_node);
+		(*A_mult_ptr[act_level])[s_node].get_neighbour_sun_node_List_ptr()->pushBack(t_sun_node);
+		(*A_mult_ptr[act_level])[t_node].get_neighbour_sun_node_List_ptr()->pushBack(s_sun_node);
 	}//forall
 }
 
@@ -418,42 +388,43 @@ void Multilevel::create_edges_edgedistances_and_lambda_Lists(
 void Multilevel::delete_parallel_edges_and_update_edgelength(
 	Array<Graph*> &G_mult_ptr,
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
-	EdgeArray<double>& new_edgelength,int
+	EdgeArray<double>& new_edgelength, int
 	act_level)
 {
 	EdgeMaxBucketFunc get_max_index;
 	EdgeMinBucketFunc get_min_index;
-	edge e_act, e_save;
+	edge e_save;
 	Edge f_act;
 	List<Edge> sorted_edges;
-	Graph* Graph_ptr = G_mult_ptr[act_level+1];
-	int save_s_index,save_t_index,act_s_index,act_t_index;
+	Graph* Graph_ptr = G_mult_ptr[act_level + 1];
+	int save_s_index, save_t_index;
 	int counter = 1;
 
 	//make *G_mult_ptr[act_level+1] undirected
-	makeSimpleUndirected(*G_mult_ptr[act_level+1]);
+	makeSimpleUndirected(*G_mult_ptr[act_level + 1]);
 
 	//sort the List sorted_edges
-	forall_edges(e_act,*Graph_ptr)
+	for (edge e_act : Graph_ptr->edges)
 	{
-		f_act.set_Edge(e_act,Graph_ptr);
+		f_act.set_Edge(e_act, Graph_ptr);
 		sorted_edges.pushBack(f_act);
 	}
 
-	sorted_edges.bucketSort(0,Graph_ptr->numberOfNodes()-1,get_max_index);
-	sorted_edges.bucketSort(0,Graph_ptr->numberOfNodes()-1,get_min_index);
+	sorted_edges.bucketSort(0, Graph_ptr->numberOfNodes() - 1, get_max_index);
+	sorted_edges.bucketSort(0, Graph_ptr->numberOfNodes() - 1, get_min_index);
 
 	//now parallel edges are consecutive in sorted_edges
-	forall_listiterators(Edge, EdgeIterator,sorted_edges)
+	bool firstEdge = true;
+	for (const Edge &ei : sorted_edges)
 	{//for
-		e_act = (*EdgeIterator).get_edge();
-		act_s_index = e_act->source()->index();
-		act_t_index = e_act->target()->index();
+		edge e_act = ei.get_edge();
+		int act_s_index = e_act->source()->index();
+		int act_t_index = e_act->target()->index();
 
-		if(EdgeIterator != sorted_edges.begin())
-		{//if
-			if( (act_s_index == save_s_index && act_t_index == save_t_index) ||
-				(act_s_index == save_t_index && act_t_index == save_s_index) )
+		if (!firstEdge)
+		{
+			if ((act_s_index == save_s_index && act_t_index == save_t_index) ||
+				(act_s_index == save_t_index && act_t_index == save_s_index))
 			{
 				new_edgelength[e_save] += new_edgelength[e_act];
 				Graph_ptr->delEdge(e_act);
@@ -470,9 +441,10 @@ void Multilevel::delete_parallel_edges_and_update_edgelength(
 				save_t_index = act_t_index;
 				e_save = e_act;
 			}
-		}//if
+		}
 		else //first edge
 		{
+			firstEdge = false;
 			save_s_index = act_s_index;
 			save_t_index = act_t_index;
 			e_save = e_act;
@@ -480,13 +452,13 @@ void Multilevel::delete_parallel_edges_and_update_edgelength(
 	}//for
 
 	//treat special case (last edges were multiple edges)
-	if(counter >1)
+	if (counter > 1)
 		new_edgelength[e_save] /= counter;
 
 	//init *E_mult_ptr[act_level+1] and import EdgeAttributes
-	E_mult_ptr[act_level+1]->init(*G_mult_ptr[act_level+1]);
-	forall_edges(e_act,*Graph_ptr)
-		(*E_mult_ptr[act_level+1])[e_act].set_length(new_edgelength[e_act]);
+	E_mult_ptr[act_level + 1]->init(*G_mult_ptr[act_level + 1]);
+	for (edge e_act : Graph_ptr->edges)
+		(*E_mult_ptr[act_level + 1])[e_act].set_length(new_edgelength[e_act]);
 }
 
 
@@ -511,12 +483,10 @@ void Multilevel::set_initial_positions_of_sun_nodes(
 	Array<Graph*> &G_mult_ptr,
 	Array<NodeArray <NodeAttributes>*> &A_mult_ptr)
 {
-	node v_high, v_act;
-	DPoint new_pos;
-	forall_nodes(v_high,*G_mult_ptr[level+1])
+	for (node v_high : G_mult_ptr[level + 1]->nodes)
 	{
-		v_act = (*A_mult_ptr[level+1])[v_high].get_lower_level_node();
-		new_pos = (*A_mult_ptr[level+1])[v_high].get_position();
+		node v_act = (*A_mult_ptr[level + 1])[v_high].get_lower_level_node();
+		DPoint new_pos = (*A_mult_ptr[level + 1])[v_high].get_position();
 		(*A_mult_ptr[level])[v_act].set_position(new_pos);
 		(*A_mult_ptr[level])[v_act].place();
 	}
@@ -531,42 +501,35 @@ void Multilevel::set_initial_positions_of_planet_and_moon_nodes(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	List<node>& pm_nodes)
 {
-	double lambda, dedicated_sun_distance;
-	int node_type;
-	node v, v_adj, dedicated_sun;
-	edge e;
-	DPoint new_pos,dedicated_sun_pos, adj_sun_pos;
+	DPoint new_pos;
 	List<DPoint> L;
-	ListIterator<double> lambdaIterator;
 
-	create_all_placement_sectors(G_mult_ptr,A_mult_ptr,E_mult_ptr,level);
-	forall_nodes(v,*G_mult_ptr[level])
-	{//for
-		node_type = (*A_mult_ptr[level])[v].get_type();
-		if(node_type == 3)
+	create_all_placement_sectors(G_mult_ptr, A_mult_ptr, E_mult_ptr, level);
+	for (node v : G_mult_ptr[level]->nodes)
+	{
+		int node_type = (*A_mult_ptr[level])[v].get_type();
+		if (node_type == 3)
 			pm_nodes.pushBack(v);
-		else if(node_type == 2 || node_type == 4) //a planet_node or moon_node
-		{//else
+		else if (node_type == 2 || node_type == 4) //a planet_node or moon_node
+		{
 			L.clear();
-			dedicated_sun = (*A_mult_ptr[level])[v].get_dedicated_sun_node();
-			dedicated_sun_pos = (*A_mult_ptr[level])[dedicated_sun].get_position();
-			dedicated_sun_distance = (*A_mult_ptr[level])[v].get_dedicated_sun_distance();
+			node dedicated_sun = (*A_mult_ptr[level])[v].get_dedicated_sun_node();
+			DPoint dedicated_sun_pos = (*A_mult_ptr[level])[dedicated_sun].get_position();
+			double dedicated_sun_distance = (*A_mult_ptr[level])[v].get_dedicated_sun_distance();
 
-			if(init_placement_way == FMMMLayout::ipmAdvanced)
+			if (init_placement_way == FMMMLayout::ipmAdvanced)
 			{
-				forall_adj_edges(e,v)
+				edge e;
+				forall_adj_edges(e, v)
 				{
-					if(e->source() != v)
-						v_adj = e->source();
-					else
-						v_adj = e->target();
-					if( ( (*A_mult_ptr[level])[v].get_dedicated_sun_node() ==
-						(*A_mult_ptr[level])[v_adj].get_dedicated_sun_node() ) &&
-						( (*A_mult_ptr[level])[v_adj].get_type() != 1 ) &&
-						( (*A_mult_ptr[level])[v_adj].is_placed() ) )
+					node v_adj = (e->source() != v) ? e->source() : e->target();
+					if (((*A_mult_ptr[level])[v].get_dedicated_sun_node() ==
+						(*A_mult_ptr[level])[v_adj].get_dedicated_sun_node()) &&
+						((*A_mult_ptr[level])[v_adj].get_type() != 1) &&
+						((*A_mult_ptr[level])[v_adj].is_placed()))
 					{
-						new_pos = calculate_position(dedicated_sun_pos,(*A_mult_ptr[level])
-							[v_adj].get_position(),dedicated_sun_distance,
+						new_pos = calculate_position(dedicated_sun_pos, (*A_mult_ptr[level])
+							[v_adj].get_position(), dedicated_sun_distance,
 							(*E_mult_ptr[level])[e].get_length());
 						L.pushBack(new_pos);
 					}
@@ -574,9 +537,9 @@ void Multilevel::set_initial_positions_of_planet_and_moon_nodes(
 			}
 			if ((*A_mult_ptr[level])[v].get_lambda_List_ptr()->empty())
 			{//special case
-				if(L.empty())
+				if (L.empty())
 				{
-					new_pos = create_random_pos(dedicated_sun_pos,(*A_mult_ptr[level])
+					new_pos = create_random_pos(dedicated_sun_pos, (*A_mult_ptr[level])
 						[v].get_dedicated_sun_distance(),
 						(*A_mult_ptr[level])[v].get_angle_1(),
 						(*A_mult_ptr[level])[v].get_angle_2());
@@ -585,27 +548,23 @@ void Multilevel::set_initial_positions_of_planet_and_moon_nodes(
 			}//special case
 			else
 			{//usual case
-				lambdaIterator = (*A_mult_ptr[level])[v].get_lambda_List_ptr()->begin();
+				ListIterator<double> lambdaIterator = (*A_mult_ptr[level])[v].get_lambda_List_ptr()->begin();
 
-				forall_listiterators(node, adj_sun_ptr,*(*A_mult_ptr[level])[v].
-					get_neighbour_sun_node_List_ptr())
+				for (node adj_sun : *(*A_mult_ptr[level])[v].get_neighbour_sun_node_List_ptr())
 				{
-					lambda = *lambdaIterator;
-					adj_sun_pos = (*A_mult_ptr[level])[*adj_sun_ptr].get_position();
-					new_pos = get_waggled_inbetween_position(dedicated_sun_pos,adj_sun_pos,
-						lambda);
+					double lambda = *lambdaIterator;
+					DPoint adj_sun_pos = (*A_mult_ptr[level])[adj_sun].get_position();
+					new_pos = get_waggled_inbetween_position(dedicated_sun_pos, adj_sun_pos, lambda);
 					L.pushBack(new_pos);
-					if(lambdaIterator != (*A_mult_ptr[level])[v].get_lambda_List_ptr()
-						->rbegin())
-						lambdaIterator = (*A_mult_ptr[level])[v].get_lambda_List_ptr()
-						->cyclicSucc(lambdaIterator);
+					if (lambdaIterator != (*A_mult_ptr[level])[v].get_lambda_List_ptr()->rbegin())
+						lambdaIterator = (*A_mult_ptr[level])[v].get_lambda_List_ptr()->cyclicSucc(lambdaIterator);
 				}
 			}//usual case
 
 			(*A_mult_ptr[level])[v].set_position(get_barycenter_position(L));
 			(*A_mult_ptr[level])[v].place();
-		}//else
-	}//for
+		}
+	}
 }
 
 
@@ -615,8 +574,7 @@ void Multilevel::create_all_placement_sectors(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int level)
 {
-	node v_high;
-	forall_nodes(v_high, (*G_mult_ptr[level+1])) {
+	for(node v_high : G_mult_ptr[level+1]->nodes) {
 		double angle_1, angle_2;
 		//find pos of adjacent nodes
 		List<DPoint> adj_pos;
@@ -686,8 +644,7 @@ void Multilevel::create_all_placement_sectors(
 	}
 
 	//import the angle values from the values of the dedicated sun nodes
-	node v;
-	forall_nodes(v, *G_mult_ptr[level])
+	for(node v : G_mult_ptr[level]->nodes)
 	{
 		node ded_sun = (*A_mult_ptr[level])[v].get_dedicated_sun_node();
 		(*A_mult_ptr[level])[v].set_angle_1((*A_mult_ptr[level])[ded_sun].get_angle_1());
@@ -703,30 +660,30 @@ void Multilevel::set_initial_positions_of_pm_nodes(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	List<node>& pm_nodes)
 {
-	double moon_dist, sun_dist, lambda;
+	double moon_dist, lambda;
 	node v_adj, sun_node;
 	edge e;
 	DPoint sun_pos, moon_pos, new_pos, adj_sun_pos;
 	List<DPoint> L;
 	ListIterator<double> lambdaIterator;
 
-	forall_listiterators(node,v_ptr,pm_nodes)
+	for(node v : pm_nodes)
 	{//forall
 		L.clear();
-		sun_node = (*A_mult_ptr[level])[*v_ptr].get_dedicated_sun_node();
+		sun_node = (*A_mult_ptr[level])[v].get_dedicated_sun_node();
 		sun_pos =  (*A_mult_ptr[level])[sun_node].get_position();
-		sun_dist = (*A_mult_ptr[level])[*v_ptr].get_dedicated_sun_distance();
+		double sun_dist = (*A_mult_ptr[level])[v].get_dedicated_sun_distance();
 
 		if(init_placement_way == FMMMLayout::ipmAdvanced)
 		{//if
-			forall_adj_edges(e,*v_ptr)
+			forall_adj_edges(e,v)
 			{
-				if(e->source() != *v_ptr)
+				if(e->source() != v)
 					v_adj = e->source();
 				else
 					v_adj = e->target();
 				if( (!(*E_mult_ptr[level])[e].is_moon_edge()) &&
-					( (*A_mult_ptr[level])[*v_ptr].get_dedicated_sun_node() ==
+					( (*A_mult_ptr[level])[v].get_dedicated_sun_node() ==
 					(*A_mult_ptr[level])[v_adj].get_dedicated_sun_node() ) &&
 					( (*A_mult_ptr[level])[v_adj].get_type() != 1 ) &&
 					( (*A_mult_ptr[level])[v_adj].is_placed() ) )
@@ -738,36 +695,32 @@ void Multilevel::set_initial_positions_of_pm_nodes(
 				}
 			}
 		}//if
-		forall_listiterators(node, moon_node_ptr,*(*A_mult_ptr[level])[*v_ptr].
-			get_dedicated_moon_node_List_ptr())
+		for(node moon_node : *(*A_mult_ptr[level])[v].get_dedicated_moon_node_List_ptr())
 		{
-			moon_pos = (*A_mult_ptr[level])[*moon_node_ptr].get_position();
-			moon_dist =  (*A_mult_ptr[level])[*moon_node_ptr].get_dedicated_sun_distance();
+			moon_pos = (*A_mult_ptr[level])[moon_node].get_position();
+			moon_dist =  (*A_mult_ptr[level])[moon_node].get_dedicated_sun_distance();
 			lambda = sun_dist/moon_dist;
 			new_pos = get_waggled_inbetween_position(sun_pos,moon_pos,lambda);
 			L.pushBack(new_pos);
 		}
 
-		if (!(*A_mult_ptr[level])[*v_ptr].get_lambda_List_ptr()->empty())
+		if (!(*A_mult_ptr[level])[v].get_lambda_List_ptr()->empty())
 		{
-			lambdaIterator = (*A_mult_ptr[level])[*v_ptr].get_lambda_List_ptr()->begin();
+			lambdaIterator = (*A_mult_ptr[level])[v].get_lambda_List_ptr()->begin();
 
-			forall_listiterators(node,adj_sun_ptr,*(*A_mult_ptr[level])[*v_ptr].
-				get_neighbour_sun_node_List_ptr())
+			for(node adj_sun : *(*A_mult_ptr[level])[v].get_neighbour_sun_node_List_ptr())
 			{
 				lambda = *lambdaIterator;
-				adj_sun_pos = (*A_mult_ptr[level])[*adj_sun_ptr].get_position();
+				adj_sun_pos = (*A_mult_ptr[level])[adj_sun].get_position();
 				new_pos = get_waggled_inbetween_position(sun_pos,adj_sun_pos,lambda);
 				L.pushBack(new_pos);
-				if(lambdaIterator != (*A_mult_ptr[level])[*v_ptr].get_lambda_List_ptr()
-					->rbegin())
-					lambdaIterator = (*A_mult_ptr[level])[*v_ptr].get_lambda_List_ptr()
-					->cyclicSucc(lambdaIterator);
+				if(lambdaIterator != (*A_mult_ptr[level])[v].get_lambda_List_ptr()->rbegin())
+					lambdaIterator = (*A_mult_ptr[level])[v].get_lambda_List_ptr()->cyclicSucc(lambdaIterator);
 			}
 		}
 
-		(*A_mult_ptr[level])[*v_ptr].set_position(get_barycenter_position(L));
-		(*A_mult_ptr[level])[*v_ptr].place();
+		(*A_mult_ptr[level])[v].set_position(get_barycenter_position(L));
+		(*A_mult_ptr[level])[v].place();
 	}//forall
 }
 
@@ -806,8 +759,8 @@ inline DPoint Multilevel::get_barycenter_position(List<DPoint>& L)
 	DPoint sum (0,0);
 	DPoint barycenter;
 
-	forall_listiterators(DPoint, act_point_ptr,L)
-		sum = sum + (*act_point_ptr);
+	for(const DPoint &act_point : L)
+		sum = sum + act_point;
 	barycenter.m_x = sum.m_x/L.size();
 	barycenter.m_y = sum.m_y/L.size();
 	return barycenter;

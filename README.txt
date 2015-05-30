@@ -31,48 +31,81 @@ software) are copyrighted:
 Copyright (C) 2005-2015
 
 
+****************** REQUIREMENTS *****************
+
+To be able to compile OGDF, you need a C++11 compiler.
+
+The following compilers should work:
+  * Microsoft Visual C++ 2015
+  * LLVM/clang >= 3.5
+  * G++ >= 4.8
+
+It is known that Visual C++ 2014, G++ 4.7, LLVM/clang 3.2
+do not support a sufficient subset of the C++11 standard
+to compile OGDF.
+
+To generate the build files for OGDF, you can choose
+between the "old way" or using CMake >= 3.1.
+For the "old way", you need Python >= 2.6.
+We are currently migrating to CMake, so problems
+might occur.
+
+You need Doxygen >= 1.8 to build the documentation.
+
+
 ****************** INSTALLATION *****************
 
-Unpack the OGDF archive in the directory, where you want to
-install OGDF.
 
-Build OGDF [Linux, Mac OS]:
+Build OGDF using CMake [any platform]:
+
+  CMake can generate Makefiles as well as project files
+  for many IDEs (including Visual Studio and Xcode).
+  You can use CMake the standard way. Running cmake with
+  the source path and some additional options (like the
+  generator to use) should be sufficient, then proceed
+  as usual with your IDE or `make`.
+
+  There are also GUIs (cmake-gui) and UIs (ccmake) available
+  where you can easily configure (and generate) the build
+  system.
+  Note that we have defined OGDF-specific options, for example,
+  to specify an external LP solver to be used.
+
+Please refer to the OGDF Wiki for more detailed information:
+
+http://www.ogdf.net/ogdf.php/tech:build
+
+
+Build OGDF the old way [Linux, Mac OS]:
 
   1. Edit makeMakefile.config for your configuration
      (if necessary): check the [GENERAL] section. If
      you do not want to use CPLEX or Gurobi LP solvers,
      the default parameters should be suitable.
 
-  2. Execute makeMakefile.sh to generate a suitable Makefile.
+  2. Execute makeMakefile.py to generate a suitable Makefile.
 
-     MAC USERS: If step 2 fails, go back to step 1 and use
-     the alternative compilerCommand configuration!
+  3. Call `make` or `make release` to build the OGDF
+     library. The compiled and linked files can be found
+     in the _release directory.
+     You can also run `make debug` to build a debuggable
+     version of the OGDF library (including a lot of
+     further checks, so it is much slower), whose output
+     files can be found in the _debug directory.
 
-  3. Call make to build the OGDF library. You may also call
-     make debug to generate a debuggable version.
+  4. Call `make doc` to generate the documentation.
 
 
-Build OGDF [Microsoft Visual Studio]:
+Build OGDF the old way [Microsoft Visual C++ 2015]:
 
-  1. Create Visual Studio project file:
+  1. Edit makeVCXProj.config for your configuration
+     (if necessary).
 
-     Visual Studio 2008: Execute the python script makeVCProj.py
-       to generate a Visual Studio 2008 project file ogdf.vcproj.
+  2. Execute the Python script makeVCXProj.py to
+     generate the Visual Studio 2015 project file.
 
-     Visual Studio 2010 (2012, 2013):
-           Execute the python script makeVCXProj.py to generate a
-           Visual Studio 2010 project file ogdf.vcxproj.
-           For VS 2012, 2013, you can edit makeVCXProj.config and
-           set the compiler version.
-
-  2. Open the created project file (.vcproj or .vcxproj) with
+  3. Open the created project file ogdf.vcxproj with
      Visual Studio and call build.
-
-
-Please refer to the OGDF Wiki for more detailed information:
-
-gcc:        http://www.ogdf.net/ogdf.php/tech:installgcc
-Visual C++: http://www.ogdf.net/ogdf.php/tech:installvcc
 
 
 ******************** CHANGES ********************

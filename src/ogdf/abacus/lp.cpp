@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
 * \author Matthias Elf
 *
@@ -235,19 +227,18 @@ int LP::pivotSlackVariableIn(ArrayBuffer<int> &rows)
 //}
 
 
-void LP::colsNnz(int nRow,Array<Row*> &rows,Array<int> &nnz)
+void LP::colsNnz(int nRow, Array<Row*> &rows, Array<int> &nnz)
 {
-	Row*row;
-	int i,r;
-	int rowNnz;
+	Row *row;
+	int i, r;
 
 	nnz.fill(0);
 
-	for(r= 0;r<nRow;r++){
-		row= rows[r];
-		rowNnz= row->nnz();
+	for (r = 0; r < nRow; r++){
+		row = rows[r];
+		int rowNnz = row->nnz();
 
-		for(i= 0;i<rowNnz;i++)
+		for (i = 0; i < rowNnz; i++)
 			nnz[row->support(i)]++;
 	}
 }
@@ -296,7 +287,6 @@ ostream&operator<<(ostream&out, const LP&rhs)
 {
 	// LP: \a operator<<: local variables
 	char sign;
-	double c;
 	const double eps= rhs.master_->machineEps();
 
 	// output the objective function
@@ -309,7 +299,7 @@ ostream&operator<<(ostream&out, const LP&rhs)
 
 	int j = 0;
 	for(int i = 0; i < rhs.nCol(); i++){
-		c = rhs.obj(i);
+		double c = rhs.obj(i);
 		if(c < -eps || c > eps) {
 			if( c < 0.0){
 				sign = '-';

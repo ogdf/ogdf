@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implements class VariableEmbeddingInserterDyn
  *
@@ -89,7 +81,7 @@ namespace ogdf {
 		const Array<edge> &origEdges,
 		const EdgeArray<int> *pCostOrig,
 		const EdgeArray<bool> *pForbiddenOrig,
-		const EdgeArray<__uint32> *pEdgeSubgraphs)
+		const EdgeArray<uint32_t> *pEdgeSubgraphs)
 	{
 		VarEdgeInserterDynCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
 		core.timeLimit(timeLimit());

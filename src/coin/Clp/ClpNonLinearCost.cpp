@@ -279,7 +279,7 @@ ClpNonLinearCost::ClpNonLinearCost(ClpSimplex * model, const int * starts,
      changeCost_ = 0.0;
      feasibleCost_ = 0.0;
      double infeasibilityCost = model_->infeasibilityCost();
-     infeasibilityWeight_ = infeasibilityCost;;
+     infeasibilityWeight_ = infeasibilityCost;
      largestInfeasibility_ = 0.0;
      sumInfeasibilities_ = 0.0;
 

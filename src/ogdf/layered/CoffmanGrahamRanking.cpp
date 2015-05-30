@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Definition of coffman graham ranking algorithm for Sugiyama
  *
@@ -66,10 +58,9 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 	NodeArray<int> pi(gc);
 	m_s.init(gc);
 
-	node v;
 	List<edge> edges;
 
-	forall_nodes(v,gc) {
+	for(node v : gc.nodes) {
 		edges.clear();
 		gc.inEdges(v, edges);
 		deg[v] = edges.size();
@@ -81,11 +72,10 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 
 	int i = 1;
 	while(!ready_nodes.empty()) {
-		v = ready_nodes.popFrontRet().x1();
+		node v = ready_nodes.popFrontRet().x1();
 		pi[v] = i++;
 
-		adjEntry adj;
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			if ((adj->theEdge()->source()) == v) {
 				node u = adj->twinNode();
 				m_s[u].insert(pi[v]);
@@ -99,7 +89,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 
 	List<node> ready, waiting;
 
-	forall_nodes(v,gc) {
+	for(node v : gc.nodes) {
 		edges.clear();
 		gc.outEdges(v, edges);
 		deg[v] = edges.size();
@@ -117,9 +107,9 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 			rank[gc.original(u)] = k;
 
 			gc.inEdges<List<edge> >(u, edges);
-			for (ListIterator<edge> it = edges.begin(); it.valid() ; ++it){
-				if (--deg[(*it)->source()] == 0){
-					waiting.pushBack((*it)->source());
+			for (edge e : edges) {
+				if (--deg[e->source()] == 0){
+					waiting.pushBack(e->source());
 				}
 			}
 		}
@@ -130,7 +120,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 	}
 
 	k--;
-	forall_nodes(v,G){
+	for(node v : G.nodes) {
 		rank[v] = k - rank[v];
 	}
 
@@ -197,11 +187,9 @@ void CoffmanGrahamRanking::dfs(node v)
 	visited->push(v);
 	mark[v] |= 1;
 
-	node w;
-	adjEntry adj;
-	forall_adj(adj,v) {
+	for(adjEntry adj : v->adjEdges) {
 		if ((adj->theEdge()->source()) == v) {
-			w = adj->twinNode();
+			node w = adj->twinNode();
 			if (mark[w] & 2) {
 				mark[w] |= 4;
 			}
@@ -213,32 +201,32 @@ void CoffmanGrahamRanking::dfs(node v)
 	}
 }
 
+
 void CoffmanGrahamRanking::removeTransitiveEdges (Graph& G)
 {
-	node v, w;
 	List<edge> vout;
 
 	mark.init(G,0);
-	visited = new StackPure<node>();
+	StackPure<node> visited;
 
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		G.outEdges<List<edge> >(v, vout);
 		/* alternative: iterate over all adjELements (only out Edges)
 		 *
-		 * forall_adj(adj,v) {
+		 * for(adjEntry adj : v->adjEdges) {
 		 * if ((adj->theEdge()->source()) == v) ...
 		 *
 		 * In this solution a List is generated, because we iterate three times
 		 * over this subset of adjElements
 		 */
-		for (ListIterator<edge> it = vout.begin(); it.valid() ; ++it){
-			w = (*it)-> target();
+		for (edge e : vout) {
+			node w = e-> target();
 			mark[w] = 2;
 		}
 
 		// forall out edges
-		for (ListIterator<edge> it = vout.begin(); it.valid() ; ++it){
-			w = (*it)-> target();
+		for (edge e : vout) {
+			node w = e-> target();
 
 			// if (w != 1)
 			if ((mark[w] & 1) == 0) {
@@ -247,18 +235,17 @@ void CoffmanGrahamRanking::removeTransitiveEdges (Graph& G)
 		}
 
 		// forall out edges
-		for (ListIterator<edge> it = vout.begin(); it.valid() ; ++it){
-			node u = (*it)->target();
+		for (edge e : vout) {
+			node u = e->target();
 			if (mark[u] & 4) {
-				G.delEdge(*it);
+				G.delEdge(e);
 			}
 		}
-		while (!visited->empty())
-			mark[visited->pop()] = 0;
+		while (!visited.empty())
+			mark[visited.pop()] = 0;
 	}
 
 	mark.init();
-	delete visited;
 }
 
 } //namespace ogdf

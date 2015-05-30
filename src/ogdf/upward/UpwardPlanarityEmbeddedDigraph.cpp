@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the internal class UpwardPlanarityEmbeddedDigraph.
  * 			Implements a algorithm testing upward planarity
@@ -54,23 +46,22 @@ UpwardPlanarityEmbeddedDigraph::UpwardPlanarityEmbeddedDigraph(const Graph &H):
 	m_combEmb(m_G),
 	m_A(m_combEmb,0),
 	m_assignedSourcesAndSinks(m_combEmb),
-	m_correspondingSourceOrSink(m_B,NULL),
-	m_correspondingFace(m_B,NULL),
+	m_correspondingSourceOrSink(m_B,nullptr),
+	m_correspondingFace(m_B,nullptr),
 	m_correspondingFaceNode(m_combEmb),
-	m_correspondingEdge(m_B,NULL)
+	m_correspondingEdge(m_B,nullptr)
 {
 }
 
 //DFS for calculating a feasible augmentation path
 void UpwardPlanarityEmbeddedDigraph::getPath(Stack<node> &st, EdgeArray<int> &capacity, EdgeArray<int> &flow) {
 	node u = m_s;
-	NodeArray<bool> dfi(m_B,false);
+	NodeArray<bool> dfi(m_B, false);
 	dfi[u] = true;
 	st.push(u);
-	while (!st.empty() && u!=m_t) {
-		u=st.pop();
-		adjEntry adj;
-		forall_adj(adj,u) {
+	while (!st.empty() && u != m_t) {
+		u = st.pop();
+		for (adjEntry adj : u->adjEdges) {
 			if (adj->theEdge()->target() == u) continue;
 			node x = adj->twinNode();
 			edge e = adj->theEdge();
@@ -91,29 +82,31 @@ int UpwardPlanarityEmbeddedDigraph::getMin(Stack<node> stack, EdgeArray<int> &ca
 		node u = stack.pop();
 		if (stack.empty()) break;
 		node v = stack.top();
-		adjEntry adj_u;
-		forall_adj(adj_u, v) {
-			if (adj_u->theEdge()->target() == u) break;
+		adjEntry adj_u = nullptr;
+		for (adjEntry adj : v->adjEdges) {
+			if (adj->theEdge()->target() == u) {
+				adj_u = adj;
+				break;
+			}
 		}
 		edge k = adj_u->theEdge();
-		if (capacity[k]- flow[k] < min || min == -1) min = capacity[k]- flow[k];
+		if (capacity[k] - flow[k] < min || min == -1) min = capacity[k] - flow[k];
 	}
 	return min;
 }
 
 //tests whether a flow of power r is feasible
-bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<int> &flow, const int r) {
+bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<int> &flow, const int r)
+{
 	if (r == 0) return true;
-	int currentFlow = 0;
 	bool rFlow = false;
-	edge e;
 	EdgeArray<edge> R(m_B);
-	adjEntry adj;
-	forall_edges(e,m_B) {
+
+	for (edge e : m_B.edges) {
 		bool check = true;
 		node u = e->source();
 		node v = e->target();
-		forall_adj(adj,v) {
+		for (adjEntry adj : v->adjEdges) {
 			if (adj->theEdge()->target() == u) {
 				check = false;
 				edge k = adj->theEdge();
@@ -123,35 +116,40 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 		}
 		if (check) {
 			//insert backedges
-			edge f = m_B.newEdge(v,u);
+			edge f = m_B.newEdge(v, u);
 			capacity[f] = 0;
 			R[e] = f;
 			R[f] = e;
 			flow[f] = 0;
 		}
 	}
+
 	Stack<node> stack;
 	while (!rFlow) {
 		//find the augmentation path
-		getPath(stack,capacity,flow);
+		getPath(stack, capacity, flow);
 		//calculate the value for one augmentation step
-		int min = getMin(stack,capacity,flow);
+		int min = getMin(stack, capacity, flow);
 		if (stack.empty()) break;
 		while (!stack.empty()) {
-				//increase the flow for the augmentation path
-				node u = stack.pop();
-				if (stack.empty()) break;
-				node v = stack.top();
-				adjEntry adj_u;
-				forall_adj(adj_u, v) {
-					if (adj_u->theEdge()->target() == u) break;
+			//increase the flow for the augmentation path
+			node u = stack.pop();
+			if (stack.empty()) break;
+			node v = stack.top();
+			adjEntry adj_u = nullptr;
+			for(adjEntry adj : v->adjEdges) {
+				if (adj->theEdge()->target() == u) {
+					adj_u = adj;
+					break;
 				}
-				edge k = adj_u->theEdge();
-				flow[k] = flow[k] + min;
-				flow[R[k]] = -flow[k];
+			}
+			edge k = adj_u->theEdge();
+			flow[k] = flow[k] + min;
+			flow[R[k]] = -flow[k];
 		}
-		currentFlow = 0;
-		forall_adj(adj,m_s) {
+
+		int currentFlow = 0;
+		for (adjEntry adj : m_s->adjEdges) {
 			//calculate the current flow in B
 			if (adj->theEdge()->target() == m_s) continue;
 			edge k = adj->theEdge();
@@ -162,46 +160,48 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 	return rFlow;
 }
 
+
 //constructs a flow-network corresponding to graph m_G
-void UpwardPlanarityEmbeddedDigraph::constructNetwork(EdgeArray<int> &capacity, EdgeArray<int> &flow) {
-	node v,w;
-	edge e;
-	face f;
+void UpwardPlanarityEmbeddedDigraph::constructNetwork(EdgeArray<int> &capacity, EdgeArray<int> &flow)
+{
 	//super-source
 	node s = m_B.newNode();
 	//super-sink
 	node t = m_B.newNode();
-	forall_nodes(v,m_G) {
+
+	for(node v : m_G.nodes) {
 		//assign for all sources and sinks of m_G a corresponding node in the flow-network m_B
 		if ((v->indeg() == 0) || (v->outdeg() == 0)) {
-			w = m_B.newNode();
+			node w = m_B.newNode();
 			m_correspondingSourceOrSink[w] = v;
-			e = m_B.newEdge(s,w);
+			edge e = m_B.newEdge(s,w);
 			capacity[e] = 1;
 		}
 	}
-	forall_faces(f,m_combEmb) {
+
+	for(face f : m_combEmb.faces) {
 		//assign for all faces of m_G a corresponding node in the flow-network m_B
-		w = m_B.newNode();
+		node w = m_B.newNode();
 		m_correspondingFace[w] = f;
 		m_correspondingFaceNode[f] = w;
-		e = m_B.newEdge(w,t);
+		edge e = m_B.newEdge(w,t);
 		m_correspondingEdge[w] = e;
 		capacity[e] = m_A[f]-1;
 	}
-	forall_nodes(v,m_B) {
+
+	for(node v : m_B.nodes) {
 		//insert edges between nodes in m_B if the corresponding nodes in m_G are a source or sink of the corresponding face in m_G
-		if (m_correspondingSourceOrSink[v] != NULL) {
-			forall_nodes(w,m_B) {
-				if (m_correspondingFace[w] != NULL) {
-					f = m_correspondingFace[w];
+		if (m_correspondingSourceOrSink[v] != nullptr) {
+			for(node w : m_B.nodes) {
+				if (m_correspondingFace[w] != nullptr) {
+					face f = m_correspondingFace[w];
 					ListIterator<node> it = m_assignedSourcesAndSinks[f].begin();
 					while (it.valid()) {
 						if (*it == m_correspondingSourceOrSink[v]) {
-							e = m_B.newEdge(v,w);
+							edge e = m_B.newEdge(v,w);
 							capacity[e] = 1;
 						}
-						it++;
+						++it;
 					}
 				}
 			}
@@ -209,77 +209,76 @@ void UpwardPlanarityEmbeddedDigraph::constructNetwork(EdgeArray<int> &capacity, 
 	}
 }
 
+
 //tests whether G is upward-planar (fixed embedding)
-void UpwardPlanarityEmbeddedDigraph::isUpwardPlanarEmbedded(bool val, List<adjEntry> &possibleExternalFaces) {
-		node v,w;
-		face f;
-		EdgeArray<int> capacity(m_B,0);
-		EdgeArray<int> flow(m_B,0);
-		//stack of feasible external faces in an upward-planar drawing
-		adjEntry adj;
-		List<edge> list;
-		edge e;
-		forall_faces(f,m_combEmb) {
-			//compute the number m_A of angles in face f and the corresponding sources and sinks of f
-			adj = f->firstAdj();
-			forall_face_adj(adj,f) {
-				e = adj->theEdge();
-				if (!list.empty()) {
-					if (e->target() == list.back()->target()) {
-						m_A[f]++;
-						w = e->target();
-						m_assignedSourcesAndSinks[f].pushBack(w);
-					}
-					else if (e->source() == list.back()->source()) {
-						m_A[f]++;
-						w = e->source();
-						m_assignedSourcesAndSinks[f].pushBack(w);
-					}
+void UpwardPlanarityEmbeddedDigraph::isUpwardPlanarEmbedded(bool val, List<adjEntry> &possibleExternalFaces)
+{
+	EdgeArray<int> capacity(m_B, 0);
+	EdgeArray<int> flow(m_B, 0);
+	//stack of feasible external faces in an upward-planar drawing
+	List<edge> list;
+
+	for (face f : m_combEmb.faces) {
+		//compute the number m_A of angles in face f and the corresponding sources and sinks of f
+		for(adjEntry adj : f->entries) {
+			edge e = adj->theEdge();
+			if (!list.empty()) {
+				if (e->target() == list.back()->target()) {
+					m_A[f]++;
+					node w = e->target();
+					m_assignedSourcesAndSinks[f].pushBack(w);
 				}
-				list.pushBack(e);
-			}
-			if ((list.front()->target() == list.back()->target()) )  {
-				m_A[f]++;
-				w = list.front()->target();
-				m_assignedSourcesAndSinks[f].pushBack(w);
-			}
-			else if (list.front()->source() == list.back()->source()) {
-				m_A[f]++;
-				w = list.front()->source();
-				m_assignedSourcesAndSinks[f].pushBack(w);
-			}
-			m_A[f] = m_A[f]/2;
-			list.clear();
-		}
-		//construct flow-network m_B corresponding to m_G
-		constructNetwork(capacity,flow);
-		forall_nodes(v,m_B) {
-			if (v->index() == 0) m_s = v;
-			if (v->index() == 1) m_t = v;
-			if (v->index() > 1) break;
-		}
-		int r = 0;
-		forall_nodes(v,m_G) {
-			//r = number of sources and sinks in G
-			if (v->indeg() == 0 || v->outdeg() == 0) r++;
-		}
-		//tests whether the network permits a flow of power r-2 without determining the external face
-		if (isFlow(capacity,flow,r-2)) {
-			forall_faces(f,m_combEmb) {
-				//tests whether the network permits a flow of power r for the choice of face f as external face
-				v = m_correspondingFaceNode[f];
-				e = m_correspondingEdge[v];
-				capacity[e] = m_A[f] + 1;
-				EdgeArray<int> capacityCopy(capacity);
-				EdgeArray<int> flowCopy(flow);
-				if (isFlow(capacityCopy,flowCopy,r)) {
-					possibleExternalFaces.pushBack(f->firstAdj());
-					if (val) break;
+				else if (e->source() == list.back()->source()) {
+					m_A[f]++;
+					node w = e->source();
+					m_assignedSourcesAndSinks[f].pushBack(w);
 				}
-				capacity[e] = m_A[f]-1;
 			}
+			list.pushBack(e);
 		}
+		if ((list.front()->target() == list.back()->target()))  {
+			m_A[f]++;
+			node w = list.front()->target();
+			m_assignedSourcesAndSinks[f].pushBack(w);
+		}
+		else if (list.front()->source() == list.back()->source()) {
+			m_A[f]++;
+			node w = list.front()->source();
+			m_assignedSourcesAndSinks[f].pushBack(w);
+		}
+		m_A[f] = m_A[f] / 2;
+		list.clear();
+	}
+	//construct flow-network m_B corresponding to m_G
+	constructNetwork(capacity, flow);
+	for (node v : m_B.nodes) {
+		if (v->index() == 0) m_s = v;
+		if (v->index() == 1) m_t = v;
+		if (v->index() > 1) break;
+	}
+	int r = 0;
+	for (node v : m_G.nodes) {
+		//r = number of sources and sinks in G
+		if (v->indeg() == 0 || v->outdeg() == 0) r++;
+	}
+	//tests whether the network permits a flow of power r-2 without determining the external face
+	if (isFlow(capacity, flow, r - 2)) {
+		for (face f : m_combEmb.faces) {
+			//tests whether the network permits a flow of power r for the choice of face f as external face
+			node v = m_correspondingFaceNode[f];
+			edge e = m_correspondingEdge[v];
+			capacity[e] = m_A[f] + 1;
+			EdgeArray<int> capacityCopy(capacity);
+			EdgeArray<int> flowCopy(flow);
+			if (isFlow(capacityCopy, flowCopy, r)) {
+				possibleExternalFaces.pushBack(f->firstAdj());
+				if (val) break;
+			}
+			capacity[e] = m_A[f] - 1;
+		}
+	}
 }
+
 
 //tests whether G is upward-planar (fixed embedding)
 //returns the set of feasible external faces (represented by the first AdjEntry)

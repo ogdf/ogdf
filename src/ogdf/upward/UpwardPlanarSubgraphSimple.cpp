@@ -1,11 +1,3 @@
-/*
- * $Revision: 3261 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-25 14:48:05 +0100 (Fri, 25 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class UpwardPlanarSubgraphSimple which computes
  * an upward planar subgraph of a single-source acyclic digraph
@@ -60,8 +52,7 @@ void UpwardPlanarSubgraphSimple::call(const Graph &G, List<edge> &delEdges)
 	Graph H;
 	NodeArray<node> mapToH(G);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		mapToH[v] = H.newNode();
 
 
@@ -93,8 +84,7 @@ void UpwardPlanarSubgraphSimple::call(const Graph &G, List<edge> &delEdges)
 	// graph is still upward planar. If not, remove the edge again from H
 	// and add it to delEdges.
 
-	edge eG;
-	forall_edges(eG,G)
+	for(edge eG : G.edges)
 	{
 		if(visitedEdge[eG] == true)
 			continue;
@@ -140,11 +130,10 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 	// We construct an auxiliary graph H which represents the current upward
 	// planar subgraph.
 	Graph H;
-	NodeArray<node> mapToH(G,0);
-	NodeArray<node> mapToG(H,0);
+	NodeArray<node> mapToH(G,nullptr);
+	NodeArray<node> mapToG(H,nullptr);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		mapToG[ mapToH[v] = H.newNode() ] = v;
 
 
@@ -179,8 +168,7 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 	SList<Tuple2<node,node> > augmented;
 	GraphCopySimple graphAcyclicTest(G);
 
-	edge eG;
-	forall_edges(eG,G)
+	for(edge eG : G.edges)
 	{
 		// already treated ?
 		if(visitedEdge[eG] == true)
@@ -211,7 +199,7 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 				H.delEdge(*it);
 			}
 
-			if (mapToG[superSink] == 0)
+			if (mapToG[superSink] == nullptr)
 				H.delNode(superSink);
 
 			//****************************************************************
@@ -256,9 +244,9 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 	}
 
 	// add super sink to GC
-	node sGC = 0;
+	node sGC = nullptr;
 	SList<node> sinks;
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
 		if(v->indeg() == 0)
 			sGC = v;
 		if(v->outdeg() == 0)

@@ -406,7 +406,7 @@ OsiSolverResult::createResult(const OsiSolverInterface & solver, const double * 
   } else {
     // infeasible
     objectiveValue_ = COIN_DBL_MAX;
-    basis_ = CoinWarmStartBasis();;
+    basis_ = CoinWarmStartBasis();
     primalSolution_=NULL;
     dualSolution_=NULL;
   }

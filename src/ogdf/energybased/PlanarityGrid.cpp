@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class PlanarityGrid
  *
@@ -52,7 +44,7 @@ namespace ogdf {
 	PlanarityGrid::~PlanarityGrid()
 	{
 		delete m_currentGrid;
-		if(m_candidateGrid != NULL)
+		if(m_candidateGrid != nullptr)
 			delete m_candidateGrid;
 	}
 
@@ -62,7 +54,7 @@ namespace ogdf {
 	EnergyFunction("PlanarityGrid",AG), m_layout(AG)
 	{
 		m_currentGrid = new UniformGrid(AG);
-		m_candidateGrid = NULL;
+		m_candidateGrid = nullptr;
 	}
 
 
@@ -77,7 +69,7 @@ namespace ogdf {
 	// to position testPos().
 	void PlanarityGrid::compCandEnergy()
 	{
-		if(m_candidateGrid != NULL)
+		if(m_candidateGrid != nullptr)
 			delete m_candidateGrid;
 		node v = testNode();
 		const DPoint& newPos = testPos();
@@ -93,7 +85,7 @@ namespace ogdf {
 	void PlanarityGrid::internalCandidateTaken() {
 		delete m_currentGrid;
 		m_currentGrid = m_candidateGrid;
-		m_candidateGrid = NULL;
+		m_candidateGrid = nullptr;
 	}
 
 
@@ -101,7 +93,7 @@ namespace ogdf {
 void PlanarityGrid::printInternalData() const {
 	cout << "\nCurrent grid: " << *m_currentGrid;
 	cout << "\nCandidate grid: ";
-	if(m_candidateGrid != NULL)
+	if(m_candidateGrid != nullptr)
 		cout << *m_candidateGrid;
 	else cout << "empty.";
 }

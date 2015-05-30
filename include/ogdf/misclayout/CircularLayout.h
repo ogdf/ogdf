@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares class CircularLayout
  *
@@ -105,7 +97,7 @@ public:
 	 */
 
 	//! Computes a circular layout for graph attributes \a GA.
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 
 	/** @}

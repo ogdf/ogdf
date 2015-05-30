@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of planarization with grid layout.
  *
@@ -62,6 +54,8 @@ namespace ogdf {
 
 /**
  * \brief The planarization grid layout algorithm.
+ *
+ * @ingroup gd-planlayout
  *
  * The class PlanarizationGridLayout represents a customizable implementation
  * of the planarization approach for drawing graphs. The class uses a
@@ -190,7 +184,7 @@ public:
 	//! @}
 
 protected:
-	void doCall(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox);
+	virtual void doCall(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox) override;
 
 
 private:

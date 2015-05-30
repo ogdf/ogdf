@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of ArrayBuffer class.
  *
@@ -55,6 +47,8 @@ namespace ogdf {
 
 //! An array that keeps track of the number of inserted elements; also usable as an efficient stack.
 /**
+ * @ingroup containers
+ *
  * This is a (by default automatically growable) array (with some initial size \a s) which starts out being empty. Using
  * stack functions you can put elements into and out of it. The initial array size is automatically
  * expanded if neccessary (unless growing is forbidden), but never automatically shrunken. You may also access the elements it
@@ -82,6 +76,15 @@ public:
 
 	//! Creates an array buffer that is a copy of \a buffer.
 	ArrayBuffer(const ArrayBuffer<E,INDEX> &buffer) : Array<E,INDEX>(buffer), num(buffer.num), growable(buffer.growable) { }
+
+	//! Creates an array buffer containing the elements of \a buffer (move semantics).
+	/**
+	 * The array buffer \a buffer is empty (and growable) afterwards.
+	 */
+	ArrayBuffer(ArrayBuffer<E,INDEX> &&buffer) : Array<E,INDEX>(std::move(buffer)), num(buffer.num), growable(buffer.growable) {
+		buffer.num = 0;
+		buffer.growable = true;
+	}
 
 	//! Reinitializes the array, clearing it, and without initial memory allocation.
 	void init() { Array<E,INDEX>::init(); }
@@ -156,12 +159,14 @@ public:
 
 	//! Returns a reference to the element at position \a i.
 	const E &operator[](INDEX i) const {
-		OGDF_ASSERT(0 <= i && i < num)
+		OGDF_ASSERT(0 <= i);
+		OGDF_ASSERT(i < num)
 		return Array<E,INDEX>::operator[](i);
 	}
 	//! Returns a reference to the element at position \a i.
 	E &operator[](INDEX i) {
-		OGDF_ASSERT(0 <= i && i < num)
+		OGDF_ASSERT(0 <= i);
+		OGDF_ASSERT(i < num)
 		return Array<E,INDEX>::operator[](i);
 	}
 
@@ -172,6 +177,20 @@ public:
 		growable = buffer.growable;
 		return *this;
 	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * The array buffer \a buffer is empty (and growable) afterwards.
+	 */
+	ArrayBuffer<E,INDEX> &operator=(ArrayBuffer<E,INDEX> &&buffer) {
+		Array<E,INDEX>::operator=(std::move(buffer));
+		num      = buffer.num;
+		growable = buffer.growable;
+		buffer.num      = 0;
+		buffer.growable = true;
+		return *this;
+	}
+
 
 	//! Generates a compact copy holding the current elements.
 	/**
@@ -268,6 +287,9 @@ public:
 
 	//! Sorts buffer using Quicksort.
 	inline void quicksort() {
+		if (num == 0) {
+			return;
+		}
 		Array<E,INDEX>::quicksort(0,num-1,StdComparer<E>());
 	}
 
@@ -277,6 +299,9 @@ public:
 	 */
 	template<class COMPARER>
 	inline void quicksort(const COMPARER &comp) {
+		if (num == 0) {
+			return;
+		}
 		Array<E,INDEX>::quicksort(0,num-1,comp);
 	}
 

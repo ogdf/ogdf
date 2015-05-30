@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class UpwardPlanarityEmbeddedDigraph, which implements
  *        the upward-planarity testing algorithm for

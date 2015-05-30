@@ -20,7 +20,7 @@ class MyEventHandler : public ClpEventHandler {
 public:
      /**@name Overrides */
      //@{
-     virtual int event(Event whichEvent);
+     virtual int event(Event whichEvent) override;
      //@}
 
      /**@name Constructors, destructor etc*/
@@ -36,7 +36,7 @@ public:
      /// Assignment
      MyEventHandler& operator=(const MyEventHandler & rhs);
      /// Clone
-     virtual ClpEventHandler * clone() const ;
+     virtual ClpEventHandler * clone() const override ;
      //@}
 
 

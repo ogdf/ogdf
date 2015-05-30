@@ -1,11 +1,3 @@
-/*
- * $Revision: 3570 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-19 13:18:34 +0200 (Wed, 19 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Hashing (class HashingBase)
  *
@@ -187,20 +179,20 @@ HashElementBase *HashingBase::firstElement(HashElementBase ***pList) const
 	for(*pList = m_table; *pList != pStop; ++(*pList))
 		if (**pList) return **pList;
 
-	return 0;
+	return nullptr;
 }
 
 
 HashElementBase *HashingBase::nextElement(HashElementBase ***pList,
 	HashElementBase *pElement) const
 {
-	if ((pElement = pElement->next()) != 0) return pElement;
+	if ((pElement = pElement->next()) != nullptr) return pElement;
 
 	HashElementBase **pStop = m_table + m_tableSize;
 	for(++(*pList); *pList != pStop; ++(*pList))
 		if (**pList) return **pList;
 
-	return 0;
+	return nullptr;
 }
 
 

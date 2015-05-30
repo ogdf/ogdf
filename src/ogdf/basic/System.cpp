@@ -1,11 +1,3 @@
-/*
- * $Revision: 3422 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-19 09:30:03 +0200 (Fri, 19 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of System class.
  *
@@ -43,6 +35,20 @@
 
 #include <ogdf/basic/basic.h>
 
+#if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
+#define WIN32_EXTRA_LEAN
+#define WIN32_LEAN_AND_MEAN
+#undef NOMINMAX
+#define NOMINMAX
+
+#include <windows.h>
+#include <Psapi.h>
+#ifdef _MSC_VER
+#pragma comment(lib, "psapi.lib")
+#endif
+#endif
+
+
 #ifdef __APPLE__
 #include <stdlib.h>
 #include <malloc/malloc.h>
@@ -56,13 +62,6 @@
 #include <malloc.h>
 #endif
 
-#if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-#include <Psapi.h>
-#include <process.h>
-#ifdef _MSC_VER
-#pragma comment(lib, "psapi.lib")
-#endif
-#endif
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -108,7 +107,7 @@ int          System::s_numberOfProcessors;
 
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-LARGE_INTEGER System::s_HPCounterFrequency;
+int64_t System::s_HPCounterFrequency;
 #endif
 
 
@@ -155,7 +154,7 @@ void System::init()
 	}
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-	QueryPerformanceFrequency(&s_HPCounterFrequency);
+	QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&s_HPCounterFrequency));
 
 	SYSTEM_INFO siSysInfo;
 	GetSystemInfo(&siSysInfo);
@@ -165,12 +164,12 @@ void System::init()
 #elif defined(OGDF_SYSTEM_UNIX) && defined(__APPLE__)
 	unsigned long long value;
 	size_t  size = sizeof( value );
-		if (sysctlbyname("hw.pagesize", &value, &size, NULL, 0) !=-1)
+		if (sysctlbyname("hw.pagesize", &value, &size, nullptr, 0) !=-1)
 		s_pageSize = (int)value;
 	else
 		s_pageSize = 0;
 
-	if (sysctlbyname("hw.ncpu", &value, &size, NULL, 0) !=-1)
+	if (sysctlbyname("hw.ncpu", &value, &size, nullptr, 0) !=-1)
 		s_numberOfProcessors = (int)value;
 	else
 		s_numberOfProcessors = 1;
@@ -189,24 +188,23 @@ void System::init()
 
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-void System::getHPCounter(LARGE_INTEGER &counter)
+void System::getHPCounter(int64_t &counter)
 {
-	QueryPerformanceCounter(&counter);
+	QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&counter));
 }
 
 
 double System::elapsedSeconds(
-	const LARGE_INTEGER &startCounter,
-	const LARGE_INTEGER &endCounter)
+	const int64_t &startCounter,
+	const int64_t &endCounter)
 {
-	return double(endCounter.QuadPart - startCounter.QuadPart)
-					/ s_HPCounterFrequency.QuadPart;
+	return double(endCounter - startCounter) / s_HPCounterFrequency;
 }
 
 
-__int64 System::usedRealTime(__int64 &t)
+int64_t System::usedRealTime(int64_t &t)
 {
-	__int64 tStart = t;
+	int64_t tStart = t;
 #if _WIN32_WINNT >= 0x0600
 	t = GetTickCount64();
 #else
@@ -215,7 +213,7 @@ __int64 System::usedRealTime(__int64 &t)
 	return t - tStart;
 }
 
-__int64 System::realTime()
+int64_t System::realTime()
 {
 #if _WIN32_WINNT >= 0x0600
 	return GetTickCount64();
@@ -281,7 +279,7 @@ long long System::physicalMemory()
 {
 	unsigned long long value;
 	size_t  size = sizeof( value );
-	if (sysctlbyname("hw.memsize", &value, &size, NULL, 0) !=-1)
+	if (sysctlbyname("hw.memsize", &value, &size, nullptr, 0) !=-1)
 		return value;
 	else
 		return 0;
@@ -292,7 +290,7 @@ long long System::availablePhysicalMemory()
 	unsigned long long pageSize;
 	long long result;
 	size_t  size = sizeof( pageSize );
-	sysctlbyname("hw.pagesize", &pageSize, &size, NULL, 0);
+	sysctlbyname("hw.pagesize", &pageSize, &size, nullptr, 0);
 
 	vm_statistics_data_t vm_stat;
 	int count = ((mach_msg_type_number_t) (sizeof(vm_statistics_data_t)/sizeof(integer_t)));
@@ -350,7 +348,7 @@ size_t System::memoryAllocatedByMalloc()
 {
 	_HEAPINFO hinfo;
 	int heapstatus;
-	hinfo._pentry = NULL;
+	hinfo._pentry = nullptr;
 
 	size_t allocMem = 0;
 	while((heapstatus = _heapwalk(&hinfo)) == _HEAPOK)
@@ -366,7 +364,7 @@ size_t System::memoryInFreelistOfMalloc()
 {
 	_HEAPINFO hinfo;
 	int heapstatus;
-	hinfo._pentry = NULL;
+	hinfo._pentry = nullptr;
 
 	size_t allocMem = 0;
 	while((heapstatus = _heapwalk(&hinfo)) == _HEAPOK)
@@ -404,20 +402,20 @@ size_t System::memoryInFreelistOfMalloc()
 #endif
 
 #if !defined(OGDF_SYSTEM_WINDOWS) && !defined(__CYGWIN__)
-__int64 System::usedRealTime(__int64 &t)
+int64_t System::usedRealTime(int64_t &t)
 {
-	__int64 tStart = t;
+	int64_t tStart = t;
 	timeval tv;
-	gettimeofday(&tv, 0);
-	t = __int64(tv.tv_sec) * 1000 + tv.tv_usec/1000;
+	gettimeofday(&tv, nullptr);
+	t = int64_t(tv.tv_sec) * 1000 + tv.tv_usec/1000;
 	return t - tStart;
 }
 
-__int64 System::realTime()
+int64_t System::realTime()
 {
 	timeval tv;
-	gettimeofday(&tv, 0);
-	return __int64(tv.tv_sec) * 1000 + tv.tv_usec/1000;
+	gettimeofday(&tv, nullptr);
+	return int64_t(tv.tv_sec) * 1000 + tv.tv_usec/1000;
 }
 #endif
 
@@ -443,7 +441,7 @@ size_t System::memoryInThreadFreeListOfMemoryManager()
 
 int System::getProcessID()
 {
-	return _getpid();
+	return GetCurrentProcessId();
 }
 
 #else

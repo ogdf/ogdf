@@ -1,11 +1,3 @@
-/*
- * $Revision: 3475 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-02 10:43:51 +0200 (Thu, 02 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Contains the class UmlToGraphConverter...
  *

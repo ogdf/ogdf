@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of graph generators.
  *
@@ -53,6 +45,24 @@
 #include <ogdf/cluster/ClusterGraph.h>
 
 namespace ogdf {
+
+/**
+ * @addtogroup graph-generators
+ * @{
+ */
+
+
+//! Creates a circulant graph.
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes of the generated graph.
+ * @param jumps is the array \a s_1, \a s_2 ... of distances of adjacent nodes, s.t. each node \a v is adjacent to (\a v \f$\pm\f$ \a s_i) mod \a n.
+ * @code
+ * ogdf::Graph G;
+ * ogdf::circulantGraph(G, 11, ogdf::Array<int>({1,2,4}));
+ * @endcode
+ */
+void circulantGraph (Graph &G, int n, Array<int> jumps);
 
 //! Creates a random graph.
 /**
@@ -116,9 +126,11 @@ OGDF_EXPORT void planarBiconnectedDiGraph(Graph &G, int n, int m, double p = 0, 
 OGDF_EXPORT void upwardPlanarBiconnectedDiGraph(Graph &G, int n, int m);
 
 //! Creates a planar graph, that is connected, but not biconnected.
-/*   @param n is the max. number of nodes in each biconencted component
- *   @param m is the max. number of edges in each biconnected component
- *   @param b is the number of biconnected components
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the max. number of nodes in each biconencted component
+ * @param m is the max. number of edges in each biconnected component
+ * @param b is the number of biconnected components
  */
 OGDF_EXPORT void planarCNBGraph(Graph &G, int n, int m,	int b);
 
@@ -286,7 +298,7 @@ OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, const Graph& G, const node 
  */
 OGDF_EXPORT void completeGraph(Graph &G, int n);
 
-//! Creates t complete bipartite graph \f$K_{n,m}\f$.
+//! Creates the complete bipartite graph \f$K_{n,m}\f$.
 /**
  * @param G is assigned the generated graph.
  * @param n is the number of nodes of the first partition set.
@@ -354,6 +366,8 @@ OGDF_EXPORT void randomDiGraph(Graph &G, int n, double p);
  * @param flt = up to edges*flt edges will be reversed preversing acyclicity; default = 0.0
  */
 OGDF_EXPORT void randomSeriesParallelDAG(Graph &G, int edges, double p = 0.5, double flt = 0.0);
+
+//@}
 
 }
 

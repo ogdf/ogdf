@@ -1,11 +1,3 @@
-/*
- * $Revision: 3367 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:29:19 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for planar layout algorithms
  *        (used in planarization approach).

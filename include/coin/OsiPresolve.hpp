@@ -91,9 +91,9 @@ public:
 					     double feasibilityTolerance=0.0,
 					     bool keepIntegers=true,
 					     int numberPasses=5,
-                                             const char * prohibited=NULL,
+                                             const char * prohibited=nullptr,
 					     bool doStatus=true,
-					     const char * rowProhibited=NULL);
+					     const char * rowProhibited=nullptr);
 
   /*! \brief Restate the solution to the presolved problem in terms of the
 	     original problem and load it into the original model.

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3219 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-15 13:49:45 +0100 (Tue, 15 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class UniformGrid
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 #include<ogdf/internal/energybased/UniformGrid.h>
-#include<float.h>
+#include<cfloat>
 
 namespace ogdf {
 	const double UniformGrid::m_epsilon = 0.000001;
@@ -324,7 +316,8 @@ UniformGrid::UniformGrid(
 	computeGridGeometry(v,newPos,ir);
 	double l = max(ir.width(),ir.height());
 	l/=(m_graph.numberOfEdges()*m_edgeMultiplier);
-	OGDF_ASSERT(l > 0.5*m_CellSize && l < 2.0*m_CellSize);
+	OGDF_ASSERT(l > 0.5*m_CellSize);
+	OGDF_ASSERT(l < 2.0*m_CellSize);
 #endif
 	//compute the list of edge incident to v
 	List<edge> incident;
@@ -333,9 +326,7 @@ UniformGrid::UniformGrid(
 	//number, remove them from their cells. Note that we cannot insert the edge
 	//with its new position into the grid in the same loop because we may get
 	//crossings with other edges incident to v
-	ListIterator<edge> it1;
-	for(it1 = incident.begin(); it1.valid(); ++it1) {
-		edge& e = *it1;
+	for(edge e : incident) {
 		//we clear the list of crossings of e and delete e from the
 		//crossings lists of all the edges it crosses
 		List<edge>& c = m_crossings[e];
@@ -379,8 +370,7 @@ void UniformGrid::computeGridGeometry(
 		maxY = -numeric_limits<double>::max();
 
 	//find lower left and upper right vertex
-	node v;
-	forall_nodes(v,m_graph) {
+	for(node v : m_graph.nodes) {
 		double x, y;
 		if(v != moved) {// v is the node that was moved
 			x = m_layout.x(v);
@@ -406,31 +396,27 @@ void UniformGrid::computeCrossings(
 {
 	//now we compute all the remaining data of the class in one loop
 	//going through all edges and storing them in the grid.
-	ListConstIterator<edge> it;
-	for(it = toInsert.begin(); it.valid(); ++it) {
-		const edge& e = *it;
+	for (edge e : toInsert)
+	{
 		SList<IPoint> crossedCells;
-		DPoint sPos,tPos;
+		DPoint sPos, tPos;
 		const node& s = e->source();
-		if(s != moved) sPos = DPoint(m_layout.x(s),m_layout.y(s));
+		if (s != moved) sPos = DPoint(m_layout.x(s), m_layout.y(s));
 		else sPos = newPos;
 		const node& t = e->target();
-		if(t != moved) tPos = DPoint(m_layout.x(t),m_layout.y(t));
+		if (t != moved) tPos = DPoint(m_layout.x(t), m_layout.y(t));
 		else tPos = newPos;
-		DoubleModifiedBresenham(sPos,tPos,crossedCells);
-		SListConstIterator<IPoint> it1;
-		for(it1 = crossedCells.begin(); it1.valid(); ++it1) {
-			const IPoint& p = *it1;
-			(m_cells[e]).pushBack(p);
-			List<edge>& edgeList = m_grid(p.m_x,p.m_y);
-			if(!edgeList.empty()) { //there are already edges in that list
-				ListConstIterator<edge> it2;
+		DoubleModifiedBresenham(sPos, tPos, crossedCells);
+		for (const IPoint &p : crossedCells) {
+			m_cells[e].pushBack(p);
+			List<edge>& edgeList = m_grid(p.m_x, p.m_y);
+			if (!edgeList.empty()) { //there are already edges in that list
 				OGDF_ASSERT(!edgeList.empty());
-				for(it2 = edgeList.begin(); it2.valid(); ++it2) {
-					if(crossingTest(e,*it2,moved,newPos,p)) { //two edges cross in p
+				for (edge e2 : edgeList) {
+					if (crossingTest(e, e2, moved, newPos, p)) { //two edges cross in p
 						++m_crossNum;
-						m_crossings[e].pushBack(*it2);
-						m_crossings[*it2].pushBack(e);
+						m_crossings[e].pushBack(e2);
+						m_crossings[e2].pushBack(e);
 					}
 				}
 			}
@@ -438,16 +424,16 @@ void UniformGrid::computeCrossings(
 			//returned by pushBack in the corresponding list of m_storedIn
 			edgeList.pushBack(e);
 #ifdef OGDF_DEBUG
-			if(m_maxEdgesPerCell < edgeList.size())
+			if (m_maxEdgesPerCell < edgeList.size())
 				m_maxEdgesPerCell = edgeList.size();
 #endif
 		}
 	}
 #ifdef OGDF_DEBUG
-	int SumCros = 0;
-	edge e;
-	forall_edges(e,m_graph) SumCros += m_crossings[e].size();
-	OGDF_ASSERT((SumCros >> 1) == m_crossNum);
+	int sumCros = 0;
+	for (edge e : m_graph.edges)
+		sumCros += m_crossings[e].size();
+	OGDF_ASSERT((sumCros >> 1) == m_crossNum);
 #endif
 }
 
@@ -517,8 +503,8 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 	DoubleModifiedBresenham(p1,p2,result);
 	cout << "\nList computed by Bresenham:\n";
 
-	for(SListIterator<IPoint> it = result.begin(); it.valid(); ++it) {
-		cout << computeRealPoint(*it) << " ";
+	for(const IPoint &p : result) {
+		cout << computeRealPoint(p) << " ";
 	}
 
 	markCells(result,cells);
@@ -527,7 +513,8 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 		int cellXcoord = (int)floor(p1.m_x/m_CellSize);
 		double b = floor(min(p1.m_y,p2.m_y)/m_CellSize);
 		double t = ceil(max(p1.m_y,p2.m_y)/m_CellSize);
-		OGDF_ASSERT(isInt(b) && isInt(t));
+		OGDF_ASSERT(isInt(b));
+		OGDF_ASSERT(isInt(t));
 		int intT = (int)t;
 		for(int i = int(b); i < intT; i++) {
 			crossed++;
@@ -542,11 +529,12 @@ void UniformGrid::checkBresenham(DPoint p1, DPoint p2) const
 	else {
 		if(p1.m_y == p2.m_y) { //horizontal segment
 			double tmp = floor(p1.m_y/m_CellSize);
-			assert(isInt(tmp));
+			OGDF_ASSERT(isInt(tmp));
 			int cellYcoord = (int)tmp;
 			double l = floor(min(p1.m_x,p2.m_x)/m_CellSize);
 			double r = ceil(max(p1.m_x,p2.m_x)/m_CellSize);
-			assert(isInt(l) && isInt(r));
+			OGDF_ASSERT(isInt(l));
+			OGDF_ASSERT(isInt(r));
 			int intR = (int)r;
 			for(int i = int(l); i < intR; i++) {
 				crossed++;

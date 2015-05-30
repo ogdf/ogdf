@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of UCINET DL format parser class.
  *
@@ -113,7 +105,7 @@ public:
 	DLParser(std::istream &is);
 
 	bool read(Graph &G) {
-		return readGraph(G, NULL);
+		return readGraph(G, nullptr);
 	}
 
 	bool read(Graph &G, GraphAttributes &GA) {

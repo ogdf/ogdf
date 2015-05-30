@@ -1,11 +1,3 @@
-/*
- * $Revision: 4024 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-31 11:15:28 +0200 (Mon, 31 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declarations for DOT Parser
  *
@@ -252,7 +244,7 @@ Ast::AList::~AList()
 
 
 Ast::Ast(const Tokens &tokens)
-: m_tokens(tokens), m_tend(m_tokens.end()), m_graph(NULL)
+: m_tokens(tokens), m_tend(m_tokens.end()), m_graph(nullptr)
 {
 }
 
@@ -267,7 +259,7 @@ bool Ast::build()
 {
 	Iterator it = m_tokens.begin();
 	delete m_graph;
-	return (m_graph = parseGraph(it, it)) != 0;
+	return (m_graph = parseGraph(it, it)) != nullptr;
 }
 
 
@@ -283,13 +275,13 @@ Ast::EdgeStmt *Ast::parseEdgeStmt(
 	EdgeLhs *lhs;
 	if(!((lhs = parseNodeId(curr, curr)) ||
 	     (lhs = parseSubgraph(curr, curr)))) {
-		return NULL;
+		return nullptr;
 	}
 
 	EdgeRhs *rhs = parseEdgeRhs(curr, curr);
 	if(!rhs) {
 		delete lhs;
-		return NULL;
+		return nullptr;
 	}
 
 	AttrList *attrs = parseAttrList(curr, curr);
@@ -304,14 +296,14 @@ Ast::EdgeRhs *Ast::parseEdgeRhs(
 {
 	if(curr == m_tend || (curr->type != Token::edgeOpDirected &&
 		                  curr->type != Token::edgeOpUndirected)) {
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
 	EdgeLhs *head;
 	if(!((head = parseSubgraph(curr, curr)) ||
 	     (head = parseNodeId(curr, curr)))) {
-		return NULL;
+		return nullptr;
 	}
 
 	EdgeRhs *tail = parseEdgeRhs(curr, curr);
@@ -326,7 +318,7 @@ Ast::NodeStmt *Ast::parseNodeStmt(
 {
 	NodeId *nodeId = parseNodeId(curr, curr);
 	if(!nodeId) {
-		return NULL;
+		return nullptr;
 	}
 
 	AttrList *attrs = parseAttrList(curr, curr);
@@ -340,7 +332,7 @@ Ast::NodeId *Ast::parseNodeId(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend || curr->type != Token::identifier) {
-		return NULL;
+		return nullptr;
 	}
 	std::string id = *(curr->value);
 	curr++;
@@ -356,7 +348,7 @@ Ast::CompassPt *Ast::parseCompassPt(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend || curr->type != Token::identifier) {
-		return NULL;
+		return nullptr;
 	}
 	const std::string &str = *(curr->value);
 	curr++;
@@ -400,7 +392,7 @@ Ast::CompassPt *Ast::parseCompassPt(
 		rest = curr;
 		return new CompassPt(CompassPt::wildcard);
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -408,14 +400,14 @@ Ast::Port *Ast::parsePort(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend || curr->type != Token::colon) {
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
 	CompassPt *compass = parseCompassPt(curr, curr);
 	if(compass) {
 		rest = curr;
-		return new Port(NULL, compass);
+		return new Port(nullptr, compass);
 	}
 
 	std::string *id = curr->value;
@@ -435,7 +427,7 @@ Ast::Port *Ast::parsePort(
 	}
 
 	rest = curr;
-	return new Port(id, NULL);
+	return new Port(id, nullptr);
 }
 
 
@@ -443,7 +435,7 @@ Ast::AttrStmt *Ast::parseAttrStmt(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend) {
-		return NULL;
+		return nullptr;
 	}
 
 	AttrStmt::Type type;
@@ -458,13 +450,13 @@ Ast::AttrStmt *Ast::parseAttrStmt(
 		type = AttrStmt::edge;
 		break;
 	default:
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
 	AttrList *attrs = parseAttrList(curr, curr);
 	if(!attrs) {
-		return NULL;
+		return nullptr;
 	}
 
 	rest = curr;
@@ -476,18 +468,18 @@ Ast::AsgnStmt *Ast::parseAsgnStmt(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend || curr->type != Token::identifier) {
-		return NULL;
+		return nullptr;
 	}
 	std::string lhs = *(curr->value);
 	curr++;
 
 	if(curr == m_tend || curr->type != Token::assignment) {
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
 	if(curr == m_tend || curr->type != Token::identifier) {
-		return NULL;
+		return nullptr;
 	}
 	std::string rhs = *(curr->value);
 	curr++;
@@ -501,15 +493,15 @@ Ast::Subgraph *Ast::parseSubgraph(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend) {
-		return NULL;
+		return nullptr;
 	}
 
 	// Optional "subgraph" keyword and optional identifier.
-	std::string *id = NULL;
+	std::string *id = nullptr;
 	if(curr->type == Token::subgraph) {
 		curr++;
 		if(curr == m_tend) {
-			return NULL;
+			return nullptr;
 		}
 		if(curr->type == Token::identifier) {
 			id = new std::string(*(curr->value));
@@ -519,7 +511,7 @@ Ast::Subgraph *Ast::parseSubgraph(
 
 	if(curr == m_tend || curr->type != Token::leftBrace) {
 		delete id;
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
@@ -528,12 +520,12 @@ Ast::Subgraph *Ast::parseSubgraph(
 	if(curr == m_tend || curr->type != Token::rightBrace) {
 		delete id;
 		delete stmts;
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
 	rest = curr;
-	return new Subgraph(id, stmts);;
+	return new Subgraph(id, stmts);
 }
 
 
@@ -550,7 +542,7 @@ Ast::Stmt *Ast::parseStmt(
 		return stmt;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -558,12 +550,12 @@ Ast::StmtList *Ast::parseStmtList(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend) {
-		return NULL;
+		return nullptr;
 	}
 
 	Stmt *head = parseStmt(curr, curr);
 	if(!head) {
-		return NULL;
+		return nullptr;
 	}
 
 	// Optional semicolon.
@@ -581,12 +573,12 @@ Ast::Graph *Ast::parseGraph(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend) {
-		return NULL;
+		return nullptr;
 	}
 
 	bool strict = false;
 	bool directed = false;
-	std::string *id = NULL;
+	std::string *id = nullptr;
 
 	if(curr->type == dot::Token::strict) {
 		strict = true;
@@ -594,7 +586,7 @@ Ast::Graph *Ast::parseGraph(
 	}
 
 	if(curr == m_tend) {
-		return NULL;
+		return nullptr;
 	}
 
 	switch(curr->type) {
@@ -609,12 +601,12 @@ Ast::Graph *Ast::parseGraph(
 		          << Token::toString(curr->type)
 		          << "\" at "
 		          << curr->row << ", " << curr->column << ".\n";
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
 	if(curr == m_tend) {
-		return NULL;
+		return nullptr;
 	}
 
 	if(curr->type == Token::identifier) {
@@ -630,7 +622,7 @@ Ast::Graph *Ast::parseGraph(
 		//      << "\" at "
 		//      << a->row << ", " << a->column << ".\n";
 		delete id;
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
@@ -645,7 +637,7 @@ Ast::Graph *Ast::parseGraph(
 		          << curr->row << ", " << curr->column << ".\n";
 		delete id;
 		delete statements;
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
@@ -658,7 +650,7 @@ Ast::AttrList *Ast::parseAttrList(
 	Iterator curr, Iterator &rest)
 {
 	if(curr == m_tend || curr->type != Token::leftBracket) {
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
@@ -666,7 +658,7 @@ Ast::AttrList *Ast::parseAttrList(
 
 	if(curr == m_tend || curr->type != Token::rightBracket) {
 		delete head;
-		return NULL;
+		return nullptr;
 	}
 	curr++;
 
@@ -682,7 +674,7 @@ Ast::AList *Ast::parseAList(
 {
 	AsgnStmt *head = parseAsgnStmt(curr, curr);
 	if(!head) {
-		return NULL;
+		return nullptr;
 	}
 
 	// Optional comma.
@@ -755,6 +747,11 @@ static bool readAttribute(
 			ss >> GA.height(v);
 		}
 		break;
+	case a_weight:
+		if (flags & GraphAttributes::nodeWeight) {
+			ss >> GA.weight(v);
+		}
+		break;
 	case a_shape:
 		if(flags & GraphAttributes::nodeGraphics) {
 			GA.shape(v) = toShape(stmt.rhs);
@@ -797,7 +794,7 @@ static bool readAttribute(
 	switch(toAttribute(stmt.lhs)) {
 	case a_label:
 		if(flags & GraphAttributes::edgeLabel) {
-			GA.label(e) = stmt.rhs;;
+			GA.label(e) = stmt.rhs;
 		}
 		break;
 	case a_weight:
@@ -824,6 +821,7 @@ static bool readAttribute(
 		if(flags & GraphAttributes::edgeArrow) {
 			GA.arrowType(e) = toArrow(stmt.rhs);
 		}
+		break;
 	default:
 		std::cerr << "WARNING: Attribute \"" << stmt.lhs
 		          << "\" is not supported by edge or incorrect. Ignoring.\n";
@@ -880,11 +878,9 @@ static inline bool readAttributes(
 	G &GA, T elem,
 	const std::vector<Ast::AttrList *> &defaults)
 {
-	for(std::vector<Ast::AttrList *>::const_iterator it = defaults.begin();
-	    it != defaults.end();
-	    it++)
+	for(Ast::AttrList *p : defaults)
 	{
-		if(!readAttributes(GA, elem, *it)) {
+		if(!readAttributes(GA, elem, p)) {
 			return false;
 		}
 	}
@@ -925,7 +921,7 @@ bool Ast::Graph::read(
 		P, G, GA, C, CA,
 		SubgraphData(
 			// Root cluster.
-			C ? C->rootCluster() : NULL,
+			C ? C->rootCluster() : nullptr,
 			nodeDefaults, edgeDefaults, subgraphNodes),
 		statements);
 }
@@ -949,15 +945,11 @@ static inline bool cross(
 	const std::vector<Ast::AttrList *> &defaults, Ast::AttrList *attrs,
 	const std::set<ogdf::node> &lnodes, const std::set<ogdf::node> &rnodes)
 {
-	for(std::set<node>::const_iterator it = lnodes.begin();
-	    it != lnodes.end();
-	    it++)
+	for(node vl : lnodes)
 	{
-		for(std::set<node>::const_iterator jt = rnodes.begin();
-		    jt != rnodes.end();
-		    jt++)
+		for(node vr : rnodes)
 		{
-			const edge e = G.newEdge(*it, *jt);
+			const edge e = G.newEdge(vl, vr);
 			if(GA && !(readAttributes(*GA, e, defaults) &&
 			           readAttributes(*GA, e, attrs))) {
 				return false;
@@ -1066,9 +1058,8 @@ bool Ast::NodeId::read(
 }
 
 
-Parser::Parser(std::istream &in) : m_in(in)
+Parser::Parser(std::istream &in) : m_in(in), m_nodeId(nullptr)
 {
-	m_nodeId = HashArray<std::string, node>(NULL);
 }
 
 
@@ -1120,7 +1111,7 @@ bool Parser::readGraph(
 	m_nodeId.clear();
 	G.clear();
 	if(C) {
-		C->semiClear();
+		C->clear();
 	}
 
 	Lexer lexer(m_in);
@@ -1139,19 +1130,19 @@ bool Parser::readGraph(
 
 bool Parser::read(Graph &G)
 {
-	return readGraph(G, NULL, NULL, NULL);
+	return readGraph(G, nullptr, nullptr, nullptr);
 }
 
 
 bool Parser::read(Graph &G, GraphAttributes &GA)
 {
-	return readGraph(G, &GA, NULL, NULL);
+	return readGraph(G, &GA, nullptr, nullptr);
 }
 
 
 bool Parser::read(Graph &G, ClusterGraph &C)
 {
-	return readGraph(G, NULL, &C, NULL);
+	return readGraph(G, nullptr, &C, nullptr);
 }
 
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2589 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 23:31:45 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Computes an embedding of a graph with minimum depth.
  *
@@ -55,6 +47,8 @@ namespace ogdf {
 
 //! Planar graph embedding with minimum block-nesting depth.
 /**
+ * @ingroup ga-planembed
+ *
  * See paper "Graph Embedding with Minimum Depth and Maximum External
  * Face" by C. Gutwenger and P. Mutzel (2004) for details.
  */
@@ -70,7 +64,7 @@ public:
 	 * \param G is the original graph.
 	 * \param adjExternal is assigned an adjacency entry in the external face.
 	 */
-	void call(Graph& G, adjEntry& adjExternal);
+	virtual void call(Graph& G, adjEntry& adjExternal) override;
 
 private:
 	/**

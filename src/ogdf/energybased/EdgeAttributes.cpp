@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class EdgeAttributes.
  *
@@ -50,12 +42,12 @@ ostream &operator<< (ostream & output, const EdgeAttributes & A)
 {
 	output <<"length: "<< A.length;
 	output<<"  index of original edge ";
-	if (A.e_original == NULL)
-		output <<"NULL";
+	if (A.e_original == nullptr)
+		output <<"nullptr";
 	else output<<A.e_original->index();
 	output<<"  index of subgraph edge ";
-	if (A.e_subgraph == NULL)
-		output <<"NULL";
+	if (A.e_subgraph == nullptr)
+		output <<"nullptr";
 	if (A.moon_edge)
 		output<<" is moon edge ";
 	else
@@ -78,8 +70,8 @@ istream &operator>> (istream & input,  EdgeAttributes & A)
 EdgeAttributes::EdgeAttributes()
 {
 	length = 0;
-	e_original = NULL;
-	e_subgraph = NULL;
+	e_original = nullptr;
+	e_subgraph = nullptr;
 	moon_edge = false;
 	extra_edge = false;
 }

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3472 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mon, 29 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for planar subgraph algorithms.
  *
@@ -54,6 +46,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/Timeouter.h>
+#include <ogdf/basic/Thread.h>
 
 
 namespace ogdf {
@@ -65,7 +58,7 @@ namespace ogdf {
  */
 class OGDF_EXPORT PlanarSubgraphModule : public Module, public Timeouter {
 
-	int m_maxThreads;	//!< The maximal number of used threads.
+	unsigned int m_maxThreads;	//!< The maximal number of used threads.
 
 public:
 	//! Initializes a planar subgraph module (default constructor).
@@ -73,7 +66,7 @@ public:
 #ifdef OGDF_MEMORY_POOL_NTS
 		m_maxThreads = 1;
 #else
-		m_maxThreads = System::numberOfProcessors();
+		m_maxThreads = max(1u, Thread::hardware_concurrency());
 #endif
 	}
 
@@ -183,10 +176,10 @@ public:
 	virtual PlanarSubgraphModule *clone() const = 0;
 
 	//! Returns the maximal number of used threads.
-	int maxThreads() const { return m_maxThreads; }
+	unsigned int maxThreads() const { return m_maxThreads; }
 
 	//! Sets the maximal number of used threads to \a n.
-	void maxThreads(int n) {
+	void maxThreads(unsigned int n) {
 #ifndef OGDF_MEMORY_POOL_NTS
 		m_maxThreads = n;
 #endif

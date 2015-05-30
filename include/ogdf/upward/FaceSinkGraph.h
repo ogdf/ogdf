@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class FaceSinkGraph
  *
@@ -206,10 +198,6 @@ private:
 	//!  2) all other trees contain exactly one internal vertex of G
 	//! a node in tree T is returned as representative
 	node checkForest();
-
-
-	//! return a adjEntry of node v which right face is f. Be Carefully! The adjEntry is not always unique.
-	adjEntry getAdjEntry(node v, face f);
 
 
 }; // class FaceSinkGraph

@@ -561,7 +561,7 @@ CoinIndexedVector::reserve(int n)
     int iBottom = static_cast<int>(xx & 63);
     if (iBottom)
       offset_ = (64-iBottom)>>3;
-    elements_ = temp + offset_;;
+    elements_ = temp + offset_;
 
     // copy data to new space
     // and zero out part of array

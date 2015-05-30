@@ -1,11 +1,3 @@
-/*
- * $Revision: 3142 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-12-11 13:56:12 +0100 (Tue, 11 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Handles connection to the COIN library, by offering
  * helper classes.
@@ -99,7 +91,7 @@
 				if(ccc->registerCallbacks(posi, callbackTypes))
 					return posi;
 				delete posi;
-				return NULL;
+				return nullptr;
 			}
 			static void logging(OsiSolverInterface* osi, bool logMe);
 		};

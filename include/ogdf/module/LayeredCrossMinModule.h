@@ -1,11 +1,3 @@
-/*
- * $Revision: 3838 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:30:17 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for two-layer crossing
  *        minimization algorithms.
@@ -80,7 +72,7 @@ public:
 	virtual ~LayeredCrossMinModule() { }
 
 	//! Calls the actual crossing minimization algorithm.
-	virtual const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H) = 0;
+	virtual const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) = 0;
 
 	//! Performs clean-up.
 	virtual void cleanup() { }

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3425 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:19:37 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Splits and packs the components of a Graph.
  *
@@ -64,17 +56,13 @@ private:
 	ModuleOption<LayoutModule> m_secondaryLayout;
 	ModuleOption<CCLayoutPackModule> m_packer;
 
-	// keeps a list of nodes for each connected component,
-	// up to date only in call method
-	Array<List<node> > nodesInCC;
-	int m_numberOfComponents;
 	double m_targetRatio;
 	int m_border;
 
 	//! Combines drawings of connected components to
 	//! a single drawing by rotating components and packing
 	//! the result (optimizes area of axis-parallel rectangle).
-	void reassembleDrawings(GraphAttributes &GA);
+	void reassembleDrawings(GraphAttributes &GA, const Array<List<node> > &nodesInCC);
 
 public:
 	ComponentSplitterLayout();

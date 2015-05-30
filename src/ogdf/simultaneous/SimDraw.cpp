@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Base class for simultaneous drawing.
  *
@@ -93,8 +85,7 @@ bool SimDraw::isProperDummy(node v) const
 int SimDraw::numberOfDummyNodes() const
 {
 	int counter = 0;
-	node v;
-	forall_nodes(v, m_G)
+	for(node v : m_G.nodes)
 		if(isDummy(v))
 			counter++;
 	return counter;
@@ -107,8 +98,7 @@ int SimDraw::numberOfDummyNodes() const
 int SimDraw::numberOfPhantomDummyNodes() const
 {
 	int counter = 0;
-	node v;
-	forall_nodes(v, m_G)
+	for(node v : m_G.nodes)
 		if(isPhantomDummy(v))
 			counter++;
 	return counter;
@@ -121,8 +111,7 @@ int SimDraw::numberOfPhantomDummyNodes() const
 int SimDraw::numberOfProperDummyNodes() const
 {
 	int counter = 0;
-	node v;
-	forall_nodes(v, m_G)
+	for(node v : m_G.nodes)
 		if(isProperDummy(v))
 			counter++;
 	return counter;
@@ -138,8 +127,7 @@ bool SimDraw::consistencyCheck() const
 {
 	if(&m_G != &(m_GA.constGraph()))
 		return false;
-	edge e;
-	forall_edges(e, m_G)
+	for(edge e : m_G.edges)
 		if(m_GA.subGraphBits(e) == 0)
 			return false;
 	return true;
@@ -153,8 +141,7 @@ bool SimDraw::consistencyCheck() const
 int SimDraw::maxSubGraph() const
 {
 	int max = -1;
-	edge e;
-	forall_edges(e, m_G)
+	for(edge e : m_G.edges)
 	{
 		for(int i = 31; i > max; i--)
 			if(m_GA.inSubGraph(e, i))
@@ -188,16 +175,16 @@ const Graph SimDraw::getBasicGraph(int i) const
 	//delete all edges that are not in SubGraph i
 	List<edge> LE;
 	GC.allEdges(LE);
-	forall_listiterators(edge, it, LE)
-		if(!(m_GA.inSubGraph(GC.original(*it),i)))
-			GC.delEdge(*it);
+	for(edge e : LE)
+		if(!(m_GA.inSubGraph(GC.original(e),i)))
+			GC.delEdge(e);
 
 	//delete all Nodes where degree = 0
 	List<node> LN;
 	GC.allNodes(LN);
-	forall_listiterators(node, it, LN)
-		if((*it)->degree() == 0)
-			GC.delNode(*it);
+	for(node v : LN)
+		if(v->degree() == 0)
+			GC.delNode(v);
 
 	return GC;
 
@@ -214,64 +201,62 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 
 	List<edge> LE;
 	m_G.allEdges(LE);
-	forall_listiterators(edge,it,LE)
-		if(m_GA.inSubGraph(*it,i))
+	for(edge eLE : LE)
+		if(m_GA.inSubGraph(eLE,i))
 		{
-			node v;
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 			{
-				if(compare(GA,v,m_GA,(*it)->source()))
+				if(compare(GA,v,m_GA,eLE->source()))
 				{
 					if(m_GA.attributes() & GraphAttributes::nodeGraphics)
 					{
-						GA.x(v) = m_GA.x((*it)->source());
-						GA.y(v) = m_GA.y((*it)->source());
-						GA.height(v) = m_GA.height((*it)->source());
-						GA.width(v) = m_GA.width((*it)->source());
+						GA.x(v) = m_GA.x(eLE->source());
+						GA.y(v) = m_GA.y(eLE->source());
+						GA.height(v) = m_GA.height(eLE->source());
+						GA.width(v) = m_GA.width(eLE->source());
 					}
 
 					if(m_GA.attributes() & GraphAttributes::nodeId)
-						GA.idNode(v) = m_GA.idNode((*it)->source());
+						GA.idNode(v) = m_GA.idNode(eLE->source());
 
 					if(m_GA.attributes() & GraphAttributes::nodeLabel)
-						GA.label(v) = m_GA.label((*it)->source());
+						GA.label(v) = m_GA.label(eLE->source());
 				}
 
-				if(compare(GA,v,m_GA,(*it)->target()))
+				if(compare(GA,v,m_GA,eLE->target()))
 				{
 					if(m_GA.attributes() & GraphAttributes::nodeGraphics)
 					{
-						GA.x(v) = m_GA.x((*it)->target());
-						GA.y(v) = m_GA.y((*it)->target());
-						GA.height(v) = m_GA.height((*it)->target());
-						GA.width(v) = m_GA.width((*it)->target());
+						GA.x(v) = m_GA.x(eLE->target());
+						GA.y(v) = m_GA.y(eLE->target());
+						GA.height(v) = m_GA.height(eLE->target());
+						GA.width(v) = m_GA.width(eLE->target());
 					}
 
 					if(m_GA.attributes() & GraphAttributes::nodeId)
-						GA.idNode(v) = m_GA.idNode((*it)->target());
+						GA.idNode(v) = m_GA.idNode(eLE->target());
 
 					if(m_GA.attributes() & GraphAttributes::nodeLabel)
-						GA.label(v) = m_GA.label((*it)->target());
+						GA.label(v) = m_GA.label(eLE->target());
 				}
 			}
 
-			edge e;
-			forall_edges(e,G)
+			for(edge e : G.edges)
 			{
-				if(compare(GA,e->source(),m_GA,(*it)->source())
-					&& compare(GA,e->target(),m_GA,(*it)->target()))
+				if(compare(GA,e->source(),m_GA,eLE->source())
+					&& compare(GA,e->target(),m_GA,eLE->target()))
 				{
 					if(m_GA.attributes() & GraphAttributes::edgeIntWeight)
-						GA.intWeight(e) = m_GA.intWeight(*it);
+						GA.intWeight(e) = m_GA.intWeight(eLE);
 
 					if(m_GA.attributes() & GraphAttributes::edgeLabel)
-						GA.label(e) = m_GA.label(*it);
+						GA.label(e) = m_GA.label(eLE);
 
 					if(m_GA.attributes() & GraphAttributes::edgeStyle)
-						GA.strokeColor(e) = m_GA.strokeColor(*it);
+						GA.strokeColor(e) = m_GA.strokeColor(eLE);
 
 					if(m_GA.attributes() & GraphAttributes::edgeGraphics)
-						GA.bends(e) = m_GA.bends(*it);
+						GA.bends(e) = m_GA.bends(eLE);
 				}
 			}
 		}
@@ -279,12 +264,12 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 		{
 			List<edge> LE2;
 			G.allEdges(LE2);
-			forall_listiterators(edge, it2, LE2)
+			for(edge e2 : LE2)
 			{
-				if(compare(GA,(*it2)->source(),m_GA,(*it)->source())
-					&& compare(GA,(*it2)->target(),m_GA,(*it)->target()))
+				if(compare(GA,e2->source(),m_GA,eLE->source())
+					&& compare(GA,e2->target(),m_GA,eLE->target()))
 				{
-					G.delEdge(*it2);
+					G.delEdge(e2);
 				}
 			}
 		}
@@ -293,9 +278,9 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 		//this can change the IDs of the nodes in G.
 		List<node> LN;
 		G.allNodes(LN);
-		forall_listiterators(node, it3, LN)
-			if((*it3)->degree() == 0)
-				G.delNode(*it3);
+		for(node v : LN)
+			if(v->degree() == 0)
+				G.delNode(v);
 
 }//end getBasicGraphAttributes
 
@@ -313,12 +298,12 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 
 	int max = numberOfBasicGraphs();
 	bool foundEdge = false;
-	node v;
-	edge e, f;
+	//node v;
+	//edge e, f;
 	Graph G = GA.constGraph();
 
-	forall_edges(e,G) {
-		forall_edges(f,m_G) {
+	for(edge e : G.edges) {
+		for(edge f : m_G.edges) {
 			if (compare(m_GA, f->source(), GA, e->source())
 			 && compare(m_GA, f->target(), GA, e->target())) {
 				foundEdge = true;
@@ -330,7 +315,7 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 			node s, t;
 			bool srcFound = false;
 			bool tgtFound = false;
-			forall_nodes(v,m_G) {
+			for(node v : m_G.nodes) {
 				if (compare(m_GA, v, GA, e->source())) {
 					s = v;
 					srcFound = true;

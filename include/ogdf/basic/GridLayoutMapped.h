@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GridLayoutMapped which extends GridLayout
  *        by a grid mapping mechanism.
@@ -65,6 +57,11 @@ namespace ogdf {
 // GridLayoutMapped
 // extends GridLayout by a grid mapping mechanism
 //---------------------------------------------------------
+/**
+ * \brief Extends GridLayout by a grid mapping mechanism.
+ *
+ * @ingroup gd-helper
+ */
 class OGDF_EXPORT GridLayoutMapped : public GridLayout
 {
 	//scaling to allow correct edge anchors

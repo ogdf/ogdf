@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Handling of clique replacement in planarization layout.
  *
@@ -76,11 +68,11 @@ namespace ogdf {
 			while (itNode.valid())
 			{
 				cliqueNum[(*itNode)] = num;
-				itNode++;
+				++itNode;
 			}//while
 
-			num++;
-			it++;
+			++num;
+			++it;
 		}//while
 
 		//now replace each list
@@ -93,7 +85,7 @@ namespace ogdf {
 			//now we compute a circular drawing of the replacement
 			//and save its size and the node positions
 			m_cliqueCircleSize[newCenter] = circularBound(newCenter);
-			it++;
+			++it;
 		}//while
 
 	}//replacebystar
@@ -101,7 +93,7 @@ namespace ogdf {
 
 	node CliqueReplacer::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	{
-		if (clique.empty()) return 0;
+		if (clique.empty()) return nullptr;
 		//insert an additional center node
 
 		node center = m_G.newNode();
@@ -120,10 +112,9 @@ namespace ogdf {
 		{
 			node v = (*it);
 
-			adjEntry ad;
 			int numIt = cliqueNum[v];
 
-			forall_adj(ad, v)
+			for(adjEntry ad : v->adjEdges)
 			{
 				if (cliqueNum[ad->twinNode()] == numIt)
 				{
@@ -133,13 +124,13 @@ namespace ogdf {
 						delEdges.pushBack(ad->theEdge());
 					}
 				}//if
-			}//foralladj
+			}
 
 			//connect center node to clique node
 			edge inserted = m_G.newEdge(center, v);
 			m_replacementEdge[inserted] = true;
 
-			it++;
+			++it;
 		}//while
 
 		//now delete all edges
@@ -148,7 +139,7 @@ namespace ogdf {
 		{
 			//m_pG->delEdge((*itEdge));
 			m_G.hideEdge((*itEdge));
-			itEdge++;
+			++itEdge;
 		}//while
 
 		return center;
@@ -171,31 +162,30 @@ namespace ogdf {
 		//umlgraph clique parameter members?
 
 		OGDF_ASSERT(center->degree() > 0)
-			node lastNode = 0;
-		node firstNode = 0;
-		node v;
+			node lastNode = nullptr;
+		node firstNode = nullptr;
 
 		adjEntry ae = center->firstAdj();
 		do {
 			node w = ae->twinNode();
-			v = G.newNode();
+			node v = G.newNode();
 			umlOriginal[v] = w;
 
 			if (!firstNode) firstNode = v;
 			AG.width(v) = m_ga.width(w);
 			AG.height(v) = m_ga.height(w);
 			ae = ae->cyclicSucc();
-			if (lastNode != 0) G.newEdge(lastNode, v);
+			if (lastNode != nullptr) G.newEdge(lastNode, v);
 			lastNode = v;
 		} while (ae != center->firstAdj());
 		G.newEdge(lastNode, firstNode);
 
 		cl.call(AG);
 
-		forall_nodes(v, G)
+		for(node v : G.nodes)
 		{
 			m_cliqueCirclePos[umlOriginal[v]] = DPoint(AG.x(v), AG.y(v));
-		}//forallnodes
+		}
 		bb = AG.boundingBox();
 
 		return bb;
@@ -208,7 +198,7 @@ namespace ogdf {
 		while (it.valid())
 		{
 			undoStar(*it, false);
-			it++;
+			++it;
 		}//while
 
 		m_G.restoreAllEdges();
@@ -291,7 +281,7 @@ namespace ogdf {
 
 				if (d > maxSize) maxSize = d;
 
-				itNode++;
+				++itNode;
 			}//while
 			double totalSum = pureSumDiameters+(center->degree()-1)*minDist;
 			//TODO: scling, not just counting
@@ -340,7 +330,7 @@ namespace ogdf {
 			}
 			lastDiameter = d/2.0; //its only half diameter...
 
-			itNode++;
+			++itNode;
 		}//while
 
 		OGDF_ASSERT(adjNodes.size() == angles.size())
@@ -364,8 +354,8 @@ namespace ogdf {
 					double angle = Math::pi*(*it)/180.0;
 					m_cliqueCirclePos[w].m_x = radius*cos(angle);
 					m_cliqueCirclePos[w].m_y = radius*sin(angle);
-					itNode++;
-					it++;
+					++itNode;
+					++it;
 				}//while
 			}//if n>2
 
@@ -386,7 +376,7 @@ namespace ogdf {
 				if(wx+m_ga.width (w)/2.0 > maxX) maxX = wx+m_ga.width(w)/2.0;
 				if(wy-m_ga.height(w)/2.0 < minY) minY = wy-m_ga.height(w)/2.0;
 				if(wy+m_ga.height(w)/2.0 > maxY) maxY = wy+m_ga.height(w)/2.0;
-				itNode++;
+				++itNode;
 			}
 			//allow distance
 			minX -= minCCDist;
@@ -402,7 +392,7 @@ namespace ogdf {
 				m_cliqueCirclePos[w].m_x -= minX;
 				m_cliqueCirclePos[w].m_y -= minY;
 				//cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
-				itNode++;
+				++itNode;
 			}
 
 			//reassign the size, this time it is the final value

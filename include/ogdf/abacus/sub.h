@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * brief the subproblem.
@@ -1139,7 +1131,7 @@ protected:
 	 */
 	virtual void fathom(bool reoptimize);
 
-	//! Controls if variables should be fixed or set when all variables price out corretly.
+	//! Controls if variables should be fixed or set when all variables price out correctly.
 	/**
 	 * The default implementation always returns \a true.
 	 *

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Thread class representing threads.
  *
@@ -50,111 +42,53 @@
 #define OGDF_THREAD_H
 
 #include <ogdf/basic/basic.h>
-
-
-#ifdef OGDF_SYSTEM_WINDOWS
-#include <process.h>
-
-#if _WIN32_WINNT >= 0x0600
-#define OGDF_USE_THREAD_POOL
-#endif
-
-#else
-#include <pthread.h>
-#endif
+#include <thread>
 
 
 namespace ogdf {
 
-
-//! Base class for threads.
-class Thread
-{
-	friend class Initialization;
-
-#ifdef OGDF_USE_THREAD_POOL
-	static void initPool();
-	static void cleanupPool();
-#endif
-
-public:
-
-	//! Initializes a thread, but does not create a system thread yet.
-	Thread();
-
-	//! Destructor. Frees resources.
-	virtual ~Thread();
-
-	//! Returns the ID of the system thread associated with the thread object.
-	long threadID() const;
-
-	//! Returns whether the thread has been started (i.e. a system thread is currently associated with the thread object).
-	bool started() const;
-
-	//! Sets the CPU affinity mask of the thread to \a mask.
-	__uint64 cpuAffinity(__uint64 mask);
-
-	//! Starts execution of the thread.
-	void start();
-
-	//! Waits until the thread has finished.
-	void join();
-
-	//! Waits until the thread has finished or the time-out interval of \a milliseconds elapses.
+	//! Threads supporting OGDF's memory management.
 	/**
-	 * @param milliseconds is the time-out interval in milliseconds.
-	 * @return true if the thread has finished or false if the time-out interval has elapsed.
+	 * @ingroup threads
+	 *
+	 * This class derives from std::thread and extends the constructor in such a way
+	 * that worker functions correctly call thread-specific initialization and clean-up
+	 * functions for OGDF's memory management.
+	 *
+	 * If you use OGDF data structures in your threads you have to use the Thread class
+	 * (instead of just using std::thread), or you need to the initThread() and flushPool()
+	 * functions of the memory allocator manually (see Thread's constructor for an example).
 	 */
-	bool join(unsigned long milliseconds);
+	class Thread : public std::thread
+	{
+	public:
+		Thread() : thread() { }
+		Thread(Thread &&other) : thread(std::move((thread&&)other)) { }
 
-protected:
-	//! The actual work perfomed by the thread. Must be defined by derived classes.
-	virtual void doWork() = 0;
-
-private:
-
-#ifdef OGDF_SYSTEM_WINDOWS
-
-#ifdef OGDF_USE_THREAD_POOL
-	struct PoolThreadData;
-
-	static SRWLOCK s_poolLock;
-	static int s_numPoolThreads;
-	static int s_numSleepingThreads;
-	static int s_maxNumPoolThreads;
-
-	static PoolThreadData **s_poolThreads;
-	static PoolThreadData **s_sleepingThreads;
-
-	PoolThreadData *m_poolThread;	//!< associated pool thread (0 if no pool thread is used)
-#endif
-
-	HANDLE          m_handle;		//!< thread handle (0 if pool thread)
-	unsigned int    m_id;			//!< thread id (0 if pool thread)
-	HANDLE          m_evFinished;	//!< event which is signaled by thread when work is finished
-
-	HANDLE getThreadHandle();
-
-	//! Thread procedure for normal threads; \a pParam points to the Thread object.
-	static unsigned int __stdcall threadProc(void *pParam);
-
-#ifdef OGDF_USE_THREAD_POOL
-	//! Thread procedure for pool threads; \a pParam points to the PoolThreadData object.
-	static unsigned int __stdcall poolThreadProc(void *pParam);
-#endif
-
+		// Visual C++ 2013 Preview cannot compile that combination of variadic templates and lambda function (though it should).
+		// Therefore we use the version without function arguments for MSVC untils this works.
+#ifdef _MSC_VER
+		template<class Function>
+		explicit Thread(Function && f) : thread([&]{
+			OGDF_ALLOCATOR::initThread();
+			f();
+			OGDF_ALLOCATOR::flushPool();
+		}) { }
 
 #else
-
-	static void *threadProc(void *pParam);
-
-	pthread_t m_pt;
-
+		template<class Function, class ... Args>
+		explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... args){
+			OGDF_ALLOCATOR::initThread();
+			f(std::forward<Args>(args)...);
+			OGDF_ALLOCATOR::flushPool();
+		}, std::forward<Args>(args)...) { }
 #endif
 
-	OGDF_NEW_DELETE
-
-};
+		Thread &operator=(Thread &&other) {
+			thread::operator=(std::move((thread&&)other));
+			return *this;
+		}
+	};
 
 
 } // end namespace ogdf

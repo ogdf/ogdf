@@ -1,11 +1,3 @@
-/*
- * $Revision: 2584 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 02:38:07 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the class BoyerMyrvoldPlanar
  *
@@ -49,6 +41,7 @@
 #ifndef OGDF_BOYER_MYRVOLD_PLANAR_H
 #define OGDF_BOYER_MYRVOLD_PLANAR_H
 
+#include <random>
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Stack.h>
@@ -100,8 +93,10 @@ public:
 		int m_embeddingGrade,
 		bool limitStructures,
 		SListPure<KuratowskiStructure>& output,
-		bool randomDFSTree,
-		bool avoidE2Minors);
+		double randomness,
+		bool avoidE2Minors,
+		bool extractSubgraph,
+		const EdgeArray<int> *edgeCosts = nullptr);
 
 	//! Destructor
 	~BoyerMyrvoldPlanar() { }
@@ -135,26 +130,34 @@ public:
 	//! Assignment operator is undefined!
 	BoyerMyrvoldPlanar &operator=(const BoyerMyrvoldPlanar &);
 
+
+	//! Seeds the random generator for performing a random DFS.
+	//! If this method is never called the random generator will be seeded by a value
+	//! extracted from the global random generator.
+	void seed(const std::minstd_rand rand) {
+		m_rand = rand;
+	}
+
 protected:
 	/***** Methods for Walkup and Walkdown ******/
 
 	//! Checks whether node \a w is pertinent. \a w has to be non-virtual.
 	inline bool pertinent(node w) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return false;
 		return (!m_backedgeFlags[w].empty() || !m_pertinentRoots[w].empty());
 	}
 
 	//! Checks whether real node \a w is internally active while embedding node with DFI \a v
 	inline bool internallyActive(node w, int v) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return false;
 		return (pertinent(w) && !externallyActive(w,v));
 	}
 
 	//! Checks whether real node \a w is externally active while embedding node with DFI \a v
 	inline bool externallyActive(node w, int v) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return false;
 		if (m_leastAncestor[w] < v) return true;
 		if (m_separatedDFSChildList[w].empty()) return false;
@@ -163,7 +166,7 @@ protected:
 
 	//! Checks whether real node \a w is inactive while embedding node with DFI \a v
 	inline bool inactive(node w, int v) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return true;
 		if (!m_backedgeFlags[w].empty() || !m_pertinentRoots[w].empty()
 			|| m_leastAncestor[w] < v) return false;
@@ -180,7 +183,7 @@ protected:
 	 *   - 3 = externallyActive and not pertinent
 	 */
 	inline int infoAboutNode(node w, int v) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		if (m_dfi[w] <= 0) return 0;
 		if (!m_pertinentRoots[w].empty() || !m_backedgeFlags[w].empty()) {
 			// pertinent
@@ -204,11 +207,12 @@ protected:
 	 * traversaldirection is flipped.
 	 */
 	inline node successorOnExternalFace(node w, int& direction) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		OGDF_ASSERT(w->degree()>0);
-		OGDF_ASSERT(m_link[CW][w]!=NULL && m_link[CCW][w]!=NULL);
+		OGDF_ASSERT(m_link[CW][w]!=nullptr);
+		OGDF_ASSERT(m_link[CCW][w]!=nullptr);
 		adjEntry adj = m_link[direction][w];
-		OGDF_ASSERT(adj->theNode()!=NULL);
+		OGDF_ASSERT(adj->theNode()!=nullptr);
 
 		if (w->degree() > 1) direction =
 				adj==beforeShortCircuitEdge(adj->theNode(),CCW)->twin();
@@ -218,11 +222,12 @@ protected:
 
 	//! Walks upon external face in given \a direction avoiding short circuit edges
 	inline node successorWithoutShortCircuit(node w, int& direction) {
-		OGDF_ASSERT(w!=NULL);
+		OGDF_ASSERT(w!=nullptr);
 		OGDF_ASSERT(w->degree()>0);
-		OGDF_ASSERT(m_link[CW][w]!=NULL && m_link[CCW][w]!=NULL);
+		OGDF_ASSERT(m_link[CW][w]!=nullptr);
+		OGDF_ASSERT(m_link[CCW][w]!=nullptr);
 		adjEntry adj = beforeShortCircuitEdge(w,direction);
-		OGDF_ASSERT(adj->theNode()!=NULL);
+		OGDF_ASSERT(adj->theNode()!=nullptr);
 
 		if (w->degree() > 1) direction =
 				adj==beforeShortCircuitEdge(adj->theNode(),CCW)->twin();
@@ -234,7 +239,7 @@ protected:
 	/** \a direction is not changed.
 	 */
 	inline node constSuccessorOnExternalFace(node v, int direction) {
-		OGDF_ASSERT(v!=NULL);
+		OGDF_ASSERT(v!=nullptr);
 		OGDF_ASSERT(v->degree()>0);
 		return m_link[direction][v]->theNode();
 	}
@@ -243,7 +248,7 @@ protected:
 	/** \a direction is not changed.
 	 */
 	inline node constSuccessorWithoutShortCircuit(node v, int direction) {
-		OGDF_ASSERT(v!=NULL);
+		OGDF_ASSERT(v!=nullptr);
 		OGDF_ASSERT(v->degree()>0);
 		return beforeShortCircuitEdge(v,direction)->theNode();
 	}
@@ -253,8 +258,8 @@ protected:
 	 * points to the targetnode.
 	 */
 	inline adjEntry beforeShortCircuitEdge(node v, int direction) {
-		OGDF_ASSERT(v!=NULL);
-		return (m_beforeSCE[direction][v]==NULL) ? m_link[direction][v] : m_beforeSCE[direction][v];
+		OGDF_ASSERT(v!=nullptr);
+		return (m_beforeSCE[direction][v]==nullptr) ? m_link[direction][v] : m_beforeSCE[direction][v];
 	}
 
 	//! Walks upon external face in the given \a direction starting at \a w until an active vertex is reached
@@ -273,10 +278,12 @@ protected:
 	/** The node \a root is root of the bicomp containing the stopping vertices
 	 */
 	inline bool wNodesExist(node root, node stopx, node stopy) {
-		OGDF_ASSERT(root != stopx && root != stopy && stopx != stopy);
+		OGDF_ASSERT(root != stopx);
+		OGDF_ASSERT(root != stopy);
+		OGDF_ASSERT(stopx != stopy);
 		int dir = CCW;
 		bool between = false;
-		while (root != NULL) {
+		while (root != nullptr) {
 			root = successorOnExternalFace(root,dir);
 			if (between && pertinent(root)) {
 				return true;
@@ -359,7 +366,6 @@ protected:
 	 */
 	bool embed();
 
-
 	/***** Members ******/
 	//! Input graph, which can be altered
 	Graph& m_g;
@@ -368,8 +374,13 @@ protected:
 	const bool m_bundles;
 	const int m_embeddingGrade;
 	const bool m_limitStructures;
-	const bool m_randomDFSTree;
+	const double m_randomness;
 	const bool m_avoidE2Minors;
+	const EdgeArray<int> *m_edgeCosts;
+	std::minstd_rand m_rand;
+
+	//! Flag for extracting a planar subgraph instead of testing for planarity
+	bool m_extractSubgraph = true;
 
 	//! The whole number of bicomps, which have to be flipped
 	int m_flippedNodes;
@@ -394,7 +405,7 @@ protected:
 	//! Links for short circuit edges.
 	/** If short circuit edges are introduced, the former adjEntries to the neighbors
 	 * have to be saved here for embedding and merging purposes. If there is no
-	 * short circuit edge, this adjEntry is NULL.
+	 * short circuit edge, this adjEntry is nullptr.
 	 */
 	NodeArray<adjEntry> m_beforeSCE[2];
 
@@ -428,7 +439,7 @@ protected:
 	NodeArray<ListPure<node> > m_separatedDFSChildList;
 
 	//! Pointer to \a node contained in the DFSChildList of his parent, if exists.
-	/** If node isn't in list or list doesn't exist, the pointer is set to NULL.
+	/** If node isn't in list or list doesn't exist, the pointer is set to nullptr.
 	*/
 	NodeArray<ListIterator<node> > m_pNodeInParent;
 

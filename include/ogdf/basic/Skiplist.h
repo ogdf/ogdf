@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class Skiplist.
  *
@@ -88,11 +80,11 @@ public:
 
 	//! Construct an initially empty skiplist
 	Skiplist() : lSize(0) {
-		srand((unsigned int)time(NULL));
+		srand((unsigned int)time(nullptr));
 		realheight = 5;
 		height = 1;
 		start = (Element**)malloc(realheight*sizeof(Element*));
-		start[0] = NULL;
+		start[0] = nullptr;
 	}
 
 	~Skiplist() {
@@ -105,7 +97,7 @@ public:
 		int h = height - 1;
 		Element** cur = start; // wheeha!
 		while(true)	{
-			if( cur[h] && *(cur[h]->entry) < *item ) //nxt != NULL
+			if( cur[h] && *(cur[h]->entry) < *item ) //nxt != nullptr
 				cur = cur[h]->next;
 			else if(--h < 0)
 				return cur[0] && *(cur[0]->entry) == *item;
@@ -124,7 +116,7 @@ public:
 		int h = height - 1;
 		Element** cur = start; // wheeha!
 		while(true)	 {
-			if( cur[h] && *(cur[h]->entry) < *item ) //nxt != NULL
+			if( cur[h] && *(cur[h]->entry) < *item ) //nxt != nullptr
 				cur = cur[h]->next;
 			else {
 				if(h < nh) { // add only if new element is high enough
@@ -150,9 +142,8 @@ public:
 	*/
 	void clear(bool killData = false) {
 		Element* item = start[0];
-		Element* old;
 		while(item) {
-			old = item;
+			Element* old = item;
 			item = item->next[0];
 			if(killData)
 				delete old->entry;
@@ -184,7 +175,7 @@ private:
 			start = (Element**)realloc(start, realheight*sizeof(Element*));
 		}
 		for(int i = newheight; i-->height;) {
-			start[i] = NULL;
+			start[i] = nullptr;
 		}
 		height = newheight;
 	}

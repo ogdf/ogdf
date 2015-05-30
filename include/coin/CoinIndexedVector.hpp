@@ -515,7 +515,7 @@ public:
   { if (size_<=-2) size_ = (-size_)-2; }
   /// Get Array
   inline const char * array() const 
-  { return (size_>-2) ? array_ : NULL; }
+  { return (size_>-2) ? array_ : nullptr; }
   //@}
   
   /**@name Set methods */
@@ -548,7 +548,7 @@ public:
   //@{
   /** Default constructor - NULL*/
   inline CoinArrayWithLength()
-  { array_=NULL; size_=-1;}
+  { array_=nullptr; size_=-1;}
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinArrayWithLength(int size)
   { array_=new char [size]; size_=-1;}
@@ -595,7 +595,7 @@ public:
   { return size_/CoinSizeofAsInt(double); }
   /// Get Array
   inline double * array() const 
-  { return reinterpret_cast<double *> ((size_>-2) ? array_ : NULL); }
+  { return reinterpret_cast<double *> ((size_>-2) ? array_ : nullptr); }
   //@}
   
   /**@name Set methods */
@@ -616,7 +616,7 @@ public:
   //@{
   /** Default constructor - NULL*/
   inline CoinDoubleArrayWithLength()
-  { array_=NULL; size_=-1;}
+  { array_=nullptr; size_=-1;}
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinDoubleArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(double)]; size_=-1;}
@@ -649,7 +649,7 @@ public:
   { return size_/CoinSizeofAsInt(CoinFactorizationDouble); }
   /// Get Array
   inline CoinFactorizationDouble * array() const 
-  { return reinterpret_cast<CoinFactorizationDouble *> ((size_>-2) ? array_ : NULL); }
+  { return reinterpret_cast<CoinFactorizationDouble *> ((size_>-2) ? array_ : nullptr); }
   //@}
   
   /**@name Set methods */
@@ -670,7 +670,7 @@ public:
   //@{
   /** Default constructor - NULL*/
   inline CoinFactorizationDoubleArrayWithLength()
-  { array_=NULL; size_=-1;}
+  { array_=nullptr; size_=-1;}
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinFactorizationDoubleArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(CoinFactorizationDouble)]; size_=-1;}
@@ -703,7 +703,7 @@ public:
   { return size_/CoinSizeofAsInt(int); }
   /// Get Array
   inline int * array() const 
-  { return reinterpret_cast<int *> ((size_>-2) ? array_ : NULL); }
+  { return reinterpret_cast<int *> ((size_>-2) ? array_ : nullptr); }
   //@}
   
   /**@name Set methods */
@@ -724,7 +724,7 @@ public:
   //@{
   /** Default constructor - NULL*/
   inline CoinIntArrayWithLength()
-  { array_=NULL; size_=-1;}
+  { array_=nullptr; size_=-1;}
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinIntArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(int)]; size_=-1;}
@@ -757,7 +757,7 @@ public:
   { return size_/CoinSizeofAsInt(CoinBigIndex); }
   /// Get Array
   inline CoinBigIndex * array() const 
-  { return reinterpret_cast<CoinBigIndex *> ((size_>-2) ? array_ : NULL); }
+  { return reinterpret_cast<CoinBigIndex *> ((size_>-2) ? array_ : nullptr); }
   //@}
   
   /**@name Set methods */
@@ -778,7 +778,7 @@ public:
   //@{
   /** Default constructor - NULL*/
   inline CoinBigIndexArrayWithLength()
-  { array_=NULL; size_=-1;}
+  { array_=nullptr; size_=-1;}
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinBigIndexArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(CoinBigIndex)]; size_=-1;}
@@ -811,7 +811,7 @@ public:
   { return size_/CoinSizeofAsInt(unsigned int); }
   /// Get Array
   inline unsigned int * array() const 
-  { return reinterpret_cast<unsigned int *> ((size_>-2) ? array_ : NULL); }
+  { return reinterpret_cast<unsigned int *> ((size_>-2) ? array_ : nullptr); }
   //@}
   
   /**@name Set methods */
@@ -832,7 +832,7 @@ public:
   //@{
   /** Default constructor - NULL*/
   inline CoinUnsignedIntArrayWithLength()
-  { array_=NULL; size_=-1;}
+  { array_=nullptr; size_=-1;}
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinUnsignedIntArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(unsigned int)]; size_=-1;}

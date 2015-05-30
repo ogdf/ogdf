@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class VariablEmbeddingInserterDyn.
  *
@@ -57,6 +49,8 @@ namespace ogdf {
 
 	//! Optimal edge insertion module.
 	/**
+	 * @ingroup ga-insert
+	 *
 	 * The class VariableEmbeddingInserterDyn represents the optimal edge insertion
 	 * algorithm, which inserts a single edge with a minum number of crossings
 	 * into a planar graph.
@@ -79,7 +73,7 @@ namespace ogdf {
 		~VariableEmbeddingInserterDyn() { }
 
 		//! Returns a new instance of the variable embedding inserter with the same option settings.
-		virtual EdgeInsertionModule *clone() const;
+		virtual EdgeInsertionModule *clone() const override;
 
 		//! Assignment operator. Copies option settings only.
 		VariableEmbeddingInserterDyn &operator=(const VariableEmbeddingInserterDyn &inserter);
@@ -134,14 +128,14 @@ namespace ogdf {
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraphs);
+			const EdgeArray<uint32_t> *pEdgeSubgraphs) override;
 
 		ReturnType doCallPostprocessing(
 			PlanRepLight              &pr,
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraphs);
+			const EdgeArray<uint32_t> *pEdgeSubgraphs);
 
 
 		RemoveReinsertType m_rrOption; //!< The remove-reinsert method.

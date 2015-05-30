@@ -2864,8 +2864,8 @@ static int outDupsEtc(int numberIntegers, int numberCliques, int * statusClique,
 	    printf("\n");
 	  }
 	  nOut++;
-	  used[iClique]=CoinMin(used[iClique],kClique);;
-	  used[kClique]=CoinMin(used[kClique],iClique);;
+	  used[iClique]=CoinMin(used[iClique],kClique);
+	  used[kClique]=CoinMin(used[kClique],iClique);
 	  // But need to look at type
 	  // when might be able to fix variables
 	  if (cliqueType[kClique]=='E') {
@@ -2997,7 +2997,7 @@ void CglDuplicateRow::generateCuts8(const OsiSolverInterface & si, OsiCuts & cs,
 	  good=false;
 	} else {
 	  assert (numberP1<numberIntegers);
-	  whichP[numberP1++]=iColumn;;
+	  whichP[numberP1++]=iColumn;
 	}
       }
       int iUpper = static_cast<int> (floor(upperValue+1.0e-5));
@@ -3028,7 +3028,7 @@ void CglDuplicateRow::generateCuts8(const OsiSolverInterface & si, OsiCuts & cs,
       if (good&&state>0) {
 	if (abs(state)==3) {
 	  // infeasible
-	  printf("FFF Infeasible\n");;
+	  printf("FFF Infeasible\n");
 	  feasible=false;
 	  break;
 	} else if (abs(state)==2) {

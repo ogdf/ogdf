@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class TileToRowsCCPacker.
  *
@@ -80,9 +72,9 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	void call(Array<DPoint> &box,
+	virtual void call(Array<DPoint> &box,
 		Array<DPoint> &offset,
-		double pageRatio = 1.0);
+		double pageRatio = 1.0) override;
 
 	/**
 	 * \brief Arranges the rectangles given by \a box.
@@ -96,9 +88,9 @@ public:
 	 * @param pageRatio is the desired page ratio (width / height) of the
 	 *        resulting layout.
 	 */
-	void call(Array<IPoint> &box,
+	virtual void call(Array<IPoint> &box,
 		Array<IPoint> &offset,
-		double pageRatio = 1.0);
+		double pageRatio = 1.0) override;
 
 private:
 	template<class POINT>
@@ -111,7 +103,6 @@ private:
 		int nRows,
 		double pageRatio,
 		const POINT &rect);
-
 };
 
 

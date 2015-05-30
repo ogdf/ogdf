@@ -157,19 +157,19 @@ public:
    /** add a row -  numberInRow may be zero */
    void addRow(int numberInRow, const int * columns,
 	       const double * elements, double rowLower=-COIN_DBL_MAX, 
-              double rowUpper=COIN_DBL_MAX, const char * name=NULL);
+              double rowUpper=COIN_DBL_MAX, const char * name=nullptr);
   /// add a column - numberInColumn may be zero */
    void addColumn(int numberInColumn, const int * rows,
                   const double * elements, 
                   double columnLower=0.0, 
                   double columnUpper=COIN_DBL_MAX, double objectiveValue=0.0,
-                  const char * name=NULL, bool isInteger=false);
+                  const char * name=nullptr, bool isInteger=false);
   /// add a column - numberInColumn may be zero */
   inline void addCol(int numberInColumn, const int * rows,
                      const double * elements, 
                      double columnLower=0.0, 
                      double columnUpper=COIN_DBL_MAX, double objectiveValue=0.0,
-                     const char * name=NULL, bool isInteger=false)
+                     const char * name=nullptr, bool isInteger=false)
   { addColumn(numberInColumn, rows, elements, columnLower, columnUpper, objectiveValue,
               name,isInteger);}
   /// Sets value for row i and column j 
@@ -434,7 +434,7 @@ public:
   /**@name For getting information */
    //@{
    /// Return number of elements
-  inline CoinBigIndex numberElements() const
+  inline CoinBigIndex numberElements() const override
   { return numberElements_;}
    /// Return  elements as triples
   inline const CoinModelTriple * elements() const
@@ -824,7 +824,7 @@ public:
 	    const double * columnLower, const double * columnUpper,
 	    const double * objective);
   /// Clone
-  virtual CoinBaseModel * clone() const;
+  virtual CoinBaseModel * clone() const override;
 
    /** Destructor */
    virtual ~CoinModel();

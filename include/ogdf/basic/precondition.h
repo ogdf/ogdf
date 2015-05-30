@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of functions for drawing module precondition
  *        handling.
@@ -125,7 +117,6 @@ bool dfsGenTree(
 	List<edge>& fakedGens,
 	bool fakeTree)
 {
-	edge e;
 	EdgeArray<bool> used(UG.constGraph(), false);
 	//NodeArray<bool> visited(UG,false);
 	NodeArray<int>  hierNumber(UG.constGraph(), 0);
@@ -133,7 +124,7 @@ bool dfsGenTree(
 	int hierNum = 0; //number of hierarchy tree
 
 	const Graph& G = UG.constGraph();
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		//descent in the hierarchy containing e
 		if ((!used[e]) && (UG.type(e) == Graph::generalization))
@@ -165,7 +156,7 @@ bool dfsGenTree(
 			if (!isTree) return false;
 		}
 
-	}//forall_edges
+	}
 
 	return true;
 }

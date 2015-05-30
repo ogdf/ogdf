@@ -128,7 +128,7 @@ public:
       in the collection of cuts cs. 
   */
   virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-			    const CglTreeInfo info = CglTreeInfo()) const;
+			    const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
   //---------------------------------------------------------------------------
@@ -148,7 +148,7 @@ public:
     const CglMixedIntegerRounding2 &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglMixedIntegerRounding2 &
@@ -159,9 +159,9 @@ public:
   virtual
     ~CglMixedIntegerRounding2 ();
   /// This can be used to refresh any inforamtion
-  virtual void refreshSolver(OsiSolverInterface * solver);
+  virtual void refreshSolver(OsiSolverInterface * solver) override;
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
 
   //---------------------------------------------------------------------------

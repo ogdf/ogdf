@@ -1,11 +1,3 @@
-/*
- * $Revision: 3833 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:23:15 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class SiftingHeuristic
  *
@@ -58,6 +50,9 @@ namespace ogdf
 
 
 //! The sifting heuristic for 2-layer crossing minimization.
+/**
+ * @ingroup gd-layered-crossmin
+ */
 class OGDF_EXPORT SiftingHeuristic : public LayerByLayerSweep
 {
 public:
@@ -67,20 +62,25 @@ public:
 	//! Creates a new instance of the sifting heuristic with the same option settings as \a crossMin.
 	SiftingHeuristic(const SiftingHeuristic &crossMin);
 
+	~SiftingHeuristic();
+
 	//! Returns a new instance of the sifting heuristic with the same option settings.
-	LayerByLayerSweep *clone() const { return new SiftingHeuristic(*this); }
+	virtual LayerByLayerSweep *clone() const override
+	{
+		return new SiftingHeuristic(*this);
+	}
 
 	//! Enumerates the different sifting strategies
 	enum Strategy { left_to_right, desc_degree, random };
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	void init (const HierarchyLevels &levels);
+	virtual void init (const HierarchyLevels &levels) override;
 
 	//! Calls the sifting heuristic for level \a L.
-	void call (Level &L);
+	virtual void call (Level &L) override;
 
 	//! Does some clean-up after calls.
-	void cleanup ();
+	virtual void cleanup () override;
 
 	//! Get for \a Strategy.
 	Strategy strategy() const {

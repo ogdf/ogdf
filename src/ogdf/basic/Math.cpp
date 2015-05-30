@@ -1,11 +1,3 @@
-/*
- * $Revision: 2815 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-14 23:25:34 +0200 (Sun, 14 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of mathematical constants, functions.
  *

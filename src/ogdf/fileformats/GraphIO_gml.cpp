@@ -1,11 +1,3 @@
-/*
- * $Revision: 3816 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-10-29 17:07:00 +0100 (Tue, 29 Oct 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements GML write functionality of class GraphIO.
  *
@@ -67,15 +59,13 @@ static void write_gml_graph(const Graph &G, ostream &os, NodeArray<int> &index)
 {
 	int nextId = 0;
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		GraphIO::indent(os,1) << "node [\n";
 		GraphIO::indent(os,2) << "id " << (index[v] = nextId++) << "\n";
 		GraphIO::indent(os,1) << "]\n"; // node
 	}
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		GraphIO::indent(os,1) << "edge [\n";
 		GraphIO::indent(os,2) << "source " << index[e->source()] << "\n";
 		GraphIO::indent(os,2) << "target " << index[e->target()] << "\n";
@@ -136,8 +126,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 	os.setf(ios::showpoint);
 	os.precision(10);
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		GraphIO::indent(os,1) << "node [\n";
 		GraphIO::indent(os,2) << "id " << (index[v] = nextId++) << "\n";
 
@@ -222,8 +211,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 		GraphIO::indent(os,1) << "]\n"; // node
 	}
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		GraphIO::indent(os,1) << "edge [\n";
 		GraphIO::indent(os,2) << "source " << index[e->source()] << "\n";
 		GraphIO::indent(os,2) << "target " << index[e->target()] << "\n";
@@ -288,9 +276,8 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 					GraphIO::indent(os,4) << "point [ x " << A.x(e->source()) << " y " << A.y(e->source()) << " ]\n";
 				}
 
-				ListConstIterator<DPoint> it;
-				for(it = dpl.begin(); it.valid(); ++it)
-					GraphIO::indent(os,4) << "point [ x " << (*it).m_x << " y " << (*it).m_y << " ]\n";
+				for(const DPoint &dp : dpl)
+					GraphIO::indent(os,4) << "point [ x " << dp.m_x << " y " << dp.m_y << " ]\n";
 
 				v = e->target();
 				if( dpl.back().m_x < A.x(v) - A.width (v)/2 ||
@@ -329,13 +316,11 @@ static void write_gml_cluster(cluster c, int d, ostream &os, const NodeArray<int
 
 	nextClusterIndex++;
 
-	ListConstIterator<cluster> it;
-	for (it = c->cBegin(); it.valid(); it++)
-		write_gml_cluster(*it, d+1, os, index, nextClusterIndex);
+	for (cluster child : c->children)
+		write_gml_cluster(child, d+1, os, index, nextClusterIndex);
 
-	ListConstIterator<node> itn;
-	for (itn = c->nBegin(); itn.valid(); itn++)
-		GraphIO::indent(os,d+1) << "node " << index[*itn] << "\n";
+	for (node v : c->nodes)
+		GraphIO::indent(os,d+1) << "vertex \"" << index[v] << "\"\n";
 
 	GraphIO::indent(os,d) << "]\n"; // cluster
 }
@@ -392,13 +377,11 @@ static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d,
 
 	nextClusterIndex++;
 
-	ListConstIterator<cluster> it;
-	for (it = c->cBegin(); it.valid(); it++)
-		write_gml_cluster(A, *it, d+1, os, index, nextClusterIndex);
+	for (cluster child : c->children)
+		write_gml_cluster(A, child, d+1, os, index, nextClusterIndex);
 
-	ListConstIterator<node> itn;
-	for (itn = c->nBegin(); itn.valid(); itn++)
-		GraphIO::indent(os,d+1) << "node " << index[*itn] << "\n";
+	for (node v : c->nodes)
+		GraphIO::indent(os,d+1) << "vertex \"" << index[v] << "\"\n";
 
 	GraphIO::indent(os,d) << "]\n"; // cluster
 }

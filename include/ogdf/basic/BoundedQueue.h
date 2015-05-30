@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of bounded queue class.
  *
@@ -62,6 +54,8 @@ void print(ostream &os, const BoundedQueue<E,INDEX> &S, char delim = ' ');
 
 //! The parameterized class \a BoundedQueue<E,INDEX> implements queues with bounded size.
 /**
+ * @ingroup containers
+ *
  * @tparam E     is the element type.
  * @tparam INDEX is the index type. The default index type is \c int, other possible types
  *               are \c short and <code>long long</code> (on 64-bit systems).
@@ -76,14 +70,14 @@ template<class E, class INDEX = int> class BoundedQueue {
 public:
 	//! Creates a non-valid bounded queue. Needs to be reinitialized first.
 	BoundedQueue() {
-		m_pStart = m_pEnd = m_pFirst = m_pStop = 0;
+		m_pStart = m_pEnd = m_pFirst = m_pStop = nullptr;
 	}
 
 	//! Constructs an empty bounded queue for at most \a n elements.
 	explicit BoundedQueue(INDEX n) {
 		OGDF_ASSERT(n >= 1)
 		m_pStart = m_pEnd = m_pFirst = new E[n+1];
-		if (m_pFirst == 0) OGDF_THROW(InsufficientMemoryException);
+		if (m_pFirst == nullptr) OGDF_THROW(InsufficientMemoryException);
 
 		m_pStop = m_pFirst+n+1;
 	}
@@ -93,13 +87,26 @@ public:
 		copy(Q);
 	}
 
+	//! Constructs a bounded queue containing the elements of \a Q (move semantics).
+	/**
+	 * The queue \a Q is non valid afterwards, i.e., its capacity is zero.
+	 * It has to be reinitialized if new elements shall be appended.
+	 */
+	BoundedQueue(BoundedQueue<E> &&Q) {
+		m_pStart = Q.m_pStart;
+		m_pEnd   = Q.m_pEnd;
+		m_pStop  = Q.m_pStop;
+		m_pFirst = Q.m_pFirst;
+		Q.m_pStart = Q.m_pEnd = Q.m_pFirst = Q.m_pStop = nullptr;
+	}
+
 	// destruction
 	~BoundedQueue() { delete [] m_pFirst; }
 
 	//! Reinitializes the bounded queue to a non-valid bounded queue.
 	void init() {
 		delete [] m_pFirst;
-		m_pStart = m_pEnd = m_pFirst = m_pStop = 0;
+		m_pStart = m_pEnd = m_pFirst = m_pStop = nullptr;
 	}
 
 	//! Reinitializes the bounded queue to a bounded queue for at most \a n elements.
@@ -108,7 +115,7 @@ public:
 
 		OGDF_ASSERT(n >= 1)
 		m_pStart = m_pEnd = m_pFirst = new E[n+1];
-		if (m_pFirst == 0) OGDF_THROW(InsufficientMemoryException);
+		if (m_pFirst == nullptr) OGDF_THROW(InsufficientMemoryException);
 
 		m_pStop = m_pFirst+n+1;
 	}
@@ -167,6 +174,24 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * The queue \a Q is non valid afterwards, i.e., its capacity is zero.
+	 * It has to be reinitialized if new elements shall be appended.
+	 */
+	BoundedQueue<E> &operator=(BoundedQueue<E> &&Q) {
+		delete [] m_pFirst;
+
+		m_pStart = Q.m_pStart;
+		m_pEnd   = Q.m_pEnd;
+		m_pStop  = Q.m_pStop;
+		m_pFirst = Q.m_pFirst;
+		Q.m_pStart = Q.m_pEnd = Q.m_pFirst = Q.m_pStop = nullptr;
+
+		return *this;
+	}
+
+
 	//! Adds \a x at the end of queue.
 	void append(const E &x) {
 		*m_pEnd++ = x;
@@ -199,7 +224,7 @@ private:
 	void copy(const BoundedQueue<E> &Q) {
 		int n = Q.size()+1;
 		m_pEnd = m_pStart = m_pFirst = new E[n];
-		if (m_pFirst == 0) OGDF_THROW(InsufficientMemoryException);
+		if (m_pFirst == nullptr) OGDF_THROW(InsufficientMemoryException);
 
 		m_pStop = m_pStart + n;
 		for (E *pX = Q.m_pStart; pX != Q.m_pEnd; ) {

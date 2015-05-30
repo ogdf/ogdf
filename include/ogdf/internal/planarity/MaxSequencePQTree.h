@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and definition of the class MaxSequencePQTree.
  *
@@ -59,8 +51,8 @@
 #include <ogdf/internal/planarity/PQLeafKey.h>
 #include <ogdf/internal/planarity/whaInfo.h>
 
-namespace ogdf{
 
+namespace ogdf {
 
 
 /**
@@ -385,7 +377,7 @@ bool MaxSequencePQTree<T,Y>::Bubble(SListPure<PQLeafKey<T,whaInfo*,Y>*> &leafKey
 	*/
 
 	SListIterator<PQNode<T,whaInfo*,Y>*> itn;
-	for (itn = cleanUp.begin(); itn.valid(); itn++)
+	for (itn = cleanUp.begin(); itn.valid(); ++itn)
 		(*itn)->mark(PQNodeRoot::UNMARKED);
 
 	return true;
@@ -518,7 +510,7 @@ void MaxSequencePQTree<T,Y>::emptyAllPertinentNodes()
 	}
 
 	ListIterator<PQNode<T,whaInfo*,Y>*> it;
-	for (it = this->m_pertinentNodes->begin();it.valid();it++)
+	for (it = this->m_pertinentNodes->begin();it.valid();++it)
 	{
 		nodePtr = (*it);
 		if (nodePtr->status() == PQNodeRoot::TO_BE_DELETED)
@@ -574,7 +566,6 @@ int MaxSequencePQTree<T,Y>::determineMinRemoveSequence(
 	 */
 
 	PQNode<T,whaInfo*,Y>				*nodePtr            = 0; // dummy
-	PQNode<T,whaInfo*,Y>				*checkLeaf          = 0; // dummy
 
 	//Number of leaves that have to be deleted
 	int									countDeletedLeaves	= 0;
@@ -603,7 +594,7 @@ int MaxSequencePQTree<T,Y>::determineMinRemoveSequence(
 	SListIterator<PQLeafKey<T,whaInfo*,Y>*> it;
 	for (it = leafKeys.begin(); it.valid(); ++it)
 	{
-		checkLeaf = (*it)->nodePointer();
+		PQNode<T, whaInfo*, Y> *checkLeaf = (*it)->nodePointer();
 		checkLeaf->getNodeInfo()->userStructInfo()->m_pertLeafCount = 1;
 		checkLeaf->getNodeInfo()->userStructInfo()->m_notVisitedCount--;
 		processNodes.append(checkLeaf);
@@ -719,10 +710,10 @@ int MaxSequencePQTree<T,Y>::determineMinRemoveSequence(
 						findMinWHASequence
 ************************************************************************/
 
-template<class T,class Y>
-void MaxSequencePQTree<T,Y>::
-findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
-			 SList<PQLeafKey<T,whaInfo*,Y>*> &eliminatedKeys)
+template<class T, class Y>
+void MaxSequencePQTree<T, Y>::findMinWHASequence(
+	StackPure<PQNode<T, whaInfo*, Y>*> &archiv,
+	SList<PQLeafKey<T, whaInfo*, Y>*> &eliminatedKeys)
 {
 	/**
 	 * The procedure findMinWHASequence() is called by the procedure
@@ -745,28 +736,26 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 	 * of pointers to PQLeafKey, describing the leaves that have to be removed.
 	 */
 
-	//a pointer to a pertinent node of the $PQ$-tree that is currently examined.
-	PQNode<T,whaInfo*,Y>   *nodePtr     = 0;
-
 	//a pointer to the first child of type $h$ of [[nodePtr]].
-	PQNode<T,whaInfo*,Y>   *hChild1     = 0;
+	PQNode<T, whaInfo*, Y>   *hChild1 = 0;
 
 	//a pointer to the second child of type $h$ of [[nodePtr]].
-	PQNode<T,whaInfo*,Y>   *hChild2     = 0;
+	PQNode<T, whaInfo*, Y>   *hChild2 = 0;
 
 	//a pointer to the child of type $a$ of [[nodePtr]].
-	PQNode<T,whaInfo*,Y>   *aChild      = 0;
+	PQNode<T, whaInfo*, Y>   *aChild = 0;
 
 	// pertinent sibling of hChild1
-	PQNode<T,whaInfo*,Y>   *hChild2Sib  = 0;
-
-	//counts the number of children of [[nodePtr]].
-	int						childCount  = 0;
+	PQNode<T, whaInfo*, Y>   *hChild2Sib = 0;
 
 	while (!archiv.empty())
 	{
-		childCount = 0;
-		nodePtr = archiv.pop();
+		//counts the number of children of [[nodePtr]].
+		int childCount = 0;
+
+		//a pointer to a pertinent node of the $PQ$-tree that is currently examined.
+		PQNode<T, whaInfo*, Y> *nodePtr = archiv.pop();
+
 		/*
 		Check if [[nodePtr]] is a full node whose delete type is either of
 		type $h$ or type $a$. Since there are no empty leaves in its
@@ -823,15 +812,15 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 					information class of type [[whaInfo*]] of [[nodePtr]]. This child is
 					marked to be of type $h$.
 					*/
-					markPertinentChildren(nodePtr,PQNodeRoot::PARTIAL,W_TYPE);
-					markPertinentChildren(nodePtr,PQNodeRoot::FULL,B_TYPE);
+					markPertinentChildren(nodePtr, PQNodeRoot::PARTIAL, W_TYPE);
+					markPertinentChildren(nodePtr, PQNodeRoot::FULL, B_TYPE);
 					if (nodePtr->getNodeInfo()->userStructInfo()->m_hChild1)
 					{
-						hChild1 = (PQNode<T,whaInfo*,Y>*)
+						hChild1 = (PQNode<T, whaInfo*, Y>*)
 							nodePtr->getNodeInfo()->userStructInfo()->m_hChild1;
 						hChild1->getNodeInfo()->userStructInfo()->m_deleteType = H_TYPE;
 						if (hChild1->getNodeInfo()->userStructInfo()->m_h <
-							hChild1->getNodeInfo()->userStructInfo()->m_w )
+							hChild1->getNodeInfo()->userStructInfo()->m_w)
 							childCount = 1;
 					}
 					nodePtr->pertChildCount(nodePtr->pertChildCount() +
@@ -847,8 +836,8 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 					$h$. Setting the type of children to $b$ or $h$ is hidden in the
 					function call [[setHchild]] \label{setHChild}.
 					*/
-					markPertinentChildren(nodePtr,PQNodeRoot::PERTINENT,W_TYPE);
-					hChild1 = (PQNode<T,whaInfo*,Y>*)
+					markPertinentChildren(nodePtr, PQNodeRoot::PERTINENT, W_TYPE);
+					hChild1 = (PQNode<T, whaInfo*, Y>*)
 						nodePtr->getNodeInfo()->userStructInfo()->m_hChild1;
 					nodePtr->pertChildCount(setHchild(hChild1));
 				}
@@ -884,19 +873,19 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 					*/
 					if (nodePtr->getNodeInfo()->userStructInfo()->m_aChild)
 					{
-						markPertinentChildren(nodePtr,PQNodeRoot::PERTINENT,W_TYPE);
-						aChild = (PQNode<T,whaInfo*,Y>*)
+						markPertinentChildren(nodePtr, PQNodeRoot::PERTINENT, W_TYPE);
+						aChild = (PQNode<T, whaInfo*, Y>*)
 							nodePtr->getNodeInfo()->userStructInfo()->m_aChild;
 						aChild->getNodeInfo()->userStructInfo()->m_deleteType = A_TYPE;
 						nodePtr->pertChildCount(1);
 					}
 					else
 					{
-						markPertinentChildren(nodePtr,PQNodeRoot::FULL,B_TYPE);
-						markPertinentChildren(nodePtr,PQNodeRoot::PARTIAL,W_TYPE);
+						markPertinentChildren(nodePtr, PQNodeRoot::FULL, B_TYPE);
+						markPertinentChildren(nodePtr, PQNodeRoot::PARTIAL, W_TYPE);
 						if (nodePtr->getNodeInfo()->userStructInfo()->m_hChild1)
 						{
-							hChild1 = (PQNode<T,whaInfo*,Y>*)
+							hChild1 = (PQNode<T, whaInfo*, Y>*)
 								nodePtr->getNodeInfo()->userStructInfo()->m_hChild1;
 							hChild1->getNodeInfo()->userStructInfo()->m_deleteType = H_TYPE;
 							if (hChild1->getNodeInfo()->userStructInfo()->m_h <
@@ -905,7 +894,7 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 						}
 						if (nodePtr->getNodeInfo()->userStructInfo()->m_hChild2)
 						{
-							hChild2 = (PQNode<T,whaInfo*,Y>*)
+							hChild2 = (PQNode<T, whaInfo*, Y>*)
 								nodePtr->getNodeInfo()->userStructInfo()->m_hChild2;
 							hChild2->getNodeInfo()->userStructInfo()->m_deleteType = H_TYPE;
 							if (hChild2->getNodeInfo()->userStructInfo()->m_h <
@@ -913,7 +902,7 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 								childCount++;
 						}
 						nodePtr->pertChildCount(nodePtr->pertChildCount() + childCount -
-												partialChildren(nodePtr)->size());
+							partialChildren(nodePtr)->size());
 					}
 				}
 				else
@@ -943,20 +932,20 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 					*/
 					if (nodePtr->getNodeInfo()->userStructInfo()->m_aChild)
 					{
-						aChild = (PQNode<T,whaInfo*,Y>*)
+						aChild = (PQNode<T, whaInfo*, Y>*)
 							nodePtr->getNodeInfo()->userStructInfo()->m_aChild;
-						markPertinentChildren(nodePtr,PQNodeRoot::PERTINENT,W_TYPE);
+						markPertinentChildren(nodePtr, PQNodeRoot::PERTINENT, W_TYPE);
 						aChild->getNodeInfo()->userStructInfo()->m_deleteType = A_TYPE;
 						nodePtr->pertChildCount(1);
 					}
 					else
 					{
-						markPertinentChildren(nodePtr,PQNodeRoot::PERTINENT,W_TYPE);
-						hChild2 = (PQNode<T,whaInfo*,Y>*)
+						markPertinentChildren(nodePtr, PQNodeRoot::PERTINENT, W_TYPE);
+						hChild2 = (PQNode<T, whaInfo*, Y>*)
 							nodePtr->getNodeInfo()->userStructInfo()->m_hChild2;
-						hChild2Sib = (PQNode<T,whaInfo*,Y>*)
+						hChild2Sib = (PQNode<T, whaInfo*, Y>*)
 							nodePtr->getNodeInfo()->userStructInfo()->m_hChild2Sib;
-						nodePtr->pertChildCount(setAchildren(hChild2,hChild2Sib));
+						nodePtr->pertChildCount(setAchildren(hChild2, hChild2Sib));
 					}
 				}
 				this->m_pertinentNodes->pushFront(nodePtr);
@@ -988,9 +977,8 @@ findMinWHASequence(StackPure<PQNode<T,whaInfo*,Y>*> &archiv,
 							setHchild
 ************************************************************************/
 
-template<class T,class Y>
-int MaxSequencePQTree<T,Y>::setHchild(PQNode<T,whaInfo*,Y> *hChild1)
-
+template<class T, class Y>
+int MaxSequencePQTree<T, Y>::setHchild(PQNode<T, whaInfo*, Y> *hChild1)
 {
 	/**
 	 * The function setHchild() processes the children of a Q-node,
@@ -1058,7 +1046,6 @@ int MaxSequencePQTree<T,Y>::setHchild(PQNode<T,whaInfo*,Y> *hChild1)
 		currentNode = nextSibling;
 	}
 
-
 	return pertinentChildCount;
 }
 
@@ -1069,10 +1056,10 @@ int MaxSequencePQTree<T,Y>::setHchild(PQNode<T,whaInfo*,Y> *hChild1)
 						setAchildren
 ************************************************************************/
 
-template<class T,class Y>
-int MaxSequencePQTree<T,Y>::
-setAchildren(PQNode<T,whaInfo*,Y> *hChild2,
-			 PQNode<T,whaInfo*,Y> *hChild2Sib)
+template<class T, class Y>
+int MaxSequencePQTree<T, Y>::setAchildren(
+	PQNode<T, whaInfo*, Y> *hChild2,
+	PQNode<T, whaInfo*, Y> *hChild2Sib)
 {
 	/**
 	 * The function setAchildren() traces all children of the largest
@@ -1102,10 +1089,6 @@ setAchildren(PQNode<T,whaInfo*,Y> *hChild2,
 	// counts the pertinent children of the sequence.
 	int                   pertinentChildCount = 0;
 
-	//is [[false]] as long as the end of the sequence is not detected.
-	//[[true]] otherwise.
-	bool                   reachedEnd          = false;
-
 	PQNode<T,whaInfo*,Y>    *currentNode         = hChild2; // dummy
 	PQNode<T,whaInfo*,Y>    *nextSibling         = 0;		// dummy
 	PQNode<T,whaInfo*,Y>    *oldSibling          = 0;		// dummy
@@ -1133,7 +1116,10 @@ setAchildren(PQNode<T,whaInfo*,Y> *hChild2,
 	if (nextSibling != 0)
 	{
 		currentNode = nextSibling;
-		reachedEnd = false;
+
+		// is false]as long as the end of the sequence is not detected; true otherwise.
+		bool reachedEnd = false;
+
 		while(!reachedEnd)
 		{
 			if (currentNode->status() == PQNodeRoot::FULL)
@@ -1196,23 +1182,23 @@ void MaxSequencePQTree<T,Y>::markPertinentChildren(
 
 	if (label == PQNodeRoot::PERTINENT)
 	{
-		ListIterator<PQNode<T,whaInfo*,Y>*> it;
-		for (it = partialChildren(nodePtr)->begin(); it.valid(); it++)
+		ListIterator<PQNode<T, whaInfo*, Y>*> it;
+		for (it = partialChildren(nodePtr)->begin(); it.valid(); ++it)
 			(*it)->getNodeInfo()->userStructInfo()->m_deleteType = deleteType;
-		for (it = fullChildren(nodePtr)->begin(); it.valid(); it++)
+		for (it = fullChildren(nodePtr)->begin(); it.valid(); ++it)
 			(*it)->getNodeInfo()->userStructInfo()->m_deleteType = deleteType;
 	}
 	else if (label == PQNodeRoot::PARTIAL)
 	{
-		ListIterator<PQNode<T,whaInfo*,Y>*> it;
-		for (it = partialChildren(nodePtr)->begin(); it.valid(); it++)
+		ListIterator<PQNode<T, whaInfo*, Y>*> it;
+		for (it = partialChildren(nodePtr)->begin(); it.valid(); ++it)
 			(*it)->getNodeInfo()->userStructInfo()->m_deleteType = deleteType;
 	}
 
 	else
 	{
-		ListIterator<PQNode<T,whaInfo*,Y>*> it;
-		for (it = fullChildren(nodePtr)->begin(); it.valid(); it++)
+		ListIterator<PQNode<T, whaInfo*, Y>*> it;
+		for (it = fullChildren(nodePtr)->begin(); it.valid(); ++it)
 			(*it)->getNodeInfo()->userStructInfo()->m_deleteType = deleteType;
 	}
 }
@@ -1223,10 +1209,8 @@ void MaxSequencePQTree<T,Y>::markPertinentChildren(
 							haNumPnode
 ************************************************************************/
 
-template<class T,class Y>
-void MaxSequencePQTree<T,Y>::haNumPnode(PQNode<T,whaInfo*,Y> *nodePtr)
-
-
+template<class T, class Y>
+void MaxSequencePQTree<T, Y>::haNumPnode(PQNode<T, whaInfo*, Y> *nodePtr)
 {
 	/**
 	 * The procedure haNumPnode() computes the h- and a-number of a
@@ -1250,7 +1234,6 @@ void MaxSequencePQTree<T,Y>::haNumPnode(PQNode<T,whaInfo*,Y> *nodePtr)
 	int                 sumParW   = 0;
 	int                 sumMax1    = 0;
 	int                 sumMax2    = 0;
-	int                 sumHelp    = 0;
 	PQNode<T,whaInfo*,Y>  *currentNode = 0;
 	PQNode<T,whaInfo*,Y>  *hChild1    = 0;
 	PQNode<T,whaInfo*,Y>  *hChild2    = 0;
@@ -1273,11 +1256,11 @@ void MaxSequencePQTree<T,Y>::haNumPnode(PQNode<T,whaInfo*,Y> *nodePtr)
 	*/
 
 	ListIterator<PQNode<T,whaInfo*,Y>*> it;
-	for (it = partialChildren(nodePtr)->begin(); it.valid(); it++)
+	for (it = partialChildren(nodePtr)->begin(); it.valid(); ++it)
 	{
 		currentNode = (*it);
 		sumParW = sumParW + currentNode->getNodeInfo()->userStructInfo()->m_w;
-		sumHelp = currentNode->getNodeInfo()->userStructInfo()->m_w -
+		int sumHelp = currentNode->getNodeInfo()->userStructInfo()->m_w -
 			currentNode->getNodeInfo()->userStructInfo()->m_h;
 		if (sumMax1 <= sumHelp)
 		{
@@ -1408,7 +1391,8 @@ void MaxSequencePQTree<T,Y>::hNumQnode(
 	//Get endmost children of the $Q$-node [[nodePtr]].
 	leftChild = nodePtr->getEndmost(0);
 	rightChild = nodePtr->getEndmost(leftChild);
-	OGDF_ASSERT(leftChild && rightChild)
+	OGDF_ASSERT(leftChild);
+	OGDF_ASSERT(rightChild)
 
 	/*
 	Check the left
@@ -1430,8 +1414,8 @@ void MaxSequencePQTree<T,Y>::hNumQnode(
 		if (leftChild->status() != PQNodeRoot::EMPTY)
 		{
 			sumLeft = sumLeft +
-						leftChild->getNodeInfo()->userStructInfo()->m_w -
-						leftChild->getNodeInfo()->userStructInfo()->m_h;
+				leftChild->getNodeInfo()->userStructInfo()->m_w -
+				leftChild->getNodeInfo()->userStructInfo()->m_h;
 			checkSibling = leftChild->getNextSib(holdSibling);
 			if (checkSibling == 0)
 				fullLabel = false;
@@ -1775,10 +1759,10 @@ void MaxSequencePQTree<T,Y>::aNumQnode(
 						alpha1beta1Number
 ************************************************************************/
 
-template<class T,class Y>
-int MaxSequencePQTree<T,Y>::alpha1beta1Number(
-	PQNode<T,whaInfo*,Y> *nodePtr,
-	PQNode<T,whaInfo*,Y> **aChild)
+template<class T, class Y>
+int MaxSequencePQTree<T, Y>::alpha1beta1Number(
+	PQNode<T, whaInfo*, Y> *nodePtr,
+	PQNode<T, whaInfo*, Y> **aChild)
 {
 	/**
 	 * The function alpha1beta1Number() returns
@@ -1809,7 +1793,7 @@ int MaxSequencePQTree<T,Y>::alpha1beta1Number(
 	PQNode<T,whaInfo*,Y>  *currentNode = 0;
 
 	ListIterator<PQNode<T,whaInfo*,Y>*> it;
-	for (it = fullChildren(nodePtr)->begin(); it.valid(); it++)
+	for (it = fullChildren(nodePtr)->begin(); it.valid(); ++it)
 	{
 		currentNode = (*it);
 		sumAllW = sumAllW +
@@ -1823,7 +1807,7 @@ int MaxSequencePQTree<T,Y>::alpha1beta1Number(
 		}
 	}
 
-	for (it = partialChildren(nodePtr)->begin(); it.valid(); it++)
+	for (it = partialChildren(nodePtr)->begin(); it.valid(); ++it)
 	{
 		currentNode = (*it);
 		sumAllW = sumAllW +
@@ -1864,10 +1848,10 @@ int MaxSequencePQTree<T,Y>::sumPertChild(PQNode<T,whaInfo*,Y> *nodePtr)
 	 */
 
 	int sum = 0;
-	ListIterator<PQNode<T,whaInfo*,Y>*> it;
-	for (it = fullChildren(nodePtr)->begin(); it.valid(); it++)
+	ListIterator<PQNode<T, whaInfo*, Y>*> it;
+	for (it = fullChildren(nodePtr)->begin(); it.valid(); ++it)
 		sum = sum + (*it)->getNodeInfo()->userStructInfo()->m_w;
-	for (it = partialChildren(nodePtr)->begin(); it.valid(); it++)
+	for (it = partialChildren(nodePtr)->begin(); it.valid(); ++it)
 		sum = sum + (*it)->getNodeInfo()->userStructInfo()->m_w;
 
 	return sum;
@@ -1878,10 +1862,8 @@ int MaxSequencePQTree<T,Y>::sumPertChild(PQNode<T,whaInfo*,Y> *nodePtr)
 								GetParent
 ***************************************************************************************/
 
-template<class T,class Y>
-PQNode<T,whaInfo*,Y>* MaxSequencePQTree<T,Y>::
-GetParent(PQNode<T,whaInfo*,Y>* nodePtr)
-
+template<class T, class Y>
+PQNode<T, whaInfo*, Y>* MaxSequencePQTree<T, Y>::GetParent(PQNode<T, whaInfo*, Y>* nodePtr)
 {
 	/**
 	 * The function GetParent() computes for the node \a nodePtr its
@@ -1910,10 +1892,10 @@ GetParent(PQNode<T,whaInfo*,Y>* nodePtr)
 		return nodePtr->parent();
 	else
 	{
-		PQNode<T,whaInfo*,Y>         *nextNode    = nodePtr;
-		PQNode<T,whaInfo*,Y>         *currentNode = 0;
-		PQNode<T,whaInfo*,Y>         *oldSib      = 0;
-		SListPure<PQNode<T,whaInfo*,Y>*> L;
+		PQNode<T, whaInfo*, Y> *nextNode = nodePtr;
+		PQNode<T, whaInfo*, Y> *currentNode = 0;
+		PQNode<T, whaInfo*, Y> *oldSib = 0;
+		SListPure<PQNode<T, whaInfo*, Y>*> L;
 
 		currentNode = nodePtr->getNextSib(0);
 		oldSib = nodePtr;

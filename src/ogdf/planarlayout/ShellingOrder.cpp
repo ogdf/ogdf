@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class ShellingOrder.
  *
@@ -55,14 +47,12 @@ void ShellingOrder::init(const Graph &G, const List<ShellingOrderSet> &partition
 	m_rank.init(G);
 
 	int i = 1;
-	ListConstIterator<ShellingOrderSet> it;
-	for(it = partition.begin(); it.valid(); ++it)
+	for (const ShellingOrderSet &S : partition)
 	{
-		const ShellingOrderSet &S = *it;
 		for(int j = 1; j <= S.len(); ++j)
 			m_rank[S[j]] = i;
 
-		m_V[i++] = *it;
+		m_V[i++] = S;
 	}
 }
 
@@ -80,11 +70,10 @@ void ShellingOrder::initLeftmost(
 
 	int i, j;
 
-	ListConstIterator<ShellingOrderSet> it;
-	for(it = partition.begin(); it.valid(); ++it) {
-		node cr = (*it).right();
-		if (cr != 0)
-			crSets[cr].pushBack(&(*it));
+	for(const ShellingOrderSet &S : partition) {
+		node cr = S.right();
+		if (cr != nullptr)
+			crSets[cr].pushBack(&S);
 	}
 
 	const ShellingOrderSet &V1 = partition.front();

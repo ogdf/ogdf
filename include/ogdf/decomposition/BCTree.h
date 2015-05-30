@@ -1,11 +1,3 @@
-/*
- * $Revision: 4378 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2014-08-31 12:48:43 +0200 (Sun, 31 Aug 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class BCTree
  *
@@ -57,6 +49,8 @@ namespace ogdf {
 
 /**
  * \brief Static BC-trees.
+ *
+ * @ingroup graph-decomp
  *
  * This class provides static BC-trees.\n
  * The data structure consists of three parts:
@@ -167,13 +161,13 @@ protected:
  */
 	mutable NodeArray<bool> m_bNode_isMarked;
 /**
- * \brief Array that contains for each BC-tree-vertex the representant of its
+ * \brief Array that contains for each BC-tree-vertex the representantive of its
  * parent within the subgraph in the biconnected components graph belonging to
  * the biconnected component represented by the respective BC-tree-vertex.
  *
  * For each vertex \e vB of the BC-tree:
  * - If \e vB is representing a B-component and \e vB is the root of the
- *   BC-tree, then m_bNode_hRefNode[\e vB] is \e NULL.
+ *   BC-tree, then m_bNode_hRefNode[\e vB] is \e nullptr.
  * - If \e vB is representing a B-component and \e vB is not the root of the
  *   BC-tree, then m_bNode_hRefNode[\e vB] is the very vertex of the
  *   biconnected components graph which is the duplicate of the cut-vertex
@@ -192,7 +186,7 @@ protected:
  * BC-tree-vertex.
  *
  * - If \e vB is the root of the BC-tree, then m_bNode_hParNode[\e vB] is
- *   \e NULL.
+ *   \e nullptr.
  * - If \e vB is representing a B-component and \e vB is not the root of the
  *   BC-tree, then m_bNode_hParNode[\e vB] is the single isolated vertex
  *   of the biconnected components graph corresponding to the very cut-vertex,
@@ -339,9 +333,9 @@ protected:
 
 /** @{
  * \brief returns the parent of a given BC-tree-vertex.
- * \param vB is a vertex of the BC-tree or \e NULL.
+ * \param vB is a vertex of the BC-tree or \e nullptr.
  * \return the parent of \a vB in the BC-tree structure, if \a vB is not the
- * root of the BC-tree, and \e NULL, if \a vB is \e NULL or the root of the
+ * root of the BC-tree, and \e nullptr, if \a vB is \e nullptr or the root of the
  * BC-tree.
  */
 	virtual node parent (node vB) const;
@@ -521,7 +515,7 @@ public:
  * \param vG is a vertex of the original graph.
  * \return If \a uG and \a vG are belonging to the same B-component, the very
  * vertex of the BC-tree representing this B-component is returned. Otherwise,
- * \e NULL is returned. This member function returns the representative of the
+ * \e nullptr is returned. This member function returns the representative of the
  * correct B-component even if \a uG or \a vG or either are cut-vertices and
  * are therefore belonging to C-components, too.
  */
@@ -560,7 +554,7 @@ public:
  *   then repVertex(\a uG,\a vB) returns the very vertex of the biconnected
  *   components graph corresponding to \a uG within the representation of
  *   \a vB.
- * - Otherwise, repVertex(\a uG,\a vB) returns \e NULL.
+ * - Otherwise, repVertex(\a uG,\a vB) returns \e nullptr.
  */
 	virtual node repVertex (node uG, node vB) const;
 /**
@@ -580,7 +574,7 @@ public:
  * \param vB is a vertex of the BC-tree.
  * \return a vertex of the biconnected components graph:
  * - If \a uB == \a vB and they are representing a B-component, then
- *   cutVertex(\a uB,\a vB) returns \e NULL.
+ *   cutVertex(\a uB,\a vB) returns \e nullptr.
  * - If \a uB == \a vB and they are representing a C-component, then
  *   cutVertex(\a uB,\a vB) returns the single isolated vertex of the
  *   biconnected components graph which is the copy of the C-component.
@@ -590,7 +584,7 @@ public:
  *   returns the very copy of this vertex within the biconnected components
  *   graph which belongs to the copy of the biconnected component represented
  *   by \a vB.
- * - Otherwise, cutVertex(\a uB,\a vB) returns \e NULL.
+ * - Otherwise, cutVertex(\a uB,\a vB) returns \e nullptr.
  */
 	virtual node cutVertex (node uB, node vB) const;
 

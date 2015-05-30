@@ -1,11 +1,3 @@
-/*
- * $Revision: 2816 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-15 09:07:22 +0200 (Mon, 15 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class NearestRectangleFinder
  *
@@ -43,9 +35,10 @@
 
 
 #include <ogdf/basic/NearestRectangleFinder.h>
-#include <float.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/BoundedStack.h>
+
+#include <cfloat>
 
 
 namespace ogdf {
@@ -207,10 +200,9 @@ void NearestRectangleFinder::find(
 
 		// look for rectangles with minimal distance in active rectangles
 		// here the distance ist the distance in x-direction
-		ListIterator<int> itActive;
-		for(itActive = active.begin(); itActive.valid(); ++itActive)
+		for(int j : active)
 		{
-			const RectRegion &rect = region[*itActive];
+			const RectRegion &rect = region[j];
 			double left  = rect.m_x - rect.m_width/2.0;
 			double right = rect.m_x + rect.m_width/2.0;
 
@@ -224,8 +216,8 @@ void NearestRectangleFinder::find(
 				minDist = xDist;
 			}
 
-			visitedRectangles.push(*itActive);
-			distance[*itActive] = xDist;
+			visitedRectangles.push(j);
+			distance[j] = xDist;
 		}
 
 		// starting at p.y, we iterate simultaniously upward and downward.

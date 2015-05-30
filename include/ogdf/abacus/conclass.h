@@ -1,11 +1,3 @@
-/*
- * $Revision: 3425 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:19:37 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief constraint classification.

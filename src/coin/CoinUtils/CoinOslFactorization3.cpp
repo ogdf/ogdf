@@ -1384,7 +1384,7 @@ static void c_ekkmltf(const EKKfactinfo *fact,double *dluval, int *hcoli,
     }
   }
 } /* c_ekkmltf */
-int c_ekklfct( register EKKfactinfo *fact)
+int c_ekklfct(EKKfactinfo *fact)
 {
   const int nrow	= fact->nrow;
   int ninbas = fact->xcsadr[nrow+1]-1;
@@ -2621,7 +2621,7 @@ inline void c_ekkclcp2(const int *hcol, const double *dels, const int * mrstrt,
     }
   }
 } /* c_ekkclcp */
-int c_ekkslcf( register const EKKfactinfo *fact)
+int c_ekkslcf(const EKKfactinfo *fact)
 {
   int * hrow = fact->xeradr;
   int * hcol = fact->xecadr;

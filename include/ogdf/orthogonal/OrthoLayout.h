@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class OrthoLayout which represents an
  *        orthogonal planar drawing algorithm.
@@ -79,7 +71,7 @@ public:
 	 *                    face of the drawing.
 	 * @param drawing     is assigned the final layout.
 	 */
-	void call(PlanRep &PG, adjEntry adjExternal, Layout &drawing);
+	virtual void call(PlanRep &PG, adjEntry adjExternal, Layout &drawing) override;
 
 	/** @}
 	 *  @name Optional parameters
@@ -87,12 +79,12 @@ public:
 	 */
 
 	//! Returns the minimum distance between edges and vertices.
-	double separation() const {
+	double separation() const override {
 		return m_separation;
 	}
 
 	//! Sets the minimum distance between vertices.
-	void separation(double sep) {
+	void separation(double sep) override {
 		m_separation = sep;
 	}
 

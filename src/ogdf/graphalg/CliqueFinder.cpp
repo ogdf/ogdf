@@ -1,11 +1,3 @@
-/*
- * $Revision: 3418 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 11:06:44 +0200 (Thu, 18 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of a heuristical method to find cliques
  * in a given input graph.
@@ -46,24 +38,23 @@
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/NodeComparer.h>
+#include <ogdf/basic/geometry.h>
 
 #ifdef OGDF_DEBUG
 #include <ogdf/fileformats/GraphIO.h>
 #endif
-#include <math.h>
-#include <ogdf/basic/geometry.h>
 
 
 namespace ogdf {
 
 
 //constructor
-CliqueFinder::CliqueFinder(const Graph &G) : m_pGraph(&G), m_pCopy(0),
+CliqueFinder::CliqueFinder(const Graph &G) : m_pGraph(&G), m_pCopy(nullptr),
 	m_minDegree(2),
 	m_numberOfCliques(0),
 	m_postProcess(ppSimple),
 	m_callByList(false),
-	m_pList(0),
+	m_pList(nullptr),
 	m_density(100)
 {
 	try {
@@ -79,7 +70,7 @@ CliqueFinder::CliqueFinder(const Graph &G) : m_pGraph(&G), m_pCopy(0),
 
 CliqueFinder::~CliqueFinder()
 {
-	if (m_pCopy != 0)
+	if (m_pCopy != nullptr)
 	{
 		//we have to uninitialize the nodearray before destroying
 		//the graph
@@ -101,7 +92,7 @@ CliqueFinder::~CliqueFinder()
 void CliqueFinder::call(NodeArray<int> &cliqueNumber)
 {
 	m_callByList = false;
-	m_pList = 0;
+	m_pList = nullptr;
 	//First find the cliques: doCall
 	doCall(m_minDegree);
 	//Then set the result: setResults(cliqueNumber);
@@ -121,7 +112,7 @@ void CliqueFinder::call(List< List<node> > &cliqueLists)
 	doCall(m_minDegree);
 	//setresult is called in doCall for every treated component
 
-	m_pList = 0;
+	m_pList = nullptr;
 }//call
 
 
@@ -211,8 +202,7 @@ void CliqueFinder::doCall(int minDegree)
 	NodeArray<int> realDegree(*m_pCopy, -1);//no isolated nodes exist here
 	//relative degree, number of high degree neighbours
 	NodeArray<int> relDegree(*m_pCopy, 0);//no isolated nodes exist here
-	node v;
-	forall_nodes(v, *m_pCopy)
+	for(node v : m_pCopy->nodes)
 	{
 		realDegree[v] = v->degree();
 		if (v->degree() > 0)
@@ -227,7 +217,7 @@ void CliqueFinder::doCall(int minDegree)
 			}//while
 		}//if not isolated
 
-	}//forallnodes
+	}
 
 	makeBiconnected(*m_pCopy, added);
 
@@ -255,7 +245,7 @@ void CliqueFinder::doCall(int minDegree)
 	//within the triconnected component
 	NodeArray<int> ccDegree(*m_pCopy, 0);
 
-	forall_nodes(v, spqrTree.tree())
+	for(node v : spqrTree.tree().nodes)
 	{
 		//we search for dense subgraphs in R-Nodes
 		//heuristics:
@@ -269,7 +259,6 @@ void CliqueFinder::doCall(int minDegree)
 		{
 			//retrieve the skeleton
 			Skeleton &s = spqrTree.skeleton(v);
-			node w;
 			Graph &skeletonG = s.getGraph();
 
 			//list of cliques
@@ -283,7 +272,7 @@ void CliqueFinder::doCall(int minDegree)
 
 			//derive the degree of the original node
 			//within the triconnected component
-			forall_nodes(w, skeletonG)
+			for(node w : skeletonG.nodes)
 			{
 				node vOrig = s.original(w);
 
@@ -291,8 +280,8 @@ void CliqueFinder::doCall(int minDegree)
 				forall_adj_edges(eSkel, w)
 				{
 					edge goodEdge = s.realEdge(eSkel);
-					bool isGoodEdge = goodEdge != 0;
-					if (isGoodEdge) isGoodEdge = m_pCopy->original(goodEdge) != 0;
+					bool isGoodEdge = goodEdge != nullptr;
+					if (isGoodEdge) isGoodEdge = m_pCopy->original(goodEdge) != nullptr;
 					//if (s.realEdge(eSkel))
 					if (isGoodEdge)
 					{
@@ -303,7 +292,7 @@ void CliqueFinder::doCall(int minDegree)
 
 				sortList.pushBack(vOrig);
 
-			}//forall_nodes
+			}
 
 			//sort the nodes corresponding to their degree
 			NodeComparer<int> ncomp(ccDegree, false);
@@ -326,7 +315,7 @@ void CliqueFinder::doCall(int minDegree)
 				//node can appear in several 3connected components
 				if (m_usedNode[vCand])
 				{
-					itNode++;
+					++itNode;
 					continue;
 				}//if already used
 
@@ -374,7 +363,7 @@ void CliqueFinder::doCall(int minDegree)
 								while (itSearch.valid() &&
 									( (*itCand)->size() > (*itSearch)->size()) )
 								{
-									itSearch--;
+									--itSearch;
 								}
 								//If valid, move behind itSearch, else move to front
 								if (!itSearch.valid())
@@ -387,7 +376,7 @@ void CliqueFinder::doCall(int minDegree)
 					}//if sufficient degree
 					//hier kann man mit else breaken, wenn Liste immer sortiert ist
 
-					itCand++;
+					++itCand;
 				}//while clique candidates
 
 				//create a new candidate if necessary
@@ -401,7 +390,7 @@ void CliqueFinder::doCall(int minDegree)
 
 				}//if no candidate yet
 
-				itNode++;
+				++itNode;
 			}//while valid
 
 			//TODO: cliquelist vielleicht durch einen member ersetzen
@@ -409,14 +398,12 @@ void CliqueFinder::doCall(int minDegree)
 #ifdef OGDF_DEBUG
 			//int numC1 = cliqueList.size();
 
-			int nodeNum = 0;
-			ListIterator< List<node>* > itDeb = cliqueList.begin();
-			while (itDeb.valid())
-			{
-				if ( (*itDeb)->size() > minDegree )
-					nodeNum = nodeNum +(*itDeb)->size();
-				itDeb++;
-			}
+			//int nodeNum = 0;
+			//for (List<node> *pL : cliqueList)
+			//{
+			//	if ( pL->size() > minDegree )
+			//		nodeNum = nodeNum + pL->size();
+			//}
 			checkCliques(cliqueList, false);
 			//double realTime;
 			//ogdf::usedTime(realTime);
@@ -425,14 +412,12 @@ void CliqueFinder::doCall(int minDegree)
 #ifdef OGDF_DEBUG
 			//realTime = ogdf::usedTime(realTime);
 
-			int nodeNum2 = 0;
-			itDeb = cliqueList.begin();
-			while (itDeb.valid())
-			{
-				if ( (*itDeb)->size() > minDegree )
-					nodeNum2 = nodeNum2 +(*itDeb)->size();
-				itDeb++;
-			}
+			//int nodeNum2 = 0;
+			//for (List<node> *pL : cliqueList)
+			//{
+			//	if ( pL->size() > minDegree )
+			//		nodeNum2 = nodeNum2 + pL->size();
+			//}
 			//if (nodeNum2 > nodeNum)
 			//{
 			//	cout<<"\nAnzahl Cliquen vor PP: "<<numC1<<"\n";
@@ -446,36 +431,29 @@ void CliqueFinder::doCall(int minDegree)
 
 			//now we run through the list until the remaining node sets
 			//are to small to be of interest
-			ListIterator< List<node>* > itCand = cliqueList.begin();
-			while (itCand.valid())
+			for(List<node> *pCand : cliqueList)
 			{
-				if ( (*itCand)->size() <= minDegree ) break;
+				if ( pCand->size() <= minDegree ) break;
 
-				ListIterator<node> itV = (*itCand)->begin();
-				while (itV.valid())
+				for(node u : *pCand)
 				{
-					node u = (*itV);
 					OGDF_ASSERT(m_copyCliqueNumber[u] == -1)
 					m_copyCliqueNumber[u] = m_numberOfCliques;
-					itV++;
-				}//while clique nodes
+				}//for clique nodes
 				m_numberOfCliques++;
-				itCand++;
-			}//while
+			}
 			//TODO: only set numbers if return value is not a list
 			//of clique node lists
 			setResults(cliqueList);
 
 			//free the allocated memory
-			ListIterator< List<node>* > itCl = cliqueList.begin();
-			while (itCl.valid())
+			for(List<node> *pCl : cliqueList)
 			{
-				delete (*itCl);
-				itCl++;
-			}//while
+				delete pCl;
+			}
 
 		}//if
-	}//forallnodes
+	}
 
 }//docall
 
@@ -501,58 +479,53 @@ void CliqueFinder::postProcessCliques(
 	//heuristic for dense subgraphs
 	//best would be to reinsert them immediatedly after
 	//each found subgraph to allow reuse
-	ListIterator< List<node>* > itCand = cliqueList.begin();
-	if (m_density != 100)
-	while (itCand.valid())
-	{
-		if ((*itCand)->size() > m_minDegree)
+	if (m_density != 100) {
+		for(List<node> *pCand : cliqueList)
 		{
-			NodeArray<bool> inList(*m_pCopy, false);
-			ListIterator<node> itNode = (*itCand)->begin();
-			while (itNode.valid())
+			if (pCand->size() > m_minDegree)
 			{
-				inList[*itNode] = true;
-				itNode++;
-			}//while
-
-			itNode = (*itCand)->begin();
-			while (itNode.valid())
-			{
-				int adCount = 0; //counts number of nodes adj. to *itNode in itCand
-				//check if inGraph degree is high enough
-				//and allow reuse otherwise
-				adjEntry adE = (*itNode)->firstAdj();
-				for (int i = 0; i < (*itNode)->degree(); i++)
-				{
-					if (usableEdge[adE->theEdge()])
-					{
-						if (inList[adE->twinNode()])
-						adCount++;
-					}
-					adE = adE->cyclicSucc();
-				}//for
-
-				//now delete nodes if connectivity to small
-				if (DIsLess(adCount, ceil(((*itCand)->size()-1)*m_density/100.0)))
-				{
-					leftOver.pushBack(*itNode);
-					m_usedNode[*itNode] = false;
-					inList[*itNode] = false;
-					ListIterator<node> itDel = itNode;
-					itNode++;
-					(*itCand)->del(itDel);
-					continue;
+				NodeArray<bool> inList(*m_pCopy, false);
+				for(node u : *pCand) {
+					inList[u] = true;
 				}
-				itNode++;
-			}//while
 
-		}//if
-		else break;
-		itCand++;
-	}//while
+				ListIterator<node> itNode = pCand->begin();
+				while (itNode.valid())
+				{
+					int adCount = 0; //counts number of nodes adj. to *itNode in itCand
+					//check if inGraph degree is high enough
+					//and allow reuse otherwise
+					adjEntry adE = (*itNode)->firstAdj();
+					for (int i = 0; i < (*itNode)->degree(); i++)
+					{
+						if (usableEdge[adE->theEdge()])
+						{
+							if (inList[adE->twinNode()])
+								adCount++;
+						}
+						adE = adE->cyclicSucc();
+					}//for
 
+					//now delete nodes if connectivity too small
+					if (DIsLess(adCount, ceil((pCand->size() - 1)*m_density / 100.0)))
+					{
+						leftOver.pushBack(*itNode);
+						m_usedNode[*itNode] = false;
+						inList[*itNode] = false;
+						ListIterator<node> itDel = itNode;
+						++itNode;
+						pCand->del(itDel);
+						continue;
+					}
+					++itNode;
+				}//while
 
-	itCand = cliqueList.begin();
+			}//if
+			else break;
+		}
+	}
+
+	ListIterator< List<node>* > itCand = cliqueList.begin();
 	while (itCand.valid())
 	{
 		if ((*itCand)->size() <= m_minDegree)
@@ -567,13 +540,13 @@ void CliqueFinder::postProcessCliques(
 			}//while nodes
 			ListIterator< List<node>* > itDel = itCand;
 			delete (*itDel);
-			itCand++;
+			++itCand;
 			cliqueList.del(itDel);//del
 			//Todo: remove empty lists here
 			continue;
 		}//if
 
-		itCand++;
+		++itCand;
 	}//while lists
 
 	//now we have all left over nodes in list leftOver
@@ -581,26 +554,24 @@ void CliqueFinder::postProcessCliques(
 	//nicht Knoten hinzunehmen, die schon in Cliquen benutzt sind
 	NodeArray<int> value(*m_pCopy);
 	NodeComparer<int> cmp(value, false);
-	ListIterator<node> itNode = leftOver.begin();
-	while (itNode.valid())
+	for(node u : leftOver)
 	{
-		node vVal = (*itNode);
+		node vVal = (u);
 		value[vVal] = evaluate(vVal, usableEdge);
-		itNode++;
-	}//while
+	}
 
 	leftOver.quicksort(cmp);
 
 	//--------------------------------------------------
 	//now start a new search at the most qualified nodes
 	//TODO: Option: wieviele?
-	itNode = leftOver.begin();
+	ListIterator<node> itNode = leftOver.begin();
 	while (itNode.valid())
 	{
 		//some nodes can already be assigned in earlier iterations
 		if (m_usedNode[*itNode])
 		{
-			itNode++;
+			++itNode;
 			continue;
 		}//if already used
 
@@ -615,34 +586,32 @@ void CliqueFinder::postProcessCliques(
 		//##############################
 		NodeArray<bool> neighbour(*m_pCopy, false);
 		NodeArray<int>  neighbourDegree(*m_pCopy, 0);
-		adjEntry adj1;
 		node v = *itNode;
 		OGDF_ASSERT(!m_usedNode[v])
-		forall_adj(adj1, v)
+		for(adjEntry adj1 : v->adjEdges)
 		{
 			if (!usableEdge[adj1->theEdge()]) continue;
 			node w = adj1->twinNode();
 			if (!m_usedNode[w]) neighbour[w] = true;
-		}//foralladj
+		}
 
 		List<node> *neighbours = new List<node>();
 		//this loop counts every triangle (two times)
 		//TODO: man kann besser oben schon liste neighbours fuellen
 		//und hier nur noch darueber laufen
-		forall_adj(adj1, v)
+		for(adjEntry adj1 : v->adjEdges)
 		{
 			//if (!usableEdge[adj1->theEdge()]) continue;
 			node w = adj1->twinNode();
 			//if (m_usedNode[w]) continue; //dont use paths over other cliques
 			if (!neighbour[w]) continue;
 			OGDF_ASSERT(!m_usedNode[w])
-			adjEntry adj2;
 
 			OGDF_ASSERT(m_copyCliqueNumber[w] == -1)
 			neighbours->pushBack(w);
 			neighbourDegree[w]++; //connected to v
 
-			forall_adj(adj2, w)
+			for(adjEntry adj2 : w->adjEdges)
 			{
 				if (!usableEdge[adj2->theEdge()]) continue;
 				node u = adj2->twinNode();
@@ -651,8 +620,8 @@ void CliqueFinder::postProcessCliques(
 				{
 					neighbourDegree[w]++;
 				}//if
-			}//foralladj
-		}//foralladj
+			}
+		}
 		//##############################
 
 		//---------------------------------------------
@@ -686,14 +655,12 @@ void CliqueFinder::postProcessCliques(
 			OGDF_ASSERT(allAdjacent(v, neighbours))
 			neighbours->pushFront(v);
 
-			ListIterator<node> itUsed = neighbours->begin();
-			while (itUsed.valid())
+			for(node vUsed : *neighbours)
 			{
-				OGDF_ASSERT(m_usedNode[*itUsed] == false)
+				OGDF_ASSERT(m_usedNode[vUsed] == false)
 				//TODO: hier gleich die liste checken
-				m_usedNode[(*itUsed)] = true;
-				itUsed++;
-			}//while
+				m_usedNode[(vUsed)] = true;
+			}
 			cliqueAdd.pushBack(neighbours);
 #ifdef OGDF_DEBUG
 			OGDF_ASSERT(cliqueOK(neighbours))
@@ -706,7 +673,7 @@ void CliqueFinder::postProcessCliques(
 			{
 				ListIterator<node> itDel = itUsed;
 				//delete (*itDel);
-				itUsed++;
+				++itUsed;
 				neighbours->del(itDel);
 				//neighbours->remove(itDel);
 			}//while
@@ -714,7 +681,7 @@ void CliqueFinder::postProcessCliques(
 			delete neighbours; //hier vielleicht clear?
 		}
 
-		itNode++;
+		++itNode;
 	}//while
 
 	cliqueList.conc(cliqueAdd);
@@ -733,22 +700,20 @@ int CliqueFinder::evaluate(node v, EdgeArray<bool> &usableEdge)
 	//der Ergebnisse fuer andere Knoten
 	//TODO: Geht das auch effizienter als mit Nodearray?
 	NodeArray<bool> neighbour(*m_pCopy, false);
-	adjEntry adj1;
-	forall_adj(adj1, v)
+	for(adjEntry adj1 : v->adjEdges)
 	{
 		if (!usableEdge[adj1->theEdge()]) continue;
 		node w = adj1->twinNode();
 		if (!m_usedNode[w]) neighbour[w] = true;
-	}//foralladj
+	}
 
 	//this loop counts every triangle (twice)
-	forall_adj(adj1, v)
+	for(adjEntry adj1 : v->adjEdges)
 	{
 		if (!usableEdge[adj1->theEdge()]) continue;
-		adjEntry adj2;
 		node w = adj1->twinNode();
 		if (m_usedNode[w]) continue; //dont use paths over other cliques
-		forall_adj(adj2, w)
+		for(adjEntry adj2 : w->adjEdges)
 		{
 			if (!usableEdge[adj2->theEdge()]) continue;
 			node u = adj2->twinNode();
@@ -756,9 +721,9 @@ int CliqueFinder::evaluate(node v, EdgeArray<bool> &usableEdge)
 			if (neighbour[u])
 			{
 				value++;
-			}//if
-		}//foralladj
-	}//foralladj
+			}
+		}
+	}
 	return value;
 }//evaluate
 
@@ -786,7 +751,7 @@ void CliqueFinder::findClique(
 		{
 			ListIterator<node> itDel = itNode;
 			//delete (*itDel);
-			itNode++;
+			++itNode;
 			neighbours.del(itDel); //remove
 
 			continue;
@@ -794,12 +759,12 @@ void CliqueFinder::findClique(
 		if (allAdjacent((*itNode), &clique))
 		{
 			clique.pushBack((*itNode));
-			itNode++;
+			++itNode;
 		}
 		else
 		{
 			ListIterator<node> itDel = itNode;
-			itNode++;
+			++itNode;
 			neighbours.del(itDel);
 		}
 
@@ -821,15 +786,14 @@ void CliqueFinder::setResults(NodeArray<int> & cliqueNum)
 	//Todo: Assert that cliqueNum is an array on m_pGraph
 	//set the clique numbers for the original nodes, -1 if not
 	//member of a clique
-	node v;
 
-	forall_nodes(v, *m_pGraph)
+	for(node v : m_pGraph->nodes)
 	{
 		node w = m_pCopy->copy(v);
 		OGDF_ASSERT(w)
 		cliqueNum[v] = m_copyCliqueNumber[w];
 
-	}//forallnodes
+	}
 }//setresults
 
 //set results values from copy node lists to original node
@@ -840,41 +804,33 @@ void CliqueFinder::setResults(List< List<node>* > &cliqueLists)
 
 	//m_pList->clear(); //componentwise
 	//run through the clique lists
-	ListIterator< List<node>* > it = cliqueLists.begin();
-	while (it.valid())
+	for(List<node> *pL : cliqueLists)
 	{
 		List<node> l_list; //does this work locally?
 		//run through the cliques
-		ListIterator<node> itNode = (*it)->begin();
-		while(itNode.valid())
+		for(node v : *pL)
 		{
-			node u = m_pCopy->original((*itNode));
+			node u = m_pCopy->original(v);
 			if (u)
 				l_list.pushBack(u);
-			itNode++;
-		}//while
+		}
 
 		m_pList->pushBack(l_list);
-		it++;
-	}//while
+	}
 }//setresults
 
 //same as above
 void CliqueFinder::setResults(List< List<node> > &cliqueLists)
 {
+#if 0
 	//run through the clique lists
-	ListIterator< List<node> > it = cliqueLists.begin();
-	while (it.valid())
-	{
+	for(List<node> &L : cliqueLists) {
 		//run through the cliques
-		ListIterator<node> itNode = (*it).begin();
-		while(itNode.valid())
-		{
-			itNode++;
-		}//while
-
-		it++;
-	}//while
+		for(node v : L) {
+		}
+	}
+#endif
+	// FIXME: does not do anything, hence commented out
 }//setresults
 
 //Graph must be parallelfree
@@ -890,12 +846,10 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 	//Check: can the runtime be improved, e.g. by an adjacency oracle
 	//or by running degree times through the list?
 	NodeArray<bool> inList(*m_pCopy, false);//(v->graphOf()), false);
-	ListIterator<node> it = vList->begin();
-	while (it.valid())
+	for(node u : *vList)
 	{
-		inList[(*it)] = true;
-		it++;
-	}//while
+		inList[u] = true;
+	}
 
 	adjEntry adE = v->firstAdj();
 	for (int i = 0; i < v->degree(); i++)
@@ -918,46 +872,37 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 
 //check
 
+#ifdef OGDF_DEBUG
 void CliqueFinder::checkCliques(List< List<node>* > &cliqueList, bool sizeCheck)
 {
 	//check if size is ok and if all nodes are mutually connected
-	ListIterator< List<node>* > itList = cliqueList.begin();
-
-	while (itList.valid())
-	{
-		if (sizeCheck)
-		{
-			OGDF_ASSERT((*itList)->size()> m_minDegree)
+	for (List<node> *pL : cliqueList) {
+		if (sizeCheck) {
+			OGDF_ASSERT(pL->size()> m_minDegree)
 		}
-		OGDF_ASSERT(cliqueOK((*itList)))
-
-		itList++;
-	}//while
-
+		OGDF_ASSERT(cliqueOK(pL))
+	}
 }//checkCliques
+#endif
 
 bool CliqueFinder::cliqueOK(List<node> *clique)
 {
 	bool result = true;
 	NodeArray<int> connect(*m_pCopy, 0);
-	ListIterator<node> itV = clique->begin();
 
-	while (itV.valid())
+	for(node v : *clique)
 	{
-		adjEntry adj1;
-		forall_adj(adj1, (*itV))
+		for(adjEntry adj1 : v->adjEdges)
 		{
 			connect[adj1->twinNode()]++;
 
-		}//foralladj
-		itV++;
-	}//while
-	itV = clique->begin();
-	while (itV.valid())
+		}
+	}
+	for(node v : *clique)
 	{
 		if (m_density == 100)
 		{
-			if (connect[(*itV)] < (clique->size()-1))
+			if (connect[v] < (clique->size()-1))
 				return false;
 		}
 		else
@@ -966,11 +911,10 @@ bool CliqueFinder::cliqueOK(List<node> *clique)
 			//value
 			//TODO:postprocess and delete all "bad" nodes
 			//double minVal = (clique->size()-1)*m_density/100.0;
-			//if (DIsLess(connect[(*itV)], minVal))
+			//if (DIsLess(connect[v], minVal))
 			//	return false;
 		}
-		itV++;
-	}//while
+	}
 
 	return result;
 }//cliqueOK
@@ -982,8 +926,7 @@ void CliqueFinder::writeGraph(Graph &G, NodeArray<int> &cliqueNumber, const char
 {
 	GraphAttributes GA(G, GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle | GraphAttributes::nodeLabel);
 
-	node v;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		int num = cliqueNumber[v];
 		int col1, col2, col3;
@@ -998,7 +941,7 @@ void CliqueFinder::writeGraph(Graph &G, NodeArray<int> &cliqueNumber, const char
 		GA.fillColor(v) = Color(col1,col2,col3);
 		GA.label(v) = to_string(num);
 
-	}//forall_nodes
+	}
 
 	GraphIO::writeGML(GA, fileName);
 }

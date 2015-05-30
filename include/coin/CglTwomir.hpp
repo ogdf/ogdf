@@ -105,9 +105,9 @@ public:
       formulation rows
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs, 
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   /// Return true if needs optimal basis to do cuts (will return true)
-  virtual bool needsOptimalBasis() const;
+  virtual bool needsOptimalBasis() const override;
 
   /**@name Change criterion on which scalings to use (default = 1,1,1,1) */
   //@{
@@ -148,7 +148,7 @@ public:
   /// Get away at root
   double getAwayAtRoot() const;
   /// Return maximum length of cut in tree
-  virtual int maximumLengthOfCutInTree() const
+  virtual int maximumLengthOfCutInTree() const override
   { return max_elements_;}
   //@}
 
@@ -161,7 +161,7 @@ public:
   CglTwomir (const CglTwomir &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglTwomir & operator=(const CglTwomir& rhs);
@@ -169,7 +169,7 @@ public:
   /// Destructor 
   virtual  ~CglTwomir ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
       
 private:

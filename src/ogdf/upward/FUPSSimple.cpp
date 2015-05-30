@@ -1,11 +1,3 @@
-/*
- * $Revision: 3261 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-25 14:48:05 +0100 (Fri, 25 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of FUPSSimple class.
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 #include <ogdf/upward/FUPSSimple.h>
-#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
+//#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
 #include <ogdf/upward/UpwardPlanarity.h>
 #include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -88,7 +80,7 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 	if (random)
 		nonTreeEdges_orig.permute(); // random order
 
-	adjEntry extFaceHandle = 0;
+	adjEntry extFaceHandle = nullptr;
 
 	//insert nonTreeEdges
 	while (!nonTreeEdges_orig.empty()) {
@@ -102,9 +94,8 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 						GraphAttributes::nodeLabel|
 						GraphAttributes::edgeLabel
 						);
-	node v;
 	// label the nodes with their index
-	forall_nodes(v, AG.constGraph()) {
+	for(node v : AG.constGraph().nodes) {
 		AG.label(v) = to_string(v->index());
 	}
 	AG.writeGML("c:/temp/spannTree.gml");
@@ -132,8 +123,7 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 #if 0
 			//*************************** debug ********************************
 			cout << endl << "FUPS : " << endl;
-			face ff;
-			forall_faces(ff, Beta) {
+			for(face ff : Beta.faces) {
 				cout << "face " << ff->index() << ": ";
 				adjEntry adjNext = ff->firstAdj();
 				do {
@@ -187,12 +177,10 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 
 	//mark the incident edges e1..e_i of super source s and the incident edges of the target node of the edge e1.._e_i as tree edge.
 	visited[s] = true;
-	adjEntry adj;
-	forall_adj(adj, s) {
+	for(adjEntry adj : s->adjEdges) {
 		isTreeEdge[adj] = true;
 		visited[adj->theEdge()->target()];
-		adjEntry adjTmp;
-		forall_adj(adjTmp, adj->theEdge()->target()) {
+		for(adjEntry adjTmp : adj->theEdge()->target()->adjEdges) {
 			isTreeEdge[adjTmp] = true;
 			node tgt = adjTmp->theEdge()->target();
 			if (!visited[tgt]) {
@@ -203,10 +191,8 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 	}
 
 	//traversing with dfs
-	forall_listiterators(node, it, toDo) {
-		node start = *it;
-		adjEntry adj;
-		forall_adj(adj, start) {
+	for(node start : toDo) {
+		for(adjEntry adj : start->adjEdges) {
 			node v = adj->theEdge()->target();
 			if (!visited[v])
 				dfs_visit(GC, adj->theEdge(), visited, isTreeEdge, random);
@@ -215,13 +201,12 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 
 	// delete all non tree edgesEdges to obtain a span tree
 	List<edge> l;
-	edge e;
-	forall_edges(e, GC) {
+	for(edge e : GC.edges) {
 		if (!isTreeEdge[e])
 			l.pushBack(e);
 	}
 	while (!l.empty()) {
-		e = l.popFrontRet();
+		edge e = l.popFrontRet();
 		delEdges.pushBack(GC.original(e));
 		GC.delEdge(e);
 	}
@@ -264,8 +249,7 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 	//*************************** debug ********************************
 	/*
 	cout << endl << "FUPS : " << endl;
-	face ff;
-	forall_faces(ff, Beta) {
+	for(face ff : Beta.faces) {
 		cout << "face " << ff->index() << ": ";
 		adjEntry adjNext = ff->firstAdj();
 		do {
@@ -300,9 +284,8 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 						GraphAttributes::nodeLabel|
 						GraphAttributes::edgeLabel
 						);
-	node v;
 	// label the nodes with their index
-	forall_nodes(v, AG.constGraph()) {
+	for(node v : AG.constGraph().nodes) {
 		AG.label(v) = to_string(v->index());
 	}
 	AG.writeGML("c:/temp/MergeFUPS.gml");
@@ -312,9 +295,9 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 	OGDF_ASSERT(isStGraph(M));
 
 	//add the deleted edges
-	forall_listiterators(edge, it, orig_edges) {
-		node a = M.copy((*it)->source());
-		node b = M.copy((*it)->target());
+	for(edge eOrig : orig_edges) {
+		node a = M.copy(eOrig->source());
+		node b = M.copy(eOrig->target());
 		M.newEdge(a, b);
 	}
 	return (isAcyclic(M));

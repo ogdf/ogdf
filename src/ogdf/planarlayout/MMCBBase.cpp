@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Mixed-Model crossings beautifiers.
  *
@@ -74,8 +66,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 	int ev[4][3];
 	int count = 0;
 
-	adjEntry adj;
-	forall_adj(adj,v)
+	for(adjEntry adj : v->adjEdges)
 	{
 		edge e = adj->theEdge();
 
@@ -360,25 +351,21 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 
 void MMCBDoubleGrid::doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L)
 {
-	edge e;
-	forall_edges(e,PG) {
-		ListIterator<IPoint> it;
-		for(it = gl.bends(e).begin(); it.valid(); ++it) {
-			IPoint &p = *it;
+	for (edge e : PG.edges) {
+		for (IPoint &p : gl.bends(e)) {
 			p.m_x *= 2;
 			p.m_y *= 2;
 		}
 	}
 
-	node v;
-	forall_nodes(v,PG) {
+	for (node v : PG.nodes) {
 		gl.x(v) *= 2;
 		gl.y(v) *= 2;
 	}
 
 	ListConstIterator<node> itV;
-	for(itV = L.begin(); itV.valid(); ++itV)
-		workOn(gl,*itV);
+	for (node v : L)
+		workOn(gl, v);
 }
 
 
@@ -390,11 +377,8 @@ void MMCBLocalStretch::doCall(const PlanRep &PG, GridLayout &gl, const List<node
 {
 	int max_x = 0, max_y = 0;
 
-	edge e;
-	forall_edges(e,PG) {
-		ListIterator<IPoint> it;
-		for(it = gl.bends(e).begin(); it.valid(); ++it) {
-			IPoint &p = *it;
+	for (edge e : PG.edges) {
+		for (IPoint &p : gl.bends(e)) {
 			if (p.m_x > max_x) max_x = p.m_x;
 			if (p.m_y > max_y) max_y = p.m_y;
 			p.m_x *= 2;
@@ -402,53 +386,48 @@ void MMCBLocalStretch::doCall(const PlanRep &PG, GridLayout &gl, const List<node
 		}
 	}
 
-	node v;
-	forall_nodes(v,PG) {
+	for (node v : PG.nodes) {
 		if (gl.x(v) > max_x) max_x = gl.x(v);
 		if (gl.y(v) > max_y) max_y = gl.y(v);
 		gl.x(v) *= 2;
 		gl.y(v) *= 2;
 	}
 
-	Array<int> change_x(0,max_x,1);
-	Array<int> change_y(0,max_y,1);
+	Array<int> change_x(0, max_x, 1);
+	Array<int> change_y(0, max_y, 1);
 
 	change_x[0] = 0;
 	change_y[0] = 0;
 
-	ListConstIterator<node> itV;
-	for(itV = L.begin(); itV.valid(); ++itV) {
-		v = *itV;
-		int val = workOn(gl,v);
+	for (node v : L) {
+		int val = workOn(gl, v);
 		if (val > 0) {
 			if (val != 2)
-				change_x[(gl.x(v)+1)/2] = 0;
+				change_x[(gl.x(v) + 1) / 2] = 0;
 			if (val != 1)
-				change_y[(gl.y(v)+1)/2] = 0;
+				change_y[(gl.y(v) + 1) / 2] = 0;
 		}
 	}
 
 	if (max_x > 1)
-		for (int i = 1; i <= max_x; i++) {
-			change_x[i] = change_x[i] + change_x[i-1];
-		}
+	for (int i = 1; i <= max_x; i++) {
+		change_x[i] = change_x[i] + change_x[i - 1];
+	}
 	if (max_y > 1)
-		for (int i = 1; i <= max_y; i++) {
-			change_y[i] = change_y[i] + change_y[i-1];
-		}
+	for (int i = 1; i <= max_y; i++) {
+		change_y[i] = change_y[i] + change_y[i - 1];
+	}
 
-	forall_edges(e,PG) {
-		ListIterator<IPoint> it;
-		for(it = gl.bends(e).begin(); it.valid(); ++it) {
-			IPoint &p = *it;
-			p.m_x = p.m_x - change_x[(p.m_x+1)/2];
-			p.m_y = p.m_y - change_y[(p.m_y+1)/2];
+	for (edge e : PG.edges) {
+		for (IPoint &p : gl.bends(e)) {
+			p.m_x = p.m_x - change_x[(p.m_x + 1) / 2];
+			p.m_y = p.m_y - change_y[(p.m_y + 1) / 2];
 		}
 	}
 
-	forall_nodes(v,PG) {
-		gl.x(v)=gl.x(v)-change_x[(gl.x(v)+1)/2];
-		gl.y(v)=gl.y(v)-change_y[(gl.y(v)+1)/2];
+	for (node v : PG.nodes) {
+		gl.x(v) = gl.x(v) - change_x[(gl.x(v) + 1) / 2];
+		gl.y(v) = gl.y(v) - change_y[(gl.y(v) + 1) / 2];
 	}
 }
 

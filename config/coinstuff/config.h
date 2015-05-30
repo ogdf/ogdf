@@ -2,6 +2,8 @@
 // CGL
 //
 
+#include <cinttypes>
+
 /* Version number of project */
 #define CGL_VERSION "0.57.3"
 
@@ -221,7 +223,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to be the name of C-function for Inf check */
-#define COIN_C_FINITE finite
+#define COIN_C_FINITE std::isfinite
 
 /* Define to be the name of C-function for NaN check */
 #define COIN_C_ISNAN std::isnan

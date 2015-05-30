@@ -1,11 +1,3 @@
-/*
- * $Revision: 2984 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-07 11:45:58 +0100 (Wed, 07 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of classes used for hashing.
  *
@@ -52,16 +44,14 @@
 #define OGDF_HASHING_H
 
 #include <ogdf/basic/basic.h>
-#include <math.h>
 
 
 namespace ogdf {
 
 class HashingBase;
 
+//! Base class for elements within a hash table.
 /**
- * \brief Base class for elements within a hash table.
- *
  * This class realizes only chaining of elements and maintianing hash values
  * for rehashing.
  */
@@ -73,7 +63,7 @@ class HashElementBase {
 
 public:
 	//! Creates a hash element with hash value \a hashValue.
-	HashElementBase(size_t hashValue) : m_hashValue(hashValue) { }
+	HashElementBase(size_t hashValue) : m_next(nullptr), m_hashValue(hashValue) { }
 
 	//! Returns the successor to this element in the list.
 	HashElementBase *next() const { return m_next; }
@@ -187,10 +177,6 @@ private:
 };
 
 
-template<class K, class I, class H> class Hashing;
-template<class K, class I, class H> class HashArray;
-
-
 /**
  * \brief Representation of elements in a hash table.
  *
@@ -269,8 +255,9 @@ public:
 };
 
 
+//! %Hashing with chaining and table doubling.
 /**
- * \brief %Hashing with chaining and table doubling.
+ * @ingroup containers
  *
  * The class Hashing<K,I> implements a hashing table which realizes a
  * mapping from a key type \a K to an information type \a I.

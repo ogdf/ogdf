@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanRepLight.
  *
@@ -55,6 +47,9 @@ namespace ogdf {
 
 
 	//! Light-weight version of a planarized representation, associated with a PlanRep.
+	/**
+	 * @ingroup plan-rep
+	 */
 	class PlanRepLight : public GraphCopy
 	{
 		const CCsInfo &m_ccInfo;

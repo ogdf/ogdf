@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class MultiEdgeApproxInserter.
  *
@@ -48,6 +40,7 @@
 #define OGDF_MULTI_EDGE_APPROX_INSERTER_H
 
 
+#include <ogdf/basic/FaceArray.h>
 #include <ogdf/module/EdgeInsertionModule.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
@@ -56,6 +49,10 @@
 namespace ogdf {
 
 
+//! Multi edge inserter with approximation guarantee.
+/**
+ * @ingroup ga-insert
+ */
 class OGDF_EXPORT MultiEdgeApproxInserter : public EdgeInsertionModule
 {
 public:
@@ -69,7 +66,7 @@ public:
 	~MultiEdgeApproxInserter() { }
 
 	//! Returns a new instance of the multi-edge approx inserter with the same option settings.
-	EdgeInsertionModule *clone() const;
+	virtual EdgeInsertionModule *clone() const override;
 
 	//! Assignment operator. Copies option settings only.
 	MultiEdgeApproxInserter &operator=(const MultiEdgeApproxInserter &inserter);
@@ -153,7 +150,7 @@ private:
 		const Array<edge>         &origEdges,
 		const EdgeArray<int>      *costOrig,
 		const EdgeArray<bool>     *forbiddenEdge,
-		const EdgeArray<__uint32> *edgeSubGraphs);
+		const EdgeArray<uint32_t> *edgeSubGraphs) override;
 
 	MultiEdgeApproxInserter::Block *constructBlock(int i);
 	node copy(node vOrig, int b);

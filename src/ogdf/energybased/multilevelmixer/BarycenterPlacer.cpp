@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Places nodes at the barycenter position of its neighbors.
  *
@@ -47,7 +39,7 @@ namespace ogdf {
 void BarycenterPlacer::placeOneLevel(MultilevelGraph &MLG)
 {
 	int level = MLG.getLevel();
-	while (MLG.getLevel() == level && MLG.getLastMerge() != 0)
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
 	{
 		placeOneNode(MLG);
 	}
@@ -60,8 +52,7 @@ void BarycenterPlacer::placeOneNode(MultilevelGraph &MLG)
 	double x = 0.0;
 	double y = 0.0;
 	double i = 0.0;
-	adjEntry adj;
-	forall_adj(adj, merged) {
+	for(adjEntry adj : merged->adjEdges) {
 		if(m_weightedPositions) {
 			double weight = 1.0 / MLG.weight(adj->theEdge());
 			i = i + weight;

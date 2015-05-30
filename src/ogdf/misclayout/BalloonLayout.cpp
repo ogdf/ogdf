@@ -1,11 +1,3 @@
-/*
- * $Revision: 2771 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Wed, 26 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief BalloonLayout for trees that can also be applied to
  * general graphs.
@@ -56,8 +48,6 @@
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Math.h>
-
-#include <math.h>
 
 
 namespace ogdf {
@@ -122,8 +112,7 @@ void BalloonLayout::call(GraphAttributes &AG)
 	selectRoot(G);
 	#ifdef OGDF_DEBUG
 	AG.fillColor(m_root) = Color(0xaa, 0x00, 0xaa);
-	edge e;
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		if ((*m_treeEdge)[e])
 			AG.strokeColor(e) = Color(0xaa, 0x00, 0xaa);
@@ -146,7 +135,6 @@ void BalloonLayout::selectRoot(const Graph &G)
 	#ifdef OGDF_DEBUG
 	checkTree(G, true);
 	#endif
-	node v;
 
 	switch(m_rootSelection)
 	{
@@ -154,7 +142,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 	case BalloonLayout::rootHighestDegree:
 		{
 			int maxDeg = -1;
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 				if(v->degree() > maxDeg)
 				{
 					m_root = v;
@@ -171,18 +159,19 @@ void BalloonLayout::selectRoot(const Graph &G)
 			if (G.numberOfNodes() == 1)
 				leaves.append(G.firstNode());
 			else
-				forall_nodes(v,G) {
+				for(node v : G.nodes) {
 					degree[v] = m_childCount[v];
-					if (m_parent[v] != 0) degree[v]++;
+					if (m_parent[v] != nullptr) degree[v]++;
 					if(degree[v] == 1)
 						leaves.append(v);
 			}
 
+			node v = nullptr;
 			while(!leaves.empty()) {
 				v = leaves.pop();
 
 				node p = m_parent[v];
-				if (p != 0)
+				if (p != nullptr)
 					if (--degree[p] == 1)
 						leaves.append(p);
 				ListConstIterator<node> it = m_childList[v].begin();
@@ -190,7 +179,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 				{
 					if (--degree[(*it)] == 1)
 						leaves.append((*it));
-					it++;
+					++it;
 				}
 			}//while leaves
 
@@ -202,18 +191,18 @@ void BalloonLayout::selectRoot(const Graph &G)
 
 			//---------------
 			node u = m_root;
-			v = 0;
-			while (u != 0)
+			v = nullptr;
+			while (u != nullptr)
 			{
 				node w = m_parent[u];
 				m_parent[u] = v;
-				if (v != 0)
+				if (v != nullptr)
 				{
 					//may change the child order
 					m_childCount[v]++;
 					m_childList[v].pushBack(u);
 				}//if v
-				if (w != 0)
+				if (w != nullptr)
 				{
 					m_childCount[w]--;
 					ListIterator<node> it = m_childList[w].begin();
@@ -224,7 +213,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 							m_childList[w].del(it);
 							break;
 						}
-						it++;
+						++it;
 					}//while children
 				}//if w
 				v = u;
@@ -256,8 +245,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 	m_maxChildRadius.init(G, 0.0);
 	m_size.init(G, 0.0);
 
-	node u;
-	forall_nodes(u, G)
+	for(node u : G.nodes)
 	{
 		double w = AG.width(u);
 		double h = AG.height(u);
@@ -282,22 +270,21 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 
 			if (G.numberOfNodes() > 1)
 			{
-				node v;
-				forall_nodes(v,G) {
+				for (node v : G.nodes) {
 					if((children[v] = m_childCount[v]) == 0)
 					{
 						leaves.append(v);
 						m_oRadius[v] = m_size[v];
 					}
-				}//forallnodes
+				}
 				//kann man wieder zusammenfassen mit unterer Schleife,
 				//da Berechnung geaendert
 				while(!leaves.empty()) {
-					v = leaves.pop();
+					node v = leaves.pop();
 
 					node p = m_parent[v];
 
-					if (p != 0)
+					if (p != nullptr)
 					{
 						double t = m_oRadius[v];
 						//we sum up the outer radius values here at
@@ -324,7 +311,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 					#ifdef OGDF_DEBUG
 					cout << "Non-leaf node processed\n";
 					#endif
-					v = level.pop();
+					node v = level.pop();
 					//---------------------
 					//compute radii
 					//inner radius estimate, outer currently holds sum of children
@@ -393,7 +380,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 					//adjust parent values
 					node p = m_parent[v];
 					//Invariant: outer radius of children of p is already computed
-					if (p != 0)
+					if (p != nullptr)
 					{
 						//we sum up the outer radius values here at
 						//the parent node to compute the estimate for
@@ -426,7 +413,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 void BalloonLayout::computeTree(const Graph &G)
 {
 	node v = G.firstNode();
-	m_parent.init(G, 0);
+	m_parent.init(G, nullptr);
 	m_childCount.init(G, 0);
 	m_childList.init(G);
 
@@ -480,7 +467,7 @@ void BalloonLayout::computeBFSTree(const Graph &G, node v)
 				(*m_treeEdge)[e] = true;
 				#endif
 			}
-		}//foralledges
+		}
 	}//while
 	#ifdef OGDF_DEBUG
 	checkTree(G, true);
@@ -505,7 +492,7 @@ void BalloonLayout::checkTree(const Graph &G, bool treeRoot)
 		{
 			listchecker++;
 			testqueue.pushBack((*it));
-			it++;
+			++it;
 		}//while
 	}//while
 	if (G.numberOfNodes() != testchecker)
@@ -539,7 +526,6 @@ void BalloonLayout::computeAngles(const Graph &G)
 
 		if (m_childCount[p] > 0)
 		{
-			double anglesum = 0.0;
 			double pestimate = m_estimate[p]; //the circumference estimate of the parent
 			double fullAngle = 2.0*Math::pi;  //angle that has to be shared by children
 			ListConstIterator<node> it = m_childList[p].begin();
@@ -579,13 +565,13 @@ void BalloonLayout::computeAngles(const Graph &G)
 							break;
 							#endif
 						}
-						it2++;
+						++it2;
 					}
 				}
 				while (it.valid())
 				{
 					v = (*it);
-					it++;
+					++it;
 
 					#ifdef OGDF_DEBUG
 					checker++;
@@ -598,6 +584,7 @@ void BalloonLayout::computeAngles(const Graph &G)
 					}
 					else
 					{
+						double anglesum = 0.0;
 						//erst alle Winkel aufaddieren und dann anteilig
 						//auf 2pi bzw. 100%
 						//m_angle[v] = anglesum;
@@ -646,7 +633,7 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 	queue.pushBack(v);
 	#ifdef OGDF_DEBUG
 	cout<<"Processing queue \n";
-	//forall_nodes(v, G)
+	//for(node v : G.nodes)
 	//{
 		//cout<<"Angle "<<v<<" "<<m_angle[v]<<"\n";
 	//}
@@ -691,7 +678,7 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 				node w = (*it);
 				queue.pushBack(w);
 
-				it++;
+				++it;
 
 				node z;
 				if (it.valid()) z = (*it);

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3851 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2013-11-20 07:26:56 +0100 (Wed, 20 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declarations for Comparer objects.
  *
@@ -65,6 +57,8 @@ namespace ogdf {
 
 //! Standard comparer (valid as a static comparer).
 /**
+ * @ingroup comparer
+ *
  * Standard comparers are used by some sorting and searching methods.
  * The implementation of the generic class only provides dummies that
  * always throw a NoStdComparerException.
@@ -90,6 +84,9 @@ public:
 };
 
 //! Generates a specialization of the standard static comparer for \a type based on compare operators.
+/**
+ * @ingroup comparer
+ */
 #define OGDF_STD_COMPARER(type) \
 	template<> class StdComparer<type> \
 	{ \
@@ -119,6 +116,8 @@ public:
 
 //! A static comparer which compares the target of pointers ("content"), instead of the pointer's adresses.
 /**
+ * @ingroup comparer
+ *
  * For the comparison of the contents, you may give your own static comparer
  */
 template<class CONTENTTYPE, class STATICCONTENTCOMPARER = StdComparer<CONTENTTYPE> >
@@ -135,6 +134,8 @@ public:
 
 //! Add this macro to your class to turn it into a full comparer.
 /**
+ * @ingroup comparer
+ *
  * It is assumed that your class has a method "compare(const type &x, const type &y)", which
  * returns 0 if the two elements are equal, a negative value if \a x is smaller, and a positive
  * value if \a x is greater.
@@ -181,6 +182,8 @@ public:
 
 //! Add this macro to your class to turn it into a full static comparer.
 /**
+ * @ingroup comparer
+ *
  * It is assumed that your class has a *static* method "compare(const type &x, const type &y)", which
  * returns 0 if the two elements are equal, a negative value if \a x is smaller, and a positive
  * value if \a x is greater.
@@ -226,6 +229,8 @@ public:
 
 //! Abstract base class for comparer classes.
 /**
+ * @ingroup comparer
+ *
  * The parameterized class \a VComparer<E> is an abstract base class for
  * encapsulating compare functions for type \a E. Implementations derive
  * from this class and implement at least the compare() method.
@@ -344,6 +349,31 @@ public:
 	static bool greater(const Prioritized<X,Priority> &x, const Prioritized<X,Priority> &y) { return x >  y; }
 	static bool geq    (const Prioritized<X,Priority> &x, const Prioritized<X,Priority> &y) { return x >= y; }
 	static bool equal  (const Prioritized<X,Priority> &x, const Prioritized<X,Priority> &y) { return x == y; }
+};
+
+/**
+ * Template for converting any StdComparer into a STL compatible compare functor.
+ * Utilizes the comparators less method.
+ */
+template<typename TYPE, class COMPARER = StdComparer<TYPE>>
+class StlLess {
+public:
+	bool operator()(const TYPE &x, const TYPE &y) const {
+		return COMPARER::less(x, y);
+	}
+};
+
+
+/**
+ * Template for converting any StdComparer into a STL compatible compare functor.
+ * Utilizes the comparators greater method.
+ */
+template<typename TYPE, class COMPARER = StdComparer<TYPE>>
+class StlGreater {
+public:
+	bool operator()(const TYPE &x, const TYPE &y) const {
+		return COMPARER::greater(x, y);
+	}
 };
 
 

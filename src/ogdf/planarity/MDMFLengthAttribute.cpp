@@ -1,11 +1,3 @@
-/*
- * $Revision: 2559 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Length attribute used in EmbedderMinDepthMaxFace.
  * It contains two components (d, l) and a linear order is defined by:
@@ -46,14 +38,14 @@
 
 namespace ogdf {
 
-MDMFLengthAttribute MDMFLengthAttribute::operator=(const MDMFLengthAttribute& x)
+MDMFLengthAttribute &MDMFLengthAttribute::operator=(const MDMFLengthAttribute& x)
 {
 	this->d = x.d;
 	this->l = x.l;
 	return *this;
 }
 
-MDMFLengthAttribute MDMFLengthAttribute::operator=(const int& x)
+MDMFLengthAttribute &MDMFLengthAttribute::operator=(int x)
 {
 	this->d = x;
 	this->l = 0;

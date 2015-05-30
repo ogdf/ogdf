@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of the optimal
 //   third phase of the sugiyama algorithm
@@ -280,8 +272,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				if(nBalanced > 0) {
 					if(v->degree() > 1)
 						count += 2;
-					adjEntry adj;
-					forall_adj(adj,v) {
+					for(adjEntry adj : v->adjEdges) {
 						node w = adj->twinNode();
 						if(bIndex[w] != -1)
 							count += 2;
@@ -293,8 +284,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 			} else if (nBalanced > 0) {
 				i = vIndex[v];
-				adjEntry adj;
-				forall_adj(adj,v) {
+				for(adjEntry adj : v->adjEdges) {
 					node w = adj->twinNode();
 					if(bIndex[w] != -1)
 						count[i] += 2;
@@ -332,8 +322,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	// Constraints:
 	//   d_(u,v) - x_u + x_v >= 0
 	//   d_(u,v) + x_u - x_v >= 0
-	edge e;
-	forall_edges(e,GC)
+	for(edge e : GC.edges)
 	{
 		int dCol = eIndex[e];
 		if(dCol >= 0) {
@@ -452,8 +441,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				debugNonZeroCount++;
 
 				double f = 1.0 / v->degree();
-				adjEntry adj;
-				forall_adj(adj,v) {
+				for(adjEntry adj : v->adjEdges) {
 					node u = adj->twinNode();
 					int uCol = vIndex[u];
 					uCol += (isVirtual[u]) ? segmentOffset : vertexOffset;
@@ -481,7 +469,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				debugNonZeroCount++;
 
 				f = -1.0 / v->degree();
-				forall_adj(adj,v) {
+				for(adjEntry adj : v->adjEdges) {
 					node u = adj->twinNode();
 					int uCol = vIndex[u];
 					uCol += (isVirtual[u]) ? segmentOffset : vertexOffset;
@@ -513,7 +501,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 	// objective function
 	Array<double> obj(nCols);
-	forall_edges(e,GC) {
+	for(edge e : GC.edges) {
 		i = eIndex[e];
 		if(i >= 0) {
 			// edge segments connecting to a vertical segment
@@ -557,12 +545,13 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	double optimum;
 	Array<double> x(nCols);
 
+#ifdef OGDF_DEBUG
 	LPSolver::Status status =
-		solver.optimize(LPSolver::lpMinimize, obj,
+#endif
+	solver.optimize(LPSolver::lpMinimize, obj,
 		matrixBegin, matrixCount, matrixIndex, matrixValue,
 		rightHandSide, equationSense,
-		lowerBound, upperBound,
-		optimum, x);
+		lowerBound, upperBound, optimum, x);
 
 	OGDF_ASSERT(status == LPSolver::lpOptimal);
 
@@ -573,12 +562,12 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	os.close();*/
 
 	// assign x coordinates
-	node v;
-	forall_nodes(v,GC) {
-		if(isVirtual[v])
+	for (node v : GC.nodes) {
+		if (isVirtual[v]) {
 			AGC.x(v) = x[segmentOffset+vIndex[v]];
-		else
+		} else {
 			AGC.x(v) = x[vertexOffset+vIndex[v]];
+		}
 	}
 }
 

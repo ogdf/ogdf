@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class PlanRepExpansion.
  *
@@ -54,8 +46,7 @@ namespace ogdf {
 PlanRepExpansion::PlanRepExpansion(const Graph& G)
 {
 	List<node> splittableNodes;
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if(v->degree() >= 4)
 			splittableNodes.pushBack(v);
 	}
@@ -80,22 +71,21 @@ void PlanRepExpansion::doInit(const Graph &G, const List<node> &splittableNodes)
 	// intialize the array of lists of nodes contained in a CC
 	m_nodesInCC.init(m_numCC);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		m_nodesInCC[component[v]].pushBack(v);
 
 	m_currentCC = -1;  // not yet initialized
 
 	m_vCopy.init(G);
 	m_eCopy.init(G);
-	m_vOrig.init(*this,0);
-	m_eOrig.init(*this,0);
-	m_vIterator.init(*this,0);
-	m_eIterator.init(*this,0);
+	m_vOrig.init(*this,nullptr);
+	m_eOrig.init(*this,nullptr);
+	m_vIterator.init(*this,nullptr);
+	m_eIterator.init(*this,nullptr);
 
 	m_splittable.init(*this,false);
 	m_splittableOrig.init(G,false);
-	m_eNodeSplit.init(*this,0);
+	m_eNodeSplit.init(*this,nullptr);
 
 	ListConstIterator<node> it;
 	for(it = splittableNodes.begin(); it.valid(); ++it)
@@ -119,8 +109,7 @@ void PlanRepExpansion::initCC(int i)
 
 			m_vCopy[vG].clear();
 
-			adjEntry adj;
-			forall_adj(adj,vG) {
+			for(adjEntry adj : vG->adjEdges) {
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
 
@@ -144,8 +133,7 @@ void PlanRepExpansion::initCC(int i)
 		m_vIterator[v] = m_vCopy[vOrig].pushBack(v);
 		m_splittable[v] = m_splittableOrig[vOrig];
 
-		adjEntry adj;
-		forall_adj(adj,vOrig) {
+		for(adjEntry adj : vOrig->adjEdges) {
 			if ((adj->index() & 1) == 0) {
 				edge e = adj->theEdge();
 				m_eIterator[m_eAuxCopy[e]] = m_eCopy[e].pushBack(m_eAuxCopy[e]);
@@ -210,7 +198,7 @@ void PlanRepExpansion::insertEdgePath(
 	else
 		ns->m_path.clear();
 
-	if(eSrc != 0) {
+	if(eSrc != nullptr) {
 		if(eOrig) {
 			m_eIterator[eSrc] = m_eCopy[eOrig].pushBack(eSrc);
 			m_eOrig    [eSrc] = eOrig;
@@ -225,7 +213,7 @@ void PlanRepExpansion::insertEdgePath(
 	for(it = eip.begin(); it.valid(); ++it)
 	{
 		adjEntry adj = (*it).m_adj;
-		if(adj == 0) {
+		if(adj == nullptr) {
 			adjEntry adjLeft, adjRight;
 			prepareNodeSplit((*it).m_partitionLeft, adjLeft, adjRight);
 
@@ -267,7 +255,7 @@ void PlanRepExpansion::insertEdgePath(
 		m_eNodeSplit[eNew] = ns;
 	}
 
-	if(eTgt != 0) {
+	if(eTgt != nullptr) {
 		if(eOrig) {
 			m_eIterator[eTgt] = m_eCopy[eOrig].pushBack(eTgt);
 			m_eOrig    [eTgt] = eOrig;
@@ -304,7 +292,7 @@ void PlanRepExpansion::insertEdgePathEmbedded(
 		adjEntry adj  = (*it).x1();
 		adjEntry adj2 = (*it).x2();
 
-		if(adj2 != 0) {
+		if(adj2 != nullptr) {
 			OGDF_ASSERT(adj->theNode() == adj2->theNode());
 			OGDF_ASSERT(E.rightFace(adjSrc) == E.rightFace(adj->twin()));
 			node w = E.splitNode(adj,adj2);
@@ -402,7 +390,7 @@ void PlanRepExpansion::removeEdgePathEmbedded(
 		node v = eIn->target();
 
 		node vOrig = m_vOrig[v];
-		if(vOrig != 0 && m_vOrig[u] == vOrig) {
+		if(vOrig != nullptr && m_vOrig[u] == vOrig) {
 			m_vCopy[vOrig].del(m_vIterator[v]);
 			ListIterator<NodeSplit> itNS = m_eNodeSplit[eIn]->m_nsIterator;
 			m_nodeSplits.del(itNS);
@@ -459,7 +447,7 @@ void PlanRepExpansion::removeEdgePath(
 		node v = eIn->target();
 
 		node vOrig = m_vOrig[v];
-		if(vOrig != 0 && m_vOrig[u] == vOrig) {
+		if(vOrig != nullptr && m_vOrig[u] == vOrig) {
 			m_vCopy[vOrig].del(m_vIterator[v]);
 			ListIterator<NodeSplit> itNS = m_eNodeSplit[eIn]->m_nsIterator;
 			m_nodeSplits.del(itNS);
@@ -514,9 +502,8 @@ int PlanRepExpansion::computeNumberOfCrossings() const
 {
 	int cr = 0;
 
-	node v;
-	forall_nodes(v,*this)
-		if(m_vOrig[v] == 0)
+	for(node v : nodes)
+		if(m_vOrig[v] == nullptr)
 			++cr;
 
 	return cr;
@@ -529,10 +516,10 @@ edge PlanRepExpansion::split(edge e)
 	edge eOrig = m_eOrig[e];
 	NodeSplit *ns = m_eNodeSplit[e];
 
-	if ((m_eOrig[eNew] = eOrig) != 0) {
+	if ((m_eOrig[eNew] = eOrig) != nullptr) {
 		m_eIterator[eNew] = m_eCopy[eOrig].insert(eNew,m_eIterator[e],after);
 
-	} else if ((m_eNodeSplit[eNew] = ns) != 0) {
+	} else if ((m_eNodeSplit[eNew] = ns) != nullptr) {
 		m_eIterator[eNew] = ns->m_path.insert(eNew,m_eIterator[e],after);
 	}
 
@@ -546,10 +533,10 @@ void PlanRepExpansion::unsplit(edge eIn, edge eOut)
 	NodeSplit *ns = m_eNodeSplit[eOut];
 
 	// update chain of eOrig if eOrig exists
-	if (eOrig != 0) {
+	if (eOrig != nullptr) {
 		m_eCopy[eOrig].del(m_eIterator[eOut]);
 
-	} else if (ns != 0) {
+	} else if (ns != nullptr) {
 		ns->m_path.del(m_eIterator[eOut]);
 	}
 
@@ -568,7 +555,7 @@ edge PlanRepExpansion::unsplitExpandNode(
 
 	NodeSplit *nsExp    = m_eNodeSplit[eExpand];
 	edge       eOrigExp = m_eOrig[eExpand];
-	List<edge> &pathExp = (nsExp != 0) ? nsExp->m_path : m_eCopy[eOrigExp];
+	List<edge> &pathExp = (nsExp != nullptr) ? nsExp->m_path : m_eCopy[eOrigExp];
 
 	if((eExpand->target() == u && eContract->source() != u) ||
 		(eExpand->source() == u && eContract->target() != u))
@@ -626,7 +613,7 @@ edge PlanRepExpansion::unsplitExpandNode(
 
 	NodeSplit *nsExp    = m_eNodeSplit[eExpand];
 	edge       eOrigExp = m_eOrig[eExpand];
-	List<edge> &pathExp = (nsExp != 0) ? nsExp->m_path : m_eCopy[eOrigExp];
+	List<edge> &pathExp = (nsExp != nullptr) ? nsExp->m_path : m_eCopy[eOrigExp];
 
 	if((eExpand->target() == u && eContract->source() != u) ||
 		(eExpand->source() == u && eContract->target() != u))
@@ -699,7 +686,7 @@ edge PlanRepExpansion::enlargeSplit(
 			itNext = it.succ();
 
 			path.moveToBack(it, ns->m_path);
-			m_eOrig[*it] = 0;
+			m_eOrig[*it] = nullptr;
 			m_eNodeSplit[*it] = ns;
 		}
 
@@ -709,7 +696,7 @@ edge PlanRepExpansion::enlargeSplit(
 			itNext = it.succ();
 
 			path.moveToBack(it, ns->m_path);
-			m_eOrig[*it] = 0;
+			m_eOrig[*it] = nullptr;
 			m_eNodeSplit[*it] = ns;
 		}
 	}
@@ -744,7 +731,7 @@ edge PlanRepExpansion::enlargeSplit(
 			itNext = it.succ();
 
 			path.moveToBack(it, ns->m_path);
-			m_eOrig[*it] = 0;
+			m_eOrig[*it] = nullptr;
 			m_eNodeSplit[*it] = ns;
 		}
 
@@ -754,7 +741,7 @@ edge PlanRepExpansion::enlargeSplit(
 			itNext = it.succ();
 
 			path.moveToBack(it, ns->m_path);
-			m_eOrig[*it] = 0;
+			m_eOrig[*it] = nullptr;
 			m_eNodeSplit[*it] = ns;
 		}
 	}
@@ -829,7 +816,7 @@ void PlanRepExpansion::removeSelfLoop(
 	nodeSplit ns    = m_eNodeSplit[e];
 	edge      eOrig = m_eOrig[e];
 
-	List<edge> &path = (eOrig != 0) ? m_eCopy[eOrig] : ns->m_path;
+	List<edge> &path = (eOrig != nullptr) ? m_eCopy[eOrig] : ns->m_path;
 	path.del(m_eIterator[e]);
 
 	E.joinFaces(e);
@@ -838,7 +825,8 @@ void PlanRepExpansion::removeSelfLoop(
 	edge eOut = u->lastAdj ()->theEdge();
 	if(eIn->target() != u) swap(eIn,eOut);
 
-	OGDF_ASSERT(ns == m_eNodeSplit[eOut] && eOrig == m_eOrig[eOut]);
+	OGDF_ASSERT(ns == m_eNodeSplit[eOut]);
+	OGDF_ASSERT(eOrig == m_eOrig[eOut]);
 
 	E.unsplit(eIn,eOut);
 }
@@ -850,7 +838,7 @@ void PlanRepExpansion::removeSelfLoop(edge e)
 	nodeSplit ns    = m_eNodeSplit[e];
 	edge      eOrig = m_eOrig[e];
 
-	List<edge> &path = (eOrig != 0) ? m_eCopy[eOrig] : ns->m_path;
+	List<edge> &path = (eOrig != nullptr) ? m_eCopy[eOrig] : ns->m_path;
 	path.del(m_eIterator[e]);
 
 	delEdge(e);
@@ -859,7 +847,8 @@ void PlanRepExpansion::removeSelfLoop(edge e)
 	edge eOut = u->lastAdj ()->theEdge();
 	if(eIn->target() != u) swap(eIn,eOut);
 
-	OGDF_ASSERT(ns == m_eNodeSplit[eOut] && eOrig == m_eOrig[eOut]);
+	OGDF_ASSERT(ns == m_eNodeSplit[eOut]);
+	OGDF_ASSERT(eOrig == m_eOrig[eOut]);
 
 	unsplit(eIn,eOut);
 }
@@ -873,8 +862,7 @@ bool PlanRepExpansion::consistencyCheck() const
 	if(isLoopFree(*this) == false)
 		return false;
 
-	edge eOrig;
-	forall_edges(eOrig,*m_pGraph) {
+	for(edge eOrig : m_pGraph->edges) {
 		const List<edge> &path = m_eCopy[eOrig];
 		ListConstIterator<edge> it;
 		for(it = path.begin(); it.valid(); ++it) {
@@ -888,8 +876,7 @@ bool PlanRepExpansion::consistencyCheck() const
 		}
 	}
 
-	node vOrig;
-	forall_nodes(vOrig,*m_pGraph) {
+	for(node vOrig : m_pGraph->nodes) {
 		const List<node> &nodes = m_vCopy[vOrig];
 
 		if(nodes.size() == 1)
@@ -909,7 +896,7 @@ bool PlanRepExpansion::consistencyCheck() const
 		}
 	}
 
-	EdgeArray<const NodeSplit *> nso(*this,0);
+	EdgeArray<const NodeSplit *> nso(*this,nullptr);
 
 	ListConstIterator<NodeSplit> it;
 	for(it = m_nodeSplits.begin(); it.valid(); ++it) {
@@ -922,7 +909,7 @@ bool PlanRepExpansion::consistencyCheck() const
 		node w = ns.target();
 
 		node vOrig = m_vOrig[v];
-		if(vOrig == 0 || vOrig != m_vOrig[w])
+		if(vOrig == nullptr || vOrig != m_vOrig[w])
 			return false;
 
 		if(m_splittable[v] == false || m_splittable[w] == false)
@@ -942,8 +929,7 @@ bool PlanRepExpansion::consistencyCheck() const
 		}
 	}
 
-	edge e;
-	forall_edges(e,*this) {
+	for(edge e : edges) {
 		if(nso[e] != m_eNodeSplit[e])
 			return false;
 	}
@@ -956,7 +942,7 @@ List<edge> &PlanRepExpansion::setOrigs(edge e, edge &eOrig, nodeSplit &ns)
 {
 	eOrig = m_eOrig[e];
 	ns    = m_eNodeSplit[e];
-	return (eOrig != 0) ? m_eCopy[eOrig] : ns->m_path;
+	return (eOrig != nullptr) ? m_eCopy[eOrig] : ns->m_path;
 }
 
 
@@ -965,7 +951,9 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 	node vOrig,
 	PlanRepExpansion::nodeSplit ns_0)
 {
-	OGDF_ASSERT(u->indeg() == 2 && u->outdeg() == 2 && m_vOrig[u] == 0);
+	OGDF_ASSERT(u->indeg() == 2);
+	OGDF_ASSERT(u->outdeg() == 2);
+	OGDF_ASSERT(m_vOrig[u] == 0);
 
 	m_vOrig     [u] = vOrig;
 	m_vIterator [u] = m_vCopy[vOrig].pushBack(u);
@@ -983,7 +971,7 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 			++i;
 		}
 
-	List<edge> &path_0 = (eOrig[0] != 0) ? m_eCopy[eOrig[0]] : nsplit[0]->m_path;
+	List<edge> &path_0 = (eOrig[0] != nullptr) ? m_eCopy[eOrig[0]] : nsplit[0]->m_path;
 	if(m_vOrig[path_0.front()->source()] == vOrig)
 		path_0.split(m_eIterator[ec[0]], ns_0->m_path, path_0);
 	else
@@ -992,14 +980,14 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 	ListConstIterator<edge> itE;
 	for(itE = ns_0->m_path.begin(); itE.valid(); ++itE) {
 		m_eNodeSplit[*itE] = ns_0;
-		m_eOrig     [*itE] = 0;
+		m_eOrig     [*itE] = nullptr;
 	}
 
 	ListIterator<NodeSplit> itNS = m_nodeSplits.pushBack(NodeSplit());
 	nodeSplit ns_1 = &(*itNS);
 	ns_1->m_nsIterator = itNS;
 
-	List<edge> &path_1 = (eOrig[1] != 0) ? m_eCopy[eOrig[1]] : nsplit[1]->m_path;
+	List<edge> &path_1 = (eOrig[1] != nullptr) ? m_eCopy[eOrig[1]] : nsplit[1]->m_path;
 	if(m_vOrig[path_1.front()->source()] == vOrig)
 		path_1.split(m_eIterator[ec[1]], ns_1->m_path, path_1);
 	else
@@ -1007,7 +995,7 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 
 	for(itE = ns_1->m_path.begin(); itE.valid(); ++itE) {
 		m_eNodeSplit[*itE] = ns_1;
-		m_eOrig     [*itE] = 0;
+		m_eOrig     [*itE] = nullptr;
 	}
 
 	return ns_1;
@@ -1045,14 +1033,14 @@ edge PlanRepExpansion::separateDummy(
 
 	edge       eOrig = m_eOrig[adj_1->theEdge()];
 	NodeSplit *ns    = m_eNodeSplit[adj_1->theEdge()];
-	List<edge> &path = (eOrig != 0) ? m_eCopy[eOrig] : ns->m_path;
+	List<edge> &path = (eOrig != nullptr) ? m_eCopy[eOrig] : ns->m_path;
 
 	if(vStraight == path.front()->source()) {
 		ListIterator<edge> it, itNext;
 		for(it = path.begin(); (*it)->source() != v; it = itNext) {
 			itNext = it.succ();
 			path.moveToBack(it, nsNew->m_path);
-			m_eOrig     [*it] = 0;
+			m_eOrig     [*it] = nullptr;
 			m_eNodeSplit[*it] = nsNew;
 		}
 
@@ -1061,7 +1049,7 @@ edge PlanRepExpansion::separateDummy(
 		for(it = path.rbegin(); (*it)->target() != v; it = itPrev) {
 			itPrev = it.pred();
 			path.moveToFront(it, nsNew->m_path);
-			m_eOrig     [*it] = 0;
+			m_eOrig     [*it] = nullptr;
 			m_eNodeSplit[*it] = nsNew;
 		}
 	}
@@ -1074,8 +1062,7 @@ edge PlanRepExpansion::separateDummy(
 	//Array<adjEntry> adjA(2), adjB(2);
 	//int i = 0, j = 0;
 
-	//adjEntry adj;
-	//forall_adj(adj,u) {
+	//for(adjEntry adj : u->adjEdges) {
 	//	edge e = adj->theEdge();
 	//	if(m_eOrig[e] == eOrig && m_eNodeSplit[e] == ns)
 	//		adjA[i++] = adj;
@@ -1139,8 +1126,7 @@ int PlanRepExpansion::numberOfSplittedNodes() const
 {
 	int num = 0;
 
-	node vOrig;
-	forall_nodes(vOrig,*m_pGraph)
+	for(node vOrig : m_pGraph->nodes)
 		if(m_vCopy[vOrig].size() >= 2)
 			++num;
 
@@ -1150,7 +1136,7 @@ int PlanRepExpansion::numberOfSplittedNodes() const
 
 bool PlanRepExpansion::isPseudoCrossing(node v) const
 {
-	if(m_vOrig[v] != 0)
+	if(m_vOrig[v] != nullptr)
 		return false;
 
 	adjEntry adj_1 = v->firstAdj();
@@ -1187,7 +1173,7 @@ void PlanRepExpansion::resolvePseudoCrossing(node v)
 		edge e = eIn[i];
 
 		ListIterator<edge> it = m_eIterator[e];
-		List<edge> &path = (m_eOrig[e] != 0) ? m_eCopy[m_eOrig[e]] : m_eNodeSplit[e]->m_path;
+		List<edge> &path = (m_eOrig[e] != nullptr) ? m_eCopy[m_eOrig[e]] : m_eNodeSplit[e]->m_path;
 
 		edge eNext = *(it.succ());
 		moveSource(eNext, e->source());

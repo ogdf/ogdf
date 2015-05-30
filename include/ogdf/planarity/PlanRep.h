@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a base class for planar representations
  *        of graphs and cluster graphs.
@@ -59,14 +51,18 @@
 #include <ogdf/planarity/NodeTypePatterns.h>
 #include <ogdf/basic/Layout.h>
 #include <ogdf/basic/GridLayout.h>
-#include <ogdf/orthogonal/OrthoRep.h>
+#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
 
+	class OrthoRep;
+
 
 //! Planarized representations (of a connected component) of a graph.
 /**
+ * @ingroup plan-rep
+ *
  * Maintains types of edges (generalization, association) and nodes,
  * and the connected components of the graph.
  */

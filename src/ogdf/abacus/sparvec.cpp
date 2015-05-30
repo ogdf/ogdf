@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -54,8 +46,8 @@ glob_(glob),
 		coeff_   = new double[size];
 	}
 	else {
-		support_ = 0;
-		coeff_   = 0;
+		support_ = nullptr;
+		coeff_   = nullptr;
 	}
 }
 
@@ -76,8 +68,8 @@ glob_(glob),
 		coeff_   = new double[size];
 	}
 	else {
-		support_ = 0;
-		coeff_   = 0;
+		support_ = nullptr;
+		coeff_   = nullptr;
 	}
 
 	nnz_ = size < s.size() ? size : s.size();
@@ -106,8 +98,8 @@ glob_(glob),
 		coeff_   = new double[nnz];
 	}
 	else {
-		support_ = 0;
-		coeff_   = 0;
+		support_ = nullptr;
+		coeff_   = nullptr;
 	}
 
 	for(int i = 0; i < nnz; i++) {
@@ -134,8 +126,8 @@ SparVec::SparVec(const SparVec& rhs)
 		}
 	}
 	else {
-		support_ = 0;
-		coeff_   = 0;
+		support_ = nullptr;
+		coeff_   = nullptr;
 	}
 }
 
@@ -147,7 +139,7 @@ SparVec::~SparVec()
 }
 
 
-const SparVec& SparVec::operator=(const SparVec& rhs)
+SparVec& SparVec::operator=(const SparVec& rhs)
 {
 	if (this == &rhs)
 		return *this;

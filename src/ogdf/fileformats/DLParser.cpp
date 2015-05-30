@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of UCINET DL format parser class.
  *
@@ -55,7 +47,7 @@ DLParser::DLParser(std::istream &is) : m_istream(is)
 void DLParser::init()
 {
 	m_initialized = false;
-	m_nodeId.resize(1, NULL);
+	m_nodeId.resize(1, nullptr);
 
 	m_embedded = false;
 	m_nodes = -1;
@@ -90,15 +82,14 @@ static inline bool readMatrixRow(
 	const bool iweight = (attrs & GraphAttributes::edgeIntWeight) != 0;
 	const bool dweight = (attrs & GraphAttributes::edgeDoubleWeight) != 0;
 
-	node u;
-	forall_nodes(u, G) {
+	for(node u : G.nodes) {
 		double weight;
 		if(!(is >> weight)) {
 			std::cerr << "ERROR: Expected matrix value.\n";
 			return false;
 		}
 
-		edge e = NULL;
+		edge e = nullptr;
 		if(weight != 0) {
 			e = G.newEdge(v, u);
 		}
@@ -116,11 +107,16 @@ static inline bool readMatrixRow(
 
 bool DLParser::readMatrix(Graph &G, GraphAttributes *GA)
 {
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		if(!readMatrixRow(m_istream, G, GA, v)) {
 			return false;
 		}
+	}
+
+	std::string extra;
+	if(m_istream >> extra) {
+		std::cerr << "ERROR: Expected EOF, but \"" << extra << "\" found.\n";
+		return false;
 	}
 
 	return true;
@@ -129,10 +125,8 @@ bool DLParser::readMatrix(Graph &G, GraphAttributes *GA)
 
 bool DLParser::readEmbeddedMatrix(Graph &G, GraphAttributes *GA)
 {
-	node v;
-
 	// First, top-label line.
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		std::string label;
 		if(!(m_istream >> label)) {
 			std::cerr << "ERROR: Expected node embedded label.\n";
@@ -155,7 +149,8 @@ bool DLParser::readEmbeddedMatrix(Graph &G, GraphAttributes *GA)
 		}
 		toLower(label);
 
-		if(!(v = m_nodeLabel[label])) {
+		node v = m_nodeLabel[label];
+		if(!v) {
 			std::cerr << "ERROR: Node with given label \""
 					  << label << "\" not found.\n";
 			return false;
@@ -196,6 +191,11 @@ inline node DLParser::requestLabel(
 	node v = m_nodeLabel[label];
 
 	if(!v) {
+		if(nextFree == nullptr) {
+			std::cerr << "ERROR: Cannot assign label \"" << label << "\", "
+			          << "node count in the graph is too low.\n";
+			return nullptr;
+		}
 		m_nodeLabel[label] = v = nextFree;
 		if(GA && (GA->attributes() & GraphAttributes::nodeLabel)) {
 			GA->label(v) = label;
@@ -253,7 +253,11 @@ bool DLParser::readEmbeddedEdgeList(Graph &G, GraphAttributes *GA)
 
 		node v = requestLabel(GA, nextFree, vlabel);
 		node u = requestLabel(GA, nextFree, ulabel);
-		readEdgeListRow(is, G, GA, v, u);
+		if(v == nullptr || u == nullptr) {
+			return false;
+		} else {
+			readEdgeListRow(is, G, GA, v, u);
+		}
 	}
 
 	return true;
@@ -309,10 +313,16 @@ bool DLParser::readEmbeddedNodeList(Graph &G, GraphAttributes *GA)
 		}
 
 		node v = requestLabel(GA, nextFree, vlabel);
+		if(v == nullptr) {
+			return false;
+		}
 
 		std::string ulabel;
 		while((is >> ulabel)) {
 			node u = requestLabel(GA, nextFree, ulabel);
+			if(u == nullptr) {
+				return false;
+			}
 			G.newEdge(v, u);
 		}
 	}

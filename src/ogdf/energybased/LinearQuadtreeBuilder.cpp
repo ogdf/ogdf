@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class LinearQuadtreeBuilder.
  *
@@ -40,8 +32,8 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "LinearQuadtree.h"
-#include "LinearQuadtreeBuilder.h"
+#include <ogdf/internal/energybased/LinearQuadtree.h>
+#include <ogdf/internal/energybased/LinearQuadtreeBuilder.h>
 
 namespace ogdf {
 
@@ -87,7 +79,7 @@ void LinearQuadtreeBuilder::prepareTree()
 void LinearQuadtreeBuilder::mergeWithNext(LinearQuadtree::NodeID curr)
 {
 	LinearQuadtree::NodeID next = tree.nextNode(curr);
-	for (__uint32 i = 1; i < tree.numberOfChilds(next); i++)
+	for (uint32_t i = 1; i < tree.numberOfChilds(next); i++)
 	{
 		tree.setChild(curr, tree.numberOfChilds(curr), tree.child(next, i));
 		tree.setNumberOfChilds(curr, tree.numberOfChilds(curr)+1);
@@ -96,7 +88,7 @@ void LinearQuadtreeBuilder::mergeWithNext(LinearQuadtree::NodeID curr)
 }
 
 
-LinearQuadtree::NodeID LinearQuadtreeBuilder::buildHierarchy(LinearQuadtree::NodeID curr, __uint32 maxLevel)
+LinearQuadtree::NodeID LinearQuadtreeBuilder::buildHierarchy(LinearQuadtree::NodeID curr, uint32_t maxLevel)
 {
 	while ((tree.nextNode(curr)!=lastInner) && (tree.level(tree.nextNode(curr)) < maxLevel))
 	{
@@ -136,7 +128,7 @@ void LinearQuadtreeBuilder::build()
 {
 	numInnerNodes = 0;
 	buildHierarchy();
-	restoreChain();;
+	restoreChain();
 
 	tree.m_firstInner = firstInner;
 	tree.m_numInnerNodes = numInnerNodes;

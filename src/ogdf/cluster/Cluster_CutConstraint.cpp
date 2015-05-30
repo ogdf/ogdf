@@ -1,11 +1,3 @@
-/*
- * $Revision: 3005 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-12 14:19:48 +0100 (Mon, 12 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -56,9 +48,8 @@ using namespace abacus;
 CutConstraint::CutConstraint(Master *master, Sub *sub, List<nodePair> &edges) :
 	BaseConstraint(master, sub, CSense::Greater, 1.0, true, true, true)
 {
-	ListConstIterator<nodePair> it;
-	for (it = edges.begin(); it.valid(); ++it) {
-		m_cutEdges.pushBack(*it);
+	for (const nodePair &p : edges) {
+		m_cutEdges.pushBack(p);
 	}
 }
 
@@ -66,12 +57,11 @@ CutConstraint::CutConstraint(Master *master, Sub *sub, List<nodePair> &edges) :
 CutConstraint::~CutConstraint() {}
 
 
-int CutConstraint::coeff(node n1, node n2) const {
-	ListConstIterator<nodePair> it;
-	for (it = m_cutEdges.begin(); it.valid(); ++it) {
-		if ( ((*it).v1 == n1 && (*it).v2 == n2) ||
-			 ((*it).v2 == n1 && (*it).v1 == n2) )
-		{return 1;}
+int CutConstraint::coeff(node n1, node n2) const
+{
+	for (const nodePair &p : m_cutEdges) {
+		if ( (p.v1 == n1 && p.v2 == n2) || (p.v2 == n1 && p.v1 == n2) )
+			return 1;
 	}
 	return 0;
 }

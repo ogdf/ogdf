@@ -112,12 +112,12 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      void loadProblem (  const CoinPackedMatrix& matrix,
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
 
      /** Just like the other loadProblem() method except that the matrix is
        given in a standard column major ordered format (without gaps). */
@@ -127,7 +127,7 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      /// This one is for after presolve to save memory
      void loadProblem (  const int numcols, const int numrows,
                          const CoinBigIndex* start, const int* index,
@@ -135,7 +135,7 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      /// Read an mps file from the given filename
      int readMps(const char *filename,
                  bool keepNames = false,

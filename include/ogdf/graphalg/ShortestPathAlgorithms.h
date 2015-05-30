@@ -1,11 +1,3 @@
-/*
- * $Revision: 3941 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-02-28 11:33:37 +0100 (Fri, 28 Feb 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of several shortest path algorithms.
  *
@@ -52,53 +44,82 @@
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Array.h>
-#include <ogdf/basic/BinaryHeap2.h>
 
 
 namespace ogdf {
 
-//! BFS to compute shortest path all pairs. The costs for
-//! traversing an edge corresponds to /a edgeCosts.
+//! Computes all-pairs shortest paths in \a G using breadth-first serach (BFS).
+/**
+ * @ingroup ga-sp
+ *
+ * The cost of each edge are \a edgeCost and the result is stored in \a distance.
+ */
 OGDF_EXPORT
 void bfs_SPAP(const Graph& G, NodeArray<NodeArray<double> >& distance,
 		double edgeCosts);
 
-//! BFS to compute shortest path single source. The costs for
-//! traversing an edge corresponds to /a edgeCosts.
-OGDF_EXPORT
-void bfs_SPSS(const node& v, const Graph& G, NodeArray<double> & distanceArray,
-		double edgeCosts);
 
-//! Dijkstra algorithm to compute shortest path all pairs. The costs for traversing edge e
-//! corresponds to \a GA.doubleWeight(e)
+//! Computes single-source shortest paths from \a s in \a G using breadth-first serach (BFS).
 /**
+* @ingroup ga-sp
+*
+* The cost of each edge are \a edgeCost and the result is stored in \a distance.
+*/
+OGDF_EXPORT
+void bfs_SPSS(node s, const Graph& G, NodeArray<double> & distanceArray, double edgeCosts);
+
+
+//! Computes all-pairs shortest paths in \a GA using Disjkstra's algorithm.
+/**
+ * @ingroup ga-sp
+ *
+ * The cost of an edge \a e are given by GA.doubleWeight(e) and the result is stored in \a shortestPathMatrix.
+ *
  * @return returns the average edge costs
  */
 OGDF_EXPORT
-double dijkstra_SPAP(const GraphAttributes& GA,
-		NodeArray<NodeArray<double> >& shortestPathMatrix);
+double dijkstra_SPAP(const GraphAttributes& GA, NodeArray<NodeArray<double> >& shortestPathMatrix);
 
-//! Dijkstra algorithm to compute shortest path all pairs. The costs for traversing edge e
-//! corresponds to \a edgeCosts[e]
-OGDF_EXPORT
-void dijkstra_SPAP(const Graph& G,
-		NodeArray<NodeArray<double> >& shortestPathMatrix,
-		const EdgeArray<double>& edgeCosts);
 
-//! Dijkstra algorithm to compute shortest path single source. The costs for traversing edge e
-//! corresponds to \a edgeCosts[e]. Note this algorithm equals Dijkstra<T>::call, though it does not
-//! compute the predecessors on the path and is not inlined.
+//! Computes all-pairs shortest paths in graph \a G using Disjkstra's algorithm.
+/**
+ * @ingroup ga-sp
+ *
+ * The cost of an edge are given by \a edgeCosts and the result is stored in \a shortestPathMatrix.
+ */
 OGDF_EXPORT
-void dijkstra_SPSS(node v, const Graph& G,
-		NodeArray<double>& shortestPathMatrix,
-		const EdgeArray<double>& edgeCosts);
+void dijkstra_SPAP(
+	const Graph& G,
+	NodeArray<NodeArray<double> >& shortestPathMatrix,
+	const EdgeArray<double>& edgeCosts);
 
-//! Floyd-Wharshall algorithm to compute shortest path all pairs given a weighted graph.
-//! Note the shortestPathMatrix has to be initialized and all entries positive. The costs
-//! non-adjacent nodes should be set to std::numeric_limits<double>::infinity().
+
+//! Computes single-source shortest paths from node \a s in \a G using Disjkstra's algorithm.
+/**
+ * @ingroup ga-sp
+ *
+ * The cost of an edge are given by \a edgeCosts and the result is stored in \a shortestPathMatrix.
+ * Note this algorithm equals Dijkstra<T>::call, though it does not
+ * compute the predecessors on the path and is not inlined.
+*/
 OGDF_EXPORT
-void floydWarshall_SPAP(NodeArray<NodeArray<double> >& shortestPathMatrix,
-		const Graph& G);
+void dijkstra_SPSS(
+	node s,
+	const Graph& G,
+	NodeArray<double>& shortestPathMatrix,
+	const EdgeArray<double>& edgeCosts);
+
+
+//! Computes all-pairs shortest paths in graph \a G using Floyd-Warshall's algorithm.
+/**
+ * @ingroup ga-sp
+ *
+ * Note that the \a shortestPathMatrix has to be initialized and all entries must be positive.
+ * The costs of non-adjacent nodes should be set to std::numeric_limits<double>::infinity().
+ */
+OGDF_EXPORT
+void floydWarshall_SPAP(NodeArray<NodeArray<double> >& shortestPathMatrix, const Graph& G);
+
 
 } /* namespace ogdf */
 #endif /* SHORTESTPATHALGORITHMS_H_ */

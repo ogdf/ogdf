@@ -1,11 +1,3 @@
-/*
- * $Revision: 3096 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-30 15:40:41 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Logging functionality
  *
@@ -57,7 +49,7 @@ Logger::Level Logger::m_minimumloglevel = Logger::LL_MEDIUM;
 #endif
 
 std::ostream* Logger::world = &std::cout;
-std::ostream Logger::nirvana(NULL);
+std::ostream Logger::nirvana(nullptr);
 
 bool Logger::m_globalstatisticmode = false;
 

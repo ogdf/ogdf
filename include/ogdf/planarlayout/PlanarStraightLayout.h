@@ -1,11 +1,3 @@
-/*
- * $Revision: 2547 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-04 22:05:45 +0200 (Wed, 04 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanarStraightLayout which represents
  *        a planar straight-line drawing algorithm.
@@ -203,12 +195,12 @@ private:
 	ModuleOption<AugmentationModule>  m_augmenter;		//!< The augmentation module.
 	ModuleOption<ShellingOrderModule> m_computeOrder;	//!< The shelling order module.
 
-	void doCall(
+	virtual void doCall(
 		const Graph &G,
 		adjEntry adjExternal,
 		GridLayout &gridLayout,
 		IPoint &boundingBox,
-		bool fixEmbedding);
+		bool fixEmbedding) override;
 
 	void computeCoordinates(const Graph &G,
 		ShellingOrder &lmc,

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3550 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 14:16:24 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Linear time layout algorithm for free trees (RadialTreeLayout).
  *
@@ -113,17 +105,15 @@ void RadialTreeLayout::call(GraphAttributes &AG)
 
 void RadialTreeLayout::FindRoot(const Graph &G)
 {
-	node v;
-
 	switch(m_selectRoot) {
 		case rootIsSource:
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 				if(v->indeg() == 0)
 					m_root = v;
 			break;
 
 		case rootIsSink:
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 				if(v->outdeg() == 0)
 					m_root = v;
 			break;
@@ -133,16 +123,16 @@ void RadialTreeLayout::FindRoot(const Graph &G)
 				NodeArray<int> degree(G);
 				Queue<node> leaves;
 
-				forall_nodes(v,G) {
+				for(node v : G.nodes) {
 					if((degree[v] = v->degree()) == 1)
 						leaves.append(v);
 				}
 
+				node v = nullptr;
 				while(!leaves.empty()) {
 					v = leaves.pop();
 
-					adjEntry adj;
-					forall_adj(adj, v) {
+					for(adjEntry adj : v->adjEdges) {
 						node u = adj->twinNode();
 						if(--degree[u] == 1)
 							leaves.append(u);
@@ -166,7 +156,7 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 	Stack<node> S;
 
 	Q.append(m_root);
-	m_parent[m_root] = 0;
+	m_parent[m_root] = nullptr;
 	m_level [m_root] = 0;
 
 	int maxLevel = 0;
@@ -179,8 +169,7 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 
 		bool isLeaf = true;
 
-		adjEntry adj;
-		forall_adj(adj, v) {
+		for(adjEntry adj : v->adjEdges) {
 			node u = adj->twinNode();
 			if(u == m_parent[v])
 				continue;
@@ -205,7 +194,7 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 		node v = S.pop();
 		node p = m_parent[v];
 
-		if(p != 0)
+		if(p != nullptr)
 			m_leaves[p] += m_leaves[v];
 	}
 }
@@ -220,8 +209,7 @@ void RadialTreeLayout::ComputeDiameters(GraphAttributes &AG)
 	m_width.init(m_numLevels);
 	m_width.fill(0);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		int i = m_level[v];
 		m_nodes[i].pushBack(v);
@@ -269,7 +257,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 		node p = m_parent[v];
 
 		// nothing to do if v is a leaf
-		if(p != 0 && v->degree() == 1)
+		if(p != nullptr && v->degree() == 1)
 			continue;
 
 		int i = m_level[v];
@@ -349,8 +337,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 				// compute weight of all non-leaves
 				double weight = 0.0;
 
-				adjEntry adjSon;
-				forall_adj(adjSon,w)
+				for(adjEntry adjSon : w->adjEdges)
 				{
 					node u = adjSon->twinNode();
 					if(u == m_parent[w])
@@ -363,7 +350,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 
 				double D = (w->degree() - 1) * m_levelDistance;
 
-				forall_adj(adjSon,w)
+				for(adjEntry adjSon : w->adjEdges)
 				{
 					node u = adjSon->twinNode();
 					if(u == m_parent[w])
@@ -413,8 +400,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 
 /*
 		double restWedge = m_wedge[v];
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 		{
 			node u = adj->twinNode();
 			if(u == m_parent[v])
@@ -426,7 +412,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 
 		double offset = m_angle[v] - 0.5*m_wedge[v];
 
-		adj = v->firstAdj();
+		adjEntry adj = v->firstAdj();
 		adjEntry adjStop;
 		if(p != 0) {
 			while(adj->twinNode() != p)
@@ -521,7 +507,7 @@ void RadialTreeLayout::ComputeGrouping(int i)
 
 		adjEntry adj = v->firstAdj();
 		adjEntry adjStop;
-		if(p != 0) {
+		if(p != nullptr) {
 			while(adj->twinNode() != p)
 				adj = adj->cyclicSucc();
 			adjStop = adj;
@@ -555,8 +541,7 @@ void RadialTreeLayout::ComputeCoordinates(GraphAttributes &AG)
 	//double mx = m_outerRadius + 0.5*m_connectedComponentDistance;
 	//double my = mx;
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		double r = m_radius[m_level[v]];
 		double alpha = m_angle[v];
 

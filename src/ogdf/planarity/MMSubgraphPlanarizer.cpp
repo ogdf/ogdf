@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class MMSubgraphPlanarizer.
  *
@@ -76,10 +68,9 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 
 	ReturnType retValue ;
 
-	if(forbid != 0) {
+	if(forbid != nullptr) {
 		List<edge> preferedEdges;
-		edge e;
-		forall_edges(e, PG) {
+		for(edge e : PG.edges) {
 			edge eOrig = PG.originalEdge(e);
 			if(eOrig && (*forbid)[eOrig])
 				preferedEdges.pushBack(e);
@@ -106,7 +97,7 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 
 		deletedEdges.permute();
 
-		if(forbid != 0)
+		if(forbid != nullptr)
 			m_inserter.get().call(PG, deletedEdges, *forbid);
 		else
 			m_inserter.get().call(PG, deletedEdges);

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3931 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-02-20 14:56:42 +0100 (Thu, 20 Feb 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declares class NodePairEnergy which implements an energy
  *        function where the energy of a layout depends on the

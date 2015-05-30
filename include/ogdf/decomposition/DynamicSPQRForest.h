@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class DynamicSPQRForest
  *
@@ -56,6 +48,8 @@ namespace ogdf {
 /**
  * \brief Dynamic SPQR-forest.
  *
+ * @ingroup decomp
+ *
  * This class is an extension of DynamicBCTree.\n
  * It provides a set of SPQR-trees for each B-component of a BC-tree.
  * These SPQR-trees are dynamic, i.e. there are member functions for
@@ -95,7 +89,7 @@ protected:
  *
  * For each vertex of the BC-tree representing a B-component, this
  * array contains the root vertex of the respective SPQR-tree, or
- * \e NULL, if the SPQR-tree does not exist.
+ * \e nullptr, if the SPQR-tree does not exist.
  */
 	mutable NodeArray<node> m_bNode_SPQR;
 /**
@@ -157,7 +151,7 @@ protected:
  */
 	mutable EdgeArray<node> m_hEdge_tNode;
 /**
- * \brief The partners of virtual edges (\e NULL if real).
+ * \brief The partners of virtual edges (\e nullptr if real).
  */
 	mutable EdgeArray<edge> m_hEdge_twinEdge;
 
@@ -301,9 +295,9 @@ public:
 	node spqrproper (edge eH) const { return m_hEdge_tNode[eH] = findSPQR(m_hEdge_tNode[eH]); }
 /**
  * \brief returns the twin edge of a given edge of \e m_H, if it is
- * virtual, or \e NULL, if it is real.
+ * virtual, or \e nullptr, if it is real.
  * \param eH is an edge of \e m_H.
- * \return the twin edge of \a eH, if it is virtual, or \e NULL, if it
+ * \return the twin edge of \a eH, if it is virtual, or \e nullptr, if it
  * is real.
  */
 	edge twinEdge (edge eH) const { return m_hEdge_twinEdge[eH]; }

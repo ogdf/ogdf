@@ -1,11 +1,3 @@
-/*
- * $Revision: 2549 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-04 23:09:19 +0200 (Wed, 04 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Preprocessor Layout simplifies Graphs for use in other Algorithms
  *
@@ -66,12 +58,10 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 	m_deletedEdges.clear();
 	Graph * G = &(MLG.getGraph());
 
-	node v;
-
 	double sqrsize;
 	if (m_randomize) sqrsize = 2.0*sqrt((double)G->numberOfNodes())*MLG.averageRadius();
 
-	forall_nodes(v, *G) {
+	for(node v : G->nodes) {
 		if (MLG.radius(v) <= 0) {
 			MLG.radius(v, 1.0);
 		}
@@ -87,10 +77,10 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 		m_secondaryLayout.get().call(MLG.getGraphAttributes());
 		MLG.updateReverseIndizes();
 
-		for(std::vector<EdgeData>::iterator i = m_deletedEdges.begin(); i != m_deletedEdges.end(); i++ ) {
-			int index = (*i).edgeIndex;
-			edge temp = G->newEdge(MLG.getNode((*i).sourceIndex), MLG.getNode((*i).targetIndex), index);
-			MLG.weight(temp, (float)(*i).weight);
+		for( const EdgeData &ed : m_deletedEdges ) {
+			int index = ed.edgeIndex;
+			edge temp = G->newEdge(MLG.getNode(ed.sourceIndex), MLG.getNode(ed.targetIndex), index);
+			MLG.weight(temp, (float)ed.weight);
 		}
 	}
 }
@@ -100,15 +90,13 @@ void PreprocessorLayout::call(Graph &G, MultilevelGraph &MLG)
 {
 	std::vector<edge> deletedEdges;
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		int index = e->index();
-		if (e->source() == e->target()) {
+		if (e->isSelfLoop()) {
 			deletedEdges.push_back(e);
 			m_deletedEdges.push_back(EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));
 		} else {
-			adjEntry adj;
-			forall_adj(adj, e->source()) {
+			for(adjEntry adj : e->source()->adjEdges) {
 				if (adj->theEdge()->index() < index && adj->twinNode() == e->target()) {
 					deletedEdges.push_back(e);
 					m_deletedEdges.push_back(EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));
@@ -118,8 +106,8 @@ void PreprocessorLayout::call(Graph &G, MultilevelGraph &MLG)
 		}
 	}
 
-	for (std::vector<edge>::iterator i = deletedEdges.begin(); i != deletedEdges.end(); i++) {
-		G.delEdge(*i);
+	for (edge e : deletedEdges) {
+		G.delEdge(e);
 	}
 }
 

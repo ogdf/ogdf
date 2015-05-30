@@ -381,7 +381,7 @@ public:
 #ifndef SLIM_CLP
      /// Says if a network basis
      inline bool networkBasis() const {
-          return (networkBasis_ != NULL);
+          return (networkBasis_ != nullptr);
      }
 #else
      /// Says if a network basis

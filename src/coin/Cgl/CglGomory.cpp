@@ -768,7 +768,7 @@ CglGomory::generateCuts(
     if (nTotalEls<=0)
       break;  // Got enough
     iColumn=which[kColumn];
-    double reducedValue=above_integer(colsol[iColumn]);;
+    double reducedValue=above_integer(colsol[iColumn]);
     // This returns pivot row for columns or -1 if not basic (C) ====
     int iBasic=columnIsBasic[iColumn];
     double ratio=reducedValue/(1.0-reducedValue);

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3844 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 10:18:32 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of classes GridSifting and GlobalSifting.
  *
@@ -59,14 +51,14 @@ namespace ogdf {
 /**
  * \brief The global sifting heuristic for crossing minimization.
  *
+ * @ingroup gd-layered-crossmin
+ *
  * Implementation of the global sifting heuristic based on
- * C. Bachmaier, F. J. Brandenburg, W. Brunner, F. Hübner,
+ * C. Bachmaier, F. J. Brandenburg, W. Brunner, F. H&uuml;bner,
  * <i>Global k-Level Crossing Reduction</i>, J. Graph Algorithms and
  * Appl. 15(5), 2011, pp. 631-659.
  * This class implements the interface LayeredCrossMinModule and should be
  * used as a part of the Sugiyama algorithm for drawing layered graphs.
- *
- *
  */
 class OGDF_EXPORT GlobalSifting : public LayeredCrossMinModule {
 
@@ -88,11 +80,11 @@ public:
 	void nRepeats( int num ) { m_nRepeats = num; }
 
 	//! Implementation of interface LateredCrossMinModule.
-	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H)
+	const HierarchyLevelsBase *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings)
 	{
 		BlockOrder *pBlockOrder = new BlockOrder(H,true);
 
-		pBlockOrder -> globalSifting( sugi.runs(), m_nRepeats );
+		pBlockOrder -> globalSifting( sugi.runs(), m_nRepeats, &nCrossings );
 
 		return pBlockOrder;
 	}
@@ -104,8 +96,10 @@ private:
 /**
  * \brief The grid sifting heuristic for crossing minimization.
  *
+ * @ingroup gd-layered-crossmin
+ *
  * Implementation of the grid sifting heuristic based on
- * C. Bachmaier, W. Brunner, A. Gleißner, <i>Grid Sifting: Leveling
+ * C. Bachmaier, W. Brunner, A. Glei&szlig;ner, <i>Grid Sifting: Leveling
  * and Crossing Reduction</i>, Technical Report MIP-1103, University
  * of Passau, 2011.
 

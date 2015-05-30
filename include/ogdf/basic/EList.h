@@ -1,11 +1,3 @@
-/*
- * $Revision: 2579 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-11 15:28:17 +0200 (Wed, 11 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of embedded stack and list
  * functionality which is useful for embedded chains of elements
@@ -160,8 +152,8 @@ template<typename E, E* E::*prev, E* E::*next>
 class EListIterator
 {
 public:
-	//! Constructs an iterator pointing at NULL
-	inline EListIterator( ) : m_ptr(0) {}
+	//! Constructs an iterator pointing at nullptr
+	inline EListIterator( ) : m_ptr(nullptr) {}
 
 	//! Constructs an iterator pointing at ptr
 	inline EListIterator(E* ptr) : m_ptr(ptr) {}
@@ -169,8 +161,8 @@ public:
 	//! constructs an iterator pointing at the same element as \a other
 	inline EListIterator(const EListIterator<E, prev, next>& other) : m_ptr(other.m_ptr) {}
 
-	//! returns false if the iterator points at NULL
-	inline bool valid() const {  return (m_ptr != 0); }
+	//! returns false if the iterator points at nullptr
+	inline bool valid() const {  return (m_ptr != nullptr); }
 
 	//! Equality operator.
 	inline bool operator==(const EListIterator<E, prev, next>& other) const { return m_ptr == other.m_ptr; }
@@ -437,13 +429,13 @@ public:
 	//! Returns an iterator pointing at the first element of \a pList.
 	static inline iterator begin(const L* pList) { return iterator(pList->*first); }
 
-	//! Returns an iterator pointing at NULL.
+	//! Returns an iterator pointing at nullptr.
 	static inline iterator end(const L* pList) { return iterator(); }
 
 	//! Returns a reverse iterator pointing at the last element of \a pList.
 	static inline iterator rbegin(const L* pList) { return iterator(pList->*last); }
 
-	//! Returns a reverse iterator pointing at NULL.
+	//! Returns a reverse iterator pointing at nullptr.
 	static inline iterator rend(const L* pList) { return iterator(); }
 
 	template<typename Func>

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class IntersectionRectangle (checks
  * overlap of rectangles).
@@ -50,9 +42,8 @@ namespace ogdf {
 
 	// this constructor gets the center point, width and height and sets the corners, the
 	// center and the area
-	IntersectionRectangle::IntersectionRectangle(const DPoint &c, double width, double height)
+	IntersectionRectangle::IntersectionRectangle(const DPoint &c, double width, double height) : m_center(c)
 	{
-		m_center = c;
 		double halfwidth = 0.5*width;
 		double halfheight = 0.5*height;
 		m_p1.m_x = m_center.m_x - halfwidth;

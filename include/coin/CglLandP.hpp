@@ -184,17 +184,17 @@ public:
     /** Assignment operator */
     CglLandP& operator=(const CglLandP &rhs);
     /** Clone function */
-    CglCutGenerator * clone() const;
+    CglCutGenerator * clone() const override;
 
     /**@name Generate Cuts */
     //@{
 
     virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-                              const CglTreeInfo info = CglTreeInfo()) const;
+                              const CglTreeInfo info = CglTreeInfo()) const override;
 
     //@}
 
-    virtual bool needsOptimalBasis() const
+    virtual bool needsOptimalBasis() const override
     {
         return true;
     }

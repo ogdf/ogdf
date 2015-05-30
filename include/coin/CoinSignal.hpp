@@ -30,28 +30,28 @@
 //-----------------------------------------------------------------------------
 
 #if defined(__CYGWIN__) && defined(__GNUC__)
-   typedef typeof(SIG_DFL) CoinSighandler_t;
+   typedef decltype(SIG_DFL) CoinSighandler_t;
 #  define CoinSighandler_t_defined
 #endif
 
 //-----------------------------------------------------------------------------
 
 #if defined(__MINGW32__) && defined(__GNUC__)
-   typedef typeof(SIG_DFL) CoinSighandler_t;
+   typedef decltype(SIG_DFL) CoinSighandler_t;
 #  define CoinSighandler_t_defined
 #endif
 
 //-----------------------------------------------------------------------------
 
 #if defined(__FreeBSD__) && defined(__GNUC__)
-   typedef typeof(SIG_DFL) CoinSighandler_t;
+   typedef decltype(SIG_DFL) CoinSighandler_t;
 #  define CoinSighandler_t_defined
 #endif
 
 //-----------------------------------------------------------------------------
 
 #if defined(__NetBSD__) && defined(__GNUC__)
-   typedef typeof(SIG_DFL) CoinSighandler_t;
+   typedef decltype(SIG_DFL) CoinSighandler_t;
 #  define CoinSighandler_t_defined
 #endif
 
@@ -59,7 +59,7 @@
 
 #if defined(_AIX)
 #  if defined(__GNUC__)
-      typedef typeof(SIG_DFL) CoinSighandler_t;
+      typedef decltype(SIG_DFL) CoinSighandler_t;
 #     define CoinSighandler_t_defined
 #  endif
 #endif
@@ -69,7 +69,7 @@
 #if defined (__hpux)
 #  define CoinSighandler_t_defined
 #  if defined(__GNUC__)
-      typedef typeof(SIG_DFL) CoinSighandler_t;
+      typedef decltype(SIG_DFL) CoinSighandler_t;
 #  else
       extern "C" {
          typedef void (*CoinSighandler_t) (int);
@@ -88,7 +88,7 @@
 #     define CoinSighandler_t_defined
 #  endif
 #  if defined(__GNUC__)
-      typedef typeof(SIG_DFL) CoinSighandler_t;
+      typedef decltype(SIG_DFL) CoinSighandler_t;
 #     define CoinSighandler_t_defined
 #  endif
 #endif
@@ -99,7 +99,7 @@
 #if defined(__clang__)
 	  typedef void(*CoinSighandler_t)(int);
 #else
-	  typedef typeof(SIG_DFL) CoinSighandler_t;
+	  typedef decltype(SIG_DFL) CoinSighandler_t;
 #endif
 #define CoinSighandler_t_defined
 #endif
@@ -107,10 +107,10 @@
 //#############################################################################
 
 #ifndef CoinSighandler_t_defined
-#  warning("OS and/or compiler is not recognized. Defaulting to:");
-#  warning("extern "C" {")
-#  warning("   typedef void (*CoinSighandler_t) (int);")
-#  warning("}")
+#warning("OS and/or compiler is not recognized. Defaulting to:");
+#warning("extern \"C\" {")
+#warning("   typedef void (*CoinSighandler_t) (int);")
+#warning("}")
    extern "C" {
       typedef void (*CoinSighandler_t) (int);
    }

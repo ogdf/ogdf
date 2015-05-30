@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares ClusterGraphAttributes, an extension of class
  * GraphAttributes,  to store clustergraph layout informations
@@ -78,6 +70,9 @@ namespace ogdf {
 
 
 	//! Stores additional attributes of a clustered graph (like layout information).
+	/**
+	 * @ingroup graph-containers graph-drawing
+	 */
 	class OGDF_EXPORT ClusterGraphAttributes : public GraphAttributes
 	{
 		const ClusterGraph* m_pClusterGraph;//!< Only points to existing graphs.
@@ -252,15 +247,53 @@ namespace ogdf {
 
 		//@}
 		/**
+		* @name Layout transformations
+		*/
+		//@{
+
+		using GraphAttributes::scale;
+		using GraphAttributes::flipVertical;
+		using GraphAttributes::flipHorizontal;
+
+		//! Scales the layout by (\a sx,\a sy).
+		/**
+		* If \a scaleNodes is true, node sizes are scaled as well.
+		*
+		* \param sx         is the scaling factor for x-coordinates.
+		* \param sy         is the scaling factor for y-coordinates.
+		* \param scaleNodes determines if nodes size are scaled as well (true) or not.
+		*/
+		virtual void scale(double sx, double sy, bool scaleNodes = true);
+
+		//! Translates the layout by (\a dx,\a dy).
+		/**
+		* \param dx is the translation in x-direction.
+		* \param dy is the translation in y-direction.
+		*/
+		virtual void translate(double dx, double dy);
+
+		//! Flips the (whole) layout vertically such that the part in \a box remains in this area.
+		/**
+		* The whole layout is flipped and then moved such that the part that was in \a box before
+		* flipping is moved to this area.
+		*/
+		virtual void flipVertical(const DRect &box);
+
+		//! Flips the (whole) layout horizontally such that the part in \a box remains in this area.
+		/**
+		* The whole layout is flipped and then moved such that the part that was in \a box before
+		* flipping is moved to this area.
+		*/
+		virtual void flipHorizontal(const DRect &box);
+
+		//@}
+		/**
 		 * @name Utility functions
 		 */
 		//@{
 
 		//! Returns the bounding box of the layout.
-		const DRect boundingBox() const;
-
-		//! Returns the maximum cluster index used.
-		int maxClusterID() const { return m_pClusterGraph->clusterIdCount()-1; }
+		virtual DRect boundingBox() const;
 
 		//! Updates positions of cluster boundaries wrt to children and child clusters
 		void updateClusterPositions(double boundaryDist = 1.0);

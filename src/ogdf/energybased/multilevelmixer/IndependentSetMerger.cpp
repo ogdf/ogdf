@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with neighbour to get a Multilevel Graph
  *
@@ -61,8 +53,7 @@ void IndependentSetMerger::buildAllLevels(MultilevelGraph &MLG)
 	// calc MIS
 	NodeArray<bool> nodeMarks(G, false);
 	std::vector<node> IScandidates;
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		IScandidates.push_back(v);
 	}
 	levelNodes.push_back(std::vector<node>());
@@ -74,8 +65,7 @@ void IndependentSetMerger::buildAllLevels(MultilevelGraph &MLG)
 		IScandidates.pop_back();
 
 		if(!nodeMarks[ISnode]) {
-			adjEntry adj;
-			forall_adj(adj, ISnode) {
+			for(adjEntry adj : ISnode->adjEdges) {
 				nodeMarks[adj->twinNode()] = true;
 			}
 			levelNodes[0].push_back(ISnode);
@@ -110,9 +100,9 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 	std::vector<node> levelNodes;
 	std::vector<node> oldLevelNodes;
 	std::map<node, int> marks;
-	for (std::vector<node>::const_iterator i = oldLevel.begin(); i != oldLevel.end(); i++) {
-		marks[*i] = 1;
-		oldLevelNodes.push_back(*i);
+	for (node v : oldLevel) {
+		marks[v] = 1;
+		oldLevelNodes.push_back(v);
 	}
 
 	while (!oldLevelNodes.empty()) {
@@ -139,8 +129,7 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 						marks[bfsNode] = 2;
 					}
 					seen[bfsNode] = true;
-					adjEntry adj;
-					forall_adj(adj, bfsNode) {
+					for(adjEntry adj : bfsNode->adjEdges) {
 						stacks[two].push_back(adj->twinNode());
 					}
 				}
@@ -173,9 +162,8 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 	}
 
 	std::map<node, node> parents;
-	node v;
-	forall_nodes(v, G) {
-		parents[v] = 0;
+	for(node v : G.nodes) {
+		parents[v] = nullptr;
 	}
 
 	std::vector<node> mergeOrder;
@@ -183,9 +171,9 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 	std::vector<node> stacks[2];
 	int one = 1;
 	int two = 0;
-	for(std::vector<node>::iterator i = levelNodes.begin(); i != levelNodes.end(); i++) {
-		stacks[one].push_back(*i);
-		parents[*i] = *i;
+	for(node v : levelNodes) {
+		stacks[one].push_back(v);
+		parents[v] = v;
 	}
 	// parallel BFS auf allen levelNodes
 	while (!stacks[one].empty()) {
@@ -194,11 +182,10 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 
 		if (!seen[bfsNode]) {
 			seen[bfsNode] = true;
-			adjEntry adj;
-			forall_adj(adj, bfsNode) {
+			for(adjEntry adj : bfsNode->adjEdges) {
 				node twin = adj->twinNode();
 				stacks[two].push_back(twin);
-				if(parents[twin] == 0) {
+				if(parents[twin] == nullptr) {
 					parents[twin] = bfsNode;
 					mergeOrder.push_back(twin);
 				}
@@ -211,8 +198,7 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 		}
 	}
 
-	for (std::vector<node>::iterator i = mergeOrder.begin(); i != mergeOrder.end(); i++) {
-		node mergeNode = *i;
+	for (node mergeNode : mergeOrder) {
 		node parent = mergeNode;
 		while(parents[parent] != parent) {
 			parent = parents[parent];

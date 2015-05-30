@@ -223,7 +223,7 @@ CoinModel::CoinModel(const char *fileName, int allowStrings)
       setColumnBounds(i,columnLower[i],columnUpper[i]);
       setColumnObjective(i,objective[i]);
       if (m.isInteger(i)) {
-	setColumnIsInteger(i,true);;
+	setColumnIsInteger(i,true);
 	numberIntegers++;
       }
     }
@@ -969,8 +969,8 @@ CoinModel::setElement(int i,int j,double value)
       columnList_.addHard(i,1,&j,&value,elements_,hashElements_);
       numberElements_=CoinMax(numberElements_,columnList_.numberElements());
     }
-    numberRows_=CoinMax(numberRows_,i+1);;
-    numberColumns_=CoinMax(numberColumns_,j+1);;
+    numberRows_=CoinMax(numberRows_,i+1);
+    numberColumns_=CoinMax(numberColumns_,j+1);
   }
 }
 // Sets quadratic value for column i and j
@@ -1047,8 +1047,8 @@ CoinModel::setElement(int i,int j,const char * value)
       columnList_.addHard(i,1,&j,&dummyValue,elements_,hashElements_);
       numberElements_=CoinMax(numberElements_,columnList_.numberElements());
     }
-    numberRows_=CoinMax(numberRows_,i+1);;
-    numberColumns_=CoinMax(numberColumns_,j+1);;
+    numberRows_=CoinMax(numberRows_,i+1);
+    numberColumns_=CoinMax(numberColumns_,j+1);
     int position = hashElements_.hash(i,j,elements_);
     assert (position>=0);
     int iValue = addString(value);

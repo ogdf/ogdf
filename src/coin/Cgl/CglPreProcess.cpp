@@ -1659,7 +1659,7 @@ CglPreProcess::preProcessNonDefault(OsiSolverInterface & model,
       }
 
       if (fabs(value-floor(value+0.5))>1.0e-12)
-	possibleSlack=false;;
+	possibleSlack=false;
       if (fabs(value)!=1.0) {
         good=false;
         allPlus=false;
@@ -3582,8 +3582,8 @@ CglPreProcess::postProcess(OsiSolverInterface & modelIn)
 	  }
 	}
       }
-      delete modifiedModel_[iPass];;
-      delete model_[iPass];;
+      delete modifiedModel_[iPass];
+      delete model_[iPass];
       delete presolve_[iPass];
       modifiedModel_[iPass]=NULL;
       model_[iPass]=NULL;
@@ -3738,8 +3738,8 @@ CglPreProcess::postProcess(OsiSolverInterface & modelIn)
   } else {
     // infeasible
     for (int iPass=numberSolvers_-1;iPass>=0;iPass--) {
-      delete modifiedModel_[iPass];;
-      delete model_[iPass];;
+      delete modifiedModel_[iPass];
+      delete model_[iPass];
       delete presolve_[iPass];
       modifiedModel_[iPass]=NULL;
       model_[iPass]=NULL;

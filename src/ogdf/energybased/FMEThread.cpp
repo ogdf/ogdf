@@ -1,11 +1,3 @@
-/*
- * $Revision: 3569 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-18 11:04:33 +0200 (Tue, 18 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class FMEThread.
  *
@@ -40,7 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "FMEThread.h"
+#include <ogdf/internal/energybased/FMEThread.h>
 
 namespace ogdf {
 
@@ -80,7 +72,7 @@ void FMEThread::unixSetAffinity()
 #endif
 
 
-FMEThread::FMEThread(FMEThreadPool* pThreadPool, __uint32 threadNr) : m_threadNr(threadNr), m_pThreadPool(pThreadPool)
+FMEThread::FMEThread(FMEThreadPool* pThreadPool, uint32_t threadNr) : m_threadNr(threadNr), m_pThreadPool(pThreadPool)
 {
 	m_numThreads = m_pThreadPool->numThreads();
 }
@@ -94,7 +86,7 @@ void FMEThread::sync()
 
 
 
-FMEThreadPool::FMEThreadPool(__uint32 numThreads) : m_numThreads(numThreads)
+FMEThreadPool::FMEThreadPool(uint32_t numThreads) : m_numThreads(numThreads)
 {
 	allocate();
 }
@@ -107,16 +99,20 @@ FMEThreadPool::~FMEThreadPool()
 //! runs one iteration. This call blocks the main thread
 void FMEThreadPool::runThreads()
 {
-	for (__uint32 i=1; i < numThreads(); i++)
+	uint32_t nThreads = numThreads();
+
+	Array<Thread> threads(1, nThreads);
+
+	for (uint32_t i=1; i < nThreads; i++)
 	{
-		thread(i)->start();
+		threads[i] = Thread(*thread(i));
 	}
 
-	thread(0)->doWork();
+	thread(0)->operator()();
 
-	for (__uint32 i=1; i < numThreads(); i++)
+	for (uint32_t i=1; i < nThreads; i++)
 	{
-		thread(i)->join();
+		threads[i].join();
 	}
 }
 
@@ -127,19 +123,16 @@ void FMEThreadPool::allocate()
 
 	m_pSyncBarrier = new Barrier(m_numThreads);
 	m_pThreads = new FMEThreadPtr[m_numThreads];
-	for (__uint32 i=0; i < m_numThreads; i++)
+	for (uint32_t i=0; i < m_numThreads; i++)
 	{
 		m_pThreads[i] = new FMEThread(this, i);
-#ifdef OGDF_SYSTEM_WINDOWS
-		//m_pThreads[i]->priority(Thread::tpCritical);
-		m_pThreads[i]->cpuAffinity(1 << i);
-#endif
+		//m_pThreads[i]->cpuAffinity(1 << i);
 	}
 }
 
 void FMEThreadPool::deallocate()
 {
-	for (__uint32 i=0; i < numThreads(); i++)
+	for (uint32_t i=0; i < numThreads(); i++)
 	{
 		delete m_pThreads[i];
 	}

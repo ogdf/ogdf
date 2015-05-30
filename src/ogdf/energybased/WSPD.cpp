@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class WSPD (well-separated pair decomposition).
  *
@@ -40,12 +32,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "WSPD.h"
-#include "FastUtils.h"
+#include <ogdf/internal/energybased/WSPD.h>
+#include <ogdf/internal/energybased/FastUtils.h>
 
 namespace ogdf {
 
-WSPD::WSPD(__uint32 maxNumNodes) : m_maxNumNodes(maxNumNodes)
+WSPD::WSPD(uint32_t maxNumNodes) : m_maxNumNodes(maxNumNodes)
 {
 	m_maxNumPairs = maxNumNodes*2;
 	m_numPairs = 0;
@@ -69,8 +61,8 @@ unsigned long WSPD::sizeInBytes() const
 
 void WSPD::allocate()
 {
-	m_nodeInfo = (WSPDNodeInfo*)MALLOC_16(m_maxNumNodes*sizeof(WSPDNodeInfo));
-	m_pairs = (WSPDPairInfo*)MALLOC_16(m_maxNumPairs*sizeof(WSPDPairInfo));
+	m_nodeInfo = static_cast<WSPDNodeInfo*>(MALLOC_16(m_maxNumNodes*sizeof(WSPDNodeInfo)));
+	m_pairs = static_cast<WSPDPairInfo*>(MALLOC_16(m_maxNumPairs*sizeof(WSPDPairInfo)));
 }
 
 
@@ -83,7 +75,7 @@ void WSPD::deallocate()
 
 void WSPD::clear()
 {
-	for (__uint32 i = 0; i < m_maxNumNodes; i++)
+	for (uint32_t i = 0; i < m_maxNumNodes; i++)
 	{
 		m_nodeInfo[i].numWSNodes = 0;
 	}

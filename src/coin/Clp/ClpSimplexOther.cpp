@@ -888,7 +888,7 @@ ClpSimplexOther::dualOfModel(double fractionRowRanges, double fractionColumnRang
           } else {
                if (rowUpper[iRow] == rowLower[iRow]) {
                     newObjective[kRow] = -rowLower[iRow];
-                    fromRowsLower[kRow] = -COIN_DBL_MAX;;
+                    fromRowsLower[kRow] = -COIN_DBL_MAX;
                     fromRowsUpper[kRow] = COIN_DBL_MAX;
                     which[kRow] = iRow;
                     kRow++;
@@ -942,7 +942,7 @@ ClpSimplexOther::dualOfModel(double fractionRowRanges, double fractionColumnRang
 int
 ClpSimplexOther::restoreFromDual(const ClpSimplex * dualProblem)
 {
-     int returnCode = 0;;
+     int returnCode = 0;
      createStatus();
      // Number of rows in dual problem was original number of columns
      assert (numberColumns_ == dualProblem->numberRows());
@@ -1100,7 +1100,7 @@ ClpSimplexOther::restoreFromDual(const ClpSimplex * dualProblem)
           Status status = dualProblem->getColumnStatus(iRow);
           if (status == basic) {
                // row is at bound
-               dual_[iRow] = dualSol[iRow];;
+               dual_[iRow] = dualSol[iRow];
           } else {
                // row basic
                setRowStatus(iRow, basic);
@@ -1144,7 +1144,7 @@ ClpSimplexOther::restoreFromDual(const ClpSimplex * dualProblem)
                          numberBasic--; // already counted
                          rowActivity_[iRow] = rowLower_[iRow];
                          setRowStatus(iRow, atLowerBound);
-                         dual_[iRow] = dualSol[kExtraRow];;
+                         dual_[iRow] = dualSol[kExtraRow];
                     } else {
                          rowActivity_[iRow] = rowLower_[iRow] - dualDj[iRow];
                          assert (dualDj[iRow] < 1.0e-5);

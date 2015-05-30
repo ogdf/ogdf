@@ -1,4 +1,3 @@
-
 /** \file
  * \brief Declaration of class BertaultLayout.
  * Computes a force directed layout (Bertault Layout) for preserving the planar embedding in the graph.
@@ -6,7 +5,7 @@
  * "A force-directed algorithm that preserves
  * edge-crossing properties" by Francois Bertault
  *
- * \author Smit Sanghavi;
+ * \author Smit Sanghavi
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -71,7 +70,7 @@ public:
 
 
 	//! The main call to the algorithm. AG should have nodeGraphics and EdgeGraphics attributes enabled.
-	void call(GraphAttributes &AG);
+	virtual void call(GraphAttributes &AG) override;
 
 
 	//! Sets impred option true or false.

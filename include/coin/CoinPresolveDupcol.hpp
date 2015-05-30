@@ -57,12 +57,12 @@ class dupcol_action : public CoinPresolveAction {
       actions_(actions) {}
 
  public:
-  const char *name() const;
+  const char *name() const override;
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *prob,
 					 const CoinPresolveAction *next);
 
-  void postsolve(CoinPostsolveMatrix *prob) const;
+  void postsolve(CoinPostsolveMatrix *prob) const override;
 
   ~dupcol_action();
 
@@ -94,7 +94,7 @@ class duprow_action : public CoinPresolveAction {
   const int nactions_;
   const action *const actions_;
 
-  duprow_action():CoinPresolveAction(NULL),nactions_(0),actions_(NULL) {}
+  duprow_action():CoinPresolveAction(nullptr),nactions_(0),actions_(nullptr) {}
   duprow_action(int nactions,
 		      const action *actions,
 		      const CoinPresolveAction *next) :
@@ -102,12 +102,12 @@ class duprow_action : public CoinPresolveAction {
     nactions_(nactions), actions_(actions) {}
 
  public:
-  const char *name() const;
+  const char *name() const override;
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *prob,
 					 const CoinPresolveAction *next);
 
-  void postsolve(CoinPostsolveMatrix *prob) const;
+  void postsolve(CoinPostsolveMatrix *prob) const override;
 
   //~duprow_action() { delete[]actions_; }
 };
@@ -132,7 +132,7 @@ class gubrow_action : public CoinPresolveAction {
   const int nactions_;
   const action *const actions_;
 
-  gubrow_action():CoinPresolveAction(NULL),nactions_(0),actions_(NULL) {}
+  gubrow_action():CoinPresolveAction(nullptr),nactions_(0),actions_(nullptr) {}
   gubrow_action(int nactions,
 		      const action *actions,
 		      const CoinPresolveAction *next) :
@@ -140,12 +140,12 @@ class gubrow_action : public CoinPresolveAction {
     nactions_(nactions), actions_(actions) {}
 
  public:
-  const char *name() const;
+  const char *name() const override;
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *prob,
 					 const CoinPresolveAction *next);
 
-  void postsolve(CoinPostsolveMatrix *prob) const;
+  void postsolve(CoinPostsolveMatrix *prob) const override;
 
   //~gubrow_action() { delete[]actions_; }
 };

@@ -374,7 +374,9 @@ CoinMessageHandler::internalPrint()
 int
 CoinMessageHandler::print()
 {
+#ifndef NDEBUG
   fprintf(fp_,"%s\n",messageBuffer_);
+#endif
   return 0;
 }
 // Check severity

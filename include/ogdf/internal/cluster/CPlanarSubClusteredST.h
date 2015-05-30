@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of CPlanarSubClusteredST class.
  *
@@ -94,14 +86,14 @@ private:
 
 		//insert nodes for all child clusters
 		ListConstIterator<cluster> it;
-		for (it = c->cBegin(); it.valid(); it++)
+		for (it = c->cBegin(); it.valid(); ++it)
 		{
 			node v = g.newNode();
 			m_cRepNode[*it] = v;
 		}//for
 		//insert nodes for all node entries in c
 		ListConstIterator<node> itn;
-		for (itn = c->nBegin(); itn.valid(); itn++)
+		for (itn = c->nBegin(); itn.valid(); ++itn)
 		{
 			node v = g.newNode();
 			m_vRepNode[*itn] = v;
@@ -112,8 +104,7 @@ private:
 	void constructRepresentationGraphEdges(const ClusterGraph& CG,
 										   ClusterArray<Graph*>& RepGraph)
 	{
-		edge e;
-		forall_edges(e, CG.constGraph())
+		for(edge e : CG.constGraph().edges)
 		{
 			//insert representation in RepGraph[allocation cluster]
 			//defined by lowest common ancestor of end points
@@ -170,24 +161,20 @@ private:
 	void computeRepresentationGraphs(const ClusterGraph& CG,
 									 ClusterArray<Graph*>& RepGraph)
 	{
-		cluster c;
-		forall_clusters(c, CG)
-		{
+		for(cluster c : CG.clusters) {
 			RepGraph[c] = new Graph;
 			constructRepresentationGraphNodes(CG, *RepGraph[c], c);
-		}//forallclusters
+		}
 		constructRepresentationGraphEdges(CG, RepGraph);
 	}//computeRepresentationGraphs
 
 	void deleteRepresentationGraphs(const ClusterGraph& CG,
 									 ClusterArray<Graph*>& RepGraph)
 	{
-		cluster c;
-		forall_clusters(c, CG)
-		{
+		for(cluster c : CG.clusters) {
 			if (RepGraph[c])
 				delete RepGraph[c];
-		}//forallclusters
+		}
 
 	}//deleteRepresentationGraphs
 

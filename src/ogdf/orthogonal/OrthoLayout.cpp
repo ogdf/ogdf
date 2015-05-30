@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements planar orthogonal drawing algorithm
  *
@@ -157,9 +149,8 @@ void OrthoLayout::call(PlanRep &PG,
 	RoutingChannel<int> rcGrid(PG, gridDrawing.toGrid(separation), m_cOverhang);
 	rcGrid.computeRoutingChannels(OR);
 
-	node v;
 	const OrthoRep::VertexInfoUML *pInfoExp;
-	forall_nodes(v,PG) {
+	for(node v : PG.nodes) {
 		pInfoExp = OR.cageInfo(v);
 		if (pInfoExp) break;
 	}
@@ -180,9 +171,11 @@ void OrthoLayout::call(PlanRep &PG,
 	// PHASE 3: routing of edges
 	//--------------------------------------
 
-	EdgeRouter router;
 	MinimumEdgeDistances<int> minDistGrid(PG, gridDrawing.toGrid(separation));
-	router.call(PG, OR, gridDrawing, E, rcGrid, minDistGrid, gridDrawing.width(), gridDrawing.height());
+	{
+		EdgeRouter router;
+		router.call(PG, OR, gridDrawing, E, rcGrid, minDistGrid, gridDrawing.width(), gridDrawing.height());
+	}
 
 	OR.orientate(pInfoExp->m_corner[odNorth],odNorth);
 
@@ -219,8 +212,7 @@ void OrthoLayout::computeBoundingBox(
 	minX = maxX = drawing.x(PG.firstNode());
 	minY = maxY = drawing.y(PG.firstNode());
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		double x = drawing.x(v);
 		if (x < minX) minX = x;
@@ -234,7 +226,7 @@ void OrthoLayout::computeBoundingBox(
 	double deltaX = m_margin - minX;
 	double deltaY = m_margin - minY;
 
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		drawing.x(v) += deltaX;
 		drawing.y(v) += deltaY;

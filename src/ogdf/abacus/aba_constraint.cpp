@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -47,12 +39,11 @@ int Constraint::genRow(Active<Variable, Constraint> *var,
 	double eps      = master_->machineEps();
 	double minusEps = -eps;
 	int    n        = var->number();
-	double c;
 
 	expand();
 
 	for (int e = 0; e < n; e++) {
-		c = coeff((*var)[e]);
+		double c = coeff((*var)[e]);
 		if (c > eps || c < minusEps) row.insert(e, c);
 	}
 
@@ -69,14 +60,13 @@ double Constraint::slack(Active<Variable, Constraint> *variables,
 	double eps      = master_->machineEps();
 	double minusEps = -eps;
 	double c;
-	double xi;
 	double lhs = 0.0;
 	int    n   = variables->number();
 
 	expand();
 
 	for (int i = 0; i < n; i++) {
-		xi = x[i];
+		double xi = x[i];
 		if (xi > eps || xi < minusEps) {
 			c = coeff((*variables)[i]);
 			if (c > eps || c < minusEps)
@@ -170,8 +160,8 @@ double Constraint::distance(double *x,
 
 ConClass *Constraint::classification(Active<Variable, Constraint> *var) const
 {
-	if (conClass_ == 0 || var) {
-		if (var == 0) {
+	if (conClass_ == nullptr || var) {
+		if (var == nullptr) {
 			Logger::ifout() << "Constraint::classification(): Fatal error.\nNeither classification nor variable set specified.\n";
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
 		}

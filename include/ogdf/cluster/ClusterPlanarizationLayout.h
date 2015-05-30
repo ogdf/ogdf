@@ -1,11 +1,3 @@
-/*
- * $Revision: 2584 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 02:38:07 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class ClusterPlanarizationLayout
  * Planarization approach for cluster graphs
@@ -59,6 +51,8 @@ namespace ogdf {
 
 //! The cluster planarization layout algorithm.
 /**
+ * @ingroup gd-cluser
+ *
  * The class ClusterPlanarizationLayout implements the planarization
  * approach for drawing clustered graphs. Its implementation is based
  * on the following publication:

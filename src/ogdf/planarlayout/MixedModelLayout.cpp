@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Mixed-Model layout algorithm.
  *
@@ -48,7 +40,7 @@
 #include <ogdf/module/MixedModelCrossingsBeautifierModule.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 
-#include "MixedModelBase.h"
+#include <ogdf/internal/planarlayout/MixedModelBase.h>
 
 
 namespace ogdf {
@@ -108,9 +100,9 @@ void MixedModelLayout::doCall(
 	if(fixEmbedding) {
 		OGDF_ASSERT(PG.representsCombEmbedding());
 		PlanarAugmentationFix fixAugmenter;
-		mm.computeOrder(fixAugmenter, 0, adjExternal, m_compOrder.get());
+		mm.computeOrder(fixAugmenter, nullptr, adjExternal, m_compOrder.get());
 	} else
-		mm.computeOrder(m_augmenter.get(),&m_embedder.get(),0,m_compOrder.get());
+		mm.computeOrder(m_augmenter.get(),&m_embedder.get(),nullptr,m_compOrder.get());
 
 	mm.assignIopCoords();
 	mm.placeNodes();

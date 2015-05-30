@@ -1,11 +1,3 @@
-/*
- * $Revision: 2583 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief planar biconnected augmentation approximation algorithm
  *
@@ -60,6 +52,8 @@ namespace ogdf {
 /**
  * \brief The algorithm for planar biconnectivity augmentation (Mutzel, Fialko).
  *
+ * @ingroup ga-augment
+ *
  * The class \a PlanarAugmentation implements an augmentation algorithm
  * that augments a graph to a biconnected graph. In addition, if the graph was
  * planar before augmentation, the resulting graph will be biconnected and
@@ -88,7 +82,7 @@ protected:
 	 * \param G is the working graph.
 	 * \param L is the list of all new edges.
 	 */
-	void doCall(Graph& G, List<edge>& L);
+	virtual void doCall(Graph& G, List<edge>& L) override;
 
 
 private:

@@ -535,7 +535,7 @@ namespace CoinParamUtils {
   */
 
   std::string getCommand(int argc, const char *argv[],
-			 const std::string prompt, std::string *pfx = 0) ;
+			 const std::string prompt, std::string *pfx = nullptr) ;
 
   /*! \relatesalso CoinParam
       \brief Look up the command keyword (name) in the parameter vector.
@@ -575,7 +575,7 @@ namespace CoinParamUtils {
     </ul>
   */
   int lookupParam(std::string name, CoinParamVec &paramVec, 
-		  int *matchCnt = 0, int *shortCnt = 0, int *queryCnt = 0) ;
+		  int *matchCnt = nullptr, int *shortCnt = nullptr, int *queryCnt = nullptr) ;
 
   /*! \relatesalso CoinParam
       \brief Utility to print a long message as filled lines of text

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements TLP format write functionality of class GraphIO.
  *
@@ -91,8 +83,7 @@ static void writeEdges(
 	std::ostream &os,
 	const Graph &G)
 {
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		os << "\n";
 		GraphIO::indent(os, 1) << "(edge " << e->index() << " "
 		                       << e->source() << " " << e->target()
@@ -136,8 +127,7 @@ static void writeProperties(
 		GraphIO::indent(os, 2) << "(default \"\" \"\")";
 
 		if(attrs & GraphAttributes::nodeLabel) {
-			node v;
-			forall_nodes(v, G) {
+			for(node v : G.nodes) {
 				if(GA.label(v).empty()) {
 					continue;
 				}
@@ -149,8 +139,7 @@ static void writeProperties(
 		}
 
 		if(attrs & GraphAttributes::edgeLabel) {
-			edge e;
-			forall_edges(e, G) {
+			for(edge e : G.edges) {
 				if(GA.label(e).empty()) {
 					continue;
 				}
@@ -173,8 +162,7 @@ static void writeProperties(
 		const Color defaultColor = Color(); // Defaults to (0, 0, 0, 255).
 
 		if(attrs & GraphAttributes::nodeStyle) {
-			node v;
-			forall_nodes(v, G) {
+			for(node v : G.nodes) {
 				const Color &color = GA.fillColor(v);
 
 				if(color == defaultColor) {
@@ -189,8 +177,7 @@ static void writeProperties(
 		}
 
 		if(attrs & GraphAttributes::edgeStyle) {
-			edge e;
-			forall_edges(e, G) {
+			for(edge e : G.edges) {
 				const Color &color = GA.strokeColor(e);
 
 				if(color == defaultColor) {
@@ -208,11 +195,9 @@ static void writeProperties(
 	}
 
 	if(attrs & GraphAttributes::nodeGraphics) {
-		node v;
-
 		os << "\n";
 		writePropertyHeader(os, a_position, "layout");
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			const double z =
 				(attrs & GraphAttributes::threeD) ? GA.z(v) : 0;
 
@@ -226,7 +211,7 @@ static void writeProperties(
 
 		os << "\n";
 		writePropertyHeader(os, a_size, "size");
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			os << "\n";
 			GraphIO::indent(os, 2) << "(node " << v->index() << " \"("
 			                       << GA.width(v) << ","
@@ -245,11 +230,11 @@ static void writeProperties(
 
 static void getClusterChildren(cluster c, std::vector<node> &nodes)
 {
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); nit++) {
+	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
 		nodes.push_back(*nit);
 	}
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 		getClusterChildren(*cit, nodes);
 	}
 }
@@ -293,7 +278,7 @@ static void writeCluster(
 	{
 		// We want to keep file small, se we write whole ranges.
 		int a = (*it)->index(), b = a;
-		for(it++; it != clusterNodes.end() && (*it)->index() == b + 1; it++) {
+		for(it++; it != clusterNodes.end() && (*it)->index() == b + 1; ++it) {
 			b++;
 		}
 
@@ -301,7 +286,7 @@ static void writeCluster(
 	}
 	os << ")";
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 		writeCluster(os, depth + 1, G, C, *cit);
 	}
 
@@ -328,7 +313,7 @@ static void writeGraph(
 		}
 
 		const cluster c = C->rootCluster();
-		for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+		for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 			writeCluster(os, 1, G, *C, *cit);
 		}
 	}
@@ -351,21 +336,21 @@ static void writeGraph(
 
 bool GraphIO::writeTLP(const Graph &G, std::ostream &os)
 {
-	tlp::writeGraph(os, G, NULL, NULL);
+	tlp::writeGraph(os, G, nullptr, nullptr);
 	return true;
 }
 
 
 bool GraphIO::writeTLP(const GraphAttributes &GA, std::ostream &os)
 {
-	tlp::writeGraph(os, GA.constGraph(), NULL, &GA);
+	tlp::writeGraph(os, GA.constGraph(), nullptr, &GA);
 	return true;
 }
 
 
 bool GraphIO::writeTLP(const ClusterGraph &C, std::ostream &os)
 {
-	tlp::writeGraph(os, C.constGraph(), &C, NULL);
+	tlp::writeGraph(os, C.constGraph(), &C, nullptr);
 	return true;
 }
 

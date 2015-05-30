@@ -149,13 +149,13 @@ if useCoin:
 	for p in solverIncludes:
 		p = p.strip()
 		if p != '':
-			addIncludes += '-I' + p + ' '
+			addIncludes += '-isystem ' + p + ' '
 
 	if sharedLib and (sys.platform == 'win32' or sys.platform == 'cygwin'):
 		libs += ' -l' + v.coinSharedName()
 
-ogdfFlags = '-I./include ' + addIncludes
-coinFlags = '$(COIN_INSTALL_DEFINES) -I./include/coin ' + addIncludes
+ogdfFlags = '-I./include -I./test/include ' + addIncludes
+coinFlags = '$(COIN_INSTALL_DEFINES) -isystem ./include/coin ' + addIncludes
 
 if sharedLib:
 	ogdfFlags += ' -DOGDF_INSTALL'

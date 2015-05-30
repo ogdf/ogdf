@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -56,10 +48,13 @@ PoolSlot<BaseType, CoType>::PoolSlot(
 template<class BaseType, class CoType>
 PoolSlot<BaseType, CoType>::~PoolSlot()
 {
+#ifdef OGDF_DEBUG
 	if (conVar_ && conVar_->nReferences()) {
 		Logger::ifout() << "~PoolSlot(): it is not allowed to destruct objects of class PoolSlot with a constraint/variable with positive reference counter = " << conVar_->nReferences() << ".\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPoolslot);
 	}
+#endif
+
+	OGDF_ASSERT((conVar_ && conVar_->nReferences()) == false);
 
 	delete conVar_;
 }

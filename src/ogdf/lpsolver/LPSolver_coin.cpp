@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements front-end for LP solver
  *
@@ -153,16 +145,26 @@ LPSolver::Status LPSolver::optimize(
 #endif
 
 	// assert correctness of array boundaries
-	OGDF_ASSERT(obj          .low() == 0 && obj          .size() == numCols);
-	OGDF_ASSERT(matrixBegin  .low() == 0 && matrixBegin  .size() == numCols);
-	OGDF_ASSERT(matrixCount  .low() == 0 && matrixCount  .size() == numCols);
-	OGDF_ASSERT(matrixIndex  .low() == 0 && matrixIndex  .size() == numNonzeroes);
-	OGDF_ASSERT(matrixValue  .low() == 0 && matrixValue  .size() == numNonzeroes);
-	OGDF_ASSERT(rightHandSide.low() == 0 && rightHandSide.size() == numRows);
-	OGDF_ASSERT(equationSense.low() == 0 && equationSense.size() == numRows);
-	OGDF_ASSERT(lowerBound   .low() == 0 && lowerBound   .size() == numCols);
-	OGDF_ASSERT(upperBound   .low() == 0 && upperBound   .size() == numCols);
-	OGDF_ASSERT(x            .low() == 0 && x            .size() == numCols);
+	OGDF_ASSERT(obj          .low()  == 0);
+	OGDF_ASSERT(obj          .size() == numCols);
+	OGDF_ASSERT(matrixBegin  .low()  == 0);
+	OGDF_ASSERT(matrixBegin  .size() == numCols);
+	OGDF_ASSERT(matrixCount  .low()  == 0);
+	OGDF_ASSERT(matrixCount  .size() == numCols);
+	OGDF_ASSERT(matrixIndex  .low()  == 0);
+	OGDF_ASSERT(matrixIndex  .size() == numNonzeroes);
+	OGDF_ASSERT(matrixValue  .low()  == 0);
+	OGDF_ASSERT(matrixValue  .size() == numNonzeroes);
+	OGDF_ASSERT(rightHandSide.low()  == 0);
+	OGDF_ASSERT(rightHandSide.size() == numRows);
+	OGDF_ASSERT(equationSense.low()  == 0);
+	OGDF_ASSERT(equationSense.size() == numRows);
+	OGDF_ASSERT(lowerBound   .low()  == 0);
+	OGDF_ASSERT(lowerBound   .size() == numCols);
+	OGDF_ASSERT(upperBound   .low()  == 0);
+	OGDF_ASSERT(upperBound   .size() == numCols);
+	OGDF_ASSERT(x            .low()  == 0);
+	OGDF_ASSERT(x            .size() == numCols);
 
 	osi->setObjSense(goal==lpMinimize ? 1 : -1);
 

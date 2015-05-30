@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements graph generator for hierarchical graphs.
  *
@@ -42,6 +34,11 @@
 
 
 #include <ogdf/basic/graph_generators.h>
+#include <random>
+
+using std::minstd_rand;
+using std::uniform_int_distribution;
+using std::uniform_real_distribution;
 
 
 namespace ogdf {
@@ -51,7 +48,7 @@ class BEdge {
 public:
 	int head, tail, id, pos;
 	BEdge *next;
-	BEdge(int t,int h,int c) : head(h), tail(t), id(c), pos(-1), next(0) { }
+	BEdge(int t,int h,int c) : head(h), tail(t), id(c), pos(-1), next(nullptr) { }
 	OGDF_NEW_DELETE
 };
 
@@ -80,36 +77,38 @@ public:
 	OGDF_AUGMENT_STATICCOMPARER(bEdge)
 };
 
-void randomHierarchy(Graph &G,
-	int numberOfNodes,int numberOfEdges,
-	bool planar,bool singleSource,bool longEdges)
+
+void randomHierarchy(
+	Graph &G,
+	int numberOfNodes,
+	int numberOfEdges,
+	bool planar,
+	bool singleSource,
+	bool longEdges)
 {
 	G.clear();
 
-	node *nnr = new node[3*numberOfNodes];
-	int  *vrt = new int[3*numberOfNodes];
-	int  *fst = new int[numberOfNodes+1];
-	List<bEdge> startEdges;
-	bEdge actEdge, nextEdge, toDelete;
-	node v;
-	int act, next, n1, n2, idc=0;
-	double x1, x2, r;
-	bool connected;
+	Array<node> nnr (3*numberOfNodes);
+	Array<int>  vrt (3*numberOfNodes);
+	Array<int>  fst (numberOfNodes+1);
 
 	/** Place nodes **/
 
 	for(int i = 0; i < numberOfNodes; i++)
 		G.newNode();
 
-	int numberOfLayers=0, totNumber=0, realCount=0;
+	minstd_rand rng(randomSeed());
+	uniform_real_distribution<> dist_0_1(0.0,1.0);
+
+	int numberOfLayers = 0, totNumber = 0, realCount = 0;
 	fst[0] = 0;
-	forall_nodes(v,G) {
-		if(longEdges&&numberOfLayers) vrt[totNumber++] = 1;
+	for(node v : G.nodes) {
+		if(longEdges && numberOfLayers) vrt[totNumber++] = 1;
 
 		nnr[totNumber] = v;
 		vrt[totNumber++] = 0;
 		realCount++;
-		r = double(randomNumber(0,1000)) / 1000.0;
+		double r = dist_0_1(rng);
 		if((totNumber == 1 && singleSource) || realCount == numberOfNodes || r*r*numberOfNodes < 1)
 		{
 			if(longEdges && numberOfLayers)
@@ -120,16 +119,16 @@ void randomHierarchy(Graph &G,
 
 	/** Determine allowed neighbours **/
 
-	int *leftN  = new int[totNumber];
-	int *rightN = new int[totNumber];
+	Array<int> leftN (totNumber);
+	Array<int> rightN(totNumber);
 	for(int l = 1; l < numberOfLayers; l++)
 	{
 		if(planar) {
-			n1 = fst[l-1];
-			n2 = fst[l];
+			int n1 = fst[l-1];
+			int n2 = fst[l];
 			leftN[n2] = n1;
 			while(n1 < fst[l] && n2 < fst[l+1]) {
-				r = double(randomNumber(0,1000)) / 1000.0;
+				double r = dist_0_1(rng);
 				if(n1 != fst[l]-1 &&
 					(n2 == fst[l+1]-1 ||
 					r < (double)(fst[l]-fst[l-1])/(double)(fst[l+1]-fst[l-1])))
@@ -142,7 +141,7 @@ void randomHierarchy(Graph &G,
 			}
 		}
 		else
-			for(n2 = fst[l]; n2 < fst[l+1]; n2++) {
+			for(int n2 = fst[l]; n2 < fst[l+1]; n2++) {
 				leftN [n2] = fst[l-1];
 				rightN[n2] = fst[l]-1;
 			}
@@ -150,75 +149,70 @@ void randomHierarchy(Graph &G,
 
 	/** Insert edges **/
 
-	SList<bEdge> *edgeIn  = new SList<bEdge>[totNumber];
-	SList<bEdge> *edgeOut = new SList<bEdge>[totNumber];
-	if(numberOfLayers) {
-		x1 = numberOfEdges;
-		x2 = 0;
-		for(n2 = fst[1]; n2 < totNumber; n2++)
-			if(!vrt[n2])
-				x2 += rightN[n2] - leftN[n2]+1;
+	List<bEdge> startEdges;
+	Array<SList<bEdge>> edgeIn (totNumber);
+	Array<SList<bEdge>> edgeOut(totNumber);
 
-		for(n2 = fst[1]; n2 < totNumber; n2++)
-			if(!vrt[n2]) {
-				connected = !singleSource;
-				for(n1 = leftN[n2]; n1 <= rightN[n2] || !connected; n1++) {
-					r = double(randomNumber(0,1000)) / 1000.0;
-					if(r < x1/x2 || n1 > rightN[n2]) {
-						next = (n1 <= rightN[n2] ? n1 : randomNumber(leftN[n2],rightN[n2]));
-						act = n2;
-						nextEdge = OGDF_NEW BEdge(next,act,idc++);
-						while(vrt[next]) {
+	if (numberOfLayers) {
+		double x1 = numberOfEdges;
+		double x2 = 0;
+		for (int n2 = fst[1]; n2 < totNumber; n2++) {
+			if (!vrt[n2])
+				x2 += rightN[n2] - leftN[n2] + 1;
+		}
+
+		int idc = 0;
+		for (int n2 = fst[1]; n2 < totNumber; n2++) {
+			if (!vrt[n2]) {
+				bool connected = !singleSource;
+				for (int n1 = leftN[n2]; n1 <= rightN[n2] || !connected; n1++) {
+					double r = dist_0_1(rng);
+					if (r < x1 / x2 || n1 > rightN[n2]) {
+						int next = (n1 <= rightN[n2] ? n1 : uniform_int_distribution<>(leftN[n2], rightN[n2])(rng));
+						int act = n2;
+						bEdge nextEdge = OGDF_NEW BEdge(next, act, idc++);
+						while (vrt[next]) {
 							act = next;
-							next = randomNumber(leftN[act],rightN[act]);
+							next = uniform_int_distribution<>(leftN[act], rightN[act])(rng);
 							edgeOut[act].pushBack(nextEdge);
-							nextEdge = OGDF_NEW BEdge(next,act,idc++);
+							nextEdge = OGDF_NEW BEdge(next, act, idc++);
 							edgeIn[act].pushBack(nextEdge);
 						}
 						startEdges.pushBack(nextEdge);
-						connected = 1;
+						connected = true;
 						x1 -= 1;
 					}
-					if(n1<=rightN[n2])
-						x2-=1;
+					if (n1 <= rightN[n2])
+						x2 -= 1;
 				}
 			}
 		}
-
-	delete[] leftN;
-	delete[] rightN;
+	}
 
 	if(planar)
-		for(act = 0; act < totNumber; act++) {
+		for(int act = 0; act < totNumber; act++) {
 			CmpTail cmpTail;
 			edgeIn[act].quicksort(cmpTail);
 			CmpHead cmpHead;
 			edgeOut[act].quicksort(cmpHead);
 		}
 
-	for(act = 0; act < totNumber; act++) {
-		SListIterator<bEdge> it;
-		for(it = edgeIn[act].begin(); it.valid(); ++it) {
-			nextEdge = *it;
+	for(int act = 0; act < totNumber; act++) {
+		for(bEdge nextEdge : edgeIn[act]) {
 			nextEdge->next = edgeOut[act].popFrontRet();
 		}
 	}
 
-	delete[] edgeOut;
-
-	ListIterator<bEdge> it;
-	for(it = startEdges.begin(); it.valid(); ++it) {
-		actEdge = *it;
-		nextEdge = actEdge;
+	for(bEdge actEdge : startEdges) {
+		bEdge nextEdge = actEdge;
 		while(vrt[nextEdge->head])
 			nextEdge = nextEdge->next;
 		G.newEdge(nnr[actEdge->tail], nnr[nextEdge->head]);
 	}
 
 	/** Clean up **/
-	for(it = startEdges.begin(); it.valid(); ++it) {
-		nextEdge = *it;
-		toDelete = nextEdge;
+	for(bEdge nextEdge : startEdges) {
+		bEdge toDelete = nextEdge;
 		while(vrt[nextEdge->head]) {
 			nextEdge = nextEdge->next;
 			delete toDelete;
@@ -226,11 +220,6 @@ void randomHierarchy(Graph &G,
 		}
 		delete toDelete;
 	}
-
-	delete[] edgeIn;
-	delete[] fst;
-	delete[] vrt;
-	delete[] nnr;
 }
 
 

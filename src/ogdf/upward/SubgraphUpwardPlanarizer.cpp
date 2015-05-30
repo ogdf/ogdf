@@ -1,11 +1,3 @@
-/*
- * $Revision: 3261 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-25 14:48:05 +0100 (Fri, 25 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of SubgraphUpwardPlanarizer class.
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
-#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
+//#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Queue.h>
@@ -66,16 +58,15 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	//reverse some edges in order to obtain a DAG
 	List<edge> feedBackArcSet;
 	m_acyclicMod.get().call(GC, feedBackArcSet);
-	forall_listiterators(edge, it, feedBackArcSet) {
-		GC.reverseEdge(*it);
+	for(edge e : feedBackArcSet) {
+		GC.reverseEdge(e);
 	}
 
 	OGDF_ASSERT(isSimple(G));
 
 	//mapping cost
 	EdgeArray<int> cost_GC(GC);
-	edge e;
-	forall_edges(e, GC) {
+	for(edge e : GC.edges) {
 		if (forbid[GC.original(e)])
 			cost_GC[e] = numeric_limits<int>::max();
 		else
@@ -85,8 +76,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	// tranform to single source graph by adding a super source s_hat and connect it with the other sources
 	EdgeArray<bool> sourceArcs(GC, false);
 	node s_hat = GC.newNode();
-	node v;
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		if (v->indeg() == 0 && v != s_hat) {
 			edge e_tmp = GC.newEdge(s_hat, v);
 			cost_GC[e_tmp] = 0; // crossings source arcs cause not cost
@@ -106,8 +96,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 						);
 	AG_GC.setAllHeight(30.0);
 	AG_GC.setAllWidth(30.0);
-	node z;
-	forall_nodes(z, AG_GC.constGraph()) {
+	for(node z : AG_GC.constGraph().nodes) {
 		AG_GC.label(z) = to_string(z->index());
 	}
 	AG_GC.writeGML("c:/temp/GC.gml");
@@ -126,7 +115,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 	constructComponentGraphs(BC, biComps);
 
-	forall_nodes(v, bcTree) {
+	for(node v : bcTree.nodes) {
 
 		if (BC.typeOfBNode(v) == BCTree::CComp)
 			continue;
@@ -146,28 +135,28 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 		//upward planarize if not upward planar
 		if (!UpwardPlanarity::upwardPlanarEmbed_singleSource(block)) {
 
-			for(int i = 0; i < m_runs; i++) {// i multistarts
+			for (int i = 0; i < m_runs; i++) {// i multistarts
 				UpwardPlanRep UPR_tmp;
 				UPR_tmp.createEmpty(block);
 				List<edge> delEdges;
 
 				m_subgraph.get().call(UPR_tmp, delEdges);
 
+				OGDF_ASSERT( isSimple(UPR_tmp) );
 				UPR_tmp.augment();
 
 				//mark the source arcs of block
 				UPR_tmp.m_isSourceArc[UPR_tmp.copy(s_block->firstAdj()->theEdge())] = true;
-				adjEntry adj_tmp;
-				forall_adj(adj_tmp, UPR_tmp.copy(s_block->firstAdj()->theEdge()->target())) {
+				for (adjEntry adj_tmp : UPR_tmp.copy(s_block->firstAdj()->theEdge()->target())->adjEdges) {
 					edge e_tmp = UPR_tmp.original(adj_tmp->theEdge());
-					if (e_tmp != 0 && block.original(e_tmp) != 0 && sourceArcs[block.original(e_tmp)])
+					if (e_tmp != nullptr && block.original(e_tmp) != nullptr && sourceArcs[block.original(e_tmp)])
 						UPR_tmp.m_isSourceArc[adj_tmp->theEdge()] = true;
 				}
 
 				//assign "crossing cost"
 				EdgeArray<int> cost_Block(block);
-				forall_edges(e, block) {
-					if (block.original(e) == 0 || GC.original(block.original(e)) == 0 )
+				for (edge e : block.edges) {
+					if (block.original(e) == nullptr || GC.original(block.original(e)) == nullptr)
 						cost_Block[e] = 0;
 					else
 						cost_Block[e] = cost_GC[block.original(e)];
@@ -199,14 +188,12 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 					uprLayout.call(upr_bug, GA_UPR_tmp);
 
 					// label the nodes with their index
-					node z;
-					forall_nodes(z, GA_UPR_tmp.constGraph()) {
+					for(node z : GA_UPR_tmp.constGraph().nodes) {
 						GA_UPR_tmp.label(z) = to_string(z->index());
 						GA_UPR_tmp.y(z)=-GA_UPR_tmp.y(z);
 						GA_UPR_tmp.x(z)=-GA_UPR_tmp.x(z);
 					}
-					edge eee;
-					forall_edges(eee, GA_UPR_tmp.constGraph()) {
+					for(edge eee : GA_UPR_tmp.constGraph().edges) {
 						DPolyline &line = GA_UPR_tmp.bends(eee);
 						ListIterator<DPoint> it;
 						for(it = line.begin(); it.valid(); it++) {
@@ -236,7 +223,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 		}
 		else { //block is upward planar
 			CombinatorialEmbedding Gamma(block);
-			FaceSinkGraph fsg((const CombinatorialEmbedding &)Gamma, s_block);
+			FaceSinkGraph fsg((const CombinatorialEmbedding &) Gamma, s_block);
 			SList<face> faceList;
 			fsg.possibleExternalFaces(faceList);
 			Gamma.setExternalFace(faceList.front());
@@ -246,12 +233,11 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 			//mark the source arcs of  block
 			UPR_tmp.m_isSourceArc[UPR_tmp.copy(s->firstAdj()->theEdge())] = true;
-				adjEntry adj_tmp;
-				forall_adj(adj_tmp, UPR_tmp.copy(s->firstAdj()->theEdge()->target())) {
-					edge e_tmp = UPR_tmp.original(adj_tmp->theEdge());
-					if (e_tmp != 0 && block.original(e_tmp) != 0 && sourceArcs[block.original(e_tmp)])
-						UPR_tmp.m_isSourceArc[adj_tmp->theEdge()] = true;
-				}
+			for (adjEntry adj_tmp : UPR_tmp.copy(s->firstAdj()->theEdge()->target())->adjEdges) {
+				edge e_tmp = UPR_tmp.original(adj_tmp->theEdge());
+				if (e_tmp != nullptr && block.original(e_tmp) != nullptr && sourceArcs[block.original(e_tmp)])
+					UPR_tmp.m_isSourceArc[adj_tmp->theEdge()] = true;
+			}
 
 			bestUPR = UPR_tmp;
 
@@ -269,13 +255,12 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 			GA_UPR_tmp.setAllWidth(30.0);
 
 			// label the nodes with their index
-			forall_nodes(z, GA_UPR_tmp.constGraph()) {
+			for(node z : GA_UPR_tmp.constGraph().nodes) {
 				GA_UPR_tmp.label(z) = to_string(z->index());
 				GA_UPR_tmp.y(z)=-GA_UPR_tmp.y(z);
 				GA_UPR_tmp.x(z)=-GA_UPR_tmp.x(z);
 			}
-			edge eee;
-			forall_edges(eee, GA_UPR_tmp.constGraph()) {
+			for(edge eee : GA_UPR_tmp.constGraph().edges) {
 				DPolyline &line = GA_UPR_tmp.bends(eee);
 				ListIterator<DPoint> it;
 				for(it = line.begin(); it.valid(); it++) {
@@ -291,11 +276,11 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 		}
 		uprs[v] = bestUPR;
-	}//forall_nodes
+	}
 
 	// compute the number of crossings
 	int nr_cr = 0;
-	forall_nodes(v, bcTree) {
+	for(node v : bcTree.nodes) {
 		if (BC.typeOfBNode(v) != BCTree::CComp)
 			nr_cr = nr_cr + uprs[v].numberOfCrossings();
 	}
@@ -303,7 +288,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	//merge all component to a graph
 	node parent_BC = BC.bcproper(s_hat);
 	NodeArray<bool> nodesDone(bcTree, false);
-	dfsMerge(GC, BC, biComps, uprs, UPR, 0, parent_BC, nodesDone); // start with the component which contains the super source s_hat
+	dfsMerge(GC, BC, biComps, uprs, UPR, nullptr, parent_BC, nodesDone); // start with the component which contains the super source s_hat
 
 	//augment to single sink graph
 	UPR.augment();
@@ -335,7 +320,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 	uprLayout.call(upr_bug, AG);
 
-	forall_nodes(v, AG.constGraph()) {
+	for(node v : AG.constGraph().nodes) {
 		int idx;
 		idx = v->index();
 
@@ -350,7 +335,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 		AG.y(v)=-AG.y(v);
 	}
 	// label the edges with their index
-	forall_edges(e, AG.constGraph()) {
+	for(edge e : AG.constGraph().edges) {
 		AG.label(e) = to_string(e->index());
 		if (UPR.isSourceArc(e))
 			AG.strokeColor(e) = "#00ff00";
@@ -367,7 +352,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	//cout << "UPR_RES";
 	//UPR.outputFaces(UPR.getEmbedding());
 	//cout << "Mapping :" << endl;
-	//forall_nodes(v, UPR) {
+	//for(node v : UPR.nodes) {
 	//	if (UPR.original(v) != 0) {
 	//		cout << "node UPR  " << v << "   node G  " << UPR.original(v) << endl;
 	//	}
@@ -381,8 +366,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	OGDF_ASSERT(UpwardPlanarity::isUpwardPlanar_singleSource(UPR));
 
 /*
-	edge eee;
-	forall_edges(eee, UPR.original()) {
+	for(edge eee : UPR.original().edges) {
 		if (UPR.isReversed(eee))
 			cout << endl << eee << endl;
 	}
@@ -408,11 +392,10 @@ void SubgraphUpwardPlanarizer::dfsMerge(
 		return;
 	}
 
-	adjEntry adj;
-	forall_adj(adj, current_BC) {
+	for(adjEntry adj : current_BC->adjEdges) {
 		node next_BC = adj->twin()->theNode();
 		if (BC.typeOfBNode(current_BC) == BCTree::CComp) {
-			if (parent_BC != 0 && !nodesDone[parent_BC]) {
+			if (parent_BC != nullptr && !nodesDone[parent_BC]) {
 				merge(GC, UPR_res, biComps[parent_BC], uprs[parent_BC]);
 				nodesDone[parent_BC] = true;
 			}
@@ -458,10 +441,10 @@ void SubgraphUpwardPlanarizer::merge(
 	OGDF_ASSERT(startRes != 0);
 
 	// compute the adjEntry position (in UPR_res) of the cutvertex startRes
-	adjEntry pos = 0;
+	adjEntry pos = nullptr;
 	if (!empty) {
-		adjEntry run, adj_ext = 0, adj_int = 0;
-		forall_adj(run, startRes) {
+		adjEntry adj_ext = nullptr, adj_int = nullptr;
+		for(adjEntry run : startRes->adjEdges) {
 			if (UPR_res.getEmbedding().rightFace(run) == UPR_res.getEmbedding().externalFace()) {
 				adj_ext = run;
 				break;
@@ -470,11 +453,11 @@ void SubgraphUpwardPlanarizer::merge(
 				adj_int = run;
 		}
 		// cutvertex is a sink in UPR_res
-		if (adj_ext == 0 && adj_int == 0) {
+		if (adj_ext == nullptr && adj_int == nullptr) {
 			pos = UPR_res.sinkSwitchOf(startRes);
 		}
 		else {
-			if (adj_ext == 0)
+			if (adj_ext == nullptr)
 				pos = adj_int;
 			else
 				pos = adj_ext;
@@ -483,19 +466,18 @@ void SubgraphUpwardPlanarizer::merge(
 	}
 
 	// construct for each node (except the two super sink and the super source) of UPR a associated of UPR to UPR_res
-	NodeArray<node> nodeUPR2UPR_res(UPR, 0);
+	NodeArray<node> nodeUPR2UPR_res(UPR, nullptr);
 	nodeUPR2UPR_res[startUPR] = startRes;
-	node v;
-	forall_nodes(v, UPR) {
+	for(node v : UPR.nodes) {
 
 		// allready constructed or is super sink or super source
 		if (v == startUPR || v == UPR.getSuperSink() || v == UPR.getSuperSink()->firstAdj()->theEdge()->source() || v == UPR.getSuperSource())
 			continue;
 
 		node vNew;
-		if (UPR.original(v) != 0 ) {
+		if (UPR.original(v) != nullptr ) {
 			node vG = GC.original(block.original((UPR.original(v))));
-			if (vG != 0)
+			if (vG != nullptr)
 				vNew = UPR_res.newNode(vG);
 			else
 				vNew = UPR_res.newNode(); //vG is the super source
@@ -506,33 +488,32 @@ void SubgraphUpwardPlanarizer::merge(
 	}
 
 	//add edges of UPR to UPR_res
-	EdgeArray<edge> edgeUPR2UPR_res(UPR, 0);
-	edge e;
-	forall_edges(e, block) {
+	EdgeArray<edge> edgeUPR2UPR_res(UPR, nullptr);
+	for(edge e : block.edges) {
 
 		if (e->source()->indeg()==0) // the artificial edge with the super source
 			continue;
 
 		List<edge> chains = UPR.chain(e);
-		edge eG = 0, eGC = block.original(e);
+		edge eG = nullptr, eGC = block.original(e);
 		eG = GC.original(eGC);
 
 		OGDF_ASSERT(!chains.empty());
 
 		//construct new edges in UPR_res
-		forall_listiterators(edge, it, chains) {
-			node tgt = nodeUPR2UPR_res[(*it)->target()];
-			node src = nodeUPR2UPR_res[(*it)->source()];
+		for(edge eChain : chains) {
+			node tgt = nodeUPR2UPR_res[eChain->target()];
+			node src = nodeUPR2UPR_res[eChain->source()];
 			edge eNew = UPR_res.newEdge(src, tgt);
-			edgeUPR2UPR_res[*it] = eNew;
+			edgeUPR2UPR_res[eChain] = eNew;
 
 			if (UPR.isSinkArc(UPR.copy(e)))
 				UPR_res.m_isSinkArc[eNew] = true;
 			if (UPR.isSourceArc(UPR.copy(e)))
 				UPR_res.m_isSourceArc[eNew] = true;
 
-			if (eG == 0) { // edge is associated with a sink arc
-				UPR_res.m_eOrig[eNew] = 0;
+			if (eG == nullptr) { // edge is associated with a sink arc
+				UPR_res.m_eOrig[eNew] = nullptr;
 				continue;
 			}
 
@@ -558,7 +539,7 @@ void SubgraphUpwardPlanarizer::merge(
 		run = run->cyclicSucc();
 		adjEntry adjStart = run;
 		do {
-			if (edgeUPR2UPR_res[run->theEdge()] != 0) {
+			if (edgeUPR2UPR_res[run->theEdge()] != nullptr) {
 				adjEntry adj_UPR_res = edgeUPR2UPR_res[run->theEdge()]->adjSource();
 				UPR_res.moveAdjAfter(adj_UPR_res, pos);
 				pos = adj_UPR_res;
@@ -567,7 +548,7 @@ void SubgraphUpwardPlanarizer::merge(
 		} while(run != adjStart);
 	}
 
-	forall_nodes(v, UPR) {
+	for(node v : UPR.nodes) {
 		if (v == startUPR && !empty)
 			continue;
 
@@ -576,9 +557,9 @@ void SubgraphUpwardPlanarizer::merge(
 		UPR.adjEntries(v, adj_UPR);
 
 		// convert adj_UPR of v to adj_UPR_res of v_UPR_res
-		forall_listiterators(adjEntry, it, adj_UPR) {
-			edge e_res = edgeUPR2UPR_res[(*it)->theEdge()];
-			if (e_res == 0) // associated edges in UPR_res
+		for(adjEntry adj : adj_UPR) {
+			edge e_res = edgeUPR2UPR_res[adj->theEdge()];
+			if (e_res == nullptr) // associated edges in UPR_res
 				continue;
 			adjEntry adj_res = e_res->adjSource();
 			if (adj_res->theNode() != v_UPR_res)
@@ -601,9 +582,8 @@ void SubgraphUpwardPlanarizer::merge(
 				);
 		GA_UPR_res.setAllHeight(30.0);
 		GA_UPR_res.setAllWidth(30.0);
-		node z;
 		// label the nodes with their index
-		forall_nodes(z, GA_UPR_res.constGraph()) {
+		for(node z : GA_UPR_res.constGraph().nodes) {
 			GA_UPR_res.label(z) = to_string(z->index());
 		}
 		GA_UPR_res.writeGML("c:/temp/UPR_res_tmp.gml");
@@ -620,9 +600,8 @@ void SubgraphUpwardPlanarizer::merge(
 				);
 	GA_UPR.setAllHeight(30.0);
 	GA_UPR.setAllWidth(30.0);
-	node z;
 	// label the nodes with their index
-	forall_nodes(z, GA_UPR.constGraph()) {
+	for(node z : GA_UPR.constGraph().nodes) {
 		GA_UPR.label(z) = to_string(z->index());
 	}
 	GA_UPR.writeGML("c:/temp/UPR_tmp.gml");
@@ -640,24 +619,23 @@ void SubgraphUpwardPlanarizer::constructComponentGraphs(BCTree &BC, NodeArray<Gr
 {
 	NodeArray<int> constructed(BC.originalGraph(), -1);
 	const Graph &bcTree = BC.bcTree();
-	node v;
 	int i = 0; // comp. number
-	forall_nodes(v, bcTree) {
+	for(node v : bcTree.nodes) {
 
 		if (BC.typeOfBNode(v) == BCTree::CComp)
 			continue;
 
 		const SList<edge> &edges_comp = BC.hEdges(v); //bicomp edges
 		List<edge> edges_orig;
-		forall_slistiterators(edge, it, edges_comp)
-			edges_orig.pushBack(BC.original(*it));
+		for(edge e : edges_comp)
+			edges_orig.pushBack(BC.original(e));
 
 		GraphCopy GC;
 		GC.createEmpty(BC.originalGraph());
 		// construct i-th component graph
-		forall_listiterators(edge, it, edges_orig) {
-			node srcOrig = (*it)->source();
-			node tgtOrig = (*it)->target();
+		for(edge eOrig : edges_orig) {
+			node srcOrig = eOrig->source();
+			node tgtOrig = eOrig->target();
 			if (constructed[srcOrig] != i) {
 				constructed[srcOrig] = i;
 				GC.newNode(srcOrig);
@@ -666,7 +644,7 @@ void SubgraphUpwardPlanarizer::constructComponentGraphs(BCTree &BC, NodeArray<Gr
 				constructed[tgtOrig] = i;
 				GC.newNode(tgtOrig);
 			}
-			GC.newEdge(*it);
+			GC.newEdge(eOrig);
 		}
 		biComps[v] = GC;
 		i++;

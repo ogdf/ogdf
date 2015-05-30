@@ -1,11 +1,3 @@
-/*
- * $Revision: 3235 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-22 15:43:41 +0100 (Tue, 22 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of stopwatch classes
  *
@@ -48,13 +40,13 @@ namespace ogdf {
 
 	ostream& operator<<(ostream& os, const Stopwatch &stopwatch)
 	{
-		__int64 centiSeconds = stopwatch.centiSeconds();
+		int64_t centiSeconds = stopwatch.centiSeconds();
 
-		__int64 sec  = centiSeconds/100;
-		__int64 mSec = centiSeconds - 100*sec;
-		__int64 rSec = sec%60;
-		__int64 min  = sec/60;
-		__int64 rMin = min%60;
+		int64_t sec  = centiSeconds/100;
+		int64_t mSec = centiSeconds - 100*sec;
+		int64_t rSec = sec%60;
+		int64_t min  = sec/60;
+		int64_t rMin = min%60;
 
 		os << min/60 << ":";
 		if(rMin < 10) os << '0';
@@ -94,18 +86,18 @@ namespace ogdf {
 	}
 
 
-	__int64 StopwatchCPU::theTime() const
+	int64_t StopwatchCPU::theTime() const
 	{
 		double t;
 		ogdf::usedTime(t);
 
-		return (__int64)(1000.0*t);
+		return (int64_t)(1000.0*t);
 	}
 
 
-	__int64 StopwatchWallClock::theTime() const
+	int64_t StopwatchWallClock::theTime() const
 	{
-		__int64 t;
+		int64_t t;
 		ogdf::System::usedRealTime(t);
 
 		return t;

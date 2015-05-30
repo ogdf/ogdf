@@ -1,11 +1,3 @@
-/*
- * $Revision: 2771 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Wed, 26 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Offers coloring of graphs for SimDraw.
  *
@@ -57,8 +49,7 @@ void SimDrawColorizer::addColorNodeVersion()
 {
 	m_SD->addAttribute(GraphAttributes::nodeGraphics);
 	m_SD->addAttribute(GraphAttributes::nodeStyle);
-	node v;
-	forall_nodes(v, *m_G)
+	for(node v : m_G->nodes)
 	{
 		if(m_SD->isDummy(v))
 		{
@@ -82,8 +73,7 @@ void SimDrawColorizer::addColor()
 	m_SD->addAttribute(GraphAttributes::edgeStyle);
 
 	SimDrawColorScheme SDCS(m_colorScheme, m_SD->numberOfBasicGraphs());
-	edge e;
-	forall_edges(e,*m_G)
+	for(edge e : m_G->edges)
 		m_GA->strokeColor(e) = SDCS.getColor(m_GA->subGraphBits(e), m_SD->numberOfBasicGraphs());
 } // end addColor
 
@@ -99,7 +89,8 @@ void SimDrawColorizer::addColor()
 // SimDrawColorScheme Constructor
 SimDrawColorizer::SimDrawColorScheme::SimDrawColorScheme(enum colorScheme colorScm, int numberOfGraphs)
 {
-	OGDF_ASSERT( numberOfGraphs>0 && numberOfGraphs<31 );
+	OGDF_ASSERT(numberOfGraphs>0);
+	OGDF_ASSERT(numberOfGraphs<31);
 	m_intScheme = colorScm;
 	red = new int[numberOfGraphs];
 	green = new int[numberOfGraphs];

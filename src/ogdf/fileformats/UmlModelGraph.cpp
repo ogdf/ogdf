@@ -1,11 +1,3 @@
-/*
- * $Revision: 2966 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:26:11 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class UmlModelGraph
  *
@@ -77,16 +69,14 @@ namespace ogdf {
 		// Traverse graph
 
 		// Nodes
-		NodeElement *v;
 		os << "Classes/Interfaces:\n" << endl;
-		forall_nodes(v,modelGraph) {
+		for(node v : modelGraph.nodes) {
 			os << "\t" << modelGraph.getNodeLabel(v) << endl;
 		}
 
 		// Edges
-		EdgeElement *e;
 		os << "\nRelations:\n" << endl;
-		forall_edges(e,modelGraph) {
+		for(edge e : modelGraph.edges) {
 			os << "\t";
 
 			if (modelGraph.type(e) == Graph::association){

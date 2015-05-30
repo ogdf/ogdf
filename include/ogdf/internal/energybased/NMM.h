@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class NMM (New Multipole Method).
  *
@@ -148,7 +140,7 @@ private:
 	//Makes L_x(y)_copy a copy of L_x(y)_orig and sets p.copy_item for each element in
 	//L_x(y)_orig to the ListIterator of the corresponding element in L_x(y)_copy;
 	//Furthermore, the p.cross_ref_items in L_x(y)_copy are set and p.subList_ptr and
-	//p.tmp_cross_ref_item is reset to NULL in both lists.
+	//p.tmp_cross_ref_item is reset to nullptr in both lists.
 	void make_copy_and_init_Lists(List<ParticleInfo>& L_x_orig,
 		List<ParticleInfo>& L_x_copy,
 		List<ParticleInfo>& L_y_orig,

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3431 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:01:35 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the master class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.

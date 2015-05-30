@@ -1,11 +1,3 @@
-/*
- * $Revision: 2771 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Wed, 26 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of ClusterPlanRep class
  *
@@ -75,11 +67,10 @@ ClusterPlanRep::ClusterPlanRep(
 	//	OGDF_ASSERT(&CG == &G);
 	//}
 
-	m_rootAdj = 0;
+	m_rootAdj = nullptr;
 
 	//cluster numbers don't need to be consecutive
-	cluster ci;
-	forall_clusters(ci, clusterGraph)
+	for(cluster ci : clusterGraph.clusters)
 		m_clusterOfIndex[ci->index()] = ci; //numbers are unique
 }//constructor
 
@@ -95,21 +86,19 @@ void ClusterPlanRep::initCC(int i)
 	//they are maintained for original nodes and for crossings
 	//nodes on cluster boundaries
 	const Graph &CG = *m_pClusterGraph;
-	node v;
-	forall_nodes(v, CG)
+	for(node v : CG.nodes)
 	{
 		m_nodeClusterID[copy(v)] = m_pClusterGraph->clusterOf(v)->index();
-	}//forallnodes
+	}
 
 	//todo: initialize dummy node ids for different CCs
 
 	//initialize all edges totally contained in a single cluster
-	edge e;
-	forall_edges(e, *this)
+	for(edge e : edges)
 	{
 		if (ClusterID(e->source()) == ClusterID(e->target()))
 			m_edgeClusterID[e] = ClusterID(e->source());
-	}//foralledges
+	}
 
 }//initCC
 
@@ -127,16 +116,15 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 	PlanRep::insertEdgePathEmbedded(eOrig,E,crossedEdges);
 
 	//update node cluster ids for crossing dummies
-	ListConstIterator<edge> it;
-	for(it = chain(eOrig).begin(); it.valid(); ++it)
+	for(edge e : chain(eOrig))
 	{
-		node dummy = (*it)->target();
+		node dummy = e->target();
 		if (dummy == copy(eOrig->target())) continue;
 
 		OGDF_ASSERT(dummy->degree() == 4)
 
 		//get the entries on the crossed edge
-		adjEntry adjIn = (*it)->adjTarget();
+		adjEntry adjIn = e->adjTarget();
 		adjEntry adjC1 = adjIn->cyclicPred();
 		adjEntry adjC2 = adjIn->cyclicSucc();
 
@@ -220,7 +208,7 @@ void ClusterPlanRep::ModelBoundaries()
 	AdjEntryArray<int> outEdge(*m_pClusterGraph, 2); //0 in 1 out
 	//what edge is currently adjacent to cluster (after possible split)
 	//with original adjEntry in clusteradjlist
-	AdjEntryArray<edge> currentEdge(*m_pClusterGraph, 0);
+	AdjEntryArray<edge> currentEdge(*m_pClusterGraph, nullptr);
 
 	List<adjEntry> rootEdges; //edges that can be used to set the outer face
 
@@ -290,8 +278,6 @@ void ClusterPlanRep::insertBoundary(cluster C,
 	//now split the edges and save adjEntries
 	//we maintain two lists of adjentries
 	List<adjEntry> targetEntries, sourceEntries;
-	//we need to find out if edge is outgoing
-	bool isOut = false;
 	SListIterator<adjEntry> it = outAdj.begin();
 	//if no outAdj exist, we have a connected component
 	//and dont need a boundary, change this when unconnected
@@ -305,7 +291,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		{
 			//save the current, unsplitted edge
 			//be careful with clusterleaf connecting, layered cl
-			if (currentEdge[(*it)] == 0)
+			if (currentEdge[(*it)] == nullptr)
 				currentEdge[(*it)] = copy((*it)->theEdge());
 			//set twin here?
 
@@ -317,19 +303,18 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		if (outEdge[(*it)] == 2)
 			outEdge[(*it)] = ( ((*it) == (*it)->theEdge()->adjSource()) ? 1 : 0);
 
-		if (currentEdge[(*it)] == 0)
+		if (currentEdge[(*it)] == nullptr)
 		{
 			//may already be splitted from head
 			currentEdge[(*it)] = copy((*it)->theEdge());
 		}
-
 
 		//We need to find the real edge here
 		edge splitEdge = currentEdge[(*it)];
 
 		//...outgoing...?
 		OGDF_ASSERT(outEdge[(*it)] != 2);
-		isOut = outEdge[(*it)] == 1;
+		bool isOut = outEdge[(*it)] == 1;
 
 		edge newEdge = split(splitEdge);
 
@@ -363,7 +348,7 @@ void ClusterPlanRep::insertBoundary(cluster C,
 		}//if
 
 		//go on with next edge
-		it++;
+		++it;
 
 	}//while outedges
 
@@ -397,10 +382,9 @@ void ClusterPlanRep::expand(bool lowDegreeExpand)
 {
 	PlanRep::expand(lowDegreeExpand);
 	//update cluster info
-	node v;
-	forall_nodes(v, *this)
+	for(node v : nodes)
 	{
-		if (expandedNode(v) != 0)
+		if (expandedNode(v) != nullptr)
 		{
 			OGDF_ASSERT(m_nodeClusterID[expandedNode(v)] != -1)
 			m_nodeClusterID[v] = m_nodeClusterID[expandedNode(v)];
@@ -412,10 +396,9 @@ void ClusterPlanRep::expandLowDegreeVertices(OrthoRep &OR)
 {
 	PlanRep::expandLowDegreeVertices(OR);
 	//update cluster info
-	node v;
-	forall_nodes(v, *this)
+	for(node v : nodes)
 	{
-		if (expandedNode(v) != 0)
+		if (expandedNode(v) != nullptr)
 		{
 			OGDF_ASSERT(m_nodeClusterID[expandedNode(v)] != -1)
 			m_nodeClusterID[v] = m_nodeClusterID[expandedNode(v)];
@@ -456,8 +439,7 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 
 		node ori = original(v);
 
@@ -510,8 +492,7 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 	}
 
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << "  edge [\n";
 
 		os << "    source " << id[e->source()] << "\n";

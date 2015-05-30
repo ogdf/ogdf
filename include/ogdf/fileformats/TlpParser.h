@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief TLP format parser utility declaration.
  *
@@ -102,15 +94,15 @@ public:
 	Parser(std::istream &is);
 
 	bool read(Graph &G) {
-		return readGraph(G, NULL, NULL);
+		return readGraph(G, nullptr, nullptr);
 	}
 
 	bool read(Graph &G, GraphAttributes &GA) {
-		return readGraph(G, &GA, NULL);
+		return readGraph(G, &GA, nullptr);
 	}
 
 	bool read(Graph &G, ClusterGraph &C) {
-		return readGraph(G, NULL, &C);
+		return readGraph(G, nullptr, &C);
 	}
 
 	bool read(Graph &G, ClusterGraph &C, ClusterGraphAttributes &CA) {

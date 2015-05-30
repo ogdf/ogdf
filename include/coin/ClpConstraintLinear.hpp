@@ -34,21 +34,21 @@ public:
                           double & functionValue ,
                           double & offset,
                           bool useScaling = false,
-                          bool refresh = true) const ;
+                          bool refresh = true) const override ;
      /// Resize constraint
-     virtual void resize(int newNumberColumns) ;
+     virtual void resize(int newNumberColumns) override ;
      /// Delete columns in  constraint
-     virtual void deleteSome(int numberToDelete, const int * which) ;
+     virtual void deleteSome(int numberToDelete, const int * which) override ;
      /// Scale constraint
-     virtual void reallyScale(const double * columnScale) ;
+     virtual void reallyScale(const double * columnScale) override ;
      /** Given a zeroed array sets nonlinear columns to 1.
          Returns number of nonlinear columns
       */
-     virtual int markNonlinear(char * which) const ;
+     virtual int markNonlinear(char * which) const override ;
      /** Given a zeroed array sets possible nonzero coefficients to 1.
          Returns number of nonzeros
       */
-     virtual int markNonzero(char * which) const;
+     virtual int markNonzero(char * which) const override;
      //@}
 
 
@@ -72,12 +72,12 @@ public:
      virtual ~ClpConstraintLinear ();
 
      /// Clone
-     virtual ClpConstraint * clone() const;
+     virtual ClpConstraint * clone() const override;
      //@}
      ///@name Gets and sets
      //@{
      /// Number of coefficients
-     virtual int numberCoefficients() const;
+     virtual int numberCoefficients() const override;
      /// Number of columns in linear constraint
      inline int numberColumns() const {
           return numberColumns_;

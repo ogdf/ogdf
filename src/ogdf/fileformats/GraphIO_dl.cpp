@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements UCINET DL write functionality of class GraphIO.
  *
@@ -56,8 +48,7 @@ static void writeMatrix(
 	const int n = G.numberOfNodes();
 	std::vector<double> matrix(n * n, 0);
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		const int vs = e->source()->index();
 		const int vt = e->target()->index();
 
@@ -70,10 +61,9 @@ static void writeMatrix(
 		}
 	}
 
-	node v, u;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		bool space = false;
-		forall_nodes(u, G) {
+		for(node u : G.nodes) {
 			if(space) {
 				os << " ";
 			}
@@ -94,8 +84,7 @@ static void writeEdges(
 	os << "DATA:\n";
 	const long attrs = GA ? GA->attributes() : 0;
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		os << (e->source()->index() + 1) << " " << (e->target()->index() + 1);
 
 		if(attrs & GraphAttributes::edgeDoubleWeight) {
@@ -134,7 +123,7 @@ static void writeGraph(
 
 bool GraphIO::writeDL(const Graph &G, std::ostream &os)
 {
-	writeGraph(os, G, NULL);
+	writeGraph(os, G, nullptr);
 	return true;
 }
 

@@ -332,7 +332,7 @@ public:
   OsiChooseStrong & operator= (const OsiChooseStrong& rhs);
 
   /// Clone
-  virtual OsiChooseVariable * clone() const;
+  virtual OsiChooseVariable * clone() const override;
 
   /// Destructor 
   virtual ~OsiChooseStrong ();
@@ -341,7 +341,7 @@ public:
       Returns number of infeasibilities. 
       If returns -1 then has worked out node is infeasible!
   */
-  virtual int setupList ( OsiBranchingInformation *info, bool initialize);
+  virtual int setupList ( OsiBranchingInformation *info, bool initialize) override;
   /** Choose a variable
       Returns - 
      -1 Node is infeasible
@@ -355,7 +355,7 @@ public:
      If we have a solution then we can pick up from goodObjectiveValue() and goodSolution()
      If fixVariables is true then 2,3,4 are all really same as problem changed
   */
-  virtual int chooseVariable( OsiSolverInterface * solver, OsiBranchingInformation *info, bool fixVariables);
+  virtual int chooseVariable( OsiSolverInterface * solver, OsiBranchingInformation *info, bool fixVariables) override;
 
   /** Pseudo Shadow Price mode
       0 - off

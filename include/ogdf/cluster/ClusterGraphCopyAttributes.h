@@ -1,11 +1,3 @@
-/*
- * $Revision: 3340 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2013-03-09 03:03:04 +0100 (Sat, 09 Mar 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares ClusterGraphCopyAttributes, which manages access
  *  on copy of an attributed clustered graph.
@@ -59,6 +51,8 @@ namespace ogdf {
 
 /**
  * \brief Manages access on copy of an attributed clustered graph.
+ *
+ * @ingroup gd-helper
  */
 class OGDF_EXPORT ClusterGraphCopyAttributes {
 

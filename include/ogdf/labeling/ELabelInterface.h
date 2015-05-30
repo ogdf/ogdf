@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Provide an interface for edge label information
  *
@@ -242,9 +234,7 @@ public:
 		m_labels.init(pru.original());
 		m_ug = 0;
 
-		//temporary
-		edge e;
-		forall_edges(e, pru.original())
+		for(edge e : pru.original().edges)
 			setLabel(e, EdgeLabel<coordType>(e, 0));
 	}
 
@@ -257,9 +247,7 @@ public:
 		m_minFeatDist = 0.003;
 		m_labels.init(uml.constGraph());
 
-		//temporary
-		edge e;
-		forall_edges(e, uml.constGraph())
+		for(edge e : uml.constGraph().edges)
 			setLabel(e, EdgeLabel<coordType>(e, 0));
 	}
 

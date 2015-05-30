@@ -1,11 +1,3 @@
-/*
- * $Revision: 3951 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-03 13:57:46 +0100 (Mon, 03 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of class NodeSetSimple,
  *        NodeSetPure and NodeSet
@@ -61,6 +53,8 @@ namespace ogdf {
 
 //! Simple node sets.
 /**
+ * @ingroup graph-containers
+ *
  * A node set maintains a subset \a S of the nodes contained in an associated
  * graph. This kind of node set only provides efficient operation for testing
  * membership, insertion, and clearing the set.
@@ -99,9 +93,8 @@ public:
 	 * before this operation.
 	 */
 	void clear() {
-		SListIterator<node> it;
-		for(it = m_nodes.begin(); it.valid(); ++it) {
-			m_isContained[*it] = false;
+		for(node v : m_nodes) {
+			m_isContained[v] = false;
 		}
 		m_nodes.clear();
 	}
@@ -137,6 +130,8 @@ private:
 
 //! Node sets.
 /**
+ * @ingroup graph-containers
+ *
  * A node set maintains a subset \a S of the nodes contained in an associated
  * graph. This kind of node set provides efficient operations for testing
  * membership, insertion and deletion of elements, and clearing the set.
@@ -192,9 +187,8 @@ public:
 	 * before this operation.
 	 */
 	void clear() {
-		ListIterator<node> it;
-		for(it = m_nodes.begin(); it.valid(); ++it) {
-			m_it[*it] = ListIterator<node>();
+		for(node v : m_nodes) {
+			m_it[v] = ListIterator<node>();
 		}
 		m_nodes.clear();
 	}
@@ -221,8 +215,8 @@ public:
 
 	//! Copy constructor.
 	NodeSetPure(const NodeSetPure& V) : m_it(*V.m_it.graphOf(), ListIterator<node>()) {
-		forall_listiterators(node, it, V.m_nodes) {
-			insert(*it);
+		for(node v : V.m_nodes) {
+			insert(v);
 		}
 	}
 
@@ -230,8 +224,8 @@ public:
 	NodeSetPure &operator=(const NodeSetPure &V) {
 		m_nodes.clear();
 		m_it.init(*V.m_it.graphOf());
-		forall_listiterators(node, it, V.m_nodes) {
-			insert(*it);
+		for(node v :V.m_nodes) {
+			insert(v);
 		}
 		return *this;
 	}
@@ -249,12 +243,14 @@ private:
 
 //! Node sets.
 /**
+ * @ingroup graph-containers
+ *
  * A node set maintains a subset \a S of the nodes contained in an associated
  * graph. This kind of node set provides efficient operations for testing
  * membership, insertion and deletion of elements, and clearing the set.
  *
  * In contrast to NodeSetPure, a NodeSet provides efficient access
- * to the number of elements stored in the set.
+ * to the number of nodes stored in the set.
  *
  * \sa
  *   - NodeSetPure, NodeSetSimple
@@ -304,9 +300,8 @@ public:
 	 * before this operation.
 	 */
 	void clear() {
-		ListIterator<node> it;
-		for(it = m_nodes.begin(); it.valid(); ++it) {
-			m_it[*it] = ListIterator<node>();
+		for(node v : m_nodes) {
+			m_it[v] = ListIterator<node>();
 		}
 		m_nodes.clear();
 	}
@@ -341,8 +336,8 @@ public:
 
 	//! Copy constructor.
 	NodeSet(const NodeSet& V) : m_it(*V.m_it.graphOf(), ListIterator<node>()) {
-		forall_listiterators(node, it, V.m_nodes) {
-			insert(*it);
+		for(node v : V.m_nodes) {
+			insert(v);
 		}
 	}
 
@@ -350,8 +345,8 @@ public:
 	NodeSet &operator=(const NodeSet &V) {
 		m_nodes.clear();
 		m_it.init(*V.m_it.graphOf());
-		forall_listiterators(node, it, V.m_nodes) {
-			insert(*it);
+		for(node v : V.m_nodes) {
+			insert(v);
 		}
 		return *this;
 	}

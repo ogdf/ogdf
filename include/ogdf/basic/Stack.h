@@ -1,11 +1,3 @@
-/*
- * $Revision: 2615 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mon, 16 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of list-based stacks
  *        (StackPure<E> and Stack<E>).
@@ -50,7 +42,7 @@
 #define OGDF_STACK_H
 
 
-#include <ogdf/basic/SList.h>
+#include <ogdf/basic/basic.h>
 
 
 namespace ogdf {
@@ -58,6 +50,8 @@ namespace ogdf {
 
 //! List-based stacks.
 /**
+ * @ingroup containers
+ *
  * In contrast to Stack<E>, instances of \a StackPure<E> do not store the
  * number of elements contained in the stack.
  *
@@ -66,7 +60,11 @@ namespace ogdf {
 template<class E> class StackPure
 {
 	struct Element {
-		Element(const E &x, Element *pNext) : m_next(pNext), m_x(x) { }
+		Element(Element *pNext, const E &x) : m_next(pNext), m_x(x) { }
+
+		template<class ... Args>
+		Element(Element *pNext, Args && ... args) : m_next(pNext), m_x(std::forward<Args>(args)...) { }
+
 		Element *m_next;
 		E        m_x;
 		OGDF_NEW_DELETE
@@ -76,12 +74,26 @@ template<class E> class StackPure
 
 public:
 	//! Constructs an empty stack.
-	StackPure() { m_head = 0; }
+	StackPure() { m_head = nullptr; }
+
+	//! Constructs a stack and pushes the elements in \a initList on it (last element will be on top).
+	StackPure(std::initializer_list<E> initList) : m_head(nullptr) {
+		for (const E &x : initList)
+			push(x);
+	}
 
 	//! Constructs a stack that is a copy of \a S.
 	StackPure(const StackPure<E> &S)  {
-		m_head = 0;
+		m_head = nullptr;
 		copy(S);
+	}
+
+	//! Constructs a stack containing the elements of \a S (move semantics).
+	/**
+	 * Stack \a S is empty afterwards.
+	 */
+	StackPure(StackPure<E> &&S) : m_head(S.m_head) {
+		S.m_head = nullptr;
 	}
 
 	// destruction
@@ -90,7 +102,7 @@ public:
 	}
 
 	//! Returns true iff the stack is empty.
-	bool empty() const { return m_head == 0; }
+	bool empty() const { return m_head == nullptr; }
 
 	//! Returns a reference to the top element.
 	const E &top() const {
@@ -109,14 +121,34 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * Stack \a S is empty afterwards.
+	 */
+	StackPure<E> &operator=(StackPure<E> &&S) {
+		clear();
+		m_head = S.m_head;
+		S.m_head = nullptr;
+		return *this;
+	}
+
 	//! Adds element \a x as top-most element to the stack.
 	void push(const E &x) {
-		m_head = OGDF_NEW Element(x,m_head);
+		m_head = OGDF_NEW Element(m_head,x);
+	}
+
+	//! Adds a new element at as top-most element to the stack.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	void emplace(Args && ... args) {
+		m_head = OGDF_NEW Element(m_head, std::forward<Args>(args)...);
 	}
 
 	//! Removes the top-most element from the stack and returns it.
 	E pop() {
-		OGDF_ASSERT(m_head != 0)
+		OGDF_ASSERT(m_head != nullptr)
 		Element *pX = m_head;
 		m_head = m_head->m_next;
 		E x = pX->m_x;
@@ -136,9 +168,9 @@ public:
 	void print(ostream &os, char delim = ' ') const
 	{
 		Element *pX = m_head;
-		if (pX != 0) {
+		if (pX != nullptr) {
 			os << pX->m_x;
-			for(pX = pX->m_next; pX != 0; pX = pX->m_next)
+			for(pX = pX->m_next; pX != nullptr; pX = pX->m_next)
 				os << delim << pX->m_x;
 		}
 	}
@@ -147,8 +179,8 @@ private:
 	void copy(const StackPure<E> &S) {
 		Element **p = &m_head;
 
-		for(Element *q = S.m_head; q != 0; q = q->m_next) {
-			*p = OGDF_NEW Element(q->m_x,0);
+		for(Element *q = S.m_head; q != nullptr; q = q->m_next) {
+			*p = OGDF_NEW Element(nullptr, q->m_x);
 			p = &(*p)->m_next;
 		}
 	}
@@ -159,6 +191,8 @@ private:
 
 //! The parameterized class \a Stack<E> implements list-based stacks
 /**
+ * @ingroup containers
+ *
  * In contrast to StackPure<E>, instances of \a Stack<E> store the
  * number of elements contained in the stack.
  *
@@ -166,14 +200,29 @@ private:
  */
 template<class E> class Stack : private StackPure<E>
 {
-	int m_count; //! The number of elements in the list.
+	size_t m_count; //! The number of elements in the list.
 
 public:
+	typedef size_t size_type;
+
 	//! Constructs an empty stack.
 	Stack() { m_count = 0; }
 
+	//! Constructs a stack and pushes the elements in \a initList on it (last element will be on top).
+	Stack(std::initializer_list<E> initList) : StackPure<E>(initList) {
+		m_count = initList.size();
+	}
+
 	//! Constructs a stack that is a copy of \a S.
 	Stack(const Stack<E> &S) : StackPure<E>(S) { m_count = S.m_count; }
+
+	//! Constructs a stack containing the elements of \a S (move semantics).
+	/**
+	 * Stack \a S is empty afterwards.
+	 */
+	Stack(Stack<E> &&S) : StackPure<E>(std::move(S)), m_count(S.m_count) {
+		S.m_count = 0;
+	}
 
 	// destruction
 	~Stack() { }
@@ -182,7 +231,7 @@ public:
 	bool empty() const { return StackPure<E>::empty(); }
 
 	//! Returns the number of elements contained in the stack.
-	int size() const { return m_count; }
+	size_t size() const { return m_count; }
 
 	//! Returns a reference to the top element.
 	const E &top() const {
@@ -201,10 +250,31 @@ public:
 		return *this;
 	}
 
+	//! Assignment operator (move semantics).
+	/**
+	 * Stack \a S is empty afterwards.
+	 */
+	Stack<E> &operator=(Stack<E> &&S) {
+		StackPure<E>::operator=(std::move(S));
+		m_count = S.m_count;
+		S.m_count = 0;
+		return *this;
+	}
+
 	//! Adds element \a x as top-most element to the stack.
 	void push(const E &x) {
 		++m_count;
-		return StackPure<E>::push(x);
+		StackPure<E>::push(x);
+	}
+
+	//! Adds a new element at as top-most element to the stack.
+	/**
+	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	*/
+	template<class ... Args>
+	void emplace(Args && ... args) {
+		++m_count;
+		StackPure<E>::emplace(std::forward<Args>(args)...);
 	}
 
 	//! Removes the top-most element from the stack and returns it.

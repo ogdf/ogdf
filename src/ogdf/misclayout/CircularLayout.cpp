@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class CircularLayout
  *
@@ -160,8 +152,7 @@ void ClusterStructure::initCluster(int nCluster, const Array<int> &parent)
 	m_parentCluster.init(nCluster);
 	m_childCluster .init(nCluster);
 
-	node v;
-	forall_nodes(v,m_G)
+	for(node v : m_G.nodes)
 		m_nodesIn[m_clusterOf[v]].pushBack(v);
 
 	int i;
@@ -311,12 +302,8 @@ struct InfoAC
 	node m_vBC, m_predCutBC, m_predCut;
 	int m_parentCluster;
 
-	InfoAC(node vBC, node predCutBC, node predCut, int parentCluster) {
-		m_vBC = vBC;
-		m_predCutBC = predCutBC;
-		m_predCut = predCut;
-		m_parentCluster = parentCluster;
-	}
+	InfoAC(node vBC, node predCutBC, node predCut, int parentCluster)
+		: m_vBC(vBC), m_predCutBC(predCutBC), m_predCut(predCut), m_parentCluster(parentCluster) { }
 };
 
 
@@ -376,7 +363,7 @@ class DepthBucket : public BucketFunc<node>
 public:
 	DepthBucket(const NodeArray<int> &depth) : m_depth(depth) { }
 
-	int getBucket(const node &v)
+	int getBucket(const node &v) override
 	{
 		return -m_depth[v];
 	}
@@ -396,7 +383,7 @@ void CircleGraph::order(List<node> &nodes)
 	NodeArray<int>  depth  (*this,0);
 	NodeArray<node> father (*this);
 
-	dfs(depth, father, firstNode(), 0, 1);
+	dfs(depth, father, firstNode(), nullptr, 1);
 
 	SListPure<node> circleNodes;
 	allNodes(circleNodes);
@@ -416,21 +403,21 @@ void CircleGraph::order(List<node> &nodes)
 		List<node> currentPath;
 
 		ListIterator<node> itInserted;
-		while(v != 0 && !visited[v])
+		while(v != nullptr && !visited[v])
 		{
 			visited[v] = true;
 			itInserted = currentPath.pushBack(v);
 			v = father[v];
 		}
 
-		if(v && father[v] == 0 && !combinedAtRoot) {
+		if(v && father[v] == nullptr && !combinedAtRoot) {
 			combinedAtRoot = true;
 
 			while(!currentPath.empty())
 				currentPath.moveToSucc(currentPath.begin(),nodes,itCombined);
 
 		} else {
-			if (v == 0)
+			if (v == nullptr)
 				itCombined = itInserted;
 
 			nodes.conc(currentPath);
@@ -565,8 +552,7 @@ void CircularLayout::call(GraphAttributes &AG)
 	// intialize the array of lists of nodes contained in a CC
 	Array<List<node> > nodesInCC(numCC);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		nodesInCC[component[v]].pushBack(v);
 
 	EdgeArray<edge> auxCopy(G);
@@ -598,8 +584,7 @@ void CircularLayout::call(GraphAttributes &AG)
 		double minX = AGC.x(vFirst), maxX = AGC.x(vFirst),
 			minY = AGC.y(vFirst), maxY = AGC.y(vFirst);
 
-		node vCopy;
-		forall_nodes(vCopy,GC) {
+		for(node vCopy : GC.nodes) {
 			node v = GC.original(vCopy);
 			AG.x(v) = AGC.x(vCopy);
 			AG.y(v) = AGC.y(vCopy);
@@ -613,7 +598,7 @@ void CircularLayout::call(GraphAttributes &AG)
 		minX -= m_minDistCC;
 		minY -= m_minDistCC;
 
-		forall_nodes(vCopy,GC) {
+		for(node vCopy : GC.nodes) {
 			node v = GC.original(vCopy);
 			AG.x(v) -= minX;
 			AG.y(v) -= minY;
@@ -1609,12 +1594,11 @@ void CircularLayout::computePreferedAngles(
 	level[mainSite] = 0;
 	Q.append(mainSite);
 
-	int nLevel = 0;
 	while(!Q.empty())
 	{
 		int c = Q.pop();
 
-		nLevel = level[c]+1;
+		int nLevel = level[c]+1;
 		ListConstIterator<int> it;
 		for(it = C.m_childCluster[c].begin(); it.valid(); ++it) {
 			level[*it] = nLevel;
@@ -1681,8 +1665,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 
 	// edgeB[i] = list of edges in component i
 	Array<SList<edge> > edgeB(k);
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		if(!e->isSelfLoop())
 			edgeB[compnum[e]].pushBack(e);
 
@@ -1720,7 +1703,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 
 	Graph BCTree;
 	NodeArray<int>  componentOf(BCTree,-1);
-	NodeArray<node> cutVertexOf(BCTree,0);
+	NodeArray<node> cutVertexOf(BCTree,nullptr);
 	Array<node>     nodeOf(k);
 
 	for(i = 0; i < k; ++i) {
@@ -1729,8 +1712,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		nodeOf[i] = vBC;
 	}
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		if (compV[v].size() > 1) {
 			node vBC = BCTree.newNode();
@@ -1748,7 +1730,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 	// alternatives are: "weighted" center (concerning size of BC's,
 	//                   largest component
 	//
-	node centerBC = 0;
+	node centerBC = nullptr;
 
 	if(BCTree.numberOfNodes() == 1)
 	{
@@ -1758,14 +1740,13 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		NodeArray<int> deg(BCTree);
 		Queue<node> leaves;
 
-		node vBC;
-		forall_nodes(vBC,BCTree) {
+		for(node vBC : BCTree.nodes) {
 			deg[vBC] = vBC->degree();
 			if(deg[vBC] == 1)
 				leaves.append(vBC);
 		}
 
-		node current = 0;
+		node current = nullptr;
 		while(!leaves.empty())
 		{
 			current = leaves.pop();
@@ -1785,7 +1766,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		// maximal bic. comp. containing current as centerBC
 		if (componentOf[centerBC] == -1) {
 			int sizeCenter = 0;
-			node vCand = 0;
+			node vCand = nullptr;
 
 			edge e;
 			forall_adj_edges(e,current) {
@@ -1846,7 +1827,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		cout << i << ": " << nodeB[i] << endl;
 
 	cout << "\nBC-Tree:\n";
-	forall_nodes(v,BCTree) {
+	for(node v : BCTree.nodes) {
 		cout << v << " [" << componentOf[v] << "," << cutVertexOf[v] << "]: ";
 		edge e;
 		forall_adj_edges(e,v)
@@ -1882,7 +1863,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		++currentCluster;
 
 	} else { // case bic. comp. as center
-		Q.append(InfoAC(centerBC,0,0,-1));
+		Q.append(InfoAC(centerBC,nullptr,nullptr,-1));
 	}
 
 	while(!Q.empty())
@@ -1891,7 +1872,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 
 		// bridge?
 		if(nodeB[componentOf[info.m_vBC]].size() == 2 &&
-			info.m_predCut != 0 &&
+			info.m_predCut != nullptr &&
 			info.m_vBC->degree() == 2)
 		{
 			node wBC = info.m_vBC->firstAdj()->twinNode();
@@ -1900,13 +1881,13 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 
 			if(wBC->degree() == 2)
 			{
-				node bBC = wBC->firstAdj()->twinNode();;
+				node bBC = wBC->firstAdj()->twinNode();
 				if(bBC == info.m_vBC)
 					bBC = wBC->lastAdj()->twinNode();
 
 				if(nodeB[componentOf[bBC]].size() != 2)
 				{
-					Q.append(InfoAC(bBC,wBC,0,info.m_parentCluster));
+					Q.append(InfoAC(bBC,wBC,nullptr,info.m_parentCluster));
 					continue; // case already handled
 				}
 			}
@@ -1955,8 +1936,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 int CircularLayout::sizeBC(node vB)
 {
 	int sum = 0;
-	adjEntry adj;
-	forall_adj(adj,vB)
+	for(adjEntry adj : vB->adjEdges)
 		sum += adj->twinNode()->degree() - 1;
 	return sum;
 }

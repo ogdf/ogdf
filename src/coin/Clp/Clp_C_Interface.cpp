@@ -26,7 +26,7 @@ class CMessageHandler : public CoinMessageHandler {
 public:
      /**@name Overrides */
      //@{
-     virtual int print();
+     virtual int print() override;
      //@}
      /**@name set and get */
      //@{
@@ -57,7 +57,7 @@ public:
 
      CMessageHandler& operator=(const CMessageHandler&);
      /// Clone
-     virtual CoinMessageHandler * clone() const ;
+     virtual CoinMessageHandler * clone() const override ;
      //@}
 
 

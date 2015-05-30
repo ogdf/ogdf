@@ -572,7 +572,7 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
 	  good=false;
 	} else if (value>0.0) {
 	  assert (numberP1<numberIntegers_);
-	  whichP[numberP1++]=iColumn;;
+	  whichP[numberP1++]=iColumn;
 	} else {
 	  assert (numberM1<numberIntegers_);
 	  whichM[numberM1++]=iColumn;
@@ -606,7 +606,7 @@ CglTreeProbingInfo::analyze(const OsiSolverInterface & si,int createSolver)
       if (good&&state>0) {
 	if (abs(state)==3) {
 	  // infeasible
-	  printf("FFF Infeasible\n");;
+	  printf("FFF Infeasible\n");
 	  //feasible=false;
 	  break;
 	} else if (abs(state)==2) {

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Includes declaration of dual graph class.
  *
@@ -56,6 +48,9 @@
 namespace ogdf {
 
 //! A dual graph including its combinatorial embedding of an embedded graph
+/**
+ * @ingroup graphs
+ */
 class OGDF_EXPORT DualGraph : public CombinatorialEmbedding
 {
 public:

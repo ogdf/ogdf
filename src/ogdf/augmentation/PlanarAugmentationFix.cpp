@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief planar biconnected augmentation algorithm with fixed
  * 		  embedding
@@ -82,15 +74,11 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 	NodeArray<bool> activeNodes(*m_pGraph, false);
 	List<node> activeNodesList;
 
-	face actFace;
-
 	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
 		cout << "original graph:" << endl << flush;
-		node n;
-		forall_nodes(n, *m_pGraph){
+		for(node n : m_pGraph->nodes) {
 			cout << n->index() << ": ";
-			adjEntry nAdj;
-			forall_adj(nAdj, n)
+			for(adjEntry nAdj : n->adjEdges)
 				cout << nAdj << " ";
 			cout << endl << flush;
 		}
@@ -98,17 +86,17 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 
 	List<face> faces;
 
-	forall_faces(actFace, *m_pEmbedding){
+	for(face actFace : m_pEmbedding->faces) {
 		faces.pushBack(actFace);
 	}
 
-	m_eCopy.init(*m_pGraph, 0);
+	m_eCopy.init(*m_pGraph, nullptr);
 	m_graphCopy.createEmpty(*m_pGraph);
 
 	while (faces.size() > 0){
-		actFace = faces.popFrontRet();
+		face actFace = faces.popFrontRet();
 
-		adjEntry adjOuterFace = 0;
+		adjEntry adjOuterFace = nullptr;
 
 		adjEntry adjFirst = actFace->firstAdj();
 		if (m_pEmbedding->leftFace(adjFirst) != actFace)
@@ -134,7 +122,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 		bool augmentationRequired = false;
 
 		while (adjFace != adjFirst){
-			if ((adjOuterFace == 0) && (m_pEmbedding->leftFace(adjFace) != m_pEmbedding->rightFace(adjFace)))
+			if ((adjOuterFace == nullptr) && (m_pEmbedding->leftFace(adjFace) != m_pEmbedding->rightFace(adjFace)))
 				adjOuterFace = adjFace;
 
 			if (activeNodes[adjFace->theNode()] == false){
@@ -163,10 +151,9 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 
 			#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
 				cout << " graphCopy:" << endl << flush;
-				forall_nodes(n, m_graphCopy){
+				for(node n : m_graphCopy.nodes) {
 					cout << n->index() << "(" << (m_graphCopy.original(n))->index() << "):" << flush;
-					adjEntry nAdj;
-					forall_adj(nAdj, n){
+					for(adjEntry nAdj : n->adjEdges) {
 						cout << nAdj << "(" << nAdj->theEdge() << "[" << nAdj->index() << "]) " << flush;
 					}
 					cout << endl << flush;
@@ -187,37 +174,35 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 		}
 
 
-		edge e;
 		// set all entries in activeNodes to default value false
 		//  for next iteration
-		ListIterator<node> anIt = activeNodesList.begin();
-		while (anIt.valid()){
-			activeNodes[*anIt] = false;
-			forall_adj_edges(e, *anIt)
-				m_eCopy[e] = 0;
-			anIt++;
+		for (node v : activeNodesList) {
+			activeNodes[v] = false;
+			edge e;
+			forall_adj_edges(e, v)
+				m_eCopy[e] = nullptr;
 		}
 		activeNodesList.clear();
 
-		#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
-			cout << "======================" << endl << flush;
-		#endif
+#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
+		cout << "======================" << endl << flush;
+#endif
 
 	}
 
 	delete m_pEmbedding;
 
-	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
-		if (isBiconnected(*m_pGraph))
-			cout << " graph is biconnected" << endl << flush;
-		else
-			cout << " graph is NOT biconnected!!!" << endl << flush;
+#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
+	if (isBiconnected(*m_pGraph))
+		cout << " graph is biconnected" << endl << flush;
+	else
+		cout << " graph is NOT biconnected!!!" << endl << flush;
 
-		if (pisPlanar(*m_pGraph))
-			cout << " graph is planar" << endl << flush;
-		else
-			cout << " graph is NOT planar!!!" << endl << flush;
-	#endif
+	if (isPlanar(*m_pGraph))
+		cout << " graph is planar" << endl << flush;
+	else
+		cout << " graph is NOT planar!!!" << endl << flush;
+#endif
 }
 
 
@@ -240,18 +225,17 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 
 	node bFaceNode = m_pBCTree->bcproper(adjOuterFace->theEdge());
 
-	m_isLabel.init(m_pBCTree->bcTree(), 0);
-	m_belongsTo.init(m_pBCTree->bcTree(), 0);
-	m_belongsToIt.init(m_pBCTree->bcTree(), 0);
+	m_isLabel.init(m_pBCTree->bcTree(), nullptr);
+	m_belongsTo.init(m_pBCTree->bcTree(), nullptr);
+	m_belongsToIt.init(m_pBCTree->bcTree(), nullptr);
 
 	List<node> pendants;
 
-	node v;
-	node root = NULL;
+	node root = nullptr;
 
 	// init pendants
-	forall_nodes(v, m_pBCTree->bcTree()){
-		if (m_pBCTree->parent(v) == 0){
+	for (node v : m_pBCTree->bcTree().nodes){
+		if (m_pBCTree->parent(v) == nullptr){
 			root = v;
 		}
 		if (v->degree() == 1){
@@ -268,62 +252,55 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 		modifyBCRoot(root, bFaceNode);
 	}
 
-	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
-		cout << " augment(): pendants:" << flush;
-		forall_nodes(v, m_pBCTree->bcTree()){
-			if (m_pBCTree->parent(v) == 0){
-				cout << "[root: " << v->index() << flush;
-				if (m_pBCTree->typeOfBNode(v) == BCTree::BComp)
-					cout << "(b)], " << flush;
-				else
-					cout << "(c)], " << flush;
-			}
-			if (v->degree() == 1){
-				// pendant
-				if (v != bFaceNode){
-					cout << v->index() << ", " << flush;
-				}
-				else
-					cout << v->index() << "(is root), " << flush;
-			}
+#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
+	cout << " augment(): pendants:" << flush;
+	for(node v : m_pBCTree->bcTree().nodes) {
+		if (m_pBCTree->parent(v) == 0){
+			cout << "[root: " << v->index() << flush;
+			if (m_pBCTree->typeOfBNode(v) == BCTree::BComp)
+				cout << "(b)], " << flush;
+			else
+				cout << "(c)], " << flush;
 		}
-		cout << endl << flush;
-	#endif
+		if (v->degree() == 1){
+			// pendant
+			if (v != bFaceNode){
+				cout << v->index() << ", " << flush;
+			}
+			else
+				cout << v->index() << "(is root), " << flush;
+		}
+	}
+	cout << endl << flush;
+#endif
 
 	m_actBCRoot = bFaceNode;
 	m_labels.clear();
 
 	// call reduceChain for all pendants
-	ListIterator<node> itPendant = pendants.begin();
-	while (itPendant.valid()){
-		reduceChain(*itPendant);
-		itPendant++;
+	for (node v : pendants) {
+		reduceChain(v);
 	}
 
 	// main augmentation loop
 	while (m_labels.size() > 0){
 
-		#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
-			cout << endl
-				 << " *-----------------------------------" << endl
-				 << " * augment(): #labels  : " << m_labels.size() << endl << flush;
+#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
+		cout << endl
+			<< " *-----------------------------------" << endl
+			<< " * augment(): #labels  : " << m_labels.size() << endl;
 
-			ListIterator<pa_label> labelIt = m_labels.begin();
-			ListIterator<node> pendantIt;
-			int lNr = 1;
-			while (labelIt.valid()){
-				cout << " * label in list with position " << lNr << " : " << flush;
-				pendantIt = ((*labelIt)->m_pendants).begin();
-				while (pendantIt.valid()){
-					cout << (*pendantIt)->index() << " " << flush;
-					pendantIt++;
-				}
-				cout << endl << flush;
-				lNr++;
-				labelIt++;
+		int lNr = 1;
+		for (pa_label l : m_labels) {
+			cout << " * label in list with position " << lNr << " : " << flush;
+			for(node v : l->m_pendants) {
+				cout << v->index() << " " << flush;
 			}
-			cout << " *-----------------------------------" << endl << endl << flush;
-		#endif
+			cout << endl;
+			lNr++;
+		}
+		cout << " *-----------------------------------" << endl << endl;
+#endif
 
 
 		if (m_labels.size() == 1){
@@ -339,32 +316,32 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 			connectPendants(pendant1, pendant2, adjV1, adjV2);
 		}
 
-		#ifdef PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
-			if (isPlanar(m_graphCopy))
-				cout << " graphCopy is planar" << endl << flush;
-			else{
-				cout << " graphCopy is NOT planar!!!" << endl << flush;;
-			}
-		#endif
-	} // main loop
-
-
-	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
-		if (isBiconnected(m_graphCopy))
-			cout << " graphCopy is biconnected" << endl << flush;
-		else{
-			cout << " graphCopy is NOT biconnected!!!" << endl << flush;
-		}
-
+#ifdef PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
 		if (isPlanar(m_graphCopy))
 			cout << " graphCopy is planar" << endl << flush;
 		else{
 			cout << " graphCopy is NOT planar!!!" << endl << flush;
 		}
-	#endif
+#endif
+	} // main loop
 
-	m_pActEmbedding = 0;
-	m_pBCTree = 0;
+
+#ifdef PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
+	if (isBiconnected(m_graphCopy))
+		cout << " graphCopy is biconnected" << endl << flush;
+	else{
+		cout << " graphCopy is NOT biconnected!!!" << endl << flush;
+	}
+
+	if (isPlanar(m_graphCopy))
+		cout << " graphCopy is planar" << endl << flush;
+	else{
+		cout << " graphCopy is NOT planar!!!" << endl << flush;
+	}
+#endif
+
+	m_pActEmbedding = nullptr;
+	m_pBCTree = nullptr;
 	delete(actComb);
 	delete(actBCTree);
 }
@@ -434,7 +411,7 @@ void PlanarAugmentationFix::reduceChain(node p)
 			#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
 				cout << "reduceChain(): creating a new label with pendant " << p->index() << endl << flush;
 			#endif
-			newLabel(last, 0,  p, stopCause);
+			newLabel(last, nullptr,  p, stopCause);
 		}
 	}
 	else{
@@ -465,14 +442,14 @@ void PlanarAugmentationFix::reduceChain(node p)
 //  ----------------------------------------------------
 paStopCause PlanarAugmentationFix::followPath(node v, node& last)
 {
-	last = 0;
+	last = nullptr;
 	node bcNode = m_pBCTree->find(v);
 
 	if (m_pBCTree->typeOfBNode(bcNode) == BCTree::CComp){
 		last = bcNode;
 	}
 
-	while (bcNode != 0){
+	while (bcNode != nullptr){
 		int deg = m_pBCTree->m_bNode_degree[bcNode];
 
 		if (deg > 2){
@@ -481,7 +458,7 @@ paStopCause PlanarAugmentationFix::followPath(node v, node& last)
 				return paCDegree;
 			}
 			else{
-				if (m_pBCTree->DynamicBCTree::parent(bcNode) == 0)
+				if (m_pBCTree->DynamicBCTree::parent(bcNode) == nullptr)
 					return paRoot;
 				else
 					return paBDegree;
@@ -511,8 +488,8 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 	#endif
 
 	pa_label l = m_labels.front();
-	pendant2 = 0;
-	adjV1 = adjV2 = 0;
+	pendant2 = nullptr;
+	adjV1 = adjV2 = nullptr;
 	pendant1 = m_pBCTree->find(l->getFirstPendant());
 	node pendantFirst = pendant1;
 
@@ -538,7 +515,7 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 	bool loop = true;
 	bool found = false;
 
-	node cutvBFNode = 0;
+	node cutvBFNode = nullptr;
 	bool dominatingTree = false;
 
 	while (loop){
@@ -549,7 +526,7 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 					dominatingTree = true;
 				}
 				else{
-					if ((cutvBFNode == 0) && (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == m_actBCRoot))
+					if ((cutvBFNode == nullptr) && (m_pBCTree->DynamicBCTree::bcproper(adj->theEdge()) == m_actBCRoot))
 						cutvBFNode = adj->theNode();
 				}
 			}
@@ -566,14 +543,14 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 					l->m_pendants.del(m_belongsToIt[pendant1]);
 					m_belongsToIt[pendant1] = l->m_pendants.pushFront(pendant1);
 					if (dominatingTree){
-						cutvBFNode = 0;
+						cutvBFNode = nullptr;
 					 }
 				 }
 				 else{
 					// found pendant of different label
 					if (dominatingTree){
 						// we have a dominating tree
-						if (cutvBFNode != 0){
+						if (cutvBFNode != nullptr){
 							// corrupt situation
 
 							#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -631,8 +608,8 @@ void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjE
 	#endif
 
 	pa_label l = m_belongsTo[pendant1];
-	pendant2 = 0;
-	adjV1 = adjV2 = 0;
+	pendant2 = nullptr;
+	adjV1 = adjV2 = nullptr;
 
 
 	node cutV = m_pBCTree->m_hNode_gNode[m_pBCTree->m_bNode_hParNode[pendant1]];
@@ -791,14 +768,14 @@ void PlanarAugmentationFix::connectSingleLabel()
 			 << ", adjFirst=" << adjFirst << ", singleEdgePendant=" << singleEdgePendant << endl << flush;
 	#endif
 
-	bool connectLeft  = false;
-	bool connectRight = false;
-	node adjBNode = 0;
-	node lastConnectedPendant = 0;
-
 	if (l->size() > 1){
 
-		node cutvBFNode = 0;
+		bool connectLeft  = false;
+		bool connectRight = false;
+		node adjBNode = nullptr;
+		node lastConnectedPendant = nullptr;
+
+		node cutvBFNode = nullptr;
 		bool loop = true;
 
 		adjBNode = m_pBCTree->bcproper(adj->theEdge());
@@ -811,7 +788,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 					loop = false;
 				}
 				else{
-					if ((cutvBFNode == 0) && (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot))
+					if ((cutvBFNode == nullptr) && (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot))
 						cutvBFNode = adjRun->theNode();
 				}
 			}
@@ -860,7 +837,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 			adjRun = adjRun->cyclicPred();
 		adj = adjRun->cyclicSucc()->twin();
 
-		cutvBFNode = 0;
+		cutvBFNode = nullptr;
 		loop = true;
 
 		while (loop){
@@ -870,7 +847,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 					loop = false;
 				}
 				else{
-					if ((cutvBFNode == 0) && (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot))
+					if ((cutvBFNode == nullptr) && (m_pBCTree->DynamicBCTree::bcproper(adjRun->theEdge()) == m_actBCRoot))
 						cutvBFNode = adjRun->theNode();
 				}
 			}
@@ -956,7 +933,7 @@ pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node penda
 	m_belongsTo[pendant] = l;
 	m_belongsToIt[pendant] = (l->m_pendants).pushBack(pendant);
 
-	if (parent != 0)
+	if (parent != nullptr)
 		m_isLabel[parent] = m_labels.pushBack(l);
 	else
 		m_isLabel[cutvertex] = m_labels.pushBack(l);
@@ -974,17 +951,15 @@ void PlanarAugmentationFix::deleteLabel(pa_label& l, bool removePendants){
 	ListIterator<pa_label> labelIt = m_isLabel[l->parent()];
 
 	m_labels.del(labelIt);
-	m_isLabel[l->parent()] = 0;
+	m_isLabel[l->parent()] = nullptr;
 
-	ListIterator<node> pendantIt = (l->m_pendants).begin();
-	while (pendantIt.valid()){
-		m_belongsTo[*pendantIt] = 0;
-		m_belongsToIt[*pendantIt] = 0;
-		pendantIt++;
+	for(node v : l->m_pendants) {
+		m_belongsTo[v] = nullptr;
+		m_belongsToIt[v] = nullptr;
 	}
 
 	delete(l);
-	l = 0;
+	l = nullptr;
 }
 
 
@@ -1024,8 +999,8 @@ void PlanarAugmentationFix::addPendant(node p, pa_label& l)
 //  ----------------------------------------------------
 void PlanarAugmentationFix::deletePendant(node pendant){
 	(m_belongsTo[pendant])->removePendant(m_belongsToIt[pendant]);
-	m_belongsTo[pendant] = 0;
-	m_belongsToIt[pendant] = 0;
+	m_belongsTo[pendant] = nullptr;
+	m_belongsToIt[pendant] = nullptr;
 }
 
 
@@ -1042,7 +1017,7 @@ ListIterator<pa_label> PlanarAugmentationFix::insertLabel(pa_label l)
 	else{
 		ListIterator<pa_label> it = m_labels.begin();
 		while (it.valid() && ((*it)->size() > l->size())){
-			it++;
+			++it;
 		}
 		if (!it.valid())
 			return m_labels.pushBack(l);
@@ -1073,7 +1048,7 @@ void PlanarAugmentationFix::modifyBCRoot(node oldRoot, node newRoot)
 		}
 
 		it2 = it;
-		it++;
+		++it;
 	}
 
 	delete path;
@@ -1093,7 +1068,7 @@ void PlanarAugmentationFix::changeBCRoot(node oldRoot, node newRoot)
 
 	//   for the new root:
 	// m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
-	m_pBCTree->m_bNode_hParNode[newRoot] = 0;
+	m_pBCTree->m_bNode_hParNode[newRoot] = nullptr;
 }
 
 

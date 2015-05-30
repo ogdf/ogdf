@@ -1,11 +1,3 @@
-/*
- * $Revision: 2643 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 16:52:10 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class ConstraintManager that handles
  * drawing constraints.
@@ -53,7 +45,7 @@ Constraint *ConstraintManager::createConstraintByName(const Graph &G, string *na
 //	if ((*name) == "Anchor") return new AnchorConstraint(G); else
 //	if ((*name) == "Alignment") return new AlignmentConstraint(G,0.0); else
 //	if ((*name) == "Sequence") return new SequenceConstraint(G,true); else
-	return NULL;
+	return nullptr;
 }
 
 string ConstraintManager::getClassnameOfConstraint(Constraint *c) {

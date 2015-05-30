@@ -1,11 +1,3 @@
-/*
- * $Revision: 4617 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2015-05-28 19:43:44 +0200 (Thu, 28 May 2015) $
- ***************************************************************/
-
 /** \file
  * \brief Basic declarations, included by all source files.
  *
@@ -49,32 +41,7 @@
 #define OGDF_BASIC_H
 
 
-/**
- * \mainpage The Open Graph Drawing Framework
- *
- * \section sec_intro Introduction
- * The Open Graph Drawing Framework (OGDF) is a C++ library containing
- * implementations of various graph drawing algorithms. The library is self
- * contained; optionally, additional packages like LP-solvers are required
- * for some implementations.
- *
- * Here, you find the library's code documentation. For more general information
- * on OGDF see http://www.ogdf.net. There, you can also find further explanations,
- * how-tos, and example code.
- */
-
-
 #include <ogdf/internal/basic/config.h>
-
-
-// include windows.h on Windows systems
-#if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-#define WIN32_EXTRA_LEAN
-#define WIN32_LEAN_AND_MEAN
-#undef NOMINMAX
-#define NOMINMAX
-#include <windows.h>
-#endif
 
 
 //---------------------------------------------------------
@@ -82,7 +49,7 @@
 //---------------------------------------------------------
 
 #ifdef OGDF_DEBUG
-#include <assert.h>
+#include <cassert>
 #define OGDF_ASSERT(expr) assert(expr);
 #define OGDF_ASSERT_IF(minLevel,expr) \
 	if (int(ogdf::debugLevel) >= int(minLevel)) { assert(expr); } else { }
@@ -92,6 +59,24 @@
 #define OGDF_ASSERT(expr)
 #define OGDF_ASSERT_IF(minLevel,expr)
 #define OGDF_SET_DEBUG_LEVEL(level)
+#endif
+
+
+//---------------------------------------------------------
+// deprecation
+//---------------------------------------------------------
+
+#ifdef _MSC_VER
+#define OGDF_DEPRECATED_BEGIN __declspec(deprecated)
+#define OGDF_DEPRECATED_END
+
+#elif defined(__GNUC__)
+#define OGDF_DEPRECATED_BEGIN
+#define OGDF_DEPRECATED_END   __attribute__ ((deprecated))
+
+#else
+#define OGDF_DEPRECATED_BEGIN
+#define OGDF_DEPRECATED_END
 #endif
 
 
@@ -119,7 +104,6 @@
 #elif defined(__GNUC__)
 //// make sure that SIZE_MAX gets defined
 //#define __STDC_LIMIT_MACROS
-//#include <stdint.h>
 
 #define OGDF_LIKELY(x)    __builtin_expect((x),1)
 #define OGDF_UNLIKELY(x)  __builtin_expect((x),0)
@@ -148,39 +132,11 @@
 
 
 //---------------------------------------------------------
-// define data types with known size
-//---------------------------------------------------------
-
-#if defined(_MSC_VER)
-
-typedef unsigned __int8  __uint8;
-typedef unsigned __int16 __uint16;
-typedef unsigned __int32 __uint32;
-typedef unsigned __int64 __uint64;
-
-#else
-
-#undef __int8
-#undef __int16
-#undef __int32
-#undef __int64
-
-typedef signed char        __int8;
-typedef short              __int16;
-typedef int                __int32;
-typedef long long          __int64;
-typedef unsigned char      __uint8;
-typedef unsigned short     __uint16;
-typedef unsigned int       __uint32;
-typedef unsigned long long __uint64;
-#endif
-
-
-//---------------------------------------------------------
 // common includes
 //---------------------------------------------------------
 
 // stdlib
+#include <cstdint>
 #include <cmath>
 #include <ctime>
 #include <fstream>
@@ -192,14 +148,6 @@ using std::ofstream;		// from <fstream>
 using std::min;				// from <algorithm>
 using std::max;				// from <algorithm>
 using std::numeric_limits;	// from <limits>
-
-#ifdef OGDF_SYSTEM_UNIX
-#include <stdint.h>
-#endif
-// make sure that SIZE_MAX gets defined
-#ifndef SIZE_MAX
-#define SIZE_MAX ((size_t)-1)
-#endif
 
 
 // ogdf
@@ -233,36 +181,41 @@ static Initialization s_ogdfInitializer;
 #endif
 
 
-	/**
-	 * @name Global basic functions
-	 */
-	//@{
-
 	// forward declarations
 	template<class E> class List;
 
 
+
 	enum Direction { before, after };
 
-	//! Returns random integer between low and high (including).
-	inline int randomNumber(int low, int high) {
-#if RAND_MAX == 32767
-		// We get only 15 random bits on some systems (Windows, Solaris)!
-		int r1 = (rand() & ((1 << 16) - 1));
-		int r2 = (rand() & ((1 << 16) - 1));
-		int r = (r1 << 15) | r2;
-#else
-		int r = rand();
-#endif
-		return low + (r % (high-low+1));
-	}
+	/**
+	 * @addtogroup random
+	 */
+	//@{
 
-	//! Returns random double value between low and high.
-	inline double randomDouble(double low, double high) {
-		double val = low +(rand()*(high-low))/RAND_MAX;
-		OGDF_ASSERT(val >= low && val <= high);
-		return val;
-	}
+	//! Returns a random value suitable as initial seed for a random number engine.
+	/**
+	 * <H3>Thread Safety</H3>
+	 * This functions is thread-safe.
+	 */
+	OGDF_EXPORT long unsigned int randomSeed();
+
+	//! Sets the seed for functions like randomSeed(), randomNumber(), randomDouble().
+	OGDF_EXPORT void setSeed(int val);
+
+	//! Returns random integer between low and high (including).
+	/**
+	 * <H3>Thread Safety</H3>
+	 * This functions is thread-safe.
+	 */
+	OGDF_EXPORT int randomNumber(int low, int high);
+
+	//! Returns a random double value from the interval [\a low, \a high).
+	/**
+	 * <H3>Thread Safety</H3>
+	 * This functions is thread-safe.
+	 */
+	OGDF_EXPORT double randomDouble(double low, double high);
 
 	//! Returns a random double value from the normal distribution
 	//! with mean m and standard deviation sd
@@ -284,10 +237,13 @@ static Initialization s_ogdfInitializer;
 		return(m + y1*sd);
 	}
 
+	//@}
 
 
-	//! Returns used CPU time from T to current time and assigns
-	//! current time to T.
+	//! Returns used CPU time from T to current time and assigns current time to T.
+	/**
+	 * @ingroup date-time
+	 */
 	OGDF_EXPORT double usedTime(double& T);
 
 	//! \a doDestruction() returns false if a data type does not require to
@@ -306,11 +262,8 @@ static Initialization s_ogdfInitializer;
 	//! Tests if \a prefix is a prefix of \a str, ignoring the case of characters.
 	OGDF_EXPORT bool prefixIgnoreCase(const string &prefix, const string &str);
 
-	//@}
-
-
 	/**
-	 * @name Files and directories
+	 * @addtogroup file-system
 	 */
 	//@{
 
@@ -410,6 +363,34 @@ static Initialization s_ogdfInitializer;
 		const char *pattern = "*");
 
 	//@}
+	/**
+	* @addtogroup container-functions
+	*/
+	//@{
+
+	//! Searches for the position of \a x in container \a C; returns -1 if not found.
+	/**
+	 * Positions are number 0, 1, 2, ... The function uses the equality operator for comparing elements.
+	 *
+	 * \param C is a container containing elements of type \a T.
+	 * \param x is the element to search for.
+	 * \return the position of the first occurrence of \a x in \a C (positions start with 0), or -1 if
+	 *         \a x is not in \a C.
+	 */
+	template< typename CONTAINER, typename T>
+	int searchPos(const CONTAINER &C, const T &x)
+	{
+		int pos = 0;
+		for (const T &y : C) {
+			if (x == y)
+				return pos;
+			++pos;
+		}
+
+		return -1;
+	}
+
+	//@}
 
 
 #ifdef OGDF_DEBUG
@@ -444,207 +425,16 @@ public:
 };
 
 
-
-/**
- * @name Atomic operations
- */
-//@{
-
-#ifdef OGDF_SYSTEM_WINDOWS
-
-#define OGDF_MEMORY_BARRIER MemoryBarrier()
-
-//! Atomically decrements (decreases by one) the variable to which \a pX points.
-/**
- * @param pX points to the variable to be decremented.
- * @return The resulting decremented value.
- */
-inline __int32 atomicDec(__int32 volatile *pX) {
-	return (__int32)InterlockedDecrement((LONG volatile *)pX);
-}
-
-//! Atomically decrements (decreases by one) the variable to which \a pX points.
-/**
- * @param pX points to the variable to be decremented.
- * @return The resulting decremented value.
- */
-inline __int64 atomicDec(__int64 volatile *pX) {
-	return InterlockedDecrement64(pX);
-}
-
-//! Atomically increments (increases by one) the variable to which \a pX points.
-/**
- * @param pX points to the variable to be incremented.
- * @return The resulting incremented value.
- */
-inline __int32 atomicInc(__int32 volatile *pX) {
-	return (__int32)InterlockedIncrement((LONG volatile *)pX);
-}
-
-//! Atomically increments (increases by one) the variable to which \a pX points.
-/**
- * @param pX points to the variable to be incremented.
- * @return The resulting incremented value.
- */
-inline __int64 atomicInc(__int64 volatile *pX) {
-	return InterlockedIncrement64(pX);
-}
-
-
-//! Atomically sets the variable pointed to by \a pX to \a value and returns its previous value.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to which the variable is set.
- * @return The previous value of the modified variable.
- */
-inline __int32 atomicExchange(__int32 volatile *pX, __int32 value) {
-	return InterlockedExchange((LONG volatile *)pX, (LONG)value);
-}
-
-//! Atomically sets the variable pointed to by \a pX to \a value and returns its previous value.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to which the variable is set.
- * @return The previous value of the modified variable.
- */
-inline __int64 atomicExchange(__int64 volatile *pX, __int64 value) {
-	return InterlockedExchange64(pX, value);
-}
-
-//! Atomically sets the variable pointed to by \a pX to \a value and returns its previous value.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to which the variable is set.
- * @return The previous value of the modified variable.
- */
-template<typename T>
-inline T *atomicExchange(T * volatile *pX, T *value) {
-	return (T *)InterlockedExchangePointer((PVOID volatile *)pX, value);
-}
-
-
-#if defined(_M_AMD64)
-//! Atomically subtracts \a value from the variable to which \a pX points.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to be subtracted form the variable.
- * @return The resulting value of the modified variable.
- */
-inline __int32 atomicSub(__int32 volatile *pX, __int32 value) {
-	return (__int32)InterlockedAdd((LONG volatile *)pX, -value);
-}
-
-//! Atomically subtracts \a value from the variable to which \a pX points.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to be subtracted form the variable.
- * @return The resulting value of the modified variable.
- */
-inline __int64 atomicSub(__int64 volatile *pX, __int64 value) {
-	return InterlockedAdd64(pX, -value);
-}
-
-//! Atomically adds \a value to the variable to which \a pX points.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to be added to the variable.
- * @return The resulting value of the modified variable.
- */
-inline __int32 atomicAdd(__int32 volatile *pX, __int32 value) {
-	return (__int32)InterlockedAdd((LONG volatile *)pX, value);
-}
-
-//! Atomically adds \a value to the variable to which \a pX points.
-/**
- * @param pX    points to the variable to be modified.
- * @param value is the value to be added to the variable.
- * @return The resulting value of the modified variable.
- */
-inline __int64 atomicAdd(__int64 volatile *pX, __int64 value) {
-	return InterlockedAdd64(pX, value);
-}
-
-#endif
-
-
-#else
-
-#define OGDF_MEMORY_BARRIER __sync_synchronize()
-
-inline __int32 atomicDec(__int32 volatile *pX) {
-	return  __sync_sub_and_fetch(pX, 1);
-}
-
-inline __int64 atomicDec(__int64 volatile *pX) {
-	return  __sync_sub_and_fetch(pX, 1);
-}
-
-inline __int32 atomicInc(__int32 volatile *pX) {
-	return  __sync_add_and_fetch(pX, 1);
-}
-
-inline __int64 atomicInc(__int64 volatile *pX) {
-	return  __sync_add_and_fetch(pX, 1);
-}
-
-inline __int32 atomicSub(__int32 volatile *pX, __int32 value) {
-	return __sync_sub_and_fetch(pX, value);
-}
-
-inline __int64 atomicSub(__int64 volatile *pX, __int64 value) {
-	return __sync_sub_and_fetch(pX, value);
-}
-
-inline __int32 atomicAdd(__int32 volatile *pX, __int32 value) {
-	return __sync_add_and_fetch(pX, value);
-}
-
-inline __int64 atomicAdd(__int64 volatile *pX, __int64 value) {
-	return __sync_add_and_fetch(pX, value);
-}
-
-inline __int32 atomicExchange(__int32 volatile *pX, __int32 value) {
-	return __sync_lock_test_and_set(pX, value);
-}
-
-inline __int64 atomicExchange(__int64 volatile *pX, __int64 value) {
-	return __sync_lock_test_and_set(pX, value);
-}
-
-template<typename T>
-inline T *atomicExchange(T * volatile *pX, T *value) {
-	return __sync_lock_test_and_set(pX, value);
-}
-
-#endif
-//@}
-
 } // end namespace ogdf
 
 
 /**
  * @name C++11 support
  * OGDF uses some new functions defined in the C++11 standard; if these functions are not
- * supported by the compiler, they are be defined by OGDF.
+ * supported by the compiler, they are defined by OGDF.
  */
 //@{
 
-#ifndef OGDF_HAVE_CPP11
-
-int                stoi  (const string& _Str, size_t *_Idx = 0, int _Base = 10);
-long long          stoll (const string& _Str, size_t *_Idx = 0, int _Base = 10);
-unsigned long      stoul (const string& _Str, size_t *_Idx = 0, int _Base = 10);
-unsigned long long stoull(const string& _Str, size_t *_Idx = 0, int _Base = 10);
-
-float       stof (const string& _Str, size_t *_Idx = 0);
-double      stod (const string& _Str, size_t *_Idx = 0);
-long double stold(const string& _Str, size_t *_Idx = 0);
-
-string to_string(long long _Val);
-string to_string(unsigned long long _Val);
-string to_string(long double _Val);
-
-#else
 
 using std::stoi;
 using std::stoll;
@@ -657,26 +447,7 @@ using std::stold;
 
 using std::to_string;
 
-#endif
 
-
-#if !defined(OGDF_HAVE_CPP11) || (defined(_MSC_VER) && (_MSC_VER < 1700))
-
-inline string to_string(int           value) { return to_string( (long long)          value); }
-inline string to_string(long          value) { return to_string( (long long)          value); }
-inline string to_string(unsigned int  value) { return to_string( (unsigned long long) value); }
-inline string to_string(unsigned long value) { return to_string( (unsigned long long) value); }
-inline string to_string(float         value) { return to_string( (long double)        value); }
-inline string to_string(double        value) { return to_string( (long double)        value); }
-
-#endif
-
-// in C++11 we can directly pass a string as filename
-#ifdef OGDF_HAVE_CPP11
-#define OGDF_STRING_OPEN(filename) (filename)
-#else
-#define OGDF_STRING_OPEN(filename) (filename).c_str()
-#endif
 //@}
 
 

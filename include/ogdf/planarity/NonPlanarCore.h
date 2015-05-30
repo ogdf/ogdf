@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class NonPlanarCore which represents the
  *        non-planar core reduction for biconnected graphs.
@@ -62,9 +54,10 @@ namespace ogdf {
 	class OGDF_EXPORT Skeleton;
 
 
-//---------------------------------------------------------
-// NonPlanarCore
-//---------------------------------------------------------
+//! Non-planar core reduction.
+/**
+ * @ingroup ga-planarity
+ */
 class OGDF_EXPORT NonPlanarCore
 {
 public:

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3624 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-07-02 13:57:06 +0200 (Tue, 02 Jul 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Voronoi regions in an EdgeWeightedGraph
  *
@@ -54,6 +46,10 @@
 
 namespace ogdf {
 
+//! Computes Voronoi regions in an edge weighted graph.
+/**
+ * @ingroup graph-algs
+ */
 template<typename T>
 class Voronoi {
 protected:
@@ -70,15 +66,13 @@ public:
 	//! @param weights edge weights
 	//! @param seeds a list of Voronoi seed nodes, the centers of the Voronoi regions
 	Voronoi(const Graph &G, const EdgeArray<T> &weights, const List<node> &seeds)
-	 : m_predecessor(G)
-	 , m_distance(G)
-	 , m_seedOfNode(G)
+	 : m_seedOfNode(G)
 	 , m_nodeList()
 	{
 		computeVoronoiRegions(G, weights, seeds);
 	}
 
-	//! Returns the edge incident to v and its predecessor.  Note that the predecessor of a terminal is NULL.
+	//! Returns the edge incident to v and its predecessor.  Note that the predecessor of a terminal is nullptr.
 	edge predecessorEdge(node v) const
 	{
 		return m_predecessor[v];
@@ -88,7 +82,7 @@ public:
 	node predecessor(node v) const
 	{
 		edge tmp = predecessorEdge(v);
-		return (tmp ? tmp->opposite(v) : NULL);
+		return (tmp ? tmp->opposite(v) : nullptr);
 	}
 
 	//! Returns the distance between v and its Voronoi seed.
@@ -120,24 +114,23 @@ void Voronoi<T>::computeVoronoiRegions(const Graph &G, const EdgeArray<T> &weigh
 
 	// extract Voronoi seeds for each node and Voronoi regions for each seed
 	NodeArray<bool> processed(G, false);
-	forall_listiterators(node, seed, seeds) {
-		processed[*seed] = true;
-		m_seedOfNode[*seed] = *seed;
-		m_nodeList[*seed].pushBack(*seed);
+	for (node seed : seeds) {
+		processed[seed] = true;
+		m_seedOfNode[seed] = seed;
+		m_nodeList[seed].pushBack(seed);
 	}
 
-	node u;
-	forall_nodes(u, G) {
+	for (node u : G.nodes) {
 		List<node> foundNodes;
 		node v;
 		for (v = u; !processed[v]; v = predecessor(v)) {
 			processed[v] = true;
 			foundNodes.pushBack(v);
 		}
-		OGDF_ASSERT(processed[v]);
-		forall_listiterators(node, passedNode, foundNodes) {
-			m_seedOfNode[*passedNode] = m_seedOfNode[v];
-			m_nodeList[m_seedOfNode[v]].pushBack(*passedNode);
+
+		for (node passedNode : foundNodes) {
+			m_seedOfNode[passedNode] = m_seedOfNode[v];
+			m_nodeList[m_seedOfNode[v]].pushBack(passedNode);
 		}
 	}
 }

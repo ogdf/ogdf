@@ -1,14 +1,6 @@
-/*
- * $Revision: 3261 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-25 14:48:05 +0100 (Fri, 25 Jan 2013) $
- ***************************************************************/
-
 /** \file
- * \brief Declaration of class FeasibleUpwardPlanarSubgraph which
- *        computes an feasible upward planar subgraph and a feasible upward embedding.
+ * \brief Declaration of class FixedUpwardEmbeddingInserter which
+ *        inserts edges into a fixed embedding.
  *
  * \author Hoi-Ming Wong
  *

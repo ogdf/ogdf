@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief declaration of the FastSimpleHierarchyLayout
  * (third phase of sugiyama)
@@ -58,6 +50,8 @@ namespace ogdf {
 /**
  * \brief Coordinate assignment phase for the Sugiyama algorithm by Ulrik Brandes and Boris K&ouml;pf
  *
+ * @ingroup gd-hlm
+ *
  * This class implements a hierarchy layout algorithm, i.e., it layouts
  * hierarchies with a given order of nodes on each layer. It is used as a third
  * phase of the Sugiyama algorithm.
@@ -108,7 +102,7 @@ private:
 	bool   m_leftToRight;	//!< stores the option <i>left-to-right</i>.
 
 protected:
-	void doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC);
+	virtual void doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC) override;
 
 public:
 	//! Creates an instance of fast simple hierarchy layout.

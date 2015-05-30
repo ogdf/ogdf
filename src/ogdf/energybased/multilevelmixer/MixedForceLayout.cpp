@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Uses Fruchtermann Rheingold and Fast Multipole Embedder for faster and better FR results.
  *
@@ -41,15 +33,15 @@
  ***************************************************************/
 
 #include <ogdf/energybased/multilevelmixer/MixedForceLayout.h>
-#include <ogdf/energybased/SpringEmbedderFR.h>
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 
 namespace ogdf {
 
 MixedForceLayout::MixedForceLayout()
 {
-	SpringEmbedderFR * FR = new SpringEmbedderFR();
-	FR->scaling(SpringEmbedderFR::scInput);
+	SpringEmbedderGridVariant * FR = new SpringEmbedderGridVariant();
+	FR->scaling(SpringEmbedderGridVariant::Scaling::input);
 	m_FR = FR;
 
 	FastMultipoleEmbedder * FME = new FastMultipoleEmbedder();

@@ -40,12 +40,12 @@ class do_tighten_action : public CoinPresolveAction {
     nactions_(nactions), actions_(actions) {}
 
  public:
-  const char *name() const;
+  const char *name() const override;
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *prob,
 					 const CoinPresolveAction *next);
 
-  void postsolve(CoinPostsolveMatrix *prob) const;
+  void postsolve(CoinPostsolveMatrix *prob) const override;
 
   ~do_tighten_action();
 

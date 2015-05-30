@@ -1,11 +1,3 @@
-/*
- * $Revision: 3157 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-12-12 16:49:59 +0100 (Wed, 12 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Contains logging functionality
  *
@@ -123,14 +115,11 @@ public:
 
 	// CONSTRUCTORS //////////////////////////////////////
 	//! creates a new Logger-object with LM_GLOBAL and local log-level equal globalLogLevel
-	Logger() :
-		m_loglevel(m_globalloglevel), m_logmode(LM_GLOBAL) {}
+	Logger() : Logger(LM_GLOBAL, m_globalloglevel) {}
 	//! creates a new Logger-object with given log-mode and local log-level equal globalLogLevel
-	Logger(LogMode m) :
-		m_loglevel(m_globalloglevel), m_logmode(m) {}
+	Logger(LogMode m) : Logger(m, m_globalloglevel) {}
 	//! creates a new Logger-object with LM_GLOBAL and given local log-level
-	Logger(Level l) :
-		m_loglevel(l), m_logmode(LM_GLOBAL) {}
+	Logger(Level l) : Logger(LM_GLOBAL, l) {}
 	//! creates a new Logger-object with given log-mode and given local log-level
 	Logger(LogMode m, Level l) :
 		m_loglevel(l), m_logmode(m) {}

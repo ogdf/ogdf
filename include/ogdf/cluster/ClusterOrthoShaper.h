@@ -1,11 +1,3 @@
-/*
- * $Revision: 3340 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2013-03-09 03:03:04 +0100 (Sat, 09 Mar 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Computes the Orthogonal Representation of a Planar
  * Representation of a UML Graph using the simple flow
@@ -58,6 +50,10 @@
 namespace ogdf {
 
 
+//! Computes the orthogonal representation of a clustered graph.
+/**
+ * @ingroup gd-cluster
+ */
 class OGDF_EXPORT ClusterOrthoShaper
 {
 

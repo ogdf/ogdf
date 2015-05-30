@@ -1,11 +1,3 @@
-/*
- * $Revision: 3436 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 14:29:21 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the class EmbedPQTree.
  *

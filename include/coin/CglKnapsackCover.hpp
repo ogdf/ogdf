@@ -26,7 +26,7 @@ public:
       Insert the generated cuts into OsiCut, cs.
   */
   virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-			    const CglTreeInfo info = CglTreeInfo()) const;
+			    const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
   /**@name Constructors and destructors */
@@ -39,7 +39,7 @@ public:
     const CglKnapsackCover &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglKnapsackCover &
@@ -50,9 +50,9 @@ public:
   virtual
     ~CglKnapsackCover ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   /// This can be used to refresh any information
-  virtual void refreshSolver(OsiSolverInterface * solver);
+  virtual void refreshSolver(OsiSolverInterface * solver) override;
   //@}
 
 

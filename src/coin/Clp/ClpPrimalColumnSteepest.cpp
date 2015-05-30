@@ -764,7 +764,7 @@ ClpPrimalColumnSteepest::djsAndDevex(CoinIndexedVector * updates,
      int numberColumns = model_->numberColumns();
      // rows
      reducedCost = model_->djRegion(0);
-     int addSequence = model_->numberColumns();;
+     int addSequence = model_->numberColumns();
 
      number = updates->getNumElements();
      index = updates->getIndices();
@@ -1023,7 +1023,7 @@ ClpPrimalColumnSteepest::djsAndSteepest(CoinIndexedVector * updates,
      int numberColumns = model_->numberColumns();
      // rows
      reducedCost = model_->djRegion(0);
-     int addSequence = model_->numberColumns();;
+     int addSequence = model_->numberColumns();
 
      number = updates->getNumElements();
      index = updates->getIndices();
@@ -2985,7 +2985,7 @@ ClpPrimalColumnSteepest::saveWeights(ClpSimplex * model, int mode)
                     // restore pivot row
                     int iRow;
                     // permute alternateWeights
-                    double * temp = model_->rowArray(3)->denseVector();;
+                    double * temp = model_->rowArray(3)->denseVector();
                     double * work = alternateWeights_->denseVector();
                     int * savePivotOrder = model_->rowArray(3)->getIndices();
                     int * oldPivotOrder = alternateWeights_->getIndices();
@@ -3438,7 +3438,7 @@ ClpPrimalColumnSteepest::checkAccuracy(int sequence,
      }
 
      double oldDevex = weights_[sequence];
-     double check = CoinMax(devex, oldDevex);;
+     double check = CoinMax(devex, oldDevex);
      if ( fabs ( devex - oldDevex ) > relativeTolerance * check ) {
        COIN_DETAIL_PRINT(printf("check %d old weight %g, new %g\n", sequence, oldDevex, devex));
           // update so won't print again
@@ -3890,7 +3890,7 @@ ClpPrimalColumnSteepest::partialPricing(CoinIndexedVector * updates,
                // If we put this idea back then each function needs to update endFraction **
 #if 0
                double dchunk = (static_cast<double> chunk) / (static_cast<double> numberColumns);
-               double end = CoinMin(startC[iPassC+1], start + dchunk);;
+               double end = CoinMin(startC[iPassC+1], start + dchunk);
 #else
                double end = startC[iPassC+1]; // force end
 #endif

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of optimal node ranking algorithm
  *
@@ -81,8 +73,8 @@ void OptimalRanking::call(
 	m_subgraph.get().call(G,R);
 
 	EdgeArray<bool> reversed(G,false);
-	for (ListConstIterator<edge> it = R.begin(); it.valid(); ++it)
-		reversed[*it] = true;
+	for (edge e : R)
+		reversed[e] = true;
 	R.clear();
 
 	doCall(G, rank, reversed, length, cost);
@@ -96,8 +88,8 @@ void OptimalRanking::call (const Graph& G, NodeArray<int> &rank)
 	m_subgraph.get().call(G,R);
 
 	EdgeArray<bool> reversed(G,false);
-	for (ListConstIterator<edge> it = R.begin(); it.valid(); ++it)
-		reversed[*it] = true;
+	for (edge e : R)
+		reversed[e] = true;
 	R.clear();
 
 	EdgeArray<int> length(G,1);
@@ -137,7 +129,7 @@ void OptimalRanking::doCall(
 	const EdgeArray<int> &length,
 	const EdgeArray<int> &costOrig)
 {
-	MinCostFlowReinelt mcf;
+	MinCostFlowReinelt<int> mcf;
 
 	// construct min-cost flow problem
 	GraphCopy GC;
@@ -150,8 +142,7 @@ void OptimalRanking::doCall(
 	// intialize the array of lists of nodes contained in a CC
 	Array<List<node> > nodesInCC(numCC);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		nodesInCC[component[v]].pushBack(v);
 
 	EdgeArray<edge> auxCopy(G);
@@ -162,8 +153,7 @@ void OptimalRanking::doCall(
 		GC.initByNodes(nodesInCC[i], auxCopy);
 		makeLoopFree(GC);
 
-		edge e;
-		forall_edges(e,GC)
+		for(edge e : GC.edges)
 			if(reversed[GC.original(e)])
 				GC.reverseEdge(e);
 
@@ -172,7 +162,7 @@ void OptimalRanking::doCall(
 			rank[GC.original(GC.firstNode())] = 0;
 			continue;
 		} else if(GC.numberOfEdges() == 1) {
-			e = GC.original(GC.firstEdge());
+			edge e = GC.original(GC.firstEdge());
 			rank[e->source()] = 0;
 			rank[e->target()] = length[e];
 			continue;
@@ -183,12 +173,12 @@ void OptimalRanking::doCall(
 		EdgeArray<int> cost(GC);
 		NodeArray<int> supply(GC);
 
-		forall_edges(e,GC)
+		for(edge e : GC.edges)
 			cost[e] = -length[GC.original(e)];
 
-		node v;
-		forall_nodes(v,GC) {
+		for(node v : GC.nodes) {
 			int s = 0;
+			edge e;
 			forall_adj_edges(e,v) {
 				if(v == e->source())
 					s += costOrig[GC.original(e)];
@@ -209,7 +199,7 @@ void OptimalRanking::doCall(
 			mcf.call(GC, lowerBound, upperBound, cost, supply, flow, dual);
 		OGDF_ASSERT(feasible);
 
-		forall_nodes(v,GC)
+		for(node v : GC.nodes)
 			rank[GC.original(v)] = dual[v];
 	}
 }

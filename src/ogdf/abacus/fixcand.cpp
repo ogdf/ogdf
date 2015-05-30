@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -86,7 +78,7 @@ void FixCand::saveCandidates(Sub *sub)
 
 void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 {
-	if (candidates_ == 0) return;
+	if (candidates_ == nullptr) return;
 
 	Logger::ilout(Logger::LL_MINOR) << endl << "Fixing Variables by Reduced Costs:     ";
 
@@ -167,19 +159,19 @@ void FixCand::deleteAll()
 		for (i = 0; i < nCandidates; i++)
 			delete (*candidates_)[i];
 		delete candidates_;
-		candidates_ = 0;
+		candidates_ = nullptr;
 	}
 
 	if (fsVarStat_) {
 		const int nFsVarStat = fsVarStat_->size();
 		for (i = 0; i < nFsVarStat; i++) delete (*fsVarStat_)[i];
 		delete fsVarStat_;
-		fsVarStat_ = 0;
+		fsVarStat_ = nullptr;
 	}
 
 	if (lhs_) {
 		delete lhs_;
-		lhs_ = 0;
+		lhs_ = nullptr;
 	}
 }
 

@@ -2935,8 +2935,8 @@ ClpSimplexDual::changeBounds(int initialize,
                                    }
                                    upper_[iSequence] = value;
                               } else {
-                                   lower_[iSequence] = columnLower_[iSequence];;
-                                   upper_[iSequence] = columnUpper_[iSequence];;
+                                   lower_[iSequence] = columnLower_[iSequence];
+                                   upper_[iSequence] = columnUpper_[iSequence];
                               }
                          } else {
                               int iRow = iSequence - numberColumns_;
@@ -2955,8 +2955,8 @@ ClpSimplexDual::changeBounds(int initialize,
                                    }
                                    upper_[iSequence] = value;
                               } else {
-                                   lower_[iSequence] = rowLower_[iRow];;
-                                   upper_[iSequence] = rowUpper_[iRow];;
+                                   lower_[iSequence] = rowLower_[iRow];
+                                   upper_[iSequence] = rowUpper_[iRow];
                               }
                          }
                     }
@@ -5306,7 +5306,7 @@ void
 ClpSimplexDual::originalBound( int iSequence)
 {
      if (getFakeBound(iSequence) != noFake) {
-          numberFake_--;;
+          numberFake_--;
           setFakeBound(iSequence, noFake);
           if (iSequence >= numberColumns_) {
                // rows
@@ -5362,7 +5362,7 @@ ClpSimplexDual::changeBound( int iSequence)
      upper_[iSequence] = oldUpper;
      assert (getFakeBound(iSequence) == noFake);
      //if (getFakeBound(iSequence)!=noFake)
-     //numberFake_--;;
+     //numberFake_--;
      if (value == oldLower) {
           if (upperValue > oldLower + dualBound_) {
                upper_[iSequence] = oldLower + dualBound_;
@@ -6931,7 +6931,7 @@ void ClpSimplexDual::doEasyOnesInValuesPass(double * dj)
                for (i = 0; i < rowLength[iRow]; i++) {
                     int iColumn = thisIndices[i];
                     double alpha = thisElements[i];
-                    double oldValue = dj[iColumn];;
+                    double oldValue = dj[iColumn];
                     double value;
 
                     switch(getStatus(iColumn)) {
@@ -7121,7 +7121,7 @@ ClpSimplexDual::resetFakeBounds(int type)
                                      upper_[iSequence], lowerValue, upperValue);
 #endif
                          }
-                         isFake = true;;
+                         isFake = true;
                     } else if (fakeStatus == ClpSimplexDual::lowerFake) {
                          if(!equal(lower_[iSequence], (upperValue - dualBound_)) ||
                                    !(equal(upper_[iSequence], value) ||
@@ -7133,7 +7133,7 @@ ClpSimplexDual::resetFakeBounds(int type)
                                      upper_[iSequence], lowerValue, upperValue);
 #endif
                          }
-                         isFake = true;;
+                         isFake = true;
                     } else if (fakeStatus == ClpSimplexDual::bothFake) {
                          nWarnings++;
 #ifdef CLP_INVESTIGATE

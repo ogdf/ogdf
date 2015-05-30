@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief The NodeComparer compares nodes on base of the value
  *        stored in a node array given as constructor parameter
@@ -55,6 +47,9 @@
 
 namespace ogdf {
 
+	/**
+	 * @ingroup comparer
+	 */
 	template<class sorterType>
 	class NodeComparer
 	{

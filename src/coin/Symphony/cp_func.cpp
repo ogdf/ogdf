@@ -99,7 +99,7 @@ void cp_initialize(cut_pool *cp, int master_tid)
 
 int unsigned_memcmp(char *coef0, char *coef1, int size)
 {
-   register char *end0 = coef0 + size;
+   char *end0 = coef0 + size;
 
    for ( ; coef0 != end0; coef0++, coef1++)
       if (*coef0 != *coef1)

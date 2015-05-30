@@ -1,11 +1,3 @@
-/*
- * $Revision: 3109 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-12-03 14:12:26 +0100 (Mon, 03 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class OrthoLayoutUML which represents an
  *        orthogonal planar drawing algorithm for mixed-upward
@@ -60,9 +52,6 @@ namespace ogdf {
 
 	enum OptionProfile { standard, minBendsperEdge, fullService }; //just to think about it...
 
-	enum OrthoDir;
-
-
 //---------------------------------------------------------
 // OrthoLayoutUML
 // represents planar orthogonal drawing algorithm for
@@ -78,17 +67,17 @@ public:
 	// calls planar UML layout algorithm. Input is a planarized representation
 	// PG of a connected component of the graph, output is a layout of the
 	// (modified) planarized representation in drawing
-	void call(PlanRepUML &PG, adjEntry adjExternal, Layout &drawing);
+	virtual void call(PlanRepUML &PG, adjEntry adjExternal, Layout &drawing) override;
 
 	//
 	// options
 
 	// the minimum distance between edges and vertices
-	double separation() const {
+	virtual double separation() const override {
 		return m_separation;
 	}
 
-	void separation(double sep) {
+	virtual void separation(double sep) override {
 		m_separation = sep;
 	}
 
@@ -160,7 +149,7 @@ public:
 	//bit 1 = scaling
 	//bit 2 = progressive/traditional
 	//=> 0 is standard
-	virtual void setOptions(int optionField)
+	virtual void setOptions(int optionField) override
 	{
 		if (optionField & umlOpAlign) m_align = true;
 		else m_align = false;
@@ -170,7 +159,7 @@ public:
 		else m_orthoStyle = 0; //traditional
 	}//setOptions
 
-	virtual int getOptions()
+	virtual int getOptions() override
 	{
 		int result = 0;
 		if (m_align) result = umlOpAlign;

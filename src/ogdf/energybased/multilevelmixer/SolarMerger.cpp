@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with Solar System rules
  *
@@ -52,8 +44,7 @@ SolarMerger::SolarMerger(bool simple, bool massAsNodeRadius)
 
 int SolarMerger::calcSystemMass(node v) {
 	unsigned int sum = m_mass[v];
-	adjEntry adj;
-	forall_adj(adj, v) {
+	for(adjEntry adj : v->adjEdges) {
 		sum += m_mass[adj->twinNode()];
 	}
 	return sum;
@@ -66,8 +57,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 	std::vector<node> suns;
 	std::vector<node> candidates;
 
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		candidates.push_back(v);
 	}
 
@@ -82,8 +72,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 				continue;
 			}
 			bool hasForeignPlanet = false;
-			adjEntry adj;
-			forall_adj(adj, sun) {
+			for(adjEntry adj : sun->adjEdges) {
 				if(m_celestial[adj->twinNode()] != 0) {
 					hasForeignPlanet = true;
 					break;
@@ -96,7 +85,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			m_celestial[sun] = 1;
 			suns.push_back(sun);
 			// mark neighbours as planet
-			forall_adj(adj, sun) {
+			for(adjEntry adj : sun->adjEdges) {
 				m_celestial[adj->twinNode()] = 2;
 				m_orbitalCenter[adj->twinNode()] = sun;
 				m_distanceToOrbit[adj->twinNode()] = MLG.weight(adj->theEdge());
@@ -117,8 +106,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 					continue;
 				}
 				bool hasForeignPlanet = false;
-				adjEntry adj;
-				forall_adj(adj, rndNode) {
+				for(adjEntry adj : rndNode->adjEdges) {
 					if(m_celestial[adj->twinNode()] != 0) {
 						hasForeignPlanet = true;
 						break;
@@ -136,13 +124,12 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			}
 
 			node minNode = sunCandidates.front().first;
-			unsigned int minMass = sunCandidates.front().second;
+			int minMass = sunCandidates.front().second;
 			// select sun with smalles mass from sunCandidates
-			for (std::vector< std::pair<node, int> >::iterator i = sunCandidates.begin();
-				i != sunCandidates.end(); i++)
+			for (const std::pair<node, int> &p : sunCandidates)
 			{
-				node nod = (*i).first;
-				unsigned int mass = (*i).second;
+				node nod = p.first;
+				int mass = p.second;
 				if (mass < minMass) {
 					minMass = mass;
 					minNode = nod;
@@ -150,7 +137,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			}
 
 			for (std::vector< std::pair<node, int> >::iterator i = sunCandidates.begin();
-				i != sunCandidates.end(); i++)
+				i != sunCandidates.end(); ++i)
 			{
 				node temp = (*i).first;
 				if (temp == minNode) {
@@ -163,8 +150,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			m_celestial[minNode] = 1;
 			suns.push_back(minNode);
 			// mark neighbours as planet
-			adjEntry adj;
-			forall_adj(adj, minNode) {
+			for(adjEntry adj : minNode->adjEdges) {
 				m_celestial[adj->twinNode()] = 2;
 				m_orbitalCenter[adj->twinNode()] = minNode;
 				m_distanceToOrbit[adj->twinNode()] = MLG.weight(adj->theEdge());
@@ -172,13 +158,12 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 		}
 	}
 
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		if (m_celestial[v] == 0) {
 			m_celestial[v] = 3;
-			adjEntry adj;
 			std::vector<adjEntry> planets;
 			node planet;
-			forall_adj(adj, v) {
+			for(adjEntry adj : v->adjEdges) {
 				planet = adj->twinNode();
 				if (m_celestial[planet] == 2) {
 					planets.push_back(adj);
@@ -203,8 +188,7 @@ void SolarMerger::buildAllLevels(MultilevelGraph &MLG)
 	if (m_massAsNodeRadius || !m_sunSelectionSimple) {
 		m_mass.init(G, 1);
 		m_radius.init(G);
-		node v;
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			m_radius[v] = MLG.radius(v);
 		}
 	}
@@ -219,8 +203,8 @@ void SolarMerger::buildAllLevels(MultilevelGraph &MLG)
 
 node SolarMerger::sunOf(node object)
 {
-	if (object == 0 || m_celestial[object] == 0) {
-		return 0;
+	if (object == nullptr || m_celestial[object] == 0) {
+		return nullptr;
 	}
 	if (m_celestial[object] == 1) {
 		return object;
@@ -258,18 +242,21 @@ double SolarMerger::distanceToSun(node object, MultilevelGraph &MLG)
 {
 	double dist = 0.0;
 
-	if (object == 0 || m_celestial[object] <= 1) {
+	if (object == nullptr || m_celestial[object] <= 1) {
 		return dist;
 	}
 
 	node center = m_orbitalCenter[object];
 	OGDF_ASSERT(center != 0);
 
+#ifdef OGDF_DEBUG
 	bool found = false;
-	adjEntry adj;
-	forall_adj(adj, object) {
+#endif
+	for(adjEntry adj : object->adjEdges) {
 		if (adj->twinNode() == center) {
+#ifdef OGDF_DEBUG
 			found = true;
+#endif
 			dist = MLG.weight(adj->theEdge());
 			OGDF_ASSERT(dist > 0);
 			break;
@@ -283,8 +270,7 @@ double SolarMerger::distanceToSun(node object, MultilevelGraph &MLG)
 
 void SolarMerger::findInterSystemPaths(Graph &G, MultilevelGraph &MLG)
 {
-	edge e;
-	forall_edges(e, G) {
+	for (edge e : G.edges) {
 		node source = e->source();
 		node target = e->target();
 		if (sunOf(source) != sunOf(target)) {
@@ -299,14 +285,14 @@ void SolarMerger::findInterSystemPaths(Graph &G, MultilevelGraph &MLG)
 				double dist = distanceToSun(src, MLG);
 				m_pathDistances[src].push_back(PathData(sunOf(target)->index(), dist / len, 1));
 				src = m_orbitalCenter[src];
-			} while(src != 0);
+			} while (src != nullptr);
 
 			node tgt = target;
 			do {
 				double dist = distanceToSun(tgt, MLG);
 				m_pathDistances[tgt].push_back(PathData(sunOf(source)->index(), dist / len, 1));
 				tgt = m_orbitalCenter[tgt];
-			} while(tgt != 0);
+			} while (tgt != nullptr);
 		}
 	}
 }
@@ -323,7 +309,7 @@ bool SolarMerger::buildOneLevel(MultilevelGraph &MLG)
 		return false;
 	}
 
-	m_orbitalCenter.init(G, 0);
+	m_orbitalCenter.init(G, nullptr);
 	m_distanceToOrbit.init(G, 1.0);
 	m_pathDistances.init(G, std::vector<PathData>());
 	m_celestial.init(G, 0);
@@ -337,15 +323,14 @@ bool SolarMerger::buildOneLevel(MultilevelGraph &MLG)
 
 	findInterSystemPaths(G, MLG);
 
-	for(std::vector<node>::iterator i = suns.begin(); i != suns.end(); i++) {
-		if (!collapsSolarSystem(MLG, *i, level)) {
+	for (node v : suns) {
+		if (!collapsSolarSystem(MLG, v, level)) {
 			return false;
 		}
 	}
 
 	NodeMerge * lastMerge = MLG.getLastMerge();
-	edge e;
-	forall_edges(e, G) {
+	for (edge e : G.edges) {
 		node source = e->source();
 		node target = e->target();
 		if (target->index() < source->index())
@@ -378,8 +363,7 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 
 	OGDF_ASSERT(m_celestial[sun] == 1)
 
-	adjEntry adj;
-	forall_adj(adj, sun) {
+	for(adjEntry adj : sun->adjEdges) {
 #ifdef OGDF_DEBUG
 		node planet = adj->twinNode();
 #endif
@@ -387,12 +371,11 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 		OGDF_ASSERT(m_orbitalCenter[planet] == sun)
 		systemNodes.push_back(adj->twinNode());
 	}
-	forall_adj(adj, sun) {
+	for(adjEntry adj : sun->adjEdges) {
 		node planet = adj->twinNode();
 		OGDF_ASSERT(m_celestial[planet] == 2)
 		OGDF_ASSERT(m_orbitalCenter[planet] == sun)
-		adjEntry adj2;
-		forall_adj(adj2, planet) {
+		for(adjEntry adj2 : planet->adjEdges) {
 			node moon = adj2->twinNode();
 			if(m_celestial[moon] == 3 && m_orbitalCenter[moon] == planet) {
 				systemNodes.push_back(moon);
@@ -401,13 +384,13 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 	}
 
 	if (m_massAsNodeRadius || !m_sunSelectionSimple) {
-		for(std::vector<node>::iterator i = systemNodes.begin(); i != systemNodes.end(); i++) {
-			mass += m_mass[*i];
+		for(node v : systemNodes) {
+			mass += m_mass[v];
 		}
 		m_mass[sun] = mass;
 	}
 
-	for(std::vector<node>::iterator i = systemNodes.begin(); i != systemNodes.end(); i++) {
+	for(std::vector<node>::iterator i = systemNodes.begin(); i != systemNodes.end(); ++i) {
 		node mergeNode = *i;
 
 		if (MLG.getNode(sun->index()) != sun
@@ -418,7 +401,7 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 
 		NodeMerge * NM = new NodeMerge(level);
 		std::vector<PathData> positions = m_pathDistances[mergeNode];
-		for (std::vector<PathData>::iterator j = positions.begin(); j != positions.end(); j++) {
+		for (std::vector<PathData>::iterator j = positions.begin(); j != positions.end(); ++j) {
 			NM->m_position.push_back(std::pair<int,double>((*j).targetSun, (*j).length));
 		}
 

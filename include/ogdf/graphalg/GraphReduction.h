@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of GraphReduction class
  *        reduces by Leaves & Chains.
@@ -55,11 +47,12 @@
 namespace ogdf {
 
 
-//---------------------------------------------------------
-// GraphReduction
-// kick leaves & chains
-// GraphReduction is read-only !!!
-//---------------------------------------------------------
+//! Creates a reduced graph by removing leaves, self-loops, and reducing chains.
+/**
+ * @ingroup graphs decomp
+ *
+ * GraphReduction is read-only !!!
+ */
 class OGDF_EXPORT GraphReduction : public Graph {
 protected:
 
@@ -70,7 +63,7 @@ protected:
 	NodeArray<node> m_vReduction; // corresponding node in graph copy
 	EdgeArray<edge> m_eReduction; // corresponding chain of edges in graph copy
 
-	GraphReduction() : m_vOrig(), m_eOrig(), m_vReduction(), m_eReduction() {}
+	GraphReduction() : m_pGraph(nullptr) { }
 
 public:
 	// construction
@@ -90,7 +83,7 @@ public:
 	// returns reduction of edge e
 	edge reduction(edge e) const { return m_eReduction[e]; }
 
-}; // class GraphCopy
+};
 
 
 } // end namespace ogdf

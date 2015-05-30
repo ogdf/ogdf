@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -63,9 +55,8 @@ void LpSub::initialize()
 	Array<LPVARSTAT::STATUS> lpVarStat(sub_->nVar());
 	Array<SlackStat::STATUS> slackStat(sub_->nCon());
 
-	Row   row(master_, sub_->nVar());                //!< buffer to store generated row
-	int         conNnz;                          //!< number of nonzeros of constraint \a c
-	int         c;                               //!< loop index
+	Row row(master_, sub_->nVar());	//!< buffer to store generated row
+	int c;							//!< loop index
 
 	// generate the row format of the active constraints
 	/* After the generation of the row format we allocate a row of
@@ -76,7 +67,8 @@ void LpSub::initialize()
 	const int nCon = sub_->nCon();
 
 	for (c = 0; c < nCon; c++) {
-		conNnz  = sub_->constraint(c)->genRow(sub_->actVar(), row);
+		// number of nonzeros of constraint \a c
+		int conNnz  = sub_->constraint(c)->genRow(sub_->actVar(), row);
 		rows[nRow] = new Row(master_, conNnz);
 		rows[nRow]->copy(row);
 		slackStat[nRow] = sub_->slackStat(c)->status();
@@ -153,14 +145,13 @@ void LpSub::initialize()
 	*   \a LP, the constraint is memorized in \a infeasCons_.
 	*/
 	ArrayBuffer<int> delVar(sub_->nVar(),false); //!< buffer of deletable components of row format
-	double            rhsDelta;  //!< correction of right hand side due to eliminations
 	InfeasCon::INFEAS infeas;    //!< infeasibility mode (TooLarge, TooSmall)
 
 	for (c = 0; c < nCon; c++) {
 
 		// eliminate the variables from the constraint
 		delVar.clear();
-		rhsDelta = 0.0;
+		double rhsDelta = 0.0; // correction of right hand side due to eliminations
 		const int rNnz = rows[c]->nnz();
 		for(int i = 0; i < rNnz; i++)
 			if(marked[rows[c]->support(i)]) {
@@ -193,15 +184,15 @@ void LpSub::constraint2row(
 	ArrayBuffer<Constraint*> &cons,
 	ArrayBuffer<Row*> &rows)
 {
-	int   conNnz;                      //!< number of nonzero elements in constraint
 	Row   rowBuf(master_, sub_->nVar());  //!< dummy to generate row
-	Row  *row;                         //!< pointer to the new row
 
 	const int nCons = cons.size();
 
 	for (int c = 0; c < nCons; c++) {
-		conNnz = cons[c]->genRow(sub_->actVar(), rowBuf);
-		row = new Row(master_, conNnz);
+		// number of nonzero elements in constraint
+		int conNnz = cons[c]->genRow(sub_->actVar(), rowBuf);
+		// pointer to the new row
+		Row  *row = new Row(master_, conNnz);
 		row->copy(rowBuf);
 		rows.push(row);
 		rowBuf.clear();
@@ -274,7 +265,6 @@ void LpSub::removeVars(ArrayBuffer<int> &vars)
 	// LpSub::removeVars(): local variables
 	ArrayBuffer<int>       lpVars(vars.size(),false);   //!< indices in \a LP of removed variables
 	Array<double>     rhsDelta(0,sub_->nCon()-1, 0.0);  //!< changes of right hand side
-	int               lpName;                        //!< name of variable in the \a LP
 	double            coeff;
 	Variable      *v;
 	bool              modifyRhs = false;
@@ -295,7 +285,8 @@ void LpSub::removeVars(ArrayBuffer<int> &vars)
 	const int nVars = vars.size();
 
 	for (int i = 0; i < nVars; i++) {
-		lpName = orig2lp_[vars[i]];
+		// name of variable in the \a LP
+		int lpName = orig2lp_[vars[i]];
 		if (lpName == -1) {
 			//! remove eliminated variable
 			valueAdd_  += sub_->variable(i)->obj() * elimVal(i);
@@ -418,7 +409,6 @@ void LpSub::addCons(ArrayBuffer<Constraint*> &newCons)
 	// LpSub::addCons(): local variables
 	ArrayBuffer<Row*> newRows(newCons.size(),false);  //!< the new constraints in row format
 	ArrayBuffer<int> delVar(sub_->nVar(),false); //!< buffer of deletable components of row format
-	double            rhsDelta;  //!< correction of right hand side
 	InfeasCon::INFEAS infeas;    //!< infeasibility mode (TooLarge, TooSmall)
 
 	Row *nr;
@@ -436,7 +426,7 @@ void LpSub::addCons(ArrayBuffer<Constraint*> &newCons)
 	for (int c = 0; c < nNewRows; c++) {
 		//! eliminate variables in constraint \a c
 		delVar.clear();
-		rhsDelta = 0.0;
+		double rhsDelta = 0.0; //!< correction of right hand side
 		nr       = newRows[c];
 		const int nrNnz = nr->nnz();
 		for(int i = 0; i < nrNnz; i++)
@@ -479,13 +469,12 @@ void LpSub::addVars(
 	bool modifyRhs = false;  //!< if \a true the modification of rhs required
 	int oldNCol = trueNCol();
 	int n = trueNCol();
-	Variable *v;
 
 	// divide the added variables in eliminable and non-eliminable ones
 	int nVariables = vars.size();
 
 	for (int i = 0; i < nVariables; i++) {
-		v = vars[i];
+		Variable *v = vars[i];
 		if(fsVarStat[i]->fixedOrSet()) {
 			if (eliminable(i)) {
 				//! the new variable is eliminated
@@ -534,12 +523,11 @@ void LpSub::addVars(
 	ArrayBuffer<Column*> newCols(vars.size(),false);
 	//!< new columns added to the constraint matrix
 	Column colBuf(master_, nRow());  //!< buffer for generated columns
-	Column *col;
 
 	nVariables = vars.size();
 	for(int i = 0; i < nVariables; i++) {
 		vars[i]->genColumn(sub_->actCon(), colBuf);
-		col = new Column(master_, colBuf.nnz());
+		Column *col = new Column(master_, colBuf.nnz());
 		col->copy(colBuf);
 		col->obj(colBuf.obj());
 		col->uBound(colBuf.uBound());

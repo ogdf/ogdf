@@ -2283,7 +2283,7 @@ int CoinMpsIO::readMps(int & numberSets,CoinSet ** &sets)
 	    }
 	    break;
 	  } else {
-	    gotBound = true;;
+	    gotBound = true;
 	    strcpy ( lastColumn, cardReader_->columnName (  ) );
 	    // save name of section
 	    free(boundName_);

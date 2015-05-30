@@ -1,11 +1,3 @@
-/*
- * $Revision: 3432 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Tutte's algorithm
  *
@@ -70,6 +62,10 @@
 
 namespace ogdf {
 
+//! Tutte's method for graph layout.
+/**
+ * @ingroup gd-energy
+ */
 class OGDF_EXPORT TutteLayout : public LayoutModule
 {
 #ifndef USE_COIN
@@ -94,9 +90,9 @@ public:
 		m_bbox = bb;
 	}
 
-	void call(GraphAttributes &AG);
+	virtual void call(GraphAttributes &AG) override;
 	void call(GraphAttributes &AG, const List<node> &givenNodes);
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 private:
 

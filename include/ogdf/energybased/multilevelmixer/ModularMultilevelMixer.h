@@ -1,11 +1,3 @@
-/*
- * $Revision: 3432 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 12:20:23 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief MMM is a Multilevel Graph drawing Algorithm that can use different modules.
  *
@@ -56,8 +48,9 @@
 
 namespace ogdf {
 
+//! Modular multilevel graph layout.
 /**
- * \brief Modular multilevel graph layout.
+ * @ingroup gd-multi
  *
  * <H3>%Module options</H3>
  * The various phases of the algorithm can be exchanged by setting

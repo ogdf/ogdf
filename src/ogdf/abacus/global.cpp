@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /*!\file
 * \author Matthias Elf
 *
@@ -82,7 +74,7 @@ void AbacusGlobal::readParameters(const string &fileName)
 
 	// open the parameter file \a fileName
 	/* CHANGED  ifstream paramFile(fileName, ios::in \a  ios::nocreate);*/
-	ifstream paramFile(OGDF_STRING_OPEN(fileName), ios::in);
+	ifstream paramFile(fileName, ios::in);
 
 	if (!paramFile) {
 		Logger::ifout() << "AbacusGlobal::readParameters(): opening file " << fileName << " failed\n";
@@ -410,7 +402,7 @@ int AbacusGlobal::getParameter(const char *name, int &parameter) const
 	const string  nameString(name);
 
 	const string *s = paramTable_.find(nameString);
-	if  (s == 0)
+	if  (s == nullptr)
 		return 1;
 	else {
 		//parameter = s->ascii2int();
@@ -425,7 +417,7 @@ int AbacusGlobal::getParameter(const char *name, unsigned int &parameter) const
 	const string  nameString(name);
 
 	const string *s = paramTable_.find(nameString);
-	if  (s == 0)
+	if  (s == nullptr)
 		return 1;
 	else {
 		//parameter = s->ascii2unsignedint();
@@ -440,7 +432,7 @@ int AbacusGlobal::getParameter(const char *name, double &parameter) const
 	const string  nameString(name);
 
 	const string *s = paramTable_.find(nameString);
-	if  (s == 0)
+	if  (s == nullptr)
 		return 1;
 	else {
 		//parameter = s->ascii2double();
@@ -455,7 +447,7 @@ int AbacusGlobal::getParameter(const char *name, string &parameter) const
 	const string  nameString(name);
 
 	const string *s = paramTable_.find(nameString);
-	if  (s == 0)
+	if  (s == nullptr)
 		return 1;
 	else {
 		parameter = *s;
@@ -469,7 +461,7 @@ int AbacusGlobal::getParameter(const char *name, bool &parameter) const
 	const string  nameString(name);
 
 	const string *s = paramTable_.find(nameString);
-	if  (s == 0)
+	if  (s == nullptr)
 		return 1;
 	else {
 		parameter = ascii2bool(*s);
@@ -483,7 +475,7 @@ int AbacusGlobal::getParameter(const char *name, char &parameter) const
 	const string  nameString(name);
 
 	const string *s = paramTable_.find(nameString);
-	if  (s == 0)
+	if  (s == nullptr)
 		return 1;
 	else {
 		parameter = (s->size() > 0) ? (*s)[0] : '\0';

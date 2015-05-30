@@ -1,11 +1,3 @@
-/*
- * $Revision: 2583 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the class ExtractKuratowskis
  *
@@ -66,7 +58,7 @@ class OGDF_EXPORT DynamicBacktrack {
 				const EdgeArray<int>& flags)
 				:	m_flags(flags),
 					m_dfi(dfi),
-					m_parent(g,NULL) {
+					m_parent(g,nullptr) {
 		}
 
 		//! Reinitializes backtracking with new constraints. All paths will be traversed again.
@@ -133,7 +125,7 @@ class OGDF_EXPORT DynamicBacktrack {
 		//! Saves the parent edge for each node in path
 		NodeArray<adjEntry> m_parent;
 
-		//! Backtracking stack. A NULL-element indicates a return from a child node
+		//! Backtracking stack. A nullptr-element indicates a return from a child node
 		StackPure<adjEntry> stack;
 };
 
@@ -178,7 +170,10 @@ class OGDF_EXPORT KuratowskiWrapper {
 };
 
 //! Extracts multiple Kuratowski Subdivisions
-/** \pre Graph has to be simple.
+/**
+ * @ingroup ga-planarity
+ *
+ * \pre Graph has to be simple.
  */
 class ExtractKuratowskis {
 	public:

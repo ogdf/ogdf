@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Abstract InitialPlacer places the nodes of the level into the next.
  *
@@ -52,6 +44,10 @@
 
 namespace ogdf {
 
+//! Base class for placer modules.
+/**
+ * @ingroup gd-multi
+ */
 class OGDF_EXPORT InitialPlacer
 {
 protected:

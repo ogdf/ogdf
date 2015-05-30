@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of a line buffer serving the class XmlScanner
  *
@@ -86,9 +78,11 @@ namespace ogdf {
 	//
 	void LineBufferPosition::set(int lineNumber, int lineUpdateCount, int linePosition)
 	{
-		OGDF_ASSERT((lineNumber >= 0) && (lineNumber < LineBuffer::c_maxNoOfLines))
-		OGDF_ASSERT(lineUpdateCount >= 0)
-		OGDF_ASSERT((linePosition >= 0) && (linePosition < LineBuffer::c_maxLineLength))
+		OGDF_ASSERT(lineNumber >= 0);
+		OGDF_ASSERT(lineNumber < LineBuffer::c_maxNoOfLines);
+		OGDF_ASSERT(lineUpdateCount >= 0);
+		OGDF_ASSERT(linePosition >= 0);
+		OGDF_ASSERT(linePosition < LineBuffer::c_maxLineLength);
 
 		m_lineNumber = lineNumber;
 		m_lineUpdateCount = lineUpdateCount;
@@ -103,7 +97,8 @@ namespace ogdf {
 	{
 		++m_linePosition;
 
-		OGDF_ASSERT((m_linePosition >= 0) && (m_linePosition < LineBuffer::c_maxLineLength))
+		OGDF_ASSERT(m_linePosition >= 0);
+		OGDF_ASSERT(m_linePosition < LineBuffer::c_maxLineLength);
 
 	} // increasePosition
 
@@ -126,7 +121,7 @@ namespace ogdf {
 	//
 	// o p e r a t o r =
 	//
-	const LineBufferPosition &
+	LineBufferPosition &
 	LineBufferPosition::operator=(const LineBufferPosition &position)
 	{
 		if (&position != this){
@@ -150,7 +145,7 @@ namespace ogdf {
 	//
 	LineBuffer::LineBuffer(istream &is) :
 		m_pIs(&is),
-		m_pLinBuf(0),
+		m_pLinBuf(nullptr),
 		m_numberOfMostRecentlyReadLine(0),
 		m_inputFileLineCounter(0)
 	{
@@ -168,7 +163,7 @@ namespace ogdf {
 
 		// Create and initialize line buffer
 		m_pLinBuf = new char[(LineBuffer::c_maxNoOfLines * LineBuffer::c_maxLineLength)];
-		if (m_pLinBuf == 0)
+		if (m_pLinBuf == nullptr)
 			OGDF_THROW(InsufficientMemoryException);
 		for (i = 0; i < LineBuffer::c_maxNoOfLines * LineBuffer::c_maxLineLength; i++){
 			m_pLinBuf[i] = '0';

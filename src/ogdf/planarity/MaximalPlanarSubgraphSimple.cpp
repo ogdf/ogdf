@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class MaximalPlanarSubgraphSimple.
  *
@@ -88,16 +80,13 @@ Module::ReturnType MaximalPlanarSubgraphSimple::doCall(
 	Graph H;
 	NodeArray<node> mapToH(G);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		mapToH[v] = H.newNode();
 
 	EdgeArray<bool> visited(G,false);
 
-	ListConstIterator<edge> it;
-	for(it = preferedEdges.begin(); it.valid(); ++it)
+	for(edge eG : preferedEdges)
 	{
-		edge eG = *it;
 		visited[eG] = true;
 
 		edge eH = H.newEdge(mapToH[eG->source()],mapToH[eG->target()]);
@@ -108,8 +97,7 @@ Module::ReturnType MaximalPlanarSubgraphSimple::doCall(
 		}
 	}
 
-	edge eG;
-	forall_edges(eG,G)
+	for(edge eG : G.edges)
 	{
 		if(visited[eG] == true)
 			continue;

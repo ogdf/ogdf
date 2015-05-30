@@ -1,11 +1,3 @@
-/*
- * $Revision: 3949 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-03 01:25:50 +0100 (Mon, 03 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief The algorithm computes a planar embedding with minimum
  * depth if the embedding for all blocks of the graph is given.
@@ -57,13 +49,16 @@ namespace ogdf {
 
 //! Planar graph embedding with minimum block-nesting depth for given embedded blocks.
 /**
+ * @ingroup ga-planembed
+ *
  * For details see the paper "Minimum Depth Graph Drawing" by M. Pizzonia and R. Tamassia.
  */
 class OGDF_EXPORT EmbedderMinDepthPiTa : public EmbedderModule
 {
 public:
 	//constructor
-	EmbedderMinDepthPiTa() : m_useExtendedDepthDefinition(true) { }
+	EmbedderMinDepthPiTa()
+		: m_useExtendedDepthDefinition(true), pBCTree(nullptr), pAdjExternal(nullptr), pm_blockCutfaceTree(nullptr) {}
 
 	/**
 	 * \brief Computes an embedding of \a G.
@@ -71,7 +66,7 @@ public:
 	 * \param G is the original graph.
 	 * \param adjExternal is assigned an adjacency entry on the external face.
 	 */
-	void call(Graph& G, adjEntry& adjExternal);
+	virtual void call(Graph& G, adjEntry& adjExternal) override;
 
 	bool useExtendedDepthDefinition() const { return m_useExtendedDepthDefinition; }
 	void useExtendedDepthDefinition(bool b) { m_useExtendedDepthDefinition = b; }

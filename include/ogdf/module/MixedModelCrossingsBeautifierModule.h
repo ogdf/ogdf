@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for mixed-model crossings
  * beautifier algorithms
@@ -119,7 +111,7 @@ class MMDummyCrossingsBeautifier : public MixedModelCrossingsBeautifierModule
 {
 protected:
 	//!< Dummy implementation.
-	void doCall(const PlanRep &, GridLayout &, const List<node> &) { }
+	virtual void doCall(const PlanRep &, GridLayout &, const List<node> &) override { }
 };
 
 

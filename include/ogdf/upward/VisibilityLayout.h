@@ -1,11 +1,3 @@
-/*
- * $Revision: 2524 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-03 09:54:22 +0200 (Tue, 03 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of visibility layout algorithm.
  *
@@ -73,7 +65,7 @@ public:
 		m_upPlanarizer.set(new SubgraphUpwardPlanarizer());
 	}
 
-	virtual void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	void layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig);
 

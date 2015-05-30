@@ -1,11 +1,3 @@
-/*
- * $Revision: 3417 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-18 10:27:30 +0200 (Thu, 18 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of FixedEmbeddingInserterUML class
  *
@@ -96,7 +88,7 @@ namespace ogdf {
 		PlanRepLight              &pr,
 		const Array<edge>         &origEdges,
 		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<__uint32> *pEdgeSubgraph)
+		const EdgeArray<uint32_t> *pEdgeSubgraph)
 	{
 		FixEdgeInserterUMLCore core(pr, pCostOrig, pEdgeSubgraph);
 		core.timeLimit(timeLimit());

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3974 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-24 21:25:00 +0100 (Mon, 24 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class UmlToGraphConverter
  *
@@ -59,7 +51,8 @@ namespace ogdf {
 		initializePredefinedInfoIndices();
 
 		// Create the parse tree
-		m_xmlParser->createParseTree();
+		if(m_xmlParser->createParseTree() == false)
+			return; // parse error
 
 		// Create the uml model graph
 		m_modelGraph = new UmlModelGraph();
@@ -90,19 +83,17 @@ namespace ogdf {
 	UmlToGraphConverter::~UmlToGraphConverter()
 	{
 		// Delete diagram graphs in UMLGraph format
-		SListConstIterator<UMLGraph*> umlgIt;
-		for (umlgIt = m_diagramGraphsInUMLGraphFormat.begin(); umlgIt.valid(); ++umlgIt){
-			const Graph & associatedGraph = (const Graph &)(**umlgIt);
-			delete *umlgIt;
+		for (UMLGraph *umlg : m_diagramGraphsInUMLGraphFormat) {
+			const Graph & associatedGraph = (const Graph &)(*umlg);
+			delete umlg;
 			delete &associatedGraph;
 		}
 		m_diagramGraphsInUMLGraphFormat.clear();
 
 
 		// Delete diagram graphs
-		SListConstIterator<UmlDiagramGraph*> dgIt;
-		for (dgIt = m_diagramGraphs.begin(); dgIt.valid(); ++dgIt){
-			delete *dgIt;
+		for (UmlDiagramGraph *dg : m_diagramGraphs) {
+			delete dg;
 		}
 		m_diagramGraphs.clear();
 
@@ -174,17 +165,15 @@ namespace ogdf {
 	void UmlToGraphConverter::printDiagramsInUMLGraphFormat(ofstream &os)
 	{
 		// Traverse diagrams
-		SListConstIterator<UMLGraph*> diagramIt;
-		for (diagramIt = m_diagramGraphsInUMLGraphFormat.begin(); diagramIt.valid(); ++diagramIt)
+		for (UMLGraph *diagram : m_diagramGraphsInUMLGraphFormat)
 		{
 			// Get underlying graphs
-			const Graph &G = (const Graph &)**diagramIt;
-			const GraphAttributes &AG = **diagramIt;
+			const Graph &G = (const Graph &)*diagram;
+			const GraphAttributes &AG = *diagram;
 
 			// Nodes
 			os << "Classes:" << endl;
-			NodeElement *v;
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 			{
 				os << "\t" << AG.label(v);
 
@@ -198,9 +187,8 @@ namespace ogdf {
 			}
 
 			// Edges
-			EdgeElement *e;
 			os << "Relations:" << endl;
-			forall_edges(e,G)
+			for(edge e : G.edges)
 			{
 				os << "\t";
 
@@ -309,9 +297,9 @@ namespace ogdf {
 		//       This is currently not detected.
 
 		// Identify contained packages (<UML:Package>)
-		const XmlTagObject *packageSon = 0;
+		const XmlTagObject *packageSon = nullptr;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, umlPackage, packageSon);
-		while(packageSon != 0){
+		while(packageSon != nullptr){
 
 			// Create new name for the subpackage
 			const XmlAttributeObject *nameAttribute;
@@ -371,7 +359,7 @@ namespace ogdf {
 	{
 		const XmlTagObject *classifierSon;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, desiredClassifier, classifierSon);
-		while (classifierSon != 0){
+		while (classifierSon != nullptr){
 
 			// Use the infoIndex of value of attribute xmi.id as reference to the node
 			// it is unique for each classifier and is used to reference it in the
@@ -409,7 +397,7 @@ namespace ogdf {
 			nodeNameString += nodeName->key();
 
 			// Check if node already exists
-			if (m_idToNode.lookup(nodeId) != 0){
+			if (m_idToNode.lookup(nodeId) != nullptr){
 
 				// Error: Node already exists
 				return false;
@@ -445,7 +433,7 @@ namespace ogdf {
 		// Identify contained packages (<UML:Package>)
 		const XmlTagObject *packageSon;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, umlPackage, packageSon);
-		while (packageSon != 0){
+		while (packageSon != nullptr){
 
 			// Find son umlNamespaceOwnedElement
 			// if nonexistent then continue
@@ -469,10 +457,10 @@ namespace ogdf {
 		// Find all associations (<UML:Association>)
 		const XmlTagObject *associationSon;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, umlAssociation, associationSon);
-		while (associationSon != 0){
+		while (associationSon != nullptr){
 
 			// Find out the reference number of this edge
-			const XmlAttributeObject *edgeIdAttr = 0;
+			const XmlAttributeObject *edgeIdAttr = nullptr;
 			m_xmlParser->findXmlAttributeObject(*associationSon, xmiId, edgeIdAttr);
 			int edgeId = edgeIdAttr->m_pAttributeValue->info();
 
@@ -556,13 +544,13 @@ namespace ogdf {
 		// Identify contained packages (<UML:Package>)
 		const XmlTagObject *packageSon;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, umlPackage, packageSon);
-		while (packageSon != 0){
+		while (packageSon != nullptr){
 
 			// Find son umlNamespaceOwnedElement
 			// if nonexistent then continue
 			const XmlTagObject *newRootTag;
 			m_xmlParser->findSonXmlTagObject(*packageSon, umlNamespaceOwnedElement, newRootTag);
-			if (newRootTag != 0){
+			if (newRootTag != nullptr){
 
 				// Call this function recursively
 				if (!traversePackagesAndInsertGeneralizationEdges(*newRootTag, modelGraph))
@@ -580,25 +568,25 @@ namespace ogdf {
 		// Find all classes (<UML:Class>)
 		const XmlTagObject *classSon;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, umlClass, classSon);
-		while (classSon != 0){
+		while (classSon != nullptr){
 
 			Array<int> path(2);
 			path[0] = umlNamespaceOwnedElement;
 			path[1] = umlGeneralization;
-			const XmlTagObject *generalizationTag = 0;
+			const XmlTagObject *generalizationTag = nullptr;
 
 			// Found a <UML:Generalization> tag
 			if (m_xmlParser->traversePath(*classSon, path, generalizationTag)){
 
 				// Find out the reference number of this edge
-				const XmlAttributeObject *edgeIdAttr = 0;
+				const XmlAttributeObject *edgeIdAttr = nullptr;
 				m_xmlParser->findXmlAttributeObject(*generalizationTag, xmiId, edgeIdAttr);
 				int edgeId = edgeIdAttr->m_pAttributeValue->info();
 
 				// Find child and parent attributes
-				const XmlAttributeObject *childAttr = 0;
+				const XmlAttributeObject *childAttr = nullptr;
 				m_xmlParser->findXmlAttributeObject(*generalizationTag, child, childAttr);
-				const XmlAttributeObject *parentAttr = 0;
+				const XmlAttributeObject *parentAttr = nullptr;
 				m_xmlParser->findXmlAttributeObject(*generalizationTag, parent, parentAttr);
 
 				// Something wrong
@@ -653,21 +641,21 @@ namespace ogdf {
 														UmlModelGraph &modelGraph)
 	{
 		// Find first dependency tag (<UML:Dependency>)
-		const XmlTagObject *currentDependencyTag = 0;
+		const XmlTagObject *currentDependencyTag = nullptr;
 		m_xmlParser->findSonXmlTagObject(currentRootTag, umlDependency, currentDependencyTag);
 
 		// Find all dependencys
-		while (currentDependencyTag != 0){
+		while (currentDependencyTag != nullptr){
 
 			// Find out the reference number of this edge
-			const XmlAttributeObject *edgeIdAttr = 0;
+			const XmlAttributeObject *edgeIdAttr = nullptr;
 			m_xmlParser->findXmlAttributeObject(*currentDependencyTag, xmiId, edgeIdAttr);
 			int edgeId = edgeIdAttr->m_pAttributeValue->info();
 
 			// Find client and supplier attributes
-			const XmlAttributeObject *clientAttr = 0;
+			const XmlAttributeObject *clientAttr = nullptr;
 			m_xmlParser->findXmlAttributeObject(*currentDependencyTag, client, clientAttr);
-			const XmlAttributeObject *supplierAttr = 0;
+			const XmlAttributeObject *supplierAttr = nullptr;
 			m_xmlParser->findXmlAttributeObject(*currentDependencyTag, supplier, supplierAttr);
 
 			// Something wrong
@@ -722,11 +710,10 @@ namespace ogdf {
 	{
 		size_t strIndex = 0;
 		char tempString[20];
-		int tempStringIndex = 0;
 
 		for (int i = 0; i < 4; i++){
 
-			tempStringIndex = 0;
+			int tempStringIndex = 0;
 
 			// Skip whitespace
 			while (isspace(str[strIndex])){
@@ -783,26 +770,26 @@ namespace ogdf {
 		Array<int> path(2);
 		path[0] = xmiContent;
 		path[1] = umlDiagram;
-		const XmlTagObject *currentDiagramTag = 0;
+		const XmlTagObject *currentDiagramTag = nullptr;
 		m_xmlParser->traversePath(m_xmlParser->getRootTag(), path, currentDiagramTag);
 
 		// Traverse diagrams
-		while (currentDiagramTag != 0){
+		while (currentDiagramTag != nullptr){
 
 			// Find out name of the diagram
-			const XmlAttributeObject *nameAttr = 0;
+			const XmlAttributeObject *nameAttr = nullptr;
 			m_xmlParser->findXmlAttributeObject(*currentDiagramTag, name, nameAttr);
 			string diagramName("");
-			if (nameAttr != 0){
+			if (nameAttr != nullptr){
 				diagramName = nameAttr->m_pAttributeValue->key();
 			}
 
 			// Find out type of the diagram
-			const XmlAttributeObject *diagramTypeAttr = 0;
+			const XmlAttributeObject *diagramTypeAttr = nullptr;
 			m_xmlParser->findXmlAttributeObject(*currentDiagramTag, diagramType, diagramTypeAttr);
 
 			// No diagramTypeAttribute found --> we continue with the next diagram
-			if (diagramTypeAttr == 0){
+			if (diagramTypeAttr == nullptr){
 
 				// Next diagram
 				m_xmlParser->findBrotherXmlTagObject(*currentDiagramTag, umlDiagram, currentDiagramTag);
@@ -843,11 +830,11 @@ namespace ogdf {
 
 
 			// First pass the <UML:Diagram.element> tag
-			const XmlTagObject *rootDiagramElementTag = 0;
+			const XmlTagObject *rootDiagramElementTag = nullptr;
 			m_xmlParser->findSonXmlTagObject(*currentDiagramTag, rootUmlDiagramElement, rootDiagramElementTag);
 
 			// No such tag found --> we continue with the next diagram
-			if (rootDiagramElementTag == 0){
+			if (rootDiagramElementTag == nullptr){
 
 				// Next diagram
 				m_xmlParser->findBrotherXmlTagObject(*currentDiagramTag, umlDiagram, currentDiagramTag);
@@ -855,20 +842,20 @@ namespace ogdf {
 			}
 
 			// Now investigate the diagram elements
-			const XmlTagObject *currentDiagramElementTag = 0;
+			const XmlTagObject *currentDiagramElementTag = nullptr;
 			m_xmlParser->findSonXmlTagObject(*rootDiagramElementTag, umlDiagramElement, currentDiagramElementTag);
 
 			// Traverse all diagram elements (<UML:DiagramElement>)
-			while (currentDiagramElementTag != 0){
+			while (currentDiagramElementTag != nullptr){
 
 				// We have to investigate the subject attribute which contains the
 				// reference number of the represented element; then we can check if
 				// a node or edge with this reference exists
-				const XmlAttributeObject *subjectAttr = 0;
+				const XmlAttributeObject *subjectAttr = nullptr;
 				m_xmlParser->findXmlAttributeObject(*currentDiagramElementTag, subject, subjectAttr);
 
 				// Not found --> continue with the next diagram element
-				if (subjectAttr == 0){
+				if (subjectAttr == nullptr){
 
 					// Next diagram element
 					m_xmlParser->findBrotherXmlTagObject(*currentDiagramElementTag, umlDiagramElement, currentDiagramElementTag);
@@ -880,7 +867,7 @@ namespace ogdf {
 				int elementId = subjectAttr->m_pAttributeValue->info();
 
 				// Node exists for that reference
-				if (m_idToNode.lookup(elementId) != 0){
+				if (m_idToNode.lookup(elementId) != nullptr){
 
 					// Get hash element
 					HashElement<int,NodeElement*> *nodeHashElement = m_idToNode.lookup(elementId);
@@ -889,11 +876,11 @@ namespace ogdf {
 					NodeElement* geometricNode = nodeHashElement->info();
 
 					// Extract geometric information
-					const XmlAttributeObject *geometryAttr = 0;
+					const XmlAttributeObject *geometryAttr = nullptr;
 					m_xmlParser->findXmlAttributeObject(*currentDiagramElementTag, geometry, geometryAttr);
 
 					// Not found
-					if (geometryAttr == 0){
+					if (geometryAttr == nullptr){
 						break;
 					}
 
@@ -914,7 +901,7 @@ namespace ogdf {
 				else{
 
 					// Edge exists for that reference
-					if (m_idToEdge.lookup(elementId) != 0){
+					if (m_idToEdge.lookup(elementId) != nullptr){
 
 						// Get hash element
 						HashElement<int,EdgeElement*> *edgeHashElement = m_idToEdge.lookup(elementId);
@@ -962,12 +949,8 @@ namespace ogdf {
 		//cout << "Creating diagram graph(s) in UMLGraph format..." << endl;
 
 		// Traverse list of diagram graphs
-		SListConstIterator<UmlDiagramGraph*> diagramGraphIterator;
-		for (diagramGraphIterator = m_diagramGraphs.begin();
-			 diagramGraphIterator.valid();
-			 ++diagramGraphIterator)
+		for (UmlDiagramGraph *diagramGraph : m_diagramGraphs)
 		{
-
 			// Mapping from the index of the existing node to the new nodeElement
 			Hashing<int, NodeElement*> indexToNewNode;
 
@@ -978,27 +961,25 @@ namespace ogdf {
 			Graph *graph = new Graph();
 
 			// Traverse list of nodes contained in the diagram
-			const SList<NodeElement*> diagramNodes = (*diagramGraphIterator)->getNodes();
-			SListConstIterator<NodeElement*> nodeIt;
-			for (nodeIt = diagramNodes.begin(); nodeIt.valid(); ++nodeIt)
+			const SList<NodeElement*> &diagramNodes = diagramGraph->getNodes();
+			for (node n : diagramNodes)
 			{
 				// Create a new "pendant" node for the existing	node
 				NodeElement *newNode = graph->newNode();
 
 				// Insert mapping from index of the existing node to the pendant node
 				// into hashtable
-				indexToNewNode.fastInsert((*nodeIt)->index(), newNode);
+				indexToNewNode.fastInsert(n->index(), newNode);
 
 			} // Traverse list of nodes contained in the diagram
 
 			// Traverse list of edges contained in the diagram
-			const SList<EdgeElement*> diagramEdges = (*diagramGraphIterator)->getEdges();
-			SListConstIterator<EdgeElement*> edgeIt;
-			for (edgeIt = diagramEdges.begin(); edgeIt.valid(); ++edgeIt)
+			const SList<EdgeElement*> &diagramEdges = diagramGraph->getEdges();
+			for (edge e : diagramEdges)
 			{
 				// Find out source and target of the edge
-				NodeElement *source = (*edgeIt)->source();
-				NodeElement *target = (*edgeIt)->target();
+				NodeElement *source = e->source();
+				NodeElement *target = e->target();
 
 				// Find pendant nodes
 				HashElement<int, NodeElement*> *sourceHashElement =
@@ -1013,7 +994,7 @@ namespace ogdf {
 
 				// Insert mapping from index of the existing edgeto the pendant edge
 				// into hashtable
-				indexToNewEdge.fastInsert((*edgeIt)->index(), newEdge);
+				indexToNewEdge.fastInsert(e->index(), newEdge);
 
 			} // Traverse list of edges contained in the diagram
 
@@ -1021,10 +1002,10 @@ namespace ogdf {
 			UMLGraph *umlGraph = new UMLGraph(*graph, GraphAttributes::nodeLabel);
 
 			// Now we want to add the geometry information and the node label
-			const SList<double> xList = (*diagramGraphIterator)->getX();
-			const SList<double> yList = (*diagramGraphIterator)->getY();
-			const SList<double> wList = (*diagramGraphIterator)->getWidth();
-			const SList<double> hList = (*diagramGraphIterator)->getHeight();
+			const SList<double> xList = diagramGraph->getX();
+			const SList<double> yList = diagramGraph->getY();
+			const SList<double> wList = diagramGraph->getWidth();
+			const SList<double> hList = diagramGraph->getHeight();
 			SListConstIterator<double> xIt, yIt, wIt, hIt;
 
 			// Traverse node list and geometry lists synchronously
@@ -1032,12 +1013,11 @@ namespace ogdf {
 			yIt = yList.begin();
 			wIt = wList.begin();
 			hIt = hList.begin();
-			nodeIt = diagramNodes.begin();
-			while (nodeIt.valid())
+			for(node n : diagramNodes)
 			{
 				// Get pendant node
 				HashElement<int, NodeElement*> *nodeHashElement =
-					indexToNewNode.lookup((*nodeIt)->index());
+					indexToNewNode.lookup(n->index());
 				NodeElement *pendantNode = nodeHashElement->info();
 
 				// Insert geometry information into umlGraph
@@ -1048,27 +1028,26 @@ namespace ogdf {
 
 				// Insert label
 				string &label = umlGraph->label(pendantNode);
-				label = m_modelGraph->getNodeLabel(*nodeIt);
+				label = m_modelGraph->getNodeLabel(n);
 
 				// Next iteration
 				++xIt;
 				++yIt;
 				++wIt;
 				++hIt;
-				++nodeIt;
 
 			} // Traverse node list and geometry lists synchronously
 
 			// Traverse list of edges contained in the diagram
-			for (edgeIt = diagramEdges.begin(); edgeIt.valid(); ++edgeIt)
+			for (edge e : diagramEdges)
 			{
 				// Find pendant edge
 				HashElement<int, EdgeElement*> *edgeHashElement =
-					indexToNewEdge.lookup((*edgeIt)->index());
+					indexToNewEdge.lookup(e->index());
 				EdgeElement *pendantEdge = edgeHashElement->info();
 
 				// Insert type information into umlGraph
-				umlGraph->type(pendantEdge) = m_modelGraph->type(*edgeIt);
+				umlGraph->type(pendantEdge) = m_modelGraph->type(e);
 
 			} // Traverse edge list and insert type information for the new edges.
 

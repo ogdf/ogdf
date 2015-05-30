@@ -1,11 +1,3 @@
-/*
- * $Revision: 2583 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief declaration of class MMVariableEmbeddingInserter
  *
@@ -63,6 +55,9 @@ class OGDF_EXPORT StaticPlanarSPQRTree;
 
 
 //! Minor-monotone edge insertion with variable embedding.
+/**
+ * @ingroup ga-insert
+ */
 class OGDF_EXPORT MMVariableEmbeddingInserter : public MMEdgeInsertionModule
 {
 public:
@@ -148,10 +143,10 @@ private:
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */
-	ReturnType doCall(
+	virtual ReturnType doCall(
 		PlanRepExpansion &PG,
 		const List<edge> &origEdges,
-		const EdgeArray<bool> *forbiddenEdgeOrig);
+		const EdgeArray<bool> *forbiddenEdgeOrig) override;
 
 	/**
 	 * \brief Collects all anchor nodes (including dummies) of a node.

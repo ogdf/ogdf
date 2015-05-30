@@ -1347,7 +1347,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
      if (doStatus) {
           // allow for status and solution
           sol_ = new double[ncols_];
-          CoinMemcpyN(si->primalColumnSolution(), ncols_, sol_);;
+          CoinMemcpyN(si->primalColumnSolution(), ncols_, sol_);
           acts_ = new double [nrows_];
           CoinMemcpyN(si->primalRowSolution(), nrows_, acts_);
           if (!si->statusArray())

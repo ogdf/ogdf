@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of class Layout
  *
@@ -57,16 +49,13 @@ void Layout::computePolyline(GraphCopy &GC, edge eOrig, DPolyline &dpl) const
 	OGDF_ASSERT(edgePath.size() >= 1);
 
 	// iterate over all edges in the corresponding edge path in the copy
-	ListConstIterator<edge> it;
-	edge e;
 	bool firstTime = true;
-	for(it = edgePath.begin(); it.valid(); ++it) {
-		e = *it;
+	for (edge e : edgePath) {
 		node v = e->source();
 
 		// append point of source node of e ...
 		if (!firstTime)
-			dpl.pushBack(DPoint(m_x[v],m_y[v]));
+			dpl.pushBack(DPoint(m_x[v], m_y[v]));
 		else
 			firstTime = false;
 
@@ -74,8 +63,8 @@ void Layout::computePolyline(GraphCopy &GC, edge eOrig, DPolyline &dpl) const
 		const DPolyline &segment = m_bends[e];
 		ListConstIterator<DPoint> itSeg;
 
-		for(itSeg = segment.begin(); itSeg.valid(); ++itSeg)
-			dpl.pushBack(*itSeg);
+		for (const DPoint &dp : segment)
+			dpl.pushBack(dp);
 	}
 }
 
@@ -93,25 +82,22 @@ void Layout::computePolylineClear(PlanRep &PG, edge eOrig, DPolyline &dpl)
 	OGDF_ASSERT(edgePath.size() >= 1);
 
 	// iterate over all edges in the corresponding edge path in the copy
-	ListConstIterator<edge> it;
-	edge e;
 	bool firstTime = true;
-	for(it = edgePath.begin(); it.valid(); ++it) {
-		e = *it;
+	for (edge e : edgePath) {
 		node v = e->source();
 
 		// append point of source node of e ...
 		if (!firstTime)
-			dpl.pushBack(DPoint(m_x[v],m_y[v]));
+			dpl.pushBack(DPoint(m_x[v], m_y[v]));
 		else
 			firstTime = false;
 
 		// ... and polyline of e
 		dpl.conc(m_bends[e]);
 	}
-	node w = e->target();
+	node w = edgePath.back()->target();
 	if (PG.typeOf(w) == Graph::generalizationExpander)
-		dpl.pushBack(DPoint(m_x[w],m_y[w]));
+		dpl.pushBack(DPoint(m_x[w], m_y[w]));
 }
 
 
@@ -131,18 +117,14 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 		if (maxY > maxHeight) maxHeight = maxY;
 
 		// check polylines of all (original) edges
-		adjEntry adj;
-		forall_adj(adj,vG) {
+		for(adjEntry adj : vG->adjEdges) {
 			if ((adj->index() & 1) == 0) continue;
 			edge eG = adj->theEdge();
 
 			const List<edge> &path = PG.chain(eG);
 
-			ListConstIterator<edge> itPath;
-			for(itPath = path.begin(); itPath.valid(); ++itPath)
+			for(edge e : path)
 			{
-				edge e = *itPath;
-
 				// we have to check (only) all interior points, i.e., we can
 				// omitt the first and last point since it lies in the box of
 				// the source or target node.
@@ -154,9 +136,8 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 				const DPolyline &dpl = bends(e);
 
 				ListConstIterator<DPoint> it;
-				for(it = dpl.begin(); it.valid(); ++it)
+				for(const DPoint &dp : dpl)
 				{
-					const DPoint &dp = *it;
 					if (dp.m_x > maxWidth ) maxWidth  = dp.m_x;
 					if (dp.m_y > maxHeight) maxHeight = dp.m_y;
 				}

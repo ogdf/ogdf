@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class BiconnectedShellingOrder which computes
  * a shelling order for a biconnected planar graph.
@@ -66,11 +58,7 @@ struct PairNodeItem
 	// constructor
 	PairNodeItem() { }
 
-	PairNodeItem(node v, ListIterator<PairFaceItem> it = ListIterator<PairFaceItem>())
-	{
-		m_v  = v;
-		m_it = it;
-	}
+	PairNodeItem(node v, ListIterator<PairFaceItem> it = ListIterator<PairFaceItem>()) : m_v(v), m_it(it) { }
 
 	node m_v;
 	ListIterator<PairFaceItem> m_it;
@@ -84,23 +72,11 @@ struct PairNodeItem
 struct PairFaceItem
 {
 	// constructor
-	PairFaceItem()
-	{
-		m_f  = 0;
-		m_it = 0;
-	}
+	PairFaceItem() : m_f(nullptr), m_it(nullptr) { }
 
-	PairFaceItem(face f)
-	{
-		m_f  = f;
-		m_it = 0;
-	}
+	PairFaceItem(face f) : m_f(f), m_it(nullptr) { }
 
-	PairFaceItem(face f, ListIterator<PairNodeItem> it)
-	{
-		m_f  = f;
-		m_it = it;
-	}
+	PairFaceItem(face f, ListIterator<PairNodeItem> it) : m_f(f), m_it(it) { }
 
 	face m_f;
 	ListIterator<PairNodeItem> m_it;
@@ -166,7 +142,7 @@ public:
 	node prev(node v) { return m_prev[v]; }
 
 	// returns true <=> f contains a virtual edge
-	bool cutv(face f) { return (m_virtSrc[f] != 0); }
+	bool cutv(face f) { return (m_virtSrc[f] != nullptr); }
 
 	// returns true <=> f is a possible next face, i.e
 	//   outv(f) >= 3 and outv(f) = oute(f)+1
@@ -326,20 +302,18 @@ private:
 void ComputeBicOrder::print()
 {
 	cout << "contour:\n";
-	node v;
-	for(v = m_vLeft; v != 0; v = m_next[v])
+	for(node v = m_vLeft; v != nullptr; v = m_next[v])
 		cout << " " << v << "[" << m_prev[v] << "," << m_prevPred[v] <<
 			" : " << m_next[v] << "," << m_nextSucc[v] <<
 			"; " << m_virtEdge[v] << "]\n";
 
 	cout << "node infos:\n";
-	forall_nodes(v,*m_pGraph)
+	for(node v : m_pGraph->nodes)
 		cout << v << ": deg = " << m_deg[v] << ", cutf = " << m_cutf[v] <<
 			", numsf = " << m_numsf[v] << endl;
 
 	cout << "face infos:\n";
-	face f;
-	forall_faces(f,*m_pEmbedding) {
+	for(face f : m_pEmbedding->faces) {
 		cout << f->index() << ": outv = " << m_outv[f] << ", oute = " <<
 			m_oute[f] << ", seqp = " << m_seqp[f] << ", isSF = " <<
 			m_isSf[f] << ", virtSrc = " << m_virtSrc[f] << endl;
@@ -358,21 +332,17 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 
 #ifdef OUTPUT_BSO
 	cout << "faces:" << endl;
-	face fh;
-	forall_faces(fh,E) {
+	for(face fh : E.faces) {
 		cout << fh->index() << ":";
-		adjEntry adj;
-		forall_face_adj(adj,fh)
+		for(adjEntry adj : fh->entries)
 			cout << " " << adj;
 		cout << endl;
 	}
 
 	cout << "adjacency lists:" << endl;
-	node vh;
-	forall_nodes(vh,G) {
+	for(node vh : G.nodes) {
 		cout << vh << ":";
-		adjEntry adj;
-		forall_adj(adj,vh)
+		for(adjEntry adj : vh->adjEdges)
 			cout << " " << adj;
 		cout << endl;
 	}
@@ -410,7 +380,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	m_outv       .init (E, 0);
 	m_oute       .init (E, 0);
 	m_seqp       .init (E, 0);
-	m_virtSrc    .init (E, 0);
+	m_virtSrc    .init (E, nullptr);
 	m_fLink      .init (E, ListIterator<face>());
 	m_fUpdate    .init (E, false);
 	m_isSf       .init (E, false);
@@ -420,8 +390,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	initVInFStruct(E);
 
 	// initialization of degree
-	node v, w;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		m_deg[v] = v->degree();
 
 	// initialization of m_onBase[v]
@@ -432,9 +401,8 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 
 	adj = m_adjLeft;
 	do {
-		v = adj->theNode();
-		adjEntry adj2;
-		forall_adj(adj2,v)
+		node v = adj->theNode();
+		for(adjEntry adj2 : v->adjEdges)
 		{
 			face f = E.rightFace(adj2);
 			if (f != m_extFace) {
@@ -449,16 +417,16 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 		m_oute[E.leftFace(adj)]++;
 
 	m_onOuter [m_vLeft] = true;
-	m_prevPred[m_vLeft] = m_nextSucc[m_vRight] = 0;
-	m_prev[m_vLeft] = m_next[m_vRight] = 0;
+	m_prevPred[m_vLeft] = m_nextSucc[m_vRight] = nullptr;
+	m_prev[m_vLeft] = m_next[m_vRight] = nullptr;
 	for (adj = m_adjLeft->faceCyclePred(); adj != m_adjRight; adj = adj->faceCyclePred())
 	{
-		v = adj->twinNode(); w = adj->theNode();
+		node v = adj->twinNode();
+		node w = adj->theNode();
 		m_onOuter[w] = true;
 		edgeToContour(adj);
 
-		adjEntry adj2;
-		forall_adj(adj2,w)
+		for(adjEntry adj2 : w->adjEdges)
 		{
 			face f = left(adj2);
 			if (vInF(v,f))
@@ -466,9 +434,9 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 		}
 	}
 
-	for (v = m_vLeft; v != 0; v = next(v))
+	for (node v = m_vLeft; v != nullptr; v = next(v))
 	{
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			face f = left(adj);
 			if ((m_isSf[f] = (m_outv[f] > m_seqp[f]+1)) == true)
 				++m_numsf[v];
@@ -479,7 +447,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 
 void ComputeBicOrder::setV1(ShellingOrderSet &V)
 {
-	V = ShellingOrderSet(m_baseLength, 0, 0);
+	V = ShellingOrderSet(m_baseLength, nullptr, nullptr);
 
 	int i;
 	adjEntry adj;
@@ -568,53 +536,48 @@ void ComputeBicOrder::initVInFStruct(const ConstCombinatorialEmbedding &E)
 	m_facesOf.init(G);
 	m_nodesOf.init(E);
 
-	face f;
-	forall_faces(f,E)
+	for (face f : E.faces)
 	{
-		adjEntry adj;
-		forall_face_adj(adj,f) {
+		for (adjEntry adj : f->entries) {
 			node v = adj->theNode();
 
 			ListIterator<PairFaceItem> it = m_facesOf[v].pushBack(PairFaceItem(f));
-			(*it).m_it = m_nodesOf[f].pushBack(PairNodeItem(v,it));
+			(*it).m_it = m_nodesOf[f].pushBack(PairNodeItem(v, it));
 		}
 	}
 
 	SListPure<node> smallV;
-	node v;
-	forall_nodes(v,G) {
+	for (node v : G.nodes) {
 		if (m_facesOf[v].size() <= 5)
 			smallV.pushBack(v);
 	}
 
 	SListPure<face> smallF;
-	forall_faces(f,E) {
+	for (face f : E.faces) {
 		if (m_nodesOf[f].size() <= 5)
 			smallF.pushBack(f);
 	}
 
-	for( ; ; )
+	for (;;)
 	{
 		if (!smallV.empty()) {
-			v = smallV.popFrontRet();
+			node v = smallV.popFrontRet();
 
-			ListIterator<PairFaceItem> it;
-			for(it = m_facesOf[v].begin(); it.valid(); ++it) {
-				PairFaceItem f_it = *it;
+			for (const PairFaceItem &f_it : m_facesOf[v]) {
 				m_nodesOf[f_it.m_f].del(f_it.m_it);
 				if (m_nodesOf[f_it.m_f].size() == 5)
 					smallF.pushBack(f_it.m_f);
 			}
-		} else if (!smallF.empty()) {
-			f = smallF.popFrontRet();
-			ListIterator<PairNodeItem> it;
-			for(it = m_nodesOf[f].begin(); it.valid(); ++it) {
-				PairNodeItem v_it = *it;
+		}
+		else if (!smallF.empty()) {
+			face f = smallF.popFrontRet();
+			for (const PairNodeItem &v_it : m_nodesOf[f]) {
 				m_facesOf[v_it.m_v].del(v_it.m_it);
 				if (m_facesOf[v_it.m_v].size() == 5)
 					smallV.pushBack(v_it.m_v);
 			}
-		} else
+		}
+		else
 			break;
 	}
 }
@@ -622,13 +585,11 @@ void ComputeBicOrder::initVInFStruct(const ConstCombinatorialEmbedding &E)
 
 bool ComputeBicOrder::vInF(node v, face f)
 {
-	ListIterator<PairNodeItem> itNI;
-	for(itNI = m_nodesOf[f].begin(); itNI.valid(); ++itNI)
-		if ((*itNI).m_v == v) return true;
+	for(const PairNodeItem &ni : m_nodesOf[f])
+		if (ni.m_v == v) return true;
 
-	ListIterator<PairFaceItem> itFI;
-	for(itFI = m_facesOf[v].begin(); itFI.valid(); ++itFI)
-		if ((*itFI).m_f == f) return true;
+	for(const PairFaceItem &fi : m_facesOf[v])
+		if (fi.m_f == f) return true;
 
 	return false;
 }
@@ -659,14 +620,12 @@ void ComputeBicOrder::delVInF(node v, face f)
 
 void ComputeBicOrder::initPossibles()
 {
-	face f;
-	forall_faces (f, (*m_pEmbedding)) {
+	for(face f : m_pEmbedding->faces) {
 		if (isPossFace(f))
 			m_fLink[f] = m_possFaces.pushBack(f);
 	}
 
-	node v;
-	for (v = next(m_vLeft); v != m_vRight; v = next(v))
+	for (node v = next(m_vLeft); v != m_vRight; v = next(v))
 		if (isPossNode(v))
 			m_vLink[v] = m_possNodes.pushBack(v);
 }
@@ -698,13 +657,11 @@ bool ComputeBicOrder::getPossible()
 node ComputeBicOrder::getFaceCl(face f)
 {
 	node v;
-
-	if (cutv (f)) {
+	if (cutv(f)) {
 		v = m_virtSrc [f];
 
 	} else {
-		adjEntry adj;
-		forall_face_adj(adj, f) {
+		for(adjEntry adj : f->entries) {
 			if (m_onOuter[v = adj->theNode()] == true && m_deg[v] == 2)
 				break;
 		}
@@ -762,14 +719,12 @@ void ComputeBicOrder::decSeqp(node v)
 	node vPrev = prev(v);
 
 	SListPure<face> L;
-	getAdjFaces(v,L);
+	getAdjFaces(v, L);
 
-	SListConstIterator<face> it;
-	for(it = L.begin(); it.valid(); ++it) {
-		face f = *it;
-		if (vInF(vNext,f))
+	for (face f : L) {
+		if (vInF(vNext, f))
 			m_seqp[f]--;
-		if (vInF(vPrev,f))
+		if (vInF(vPrev, f))
 			m_seqp[f]--;
 	}
 }
@@ -777,27 +732,23 @@ void ComputeBicOrder::decSeqp(node v)
 
 void ComputeBicOrder::delOuterNode(node v)
 {
-	ListIterator<PairFaceItem> it;
-	for(it = m_inOutNodes[v].begin(); it.valid(); ++it)
-		m_outerNodes[(*it).m_f].del((*it).m_it);
+	for(const PairFaceItem &fi : m_inOutNodes[v])
+		m_outerNodes[fi.m_f].del(fi.m_it);
 }
 
 
 void ComputeBicOrder::setOutv(node v)
 {
 	SListPure<face> L;
-	getAdjFaces(v,L);
+	getAdjFaces(v, L);
 
-	SListConstIterator<face> it;
-	for(it = L.begin(); it.valid(); ++it) {
-		face f = *it;
-
-		INC_VAR(f,m_outv)
-		putOnOuter(v,f);
+	for (face f : L) {
+		INC_VAR(f, m_outv)
+			putOnOuter(v, f);
 		if (cutv(f) == true) {
 			INC_VAR(v, m_cutf)
 		}
-		if (m_isSf [f]) {
+		if (m_isSf[f]) {
 			INC_VAR(v, m_numsf)
 		}
 	}
@@ -808,8 +759,8 @@ void ComputeBicOrder::setSeqp(node cl, node cr)
 {
 	SListPure<face> L;
 
-	node v, w;
-	for (v = cl; v != cr; v = w)
+	node w;
+	for (node v = cl; v != cr; v = w)
 	{
 		w = next(v);
 
@@ -824,10 +775,9 @@ void ComputeBicOrder::setSeqp(node cl, node cr)
 
 		getAdjFaces(wSmall, L);
 
-		SListConstIterator<face> it;
-		for(it = L.begin(); it.valid(); ++it) {
-			if (vInF(wBig,*it)) {
-				INC_VAR (*it,m_seqp)
+		for(face f : L) {
+			if (vInF(wBig,f)) {
+				INC_VAR (f,m_seqp)
 			}
 		}
 	}
@@ -849,8 +799,8 @@ void ComputeBicOrder::removeNextFace(ShellingOrderSet &V)
 	for (i = 1, cr = next(cl); cr != m_vRight && m_deg[cr] == 2; i++, cr = next(cr))
 		V [i] = cr ;
 	V.right (cr);
-	V.leftAdj (m_virtEdge[cl]       ? 0 : m_nextSucc[cl]->cyclicSucc()->twin());
-	V.rightAdj(m_virtEdge[prev(cr)] ? 0 : m_prevPred[cr]->cyclicPred()->twin());
+	V.leftAdj (m_virtEdge[cl]       ? nullptr : m_nextSucc[cl]->cyclicSucc()->twin());
+	V.rightAdj(m_virtEdge[prev(cr)] ? nullptr : m_prevPred[cr]->cyclicPred()->twin());
 
 	if (cutv(m_nextF) && next(m_virtSrc[m_nextF]) == cr)
 		setUpdate(cr);
@@ -894,7 +844,7 @@ void ComputeBicOrder::removeNextFace(ShellingOrderSet &V)
 			setUpdate(cl);
 			m_virtEdge[cl] = false;
 		}
-		m_virtSrc[m_nextF] = 0;
+		m_virtSrc[m_nextF] = nullptr;
 	}
 	delOuterRef(m_nextF);
 }
@@ -928,13 +878,13 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 		V.rightAdj(m_nextSucc[m_nextV]->cyclicSucc());
 	}
 
-	node vVirt = 0;
-	face fVirt = 0;
+	node vVirt = nullptr;
+	face fVirt = nullptr;
 	if (m_virtEdge[prev(m_nextV)]) {
 		INIT_VAR(prev(m_nextV), m_virtEdge, false)
 		vVirt = cl;
 		fVirt = left(m_nextV);
-		m_virtSrc [fVirt] = 0;
+		m_virtSrc [fVirt] = nullptr;
 	}
 
 	if (m_virtEdge[m_nextV]) {
@@ -944,14 +894,13 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 		}
 		vVirt = cr;
 		fVirt = right(m_nextV);
-		m_virtSrc[fVirt] = 0;
+		m_virtSrc[fVirt] = nullptr;
 	}
 
 	SListPure<face> L;
 	getAdjFaces(m_nextV, L);
-	SListConstIterator<face> itF;
-	for(itF = L.begin(); itF.valid(); ++itF)
-		--m_outv[*itF];
+	for(face f : L)
+		--m_outv[f];
 
 	SListPure<node> L_v;
 	getAdjNodes(m_nextV, L_v);
@@ -961,20 +910,17 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 	--m_oute[right(m_nextV)];
 	decSeqp(m_nextV);
 
-	SListIterator<node> itV;
-	for(itV = L_v.begin(); itV.valid(); ++itV) {
-		m_onOuter[*itV] = true;
-		DEC_VAR (*itV, m_deg)
+	for(node w : L_v) {
+		m_onOuter[w] = true;
+		DEC_VAR (w, m_deg)
 	}
 
-	face potF = 0;
+	face potF = nullptr;
 	node w1 = L_v.popFrontRet();
 	bool firstTime = true;
 	adjEntry adj,adj2;
-	for(itV = L_v.begin(); itV.valid(); ++itV)
+	for(node w : L_v)
 	{
-		node w = *itV;
-
 		if (firstTime == true) {
 			adj2 = m_nextSucc[prev(m_nextV)];
 			adj = m_prevPred[m_nextV];
@@ -1022,9 +968,8 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 				INC_VAR(w,m_deg)
 
 				if (f != fVirt) {
-					ListIterator<PairNodeItem> itU;
-					for(itU = m_outerNodes[f].begin(); itU.valid(); ++itU) {
-						INC_VAR((*itU).m_v, m_cutf);
+					for(const PairNodeItem &ni : m_outerNodes[f]) {
+						INC_VAR(ni.m_v, m_cutf);
 					}
 				}
 				m_virtSrc[f] = adj2->theNode();
@@ -1066,7 +1011,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 
 	setSeqp(cl,cr);
 
-	if ((vVirt != 0 && m_virtSrc[fVirt] == 0) ||
+	if ((vVirt != nullptr && m_virtSrc[fVirt] == nullptr) ||
 		(vVirt ==  cl && m_virtSrc[fVirt] != cl)) {
 		DEC_VAR(vVirt,m_cutf)
 	}
@@ -1087,8 +1032,8 @@ void ComputeBicOrder::removeNextVirt(ShellingOrderSet &V)
 	while (m_deg[cr] == 2 && cr != m_vRight)
 		{ cr = next(cr); i++; }
 
-	V = ShellingOrderSet(i,m_virtEdge[cl] ? 0 : m_prevPred[next(cl)],
-		m_virtEdge[prev(cr)] ? 0 : m_nextSucc[prev(cr)]);
+	V = ShellingOrderSet(i,m_virtEdge[cl] ? nullptr : m_prevPred[next(cl)],
+		m_virtEdge[prev(cr)] ? nullptr : m_nextSucc[prev(cr)]);
 	for (i = 1, v = next(cl); v != cr; v = next(v)) {
 		V[i++] = v;
 		delOuterNode(v);
@@ -1137,13 +1082,12 @@ void ComputeBicOrder::doUpdate()
 		bool isSeperatingFace = (m_outv[f] > m_seqp[f]+1);
 		if (isSeperatingFace != m_isSf[f])
 		{
-			ListIterator<PairNodeItem> it;
-			for(it = m_outerNodes[f].begin(); it.valid(); ++it)
+			for(const PairNodeItem &ni : m_outerNodes[f])
 			{
 				if (isSeperatingFace) {
-					INC_VAR((*it).m_v,m_numsf)
+					INC_VAR(ni.m_v,m_numsf)
 				} else {
-					DEC_VAR((*it).m_v,m_numsf)
+					DEC_VAR(ni.m_v,m_numsf)
 				}
 			}
 			m_isSf[f] = isSeperatingFace;
@@ -1214,7 +1158,7 @@ struct QType
 		m_limit = i;
 	}
 	QType () {
-		m_start = 0;
+		m_start = nullptr;
 		m_limit = 0;
 	}
 
@@ -1230,16 +1174,15 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 	const Graph &G = (const Graph &) E;
 	int p = f->size();
 
-	NodeArray<int> num(G,-1);
+	NodeArray<int> num(G, -1);
 
 	int i = 0, j, d;
 
-	adjEntry adj;
-	forall_face_adj(adj,f)
+	for (adjEntry adj : f->entries)
 		num[adj->theNode()] = i++;
 
-	Array<SListPure<int> > diag(0,p-1);
-	forall_face_adj(adj,f)
+	Array<SListPure<int> > diag(0, p - 1);
+	for (adjEntry adj : f->entries)
 	{
 		i = num[adj->theNode()];
 		adjEntry adj2;
@@ -1253,18 +1196,18 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 	}
 
 	SListPure<QType> Q;
-	Array<SListIterator<QType> > posInQ (0,p-1,SListIterator<QType>());
+	Array<SListIterator<QType> > posInQ(0, p - 1, SListIterator<QType>());
 
 	length = 0;
 	bool firstRun = true;
-	adj = f->firstAdj();
+	adjEntry adj = f->firstAdj();
 	i = num[adj->theNode()];
 
-	adjEntry adjStart = 0;
+	adjEntry adjStart = nullptr;
 	do {
 		if (posInQ[i].valid()) {
 			adjEntry adj2 = Q.front().m_start;
-			d = (i-num[adj2->theNode()]+p) % p +1;
+			d = (i - num[adj2->theNode()] + p) % p + 1;
 			if (d > length || (d == length && adj2->theNode()->index() < adjStart->theNode()->index())) {
 				length = d;
 				adjStart = adj2;
@@ -1278,28 +1221,26 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 		}
 
 		if (diag[i].empty())
-			j = (i-2+p) % p;
+			j = (i - 2 + p) % p;
 		else {
 			int m = p;
-			SListConstIterator<int> it;
-			for(it = diag[i].begin(); it.valid(); ++it) {
-				int k = *it;
-				d = (k-i+p)%p;
+			for (int k : diag[i]) {
+				d = (k - i + p) % p;
 				if (d < m) {
 					m = d;
 					j = k;
 				}
 			}
-			j = (j-1+p) % p;
+			j = (j - 1 + p) % p;
 			if (!firstRun) {
-				posInQ[Q.back().m_limit] = 0;
+				posInQ[Q.back().m_limit] = nullptr;
 				Q.back().m_limit = j;
 				posInQ[j] = Q.rbegin();
 			}
 		}
 
 		if (firstRun)
-			posInQ[j] = Q.pushBack(QType(adj,j));
+			posInQ[j] = Q.pushBack(QType(adj, j));
 
 		adj = adj->faceCycleSucc();
 		i = num[adj->theNode()];
@@ -1323,7 +1264,7 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 
 	ConstCombinatorialEmbedding E(G);
 
-	face extFace = (adj != 0) ? E.rightFace(adj) : E.maximalFace();
+	face extFace = (adj != nullptr) ? E.rightFace(adj) : E.maximalFace();
 	ComputeBicOrder cpo(G,E,extFace,m_baseRatio);
 
 	cpo.initPossibles();

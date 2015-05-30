@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Edge routing and node placement implementation.
  *
@@ -45,7 +37,6 @@
 
 
 #include <ogdf/orthogonal/EdgeRouter.h>
-#include <string.h>
 
 
 namespace ogdf {
@@ -132,7 +123,11 @@ void EdgeRouter::init(
 void EdgeRouter::call()
 {
 	//if no graph is given, you should stop or return 0,0
-	OGDF_ASSERT( (m_prup != 0) && (m_layoutp != 0) && (m_orp != 0) && (m_comb != 0) && (m_nodewidth != 0));
+	OGDF_ASSERT(m_prup != nullptr);
+	OGDF_ASSERT(m_layoutp != nullptr);
+	OGDF_ASSERT(m_orp != nullptr);
+	OGDF_ASSERT(m_comb != nullptr);
+	OGDF_ASSERT(m_nodewidth != nullptr);
 	call(*m_prup, *m_orp, *m_layoutp, *m_comb, *m_rc, *m_med, *m_nodewidth, *m_nodeheight);
 }//call
 
@@ -163,15 +158,14 @@ void EdgeRouter::call(
 	//just input some stuff
 	infos.init(pru);
 
-	node v;
 	int mysep = m_sep;
 	//set specific delta values automatically for all nodes
 	//preliminary: set to minimum value perimeter / degree of all nodes
 	//seems to cause problems with compaction
 	if (m_minDelta)
-		forall_nodes(v, pru)
+		for(node v : pru.nodes)
 		{
-			if ( (pru.expandAdj(v) != 0) &&
+			if ( (pru.expandAdj(v) != nullptr) &&
 				(pru.typeOf(v) != Graph::generalizationMerger))
 			{
 			int perimeter = 2*nodewidth[v] + 2*nodeheight[v];
@@ -187,18 +181,18 @@ void EdgeRouter::call(
 				} while (debod != odNorth);
 				if (vdeg != 0) mysep = min(mysep, int(floor((double)perimeter / vdeg)));
 			}//if expanded
-		}//forallnodes
+		}
 
-	forall_nodes(v, pru)
+	for(node v : pru.nodes)
 	{
-		if ( (pru.expandAdj(v) != 0) &&
+		if ( (pru.expandAdj(v) != nullptr) &&
 			 (pru.typeOf(v) != Graph::generalizationMerger)) //==Expander) )
 		//adjEntry != nil, this cage node is a copy(original node)
 		{
 			OGDF_ASSERT(pru.widthOrig(pru.original(v)) > 0.0)
 			initialize_node_info(v, mysep); //delta, epsilon, cagesize, boxsize
 		}
-	}//forallnodes
+	}
 
 	//the rerouting **********************************************************
 	//simple rerouting version: maximize the number of bend free edges in the
@@ -225,29 +219,25 @@ void EdgeRouter::call(
 
 	//compute the lowe / uppe / lefte / righte values for every adjacent edge
 	//if generalization exists the node position is already fixed
-	node l_v;
 
 	//*********************************************************************
 	//compute LOWER / UPPER / LEFTER / RIGHTER border values
 	//*********************************************************************
 
 	//forall expanded nodes
-	forall_nodes(l_v, pru)
+	for(node l_v : pru.nodes)
 	{
-		if ((pru.expandAdj(l_v) != 0) && (pru.typeOf(l_v) != Graph::generalizationMerger) )//check if replaced
+		if ((pru.expandAdj(l_v) != nullptr) && (pru.typeOf(l_v) != Graph::generalizationMerger) )//check if replaced
 		{
 			NodeInfo& inf = infos[l_v];
 
 			//edges to the left side, pointing towards cage
 			const List<edge>& left_in_edges = inf.inList(odNorth);
-			ListConstIterator<edge> itE;
 			//LEFT EDGES
 			int pos_e = 1;
 			//for all edges incident to cage, we compute lower, upper, lefter, righter values from the paper
-			for (itE = left_in_edges.begin(); itE.valid(); ++itE)
+			for (edge inedge : left_in_edges)
 			{
-				edge inedge = *itE;
-
 				int l_seps; //adjust multiples of delta for lower values
 				int u_seps; // -"- upper
 				int remaining_num = left_in_edges.size() - pos_e; //incident edges lying above ine
@@ -268,10 +258,8 @@ void EdgeRouter::call(
 			//edges to the right side, pointing towards cage , check bottom -> top!!!!!!!!!!
 			const List<edge>& right_in_edges = inf.inList(odSouth);
 			pos_e = 1;
-			for (itE = right_in_edges.begin(); itE.valid(); ++itE)
+			for (edge inedge : right_in_edges)
 			{
-				edge inedge = *itE;
-
 				int l_seps; //adjust multiples of delta to generalization/ no generalization for lower
 				int u_seps; // -"- upper
 				int remaining_num = right_in_edges.size() - pos_e; //incident edges lying above ine
@@ -293,10 +281,8 @@ void EdgeRouter::call(
 			//edges at the top side, pointing towards cage , check left -> right!!!!!!!!!!
 			const List<edge>& top_in_edges = inf.inList(odEast); //debug!!!!!!!!!!!!
 			pos_e = 1;
-			for (itE = top_in_edges.begin(); itE.valid(); ++itE)
+			for (edge inedge : top_in_edges)
 			{
-				edge inedge = *itE;
-
 				int l_seps; //adjust multiples of delta for left
 				int r_seps; // -"- right
 				int remaining_num = top_in_edges.size() - pos_e; //incident edges lying above ine
@@ -316,10 +302,8 @@ void EdgeRouter::call(
 			//edges at the bottom side, pointing towards cage , check left -> right!!!!!!!!!!
 			const List<edge>& bottom_in_edges = inf.inList(odWest); //debug!!!!!!!!!!!!
 			pos_e = 1;
-			for (itE = bottom_in_edges.begin(); itE.valid(); ++itE)
+			for (edge inedge : bottom_in_edges)
 			{
-				edge inedge = *itE;
-
 				int l_seps; //adjust multiples of delta for left
 				int r_seps; // -"- right
 				int remaining_num = bottom_in_edges.size() - pos_e; //incident edges lying above ine
@@ -337,16 +321,16 @@ void EdgeRouter::call(
 				pos_e++;
 			}//for
 		}//if replaced
-	}//forallnodes
+	}
 
 	//***********************************************************************************
 	//now for all edges pointing towards cages representing nodes without generalization,
 	//we defined lowe/uppe values for horizontal and lefte/righte values for vertical edges
 	//***********************************************************************************
 
-	forall_nodes(v, pru)
+	for(node v : pru.nodes)
 	{
-		if ( (pru.expandAdj(v) != 0) && (pru.typeOf(v) != Graph::generalizationMerger) )//== Graph::highDegreeExpander) ) //expanded high degree
+		if ( (pru.expandAdj(v) != nullptr) && (pru.typeOf(v) != Graph::generalizationMerger) )//== Graph::highDegreeExpander) ) //expanded high degree
 		{
 			compute_place(v, infos[v]/*, m_sep, m_overh*/);
 			//***************************************************************************
@@ -358,10 +342,10 @@ void EdgeRouter::call(
 			//classify_edges(v, infos[v]); //E sets from paper, reroutable
 			compute_routing(v); //maybe store result in structure and apply later
 		}//if expanded
-	}//forall_nodes
+	}
 
 	////try to place deg1 nodes
-	//forall_nodes(v, pru)
+	//for(node v : pru.nodes)
 	//   {
 	//	//there is an omission of placement here leading to errors
 	//	if (false) //preliminary until umlex4 error checked
@@ -469,16 +453,16 @@ void EdgeRouter::call(
 	//			}//if
 	//		}//if degreeexpander
 	//       }//debug stop
-	//}//forall_nodes
+	//}
 
-	forall_nodes(v, pru)
+	for(node v : pru.nodes)
 	{
-		if ( (pru.expandAdj(v) != 0) && (pru.typeOf(v) != Graph::generalizationMerger) )
+		if ( (pru.expandAdj(v) != nullptr) && (pru.typeOf(v) != Graph::generalizationMerger) )
 		{
 			if (!(m_processStatus[v] == processed))
 				place(v);
 		}//if expanded
-	}//forallnodes
+	}
 
 	setDistances();
 
@@ -510,7 +494,7 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 	{
 		int pos = infos[v].gen_pos(odNorth)-1; //compare edge position to generalization position
 		if (pos > -1) l_it = infos[v].inList(odNorth).get(pos);//muss unter gen sein, -2???
-		else {l_it = 0; pos = 0;}
+		else {l_it = nullptr; pos = 0;}
 		bool firstcheck = true;
 		bool lastcheck = true;
 		//classify edges
@@ -530,8 +514,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 
 			m_abends[outEntry(infos[v], odNorth, pos)] = bend_free;
 			ybase = cp_y(outEntry(infos[v], odNorth, pos)) - infos[v].delta(odNorth, odWest);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 			infos[v].nbf(odNorth)++;
 		}//while
 
@@ -546,8 +530,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			else {m_abends[outEntry(infos[v], odNorth, pos)] = prob_b2l; infos[v].inc_E(odNorth, odWest);}
 
 			ybase = ybase - infos[v].delta(odNorth, odWest);
-			pos--;
-			l_it--;
+			--pos;
+			--l_it;
 		}
 
 		//*******************************************************
@@ -564,7 +548,7 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 
 		//*******************************************************
 		//assign gp value for bendfree edges above generalization
-		l_it++;
+		++l_it;
 		pos = infos[v].gen_pos(odNorth) + 1;
 		while (l_it.valid() &&
 			((infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odEast)
@@ -577,7 +561,7 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_agp_y[outEntry(infos[v], odNorth, pos)] = ybase;
 
 			infos[v].set_l_upper(ybase);
-			l_it++; pos++;
+			++l_it; ++pos;
 			infos[v].nbf(odNorth)++;
 		}
 
@@ -600,8 +584,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			}
 			m_agp_y[outEntry(infos[v], odNorth, pos)] = ybase;
 
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while valid
 	}//if left gen
 
@@ -631,8 +615,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odWest)
 				+ infos[v].eps(odNorth, odWest)
 				+ pos*infos[v].delta(odNorth, odWest);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 		//*********************
 		//bendfree edges
@@ -648,8 +632,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_abends[outEntry(infos[v], odNorth, pos)] = bend_free;
 			infos[v].nbf(odNorth)++;
 			m_agp_y[outEntry(infos[v], odNorth, pos)] =  cp_y(outEntry(infos[v], odNorth, pos));//m_acp_y[outEntry(infos[v], odNorth, pos)];
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}
 		//*********************
 		//edges bending upwards
@@ -669,8 +653,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odEast)
 				- infos[v].eps(odNorth, odEast)
 				- (infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odEast);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 
 	}//else left gen
@@ -683,7 +667,7 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 		int pos = infos[v].gen_pos(odSouth)-1; //compare edge position to generalization position
 		if (pos > -1)
 			l_it = infos[v].inList(odSouth).get(pos);
-		else l_it = 0;
+		else l_it = nullptr;
 		//classify edges
 		//***************************************************
 		//assign gp value for edges underneath generalization
@@ -703,8 +687,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			if (!check) {infos[v].set_r_upper(m_agp_y[outEntry(infos[v], odSouth, pos)]); check = true;}
 			m_abends[outEntry(infos[v], odSouth, pos)] = bend_free;
 			ybase = cp_y(outEntry(infos[v], odSouth, pos)) - infos[v].delta(odSouth, odWest);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 			infos[v].nbf(odSouth)++;
 		}//while
 		while (l_it.valid()) //still some lower edges to bend, ycoord+eps+delta
@@ -720,8 +704,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 				infos[v].inc_E(odSouth, odWest);
 			}
 			ybase = ybase - infos[v].delta(odSouth, odWest);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 		}
 		//*******************************************************
 		//assign gp value for generalization
@@ -733,12 +717,11 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 		if (lastcheck)
 		{
 			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], odSouth, infos[v].gen_pos(odSouth))]);
-			lastcheck = false;
 		}
 		infos[v].set_r_upper(ybase);
 		//*******************************************************
 		//assign gp value for bendfree edges above generalization
-		l_it++;
+		++l_it;
 		pos = infos[v].gen_pos(odSouth) + 1;
 		while (l_it.valid() &&
 			((infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odEast) + infos[v].eps(odSouth,odEast) <=
@@ -749,7 +732,7 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_agp_y[outEntry(infos[v], odSouth, pos)] = ybase;
 			infos[v].set_r_upper(ybase);
 			infos[v].nbf(odSouth)++;
-			l_it++; pos++;
+			++l_it; ++pos;
 		}
 		//*******************************************************
 		//assign gp value for bend edges on top of generalization
@@ -768,8 +751,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 
 			ybase += infos[v].delta(odSouth, odEast); //there is a generalization
 			m_agp_y[outEntry(infos[v], odSouth, pos)] = ybase;
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while valid
 	}//if rightgen
 	//NO RIGHT GENERATOR ****************************************************
@@ -798,8 +781,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 				infos[v].coord(odWest)
 				+ infos[v].eps(odSouth, odWest)
 				+ pos*infos[v].delta(odSouth, odWest);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 		//*********************
 		//bendfree edges
@@ -818,8 +801,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_abends[outEntry(infos[v], odSouth,pos)] = bend_free;
 			infos[v].nbf(odSouth)++;
 			m_agp_y[outEntry(infos[v], odSouth, pos)] = cp_y(outEntry(infos[v], odSouth, pos));
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 		//*********************
 		//edges bending upwards
@@ -839,8 +822,8 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			m_agp_y[outEntry(infos[v], odSouth, pos)] = infos[v].coord(odEast)
 				- infos[v].eps(odSouth, odEast)
 				- (infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odEast);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 	}//else rightgen
 	//end set m_gy
@@ -851,16 +834,16 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 	while (l_it.valid())
 	{
 		m_agp_x[outEntry(infos[v], odNorth, l_pos)] = infos[v].coord(odNorth);
-		l_it++;
-		l_pos++;
+		++l_it;
+		++l_pos;
 	}
 	l_it = infos[v].inList(odSouth).begin();
 	l_pos = 0;
 	while (l_it.valid())
 	{
 		m_agp_x[outEntry(infos[v], odSouth, l_pos)] = infos[v].coord(odSouth);
-		l_it++;
-		l_pos++;
+		++l_it;
+		++l_pos;
 	}
 }//gengluey
 
@@ -889,7 +872,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 		if (pos > -1)
 			l_it = infos[v].inList(odEast).get(pos);
 		else {
-			l_it = 0; pos = 0;
+			l_it = nullptr; pos = 0;
 		}
 		//classify edges
 		//***************************************************
@@ -910,8 +893,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			}
 			m_abends[outEntry(infos[v], odEast, pos)] = bend_free;
 			xbase = cp_x(outEntry(infos[v], odEast, pos)) - infos[v].delta(odEast, odNorth);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 			infos[v].nbf(odEast)++;
 		}//while
 
@@ -928,8 +911,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				infos[v].inc_E(odEast, odNorth);
 			}
 			xbase = xbase - infos[v].delta(odEast, odNorth);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 		}
 
 		//*******************************************************
@@ -945,7 +928,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 
 		//*******************************************************
 		//assign gp value for bendfree edges above generalization
-		l_it++;
+		++l_it;
 		pos = infos[v].gen_pos(odEast) + 1;
 		while (l_it.valid() &&
 			((infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odSouth) + infos[v].eps(odEast,odSouth) <=
@@ -955,7 +938,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			xbase = cp_x(outEntry(infos[v], odEast, pos));//+= infos[v].delta(odEast, odSouth);
 			m_agp_x[outEntry(infos[v], odEast, pos)] = xbase;
 			infos[v].set_t_right(m_agp_x[outEntry(infos[v], odEast, pos)]);
-			l_it++; pos++;
+			++l_it; ++pos;
 			infos[v].nbf(odEast)++;
 		}
 		//*******************************************************
@@ -974,8 +957,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			}
 			xbase += infos[v].delta(odEast, odSouth); //there is a generalization
 			m_agp_x[outEntry(infos[v], odEast, pos)] = xbase;
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while valid
 	}//if top gen
 	//NO TOPGENERATOR ****************************************************
@@ -1007,8 +990,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odNorth)
 				+ infos[v].eps(odEast, odNorth)
 				+ pos*infos[v].delta(odEast, odNorth);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 		numbends = pos;
 		//*********************
@@ -1031,8 +1014,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				infos[v].set_t_left(m_agp_x[outEntry(infos[v], odEast, pos)] );
 			}
 			infos[v].set_t_right(m_agp_x[outEntry(infos[v], odEast, pos)]);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}
 		//*********************************************************************
 		//now we set all bending edges (left) as close as possible to the unbend edges
@@ -1049,8 +1032,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			{
 				m_agp_x[outEntry(infos[v], odEast, llpos)] = firstunbend -
 					(numbends - llpos)*infos[v].delta(odEast, odNorth);
-				ll_it++;
-				llpos++;
+				++ll_it;
+				++llpos;
 			}//while
 		}//if unbend edges
 		//*********************************************************************
@@ -1071,8 +1054,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odSouth)
 				- infos[v].eps(odEast, odSouth)
 				- (infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odSouth);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}
 
 	}//else top gen
@@ -1085,7 +1068,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 		int pos = infos[v].gen_pos(odWest)-1; //compare edge position to generalization position
 		if (pos > -1)
 			l_it = infos[v].inList(odWest).get(pos);
-		else { l_it = 0; pos = 0; }
+		else { l_it = nullptr; pos = 0; }
 		//classify edges
 		//***************************************************
 		//assign gp value for edges underneath generalization
@@ -1105,8 +1088,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				infos[v].set_b_left(m_agp_x[outEntry(infos[v], odWest, pos)]);
 			}
 			infos[v].set_b_right(m_agp_x[outEntry(infos[v], odWest, pos)]);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 			infos[v].nbf(odWest)++;
 		}//while
 		while (l_it.valid()) //still some lower edges to bend, xcoord+eps+delta
@@ -1122,8 +1105,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				infos[v].inc_E(odWest, odNorth);
 			}
 			xbase = xbase - infos[v].delta(odWest, odNorth);
-			l_it--;
-			pos--;
+			--l_it;
+			--pos;
 		}
 		//*******************************************************
 		//assign gp value for generalization
@@ -1139,7 +1122,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 		infos[v].set_b_left(m_agp_x[outEntry(infos[v], odWest, infos[v].gen_pos(odWest))]);
 		//*******************************************************
 		//assign gp value for bendfree edges above generalization
-		l_it++;
+		++l_it;
 		pos = infos[v].gen_pos(odWest) + 1;
 		while (l_it.valid() &&
 			((infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odSouth) + infos[v].eps(odWest,odSouth) <=
@@ -1155,7 +1138,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				infos[v].set_b_right(m_agp_x[outEntry(infos[v], odWest, pos)]);
 				firstcheck = false;
 			}
-			l_it++; pos++;
+			++l_it; ++pos;
 		}//while
 		//*******************************************************
 		//assign gp value for bend edges on top of generalization
@@ -1173,8 +1156,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			}
 			xbase += infos[v].delta(odWest, odSouth); //there is a generalization
 			m_agp_x[outEntry(infos[v], odWest, pos)] = xbase;
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while valid
 	}//if bottomgen
 	//************************************************************************
@@ -1205,8 +1188,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odNorth)
 				+ infos[v].eps(odWest, odNorth)
 				+ pos*infos[v].delta(odWest, odNorth);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 		rightbend = pos;
 		//*********************
@@ -1232,8 +1215,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				firstcheck = false;
 			}
 			infos[v].set_b_left(lastunbend);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}
 		//*********************************************************************
 		//no assign bend edges as close as possible
@@ -1247,8 +1230,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			{
 				m_agp_x[outEntry(infos[v], odWest, llpos)] = firstunbend -
 					(rightbend - llpos)*infos[v].delta(odWest, odNorth);
-				ll_it++;
-				llpos++;
+				++ll_it;
+				++llpos;
 			}//while
 		}//if
 		//*********************************************************************
@@ -1278,8 +1261,8 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 				m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odSouth)
 							- infos[v].eps(odWest, odSouth)
 							- (infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odSouth);
-			l_it++;
-			pos++;
+			++l_it;
+			++pos;
 		}//while
 
 	}//else leftgen
@@ -1291,7 +1274,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 	while (l_it.valid())
 	{
 		m_agp_y[outEntry(infos[v], odEast, l_pos)] = infos[v].coord(odEast);
-		l_it++;
+		++l_it;
 		l_pos++;
 	}
 	l_it = infos[v].inList(odWest).begin();
@@ -1299,7 +1282,7 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 	while (l_it.valid())
 	{
 		m_agp_y[outEntry(infos[v], odWest, l_pos)] = infos[v].coord(odWest);
-		l_it++;
+		++l_it;
 		l_pos++;
 	}
 }//gengluex
@@ -1335,8 +1318,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 			+ infos[v].eps(odNorth, odWest)
 			+ pos*infos[v].delta(odNorth, odWest);
 		bendDownCounter++;
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 	//*********************
 	//bendfree edges
@@ -1359,8 +1342,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 			firstcheck = false;
 		}
 		infos[v].set_l_upper(m_agp_y[outEntry(infos[v], odNorth, pos)]);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}
 	//*********************************************************************
 	//correct left edges
@@ -1373,8 +1356,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 		{
 			m_agp_y[outEntry(infos[v], odNorth, llpos)] = firstunbend -
 				(bendDownCounter - llpos)*infos[v].delta(odNorth, odWest);
-			ll_it++;
-			llpos++;
+			++ll_it;
+			++llpos;
 		}//while
 	}//if
 	//*********************************************************************
@@ -1403,8 +1386,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odEast)
 			 - infos[v].eps(odNorth, odEast)
 			 - (infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odEast);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 	//South edges
 	pos = 0;
@@ -1431,9 +1414,9 @@ void EdgeRouter::compute_glue_points_y(node v)
 		m_agp_y[outEntry(infos[v], odSouth, pos)] = infos[v].coord(odWest)
 			+ infos[v].eps(odSouth, odWest)
 			+ pos*infos[v].delta(odSouth, odWest);
-		l_it++;
+		++l_it;
 		bendDownCounter++;
-		pos++;
+		++pos;
 	}//while
 	//*********************
 	//bendfree edges
@@ -1456,8 +1439,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 			firstunbend = lastunbend;
 		}
 		infos[v].set_r_upper(m_agp_y[outEntry(infos[v], odSouth, pos)]);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 
 	//***************************
@@ -1472,8 +1455,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 		{
 			m_agp_y[outEntry(infos[v], odSouth, llpos)] = firstunbend -
 				(bendDownCounter - llpos)*infos[v].delta(odSouth, odWest);
-			ll_it++;
-			llpos++;
+			++ll_it;
+			++llpos;
 		}//while
 	}//if
 	//*********************************************************************
@@ -1501,8 +1484,8 @@ void EdgeRouter::compute_glue_points_y(node v)
 		else
 			m_agp_y[outEntry(infos[v], odSouth, pos)] =
 				infos[v].coord(odEast) - infos[v].eps(odSouth, odEast) - (infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odEast);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 
 	//x coordinates, just on the cage boundary
@@ -1511,7 +1494,7 @@ void EdgeRouter::compute_glue_points_y(node v)
 	while (l_it.valid())
 	{
 		m_agp_x[outEntry(infos[v], odNorth, l_pos)] = infos[v].coord(odNorth);
-		l_it++;
+		++l_it;
 		l_pos++;
 	}
 	l_it = infos[v].inList(odSouth).begin();
@@ -1519,7 +1502,7 @@ void EdgeRouter::compute_glue_points_y(node v)
 	while (l_it.valid())
 	{
 		m_agp_x[outEntry(infos[v], odSouth, l_pos)] = infos[v].coord(odSouth);
-		l_it++;
+		++l_it;
 		l_pos++;
 	}
 }
@@ -1553,8 +1536,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 		}
 		m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odNorth)
 				+ infos[v].eps(odEast, odNorth) + pos*infos[v].delta(odEast, odNorth);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 	numbends = pos;
 	int lastunbend = m_init;
@@ -1578,8 +1561,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 			infos[v].set_t_left(lastunbend);
 		}//if
 		infos[v].set_t_right(lastunbend);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}
 	//*********************************************************************
 	//temporary sol, correct left edges
@@ -1595,8 +1578,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 		{
 			m_agp_x[outEntry(infos[v], odEast, llpos)] = firstunbend -
 				(numbends - llpos)*infos[v].delta(odEast, odNorth);
-			ll_it++;
-			llpos++;
+			++ll_it;
+			++llpos;
 		}//while
 	}//if
 	//*********************************************************************
@@ -1631,8 +1614,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 		else m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odSouth)
 			- infos[v].eps(odEast, odSouth)
 			- (infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odSouth);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 
 	//bottom**********************************************************
@@ -1659,14 +1642,13 @@ void EdgeRouter::compute_glue_points_x(node& v)
 		m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odNorth)
 			+ infos[v].eps(odWest, odNorth)
 			+ pos*infos[v].delta(odWest, odNorth);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 	rightbend = pos; //NUMBER of bend edges
 	//*********************
 	//bendfree edges
 	//*********************
-	firstunbend = true;
 	firstcheck = true;
 	lastunbend = m_init;
 	firstunbend = m_init;
@@ -1685,8 +1667,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 			infos[v].set_b_right(lastunbend);
 		}
 		infos[v].set_b_left(lastunbend);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}
 	//*********************************************************************
 	//temporary sol, correct left edges
@@ -1701,8 +1683,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 			//ab unterem Rand, oder ab gen, teile Abstand Anzahl Kanten??!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			m_agp_x[outEntry(infos[v], odWest, llpos)] = firstunbend -
 				(rightbend - llpos)*infos[v].delta(odWest, odNorth);
-			ll_it++;
-			llpos++;
+			++ll_it;
+			++llpos;
 		}//while
 		OGDF_ASSERT(rightbend == llpos);
 	}//if
@@ -1732,8 +1714,8 @@ void EdgeRouter::compute_glue_points_x(node& v)
 			m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odSouth)
 			- infos[v].eps(odWest, odSouth)
 			- (infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odSouth);
-		l_it++;
-		pos++;
+		++l_it;
+		++pos;
 	}//while
 	//y values
 	//y coordinates, just on the cage boundary
@@ -1742,7 +1724,7 @@ void EdgeRouter::compute_glue_points_x(node& v)
 	while (l_it.valid())
 	{
 		m_agp_y[outEntry(infos[v], odEast, l_pos)] = infos[v].coord(odEast);
-		l_it++;
+		++l_it;
 		l_pos++;
 	}
 	l_it = infos[v].inList(odWest).begin();
@@ -1750,7 +1732,7 @@ void EdgeRouter::compute_glue_points_x(node& v)
 	while (l_it.valid())
 	{
 		m_agp_y[outEntry(infos[v], odWest, l_pos)] = infos[v].coord(odWest);
-		l_it++;
+		++l_it;
 		l_pos++;
 	}
 }//compute gpx
@@ -1804,7 +1786,7 @@ void EdgeRouter::set_corners(node v)
 
 void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/)
 {
-	int l_directvalue = 10; //value of edges connecting two cages bendfree, with bends: value = 1
+	const int l_directvalue = 10; //value of edges connecting two cages bendfree, with bends: value = 1
 
 	//gen at left or right cage side
 	bool horizontal_merger = (inf.has_gen(odNorth) || inf.has_gen(odSouth));
@@ -1862,16 +1844,16 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				e = *li_l;
 				at_left[e] = true;
 				nextNeighbour = (inf.is_in_edge(odNorth, lcount) ? e->source() : e->target());
-				li_l++;
-				lcount++;
+				++li_l;
+				++lcount;
 				uppe_l =  (lcount <  inf.inList(odNorth).size() ? auppe[outEntry(inf, odNorth, lcount)] : numeric_limits<int>::max());
 			}
 			else
 			{
 				e = *li_r;
 				nextNeighbour = (inf.is_in_edge(odSouth, rcount) ? e->source() : e->target());
-				li_r++;
-				rcount++;
+				++li_r;
+				++rcount;
 				uppe_r = (rcount < inf.inList(odSouth).size() ? auppe[outEntry(inf, odSouth, rcount)] : numeric_limits<int>::max());
 			}
 			horz_entry[e] = l_horz.pushBack(e);//fill edge in L
@@ -1883,15 +1865,15 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			{
 				e = *li_ll;
 				//at_left[e] = true; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				li_ll++;
-				llcount++;
+				++li_ll;
+				++llcount;
 				lowe_l = (llcount < inf.inList(odNorth).size() ? alowe[outEntry(inf, odNorth, llcount)] : numeric_limits<int>::max());
 			}
 			else
 			{
 				e = *li_lr;
-				li_lr++;
-				rlcount++;
+				++li_lr;
+				++rlcount;
 				//lowe_r = (li_lr.valid() ? lowe[*li_lr] : 10000.0);
 				lowe_r = (rlcount < inf.inList(odSouth).size() ? alowe[outEntry(inf, odSouth, rlcount)] : numeric_limits<int>::max());
 			}
@@ -1925,7 +1907,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		tcount = bcount = tlcount = blcount = 0;
 		for (int k = 0; k < lvert_size; k++)
 		{
-			edge e = NULL;
+			edge e = nullptr;
 			if (li_t.valid() || li_b.valid())
 			{
 				//righter value
@@ -1935,8 +1917,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 					{
 						e = *li_t;
 						at_top[e] = true; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-						li_t++;
-						tcount++;
+						++li_t;
+						++tcount;
 					}//if
 					righte_t = (tcount < inf.inList(odEast).size() ? arighte[outEntry(inf, odEast, tcount)] : numeric_limits<int>::max());
 				}
@@ -1945,8 +1927,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 					if (li_b.valid())
 					{
 						e = *li_b;
-						li_b++;
-						bcount++;
+						++li_b;
+						++bcount;
 					}//if
 					righte_b = (bcount < inf.inList(odWest).size()  ? arighte[outEntry(inf, odWest, bcount)] : numeric_limits<int>::max());
 				}
@@ -1957,16 +1939,16 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			{
 				e = *li_lt;
 				//at_left[e] = true; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				li_lt++;
-				tlcount++;
+				++li_lt;
+				++tlcount;
 				//lefte_t = (li_lt.valid() ? lefte[*li_lt] : 100000.0);
 				lefte_t = (tlcount < inf.inList(odEast).size() ? alefte[outEntry(inf, odEast, tlcount)] : numeric_limits<int>::max());
 			}
 			else
 			{
 				e = *li_lb;
-				li_lb++;
-				blcount++;
+				++li_lb;
+				++blcount;
 				//lefte_b = (li_lb.valid() ? lefte[*li_lb] : 100000.0);
 				lefte_b = (blcount < inf.inList(odWest).size() ? alefte[outEntry(inf, odWest, blcount)] : numeric_limits<int>::max());
 			}
@@ -2032,8 +2014,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 						num_unbend += *valp;
 						valueCounted[*p] = true;
 						//only to be set if new best_unbend
-						p++;
-						valp++;
+						++p;
+						++valp;
 					}//if
 					else
 					{
@@ -2050,8 +2032,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				if (at_left[l_horzl.front()]) leftcount++;
 				else rightcount++;
 
-				if ( p == horz_entry[l_horzl.front()]) p++;
-				if ( valp == value_entry[l_horzl.front()]) valp++;
+				if ( p == horz_entry[l_horzl.front()]) ++p;
+				if ( valp == value_entry[l_horzl.front()]) ++valp;
 
 				l_horz.del(horz_entry[l_horzl.front()]);
 
@@ -2182,7 +2164,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				if (at_top[l_vertl.front()]) topcount++;
 				else lowcount++;
 
-				if (p == vert_entry[l_vertl.front()]) p++; //may be -- if valid
+				if (p == vert_entry[l_vertl.front()]) ++p; //may be -- if valid
 
 				OGDF_ASSERT(p != vert_entry[l_vertl.front()])
 
@@ -2367,10 +2349,9 @@ void EdgeRouter::place(node l_v)
 
 		if (m_processStatus[v] == used)
 		{
-			it++;//should be enough to break
+			++it;//should be enough to break
 			continue;
 		}//if degree1 preprocessing on opposite side
-		adjEntry cornersucc = ae->cyclicSucc();
 		adjEntry saveadj = ae;
 		//correct possible shift by bends from other cage
 		if (!((inedge && (v == e->target()))
@@ -2384,16 +2365,16 @@ void EdgeRouter::place(node l_v)
 					runadj = runadj->faceCycleSucc();
 				}
 				e = runadj->theEdge();
-				cornersucc = runadj->twin()->cyclicSucc();
-				OGDF_ASSERT(v == cornersucc->theNode());
+				OGDF_ASSERT(v == runadj->twin()->cyclicSucc()->theNode());
 				saveadj = runadj->twin();
 			}
-			OGDF_ASSERT(((v == e->target()) && (inedge)) ||(v == e->source()));
+			OGDF_ASSERT(((v == e->target()) && (inedge)) || (v == e->source()));
 		}//if buggy
 		//position
 		if ((m_agp_x[ae] != m_init) &&  (m_agp_y[ae] != m_init))
 			set_position(v, m_agp_x[ae], m_agp_y[ae]);
-		OGDF_ASSERT((m_agp_y[ae] != m_init) && (m_agp_x[ae] != m_init));
+		OGDF_ASSERT(m_agp_y[ae] != m_init);
+		OGDF_ASSERT(m_agp_x[ae] != m_init);
 
 		//bends
 		if (abendType(ae) != bend_free)
@@ -2429,7 +2410,7 @@ void EdgeRouter::place(node l_v)
 					{
 						acorn = true;
 						edge newe2;
-						adjEntry ae2 = saveadj->cyclicSucc();//cornersucc;//ae->cyclicSucc();//next to the right in cage
+						adjEntry ae2 = saveadj->cyclicSucc(); //next to the right in cage
 						edge savedge = ae2->theEdge();
 						if (ae2 == (ae2->theEdge()->adjSource()))
 						{
@@ -2528,8 +2509,8 @@ void EdgeRouter::place(node l_v)
 			}//switch
 			m_orp->normalize();
 		}//if not bendfree
-		ipos++;
-		it++;
+		++ipos;
+		++it;
 	}//while
 
 	//*********************************************
@@ -2566,10 +2547,9 @@ void EdgeRouter::place(node l_v)
 		v = m_cage_point[ae];
 		if (m_processStatus[v] == used)
 		{
-			it++;//should be enough to break
+			++it;//should be enough to break
 			continue;
 		}//if degree1 preprocessing on opposite side
-		adjEntry cornersucc = ae->cyclicSucc();
 		adjEntry adjsave = ae;
 		//correct possible shift by bends from other cage
 		if (!((inedge && (v == e->target()))
@@ -2581,8 +2561,7 @@ void EdgeRouter::place(node l_v)
 				adjEntry runadj = run->adjSource();
 				while (v != runadj->theEdge()->target()) {runadj = runadj->faceCycleSucc(); }
 				e = runadj->theEdge();
-				cornersucc = runadj->twin()->cyclicSucc();
-				OGDF_ASSERT(v == cornersucc->theNode());
+				OGDF_ASSERT(v == runadj->twin()->cyclicSucc()->theNode());
 				adjsave = runadj->twin();
 			}
 			OGDF_ASSERT((v == e->target()) ||(v == e->source()));
@@ -2590,7 +2569,8 @@ void EdgeRouter::place(node l_v)
 		OGDF_ASSERT((v == e->target()) ||(v == e->source()));
 		//position
 		if ((m_agp_x[ae] != m_init) && (m_agp_y[ae] != m_init)) set_position(v, m_agp_x[ae], m_agp_y[ae]);
-		OGDF_ASSERT((m_agp_y[ae] != m_init) && (m_agp_x[ae] != m_init))
+		OGDF_ASSERT(m_agp_y[ae] != m_init);
+		OGDF_ASSERT(m_agp_x[ae] != m_init);
 		//bends
 		if (abendType(ae) != bend_free)
 		{
@@ -2724,8 +2704,8 @@ void EdgeRouter::place(node l_v)
 			}//switch
 			m_orp->normalize();
 		}//if
-		ipos++;
-		it++;
+		++ipos;
+		++it;
 	}//while
 
 	//*****************************************************
@@ -2755,30 +2735,27 @@ void EdgeRouter::place(node l_v)
 		v = m_cage_point[ae];
 		if (m_processStatus[v] == used)
 		{
-			it++;//should be enough to break
+			++it;//should be enough to break
 			continue;
 		}//if degree1 preprocessing on opposite side
-		adjEntry cornersucc = ae->cyclicSucc();
 		adjEntry saveadj = ae;
 		//correct possible shift by bends from other cage
 		if (!((inedge && (v == e->target()))
-			|| ((v == e->source()) && !inedge) ))
-		{
+			|| ((v == e->source()) && !inedge) )) {
 			edge run = e;
-			if (inedge)
-			{
+			if (inedge) {
 				adjEntry runadj = run->adjSource();
 				while (v != runadj->theEdge()->target()) {runadj = runadj->faceCycleSucc();}
 				e = runadj->theEdge();
-				cornersucc = runadj->twin()->cyclicSucc();
-				OGDF_ASSERT(v == cornersucc->theNode());
+				OGDF_ASSERT(v == runadj->twin()->cyclicSucc()->theNode());
 				saveadj = runadj->twin();
 			}
 			OGDF_ASSERT((v == e->target()) ||(v == e->source()));
 		}//if buggy
 		//position
 		if ((m_agp_x[ae] != m_init) && (m_agp_y[ae] != m_init)) set_position(v, m_agp_x[ae], m_agp_y[ae]);
-		OGDF_ASSERT((m_agp_x[ae] != m_init) && (m_agp_y[ae] != m_init))
+		OGDF_ASSERT(m_agp_x[ae] != m_init);
+		OGDF_ASSERT(m_agp_y[ae] != m_init);
 		//bends
 		if (abendType(ae) != bend_free)
 		{
@@ -2851,7 +2828,7 @@ void EdgeRouter::place(node l_v)
 					//delete corner before rerouting
 					if (ipos == 0)
 					{
-						adjEntry ae2 = saveadj->cyclicSucc();//cornersucc;
+						adjEntry ae2 = saveadj->cyclicSucc();
 						adjEntry ae3 = ae2->faceCycleSucc();
 
 						//node oldcorner;
@@ -2913,8 +2890,8 @@ void EdgeRouter::place(node l_v)
 			}//switch
 			m_orp->normalize();
 		}//if
-		ipos++;
-		it++;
+		++ipos;
+		++it;
 	}//while
 
 	//*****************************************************
@@ -2943,31 +2920,28 @@ void EdgeRouter::place(node l_v)
 		v = m_cage_point[ae];
 		if (m_processStatus[v] == used)
 		{
-			it++;//should be enough to break
+			++it;//should be enough to break
 			continue;
 		}//if degree1 preprocessing on opposite side
 		//position
-		adjEntry cornersucc = ae->cyclicSucc();
 		adjEntry saveadj = ae;
 		//correct possible shift by bends from other cage
 		if (!((inedge && (v == e->target()))
-		|| ((v == e->source()) && !inedge) ))
-		{
+		|| ((v == e->source()) && !inedge) )) {
 			edge run = e;
-			if (inedge)
-			{
+			if (inedge) {
 				adjEntry runadj = run->adjSource();
 				while (v != runadj->theEdge()->target()) {runadj = runadj->faceCycleSucc(); }
 				e = runadj->theEdge();
-				cornersucc = runadj->twin()->cyclicSucc();
-				OGDF_ASSERT(v == cornersucc->theNode());
+				OGDF_ASSERT(v == runadj->twin()->cyclicSucc()->theNode());
 				saveadj = runadj->twin();
 			}
 			OGDF_ASSERT((v == e->target()) ||(v == e->source()));
 		}//if buggy
 		//position
 		if ((m_agp_x[ae] != m_init) && (m_agp_y[ae] != m_init)) set_position(v, m_agp_x[ae], m_agp_y[ae]);
-		OGDF_ASSERT((m_agp_x[ae] != m_init) && (m_agp_y[ae] != m_init));
+		OGDF_ASSERT(m_agp_x[ae] != m_init);
+		OGDF_ASSERT(m_agp_y[ae] != m_init);
 		//bends
 		if (abendType(ae) != bend_free)
 		{
@@ -2983,7 +2957,7 @@ void EdgeRouter::place(node l_v)
 					{
 						acorn = true;
 						edge newe2;
-						adjEntry ae2 = saveadj->cyclicSucc();     // cornersucc;//next to the right in cage
+						adjEntry ae2 = saveadj->cyclicSucc(); //next to the right in cage
 						edge savedge = ae2->theEdge();
 						if (ae2 == (ae2->theEdge()->adjSource()))
 						{
@@ -3042,7 +3016,7 @@ void EdgeRouter::place(node l_v)
 					//delete corner after last rerouting
 					if (ipos == 0)//(corn && (ipos == infos[l_v].inList(odWest).size()-1))
 					{
-						adjEntry ae2 = saveadj->cyclicSucc();   //cornersucc;//ae->cyclicSucc();
+						adjEntry ae2 = saveadj->cyclicSucc();
 						adjEntry ae3 = ae2->faceCycleSucc();
 						//as long as unsplit does not work, transition
 						//node oldcorner;
@@ -3104,8 +3078,8 @@ void EdgeRouter::place(node l_v)
 			m_orp->normalize();
 		}//if
 
-		ipos++;
-		it++;
+		++ipos;
+		++it;
 
 	}//while
 
@@ -3251,7 +3225,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 		l_it = infos[v].inList(od).begin();
 		while (l_it.valid())
 		{
-			l_it++; //TODO: what happens here?07.2004
+			++l_it; //TODO: what happens here?07.2004
 		}
 		od =OrthoRep::nextDir(od);
 	} while (od != odNorth);
@@ -3262,7 +3236,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		m_abends[outEntry(infos[v], odNorth, infos[v].inList(odNorth).size() - 1 - flipedges)] = bend_1right;
 		infos[v].flips(odNorth, odEast)++;
-		l_it--;
+		--l_it;
 	}
 	//*********************************
 	int newbendfree;
@@ -3283,7 +3257,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		infos[v].flips(odNorth, odWest)++;
 		m_abends[outEntry(infos[v], odNorth, flipedges)] = bend_1left;
-		l_it++;
+		++l_it;
 	}
 	//**********************************
 	newbendfree = beta_move(odNorth, odWest, flip_lb, v);
@@ -3299,7 +3273,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		infos[v].flips(odSouth, odEast)++;
 		m_abends[outEntry(infos[v], odSouth, infos[v].inList(odSouth).size() - 1 - flipedges)] = bend_1left;
-		l_it--;
+		--l_it;
 	}
 	//***********************************
 	newbendfree = beta_move(odSouth, odEast, flip_rt, v);
@@ -3315,7 +3289,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		m_abends[outEntry(infos[v], odSouth, flipedges)] = bend_1right;
 		infos[v].flips(odSouth, odWest)++;
-		l_it++;
+		++l_it;
 	}
 	//**********************************
 	newbendfree = beta_move(odSouth, odWest, flip_rb, v);
@@ -3332,7 +3306,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		m_abends[outEntry(infos[v], odEast, flipedges)] = bend_1left;
 		infos[v].flips(odEast, odNorth)++;
-		l_it++;
+		++l_it;
 	}
 	//**********************************
 	newbendfree = beta_move(odEast, odNorth, flip_tl, v);
@@ -3348,7 +3322,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		m_abends[outEntry(infos[v], odWest, flipedges)] = bend_1right;
 		infos[v].flips(odWest, odNorth)++;
-		l_it++;
+		++l_it;
 	}
 	//**********************************
 	newbendfree = beta_move(odWest, odNorth, flip_bl, v);
@@ -3366,7 +3340,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 		{
 			m_abends[outEntry(infos[v], odEast, infos[v].inList(odEast).size() - 1 - flipedges)] = bend_1right;
 			infos[v].flips(odEast, odSouth)++;
-			l_it--;
+			--l_it;
 		}
 	}
 	//***************************************************
@@ -3383,7 +3357,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	{
 		m_abends[outEntry(infos[v], odWest, infos[v].inList(odWest).size() - 1 - flipedges)] = bend_1left;
 		infos[v].flips(odWest, odSouth)++;
-		l_it--;
+		--l_it;
 	}
 	//***************************************************
 	newbendfree = beta_move(odWest, odSouth, flip_br, v);
@@ -3401,7 +3375,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 		l_it = infos[v].inList(od).begin();
 		while (l_it.valid())
 		{
-			l_it++;
+			++l_it;
 		}
 		od =OrthoRep::nextDir(od);
 	} while (od != odNorth);
@@ -3422,11 +3396,11 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 		// m_corner[dir] is adjacency entry in direction dir starting at
 		// a corner
 		//adjEntry m_corner[4];
-		infos[v].firstAdj() = 0;
+		infos[v].firstAdj() = nullptr;
 
 		adjEntry adj = m_prup->expandAdj(v);
 
-		if (adj != 0)
+		if (adj != nullptr)
 		{
 			//preliminary: reset PlanRep expandedNode values if necessary
 			adjEntry adjRun = adj;
@@ -3454,7 +3428,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 					edge in_edge = in_edge_adj->theEdge();
 					//clockwise cyclic search  ERROR: in/out edges: I always use target later for cage nodes!!
 					bool is_in = (in_edge->adjTarget() == in_edge_adj);
-					if (infos[v].firstAdj() == 0) infos[v].firstAdj() = in_edge_adj;
+					if (infos[v].firstAdj() == nullptr) infos[v].firstAdj() = in_edge_adj;
 
 					OGDF_ASSERT(m_orp->direction(in_edge_adj) == OrthoRep::nextDir(od) ||
 						m_orp->direction(in_edge_adj) == OrthoRep::prevDir(od));
@@ -3741,9 +3715,9 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 		ic = 0;
 		while (ep.valid() && (ic < move_num))
 		{
-			ic++;
-			if (down) {ep++; adjcount++;}
-			else { ep--; adjcount--; }
+			++ic;
+			if (down) { ++ep; ++adjcount; }
+			else { --ep; --adjcount; }
 		}
 
 		if (ep.valid()) ae = outEntry(infos[v], s_from, adjcount);
@@ -3803,14 +3777,14 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 		{
 			if (down)
 			{
-				ep++;
+				++ep;
 				ae = outEntry(infos[v], s_from, ++adjcount);
 			}
 			else {
-				ep--;
+				--ep;
 				ae = outEntry(infos[v], s_from, --adjcount);
 			}
-			ic++;
+			++ic;
 
 			//four cases:
 			if (ep.valid())
@@ -4091,10 +4065,9 @@ edge EdgeRouter::addRightBend(edge e)
 //set the computed values in the m_med structure
 void EdgeRouter::setDistances()
 {
-	node v;
-	forall_nodes(v, *m_prup)
+	for(node v : m_prup->nodes)
 	{
-		if ((m_prup->expandAdj(v) != 0) && (m_prup->typeOf(v) != Graph::generalizationMerger))
+		if ((m_prup->expandAdj(v) != nullptr) && (m_prup->typeOf(v) != Graph::generalizationMerger))
 		{
 			OrthoDir od = odNorth;
 			do
@@ -4107,7 +4080,7 @@ void EdgeRouter::setDistances()
 				od = OrthoRep::nextDir(od);
 			} while (od != odNorth);
 		}//if
-	}//forallnodes
+	}
 }
 
 

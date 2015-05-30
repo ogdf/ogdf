@@ -1,11 +1,3 @@
- /*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class MaximumPlanarSubgraph
  *
@@ -72,9 +64,8 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 
 	delEdges.clear();
 
-	node v;
-	NodeArray<node> tableNodes(G,0);
-	EdgeArray<edge> tableEdges(G,0);
+	NodeArray<node> tableNodes(G,nullptr);
+	EdgeArray<edge> tableEdges(G,nullptr);
 	NodeArray<bool> mark(G,0);
 
 	EdgeArray<int> componentID(G);
@@ -85,8 +76,7 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 
 	// Determine edges per biconnected component
 	Array<SList<edge> > blockEdges(0,bcCount-1);
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		if (!e->isSelfLoop())
 			blockEdges[componentID[e]].pushFront(e);
@@ -97,10 +87,8 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 	int i;
 	for (i = 0; i < bcCount; i++)
 	{
-		SListIterator<edge> it;
-		for (it = blockEdges[i].begin(); it.valid(); ++it)
+		for (edge e : blockEdges[i])
 		{
-			e = *it;
 			if (!mark[e->source()])
 			{
 				blockNodes[i].pushBack(e->source());
@@ -112,9 +100,8 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 				mark[e->target()] = true;
 			}
 		}
-		SListIterator<node> itn;
-		for (itn = blockNodes[i].begin(); itn.valid(); ++itn)
-			mark[*itn] = false;
+		for (node v : blockNodes[i])
+			mark[v] = false;
 	}
 
 
@@ -130,19 +117,15 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 		{
 			Graph C;
 
-			SListIterator<node> itn;
-			for (itn = blockNodes[i].begin(); itn.valid(); ++ itn)
+			for (node v : blockNodes[i])
 			{
-				v = *itn;
 				node w = C.newNode();
 				tableNodes[v] = w;
 			}
 
 
-			SListIterator<edge> it;
-			for (it = blockEdges[i].begin(); it.valid(); ++it)
+			for (edge e : blockEdges[i])
 			{
-				e = *it;
 				edge f = C.newEdge(tableNodes[e->source()],tableNodes[e->target()]);
 				tableEdges[e] = f;
 			}
@@ -151,9 +134,9 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 			// Necessary, since edges are deleted in a new graph
 			// that represents the current biconnected component
 			// of the original graph.
-			EdgeArray<edge> backTableEdges(C,0);
-			for (it = blockEdges[i].begin(); it.valid(); ++it)
-				backTableEdges[tableEdges[*it]] = *it;
+			EdgeArray<edge> backTableEdges(C,nullptr);
+			for (edge e : blockEdges[i])
+				backTableEdges[tableEdges[e]] = e;
 
 			// The deleted edges of the biconnected component
 			List<edge> delEdgesOfBC;

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2549 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-04 23:09:19 +0200 (Wed, 04 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of module base classes
  *
@@ -51,9 +43,8 @@ void AcyclicSubgraphModule::callAndReverse(Graph &G, List<edge> &reversed)
 {
 	call(G,reversed);
 
-	ListConstIterator<edge> it;
-	for(it = reversed.begin(); it.valid(); ++it)
-		G.reverseEdge(*it);
+	for(edge e : reversed)
+		G.reverseEdge(e);
 }
 
 
@@ -69,9 +60,8 @@ void AcyclicSubgraphModule::callAndDelete(Graph &G)
 	List<edge> arcSet;
 	call(G,arcSet);
 
-	ListConstIterator<edge> it;
-	for(it = arcSet.begin(); it.valid(); ++it)
-		G.delEdge(*it);
+	for(edge e : arcSet)
+		G.delEdge(e);
 }
 
 

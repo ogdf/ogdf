@@ -1,11 +1,3 @@
-/*
- * $Revision: 3210 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Tue, 15 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of crossings matrix.
  *
@@ -100,7 +92,7 @@ void CrossingsMatrix::init(Level &L)
 }
 
 
-void CrossingsMatrix::init(Level &L, const EdgeArray<__uint32> *edgeSubGraphs)
+void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 {
 	OGDF_ASSERT(edgeSubGraphs != 0);
 	init(L);
@@ -109,9 +101,8 @@ void CrossingsMatrix::init(Level &L, const EdgeArray<__uint32> *edgeSubGraphs)
 	const GraphCopy &GC = levels.hierarchy();
 
 	// calculate max number of graphs in edgeSubGraphs
-	edge d;
 	int max = 0;
-	forall_edges(d, GC.original()) {
+	for(edge d : GC.original().edges) {
 		for (int i = 31; i > max; i--)
 		{
 			if((*edgeSubGraphs)[d] & (1 << i))

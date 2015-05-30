@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of DOT string conversion functions.
  *
@@ -117,7 +109,7 @@ std::string toString(const Graph::EdgeType &type)
 
 
 // Map is lazily-evaluated (this could be avoided with C++11 constexpr).
-static Hashing<std::string, Attribute> *attrMap = NULL;
+static Hashing<std::string, Attribute> attrMap;
 
 Attribute toAttribute(const std::string &str)
 {
@@ -128,7 +120,7 @@ Attribute toAttribute(const std::string &str)
 
 
 // Same as attrMap but with shapes.
-static Hashing<std::string, Shape> *shapeMap = NULL;
+static Hashing<std::string, Shape> shapeMap;
 Shape toShape(const std::string &str) {
 	return toEnum(
 		str, shapeMap, toString,
@@ -136,7 +128,7 @@ Shape toShape(const std::string &str) {
 }
 
 // Same as attrMap but with arrows.
-static Hashing<std::string, EdgeArrow> *arrowMap = NULL;
+static Hashing<std::string, EdgeArrow> arrowMap;
 
 EdgeArrow toArrow(const std::string &str)
 {

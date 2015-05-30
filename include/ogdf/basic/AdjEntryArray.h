@@ -1,11 +1,3 @@
-/*
- * $Revision: 3170 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2012-12-20 11:36:44 +0100 (Thu, 20 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of AdjEntryArray class.
  *
@@ -72,9 +64,17 @@ public:
 
 	//! Initializes an adjacency entry array not associated with a graph.
 	AdjEntryArrayBase() : m_pGraph(0) { }
+
 	//! Initializes an adjacency entry array associated with \a pG.
 	AdjEntryArrayBase(const Graph *pG) : m_pGraph(pG) {
 		if(pG) m_it = pG->registerArray(this);
+	}
+
+	//! Moves adjacency entry array \a base to this adjacency entry array.
+	AdjEntryArrayBase(AdjEntryArrayBase &base) : m_it(base.m_it), m_pGraph(base.m_pGraph) {
+		if(m_pGraph) m_pGraph->moveRegisterArray(m_it, this);
+		base.m_pGraph = nullptr;
+		base.m_it     = ListIterator<AdjEntryArrayBase*>();
 	}
 
 	// destructor, unregisters the array
@@ -97,11 +97,25 @@ public:
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
 		if ((m_pGraph = pG) != 0) m_it = pG->registerArray(this);
 	}
+
+	//! Moves array registration from \a base to this array.
+	void moveRegister(AdjEntryArrayBase &base) {
+		if (m_pGraph) m_pGraph->unregisterArray(m_it);
+		m_pGraph = base.m_pGraph;
+		m_it     = base.m_it;
+		base.m_pGraph = nullptr;
+		base.m_it     = ListIterator<AdjEntryArrayBase*>();
+		if (m_pGraph != nullptr)
+			m_pGraph->moveRegisterArray(m_it, this);
+	}
+
 }; // class AdjEntryArrayBase
 
 
 //! Dynamic arrays indexed with adjacency entries.
 /**
+ * @ingroup graph-containers
+ *
  * Adjacency entry arrays represent a mapping from adjacency entries to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
@@ -111,10 +125,23 @@ template<class T> class AdjEntryArray : private Array<T>, protected AdjEntryArra
 	T m_x; //!< The default value for array elements.
 
 public:
+	//! The type for array keys.
+	typedef adjEntry key_type;
+	//! The type for array entries.
+	typedef T value_type;
+
+	//! The type for edge array iterators.
+	typedef internal::GraphArrayIterator<AdjEntryArray<T>> iterator;
+	//! The type for edge array const iterators.
+	typedef internal::GraphArrayConstIterator<EdgeArray<T>> const_iterator;
+
+
 	//! Constructs an empty adjacency entry array associated with no graph.
 	AdjEntryArray() : Array<T>(), AdjEntryArrayBase() { }
+
 	//! Constructs an adjacency entry array associated with \a G.
 	AdjEntryArray(const Graph &G) : Array<T>(G.adjEntryArrayTableSize()), AdjEntryArrayBase(&G) { }
+
 	//! Constructs an adjacency entry array associated with \a G.
 	/**
 	 * @param G is the associated graph.
@@ -122,11 +149,25 @@ public:
 	 */
 	AdjEntryArray(const Graph &G, const T &x) :
 		Array<T>(0,G.adjEntryArrayTableSize()-1,x), AdjEntryArrayBase(&G), m_x(x) { }
+
 	//! Constructs an adjacency entry array that is a copy of \a A.
 	/**
 	 * Associates the array with the same graph as \a A and copies all elements.
 	 */
 	AdjEntryArray(const AdjEntryArray<T> &A) : Array<T>(A), AdjEntryArrayBase(A.m_pGraph), m_x(A.m_x) { }
+
+	//! Constructs an adjacency entry array containing the elements of \a A (move semantics).
+	/**
+	 * Adjacency entry array \a A is empty afterwards and not associated with any graph.
+	 */
+	AdjEntryArray(AdjEntryArray<T> &&A) : Array<T>(std::move(A)), AdjEntryArrayBase(A), m_x(A.m_x) { }
+
+
+	/**
+	 * @name Access methods
+	 * These methods provide access to elements, size, and corresponding graph.
+	 */
+	//@{
 
 	//! Returns true iff the array is associated with a graph.
 	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
@@ -138,41 +179,123 @@ public:
 
 	//! Returns a reference to the element with index \a adj.
 	const T &operator[](adjEntry adj) const {
-		OGDF_ASSERT(adj != 0 && adj->graphOf() == m_pGraph)
+		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
 	//! Returns a reference to the element with index \a adj.
 	T &operator[](adjEntry adj) {
-		OGDF_ASSERT(adj != 0 && adj->graphOf() == m_pGraph)
+		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
-	//! Returns a reference the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for an adjacency
-	 * entry in the associated graph!
-	 */
-	const T &operator[](int index) const {
-		return Array<T>::operator [](index);
+	//! Returns a reference to the element with index \a adj.
+	const T &operator()(adjEntry adj) const {
+		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
+		return Array<T>::operator [](adj->index());
 	}
 
-	//! Returns a reference the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for an adjacency
-	 * entry in the associated graph!
-	 */
-	T &operator[](int index) {
-		return Array<T>::operator [](index);
+	//! Returns a reference to the element with index \a adj.
+	T &operator()(adjEntry adj) {
+		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj->graphOf() == m_pGraph);
+		return Array<T>::operator [](adj->index());
 	}
 
-	//! Assignment operator.
-	AdjEntryArray<T> &operator=(const AdjEntryArray<T> &A) {
-		Array<T>::operator =(A);
-		m_x = A.m_x;
-		reregister(A.m_pGraph);
-		return *this;
+
+	//@}
+	/**
+	 * @name Iterators
+	 * These methods return bidirectional iterators to elements in the array.
+	 */
+	//@{
+
+	//! Returns an iterator to the first entry in the array.
+	/**
+	 * If the array is empty, a null pointer iterator is returned.
+	 */
+	iterator begin() {
+		return iterator(findFirstKey(), this);
 	}
+
+	//! Returns a const iterator to the first entry in the array.
+	/**
+	 * If the array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator begin() const { return const_iterator(findFirstKey(), this); }
+
+	//! Returns a const iterator to the first entry in the array.
+	/**
+	 * If the array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator cbegin() const { return const_iterator(findFirstKey(), this); }
+
+	//! Returns an iterator to one-past-last entry in the array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator end() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator end() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator cend() const { return const_iterator(nullptr, this); }
+
+	//! Returns an iterator to the last entry in the array.
+	/**
+	 * If the array is empty, a null pointer iterator is returned.
+	 */
+	iterator rbegin() {
+		return iterator(findLastKey(), this);
+	}
+
+	//! Returns a const iterator to the last entry in the array.
+	/**
+	 * If the array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator rbegin() const { return const_iterator(findLastKey(), this); }
+
+	//! Returns a const iterator to the last entry in the array.
+	/**
+	 * If the array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator crbegin() const { return const_iterator(findLastKey(), this); }
+
+	//! Returns an iterator to one-before-first entry in the array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator rend() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator rend() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator crend() const { return const_iterator(nullptr, this); }
+
+
+	//@}
+	/**
+	 * @name Initialization and assignment
+	 * These methods can be used to reinitialize the array, or to initialize all elements with a given value.
+	 */
+	//@{
 
 	//! Reinitializes the array. Associates the array with no graph.
 	void init() {
@@ -200,7 +323,74 @@ public:
 			Array<T>::fill(0,high,x);
 	}
 
+	//! Assignment operator.
+	AdjEntryArray<T> &operator=(const AdjEntryArray<T> &A) {
+		Array<T>::operator =(A);
+		m_x = A.m_x;
+		reregister(A.m_pGraph);
+		return *this;
+	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * Adjacency entry array \a a is empty afterwards and not associated with any graph.
+	 */
+	AdjEntryArray<T> &operator=(AdjEntryArray<T> &&a) {
+		Array<T>::operator=(std::move(a));
+		m_x = a.m_x;
+		moveRegister(a);
+		return *this;
+	}
+
+
+	//@}
+	/**
+	 * @name Helper functions
+	 * These methods are mainly intended for internal use.
+	 */
+	//@{
+
+	//! Returns the key succeeding \a adj.
+	static adjEntry findSuccKey(adjEntry adj) {
+		if(adj->succ() != nullptr)
+			return adj->succ();
+		node v = adj->theNode();
+		for(v = v->succ(); v != nullptr && v->firstAdj() == nullptr; v = v->succ())
+			;
+		return (v != nullptr) ? v->firstAdj() : nullptr;
+	}
+
+	//! Returns the key preceeding \a adj.
+	static adjEntry findPredKey(adjEntry adj) {
+		if(adj->pred() != nullptr)
+			return adj->pred();
+		node v = adj->theNode();
+		for(v = v->pred(); v != nullptr && v->lastAdj() == nullptr; v = v->pred())
+			;
+		return (v != nullptr) ? v->lastAdj() : nullptr;
+	}
+
+	//@}
+
 private:
+	//! Returns the first key (adjacency entry in the graph).
+	adjEntry findFirstKey() const {
+		node v = m_pGraph->firstNode();
+		while(v != nullptr && v->firstAdj() == nullptr)
+			v = v->succ();
+		adjEntry key = (v != nullptr) ? v->firstAdj() : nullptr;
+		return key;
+	}
+
+	//! Returns the last key (adjacency entry in the graph).
+	adjEntry findLastKey() const {
+		node v = m_pGraph->lastNode();
+		while(v != nullptr && v->lastAdj() == nullptr)
+			v = v->pred();
+		adjEntry key = (v != nullptr) ? v->lastAdj() : nullptr;
+		return key;
+	}
+
 	virtual void enlargeTable(int newTableSize) {
 		Array<T>::grow(newTableSize-Array<T>::size(),m_x);
 	}

@@ -288,7 +288,7 @@ void CglOddHole::generateCuts(const OsiRowCutDebugger * /*debugger*/,
       to[n]=ito;
       to[k]=ito+nSmall;
       cost[n]=cost[k];
-      rowfound[n++]=rowfound[k];;
+      rowfound[n++]=rowfound[k];
     }
     starts[j+1]=n;
   }

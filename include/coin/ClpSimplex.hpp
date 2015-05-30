@@ -132,7 +132,7 @@ public:
      /** Reset to base model (just size and arrays needed)
          If model NULL use internal copy
      */
-     void setToBaseModel(ClpSimplex * model = NULL);
+     void setToBaseModel(ClpSimplex * model = nullptr);
      /// Assignment operator. This copies the data
      ClpSimplex & operator=(const ClpSimplex & rhs);
      /// Destructor
@@ -153,12 +153,12 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      void loadProblem (  const CoinPackedMatrix& matrix,
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
 
      /** Just like the other loadProblem() method except that the matrix is
        given in a standard column major ordered format (without gaps). */
@@ -168,7 +168,7 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      /// This one is for after presolve to save memory
      void loadProblem (  const int numcols, const int numrows,
                          const CoinBigIndex* start, const int* index,
@@ -176,7 +176,7 @@ public:
                          const double* collb, const double* colub,
                          const double* obj,
                          const double* rowlb, const double* rowub,
-                         const double * rowObjective = NULL);
+                         const double * rowObjective = nullptr);
      /** This loads a model from a coinModel object - returns number of errors.
          If keepSolution true and size is same as current then
          keeps current status and solution
@@ -321,7 +321,7 @@ public:
      int dualRanging(int numberCheck, const int * which,
                      double * costIncrease, int * sequenceIncrease,
                      double * costDecrease, int * sequenceDecrease,
-                     double * valueIncrease = NULL, double * valueDecrease = NULL);
+                     double * valueIncrease = nullptr, double * valueDecrease = nullptr);
      /** Primal ranging.
          This computes increase/decrease in value for each given variable and corresponding
          sequence numbers which would change basis.  Sequence numbers are 0..numberColumns
@@ -715,8 +715,8 @@ protected:
      int housekeeping(double objectiveChange);
      /** This sets largest infeasibility and most infeasible and sum
          and number of infeasibilities (Primal) */
-     void checkPrimalSolution(const double * rowActivities = NULL,
-                              const double * columnActivies = NULL);
+     void checkPrimalSolution(const double * rowActivities = nullptr,
+                              const double * columnActivies = nullptr);
      /** This sets largest infeasibility and most infeasible and sum
          and number of infeasibilities (Dual) */
      void checkDualSolution();
@@ -1210,7 +1210,7 @@ public:
      // *** At present only without scaling
      // *** Slacks havve -1.0 element (so == row activity) - take care
      ///Get a row of the tableau (slack part in slack if not NULL)
-     void getBInvARow(int row, double* z, double * slack = NULL);
+     void getBInvARow(int row, double* z, double * slack = nullptr);
 
      ///Get a row of the basis inverse
      void getBInvRow(int row, double* z);

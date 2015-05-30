@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for clustering algorithms that
  * 		  compute a clustering for a given graph based on some
@@ -64,24 +56,24 @@ namespace ogdf {
 	//need to build the clustergraph structure themselves
 	class SimpleCluster
 	{
-		public:
+	public:
 		SimpleCluster(SimpleCluster* parent = 0) : m_size(0), m_parent(parent), m_index(-1) { }
 
 		//insert vertices and children
-		void pushBackVertex(node v) {m_nodes.pushBack(v);}
-		void pushBackChild(SimpleCluster* s) {m_children.pushBack(s);}
+		void pushBackVertex(node v) { m_nodes.pushBack(v); }
+		void pushBackChild(SimpleCluster* s) { m_children.pushBack(s); }
 
-		void setParent(SimpleCluster* parent) {m_parent = parent;}
-		SimpleCluster* getParent() {return m_parent;}
+		void setParent(SimpleCluster* parent) { m_parent = parent; }
+		SimpleCluster* getParent() { return m_parent; }
 
-		void setIndex(int index) {m_index = index;}
-		int getIndex() {return m_index;}
+		void setIndex(int index) { m_index = index; }
+		int getIndex() { return m_index; }
 
-		SList<node> &nodes() {return m_nodes;}
-		SList<SimpleCluster*> &children() {return m_children;}
+		SList<node> &nodes() { return m_nodes; }
+		SList<SimpleCluster*> &children() { return m_children; }
 
 		int m_size;	//preliminary: allowed to be inconsistent with real vertex number to
-					//allow lazy vertex addition (should therefore be local Array?)
+		//allow lazy vertex addition (should therefore be local Array?)
 
 	private:
 		SList<node> m_nodes;
@@ -101,9 +93,9 @@ namespace ogdf {
 	class OGDF_EXPORT ClustererModule
 	{
 
-		public:
+	public:
 		//Constructor taking a graph G to be clustered
-		explicit ClustererModule(const Graph &G) : m_pGraph(&G) {OGDF_ASSERT(isConnected(G));}
+		explicit ClustererModule(const Graph &G) : m_pGraph(&G) { OGDF_ASSERT(isConnected(G)); }
 		//! Default constructor, initializes a clustering module.
 		// Allows to cluster multiple
 		// graphs with the same instance of the Clusterer
@@ -115,9 +107,9 @@ namespace ogdf {
 		 * @param G is the input graph
 		 *
 		 */
-		void setGraph(const Graph &G) {OGDF_ASSERT(isConnected(G));m_pGraph = &G;}
+		void setGraph(const Graph &G) { OGDF_ASSERT(isConnected(G)); m_pGraph = &G; }
 		//! Returns the graph to be clustered
-		const Graph& getGraph() const {return *m_pGraph;}
+		const Graph& getGraph() const { return *m_pGraph; }
 
 		/**
 		* \brief compute some kind of clustering on the graph m_pGraph
@@ -133,26 +125,25 @@ namespace ogdf {
 
 		//! compute a clustering index for each vertex
 		virtual double computeCIndex(const Graph & G, node v) = 0;
+
 		//! compute a clustering index for each vertex
 		virtual double computeCIndex(node v) = 0;
+
 		//! compute the average clustering index for the given graph
 		virtual double averageCIndex()
 		{
 			return averageCIndex(*m_pGraph);
 		}
+
 		virtual double averageCIndex(const Graph &G)
 		{
-			node v;
 			double ciSum = 0.0;
-			forall_nodes(v, G)
-			{
+			for (node v : G.nodes)
 				ciSum += computeCIndex(G, v);
-			}
 			return ciSum / (G.numberOfNodes());
 		}
 
-
-		protected:
+	protected:
 		const Graph* m_pGraph; //the graph to be clustered
 
 		OGDF_MALLOC_NEW_DELETE

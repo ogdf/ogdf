@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for graph augmentation algorithms
  *
@@ -71,7 +63,7 @@ namespace ogdf {
 class OGDF_EXPORT AugmentationModule {
 public:
 	//! Initializes an augmentation module.
-	AugmentationModule() { }
+	AugmentationModule() : m_nAddedEdges(0) { }
 	// destruction
 	virtual ~AugmentationModule() { }
 

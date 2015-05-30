@@ -1,11 +1,3 @@
-/*
- * $Revision: 3553 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:02 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with solar system rules.
  *
@@ -52,6 +44,10 @@
 
 namespace ogdf {
 
+//! The solar merger for multilevel layout.
+/**
+ * @ingroup gd-multi
+ */
 class OGDF_EXPORT SolarMerger : public MultilevelBuilder
 {
 	struct PathData {

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3433 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 13:44:53 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of hierachrical ranking algorithm
  *
@@ -66,6 +58,8 @@ namespace ogdf {
 
 //! The longest-path ranking algorithm.
 /**
+ * @ingroup gd-ranking
+ *
  * The class LongestPathRanking implements the well-known longest-path
  * ranking algorithm, which can be used as first phase in SugiyamaLayout.
  * The implementation contains a special optimization for reducing
@@ -139,7 +133,7 @@ public:
 	 */
 
 	//! Computes a node ranking of \a G in \a rank.
-	void call(const Graph &G, NodeArray<int> &rank);
+	virtual void call(const Graph &G, NodeArray<int> &rank) override;
 
 	//! Computes a node ranking of \a G with given minimal edge length in \a rank.
 	/**
@@ -158,7 +152,12 @@ public:
 	 * @param cost specifies the edge costs (ignored)
 	 * @param rank is assigned the rank (layer) of each node.
 	 */
-	void call(const Graph &G, const EdgeArray<int> & length, const EdgeArray<int> & cost, NodeArray<int> &rank) {
+	virtual void call(
+		const Graph &G,
+		const EdgeArray<int> & length,
+		const EdgeArray<int> & cost,
+		NodeArray<int> &rank) override
+	{
 		call(G, length, rank);
 	}
 

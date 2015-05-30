@@ -1,11 +1,3 @@
-/*
- * $Revision: 3429 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 11:22:50 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class UMLGraph.
  *
@@ -235,7 +227,7 @@ public:
 		while (it.valid())
 		{
 			modelAssociationClass((*it));
-			it++;
+			++it;
 		}//while
 	}
 	node modelAssociationClass(AssociationClass* ac)
@@ -256,7 +248,7 @@ public:
 		while (it.valid())
 		{
 			undoAssociationClass((*it));
-			it++;
+			++it;
 		}//while
 	}
 	//remove the modeling of the association class without removing the information

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -405,14 +397,15 @@ inline ConVar::~ConVar()
 #ifdef OGDF_DEBUG
 	if (nActive_) {
 		Logger::ifout() << "ConVar::~ConVar(): constraint/variable still active: \ncounter = " << nActive_ << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
 	}
 
 	if (nLocks_) {
 		Logger::ifout() << "ConVar::~ConVar(): constraint/variable has still " << nLocks_ << " locks\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
 	}
 #endif
+
+	OGDF_ASSERT(nActive_ == 0);
+	OGDF_ASSERT(nLocks_ == 0);
 }
 
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of parameterized class for module options
  *
@@ -69,6 +61,10 @@ template<class M> class ModuleOption {
 public:
 	//! Initializes a module option; the initial module is just a 0-pointer.
 	ModuleOption() : m_pModule(0) { }
+
+	ModuleOption(M *pModule) {
+		m_pModule = pModule;
+	}
 
 	// destruction
 	~ModuleOption() { delete m_pModule; }

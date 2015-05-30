@@ -1,11 +1,3 @@
-/*
- * $Revision: 4047 $
- *
- * last checkin:
- *   $Author: zeranski $
- *   $Date: 2014-04-04 15:49:11 +0200 (Fri, 04 Apr 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class UpwardPlanarity.
  *
@@ -44,6 +36,8 @@
 
 #include <ogdf/internal/upward/UpwardPlanarityEmbeddedDigraph.h>
 #include <ogdf/internal/upward/UpwardPlanaritySingleSource.h>
+#include <ogdf/internal/upward/UpSAT.h>
+#include <ogdf/upward/MaximalFUPS.h>
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
@@ -56,9 +50,29 @@ namespace ogdf {
 	// General digraphs
 	//
 
+	bool UpwardPlanarity::isUpwardPlanar(Graph &G) {
+			UpSAT tester(G);
+			return tester.testUpwardPlanarity();
+	}
+
+	bool UpwardPlanarity::embedUpwardPlanar(Graph &G, adjEntry& externalToItsRight) {
+			UpSAT embedder(G);
+			return embedder.embedUpwardPlanar(externalToItsRight);
+	}
+
+//	int UpwardPlanarity::maximalFeasibleUpwardPlanarSubgraph(const Graph &G, GraphCopy &GC) {
+//			MaximalFUPS m(G,0);
+//			return m.computeMFUPS(GC);
+//	}
+
+
+	//
+	// Biconnected digraphs
+	//
+
 	bool UpwardPlanarity::isUpwardPlanar_embedded(const Graph &G)
 	{
-			if (G.representsCombEmbedding() && isAcyclic(G)) {
+			if (isBiconnected(G) && G.representsCombEmbedding() && isAcyclic(G)) {
 				UpwardPlanarityEmbeddedDigraph p(G);
 				return p.isUpwardPlanarEmbedded();
 			}
@@ -68,13 +82,12 @@ namespace ogdf {
 
 	bool UpwardPlanarity::isUpwardPlanar_embedded(const Graph &G, List<adjEntry> &possibleExternalFaces)
 	{
-			if (G.representsCombEmbedding() && isAcyclic(G)) {
+			if (isBiconnected(G) && G.representsCombEmbedding() && isAcyclic(G)) {
 				UpwardPlanarityEmbeddedDigraph p(G);
 				return p.isUpwardPlanarEmbedded(possibleExternalFaces);
 			}
 			return false;
 	}
-
 
 	//
 	// Triconnected digraphs

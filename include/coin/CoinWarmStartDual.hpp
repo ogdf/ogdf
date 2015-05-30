@@ -42,7 +42,7 @@ public:
    }
 
    /** `Virtual constructor' */
-   virtual CoinWarmStart *clone() const {
+   virtual CoinWarmStart *clone() const override {
       return new CoinWarmStartDual(*this);
    }
 
@@ -59,7 +59,7 @@ public:
   */
 
   virtual CoinWarmStartDiff*
-  generateDiff (const CoinWarmStart *const oldCWS) const ;
+  generateDiff (const CoinWarmStart *const oldCWS) const override ;
 
   /*! \brief Apply \p diff to this warm start.
 
@@ -67,7 +67,7 @@ public:
     allocated capacity of the warm start is sufficiently large.
   */
 
-  virtual void applyDiff (const CoinWarmStartDiff *const cwsdDiff) ;
+  virtual void applyDiff (const CoinWarmStartDiff *const cwsdDiff) override ;
 
 #if 0
 protected:
@@ -102,7 +102,7 @@ class CoinWarmStartDualDiff : public virtual CoinWarmStartDiff
 { public:
 
   /*! \brief `Virtual constructor' */
-  virtual CoinWarmStartDiff *clone() const
+  virtual CoinWarmStartDiff *clone() const override
   {
       return new CoinWarmStartDualDiff(*this) ;
   }

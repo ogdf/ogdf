@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class Skeleton.
  *
@@ -61,6 +53,8 @@ namespace ogdf {
 
 //! %Skeleton graphs of nodes in an SPQR-tree.
 /**
+ * @ingroup dc-helper
+ *
  * The class Skeleton maintains the skeleton \a S of a node \a vT in an SPQR-tree
  * \a T. We call \a T the owner tree of \a S and \a vT the corresponding tree node. Let
  * \a G be the original graph of \a T.

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class numexcept (handling of numeric problems).
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 
-#include "numexcept.h"
+#include <ogdf/internal/energybased/numexcept.h>
 #include <ogdf/basic/basic.h>
 
 #define epsilon 0.1

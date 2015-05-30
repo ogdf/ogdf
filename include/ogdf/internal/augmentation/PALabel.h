@@ -1,11 +1,3 @@
-/*
- * $Revision: 2597 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-15 19:26:11 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares auxiliary structure of planar augmentation algorithms.
  *

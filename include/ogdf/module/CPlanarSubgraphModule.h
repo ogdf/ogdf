@@ -1,11 +1,3 @@
-/*
- * $Revision: 2584 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 02:38:07 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of an interface for c-planar subgraph algorithms.
  *

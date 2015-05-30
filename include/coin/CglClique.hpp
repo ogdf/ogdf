@@ -19,7 +19,7 @@ public:
     /// Copy constructor
     CglClique(const CglClique& rhs);
     /// Clone
-    virtual CglCutGenerator * clone() const;
+    virtual CglCutGenerator * clone() const override;
 
     /// Assignment operator
     CglClique& operator=(const CglClique& rhs);
@@ -28,7 +28,7 @@ public:
     
     virtual void
     generateCuts(const OsiSolverInterface& si, OsiCuts & cs,
-		 const CglTreeInfo info = CglTreeInfo()) const;
+		 const CglTreeInfo info = CglTreeInfo()) const override;
    
     /**@name Constructors and destructors */
     //@{
@@ -54,7 +54,7 @@ public:
     /// Destructor
     virtual ~CglClique() {}
     /// Create C++ lines to get to current state
-    virtual std::string generateCpp( FILE * fp);
+    virtual std::string generateCpp( FILE * fp) override;
 
     void considerRows(const int numRows, const int* rowInd);
 
@@ -130,7 +130,7 @@ private:
 	frac_graph() :
 	    nodenum(0), edgenum(0), density(0),
 	    min_deg_node(0), min_degree(0), max_deg_node(0), max_degree(0),
-	    nodes(0), all_nbr(0), all_edgecost(0) {}
+	    nodes(nullptr), all_nbr(nullptr), all_edgecost(nullptr) {}
     };
 
 protected:
@@ -265,14 +265,14 @@ public:
   /// Copy constructor
   CglFakeClique(const CglFakeClique& rhs);
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
   
   /// Assignment operator
   CglFakeClique& operator=(const CglFakeClique& rhs);
   
   virtual void
   generateCuts(const OsiSolverInterface& si, OsiCuts & cs,
-	       const CglTreeInfo info = CglTreeInfo()) const;
+	       const CglTreeInfo info = CglTreeInfo()) const override;
   
   /**@name Constructors and destructors */
   //@{
@@ -293,7 +293,7 @@ public:
       If the user does not set the list of clique rows then CglFakeClique will
       start the generateCuts() methods by scanning the matrix for them.
   */
-  CglFakeClique(OsiSolverInterface * solver=NULL,bool setPacking = false);
+  CglFakeClique(OsiSolverInterface * solver=nullptr,bool setPacking = false);
   /// Destructor
   virtual ~CglFakeClique();
   /// Assign solver (generator takes over ownership)

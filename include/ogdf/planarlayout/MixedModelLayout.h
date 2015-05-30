@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Mixed-Model layout algorithm.
  *
@@ -171,12 +163,12 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	void doCall(
+	virtual void doCall(
 		PlanRep &PG,
 		adjEntry adjExternal,
 		GridLayout &gridLayout,
 		IPoint &boundingBox,
-		bool fixEmbedding);
+		bool fixEmbedding) override;
 
 private:
 	ModuleOption<EmbedderModule>      m_embedder;  //!< The planar embedder module.

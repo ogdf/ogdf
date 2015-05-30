@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -44,20 +36,9 @@ namespace abacus {
 
 ostream& operator<<(ostream& out, const History &rhs)
 {
-	// History: local variables of the output operator
-	double    guarantee=0.0; //!< guarantee of a solution in the history
-	double    quality=0.0;   //!< quality of a solution in the history
-	bool      opt;       //!< \a true if problem has been solved to optimality
-	bool      qAvailable;   //!< \a true if quality can be given at this point of history
-	bool      gAvailable;   //!< \a true if guarantee can be given at this point of history
-	bool      feasible;  //!< \a true if feasible solution available at this point of history
-	int       last;      //!< index of last entry in history table
-	double    ub;        //!< upper bound
-	double    lb;        //!< lower bound
-	double    optVal=0.0;    //!< value of the optimum solution
-	__int64   min;       //!< total minutes
-	__int64   rmin;      //!< total minutes modulo 60
-	__int64   rsec;      //!< total seconds modulo 60
+	int64_t   min;       //!< total minutes
+	int64_t   rmin;      //!< total minutes modulo 60
+	int64_t   rsec;      //!< total seconds modulo 60
 
 	const double eps      = rhs.master_->eps();
 	const double infinity = rhs.master_->infinity();
@@ -74,6 +55,18 @@ ostream& operator<<(ostream& out, const History &rhs)
 	out << "Solution History" << endl << endl;
 
 	if (rhs.n_) {
+
+		// History: local variables of the output operator
+		double    guarantee=0.0; //!< guarantee of a solution in the history
+		double    quality=0.0;   //!< quality of a solution in the history
+		bool      opt;       //!< \a true if problem has been solved to optimality
+		bool      qAvailable;   //!< \a true if quality can be given at this point of history
+		bool      gAvailable;   //!< \a true if guarantee can be given at this point of history
+		bool      feasible;  //!< \a true if feasible solution available at this point of history
+		int       last;      //!< index of last entry in history table
+		double    ub;        //!< upper bound
+		double    lb;        //!< lower bound
+		double    optVal=0.0;    //!< value of the optimum solution
 
 		// headline of history table
 		out << setw(w1) << "Solution";
@@ -227,7 +220,7 @@ void History::update()
 
 	dualBound_[n_]   = master_->dualBound();
 	primalBound_[n_] = master_->primalBound();
-	time_[n_]        = master_->totalTime()->seconds();;
+	time_[n_]        = master_->totalTime()->seconds();
 	++n_;
 }
 

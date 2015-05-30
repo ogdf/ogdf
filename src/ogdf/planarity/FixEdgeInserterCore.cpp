@@ -1,3 +1,37 @@
+/** \file
+* \brief Implemention of class FixEdgeInserterCore and FixEdgeInserterUMLCore,
+* which are the implementation classes for edge insertion with fixed embedding.
+*
+* \author Carsten Gutwenger
+*
+* \par License:
+* This file is part of the Open Graph Drawing Framework (OGDF).
+*
+* \par
+* Copyright (C)<br>
+* See README.txt in the root directory of the OGDF installation for details.
+*
+* \par
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU General Public License
+* Version 2 or 3 as published by the Free Software Foundation;
+* see the file LICENSE.txt included in the packaging of this file
+* for details.
+*
+* \par
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* \par
+* You should have received a copy of the GNU General Public
+* License along with this program; if not, write to the Free
+* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+* Boston, MA 02110-1301, USA.
+*
+* \see  http://www.gnu.org/copyleft/gpl.html
+***************************************************************/
 
 #include <ogdf/internal/planarity/FixEdgeInserterCore.h>
 #include <ogdf/basic/FaceSet.h>
@@ -18,7 +52,7 @@ namespace ogdf {
 		FEICrossingsBucket(const PlanRepLight *pPG) :
 			m_pPG(pPG) { }
 
-		int getBucket(const edge &e) {
+		int getBucket(const edge &e) override {
 			return -m_pPG->chain(e).size();
 		}
 	};
@@ -85,25 +119,24 @@ namespace ogdf {
 		// if we can't allocate memory for them, we throw an exception
 		if (rrPost != rrNone) {
 			m_delFaces = new FaceSetSimple(E);
-			if (m_delFaces == 0)
+			if (m_delFaces == nullptr)
 				OGDF_THROW(InsufficientMemoryException);
 
 			m_newFaces = new FaceSetPure(E);
-			if (m_newFaces == 0) {
+			if (m_newFaces == nullptr) {
 				delete m_delFaces;
 				OGDF_THROW(InsufficientMemoryException);
 			}
 
 		// no postprocessing -> no removeEdge()
 		} else {
-			m_delFaces = 0;
-			m_newFaces = 0;
+			m_delFaces = nullptr;
+			m_newFaces = nullptr;
 		}
 
 		SListPure<edge> currentOrigEdges;
 		if(rrPost == rrIncremental) {
-			edge e;
-			forall_edges(e,m_pr)
+			for(edge e : m_pr.edges)
 				currentOrigEdges.pushBack(m_pr.original(e));
 		}
 
@@ -118,7 +151,7 @@ namespace ogdf {
 			//if(edgeSubGraphs!=0) eSubGraph = (*edgeSubGraphs)[eOrig];
 
 			SList<adjEntry> crossed;
-			if(m_pCost != 0) {
+			if(m_pCost != nullptr) {
 				findWeightedShortestPath(E, eOrig, crossed);
 			} else {
 				findShortestPath(E, eOrig, crossed);
@@ -134,12 +167,9 @@ namespace ogdf {
 					++m_runsPostprocessing;
 					improved = false;
 
-					SListConstIterator<edge> itRR;
-					for(itRR = currentOrigEdges.begin(); itRR.valid(); ++itRR)
+					for (edge eOrigRR : currentOrigEdges)
 					{
-						edge eOrigRR = *itRR;
-
-						int pathLength = (m_pCost != 0) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
+						int pathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
 						if (pathLength == 0) continue; // cannot improve
 
 						removeEdge(E, eOrigRR);
@@ -148,7 +178,7 @@ namespace ogdf {
 
 						// try to find a better insertion path
 						SList<adjEntry> crossed;
-						if(m_pCost != 0) {
+						if(m_pCost != nullptr) {
 							findWeightedShortestPath(E, eOrigRR, crossed);
 						} else {
 							findShortestPath(E, eOrigRR, crossed);
@@ -157,7 +187,7 @@ namespace ogdf {
 						// re-insert edge (insertion path cannot be longer)
 						insertEdge(E, eOrigRR, crossed);
 
-						int newPathLength = (m_pCost != 0) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
+						int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
 						OGDF_ASSERT(newPathLength <= pathLength);
 
 						if(newPathLength < pathLength)
@@ -220,7 +250,7 @@ namespace ogdf {
 				{
 					edge eOrig = *it;
 
-					int pathLength = (m_pCost != 0) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+					int pathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 					if (pathLength == 0) continue; // cannot improve
 
 					removeEdge(E, eOrig);
@@ -229,7 +259,7 @@ namespace ogdf {
 
 					// try to find a better insertion path
 					SList<adjEntry> crossed;
-					if(m_pCost != 0) {
+					if(m_pCost != nullptr) {
 						findWeightedShortestPath(E, eOrig, crossed);
 					} else {
 						findShortestPath(E, eOrig, crossed);
@@ -239,7 +269,7 @@ namespace ogdf {
 					insertEdge(E, eOrig, crossed);
 
 					// we cannot find a shortest path that is longer than before!
-					int newPathLength = (m_pCost != 0) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+					int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 					OGDF_ASSERT(newPathLength <= pathLength);
 
 					if(newPathLength < pathLength)
@@ -277,7 +307,7 @@ namespace ogdf {
 		const List<edge> &L = m_pr.chain(eOrig);
 
 		ListConstIterator<edge> it = L.begin();
-		if(m_pSubgraph != 0) {
+		if(m_pSubgraph != nullptr) {
 			for(++it; it.valid(); ++it) {
 				int counter = 0;
 				edge e = m_pr.original(crossedEdge((*it)->adjSource()));
@@ -304,18 +334,15 @@ namespace ogdf {
 	void FixEdgeInserterCore::constructDual(const CombinatorialEmbedding &E)
 	{
 		// insert a node in the dual graph for each face in E
-		face f;
-		forall_faces(f,E)
+		for(face f : E.faces)
 			m_nodeOf[f] = m_dual.newNode();
 
 
 		// Insert an edge into the dual graph for each adjacency entry in E.
 		// The edges are directed from the left face to the right face.
-		node v;
-		forall_nodes(v,m_pr)
+		for(node v : m_pr.nodes)
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				// Do not insert edges into dual if crossing the original edge
 				// is forbidden
@@ -344,18 +371,15 @@ namespace ogdf {
 	void FixEdgeInserterUMLCore::constructDual(const CombinatorialEmbedding &E)
 	{
 		// insert a node in the dual graph for each face in E
-		face f;
-		forall_faces(f,E)
+		for(face f : E.faces)
 			m_nodeOf[f] = m_dual.newNode();
 
 
 		// Insert an edge into the dual graph for each adjacency entry in E.
 		// The edges are directed from the left face to the right face.
-		node v;
-		forall_nodes(v,m_pr)
+		for(node v : m_pr.nodes)
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				node vLeft  = m_nodeOf[E.leftFace (adj)];
 				node vRight = m_nodeOf[E.rightFace(adj)];
@@ -409,13 +433,12 @@ namespace ogdf {
 		node t = m_pr.copy(eOrig->target());
 		OGDF_ASSERT(s != t);
 
-		NodeArray<edge> spPred(m_dual,0);
+		NodeArray<edge> spPred(m_dual,nullptr);
 		QueuePure<edge> queue;
 		int oldIdCount = m_dual.maxEdgeIndex();
 
 		// augment dual by edges from s to all adjacent faces of s ...
-		adjEntry adj;
-		forall_adj(adj,s) {
+		for(adjEntry adj : s->adjEdges) {
 			// starting edges of bfs-search are all edges leaving s
 			edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
 			m_primalAdj[eDual] = adj;
@@ -423,7 +446,7 @@ namespace ogdf {
 		}
 
 		// ... and from all adjacent faces of t to t
-		forall_adj(adj,t) {
+		for(adjEntry adj : t->adjEdges) {
 			edge eDual = m_dual.newEdge(m_nodeOf[E.rightFace(adj)], m_vT);
 			m_primalAdj[eDual] = adj;
 		}
@@ -436,7 +459,7 @@ namespace ogdf {
 			node v = eCand->target();
 
 			// leads to an unvisited node?
-			if (spPred[v] == 0)
+			if (spPred[v] == nullptr)
 			{
 				// yes, then we set v's predecessor in search tree
 				spPred[v] = eCand;
@@ -465,10 +488,11 @@ namespace ogdf {
 
 
 		// remove augmented edges again
-		while ((adj = m_vS->firstAdj()) != 0)
+		adjEntry adj;
+		while ((adj = m_vS->firstAdj()) != nullptr)
 			m_dual.delEdge(adj->theEdge());
 
-		while ((adj = m_vT->firstAdj()) != 0)
+		while ((adj = m_vT->firstAdj()) != nullptr)
 			m_dual.delEdge(adj->theEdge());
 
 		m_dual.resetEdgeIdCount(oldIdCount);
@@ -478,11 +502,11 @@ namespace ogdf {
 	int FixEdgeInserterCore::getCost(edge e, int stSubgraph) const
 	{
 		edge eOrig = m_pr.original(e);
-		if(m_pSubgraph == 0)
-			return (eOrig == 0) ? 0 : (*m_pCost)[eOrig];
+		if(m_pSubgraph == nullptr)
+			return (eOrig == nullptr) ? 0 : (*m_pCost)[eOrig];
 
 		int edgeCost = 0;
-		if(eOrig != 0) {
+		if(eOrig != nullptr) {
 			for(int i = 0; i < 32; i++) {
 				if((((*m_pSubgraph)[eOrig] & (1 << i)) != 0) && ((stSubgraph & (1 << i)) != 0))
 					edgeCost++;
@@ -539,12 +563,11 @@ namespace ogdf {
 		node t = m_pr.copy(eOrig->target());
 		OGDF_ASSERT(s != t);
 
-		int eSubgraph = (m_pSubgraph != 0) ? (*m_pSubgraph)[eOrig] : 0;
+		int eSubgraph = (m_pSubgraph != nullptr) ? (*m_pSubgraph)[eOrig] : 0;
 
 		EdgeArray<int> costDual(m_dual, 0);
 		int maxCost = 0;
-		edge eDual;
-		forall_edges(eDual, m_dual) {
+		for(edge eDual : m_dual.edges) {
 			int c = getCost(m_primalAdj[eDual]->theEdge(), eSubgraph);
 			costDual[eDual] = c;
 			if (c > maxCost)
@@ -554,13 +577,12 @@ namespace ogdf {
 		++maxCost;
 		Array<SListPure<edge> > nodesAtDist(maxCost);
 
-		NodeArray<edge> spPred(m_dual,0);
+		NodeArray<edge> spPred(m_dual,nullptr);
 
 		int oldIdCount = m_dual.maxEdgeIndex();
 
 		// augment dual by edges from s to all adjacent faces of s ...
-		adjEntry adj;
-		forall_adj(adj,s) {
+		for(adjEntry adj : s->adjEdges) {
 			// starting edges of bfs-search are all edges leaving s
 			edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
 			m_primalAdj[eDual] = adj;
@@ -568,7 +590,7 @@ namespace ogdf {
 		}
 
 		// ... and from all adjacent faces of t to t
-		forall_adj(adj,t) {
+		for(adjEntry adj : t->adjEdges) {
 			edge eDual = m_dual.newEdge(m_nodeOf[E.rightFace(adj)], m_vT);
 			m_primalAdj[eDual] = adj;
 		}
@@ -586,7 +608,7 @@ namespace ogdf {
 			node v = eCand->target();
 
 			// leads to an unvisited node?
-			if (spPred[v] == 0)
+			if (spPred[v] == nullptr)
 			{
 				// yes, then we set v's predecessor in search tree
 				spPred[v] = eCand;
@@ -614,10 +636,11 @@ namespace ogdf {
 		}
 
 		// remove augmented edges again
-		while ((adj = m_vS->firstAdj()) != 0)
+		adjEntry adj;
+		while ((adj = m_vS->firstAdj()) != nullptr)
 			m_dual.delEdge(adj->theEdge());
 
-		while ((adj = m_vT->firstAdj()) != 0)
+		while ((adj = m_vT->firstAdj()) != nullptr)
 			m_dual.delEdge(adj->theEdge());
 
 		m_dual.resetEdgeIdCount(oldIdCount);
@@ -724,17 +747,16 @@ namespace ogdf {
 
 		// insert new face nodes into dual
 		const List<edge> &path = m_pr.chain(eOrig);
-		ListConstIterator<edge> itEdge;
-		for(itEdge = path.begin(); itEdge.valid(); ++itEdge)
+		for(edge e : path)
 		{
-			adjEntry adj = (*itEdge)->adjSource();
+			adjEntry adj = e->adjSource();
 			m_nodeOf[E.leftFace (adj)] = m_dual.newNode();
 			m_nodeOf[E.rightFace(adj)] = m_dual.newNode();
 		}
 
 		// insert new edges into dual
-		for(itEdge = path.begin(); itEdge.valid(); ++itEdge)
-			insertEdgesIntoDual(E, (*itEdge)->adjSource());
+		for(edge e : path)
+			insertEdgesIntoDual(E, e->adjSource());
 	}
 
 	//---------------------------------------------------------
@@ -786,18 +808,16 @@ namespace ogdf {
 	void FixEdgeInserterCore::removeEdge(CombinatorialEmbedding &E, edge eOrig)
 	{
 		const List<edge> &path = m_pr.chain(eOrig);
-		ListConstIterator<edge> itEdge;
-		for(itEdge = path.begin(); itEdge.valid(); ++itEdge)
+		for(edge e : path)
 		{
-			adjEntry adj = (*itEdge)->adjSource();
+			adjEntry adj = e->adjSource();
 			m_delFaces->insert(E.leftFace  (adj));
 			m_delFaces->insert(E.rightFace (adj));
 		}
 
 		// delete all corresponding nodes in dual
-		SListConstIterator<face> itsF;
-		for(itsF = m_delFaces->faces().begin(); itsF.valid(); ++itsF)
-			m_dual.delNode(m_nodeOf[*itsF]);
+		for(face f : m_delFaces->faces())
+			m_dual.delNode(m_nodeOf[f]);
 
 		m_delFaces->clear();
 
@@ -806,14 +826,13 @@ namespace ogdf {
 
 		// update dual
 		// insert new nodes
-		ListConstIterator<face> itF;
-		for(itF = m_newFaces->faces().begin(); itF.valid(); ++itF) {
-			m_nodeOf[*itF] = m_dual.newNode();
+		for(face f : m_newFaces->faces()) {
+			m_nodeOf[f] = m_dual.newNode();
 		}
 
 		// insert new edges into dual
-		for(itF = m_newFaces->faces().begin(); itF.valid(); ++itF)
-			insertEdgesIntoDualAfterRemove(E, *itF);
+		for(face f : m_newFaces->faces())
+			insertEdgesIntoDualAfterRemove(E, f);
 
 		m_newFaces->clear();
 	}

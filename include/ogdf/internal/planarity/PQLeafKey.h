@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of the class PQLeafKey.
  *
@@ -50,8 +42,6 @@
 #define OGDF_PQ_LEAF_KEY_H
 
 
-
-#include <stdlib.h>
 #include <ogdf/internal/planarity/PQBasicKey.h>
 
 namespace ogdf {

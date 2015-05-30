@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements constructive and improvement heurisitcs for
  * longest-paths based compaction of orthogonal drawings
@@ -84,8 +76,7 @@ void LongestPathCompaction::constructiveHeuristics(
 	computeCoords(Dy, yDy);
 
 	// final coordinates of vertices
-	node v;
-	forall_nodes(v,PG) {
+	for(node v : PG.nodes) {
 		drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 	}
@@ -122,8 +113,7 @@ void LongestPathCompaction::improvementHeuristics(
 		computeCoords(Dx, xDx);
 
 		// final x-coordinates of vertices
-		node v;
-		forall_nodes(v,PG) {
+		for(node v : PG.nodes) {
 			drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		}
 
@@ -137,7 +127,7 @@ void LongestPathCompaction::improvementHeuristics(
 		computeCoords(Dy, yDy);
 
 		// final y-coordinates of vertices
-		forall_nodes(v,PG) {
+		for(node v : PG.nodes) {
 			drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 		}
 
@@ -175,10 +165,8 @@ void LongestPathCompaction::computeCoords(
 		}
 
 		// move all nodes such that node with minimum position has position 0
-		node v;
-		forall_nodes(v,Gd)
+		for(node v : Gd.nodes)
 			pos[v] -= min;
-
 	}
 
 	// free resources
@@ -198,8 +186,7 @@ void LongestPathCompaction::applyLongestPaths(
 	NodeArray<int> indeg(Gd);
 	StackPure<node> sources;
 
-	node v;
-	forall_nodes(v,Gd) {
+	for(node v : Gd.nodes) {
 		indeg[v] = v->indeg();
 		if(indeg[v] == 0)
 			sources.push(v);
@@ -263,28 +250,23 @@ void LongestPathCompaction::moveComponents(
 	// compute for each component the list of nodes contained
 	Array<SListPure<node> > nodesInComp(1,m_pseudoSources.size());
 
-	node v;
-	forall_nodes(v,Gd) {
+	for(node v : Gd.nodes) {
 		if (m_component[v] > 0)
 		nodesInComp[m_component[v]].pushBack(v);
 	}
 
 
 	// iterate over all pseudo-sources in reverse topological order
-	SListConstIterator<node> it;
-	for(it = m_pseudoSources.begin(); it.valid(); ++it)
+	for(node v : m_pseudoSources)
 	{
-		node v = *it;
 		int c = m_component[v];
 
 		// list of outgoing/incoming edges of pseudo-component C(v)
 		SListPure<edge> outCompV, inCompV;
 
 		//cout << "component " << c << endl;
-		SListConstIterator<node> itW;
-		for(itW = nodesInComp[c].begin(); itW.valid(); ++itW)
+		for(node w : nodesInComp[c])
 		{
-			node w = *itW;
 			//cout << " " << w;
 			edge e;
 			forall_adj_edges(e,w) {
@@ -319,8 +301,8 @@ void LongestPathCompaction::moveComponents(
 
 		// move component up by delta; this shortens all outgoing edges and
 		// enlarges all incoming edges (which have cost 0)
-		for(itW = nodesInComp[c].begin(); itW.valid(); ++itW)
-			pos[*itW] += delta;
+		for(node w : nodesInComp[c])
+			pos[w] += delta;
 	}
 
 }
@@ -339,8 +321,7 @@ void LongestPathCompaction::computeCoords(
 	NodeArray<int> indeg(Gd);
 	StackPure<node> sources;
 
-	node v;
-	forall_nodes(v,Gd) {
+	for(node v : Gd.nodes) {
 		indeg[v] = v->indeg();
 		if(indeg[v] == 0)
 			sources.push(v);

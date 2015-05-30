@@ -34,30 +34,30 @@
 extern "C"{
 #endif
 
-int c_ekkbtrn( register const EKKfactinfo *fact,
+int c_ekkbtrn(const EKKfactinfo *fact,
 	    double *dwork1,
 	    int * mpt,int first_nonzero);
-int c_ekkbtrn_ipivrw( register const EKKfactinfo *fact,
+int c_ekkbtrn_ipivrw(const EKKfactinfo *fact,
 		   double *dwork1,
 		   int * mpt, int ipivrw,int * spare);
 
-int c_ekketsj( register /*const*/ EKKfactinfo *fact,
+int c_ekketsj(/*const*/ EKKfactinfo *fact,
 	    double *dwork1,
 	    int *mpt2, double dalpha, int orig_nincol,
 	    int npivot, int *nuspikp,
 	    const int ipivrw, int * spare);
-int c_ekkftrn( register const EKKfactinfo *fact,
+int c_ekkftrn(const EKKfactinfo *fact,
 	    double *dwork1,
 	    double * dpermu,int * mpt, int numberNonZero);
 
-int c_ekkftrn_ft( register EKKfactinfo *fact,
+int c_ekkftrn_ft(EKKfactinfo *fact,
 	       double *dwork1, int *mpt, int *nincolp);
-void c_ekkftrn2( register EKKfactinfo *fact, double *dwork1,
+void c_ekkftrn2(EKKfactinfo *fact, double *dwork1,
 	      double * dpermu1,int * mpt1, int *nincolp,
 	     double *dwork1_ft, int *mpt_ft, int *nincolp_ft);
 
-int c_ekklfct( register EKKfactinfo *fact);
-int c_ekkslcf( register const EKKfactinfo *fact);
+int c_ekklfct(EKKfactinfo *fact);
+int c_ekkslcf(const EKKfactinfo *fact);
 inline void c_ekkscpy(int n, const int *marr1,int *marr2)
 { CoinMemcpyN(marr1,n,marr2);}
 inline void c_ekkdcpy(int n, const double *marr1,double *marr2)

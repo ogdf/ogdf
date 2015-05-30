@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class Planarity
  *
@@ -63,7 +55,8 @@ namespace ogdf {
 			if((*it)->isSelfLoop()) m_nonSelfLoops.del(it);
 		}
 		int e_num = 1;
-		for(it = m_nonSelfLoops.begin(); it.valid(); ++it) (*m_edgeNums)[*it] = e_num ++;
+		for(edge e : m_nonSelfLoops)
+			(*m_edgeNums)[e] = e_num ++;
 		e_num --;
 		m_crossingMatrix = new Array2D<bool> (1,e_num,1,e_num);
 	}
@@ -75,13 +68,12 @@ namespace ogdf {
 		int e_num = m_nonSelfLoops.size();
 		int energySum = 0;
 		Array<edge> numEdge(1,e_num);
-		edge e;
-		ListIterator<edge> it;
 
-		for(it = m_nonSelfLoops.begin(); it.valid(); ++it)
-			numEdge[(*m_edgeNums)[*it]] = *it;
+		for(edge e : m_nonSelfLoops)
+			numEdge[(*m_edgeNums)[e]] = e;
+
 		for(int i = 1; i < e_num; i++) {
-			e = numEdge[i];
+			edge e = numEdge[i];
 			for(int j = i+1; j <= e_num ; j++) {
 				bool cross = intersect(e,numEdge[j]);
 				(*m_crossingMatrix)(i,j) = cross;
@@ -130,32 +122,31 @@ namespace ogdf {
 		edge e;
 		m_crossingChanges.clear();
 
-		forall_adj_edges(e,v) if(!e->isSelfLoop()) {
+		forall_adj_edges(e, v) if (!e->isSelfLoop()) {
 			// first we compute the two endpoints of e if v is on its new position
 			node s = e->source();
 			node t = e->target();
 			DPoint p1 = testPos();
-			DPoint p2 = (s==v)? currentPos(t) : currentPos(s);
+			DPoint p2 = (s == v) ? currentPos(t) : currentPos(s);
 			int e_num = (*m_edgeNums)[e];
-			edge f;
 			// now we compute the crossings of all other edges with e
-			ListIterator<edge> it;
-			for(it = m_nonSelfLoops.begin(); it.valid(); ++it) if(*it != e) {
-				f = *it;
-				node s2 = f->source();
-				node t2 = f->target();
-				if(s2 != s && s2 != t && t2 != s && t2 != t) {
-					bool cross = lowLevelIntersect(p1,p2,currentPos(s2),currentPos(t2));
-					int f_num = (*m_edgeNums)[f];
-					bool priorIntersect = (*m_crossingMatrix)(min(e_num,f_num),max(e_num,f_num));
-					if(priorIntersect != cross) {
-						if(priorIntersect) m_candidateEnergy --; // this intersection was saved
-						else m_candidateEnergy ++; // produced a new intersection
-						ChangedCrossing cc;
-						cc.edgeNum1 = min(e_num,f_num);
-						cc.edgeNum2 = max(e_num,f_num);
-						cc.cross = cross;
-						m_crossingChanges.pushBack(cc);
+			for (edge f : m_nonSelfLoops) {
+				if (f != e) {
+					node s2 = f->source();
+					node t2 = f->target();
+					if (s2 != s && s2 != t && t2 != s && t2 != t) {
+						bool cross = lowLevelIntersect(p1, p2, currentPos(s2), currentPos(t2));
+						int f_num = (*m_edgeNums)[f];
+						bool priorIntersect = (*m_crossingMatrix)(min(e_num, f_num), max(e_num, f_num));
+						if (priorIntersect != cross) {
+							if (priorIntersect) m_candidateEnergy--; // this intersection was saved
+							else m_candidateEnergy++; // produced a new intersection
+							ChangedCrossing cc;
+							cc.edgeNum1 = min(e_num, f_num);
+							cc.edgeNum2 = max(e_num, f_num);
+							cc.cross = cross;
+							m_crossingChanges.pushBack(cc);
+						}
 					}
 				}
 			}
@@ -165,9 +156,7 @@ namespace ogdf {
 
 	// this functions sets the crossingMatrix according to candidateCrossings
 	void Planarity::internalCandidateTaken() {
-		ListIterator<ChangedCrossing> it;
-		for(it = m_crossingChanges.begin(); it.valid(); ++ it) {
-			ChangedCrossing cc = *(it);
+		for(const ChangedCrossing &cc : m_crossingChanges) {
 			(*m_crossingMatrix)(cc.edgeNum1,cc.edgeNum2) = cc.cross;
 		}
 	}
@@ -183,11 +172,9 @@ void Planarity::printInternalData() const {
 			if((*m_crossingMatrix)(i,j)) cout << j << " ";
 	}
 	cout << "\nChanged crossings:";
-	if(testNode() == NULL) cout << " None.";
+	if(testNode() == nullptr) cout << " None.";
 	else {
-		ListConstIterator<ChangedCrossing> it;
-		for(it = m_crossingChanges.begin(); it.valid(); ++it) {
-			ChangedCrossing cc = *(it);
+		for(const ChangedCrossing &cc : m_crossingChanges) {
 			cout << " (" << cc.edgeNum1 << "," << cc.edgeNum2 << ")" << cc.cross;
 		}
 	}

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3505 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:47 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief A declaration of EdgeStandardRep class representing a graph
  *        representation of a hypergraph in the edge standard form.

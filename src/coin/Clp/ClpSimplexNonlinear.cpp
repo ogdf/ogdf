@@ -332,7 +332,7 @@ ClpSimplexNonlinear::statusOfProblemInPrimal(int & lastCleaned, int type,
      bool goToDual = false;
      // really for free variables in
      //if((progressFlag_&2)!=0)
-     //problemStatus_=-1;;
+     //problemStatus_=-1;
      progressFlag_ = 0; //reset progress flag
 
      handler_->message(CLP_SIMPLEX_STATUS, messages_)
@@ -435,7 +435,7 @@ ClpSimplexNonlinear::statusOfProblemInPrimal(int & lastCleaned, int type,
                          // so will exit
                          infeasibilityCost_ = 1.0e30;
                          // reset infeasibilities
-                         sumPrimalInfeasibilities_ = nonLinearCost_->sumInfeasibilities();;
+                         sumPrimalInfeasibilities_ = nonLinearCost_->sumInfeasibilities();
                          numberPrimalInfeasibilities_ =
                               nonLinearCost_->numberInfeasibilities();
                     }
@@ -1299,7 +1299,7 @@ ClpSimplexNonlinear::pivotColumn(CoinIndexedVector * longArray,
 #endif
 
           //if (pivotMode==1)
-          //localPivotMode=11;;
+          //localPivotMode=11;
 #if CLP_DEBUG > 1
           longArray->checkClear();
 #endif
@@ -2172,7 +2172,7 @@ ClpSimplexNonlinear::pivotColumn(CoinIndexedVector * longArray,
                                    // should be dArray but seems better this way!
                                    double change = work[iSequence];
                                    Status thisStatus = getStatus(iSequence);
-                                   double direction = 0;;
+                                   double direction = 0;
                                    switch(thisStatus) {
 
                                    case basic:
@@ -2424,7 +2424,7 @@ ClpSimplexNonlinear::pivotNonlinearResult()
      bool keepValue = false;
      double saveValue = 0.0;
      if (pivotRow_ >= 0) {
-          sequenceOut_ = pivotVariable_[pivotRow_];;
+          sequenceOut_ = pivotVariable_[pivotRow_];
           valueOut_ = solution(sequenceOut_);
           keepValue = true;
           saveValue = valueOut_;
@@ -2472,7 +2472,7 @@ ClpSimplexNonlinear::pivotNonlinearResult()
                }
           }
           assert (pivotRow_ >= 0);
-          sequenceOut_ = pivotVariable_[pivotRow_];;
+          sequenceOut_ = pivotVariable_[pivotRow_];
           valueOut_ = solution(sequenceOut_);
           lowerOut_ = lower_[sequenceOut_];
           upperOut_ = upper_[sequenceOut_];
@@ -3735,7 +3735,7 @@ ClpSimplexNonlinear::primalSLP(int numberConstraints, ClpConstraint ** constrain
           }
           // Replace matrix
           // Get a column copy in standard format
-          CoinPackedMatrix * columnCopy = new CoinPackedMatrix();;
+          CoinPackedMatrix * columnCopy = new CoinPackedMatrix();
           columnCopy->reverseOrderedCopyOf(newMatrix);
           newModel.replaceMatrix(columnCopy, true);
           // solve

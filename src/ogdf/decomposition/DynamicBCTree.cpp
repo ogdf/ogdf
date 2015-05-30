@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class DynamicBCTree
  *
@@ -51,8 +43,7 @@ void DynamicBCTree::init ()
 {
 	m_bNode_owner.init(m_B);
 	m_bNode_degree.init(m_B);
-	node vB;
-	forall_nodes (vB,m_B) {
+	for (node vB : m_B.nodes) {
 		m_bNode_owner[vB] = vB;
 		m_bNode_degree[vB] = vB->degree();
 	}
@@ -85,8 +76,8 @@ node DynamicBCTree::unite (node uB, node vB, node wB)
 		m_bNode_hParNode[mB] = m_bNode_hParNode[wB];
 	}
 	else if (m_bNode_degree[vB]==2) {
-		m_bNode_hRefNode[mB] = 0;
-		m_bNode_hParNode[mB] = 0;
+		m_bNode_hRefNode[mB] = nullptr;
+		m_bNode_hParNode[mB] = nullptr;
 	}
 	else {
 		m_bNode_hRefNode[mB] = mH;
@@ -125,7 +116,7 @@ node DynamicBCTree::unite (node uB, node vB, node wB)
 
 node DynamicBCTree::find (node vB) const
 {
-	if (!vB) return 0;
+	if (!vB) return nullptr;
 	if (m_bNode_owner[vB]==vB) return vB;
 	return m_bNode_owner[vB] = find(m_bNode_owner[vB]);
 }
@@ -133,7 +124,7 @@ node DynamicBCTree::find (node vB) const
 
 node DynamicBCTree::bcproper (node vG) const
 {
-	if (!vG) return 0;
+	if (!vG) return nullptr;
 	node vH = m_gNode_hNode[vG];
 	return m_hNode_bNode[vH] = find(m_hNode_bNode[vH]);
 }
@@ -141,7 +132,7 @@ node DynamicBCTree::bcproper (node vG) const
 
 node DynamicBCTree::bcproper (edge eG) const
 {
-	if (!eG) return 0;
+	if (!eG) return nullptr;
 	edge eH = m_gEdge_hEdge[eG];
 	return m_hEdge_bNode[eH] = find(m_hEdge_bNode[eH]);
 }
@@ -149,9 +140,9 @@ node DynamicBCTree::bcproper (edge eG) const
 
 node DynamicBCTree::parent (node vB) const
 {
-	if (!vB) return 0;
+	if (!vB) return nullptr;
 	node vH = m_bNode_hParNode[vB];
-	if (!vH) return 0;
+	if (!vH) return nullptr;
 	return m_hNode_bNode[vH] = find(m_hNode_bNode[vH]);
 }
 
@@ -265,22 +256,22 @@ node DynamicBCTree::bComponent (node uG, node vG) const
 	node vB = this->bcproper(vG);
 	if (uB==vB) return uB;
 	if (typeOfBNode(uB)==BComp) {
-		if (typeOfBNode(vB)==BComp) return 0;
+		if (typeOfBNode(vB)==BComp) return nullptr;
 		if (this->parent(uB)==vB) return uB;
 		if (this->parent(vB)==uB) return uB;
-		return 0;
+		return nullptr;
 	}
 	if (typeOfBNode(vB)==BComp) {
 		if (this->parent(uB)==vB) return vB;
 		if (this->parent(vB)==uB) return vB;
-		return 0;
+		return nullptr;
 	}
 	node pB = this->parent(uB);
 	node qB = this->parent(vB);
 	if (pB==qB) return pB;
 	if (this->parent(pB)==vB) return pB;
 	if (this->parent(qB)==uB) return qB;
-	return 0;
+	return nullptr;
 }
 
 

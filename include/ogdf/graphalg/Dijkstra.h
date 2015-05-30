@@ -1,11 +1,3 @@
-/*
- * $Revision: 3951 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-03 13:57:46 +0100 (Mon, 03 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Dijkstra's single source shortest path algorithm
  *
@@ -48,23 +40,28 @@
 #define OGDF_DIJKSTRA_H_
 
 #include <ogdf/basic/Graph.h>
-#include <ogdf/basic/BinaryHeap2.h>
+#include <ogdf/basic/EpsilonTest.h>
+#include <ogdf/basic/PriorityQueue.h>
 
 
 namespace ogdf {
 
 /*!
- * \brief Dijkstra's single source shortest path algorithm.
+ * \brief %Dijkstra's single source shortest path algorithm.
+ *
+ * @ingroup ga-sp
  *
  * This class implements Dijkstra's algorithm for computing single source shortest path
  * in (undirected or directed) graphs with proper, positive edge weights.
  * It returns a predecessor array as well as the shortest distances from the source node
  * to all others.
  */
-template<typename T>
+template<typename T, template<typename P, class C> class H = PairingHeap>
 class Dijkstra {
-public:
+protected:
+	EpsilonTest m_eps; //!< For floating point comparisons (if floating point is used)
 
+public:
 	/*!
 	 * \brief Calculates, based on the graph G with corresponding edge costs and source nodes,
 	 * the shortest paths and distances to all other nodes by Dijkstra's algorithm.
@@ -76,43 +73,43 @@ public:
 		  NodeArray<T> &distance, //!< The resulting distances to all other nodes
 		  bool directed = false) //!< True iff G should be interpreted as directed graph
 	{
-		BinaryHeap2<T, node> queue(G.numberOfNodes());
-		NodeArray<int> qpos(G);
+		PrioritizedMapQueue<node, T, std::less<T>, H> queue(G);
+		distance.init(G, numeric_limits<T>::max());
+		predecessor.init(G, nullptr);
 
 		// initialization
-		node v;
-		forall_nodes(v, G) {
-			distance[v] = numeric_limits<T>::max();
-			predecessor[v] = NULL;
-			queue.insert(v, distance[v], &qpos[v]);
+		for (node v : G.nodes) {
+			queue.push(v, distance[v]);
 		}
-		forall_listiterators(node, s, sources) {
-			queue.decreaseKey(qpos[*s], (distance[*s] = 0));
+		for (node s : sources) {
+			queue.decrease(s, (distance[s] = 0));
 		}
 
 #ifdef OGDF_DEBUG
-		edge de;
-		forall_edges(de, G){
-			if (weight[de] <= 0) OGDF_THROW(PreconditionViolatedException);
+		for (edge de : G.edges) {
+			if (weight[de] < 0) OGDF_THROW(PreconditionViolatedException);
 		}
 #endif
 
 		while (!queue.empty()) {
-			v = queue.extractMin();
-			if (!predecessor[v] && distance[v]) { // v is unreachable, ignore
+			node v = queue.topElement();
+			queue.pop();
+			if (!predecessor[v]
+			 && m_eps.greater(distance[v], static_cast<T>(0))) { // v is unreachable, ignore
 				continue;
 			}
-			adjEntry adj;
-			forall_adj(adj, v) {
+			for(adjEntry adj : v->adjEdges) {
 				edge e = adj->theEdge();
 				node w = adj->twinNode();
 				if (directed && e->target() == v) { // edge is in wrong direction
 					continue;
 				}
-				if (distance[w] > distance[v] + weight[e]) {
+				if (m_eps.greater(distance[w], distance[v] + weight[e])) {
+#ifdef OGDF_DEBUG
 					if (numeric_limits<double>::max() - weight[e] < distance[v]) cerr << "Overflow\n";
 					if (-numeric_limits<double>::max() - weight[e] > distance[v]) cerr << "Overflow\n";
-					queue.decreaseKey(qpos[w], (distance[w] = distance[v] + weight[e]));
+#endif
+					queue.decrease(w, (distance[w] = distance[v] + weight[e]));
 					predecessor[w] = e;
 				}
 			}

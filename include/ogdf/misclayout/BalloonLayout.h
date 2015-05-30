@@ -1,11 +1,3 @@
-/*
- * $Revision: 3425 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 10:19:37 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class BalloonLayout. Computes
  * a radial (balloon) layout based on a spanning tree.
@@ -87,7 +79,7 @@ public:
 	BalloonLayout &operator=(const BalloonLayout &bl);
 
 	//! Standard call using the stored parameter settings.
-	virtual void call(GraphAttributes & AG);
+	virtual void call(GraphAttributes & AG) override;
 
 	/** Call using special parameter settings for fractal model
 	 * takes radius ratio < 0.5 as parameter.

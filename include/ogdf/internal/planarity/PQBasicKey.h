@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of the class PQBasicKey.
  *
@@ -50,8 +42,6 @@
 #define OGDF_PQ_BASICKEY_H
 
 
-
-#include <stdlib.h>
 #include <ogdf/internal/planarity/PQBasicKeyRoot.h>
 
 

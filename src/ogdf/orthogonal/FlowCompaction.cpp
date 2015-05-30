@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements constructive and improvement heurisitcs for
  * comapction applying computation of min-cost flow in the
@@ -74,8 +66,7 @@ void writeGridDrawing(const char *name, PlanRep &PG, GridLayoutMapped &drawing)
 {
 	ofstream os(name);
 
-	node v;
-	forall_nodes(v,PG) {
+	for(node v : PG.nodes) {
 		os << v->index() << ": " << drawing.x(v) << ", " << drawing.y(v) << endl;
 	}
 }
@@ -123,8 +114,7 @@ void FlowCompaction::constructiveHeuristics(
 	computeCoords(Dy, yDy);
 
 	// final coordinates of vertices
-	node v;
-	forall_nodes(v,PG) {
+	for(node v : PG.nodes) {
 		drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 	}
@@ -162,8 +152,7 @@ void FlowCompaction::improvementHeuristics(
 
 		// set position of segments in order to fix arcs of length 0 in
 		// computeCoords()
-		node w;
-		forall_nodes(w,Dx.getGraph())
+		for(node w : Dx.getGraph().nodes)
 		{
 			if (!Dx.extraNode(w))
 				xDx[w] = drawing.x(Dx.nodesIn(w).front());
@@ -184,8 +173,7 @@ void FlowCompaction::improvementHeuristics(
 			computeCoords(Dx, xDx, true, false, true, false);
 
 		// final x-coordinates of vertices
-		node v;
-		forall_nodes(v,PG) {
+		for(node v : PG.nodes) {
 			drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		}
 
@@ -208,7 +196,7 @@ void FlowCompaction::improvementHeuristics(
 
 		// set position of segments in order to fix arcs of length 0 in
 		// computeCoords()
-		forall_nodes(w,Dy.getGraph())
+		for(node w : Dy.getGraph().nodes)
 		{
 			if (!Dy.extraNode(w)) //maybe only nec in next impro
 				yDy[w] = drawing.y(Dy.nodesIn(w).front());
@@ -227,7 +215,7 @@ void FlowCompaction::improvementHeuristics(
 			computeCoords(Dy, yDy, true, false, true, false);
 
 		// final y-coordinates of vertices
-		forall_nodes(v,PG) {
+		for(node v : PG.nodes) {
 			drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 		}
 
@@ -282,8 +270,7 @@ void FlowCompaction::improvementHeuristics(
 
 		// set position of segments in order to fix arcs of length 0 in
 		// computeCoords()
-		node w;
-		forall_nodes(w,Dx.getGraph())
+		for(node w : Dx.getGraph().nodes)
 		{
 			if (!Dx.extraNode(w))
 				xDx[w] = drawing.x(Dx.nodesIn(w).front());
@@ -298,8 +285,7 @@ void FlowCompaction::improvementHeuristics(
 		//computeCoords(Dx, xDx, true, true, true);
 
 		// final x-coordinates of vertices
-		node v;
-		forall_nodes(v,PG) {
+		for(node v : PG.nodes) {
 			drawing.x(v) = xDx[Dx.pathNodeOf(v)];
 		}
 
@@ -324,7 +310,7 @@ void FlowCompaction::improvementHeuristics(
 
 		// set position of segments in order to fix arcs of length 0 in
 		// computeCoords()
-		forall_nodes(w,Dy.getGraph())
+		for(node w : Dy.getGraph().nodes)
 		{
 			if (!Dy.extraNode(w))
 				yDy[w] = drawing.y(Dy.nodesIn(w).front());
@@ -339,8 +325,7 @@ void FlowCompaction::improvementHeuristics(
 		fileName = string("c-edges y ") + to_string(steps) + ".txt";
 		ofstream os(fileName.c_str());
 		const Graph &Gd = Dy.getGraph();
-		edge ee;
-		forall_edges(ee,Gd)
+		for(edge ee : Gd.edges)
 			os << (yDy[ee->target()] - yDy[ee->source()]) << "   " <<
 				ee->source()->index() << " -> " << ee->target()->index() << endl;
 		os.close();
@@ -353,7 +338,7 @@ void FlowCompaction::improvementHeuristics(
 			computeCoords(Dy, yDy, true, true, true, false);
 
 		// final y-coordinates of vertices
-		forall_nodes(v,PG) {
+		for(node v : PG.nodes) {
 			drawing.y(v) = yDy[Dy.pathNodeOf(v)];
 		}
 
@@ -403,15 +388,13 @@ void FlowCompaction::computeCoords(
 	m_dualEdge.init(Gd);
 
 	// insert a node in the dual graph for each face in E
-	face f;
-	forall_faces(f,E) {
+	for(face f : E.faces) {
 		dualNode[f] = dual.newNode();
 	}
 
 	// Insert an edge into the dual graph for each edge in Gd
 	// The edges are directed from the left face to the right face.
-	edge e;
-	forall_edges(e,Gd)
+	for(edge e : Gd.edges)
 	{
 		node vLeft  = dualNode[E.rightFace(e->adjTarget())];
 		node vRight = dualNode[E.rightFace(e->adjSource())];
@@ -420,7 +403,7 @@ void FlowCompaction::computeCoords(
 	}
 
 
-	MinCostFlowReinelt mcf;
+	MinCostFlowReinelt<int> mcf;
 
 	const int infinity = mcf.infinity();
 
@@ -429,7 +412,7 @@ void FlowCompaction::computeCoords(
 	EdgeArray<int> cost(dual);
 	m_flow.init(dual);
 
-	forall_edges(e,Gd)
+	for(edge e : Gd.edges)
 	{
 		edge eDual = m_dualEdge[e];
 
@@ -492,7 +475,7 @@ void FlowCompaction::computeCoords(
 	}//forall Gd edges
 
 	if (fixVertexSize) {
-		forall_edges(e,Gd) {
+		for(edge e : Gd.edges) {
 			if (D.typeOf(e) == cetVertexSizeArc) {
 				edge eDual = m_dualEdge[e];
 				upperBound[eDual] = lowerBound[eDual];
@@ -505,8 +488,7 @@ void FlowCompaction::computeCoords(
 	// apply min-cost flow
 	if (dual.numberOfNodes() == 1)
 	{
-		edge eDual;
-		forall_edges(eDual,dual)
+		for(edge eDual : dual.edges)
 			m_flow[eDual] = lowerBound[eDual];
 
 	} else {
@@ -575,8 +557,7 @@ void writeCcgGML(const CompactionConstraintGraph<int> &D,
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "  node [\n";
 
 		os << "    id " << (id[v] = nextId++) << "\n";
@@ -593,8 +574,7 @@ void writeCcgGML(const CompactionConstraintGraph<int> &D,
 	}
 
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << "  edge [\n";
 
 		os << "    source " << id[e->source()] << "\n";
@@ -633,9 +613,8 @@ void writeCcgGML(const CompactionConstraintGraph<int> &D,
 			os << "        point [ x " << AG.x(e->source()) << " y " <<
 				AG.y(e->source()) << " ]\n";
 
-			ListConstIterator<DPoint> it;
-			for(it = dpl.begin(); it.valid(); ++it)
-				os << "        point [ x " << (*it).m_x << " y " << (*it).m_y << " ]\n";
+			for(const DPoint &dp : dpl)
+				os << "        point [ x " << dp.m_x << " y " << dp.m_y << " ]\n";
 
 			os << "        point [ x " << AG.x(e->target()) << " y " <<
 				AG.y(e->target()) << " ]\n";
@@ -658,12 +637,9 @@ void printCCGx(const char *filename,
 	const NodeArray<int> &x = drawing.x();
 	const NodeArray<int> &y = drawing.y();
 
-	node v;
-	edge e;
-
 	GraphAttributes AG(Gd,GraphAttributes::nodeLabel | GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
 
-	forall_nodes(v,Gd)
+	for(node v : Gd.nodes)
 	{
 		if (D.extraNode(v))
 		{
@@ -682,10 +658,9 @@ void printCCGx(const char *filename,
 		node v1 = L.front();
 		int minY = y[v1];
 		int maxY = y[v1];
-		SListConstIterator<node> it;
-		for(it = L.begin(); it.valid(); ++it) {
-			if (y[*it] < minY) minY = y[*it];
-			if (y[*it] > maxY) maxY = y[*it];
+		for(node w : L) {
+			if (y[w] < minY) minY = y[w];
+			if (y[w] > maxY) maxY = y[w];
 		}
 		AG.y(v) = 0.5*drawing.toDouble(minY + maxY);
 		AG.x(v) = drawing.toDouble(x[v1]);
@@ -694,9 +669,9 @@ void printCCGx(const char *filename,
 	}
 
 	const Graph &G = D.getOrthoRep();
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		edge eD = D.basicArc(e);
-		if (eD == 0) continue;
+		if (eD == nullptr) continue;
 
 		AG.bends(eD).pushFront(DPoint(AG.x(eD->source()),drawing.toDouble(drawing.y(e->source()))));
 		AG.bends(eD).pushBack (DPoint(AG.x(eD->target()),drawing.toDouble(drawing.y(e->source()))));
@@ -713,12 +688,9 @@ void printCCGy(const char *filename,
 	const NodeArray<int> &x = drawing.x();
 	const NodeArray<int> &y = drawing.y();
 
-	node v;
-	edge e;
-
 	GraphAttributes AG(Gd,GraphAttributes::nodeLabel | GraphAttributes::nodeGraphics | GraphAttributes::edgeGraphics);
 
-	forall_nodes(v,Gd)
+	for(node v : Gd.nodes)
 	{
 		if (D.extraNode(v))
 		{
@@ -737,10 +709,9 @@ void printCCGy(const char *filename,
 		node v1 = L.front();
 		int minX = x[v1];
 		int maxX = x[v1];
-		SListConstIterator<node> it;
-		for(it = L.begin(); it.valid(); ++it) {
-			if (x[*it] < minX) minX = x[*it];
-			if (x[*it] > maxX) maxX = x[*it];
+		for(node w : L) {
+			if (x[w] < minX) minX = x[w];
+			if (x[w] > maxX) maxX = x[w];
 		}
 		AG.x(v) = 0.5*drawing.toDouble(minX + maxX);
 		AG.y(v) = drawing.toDouble(y[v1]);
@@ -749,9 +720,9 @@ void printCCGy(const char *filename,
 	}
 
 	const Graph &G = D.getOrthoRep();
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		edge eD = D.basicArc(e);
-		if (eD == 0) continue;
+		if (eD == nullptr) continue;
 		AG.bends(eD).pushFront(DPoint(drawing.toDouble(drawing.x(e->source())),
 			AG.y(eD->source())));
 		AG.bends(eD).pushBack (DPoint(drawing.toDouble(drawing.x(e->source())),

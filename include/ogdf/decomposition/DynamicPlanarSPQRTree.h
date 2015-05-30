@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class DynamicPlanarSPQRTree.
  *
@@ -68,6 +60,8 @@ template<class A, class B> class Tuple2;
 
 //! SPQR-trees of planar graphs.
 /**
+ * @ingroup decomp
+ *
  * The class DynamicPlanarSPQRTree maintains the triconnected components of a
  * planar biconnected graph G and represents all possible embeddings
  * of G. Each skeleton graph is embedded.

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of basic types for graphics.
  *
@@ -53,6 +45,9 @@
 namespace ogdf {
 
 	//! Line types of strokes.
+	/**
+	* @ingroup graph-drawing
+	*/
 	enum StrokeType {
 		stNone,			//!< no line
 		stSolid,		//!< solid line
@@ -63,10 +58,16 @@ namespace ogdf {
 	};
 
 	//! Converts integer \a i to stroke type.
+	/**
+	* @ingroup graph-drawing
+	*/
 	StrokeType intToStrokeType(int i);
 
 
 	//! Line cap types of strokes.
+	/**
+	* @ingroup graph-drawing
+	*/
 	enum StrokeLineCap {
 		slcButt,
 		slcRound,
@@ -75,6 +76,9 @@ namespace ogdf {
 
 
 	//! Line join types of strokes.
+	/**
+	* @ingroup graph-drawing
+	*/
 	enum StrokeLineJoin {
 		sljMiter,
 		sljRound,
@@ -83,6 +87,9 @@ namespace ogdf {
 
 
 	//! Fill patterns.
+	/**
+	* @ingroup graph-drawing
+	*/
 	enum FillPattern {
 		fpNone,
 		fpSolid,
@@ -102,10 +109,16 @@ namespace ogdf {
 	};
 
 	//! Converts integer \a i to fill pattern.
+	/**
+	* @ingroup graph-drawing
+	*/
 	FillPattern intToFillPattern(int i);
 
 
 	//! Types for node shapes.
+	/**
+	* @ingroup graph-drawing
+	*/
 	enum Shape {
 		shRect,               //!< rectangle
 		shRoundedRect,        //!< rectangle with rounded corners
@@ -125,6 +138,9 @@ namespace ogdf {
 
 
 	//! Types for edge arrows.
+	/**
+	* @ingroup graph-drawing
+	*/
 	enum EdgeArrow {
 		eaNone,		//!< no edge arrows
 		eaLast,		//!< edge arrow at target node of the edge
@@ -137,12 +153,14 @@ namespace ogdf {
 
 	//! Colors reresented as RGBA values.
 	/**
+	 * @ingroup graph-drawing
+	 *
 	 * The Color class represents colors with four components: R (red), G (green), B (blue), and A (alpha channel).
 	 * Each component has a value between and 255. The alpha channel controls tranparency, where an opaque color
 	 * has an alpha channel of 255.
 	 */
 	class Color {
-		__uint8 m_red, m_green, m_blue, m_alpha;
+		uint8_t m_red, m_green, m_blue, m_alpha;
 
 	public:
 		//! Named colors (same as SVG color keywords).
@@ -300,10 +318,10 @@ namespace ogdf {
 		Color() : m_red(0), m_green(0), m_blue(0), m_alpha(255) { }
 
 		//! Creates a color from given RGBA-values.
-		Color(__uint8 r, __uint8 g, __uint8 b, __uint8 a = 255) : m_red(r), m_green(g), m_blue(b), m_alpha(a) { }
+		Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) : m_red(r), m_green(g), m_blue(b), m_alpha(a) { }
 
 		//! Creates a color from given RGBA-values.
-		Color(int r, int g, int b, int a = 255) : m_red((__uint8)r), m_green((__uint8)g), m_blue((__uint8)b), m_alpha((__uint8)a) { }
+		Color(int r, int g, int b, int a = 255) : m_red((uint8_t)r), m_green((uint8_t)g), m_blue((uint8_t)b), m_alpha((uint8_t)a) { }
 
 		//! Creates a color from given color name \a name.
 		Color(Color::Name name);
@@ -315,28 +333,28 @@ namespace ogdf {
 		Color(const char *str) { fromString(string(str)); }
 
 		//! Returns the red component.
-		__uint8 red() const { return m_red; }
+		uint8_t red() const { return m_red; }
 
 		//! Returns the green component.
-		__uint8 green() const { return m_green; }
+		uint8_t green() const { return m_green; }
 
 		//! Returns the blue component.
-		__uint8 blue() const { return m_blue; }
+		uint8_t blue() const { return m_blue; }
 
 		//! Returns the alpha channel.
-		__uint8 alpha() const { return m_alpha; }
+		uint8_t alpha() const { return m_alpha; }
 
 		//! Sets the red component to \a r.
-		void red(__uint8 r) { m_red = r; }
+		void red(uint8_t r) { m_red = r; }
 
 		//! Sets the green component to \a g.
-		void green(__uint8 g) { m_green = g; }
+		void green(uint8_t g) { m_green = g; }
 
 		//! Sets the blue component to \a b.
-		void blue(__uint8 b) { m_blue = b; }
+		void blue(uint8_t b) { m_blue = b; }
 
 		//! Sets the alpha channel to \a a.
-		void alpha(__uint8 a) { m_alpha = a; }
+		void alpha(uint8_t a) { m_alpha = a; }
 
 		//! Converts the color to a string and returns it.
 		/**
@@ -367,6 +385,9 @@ namespace ogdf {
 
 
 	//! Properties of strokes.
+	/**
+	* @ingroup graph-drawing
+	*/
 	struct Stroke {
 		Color          m_color;    //!< stroke color
 		float          m_width;    //!< stroke width
@@ -380,6 +401,9 @@ namespace ogdf {
 
 
 	//! Properties of fills.
+	/**
+	* @ingroup graph-drawing
+	*/
 	struct Fill {
 		Color       m_color;   //!< fill color
 		Color       m_bgColor; //!< background color of fill pattern

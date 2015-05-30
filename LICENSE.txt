@@ -37,14 +37,24 @@ See also: http://www.ogdf.net/license.html
 
 Third-party software:
 
+This distribution integrates source code from
+
   - the ABACUS framework, licensed under the GNU GPL
     (see http://www.informatik.uni-koeln.de/abacus/).
     The files are located in {src,include}/ogdf/abacus.
+
+  - the Bandit unit testing framework, licensed under MIT license
+    (see test/include/bandit/LICENSE.md).
+    The files are located in test/include/bandit.
 
   - the COIN-OR project, licensed under the Eclipse Public License 1.0
     (see http://www.eclipse.org/legal/epl-v10.html).
     The files are located in {src,include}/coin.
 
-  - the GTest framework, licensed under the 3-clause BSD license
-    (see test/gtest/gtest.h header).
-    The files are located in test/gtest.
+  - the Minisat project, licensed under the MIT license
+    (see include/ogdf/minisat/LICENSE).
+    The files are located in {src,include}/ogdf/minisat.
+
+  - the TinyDir project, licensed under the 2-clause BSD license
+    (see test/include/tinydir.h header).
+    The only included file is test/include/tinydir.h.

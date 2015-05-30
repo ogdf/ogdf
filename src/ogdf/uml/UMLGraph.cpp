@@ -1,11 +1,3 @@
-/*
- * $Revision: 3150 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-12-12 14:00:51 +0100 (Wed, 12 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of UMLGraph class
  *
@@ -59,9 +51,9 @@ UMLGraph::UMLGraph(
 	GraphAttributes(G, initAttributes | edgeType | nodeType | nodeGraphics | edgeGraphics), m_pG(&G), m_cliqueCenterSize(10)
 {
 	m_upwardEdge.init(G, false);
-	m_hierarchyParent.init(G,0);
-	m_assClass.init(G, 0);
-	m_associationClassModel.init(G, 0);
+	m_hierarchyParent.init(G,nullptr);
+	m_assClass.init(G, nullptr);
+	m_associationClassModel.init(G, nullptr);
 }
 
 
@@ -71,7 +63,7 @@ UMLGraph::~UMLGraph()
 	while (it.valid())
 	{
 		delete (*it);
-		it++;
+		++it;
 	}//while
 }//destructor
 
@@ -112,19 +104,17 @@ void UMLGraph::insertGenMergers()
 
 void UMLGraph::adjustHierarchyParents()
 {
-	node v;
-	forall_nodes(v, *m_pG)
+	for(node v : m_pG->nodes)
 	{
 		if (!m_hierarchyParent[v]) continue;
-		adjEntry ae;
-		forall_adj(ae,v)
+		for(adjEntry ae : v->adjEdges)
 		{
 			if (ae->theNode() != v)
 				continue;
 			if (m_hierarchyParent[v] == m_hierarchyParent[ae->twinNode()]) //(half)brothers
 				m_upwardEdge[ae] = true; //the same should be for twin
 
-		}//foralladjedges
+		}
 	}
 }//adjustHierarchyParents
 
@@ -132,7 +122,7 @@ void UMLGraph::adjustHierarchyParents()
 // inserts a merger node for generalizations hanging at v
 node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
 {
-	node u = 0;
+	node u = nullptr;
 	if (m_pG->empty()) return u;
 	if(inGens.size() >= 2)
 	{
@@ -155,7 +145,8 @@ node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
 		for(it = inGens.begin(); it.valid(); ++it)
 		{
 			// all edges in the list inGens must be ingoing generalizations of v
-			OGDF_ASSERT((*it)->target() == v && type(*it) == Graph::generalization);
+			OGDF_ASSERT((*it)->target() == v);
+			OGDF_ASSERT(type(*it) == Graph::generalization);
 
 			m_pG->moveTarget(*it,u);
 			m_hierarchyParent[(*it)->source()] = u; //set to merger
@@ -183,7 +174,7 @@ void UMLGraph::undoGenMergers()
 		const DPolyline &common = bends(eMerge);
 
 		adjEntry adj, adjSucc;
-		for(adj = u->firstAdj(); adj != 0; adj = adjSucc) {
+		for(adj = u->firstAdj(); adj != nullptr; adj = adjSucc) {
 			adjSucc = adj->succ();
 
 			edge e = adj->theEdge();
@@ -219,19 +210,18 @@ void UMLGraph::sortEdgesFromLayout()
 
 	EdgeComparer* ec = new EdgeComparer(*this);
 
-	node v;
-	adjEntry ae;
-	forall_nodes(v, *m_pG)
+	for(node v : m_pG->nodes)
 	{
-		forall_adj(ae, v)
+		for(adjEntry ae : v->adjEdges)
 		{
 			adjList[v].pushBack(ae);
-		}//forall adjacency edges
+		}
+
 		//sort the entries
 		adjList[v].quicksort(*ec);
 		m_pG->sort(v, adjList[v]);
 
-	}//forall nodes
+	}
 
 	delete ec;
 }//sortedgesfromlayout
@@ -267,11 +257,11 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 		while (itNode.valid())
 		{
 			cliqueNum[(*itNode)] = num;
-			itNode++;
+			++itNode;
 		}//while
 
 		num++;
-		it++;
+		++it;
 	}//while
 
 	//now replace each list
@@ -284,7 +274,7 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 		//now we compute a circular drawing of the replacement
 		//and save its size and the node positions
 		m_cliqueCircleSize[newCenter] = circularBound(newCenter);
-		it++;
+		++it;
 	}//while
 
 }//replacebystar
@@ -307,31 +297,30 @@ DRect UMLGraph::circularBound(node center)
 	//umlgraph clique parameter members?
 
 	OGDF_ASSERT(center->degree() > 0)
-	node lastNode = 0;
-	node firstNode = 0;
-	node v;
+	node lastNode = nullptr;
+	node firstNode = nullptr;
 
 	adjEntry ae = center->firstAdj();
 	do {
 		node w = ae->twinNode();
-		v = G.newNode();
+		node v = G.newNode();
 		umlOriginal[v] = w;
 
 		if (!firstNode) firstNode = v;
 		AG.width(v) = width(w);
 		AG.height(v) = height(w);
 		ae = ae->cyclicSucc();
-		if (lastNode != 0) G.newEdge(lastNode, v);
+		if (lastNode != nullptr) G.newEdge(lastNode, v);
 		lastNode = v;
 	} while (ae != center->firstAdj());
 	G.newEdge(lastNode, firstNode);
 
 	cl.call(AG);
 
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		m_cliqueCirclePos[umlOriginal[v]] = DPoint(AG.x(v), AG.y(v));
-	}//forallnodes
+	}
 	bb = AG.boundingBox();
 
 	return bb;
@@ -396,7 +385,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 
 			if (d > maxSize) maxSize = d;
 
-			itNode++;
+			++itNode;
 		}//while
 		double totalSum = pureSumDiameters+(center->degree()-1)*minDist;
 		//TODO: scling, not just counting
@@ -445,7 +434,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 		}
 		lastDiameter = d/2.0; //its only half diameter...
 
-		itNode++;
+		++itNode;
 	}//while
 
 	OGDF_ASSERT(adjNodes.size() == angles.size())
@@ -469,8 +458,8 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 				double angle = Math::pi*(*it)/180.0;
 				m_cliqueCirclePos[w].m_x = radius*cos(angle);
 				m_cliqueCirclePos[w].m_y = radius*sin(angle);
-				itNode++;
-				it++;
+				++itNode;
+				++it;
 			}//while
 		}//if n>2
 
@@ -491,7 +480,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 			if(wx+width (w)/2.0 > maxX) maxX = wx+width(w)/2.0;
 			if(wy-height(w)/2.0 < minY) minY = wy-height(w)/2.0;
 			if(wy+height(w)/2.0 > maxY) maxY = wy+height(w)/2.0;
-			itNode++;
+			++itNode;
 		}
 		//allow distance
 		minX -= minCCDist;
@@ -507,7 +496,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 			m_cliqueCirclePos[w].m_x -= minX;
 			m_cliqueCirclePos[w].m_y -= minY;
 			//cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
-			itNode++;
+			++itNode;
 		}
 
 		//reassign the size, this time it is the final value
@@ -517,7 +506,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 
 node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 {
-	if (clique.empty()) return 0;
+	if (clique.empty()) return nullptr;
 	//insert an additional center node
 
 	node center = m_pG->newNode();
@@ -537,10 +526,9 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	{
 		node v = (*it);
 
-		adjEntry ad;
 		int numIt = cliqueNum[v];
 
-		forall_adj(ad, v)
+		for(adjEntry ad : v->adjEdges)
 		{
 			if (cliqueNum[ad->twinNode()] == numIt)
 			{
@@ -550,14 +538,14 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 					delEdges.pushBack(ad->theEdge());
 				}
 			}//if
-		}//foralladj
+		}
 
 		//connect center node to clique node
 		edge inserted = m_pG->newEdge(center, v);
 		this->type(inserted) = Graph::association;
 		m_replacementEdge[inserted] = true;
 
-		it++;
+		++it;
 	}//while
 
 	//now delete all edges
@@ -566,7 +554,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	{
 		//m_pG->delEdge((*itEdge));
 		m_pG->hideEdge((*itEdge));
-		itEdge++;
+		++itEdge;
 	}//while
 
 	return center;
@@ -579,7 +567,7 @@ void UMLGraph::undoStars()
 	while (it.valid())
 	{
 		undoStar(*it, false);
-		it++;
+		++it;
 	}//while
 
 	m_pG->restoreAllEdges();
@@ -632,8 +620,7 @@ void UMLGraph::writeGML(ostream &os)
 	os << "graph [\n";
 	os << "  directed 1\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "  node [\n";
 
 		os << "    id " << (id[v] = nextId++) << "\n";
@@ -672,8 +659,7 @@ void UMLGraph::writeGML(ostream &os)
 		os << "  ]\n"; // node
 	}
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << "  edge [\n";
 
 		os << "    source " << id[e->source()] << "\n";

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of a constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -56,17 +48,16 @@ using namespace abacus;
 
 
 MaxPlanarEdgesConstraint::MaxPlanarEdgesConstraint(Master *master, int edgeBound, List<nodePair> &edges) :
-	Constraint(master, 0, CSense::Less, edgeBound, false, false, true)
+	Constraint(master, nullptr, CSense::Less, edgeBound, false, false, true)
 {
 	m_graphCons = false;
-	ListConstIterator<nodePair> it;
-	for (it=edges.begin(); it.valid(); ++it) {
-		m_edges.pushBack(*it);
+	for (const nodePair &p : edges) {
+		m_edges.pushBack(p);
 	}
 }
 
 MaxPlanarEdgesConstraint::MaxPlanarEdgesConstraint(Master *master, int edgeBound) :
-	Constraint(master, 0, CSense::Less, edgeBound, false, false, true)
+	Constraint(master, nullptr, CSense::Less, edgeBound, false, false, true)
 {
 	m_graphCons = true;
 }
@@ -79,12 +70,10 @@ double MaxPlanarEdgesConstraint::coeff(const Variable *v) const {
 	//TODO: speedup, we know between which nodepairs edges exist...
 	if (m_graphCons) return 1.0;
 
-	const EdgeVar *e = (const EdgeVar*)v;
-	ListConstIterator<nodePair> it;
-	for (it=m_edges.begin(); it.valid(); ++it) {
-		if ( ((*it).v1 == e->sourceNode() && (*it).v2 == e->targetNode()) ||
-			((*it).v1 == e->targetNode() && (*it).v2 == e->sourceNode()) )
-		{return 1.0;}
+	const EdgeVar *e = static_cast<const EdgeVar*>(v);
+	for (const nodePair &p : m_edges) {
+		if ( (p.v1 == e->sourceNode() && p.v2 == e->targetNode()) || (p.v1 == e->targetNode() && p.v2 == e->sourceNode()) )
+			return 1.0;
 	}
 	return 0.0;
 }

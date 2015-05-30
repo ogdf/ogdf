@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class CrossingsMatrix.
  *
@@ -86,7 +78,7 @@ public:
 	void init(Level &L);
 
 	//! SimDraw init
-	void init(Level &L, const EdgeArray<__uint32> *edgeSubGraphs);
+	void init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs);
 
 private:
 	Array<int> map;

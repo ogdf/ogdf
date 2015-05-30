@@ -1,11 +1,3 @@
-/*
- * $Revision: 2815 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-14 23:25:34 +0200 (Sun, 14 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Sugiyama algorithm (extension with
  * clusters)
@@ -46,8 +38,12 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/layered/OptimalRanking.h>
 #include <ogdf/basic/Queue.h>
+#include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/cluster/ClusterSet.h>
+
+#include <tuple>
+using std::tuple;
 
 
 namespace ogdf {
@@ -90,7 +86,7 @@ void LHTreeNode::removeAuxChildren()
 
 	int add = j-i;
 	if(add != 0)
-		m_child.grow(add, 0);
+		m_child.grow(add, nullptr);
 }
 
 
@@ -281,14 +277,14 @@ void ENGLayer::simplifyAdjacencies()
 
 ClusterGraphCopy::ClusterGraphCopy()
 {
-	m_pCG = 0;
-	m_pH  = 0;
+	m_pCG = nullptr;
+	m_pH  = nullptr;
 }
 
 ClusterGraphCopy::ClusterGraphCopy(const ExtendedNestingGraph &H, const ClusterGraph &CG)
-: ClusterGraph(H), m_pCG(&CG), m_pH(&H), m_copy(CG,0)
+: ClusterGraph(H), m_pCG(&CG), m_pH(&H), m_copy(CG,nullptr)
 {
-	m_original.init(*this,0);
+	m_original.init(*this,nullptr);
 	m_copy    [CG.rootCluster()] = rootCluster();
 	m_original[rootCluster()]    = CG.rootCluster();
 
@@ -301,8 +297,8 @@ void ClusterGraphCopy::init(const ExtendedNestingGraph &H, const ClusterGraph &C
 	ClusterGraph::init(H);
 	m_pCG = &CG;
 	m_pH  = &H;
-	m_copy    .init(CG,0);
-	m_original.init(*this,0);
+	m_copy    .init(CG,nullptr);
+	m_original.init(*this,nullptr);
 
 	m_copy    [CG.rootCluster()] = rootCluster();
 	m_original[rootCluster()]    = CG.rootCluster();
@@ -315,13 +311,12 @@ void ClusterGraphCopy::createClusterTree(cluster cOrig)
 {
 	cluster c = m_copy[cOrig];
 
-	ListConstIterator<cluster> itC;
-	for(itC = cOrig->cBegin(); itC.valid(); ++itC) {
+	for (cluster childOrig : cOrig->children) {
 		cluster child = newCluster(c);
-		m_copy    [*itC]  = child;
-		m_original[child] = *itC;
+		m_copy    [childOrig] = child;
+		m_original[child]     = childOrig;
 
-		createClusterTree(*itC);
+		createClusterTree(childOrig);
 	}
 
 	ListConstIterator<node> itV;
@@ -346,17 +341,16 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 	m_topNode(CG),
 	m_bottomNode(CG),
 	m_copyEdge(CG),
-	m_mark(CG, 0)
+	m_mark(CG, nullptr)
 {
 	const Graph &G = CG;
 
-	m_origNode.init(*this, 0);
+	m_origNode.init(*this, nullptr);
 	m_type    .init(*this, ntDummy);
-	m_origEdge.init(*this, 0);
+	m_origEdge.init(*this, nullptr);
 
 	// Create nodes
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		node vH = newNode();
 		m_copy    [v]  = vH;
 		m_origNode[vH] = v;
@@ -365,8 +359,7 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 
 	m_CGC.init(*this,CG);
 
-	cluster c;
-	forall_clusters(c, CG) {
+	for(cluster c : CG.clusters) {
 		m_type[m_topNode   [c] = newNode()] = ntClusterTop;
 		m_type[m_bottomNode[c] = newNode()] = ntClusterBottom;
 
@@ -375,7 +368,7 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 	}
 
 	// Create edges
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		node    vH = m_copy[v];
 		cluster c  = CG.clusterOf(v);
 
@@ -383,7 +376,7 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 		newEdge(vH, m_bottomNode[c]);
 	}
 
-	forall_clusters(c,CG) {
+	for(cluster c : CG.clusters) {
 		if(c != CG.rootCluster()) {
 			cluster u = c->parent();
 
@@ -405,8 +398,7 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 
 
 	// Add adjacency edges
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		edge eH = addEdge(m_copy[e->source()], m_copy[e->target()], true);
 		m_copyEdge[e].pushBack(eH);
 		m_origEdge[eH] = e;
@@ -414,7 +406,7 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 
 	// Add additional edges between nodes and clusters to reflect adjacency hierarchy also
 	// with respect to clusters
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		node u = e->source();
 		node v = e->target();
 
@@ -436,12 +428,12 @@ ExtendedNestingGraph::ExtendedNestingGraph(const ClusterGraph &CG) :
 
 			// Transfer adjacency relationship to a relationship between clusters
 			// "clusters shall be above each other"
-			edge eH = 0;
+			edge eH = nullptr;
 			if(cFrom != c && cTo != c)
 				eH = addEdge(m_bottomNode[cFrom], m_topNode[cTo]);
 
 			// if this is not possible, try to relax it to a relationship between node and cluster
-			if(eH == 0) {
+			if(eH == nullptr) {
 				addEdge(m_copy[u], m_topNode[cTo]);
 				addEdge(m_bottomNode[cFrom], m_copy[v]);
 			}
@@ -474,8 +466,7 @@ void ExtendedNestingGraph::computeRanking()
 
 	EdgeArray<int> length(*this);
 	EdgeArray<int> cost(*this);
-	edge e;
-	forall_edges(e,*this) {
+	for(edge e : edges) {
 		NodeType typeSrc = type(e->source());
 		NodeType typeTgt = type(e->target());
 
@@ -486,7 +477,7 @@ void ExtendedNestingGraph::computeRanking()
 		else
 			length[e] = 1; // Node <-> Cluster
 
-		cost[e] = (origEdge(e) != 0) ? 2 : 1;
+		cost[e] = (origEdge(e) != nullptr) ? 2 : 1;
 	}
 
 	ranking.call(*this, length, cost, m_rank);
@@ -510,18 +501,18 @@ void ExtendedNestingGraph::computeRanking()
 				b = r+1;
 		}
 
-		ListConstIterator<cluster> itC;
-		for(itC = c->cBegin(); itC.valid(); ++itC) {
-			int rb = m_rank[bottom(m_CGC.original(*itC))];
+		for (cluster child : c->children) {
+			int rb = m_rank[bottom(m_CGC.original(child))];
 			if(rb+2 > b)
 				b = rb+2;
-			int rt = m_rank[top(m_CGC.original(*itC))];
+			int rt = m_rank[top(m_CGC.original(child))];
 			if(rt-2 < t)
 				t = rt-2;
 		}
 
 		cluster cOrig = m_CGC.original(c);
-		OGDF_ASSERT(m_rank[top(cOrig)] <= t && b <= m_rank[bottom(cOrig)]);
+		OGDF_ASSERT(m_rank[top(cOrig)] <= t);
+		OGDF_ASSERT(b <= m_rank[bottom(cOrig)]);
 
 		if(t < numeric_limits<int>::max()) {
 			m_rank[top   (cOrig)] = t;
@@ -531,9 +522,9 @@ void ExtendedNestingGraph::computeRanking()
 
 	// Remove all non-adjacency edges
 	edge eNext;
-	for(e = firstEdge(); e != 0; e = eNext) {
+	for(edge e = firstEdge(); e != nullptr; e = eNext) {
 		eNext = e->succ();
-		if(m_origEdge[e] == 0) {
+		if(m_origEdge[e] == nullptr) {
 			cluster c = originalCluster(e->source());
 			// we do not remove edges from top(c)->bottom(c)
 			if(e->source() != top(c) || e->target() != bottom(c))
@@ -548,14 +539,13 @@ void ExtendedNestingGraph::computeRanking()
 
 	delNode(m_topNode[r]);
 	delNode(m_bottomNode[r]);
-	m_topNode   [r] = 0;
-	m_bottomNode[r] = 0;
+	m_topNode   [r] = nullptr;
+	m_bottomNode[r] = nullptr;
 
 	// Reassign ranks
 	Array<SListPure<node> > levels(low,high);
 
-	node v;
-	forall_nodes(v, *this)
+	for(node v : nodes)
 		levels[m_rank[v]].pushBack(v);
 
 	int currentRank = 0;
@@ -566,8 +556,8 @@ void ExtendedNestingGraph::computeRanking()
 			continue;
 
 		SListConstIterator<node> it;
-		for(it = L.begin(); it.valid(); ++it)
-			m_rank[*it] = currentRank;
+		for(node v : L)
+			m_rank[v] = currentRank;
 
 		++currentRank;
 	}
@@ -581,8 +571,7 @@ void ExtendedNestingGraph::createDummyNodes()
 	const ClusterGraph &CG = getOriginalClusterGraph();
 	const Graph        &G  = CG;
 
-	edge e;
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		edge eH = m_copyEdge[e].front();
 		node uH = eH->source();
@@ -618,13 +607,13 @@ void ExtendedNestingGraph::createDummyNodes()
 		if(c_1 == root || c_2 == root || m_rank[m_bottomNode[c_1]] >= m_rank[m_topNode[c_2]]) {
 			if(c_2 != root && m_rank[uH] < m_rank[m_topNode[c_2]])
 			{
-				c_1 = 0;
+				c_1 = nullptr;
 				while(c_2->parent() != root && m_rank[uH] < m_rank[m_topNode[c_2->parent()]])
 					c_2 = c_2->parent();
 			}
 			else if(c_1 != root && m_rank[vH] > m_rank[m_bottomNode[c_1]])
 			{
-				c_2 = 0;
+				c_2 = nullptr;
 				while(c_1->parent() != root && m_rank[vH] > m_rank[m_bottomNode[c_1->parent()]])
 					c_1 = c_1->parent();
 
@@ -652,7 +641,7 @@ void ExtendedNestingGraph::createDummyNodes()
 			} while(cont);
 		}
 
-		if(c_1 != 0) {
+		if(c_1 != nullptr) {
 			ListConstIterator<edge> it = m_copyEdge[e].begin();
 			for(cluster c = CG.clusterOf(u); c != c_1->parent(); c = c->parent()) {
 				while(m_rank[(*it)->target()] <= m_rank[m_bottomNode[c]]) {
@@ -662,7 +651,7 @@ void ExtendedNestingGraph::createDummyNodes()
 			}
 		}
 
-		if(c_2 != 0) {
+		if(c_2 != nullptr) {
 			ListConstIterator<edge> it = m_copyEdge[e].rbegin();
 			for(cluster c = CG.clusterOf(v); c != c_2->parent(); c = c->parent()) {
 				while(m_rank[(*it)->source()] >= m_rank[m_topNode[c]]) {
@@ -674,8 +663,7 @@ void ExtendedNestingGraph::createDummyNodes()
 	}
 
 	// create dummy nodes for edges top(c)->bottom(c)
-	cluster c;
-	forall_clusters(c,CG)
+	for(cluster c : CG.clusters)
 	{
 		if(c == CG.rootCluster())
 			continue;
@@ -683,6 +671,7 @@ void ExtendedNestingGraph::createDummyNodes()
 		node vTop = top(c);
 		node vBottom = bottom(c);
 
+		edge e;
 		forall_adj_edges(e,vTop)
 			if(e->target() == vBottom) {
 				int span = m_rank[vBottom] - m_rank[vTop];
@@ -713,8 +702,7 @@ void ExtendedNestingGraph::createVirtualClusters()
 
 	// for each original edge, put the edge segments that are in the same cluster
 	// into a separate cluster
-	edge eOrig;
-	forall_edges(eOrig, m_CGC.getOriginalClusterGraph().constGraph())
+	for(edge eOrig : m_CGC.getOriginalClusterGraph().constGraph().edges)
 	{
 		const List<edge> &L = m_copyEdge[eOrig];
 		if(L.size() >= 3) {
@@ -762,16 +750,13 @@ void ExtendedNestingGraph::createVirtualClusters(
 			vCopy[*itV] = G.newNode();
 		}
 
-		ListConstIterator<cluster> itC;
-		for(itC = c->cBegin(); itC.valid(); ++itC) {
-			cCopy[*itC] = G.newNode();
-		}
+		for (cluster child : c->children)
+			cCopy[child] = G.newNode();
 
 		for(itV = c->nBegin(); itV.valid(); ++itV) {
 			node v = *itV;
-			adjEntry adj;
-			forall_adj(adj,v) {
-				if(origEdge(adj->theEdge()) == 0)
+			for(adjEntry adj : v->adjEdges) {
+				if(origEdge(adj->theEdge()) == nullptr)
 					continue;
 
 				node w = adj->twinNode();
@@ -800,23 +785,22 @@ void ExtendedNestingGraph::createVirtualClusters(
 			for(itV = c->nBegin(); itV.valid(); ++itV)
 				nodes[component[vCopy[*itV]]].pushBack(*itV);
 
-			for(itC = c->cBegin(); itC.valid(); ++itC)
-				clusters[component[cCopy[*itC]]].pushBack(*itC);
+			for(cluster child : c->children)
+				clusters[component[cCopy[child]]].pushBack(child);
 
 			for(int i = 0; i < k; ++i) {
 				if(nodes[i].size() + clusters[i].size() > 1) {
 					cluster cVirt = m_CGC.createCluster(nodes[i], c);
-					SListConstIterator<cluster> it;
-					for(it = clusters[i].begin(); it.valid(); ++it)
-						m_CGC.moveCluster(*it,cVirt);
+					for(cluster ci : clusters[i])
+						m_CGC.moveCluster(ci,cVirt);
 				}
 			}
 		}
 	}
 
-	// recurive call
-	for(ListConstIterator<cluster> it = c->cBegin(); it.valid(); ++it)
-		createVirtualClusters(*it, vCopy, cCopy);
+	// recursive call
+	for(cluster child : c->children)
+		createVirtualClusters(child, vCopy, cCopy);
 }
 
 
@@ -826,8 +810,7 @@ void ExtendedNestingGraph::buildLayers()
 
 	Array<List<node> > L(m_numLayers);
 
-	node v;
-	forall_nodes(v,*this) {
+	for(node v : nodes) {
 		L[rank(v)].pushBack(v);
 	}
 
@@ -844,19 +827,18 @@ void ExtendedNestingGraph::buildLayers()
 			if(r < m_topRank[c])
 				m_topRank[c] = r;
 		}
-		ListConstIterator<cluster> itC;
-		for(itC = c->cBegin(); itC.valid(); ++itC) {
-			if(m_topRank[*itC] < m_topRank[c])
-				m_topRank[c] = m_topRank[*itC];
-			if(m_bottomRank[*itC] > m_bottomRank[c])
-				m_bottomRank[c] = m_bottomRank[*itC];
+		for (cluster child : c->children) {
+			if(m_topRank[child] < m_topRank[c])
+				m_topRank[c] = m_topRank[child];
+			if(m_bottomRank[child] > m_bottomRank[c])
+				m_bottomRank[c] = m_bottomRank[child];
 		}
 	}
 
 	Array<SListPure<cluster> > clusterBegin(m_numLayers);
 	Array<SListPure<cluster> > clusterEnd(m_numLayers);
 
-	forall_clusters(c,m_CGC) {
+	for(cluster c : m_CGC.clusters) {
 		clusterBegin[m_topRank   [c]].pushBack(c);
 		clusterEnd  [m_bottomRank[c]].pushBack(c);
 	}
@@ -865,44 +847,41 @@ void ExtendedNestingGraph::buildLayers()
 	ClusterSetPure activeClusters(m_CGC);
 	activeClusters.insert(m_CGC.rootCluster());
 
-	ClusterArray<LHTreeNode*> clusterToTreeNode(m_CGC, 0);
+	ClusterArray<LHTreeNode*> clusterToTreeNode(m_CGC, nullptr);
 	ClusterArray<int>         numChildren(m_CGC, 0);
-	NodeArray<LHTreeNode*>    treeNode(*this, 0);
+	NodeArray<LHTreeNode*>    treeNode(*this, nullptr);
 
 	int i;
 	for(i = 0; i < m_numLayers; ++i) {
 		// identify new clusters on this layer
-		ListConstIterator<node> it;
-		for(it = L[i].begin(); it.valid(); ++it) {
-			++numChildren[parent(*it)];
+		for(node v : L[i]) {
+			++numChildren[parent(v)];
 		}
 
-		SListConstIterator<cluster> itActive;
-		for(itActive = clusterBegin[i].begin(); itActive.valid(); ++itActive)
-			activeClusters.insert(*itActive);
+		for(cluster cActive : clusterBegin[i])
+			activeClusters.insert(cActive);
 
 		// create compound tree nodes
-		ListConstIterator<cluster> itC;
-		for(itC = activeClusters.clusters().begin(); itC.valid(); ++itC) {
-			cluster c = *itC;
+		//ListConstIterator<cluster> itC;
+		for(cluster c : activeClusters.clusters()) {
 			clusterToTreeNode[c] = OGDF_NEW LHTreeNode(c, clusterToTreeNode[c]);
 			if(c != m_CGC.rootCluster())
 				++numChildren[c->parent()];
 		}
 
 		// initialize child arrays
-		for(itC = activeClusters.clusters().begin(); itC.valid(); ++itC) {
-			clusterToTreeNode[*itC]->initChild(numChildren[*itC]);
+		for(cluster c : activeClusters.clusters()) {
+			clusterToTreeNode[c]->initChild(numChildren[c]);
 		}
 
 		// set parent and children of compound tree nodes
-		for(itC = activeClusters.clusters().begin(); itC.valid(); ++itC) {
-			if(*itC != m_CGC.rootCluster()) {
-				LHTreeNode *cNode = clusterToTreeNode[*itC];
-				LHTreeNode *pNode = clusterToTreeNode[(*itC)->parent()];
+		for(cluster c : activeClusters.clusters()) {
+			if(c != m_CGC.rootCluster()) {
+				LHTreeNode *cNode = clusterToTreeNode[c];
+				LHTreeNode *pNode = clusterToTreeNode[c->parent()];
 
 				cNode->setParent(pNode);
-				pNode->setChild(--numChildren[(*itC)->parent()], cNode);
+				pNode->setChild(--numChildren[c->parent()], cNode);
 			}
 		}
 
@@ -910,32 +889,31 @@ void ExtendedNestingGraph::buildLayers()
 		m_layer[i].setRoot(clusterToTreeNode[m_CGC.rootCluster()]);
 
 		// create tree nodes for nodes on this layer
-		for(it = L[i].begin(); it.valid(); ++it) {
-			LHTreeNode *cNode = clusterToTreeNode[parent(*it)];
-			LHTreeNode::Type type = (m_type[*it] == ntClusterTopBottom) ?
+		for(node v : L[i]) {
+			LHTreeNode *cNode = clusterToTreeNode[parent(v)];
+			LHTreeNode::Type type = (m_type[v] == ntClusterTopBottom) ?
 				LHTreeNode::AuxNode : LHTreeNode::Node;
-			LHTreeNode *vNode =  OGDF_NEW LHTreeNode(cNode, *it, type);
-			treeNode[*it] = vNode;
-			cNode->setChild(--numChildren[parent(*it)], vNode);
+			LHTreeNode *vNode =  OGDF_NEW LHTreeNode(cNode, v, type);
+			treeNode[v] = vNode;
+			cNode->setChild(--numChildren[parent(v)], vNode);
 		}
 
 		// clean-up
-		for(itC = activeClusters.clusters().begin(); itC.valid(); ++itC) {
-			numChildren      [*itC] = 0;
+		for(cluster c : activeClusters.clusters()) {
+			numChildren[c] = 0;
 		}
 
 		// identify clusters that are not on next layer
-		for(itActive = clusterEnd[i].begin(); itActive.valid(); ++itActive)
-			activeClusters.remove(*itActive);
+		for(cluster cActive : clusterEnd[i])
+			activeClusters.remove(cActive);
 	}
 
 	// identify adjacencies between nodes and tree nodes
-	edge e;
-	forall_edges(e,*this)
+	for(edge e : edges)
 	{
 		node u = e->source();
 		node v = e->target();
-		bool isTopBottomEdge = (origEdge(e) == 0);
+		bool isTopBottomEdge = (origEdge(e) == nullptr);
 		int weight = (isTopBottomEdge) ? 100 : 1;
 
 		if(isTopBottomEdge)
@@ -948,7 +926,7 @@ void ExtendedNestingGraph::buildLayers()
 			parent = parent->parent();
 		}
 
-		while(parent != 0) {
+		while(parent != nullptr) {
 			parent->m_upperAdj.pushBack(LHTreeNode::Adjacency(u,nd,weight));
 
 			nd = parent;
@@ -962,7 +940,7 @@ void ExtendedNestingGraph::buildLayers()
 			parent = parent->parent();
 		}
 
-		while(parent != 0) {
+		while(parent != nullptr) {
 			parent->m_lowerAdj.pushBack(LHTreeNode::Adjacency(v,nd,weight));
 
 			nd = parent;
@@ -976,18 +954,15 @@ void ExtendedNestingGraph::buildLayers()
 
 	// identify relevant pairs for crossings between top->bottom edges
 	// and foreign edges
-	m_markTree.init(m_CGC,0);
-	ClusterArray<List<Tuple3<edge,LHTreeNode*,LHTreeNode*> > > edges(m_CGC);
+	m_markTree.init(m_CGC,nullptr);
+	ClusterArray<List<tuple<edge,LHTreeNode*,LHTreeNode*> > > edges(m_CGC);
 	ClusterSetSimple C(m_CGC);
 	for(i = 0; i < m_numLayers-1; ++i)
 	{
-		ListConstIterator<node> it;
-		for(it = L[i].begin(); it.valid(); ++it) {
-			node u = *it;
-
+		for(node u : L[i]) {
 			edge e;
 			forall_adj_edges(e,u) {
-				if(origEdge(e) == 0)
+				if(origEdge(e) == nullptr)
 					continue;
 				if(e->source() == u) {
 					node v = e->target();
@@ -995,37 +970,31 @@ void ExtendedNestingGraph::buildLayers()
 					LHTreeNode *uChild, *vChild;
 					cluster c = lca(treeNode[u], treeNode[v], &uChild, &vChild)->originalCluster();
 
-					edges[c].pushBack(
-						Tuple3<edge,LHTreeNode*,LHTreeNode*>(e,uChild,vChild));
+					edges[c].pushBack(std::make_tuple(e,uChild,vChild));
 					C.insert(c);
 				}
 			}
 		}
 
-		for(it = L[i].begin(); it.valid(); ++it) {
-			node u = *it;
-
+		for(node u : L[i]) {
 			edge e;
 			forall_adj_edges(e,u) {
-				if(e->source() == u && origEdge(e) == 0) {
+				if(e->source() == u && origEdge(e) == nullptr) {
 					LHTreeNode *aNode = treeNode[e->target()];
 					cluster ca = aNode->parent()->originalCluster();
 					LHTreeNode *aParent = aNode->parent()->parent();
 
-					for(; aParent != 0; aParent = aParent->parent()) {
-						ListConstIterator<Tuple3<edge,LHTreeNode*,LHTreeNode*> > itE;
-						for(itE = edges[aParent->originalCluster()].begin();
-							itE.valid(); ++itE)
+					for(; aParent != nullptr; aParent = aParent->parent()) {
+						for(const auto &tup : edges[aParent->originalCluster()])
 						{
+							edge e_tup = std::get<0>(tup);
+
 							LHTreeNode *aChild, *vChild, *h1, *h2;
-							LHTreeNode *cNode = lca(aNode, treeNode[(*itE).x1()->target()],
-								&aChild, &vChild);
+							LHTreeNode *cNode = lca(aNode, treeNode[e_tup->target()], &aChild, &vChild);
 							if(cNode != aNode->parent() &&
-								lca(aNode,treeNode[(*itE).x1()->source()],&h1,&h2)->originalCluster() != ca)
+								lca(aNode,treeNode[e_tup->source()],&h1,&h2)->originalCluster() != ca)
 								cNode->m_upperClusterCrossing.pushBack(
-									LHTreeNode::ClusterCrossing(e->source(),aChild,
-									(*itE).x1()->source(),vChild,
-									(*itE).x1()));
+									LHTreeNode::ClusterCrossing(e->source(), aChild, e_tup->source(), vChild, e_tup));
 						}
 					}
 
@@ -1033,20 +1002,18 @@ void ExtendedNestingGraph::buildLayers()
 					ca = aNode->parent()->originalCluster();
 					aParent = aNode->parent()->parent();
 
-					for(; aParent != 0; aParent = aParent->parent()) {
-						ListConstIterator<Tuple3<edge,LHTreeNode*,LHTreeNode*> > itE;
-						for(itE = edges[aParent->originalCluster()].begin();
-							itE.valid(); ++itE)
+					for(; aParent != nullptr; aParent = aParent->parent()) {
+						for(const auto &tup : edges[aParent->originalCluster()])
 						{
+							edge e_tup = std::get<0>(tup);
+
 							LHTreeNode *aChild, *vChild, *h1, *h2;
-							LHTreeNode *cNode = lca(aNode, treeNode[(*itE).x1()->source()],
+							LHTreeNode *cNode = lca(aNode, treeNode[e_tup->source()],
 								&aChild, &vChild);
 							if(cNode != aNode->parent() &&
-								lca(aNode,treeNode[(*itE).x1()->target()],&h1,&h2)->originalCluster() != ca)
+								lca(aNode,treeNode[e_tup->target()],&h1,&h2)->originalCluster() != ca)
 								cNode->m_lowerClusterCrossing.pushBack(
-									LHTreeNode::ClusterCrossing(e->target(),aChild,
-									(*itE).x1()->target(),vChild,
-									(*itE).x1()));
+									LHTreeNode::ClusterCrossing(e->target(), aChild, e_tup->target(), vChild, e_tup));
 						}
 					}
 				}
@@ -1054,9 +1021,8 @@ void ExtendedNestingGraph::buildLayers()
 		}
 
 		// get rid of edges in edges[c]
-		SListConstIterator<cluster> itC;
-		for(itC = C.clusters().begin(); itC.valid(); ++itC)
-			edges[*itC].clear();
+		for(cluster c : C.clusters())
+			edges[c].clear();
 		C.clear();
 	}
 
@@ -1074,11 +1040,10 @@ void ExtendedNestingGraph::storeCurrentPos()
 
 void ExtendedNestingGraph::restorePos()
 {
-	int count;
 	for(int i = 0; i < m_numLayers; ++i) {
 		m_layer[i].restore();
 
-		count = 0;
+		int count = 0;
 		assignPos(m_layer[i].root(), count);
 	}
 }
@@ -1124,12 +1089,8 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(int i, bool dirTopDown)
 struct RCEdge
 {
 	RCEdge() { }
-	RCEdge(node src, node tgt, RCCrossings cr, RCCrossings crReverse) {
-		m_src       = src;
-		m_tgt       = tgt;
-		m_cr        = cr;
-		m_crReverse = crReverse;
-	}
+	RCEdge(node src, node tgt, RCCrossings cr, RCCrossings crReverse)
+		: m_src(src), m_tgt(tgt), m_cr(cr), m_crReverse(crReverse) { }
 
 	RCCrossings weight() const { return m_crReverse - m_cr; }
 
@@ -1201,15 +1162,14 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 
 	int j;
 	for(j = 0; j < n; ++j) {
-		ListConstIterator<LHTreeNode::Adjacency> itJ;
-		for(itJ = adj[j].begin(); itJ.valid(); ++itJ) {
-			int posJ = m_pos[(*itJ).m_u];
+		for (const LHTreeNode::Adjacency &adjJ : adj[j]) {
+			int posJ = m_pos[(adjJ).m_u];
 
 			for(int k = j+1; k < n; ++k) {
-				ListConstIterator<LHTreeNode::Adjacency> itK;
-				for(itK = adj[k].begin(); itK.valid(); ++itK) {
-					int posK   = m_pos[(*itK).m_u];
-					int weight = (*itJ).m_weight * (*itK).m_weight;
+				//ListConstIterator<LHTreeNode::Adjacency> itK;
+				for (const LHTreeNode::Adjacency &adjK : adj[k]) {
+					int posK   = m_pos[adjK.m_u];
+					int weight = adjJ.m_weight * adjK.m_weight;
 
 					if(posJ > posK)
 						cn(j,k).incEdges(weight);
@@ -1237,7 +1197,8 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 		int posJ = m_pos[(*itCC).m_uc];
 		int posK = m_pos[(*itCC).m_u];
 
-		OGDF_ASSERT(j != k && posJ != posK);
+		OGDF_ASSERT(j != k);
+		OGDF_ASSERT(posJ != posK);
 
 		if(posJ > posK)
 			cn(j,k).incClusters();
@@ -1260,16 +1221,16 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 
 	// create edges for l-r constraints
 	const LHTreeNode *neighbourParent = (dirTopDown) ? cNode->up() : cNode->down();
-	if(neighbourParent != 0) {
-		node src = 0;
+	if(neighbourParent != nullptr) {
+		node src = nullptr;
 		for(int i = 0; i < neighbourParent->numberOfChildren(); ++i) {
 			const LHTreeNode *vNode =
 				(dirTopDown) ?
 				neighbourParent->child(i)->down() : neighbourParent->child(i)->up();
 
-			if(vNode != 0) {
+			if(vNode != nullptr) {
 				node tgt = toG[vNode->pos()];
-				if(src != 0) {
+				if(src != nullptr) {
 #ifdef OGDF_DEBUG
 					bool result =
 #endif
@@ -1297,17 +1258,16 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 
 	// build acyclic graph
 	RCCrossings numCrossings;
-	ListConstIterator<RCEdge> itE;
-	for(itE = edges.begin(); itE.valid(); ++itE)
+	for(const RCEdge &rce : edges)
 	{
-		node u = (*itE).m_src;
-		node v = (*itE).m_tgt;
+		node u = rce.m_src;
+		node v = rce.m_tgt;
 
 		if(tryEdge(u, v, G, level)) {
-			numCrossings += (*itE).m_cr;
+			numCrossings += rce.m_cr;
 
 		} else {
-			numCrossings += (*itE).m_crReverse;
+			numCrossings += rce.m_crReverse;
 		}
 	}
 
@@ -1317,8 +1277,7 @@ RCCrossings ExtendedNestingGraph::reduceCrossings(LHTreeNode *cNode, bool dirTop
 	topologicalNumbering(G,level);
 
 	// sort children of cNode according to topological numbering
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		cNode->setChild(level[v], fromG[v]);
 
 	//for(j = 0; j < n; ++j) {
@@ -1353,10 +1312,9 @@ void ExtendedNestingGraph::removeTopBottomEdges()
 	m_vertical.init(*this);
 
 	//cluster rootOrig = getOriginalClusterGraph().rootCluster();
-	edge e;
-	forall_edges(e,*this)
+	for(edge e : edges)
 	{
-		if(origEdge(e) == 0)
+		if(origEdge(e) == nullptr)
 			continue;
 
 		bool vert = false;
@@ -1406,19 +1364,19 @@ void ExtendedNestingGraph::removeTopBottomEdges()
 			LHTreeNode *cNode = S.pop();
 
 			cNode->setPos();
-			ListConstIterator<LHTreeNode::ClusterCrossing> itCC;
-			for(itCC = cNode->m_upperClusterCrossing.begin(); itCC.valid(); ++itCC) {
-				int j = (*itCC).m_cNode->pos();
-				int k = (*itCC).m_uNode->pos();
+			for (const LHTreeNode::ClusterCrossing &cc : cNode->m_upperClusterCrossing) {
+				int j = cc.m_cNode->pos();
+				int k = cc.m_uNode->pos();
 
-				int posJ = m_pos[(*itCC).m_uc];
-				int posK = m_pos[(*itCC).m_u];
+				int posJ = m_pos[cc.m_uc];
+				int posK = m_pos[cc.m_u];
 
-				OGDF_ASSERT(j != k && posJ != posK);
+				OGDF_ASSERT(j != k);
+				OGDF_ASSERT(posJ != posK);
 
 				// do we have a cluster-edge crossing?
 				if((j < k && posJ > posK) || (j > k && posJ < posK))
-					m_vertical[(*itCC).m_edge] = false;
+					m_vertical[cc.m_edge] = false;
 			}
 
 
@@ -1434,7 +1392,7 @@ void ExtendedNestingGraph::removeTopBottomEdges()
 
 	// delete nodes in graph
 	node v, vNext;
-	for(v = firstNode(); v != 0; v = vNext) {
+	for(v = firstNode(); v != nullptr; v = vNext) {
 		vNext = v->succ();
 		if(type(v) == ntClusterTopBottom)
 			delNode(v);
@@ -1447,8 +1405,8 @@ cluster ExtendedNestingGraph::lca(node u, node v) const
 	const ClusterGraph &CG = getOriginalClusterGraph();
 
 	SListConstIterator<cluster> it;
-	for(it = m_markedClustersTree.begin(); it.valid(); ++it)
-		m_mark[*it] = 0;
+	for(cluster c : m_markedClustersTree)
+		m_mark[c] = nullptr;
 	m_markedClustersTree.clear();
 
 	cluster c1 = CG.clusterOf(u);
@@ -1457,8 +1415,8 @@ cluster ExtendedNestingGraph::lca(node u, node v) const
 	cluster pred2 = c2;
 
 	for( ; ; ) {
-		if(c1 != 0) {
-			if(m_mark[c1] != 0) {
+		if(c1 != nullptr) {
+			if(m_mark[c1] != nullptr) {
 				m_secondPath = pred1;
 				m_secondPathTo = u;
 				return c1;
@@ -1470,8 +1428,8 @@ cluster ExtendedNestingGraph::lca(node u, node v) const
 				c1 = c1->parent();
 			}
 		}
-		if(c2 != 0) {
-			if(m_mark[c2] != 0) {
+		if(c2 != nullptr) {
+			if(m_mark[c2] != nullptr) {
 				m_secondPath = pred2;
 				m_secondPathTo = v;
 				return c2;
@@ -1493,11 +1451,12 @@ LHTreeNode *ExtendedNestingGraph::lca(
 	LHTreeNode **uChild,
 	LHTreeNode **vChild) const
 {
-	OGDF_ASSERT(uNode->isCompound() == false && vNode->isCompound() == false);
+	OGDF_ASSERT(uNode->isCompound() == false);
+	OGDF_ASSERT(vNode->isCompound() == false);
 
 	SListConstIterator<cluster> it;
-	for(it = m_markedClusters.begin(); it.valid(); ++it)
-		m_markTree[*it] = 0;
+	for(cluster c : m_markedClusters)
+		m_markTree[c] = nullptr;
 	m_markedClusters.clear();
 
 	LHTreeNode *cuNode = uNode->parent();
@@ -1506,9 +1465,9 @@ LHTreeNode *ExtendedNestingGraph::lca(
 	LHTreeNode *uPred = uNode;
 	LHTreeNode *vPred = vNode;
 
-	while(cuNode != 0 || cvNode != 0) {
-		if(cuNode != 0) {
-			if(m_markTree[cuNode->originalCluster()] != 0) {
+	while(cuNode != nullptr || cvNode != nullptr) {
+		if(cuNode != nullptr) {
+			if(m_markTree[cuNode->originalCluster()] != nullptr) {
 				*uChild = uPred;
 				*vChild = m_markTree[cuNode->originalCluster()];
 				return cuNode;
@@ -1520,8 +1479,8 @@ LHTreeNode *ExtendedNestingGraph::lca(
 				cuNode = cuNode->parent();
 			}
 		}
-		if(cvNode != 0) {
-			if(m_markTree[cvNode->originalCluster()] != 0) {
+		if(cvNode != nullptr) {
+			if(m_markTree[cvNode->originalCluster()] != nullptr) {
 				*uChild = m_markTree[cvNode->originalCluster()];
 				*vChild = vPred;
 				return cvNode;
@@ -1535,7 +1494,7 @@ LHTreeNode *ExtendedNestingGraph::lca(
 		}
 	}
 
-	return 0; // error; not found!
+	return nullptr; // error; not found!
 }
 
 
@@ -1547,9 +1506,8 @@ void ExtendedNestingGraph::assignAeLevel(cluster c, int &count)
 	for(itV = c->nBegin(); itV.valid(); ++itV)
 		m_aeLevel[m_copy[*itV]] = count++;
 
-	ListConstIterator<cluster> itC;
-	for(itC = c->cBegin(); itC.valid(); ++itC)
-		assignAeLevel(*itC, count);
+	for(cluster child : c->children)
+		assignAeLevel(child, count);
 
 	m_aeLevel[m_bottomNode[c]] = count++;
 }
@@ -1578,9 +1536,8 @@ bool ExtendedNestingGraph::reachable(node v, node u, SListPure<node> &successors
 				Q.conc(successors);
 
 				// reset all visited entries
-				SListConstIterator<node> it;
-				for(it = Q.begin(); it.valid(); ++it)
-					m_aeVisited[*it] = false;
+				for(node vi : Q)
+					m_aeVisited[vi] = false;
 
 				return true;
 			}
@@ -1593,9 +1550,8 @@ bool ExtendedNestingGraph::reachable(node v, node u, SListPure<node> &successors
 	}
 
 	// reset all visited entries
-	SListConstIterator<node> it;
-	for(it = successors.begin(); it.valid(); ++it)
-		m_aeVisited[*it] = false;
+	for(node vi : successors)
+		m_aeVisited[vi] = false;
 
 	return false;
 }
@@ -1603,18 +1559,17 @@ bool ExtendedNestingGraph::reachable(node v, node u, SListPure<node> &successors
 
 void ExtendedNestingGraph::moveDown(node v, const SListPure<node> &successors, NodeArray<int> &level)
 {
-	SListConstIterator<node> it;
-	for(it = successors.begin(); it.valid(); ++it) {
-		m_aeVisited[*it] = true;
-		m_auxDeg[*it] = 0;
+	for(node vi : successors) {
+		m_aeVisited[vi] = true;
+		m_auxDeg[vi] = 0;
 	}
 
-	for(it = successors.begin(); it.valid(); ++it) {
+	for(node vi : successors) {
 		edge e;
-		forall_adj_edges(e,*it) {
+		forall_adj_edges(e,vi) {
 			node s = e->source();
-			if(s != *it && m_aeVisited[s])
-				++m_auxDeg[*it];
+			if(s != vi && m_aeVisited[s])
+				++m_auxDeg[vi];
 		}
 	}
 
@@ -1649,8 +1604,8 @@ void ExtendedNestingGraph::moveDown(node v, const SListPure<node> &successors, N
 		level[w] = maxLevel+1;
 	}
 
-	for(it = successors.begin(); it.valid(); ++it) {
-		m_aeVisited[*it] = false;
+	for(node vi : successors) {
+		m_aeVisited[vi] = false;
 	}
 }
 
@@ -1665,16 +1620,15 @@ edge ExtendedNestingGraph::addEdge(node u, node v, bool addAlways)
 		int d = m_aeLevel[u] - m_aeLevel[v] + 1;
 		OGDF_ASSERT(d > 0);
 
-		SListConstIterator<node> it;
-		for(it = successors.begin(); it.valid(); ++it)
-			m_aeLevel[*it] += d;
+		for(node vi : successors)
+			m_aeLevel[vi] += d;
 
 		return newEdge(u,v);
 
 	} else if(addAlways)
 		return newEdge(v,u);
 
-	return 0;
+	return nullptr;
 }
 
 
@@ -1702,12 +1656,10 @@ void SugiyamaLayout::call(ClusterGraphAttributes &AG)
 
 
 	/*os << "Cluster Hierarchy:\n";
-	node v;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 		os << "V " << v << ": parent = " << CG.clusterOf(v)->index() << "\n";
 
-	cluster c;
-	forall_clusters(c, CG)
+	for(cluster c : CG.clusters)
 		if(c != CG.rootCluster())
 			os << "C " << c->index() << ": parent = " << c->parent()->index() << "\n";
 
@@ -1715,7 +1667,7 @@ void SugiyamaLayout::call(ClusterGraphAttributes &AG)
 	os << "  nodes: " << H.numberOfNodes() << "\n";
 	os << "  edges: " << H.numberOfEdges() << "\n\n";
 
-	forall_nodes(v, H) {
+	for(node v : H.nodes) {
 		os << v->index() << ": ";
 		switch(H.type(v)) {
 			case ExtendedNestingGraph::ntNode:
@@ -1739,31 +1691,28 @@ void SugiyamaLayout::call(ClusterGraphAttributes &AG)
 
 
 	os << "\nLong Edges:\n";
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		os << e << ": ";
 		ListConstIterator<edge> it;
-		for(it = H.chain(e).begin(); it.valid(); ++it)
-			os << " " << (*it);
+		for(edge ei : H.chain(e))
+			os << " " << ei;
 		os << "\n";
 	}
 
 	os << "\nLevel:\n";
 	int maxLevel = 0;
-	forall_nodes(v,H)
+	for(node v : H.nodes)
 		if(H.rank(v) > maxLevel)
 			maxLevel = H.rank(v);
 */
 	Array<List<node> > level(H.numberOfLayers());
-	node v;
-	forall_nodes(v,H)
+	for(node v : H.nodes)
 		level[H.rank(v)].pushBack(v);
 /*
 	for(int i = 0; i <= maxLevel; ++i) {
 		os << i << ": ";
 		ListConstIterator<node> it;
-		for(it = level[i].begin(); it.valid(); ++it) {
-			node v = *it;
+		for(node v : level[i]) {
 			switch(H.type(v)) {
 				case ExtendedNestingGraph::ntNode:
 					os << "(V" << H.origNode(v);
@@ -1801,11 +1750,10 @@ void SugiyamaLayout::call(ClusterGraphAttributes &AG)
 			const LHTreeNode *p = Q.pop();
 			os << "  C" << p->originalCluster() << ": ";
 
-			ListConstIterator<LHTreeNode::Adjacency> it;
-			for(it = p->m_upperAdj.begin(); it.valid(); ++it) {
-				node        u      = (*it).m_u;
-				LHTreeNode *vNode  = (*it).m_v;
-				int         weight = (*it).m_weight;
+			for(const LHTreeNode::Adjacency &adj : p->m_upperAdj) {
+				node        u      = adj.m_u;
+				LHTreeNode *vNode  = adj.m_v;
+				int         weight = adj.m_weight;
 
 				os << " (" << u << ",";
 				if(vNode->isCompound())
@@ -1830,9 +1778,8 @@ void SugiyamaLayout::call(ClusterGraphAttributes &AG)
 		os << i << ": ";
 		const List<node> &L = level[i];
 		Array<node> order(0,L.size()-1,0);
-		ListConstIterator<node> it;
-		for(it = L.begin(); it.valid(); ++it)
-			order[H.pos(*it)] = *it;
+		for(node v : L)
+			order[H.pos(v)] = v;
 
 		for(int j = 0; j < L.size(); ++j)
 			os << " " << order[j];

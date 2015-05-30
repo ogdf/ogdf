@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for layout algorithms for a UpwardPlanRep
  *

@@ -1186,7 +1186,7 @@ Idiot::crossOver(int mode)
      const double * rowlower = model_->getRowLower();
      int * whenUsed = whenUsed_;
      rowsol = model_->primalRowSolution();
-     colsol = model_->primalColumnSolution();;
+     colsol = model_->primalColumnSolution();
      double * cost = model_->objective();
 
      int slackEnd, ordStart, ordEnd;

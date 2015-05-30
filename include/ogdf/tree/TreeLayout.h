@@ -1,11 +1,3 @@
-/*
- * $Revision: 2583 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of linear time layout algorithm for trees
  *        (TreeLayout) based on Walker's algorithm.
@@ -105,7 +97,7 @@ namespace ogdf {
  * <i>subtreeDistance</i>, <i>levelDistance</i>, and <i>treeDistance</i>.
  * The layout style is determined by <i>orthogonalLayout</i> and
  * <i>orientation</i>; the root of the tree is selected according to
- * th eselection strategy given by <i>selectRoot</i>.
+ * the selection strategy given by <i>selectRoot</i>.
  */
 class OGDF_EXPORT TreeLayout : public LayoutModule {
 public:
@@ -126,23 +118,6 @@ private:
 	Orientation m_orientation;       //!< Option for orientation of tree layout.
 	RootSelectionType m_selectRoot;  //!< Option for how to determine the root.
 
-	NodeArray<int> m_number;         //!< Consecutive numbers for children.
-
-	NodeArray<node> m_parent;        //!< Parent node, 0 if root.
-	NodeArray<node> m_leftSibling;   //!< Left sibling, 0 if none.
-	NodeArray<node> m_firstChild;    //!< Leftmost child, 0 if leaf.
-	NodeArray<node> m_lastChild;	 //!< Rightmost child, 0 if leaf.
-	NodeArray<node> m_thread;        //!< Thread, 0 if none.
-	NodeArray<node> m_ancestor;      //!< Actual highest ancestor.
-
-	NodeArray<double> m_preliminary; //!< Preliminary x-coordinates.
-	NodeArray<double> m_modifier;    //!< Modifier of x-coordinates.
-	NodeArray<double> m_change;      //!< Change of shift applied to subtrees.
-	NodeArray<double> m_shift;       //!< Shift applied to subtrees.
-
-	SListPure<edge> m_reversedEdges; //!< List of temporarily removed edges.
-	Graph           *m_pGraph; //!< The input graph.
-
 public:
 	//! Creates an instance of tree layout and sets options to default values.
 	TreeLayout();
@@ -162,20 +137,19 @@ public:
 	/**
 	 * \brief Calls tree layout for graph attributes \a GA.
 	 *
-	 * \pre The graph is a tree.
+	 * \pre The graph is a tree or a forest. If this is not the case, a PreconditionViolatedException will be thrown.
 	 *
-	 * The order of children is given by the adjacency lists;
-	 * the successor of the unique in-edge of a non-root node
-	 * leads to its leftmost child; the leftmost child of the root
-	 * is given by its first adjacency entry.
+	 * The order of children is given by the adjacency lists. The successor of the unique in-edge of a non-root node
+	 * leads to its leftmost child; the leftmost child of the root is given by its first adjacency entry.
+	 *
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
-	void call(GraphAttributes &GA);
+	virtual void call(GraphAttributes &GA) override;
 
 	/**
 	 * \brief Calls tree layout for graph attributes \a GA.
 	 *
-	 * \pre The graph is a tree.
+	 * \pre The graph is a tree or a forest. If this is not the case, a PreconditionViolatedException will be thrown.
 	 *
 	 * Sorts the adjacency entries according to the positions of adjacent
 	 * vertices in \a GA.
@@ -245,44 +219,28 @@ public:
 
 private:
 	class AdjComparer;
+	struct TreeStructure;
 
-	void adjustEdgeDirections(Graph &G, node v, node parent);
-	void setRoot(GraphAttributes &AG, Graph &tree);
-	void undoReverseEdges(GraphAttributes &AG);
-
-	// initialize all node arrays and
-	// compute the tree structure from the adjacency lists
-	//
-	// returns the root node
-	void initializeTreeStructure(const Graph &tree, List<node> &roots);
-
-	// delete all node arrays
-	void deleteTreeStructure();
-
-	// returns whether node v is a leaf
-	int isLeaf(node v) const;
-
-	// returns the successor of node v on the left/right contour
-	// returns 0 if there is none
-	node nextOnLeftContour(node v) const;
-	node nextOnRightContour(node v) const;
+	void adjustEdgeDirections(Graph &G, SListPure<edge> &reversedEdges, node v, node parent);
+	void setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reversedEdges);
+	void undoReverseEdges(GraphAttributes &AG, Graph &tree, SListPure<edge> &reversedEdges);
 
 	// recursive bottom up traversal of the tree for computing
 	// preliminary x-coordinates
-	void firstWalk(node subtree,const GraphAttributes &AG,bool upDown);
+	void firstWalk(TreeStructure &ts, node subtree, bool upDown);
 
 	// space out the small subtrees on the left hand side of subtree
 	// defaultAncestor is used for all nodes with obsolete m_ancestor
 	void apportion(
+		TreeStructure &ts,
 		node subtree,
 		node &defaultAncestor,
-		const GraphAttributes &AG,
 		bool upDown);
 
 	// recursive top down traversal of the tree for computing final
 	// x-coordinates
-	void secondWalkX(node subtree, double modifierSum, GraphAttributes &AG);
-	void secondWalkY(node subtree, double modifierSum, GraphAttributes &AG);
+	void secondWalkX(TreeStructure &ts, node subtree, double modifierSum);
+	void secondWalkY(TreeStructure &ts, node subtree, double modifierSum);
 
 	// compute y-coordinates and edge shapes
 	void computeYCoordinatesAndEdgeShapes(node root,GraphAttributes &AG);

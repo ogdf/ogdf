@@ -1,11 +1,3 @@
-/*
- * $Revision: 3835 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 13:18:01 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief The algorithm computes a planar embedding with minimum cost.
  *
@@ -48,6 +40,7 @@
  * \see http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+#include <ogdf/basic/FaceArray.h>
 #include <ogdf/planarity/EmbedderOptimalFlexDraw.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
 
@@ -55,7 +48,7 @@ namespace ogdf {
 
 	EmbedderOptimalFlexDraw::EmbedderOptimalFlexDraw()
 	{
-		m_minCostFlowComputer.set(new MinCostFlowReinelt);
+		m_minCostFlowComputer.set(new MinCostFlowReinelt<int>);
 	}
 
 	void EmbedderOptimalFlexDraw::createNetwork(
@@ -76,19 +69,19 @@ namespace ogdf {
 		NodeArray<node> vertexNode(skeletonGraph);
 		FaceArray<node> faceNode(skeletonEmbedding);
 
-		for (node v = skeletonGraph.firstNode(); v != 0; v = v->succ()) {
+		for (node v = skeletonGraph.firstNode(); v != nullptr; v = v->succ()) {
 			vertexNode[v] = N.newNode();
 			supply[vertexNode[v]] = 4 - skeleton.original(v)->degree() - v->degree();
 		}
 
-		if (parent != 0) {
+		if (parent != nullptr) {
 			node s = skeleton.referenceEdge()->source();
 			node t = skeleton.referenceEdge()->target();
 			supply[vertexNode[s]] = 2 - s->degree();
 			supply[vertexNode[t]] = 2 - t->degree();
 		}
 
-		for (edge e = skeletonGraph.firstEdge(); e != 0; e = e->succ()) {
+		for (edge e = skeletonGraph.firstEdge(); e != nullptr; e = e->succ()) {
 			if (skeleton.isVirtual(e)) {
 				edgeNode[e] = N.newNode();
 				PertinentGraph H;
@@ -99,15 +92,15 @@ namespace ogdf {
 			}
 		}
 
-		for (face f = skeletonEmbedding.firstFace(); f != 0; f = f->succ()) {
+		for (face f = skeletonEmbedding.firstFace(); f != nullptr; f = f->succ()) {
 			faceNode[f] = N.newNode();
 			supply[faceNode[f]] = 4;
 		}
 
-		if (parent != 0) {
-			face f1;
-			face f2;
-			for (adjEntry adj = skeletonEmbedding.externalFace()->firstAdj(); adj != 0; adj = adj->succ()) {
+		if (parent != nullptr) {
+			face f1 = nullptr;
+			face f2 = nullptr;
+			for (adjEntry adj : skeletonEmbedding.externalFace()->entries) {
 				if (adj->theEdge() == skeleton.referenceEdge()) {
 					f1 = skeletonEmbedding.rightFace(adj);
 					f2 = skeletonEmbedding.leftFace(adj);
@@ -124,8 +117,8 @@ namespace ogdf {
 			supply[faceNode[skeletonEmbedding.externalFace()]] = -4;
 		}
 
-		for (face f = skeletonEmbedding.firstFace(); f != 0; f = f->succ()) {
-			for (adjEntry adj = f->firstAdj(); adj != 0; adj = adj->succ()) {
+		for (face f = skeletonEmbedding.firstFace(); f != nullptr; f = f->succ()) {
+			for (adjEntry adj = f->firstAdj(); adj != nullptr; adj = adj->succ()) {
 				edge e1 = N.newEdge(faceNode[f], vertexNode[adj->theNode()]);
 				upper[e1] = 1;
 				perUnitCost[e1] = 0;
@@ -135,16 +128,16 @@ namespace ogdf {
 			}
 		}
 
-		for (face f = skeletonEmbedding.firstFace(); f != 0; f = f->succ()) {
-			for (adjEntry adj = f->firstAdj(); adj != 0; adj = adj->succ()) {
+		for (face f = skeletonEmbedding.firstFace(); f != nullptr; f = f->succ()) {
+			for (adjEntry adj = f->firstAdj(); adj != nullptr; adj = adj->succ()) {
 				edge e = N.newEdge(edgeNode[adj->theEdge()], faceNode[f]);
 				upper[e] = numeric_limits<int>::max();
 				perUnitCost[e] = 0;
 			}
 		}
 
-		for (face f = skeletonEmbedding.firstFace(); f != 0; f = f->succ()) {
-			for (adjEntry adj = f->firstAdj(); adj != 0; adj = adj->succ()) {
+		for (face f = skeletonEmbedding.firstFace(); f != nullptr; f = f->succ()) {
+			for (adjEntry adj = f->firstAdj(); adj != nullptr; adj = adj->succ()) {
 				if (skeleton.isVirtual(adj->theEdge())) {
 					node mu = skeleton.twinTreeNode(adj->theEdge());
 					edge e0 = N.newEdge(faceNode[f], edgeNode[adj->theEdge()]);
@@ -159,7 +152,7 @@ namespace ogdf {
 					edge e3 = N.newEdge(faceNode[f], edgeNode[adj->theEdge()]);
 					upper[e3] = 1;
 					perUnitCost[e3] = cost[3][mu] - cost[2][mu];
-					for (adjEntry adj= mu->firstAdj(); adj != 0; adj = adj->succ()) {
+					for (adjEntry adj= mu->firstAdj(); adj != nullptr; adj = adj->succ()) {
 						if (adj->twinNode() != mu) {
 							perUnitCost[e0] -= cost[0][adj->twinNode()];
 							perUnitCost[e1] -= cost[0][adj->twinNode()];
@@ -231,10 +224,10 @@ namespace ogdf {
 			m_minCostFlowComputer.get().call(N, lower, upper, perUnitCost, supply, flow, dual);
 
 			int currentCost = 0;
-			for (edge e = N.firstEdge(); e != 0; e = e->succ())
+			for (edge e = N.firstEdge(); e != nullptr; e = e->succ())
 				currentCost += perUnitCost[e] * flow[e];
 
-			for (adjEntry adj = mu->firstAdj(); adj != 0; adj = adj->succ())
+			for (adjEntry adj = mu->firstAdj(); adj != nullptr; adj = adj->succ())
 				currentCost += cost[0][adj->twinNode()];
 
 			if (currentCost < cost[bends][mu]) {
@@ -251,7 +244,7 @@ namespace ogdf {
 		node parent,
 		node mu)
 	{
-		for (adjEntry adj = mu->firstAdj(); adj != 0; adj = adj->succ())
+		for (adjEntry adj = mu->firstAdj(); adj != nullptr; adj = adj->succ())
 			if (adj->twinNode() != parent)
 				computePrincipalSplitComponentCost(T, cost, embedding, mu, adj->twinNode());
 
@@ -274,14 +267,14 @@ namespace ogdf {
 		node minCostRoot;
 		long long minCostEmbedding;
 
-		for (node root = T.tree().firstNode(); root != 0; root = root->succ()) {
+		for (node root = T.tree().firstNode(); root != nullptr; root = root->succ()) {
 
 			T.rootTreeAt(root);
 
-			for (adjEntry adj = root->firstAdj(); adj != 0; adj = adj->succ())
+			for (adjEntry adj = root->firstAdj(); adj != nullptr; adj = adj->succ())
 				computePrincipalSplitComponentCost(T, cost, embedding, root, adj->twinNode());
 
-			optimizeOverEmbeddings(T, 0, root, 0, cost, embedding);
+			optimizeOverEmbeddings(T, nullptr, root, 0, cost, embedding);
 
 			if (cost[0][root] < minCost) {
 				minCost = cost[0][root];
@@ -294,7 +287,7 @@ namespace ogdf {
 		T.rootTreeAt(minCostRoot);
 		T.embed(minCostRoot, minCostEmbedding);
 
-		for (adjEntry adj = minCostRoot->firstAdj(); adj != 0; adj = adj->succ())
+		for (adjEntry adj = minCostRoot->firstAdj(); adj != nullptr; adj = adj->succ())
 			computePrincipalSplitComponentCost(T, cost, embedding, minCostRoot, adj->twinNode());
 
 		Skeleton &skeleton = T.skeleton(minCostRoot);
@@ -308,7 +301,7 @@ namespace ogdf {
 		NodeArray<int> supply(N);
 
 		createNetwork(
-			0,
+			nullptr,
 			minCostRoot,
 			0,
 			cost,
@@ -326,13 +319,13 @@ namespace ogdf {
 
 		m_minCostFlowComputer.get().call(N, lower, upper, perUnitCost, supply, flow, dual);
 
-		for (node mu = T.tree().firstNode(); mu != 0; mu = mu->succ()) {
+		for (node mu = T.tree().firstNode(); mu != nullptr; mu = mu->succ()) {
 
 			if (mu == minCostRoot)
 				continue;
 
 			int bends = 0;
-			for (adjEntry adj = edgeNode[T.skeleton(mu).referenceEdge()]->firstAdj(); adj != 0; adj = adj->succ())
+			for (adjEntry adj = edgeNode[T.skeleton(mu).referenceEdge()]->firstAdj(); adj != nullptr; adj = adj->succ())
 				bends += abs(flow[adj->theEdge()]);
 
 			T.embed(mu, embedding[bends][mu]);

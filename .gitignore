@@ -1,4 +1,10 @@
 Makefile
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+libOGDF.*
+libCOIN.*
+test-ogdf
 ogdf.pc
 main
 /test/test-debug

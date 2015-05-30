@@ -1,11 +1,3 @@
-/*
- * $Revision: 4000 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-28 20:18:18 +0100 (Fri, 28 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of disjoint sets data structures (union-find functionality).
  *
@@ -47,9 +39,8 @@
 #ifndef OGDF_DISJOINT_SETS_H
 #define OGDF_DISJOINT_SETS_H
 
-
+#include <cstring>
 #include <ogdf/basic/basic.h>
-
 
 namespace ogdf {
 

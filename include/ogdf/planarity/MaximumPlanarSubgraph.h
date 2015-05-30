@@ -1,11 +1,3 @@
-/*
- * $Revision: 3505 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:47 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class MaximumPlanarSubgraph.
  *
@@ -58,20 +50,21 @@
 
 namespace ogdf {
 
-//--------------------------------------------------------------------------
-//MaximumPlanarSubgraph
-//Exact computation of a maximum planar subgraph
-//--------------------------------------------------------------------------
+
+//! Exact computation of a maximum planar subgraph
+/**
+ * @ingroup ga-plansub
+ */
 class OGDF_EXPORT MaximumPlanarSubgraph : public PlanarSubgraphModule
 {
 
 #ifndef USE_ABACUS
 protected:
 	virtual ReturnType doCall(const Graph &G,
-			const List<edge> &preferedEdges,
-			List<edge> &delEdges,
-			const EdgeArray<int>  *pCost,
-			bool preferedImplyPlanar)
+		const List<edge> &preferedEdges,
+		List<edge> &delEdges,
+		const EdgeArray<int>  *pCost,
+		bool preferedImplyPlanar) override
 	{ THROW_NO_ABACUS_EXCEPTION; return retError; }
 };
 #else // Use_ABACUS
@@ -90,11 +83,12 @@ protected:
 	// in order to get a planar subgraph; edges in preferredEdges
 	// should be contained in planar subgraph.
 	// Status: pCost and preferredEdges are ignored in current implementation.
-	virtual ReturnType doCall(const Graph &G,
-			const List<edge> &preferredEdges,
-			List<edge> &delEdges,
-			const EdgeArray<int>  *pCost,
-			bool preferredImplyPlanar);
+	virtual ReturnType doCall(
+		const Graph &G,
+		const List<edge> &preferredEdges,
+		List<edge> &delEdges,
+		const EdgeArray<int>  *pCost,
+		bool preferredImplyPlanar) override;
 };
 
 #endif // USE_ABACUS

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class VariablEmbeddingInserterUML.
  *
@@ -80,7 +72,7 @@ namespace ogdf {
 		~VariableEmbeddingInserterUML() { }
 
 		//! Returns a new instance of the variable embedding inserter with the same option settings.
-		virtual UMLEdgeInsertionModule *clone() const;
+		virtual UMLEdgeInsertionModule *clone() const override;
 
 		//! Assignment operator. Copies option settings only.
 		VariableEmbeddingInserterUML &operator=(const VariableEmbeddingInserterUML &inserter);
@@ -120,11 +112,11 @@ namespace ogdf {
 
 	private:
 		//! Implements the algorithm call.
-		ReturnType doCall(
+		virtual ReturnType doCall(
 			PlanRepLight              &pr,
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<__uint32> *pEdgeSubgraph);
+			const EdgeArray<uint32_t> *pEdgeSubgraph) override;
 
 		RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
 		double m_percentMostCrossed;   //!< The portion of most crossed edges considered.

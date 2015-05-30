@@ -1,11 +1,3 @@
-/*
- * $Revision: 3844 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 10:18:32 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of HierarchyLevels class.
  *
@@ -131,9 +123,9 @@ namespace ogdf {
 		Level &operator[](int i) { return *m_pLevel[i]; }
 
 		//! Computes the number of crossings between level \a i and \a i+1 (for simultaneous drawing).
-		int calculateCrossingsSimDraw(int i, const EdgeArray<__uint32> *edgeSubGraphs) const;
+		int calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t> *edgeSubGraphs) const;
 		//! Computes the total number of crossings (for simultaneous drawing).
-		int calculateCrossingsSimDraw(const EdgeArray<__uint32> *edgeSubGraphs) const;
+		int calculateCrossingsSimDraw(const EdgeArray<uint32_t> *edgeSubGraphs) const;
 
 		//! Stores the position of nodes in \a oldPos.
 		void storePos (NodeArray<int> &oldPos) const;
@@ -143,10 +135,8 @@ namespace ogdf {
 		//! Permutes the order of nodes on each level.
 		void permute();
 
-#ifdef OGDF_HAVE_CPP11
 		template<class RNG>
 		void permute(RNG &rng);
-#endif
 
 		//! Adjusts node positions such that nodes are ordered according to components numbers.
 		void separateCCs(int numCC, const NodeArray<int> &component);
@@ -167,7 +157,6 @@ namespace ogdf {
 	};
 
 
-#ifdef OGDF_HAVE_CPP11
 	template<class RNG>
 	void HierarchyLevels::permute(RNG &rng)
 	{
@@ -180,7 +169,6 @@ namespace ogdf {
 
 		buildAdjNodes();
 	}
-#endif
 
 
 } // end namespace ogdf

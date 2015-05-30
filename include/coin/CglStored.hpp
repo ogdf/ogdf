@@ -29,7 +29,7 @@ public:
       and inserts any that are violated by enough
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
   /**@name Change criterion on whether to include cut.
@@ -89,7 +89,7 @@ public:
   CglStored (const char * fileName);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglStored &

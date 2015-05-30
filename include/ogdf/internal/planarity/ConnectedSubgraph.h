@@ -1,11 +1,3 @@
-/*
- * $Revision: 3568 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-18 11:02:35 +0200 (Tue, 18 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Computes a connected subgraph G' of G containing node n.
  *

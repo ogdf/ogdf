@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of node ranking algorithms
  *
@@ -75,8 +67,8 @@ void LongestPathRanking::call(const Graph &G, const EdgeArray<int> &length, Node
 	m_subgraph.get().call(G,R);
 
 	EdgeArray<bool> reversed(G,false);
-	for (ListConstIterator<edge> it = R.begin(); it.valid(); ++it)
-		reversed[*it] = true;
+	for (edge e : R)
+		reversed[e] = true;
 	R.clear();
 
 	doCall(G, rank, reversed, length);
@@ -90,8 +82,8 @@ void LongestPathRanking::call (const Graph& G, NodeArray<int> &rank)
 	m_subgraph.get().call(G,R);
 
 	EdgeArray<bool> reversed(G,false);
-	for (ListConstIterator<edge> it = R.begin(); it.valid(); ++it)
-		reversed[*it] = true;
+	for (edge e : R)
+		reversed[e] = true;
 	R.clear();
 
 	EdgeArray<int> length(G,1);
@@ -129,8 +121,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 
 	// find base classes
 	List<node> baseClasses;
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		bool isBase = false;
 		edge e;
 		forall_adj_edges(e,v) {
@@ -158,14 +149,12 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 
 	node superSink = GC.newNode();
 
-	ListConstIterator<node> it;
-	for(it = baseClasses.begin(); it.valid(); ++it) {
-		edge ec = GC.newEdge(GC.copy(*it), superSink);
+	for(node v : baseClasses) {
+		edge ec = GC.newEdge(GC.copy(v), superSink);
 		AGC.type(ec) = Graph::generalization;
 	}
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		AGC.type(GC.copy(e)) = AG.type(e);
 
 	// compute length of edges
@@ -197,7 +186,8 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	// compute spanning tree
 	// marked edges belong to tree
 	NodeArray<int> outdeg(GC,0);
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
+		edge e;
 		forall_adj_edges(e,v)
 			if(!e->isSelfLoop() && e->source() == v &&
 				AGC.type(e) == Graph::generalization /*&& reversed[e] == true*/)
@@ -208,7 +198,8 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	Q.append(superSink);
 	EdgeArray<bool> marked(GC,false);
 	while(!Q.empty()) {
-		v = Q.pop();
+		node v = Q.pop();
+		edge e;
 		forall_adj_edges(e,v) {
 			node u = e->source();
 			if(u == v || AGC.type(e) != Graph::generalization/* || reversed[e] == false*/)
@@ -226,11 +217,11 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 
 	// build super graph on which we will compute the ranking
 	// we join nodes that have to be placed on the same level to super nodes
-	NodeArray<node> superNode(G,0);
+	NodeArray<node> superNode(G,nullptr);
 	NodeArray<SListPure<node> > joinedNodes(GC);
 
 	// initially, there is a single node in GC for every node in G
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		node vc = GC.copy(v);
 		superNode[v] = vc;
 		joinedNodes[vc].pushBack(v);
@@ -250,24 +241,25 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	if(m_alignSiblings) {
 		NodeArray<SListPure<node> > toJoin(GC);
 
-		forall_nodes(v,GC) {
-			node v1 = 0;
+		for(node v : GC.nodes) {
+			node v1 = nullptr;
+			edge e;
 			forall_adj_edges(e,v) {
 				if(marked[e] == false || e->source() == v)
 					continue;
 
 				node u = e->source();
-				if(v1 == 0)
+				if(v1 == nullptr)
 					v1 = u;
 				else
 					toJoin[v1].pushBack(u);
 			}
 		}
 
-		forall_nodes(v,GC) {
+		for(node v : GC.nodes) {
 			SListConstIterator<node> it;
-			for(it = toJoin[v].begin(); it.valid(); ++it)
-				join(GC,superNode,joinedNodes,v,*it);
+			for(node u : toJoin[v])
+				join(GC,superNode,joinedNodes,v,u);
 		}
 	}
 
@@ -283,8 +275,8 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	sub.callUML(AGC,R);
 
 	EdgeArray<bool> reversed(GC,true);
-	for (ListConstIterator<edge> itE = R.begin(); itE.valid(); ++itE)
-		reversed[*itE] = false;
+	for (edge e : R)
+		reversed[e] = false;
 	R.clear();
 
 	// compute ranking of GC
@@ -293,7 +285,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 
 	// transfer to ranking of G
 	rank.init(G);
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		rank[v] = rankGC[superNode[v]];
 }
 
@@ -307,16 +299,14 @@ void LongestPathRanking::join(
 	OGDF_ASSERT(v != w);
 
 	SListConstIterator<node> it;
-	for(it = joinedNodes[w].begin(); it.valid(); ++it)
-		superNode[*it] = v;
+	for(node vi : joinedNodes[w])
+		superNode[vi] = v;
 
 	joinedNodes[v].conc(joinedNodes[w]);
 
 	SListPure<edge> edges;
 	GC.adjEdges(w,edges);
-	SListConstIterator<edge> itE;
-	for(itE = edges.begin(); itE.valid(); ++itE) {
-		edge e = *itE;
+	for(edge e : edges) {
 		if(e->source() == w)
 			GC.moveSource(e, v);
 		else
@@ -338,8 +328,7 @@ void LongestPathRanking::doCall(
 	m_isSource.init(G,true);
 	m_adjacent.init(G);
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		if (e->isSelfLoop()) continue;
 
 		if (!reversed[e]) {
@@ -359,8 +348,7 @@ void LongestPathRanking::doCall(
 		int min = 0, max = 0;
 		m_maxN = G.numberOfNodes();
 
-		node v;
-		forall_nodes(v,G)
+		for(node v : G.nodes)
 			if (m_isSource[v]) {
 				dfs(v);
 				getTmpRank(v,rank);
@@ -369,13 +357,13 @@ void LongestPathRanking::doCall(
 				if (rank[v] < min) min = rank[v];
 			}
 
-		forall_nodes(v,G) {
+		for(node v : G.nodes) {
 			if ((rank[v] -= min) > max) max = rank[v];
 		}
 
 		if (max > 0 && separateDeg0Layer()) {
 			max++;
-			forall_nodes(v,G)
+			for(node v : G.nodes)
 				if (v->degree() == 0) rank[v] = max;
 		}
 
@@ -383,22 +371,20 @@ void LongestPathRanking::doCall(
 
 	} else {
 		SListPure<node> sources;
-		SListConstIterator<Tuple2<node,int> > it;
 
-		node v;
-		forall_nodes(v,G) {
+		for(node v : G.nodes) {
 			if(m_isSource[v])
 				sources.pushBack(v);
-			for(it = m_adjacent[v].begin(); it.valid(); ++it)
-				++m_ingoing[(*it).x1()];
+			for(const Tuple2<node,int> &p : m_adjacent[v])
+				++m_ingoing[p.x1()];
 		}
 
 		while(!sources.empty()) {
-			v = sources.popFrontRet();
+			node v = sources.popFrontRet();
 
-			for(it = m_adjacent[v].begin(); it.valid(); ++it) {
-				node u = (*it).x1();
-				int r = rank[v]+(*it).x2();
+			for (const Tuple2<node, int> &p : m_adjacent[v]) {
+				node u = p.x1();
+				int r = rank[v]+p.x2();
 				if(r > rank[u])
 					rank[u] = r;
 
@@ -418,9 +404,8 @@ void LongestPathRanking::dfs(node v)
 {
 	m_ingoing[v]++;
 	if (m_ingoing[v] == 1 && !m_finished[v]) {
-		SListConstIterator<Tuple2<node,int> > it;
-		for(it = m_adjacent[v].begin(); it.valid(); ++it)
-			dfs((*it).x1());
+		for (const Tuple2<node, int> &p : m_adjacent[v])
+			dfs(p.x1());
 	}
 }
 
@@ -436,15 +421,14 @@ void LongestPathRanking::getTmpRank(node v, NodeArray<int> &rank)
 	while (!N.empty()) {
 		node w = N.front(); N.popFront();
 
-		SListConstIterator<Tuple2<node,int> > it;
-		for(it = m_adjacent[w].begin(); it.valid(); ++it) {
-			node u = (*it).x1();
+		for (const Tuple2<node, int> &p : m_adjacent[w]) {
+			node u = p.x1();
 
-			int r = max(rank[u],rank[w]+(*it).x2());
+			int r = max(rank[u],rank[w]+p.x2());
 
 			m_ingoing[u]--;
 			if (m_finished[u])
-				m_offset = min(m_offset, rank[u] - rank[w]-(*it).x2());
+				m_offset = min(m_offset, rank[u] - rank[w]-p.x2());
 
 			else {
 				if (m_ingoing[u] == 0) {
@@ -464,9 +448,8 @@ void LongestPathRanking::dfsAdd(node v, NodeArray<int> &rank)
 		m_finished[v] = true;
 		rank[v] += m_offset;
 
-		SListConstIterator<Tuple2<node,int> > it;
-		for(it = m_adjacent[v].begin(); it.valid(); ++it)
-			dfsAdd((*it).x1(),rank);
+		for (const Tuple2<node, int> &p : m_adjacent[v])
+			dfsAdd(p.x1(),rank);
 	}
 }
 

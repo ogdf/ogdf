@@ -1844,7 +1844,7 @@ CoinFactorization::updateColumnRFT ( CoinIndexedVector * regionSparse,
 	  assert (region[iRow]);
 	  if (!mark[iRow]) {
 	    //putIndex[newNumber]=iRow;
-	    putElement[newNumber]=pivotValue;;
+	    putElement[newNumber]=pivotValue;
 	    regionIndex[newNumber++]=iRow;
 	  }
 	  int number = numberInColumnPlus[iRow];
@@ -1869,7 +1869,7 @@ CoinFactorization::updateColumnRFT ( CoinIndexedVector * regionSparse,
 	    region[i] = pivotValue;
 	    if (!mark[i]) {
 	      //putIndex[numberNonZero]=i;
-	      putElement[numberNonZero]=pivotValue;;
+	      putElement[numberNonZero]=pivotValue;
 	      regionIndex[numberNonZero++]=i;
 	    }
 	    int number = numberInColumnPlus[i];

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for grid layout algorithms.
  *
@@ -90,7 +82,7 @@ public:
 	 *
 	 * @param AG is the input graph; the new layout is also stored in \a AG.
 	 */
-	void call(GraphAttributes &AG);
+	virtual void call(GraphAttributes &AG) override final;
 
 	/**
 	 * \brief Calls the grid layout algorithm (call for GridLayout).
@@ -217,7 +209,7 @@ protected:
 	virtual void doCall(
 		const Graph &G,
 		GridLayout &gridLayout,
-		IPoint &boundingBox)
+		IPoint &boundingBox) override
 	{
 		doCall(G,0,gridLayout,boundingBox,false);
 	}
@@ -319,16 +311,9 @@ protected:
 		adjEntry adjExternal,
 		GridLayout &gridLayout,
 		IPoint &boundingBox,
-		bool fixEmbedding);
+		bool fixEmbedding) override;
 
-	//! Implements the GridLayoutModule::doCall().
-	void doCall(
-		const Graph &G,
-		GridLayout &gridLayout,
-		IPoint &boundingBox)
-	{
-		PlanarGridLayoutModule::doCall(G,gridLayout,boundingBox);
-	}
+	using PlanarGridLayoutModule::doCall;
 };
 
 

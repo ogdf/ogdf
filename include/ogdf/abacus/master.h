@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief the master of the optimization.
@@ -611,7 +603,7 @@ public:
 	void maxNSub(int ml);
 
 	//! Returns the maximal cpu time (in seconds) which can be used by the optimization.
-	__int64 maxCpuTime() const { return maxCpuTime_; }
+	int64_t maxCpuTime() const { return maxCpuTime_; }
 
 	//! Returns the maximal cpu time (as string <tt>hh:mm:ss</tt>) which can be used by the optimization.
 	string maxCpuTimeAsString() const;
@@ -623,19 +615,19 @@ public:
 	void maxCpuTime(const string &t);
 
 	//! Sets the maximally allowed cpu time to \a seconds.
-	void maxCpuTime(__int64 seconds) { maxCpuTime_ = seconds; }
+	void maxCpuTime(int64_t seconds) { maxCpuTime_ = seconds; }
 
 	//! Sets the maximally allowed cpu time for the optimization to \a hour, \a min, \a sec.
 	void maxCpuTime(int hour, int min, int sec);
 
 	//! Returns the maximal wall-clock time (in seconds) which can be used by the optimization.
-	__int64 maxCowTime() const { return maxCowTime_; }
+	int64_t maxCowTime() const { return maxCowTime_; }
 
 	//! Returns the maximal wall-clock time (as string <tt>hh:mm:ss</tt>) which can be used by the optimization.
 	string maxCowTimeAsString() const;
 
 	//! Sets the maximally allowed wall-clock time to \a seconds.
-	void maxCowTime(__int64 seconds) { maxCowTime_ = seconds; }
+	void maxCowTime(int64_t seconds) { maxCowTime_ = seconds; }
 
 	//! Sets the maximally allowed wall-clock time for the optimization to \a t.
 	/**
@@ -1377,10 +1369,10 @@ private:
 	int maxNSub_;
 
 	//! The maximal available cpu time.
-	__int64 maxCpuTime_;
+	int64_t maxCpuTime_;
 
 	//! The maximal available wall-clock time.
-	__int64 maxCowTime_;
+	int64_t maxCowTime_;
 
 	//! \a true, if all objective function values of feasible solutions are assumed to be integer.
 	bool objInteger_;

@@ -1,11 +1,3 @@
-/*
- * $Revision: 4005 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-30 05:25:21 +0200 (Sun, 30 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implements GDF write functionality of class GraphIO.
  *
@@ -52,7 +44,6 @@ namespace gdf {
 static inline void writeColor(std::ostream &os, const Color &color)
 {
 	int r = color.red(), g = color.green(), b = color.blue();
-	std::ostringstream ss;
 	os << "\"" << r << "," << g << "," << b << "\"";
 }
 
@@ -192,13 +183,12 @@ static inline void writeEdge(
 		os << "," << "\"";
 
 		bool comma = false;
-		forall_listiterators(DPoint, it, GA->bends(e)) {
+		for(const DPoint &p : GA->bends(e)) {
 			if(comma) {
 				os << ",";
 			}
 			comma = true;
 
-			const DPoint &p = *it;
 			os << p.m_x << "," << p.m_y;
 		}
 
@@ -216,16 +206,14 @@ static void writeGraph(
 	// Node definition section.
 	writeNodeHeader(os, GA);
 
-	node v;
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		writeNode(os, GA, v);
 	}
 
 	// Edge definition section.
 	writeEdgeHeader(os, GA);
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		writeEdge(os, GA, e);
 	}
 }
@@ -236,7 +224,7 @@ static void writeGraph(
 
 bool GraphIO::writeGDF(const Graph &G, std::ostream &os)
 {
-	gdf::writeGraph(os, G, NULL);
+	gdf::writeGraph(os, G, nullptr);
 	return true;
 }
 

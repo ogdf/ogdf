@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements planar orthogonal drawing algorithm for
 //   cluster graphs.
@@ -139,7 +131,7 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	//------------------------------------------------------------
 	// now we set the external face, currently to the largest face
-	adjEntry extAdj = 0;
+	adjEntry extAdj = nullptr;
 	int maximum = 0;
 	edge e, eSucc;
 
@@ -249,9 +241,8 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	RoutingChannel<int> rcGrid(PG,gridDrawing.toGrid(m_separation),m_cOverhang);
 	rcGrid.computeRoutingChannels(OR, m_align);
 
-	node v;
 	const OrthoRep::VertexInfoUML *pInfoExp;
-	forall_nodes(v,PG) {
+	for(node v : PG.nodes) {
 		pInfoExp = OR.cageInfo(v);
 		if (pInfoExp) break;
 	}
@@ -326,8 +317,7 @@ void ClusterOrthoLayout::computeBoundingBox(
 	minX = maxX = drawing.x(PG.firstNode());
 	minY = maxY = drawing.y(PG.firstNode());
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		double x = drawing.x(v);
 		if (x < minX) minX = x;
@@ -341,7 +331,7 @@ void ClusterOrthoLayout::computeBoundingBox(
 	double deltaX = m_margin - minX;
 	double deltaY = m_margin - minY;
 
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		drawing.x(v) += deltaX;
 		drawing.y(v) += deltaY;

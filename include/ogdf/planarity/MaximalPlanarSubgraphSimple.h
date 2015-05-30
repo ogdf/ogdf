@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class MaximalPlanarSubgraphSimple
  *
@@ -57,11 +49,10 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// MaximalPlanarSubgraphSimple
-// implements a maximal planar subgraph algorithm using
-// planarity testing
-//---------------------------------------------------------
+//! Implements a maximal planar subgraph algorithm using planarity testing.
+/**
+ * @ingroup ga-plansub
+ */
 class OGDF_EXPORT MaximalPlanarSubgraphSimple : public PlanarSubgraphModule
 {
 public:
@@ -75,7 +66,7 @@ public:
 	~MaximalPlanarSubgraphSimple() { }
 
 	//! Returns a new instance of maximal planar subgraph simple with the same option settings.
-	virtual PlanarSubgraphModule *clone() const;
+	virtual PlanarSubgraphModule *clone() const override;
 
 	//! Assignment operator. Copies option settings only.
 	MaximalPlanarSubgraphSimple &operator=(const MaximalPlanarSubgraphSimple &mps);
@@ -85,11 +76,12 @@ protected:
 	// computes set of edges delEdges, which have to be deleted
 	// in order to get a planar subgraph; edges in preferedEdges
 	// should be contained in planar subgraph
-	ReturnType doCall(const Graph &G,
+	virtual ReturnType doCall(
+		const Graph &G,
 		const List<edge> &preferedEdges,
 		List<edge> &delEdges,
 		const EdgeArray<int>  *pCost,
-		bool preferedImplyPlanar);
+		bool preferedImplyPlanar) override;
 };
 
 

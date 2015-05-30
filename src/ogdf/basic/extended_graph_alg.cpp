@@ -1,11 +1,3 @@
-/*
- * $Revision: 2771 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-09-26 15:53:39 +0200 (Wed, 26 Sep 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of extended graph algorithms
  *
@@ -43,9 +35,9 @@
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/BinaryHeap2.h>
 #include <ogdf/cluster/ClusterArray.h>
-#include <float.h>
+
+#include <cfloat>
 
 
 namespace ogdf {
@@ -75,8 +67,8 @@ bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
 		it = succ;
 	}
 
-	ListIterator<node> its;
-	for (its = act->nBegin(); its.valid(); its++)
+	ListConstIterator<node> its;
+	for (its = act->nBegin(); its.valid(); ++its)
 		mark[(*its)] = true;
 
 	node v = (*(act->nBegin()));
@@ -103,12 +95,12 @@ bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
 		}
 	}
 
-	for (its = act->nBegin(); its.valid(); its++)
+	for (its = act->nBegin(); its.valid(); ++its)
 		if (mark[(*its)])
 			return false;
 
 	SListPure<node> collaps;
-	for (its = act->nBegin(); its.valid(); its++)
+	for (its = act->nBegin(); its.valid(); ++its)
 		collaps.pushBack(*its);
 
 
@@ -144,13 +136,13 @@ node collapseCluster(ClusterGraph& CG, cluster c, Graph& G)
 {
 	OGDF_ASSERT(c->cCount() == 0)
 
-	ListIterator<node> its;
+	ListConstIterator<node> its;
 	SListPure<node> collaps;
 
 	//we should check here if not empty
 	node robinson = (*(c->nBegin()));
 
-	for (its = c->nBegin(); its.valid(); its++)
+	for (its = c->nBegin(); its.valid(); ++its)
 		collaps.pushBack(*its);
 
 	CG.collaps(collaps, G);
@@ -204,11 +196,11 @@ void recursiveConnect(
 	//We construct a copy of the current cluster
 	OGDF_ASSERT(act->cCount() == 0)
 	Graph cG;
-	NodeArray<node> vOrig(cG, 0);
-	NodeArray<node> vCopy(CG, 0); //larger than necessary, hashingarray(index)?
+	NodeArray<node> vOrig(cG, nullptr);
+	NodeArray<node> vCopy(CG, nullptr); //larger than necessary, hashingarray(index)?
 
-	ListIterator<node> its;
-	for (its = act->nBegin(); its.valid(); its++)
+	ListConstIterator<node> its;
+	for (its = act->nBegin(); its.valid(); ++its)
 	{
 		node vo = (*its);
 		node v = cG.newNode();
@@ -218,7 +210,7 @@ void recursiveConnect(
 	}//for
 
 	NodeArray<bool> processed(CG, false);
-	for (its = act->nBegin(); its.valid(); its++)
+	for (its = act->nBegin(); its.valid(); ++its)
 	{
 		node vo = (*its);
 		processed[vo] = true;
@@ -339,13 +331,13 @@ void cMakeConnected(
 	added.clear();
 	NodeArray<bool> visited(G,false);
 
-	node vMinDeg, pred = 0, v;
+	node vMinDeg, pred = nullptr;
 
 	bool keepsPlanarity = false;
 
 	//hier muss irgendwo bewertet werden, ob Kanten die Planaritaet
 	//erhalten, aber man kann nicht fuer jeden Knoten einen Test machen
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (!visited[v]) {
 			vMinDeg = v;
 			dfsMakeCConnected(v, pred, visited, badNode,
@@ -395,13 +387,13 @@ void recursiveCConnect(
 	//We construct a graph copy of the current cluster subgraph
 	OGDF_ASSERT(act->cCount() == 0)
 	Graph cG;
-	NodeArray<node> vOrig(cG, 0);
-	NodeArray<node> vCopy(CG, 0); //larger than necessary, hashingarray(index)?
+	NodeArray<node> vOrig(cG, nullptr);
+	NodeArray<node> vCopy(CG, nullptr); //larger than necessary, hashingarray(index)?
 
-	NodeArray<node> vFullCopy(cG, 0);//node in planarity tested full copy
+	NodeArray<node> vFullCopy(cG, nullptr);//node in planarity tested full copy
 
-	ListIterator<node> its;
-	for (its = act->nBegin(); its.valid(); its++)
+	ListConstIterator<node> its;
+	for (its = act->nBegin(); its.valid(); ++its)
 	{
 		node vo = (*its);
 		node v = cG.newNode();
@@ -414,7 +406,7 @@ void recursiveCConnect(
 	}//for
 
 	NodeArray<bool> processed(CG, false);
-	for (its = act->nBegin(); its.valid(); its++)
+	for (its = act->nBegin(); its.valid(); ++its)
 	{
 		node vo = (*its);
 		processed[vo] = true;
@@ -486,13 +478,13 @@ void cconnect(
 	//for inserted cconnectivity edges
 	Graph fullCopy;
 	NodeArray<node> fullCopyNode(G);
-	node v;
+
 	//check for all nodes if they have an edge adjacent crossing
 	//the cluster boundary, I assume this is a bad candidate for
 	//cconnection edges
 	NodeArray<bool> badNode(fullCopy, false);
 
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		node w  = fullCopy.newNode();
 		fullCopyNode[v] = w;
@@ -510,7 +502,7 @@ void cconnect(
 			}
 		}
 
-	}//forallnodes
+	}
 
 	recursiveCConnect(
 		CG,					//check cluster graph copy
@@ -535,23 +527,21 @@ void makeCConnected(ClusterGraph& C, Graph& GG, List<edge>& addedEdges, bool sim
 {
 	//work on copy ( is updated )
 	Graph G;
-	NodeArray<node> copyNode(C, 0);
-	ClusterArray<cluster> copyCluster(C, 0);
+	NodeArray<node> copyNode(C, nullptr);
+	ClusterArray<cluster> copyCluster(C, nullptr);
 
 	ClusterGraph cCopy(C, G, copyCluster, copyNode);
 
-	NodeArray<node> origNode(cCopy, 0);
-	node v;
+	NodeArray<node> origNode(cCopy, nullptr);
 
-	forall_nodes(v, GG)
+	for(node v : GG.nodes)
 		origNode[copyNode[v]] = v;
 
 	//holds information on collapsed clusters (points to original clusters)
-	NodeArray<cluster> origCluster(cCopy, 0);
+	NodeArray<cluster> origCluster(cCopy, nullptr);
 	//holds copy to original cluster info
-	ClusterArray<cluster> oCcluster(cCopy, 0);
-	cluster c;
-	forall_clusters(c, C)
+	ClusterArray<cluster> oCcluster(cCopy, nullptr);
+	for(cluster c : C.clusters)
 		oCcluster[copyCluster[c]] = c;
 
 	List<OrigNodePair> newEdges; //edges to be inserted
@@ -564,17 +554,14 @@ void makeCConnected(ClusterGraph& C, Graph& GG, List<edge>& addedEdges, bool sim
 		recursiveConnect(cCopy, cCopy.rootCluster(), origCluster, oCcluster,
 					 origNode, G, newEdges);
 
-	ListConstIterator<OrigNodePair> it = newEdges.begin();
-	while (it.valid())
+	for (const OrigNodePair &np : newEdges)
 	{
-		OrigNodePair np = (*it);
 		edge nedge = GG.newEdge(np.m_src, np.m_tgt);
-		//cout<<"Adding edge: "<<np.m_src<<"-"<<np.m_tgt<<"\n"<<flush;
+		//cout << "Adding edge: " << np.m_src << "-" << np.m_tgt << "\n" << flush;
 		addedEdges.pushBack(nedge);
-		it++;
 	}
 
-	//cout << "added " << addedEdges.size() <<"edges\n";
+	//cout << "added " << addedEdges.size() << "edges\n";
 }//makeCConnected
 
 

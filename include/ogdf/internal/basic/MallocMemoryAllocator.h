@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of memory manager for allocating small
  *        pieces of memory
@@ -102,7 +94,7 @@ public:
 	}
 
 	static void flushPool() { }
-	static void flushPool(__uint16 /* nBytes */) { }
+	static void flushPool(uint16_t /* nBytes */) { }
 
 	//! Always returns 0, since no blocks are allocated.
 	static size_t memoryAllocatedInBlocks() { return 0; }

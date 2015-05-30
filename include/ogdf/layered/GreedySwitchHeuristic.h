@@ -1,11 +1,3 @@
-/*
- * $Revision: 3833 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:23:15 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GreedySwitchHeuristic
  *
@@ -58,26 +50,31 @@ namespace ogdf
 
 
 //! The greedy-switch heuristic for 2-layer crossing minimization.
+/**
+ * @ingroup gd-layered-crossmin
+ */
 class OGDF_EXPORT GreedySwitchHeuristic : public LayerByLayerSweep
 {
 public:
 	//! Creates a new instance of the greedy-switch heuristic.
-	GreedySwitchHeuristic() { }
+	GreedySwitchHeuristic() : m_crossingMatrix(nullptr) { }
 
 	//! Creates a new instance of the greedy-switch heuristic.
-	GreedySwitchHeuristic(const GreedySwitchHeuristic &crossMin) { }
+	GreedySwitchHeuristic(const GreedySwitchHeuristic &crossMin) : m_crossingMatrix(nullptr) { }
+
+	~GreedySwitchHeuristic() { delete m_crossingMatrix; }
 
 	//! Returns a new instance of the greed-switch heuristic with the same option settings.
-	LayerByLayerSweep *clone() const { return new GreedySwitchHeuristic; }
+	virtual LayerByLayerSweep *clone() const override { return new GreedySwitchHeuristic; }
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	void init (const HierarchyLevels &levels);
+	virtual void init (const HierarchyLevels &levels) override;
 
 	//! Calls the greedy switch heuristic for level \a L.
-	void call (Level &L);
+	virtual void call (Level &L) override;
 
 	//! Does some clean-up after calls.
-	void cleanup ();
+	virtual void cleanup () override;
 
 private:
 	CrossingsMatrix *m_crossingMatrix;

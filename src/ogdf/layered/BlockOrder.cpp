@@ -1,11 +1,3 @@
-/*
- * $Revision: 3845 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 10:22:22 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Block and BlockOrder classes
  *
@@ -55,12 +47,12 @@ namespace ogdf {
 	  , m_storedCrossings(numeric_limits<int>::max())
 	  , m_bestCrossings(numeric_limits<int>::max())
 	  , m_Blocks()
-	  , m_NodeBlocks(m_GC,0)
-	  , m_EdgeBlocks(m_GC,0)
+	  , m_NodeBlocks(m_GC,nullptr)
+	  , m_EdgeBlocks(m_GC,nullptr)
 	  , m_isActiveEdge(m_GC,false)
 	  , m_activeBlocksCount(0)
 	  , m_hierarchy(hierarchy)
-	  , m_levels(0,-1,0)
+	  , m_levels(0,-1,nullptr)
 	{
 		doInit(longEdgesOnly);
 	}
@@ -68,8 +60,6 @@ namespace ogdf {
 
 	void BlockOrder::doInit(bool longEdgesOnly)
 	{
-		node v;
-		edge e;
 		const GraphCopy &GC = m_hierarchy;
 		NodeArray<bool> nodesInCC(m_GC,false);
 
@@ -81,9 +71,9 @@ namespace ogdf {
 		m_nNodesOnLvls.init(minLvl, maxLvl, 0);
 
 		// one block for every node
-		forall_nodes(v, GC) {
+		for(node v : GC.nodes) {
 			//m_GC may contain nodes from another CC
-			if (GC.original(v) != 0) {
+			if (GC.original(v) != nullptr) {
 				m_ranks[GC.original(v)] = m_hierarchy.rank(v);
 				nodesInCC[GC.original(v)] = true;
 				++countBlocks;
@@ -92,7 +82,7 @@ namespace ogdf {
 		}
 
 		//one block for every long edge
-		forall_edges(e, m_GC) {
+		for(edge e : m_GC.edges) {
 			node src = e->source();
 			node tgt = e->target();
 
@@ -114,9 +104,9 @@ namespace ogdf {
 		m_currentPermInv.init(countBlocks);
 
 		int i = 0;
-		forall_nodes(v,GC) {
+		for(node v : GC.nodes) {
 			node vOrig = GC.original(v);
-			if (vOrig != 0) {
+			if (vOrig != nullptr) {
 				m_Blocks[i] = m_NodeBlocks[vOrig] = new Block(this,vOrig);
 				m_Blocks[i]->m_index = i;
 				m_Blocks[i]->m_lower = m_Blocks[i]->m_upper = m_ranks[vOrig];
@@ -125,7 +115,7 @@ namespace ogdf {
 			}
 		}
 
-		forall_edges(e, m_GC) {
+		for(edge e : m_GC.edges) {
 			node src = e->source();
 			node tgt = e->target();
 
@@ -151,8 +141,9 @@ namespace ogdf {
 
 
 	Block::Block(BlockOrder *order, edge e)
-	  : m_pOrder(order)
-	  , m_NeighboursIncoming(1)
+	  :
+	  // m_pOrder(order)
+	  m_NeighboursIncoming(1)
 	  , m_InvertedIncoming(1)
 	  , m_NeighboursOutgoing(1)
 	  , m_InvertedOutgoing(1)
@@ -163,8 +154,9 @@ namespace ogdf {
 
 
 	Block::Block(BlockOrder *order, node v)
-	  : m_pOrder(order)
-	  , m_NeighboursIncoming(v->indeg())
+	  :
+	  // m_pOrder(order)
+	  m_NeighboursIncoming(v->indeg())
 	  , m_InvertedIncoming(v->indeg())
 	  , m_NeighboursOutgoing(v->outdeg())
 	  , m_InvertedOutgoing(v->outdeg())
@@ -558,7 +550,7 @@ namespace ogdf {
 	}
 
 
-	void BlockOrder::globalSifting(int rho, int nRepeats)
+	void BlockOrder::globalSifting(int rho, int nRepeats, int *pNumCrossings)
 	{
 		Array<int> storedPermInv(m_activeBlocksCount);
 		int p = 0;
@@ -608,6 +600,8 @@ namespace ogdf {
 		}
 		m_storedCrossings = m_bestCrossings;
 		buildHierarchy();
+		if(pNumCrossings)
+			*pNumCrossings = m_storedCrossings;
 	}
 
 
@@ -624,27 +618,26 @@ namespace ogdf {
 			if (b->isVertexBlock()) 	{
 				node v = b->m_Node;
 				int rank = m_ranks[v];
-				b->m_nodes.init(rank, rank, 0);
+				b->m_nodes.init(rank, rank, nullptr);
 
 			} else if (m_isActiveEdge[b->m_Edge]) 	{
 				//m_Blocks[i] is EdgeBlock
-				b->m_nodes.init(b->m_upper, b->m_lower, 0);
+				b->m_nodes.init(b->m_upper, b->m_lower, nullptr);
 			}
 		}
-		node v;
 
 		// init m_nodes for vertex blocks
-		forall_nodes(v, GC) {
+		for(node v : GC.nodes) {
 			ranks[v] = m_hierarchy.rank(v);
 			node vOrig = GC.original(v);
-			if (vOrig != 0) {
+			if (vOrig != nullptr) {
 				m_NodeBlocks[vOrig]->m_nodes[m_ranks[vOrig]] = v;
 				mark[v] = true;
 			}
 		}
 
 		//init m_nodes for edge blocks
-		forall_nodes(v, GC) {
+		for(node v : GC.nodes) {
 			if (m_hierarchy.isLongEdgeDummy(v)) {
 				if (!mark[v]) {
 					// find the edge from original graph corresponding to this node
@@ -678,9 +671,7 @@ namespace ogdf {
 					edge e = m_GC.searchEdge(GC.original(high), GC.original(low));
 					Block *edgeBlock = m_EdgeBlocks[e];
 					ListIterator<node> it;
-					node u;
-					forall_listiterators(node, it, nodesInBlock) {
-						u = *it;
+					for(node u : nodesInBlock) {
 						if (!mark[u]) {
 							edgeBlock->m_nodes[ranks[u]] = u;
 							mark[u] = true;
@@ -688,7 +679,7 @@ namespace ogdf {
 					}
 				} // if !mark
 			} // if node is dummy
-		} //forall_nodes
+		}
 	}
 
 
@@ -747,9 +738,8 @@ namespace ogdf {
 		m_lowerAdjNodes = NodeArray<Array<node> >(m_hierarchy);
 		m_upperAdjNodes = NodeArray<Array<node> >(m_hierarchy);
 
-		node v;
 		const GraphCopy &GC = m_hierarchy;
-		forall_nodes(v, GC) {
+		for(node v : GC.nodes) {
 			m_lowerAdjNodes[v].init(v->indeg());
 			m_upperAdjNodes[v].init(v->outdeg());
 		}
@@ -816,7 +806,7 @@ namespace ogdf {
 		for (int i = 0; i < m_Blocks.size(); ++i) {
 			Block *block = m_Blocks[i];
 			if (m_storedPerm[i] != -1) {
-				block->m_nodes.init(levels[0], levels[levels.high()], 0);
+				block->m_nodes.init(levels[0], levels[levels.high()], nullptr);
 
 				for (int j = 0; j < levels.size(); ++j) {
 					int currentLevel = levels[j];
@@ -829,7 +819,7 @@ namespace ogdf {
 				edge currentEdge = block->m_Edge;
 				Block *targetBlock = m_NodeBlocks[currentEdge->target()];
 				for (int l = levels.low(); l <= levels.high(); ++l) {
-					if (block->m_upper <= levels[l] && levels[l] <= block->m_lower && targetBlock->m_nodes[levels[l]] == 0) {
+					if (block->m_upper <= levels[l] && levels[l] <= block->m_lower && targetBlock->m_nodes[levels[l]] == nullptr) {
 						itemsOnLevelCtr[l] += 1;
 						targetBlock->m_nodes[levels[l]] = G.newNode();
 					}
@@ -850,7 +840,7 @@ namespace ogdf {
 		for (int i = 0; i < m_activeBlocksCount; ++i) {
 			Block *block = m_Blocks[storedPermInv[i]];
 			for (int j = 0; j < levels.size(); ++j) {
-				if (block->m_nodes[levels[j]] != 0) {
+				if (block->m_nodes[levels[j]] != nullptr) {
 					(*m_levels[j])[itemsOnLevelCtr[j]] = block->m_nodes[levels[j]];
 					m_pos[block->m_nodes[levels[j]]] = itemsOnLevelCtr[j];
 					itemsOnLevelCtr[j] += 1;
@@ -946,9 +936,9 @@ namespace ogdf {
 				last = i;
 		}
 
-		edge e;
 		node v = b->m_Node;
 
+		edge e;
 		forall_adj_edges(e, v) {
 			Block *BlockOfE = m_EdgeBlocks[e];
 			if (v == e->source()) {
@@ -959,8 +949,8 @@ namespace ogdf {
 			}
 		}
 
-		forall_edges(e, m_GC) {
-			if (m_EdgeBlocks[e] != 0) {
+		for(edge e : m_GC.edges) {
+			if (m_EdgeBlocks[e] != nullptr) {
 				Block *blockOfE = m_EdgeBlocks[e];
 
 				int top = blockOfE->m_upper;
@@ -1264,10 +1254,9 @@ namespace ogdf {
 
 			int times = nRepeats;
 			while (times-- > 0) {
-				node v;
-				forall_nodes(v, m_GC) {
+				for(node v : m_GC.nodes) {
 					Block *currentBlock = m_NodeBlocks[v];
-					if (currentBlock != 0) {
+					if (currentBlock != nullptr) {
 						verticalStep(currentBlock);
 					}
 				}
@@ -1278,9 +1267,8 @@ namespace ogdf {
 		m_ranks.init(m_GC, 0);
 		EdgeArray<edge> auxCopy(m_GC);
 		List<node> nodes;
-		node v;
-		forall_nodes(v, m_GC) {
-			if (m_NodeBlocks[v] != 0) {
+		for(node v : m_GC.nodes) {
+			if (m_NodeBlocks[v] != nullptr) {
 				m_ranks[v] = m_NodeBlocks[v]->m_upper;
 				nodes.pushBack(v);
 			}

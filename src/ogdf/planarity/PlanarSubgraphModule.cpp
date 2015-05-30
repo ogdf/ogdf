@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class PlanarSubgraphModule.
  *
@@ -59,10 +51,7 @@ Module::ReturnType PlanarSubgraphModule::callAndDelete(
 
 	if(isSolution(retValue))
 	{
-		ListConstIterator<edge> it;
-		for(it = delEdges.begin(); it.valid(); ++it) {
-			edge eCopy = *it;
-
+		for (edge eCopy : delEdges) {
 			delOrigEdges.pushBack(PG.original(eCopy));
 			PG.delEdge(eCopy);
 		}

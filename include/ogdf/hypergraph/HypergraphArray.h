@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of hyperraph array classes
  *        based on Node/EdgeArray classes written by Carsten Gutwenger,
@@ -193,7 +185,7 @@ private:
 	virtual void disconnect()
 	{
 		Array<T>::init();
-		m_hypergraph = NULL;
+		m_hypergraph = nullptr;
 	}
 
 	OGDF_NEW_DELETE;

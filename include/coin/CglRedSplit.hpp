@@ -63,10 +63,10 @@ public:
 
   /// For compatibility with CglCutGenerator (const method)
   virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-			    const CglTreeInfo info = CglTreeInfo()) const;
+			    const CglTreeInfo info = CglTreeInfo()) const override;
 
   /// Return true if needs optimal basis to do cuts (will return true)
-  virtual bool needsOptimalBasis() const;
+  virtual bool needsOptimalBasis() const override;
   //@}
   
   
@@ -186,7 +186,7 @@ public:
   CglRedSplit (const CglRedSplit &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglRedSplit &
@@ -197,7 +197,7 @@ public:
   virtual
     ~CglRedSplit ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
     
 private:

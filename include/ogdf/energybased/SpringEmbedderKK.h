@@ -1,11 +1,3 @@
-/*
- * $Revision: 3554 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:05 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of Spring-Embedder algorithm (Kamada,Kawai).
  *
@@ -63,6 +55,8 @@ namespace ogdf {
 
 //! The spring-embedder layout algorithm by Kamada and Kawai.
 /**
+ * @ingroup gd-energy
+ *
  * The implementation used in SpringEmbedderKK is based on
  * the following publication:
  *
@@ -120,9 +114,9 @@ public:
 	//! Calls the layout algorithm for graph attributes \a GA.
 	//! Currently, GA.doubleWeight is NOT used to allow simple
 	//! distinction of BFS/APSS. Precondition: Graph is connected.
-	void call(GraphAttributes& GA);
+	virtual void call(GraphAttributes& GA) override;
 
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	//! Calls the layout algorithm for graph attributes \a GA
 	//! using values in eLength for distance computation.

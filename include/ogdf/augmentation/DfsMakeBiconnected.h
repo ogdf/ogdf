@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Provides a simple, dfs-based algorithm for biconnectivity augmentation.
  *
@@ -56,6 +48,8 @@ namespace ogdf {
 /**
  * \brief Implementation of a DFS-based algorithm for biconnectivity augmentation.
  *
+ * @ingroup ga-augment
+ *
  * The class \a DfsMakeBiconnected implements an augmentation algorithms
  * that augments a graph to a biconnected graph. In addition, if the graph was
  * planar before augmentation, the resulting graph will be biconnected and
@@ -74,7 +68,7 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	void doCall(Graph& G, List<edge> &L);
+	virtual void doCall(Graph& G, List<edge> &L) override;
 };
 
 } // end namespace ogdf

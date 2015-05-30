@@ -23,21 +23,21 @@ public:
      /**@name Useful methods */
      //@{
      /// Return a complete CoinPackedMatrix
-     virtual CoinPackedMatrix * getPackedMatrix() const;
+     virtual CoinPackedMatrix * getPackedMatrix() const override;
      /** Whether the packed matrix is column major ordered or not. */
-     virtual bool isColOrdered() const {
+     virtual bool isColOrdered() const override {
           return true;
      }
      /** Number of entries in the packed matrix. */
-     virtual  CoinBigIndex getNumElements() const {
+     virtual  CoinBigIndex getNumElements() const override {
           return numberElements_;
      }
      /** Number of columns. */
-     virtual int getNumCols() const {
+     virtual int getNumCols() const override {
           return numberColumns_;
      }
      /** Number of rows. */
-     virtual int getNumRows() const {
+     virtual int getNumRows() const override {
           return numberRows_;
      }
 
@@ -45,55 +45,55 @@ public:
       might be gaps in this list, entries that do not belong to any
       major-dimension vector. To get the actual elements one should look at
       this vector together with vectorStarts and vectorLengths. */
-     virtual const double * getElements() const;
+     virtual const double * getElements() const override;
      /** A vector containing the minor indices of the elements in the packed
           matrix. Note that there might be gaps in this list, entries that do not
           belong to any major-dimension vector. To get the actual elements one
           should look at this vector together with vectorStarts and
           vectorLengths. */
-     virtual const int * getIndices() const;
+     virtual const int * getIndices() const override;
 
-     virtual const CoinBigIndex * getVectorStarts() const;
+     virtual const CoinBigIndex * getVectorStarts() const override;
      /** The lengths of the major-dimension vectors. */
-     virtual const int * getVectorLengths() const;
+     virtual const int * getVectorLengths() const override;
 
      /** Delete the columns whose indices are listed in <code>indDel</code>. */
-     virtual void deleteCols(const int numDel, const int * indDel);
+     virtual void deleteCols(const int numDel, const int * indDel) override;
      /** Delete the rows whose indices are listed in <code>indDel</code>. */
-     virtual void deleteRows(const int numDel, const int * indDel);
+     virtual void deleteRows(const int numDel, const int * indDel) override;
      /** Returns a new matrix in reverse order without gaps */
-     virtual ClpMatrixBase * reverseOrderedCopy() const;
+     virtual ClpMatrixBase * reverseOrderedCopy() const override;
      /// Returns number of elements in column part of basis
      virtual CoinBigIndex countBasis(const int * whichColumn,
-                                     int & numberColumnBasic);
+                                     int & numberColumnBasic) override;
      /// Fills in column part of basis
      virtual void fillBasis(ClpSimplex * model,
                             const int * whichColumn,
                             int & numberColumnBasic,
                             int * row, int * start,
                             int * rowCount, int * columnCount,
-                            CoinFactorizationDouble * element);
+                            CoinFactorizationDouble * element) override;
      /** Unpacks a column into an CoinIndexedvector
       */
      virtual void unpack(const ClpSimplex * model, CoinIndexedVector * rowArray,
-                         int column) const ;
+                         int column) const override ;
      /** Unpacks a column into an CoinIndexedvector
       ** in packed foramt
          Note that model is NOT const.  Bounds and objective could
          be modified if doing column generation (just for this variable) */
      virtual void unpackPacked(ClpSimplex * model,
                                CoinIndexedVector * rowArray,
-                               int column) const;
+                               int column) const override;
      /** Adds multiple of a column into an CoinIndexedvector
          You can use quickAdd to add to vector */
      virtual void add(const ClpSimplex * model, CoinIndexedVector * rowArray,
-                      int column, double multiplier) const ;
+                      int column, double multiplier) const override ;
      /** Adds multiple of a column into an array */
      virtual void add(const ClpSimplex * model, double * array,
-                      int column, double multiplier) const;
+                      int column, double multiplier) const override;
      /// Allow any parts of a created CoinMatrix to be deleted
      /// Allow any parts of a created CoinPackedMatrix to be deleted
-     virtual void releasePackedMatrix() const {}
+     virtual void releasePackedMatrix() const override {}
      //@}
 
      /**@name Matrix times vector methods */
@@ -102,17 +102,17 @@ public:
          @pre <code>x</code> must be of size <code>numColumns()</code>
          @pre <code>y</code> must be of size <code>numRows()</code> */
      virtual void times(double scalar,
-                        const double * x, double * y) const;
+                        const double * x, double * y) const override;
      /// And for scaling
      virtual void times(double scalar,
                         const double * x, double * y,
                         const double * rowScale,
-                        const double * columnScale) const;
+                        const double * columnScale) const override;
      /** Return <code>y + x * scalar * A</code> in <code>y</code>.
          @pre <code>x</code> must be of size <code>numRows()</code>
          @pre <code>y</code> must be of size <code>numColumns()</code> */
      virtual void transposeTimes(double scalar,
-                                 const double * x, double * y) const;
+                                 const double * x, double * y) const override;
      /// And for scaling
      virtual void transposeTimes(double scalar,
                                  const double * x, double * y,
@@ -126,7 +126,7 @@ public:
      virtual void transposeTimes(const ClpSimplex * model, double scalar,
                                  const CoinIndexedVector * x,
                                  CoinIndexedVector * y,
-                                 CoinIndexedVector * z) const;
+                                 CoinIndexedVector * z) const override;
      /** Return <code>x *A</code> in <code>z</code> but
      just for indices in y.
      Note - If x packed mode - then z packed mode
@@ -134,7 +134,7 @@ public:
      virtual void subsetTransposeTimes(const ClpSimplex * model,
                                        const CoinIndexedVector * x,
                                        const CoinIndexedVector * y,
-                                       CoinIndexedVector * z) const;
+                                       CoinIndexedVector * z) const override;
      //@}
 
      /**@name Other */
@@ -162,7 +162,7 @@ public:
 
      ClpDummyMatrix& operator=(const ClpDummyMatrix&);
      /// Clone
-     virtual ClpMatrixBase * clone() const ;
+     virtual ClpMatrixBase * clone() const override ;
      //@}
 
 

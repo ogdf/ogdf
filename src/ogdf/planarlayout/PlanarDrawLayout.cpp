@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class PlanarDrawLayout
  *
@@ -75,7 +67,8 @@ void PlanarDrawLayout::doCall(
 {
 	// require to have a planar graph without multi-edges and self-loops;
 	// planarity is checked below
-	OGDF_ASSERT(isSimple(G) && isLoopFree(G));
+	OGDF_ASSERT(isSimple(G));
+	OGDF_ASSERT(isLoopFree(G));
 
 	// handle special case of graphs with less than 3 nodes
 	if(G.numberOfNodes() < 3)
@@ -130,12 +123,11 @@ void PlanarDrawLayout::doCall(
 
 	boundingBox.m_x = x[order(1,order.len(1))];
 	boundingBox.m_y = 0;
-	node v;
-	forall_nodes(v,GC)
+	for(node v : GC.nodes)
 		if(y[v] > boundingBox.m_y) boundingBox.m_y = y[v];
 
 	// copy coordinates from GC to G
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		node vCopy = GC.copy(v);
 		gridLayout.x(v) = x[vCopy];
 		gridLayout.y(v) = y[vCopy];
@@ -153,18 +145,16 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 
 	// upper[v] = w means x-coord. of v is relative to w
 	// (abs. x-coord. of v = x[v] + abs. x-coord of w)
-	NodeArray<node>	upper(G,0);
+	NodeArray<node>	upper(G,nullptr);
 
 	// maximal rank of a neighbour
 	NodeArray<int> maxNeighbour(G,0);
 	// internal nodes (nodes not on contour)
 	BoundedStack<node> internals(G.numberOfNodes());
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		adjEntry adj;
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			int r = order.rank(adj->twinNode());
 			if (r > maxNeighbour[v])
 				maxNeighbour[v] = r;
@@ -187,7 +177,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 		if (i > 1)
 			prev[V1[i]] = V1[i-1];
 	}
-	prev[v1] = next[v2] = 0;
+	prev[v1] = next[v2] = nullptr;
 
 	// process shelling order from bottom to top
 	for (int k = 2; k <= order.length(); k++)
@@ -210,7 +200,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 
 		// compute relative x-distance from c_i to cl for i = l+1, ..., r
 		int sum = 0;
-		for (v = next[cl]; v != cr; v = next[v]) {
+		for (node v = next[cl]; v != cr; v = next[v]) {
 			sum += x[v];
 			x[v] = sum;
 		}
@@ -226,14 +216,14 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 			{
 				yMax = max(y[cl]+1-eps,
 					y[cr] + ((x[cr] == 1 && eps == 1) ? 1 : 0));
-				for (v = next[cl]; v != cr; v = next[v]) {
+				for (node v = next[cl]; v != cr; v = next[v]) {
 					if (x[v] < x[cr]) {
 						int y1 = (y[cr]-y[v])*(eps-x[cr])/(x[cr]-x[v])+y[cr];
 						if (y1 >= yMax)
 							yMax = 1+y1;
 					}
 				}
-				for (v = cr; v != cl; v = prev[v]) {
+				for (node v = cr; v != cl; v = prev[v]) {
 					if (y[prev[v]] > y[v] && maxNeighbour[v] >= k) {
 						if (yMax <= y[v] + x[v] - eps) {
 							eps  = 1;
@@ -248,7 +238,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 			} else {
 				// yMax = max { y[c_i] | l <= i <= r }
 				yMax = y[cl] - eps;
-				for (v = cr; v != cl; v = prev[v]) {
+				for (node v = cr; v != cl; v = prev[v]) {
 					if (y[v] > yMax)
 						yMax = y[v];
 				}
@@ -264,7 +254,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 		}
 
 		node alpha = cl;
-		for (v = next[cl];
+		for (node v = next[cl];
 			maxNeighbour[v] <= k-1 && order.rank(v) <= order.rank(prev[v]);
 			v = next[v])
 		{
@@ -275,7 +265,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 		}
 
 		node beta = prev[cr];
-		for (v = prev[cr];
+		for (node v = prev[cr];
 			maxNeighbour[v] <= k-1 && order.rank(v) <= order.rank(next[v]);
 			v = prev[v])
 		{
@@ -291,16 +281,16 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 		}
 		x[z1] = eps;
 
-		for (v = alpha; v != cl; v = prev [v]) {
+		for (node v = alpha; v != cl; v = prev [v]) {
 			upper[v] = cl;
 			internals.push (v);
 		}
-		for (v = next [beta]; v != cr; v = next [v]) {
+		for (node v = next [beta]; v != cr; v = next [v]) {
 			upper[v]  = cr;
 			x [v]    -= x[cr];
 			internals.push (v);
 		}
-		for (v = beta; v != alpha; v = prev[v]) {
+		for (node v = beta; v != alpha; v = prev[v]) {
 			upper[v]  = z1;
 			x [v]    -= x[z1];
 			internals.push (v);
@@ -323,12 +313,12 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 
 	// compute final x-coordinates for the nodes on the (final) contour
 	int sum = 0;
-	for (v = v1; v != 0; v = next[v])
+	for (node v = v1; v != nullptr; v = next[v])
 		x [v] = (sum += x[v]);
 
 	// compute final x-coordinates for the internal nodes
 	while (!internals.empty()) {
-		v     = internals.pop();
+		node v     = internals.pop();
 		x[v] += x[upper[v]];
 	}
 }

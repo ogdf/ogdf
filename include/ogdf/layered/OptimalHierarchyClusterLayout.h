@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the optimal third phase of the sugiyama
  *        algorithm for clusters.
@@ -60,6 +52,8 @@ namespace ogdf {
 
 //! The LP-based hierarchy cluster layout algorithm.
 /**
+ * @ingroup gd-hlm
+ *
  * OptimalHierarchyClusterLayout implements a hierarchy layout algorithm
  * fpr cluster graphs that is based on an LP-formulation. It is only
  * available if OGDF is compiled with LP-solver support (e.g., Coin).
@@ -99,7 +93,7 @@ class OGDF_EXPORT OptimalHierarchyClusterLayout : public HierarchyClusterLayoutM
 {
 #ifndef OGDF_LP_SOLVER
 protected:
-	void doCall(const ExtendedNestingGraph& H,ClusterGraphCopyAttributes &ACGC) {
+	virtual void doCall(const ExtendedNestingGraph& H,ClusterGraphCopyAttributes &ACGC) override {
 		OGDF_THROW_PARAM(LibraryNotSupportedException, lnscCoin);
 	}
 
@@ -198,7 +192,7 @@ public:
 
 protected:
 	//! Implements the algorithm call.
-	void doCall(const ExtendedNestingGraph& H,ClusterGraphCopyAttributes &ACGC);
+	virtual void doCall(const ExtendedNestingGraph& H,ClusterGraphCopyAttributes &ACGC) override;
 
 private:
 	void buildLayerList(

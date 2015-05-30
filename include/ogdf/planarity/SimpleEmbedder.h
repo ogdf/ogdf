@@ -1,11 +1,3 @@
-/*
- * $Revision: 2599 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-07-15 22:39:24 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief A simple embedder algorithm.
  *
@@ -55,6 +47,9 @@
 namespace ogdf {
 
 //! Planar graph embedding by using default planarEmbed.
+/**
+ * @ingroup ga-planarembed
+ */
 class OGDF_EXPORT SimpleEmbedder : public EmbedderModule
 {
 public:
@@ -67,7 +62,7 @@ public:
 	 * \param G is the original graph. Its adjacency list is changed by the embedder.
 	 * \param adjExternal is an adjacency entry on the external face and is set by the embedder.
 	 */
-	void call(Graph& G, adjEntry& adjExternal);
+	virtual void call(Graph& G, adjEntry& adjExternal) override;
 
 private:
 	/**

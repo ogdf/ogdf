@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief planar biconnected augmentation algorithm with fixed
  * 		  combinatorial embedding.
@@ -61,6 +53,7 @@ namespace ogdf {
 /**
  * \brief The algorithm for biconnectivity augmentation with fixed combinatorial embedding.
  *
+ * @ingroup ga-augment
  */
 class OGDF_EXPORT PlanarAugmentationFix : public AugmentationModule {
 
@@ -78,7 +71,7 @@ protected:
 	 * \param g is the working graph.
 	 * \param L is the list of all new edges.
 	 */
-	void doCall(Graph& g, List<edge>& L);
+	virtual void doCall(Graph& g, List<edge>& L) override;
 
 private:
 	/**

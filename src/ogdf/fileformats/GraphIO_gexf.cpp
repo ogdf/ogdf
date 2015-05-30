@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements GEXF write functionality of class GraphIO.
  *
@@ -326,8 +318,7 @@ static inline void writeEdges(
 {
 	GraphIO::indent(out, 2) << "<edges>\n";
 
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		writeEdge(out, 3, GA, e);
 	}
 
@@ -358,11 +349,11 @@ static void writeCluster(
 
 	GraphIO::indent(out, depth + 1) << "<nodes>\n";
 
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); cit++) {
+	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
 		writeCluster(out, depth + 2, C, CA, *cit);
 	}
 
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); nit++) {
+	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
 		writeNode(out, depth + 2, CA, *nit);
 	}
 
@@ -393,8 +384,8 @@ static void writeGraph(
 	}
 
 	GraphIO::indent(out, 2) << "<nodes>\n";
-	node v;
-	forall_nodes(v, G) {
+
+	for(node v : G.nodes) {
 		writeNode(out, 3, GA, v);
 	}
 	GraphIO::indent(out, 2) << "</nodes>\n";
@@ -411,7 +402,7 @@ static void writeGraph(
 bool GraphIO::writeGEXF(const Graph &G, std::ostream &out)
 {
 	gexf::writeHeader(out);
-	gexf::writeGraph(out, G, NULL);
+	gexf::writeGraph(out, G, nullptr);
 	gexf::writeFooter(out);
 
 	return true;
@@ -421,7 +412,7 @@ bool GraphIO::writeGEXF(const Graph &G, std::ostream &out)
 bool GraphIO::writeGEXF(const ClusterGraph &C, std::ostream &out)
 {
 	gexf::writeHeader(out);
-	gexf::writeCluster(out, 1, C, NULL, C.rootCluster());
+	gexf::writeCluster(out, 1, C, nullptr, C.rootCluster());
 	gexf::writeFooter(out);
 
 	return true;

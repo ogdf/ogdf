@@ -152,7 +152,7 @@ namespace ogdf {
 		~ProcrustesSubLayout() { }
 
 		//! Computes a circular layout for graph attributes \a GA.
-		void call(GraphAttributes &GA);
+		virtual void call(GraphAttributes &GA) override;
 
 		//! Should the new layout scale be used or the initial scale? Default: inital
 		void setScaleToInitialLayout(bool flag)

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the FUPSSimple.
  *
@@ -81,15 +73,17 @@ public:
 	//! return a adjEntry of node v which right face is f. Be Carefully! The adjEntry is not always unique.
 	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f)
 	{
-		adjEntry adj = 0;
-		forall_adj(adj, v) {
-			if (Gamma.rightFace(adj) == f)
+		adjEntry adjFound = nullptr;
+		for(adjEntry adj : v->adjEdges) {
+			if (Gamma.rightFace(adj) == f) {
+				adjFound = adj;
 				break;
+			}
 		}
 
-		OGDF_ASSERT(Gamma.rightFace(adj) == f);
+		OGDF_ASSERT(Gamma.rightFace(adjFound) == f);
 
-		return adj;
+		return adjFound;
 	}
 
 protected:
@@ -104,7 +98,7 @@ protected:
 	 * \return the status of the result.
 	 */
 	virtual Module::ReturnType doCall(UpwardPlanRep &UPR,
-		List<edge> &delEdges);
+		List<edge> &delEdges) override;
 
 
 private:

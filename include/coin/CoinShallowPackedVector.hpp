@@ -79,11 +79,11 @@ public:
    /**@name Get methods */
    //@{
    /// Get length of indices and elements vectors
-   virtual int getNumElements() const { return nElements_; }
+   virtual int getNumElements() const override { return nElements_; }
    /// Get indices of elements
-   virtual const int * getIndices() const { return indices_; }
+   virtual const int * getIndices() const override { return indices_; }
    /// Get element values
-   virtual const double * getElements() const { return elements_; }
+   virtual const double * getElements() const override { return elements_; }
    //@}
 
    /**@name Set methods */

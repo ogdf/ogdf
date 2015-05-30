@@ -31,8 +31,7 @@ int main()
 
 	NodeArray<int> rank(G);
 	int i = 0;
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		rank[v] = r[i++];
 
 	SugiyamaLayout SL;

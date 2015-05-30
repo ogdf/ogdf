@@ -1,11 +1,3 @@
-/*
- * $Revision: 3550 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 14:16:24 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of simple graph algorithms
  *
@@ -58,8 +50,7 @@ namespace ogdf {
 //---------------------------------------------------------
 bool isLoopFree(const Graph &G)
 {
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		if(e->isSelfLoop()) return false;
 
 	return true;
@@ -145,8 +136,7 @@ void parallelFreeSortUndirected(const Graph &G,
 {
 	G.allEdges(edges);
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		int srcIndex = e->source()->index(), tgtIndex = e->target()->index();
 		if (srcIndex <= tgtIndex) {
 			minIndex[e] = srcIndex; maxIndex[e] = tgtIndex;
@@ -211,7 +201,7 @@ int numParallelEdgesUndirected(const Graph &G)
 bool isConnected(const Graph &G)
 {
 	node v = G.firstNode();
-	if (v == 0) return true;
+	if (v == nullptr) return true;
 
 	int count = 0;
 	NodeArray<bool> visited(G,false);
@@ -223,8 +213,7 @@ bool isConnected(const Graph &G)
 		v = S.pop();
 		++count;
 
-		adjEntry adj;
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			node w = adj->twinNode();
 			if(!visited[w]) {
 				visited[w] = true;
@@ -244,8 +233,8 @@ void makeConnected(Graph &G, List<edge> &added)
 	NodeArray<bool> visited(G,false);
 	BoundedStack<node> S(G.numberOfNodes());
 
-	node pred = 0, u;
-	forall_nodes(u,G)
+	node pred = nullptr;
+	for(node u : G.nodes)
 	{
 		if (visited[u]) continue;
 
@@ -259,8 +248,7 @@ void makeConnected(Graph &G, List<edge> &added)
 		{
 			node v = S.pop();
 
-			adjEntry adj;
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				node w = adj->twinNode();
 				if(!visited[w]) {
 					visited[w] = true;
@@ -289,8 +277,7 @@ int connectedComponents(const Graph &G, NodeArray<int> &component)
 
 	StackPure<node> S;
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (component[v] != -1) continue;
 
 		S.push(v);
@@ -323,8 +310,7 @@ int connectedIsolatedComponents(const Graph &G, List<node> &isolated,
 
 	StackPure<node> S;
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (component[v] != -1) continue;
 
 		S.push(v);
@@ -357,7 +343,7 @@ int connectedIsolatedComponents(const Graph &G, List<node> &isolated,
 static node dfsIsBicon (const Graph &G, node v, node father,
 	NodeArray<int> &number, NodeArray<int> &lowpt, int &numCount)
 {
-	node first_son = 0;
+	node first_son = nullptr;
 
 	lowpt[v] = number[v] = ++numCount;
 
@@ -367,13 +353,13 @@ static node dfsIsBicon (const Graph &G, node v, node father,
 		if (v == w) continue; // ignore self-loops
 
 		if (number[w] == 0) {
-			if (first_son == 0) first_son = w;
+			if (first_son == nullptr) first_son = w;
 
 			node cutVertex = dfsIsBicon(G,w,v,number,lowpt,numCount);
 			if (cutVertex) return cutVertex;
 
 			// is v cut vertex ?
-			if (lowpt[w] >= number[v] && (w != first_son || father != 0))
+			if (lowpt[w] >= number[v] && (w != first_son || father != nullptr))
 				return v;
 
 			if (lowpt[w] < lowpt[v]) lowpt[v] = lowpt[w];
@@ -384,7 +370,7 @@ static node dfsIsBicon (const Graph &G, node v, node father,
 		}
 	}
 
-	return 0;
+	return nullptr;
 }
 
 
@@ -396,9 +382,9 @@ bool isBiconnected(const Graph &G, node &cutVertex)
 	NodeArray<int> lowpt(G);
 	int numCount = 0;
 
-	cutVertex = dfsIsBicon(G,G.firstNode(),0,number,lowpt,numCount);
+	cutVertex = dfsIsBicon(G,G.firstNode(),nullptr,number,lowpt,numCount);
 
-	return (numCount == G.numberOfNodes() && cutVertex == 0);
+	return (numCount == G.numberOfNodes() && cutVertex == nullptr);
 }
 
 
@@ -409,7 +395,7 @@ static void dfsMakeBicon (Graph &G,
 	int &numCount,
 	List<edge> &added)
 {
-	node predSon = 0;
+	node predSon = nullptr;
 
 	lowpt[v] = number[v] = ++numCount;
 
@@ -424,10 +410,10 @@ static void dfsMakeBicon (Graph &G,
 
 			// is v cut vertex ?
 			if (lowpt[w] >= number[v]) {
-				if (predSon == 0 && father != 0)
+				if (predSon == nullptr && father != nullptr)
 					added .pushBack(G.newEdge(w,father));
 
-				else if (predSon != 0)
+				else if (predSon != nullptr)
 					added.pushBack(G.newEdge(w,predSon));
 			}
 
@@ -452,7 +438,7 @@ void makeBiconnected(Graph &G, List<edge> &added)
 	NodeArray<int> lowpt(G);
 	int numCount = 0;
 
-	dfsMakeBicon(G,G.firstNode(),0,number,lowpt,numCount,added);
+	dfsMakeBicon(G,G.firstNode(),nullptr,number,lowpt,numCount,added);
 }
 
 
@@ -516,8 +502,7 @@ int biconnectedComponents(const Graph &G, EdgeArray<int> &component)
 	NodeArray<int> lowpt(G);
 	int nNumber = 0, nComponent = 0, nIsolated = 0;
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (number[v] == 0) {
 			bool isolated = true;
 			edge e;
@@ -529,7 +514,7 @@ int biconnectedComponents(const Graph &G, EdgeArray<int> &component)
 			if (isolated)
 				++nIsolated;
 			else
-				dfsBiconComp(G,v,0,number,lowpt,called,component,
+				dfsBiconComp(G,v,nullptr,number,lowpt,called,component,
 					nNumber,nComponent);
 		}
 	}
@@ -544,7 +529,7 @@ int biconnectedComponents(const Graph &G, EdgeArray<int> &component)
 //---------------------------------------------------------
 bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 {
-	s1 = s2 = 0;
+	s1 = s2 = nullptr;
 
 	if (isConnected(G) == false)
 		return false;
@@ -559,8 +544,7 @@ bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 	GraphCopySimple GC(G);
 
 	// for each node v in G, we test if G \ v is biconnected
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		node vC = GC.copy(v), wC;
 
@@ -585,8 +569,8 @@ bool isTriconnectedPrimitive(const Graph &G, node &s1, node &s2)
 		// restore deleted node with adjacent edges
 		vC = GC.newNode(v);
 		SListConstIterator<node> it;
-		for(it = adjacentNodes.begin(); it.valid(); ++it)
-			GC.newEdge(vC,*it);
+		for(node uC : adjacentNodes)
+			GC.newEdge(vC,uC);
 	}
 
 	return true;
@@ -604,20 +588,18 @@ void triangulate(Graph &G)
 
 	OGDF_ASSERT(E.consistencyCheck());
 
-	node v;
-	edge e;
-	adjEntry adj, succ, succ2, succ3;
+	adjEntry succ, succ2, succ3;
 	NodeArray<int> marked(E.getGraph(), 0);
 
-	forall_nodes(v,E.getGraph()) {
+	for(node v : E.getGraph().nodes) {
 		marked.init(E.getGraph(), 0);
 
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			marked[adj->twinNode()] = 1;
 		}
 
 		// forall faces adj to v
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			succ = adj->faceCycleSucc();
 			succ2 = succ->faceCycleSucc();
 
@@ -630,7 +612,7 @@ void triangulate(Graph &G)
 					}
 					else {
 						// edge e=(v=x1,x3)
-						e = E.splitFace(adj, succ2);
+						edge e = E.splitFace(adj, succ2);
 						marked[succ2->theNode()] = 1;
 
 						// old adj is in wrong face
@@ -678,10 +660,8 @@ void dfsIsAcyclicUndirected(const Graph &G,
 {
 	number[v] = ++nNumber;
 
-	adjEntry adj;
-	node w;
-	forall_adj(adj,v) {
-		w = adj->twinNode();
+	for(adjEntry adj : v->adjEdges) {
+		node w = adj->twinNode();
 		if (number[w] == 0) {
 			dfsIsAcyclicUndirected(G,w,number,nNumber,backedges);
 		} else {
@@ -700,13 +680,11 @@ bool isAcyclic(const Graph &G, List<edge> &backedges)
 	NodeArray<int> number(G,0), completion(G);
 	int nNumber = 0, nCompletion = 0;
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		if (number[v] == 0)
 			dfsIsAcyclic(G,v,number,completion,nNumber,nCompletion);
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		node src = e->source(), tgt = e->target();
 
 		if (number[src] >= number[tgt] && completion[src] <= completion[tgt])
@@ -723,8 +701,7 @@ bool isAcyclicUndirected(const Graph &G, List<edge> &backedges)
 	int nNumber = 0;
 	NodeArray<int> number(G,0);
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (number[v] == 0) {
 			dfsIsAcyclicUndirected(G,v,number,nNumber,backedges);
 		}
@@ -738,9 +715,8 @@ void makeAcyclic(Graph &G)
 	List<edge> backedges;
 	isAcyclic(G,backedges);
 
-	ListIterator<edge> it;
-	for(it = backedges.begin(); it.valid(); ++it)
-		G.delEdge(*it);
+	for(edge e : backedges)
+		G.delEdge(e);
 }
 
 
@@ -749,9 +725,8 @@ void makeAcyclicByReverse(Graph &G)
 	List<edge> backedges;
 	isAcyclic(G,backedges);
 
-	ListIterator<edge> it;
-	for(it = backedges.begin(); it.valid(); ++it)
-		if (!(*it)->isSelfLoop()) G.reverseEdge(*it);
+	for(edge e : backedges)
+		if (!e->isSelfLoop()) G.reverseEdge(e);
 }
 
 
@@ -761,35 +736,33 @@ void makeAcyclicByReverse(Graph &G)
 //---------------------------------------------------------
 bool hasSingleSource(const Graph& G, node &s)
 {
-	node v;
-	s = 0;
+	s = nullptr;
 
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (v->indeg() == 0) {
-			if (s != 0) {
-				s = 0;
+			if (s != nullptr) {
+				s = nullptr;
 				return false;
 			} else s = v;
 		}
 	}
-	return (G.empty() || s != 0);
+	return (G.empty() || s != nullptr);
 }
 
 
 bool hasSingleSink(const Graph& G, node &t)
 {
-	node v;
-	t = 0;
+	t = nullptr;
 
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (v->outdeg() == 0) {
-			if (t != 0) {
-				t = 0;
+			if (t != nullptr) {
+				t = nullptr;
 				return false;
 			} else t = v;
 		}
 	}
-	return (G.empty() || t != 0);
+	return (G.empty() || t != nullptr);
 }
 
 
@@ -802,13 +775,13 @@ bool hasSingleSink(const Graph& G, node &t)
 //---------------------------------------------------------
 bool isStGraph(const Graph &G, node &s, node &t, edge &st)
 {
-	st = 0;
+	st = nullptr;
 
 	hasSingleSource(G,s);
 	hasSingleSink  (G,t);
 
-	if (s == 0 || t == 0 || isAcyclic(G) == false) {
-		s = t = 0;
+	if (s == nullptr || t == nullptr || isAcyclic(G) == false) {
+		s = t = nullptr;
 		return false;
 	}
 
@@ -820,7 +793,7 @@ bool isStGraph(const Graph &G, node &s, node &t, edge &st)
 		}
 	}
 
-	return (st != 0);
+	return (st != nullptr);
 }
 
 
@@ -834,8 +807,7 @@ void topologicalNumbering(const Graph &G, NodeArray<int> &num)
 	BoundedStack<node> S(G.numberOfNodes());
 	NodeArray<int> indeg(G);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		if((indeg[v] = v->indeg()) == 0)
 			S.push(v);
 
@@ -855,83 +827,79 @@ void topologicalNumbering(const Graph &G, NodeArray<int> &num)
 	}
 }
 
-
-//---------------------------------------------------------
-// strongComponents()
-// computes the strongly connected components
-//---------------------------------------------------------
-
-//! Computes the strongly connected components with the algorithm of Tarjan.
 /**
- * @param G         is the input graph.
- * @param w         is the current node.
- * @param S         is the stack containing all vertices of the current
- *                  component during the algorithm
- * @param pre       is the preorder number.
- * @param low       is the lowest reachable preorder number (lowpoint).
- * @param cnt       is the counter for the dfs-number.
- * @param scnt      is the counter for the components.
- * @param component is assigned a mapping from nodes to component numbers.
+ * Computes the strongly connected componets using tarjans algorithm.
+ *
+ * @param graph the graph to work on
+ * @param v the node to start the traversal with
+ * @param components maps nodes to resulting components
+ * @param marked whether this node has been visited yet
+ * @param lowLinks smallest node reachable from any node
+ * @param set stack for maintaining the current components node
+ * @param pNextIndex for numbering each node uniquely
+ * @param pNextComponent for number each component uniquely
  */
-void dfsStrongComponents(
-	const Graph& G,
-	node w,
-	BoundedStack<node>& S,
-	NodeArray<int>& pre,
-	NodeArray<int>& low,
-	int& cnt,
-	int& scnt,
-	NodeArray<int>& component)
+void computeStrongComponents(
+  const Graph &graph,
+  const node v,
+  NodeArray<int> &components,
+  NodeArray<bool> &marked,
+  NodeArray<int> &lowLinks,
+  BoundedStack<node> &set,
+  int *pNextIndex,
+  int *pNextComponent)
 {
-	S.push(w);
-	int min = cnt;
-	low[w] = cnt;
-	pre[w] = cnt;
-	cnt++;
-	node t;
-	edge e;
-	forall_adj_edges(e, w) {
-		if (e->source() == w) {
-			t = e->target();
-			if(pre[t] == -1) {
-				dfsStrongComponents(G, t, S, pre, low, cnt, scnt, component);
+	marked[v] = true;
+	int min = lowLinks[v] = (*pNextIndex)++;
+	set.push(v);
+
+	for(adjEntry adj : v->adjEdges) {
+		edge e = adj->theEdge();
+		if(v == e->source()) {
+			node w = e->target();
+			if(!marked[w]) {
+				computeStrongComponents(graph, w, components, marked, lowLinks, set, pNextIndex, pNextComponent);
 			}
-			if (low[t] < low[w])
-				min = low[t];
+			if(lowLinks[w] < min) {
+				min = lowLinks[w];
+			}
 		}
 	}
-	if (min < low[w]) {
-		low[w] = min;
-		return;
+	if(min < lowLinks[v]) {
+		lowLinks[v] = min;
+	} else {
+		node w;
+		do {
+			w = set.pop();
+			components[w] = *pNextComponent;
+			lowLinks[w] = graph.numberOfNodes();
+		} while(w != v);
+		(*pNextComponent)++;
 	}
-	do {
-		t = S.pop();
-		component[t] = scnt;
-		low[t] = G.numberOfNodes();
-	} while (t != w);
-	scnt++;
 }
 
-int strongComponents(const Graph& G, NodeArray<int>& component)
+int strongComponents(const Graph &graph, NodeArray<int> &components)
 {
-	if (G.numberOfNodes() == 0)
-		return 0;
-	if (G.numberOfNodes() == 1){
-		component[G.firstNode()] = 0;
-		return 1;
-	}
-	NodeArray<int> pre(G, -1);
-	NodeArray<int> low(G, G.numberOfNodes());
-	BoundedStack<node> S(G.numberOfNodes());
-	int cnt = 0;
-	int scnt = 0;
-	node v;
-	forall_nodes(v, G){
-		if (pre[v] == -1){
-			dfsStrongComponents(G, v, S, pre, low, cnt, scnt, component);
+	int nNodes = graph.numberOfNodes();
+	int result = 0;
+	if(nNodes > 0) {
+		if(nNodes == 1) {
+			result = 1;
+			components[graph.firstNode()] = 0;
+		} else {
+			NodeArray<bool> marked(graph, false);
+			NodeArray<int> lowLinks(graph, -1);
+			BoundedStack<node> set(nNodes);
+			int nextIndex = 0;
+
+			for(node v : graph.nodes) {
+				if(!marked[v]) {
+					computeStrongComponents(graph, v, components, marked, lowLinks, set, &nextIndex, &result);
+				}
+			}
 		}
 	}
-	return scnt;
+	return result;
 }
 
 //---------------------------------------------------------
@@ -944,27 +912,33 @@ void makeBimodal(Graph &G, List<edge> &newEdge)
 {
 	List<node> nodes;
 	G.allNodes(nodes);
+
 	ListIterator<node> it_n = nodes.begin();
-	while( it_n.valid() ) {
+	while (it_n.valid()) {
 		node v = *it_n;
-		if (v->indeg() < 2 || v->outdeg() < 2) { it_n++; continue; }
-		List<adjEntry> newOrder;
-		adjEntry adj;
-		forall_adj(adj,v) {
-			if (adj->theEdge()->target() == v) newOrder.pushFront(adj);
-				else newOrder.pushBack(adj);
+		if (v->indeg() < 2 || v->outdeg() < 2) {
+			++it_n; continue;
 		}
-		G.sort(v,newOrder);
+		List<adjEntry> newOrder;
+		for (adjEntry adj : v->adjEdges) {
+			if (adj->theEdge()->target() == v)
+				newOrder.pushFront(adj);
+			else
+				newOrder.pushBack(adj);
+		}
+		G.sort(v, newOrder);
+
 		ListIterator<adjEntry> it = newOrder.begin();
-		while ((*it)->theEdge()->target() == v) it++;
-		node newNode = G.splitNode(newOrder.front(),*it);
-		forall_adj(adj,newNode) {
+		while ((*it)->theEdge()->target() == v)
+			++it;
+		node newNode = G.splitNode(newOrder.front(), *it);
+		for (adjEntry adj : newNode->adjEdges) {
 			if (adj->theEdge()->target() == newNode) {
 				newEdge.pushBack(adj->theEdge());
 				break;
 			}
 		}
-		it_n++;
+		++it_n;
 	}
 }
 
@@ -977,12 +951,11 @@ bool isFreeForest(const Graph &G)
 {
 	NodeArray<bool> visited(G,false);
 
-	node vFirst;
-	forall_nodes(vFirst, G) {
+	for(node vFirst : G.nodes) {
 		if (visited[vFirst]) continue;
 
 		StackPure<Tuple2<node,node> > S;
-		S.push(Tuple2<node,node>(vFirst,0));
+		S.push(Tuple2<node,node>(vFirst,nullptr));
 
 		while (!S.empty()) {
 			Tuple2<node,node> t = S.pop();
@@ -991,13 +964,12 @@ bool isFreeForest(const Graph &G)
 
 			visited[v] = true;
 
-			adjEntry adj;
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				node w = adj->twinNode();
 
 				// skip edge to parent, but only once!
 				if(w == parent) {
-					parent = 0;
+					parent = nullptr;
 					continue;
 				}
 
@@ -1034,9 +1006,8 @@ static bool dfsIsForest (node v,
 		}
 	}
 
-	SListIterator<node> it;
-	for(it = sons.begin(); it.valid(); ++it)
-		mark[*it] = false;
+	for(node w : sons)
+		mark[w] = false;
 
 	while(!sons.empty()) {
 		node w = sons.front();
@@ -1056,15 +1027,14 @@ bool isForest(const Graph& G, List<node> &roots)
 
 	NodeArray<bool> visited(G,false), mark(G,false);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		if (v->indeg() == 0) {
 			roots.pushBack(v);
 			if (dfsIsForest(v,visited,mark) == false)
 				return false;
 		}
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		if (!visited[v]) return false;
 
 	return true;

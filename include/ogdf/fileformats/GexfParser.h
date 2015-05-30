@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of GEXF format reading utilities.
  *
@@ -87,7 +79,7 @@ private:
 		GraphAttributes &GA, edge e,
 		const XmlTagObject &edgeTag);
 
-	static void error(const XmlTagObject &tag, const std::string msg);
+	static void error(const XmlTagObject &tag, const std::string &msg);
 
 public:
 	Parser(std::istream &is);

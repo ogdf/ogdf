@@ -1,11 +1,3 @@
-/*
- * $Revision: 3147 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-12-11 16:43:11 +0100 (Tue, 11 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanRepUML.
  *
@@ -91,8 +83,7 @@ public:
 
 	// Removes all face splitting edges.
 	void removeFaceSplitter(){
-		edge e;
-		forall_edges(e,(*this))
+		for(edge e : edges)
 			if (m_faceSplitter[e])
 				delEdge(e);
 	}

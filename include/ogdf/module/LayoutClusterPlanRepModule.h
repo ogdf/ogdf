@@ -1,11 +1,3 @@
-/*
- * $Revision: 2583 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for planar layout algorithms for
  *        UML diagrams (used in planarization approach).

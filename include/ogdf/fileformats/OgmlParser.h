@@ -1,11 +1,3 @@
-/*
- * $Revision: 4015 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-30 05:25:44 +0200 (Sun, 30 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of auxiliary classes OgmlAttributeValue,
  *        OgmlAttribute and OgmlTag.
@@ -88,14 +80,11 @@ private:
 	friend ostream& operator<<(ostream& os, const OgmlParser::OgmlAttribute& oa);
 	friend ostream& operator<<(ostream& os, const OgmlParser::OgmlTag& ot);
 
-	static Hashing<int, OgmlTag>            *s_tags;       //!< Hashtable for saving all ogml tags.
-	static Hashing<int, OgmlAttribute>      *s_attributes; //!< Hashtable for saving all ogml attributes.
-	static Hashing<int, OgmlAttributeValue> *s_attValues;  //!< Hashtable for saving all values of ogml attributes.
+	Hashing<int, OgmlTag>            *m_tags;       //!< Hashtable for saving all ogml tags.
+	Hashing<int, OgmlAttribute>      *m_attributes; //!< Hashtable for saving all ogml attributes.
+	Hashing<int, OgmlAttributeValue> *m_attValues;  //!< Hashtable for saving all values of ogml attributes.
 
 	enum Mode { compMode = 0, choiceMode, optMode };
-
-	//! Builds hashtables for tags and attributes.
-	static void buildHashTables();
 
 	mutable Ogml::GraphType m_graphType; //!< Saves a graph type. Is set by checkGraphType.
 
@@ -249,12 +238,9 @@ private:
 public:
 
 	//! Constructs an OGML parser.
-	OgmlParser() {
-		// build the required hash tables (once!)
-		buildHashTables();
-	}
+	OgmlParser();
 
-	~OgmlParser() { }
+	~OgmlParser();
 
 
 	//! Reads a graph \a G from file \a fileName in OGML format.

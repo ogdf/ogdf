@@ -78,7 +78,7 @@ public:
   }
 
   /** `Virtual constructor' */
-  virtual CoinWarmStart *clone() const {
+  virtual CoinWarmStart *clone() const override {
     return new CoinWarmStartVector(*this);
   }
      
@@ -108,7 +108,7 @@ public:
   */
 
   virtual CoinWarmStartDiff*
-  generateDiff (const CoinWarmStart *const oldCWS) const ;
+  generateDiff (const CoinWarmStart *const oldCWS) const override ;
 
   /*! \brief Apply \p diff to this warm start.
 
@@ -116,7 +116,7 @@ public:
   allocated capacity of the warm start is sufficiently large.
   */
 
-  virtual void applyDiff (const CoinWarmStartDiff *const cwsdDiff) ;
+  virtual void applyDiff (const CoinWarmStartDiff *const cwsdDiff) override ;
 
   //@}
 
@@ -158,7 +158,7 @@ class CoinWarmStartVectorDiff : public virtual CoinWarmStartDiff
 public:
 
   /*! \brief `Virtual constructor' */
-  virtual CoinWarmStartDiff * clone() const {
+  virtual CoinWarmStartDiff * clone() const override {
     return new CoinWarmStartVectorDiff(*this) ;
   }
 
@@ -182,7 +182,7 @@ public:
 
   /*! \brief Default constructor
    */
-  CoinWarmStartVectorDiff () : sze_(0), diffNdxs_(0), diffVals_(NULL) {} 
+  CoinWarmStartVectorDiff () : sze_(0), diffNdxs_(nullptr), diffVals_(NULL) {}
 
   /*! \brief Copy constructor
   
@@ -259,7 +259,7 @@ public:
     u_.swap(rhs.u_);
   }
 
-  virtual CoinWarmStart *clone() const {
+  virtual CoinWarmStart *clone() const override {
     return new CoinWarmStartVectorPair(*this);
   }
 
@@ -271,9 +271,9 @@ public:
   }
 
   virtual CoinWarmStartDiff*
-  generateDiff (const CoinWarmStart *const oldCWS) const ;
+  generateDiff (const CoinWarmStart *const oldCWS) const override ;
 
-  virtual void applyDiff (const CoinWarmStartDiff *const cwsdDiff) ;
+  virtual void applyDiff (const CoinWarmStartDiff *const cwsdDiff) override ;
 };
 
 //=============================================================================
@@ -302,7 +302,7 @@ public:
     udiff_ = rhs.udiff_;
   }
 
-  virtual CoinWarmStartDiff * clone() const {
+  virtual CoinWarmStartDiff * clone() const override {
     return new CoinWarmStartVectorPairDiff(*this) ;
   }
 
@@ -453,7 +453,7 @@ CoinWarmStartVectorDiff<T>::operator=(const CoinWarmStartVectorDiff<T> &rhs)
 template <typename T>
 CoinWarmStartVectorDiff<T>::CoinWarmStartVectorDiff(const CoinWarmStartVectorDiff<T> &rhs)
   : sze_(rhs.sze_),
-    diffNdxs_(0),
+    diffNdxs_(nullptr),
     diffVals_(0)
 {
   if (sze_ > 0) {
@@ -470,7 +470,7 @@ template <typename T>
 CoinWarmStartVectorDiff<T>::CoinWarmStartVectorDiff
 (int sze, const unsigned int *const diffNdxs, const T *const diffVals)
   : sze_(sze),
-    diffNdxs_(0),
+    diffNdxs_(nullptr),
     diffVals_(0)
 {
   if (sze > 0) {

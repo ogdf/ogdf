@@ -1,11 +1,3 @@
-/*
- * $Revision: 2564 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 00:03:48 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class ParticleInfo.
  *
@@ -66,8 +58,8 @@ class OGDF_EXPORT ParticleInfo
 		else
 			output<<" unmarked ";
 		output<<" sublist_ptr ";
-		if (A.subList_ptr == NULL)
-			output<<"NULL";
+		if (A.subList_ptr == nullptr)
+			output<<"nullptr";
 		else
 			output<<A.subList_ptr;
 		return output;
@@ -82,16 +74,16 @@ class OGDF_EXPORT ParticleInfo
 
 public:
 
-	ParticleInfo()    //constructor
-	{
-		vertex = NULL;
-		x_y_coord = 0;
-		cross_ref_item = NULL;
-		copy_item = NULL;
-		subList_ptr = NULL;
-		marked = false;
-		tmp_item = NULL;
-	}
+	//constructor
+	ParticleInfo() :
+		vertex(nullptr),
+		x_y_coord(0),
+		cross_ref_item(nullptr),
+		subList_ptr(nullptr),
+		copy_item(nullptr),
+		marked(false),
+		tmp_item(nullptr)
+	{ }
 
 	~ParticleInfo() { }   //destructor
 

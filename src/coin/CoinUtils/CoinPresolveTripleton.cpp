@@ -470,14 +470,14 @@ const CoinPresolveAction *tripleton_action::presolve(CoinPresolveMatrix *prob,
 	  if (jrow == irow)
 	    krowx=k;
 	  else if (prob->rowUsed(jrow))
-	    nDuplicate++;;
+	    nDuplicate++;
 	}
 	for (k=mcstrt[icolz]; k<mcstrt[icolz]+hincol[icolz]; k++) {
 	  int jrow=hrow[k];
 	  if (jrow == irow)
 	    krowz=k;
 	  else if (prob->rowUsed(jrow))
-	    nDuplicate++;;
+	    nDuplicate++;
 	}
 	int nAdded=hincol[icoly]-3-nDuplicate;
 	for (k=mcstrt[icoly]; k<mcstrt[icoly]+hincol[icoly]; k++) {

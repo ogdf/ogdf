@@ -1,11 +1,3 @@
-/*
- * $Revision: 2977 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-06 14:33:34 +0100 (Tue, 06 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Contains the class UmlDiagramGraph which represents one
  * particular diagram of the complete UML Model.
@@ -103,12 +95,12 @@ namespace ogdf {
 		/** This list holds pointer to the nodes contained in
 		 * the represented diagram.
 		 */
-		SList<NodeElement*> m_containedNodes;
+		SList<node> m_containedNodes;
 
 		/** This list holds pointer to the edges contained in
 		 * the represented diagram.
 		 */
-		SList<EdgeElement*> m_containedEdges;
+		SList<edge> m_containedEdges;
 
 		/** This list contains the x-coordinates of the nodes
 		 * contained in the represented diagram.

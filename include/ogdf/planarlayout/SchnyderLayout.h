@@ -1,11 +1,3 @@
-/*
- * $Revision: 2566 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 23:10:08 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the Schnyder Layout Algorithm (SchnyderLayout)
  *        algorithm.
@@ -74,8 +66,12 @@ public:
 	SchnyderLayout();
 
 protected:
-	void doCall(const Graph &G, adjEntry adjExternal, GridLayout &gridLayout,
-				IPoint &boundingBox, bool fixEmbedding);
+	virtual void doCall(
+		const Graph &G,
+		adjEntry adjExternal,
+		GridLayout &gridLayout,
+		IPoint &boundingBox,
+		bool fixEmbedding) override;
 
 private:
 	void contract(Graph& G, node a, node b, node c, List<node>& L);

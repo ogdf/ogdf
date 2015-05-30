@@ -44,7 +44,7 @@ private:
     nactions_(nactions), actions_(actions) {}
 
  public:
-  const char *name() const;
+  const char *name() const override;
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix * prob,
 					    const int *implied_free,
@@ -56,7 +56,7 @@ private:
 				  const CoinPresolveAction *next,
 				  int fillLevel);
 
-  void postsolve(CoinPostsolveMatrix *prob) const;
+  void postsolve(CoinPostsolveMatrix *prob) const override;
 
   ~subst_constraint_action();
 };

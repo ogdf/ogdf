@@ -99,7 +99,7 @@ public:
         <li>The row element vector indices are >= 0
         </ul>
     */
-    OsiRowCut_inline bool consistent() const; 
+    OsiRowCut_inline bool consistent() const override;
 
     /** Returns true if cut is consistent with respect to the solver
         interface's model.
@@ -109,7 +109,7 @@ public:
             in the model
         </ul>
     */
-    OsiRowCut_inline bool consistent(const OsiSolverInterface& im) const;
+    OsiRowCut_inline bool consistent(const OsiSolverInterface& im) const override;
 
     /** Returns true if the row cut itself is infeasible and cannot be satisfied.       
         This checks whether
@@ -118,12 +118,12 @@ public:
             upper bound.
         </ul>
     */
-    OsiRowCut_inline bool infeasible(const OsiSolverInterface &im) const;
+    OsiRowCut_inline bool infeasible(const OsiSolverInterface &im) const override;
     /** Returns infeasibility of the cut with respect to solution 
 	passed in i.e. is positive if cuts off that solution.  
 	solution is getNumCols() long..
     */
-    virtual double violated(const double * solution) const;
+    virtual double violated(const double * solution) const override;
   //@}
 
   /**@name Arithmetic operators. Apply CoinPackedVector methods to the vector */
@@ -180,7 +180,7 @@ public:
   /**@name Debug stuff */
   //@{
     /// Print cuts in collection
-  virtual void print() const ;
+  virtual void print() const override ;
   //@}
    
 private:
@@ -310,7 +310,7 @@ public:
   OsiRowCut2 ( const OsiRowCut2 &);  
   
   /// Clone
-  virtual OsiRowCut * clone() const;
+  virtual OsiRowCut * clone() const override;
   
   /// Default Constructor 
   OsiRowCut2 (int row=-1);

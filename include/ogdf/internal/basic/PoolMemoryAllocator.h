@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of memory manager for allocating small
  *        pieces of memory
@@ -49,10 +41,13 @@
 #ifndef OGDF_POOL_MEMORY_ALLOCATOR_H
 #define OGDF_POOL_MEMORY_ALLOCATOR_H
 
-#ifndef OGDF_MEMORY_POOL_NTS
-#include <ogdf/basic/CriticalSection.h>
-#else
 #include <ogdf/basic/System.h>
+
+#ifndef OGDF_MEMORY_POOL_NTS
+#include <mutex>
+#ifdef OGDF_NO_COMPILER_TLS
+#include <pthread.h>
+#endif
 #endif
 
 
@@ -114,7 +109,9 @@ public:
 	//! Frees all memory blocks allocated by the memory manager.
 	static OGDF_EXPORT void cleanup();
 
-	static OGDF_EXPORT bool checkSize(size_t nBytes);
+	static OGDF_EXPORT bool checkSize(size_t nBytes) {
+		return nBytes < eTableSize;
+	}
 
 	//! Allocates memory of size \a nBytes.
 	static OGDF_EXPORT void *allocate(size_t nBytes);
@@ -132,7 +129,6 @@ public:
 	static OGDF_EXPORT void deallocateList(size_t nBytes, void *pHead, void *pTail);
 
 	static OGDF_EXPORT void flushPool();
-	//static OGDF_EXPORT void flushPool(__uint16 nBytes);
 
 	//! Returns the total amount of memory (in bytes) allocated from the system.
 	static OGDF_EXPORT size_t memoryAllocatedInBlocks();
@@ -152,36 +148,53 @@ public:
 	static OGDF_EXPORT void defrag();
 
 private:
-	static inline void enterCS();
-	static inline void leaveCS();
+	static inline void enterCS() {
+#ifndef OGDF_MEMORY_POOL_NTS
+		s_mutex.lock();
+#endif
+	}
 
-	static int slicesPerBlock(__uint16 nBytes) {
+	static inline void leaveCS() {
+#ifndef OGDF_MEMORY_POOL_NTS
+		s_mutex.unlock();
+#endif
+	}
+
+	static int slicesPerBlock(uint16_t nBytes) {
 		int nWords;
 		return slicesPerBlock(nBytes,nWords);
 	}
 
-	static int slicesPerBlock(__uint16 nBytes, int &nWords) {
+	static int slicesPerBlock(uint16_t nBytes, int &nWords) {
 		nWords = (nBytes + __SIZEOF_POINTER__ - 1) / __SIZEOF_POINTER__;
 		return (eBlockSize - __SIZEOF_POINTER__) / (nWords * __SIZEOF_POINTER__);
 	}
 
-	static void *fillPool(MemElemPtr &pFreeBytes, __uint16 nBytes);
+	static void *fillPool(MemElemPtr &pFreeBytes, uint16_t nBytes);
 
 	static MemElemPtr allocateBlock();
 	static void makeSlices(MemElemPtr p, int nWords, int nSlices);
 
+	static size_t unguardedMemGlobalFreelist();
+
 	static PoolElement s_pool[eTableSize];
 	static BlockChainPtr s_blocks;
 
+#ifdef OGDF_DEBUG
+	static size_t s_nettoAlloc;
+#endif
+
 #ifdef OGDF_MEMORY_POOL_NTS
 	static MemElemPtr s_tp[eTableSize];
-#elif defined(OGDF_NO_COMPILER_TLS)
-	static CriticalSection *s_criticalSection;
+#else
+	static std::mutex s_mutex;
+#ifdef OGDF_NO_COMPILER_TLS
 	static pthread_key_t s_tpKey;
 #else
-	static CriticalSection *s_criticalSection;
 	static OGDF_DECL_THREAD MemElemPtr s_tp[eTableSize];
 #endif
+#endif
+
 };
 
 

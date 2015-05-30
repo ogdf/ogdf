@@ -4292,7 +4292,7 @@ ClpSimplex::deleteRim(int getRidOfFactorizationData)
                     numberPrimalUnscaled++;
                else if (value > rowUpper_[i] + primalTolerance_)
                     numberPrimalUnscaled++;
-               double valueScaledDual = dual_[i] + rowObjectiveWork_[i];;
+               double valueScaledDual = dual_[i] + rowObjectiveWork_[i];
                if (valueScaled > rowLowerWork_[i] + primalTolerance_ && valueScaledDual > dualTolerance_)
                     numberDualScaled++;
                if (valueScaled < rowUpperWork_[i] - primalTolerance_ && valueScaledDual < -dualTolerance_)
@@ -4381,7 +4381,7 @@ ClpSimplex::deleteRim(int getRidOfFactorizationData)
                     numberPrimalUnscaled++;
                else if (value > rowUpper_[i] + primalTolerance_)
                     numberPrimalUnscaled++;
-               double valueScaledDual = dual_[i] + rowObjectiveWork_[i];;
+               double valueScaledDual = dual_[i] + rowObjectiveWork_[i];
                if (valueScaled > rowLowerWork_[i] + primalTolerance_ && valueScaledDual > dualTolerance_)
                     numberDualScaled++;
                if (valueScaled < rowUpperWork_[i] - primalTolerance_ && valueScaledDual < -dualTolerance_)

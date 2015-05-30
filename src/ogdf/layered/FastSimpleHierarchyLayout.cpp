@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the FastSimpleHierarchyLayout
  * (third phase of sugiyama)
@@ -91,7 +83,6 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 	const Hierarchy &H  = levels.hierarchy();
 	const GraphCopy &GC = H;
 
-	node v;
 	NodeArray<node> align(GC);
 	NodeArray<node> root(GC);
 
@@ -140,7 +131,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 		* - find the layout with the minimal width
 		*/
 		for (int i = 0; i < 4; i++) {
-			forall_nodes(v, GC) {
+			for(node v : GC.nodes) {
 				double bw = 0.5 * blockWidth[i][root[i][v]];
 				double xp = x[i][v] - bw;
 				if (min[i] > xp) {
@@ -178,7 +169,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 		* median average coordinate for each node
 		*/
 		Array<double> sorting(4);
-		forall_nodes(v, GC) {
+		for(node v : GC.nodes) {
 			for (int i = 0; i < 4; i++) {
 				sorting[i] = x[i][v] + shift[i];
 			}
@@ -195,7 +186,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 		verticalAlignment(levels, root, align, type1Conflicts, m_downward, m_leftToRight);
 		computeBlockWidths(GC, AGC, root, blockWidth);
 		horizontalCompactation(align, levels, root, blockWidth, x, m_leftToRight, m_downward);
-		forall_nodes(v, GC) {
+		for(node v : GC.nodes) {
 			AGC.x(v) = x[v];
 		}
 	}
@@ -235,16 +226,14 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &levels, const bool downward, NodeArray<NodeArray<bool> > &type1Conflicts)
 {
 	const GraphCopy& GC = levels.hierarchy();
-	node v;
 
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		type1Conflicts[v].init(GC,false);
 	}
 
 	if (levels.size() >= 4) {
 		int upper, lower; 	// iteration bounds
-		int k0, k1; 		// node position boundaries of closest inner segments
-		int l; 				// node position on current level
+		int k1;				// node position boundaries of closest inner segments
 		HierarchyLevelsBase::TraversingDir relupward; // upward relativ to the direction from downward
 
 		if (downward) {
@@ -267,8 +256,8 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 		 */
 		for (int i = lower; (downward && i <= upper) || (!downward && i >= upper); i = downward ? i + 1 : i - 1)
 		{
-			k0 = 0;
-			l = 0; 			// index of first node on layer
+			int k0 = 0;
+			int l = 0; 			// index of first node on layer
 			const LevelBase &currentLevel = levels[i];
 			const LevelBase &nextLevel = downward ? levels[i+1] : levels[i-1];
 
@@ -276,15 +265,15 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 			for (int l1 = 0; l1 <= nextLevel.high(); l1++) {
 				const node virtualTwin = virtualTwinNode(levels, nextLevel[l1], relupward);
 
-				if (l1 == nextLevel.high() || virtualTwin != 0) {
+				if (l1 == nextLevel.high() || virtualTwin != nullptr) {
 					k1 = currentLevel.high();
 
-					if (virtualTwin != 0) {
+					if (virtualTwin != nullptr) {
 						k1 = levels.pos(virtualTwin);
 					}
 
 					for (; l <= l1; l++) {
-						Array<node> upperNeighbours = levels.adjNodes(nextLevel[l1], relupward);
+						const Array<node> &upperNeighbours = levels.adjNodes(nextLevel[l1], relupward);
 
 						for (int i = 0; i < upperNeighbours.size(); i++) {
 							node currentNeighbour = upperNeighbours[i];
@@ -315,17 +304,12 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 	const bool leftToRight)
 {
 	const GraphCopy& GC = levels.hierarchy();
-	node v, u;
-	int r;
-	int median;
 	HierarchyLevelsBase::TraversingDir relupward;		// upward relativ to the direction from downward
-
-	int medianCount;
 
 	relupward = downward ? HierarchyLevelsBase::downward : HierarchyLevelsBase::upward;
 
 	// initialize root and align
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		root[v] = v;
 		align[v] = v;
 	}
@@ -336,25 +320,25 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 		i = downward ? i + 1 : i - 1)
 	{
 		const LevelBase &currentLevel = levels[i];
-		r = leftToRight ? -1 : numeric_limits<int>::max();
+		int r = leftToRight ? -1 : numeric_limits<int>::max();
 
 		// for all nodes on Level i (with direction leftToRight)
 		for (int j = leftToRight ? 0 : currentLevel.high();
 			 (leftToRight && j <= currentLevel.high()) || (!leftToRight && j >= 0);
 			 leftToRight ? j++ : j--)
 		{
-			v = currentLevel[j];
+			node v = currentLevel[j];
 			// the first median
-			median = (int)floor((levels.adjNodes(v, relupward).size() + 1) / 2.0);
+			int median = (int)floor((levels.adjNodes(v, relupward).size() + 1) / 2.0);
 
-			medianCount = (levels.adjNodes(v, relupward).size() % 2 == 1) ? 1 : 2;
+			int medianCount = (levels.adjNodes(v, relupward).size() % 2 == 1) ? 1 : 2;
 			if (levels.adjNodes(v, relupward).size() == 0) {
 				medianCount = 0;
 			}
 
 			// for all median neighbours in direction of H
 			for (int count = 0; count < medianCount; count++) {
-				u = levels.adjNodes(v, relupward)[median + count - 1];
+				node u = levels.adjNodes(v, relupward)[median + count - 1];
 
 				if (align[v] == v) {
 					// if segment (u,v) not marked by type1 conflicts AND ...
@@ -372,7 +356,7 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 	}
 
 #ifdef DEBUG_OUTPUT
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		cout << "node: " << GC.original(v) << "/" << v << ", root: " << GC.original(root[v]) << "/" << root[v] << ", alignment: " << GC.original(align[v]) << "/" << align[v] << endl;
 	}
 #endif
@@ -386,8 +370,7 @@ void FastSimpleHierarchyLayout::computeBlockWidths(
 	NodeArray<double> &blockWidth)
 {
 	blockWidth.init(GC, 0.0);
-	node v;
-	forall_nodes(v,GC) {
+	for(node v : GC.nodes) {
 		node r = root[v];
 		blockWidth[r] = max(blockWidth[r], GCA.getWidth(v));
 	}
@@ -408,13 +391,12 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 
 	const GraphCopy& GC = levels.hierarchy();
 
-	node v;
 	NodeArray<node> sink(GC);
 	NodeArray<double> shift(GC, numeric_limits<double>::max());
 
 	x.init(GC, -numeric_limits<double>::max());
 
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		sink[v] = v;
 	}
 
@@ -429,7 +411,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 			(leftToRight && j <= currentLevel.high()) || (!leftToRight && j >= 0);
 			leftToRight ? j++ : j--)
 		{
-			v = currentLevel[j];
+			node v = currentLevel[j];
 			if (root[v] == v) {
 				placeBlock(v, sink, shift, x, align, levels, blockWidth, root, leftToRight);
 			}
@@ -443,7 +425,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 	{
 		const LevelBase &currentLevel = levels[i];
 
-		v = currentLevel[leftToRight ? 0 : currentLevel.high()];
+		node v = currentLevel[leftToRight ? 0 : currentLevel.high()];
 
 		if(v == sink[root[v]]) {
 			double oldShift = shift[v];
@@ -460,7 +442,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 #endif
 	// apply root coordinates for all aligned nodes
 	// (place block did this only for the roots)
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 #ifdef DEBUG_OUTPUT
 		if (sink[root[v]] == v) {
 			cout << "Topmost Root von Senke!: " << GC.original(v) << endl;
@@ -472,7 +454,7 @@ void FastSimpleHierarchyLayout::horizontalCompactation(
 	}
 
 	// apply shift for each class
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		x[v] += shift[sink[root[v]]];
 	}
 }
@@ -491,23 +473,20 @@ void FastSimpleHierarchyLayout::placeBlock(
 {
 	const Hierarchy &H = levels.hierarchy();
 
-	node w;
-	node u;
-
 #ifdef DEBUG_OUTPUT
 	const GraphCopy& GC = H;
 #endif
 
 	if (x[v] == -numeric_limits<double>::max()) {
 		x[v] = 0;
-		w = v;
+		node w = v;
 #ifdef DEBUG_OUTPUT
 		cout << "---placeblock: " << GC.original(v) << " ---" << endl;
 #endif
 		do {
 			// if not first node on layer
 			if ((leftToRight && levels.pos(w) > 0) || (!leftToRight && levels.pos(w) < levels[H.rank(w)].high())) {
-				u = root[pred(w, levels, leftToRight)];
+				node u = root[pred(w, levels, leftToRight)];
 				placeBlock(u, sink, shift, x, align, levels, blockWidth, root, leftToRight);
 				if (sink[v] == v) {
 					sink[v] = sink[u];
@@ -555,7 +534,7 @@ node FastSimpleHierarchyLayout::virtualTwinNode(const HierarchyLevelsBase &level
 	const Hierarchy &H = levels.hierarchy();
 
 	if (!H.isLongEdgeDummy(v) || levels.adjNodes(v, dir).size() == 0) {
-		return 0;
+		return nullptr;
 	}
 
 	if (levels.adjNodes(v, dir).size() > 1) {
@@ -579,7 +558,7 @@ node FastSimpleHierarchyLayout::pred(const node v, const HierarchyLevelsBase &le
 		return level[leftToRight ? pos - 1 : pos + 1];
 	}
 	else {
-		return 0;
+		return nullptr;
 	}
 }
 

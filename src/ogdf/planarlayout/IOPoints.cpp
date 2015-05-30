@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation in-/out-points management.
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 
-#include "IOPoints.h"
+#include <ogdf/internal/planarlayout/IOPoints.h>
 
 
 namespace ogdf {
@@ -72,9 +64,8 @@ void IOPoints::restoreDeg1Nodes(PlanRep &PG, Stack<PlanRep::Deg1RestoreInfo> &S)
 
 	PG.restoreDeg1Nodes(S,deg1s);
 
-	ListConstIterator<node> it;
-	for(it = deg1s.begin(); it.valid(); ++it) {
-		adjEntry adj = (*it)->firstAdj();
+	for(node v : deg1s) {
+		adjEntry adj = v->firstAdj();
 		m_mark[adj] = m_mark[adj->twin()] = true;
 	}
 }
@@ -91,7 +82,7 @@ adjEntry IOPoints::switchBeginIn(node v)
 	while ((it = Lin.begin()).valid() && marked(adj = (*it).m_adj))
 		m_pointOf[adj] = &(*Lout.pushFront(Lin.popFrontRet()));
 
-	return it.valid() ? adj : 0;
+	return it.valid() ? adj : nullptr;
 }
 
 
@@ -106,7 +97,7 @@ adjEntry IOPoints::switchEndIn(node v)
 	while ((it = Lin.rbegin()).valid() && marked(adj = (*it).m_adj))
 		m_pointOf[adj] = &(*Lout.pushBack(Lin.popBackRet()));
 
-	return it.valid() ? adj : 0;
+	return it.valid() ? adj : nullptr;
 }
 
 

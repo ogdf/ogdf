@@ -97,7 +97,7 @@ public:
 	 Returns number of infeasibilities 
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   int generateCutsAndModify( const OsiSolverInterface & si, OsiCuts & cs, 
 			     CglTreeInfo * info);
   //@}
@@ -113,7 +113,7 @@ public:
       Returns 1 if infeasible otherwise 0
   */
   int snapshot ( const OsiSolverInterface & si,
-		  char * possible=NULL,
+		  char * possible=nullptr,
                   bool withObjective=true);
   /// Deletes snapshot
   void deleteSnapshot ( );
@@ -200,7 +200,7 @@ public:
      without worrying code.
      Default is true
   */
-  virtual bool mayGenerateRowCutsInTree() const;
+  virtual bool mayGenerateRowCutsInTree() const override;
   //@}
 
   /**@name Get information back from probing */
@@ -250,7 +250,7 @@ public:
     const CglProbing &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglProbing &
@@ -262,9 +262,9 @@ public:
     ~CglProbing ();
 
   /// This can be used to refresh any inforamtion
-  virtual void refreshSolver(OsiSolverInterface * solver);
+  virtual void refreshSolver(OsiSolverInterface * solver) override;
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
       
 private:
@@ -475,7 +475,7 @@ public:
   Insert generated cuts into the cut set cs.
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
   /**@name Constructors and destructors */
@@ -491,7 +491,7 @@ public:
     const CglImplication &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglImplication &
@@ -502,7 +502,7 @@ public:
   virtual
     ~CglImplication ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
   /**@name Set implication */
   //@{

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3642 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-07-06 18:17:45 +0200 (Sat, 06 Jul 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of graph copy classes.
  *
@@ -66,6 +58,8 @@ class FaceSetPure;
 //---------------------------------------------------------
 /**
  * \brief Copies of graphs with mapping between nodes and edges
+ *
+ * @ingroup graphs
  *
  * The class GraphCopySimple represents a copy of a graph and
  * maintains a mapping between the nodes and edges of the original
@@ -156,7 +150,8 @@ public:
 	 *   particular that \a vOrig is not the original node of another node in the copy.
 	 */
 	node newNode(node vOrig) {
-		OGDF_ASSERT(vOrig != 0 && vOrig->graphOf() == m_pGraph);
+		OGDF_ASSERT(vOrig != nullptr);
+		OGDF_ASSERT(vOrig->graphOf() == m_pGraph);
 		node v = Graph::newNode();
 		m_vCopy[m_vOrig[v] = vOrig] = v;
 		return v;
@@ -173,7 +168,8 @@ public:
 	 *   particular that \a eOrig is not the original edge of another edge in the copy.
 	 */
 	edge newEdge(edge eOrig) {
-		OGDF_ASSERT(eOrig != 0 && eOrig->graphOf() == m_pGraph);
+		OGDF_ASSERT(eOrig != nullptr);
+		OGDF_ASSERT(eOrig->graphOf() == m_pGraph);
 		edge e = Graph::newEdge(m_vCopy[eOrig->source()], m_vCopy[eOrig->target()]);
 		m_eCopy[m_eOrig[e] = eOrig] = e;
 		return e;
@@ -191,6 +187,8 @@ private:
 //---------------------------------------------------------
 /**
  * \brief Copies of graphs supporting edge splitting
+ *
+ * @ingroup graphs
  *
  * The class GraphCopy represents a copy of a graph and
  * maintains a mapping between the nodes and edges of the original
@@ -244,7 +242,7 @@ public:
 	GraphCopy(const Graph &G);
 
 	//! Default constructor (does nothing!).
-	GraphCopy() : Graph() { }
+	GraphCopy() : Graph(), m_pGraph(nullptr) { }
 
 	//! Copy constructor.
 	/**
@@ -299,9 +297,9 @@ public:
 	 * \brief Returns the first edge in the list of edges coresponding to edge \a e.
 	 * @param e is an edge in the original graph.
 	 * \return the first edge in the corresponding list of edges in
-	 * the graph copy or NULL if it does not exist.
+	 * the graph copy or nullptr if it does not exist.
 	 */
-	edge copy(edge e) const { return (m_eCopy[e].empty() ? NULL : m_eCopy[e].front()); }
+	edge copy(edge e) const { return (m_eCopy[e].empty() ? nullptr : m_eCopy[e].front()); }
 
 	/**
 	 * \brief Returns true iff \a v has no corresponding node in the original graph.
@@ -340,7 +338,8 @@ public:
 	 *   particular that \a vOrig is not the original node of another node in the copy.
 	 */
 	node newNode(node vOrig) {
-		OGDF_ASSERT(vOrig != 0 && vOrig->graphOf() == m_pGraph);
+		OGDF_ASSERT(vOrig != nullptr);
+		OGDF_ASSERT(vOrig->graphOf() == m_pGraph);
 		node v = Graph::newNode();
 		m_vCopy[m_vOrig[v] = vOrig] = v;
 		return v;
@@ -565,8 +564,7 @@ public:
 	 *   // intialize the array of lists of nodes contained in a CC
 	 *   Array<List<node> > nodesInCC(numCC);
 	 *
-	 *   node v;
-	 *   forall_nodes(v,G)
+	 *   for(node v : G.nodes)
 	 *	   nodesInCC[component[v]].pushBack(v);
 	 *
 	 *   EdgeArray<edge> auxCopy(G);
@@ -591,37 +589,37 @@ public:
 
 	//! Initializes the graph copy for the nodes in a component.
 	/**
-	 * Creates copies of all nodes in \a nodes and their incident edges.
+	 * Creates copies of all nodes in \a origNodes and their incident edges.
 	 * Any nodes and edges allocated before are removed.
 	 *
 	 * The order of entries in the adjacency lists is preserved, i.e., if
 	 * the original graph is embedded, its embedding induces the embedding
 	 * of the created copy.
 	 *
-	 * It is important that \a nodes is the complete list of nodes in
+	 * It is important that \a origNodes is the complete list of nodes in
 	 * a connected component. If you wish to initialize the graph copy for an
 	 * arbitrary set of nodes, use the method initByActiveNodes().
 	 * \see createEmpty() for an example.
-	 * @param nodes is the list of nodes in the original graph for which
+	 * @param origNodes is the list of nodes in the original graph for which
 	 *        copies are created in the graph copy.
 	 * @param eCopy is assigned the copy of each original edge.
 	 */
-	void initByNodes(const List<node> &nodes, EdgeArray<edge> &eCopy);
+	void initByNodes(const List<node> &origNodes, EdgeArray<edge> &eCopy);
 
-	//! Initializes the graph copy for the nodes in \a nodes.
+	//! Initializes the graph copy for the nodes in \a nodeList.
 	/**
-	 * Creates copies of all nodes in \a nodes and edges between two nodes
-	 * which are both contained in \a nodes.
+	 * Creates copies of all nodes in \a nodeList and edges between two nodes
+	 * which are both contained in \a nodeList.
 	 * Any nodes and edges allocated before are destroyed.
 	 *
 	 * \see createEmpty()
-	 * @param nodes is the list of nodes in the original graph for which
+	 * @param nodeList is the list of nodes in the original graph for which
 	 *        copies are created in the graph copy.
-	 * @param activeNodes must be true for every node in \a nodes, false
+	 * @param activeNodes must be true for every node in \a nodeList, false
 	 *        otherwise.
 	 * @param eCopy is assigned the copy of each original edge.
 	 */
-	void initByActiveNodes(const List<node> &nodes,
+	void initByActiveNodes(const List<node> &nodeList,
 		const NodeArray<bool> &activeNodes, EdgeArray<edge> &eCopy);
 
 	//@}

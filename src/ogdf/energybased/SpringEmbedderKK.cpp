@@ -1,11 +1,3 @@
-/*
- * $Revision: 3554 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:05 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of Kamada-Kawai layout algorithm.
  *
@@ -62,7 +54,6 @@ void SpringEmbedderKK::initialize(
 	double & maxDist,
 	bool simpleBFS)
 {
-	node v;
 	const Graph &G = GA.constGraph();
 	m_prevEnergy =  startVal;
 	m_prevLEnergy =  startVal;
@@ -73,7 +64,8 @@ void SpringEmbedderKK::initialize(
 		shufflePositions(GA);
 
 	//the shortest path lengths
-	forall_nodes (v, G) oLength[v].init(G, numeric_limits<double>::max());
+	for(node v : G.nodes)
+		oLength[v].init(G, numeric_limits<double>::max());
 
 	//-------------------------------------
 	//computes shortest path distances d_ij
@@ -110,10 +102,9 @@ void SpringEmbedderKK::initialize(
 	//this part relies on the fact that node sizes are set != zero
 	//TODO check later if this is a good choice
 	double L = m_desLength; //desirable length
-	double Lzero; //Todo check with m_zeroLength
 	if (L < desMinLength)
 	{
-		double swidth = 0.0f, sheight = 0.0f;
+		double swidth = 0.0, sheight = 0.0;
 
 		// Do all nodes lie on the same point? Check by computing BB of centers
 		// Then, perform simple shifting in layout
@@ -123,7 +114,7 @@ void SpringEmbedderKK::initialize(
 		// Two goals:
 		//				add node sizes to estimate desirable length
 		//				compute BB to check degeneracy
-		forall_nodes(v, G)
+		for(node v : G.nodes)
 		{
 			swidth += GA.width(v);
 			sheight += GA.height(v);
@@ -137,7 +128,7 @@ void SpringEmbedderKK::initialize(
 		double sroot = maxDist;//sqrt(G.numberOfNodes());
 		swidth = swidth / sroot;
 		sheight = sheight / sroot;
-		Lzero = max(2.0*sroot, 2.0*(swidth + sheight));
+		double Lzero = max(2.0*sroot, 2.0*(swidth + sheight));
 		//test for multilevel
 		Lzero = max(max(maxX-minX, maxY-minY), 2.0*Lzero);
 		//cout << "Lzero: "<<Lzero<<"\n";
@@ -153,12 +144,11 @@ void SpringEmbedderKK::initialize(
 	// Having L we can compute the original lengths l_ij
 	// Computes spring strengths k_ij
 	//--------------------------------------------------
-	node w;
 	double dij;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		sstrength[v].init(G);
-		forall_nodes(w, G)
+		for(node w : G.nodes)
 		{
 			dij = oLength[v][w];
 			if (dij == numeric_limits<double>::max())
@@ -187,24 +177,22 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 								const double maxDist)
 {
 	const Graph &G = GA.constGraph();
-	node v;
 
 #ifdef OGDF_DEBUG
 	NodeArray<int> nodeCounts(G, 0);
 	int nodeCount = 0; //number of moved nodes
 #endif
 	// Now we compute delta_m, we search for the node with max value
-	double delta_m = 0.0f;
-	double delta_v;
+	double delta_m = 0.0;
 	node best_m = G.firstNode();
 
 	// Compute the partial derivatives first
-	forall_nodes (v, G)
+	for(node v : G.nodes)
 	{
 		dpair parder = computeParDers(v, GA, sstrength, oLength);
 		partialDer[v] = parder;
 		//delta_m is sqrt of squares of partial derivatives
-		delta_v = sqrt(parder.x1()*parder.x1() + parder.x2()*parder.x2());
+		double delta_v = sqrt(parder.x1()*parder.x1() + parder.x2()*parder.x2());
 
 		if (delta_v > delta_m)
 		{
@@ -237,7 +225,7 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 		// The contribution best_m makes to the partial derivatives of
 		// each vertex.
 		NodeArray<dpair> p_partials(G);
-		forall_nodes(v, G)
+		for(node v : G.nodes)
 		{
 			p_partials[v] = computeParDer(v, best_m, GA, sstrength, oLength);
 		}
@@ -249,8 +237,8 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 //			cout <<"   L: "<<localItCount <<"\n";
 #endif
 			// Compute the 4 elements of the Jacobian
-			double dE_dx_dx = 0.0f, dE_dx_dy = 0.0f, dE_dy_dx = 0.0f, dE_dy_dy = 0.0f;
-			forall_nodes(v, G)
+			double dE_dx_dx = 0.0, dE_dx_dy = 0.0, dE_dy_dx = 0.0, dE_dy_dy = 0.0;
+			for(node v : G.nodes)
 			{
 				if (v != best_m) {
 					double x_diff = GA.x(best_m) - GA.x(v);
@@ -298,7 +286,7 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 
 		// Select new best_m by updating each partial derivative and delta
 		node old_p = best_m;
-		forall_nodes(v, G)
+		for(node v : G.nodes)
 		{
 			dpair old_deriv_p = p_partials[v];
 			dpair old_p_partial =
@@ -319,7 +307,7 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 	}//while
 #ifdef OGDF_DEBUG
 //  cout << "NodeCount: "<<nodeCount<<"\n";
-//  forall_nodes(v, G)
+//  for(node v : G.nodes)
 //  {
 //   	cout<<"Counts "<<v->index()<<": "<<nodeCounts[v]<<"\n";
 //  }
@@ -378,17 +366,17 @@ void SpringEmbedderKK::adaptLengths(
 {
 	//we use the edge lengths as factor and try to respect
 	//the node sizes such that each node has enough distance
-	edge e;
 	//adapt to node sizes
-	forall_edges(e, G)
+	for (edge e : G.edges)
 	{
 		double smax = max(GA.width(e->source()), GA.height(e->source()));
 		double tmax = max(GA.width(e->target()), GA.height(e->target()));
-		if (smax+tmax > 0.0)
-			adaptedLengths[e] = (1+eLengths[e])*((smax+tmax));///2.0);
+		if (smax + tmax > 0.0)
+			adaptedLengths[e] = (1 + eLengths[e])*((smax + tmax));///2.0);
 		else adaptedLengths[e] = 5.0*eLengths[e];
 	}
 }//adaptLengths
+
 
 void SpringEmbedderKK::shufflePositions(GraphAttributes& GA)
 {
@@ -427,9 +415,8 @@ SpringEmbedderKK::dpair SpringEmbedderKK::computeParDers(node v,
 	NodeArray< NodeArray<double> >& ss,
 	NodeArray< NodeArray<double> >& dist)
 {
-	node u;
 	dpair result(0.0, 0.0);
-	forall_nodes(u, GA.constGraph())
+	for(node u : GA.constGraph().nodes)
 	{
 		dpair deriv = computeParDer(v, u, GA, ss, dist);
 		result.x1() += deriv.x1();
@@ -453,18 +440,16 @@ SpringEmbedderKK::dpair SpringEmbedderKK::computeParDers(node v,
 double SpringEmbedderKK::allpairssp(const Graph& G, const EdgeArray<double>& eLengths, NodeArray< NodeArray<double> >& distance,
 	const double threshold)
 {
-	node v;
-	edge e;
 	double maxDist = -threshold;
 
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
-		distance[v][v] = 0.0f;
+		distance[v][v] = 0.0;
 	}
 
 	//TODO: Experimentally compare this against
 	// all nodes and incident edges (memory access) on huge graphs
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		distance[e->source()][e->target()] = eLengths[e];
 		distance[e->target()][e->source()] = eLengths[e];
@@ -473,12 +458,11 @@ double SpringEmbedderKK::allpairssp(const Graph& G, const EdgeArray<double>& eLe
 ///**
 // * And run the main loop of the algorithm.
 // */
-	node u, w;
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
-		forall_nodes(u, G)
+		for(node u : G.nodes)
 		{
-			forall_nodes(w, G)
+			for(node w : G.nodes)
 			{
 				if ((distance[u][v] < threshold) && (distance[v][w] < threshold))
 				{
@@ -492,14 +476,14 @@ double SpringEmbedderKK::allpairssp(const Graph& G, const EdgeArray<double>& eLe
 	}
 	//debug output
 //#ifdef OGDF_DEBUG
-//	forall_nodes(v, G)
+//	for(node v : G.nodes)
 //	{
 //		if (distance[v][v] < 0.0) cerr << "\n###Error in shortest path computation###\n\n";
 //	}
 //	cout << "Maxdist: "<<maxDist<<"\n";
-//	forall_nodes(u, G)
+//	for(node u : G.nodes)
 //	{
-//	forall_nodes(w, G)
+//	for(node w : G.nodes)
 //	{
 ////		cout << "Distance " << u->index() << " -> "<<w->index()<<" "<<distance[u][w]<<"\n";
 //	}
@@ -514,18 +498,17 @@ double SpringEmbedderKK::allpairssp(const Graph& G, const EdgeArray<double>& eLe
 //for compatibility, distances are double
 double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<double> >& distance)
 {
-	node v;
 	double maxDist = 0;
 
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
-		distance[v][v] = 0.0f;
+		distance[v][v] = 0.0;
 	}
 
-	v = G.firstNode();
+	node v = G.firstNode();
 
 	//start in each node once
-	while (v != 0)
+	while (v != nullptr)
 	{
 		//do a bfs
 		NodeArray<bool> mark(G, true);
@@ -554,18 +537,18 @@ double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<doub
 		v = v->succ();
 	}//while
 	//check for negative cycles
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
-		if (distance[v][v] < 0.0) cerr << "\n###Error in shortest path computation###\n\n";
+		if (distance[v][v] < 0.0)
+			cerr << "\n###Error in shortest path computation###\n\n";
 	}
 
 //debug output
 //#ifdef OGDF_DEBUG
-//	node u, w;
 //	cout << "Maxdist: "<<maxDist<<"\n";
-//	forall_nodes(u, G)
+//	for(node u : G.nodes)
 //	{
-//	forall_nodes(w, G)
+//	for(node w : G.nodes)
 //	{
 ////		cout << "Distance " << u->index() << " -> "<<w->index()<<" "<<distance[u][w]<<"\n";
 //	}
@@ -577,31 +560,29 @@ double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<doub
 
 void SpringEmbedderKK::scale(GraphAttributes& GA)
 {
-//Simple version: Just scale to max needed
-//We run over all edges, find the largest distance needed and scale
-//the edges uniformly
-	node v;
-	edge e;
+	//Simple version: Just scale to max needed
+	//We run over all edges, find the largest distance needed and scale
+	//the edges uniformly
 	double maxFac = 0.0;
 	bool scale = true;
-	forall_edges(e, GA.constGraph())
+	for (edge e : GA.constGraph().edges)
 	{
-		double w1 = sqrt(GA.width(e->source())*GA.width(e->source())+
-						 GA.height(e->source())*GA.height(e->source()));
-		double w2 = sqrt(GA.width(e->target())*GA.width(e->target())+
-						 GA.height(e->target())*GA.height(e->target()));
-		w2 = (w1+w2)/2.0; //half length of both diagonals
+		double w1 = sqrt(GA.width(e->source())*GA.width(e->source()) +
+			GA.height(e->source())*GA.height(e->source()));
+		double w2 = sqrt(GA.width(e->target())*GA.width(e->target()) +
+			GA.height(e->target())*GA.height(e->target()));
+		w2 = (w1 + w2) / 2.0; //half length of both diagonals
 		double xs = GA.x(e->source());
 		double xt = GA.x(e->target());
 		double ys = GA.y(e->source());
 		double yt = GA.y(e->target());
-		double xdist = xs-xt;
-		double ydist = ys-yt;
-		if ((fabs(xs) > (numeric_limits<double>::max() / 2.0)-1) || (fabs(xt)> (numeric_limits<double>::max()/2.0)-1) ||
-			(fabs(ys)> (numeric_limits<double>::max()/2.0)-1) || (fabs(yt)> (numeric_limits<double>::max()/2.0)-1))
+		double xdist = xs - xt;
+		double ydist = ys - yt;
+		if ((fabs(xs) > (numeric_limits<double>::max() / 2.0) - 1) || (fabs(xt) > (numeric_limits<double>::max() / 2.0) - 1) ||
+			(fabs(ys) > (numeric_limits<double>::max() / 2.0) - 1) || (fabs(yt) > (numeric_limits<double>::max() / 2.0) - 1))
 			scale = false; //never scale with huge numbers
 		//(even though the drawing may be small and could be shifted to origin)
-		double elength = sqrt(xdist*xdist+ydist*ydist);
+		double elength = sqrt(xdist*xdist + ydist*ydist);
 
 		//Avoid a max factor of inf!!
 		if (DIsGreater(elength, 0.0001))
@@ -614,38 +595,38 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 	}
 
 
-	if (maxFac > 1.0 && (maxFac < (numeric_limits<double>::max()/2.0)-1) && scale) //only scale to increase distance
+	if (maxFac > 1.0 && (maxFac < (numeric_limits<double>::max() / 2.0) - 1) && scale) //only scale to increase distance
 	{
 		//if maxFac is large, we scale in steps until we reach a threshold
 		if (maxFac > 2048)
 		{
-			double scaleF = maxFac+0.00001;
+			double scaleF = maxFac + 0.00001;
 			double base = 2.0;
 			maxFac = base;
 
 			while (scale && maxFac<scaleF)
 			{
-			forall_nodes(v, GA.constGraph())
-			{
-				GA.x(v) = GA.x(v)*base;
-				GA.y(v) = GA.y(v)*base;
-				if (GA.x(v) > (numeric_limits<double>::max() / base)-1 || GA.y(v) > (numeric_limits<double>::max() / base) - 1)
-					scale = false;
-			}
-			maxFac *= base;
+				for (node v : GA.constGraph().nodes)
+				{
+					GA.x(v) = GA.x(v)*base;
+					GA.y(v) = GA.y(v)*base;
+					if (GA.x(v) >(numeric_limits<double>::max() / base) - 1 || GA.y(v) > (numeric_limits<double>::max() / base) - 1)
+						scale = false;
+				}
+				maxFac *= base;
 			}
 		}
 		else
 		{
-			forall_nodes(v, GA.constGraph())
+			for (node v : GA.constGraph().nodes)
 			{
 				GA.x(v) = GA.x(v)*maxFac;
 				GA.y(v) = GA.y(v)*maxFac;
 			}
 		}
-//#ifdef OGDF_DEBUG
-//		cout << "Scaled by factor "<<maxFac<<"\n";
-//#endif
+		//#ifdef OGDF_DEBUG
+		//		cout << "Scaled by factor "<<maxFac<<"\n";
+		//#endif
 	}
 }//Scale
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2966 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:26:11 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of the class UmlDiagramGraph
  *
@@ -145,42 +137,36 @@ namespace ogdf {
 		// Nodes
 
 		// Initialize iterators
-		SListConstIterator<NodeElement*> nodeIt = diagramGraph.m_containedNodes.begin();
 		SListConstIterator<double> xIt = diagramGraph.m_x.begin();
 		SListConstIterator<double> yIt = diagramGraph.m_y.begin();
 		SListConstIterator<double> wIt = diagramGraph.m_w.begin();
 		SListConstIterator<double> hIt = diagramGraph.m_h.begin();
 
 		// Traverse lists
-		while (nodeIt.valid()){
-
-			os << "Node " << diagramGraph.m_modelGraph.getNodeLabel(*nodeIt)
+		for(node v : diagramGraph.m_containedNodes)
+		{
+			os << "Node " << diagramGraph.m_modelGraph.getNodeLabel(v)
 				<< " with geometry ("
 				<< *xIt << ", "
 				<< *yIt << ", "
 				<< *wIt << ", "
 				<< *hIt << ")." << endl;
 
-			++nodeIt;
 			++xIt;
 			++yIt;
 			++wIt;
 			++hIt;
-
-		} // while
+		}
 
 		// Edges
 
 		// Traverse lists
-		SListConstIterator<EdgeElement*> edgeIt = diagramGraph.m_containedEdges.begin();
-		for (edgeIt = diagramGraph.m_containedEdges.begin();
-			 edgeIt.valid();
-			 ++edgeIt)
+		for(edge e : diagramGraph.m_containedEdges)
 		{
 			os << "Edge between "
-				<< diagramGraph.m_modelGraph.getNodeLabel((*edgeIt)->source())
+				<< diagramGraph.m_modelGraph.getNodeLabel(e->source())
 				<< " and "
-				<< diagramGraph.m_modelGraph.getNodeLabel((*edgeIt)->target())
+				<< diagramGraph.m_modelGraph.getNodeLabel(e->target())
 				<< endl;
 		}
 

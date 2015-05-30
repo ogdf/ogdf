@@ -1183,7 +1183,7 @@ int copy_node(bc_node * n_to, bc_node *n_from)
 
    if (!n_to || !n_from){
       printf("copy_node(): Empty node_structure(s)!\n");
-      return(FUNCTION_TERMINATED_ABNORMALLY);;
+      return(FUNCTION_TERMINATED_ABNORMALLY);
    }
 
    n_to->bc_index = n_from->bc_index;

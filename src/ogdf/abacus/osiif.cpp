@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Frank Baumann
  *
@@ -47,21 +39,21 @@ namespace abacus {
 OsiIF::OsiIF(Master *master)
 	:
 	LP(master),
-	osiLP_(NULL),
+	osiLP_(nullptr),
 	value_(0.),
-	xVal_(NULL),
-	barXVal_(NULL),
-	reco_(NULL),
-	yVal_(NULL),
-	cStat_(NULL),
-	rStat_(NULL),
-	rhs_(NULL),
-	rowactivity_(NULL),
-	rowsense_(NULL),
-	colupper_(NULL),
-	collower_(NULL),
-	objcoeff_(NULL),
-	ws_(NULL)
+	xVal_(nullptr),
+	barXVal_(nullptr),
+	reco_(nullptr),
+	yVal_(nullptr),
+	cStat_(nullptr),
+	rStat_(nullptr),
+	rhs_(nullptr),
+	rowactivity_(nullptr),
+	rowsense_(nullptr),
+	colupper_(nullptr),
+	collower_(nullptr),
+	objcoeff_(nullptr),
+	ws_(nullptr)
 {
 	lpMasterOsi_ = master->lpMasterOsi();
 }
@@ -80,21 +72,21 @@ OsiIF::OsiIF(
 	Array<Row*> &rows)
 	:
 LP(master),
-	osiLP_(NULL),
+	osiLP_(nullptr),
 	value_(0.),
-	xVal_(NULL),
-	barXVal_(NULL),
-	reco_(NULL),
-	yVal_(NULL),
-	cStat_(NULL),
-	rStat_(NULL),
-	rhs_(NULL),
-	rowactivity_(NULL),
-	rowsense_(NULL),
-	colupper_(NULL),
-	collower_(NULL),
-	objcoeff_(NULL),
-	ws_(NULL)
+	xVal_(nullptr),
+	barXVal_(nullptr),
+	reco_(nullptr),
+	yVal_(nullptr),
+	cStat_(nullptr),
+	rStat_(nullptr),
+	rhs_(nullptr),
+	rowactivity_(nullptr),
+	rowsense_(nullptr),
+	colupper_(nullptr),
+	collower_(nullptr),
+	objcoeff_(nullptr),
+	ws_(nullptr)
 {
 	lpMasterOsi_ = master->lpMasterOsi();
 
@@ -191,10 +183,10 @@ void OsiIF::_initialize(
 	colupper_ = osiLP_->getColUpper();
 	collower_ = osiLP_->getColLower();
 	objcoeff_ = osiLP_->getObjCoefficients();
-	if( ws_ != NULL )
+	if( ws_ != nullptr )
 		delete ws_;
 	//ws_ = dynamic_cast<CoinWarmStartBasis *>(osiLP_->getWarmStart());
-	ws_=0;
+	ws_=nullptr;
 
 	xValStatus_ = recoStatus_ = yValStatus_ = slackStatus_ = basisStatus_ = Missing;
 	lpSolverTime_.stop();
@@ -214,7 +206,7 @@ void OsiIF::_loadBasis(
 	int lps = lpVarStat.size();
 	int sls = slackStat.size();
 
-	CoinWarmStartBasis *ws = NULL;
+	CoinWarmStartBasis *ws = nullptr;
 	ws = new CoinWarmStartBasis();
 	ws->setSize(numCols_, numRows_);
 
@@ -239,9 +231,9 @@ void OsiIF::_loadBasis(
 	// better test whether the number of basic structurals is correct?
 	if (ws->numberBasicStructurals() > 0) {
 		status = osiLP_->setWarmStart(dynamic_cast<CoinWarmStart *> (ws));
-		if (ws_ != NULL) delete ws_;
+		if (ws_ != nullptr) delete ws_;
 		ws_ = dynamic_cast<CoinWarmStartBasis*> (osiLP_->getWarmStart());
-		if (ws_ != NULL) {
+		if (ws_ != nullptr) {
 			delete[] cStat_;
 			int nStructBytes = (int) ceil( ws_->getNumStructural() / 4.0);
 			cStat_ = new char[nStructBytes];
@@ -352,19 +344,15 @@ void OsiIF::_remCols(ArrayBuffer<int> &vars)
 
 void OsiIF::_addCols(ArrayBuffer<Column*> &newCols)
 {
-	int num;
-	double ub, lb, obj;
-	int  *supports; //!< supports of added rows
-	double  *coeffs; //!< coefficients of added rows
 	CoinPackedVector *newcol = new CoinPackedVector;
 
 	for (int i = 0; i < newCols.size(); i++) {
-		num = newCols[i]->nnz();
-		ub =  newCols[i]->uBound();
-		lb =  newCols[i]->lBound();
-		obj =  newCols[i]->obj();
-		supports = new int[num];
-		coeffs = new double[num];
+		int num = newCols[i]->nnz();
+		double ub =  newCols[i]->uBound();
+		double lb =  newCols[i]->lBound();
+		double obj =  newCols[i]->obj();
+		int *supports = new int[num]; //!< supports of added rows
+		double  *coeffs = new double[num]; //!< coefficients of added rows
 
 		for (int j = 0; j < num; j++) {
 			supports[j] = newCols[i]->support(j);
@@ -688,7 +676,7 @@ void OsiIF::getSol()
 		recoStatus_ = Available;
 		// get information about the basis
 		if (currentSolverType() != Approx) {
-			if (ws_ != NULL) delete ws_;
+			if (ws_ != nullptr) delete ws_;
 			ws_ = dynamic_cast<CoinWarmStartBasis*> (osiLP_->getWarmStart());
 			delete[] cStat_;
 			int nStructBytes = (int) ceil( ws_->getNumStructural() / 4.0);
@@ -709,7 +697,7 @@ void OsiIF::getSol()
 		} else {
 			// when the solver is not exact all variables are assumed to be non-basic
 			// this makes all variables candidates for fixing, that are at one of their bounds
-			if (ws_ != NULL) delete ws_;
+			if (ws_ != nullptr) delete ws_;
 			ws_ = new CoinWarmStartBasis();
 			ws_->setSize(numCols_, numRows_);
 			for (int i = 0; i < numCols_; i++) {
@@ -863,7 +851,7 @@ CoinWarmStartBasis::Status OsiIF::lpVarStat2osi(LPVARSTAT::STATUS stat) const
 
 OsiSolverInterface* OsiIF::getDefaultInterface()
 {
-	OsiSolverInterface *interface=NULL;
+	OsiSolverInterface *interface=nullptr;
 	switch(master_->defaultLpSolver()) {
 #ifdef OSI_CBC
 	case Master::Cbc:
@@ -935,7 +923,7 @@ OsiSolverInterface* OsiIF::getDefaultInterface()
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
 	}
 
-	if(interface != NULL){
+	if(interface != nullptr){
 		interface->setHintParam(OsiDoDualInInitial, false, OsiHintDo);
 		interface->setHintParam(OsiDoDualInResolve, true, OsiHintDo);
 	}
@@ -946,7 +934,7 @@ OsiSolverInterface* OsiIF::getDefaultInterface()
 
 OsiSolverInterface* OsiIF::switchInterfaces(SOLVERTYPE newMethod)
 {
-	OsiSolverInterface *s2 = NULL;
+	OsiSolverInterface *s2 = nullptr;
 	if( newMethod == Exact )
 	{
 		s2 = getDefaultInterface();
@@ -986,7 +974,7 @@ OsiSolverInterface* OsiIF::switchInterfaces(SOLVERTYPE newMethod)
 	colupper_ = s2->getColUpper();
 	collower_ = s2->getColLower();
 	objcoeff_ = s2->getObjCoefficients();
-	if( ws_ != NULL )
+	if( ws_ != nullptr )
 		delete ws_;
 	ws_ = dynamic_cast<CoinWarmStartBasis* >(s2->getWarmStart());
 

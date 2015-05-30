@@ -20,15 +20,12 @@
 extern int ets_count;
 extern int ets_check;
 #endif
-#define COIN_REGISTER register
-#define COIN_REGISTER2
-#define COIN_REGISTER3 register
 #ifdef COIN_USE_RESTRICT
 # define COIN_RESTRICT2 __restrict
 #else
 # define COIN_RESTRICT2
 #endif
-static int c_ekkshfpo_scan2zero(COIN_REGISTER const EKKfactinfo * COIN_RESTRICT2 fact,const int * COIN_RESTRICT mpermu,
+static int c_ekkshfpo_scan2zero(const EKKfactinfo * COIN_RESTRICT2 fact,const int * COIN_RESTRICT mpermu,
 		       double *COIN_RESTRICT worki, double *COIN_RESTRICT worko, int * COIN_RESTRICT mptr)
 {
 
@@ -282,7 +279,7 @@ static void c_ekkshfpi_list3(const int *COIN_RESTRICT mpermu,
     worki+=2;
   }
 }
-static int c_ekkscmv(COIN_REGISTER const EKKfactinfo * COIN_RESTRICT2 fact,int n, double *COIN_RESTRICT dwork, int *COIN_RESTRICT mptr,
+static int c_ekkscmv(const EKKfactinfo * COIN_RESTRICT2 fact,int n, double *COIN_RESTRICT dwork, int *COIN_RESTRICT mptr,
 		   double *COIN_RESTRICT dwork2)
 {
   double tolerance = fact->zeroTolerance;
@@ -560,7 +557,7 @@ static void c_ekkbtj4p_after_dense(const double * COIN_RESTRICT dluval,
   }
 }
 
-static void c_ekkbtj4p(COIN_REGISTER const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkbtj4p(const EKKfactinfo * COIN_RESTRICT2 fact,
 	      double * COIN_RESTRICT dwork1)
 {
   int lstart=fact->lstart;
@@ -580,7 +577,7 @@ static void c_ekkbtj4p(COIN_REGISTER const EKKfactinfo * COIN_RESTRICT2 fact,
   }
 } /* c_ekkbtj4p */
 
-static int c_ekkbtj4_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkbtj4_sparse(const EKKfactinfo * COIN_RESTRICT2 fact,
 			  double * COIN_RESTRICT dwork1,
 			  int * COIN_RESTRICT mpt,	/* C style */
 			  double * COIN_RESTRICT dworko,
@@ -718,7 +715,7 @@ static int c_ekkbtj4_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fa
   return (nput);
 } /* c_ekkbtj4 */
 
-static void c_ekkbtjl(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkbtjl(const EKKfactinfo * COIN_RESTRICT2 fact,
 		    double * COIN_RESTRICT dwork1)
 {
   int i, j, k, k1;
@@ -812,7 +809,7 @@ static void c_ekkbtjl(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
 #endif
 } /* c_ekkbtjl */
 
-static int c_ekkbtjl_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkbtjl_sparse(const EKKfactinfo * COIN_RESTRICT2 fact,
 		   double * COIN_RESTRICT dwork1,
 		   int * COIN_RESTRICT mpt , int nincol)
 {
@@ -1034,7 +1031,7 @@ static int c_ekkbtju_aux(const double * COIN_RESTRICT dluval,
  * cases where all unknowns in an equation have value zero.
  * This seems to happen frequently if the sparsity of the rhs is, say, 10%.
  */
-static void c_ekkbtju(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkbtju(const EKKfactinfo * COIN_RESTRICT2 fact,
 	     double * COIN_RESTRICT dwork1,
 	     int ipiv)
 {
@@ -1103,7 +1100,7 @@ static void c_ekkbtju(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
  *
  * currently, erase_nonzero is true iff this is called from c_ekketsj.
  */
-static int c_ekkbtju_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkbtju_sparse(const EKKfactinfo * COIN_RESTRICT2 fact,
 		   double * COIN_RESTRICT dwork1,
 		   int * COIN_RESTRICT mpt, int nincol,
 		   int * COIN_RESTRICT spare)
@@ -1209,7 +1206,7 @@ static int c_ekkbtju_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fa
  *
  * dpermu contains permuted input; dwork1 is now zero
  */
-int c_ekkbtrn(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
+int c_ekkbtrn(const EKKfactinfo * COIN_RESTRICT2 fact,
 	    double * COIN_RESTRICT dwork1,
 	    int * COIN_RESTRICT mpt, int first_nonzero)
 {
@@ -1304,7 +1301,7 @@ int c_ekkbtrn(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
   return (nincol);
 } /* c_ekkbtrn */
 
-static int c_ekkbtrn0_new(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkbtrn0_new(const EKKfactinfo * COIN_RESTRICT2 fact,
 			double * COIN_RESTRICT dwork1,
 			int * COIN_RESTRICT mpt, int nincol,
 			   int * COIN_RESTRICT spare)
@@ -1446,7 +1443,7 @@ static int c_ekkbtrn0_new(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact
  * but since mpt[1..nincol] contains the indices of non-zeros in dwork1,
  * we can do faster.
  */
-static int c_ekkbtrn_mpt(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkbtrn_mpt(const EKKfactinfo * COIN_RESTRICT2 fact,
 		double * COIN_RESTRICT dwork1,
 		int * COIN_RESTRICT mpt, int nincol,int * COIN_RESTRICT spare)
 {
@@ -1525,7 +1522,7 @@ static int c_ekkbtrn_mpt(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
  * but since (dwork1[i]!=0) == (i==ipivrw),
  * we can do faster.
  */
-int c_ekkbtrn_ipivrw(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
+int c_ekkbtrn_ipivrw(const EKKfactinfo * COIN_RESTRICT2 fact,
 		   double * COIN_RESTRICT dwork1,
 		   int * COIN_RESTRICT mpt, int ipivrw,int * COIN_RESTRICT spare)
 {
@@ -1644,7 +1641,7 @@ int c_ekkbtrn_ipivrw(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
 
  * While we do this product, we also zero out the p'th row.
  */
-static void c_ekketju_aux(COIN_REGISTER2 EKKfactinfo * COIN_RESTRICT2 fact,int sparse,
+static void c_ekketju_aux(EKKfactinfo * COIN_RESTRICT2 fact,int sparse,
 			double * COIN_RESTRICT dluval, int * COIN_RESTRICT hrowi,
 			const int * COIN_RESTRICT mcstrt, const int * COIN_RESTRICT hpivco,
 			double * COIN_RESTRICT dwork1,
@@ -1725,7 +1722,7 @@ static void c_ekketju_aux(COIN_REGISTER2 EKKfactinfo * COIN_RESTRICT2 fact,int s
 }
 
 /* dwork1 is assumed to be zeroed on entry */
-static void c_ekketju(COIN_REGISTER EKKfactinfo * COIN_RESTRICT2 fact,double *dluval, int *hrowi,
+static void c_ekketju(EKKfactinfo * COIN_RESTRICT2 fact,double *dluval, int *hrowi,
 		    const int * COIN_RESTRICT mcstrt, const int * COIN_RESTRICT hpivco,
 		    double * COIN_RESTRICT dwork1,
 		    int kpivrw, int first_dense , int last_dense)
@@ -1768,7 +1765,7 @@ static void c_ekketju(COIN_REGISTER EKKfactinfo * COIN_RESTRICT2 fact,double *dl
 
 /*#define PRINT_DEBUG*/
 /* dwork1 is assumed to be zeroed on entry */
-int c_ekketsj(COIN_REGISTER2 /*const*/ EKKfactinfo * COIN_RESTRICT2 fact,
+int c_ekketsj(/*const*/ EKKfactinfo * COIN_RESTRICT2 fact,
 	    double * COIN_RESTRICT dwork1,
 	    int * COIN_RESTRICT mpt2, double dalpha, int orig_nincol,
 	    int npivot, int *nuspikp,
@@ -2131,7 +2128,7 @@ int c_ekketsj(COIN_REGISTER2 /*const*/ EKKfactinfo * COIN_RESTRICT2 fact,
 		} else {
 		  spare=0;
 		}
-		jput+=nrow*spare;;
+		jput+=nrow*spare;
 		jrow=eta_last[nrow+1];
 		for (j=0;j<nrow;j++) {
 		  int k,nin=hinrow[jrow];
@@ -2661,7 +2658,7 @@ int c_ekketsj(COIN_REGISTER2 /*const*/ EKKfactinfo * COIN_RESTRICT2 fact,
 #endif
   return (irtcod);
 } /* c_ekketsj */
-static void c_ekkftj4p(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkftj4p(const EKKfactinfo * COIN_RESTRICT2 fact,
 		     double * COIN_RESTRICT dwork1, int firstNonZero)
 {
   /* this is where the L factors start, because this is the place
@@ -2729,7 +2726,7 @@ static void c_ekkftj4p(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
  *	are non-zero in the slack column, so last will not be incremented.
  *	We multiply the eta-vector, and the last loop does nothing.
  */
-static int c_ekkftj4_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftj4_sparse(const EKKfactinfo * COIN_RESTRICT2 fact,
 		   double * COIN_RESTRICT dwork1, int * COIN_RESTRICT mpt,
 		   int nincol,int * COIN_RESTRICT spare)
 {
@@ -2838,7 +2835,7 @@ static int c_ekkftj4_sparse(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fa
  * since an hpivco entry may correspond to a zero element,
  * and that some non-zeros in dwork1 may be cancelled.
  */
-static int c_ekkftjl_sparse3(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftjl_sparse3(const EKKfactinfo * COIN_RESTRICT2 fact,
 		    double * COIN_RESTRICT dwork1,
 		    int * COIN_RESTRICT mpt,
 		    int * COIN_RESTRICT hput, double * COIN_RESTRICT dluput ,
@@ -2909,7 +2906,7 @@ static int c_ekkftjl_sparse3(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 f
   return knext;
 } /* c_ekkftjl */
 
-static int c_ekkftjl_sparse2(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftjl_sparse2(const EKKfactinfo * COIN_RESTRICT2 fact,
 		    double * COIN_RESTRICT dwork1,
 		    int * COIN_RESTRICT mpt,
 		    int nincol)
@@ -2974,7 +2971,7 @@ static int c_ekkftjl_sparse2(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 f
   return knext;
 } /* c_ekkftjl */
 
-static void c_ekkftjl(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkftjl(const EKKfactinfo * COIN_RESTRICT2 fact,
 	     double * COIN_RESTRICT dwork1)
 {
   double tolerance = fact->zeroTolerance;
@@ -3054,7 +3051,7 @@ static void c_ekkftjl(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
  * C++ templates to do that for us automatically.
  */
 static void
-c_ekkftjup_scan_aux(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+c_ekkftjup_scan_aux(const EKKfactinfo * COIN_RESTRICT2 fact,
 		  double * COIN_RESTRICT dwork1, double * COIN_RESTRICT dworko ,
 		  int loop_limit, int *ip, int ** mptp)
 {
@@ -3159,7 +3156,7 @@ c_ekkftjup_scan_aux(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
   *mptp = mptX;
   *ip = ipiv;
 }
-static void c_ekkftjup_aux3(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkftjup_aux3(const EKKfactinfo * COIN_RESTRICT2 fact,
 			     double * COIN_RESTRICT dwork1, double * COIN_RESTRICT dworko,
 			  const int * COIN_RESTRICT back,
 			  const int * COIN_RESTRICT hpivro,
@@ -3359,7 +3356,7 @@ static void c_ekkftju_dense(const double *dluval,
  *
  * generally, back[i] == i-1 (initialized in c_ekkshfv towards the end).
  */
-static int c_ekkftjup(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftjup(const EKKfactinfo * COIN_RESTRICT2 fact,
 	     double * COIN_RESTRICT dwork1, int last,
 	     double * COIN_RESTRICT dworko , int * COIN_RESTRICT mpt)
 {
@@ -3454,7 +3451,7 @@ static int c_ekkftjup(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
  * C++ templates to do that for us automatically.
  */
 static void
-c_ekkftjup_scan_aux_pack(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+c_ekkftjup_scan_aux_pack(const EKKfactinfo * COIN_RESTRICT2 fact,
 		       double * COIN_RESTRICT dwork1, double * COIN_RESTRICT dworko ,
 		       int loop_limit, int *ip, int ** mptp)
 {
@@ -3583,7 +3580,7 @@ c_ekkftjup_scan_aux_pack(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
   *mptp = mptX;
   *ip = ipiv;
 }
-static void c_ekkftjup_aux3_pack(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static void c_ekkftjup_aux3_pack(const EKKfactinfo * COIN_RESTRICT2 fact,
 				  double * COIN_RESTRICT dwork1, double * COIN_RESTRICT dworko,
 			       const int * COIN_RESTRICT back,
 			       const int * COIN_RESTRICT hpivro,
@@ -3627,7 +3624,7 @@ static void c_ekkftjup_aux3_pack(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRIC
  *
  * generally, back[i] == i-1 (initialized in c_ekkshfv towards the end).
  */
-static int c_ekkftjup_pack(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftjup_pack(const EKKfactinfo * COIN_RESTRICT2 fact,
 		  double * COIN_RESTRICT dwork1, int last,
 		  double * COIN_RESTRICT dworko , int * COIN_RESTRICT mpt)
 {
@@ -3714,7 +3711,7 @@ static int c_ekkftjup_pack(COIN_REGISTER3 const EKKfactinfo * COIN_RESTRICT2 fac
 
   return static_cast<int>(mptX-mptY);
 }
-static int c_ekkftju_sparse_a(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftju_sparse_a(const EKKfactinfo * COIN_RESTRICT2 fact,
 			    int * COIN_RESTRICT mpt,
 			    int nincol,int * COIN_RESTRICT spare)
 {
@@ -3764,7 +3761,7 @@ static int c_ekkftju_sparse_a(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 
   }
   return (nList);
 }
-static int c_ekkftju_sparse_b(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 fact,
+static int c_ekkftju_sparse_b(const EKKfactinfo * COIN_RESTRICT2 fact,
 			    double * COIN_RESTRICT dwork1,
 			    double * COIN_RESTRICT dworko , int * COIN_RESTRICT mpt,
 			    int nList,int * COIN_RESTRICT spare)
@@ -3815,7 +3812,7 @@ static int c_ekkftju_sparse_b(COIN_REGISTER2 const EKKfactinfo * COIN_RESTRICT2 
  * I think dpermu[1..nrow+1] is zeroed on exit (?)
  * I don't think it is expected to have any particular value on entry (?)
  */
-int c_ekkftrn(COIN_REGISTER const EKKfactinfo * COIN_RESTRICT2 fact,
+int c_ekkftrn(const EKKfactinfo * COIN_RESTRICT2 fact,
 	    double * COIN_RESTRICT dwork1,
 	    double * COIN_RESTRICT dpermu, int * COIN_RESTRICT mpt,int numberNonZero)
 {
@@ -3843,7 +3840,7 @@ int c_ekkftrn(COIN_REGISTER const EKKfactinfo * COIN_RESTRICT2 fact,
 
 } /* c_ekkftrn */
 
-int c_ekkftrn_ft(COIN_REGISTER EKKfactinfo * COIN_RESTRICT2 fact,
+int c_ekkftrn_ft(EKKfactinfo * COIN_RESTRICT2 fact,
 	       double * COIN_RESTRICT dwork1_ft, int * COIN_RESTRICT mpt_ft, int *nincolp_ft)
 {
   double * COIN_RESTRICT dpermu_ft = fact->kadrpm;
@@ -4020,7 +4017,7 @@ int c_ekkftrn_ft(COIN_REGISTER EKKfactinfo * COIN_RESTRICT2 fact,
   *nincolp_ft = nincol;
   return (nuspik);
 } /* c_ekkftrn */
-void c_ekkftrn2(COIN_REGISTER EKKfactinfo * COIN_RESTRICT2 fact, double * COIN_RESTRICT dwork1,
+void c_ekkftrn2(EKKfactinfo * COIN_RESTRICT2 fact, double * COIN_RESTRICT dwork1,
 	     double * COIN_RESTRICT dpermu1,int * COIN_RESTRICT mpt1, int *nincolp,
 	     double * COIN_RESTRICT dwork1_ft, int * COIN_RESTRICT mpt_ft, int *nincolp_ft)
 {

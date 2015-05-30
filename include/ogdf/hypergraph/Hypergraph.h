@@ -1,11 +1,3 @@
-/*
- * $Revision: 3505 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:47 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and a partial implementation of a Hypergraph class
  *        partly based on the original classes for handling hypergraphs
@@ -88,11 +80,11 @@ typedef AdjHypergraphElement *adjHypergraphEntry;
  * Adjacency list elements represent the occurrence of hypernodes of a
  * hyperedge or hyperedges of a hypernode adjacency lists.
  */
-class OGDF_EXPORT AdjHypergraphElement : private GraphElement
+class OGDF_EXPORT AdjHypergraphElement : private internal::GraphElement
 {
 	friend class Hypergraph;
 	friend class GraphListBase;
-	friend class GraphList<AdjHypergraphElement>;
+	friend class internal::GraphList<AdjHypergraphElement>;
 
 private:
 
@@ -149,13 +141,13 @@ public:
 	//! Returns the successor in the adjacency list.
 	adjHypergraphEntry succ() const
 	{
-		return (adjHypergraphEntry) m_next;
+		return static_cast<adjHypergraphEntry>(m_next);
 	}
 
 	//! Returns the predecessor in the adjacency list.
 	adjHypergraphEntry pred() const
 	{
-		return (adjHypergraphEntry) m_prev;
+		return static_cast<adjHypergraphEntry>(m_prev);
 	}
 
 	//! Returns the cyclic successor in the adjacency list.
@@ -169,11 +161,11 @@ public:
 }; // class AdjHypegraphElement
 
 //! Class for the representation of hyperedges.
-class OGDF_EXPORT HyperedgeElement : private GraphElement
+class OGDF_EXPORT HyperedgeElement : private internal::GraphElement
 {
 	friend class Hypergraph;
 	friend class GraphListBase;
-	friend class GraphList<HyperedgeElement>;
+	friend class internal::GraphList<HyperedgeElement>;
 
 public:
 
@@ -185,7 +177,7 @@ public:
 private:
 
 	//!< The adjacency list of the hyperedge.
-	GraphList<AdjHypergraphElement> m_adjHypernodes;
+	internal::GraphList<AdjHypergraphElement> m_adjHypernodes;
 
 	//! The (unique) index of the hyperedge.
 	int m_index;
@@ -243,17 +235,17 @@ public:
 	//! Returns the first entry in the adjaceny list.
 	adjHypergraphEntry firstAdj() const
 	{
-		return m_adjHypernodes.begin();
+		return m_adjHypernodes.head();
 	}
 
 	//! Returns the last entry in the adjacency list.
 	adjHypergraphEntry lastAdj () const
 	{
-		return m_adjHypernodes.rbegin();
+		return m_adjHypernodes.tail();
 	}
 
 	//! Returns the incident hypernodes of the hyperedge.
-	GraphList<AdjHypergraphElement> incidentHypernodes() const
+	internal::GraphList<AdjHypergraphElement> incidentHypernodes() const
 	{
 		return m_adjHypernodes;
 	}
@@ -263,28 +255,30 @@ public:
 	{
 		hypernodes.clear();
 		for (adjHypergraphEntry adj = firstAdj(); adj; adj = adj->succ())
-			hypernodes.pushBack((hypernode) adj->element());
+			hypernodes.pushBack(reinterpret_cast<hypernode>(adj->element()));
 	}
 
 	//! Returns true iff \a v is incident to the hyperedge.
 	bool incident(hypernode v) const
 	{
-		for (adjHypergraphEntry adj = firstAdj(); adj; adj = adj->succ())
-			if (((hypernode) adj->element()) == v)
+		for (adjHypergraphEntry adj = firstAdj(); adj; adj = adj->succ()) {
+			if (reinterpret_cast<hypernode>(adj->element()) == v) {
 				return true;
+			}
+		}
 		return false;
 	}
 
 	//! Returns the successor in the list of all hyperedges.
 	hyperedge succ() const
 	{
-		return (hyperedge) m_next;
+		return static_cast<hyperedge>(m_next);
 	}
 
 	//! Returns the predecessor in the list of all hyperedges.
 	hyperedge pred() const
 	{
-		return (hyperedge) m_prev;
+		return static_cast<hyperedge>(m_prev);
 	}
 
 	//! Equality operator.
@@ -300,11 +294,11 @@ public:
 }; // class EdgeElement
 
 //! Class for the representation of hypernodes.
-class OGDF_EXPORT HypernodeElement : private GraphElement
+class OGDF_EXPORT HypernodeElement : private internal::GraphElement
 {
 	friend class Hypergraph;
 	friend class GraphListBase;
-	friend class GraphList<HypernodeElement>;
+	friend class internal::GraphList<HypernodeElement>;
 
 public:
 
@@ -327,7 +321,7 @@ public:
 private:
 
 	//!< The adjacency list of the hypernode.
-	GraphList<AdjHypergraphElement> m_adjHyperedges;
+	internal::GraphList<AdjHypergraphElement> m_adjHyperedges;
 
 	//!< The (unique) index of the hypernode.
 	int m_index;
@@ -388,13 +382,13 @@ public:
 	//! Returns the first entry in the adjaceny list.
 	adjHypergraphEntry firstAdj() const
 	{
-		return m_adjHyperedges.begin();
+		return m_adjHyperedges.head();
 	}
 
 	//! Returns the last entry in the adjacency list.
 	adjHypergraphEntry lastAdj() const
 	{
-		return m_adjHyperedges.rbegin();
+		return m_adjHyperedges.tail();
 	}
 
 	//! Returns a list with all incident hyperedges of the hypernode.
@@ -402,28 +396,30 @@ public:
 	{
 		hyperedges.clear();
 		for (adjHypergraphEntry adj = firstAdj(); adj; adj = adj->succ())
-			hyperedges.pushBack((hyperedge) adj->element());
+			hyperedges.pushBack(reinterpret_cast<hyperedge>(adj->element()));
 	}
 
 	//! Returns true iff \a v is adjacent to the hypernode.
 	bool adjacent(hypernode v) const
 	{
-		for (adjHypergraphEntry adj = firstAdj(); adj; adj = adj->succ())
-			if (((hyperedge) adj->element())->incident(v))
+		for (adjHypergraphEntry adj = firstAdj(); adj; adj = adj->succ()) {
+			if (reinterpret_cast<hyperedge>(adj->element())->incident(v)) {
 				return true;
+			}
+		}
 		return false;
 	}
 
 	//! Returns the successor in the list of all hypernodes.
 	hypernode succ() const
 	{
-		return (hypernode) m_next;
+		return static_cast<hypernode>(m_next);
 	}
 
 	//! Returns the predecessor in the list of all hypernodes.
 	hypernode pred() const
 	{
-		return (hypernode) m_prev;
+		return static_cast<hypernode>(m_prev);
 	}
 
 	//! Equality operator.
@@ -444,10 +440,10 @@ class OGDF_EXPORT HypergraphObserver;
 class OGDF_EXPORT Hypergraph
 {
 	//!< The list of all hypernodes.
-	GraphList<HypernodeElement> m_hypernodes;
+	internal::GraphList<HypernodeElement> m_hypernodes;
 
 	//!< The list of all hyperedges.
-	GraphList<HyperedgeElement> m_hyperedges;
+	internal::GraphList<HyperedgeElement> m_hyperedges;
 
 	//!< The number of hypernodes in the hypergraph.
 	int m_nHypernodes;
@@ -490,13 +486,13 @@ public:
 	}
 
 	//! Returns the list of all hypernodes.
-	GraphList<HypernodeElement> hypernodes() const
+	internal::GraphList<HypernodeElement> hypernodes() const
 	{
 		return m_hypernodes;
 	}
 
 	//! Returns the list of all hyperedges.
-	GraphList<HyperedgeElement> hyperedges() const
+	internal::GraphList<HyperedgeElement> hyperedges() const
 	{
 		return m_hyperedges;
 	}
@@ -528,25 +524,25 @@ public:
 	//! Returns the first hypernode in the list of all hypernodes.
 	hypernode firstHypernode() const
 	{
-		return m_hypernodes.begin ();
+		return m_hypernodes.head();
 	}
 
 	//! Returns the last hypernode in the list of all hypernodes.
 	hypernode lastHypernode () const
 	{
-		return m_hypernodes.rbegin();
+		return m_hypernodes.tail();
 	}
 
 	//! Returns the first hyperedge in the list of all hyperedges.
 	hyperedge firstHyperedge() const
 	{
-		return m_hyperedges.begin ();
+		return m_hyperedges.head();
 	}
 
 	//! Returns the last hyperedge in the list of all hyperedges.
 	hyperedge lastHyperEdge () const
 	{
-		return m_hyperedges.rbegin();
+		return m_hyperedges.tail();
 	}
 
 	//! Returns the table size of hypernode arrays with the hypergraph.
@@ -610,19 +606,19 @@ public:
 	hyperedge randomHyperedge() const;
 
 	//! Returns a list with all hypernodes of the hypergraph.
-	template<class LIST> void allHypernodes(LIST &hypernodes) const
+	template<class LIST> void allHypernodes(LIST &hypernodeList) const
 	{
-		hypernodes.clear();
-		for (hypernode v = m_hypernodes.begin(); v; v = v->succ())
-			hypernodes.pushBack(v);
+		hypernodeList.clear();
+		for (hypernode v = m_hypernodes.head(); v; v = v->succ())
+			hypernodeList.pushBack(v);
 	}
 
 	//! Returns a list with all hyperedges of the hypergraph.
-	template<class LIST> void allHyperedges(LIST &hyperedges) const
+	template<class LIST> void allHyperedges(LIST &hyperedgeList) const
 	{
-		hyperedges.clear();
-		for (hyperedge e = m_hyperedges.begin(); e; e = e->succ())
-			hyperedges.pushBack(e);
+		hyperedgeList.clear();
+		for (hyperedge e = m_hyperedges.head(); e; e = e->succ())
+			hyperedgeList.pushBack(e);
 	}
 
 	//! Reads hypergraph in bench format from the input stream.

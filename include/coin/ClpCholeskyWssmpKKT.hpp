@@ -21,21 +21,21 @@ public:
      //@{
      /** Orders rows and saves pointer to matrix.and model.
       Returns non-zero if not enough memory */
-     virtual int order(ClpInterior * model) ;
+     virtual int order(ClpInterior * model) override ;
      /** Does Symbolic factorization given permutation.
          This is called immediately after order.  If user provides this then
          user must provide factorize and solve.  Otherwise the default factorization is used
          returns non-zero if not enough memory */
-     virtual int symbolic();
+     virtual int symbolic() override;
      /** Factorize - filling in rowsDropped and returning number dropped.
          If return code negative then out of memory */
-     virtual int factorize(const double * diagonal, int * rowsDropped) ;
+     virtual int factorize(const double * diagonal, int * rowsDropped) override ;
      /** Uses factorization to solve. */
-     virtual void solve (double * region) ;
+     virtual void solve (double * region) override ;
      /** Uses factorization to solve. - given as if KKT.
       region1 is rows+columns, region2 is rows */
      virtual void solveKKT (double * region1, double * region2, const double * diagonal,
-                            double diagonalScaleFactor);
+                            double diagonalScaleFactor) override;
      //@}
 
 
@@ -51,7 +51,7 @@ public:
      // Assignment
      ClpCholeskyWssmpKKT& operator=(const ClpCholeskyWssmpKKT&);
      /// Clone
-     virtual ClpCholeskyBase * clone() const ;
+     virtual ClpCholeskyBase * clone() const override ;
      //@}
 
 

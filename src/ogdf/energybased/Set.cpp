@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class Set.
  *
@@ -41,14 +33,14 @@
  ***************************************************************/
 
 
-#include "Set.h"
+#include <ogdf/internal/energybased/Set.h>
 
 namespace ogdf {
 
 Set::Set()
 {
 	last_selectable_index_of_S_node = -1;
-	S_node = NULL;
+	S_node = nullptr;
 	using_S_node = false;
 }
 
@@ -68,17 +60,16 @@ void Set::set_seed(int rand_seed)
 void Set::init_node_set(Graph& G)
 {
 	using_S_node = true;
-	node v;
 
 	S_node = new node[G.numberOfNodes()];
 	position_in_node_set.init(G);
 
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 	{
 		S_node[v->index()] = v;
 		position_in_node_set[v] = v->index();
 	}
-	last_selectable_index_of_S_node = G.numberOfNodes()-1;
+	last_selectable_index_of_S_node = G.numberOfNodes() - 1;
 }
 
 
@@ -132,19 +123,18 @@ node Set::get_random_node()
 
 //---------------- for set of nodes with weighted  probability ------------------
 
-void Set::init_node_set(Graph& G,NodeArray<NodeAttributes>& A)
+void Set::init_node_set(Graph& G, NodeArray<NodeAttributes>& A)
 {
-	node v,v_adj;
-	edge e_adj;
-
 	init_node_set(G);
 	mass_of_star.init(G);
-	forall_nodes(v,G)
+	for (node v : G.nodes)
 	{
 		mass_of_star[v] = A[v].get_mass();
+		edge e_adj;
 		forall_adj_edges(e_adj, v)
 		{
-			if(e_adj->source() != v)
+			node v_adj;
+			if (e_adj->source() != v)
 				v_adj = e_adj->source();
 			else
 				v_adj = e_adj->target();
@@ -157,26 +147,26 @@ void Set::init_node_set(Graph& G,NodeArray<NodeAttributes>& A)
 
 node Set::get_random_node_with_lowest_star_mass(int rand_tries)
 {
-	int rand_index,new_rand_index,min_mass;
+	int rand_index, min_mass;
 	int i = 1;
-	node random_node,new_rand_node,last_trie_node,last_selectable_node;
+	node random_node, new_rand_node, last_trie_node, last_selectable_node;
 
 	//randomly select rand_tries distinct!!! nodes from S_node and select the one
 	//with the lowest mass
 
 	int last_trie_index = last_selectable_index_of_S_node;
-	while ((i <= rand_tries)
-	    && (last_trie_index >= 0)) {
+	while ((i <= rand_tries) && (last_trie_index >= 0))
+	{
 		last_trie_node = S_node[last_trie_index];
-		new_rand_index = randomNumber(0,last_trie_index);
+		int new_rand_index = randomNumber(0, last_trie_index);
 		new_rand_node = S_node[new_rand_index];
 		S_node[last_trie_index] = new_rand_node;
 		S_node[new_rand_index] = last_trie_node;
 		position_in_node_set[new_rand_node] = last_trie_index;
 		position_in_node_set[last_trie_node] = new_rand_index;
 
-		if ((i == 1)
-		 || (min_mass > mass_of_star[S_node[last_trie_index]])) {
+		if ((i == 1) || (min_mass > mass_of_star[S_node[last_trie_index]]))
+		{
 			rand_index = last_trie_index;
 			random_node = S_node[last_trie_index];
 			min_mass = mass_of_star[random_node];
@@ -200,26 +190,26 @@ node Set::get_random_node_with_lowest_star_mass(int rand_tries)
 
 node Set::get_random_node_with_highest_star_mass(int rand_tries)
 {
-	int rand_index,new_rand_index,min_mass;
+	int rand_index, min_mass;
 	int i = 1;
-	node random_node,new_rand_node,last_trie_node,last_selectable_node;
+	node random_node, new_rand_node, last_trie_node, last_selectable_node;
 
 	//randomly select rand_tries distinct!!! nodes from S_node and select the one
 	//with the lowest mass
 
 	int last_trie_index = last_selectable_index_of_S_node;
-	while ((i <= rand_tries)
-	    && (last_trie_index >= 0)) {
+	while ((i <= rand_tries) && (last_trie_index >= 0))
+	{
 		last_trie_node = S_node[last_trie_index];
-		new_rand_index = randomNumber(0,last_trie_index);
+		int new_rand_index = randomNumber(0, last_trie_index);
 		new_rand_node = S_node[new_rand_index];
 		S_node[last_trie_index] = new_rand_node;
 		S_node[new_rand_index] = last_trie_node;
 		position_in_node_set[new_rand_node] = last_trie_index;
 		position_in_node_set[last_trie_node] = new_rand_index;
 
-		if ((i == 1)
-		 || (min_mass < mass_of_star[S_node[last_trie_index]])) {
+		if ((i == 1) || (min_mass < mass_of_star[S_node[last_trie_index]]))
+		{
 			rand_index = last_trie_index;
 			random_node = S_node[last_trie_index];
 			min_mass = mass_of_star[random_node];

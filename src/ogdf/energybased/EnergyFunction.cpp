@@ -1,11 +1,3 @@
-/*
- * $Revision: 2641 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class EnergyFunction.
  *
@@ -51,7 +43,7 @@ EnergyFunction::EnergyFunction(const string &funcname, GraphAttributes &AG) :
 	m_candidateEnergy(0),
 	m_energy(0),
 	m_AG(AG),
-	m_testNode(NULL),
+	m_testNode(nullptr),
 	m_testPos(0.0,0.0) { }
 
 
@@ -63,7 +55,7 @@ void EnergyFunction::candidateTaken()
 	m_AG.y(m_testNode)=m_testPos.m_y;
 	m_testPos = DPoint(0.0,0.0);
 	internalCandidateTaken();
-	m_testNode=NULL;
+	m_testNode=nullptr;
 }
 
 
@@ -81,12 +73,12 @@ double EnergyFunction::computeCandidateEnergy(const node v, const DPoint &testPo
 void EnergyFunction::printStatus() const{
 	cout << "\nEnergy function name: " << m_name;
 	cout << "\nCurrent energy: " << m_energy;
-	node v;
 	cout << "\nPosition of nodes in current solution:";
 	NodeArray<int> num(m_G);
 	int count = 1;
-	forall_nodes(v,m_G) num[v] = count ++;
-	forall_nodes(v,m_G) {
+	for (node v : m_G.nodes)
+		num[v] = count++;
+	for (node v : m_G.nodes) {
 		cout << "\nNode: " << num[v] << " Position: " << currentPos(v);
 	}
 	cout << "\nTest Node: " << m_testNode << " New coordinates: " << m_testPos;

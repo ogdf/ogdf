@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Places Nodes at the Positio of the merge-partner
  *
@@ -66,12 +58,11 @@ void RandomPlacer::placeOneLevel(MultilevelGraph &MLG)
 	Graph &G = MLG.getGraph();
 	double n = G.numberOfNodes();
 	if (n > 0) {
-		node v;
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			center = center + DPoint( MLG.x(v), MLG.y(v) );
 		}
 		center = DPoint(center.m_x / n, center.m_y / n);
-		forall_nodes(v, G) {
+		for(node v : G.nodes) {
 			double r = sqrt( MLG.x(v) * MLG.x(v) + MLG.y(v) * MLG.y(v) );
 			if (r > radius) radius = r;
 		}
@@ -80,7 +71,7 @@ void RandomPlacer::placeOneLevel(MultilevelGraph &MLG)
 		radius = 10.0 * m_circleSizeFactor;
 	}
 
-	while (MLG.getLevel() == level && MLG.getLastMerge() != 0)
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
 	{
 		placeOneNode(MLG, center, radius);
 	}

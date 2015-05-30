@@ -1,11 +1,3 @@
-/*
- * $Revision: 2615 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-16 14:23:36 +0200 (Mon, 16 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Abstract base class for structures on graphs, that need
  *        to be informed about graph changes (e.g. cluster graphs).
@@ -64,19 +56,14 @@ namespace ogdf {
 //
 
 
-//----------------------------------------------------------
-// GraphObserver
-//----------------------------------------------------------
+//! Abstract Base class for graph observers.
 /**
- * \brief Abstract Base class for classes that need to keep track
- * of changes in the graph like addition/deletion of nodes
- * or edges.
- * derived classes have to overload nodeDeleted, nodeAdded
- * edgeDeleted, edgeAdded
- * these functions should be called by Graph before (delete)
+ * @ingroup graphs
  *
+ * If a class needs to keep track of changes in a graph like addition or deletion
+ * of nodes or edges, you can derive it from GraphObserver and override the
+ * notification methods nodeDeleted, nodeAdded, edgeDeleted, edgeAdded.
  */
-
 class OGDF_EXPORT GraphObserver {
 	friend class Graph;
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implement class ClusterGraphAttributes
  *
@@ -68,7 +60,7 @@ void ClusterGraphAttributes::init(ClusterGraph &cg, long initAttributes)
 
 //
 // calculates the bounding box of the graph including clusters
-const DRect ClusterGraphAttributes::boundingBox() const
+DRect ClusterGraphAttributes::boundingBox() const
 {
 	DRect bb = GraphAttributes::boundingBox();
 	double minx = bb.p1().m_x;
@@ -76,8 +68,7 @@ const DRect ClusterGraphAttributes::boundingBox() const
 	double maxx = bb.p2().m_x;
 	double maxy = bb.p2().m_y;
 
-	cluster c;
-	forall_clusters(c,*m_pClusterGraph)
+	for (cluster c : m_pClusterGraph->clusters)
 	{
 		if(c == m_pClusterGraph->rootCluster())
 			continue;
@@ -104,7 +95,7 @@ void ClusterGraphAttributes::updateClusterPositions(double boundaryDist)
 	//we use width, height temporarily to store max values
 	forall_postOrderClusters(c,*m_pClusterGraph)
 	{
-		ListIterator<node> nit = c->nBegin();
+		ListConstIterator<node> nit = c->nBegin();
 		ListConstIterator<ClusterElement*> cit = c->cBegin();
 		//Initialize with first element
 		if (nit.valid())
@@ -113,7 +104,7 @@ void ClusterGraphAttributes::updateClusterPositions(double boundaryDist)
 			y(c) = m_y[*nit] - m_height[*nit]/2;
 			width(c) = m_x[*nit] + m_width[*nit]/2;
 			height(c) = m_y[*nit] + m_height[*nit]/2;
-			nit++;
+			++nit;
 		}
 		else
 		{
@@ -123,7 +114,7 @@ void ClusterGraphAttributes::updateClusterPositions(double boundaryDist)
 				y(c) = y(*cit);
 				width(c) = x(*cit) + width(*cit);
 				height(c) = y(*cit) + height(*cit);
-				cit++;
+				++cit;
 			}
 			else
 			{
@@ -144,7 +135,7 @@ void ClusterGraphAttributes::updateClusterPositions(double boundaryDist)
 				width(c) = m_x[*nit] + m_width[*nit]/2;
 			if (height(c) < m_y[*nit] + m_height[*nit]/2)
 				height(c) = m_y[*nit] + m_height[*nit]/2;
-			nit++;
+			++nit;
 		}
 		while (cit.valid())
 		{
@@ -156,7 +147,7 @@ void ClusterGraphAttributes::updateClusterPositions(double boundaryDist)
 				width(c) = x(*cit) + width(*cit);
 			if (height(c) < y(*cit) + height(*cit))
 				height(c) = y(*cit) + height(*cit);
-			cit++;
+			++cit;
 		}
 		x(c) -= boundaryDist;
 		y(c) -= boundaryDist;
@@ -165,6 +156,61 @@ void ClusterGraphAttributes::updateClusterPositions(double boundaryDist)
 	}
 }
 
+
+void ClusterGraphAttributes::scale(double sx, double sy, bool scaleNodes)
+{
+	GraphAttributes::scale(sx, sy, scaleNodes);
+
+	double asx = fabs(sx), asy = fabs(sy);
+	for (cluster c : m_pClusterGraph->clusters) {
+		ClusterInfo &info = m_clusterInfo[c];
+
+		info.m_x *= sx;
+		info.m_y *= sy;
+
+		info.m_w *= asx;
+		info.m_h *= asy;
+	}
+}
+
+
+void ClusterGraphAttributes::translate(double dx, double dy)
+{
+	GraphAttributes::translate(dx, dy);
+
+	for (cluster c : m_pClusterGraph->clusters) {
+		ClusterInfo &info = m_clusterInfo[c];
+
+		info.m_x += dx;
+		info.m_y += dy;
+	}
+}
+
+
+void ClusterGraphAttributes::flipVertical(const DRect &box)
+{
+	GraphAttributes::flipVertical(box);
+
+	double dy = box.p1().m_y + box.p2().m_y;
+	for (cluster c : m_pClusterGraph->clusters) {
+		ClusterInfo &info = m_clusterInfo[c];
+
+		info.m_y = dy - info.m_y;
+	}
+}
+
+
+void ClusterGraphAttributes::flipHorizontal(const DRect &box)
+{
+	GraphAttributes::flipHorizontal(box);
+
+	double dx = box.p1().m_x + box.p2().m_x;
+	for (cluster c : m_pClusterGraph->clusters) {
+		ClusterInfo &info = m_clusterInfo[c];
+
+		info.m_x = dx - info.m_x;
+	}
+}
 
 
 ostream &operator<<(ostream &os, ogdf::cluster c)

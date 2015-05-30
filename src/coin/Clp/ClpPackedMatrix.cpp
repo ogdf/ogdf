@@ -781,7 +781,7 @@ ClpPackedMatrix::transposeTimes(const ClpSimplex * model, double scalar,
           columnArray->setPackedMode(true);
      if (0) {
           columnArray->checkClean();
-          int numberNonZero = columnArray->getNumElements();;
+          int numberNonZero = columnArray->getNumElements();
           int * index = columnArray->getIndices();
           double * array = columnArray->denseVector();
           int i;
@@ -4018,9 +4018,9 @@ ClpPackedMatrix::allElementsInRange(ClpModel * model,
           assert (model->clpScaledMatrix()->getNumElements() == matrix_->getNumElements());
      assert (matrix_->getNumRows() <= model->numberRows());
      matrix_->setDimensions(model->numberRows(), model->numberColumns());
-     CoinBigIndex numberLarge = 0;;
-     CoinBigIndex numberSmall = 0;;
-     CoinBigIndex numberDuplicate = 0;;
+     CoinBigIndex numberLarge = 0;
+     CoinBigIndex numberSmall = 0;
+     CoinBigIndex numberDuplicate = 0;
      int firstBadColumn = -1;
      int firstBadRow = -1;
      double firstBadElement = 0.0;
@@ -4167,7 +4167,7 @@ ClpPackedMatrix::allElementsInRange(ClpModel * model,
           matrix_->compress(smallest);
      // If smallest >0.0 then there can't be zero elements
      if (smallest > 0.0)
-          flags_ &= ~1;;
+          flags_ &= ~1;
      if (numberSmall || numberDuplicate)
           flags_ |= 2; // will have gaps
      return true;
@@ -5057,7 +5057,7 @@ ClpPackedMatrix2::ClpPackedMatrix2 (ClpSimplex * , const CoinPackedMatrix * rowC
      column_ = new unsigned short [nElement];
      // assumes int <= double
      int sizeWork = 6 * numberBlocks_;
-     work_ = new double[sizeWork];;
+     work_ = new double[sizeWork];
      int iBlock;
      int nZero = 0;
      for (iBlock = 0; iBlock < numberBlocks_; iBlock++) {
@@ -5768,7 +5768,7 @@ ClpPackedMatrix2::transposeTimes(const ClpSimplex * model,
                     alpha = rowArray->denseVector()[posFree-numberColumns];
                     posFree = rowArray->getIndices()[posFree-numberColumns] + numberColumns;
                }
-               model->spareDoubleArray_[2] = fabs(reducedCost[posFree] / alpha);;
+               model->spareDoubleArray_[2] = fabs(reducedCost[posFree] / alpha);
                model->spareDoubleArray_[3] = alpha;
                model->spareIntArray_[1] = posFree;
           }

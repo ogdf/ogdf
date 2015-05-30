@@ -12,8 +12,7 @@ int main()
 		return 1;
 	}
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		GA.width(v) = GA.height(v) = 10.0;
 
 	FMMMLayout fmmm;

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2583 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-12 01:02:21 +0200 (Thu, 12 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief declaration of class MMFixedEmbeddingInserter
  *
@@ -65,6 +57,9 @@ class OGDF_EXPORT NodeSet;
 
 
 //! Minor-monotone edge insertion with fixed embedding.
+/**
+ * @ingroup ga-insert
+ */
 class OGDF_EXPORT MMFixedEmbeddingInserter : public MMEdgeInsertionModule
 {
 public:
@@ -112,10 +107,10 @@ private:
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */
-	ReturnType doCall(
+	virtual ReturnType doCall(
 		PlanRepExpansion &PG,
 		const List<edge> &origEdges,
-		const EdgeArray<bool> *forbiddenEdgeOrig);
+		const EdgeArray<bool> *forbiddenEdgeOrig) override;
 
 	//! Constructs the search network (extended dual graph).
 	/**

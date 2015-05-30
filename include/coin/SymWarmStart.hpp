@@ -49,7 +49,7 @@ public:
    virtual ~SymWarmStart();
 
    /* Clone the warmstart */
-   virtual CoinWarmStart * clone() const; 
+   virtual CoinWarmStart * clone() const override;
 
    /* Get the pointer to the loaded warmStart_ */
    virtual warm_start_desc * getCopyOfWarmStartDesc();

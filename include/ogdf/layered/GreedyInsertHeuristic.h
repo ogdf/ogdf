@@ -1,11 +1,3 @@
-/*
- * $Revision: 3833 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:23:15 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GreedyInsertHeuristic
  *
@@ -59,6 +51,9 @@ namespace ogdf
 
 
 //! The greedy-insert heuristic for 2-layer crossing minimization.
+/**
+ * @ingroup gd-layered-crossmin
+ */
 class OGDF_EXPORT GreedyInsertHeuristic : public LayerByLayerSweep
 {
 public:
@@ -69,16 +64,19 @@ public:
 	GreedyInsertHeuristic(const GreedyInsertHeuristic &crossMin) { }
 
 	//! Returns a new instance of the greed-insert heuristic with the same option settings.
-	LayerByLayerSweep *clone() const { return new GreedyInsertHeuristic(*this); }
+	virtual LayerByLayerSweep *clone() const override
+	{
+		return new GreedyInsertHeuristic(*this);
+	}
 
 	//! Initializes weights and crossing minimization for hierarchy \a H.
-	void init (const HierarchyLevels &levels);
+	virtual void init (const HierarchyLevels &levels) override;
 
 	//! Calls the greedy insert heuristic for level \a L.
-	void call (Level &L);
+	virtual void call (Level &L) override;
 
 	//! Does some clean-up after calls.
-	void cleanup ();
+	virtual void cleanup () override;
 
 private:
 	CrossingsMatrix *m_crossingMatrix;

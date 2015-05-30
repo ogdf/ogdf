@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements classes GridLayout and GridLayoutMapped
  *
@@ -72,9 +64,9 @@ IPolyline GridLayout::polyline(edge e) const
 
 struct OGDF_EXPORT GridPointInfo
 {
-	GridPointInfo() : m_v(0), m_e(0) { }
-	GridPointInfo(node v) : m_v(v), m_e(0) { }
-	GridPointInfo(edge e) : m_v(0), m_e(e) { }
+	GridPointInfo() : m_v(nullptr), m_e(nullptr) { }
+	GridPointInfo(node v) : m_v(v), m_e(nullptr) { }
+	GridPointInfo(edge e) : m_v(nullptr), m_e(e) { }
 
 	bool operator==(const GridPointInfo &i) const {
 		return (m_v == i.m_v && m_e == i.m_e);
@@ -90,9 +82,9 @@ struct OGDF_EXPORT GridPointInfo
 
 ostream &operator<<(ostream &os, const GridPointInfo &i)
 {
-	if(i.m_v == 0 && i.m_e == 0)
+	if(i.m_v == nullptr && i.m_e == nullptr)
 		os << "{}";
-	else if(i.m_v != 0)
+	else if(i.m_v != nullptr)
 		os << "{node " << i.m_v << "}";
 	else
 		os << "{edge " << i.m_e << "}";
@@ -114,8 +106,7 @@ bool GridLayout::checkLayout()
 	const Graph &G = *m_x.graphOf();
 	HashArray<IPoint,GridPointInfo> H;
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		IPoint ip = IPoint(m_x[v],m_y[v]);
 		GridPointInfo i = H[ip];
@@ -127,20 +118,19 @@ bool GridLayout::checkLayout()
 		H[ip] = GridPointInfo(v);
 	}
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		const IPolyline &bends = m_bends[e];
 
 		ListConstIterator<IPoint> it;
-		for(it = bends.begin(); it.valid(); ++it) {
-			GridPointInfo i = H[*it];
+		for(const IPoint &ip : bends) {
+			GridPointInfo i = H[ip];
 			if(i != GridPointInfo()) {
-				cout << "conflict of bend point " << (*it) << " of edge " << e << " with " << H[*it] << endl;
+				cout << "conflict of bend point " << ip << " of edge " << e << " with " << H[ip] << endl;
 				return false;
 			}
 
-			H[*it] = GridPointInfo(e);
+			H[ip] = GridPointInfo(e);
 		}
 
 	}
@@ -214,8 +204,7 @@ void GridLayout::compactAllBends()
 {
 	const Graph &G = *m_x.graphOf();
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		m_bends[e] = getCompactBends(e);
 }
 
@@ -223,8 +212,7 @@ void GridLayout::remap(Layout &drawing)
 {
 	const Graph &G = *m_x.graphOf();
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		drawing.x(v) = m_x[v];
 		drawing.y(v) = m_y[v];
 	}
@@ -236,7 +224,7 @@ void GridLayout::computeBoundingBox(int &xmin, int &xmax, int &ymin, int &ymax)
 {
 	const Graph *pG = m_x.graphOf();
 
-	if(pG == 0 || pG->empty()) {
+	if(pG == nullptr || pG->empty()) {
 		xmin = xmax = ymin = ymax = 0;
 		return;
 	}
@@ -244,8 +232,7 @@ void GridLayout::computeBoundingBox(int &xmin, int &xmax, int &ymin, int &ymax)
 	xmin = ymin = numeric_limits<int>::max();
 	xmax = ymax = numeric_limits<int>::min();
 
-	node v;
-	forall_nodes(v,*pG) {
+	for(node v : pG->nodes) {
 		int x = m_x[v];
 		if(x < xmin) xmin = x;
 		if(x > xmax) xmax = x;
@@ -255,15 +242,14 @@ void GridLayout::computeBoundingBox(int &xmin, int &xmax, int &ymin, int &ymax)
 		if(y > ymax) ymax = y;
 	}
 
-	edge e;
-	forall_edges(e,*pG) {
+	for(edge e : pG->edges) {
 		ListConstIterator<IPoint> it;
-		for(it = m_bends[e].begin(); it.valid(); ++it) {
-			int x = (*it).m_x;
+		for(const IPoint &ip : m_bends[e]) {
+			int x = ip.m_x;
 			if(x < xmin) xmin = x;
 			if(x > xmax) xmax = x;
 
-			int y = (*it).m_y;
+			int y = ip.m_y;
 			if(y < ymin) ymin = y;
 			if(y > ymax) ymax = y;
 		}
@@ -290,18 +276,8 @@ int GridLayout::totalManhattanEdgeLength() const
 	const Graph *pG = m_x.graphOf();
 	int length = 0;
 
-	edge e;
-	forall_edges(e,*pG)
+	for(edge e : pG->edges)
 		length += manhattanEdgeLength(e);
-	//{
-	//	IPoint ip1 = IPoint(m_x[e->source()],m_y[e->source()]);
-	//	ListConstIterator<IPoint> it = m_bends[e].begin();
-	//	for(; it.valid(); ++it) {
-	//		length += manhattanDistance(ip1,*it);
-	//		ip1 = *it;
-	//	}
-	//	length += manhattanDistance(ip1,IPoint(m_x[e->target()],m_y[e->target()]));
-	//}
 
 	return length;
 }
@@ -312,8 +288,7 @@ int GridLayout::maxManhattanEdgeLength() const
 	const Graph *pG = m_x.graphOf();
 	int length = 0;
 
-	edge e;
-	forall_edges(e,*pG)
+	for(edge e : pG->edges)
 		length = max( length, manhattanEdgeLength(e) );
 
 	return length;
@@ -325,10 +300,9 @@ int GridLayout::manhattanEdgeLength(edge e) const
 	int length = 0;
 
 	IPoint ip1 = IPoint(m_x[e->source()],m_y[e->source()]);
-	ListConstIterator<IPoint> it = m_bends[e].begin();
-	for(; it.valid(); ++it) {
-		length += manhattanDistance(ip1,*it);
-		ip1 = *it;
+	for(const IPoint &ip : m_bends[e]) {
+		length += manhattanDistance(ip1,ip);
+		ip1 = ip;
 	}
 	length += manhattanDistance(ip1,IPoint(m_x[e->target()],m_y[e->target()]));
 
@@ -341,13 +315,11 @@ double GridLayout::totalEdgeLength() const
 	const Graph *pG = m_x.graphOf();
 	double length = 0;
 
-	edge e;
-	forall_edges(e,*pG) {
+	for(edge e : pG->edges) {
 		IPoint ip1 = IPoint(m_x[e->source()],m_y[e->source()]);
-		ListConstIterator<IPoint> it = m_bends[e].begin();
-		for(; it.valid(); ++it) {
-			length += euclideanDistance(ip1,*it);
-			ip1 = *it;
+		for(const IPoint &ip : m_bends[e]) {
+			length += euclideanDistance(ip1,ip);
+			ip1 = ip;
 		}
 		length += euclideanDistance(ip1,IPoint(m_x[e->target()],m_y[e->target()]));
 	}
@@ -361,8 +333,7 @@ int GridLayout::numberOfBends() const
 	const Graph *pG = m_x.graphOf();
 	int num = 0;
 
-	edge e;
-	forall_edges(e,*pG)
+	for(edge e : pG->edges)
 		num += m_bends[e].size();
 
 	return num;
@@ -384,11 +355,10 @@ GridLayoutMapped::GridLayoutMapped(
 	// determine grid mapping factor
 	double minDelta = separation;
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		node vOrig = PG.original(v);
-		if(vOrig == 0) continue;
+		if(vOrig == nullptr) continue;
 
 		const OrthoRep::VertexInfoUML *pInfo = OR.cageInfo(v);
 
@@ -431,7 +401,7 @@ GridLayoutMapped::GridLayoutMapped(
 
 
 	// initialize grid sizes of vertices
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		node vOrig = PG.original(v);
 
@@ -445,8 +415,7 @@ GridLayoutMapped::GridLayoutMapped(
 
 void GridLayoutMapped::remap(Layout &drawing)
 {
-	node v;
-	forall_nodes(v,*m_pPG) {
+	for(node v : m_pPG->nodes) {
 		//should use toDouble here
 		drawing.x(v) = (m_x[v]/cGridScale) / m_fMapping;
 		drawing.y(v) = (m_y[v]/cGridScale) / m_fMapping;

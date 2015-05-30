@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares stuff related to DOT format lexical analysis.
  *
@@ -90,10 +82,10 @@ struct Token {
 	size_t row;
 	//! Indicated a token column;
 	size_t column;
-	//! Identifier content (NULL for non-id tokens).
+	//! Identifier content (nullptr for non-id tokens).
 	std::string *value;
 
-	Token(size_t row, size_t column, std::string *value = NULL);
+	Token(size_t row, size_t column, std::string *value = nullptr);
 
 	//! Returns string representation of given token type.
 	static std::string toString(const Type &type);

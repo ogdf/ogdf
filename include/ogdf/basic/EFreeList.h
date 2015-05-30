@@ -1,11 +1,3 @@
-/*
- * $Revision: 2579 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-11 15:28:17 +0200 (Wed, 11 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of a simple freelist and an
  * index pool which generates unique indices for elements.

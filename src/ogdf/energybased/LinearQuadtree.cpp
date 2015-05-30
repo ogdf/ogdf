@@ -1,11 +1,3 @@
-/*
- * $Revision: 2565 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 17:14:54 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class LinearQuadtree.
  *
@@ -40,8 +32,8 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "LinearQuadtree.h"
-#include "WSPD.h"
+#include <ogdf/internal/energybased/LinearQuadtree.h>
+#include <ogdf/internal/energybased/WSPD.h>
 
 namespace ogdf {
 
@@ -68,7 +60,7 @@ void LinearQuadtree::clear()
 }
 
 
-LinearQuadtree::LinearQuadtree(__uint32 n, float* origXPos, float* origYPos, float* origSize) : m_origXPos(origXPos), m_origYPos(origYPos), m_origSize(origSize)
+LinearQuadtree::LinearQuadtree(uint32_t n, float* origXPos, float* origYPos, float* origSize) : m_origXPos(origXPos), m_origYPos(origYPos), m_origSize(origSize)
 {
 	allocate(n);
 	m_numPoints = n;
@@ -82,22 +74,22 @@ LinearQuadtree::~LinearQuadtree(void)
 }
 
 
-void LinearQuadtree::allocate(__uint32 n)
+void LinearQuadtree::allocate(uint32_t n)
 {
 	m_numPoints = n;
-	m_maxNumNodes = 2*n;
-	m_tree = (LQNode*)MALLOC_16(m_maxNumNodes*sizeof(LQNode));
-	m_nodeXPos = (float*)MALLOC_16(m_maxNumNodes*sizeof(float));
-	m_nodeYPos = (float*)MALLOC_16(m_maxNumNodes*sizeof(float));
-	m_nodeSize = (float*)MALLOC_16(m_maxNumNodes*sizeof(float));
-	m_points = (LQPoint*)MALLOC_16(m_numPoints*sizeof(LQPoint));
-	for (__uint32 i = 0; i < m_numPoints; i++)
+	m_maxNumNodes = 2 * n;
+	m_tree = static_cast<LQNode*>(MALLOC_16(m_maxNumNodes*sizeof(LQNode)));
+	m_nodeXPos = static_cast<float*>(MALLOC_16(m_maxNumNodes*sizeof(float)));
+	m_nodeYPos = static_cast<float*>(MALLOC_16(m_maxNumNodes*sizeof(float)));
+	m_nodeSize = static_cast<float*>(MALLOC_16(m_maxNumNodes*sizeof(float)));
+	m_points = static_cast<LQPoint*>(MALLOC_16(m_numPoints*sizeof(LQPoint)));
+	for (uint32_t i = 0; i < m_numPoints; i++)
 		m_points[i].ref = i;
-	m_pointXPos = (float*)MALLOC_16(m_numPoints*sizeof(float));
-	m_pointYPos = (float*)MALLOC_16(m_numPoints*sizeof(float));
-	m_pointSize = (float*)MALLOC_16(m_numPoints*sizeof(float));
-	m_notWspd = (LQWSPair*)MALLOC_16(m_maxNumNodes*sizeof(LQWSPair)*27);
-	m_directNodes = (NodeID*)MALLOC_16(m_maxNumNodes*sizeof(NodeID));
+	m_pointXPos = static_cast<float*>(MALLOC_16(m_numPoints*sizeof(float)));
+	m_pointYPos = static_cast<float*>(MALLOC_16(m_numPoints*sizeof(float)));
+	m_pointSize = static_cast<float*>(MALLOC_16(m_numPoints*sizeof(float)));
+	m_notWspd = static_cast<LQWSPair*>(MALLOC_16(m_maxNumNodes*sizeof(LQWSPair) * 27));
+	m_directNodes = static_cast<NodeID*>(MALLOC_16(m_maxNumNodes*sizeof(NodeID)));
 	m_WSPD = new WSPD(m_maxNumNodes);
 }
 
@@ -118,7 +110,7 @@ void LinearQuadtree::deallocate()
 }
 
 
-__uint64 LinearQuadtree::sizeInBytes() const
+uint64_t LinearQuadtree::sizeInBytes() const
 {
 	return m_numPoints*sizeof(LQPoint) +
 		m_maxNumNodes*sizeof(LQNode) +

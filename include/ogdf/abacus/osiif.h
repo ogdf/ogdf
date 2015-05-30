@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Frank Baumann
  *
@@ -115,27 +107,27 @@ private:
 
 	void freeDouble(const double* &ptr) {
 		delete [] ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	void freeDouble(double* &ptr) {
 		delete [] ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	void freeInt(int* &ptr) {
 		delete [] ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	void freeChar(char* &ptr) {
 		delete [] ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	void freeChar(const char* &ptr) {
 		delete [] ptr;
-		ptr = NULL;
+		ptr = nullptr;
 	}
 
 	void freeStatus(CoinWarmStartBasis::Status*&);

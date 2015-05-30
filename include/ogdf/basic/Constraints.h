@@ -1,11 +1,3 @@
-/*
- * $Revision: 2643 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 16:52:10 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of base class for drawing constraints.
  *

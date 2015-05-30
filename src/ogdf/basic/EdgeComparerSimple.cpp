@@ -1,11 +1,3 @@
-/*
- * $Revision: 2549 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-04 23:09:19 +0200 (Wed, 04 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of EdgeComparerSimple.
  *
@@ -66,16 +58,16 @@ int EdgeComparerSimple::compare(const adjEntry &e1, const adjEntry &e2) const
 		it = poly.begin();
 
 		while (it.valid()){
-			it++;
+			++it;
 		}
 
 		if (e1->theEdge()->source() == basis){
 			it = poly.begin();
-			it++;
+			++it;
 		}
 		else{
 			it = poly.rbegin();
-			it--;
+			--it;
 		}
 		pE1 = *it;
 	}
@@ -89,16 +81,16 @@ int EdgeComparerSimple::compare(const adjEntry &e1, const adjEntry &e2) const
 		it = poly.begin();
 
 		while (it.valid()){
-			it++;
+			++it;
 		}
 
 		if (e2->theEdge()->source() == basis){
 			it = poly.begin();
-			it++;
+			++it;
 		}
 		else{
 			it = poly.rbegin();
-			it--;
+			--it;
 		}
 		pE2 = *it;
 	}

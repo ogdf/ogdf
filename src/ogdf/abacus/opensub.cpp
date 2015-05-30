@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -64,7 +56,7 @@ void OpenSub::insert(Sub *sub)
 Sub* OpenSub::select()
 {
 	if(list_.empty())
-		return 0;
+		return nullptr;
 
 	ogdf::ListIterator<Sub*> itMin = list_.begin();
 
@@ -105,8 +97,7 @@ void OpenSub::updateDualBound()
 	if (master_->optSense()->max()) {
 		dualBound_ = -master_->infinity();
 
-		for(ogdf::ListIterator<Sub*> it = list_.begin(); it.valid(); ++it) {
-			Sub *s = *it;
+		for(Sub *s :list_) {
 			if (s->dualBound() > dualBound_)
 				dualBound_ = s->dualBound();
 		}
@@ -114,8 +105,7 @@ void OpenSub::updateDualBound()
 	else {
 		dualBound_ = master_->infinity();
 
-		for(ogdf::ListIterator<Sub*> it = list_.begin(); it.valid(); ++it) {
-			Sub *s = *it;
+		for(Sub *s :list_) {
 			if (s->dualBound() < dualBound_)
 				dualBound_ = s->dualBound();
 		}

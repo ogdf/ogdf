@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class PlanarStraightLayout
  *
@@ -73,7 +65,8 @@ void PlanarStraightLayout::doCall(
 {
 	// require to have a planar graph without multi-edges and self-loops;
 	// planarity is checked below
-	OGDF_ASSERT(isSimple(G) && isLoopFree(G));
+	OGDF_ASSERT(isSimple(G));
+	OGDF_ASSERT(isLoopFree(G));
 
 	// handle special case of graphs with less than 3 nodes
 	if(G.numberOfNodes() < 3)
@@ -106,7 +99,7 @@ void PlanarStraightLayout::doCall(
 
 	if(fixEmbedding) {
 		// determine adjacency entry on external face of GC (if required)
-		if(adjExternal != 0) {
+		if(adjExternal != nullptr) {
 			edge eG  = adjExternal->theEdge();
 			edge eGC = GC.copy(eG);
 			adjExternal = (adjExternal == eG->adjSource()) ? eGC->adjSource() : eGC->adjTarget();
@@ -116,7 +109,7 @@ void PlanarStraightLayout::doCall(
 		augmenter.call(GC);
 
 	} else {
-		adjExternal = 0;
+		adjExternal = nullptr;
 
 		// augment graph planar biconnected
 		m_augmenter.get().call(GC);
@@ -137,12 +130,11 @@ void PlanarStraightLayout::doCall(
 
 	boundingBox.m_x = x[order(1,order.len(1))];
 	boundingBox.m_y = 0;
-	node v;
-	forall_nodes(v,GC)
+	for(node v : GC.nodes)
 		if(y[v] > boundingBox.m_y) boundingBox.m_y = y[v];
 
 	// copy coordinates from GC to G
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		node vCopy = GC.copy(v);
 		gridLayout.x(v) = x[vCopy];
 		gridLayout.y(v) = y[vCopy];
@@ -161,7 +153,7 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 
 	// upper[v] = w means x-coord. of v is relative to w
 	// (abs. x-coord. of v = x[v] + abs. x-coord of w)
-	NodeArray<node>	upper(G,0);
+	NodeArray<node>	upper(G,nullptr);
 
 	// initialize contour with base
 	const ShellingOrderSet &V1 = lmc[1];
@@ -178,7 +170,7 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 		if (i > 1)
 			prev[V1[i]] = V1[i-1];
 	}
-	prev[v1] = next[v2] = 0;
+	prev[v1] = next[v2] = nullptr;
 
 	// process shelling order from bottom to top
 	const int n = lmc.length();
@@ -305,7 +297,7 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 
 	// compute final x-coordinates for the nodes on the (final) contour
 	int sum = 0;
-	for (node v = v1; v != 0; v = next[v]) {
+	for (node v = v1; v != nullptr; v = next[v]) {
 		x[v] = (sum += x[v]);
 	}
 
@@ -315,7 +307,7 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 		for (i = 1; i <= lmc.len(k); i++)
 		{
 			node zi = lmc (k,i);
-			if (upper[zi] != 0)	// upper[zi] == 0 <=> z_i on contour
+			if (upper[zi] != nullptr)	// upper[zi] == 0 <=> z_i on contour
 				x[zi] += x[upper[zi]];
 		}
 	}

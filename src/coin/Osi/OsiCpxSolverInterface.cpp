@@ -1792,7 +1792,7 @@ void OsiCpxSolverInterface::setColSetBounds(const int* indexFirst,
    char* c = new char[2*cnt];
    int* ind = new int[2*cnt];
    for (int i = 0; i < cnt; ++i) {
-      register const int j = 2 * i;
+      const int j = 2 * i;
       c[j] = 'L';
       c[j+1] = 'U';
       const int colind = indexFirst[i];

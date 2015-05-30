@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements classes StaticSkeleton and StaticSPQRTree
  *
@@ -43,7 +35,7 @@
 
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/basic/GraphCopy.h>
-#include "TricComp.h"
+#include <ogdf/internal/decomposition/TricComp.h>
 
 
 namespace ogdf {
@@ -54,9 +46,9 @@ namespace ogdf {
 
 StaticSkeleton::StaticSkeleton(const StaticSPQRTree *T, node vT) : Skeleton(vT), m_owner(T)
 {
-	m_orig.init(m_M,0);
-	m_real.init(m_M,0);
-	m_treeEdge.init(m_M,0);
+	m_orig.init(m_M,nullptr);
+	m_real.init(m_M,nullptr);
+	m_treeEdge.init(m_M,nullptr);
 }
 
 
@@ -69,8 +61,8 @@ const SPQRTree &StaticSkeleton::owner() const
 edge StaticSkeleton::twinEdge (edge e) const
 {
 	edge et = m_treeEdge[e];
-	if (et == 0)
-		return 0;
+	if (et == nullptr)
+		return nullptr;
 
 	return (et->source() == m_treeNode) ?
 		m_owner->m_skEdgeTgt[et] : m_owner->m_skEdgeSrc[et];
@@ -80,8 +72,8 @@ edge StaticSkeleton::twinEdge (edge e) const
 node StaticSkeleton::twinTreeNode (edge e) const
 {
 	edge et = m_treeEdge[e];
-	if (et == 0)
-		return 0;
+	if (et == nullptr)
+		return nullptr;
 	return et->opposite(m_treeNode);
 }
 
@@ -101,20 +93,20 @@ void StaticSPQRTree::init(edge eRef)
 
 void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
 {
-	m_cpV = 0;
+	m_cpV = nullptr;
 	const GraphCopySimple &GC = *tricComp.m_pGC;
 
 	m_type.init(m_tree,SNode);
-	m_sk.init(m_tree,0);
+	m_sk.init(m_tree,nullptr);
 
-	m_skEdgeSrc.init(m_tree,0);
-	m_skEdgeTgt.init(m_tree,0);
+	m_skEdgeSrc.init(m_tree,nullptr);
+	m_skEdgeTgt.init(m_tree,nullptr);
 
-	NodeArray<node> mapV(GC,0);
+	NodeArray<node> mapV(GC,nullptr);
 	BoundedStack<node> inMapV(GC.numberOfNodes());
 
-	EdgeArray<node> partnerNode(GC,0);
-	EdgeArray<edge> partnerEdge(GC,0);
+	EdgeArray<node> partnerNode(GC,nullptr);
+	EdgeArray<edge> partnerEdge(GC,nullptr);
 
 	m_numS = m_numP = m_numR = 0;
 
@@ -142,34 +134,32 @@ void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
 		m_sk[vT] = OGDF_NEW StaticSkeleton(this,vT);
 		StaticSkeleton &S = *m_sk[vT];
 
-		ListConstIterator<edge> itE;
-		for(itE = C.m_edges.begin(); itE.valid(); ++itE)
+		for(edge e : C.m_edges)
 		{
-			edge e = *itE;
 			edge eG  = GC.original(e);
 
 			node uGC = e->source(), vGC = e->target();
 			node uM = mapV[uGC], vM = mapV[vGC];
 
-			if (uM == 0) {
+			if (uM == nullptr) {
 				uM = mapV[uGC] = S.m_M.newNode();
 				inMapV.push(uGC);
 				S.m_orig[uM] = GC.original(uGC);
 			}
-			if (vM == 0) {
+			if (vM == nullptr) {
 				vM = mapV[vGC] = S.m_M.newNode();
 				inMapV.push(vGC);
 				S.m_orig[vM] = GC.original(vGC);
 			}
 
 			// normalize direction of virtual edges
-			if(eG == 0 && GC.original(vGC) < GC.original(uGC))
+			if(eG == nullptr && GC.original(vGC) < GC.original(uGC))
 				swap(uM,vM);
 
 			edge eM  = S.m_M.newEdge(uM,vM);
 
-			if (eG == 0) {
-				if (partnerNode[e] == 0) {
+			if (eG == nullptr) {
+				if (partnerNode[e] == nullptr) {
 					partnerNode[e] = vT;
 					partnerEdge[e] = eM;
 
@@ -191,7 +181,7 @@ void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
 		}
 
 		while(!inMapV.empty())
-			mapV[inMapV.pop()] = 0;
+			mapV[inMapV.pop()] = nullptr;
 	}
 
 	rootTreeAt(eRef);
@@ -203,9 +193,7 @@ void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
 //
 StaticSPQRTree::~StaticSPQRTree()
 {
-	node vT;
-
-	forall_nodes(vT,m_tree)
+	for (node vT : m_tree.nodes)
 		delete m_sk[vT];
 
 	delete m_cpV;
@@ -215,8 +203,7 @@ StaticSPQRTree::~StaticSPQRTree()
 List<node> StaticSPQRTree::nodesOfType(NodeType t) const
 {
 	List<node> L;
-	node v;
-	forall_nodes(v,m_tree)
+	for (node v : m_tree.nodes)
 		if (m_type[v] == t) L.pushBack(v);
 
 	return L;
@@ -231,7 +218,7 @@ node StaticSPQRTree::rootTreeAt(edge e)
 	m_rootNode = m_skOf[e]->treeNode();
 
 	m_sk[m_rootNode]->m_referenceEdge = m_copyOf[e];
-	rootRec(m_rootNode,0);
+	rootRec(m_rootNode,nullptr);
 
 	return m_rootNode;
 }
@@ -239,11 +226,11 @@ node StaticSPQRTree::rootTreeAt(edge e)
 
 node StaticSPQRTree::rootTreeAt(node v)
 {
-	m_rootEdge = 0;
+	m_rootEdge = nullptr;
 	m_rootNode = v;
 
-	m_sk[m_rootNode]->m_referenceEdge = 0;
-	rootRec(m_rootNode,0);
+	m_sk[m_rootNode]->m_referenceEdge = nullptr;
+	rootRec(m_rootNode,nullptr);
 
 	return m_rootNode;
 }

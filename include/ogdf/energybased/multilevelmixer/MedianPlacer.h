@@ -1,11 +1,3 @@
-/*
- * $Revision: 3553 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:02 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Places nodes at the position of the merge-partner.
  *
@@ -51,6 +43,10 @@
 
 namespace ogdf {
 
+//! The median placer for multilevel layout.
+/**
+ * @ingroup gd-multi
+ */
 class OGDF_EXPORT MedianPlacer : public InitialPlacer
 {
 public:

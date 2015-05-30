@@ -424,7 +424,7 @@ CglLandPSimplex::computeWeights(CglLandP::LHSnorm norm, CglLandP::Normalization 
         }
         for (int i = 0 ; i < nrows_orig_ ; i++)
         {
-            rows_weights[i] = sqrt(rows_weights[i]);;
+            rows_weights[i] = sqrt(rows_weights[i]);
         }
         if (type== CglLandP::WeightBoth)
         {

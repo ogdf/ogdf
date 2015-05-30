@@ -1,11 +1,3 @@
-/*
- * $Revision: 3074 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 11:01:06 +0100 (Thu, 29 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of EdgeArray class.
  *
@@ -70,10 +62,18 @@ public:
 	const Graph *m_pGraph; //!< The associated graph.
 
 	//! Initializes an edge array not associated with a graph.
-	EdgeArrayBase() : m_pGraph(0) { }
+	EdgeArrayBase() : m_pGraph(nullptr) { }
+
 	//! Initializes an edge array associated with \a pG.
 	EdgeArrayBase(const Graph *pG) : m_pGraph(pG) {
 		if(pG) m_it = pG->registerArray(this);
+	}
+
+	//! Moves edge array \a base to this edge array.
+	EdgeArrayBase(EdgeArrayBase &base) : m_it(base.m_it), m_pGraph(base.m_pGraph) {
+		if(m_pGraph) m_pGraph->moveRegisterArray(m_it, this);
+		base.m_pGraph = nullptr;
+		base.m_it     = ListIterator<EdgeArrayBase*>();
 	}
 
 	// destructor, unregisters the array
@@ -92,13 +92,27 @@ public:
 	//! Associates the array with a new graph.
 	void reregister(const Graph *pG) {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
-		if ((m_pGraph = pG) != 0) m_it = pG->registerArray(this);
+		if ((m_pGraph = pG) != nullptr) m_it = pG->registerArray(this);
 	}
+
+	//! Moves array registration from \a base to this array.
+	void moveRegister(EdgeArrayBase &base) {
+		if (m_pGraph) m_pGraph->unregisterArray(m_it);
+		m_pGraph = base.m_pGraph;
+		m_it     = base.m_it;
+		base.m_pGraph = nullptr;
+		base.m_it     = ListIterator<EdgeArrayBase*>();
+		if (m_pGraph != nullptr)
+			m_pGraph->moveRegisterArray(m_it, this);
+	}
+
 }; // class EdgeArrayBase
 
 
 //! Dynamic arrays indexed with edges.
 /**
+ * @ingroup graph-containers
+ *
  * Edge arrays represent a mapping from edges to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
@@ -108,10 +122,23 @@ template<class T> class EdgeArray : private Array<T>, protected EdgeArrayBase {
 	T m_x; //!< The default value for array elements.
 
 public:
+	//! The type for array keys.
+	typedef edge key_type;
+	//! The type for array entries.
+	typedef T value_type;
+
+	//! The type for edge array iterators.
+	typedef internal::GraphArrayIterator<EdgeArray<T>> iterator;
+	//! The type for edge array const iterators.
+	typedef internal::GraphArrayConstIterator<EdgeArray<T>> const_iterator;
+
+
 	//! Constructs an empty edge array associated with no graph.
 	EdgeArray() : Array<T>(), EdgeArrayBase() { }
+
 	//! Constructs an edge array associated with \a G.
 	EdgeArray(const Graph &G) : Array<T>(G.edgeArrayTableSize()), EdgeArrayBase(&G) { }
+
 	//! Constructs an edge array associated with \a G.
 	/**
 	 * @param G is the associated graph.
@@ -119,11 +146,25 @@ public:
 	 */
 	EdgeArray(const Graph &G, const T &x) :
 		Array<T>(0,G.edgeArrayTableSize()-1,x), EdgeArrayBase(&G), m_x(x) { }
+
 	//! Constructs an edge array that is a copy of \a A.
 	/**
 	 * Associates the array with the same graph as \a A and copies all elements.
 	 */
 	EdgeArray(const EdgeArray<T> &A) : Array<T>(A), EdgeArrayBase(A.m_pGraph), m_x(A.m_x) { }
+
+	//! Constructs an edge array containing the elements of \a A (move semantics).
+	/**
+	 * Edge array \a A is empty afterwards and not associated with any graph.
+	 */
+	EdgeArray(EdgeArray<T> &&A) : Array<T>(std::move(A)), EdgeArrayBase(A), m_x(A.m_x) { }
+
+
+	/**
+	 * @name Access methods
+	 * These methods provide access to elements, size, and corresponding graph.
+	 */
+	//@{
 
 	//! Returns true iff the array is associated with a graph.
 	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
@@ -135,57 +176,169 @@ public:
 
 	//! Returns a reference to the element with index \a e.
 	const T &operator[](edge e) const {
-		OGDF_ASSERT(e != 0 && e->graphOf() == m_pGraph)
+		OGDF_ASSERT(e != nullptr)
+		OGDF_ASSERT(e->graphOf() == m_pGraph)
 		return Array<T>::operator [](e->index());
 	}
 
 	//! Returns a reference to the element with index \a e.
 	T &operator[](edge e) {
-		OGDF_ASSERT(e != 0 && e->graphOf() == m_pGraph)
+		OGDF_ASSERT(e != nullptr)
+		OGDF_ASSERT(e->graphOf() == m_pGraph)
+		return Array<T>::operator [](e->index());
+	}
+
+	//! Returns a reference to the element with index \a e.
+	const T &operator()(edge e) const {
+		OGDF_ASSERT(e != nullptr)
+		OGDF_ASSERT(e->graphOf() == m_pGraph)
+		return Array<T>::operator [](e->index());
+	}
+
+	//! Returns a reference to the element with index \a e.
+	T &operator()(edge e) {
+		OGDF_ASSERT(e != nullptr)
+		OGDF_ASSERT(e->graphOf() == m_pGraph)
 		return Array<T>::operator [](e->index());
 	}
 
 	//! Returns a reference to the element with index edge of \a adj.
 	const T &operator[](adjEntry adj) const {
-		OGDF_ASSERT(adj != 0)
+		OGDF_ASSERT(adj != nullptr)
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \a adj.
 	T &operator[](adjEntry adj) {
-		OGDF_ASSERT(adj != 0)
+		OGDF_ASSERT(adj != nullptr)
+		return Array<T>::operator [](adj->index() >> 1);
+	}
+
+	//! Returns a reference to the element with index edge of \a adj.
+	const T &operator()(adjEntry adj) const {
+		OGDF_ASSERT(adj != nullptr)
+		return Array<T>::operator [](adj->index() >> 1);
+	}
+
+	//! Returns a reference to the element with index edge of \a adj.
+	T &operator()(adjEntry adj) {
+		OGDF_ASSERT(adj != nullptr)
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index \a index.
 	/**
-	 * \attention Make sure that \a index is a valid index for an edge
-	 * in the associated graph!
+	 * \attention Make sure that \a index is a valid index for an edge in the associated graph!
+	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
+	 *             Edge arrays should be index by an edge, not an integer index.
 	 */
-	const T &operator[](int index) const {
-		return Array<T>::operator [](index);
-	}
+	OGDF_DEPRECATED_BEGIN
+	const T &operator[](int index) const
+	OGDF_DEPRECATED_END
+		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
 	/**
-	 * \attention Make sure that \a index is a valid index for an edge
-	 * in the associated graph!
+	 * \attention Make sure that \a index is a valid index for an edge in the associated graph!
+	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
+	 *             Edge arrays should be index by an edge, not an integer index.
 	 */
-	T &operator[](int index) {
-		return Array<T>::operator [](index);
-	}
+	OGDF_DEPRECATED_BEGIN
+	T &operator[](int index)
+	OGDF_DEPRECATED_END
+		{ return Array<T>::operator [](index); }
 
-	//! Assignment operator.
-	EdgeArray<T> &operator=(const EdgeArray<T> &a) {
-		Array<T>::operator =(a);
-		m_x = a.m_x;
-		reregister(a.m_pGraph);
-		return *this;
-	}
+
+	//@}
+	/**
+	 * @name Iterators
+	 * These methods return bidirectional iterators to elements in the array.
+	 */
+	//@{
+
+	//! Returns an iterator to the first entry in the edge array.
+	/**
+	 * If the edge array is empty, a null pointer iterator is returned.
+	 */
+	iterator begin() { return iterator(m_pGraph->firstEdge(), this); }
+
+	//! Returns a const iterator to the first entry in the edge array.
+	/**
+	 * If the edge array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator begin() const { return const_iterator(m_pGraph->firstEdge(), this); }
+
+	//! Returns a const iterator to the first entry in the edge array.
+	/**
+	 * If the edge array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator cbegin() const { return const_iterator(m_pGraph->firstEdge(), this); }
+
+	//! Returns an iterator to one-past-last entry in the edge array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator end() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the edge array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator end() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the edge array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator cend() const { return const_iterator(nullptr, this); }
+
+	//! Returns an iterator to the last entry in the edge array.
+	/**
+	 * If the edge array is empty, a null pointer iterator is returned.
+	 */
+	iterator rbegin() { return iterator(m_pGraph->lastEdge(), this); }
+
+	//! Returns a const iterator to the last entry in the edge array.
+	/**
+	 * If the edge array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator rbegin() const { return const_iterator(m_pGraph->lastEdge(), this); }
+
+	//! Returns a const iterator to the last entry in the edge array.
+	/**
+	 * If the edge array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator crbegin() const { return const_iterator(m_pGraph->lastEdge(), this); }
+
+	//! Returns an iterator to one-before-first entry in the edge array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator rend() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the edge array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator rend() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the edge array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator crend() const { return const_iterator(nullptr, this); }
+
+
+	//@}
+	/**
+	 * @name Initialization and assignment
+	 * These methods can be used to reinitialize the array, or to initialize all elements with a given value.
+	 */
+	//@{
 
 	//! Reinitializes the array. Associates the array with no graph.
 	void init() {
-		Array<T>::init(); reregister(0);
+		Array<T>::init(); reregister(nullptr);
 	}
 
 	//! Reinitializes the array. Associates the array with \a G.
@@ -209,6 +362,38 @@ public:
 			Array<T>::fill(0,high,x);
 	}
 
+	//! Assignment operator.
+	EdgeArray<T> &operator=(const EdgeArray<T> &a) {
+		Array<T>::operator=(a);
+		m_x = a.m_x;
+		reregister(a.m_pGraph);
+		return *this;
+	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * Edge array \a a is empty afterwards and not associated with any graph.
+	 */
+	EdgeArray<T> &operator=(EdgeArray<T> &&a) {
+		Array<T>::operator=(std::move(a));
+		m_x = a.m_x;
+		moveRegister(a);
+		return *this;
+	}
+
+
+	//@}
+	/**
+	 * @name Helper functions
+	 * These methods are mainly intended for internal use.
+	 */
+	//@{
+
+	static key_type findSuccKey(key_type key) { return key->succ(); }
+	static key_type findPredKey(key_type key) { return key->pred(); }
+
+	//@}
+
 private:
 	virtual void enlargeTable(int newTableSize) {
 		Array<T>::resize(newTableSize,m_x);
@@ -220,7 +405,7 @@ private:
 
 	virtual void disconnect() {
 		Array<T>::init();
-		m_pGraph = 0;
+		m_pGraph = nullptr;
 	}
 
 	OGDF_NEW_DELETE

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class LinearQuadtreeExpansion.
  *
@@ -40,16 +32,16 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "LinearQuadtreeExpansion.h"
-#include "ComplexDouble.h"
-#include "WSPD.h"
+#include <ogdf/internal/energybased/LinearQuadtreeExpansion.h>
+#include <ogdf/internal/energybased/ComplexDouble.h>
+#include <ogdf/internal/energybased/WSPD.h>
 #include <complex>
 
 using namespace ogdf::sse;
 
 namespace ogdf {
 
-LinearQuadtreeExpansion::LinearQuadtreeExpansion(__uint32 precision, const LinearQuadtree& tree) : m_tree(tree), m_numCoeff(precision), binCoef(2*m_numCoeff)
+LinearQuadtreeExpansion::LinearQuadtreeExpansion(uint32_t precision, const LinearQuadtree& tree) : m_tree(tree), m_numCoeff(precision), binCoef(2*m_numCoeff)
 {
 	m_numExp = m_tree.maxNumberOfNodes();
 	allocate();
@@ -76,7 +68,7 @@ void LinearQuadtreeExpansion::deallocate()
 }
 
 
-void LinearQuadtreeExpansion::P2M(__uint32 point, __uint32 receiver)
+void LinearQuadtreeExpansion::P2M(uint32_t point, uint32_t receiver)
 {
 	double* receiv_coeff = m_multiExp + receiver*(m_numCoeff<<1);
 	const double q = (double)m_tree.pointSize(point);
@@ -92,7 +84,7 @@ void LinearQuadtreeExpansion::P2M(__uint32 point, __uint32 receiver)
 	ComplexDouble delta(ComplexDouble(x, y) - ComplexDouble(centerX, centerY));
 	// (p - z0)^k
 	ComplexDouble delta_k(delta);
-	for (__uint32 k=1; k<m_numCoeff; k++)
+	for (uint32_t k=1; k<m_numCoeff; k++)
 	{
 		ak.load(receiv_coeff+(k<<1));
 		ak -= delta_k*(q/(double)k);
@@ -102,7 +94,7 @@ void LinearQuadtreeExpansion::P2M(__uint32 point, __uint32 receiver)
 }
 
 
-void LinearQuadtreeExpansion::L2P(__uint32 source, __uint32 point, float& fx, float& fy)
+void LinearQuadtreeExpansion::L2P(uint32_t source, uint32_t point, float& fx, float& fy)
 {
 	const double* source_coeff = m_localExp + source*(m_numCoeff << 1);
 	const double x = (double)m_tree.pointX(point);
@@ -113,7 +105,7 @@ void LinearQuadtreeExpansion::L2P(__uint32 source, __uint32 point, float& fx, fl
 	ComplexDouble res;
 	ComplexDouble delta(ComplexDouble(x,y) - ComplexDouble(centerX, centerY));
 	ComplexDouble delta_k(1);
-	for (__uint32 k=1; k<m_numCoeff; k++)
+	for (uint32_t k=1; k<m_numCoeff; k++)
 	{
 		ak.load(source_coeff+(k<<1));
 		res += ak*delta_k*(double)k;
@@ -128,7 +120,7 @@ void LinearQuadtreeExpansion::L2P(__uint32 source, __uint32 point, float& fx, fl
 }
 
 
-void LinearQuadtreeExpansion::M2M(__uint32 source, __uint32 receiver)
+void LinearQuadtreeExpansion::M2M(uint32_t source, uint32_t receiver)
 {
 	double* receiv_coeff = m_multiExp + receiver*(m_numCoeff<<1);
 	double* source_coeff = m_multiExp + source*(m_numCoeff<<1);
@@ -144,11 +136,11 @@ void LinearQuadtreeExpansion::M2M(__uint32 source, __uint32 receiver)
 	ComplexDouble b(receiv_coeff);
 	b += a;
 	b.store(receiv_coeff);
-	for (__uint32 l=1;l<m_numCoeff;l++)
+	for (uint32_t l=1;l<m_numCoeff;l++)
 	{
 		b.load(receiv_coeff+(l<<1));
 		ComplexDouble delta_k(1.0,0.0);
-		for (__uint32 k=0;k<l;k++)
+		for (uint32_t k=0;k<l;k++)
 		{
 			a.load(source_coeff+((l-k)<<1));
 			b += a*delta_k*binCoef.value(l-1, k);
@@ -161,7 +153,7 @@ void LinearQuadtreeExpansion::M2M(__uint32 source, __uint32 receiver)
 }
 
 
-void LinearQuadtreeExpansion::L2L(__uint32 source, __uint32 receiver)
+void LinearQuadtreeExpansion::L2L(uint32_t source, uint32_t receiver)
 {
 	double* receiv_coeff = m_localExp + receiver*(m_numCoeff<<1);
 	double* source_coeff = m_localExp + source*(m_numCoeff<<1);
@@ -175,11 +167,11 @@ void LinearQuadtreeExpansion::L2L(__uint32 source, __uint32 receiver)
 	ComplexDouble center_source(center_x_source, center_y_source);
 	ComplexDouble delta(center_source - center_receiver);
 
-	for (__uint32 l=0;l<m_numCoeff;l++)
+	for (uint32_t l=0;l<m_numCoeff;l++)
 	{
 		ComplexDouble b(receiv_coeff+(l<<1));
 		ComplexDouble delta_k(1.0,0.0);
-		for (__uint32 k=l;k<m_numCoeff;k++)
+		for (uint32_t k=l;k<m_numCoeff;k++)
 		{
 			ComplexDouble a(source_coeff+(k<<1));
 			b += a*delta_k*binCoef.value(k, l);
@@ -190,7 +182,7 @@ void LinearQuadtreeExpansion::L2L(__uint32 source, __uint32 receiver)
 }
 
 
-void LinearQuadtreeExpansion::M2L(__uint32 source, __uint32 receiver)
+void LinearQuadtreeExpansion::M2L(uint32_t source, uint32_t receiver)
 {
 	double* receiv_coeff = m_localExp + receiver*(m_numCoeff<<1);
 	double* source_coeff = m_multiExp + source*(m_numCoeff<<1);
@@ -210,12 +202,12 @@ void LinearQuadtreeExpansion::M2L(__uint32 source, __uint32 receiver)
 	ComplexDouble a0(source_coeff);
 	ComplexDouble b;
 	ComplexDouble sum;
-	for (__uint32 l=1;l<m_numCoeff;l++)
+	for (uint32_t l=1;l<m_numCoeff;l++)
 	{
 		b.load(receiv_coeff+(l<<1));
 		sum = a0*(-1/(double)l);
 		ComplexDouble delta0_k(delta0);
-		for (__uint32 k=1;k<m_numCoeff;k++)
+		for (uint32_t k=1;k<m_numCoeff;k++)
 		{
 			a.load(source_coeff+(k<<1));
 			sum += (a*binCoef.value(l+k-1, k-1)) / delta0_k;
@@ -246,7 +238,7 @@ void LinearQuadtreeExpansion::M2L(__uint32 source, __uint32 receiver)
 	// (z1 - z0)^1
 	//b += a0*ComplexDouble(sdelta.real(), sdelta.imag());
 	delta1_l = delta1;
-	for (__uint32 k=1;k<m_numCoeff;k++)
+	for (uint32_t k=1;k<m_numCoeff;k++)
 	{
 		a.load(source_coeff+(k<<1));
 		b += a/delta1_l;

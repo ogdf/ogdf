@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class FMEMultipoleKernel.
  *
@@ -40,12 +32,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#include "FMEMultipoleKernel.h"
-#include "ArrayGraph.h"
-#include "LinearQuadtree.h"
-#include "LinearQuadtreeBuilder.h"
-#include "LinearQuadtreeExpansion.h"
-#include "WSPD.h"
+#include <ogdf/internal/energybased/FMEMultipoleKernel.h>
+#include <ogdf/internal/energybased/ArrayGraph.h>
+#include <ogdf/internal/energybased/LinearQuadtree.h>
+#include <ogdf/internal/energybased/LinearQuadtreeBuilder.h>
+#include <ogdf/internal/energybased/LinearQuadtreeExpansion.h>
+#include <ogdf/internal/energybased/WSPD.h>
+
 
 namespace ogdf {
 
@@ -69,7 +62,7 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 		globalContext->min_y = globalContext->pLocalContext[0]->min_y;
 		globalContext->max_x = globalContext->pLocalContext[0]->max_x;
 		globalContext->max_y = globalContext->pLocalContext[0]->max_y;
-		for (__uint32 j=1; j < numThreads(); j++)
+		for (uint32_t j=1; j < numThreads(); j++)
 		{
 			globalContext->min_x = min(globalContext->min_x, globalContext->pLocalContext[j]->min_x);
 			globalContext->min_y = min(globalContext->min_y, globalContext->pLocalContext[j]->min_y);
@@ -146,7 +139,7 @@ void FMEMultipoleKernel::quadtreeConstruction(ArrayPartition& pointPartition)
 			sbuilder.firstLeaf = globalContext->pLocalContext[0]->firstLeaf;
 			sbuilder.numInnerNodes = globalContext->pLocalContext[0]->numInnerNodes;
 			sbuilder.numLeaves = globalContext->pLocalContext[0]->numLeaves;
-			for (__uint32 j=1; j < numThreads(); j++)
+			for (uint32_t j=1; j < numThreads(); j++)
 			{
 				sbuilder.numLeaves += globalContext->pLocalContext[j]->numLeaves;
 				sbuilder.numInnerNodes += globalContext->pLocalContext[j]->numInnerNodes;
@@ -492,8 +485,8 @@ void FMEMultipoleKernel::multipoleApproxFinal(ArrayPartition& nodePointPartition
 
 void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 {
-	__uint32					maxNumIterations    =  globalContext->pOptions->maxNumIterations;
-	__uint32					minNumIterations    =  globalContext->pOptions->minNumIterations;
+	uint32_t					maxNumIterations    =  globalContext->pOptions->maxNumIterations;
+	uint32_t					minNumIterations    =  globalContext->pOptions->minNumIterations;
 	ArrayGraph&					graph				= *globalContext->pGraph;
 	LinearQuadtree&				tree				= *globalContext->pQuadtree;
 	LinearQuadtreeExpansion&	treeExp				= *globalContext->pExpansion;
@@ -517,14 +510,14 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 	for_loop_array_set(threadNr(), numThreads(), globalForceArrayY, tree.numberOfPoints(), 0.0f);
 
 	// reset the threads force array
-	for (__uint32 i = 0; i < tree.numberOfPoints(); i++)
+	for (uint32_t i = 0; i < tree.numberOfPoints(); i++)
 	{
 		threadsForceArrayX[i] = 0.0f;
 		threadsForceArrayY[i] = 0.0f;
 	}
 
-	__uint32 maxNumIt = options->preProcMaxNumIterations;
-	for (__uint32 currNumIteration = 0; ((currNumIteration < maxNumIt) ); currNumIteration++)
+	uint32_t maxNumIt = options->preProcMaxNumIterations;
+	for (uint32_t currNumIteration = 0; ((currNumIteration < maxNumIt) ); currNumIteration++)
 	{
 		// iterate over all edges and store the resulting forces in the threads array
 		for_loop(edgePartition,
@@ -546,7 +539,7 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 	}
 	sync();
 
-	for (__uint32 currNumIteration = 0; ((currNumIteration < maxNumIterations) && !globalContext->earlyExit); currNumIteration++)
+	for (uint32_t currNumIteration = 0; ((currNumIteration < maxNumIterations) && !globalContext->earlyExit); currNumIteration++)
 	{
 		// reset the coefficients
 		for_loop_array_set(threadNr(), numThreads(), treeExp.m_multiExp, treeExp.m_numExp*(treeExp.m_numCoeff << 1), 0.0);
@@ -587,7 +580,7 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 		if (isMainThread())
 		{
 			double maxForceSq = 0.0;
-			for (__uint32 j=0; j < numThreads(); j++)
+			for (uint32_t j=0; j < numThreads(); j++)
 				maxForceSq = max(globalContext->pLocalContext[j]->maxForceSq, maxForceSq);
 
 			// if we are allowed to quit and the max force sq falls under the threshold tell all threads we are done
@@ -602,7 +595,7 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 }
 
 //! allcates the global context and for all threads a local context
-FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph, FMEGlobalOptions* pOptions, __uint32 numThreads)
+FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph, FMEGlobalOptions* pOptions, uint32_t numThreads)
 {
 	FMEGlobalContext* globalContext = new FMEGlobalContext();
 
@@ -612,13 +605,13 @@ FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph, FMEGlo
 	globalContext->pQuadtree = new LinearQuadtree(pGraph->numNodes(), pGraph->nodeXPos(), pGraph->nodeYPos(), pGraph->nodeSize());
 	globalContext->pWSPD = globalContext->pQuadtree->wspd();
 	globalContext->pExpansion = new LinearQuadtreeExpansion(globalContext->pOptions->multipolePrecision, (*globalContext->pQuadtree));
-	__uint32 numPoints = globalContext->pQuadtree->numberOfPoints();
+	uint32_t numPoints = globalContext->pQuadtree->numberOfPoints();
 	typedef FMELocalContext* FMELocalContextPtr;
 
 	globalContext->pLocalContext = new FMELocalContextPtr[numThreads];
 	globalContext->globalForceX = (float*)MALLOC_16(sizeof(float)*numPoints);
 	globalContext->globalForceY = (float*)MALLOC_16(sizeof(float)*numPoints);
-	for (__uint32 i=0; i < numThreads; i++)
+	for (uint32_t i=0; i < numThreads; i++)
 	{
 		globalContext->pLocalContext[i] = new FMELocalContext;
 		globalContext->pLocalContext[i]->forceX = (float*)MALLOC_16(sizeof(float)*numPoints);
@@ -631,8 +624,8 @@ FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph, FMEGlo
 //! frees the memory for all contexts
 void FMEMultipoleKernel::deallocateContext(FMEGlobalContext* globalContext)
 {
-	__uint32 numThreads = globalContext->numThreads;
-	for (__uint32 i=0; i < numThreads; i++)
+	uint32_t numThreads = globalContext->numThreads;
+	for (uint32_t i=0; i < numThreads; i++)
 	{
 		FREE_16(globalContext->pLocalContext[i]->forceX);
 		FREE_16(globalContext->pLocalContext[i]->forceY);

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementations of class GEMLayout.
  *
@@ -65,7 +57,8 @@ GEMLayout::GEMLayout() :
 	m_oscillationSensitivity(0.3),
 	m_attractionFormula(1),
 	m_minDistCC(LayoutStandards::defaultCCSeparation()),
-	m_pageRatio(1.0)
+	m_pageRatio(1.0),
+	m_rng(randomSeed())
 { }
 
 GEMLayout::GEMLayout(const GEMLayout &fl) :
@@ -81,7 +74,8 @@ GEMLayout::GEMLayout(const GEMLayout &fl) :
 	m_oscillationSensitivity(fl.m_oscillationSensitivity),
 	m_attractionFormula(fl.m_attractionFormula),
 	m_minDistCC(fl.m_minDistCC),
-	m_pageRatio(fl.m_pageRatio)
+	m_pageRatio(fl.m_pageRatio),
+	m_rng(randomSeed())
 { }
 
 
@@ -101,6 +95,9 @@ GEMLayout &GEMLayout::operator=(const GEMLayout &fl)
 	m_rotationSensitivity = fl.m_rotationSensitivity;
 	m_oscillationSensitivity = fl.m_oscillationSensitivity;
 	m_attractionFormula = fl.m_attractionFormula;
+	m_minDistCC = fl.m_minDistCC;
+	m_pageRatio = fl.m_pageRatio;
+
 	return *this;
 }
 
@@ -124,8 +121,7 @@ void GEMLayout::call(GraphAttributes &AG)
 	// intialize the array of lists of nodes contained in a CC
 	Array<List<node> > nodesInCC(numCC);
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		nodesInCC[component[v]].pushBack(v);
 
 	EdgeArray<edge> auxCopy(G);
@@ -137,15 +133,13 @@ void GEMLayout::call(GraphAttributes &AG)
 		GC.initByNodes(nodesInCC[i],auxCopy);
 
 		GraphCopyAttributes AGC(GC,AG);
-		node vCopy;
-		forall_nodes(vCopy, GC) {
+		for(node vCopy : GC.nodes) {
 			node vOrig = GC.original(vCopy);
 			AGC.x(vCopy) = AG.x(vOrig);
 			AGC.y(vCopy) = AG.y(vOrig);
 		}
 
 		SList<node> permutation;
-		node v;
 
 		// initialize node data
 		m_impulseX.init(GC,0);
@@ -157,7 +151,7 @@ void GEMLayout::call(GraphAttributes &AG)
 		m_globalTemperature = m_initialTemperature;
 		m_barycenterX = 0;
 		m_barycenterY = 0;
-		forall_nodes(v,GC) {
+		for(node v : GC.nodes) {
 			m_barycenterX += weight(v) * AGC.x(v);
 			m_barycenterY += weight(v) * AGC.y(v);
 		}
@@ -170,11 +164,11 @@ void GEMLayout::call(GraphAttributes &AG)
 
 			// choose nodes by random permutations
 			if(permutation.empty()) {
-				forall_nodes(v,GC)
+				for(node v : GC.nodes)
 					permutation.pushBack(v);
-				permutation.permute();
+				permutation.permute(m_rng);
 			}
-			v = permutation.popFrontRet();
+			node v = permutation.popFrontRet();
 
 			// compute the impulse of node v
 			computeImpulse(GC,AGC,v);
@@ -188,7 +182,7 @@ void GEMLayout::call(GraphAttributes &AG)
 		double minX = AGC.x(vFirst), maxX = AGC.x(vFirst),
 			minY = AGC.y(vFirst), maxY = AGC.y(vFirst);
 
-		forall_nodes(vCopy,GC) {
+		for(node vCopy : GC.nodes) {
 			node v = GC.original(vCopy);
 			AG.x(v) = AGC.x(vCopy);
 			AG.y(v) = AGC.y(vCopy);
@@ -202,7 +196,7 @@ void GEMLayout::call(GraphAttributes &AG)
 		minX -= m_minDistCC;
 		minY -= m_minDistCC;
 
-		forall_nodes(vCopy,GC) {
+		for(node vCopy : GC.nodes) {
 			node v = GC.original(vCopy);
 			AG.x(v) -= minX;
 			AG.y(v) -= minY;
@@ -228,10 +222,8 @@ void GEMLayout::call(GraphAttributes &AG)
 
 		// iterate over all nodes in ith CC
 		ListConstIterator<node> it;
-		for(it = nodes.begin(); it.valid(); ++it)
+		for(node v : nodes)
 		{
-			node v = *it;
-
 			AG.x(v) += dx;
 			AG.y(v) += dy;
 		}
@@ -245,11 +237,11 @@ void GEMLayout::call(GraphAttributes &AG)
 	m_localTemperature.init();
 }
 
+
 void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	//const Graph &G = AG.constGraph();
 	int n = G.numberOfNodes();
 
-	node u;
 	edge e;
 	double deltaX,deltaY,delta,deltaSqu;
 	double desiredLength,desiredSqu;
@@ -264,13 +256,12 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 
 	// disturb randomly
 	int maxIntDisturbance = (int)(m_maximalDisturbance * 10000);
-	m_newImpulseX +=
-		(double)(randomNumber(-maxIntDisturbance,maxIntDisturbance) / 10000);
-	m_newImpulseY +=
-		(double)(randomNumber(-maxIntDisturbance,maxIntDisturbance) / 10000);
+	std::uniform_int_distribution<> dist(-maxIntDisturbance,maxIntDisturbance);
+	m_newImpulseX += (dist(m_rng) / 10000.0);
+	m_newImpulseY += (dist(m_rng) / 10000.0);
 
 	// compute repulsive forces
-	forall_nodes(u,G)
+	for(node u : G.nodes)
 		if(u != v ) {
 			deltaX = AG.x(v) - AG.x(u);
 			deltaY = AG.y(v) - AG.y(u);
@@ -284,7 +275,7 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 
 	// compute attractive forces
 	forall_adj_edges(e,v) {
-		u = e->opposite(v);
+		node u = e->opposite(v);
 		deltaX = AG.x(v) - AG.x(u);
 		deltaY = AG.y(v) - AG.y(u);
 		delta = length(deltaX,deltaY);
@@ -300,6 +291,7 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	}
 
 }
+
 
 void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	//const Graph &G = AG.constGraph();

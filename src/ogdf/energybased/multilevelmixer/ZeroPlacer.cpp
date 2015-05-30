@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Places Nodes at the Positio of the merge-partner
  *
@@ -59,7 +51,7 @@ void ZeroPlacer::setRandomRange(double range)
 void ZeroPlacer::placeOneLevel(MultilevelGraph &MLG)
 {
 	int level = MLG.getLevel();
-	while (MLG.getLevel() == level && MLG.getLastMerge() != 0)
+	while (MLG.getLevel() == level && MLG.getLastMerge() != nullptr)
 	{
 		placeOneNode(MLG);
 	}

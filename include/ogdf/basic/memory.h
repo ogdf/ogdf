@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of memory manager for allocating small
  *        pieces of memory
@@ -50,7 +42,6 @@
 #define OGDF_MEMORY_H
 
 
-#include <stdlib.h>
 #include <new>
 
 

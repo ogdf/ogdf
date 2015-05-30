@@ -2462,7 +2462,7 @@ ClpCholeskyBase::symbolic1(const CoinBigIndex * Astart, const int * Arow)
           sizeFactor_ += number;
      }
      choleskyStart_[numberRows_] = sizeFactor_;
-     return sizeFactor_;;
+     return sizeFactor_;
 }
 void
 ClpCholeskyBase::symbolic2(const CoinBigIndex * Astart, const int * Arow)

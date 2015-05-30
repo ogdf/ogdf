@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -232,8 +224,6 @@ template <class Type, class Key>
 void AbaBHeap<Type, Key>::heapify(int i)
 {
 	//! AbaBHeap::heapify(): variables
-	int  l;        // left son of i
-	int  r;        // right son of i
 	int  smallest; // smallest heap element of i,l, and r
 	Type tmp;      // temporary object for swapping elements of the heap
 	Key  ktmp;     // temporary object for swapping the keys
@@ -248,8 +238,8 @@ void AbaBHeap<Type, Key>::heapify(int i)
 	*/
 	while (i < n_) {
 		//! find the \a smallest element of \a i, and its two sons
-		l = leftSon(i);
-		r = rightSon(i);
+		int l = leftSon(i);
+		int r = rightSon(i);
 		if (l < n_ && keys_[i] > keys_[l])        smallest = l;
 		else                                      smallest = i;
 		if (r < n_ && keys_[smallest] > keys_[r]) smallest = r;

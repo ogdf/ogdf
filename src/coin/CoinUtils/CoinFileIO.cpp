@@ -65,12 +65,12 @@ public:
       fclose (f_);
   }
 
-  virtual int read (void *buffer, int size)
+  virtual int read (void *buffer, int size) override
   {
     return static_cast<int>(fread (buffer, 1, size, f_));
   }
 
-  virtual char *gets (char *buffer, int size)
+  virtual char *gets (char *buffer, int size) override
   {
     return fgets (buffer, size, f_);
   }
@@ -98,7 +98,7 @@ public:
 
   virtual ~CoinGetslessFileInput () {}
 
-  virtual int read (void *buffer, int size)
+  virtual int read (void *buffer, int size) override
   {
     if (size <= 0)
       return 0;
@@ -134,7 +134,7 @@ public:
     return r;
   }
 
-  virtual char *gets (char *buffer, int size)
+  virtual char *gets (char *buffer, int size) override
   {
     if (size <= 1)
       return 0;
@@ -408,13 +408,13 @@ public:
       fclose (f_);
   }
 
-  virtual int write (const void *buffer, int size)
+  virtual int write (const void *buffer, int size) override
   {
     return static_cast<int>(fwrite (buffer, 1, size, f_));
   }
 
   // we have something better than the default implementation
-  virtual bool puts (const char *s)
+  virtual bool puts (const char *s) override
   {
     return fputs (s, f_) >= 0;
   }

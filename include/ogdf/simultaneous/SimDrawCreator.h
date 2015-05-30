@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Offers variety of possible SimDraw creations.
  *
@@ -62,10 +54,10 @@ namespace ogdf
 		SimDrawCreator(SimDraw &SD) : SimDrawManipulatorModule(SD) {}
 
 		//! returns SubGraphBits from edge e
-		__uint32 &SubGraphBits(edge e) { return m_GA->subGraphBits(e); }
+		uint32_t &SubGraphBits(edge e) { return m_GA->subGraphBits(e); }
 
 		//! returns SubGraphBits from edge e
-		__uint32 &SubGraphBits(edge e) const { return m_GA->subGraphBits(e); }
+		uint32_t &SubGraphBits(edge e) const { return m_GA->subGraphBits(e); }
 
 		//! reads a Graph
 		void readGraph(const Graph &G) { *m_G = G; }

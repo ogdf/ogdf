@@ -1,16 +1,8 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
- * \brief Declaration of base class of min-cost-flow algorithms
+ * \brief Template of base class of min-cost-flow algorithms.
  *
  * Includes some useful functions dealing with min-cost flow
- * (generater, checker).
+ * (problem generator, problem checker).
  *
  * \author Carsten Gutwenger
  *
@@ -61,6 +53,7 @@ namespace ogdf {
 /**
  * \brief Interface for min-cost flow algorithms.
  */
+template<typename TCost>
 class OGDF_EXPORT MinCostFlowModule
 {
 public:
@@ -69,6 +62,32 @@ public:
 
 	// destruction
 	virtual ~MinCostFlowModule() { }
+
+	/**
+	* \brief Computes a min-cost flow in the directed graph \a G.
+	*
+	* \pre \a G must be connected, \a lowerBound[\a e] \f$\leq\f$ \a upperBound[\a e]
+	*      for all edges \a e, and the sum over all supplies must be zero.
+	*
+	* @param G is the directed input graph.
+	* @param lowerBound gives the lower bound for the flow on each edge.
+	* @param upperBound gives the upper bound for the flow on each edge.
+	* @param cost gives the costs for each edge.
+	* @param supply gives the supply (or demand if negative) of each node.
+	* @param flow is assigned the computed flow on each edge.
+	* \return true iff a feasible min-cost flow exists.
+	*/
+	virtual bool call(
+		const Graph &G,                   // directed graph
+		const EdgeArray<int> &lowerBound, // lower bound for flow
+		const EdgeArray<int> &upperBound, // upper bound for flow
+		const EdgeArray<TCost> &cost,     // cost of an edge
+		const NodeArray<int> &supply,     // supply (if neg. demand) of a node
+		EdgeArray<int> &flow)             // computed flow
+	{
+		NodeArray<TCost> dual(G);
+		return call(G, lowerBound, upperBound, cost, supply, flow, dual);
+	}
 
 	/**
 	 * \brief Computes a min-cost flow in the directed graph \a G.
@@ -89,10 +108,10 @@ public:
 		const Graph &G,                   // directed graph
 		const EdgeArray<int> &lowerBound, // lower bound for flow
 		const EdgeArray<int> &upperBound, // upper bound for flow
-		const EdgeArray<int> &cost,       // cost of an edge
+		const EdgeArray<TCost> &cost,     // cost of an edge
 		const NodeArray<int> &supply,     // supply (if neg. demand) of a node
 		EdgeArray<int> &flow,			  // computed flow
-		NodeArray<int> &dual            // computed dual variables
+		NodeArray<TCost> &dual            // computed dual variables
 		) = 0;
 
 
@@ -110,7 +129,7 @@ public:
 		int m,
 		EdgeArray<int> &lowerBound,
 		EdgeArray<int> &upperBound,
-		EdgeArray<int> &cost,
+		EdgeArray<TCost> &cost,
 		NodeArray<int> &supply);
 
 
@@ -158,10 +177,10 @@ public:
 		const Graph &G,
 		EdgeArray<int> &lowerBound,
 		EdgeArray<int> &upperBound,
-		EdgeArray<int> &cost,
+		EdgeArray<TCost> &cost,
 		NodeArray<int> &supply,
 		EdgeArray<int> &flow,
-		int &value);
+		TCost &value);
 
 	/**
 	 * \brief checks if a computed flow is a feasible solution to the given problem
@@ -185,7 +204,7 @@ public:
 		const Graph &G,
 		EdgeArray<int> &lowerBound,
 		EdgeArray<int> &upperBound,
-		EdgeArray<int> &cost,
+		EdgeArray<TCost> &cost,
 		NodeArray<int> &supply,
 		EdgeArray<int> &flow)
 	{
@@ -194,6 +213,124 @@ public:
 			G,lowerBound,upperBound,cost,supply,flow,value);
 	}
 };
+
+
+} // end namespace ogdf
+
+
+// Implementation
+
+#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
+
+namespace ogdf {
+
+template<typename TCost>
+void MinCostFlowModule<TCost>::generateProblem(
+	Graph &G,
+	int n,
+	int m,
+	EdgeArray<int> &lowerBound,
+	EdgeArray<int> &upperBound,
+	EdgeArray<TCost> &cost,
+	NodeArray<int> &supply)
+{
+	ogdf::randomGraph(G,n,m);
+
+	node s = G.firstNode();
+	node t = G.lastNode();
+
+	for(node v : G.nodes) {
+		G.newEdge(s,v);
+		G.newEdge(v,t);
+	}
+
+	for(edge e : G.edges) {
+		lowerBound[e] = 0;
+		upperBound[e] = (e->source() != s) ? ogdf::randomNumber(1,10) : ogdf::randomNumber(2,13);
+		cost[e] = static_cast<TCost>(ogdf::randomNumber(0,100));
+	}
+
+
+	for(node v = G.firstNode(), vl = G.lastNode(); true; v = v->succ(), vl = vl->pred()) {
+		if (v == vl) {
+			supply[v] = 0;
+			break;
+		}
+
+		supply[v] = -(supply[vl] = ogdf::randomNumber(-1,1));
+
+		if (vl == v->succ())
+			break;
+	}
+
+}
+
+template<typename TCost>
+bool MinCostFlowModule<TCost>::checkProblem(
+	const Graph &G,
+	const EdgeArray<int> &lowerBound,
+	const EdgeArray<int> &upperBound,
+	const NodeArray<int> &supply)
+{
+	if(isConnected(G) == false)
+		return false;
+
+	for(edge e : G.edges) {
+		if (lowerBound[e] > upperBound[e])
+			return false;
+	}
+
+	int sum = 0;
+	for(node v : G.nodes) {
+		sum += supply[v];
+	}
+
+	return (sum == 0);
+}
+
+
+template<typename TCost>
+bool MinCostFlowModule<TCost>::checkComputedFlow(
+	const Graph &G,
+	EdgeArray<int> &lowerBound,
+	EdgeArray<int> &upperBound,
+	EdgeArray<TCost> &cost,
+	NodeArray<int> &supply,
+	EdgeArray<int> &flow,
+	TCost &value)
+{
+	value = 0;
+
+	for (edge e : G.edges) {
+		if (flow[e] < lowerBound[e] || upperBound[e] < flow[e]) {
+			return false;
+		}
+
+		value += flow[e] * cost[e];
+	}
+
+	for (node v : G.nodes) {
+		int sum = 0;
+		edge e;
+		forall_adj_edges(e,v) {
+			if (e->isSelfLoop()) {
+				continue;
+			}
+
+			if (e->source() == v) {
+				sum += flow[e];
+			} else {
+				sum -= flow[e];
+			}
+		}
+		if (sum != supply[v]) {
+			return false;
+		}
+	}
+
+	return true;
+}
 
 
 } // end namespace ogdf

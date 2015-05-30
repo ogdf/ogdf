@@ -38,7 +38,7 @@ public:
   Insert generated cuts into the cut set cs.
   */
   virtual void generateCuts( const OsiSolverInterface & si, OsiCuts & cs,
-			     const CglTreeInfo info = CglTreeInfo()) const;
+			     const CglTreeInfo info = CglTreeInfo()) const override;
   //@}
 
   /**@name Constructors and destructors */
@@ -51,7 +51,7 @@ public:
     const CglSimpleRounding &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglSimpleRounding &
@@ -62,7 +62,7 @@ public:
   virtual
     ~CglSimpleRounding ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
 
 private:

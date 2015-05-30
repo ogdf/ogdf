@@ -1,11 +1,3 @@
-/*
- * $Revision: 3388 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:56:08 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of the class PQTree.
  *
@@ -49,8 +41,6 @@
 #ifndef OGDF_PQ_TREE_H
 #define OGDF_PQ_TREE_H
 
-
-#include <string.h>
 
 #include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Queue.h>
@@ -387,7 +377,8 @@ bool PQTree<T,X,Y>::addNodeToNewParent(
 	PQNode<T,X,Y>* parent,
 	PQNode<T,X,Y>* child)
 {
-	OGDF_ASSERT(parent->type() == PQNodeRoot::PNode && parent->type() == PQNodeRoot::QNode)
+	OGDF_ASSERT(parent->type() == PQNodeRoot::PNode);
+	OGDF_ASSERT(parent->type() == PQNodeRoot::QNode);
 		//parent type not valid.
 
 	if (child != 0)
@@ -712,7 +703,6 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 	int blockCount       = 0;
 	int numBlocked       = 0;
 	int offTheTop        = 0;
-	int blockedSiblings  = 0;
 	PQNode<T,X,Y>* checkSib = 0;
 	Stack<PQNode<T,X,Y>*> blockedNodes;
 
@@ -741,7 +731,7 @@ bool PQTree<T,X,Y>::Bubble(SListPure<PQLeafKey<T,X,Y>*> &leafKeys)
 		PQNode<T,X,Y>* checkNode = processNodes.pop();
 		blockedNodes.push(checkNode);
 		checkNode->mark(PQNodeRoot::BLOCKED);
-		blockedSiblings = 0;
+		int blockedSiblings = 0;
 
 		/*
 		Check if node is adjacent to an unblocked node.
@@ -1051,7 +1041,8 @@ bool PQTree<T,X,Y>::checkChain(
 
 			else {
 				//searching consecutive sequence in Q2 or Q3.
-				OGDF_ASSERT(leftOld != 0 && leftOld->status() == PQNodeRoot::FULL);
+				OGDF_ASSERT(leftOld != 0);
+				OGDF_ASSERT(leftOld->status() == PQNodeRoot::FULL);
 				(*seqEnd) = leftOld;
 			}
 
@@ -1093,7 +1084,8 @@ bool PQTree<T,X,Y>::checkChain(
 				(*seqStart) = checkNode;
 
 			else {
-				OGDF_ASSERT(rightOld != 0 && rightOld->status() == PQNodeRoot::FULL);
+				OGDF_ASSERT(rightOld != 0);
+				OGDF_ASSERT(rightOld->status() == PQNodeRoot::FULL);
 				(*seqStart) = rightOld;
 				//searching consecutive seqeuence in Q2 or Q3.
 			}
@@ -1208,13 +1200,13 @@ void PQTree<T,X,Y>::Cleanup()
 {
 	PQNode<T,X,Y>*  nextSon   = 0;
 	PQNode<T,X,Y>*  lastSon   = 0;
-	PQNode<T,X,Y>*  oldSib    = 0;
 
 	Queue<PQNode<T,X,Y>*> helpqueue;
 
 	if (m_root != 0)
 	{
 		emptyAllPertinentNodes();
+		PQNode<T,X,Y>*  oldSib = 0;
 
 		/*
 		Process the [[m_root]] of the [[PQTree]]. Before deleting [[m_root]],
@@ -1586,11 +1578,9 @@ PQNode<T,X,Y>* PQTree<T,X,Y>::createNodeAndCopyFullChildren(
 template<class T,class X,class Y>
 void PQTree<T,X,Y>::emptyAllPertinentNodes()
 {
-	PQNode<T,X,Y> *nodePtr;
-
 	while(!m_pertinentNodes->empty())
 	{
-		nodePtr = m_pertinentNodes->popFrontRet();
+		PQNode<T, X, Y> *nodePtr = m_pertinentNodes->popFrontRet();
 		switch (nodePtr->status())
 		{
 			case PQNodeRoot::TO_BE_DELETED:
@@ -2071,7 +2061,7 @@ void PQTree<T,X,Y>::writeGML(ostream &os)
 
 	SListIterator<PQNode<T,X,Y>*> it;
 
-	for (it = secondTrace.begin(); it.valid(); it++)
+	for (it = secondTrace.begin(); it.valid(); ++it)
 	{
 		checkNode = *it;
 		if (checkNode->type() == PQNodeRoot::PNode)

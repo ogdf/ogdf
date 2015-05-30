@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class BCTree
  *
@@ -53,7 +45,7 @@ void BCTree::init (node vG)
 	m_numC = 0;
 
 	m_gNode_isMarked.init(m_G,false);
-	m_gNode_hNode.init(m_G,0);
+	m_gNode_hNode.init(m_G,nullptr);
 	m_gEdge_hEdge.init(m_G);
 
 	m_bNode_type.init(m_B);
@@ -73,15 +65,14 @@ void BCTree::init (node vG)
 	m_lowpt.init(m_G);
 	m_gtoh.init(m_G);
 
-	biComp(0,vG);
+	biComp(nullptr,vG);
 
 	m_number.init();
 	m_lowpt.init();
 	m_eStack.clear();
 	m_gtoh.init();
 
-	node uB;
-	forall_nodes (uB,m_B) {
+	for(node uB : m_B.nodes) {
 		node vB = parent(uB);
 		if (vB) m_B.newEdge(uB,vB);
 	}
@@ -94,7 +85,7 @@ void BCTree::initNotConnected (node vG)
 	m_numC = 0;
 
 	m_gNode_isMarked.init(m_G,false);
-	m_gNode_hNode.init(m_G,0);
+	m_gNode_hNode.init(m_G,nullptr);
 	m_gEdge_hEdge.init(m_G);
 
 	m_bNode_type.init(m_B);
@@ -114,25 +105,22 @@ void BCTree::initNotConnected (node vG)
 	m_lowpt.init(m_G);
 	m_gtoh.init(m_G);
 
-	biComp(0,vG);
+	biComp(nullptr,vG);
 	// cout << m_count << endl << flush;
-
-	node v;
 
 	// call biComp for all nodes that are not in the
 	//  first connected component
-	forall_nodes(v, m_G)
+	for(node v : m_G.nodes)
 		if (m_number[v] == 0){
 			m_eStack.clear();
-			biComp(0, v);
+			biComp(nullptr, v);
 		}
 
 	m_lowpt.init();
 	m_eStack.clear();
 	m_gtoh.init();
 
-	node uB;
-	forall_nodes (uB,m_B) {
+	for(node uB : m_B.nodes) {
 		node vB = parent(uB);
 		if (vB) m_B.newEdge(uB,vB);
 	}
@@ -143,11 +131,10 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 {
 	m_lowpt[vG] = m_number[vG] = ++m_count;
 
-	adjEntry adj;
-	forall_adj (adj,vG) {
+	for(adjEntry adj : vG->adjEdges) {
 		//edge eG = adj->theEdge();
 		node wG = adj->twinNode();
-		if ((adjuG != 0) && (adj == adjuG->twin())) continue;
+		if ((adjuG != nullptr) && (adj == adjuG->twin())) continue;
 		if (m_number[wG]==0) {
 			m_eStack.push(adj);
 			biComp(adj,wG);
@@ -156,8 +143,8 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 				node bB = m_B.newNode();
 				m_bNode_type[bB] = BComp;
 				m_bNode_isMarked[bB] = false;
-				m_bNode_hRefNode[bB] = 0;
-				m_bNode_hParNode[bB] = 0;
+				m_bNode_hRefNode[bB] = nullptr;
+				m_bNode_hParNode[bB] = nullptr;
 				m_bNode_numNodes[bB] = 0;
 				m_numB++;
 				adjEntry adjfG;
@@ -221,9 +208,9 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 
 node BCTree::parent (node vB) const
 {
-	if (!vB) return 0;
+	if (!vB) return nullptr;
 	node vH = m_bNode_hParNode[vB];
-	if (!vH) return 0;
+	if (!vH) return nullptr;
 	return m_hNode_bNode[vH];
 }
 
@@ -234,22 +221,22 @@ node BCTree::bComponent (node uG, node vG) const
 	node vB = bcproper(vG);
 	if (uB==vB) return uB;
 	if (typeOfBNode(uB)==BComp) {
-		if (typeOfBNode(vB)==BComp) return 0;
+		if (typeOfBNode(vB)==BComp) return nullptr;
 		if (parent(uB)==vB) return uB;
 		if (parent(vB)==uB) return uB;
-		return 0;
+		return nullptr;
 	}
 	if (typeOfBNode(vB)==BComp) {
 		if (parent(uB)==vB) return vB;
 		if (parent(vB)==uB) return vB;
-		return 0;
+		return nullptr;
 	}
 	node pB = parent(uB);
 	node qB = parent(vB);
 	if (pB==qB) return pB;
 	if (parent(pB)==vB) return pB;
 	if (parent(qB)==uB) return qB;
-	return 0;
+	return nullptr;
 }
 
 
@@ -291,18 +278,18 @@ node BCTree::repVertex (node uG, node vB) const
 {
 	node uB = bcproper(uG);
 	if (uB==vB) return m_gNode_hNode[uG];
-	if (typeOfBNode(uB)==BComp) return 0;
+	if (typeOfBNode(uB)==BComp) return nullptr;
 	if (parent(uB)==vB) return m_bNode_hParNode[uB];
 	if (uB==parent(vB)) return m_bNode_hRefNode[vB];
-	return 0;
+	return nullptr;
 }
 
 node BCTree::cutVertex (node uB, node vB) const
 {
-	if (uB==vB) return typeOfBNode(uB)==CComp ? m_bNode_hRefNode[vB] : 0;
+	if (uB==vB) return typeOfBNode(uB)==CComp ? m_bNode_hRefNode[vB] : nullptr;
 	if (parent(uB)==vB) return m_bNode_hParNode[uB];
 	if (uB==parent(vB)) return m_bNode_hRefNode[vB];
-	return 0;
+	return nullptr;
 }
 
 

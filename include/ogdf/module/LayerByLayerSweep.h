@@ -1,11 +1,3 @@
-/*
- * $Revision: 3833 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:23:15 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for two-layer crossing
  *        minimization algorithms.
@@ -61,6 +53,8 @@ class SugiyamaLayout;
 /**
  * \brief Interface of two-layer crossing minimization algorithms.
  *
+ * @ingroup gd-layered-crossmin
+ *
  * The interface of a two-layer crossing minimization algorithm consists of
  * four methods:
  *   -# init(const Hierarchy & H) must be called first. This initializes the module
@@ -74,13 +68,13 @@ class SugiyamaLayout;
 class OGDF_EXPORT LayerByLayerSweep : public LayeredCrossMinModule {
 public:
 
-	virtual const HierarchyLevels *reduceCrossings(const SugiyamaLayout &sugi, const Hierarchy &H);
+	virtual const HierarchyLevels *reduceCrossings(const SugiyamaLayout &sugi, const Hierarchy &H, int &nCrossings);
 
 	//! Template method implementation of reduceCrossings from LayeredCrossMinModule.
-	virtual const HierarchyLevels *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H)
+	virtual const HierarchyLevels *reduceCrossings(const SugiyamaLayout &sugi, Hierarchy &H, int &nCrossings) override
 	{
 		const Hierarchy &constH = H;
-		return reduceCrossings(sugi,constH);
+		return reduceCrossings( sugi, constH, nCrossings );
 	}
 
 	//! Initializes a two-layer crossing minimization module.
@@ -117,7 +111,7 @@ public:
 	}
 
 	//! Performs clean-up.
-	virtual void cleanup() { }
+	virtual void cleanup() override { }
 
 
 	class CrossMinMaster;

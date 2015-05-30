@@ -1,11 +1,3 @@
-/*
- * $Revision: 2549 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-04 23:09:19 +0200 (Wed, 04 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class GraphConstraints that handles
  * drawing constraints specified for a specific graph.
@@ -46,21 +38,16 @@ namespace ogdf {
 
 void GraphConstraints::nodeDeleted(node v)
 {
-	ListConstIterator<Constraint *> it;
-	for(it = m_List.begin(); it.valid(); ++it)
-	{
-		Constraint *c = *it;
+	for(Constraint *c : m_List)
 		c->nodeDeleted(v);
-	}
 }
+
 
 List<Constraint *> GraphConstraints::getConstraintsOfType(int type)
 {
 	List<Constraint *> res;
-	ListConstIterator<Constraint *> it;
-	for(it = m_List.begin(); it.valid(); ++it)
+	for (Constraint *c : m_List)
 	{
-		Constraint *c = *it;
 		if (type==c->getType())
 		{
 			if (c->isValid()) res.pushBack(c);

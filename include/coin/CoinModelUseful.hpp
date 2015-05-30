@@ -154,12 +154,12 @@ private:
   CoinYacc& operator=(const CoinYacc& rhs);
 
 public:
-  CoinYacc() : symtable(NULL), symbuf(NULL), length(0), unsetValue(0) {}
+  CoinYacc() : symtable(nullptr), symbuf(nullptr), length(0), unsetValue(0) {}
   ~CoinYacc()
   {
     if (length) {
       free(symbuf);
-      symbuf = NULL;
+      symbuf = nullptr;
     }
     symrec* s = symtable;
     while (s) {

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3959 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-13 10:54:42 +0100 (Thu, 13 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GraphAttributes which extends a Graph
  *        by additional attributes.
@@ -65,6 +57,8 @@ namespace ogdf {
 //---------------------------------------------------------
 //! Stores additional attributes of a graph (like layout information).
 /**
+ * @ingroup graph-containers graph-drawing
+ *
  * It is frequently necessary to associate additional attributes with a graph.
  * The class GraphAttributes provides various such attributes and is the
  * central place were such attributes are stored.
@@ -92,8 +86,11 @@ protected:
 
 	// graphical representation of nodes
 	NodeArray<double>       m_x;				//!< x-coordinate of a node
-	NodeArray<double>       m_y;				//!< y-coordinate pf a node
-	NodeArray<double>       m_z;				//!< z-coordinate pf a node
+	NodeArray<double>       m_y;				//!< y-coordinate of a node
+	NodeArray<double>       m_z;				//!< z-coordinate of a node
+	NodeArray<double>       m_nodeLabelPosX;		//!< x-coordinate of a node label
+	NodeArray<double>       m_nodeLabelPosY;		//!< y-coordinate of a node label
+	NodeArray<double>       m_nodeLabelPosZ;		//!< z-coordinate of a node label
 	NodeArray<double>       m_width;			//!< width of a node's bounding box
 	NodeArray<double>       m_height;			//!< height of a nodes's bounding box
 	NodeArray<Shape>        m_nodeShape;		//!< shape of a node
@@ -117,7 +114,7 @@ protected:
 	EdgeArray<int>             m_intWeight;		//!< (integer) weight of an edge
 	EdgeArray<double>          m_doubleWeight;	//!< (real number) weight of an edge
 	EdgeArray<Graph::EdgeType> m_eType;			//!< type of an edge (association or generalization)
-	EdgeArray<__uint32>        m_subGraph;		//!< is element of subgraphs given by bitvector
+	EdgeArray<uint32_t>        m_subGraph;		//!< is element of subgraphs given by bitvector
 
 	long m_attributes;	//!< bit vector of currently used attributes
 
@@ -138,9 +135,10 @@ public:
 		nodeStyle        = 0x00800, //!< node attributes m_nodeStroke, m_nodeFill
 		nodeTemplate     = 0x01000, //!< node attribute  m_nodeTemplate
 		edgeSubGraphs    = 0x02000, //!< edge attribute  m_subGraph
-		nodeWeight       = 0x04000,	//!< node attribute  m_nodeIntWeight
-		threeD           = 0x10000  //!< node attribute  m_z, note that all methods
+		nodeWeight       = 0x04000, //!< node attribute  m_nodeIntWeight
+		threeD           = 0x08000, //!< node attribute  m_z, note that all methods
 									//!< (bounding box etc. work on 2D coordinates only)
+		nodeLabelPosition = 0x10000, //!< node attribute  m_nodeLabelPosX,Y,Z
 	};
 
 	/**
@@ -167,6 +165,11 @@ public:
 	//! Returns currently accessible attributes.
 	long attributes() const {
 		return m_attributes;
+	}
+
+	//! Returns true iff all attributes in \a attr are available.
+	bool haveAttributes(long attr) const {
+		return (m_attributes & attr) == attr;
 	}
 
 	//! Initializes the graph attributes for graph \a G.
@@ -214,172 +217,245 @@ public:
 
 	//! Returns the x-coordinate of node \a v.
 	double x(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_x[v];
 	}
 	//! Returns the x-coordinate of node \a v.
 	double &x(node v) {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_x[v];
 	}
 
 	//! Returns the y-coordinate of node \a v.
 	double y(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_y[v];
 	}
 	//! Returns the y-coordinate of node \a v.
 	double &y(node v) {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_y[v];
 	}
 
 	//! Returns the z-coordinate of node \a v.
 	double z(node v) const {
+		OGDF_ASSERT(haveAttributes(threeD));
 		return m_z[v];
 	}
 	//! Returns the z-coordinate of node \a v.
 	double &z(node v) {
+		OGDF_ASSERT(haveAttributes(threeD));
 		return m_z[v];
+	}
+
+	//! Returns the label x-coordinate of node \a v.
+	double xLabel(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+		return m_nodeLabelPosX[v];
+	}
+	//! Returns the label x-coordinate of node \a v.
+	double &xLabel(node v) {
+		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+		return m_nodeLabelPosX[v];
+	}
+
+	//! Returns the label y-coordinate of node \a v.
+	double yLabel(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+		return m_nodeLabelPosY[v];
+	}
+	//! Returns the label y-coordinate of node \a v.
+	double &yLabel(node v) {
+		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+		return m_nodeLabelPosY[v];
+	}
+
+	//! Returns the label z-coordinate of node \a v.
+	double zLabel(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+		OGDF_ASSERT(haveAttributes(threeD));
+		return m_nodeLabelPosZ[v];
+	}
+	//! Returns the label z-coordinate of node \a v.
+	double &zLabel(node v) {
+		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+		OGDF_ASSERT(haveAttributes(threeD));
+		return m_nodeLabelPosZ[v];
 	}
 
 	//! Returns the width of the bounding box of node \a v.
 	double width(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_width[v];
 	}
 	//! Returns the width of the bounding box of node \a v.
 	double &width(node v) {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_width[v];
 	}
 
 	//! Returns a reference to the node array \a m_width.
 	const NodeArray<double> &width() const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_width;
 	}
 	//! Returns a reference to the node array \a m_width.
 	NodeArray<double> &width() {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_width;
 	}
 
 	//! Returns the height of the bounding box of node \a v.
 	double height(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_height[v];
 	}
 	//! Returns the height of the bounding box of node \a v.
 	double &height(node v) {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_height[v];
 	}
 
 	//! Returns a reference to the node array \a m_height.
 	const NodeArray<double> &height() const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_height;
 	}
 	//! Returns a reference to the node array \a m_height.
 	NodeArray<double> &height() {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_height;
 	}
 
 	//! Returns the shape type of node \a v.
 	Shape shape(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_nodeShape[v];
 	}
 	//! Returns the shape type of node \a v.
 	Shape &shape(node v) {
+		OGDF_ASSERT(haveAttributes(nodeGraphics));
 		return m_nodeShape[v];
 	}
 
 	//! Returns the stroke type of node \a v.
 	StrokeType strokeType(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeStroke[v].m_type;
 	}
 	//! Sets the stroke type of node \a v to \a st.
 	void setStrokeType(node v, StrokeType st) {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		m_nodeStroke[v].m_type = st;
 	}
 
 	//! Returns the stroke color of node \a v.
 	const Color &strokeColor(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeStroke[v].m_color;
 	}
 	//! Returns the stroke color of node \a v.
 	Color &strokeColor(node v) {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeStroke[v].m_color;
 	}
 
 	//! Returns the stroke width of node \a v.
 	float strokeWidth(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeStroke[v].m_width;
 	}
 	//! Returns the stroke width of node \a v.
 	float &strokeWidth(node v) {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeStroke[v].m_width;
 	}
 
 	//! Returns the fill pattern of node \a v.
 	FillPattern fillPattern(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeFill[v].m_pattern;
 	}
 	//! Sets the fill pattern of node \a v to \a fp.
 	void setFillPattern(node v, FillPattern fp) {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		m_nodeFill[v].m_pattern = fp;
 	}
 
 	//! Returns the fill color of node \a v.
 	const Color &fillColor(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeFill[v].m_color;
 	}
 	//! Returns the fill color of node \a v.
 	Color &fillColor(node v) {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeFill[v].m_color;
 	}
 
 	//! Returns the background color of fill patterns for node \a v.
 	const Color &fillBgColor(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeFill[v].m_bgColor;
 	}
 	//! Returns the background color of fill patterns for node \a v.
 	Color &fillBgColor(node v) {
+		OGDF_ASSERT(haveAttributes(nodeStyle));
 		return m_nodeFill[v].m_bgColor;
 	}
 
 	//! Returns the label of node \a v.
 	const string &label(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeLabel));
 		return m_nodeLabel[v];
 	}
 	//! Returns the label of node \a v.
 	string &label(node v) {
+		OGDF_ASSERT(haveAttributes(nodeLabel));
 		return m_nodeLabel[v];
 	}
 
 	//! Returns the template name of node \a v.
 	const string &templateNode(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeTemplate));
 		return m_nodeTemplate[v];
 	}
 	//! Returns the template name of node \a v.
 	string &templateNode(node v) {
+		OGDF_ASSERT(haveAttributes(nodeTemplate));
 		return m_nodeTemplate[v];
 	}
 
 	//! Returns the weight of node \a v.
 	int weight(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeWeight));
 		return m_nodeIntWeight[v];
 	}
 	//! Returns the weight of node \a v.
 	int &weight(node v) {
+		OGDF_ASSERT(haveAttributes(nodeWeight));
 		return m_nodeIntWeight[v];
 	}
 
 	//! Returns the type of node \a v.
 	Graph::NodeType type(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeType));
 		return m_vType.valid() ? m_vType[v] : Graph::vertex;
 	}
 	//! Returns the type of node \a v.
 	Graph::NodeType &type(node v) {
+		OGDF_ASSERT(haveAttributes(nodeType));
 		return m_vType[v];
 	}
 
 	//! Returns the user ID of node \a v.
 	int idNode(node v) const {
+		OGDF_ASSERT(haveAttributes(nodeId));
 		return m_nodeId[v];
 	}
 	//! Returns the user ID of node \a v.
 	int &idNode(node v) {
+		OGDF_ASSERT(haveAttributes(nodeId));
 		return m_nodeId[v];
 	}
 
@@ -391,111 +467,233 @@ public:
 
 	//! Returns the list of bend points of edge \a e.
 	const DPolyline &bends(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeGraphics));
 		return m_bends[e];
 	}
 	//! Returns the list of bend points of edge \a e.
 	DPolyline &bends(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeGraphics));
 		return m_bends[e];
 	}
 
 	//! Returns the arrow type of edge \a e.
 	EdgeArrow arrowType(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeArrow));
 		return m_edgeArrow[e];
 	}
 	//! Returns the arrow type of edge \a e.
 	EdgeArrow &arrowType(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeArrow));
 		return m_edgeArrow[e];
 	}
 
 	//! Returns the stroke type of edge \a e.
 	StrokeType strokeType(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeStyle));
 		return m_edgeStroke[e].m_type;
 	}
 	//! Sets the stroke type of edge \a e to \a st.
 	void setStrokeType(edge e, StrokeType st) {
+		OGDF_ASSERT(haveAttributes(edgeStyle));
 		m_edgeStroke[e].m_type = st;
 	}
 
 	//! Returns the stroke color of edge \a e.
 	const Color &strokeColor(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeStyle));
 		return m_edgeStroke[e].m_color;
 	}
 	//! Returns the stroke color of edge \a e.
 	Color &strokeColor(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeStyle));
 		return m_edgeStroke[e].m_color;
 	}
 
 	//! Returns the stroke width of edge \a e.
 	float strokeWidth(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeStyle));
 		return m_edgeStroke[e].m_width;
 	}
 	//! Returns the stroke width of edge \a e.
 	float &strokeWidth(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeStyle));
 		return m_edgeStroke[e].m_width;
 	}
 
 	//! Returns the label of edge \a e.
 	const string &label(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeLabel));
 		return m_edgeLabel[e];
 	}
 	//! Returns the label of edge \a e.
 	string &label(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeLabel));
 		return m_edgeLabel[e];
 	}
 
 	//! Returns the (integer) weight of edge \a e.
 	int intWeight(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeIntWeight));
 		return m_intWeight[e];
 	}
 	//! Returns the (integer) weight of edge \a e.
 	int &intWeight(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeIntWeight));
 		return m_intWeight[e];
 	}
 
 	//! Returns the (real number) weight of edge \a e.
 	double doubleWeight(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeDoubleWeight));
 		return m_doubleWeight[e];
 	}
 	//! Returns the (real number) weight of edge \a e.
 	double &doubleWeight(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeDoubleWeight));
 		return m_doubleWeight[e];
 	}
 
 	//! Returns the type of edge \a e.
 	Graph::EdgeType type(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeType));
 		return m_eType.valid() ? m_eType[e] : Graph::association;
 	}
 	//! Returns the type of edge \a e.
 	Graph::EdgeType &type(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeType));
 		return m_eType[e];
 	}
 
 	//! Returns the edgesubgraph value of an edge \a e.
-	__uint32 subGraphBits(edge e) const {
+	uint32_t subGraphBits(edge e) const {
+		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
 		return m_subGraph[e];
 	}
 	//! Returns the edgesubgraph value of an edge \a e.
-	__uint32 &subGraphBits(edge e) {
+	uint32_t &subGraphBits(edge e) {
+		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
 		return m_subGraph[e];
 	}
 
 	//! Checks whether edge \a e belongs to basic graph \a n.
 	bool inSubGraph(edge e, int n) const {
-		OGDF_ASSERT( n>=0 && n<32 );
+		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+		OGDF_ASSERT(n>=0);
+		OGDF_ASSERT(n<32);
 		return (m_subGraph[e] & (1 << n)) != 0;
 	}
 
 	//! Adds edge \a e to basic graph \a n.
 	void addSubGraph(edge e, int n) {
-		OGDF_ASSERT( n>=0 && n<32 );
+		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+		OGDF_ASSERT(n>=0);
+		OGDF_ASSERT(n<32);
 		m_subGraph[e] |= (1 << n);
 	}
 
 	//! Removes edge \a e from basic graph \a n.
 	void removeSubGraph(edge e, int n) {
-		OGDF_ASSERT( n>=0 && n<32 );
+		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+		OGDF_ASSERT(n>=0);
+		OGDF_ASSERT(n<32);
 		m_subGraph[e] &= ~(1 << n);
 	}
+
+	//@}
+	/**
+	* @name Layout transformations
+	*/
+	//@{
+
+	//! Scales the layout by (\a sx,\a sy).
+	/**
+	 * If \a scaleNodes is true, node sizes are scaled as well.
+	 *
+	 * \param sx         is the scaling factor for x-coordinates.
+	 * \param sy         is the scaling factor for y-coordinates.
+	 * \param scaleNodes determines if nodes size are scaled as well (true) or not.
+	 */
+	virtual void scale(double sx, double sy, bool scaleNodes = true);
+
+	//! Scales the layout by \a s.
+	/**
+	* If \a scaleNodes is true, node sizes are scaled as well.
+	*
+	* \param s          is the scaling factor for both x- and y-coordinates.
+	* \param scaleNodes determines if nodes size are scaled as well (true) or not.
+	*/
+	virtual void scale(double s, bool scaleNodes = true) { scale(s, s, scaleNodes); }
+
+	//! Translates the layout by (\a dx,\a dy).
+	/**
+	 * \param dx is the translation in x-direction.
+	 * \param dy is the translation in y-direction.
+	 */
+	virtual void translate(double dx, double dy);
+
+	//! Translates the layout such that the lower left corner is at (0,0).
+	virtual void translateToNonNeg();
+
+	//! Flips the layout vertically within its bounding box.
+	/**
+	 * If preserving the bounding box is not required, the layout can also be flipped vertically
+	 * by calling <tt>scale(1.0, -1.0, false)</tt>.
+	 */
+	virtual void flipVertical() { flipVertical(boundingBox()); }
+
+	//! Flips the (whole) layout vertically such that the part in \a box remains in this area.
+	/**
+	 * The whole layout is flipped and then moved such that the part that was in \a box before
+	 * flipping is moved to this area.
+	 */
+	virtual void flipVertical(const DRect &box);
+
+	//! Flips the layout horizontally within its bounding box.
+	/**
+	* If preserving the bounding box is not required, the layout can also be flipped horizontally
+	* by calling <tt>scale(-1.0, 1.0, false)</tt>.
+	*/
+	virtual void flipHorizontal() { flipHorizontal(boundingBox()); }
+
+	//! Flips the (whole) layout horizontally such that the part in \a box remains in this area.
+	/**
+	* The whole layout is flipped and then moved such that the part that was in \a box before
+	* flipping is moved to this area.
+	*/
+	virtual void flipHorizontal(const DRect &box);
+
+	//! Scales the layout by (\a sx,\a sy) and then translates it by (\a dx,\a dy).
+	/**
+	* If \a scaleNodes is true, node sizes are scaled as well. A point (\a x,\a y) is
+	* moved to (\a sx &sdot; x + \a dx, \a sy &sdot; y + \a dy).
+	*
+	* \param sx         is the scaling factor for x-coordinates.
+	* \param sy         is the scaling factor for y-coordinates.
+	* \param dx         is the translation in x-direction.
+	* \param dy         is the translation in y-direction.
+	* \param scaleNodes determines if nodes size are scaled as well (true) or not.
+	*/
+	virtual void scaleAndTranslate(double sx, double sy, double dx, double dy, bool scaleNodes = true);
+
+	//! Scales the layout by \a s and then translates it by (\a dx,\a dy).
+	/**
+	* If \a scaleNodes is true, node sizes are scaled as well. A point (\a x,\a y) is
+	* moved to (\a s &sdot; x + \a dx, \a s &sdot; y + \a dy).
+	*
+	* \param s          is the scaling factor for both x- and y-coordinates.
+	* \param dx         is the translation in x-direction.
+	* \param dy         is the translation in y-direction.
+	* \param scaleNodes determines if nodes size are scaled as well (true) or not.
+	*/
+	virtual void scaleAndTranslate(double s, double dx, double dy, bool scaleNodes = true) {
+		scaleAndTranslate(s, s, dx, dy, scaleNodes);
+	}
+
+	//! Rotates the layout by 90 degree (in clockwise direction) around the origin.
+	virtual void rotateRight90();
+
+	//! Rotates the layout by 90 degree (in counter-clockwise direction) around the origin.
+	virtual void rotateLeft90();
 
 	//@}
 	/**
@@ -504,7 +702,7 @@ public:
 	//@{
 
 	//! Returns the bounding box of the graph.
-	const DRect boundingBox() const;
+	virtual DRect boundingBox() const;
 
 	//! Sets the width of all nodes to \a w.
 	void setAllWidth(double w);

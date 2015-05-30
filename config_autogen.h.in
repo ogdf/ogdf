@@ -1,0 +1,18 @@
+#define OGDF_MEMORY_@OGDF_MEMORY_MANAGER@
+
+#ifndef NDEBUG
+	#define OGDF_DEBUG
+#endif
+
+#if @LIBS_ARE_SHARED@
+	#define OGDF_DLL
+	#define OGDF_INSTALL
+#endif
+
+#define USE_COIN
+#define COIN_OSI_@COIN_SOLVER@
+
+#if @COIN_SOLVER_IS_EXTERNAL@
+	#define OSI_@COIN_SOLVER@
+#endif
+

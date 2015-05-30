@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class FixedEmbeddingInserter.
  *
@@ -56,6 +48,9 @@ namespace ogdf {
 
 
 	//! Edge insertion module that inserts each edge optimally into a fixed embedding.
+	/**
+	 * @ingroup ga-insert
+	 */
 	class OGDF_EXPORT FixedEmbeddingInserter : public EdgeInsertionModule
 	{
 	public:
@@ -69,7 +64,7 @@ namespace ogdf {
 		~FixedEmbeddingInserter() { }
 
 		//! Returns a new instance of the fixed embedding inserter with the same option settings.
-		EdgeInsertionModule *clone() const;
+		virtual EdgeInsertionModule *clone() const override;
 
 		//! Assignment operator. Copies option settings only.
 		FixedEmbeddingInserter &operator=(const FixedEmbeddingInserter &inserter);
@@ -139,7 +134,7 @@ namespace ogdf {
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *costOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubGraphs);
+			const EdgeArray<uint32_t> *pEdgeSubGraphs) override;
 
 		RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
 		double m_percentMostCrossed;   //!< The portion of most crossed edges considered.

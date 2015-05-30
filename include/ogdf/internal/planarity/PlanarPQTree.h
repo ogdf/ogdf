@@ -1,11 +1,3 @@
-/*
- * $Revision: 3434 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 13:59:08 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanarPQTree.
  *

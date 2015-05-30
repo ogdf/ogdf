@@ -1,11 +1,3 @@
-/*
- * $Revision: 2566 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-07 23:10:08 +0200 (Sat, 07 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of CPlanarSubClusteredGraph class.
  *
@@ -54,7 +46,10 @@
 
 namespace ogdf {
 
-//! Constructs a c-planar subclustered graph of the input on base of a spanning tree
+//! Constructs a c-planar subclustered graph of the input based on a spanning tree.
+/**
+ * @ingroup ga-cplanarity
+ */
 class OGDF_EXPORT CPlanarSubClusteredGraph
 {
 

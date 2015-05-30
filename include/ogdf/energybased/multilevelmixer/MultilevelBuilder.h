@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Abstract MultilevelBuilder builds all Levels
  *
@@ -52,6 +44,10 @@
 
 namespace ogdf {
 
+//! Base class for merger modules.
+/**
+ * @ingroup gd-multi
+ */
 class OGDF_EXPORT MultilevelBuilder
 {
 private:

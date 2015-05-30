@@ -1,11 +1,3 @@
-/*
- * $Revision: 2559 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class MMCrossingMinimizationModule.
  *
@@ -64,12 +56,11 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 	int c = biconnectedComponents(G, comp);
 
 	Array<List<edge> > edges(c);
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		edges[comp[e]].pushBack(e);
 	}
 
-	NodeArray<node> map(G,0);
+	NodeArray<node> map(G,nullptr);
 
 	for(int i = 0; i < c; ++i)
 	{
@@ -80,7 +71,7 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 		List<node> nodes;
 		List<node> splittableNodesB;
 
-		EdgeArray<bool> *forbidB = 0;
+		EdgeArray<bool> *forbidB = nullptr;
 		if(forbid) forbidB = new EdgeArray<bool>(B, false);
 
 		ListConstIterator<edge> it;
@@ -89,13 +80,13 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 			edge e = *it;
 			node v = e->source(), w = e->target();
 
-			if(map[v] == 0) {
+			if(map[v] == nullptr) {
 				map[v] = B.newNode();
 				nodes.pushBack(v);
 				if(splittable[v])
 					splittableNodesB.pushBack(map[v]);
 			}
-			if(map[w] == 0) {
+			if(map[w] == nullptr) {
 				map[w] = B.newNode();
 				nodes.pushBack(w);
 				if(splittable[w])
@@ -120,7 +111,7 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 
 		ListConstIterator<node> itV;
 		for(itV = nodes.begin(); itV.valid(); ++itV)
-			map[*itV] = 0;
+			map[*itV] = nullptr;
 	}
 
 	return retFeasible;
@@ -138,12 +129,11 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 	int c = biconnectedComponents(G, comp);
 
 	Array<List<edge> > edges(c);
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		edges[comp[e]].pushBack(e);
 	}
 
-	NodeArray<node> map(G,0);
+	NodeArray<node> map(G,nullptr);
 
 	for(int i = 0; i < c; ++i)
 	{
@@ -159,11 +149,11 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 			edge e = *it;
 			node v = e->source(), w = e->target();
 
-			if(map[v] == 0) {
+			if(map[v] == nullptr) {
 				map[v] = B.newNode();
 				nodes.pushBack(v);
 			}
-			if(map[w] == 0) {
+			if(map[w] == nullptr) {
 				map[w] = B.newNode();
 				nodes.pushBack(w);
 			}
@@ -183,7 +173,7 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 
 		ListConstIterator<node> itV;
 		for(itV = nodes.begin(); itV.valid(); ++itV)
-			map[*itV] = 0;
+			map[*itV] = nullptr;
 	}
 
 	return retFeasible;

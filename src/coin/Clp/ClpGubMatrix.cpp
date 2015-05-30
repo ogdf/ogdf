@@ -771,7 +771,7 @@ ClpGubMatrix::transposeTimes(const ClpSimplex * model, double scalar,
           columnArray->setPackedMode(true);
      if (0) {
           columnArray->checkClean();
-          int numberNonZero = columnArray->getNumElements();;
+          int numberNonZero = columnArray->getNumElements();
           int * index = columnArray->getIndices();
           double * array = columnArray->denseVector();
           int i;
@@ -2350,7 +2350,7 @@ ClpGubMatrix::dualExpanded(ClpSimplex * model,
                          if (kColumn < 0)
                               kColumn = -kColumn - 1;
                          double djValue = dj[kColumn] - value;
-                         dj[kColumn] = djValue;;
+                         dj[kColumn] = djValue;
                          double infeasibility = 0.0;
                          iStatus = model->getStatus(kColumn);
                          if (iStatus == ClpSimplex::atLowerBound) {
@@ -2402,7 +2402,7 @@ ClpGubMatrix::dualExpanded(ClpSimplex * model,
                               if (kColumn < 0)
                                    kColumn = -kColumn - 1;
                               double djValue = dj[kColumn] - value;
-                              dj[kColumn] = djValue;;
+                              dj[kColumn] = djValue;
                               double infeasibility = 0.0;
                               iStatus = model->getStatus(kColumn);
                               if (iStatus == ClpSimplex::atLowerBound) {
@@ -3850,7 +3850,7 @@ ClpGubMatrix::updatePivot(ClpSimplex * model, double oldInValue, double /*oldOut
                     redoSet(model, key, keyVariable_[iSetIn], iSetIn);
                } else if (iSetOut >= 0) {
                     // just redo set
-                    int key = keyVariable_[iSetOut];;
+                    int key = keyVariable_[iSetOut];
                     redoSet(model, key, keyVariable_[iSetOut], iSetOut);
                }
           }

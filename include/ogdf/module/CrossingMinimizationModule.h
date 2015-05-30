@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of CrossingMinimization Module, an interface for crossing minimization algorithms
  *
@@ -88,7 +80,7 @@ namespace ogdf {
 			int&  crossingNumber,
 			const EdgeArray<int>      *pCostOrig = 0,
 			const EdgeArray<bool>     *pForbiddenOrig = 0,
-			const EdgeArray<__uint32> *pEdgeSubGraphs = 0)
+			const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
 		{
 			return doCall(pr, cc, pCostOrig, pForbiddenOrig, pEdgeSubGraphs, crossingNumber);
 		}
@@ -113,7 +105,7 @@ namespace ogdf {
 			int & crossingNumber,
 			const EdgeArray<int>      *pCostOrig = 0,
 			const EdgeArray<bool>     *pForbiddenOrig = 0,
-			const EdgeArray<__uint32> *pEdgeSubGraphs = 0)
+			const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
 		{
 			return call(pr, cc, crossingNumber, pCostOrig, pForbiddenOrig, pEdgeSubGraphs);
 		}
@@ -138,7 +130,7 @@ namespace ogdf {
 			int cc,
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubGraphs,
+			const EdgeArray<uint32_t> *pEdgeSubGraphs,
 			int &crossingNumber) = 0;
 
 		OGDF_MALLOC_NEW_DELETE

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3307 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2013-02-06 16:49:37 +0100 (Wed, 06 Feb 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of CombinatorialEmbedding and face.
  *
@@ -61,16 +53,83 @@ class GraphCopy;
 
 typedef FaceElement *face;
 
+
+// Definition of iterator and container types for adjacency entries in a face
+// These declarations are just internal representations
+namespace internal {
+
+	//! Forward iterator for adjacency entries in a face
+	class FaceAdjIterator {
+
+		adjEntry m_adj;
+		adjEntry m_adjFirst;
+
+	public:
+		FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
+		FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
+		FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
+
+		bool operator==(const FaceAdjIterator &other) const {
+			return (m_adj == other.m_adj);
+		}
+
+		bool operator!=(const FaceAdjIterator &other) const {
+			return (m_adj != other.m_adj);
+		}
+
+		FaceAdjIterator &operator=(FaceAdjIterator &other) {
+			m_adjFirst = other.m_adjFirst;
+			m_adj = other.m_adj;
+			return *this;
+		}
+
+		adjEntry operator*() const { return m_adj; }
+
+		FaceAdjIterator &operator++() {
+			m_adj = m_adj->faceCycleSucc();
+			if (m_adj == m_adjFirst)
+				m_adj = nullptr;
+			return *this;
+		}
+	};
+
+
+	//! Container for the adjacency entries in a face.
+	/**
+	 * The entries are not stored explicitly (in a list), but implicitly by the cyclic ordering of the adjacency lists
+	 * in the underlying graph and by storing the first adjacency entry in the face.
+	 */
+	class FaceAdjContainer {
+
+		friend class ogdf::FaceElement;
+		friend class ogdf::ConstCombinatorialEmbedding;
+		friend class ogdf::CombinatorialEmbedding;
+
+		adjEntry m_adjFirst;
+
+		FaceAdjContainer() : m_adjFirst(nullptr) { }
+		FaceAdjContainer(adjEntry adjFirst) : m_adjFirst(adjFirst) { }
+
+	public:
+		typedef FaceAdjIterator iterator;
+
+		iterator begin() const { return iterator(m_adjFirst); }
+		iterator end() const { return iterator(); }
+	};
+
+} // end namespace internal
+
+
 /**
- * \brief Faces in a combinatorial embedding.
- */
-class OGDF_EXPORT FaceElement : private GraphElement
+* \brief Faces in a combinatorial embedding.
+*/
+class OGDF_EXPORT FaceElement : private internal::GraphElement
 {
 	friend class ConstCombinatorialEmbedding;
 	friend class CombinatorialEmbedding;
-	friend class GraphList<FaceElement>;
+	friend class internal::GraphList<FaceElement>;
 
-	adjEntry m_adjFirst; //!< The first adjacency element in the face.
+	//adjEntry m_adjFirst; //!< The first adjacency element in the face.
 	int m_id;   //!< The index of the face.
 	int m_size; //!< The size of the face.
 
@@ -83,33 +142,36 @@ class OGDF_EXPORT FaceElement : private GraphElement
 	FaceElement(const ConstCombinatorialEmbedding *pEmbedding,
 		adjEntry adjFirst,
 		int id) :
-		m_adjFirst(adjFirst), m_id(id), m_size(0), m_pEmbedding(pEmbedding) { }
+		m_id(id), m_size(0), m_pEmbedding(pEmbedding), entries(adjFirst) { }
 #else
 	//! Creates a face with given first adjacency element \a adjFirst and face index \a id.
 	FaceElement(adjEntry adjFirst, int id) :
-		m_adjFirst(adjFirst), m_id(id), m_size(0) { }
+		m_id(id), m_size(0), entries(adjFirst) { }
 #endif
 
 public:
+	//! Container maintaining the adjacency entries in the face.
+	internal::FaceAdjContainer entries;
+
 	//! Returns the index of the face.
 	int index() const { return m_id; }
 
 	//! Returns the first adjacency element in the face.
-	adjEntry firstAdj() const { return m_adjFirst; }
+	adjEntry firstAdj() const { return entries.m_adjFirst; }
 
 	//! Returns the size of the face, i.e., the number of edges in the face.
 	int size() const { return m_size; }
 
 	//! Returns the successor in the list of all faces.
-	face succ() const { return (face)m_next; }
+	face succ() const { return static_cast<face>(m_next); }
 
 	//! Returns the predecessor in the list of all faces.
-	face pred() const { return (face)m_prev; }
+	face pred() const { return static_cast<face>(m_prev); }
 
 	//! Returns the successor of \a adj in the list of all adjacency elements in the face.
 	adjEntry nextFaceEdge(adjEntry adj) const {
 		adj = adj->faceCycleSucc();
-		return (adj != m_adjFirst) ? adj : 0;
+		return (adj != entries.m_adjFirst) ? adj : 0;
 	}
 
 #ifdef OGDF_DEBUG
@@ -117,10 +179,10 @@ public:
 #endif
 
 	//! Standard Comparer
-	static int compare(const FaceElement& x,const FaceElement& y) { return x.m_id-y.m_id; }
+	static int compare(const FaceElement& x, const FaceElement& y) { return x.m_id - y.m_id; }
 	OGDF_AUGMENT_COMPARER(FaceElement)
 
-	OGDF_NEW_DELETE
+		OGDF_NEW_DELETE
 }; // class FaceElement
 
 
@@ -130,6 +192,8 @@ template<class T>class FaceArray;
 
 /**
  * \brief Combinatorial embeddings of planar graphs.
+ *
+ * @ingroup graphs
  *
  * Maintains a combinatorial embedding of an embedded graph, i.e., the set of
  * faces. A combinatorial embedding is defined by the (cyclic) order of the
@@ -152,8 +216,6 @@ class OGDF_EXPORT ConstCombinatorialEmbedding
 protected:
 	const Graph *m_cpGraph; //!< The associated graph.
 
-	GraphList<FaceElement> m_faces; //!< The list of all faces.
-	int m_nFaces; //!< The number of faces.
 	int m_faceIdCount; //!< The index assigned to the next created face.
 	int m_faceArrayTableSize; //!< The current table size of face arrays.
 
@@ -163,10 +225,18 @@ protected:
 	mutable ListPure<FaceArrayBase*> m_regFaceArrays; //!< The registered face arrays.
 
 #ifndef OGDF_MEMORY_POOL_NTS
-	mutable CriticalSection m_csRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
+	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
 #endif
 
 public:
+	//! Provides a bidirectional iterator to a face in a combinatorial embedding.
+	typedef internal::GraphIterator<face> face_iterator;
+
+
+	//!< The continer containing all face objects.
+	internal::GraphObjectContainer<FaceElement> faces;
+
+
 	/** @{
 	 * \brief Creates a combinatorial embedding associated with no graph.
 	 */
@@ -187,6 +257,9 @@ public:
 	//! Assignment operator.
 	ConstCombinatorialEmbedding &operator=(const ConstCombinatorialEmbedding &C);
 
+	//! Destructor
+	virtual ~ConstCombinatorialEmbedding();
+
 	/** @} @{
 	 * \brief Returns the associated graph of the combinatorial embedding.
 	 */
@@ -198,13 +271,13 @@ public:
 	/** @} @{
 	 * \brief Returns the first face in the list of all faces.
 	 */
-	face firstFace() const { return m_faces.begin(); }
+	face firstFace() const { return faces.head(); }
 
 	//! Returns the last face in the list of all faces.
-	face lastFace() const { return m_faces.rbegin(); }
+	face lastFace() const { return faces.tail(); }
 
 	//! Returns the number of faces.
-	int numberOfFaces() const { return m_nFaces; }
+	int numberOfFaces() const { return faces.size(); }
 
 	/** @} @{
 	 * \brief Returns the face to the right of \a adj, i.e., the face containing \a adj.
@@ -288,6 +361,9 @@ public:
 	 */
 	void unregisterArray(ListIterator<FaceArrayBase*> it) const;
 
+	//! Move the registration \a it of a node array to \a pFaceArray (used with move semantics for face arrays).
+	void moveRegisterArray(ListIterator<FaceArrayBase*> it, FaceArrayBase *pFaceArray) const;
+
 	/** @} */
 
 protected:
@@ -297,26 +373,14 @@ protected:
 	//! Reinitialize associated face arrays.
 	void reinitArrays();
 
-	//! Enter critical section for (un-)registering arrays.
-	void enterCSRegArrays() const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		m_csRegArrays.enter();
-#endif
-	}
-
-	//! Leave critical section for (un-)registering arrays.
-	void leaveCSRegArrays() const {
-#ifndef OGDF_MEMORY_POOL_NTS
-		m_csRegArrays.leave();
-#endif
-	}
-
 }; // class ConstCombinatorialEmbedding
 
 
 
 /**
  * \brief Combinatorial embeddings of planar graphs with modification functionality.
+ *
+ * @ingroup graphs
  *
  * Maintains a combinatorial embedding of an embedded graph, i.e., the set of
  * faces, and provides method for modifying the embedding, e.g., by inserting edges.
@@ -331,20 +395,18 @@ class OGDF_EXPORT CombinatorialEmbedding : public ConstCombinatorialEmbedding
 
 	Graph *m_pGraph; //!< The associated graph.
 
-	// the following methods are private in order to make them unusable
+	// the following methods are explicitly deleted
 	// It is not clear which meaning copying of a comb. embedding should
 	// have since we only store a pointer to the topology (Graph)
-	CombinatorialEmbedding(const CombinatorialEmbedding &) : ConstCombinatorialEmbedding() { }
-	CombinatorialEmbedding &operator=(const CombinatorialEmbedding &) {
-		return *this;
-	}
+	CombinatorialEmbedding(const CombinatorialEmbedding &) = delete;
+	CombinatorialEmbedding &operator=(const CombinatorialEmbedding &) = delete;
 
 public:
 	/** @{
 	 * \brief Creates a combinatorial embedding associated with no graph.
 	 */
 	CombinatorialEmbedding() : ConstCombinatorialEmbedding() {
-		m_pGraph = 0;
+		m_pGraph = nullptr;
 	}
 
 	/**
@@ -513,14 +575,16 @@ protected:
 //---------------------------------------------------------
 
 //! Iteration over all faces \a f of the combinatorial embedding \a E.
+//! @ingroup graphs
 #define forall_faces(f,E) for((f)=(E).firstFace(); (f); (f)=(f)->succ())
 
 
 //! Iteration over all faces \a f of the combinatorial embedding \a E (in reverse order).
 #define forall_rev_faces(f,E) for((f)=(E).lastFace(); (f); (f)=(f)->pred())
 
+//! Iteration over all adjacency entries \a adj of the face \a f.
 /**
- * \brief Iteration over all adjacency entries \a adj of the face \a f.
+ * @ingroup graphs
  *
  * A faster version for this iteration demonstrates the following code snippet:
  * \code

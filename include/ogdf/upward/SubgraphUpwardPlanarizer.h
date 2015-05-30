@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
  /** \file
  * \brief Declaration of class SubgraphUpwardPlanarizer.
  *
@@ -68,7 +60,7 @@ public:
 	//! Creates an instance of subgraph planarizer.
 	SubgraphUpwardPlanarizer()
 	{
-		 m_runs = 1;
+		m_runs = 1;
 		//set default module
 		m_subgraph.set(new FUPSSimple());
 		m_inserter.set(new FixedEmbeddingUpwardEdgeInserter());
@@ -97,7 +89,7 @@ protected:
 
 	virtual ReturnType doCall(UpwardPlanRep &UPR,
 		const EdgeArray<int>  &cost,
-		const EdgeArray<bool> &forbid);
+		const EdgeArray<bool> &forbid) override;
 
 	ModuleOption<FUPSModule> m_subgraph; //!< The upward planar subgraph algorithm.
 	ModuleOption<UpwardEdgeInserterModule> m_inserter; //!< The edge insertion module.

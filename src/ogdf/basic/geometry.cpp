@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Geometric-classes like DPoint, DPolyline, DRect, DLine,
  *  DScaler
@@ -133,6 +125,16 @@ ostream &operator<<(ostream &os, const DPoint &dp)
 //---------------------------------------------------------
 // DVector
 //---------------------------------------------------------
+DVector DVector::operator+(const DVector &dv) const
+{
+	return DVector(m_x + dv.m_x, m_y + dv.m_y);
+}
+
+DVector DVector::operator-(const DVector &dv) const
+{
+	return DVector(m_x - dv.m_x, m_y - dv.m_y);
+}
+
 DVector DVector::operator*(const double val) const
 {
 	DVector ret(m_x*val, m_y*val);
@@ -163,8 +165,7 @@ double DVector::operator*(const DVector &dv) const
 	return ((m_x * dv.m_x) + (m_y * dv.m_y));
 }
 
-// ortho left
-DVector DVector::operator++() const
+DVector DVector::orthogonal() const
 {
 	DVector ret;
 	if (m_x != 0.0) {
@@ -174,17 +175,9 @@ DVector DVector::operator++() const
 	else {
 		ret.m_x = 1.0;
 		ret.m_y = 0.0;
-
 	}
 	return ret;
 }
-
-// ortho right
-DVector DVector::operator--() const
-{
-	return (++(*this)) * (-1.0);
-}
-
 
 
 //---------------------------------------------------------
@@ -218,7 +211,8 @@ double DPolyline::length() const
 DPoint DPolyline::position(const double fraction, double len) const
 {
 	OGDF_ASSERT(!empty());
-	OGDF_ASSERT(fraction >= 0.0 && fraction <= 1.0);
+	OGDF_ASSERT(fraction >= 0.0);
+	OGDF_ASSERT(fraction <= 1.0);
 	if (len < 0.0)
 		len = length();
 	OGDF_ASSERT(len >= 0.0);
@@ -289,9 +283,9 @@ void DPolyline::normalize()
 	ListIterator<DPoint> iter, next, onext;
 	for (iter = begin(); iter.valid(); ++iter) {
 		for( ; ; ) {
-			next  = iter; next++;
+			next  = iter; ++next;
 			if (!next.valid()) break;
-			onext = next, onext++;
+			onext = next; ++onext;
 			if (!onext.valid()) break;
 
 			DSegment s1((*iter), (*next));
@@ -326,7 +320,7 @@ void DPolyline::normalize(DPoint src, DPoint tgt)
 
 			next  = iter;
 			pNext = *next;
-			next++;
+			++next;
 
 			if (!next.valid()) {
 				pNextNext = tgt;
@@ -358,24 +352,12 @@ void DPolyline::normalize(DPoint src, DPoint tgt)
 //
 void DPolyline::convertToInt()
 {
-	ListIterator<DPoint> iter;
-	for (iter = begin(); iter.valid(); ++iter) {
-		DPoint &p = *iter;
+	for (DPoint &p : *this) {
 		p.m_x = DRound(p.m_x * s_prec);
 		p.m_y = DRound(p.m_y * s_prec);
 	}
 }
 
-// Removed since I do not see that this makes sense... (CG)
-//void DPolyline::reConvertToDouble()
-//{
-//    ListIterator<DPoint> iter;
-//    for (iter = begin(); iter.valid(); ++iter) {
-//        DPoint &p = *iter;
-//        p.m_x = p.m_x / s_prec;
-//        p.m_y = p.m_y / s_prec;
-//    }
-//}
 
 //---------------------------------------------------------
 // DLine
@@ -438,6 +420,44 @@ bool DLine::intersection(
 	DRect mRect(*this);
 
 	return (tRect.contains(inter) && mRect.contains(inter));
+}
+
+
+bool DLine::intersectionOfLines(const DLine &line, DPoint &inter) const
+{
+	double ix, iy;
+
+	// supporting lines are parallel?
+	if (slope() == line.slope()) return false;
+
+	if (m_start == line.m_start || m_start == line.m_end) {
+		inter = m_start;
+		return true;
+	}
+
+	if (m_end == line.m_start || m_end == line.m_end) {
+		inter = m_end;
+		return true;
+	}
+
+	// if the edge is vertical, we cannot compute the slope
+	if (isVertical())
+		ix = m_start.m_x;
+	else
+		if (line.isVertical())
+			ix = line.m_start.m_x;
+		else
+			ix = (line.yAbs() - yAbs())/(slope() - line.slope());
+
+	// set iy to the value of the infinite line at xvalue ix
+	// use a non-vertical line (can't be both, otherwise they're parallel)
+	if (isVertical())
+		iy = line.slope() * ix + line.yAbs();
+	else
+		iy = slope() * ix + yAbs();
+
+	inter = DPoint(ix, iy); // the supporting lines cross point
+	return true;
 }
 
 
@@ -557,7 +577,8 @@ ostream &operator<<(ostream &os, const DScaler &ds)
 // gives the segment starting at point 'it'
 DSegment DPolygon::segment(ListConstIterator<DPoint> it) const
 {
-	OGDF_ASSERT(!empty() && size() != 1);
+	OGDF_ASSERT(!empty());
+	OGDF_ASSERT(size() != 1);
 	return DSegment(*it, *cyclicSucc(it));
 }
 
@@ -709,10 +730,9 @@ bool DPolygon::containsPoint(DPoint &p) const
 	double angle = 0.0;
 	DPolygon::const_iterator i = cyclicPred(begin());
 	double lastangle = atan2((*i).m_y - p.m_y, (*i).m_x - p.m_x);
-	double tempangle = 0.0;
-	for (i = begin(); i != end(); i++)
+	for (const DPoint &q : *this)
 	{
-		tempangle = atan2((*i).m_y - p.m_y, (*i).m_x - p.m_x);
+		double tempangle = atan2(q.m_y - p.m_y, q.m_x - p.m_x);
 		double step = lastangle - tempangle;
 		while (step > Math::pi) step -= 2.0*Math::pi;
 		while (step < -Math::pi) step += 2.0*Math::pi;
@@ -732,6 +752,23 @@ ostream &operator<<(ostream &os, const DPolygon &dop)
 {
 	print(os, dop, ' ');
 	return os;
+}
+
+
+
+//----------------------------------------------------------------
+// orientation of points
+//----------------------------------------------------------------
+
+int orientation(const DPoint &p, const DPoint &q, const DPoint &r)
+{
+	double d1 = (p.m_x - q.m_x) * (p.m_y - r.m_y);
+	double d2 = (p.m_y - q.m_y) * (p.m_x - r.m_x);
+
+	if(d1 == d2)
+		return 0;
+	else
+		return (d1 > d2) ? +1 : -1;
 }
 
 

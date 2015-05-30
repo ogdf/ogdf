@@ -194,7 +194,7 @@ public:
   CglRedSplitParam(const CglRedSplitParam &source);
 
   /// Clone
-  virtual CglRedSplitParam* clone() const;
+  virtual CglRedSplitParam* clone() const override;
 
   /// Assignment operator 
   virtual CglRedSplitParam& operator=(const CglRedSplitParam &rhs);

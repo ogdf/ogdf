@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class CrossingStructure.
  *
@@ -54,15 +46,13 @@ namespace ogdf {
 
 		m_numCrossings = 0;
 		NodeArray<int> index(PG,-1);
-		node v;
-		forall_nodes(v,PG)
+		for(node v : PG.nodes)
 			if(PG.isDummy(v))
 				index[v] = m_numCrossings++;
 
-		edge ePG;
-		forall_edges(ePG,PG)
+		for(edge ePG : PG.edges)
 		{
-			if(PG.original(ePG->source()) != 0) {
+			if(PG.original(ePG->source()) != nullptr) {
 				edge e = PG.original(ePG);
 				ListConstIterator<edge> it = PG.chain(e).begin();
 				for(++it; it.valid(); ++it) {
@@ -74,26 +64,24 @@ namespace ogdf {
 
 	void CrossingStructure::restore(PlanRep &PG, int cc)
 	{
-		Array<node> id2Node(0,m_numCrossings-1,0);
+		Array<node> id2Node(0,m_numCrossings-1,nullptr);
 
 		SListPure<edge> edges;
 		PG.allEdges(edges);
 
-		for(SListConstIterator<edge> itE = edges.begin(); itE.valid(); ++itE)
+		for(edge ePG : edges)
 		{
-			edge ePG = *itE;
 			edge e = PG.original(ePG);
 
-			SListConstIterator<int> it;
-			for(it = m_crossings[e].begin(); it.valid(); ++it)
+			for(int i : m_crossings[e])
 			{
-				node x = id2Node[*it];
+				node x = id2Node[i];
 				edge ePGOld = ePG;
 				ePG = PG.split(ePG);
 				node y = ePG->source();
 
-				if(x == 0) {
-					id2Node[*it] = y;
+				if(x == nullptr) {
+					id2Node[i] = y;
 				} else {
 					PG.moveTarget(ePGOld, x);
 					PG.moveSource(ePG, x);
@@ -101,7 +89,6 @@ namespace ogdf {
 				}
 			}
 		}
-
 	}
 
 }

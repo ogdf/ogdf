@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class VarEdgeInserterCore and VarEdgeInserterUMLCore,
  * which are the implementation classes for edge insertion with variable embedding.
@@ -45,10 +37,12 @@
 #include <ogdf/internal/planarity/VarEdgeInserterCore.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/FaceArray.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 
 
 namespace ogdf {
+
 
 	//--------------------------------------------------------------------
 	// VEICrossingsBucket
@@ -62,7 +56,7 @@ namespace ogdf {
 		VEICrossingsBucket(const PlanRepLight *pPG) :
 			m_pPG(pPG) { }
 
-		int getBucket(const edge &e) {
+		int getBucket(const edge &e) override {
 			return -m_pPG->chain(e).size();
 		}
 	};
@@ -87,8 +81,7 @@ namespace ogdf {
 
 		SListPure<edge> currentOrigEdges;
 		if(rrPost == rrIncremental) {
-			edge e;
-			forall_edges(e,m_pr)
+			for(edge e : m_pr.edges)
 				currentOrigEdges.pushBack(m_pr.original(e));
 		}
 
@@ -114,12 +107,9 @@ namespace ogdf {
 					++m_runsPostprocessing;
 					improved = false;
 
-					SListConstIterator<edge> itRR;
-					for(itRR = currentOrigEdges.begin(); itRR.valid(); ++itRR)
+					for (edge eOrigRR : currentOrigEdges)
 					{
-						edge eOrigRR = *itRR;
-
-						int pathLength = (m_pCost != 0) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
+						int pathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
 						if (pathLength == 0) continue; // cannot improve
 
 						m_pr.removeEdgePath(eOrigRR);
@@ -132,7 +122,7 @@ namespace ogdf {
 						insert(m_pr.copy(eOrigRR->source()), m_pr.copy(eOrigRR->target()), eip);
 						m_pr.insertEdgePath(eOrigRR,eip);
 
-						int newPathLength = (m_pCost != 0) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
+						int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrigRR) : (m_pr.chain(eOrigRR).size() - 1);
 						OGDF_ASSERT(newPathLength <= pathLength);
 
 						if(newPathLength < pathLength)
@@ -195,7 +185,7 @@ namespace ogdf {
 				{
 					edge eOrig = *it;
 
-					int pathLength = (m_pCost != 0) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+					int pathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 					if (pathLength == 0) continue; // cannot improve
 
 					m_pr.removeEdgePath(eOrig);
@@ -208,7 +198,7 @@ namespace ogdf {
 					m_pr.insertEdgePath(eOrig,eip);
 
 					// we cannot find a shortest path that is longer than before!
-					int newPathLength = (m_pCost != 0) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+					int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 					OGDF_ASSERT(newPathLength <= pathLength);
 
 					if(newPathLength < pathLength)
@@ -305,7 +295,7 @@ namespace ogdf {
 			{
 				edge eOrig = *it;
 
-				int pathLength = (m_pCost != 0) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+				int pathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 				if (pathLength == 0) continue; // cannot improve
 
 				m_pr.removeEdgePath(eOrig);
@@ -318,7 +308,7 @@ namespace ogdf {
 				m_pr.insertEdgePath(eOrig,eip);
 
 				// we cannot find a shortest path that is longer than before!
-				int newPathLength = (m_pCost != 0) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
+				int newPathLength = (m_pCost != nullptr) ? costCrossed(eOrig) : (m_pr.chain(eOrig).size() - 1);
 				OGDF_ASSERT(newPathLength <= pathLength);
 
 				if(newPathLength < pathLength)
@@ -359,7 +349,7 @@ namespace ogdf {
 		const List<edge> &L = m_pr.chain(eOrig);
 
 		ListConstIterator<edge> it = L.begin();
-		if(m_pSubgraph != 0) {
+		if(m_pSubgraph != nullptr) {
 			for(++it; it.valid(); ++it) {
 				int counter = 0;
 				edge e = m_pr.original(crossedEdge((*it)->adjSource()));
@@ -402,8 +392,7 @@ namespace ogdf {
 
 		// edgeB[i] = list of edges in component i
 		m_edgeB.init(c);
-		edge e;
-		forall_edges(e,m_pr)
+		for(edge e : m_pr.edges)
 			m_edgeB[compnum[e]].pushBack(e);
 
 		// construct arrays compV and nodeB such that
@@ -413,11 +402,8 @@ namespace ogdf {
 
 		int i;
 		for(i = 0; i < c; ++i) {
-			SListConstIterator<edge> itEdge;
-			for(itEdge = m_edgeB[i].begin(); itEdge.valid(); ++itEdge)
+			for(edge e : m_edgeB[i])
 			{
-				edge e = *itEdge;
-
 				if (!mark[e->source()]) {
 					mark[e->source()] = true;
 					m_nodeB[i].pushBack(e->source());
@@ -428,10 +414,8 @@ namespace ogdf {
 				}
 			}
 
-			SListConstIterator<node> itNode;
-			for(itNode = m_nodeB[i].begin(); itNode.valid(); ++itNode)
+			for(node v : m_nodeB[i])
 			{
-				node v = *itNode;
 				m_compV[v].pushBack(i);
 				mark[v] = false;
 			}
@@ -443,7 +427,7 @@ namespace ogdf {
 		// path and we return from the recursion.
 		// if no path is found, s and t are in different connected components
 		// and thus an empty edge insertion path is correct!
-		m_GtoBC.init(m_pr,0);
+		m_GtoBC.init(m_pr,nullptr);
 		dfsVertex(s,-1);
 
 		// deallocate resources used by insert()
@@ -506,29 +490,24 @@ namespace ogdf {
 	bool VarEdgeInserterCore::dfsVertex(node v, int parent)
 	{
 		// forall biconnected components containing v (except predecessor parent)
-		SListConstIterator<int> itI;
-		for(itI = m_compV[v].begin(); itI.valid(); ++itI)
+		for(int i : m_compV[v])
 		{
-			int i = *itI;
-
 			if (i == parent) continue;
 
-			node repT; // representative of t in B(i)
-			if (dfsComp(i,v,repT) == true) { // path found?
+			// representative of t in B(i)
+			node repT = dfsComp(i, v);
+			if (repT != nullptr) { // path found?
 				// build graph BC of biconnected component B(i)
 				SList<node> nodesG;
 				BiconnectedComponent *BC = createBlock();
 
-				SListConstIterator<edge> itE;
-				for(itE = m_edgeB[i].begin(); itE.valid(); ++itE)
+				for(edge e : m_edgeB[i])
 				{
-					edge e = *itE;
-
-					if (m_GtoBC[e->source()] == 0) {
+					if (m_GtoBC[e->source()] == nullptr) {
 						m_GtoBC[e->source()] = BC->newNode();
 						nodesG.pushBack(e->source());
 					}
-					if (m_GtoBC[e->target()] == 0) {
+					if (m_GtoBC[e->target()] == nullptr) {
 						m_GtoBC[e->target()] = BC->newNode();
 						nodesG.pushBack(e->target());
 					}
@@ -539,8 +518,8 @@ namespace ogdf {
 
 					//BC.typeOf(eBC, m_forbidCrossingGens ? m_pPG->typeOf(e) : Graph::association);
 					edge eOrig = m_pr.original(e);
-					if(m_pCost != 0) {
-						if(m_pSubgraph != 0) {
+					if(m_pCost != nullptr) {
+						if(m_pSubgraph != nullptr) {
 							int counter = 0;
 							for(int i = 0; i<32; i++)
 								if((*m_pSubgraph)[m_st] & (*m_pSubgraph)[eOrig] & (1<<i))
@@ -551,7 +530,7 @@ namespace ogdf {
 								cost = 1;
 							BC->cost(eBC, cost);
 						} else
-							BC->cost(eBC, (eOrig == 0) ? 0 : (*m_pCost)[eOrig]);
+							BC->cost(eBC, (eOrig == nullptr) ? 0 : (*m_pCost)[eOrig]);
 					}
 				}
 
@@ -570,9 +549,8 @@ namespace ogdf {
 
 				// set entries of GtoBC back to nil (GtoBC allocated only once
 				// in insert()!)
-				SListConstIterator<node> itV;
-				for(itV = nodesG.begin(); itV.valid(); ++itV)
-					m_GtoBC[*itV] = 0;
+				for(node u : nodesG)
+					m_GtoBC[u] = nullptr;
 
 				delete BC;
 				return true; // path found
@@ -587,24 +565,21 @@ namespace ogdf {
 	// recursive path search from s to t in BC-tree (component case)
 	//-------------------------------------------------------------------
 
-	bool VarEdgeInserterCore::dfsComp(int i, node parent, node &repT)
+	node VarEdgeInserterCore::dfsComp(int i, node parent)
 	{
 		// forall nodes in biconected component B(i) (except predecessor parent)
-		SListConstIterator<node> it;
-		for(it = m_nodeB[i].begin(); it.valid(); ++it)
+		for(node repT : m_nodeB[i])
 		{
-			repT = *it;
-
 			if (repT == parent) continue;
 			if (repT == m_t) { // t found?
-				return true;
+				return repT;
 			}
 			if (dfsVertex(repT,i) == true) {
-				return true; // path found
+				return repT; // path found
 			}
 		}
 
-		return false; // path not found
+		return nullptr; // path not found
 	}
 
 
@@ -616,8 +591,8 @@ namespace ogdf {
 	class VarEdgeInserterCore::ExpandedGraph
 	{
 	public:
-		ExpandedGraph(const BiconnectedComponent &BC, const StaticSPQRTree &T, const GraphCopy &gc, const EdgeArray<bool> *pForbidden = 0)
-			: m_T(T), m_BC(BC), m_gc(gc), m_pForbidden(pForbidden), m_GtoExp(T.originalGraph(),0), m_expToG(m_exp,0), m_primalEdge(m_dual,0)
+		ExpandedGraph(const BiconnectedComponent &BC, const StaticSPQRTree &T, const GraphCopy &gc, const EdgeArray<bool> *pForbidden = nullptr)
+			: m_T(T), m_BC(BC), m_gc(gc), m_pForbidden(pForbidden), m_GtoExp(T.originalGraph(),nullptr), m_expToG(m_exp,nullptr), m_primalEdge(m_dual,nullptr)
 		{ }
 
 		virtual ~ExpandedGraph() { }
@@ -631,7 +606,7 @@ namespace ogdf {
 
 		int costDual(edge eDual) const {
 			adjEntry adjExp = m_primalEdge[eDual];
-			return (adjExp == 0) ? 0 : m_BC.cost(m_expToG[adjExp]->theEdge());
+			return (adjExp == nullptr) ? 0 : m_BC.cost(m_expToG[adjExp]->theEdge());
 		}
 
 	protected:
@@ -671,11 +646,11 @@ namespace ogdf {
 
 		~ExpandedGraphUML() { }
 
-		void constructDual(node s, node t);
+		void constructDual(node s, node t) override;
 
 	protected:
-		void appendCandidates(List<edge> &queue, node v, Graph::EdgeType eType);
-		void appendCandidates(Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist);
+		void appendCandidates(List<edge> &queue, node v, Graph::EdgeType eType) override;
+		void appendCandidates(Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist) override;
 
 		EdgeArray<bool> m_primalIsGen; // true iff corresponding primal edge is a generalization
 	};
@@ -690,21 +665,21 @@ namespace ogdf {
 	{
 		m_exp.clear();
 		while (!m_nodesG.empty())
-			m_GtoExp[m_nodesG.popBackRet()] = 0;
+			m_GtoExp[m_nodesG.popBackRet()] = nullptr;
 
 		const Skeleton &S = m_T.skeleton(v);
 
-		if (eIn != 0) {
+		if (eIn != nullptr) {
 			edge eInS = (v != eIn->source()) ? m_T.skeletonEdgeTgt(eIn) :
 				m_T.skeletonEdgeSrc(eIn);
 			node x = S.original(eInS->source()), y = S.original(eInS->target());
-			m_eS = insertEdge(x,y,0);
+			m_eS = insertEdge(x,y,nullptr);
 		}
-		if (eOut != 0) {
+		if (eOut != nullptr) {
 			edge eOutS = (v != eOut->source()) ? m_T.skeletonEdgeTgt(eOut) :
 				m_T.skeletonEdgeSrc(eOut);
 			node x = S.original(eOutS->source()), y = S.original(eOutS->target());
-			m_eT = insertEdge(x,y,0);
+			m_eT = insertEdge(x,y,nullptr);
 		}
 
 		expandSkeleton(v, eIn, eOut);
@@ -723,11 +698,10 @@ namespace ogdf {
 		const StaticSkeleton &S = *dynamic_cast<StaticSkeleton*>(&m_T.skeleton(v));
 		const Graph          &M = S.getGraph();
 
-		edge e;
-		forall_edges(e,M)
+		for(edge e : M.edges)
 		{
 			edge eG = S.realEdge(e);
-			if (eG != 0) {
+			if (eG != nullptr) {
 				insertEdge(eG->source(),eG->target(),eG);
 
 			} else {
@@ -735,7 +709,7 @@ namespace ogdf {
 
 				// do not expand virtual edges corresponding to tree edges e1 or e2
 				if (eT != e1 && eT != e2) {
-					expandSkeleton((v == eT->source()) ? eT->target() : eT->source(), eT ,0);
+					expandSkeleton((v == eT->source()) ? eT->target() : eT->source(), eT , nullptr);
 				}
 			}
 		}
@@ -752,23 +726,23 @@ namespace ogdf {
 		node &rVG = m_GtoExp[vG];
 		node &rWG = m_GtoExp[wG];
 
-		if (rVG == 0) {
+		if (rVG == nullptr) {
 			rVG = m_exp.newNode();
 			m_nodesG.pushBack(vG);
 		}
-		if (rWG == 0) {
+		if (rWG == nullptr) {
 			rWG = m_exp.newNode();
 			m_nodesG.pushBack(wG);
 		}
 
 		edge e1 = m_exp.newEdge(rVG,rWG);
 
-		if(eG != 0) {
+		if(eG != nullptr) {
 			m_expToG[e1->adjSource()] = eG->adjSource();
 			m_expToG[e1->adjTarget()] = eG->adjTarget();
 		} else {
-			m_expToG[e1->adjSource()] = 0;
-			m_expToG[e1->adjTarget()] = 0;
+			m_expToG[e1->adjSource()] = nullptr;
+			m_expToG[e1->adjTarget()] = nullptr;
 		}
 
 		return e1;
@@ -786,21 +760,18 @@ namespace ogdf {
 		FaceArray<node> faceNode(m_E);
 
 		// constructs nodes (for faces in exp)
-		face f;
-		forall_faces(f,m_E) {
+		for(face f : m_E.faces) {
 			faceNode[f] = m_dual.newNode();
 		}
 
 		// construct dual edges (for primal edges in exp)
-		node v;
-		forall_nodes(v,m_exp)
+		for(node v : m_exp.nodes)
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				// cannot cross edges that does not correspond to real edges
 				adjEntry adjG = m_expToG[adj];
-				if(adjG == 0)
+				if(adjG == nullptr)
 					continue;
 
 				// Do not insert edges into dual if crossing the original edge
@@ -818,10 +789,9 @@ namespace ogdf {
 
 		// augment dual by m_vS and m_vT
 		m_vS = m_dual.newNode();
-		if (m_GtoExp[s] != 0)
+		if (m_GtoExp[s] != nullptr)
 		{
-			adjEntry adj;
-			forall_adj(adj,m_GtoExp[s])
+			for(adjEntry adj : m_GtoExp[s]->adjEdges)
 				m_dual.newEdge(m_vS,faceNode[m_E.rightFace(adj)]);
 		}
 		else
@@ -831,10 +801,9 @@ namespace ogdf {
 		}
 
 		m_vT = m_dual.newNode();
-		if (m_GtoExp[t] != 0)
+		if (m_GtoExp[t] != nullptr)
 		{
-			adjEntry adj;
-			forall_adj(adj,m_GtoExp[t])
+			for(adjEntry adj : m_GtoExp[t]->adjEdges)
 				m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
 		}
 		else
@@ -853,21 +822,18 @@ namespace ogdf {
 		FaceArray<node> faceNode(m_E);
 
 		// constructs nodes (for faces in exp)
-		face f;
-		forall_faces(f,m_E) {
+		for(face f : m_E.faces) {
 			faceNode[f] = m_dual.newNode();
 		}
 
 		// construct dual edges (for primal edges in exp)
-		node v;
-		forall_nodes(v,m_exp)
+		for(node v : m_exp.nodes)
 		{
-			adjEntry adj;
-			forall_adj(adj,v)
+			for(adjEntry adj : v->adjEdges)
 			{
 				// cannot cross edges that does not correspond to real edges
 				adjEntry adjG = m_expToG[adj];
-				if(adjG == 0)
+				if(adjG == nullptr)
 					continue;
 
 				node vLeft  = faceNode[m_E.leftFace (adj)];
@@ -880,45 +846,55 @@ namespace ogdf {
 				if (adjG && BC.typeOf(adjG->theEdge()) == Graph::generalization)
 					m_primalIsGen[e] = true;
 
-				OGDF_ASSERT(m_primalEdge[e] == 0 || m_expToG[m_primalEdge[e]] != 0);
+				OGDF_ASSERT(m_primalEdge[e] == nullptr || m_expToG[m_primalEdge[e]] != nullptr);
 			}
 		}
 
 		// augment dual by m_vS and m_vT
 		m_vS = m_dual.newNode();
-		if (m_GtoExp[s] != 0)
-		{
-			adjEntry adj;
-			forall_adj(adj,m_GtoExp[s]) {
-				edge eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(adj)]);
-				OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
+		if (m_GtoExp[s] != nullptr) {
+			for (adjEntry adj : m_GtoExp[s]->adjEdges) {
+#ifdef OGDF_DEBUG
+				edge eDual =
+#endif
+				m_dual.newEdge(m_vS,faceNode[m_E.rightFace(adj)]);
+				OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 			}
-		}
-		else
-		{
-			edge eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjSource())]);
-			OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
+		} else {
+#ifdef OGDF_DEBUG
+			edge eDual =
+#endif
+			m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjSource())]);
+			OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 
-			eDual = m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjTarget())]);
-			OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
+#ifdef OGDF_DEBUG
+			eDual =
+#endif
+			m_dual.newEdge(m_vS,faceNode[m_E.rightFace(m_eS->adjTarget())]);
+			OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 		}
 
 		m_vT = m_dual.newNode();
-		if (m_GtoExp[t] != 0)
-		{
-			adjEntry adj;
-			forall_adj(adj,m_GtoExp[t]) {
-				edge eDual = m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
-				OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
+		if (m_GtoExp[t] != nullptr) {
+			for (adjEntry adj : m_GtoExp[t]->adjEdges) {
+#ifdef OGDF_DEBUG
+				edge eDual =
+#endif
+				m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
+				OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 			}
-		}
-		else
-		{
-			edge eDual = m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
-			OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
+		} else {
+#ifdef OGDF_DEBUG
+			edge eDual =
+#endif
+			m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjSource())], m_vT);
+			OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 
-			eDual = m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjTarget())], m_vT);
-			OGDF_ASSERT(m_primalEdge[eDual] == 0 || m_expToG[m_primalEdge[eDual]] != 0);
+#ifdef OGDF_DEBUG
+			eDual =
+#endif
+			m_dual.newEdge(faceNode[m_E.rightFace(m_eT->adjTarget())], m_vT);
+			OGDF_ASSERT(m_primalEdge[eDual] == nullptr || m_expToG[m_primalEdge[eDual]] != nullptr);
 		}
 	}
 
@@ -950,7 +926,7 @@ namespace ogdf {
 
 	void VarEdgeInserterCore::ExpandedGraph::findShortestPath(List<adjEntry> &L, Graph::EdgeType eType)
 	{
-		NodeArray<edge> spPred(m_dual,0); // predecessor in shortest path tree
+		NodeArray<edge> spPred(m_dual,nullptr); // predecessor in shortest path tree
 		List<edge> queue; // candidate edges
 
 		// start with all edges leaving from m_vS
@@ -963,7 +939,7 @@ namespace ogdf {
 			node v = eCand->target();
 
 			// hit an unvisited node ?
-			if (spPred[v] == 0) {
+			if (spPred[v] == nullptr) {
 				spPred[v] = eCand;
 
 				// if it is m_vT, we have found the shortest path
@@ -971,7 +947,7 @@ namespace ogdf {
 					// build path from shortest path tree
 					while(v != m_vS) {
 						adjEntry adjExp = m_primalEdge[spPred[v]];
-						if (adjExp != 0) // == nil for first and last edge
+						if (adjExp != nullptr) // == nil for first and last edge
 							L.pushFront(m_expToG[adjExp]);
 						v = spPred[v]->source();
 					}
@@ -1019,8 +995,7 @@ namespace ogdf {
 	void VarEdgeInserterCore::ExpandedGraph::findWeightedShortestPath(List<adjEntry> &L, Graph::EdgeType eType)
 	{
 		int maxCost = 0;
-		edge eDual;
-		forall_edges(eDual,m_dual) {
+		for(edge eDual : m_dual.edges) {
 			int c = costDual(eDual);
 			if (c > maxCost) maxCost = c;
 		}
@@ -1028,7 +1003,7 @@ namespace ogdf {
 		++maxCost;
 		Array<SListPure<edge> > nodesAtDist(maxCost);
 
-		NodeArray<edge> spPred(m_dual,0); // predecessor in shortest path tree
+		NodeArray<edge> spPred(m_dual,nullptr); // predecessor in shortest path tree
 
 		// start with all edges leaving from m_vS
 		edge e;
@@ -1046,7 +1021,7 @@ namespace ogdf {
 			node v = eCand->target();
 
 			// leads to an unvisited node ?
-			if (spPred[v] == 0) {
+			if (spPred[v] == nullptr) {
 				// yes, then we set v's predecessor in search tree
 				spPred[v] = eCand;
 
@@ -1057,7 +1032,7 @@ namespace ogdf {
 					// adjacency entries in G)
 					while(v != m_vS) {
 						adjEntry adjExp = m_primalEdge[spPred[v]];
-						if (adjExp != 0) // == nil for first and last edge
+						if (adjExp != nullptr) // == nil for first and last edge
 							L.pushFront(m_expToG[adjExp]);
 						v = spPred[v]->source();
 					}
@@ -1100,15 +1075,14 @@ namespace ogdf {
 
 
 		// find allocation nodes of s and t and representatives in skeletons
-		NodeArray<node> containsS(tree,0);
-		NodeArray<node> containsT(tree,0);
+		NodeArray<node> containsS(tree,nullptr);
+		NodeArray<node> containsT(tree,nullptr);
 
-		node v, w;
-		forall_nodes(v,tree) {
+		for(node v : tree.nodes) {
 			const Skeleton &S = T.skeleton(v);
 			const Graph &M = S.getGraph();
 
-			forall_nodes(w,M) {
+			for(node w : M.nodes) {
 				if (S.original(w) == s)
 					containsS[m_v1 = v] = w;
 				if (S.original(w) == t)
@@ -1119,17 +1093,18 @@ namespace ogdf {
 		// find path in tree from an allocation node m_v1 of s to an
 		// allocation m_v2 of t
 		List<edge> path;
-		pathSearch(m_v1,0,path);
+		pathSearch(m_v1,nullptr,path);
 
 		// remove unnecessary allocation nodes of s from start of path
-		while(!path.empty() && containsS[w = path.front()->opposite(m_v1)] != 0)
+		node w;
+		while(!path.empty() && containsS[w = path.front()->opposite(m_v1)] != nullptr)
 		{
 			m_v1 = w;
 			path.popFront();
 		}
 
 		// remove unnecessary allocation nodes of t from end of path
-		while(!path.empty() && containsT[w = path.back()->opposite(m_v2)] != 0)
+		while(!path.empty() && containsT[w = path.back()->opposite(m_v2)] != nullptr)
 		{
 			m_v2 = w;
 			path.popBack();
@@ -1139,9 +1114,9 @@ namespace ogdf {
 		ExpandedGraph *pExp = createExpandedGraph(BC,T);
 
 		if (T.typeOf(m_v1) == SPQRTree::RNode)
-			buildSubpath(m_v1, 0, (path.empty()) ? 0 : path.front(), L, *pExp, s, t);
+			buildSubpath(m_v1, nullptr, (path.empty()) ? nullptr : path.front(), L, *pExp, s, t);
 
-		v = m_v1;
+		node v = m_v1;
 		ListConstIterator<edge> it;
 		for(it = path.begin(); it.valid(); ++it)
 		{
@@ -1150,7 +1125,7 @@ namespace ogdf {
 
 			if (T.typeOf(v) == SPQRTree::RNode)
 				buildSubpath(v, e,
-				(it.succ().valid() == false) ? 0 : *(it.succ()), L, *pExp, s, t);
+				(it.succ().valid() == false) ? nullptr : *(it.succ()), L, *pExp, s, t);
 		}
 
 		delete pExp;
@@ -1200,7 +1175,7 @@ namespace ogdf {
 
 		// find shortest path in augmented dual
 		List<adjEntry> subpath;
-		if(m_pCost != 0)
+		if(m_pCost != nullptr)
 			Exp.findWeightedShortestPath(subpath);
 		else
 			Exp.findShortestPath(subpath);
@@ -1225,7 +1200,7 @@ namespace ogdf {
 
 		// find shortest path in augmented dual
 		List<adjEntry> subpath;
-		if(m_pCost != 0)
+		if(m_pCost != nullptr)
 			Exp.findWeightedShortestPath(subpath, m_typeOfCurrentEdge);
 		else
 			Exp.findShortestPath(subpath, m_typeOfCurrentEdge);

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of simple incremental node inserter
  *
@@ -55,19 +47,18 @@
 namespace ogdf {
 
 SimpleIncNodeInserter::SimpleIncNodeInserter(PlanRepInc &PG)
-: IncNodeInserter(PG), m_incidentEdges(PG, 0), m_forbidCrossings(true)
+: IncNodeInserter(PG), m_incidentEdges(PG, nullptr), m_forbidCrossings(true)
 {
 
 }//SimpleNodeInserter
 
 SimpleIncNodeInserter::~SimpleIncNodeInserter()
 {
-	node v;
-	forall_nodes(v, *m_planRep)
+	for(node v : m_planRep->nodes)
 	{
-		if (m_incidentEdges[v] != 0)
+		if (m_incidentEdges[v] != nullptr)
 			delete m_incidentEdges[v];
-	}//forallnodes
+	}
 }//destuctor
 
 
@@ -113,17 +104,17 @@ void SimpleIncNodeInserter::insertCopyNode(
 	CombinatorialEmbedding &E,
 	Graph::NodeType vTyp)
 {
-	m_nodeOf.init(E, 0);
+	m_nodeOf.init(E, nullptr);
 	m_insertFaceNode.init(*m_planRep, false);
 	m_vAdjNodes.init(*m_planRep, false);
-	m_incidentEdges.init(*m_planRep, 0);
+	m_incidentEdges.init(*m_planRep, nullptr);
 
 	m_primalAdj.init(m_dual);
 	m_primalIsGen.init(m_dual, false);
 
 	//---------------------------------------------
 	//first identify a face to insert the node into
-	face f = 0;
+	face f = nullptr;
 	if (m_planRep->numberOfEdges() > 0)
 	{
 		f = getInsertionFace(v, E);//, insertAfterAdj);
@@ -140,8 +131,8 @@ void SimpleIncNodeInserter::insertCopyNode(
 	//-----------------------------------------------------
 	//after having selected a face for insertion, we insert
 	//the crossing free edges
-	adjEntry adExternal = 0;
-	if ((f != 0) && (f == E.externalFace()))
+	adjEntry adExternal = nullptr;
+	if ((f != nullptr) && (f == E.externalFace()))
 	{
 		//stop if only selfloops
 		int count = 0;
@@ -206,15 +197,14 @@ face SimpleIncNodeInserter::getInsertionFace(node v, CombinatorialEmbedding &E)
 	forall_adj_edges(e, v)
 	{
 		node wCopy = m_planRep->copy(e->opposite(v));
-		if (wCopy == 0) continue; //not yet inserted
+		if (wCopy == nullptr) continue; //not yet inserted
 
 		m_vAdjNodes[wCopy] = true;
-		if (m_incidentEdges[wCopy] == 0)
+		if (m_incidentEdges[wCopy] == nullptr)
 			m_incidentEdges[wCopy] = OGDF_NEW List<edge>;
 		m_incidentEdges[wCopy]->pushBack(e);
 		OGDF_ASSERT(m_planRep->chain(e).size() == 0)
-		adjEntry adRun;
-		forall_adj(adRun, wCopy)
+		for(adjEntry adRun : wCopy->adjEdges)
 		{
 			face f = E.rightFace(adRun);
 			numAdj[f]++;
@@ -224,8 +214,8 @@ face SimpleIncNodeInserter::getInsertionFace(node v, CombinatorialEmbedding &E)
 			if ( (numAdj[f] == numAdj[bestFace]) &&
 				((f->size() > bestFace->size()) || (f == E.externalFace())))
 				bestFace = f;
-		}//foralladj
-	}//foralledges
+		}
+	}
 
 	return bestFace;
 }//getInsertionFace
@@ -245,7 +235,7 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 
 	//if we have no face given, we assume that we only have one node so far
 	//plus the new copy
-	if ((f == 0) && (m_planRep->numberOfNodes() == 2))
+	if ((f == nullptr) && (m_planRep->numberOfNodes() == 2))
 	{
 		edge e;
 		node sv = m_planRep->firstNode();
@@ -255,7 +245,7 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 		//we first insert one single edge, compute faces and then insert the
 		//remaining multiple edges
 		bool firstEdge = true;
-		adjEntry behindAdj = 0;
+		adjEntry behindAdj = nullptr;
 		forall_adj_edges(e, svOriginal)
 		{
 			if (e->opposite(svOriginal) == v)
@@ -265,8 +255,8 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 				{
 					//just insert the edge
 					if (e->target() == v)
-						/* e2 = */ m_planRep->newCopy(sv, 0, e);
-					else /* e2 = */ m_planRep->newCopy(vCopy, 0, e);
+						/* e2 = */ m_planRep->newCopy(sv, nullptr, e);
+					else /* e2 = */ m_planRep->newCopy(vCopy, nullptr, e);
 
 					if (m_planRep->componentNumber(vCopy) == -1)
 						m_planRep->componentNumber(vCopy) = m_planRep->componentNumber(sv);
@@ -341,7 +331,7 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 					{//we have to check the external face
 						edge tEdge = m_planRep->treeEdge(m_planRep->componentNumber(vCopy),
 						m_planRep->componentNumber(u));
-						if (tEdge != 0)
+						if (tEdge != nullptr)
 						{
 							if ((tEdge->adjSource() == adExternal) ||
 								(tEdge->adjTarget() == adExternal))
@@ -357,12 +347,12 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 					}
 				//-----------------------
 
-				it++;
+				++it;
 			}//while edges incident to u
 
 		}//if u incident to edges at v
 
-		itAd++;
+		++itAd;
 	}
 	//} while (adFace != f->firstAdj());
 
@@ -393,7 +383,7 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 				break;
 			}
 		}
-	}//foralledges
+	}
 
 	if (processed) return;
 
@@ -406,7 +396,7 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 			continue;
 		node wCopy = m_planRep->copy(e->opposite(v));
 		//the node copy has to exist already
-		if (wCopy == 0) continue;
+		if (wCopy == nullptr) continue;
 		OGDF_ASSERT(wCopy)
 
 		node vs = vCopy, vt = wCopy;
@@ -432,7 +422,7 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 					{//we have to check the external face
 						edge tEdge = m_planRep->treeEdge(m_planRep->componentNumber(vCopy),
 							m_planRep->componentNumber(wCopy));
-						if (tEdge != 0)
+						if (tEdge != nullptr)
 						{
 							if ((tEdge->adjSource() == adExternal) ||
 								(tEdge->adjTarget() == adExternal))
@@ -460,17 +450,14 @@ void SimpleIncNodeInserter::constructDual(const Graph &G,
 	m_dual.clear();
 
 	// insert a node in the dual graph for each face in E
-	face f;
-	forall_faces(f,E)
+	for(face f : E.faces)
 		m_nodeOf[f] = m_dual.newNode();
 
 	// Insert an edge into the dual graph for each adjacency entry in E.
 	// The edges are directed from the left face to the right face.
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 		{
 			node vLeft  = m_nodeOf[E.leftFace (adj)];
 			node vRight = m_nodeOf[E.rightFace(adj)];
@@ -508,13 +495,12 @@ void SimpleIncNodeInserter::findShortestPath(
 	OGDF_ASSERT(s != t);
 //if (!isConnected(m_dual)) cout<<"Not connected\n"<<flush;
 
-	NodeArray<edge> spPred(m_dual,0);
+	NodeArray<edge> spPred(m_dual,nullptr);
 	QueuePure<edge> queue;
 	int oldIdCount = m_dual.maxEdgeIndex();
 
 	// augment dual by edges from s to all adjacent faces of s ...
-	adjEntry adj;
-	forall_adj(adj,s)
+	for(adjEntry adj : s->adjEdges)
 	{
 		// starting edges of bfs-search are all edges leaving s
 		edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
@@ -523,7 +509,7 @@ void SimpleIncNodeInserter::findShortestPath(
 	}
 
 	// ... and from all adjacent faces of t to t
-	forall_adj(adj,t) {
+	for(adjEntry adj : t->adjEdges) {
 		edge eDual = m_dual.newEdge(m_nodeOf[E.rightFace(adj)], m_vT);
 		m_primalAdj[eDual] = adj;
 	}
@@ -536,7 +522,7 @@ void SimpleIncNodeInserter::findShortestPath(
 		node v = eCand->target();
 
 		// leads to an unvisited node?
-		if (spPred[v] == 0)
+		if (spPred[v] == nullptr)
 		{
 			// yes, then we set v's predecessor in search tree
 			spPred[v] = eCand;
@@ -573,10 +559,11 @@ void SimpleIncNodeInserter::findShortestPath(
 
 
 	// remove augmented edges again
-	while ((adj = m_vS->firstAdj()) != 0)
+	adjEntry adj;
+	while ((adj = m_vS->firstAdj()) != nullptr)
 		m_dual.delEdge(adj->theEdge());
 
-	while ((adj = m_vT->firstAdj()) != 0)
+	while ((adj = m_vT->firstAdj()) != nullptr)
 		m_dual.delEdge(adj->theEdge());
 
 	m_dual.resetEdgeIdCount(oldIdCount);

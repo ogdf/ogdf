@@ -1,11 +1,3 @@
-/*
- * $Revision: 2524 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-03 09:54:22 +0200 (Tue, 03 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of upward planarization layout algorithm.
  *
@@ -83,7 +75,7 @@ public:
 
 	// calls the algorithm for attributed graph AG
 	// returns layout information in AG
-	void call(GraphAttributes &AG)
+	virtual void call(GraphAttributes &AG) override
 	{
 		UpwardPlanRep UPR;
 		UPR.createEmpty(AG.constGraph());

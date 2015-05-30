@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the FastPlanarSubgraph.
  *
@@ -58,6 +50,8 @@ namespace ogdf {
 /**
  * \brief Computation of a planar subgraph using PQ-trees.
  *
+ * @ingroup ga-plansub
+ *
  * Literature: Jayakumar, Thulasiraman, Swamy 1989
  *
  * <h3>Optional Parameters</h3>
@@ -93,7 +87,7 @@ public:
 	~FastPlanarSubgraph() { }
 
 	//! Returns a new instance of fast planar subgraph with the same option settings.
-	virtual PlanarSubgraphModule *clone() const;
+	virtual PlanarSubgraphModule *clone() const override;
 
 	//! Assignment operator. Copies option settings only.
 	FastPlanarSubgraph &operator=(const FastPlanarSubgraph &fps);
@@ -117,11 +111,12 @@ protected:
 	/**
 	 * \todo Add timeout support (limit number of runs when timeout is reached).
 	 */
-	ReturnType doCall(const Graph &G,
+	virtual ReturnType doCall(
+		const Graph &G,
 		const List<edge> &preferedEdges,
 		List<edge> &delEdges,
 		const EdgeArray<int>  *pCost,
-		bool preferedImplyPlanar);
+		bool preferedImplyPlanar) override;
 
 
 private:
@@ -131,7 +126,7 @@ private:
 	void seqCall(const Array<BlockType> &block, const EdgeArray<int> *pCost, int nRuns, bool randomize, List<edge> &delEdges);
 
 	//! Realizes the parallel implementation.
-	void parCall(const Array<BlockType> &block, const EdgeArray<int> *pCost, int nRuns, int nThreads, List<edge> &delEdges);
+	void parCall(const Array<BlockType> &block, const EdgeArray<int> *pCost, int nRuns, unsigned int nThreads, List<edge> &delEdges);
 
 	//! Performs a planarization on a biconnected component pf \a G.
 	/** The numbering contains an st-numbering of the component.

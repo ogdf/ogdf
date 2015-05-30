@@ -1,11 +1,3 @@
-/*
- * $Revision: 2804 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-11 13:58:53 +0200 (Thu, 11 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class MultilevelLayout
  *
@@ -41,7 +33,7 @@
  ***************************************************************/
 
 #include <ogdf/energybased/MultilevelLayout.h>
-#include <ogdf/energybased/SpringEmbedderFR.h>
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>
 
 namespace ogdf {
 
@@ -77,7 +69,7 @@ MultilevelLayout::MultilevelLayout()
 	//For the layout, we set a scaling layout with
 	//standard level layout FR. This scales the layout
 	//on each level (with a constant factor) and then applies the FR.
-	m_sc->setSecondaryLayout(new SpringEmbedderFR);
+	m_sc->setSecondaryLayout(new SpringEmbedderGridVariant);
 	m_sc->setScalingType(ScalingLayout::st_relativeToDrawing);
 	m_sc->setLayoutRepeats(1);
 

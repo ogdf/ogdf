@@ -1,11 +1,3 @@
-/*
- * $Revision: 3439 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-22 14:49:37 +0200 (Mon, 22 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class NodeInfo.
  *

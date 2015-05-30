@@ -1,11 +1,3 @@
- /*
- * $Revision: 3830 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class MaximumCPlanarSubgraph
  *
@@ -154,11 +146,8 @@ Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
 //returns list of all clusters in subtree at c in bottom up order
 void MaximumCPlanarSubgraph::getBottomUpClusterList(const cluster c, List< cluster > & theList)
 {
-	ListConstIterator<cluster> it = c->cBegin();
-	while (it.valid())
-	{
-		getBottomUpClusterList((*it), theList);
-		it++;
+	for(cluster cc : c->children) {
+		getBottomUpClusterList(cc, theList);
 	}
 	theList.pushBack(c);
 }
@@ -170,12 +159,11 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 {
 	const ClusterGraph& CG = *(master.getClusterGraph());
 	const Graph& G = CG.constGraph();
-	node v;
 	//first compute the nodepairs that are potential candidates to connect
 	//chunks in a cluster
 	//potential connection edges
 	NodeArray< NodeArray<bool> > potConn(G);
-	forall_nodes(v, G)
+	for(node v : G.nodes)
 	{
 		potConn[v].init(G, false);
 	}
@@ -193,10 +181,8 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	//even if they may be connected by edges in a child cluster
 	//(to get the set of all feasible solutions)
 
-	ListConstIterator< cluster > it = clist.begin();
-	while (it.valid())
+	for (cluster c : clist)
 	{
-		cluster c = (*it);
 		//we compute the subgraph induced by vertices in c
 		GraphCopy gcopy;
 		gcopy.createEmpty(G);
@@ -206,11 +192,8 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 		c->getClusterNodes(clusterNodes);
 		NodeArray<bool> activeNodes(G, false); //true for all cluster nodes
 		EdgeArray<edge> copyEdge(G); //holds the edge copy
-		ListConstIterator<node> itn = clusterNodes.begin();
-		while (itn.valid())
-		{
-			activeNodes[(*itn)] = true;
-			itn++;
+		for (node v : clusterNodes) {
+			activeNodes[v] = true;
 		}
 		gcopy.initByActiveNodes(clusterNodes, activeNodes, copyEdge);
 		//gcopy now represents the cluster induced subgraph
@@ -222,10 +205,9 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 		//now we run over all vertices and compare the component
 		//number of adjacent vertices. If they differ, we found a
 		//potential connection edge. We do not care if we find them twice.
-		forall_nodes(v, gcopy)
+		for(node v : gcopy.nodes)
 		{
-			node w;
-			forall_nodes(w, gcopy)
+			for(node w : gcopy.nodes)
 			{
 				if (component[v] != component[w])
 				{
@@ -245,9 +227,7 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 				}
 			}//nodes
 		}//nodes
-
-		it++;
-	}//while
+	}
 
 	cout << "Potentielle Verbindungskanten: "<< connPairs.size()<<"\n";
 
@@ -255,19 +235,17 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	//that can be used for dynamic graph updates
 	int i = 0;
 	connStruct *cons = new connStruct[connPairs.size()];
-	ListConstIterator< nodePair > itnp = connPairs.begin();
-	while (itnp.valid())
+	for(const nodePair &np : connPairs)
 	{
 		connStruct cs;
 		cs.connected = false;
-		cs.v1 = (*itnp).v1;
-		cs.v2 = (*itnp).v2;
-		cs.e  = 0;
+		cs.v1 = np.v1;
+		cs.v2 = np.v2;
+		cs.e  = nullptr;
 
 		cons[i] = cs;
 		i++;
-		itnp++;
-	}//while
+	}
 
 	//-------------------------------------------------------------------------
 	// WARNING: this is extremely slow for graphs with a large number of cluster

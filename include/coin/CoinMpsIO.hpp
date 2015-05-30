@@ -657,7 +657,7 @@ public:
     int readGms(int & numberSets, CoinSet **& sets);
     /** Read a problem in GMPL (subset of AMPL)  format from the given filenames.
     */
-    int readGMPL(const char *modelName, const char * dataName=NULL, bool keepNames=false);
+    int readGMPL(const char *modelName, const char * dataName=nullptr, bool keepNames=false);
 
     /** Write the problem in MPS format to a file with the given filename.
 
@@ -686,8 +686,8 @@ public:
     */
     int writeMps(const char *filename, int compression = 0,
 		 int formatType = 0, int numberAcross = 2,
-		 CoinPackedMatrix * quadratic = NULL,
-		 int numberSOS=0,const CoinSet * setInfo=NULL) const;
+		 CoinPackedMatrix * quadratic = nullptr,
+		 int numberSOS=0,const CoinSet * setInfo=nullptr) const;
 
     /// Return card reader object so can see what last card was e.g. QUADOBJ
     inline const CoinMpsCardReader * reader() const

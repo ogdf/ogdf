@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Definition of the Schnyder Layout Algorithm (SchnyderLayout)
  *
@@ -110,14 +102,13 @@ void SchnyderLayout::schnyderEmbedding(
 	NodeArray<int> &xcoord = gridLayout.x();
 	NodeArray<int> &ycoord = gridLayout.y();
 
-	node v;
 	List<node> L;						// (un)contraction order
 	GraphCopy T = GraphCopy(GC);		// the realizer tree (reverse direction of edges!!!)
 	EdgeArray<int> rValues(T);			// the realizer values
 
 	// choose outer face a,b,c
 	adjEntry adja;
-	if (adjExternal != 0) {
+	if (adjExternal != nullptr) {
 		edge eG  = adjExternal->theEdge();
 		edge eGC = GC.copy(eG);
 		adja = (adjExternal == eG->adjSource()) ? eGC->adjSource() : eGC->adjTarget();
@@ -177,7 +168,7 @@ void SchnyderLayout::schnyderEmbedding(
 	 */
 
 	// r1[v]=v1[v]+val[v]-t1[v] is the number of nodes in region 1 from v
-	forall_nodes(v, T) {
+	for(node v : T.nodes) {
 		// calc v1'
 		v1[v] += val[v] - t1[v] - P3[v];
 	}
@@ -190,13 +181,13 @@ void SchnyderLayout::schnyderEmbedding(
 	// special treatment for b
 	val[b_in_T] = t2[b_in_T];
 
-	forall_nodes(v, T) {
+	for(node v : T.nodes) {
 		// calc v2'
 		v2[v] += val[v] - t2[v] - P1[v];
 	}
 
 	// copy coordinates to the GridLayout
-	forall_nodes(v, GC) {
+	for(node v : GC.nodes) {
 		xcoord[GC.original(v)] = v1[T.copy(GC.original(v))];
 		ycoord[GC.original(v)] = v2[T.copy(GC.original(v))];
 	}
@@ -209,7 +200,6 @@ void SchnyderLayout::schnyderEmbedding(
  */
 void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 {
-	adjEntry adj1, adj2;
 	List<node> candidates;
 	NodeArray<bool> marked(G, false);			// considered nodes
 	NodeArray<int> deg(G, 0);					// # virtual neighbours
@@ -221,15 +211,15 @@ void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 	deg[a] = deg[b] = deg[c] = N;
 
 	// mark neighbours of a and calc the degree of the second (virtual) neighbours
-	forall_adj(adj1, a) {
+	for(adjEntry adj1 : a->adjEdges) {
 		marked[adj1->twinNode()] = true;
-		forall_adj(adj2, adj1->twinNode()) {
+		for(adjEntry adj2 : adj1->twinNode()->adjEdges) {
 			deg[adj2->twinNode()]++;
 		}
 	}
 
 	// find first candidates
-	forall_adj(adj1, a) {
+	for(adjEntry adj1 : a->adjEdges) {
 		if (deg[adj1->twinNode()] <= 2) {
 			candidates.pushBack(adj1->twinNode());
 		}
@@ -240,12 +230,12 @@ void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 		if (deg[u] == 2) {
 			L.pushFront(u);
 			deg[u] = N;
-			forall_adj(adj1, u) {
+			for(adjEntry adj1 : u->adjEdges) {
 				node v = adj1->twinNode();
 				deg[v]--;										// u is virtualy deleted
 				if (!marked[v]) {								// v is new neighbour of a
 					marked[v] = true;
-					forall_adj(adj2, v) {
+					for(adjEntry adj2 : v->adjEdges) {
 						deg[adj2->twinNode()]++;				// degree of virtaul neighbours increase
 					}
 					if (deg[v] <= 2) candidates.pushBack(v);	// next candidate v
@@ -275,14 +265,13 @@ void SchnyderLayout::realizer(
 	int  i = 0;
 	edge e;
 	NodeArray<int> ord(G, 0);
-	adjEntry adj;
 
 	// ordering: b,c,L,a
 	ord[b] = i++;
 	ord[c] = i++;
 
-	forall_listiterators(node, it, L) {
-		ord[*it] = i++;				// enumerate V(G)
+	for(node v : L) {
+		ord[v] = i++;				// enumerate V(G)
 	}
 	ord[a] = i++;
 
@@ -292,12 +281,13 @@ void SchnyderLayout::realizer(
 		T.delEdge(e);
 	}
 
-	forall_listiterators(node, it, L) {
-		node v = *it;
+	for(node v : L) {
 		node u = T.copy(G.original(v));   // u is copy of v in T
 
-		forall_adj(adj, v) {
-			if (ord[adj->twinNode()] > ord[v]) {
+		adjEntry adj = nullptr;
+		for(adjEntry adjRun : v->adjEdges) {
+			if (ord[adjRun->twinNode()] > ord[v]) {
+				adj = adjRun;
 				break;
 			}
 		}
@@ -328,7 +318,7 @@ void SchnyderLayout::realizer(
 	node c_in_T = T.copy(G.original(c));
 
 	// all edges to node a get realizer value 1
-	forall_adj(adj, a) {
+	for(adjEntry adj : a->adjEdges) {
 		e = T.newEdge(a_in_T, T.copy(G.original(adj->twinNode())));
 		rValues[e] = 1;
 	}
@@ -355,9 +345,8 @@ void SchnyderLayout::subtreeSizes(
 	node r,
 	NodeArray<int>& size)
 {
-	int  sum = 0;
-	adjEntry adj;
-	forall_adj(adj, r) {
+	int sum = 0;
+	for(adjEntry adj : r->adjEdges) {
 		if (adj->theEdge()->source() == r && rValues[adj->theEdge()] == i) {
 			node w = adj->twinNode();
 			subtreeSizes(rValues, i, w, size);
@@ -385,12 +374,12 @@ void SchnyderLayout::prefixSum(
 
 	while (!Q.empty()) {
 		node v = Q.popFrontRet();
-		adjEntry adj;
-		forall_adj(adj, v)
-		if (adj->theEdge()->source() == v && rValues[adj->theEdge()] == i) {
-			node w = adj->twinNode();
-			Q.pushBack(w);
-			sum[w] = val[w] + sum[v];
+		for (adjEntry adj : v->adjEdges) {
+			if (adj->theEdge()->source() == v && rValues[adj->theEdge()] == i) {
+				node w = adj->twinNode();
+				Q.pushBack(w);
+				sum[w] = val[w] + sum[v];
+			}
 		}
 	}
 }

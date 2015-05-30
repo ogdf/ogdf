@@ -1,11 +1,3 @@
-/*
- * $Revision: 3846 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 10:33:14 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of BlockOrder and related classes
  *
@@ -90,7 +82,7 @@ class OGDF_EXPORT Block {
 
 	friend class BlockOrder;
 private:
-	BlockOrder *m_pOrder;  //!< The order to which this block belongs.
+	//BlockOrder *m_pOrder;  //!< The order to which this block belongs.
 
 	int m_index; //!< The index of this block in BlockOrder.
 
@@ -228,7 +220,7 @@ public:
 	BlockOrder( Hierarchy& hierarchy, bool longEdgesOnly = true );
 
 	//! Calls the global sifting algorithm on graph (its hierarchy).
-	void globalSifting( int rho = 1, int nRepeats = 10 );
+	void globalSifting( int rho = 1, int nRepeats = 10, int *pNumCrossings = nullptr );
 
 private:
 	//! Does some initialization.

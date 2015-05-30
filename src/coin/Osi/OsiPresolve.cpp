@@ -1549,7 +1549,7 @@ CoinPresolveMatrix::CoinPresolveMatrix(int ncols0_in,
     sol_ = new double[ncols_];
     const double *presol ;
     presol = si->getColSolution() ;
-    memcpy(sol_,presol,ncols_*sizeof(double));;
+    memcpy(sol_,presol,ncols_*sizeof(double));
     acts_ = new double [nrows_];
     memcpy(acts_,si->getRowActivity(),nrows_*sizeof(double));
     CoinWarmStartBasis * basis  =

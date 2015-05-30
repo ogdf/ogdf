@@ -1,0 +1,3 @@
+Minisat needs the following preprocessor makros to be set for correct working :
+
+D__STDC_LIMIT_MACROS

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3087 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 20:17:52 +0100 (Thu, 29 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Handles Abacus Dependencies.
  *

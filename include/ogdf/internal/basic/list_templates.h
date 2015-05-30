@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of algorithms as templates working with
  *        different list types
@@ -63,14 +55,14 @@ void quicksortTemplate(LIST &L)
 	Array<typename LIST::value_type> A(n);
 
 	int i = 0;
-	typename LIST::iterator it;
-	for (it = L.begin(); it.valid(); ++it)
-		A[i++] = *it;
+	for (const typename LIST::value_type &x : L)
+		A[i++] = x;
 
 	A.quicksort();
 
-	for (i = 0, it = L.begin(); i < n; i++)
-		*it++ = A[i];
+	i = 0;
+	for (typename LIST::value_type &x : L)
+		x = A[i++];
 }
 
 
@@ -82,14 +74,14 @@ void quicksortTemplate(LIST &L, COMPARER &comp)
 	Array<typename LIST::value_type> A(n);
 
 	int i = 0;
-	typename LIST::iterator it;
-	for (it = L.begin(); it.valid(); ++it)
-		A[i++] = *it;
+	for (const typename LIST::value_type &x : L)
+		A[i++] = x;
 
 	A.quicksort(comp);
 
-	for (i = 0, it = L.begin(); i < n; i++)
-		*it++ = A[i];
+	i = 0;
+	for (typename LIST::value_type &x : L)
+		x = A[i++];
 }
 
 

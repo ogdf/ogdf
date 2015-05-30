@@ -1,11 +1,3 @@
-/*
- * $Revision: 3074 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 11:01:06 +0100 (Thu, 29 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief declaration and implementation of FaceArray class
  *
@@ -73,10 +65,18 @@ public:
 	const ConstCombinatorialEmbedding *m_pEmbedding; //!< The associated combinatorial embedding.
 
 	//! Initializes a face array not associated with a combinatorial embedding.
-	FaceArrayBase() : m_pEmbedding(0) { }
+	FaceArrayBase() : m_pEmbedding(nullptr) { }
+
 	//! Initializes a face array associated with \a pE.
 	FaceArrayBase(const ConstCombinatorialEmbedding *pE) : m_pEmbedding(pE) {
 		if(pE) m_it = pE->registerArray(this);
+	}
+
+	//! Moves face array \a base to this face array.
+	FaceArrayBase(FaceArrayBase &base) : m_it(base.m_it), m_pEmbedding(base.m_pEmbedding) {
+		if(m_pEmbedding) m_pEmbedding->moveRegisterArray(m_it, this);
+		base.m_pEmbedding = nullptr;
+		base.m_it         = ListIterator<FaceArrayBase*>();
 	}
 
 	// destructor, unregisters the array
@@ -93,13 +93,27 @@ public:
 	//! Associates the array with a new combinatorial embedding.
 	void reregister(const ConstCombinatorialEmbedding *pE) {
 		if (m_pEmbedding) m_pEmbedding->unregisterArray(m_it);
-		if ((m_pEmbedding = pE) != 0) m_it = pE->registerArray(this);
+		if ((m_pEmbedding = pE) != nullptr) m_it = pE->registerArray(this);
 	}
+
+	//! Moves array registration from \a base to this array.
+	void moveRegister(FaceArrayBase &base) {
+		if (m_pEmbedding) m_pEmbedding->unregisterArray(m_it);
+		m_pEmbedding = base.m_pEmbedding;
+		m_it         = base.m_it;
+		base.m_pEmbedding = nullptr;
+		base.m_it         = ListIterator<FaceArrayBase*>();
+		if (m_pEmbedding != nullptr)
+			m_pEmbedding->moveRegisterArray(m_it, this);
+	}
+
 }; // class FaceArrayBase
 
 
 //! Dynamic arrays indexed with faces of a combinatorial embedding.
 /**
+ * @ingroup graph-containers
+ *
  * Face arrays represent a mapping from faces to data of type \a T.
  * They adjust their table size automatically when the number of faces in the
  * corresponding combinatorial embedding increases.
@@ -110,11 +124,24 @@ template<class T> class FaceArray : private Array<T>, protected FaceArrayBase {
 	T m_x; //!< The default value for array elements.
 
 public:
+	//! The type for array keys.
+	typedef face key_type;
+	//! The type for array entries.
+	typedef T value_type;
+
+	//! The type for face array iterators.
+	typedef internal::GraphArrayIterator<FaceArray<T>> iterator;
+	//! The type for face array const iterators.
+	typedef internal::GraphArrayConstIterator<FaceArray<T>> const_iterator;
+
+
 	//! Constructs an empty face array associated with no combinatorial embedding.
 	FaceArray() : Array<T>(), FaceArrayBase() { }
+
 	//! Constructs a face array associated with \a E.
 	FaceArray(const ConstCombinatorialEmbedding &E) :
 		Array<T>(E.faceArrayTableSize()), FaceArrayBase(&E) { }
+
 	//! Constructs a face array associated with \a E.
 	/**
 	 * @param E is the associated combinatorial embedding.
@@ -122,12 +149,26 @@ public:
 	 */
 	FaceArray(const ConstCombinatorialEmbedding &E, const T &x) :
 		Array<T>(0,E.faceArrayTableSize()-1,x), FaceArrayBase(&E), m_x(x) { }
+
 	//! Constructs an face array that is a copy of \a A.
 	/**
 	 * Associates the array with the same combinatorial embedding as
 	 * \a A and copies all elements.
 	 */
 	FaceArray(const FaceArray<T> &A) : Array<T>(A), FaceArrayBase(A.m_pEmbedding), m_x(A.m_x) { }
+
+	//! Constructs a face array containing the elements of \a A (move semantics).
+	/**
+	 * Face array \a A is empty afterwards and not associated with any combinatorial embedding.
+	 */
+	FaceArray(FaceArray<T> &&A) : Array<T>(std::move(A)), FaceArrayBase(A), m_x(A.m_x) { }
+
+
+	/**
+	 * @name Access methods
+	 * These methods provide access to elements, size, and corresponding graph.
+	 */
+	//@{
 
 	//! Returns true iff the array is associated with a combinatorial embedding.
 	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
@@ -139,45 +180,123 @@ public:
 
 	//! Returns a reference to the element with index \a f.
 	const T &operator[](face f) const {
-		OGDF_ASSERT(f != 0 && f->embeddingOf() == m_pEmbedding)
+		OGDF_ASSERT(f != nullptr);
+		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
 		return Array<T>::operator [](f->index());
 	}
 
 	//! Returns a reference to the element with index \a f.
 	T &operator[](face f) {
-		OGDF_ASSERT(f != 0 && f->embeddingOf() == m_pEmbedding)
+		OGDF_ASSERT(f != nullptr);
+		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
 		return Array<T>::operator [](f->index());
 	}
 
-	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for a face
-	 * in the associated combinatorial embedding!
-	 */
-	const T &operator[](int index) const {
-		return Array<T>::operator [](index);
+	//! Returns a reference to the element with index \a f.
+	const T &operator()(face f) const {
+		OGDF_ASSERT(f != nullptr);
+		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
+		return Array<T>::operator [](f->index());
 	}
 
-	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for a face
-	 * in the associated combinatorial embedding!
-	 */
-	T &operator[](int index) {
-		return Array<T>::operator [](index);
+	//! Returns a reference to the element with index \a f.
+	T &operator()(face f) {
+		OGDF_ASSERT(f != nullptr);
+		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
+		return Array<T>::operator [](f->index());
 	}
 
-	//! Assignment operator.
-	FaceArray<T> &operator=(const FaceArray<T> &a) {
-		Array<T>::operator =(a);
-		m_x = a.m_x;
-		reregister(a.m_pEmbedding);
-		return *this;
-	}
+
+	//@}
+	/**
+	 * @name Iterators
+	 * These methods return bidirectional iterators to elements in the array.
+	 */
+	//@{
+
+	//! Returns an iterator to the first entry in the face array.
+	/**
+	 * If the face array is empty, a null pointer iterator is returned.
+	 */
+	iterator begin() { return iterator(m_pEmbedding->firstFace(), this); }
+
+	//! Returns a const iterator to the first entry in the face array.
+	/**
+	 * If the face array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator begin() const { return const_iterator(m_pEmbedding->firstFace(), this); }
+
+	//! Returns a const iterator to the first entry in the face array.
+	/**
+	 * If the face array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator cbegin() const { return const_iterator(m_pEmbedding->firstFace(), this); }
+
+	//! Returns an iterator to one-past-last entry in the face array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator end() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the face array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator end() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-past-last entry in the face array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator cend() const { return const_iterator(nullptr, this); }
+
+	//! Returns an iterator to the last entry in the face array.
+	/**
+	 * If the face array is empty, a null pointer iterator is returned.
+	 */
+	iterator rbegin() { return iterator(m_pEmbedding->lastFace(), this); }
+
+	//! Returns a const iterator to the last entry in the face array.
+	/**
+	 * If the face array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator rbegin() const { return const_iterator(m_pEmbedding->lastFace(), this); }
+
+	//! Returns a const iterator to the last entry in the face array.
+	/**
+	 * If the face array is empty, a null pointer iterator is returned.
+	 */
+	const_iterator crbegin() const { return const_iterator(m_pEmbedding->lastFace(), this); }
+
+	//! Returns an iterator to one-before-first entry in the face array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	iterator rend() { return iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the face array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator rend() const { return const_iterator(nullptr, this); }
+
+	//! Returns a const iterator to one-before-first entry in the face array.
+	/**
+	 * This is always a null pointer iterator.
+	 */
+	const_iterator crend() const { return const_iterator(nullptr, this); }
+
+
+	//@}
+	/**
+	 * @name Initialization and assignment
+	 * These methods can be used to reinitialize the array, or to initialize all elements with a given value.
+	 */
+	//@{
 
 	//! Reinitializes the array. Associates the array with no combinatorial embedding.
 	void init() {
-		Array<T>::init(); reregister(0);
+		Array<T>::init(); reregister(nullptr);
 	}
 
 	//! Reinitializes the array. Associates the array with \a E.
@@ -200,6 +319,38 @@ public:
 		if(high >= 0)
 			Array<T>::fill(0,high,x);
 	}
+
+	//! Assignment operator.
+	FaceArray<T> &operator=(const FaceArray<T> &a) {
+		Array<T>::operator =(a);
+		m_x = a.m_x;
+		reregister(a.m_pEmbedding);
+		return *this;
+	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * Face array \a a is empty afterwards and not associated with any combinatorial embedding.
+	 */
+	FaceArray<T> &operator=(FaceArray<T> &&a) {
+		Array<T>::operator=(std::move(a));
+		m_x = a.m_x;
+		moveRegister(a);
+		return *this;
+	}
+
+
+	//@}
+	/**
+	 * @name Helper functions
+	 * These methods are mainly intended for internal use.
+	 */
+	//@{
+
+	static key_type findSuccKey(key_type key) { return key->succ(); }
+	static key_type findPredKey(key_type key) { return key->pred(); }
+
+	//@}
 
 private:
 	virtual void enlargeTable(int newTableSize) {

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of class TileToRowsCCPacker
  *
@@ -214,11 +206,10 @@ void TileToRowsCCPacker::callGeneric(Array<POINT> &box,
 
 		typename POINT::numberType x = 0;  // sum of the widths of the boxes to the left of box *it
 
-		SListConstIterator<int> it;
-		for(it = r.m_boxes.begin(); it.valid(); ++it)
+		for(int j : r.m_boxes)
 		{
-			offset[*it] = POINT(x,y);
-			x += box[*it].m_x;
+			offset[j] = POINT(x,y);
+			x += box[j].m_x;
 		}
 
 		y += r.m_maxHeight;

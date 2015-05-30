@@ -1,11 +1,3 @@
-/*
- * $Revision: 2641 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-19 15:21:36 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of HashArray class.
  *
@@ -57,6 +49,8 @@ namespace ogdf {
 
 //! Indexed arrays using hashing for element access.
 /**
+ * @ingroup containers
+ *
  * @tparam I is the index type.
  * @tparam E is the element type.
  * @tparam H is the hash function type. Optional; its default uses the class DefHashFunc.

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3832 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:16:27 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of upward planarization layout algorithm.
  *
@@ -84,9 +76,9 @@ private:
 
 	//return true if vUPR1 is on the lefthand side of vUPR2 according to UPR.
 	bool left(node vUPR1,
-			List<edge> chain1, //if vUPR1 is associated with a long edge dummy vH1, then chain1 contain vH1
+			const List<edge> &chain1, //if vUPR1 is associated with a long edge dummy vH1, then chain1 contain vH1
 			node vUPR2 ,
-			List<edge> chain2 // if vUPR2 is associated with a long edge dummy vH2, then chain2 contain vH2
+			const List<edge> &chain2 // if vUPR2 is associated with a long edge dummy vH2, then chain2 contain vH2
 			) const;
 
 	//return true if vUPR1 is on the lefthand side of vUPR2 according to UPR.
@@ -103,6 +95,9 @@ private:
 };
 
 
+/**
+ @ingroup gd-layered
+ */
 class OGDF_EXPORT LayerBasedUPRLayout : public UPRLayoutModule
 {
 public:
@@ -155,7 +150,7 @@ protected :
 	 * @param UPR is the upward planarized representation of the input graph.
 	 * @param AG has to be assigned the hierarchy layout.
 	 */
-	virtual void doCall(const UpwardPlanRep &UPR, GraphAttributes &AG);
+	virtual void doCall(const UpwardPlanRep &UPR, GraphAttributes &AG) override;
 
 	int m_crossings;
 
@@ -184,9 +179,9 @@ private:
 
 
 	//! reduce the long edge dummies (LED)
-	void postProcessing_reduceLED(Hierarchy &H, HierarchyLevels &levels, List<node> &sources) {
-		forall_listiterators(node, it, sources)
-			postProcessing_reduceLED(H, levels, *it);
+	void postProcessing_reduceLED(Hierarchy &H, HierarchyLevels &levels, const List<node> &sources) {
+		for(node s : sources)
+			postProcessing_reduceLED(H, levels, s);
 	}
 
 	void postProcessing_reduceLED(Hierarchy &H, HierarchyLevels &levels, node vH);

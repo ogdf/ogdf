@@ -1,11 +1,3 @@
-/*
- * $Revision: 3830 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements the class EdgeStandardRep.
  *
@@ -48,7 +40,7 @@
 namespace ogdf {
 
 EdgeStandardRep::EdgeStandardRep()
-	: m_type(EdgeStandardType::star), m_hypergraph(0)
+	: m_type(EdgeStandardType::star), m_hypergraph(nullptr)
 {
 }
 
@@ -58,10 +50,10 @@ EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType::Type pT
 	m_type = pType;
 	m_hypergraph = &pH;
 
-	m_hypernodeMap = NodeArray<hypernode>(m_graphRep, 0);
-	m_hyperedgeMap = EdgeArray<hyperedge>(m_graphRep, 0);
+	m_hypernodeMap = NodeArray<hypernode>(m_graphRep, nullptr);
+	m_hyperedgeMap = EdgeArray<hyperedge>(m_graphRep, nullptr);
 
-	m_nodeMap = HypernodeArray<node>(pH, 0);
+	m_nodeMap = HypernodeArray<node>(pH, nullptr);
 	m_edgeMap = HyperedgeArray<List<edge> > (pH, List<edge>());
 
 	if (m_type == EdgeStandardType::clique)
@@ -74,7 +66,7 @@ EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType::Type pT
 
 EdgeStandardRep::~EdgeStandardRep()
 {
-	m_hypergraph = 0;
+	m_hypergraph = nullptr;
 	m_dummyNodes.~List<node>();
 	m_graphRep.~Graph();
 }
@@ -182,8 +174,8 @@ void EdgeStandardRep::hyperedgeToClique(hyperedge e)
 	for (adjHypergraphEntry adjSrc = e->firstAdj(); adjSrc->succ(); adjSrc = adjSrc->succ()) {
 		for (adjHypergraphEntry adjTgt = adjSrc->succ(); adjTgt; adjTgt = adjTgt->succ()) {
 
-			eRep = m_graphRep.newEdge(m_nodeMap[((hypernode) adjSrc->element())],
-					m_nodeMap[((hypernode) adjTgt->element())]);
+			eRep = m_graphRep.newEdge(m_nodeMap[reinterpret_cast<hypernode>(adjSrc->element())],
+					m_nodeMap[reinterpret_cast<hypernode>(adjTgt->element())]);
 
 			m_hyperedgeMap[eRep] = e;
 			m_edgeMap[e].pushBack(eRep);
@@ -198,15 +190,15 @@ void EdgeStandardRep::hyperedgeToTree(hyperedge e, int degree)
 
 	List<node> orphans;
 	for (adjHypergraphEntry adj = e->firstAdj(); adj; adj = adj->succ()) {
-		OGDF_ASSERT(m_nodeMap[((hypernode) adj->element())] != 0);
-		orphans.pushBack(m_nodeMap[((hypernode) adj->element())]);
+		OGDF_ASSERT(m_nodeMap[reinterpret_cast<hypernode>(adj->element())] != 0);
+		orphans.pushBack(m_nodeMap[reinterpret_cast<hypernode>(adj->element())]);
 	}
 
 	edge eRep;
 	node parentDummy;
 	while (orphans.size() > degree) {
 		parentDummy = m_graphRep.newNode();
-		m_hypernodeMap[parentDummy] = 0;
+		m_hypernodeMap[parentDummy] = nullptr;
 		m_dummyNodes.pushBack(parentDummy);
 
 		for (int i = 0; i < degree - 1; i++) {
@@ -228,7 +220,7 @@ void EdgeStandardRep::hyperedgeToTree(hyperedge e, int degree)
 	} else {
 		parentDummy = m_graphRep.newNode();
 		m_dummyNodes.pushBack(parentDummy);
-		m_hypernodeMap[parentDummy] = 0;
+		m_hypernodeMap[parentDummy] = nullptr;
 		for (ListIterator<node> it = orphans.begin(); it.valid(); ++it) {
 			eRep = m_graphRep.newEdge(parentDummy, *it);
 			m_hyperedgeMap[eRep] = e;

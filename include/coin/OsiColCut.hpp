@@ -88,7 +88,7 @@ public:
   <li>The bound vectors indices are >=0
   </ul>
   */
-  inline virtual bool consistent() const; 
+  inline virtual bool consistent() const override;
   
   /** Returns true if cut is consistent with respect to the solver  
   interface's model. This checks to ensure that
@@ -97,7 +97,7 @@ public:
   <li>do not have an index >= the number of column is the model.
   </ul>
   */
-  inline virtual bool consistent(const OsiSolverInterface& im) const;
+  inline virtual bool consistent(const OsiSolverInterface& im) const override;
   
   /** Returns true if the cut is infeasible with respect to its bounds and the 
   column bounds in the solver interface's models.
@@ -107,12 +107,12 @@ public:
   greater than the minimum of the new and existing upper bounds.
 </ul>
   */
-  inline virtual bool infeasible(const OsiSolverInterface &im) const;
+  inline virtual bool infeasible(const OsiSolverInterface &im) const override;
   /** Returns infeasibility of the cut with respect to solution 
       passed in i.e. is positive if cuts off that solution.  
       solution is getNumCols() long..
   */
-  virtual double violated(const double * solution) const;
+  virtual double violated(const double * solution) const override;
   //@}
   
   //----------------------------------------------------------------
@@ -138,7 +138,7 @@ public:
   /**@name Debug stuff */
   //@{
     /// Print cuts in collection
-  virtual void print() const;
+  virtual void print() const override;
   //@}
    
 private:

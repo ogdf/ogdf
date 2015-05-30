@@ -216,7 +216,7 @@ public:
                                   ClpSimplexProgress * progress,
                                   bool doFactorization,
                                   int ifValuesPass,
-                                  ClpSimplex * saveModel = NULL);
+                                  ClpSimplex * saveModel = nullptr);
      /// Perturbs problem (method depends on perturbation())
      void perturb(int type);
      /// Take off effect of perturbation and say whether to try dual

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2966 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:26:11 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Contains the class UmlModelGraph which represents the
  * complete UML Model in a graph like data structure.

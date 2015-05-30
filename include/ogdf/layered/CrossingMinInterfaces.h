@@ -1,11 +1,3 @@
-/*
- * $Revision: 3844 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 10:18:32 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interfaces used in Sugiyama framework.
  *

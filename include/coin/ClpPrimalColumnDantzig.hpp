@@ -34,10 +34,10 @@ public:
                              CoinIndexedVector * spareRow1,
                              CoinIndexedVector * spareRow2,
                              CoinIndexedVector * spareColumn1,
-                             CoinIndexedVector * spareColumn2);
+                             CoinIndexedVector * spareColumn2) override;
 
      /// Just sets model
-     virtual void saveWeights(ClpSimplex * model, int) {
+     virtual void saveWeights(ClpSimplex * model, int) override {
           model_ = model;
      }
      //@}
@@ -58,7 +58,7 @@ public:
      virtual ~ClpPrimalColumnDantzig ();
 
      /// Clone
-     virtual ClpPrimalColumnPivot * clone(bool copyData = true) const;
+     virtual ClpPrimalColumnPivot * clone(bool copyData = true) const override;
 
      //@}
 

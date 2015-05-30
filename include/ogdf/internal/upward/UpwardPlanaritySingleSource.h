@@ -1,11 +1,3 @@
-/*
- * $Revision: 3266 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-28 13:53:46 +0100 (Mon, 28 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class UpwardPlanaritySingleSource, which implements
  *        the upward-planarity testing and embedding algorithm for

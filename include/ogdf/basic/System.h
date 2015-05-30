@@ -1,11 +1,3 @@
-/*
- * $Revision: 3979 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-25 15:50:44 +0100 (Tue, 25 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Decalration of System class which provides unified
  *        access to system information.
@@ -120,6 +112,8 @@ namespace ogdf {
 
 //! Special features supported by a x86/x64 CPU.
 /**
+ * @ingroup system
+ *
  * This enumeration is used to specify spcial additional features that
  * are supported by the CPU, in particular extended instruction sets
  * such as SSE.
@@ -139,6 +133,9 @@ enum CPUFeature {
 };
 
 //! Bit mask for CPU features.
+/**
+ * @ingroup system
+ */
 enum CPUFeatureMask {
 	cpufmMMX     = 1 << cpufMMX,    //!< Intel MMX Technology
 	cpufmSSE     = 1 << cpufSSE,    //!< Streaming SIMD Extensions (SSE)
@@ -156,6 +153,8 @@ enum CPUFeatureMask {
 
 //! %System specific functionality.
 /**
+ * @ingroup system
+ *
  * The class System encapsulates system specific functions
  * providing unified access across different operating systems.
  * The provided functionality includes:
@@ -253,12 +252,12 @@ public:
 	//@{
 
 	//! Returns the current value of the high-performance counter in \a counter.
-	static void getHPCounter(LARGE_INTEGER &counter);
+	static void getHPCounter(int64_t &counter);
 
 	//! Returns the elapsed time (in seconds) between \a startCounter and \a endCounter.
 	static double elapsedSeconds(
-		const LARGE_INTEGER &startCounter,
-		const LARGE_INTEGER &endCounter);
+		const int64_t &startCounter,
+		const int64_t &endCounter);
 #endif
 
 	//! Returns the elapsed time (in milliseconds) between \a t and now.
@@ -268,14 +267,14 @@ public:
 	 * after performing some computation by calling usedRealTime(t) again; this time
 	 * the return value gives you the elapsed time in milliseconds.
 	 */
-	static __int64 usedRealTime(__int64 &t);
+	static int64_t usedRealTime(int64_t &t);
 
 	//! Returns the current time point of the real time wall clock.
 	/**
 	 * The start point of time points is system specific. The differences of two time points
 	 * returned by this function represent elapsed real time in milliseconds.
 	 */
-	static __int64 realTime();
+	static int64_t realTime();
 
 
 	//@}
@@ -323,7 +322,7 @@ private:
 	static int          s_pageSize;    //!< The page size of virtual memory.
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
-	static LARGE_INTEGER s_HPCounterFrequency; //!< Frequency of high-performance counter.
+	static int64_t s_HPCounterFrequency; //!< Frequency of high-performance counter.
 #endif
 
 public:

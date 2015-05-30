@@ -1,11 +1,3 @@
-/*
- * $Revision: 3472 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-29 15:52:12 +0200 (Mon, 29 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class SubgraphPlanarizer.
  *
@@ -50,10 +42,7 @@
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/basic/Logger.h>
 
-// C++11
-#ifdef OGDF_HAVE_CPP11
 #include <random>
-#endif
 
 
 namespace ogdf
@@ -61,6 +50,8 @@ namespace ogdf
 
 //! The planarization approach for crossing minimization.
 /**
+ * @ingroup ga-crossmin
+ *
  * This crossing minimization module represents a customizable implementation
  * of the planarization approach. This approach consists of two phases.
  * In the first phase, a planar subgraph is computed, and in the second
@@ -130,8 +121,8 @@ protected:
 		int cc,
 		const EdgeArray<int>      *pCostOrig,
 		const EdgeArray<bool>     *pForbiddenOrig,
-		const EdgeArray<__uint32> *pEdgeSubGraphs,
-		int& crossingNumber);
+		const EdgeArray<uint32_t> *pEdgeSubGraphs,
+		int& crossingNumber) override;
 
 public:
 	//! Creates an instance of subgraph planarizer with default settings.
@@ -141,7 +132,7 @@ public:
 	SubgraphPlanarizer(const SubgraphPlanarizer &planarizer);
 
 	//! Returns a new instance of subgraph planarizer with the same option settings.
-	virtual CrossingMinimizationModule *clone() const;
+	virtual CrossingMinimizationModule *clone() const override;
 
 	//! Assignment operator. Copies option settings only.
 	SubgraphPlanarizer &operator=(const SubgraphPlanarizer &planarizer);
@@ -170,33 +161,27 @@ public:
 	void setTimeout(bool b) { m_setTimeout = b; }
 
 	//! Returns the maximal number of used threads.
-	int maxThreads() const { return m_maxThreads; }
+	unsigned int maxThreads() const { return m_maxThreads; }
 
 	//! Sets the maximal number of used threads to \a n.
-	void maxThreads(int n) {
+	void maxThreads(unsigned int n) {
 #ifndef OGDF_MEMORY_POOL_NTS
 		m_maxThreads = n;
 #endif
 	}
 
 private:
-	static void doWorkHelper(ThreadMaster &master, EdgeInsertionModule &inserter
-#ifdef OGDF_HAVE_CPP11
-		, std::minstd_rand &rng
-#endif
-	);
+	static void doWorkHelper(ThreadMaster &master, EdgeInsertionModule &inserter, std::minstd_rand &rng);
 
 	static bool doSinglePermutation(
 		PlanRepLight &prl,
 		int cc,
 		const EdgeArray<int>  *pCost,
 		const EdgeArray<bool> *pForbid,
-		const EdgeArray<__uint32> *pEdgeSubGraphs,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs,
 		Array<edge> &deletedEdges,
 		EdgeInsertionModule &inserter,
-#ifdef OGDF_HAVE_CPP11
 		std::minstd_rand &rng,
-#endif
 		int &crossingNumber);
 
 	ModuleOption<PlanarSubgraphModule>  m_subgraph; //!< The planar subgraph algorithm.
@@ -204,7 +189,7 @@ private:
 
 	int m_permutations;	//!< The number of permutations.
 	bool m_setTimeout;	//!< The option for setting timeouts in submodules.
-	int m_maxThreads;	//!< The maximal number of used threads.
+	unsigned int m_maxThreads;	//!< The maximal number of used threads.
 };
 
 }

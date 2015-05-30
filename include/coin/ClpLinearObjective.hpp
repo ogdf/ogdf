@@ -27,11 +27,11 @@ public:
      */
      virtual double * gradient(const ClpSimplex * model,
                                const double * solution, double & offset, bool refresh,
-                               int includeLinear = 2);
+                               int includeLinear = 2) override;
      /** Returns reduced gradient.Returns an offset (to be added to current one).
      */
      virtual double reducedGradient(ClpSimplex * model, double * region,
-                                    bool useFeasibleCosts);
+                                    bool useFeasibleCosts) override;
      /** Returns step length which gives minimum of objective for
          solution + theta * change vector up to maximum theta.
 
@@ -44,15 +44,15 @@ public:
                                double maximumTheta,
                                double & currentObj,
                                double & predictedObj,
-                               double & thetaObj);
+                               double & thetaObj) override;
      /// Return objective value (without any ClpModel offset) (model may be NULL)
-     virtual double objectiveValue(const ClpSimplex * model, const double * solution) const ;
+     virtual double objectiveValue(const ClpSimplex * model, const double * solution) const override ;
      /// Resize objective
-     virtual void resize(int newNumberColumns) ;
+     virtual void resize(int newNumberColumns) override ;
      /// Delete columns in  objective
-     virtual void deleteSome(int numberToDelete, const int * which) ;
+     virtual void deleteSome(int numberToDelete, const int * which) override ;
      /// Scale objective
-     virtual void reallyScale(const double * columnScale) ;
+     virtual void reallyScale(const double * columnScale) override ;
 
      //@}
 
@@ -80,12 +80,12 @@ public:
      virtual ~ClpLinearObjective ();
 
      /// Clone
-     virtual ClpObjective * clone() const;
+     virtual ClpObjective * clone() const override;
      /** Subset clone.  Duplicates are allowed
          and order is as given.
      */
      virtual ClpObjective * subsetClone (int numberColumns,
-                                         const int * whichColumns) const;
+                                         const int * whichColumns) const override;
 
      //@}
 

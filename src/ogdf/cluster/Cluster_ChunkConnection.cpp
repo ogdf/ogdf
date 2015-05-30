@@ -1,11 +1,3 @@
-/*
- * $Revision: 3005 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-12 14:19:48 +0100 (Mon, 12 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of initial cut-constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -59,7 +51,7 @@ using namespace ogdf;
 using namespace abacus;
 
 ChunkConnection::ChunkConnection(Master *master, const ArrayBuffer<node>& chunk, const ArrayBuffer<node>& cochunk) :
-	BaseConstraint(master, 0, CSense::Greater, 1.0, false, false, true)
+	BaseConstraint(master, nullptr, CSense::Greater, 1.0, false, false, true)
 {
 	chunk.compactMemcpy(m_chunk);
 	cochunk.compactMemcpy(m_cochunk);

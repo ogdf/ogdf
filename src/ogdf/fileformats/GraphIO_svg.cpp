@@ -1,11 +1,3 @@
-/*
- * $Revision: 3481 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-02 17:00:38 +0200 (Thu, 02 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements GML write functionality of class GraphIO.
  *
@@ -118,11 +110,11 @@ static void compute_bounding_box(const GraphAttributes &A, double &xmin, double 
 		return;
 	}
 
-	node v = G.firstNode();
-	xmin = xmax = A.x(v),
-	ymin = ymax = A.y(v);
+	node vFirst = G.firstNode();
+	xmin = xmax = A.x(vFirst),
+	ymin = ymax = A.y(vFirst);
 
-	forall_nodes(v, G) {
+	for(node v : G.nodes) {
 		double lw = (A.attributes() & GraphAttributes::nodeStyle) ? 0.5*A.strokeWidth(v) : 0.5;
 
 		xmax = max(xmax, A.x(v) + A.width (v)/2 + lw);
@@ -132,17 +124,16 @@ static void compute_bounding_box(const GraphAttributes &A, double &xmin, double 
 	}
 
 	if (A.attributes() & GraphAttributes::edgeGraphics) {
-		edge e;
-		forall_edges(e, G) {
+		for(edge e : G.edges) {
 			double lw = (A.attributes() & GraphAttributes::edgeStyle) ? 0.5*A.strokeWidth(e) : 0.5;
 
 			const DPolyline &dpl = A.bends(e);
 			if (!dpl.empty()) {
-				for(ListConstIterator<DPoint> it = dpl.begin(); it.valid(); ++it) {
-					xmax = max(xmax, (*it).m_x + lw);
-					ymax = max(ymax, (*it).m_y + lw);
-					xmin = min(xmin, (*it).m_x - lw);
-					ymin = min(ymin, (*it).m_y - lw);
+				for(const DPoint &dp : dpl) {
+					xmax = max(xmax, dp.m_x + lw);
+					ymax = max(ymax, dp.m_y + lw);
+					xmin = min(xmin, dp.m_x - lw);
+					ymin = min(ymin, dp.m_y - lw);
 				}
 			}
 		}
@@ -155,8 +146,7 @@ static void compute_bounding_box(const ClusterGraphAttributes &A, double &xmin, 
 
 	const ClusterGraph &C = A.constClusterGraph();
 
-	cluster c;
-	forall_clusters(c,C) {
+	for(cluster c : C.clusters) {
 		if (c == C.rootCluster())
 			continue;
 
@@ -182,8 +172,8 @@ static void getLevelOrderClusters(const ClusterGraph &cg, SListPure<cluster> &cl
 		clusters.pushBack(c);
 
 		ListConstIterator<cluster> it;
-		for(it = c->cBegin(); it.valid(); ++it)
-			Q.append(*it);
+		for(cluster child : c->children)
+			Q.append(child);
 	}
 }
 
@@ -316,8 +306,7 @@ static void write_svg_node_edges(
 {
 	const Graph &G = A.constGraph();
 
-	edge e;
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		const DPolyline &dpl = A.bends(e);
 		if (A.attributes() & GraphAttributes::edgeGraphics)
@@ -351,8 +340,8 @@ static void write_svg_node_edges(
 				}
 
 				// connect points
-				for (ListConstIterator<DPoint> it = dpl.begin(); it.valid(); ++it) {
-					os << ((*it).m_x - xmin) << "," << ((*it).m_y - ymin) << " ";
+				for (const DPoint &dp : dpl) {
+					os << (dp.m_x - xmin) << "," << (dp.m_y - ymin) << " ";
 				}
 
 				v = e->target();
@@ -454,8 +443,7 @@ static void write_svg_node_edges(
 		}
 	}
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (A.attributes() & GraphAttributes::nodeGraphics) {
 			const double
 			  x = A.x(v) - xmin,
@@ -604,7 +592,7 @@ static void write_svg_node_edges(
 			os << "/>\n";
 
 			if(A.attributes() & GraphAttributes::nodeLabel){
-				GraphIO::indent(os,1) << "<text x=\"" << A.x(v) - xmin << "\" y=\"" << A.y(v) - ymin
+				GraphIO::indent(os,1) << "<text x=\"" << A.x(v) + A.xLabel(v) - xmin << "\" y=\"" << A.y(v) + A.xLabel(v) - ymin
 					<< "\" text-anchor=\"middle\" dominant-baseline=\"middle"
 					<< "\" font-family=\"" << settings.fontFamily()
 					<< "\" font-size=\"" << settings.fontSize()
@@ -627,10 +615,8 @@ static void write_svg_clusters(
 	SListPure<cluster> clusters;
 	getLevelOrderClusters(C, clusters);
 
-	SListConstIterator<cluster> itC;
-	for(itC = clusters.begin(); itC.valid(); ++itC)
+	for(cluster c : clusters)
 	{
-		cluster c = *itC;
 		if(c == C.rootCluster())
 			continue;
 

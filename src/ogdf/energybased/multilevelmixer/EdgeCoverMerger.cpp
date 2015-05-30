@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with neighbour to get a Multilevel Graph
  *
@@ -53,7 +45,7 @@ bool EdgeCoverMerger::buildOneLevel(MultilevelGraph &MLG)
 {
 	Graph &G = MLG.getGraph();
 	int level = MLG.getLevel() + 1;
-	m_substituteNodes.init(G, 0);
+	m_substituteNodes.init(G, nullptr);
 
 	int numNodes = G.numberOfNodes();
 
@@ -66,8 +58,7 @@ bool EdgeCoverMerger::buildOneLevel(MultilevelGraph &MLG)
 	std::vector<edge> matching;
 	std::vector<edge> edgeCover;
 	std::vector<edge> rest;
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		untouchedEdges.push_back(e);
 	}
 
@@ -134,10 +125,10 @@ bool EdgeCoverMerger::buildOneLevel(MultilevelGraph &MLG)
 			parent = coveringEdge->source();
 		}
 
-		while(m_substituteNodes[parent] != 0) {
+		while(m_substituteNodes[parent] != nullptr) {
 			parent = m_substituteNodes[parent];
 		}
-		while(m_substituteNodes[mergeNode] != 0) {
+		while(m_substituteNodes[mergeNode] != nullptr) {
 			mergeNode = m_substituteNodes[mergeNode];
 		}
 

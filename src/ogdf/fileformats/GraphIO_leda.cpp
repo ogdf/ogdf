@@ -1,11 +1,3 @@
-/*
- * $Revision: 3366 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements read and write functionality for LEDA format.
  *
@@ -152,8 +144,7 @@ bool GraphIO::writeLEDA(const Graph &G, ostream &os)
 
 	NodeArray<int> index(G);
 	int nextIndex = 1;
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		os << "|{}|\n";
 		index[v] = nextIndex++;
 	}
@@ -161,8 +152,7 @@ bool GraphIO::writeLEDA(const Graph &G, ostream &os)
 	// write edges
 	os << G.numberOfEdges() << "\n";
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		os << index[e->source()] << " " << index[e->target()] << " 0 |{}|\n";
 	}
 

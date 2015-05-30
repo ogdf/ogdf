@@ -1,11 +1,3 @@
-/*
- * $Revision: 3504 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:49:39 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of classes HypergraphLayoutES and
  *        HypergraphLayoutSS.
@@ -83,8 +75,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	GraphCopySimple gc(HA.repGraph());
 	GraphAttributes ga(gc);
 
-	node v;
-	forall_nodes(v,gc) {
+	for(node v : gc.nodes) {
 		node vOrig = gc.original(v);
 		ga.width(v)  = HA.repGA().width(vOrig);
 		ga.height(v) = HA.repGA().width(vOrig);
@@ -94,8 +85,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	if (m_constraintIO) {
 		List<node> src;
 		List<node> tgt;
-		node v;
-		forall_nodes(v, gc) {
+		for(node v : gc.nodes) {
 			if (HA.type(gc.original(v)) == HypernodeElement::INPUT) {
 				src.pushBack(v);
 			} else if (HA.type(gc.original(v)) ==
@@ -128,12 +118,12 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	{
 		// Planarize.
 		int cr;
-		m_crossingMinimizationModule.get().call(planarRep, i, cr, 0, &forbid);
+		m_crossingMinimizationModule.get().call(planarRep, i, cr, nullptr, &forbid);
 		m_crossings += cr;
 		//planarizeCC(planarRep, fixedShell);
 
 		// Embed.
-		adjEntry adjExternal = 0;
+		adjEntry adjExternal = nullptr;
 		m_embeddingModule.get().call(planarRep, adjExternal);
 
 		// Draw.
@@ -149,8 +139,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 			HA.setX(vG, ccPlaneRep.x(planarRep.copy(vGC)));
 			HA.setY(vG, ccPlaneRep.y(planarRep.copy(vGC)));
 
-			adjEntry adj;
-			forall_adj(adj, vG)
+			for(adjEntry adj : vG->adjEdges)
 				if ((adj->index() & 1) != 0)
 					ccPlaneRep.computePolylineClear
 					(planarRep, adj->theEdge(), HA.bends(adj->theEdge()));
@@ -197,26 +186,27 @@ void HypergraphLayoutES::packAllCC(PlanRep &planarRep,
 	packer.call(bounding, position, m_ratio);
 
 	// All nodes, edges or bends must be positioned according to the offset.
-	for (int i = 0; i < componentsCount; i++)
-		for(int j = planarRep.startNode(i); j < planarRep.stopNode(i); ++j) {
+	for (int i = 0; i < componentsCount; i++) {
+		for (int j = planarRep.startNode(i); j < planarRep.stopNode(i); ++j) {
 			node vG = planarRep.v(j);
 
 			pHA.setX(vG, pHA.x(vG) + position[i].m_x);
 			pHA.setY(vG, pHA.y(vG) + position[i].m_y);
 
-			adjEntry entry;
-			forall_adj(entry, vG)
-				for(ListIterator<DPoint> ite = pHA.bends(entry->theEdge()).begin();
-					ite.valid(); ++ite)
-					(*ite).m_x += position[i].m_x, (*ite).m_y += position[i].m_y;
+			for (adjEntry entry : vG->adjEdges)
+			for (ListIterator<DPoint> ite = pHA.bends(entry->theEdge()).begin();
+				ite.valid(); ++ite)
+				(*ite).m_x += position[i].m_x, (*ite).m_y += position[i].m_y;
 		}
+	}
 }
 
 
 std::pair<node, node> * HypergraphLayoutES::insertShell
 	(GraphCopySimple &G, List<node> &src, List<node> &tgt, List<edge> &fixedShell)
 {
-	OGDF_ASSERT(src.size() > 0 && tgt.size() > 0);
+	OGDF_ASSERT(src.size() > 0);
+	OGDF_ASSERT(tgt.size() > 0);
 
 	node s = G.newNode();
 	for (ListIterator<node> it = src.begin(); it.valid(); ++it)
@@ -244,8 +234,7 @@ void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 	switch (m_profile) {
 
 	case HypergraphLayoutES::Normal:
-		node v_g ;
-		forall_nodes(v_g, HA.repGraph()) {
+		for(node v_g : HA.repGraph().nodes) {
 			HA.setWidth(v_g, 5);
 			HA.setHeight(v_g, 5);
 		}

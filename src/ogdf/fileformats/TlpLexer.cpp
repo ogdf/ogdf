@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of TLP file format lexer class.
  *
@@ -75,7 +67,7 @@ Token::Token(const Type &type, size_t line, size_t column)
 	if(type == tok_identifier || type == tok_string) {
 		value = new std::string;
 	} else {
-		value = NULL;
+		value = nullptr;
 	}
 }
 
@@ -102,11 +94,9 @@ bool Lexer::fetchBuffer()
 
 void Lexer::cleanValues()
 {
-	for(std::vector<Token>::iterator it = m_tokens.begin();
-	    it != m_tokens.end();
-	    it++)
+	for(const Token &t : m_tokens)
 	{
-		delete it->value;
+		delete t.value;
 	}
 }
 
@@ -141,7 +131,7 @@ bool Lexer::tokenize()
 bool Lexer::tokenizeLine()
 {
 	while(m_begin != m_end && isspace(*m_begin)) {
-		m_begin++;
+		++m_begin;
 	}
 
 	// We got an end of a line or a comment.
@@ -151,13 +141,13 @@ bool Lexer::tokenizeLine()
 
 	if(*m_begin == '(') {
 		m_tokens.push_back(Token(Token::tok_leftParen, line(), column()));
-		m_begin++;
+		++m_begin;
 		return tokenizeLine();
 	}
 
 	if(*m_begin == ')') {
 		m_tokens.push_back(Token(Token::tok_rightParen, line(), column()));
-		m_begin++;
+		++m_begin;
 		return tokenizeLine();
 	}
 
@@ -177,7 +167,7 @@ bool Lexer::tokenizeLine()
 
 bool Lexer::tokenizeString()
 {
-	m_begin++;
+	++m_begin;
 
 	Token token(Token::tok_string, line(), column());
 
@@ -197,13 +187,13 @@ bool Lexer::tokenizeString()
 		// Check whether we got a end of a string.
 		if(*m_begin == '"') {
 			m_tokens.push_back(token);
-			m_begin++;
+			++m_begin;
 			return true;
 		}
 
 		// If the to above failed, we just put new character.
 		*(token.value) += *m_begin;
-		m_begin++;
+		++m_begin;
 	}
 
 	return true;
@@ -216,7 +206,7 @@ bool Lexer::tokenizeIdentifier()
 
 	while(m_begin != m_end && isIdentifier(*m_begin)) {
 		*(token.value) += *m_begin;
-		m_begin++;
+		++m_begin;
 	}
 
 	m_tokens.push_back(token);

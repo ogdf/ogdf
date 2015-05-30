@@ -98,10 +98,6 @@ filename_template_filters = loadConfig('OGDF', 'templateFiltersFile')
 addDefines = ''
 addIncludes = ''
 addLibs = ''
-addLibsWin32 = ''
-addLibsWin32 = ''
-addLibsX64 = ''
-addLibsX64 = ''
 
 # defines for auto generated config_autogen.h header file
 config_defines = ''
@@ -187,23 +183,6 @@ if createDLL and createDLL.startswith('t'):
 else:
 	libraryType = 'StaticLibrary'
 
-linkSectionProgramBegin = '    <Link>\n\
-      <SubSystem>Console</SubSystem>\n\
-      <AdditionalDependencies>';
-linkSectionProgramEnd = 'ogdf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
-    </Link>'
-linkSectionProgramEndDebug = 'ogdf.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>\n\
-      <AdditionalLibraryDirectories>$(SolutionDir)$(Platform)\$(Configuration)\</AdditionalLibraryDirectories>\n\
-      <GenerateDebugInformation>true</GenerateDebugInformation>\n\
-    </Link>'
-
-linkSectionProgramD32 = linkSectionProgramBegin + addLibs + addLibsDebugWin32   + linkSectionProgramEndDebug
-linkSectionProgramR32 = linkSectionProgramBegin + addLibs + addLibsReleaseWin32 + linkSectionProgramEnd
-linkSectionProgramD64 = linkSectionProgramBegin + addLibs + addLibsDebugX64     + linkSectionProgramEndDebug
-linkSectionProgramR64 = linkSectionProgramBegin + addLibs + addLibsReleaseX64   + linkSectionProgramEnd
-
-	
 filename_ogdf_test_vcxproj =  loadConfig('OGDF-TEST', 'projectFile')
 filename_ogdf_test_template = loadConfig('OGDF-TEST', 'templateFile')
 filename_ogdf_test_vcxfilters =  loadConfig('OGDF-TEST', 'projectFiltersFile')
@@ -446,16 +425,16 @@ for line in template:
 	if check < len(testStuff) and line.find(testStuff[check].tag) > -1:
 		Walk(testStuff[check].path, testStuff[check].pats, testStuff[check].command)
 		check = check + 1
-	elif line.find(includeTag) > -1:
-		vcxproj.write(line.replace(includeTag,addIncludes,1))
+#	elif line.find(includeTag) > -1:
+#		vcxproj.write(line.replace(includeTag,addIncludes,1))
 	elif line.find(linkTagD32) > -1:
-		vcxproj.write(line.replace(linkTagD32,linkSectionProgramD32,1))
+		vcxproj.write(line.replace(linkTagD32,addLibs + addLibsDebugWin32,1))
 	elif line.find(linkTagR32) > -1:
-		vcxproj.write(line.replace(linkTagR32,linkSectionProgramR32,1))
+		vcxproj.write(line.replace(linkTagR32,addLibs + addLibsReleaseWin32,1))
 	elif line.find(linkTagD64) > -1:
-		vcxproj.write(line.replace(linkTagD64,linkSectionProgramD64,1))
+		vcxproj.write(line.replace(linkTagD64,addLibs + addLibsDebugX64,1))
 	elif line.find(linkTagR64) > -1:
-		vcxproj.write(line.replace(linkTagR64,linkSectionProgramR64,1))
+		vcxproj.write(line.replace(linkTagR64,addLibs + addLibsReleaseX64,1))
 	elif line.find(toolsetTag) > -1:
 		vcxproj.write(line.replace(toolsetTag,platformToolset,1))
 	else:
@@ -498,7 +477,7 @@ if createSolution:
 
 	sln = open(filename_sln, 'w')
 	sln.write('Microsoft Visual Studio Solution File, Format Version 11.00\n')
-	
+
 	sln.write('Project("' + GUID_sln + '") = "ogdf-test", "' + filename_ogdf_test_vcxproj + '", "' + GUID_ogdf_test + '"\n')
 	sln.write('\tProjectSection(ProjectDependencies) = postProject\n')
 	sln.write('\t\t' + GUID_ogdf + ' = ' + GUID_ogdf + '\n')

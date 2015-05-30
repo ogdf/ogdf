@@ -1,11 +1,3 @@
-/*
- * $Revision: 2559 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 15:04:28 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implements class ExpansionGraph
  *
@@ -53,11 +45,11 @@ namespace ogdf {
 // computes biconnected componets of original graph
 // does not create a copy graph
 ExpansionGraph::ExpansionGraph(const Graph &G) :
-	m_compNum(G), m_adjComponents(G), m_vCopy(G,0)
+	m_compNum(G), m_adjComponents(G), m_vCopy(G,nullptr)
 {
-	m_vOrig.init(*this,0);
-	m_vRep .init(*this,0);
-	m_eOrig.init(*this,0);
+	m_vOrig.init(*this,nullptr);
+	m_vRep .init(*this,nullptr);
+	m_eOrig.init(*this,nullptr);
 
 	// compute biconnected components
 	int numComp = biconnectedComponents(G,m_compNum);
@@ -65,8 +57,7 @@ ExpansionGraph::ExpansionGraph(const Graph &G) :
 	// for each component, build list of contained edges
 	m_component.init(numComp);
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		m_component[m_compNum[e]].pushBack(e);
 
 	// for each vertex v, build list of components containing v
@@ -74,9 +65,8 @@ ExpansionGraph::ExpansionGraph(const Graph &G) :
 	for(int i = 0; i < numComp; ++i)
 	{
 		SListConstIterator<edge> it;
-		for(it = m_component[i].begin(); it.valid(); ++it)
+		for(edge e : m_component[i])
 		{
-			e = *it;
 			node v = e->source();
 			if (contained.isMember(v) == false) {
 				contained.insert(v);
@@ -98,14 +88,14 @@ ExpansionGraph::ExpansionGraph(const Graph &G) :
 // builds expansion graph of i-th biconnected component of the original graph
 void ExpansionGraph::init(int i)
 {
-	OGDF_ASSERT(0 <= i && i <= m_component.high());
+	OGDF_ASSERT(0 <= i);
+	OGDF_ASSERT(i <= m_component.high());
 
 	// remove previous component
-	node v;
-	forall_nodes(v,*this) {
+	for(node v : nodes) {
 		node vOrig = m_vOrig[v];
 		if (vOrig)
-			m_vCopy[vOrig] = 0;
+			m_vCopy[vOrig] = nullptr;
 	}
 	clear();
 
@@ -121,7 +111,7 @@ void ExpansionGraph::init(int i)
 	}
 
 	// expand vertices
-	forall_nodes(v,*this)
+	for(node v : nodes)
 	{
 		if (original(v) && v->indeg() >= 1 && v->outdeg() >= 1) {
 			node vPrime = newNode();
@@ -145,28 +135,26 @@ void ExpansionGraph::init(int i)
 void ExpansionGraph::init(const Graph &G)
 {
 	// remove previous component
-	node v;
-	forall_nodes(v,*this) {
+	for(node v : nodes) {
 		node vOrig = m_vOrig[v];
 		if (vOrig)
-			m_vCopy[vOrig] = 0;
+			m_vCopy[vOrig] = nullptr;
 	}
 	clear();
 
 
 	// create new component
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		getCopy(v);
 
-	edge e;
-	forall_edges(e,G)
+	for(edge e : G.edges)
 	{
 		edge eCopy = newEdge(getCopy(e->source()),getCopy(e->target()));
 		m_eOrig[eCopy] = e;
 	}
 
 	// expand vertices
-	forall_nodes(v,*this)
+	for(node v : nodes)
 	{
 		if (original(v) && v->indeg() >= 1 && v->outdeg() >= 1) {
 			node vPrime = newNode();

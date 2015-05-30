@@ -550,7 +550,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 		printf("MAX TIGHT[%d,%d]:  %g --> %g\n", i,hrow[k], rdmax[i], bnd);
 #endif
 		rdmax[i] = rmax = bnd;
-		tightened ++;;
+		tightened ++;
 	      }
 	    } else if (coeff < -ZTOLDP2 && djmax0 <PRESOLVE_INF && cup[icol] >= ekkinf) {
 	      double bnd = djmax0 / coeff ;
@@ -559,7 +559,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 		printf("MIN TIGHT[%d,%d]:  %g --> %g\n", i, hrow[k], rdmin[i], bnd);
 #endif
 		rdmin[i] = rmin = bnd;
-		tightened ++;;
+		tightened ++;
 	      }
 	    }
 	  } else {	// no_lb
@@ -571,7 +571,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 		printf("MIN1 TIGHT[%d,%d]:  %g --> %g\n", i, hrow[k], rdmin[i], bnd);
 #endif
 		rdmin[i] = rmin = bnd;
-		tightened ++;;
+		tightened ++;
 	      }
 	    } else if (coeff < -ZTOLDP2 && djmin0 > -PRESOLVE_INF && clo[icol] <= -ekkinf) {
 	      double bnd = djmin0 / coeff ;
@@ -580,7 +580,7 @@ const CoinPresolveAction *remove_dual_action::presolve(CoinPresolveMatrix *prob,
 		printf("MAX TIGHT1[%d,%d]:  %g --> %g\n", i,hrow[k], rdmax[i], bnd);
 #endif
 		rdmax[i] = rmax = bnd;
-		tightened ++;;
+		tightened ++;
 	      }
 	    }
 	  }

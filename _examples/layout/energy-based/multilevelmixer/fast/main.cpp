@@ -22,11 +22,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	node v;
-	forall_nodes(v, g)
-	{
+	for (node v : g.nodes)
 		ga.width(v) = ga.height(v) = 10.0;
-	}
 
 	MultilevelGraph mlg(ga);
 

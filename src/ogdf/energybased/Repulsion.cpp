@@ -1,11 +1,3 @@
-/*
- * $Revision: 2813 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-13 14:05:35 +0200 (Sat, 13 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class Repulsion
  *

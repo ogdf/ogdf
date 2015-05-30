@@ -1,11 +1,3 @@
-/*
- * $Revision: 3951 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-03 13:57:46 +0100 (Mon, 03 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief declaration and implementation of class FaceSetSimple,
  * FaceSetPure and FaceSet
@@ -60,6 +52,8 @@ namespace ogdf {
 
 //! Simple face sets.
 /**
+ * @ingroup graph-containers
+ *
  * A face set maintains a subset \a S of the faces contained in an associated
  * combinatorial embedding.
  * This kind of face set only provides efficient operation for testing membership,
@@ -100,9 +94,8 @@ public:
 	 * this operation.
 	 */
 	void clear() {
-		SListIterator<face> it;
-		for(it = m_faces.begin(); it.valid(); ++it) {
-			m_isContained[*it] = false;
+		for(face f : m_faces) {
+			m_isContained[f] = false;
 		}
 		m_faces.clear();
 	}
@@ -139,6 +132,8 @@ private:
 
 //! Face sets.
 /**
+ * @ingroup graph-containers
+ *
  * A face set maintains a subset \a S of the faces contained in an associated
  * combinatorial embedding. This kind of face set provides efficient operations for testing
  * membership, insertion and deletion of elements, and clearing the set.
@@ -194,9 +189,8 @@ public:
 	 * before this operation.
 	 */
 	void clear() {
-		ListIterator<face> it;
-		for(it = m_faces.begin(); it.valid(); ++it) {
-			m_it[*it] = ListIterator<face>();
+		for(face f : m_faces) {
+			m_it[f] = ListIterator<face>();
 		}
 		m_faces.clear();
 	}
@@ -234,12 +228,14 @@ private:
 
 //! Face sets.
 /**
+ * @ingroup graph-containers
+ *
  * A face set maintains a subset \a S of the faces contained in an associated
  * combinatorial embedding. This kind of face set provides efficient operations for testing
  * membership, insertion and deletion of elements, and clearing the set.
  *
  * In contrast to FaceSetPure, a FaceSet provides efficient access
- * to the number of elements stored in the set.
+ * to the number of faces stored in the set.
  *
  * \sa
  *   - FaceSetPure, FaceSetSimple
@@ -289,9 +285,8 @@ public:
 	 * before this operation.
 	 */
 	void clear() {
-		ListIterator<face> it;
-		for(it = m_faces.begin(); it.valid(); ++it) {
-			m_it[*it] = ListIterator<face>();
+		for(face f : m_faces) {
+			m_it[f] = ListIterator<face>();
 		}
 		m_faces.clear();
 	}

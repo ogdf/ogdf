@@ -1,11 +1,3 @@
-/*
- * $Revision: 2639 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2012-07-19 06:52:18 +0200 (Thu, 19 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Contains constructive and improvement compaction by
  * applying computation of min-cost flow in the dual of the constraint

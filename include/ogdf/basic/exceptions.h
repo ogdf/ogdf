@@ -1,11 +1,3 @@
-/*
- * $Revision: 3840 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 08:27:44 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Definition of exception classes
  *
@@ -57,7 +49,7 @@ namespace ogdf {
 
 #ifdef OGDF_DEBUG
 /**
- * If this flag is set the #OGDF_THROW macros pass the location where the
+ * If this flag is set the #OGDF_THROW macros passes the location where the
  * exception is thrown (file name and line number) to the exception
  * constructor, otherwise not.
  */
@@ -95,6 +87,8 @@ namespace ogdf {
 
 	//! Error code for a violated precondition.
 	/**
+	 * @ingroup exceptions
+	 *
 	 * \see PreconditionViolatedException
 	 */
 	enum PreconditionViolatedCode {
@@ -119,6 +113,8 @@ namespace ogdf {
 
 	//! Code for an internal failure condition
 	/**
+	 * @ingroup exceptions
+	 *
 	 * \see AlgorithmFailureException
 	 */
 	enum AlgorithmFailureCode {
@@ -187,6 +183,7 @@ namespace ogdf {
 
 	//! Code for the library which was intended to get used, but its use is not supported.
 	/**
+	 * @ingroup exceptions
 	 * \see LibraryNotSupportedException
 	 */
 	enum LibraryNotSupportedCode {
@@ -201,6 +198,9 @@ namespace ogdf {
 
 
 	//! Base class of all ogdf exceptions.
+	/**
+	 * @ingroup exceptions
+	 */
 	class OGDF_EXPORT Exception {
 
 	private:
@@ -214,7 +214,7 @@ namespace ogdf {
 		 * @param file is the name of the source file where exception was thrown.
 		 * @param line is the line number in the source file where the exception was thrown.
 		 */
-		Exception(const char *file = NULL, int line = -1) :
+		Exception(const char *file = nullptr, int line = -1) :
 			m_file(file),
 			m_line(line)
 			{ }
@@ -223,36 +223,44 @@ namespace ogdf {
 		/**
 		 * Returns a null pointer if the name of the source file is unknown.
 		 */
-		const char *file() { return m_file; }
+		const char *file() const { return m_file; }
 
 		//! Returns the line number where the exception was thrown.
 		/**
 		 * Returns -1 if the line number is unknown.
 		 */
-		int line() { return m_line; }
+		int line() const { return m_line; }
 	};
 
 
 	//! %Exception thrown when result of cast is 0.
+	/**
+	* @ingroup exceptions
+	*/
 	class OGDF_EXPORT DynamicCastFailedException : public Exception {
 
 	public:
 		//! Constructs a dynamic cast failed exception.
-		DynamicCastFailedException(const char *file = NULL, int line = -1) : Exception(file, line) {}
+		DynamicCastFailedException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
 	};
 
 
 	//! %Exception thrown when not enough memory is available to execute an algorithm.
+	/**
+	* @ingroup exceptions
+	*/
 	class OGDF_EXPORT InsufficientMemoryException : public Exception {
 
 	public:
 		//! Constructs an insufficient memory exception.
-		InsufficientMemoryException(const char *file = NULL, int line = -1) : Exception(file, line) {}
+		InsufficientMemoryException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
 	};
 
 
 	//! %Exception thrown when a required standard comparer has not been specialized.
 	/**
+	 * @ingroup exceptions
+	 *
 	 * The default implementation of StdComparer<E> throws this exception, since it
 	 * provides no meaningful implementation of comparer methods. You need to specialize
 	 * this class for the types you want to use with sorting and searching methods (like
@@ -262,26 +270,32 @@ namespace ogdf {
 
 	public:
 		//! Constructs a no standard comparer available exception.
-		NoStdComparerException(const char *file = NULL, int line = -1) : Exception(file, line) {}
+		NoStdComparerException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
 	};
 
 
 	//! %Exception thrown when a data type is not supported by a generic function.
+	/**
+	* @ingroup exceptions
+	*/
 	class OGDF_EXPORT TypeNotSupportedException : public Exception {
 
 	public:
 		//! Constructs a type-not-supported exception.
-		TypeNotSupportedException(const char *file = NULL, int line = -1) : Exception(file, line) {}
+		TypeNotSupportedException(const char *file = nullptr, int line = -1) : Exception(file, line) {}
 	};
 
 
 	//! %Exception thrown when preconditions are violated.
+	/**
+	* @ingroup exceptions
+	*/
 	class OGDF_EXPORT PreconditionViolatedException : public Exception
 	{
 	public:
 		//! Constructs a precondition violated exception.
 		PreconditionViolatedException(PreconditionViolatedCode code,
-			const char *file = NULL,
+			const char *file = nullptr,
 			int line = -1) :
 		Exception(file, line),
 		m_exceptionCode(code)
@@ -289,7 +303,7 @@ namespace ogdf {
 
 		//! Constructs a precondition violated exception.
 		PreconditionViolatedException(
-			const char *file = NULL,
+			const char *file = nullptr,
 			int line = -1) :
 		Exception(file, line),
 		m_exceptionCode(pvcUnknown)
@@ -305,13 +319,16 @@ namespace ogdf {
 
 
 	//! %Exception thrown when an algorithm realizes an internal bug that prevents it from continuing.
+	/**
+	* @ingroup exceptions
+	*/
 	class OGDF_EXPORT AlgorithmFailureException : public Exception
 	{
 	public:
 
 		//! Constructs an algorithm failure exception.
 		AlgorithmFailureException(AlgorithmFailureCode code,
-			const char *file = NULL,
+			const char *file = nullptr,
 			int line = -1) :
 		Exception(file, line),
 		m_exceptionCode(code)
@@ -319,7 +336,7 @@ namespace ogdf {
 
 		//! Constructs an algorithm failure exception.
 		AlgorithmFailureException(
-			const char *file = NULL,
+			const char *file = nullptr,
 			int line = -1) :
 		Exception(file, line),
 		m_exceptionCode(afcUnknown)
@@ -335,11 +352,14 @@ namespace ogdf {
 
 
 	//! %Exception thrown when an external library shall be used which is not supported.
+	/**
+	* @ingroup exceptions
+	*/
 	class OGDF_EXPORT LibraryNotSupportedException : public Exception {
 		public:
 		//! Constructs a library not supported exception.
 			LibraryNotSupportedException(LibraryNotSupportedCode code,
-				const char *file = NULL,
+				const char *file = nullptr,
 				int line = -1) :
 			Exception(file, line),
 			m_exceptionCode(code)
@@ -347,7 +367,7 @@ namespace ogdf {
 
 		//! Constructs a library not supported exception.
 			LibraryNotSupportedException(
-				const char *file = NULL,
+				const char *file = nullptr,
 				int line = -1) :
 			Exception(file, line),
 			m_exceptionCode(lnscUnknown)

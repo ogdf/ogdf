@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Abstract base class for structures on graphs, that need
  *        to be informed about cluster graph changes.
@@ -68,6 +60,14 @@ namespace ogdf {
 // these functions should be called by Graph before (delete)
 // and after (add) its structure
 //----------------------------------------------------------
+//! Abstract base class for cluster graph observers.
+	/**
+	* @ingroup graphs
+	*
+	* If a class needs to keep track of changes in a clustered graph like addition or deletion
+	* of clusters, you can derive it from ClusterGraphObserver and override the
+	* notification methods clusterDeleted, clusterAdded.
+	*/
 class OGDF_EXPORT ClusterGraphObserver {
 	friend class ClusterGraph;
 

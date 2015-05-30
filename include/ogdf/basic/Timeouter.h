@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares base class for modules with timeout functionality.
  *
@@ -56,7 +48,9 @@ namespace ogdf {
 
 //! class for timeout funtionality.
 /**
- *Holds a double value of the timeout time (in seconds).
+ * @ingroup date-time
+ *
+ * Holds a double value of the timeout time (in seconds).
  * Set the value to some negative value (e.g. -1) to turn the timeout
  * off. Note that 0 seconds is a perfectly feasible timeout value!
  */

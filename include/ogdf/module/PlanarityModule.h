@@ -1,11 +1,3 @@
-/*
- * $Revision: 2600 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-15 22:58:25 +0200 (Sun, 15 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Module for planarity testing and planar embeddings.
  *

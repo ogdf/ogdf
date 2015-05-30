@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class QuadTreeNM.
  *
@@ -47,7 +39,7 @@ namespace ogdf {
 
 QuadTreeNM::QuadTreeNM()
 {
-	root_ptr = act_ptr =NULL;
+	root_ptr = act_ptr =nullptr;
 }
 
 
@@ -205,55 +197,55 @@ void QuadTreeNM::create_new_rb_child()
 
 void QuadTreeNM::delete_tree(QuadTreeNodeNM* node_ptr)
 {
-	if(node_ptr != NULL)
+	if(node_ptr != nullptr)
 	{
-		if(node_ptr->get_child_lt_ptr() != NULL)
+		if(node_ptr->get_child_lt_ptr() != nullptr)
 			delete_tree(node_ptr->get_child_lt_ptr());
-		if(node_ptr->get_child_rt_ptr() != NULL)
+		if(node_ptr->get_child_rt_ptr() != nullptr)
 			delete_tree(node_ptr->get_child_rt_ptr());
-		if(node_ptr->get_child_lb_ptr() != NULL)
+		if(node_ptr->get_child_lb_ptr() != nullptr)
 			delete_tree(node_ptr->get_child_lb_ptr());
-		if(node_ptr->get_child_rb_ptr() != NULL)
+		if(node_ptr->get_child_rb_ptr() != nullptr)
 			delete_tree(node_ptr->get_child_rb_ptr());
 		delete node_ptr;
 		if (node_ptr == root_ptr)
-			root_ptr = NULL;
+			root_ptr = nullptr;
 	}
 }
 
 
 void QuadTreeNM::delete_tree_and_count_nodes(QuadTreeNodeNM* node_ptr, int& nodecounter)
 {
-	if(node_ptr != NULL)
+	if(node_ptr != nullptr)
 	{
 		nodecounter++;
-		if(node_ptr->get_child_lt_ptr() != NULL)
+		if(node_ptr->get_child_lt_ptr() != nullptr)
 			delete_tree_and_count_nodes(node_ptr->get_child_lt_ptr(),nodecounter);
-		if(node_ptr->get_child_rt_ptr() != NULL)
+		if(node_ptr->get_child_rt_ptr() != nullptr)
 			delete_tree_and_count_nodes(node_ptr->get_child_rt_ptr(),nodecounter);
-		if(node_ptr->get_child_lb_ptr() != NULL)
+		if(node_ptr->get_child_lb_ptr() != nullptr)
 			delete_tree_and_count_nodes(node_ptr->get_child_lb_ptr(),nodecounter);
-		if(node_ptr->get_child_rb_ptr() != NULL)
+		if(node_ptr->get_child_rb_ptr() != nullptr)
 			delete_tree_and_count_nodes(node_ptr->get_child_rb_ptr(),nodecounter);
 		delete node_ptr;
 		if (node_ptr == root_ptr)
-			root_ptr = NULL;
+			root_ptr = nullptr;
 	}
 }
 
 
 void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr)
 {
-	if(node_ptr != NULL)
+	if(node_ptr != nullptr)
 	{
 		cout<< *node_ptr <<endl;
-		if(node_ptr->get_child_lt_ptr() != NULL)
+		if(node_ptr->get_child_lt_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_lt_ptr());
-		if(node_ptr->get_child_rt_ptr() != NULL)
+		if(node_ptr->get_child_rt_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_rt_ptr());
-		if(node_ptr->get_child_lb_ptr() != NULL)
+		if(node_ptr->get_child_lb_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_lb_ptr());
-		if(node_ptr->get_child_rb_ptr() != NULL)
+		if(node_ptr->get_child_rb_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_rb_ptr());
 	}
 }
@@ -261,27 +253,26 @@ void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr)
 
 void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr, int precision)
 {
-	int i;
-	if(node_ptr != NULL)
+	if (node_ptr != nullptr)
 	{
-		complex<double>* L =node_ptr->get_local_exp();
-		complex<double>* M =node_ptr->get_multipole_exp();
-		cout<< *node_ptr <<endl;
-		cout<<" ME: ";
-		for(i = 0; i<= precision;i++)
-			cout<<M[i]<<" ";cout<<endl;
-		cout<<" LE: ";
-		for(i = 0; i<= precision;i++)
-			cout<<L[i]<<" ";cout<<endl<<endl;
+		complex<double>* L = node_ptr->get_local_exp();
+		complex<double>* M = node_ptr->get_multipole_exp();
+		cout << *node_ptr << endl;
+		cout << " ME: ";
+		for (int i = 0; i <= precision; i++)
+			cout << M[i] << " "; cout << endl;
+		cout << " LE: ";
+		for (int i = 0; i <= precision; i++)
+			cout << L[i] << " "; cout << endl << endl;
 
-		if(node_ptr->get_child_lt_ptr() != NULL)
-			cout_preorder(node_ptr->get_child_lt_ptr(),precision);
-		if(node_ptr->get_child_rt_ptr() != NULL)
-			cout_preorder(node_ptr->get_child_rt_ptr(),precision);
-		if(node_ptr->get_child_lb_ptr() != NULL)
-			cout_preorder(node_ptr->get_child_lb_ptr(),precision);
-		if(node_ptr->get_child_rb_ptr() != NULL)
-			cout_preorder(node_ptr->get_child_rb_ptr(),precision);
+		if (node_ptr->get_child_lt_ptr() != nullptr)
+			cout_preorder(node_ptr->get_child_lt_ptr(), precision);
+		if (node_ptr->get_child_rt_ptr() != nullptr)
+			cout_preorder(node_ptr->get_child_rt_ptr(), precision);
+		if (node_ptr->get_child_lb_ptr() != nullptr)
+			cout_preorder(node_ptr->get_child_lb_ptr(), precision);
+		if (node_ptr->get_child_rb_ptr() != nullptr)
+			cout_preorder(node_ptr->get_child_rb_ptr(), precision);
 	}
 }
 

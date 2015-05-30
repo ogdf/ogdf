@@ -1,11 +1,3 @@
-/*
- * $Revision: 3880 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-01-16 15:27:36 +0100 (Thu, 16 Jan 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of GML parser (class GmlParser)
  * (used for parsing and reading GML files)
@@ -41,7 +33,6 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
 // disable VC++ warnings when using strcpy
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -66,7 +57,7 @@ GmlParser::GmlParser(istream &is, bool doCheck)
 
 void GmlParser::doInit(istream &is, bool doCheck)
 {
-	m_objectTree = 0;
+	m_objectTree = nullptr;
 
 	if (!is) {
 		setError("Cannot open file.");
@@ -81,7 +72,7 @@ void GmlParser::doInit(istream &is, bool doCheck)
 		setError("Cannot open file.");
 		return;
 	}
-	m_mapToNode.init(minId,maxId,0);
+	m_mapToNode.init(minId,maxId,nullptr);
 }
 
 
@@ -96,7 +87,7 @@ void GmlParser::createObjectTree(istream &is, bool doCheck)
 	// initialize line buffer (note: GML specifies a maximal line length
 	// of 254 characters!)
 	m_rLineBuffer = new char[256];
-	if (m_rLineBuffer == 0) OGDF_THROW(InsufficientMemoryException);
+	if (m_rLineBuffer == nullptr) OGDF_THROW(InsufficientMemoryException);
 
 	*m_rLineBuffer = '\n';
 	m_lineBuffer = m_rLineBuffer+1;
@@ -158,7 +149,7 @@ void GmlParser::initPredefinedKeys()
 GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 	GmlObjectType /* errorKey */)
 {
-	GmlObject *firstSon = 0;
+	GmlObject *firstSon = nullptr;
 	GmlObject **pPrev = &firstSon;
 
 	for( ; ; ) {
@@ -175,7 +166,7 @@ GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 		GmlKey key = m_keySymbol;
 
 		symbol = getNextSymbol();
-		GmlObject *object = 0;
+		GmlObject *object = nullptr;
 
 		switch (symbol) {
 		case gmlIntValue:
@@ -189,7 +180,7 @@ GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 		case gmlStringValue: {
 			size_t len = strlen(m_stringSymbol)+1;
 			char *pChar = new char[len];
-			if (pChar == 0) OGDF_THROW(InsufficientMemoryException);
+			if (pChar == nullptr) OGDF_THROW(InsufficientMemoryException);
 
 			strcpy(pChar,m_stringSymbol);
 			object = OGDF_NEW GmlObject(key,pChar); }
@@ -441,7 +432,7 @@ GmlObject *GmlParser::getNodeIdRange(int &minId,int &maxId)
 		if (id(graphObject) == graphPredefKey) break;
 
 	if (!graphObject || graphObject->m_valueType != gmlListBegin) {
-		return NULL;
+		return nullptr;
 	}
 
 	bool first = true;
@@ -507,7 +498,7 @@ bool GmlParser::read(Graph &G)
 			}
 
 			// create new node if necessary
-			if (m_mapToNode[vId] == 0) m_mapToNode[vId] = G.newNode(); }
+			if (m_mapToNode[vId] == nullptr) m_mapToNode[vId] = G.newNode(); }
 			break;
 
 		case edgePredefKey: {
@@ -522,14 +513,24 @@ bool GmlParser::read(Graph &G)
 
 				switch(id(edgeSon)) {
 				case sourcePredefKey:
-					if (edgeSon->m_valueType != gmlIntValue) break;
-					sourceId = edgeSon->m_intValue;
-					break;
+					if(sourceId == notDefined) {
+						if (edgeSon->m_valueType != gmlIntValue) break;
+						sourceId = edgeSon->m_intValue;
+						break;
+					} else {
+						setError("ambiguous source encountered");
+						return false;
+					}
 
 				case targetPredefKey:
-					if (edgeSon->m_valueType != gmlIntValue) break;
-					targetId = edgeSon->m_intValue;
-					break;
+					if(targetId == notDefined) {
+						if (edgeSon->m_valueType != gmlIntValue) break;
+						targetId = edgeSon->m_intValue;
+						break;
+					} else {
+						setError("ambiguous target encountered");
+						return false;
+					}
 				}
 			}
 
@@ -545,8 +546,8 @@ bool GmlParser::read(Graph &G)
 			}
 
 			// create adjacent nodes if necessary and new edge
-			if (m_mapToNode[sourceId] == 0) m_mapToNode[sourceId] = G.newNode();
-			if (m_mapToNode[targetId] == 0) m_mapToNode[targetId] = G.newNode();
+			if (m_mapToNode[sourceId] == nullptr) m_mapToNode[sourceId] = G.newNode();
+			if (m_mapToNode[targetId] == nullptr) m_mapToNode[targetId] = G.newNode();
 
 			G.newEdge(m_mapToNode[sourceId],m_mapToNode[targetId]);
 			}//case edge
@@ -698,7 +699,7 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 			}
 
 			// create new node if necessary and assign attributes
-			if (m_mapToNode[vId] == 0) m_mapToNode[vId] = G.newNode();
+			if (m_mapToNode[vId] == nullptr) m_mapToNode[vId] = G.newNode();
 			node v = m_mapToNode[vId];
 			if (AG.attributes() & GraphAttributes::nodeGraphics)
 			{
@@ -819,8 +820,8 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 			}
 
 			// create adjacent nodes if necessary and new edge
-			if (m_mapToNode[sourceId] == 0) m_mapToNode[sourceId] = G.newNode();
-			if (m_mapToNode[targetId] == 0) m_mapToNode[targetId] = G.newNode();
+			if (m_mapToNode[sourceId] == nullptr) m_mapToNode[sourceId] = G.newNode();
+			if (m_mapToNode[targetId] == nullptr) m_mapToNode[targetId] = G.newNode();
 
 			edge e = G.newEdge(m_mapToNode[sourceId],m_mapToNode[targetId]);
 			if (AG.attributes() & GraphAttributes::edgeGraphics)
@@ -882,7 +883,7 @@ bool GmlParser::readAttributedCluster(
 	for(; rootObject; rootObject = rootObject->m_pBrother)
 		if (id(rootObject) == rootClusterPredefKey) break;
 
-	if(rootObject == 0)
+	if(rootObject == nullptr)
 		return true;
 
 	if (id(rootObject) != rootClusterPredefKey)
@@ -912,7 +913,7 @@ bool GmlParser::readCluster(Graph &G, ClusterGraph& CG)
 
 	//we have to check if the file does really contain clusters
 	//otherwise, rootcluster will suffice
-	if (rootObject == 0) return true;
+	if (rootObject == nullptr) return true;
 	if (id(rootObject) != rootClusterPredefKey)
 	{
 		setError("missing rootcluster key");

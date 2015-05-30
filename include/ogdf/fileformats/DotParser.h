@@ -1,11 +1,3 @@
-/*
- * $Revision: 3837 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 15:19:30 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declarations for DOT Parser
  *
@@ -118,7 +110,7 @@ CompassPt = ( 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw' | 'c' | '_' )
  * \a current iterator and \a rest iterator. \a current iterator indicates
  * a position where the parsing should begin. On successfull parse, function
  * returns (pointer to) tree element and moves \a rest iterator to a place
- * where it has ended. On failure, function returns \c NULL pointer and does
+ * where it has ended. On failure, function returns \c nullptr and does
  * nothing to \a rest iterator.
  *
  * Finally, non-list AST elements provide \a read methods. These functions
@@ -200,7 +192,7 @@ public:
 	 */
 	bool build();
 
-	//! Returns the root of the AST (NULL if none).
+	//! Returns the root of the AST (nullptr if none).
 	Graph *root() const;
 
 	struct Graph {
@@ -438,8 +430,8 @@ public:
 	 * first time then Graph#newNode is called and node is initialized with
 	 * default attributes and placed in proper cluster (through \a data).
 	 * @param G Graph whom node is requested.
-	 * @param GA GraphAttributes for given graph, ignored if \c NULL.
-	 * @param C ClusterGraph for given graph, ignored if \c NULL.
+	 * @param GA GraphAttributes for given graph, ignored if \c nullptr.
+	 * @param C ClusterGraph for given graph, ignored if \c nullptr.
 	 * @param data Data about current subgraph.
 	 * @param id Identifier of requested node.
 	 * @return Requested node.

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3811 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-10-29 14:14:13 +0100 (Tue, 29 Oct 2013) $
- ***************************************************************/
-
 /** \file
  * \brief A class that allows to enumerate k-subsets of lists.
  *
@@ -129,8 +121,8 @@ public:
 	  , m_subset(set.size())
 	{
 		int i = 0;
-		forall_listiterators(T, it, m_set) {
-			m_subset[i++] = *it;
+		for(const T &x : m_set) {
+			m_subset[i++] = x;
 		}
 	}
 
@@ -179,7 +171,8 @@ public:
 	//! Get element of subset by index (starting from 0).
 	T operator[](int i) const
 	{
-		OGDF_ASSERT(i >= 0 && i < m_index.size());
+		OGDF_ASSERT(i >= 0);
+		OGDF_ASSERT(i < m_index.size());
 		return m_subset[m_index[i]];
 	}
 
@@ -219,6 +212,15 @@ public:
 	{
 		for (int i = 0; i < m_index.size(); ++i) {
 			list.pushBack(m_subset[m_index[i]]);
+		}
+	}
+
+	//! Obtain an array of the elements in the subset.
+	void array(Array<T> &array) const
+	{
+		array.init(m_index.size());
+		for (int i = 0; i < m_index.size(); ++i) {
+			array[i] = m_subset[m_index[i]];
 		}
 	}
 

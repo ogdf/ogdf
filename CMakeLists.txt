@@ -1,0 +1,122 @@
+cmake_minimum_required(VERSION 3.1)
+project(OGDF-PROJECT CXX)
+include_directories(include)
+
+# groups source files according to the directory structure
+function(group_files SOURCES)
+  foreach(SOURCE_FILE ${${SOURCES}})
+    get_filename_component(GROUP "${SOURCE_FILE}" PATH)
+    string(REPLACE "${CMAKE_SOURCE_DIR}" "" GROUP "${GROUP}")
+    string(REPLACE "/" "\\" GROUP "${GROUP}")
+
+    set(GROUP "${GROUP}\\")
+    foreach(REPL ${ARGN})
+      string(REPLACE "\\${REPL}\\" "\\" GROUP "${GROUP}")
+    endforeach()
+
+    source_group("${GROUP}" FILES "${SOURCE_FILE}")
+  endforeach()
+endfunction()
+
+# build type configuration
+set(BUILD_TYPES Debug Release)
+if(CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_CONFIGURATION_TYPES ${BUILD_TYPES} CACHE STRING "" FORCE)
+else()
+  if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Type of build to be created." FORCE)
+  endif()
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${BUILD_TYPES})
+endif()
+
+# cache configuration
+option(BUILD_SHARED_LIBS "Whether to build shared libraries instead of static ones." OFF)
+set(OGDF_MEMORY_MANAGER "POOL_TS" CACHE STRING "Memory manager to be used.")
+set_property(CACHE OGDF_MEMORY_MANAGER PROPERTY STRINGS POOL_TS POOL_NTS MALLOC_TS)
+set(COIN_SOLVER "CLP" CACHE STRING "Linear program solver to be used by COIN.")
+set_property(CACHE COIN_SOLVER PROPERTY STRINGS CLP CPX GRB)
+set(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES "" CACHE PATH "Locations of required header files for the external LP solver.")
+set(COIN_EXTERNAL_SOLVER_LIBRARIES "" CACHE PATH "Libraries for the external LP solver.")
+
+# COIN library
+file(COPY "${CMAKE_SOURCE_DIR}/config/coinstuff/config.h" DESTINATION "${CMAKE_SOURCE_DIR}/include/coin")
+file(GLOB_RECURSE COIN_SOURCES include/coin/*.h src/coin/*.h src/coin/*.cpp)
+if(NOT COIN_SOLVER STREQUAL "GRB")
+  list(REMOVE_ITEM COIN_SOURCES "${CMAKE_SOURCE_DIR}/src/coin/Osi/OsiGrbSolverInterface.cpp")
+endif()
+if(NOT COIN_SOLVER STREQUAL "CPX")
+  list(REMOVE_ITEM COIN_SOURCES "${CMAKE_SOURCE_DIR}/src/coin/Osi/OsiCpxSolverInterface.cpp")
+endif()
+add_library(COIN ${COIN_SOURCES})
+group_files(COIN_SOURCES "coin")
+target_compile_features(COIN PUBLIC cxx_range_for)
+target_include_directories(COIN PUBLIC include/coin)
+
+
+# external LP solver
+if(COIN_EXTERNAL_SOLVER_LIBRARIES)
+  target_link_libraries(COIN PUBLIC ${COIN_EXTERNAL_SOLVER_LIBRARIES})
+  foreach(EXT_LIB ${COIN_EXTERNAL_SOLVER_LIBRARIES})
+    if(NOT EXISTS ${EXT_LIB} OR IS_DIRECTORY ${EXT_LIB})
+      message(SEND_ERROR "The provided library does not exist: ${EXT_LIB}")
+    endif()
+  endforeach()
+endif()
+if(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES)
+  foreach(EXT_DIR ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
+    if(NOT IS_DIRECTORY ${EXT_DIR})
+      message(SEND_ERROR "The provided directory is invalid: ${EXT_DIR}")
+    endif()
+  endforeach()
+  target_include_directories(COIN PUBLIC ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
+endif()
+
+# OGDF library
+file(GLOB_RECURSE OGDF_SOURCES include/ogdf/*.h src/ogdf/*.h src/ogdf/*.cpp)
+if(NOT OGDF_COMPILE_LEGACY)
+  file(GLOB_RECURSE OGDF_LEGACY_SOURCES src/ogdf/legacy/*.cpp)
+  foreach(legacyFile ${OGDF_LEGACY_SOURCES})
+    list(REMOVE_ITEM OGDF_SOURCES ${legacyFile})
+  endforeach()
+endif()
+add_library(OGDF ${OGDF_SOURCES})
+group_files(OGDF_SOURCES "ogdf")
+target_compile_features(OGDF PUBLIC cxx_range_for)
+if(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES)
+  target_include_directories(OGDF PUBLIC ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
+endif()
+
+# test executable
+file(GLOB_RECURSE TEST_SOURCES test/*.cpp test/*.h)
+add_executable(test-ogdf ${TEST_SOURCES})
+group_files(TEST_SOURCES "test")
+target_compile_features(test-ogdf PUBLIC cxx_range_for)
+target_include_directories(test-ogdf PUBLIC test/include)
+target_link_libraries(test-ogdf OGDF COIN)
+if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  target_link_libraries(test-ogdf pthread)
+endif()
+
+# various compile flags
+if(WIN32)
+  add_definitions(/bigobj)
+endif()
+add_definitions(-DCLP_BUILD -DCOINUTILS_BUILD -DOSI_BUILD -DSYMPHONY_BUILD -D__OSI_CLP__ -DCOMPILE_IN_CG -DCOMPILE_IN_CP -DCOMPILE_IN_LP -DCOMPILE_IN_TM -DUSE_CGL_CUTS -DHAVE_CONFIG_H)
+
+# create autogen header
+if(COIN_SOLVER STREQUAL "CLP")
+  set(COIN_SOLVER_IS_EXTERNAL 0)
+else()
+  set(COIN_SOLVER_IS_EXTERNAL 1)
+endif()
+if(BUILD_SHARED_LIBS)
+  set(LIBS_ARE_SHARED 1)
+else()
+  set(LIBS_ARE_SHARED 0)
+endif()
+configure_file("${CMAKE_SOURCE_DIR}/config_autogen.h.in" "${CMAKE_SOURCE_DIR}/include/ogdf/internal/config_autogen.h")
+
+# doxygen
+find_package(Doxygen)
+set(DOC_DIR "${CMAKE_SOURCE_DIR}/doc")
+add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOC_DIR}/ogdf-doxygen.cfg WORKING_DIRECTORY ${DOC_DIR})

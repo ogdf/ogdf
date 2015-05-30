@@ -1,11 +1,3 @@
-/*
- * $Revision: 3830 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 09:55:21 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief constraint.
@@ -276,7 +268,7 @@ protected:
 
 	double rhs_; //!< The right hand side of the constraint.
 
-	mutable ConClass *conClass_; //this is just s cached-value, and hence can be set in const classify-call (it's NULL initially, and computed upon first call
+	mutable ConClass *conClass_; //this is just s cached-value, and hence can be set in const classify-call (it's nullptr initially, and computed upon first call
 
 	/**
 	 * This member is  \a true if also coefficients of variables which have been

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3074 $
- *
- * last checkin:
- *   $Author: chimani $
- *   $Date: 2012-11-29 11:01:06 +0100 (Thu, 29 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of a HyperGraph
  *

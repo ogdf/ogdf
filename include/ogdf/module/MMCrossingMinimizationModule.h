@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of MMCrossingMinimization Module, an interface
  * for minor-monotone crossing minimization algorithms.
@@ -61,7 +53,7 @@ class OGDF_EXPORT MMCrossingMinimizationModule : public Module
 {
 public:
 	//! Initializes a minor-monotone crossing minimization module.
-	MMCrossingMinimizationModule() { m_nodeSplits = 0; }
+	MMCrossingMinimizationModule() : m_nodeSplits(0), m_splittedNodes(0) { }
 
 	// destruction
 	virtual ~MMCrossingMinimizationModule() { }

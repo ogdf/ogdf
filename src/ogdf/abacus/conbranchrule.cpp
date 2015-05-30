@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -50,7 +42,7 @@ ostream &operator<<(ostream &out, const ConBranchRule &rhs)
 int ConBranchRule::extract(Sub *sub)
 {
 
-	if (poolSlotRef_.conVar() == 0) {
+	if (poolSlotRef_.conVar() == nullptr) {
 		Logger::ifout() << "ConBranchRule::extract(): branching constraint not available\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConBranchRule);
 	}
@@ -95,7 +87,7 @@ void ConBranchRule::unExtract(LpSub *lp)
 
 void ConBranchRule::initialize(Sub* sub)
 {
-	if (poolSlotRef_.conVar() == 0) {
+	if (poolSlotRef_.conVar() == nullptr) {
 		Logger::ifout() << "ConBranchRule::initialize(): branching constraint not available\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConBranchRule);
 	}

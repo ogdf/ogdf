@@ -1,11 +1,3 @@
-/*
- * $Revision: 3210 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-15 11:58:53 +0100 (Tue, 15 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of heuristics for two-layer crossing
  * minimization (BarycenterHeuristic, MedianHeuristic)
@@ -113,6 +105,7 @@ void MedianHeuristic::call (Level &L)
 
 void GreedySwitchHeuristic::init (const HierarchyLevels &levels)
 {
+	delete m_crossingMatrix;
 	m_crossingMatrix = new CrossingsMatrix(levels);
 }
 
@@ -185,15 +178,21 @@ void GreedyInsertHeuristic::call(Level &L)
 // crossing minimization
 //---------------------------------------------------------
 
-SiftingHeuristic::SiftingHeuristic() : m_strategy(left_to_right) { }
+SiftingHeuristic::SiftingHeuristic() : m_crossingMatrix(nullptr), m_strategy(left_to_right) { }
 
 SiftingHeuristic::SiftingHeuristic(const SiftingHeuristic &crossMin)
-	: m_strategy(crossMin.m_strategy) { }
+: m_crossingMatrix(nullptr), m_strategy(crossMin.m_strategy) { }
 
 
 void SiftingHeuristic::init(const HierarchyLevels &levels)
 {
+	delete m_crossingMatrix;
 	m_crossingMatrix = new CrossingsMatrix(levels);
+}
+
+SiftingHeuristic::~SiftingHeuristic()
+{
+	delete m_crossingMatrix;
 }
 
 void SiftingHeuristic::cleanup()

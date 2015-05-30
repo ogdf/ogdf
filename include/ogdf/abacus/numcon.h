@@ -1,11 +1,3 @@
-/*
- * $Revision: 3840 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-19 08:27:44 +0100 (Tue, 19 Nov 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  * \brief constraint defined by a number.

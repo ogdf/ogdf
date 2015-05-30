@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of the class ExtractKuratowskis
  *
@@ -55,10 +47,11 @@ void DynamicBacktrack::init(
 				const bool less,
 				const int flag,
 				const int startFlag = 0,
-				const edge startInclude = NULL,
-				const edge startExlude = NULL)
+				const edge startInclude = nullptr,
+				const edge startExlude = nullptr)
 {
-	OGDF_ASSERT(start!=NULL && end!=NULL);
+	OGDF_ASSERT(start!=nullptr);
+	OGDF_ASSERT(end!=nullptr);
 	this->start = start;
 	this->end = end;
 	this->less = less;
@@ -66,20 +59,20 @@ void DynamicBacktrack::init(
 
 	// init stack
 	stack.clear();
-	adjEntry adj;
-	if (startInclude == NULL) {
-		forall_adj(adj,start) {
+	if (startInclude == nullptr) {
+		for (adjEntry adj : start->adjEdges) {
 			if (((m_flags[adj->theEdge()] & startFlag) == startFlag) &&
-					adj->theEdge() != startExlude) {
-				stack.push(NULL);
+				adj->theEdge() != startExlude) {
+				stack.push(nullptr);
 				stack.push(adj);
 			}
 		}
-	} else {
-		forall_adj(adj,start) {
+	}
+	else {
+		for (adjEntry adj : start->adjEdges) {
 			if (adj->theEdge() == startInclude &&
 				(m_flags[adj->theEdge()] & startFlag) == startFlag) {
-				stack.push(NULL);
+				stack.push(nullptr);
 				stack.push(adj);
 			}
 		}
@@ -87,7 +80,7 @@ void DynamicBacktrack::init(
 
 	// init array parent
 	if (!stack.empty()) {
-		m_parent.fill(NULL);
+		m_parent.fill(nullptr);
 		m_parent[start] = stack.top();
 	}
 }
@@ -96,7 +89,7 @@ void DynamicBacktrack::init(
 // endnode returns the last traversed node.
 bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 	adjEntry adj;
-	node v = NULL;
+	node v = nullptr;
 	node temp;
 
 	while (!stack.empty()) {
@@ -104,11 +97,11 @@ bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 		adj = stack.pop();
 
 		// return from a child node: delete parent
-		if (adj==NULL) {
+		if (adj==nullptr) {
 			// go to parent and delete visited flag
 			temp = v;
 			v = m_parent[temp]->theNode();
-			m_parent[temp] = NULL;
+			m_parent[temp] = nullptr;
 			continue;
 		}
 
@@ -129,12 +122,12 @@ bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 			}
 
 			// in a following call of this method we'll have to reconstruct the actual
-			// state, therefore delete the last NULLs and visited flags on stack
-			while (!stack.empty() && stack.top()==NULL) {
+			// state, therefore delete the last nullptrs and visited flags on stack
+			while (!stack.empty() && stack.top()==nullptr) {
 				stack.pop();
 				temp = v;
 				v = m_parent[temp]->theNode();
-				m_parent[temp] = NULL;
+				m_parent[temp] = nullptr;
 			}
 
 			// return bool, if path found
@@ -142,10 +135,10 @@ bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 		}
 
 		// push all possible child-nodes
-		forall_adj(adj,v) {
+		for (adjEntry adj : v->adjEdges) {
 			// if edge is signed and target node was not visited before
-			if ((m_flags[adj->theEdge()] & flag) && (m_parent[adj->twinNode()]==NULL)) {
-				stack.push(NULL);
+			if ((m_flags[adj->theEdge()] & flag) && (m_parent[adj->twinNode()] == nullptr)) {
+				stack.push(nullptr);
 				stack.push(adj);
 			}
 		}
@@ -164,20 +157,19 @@ bool DynamicBacktrack::addNextPathExclude(
 				const NodeArray<int>& nodeflags,
 				int exclude,
 				int exceptOnEdge) {
-	adjEntry adj;
-	node v = NULL;
+	node v = nullptr;
 	node temp;
 
 	while (!stack.empty()) {
 		// backtrack
-		adj = stack.pop();
+		adjEntry adj = stack.pop();
 
 		// return from a child node: delete parent
-		if (adj==NULL) {
+		if (adj==nullptr) {
 			// go to parent and delete visited flag
 			temp = v;
 			v = m_parent[temp]->theNode();
-			m_parent[temp] = NULL;
+			m_parent[temp] = nullptr;
 			continue;
 		}
 
@@ -186,7 +178,7 @@ bool DynamicBacktrack::addNextPathExclude(
 
 		// check if startedges computed in init() match th conditions
 		if (nodeflags[v]==exclude && !(m_flags[adj->theEdge()] & exceptOnEdge)) {
-			OGDF_ASSERT(stack.top()==NULL);
+			OGDF_ASSERT(stack.top()==nullptr);
 			stack.pop();
 			continue;
 		}
@@ -206,12 +198,12 @@ bool DynamicBacktrack::addNextPathExclude(
 			}
 
 			// in a following call of this method we'll have to reconstruct the actual
-			// state, therefore delete the last NULLs and visited flags on stack
-			while (!stack.empty() && stack.top()==NULL) {
+			// state, therefore delete the last nullptrs and visited flags on stack
+			while (!stack.empty() && stack.top()==nullptr) {
 				stack.pop();
 				temp = v;
 				v = m_parent[temp]->theNode();
-				m_parent[temp] = NULL;
+				m_parent[temp] = nullptr;
 			}
 
 			// return bool, if path found
@@ -219,16 +211,16 @@ bool DynamicBacktrack::addNextPathExclude(
 		}
 
 		// push all possible child-nodes
-		forall_adj(adj,v) {
+		for(adjEntry adj : v->adjEdges) {
 			node x = adj->twinNode();
 			edge e = adj->theEdge();
 			// if edge is signed and target node was not visited before
-			if ((m_flags[e] & flag) && m_parent[x]==NULL)
+			if ((m_flags[e] & flag) && m_parent[x]==nullptr)
 			{
 				// don't allow exclude-nodes, if not on an except-edge
 				if ((nodeflags[x] != exclude) || (m_flags[e] & exceptOnEdge))
 				{
-					stack.push(NULL);
+					stack.push(nullptr);
 					stack.push(adj);
 				}
 			}
@@ -285,28 +277,21 @@ int ExtractKuratowskis::whichKuratowski(
 // returns the type of Kuratowski subdivision in list (none, K33 or K5)
 // the edgenumber has to be 1 for used edges, otherwise 0
 int ExtractKuratowskis::whichKuratowskiArray(
-					const Graph& m_g,
-					//const NodeArray<int>& /* m_dfi */,
-					EdgeArray<int>& edgenumber)
+	const Graph& m_g,
+	//const NodeArray<int>& /* m_dfi */,
+	EdgeArray<int>& edgenumber)
 {
-	edge e;
-	node v;
-	NodeArray<int> nodenumber(m_g,0);
-	int K33Partition[6] = {0,-1,-1,-1,-1,-1};
-	bool K33Links[6][6] = {{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},
-							{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
+	NodeArray<int> nodenumber(m_g, 0);
 
-	node K33Nodes[6];
-	node K5Nodes[5];
-
-	#ifdef OGDF_DEBUG
-	forall_edges(e,m_g) OGDF_ASSERT(edgenumber[e] == 0 || edgenumber[e] == 1);
-	#endif
+#ifdef OGDF_DEBUG
+	for (edge e : m_g.edges)
+		OGDF_ASSERT(edgenumber[e] == 0 || edgenumber[e] == 1);
+#endif
 
 	// count incident nodes
 	SListConstIterator<edge> it;
 	int allEdges = 0;
-	forall_edges(e,m_g) {
+	for (edge e : m_g.edges) {
 		if (edgenumber[e] == 1) {
 			++allEdges;
 			++nodenumber[e->source()];
@@ -317,16 +302,20 @@ int ExtractKuratowskis::whichKuratowskiArray(
 		return ExtractKuratowskis::none;
 	}
 
+	node K33Nodes[6];
+	node K5Nodes[5];
+
 	int degree3nodes = 0;
 	int degree4nodes = 0;
-	forall_nodes(v,m_g) {
+	for (node v : m_g.nodes) {
 		if (nodenumber[v] > 4 || nodenumber[v] == 1) {
 			return ExtractKuratowskis::none;
 		}
-		if (nodenumber[v]==3) {
+		if (nodenumber[v] == 3) {
 			K33Nodes[degree3nodes] = v;
 			++degree3nodes;
-		} else if (nodenumber[v]==4) {
+		}
+		else if (nodenumber[v] == 4) {
 			K5Nodes[degree4nodes] = v;
 			++degree4nodes;
 		}
@@ -338,57 +327,75 @@ int ExtractKuratowskis::whichKuratowskiArray(
 		if (degree4nodes > 0) {
 			return ExtractKuratowskis::none;
 		}
-		for (int i=0; i<6; ++i) {
-			forall_adj_edges(e,K33Nodes[i]) {
+
+		int K33Partition[6] = { 0, -1, -1, -1, -1, -1 };
+		bool K33Links[6][6] = {
+			{ 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0 },
+			{ 0, 0, 0, 0, 0, 0 }
+		};
+
+		for (int i = 0; i<6; ++i) {
+			edge e;
+			forall_adj_edges(e, K33Nodes[i]) {
 				if (edgenumber[e] > 0) { // not visited
 					edgenumber[e] = -2; // visited
-					v = e->opposite(K33Nodes[i]);
+					node v = e->opposite(K33Nodes[i]);
 					// traverse nodedegree-2 path until degree-3 node found
 					while (nodenumber[v] != 3) {
 						nodenumber[v] = -2; // visited
 						edge ed;
-						forall_adj_edges(ed,v) if (edgenumber[ed] > 0) break;
+						forall_adj_edges(ed, v) if (edgenumber[ed] > 0) break;
 						OGDF_ASSERT(edgenumber[ed] > 0);
 						edgenumber[ed] = -2; // visited
 						v = ed->opposite(v);
 					}
 					int ii;
-					for (ii=0; ii<6; ++ii) if (K33Nodes[ii]==v) break;
-					OGDF_ASSERT(ii>=0 && ii<=5);
+					for (ii = 0; ii < 6; ++ii) if (K33Nodes[ii] == v) break;
+					OGDF_ASSERT(ii >= 0);
+					OGDF_ASSERT(ii <= 5);
 					if (K33Partition[i] != K33Partition[ii]) {
 						++paths;
-						if (K33Partition[ii]==-1) K33Partition[ii] = !K33Partition[i];
+						if (K33Partition[ii] == -1) K33Partition[ii] = !K33Partition[i];
 						if (!K33Links[i][ii]) {
 							K33Links[i][ii] = true;
-						} else {
+						}
+						else {
 							return ExtractKuratowskis::none;
 						}
-					} else {
+					}
+					else {
 						return ExtractKuratowskis::none;
 					}
 				}
 			}
 		}
-		if (paths==9) {
+		if (paths == 9) {
 			return ExtractKuratowskis::K33;
-		} else {
+		}
+		else {
 			return ExtractKuratowskis::none;
 		}
-	} else if (degree4nodes == 5) {
+	}
+	else if (degree4nodes == 5) {
 		// check on K5
 		if (degree3nodes > 0) {
 			return ExtractKuratowskis::none;
 		}
-		for (int i=0; i<5; ++i) {
-			forall_adj_edges(e,K5Nodes[i]) {
+		for (int i = 0; i<5; ++i) {
+			edge e;
+			forall_adj_edges(e, K5Nodes[i]) {
 				if (edgenumber[e] > 0) { // not visited
 					edgenumber[e] = -2; // visited
-					v = e->opposite(K5Nodes[i]);
+					node v = e->opposite(K5Nodes[i]);
 					// traverse nodedegree-2 path until degree-4 node found
 					while (nodenumber[v] != 4) {
 						nodenumber[v] = -2; // visited
 						edge ed;
-						forall_adj_edges(ed,v) if (edgenumber[ed] > 0) break;
+						forall_adj_edges(ed, v) if (edgenumber[ed] > 0) break;
 						if (edgenumber[ed] <= 0) break;
 						edgenumber[ed] = -2; // visited
 						v = ed->opposite(v);
@@ -397,15 +404,18 @@ int ExtractKuratowskis::whichKuratowskiArray(
 				}
 			}
 		}
-		if (paths==10) {
+		if (paths == 10) {
 			return ExtractKuratowskis::K5;
-		} else {
+		}
+		else {
 			return ExtractKuratowskis::none;
 		}
-	} else {
+	}
+	else {
 		return ExtractKuratowskis::none;
 	}
 }
+
 
 // returns true, if kuratowski EdgeArray isn't already contained in output
 bool ExtractKuratowskis::isANewKuratowski(
@@ -446,29 +456,30 @@ bool ExtractKuratowskis::isANewKuratowski(
 
 // returns adjEntry of the edge between node high and that node
 // with the lowest DFI not less than the DFI of low
-inline adjEntry ExtractKuratowskis::adjToLowestNodeBelow(node high, int low) {
-	adjEntry adj;
+inline adjEntry ExtractKuratowskis::adjToLowestNodeBelow(node high, int low)
+{
 	int result = 0;
-	int temp;
-	adjEntry resultAdj = NULL;
-	forall_adj(adj,high) {
-		temp = m_dfi[adj->twinNode()];
-		if (temp >= low && (result==0 || temp < result)) {
+	adjEntry resultAdj = nullptr;
+	for (adjEntry adj : high->adjEdges) {
+		int temp = m_dfi[adj->twinNode()];
+		if (temp >= low && (result == 0 || temp < result)) {
 			result = temp;
 			resultAdj = adj->twin();
 		}
 	}
-	if (result==0) {
-		return NULL;
-	} else return resultAdj;
+	if (result == 0) {
+		return nullptr;
+	}
+	else return resultAdj;
 }
 
 // add DFS-path from node bottom to node top to edgelist
 // each virtual node has to be merged
 inline void ExtractKuratowskis::addDFSPath(
-						SListPure<edge>& list,
-						node bottom,
-						node top) {
+	SListPure<edge>& list,
+	node bottom,
+	node top)
+{
 	if (bottom == top) return;
 	adjEntry adj = m_adjParent[bottom];
 	list.pushBack(adj->theEdge());
@@ -569,7 +580,8 @@ void ExtractKuratowskis::extractMinorB(
 	SListIterator<ExternE> itExternW;
 	for (itExternW = info.externEStart; (*itExternW).theNode != info.w; ++itExternW)
 		;
-	OGDF_ASSERT(itExternW.valid() && (*itExternW).theNode == info.w);
+	OGDF_ASSERT(itExternW.valid());
+	OGDF_ASSERT((*itExternW).theNode == info.w);
 	ExternE& externE(*itExternW);
 	OGDF_ASSERT(externE.theNode == pathW.front()->source() ||
 				externE.theNode == pathW.front()->target());
@@ -678,7 +690,7 @@ void ExtractKuratowskis::extractMinorBBundles(
 	node endnodeWExtern;
 	DynamicBacktrack backtrackExtern(m_g,m_dfi,flags);
 	backtrackExtern.init(info.w,k.V,true,DynamicBacktrack::externalPath,
-						DynamicBacktrack::externalPath,pathW.back(),NULL);
+						DynamicBacktrack::externalPath,pathW.back(),nullptr);
 	while (backtrackExtern.addNextPathExclude(B.edgeList,endnodeWExtern,nodeflags,
 										nodemarker,DynamicBacktrack::singlePath)) {
 		// check, if we have found enough subdivisions
@@ -859,11 +871,10 @@ void ExtractKuratowskis::extractMinorD(
 	if (info.pyAboveStopY) {
 		end = info.highestXYPath->back()->theNode();
 	} else end = k.stopY;
-	node temp;
 	SListConstIterator<adjEntry> itE;
 	bool between = false;
 	for (itE=k.externalFacePath.begin(); itE.valid(); ++itE) {
-		temp = (*itE)->theNode();
+		node temp = (*itE)->theNode();
 		if (between) D.edgeList.pushBack((*itE)->theEdge());
 		if (temp == start) {
 			between = true;
@@ -1089,7 +1100,7 @@ void ExtractKuratowskis::extractMinorE3(
 		} else addDFSPath(E3.edgeList,k.V,endnodeZ);
 
 		// add the external face path edges except max(px,stopX)<->min(z,w) and v<->nearest(py,stopY)
-		node temp,start1,end1,start2;
+		node start1,end1,start2;
 		if (info.pxAboveStopX) {
 			start1 = k.stopX;
 		} else start1 = px;
@@ -1101,7 +1112,7 @@ void ExtractKuratowskis::extractMinorE3(
 		} else start2 = k.stopY;
 		bool between = false;
 		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			temp = (*it)->theNode();
+			node temp = (*it)->theNode();
 			if (!between) E3.edgeList.pushBack((*it)->theEdge());
 			if (temp == start1) between = true;
 				else if (temp == start2) break;
@@ -1116,7 +1127,7 @@ void ExtractKuratowskis::extractMinorE3(
 		} else addDFSPath(E3.edgeList,k.V,endnodeZ);
 
 		// add the external face path edges except v<->min(px,stopX) and max(w,z)<->nearest(py,stopY)
-		node temp,end1,start2,end2;
+		node end1,start2,end2;
 		if (info.pxAboveStopX) {
 			end1 = px;
 		} else end1 = k.stopX;
@@ -1128,7 +1139,7 @@ void ExtractKuratowskis::extractMinorE3(
 		} else end2 = py;
 		bool between = true;
 		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			temp = (*it)->theNode();
+			node temp = (*it)->theNode();
 			if (!between) E3.edgeList.pushBack((*it)->theEdge());
 			if (temp == end1) between = false;
 				else if (temp == start2) between = true;
@@ -1205,7 +1216,7 @@ void ExtractKuratowskis::extractMinorE4(
 		E4.edgeList = tempE4;
 
 		// add the external face path edges except max(w,z)<->min(py,stopY)
-		node temp,start,end;
+		node start,end;
 		if (before<=0) {
 			start = info.w;
 		} else start = z;
@@ -1214,7 +1225,7 @@ void ExtractKuratowskis::extractMinorE4(
 		} else end = py;
 		bool between = false;
 		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			temp = (*it)->theNode();
+			node temp = (*it)->theNode();
 			if (!between) E4.edgeList.pushBack((*it)->theEdge());
 			if (temp == start) between = true;
 				else if (temp == end) between = false;
@@ -1243,7 +1254,7 @@ void ExtractKuratowskis::extractMinorE4(
 		E4.edgeList = tempE4;
 
 		// add the external face path edges except max(px,stopX)<->min(w,z)
-		node temp,start,end;
+		node start,end;
 		if (info.pxAboveStopX) {
 			start = k.stopX;
 		} else start = px;
@@ -1253,7 +1264,7 @@ void ExtractKuratowskis::extractMinorE4(
 
 		bool between = false;
 		for (it=k.externalFacePath.begin(); it.valid(); ++it) {
-			temp = (*it)->theNode();
+			node temp = (*it)->theNode();
 			if (!between) E4.edgeList.pushBack((*it)->theEdge());
 			if (temp == start) between = true;
 				else if (temp == end) between = false;
@@ -1358,7 +1369,8 @@ void ExtractKuratowskis::extractMinorE(
 				const SListPure<edge>& pathW)
 {
 	// find external paths for each extern node z on the lower external face
-	OGDF_ASSERT(info.externEStart.valid() && info.externEEnd.valid());
+	OGDF_ASSERT(info.externEStart.valid());
+	OGDF_ASSERT(info.externEEnd.valid());
 
 	int before = -1; // -1= before, 0=equal, 1=after
 	SListConstIterator<edge> itW;
@@ -1367,7 +1379,6 @@ void ExtractKuratowskis::extractMinorE(
 	node py = info.highestXYPath->back()->theNode();
 
 	adjEntry temp;
-	node z;
 	SListPure<edge> pathZ;
 	node endnodeZ;
 	SListConstIterator<node> itZEndnode;
@@ -1377,7 +1388,7 @@ void ExtractKuratowskis::extractMinorE(
 	// consider only the nodes between px and py
 	for (it = info.externEStart; it.valid(); ++it) {
 		const ExternE& externE(*it);
-		z = externE.theNode;
+		node z = externE.theNode;
 
 		if (z == info.w) {
 			OGDF_ASSERT(z == pathW.front()->source() || z == pathW.front()->target());
@@ -1444,7 +1455,8 @@ void ExtractKuratowskis::extractMinorE(
 			// z != wNode, check position of node z
 			if (z == info.firstExternEAfterW) before = 1;
 			OGDF_ASSERT(before != 0);
-			OGDF_ASSERT(z != pathW.front()->source() && z != pathW.front()->target());
+			OGDF_ASSERT(z != pathW.front()->source());
+			OGDF_ASSERT(z != pathW.front()->target());
 
 			itZStartnode = externE.startnodes.begin();
 			for (itZEndnode = externE.endnodes.begin(); itZEndnode.valid();
@@ -1510,9 +1522,9 @@ void ExtractKuratowskis::extractMinorEBundles(
 				const SListPure<edge>& pathW)
 {
 	// perform backtracking for each extern node z on the lower external face
-	OGDF_ASSERT(info.externEStart.valid() && info.externEEnd.valid());
+	OGDF_ASSERT(info.externEStart.valid());
+	OGDF_ASSERT(info.externEEnd.valid());
 	SListPure<edge> pathZ;
-	node z;
 	node endnodeZ;
 	int before = -1; // -1= before, 0=equal to wNode, 1=after
 	SListConstIterator<edge> itW;
@@ -1531,7 +1543,7 @@ void ExtractKuratowskis::extractMinorEBundles(
 
 	// consider only the nodes between px and py
 	for (it = info.externEStart; it.valid(); ++it) {
-		z = (*it).theNode;
+		node z = (*it).theNode;
 
 		if (z == info.w) {
 			OGDF_ASSERT(z == pathW.back()->source() || z == pathW.back()->target());
@@ -1542,7 +1554,7 @@ void ExtractKuratowskis::extractMinorEBundles(
 			// on the first pathW: consider all pathsZ
 			if (!m_avoidE2Minors && firstWPath && firstWOnHighestXY) {
 				backtrackZ.init(z,k.V,true,DynamicBacktrack::externalPath,
-								DynamicBacktrack::externalPath,NULL,NULL);
+								DynamicBacktrack::externalPath,nullptr,nullptr);
 				while (backtrackZ.addNextPath(pathZ,endnodeZ)) {
 					if (m_dfi[endnodeZ] > m_dfi[endnodeX] &&
 						m_dfi[endnodeZ] > m_dfi[endnodeY]) {
@@ -1553,7 +1565,7 @@ void ExtractKuratowskis::extractMinorEBundles(
 			}
 
 			backtrackZ.init(z,k.V,true,DynamicBacktrack::externalPath,
-							DynamicBacktrack::externalPath,NULL,NULL);
+							DynamicBacktrack::externalPath,nullptr,nullptr);
 			while (backtrackZ.addNextPathExclude(pathZ,endnodeZ,
 						nodeflags,nodemarker,DynamicBacktrack::singlePath)) {
 				// minortype E3 on z=wNode
@@ -1575,7 +1587,7 @@ void ExtractKuratowskis::extractMinorEBundles(
 						 (endnodeY == endnodeZ && m_dfi[endnodeX] <= m_dfi[endnodeY]))) {
 					// instead of slower code:
 					//backtrackZ.init(z,k.V,true,DynamicBacktrack::externalPath,
-					//					DynamicBacktrack::externalPath,NULL,pathW.back());
+					//					DynamicBacktrack::externalPath,nullptr,pathW.back());
 					//while (backtrackZ.addNextPathExclude(pathZ,endnodeZ,nodeflags,nodemarker,0)) {
 					if (pathZ.back() != pathW.back() &&
 						(pathZ.back()->source() == z || pathZ.back()->target() == z)) {
@@ -1588,10 +1600,11 @@ void ExtractKuratowskis::extractMinorEBundles(
 			// z != wNode, check position of node z
 			if (z == info.firstExternEAfterW) before = 1;
 			OGDF_ASSERT(before != 0);
-			OGDF_ASSERT(z != pathW.back()->source() && z != pathW.back()->target());
+			OGDF_ASSERT(z != pathW.back()->source());
+			OGDF_ASSERT(z != pathW.back()->target());
 
 			backtrackZ.init(z,k.V,true,DynamicBacktrack::externalPath,
-							DynamicBacktrack::externalPath,NULL,NULL);
+							DynamicBacktrack::externalPath,nullptr,nullptr);
 			while (backtrackZ.addNextPath(pathZ,endnodeZ)) {
 				// split in minorE-subtypes
 
@@ -1684,7 +1697,7 @@ void ExtractKuratowskis::extract(
 				if (k.RReal != k.V) addDFSPath(pathY,k.RReal,k.V);
 
 				// consider all possible wNodes
-				SListPure<adjEntry>* oldHighestXYPath = NULL;
+				SListPure<adjEntry>* oldHighestXYPath = nullptr;
 				for (itInfo = k.wNodes.begin(); itInfo.valid(); ++itInfo) {
 					const WInfo& info(*itInfo);
 
@@ -1692,7 +1705,9 @@ void ExtractKuratowskis::extract(
 					bool firstWPath = true; // avoid multiple identical subdivisions in E2
 					for (itL = info.pertinentPaths.begin(); itL.valid(); ++itL) {
 						const SListPure<edge>& pathW(*itL);
-						OGDF_ASSERT(!pathX.empty() && !pathY.empty() && !pathW.empty());
+						OGDF_ASSERT(!pathX.empty());
+						OGDF_ASSERT(!pathY.empty());
+						OGDF_ASSERT(!pathW.empty());
 
 						// extract minor A
 						if (info.minorType & WInfo::A)
@@ -1770,11 +1785,11 @@ void ExtractKuratowskis::extractBundles(
 		// compute all possible external paths of stopX and stopY (pathX,pathY)
 		bool firstXPath = true;
 		backtrackX.init(k.stopX,k.V,true,DynamicBacktrack::externalPath,
-						DynamicBacktrack::externalPath,NULL,NULL);
+						DynamicBacktrack::externalPath,nullptr,nullptr);
 		while (backtrackX.addNextPath(pathX,endnodeX)) {
 			bool firstYPath = true;
 			backtrackY.init(k.stopY,k.V,true,DynamicBacktrack::externalPath,
-							DynamicBacktrack::externalPath,NULL,NULL);
+							DynamicBacktrack::externalPath,nullptr,nullptr);
 			while (backtrackY.addNextPath(pathY,endnodeY)) {
 
 				// if minor A occurs, other minortypes are possible with adding
@@ -1782,17 +1797,19 @@ void ExtractKuratowskis::extractBundles(
 				if (k.RReal != k.V) addDFSPath(pathY,k.RReal,k.V);
 
 				// consider all possible wNodes
-				SListPure<adjEntry>* oldHighestXYPath = NULL;
+				SListPure<adjEntry>* oldHighestXYPath = nullptr;
 				for (itInfo = k.wNodes.begin(); itInfo.valid(); ++itInfo) {
 					const WInfo& info(*itInfo);
 
 					// compute all possible internal paths of this wNode
 					bool firstWPath = true; // avoid multiple identical subdivisions in E2
 					backtrackW.init(info.w,k.V,false,DynamicBacktrack::pertinentPath,
-									DynamicBacktrack::pertinentPath,NULL,NULL);
+									DynamicBacktrack::pertinentPath,nullptr,nullptr);
 					node dummy;
 					while (backtrackW.addNextPath(pathW,dummy)) {
-						OGDF_ASSERT(!pathX.empty() && !pathY.empty() && !pathW.empty());
+						OGDF_ASSERT(!pathX.empty());
+						OGDF_ASSERT(!pathY.empty());
+						OGDF_ASSERT(!pathW.empty());
 
 						// extract minor A
 						if (info.minorType & WInfo::A)

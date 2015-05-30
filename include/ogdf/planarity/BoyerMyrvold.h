@@ -1,11 +1,3 @@
-/*
- * $Revision: 2609 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2012-07-16 09:59:18 +0200 (Mon, 16 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the wrapper class of the Boyer-Myrvold planarity test
  *
@@ -60,7 +52,10 @@ namespace ogdf {
 class KuratowskiWrapper;
 
 //! Wrapper class used for preprocessing and valid invocation of the planarity test.
-/** This class is part of the extended Boyer-Myrvold planarity embedding algorithm
+/**
+ * @ingroup ga-planembed
+ *
+ * This class is part of the extended Boyer-Myrvold planarity embedding algorithm
  * to simplify invocation besides adding standard parameters (see classes in
  * \a BoyerMyrvoldInit.h and \a BoyerMyrvoldPlanar.h). In addition the linear-time
  * Boyer-Myrvold embedding algorithm was extended to extract multiple Kuratowski
@@ -156,14 +151,14 @@ protected:
 	BoyerMyrvoldPlanar* pBMP;
 
 	//! Deletes BoyerMyrvoldPlanar on heap
-	void clear() { delete pBMP; }
+	void clear() { if(pBMP != nullptr) { delete pBMP; pBMP = nullptr; } }
 
 	//! The number of extracted Structures for statistical purposes
 	int nOfStructures;
 
 public:
 	//! Constructor
-	BoyerMyrvold() { pBMP = 0; }
+	BoyerMyrvold() { pBMP = nullptr; }
 	//! Destructor
 	~BoyerMyrvold() { clear(); }
 
@@ -174,15 +169,15 @@ public:
 	/** This is the routine, which avoids the overhead of copying the input graph.
 	 * It is therefore not suitable, if your graph must not be alterated!
 	 */
-	virtual bool isPlanarDestructive(Graph& g);
+	virtual bool isPlanarDestructive(Graph& g) override;
 
 	//! Returns true, iff a copy of the constant graph \a g is planar
 	/** Use this slower routine, if your graph must not be alterated.
 	 */
-	virtual bool isPlanar(const Graph& g);
+	virtual bool isPlanar(const Graph& g) override;
 
 	//! Returns true, if G is planar, false otherwise. If true, G contains a planar embedding.
-	virtual bool planarEmbed(Graph &G) {
+	virtual bool planarEmbed(Graph &G) override {
 		SList<KuratowskiWrapper> list;
 		return planarEmbed(G,list);
 	}
@@ -196,12 +191,10 @@ public:
 	 * This routine is slightly faster than planarEmbed, but requires \a G to be planar.
 	 * If \a G is not planar, the graph will be destroyed while trying to embed it!
 	 */
-	virtual bool planarEmbedPlanarGraph(Graph &G) {
+	virtual bool planarEmbedPlanarGraph(Graph &G) override {
 		SList<KuratowskiWrapper> list;
 		return planarEmbedDestructive(G,list);
 	}
-
-
 
 
 	//! Transforms KuratowskiWrapper in KuratowskiSubdivision
@@ -217,7 +210,6 @@ public:
 		SList<KuratowskiSubdivision>& targetList,
 		const Graph& g,
 		const bool onlyDifferent = false);
-
 
 
 	//! Returns an embedding, if \a g is planar and Kuratowski Subdivisions otherwise
@@ -273,7 +265,6 @@ public:
 	 * @param avoidE2Minors avoids all \a E2-Minors and ensures unique subdivisions, if set
 	 */
 	bool planarEmbed(
-		//const Graph& g,
 		GraphCopySimple& h,
 		SList<KuratowskiWrapper>& output,
 		int embeddingGrade = BoyerMyrvoldPlanar::doNotFind,

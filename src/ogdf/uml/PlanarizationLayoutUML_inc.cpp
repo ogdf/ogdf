@@ -1,11 +1,3 @@
-/*
-* $Revision: 3186 $
-*
-* last checkin:
-*   $Author: gutwenger $
-*   $Date: 2013-01-10 08:51:55 +0100 (Thu, 10 Jan 2013) $
-***************************************************************/
-
 /** \file
  * \brief implementation of class UMLPlanarizationLayout.
  *
@@ -129,21 +121,20 @@ void PlanarizationLayoutUML::callIncremental(
 			// to a copy of this CC consisting only of fixed nodes
 			node minActive = PG.initMinActiveCC(i);
 			//if a single node was made active, we update its status
-			if (minActive != 0)
+			if (minActive != nullptr)
 			{
 				fixedNodes[minActive] = true;
 			}
 
 #ifdef OGDF_DEBUG
-			edge e;
-			forall_edges(e, PG)
+			for(edge e : PG.edges)
 			{
 				edge eOrig = PG.original(e);
 				if (eOrig)
 				{
 					OGDF_ASSERT(PG.chain(eOrig).size() <= 1)
 				}
-			}//foralledges
+			}
 #endif
 
 			int nOrigVerticesPG = PG.numberOfNodes();
@@ -185,7 +176,7 @@ void PlanarizationLayoutUML::callIncremental(
 			//now we derive the embedding given in umlgraph for the fixed part
 			//we work on a copy of umlgraph, because we have to add/delete nodes
 			//and edges and create a PlanRep on an intermediate representation
-			adjEntry adjExternal = 0;
+			adjEntry adjExternal = nullptr;
 
 			//--------------------------------------------
 			//here lies the main difference to the static call
@@ -226,7 +217,7 @@ void PlanarizationLayoutUML::callIncremental(
 
 				//if we have edges, but no external face, find one
 				//we have also to select one later if there are no edges yet
-				if((adjExternal == 0) && PG.numberOfEdges() > 0)
+				if((adjExternal == nullptr) && PG.numberOfEdges() > 0)
 				{
 					//face fExternal = E.maximalFace();
 					face fExternal = findBestExternalFace(PG,E);
@@ -234,7 +225,7 @@ void PlanarizationLayoutUML::callIncremental(
 					//while (PG.sinkConnect(adjExternal->theEdge()))
 					//	adjExternal = adjExternal->faceCycleSucc();
 				}
-				if ( (adjExternal != 0) && (PG.numberOfEdges() > 0) )
+				if ( (adjExternal != nullptr) && (PG.numberOfEdges() > 0) )
 					E.setExternalFace(E.rightFace(adjExternal));
 
 				//-------------------------------------------------
@@ -271,7 +262,7 @@ void PlanarizationLayoutUML::callIncremental(
 						OGDF_ASSERT(count < eNum)
 					}
 
-					itAdd++;
+					++itAdd;
 				}//while
 
 				if (!umlMerge)
@@ -315,14 +306,13 @@ void PlanarizationLayoutUML::callIncremental(
 					umlGraph.x(vG) = drawing.x(PG.copy(vG));
 					umlGraph.y(vG) = drawing.y(PG.copy(vG));
 
-					adjEntry adj;
-					forall_adj(adj,vG)
+					for(adjEntry adj : vG->adjEdges)
 					{
 						if ((adj->index() & 1) == 0) continue;
 						edge eG = adj->theEdge();
 
 						drawing.computePolylineClear(PG,eG,umlGraph.bends(eG));
-					}//foralladj
+					}
 				}//for orig nodes
 
 
@@ -342,7 +332,7 @@ void PlanarizationLayoutUML::callIncremental(
 						DPolyline dpUp;
 
 						//check if there is an expansion face
-						if (adjMerger != 0)
+						if (adjMerger != nullptr)
 						{
 							//if there are bends on the edge, copy them
 							//TODO: check where to derive the bends from
@@ -398,8 +388,8 @@ void PlanarizationLayoutUML::callIncremental(
 						else //currently all nodes are expanded, but this is not guaranteed
 						{
 							//first save the bends
-							adjEntry adjUp = 0;
-							forall_adj(adjMerger, vMerger)
+							adjEntry adjUp = nullptr;
+							for(adjEntry adjMerger : vMerger->adjEdges)
 							{
 								//upgoing edge
 								if (adjMerger->theEdge()->source() == vMerger)
@@ -414,9 +404,9 @@ void PlanarizationLayoutUML::callIncremental(
 										dpUp = umlGraph.bends(eUp);
 									break;
 								}//if
+							}
 
-							}//foralladj
-							forall_adj(adjMerger, vMerger)
+							for(adjEntry adjMerger : vMerger->adjEdges)
 							{
 								if (adjMerger->theEdge()->target() == vMerger)
 								{
@@ -443,9 +433,9 @@ void PlanarizationLayoutUML::callIncremental(
 									}//if
 
 								}
-							}//forall adj
+							}
 						}//else
-						itMerger++;
+						++itMerger;
 					}//while merger nodes
 				}//if !umlMerge
 
@@ -522,14 +512,13 @@ void PlanarizationLayoutUML::getFixationDistance(node startNode,
 	indexMark[startNode->index()] = true;
 	while (!nodeQ.empty())
 	{
-		adjEntry adjE;
 		node topNode = nodeQ.pop();
 		//hier aufpassen: geht nur, wenn kein fixedNode eine Distance hat
 		//alternativ: alle auf null
 		//zur sicherheit: fixed uebergeben und vergleichen
 		bool fixedBase = fixedNodes[topNode];
 
-		forall_adj(adjE, topNode)
+		for(adjEntry adjE : topNode->adjEdges)
 		{
 			node testNode = adjE->twinNode();
 			int ind = testNode->index();
@@ -558,7 +547,7 @@ void PlanarizationLayoutUML::getFixationDistance(node startNode,
 					}//else
 				}//if node without contact to fixed nodes
 			}//if distance (is an addnode)
-		}//foralladj
+		}
 	}//while
 
 }//getFixationDistance
@@ -577,14 +566,14 @@ void PlanarizationLayoutUML::sortIncrementalNodes(List<node> &addNodes,
 	HashArray<int, int> indexToDegree(0);
 	ListIterator<node> it = addNodes.begin();
 	adjEntry adjE;
-	node someFixedNode = 0;
+	node someFixedNode = nullptr;
 
 	while (it.valid())
 	{
 		if ((*it)->degree() < 1)
 		{
 			indexToDegree[(*it)->index()] = 0;
-			it++;
+			++it;
 			continue;
 		}
 		int vDegree = 0;
@@ -600,14 +589,14 @@ void PlanarizationLayoutUML::sortIncrementalNodes(List<node> &addNodes,
 
 		indexToDegree[(*it)->index()] = vDegree;
 
-		it++;
+		++it;
 	}//while
 	//for all nodes that are not connected to the fixed part we have to guarantee
 	//that they are not inserted before one of their neighbours is inserted
 	//therefore we set negative values for all nodes corresponding to their distance
 	//to the fixed part
 	OGDF_ASSERT(someFixedNode != 0)
-		if (someFixedNode == 0) throw AlgorithmFailureException();
+		if (someFixedNode == nullptr) throw AlgorithmFailureException();
 	//we start the BFS at some fixed node
 	getFixationDistance(someFixedNode,indexToDegree, fixedNodes);
 
@@ -625,20 +614,19 @@ void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 	//TODO: update by reinitialization?
 	//PG.initActiveCC(i);
 	//first we remove all inserted crossings
-	node v;
 	List<node> crossings;
-	forall_nodes(v, pr)
+	for(node v : pr.nodes)
 	{
 		if (pr.isCrossingType(v))
 		{
 			crossings.pushBack(v);
 		}
-	}//forallnodes
+	}
 	ListIterator<node> it = crossings.begin();
 	while (it.valid())
 	{
 		pr.removeCrossing((*it));
-		it++;
+		++it;
 	}//while
 	//***************************************
 	// first phase: Compute a planar subgraph
@@ -648,9 +636,8 @@ void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 	// as possible, hence we put all generalizations into the list
 	// preferedEdges.
 	//List<edge> preferedEdges;
-	edge e;
 	EdgeArray<int> costOrig(pr.original(), 1);
-	forall_edges(e,pr)
+	for(edge e : pr.edges)
 	{
 		if (pr.typeOf(e) == Graph::generalization)
 		{
@@ -666,7 +653,7 @@ void PlanarizationLayoutUML::reembed(PlanRepUML &pr, int ccNumber, bool l_align,
 				costOrig[ori] = 10;
 
 		}//generalization
-	}//foralledges
+	}
 
 	int cr;
 	m_crossMin.get().call(pr, ccNumber, cr, &costOrig);

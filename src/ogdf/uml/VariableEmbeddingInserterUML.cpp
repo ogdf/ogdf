@@ -1,11 +1,3 @@
-/*
- * $Revision: 3368 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 20:07:31 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implements class VariableEmbeddingInserterUML
  *
@@ -93,7 +85,7 @@ namespace ogdf {
 		PlanRepLight              &pr,
 		const Array<edge>         &origEdges,
 		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<__uint32> *pEdgeSubgraph)
+		const EdgeArray<uint32_t> *pEdgeSubgraph)
 	{
 		VarEdgeInserterUMLCore core(pr, pCostOrig, pEdgeSubgraph);
 		core.timeLimit(timeLimit());

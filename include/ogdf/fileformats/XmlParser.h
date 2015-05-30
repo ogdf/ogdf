@@ -1,11 +1,3 @@
-/*
- * $Revision: 4012 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-30 05:25:37 +0200 (Sun, 30 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Contains the struct declarations XmlAttributeObject, XmlTagObject
  * and the class XmlParser.
@@ -197,7 +189,7 @@ namespace ogdf {
 		/**Searches for a son with tag name sonsName.
 		 * Returns the son via the referenced pointer son.
 		 * Returns true if son is found.
-		 * Returns false, otherwise, son is set to NULL.
+		 * Returns false, otherwise, son is set to nullptr.
 		 *
 		 * NEW
 		 */
@@ -207,7 +199,7 @@ namespace ogdf {
 		/**Searches for sons with tag name sonsName.
 		 * Returns the sons via a list with pointers to the sons.
 		 * Returns true if at least one son was found.
-		 * Returns false otherwise, sons is set to NULL.
+		 * Returns false otherwise, sons is set to nullptr.
 		 *
 		 * NEW
 		 */
@@ -288,6 +280,7 @@ namespace ogdf {
 
 	}; // struct XmlTagObject
 
+
 	//---------------------------------------------------------
 	// X m l P a r s e r
 	//---------------------------------------------------------
@@ -326,6 +319,8 @@ namespace ogdf {
 		/** stack for checking correctness of correspondent closing tags */
 		Stack<string> m_tagObserver;
 
+		bool m_parseError;
+
 
 	public:
 
@@ -346,9 +341,9 @@ namespace ogdf {
 		}
 
 		/** Creates the parse tree and anchors it in m_pRootTag.
-		 *  TODO: Should return a value to indicate if success.
+		 *  returns true to indicate if success; false if parse error.
 		 */
-		void createParseTree();
+		bool createParseTree();
 
 		/** Allows (non modifying) access to the parse tree. */
 		const XmlTagObject &getRootTag() const {
@@ -371,7 +366,7 @@ namespace ogdf {
 		 *  of father.
 		 *  Returns the son via the referenced pointer son.
 		 *  Returns true if son is found.
-		 *  Returns false otherwise, son is set to NULL.
+		 *  Returns false otherwise, son is set to nullptr.
 		 */
 		bool findSonXmlTagObject(
 			const XmlTagObject &father,
@@ -382,7 +377,7 @@ namespace ogdf {
 		 *  of current.
 		 *  Returns the brother via the referenced pointer brother.
 		 *  Returns true if brother is found.
-		 *  Returns false otherwise, brother is set to NULL.
+		 *  Returns false otherwise, brother is set to nullptr.
 		 */
 		bool findBrotherXmlTagObject(
 			const XmlTagObject &currentTag,
@@ -393,7 +388,7 @@ namespace ogdf {
 		 *  of current.
 		 *  Returns the attribute via the referenced pointer attribute.
 		 *  Returns true if attribute is found.
-		 *  Returns false otherwise, attribute is set to NULL.
+		 *  Returns false otherwise, attribute is set to nullptr.
 		 */
 		bool findXmlAttributeObject(
 			const XmlTagObject &currentTag,
@@ -450,6 +445,12 @@ namespace ogdf {
 
 		/** Little helper that prints nOfSpaces space characters. */
 		void printSpaces(ostream &os, int nOfSpaces) const;
+
+		void reportError(
+			const char *functionName,
+			int sourceLine,
+			const char *message,
+			int inputFileLine = -1);
 
 	}; // class XmlParser
 

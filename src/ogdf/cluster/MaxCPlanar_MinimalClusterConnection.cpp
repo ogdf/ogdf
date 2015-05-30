@@ -1,11 +1,3 @@
-/*
- * $Revision: 3091 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-30 11:07:34 +0100 (Fri, 30 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of constraint class for the Branch&Cut algorithm
  * for the Maximum C-Planar SubGraph problem.
@@ -61,11 +53,10 @@ using namespace abacus;
 
 
 MinimalClusterConnection::MinimalClusterConnection(Master *master, List<nodePair> &edges) :
-	Constraint(master, 0, CSense::Less, 1.0, false, false, true)
+	Constraint(master, nullptr, CSense::Less, 1.0, false, false, true)
 {
-	ListConstIterator<nodePair> it;
-	for (it = edges.begin(); it.valid(); ++it) {
-		m_edges.pushBack(*it);
+	for (const nodePair &np : edges) {
+		m_edges.pushBack(np);
 	}
 }
 
@@ -75,12 +66,13 @@ MinimalClusterConnection::~MinimalClusterConnection() {}
 
 double MinimalClusterConnection::coeff(const Variable *v) const {
 	//TODO: speedup, we know between which nodepairs edges exist...
-	const EdgeVar *e = (const EdgeVar *)v;
-	ListConstIterator<nodePair> it;
-	for (it = m_edges.begin(); it.valid(); ++it) {
-		if ( ((*it).v1 == e->sourceNode() && (*it).v2 == e->targetNode()) ||
-			 ((*it).v2 == e->sourceNode() && (*it).v1 == e->targetNode()) )
-		{return 1.0;}
+	const EdgeVar *e = static_cast<const EdgeVar *>(v);
+	for (const nodePair &np : m_edges) {
+		if ( (np.v1 == e->sourceNode() && np.v2 == e->targetNode()) ||
+			 (np.v2 == e->sourceNode() && np.v1 == e->targetNode()) )
+		{
+			return 1.0;
+		}
 	}
 	return 0.0;
 }

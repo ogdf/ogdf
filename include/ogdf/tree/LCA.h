@@ -1,11 +1,3 @@
-/*
- * $Revision: 3995 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-28 13:46:48 +0100 (Fri, 28 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief The Sparse Table Algorithm for the Least Common Ancestor
  *  problem as proposed by Bender and Farach-Colton.
@@ -57,6 +49,8 @@ namespace ogdf {
  *
  * (M. Bender, M. Farach-Colton, The LCA problem revisited, LATIN '00, volume 1776 of LNCS,
  * pages 88-94, Springer, 2000)
+ *
+ * @ingroup ga-tree
  */
 class OGDF_EXPORT LCA {
 public:

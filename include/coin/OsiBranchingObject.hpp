@@ -118,7 +118,7 @@ public:
   */
   virtual OsiBranchingObject * createBranch(OsiSolverInterface * /*solver*/,
 					    const OsiBranchingInformation * /*info*/,
-					    int /*way*/) const {throw CoinError("Need code","createBranch","OsiBranchingObject"); return NULL; }
+					    int /*way*/) const {throw CoinError("Need code","createBranch","OsiBranchingObject"); return nullptr; }
   
   /** \brief Return true if object can take part in normal heuristics
   */
@@ -224,7 +224,7 @@ public:
   {preferredWay_=value;}
   
   /// Get preferred way of branching - -1 off, 0 down, 1 up (for 2-way)
-  virtual int preferredWay() const
+  virtual int preferredWay() const override
   { return preferredWay_;}
 protected:
   /// Preferred way of branching - -1 off, 0 down, 1 up (for 2-way)
@@ -306,7 +306,7 @@ public:
 	     state. 
 	     Returns change in guessed objective on next branch
   */
-  virtual double branch() {return branch(NULL);}
+  virtual double branch() {return branch(nullptr);}
   /** \brief Return true if branch should fix variables
   */
   virtual bool boundBranch() const 
@@ -340,7 +340,7 @@ public:
   int columnNumber() const;
   /** \brief Print something about branch - only if log level high
   */
-  virtual void print(const OsiSolverInterface * =NULL) const {}
+  virtual void print(const OsiSolverInterface * =nullptr) const {}
 
 protected:
 
@@ -525,7 +525,7 @@ public:
   OsiSimpleInteger ( const OsiSimpleInteger &);
    
   /// Clone
-  virtual OsiObject * clone() const;
+  virtual OsiObject * clone() const override;
 
   /// Assignment operator 
   OsiSimpleInteger & operator=( const OsiSimpleInteger& rhs);
@@ -535,7 +535,7 @@ public:
   
   using OsiObject::infeasibility ;
   /// Infeasibility - large is 0.5
-  virtual double infeasibility(const OsiBranchingInformation * info, int & whichWay) const;
+  virtual double infeasibility(const OsiBranchingInformation * info, int & whichWay) const override;
 
   using OsiObject::feasibleRegion ;
   /** Set bounds to fix the variable at the current (integer) value.
@@ -543,13 +543,13 @@ public:
     Given an integer value, set the lower and upper bounds to fix the
     variable. Returns amount it had to move variable.
   */
-  virtual double feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const;
+  virtual double feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const override;
 
   /** Creates a branching object
 
     The preferred direction is set by \p way, 0 for down, 1 for up.
   */
-  virtual OsiBranchingObject * createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const;
+  virtual OsiBranchingObject * createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const override;
 
 
   /// Set solver column number
@@ -560,7 +560,7 @@ public:
       so returns >= 0
       Used by heuristics
   */
-  virtual int columnNumber() const;
+  virtual int columnNumber() const override;
 
   /// Original bounds
   inline double originalLowerBound() const
@@ -575,17 +575,17 @@ public:
     Bounds may be tightened, so it may be good to be able to reset them to
     their original values.
    */
-  virtual void resetBounds(const OsiSolverInterface * solver) ;
+  virtual void resetBounds(const OsiSolverInterface * solver) override ;
   /**  Change column numbers after preprocessing
    */
-  virtual void resetSequenceEtc(int numberColumns, const int * originalColumns);
+  virtual void resetSequenceEtc(int numberColumns, const int * originalColumns) override;
   
   /// Return "up" estimate (default 1.0e-5)
-  virtual double upEstimate() const;
+  virtual double upEstimate() const override;
   /// Return "down" estimate (default 1.0e-5)
-  virtual double downEstimate() const;
+  virtual double downEstimate() const override;
   /// Return true if knows how to deal with Pseudo Shadow Prices
-  virtual bool canHandleShadowPrices() const
+  virtual bool canHandleShadowPrices() const override
   { return false;}
 protected:
   /// data
@@ -637,7 +637,7 @@ public:
   OsiIntegerBranchingObject & operator= (const OsiIntegerBranchingObject& rhs);
 
   /// Clone
-  virtual OsiBranchingObject * clone() const;
+  virtual OsiBranchingObject * clone() const override;
 
   /// Destructor 
   virtual ~OsiIntegerBranchingObject ();
@@ -648,12 +648,12 @@ public:
 	     state. 
 	     Returns change in guessed objective on next branch
   */
-  virtual double branch(OsiSolverInterface * solver);
+  virtual double branch(OsiSolverInterface * solver) override;
 
   using OsiBranchingObject::print ;
   /** \brief Print something about branch - only if log level high
   */
-  virtual void print(const OsiSolverInterface * solver=NULL);
+  virtual void print(const OsiSolverInterface * solver=nullptr);
 
 protected:
   // Probably could get away with just value which is already stored 
@@ -689,7 +689,7 @@ public:
   OsiSOS ( const OsiSOS &);
    
   /// Clone
-  virtual OsiObject * clone() const;
+  virtual OsiObject * clone() const override;
 
   // Assignment operator 
   OsiSOS & operator=( const OsiSOS& rhs);
@@ -699,7 +699,7 @@ public:
   
   using OsiObject::infeasibility ;
   /// Infeasibility - large is 0.5
-  virtual double infeasibility(const OsiBranchingInformation * info,int & whichWay) const;
+  virtual double infeasibility(const OsiBranchingInformation * info,int & whichWay) const override;
 
   using OsiObject::feasibleRegion ;
   /** Set bounds to fix the variable at the current (integer) value.
@@ -707,20 +707,20 @@ public:
     Given an integer value, set the lower and upper bounds to fix the
     variable. Returns amount it had to move variable.
   */
-  virtual double feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const;
+  virtual double feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const override;
 
   /** Creates a branching object
 
     The preferred direction is set by \p way, 0 for down, 1 for up.
   */
-  virtual OsiBranchingObject * createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const;
+  virtual OsiBranchingObject * createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const override;
   /// Return "up" estimate (default 1.0e-5)
-  virtual double upEstimate() const;
+  virtual double upEstimate() const override;
   /// Return "down" estimate (default 1.0e-5)
-  virtual double downEstimate() const;
+  virtual double downEstimate() const override;
   
   /// Redoes data when sequence numbers change
-  virtual void resetSequenceEtc(int numberColumns, const int * originalColumns);
+  virtual void resetSequenceEtc(int numberColumns, const int * originalColumns) override;
   
   /// Number of members
   inline int numberMembers() const
@@ -744,13 +744,13 @@ public:
 
   /** \brief Return true if object can take part in normal heuristics
   */
-  virtual bool canDoHeuristics() const 
+  virtual bool canDoHeuristics() const override
   {return (sosType_==1&&integerValued_);}
   /// Set whether set is integer valued or not
   inline void setIntegerValued(bool yesNo)
   { integerValued_=yesNo;}
   /// Return true if knows how to deal with Pseudo Shadow Prices
-  virtual bool canHandleShadowPrices() const
+  virtual bool canHandleShadowPrices() const override
   { return true;}
   /// Set number of members
   inline void setNumberMembers(int value)
@@ -805,19 +805,19 @@ public:
   OsiSOSBranchingObject & operator=( const OsiSOSBranchingObject& rhs);
 
   /// Clone
-  virtual OsiBranchingObject * clone() const;
+  virtual OsiBranchingObject * clone() const override;
 
   // Destructor 
   virtual ~OsiSOSBranchingObject ();
   
   using OsiBranchingObject::branch ;
   /// Does next branch and updates state
-  virtual double branch(OsiSolverInterface * solver);
+  virtual double branch(OsiSolverInterface * solver) override;
 
   using OsiBranchingObject::print ;
   /** \brief Print something about branch - only if log level high
   */
-  virtual void print(const OsiSolverInterface * solver=NULL);
+  virtual void print(const OsiSolverInterface * solver=nullptr);
 private:
   /// data
 };
@@ -841,7 +841,7 @@ public:
   OsiLotsize ( const OsiLotsize &);
    
   /// Clone
-  virtual OsiObject * clone() const;
+  virtual OsiObject * clone() const override;
 
   // Assignment operator 
   OsiLotsize & operator=( const OsiLotsize& rhs);
@@ -851,7 +851,7 @@ public:
   
   using OsiObject::infeasibility ;
   /// Infeasibility - large is 0.5
-  virtual double infeasibility(const OsiBranchingInformation * info, int & whichWay) const;
+  virtual double infeasibility(const OsiBranchingInformation * info, int & whichWay) const override;
 
   using OsiObject::feasibleRegion ;
   /** Set bounds to contain the current solution.
@@ -861,13 +861,13 @@ public:
     if required, then set the bounds to fix the variable at the integer
     nearest the solution value.  Returns amount it had to move variable.
   */
-  virtual double feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const;
+  virtual double feasibleRegion(OsiSolverInterface * solver, const OsiBranchingInformation * info) const override;
 
   /** Creates a branching object
 
     The preferred direction is set by \p way, 0 for down, 1 for up.
   */
-  virtual OsiBranchingObject * createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const;
+  virtual OsiBranchingObject * createBranch(OsiSolverInterface * solver, const OsiBranchingInformation * info, int way) const override;
 
 
   /// Set solver column number
@@ -878,13 +878,13 @@ public:
       so returns >= 0
       Used by heuristics
   */
-  virtual int columnNumber() const;
+  virtual int columnNumber() const override;
   /** Reset original upper and lower bound values from the solver.
   
     Handy for updating bounds held in this object after bounds held in the
     solver have been tightened.
    */
-  virtual void resetBounds(const OsiSolverInterface * solver);
+  virtual void resetBounds(const OsiSolverInterface * solver) override;
 
   /** Finds range of interest so value is feasible in range range_ or infeasible 
       between hi[range_] and lo[range_+1].  Returns true if feasible.
@@ -912,18 +912,18 @@ public:
   { return bound_;}
   /**  Change column numbers after preprocessing
    */
-  virtual void resetSequenceEtc(int numberColumns, const int * originalColumns);
+  virtual void resetSequenceEtc(int numberColumns, const int * originalColumns) override;
   
   /// Return "up" estimate (default 1.0e-5)
-  virtual double upEstimate() const;
+  virtual double upEstimate() const override;
   /// Return "down" estimate (default 1.0e-5)
-  virtual double downEstimate() const;
+  virtual double downEstimate() const override;
   /// Return true if knows how to deal with Pseudo Shadow Prices
-  virtual bool canHandleShadowPrices() const
+  virtual bool canHandleShadowPrices() const override
   { return true;}
   /** \brief Return true if object can take part in normal heuristics
   */
-  virtual bool canDoHeuristics() const 
+  virtual bool canDoHeuristics() const override
   {return false;}
 
 private:
@@ -978,7 +978,7 @@ public:
   OsiLotsizeBranchingObject & operator= (const OsiLotsizeBranchingObject& rhs);
 
   /// Clone
-  virtual OsiBranchingObject * clone() const;
+  virtual OsiBranchingObject * clone() const override;
 
   /// Destructor 
   virtual ~OsiLotsizeBranchingObject ();
@@ -989,12 +989,12 @@ public:
 	     state. 
 	     Returns change in guessed objective on next branch
   */
-  virtual double branch(OsiSolverInterface * solver);
+  virtual double branch(OsiSolverInterface * solver) override;
 
   using OsiBranchingObject::print ;
   /** \brief Print something about branch - only if log level high
   */
-  virtual void print(const OsiSolverInterface * solver=NULL);
+  virtual void print(const OsiSolverInterface * solver=nullptr);
 
 protected:
   /// Lower [0] and upper [1] bounds for the down arm (way_ = -1)

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3569 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-18 11:04:33 +0200 (Tue, 18 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of the class BoyerMyrvoldInit
  *
@@ -46,13 +38,39 @@
 
 namespace ogdf {
 
+class EdgeComparer {
+private:
+	const EdgeArray<int> *m_edgeCosts = nullptr;
+
+public:
+	void setCosts(const EdgeArray<int> *costs) {
+		m_edgeCosts = costs;
+	}
+
+	double compare(const adjEntry adjEntry1, const adjEntry adjEntry2) const {
+		edge e = adjEntry1->theEdge();
+		edge f = adjEntry2->theEdge();
+
+		int result = 0;
+
+		if(m_edgeCosts != nullptr) {
+			result = (*m_edgeCosts)[e] - (*m_edgeCosts)[f];
+		}
+
+		return result;
+	}
+
+	OGDF_AUGMENT_COMPARER(adjEntry)
+};
 
 // constructor
 BoyerMyrvoldInit::BoyerMyrvoldInit(BoyerMyrvoldPlanar* pBM) :
 	m_g(pBM->m_g),
 	// initialize Members of BoyerMyrvoldPlanar
 	m_embeddingGrade(pBM->m_embeddingGrade),
-	m_randomDFSTree(pBM->m_randomDFSTree),
+	m_randomness(pBM->m_randomness),
+	m_edgeCosts(pBM->m_edgeCosts),
+	m_rand(pBM->m_rand),
 
 	m_realVertex(pBM->m_realVertex),
 	m_dfi(pBM->m_dfi),
@@ -66,63 +84,76 @@ BoyerMyrvoldInit::BoyerMyrvoldInit(BoyerMyrvoldPlanar* pBM) :
 	m_separatedDFSChildList(pBM->m_separatedDFSChildList),
 	m_pNodeInParent(pBM->m_pNodeInParent)
 {
-	OGDF_ASSERT(pBM != NULL);
+	OGDF_ASSERT(pBM != nullptr);
 	OGDF_ASSERT(m_embeddingGrade <= BoyerMyrvoldPlanar::doNotFind ||
 				m_highestSubtreeDFI.graphOf() == &m_g);
 }
 
 // start DFS-traversal
-void BoyerMyrvoldInit::computeDFS() {
+void BoyerMyrvoldInit::computeDFS()
+{
+	// compute random edge costs
+	EdgeArray<int> costs;
+	EdgeComparer comp;
+
+	if(m_randomness > 0 && m_edgeCosts != nullptr) {
+		costs.init(m_g);
+
+		int minCost = std::numeric_limits<int>::max();
+		int maxCost = std::numeric_limits<int>::min();
+
+		for(edge e : m_g.edges) {
+			minCost = min(minCost, (*m_edgeCosts)[e]);
+			maxCost = min(maxCost, (*m_edgeCosts)[e]);
+		}
+
+		std::uniform_real_distribution<> urd(-1, 1);
+		for(edge e : m_g.edges) {
+			costs[e] = minCost + (int)((1 - m_randomness) * ((*m_edgeCosts)[e] - minCost) + m_randomness * (maxCost - minCost) * urd(m_rand));
+		}
+
+		comp.setCosts(&costs);
+	} else if(m_edgeCosts != nullptr) {
+		comp.setCosts(m_edgeCosts);
+	}
+
 	StackPure<adjEntry> stack;
 	int nextDFI = 1;
 	const int numberOfNodes = m_g.numberOfNodes();
-	node v,w,next,parentNode;
-	adjEntry adj,prnt;
-	edge e;
+
+	SListPure<adjEntry> adjList;
+	SListPure<node> list;
+	m_g.allNodes(list);
 
 	// get random dfs-tree, if wanted
-	if (m_randomDFSTree) {
-		SListPure<node> list;
-		SListPure<adjEntry> adjList;
-		SListIterator<node> it;
-		// permute nodelist
-		m_g.allNodes(list);
+	if (m_randomness > 0) {
 		list.permute();
-		for (it = list.begin(); it.valid(); ++it) {
-			v = *it;
-			// permute adjEntries
-			if (v->degree() == 0) {
-				m_dfi[v] = nextDFI;
-				m_leastAncestor[v] = nextDFI;
-				m_nodeFromDFI[nextDFI] = v;
-				++nextDFI;
-			} else {
-				adjList.clear();
-				m_g.adjEntries(v,adjList);
-				adjList.permute();
-				m_g.sort(v,adjList);
-				stack.push(v->firstAdj());
-			}
+	}
+
+	for (node v : list) {
+		if (v->degree() == 0) {
+			m_dfi[v] = nextDFI;
+			m_leastAncestor[v] = nextDFI;
+			m_nodeFromDFI[nextDFI] = v;
+			++nextDFI;
+		} else {
+			adjList.clear();
+			m_g.adjEntries(v, adjList);
+			adjList.quicksort(comp);
+			m_g.sort(v, adjList);
+			stack.push(v->firstAdj());
 		}
-	} else {
-		for (next = m_g.firstNode(); next; next = next->succ())
-			if (next->degree() == 0) {
-				m_dfi[next] = nextDFI;
-				m_leastAncestor[next] = nextDFI;
-				m_nodeFromDFI[nextDFI] = next;
-				++nextDFI;
-			} else stack.push(next->firstAdj());
 	}
 
 	while (nextDFI <= numberOfNodes) {
 		OGDF_ASSERT(!stack.empty());
-		prnt = stack.pop();
-		v = prnt->theNode();
+		adjEntry prnt = stack.pop();
+		node v = prnt->theNode();
 		// check, if node v was visited before.
 		if (m_dfi[v] != 0) continue;
-		// parentNode=NULL on first node on connected component
-		parentNode = prnt->twinNode();
-		if (m_dfi[parentNode] == 0) parentNode = NULL;
+		// parentNode=nullptr on first node on connected component
+		node parentNode = prnt->twinNode();
+		if (m_dfi[parentNode] == 0) parentNode = nullptr;
 
 		// if not, mark node as visited and initialize NodeArrays
 		m_dfi[v] = nextDFI;
@@ -131,12 +162,12 @@ void BoyerMyrvoldInit::computeDFS() {
 		++nextDFI;
 
 		// push all adjacent nodes onto stack
-		forall_adj(adj,v) {
-			e = adj->theEdge();
-			if (adj == prnt && parentNode != NULL) continue;
+		for(adjEntry adj : v->adjEdges) {
+			edge e = adj->theEdge();
+			if (adj == prnt && parentNode != nullptr) continue;
 
 			// check for self-loops and dfs- and dfs-parallel edges
-			w = adj->twinNode();
+			node w = adj->twinNode();
 			if (m_dfi[w] == 0) {
 				m_edgeType[e] = EDGE_DFS;
 				m_adjParent[w] = adj;
@@ -171,7 +202,7 @@ void BoyerMyrvoldInit::computeDFS() {
 void BoyerMyrvoldInit::createVirtualVertex(const adjEntry father)
 {
 	// check that adjEntry is valid
-	OGDF_ASSERT(father != NULL);
+	OGDF_ASSERT(father != nullptr);
 
 	// create new virtual Vertex and copy properties from non-virtual node
 	const node virt = m_g.newNode();
@@ -241,27 +272,28 @@ void BoyerMyrvoldInit::computeDFSChildLists() {
 
 	// copy all non-virtual nodes in a list and sort them with Bucketsort
 	SListPure<node> allNodes;
-	node v;
-	forall_nodes(v,m_g) if (m_dfi[v]>0) allNodes.pushBack(v);
-	allNodes.bucketSort(1,m_nodeFromDFI.high(),blp);
+	for (node v : m_g.nodes) {
+		if (m_dfi[v] > 0)
+			allNodes.pushBack(v);
+	}
+	allNodes.bucketSort(1, m_nodeFromDFI.high(), blp);
 
 	// build DFS-child list
-	SListConstIterator<node> it;
-	for (it = allNodes.begin(); it.valid(); ++it) {
-		v = *it;
-		OGDF_ASSERT(m_dfi[v]>0);
+	for (node v : allNodes) {
+		OGDF_ASSERT(m_dfi[v] > 0);
 
 		// if node is not root: insert node after last element of parent's DFSChildList
 		// to achieve constant time deletion later:
 		// set a pointer for each node to predecessor of his representative in the list
-		if (m_adjParent[v] != NULL) {
-			OGDF_ASSERT(m_realVertex[m_adjParent[v]->theNode()]!=NULL);
+		if (m_adjParent[v] != nullptr) {
+			OGDF_ASSERT(m_realVertex[m_adjParent[v]->theNode()] != nullptr);
 
 			m_pNodeInParent[v] = m_separatedDFSChildList[m_realVertex[m_adjParent[v]->theNode()]].pushBack(v);
 
 			OGDF_ASSERT(m_pNodeInParent[v].valid());
 			OGDF_ASSERT(v == *m_pNodeInParent[v]);
-		} else m_pNodeInParent[v] = NULL;
+		}
+		else m_pNodeInParent[v] = nullptr;
 	}
 }
 

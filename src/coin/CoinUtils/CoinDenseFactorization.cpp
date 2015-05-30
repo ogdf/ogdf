@@ -390,7 +390,7 @@ CoinDenseFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
 #ifdef DENSE_PERMUTE
 	iRow = pivotRow_[iRow]; // permute
 #endif
-	elements[iRow] = value;;
+	elements[iRow] = value;
       }
     } else {
       // not packed! - from user pivot?
@@ -400,7 +400,7 @@ CoinDenseFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
 #ifdef DENSE_PERMUTE
 	iRow = pivotRow_[iRow]; // permute
 #endif
-	elements[iRow] = value;;
+	elements[iRow] = value;
       }
     }
     int realPivotRow = pivotRow_[pivotRow];
@@ -413,14 +413,14 @@ CoinDenseFactorization::replaceColumn ( CoinIndexedVector * regionSparse,
       for (i=0;i<numberNonZero;i++) {
 	int iRow = regionIndex[i];
 	double value = region[i];
-	elements[iRow] = value;;
+	elements[iRow] = value;
       }
     } else {
       // not packed! - from user pivot?
       for (i=0;i<numberNonZero;i++) {
 	int iRow = regionIndex[i];
 	double value = region[iRow];
-	elements[iRow] = value;;
+	elements[iRow] = value;
       }
     }
     elements[pivotRow]=pivotValue;

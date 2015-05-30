@@ -1,11 +1,3 @@
-/*
- * $Revision: 3516 $
- *
- * last checkin:
- *   $Author: klein $
- *   $Date: 2013-05-30 09:21:59 +0200 (Thu, 30 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares & Implements Binary Heap, and Top10Heap
  *

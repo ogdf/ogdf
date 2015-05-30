@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class NMM (New Multipole Method).
  *
@@ -44,8 +36,7 @@
 #include <ogdf/internal/energybased/NMM.h>
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/basic/Math.h>
-#include "numexcept.h"
-#include <time.h>
+#include <ogdf/internal/energybased/numexcept.h>
 
 
 #define MIN_BOX_LENGTH   1e-300
@@ -89,7 +80,6 @@ void NMM::calculate_repulsive_forces_by_NMM(
 	NodeArray<DPoint>& F_rep)
 {
 	QuadTreeNM T;
-	node v;
 	DPoint nullpoint (0,0);
 	NodeArray<DPoint> F_direct(G);
 	NodeArray<DPoint> F_local_exp(G);
@@ -98,7 +88,7 @@ void NMM::calculate_repulsive_forces_by_NMM(
 
 	//initializations
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		F_direct[v]=F_local_exp[v]=F_multipole_exp[v]=nullpoint;
 
 	quad_tree_leaves.clear();
@@ -273,10 +263,10 @@ void NMM::make_copy_and_init_Lists(
 	{
 		//reset values
 		P_x_orig = *origin_x_item;
-		P_x_orig.set_subList_ptr(NULL); //clear subList_ptr
-		P_x_orig.set_copy_item(NULL);   //clear copy_item
+		P_x_orig.set_subList_ptr(nullptr); //clear subList_ptr
+		P_x_orig.set_copy_item(nullptr);   //clear copy_item
 		P_x_orig.unmark(); //unmark this element
-		P_x_orig.set_tmp_cross_ref_item(NULL);//clear tmp_cross_ref_item
+		P_x_orig.set_tmp_cross_ref_item(nullptr);//clear tmp_cross_ref_item
 
 		//update L_x_copy
 		P_x_copy = P_x_orig;
@@ -297,9 +287,9 @@ void NMM::make_copy_and_init_Lists(
 	{
 		//reset values
 		P_y_orig = *origin_y_item;
-		P_y_orig.set_subList_ptr(NULL); //clear subList_ptr
-		P_y_orig.set_copy_item(NULL);   //clear copy_item
-		P_y_orig.set_tmp_cross_ref_item(NULL);//clear tmp_cross_ref_item
+		P_y_orig.set_subList_ptr(nullptr); //clear subList_ptr
+		P_y_orig.set_copy_item(nullptr);   //clear copy_item
+		P_y_orig.set_tmp_cross_ref_item(nullptr);//clear tmp_cross_ref_item
 		P_y_orig.unmark(); //unmark this element
 
 		//update L_x(y)_copy
@@ -347,10 +337,9 @@ void NMM::create_sorted_coordinate_Lists(
 {
 	ParticleInfo P_x,P_y;
 	ListIterator<ParticleInfo> x_item,y_item;
-	node v;
 
 	//build up L_x,L_y and link the Lists
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		P_x.set_x_y_coord(A[v].get_x());
 		P_y.set_x_y_coord(A[v].get_y());
@@ -404,8 +393,8 @@ void NMM::decompose_subtreenode(
 	List<ParticleInfo> *L_y_l_ptr,*L_y_r_ptr,*L_y_lb_ptr,*L_y_rb_ptr,*L_y_lt_ptr,
 		*L_y_rt_ptr;
 
-	L_x_l_ptr = L_x_r_ptr = L_x_lb_ptr = L_x_lt_ptr = L_x_rb_ptr = L_x_rt_ptr = NULL;
-	L_y_l_ptr = L_y_r_ptr = L_y_lb_ptr = L_y_lt_ptr = L_y_rb_ptr = L_y_rt_ptr = NULL;
+	L_x_l_ptr = L_x_r_ptr = L_x_lb_ptr = L_x_lt_ptr = L_x_rb_ptr = L_x_rt_ptr = nullptr;
+	L_y_l_ptr = L_y_r_ptr = L_y_lb_ptr = L_y_lt_ptr = L_y_rb_ptr = L_y_rt_ptr = nullptr;
 
 	calculate_boundaries_of_act_node(T.get_act_ptr(),x_min,x_max,y_min,y_max);
 	if(find_sm_cell() == FMMMLayout::scfIteratively)
@@ -421,20 +410,20 @@ void NMM::decompose_subtreenode(
 
 		split_in_x_direction(act_ptr,L_x_l_ptr,L_y_l_ptr,
 			L_x_r_ptr,L_y_r_ptr);
-		if((L_x_r_ptr == NULL) ||
-			(L_x_l_ptr != NULL && L_x_l_ptr->size() > L_x_r_ptr->size()))
+		if((L_x_r_ptr == nullptr) ||
+			(L_x_l_ptr != nullptr && L_x_l_ptr->size() > L_x_r_ptr->size()))
 		{//if1 left half contains more particles
 			split_in_y_direction(act_ptr,L_x_lb_ptr,
 				L_y_lb_ptr,L_x_lt_ptr,L_y_lt_ptr);
-			if((L_x_lt_ptr == NULL)||
-				(L_x_lb_ptr != NULL && L_x_lb_ptr->size() > L_x_lt_ptr->size()))
+			if((L_x_lt_ptr == nullptr)||
+				(L_x_lb_ptr != nullptr && L_x_lb_ptr->size() > L_x_lt_ptr->size()))
 			{//if2
 				T.create_new_lb_child(L_x_lb_ptr,L_y_lb_ptr);
 				T.go_to_lb_child();
 				decompose_subtreenode(T,act_x_List_copy,act_y_List_copy,new_leaf_List);
 				T.go_to_father();
 			}//if2
-			else //L_x_lt_ptr != NULL &&  L_x_lb_ptr->size() <= L_x_lt_ptr->size()
+			else //L_x_lt_ptr != nullptr &&  L_x_lb_ptr->size() <= L_x_lt_ptr->size()
 			{//else1
 				T.create_new_lt_child(L_x_lt_ptr,L_y_lt_ptr);
 				T.go_to_lt_child();
@@ -442,19 +431,19 @@ void NMM::decompose_subtreenode(
 				T.go_to_father();
 			}//else1
 		}//if1
-		else //L_x_r_ptr != NULL && (L_x_l_ptr->size() <= L_x_r_ptr->size())
+		else //L_x_r_ptr != nullptr && (L_x_l_ptr->size() <= L_x_r_ptr->size())
 		{//else2 right half contains more particles
 			split_in_y_direction(act_ptr,L_x_rb_ptr,
 				L_y_rb_ptr,L_x_rt_ptr,L_y_rt_ptr);
-			if ((L_x_rt_ptr == NULL) ||
-				(L_x_rb_ptr != NULL && L_x_rb_ptr->size() > L_x_rt_ptr->size()))
+			if ((L_x_rt_ptr == nullptr) ||
+				(L_x_rb_ptr != nullptr && L_x_rb_ptr->size() > L_x_rt_ptr->size()))
 			{//if3
 				T.create_new_rb_child(L_x_rb_ptr,L_y_rb_ptr);
 				T.go_to_rb_child();
 				decompose_subtreenode(T,act_x_List_copy,act_y_List_copy,new_leaf_List);
 				T.go_to_father();
 			}//if3
-			else// L_x_rt_ptr != NULL && L_x_rb_ptr->size() <= L_x_rt_ptr->size()
+			else// L_x_rt_ptr != nullptr && L_x_rb_ptr->size() <= L_x_rt_ptr->size()
 			{//else3
 				T.create_new_rt_child(L_x_rt_ptr,L_y_rt_ptr);
 				T.go_to_rt_child();
@@ -465,38 +454,38 @@ void NMM::decompose_subtreenode(
 
 		//build up the rest of the quad-subLists
 
-		if( L_x_l_ptr != NULL && L_x_lb_ptr == NULL && L_x_lt_ptr == NULL &&
+		if( L_x_l_ptr != nullptr && L_x_lb_ptr == nullptr && L_x_lt_ptr == nullptr &&
 			!act_ptr->child_lb_exists() && !act_ptr->child_lt_exists() )
 			split_in_y_direction(act_ptr,L_x_l_ptr,L_x_lb_ptr,L_x_lt_ptr,L_y_l_ptr,
 			L_y_lb_ptr,L_y_lt_ptr);
-		else if( L_x_r_ptr != NULL && L_x_rb_ptr == NULL && L_x_rt_ptr == NULL &&
+		else if( L_x_r_ptr != nullptr && L_x_rb_ptr == nullptr && L_x_rt_ptr == nullptr &&
 			!act_ptr->child_rb_exists() && !act_ptr->child_rt_exists() )
 			split_in_y_direction(act_ptr,L_x_r_ptr,L_x_rb_ptr,L_x_rt_ptr,L_y_r_ptr,
 			L_y_rb_ptr,L_y_rt_ptr);
 
 		//create rest of the childnodes
-		if((!act_ptr->child_lb_exists()) && (L_x_lb_ptr != NULL))
+		if((!act_ptr->child_lb_exists()) && (L_x_lb_ptr != nullptr))
 		{
 			T.create_new_lb_child(L_x_lb_ptr,L_y_lb_ptr);
 			T.go_to_lb_child();
 			new_leaf_List.pushBack(T.get_act_ptr());
 			T.go_to_father();
 		}
-		if((!act_ptr->child_lt_exists()) && (L_x_lt_ptr != NULL))
+		if((!act_ptr->child_lt_exists()) && (L_x_lt_ptr != nullptr))
 		{
 			T.create_new_lt_child(L_x_lt_ptr,L_y_lt_ptr);
 			T.go_to_lt_child();
 			new_leaf_List.pushBack(T.get_act_ptr());
 			T.go_to_father();
 		}
-		if((!act_ptr->child_rb_exists()) && (L_x_rb_ptr != NULL))
+		if((!act_ptr->child_rb_exists()) && (L_x_rb_ptr != nullptr))
 		{
 			T.create_new_rb_child(L_x_rb_ptr,L_y_rb_ptr);
 			T.go_to_rb_child();
 			new_leaf_List.pushBack(T.get_act_ptr());
 			T.go_to_father();
 		}
-		if((!act_ptr->child_rt_exists()) && (L_x_rt_ptr != NULL))
+		if((!act_ptr->child_rt_exists()) && (L_x_rt_ptr != nullptr))
 		{
 			T.create_new_rt_child(L_x_rt_ptr,L_y_rt_ptr);
 			T.go_to_rt_child();
@@ -506,8 +495,8 @@ void NMM::decompose_subtreenode(
 		//reset  act_ptr->set_x(y)_List_ptr to avoid multiple deleting of dynamic memory;
 		//(only if *act_ptr is a leaf of T the reserved space is freed (and this is
 		//sufficient !!!))
-		act_ptr->set_x_List_ptr(NULL);
-		act_ptr->set_y_List_ptr(NULL);
+		act_ptr->set_x_List_ptr(nullptr);
+		act_ptr->set_y_List_ptr(nullptr);
 	}//if0
 	else
 	{ //else a leaf or machineprecision is reached:
@@ -516,14 +505,11 @@ void NMM::decompose_subtreenode(
 		//shorter Lists of previous touched treenodes;additionaly the dynamical allocated
 		//space for *act_ptr->get_x(y)_List_ptr() is freed.
 
-		List<node> L;
-		ListIterator<ParticleInfo> it;
-
 		//set List contained nodes
+		List<node> L;
 
-		L.clear();
-		for(it = act_ptr->get_x_List_ptr()->begin();it.valid();++it)
-			L.pushBack((*it).get_vertex());
+		for(const ParticleInfo &pi : *act_ptr->get_x_List_ptr())
+			L.pushBack(pi.get_vertex());
 		T.get_act_ptr()->set_contained_nodes(L);
 
 		//insert particles into previous touched Lists
@@ -650,7 +636,6 @@ void NMM::split_in_x_direction(
 	ListIterator<ParticleInfo> last_left_item;
 	double act_Sm_boxlength_half = act_ptr->get_Sm_boxlength()/2;
 	double x_mid_coord = act_ptr->get_Sm_downleftcorner().m_x+ act_Sm_boxlength_half;
-	double l_xcoord,r_xcoord;
 	bool last_left_item_found = false;
 	bool left_particleList_empty = false;
 	bool right_particleList_empty = false;
@@ -660,8 +645,8 @@ void NMM::split_in_x_direction(
 
 	while(!last_left_item_found)
 	{//while
-		l_xcoord = (*l_item).get_x_y_coord();
-		r_xcoord = (*r_item).get_x_y_coord();
+		double l_xcoord = (*l_item).get_x_y_coord();
+		double r_xcoord = (*r_item).get_x_y_coord();
 		if(l_xcoord >= x_mid_coord)
 		{
 			left_particleList_larger = false;
@@ -691,8 +676,8 @@ void NMM::split_in_x_direction(
 
 	if(left_particleList_empty)
 	{
-		L_x_left_ptr = NULL;
-		L_y_left_ptr = NULL;
+		L_x_left_ptr = nullptr;
+		L_y_left_ptr = nullptr;
 		L_x_right_ptr = act_ptr->get_x_List_ptr();
 		L_y_right_ptr = act_ptr->get_y_List_ptr();
 	}
@@ -700,8 +685,8 @@ void NMM::split_in_x_direction(
 	{
 		L_x_left_ptr = act_ptr->get_x_List_ptr();
 		L_y_left_ptr = act_ptr->get_y_List_ptr();
-		L_x_right_ptr = NULL;
-		L_y_right_ptr = NULL;
+		L_x_right_ptr = nullptr;
+		L_y_right_ptr = nullptr;
 	}
 	else if(left_particleList_larger)
 		x_delete_right_subLists(act_ptr,L_x_left_ptr,L_y_left_ptr,
@@ -724,7 +709,6 @@ void NMM::split_in_y_direction(
 	ListIterator<ParticleInfo> last_left_item;
 	double act_Sm_boxlength_half = act_ptr->get_Sm_boxlength()/2;
 	double y_mid_coord = act_ptr->get_Sm_downleftcorner().m_y+ act_Sm_boxlength_half;
-	double l_ycoord,r_ycoord;
 	bool last_left_item_found = false;
 	bool left_particleList_empty = false;
 	bool right_particleList_empty = false;
@@ -733,8 +717,8 @@ void NMM::split_in_y_direction(
 
 	while(!last_left_item_found)
 	{//while
-		l_ycoord = (*l_item).get_x_y_coord();
-		r_ycoord = (*r_item).get_x_y_coord();
+		double l_ycoord = (*l_item).get_x_y_coord();
+		double r_ycoord = (*r_item).get_x_y_coord();
 		if(l_ycoord >= y_mid_coord)
 		{
 			left_particleList_larger = false;
@@ -764,8 +748,8 @@ void NMM::split_in_y_direction(
 
 	if(left_particleList_empty)
 	{
-		L_x_left_ptr = NULL;
-		L_y_left_ptr = NULL;
+		L_x_left_ptr = nullptr;
+		L_y_left_ptr = nullptr;
 		L_x_right_ptr = act_ptr->get_x_List_ptr();
 		L_y_right_ptr = act_ptr->get_y_List_ptr();
 	}
@@ -773,8 +757,8 @@ void NMM::split_in_y_direction(
 	{
 		L_x_left_ptr = act_ptr->get_x_List_ptr();
 		L_y_left_ptr = act_ptr->get_y_List_ptr();
-		L_x_right_ptr = NULL;
-		L_y_right_ptr = NULL;
+		L_x_right_ptr = nullptr;
+		L_y_right_ptr = nullptr;
 	}
 	else if(left_particleList_larger)
 		y_delete_right_subLists(act_ptr,L_x_left_ptr,L_y_left_ptr,
@@ -991,7 +975,6 @@ void NMM::split_in_y_direction(
 	ListIterator<ParticleInfo> last_left_item;
 	double act_Sm_boxlength_half = act_ptr->get_Sm_boxlength()/2;
 	double y_mid_coord = act_ptr->get_Sm_downleftcorner().m_y+ act_Sm_boxlength_half;
-	double l_ycoord,r_ycoord;
 	bool last_left_item_found = false;
 	bool left_particleList_empty = false;
 	bool right_particleList_empty = false;
@@ -1001,8 +984,8 @@ void NMM::split_in_y_direction(
 
 	while(!last_left_item_found)
 	{//while
-		l_ycoord = (*l_item).get_x_y_coord();
-		r_ycoord = (*r_item).get_x_y_coord();
+		double l_ycoord = (*l_item).get_x_y_coord();
+		double r_ycoord = (*r_item).get_x_y_coord();
 		if(l_ycoord >= y_mid_coord)
 		{
 			left_particleList_larger = false;
@@ -1031,8 +1014,8 @@ void NMM::split_in_y_direction(
 
 	if(left_particleList_empty)
 	{
-		L_x_b_ptr = NULL;
-		L_y_b_ptr = NULL;
+		L_x_b_ptr = nullptr;
+		L_y_b_ptr = nullptr;
 		L_x_t_ptr = L_x_ptr;
 		L_y_t_ptr = L_y_ptr;
 	}
@@ -1040,8 +1023,8 @@ void NMM::split_in_y_direction(
 	{
 		L_x_b_ptr = L_x_ptr;
 		L_y_b_ptr = L_y_ptr;
-		L_x_t_ptr = NULL;
-		L_y_t_ptr = NULL;
+		L_x_t_ptr = nullptr;
+		L_y_t_ptr = nullptr;
 	}
 	else if(left_particleList_larger)
 		y_move_right_subLists(L_x_ptr,L_x_b_ptr,L_x_t_ptr,L_y_ptr,L_y_b_ptr,L_y_t_ptr,
@@ -1206,20 +1189,20 @@ void NMM::build_up_sorted_subLists(
 	List<ParticleInfo>& L_x_copy,
 	List<ParticleInfo>& L_y_copy)
 {
-	ParticleInfo P_x,P_y;
-	List<ParticleInfo>  *L_x_ptr,*L_y_ptr;
-	ListIterator<ParticleInfo> it,new_cross_ref_item;
+	ParticleInfo P_x, P_y;
+	List<ParticleInfo>  *L_x_ptr, *L_y_ptr;
+	ListIterator<ParticleInfo> it, new_cross_ref_item;
 
-	for(it = L_x_copy.begin();it.valid();++it)
-		if((*it).get_subList_ptr() != NULL)
+	for (it = L_x_copy.begin(); it.valid(); ++it) {
+		if ((*it).get_subList_ptr() != nullptr)
 		{
 			//reset values
 			P_x = *it;
 			L_x_ptr = P_x.get_subList_ptr();
-			P_x.set_subList_ptr(NULL); //clear subList_ptr
-			P_x.set_copy_item(NULL);   //clear copy_item
+			P_x.set_subList_ptr(nullptr); //clear subList_ptr
+			P_x.set_copy_item(nullptr);   //clear copy_item
 			P_x.unmark(); //unmark this element
-			P_x.set_tmp_cross_ref_item(NULL);//clear tmp_cross_ref_item
+			P_x.set_tmp_cross_ref_item(nullptr);//clear tmp_cross_ref_item
 
 			//update *L_x_ptr
 			L_x_ptr->pushBack(P_x);
@@ -1228,27 +1211,29 @@ void NMM::build_up_sorted_subLists(
 			P_x.set_tmp_cross_ref_item(L_x_ptr->rbegin());
 			*it = P_x;
 		}
+	}
 
-	for(it = L_y_copy.begin();it.valid();++it)
-		if((*it).get_subList_ptr() != NULL)
+	for (it = L_y_copy.begin(); it.valid(); ++it) {
+		if ((*it).get_subList_ptr() != nullptr)
 		{
 			//reset values
 			P_y = *it;
 			L_y_ptr = P_y.get_subList_ptr();
-			P_y.set_subList_ptr(NULL); //clear subList_ptr
-			P_y.set_copy_item(NULL);   //clear copy_item
+			P_y.set_subList_ptr(nullptr); //clear subList_ptr
+			P_y.set_copy_item(nullptr);   //clear copy_item
 			P_y.unmark(); //unmark this element
-			P_y.set_tmp_cross_ref_item(NULL);//clear tmp_cross_ref_item
+			P_y.set_tmp_cross_ref_item(nullptr);//clear tmp_cross_ref_item
 
 			//update *L_x(y)_ptr
 
 			new_cross_ref_item = (*P_y.get_cross_ref_item()).get_tmp_cross_ref_item();
 			P_y.set_cross_ref_item(new_cross_ref_item);
 			L_y_ptr->pushBack(P_y);
-			P_x  = *new_cross_ref_item;
+			P_x = *new_cross_ref_item;
 			P_x.set_cross_ref_item(L_y_ptr->rbegin());
 			*new_cross_ref_item = P_x;
 		}
+	}
 }
 
 
@@ -1287,14 +1272,12 @@ void NMM::build_up_red_quad_tree_subtree_by_subtree(
 
 void NMM::build_up_root_vertex(const Graph&G, QuadTreeNM& T)
 {
-	node v;
-
 	T.init_tree();
 	T.get_root_ptr()->set_Sm_level(0);
 	T.get_root_ptr()->set_Sm_downleftcorner(down_left_corner);
 	T.get_root_ptr()->set_Sm_boxlength(boxlength);
 	T.get_root_ptr()->set_particlenumber_in_subtree(G.numberOfNodes());
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		T.get_root_ptr()->pushBack_contained_nodes(v);
 }
 
@@ -1380,20 +1363,16 @@ void NMM::set_contained_nodes_for_leaves(
 	Array2D<QuadTreeNodeNM*> &leaf_ptr,
 	int maxindex)
 {
-	node v;
-	QuadTreeNodeNM* act_ptr;
-	double xcoord,ycoord;
-	int x_index,y_index;
 	double minboxlength = subtree_root_ptr->get_Sm_boxlength()/maxindex;
 
 	while(!subtree_root_ptr->contained_nodes_empty())
 	{
-		v = subtree_root_ptr->pop_contained_nodes();
-		xcoord = A[v].get_x()-subtree_root_ptr->get_Sm_downleftcorner().m_x;
-		ycoord = A[v].get_y()-subtree_root_ptr->get_Sm_downleftcorner().m_y;;
-		x_index = int(xcoord/minboxlength);
-		y_index = int(ycoord/minboxlength);
-		act_ptr = leaf_ptr(x_index,y_index);
+		node v = subtree_root_ptr->pop_contained_nodes();
+		double xcoord = A[v].get_x()-subtree_root_ptr->get_Sm_downleftcorner().m_x;
+		double ycoord = A[v].get_y()-subtree_root_ptr->get_Sm_downleftcorner().m_y;
+		int x_index = int(xcoord/minboxlength);
+		int y_index = int(ycoord/minboxlength);
+		QuadTreeNodeNM *act_ptr = leaf_ptr(x_index, y_index);
 		act_ptr->pushBack_contained_nodes(v);
 		act_ptr->set_particlenumber_in_subtree(act_ptr->get_particlenumber_in_subtree()+1);
 	}
@@ -1402,8 +1381,6 @@ void NMM::set_contained_nodes_for_leaves(
 
 void NMM::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 {
-	int child_nr;
-
 	if(!T.get_act_ptr()->is_leaf())
 	{//if
 		T.get_act_ptr()->set_particlenumber_in_subtree(0);
@@ -1413,7 +1390,7 @@ void NMM::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 			T.go_to_lt_child();
 			set_particlenumber_in_subtree_entries(T);
 			T.go_to_father();
-			child_nr = T.get_act_ptr()->get_child_lt_ptr()->get_particlenumber_in_subtree();
+			int child_nr = T.get_act_ptr()->get_child_lt_ptr()->get_particlenumber_in_subtree();
 			T.get_act_ptr()->set_particlenumber_in_subtree(child_nr + T.get_act_ptr()->
 				get_particlenumber_in_subtree());
 		}
@@ -1422,7 +1399,7 @@ void NMM::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 			T.go_to_rt_child();
 			set_particlenumber_in_subtree_entries(T);
 			T.go_to_father();
-			child_nr = T.get_act_ptr()->get_child_rt_ptr()->get_particlenumber_in_subtree();
+			int child_nr = T.get_act_ptr()->get_child_rt_ptr()->get_particlenumber_in_subtree();
 			T.get_act_ptr()->set_particlenumber_in_subtree(child_nr + T.get_act_ptr()->
 				get_particlenumber_in_subtree());
 		}
@@ -1431,7 +1408,7 @@ void NMM::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 			T.go_to_lb_child();
 			set_particlenumber_in_subtree_entries(T);
 			T.go_to_father();
-			child_nr = T.get_act_ptr()->get_child_lb_ptr()->get_particlenumber_in_subtree();
+			int child_nr = T.get_act_ptr()->get_child_lb_ptr()->get_particlenumber_in_subtree();
 			T.get_act_ptr()->set_particlenumber_in_subtree(child_nr + T.get_act_ptr()->
 				get_particlenumber_in_subtree());
 		}
@@ -1440,7 +1417,7 @@ void NMM::set_particlenumber_in_subtree_entries(QuadTreeNM& T)
 			T.go_to_rb_child();
 			set_particlenumber_in_subtree_entries(T);
 			T.go_to_father();
-			child_nr = T.get_act_ptr()->get_child_rb_ptr()->get_particlenumber_in_subtree();
+			int child_nr = T.get_act_ptr()->get_child_rb_ptr()->get_particlenumber_in_subtree();
 			T.get_act_ptr()->set_particlenumber_in_subtree(child_nr + T.get_act_ptr()->
 				get_particlenumber_in_subtree());
 		}
@@ -1519,7 +1496,7 @@ void NMM::delete_empty_subtrees(QuadTreeNM& T)
 		if(child_part_nr == 0)
 		{
 			T.delete_tree(act_ptr->get_child_lt_ptr());
-			act_ptr->set_child_lt_ptr(NULL);
+			act_ptr->set_child_lt_ptr(nullptr);
 		}
 	}
 
@@ -1529,7 +1506,7 @@ void NMM::delete_empty_subtrees(QuadTreeNM& T)
 		if(child_part_nr == 0)
 		{
 			T.delete_tree(act_ptr->get_child_rt_ptr());
-			act_ptr->set_child_rt_ptr(NULL);
+			act_ptr->set_child_rt_ptr(nullptr);
 		}
 	}
 
@@ -1539,7 +1516,7 @@ void NMM::delete_empty_subtrees(QuadTreeNM& T)
 		if(child_part_nr == 0)
 		{
 			T.delete_tree(act_ptr->get_child_lb_ptr());
-			act_ptr->set_child_lb_ptr(NULL);
+			act_ptr->set_child_lb_ptr(nullptr);
 		}
 	}
 
@@ -1549,7 +1526,7 @@ void NMM::delete_empty_subtrees(QuadTreeNM& T)
 		if(child_part_nr == 0)
 		{
 			T.delete_tree(act_ptr->get_child_rb_ptr());
-			act_ptr->set_child_rb_ptr(NULL);
+			act_ptr->set_child_rb_ptr(nullptr);
 		}
 	}
 }
@@ -1690,22 +1667,22 @@ void NMM::delete_sparse_subtree(QuadTreeNM& T, QuadTreeNodeNM* new_leaf_ptr)
 	if(new_leaf_ptr->child_lt_exists())
 	{
 		T.delete_tree(new_leaf_ptr->get_child_lt_ptr());
-		new_leaf_ptr->set_child_lt_ptr(NULL);
+		new_leaf_ptr->set_child_lt_ptr(nullptr);
 	}
 	if(new_leaf_ptr->child_rt_exists())
 	{
 		T.delete_tree(new_leaf_ptr->get_child_rt_ptr());
-		new_leaf_ptr->set_child_rt_ptr(NULL);
+		new_leaf_ptr->set_child_rt_ptr(nullptr);
 	}
 	if(new_leaf_ptr->child_lb_exists())
 	{
 		T.delete_tree(new_leaf_ptr->get_child_lb_ptr());
-		new_leaf_ptr->set_child_lb_ptr(NULL);
+		new_leaf_ptr->set_child_lb_ptr(nullptr);
 	}
 	if(new_leaf_ptr->child_rb_exists())
 	{
 		T.delete_tree(new_leaf_ptr->get_child_rb_ptr());
-		new_leaf_ptr->set_child_rb_ptr(NULL);
+		new_leaf_ptr->set_child_rb_ptr(nullptr);
 	}
 }
 
@@ -2117,36 +2094,32 @@ void NMM::form_multipole_expansion_of_leaf_node(
 	NodeArray<NodeAttributes>& A,
 	QuadTreeNodeNM* act_ptr)
 {
-	int k;
-	complex<double> Q (0,0);
+	complex<double> Q(0, 0);
 	complex<double> z_0 = act_ptr->get_Sm_center();//center of actual box
-	complex<double> nullpoint (0,0);
-	Array<complex<double> > coef (precision()+1);
+	complex<double> nullpoint(0, 0);
+	Array<complex<double> > coef(precision() + 1);
 	complex<double> z_v_minus_z_0_over_k;
 	List<node> nodes_in_box;
-	int i;
-	ListIterator<node> v_it;
 
 	act_ptr->get_contained_nodes(nodes_in_box);
 
-	for(v_it = nodes_in_box.begin();v_it.valid();++v_it)
-		Q += 1;
+	Q += nodes_in_box.size();
 	coef[0] = Q;
 
-	for(i = 1; i<=precision();i++)
+	for (int i = 1; i <= precision(); i++)
 		coef[i] = nullpoint;
 
-	for(v_it = nodes_in_box.begin();v_it.valid();++v_it)
+	for (node v : nodes_in_box)
 	{
-		complex<double> z_v (A[*v_it].get_x(),A[*v_it].get_y());
+		complex<double> z_v(A[v].get_x(), A[v].get_y());
 		z_v_minus_z_0_over_k = z_v - z_0;
-		for(k=1;k<=precision();k++)
+		for (int k = 1; k <= precision(); k++)
 		{
-			coef[k] += ((double(-1))*z_v_minus_z_0_over_k)/double(k);
+			coef[k] += ((double(-1))*z_v_minus_z_0_over_k) / double(k);
 			z_v_minus_z_0_over_k *= z_v - z_0;
 		}
 	}
-	act_ptr->replace_multipole_exp(coef,precision());
+	act_ptr->replace_multipole_exp(coef, precision());
 }
 
 
@@ -2183,7 +2156,6 @@ void NMM::calculate_local_expansions_and_WSPRLS(
 {
 	List<QuadTreeNodeNM*> I,L,L2,E,D1,D2,M;
 	QuadTreeNodeNM *selected_node_ptr;
-	ListIterator<QuadTreeNodeNM*> ptr_it;
 
 	I.clear();L.clear();L2.clear();D1.clear();D2.clear();M.clear();
 
@@ -2211,8 +2183,8 @@ void NMM::calculate_local_expansions_and_WSPRLS(
 		father_ptr->get_D1(E); //bordering leaves of father
 		father_ptr->get_I(I);  //min ill sep. nodes of father
 
-		for (ptr_it = I.begin(); ptr_it.valid(); ++ptr_it)
-			E.pushBack(*ptr_it);
+		for (QuadTreeNodeNM *ptr : I)
+			E.pushBack(ptr);
 		I.clear();
 	}
 
@@ -2252,13 +2224,13 @@ void NMM::calculate_local_expansions_and_WSPRLS(
 	if(!act_node_ptr->is_root())
 		add_shifted_local_exp_of_parent(act_node_ptr);
 
-	for(ptr_it = L.begin();ptr_it.valid();++ptr_it)
-		add_local_expansion(*ptr_it,act_node_ptr);
+	for (QuadTreeNodeNM *ptr : L)
+		add_local_expansion(ptr,act_node_ptr);
 
 	//Step 3: calculate locale expansions for all nodes in D2 (simpler than in Step 2)
 
-	for(ptr_it = L2.begin();ptr_it.valid();++ptr_it)
-		add_local_expansion_of_leaf(A,*ptr_it,act_node_ptr);
+	for (QuadTreeNodeNM *ptr : L2)
+		add_local_expansion_of_leaf(A,ptr,act_node_ptr);
 
 	//Step 4: recursive calls if act_node is not a leaf
 	if(!act_node_ptr->is_leaf())
@@ -2520,10 +2492,10 @@ void NMM::add_local_expansion_of_leaf(
 
 	ptr_0->get_contained_nodes(contained_nodes);
 
-	forall_listiterators(node, v_it, contained_nodes)
+	for(node v : contained_nodes)
 	{//forall
 		//set position of v as center ( (1,0,....,0) are the multipole coefficients at v)
-		complex<double> z_0  (A[*v_it].get_x(),A[*v_it].get_y());
+		complex<double> z_0  (A[v].get_x(),A[v].get_y());
 
 		//now transform multipole_0_of_v to the locale expansion around z_1
 
@@ -2553,7 +2525,6 @@ void NMM::transform_local_exp_to_forces(
 	List<QuadTreeNodeNM*>& quad_tree_leaves,
 	NodeArray<DPoint>& F_local_exp)
 {
-	List<node> contained_nodes;
 	complex<double> sum;
 	complex<double> complex_null (0,0);
 	complex<double> z_0;
@@ -2564,25 +2535,26 @@ void NMM::transform_local_exp_to_forces(
 	//and evaluate it for each node in contained_nodes()
 	//and transform the complex number back to the real-world, to obtain the force
 
-	forall_listiterators( QuadTreeNodeNM*, leaf_ptr_ptr,quad_tree_leaves)
+	for(const QuadTreeNodeNM *leaf_ptr : quad_tree_leaves)
 	{
-		(*leaf_ptr_ptr)->get_contained_nodes(contained_nodes);
-		z_0 = (*leaf_ptr_ptr)->get_Sm_center();
+		List<node> contained_nodes;
+		leaf_ptr->get_contained_nodes(contained_nodes);
+		z_0 = leaf_ptr->get_Sm_center();
 
-		forall_listiterators(node, v_ptr,contained_nodes)
+		for(node v : contained_nodes)
 		{
-			complex<double> z_v (A[*v_ptr].get_x(),A[*v_ptr].get_y());
+			complex<double> z_v (A[v].get_x(),A[v].get_y());
 			sum = complex_null;
 			z_v_minus_z_0_over_k_minus_1 = 1;
 			for(int k=1; k<=precision(); k++)
 			{
-				sum += double(k) * (*leaf_ptr_ptr)->get_local_exp()[k] *
+				sum += double(k) * leaf_ptr->get_local_exp()[k] *
 					z_v_minus_z_0_over_k_minus_1;
 				z_v_minus_z_0_over_k_minus_1 *= z_v - z_0;
 			}
 			force_vector.m_x = sum.real();
 			force_vector.m_y = (-1) * sum.imag();
-			F_local_exp[*v_ptr] = force_vector;
+			F_local_exp[v] = force_vector;
 		}
 	}
 }
@@ -2593,9 +2565,6 @@ void NMM::transform_multipole_exp_to_forces(
 	List<QuadTreeNodeNM*>& quad_tree_leaves,
 	NodeArray<DPoint>& F_multipole_exp)
 {
-	List<QuadTreeNodeNM*> M;
-	List<node> act_contained_nodes;
-	ListIterator<node> v_ptr;
 	complex<double> sum;
 	complex<double> z_0;
 	complex<double> z_v_minus_z_0_over_minus_k_minus_1;
@@ -2606,29 +2575,33 @@ void NMM::transform_multipole_exp_to_forces(
 	//and evaluate it for each node in v.get_contained_nodes()
 	//and transform the complex number back to the real-world, to obtain the force
 
-	forall_listiterators(QuadTreeNodeNM*, act_leaf_ptr_ptr,quad_tree_leaves)
+	for(QuadTreeNodeNM *act_leaf_ptr : quad_tree_leaves)
 	{
-		(*act_leaf_ptr_ptr)->get_contained_nodes(act_contained_nodes);
-		(*act_leaf_ptr_ptr)->get_M(M);
-		forall_listiterators(QuadTreeNodeNM*, M_node_ptr_ptr,M)
+		List<node> act_contained_nodes;
+		act_leaf_ptr->get_contained_nodes(act_contained_nodes);
+
+		List<QuadTreeNodeNM*> M;
+		act_leaf_ptr->get_M(M);
+
+		for(const QuadTreeNodeNM *M_node_ptr : M)
 		{
-			z_0 = (*M_node_ptr_ptr)->get_Sm_center();
-			forall_listiterators(node, v_ptr,act_contained_nodes)
+			z_0 = M_node_ptr->get_Sm_center();
+			for(node v : act_contained_nodes)
 			{
-				complex<double> z_v (A[*v_ptr].get_x(),A[*v_ptr].get_y());
+				complex<double> z_v (A[v].get_x(),A[v].get_y());
 				z_v_minus_z_0_over_minus_k_minus_1 = 1.0/(z_v-z_0);
-				sum = (*M_node_ptr_ptr)->get_multipole_exp()[0]*
+				sum = M_node_ptr->get_multipole_exp()[0]*
 					z_v_minus_z_0_over_minus_k_minus_1;
 
 				for(int k=1; k<=precision(); k++)
 				{
 					z_v_minus_z_0_over_minus_k_minus_1 /= z_v - z_0;
-					sum -= double(k) * (*M_node_ptr_ptr)->get_multipole_exp()[k] *
+					sum -= double(k) * M_node_ptr->get_multipole_exp()[k] *
 						z_v_minus_z_0_over_minus_k_minus_1;
 				}
 				force_vector.m_x = sum.real();
 				force_vector.m_y = (-1) * sum.imag();
-				F_multipole_exp[*v_ptr] =  F_multipole_exp[*v_ptr] + force_vector;
+				F_multipole_exp[v] =  F_multipole_exp[v] + force_vector;
 
 			}
 		}
@@ -2653,11 +2626,10 @@ void NMM::calculate_neighbourcell_forces(
 	DPoint pos_u,pos_v;
 	double norm_v_minus_u,scalar;
 	int length;
-	node u,v;
 
-	forall_listiterators(QuadTreeNodeNM*, act_leaf_ptr,quad_tree_leaves)
+	for(QuadTreeNodeNM *act_leaf : quad_tree_leaves)
 	{//forall
-		(*act_leaf_ptr)->get_contained_nodes(act_contained_nodes);
+		act_leaf->get_contained_nodes(act_contained_nodes);
 
 		if(act_contained_nodes.size() <= particles_in_leaves())
 		{//if (usual case)
@@ -2667,17 +2639,17 @@ void NMM::calculate_neighbourcell_forces(
 			length = act_contained_nodes.size();
 			Array<node> numbered_nodes (length+1);
 			int k = 1;
-			forall_listiterators(node, v_ptr,act_contained_nodes)
+			for(node v : act_contained_nodes)
 			{
-				numbered_nodes[k]= *v_ptr;
+				numbered_nodes[k]= v;
 				k++;
 			}
 
 			for(k = 1; k<length; k++)
 				for(int l = k+1; l<=length; l++)
 				{
-					u = numbered_nodes[k];
-					v = numbered_nodes[l];
+					node u = numbered_nodes[k];
+					node v = numbered_nodes[l];
 					pos_u = A[u].get_position();
 					pos_v = A[v].get_position();
 					if (pos_u == pos_v)
@@ -2699,16 +2671,16 @@ void NMM::calculate_neighbourcell_forces(
 				//Step 2: calculated forces to nodes in act_contained_nodes() of
 				//leaf_ptr->get_D1()
 
-				(*act_leaf_ptr)->get_D1(neighboured_leaves);
-				act_leaf_boxlength = (*act_leaf_ptr)->get_Sm_boxlength();
-				act_leaf_dlc = (*act_leaf_ptr)->get_Sm_downleftcorner();
+				act_leaf->get_D1(neighboured_leaves);
+				act_leaf_boxlength = act_leaf->get_Sm_boxlength();
+				act_leaf_dlc = act_leaf->get_Sm_downleftcorner();
 
-				forall_listiterators(QuadTreeNodeNM*, neighbour_leaf_ptr,neighboured_leaves)
+				for(const QuadTreeNodeNM *neighbour_leaf : neighboured_leaves)
 				{//forall2
 					//forget boxes that have already been looked at
 
-					neighbour_leaf_boxlength = (*neighbour_leaf_ptr)->get_Sm_boxlength();
-					neighbour_leaf_dlc = (*neighbour_leaf_ptr)->get_Sm_downleftcorner();
+					neighbour_leaf_boxlength = neighbour_leaf->get_Sm_boxlength();
+					neighbour_leaf_dlc = neighbour_leaf->get_Sm_downleftcorner();
 
 					if( (act_leaf_boxlength > neighbour_leaf_boxlength) ||
 						(act_leaf_boxlength == neighbour_leaf_boxlength &&
@@ -2717,12 +2689,43 @@ void NMM::calculate_neighbourcell_forces(
 						act_leaf_dlc.m_x ==  neighbour_leaf_dlc.m_x &&
 						act_leaf_dlc.m_y < neighbour_leaf_dlc.m_y) )
 					{//if
-						(*neighbour_leaf_ptr)->get_contained_nodes(neighbour_contained_nodes);
-						forall_listiterators(node, v_ptr,act_contained_nodes)
-							forall_listiterators(node, u_ptr, neighbour_contained_nodes)
+						neighbour_leaf->get_contained_nodes(neighbour_contained_nodes);
+
+						for(node v : act_contained_nodes)
+							for(node u : neighbour_contained_nodes)
+							{//for
+								pos_u = A[u].get_position();
+								pos_v = A[v].get_position();
+								if (pos_u == pos_v)
+								{//if2  (Exception handling if two nodes have the same position)
+									pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
+								}//if2
+								vector_v_minus_u = pos_v - pos_u;
+								norm_v_minus_u = vector_v_minus_u.norm();
+								if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
+								{
+									scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
+									f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
+									f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
+								}
+								F_direct[v] = F_direct[v] + f_rep_u_on_v;
+								F_direct[u] = F_direct[u] - f_rep_u_on_v;
+							}//for
+					}//if
+				}//forall2
+
+				//Step 3: calculated forces to nodes in act_contained_nodes() of
+				//leaf_ptr->get_D2()
+
+				act_leaf->get_D2(non_neighboured_leaves);
+				for(const QuadTreeNodeNM *non_neighbour_leaf : non_neighboured_leaves)
+				{//forall3
+					non_neighbour_leaf->get_contained_nodes(non_neighbour_contained_nodes);
+					for(node v : act_contained_nodes)
+						for(node u : non_neighbour_contained_nodes)
 						{//for
-							pos_u = A[*u_ptr].get_position();
-							pos_v = A[*v_ptr].get_position();
+							pos_u = A[u].get_position();
+							pos_v = A[v].get_position();
 							if (pos_u == pos_v)
 							{//if2  (Exception handling if two nodes have the same position)
 								pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
@@ -2735,47 +2738,15 @@ void NMM::calculate_neighbourcell_forces(
 								f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
 								f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
 							}
-							F_direct[*v_ptr] = F_direct[*v_ptr] + f_rep_u_on_v;
-							F_direct[*u_ptr] = F_direct[*u_ptr] - f_rep_u_on_v;
+							F_direct[v] = F_direct[v] + f_rep_u_on_v;
 						}//for
-					}//if
-				}//forall2
-
-				//Step 3: calculated forces to nodes in act_contained_nodes() of
-				//leaf_ptr->get_D2()
-
-				(*act_leaf_ptr)->get_D2(non_neighboured_leaves);
-				forall_listiterators(QuadTreeNodeNM*, non_neighbour_leaf_ptr,
-					non_neighboured_leaves)
-				{//forall3
-					(*non_neighbour_leaf_ptr)->get_contained_nodes(
-						non_neighbour_contained_nodes);
-					forall_listiterators(node,v_ptr,act_contained_nodes)
-						forall_listiterators(node, u_ptr,non_neighbour_contained_nodes)
-					{//for
-						pos_u = A[*u_ptr].get_position();
-						pos_v = A[*v_ptr].get_position();
-						if (pos_u == pos_v)
-						{//if2  (Exception handling if two nodes have the same position)
-							pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
-						}//if2
-						vector_v_minus_u = pos_v - pos_u;
-						norm_v_minus_u = vector_v_minus_u.norm();
-						if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
-						{
-							scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
-							f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
-							f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
-						}
-						F_direct[*v_ptr] = F_direct[*v_ptr] + f_rep_u_on_v;
-					}//for
 				}//forall3
 		}//if(usual case)
 		else //special case (more then particles_in_leaves() particles in this leaf)
 		{//else
-			forall_listiterators(node, v_ptr, act_contained_nodes)
+			for(node v : act_contained_nodes)
 			{
-				pos_v = A[*v_ptr].get_position();
+				pos_v = A[v].get_position();
 				pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_v);
 				vector_v_minus_u = pos_v - pos_u;
 				norm_v_minus_u = vector_v_minus_u.norm();
@@ -2785,7 +2756,7 @@ void NMM::calculate_neighbourcell_forces(
 					f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
 					f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
 				}
-				F_direct[*v_ptr] =  F_direct[*v_ptr] + f_rep_u_on_v;
+				F_direct[v] =  F_direct[v] + f_rep_u_on_v;
 			}
 		}//else
 	}//forall
@@ -2799,8 +2770,7 @@ inline void NMM::add_rep_forces(
 	NodeArray<DPoint>& F_local_exp,
 	NodeArray<DPoint>& F_rep)
 {
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		F_rep[v] = F_direct[v]+F_local_exp[v]+F_multipole_exp[v];
 	}

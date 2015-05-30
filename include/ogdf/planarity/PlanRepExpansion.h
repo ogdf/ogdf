@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanRepExpansion representing a
  *        planarized representation of the expansion of a graph.
@@ -65,6 +57,8 @@ class OGDF_EXPORT NodeSetPure;
 
 /**
  * \brief Planarized representations (of a connected component) of a graph.
+ *
+ * @ingroup plan-rep
  *
  * Maintains types of edges (generalization, association) and nodes,
  * and the connected components of the graph.

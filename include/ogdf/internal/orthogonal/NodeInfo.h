@@ -1,11 +1,3 @@
-/*
- * $Revision: 2808 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-13 11:58:23 +0200 (Sat, 13 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class NodeInfo.
  *
@@ -59,6 +51,8 @@
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GridLayout.h>
+#include <array>
+
 
 namespace ogdf {
 
@@ -102,6 +96,46 @@ public:
 		init();
 		get_data(H, L, v, rc, nw, nh);
 	}
+
+	NodeInfo(const NodeInfo & other) = default;
+
+	NodeInfo(NodeInfo && other)
+		: m_rc(other.m_rc), m_coord(other.m_coord), m_ccoord(other.m_ccoord),
+		m_gen_pos(other.m_gen_pos), num_s_edges(other.num_s_edges), m_nbf(other.m_nbf)
+	{
+		cage_x_size = other.cage_x_size;
+		cage_y_size = other.cage_y_size;
+		box_x_size  = other.box_x_size;
+		box_y_size  = other.box_y_size;
+
+		lu = other.lu;
+		ll = other.ll;
+		ru = other.ru;
+		rl = other.rl;
+		tl = other.tl;
+		tr = other.tr;
+		bl = other.bl;
+		br = other.br;
+
+		m_firstAdj = other.m_firstAdj;
+		m_adj = other.m_adj;
+		m_vdegree = other.m_vdegree;
+
+		for (int i = 0; i < 4; ++i) {
+			// these should work with move cstrs once VC++ implements rvalue references v3
+			in_edges[i] = std::move(other.in_edges[i]);
+			point_in[i] = std::move(other.point_in[i]);
+
+			for (int j = 0; j < 4; ++j) {
+				m_delta   [i][j] = other.m_delta   [i][j];
+				m_eps     [i][j] = other.m_eps     [i][j];
+				m_routable[i][j] = other.m_routable[i][j];
+				m_flips   [i][j] = other.m_flips   [i][j];
+				m_nbe     [i][j] = other.m_nbe     [i][j];
+			}
+		}
+	}
+
 
 	virtual ~NodeInfo() { }
 
@@ -268,26 +302,26 @@ public:
 	friend ostream& operator<<(ostream& O, const NodeInfo& inf);
 
 private:
-	int m_rc[4];
-	int m_coord[4]; //coordinates of box segments, x for ls_left/right, y for s_top/bottom
-	int m_ccoord[4]; //coordinates of expanded cage segments, -"-
+	std::array<int,4> m_rc;
+	std::array<int,4> m_coord; //coordinates of box segments, x for ls_left/right, y for s_top/bottom
+	std::array<int,4> m_ccoord; //coordinates of expanded cage segments, -"-
 	int cage_x_size, cage_y_size, //cage size
 		box_x_size, box_y_size; //box size
 	int lu,ll,ru,rl,tl,tr,bl,br; //first/last unbend edge on all sides
 	//most of the following are only [4][2] but use 44 for users conv
 	int m_delta[4][4]; //sepa. distance (paper delta)
 	int m_eps[4][4]; //corner separation distance (paper epsilon)
-	int m_gen_pos[4]; //pos num of generaliz. edge in adj lists
-	int num_s_edges[4]; //number of edges at sides 0..3=N..W
+	std::array<int,4> m_gen_pos; //pos num of generaliz. edge in adj lists
+	std::array<int,4> num_s_edges; //number of edges at sides 0..3=N..W
 	int m_routable[4][4]; //number of reroutable edges, paper E^_s1,s2, got to be initialized after box placement
 	int m_flips[4][4]; //real number of flipped edges
 	int m_nbe[4][4]; //paper E_s1,s2
-	int m_nbf[4]; //number of bendfree edges per side
+	std::array<int,4> m_nbf; //number of bendfree edges per side
 	adjEntry m_firstAdj; //adjEntry of first encountered outgoing edge, note: this is a copy
 
-	List<edge> in_edges[4]; //inedges on each side will be replaced by dynamic ops
+	std::array<List<edge>,4> in_edges; //inedges on each side will be replaced by dynamic ops
 	//preliminary bugfix of in/out dilemma
-	List<bool> point_in[4]; //save in/out info
+	std::array<List<bool>,4> point_in; //save in/out info
 	adjEntry m_adj; //entry of inner cage face
 	//degree of expanded vertex
 	int m_vdegree;

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3367 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:29:19 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for edge insertion algorithms
  *
@@ -115,7 +107,7 @@ namespace ogdf {
 		ReturnType call(PlanRepLight &pr,
 			const EdgeArray<int>      &costOrig,
 			const Array<edge>         &origEdges,
-			const EdgeArray<__uint32> &edgeSubGraphs)
+			const EdgeArray<uint32_t> &edgeSubGraphs)
 		{
 			return doCall(pr, origEdges, &costOrig, 0, &edgeSubGraphs);
 		}
@@ -176,7 +168,7 @@ namespace ogdf {
 			const EdgeArray<int>      &costOrig,
 			const EdgeArray<bool>     &forbiddenOrig,
 			const Array<edge>         &origEdges,
-			const EdgeArray<__uint32> &edgeSubGraphs)
+			const EdgeArray<uint32_t> &edgeSubGraphs)
 		{
 			return doCall(pr, origEdges, &costOrig, &forbiddenOrig, &edgeSubGraphs);
 		}
@@ -200,7 +192,7 @@ namespace ogdf {
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig = 0,
 			const EdgeArray<bool>     *pForbiddenOrig = 0,
-			const EdgeArray<__uint32> *pEdgeSubGraphs = 0)
+			const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
 		{
 			return doCall(pr, origEdges, pCostOrig, pForbiddenOrig, pEdgeSubGraphs);
 		}
@@ -223,7 +215,7 @@ namespace ogdf {
 			const Array<edge>         &origEdges,
 			const EdgeArray<int>      *pCostOrig,
 			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<__uint32> *pEdgeSubGraphs) = 0;
+			const EdgeArray<uint32_t> *pEdgeSubGraphs) = 0;
 
 
 		OGDF_MALLOC_NEW_DELETE

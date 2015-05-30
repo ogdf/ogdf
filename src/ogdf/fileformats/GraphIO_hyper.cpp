@@ -1,11 +1,3 @@
-/*
- * $Revision: 3366 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements read and write functionality for hypergraphs.
  *
@@ -97,9 +89,9 @@ bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, ist
 	if(shell) shell->clear();
 
 	string buffer;
-	HashArray<string,node> hm(0);
+	HashArray<string,node> hm(nullptr);
 
-	node si = 0, so = 0;
+	node si = nullptr, so = nullptr;
 	if(shell) {
 		si = G.newNode();
 		so = G.newNode();
@@ -219,8 +211,7 @@ bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, istre
 		node so = G.newNode();
 		shell->pushBack( G.newEdge(si,so) );
 
-		node n;
-		forall_nodes(n,G) {
+		for(node n : G.nodes) {
 			if(n->degree() == 1) {
 				if(n->outdeg() == 1) { //input
 					shell->pushBack( G.newEdge( si, n ) );

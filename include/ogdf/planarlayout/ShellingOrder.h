@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declares classes ShellingOrderSet and ShellingOrder.
  *
@@ -152,12 +144,13 @@ public:
 	}
 
 	//! Assignment operator.
-	void operator= (const ShellingOrderSet& S) {
+	ShellingOrderSet &operator= (const ShellingOrderSet& S) {
 		Array<node>::operator= (S);
 		left     (S.left());
 		right    (S.right());
 		leftAdj (S.leftAdj());
 		rightAdj(S.rightAdj());
+		return *this;
 	}
 
 private:

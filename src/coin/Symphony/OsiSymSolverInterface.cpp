@@ -36,28 +36,28 @@ using namespace std;
 inline void freeCacheDouble( double*& ptr )
 {
   if( ptr != NULL )
-    {
-      delete [] ptr;
-      ptr = NULL;
-    }
+	{
+	  delete [] ptr;
+	  ptr = NULL;
+	}
 }
 
 inline void freeCacheChar( char*& ptr )
 {
   if( ptr != NULL )
-    {
-      delete [] ptr;
-      ptr = NULL;
-    }
+	{
+	  delete [] ptr;
+	  ptr = NULL;
+	}
 }
 
 inline void freeCacheMatrix( CoinPackedMatrix*& ptr )
 {
   if( ptr != NULL )
-    {
-      delete ptr;
-      ptr = NULL;
-    }
+	{
+	  delete ptr;
+	  ptr = NULL;
+	}
 }
 
 /* Default constructor */
@@ -111,9 +111,9 @@ double OsiSymSolverInterface::getLbForNewRhs(int cnt, int *index,
 {
    double newBound;
    if (!sym_get_lb_for_new_rhs(env_, cnt, index, value, &newBound)){
-      return (newBound);
+	  return (newBound);
    } else {
-      return (-sym_get_infinity());
+	  return (-sym_get_infinity());
    }
 }
 
@@ -121,13 +121,13 @@ double OsiSymSolverInterface::getLbForNewRhs(int cnt, int *index,
 /*===========================================================================*/
 
 double OsiSymSolverInterface::getUbForNewRhs(int cnt, int *index,
-					     double * value)
+						 double * value)
 {
    double newBound;
    if (!sym_get_ub_for_new_rhs(env_, cnt, index, value, &newBound)){
-      return (newBound);
+	  return (newBound);
    } else {
-      return (sym_get_infinity());
+	  return (sym_get_infinity());
    }
 }
 
@@ -136,13 +136,13 @@ double OsiSymSolverInterface::getUbForNewRhs(int cnt, int *index,
 
 #if 0
 double OsiSymSolverInterface::getLbForNewObj(int cnt, int *index,
-					     double * value)
+						 double * value)
 {
    double newBound;
    if (!sym_get_lb_for_new_obj(env_, cnt, index, value, &newBound)){
-      return (newBound);
+	  return (newBound);
    } else {
-      return (-sym_get_infinity());
+	  return (-sym_get_infinity());
    }
 }
 #endif
@@ -151,13 +151,13 @@ double OsiSymSolverInterface::getLbForNewObj(int cnt, int *index,
 /*===========================================================================*/
 
 double OsiSymSolverInterface::getUbForNewObj(int cnt, int *index,
-					     double * value)
+						 double * value)
 {
    double newBound;
    if (!sym_get_ub_for_new_obj(env_, cnt, index, value, &newBound)){
-      return (newBound);
+	  return (newBound);
    } else {
-      return (sym_get_infinity());
+	  return (sym_get_infinity());
    }
 }
 
@@ -207,17 +207,17 @@ bool OsiSymSolverInterface::setIntParam(OsiIntParam key, int value)
 
    switch(key) {
 
-    case OsiMaxNumIteration:
-    case OsiMaxNumIterationHotStart:
-       keyVal = "node_limit";
-       break;
-    case OsiNameDiscipline:
-       return false ;
-    case OsiLastIntParam:
-       return false;
+	case OsiMaxNumIteration:
+	case OsiMaxNumIterationHotStart:
+	   keyVal = "node_limit";
+	   break;
+	case OsiNameDiscipline:
+	   return false ;
+	case OsiLastIntParam:
+	   return false;
 
-    default:
-       return false;
+	default:
+	   return false;
    }
 
    return(!sym_set_int_param(env_, keyVal, value)? true :false);
@@ -234,74 +234,74 @@ bool OsiSymSolverInterface::setSymParam(OsiSymIntParam key, int value)
 
    switch(key){
 
-    case OsiSymVerbosity:
-       keyVal = "verbosity";
-       break;
-    case OsiSymNodeLimit:
-       keyVal = "node_limit";
-       break;
-    case OsiSymFindFirstFeasible:
-       keyVal = "find_first_feasible";
-       break;
-    case OsiSymSearchStrategy:
-       keyVal = "node_selection_rule";
-       break;
-    case OsiSymUsePermanentCutPools:
-       keyVal = "use_permanent_cut_pools";
-       break;
-    case OsiSymKeepWarmStart:
-       keyVal = "keep_warm_start";
-       break;
-    case OsiSymDoReducedCostFixing:
-       keyVal = "do_reduced_cost_fixing";
-       break;
-    case OsiSymMCFindSupportedSolutions:
-       keyVal = "mc_find_supported_solutions";
-       break;
-    case OsiSymSensitivityAnalysis:
-       keyVal = "sensitivity_analysis";
-       break;
-    case OsiSymRandomSeed:
-       keyVal = "random_seed";
-       break;
-    case OsiSymDivingStrategy:
-       keyVal = "diving_strategy";
-       break;
-    case OsiSymDivingK:
-       keyVal = "diving_k";
-       break;
-    case OsiSymDivingThreshold:
-       keyVal = "diving_threshold";
-       break;
-    case OsiSymTrimWarmTree:
-       keyVal = "trim_warm_tree";
-       break;
-    case OsiSymGenerateCglGomoryCuts:
-       keyVal = "generate_cgl_gomory_cuts";
-       break;
+	case OsiSymVerbosity:
+	   keyVal = "verbosity";
+	   break;
+	case OsiSymNodeLimit:
+	   keyVal = "node_limit";
+	   break;
+	case OsiSymFindFirstFeasible:
+	   keyVal = "find_first_feasible";
+	   break;
+	case OsiSymSearchStrategy:
+	   keyVal = "node_selection_rule";
+	   break;
+	case OsiSymUsePermanentCutPools:
+	   keyVal = "use_permanent_cut_pools";
+	   break;
+	case OsiSymKeepWarmStart:
+	   keyVal = "keep_warm_start";
+	   break;
+	case OsiSymDoReducedCostFixing:
+	   keyVal = "do_reduced_cost_fixing";
+	   break;
+	case OsiSymMCFindSupportedSolutions:
+	   keyVal = "mc_find_supported_solutions";
+	   break;
+	case OsiSymSensitivityAnalysis:
+	   keyVal = "sensitivity_analysis";
+	   break;
+	case OsiSymRandomSeed:
+	   keyVal = "random_seed";
+	   break;
+	case OsiSymDivingStrategy:
+	   keyVal = "diving_strategy";
+	   break;
+	case OsiSymDivingK:
+	   keyVal = "diving_k";
+	   break;
+	case OsiSymDivingThreshold:
+	   keyVal = "diving_threshold";
+	   break;
+	case OsiSymTrimWarmTree:
+	   keyVal = "trim_warm_tree";
+	   break;
+	case OsiSymGenerateCglGomoryCuts:
+	   keyVal = "generate_cgl_gomory_cuts";
+	   break;
    case OsiSymGenerateCglKnapsackCuts:
-       keyVal = "generate_cgl_knapsack_cuts";
-       break;
+	   keyVal = "generate_cgl_knapsack_cuts";
+	   break;
    case OsiSymGenerateCglOddHoleCuts:
-       keyVal = "generate_cgl_oddhole_cuts";
-       break;
+	   keyVal = "generate_cgl_oddhole_cuts";
+	   break;
    case OsiSymGenerateCglProbingCuts:
-       keyVal = "generate_cgl_probing_cuts";
-       break;
+	   keyVal = "generate_cgl_probing_cuts";
+	   break;
    case OsiSymGenerateCglCliqueCuts:
-       keyVal = "generate_cgl_clique_cuts";
-       break;
+	   keyVal = "generate_cgl_clique_cuts";
+	   break;
    case OsiSymGenerateCglFlowAndCoverCuts:
-       keyVal = "generate_cgl_flow_and_cover_cuts";
-       break;
+	   keyVal = "generate_cgl_flow_and_cover_cuts";
+	   break;
    case OsiSymGenerateCglRoundingCuts:
-       keyVal = "generate_cgl_rounding_cuts";
-       break;
+	   keyVal = "generate_cgl_rounding_cuts";
+	   break;
    case OsiSymGenerateCglLiftAndProjectCuts:
-       keyVal = "generate_cgl_lift_and_project_cuts";
-       break;
-    default:
-       return false;
+	   keyVal = "generate_cgl_lift_and_project_cuts";
+	   break;
+	default:
+	   return false;
    }
 
    return(!sym_set_int_param(env_, keyVal, value)? true:false);
@@ -311,7 +311,7 @@ bool OsiSymSolverInterface::setSymParam(OsiSymIntParam key, int value)
 /*===========================================================================*/
 /*===========================================================================*/
 
-bool OsiSymSolverInterface::setSymParam(const std::string key, int value)
+bool OsiSymSolverInterface::setSymParam(const std::string &key, int value)
 {
 
    return(!sym_set_int_param(env_, key.c_str(), value)?
@@ -327,21 +327,21 @@ bool OsiSymSolverInterface::setDblParam(OsiDblParam key, double value)
 
    switch(key){
 
-    case OsiDualTolerance:
-    case OsiPrimalTolerance:
-       sym_set_dbl_param(env_, "granularity", value);
-       sym_set_dbl_param(env_, "LP_granularity", value);
-       return true;
-    case OsiDualObjectiveLimit:
-    case OsiPrimalObjectiveLimit:
-    case OsiLastDblParam:
-       return false;
-    case OsiObjOffset:
-       sym_set_dbl_param(env_, "obj_offset", -value);
-       return true;
+	case OsiDualTolerance:
+	case OsiPrimalTolerance:
+	   sym_set_dbl_param(env_, "granularity", value);
+	   sym_set_dbl_param(env_, "LP_granularity", value);
+	   return true;
+	case OsiDualObjectiveLimit:
+	case OsiPrimalObjectiveLimit:
+	case OsiLastDblParam:
+	   return false;
+	case OsiObjOffset:
+	   sym_set_dbl_param(env_, "obj_offset", -value);
+	   return true;
 
-    default:
-       return false;
+	default:
+	   return false;
    }
 
 }
@@ -356,23 +356,23 @@ bool OsiSymSolverInterface::setSymParam(OsiSymDblParam key, double value)
 
    switch(key){
 
-    case OsiSymGranularity:
-       keyVal = "granularity";
-       break;
-    case OsiSymTimeLimit:
-       keyVal = "time_limit";
-       break;
-    case OsiSymGapLimit:
-       keyVal = "gap_limit";
-       break;
-    case OsiSymUpperBound:
-       keyVal = "upper_bound";
-       break;
-    case OsiSymLowerBound:
-       keyVal = "lower_bound";
-       break;
-    default:
-       return false;
+	case OsiSymGranularity:
+	   keyVal = "granularity";
+	   break;
+	case OsiSymTimeLimit:
+	   keyVal = "time_limit";
+	   break;
+	case OsiSymGapLimit:
+	   keyVal = "gap_limit";
+	   break;
+	case OsiSymUpperBound:
+	   keyVal = "upper_bound";
+	   break;
+	case OsiSymLowerBound:
+	   keyVal = "lower_bound";
+	   break;
+	default:
+	   return false;
    }
 
    return(!sym_set_dbl_param(env_, keyVal, value)? true: false);
@@ -382,7 +382,7 @@ bool OsiSymSolverInterface::setSymParam(OsiSymDblParam key, double value)
 /*===========================================================================*/
 /*===========================================================================*/
 
-bool OsiSymSolverInterface::setSymParam(const std::string key, double value)
+bool OsiSymSolverInterface::setSymParam(const std::string &key, double value)
 {
 
    return(!sym_set_dbl_param(env_, key.c_str(), value)
@@ -401,14 +401,14 @@ bool OsiSymSolverInterface::setStrParam(OsiStrParam key,
 
    switch(key) {
 
-    case OsiProbName:
-       keyVal = "problem_name";
-       break;
-    case OsiSolverName:
-    case OsiLastStrParam:
-       return false;
-    default:
-       return false;
+	case OsiProbName:
+	   keyVal = "problem_name";
+	   break;
+	case OsiSolverName:
+	case OsiLastStrParam:
+	   return false;
+	default:
+	   return false;
    }
 
    return(!sym_set_str_param(env_, keyVal, const_cast<char *>(value.c_str()))
@@ -426,7 +426,7 @@ bool OsiSymSolverInterface::setSymParam(OsiSymStrParam key,
    //switch(key){
    //// case ' ':
    //default:
-      return false;
+	  return false;
    //}
 
 }
@@ -434,12 +434,12 @@ bool OsiSymSolverInterface::setSymParam(OsiSymStrParam key,
 /*===========================================================================*/
 /*===========================================================================*/
 
-bool OsiSymSolverInterface::setSymParam(const std::string key,
-					const std::string value)
+bool OsiSymSolverInterface::setSymParam(const std::string &key,
+					const std::string &value)
 {
 
    return(!sym_set_str_param(env_, key.c_str(),
-			     value.c_str()) ? true : false);
+				 value.c_str()) ? true : false);
 
 }
 
@@ -453,16 +453,16 @@ bool OsiSymSolverInterface::getIntParam(OsiIntParam key, int& value) const
 
    switch(key) {
 
-    case OsiMaxNumIteration:
-    case OsiMaxNumIterationHotStart:
-       keyVal = "node_limit";
-       break;
-    case OsiNameDiscipline:
-       return false ;
-    case OsiLastIntParam:
-       return false;
-    default:
-       break;
+	case OsiMaxNumIteration:
+	case OsiMaxNumIterationHotStart:
+	   keyVal = "node_limit";
+	   break;
+	case OsiNameDiscipline:
+	   return false ;
+	case OsiLastIntParam:
+	   return false;
+	default:
+	   break;
    }
 
    return(!sym_get_int_param(env_, keyVal, &value) ? true : false);
@@ -479,49 +479,49 @@ bool OsiSymSolverInterface::getSymParam(OsiSymIntParam key, int& value) const
 
    switch(key){
 
-    case OsiSymVerbosity:
-       keyVal = "verbosity";
-       break;
-    case OsiSymNodeLimit:
-       keyVal = "node_limit";
-       break;
-    case OsiSymFindFirstFeasible:
-       keyVal = "find_first_feasible";
-       break;
-    case OsiSymSearchStrategy:
-       keyVal = "node_selection_rule";
-       break;
-    case OsiSymUsePermanentCutPools:
-       keyVal = "use_permanent_cut_pools";
-       break;
-    case OsiSymKeepWarmStart:
-       keyVal = "keep_warm_start";
-       break;
-    case OsiSymDoReducedCostFixing:
-       keyVal = "do_reduced_cost_fixing";
-       break;
-    case OsiSymMCFindSupportedSolutions:
-       keyVal = "mc_find_supported_solutions";
-       break;
-    case OsiSymSensitivityAnalysis:
-       keyVal = "sensitivity_analysis";
-       break;
-    case OsiSymRandomSeed:
-       keyVal = "random_seed";
-       break;
-    case OsiSymDivingStrategy:
-       keyVal = "diving_strategy";
-       break;
-    case OsiSymDivingK:
-       keyVal = "diving_k";
-       break;
-    case OsiSymDivingThreshold:
-       keyVal = "diving_threshold";
-       break;
-    case OsiSymTrimWarmTree:
-       keyVal = "trim_warm_tree";
-    default:
-       return false;
+	case OsiSymVerbosity:
+	   keyVal = "verbosity";
+	   break;
+	case OsiSymNodeLimit:
+	   keyVal = "node_limit";
+	   break;
+	case OsiSymFindFirstFeasible:
+	   keyVal = "find_first_feasible";
+	   break;
+	case OsiSymSearchStrategy:
+	   keyVal = "node_selection_rule";
+	   break;
+	case OsiSymUsePermanentCutPools:
+	   keyVal = "use_permanent_cut_pools";
+	   break;
+	case OsiSymKeepWarmStart:
+	   keyVal = "keep_warm_start";
+	   break;
+	case OsiSymDoReducedCostFixing:
+	   keyVal = "do_reduced_cost_fixing";
+	   break;
+	case OsiSymMCFindSupportedSolutions:
+	   keyVal = "mc_find_supported_solutions";
+	   break;
+	case OsiSymSensitivityAnalysis:
+	   keyVal = "sensitivity_analysis";
+	   break;
+	case OsiSymRandomSeed:
+	   keyVal = "random_seed";
+	   break;
+	case OsiSymDivingStrategy:
+	   keyVal = "diving_strategy";
+	   break;
+	case OsiSymDivingK:
+	   keyVal = "diving_k";
+	   break;
+	case OsiSymDivingThreshold:
+	   keyVal = "diving_threshold";
+	   break;
+	case OsiSymTrimWarmTree:
+	   keyVal = "trim_warm_tree";
+	default:
+	   return false;
    }
 
    return(!sym_get_int_param(env_, keyVal, &value) ? true : false);
@@ -531,7 +531,7 @@ bool OsiSymSolverInterface::getSymParam(OsiSymIntParam key, int& value) const
 /*===========================================================================*/
 /*===========================================================================*/
 
-bool OsiSymSolverInterface::getSymParam(const std::string key,
+bool OsiSymSolverInterface::getSymParam(const std::string &key,
 					int& value) const
 {
 
@@ -548,21 +548,21 @@ bool OsiSymSolverInterface::getDblParam(OsiDblParam key, double& value) const
 
    switch(key){
 
-    case OsiDualTolerance:
-    case OsiPrimalTolerance:
-       sym_get_dbl_param(env_, "LP_granularity", &value);
-       return true;
-    case OsiDualObjectiveLimit:
-    case OsiPrimalObjectiveLimit:
-    case OsiLastDblParam:
-       return false;
+	case OsiDualTolerance:
+	case OsiPrimalTolerance:
+	   sym_get_dbl_param(env_, "LP_granularity", &value);
+	   return true;
+	case OsiDualObjectiveLimit:
+	case OsiPrimalObjectiveLimit:
+	case OsiLastDblParam:
+	   return false;
 
-    case OsiObjOffset:
-       sym_get_dbl_param(env_, "obj_offset", &value);
-       value = -value;
-       return true;
-    default:
-      return false;
+	case OsiObjOffset:
+	   sym_get_dbl_param(env_, "obj_offset", &value);
+	   value = -value;
+	   return true;
+	default:
+	  return false;
    }
 
 }
@@ -577,23 +577,23 @@ bool OsiSymSolverInterface::getSymParam(OsiSymDblParam key,
    const char * keyVal;
 
    switch(key){
-    case OsiSymGranularity:
-       keyVal = "granularity";
-       break;
-    case OsiSymTimeLimit:
-       keyVal = "time_limit";
-       break;
-    case OsiSymGapLimit:
-       keyVal = "gap_limit";
-       break;
-    case OsiSymUpperBound:
-       keyVal = "upper_bound";
-       break;
-    case OsiSymLowerBound:
-       keyVal = "lower_bound";
-       break;
-    default:
-       return false;
+	case OsiSymGranularity:
+	   keyVal = "granularity";
+	   break;
+	case OsiSymTimeLimit:
+	   keyVal = "time_limit";
+	   break;
+	case OsiSymGapLimit:
+	   keyVal = "gap_limit";
+	   break;
+	case OsiSymUpperBound:
+	   keyVal = "upper_bound";
+	   break;
+	case OsiSymLowerBound:
+	   keyVal = "lower_bound";
+	   break;
+	default:
+	   return false;
    }
 
    return(!sym_get_dbl_param(env_, keyVal, &value) ? true : false);
@@ -603,7 +603,7 @@ bool OsiSymSolverInterface::getSymParam(OsiSymDblParam key,
 /*===========================================================================*/
 /*===========================================================================*/
 
-bool OsiSymSolverInterface::getSymParam(const std::string key,
+bool OsiSymSolverInterface::getSymParam(const std::string &key,
 					double& value) const
 {
 
@@ -623,21 +623,21 @@ bool OsiSymSolverInterface::getStrParam(OsiStrParam key,
    char * val;
 
    switch(key) {
-    case OsiProbName:
-       keyVal = "problem_name";
-       break;
-    case OsiSolverName:
-       value = "sym";
-       return true;
-    case OsiLastStrParam:
-       return false;
-    default:
-       return false;
+	case OsiProbName:
+	   keyVal = "problem_name";
+	   break;
+	case OsiSolverName:
+	   value = "sym";
+	   return true;
+	case OsiLastStrParam:
+	   return false;
+	default:
+	   return false;
    }
 
    if(!sym_get_str_param(env_, keyVal, &val)){
-      value = val;
-      return true;
+	  value = val;
+	  return true;
    }
 
    return false;
@@ -654,7 +654,7 @@ bool OsiSymSolverInterface::getSymParam(OsiSymStrParam key,
    //switch(key){
    // // case ' ':
    // default:
-       return false;
+	   return false;
    //}
 
 }
@@ -662,14 +662,14 @@ bool OsiSymSolverInterface::getSymParam(OsiSymStrParam key,
 /*===========================================================================*/
 /*===========================================================================*/
 
-bool OsiSymSolverInterface::getSymParam(const std::string key,
+bool OsiSymSolverInterface::getSymParam(const std::string &key,
 					std::string& value) const
 {
 
    char * val;
    if (!sym_get_str_param(env_, key.c_str(), &val)){
-      value = val;
-      return true;
+	  value = val;
+	  return true;
    }
 
    return false;
@@ -722,11 +722,11 @@ int OsiSymSolverInterface::readMps(const char * infile, const char * extension)
 /*===========================================================================*/
 
 int OsiSymSolverInterface::readGMPL(const char * modelFile,
-				    const char * dataFile)
+					const char * dataFile)
 {
    int termcode = 0;
    termcode = sym_read_gmpl(env_, const_cast<char*>(modelFile),
-			    const_cast<char*>(dataFile));
+				const_cast<char*>(dataFile));
 
    return (termcode);
 }
@@ -749,9 +749,9 @@ int OsiSymSolverInterface::createPermanentCutPools()
 
    int cpNum;
    if (!sym_create_permanent_cut_pools(env_, &cpNum)){
-      return (cpNum);
+	  return (cpNum);
    }else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -785,12 +785,12 @@ void OsiSymSolverInterface::loadProblem(const CoinPackedMatrix& matrix,
 
    int i;
    for ( i = nrows - 1; i >= 0; --i )
-      {
+	  {
 	 const double lower = rowlb ? rowlb[i] : -inf;
 	 const double upper = rowub ? rowub[i] : inf;
 	 convertBoundToSense( lower, upper, rowSense[i], rowRhs[i],
-			      rowRange[i] );
-      }
+				  rowRange[i] );
+	  }
 
    loadProblem( matrix, collb, colub, obj, rowSense, rowRhs, rowRange );
 
@@ -834,11 +834,11 @@ void OsiSymSolverInterface::loadProblem(const CoinPackedMatrix& matrix,
    double * matval = NULL;
 
    if (!matrix.isColOrdered()){
-      symMatrix = new CoinPackedMatrix();
-      symMatrix->copyOf(matrix);      symMatrix->reverseOrdering();
-      isColOrdered = false;
+	  symMatrix = new CoinPackedMatrix();
+	  symMatrix->copyOf(matrix);      symMatrix->reverseOrdering();
+	  isColOrdered = false;
    }else{
-      symMatrix = const_cast<CoinPackedMatrix *>(&matrix);
+	  symMatrix = const_cast<CoinPackedMatrix *>(&matrix);
    }
 
    int numcols = symMatrix->getNumCols();
@@ -846,8 +846,8 @@ void OsiSymSolverInterface::loadProblem(const CoinPackedMatrix& matrix,
 
 
    if(numcols == 0 || numrows == 0){
-      cout<<"loadProblem():The given matrix is empty!"<<endl;
-      return;
+	  cout<<"loadProblem():The given matrix is empty!"<<endl;
+	  return;
    }
 
    const int * lengths = symMatrix->getVectorLengths();
@@ -856,49 +856,49 @@ void OsiSymSolverInterface::loadProblem(const CoinPackedMatrix& matrix,
    const double * matvalS = symMatrix->getElements();
 
    for (i = 0; i<numcols; i++){
-      numelem += lengths[i];
+	  numelem += lengths[i];
    }
 
    if (numelem){
 
-      matbeg = new int [numcols + 1];
-      matind = new int[numelem];
-      matval = new double [numelem];
+	  matbeg = new int [numcols + 1];
+	  matind = new int[numelem];
+	  matval = new double [numelem];
 
-      matbeg[0] = 0;
-      for (i = 0; i<numcols; i++){
+	  matbeg[0] = 0;
+	  for (i = 0; i<numcols; i++){
 	 matbeg[i+1] = matbeg[i] + lengths[i];
 	 if (lengths[i]){
-	    memcpy(matind + matbeg[i], matindS + matbegS[i] ,
+		memcpy(matind + matbeg[i], matindS + matbegS[i] ,
 		   sizeof(int) * lengths[i]);
-	    memcpy(matval + matbeg[i], matvalS + matbegS[i] ,
+		memcpy(matval + matbeg[i], matvalS + matbegS[i] ,
 		   sizeof(double) * lengths[i]);
 	 }
-      }
+	  }
    }
 
    bool rowsen_faked = false;
    char *fake_rowsen = 0;
 
    if (!rowsen){
-      fake_rowsen  = new char[numrows];
-      memset(fake_rowsen, 'G', CSIZE*numrows);
-      rowsen_faked = true;
+	  fake_rowsen  = new char[numrows];
+	  memset(fake_rowsen, 'G', CSIZE*numrows);
+	  rowsen_faked = true;
    }
 
    loadProblem(numcols,numrows, matbeg, matind, matval, collb, colub, obj,
-	       rowsen ? rowsen:fake_rowsen, rowrhs, rowrng);
+		   rowsen ? rowsen:fake_rowsen, rowrhs, rowrng);
 
    if (rowsen_faked)
-      delete[] fake_rowsen;
+	  delete[] fake_rowsen;
 
    if(!isColOrdered)
-      delete symMatrix;
+	  delete symMatrix;
 
    if(numelem){
-      delete [] matbeg;
-      delete [] matind;
-      delete [] matval;
+	  delete [] matbeg;
+	  delete [] matind;
+	  delete [] matval;
    }
 }
 
@@ -934,8 +934,8 @@ void OsiSymSolverInterface::loadProblem(const int numcols, const int numrows,
 {
 
    if(numcols == 0 || numrows == 0){
-      cout<<"loadProblem():The given problem is empty!"<<endl;
-      return;
+	  cout<<"loadProblem():The given problem is empty!"<<endl;
+	  return;
    }
 
    const double inf = getInfinity();
@@ -946,39 +946,39 @@ void OsiSymSolverInterface::loadProblem(const int numcols, const int numrows,
 
    int i;
    for ( i = numrows - 1; i >= 0; --i ){
-      const double lower = rowlb ? rowlb[i] : -inf;
-      const double upper = rowub ? rowub[i] : inf;
+	  const double lower = rowlb ? rowlb[i] : -inf;
+	  const double upper = rowub ? rowub[i] : inf;
 
-      /* convertBountToSense */
-      range[i] = 0.0;
-      if (lower > -inf) {
+	  /* convertBountToSense */
+	  range[i] = 0.0;
+	  if (lower > -inf) {
 	 if (upper < inf) {
-	    rhs[i] = upper;
-	    if (upper==lower) {
-	       sense[i] = 'E';
-	    } else {
-	       sense[i] = 'R';
-	       range[i] = upper - lower;
-	    }
+		rhs[i] = upper;
+		if (upper==lower) {
+		   sense[i] = 'E';
+		} else {
+		   sense[i] = 'R';
+		   range[i] = upper - lower;
+		}
 	 } else {
-	    sense[i] = 'G';
-	    rhs[i] = lower;
+		sense[i] = 'G';
+		rhs[i] = lower;
 	 }
-      } else {
+	  } else {
 	 if (upper < inf) {
-	    sense[i] = 'L';
-	    rhs[i] = upper;
+		sense[i] = 'L';
+		rhs[i] = upper;
 	 } else {
-	    sense[i] = 'N';
-	    rhs[i] = 0.0;
+		sense[i] = 'N';
+		rhs[i] = 0.0;
 	 }
-      }
-      /*	 convertBoundToSense( lower, upper, rowSense[i], rowRhs[i],
+	  }
+	  /*	 convertBoundToSense( lower, upper, rowSense[i], rowRhs[i],
 		 rowRange[i] ); */
    }
 
    loadProblem(numcols,numrows, start, index, value, collb, colub, obj,
-	       sense, rhs, range);
+		   sense, rhs, range);
 
    delete [] sense;
    delete [] rhs;
@@ -1002,14 +1002,14 @@ void OsiSymSolverInterface::loadProblem(const int numcols, const int numrows,
    freeAllMemory();
 
    sym_explicit_load_problem(env_, numcols, numrows, const_cast<int*>(start),
-			     const_cast<int*>(index),
-			     const_cast<double*>(value),
-			     const_cast<double*>(collb),
-			     const_cast<double*>(colub), NULL,
-			     const_cast<double*>(obj), NULL,
-			     const_cast<char*>(rowsen),
-			     const_cast<double*>(rowrhs),
-			     const_cast<double*>(rowrng), true);
+				 const_cast<int*>(index),
+				 const_cast<double*>(value),
+				 const_cast<double*>(collb),
+				 const_cast<double*>(colub), NULL,
+				 const_cast<double*>(obj), NULL,
+				 const_cast<char*>(rowsen),
+				 const_cast<double*>(rowrhs),
+				 const_cast<double*>(rowrng), true);
 
 
    sym_get_user_data(env_, &user);
@@ -1023,10 +1023,10 @@ bool OsiSymSolverInterface::isAbandoned() const
 {
 
    if(sym_is_abandoned(env_)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1036,10 +1036,10 @@ bool OsiSymSolverInterface::isAbandoned() const
 bool OsiSymSolverInterface::isProvenOptimal() const
 {
    if(sym_is_proven_optimal(env_)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1049,10 +1049,10 @@ bool OsiSymSolverInterface::isProvenOptimal() const
 bool OsiSymSolverInterface::isProvenPrimalInfeasible() const
 {
    if(sym_is_proven_primal_infeasible(env_)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1075,10 +1075,10 @@ bool OsiSymSolverInterface::isProvenPrimalInfeasible() const
 bool OsiSymSolverInterface::isIterationLimitReached() const
 {
    if(sym_is_iteration_limit_reached(env_)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1088,10 +1088,10 @@ bool OsiSymSolverInterface::isIterationLimitReached() const
 bool OsiSymSolverInterface::isTimeLimitReached() const
 {
    if(sym_is_time_limit_reached(env_)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 /*===========================================================================*/
@@ -1100,10 +1100,10 @@ bool OsiSymSolverInterface::isTimeLimitReached() const
 bool OsiSymSolverInterface::isTargetGapReached() const
 {
    if(sym_is_target_gap_achieved(env_)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1114,9 +1114,9 @@ int OsiSymSolverInterface:: getNumCols() const
 {
    int numCols;
    if (!sym_get_num_cols(env_, &numCols)){
-      return (numCols);
+	  return (numCols);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1127,9 +1127,9 @@ int OsiSymSolverInterface::getNumRows() const
 {
    int numRows;
    if(!sym_get_num_rows(env_, &numRows)){
-      return(numRows);
+	  return(numRows);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1140,9 +1140,9 @@ int OsiSymSolverInterface::getNumElements() const
 {
    int numElems;
    if(!sym_get_num_elements(env_, &numElems)){
-      return(numElems);
+	  return(numElems);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1153,13 +1153,13 @@ const double * OsiSymSolverInterface::getColLower() const
 {
 
    if(!collower_){
-      collower_ = new double[getNumCols()];
+	  collower_ = new double[getNumCols()];
    }
 
    if(!sym_get_col_lower(env_, collower_)){
-      return (collower_);
+	  return (collower_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1169,13 +1169,13 @@ const double * OsiSymSolverInterface::getColLower() const
 const double * OsiSymSolverInterface::getColUpper() const
 {
    if(!colupper_){
-      colupper_ = new double[getNumCols()];
+	  colupper_ = new double[getNumCols()];
    }
 
    if(!sym_get_col_upper(env_, colupper_)){
-      return (colupper_);
+	  return (colupper_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1185,13 +1185,13 @@ const double * OsiSymSolverInterface::getColUpper() const
 const char * OsiSymSolverInterface::getRowSense() const
 {
    if(!rowsense_){
-      rowsense_ = new char[getNumRows()];
+	  rowsense_ = new char[getNumRows()];
    }
 
    if(!sym_get_row_sense(env_, rowsense_)){
-      return (rowsense_);
+	  return (rowsense_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1201,13 +1201,13 @@ const char * OsiSymSolverInterface::getRowSense() const
 const double * OsiSymSolverInterface::getRightHandSide() const
 {
    if(!rhs_){
-      rhs_ = new double[getNumRows()];
+	  rhs_ = new double[getNumRows()];
    }
 
    if(!sym_get_rhs(env_, rhs_)){
-      return (rhs_);
+	  return (rhs_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1217,13 +1217,13 @@ const double * OsiSymSolverInterface::getRightHandSide() const
 const double * OsiSymSolverInterface::getRowRange() const
 {
    if(!rowrange_){
-      rowrange_ = new double[getNumRows()];
+	  rowrange_ = new double[getNumRows()];
    }
 
    if(!sym_get_row_range(env_, rowrange_)){
-      return (rowrange_);
+	  return (rowrange_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1233,13 +1233,13 @@ const double * OsiSymSolverInterface::getRowRange() const
 const double * OsiSymSolverInterface::getRowLower() const
 {
    if(!rowlower_){
-      rowlower_ = new double[getNumRows()];
+	  rowlower_ = new double[getNumRows()];
    }
 
    if(!sym_get_row_lower(env_, rowlower_)){
-      return (rowlower_);
+	  return (rowlower_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1249,13 +1249,13 @@ const double * OsiSymSolverInterface::getRowLower() const
 const double * OsiSymSolverInterface::getRowUpper() const
 {
    if(!rowupper_){
-      rowupper_ = new double[getNumRows()];
+	  rowupper_ = new double[getNumRows()];
    }
 
    if(!sym_get_row_upper(env_, rowupper_)){
-      return (rowupper_);
+	  return (rowupper_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1266,8 +1266,8 @@ const double * OsiSymSolverInterface::getRowUpper() const
 const double * OsiSymSolverInterface::getRowPrice() const
 {
    if(!rowprice_){
-      rowprice_ = new double[getNumRows()];
-      memset(rowprice_, 0, getNumRows() * sizeof(double));
+	  rowprice_ = new double[getNumRows()];
+	  memset(rowprice_, 0, getNumRows() * sizeof(double));
    }
 
    return rowprice_;
@@ -1279,8 +1279,8 @@ const double * OsiSymSolverInterface::getRowPrice() const
 const double * OsiSymSolverInterface::getReducedCost() const
 {
    if(!colredcost_){
-      colredcost_ = new double[getNumCols()];
-      memset(colredcost_, 0, getNumCols() * sizeof(double));
+	  colredcost_ = new double[getNumCols()];
+	  memset(colredcost_, 0, getNumCols() * sizeof(double));
    }
 
    return colredcost_;
@@ -1293,13 +1293,13 @@ const double * OsiSymSolverInterface::getObjCoefficients() const
 {
 
    if(!obj_){
-      obj_ = new double[getNumCols()];
+	  obj_ = new double[getNumCols()];
    }
 
    if(!sym_get_obj_coeff(env_, obj_)){
-      return (obj_);
+	  return (obj_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1310,13 +1310,13 @@ const double * OsiSymSolverInterface::getObj2Coefficients() const
 {
 
    if(!obj2_){
-      obj2_ = new double[getNumCols()];
+	  obj2_ = new double[getNumCols()];
    }
 
    if(!sym_get_obj2_coeff(env_, obj2_)){
-      return (obj2_);
+	  return (obj2_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1327,9 +1327,9 @@ double OsiSymSolverInterface::getObjSense() const
 {
    int objSen;
    if(!sym_get_obj_sense(env_, &objSen)){
-      return ((double)objSen);
+	  return ((double)objSen);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1340,10 +1340,10 @@ bool OsiSymSolverInterface::isContinuous(int colIndex) const
 {
    int value;
    if(!sym_is_continuous(env_, colIndex, &value)){
-      return (value != 0);
+	  return (value != 0);
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1354,10 +1354,10 @@ bool OsiSymSolverInterface::isBinary(int colIndex) const
 {
    int value;
    if(!sym_is_binary(env_, colIndex, &value)){
-      return (value != 0);
+	  return (value != 0);
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1368,10 +1368,10 @@ bool OsiSymSolverInterface::isInteger(int colIndex) const
 {
    char value;
    if(!sym_is_integer(env_, colIndex, &value)){
-      return (value != 0);
+	  return (value != 0);
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1381,10 +1381,10 @@ bool OsiSymSolverInterface::isInteger(int colIndex) const
 bool OsiSymSolverInterface::isIntegerNonBinary(int colIndex) const
 {
    if(!isBinary(colIndex) && isInteger(colIndex)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1395,10 +1395,10 @@ bool OsiSymSolverInterface::isFreeBinary(int colIndex) const
 {
 
    if(isBinary(colIndex)){
-      return true;
+	  return true;
    }
    else{
-      return false;
+	  return false;
    }
 }
 
@@ -1408,9 +1408,9 @@ bool OsiSymSolverInterface::isFreeBinary(int colIndex) const
 const CoinPackedMatrix * OsiSymSolverInterface::getMatrixByRow() const
 {
    if(!matrixByRow_){
-      matrixByRow_ = new CoinPackedMatrix(*getMatrixByCol());
+	  matrixByRow_ = new CoinPackedMatrix(*getMatrixByCol());
    }else{
-      matrixByRow_->copyOf(*getMatrixByCol());
+	  matrixByRow_->copyOf(*getMatrixByCol());
    }
 
    matrixByRow_->reverseOrdering();
@@ -1439,12 +1439,12 @@ const CoinPackedMatrix * OsiSymSolverInterface::getMatrixByCol() const
    sym_get_matrix(env_, &nz, matbeg, matind, matval);
 
    if(!matrixByCol_){
-      matrixByCol_ =
+	  matrixByCol_ =
 	 new CoinPackedMatrix(true, m, n, nz,
-			      matval, matind,
-			      matbeg, 0);
+				  matval, matind,
+				  matbeg, 0);
    }else{
-      matrixByCol_->copyOf(true, m, n, nz,
+	  matrixByCol_->copyOf(true, m, n, nz,
 			   matval, matind,
 			   matbeg, 0);
    }
@@ -1473,12 +1473,12 @@ const double * OsiSymSolverInterface::getColSolution() const
    int n = getNumCols();
 
    if(!colsol_){
-      colsol_ = new double[n];
+	  colsol_ = new double[n];
    }
    if (sym_get_col_solution(env_, colsol_)){
-      if (!getNumCols()){
+	  if (!getNumCols()){
 	 return (0);
-      }
+	  }
    }
 
    return (colsol_);
@@ -1491,13 +1491,13 @@ const double * OsiSymSolverInterface::getRowActivity() const
 {
 
    if(!rowact_){
-      rowact_ = new double[getNumRows()];
+	  rowact_ = new double[getNumRows()];
    }
 
    if(!sym_get_row_activity(env_, rowact_)){
-      return (rowact_);
+	  return (rowact_);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1508,9 +1508,9 @@ double OsiSymSolverInterface::getObjValue() const
 {
    double objVal;
    if(sym_get_obj_val(env_, &objVal)){
-      if(!getNumCols()){
+	  if(!getNumCols()){
 	 return (0);
-      }
+	  }
    }
 
    return(objVal);
@@ -1523,9 +1523,9 @@ double OsiSymSolverInterface::getPrimalBound() const
 {
    double ubPri;
    if(!sym_get_primal_bound(env_, &ubPri)){
-      return (ubPri);
+	  return (ubPri);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1536,9 +1536,9 @@ int OsiSymSolverInterface::getIterationCount() const
 {
    int numNodes;
    if(!sym_get_iteration_count(env_, &numNodes)){
-      return (numNodes);
+	  return (numNodes);
    } else {
-      return (0);
+	  return (0);
    }
 }
 
@@ -1605,7 +1605,7 @@ void OsiSymSolverInterface::setRowUpper( int elementIndex,
 /*===========================================================================*/
 
 void OsiSymSolverInterface::setRowType(int index, char sense,
-				       double rightHandSide, double range)
+					   double rightHandSide, double range)
 {
    freeCachedData(KEEPCACHED_COLUMN);
    sym_set_row_type(env_, index, sense, rightHandSide, range);
@@ -1643,7 +1643,7 @@ void OsiSymSolverInterface::setRowPrice(const double * rowprice)
 {
    if( rowprice_ == NULL )
    {
-      rowprice_ = new double[getNumRows()];
+	  rowprice_ = new double[getNumRows()];
    }
    memcpy(rowprice_, rowprice, getNumRows() * sizeof(double));
 }
@@ -1684,12 +1684,12 @@ void OsiSymSolverInterface::addCol(const CoinPackedVectorBase& vec,
    freeCachedData(KEEPCACHED_ROW);
 
    if((numElements = vec.getNumElements())){
-      indices = const_cast<int*>(vec.getIndices());
-      elements = const_cast<double*>(vec.getElements());
+	  indices = const_cast<int*>(vec.getIndices());
+	  elements = const_cast<double*>(vec.getElements());
    }
 
    sym_add_col(env_, numElements, indices, elements, collb, colub, obj, false,
-	       NULL);
+		   NULL);
 }
 
 /*===========================================================================*/
@@ -1719,8 +1719,8 @@ void OsiSymSolverInterface::addRow(const CoinPackedVectorBase& vec,
    freeCachedData(KEEPCACHED_COLUMN);
 
    if((numElements = vec.getNumElements())){
-      indices = const_cast<int*>(vec.getIndices());
-      elements = const_cast<double*>(vec.getElements());
+	  indices = const_cast<int*>(vec.getIndices());
+	  elements = const_cast<double*>(vec.getElements());
    }
 
    sym_add_row(env_, numElements, indices, elements, rowsen, rowrhs, rowrng);
@@ -1749,8 +1749,8 @@ void OsiSymSolverInterface::deleteRows(const int num, const int * rowIndices)
 /*===========================================================================*/
 
 void OsiSymSolverInterface::writeMps(const char *filename,
-				     const char *extension,
-				     double objSense) const
+					 const char *extension,
+					 double objSense) const
 {
 
    int i, n;
@@ -1763,7 +1763,7 @@ void OsiSymSolverInterface::writeMps(const char *filename,
    isInteger = new char[n];
 
    for( i = 0; i < n; i++){
-      sym_is_integer(env_, i, &isInteger[i]);
+	  sym_is_integer(env_, i, &isInteger[i]);
    }
 
    CoinMpsIO mps;
@@ -1816,14 +1816,14 @@ void OsiSymSolverInterface::applyColCut( const OsiColCut & cc)
    freeCachedData(KEEPCACHED_ROW);
 
    for(i = 0; i<lbs.getNumElements(); i++){
-      sym_set_col_lower(env_, colInd[i], colVal[i]);
+	  sym_set_col_lower(env_, colInd[i], colVal[i]);
    }
 
    colInd = ubs.getIndices();
    colVal = ubs.getElements();
 
    for(i = 0; i<ubs.getNumElements(); i++){
-      sym_set_col_upper(env_, colInd[i], colVal[i]);
+	  sym_set_col_upper(env_, colInd[i], colVal[i]);
    }
 }
 
@@ -1834,17 +1834,17 @@ CoinWarmStart * OsiSymSolverInterface::getWarmStart() const
 {
 
    /* FIXME! Add a SymIntParam to determine whether keep the tree
-      in case a getWarmStart() is called or not!
+	  in case a getWarmStart() is called or not!
    */
 
    warm_start_desc * ws = sym_get_warm_start(env_, true);
    if (ws){
-      SymWarmStart * symWS = new SymWarmStart(ws);
-      sym_delete_warm_start(ws);
-      return symWS;
+	  SymWarmStart * symWS = new SymWarmStart(ws);
+	  sym_delete_warm_start(ws);
+	  return symWS;
    } else {
-      sym_delete_warm_start(ws);
-      return (0);
+	  sym_delete_warm_start(ws);
+	  return (0);
    }
 }
 
@@ -1859,15 +1859,15 @@ bool OsiSymSolverInterface::setWarmStart(const CoinWarmStart* warmstart)
    SymWarmStart *symWS = dynamic_cast<SymWarmStart*>(wsC);
 
    if (symWS==NULL) {
-   	 cout << "setWarmStart(): No SymWarmStart was given!" << endl;
-   	 return false;
+	 cout << "setWarmStart(): No SymWarmStart was given!" << endl;
+	 return false;
    }
 
    warm_start_desc * ws  = symWS->getCopyOfWarmStartDesc();
 
    if(!ws){
-      cout<<"setWarmStart(): An empty warmstart was given!"<<endl;
-      return false;
+	  cout<<"setWarmStart(): An empty warmstart was given!"<<endl;
+	  return false;
    }
 
    sym_set_warm_start(env_, ws);
@@ -1887,13 +1887,13 @@ OsiSymSolverInterface::OsiSymSolverInterface(const OsiSymSolverInterface & si)
    gutsOfConstructor();
 
    /* Note that, if the user structure was set by
-      OsiSolverInterface::setApplicationData(), since SYMPHONY
-      will know nothing about the user structure, it will not be possible
-      to copy that!  For a temporary solution, the OsiSolverInterface::appData_
-      will be directed to the original user structure! So,
-      be careful from now on that, further modifications
-      on the user structure of either the original or the clone OsiSym
-      objects will affect the both! */
+	  OsiSolverInterface::setApplicationData(), since SYMPHONY
+	  will know nothing about the user structure, it will not be possible
+	  to copy that!  For a temporary solution, the OsiSolverInterface::appData_
+	  will be directed to the original user structure! So,
+	  be careful from now on that, further modifications
+	  on the user structure of either the original or the clone OsiSym
+	  objects will affect the both! */
    setApplicationData(si.getApplicationData());
 }
 
@@ -1915,12 +1915,12 @@ OsiSymSolverInterface & OsiSymSolverInterface::operator=(const OsiSymSolverInter
 
    if(this != &rhs){
 
-      sym_close_environment(env_);
-      gutsOfDestructor();
-      env_= sym_create_copy_environment(rhs.getSymphonyEnvironment());
-      gutsOfConstructor();
+	  sym_close_environment(env_);
+	  gutsOfDestructor();
+	  env_= sym_create_copy_environment(rhs.getSymphonyEnvironment());
+	  gutsOfConstructor();
 
-      /* Note that, if the user structure was set by
+	  /* Note that, if the user structure was set by
 	 OsiSolverInterface::setApplicationData(), since SYMPHONY
 	 will know nothing about the user structure, it will not be possible
 	 to copy that!  For a temporary solution, the
@@ -1929,7 +1929,7 @@ OsiSymSolverInterface & OsiSymSolverInterface::operator=(const OsiSymSolverInter
 	 on the user structure of either the original or the clone OsiSym
 	 objects will affect the both! */
 
-      setApplicationData(rhs.getApplicationData());
+	  setApplicationData(rhs.getApplicationData());
    }
 
    return *this;
@@ -1955,7 +1955,7 @@ void OsiSymSolverInterface::gutsOfConstructor()
 
 void OsiSymSolverInterface::gutsOfDestructor()
 {
-        freeAllMemory();
+		freeAllMemory();
 
 	assert( obj_ == NULL );
 	assert( collower_ == NULL );
@@ -2018,13 +2018,13 @@ void OsiSymSolverInterface::freeCachedResults()
 void OsiSymSolverInterface::freeCachedData( int keepCached )
 {
    if( !(keepCached & OsiSymSolverInterface::KEEPCACHED_COLUMN) )
-      freeCachedColRim();
+	  freeCachedColRim();
    if( !(keepCached & OsiSymSolverInterface::KEEPCACHED_ROW) )
-      freeCachedRowRim();
+	  freeCachedRowRim();
    if( !(keepCached & OsiSymSolverInterface::KEEPCACHED_MATRIX) )
-      freeCachedMatrix();
+	  freeCachedMatrix();
    if( !(keepCached & OsiSymSolverInterface::KEEPCACHED_RESULTS) )
-      freeCachedResults();
+	  freeCachedResults();
 }
 
 //-----------------------------------------------------------------------------

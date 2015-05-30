@@ -1,11 +1,3 @@
-/*
- * $Revision: 4007 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-30 05:25:25 +0200 (Sun, 30 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of GraphML parser.
  *
@@ -49,7 +41,11 @@ namespace ogdf {
 GraphMLParser::GraphMLParser(istream &in) : m_xml(in)
 {
 	m_error = false;
-	m_xml.createParseTree();
+	if (m_xml.createParseTree() == false) {
+		cerr << "ERROR: Parse error.\n";
+		m_error = true;
+		return;
+	}
 
 	const XmlTagObject &rootTag = m_xml.getRootTag();
 	if(rootTag.getName() != "graphml") {
@@ -59,7 +55,7 @@ GraphMLParser::GraphMLParser(istream &in) : m_xml(in)
 	}
 
 	rootTag.findSonXmlTagObjectByName("graph", m_graphTag);
-	if(m_graphTag == NULL) {
+	if (m_graphTag == nullptr) {
 		cerr << "ERROR: <graph> tag not found.\n";
 		m_error = true;
 		return;
@@ -68,19 +64,19 @@ GraphMLParser::GraphMLParser(istream &in) : m_xml(in)
 	List<XmlTagObject *> keyTags;
 	rootTag.findSonXmlTagObjectByName("key", keyTags);
 
-	forall_listiterators(XmlTagObject *, it, keyTags) {
-		const XmlTagObject &keyTag = **it;
+	for(XmlTagObject *obj : keyTags) {
+		const XmlTagObject &keyTag = *obj;
 
 		XmlAttributeObject *idAttr, *nameAttr;
 		keyTag.findXmlAttributeObjectByName("id", idAttr);
 		keyTag.findXmlAttributeObjectByName("attr.name", nameAttr);
 
-		if(idAttr == NULL) {
+		if (idAttr == nullptr) {
 			cerr << "ERROR: Key does not have an id attribute.\n";
 			m_error = true;
 			return;
 		}
-		if(nameAttr == NULL) {
+		if (nameAttr == nullptr) {
 			cerr << "ERROR: Key does not have an attr.name attribute.\n";
 			m_error = true;
 			return;
@@ -103,7 +99,7 @@ bool GraphMLParser::readData(
 	XmlAttributeObject *keyId;
 	nodeData.findXmlAttributeObjectByName("key", keyId);
 
-	if(keyId == NULL) {
+	if (keyId == nullptr) {
 		cerr << "ERROR: Node data does not have a key.\n";
 		return false;
 	}
@@ -163,21 +159,21 @@ bool GraphMLParser::readData(
 		if(attrs & GraphAttributes::nodeStyle) {
 			int r;
 			value >> r;
-			GA.fillColor(v).red(static_cast<__uint8>(r));
+			GA.fillColor(v).red(static_cast<uint8_t>(r));
 		}
 		break;
 	case graphml::a_g:
 		if(attrs & GraphAttributes::nodeStyle) {
 			int g;
 			value >> g;
-			GA.fillColor(v).green(static_cast<__uint8>(g));
+			GA.fillColor(v).green(static_cast<uint8_t>(g));
 		}
 		break;
 	case graphml::a_b:
 		if(attrs & GraphAttributes::nodeStyle) {
 			int b;
 			value >> b;
-			GA.fillColor(v).blue(static_cast<__uint8>(b));
+			GA.fillColor(v).blue(static_cast<uint8_t>(b));
 		}
 		break;
 	case graphml::a_nodeFill:
@@ -230,7 +226,7 @@ bool GraphMLParser::readData(
 	XmlAttributeObject *keyId;
 	edgeData.findXmlAttributeObjectByName("key", keyId);
 
-	if(keyId == NULL) {
+	if (keyId == nullptr) {
 		cerr << "ERROR: Edge data does not have a key.\n";
 		return false;
 	}
@@ -291,7 +287,7 @@ bool GraphMLParser::readData(
 	XmlAttributeObject *keyId;
 	clusterData.findXmlAttributeObjectByName("key", keyId);
 
-	if(keyId == NULL) {
+	if (keyId == nullptr) {
 		cerr << "ERROR: Cluster data does not have a key.\n";
 		return false;
 	}
@@ -325,17 +321,17 @@ bool GraphMLParser::readData(
 	case a_r:
 		int r;
 		value >> r;
-		CA.fillColor(c).red(static_cast<__uint8>(r));
+		CA.fillColor(c).red(static_cast<uint8_t>(r));
 		break;
 	case a_g:
 		int g;
 		value >> g;
-		CA.fillColor(c).green(static_cast<__uint8>(g));
+		CA.fillColor(c).green(static_cast<uint8_t>(g));
 		break;
 	case a_b:
 		int b;
 		value >> b;
-		CA.fillColor(c).blue(static_cast<__uint8>(b));
+		CA.fillColor(c).blue(static_cast<uint8_t>(b));
 		break;
 	case a_clusterStroke:
 		CA.strokeColor(c) = clusterData.getValue();
@@ -359,13 +355,13 @@ bool GraphMLParser::readNodes(
 	List<XmlTagObject *> nodeTags;
 	rootTag.findSonXmlTagObjectByName("node", nodeTags);
 
-	forall_listiterators(XmlTagObject *, it, nodeTags) {
-		const XmlTagObject &nodeTag = **it;
+	for(XmlTagObject *obj : nodeTags) {
+		const XmlTagObject &nodeTag = *obj;
 
 		XmlAttributeObject *idAttr;
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
 
-		if(idAttr == NULL) {
+		if (idAttr == nullptr) {
 			cerr << "ERROR: Node is missing id attribute.\n";
 			return false;
 		}
@@ -390,18 +386,18 @@ bool GraphMLParser::readEdges(
 	List<XmlTagObject *> edgeTags;
 	rootTag.findSonXmlTagObjectByName("edge", edgeTags);
 
-	forall_listiterators(XmlTagObject *, it, edgeTags) {
-		const XmlTagObject &edgeTag = **it;
+	for(XmlTagObject *obj : edgeTags) {
+		const XmlTagObject &edgeTag = *obj;
 
 		XmlAttributeObject *sourceId, *targetId;
 		edgeTag.findXmlAttributeObjectByName("source", sourceId);
 		edgeTag.findXmlAttributeObjectByName("target", targetId);
 
-		if(sourceId == NULL) {
+		if (sourceId == nullptr) {
 			cerr << "ERROR: Edge is missing source node.\n";
 			return false;
 		}
-		if(targetId == NULL) {
+		if (targetId == nullptr) {
 			cerr << "ERROR: Edge is missing target node.\n";
 			return false;
 		}
@@ -427,17 +423,17 @@ bool GraphMLParser::readClusters(
 	List<XmlTagObject *> nodeTags;
 	rootTag.findSonXmlTagObjectByName("node", nodeTags);
 
-	forall_listiterators(XmlTagObject *, it, nodeTags) {
-		const XmlTagObject &nodeTag = **it;
+	for(XmlTagObject *obj : nodeTags) {
+		const XmlTagObject &nodeTag = *obj;
 
 		XmlAttributeObject *idAttr;
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
 		XmlTagObject *clusterTag;
 		nodeTag.findSonXmlTagObjectByName("graph", clusterTag);
 
-		if(clusterTag == NULL) {
+		if (clusterTag == nullptr) {
 			// Got normal node then, add it to the graph - id is required.
-			if(idAttr == NULL) {
+			if (idAttr == nullptr) {
 				cerr << "ERROR: Node is missing id attribute.\n";
 				return false;
 			}
@@ -474,7 +470,7 @@ bool GraphMLParser::read(Graph &G)
 	// XmlAttributeObject *edgeDefaultAttr;
 	// m_graphTag->findXmlAttributeObjectByName("edgedefault", edgeDefaultAttr);
 
-	// bool directed = edgeDefaultAttr == NULL ||
+	// bool directed = edgeDefaultAttr == nullptr ||
 	//                 edgeDefaultAttr->getValue() == "directed";
 	if(m_error) {
 		return false;
@@ -483,7 +479,7 @@ bool GraphMLParser::read(Graph &G)
 	G.clear();
 	m_nodeId.clear();
 
-	return readNodes(G, NULL, *m_graphTag) && readEdges(G, NULL, *m_graphTag);
+	return readNodes(G, nullptr, *m_graphTag) && readEdges(G, nullptr, *m_graphTag);
 }
 
 
@@ -509,7 +505,7 @@ bool GraphMLParser::read(Graph &G, ClusterGraph &C)
 	G.clear();
 	m_nodeId.clear();
 
-	return readClusters(G, C, NULL, C.rootCluster(), *m_graphTag);
+	return readClusters(G, C, nullptr, C.rootCluster(), *m_graphTag);
 }
 
 

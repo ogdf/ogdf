@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the classes BoyerMyrvoldInit and BucketLowPoint
  *
@@ -49,6 +41,8 @@
 #define OGDF_BOYER_MYRVOLD_INIT_H
 
 
+#include <random>
+#include <limits>
 #include <ogdf/internal/planarity/BoyerMyrvoldPlanar.h>
 #include <ogdf/basic/List.h>
 
@@ -87,7 +81,9 @@ class BoyerMyrvoldInit {
 
 		//! Some parameters... see BoyerMyrvold.h for further instructions
 		const int& m_embeddingGrade;
-		const bool& m_randomDFSTree;
+		const double& m_randomness;
+		const EdgeArray<int> *m_edgeCosts;
+		std::minstd_rand m_rand;
 
 		//! Link to non-virtual vertex of a virtual Vertex.
 		/** A virtual vertex has negative DFI of the DFS-Child of related non-virtual Vertex
@@ -135,7 +131,7 @@ class BoyerMyrvoldInit {
 		NodeArray<ListPure<node> >& m_separatedDFSChildList;
 
 		//! Pointer to \a node contained in the DFSChildList of his parent, if exists.
-		/** If node isn't in list or list doesn't exist, the pointer is set to NULL.
+		/** If node isn't in list or list doesn't exist, the pointer is set to nullptr.
 		*/
 		NodeArray<ListIterator<node> >& m_pNodeInParent;
 

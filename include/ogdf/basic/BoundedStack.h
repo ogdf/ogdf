@@ -1,11 +1,3 @@
-/*
- * $Revision: 3533 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-03 18:22:41 +0200 (Mon, 03 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration and implementation of bounded stack class.
  *
@@ -63,6 +55,8 @@ void print(ostream &os, const BoundedStack<E,INDEX> &S, char delim = ' ');
 
 //! The parameterized class \a BoundedStack<E,INDEX> implements stacks with bounded size.
 /**
+ * @ingroup containers
+ *
  * @tparam E     is the element type.
  * @tparam INDEX is the index type. The default index type is \c int, other possible types
  *               are \c short and <code>long long</code> (on 64-bit systems).
@@ -80,14 +74,14 @@ public:
 	 * using the stack, it is required to initialize the stack with init().
 	 */
 	BoundedStack() {
-		m_pTop = m_pStart = m_pStop = 0;
+		m_pTop = m_pStart = m_pStop = nullptr;
 	}
 
 	//! Constructs an empty bounded stack for at most \a n elements.
 	explicit BoundedStack(INDEX n) {
 		OGDF_ASSERT(n >= 1)
 		m_pStart = new E[n];
-		if (m_pStart == 0) OGDF_THROW(InsufficientMemoryException);
+		if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);
 		m_pTop  = m_pStart - 1;
 		m_pStop = m_pStart+n;
 	}
@@ -95,6 +89,18 @@ public:
 	//! Constructs a bounded stack that is a copy of \a S.
 	BoundedStack(const BoundedStack<E> &S) {
 		copy(S);
+	}
+
+	//! Constructs a bounded stack containing the elements of \a S (move semantics).
+	/**
+	 * The stack \a S is non valid afterwards, i.e., its capacity is zero.
+	 * It has to be reinitialized if new elements shall be inserted.
+	 */
+	BoundedStack(BoundedStack<E> &&S) {
+		m_pTop   = S.m_pTop;
+		m_pStart = S.m_pStart;
+		m_pStop  = S.m_pStop;
+		S.m_pTop = S.m_pStart = S.m_pStop = nullptr;
 	}
 
 	// destruction
@@ -115,7 +121,7 @@ public:
 	}
 
 	//! Returns current size of the stack.
-	INDEX size() const { return (m_pStart != 0) ? (INDEX)(m_pTop+1 - m_pStart) : 0; }
+	INDEX size() const { return (m_pStart != nullptr) ? (INDEX)(m_pTop+1 - m_pStart) : 0; }
 
 	//! Returns true iff the stack is empty.
 	bool empty() { return m_pTop == (m_pStart-1); }
@@ -124,7 +130,7 @@ public:
 	bool full() { return m_pTop == (m_pStop-1); }
 
 	//! Returns true iff the stack was initialized.
-	bool valid() const { return m_pStart != 0; }
+	bool valid() const { return m_pStart != nullptr; }
 
 	//! Returns the capacity of the bounded stack.
 	INDEX capacity() const { return (INDEX)(m_pStop - m_pStart); }
@@ -132,7 +138,7 @@ public:
 	//! Reinitializes the stack for no elements at all (actually frees memory).
 	void init() {
 		delete [] m_pStart;
-		m_pTop = m_pStart = m_pStart = 0;
+		m_pTop = m_pStart = m_pStart = nullptr;
 	}
 
 	//! Reinitializes the stack for \a n elements.
@@ -142,15 +148,31 @@ public:
 		delete [] m_pStart;
 
 		m_pStart = new E[n];
-		if (m_pStart == 0) OGDF_THROW(InsufficientMemoryException);
+		if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);
 		m_pTop = m_pStart - 1;
 		m_pStop = m_pStart+n;
 	}
 
 	//! Assignment operator.
-	BoundedStack<E> &operator=(const BoundedStack &S) {
+	BoundedStack<E> &operator=(const BoundedStack<E> &S) {
 		delete [] m_pStart;
 		copy(S);
+		return *this;
+	}
+
+	//! Assignment operator (move semantics).
+	/**
+	 * The stack \a S is non valid afterwards, i.e., its capacity is zero.
+	 * It has to be reinitialized if new elements shall be inserted.
+	 */
+	BoundedStack<E> &operator=(BoundedStack<E> &&S) {
+		delete [] m_pStart;
+
+		m_pTop   = S.m_pTop;
+		m_pStart = S.m_pStart;
+		m_pStop  = S.m_pStop;
+		S.m_pTop = S.m_pStart = S.m_pStop = nullptr;
+
 		return *this;
 	}
 
@@ -172,7 +194,7 @@ public:
 	//! Prints the stack to output stream \a os.
 	void print(ostream &os, char delim = ' ') const
 	{
-		if(m_pStart != 0) {
+		if(m_pStart != nullptr) {
 			for (const E *pX = m_pStart; pX <= m_pTop; ++pX)
 				os << *pX << delim;
 		}
@@ -182,11 +204,11 @@ private:
 	void copy(const BoundedStack<E> &S)
 	{
 		if(!S.valid()) {
-			m_pTop = m_pStart = m_pStop = 0;
+			m_pTop = m_pStart = m_pStop = nullptr;
 		} else {
 			INDEX sz = S.m_pStop - S.m_pStart;
 			m_pStart = new E[sz+1];
-			if (m_pStart == 0) OGDF_THROW(InsufficientMemoryException);
+			if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);
 			m_pStop = m_pStart + sz;
 			m_pTop  = m_pStart-1;
 			for (E *pX = S.m_pStart-1; pX != S.m_pTop; )

@@ -1,11 +1,3 @@
-/*
- * $Revision: 3188 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-01-10 09:53:32 +0100 (Thu, 10 Jan 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Offers variety of possible SimDraw creations.
  *
@@ -50,8 +42,7 @@ namespace ogdf {
 //
 void SimDrawCreator::clearESG()
 {
-	edge e;
-	forall_edges(e,*m_G)
+	for(edge e : m_G->edges)
 		m_GA->subGraphBits(e) = 0;
 
 }//end clearESG
@@ -67,8 +58,7 @@ void SimDrawCreator::randomESG2(int doubleESGProbability)
 
 	clearESG();
 
-	edge e;
-	forall_edges(e,*m_G)
+	for(edge e : m_G->edges)
 	{
 		//all edges have a chance of doubleESGProbability (in percent)
 		//to belong to both input graphs
@@ -101,8 +91,7 @@ void SimDrawCreator::randomESG3(int doubleESGProbability, int tripleESGProbabili
 
 	clearESG();
 
-	edge e;
-	forall_edges(e,*m_G)
+	for(edge e : m_G->edges)
 	{
 		/*All edges have a chance of tripleESGProbability (in percent)
 		to belong to all three graphs.*/
@@ -138,11 +127,11 @@ void SimDrawCreator::randomESG3(int doubleESGProbability, int tripleESGProbabili
 //works with graphNumber number of graphs
 void SimDrawCreator::randomESG(int graphNumber)
 {
-	OGDF_ASSERT( 0 < graphNumber && graphNumber < 32 );
+	OGDF_ASSERT(0 < graphNumber);
+	OGDF_ASSERT(graphNumber < 32);
 
 	int max = (int)pow((double)2,graphNumber+1)-1;
-	edge e;
-	forall_edges(e,*m_G)
+	for(edge e : m_G->edges)
 	{
 		int randomESGValue = 1 + rand() % max;
 		m_GA->subGraphBits(e) = randomESGValue;
@@ -158,7 +147,8 @@ void SimDrawCreator::createRandom(int numberOfNodes,
 	int numberOfEdges,
 	int numberOfBasicGraphs)
 {
-	OGDF_ASSERT( 0 < numberOfBasicGraphs && numberOfBasicGraphs < 32 );
+	OGDF_ASSERT(0 < numberOfBasicGraphs);
+	OGDF_ASSERT(numberOfBasicGraphs < 32);
 	randomSimpleGraph(*m_G, numberOfNodes, numberOfEdges);
 	randomESG(numberOfBasicGraphs);
 

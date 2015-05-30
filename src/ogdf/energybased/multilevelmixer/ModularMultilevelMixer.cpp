@@ -1,11 +1,3 @@
-/*
- * $Revision: 3521 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-05-31 14:52:33 +0200 (Fri, 31 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief MMM is a Multilevel Graph drawing Algorithm that can use different modules.
  *
@@ -46,8 +38,7 @@
 #include <ogdf/energybased/multilevelmixer/SolarMerger.h>
 #include <ogdf/energybased/multilevelmixer/BarycenterPlacer.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
-#include <ogdf/energybased/SpringEmbedderFR.h>
-#include <time.h>
+#include <ogdf/energybased/SpringEmbedderGridVariant.h>
 
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
 #include <sstream>
@@ -69,7 +60,7 @@ ModularMultilevelMixer::ModularMultilevelMixer()
 	// module options
 	setMultilevelBuilder(new SolarMerger);
 	setInitialPlacer    (new BarycenterPlacer);
-	setLevelLayoutModule(new SpringEmbedderFR);
+	setLevelLayoutModule(new SpringEmbedderGridVariant);
 }
 
 
@@ -92,15 +83,13 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 	}
 
 	if (m_fixedEdgeLength > 0.0) {
-		edge e;
-		forall_edges(e,G) {
+		for(edge e : G.edges) {
 			MLG.weight(e, m_fixedEdgeLength);
 		}
 	}
 
 	if (m_fixedNodeSize > 0.0) {
-		node v;
-		forall_nodes(v,G) {
+		for(node v : G.nodes) {
 			MLG.radius(v, m_fixedNodeSize);
 		}
 	}
@@ -122,10 +111,9 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 				return;
 			}
 		}
-		node v;
 		if (m_randomize)
 		{
-			forall_nodes(v,G) {
+			for(node v : G.nodes) {
 				MLG.x(v, (float)randomDouble(-1.0, 1.0));
 				MLG.y(v, (float)randomDouble(-1.0, 1.0));
 			}

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2523 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-02 20:59:27 +0200 (Mon, 02 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class GeedyCycleRemoval.
  *
@@ -64,8 +56,10 @@ namespace ogdf {
  */
 class OGDF_EXPORT GreedyCycleRemoval : public AcyclicSubgraphModule {
 public:
+	GreedyCycleRemoval() { }
+
 	//! Computes the set of edges \a arcSet, which have to be deleted in the acyclic subgraph.
-	void call (const Graph &G, List<edge> &arcSet);
+	virtual void call (const Graph &G, List<edge> &arcSet) override;
 
 private:
 	void dfs (node v, const Graph &G);

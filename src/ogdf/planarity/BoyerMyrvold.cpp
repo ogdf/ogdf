@@ -1,11 +1,3 @@
-/*
- * $Revision: 3569 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-18 11:04:33 +0200 (Tue, 18 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of the wrapper class of the Boyer-Myrvold planarity test
  *
@@ -61,7 +53,7 @@ bool BoyerMyrvold::isPlanarDestructive(Graph& g)
 
 	SListPure<KuratowskiStructure> dummy;
 	pBMP = new BoyerMyrvoldPlanar(g,false,BoyerMyrvoldPlanar::doNotEmbed,false,
-									dummy,false,true);
+									dummy,0,true,false);
 	return pBMP->start();
 }
 
@@ -79,7 +71,7 @@ bool BoyerMyrvold::isPlanar(const Graph& g)
 	Graph h(g);
 	SListPure<KuratowskiStructure> dummy;
 	pBMP = new BoyerMyrvoldPlanar(h,false,BoyerMyrvoldPlanar::doNotEmbed,false,
-									dummy,false,true);
+									dummy,0,true,false);
 	return pBMP->start();
 }
 
@@ -94,9 +86,7 @@ void BoyerMyrvold::transform(
 	// init linear counting structure
 	node kn[6];
 	int p = 0;
-	SListConstIterator<edge> itE;
-	for (itE = source.edgeList.begin(); itE.valid(); ++itE) {
-		const edge& e(*itE);
+	for (edge e : source.edgeList) {
 		OGDF_ASSERT(!countEdge[e]);
 		countEdge[e] = 1;
 		if (++count[e->source()] == 3) kn[p++] = e->source();
@@ -109,7 +99,7 @@ void BoyerMyrvold::transform(
 	edge e,f,h;
 	List<edge> L;
 	if (p==5) { // K5
-		kn[5] = 0;
+		kn[5] = nullptr;
 		target.init(10);
 		for (int k = 0; k<5; k++) {
 			forall_adj_edges(e,kn[k]) {
@@ -167,8 +157,7 @@ void BoyerMyrvold::transform(
 	}
 
 	// destruct linear counting structure
-	for (itE = source.edgeList.begin(); itE.valid(); ++itE) {
-		e = *itE;
+	for (edge e : source.edgeList) {
 		countEdge[e] = 0;
 		count[e->source()] = 0;
 		count[e->target()] = 0;
@@ -186,15 +175,14 @@ void BoyerMyrvold::transform(
 	targetList.clear();
 	NodeArray<int> count(g,0);
 	EdgeArray<int> countEdge(g,0);
-	SListConstIterator<KuratowskiWrapper> it;
-	node lastEmbeddedVertex = NULL;
+	node lastEmbeddedVertex = nullptr;
 
 	// transform each KuratowskiWrapper into KuratowskiSubdivision
-	for (it = sourceList.begin(); it.valid(); ++it) {
-		if (!onlyDifferent || (*it).V != lastEmbeddedVertex) {
-			lastEmbeddedVertex = (*it).V;
+	for (const KuratowskiWrapper &kw : sourceList) {
+		if (!onlyDifferent || kw.V != lastEmbeddedVertex) {
+			lastEmbeddedVertex = kw.V;
 			KuratowskiSubdivision s;
-			transform(*it,s,count,countEdge);
+			transform(kw,s,count,countEdge);
 
 			targetList.pushBack(s);
 		}
@@ -222,7 +210,7 @@ bool BoyerMyrvold::planarEmbedDestructive(
 	clear();
 	SListPure<KuratowskiStructure> dummy;
 	pBMP = new BoyerMyrvoldPlanar(g,bundles,embeddingGrade,limitStructures,dummy,
-									randomDFSTree,avoidE2Minors);
+									randomDFSTree ? 1 : 0,avoidE2Minors,false);
 	bool planar = pBMP->start();
 	OGDF_ASSERT(!planar || g.genus()==0);
 
@@ -264,7 +252,7 @@ bool BoyerMyrvold::planarEmbed(
 	GraphCopySimple h(g);
 	SListPure<KuratowskiStructure> dummy;
 	pBMP = new BoyerMyrvoldPlanar(h,bundles,embeddingGrade,limitStructures,dummy,
-									randomDFSTree,avoidE2Minors);
+									randomDFSTree ? 1 : 0,avoidE2Minors,false);
 	bool planar = pBMP->start();
 	OGDF_ASSERT(!planar || h.genus()==0);
 
@@ -272,47 +260,44 @@ bool BoyerMyrvold::planarEmbed(
 
 	// Kuratowski extraction
 	if (embeddingGrade > BoyerMyrvoldPlanar::doFindZero ||
-				embeddingGrade == BoyerMyrvoldPlanar::doFindUnlimited) {
+		embeddingGrade == BoyerMyrvoldPlanar::doFindUnlimited) {
 		ExtractKuratowskis extract(*pBMP);
 		if (bundles) {
-			extract.extractBundles(dummy,output);
-		} else {
-			extract.extract(dummy,output);
+			extract.extractBundles(dummy, output);
+		}
+		else {
+			extract.extract(dummy, output);
 		}
 		OGDF_ASSERT(planar || !output.empty());
 
 		// convert kuratowski edges in original graph edges
 		if (!output.empty()) {
-			SListIterator<KuratowskiWrapper> it;
-			SListIterator<edge> itE;
-			for (it = output.begin(); it.valid(); ++it) {
-				for (itE = (*it).edgeList.begin(); itE.valid(); ++itE)
-					(*itE) = h.original(*itE);
+			for (KuratowskiWrapper &kw : output) {
+				for (edge &e : kw.edgeList)
+					e = h.original(e);
 			}
 		}
 	}
 
 	// copy adjacency lists, if planar
 	if (planar) {
-		node v;
-		adjEntry adj;
 		SListPure<adjEntry> entries;
-		forall_nodes(v,g) {
+		for (node v : g.nodes) {
 			entries.clear();
-			forall_adj(adj,h.copy(v)) {
+			for (adjEntry adj : h.copy(v)->adjEdges) {
 				OGDF_ASSERT(adj->theNode() == h.copy(v));
 				edge e = h.original(adj->theEdge());
 				OGDF_ASSERT(e->graphOf() == &g);
-				//if (e->source() == v) {
-				if(adj == adj->theEdge()->adjSource()) {
+				if (adj == adj->theEdge()->adjSource()) {
 					entries.pushBack(e->adjSource());
 					OGDF_ASSERT(e->adjSource()->theNode() == v);
-				} else {
+				}
+				else {
 					entries.pushBack(e->adjTarget());
 					OGDF_ASSERT(e->adjTarget()->theNode() == v);
 				}
 			}
-			g.sort(v,entries);
+			g.sort(v, entries);
 		}
 	}
 
@@ -342,7 +327,7 @@ bool BoyerMyrvold::planarEmbed(
 	//OGDF_ASSERT(&h.original() == &g);
 	SListPure<KuratowskiStructure> dummy;
 	pBMP = new BoyerMyrvoldPlanar(h,bundles,embeddingGrade,limitStructures,dummy,
-									randomDFSTree,avoidE2Minors);
+									randomDFSTree ? 1 : 0,avoidE2Minors,false);
 	bool planar = pBMP->start();
 	OGDF_ASSERT(!planar || h.genus()==0);
 
@@ -361,11 +346,9 @@ bool BoyerMyrvold::planarEmbed(
 
 		// convert kuratowski edges in original graph edges
 		if (!output.empty()) {
-			SListIterator<KuratowskiWrapper> it;
-			SListIterator<edge> itE;
-			for (it = output.begin(); it.valid(); ++it) {
-				for (itE = (*it).edgeList.begin(); itE.valid(); ++itE)
-					(*itE) = h.original(*itE);
+			for (KuratowskiWrapper &kw : output) {
+				for (edge &e : kw.edgeList)
+					e = h.original(e);
 			}
 		}
 	}

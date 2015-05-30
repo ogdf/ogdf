@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief implementation of class CCLayoutPackModule.
  *
@@ -60,7 +52,8 @@ bool CCLayoutPackModule::checkOffsetsTP(
 		typename POINT::numberType yb = offset[i].m_y;
 		typename POINT::numberType yt = yb + box[i].m_y;
 
-		OGDF_ASSERT(xl <= xr && yb <= yt);
+		OGDF_ASSERT(xl <= xr);
+		OGDF_ASSERT(yb <= yt);
 
 		for (int j = i+1; j < n; ++j)
 		{

@@ -512,7 +512,7 @@ public:
 
       /** Dump the matrix on stdout. When in dire straits this method can
 	  help. */
-      void dumpMatrix(const char* fname = NULL) const;
+      void dumpMatrix(const char* fname = nullptr) const;
 
       /// Print a single matrix element.
       void printMatrixElement(const int row_val, const int col_val) const;
@@ -726,25 +726,25 @@ public:
     
       Used when space is very tight. Does not free the space!
     */
-    inline void nullElementArray() {element_=NULL;}
+    inline void nullElementArray() {element_=nullptr;}
 
     /*! NULLify start array
     
       Used when space is very tight. Does not free the space!
     */
-    inline void nullStartArray() {start_=NULL;}
+    inline void nullStartArray() {start_=nullptr;}
 
     /*! NULLify length array
     
       Used when space is very tight. Does not free the space!
     */
-    inline void nullLengthArray() {length_=NULL;}
+    inline void nullLengthArray() {length_=nullptr;}
 
     /*! NULLify index array
     
       Used when space is very tight. Does not free the space!
     */
-    inline void nullIndexArray() {index_=NULL;}
+    inline void nullIndexArray() {index_=nullptr;}
    //@}
 
    //--------------------------------------------------------------------------

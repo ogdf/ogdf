@@ -1,11 +1,3 @@
-/*
- * $Revision: 3159 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-12-13 09:01:58 +0100 (Thu, 13 Dec 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PlanarizationLayoutUML.
  *
@@ -57,7 +49,7 @@
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/basic/HashArray.h>
-
+#include <ogdf/orthogonal/OrthoRep.h>
 
 
 namespace ogdf {
@@ -160,7 +152,7 @@ public:
 	 * \pre The graph has no self-loops.
 	 * @param umlGraph is the input graph and will also be assigned the layout information.
 	 */
-	virtual void call(UMLGraph &umlGraph);
+	virtual void call(UMLGraph &umlGraph) override;
 
 	//! Simple call function that does not care about cliques etc.
 	void simpleCall(UMLGraph &umlGraph) {

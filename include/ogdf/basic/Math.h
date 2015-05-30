@@ -1,15 +1,7 @@
-/*
- * $Revision: 3703 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-07-23 12:21:55 +0200 (Tue, 23 Jul 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Mathematical Helpers
  *
- * \author Markus Chimani
+ * \author Markus Chimani, Ivo Hedtke
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -45,6 +37,7 @@
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/Stack.h>
+#include <ogdf/basic/Array.h>
 
 
 namespace ogdf {
@@ -74,11 +67,12 @@ public:
 	//! The constant log(4.0).
 	static const double log_of_4;
 
-	//! Returns the logarithm of \a x to the base 2.
-	static double log2(double x) {
-		OGDF_ASSERT(x >= 0)
-		return log(x) / log_of_2;
-	}
+    //! Returns the logarithm of \a x to the base 2.
+    template<typename T>
+    static T log2(T x) {
+        OGDF_ASSERT(x >= 0);
+        return std::log2(x);
+    }
 
 	//! Returns the logarithm of \a x to the base 4.
 	static double log4(double x) {
@@ -139,22 +133,33 @@ public:
 	}
 
 	//! Returns the greatest common divisor of two numbers.
-	static int gcd(int a, int b)
+    template<typename T>
+	static T gcd(T a, T b)
 	{
 		// If b > a, they will be swapped in the first iteration.
 		do {
-			int c = a % b;
+			T c = a % b;
 			a = b;
 			b = c;
 		} while (b > 0);
 		return a;
 	}
 
-	//! Returns the least common multipler of two numbers.
-	static int lcm(int a, int b)
-	{
-		return a*b / gcd(a,b);
-	}
+    //! Returns the greatest common divisor of a list of numbers.
+    template<class T, class INDEX = int>
+    static T gcd(const Array<T,INDEX> &numbers) {
+        T current_gcd = numbers[numbers.low()];
+        for (INDEX i = numbers.low()+1; i<=numbers.high(); i++) {
+            current_gcd = gcd(current_gcd, numbers[i]);
+        }
+        return current_gcd;
+    }
+
+    //! Returns the least common multipler of two numbers.
+    template<typename T>
+    static T lcm(T a, T b) {
+        return a*b / gcd(a,b);
+    }
 
 	//! Converts a double to a fraction.
 	static void getFraction(double d, int &num, int &denom, const double epsilon = 5e-10, const int count = 10)

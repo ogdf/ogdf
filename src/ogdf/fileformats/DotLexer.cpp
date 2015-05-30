@@ -1,11 +1,3 @@
-/*
- * $Revision: 4020 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2014-03-30 13:05:25 +0200 (Sun, 30 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief Implements DOT format Lexer class.
  *
@@ -87,11 +79,9 @@ Lexer::Lexer(std::istream &input) : m_input(input)
 
 Lexer::~Lexer()
 {
-	for(std::vector<Token>::iterator it = m_tokens.begin();
-	    it != m_tokens.end();
-	    it++)
+	for(const Token &t : m_tokens)
 	{
-		delete it->value;
+		delete t.value;
 	}
 }
 

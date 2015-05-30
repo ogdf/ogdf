@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of algorithms for computing an
  * acyclic subgraph (DfsAcyclicSubgraph, GreedyCycleRemovel)
@@ -76,8 +68,7 @@ void DfsAcyclicSubgraph::callUML (
 	int count = 0;
 	int treeNum = -1;
 
-	node v;
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 	{
 		if(hierarchy[v] == -1) {
 			int n = dfsFindHierarchies(AG,hierarchy,count,v);
@@ -92,7 +83,7 @@ void DfsAcyclicSubgraph::callUML (
 	NodeArray<int> number(G,0), completion(G);
 	int nNumber = 0, nCompletion = 0;
 
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if(number[v] == 0)
 			dfsBackedgesHierarchies(AG,v,number,completion,nNumber,nCompletion);
 	}
@@ -102,8 +93,7 @@ void DfsAcyclicSubgraph::callUML (
 	EdgeArray<bool> reversed(G,false);
 	NodeArray<int> outdeg(G,0);
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		if(AG.type(e) != Graph::generalization || e->isSelfLoop())
 			continue;
 
@@ -121,15 +111,16 @@ void DfsAcyclicSubgraph::callUML (
 	Queue<node> Q;
 	int countV = 0;
 
-	forall_nodes(v,G)
+	for(node v : G.nodes)
 		if(outdeg[v] == 0)
 			Q.append(v);
 
 	while(!Q.empty()) {
-		v = Q.pop();
+		node v = Q.pop();
 
 		numV[v] = countV++;
 
+		edge e;
 		forall_adj_edges(e,v) {
 			node w = e->source();
 			if(w != v) {
@@ -140,7 +131,7 @@ void DfsAcyclicSubgraph::callUML (
 	}
 
 	// "direct" associations
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		if(AG.type(e) == Graph::generalization || e->isSelfLoop())
 			continue;
 
@@ -157,7 +148,7 @@ void DfsAcyclicSubgraph::callUML (
 	}
 
 	// collect reversed edges
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		if(reversed[e])
 			arcSet.pushBack(e);
 }
@@ -247,11 +238,8 @@ void GreedyCycleRemoval::call (const Graph &G, List<edge> &arcSet)
 {
 	arcSet.clear();
 
-	node u, v, w;
-	edge e;
-
 	m_max = m_min = 0;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (-v->indeg () < m_min) m_min = -v->indeg ();
 		if ( v->outdeg() > m_max) m_max =  v->outdeg();
 	}
@@ -266,13 +254,14 @@ void GreedyCycleRemoval::call (const Graph &G, List<edge> &arcSet)
 	NodeArray<int> pos(G);
 
 	m_counter = 0;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		if (m_visited[v]) continue;
 		dfs(v,G);
 
-		int i, max_i = m_max-1, min_i = m_min+1;
+		int max_i = m_max-1, min_i = m_min+1;
 
 		for ( ; m_counter > 0; m_counter--) {
+			node u;
 			if (!m_B[m_min].empty()) {
 				u = m_B[m_min].front(); m_B[m_min].popFront();
 				S_r.pushFront(u);
@@ -298,15 +287,21 @@ void GreedyCycleRemoval::call (const Graph &G, List<edge> &arcSet)
 
 			m_item[u] = ListIterator<node>();
 
+			edge e;
 			forall_adj_edges(e,u) {
+				node w;
 				if (e->target() == u) {
 					w = e->source();
 					if (m_item[w].valid()) {
-						m_out[w]--; i = m_index[w];
+						m_out[w]--;
+						int i = m_index[w];
 						m_B[i].del(m_item[w]);
-						if (m_out[w] == 0) i = m_min;
-						else if (m_in[w] == 0) i = m_max;
-						else i--;
+						if (m_out[w] == 0)
+							i = m_min;
+						else if (m_in[w] == 0)
+							i = m_max;
+						else
+							i--;
 						m_item[w] = m_B[m_index[w] = i].pushBack(w);
 
 						if (m_index[w] < min_i)
@@ -315,11 +310,15 @@ void GreedyCycleRemoval::call (const Graph &G, List<edge> &arcSet)
 				} else {
 					w = e->target();
 					if (m_item[w].valid()) {
-						m_in[w]--; i = m_index[w];
+						m_in[w]--;
+						int i = m_index[w];
 						m_B[i].del(m_item[w]);
-						if (m_out[w] == 0) i = m_min;
-						else if (m_in[w] == 0) i = m_max;
-						else i++;
+						if (m_out[w] == 0)
+							i = m_min;
+						else if (m_in[w] == 0)
+							i = m_max;
+						else
+							i++;
 						m_item[w] = m_B[m_index[w] = i].pushBack(w);
 
 						if (m_index[w] > max_i)
@@ -329,16 +328,16 @@ void GreedyCycleRemoval::call (const Graph &G, List<edge> &arcSet)
 			}
 		}
 
-		SListConstIterator<node> it;
-		for(i = 0, it = S_l.begin(); it.valid(); ++it)
-			pos[*it] = i++;
-		for(it = S_r.begin(); it.valid(); ++it)
-			pos[*it] = i++;
+		int i = 0;
+		for(node vi : S_l)
+			pos[vi] = i++;
+		for(node vi : S_r)
+			pos[vi] = i++;
 
 		S_l.clear(); S_r.clear();
 	}
 
-	forall_edges(e,G)
+	for(edge e : G.edges)
 		if (pos[e->source()] >= pos[e->target()])
 			arcSet.pushBack(e);
 

@@ -1,11 +1,3 @@
-/*
- * $Revision: 2554 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-06 11:39:38 +0200 (Fri, 06 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Offers variety of possible SimDraw creations.
  *
@@ -283,7 +275,8 @@ void SimDrawCreatorSimple::createOuterplanar_BCDEEIKLM03()
 // see Kratochvil (GD '98) for description of instance
 void SimDrawCreatorSimple::createKrat98(int N, int nodeNumber)
 {
-	OGDF_ASSERT( N>=1 && nodeNumber>=1 );
+	OGDF_ASSERT(N>=1);
+	OGDF_ASSERT(nodeNumber>=1);
 
 	Array<node> p(nodeNumber);
 	Array<node> q(nodeNumber);
@@ -449,7 +442,8 @@ void SimDrawCreatorSimple::createKrat98(int N, int nodeNumber)
 // inner Nodes and one Root.
 void SimDrawCreatorSimple::createWheel(int numberOfParallels, int numberOfBasic )
 {
-	OGDF_ASSERT(numberOfBasic > 0 && numberOfParallels >= 0);
+	OGDF_ASSERT(numberOfBasic > 0);
+	OGDF_ASSERT(numberOfParallels >= 0);
 
 	node root = m_G->newNode();
 	Array<node> v(numberOfBasic*2);
@@ -500,7 +494,8 @@ void SimDrawCreatorSimple::createWheel(int numberOfParallels, int numberOfBasic 
 void SimDrawCreatorSimple::createExpo(int n)
 {
 
-	OGDF_ASSERT(n>0 && n<31);
+	OGDF_ASSERT(n>0);
+	OGDF_ASSERT(n<31);
 
 	Array<node> u(n+1);
 	Array<node> v(n+1);

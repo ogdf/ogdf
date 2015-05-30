@@ -1,11 +1,3 @@
-/*
- * $Revision: 2815 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-10-14 23:25:34 +0200 (Sun, 14 Oct 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Merges nodes with neighbour to get a Multilevel Graph
  *
@@ -81,8 +73,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 	List<node> bfsQueue;
 	List<node> neighbors;
 	int minIndex = numeric_limits<int>::max();
-	adjEntry adj;
-	forall_adj(adj, parent) {
+	for(adjEntry adj : parent->adjEdges) {
 		node temp = adj->twinNode();
 		bfsQueue.pushBack(temp);
 		nodeMark[temp] = temp->index();
@@ -94,7 +85,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 			}
 		}
 	}
-	forall_adj(adj, mergePartner) {
+	for(adjEntry adj : mergePartner->adjEdges) {
 		node temp = adj->twinNode();
 		bfsQueue.pushBack(temp);
 		nodeMark[temp] = temp->index();
@@ -112,9 +103,8 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 	if (testStrength > 0)
 	{
 		minIndex = numeric_limits<int>::max();
-		for (List<node>::iterator i = neighbors.begin(); i != neighbors.end(); i++) {
-			node temp = *i;
-			forall_adj(adj, temp) {
+		for (node temp : neighbors) {
+			for(adjEntry adj : temp->adjEdges) {
 				node neighbor = adj->twinNode();
 				if (neighborStatus[neighbor] == 0 && !seen[neighbor]) {
 					nonReachedNeighbors.pushBack(neighbor);
@@ -128,8 +118,8 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 			}
 		}
 
-		for (List<node>::iterator i = neighbors.begin(); i != neighbors.end(); i++) {
-			seen[*i] = true;
+		for (node temp : neighbors) {
+			seen[temp] = true;
 		}
 		neighbors.clear();
 	}
@@ -149,7 +139,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 		seen[temp] = true;
 		visitedNodes++;
 
-		forall_adj(adj, temp) {
+		for(adjEntry adj : temp->adjEdges) {
 			node neighbor = adj->twinNode();
 			if (neighbor == parent || neighbor == mergePartner) {
 				continue;
@@ -170,10 +160,10 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 						for (List<node>::iterator i = nonReachedNeighbors.begin(); i != nonReachedNeighbors.end(); ) {
 							if (realNodeMark(nodeMark[*i]) == minIndex) {
 								List<node>::iterator j = i;
-								i++;
+								++i;
 								nonReachedNeighbors.del(j);
 							} else {
-								i++;
+								++i;
 							}
 						}
 						if (nonReachedNeighbors.empty()) {
@@ -233,8 +223,8 @@ void LocalBiconnectedMerger::initCuts(Graph &G)
 //	BCTree BCT(G);
 	m_isCut.init(G, false);
 
-/*	node v;
-	forall_nodes(v, G) {
+/*
+	for(node v : G.nodes) {
 		if( BCT.typeOfGNode(v) == BCTree::GNodeType::CutVertex ) {
 			m_isCut[v] = true;
 		}
@@ -248,7 +238,7 @@ bool LocalBiconnectedMerger::buildOneLevel(MultilevelGraph &MLG)
 	int level = MLG.getLevel() + 1;
 //	std::cout << "Level: " << level << std::endl;
 
-	m_substituteNodes.init(G, 0);
+	m_substituteNodes.init(G, nullptr);
 	initCuts(G);
 
 	int numNodes = G.numberOfNodes();
@@ -262,8 +252,7 @@ bool LocalBiconnectedMerger::buildOneLevel(MultilevelGraph &MLG)
 	std::vector<edge> matching;
 	std::vector<edge> edgeCover;
 	std::vector<edge> rest;
-	edge e;
-	forall_edges(e, G) {
+	for(edge e : G.edges) {
 		untouchedEdges.push_back(e);
 	}
 
@@ -330,10 +319,10 @@ bool LocalBiconnectedMerger::buildOneLevel(MultilevelGraph &MLG)
 			parent = coveringEdge->source();
 		}
 
-		while(m_substituteNodes[parent] != 0) {
+		while(m_substituteNodes[parent] != nullptr) {
 			parent = m_substituteNodes[parent];
 		}
-		while(m_substituteNodes[mergeNode] != 0) {
+		while(m_substituteNodes[mergeNode] != nullptr) {
 			mergeNode = m_substituteNodes[mergeNode];
 		}
 

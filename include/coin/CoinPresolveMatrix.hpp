@@ -833,7 +833,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
 		     bool doStatus,
 		     double nonLinearVariable,
                      const char * prohibited,
-		     const char * rowProhibited=NULL);
+		     const char * rowProhibited=nullptr);
 
   /*! \brief Update the model held by a generic OSI */
   void update_model(OsiSolverInterface * si,
@@ -873,7 +873,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
     Does not manipulate the #anyInteger_ flag.
   */
   inline void setVariableType(int i, int variableType)
-  { if (integerType_ == 0) integerType_ = new unsigned char [ncols0_] ;
+  { if (integerType_ == nullptr) integerType_ = new unsigned char [ncols0_] ;
     integerType_[i] = static_cast<unsigned char>(variableType) ; }
 
   /*! \brief Set variable type information for all variables
@@ -915,7 +915,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
     #anyInteger_ flag.
   */
   inline bool isInteger (int i) const
-  { if (integerType_ == 0)
+  { if (integerType_ == nullptr)
     { return (anyInteger_) ; }
     else
     if (integerType_[i] == 1)

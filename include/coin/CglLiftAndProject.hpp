@@ -22,7 +22,7 @@ public:
       Insert the generated cuts into OsiCut, cs.
   */
   virtual void generateCuts(const OsiSolverInterface & si, OsiCuts & cs,
-			    const CglTreeInfo info = CglTreeInfo()) const;
+			    const CglTreeInfo info = CglTreeInfo()) const override;
 
   /** Get the normalization : Either beta=+1 or beta=-1.
   */
@@ -56,7 +56,7 @@ public:
     const CglLiftAndProject &);
 
   /// Clone
-  virtual CglCutGenerator * clone() const;
+  virtual CglCutGenerator * clone() const override;
 
   /// Assignment operator 
   CglLiftAndProject &
@@ -67,7 +67,7 @@ public:
   virtual
     ~CglLiftAndProject ();
   /// Create C++ lines to get to current state
-  virtual std::string generateCpp( FILE * fp);
+  virtual std::string generateCpp( FILE * fp) override;
   //@}
 
 private:

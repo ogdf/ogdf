@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementations of a collection of classes used to drive
  * Coin.
@@ -74,7 +66,7 @@ namespace ogdf {
 		CPXLPptr nodelp;
 		CPXgetcallbacknodelp(xenv, cbdata, wherefrom, &nodelp);
 
-		CoinCallbacks* ccc = (CoinCallbacks*)cbhandle;
+		CoinCallbacks* ccc = static_cast<CoinCallbacks*>(cbhandle);
 
 		int length = CPXgetnumcols(xenv,nodelp) - 1; //hey, don't ask me! some VERY WIERD PHENOMENON... crap
 		double objVal;
@@ -120,7 +112,7 @@ namespace ogdf {
 
 	int CPXPUBLIC CPX_HeuristicCallback (CPXCENVptr env, void *cbdata, int wherefrom,
 			void *cbhandle, double *objval_p, double *x, int *checkfeas_p, int *useraction_p) {
-		CoinCallbacks* ccc = (CoinCallbacks*)cbhandle;
+		CoinCallbacks* ccc = static_cast<CoinCallbacks*>(cbhandle);
 		CoinCallbacks::HeuristicReturn ret = ccc->heuristicCallback(*objval_p, x);
 		*checkfeas_p = 0; // no check. callback has to ensure that new solution (if any) is integer feasible
 		switch(ret) {
@@ -141,7 +133,7 @@ namespace ogdf {
 
 	int CPXPUBLIC CPX_IncumbentCallback (CPXCENVptr env, void *cbdata, int wherefrom,
 			void *cbhandle, double objval, double *x, int *isfeas_p, int *useraction_p) {
-		CoinCallbacks* ccc = (CoinCallbacks*)cbhandle;
+		CoinCallbacks* ccc = static_cast<CoinCallbacks*>(cbhandle);
 		CoinCallbacks::IncumbentReturn ret = ccc->incumbentCallback(objval, x);
 		switch(ret) {
 			case CoinCallbacks::IR_Error:
@@ -211,7 +203,7 @@ namespace ogdf {
 	#ifdef COIN_OSI_CPX
 		OsiCpxSolverInterface* x = dynamic_cast<OsiCpxSolverInterface*>(posi);
 		CPXENVptr envptr = x->getEnvironmentPtr();
-		CPXLPptr lpptr = x->getLpPtr();
+		x->getLpPtr(); // free cached data
 		if(callbackTypes & CT_Cut)
 			CPXsetcutcallbackfunc(envptr, &CPX_CutCallback, this);
 		if(callbackTypes & CT_Heuristic)

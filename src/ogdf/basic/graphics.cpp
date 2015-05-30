@@ -1,11 +1,3 @@
-/*
- * $Revision: 3572 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-06-20 14:39:41 +0200 (Thu, 20 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class GraphAttributes.
  *
@@ -107,7 +99,7 @@ namespace ogdf {
 	}
 
 
-	__uint8 rgbOfColor[][3] = {
+	uint8_t rgbOfColor[][3] = {
 		{ 240, 248, 255 },  // Aliceblue
 		{ 250, 235, 215 },  // Antiquewhite
 		{   0, 255, 255 },  // Aqua
@@ -289,9 +281,9 @@ namespace ogdf {
 	}
 
 
-	inline __uint8 fromHex(char c)
+	inline uint8_t fromHex(char c)
 	{
-		return (__uint8)((isdigit((int)c) ? (c - '0') : (tolower((int)c) - 'a' + 10)) & 0xf);
+		return (uint8_t)((isdigit((int)c) ? (c - '0') : (tolower((int)c) - 'a' + 10)) & 0xf);
 	}
 
 
@@ -307,19 +299,19 @@ namespace ogdf {
 		}
 
 		if(str.length() == 7) {
-			m_red   = (__uint8)( (fromHex(str[1]) << 4) + fromHex(str[2]) );
-			m_green = (__uint8)( (fromHex(str[3]) << 4) + fromHex(str[4]) );
-			m_blue  = (__uint8)( (fromHex(str[5]) << 4) + fromHex(str[6]) );
+			m_red   = (uint8_t)( (fromHex(str[1]) << 4) + fromHex(str[2]) );
+			m_green = (uint8_t)( (fromHex(str[3]) << 4) + fromHex(str[4]) );
+			m_blue  = (uint8_t)( (fromHex(str[5]) << 4) + fromHex(str[6]) );
 
 		} else {
-			__uint8 v = fromHex(str[1]);
-			m_red = (__uint8)( (v << 4) + v );
+			uint8_t v = fromHex(str[1]);
+			m_red = (uint8_t)( (v << 4) + v );
 
 			v = fromHex(str[2]);
-			m_green = (__uint8)( (v << 4) + v );
+			m_green = (uint8_t)( (v << 4) + v );
 
 			v = fromHex(str[3]);
-			m_blue = (__uint8)( (v << 4) + v );
+			m_blue = (uint8_t)( (v << 4) + v );
 		}
 
 		m_alpha = 255;

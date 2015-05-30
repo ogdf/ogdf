@@ -1,11 +1,3 @@
-/*
- * $Revision: 3503 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-05-16 14:48:58 +0200 (Thu, 16 May 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class QuadTreeNodeNM.
  *
@@ -124,14 +116,14 @@ public:
 	void set_child_lb_ptr(QuadTreeNodeNM* c) {child_lb_ptr = c;}
 	void set_child_rb_ptr(QuadTreeNodeNM* c) {child_rb_ptr = c;}
 
-	bool is_root() {if(father_ptr == NULL) return true; else return false;}
-	bool is_leaf(){if ((child_lt_ptr == NULL) &&(child_rt_ptr == NULL) &&(child_lb_ptr
-		== NULL) && (child_rb_ptr == NULL))
+	bool is_root() {if(father_ptr == nullptr) return true; else return false;}
+	bool is_leaf(){if ((child_lt_ptr == nullptr) &&(child_rt_ptr == nullptr) &&(child_lb_ptr
+		== nullptr) && (child_rb_ptr == nullptr))
 		return true; else return false;}
-	bool child_lt_exists() { if (child_lt_ptr != NULL) return true; else return false;}
-	bool child_rt_exists() { if (child_rt_ptr != NULL) return true; else return false;}
-	bool child_lb_exists() { if (child_lb_ptr != NULL) return true; else return false;}
-	bool child_rb_exists() { if (child_rb_ptr != NULL) return true; else return false;}
+	bool child_lt_exists() { if (child_lt_ptr != nullptr) return true; else return false;}
+	bool child_rt_exists() { if (child_rt_ptr != nullptr) return true; else return false;}
+	bool child_lb_exists() { if (child_lb_ptr != nullptr) return true; else return false;}
+	bool child_rb_exists() { if (child_rb_ptr != nullptr) return true; else return false;}
 
 	int get_Sm_level () const {return Sm_level;}
 	DPoint get_Sm_downleftcorner () const {return Sm_downleftcorner;}

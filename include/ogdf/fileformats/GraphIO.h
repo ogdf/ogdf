@@ -1,11 +1,3 @@
-/*
- * $Revision: 3831 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 10:00:32 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declares class GraphIO which provides access to all
  *        graph read and write functionality.
@@ -59,6 +51,9 @@ namespace ogdf {
 
 
 //! Utility class providing graph I/O in various exchange formats.
+/**
+ * @ingroup file-system graphs graph-drawing
+ */
 class OGDF_EXPORT GraphIO
 {
 public:
@@ -597,6 +592,81 @@ public:
 	static bool readYGraph(Graph &G, istream &is);
 
 
+	//! Reads graph \a G in Graph6 format from file \a filename.
+	/**
+	 * \sa readGraph6(Graph &G, istream &is) for more details.<br>
+	 *     writeGraph6(const Graph &G, const char *filename)
+	 *
+	 * @param G        is assigned the read graph.
+	 * @param filename is the name of the file to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool readGraph6(Graph &G, const char *filename);
+
+	//! Reads graph \a G in Graph6 format from file \a filename.
+	/**
+	 * \sa readGraph6(Graph &G, istream &is) for more details.<br>
+	 *     writeGraph6(const Graph &G, const string &filename)
+	 *
+	 * @param G        is assigned the read graph.
+	 * @param filename is the name of the file to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool readGraph6(Graph &G, const string &filename);
+
+	//! Reads graph \a G in Graph6 format from input stream \a is.
+	/**
+	 * The Graph6 format represents an (preferable dense or small)
+	 * simple undirected graph as a string containing printable characters
+	 * between 0x3F and 0x7E.
+	 * <a href="http://cs.anu.edu.au/~bdm/data/formats.txt">See the specification for more information.</a>
+	 *
+	 * \sa writeGraph6(const Graph &G, ostream &os)
+	 *
+	 * @param G   is assigned the read graph.
+	 * @param is  is the input stream to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool readGraph6(Graph &G, istream &is);
+
+	//! Writes graph \a G in Graph6 format to file \a filename.
+	/**
+	 * \sa writeGraph6(const Graph &G, ostream &os) for more details.<br>
+	 *     readGraph6(Graph &G, const char *filename)
+	 *
+	 * @param G        is the graph to be written.
+	 * @param filename is the name of the file to which the graph will be written.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool writeGraph6(const Graph &G, const char *filename);
+
+	//! Writes graph \a G in Graph6 format to file \a filename.
+	/**
+	 * \sa writeGraph6(const Graph &G, ostream &os) for more details.<br>
+	 *     readGraph6(Graph &G, const string &filename)
+	 *
+	 * @param G        is the graph to be written.
+	 * @param filename is the name of the file to which the graph will be written.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool writeGraph6(const Graph &G, const string &filename);
+
+	//! Writes graph \a G in Graph6 format to output stream \a os.
+	/**
+	 * The Graph6 format represents an (preferable dense or small)
+	 * simple undirected graph as a string containing printable characters
+	 * between 0x3F and 0x7E.
+	 * <a href="http://cs.anu.edu.au/~bdm/data/formats.txt">See the specification for more information.</a>
+	 *
+	 * \sa readGraph6(Graph &G, istream &is)
+	 *
+	 * @param G   is the graph to be written.
+	 * @param os  is the output stream to which the graph will be written.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool writeGraph6(const Graph &G, ostream &os);
+
+
 	//@}
 	/**
 	 * @name Clustered graphs
@@ -1131,6 +1201,22 @@ public:
 	 */
 	static bool writeOGML(const ClusterGraphAttributes &A, ostream &os);
 
+
+	//! Reads graph \a G in Matrix Market exchange format from stream \a inStream.
+	/**
+	 * @param G        is assigned the read graph.
+	 * @param inStream is the input stream to read from
+	 * @return true if successful, false otherwise.
+	 */
+	static bool readMatrixMarket(Graph& G, istream &inStream);
+
+	//! Reads graph \a G in Matrix Market exchange format from a file with the given filename
+	/**
+	 * @param G        is assigned the read graph.
+	 * @param filename is the path to the input file to read from
+	 * @return true if successful, false otherwise.
+	 */
+	static bool readMatrixMarket(Graph& G, const string& filename);
 
 	//@}
 	/**
@@ -2698,102 +2784,654 @@ public:
 	 */
 	//@{
 
-	//! Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
 	/**
-	 * \sa readSTP(EdgeWeightedGraph<double> &wG, List<node> &terminals, NodeArray<bool> &isTerminal, istream &is) for more details.
-	 *
-	 * @param  wG         is assigned the graph stored in the SteinLib instance.
-	 * @param  terminals  is assgined the list of terminals specified in the SteinLib instance.
-	 * @param  isTerminal is assigned the incidence vector for the terminal nodes.
-	 * @param  filename   is the name of the file to be read.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool readSTP(
-		EdgeWeightedGraph<double> &wG,
-		List<node>           &terminals,
-		NodeArray<bool>      &isTerminal,
-		const char           *filename);
-
-	//! Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
-	/**
-	 * \sa readSTP(EdgeWeightedGraph<int> &wG, List<node> &terminals, NodeArray<bool> &isTerminal, istream &is) for more details.
-	 *
-	 * @param  wG         is assigned the graph stored in the SteinLib instance.
-	 * @param  terminals  is assgined the list of terminals specified in the SteinLib instance.
-	 * @param  isTerminal is assigned the incidence vector for the terminal nodes.
-	 * @param  filename   is the name of the file to be read.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool readSTP(
-		EdgeWeightedGraph<int> &wG,
-		List<node>           &terminals,
-		NodeArray<bool>      &isTerminal,
-		const char           *filename);
-
-	//! Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
-	/**
-	 * \sa readSTP(EdgeWeightedGraph<double> &wG, List<node> &terminals, NodeArray<bool> &isTerminal, istream &is) for more details.
-	 *
-	 * @param  wG         is assigned the graph stored in the SteinLib instance.
-	 * @param  terminals  is assgined the list of terminals specified in the SteinLib instance.
-	 * @param  isTerminal is assigned the incidence vector for the terminal nodes.
-	 * @param  filename   is the name of the file to be read.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool readSTP(
-		EdgeWeightedGraph<double> &wG,
-		List<node>           &terminals,
-		NodeArray<bool>      &isTerminal,
-		const string         &filename);
-
-	//! Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
-	/**
-	 * \sa readSTP(EdgeWeightedGraph<int> &wG, List<node> &terminals, NodeArray<bool> &isTerminal, istream &is) for more details.
-	 *
-	 * @param  wG         is assigned the graph stored in the SteinLib instance.
-	 * @param  terminals  is assgined the list of terminals specified in the SteinLib instance.
-	 * @param  isTerminal is assigned the incidence vector for the terminal nodes.
-	 * @param  filename   is the name of the file to be read.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool readSTP(
-		EdgeWeightedGraph<int> &wG,
-		List<node>           &terminals,
-		NodeArray<bool>      &isTerminal,
-		const string         &filename);
-
-	//! Reads a SteinLib instance from input stream \a is and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
-	/**
+	 * Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
 	 * \warning The coordinate section of the SteinLib instance is not read!
 	 *
-	 * @param  wG         is assigned the graph stored in the SteinLib instance.
-	 * @param  terminals  is assgined the list of terminals specified in the SteinLib instance.
-	 * @param  isTerminal is assigned the incidence vector for the terminal nodes.
-	 * @param  is is the input stream from which the graph is read.
-	 * \return true if successful, false otherwise.
+	 * @param wG the edge weighteed graph
+	 * @param terminals will contain a list of all terminals in the graph
+	 * @param isTerminal maps whether each node is a terminal or a Steiner node
+	 * @param filename the name of the file to be read
+	 *
+	 * @return true if the STP was read successfully, false otherwise
 	 */
+	template<typename T>
 	static bool readSTP(
-		EdgeWeightedGraph<double> &wG,
+		EdgeWeightedGraph<T> &wG,
 		List<node>           &terminals,
 		NodeArray<bool>      &isTerminal,
-		istream              &is);
+		const string         &filename)
+	{
+		return readSTP(wG, terminals, isTerminal, filename.c_str());
+	}
 
-	//! Reads a SteinLib instance from input stream \a is and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
+
 	/**
+	 * Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
 	 * \warning The coordinate section of the SteinLib instance is not read!
 	 *
-	 * @param  wG         is assigned the graph stored in the SteinLib instance.
-	 * @param  terminals  is assgined the list of terminals specified in the SteinLib instance.
-	 * @param  isTerminal is assigned the incidence vector for the terminal nodes.
-	 * @param  is is the input stream from which the graph is read.
-	 * \return true if successful, false otherwise.
+	 * @param wG the edge weighteed graph
+	 * @param terminals will contain a list of all terminals in the graph
+	 * @param isTerminal maps whether each node is a terminal or a Steiner node
+	 * @param filename the name of the file to be read
+	 *
+	 * @return true if the STP was read successfully, false otherwise
 	 */
+	template<typename T>
 	static bool readSTP(
-		EdgeWeightedGraph<int> &wG,
+		EdgeWeightedGraph<T> &wG,
 		List<node>           &terminals,
 		NodeArray<bool>      &isTerminal,
-		istream              &is);
+		const char           *filename)
+	{
+		ifstream is(filename);
+		if(!is.is_open()) return false;
+		return readSTP(wG, terminals, isTerminal, is);
+	}
 
+	/**
+	 * Reads a SteinLib instance from an inputstream \a is and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
+	 * \warning The coordinate section of the SteinLib instance is not read!
+	 *
+	 * @param wG the edge weighteed graph
+	 * @param terminals will contain a list of all terminals in the graph
+	 * @param isTerminal maps whether each node is a terminal or a Steiner node
+	 * @param is the input stream to be read
+	 *
+	 * @return true if the STP was read successfully, false otherwise
+	 */
+	template<typename T>
+	static bool readSTP(
+		EdgeWeightedGraph<T> &wG,
+		List<node>           &terminals,
+		NodeArray<bool>      &isTerminal,
+		istream              &is)
+	{
+		wG.clear();
+		terminals.clear();
+		isTerminal.init(wG);
+		int expectedNumberOfTerminals = -1;
+		int expectedNumberOfEdges = -1;
+
+		string buffer;
+
+		enum {
+			SECTION_NONE,
+			SECTION_COMMENT,
+			SECTION_GRAPH,
+			SECTION_TERMINALS,
+			SECTION_IGNORE, // mostly: not implemented
+		} section = SECTION_NONE;
+
+		string key, value;
+
+		Array<node> indexToNode;
+		//node root; // root terminal (directed case)
+
+		double version;
+
+		// 1. line = identifier; ignore that it must be all on the first line
+		std::vector<string> firstline{"33D32945", "STP", "File,", "STP", "Format", "Version"};
+		for (int i = 0; i < 6; ++i) {
+			is >> buffer;
+			if (!is.good() || !equalIgnoreCase(buffer, firstline[i])) {
+#ifdef OGDF_DEBUG
+				cerr << "ERROR: Could not parse first line." << endl;
+#endif
+				return false;
+			}
+		}
+		is >> version;
+		if (!is.good() || version != 1.0) {
+#ifdef OGDF_DEBUG
+			cerr << "ERROR: Encountered unknwon STP format version." << endl;
+#endif
+			return false;
+		}
+
+		while (std::getline(is, buffer)) {
+			int last = int(min(buffer.find_last_not_of(' '), buffer.find_last_not_of('\t')));
+			buffer = buffer.substr(0, last+1);
+
+			if (buffer.empty() || buffer[0] == '#') {
+				continue;
+			}
+
+			std::istringstream iss(buffer);
+			iss >> key;
+			if (section != SECTION_NONE && equalIgnoreCase(key, "END")) {
+				section = SECTION_NONE;
+				continue;
+			}
+			switch (section) {
+			case SECTION_NONE:
+				if (equalIgnoreCase(key, "SECTION")) {
+					string what;
+					iss >> what;
+					if (equalIgnoreCase(what, "Comment")) {
+						section = SECTION_COMMENT;
+					}
+					else
+					if (equalIgnoreCase(what, "Graph")) {
+						if(wG.numberOfNodes() != 0) {
+#ifdef OGDF_DEBUG
+							cerr << "WARNING: Encountered duplicate graph section." << endl;
+							section = SECTION_IGNORE;
+#endif
+						} else {
+							section = SECTION_GRAPH;
+						}
+					}
+					else
+					if (equalIgnoreCase(what, "Terminals")) {
+						if(!terminals.empty()) {
+#ifdef OGDF_DEBUG
+							cerr << "WARNING: Encountered duplicate terminal section." << endl;
+							section = SECTION_IGNORE;
+#endif
+						} else {
+							section = SECTION_TERMINALS;
+						}
+					}
+					else {
+						section = SECTION_IGNORE;
+					}
+
+					if (!iss.eof()) {
+						iss >> what;
+						if (equalIgnoreCase(what, "FROM")) {
+							// loading not implemented, just ignore and end section
+							section = SECTION_NONE;
+						}
+					}
+				}
+				else
+				if (equalIgnoreCase(buffer, "EOF")) {
+#ifdef OGDF_DEBUG
+					if(expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size()) {
+						cerr << "WARNING: invalid number of terminals. Was " << terminals.size() << " but expected " << expectedNumberOfTerminals << "." << endl;
+					}
+
+					if(expectedNumberOfEdges != -1 && expectedNumberOfEdges != wG.numberOfEdges()) {
+						cerr << "WARNING: invalid number of edges. Was " << wG.numberOfEdges() << " but expected " << expectedNumberOfEdges << "." << endl;
+					}
+#endif
+					return true;
+				}
+				break;
+
+			case SECTION_IGNORE:
+			case SECTION_COMMENT:
+				// allow anything
+				break;
+
+			case SECTION_GRAPH:
+				if (equalIgnoreCase(key, "Nodes")) {
+					int n = -1;
+					iss >> n;
+					if (n < 0) {
+#ifdef OGDF_DEBUG
+						cerr << "ERROR: Invalid number of nodes specified: " << n << endl;
+#endif
+						return false;
+					}
+
+					indexToNode = Array<node>(1, n, 0);
+					for (int i = 1; i <= n; ++i) {
+						indexToNode[i] = wG.newNode();
+						isTerminal[indexToNode[i]] = false;
+					}
+				} else if(equalIgnoreCase(key, "Edges") || equalIgnoreCase(key, "Arcs")) {
+					iss >> expectedNumberOfEdges;
+				} else if (equalIgnoreCase(key, "E")
+				 || equalIgnoreCase(key, "A")) {
+					int source = -1, target = -1;
+					T weight = -1;
+					iss >> source >> target >> weight;
+					if (source <= 0 || source > wG.numberOfNodes()
+					 || target <= 0 || target > wG.numberOfNodes()
+					 || weight < 0) {
+#ifdef OGDF_DEBUG
+						cerr << "ERROR: Invalid edge given: " << source << "->" << target << "(weight: " << weight << ")" << endl;
+#endif
+						return false;
+					}
+					wG.newEdge(indexToNode[source], indexToNode[target], weight);
+				} else {
+#ifdef OGDF_DEBUG
+					cerr << "WARNING: Invalid edge key encountered: " << key << endl;
+#endif
+				}
+				break;
+
+			case SECTION_TERMINALS:
+				if (equalIgnoreCase(key, "Terminals")) {
+					iss >> expectedNumberOfTerminals;
+				} else if (equalIgnoreCase(key, "T")) {
+					int v = -1;
+					iss >> v;
+					if (v <= 0 || v > wG.numberOfNodes()) {
+#ifdef OGDF_DEBUG
+						cerr << "ERROR: Invalid terminal encountered: " << v << endl;
+#endif
+						return false;
+					}
+					terminals.pushBack(indexToNode[v]);
+					isTerminal[indexToNode[v]] = true;
+				} else if(!equalIgnoreCase(key, "Root")) {
+#ifdef OGDF_DEBUG
+					cerr << "WARNING: Invalid terminal key encountered: " << key << endl;
+#endif
+				}
+				break;
+			}
+		}
+#ifdef OGDF_DEBUG
+		cerr << "Unexpected end of file." << endl;
+#endif
+		return false;
+	}
+
+	/**
+	 * Writes an Steiner problem instance to an STP file.
+	 *
+	 * @param wG the edge weighteed graph
+	 * @param terminals a list of all terminals in the graph
+	 * @param filename the file to be written to
+	 * @param comments a string containing all comments seperated by LF
+	 *   if this is an empty string no comment section will be created
+	 *
+	 * @return true if the write operation succeeded, false otherwise
+	 */
+	template<typename T>
+	static bool writeSTP(
+		const EdgeWeightedGraph<T> &wG,
+		const List<node>           &terminals,
+		const string         &filename,
+		const string         &comments = "")
+	{
+		return writeSTP(wG, terminals, filename.c_str(), comments);
+	}
+
+	/**
+	 * Writes an Steiner problem instance to an STP file.
+	 *
+	 * @param wG the edge weighteed graph
+	 * @param terminals a list of all terminals in the graph
+	 * @param filename the file to be written to
+	 * @param comments a string containing all comments seperated by LF
+	 *   if this is an empty string no comment section will be created
+	 *
+	 * @return true if the write operation succeeded, false otherwise
+	 */
+	template<typename T>
+	static bool writeSTP(
+		const EdgeWeightedGraph<T> &wG,
+		const List<node>           &terminals,
+		const char           *filename,
+		const string         &comments = "")
+	{
+		ofstream is(filename);
+		return writeSTP(wG, terminals, is, comments);
+	}
+
+	/**
+	 * Writes an Steiner problem instance to an STP file.
+	 *
+	 * @param wG the edge weighteed graph
+	 * @param terminals a list of all terminals in the graph
+	 * @param os the output stream be written to
+	 * @param comments a string containing all comments seperated by LF
+	 *   if this is an empty string no comment section will be created
+	 *
+	 * @return true if the write operation succeeded, false otherwise
+	 */
+	template<typename T>
+	static bool writeSTP(
+		const EdgeWeightedGraph<T> &wG,
+		const List<node>           &terminals,
+		ostream              &os,
+		const string         &comments = "")
+	{
+		if(!os.good()) return false;
+
+		os << "33d32945 STP File, STP Format Version  1.00" << endl;
+
+		os << endl << "Section Comment" << endl;
+		if (comments.length() != 0) {
+			os << comments << endl;
+		}
+		os << "End" << endl;
+
+		os << endl << "Section Graph" << endl;
+		os << "Nodes " << wG.numberOfNodes() << endl;
+		os << "Edges " << wG.numberOfEdges() << endl;
+
+		NodeArray<int> nodeToIndex(wG);
+		int i = 1;
+		for (node v : wG.nodes) {
+			nodeToIndex[v] = i++;
+		}
+		for (edge e : wG.edges) {
+			os << "E " << nodeToIndex[e->source()]
+			   << " " << nodeToIndex[e->target()]
+			   << " " << std::fixed << wG.weight(e) << endl;
+		}
+		os << "End" << endl
+		   << endl
+		   << "Section Terminals" << endl
+		   << "Terminals " << terminals.size() << endl;
+		for (node v : terminals) {
+			os << "T " << nodeToIndex[v] << endl;
+		}
+		os << "End" << endl
+		   << endl
+		   << "EOF" << endl;
+
+		return true;
+	}
+
+	/**
+	 * Reads a maximum flow instance in DIMACS format.
+	 *
+	 * @param graph will contain the parsed graph
+	 * @param source will contain the flow source
+	 * @param sink will contain the flow sink
+	 * @param filename name of the file to be read
+	 * @return \c true iff the instances was parsed successfully
+	 */
+	template<typename T>
+	static bool readDMF(
+			EdgeWeightedGraph<T> &graph,
+			node &source,
+			node &sink,
+			const string &filename) {
+		return readDMF(graph, source, sink, filename.c_str());
+	}
+
+	/**
+	 * Reads a maximum flow instance in DIMACS format.
+	 *
+	 * @param graph will contain the parsed graph
+	 * @param source will contain the flow source
+	 * @param sink will contain the flow sink
+	 * @param filename name of the file to be read
+	 * @return \c true iff the instances was parsed successfully
+	 */
+	template<typename T>
+	static bool readDMF(
+			EdgeWeightedGraph<T> &graph,
+			node &source,
+			node &sink,
+			const char* filename) {
+		ifstream is(filename);
+		return is.is_open() && readDMF(graph, source, sink, is);
+	}
+
+	/**
+	 * Reads a maximum flow instance in DIMACS format.
+	 *
+	 * @param graph will contain the parsed graph
+	 * @param source will contain the flow source
+	 * @param sink will contain the flow sink
+	 * @param is input stream
+	 * @return \c true iff the instances was parsed successfully
+	 */
+	template<typename T>
+	static bool readDMF(
+			EdgeWeightedGraph<T> &graph,
+			node &source,
+			node &sink,
+			istream &is)
+	{
+		int expectedNumberOfEdges = -1;
+		List<node> nodes;
+		graph.clear();
+		source = nullptr;
+		sink = nullptr;
+
+		string buffer;
+
+		while (std::getline(is, buffer)) {
+			int last = int(min(buffer.find_last_not_of(' '), buffer.find_last_not_of('\t')));
+			buffer = buffer.substr(0, last + 1);
+			std::istringstream iss(buffer);
+			string tmp;
+			iss >> tmp;
+
+			if (!buffer.empty() && buffer[0] != 'c') {
+				if(buffer[0] == 'p') {
+					// problem definition section
+					if(!graph.empty()) {
+#ifdef OGDF_DEBUG
+						cerr << "Ambigious problem definition encountered." << endl;
+#endif
+						return false;
+					}
+
+					string problemType = "";
+					iss >> problemType;
+					if(problemType.compare("max")) {
+#ifdef OGDF_DEBUG
+						cerr << "Invalid problem type encountered: " << problemType << endl;
+#endif
+						return false;
+					}
+
+					int numberOfNodes = -1;
+					iss >> numberOfNodes >> expectedNumberOfEdges;
+
+					if(numberOfNodes < 2) {
+#ifdef OGDF_DEBUG
+						cerr << "The given number of nodes is invalid (at least two)." << endl;
+#endif
+						return false;
+					}
+
+					if(expectedNumberOfEdges < 0) {
+#ifdef OGDF_DEBUG
+						cerr << "The given number of edges is invalid." << endl;
+#endif
+						return false;
+					}
+
+					for(int i = 0; i < numberOfNodes; i++) {
+						graph.newNode();
+					}
+					graph.allNodes(nodes);
+				} else if(buffer[0] == 'n') {
+					// target or source definition
+					int nodeIndex = -1;
+					string nodeType = "";
+					iss >> nodeIndex >> nodeType;
+
+					if (nodeIndex < 1 || nodeIndex > nodes.size()) {
+#ifdef OGDF_DEBUG
+						cerr << "Invalid node index supplied: " << nodeIndex << endl;
+#endif
+						return false;
+					}
+
+					node w = *nodes.get(nodeIndex - 1);
+					if (!nodeType.compare("t")) {
+						if(sink != nullptr) {
+#ifdef OGDF_DEBUG
+							cerr << "Duplicate sink encountered: " << nodeType << endl;
+#endif
+							return false;
+						}
+						sink = w;
+					} else if (!nodeType.compare("s")) {
+						if(source != nullptr) {
+#ifdef OGDF_DEBUG
+							cerr << "Duplicate source encountered: " << nodeType << endl;
+#endif
+							return false;
+						}
+						source = w;
+					} else {
+#ifdef OGDF_DEBUG
+						cerr << "Malformed node type encountered: " << nodeType << endl;
+#endif
+						return false;
+					}
+
+				} else if (buffer[0] == 'a') {
+					// edge definition
+					int sourceIndex = -1;
+					int targetIndex = -1;
+					T cap = -1;
+
+					iss >> sourceIndex >> targetIndex >> cap;
+
+					if (sourceIndex < 1 || sourceIndex > nodes.size()) {
+#ifdef OGDF_DEBUG
+						cerr << "Invalid node index supplied: " << sourceIndex << endl;
+#endif
+						return false;
+					}
+					node source = *nodes.get(sourceIndex - 1);
+
+					if (targetIndex < 1 || targetIndex > nodes.size()) {
+#ifdef OGDF_DEBUG
+						cerr << "Invalid node index supplied: " << targetIndex << endl;
+#endif
+						return false;
+					}
+					node target = *nodes.get(targetIndex - 1);
+
+					if(cap < 0) {
+#ifdef OGDF_DEBUG
+						cerr << "Negative capacity supplied: " << targetIndex << endl;
+#endif
+						return false;
+					}
+
+					graph.newEdge(source, target, cap);
+				} else {
+#ifdef OGDF_DEBUG
+					cerr << "Encountered invalid line: " << buffer << endl;
+#endif
+					return false;
+				}
+			}
+		}
+
+		if (graph.empty()) {
+#ifdef OGDF_DEBUG
+			cerr << "Missing problem definition." << endl;
+#endif
+			return false;
+		}
+
+		if (source == nullptr) {
+#ifdef OGDF_DEBUG
+			cerr << "Missing source node." << endl;
+#endif
+			return false;
+		}
+
+		if(sink == nullptr) {
+#ifdef OGDF_DEBUG
+			cerr << "Missing sink node." << endl;
+#endif
+			return false;
+		}
+
+		if(sink == source) {
+#ifdef OGDF_DEBUG
+			cerr << "Source must be different from sink." << endl;
+#endif
+			return false;
+		}
+
+		if(expectedNumberOfEdges != graph.numberOfEdges()) {
+#ifdef OGDF_DEBUG
+			cerr << "Invalid number of edges: expected " << expectedNumberOfEdges << " but was " << graph.numberOfEdges() << endl;
+#endif
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
+	 *
+	 * @param graph edge weighted graph to be written
+	 * @param source source of the maximum flow
+	 * @param sink sink of the maximum flow
+	 * @param filename name of the file to be written to
+	 *
+	 * @return \c true if the write operation succeeded, false otherwise
+	 */
+	template<typename T>
+	static bool writeDMF(
+			const EdgeWeightedGraph<T> &graph,
+			const node source,
+			const node sink,
+			const string &filename)
+	{
+		return writeDMF(graph, source, sink, filename.c_str());
+	}
+
+	/**
+	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
+	 *
+	 * @param graph edge weighted graph to be written
+	 * @param source source of the maximum flow
+	 * @param sink sink of the maximum flow
+	 * @param filename name of the file to be written to
+	 *
+	 * @return \c true if the write operation succeeded, false otherwise
+	 */
+	template<typename T>
+	static bool writeDMF(
+			const EdgeWeightedGraph<T> &graph,
+			const node source,
+			const node sink,
+			const char *filename)
+	{
+		ofstream is(filename);
+		return writeDMF(graph, source, sink, is);
+	}
+
+	/**
+	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
+	 *
+	 * @param graph edge weighted graph to be written
+	 * @param source source of the maximum flow
+	 * @param sink sink of the maximum flow
+	 * @param os the output stream be written to
+	 *
+	 * @return \c true if the write operation succeeded, false otherwise
+	 */
+	template<typename T>
+	static bool writeDMF(
+			const EdgeWeightedGraph<T> &graph,
+			const node source,
+			const node sink,
+			ostream &os)
+	{
+		if(!os.good()) return false;
+
+		NodeArray<int> nodeIndices(graph);
+
+		int counter = 0;
+		for(node v : graph.nodes) {
+			nodeIndices[v] = ++counter;
+		}
+
+		os << "p max " << graph.numberOfNodes() << " "  << graph.numberOfEdges() << endl;
+		os << "n " << nodeIndices[source] << " s" << endl;
+		os << "n " << nodeIndices[sink] << " t" << endl;
+
+		for(edge e : graph.edges) {
+			os << "a " << nodeIndices[e->source()] << " " << nodeIndices[e->target()] << " " << graph.weight(e) << endl;
+		}
+
+		return true;
+	}
 
 	//@}
 	/**

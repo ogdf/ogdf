@@ -1,11 +1,3 @@
-/*
- * $Revision: 3386 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-10 14:00:02 +0200 (Wed, 10 Apr 2013) $
- ***************************************************************/
-
 /*!\file
  * \author Matthias Elf
  *
@@ -166,12 +158,11 @@ int StandardPool<BaseType, CoType>::removeNonActive(int maxRemove)
 	//! prepare the heap storing the candidates
 	ArrayBuffer<int> elems(size(),false);
 	ArrayBuffer<int> keys(size(),false);
-	BaseType *cv;
 
 	const int s = size();
 
 	for (int i = 0; i < s; i++) {
-		cv = pool_[i]->conVar();
+		BaseType *cv = pool_[i]->conVar();
 		if (cv && !cv->active() && !cv->locked()) {
 			elems.push(i);
 			keys.push(cv->nReferences());
@@ -185,10 +176,9 @@ int StandardPool<BaseType, CoType>::removeNonActive(int maxRemove)
 	*  locked.
 	*/
 	int nRemoved = 0;
-	int c;
 
 	while(nRemoved < maxRemove && !candidates.empty()) {
-		c = candidates.extractMin();
+		int c = candidates.extractMin();
 		this->hardDeleteConVar(pool_[c]);
 		nRemoved++;
 	}
@@ -208,7 +198,6 @@ int StandardPool<BaseType, CoType>::separate(
 	double minAbsViolation,
 	int ranking)
 {
-	BaseType *cv;
 	double    violation;
 	int       oldSep = cutBuffer->number();
 
@@ -219,7 +208,7 @@ int StandardPool<BaseType, CoType>::separate(
 
 	for (int i = 0; i < s; i++) {
 		slot = pool_[i];
-		cv = slot->conVar();
+		BaseType *cv = slot->conVar();
 		if (cv && !cv->active() && (cv->global() || cv->valid(sub)))
 			if (cv->violated(active, z, &violation) && fabs(violation) > minAbsViolation) {
 				if (ranking == 0) {

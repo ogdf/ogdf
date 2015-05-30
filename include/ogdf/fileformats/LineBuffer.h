@@ -1,11 +1,3 @@
-/*
- * $Revision: 2967 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 21:39:58 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of the clssses LineBuffer and
  * LineBufferPosition
@@ -122,7 +114,7 @@ namespace ogdf {
 		bool operator!=(const LineBufferPosition &position) const;
 
 		/** Assignment */
-		const LineBufferPosition &operator=(const LineBufferPosition &position);
+		LineBufferPosition &operator=(const LineBufferPosition &position);
 
 	}; // LineBufferPosition
 

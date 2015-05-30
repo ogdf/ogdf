@@ -1,11 +1,3 @@
-/*
- * $Revision: 2963 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-11-05 14:17:50 +0100 (Mon, 05 Nov 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of a clustering algorithm (by Auber, Chiricota,
  * Melancon).
@@ -42,9 +34,10 @@
  ***************************************************************/
 
 #include <ogdf/graphalg/Clusterer.h>
-#include <assert.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/GraphCopy.h>
+#include <ogdf/basic/Stack.h>
+
 
 namespace ogdf {
 
@@ -85,15 +78,14 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 	//Case 1:with depth one (or #thresholds)
 	//Case 2: Recursively
 
-	edge e;
 	ListIterator<double> it;
 
 	if (m_thresholds.size() > 0)
 		it = m_thresholds.begin();
 	else
 	{
-			OGDF_ASSERT(m_defaultThresholds.size() > 0);
-			it = m_defaultThresholds.begin();
+		OGDF_ASSERT(m_defaultThresholds.size() > 0);
+		it = m_defaultThresholds.begin();
 	}
 
 	//are there more cases than (not) rec.?
@@ -102,7 +94,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 	if (fall == 2)
 	{
 		//we just use the first value of auto/default/threshs
-		//assert(m_thresholds.size() == 1);
+		//OGDF_ASSERT(m_thresholds.size() == 1);
 		//Case2:
 		//we compute the edge strengths on the components recursively
 		//we therefore only need a single threshold
@@ -129,7 +121,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 			{
 				//collect edges that will be deleted
 				List<edge> le;
-				forall_edges(e, GC)
+				for(edge e : GC.edges)
 				{
 					if (strengths[e] < *it)
 					{
@@ -143,20 +135,16 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 					continue;
 				}
 				//delete edges
-				ListIterator<edge> itle = le.begin();
-				while (itle.valid())
-				{
-					GC.delEdge(*itle);
-					itle++;
-				}
+				for(edge e : le)
+					GC.delEdge(e);
+
 				//gather cluster information
-				node v;
 				//vertices within a connected component are always part
 				//of the same cluster which then will be parent of the new clusters
 
 				StackPure<node> S;
 				NodeArray<bool> done(GC, false);
-				forall_nodes(v,GC)
+				for(node v : GC.nodes)
 				{
 					if (done[v]) continue;
 					done[v] = true;
@@ -191,17 +179,15 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 
 						parent->pushBackChild(s);
 						clustering.pushFront(s);
-						ListIterator<node> it = compNodes.begin();
-						while (it.valid())
+						for (node vi : compNodes)
 						{
-							vCluster[GC.original(*it)] = s;
+							vCluster[GC.original(vi)] = s;
 							//vertex leaves parent to s
 							parent->m_size--;
 							s->m_size++;
-							it++;
-						}//While
+						}
 					}
-				}//forallnodes
+				}
 			}//if thresholds
 		}//stop criterion
 	}
@@ -221,7 +207,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 		{
 			//collect edges that will be deleted
 			List<edge> le;
-			forall_edges(e, GC)
+			for(edge e : GC.edges)
 			{
 				if (strengths[e] < *it)
 				{
@@ -229,20 +215,16 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 				}
 			}
 			//delete edges
-			ListIterator<edge> itle = le.begin();
-			while (itle.valid())
-			{
-				GC.delEdge(*itle);
-				itle++;
-			}
+			for(edge e : le)
+				GC.delEdge(e);
+
 			//gather cluster information
-			node v;
 			//vertices within a connected component are always part
 			//of the same cluster which then will be parent of the new clusters
 
 			StackPure<node> S;
 			NodeArray<bool> done(GC, false);
-			forall_nodes(v,GC)
+			for(node v : GC.nodes)
 			{
 				if (done[v]) continue;
 				done[v] = true;
@@ -280,19 +262,17 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 					//s->m_index = -1;
 					parent->pushBackChild(s);
 					clustering.pushFront(s);
-					ListIterator<node> it = compNodes.begin();
-					while (it.valid())
+					for(node vi : compNodes)
 					{
-						vCluster[GC.original(*it)] = s;
+						vCluster[GC.original(vi)] = s;
 						//vertex leaves parent to s
 						parent->m_size--;
 						s->m_size++;
-						it++;
-					}//while
+					}
 				}
 			}//while thresholds
 
-			it++;
+			++it;
 		}//while
 	}//case 2
 
@@ -300,8 +280,7 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 	//we now have the clustering and know for each vertex, to which cluster
 	//it was assigned in the last iteration (vCluster)
 	//we update the lists of children
-	node v;
-	forall_nodes(v, *m_pGraph)
+	for(node v : m_pGraph->nodes)
 	{
 		vCluster[v]->pushBackVertex(v);
 	}
@@ -315,7 +294,6 @@ void Clusterer::computeEdgeStrengths(EdgeArray<double> &strength)
 
 void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength)
 {
-	edge e;
 	strength.init(G, 0.0);
 	double minStrength = 5.0, maxStrength = 0.0; //used to derive automatic thresholds
 	//5 is the maximum possible value (sum of five values 0-1)
@@ -327,7 +305,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 
 	//First, compute the sets Mw, Mv, Wwv. Then check their connectivity.
 	//Use a list for the vertices that are solely connected to w
-	forall_edges(e, G)
+	for(edge e : G.edges)
 	{
 		List<node> vNb;
 		List<node> wNb;
@@ -338,7 +316,6 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		node v = e->source();
 		node w = e->target();
 
-		adjEntry adjE;
 		//neighbourhood sizes
 		int sizeMv = 0;
 		int sizeMw = 0;
@@ -355,7 +332,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		//-----------------------------------------
 		//Compute neighbourhood
 		//Muss man selfloops gesondert beruecksichtigen
-		forall_adj(adjE, v)
+		for(adjEntry adjE : v->adjEdges)
 		{
 			node u = adjE->twinNode();
 			if (u == v) continue;
@@ -364,7 +341,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 				nba[u] = 1;
 			}
 		}
-		forall_adj(adjE, w)
+		for(adjEntry adjE : w->adjEdges)
 		{
 			node u = adjE->twinNode();
 			if (u == w) continue;
@@ -382,26 +359,25 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 					wNb.pushFront(u);
 				}
 			}
-		}// foralladjw
+		}
 
 		//Problem in der Laufzeit ist die paarweise Bewertung der Nachbarschaft
 		//ohne Nutzung vorheriger Informationen
 
 		//We know the neighbourhood of v and w and have to compute the connectivity
-		forall_adj(adjE, v)
+		for(adjEntry adjE : v->adjEdges)
 		{
 			node u = adjE->twinNode();
 
 			if ( u != w )
 			{
-				adjEntry adjE2;
 				//check if u is in Mv
 				if (nba[u] == 1)
 				{
 					//vertex in Mv
 					sizeMv++;
 					//check links within Mv, to Mw and Wvw
-					forall_adj(adjE2, u)
+					for(adjEntry adjE2 : u->adjEdges)
 					{
 						processed[adjE2->theEdge()] = true;
 						node t = adjE2->twinNode();
@@ -418,9 +394,9 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 				else
 				{
 					//vertex in Wvw, nba == 2
-					assert(nba[u] == 2);
+					OGDF_ASSERT(nba[u] == 2);
 					sizeWvw++;
-					forall_adj(adjE2, u)
+					for(adjEntry adjE2 : u->adjEdges)
 					{
 						node t = adjE2->twinNode();
 						//processed testen?
@@ -435,7 +411,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 
 				}//else
 			}//if not w
-		}//foralladj
+		}
 
 		//Now compute the ratio of existing edges to maximal number
 		//(complete graph)
@@ -474,7 +450,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		//true neighbours are not adjacent to v
 		//cout << "Checking true neighbours of w\n";
 
-	}//foralledges
+	}
 	if (m_autoThreshNum > 0)
 	{
 		if (m_autoThresholds.size()>0) m_autoThresholds.clear();
@@ -498,7 +474,7 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 {
 	if (&(C.constGraph()) != m_pGraph) throw PreconditionViolatedException();
 	//clear existing entries
-	C.semiClear();
+	C.clear();
 
 	//we compute the edge strengths
 	EdgeArray<double> strengths(*m_pGraph,0.0);
@@ -510,14 +486,13 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 
 	//Case1:
 	GraphCopy GC(*m_pGraph);
-	edge e;
 	ListIterator<double> it = m_thresholds.begin();
 
 	while (it.valid())
 	{
 		//collect edges that will be deleted
 		List<edge> le;
-		forall_edges(e, GC)
+		for(edge e : GC.edges)
 		{
 			if (strengths[e] < *it)
 			{
@@ -525,20 +500,16 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 			}
 		}
 		//delete edges
-		ListIterator<edge> itle = le.begin();
-		while (itle.valid())
-		{
-			GC.delEdge(*itle);
-			itle++;
-		}
+		for (edge e : le)
+			GC.delEdge(e);
+
 		//gather cluster information
-		node v;
 		//vertices within a connected component are always part
 		//of the same cluster which then will be parent of the new clusters
 
 		StackPure<node> S;
 		NodeArray<bool> done(GC, false);
-		forall_nodes(v,GC)
+		for(node v : GC.nodes)
 		{
 			if (done[v]) continue;
 			done[v] = true;
@@ -566,7 +537,7 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 
 		}
 
-		it++;
+		++it;
 	}//while
 
 
@@ -576,12 +547,9 @@ void Clusterer::setClusteringThresholds(const List<double> &threshs)
 {
 	//we copy the values, should be a low number
 	m_thresholds.clear();
-	ListConstIterator<double> it = threshs.begin();
-	while (it.valid())
-	{
-		m_thresholds.pushFront((*it));
-		it++;
-	}
+
+	for (double x : threshs)
+		m_thresholds.pushFront(x);
 }
 
 }//namespace ogdf

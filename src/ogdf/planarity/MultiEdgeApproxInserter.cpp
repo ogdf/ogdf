@@ -1,11 +1,3 @@
-/*
- * $Revision: 3949 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2014-03-03 01:25:50 +0100 (Mon, 03 Mar 2014) $
- ***************************************************************/
-
 /** \file
  * \brief implements class MultiEdgeApproxInserter
  *
@@ -48,6 +40,7 @@
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/tuples.h>
 
 
 namespace ogdf {
@@ -126,14 +119,14 @@ class MultiEdgeApproxInserter::Block : public Graph
 {
 public:
 	struct SPQRPath {
-		SPQRPath() : m_start(0) { }
+		SPQRPath() : m_start(nullptr) { }
 		node       m_start;  // first node in SPQR-tree (its skeleton contains v1)
 		List<edge> m_edges;  // actual path (empty if v1 and v2 are in skeleton of m_start)
 		List<EmbeddingPreference> m_prefs;  // embeding preferences along the path
 	};
 
 	struct PathElement {
-		PathElement() : m_node(0), m_pref(&EmbeddingPreference::s_none) { }
+		PathElement() : m_node(nullptr), m_pref(&EmbeddingPreference::s_none) { }
 
 		node m_node;
 		const EmbeddingPreference *m_pref;
@@ -141,7 +134,7 @@ public:
 
 
 	// constructor
-	Block() :  m_spqr(0), m_embB(0), m_dualB(0), m_faceNodeB(0), m_primalAdjB(0), m_vS(0), m_vT(0)
+	Block() :  m_spqr(nullptr), m_embB(nullptr), m_dualB(nullptr), m_faceNodeB(nullptr), m_primalAdjB(nullptr), m_vS(nullptr), m_vT(nullptr)
 	{
 		m_BCtoG.init(*this);
 		m_cost .init(*this,1);
@@ -194,7 +187,7 @@ public:
 
 private:
 	struct RNodeInfo {
-		RNodeInfo() : m_emb(0), m_dual(0), m_faceNode(0), m_primalAdj(0) { }
+		RNodeInfo() : m_emb(nullptr), m_dual(nullptr), m_faceNode(nullptr), m_primalAdj(nullptr) { }
 		~RNodeInfo() {
 			delete m_primalAdj;
 			delete m_faceNode;
@@ -232,7 +225,7 @@ void MultiEdgeApproxInserter::Block::pathToArray(int i, Array<PathElement> &path
 {
 	SPQRPath &sp = m_pathSPQR[i];
 
-	if(sp.m_start == 0) {
+	if(sp.m_start == nullptr) {
 		path.init();
 		return;
 	}
@@ -303,7 +296,7 @@ bool MultiEdgeApproxInserter::Block::switchingPair(
 
 void MultiEdgeApproxInserter::Block::initSPQR(int m)
 {
-	if(m_spqr == 0) {
+	if(m_spqr == nullptr) {
 		m_spqr = new StaticPlanarSPQRTree(*this,true);
 		m_pathSPQR.init(m);
 
@@ -314,8 +307,7 @@ void MultiEdgeApproxInserter::Block::initSPQR(int m)
 		// compute allocation nodes
 		m_allocNodes.init(*this);
 
-		node n;
-		forall_nodes(n,tree)
+		for(node n : tree.nodes)
 		{
 			const Skeleton &S = m_spqr->skeleton(n);
 			const Graph &M = S.getGraph();
@@ -323,14 +315,12 @@ void MultiEdgeApproxInserter::Block::initSPQR(int m)
 			EdgeArray<int> &tcS = m_tc[n];
 			tcS.init(M,-1);
 
-			node x;
-			forall_nodes(x,M)
+			for(node x : M.nodes)
 				m_allocNodes[S.original(x)].pushBack(n);
 
-			edge e;
-			forall_edges(e,M) {
+			for(edge e : M.edges) {
 				edge eOrig = S.realEdge(e);
-				if(eOrig != 0) tcS[e] = 1;
+				if(eOrig != nullptr) tcS[e] = 1;
 			}
 		}
 	}
@@ -354,17 +344,14 @@ void MultiEdgeApproxInserter::Block::constructDual(node n)
 	AdjEntryArray<adjEntry> *primalAdj = m_info[n].m_primalAdj = new AdjEntryArray<adjEntry>(*dual);
 
 	// constructs nodes (for faces in emb)
-	face f;
-	forall_faces(f,*emb) {
+	for(face f : emb->faces) {
 		(*faceNode)[f] = dual->newNode();
 	}
 
 	// construct dual edges (for primal edges in M)
-	node v;
-	forall_nodes(v,M)
+	for(node v : M.nodes)
 	{
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 		{
 			if(adj->index() & 1) {
 				node vLeft  = (*faceNode)[emb->leftFace (adj)];
@@ -387,17 +374,14 @@ void MultiEdgeApproxInserter::Block::constructDualBlock()
 	m_primalAdjB = new AdjEntryArray<adjEntry>(*m_dualB);
 
 	// constructs nodes (for faces in m_embB)
-	face f;
-	forall_faces(f,*m_embB) {
+	for(face f : m_embB->faces) {
 		(*m_faceNodeB)[f] = m_dualB->newNode();
 	}
 
 	// construct dual edges (for primal edges in block)
-	node v;
-	forall_nodes(v,*this)
+	for(node v : nodes)
 	{
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 		{
 			if(adj->index() & 1) {
 				node vLeft  = (*m_faceNodeB)[m_embB->leftFace (adj)];
@@ -431,28 +415,27 @@ adjEntry MultiEdgeApproxInserter::Block::findBestFace(node s, node t, int &len)
 int MultiEdgeApproxInserter::Block::findBestFaces(
 	node s, node t, adjEntry &adj_s, adjEntry &adj_t)
 {
-	if(m_dualB == 0)
+	if(m_dualB == nullptr)
 		constructDualBlock();
 
-	NodeArray<adjEntry> spPred(*m_dualB, 0);
+	NodeArray<adjEntry> spPred(*m_dualB, nullptr);
 	QueuePure<adjEntry> queue;
 	int oldIdCount = m_dualB->maxEdgeIndex();
 
 	// augment dual by edges from s to all adjacent faces of s ...
-	adjEntry adj;
-	forall_adj(adj,s) {
+	for(adjEntry adj : s->adjEdges) {
 		// starting edges of bfs-search are all edges leaving s
 		edge eDual = m_dualB->newEdge(m_vS, (*m_faceNodeB)[m_embB->rightFace(adj)]);
 		(*m_primalAdjB)[eDual->adjSource()] = adj;
-		(*m_primalAdjB)[eDual->adjTarget()] = 0;
+		(*m_primalAdjB)[eDual->adjTarget()] = nullptr;
 		queue.append(eDual->adjSource());
 	}
 
 	// ... and from all adjacent faces of t to t
-	forall_adj(adj,t) {
+	for(adjEntry adj : t->adjEdges) {
 		edge eDual = m_dualB->newEdge((*m_faceNodeB)[m_embB->rightFace(adj)], m_vT);
 		(*m_primalAdjB)[eDual->adjSource()] = adj;
-		(*m_primalAdjB)[eDual->adjTarget()] = 0;
+		(*m_primalAdjB)[eDual->adjTarget()] = nullptr;
 	}
 
 	// actual search (using bfs on directed dual)
@@ -464,7 +447,7 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 		node v = adjCand->twinNode();
 
 		// leads to an unvisited node?
-		if (spPred[v] == 0)
+		if (spPred[v] == nullptr)
 		{
 			// yes, then we set v's predecessor in search tree
 			spPred[v] = adjCand;
@@ -488,8 +471,7 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			adjEntry adj;
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				if(adj->twinNode() != m_vS)
 					queue.append(adj);
 			}
@@ -497,10 +479,11 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 	}
 
 	// remove augmented edges again
-	while ((adj = m_vS->firstAdj()) != 0)
+	adjEntry adj;
+	while ((adj = m_vS->firstAdj()) != nullptr)
 		m_dualB->delEdge(adj->theEdge());
 
-	while ((adj = m_vT->firstAdj()) != 0)
+	while ((adj = m_vT->firstAdj()) != nullptr)
 		m_dualB->delEdge(adj->theEdge());
 
 	m_dualB->resetEdgeIdCount(oldIdCount);
@@ -519,8 +502,7 @@ int MultiEdgeApproxInserter::Block::recTC(node n, edge eRef)
 	const Graph &M = S.getGraph();
 	EdgeArray<int> &tcS = m_tc[n];
 
-	edge e;
-	forall_edges(e,M) {
+	for(edge e : M.edges) {
 		if(tcS[e] == -1 && e != eRef) {
 			edge eT = S.treeEdge(e);
 
@@ -541,18 +523,18 @@ int MultiEdgeApproxInserter::Block::recTC(node n, edge eRef)
 	{
 	case SPQRTree::SNode:
 		c = numeric_limits<int>::max();
-		forall_edges(e,M)
+		for(edge e : M.edges)
 			if(e != eRef) c = min(c, tcS[e]);
 		break;
 
 	case SPQRTree::PNode:
 		c = 0;
-		forall_edges(e,M)
+		for(edge e : M.edges)
 			if(e != eRef) c += tcS[e];
 		break;
 
 	case SPQRTree::RNode:
-		if(m_info[n].m_dual == 0)
+		if(m_info[n].m_dual == nullptr)
 			constructDual(n);
 
 		c = findShortestPath(n, eRef);
@@ -568,8 +550,7 @@ void MultiEdgeApproxInserter::Block::computeTraversingCosts(node n, edge e1, edg
 	const Graph &M = S.getGraph();
 	EdgeArray<int> &tcS = m_tc[n];
 
-	edge e;
-	forall_edges(e,M) {
+	for(edge e : M.edges) {
 		if(tcS[e] == -1 && e != e1 && e != e2) {
 			edge eT = S.treeEdge(e);
 
@@ -599,21 +580,19 @@ int  MultiEdgeApproxInserter::Block::findShortestPath(node n, edge eRef)
 	const AdjEntryArray<adjEntry> primalAdj = *m_info[n].m_primalAdj;
 
 	int maxTC = 0;
-	edge e;
-	forall_edges(e,M)
+	for(edge e : M.edges)
 		maxTC = max(maxTC, tcS[e]);
 
 	++maxTC;
 	Array<SListPure<adjEntry> > nodesAtDist(maxTC);
 
-	NodeArray<adjEntry> spPred(dual,0); // predecessor in shortest path tree
+	NodeArray<adjEntry> spPred(dual,nullptr); // predecessor in shortest path tree
 
 	node vS = faceNode[emb.rightFace(eRef->adjSource())];
 	node vT = faceNode[emb.rightFace(eRef->adjTarget())];
 
 	// start with all edges leaving from vS
-	adjEntry adj;
-	forall_adj(adj,vS) {
+	for(adjEntry adj : vS->adjEdges) {
 		edge eOrig = primalAdj[adj]->theEdge();
 		if(eOrig != eRef)
 			nodesAtDist[tcS[eOrig]].pushBack(adj);
@@ -629,7 +608,7 @@ int  MultiEdgeApproxInserter::Block::findShortestPath(node n, edge eRef)
 		node v = adjCand->twinNode();
 
 		// leads to an unvisited node ?
-		if (spPred[v] == 0) {
+		if (spPred[v] == nullptr) {
 			// yes, then we set v's predecessor in search tree
 			spPred[v] = adjCand;
 
@@ -640,7 +619,7 @@ int  MultiEdgeApproxInserter::Block::findShortestPath(node n, edge eRef)
 			}
 
 			// append next candidates to end of queue
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				int listPos = (currentDist + tcS[primalAdj[adj]->theEdge()]) % maxTC;
 				nodesAtDist[listPos].pushBack(adj);
 			}
@@ -651,7 +630,7 @@ int  MultiEdgeApproxInserter::Block::findShortestPath(node n, edge eRef)
 
 int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, node s, node t, PathDir &dirFrom, PathDir &dirTo)
 {
-	if(m_info[n].m_dual == 0)
+	if(m_info[n].m_dual == nullptr)
 		constructDual(n);
 
 	const StaticSkeleton &S = *dynamic_cast<StaticSkeleton*>(&m_spqr->skeleton(n));
@@ -663,54 +642,50 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 	const FaceArray<node> faceNode = *m_info[n].m_faceNode;
 	const AdjEntryArray<adjEntry> primalAdj = *m_info[n].m_primalAdj;
 
-	node v1 = 0, v2 = 0;
-	if(eIn == 0 || eOut == 0) {
-		node v;
-		forall_nodes(v,M) {
+	node v1 = nullptr, v2 = nullptr;
+	if(eIn == nullptr || eOut == nullptr) {
+		for(node v : M.nodes) {
 			node vOrig = S.original(v);
 			if(vOrig == s) v1 = v;
 			if(vOrig == t) v2 = v;
 		}
 	}
 
-	edge e1 = (eIn  == 0) ? 0 : ((n != eIn ->source()) ? m_spqr->skeletonEdgeTgt(eIn)  : m_spqr->skeletonEdgeSrc(eIn));
-	edge e2 = (eOut == 0) ? 0 : ((n != eOut->source()) ? m_spqr->skeletonEdgeTgt(eOut) : m_spqr->skeletonEdgeSrc(eOut));
+	edge e1 = (eIn  == nullptr) ? nullptr : ((n != eIn ->source()) ? m_spqr->skeletonEdgeTgt(eIn)  : m_spqr->skeletonEdgeSrc(eIn));
+	edge e2 = (eOut == nullptr) ? nullptr : ((n != eOut->source()) ? m_spqr->skeletonEdgeTgt(eOut) : m_spqr->skeletonEdgeSrc(eOut));
 
 	computeTraversingCosts(n, e1, e2);
 
 	int maxTC = 0;
-	edge e;
-	forall_edges(e,M)
+	for(edge e : M.edges)
 		maxTC = max(maxTC, tcS[e]);
 
 	++maxTC;
 	Array<SListPure<Tuple2<node,node> > > nodesAtDist(maxTC);
 
 	// start vertices
-	if(e1 != 0) {
-		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjSource())], 0) );
-		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjTarget())], 0) );
+	if(e1 != nullptr) {
+		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjSource())], nullptr) );
+		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjTarget())], nullptr) );
 	} else {
-		adjEntry adj;
-		forall_adj(adj,v1)
-			nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(adj)], 0) );
+		for(adjEntry adj : v1->adjEdges)
+			nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(adj)], nullptr) );
 	}
 
 	// stop vertices
 	NodeArray<bool> stopVertex(dual,false);
 
-	if(e2 != 0) {
+	if(e2 != nullptr) {
 		stopVertex[faceNode[emb.rightFace(e2->adjSource())]] = true;
 		stopVertex[faceNode[emb.rightFace(e2->adjTarget())]] = true;
 	} else {
-		adjEntry adj;
-		forall_adj(adj,v2)
+		for(adjEntry adj : v2->adjEdges)
 			stopVertex[faceNode[emb.rightFace(adj)]] = true;
 	}
 
 	// actual shortest path search
 	NodeArray<bool> visited(dual,false);
-	NodeArray<node> spPred(dual,0);
+	NodeArray<node> spPred(dual,nullptr);
 
 	int currentDist = 0;
 	for( ; ; ) {
@@ -732,11 +707,11 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 
 				// find start node w
 				node w = v;
-				while(spPred[w] != 0)
+				while(spPred[w] != nullptr)
 					w = spPred[w];
 
 				// in which direction to we start
-				if(e1 == 0)
+				if(e1 == nullptr)
 					dirFrom = pdNone;  // doesn't matter
 				else if(w == faceNode[emb.rightFace(e1->adjSource())])
 					dirFrom = pdRight; // right face of eIn
@@ -744,7 +719,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 					dirFrom = pdLeft;  // left face of eIn
 
 				// from which direction to we enter
-				if(e2 == 0)
+				if(e2 == nullptr)
 					dirTo = pdNone;  // doesn't matter
 				else if(v == faceNode[emb.rightFace(e2->adjSource())])
 					dirTo = pdLeft; // right face of eOut (leaving to the right)
@@ -755,8 +730,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 			}
 
 			// append next candidates to end of queue
-			adjEntry adj;
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				edge eM = primalAdj[adj]->theEdge();
 				if(eM != e1 && eM != e2) {
 					int listPos = (currentDist + tcS[eM]) % maxTC;
@@ -784,7 +758,7 @@ MultiEdgeApproxInserter::MultiEdgeApproxInserter()
 	m_statistics = false;
 
 	// initialization
-	m_edge = 0;
+	m_edge = nullptr;
 	m_sumInsertionCosts = 0;
 	m_sumFEInsertionCosts = 0;
 }
@@ -802,7 +776,7 @@ MultiEdgeApproxInserter::MultiEdgeApproxInserter(const MultiEdgeApproxInserter &
 	m_statistics = inserter.m_statistics;
 
 	// initialization
-	m_edge = 0;
+	m_edge = nullptr;
 	m_sumInsertionCosts = 0;
 	m_sumFEInsertionCosts = 0;
 }
@@ -844,11 +818,11 @@ MultiEdgeApproxInserter::Block *MultiEdgeApproxInserter::constructBlock(int i)
 	{
 		edge e = *itE;
 
-		if (m_GtoBC[e->source()] == 0) {
+		if (m_GtoBC[e->source()] == nullptr) {
 			m_GtoBC[e->source()] = b->newNode();
 			nodesG.pushBack(e->source());
 		}
-		if (m_GtoBC[e->target()] == 0) {
+		if (m_GtoBC[e->target()] == nullptr) {
 			m_GtoBC[e->target()] = b->newNode();
 			nodesG.pushBack(e->target());
 		}
@@ -858,8 +832,8 @@ MultiEdgeApproxInserter::Block *MultiEdgeApproxInserter::constructBlock(int i)
 		b->m_BCtoG[eBC->adjTarget()] = e->adjTarget();
 
 		edge eOrig = m_pPG->original(e);
-		if(m_costOrig != 0)
-			b->m_cost[eBC] = (eOrig == 0) ? 0 : (*m_costOrig)[eOrig];
+		if(m_costOrig != nullptr)
+			b->m_cost[eBC] = (eOrig == nullptr) ? 0 : (*m_costOrig)[eOrig];
 	}
 
 	// store mapping orginal nodes -> copy in blocks and reset entries of GtoBC
@@ -867,7 +841,7 @@ MultiEdgeApproxInserter::Block *MultiEdgeApproxInserter::constructBlock(int i)
 	for(itV = nodesG.begin(); itV.valid(); ++itV) {
 		node v = *itV;
 		m_copyInBlocks[v].pushBack(VertexBlock(m_GtoBC[v],i));
-		m_GtoBC[v] = 0;
+		m_GtoBC[v] = nullptr;
 	}
 
 	planarEmbed(*b);
@@ -888,7 +862,7 @@ node MultiEdgeApproxInserter::copy(node vOrig, int b)
 			return (*it).m_vertex;
 	}
 
-	return 0;
+	return nullptr;
 }
 
 
@@ -926,7 +900,8 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 
 	node v = copy(vOrig,b);
 	node w = copy(wOrig,b);
-	OGDF_ASSERT(v != 0 && w != 0);
+	OGDF_ASSERT(v != 0);
+	OGDF_ASSERT(w != 0);
 
 	B.initSPQR(m_edge->size());
 
@@ -937,7 +912,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 	node v1 = vAllocNodes.front();
 	node v2 = wAllocNodes.front();
 
-	dfsPathSPQR( v1, v2, 0, path );
+	dfsPathSPQR( v1, v2, nullptr, path );
 
 	node x;
 	while(!path.empty() && vAllocNodes.search(x = path.front()->opposite(v1)).valid()) {
@@ -962,7 +937,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 
 	switch(spqr.typeOf(v1)) {
 	case SPQRTree::RNode:
-		c += B.costsSubpath(v1, 0, (path.empty()) ? 0 : path.front(), v, w, dirFrom, dirTo);
+		c += B.costsSubpath(v1, nullptr, (path.empty()) ? nullptr : path.front(), v, w, dirFrom, dirTo);
 		prefs.pushBack(EmbeddingPreference(false));
 		curDir = dirTo;
 		break;
@@ -986,7 +961,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 		switch(spqr.typeOf(n)) {
 		case SPQRTree::RNode:
 			c += B.costsSubpath(n, e,
-				(it.succ().valid() == false) ? 0 : *(it.succ()), v, w,
+				(it.succ().valid() == false) ? nullptr : *(it.succ()), v, w,
 				dirFrom, dirTo);
 
 			// do we need to mirror embedding of R-node?
@@ -1210,11 +1185,10 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 					spqr.reverse(n);
 
 				if(visited[n]) {
-					node n_succ = (j+1 < len) ? p[j+1].m_node : 0;
-					node n_pred = (j-1 >=  0) ? p[j-1].m_node : 0;
+					node n_succ = (j+1 < len) ? p[j+1].m_node : nullptr;
+					node n_pred = (j-1 >=  0) ? p[j-1].m_node : nullptr;
 
-					adjEntry adj;
-					forall_adj(adj,n) {
+					for(adjEntry adj : n->adjEdges) {
 						node x = adj->twinNode();
 						if(x != n_succ && x != n_pred && visited[x])
 							recFlipPref(adj->twin(), pi_pick, visited, spqr);
@@ -1227,8 +1201,7 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 	}
 
 	// C.  ---------------------------------------
-	node n;
-	forall_nodes(n,spqr.tree())
+	for(node n : spqr.tree().nodes)
 	{
 		const EmbeddingPreference &p = pi_pick[n];
 		if(p.isNull())
@@ -1265,8 +1238,7 @@ void MultiEdgeApproxInserter::recFlipPref(
 	if(pref.type() == EmbeddingPreference::epPNode)
 		spqr.reverse(n);
 
-	adjEntry adj;
-	forall_adj(adj,n) {
+	for(adjEntry adj : n->adjEdges) {
 		if(adj != adjP && visited[adj->twinNode()])
 			recFlipPref(adj->twin(), pi_pick, visited, spqr);
 	}
@@ -1320,7 +1292,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 	const Array<edge>             &origEdges,
 	const EdgeArray<int>          *costOrig,
 	const EdgeArray<bool>         *forbiddenEdge,
-	const EdgeArray<__uint32> *edgeSubGraphs)
+	const EdgeArray<uint32_t> *edgeSubGraphs)
 {
 	m_pPG = &PG;
 	m_costOrig = costOrig;
@@ -1344,8 +1316,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 
 	// edgesB[i] = list of edges in component i
 	m_edgesB.init(c);
-	edge e;
-	forall_edges(e,PG)
+	for(edge e : PG.edges)
 		m_edgesB[compnum[e]].pushBack(e);
 
 	// construct arrays compV and nodeB such that
@@ -1378,7 +1349,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 		}
 	}
 	mark.init();
-	m_GtoBC.init(PG,0);
+	m_GtoBC.init(PG,nullptr);
 	m_copyInBlocks.init(PG);
 
 	m_block.init(c);
@@ -1484,10 +1455,9 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 
 	// embedding graph
 	Array<bool> blockSet(0,c-1,false);
-	AdjEntryArray<SListIterator<adjEntry> > pos(PG,0);
+	AdjEntryArray<SListIterator<adjEntry> > pos(PG,nullptr);
 
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
 		SListPure<adjEntry> adjList;
 		SList<VertexBlock> &copies = m_copyInBlocks[v];
@@ -1498,8 +1468,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 			const Block &B = *m_block[copies.front().m_block];
 			node vB = copies.front().m_vertex;
 
-			adjEntry adj;
-			forall_adj(adj,vB)
+			for(adjEntry adj : vB->adjEdges)
 				adjList.pushBack(B.m_BCtoG[adj]);
 
 		} else {
@@ -1584,7 +1553,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 		constructDual(PG);
 
 		//cout << "\ncutvertex preferences:\n" << endl;
-		//forall_nodes(v,PG)
+		//for(node v : PG.nodes)
 		//{
 		//	SListConstIterator<CutvertexPreference> it = cvPref[v].begin();
 		//	if(!it.valid()) continue;
@@ -1653,7 +1622,7 @@ void MultiEdgeApproxInserter::cleanup()
 	m_verticesB.init();
 	m_compV.init();
 
-	m_edge = 0;
+	m_edge = nullptr;
 	m_pathBCs.init();
 	m_insertionCosts.init();
 	m_copyInBlocks.init();
@@ -1676,17 +1645,14 @@ void MultiEdgeApproxInserter::constructDual(const PlanRepLight &PG)
 	m_primalAdj.init(m_dual);
 
 	// constructs nodes (for faces in m_embB)
-	face f;
-	forall_faces(f,m_E) {
+	for(face f : m_E.faces) {
 		m_faceNode[f] = m_dual.newNode();
 	}
 
 	// construct dual edges (for primal edges in block)
-	node v;
-	forall_nodes(v,PG)
+	for(node v : PG.nodes)
 	{
-		adjEntry adj;
-		forall_adj(adj,v)
+		for(adjEntry adj : v->adjEdges)
 		{
 			if(adj->index() & 1) {
 				node vLeft  = m_faceNode[m_E.leftFace (adj)];
@@ -1706,25 +1672,24 @@ void MultiEdgeApproxInserter::constructDual(const PlanRepLight &PG)
 
 int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 {
-	NodeArray<adjEntry> spPred(m_dual, 0);
+	NodeArray<adjEntry> spPred(m_dual, nullptr);
 	QueuePure<adjEntry> queue;
 	int oldIdCount = m_dual.maxEdgeIndex();
 
 	// augment dual by edges from s to all adjacent faces of s ...
-	adjEntry adj;
-	forall_adj(adj,s) {
+	for(adjEntry adj : s->adjEdges) {
 		// starting edges of bfs-search are all edges leaving s
 		edge eDual = m_dual.newEdge(m_vS, m_faceNode[m_E.rightFace(adj)]);
 		m_primalAdj[eDual->adjSource()] = adj;
-		m_primalAdj[eDual->adjTarget()] = 0;
+		m_primalAdj[eDual->adjTarget()] = nullptr;
 		queue.append(eDual->adjSource());
 	}
 
 	// ... and from all adjacent faces of t to t
-	forall_adj(adj,t) {
+	for(adjEntry adj : t->adjEdges) {
 		edge eDual = m_dual.newEdge(m_faceNode[m_E.rightFace(adj)], m_vT);
 		m_primalAdj[eDual->adjSource()] = adj;
-		m_primalAdj[eDual->adjTarget()] = 0;
+		m_primalAdj[eDual->adjTarget()] = nullptr;
 	}
 
 	// actual search (using bfs on directed dual)
@@ -1736,7 +1701,7 @@ int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 		node v = adjCand->twinNode();
 
 		// leads to an unvisited node?
-		if (spPred[v] == 0)
+		if (spPred[v] == nullptr)
 		{
 			// yes, then we set v's predecessor in search tree
 			spPred[v] = adjCand;
@@ -1758,8 +1723,7 @@ int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			adjEntry adj;
-			forall_adj(adj,v) {
+			for(adjEntry adj : v->adjEdges) {
 				if(adj->twinNode() != m_vS)
 					queue.append(adj);
 			}
@@ -1767,10 +1731,11 @@ int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 	}
 
 	// remove augmented edges again
-	while ((adj = m_vS->firstAdj()) != 0)
+	adjEntry adj;
+	while ((adj = m_vS->firstAdj()) != nullptr)
 		m_dual.delEdge(adj->theEdge());
 
-	while ((adj = m_vT->firstAdj()) != 0)
+	while ((adj = m_vT->firstAdj()) != nullptr)
 		m_dual.delEdge(adj->theEdge());
 
 	m_dual.resetEdgeIdCount(oldIdCount);

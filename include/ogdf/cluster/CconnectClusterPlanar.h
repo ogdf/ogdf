@@ -1,11 +1,3 @@
-/*
- * $Revision: 2663 $
- *
- * last checkin:
- *   $Author:klein $
- *   $Date:2007-10-18 17:23:28 +0200 (Thu, 18 Oct 2007) $
- ***************************************************************/
-
 /** \file
  * \brief Cluster Planarity tests and Cluster Planar embedding
  * for C-connected Cluster Graphs
@@ -56,6 +48,10 @@
 
 namespace ogdf {
 
+//! C-planarity test by Cohen, Feng and Eades.
+/**
+ * @ingroup ga-cplanarity
+ */
 class OGDF_EXPORT CconnectClusterPlanar
 {
 public:

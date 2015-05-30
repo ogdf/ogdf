@@ -1,11 +1,3 @@
-/*
- * $Revision: 3833 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-11-13 11:23:15 +0100 (Wed, 13 Nov 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of interface for two-layer crossing
  *        minimization algorithms for Simultaneous Drawing.
@@ -72,9 +64,9 @@ namespace ogdf {
 		*        neighbor level (fixed level) is determined by the hierarchy.
 		* @param esg points to an edge array which specifies to which subgraphs
 		*        an edge belongs; there are up to 32 possible subgraphs each of which
-		*        is represented by a bit of an <code>__uint32</code>.
+		*        is represented by a bit of an <code>uint32_t</code>.
 		*/
-		virtual void call(Level &L, const EdgeArray<__uint32> *esg) = 0;
+		virtual void call(Level &L, const EdgeArray<uint32_t> *esg) = 0;
 
 		void call(Level &L) = 0;
 	};

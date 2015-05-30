@@ -1,11 +1,3 @@
-/*
- * $Revision: 3556 $
- *
- * last checkin:
- *   $Author: beyer $
- *   $Date: 2013-06-07 19:36:11 +0200 (Fri, 07 Jun 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Declaration of class PertinentGraph.
  *
@@ -62,6 +54,8 @@ namespace ogdf {
 //---------------------------------------------------------
 //! Pertinent graphs of nodes in an SPQR-tree.
 /**
+ * @ingroup dc-helper
+ *
  * The class PertinentGraph represents the pertinent graph \a G(\a vT)
  * of a node \a vT in an SPQR-tree \a T with original graph \a G.
  *

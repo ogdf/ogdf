@@ -24,21 +24,21 @@ public:
      //@{
 
      /// Returns pivot row, -1 if none
-     virtual int pivotRow();
+     virtual int pivotRow() override;
 
      /** Updates weights and returns pivot alpha.
          Also does FT update */
      virtual double updateWeights(CoinIndexedVector * input,
                                   CoinIndexedVector * spare,
                                   CoinIndexedVector * spare2,
-                                  CoinIndexedVector * updatedColumn);
+                                  CoinIndexedVector * updatedColumn) override;
      /** Updates primal solution (and maybe list of candidates)
          Uses input vector which it deletes
          Computes change in objective function
      */
      virtual void updatePrimalSolution(CoinIndexedVector * input,
                                        double theta,
-                                       double & changeInObjective);
+                                       double & changeInObjective) override;
      //@}
 
 
@@ -57,7 +57,7 @@ public:
      virtual ~ClpDualRowDantzig ();
 
      /// Clone
-     virtual ClpDualRowPivot * clone(bool copyData = true) const;
+     virtual ClpDualRowPivot * clone(bool copyData = true) const override;
 
      //@}
 

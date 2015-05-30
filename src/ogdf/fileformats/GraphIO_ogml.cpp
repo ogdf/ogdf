@@ -1,11 +1,3 @@
-/*
- * $Revision: 3366 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2013-04-04 16:13:53 +0200 (Thu, 04 Apr 2013) $
- ***************************************************************/
-
 /** \file
  * \brief Implements OGML write functionality of class GraphIO.
  *
@@ -66,8 +58,7 @@ static void write_ogml_footer(ostream &os)
 
 static void write_ogml_graph_edges(const Graph &G, ostream &os)
 {
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		GraphIO::indent(os,3) << "<edge id=\"e" << e->index() << "\">\n";
 		GraphIO::indent(os,4) << "<source idRef=\"n" << e->source()->index() << "\" />\n";
 		GraphIO::indent(os,4) << "<target idRef=\"n" << e->target()->index() << "\" />\n";
@@ -80,8 +71,7 @@ static void write_ogml_graph(const Graph &G, ostream &os)
 {
 	GraphIO::indent(os,2) << "<structure>\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		GraphIO::indent(os,3) << "<node id=\"n" << v->index() << "\">\n";
 		GraphIO::indent(os,3) << "</node>\n";
 	}
@@ -99,15 +89,13 @@ static void write_ogml_graph(cluster c, int level, ostream &os)
 		GraphIO::indent(os,2+level) << "<node id=\"c" << c->index() << "\">\n";
 	}
 
-	ListConstIterator<node> itn;
-	for (itn = c->nBegin(); itn.valid(); ++itn) {
-		GraphIO::indent(os,3+level) << "<node id=\"n" << (*itn)->index() << "\">\n";
+	for (node v : c->nodes) {
+		GraphIO::indent(os,3+level) << "<node id=\"n" << v->index() << "\">\n";
 		GraphIO::indent(os,3+level) << "</node>\n";
 	}
 
-	ListConstIterator<cluster> itc;
-	for (itc = c->cBegin(); itc.valid(); ++itc) {
-		write_ogml_graph(*itc, level+1, os);
+	for (cluster child : c->children) {
+		write_ogml_graph(child, level+1, os);
 	}
 
 	if(level > 0) {
@@ -156,8 +144,7 @@ static void write_ogml_graph_edges(const GraphAttributes &A, ostream &os)
 {
 	const Graph &G = A.constGraph();
 
-	edge e;
-	forall_edges(e,G) {
+	for(edge e : G.edges) {
 		GraphIO::indent(os,3) << "<edge id=\"e" << e->index() << "\">\n";
 		if (A.attributes() & GraphAttributes::edgeLabel) {
 			GraphIO::indent(os,4) << "<label id=\"le" << e->index() << "\">\n";
@@ -178,8 +165,7 @@ static void write_ogml_graph(const GraphAttributes &A, ostream &os)
 
 	GraphIO::indent(os,2) << "<structure>\n";
 
-	node v;
-	forall_nodes(v,G) {
+	for(node v : G.nodes) {
 		GraphIO::indent(os,3) << "<node id=\"n" << v->index() << "\">\n";
 		if (A.attributes() & GraphAttributes::nodeLabel) {
 			GraphIO::indent(os,4) << "<label id=\"ln" << v->index() << "\">\n";
@@ -219,9 +205,8 @@ static void write_ogml_graph(const ClusterGraphAttributes &A, cluster c, int lev
 		GraphIO::indent(os,3+level) << "</node>\n";
 	}
 
-	ListConstIterator<cluster> itc;
-	for (itc = c->cBegin(); itc.valid(); ++itc) {
-		write_ogml_graph(*itc, level+1, os);
+	for (cluster child : c->children) {
+		write_ogml_graph(child, level+1, os);
 	}
 
 	if(level > 0) {
@@ -309,8 +294,7 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 
 	if (A.attributes() & (GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle))
 	{
-		node v;
-		forall_nodes(v,G) {
+		for(node v : G.nodes) {
 			GraphIO::indent(os,4) << "<nodeStyle idRef=\"n" << v->index() << "\">\n";
 
 			if(A.attributes() & GraphAttributes::nodeGraphics) {
@@ -384,12 +368,11 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 		}
 	}
 
-	int pointId = 0;
-
 	if (A.attributes() & (GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle))
 	{
-		edge e;
-		forall_edges(e,G) {
+		int pointId = 0;
+
+		for(edge e : G.edges) {
 			GraphIO::indent(os,4) << "<edgeStyle idRef=\"e" << e->index() << "\">\n";
 
 			if(A.attributes() & GraphAttributes::edgeStyle) {
@@ -444,9 +427,8 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 						GraphIO::indent(os,5) << "<point id=\"p" << pointId++ << "\" x=\"" << A.x(e->source()) << "\" y=\"" << A.y(e->source()) << "\" />\n";
 				}
 				// handle points
-				ListConstIterator<DPoint> it;
-				for(it = dpl.begin(); it.valid(); ++it) {
-					GraphIO::indent(os,5) << "<point id=\"p" << pointId++ << "\" x=\"" << (*it).m_x << "\" y=\"" << (*it).m_y << "\" />\n";
+				for(const DPoint &dp : dpl) {
+					GraphIO::indent(os,5) << "<point id=\"p" << pointId++ << "\" x=\"" << dp.m_x << "\" y=\"" << dp.m_y << "\" />\n";
 				}
 				// handle target
 				v = e->target();
@@ -485,8 +467,7 @@ static void write_ogml_layout(const ClusterGraphAttributes &A, ostream &os)
 	GraphIO::indent(os,2) << "<layout>\n";
 	GraphIO::indent(os,3) << "<styles>\n";
 
-	cluster c;
-	forall_clusters(c, C) {
+	for(cluster c : C.clusters) {
 		if(c != C.rootCluster()) {
 			GraphIO::indent(os,4) << "<nodeStyle idRef=\"c" << c->index() << "\">\n";
 

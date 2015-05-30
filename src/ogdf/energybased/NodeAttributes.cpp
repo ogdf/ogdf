@@ -1,11 +1,3 @@
-/*
- * $Revision: 2552 $
- *
- * last checkin:
- *   $Author: gutwenger $
- *   $Date: 2012-07-05 16:45:20 +0200 (Thu, 05 Jul 2012) $
- ***************************************************************/
-
 /** \file
  * \brief Implementation of class NodeAttributes.
  *
@@ -43,18 +35,18 @@
 
 #include <ogdf/internal/energybased/NodeAttributes.h>
 
-namespace ogdf{
+namespace ogdf {
 
 ostream &operator<< (ostream & output, const NodeAttributes & A)
 {
 	output <<"width: "<< A.width<<" height: "<<A.height<<" position: "<<A.position ;
 	output<<" index of lower level node ";
-	if (A.v_lower_level == NULL)
-		output <<"NULL";
+	if (A.v_lower_level == nullptr)
+		output <<"nullptr";
 	else output<<A.v_lower_level->index();
 	output<<" index of higher level node ";
-	if (A.v_higher_level == NULL)
-		output <<"NULL";
+	if (A.v_higher_level == nullptr)
+		output <<"nullptr";
 	else output<<A.v_higher_level->index();
 	output<<" mass "<<A.mass<<" type "<<A.type;
 	if(A.type == 3)
@@ -62,24 +54,30 @@ ostream &operator<< (ostream & output, const NodeAttributes & A)
 		output<<" dedic_moon_nodes ";
 		if(A.moon_List.empty())
 			output<<" is empty";
-		else forall_listiterators(node,it,A.moon_List) output<<(*it)->index()<<" ";
+		else
+			for(node v : A.moon_List)
+					output<<v->index()<<" ";
 	}
 	if(A.type == 4)
 		output<<" dedic_pm_node "<<A.dedicated_pm_node;
 	output<<" index of dedicated sun_node ";
-	if (A.get_dedicated_sun_node() == NULL)
-		output<<"NULL";
+	if (A.get_dedicated_sun_node() == nullptr)
+		output<<"nullptr";
 	else
 		output<<A.dedicated_sun_node->index();
 	output<<" distance to dedicated sun "<<A.dedicated_sun_distance;
 	output<<" lambda_List ";
 	if(A.lambda.empty())
 		output<<" is empty";
-	else forall_listiterators(double, l,A.lambda) output<<*l<<" ";
+	else
+		for(double l : A.lambda)
+				output<<l<<" ";
 	output<<" neighbour_sun_node_List ";
 	if(A.neighbour_s_node.empty())
 		output<<" is empty";
-	else forall_listiterators(node, it,A.neighbour_s_node) output<<(*it)->index()<<" ";
+	else
+		for(node v : A.neighbour_s_node)
+			output<<v->index()<<" ";
 	if(A.placed == true)
 		output<<" is placed";
 	else
@@ -99,9 +97,9 @@ istream &operator>> (istream & input,  NodeAttributes & /* A */)
 void NodeAttributes::init_mult_values()
 {
 	type = 0;
-	dedicated_sun_node = NULL;
+	dedicated_sun_node = nullptr;
 	dedicated_sun_distance = 0;
-	dedicated_pm_node = NULL;
+	dedicated_pm_node = nullptr;
 	lambda.clear();
 	neighbour_s_node.clear();
 	lambda_List_ptr = &lambda;
@@ -120,15 +118,15 @@ NodeAttributes::NodeAttributes()
 	position.m_y = 0;
 	width = 0;
 	height = 0;
-	v_lower_level = NULL;
-	v_higher_level = NULL;
+	v_lower_level = nullptr;
+	v_higher_level = nullptr;
 
 	//for multilevel step
 	mass = 0;
 	type = 0;
-	dedicated_sun_node = NULL;
+	dedicated_sun_node = nullptr;
 	dedicated_sun_distance = 0;
-	dedicated_pm_node = NULL;
+	dedicated_pm_node = nullptr;
 	lambda.clear();
 	neighbour_s_node.clear();
 	lambda_List_ptr = &lambda;
