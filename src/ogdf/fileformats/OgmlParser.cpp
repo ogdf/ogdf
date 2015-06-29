@@ -1597,71 +1597,60 @@ void OgmlParser::printValidityInfo(const OgmlTag & ot, const XmlTagObject & xto,
 	switch (valStatus) {
 
 	case Ogml::vs_tagEmptIncl:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" expects tag(s) to include! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" expects tag(s) to include! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		ot.printOwnedTags(cerr);
 		break;
 
 	case Ogml::vs_idNotUnique:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" owns already assigned id! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" owns already assigned id! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		break;
 
 	case Ogml::vs_idRefErr:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" references unknown or wrong id! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" references unknown or wrong id! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		break;
 
 	case Ogml::vs_unexpTag:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" owns unexpected tag! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" owns unexpected tag! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		ot.printOwnedTags(cerr);
 		break;
 
 	case Ogml::vs_unexpAtt:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" owns unexpected attribute(s)! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" owns unexpected attribute(s)! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		ot.printOwnedAttributes(cerr);
 		break;
 
 	case Ogml::vs_expTagNotFound:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" does not own compulsive tag(s)! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" does not own compulsive tag(s)! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		ot.printOwnedTags(cerr);
 		break;
 
 	case Ogml::vs_expAttNotFound:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" does not own compulsive attribute(s)! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" does not own compulsive attribute(s)! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		ot.printOwnedAttributes(cerr);
 		break;
 
 	case Ogml::vs_attValueErr:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" owns attribute with wrong value! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" owns attribute with wrong value! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		ot.printOwnedAttributes(cerr);
 		break;
 
 	case Ogml::vs_cardErr:
-		cerr << "ERROR: tag \"<" << ogmlTagName <<
-			">\" occurence exceeds the number of min. (" << ot.
-			getMinOccurs() << ") or max. (" << ot.getMaxOccurs() << ") occurences in its context! ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" occurence exceeds the number of min. ("
+		  << ot.getMinOccurs() << ") or max. (" << ot.getMaxOccurs() << ") occurences in its context! "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		break;
 
 	case Ogml::vs_invalid:
-		cerr << "ERROR: tag \"<" << ogmlTagName << ">\" is invalid! No further information available. ";
-		cerr << "(Input source line: " << xto.
-			getLine() << ", recursion depth: " << xto.getDepth() << ")\n";
+		OGDF_ERROR("Tag \"<" << ogmlTagName << ">\" is invalid! No further information available. "
+		  "(Input source line: " << xto.getLine() << ", recursion depth: " << xto.getDepth() << ")");
 		cerr << ot;
 		break;
 
@@ -1731,7 +1720,7 @@ bool OgmlParser::isNodeHierarchical(const XmlTagObject *xmlTag) const
 bool OgmlParser::checkGraphType(const XmlTagObject *xmlTag) const
 {
 	if(xmlTag->getName() != Ogml::s_tagNames[Ogml::t_ogml]) {
-		cerr << "ERROR: Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml]	<< "\" in OgmlParser::checkGraphType!\n";
+		OGDF_ERROR("Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml] << "\" in OgmlParser::checkGraphType!");
 		return false;
 	}
 
@@ -2041,8 +2030,7 @@ bool OgmlParser::addAttributes(
 	HashConstIterator<string, const XmlTagObject*> it;
 
 	if(!root) {
-		cout << "WARNING: cannot determine layout information, no parse tree available!\n";
-
+		OGDF_WARNING("Cannot determine layout information, no parse tree available!");
 	} else {
 		// root tag isn't a nullptr pointer... let's start...
 		XmlTagObject* son = root->m_pFirstSon;
@@ -3109,10 +3097,10 @@ bool OgmlParser::addAttributes(
 												}//while segmentsUnsorted.size() > 0
 
 
-												if (checkNumOfSegReInserts==0){
-													cout << "WARNING! Segment definition is not correct" << endl << flush;
-													cout << "Not able to work with #"<< segmentsUnsorted.size() << " segments" << endl << flush;
-													cout << "Please check connection and sorting of segments!" << endl << flush;
+												if (checkNumOfSegReInserts==0) {
+													OGDF_WARNING("Segment definition is not correct!" << endl
+													  << "  Not able to work with #" << segmentsUnsorted.size() << " segments" << endl
+													  << "  Please check connection and sorting of segments!");
 													//				// inserting the bends although there might be an error
 													//				// I commented this, because in this case in ogdf the edge will
 													//				//   be a straight edge and there will not be any artefacts
@@ -3413,9 +3401,8 @@ bool OgmlParser::buildGraph(Graph &G)
 					XmlAttributeObject *att;
 					son->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_nodeIdRef], att);
 					//Validate if source/target is really a node
-					if(m_ids.lookup(att->getValue())->info()->getName() != Ogml::s_tagNames[Ogml::t_node]) {
-						cout << "WARNING: edge relation between graph elements of none type node " <<
-							"are temporarily not supported!\n";
+					if (m_ids.lookup(att->getValue())->info()->getName() != Ogml::s_tagNames[Ogml::t_node]) {
+						OGDF_WARNING("Edge relation between graph elements of type not node are temporarily not supported!");
 					}
 					else {
 						srcTgt.push(m_nodes.lookup(att->getValue())->info());
@@ -3423,8 +3410,8 @@ bool OgmlParser::buildGraph(Graph &G)
 				}
 				son = son->m_pBrother;
 			}
-			if(srcTgt.size() != 2) {
-				cout << "WARNING: hyperedges are temporarily not supported! Discarding edge.\n";
+			if (srcTgt.size() != 2) {
+				OGDF_WARNING("Hyperedges are temporarily not supported! Discarding edge.");
 			}
 			else {
 				// create edge
@@ -3525,8 +3512,8 @@ bool OgmlParser::buildCluster(
 {
 	CG.init(G);
 
-	if(rootTag->getName() != Ogml::s_tagNames[Ogml::t_ogml]) {
-		cerr << "ERROR: Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml]	<< "\" in OgmlParser::buildCluster!\n";
+	if (rootTag->getName() != Ogml::s_tagNames[Ogml::t_ogml]) {
+		OGDF_ERROR("Expecting root tag \"" << Ogml::s_tagNames[Ogml::t_ogml] << "\" in OgmlParser::buildCluster!");
 		return false;
 	}
 

@@ -57,7 +57,7 @@ namespace ogdf {
 //---------------------------------------------------------
 //! Stores additional attributes of a graph (like layout information).
 /**
- * @ingroup graph-containers graph-drawing
+ * @ingroup graph-drawing
  *
  * It is frequently necessary to associate additional attributes with a graph.
  * The class GraphAttributes provides various such attributes and is the

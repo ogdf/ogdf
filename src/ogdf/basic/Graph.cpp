@@ -1017,11 +1017,21 @@ edge Graph::searchEdge(node v, node w) const
 	return nullptr;
 }
 
-
-void Graph::hideEdge(edge e)
+Graph::HiddenEdgeSetHandle Graph::newHiddenEdgeSet()
 {
-	OGDF_ASSERT(e != nullptr);
-	OGDF_ASSERT(e->graphOf() == this)
+	m_hiddenEdges.pushFront(new internal::GraphList<EdgeElement>());
+
+	ListIterator<internal::GraphList<EdgeElement>*> it = m_hiddenEdges.begin();
+	return HiddenEdgeSetHandle(this, it);
+}
+
+void Graph::hideEdge(HiddenEdgeSetHandle &handle, edge e)
+{
+	OGDF_ASSERT(handle.m_graph == this);
+	OGDF_ASSERT(handle.m_it.valid());
+	OGDF_ASSERT(*handle.m_it != nullptr);
+	OGDF_ASSERT(e->graphOf() == this);
+	OGDF_ASSERT(!e->m_hidden);
 
 	node src = e->m_src, tgt = e->m_tgt;
 
@@ -1030,12 +1040,21 @@ void Graph::hideEdge(edge e)
 	tgt->adjEdges.delPure(e->m_adjTgt);
 	tgt->m_indeg--;
 
-	edges.move(e, m_hiddenEdges);
+	edges.move(e, **handle.m_it);
+#ifdef OGDF_DEBUG
+	e->m_hidden = true;
+#endif
 }
 
-
-void Graph::restoreEdge(edge e)
+void Graph::restoreEdge(HiddenEdgeSetHandle &handle, edge e)
 {
+	OGDF_ASSERT(handle.m_graph == this);
+	OGDF_ASSERT(handle.m_it.valid());
+	OGDF_ASSERT(*handle.m_it != nullptr);
+	OGDF_ASSERT(!(*handle.m_it)->empty());
+	OGDF_ASSERT(e->graphOf() == this);
+	OGDF_ASSERT(e->m_hidden);
+
 	node v = e->m_src;
 	v->adjEdges.pushBack(e->m_adjSrc);
 	++v->m_outdeg;
@@ -1044,16 +1063,33 @@ void Graph::restoreEdge(edge e)
 	w->adjEdges.pushBack(e->m_adjTgt);
 	++w->m_indeg;
 
-	m_hiddenEdges.move(e, edges);
+	(*handle.m_it)->move(e, edges);
+#ifdef OGDF_DEBUG
+	e->m_hidden = false;
+#endif
 }
 
+void Graph::restoreEdges(HiddenEdgeSetHandle &handle)
+{
+	OGDF_ASSERT(handle.m_graph == this);
+	OGDF_ASSERT(handle.m_it.valid());
+	OGDF_ASSERT(*handle.m_it != nullptr);
+
+	internal::GraphList<EdgeElement> *edges = *handle.m_it;
+
+	while(!edges->empty()) {
+		restoreEdge(handle, edges->head());
+	}
+
+	delete edges;
+	m_hiddenEdges.del(handle.m_it);
+}
 
 void Graph::restoreAllEdges()
 {
-	edge e, ePrev;
-	for(e = m_hiddenEdges.tail(); e != nullptr; e = ePrev) {
-		ePrev = e->pred();
-		restoreEdge(e);
+	while(!m_hiddenEdges.empty()) {
+		HiddenEdgeSetHandle handle(this, m_hiddenEdges.begin());
+		restoreEdges(handle);
 	}
 }
 

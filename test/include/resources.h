@@ -44,31 +44,32 @@ inline bool resourceCheck() {
  * \param directory The path of the directory.
  * \param callback A function that will be called for each file in the directory.
  * \param recurse Whether to include sub directories.
+ * \return False, if an error occured, True otherwise
  */
-inline void for_each_file(const string &directory, function<void (const string&)> callback, bool recurse = false) {
+inline bool for_each_file(const string &directory, function<void (const string&)> callback, bool recurse = false) {
 	string resourceDirectory = RESOURCE_DIR + "/" + directory;
 	tinydir_dir dir;
 
 	if(tinydir_open(&dir, resourceDirectory.c_str())  == -1) {
-	    	it("", [&](){ Assert::Failure("Could not open directory: " + resourceDirectory); });
+		return false;
 	} else while (dir.has_next) {
-	    tinydir_file file;
+		tinydir_file file;
 
-	    if(tinydir_readfile(&dir, &file) == -1) {
-	    	it("", [&](){ Assert::Failure("Could not read directory: " + resourceDirectory); });
-	    	break;
-	    }
+		if (tinydir_readfile(&dir, &file) == -1) {
+			return false;
+		}
 
-	    if (!file.is_dir) {
-	    	callback(resourceDirectory + "/" + file.name);
-	    } else if(recurse) {
-	    	for_each_file(directory + "/" + file.name, callback, true);
-	    }
+		if (!file.is_dir) {
+			callback(resourceDirectory + "/" + file.name);
+		} else if (recurse) {
+			for_each_file(directory + "/" + file.name, callback, true);
+		}
 
-	    tinydir_next(&dir);
+		tinydir_next(&dir);
 	}
 
 	tinydir_close(&dir);
+	return true;
 }
 
 /**

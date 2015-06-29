@@ -32,6 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/fileformats/DotLexer.h>
 
 namespace ogdf {
@@ -137,8 +138,7 @@ bool Lexer::tokenizeLine()
 				// Get a new line if a current one has ended.
 				if(m_col >= m_buffer.size()) {
 					if(!m_input.good()) {
-						std::cerr << "ERROR: Unclosed comment at"
-						          << column << ", " << row;
+						OGDF_ERROR("Unclosed comment at" << column << ", " << row);
 						return false;
 					}
 					std::getline(m_input, m_buffer);
@@ -188,9 +188,7 @@ bool Lexer::tokenizeLine()
 		} else if(identifier(token)) {
 			token.type = Token::identifier;
 		} else {
-			std::cerr << "EROR: Unknown token at: "
-			          << m_row << "; " << m_col
-			          << "\n";
+			OGDF_ERROR("Unknown token at: " << m_row << "; " << m_col);
 			return false;
 		}
 
@@ -240,9 +238,7 @@ bool Lexer::identifier(Token &token)
 			// Get a new line if a current one has ended.
 			if(m_col >= m_buffer.size()) {
 				if(!m_input.good()) {
-					std::cerr << "ERROR: Unclosed string at "
-					          << token.row << ", " << token.column
-					          << ".\n";
+					OGDF_ERROR("Unclosed string at " << token.row << ", " << token.column);
 					return false;
 				}
 				std::getline(m_input, m_buffer);

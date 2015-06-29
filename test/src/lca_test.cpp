@@ -131,10 +131,10 @@ fewNodeTests()
 {
 	Graph G;
 	node root = G.newNode();
-	it_skip("constructs LCA data structure on a tree with one node", [&]() {
+	it("constructs LCA data structure on a tree with one node", [&]() {
 		LCA lca(G, root);
 	});
-	it_skip("makes LCA query on tree with one node", [&]() {
+	it("makes LCA query on a tree with one node", [&]() {
 		LCA lca(G, root);
 		node commonAncestor = lca.call(root, root);
 		AssertThat(commonAncestor, Equals(root));

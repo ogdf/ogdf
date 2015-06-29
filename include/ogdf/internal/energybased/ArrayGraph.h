@@ -83,6 +83,7 @@ public:
 	 * The nodes and edges are ordered in the same way like in the Graph instance.
 	 * @param GA the GraphAttributes to read from
 	 * @param edgeLength the desired edge length
+	 * @param nodeSize the size of the nodes
 	 */
 	void readFrom(const GraphAttributes& GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
 
@@ -135,6 +136,8 @@ public:
 	/**
 	 * The function does not require to be the same Graph, only the order of nodes and edges
 	 * is important
+	 *
+	 * @param G the graph containing all nodes
 	 * @param xPos the x coordinate array to update
 	 * @param yPos the y coordinate array to update
 	 */

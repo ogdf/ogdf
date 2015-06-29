@@ -597,10 +597,10 @@ Ast::Graph *Ast::parseGraph(
 		directed = true;
 		break;
 	default:
-		std::cerr << "ERROR: Unexpected token \""
+		OGDF_ERROR("Unexpected token \""
 		          << Token::toString(curr->type)
 		          << "\" at "
-		          << curr->row << ", " << curr->column << ".\n";
+		          << curr->row << ", " << curr->column << ".");
 		return nullptr;
 	}
 	curr++;
@@ -629,12 +629,12 @@ Ast::Graph *Ast::parseGraph(
 	StmtList *statements = parseStmtList(curr, curr);
 
 	if(curr == m_tend || curr->type != Token::rightBrace) {
-		std::cerr << "ERROR: Expected \""
+		OGDF_ERROR("Expected \""
 		          << Token::toString(Token::rightBrace)
 		          << ", found \""
 		          << Token::toString(curr->type)
 		          << "\" at "
-		          << curr->row << ", " << curr->column << ".\n";
+		          << curr->row << ", " << curr->column << ".");
 		delete id;
 		delete statements;
 		return nullptr;
@@ -776,8 +776,8 @@ static bool readAttribute(
 		}
 		break;
 	default:
-		std::cerr << "WARNING: Attribute \"" << stmt.lhs
-		          << "\" is  not supported by node or incorrect. Ignoring.\n";
+		OGDF_WARNING("Attribute \"" << stmt.lhs
+		          << "\" is  not supported by node or incorrect. Ignoring.");
 	}
 
 	return true;
@@ -823,8 +823,7 @@ static bool readAttribute(
 		}
 		break;
 	default:
-		std::cerr << "WARNING: Attribute \"" << stmt.lhs
-		          << "\" is not supported by edge or incorrect. Ignoring.\n";
+		OGDF_WARNING("Attribute \"" << stmt.lhs << "\" is not supported by edge or incorrect. Ignoring.");
 	}
 
 	return true;
@@ -849,8 +848,8 @@ static bool readAttribute(
 		CA.strokeColor(c) = stmt.rhs;
 		break;
 	default:
-		std::cerr << "WARNING: Attribute \"" << stmt.lhs
-	              << "\" is not supported by cluster or incorrect. Ignoring.\n";
+		OGDF_WARNING("Attribute \"" << stmt.lhs
+	              << "\" is not supported by cluster or incorrect. Ignoring.");
 	}
 	return true;
 }

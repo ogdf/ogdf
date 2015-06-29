@@ -83,8 +83,7 @@ namespace ogdf {
 		LineBuffer *m_pLineBuffer;
 
 		// String which contains the characters of the current token
-		// Its size is limited to LineBuffer::c_maxStringLength
-		char *m_pCurrentTokenString;
+		string m_currentToken;
 
 	public:
 		// construction
@@ -97,13 +96,14 @@ namespace ogdf {
 		// and returns the identified token. After performing getNextToken() the
 		// token is "consumed", i.e. the line buffer pointer already points to the
 		// next token.
-		// The scanned string is deposited in m_pCurrentTokenString, hence it is
-		// available via getCurrentTokenString()
+		// The scanned string is deposited in m_currentToken, hence it is
+		// available via getCurrentToken()
 		XmlToken getNextToken();
 
-		// Returns the current token string
-		inline const char *getCurrentTokenString(){
-			return m_pCurrentTokenString;
+		// Returns the current token string (a copy)
+		inline const string getCurrentToken()
+		{
+			return m_currentToken;
 		}
 
 		// This function provides a lookahead to the next token;
@@ -131,7 +131,7 @@ namespace ogdf {
 
 		// Reads until the searchCharacter is found; the string starting at the current
 		// position and ending at the position where the search character is found
-		// is deposited in m_pCurrentTokenString.
+		// is deposited in m_currentToken.
 		// If includeSearchCharacter is false (default) the search character is
 		// not contained; otherwise it is contained
 		//

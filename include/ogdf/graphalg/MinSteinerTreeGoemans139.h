@@ -172,12 +172,16 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	const NodeArray<bool> &m_isTerminal;
 	List<node> m_terminals; //!< List of terminals
 	List<node> m_nonterminals; //!< List of non-terminals
-	steinertree::FullComponentStore<T> m_fullCompStore; //!< all enumerated full components
+	steinertree::FullComponentWithExtraStore<T, double> m_fullCompStore; //!< all enumerated full components, with solution
 
 	NodeArray< NodeArray<T> > m_distance;
 	NodeArray< NodeArray<edge> > m_predAPSP;
 
 	OsiSolverInterface *m_osiSolver;
+	CoinPackedMatrix *m_matrix;
+	double *m_objective;
+	double *m_lowerBounds;
+	double *m_upperBounds;
 
 	int m_restricted;
 	int m_use2approx; // 0 = off, 1 = on, 2 = just use it!
@@ -512,7 +516,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	};
 
 	// generates an auxiliary multi-graph for separation: directed, with special source and target, without Steiner vertices of degree 2
-	double generateMinCutSeparationGraph(const double *sol, const ArrayBuffer<int> &activeComponents, node &source, node &target, GraphCopy &G, EdgeArray<double> &capacity, int &cutsFound)
+	double generateMinCutSeparationGraph(const ArrayBuffer<int> &activeComponents, node &source, node &target, GraphCopy &G, EdgeArray<double> &capacity, int &cutsFound)
 	{
 		G.createEmpty(m_G);
 		capacity.init(G);
@@ -523,7 +527,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		target = G.newNode();
 		for (int j = 0; j < activeComponents.size(); ++j) {
 			const int i = activeComponents[j];
-			const double cap = sol[i];
+			const double cap = m_fullCompStore.extra(i);
 			const Array<node> &terminals = m_fullCompStore.terminals(i);
 			// take the first terminal as root
 			// XXX: we may generate parallel edges but it's ok
@@ -591,33 +595,29 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	}
 
 	// remove inactive components from m_fullCompStore; we do not need them any longer;
-	// reorder "sol" accordingly (sol[i] should contain the solution of the i-th component of m_fullCompStore)
-	void removeInactiveComponents(double *sol)
+	void removeInactiveComponents()
 	{
 		// XXX: is it faster to do this backwards? (less copying)
 		int k = 0;
 		while (k < m_fullCompStore.size()) {
-			if (sol[k] > m_eps) {
+			if (m_fullCompStore.extra(k) > m_eps) {
 				++k;
 			} else {
 				m_fullCompStore.remove(k);
-				sol[k] = sol[m_fullCompStore.size()];
 			}
 		}
 	}
 
-	void removeComponents(double *sol, ArrayBuffer<int> &ids)
+	void removeComponents(ArrayBuffer<int> &ids)
 	{
 		ids.quicksort();
 		for (int i = ids.size() - 1; i >= 0; --i) {
-			const int k = ids[i];
-			m_fullCompStore.remove(k);
-			sol[k] = sol[m_fullCompStore.size()];
+			m_fullCompStore.remove(ids[i]);
 		}
 	}
 
 	// precondition: every terminal is covered with >= 1
-	void preprocess(NodeArray<bool> &isNewTerminal, double *sol)
+	void preprocess(NodeArray<bool> &isNewTerminal)
 	{
 		Graph H; // a graph where each component is a star
 		NodeArray<int> id(H); // ids each center of the star to the component id
@@ -666,7 +666,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			}
 		} while (changed);
 
-		removeComponents(sol, inactive);
+		removeComponents(inactive);
 	}
 
 	// inserts (based on m_distance and m_predAPSP) a shortest path from a component, directed, into
@@ -693,14 +693,14 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	}
 
 	// generates a special-purpose blowup graph for gammoid computation: directed, with special source and target, with splitting set *nodes*
-	int generateGammoidGraph(const double *sol, node &source, node &target, CoreWitness &cw, EdgeWeightedGraphCopy<T> &blowupGraph, NodeArray<node> &bgOriginal, List<node> &bgTerminals, EdgeArray<int> &capacity, int &y_R)
+	int generateGammoidGraph(node &source, node &target, CoreWitness &cw, EdgeWeightedGraphCopy<T> &blowupGraph, NodeArray<node> &bgOriginal, List<node> &bgTerminals, EdgeArray<int> &capacity, int &y_R) const
 	{
 		List<int> denominators;
 
 		for (int i = 0; i < m_fullCompStore.size(); ++i) {
-			OGDF_ASSERT(sol[i] <= 1.0 + m_eps && sol[i] >= m_eps);
+			OGDF_ASSERT(m_fullCompStore.extra(i) <= 1.0 + m_eps && m_fullCompStore.extra(i) >= m_eps);
 			int num, denom;
-			Math::getFraction(sol[i], num, denom);
+			Math::getFraction(m_fullCompStore.extra(i), num, denom);
 			OGDF_ASSERT(Math::gcd(num, denom) == 1);
 			denominators.pushBack(denom);
 		}
@@ -721,7 +721,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		List<int> rootCap;
 		capacity.init(blowupGraph);
 		for (int i = 0; i < m_fullCompStore.size(); ++i) {
-			int cap = int(lcm * sol[i] + m_eps);
+			int cap = int(lcm * m_fullCompStore.extra(i) + m_eps);
 			// do a bfs of the component tree to add *directed* components
 			// with the first terminal as root
 			adjEntry start = m_fullCompStore.start(i);
@@ -804,7 +804,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		return lcm;
 	}
 
-	int gammoidGetRank(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, const node source, const node target)
+	int gammoidGetRank(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, const node source, const node target) const
 	{
 		MaxFlowGoldbergTarjan<int> maxFlow(blowupGraph);
 		return maxFlow.computeValue(capacity, source, target);
@@ -1085,15 +1085,14 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	void findFullComponents();
 
 	void generateProblem(bool perturb = false);
-	const double *generateObjective(bool perturb);
+	void generateObjective(bool perturb);
 	void addTerminalCoverConstraint();
-	bool addSubsetCoverConstraint(const List<node> &subset, const double *sol = nullptr);
+	bool addSubsetCoverConstraint(const List<node> &subset);
 	void addYConstraint(const node t);
 
-	bool separateBeyer(const double *sol, const ArrayBuffer<int> &activeComponents);
-	bool separateConnected(const double *sol, const ArrayBuffer<int> &activeComponents);
-	bool separateMinCut(const double *sol, const ArrayBuffer<int> &activeComponents);
-	bool separateCycles(const double *sol, const ArrayBuffer<int> &activeComponents);
+	bool separateConnected(const ArrayBuffer<int> &activeComponents);
+	bool separateMinCut(const ArrayBuffer<int> &activeComponents);
+	bool separateCycles(const ArrayBuffer<int> &activeComponents);
 	bool separate();
 
 public:
@@ -1106,6 +1105,10 @@ public:
 	  , m_distance()
 	  , m_predAPSP()
 	  , m_osiSolver(CoinManager::createCorrectOsiSolverInterface())
+	  , m_matrix(nullptr)
+	  , m_objective(nullptr)
+	  , m_lowerBounds(nullptr)
+	  , m_upperBounds(nullptr)
 	  , m_restricted(3)
 	  , m_use2approx(0)
 	  , m_ssspDistances(true)
@@ -1119,7 +1122,22 @@ public:
 		steinertree::sortTerminals(m_terminals);
 	}
 
-	~UFCR() {}
+	~UFCR()
+	{
+		if (m_objective) {
+			delete[] m_objective;
+		}
+		if (m_matrix) {
+			delete m_matrix;
+		}
+		if (m_lowerBounds) {
+			delete[] m_lowerBounds;
+		}
+		if (m_upperBounds) {
+			delete[] m_upperBounds;
+		}
+		delete m_osiSolver;
+	}
 
 	void init(bool perturb = false)
 	{
@@ -1195,13 +1213,13 @@ public:
 	void solve();
 	void write();
 
-	void doGoemans(NodeArray<bool> &isNewTerminal, const double *sol);
+	void doGoemans(NodeArray<bool> &isNewTerminal);
 	T getApproximation(EdgeWeightedGraphCopy<T> *&finalSteinerTree, const std::minstd_rand &rng, const bool doPreprocessing = true);
 };
 
 template<typename T>
 void
-MinSteinerTreeGoemans139<T>::UFCR::doGoemans(NodeArray<bool> &isNewTerminal, const double *sol)
+MinSteinerTreeGoemans139<T>::UFCR::doGoemans(NodeArray<bool> &isNewTerminal)
 {
 	node source;
 	node pseudotarget;
@@ -1213,7 +1231,7 @@ MinSteinerTreeGoemans139<T>::UFCR::doGoemans(NodeArray<bool> &isNewTerminal, con
 	EdgeArray<int> capacity;
 	List<node> bgTerminals;
 	NodeArray<node> bgOriginal; // original node of a node in blowupGraph (if contracted: just one of it); if NULL: core edge or special node like source, pseudotarget or target
-	const int N = generateGammoidGraph(sol, source, pseudotarget, cw, blowupGraph, bgOriginal, bgTerminals, capacity, y_R);
+	const int N = generateGammoidGraph(source, pseudotarget, cw, blowupGraph, bgOriginal, bgTerminals, capacity, y_R);
 	// Since we contract terminal nodes in the blow-up graph, the blowup graph
 	// needs its own terminal data structures.
 	// However, we do not need bgIsTerminal[]. We can just exploit the fact that
@@ -1337,14 +1355,13 @@ MinSteinerTreeGoemans139<T>::UFCR::getApproximation(EdgeWeightedGraphCopy<T> *&f
 	m_rng = rng;
 
 	const double *constSol = m_osiSolver->getColSolution();
-	int numberOfColumns = m_osiSolver->getNumCols();
-	double *sol = new double[numberOfColumns];
+	const int numberOfColumns = m_osiSolver->getNumCols();
 
 	for(int i = 0; i < numberOfColumns; i++) {
-		sol[i] = constSol[i];
+		m_fullCompStore.extra(i) = constSol[i];
 	}
 
-	removeInactiveComponents(sol);
+	removeInactiveComponents();
 
 	NodeArray<bool> isNewTerminal(m_G, false);
 	for (node v : m_terminals) {
@@ -1352,11 +1369,11 @@ MinSteinerTreeGoemans139<T>::UFCR::getApproximation(EdgeWeightedGraphCopy<T> *&f
 	}
 
 	if (doPreprocessing) {
-		preprocess(isNewTerminal, sol);
+		preprocess(isNewTerminal);
 	}
 
 	if (!m_fullCompStore.isEmpty()) {
-		doGoemans(isNewTerminal, sol);
+		doGoemans(isNewTerminal);
 	}
 
 	T cost = steinertree::obtainFinalSteinerTree(m_G, isNewTerminal, m_isTerminal, finalSteinerTree);
@@ -1369,8 +1386,6 @@ MinSteinerTreeGoemans139<T>::UFCR::getApproximation(EdgeWeightedGraphCopy<T> *&f
 		}
 	}
 
-	delete[] sol;
-
 	return cost;
 }
 
@@ -1380,32 +1395,31 @@ MinSteinerTreeGoemans139<T>::UFCR::generateProblem(bool perturb)
 {
 	int n = m_fullCompStore.size();
 
-	double *lowerBounds = new double[n];
-	double *upperBounds = new double[n];
-	CoinPackedMatrix *matrix = new CoinPackedMatrix;
-	matrix->setDimensions(0, n);
+	m_matrix = new CoinPackedMatrix;
+	m_matrix->setDimensions(0, n);
 
+	m_lowerBounds = new double[n];
+	m_upperBounds = new double[n];
 	for (int i = 0; i < n; ++i) {
-		lowerBounds[i] = 0;
-		upperBounds[i] = 1;
+		m_lowerBounds[i] = 0;
+		m_upperBounds[i] = 1;
 	}
 
-	const double *objective = generateObjective(perturb);
-
-	m_osiSolver->loadProblem(*matrix, lowerBounds, upperBounds, objective, new double[0], new double[0]);
+	generateObjective(perturb);
+	m_osiSolver->loadProblem(*m_matrix, m_lowerBounds, m_upperBounds, m_objective, nullptr, nullptr);
 
 	if (m_use2approx) { // add upper bound by 2-approximation
-		CoinPackedVector row(objective);
+		CoinPackedVector row(m_objective);
 		m_osiSolver->addRow(row, 0, m_approx2Weight);
 	}
 }
 
 template<typename T>
-const double*
+void
 MinSteinerTreeGoemans139<T>::UFCR::generateObjective(bool perturb)
 {
 	int n = m_fullCompStore.size();
-	double *result = new double[n];
+	m_objective = new double[n];
 
 	for (int i = 0; i < n; ++i) {
 		double w = m_fullCompStore.cost(i);
@@ -1414,10 +1428,8 @@ MinSteinerTreeGoemans139<T>::UFCR::generateObjective(bool perturb)
 			w += (rand() % 1000)*1e-9;
 		}
 
-		result[i] = w;
+		m_objective[i] = w;
 	}
-
-	return result;
 }
 
 template<typename T>
@@ -1440,17 +1452,11 @@ MinSteinerTreeGoemans139<T>::UFCR::addYConstraint(const node t)
 // add constraint if necessary and return if necessary
 template<typename T>
 bool
-MinSteinerTreeGoemans139<T>::UFCR::addSubsetCoverConstraint(const List<node> &subset, const double *sol)
+MinSteinerTreeGoemans139<T>::UFCR::addSubsetCoverConstraint(const List<node> &subset)
 {
-
 	CoinPackedVector row;
-	double test;
+	double test = 0;
 
-	if (sol) {
-		test = 0;
-	} else {
-		test = m_osiSolver->getInfinity();
-	}
 	for (int i = 0; i < m_fullCompStore.size(); ++i) {
 		// compute the intersection cardinality (linear time because terminal sets are sorted by index)
 		int intersectionCard = 0;
@@ -1473,11 +1479,11 @@ MinSteinerTreeGoemans139<T>::UFCR::addSubsetCoverConstraint(const List<node> &su
 		// and use it as a coefficient
 		if (intersectionCard > 1) {
 			row.insert(i, intersectionCard - 1);
-			if (sol) test += (intersectionCard - 1) * sol[i];
+			test += (intersectionCard - 1) * m_fullCompStore.extra(i);
 		}
 	}
 	if (test > (subset.size() - 1)) {
-		m_osiSolver->addRow(row, -m_osiSolver->getInfinity(), subset.size() - 1);
+		m_osiSolver->addRow(row, 0, subset.size() - 1);
 		return true;
 	}
 	return false;
@@ -1612,32 +1618,33 @@ template<typename T>
 bool
 MinSteinerTreeGoemans139<T>::UFCR::separate()
 {
-	const double *sol = m_osiSolver->getColSolution();
+	const double *constSol = m_osiSolver->getColSolution();
 
 	ArrayBuffer<int> activeComponents;
 	for (int i = 0; i < m_fullCompStore.size(); ++i) {
-		if (sol[i] > m_eps) {
+		m_fullCompStore.extra(i) = constSol[i];
+		if (m_fullCompStore.extra(i) > m_eps) {
 			activeComponents.push(i);
 		}
 	}
 
 #ifdef OGDF_STEINERTREE_GOEMANS139_SEPARATE_CONNECTED_COMPONENTS
 	if (!m_separationStage) {
-		if (separateConnected(sol, activeComponents)) {
+		if (separateConnected(activeComponents)) {
 			return true;
 		}
 		m_separationStage = 1;
 	}
 #endif
-	if (separateMinCut(sol, activeComponents)) {
+	if (separateMinCut(activeComponents)) {
 		return true;
 	}
-	return (m_separateCycles ? separateCycles(sol, activeComponents) : false);
+	return (m_separateCycles ? separateCycles(activeComponents) : false);
 }
 
 template<typename T>
 bool
-MinSteinerTreeGoemans139<T>::UFCR::separateConnected(const double *sol, const ArrayBuffer<int> &activeComponents)
+MinSteinerTreeGoemans139<T>::UFCR::separateConnected(const ArrayBuffer<int> &activeComponents)
 {
 	NodeArray<int> setID(m_G, -1); // XXX: NodeArray over terminals only would be better
 	DisjointSets<> uf(m_terminals.size());
@@ -1671,21 +1678,21 @@ MinSteinerTreeGoemans139<T>::UFCR::separateConnected(const double *sol, const Ar
 	int cutsFound = 0;
 	for (ListConstIterator<int> it = usedComp.begin(); it.valid(); ++it) {
 		const int k = *it;
-		cutsFound += addSubsetCoverConstraint(components[k], sol);
+		cutsFound += addSubsetCoverConstraint(components[k]);
 	}
 	return true;
 }
 
 template<typename T>
 bool
-MinSteinerTreeGoemans139<T>::UFCR::separateMinCut(const double *sol, const ArrayBuffer<int> &activeComponents)
+MinSteinerTreeGoemans139<T>::UFCR::separateMinCut(const ArrayBuffer<int> &activeComponents)
 {
 	int cutsFound = 0;
 	node source;
 	node pseudotarget;
 	GraphCopy auxG;
 	EdgeArray<double> capacity;
-	double y_R = generateMinCutSeparationGraph(sol, activeComponents, source, pseudotarget, auxG, capacity, cutsFound);
+	double y_R = generateMinCutSeparationGraph(activeComponents, source, pseudotarget, auxG, capacity, cutsFound);
 
 #ifdef OGDF_STEINERTREE_GOEMANS139_SEPARATE_YVAR_CONSTRAINTS
 	if (cutsFound > 0) {
@@ -1718,7 +1725,7 @@ MinSteinerTreeGoemans139<T>::UFCR::separateMinCut(const double *sol, const Array
 				}
 			}
 
-			cutsFound += addSubsetCoverConstraint(subset, sol);
+			cutsFound += addSubsetCoverConstraint(subset);
 		}
 
 		auxG.delEdge(v_to_target);
@@ -1728,7 +1735,7 @@ MinSteinerTreeGoemans139<T>::UFCR::separateMinCut(const double *sol, const Array
 
 template<typename T>
 bool
-MinSteinerTreeGoemans139<T>::UFCR::separateCycles(const double *sol, const ArrayBuffer<int> &activeComponents)
+MinSteinerTreeGoemans139<T>::UFCR::separateCycles(const ArrayBuffer<int> &activeComponents)
 {
 	int count = 0;
 
@@ -1810,11 +1817,11 @@ MinSteinerTreeGoemans139<T>::UFCR::separateCycles(const double *sol, const Array
 
 					for (int j = 0; j < nodeSubset.size(); ++j) {
 						int i = id[nodeSubset[j]];
-						val += sol[i];
+						val += m_fullCompStore.extra(i);
 						row.insert(i, 1);
 					}
 					if (val >= 1 + m_eps) {
-						m_osiSolver->addRow(row, -m_osiSolver->getInfinity(), 1);
+						m_osiSolver->addRow(row, 0, 1);
 						++count;
 					}
 				}

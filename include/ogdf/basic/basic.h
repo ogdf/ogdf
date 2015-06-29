@@ -55,12 +55,21 @@
 	if (int(ogdf::debugLevel) >= int(minLevel)) { assert(expr); } else { }
 #define OGDF_SET_DEBUG_LEVEL(level) ogdf::debugLevel = level;
 
+#define OGDF_DEBUG_OUTPUT(kind, str) \
+	std::cerr << std::endl << "OGDF " << kind << " from " << __FILE__ << ":" << __LINE__ << "(" << __func__ << "): " << str << std::endl;
+#define OGDF_WARNING(str) OGDF_DEBUG_OUTPUT("warning", str)
+#define OGDF_WARNING_IF(cond, str) if (cond) { OGDF_WARNING(str) } else { }
+#define OGDF_ERROR(str) OGDF_DEBUG_OUTPUT("error", str)
+
 #else
 #define OGDF_ASSERT(expr)
 #define OGDF_ASSERT_IF(minLevel,expr)
 #define OGDF_SET_DEBUG_LEVEL(level)
+#define OGDF_DEBUG_OUTPUT(kind, str)
+#define OGDF_WARNING(str)
+#define OGDF_WARNING_IF(cond, str)
+#define OGDF_ERROR(str)
 #endif
-
 
 //---------------------------------------------------------
 // deprecation
@@ -255,6 +264,9 @@ static Initialization s_ogdfInitializer;
 	template<>inline bool doDestruction<int>(const int *) { return false; }
 	template<>inline bool doDestruction<double>(const double *) { return false; }
 
+
+	//! Removes trailing space, horizontal and vertical tab, feed, newline, and carriage return  from \a str.
+	OGDF_EXPORT void removeTrailingWhitespace(string &str);
 
 	//! Compares the two strings \a str1 and \a str2, ignoring the case of characters.
 	OGDF_EXPORT bool equalIgnoreCase(const string &str1, const string &str2);

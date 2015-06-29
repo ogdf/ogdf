@@ -79,6 +79,7 @@ public:
 		GraphAttributes::init(G, initAttr);
 		m_hierarchyParent.init(constGraph(), 0);
 		m_upwardEdge.init(constGraph(), false);
+		m_hiddenEdges = G.newHiddenEdgeSet();
 	}
 
 	virtual void init(const Graph &G, long initAttr) {
@@ -333,6 +334,8 @@ private:
 	//(same hierarchyparent => edge connects (half)brothers
 	//only set during insertgenmergers to avoid the extra computation
 	NodeArray<node> m_hierarchyParent;
+
+	Graph::HiddenEdgeSetHandle m_hiddenEdges;
 };
 
 

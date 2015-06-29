@@ -70,8 +70,7 @@ static inline bool readDef(
 
 		Attr attr = toAttribute(name);
 		if(attr == a_unknown) {
-			std::cerr << "WARNING: attribute \"" << name << "\""
-			          << " not supported. Ignoring.\n";
+			OGDF_WARNING("attribute \"" << name << "\"" << " not supported. Ignoring.");
 		}
 		attrs.push_back(attr);
 	}
@@ -122,7 +121,7 @@ static bool split(
 			if(quoted) {
 				i += quoted;
 			} else {
-				std::cerr << "ERROR: Unescaped quote.\n";
+				OGDF_ERROR("Unescaped quote.");
 				return false;
 			}
 		} else if(str[i] == ',') {
@@ -148,8 +147,8 @@ bool Parser::readNodeStmt(
 	split(str, values);
 
 	if(values.size() != m_nodeAttrs.size()) {
-		std::cerr << "ERROR: node definition does not match the header "
-		          << "(line " << line << ").\n";
+		OGDF_ERROR("node definition does not match the header "
+		          << "(line " << line << ").");
 		return false;
 	}
 
@@ -176,8 +175,8 @@ bool Parser::readEdgeStmt(
 	split(str, values);
 
 	if(values.size() != m_edgeAttrs.size()) {
-		std::cerr << "ERROR: edge definition does not match the header "
-		          << "(line " << line << ").\n";
+		OGDF_ERROR("edge definition does not match the header "
+		          << "(line " << line << ").");
 		return false;
 	}
 
@@ -192,8 +191,8 @@ bool Parser::readEdgeStmt(
 			} else if(values[i] == "false") {
 				directed = false;
 			} else {
-				std::cerr << "ERROR: edge direction must be a boolean "
-				          << "(line " << line << ").\n";
+				OGDF_ERROR("edge direction must be a boolean "
+				          << "(line " << line << ").");
 			}
 			break;
 		case ea_source:
@@ -209,8 +208,8 @@ bool Parser::readEdgeStmt(
 
 	// Then, we can create edge(s) and read attributes (if needed).
 	if(!source || !target) {
-		std::cerr << "ERROR: source or target for edge not found "
-		          << "(line " << line << ").\n";
+		OGDF_ERROR("source or target for edge not found "
+		          << "(line " << line << ").");
 		return false;
 	}
 
@@ -476,8 +475,8 @@ bool gdf::Parser::readGraph(
 				return false;
 			}
 		} else {
-			std::cerr << "ERROR: Expected node or edge definition header "
-			          << "(line " << line << ").\n";
+			OGDF_ERROR("Expected node or edge definition header "
+			          << "(line " << line << ").");
 			return false;
 		}
 	}

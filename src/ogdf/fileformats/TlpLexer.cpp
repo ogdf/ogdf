@@ -32,6 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
+#include <ogdf/basic/basic.h>
 #include <ogdf/fileformats/TlpLexer.h>
 
 
@@ -159,8 +160,7 @@ bool Lexer::tokenizeLine()
 		return tokenizeIdentifier() && tokenizeLine();
 	}
 
-	std::cerr << "ERROR: Unexpected character \"" << *m_begin << "\" at ("
-	          << line() << ", " << column() << ").\n";
+	OGDF_ERROR("Unexpected character \"" << *m_begin << "\" at (" << line() << ", " << column() << ").");
 	return false;
 }
 
@@ -174,9 +174,7 @@ bool Lexer::tokenizeString()
 	for(;;) {
 		// Check whether we need to refill the buffer.
 		if(m_begin == m_end && !fetchBuffer()) {
-			std::cerr << "ERROR: End of input while parsing a string at ("
-			          << token.line << ", "
-			          << token.column << ").\n";
+			OGDF_ERROR("End of input while parsing a string at (" << token.line << ", " << token.column << ").");
 			return false;
 		}
 

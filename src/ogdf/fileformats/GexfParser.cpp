@@ -61,8 +61,8 @@ static inline bool readAttrDefs(
 		attrTag.findXmlAttributeObjectByName("title", titleAttr);
 
 		if(!idAttr || !titleAttr) {
-			std::cerr << "ERROR: \"id\" or \"title\" not found for attribute "
-			          << "(line " << attrTag.getLine() << ").\n";
+			OGDF_ERROR("\"id\" or \"title\" not found for attribute "
+			          << "(line " << attrTag.getLine() << ").");
 			return false;
 		}
 
@@ -84,25 +84,25 @@ bool Parser::init()
 
 	const XmlTagObject &gexfTag = m_xml.getRootTag();
 	if(gexfTag.getName() != "gexf") {
-		std::cerr << "ERROR: Root tag must be \"gexf\".\n";
+		OGDF_ERROR("Root tag must be \"gexf\".");
 		return false;
 	}
 
 	gexfTag.findSonXmlTagObjectByName("graph", m_graphTag);
 	if(!m_graphTag) {
-		std::cerr << "ERROR: Expected \"graph\" tag.\n";
+		OGDF_ERROR("Expected \"graph\" tag.");
 		return false;
 	}
 
 	m_graphTag->findSonXmlTagObjectByName("nodes", m_nodesTag);
 	if(!m_nodesTag) {
-		std::cerr << "ERROR: No \"nodes\" tag found in graph.\n";
+		OGDF_ERROR("No \"nodes\" tag found in graph.");
 		return false;
 	}
 
 	m_graphTag->findSonXmlTagObjectByName("edges", m_edgesTag);
 	if(!m_edgesTag) {
-		std::cerr << "ERROR: No \"edges\" tag found in graph.\n";
+		OGDF_ERROR("No \"edges\" tag found in graph.");
 		return false;
 	}
 
@@ -116,8 +116,8 @@ bool Parser::init()
 		XmlAttributeObject *classAttr;
 		attrsTag.findXmlAttributeObjectByName("class", classAttr);
 		if(!classAttr) {
-			std::cerr << "ERROR: attributes tag is missing a class "
-			          << "(line " << attrsTag.getLine() << ").\n";
+			OGDF_ERROR("attributes tag is missing a class "
+			          << "(line " << attrsTag.getLine() << ").");
 			return false;
 		}
 
@@ -127,8 +127,8 @@ bool Parser::init()
 		} else if(classAttr->getValue() == "edge") {
 			attrMap = &m_edgeAttr;
 		} else {
-			std::cerr << "ERROR: incorrect attributes tag class "
-			          << "(line " << attrsTag.getLine() << ").\n";
+			OGDF_ERROR("incorrect attributes tag class "
+			          << "(line " << attrsTag.getLine() << ").");
 			return false;
 		}
 
@@ -152,8 +152,8 @@ bool Parser::readNodes(Graph &G, GraphAttributes *GA)
 		XmlAttributeObject *idAttr;
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
 		if(!idAttr) {
-			std::cerr << "ERROR: node is missing an attribute "
-			          << "(line " << nodeTag.getLine() << ").\n";
+			OGDF_ERROR("node is missing an attribute "
+			          << "(line " << nodeTag.getLine() << ").");
 			return false;
 		}
 
@@ -182,8 +182,8 @@ bool Parser::readCluster(
 		XmlAttributeObject *idAttr;
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
 		if(!idAttr) {
-			std::cerr << "ERROR: node is missing an attribute "
-			          << "(line " << nodeTag.getLine() << ").\n";
+			OGDF_ERROR("node is missing an attribute "
+			          << "(line " << nodeTag.getLine() << ").");
 		}
 
 		// Node is a cluster iff it contains other nodes.
@@ -256,15 +256,15 @@ bool Parser::readEdges(Graph &G, ClusterGraph *C, GraphAttributes *GA)
 
 		edgeTag.findXmlAttributeObjectByName("source", sourceAttr);
 		if(!sourceAttr) {
-			std::cerr << "ERROR: edge is missing a source attribute "
-			          << "(line " << edgeTag.getLine() << ").\n";
+			OGDF_ERROR("edge is missing a source attribute "
+			          << "(line " << edgeTag.getLine() << ").");
 			return false;
 		}
 
 		edgeTag.findXmlAttributeObjectByName("target", targetAttr);
 		if(!targetAttr) {
-			std::cerr << "ERROR: edge is missing a target attribute "
-			          << "(line " << edgeTag.getLine() << ").\n";
+			OGDF_ERROR("edge is missing a target attribute "
+			          << "(line " << edgeTag.getLine() << ").");
 			return false;
 		}
 
@@ -292,8 +292,8 @@ bool Parser::readEdges(Graph &G, ClusterGraph *C, GraphAttributes *GA)
 				}
 			}
 		} else {
-			std::cerr << "ERROR: source or target node doesn't exist "
-			          << "(line " << edgeTag.getLine() << ").\n";
+			OGDF_ERROR("source or target node doesn't exist "
+			          << "(line " << edgeTag.getLine() << ").");
 			return false;
 		}
 	}
@@ -311,8 +311,7 @@ static inline bool readColor(Color &color, const XmlTagObject &tag)
 	tag.findXmlAttributeObjectByName("alpha", alphaAttr);
 
 	if(!redAttr || !greenAttr || !blueAttr) {
-		std::cerr << "Missing compound attrribute on color tag "
-		          << "(line " << tag.getLine() << ").\n";
+		OGDF_ERROR("Missing compound attrribute on color tag " << "(line " << tag.getLine() << ").");
 		return false;
 	}
 
@@ -360,8 +359,8 @@ static inline bool readVizAttribute(
 			tag.findXmlAttributeObjectByName("z", zAttr);
 
 			if(!xAttr || !yAttr) {
-				std::cerr << "ERROR: Missing \"x\" or \"y\" on position tag "
-				          << "(line " << tag.getLine() << ").\n";
+				OGDF_ERROR("Missing \"x\" or \"y\" on position tag "
+				          << "(line " << tag.getLine() << ").");
 				return false;
 			}
 
@@ -386,8 +385,8 @@ static inline bool readVizAttribute(
 		XmlAttributeObject *valueAttr;
 		tag.findXmlAttributeObjectByName("value", valueAttr);
 		if(!valueAttr) {
-			std::cerr << "ERROR: \"size\" attribute is missing a value "
-			          << "(line " << tag.getLine() << ").\n";
+			OGDF_ERROR("\"size\" attribute is missing a value "
+			          << "(line " << tag.getLine() << ").");
 			return false;
 		}
 
@@ -408,8 +407,8 @@ static inline bool readVizAttribute(
 			XmlAttributeObject *valueAttr;
 			tag.findXmlAttributeObjectByName("value", valueAttr);
 			if(!valueAttr) {
-				std::cerr << "ERROR: \"shape\" attribute is missing a value "
-				          << "(line " << tag.getLine() << ").\n";
+				OGDF_ERROR("\"shape\" attribute is missing a value "
+				          << "(line " << tag.getLine() << ").");
 				return false;
 			}
 
@@ -420,8 +419,8 @@ static inline bool readVizAttribute(
 			return readColor(GA.fillColor(v), tag);
 		}
 	} else {
-		std::cerr << "ERROR: Incorrect tag \"" << tag.getName() << "\" "
-		          << "(line " << tag.getLine() << ").\n";
+		OGDF_ERROR("Incorrect tag \"" << tag.getName() << "\" "
+		          << "(line " << tag.getLine() << ").");
 		return false;
 	}
 
@@ -458,8 +457,8 @@ static inline bool readVizAttribute(
 	} else if(tag.getName() == "viz:shape") {
 		// Values: solid, dotted, dashed, double. Not supported in OGDF.
 	} else {
-		std::cerr << "ERROR: Incorrect tag \"" << tag.getName() << "\" "
-		          << "(line " << tag.getLine() << ").\n";
+		OGDF_ERROR("Incorrect tag \"" << tag.getName() << "\" "
+		          << "(line " << tag.getLine() << ").");
 		return false;
 	}
 
@@ -540,8 +539,8 @@ static inline bool readAttValues(
 		attVal.findXmlAttributeObjectByName("value", valueAttr);
 
 		if(!forAttr || !valueAttr) {
-		std::cerr << "ERROR: \"for\" or \"value\" not found for attvalue "
-		          << "(line " << attVal.getLine() << ").\n";
+		OGDF_ERROR("\"for\" or \"value\" not found for attvalue "
+		          << "(line " << attVal.getLine() << ").");
 			return false;
 		}
 

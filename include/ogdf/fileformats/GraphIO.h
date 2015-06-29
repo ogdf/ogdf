@@ -2875,23 +2875,18 @@ public:
 		for (int i = 0; i < 6; ++i) {
 			is >> buffer;
 			if (!is.good() || !equalIgnoreCase(buffer, firstline[i])) {
-#ifdef OGDF_DEBUG
-				cerr << "ERROR: Could not parse first line." << endl;
-#endif
+				OGDF_ERROR("Could not parse first line.");
 				return false;
 			}
 		}
 		is >> version;
 		if (!is.good() || version != 1.0) {
-#ifdef OGDF_DEBUG
-			cerr << "ERROR: Encountered unknwon STP format version." << endl;
-#endif
+			OGDF_ERROR("Encountered unknwon STP format version.");
 			return false;
 		}
 
 		while (std::getline(is, buffer)) {
-			int last = int(min(buffer.find_last_not_of(' '), buffer.find_last_not_of('\t')));
-			buffer = buffer.substr(0, last+1);
+			removeTrailingWhitespace(buffer);
 
 			if (buffer.empty() || buffer[0] == '#') {
 				continue;
@@ -2913,22 +2908,18 @@ public:
 					}
 					else
 					if (equalIgnoreCase(what, "Graph")) {
-						if(wG.numberOfNodes() != 0) {
-#ifdef OGDF_DEBUG
-							cerr << "WARNING: Encountered duplicate graph section." << endl;
+						if (wG.numberOfNodes() != 0) {
+							OGDF_WARNING("Encountered duplicate graph section.");
 							section = SECTION_IGNORE;
-#endif
 						} else {
 							section = SECTION_GRAPH;
 						}
 					}
 					else
 					if (equalIgnoreCase(what, "Terminals")) {
-						if(!terminals.empty()) {
-#ifdef OGDF_DEBUG
-							cerr << "WARNING: Encountered duplicate terminal section." << endl;
+						if (!terminals.empty()) {
+							OGDF_WARNING("Encountered duplicate terminal section.");
 							section = SECTION_IGNORE;
-#endif
 						} else {
 							section = SECTION_TERMINALS;
 						}
@@ -2947,15 +2938,12 @@ public:
 				}
 				else
 				if (equalIgnoreCase(buffer, "EOF")) {
-#ifdef OGDF_DEBUG
-					if(expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size()) {
-						cerr << "WARNING: invalid number of terminals. Was " << terminals.size() << " but expected " << expectedNumberOfTerminals << "." << endl;
-					}
-
-					if(expectedNumberOfEdges != -1 && expectedNumberOfEdges != wG.numberOfEdges()) {
-						cerr << "WARNING: invalid number of edges. Was " << wG.numberOfEdges() << " but expected " << expectedNumberOfEdges << "." << endl;
-					}
-#endif
+					OGDF_WARNING_IF(
+					  expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size(),
+					  "Invalid number of terminals. Was " << terminals.size() << " but expected " << expectedNumberOfTerminals << ".");
+					OGDF_WARNING_IF(
+					  expectedNumberOfEdges != -1 && expectedNumberOfEdges != wG.numberOfEdges(),
+					  "Invalid number of edges. Was " << wG.numberOfEdges() << " but expected " << expectedNumberOfEdges << ".");
 					return true;
 				}
 				break;
@@ -2970,9 +2958,7 @@ public:
 					int n = -1;
 					iss >> n;
 					if (n < 0) {
-#ifdef OGDF_DEBUG
-						cerr << "ERROR: Invalid number of nodes specified: " << n << endl;
-#endif
+						OGDF_ERROR("Invalid number of nodes specified: " << n);
 						return false;
 					}
 
@@ -2991,16 +2977,12 @@ public:
 					if (source <= 0 || source > wG.numberOfNodes()
 					 || target <= 0 || target > wG.numberOfNodes()
 					 || weight < 0) {
-#ifdef OGDF_DEBUG
-						cerr << "ERROR: Invalid edge given: " << source << "->" << target << "(weight: " << weight << ")" << endl;
-#endif
+						OGDF_ERROR("Invalid edge given: " << source << "->" << target << "(weight: " << weight << ")");
 						return false;
 					}
 					wG.newEdge(indexToNode[source], indexToNode[target], weight);
 				} else {
-#ifdef OGDF_DEBUG
-					cerr << "WARNING: Invalid edge key encountered: " << key << endl;
-#endif
+					OGDF_WARNING("Invalid edge key encountered: " << key);
 				}
 				break;
 
@@ -3011,24 +2993,18 @@ public:
 					int v = -1;
 					iss >> v;
 					if (v <= 0 || v > wG.numberOfNodes()) {
-#ifdef OGDF_DEBUG
-						cerr << "ERROR: Invalid terminal encountered: " << v << endl;
-#endif
+						OGDF_ERROR("Invalid terminal encountered: " << v);
 						return false;
 					}
 					terminals.pushBack(indexToNode[v]);
 					isTerminal[indexToNode[v]] = true;
 				} else if(!equalIgnoreCase(key, "Root")) {
-#ifdef OGDF_DEBUG
-					cerr << "WARNING: Invalid terminal key encountered: " << key << endl;
-#endif
+					OGDF_WARNING("Invalid terminal key encountered: " << key);
 				}
 				break;
 			}
 		}
-#ifdef OGDF_DEBUG
-		cerr << "Unexpected end of file." << endl;
-#endif
+		OGDF_ERROR("Unexpected end of file.");
 		return false;
 	}
 
@@ -3193,8 +3169,7 @@ public:
 		string buffer;
 
 		while (std::getline(is, buffer)) {
-			int last = int(min(buffer.find_last_not_of(' '), buffer.find_last_not_of('\t')));
-			buffer = buffer.substr(0, last + 1);
+			removeTrailingWhitespace(buffer);
 			std::istringstream iss(buffer);
 			string tmp;
 			iss >> tmp;
@@ -3203,18 +3178,14 @@ public:
 				if(buffer[0] == 'p') {
 					// problem definition section
 					if(!graph.empty()) {
-#ifdef OGDF_DEBUG
-						cerr << "Ambigious problem definition encountered." << endl;
-#endif
+						OGDF_ERROR("Ambigious problem definition encountered.");
 						return false;
 					}
 
 					string problemType = "";
 					iss >> problemType;
 					if(problemType.compare("max")) {
-#ifdef OGDF_DEBUG
-						cerr << "Invalid problem type encountered: " << problemType << endl;
-#endif
+						OGDF_ERROR("Invalid problem type encountered: " << problemType);
 						return false;
 					}
 
@@ -3222,16 +3193,12 @@ public:
 					iss >> numberOfNodes >> expectedNumberOfEdges;
 
 					if(numberOfNodes < 2) {
-#ifdef OGDF_DEBUG
-						cerr << "The given number of nodes is invalid (at least two)." << endl;
-#endif
+						OGDF_ERROR("The given number of nodes is invalid (at least two).");
 						return false;
 					}
 
 					if(expectedNumberOfEdges < 0) {
-#ifdef OGDF_DEBUG
-						cerr << "The given number of edges is invalid." << endl;
-#endif
+						OGDF_ERROR("The given number of edges is invalid.");
 						return false;
 					}
 
@@ -3246,33 +3213,25 @@ public:
 					iss >> nodeIndex >> nodeType;
 
 					if (nodeIndex < 1 || nodeIndex > nodes.size()) {
-#ifdef OGDF_DEBUG
-						cerr << "Invalid node index supplied: " << nodeIndex << endl;
-#endif
+						OGDF_ERROR("Invalid node index supplied: " << nodeIndex);
 						return false;
 					}
 
 					node w = *nodes.get(nodeIndex - 1);
 					if (!nodeType.compare("t")) {
 						if(sink != nullptr) {
-#ifdef OGDF_DEBUG
-							cerr << "Duplicate sink encountered: " << nodeType << endl;
-#endif
+							OGDF_ERROR("Duplicate sink encountered: " << nodeType);
 							return false;
 						}
 						sink = w;
 					} else if (!nodeType.compare("s")) {
 						if(source != nullptr) {
-#ifdef OGDF_DEBUG
-							cerr << "Duplicate source encountered: " << nodeType << endl;
-#endif
+							OGDF_ERROR("Duplicate source encountered: " << nodeType);
 							return false;
 						}
 						source = w;
 					} else {
-#ifdef OGDF_DEBUG
-						cerr << "Malformed node type encountered: " << nodeType << endl;
-#endif
+						OGDF_ERROR("Malformed node type encountered: " << nodeType);
 						return false;
 					}
 
@@ -3285,70 +3244,52 @@ public:
 					iss >> sourceIndex >> targetIndex >> cap;
 
 					if (sourceIndex < 1 || sourceIndex > nodes.size()) {
-#ifdef OGDF_DEBUG
-						cerr << "Invalid node index supplied: " << sourceIndex << endl;
-#endif
+						OGDF_ERROR("Invalid node index supplied: " << sourceIndex);
 						return false;
 					}
 					node source = *nodes.get(sourceIndex - 1);
 
 					if (targetIndex < 1 || targetIndex > nodes.size()) {
-#ifdef OGDF_DEBUG
-						cerr << "Invalid node index supplied: " << targetIndex << endl;
-#endif
+						OGDF_ERROR("Invalid node index supplied: " << targetIndex);
 						return false;
 					}
 					node target = *nodes.get(targetIndex - 1);
 
 					if(cap < 0) {
-#ifdef OGDF_DEBUG
-						cerr << "Negative capacity supplied: " << targetIndex << endl;
-#endif
+						OGDF_ERROR("Negative capacity supplied: " << targetIndex);
 						return false;
 					}
 
 					graph.newEdge(source, target, cap);
 				} else {
-#ifdef OGDF_DEBUG
-					cerr << "Encountered invalid line: " << buffer << endl;
-#endif
+					OGDF_ERROR("Encountered invalid line: " << buffer);
 					return false;
 				}
 			}
 		}
 
 		if (graph.empty()) {
-#ifdef OGDF_DEBUG
-			cerr << "Missing problem definition." << endl;
-#endif
+			OGDF_ERROR("Missing problem definition.");
 			return false;
 		}
 
 		if (source == nullptr) {
-#ifdef OGDF_DEBUG
-			cerr << "Missing source node." << endl;
-#endif
+			OGDF_ERROR("Missing source node.");
 			return false;
 		}
 
 		if(sink == nullptr) {
-#ifdef OGDF_DEBUG
-			cerr << "Missing sink node." << endl;
-#endif
+			OGDF_ERROR("Missing sink node.");
 			return false;
 		}
 
 		if(sink == source) {
-#ifdef OGDF_DEBUG
-			cerr << "Source must be different from sink." << endl;
-#endif
+			OGDF_ERROR("Source must be different from sink.");
 			return false;
 		}
 
 		if(expectedNumberOfEdges != graph.numberOfEdges()) {
-#ifdef OGDF_DEBUG
-			cerr << "Invalid number of edges: expected " << expectedNumberOfEdges << " but was " << graph.numberOfEdges() << endl;
-#endif
+			OGDF_ERROR("Invalid number of edges: expected " << expectedNumberOfEdges << " but was " << graph.numberOfEdges());
 			return false;
 		}
 

@@ -42,6 +42,7 @@
 #define OGDF_DINO_LINE_BUFFER_H
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/ArrayBuffer.h>
 
 
 namespace ogdf {
@@ -60,7 +61,7 @@ namespace ogdf {
 
 	private:
 
-		/** Contains the lineNumber; Range [0 .. c_maxNoOfLines-1] */
+		/** Contains the lineNumber */
 		int m_lineNumber;
 
 		/** Contains the number of times line m_lineNumber has been
@@ -68,7 +69,7 @@ namespace ogdf {
 		 */
 		int m_lineUpdateCount;
 
-		/** Contains the position in line m_lineNumber; Range [0 .. c_maxLineLength-1] */
+		/** Contains the position in line m_lineNumber */
 		int m_linePosition;
 
 	public:
@@ -126,30 +127,18 @@ namespace ogdf {
 	 */
 	class OGDF_EXPORT LineBuffer {
 
-	public:
-
-		// Maximal length of a string handled by extractString()
-		const static int c_maxStringLength;
-
-		// Maximal length of one line
-		const static int c_maxLineLength;
-
-		// Maximal number of lines
-		const static int c_maxNoOfLines;
-
 	private:
 
 		// Handle to the input file
 		istream *m_pIs;
 
 		// Contains for each line of the line buffer its update count
-		// Range is [0 .. c_maxNoOfLines]
-		int *m_lineUpdateCountArray;
+		ArrayBuffer<int> m_lineUpdateCountArray;
 
 		// Pointer to the line buffer
-		char *m_pLinBuf;
+		ArrayBuffer<string> m_linBuf;
 
-		// The current position in m_pLinBuf
+		// The current position in m_linBuf
 		LineBufferPosition m_currentPosition;
 
 		// The line which has been read from the file most recently;
@@ -176,8 +165,11 @@ namespace ogdf {
 
 		// Returns the character which is currently pointed to
 		inline char getCurrentCharacter() const {
-			return m_pLinBuf[(m_currentPosition.getLineNumber() * LineBuffer::c_maxLineLength) +
-								 m_currentPosition.getLinePosition()];
+			if (m_currentPosition.getLineNumber() >= m_linBuf.size()
+			 || m_currentPosition.getLinePosition() > (int)m_linBuf[m_currentPosition.getLineNumber()].size()) {
+				return EOF;
+			}
+			return m_linBuf[m_currentPosition.getLineNumber()][m_currentPosition.getLinePosition()];
 		}
 
 		// Returns line number of the most recently read line of the input file
@@ -202,29 +194,16 @@ namespace ogdf {
 
 		// Copys the characters which have been extracted from the
 		// line buffer starting from position startPosition (including it)
-		// to endPosition (excluding it) to targetString (terminated by '\0').
-		// The length of strings is limited to c_maxStringLength
+		// to endPosition (excluding it) to targetString.
 		//
 		// Returns false if the startPosition is not valid, i.e. the string
 		// is too long; targetString will contain the message "String too long!"
 		bool extractString(
 			const LineBufferPosition &startPostion,
 			const LineBufferPosition &endPosition,
-			char *targetString);
+			string &targetString);
 
 	private:
-
-		// Returns a pointer to the character which is currently pointed to
-		inline char *getCurrentCharacterPointer() {
-			return &m_pLinBuf[(m_currentPosition.getLineNumber() * LineBuffer::c_maxLineLength) +
-				m_currentPosition.getLinePosition()];
-		}
-
-		// Sets the given character to the current position
-		inline void setCurrentCharacter(char c) {
-			m_pLinBuf[(m_currentPosition.getLineNumber() * LineBuffer::c_maxLineLength) +
-				m_currentPosition.getLinePosition()] = c;
-		}
 
 		// Checks wether the given position is valid
 		bool isValidPosition(const LineBufferPosition &position) const;

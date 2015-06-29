@@ -247,7 +247,7 @@ void MaxAdjOrdering::calcBfs(
             }
         }
 
-        std::cout << "Tied nodes with maximal tie value -" << curMaxTie << "- ang the nodes: ";
+        std::cout << "Tied nodes with maximal tie value -" << curMaxTie << "- among the nodes: ";
         for (auto& t : tiedNodes){
             std::cout << t->index() << ",";
         }
@@ -725,7 +725,7 @@ bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<NodeElement *> *Ordering
 {
     unsigned int i = 0;
     unsigned int n = Ordering->size();
-    std::vector<unsigned int> r(Ordering->size(),0);
+    NodeArray<unsigned int> r(*G,0);
     edge e;
     node op;
     ListPure<NodeElement *> tested;
@@ -736,7 +736,7 @@ bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<NodeElement *> *Ordering
             //check if edge goes to the right
             if (!tested.search(op).valid()){
                 //increment the neighbourhood counter
-                r[op->index()]++;
+                r[op]++;
             }
         }
         if (i < n-1){
@@ -745,11 +745,55 @@ bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<NodeElement *> *Ordering
                                                          * ordering. If yes - return false because no MAO.
                                                          */
             for (ListIterator<NodeElement* > next = Ordering->get(i+1); next != Ordering->end(); next++){
-                if (r[(*next)->index()] > r[(*(Ordering->get(i+1)))->index()]){
+                if (r[*next] > r[*(Ordering->get(i+1))]){
                     return 0;
                 }
             }
         }
+        i++;
+    }
+    return 1;
+}
+
+bool MaxAdjOrdering::testIfMAOBfs(const Graph *G, ListPure<NodeElement *> *Ordering)
+{
+    unsigned int i = 0;
+    NodeArray<unsigned int> r(*G,0);
+    NodeArray<unsigned int> nbh(*G,0);
+    edge e;
+    node op;
+    ListPure<NodeElement *> tested;
+    for (auto& o : *Ordering){
+
+        forall_adj_edges(e,o){
+            op = e->opposite(o);
+            //check if edge goes to the right
+            if (!tested.search(op).valid()){
+                //increment the neighbourhood counter
+                r[op]++;
+            }
+        }
+        for (ListIterator<node> next = Ordering->get(i); next.valid();next++){
+            nbh[*next] *= 2;
+            if (G->searchEdge(o,*next)){
+                nbh[*next]++;
+            }
+        }
+        tested.pushBack(o);
+        /**go through all following nodes and check if
+                                                         * neighbourhood is bigger than then one in the
+                                                         * ordering. If yes - return false because no MAO.
+                                                         */
+        for (ListIterator<NodeElement* > next = Ordering->get(i+2); next.valid(); next++){
+            if (r[*next] > r[*(Ordering->get(i+1))]){
+                return 0;
+            }
+
+            if ((nbh[*next] > nbh[*(Ordering->get(i+1))])&&(r[*next] == r[*(Ordering->get(i+1))])){
+                return 0;
+            }
+        }
+
         i++;
     }
     return 1;
@@ -771,9 +815,7 @@ bool MaxAdjOrdering::testIfAllMAOs(
         //generate nodelist of G from permutation
         for (int i = 0; i < n; i++){
             int index = (*(p.get(i)))->index();
-            if(verbose){
-                std::cout << index+1;
-            }
+
             testPerm.pushBack(
                         *(nodes.get(index))
                         );
@@ -784,36 +826,15 @@ bool MaxAdjOrdering::testIfAllMAOs(
             //if we don't find the testPerm in our provided list, we will not have generated
             //all MAOs
             ListIterator<ListPure <NodeElement *>> pIt = Orderings->search(testPerm);
-            if (!pIt.valid()){
-                if(verbose){
-                    std::cout << " - [ERR] Found permutation that is MAO and not list!" << std::endl;
-                }
+            if (!pIt.valid())
                 return 0;
-            }
-            else {
-                if(verbose){
-                    std::cout << " - [INF] Found permutation that is MAO and in list!" << std::endl;
-                }
-            }
         }
         else {
             //if we find the testPerm in the list we did calculate to many MAOs
             ListIterator<ListPure <NodeElement *>> pIt = Orderings->search(testPerm);
-            if (!pIt.valid()){
-                if(verbose){
-                    std::cout << " - [INF] Found permutation that no MAO and not list!" << std::endl;
-                }
-            }
-            else {
-                if(verbose){
-                    std::cout << " - [ERR] Found permutation that is no MAO and in list!" << std::endl;
-                }
+            if (pIt.valid())
                 return 0;
-            }
         }
-    }
-    if(verbose){
-        std::cout << std::endl;
     }
 
     return 1;

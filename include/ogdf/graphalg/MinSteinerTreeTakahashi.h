@@ -169,8 +169,7 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 	NodeArray<bool> isInQueue(wG, true);
 
 	PrioritizedMapQueue<node, T> queue(wG); //priority queue
-	int* qpos = new int[wG.numberOfNodes()];
-	for(node v : wG.nodes) {
+	for (node v : wG.nodes) {
 		queue.push(v, distance[v]);
 	}
 
@@ -191,6 +190,7 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 				queue.push(v, distance[v]);
 				isInQueue[v] = true;
 				const edge e = predecessor[v];
+				OGDF_ASSERT(e);
 				const node w = e->opposite(v);
 				node tmpS = intermediateTerminalSpanningTree.copy(w);
 				if (!tmpS) {
@@ -225,7 +225,6 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 			}
 		}
 	}
-	delete[] qpos;
 	return mstWeight;
 }
 

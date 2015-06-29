@@ -36,6 +36,8 @@
 #ifndef OGDF_DTREE_UTILS_H_
 #define OGDF_DTREE_UTILS_H_
 
+#include <cstddef>
+
 namespace ogdf {
 
 template<typename IntType, int Dim>

@@ -553,7 +553,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	while (itEdge.valid())
 	{
 		//m_pG->delEdge((*itEdge));
-		m_pG->hideEdge((*itEdge));
+		m_pG->hideEdge(m_hiddenEdges, *itEdge);
 		++itEdge;
 	}//while
 
@@ -570,7 +570,8 @@ void UMLGraph::undoStars()
 		++it;
 	}//while
 
-	m_pG->restoreAllEdges();
+	m_pG->restoreEdges(m_hiddenEdges);
+	m_hiddenEdges = m_pG->newHiddenEdgeSet();
 	m_centerNodes.clear();
 	m_replacementEdge.init();
 
@@ -582,9 +583,10 @@ void UMLGraph::undoStar(node center, bool restoreAllEdges)
 {
 	OGDF_ASSERT(center)
 
-	//TODO: we should only restore the hidden clique edges, maybe there were
-	//already hidden edges and we call this for all cliques, but it is global
-	if (restoreAllEdges) m_pG->restoreAllEdges();
+	if (restoreAllEdges) {
+		m_pG->restoreEdges(m_hiddenEdges);
+		m_hiddenEdges = m_pG->newHiddenEdgeSet();
+	}
 
 	//remove center node
 	m_pG->delNode(center);

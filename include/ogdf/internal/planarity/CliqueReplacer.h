@@ -51,6 +51,7 @@ namespace ogdf {
 
 		Graph &m_G;
 		GraphAttributes &m_ga;
+		Graph::HiddenEdgeSetHandle m_hiddenEdges;
 
 		double m_cliqueCenterSize; //default size of inserted clique replacement center nodes
 		SListPure<node> m_centerNodes; //center nodes introduced at clique replacement

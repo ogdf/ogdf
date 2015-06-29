@@ -45,6 +45,7 @@
 #include <utility>
 #include <vector>
 #include <limits>
+#include <cmath>
 
 
 namespace ogdf {

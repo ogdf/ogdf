@@ -69,30 +69,42 @@ NonPlanarCore::NonPlanarCore(const Graph &G) : m_pOriginal(&G), m_orig(m_graph),
 			continue;
 
 		Skeleton &S = T.skeleton(v);
+		edge lastCreatedEdge = nullptr;
+
 		for (edge e : S.getGraph().edges) {
 			node src = S.original(e->source());
 			node tgt = S.original(e->target());
 
+			if(tgt == src) {
+				continue;
+			}
+
 			if(map[src] == nullptr) {
 				m_orig[map[src] = m_graph.newNode()] = S.original(e->source());
 			}
+
 			if(map[tgt] == nullptr) {
 				m_orig[map[tgt] = m_graph.newNode()] = S.original(e->target());
 			}
 
 			if(S.isVirtual(e)) {
 				node w = S.twinTreeNode(e);
-				if(mark[w] == false) {
+
+				if(mark[w] == false ) {
 					// new virtual edge in core graph
-					edge eC = m_graph.newEdge(map[src],map[tgt]);
-					traversingPath(S,e,m_mincut[eC],mapAux);
+					if(T.typeOf(v) != SPQRTree::PNode || lastCreatedEdge == nullptr) {
+						lastCreatedEdge = m_graph.newEdge(map[src], map[tgt]);
+					}
+					traversingPath(S,e,m_mincut[lastCreatedEdge],mapAux);
 				}
 
 			} else {
 				// new real edge in core graph
-				edge eC = m_graph.newEdge(map[src],map[tgt]);
-				m_real[eC] = S.realEdge(e);
-				m_mincut[eC].pushBack(S.realEdge(e));
+				if(T.typeOf(v) != SPQRTree::PNode || lastCreatedEdge == nullptr) {
+					lastCreatedEdge = m_graph.newEdge(map[src], map[tgt]);
+				}
+				m_real[lastCreatedEdge] = S.realEdge(e);
+				m_mincut[lastCreatedEdge].pushBack(S.realEdge(e));
 			}
 		}
 	}

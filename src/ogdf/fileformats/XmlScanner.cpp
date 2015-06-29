@@ -46,15 +46,6 @@ namespace ogdf {
 	{
 		// Create line buffer
 		m_pLineBuffer = new LineBuffer(is);
-
-		// Create current token string
-		m_pCurrentTokenString = new char[LineBuffer::c_maxStringLength];
-		if (m_pCurrentTokenString == nullptr)
-			OGDF_THROW(InsufficientMemoryException);
-		for (int i = 0; i < LineBuffer::c_maxStringLength; i++){
-			m_pCurrentTokenString[i] = '0';
-		}
-
 	} // XmlScanner::XmlScanner
 
 	//
@@ -62,12 +53,8 @@ namespace ogdf {
 	//
 	XmlScanner::~XmlScanner()
 	{
-		// Destroy current token string
-		delete [] m_pCurrentTokenString;
-
 		// Destroy line buffer
 		delete m_pLineBuffer;
-
 	} // XmlScanner::~XmlScanner
 
 	//
@@ -172,9 +159,7 @@ namespace ogdf {
 			}
 
 			// Copy identifier to currentTokenString
-			m_pLineBuffer->extractString(startPosition,
-										 m_pLineBuffer->getCurrentPosition(),
-										 m_pCurrentTokenString);
+			m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
 
 			// Return identifier token
 			return identifier;
@@ -196,7 +181,7 @@ namespace ogdf {
 			currentCharacter = m_pLineBuffer->moveToNextCharacter();
 
 			// Read until the closing quotation sign is found
-			// String is copied to m_pCurrentTokenString by readStringUntil()
+			// String is copied to m_currentToken by readStringUntil()
 			if (doubleQuote){
 				readStringUntil('\"', false);
 			}
@@ -230,9 +215,7 @@ namespace ogdf {
 			}
 
 			// Copy attributeValue to currentTokenString
-			m_pLineBuffer->extractString(startPosition,
-										 m_pLineBuffer->getCurrentPosition(),
-										 m_pCurrentTokenString);
+			m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
 
 			// Return token for attribute value
 			return attributeValue;
@@ -361,10 +344,8 @@ namespace ogdf {
 		// Use skipUntil()
 		if (skipUntil(searchCharacter, includeSearchCharacter)){
 
-			// Copy found string to m_pCurrentTokenString
-			m_pLineBuffer->extractString(startPosition,
-										 m_pLineBuffer->getCurrentPosition(),
-										 m_pCurrentTokenString);
+			// Copy found string to m_currentToken
+			m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
 
 			return true;
 
@@ -412,13 +393,13 @@ namespace ogdf {
 				cout << "<" << endl;
 				break;
 			case identifier:
-				cout << "Identifier: " << m_pCurrentTokenString << endl;
+				cout << "Identifier: " << m_currentToken << endl;
 				break;
 			case attributeValue:
-				cout << "Attribute value: " << m_pCurrentTokenString << endl;
+				cout << "Attribute value: " << m_currentToken << endl;
 				break;
 			case quotedValue:
-				cout << "Quoted value: \"" << m_pCurrentTokenString << "\"" << endl;
+				cout << "Quoted value: \"" << m_currentToken << "\"" << endl;
 				break;
 			case endOfFile:
 				cout << "EOF" << endl;

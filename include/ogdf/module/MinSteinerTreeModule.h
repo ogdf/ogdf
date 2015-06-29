@@ -257,6 +257,7 @@ bool MinSteinerTreeModule<T>::isQuasiBipartite(const EdgeWeightedGraph<T> &G, co
 template<typename T>
 T MinSteinerTreeModule<T>::pruneDanglingSteinerPathFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const node start)
 {
+	OGDF_ASSERT(isConnected(steinerTree));
 	T delWeights(0);
 	node u = start;
 	while (u->degree() == 1
@@ -274,7 +275,7 @@ template<typename T>
 T MinSteinerTreeModule<T>::pruneDanglingSteinerPathsFrom(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal, const List<node> &start)
 {
 	T delWeights(0);
-	for(node v : start) {
+	for (node v : start) {
 		delWeights += pruneDanglingSteinerPathFrom(steinerTree, isTerminal, v);
 	}
 	return delWeights;
@@ -284,7 +285,7 @@ template<typename T>
 T MinSteinerTreeModule<T>::pruneAllDanglingSteinerPaths(EdgeWeightedGraphCopy<T> &steinerTree, const NodeArray<bool> &isTerminal)
 {
 	List<node> start;
-	for(node u : steinerTree.nodes) {
+	for (node u : steinerTree.nodes) {
 		if (u->degree() == 1
 		 && !isTerminal[steinerTree.original(u)]) {
 			start.pushBack(u);
@@ -303,13 +304,16 @@ T MinSteinerTreeModule<T>::removeCyclesFrom(EdgeWeightedGraphCopy<T> &steinerTre
 		T newCost(computeMinST(steinerTree, steinerTree.edgeWeights(), isInTree));
 
 		List<node> pendant; // collect resulting pendant edges
-		edge nextEdge;
-		for (edge e = steinerTree.firstEdge(); e; e = nextEdge) {
+		for (edge nextEdge, e = steinerTree.firstEdge(); e; e = nextEdge) {
 			oldCost += steinerTree.weight(e);
 			nextEdge = e->succ();
 			if (!isInTree[e]) {
-				pendant.pushBack(e->source());
-				pendant.pushBack(e->target());
+				if (e->source()->degree() == 2) {
+					pendant.pushBack(e->source());
+				}
+				if (e->target()->degree() == 2) {
+					pendant.pushBack(e->target());
+				}
 				steinerTree.delEdge(e);
 			}
 		}

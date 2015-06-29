@@ -40,7 +40,7 @@
 
 namespace ogdf {
 
-	CliqueReplacer::CliqueReplacer(GraphAttributes &ga, Graph &G) : m_G(G), m_ga(ga)
+	CliqueReplacer::CliqueReplacer(GraphAttributes &ga, Graph &G) : m_G(G), m_ga(ga), m_hiddenEdges(G.newHiddenEdgeSet())
 	{
 	}
 
@@ -138,7 +138,7 @@ namespace ogdf {
 		while (itEdge.valid())
 		{
 			//m_pG->delEdge((*itEdge));
-			m_G.hideEdge((*itEdge));
+			m_G.hideEdge(m_hiddenEdges, *itEdge);
 			++itEdge;
 		}//while
 
@@ -201,7 +201,8 @@ namespace ogdf {
 			++it;
 		}//while
 
-		m_G.restoreAllEdges();
+		m_G.restoreEdges(m_hiddenEdges);
+		m_hiddenEdges = m_G.newHiddenEdgeSet();
 		m_centerNodes.clear();
 		m_replacementEdge.init();
 
@@ -213,9 +214,10 @@ namespace ogdf {
 	{
 		OGDF_ASSERT(center)
 
-			//TODO: we should only restore the hidden clique edges, maybe there were
-			//already hidden edges and we call this for all cliques, but it is global
-			if (restoreAllEdges) m_G.restoreAllEdges();
+			if (restoreAllEdges) {
+				m_G.restoreEdges(m_hiddenEdges);
+				m_hiddenEdges = m_G.newHiddenEdgeSet();
+			}
 
 		//remove center node
 		m_G.delNode(center);

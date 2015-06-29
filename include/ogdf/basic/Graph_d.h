@@ -316,6 +316,11 @@ public:
 	OGDF_AUGMENT_STATICCOMPARER(EdgeElement)
 
 	OGDF_NEW_DELETE
+
+#ifdef OGDF_DEBUG
+private:
+	bool m_hidden = false;
+#endif
 }; // class EdgeElement
 
 
@@ -447,7 +452,7 @@ class OGDF_EXPORT Graph
 	mutable std::mutex m_mutexRegArrays; //!< The critical section for protecting shared acces to register/unregister methods.
 #endif
 
-	internal::GraphList<EdgeElement> m_hiddenEdges; //!< The list of hidden edges.
+	List<internal::GraphList<EdgeElement>*> m_hiddenEdges; //!< The list of hidden edges.
 
 public:
 
@@ -760,34 +765,84 @@ public:
 	/**
 	 * @name Hiding edges
 	 * These methods are used for temporarily hiding edges. Edges are removed from the
-	 * list of all edges and their corresponding adfjacency entries from the repsective
-	 * adjacency lists, but the edge objects themselves are not destroyed; hiddenedges
-	 * can later be reactivated with restoreEdge().
+	 * list of all edges and their corresponding adjacency entries from the repsective
+	 * adjacency lists, but the edge objects themselves are not destroyed. Hidden edges
+	 * can later be reactivated with restoreEdge(). Restoring edges will not preserve the combinatorial embedding.
+	 *
+	 * Hiding or restoring an edge takes constant time.
+	 * Thus, hiding edges may be more performant than creating a ogdf::GraphCopy and modifying it.
+	 *
+	 * Each edge is assigned to a set of hidden edges upon hiding it.
+	 * Hidden edge sets can be restored as a whole. Alternatively a single edge of a such a set can be restored.
+	 *
+	 * When hiding edges in external graphs (i.e. input parameters) do not forget to restore all hidden edges before returning.
+	 * Do not delete any nodes incident to hidden edges.
 	 */
 	//@{
 
-	//! Hides the edge \a e.
+
+	//! Handle for a set of hidden edges
+	class HiddenEdgeSetHandle {
+		friend class Graph;
+
+	public:
+		HiddenEdgeSetHandle() :
+				m_it()
+#ifdef OGDF_DEBUG
+				, m_graph(nullptr)
+#endif
+		{}
+
+		const HiddenEdgeSetHandle &operator=(const HiddenEdgeSetHandle &other) {
+			m_it = other.m_it;
+#ifdef OGDF_DEBUG
+			m_graph = other.m_graph;
+#endif
+			return *this;
+		}
+
+	private:
+		ListIterator<internal::GraphList<EdgeElement>*> m_it;
+#ifdef OGDF_DEBUG
+		Graph *m_graph;
+#endif
+		HiddenEdgeSetHandle(Graph *graph, ListIterator<internal::GraphList<EdgeElement>*> it) :
+				m_it(it)
+#ifdef OGDF_DEBUG
+				, m_graph(graph)
+#endif
+		{}
+	};
+
 	/**
-	 * The edge \a e is removed from the list of all edges and adjacency lists of nodes, but
-	 * not deleted; \a e can be restored by calling restoreEdge(e).
-	 *
-	 * \attention If an edge is hidden, its source and target node may not be deleted!
-	 *
-	 * @param e is the edge that will be hidden.
+	 * Returns the handle for a new, empty set of hidden edges.
+	 * Must be called before calling Graph::hideEdge.
 	 */
-	void hideEdge(edge e);
+	HiddenEdgeSetHandle newHiddenEdgeSet();
 
-	//! Restores a hidden edge \a e.
 	/**
-	 * \pre \a e is currently hidden and its source and target have not been removed!
+	 * Hides \c e and adds the edge to the set referenced by \c handle.
 	 *
-	 * @param e is the hidden edge that will be restored.
+	 * @param handle handle for the set of hidden edges to be a augmented
+	 * @param e the non-hidden edge that will be hidden
 	 */
-	void restoreEdge(edge e);
+	void hideEdge(HiddenEdgeSetHandle &handle, edge e);
 
-	//! Restores all hidden edges.
-	void restoreAllEdges();
+	/**
+	 * Restores a previously hidden edge.
+	 * Keep in mind to provide the correct \c handle for the edge.
+	 *
+	 * @param handle handle for the set containing \c e.
+	 * @param e the hidden edge to be restored
+	 */
+	void restoreEdge(HiddenEdgeSetHandle &handle, edge e);
 
+	/**
+	 * Restores all edges contained in the set given by \c handle.
+	 *
+	 * @param handle handle for the set of edges to be restored
+	 */
+	void restoreEdges(HiddenEdgeSetHandle &handle);
 
 	/**
 	 * @name Advanced modification methods
@@ -944,7 +999,7 @@ public:
 	 * @param  nodes    is the list of nodes that will be collapsed. This list will be empty after the call.
 	 */
 	template<class NODELIST>
-	void collaps(NODELIST &nodes){
+	void collapse(NODELIST &nodes){
 		node v = nodes.popFrontRet();
 		while (!nodes.empty())
 		{
@@ -1326,6 +1381,11 @@ private:
 	void reinitArrays();
 	void reinitStructures();
 	void resetAdjEntryIndex(int newIndex, int oldIndex);
+
+	/**
+	 * Used to restore all hidden edges upon deleting the graph.
+	 */
+	void restoreAllEdges();
 
 }; // class Graph
 

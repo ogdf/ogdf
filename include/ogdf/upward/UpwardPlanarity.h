@@ -97,6 +97,7 @@ public:
 	//! Tests whether graph \a G is upward planar and embeds the graph by a upward planar embedding if possible (using satisfiability).
 	/**
 	 * \param G is the input graph to be embedded if it allows an upward planar embedding.
+	 * \param externalToItsRight indicates the external face (on its right side)
 	 * \return true if \a G is upward planar, false otherwise.
 	 */
 	static bool embedUpwardPlanar(Graph &G, adjEntry& externalToItsRight);

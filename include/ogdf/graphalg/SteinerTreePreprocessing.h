@@ -1679,10 +1679,10 @@ bool SteinerTreePreprocessing<T>::addEdgesToSolution(const List<edge> &edgesToBe
 	for (edge e : edgesToBeAddedInSolution) {
 		node x = e->source(), y = e->target();
 		m_sonsList.emplace_back(std::vector<int>{m_nodeSonsListIndex[x], m_nodeSonsListIndex[y], m_edgeSonsListIndex[e]});
+		m_costAlreadyInserted += m_copyGraph.weight(e);
 		node newNode = m_copyGraph.contract(e);
 		m_nodeSonsListIndex[newNode] = (int)m_sonsList.size() - 1;
 		m_copyIsTerminal[newNode] = true;
-		m_costAlreadyInserted += m_copyGraph.weight(e);
 	}
 
 	recomputeTerminalsList();

@@ -342,7 +342,7 @@ namespace ogdf {
 
 				// Get hash element of token string
 				HashedString *tagName =
-					hashString(m_pScanner->getCurrentTokenString());
+					hashString(m_pScanner->getCurrentToken());
 
 				// Create new tag object
 				currentTagObject = new XmlTagObject(tagName);
@@ -368,7 +368,7 @@ namespace ogdf {
 					do {
 						// Save the attribute name
 						HashedString *attributeName =
-							hashString(m_pScanner->getCurrentTokenString());
+							hashString(m_pScanner->getCurrentToken());
 
 						// Consume "=", otherwise failure
 						token = m_pScanner->getNextToken();
@@ -396,7 +396,7 @@ namespace ogdf {
 
 						// Create a new XmlAttributeObject
 						XmlAttributeObject *currentAttributeObject =
-							new XmlAttributeObject(attributeName, hashString(m_pScanner->getCurrentTokenString()));
+							new XmlAttributeObject(attributeName, hashString(m_pScanner->getCurrentToken()));
 						if (currentAttributeObject == nullptr){
 							OGDF_THROW(InsufficientMemoryException);
 						}
@@ -446,7 +446,7 @@ namespace ogdf {
 						// Read the characters until "<" is reached and put them into
 						// currentTagObject
 						m_pScanner->readStringUntil('<');
-						currentTagObject->m_pTagValue = hashString(m_pScanner->getCurrentTokenString());
+						currentTagObject->m_pTagValue = hashString(m_pScanner->getCurrentToken());
 
 						// We expect a closing tag now, i.e. </id>
 						token = m_pScanner->getNextToken();
@@ -480,7 +480,7 @@ namespace ogdf {
 						}
 
 						// next token is the closing tag
-						string nextTag(m_pScanner->getCurrentTokenString());
+						string nextTag(m_pScanner->getCurrentToken());
 						// pop corresponding tag from stack
 						string s = m_tagObserver.pop();
 						// compare the two tags
@@ -605,7 +605,7 @@ namespace ogdf {
 					}
 
 					// next token is the closing tag
-					string nextTag(m_pScanner->getCurrentTokenString());
+					string nextTag(m_pScanner->getCurrentToken());
 					// pop corresponding tag from stack
 					string s = m_tagObserver.pop();
 					// compare the two tags

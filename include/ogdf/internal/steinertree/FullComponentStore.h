@@ -49,7 +49,7 @@ namespace steinertree {
 /*!
  * \brief A data structure to store full components
  */
-template<typename T>
+template<typename T, typename ExtraDataType = void>
 class FullComponentStore
 {
 protected:
@@ -61,6 +61,7 @@ protected:
 	  m_nodeCopy, //!< Mapping of original terminals to m_graph nodes
 	  m_nodeOrig; //!< Mapping of m_graph nodes to original nodes
 
+	template<class Y, class Enable = void> // Metadata without extra data
 	struct Metadata {
 		adjEntry start; //!< Adjacency entry on a terminal where a non-terminal BFS yields the component
 		Array<node> terminals; //!< Terminals, sorted by node index
@@ -72,7 +73,20 @@ protected:
 		{
 		}
 	};
-	ArrayBuffer<Metadata> m_components; //!< List of full components (based on metadata)
+	template<class Y> // Metadata with extra data
+	struct Metadata<Y, typename std::enable_if<!std::is_void<Y>::value>::type> {
+		adjEntry start; //!< Adjacency entry on a terminal where a non-terminal BFS yields the component
+		Array<node> terminals; //!< Terminals, sorted by node index
+		T cost; //!< Cost
+		Y extra;
+		Metadata()
+		  : start(nullptr)
+		  , terminals(0)
+		  , cost(0)
+		{
+		}
+	};
+	ArrayBuffer<Metadata<ExtraDataType>> m_components; //!< List of full components (based on metadata)
 
 public:
 	FullComponentStore(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal)
@@ -99,7 +113,7 @@ public:
 
 		// add all nonterminals of comp to m_graph
 		// and find terminals
-		Metadata data;
+		Metadata<ExtraDataType> data;
 		for (node v : comp.nodes) {
 			node vO = comp.original(v);
 			if (m_nodeCopy[vO] == nullptr) {
@@ -297,23 +311,48 @@ public:
 };
 
 /*!
+ * \brief A data structure to store full components with extra data for each component
+ */
+template<typename T, typename ExtraDataType>
+class FullComponentWithExtraStore : public FullComponentStore<T, ExtraDataType>
+{
+public:
+	using FullComponentStore<T, ExtraDataType>::FullComponentStore;
+
+	//! \brief Returns a reference to the extra data of this full component
+	ExtraDataType &extra(int i)
+	{
+		OGDF_ASSERT(i >= 0 && i < this->m_components.size());
+		return this->m_components[i].extra;
+	}
+
+	//! \brief Returns a const reference to the extra data of this full component
+	const ExtraDataType &extra(int i) const
+	{
+		OGDF_ASSERT(i >= 0 && i < this->m_components.size());
+		return this->m_components[i].extra;
+	}
+};
+
+template<typename T>
+struct LossMetadata {
+	T loss; //!< The loss of a component
+	List<edge> bridges; //!< List of non-loss edges
+	LossMetadata()
+	  : loss(0)
+	  , bridges()
+	{
+	}
+};
+
+/*!
  * \brief A data structure to store full components with additional "loss" functionality
  */
 template<typename T>
-class FullComponentWithLossStore : public FullComponentStore<T>
+class FullComponentWithLossStore : public FullComponentWithExtraStore<T, LossMetadata<T>>
 {
 protected:
-	struct LossMetadata {
-		T loss; //!< The loss of a component
-		List<edge> bridges; //!< List of non-loss edges
-		LossMetadata()
-		  : loss(0)
-		  , bridges()
-		{
-		}
-	};
 	NodeArray<node> m_lossTerminal; //!< Indicates which Steiner node is connected to which terminal through the loss edges, indexed by the Steiner node
-	ArrayBuffer<LossMetadata> m_losses; //!< Loss bridges for each component
 
 	/*!
 	 * \brief Starting from a Steiner node find the nearest terminal along a shortest path
@@ -332,10 +371,7 @@ protected:
 	}
 
 public:
-	FullComponentWithLossStore(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal)
-	  : FullComponentStore<T>(G, terminals, isTerminal)
-	{
-	}
+	using FullComponentWithExtraStore<T, LossMetadata<T>>::FullComponentWithExtraStore;
 
 	//! \brief Compute the loss, both edge set and value, of all full components
 	void computeAllLosses()
@@ -370,11 +406,11 @@ public:
 			this->foreachAdjEntry(id, [&](adjEntry adj) {
 				edge e = adj->theEdge();
 				if (!isLossEdge[e]) {
-					m_losses[id].bridges.pushBack(e);
+					this->extra(id).bridges.pushBack(e);
 					findLossTerminal(e->source(), pred);
 					findLossTerminal(e->target(), pred);
 				} else {
-					m_losses[id].loss += this->m_graph.weight(e);
+					this->extra(id).loss += this->m_graph.weight(e);
 				}
 			});
 		}
@@ -383,13 +419,13 @@ public:
 	//! \brief Returns the loss value of full component with given id
 	T loss(int id) const
 	{
-		return m_losses[id].loss;
+		return this->extra(id).loss;
 	}
 
 	//! \brief Returns a list of non-loss edges (that are bridges between the Loss components) of full component with given id
 	const List<edge> &lossBridges(int id) const
 	{
-		return m_losses[id].bridges;
+		return this->extra(id).bridges;
 	}
 
 	/*!
@@ -402,24 +438,6 @@ public:
 	{
 		OGDF_ASSERT(m_lossTerminal.valid());
 		return m_lossTerminal[v];
-	}
-
-	void insert(const EdgeWeightedGraphCopy<T> &comp)
-	{
-		FullComponentStore<T>::insert(comp);
-		m_losses.push(LossMetadata());
-		OGDF_ASSERT(m_losses.size() == this->m_components.size());
-	}
-
-	void remove(int id)
-	{
-		FullComponentStore<T>::remove(id);
-		if (m_losses.size() == id + 1) {
-			m_losses.pop();
-		} else {
-			m_losses[id] = m_losses.popRet();
-		}
-		OGDF_ASSERT(m_losses.size() == this->m_components.size());
 	}
 };
 

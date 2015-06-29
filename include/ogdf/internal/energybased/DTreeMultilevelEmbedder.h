@@ -39,6 +39,7 @@
 #include <ogdf/internal/energybased/DTreeEmbedder.h>
 #include <ogdf/internal/energybased/DTreeGalaxy.h>
 #include <ogdf/module/LayoutModule.h>
+#include <ogdf/basic/simple_graph_alg.h>
 
 namespace ogdf {
 

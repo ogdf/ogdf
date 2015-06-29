@@ -42,7 +42,7 @@
 #include <ogdf/graphalg/ConnectivityTester.h>
 #include <ogdf/basic/graph_generators.h>
 
-#include "maxflow_instances.h"
+#include <resources.h>
 
 const int MAX_NODES = 50;
 const int MAX_CAPACITY = 100;
@@ -57,6 +57,53 @@ using std::endl;
 
 #ifdef PRINT_FIRST_FAIL
 bool printedFailedInstance = false;
+
+/**
+ * Defines which properties a graph fullfills
+ * or an algorithm requires.
+ */
+enum MaxFlowRequirement {
+	MFR_NONE = 0,
+	MFR_PLANAR = 1,
+	MFR_ST_PLANAR = 2,
+	MFR_CONNECTED = 4,
+	MFR_ST_NON_INCIDENT_FACE = 8,
+};
+
+/**
+ * Used to combine requirements or properties.
+ */
+MaxFlowRequirement operator|(MaxFlowRequirement a, MaxFlowRequirement b)
+{
+	return MaxFlowRequirement(int(a) | int(b));
+}
+
+/**
+ * Establishes the properties of the given graph.
+ *
+ * @param graph The graph to be investigated
+ * @param s source node of the instance
+ * @param t target node of the instance
+ * @return all properties except for \c MFR_ST_NON_INCIDENT_FACE
+ */
+MaxFlowRequirement determineProperties(const Graph &graph, node s, node t)
+{
+	MaxFlowRequirement result = MFR_NONE;
+
+	if(isPlanar(graph)) {
+		result = result | MFR_PLANAR;
+
+		if(isSTPlanar(graph, s, t)) {
+			result = result | MFR_ST_PLANAR;
+		}
+	}
+
+	if(isConnected(graph)) {
+		result = result | MFR_CONNECTED;
+	}
+
+	return result;
+}
 
 /**
  * Used to print the first encountered failed instance.
@@ -167,31 +214,47 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 {
 	describe(name.c_str(), [&](){
 		// test predefined instances
-		for(int i = 0; i < MAX_FLOW_INSTANCES_COUNT; i++) {
-			Graph graph;
-			MaxFlowRequirement props;
-			EdgeArray<VALUE_TYPE> caps;
-			string instanceName;
-			node s, t;
-			VALUE_TYPE flow;
-			getMaxFlowInstance<VALUE_TYPE>(i, instanceName, graph, caps, props, s, t, flow);
+		for_each_file("maxflow", [&](const string &filename){
+			it(string("works on " + filename).c_str(), [&](){
+				// optimal solution value is extracted from the filename
+				string tmp = filename.substr(0, filename.length() - 4);
+				tmp = tmp.substr(tmp.find_last_of('.') + 1);
+				std::stringstream ss(tmp);
+				VALUE_TYPE opt = -1;
+				ss >> opt;
 
-			// determine whether instance can be solved by this algorithm
-			// meaning the graphs properties fulfill all requirements
-			if((reqs & props) == reqs)  {
-				// actually test the algorithm on this instance
-				it(string("works on " + instanceName).c_str(), [&](){
+				EdgeWeightedGraph<VALUE_TYPE> graph;
+				node s;
+				node t;
+				AssertThat(GraphIO::readDMF(graph, s, t, filename), IsTrue());
+				MaxFlowRequirement props = determineProperties(graph, s, t);
+
+				// create non s-t-incident face if required
+				if(reqs & MFR_ST_NON_INCIDENT_FACE) {
+					props = props | MFR_ST_NON_INCIDENT_FACE;
+					node v = graph.newNode();
+					graph.newEdge(v, t, 0);
+					graph.newEdge(t, v, 0);
+				}
+
+				if(props & MFR_PLANAR) {
+					planarEmbed(graph);
+				}
+
+				const EdgeArray<VALUE_TYPE> caps = graph.edgeWeights();
+
+				if((reqs & props) == reqs)  {
 					MAX_FLOW_ALGO alg(graph);
 
-					VALUE_TYPE algFlow = alg.computeValue(caps, s, t);
-					AssertThat(algFlow, Equals(flow));
+					VALUE_TYPE value = alg.computeValue(caps, s, t);
+					AssertThat(value, Equals(opt));
 
-					EdgeArray<VALUE_TYPE> algFlows(graph);
-					alg.computeFlowAfterValue(algFlows);
-					validateFlow(graph, caps, s, t, algFlows, algFlow);
-				});
-			}
-		}
+					EdgeArray<VALUE_TYPE> flow(graph);
+					alg.computeFlowAfterValue(flow);
+					validateFlow(graph, caps, s, t, flow, value);
+				}
+			});
+		});
 
 		// test random instances
 		for(int n = 2; n < MAX_NODES; n++) {

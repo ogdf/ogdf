@@ -273,6 +273,17 @@ class Formula : private Internal::Solver
 	*/
 	void finalizeClause( const clause cl );
 
+	//! Add a clause given by a list of literals
+	template<class Iteratable>
+	void addClause(const Iteratable &literals)
+	{
+		auto clause = newClause();
+		for (auto literal : literals) {
+			clause->add(literal);
+		}
+		finalizeClause(clause);
+	}
+
 	//! adds a clause to the formula's solver if all variables are known
 	/**
 	* @param cl is a reference to an existing clause within the formula
@@ -336,11 +347,23 @@ class Formula : private Internal::Solver
 	//! delete all clauses and variables
 	void reset();
 
-	//! read a formula from a DIMACS-file
-	bool readDimacsFile( const char *file );
+	//! read a formula from a DIMACS file
+	bool readDimacs(const char *filename);
 
-	//! write a formula to a DIMACS-file
-	void writeFormulaToDimacs( const char *filename);
+	//! read a formula from a DIMACS file
+	bool readDimacs(const string &filename);
+
+	//! read a formula in DIMACS format
+	bool readDimacs(std::istream &in);
+
+	//! write a formula to a DIMACS file
+	bool writeDimacs(const char *filename);
+
+	//! write a formula to a DIMACS file
+	bool writeDimacs(const string &filename);
+
+	//! write a formula in DIMACS format
+	bool writeDimacs(std::ostream &f);
 };
 
 }

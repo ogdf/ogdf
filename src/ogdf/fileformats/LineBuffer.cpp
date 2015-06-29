@@ -43,11 +43,6 @@
 
 namespace ogdf {
 
-	// Initialize static variables
-	const int LineBuffer::c_maxStringLength = 1024;
-	const int LineBuffer::c_maxLineLength = 200;
-	const int LineBuffer::c_maxNoOfLines = 20;
-
 	//
 	// ---------- L i n e B u f f e r P o s i t i o n ----------
 	//
@@ -79,10 +74,8 @@ namespace ogdf {
 	void LineBufferPosition::set(int lineNumber, int lineUpdateCount, int linePosition)
 	{
 		OGDF_ASSERT(lineNumber >= 0);
-		OGDF_ASSERT(lineNumber < LineBuffer::c_maxNoOfLines);
 		OGDF_ASSERT(lineUpdateCount >= 0);
 		OGDF_ASSERT(linePosition >= 0);
-		OGDF_ASSERT(linePosition < LineBuffer::c_maxLineLength);
 
 		m_lineNumber = lineNumber;
 		m_lineUpdateCount = lineUpdateCount;
@@ -98,7 +91,6 @@ namespace ogdf {
 		++m_linePosition;
 
 		OGDF_ASSERT(m_linePosition >= 0);
-		OGDF_ASSERT(m_linePosition < LineBuffer::c_maxLineLength);
 
 	} // increasePosition
 
@@ -145,7 +137,6 @@ namespace ogdf {
 	//
 	LineBuffer::LineBuffer(istream &is) :
 		m_pIs(&is),
-		m_pLinBuf(nullptr),
 		m_numberOfMostRecentlyReadLine(0),
 		m_inputFileLineCounter(0)
 	{
@@ -154,39 +145,20 @@ namespace ogdf {
 			OGDF_THROW_PARAM(AlgorithmFailureException, afcUnknown);
 		}
 
-		// Create and initialize lineUpdateCountArray
-		m_lineUpdateCountArray = new int[LineBuffer::c_maxNoOfLines];
-		int i;
-		for (i = 0; i < LineBuffer::c_maxNoOfLines; i++){
-			m_lineUpdateCountArray[i] = 0;
-		}
-
-		// Create and initialize line buffer
-		m_pLinBuf = new char[(LineBuffer::c_maxNoOfLines * LineBuffer::c_maxLineLength)];
-		if (m_pLinBuf == nullptr)
-			OGDF_THROW(InsufficientMemoryException);
-		for (i = 0; i < LineBuffer::c_maxNoOfLines * LineBuffer::c_maxLineLength; i++){
-			m_pLinBuf[i] = '0';
-		}
-
 		// Read first line
-		if (!m_pIs->eof()){
+		if (m_pIs->good()){
+
+			m_lineUpdateCountArray.push(0);
+			m_linBuf.push("");
 
 			// Read first line
-			m_pIs->getline(m_pLinBuf, LineBuffer::c_maxLineLength);
+			std::getline(*m_pIs, m_linBuf[0]);
 
 			// Increase inputFileLineCounter
 			++m_inputFileLineCounter;
 
 			// Increase updateCount
 			++(m_lineUpdateCountArray[0]);
-
-		}
-		// End of file is reached immeadiately
-		else{
-
-			// Set eof marker
-			*m_pLinBuf = EOF;
 
 		}
 
@@ -200,12 +172,6 @@ namespace ogdf {
 	//
 	LineBuffer::~LineBuffer()
 	{
-		// destroy line buffer
-		delete [] m_pLinBuf;
-
-		// destroy lineUpdateCountArray
-		delete [] m_lineUpdateCountArray;
-
 	} // LineBuffer::~LineBuffer
 
 	//
@@ -229,13 +195,8 @@ namespace ogdf {
 			// i.e. we have to read a new line from the file
 			if (m_currentPosition.getLineNumber() == m_numberOfMostRecentlyReadLine){
 
-				// Increment line pointer (modulo c_maxNoOfLines - 1)
-				if (m_numberOfMostRecentlyReadLine == (LineBuffer::c_maxNoOfLines - 1)){
-					m_numberOfMostRecentlyReadLine = 0;
-				}
-				else {
-					++m_numberOfMostRecentlyReadLine;
-				}
+				++m_numberOfMostRecentlyReadLine;
+				m_lineUpdateCountArray.push(0);
 
 				// Increment update count
 				++(m_lineUpdateCountArray[m_numberOfMostRecentlyReadLine]);
@@ -250,16 +211,16 @@ namespace ogdf {
 					0);
 
 				// End of file is reached
-				if (m_pIs->eof()){
+				if (!m_pIs->good()){
 
 					// Set eof marker
-					setCurrentCharacter(EOF);
+					return EOF;
 
 				}
 				// Read next line and put it to the new position
 				else{
-
-					m_pIs->getline(getCurrentCharacterPointer(), LineBuffer::c_maxLineLength);
+					m_linBuf.push("");
+					std::getline(*m_pIs, m_linBuf[m_numberOfMostRecentlyReadLine]);
 				}
 
 			} // Current line is equal to most recently read line
@@ -269,18 +230,8 @@ namespace ogdf {
 			// set the currentPosition to the next line which is already in
 			// the line buffer.
 			else{
-
-				int newLine;
-
-				// Increment current line pointer (modulo c_maxNoOfLines - 1)
-				if (m_currentPosition.getLineNumber() == (LineBuffer::c_maxNoOfLines - 1)){
-					newLine = 0;
-				}
-				else {
-					newLine = m_currentPosition.getLineNumber() + 1;
-				}
-
 				// Set current position
+				const int newLine = m_currentPosition.getLineNumber() + 1;
 				m_currentPosition.set(newLine, m_lineUpdateCountArray[newLine], 0);
 
 			} // Current line is NOT equal to most recently read line
@@ -331,14 +282,14 @@ namespace ogdf {
 	bool LineBuffer::extractString(
 		const LineBufferPosition &startPosition,
 		const LineBufferPosition &endPosition,
-		char *targetString)
+		string &targetString)
 	{
+		targetString.clear();
 
 		// StartPosition invalid, probably because the line of the startPosition
 		// has already been overwritten, i.e. the string is too long
 		if (!isValidPosition(startPosition))
 		{
-			strcpy(targetString, "String too long!");
 			return false;
 		}
 
@@ -352,7 +303,6 @@ namespace ogdf {
 		setCurrentPosition(startPosition);
 
 		// Copy characters to tempString
-		int targetStringIndex = 0;
 		while (getCurrentPosition() != endPosition)
 		{
 
@@ -360,20 +310,7 @@ namespace ogdf {
 			OGDF_ASSERT(getCurrentCharacter() != EOF)
 
 			// Put character into targetString
-			targetString[targetStringIndex] = getCurrentCharacter();
-			++targetStringIndex;
-
-			// String too long
-			if (targetStringIndex >= LineBuffer::c_maxStringLength - 1){
-
-				strcpy(targetString, "String too long!");
-
-				// Set back the original current position
-				setCurrentPosition(originalCurrentPosition);
-
-				return false;
-
-			}
+			targetString.push_back(getCurrentCharacter());
 
 			// Move to next character
 			moveToNextCharacter();
@@ -382,9 +319,6 @@ namespace ogdf {
 
 		// Set back the original current position
 		setCurrentPosition(originalCurrentPosition);
-
-		// Terminate string
-		targetString[targetStringIndex] = '\0';
 
 		return true;
 

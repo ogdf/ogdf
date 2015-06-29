@@ -42,21 +42,21 @@ GraphMLParser::GraphMLParser(istream &in) : m_xml(in)
 {
 	m_error = false;
 	if (m_xml.createParseTree() == false) {
-		cerr << "ERROR: Parse error.\n";
+		OGDF_ERROR("Parse error.");
 		m_error = true;
 		return;
 	}
 
 	const XmlTagObject &rootTag = m_xml.getRootTag();
 	if(rootTag.getName() != "graphml") {
-		cerr << "ERROR: File root tag is not a <graphml>.\n";
+		OGDF_ERROR("File root tag is not a <graphml>.");
 		m_error = true;
 		return;
 	}
 
 	rootTag.findSonXmlTagObjectByName("graph", m_graphTag);
 	if (m_graphTag == nullptr) {
-		cerr << "ERROR: <graph> tag not found.\n";
+		OGDF_ERROR("<graph> tag not found.");
 		m_error = true;
 		return;
 	}
@@ -72,12 +72,12 @@ GraphMLParser::GraphMLParser(istream &in) : m_xml(in)
 		keyTag.findXmlAttributeObjectByName("attr.name", nameAttr);
 
 		if (idAttr == nullptr) {
-			cerr << "ERROR: Key does not have an id attribute.\n";
+			OGDF_ERROR("Key does not have an id attribute.");
 			m_error = true;
 			return;
 		}
 		if (nameAttr == nullptr) {
-			cerr << "ERROR: Key does not have an attr.name attribute.\n";
+			OGDF_ERROR("Key does not have an attr.name attribute.");
 			m_error = true;
 			return;
 		}
@@ -100,7 +100,7 @@ bool GraphMLParser::readData(
 	nodeData.findXmlAttributeObjectByName("key", keyId);
 
 	if (keyId == nullptr) {
-		cerr << "ERROR: Node data does not have a key.\n";
+		OGDF_ERROR("Node data does not have a key.");
 		return false;
 	}
 
@@ -208,11 +208,11 @@ bool GraphMLParser::readData(
 		}
 		break;
 	default:
-		cerr << "WARN: Unknown attribute with id \""
+		OGDF_WARNING("Unknown attribute with id \""
 		     << keyId->getValue()
 		     << "\" for node (line "
 		     << nodeData.getLine()
-		     << "), ignoring.\n";
+		     << "), ignoring.");
 	}
 
 	return true;
@@ -227,7 +227,7 @@ bool GraphMLParser::readData(
 	edgeData.findXmlAttributeObjectByName("key", keyId);
 
 	if (keyId == nullptr) {
-		cerr << "ERROR: Edge data does not have a key.\n";
+		OGDF_ERROR("Edge data does not have a key.");
 		return false;
 	}
 
@@ -269,11 +269,11 @@ bool GraphMLParser::readData(
 		}
 		break;
 	default:
-		cerr << "WARN: Unknown attribute with id \""
+		OGDF_WARNING("Unknown attribute with id \""
 		     << keyId->getValue()
 		     << "\" for edge (line "
 		     << edgeData.getLine()
-		     << "), ignoring.\n";
+		     << "), ignoring.");
 	}
 
 	return true;
@@ -288,7 +288,7 @@ bool GraphMLParser::readData(
 	clusterData.findXmlAttributeObjectByName("key", keyId);
 
 	if (keyId == nullptr) {
-		cerr << "ERROR: Cluster data does not have a key.\n";
+		OGDF_ERROR("Cluster data does not have a key.");
 		return false;
 	}
 
@@ -337,11 +337,11 @@ bool GraphMLParser::readData(
 		CA.strokeColor(c) = clusterData.getValue();
 		break;
 	default:
-		cerr << "WARN: Unknown attribute with id \""
+		OGDF_WARNING("Unknown attribute with id \""
 		     << keyId->getValue() << "--enum: " << m_attrName[keyId->getValue()] << "--"
 		     << "\" for cluster (line "
 		     << clusterData.getLine()
-		     << "), ignoring.\n";
+		     << "), ignoring.");
 	}
 
 	return true;
@@ -362,7 +362,7 @@ bool GraphMLParser::readNodes(
 		nodeTag.findXmlAttributeObjectByName("id", idAttr);
 
 		if (idAttr == nullptr) {
-			cerr << "ERROR: Node is missing id attribute.\n";
+			OGDF_ERROR("Node is missing id attribute.");
 			return false;
 		}
 
@@ -394,11 +394,11 @@ bool GraphMLParser::readEdges(
 		edgeTag.findXmlAttributeObjectByName("target", targetId);
 
 		if (sourceId == nullptr) {
-			cerr << "ERROR: Edge is missing source node.\n";
+			OGDF_ERROR("Edge is missing source node.");
 			return false;
 		}
 		if (targetId == nullptr) {
-			cerr << "ERROR: Edge is missing target node.\n";
+			OGDF_ERROR("Edge is missing target node.");
 			return false;
 		}
 
@@ -434,7 +434,7 @@ bool GraphMLParser::readClusters(
 		if (clusterTag == nullptr) {
 			// Got normal node then, add it to the graph - id is required.
 			if (idAttr == nullptr) {
-				cerr << "ERROR: Node is missing id attribute.\n";
+				OGDF_ERROR("Node is missing id attribute.");
 				return false;
 			}
 

@@ -1,6 +1,7 @@
 // disable VC++ warnings when using fopen
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/minisat/Minisat.h>
 
 namespace Minisat
@@ -122,92 +123,114 @@ void Formula::reset()
 
 void Formula::free()
 {
-	for (int i = 0; i < Solver::clauses.size(); ++i) {
+	for (auto i = 0; i < Solver::clauses.size(); ++i) {
 		Solver::removeClause(Solver::clauses[i]);
 	}
-	for (int i = 0; i < m_Clauses.size(); ++i) {
-		delete m_Clauses[i];
+	for (auto &clause : m_Clauses) {
+		delete clause;
 	}
 	Solver::clauses.shrink(Solver::clauses.size());
 	m_Clauses.clear();
 }
 
-bool Formula::readDimacsFile( const char *file )
+bool Formula::readDimacs(const char *filename)
 {
-	std::ifstream in;
+	std::ifstream is(filename);
+	if (!is.is_open()) return false;
+	return readDimacs(is);
+}
+
+bool Formula::readDimacs(const string &filename)
+{
+	std::ifstream is(filename);
+	if (!is.is_open()) return false;
+	return readDimacs(is);
+}
+
+bool Formula::readDimacs(std::istream &in)
+{
 	std::string currentString;
-	int currentInt;
-	int clauseCount = 0;
-	bool isCNF = false;
 
-	Clause *clauses = nullptr;
-	in.open(file);
-
-	for (;;) {
-		if (in.eof())
-			break;
-		if (!isCNF) {
+	while (!in.eof()) {
+		in >> currentString;
+		if (currentString == "p") {
 			in >> currentString;
-			if (currentString == "p") {
-				in >> currentString;
-				if (currentString == "cnf") {
-					isCNF = true;
-				}
+			if (currentString == "cnf") {
+				break;
 			}
 		}
-		if (isCNF) {
-			in >> currentInt;
-			newVars(currentInt);
-			in >> clauseCount;
-			clauses = new Clause[currentInt];
-			break;
-		}
+	}
+	if (in.eof()) {
+		return false;
 	}
 
-	if (isCNF) {
-		int i = 0;
-		while (!in.eof()) {
-			in >> currentInt;
-			if (currentInt == 0
-			 && i < clauseCount) {
-				clause c = newClause();
-				clauses[i].m_ps.copyTo(c->m_ps);
-				finalizeClause(c);
-				i++;
+	int numVars = -1;
+	int numClauses = -1;
+	in >> numVars >> numClauses;
+	if (numVars < 0 || numClauses < 0) {
+		return false;
+	}
+	newVars(numVars);
+
+	int clauseCount = 0;
+	ogdf::ArrayBuffer<int> literals;
+	for (int lit; in >> lit;) {
+		if (lit) {
+			if (lit > numVars
+			 || -lit > numVars) {
+				OGDF_ERROR("Literal does not represent a valid variable (index too high)");
+				return false;
 			}
-			else if (i < clauseCount)
-				clauses[i].add(currentInt);
+			literals.push(lit);
+		} else {
+			addClause(literals);
+			literals.clear();
+			clauseCount++;
 		}
 	}
+	if (!literals.empty()) {
+		OGDF_WARNING("Last clause is not terminated by 0 marker, but we accept it nonetheless");
+		addClause(literals);
+	}
+	OGDF_WARNING_IF(clauseCount != numClauses, "Number of clauses differs from file header");
 
-	in.close();
-	if (clauses)
-		delete[] clauses;
 	return true;
 }
 
-void Formula::writeFormulaToDimacs( const char *filename)
+bool Formula::writeDimacs(const char *filename)
 {
-	FILE* f = fopen(filename, "w");
-	fprintf(f, "p cnf %d %d\n\n", getVariableCount(), getClauseCount());
-	for (int i = 0; i < m_Clauses.size(); ++i) {
-		for (int j = 0; j < m_Clauses[i]->m_ps.size(); ++j) {
+	std::ofstream os(filename);
+	if (!os.is_open()) return false;
+	return writeDimacs(os);
+}
+
+bool Formula::writeDimacs(const string &filename)
+{
+	std::ofstream os(filename);
+	if (!os.is_open()) return false;
+	return writeDimacs(os);
+}
+
+bool Formula::writeDimacs(std::ostream &f)
+{
+	f << "p cnf " << getVariableCount() << " " << getClauseCount() << std::endl;
+	for (auto &clause : m_Clauses) {
+		for (int j = 0; j < clause->m_ps.size(); ++j) {
 #if defined(OGDF_DEBUG)
 			std::cout
 			  << "Sign : "
-			  << Internal::sign(m_Clauses[i]->m_ps[j])
+			  << Internal::sign(clause->m_ps[j])
 			  << "Var : "
-			  << Internal::var(m_Clauses[i]->m_ps[j]) + 1
+			  << Internal::var(clause->m_ps[j]) + 1
 			  << std::endl;
 #endif
-			fprintf(f,
-			  " %c%d ",
-			  Clause::convertLitSign(m_Clauses[i]->m_ps[j]),
-			  Internal::var(m_Clauses[i]->m_ps[j]) + 1);
+			f << " "
+			  << Clause::convertLitSign(clause->m_ps[j])
+			  << Internal::var(clause->m_ps[j]) + 1;
 		}
-		fprintf(f, "0\n");
+		f << " 0" << std::endl;
 	}
-	fclose(f);
+	return true;
 }
 
 } // MinisatAdvanced

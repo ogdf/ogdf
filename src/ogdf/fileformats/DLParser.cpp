@@ -60,7 +60,7 @@ bool DLParser::initGraph(Graph &G)
 	G.clear();
 
 	if(m_nodes < 0) {
-		std::cerr << "ERROR: Node count not specified or incorrect.\n";
+		OGDF_ERROR("Node count not specified or incorrect.");
 		return false;
 	}
 
@@ -85,7 +85,7 @@ static inline bool readMatrixRow(
 	for(node u : G.nodes) {
 		double weight;
 		if(!(is >> weight)) {
-			std::cerr << "ERROR: Expected matrix value.\n";
+			OGDF_ERROR("Expected matrix value.");
 			return false;
 		}
 
@@ -115,7 +115,7 @@ bool DLParser::readMatrix(Graph &G, GraphAttributes *GA)
 
 	std::string extra;
 	if(m_istream >> extra) {
-		std::cerr << "ERROR: Expected EOF, but \"" << extra << "\" found.\n";
+		OGDF_ERROR("Expected EOF, but \"" << extra << "\" found.");
 		return false;
 	}
 
@@ -129,7 +129,7 @@ bool DLParser::readEmbeddedMatrix(Graph &G, GraphAttributes *GA)
 	for(node v : G.nodes) {
 		std::string label;
 		if(!(m_istream >> label)) {
-			std::cerr << "ERROR: Expected node embedded label.\n";
+			OGDF_ERROR("Expected node embedded label.");
 			return false;
 		}
 		toLower(label);
@@ -144,15 +144,14 @@ bool DLParser::readEmbeddedMatrix(Graph &G, GraphAttributes *GA)
 	for(int i = 0; i < G.numberOfNodes(); i++) {
 		std::string label;
 		if(!(m_istream >> label)) {
-			std::cerr << "ERROR: Expected node embedded label.\n";
+			OGDF_ERROR("Expected node embedded label.");
 			return false;
 		}
 		toLower(label);
 
 		node v = m_nodeLabel[label];
 		if(!v) {
-			std::cerr << "ERROR: Node with given label \""
-					  << label << "\" not found.\n";
+			OGDF_ERROR("Node with given label." << label << "\" not found.");
 			return false;
 		}
 
@@ -192,8 +191,8 @@ inline node DLParser::requestLabel(
 
 	if(!v) {
 		if(nextFree == nullptr) {
-			std::cerr << "ERROR: Cannot assign label \"" << label << "\", "
-			          << "node count in the graph is too low.\n";
+			OGDF_ERROR("Cannot assign label \"" << label << "\", "
+			          << "node count in the graph is too low.");
 			return nullptr;
 		}
 		m_nodeLabel[label] = v = nextFree;
@@ -220,9 +219,9 @@ bool DLParser::readEdgeList(Graph &G, GraphAttributes *GA)
 		int vid, uid;
 
 		if(!(is >> vid >> uid) || !fineId(vid) || !fineId(uid)) {
-			std::cerr << "ERROR: Node id incorrect (data line "
+			OGDF_ERROR("Node id incorrect (data line "
 					  << line << "), maximum value is "
-					  << m_nodeId.size() - 1 << ".\n";
+					  << m_nodeId.size() - 1 << ".");
 			return false;
 		}
 
@@ -246,8 +245,8 @@ bool DLParser::readEmbeddedEdgeList(Graph &G, GraphAttributes *GA)
 
 		std::string vlabel, ulabel;
 		if(!(is >> vlabel >> ulabel)) {
-			std::cerr << "ERROR: Expected embedded node labels (data line "
-					  << line << "), got \"" << is.str() << "\".\n";
+			OGDF_ERROR("Expected embedded node labels (data line "
+					  << line << "), got \"" << is.str() << "\".");
 			return false;
 		}
 
@@ -277,8 +276,8 @@ bool DLParser::readNodeList(Graph &G, GraphAttributes *GA)
 		}
 
 		if(!fineId(vid)) {
-			std::cerr << "ERROR: Node id incorrect (data line "
-					  << line << ".\n";
+			OGDF_ERROR("Node id incorrect (data line "
+					  << line << ".");
 			return false;
 		}
 		node v = m_nodeId[vid];
@@ -286,8 +285,8 @@ bool DLParser::readNodeList(Graph &G, GraphAttributes *GA)
 		int uid;
 		while((is >> uid)) {
 			if(!fineId(uid)) {
-				std::cerr << "ERROR: Node id incorrect (data line "
-						  << line << ").\n";
+				OGDF_ERROR("Node id incorrect (data line "
+						  << line << ").");
 				return false;
 			}
 
@@ -334,7 +333,7 @@ bool DLParser::readEmbeddedNodeList(Graph &G, GraphAttributes *GA)
 bool DLParser::readData(Graph &G, GraphAttributes *GA)
 {
 	if(m_nodes < 0) {
-		std::cerr << "ERROR: Number of nodes not specified or incorret.\n";
+		OGDF_ERROR("Number of nodes not specified or incorret.");
 		return false;
 	}
 
@@ -368,7 +367,7 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 	initGraph(G);
 	for(node v = G.firstNode(); v;) {
 		if(!(m_istream >> buffer)) {
-			std::cerr << "ERROR: Expected node labels.\n";
+			OGDF_ERROR("Expected node labels.");
 			return false;
 		}
 		toLower(buffer); // Labels should be lowercase.
@@ -381,8 +380,8 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 			m_istream >> buffer;
 			toLower(buffer);
 			if(buffer != "embedded:" && buffer != "embedded") {
-				std::cerr << "ERROR: Expected embedded keyword, got \""
-						  << buffer << "\".\n";
+				OGDF_ERROR("Expected embedded keyword, got \""
+						  << buffer << "\".");
 				return false;
 			}
 
@@ -409,8 +408,8 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 		m_istream >> buffer;
 		toUpper(buffer);
 		if(buffer != "EMBEDDED:" && buffer != "EMBEDDED") {
-			std::cerr << "ERROR: Expected \"EMBEDDED\" keyword, got \""
-					  << buffer << "\".\n";
+			OGDF_ERROR("Expected \"EMBEDDED\" keyword, got \""
+					  << buffer << "\".");
 			return false;
 		}
 
@@ -420,8 +419,8 @@ bool DLParser::readWithLabels(Graph &G, GraphAttributes *GA)
 	}
 
 	if(buffer != "DATA:") {
-		std::cerr << "ERROR: Expected \"DATA:\" statement, got \""
-				  << buffer << "\".\n";
+		OGDF_ERROR("Expected \"DATA:\" statement, got \""
+				  << buffer << "\".");
 		return false;
 	}
 
@@ -437,7 +436,7 @@ bool DLParser::readAssignment(
 	if(lhs == "N") {
 		std::istringstream is(rhs);
 		if(!(is >> m_nodes)) {
-			std::cerr << "ERROR: Incorrect number of nodes.\n";
+			OGDF_ERROR("Incorrect number of nodes.");
 			return false;
 		}
 	} else if(lhs == "FORMAT") {
@@ -448,12 +447,12 @@ bool DLParser::readAssignment(
 		} else if(rhs == "NODELIST1") {
 			m_format = nodelist;
 		} else {
-			std::cerr << "ERROR: Unknown data format \"" << rhs << "\".\n";
+			OGDF_ERROR("Unknown data format \"" << rhs << "\".");
 			return false;
 		}
 	} else {
-		std::cerr << "ERROR: Unkown assignment statement: "
-				  << "\"" << lhs << "\".\n";
+		OGDF_ERROR("Unkown assignment statement: "
+				  << "\"" << lhs << "\".");
 		return false;
 	}
 
@@ -466,7 +465,7 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 	std::string buffer;
 
 	if(!(m_istream >> buffer)) {
-		std::cerr << "ERROR: Expected statement.\n";
+		OGDF_ERROR("Expected statement.");
 		return false;
 	}
 	toUpper(buffer);
@@ -483,10 +482,9 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 		m_istream >> buffer;
 		toUpper(buffer);
 		if(buffer != "EMBEDDED" && buffer != "EMBEDDED:") {
-			std::cerr << "ERROR: Unknown statement "
+			OGDF_ERROR("Unknown statement "
 					  << "\"LABELS " << buffer << "\". "
-					  << "Did you mean \"LABELS:\" or \"LABELS EMBEDDED\"?"
-					  << "\n";
+					  << "Did you mean \"LABELS:\" or \"LABELS EMBEDDED\"?");
 			return false;
 		}
 
@@ -504,19 +502,19 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 		lhs = buffer;
 		char c;
 		if(!(m_istream >> c) || c != '=') {
-			std::cerr << "ERROR: Expected definition or assignment "
-					  << "statement, got: \"" << lhs << "\".\n";
+			OGDF_ERROR("Expected definition or assignment "
+					  << "statement, got: \"" << lhs << "\".");
 			return false;
 		}
 
 		if(!(m_istream >> rhs)) {
-			std::cerr << "ERROR: Expected assignment right side.\n";
+			OGDF_ERROR("Expected assignment right side.");
 			return false;
 		}
 	} else if(eq == buffer.size() - 1) {
 		// 'lhs= rhs' case.
 		if(!(m_istream >> rhs)) {
-			std::cerr << "ERROR: Expected assignment right side.\n";
+			OGDF_ERROR("Expected assignment right side.");
 			return false;
 		}
 		lhs = buffer.substr(0, eq);
@@ -545,8 +543,8 @@ bool DLParser::readGraph(Graph &G, GraphAttributes *GA)
 	toUpper(buffer);
 
 	if(buffer != "DL") {
-		std::cerr << "ERROR: Expected the \"DL\" header, got: \""
-				  << buffer << "\".\n";
+		OGDF_ERROR("Expected the \"DL\" header, got: \""
+				  << buffer << "\".");
 	}
 
 	return readStatements(G, GA);

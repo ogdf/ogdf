@@ -358,7 +358,7 @@ void MaxCPlanarMaster::clusterConnection(cluster c, GraphCopy &gc, double &upper
 				node copy = inducedC->copy(gc.copy(u));
 				cChildClusterNodes.pushBack(copy);
 			}
-			inducedC->collaps(cChildClusterNodes);
+			inducedC->collapse(cChildClusterNodes);
 			oChildClusterNodes.clear();
 			cChildClusterNodes.clear();
 		}

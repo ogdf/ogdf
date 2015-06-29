@@ -300,7 +300,7 @@ double CPlanarityMaster::clusterConnection(cluster c, GraphCopy &gc) {
 				node copy = inducedC->copy(gc.copy(w));
 				cChildClusterNodes.pushBack(copy);
 			}
-			inducedC->collaps(cChildClusterNodes);
+			inducedC->collapse(cChildClusterNodes);
 			oChildClusterNodes.clear();
 			cChildClusterNodes.clear();
 		}

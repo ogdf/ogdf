@@ -51,28 +51,27 @@ namespace ogdf {
 		initializePredefinedInfoIndices();
 
 		// Create the parse tree
-		if(m_xmlParser->createParseTree() == false)
+		if (m_xmlParser->createParseTree() == false) {
+			OGDF_ERROR("Could not create XML parse tree!");
 			return; // parse error
+		}
 
 		// Create the uml model graph
 		m_modelGraph = new UmlModelGraph();
-		if (!createModelGraph(*m_modelGraph)){
-
-			// Error
+		if (!createModelGraph(*m_modelGraph)) {
+			OGDF_ERROR("Could not create UML model graph.");
 			return;
 		}
 
 		// Create the uml diagram graphs
 		if (!createDiagramGraphs()){
-
-			// Error
+			OGDF_ERROR("Could not create UML diagram graphs.");
 			return;
 		}
 
 		// Create the diagram graph in UMLGraph format
-		if(!createDiagramGraphsInUMLGraphFormat(m_diagramGraphsInUMLGraphFormat)){
-
-			// Error
+		if (!createDiagramGraphsInUMLGraphFormat(m_diagramGraphsInUMLGraphFormat)) {
+			OGDF_ERROR("Could not create diagram graph in UML graph format.");
 			return;
 		}
 	} // UmlToGraphConverter
@@ -217,9 +216,8 @@ namespace ogdf {
 		//cout << "Creating model graph..." << endl;
 
 		// Check root element (must be <XMI>)
-		if (m_xmlParser->getRootTag().m_pTagName->info() != xmi){
-
-			// Error: Root tag is not <XMI>
+		if (m_xmlParser->getRootTag().m_pTagName->info() != xmi) {
+			OGDF_ERROR("Root tag is not <XMI>");
 			return false;
 		}
 
@@ -230,9 +228,8 @@ namespace ogdf {
 		path[2] = umlNamespaceOwnedElement;
 		const XmlTagObject *fatherTag;
 		string rootPackageName("");
-		if (!m_xmlParser->traversePath(m_xmlParser->getRootTag(), path, fatherTag)){
-
-			// Error: Path xmiContent, umlModel, umlNamespaceOwnedElement not found!
+		if (!m_xmlParser->traversePath(m_xmlParser->getRootTag(), path, fatherTag)) {
+			OGDF_ERROR("Path xmiContent, umlModel, umlNamespaceOwnedElement not found!");
 			return false;
 		}
 
@@ -367,9 +364,8 @@ namespace ogdf {
 			const XmlAttributeObject *xmiIdAttr;
 
 			// Did not find attribute xmi.id of classifier
-			if (!m_xmlParser->findXmlAttributeObject(*classifierSon, xmiId, xmiIdAttr)){
-
-				// Error: Did not find attribute xmi.id of Classifier.
+			if (!m_xmlParser->findXmlAttributeObject(*classifierSon, xmiId, xmiIdAttr)) {
+				OGDF_ERROR("Did not find attribute xmi.id of classifier.");
 				return false;
 			}
 
@@ -380,9 +376,8 @@ namespace ogdf {
 			const XmlAttributeObject *nameAttr;
 
 			// Did not find name attribute
-			if (!m_xmlParser->findXmlAttributeObject(*classifierSon, name, nameAttr)){
-
-				// Error: Did not find name attribute of Classifier.
+			if (!m_xmlParser->findXmlAttributeObject(*classifierSon, name, nameAttr)) {
+				OGDF_ERROR("Did not find name attribute of classifier.");
 				return false;
 			}
 
@@ -397,9 +392,8 @@ namespace ogdf {
 			nodeNameString += nodeName->key();
 
 			// Check if node already exists
-			if (m_idToNode.lookup(nodeId) != nullptr){
-
-				// Error: Node already exists
+			if (m_idToNode.lookup(nodeId) != nullptr) {
+				OGDF_ERROR("Node already exists.");
 				return false;
 			}
 
@@ -476,8 +470,8 @@ namespace ogdf {
 
 			// Something wrong
 			if (!end1) {
+				OGDF_WARNING("Current association tag does not contain both end tags!");
 				// Next association
-				// Warning: Current association tag does not contain both end tags!
 				m_xmlParser->findBrotherXmlTagObject(*associationSon, umlAssociation, associationSon);
 				continue;
 			}
@@ -487,7 +481,7 @@ namespace ogdf {
 
 			// Something wrong
 			if (!end2) {
-				// Warning: Current association tag does not contain both end tags!
+				OGDF_WARNING("Current association tag does not contain both end tags!");
 				// Next association
 				m_xmlParser->findBrotherXmlTagObject(*associationSon, umlAssociation, associationSon);
 				continue;
@@ -592,7 +586,7 @@ namespace ogdf {
 				// Something wrong
 				if (!childAttr || !parentAttr){
 
-					// Warning: Current dependency tag does not contain both attributes child and parent.
+					OGDF_WARNING("Current dependency tag does not contain both attributes child and parent.");
 
 					// Next class
 					m_xmlParser->findBrotherXmlTagObject(*classSon, umlClass, classSon);
@@ -661,7 +655,7 @@ namespace ogdf {
 			// Something wrong
 			if (!clientAttr || !supplierAttr){
 
-				// Warning: Current dependency tag does not contain both attributes client and supplier.
+				OGDF_WARNING("Current dependency tag does not contain both attributes client and supplier.");
 
 				// Next dependency
 				m_xmlParser->findBrotherXmlTagObject(*currentDependencyTag, umlDependency, currentDependencyTag);
@@ -761,8 +755,7 @@ namespace ogdf {
 
 		// Check root element (must be <XMI>)
 		if (m_xmlParser->getRootTag().m_pTagName->info() != xmi){
-
-			// Error: Root tag is not <XMI>
+			OGDF_ERROR("Root tag is not <XMI>");
 			return false;
 		}
 

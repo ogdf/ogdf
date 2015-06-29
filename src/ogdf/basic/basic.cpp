@@ -152,6 +152,15 @@ inline bool charCompareIgnoreCase(char a, char b)
 	return (toupper(a) == toupper(b));
 }
 
+void removeTrailingWhitespace(std::string &str)
+{
+	std::size_t found = str.find_last_not_of(" \t\v\f\n\r");
+	if (found != std::string::npos) {
+		str.erase(found+1);
+	} else { // string consists only of whitespacae
+		str.clear();
+	}
+}
 
 bool equalIgnoreCase(const string &str1, const string &str2)
 {

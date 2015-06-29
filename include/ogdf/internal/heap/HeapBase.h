@@ -35,6 +35,10 @@
 #ifndef _OGDF_HEAPINTERFACE_H_
 #define _OGDF_HEAPINTERFACE_H_
 
+#include <stdexcept>
+
+#include <ogdf/basic/basic.h>
+
 namespace ogdf {
 
 /**

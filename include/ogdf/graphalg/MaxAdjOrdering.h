@@ -199,6 +199,16 @@ namespace ogdf {
 				const Graph *G,
 				ListPure< NodeElement *> *Ordering
 				);
+        /**
+         * \brief Test if a given ordering is a MAO that follows lex-bfs tie breaking
+         * @param G is the graph to work on
+         * @param Ordering is a \a ListPure that contains a permutation of the nodes
+        */
+        bool testIfMAOBfs(
+                const Graph *G,
+                ListPure< NodeElement *> *Ordering
+                );
+
 
 		/**
 		 * @brief testIfAllMAOs checks all permutations (must be provided) if they are a MAO and if

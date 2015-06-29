@@ -44,16 +44,17 @@ namespace tlp {
 
 inline void Parser::tokenError(const char *str, bool got)
 {
+#ifdef OGDF_DEBUG
 	if(m_begin == m_end) {
-		std::cerr << "ERROR: " << str << ".\n";
+		OGDF_ERROR(str << ".");
 	} else {
-		std::cerr << "ERROR: " << str << " at "
-				  << m_begin->line << ", " << m_begin->column;
-		if(got) {
-			std::cerr << " (got " << *m_begin << ")";
+		if (got) {
+			OGDF_ERROR(str << " at " << m_begin->line << ", " << m_begin->column << " (got " << *m_begin << ").");
+		} else {
+			OGDF_ERROR(str << " at " << m_begin->line << ", " << m_begin->column << ".");
 		}
-		std::cerr << ".\n";
 	}
+#endif
 }
 
 
@@ -102,9 +103,7 @@ bool Parser::readEdge(Graph &G)
 
 	node source = m_idNode[sid], target = m_idNode[tid];
 	if(!source || !target) {
-		std::cerr << "ERROR: Node with id "
-				  << sid << " or " << tid
-				  << " is not declared.\n";
+		OGDF_ERROR("Node with id " << sid << " or " << tid << " is not declared.");
 		return false;
 	}
 
@@ -566,8 +565,7 @@ bool Parser::readStatement(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 		}
 		++m_begin;
 	} else {
-		std::cerr << "WARNING: unknown statement \""
-				  << head << "\", ignoring.\n";
+		OGDF_WARNING("Unknown statement \"" << head << "\", ignoring.\n");
 		// We got unknown statement, so we ignore until ending paren.
 		int opened = 1;
 		while(m_begin != m_end && opened != 0) {
@@ -604,14 +602,14 @@ bool Parser::readGraph(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 	Lexer lexer(m_istream);
 
 	if(!lexer.tokenize()) {
-		std::cerr << "ERROR: Lexical analysis failed.\n";
+		OGDF_ERROR("Lexical analysis failed.");
 		return false;
 	}
 	m_begin = lexer.tokens().begin();
 	m_end = lexer.tokens().end();
 
 	if(m_begin == m_end || !m_begin->leftParen()) {
-		std::cerr << "ERROR: Expected \"(\".\n";
+		OGDF_ERROR("Expected \"(\".");
 		return false;
 	}
 	++m_begin;

@@ -19,8 +19,10 @@
 #include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/planarity/FastPlanarSubgraph.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
+#include <ogdf/planarity/BoyerMyrvoldSubgraph.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <ogdf/planarity/NonPlanarCore.h>
 
 using namespace ogdf;
 using namespace bandit;
@@ -260,21 +262,106 @@ void testSubgraph(Graph &graph, PlanarSubgraphModule &sm, PlanarityModule &teste
 	cout << std::endl << "      removed " << removedEdges.size() << " edges" << std::endl;
 	bool connected = isConnected(graph);
 
+	Graph::HiddenEdgeSetHandle handle = graph.newHiddenEdgeSet();
+	List<edge> hiddenEdges;
 	for(edge e : removedEdges) {
-		graph.hideEdge(e);
-		AssertThat(e != mustHaveEdge, Equals(true));
+		graph.hideEdge(handle, e);
+		hiddenEdges.pushBack(e);
+		AssertThat(e, Is().Not().EqualTo(mustHaveEdge));
 	}
 
 	AssertThat(isConnected(graph), Equals(connected));
 	AssertThat(tester.isPlanar(graph), Equals(true));
 
 	if(assertMaximality) {
-		for(edge e : removedEdges) {
-			graph.restoreEdge(e);
+		ListConstIterator<edge> it = removedEdges.begin();
+		for(edge e : hiddenEdges) {
+			graph.restoreEdge(handle, e);
 			AssertThat(tester.isPlanar(graph), Equals(false));
-			graph.hideEdge(e);
+			graph.hideEdge(handle, e);
+			it = it.succ();
 		}
 	}
+}
+
+void testNonPlanarCore()
+{
+	for_each_graph_it("returns a simple core", {"north/g.41.26.gml", "north/g.73.8.gml"},
+		[&](Graph &graph, const string &filename){
+			makeBiconnected(graph);
+			NonPlanarCore npc(graph);
+			const Graph &core = npc.core();
+			AssertThat(isSimpleUndirected(core), IsTrue());
+
+			for(edge e : core.edges) {
+				AssertThat(npc.cost(e), IsGreaterThan(0));
+
+				if(!npc.isVirtual(e)) {
+					AssertThat(npc.realEdge(e), Is().Not().EqualTo((void*) nullptr));
+				}
+			}
+		});
+
+	it("works on a minimal previously failing instance (2 x K5)", []() {
+		Graph graph;
+
+		node s = graph.newNode();
+		node t = graph.newNode();
+		graph.newEdge(s, t);
+
+		node v = graph.newNode();
+		graph.newEdge(s, v);
+		graph.newEdge(v, t);
+
+		for (int k = 0; k < 2; k++) {
+			List<node> nodes;
+			nodes.pushBack(s);
+			nodes.pushBack(t);
+
+			for (int i = 0; i < 3; i++) {
+				nodes.pushBack(graph.newNode());
+			}
+
+			for (node v : nodes) {
+				for (node w : nodes) {
+					if (v->index() < w->index() && (v != s || w != t)) {
+						graph.newEdge(v, w);
+					}
+				}
+			}
+		}
+
+		NonPlanarCore npc(graph);
+		const Graph &core = npc.core();
+		AssertThat(isSimpleUndirected(core), IsTrue());
+		AssertThat(core.numberOfNodes(), Equals(graph.numberOfNodes() - 1));
+		AssertThat(core.numberOfEdges(), Equals(graph.numberOfEdges() - 2));
+
+		for (edge e : core.edges) {
+			node v = npc.original(e->source());
+			node w = npc.original(e->target());
+			if((v == s && w == t) || (v == t && w == s)) {
+				AssertThat(npc.cost(e), Equals(2));
+			} else {
+				AssertThat(npc.cost(e), Equals(1));
+			}
+		}
+	});
+
+	it("eliminates self-loops", [](){
+		Graph graph;
+		completeGraph(graph, 5);
+
+		for(node v : graph.nodes) {
+			graph.newEdge(v, v);
+		}
+
+		NonPlanarCore npc(graph);
+		const Graph &core = npc.core();
+		AssertThat(isSimpleUndirected(core), IsTrue());
+		AssertThat(core.numberOfNodes(), Equals(graph.numberOfNodes()));
+		AssertThat(core.numberOfEdges(), Equals(10));
+	});
 }
 
 go_bandit([](){
@@ -283,5 +370,66 @@ go_bandit([](){
 		describeModule("Booth-Lueker", bl);
 		BoyerMyrvold bm;
 		describeModule("Boyer-Myrvold", bm);
+	});
+
+	describe("Planar Subgraphs", [](){
+		describe("Boyer-Myrvold-Subgraph", [](){
+			bool maximizeSubgraph = true;
+			BoothLueker bl;
+			BoyerMyrvoldSubgraph bms(maximizeSubgraph, 10, 1);
+			minstd_rand rng(42);
+
+			for(int n = 5; n < 30; n++) {
+				it(string("works on a K" + to_string(n)).c_str(), [&](){
+					Graph graph;
+					completeGraph(graph, n);
+					randomizeAdjLists(graph, rng);
+					testSubgraph(graph, bms, bl, maximizeSubgraph, false);
+				});
+			}
+
+			for(int n = 5; n < 30; n++) {
+				int m = n*(n-1)/3;
+				it(string("works on a random graph with " + to_string(n) + " nodes and " + to_string(m) + " edges").c_str(), [&](){
+					Graph graph;
+					randomGraph(graph, n, m);
+					randomizeAdjLists(graph, rng);
+					testSubgraph(graph, bms, bl, maximizeSubgraph, false);
+				});
+			}
+
+			for(int n = 5; n < 20; n++) {
+				it(string("works on a K" + to_string(n) + " with weighted edges").c_str(), [&](){
+					Graph graph;
+					completeGraph(graph, n);
+					randomizeAdjLists(graph, rng);
+					BoyerMyrvoldSubgraph myBms(false, 1, 0);
+					testSubgraph(graph, myBms, bl, false, true);
+				});
+			}
+
+			vector<string> instaces = {
+				"north/g.61.11.gml",
+				"rome/grafo3703.45.lgr.gml.pun",
+				"rome/grafo5745.50.lgr.gml.pun"
+			};
+
+			for(int i = 0; i < 2; i++) {
+				string tags = "";
+				bool weighted = i;
+				if(weighted) { tags += " weighted,"; }
+
+				for_each_graph_it(("works on a" + tags + " formerly failing instance").c_str(), instaces,
+						[&](Graph &graph, const string &filename){
+							int randomness = weighted ? 0 : 1;
+							BoyerMyrvoldSubgraph myBms(maximizeSubgraph, 1, randomness);
+							testSubgraph(graph, myBms, bl, maximizeSubgraph, weighted);
+						});
+			}
+		});
+	});
+
+	describe("NonPlanarCore", [](){
+		testNonPlanarCore();
 	});
 });

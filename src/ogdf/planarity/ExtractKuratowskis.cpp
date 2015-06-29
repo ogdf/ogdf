@@ -434,8 +434,7 @@ bool ExtractKuratowskis::isANewKuratowski(
 			}
 		}
 		if (!differentEdgeFound) {
-			cerr << "\nERROR: Kuratowski is already in list as subdivisiontype "
-				<< (*itW).subdivisionType << "\n";
+			OGDF_ERROR("Kuratowski is already in list as subdivisiontype " << (*itW).subdivisionType);
 			return false;
 		}
 	}

@@ -93,18 +93,15 @@ void describeSTP(const string &typeName) {
 						isTerminal(v) = true;
 					}
 				}
-				List<edge> edges;
-				graph.allEdges(edges);
-				for(edge e : edges) {
-					graph.delEdge(e);
-					graph.newEdge(e->source(), e->target(), (T) randomDouble(0, 1000));
+				for (edge e : graph.edges) {
+					graph.setWeight(e, (T) randomDouble(0, 1000));
 				}
 
 				string myComment = "";
-        if(randomDouble(0, 1) > .5) {
-          myComment += "Name \"MyRandomInstance\"\n";
-          myComment += "Creator \"Tilo Wiedera\"\n";
-        }
+				if (randomDouble(0, 1) > .5) {
+					myComment += "Name \"MyRandomInstance\"\n";
+					myComment += "Creator \"Tilo Wiedera\"\n";
+				}
 				GraphIO::writeSTP(graph, terminals, writeStream, myComment);
 
 				EdgeWeightedGraph<T> readGraph;
@@ -255,10 +252,9 @@ void describeDMF(const string &typeName) {
  * \param name The name of the format.
  * \param reader The parse function to be tested.
  * \param writer The write function to be tested.
- * \param enableResources Whether to enable resource based tests.
  * \param isXml Whether the format is based on XML.
  */
-void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer, bool enableResources, bool isXml)
+void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer, bool isXml)
 {
 	std::string lowerCaseName = name;
 	std::transform(lowerCaseName.begin(), lowerCaseName.end(), lowerCaseName.begin(), ::tolower);
@@ -281,8 +277,14 @@ void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer
 				AssertThat(graph.numberOfEdges(), IsGreaterThan(0));
 			});
 		});
+		for_each_file("fileformats/" + lowerCaseName + "/valid/skip", [&](const string &filename) {
+			it_skip(string("successfully parses " + filename).c_str(), [&]() {});
+		});
 
 		for_each_file("fileformats/" + lowerCaseName + "/invalid", errorTest);
+		for_each_file("fileformats/" + lowerCaseName + "/invalid/skip", [&](const string &filename) {
+			it_skip(string("detects errors in " + filename).c_str(), [&]() {});
+		});
 	};
 
 	describe(name.c_str(), [&](){
@@ -290,11 +292,7 @@ void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer
 			for_each_file("fileformats/xml/invalid", errorTest);
 		}
 
-		if(enableResources) {
-			resourceBasedTest();
-		} else {
-			describe_skip("skipped", resourceBasedTest);
-		}
+		resourceBasedTest();
 
 		it("writes and reads an empty graph", [&](){
 			Graph G, Gtest;
@@ -320,7 +318,7 @@ void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer
 			return;
 		}
 
-		it("writes and reads a Peterson-graph", [&](){
+		it("writes and reads a Petersen graph", [&](){
 			Graph G, Gtest;
 			petersenGraph(G, 5, 2);
 			std::ostringstream write;
@@ -378,19 +376,18 @@ describe("GraphIO", [](){
 			});
 	});
 
-	// TODO: Enable resource-based tests for all formats
-	describeFormat("GML", GraphIO::readGML, GraphIO::writeGML, true, false);
-	describeFormat("OGML", GraphIO::readOGML, GraphIO::writeOGML, false, true);
-	describeFormat("Rome", GraphIO::readRome, GraphIO::writeRome, false, false);
-	describeFormat("LEDA", GraphIO::readLEDA, GraphIO::writeLEDA, true, false);
-	describeFormat("Chaco", GraphIO::readChaco, GraphIO::writeChaco, true, false);
-	describeFormat("PMDiss", GraphIO::readPMDissGraph, GraphIO::writePMDissGraph, false, false);
-	describeFormat("GraphML", GraphIO::readGraphML, GraphIO::writeGraphML, false, true);
-	describeFormat("DOT", GraphIO::readDOT, GraphIO::writeDOT, true, false);
-	describeFormat("GEXF", GraphIO::readGEXF, GraphIO::writeGEXF, false, true);
-	describeFormat("GDF", GraphIO::readGDF, GraphIO::writeGDF, false, false);
-	describeFormat("TLP", GraphIO::readTLP, GraphIO::writeTLP, false, false);
-	describeFormat("DL", GraphIO::readDL, GraphIO::writeDL, false, false);
-	describeFormat("Graph6", GraphIO::readGraph6, GraphIO::writeGraph6, false, false);
+	describeFormat("GML", GraphIO::readGML, GraphIO::writeGML, false);
+	describeFormat("OGML", GraphIO::readOGML, GraphIO::writeOGML, true);
+	describeFormat("Rome", GraphIO::readRome, GraphIO::writeRome, false);
+	describeFormat("LEDA", GraphIO::readLEDA, GraphIO::writeLEDA, false);
+	describeFormat("Chaco", GraphIO::readChaco, GraphIO::writeChaco, false);
+	describeFormat("PMDiss", GraphIO::readPMDissGraph, GraphIO::writePMDissGraph, false);
+	describeFormat("GraphML", GraphIO::readGraphML, GraphIO::writeGraphML, true);
+	describeFormat("DOT", GraphIO::readDOT, GraphIO::writeDOT, false);
+	describeFormat("GEXF", GraphIO::readGEXF, GraphIO::writeGEXF, true);
+	describeFormat("GDF", GraphIO::readGDF, GraphIO::writeGDF, false);
+	describeFormat("TLP", GraphIO::readTLP, GraphIO::writeTLP, false);
+	describeFormat("DL", GraphIO::readDL, GraphIO::writeDL, false);
+	describeFormat("Graph6", GraphIO::readGraph6, GraphIO::writeGraph6, false);
 });
 });

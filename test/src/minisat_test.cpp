@@ -1,7 +1,7 @@
 /** \file
  * \brief Tests for Minisat wrapper
  *
- * \author Robert Zeranski, Stephan Beyer
+ * \author Stephan Beyer (satisfiableTest by Robert Zeranski)
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -36,6 +36,7 @@
 #include <ogdf/basic/Graph.h>
 #include <ogdf/minisat/Minisat.h>
 #include <iostream>
+#include <resources.h>
 
 using namespace bandit;
 using namespace ogdf;
@@ -44,24 +45,21 @@ static void satisfiableTest()
 {
 	Minisat::Formula F;
 	Minisat::Model model;
-	Minisat::clause cl = F.newClause();
 
-	cl->addMultiple(4,-1,-2,-3,4);
-	//cl->writeToConsole();
-	F.finalizeClause(cl);
+	F.addClause(std::vector<int>{-1, -2, -3, 4});
 
 	F.newVars(11);
 
 	for (int i = 1; i < 10; i++) {
-			Minisat::clause c = F.newClause();
-			if (i % 2 == 0) {
-				c->add(i);
-			}
-			else {
-				c->add(-i);
-			}
-			c->add(i+1);
-			F.finalizeClause(c);
+		Minisat::clause c = F.newClause();
+		if (i % 2 == 0) {
+			c->add(i);
+		}
+		else {
+			c->add(-i);
+		}
+		c->add(i+1);
+		F.finalizeClause(c);
 	}
 
 	bool satisfiable = F.solve(model);
@@ -75,34 +73,33 @@ static void satisfiableTest()
 	}
 	F.reset();
 #endif
-#if 0
-	F.writeFormulaToDimacs("example.cnf");
-#endif
 }
 
 static void nonsatisfiableTest()
 {
 	Minisat::Formula F;
 	Minisat::Model model;
-	Minisat::clause cl;
-	cl = F.newClause();
-	cl->addMultiple(2, 1, 2);
-	F.finalizeClause(cl);
-	cl = F.newClause();
-	cl->addMultiple(2, 1, -2, 3);
-	F.finalizeClause(cl);
-	cl = F.newClause();
-	cl->addMultiple(2, -1, 2);
-	F.finalizeClause(cl);
-	cl = F.newClause();
-	cl->addMultiple(2, -1, -2);
-	F.finalizeClause(cl);
-	cl = F.newClause();
-	cl->addMultiple(1, -3);
-	F.finalizeClause(cl);
+	F.addClause(std::vector<int>{1, 2});
+	F.addClause(std::vector<int>{1, -2, 3});
+	F.addClause(std::vector<int>{-1, 2});
+	F.addClause(std::vector<int>{-1, -2});
+	F.addClause(std::vector<int>{-3});
 
 	bool satisfiable = F.solve(model);
 
+	AssertThat(satisfiable, IsFalse());
+}
+
+static void readDIMACSTest()
+{
+	Minisat::Formula formula;
+	AssertThat(formula.readDimacs(RESOURCE_DIR + "/" + "minisat/satisfiable.txt"), IsTrue());
+	Minisat::Model model;
+	bool satisfiable = formula.solve(model);
+	AssertThat(satisfiable, IsTrue());
+
+	formula.addClause(std::vector<int>{3});
+	satisfiable = formula.solve(model);
 	AssertThat(satisfiable, IsFalse());
 }
 
@@ -113,6 +110,9 @@ go_bandit([]() {
 		});
 		it("solves a non-satisfiable formula", []() {
 			nonsatisfiableTest();
+		});
+		it("reads a DIMACS file and is able to solve the formula and change it", []() {
+			readDIMACSTest();
 		});
 	});
 });

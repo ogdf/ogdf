@@ -142,7 +142,7 @@ Parser::Piece Parser::nextPiece()
 		piece.m_value = m_lexer.currentValue();
 
 		m_lexer.nextToken();
-		expect(token::chevron_right, "exected closing tag bracket ('>')");
+		expect(token::chevron_right, "expected closing tag bracket ('>')");
 		return std::move(piece);
 	}
 	if (m_lexer.currentToken() == token::questionMark) {
@@ -182,7 +182,7 @@ Parser::Piece Parser::nextPiece()
 		expect(token::assignment, "expected assignment operator ('=')");
 
 		m_lexer.nextToken();
-		expect(token::string, "exected string value of attribute");
+		expect(token::string, "expected string value of attribute");
 		std::string value = m_lexer.currentValue();
 
 		(*piece.m_attrs)[key] = value;

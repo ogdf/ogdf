@@ -52,15 +52,20 @@ LCA::LCA(const Graph &G, node root)
 	, m_level(m_len)
 	, m_table(m_len * m_rangeJ)
 {
-	dfs(G, m_root);
-	buildTable();
+	if(m_n == 1) {
+		OGDF_ASSERT(G.firstNode() == root)
+	} else {
+		dfs(G, m_root);
+		buildTable();
+	}
 }
 
 node LCA::call(node u, node v) const
 {
-	OGDF_ASSERT(u);
-	OGDF_ASSERT(v);
-	return m_euler[rmq(m_representative[v], m_representative[u])];
+	OGDF_ASSERT(u->graphOf() == m_root->graphOf());
+	OGDF_ASSERT(v->graphOf() == m_root->graphOf());
+
+	return m_n == 1 ? m_root : m_euler[rmq(m_representative[v], m_representative[u])];
 }
 
 void LCA::dfs(const Graph &G, node root)
