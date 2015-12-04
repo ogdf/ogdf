@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_IMPL_PAIRING_HEAP_H
-#define OGDF_IMPL_PAIRING_HEAP_H
-
 
 #include <functional>
 
@@ -359,6 +352,3 @@ inline void PairingHeap<T, C>::release(PairingHeapNode<T> *node)
 }
 
 } // end namespace ogdf
-
-
-#endif

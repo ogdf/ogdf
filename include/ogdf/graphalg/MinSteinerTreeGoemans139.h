@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef MIN_STEINER_TREE_GOEMANS139_OGDF_H_
-#define MIN_STEINER_TREE_GOEMANS139_OGDF_H_
+#pragma once
 
 #include <coin/CoinPackedVector.hpp>
 #include <coin/OsiClpSolverInterface.hpp>
@@ -96,13 +95,6 @@ public:
 
 	virtual ~MinSteinerTreeGoemans139() { }
 
-#if 0
-	virtual T call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree) override
-	{
-		return MinSteinerTreeModule<T>::call(G, terminals, isTerminal, finalSteinerTree);
-	}
-#endif
-
 	/*!
 	 * \brief Sets the maximal number of terminals in a full component
 	 * @param k the maximal number of terminals in a full component
@@ -122,7 +114,8 @@ public:
 	}
 
 	/*!
-	 * \brief Use Takahashi-Matsuyama 2-approximation as upper bounds (not recommended to use in general).
+	 * \brief Use Takahashi-Matsuyama 2-approximation as upper bounds
+	 * \note not recommended to use in general
 	 * @param use2approx True to apply the bound
 	 */
 	void use2Approximation(bool use2approx = true)
@@ -130,8 +123,9 @@ public:
 		m_use2approx = use2approx;
 	}
 
-	/*!
-	 * \brief For the 3-restricted case, it is sufficient to compute an SSSP from every terminal
+	/*! \brief Force full APSP algorithm even if consecutive SSSP algorithms may work
+	 *
+	 * For the 3-restricted case, it is sufficient to compute an SSSP from every terminal
 	 *  instead of doing a full APSP. In case a full APSP is faster, use this method.
 	 * @param force True to force APSP instead of SSSP.
 	 */
@@ -151,12 +145,12 @@ public:
 
 protected:
 	/*!
-	 * \brief Builds a minimum steiner tree given a weighted graph and a list of terminals \see MinSteinerTreeModule::computeSteinerTree
+	 * \brief Builds a minimum Steiner tree for a given weighted graph with terminals \see MinSteinerTreeModule::computeSteinerTree
 	 * @param G The weighted input graph
 	 * @param terminals The list of terminal nodes
 	 * @param isTerminal A bool array of terminals
-	 * @param finalSteinerTree The finals steiner tree
-	 * @return The objective value (sum of edge costs) of the final steiner tree
+	 * @param finalSteinerTree The final Steiner tree
+	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
 	virtual T computeSteinerTree(
 		const EdgeWeightedGraph<T> &G,
@@ -165,6 +159,8 @@ protected:
 		EdgeWeightedGraphCopy<T> *&finalSteinerTree) override;
 };
 
+//! \brief Class managing LP and LP-based approximation
+//! \todo should be refactored, done this way for historical reasons
 template<typename T>
 class MinSteinerTreeGoemans139<T>::UFCR
 {
@@ -184,7 +180,12 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	double *m_upperBounds;
 
 	int m_restricted;
-	int m_use2approx; // 0 = off, 1 = on, 2 = just use it!
+	enum class Approx2State {
+		Off,
+		On,
+		JustUseIt,
+	};
+	Approx2State m_use2approx;
 	bool m_ssspDistances;
 	bool m_separateCycles;
 #ifdef OGDF_STEINERTREE_GOEMANS139_SEPARATE_CONNECTED_COMPONENTS
@@ -198,11 +199,12 @@ class MinSteinerTreeGoemans139<T>::UFCR
 	EdgeWeightedGraphCopy<T> *m_approx2SteinerTree;
 	T m_approx2Weight;
 
+	//! Manage witness set and core edges of a blowup graph
 	class CoreWitness
 	{
 		std::minstd_rand &m_rng;
 
-		List<node> m_coreEdges; // the splitting set (or core edges) as nodes
+		List<node> m_coreEdges; //!< the core edges as nodes
 
 		/* witness set (for some component and specified K (core edge set))
 		 *
@@ -227,19 +229,22 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		EdgeArray<int> witnessCard;
 		NodeArray< List<edge> > witness;
 
+		//! \brief Add a core edge
+		//! \remark Note that core edges are implemented by nodes in the blowup graph
 		void addCore(node e)
 		{
 			m_coreEdges.pushBack(e);
 		}
 
-		// add e to W(f)
+		//! Add e to W(f)
 		void addWitness(node e, edge f)
 		{
 			++witnessCard[f];
 			witness[e].pushBack(f);
 		}
 
-		void computeRandomSplittingSet(const EdgeWeightedGraphCopy<T> &G, const List<node> &terminals, EdgeArray<bool> &isInTree)
+		//! Compute a random set of core edges
+		void computeRandomCoreEdges(const EdgeWeightedGraphCopy<T> &G, const List<node> &terminals, EdgeArray<bool> &isInTree)
 		{
 			// Let's do Kruskal's algorithm without weights but on a randomly permuted edge list.
 			// We virtually contract all terminals in the union-find data structure.
@@ -282,26 +287,29 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		{
 		}
 
-		// finds a "random" splitting set and "replace" found edges by nodes
-		// TODO: find best splitting set using dynamic programming
-		// Also find the witness sets for the splitting set
-		// NOTE: Terminals are the terminals in the blowupGraph.
+		/** \brief Find a "random" set of core edges and "replace" found edges by nodes,
+		  *   also find the witness sets for the core edges
+		  * \todo Derandomization: find best set of core edges using dynamic programming
+		  * \param blowupGraph the blowup graph
+		  * \param capacity the capacities of the edges in the blowup graph
+		  * \param terminals the terminals in the blowup graph
+		  */
 		void init(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, const List<node> &terminals)
 		{
 			witnessCard.init(blowupGraph, 0);
 			witness.init(blowupGraph);
 
-			// compute splitting set
+			// compute set of core edges
 			EdgeArray<bool> isLossEdge;
-			computeRandomSplittingSet(blowupGraph, terminals, isLossEdge);
+			computeRandomCoreEdges(blowupGraph, terminals, isLossEdge);
 
-			// add nodes for splitting set edges and be able to map them
+			// add nodes for core edges and be able to map them
 			EdgeArray<node> splitMap(blowupGraph, nullptr);
-			ArrayBuffer<edge> splittingSet;
+			ArrayBuffer<edge> coreEdges;
 			for (edge e = blowupGraph.firstEdge(); e; e = e->succ()) {
 				if (!isLossEdge[e]) {
 					splitMap[e] = blowupGraph.newNode();
-					splittingSet.push(e);
+					coreEdges.push(e);
 				}
 			}
 
@@ -314,8 +322,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 					// for each node v "below" an edge e in the traversal:
 					//   add all incident core edges vw to W(e)
 					const node v = stack.popRet();
-					adjEntry adj;
-					forall_adj(adj, v) {
+					for (adjEntry adj : v->adjEntries) {
 						const edge e = adj->theEdge();
 						const node w = adj->twinNode();
 						if (!pred[v] || w != pred[v]->theNode()) { // do not look at backward arcs in the tree
@@ -332,20 +339,21 @@ class MinSteinerTreeGoemans139<T>::UFCR
 				}
 			}
 
-			// finally replace splitting set edges by splitting set nodes
-			for (edge e : splittingSet) {
+			// finally replace core edges by nodes
+			for (edge e : coreEdges) {
 				const T w = blowupGraph.weight(e);
 				const node x = splitMap[e];
 				const int cap = capacity[e];
 				OGDF_ASSERT(x);
 				capacity[blowupGraph.newEdge(e->source(), x, w)] = cap;
 				capacity[blowupGraph.newEdge(x, e->target(), w)] = cap;
-				// the cost of a splitting set node is hence the weight of one incident edge; also keep capacity
+				// the cost of a core edge node is hence the weight of one incident edge; also keep capacity
 				blowupGraph.delEdge(e);
 				addCore(x);
 			}
 		}
 
+		//! Copy witness sets and core edges for a given copy map
 		void makeCopy(const HashArray<edge,edge> &edgeMap)
 		{
 			for (HashConstIterator<edge,edge> pair = edgeMap.begin(); pair.valid(); ++pair) {
@@ -372,18 +380,21 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			}
 		}
 
+		//! Return list of core edges (implemented by nodes)
 		const List<node> &core() const
 		{
 			return m_coreEdges;
 		}
 
-		/* What happens when we remove a core edge?
-		 *  - loss edges are not affected
-		 *  - we have to remove a core edge e from W(f) for all f, which means:
-		 *    for all elements f of witness[v_e], decrease witnessCard[f], then remove witness[v_e]
-		 */
+		//! \brief Remove a core edge
+		//! \note the blowup graph is not affected
 		void delCore(node e)
 		{
+			/* What happens when we remove a core edge?
+			 *  - loss edges are not affected
+			 *  - we have to remove a core edge e from W(f) for all f, which means:
+			 *    for all elements f of witness[v_e], decrease witnessCard[f], then remove witness[v_e]
+			 */
 			for (edge f : witness[e]) {
 				--witnessCard[f];
 			}
@@ -391,20 +402,23 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			m_coreEdges.removeFirst(e);
 		}
 
+		//! Return the number of witnesses of an edge
 		int numberOfWitnesses(edge e) const
 		{
 			return witnessCard[e];
 		}
 
-		// return list of loss edges f with f \in W(e)
+		//! Return list of loss edges f in W(e)
 		const List<edge> &witnessList(node e) const
 		{
 			return witness[e];
 		}
 	};
 
+	//! Obtain and provides information about components in a given blowup graph
 	class BlowupComponents
 	{
+	protected:
 		// To represent Gamma(X) [the set of all components in the blowup graph], we give
 		//  - terminals, source and target the component id 0
 		//  - all other nodes a component id > 0. Nodes with same id belong to the same component.
@@ -420,8 +434,45 @@ class MinSteinerTreeGoemans139<T>::UFCR
 
 		int maxId; // == the size of the arraybuffers
 
+		//! Initialize all information about the component starting with \a rootEdge in the blowup graph.
+		void initializeComponent(edge rootEdge, const EdgeWeightedGraphCopy<T> &blowupGraph, const NodeArray<node> &bgOriginal)
+		{
+			List<node> queue;
+			const node start = rootEdge->target();
+			queue.pushBack(start);
+			componentRootEdge.push(rootEdge);
+			componentTerminals.push(List<node>());
+			List<node> &terms = componentTerminals[maxId];
+			if (!bgOriginal[start]) { // start node is a core edge
+				componentCost.push(blowupGraph.weight(rootEdge));
+			} else {
+				componentCost.push(0);
+			}
+			T &cost = componentCost[maxId];
+			++maxId;
+			while (!queue.empty()) {
+				const node v = queue.popBackRet();
+				componentId[v] = maxId;
+				for (adjEntry adj : v->adjEntries) {
+					const node w = adj->twinNode();
+					if (componentId[w] < 0) {
+						// count coreEdge cost only once
+						if (bgOriginal[v]) { // v is no core edge
+							cost += blowupGraph.weight(adj->theEdge());
+						}
+						if (blowupGraph.original(w)) { // is terminal?
+							terms.pushBack(w);
+						} else {
+							queue.pushBack(w);
+						}
+					}
+				}
+			}
+		}
+
 	public:
-		BlowupComponents(const EdgeWeightedGraphCopy<T> &blowupGraph, const List<node> &bgTerminals, const List<node> &ignores, const NodeArray<node> &bgOriginal)
+		//! Find all components in the blowup graph and initialize information them
+		BlowupComponents(const EdgeWeightedGraphCopy<T> &blowupGraph, const List<node> &bgTerminals, const std::vector<node> &ignores, const NodeArray<node> &bgOriginal)
 		  : componentId(blowupGraph, -1)
 		  , maxId(0)
 		{
@@ -430,45 +481,15 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			}
 
 			for (node t : bgTerminals) {
-				List<node> queue;
-				adjEntry rootAdj;
-				forall_adj(rootAdj, t) {
+				for (adjEntry rootAdj : t->adjEntries) {
 					const edge rootEdge = rootAdj->theEdge();
 					if (rootEdge->source() != t) {
 						continue;
 					}
 					const node r = rootAdj->twinNode();
+					OGDF_ASSERT(r == rootEdge->target());
 					if (componentId[r] < 0) {
-						queue.pushBack(r);
-						componentRootEdge.push(rootEdge);
-						componentTerminals.push(List<node>());
-						List<node> &terms = componentTerminals[maxId];
-						if (!bgOriginal[r]) { // r is core edge
-							componentCost.push(blowupGraph.weight(rootEdge));
-						} else {
-							componentCost.push(0);
-						}
-						T &cost = componentCost[maxId];
-						++maxId;
-						while (!queue.empty()) {
-							const node v = queue.popBackRet();
-							componentId[v] = maxId;
-							adjEntry adj;
-							forall_adj(adj, v) {
-								const node w = adj->twinNode();
-								if (componentId[w] < 0) {
-									// count coreEdge cost only once
-									if (bgOriginal[v]) { // v is no core edge
-										cost += blowupGraph.weight(adj->theEdge());
-									}
-									if (blowupGraph.original(w)) { // is terminal?
-										terms.pushBack(w);
-									} else {
-										queue.pushBack(w);
-									}
-								}
-							}
-						}
+						initializeComponent(rootEdge, blowupGraph, bgOriginal);
 					}
 				}
 			}
@@ -479,34 +500,40 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			}
 		}
 
+		//! Return list of terminals for a given component
 		const List<node> &terminals(int id) const
 		{
 			OGDF_ASSERT(id > 0);
 			return componentTerminals[id-1];
 		}
 
+		//! Return the component id a given node is contained in
 		int id(node v) const
 		{
 			return componentId[v];
 		}
 
+		//! Return total cost of a given component
 		const T &cost(int id) const
 		{
 			OGDF_ASSERT(id > 0);
 			return componentCost[id-1];
 		}
 
+		//! Return number of components
 		int size() const
 		{
 			return maxId;
 		}
 
+		//! Return the edge coming from the root of a given component
 		edge rootEdge(int id) const
 		{
 			OGDF_ASSERT(id > 0);
 			return componentRootEdge[id-1];
 		}
 
+		//! Set the edge coming from the root for a given component
 		void setRootEdge(int id, edge e) // beware of using!
 		{
 			OGDF_ASSERT(id > 0);
@@ -515,7 +542,68 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 	};
 
-	// generates an auxiliary multi-graph for separation: directed, with special source and target, without Steiner vertices of degree 2
+	//! \name Finding full components
+	//! @{
+
+	//! Find full components of size 2
+	void findFull2Components(SubsetEnumerator<node> &terminalSubset);
+	//! Find full components of size 3
+	void findFull3Components(SubsetEnumerator<node> &terminalSubset);
+	//! Find full components
+	void findFullComponents();
+
+	//! Check if a given (sub)graph is a valid full component
+	bool isValidComponent(const EdgeWeightedGraphCopy<T> &graph)
+	{
+		for (edge e : graph.edges) {
+			const node u = graph.original(e->source());
+			const node v = graph.original(e->target());
+			if (m_predAPSP[u][v] == nullptr) {
+				return false;
+			}
+		}
+		for (node v : graph.nodes) {
+			if (m_isTerminal[graph.original(v)] // is a terminal
+			 && v->degree() > 1) { // but not a leaf
+				return false;
+			}
+		}
+		return true;
+	}
+
+	//! @}
+	//! \name LP model generation and separation
+	//! @{
+
+	//! Generate the LP model
+	void generateProblem(bool perturb = false);
+	//! Generate the LP objective
+	void generateObjective(bool perturb);
+	//! Add terminal cover constraints to the LP
+	void addTerminalCoverConstraint();
+	//! Add subset cover constraints to the LP for a given subset of terminals
+	bool addSubsetCoverConstraint(const List<node> &subset);
+	//! Add constraint that the sum of x_C over all components C spanning terminal \a t is at least 1 to ensure y_t >= 0
+	void addYConstraint(const node t);
+
+	//! \brief Separate to ensure that the solution is connected
+	//! \return True iff new constraints have been introduced
+	bool separateConnected(const ArrayBuffer<int> &activeComponents);
+
+	//! \brief Perform the general cut-based separation algorithm
+	//! \return True iff new constraints have been introduced
+	bool separateMinCut(const ArrayBuffer<int> &activeComponents);
+
+	//! \brief Perform the separation algorithm for cycle constraints (to obtain stronger LP solution)
+	//! \return True iff new constraints have been introduced
+	bool separateCycles(const ArrayBuffer<int> &activeComponents);
+
+	//! \brief Perform all available separation algorithms
+	//! \return True iff new constraints have been introduced
+	bool separate();
+
+	//! \brief Generates an auxiliary multi-graph for separation (during LP solving):
+	//!  directed, with special source and target, without Steiner vertices of degree 2
 	double generateMinCutSeparationGraph(const ArrayBuffer<int> &activeComponents, node &source, node &target, GraphCopy &G, EdgeArray<double> &capacity, int &cutsFound)
 	{
 		G.createEmpty(m_G);
@@ -553,8 +641,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			OGDF_ASSERT(v);
 			// compute y_v, simply the sum of all x_C where C contains v and then - 1
 			double y_v(-1);
-			adjEntry adj;
-			forall_adj(adj, v) {
+			for (adjEntry adj : v->adjEntries) {
 				if (adj->twinNode() != source) {
 					y_v += capacity[adj->theEdge()];
 				}
@@ -574,8 +661,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 #if 0
 		// just for output of blow-up graph
-		edge e;
-		forall_edges(e, G) {
+		for (edge e : G.edges) {
 			if (G.original(e->source())) {
 				cout << " T:" << G.original(e->source());
 			} else {
@@ -594,7 +680,11 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		return y_R;
 	}
 
-	// remove inactive components from m_fullCompStore; we do not need them any longer;
+	//! @}
+	//! \name Preliminaries and preprocessing for the approximation algorithm
+	//! @{
+
+	//! Remove inactive components from m_fullCompStore (since we do not need them any longer)
 	void removeInactiveComponents()
 	{
 		// XXX: is it faster to do this backwards? (less copying)
@@ -608,6 +698,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 	}
 
+	//! Remove the full components with the given ids
 	void removeComponents(ArrayBuffer<int> &ids)
 	{
 		ids.quicksort();
@@ -616,7 +707,16 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 	}
 
-	// precondition: every terminal is covered with >= 1
+	//! Add a full component to the final solution (by changing nonterminals to terminals)
+	void addComponent(NodeArray<bool> &isNewTerminal, int id)
+	{
+		m_fullCompStore.foreachNode(id, m_predAPSP, [&](node v) {
+			isNewTerminal[v] = true;
+		});
+	}
+
+	//! \brief Preprocess LP solution
+	//! \pre every terminal is covered with >= 1
 	void preprocess(NodeArray<bool> &isNewTerminal)
 	{
 		Graph H; // a graph where each component is a star
@@ -649,7 +749,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 				it2 = it.succ();
 				node c = *it;
 				int innerNodes = 0; // count inner nodes
-				for (adjEntry adj : c->adjEdges) {
+				for (adjEntry adj : c->adjEntries) {
 					innerNodes += (adj->twinNode()->degree() != 1);
 				}
 				if (innerNodes <= 1) { // this center represents a component to add to steinerTree
@@ -669,8 +769,12 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		removeComponents(inactive);
 	}
 
-	// inserts (based on m_distance and m_predAPSP) a shortest path from a component, directed, into
-	// the blowupGraph and sets weights and capacity accordingly
+	//! @}
+	//! \name The approximation algorithm
+	//! @{
+
+	//! \brief Inserts (based on m_distance and m_predAPSP) a shortest path from a component, directed, into
+	//! the blowupGraph and sets weights and capacity accordingly
 	void insertShortestPathIntoBlowupGraph(EdgeWeightedGraphCopy<T> &blowupGraph, NodeArray<node> &bgOriginal, EdgeArray<int> &capacity, node s, node t, const node vC, const node wC, int cap)
 	{
 		if (m_ssspDistances
@@ -692,7 +796,8 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 	}
 
-	// generates a special-purpose blowup graph for gammoid computation: directed, with special source and target, with splitting set *nodes*
+	//! \brief Generates a special-purpose blowup graph for gammoid computation:
+	//!  directed, with special source and target, with core edges (implemented as nodes)
 	int generateGammoidGraph(node &source, node &target, CoreWitness &cw, EdgeWeightedGraphCopy<T> &blowupGraph, NodeArray<node> &bgOriginal, List<node> &bgTerminals, EdgeArray<int> &capacity, int &y_R) const
 	{
 		List<int> denominators;
@@ -710,7 +815,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 
 		blowupGraph.createEmpty(m_G);
-		bgOriginal.init(blowupGraph, NULL);
+		bgOriginal.init(blowupGraph, nullptr);
 		for (node t : m_terminals) { // generate all terminals
 			const node v = blowupGraph.newNode(t);
 			bgTerminals.pushBack(v);
@@ -771,7 +876,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			}
 		}
 
-		// compute splitting set (and replace these edges by nodes)
+		// compute core edges (and replace these edges by nodes)
 		// and witness sets
 		cw.init(blowupGraph, capacity, bgTerminals);
 
@@ -788,8 +893,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			int y_v = -lcm;
 			// compute y_v, the number of components containing v in the blow up graph - N
 			// NOTE: for the non-blowup variant this is simply the sum of all x_C where C contains v ... - 1
-			adjEntry adj;
-			forall_adj(adj, v) {
+			for (adjEntry adj : v->adjEntries) {
 				if (adj->twinNode() != source) {
 					y_v += capacity[adj->theEdge()];
 				}
@@ -804,18 +908,21 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		return lcm;
 	}
 
+	//! Computes the rank of the gammoid (given by the blowup graph)
 	int gammoidGetRank(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, const node source, const node target) const
 	{
 		MaxFlowGoldbergTarjan<int> maxFlow(blowupGraph);
 		return maxFlow.computeValue(capacity, source, target);
 	}
 
+	//! \brief Finds the best component and its maximum-weight basis in the given blowup graph with given core and witness set
+	//! \return The component id of the best component
 	int findComponentAndMaxBasis(List<std::pair<node,int>> *&maxBasis, EdgeWeightedGraphCopy<T> &blowupGraph, const List<node> &bgTerminals, const CoreWitness &cw, EdgeArray<int> &capacity, const BlowupComponents &gamma, const int N, const int y_R, const node source, const node target)
 	{
 		// there should always be saturated flow to the component roots
 		// (contracted matroid)
 		EdgeArray<int> lB(blowupGraph, 0);
-		for (adjEntry adj : source->adjEdges) {
+		for (adjEntry adj : source->adjEntries) {
 			const edge e = adj->theEdge();
 			lB[e] = capacity[e];
 		}
@@ -849,7 +956,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			/* We want to find maximum-weight basis B \in B^K_Q
 			 * B_Q = minimal edge set to remove after contracting Q to obtain feasible solution (blowup graph)
 			 *     = bases of gammoid M_Q
-			 * B^K_Q = { B \in B_Q | B \subseteq K }  [K is the splitting set]
+			 * B^K_Q = { B \in B_Q | B \subseteq K }  [K is the set of core edges]
 			 *       = bases of gammoid M^K_Q
 			 * M^K_Q is gammoid "obtained by restricting M_Q to K"
 			 * M_Q = M'_Q / X'  (M'_Q contracted by X') is a gammoid
@@ -921,14 +1028,36 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		return 0; // no component chosen, fail
 	}
 
-	// does not insert the component into the steiner tree, but add new terminals
+	//! \brief For the end of the algorithm: find cheapest component and choose all remaining core edges as basis
+	//! \return The component id of the cheapest component
+	int findCheapestComponentAndRemainingBasis(List<std::pair<node,int>> *&maxBasis, const CoreWitness &cw, EdgeArray<int> &capacity, const BlowupComponents &gamma)
+	{
+		// find cheapest component
+		int compId = 0;
+		double cost = 0;
+		for (int id = 1; id <= gamma.size(); ++id) {
+			if (gamma.cost(id) > cost) {
+				cost = gamma.cost(id);
+				compId = id;
+			}
+		}
+		// use all core edges as basis
+		maxBasis = new List<std::pair<node,int>>();
+		for (node v : cw.core()) {
+			edge tmp = v->lastAdj()->theEdge();
+			maxBasis->pushBack(std::pair<node,int>(v, capacity[tmp]));
+		}
+		return compId;
+	}
+
+	//! Add a component of the blowup graph to the final solution (by changing nonterminals to terminals)
 	void addComponent(NodeArray<bool> &isNewTerminal, const EdgeWeightedGraphCopy<T> &blowupGraph, const NodeArray<node> &bgOriginal, const edge rootEdge)
 	{
 		OGDF_ASSERT(blowupGraph.original(rootEdge->source()));
 		List<node> stack;
 		stack.pushBack(rootEdge->target());
 		while (!stack.empty()) {
-			const node v = stack.popBackRet();;
+			const node v = stack.popBackRet();
 			if (blowupGraph.original(v)) { // v is terminal
 				continue;
 			}
@@ -936,7 +1065,7 @@ class MinSteinerTreeGoemans139<T>::UFCR
 			if (vO) {
 				isNewTerminal[vO] = true;
 			}
-			for (adjEntry adj : v->adjEdges) {
+			for (adjEntry adj : v->adjEntries) {
 				const node w = adj->theEdge()->target();
 				if (v != w) { // outgoing edge
 					stack.pushBack(w);
@@ -945,16 +1074,12 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 	}
 
-	void addComponent(NodeArray<bool> &isNewTerminal, int id)
-	{
-		m_fullCompStore.foreachNode(id, m_predAPSP, [&](node v) {
-			isNewTerminal[v] = true;
-		});
-	}
-
-	// copy a component and set original capacity to origCap and capacity of copy to copyCap
+	//! Copy a component in the blowup graph and set original capacity to \a origCap and capacity of copy to \a copyCap
 	void copyComponent(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, CoreWitness &cw, NodeArray<node> &bgOriginal, const edge origEdge, const int origCap, const int copyCap)
 	{
+		if (copyCap == 0) {
+			return;
+		}
 		List<edge> todo;
 		List<node> origin;
 		HashArray<edge,edge> edgeMap;
@@ -984,8 +1109,8 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		cw.makeCopy(edgeMap);
 	}
 
-	// remove basis and cleanup, v is a core edge-node of the maximum basis
-	void removeBasisAndCleanup(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, BlowupComponents &gamma, node v, const node source, const node pseudotarget, const int N)
+	//! Remove basis (given by \a v, a core edge node of the maximum basis) and cleanup
+	void removeBasisAndCleanup(EdgeWeightedGraphCopy<T> &blowupGraph, BlowupComponents &gamma, node v, const node source, const node pseudotarget, const int N)
 	{
 		List<node> cleanup;
 		cleanup.pushBack(v->firstAdj()->twinNode());
@@ -1023,7 +1148,43 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		}
 	}
 
-	// update arc capacities s->v and v->t
+	//! Remove a given basis and cleanup, the basis may be given fractionally
+	void removeFractionalBasisAndCleanup(List<std::pair<node,int>> &basis, EdgeWeightedGraphCopy<T> &blowupGraph, NodeArray<node> &bgOriginal, EdgeArray<int> &capacity, BlowupComponents &gamma, CoreWitness &cw, const node source, const node pseudotarget, const int N)
+	{
+		// remove B from K (K := K \ B) and from blowup graph (X := X - B)
+		// and, while at it, remove cleanup edges from blowup graph (X := X - F)
+		// and fix components that have no incoming edges
+		List<Prioritized<node, int>> fractionalCoreEdges; // we defer fractional basis elements
+		for (std::pair<node,int> p : basis) {
+			const node v = p.first;
+			const int count = p.second;
+			OGDF_ASSERT(v->degree() == 2);
+			int origCap = capacity[v->firstAdj()->theEdge()];
+			OGDF_ASSERT(count <= origCap);
+			if (count < origCap) { // only remove a fraction?
+				fractionalCoreEdges.pushBack(Prioritized<node,int>(v, -count));
+			} else {
+				// we are deleting the core edge from the whole component
+				cw.delCore(v);
+				removeBasisAndCleanup(blowupGraph, gamma, v, source, pseudotarget, N);
+			}
+		}
+		fractionalCoreEdges.quicksort(); // sort decreasing by flow value
+		for (Prioritized<node,int> p : fractionalCoreEdges) {
+			const node v = p.item();
+			const int count = -p.priority();
+			OGDF_ASSERT(v->degree() == 2);
+			int origCap = capacity[v->firstAdj()->theEdge()];
+			OGDF_ASSERT(count <= origCap);
+			// copy (split) the component
+			copyComponent(blowupGraph, capacity, cw, bgOriginal, gamma.rootEdge(gamma.id(v)), count, origCap - count);
+			// we are deleting the core edge from the whole component
+			cw.delCore(v);
+			removeBasisAndCleanup(blowupGraph, gamma, v, source, pseudotarget, N);
+		}
+	}
+
+	//! Update arc capacities s->v and v->t
 	int updateSourceAndTargetArcCapacities(EdgeWeightedGraphCopy<T> &blowupGraph, EdgeArray<int> &capacity, const node v, const node source, const node pseudotarget, const int N)
 	{
 		int delta = 0;
@@ -1062,40 +1223,13 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		return delta + capTarget;
 	}
 
-	bool isValidComponent(const EdgeWeightedGraphCopy<T> &graph)
-	{
-		for (edge e : graph.edges) {
-			const node u = graph.original(e->source());
-			const node v = graph.original(e->target());
-			if (m_predAPSP[u][v] == nullptr) {
-				return false;
-			}
-		}
-		for (node v : graph.nodes) {
-			if (m_isTerminal[graph.original(v)] // is a terminal
-			 && v->degree() > 1) { // but not a leaf
-				return false;
-			}
-		}
-		return true;
-	}
+	//! Perform the actual approximation algorithm on the LP solution
+	void doGoemansApproximation(NodeArray<bool> &isNewTerminal);
 
-	void findFull2Components(SubsetEnumerator<node> &terminalSubset);
-	void findFull3Components(SubsetEnumerator<node> &terminalSubset);
-	void findFullComponents();
-
-	void generateProblem(bool perturb = false);
-	void generateObjective(bool perturb);
-	void addTerminalCoverConstraint();
-	bool addSubsetCoverConstraint(const List<node> &subset);
-	void addYConstraint(const node t);
-
-	bool separateConnected(const ArrayBuffer<int> &activeComponents);
-	bool separateMinCut(const ArrayBuffer<int> &activeComponents);
-	bool separateCycles(const ArrayBuffer<int> &activeComponents);
-	bool separate();
+	//! @}
 
 public:
+	//! Initialize all attributes, sort the terminal list
 	UFCR(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal)
 	  : m_G(G)
 	  , m_isTerminal(isTerminal)
@@ -1110,7 +1244,7 @@ public:
 	  , m_lowerBounds(nullptr)
 	  , m_upperBounds(nullptr)
 	  , m_restricted(3)
-	  , m_use2approx(0)
+	  , m_use2approx(Approx2State::Off)
 	  , m_ssspDistances(true)
 	  , m_separateCycles(false)
 #ifdef OGDF_STEINERTREE_GOEMANS139_SEPARATE_CONNECTED_COMPONENTS
@@ -1139,9 +1273,10 @@ public:
 		delete m_osiSolver;
 	}
 
+	//! Perform basic initialization algorithms: find shortest paths, find the full components, generate the LP model
 	void init(bool perturb = false)
 	{
-		if (m_use2approx) { // add upper bound by 2-approximation
+		if (m_use2approx != Approx2State::Off) { // add upper bound by 2-approximation
 			MinSteinerTreeTakahashi<T> mstT;
 			m_approx2Weight = mstT.call(m_G, m_terminals, m_isTerminal, m_approx2SteinerTree, m_G.firstNode());
 		}
@@ -1190,47 +1325,50 @@ public:
 #endif
 	}
 
+	//! Set the maximum full component size to generate
 	void setMaxComponentSize(int restricted)
 	{
 		m_restricted = restricted;
 	}
 
+	//! Define if we want to use a 2-approximation as bound
 	void use2Approximation(bool use2approx)
 	{
-		m_use2approx = int(use2approx);
+		m_use2approx = use2approx ? Approx2State::On : Approx2State::Off;
 	}
 
+	//! Define if we want to use cycle constraints for a stronger LP
 	void addCycleConstraints(bool add = true)
 	{
 		m_separateCycles = add;
 	}
 
+	//! Define if APSP shortest path algorithm should be used even if SSSP can be used
 	void forceAPSP(bool force = true)
 	{
 		m_ssspDistances = !force;
 	}
 
+	//! Solve the LP
 	void solve();
-	void write();
 
-	void doGoemans(NodeArray<bool> &isNewTerminal);
+	//! Obtain an (1.39+epsilon)-approximation based on the LP solution
 	T getApproximation(EdgeWeightedGraphCopy<T> *&finalSteinerTree, const std::minstd_rand &rng, const bool doPreprocessing = true);
 };
 
 template<typename T>
 void
-MinSteinerTreeGoemans139<T>::UFCR::doGoemans(NodeArray<bool> &isNewTerminal)
+MinSteinerTreeGoemans139<T>::UFCR::doGoemansApproximation(NodeArray<bool> &isNewTerminal)
 {
 	node source;
 	node pseudotarget;
 	EdgeWeightedGraphCopy<T> blowupGraph;
-	// XXX: we have bgOriginal -- so we do not need blowupGraph to be a GraphCopy
 	int y_R;
 
 	CoreWitness cw(m_rng);
 	EdgeArray<int> capacity;
 	List<node> bgTerminals;
-	NodeArray<node> bgOriginal; // original node of a node in blowupGraph (if contracted: just one of it); if NULL: core edge or special node like source, pseudotarget or target
+	NodeArray<node> bgOriginal; // original node of a node in blowupGraph (if contracted: just one of it); if nullptr: core edge or special node like source, pseudotarget or target
 	const int N = generateGammoidGraph(source, pseudotarget, cw, blowupGraph, bgOriginal, bgTerminals, capacity, y_R);
 	// Since we contract terminal nodes in the blow-up graph, the blowup graph
 	// needs its own terminal data structures.
@@ -1240,78 +1378,27 @@ MinSteinerTreeGoemans139<T>::UFCR::doGoemans(NodeArray<bool> &isNewTerminal)
 	node target = blowupGraph.newNode();
 	capacity[blowupGraph.newEdge(pseudotarget, target, 0)] = y_R;
 
-	List<node> ignores;
-	ignores.pushBack(source);
-	ignores.pushBack(pseudotarget);
-	ignores.pushBack(target);
-
-	while (bgTerminals.size() > 1) { // T is not a steiner tree
+	while (bgTerminals.size() > 1) { // T is not a Steiner tree
 		// TODO: maybe we should initially compute the blowup components when we *build*
 		//       the gammoid graph and update it on each delEdge/delNode
-		BlowupComponents gamma(blowupGraph, bgTerminals, ignores, bgOriginal); // Gamma(X)
+		BlowupComponents gamma(blowupGraph, bgTerminals, {source, pseudotarget, target}, bgOriginal); // Gamma(X)
 
 		OGDF_ASSERT(isLoopFree(blowupGraph));
 
 		// take a component Q in Gamma(X)
 		List<std::pair<node,int>> *maxBasis;
-		int compId = 0;
-		if (y_R > 0) {
-			compId = findComponentAndMaxBasis(maxBasis, blowupGraph, bgTerminals, cw, capacity, gamma, N, y_R, source, target);
-		} else { // y_R == 0
-			// find cheapest component
-			double cost = 0;
-			for (int id = 1; id <= gamma.size(); ++id) {
-				if (gamma.cost(id) > cost) {
-					cost = gamma.cost(id);
-					compId = id;
-				}
-			}
-			// use all core edges as basis
-			maxBasis = new List<std::pair<node,int>>();
-			for (node v : cw.core()) {
-				edge tmp = v->lastAdj()->theEdge();
-				maxBasis->pushBack(std::pair<node,int>(v, capacity[tmp]));
-			}
-		}
+		int compId = y_R > 0
+		     ? findComponentAndMaxBasis(maxBasis, blowupGraph, bgTerminals, cw,
+		         capacity, gamma, N, y_R, source, target)
+		     : findCheapestComponentAndRemainingBasis(maxBasis, cw, capacity, gamma);
 		OGDF_ASSERT(compId);
 
 		// add component Q to T
 		addComponent(isNewTerminal, blowupGraph, bgOriginal, gamma.rootEdge(compId));
 
-		// remove B from K (K := K \ B) and from blowup graph (X := X - B)
-		// and, while at it, remove cleanup edges from blowup graph (X := X - F)
-		// and fix components that have no incoming edges
-		List<Prioritized<node, int>> fractionalCoreEdges; // we defer fractional basis elements
-		for (std::pair<node,int> p : *maxBasis) {
-			const node v = p.first;
-			const int count = p.second;
-			OGDF_ASSERT(v->degree() == 2);
-			int origCap = capacity[v->firstAdj()->theEdge()];
-			OGDF_ASSERT(count <= origCap);
-			if (count < origCap) { // only remove a fraction?
-				fractionalCoreEdges.pushBack(Prioritized<node,int>(v, -count));
-			} else {
-				// we are deleting the core edge from the whole component
-				cw.delCore(v);
-				removeBasisAndCleanup(blowupGraph, capacity, gamma, v, source, pseudotarget, N);
-			}
-		}
+		// remove (maybe fractional) basis and do all the small things necessary for update
+		removeFractionalBasisAndCleanup(*maxBasis, blowupGraph, bgOriginal, capacity, gamma, cw, source, pseudotarget, N);
 		delete maxBasis;
-		fractionalCoreEdges.quicksort(); // sort decreasing by flow value
-		for (Prioritized<node,int> p : fractionalCoreEdges) {
-			const node v = p.item();
-			const int count = -p.priority();
-			OGDF_ASSERT(v->degree() == 2);
-			int origCap = capacity[v->firstAdj()->theEdge()];
-			OGDF_ASSERT(count < origCap);
-			// copy (split) the component
-			copyComponent(blowupGraph, capacity, cw, bgOriginal, gamma.rootEdge(gamma.id(v)), count, origCap - count);
-			// we are deleting the core edge from the whole component
-			cw.delCore(v);
-			removeBasisAndCleanup(blowupGraph, capacity, gamma, v, source, pseudotarget, N);
-		}
-		/* XXX: we also could have sorted it at the beginning (without deferring).
-		 *      This way, the list (to be sorted) is much smaller (or even empty). */
 
 		// contract (X := X / Q)
 		ListConstIterator<node> it0 = gamma.terminals(compId).begin();
@@ -1347,7 +1434,7 @@ template<typename T>
 T
 MinSteinerTreeGoemans139<T>::UFCR::getApproximation(EdgeWeightedGraphCopy<T> *&finalSteinerTree, const std::minstd_rand &rng, const bool doPreprocessing)
 {
-	if (m_use2approx == 2) {
+	if (m_use2approx == Approx2State::JustUseIt) {
 		// no remaining components
 		finalSteinerTree = m_approx2SteinerTree;
 		return m_approx2Weight;
@@ -1357,7 +1444,7 @@ MinSteinerTreeGoemans139<T>::UFCR::getApproximation(EdgeWeightedGraphCopy<T> *&f
 	const double *constSol = m_osiSolver->getColSolution();
 	const int numberOfColumns = m_osiSolver->getNumCols();
 
-	for(int i = 0; i < numberOfColumns; i++) {
+	for (int i = 0; i < numberOfColumns; i++) {
 		m_fullCompStore.extra(i) = constSol[i];
 	}
 
@@ -1373,11 +1460,11 @@ MinSteinerTreeGoemans139<T>::UFCR::getApproximation(EdgeWeightedGraphCopy<T> *&f
 	}
 
 	if (!m_fullCompStore.isEmpty()) {
-		doGoemans(isNewTerminal);
+		doGoemansApproximation(isNewTerminal);
 	}
 
 	T cost = steinertree::obtainFinalSteinerTree(m_G, isNewTerminal, m_isTerminal, finalSteinerTree);
-	if (m_use2approx) {
+	if (m_use2approx != Approx2State::Off) {
 		if (m_approx2Weight < cost) {
 			delete finalSteinerTree;
 			finalSteinerTree = m_approx2SteinerTree;
@@ -1408,7 +1495,7 @@ MinSteinerTreeGoemans139<T>::UFCR::generateProblem(bool perturb)
 	generateObjective(perturb);
 	m_osiSolver->loadProblem(*m_matrix, m_lowerBounds, m_upperBounds, m_objective, nullptr, nullptr);
 
-	if (m_use2approx) { // add upper bound by 2-approximation
+	if (m_use2approx != Approx2State::Off) { // add upper bound by 2-approximation
 		CoinPackedVector row(m_objective);
 		m_osiSolver->addRow(row, 0, m_approx2Weight);
 	}
@@ -1438,8 +1525,6 @@ MinSteinerTreeGoemans139<T>::UFCR::addYConstraint(const node t)
 {
 	CoinPackedVector row;
 
-	// sum over all components C containing t of x_C is at least 1
-	// to assure y_t >= 0
 	for (int i = 0; i < m_fullCompStore.size(); ++i) {
 		if (m_fullCompStore.isTerminal(i, t)) { // component spans terminal
 			row.insert(i, 1);
@@ -1594,7 +1679,7 @@ MinSteinerTreeGoemans139<T>::UFCR::solve()
 	bool initialIteration = true;
 
 	do {
-		if(initialIteration) {
+		if (initialIteration) {
 			m_osiSolver->initialSolve();
 			initialIteration = false;
 		} else {
@@ -1603,8 +1688,8 @@ MinSteinerTreeGoemans139<T>::UFCR::solve()
 
 		if (!m_osiSolver->isProvenOptimal()) {
 			// infeasible:
-			if (m_use2approx) {
-				m_use2approx = 2;
+			if (m_use2approx != Approx2State::Off) {
+				m_use2approx = Approx2State::JustUseIt;
 				break;
 			} else {
 				cerr << "Failed to optimize LP!" << endl;
@@ -1851,5 +1936,3 @@ T MinSteinerTreeGoemans139<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 }
 
 } // end namespace
-
-#endif /* MIN_STEINER_TREE_GOEMANS139_OGDF_H_ */

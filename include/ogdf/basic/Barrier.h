@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_THREAD_BARRIER_H
-#define OGDF_THREAD_BARRIER_H
 
 #include <ogdf/basic/basic.h>
 
@@ -48,54 +42,52 @@
 
 namespace ogdf {
 
-	//! Representation of a barrier.
+//! Representation of a barrier.
+/**
+ * @ingroup threads
+ *
+ * A barrier is used for synchronizing threads. A barrier for a group of threads means
+ * that all threads in the group must have reached the barrier before any of the threads
+ * may proceed executing code after the barrier.
+ */
+class Barrier {
+
+	std::condition_variable m_allThreadsReachedSync;
+	std::mutex m_numThreadsReachedSyncLock;
+
+	uint32_t m_threadCount;				//!< the number of threads in the group.
+	uint32_t m_numThreadsReachedSync;	//!< number of htreads that reached current synchronization point.
+	uint32_t m_syncNumber;				//!< number of current synchronization point.
+
+public:
+
+	//! Creates a barrier for a group of \a numThreads threads.
+	Barrier(uint32_t numThreads) : m_threadCount(numThreads) {
+		m_numThreadsReachedSync = 0;
+		m_syncNumber = 0;
+	}
+
+	//! Synchronizes the threads in the group.
 	/**
-	 * @ingroup threads
-	 *
-	 * A barrier is used for synchronizing threads. A barrier for a group of threads means
-	 * that all threads in the group must have reached the barrier before any of the threads
-	 * may proceed executing code after the barrier.
+	 * Each thread proceeds only after all threads in the group have reached the barrier.
+	 * A barrier may be used for several synchronization points.
 	 */
-	class Barrier {
+	void threadSync() {
+		std::unique_lock<std::mutex> lk(m_numThreadsReachedSyncLock);
 
-		std::condition_variable m_allThreadsReachedSync;
-		std::mutex m_numThreadsReachedSyncLock;
-
-		uint32_t m_threadCount;				//!< the number of threads in the group.
-		uint32_t m_numThreadsReachedSync;	//!< number of htreads that reached current synchronization point.
-		uint32_t m_syncNumber;				//!< number of current synchronization point.
-
-	public:
-
-		//! Creates a barrier for a group of \a numThreads threads.
-		Barrier(uint32_t numThreads) : m_threadCount(numThreads) {
+		uint32_t syncNr = m_syncNumber;
+		m_numThreadsReachedSync++;
+		if (m_numThreadsReachedSync == m_threadCount) {
+			m_syncNumber++;
+			m_allThreadsReachedSync.notify_all();
 			m_numThreadsReachedSync = 0;
-			m_syncNumber = 0;
+
+		} else {
+			m_allThreadsReachedSync.wait(lk, [syncNr,this]{return syncNr != m_syncNumber; });
 		}
+	}
 
-		//! Synchronizes the threads in the group.
-		/**
-		 * Each thread proceeds only after all threads in the group have reached the barrier.
-		 * A barrier may be used for several synchronization points.
-		 */
-		void threadSync() {
-			std::unique_lock<std::mutex> lk(m_numThreadsReachedSyncLock);
-
-			uint32_t syncNr = m_syncNumber;
-			m_numThreadsReachedSync++;
-			if (m_numThreadsReachedSync == m_threadCount) {
-				m_syncNumber++;
-				m_allThreadsReachedSync.notify_all();
-				m_numThreadsReachedSync = 0;
-
-			} else {
-				m_allThreadsReachedSync.wait(lk, [syncNr,this]{return syncNr != m_syncNumber; });
-			}
-		}
-
-	};
+};
 
 
 } // end of namespace ogdf
-
-#endif //OGDF_THREAD_BARRIER_H

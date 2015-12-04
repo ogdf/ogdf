@@ -6,8 +6,8 @@ namespace bandit { namespace detail {
   struct assertion_exception : public std::runtime_error
   {
     assertion_exception(const std::string& message,
-        const std::string& file_name, const unsigned int line_number)
-      : std::runtime_error(message), file_name_(file_name), line_number_(line_number)
+        const std::string& filename, const unsigned int linenumber)
+      : std::runtime_error(message), file_name_(filename), line_number_(linenumber)
     {}
 
     assertion_exception(const std::string& message)

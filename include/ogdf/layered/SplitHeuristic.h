@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SPLIT_HEURISTIC_H
-#define OGDF_SPLIT_HEURISTIC_H
-
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/layered/CrossingsMatrix.h>
@@ -85,5 +79,3 @@ private:
 };
 
 }// end namespace ogdf
-
-#endif

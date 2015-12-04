@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_IMPL_RM_HEAP_H
-#define OGDF_IMPL_RM_HEAP_H
-
 
 #include <functional>
 #include <random>
@@ -303,6 +296,3 @@ void RMHeap<T, C>::release(RMHeapNode<T> *node)
 }
 
 } // end namespace ogdf
-
-
-#endif

@@ -33,17 +33,11 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BOYER_MYRVOLD_PLANAR_H
-#define OGDF_BOYER_MYRVOLD_PLANAR_H
 
 #include <random>
-#include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Stack.h>
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/SList.h>
@@ -477,5 +471,3 @@ protected:
 
 
 }
-
-#endif

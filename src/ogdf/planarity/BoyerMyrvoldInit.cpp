@@ -138,7 +138,7 @@ void BoyerMyrvoldInit::computeDFS()
 			++nextDFI;
 		} else {
 			adjList.clear();
-			m_g.adjEntries(v, adjList);
+			v->allAdjEntries(adjList);
 			adjList.quicksort(comp);
 			m_g.sort(v, adjList);
 			stack.push(v->firstAdj());
@@ -162,7 +162,7 @@ void BoyerMyrvoldInit::computeDFS()
 		++nextDFI;
 
 		// push all adjacent nodes onto stack
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if (adj == prnt && parentNode != nullptr) continue;
 

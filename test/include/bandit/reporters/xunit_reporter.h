@@ -51,6 +51,13 @@ namespace bandit { namespace detail {
       work_stm_ << "\t</testcase>\n";
     }
 
+    void it_list(const char* desc)
+    {
+      progress_reporter::it_list(desc);
+      work_stm_ << "\t<testcase classname=\"" << escape(current_context_name()) << "\" ";
+      work_stm_ << "name=\"" << escape(desc) << "\" time=\"0\"/>\n";
+    }
+
     void test_run_complete()
     {
       stm_ << "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";

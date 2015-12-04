@@ -154,7 +154,7 @@ void PlanarDrawLayout::computeCoordinates(const Graph &G,
 
 	for(node v : G.nodes)
 	{
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			int r = order.rank(adj->twinNode());
 			if (r > maxNeighbour[v])
 				maxNeighbour[v] = r;

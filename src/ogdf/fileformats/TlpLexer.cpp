@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/fileformats/TlpLexer.h>
+#include <ogdf/fileformats/GraphIO.h>
 
 
 namespace ogdf {
@@ -160,7 +161,7 @@ bool Lexer::tokenizeLine()
 		return tokenizeIdentifier() && tokenizeLine();
 	}
 
-	OGDF_ERROR("Unexpected character \"" << *m_begin << "\" at (" << line() << ", " << column() << ").");
+	GraphIO::logger.lout() << "Unexpected character \"" << *m_begin << "\" at (" << line() << ", " << column() << ")." << endl;
 	return false;
 }
 
@@ -174,7 +175,7 @@ bool Lexer::tokenizeString()
 	for(;;) {
 		// Check whether we need to refill the buffer.
 		if(m_begin == m_end && !fetchBuffer()) {
-			OGDF_ERROR("End of input while parsing a string at (" << token.line << ", " << token.column << ").");
+			GraphIO::logger.lout() << "End of input while parsing a string at (" << token.line << ", " << token.column << ")." << endl;
 			return false;
 		}
 

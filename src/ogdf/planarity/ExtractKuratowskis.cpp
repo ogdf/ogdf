@@ -60,7 +60,7 @@ void DynamicBacktrack::init(
 	// init stack
 	stack.clear();
 	if (startInclude == nullptr) {
-		for (adjEntry adj : start->adjEdges) {
+		for (adjEntry adj : start->adjEntries) {
 			if (((m_flags[adj->theEdge()] & startFlag) == startFlag) &&
 				adj->theEdge() != startExlude) {
 				stack.push(nullptr);
@@ -69,7 +69,7 @@ void DynamicBacktrack::init(
 		}
 	}
 	else {
-		for (adjEntry adj : start->adjEdges) {
+		for (adjEntry adj : start->adjEntries) {
 			if (adj->theEdge() == startInclude &&
 				(m_flags[adj->theEdge()] & startFlag) == startFlag) {
 				stack.push(nullptr);
@@ -135,7 +135,7 @@ bool DynamicBacktrack::addNextPath(SListPure<edge>& list, node& endnode) {
 		}
 
 		// push all possible child-nodes
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			// if edge is signed and target node was not visited before
 			if ((m_flags[adj->theEdge()] & flag) && (m_parent[adj->twinNode()] == nullptr)) {
 				stack.push(nullptr);
@@ -211,7 +211,7 @@ bool DynamicBacktrack::addNextPathExclude(
 		}
 
 		// push all possible child-nodes
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			node x = adj->twinNode();
 			edge e = adj->theEdge();
 			// if edge is signed and target node was not visited before
@@ -339,8 +339,8 @@ int ExtractKuratowskis::whichKuratowskiArray(
 		};
 
 		for (int i = 0; i<6; ++i) {
-			edge e;
-			forall_adj_edges(e, K33Nodes[i]) {
+			for(adjEntry adj : K33Nodes[i]->adjEntries) {
+				edge e = adj->theEdge();
 				if (edgenumber[e] > 0) { // not visited
 					edgenumber[e] = -2; // visited
 					node v = e->opposite(K33Nodes[i]);
@@ -348,7 +348,10 @@ int ExtractKuratowskis::whichKuratowskiArray(
 					while (nodenumber[v] != 3) {
 						nodenumber[v] = -2; // visited
 						edge ed;
-						forall_adj_edges(ed, v) if (edgenumber[ed] > 0) break;
+						for(adjEntry adj : v->adjEntries) {
+							ed = adj->theEdge();
+							if (edgenumber[ed] > 0) break;
+						}
 						OGDF_ASSERT(edgenumber[ed] > 0);
 						edgenumber[ed] = -2; // visited
 						v = ed->opposite(v);
@@ -386,8 +389,8 @@ int ExtractKuratowskis::whichKuratowskiArray(
 			return ExtractKuratowskis::none;
 		}
 		for (int i = 0; i<5; ++i) {
-			edge e;
-			forall_adj_edges(e, K5Nodes[i]) {
+			for(adjEntry adj : K5Nodes[i]->adjEntries) {
+				edge e = adj->theEdge();
 				if (edgenumber[e] > 0) { // not visited
 					edgenumber[e] = -2; // visited
 					node v = e->opposite(K5Nodes[i]);
@@ -395,7 +398,10 @@ int ExtractKuratowskis::whichKuratowskiArray(
 					while (nodenumber[v] != 4) {
 						nodenumber[v] = -2; // visited
 						edge ed;
-						forall_adj_edges(ed, v) if (edgenumber[ed] > 0) break;
+						for(adjEntry adj : v->adjEntries) {
+							ed = adj->theEdge();
+							if (edgenumber[ed] > 0) break;
+						}
 						if (edgenumber[ed] <= 0) break;
 						edgenumber[ed] = -2; // visited
 						v = ed->opposite(v);
@@ -434,7 +440,7 @@ bool ExtractKuratowskis::isANewKuratowski(
 			}
 		}
 		if (!differentEdgeFound) {
-			OGDF_ERROR("Kuratowski is already in list as subdivisiontype " << (*itW).subdivisionType);
+			Logger::slout() << "Kuratowski is already in list as subdivisiontype " << (*itW).subdivisionType << endl;
 			return false;
 		}
 	}
@@ -459,7 +465,7 @@ inline adjEntry ExtractKuratowskis::adjToLowestNodeBelow(node high, int low)
 {
 	int result = 0;
 	adjEntry resultAdj = nullptr;
-	for (adjEntry adj : high->adjEdges) {
+	for (adjEntry adj : high->adjEntries) {
 		int temp = m_dfi[adj->twinNode()];
 		if (temp >= low && (result == 0 || temp < result)) {
 			result = temp;

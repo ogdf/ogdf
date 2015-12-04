@@ -32,16 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PQ_LEAF_H
-#define OGDF_PQ_LEAF_H
-
-
 
 #include <ogdf/internal/planarity/PQNode.h>
 
@@ -249,5 +240,3 @@ private:
 };
 
 }
-
-#endif

@@ -194,8 +194,8 @@ void ClusterStructure::sortChildren(
 	ListConstIterator<node> it;
 	for(it = nodes.begin(); it.valid(); ++it)
 	{
-		edge e;
-		forall_adj_edges(e,*it) {
+		for(adjEntry adj : (*it)->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->opposite(*it);
 			if (m_clusterOf[w] != i)
 				posList[m_clusterOf[w]].pushBack(pos);
@@ -346,8 +346,8 @@ CircleGraph::CircleGraph(
 
 	for(it = C.m_nodesIn[c].begin(); it.valid(); ++it)
 	{
-		edge e;
-		forall_adj_edges(e,*it) {
+		for(adjEntry adj : (*it)->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if (w == *it) continue;
 
@@ -438,8 +438,8 @@ void CircleGraph::dfs(
 	depth [v] = d;
 	father[v] = f;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node w = e->opposite(v);
 		if(w == f) continue;
 
@@ -479,15 +479,15 @@ void CircleGraph::swapping(List<node> &nodes, int maxIterations)
 				// we count how many crossings we save when swapping u and v
 				int improvementCrosings = 0;
 
-				edge ux;
-				forall_adj_edges(ux,u) {
+				for(adjEntry adj : u->adjEntries) {
+					edge ux = adj->theEdge();
 					node x = ux->opposite(u);
 					if(x == v) continue;
 
 					int posX = (pos[x] + offset) % n;
 
-					edge vy;
-					forall_adj_edges(vy,v) {
+					for(adjEntry adj : v->adjEntries) {
+						edge vy = adj->theEdge();
 						node y = vy->opposite(v);
 						if (y == u || y == x) continue;
 
@@ -1360,7 +1360,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			else if(gamma >= 3*Math::pi/2)
 				preferedDirection[*itC] = qcp.m_sectorEnd;
 			//else if(gamma == Math::pi) // Achtung! nicht Gleichheit ohne Toleranz testen!
-			else if(DIsEqual(gamma,Math::pi))
+			else if(OGDF_GEOM_ET.equal(gamma,Math::pi))
 				preferedDirection[*itC] = circleAngle[cluster];
 			else {
 				double gamma2 = (gamma < Math::pi) ? Math::pi - gamma : gamma - Math::pi;
@@ -1751,8 +1751,8 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		{
 			current = leaves.pop();
 
-			edge e;
-			forall_adj_edges(e,current) {
+			for(adjEntry adj : current->adjEntries) {
+				edge e = adj->theEdge();
 				node w = e->opposite(current);
 				if (--deg[w] == 1)
 					leaves.append(w);
@@ -1768,8 +1768,8 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 			int sizeCenter = 0;
 			node vCand = nullptr;
 
-			edge e;
-			forall_adj_edges(e,current) {
+			for(adjEntry adj : current->adjEntries) {
+				edge e = adj->theEdge();
 				node w = e->opposite(current);
 				int sizeW = sizeBC(w);
 				if(sizeW > sizeCenter) {
@@ -1829,9 +1829,10 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 	cout << "\nBC-Tree:\n";
 	for(node v : BCTree.nodes) {
 		cout << v << " [" << componentOf[v] << "," << cutVertexOf[v] << "]: ";
-		edge e;
-		forall_adj_edges(e,v)
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			cout << e->opposite(v) << " ";
+		}
 		cout << endl;
 	}
 	GraphIO::writeGML(BCTree, "BC-Tree.gml");
@@ -1854,8 +1855,8 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		parentCluster[currentCluster] = -1;
 		C.m_clusterOf[cutVertexOf[centerBC]] = currentCluster;
 
-		edge e;
-		forall_adj_edges(e,centerBC) {
+		for(adjEntry adj : centerBC->adjEntries) {
+			edge e = adj->theEdge();
 			node bBC = e->opposite(centerBC);
 			Q.append(InfoAC(bBC,centerBC,cutVertexOf[centerBC],currentCluster));
 		}
@@ -1900,14 +1901,13 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 
 		parentCluster[currentCluster] = info.m_parentCluster;
 
-		edge e1;
-		forall_adj_edges(e1,info.m_vBC)
-		{
+		for(adjEntry adj : info.m_vBC->adjEntries) {
+			edge e1 = adj->theEdge();
 			node wBC = e1->opposite(info.m_vBC);
 			if(wBC == info.m_predCutBC) continue;
 
-			edge e2;
-			forall_adj_edges(e2,wBC) {
+			for(adjEntry adj : wBC->adjEntries) {
+				edge e2 = adj->theEdge();
 				node bBC = e2->opposite(wBC);
 				if (bBC == info.m_vBC) continue;
 
@@ -1936,7 +1936,7 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 int CircularLayout::sizeBC(node vB)
 {
 	int sum = 0;
-	for(adjEntry adj : vB->adjEdges)
+	for(adjEntry adj : vB->adjEntries)
 		sum += adj->twinNode()->degree() - 1;
 	return sum;
 }

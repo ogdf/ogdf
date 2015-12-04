@@ -36,14 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANARITYGRID_H
-#define OGDF_PLANARITYGRID_H
-
 
 #include <ogdf/internal/energybased/EnergyFunction.h>
 #include <ogdf/internal/energybased/UniformGrid.h>
@@ -74,5 +67,3 @@ private:
 
 
 }// namespace ogdf
-
-#endif

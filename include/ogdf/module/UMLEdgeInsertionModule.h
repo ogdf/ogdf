@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UML_EDGE_INSERTION_MODULE_H
-#define OGDF_UML_EDGE_INSERTION_MODULE_H
-
 
 #include <ogdf/planarity/PlanRepLight.h>
 
@@ -49,98 +43,96 @@
 
 namespace ogdf {
 
-	//! Interface for UML edge insertion algorithms.
+//! Interface for UML edge insertion algorithms.
+/**
+ * UML edge insertion algorithms take care that generalization edges do not cross in the
+ * resulting planarzation.
+ *
+ * \see SubgraphPlanarizerUML
+ */
+class OGDF_EXPORT UMLEdgeInsertionModule : public Module, public Timeouter {
+public:
+
+	//! Initializes a UML edge insertion module (default constructor).
+	UMLEdgeInsertionModule() { }
+
+	//! Initializes a UML edge insertion module (copy constructor).
+	UMLEdgeInsertionModule(const UMLEdgeInsertionModule &eim) : Timeouter(eim) { }
+
+	//! Destructor
+	virtual ~UMLEdgeInsertionModule() { }
+
+	//! Returns a new instance of the UML edge insertion module with the same option settings.
+	virtual UMLEdgeInsertionModule *clone() const = 0;
+
+
+	//! Inserts all edges in \a origEdges into \a pr while avoiding crossings between generalizations.
 	/**
-	 * UML edge insertion algorithms take care that generalization edges do not cross in the
-	 * resulting planarzation.
-	 *
-	 * \see SubgraphPlanarizerUML
+	 * @param pr        is the input planarized representation and will also receive the result.
+	 * @param origEdges is the array of original edges (edges in the original graph of \a pr)
+	 *                  that have to be inserted.
+	 * @return the status of the result.
 	 */
-	class OGDF_EXPORT UMLEdgeInsertionModule : public Module, public Timeouter {
-	public:
+	ReturnType call(PlanRepLight &pr, const Array<edge> &origEdges)
+	{
+		return doCall(pr, origEdges, 0, 0);
+	}
 
-		//! Initializes a UML edge insertion module (default constructor).
-		UMLEdgeInsertionModule() { }
-
-		//! Initializes a UML edge insertion module (copy constructor).
-		UMLEdgeInsertionModule(const UMLEdgeInsertionModule &eim) : Timeouter(eim) { }
-
-		//! Destructor
-		virtual ~UMLEdgeInsertionModule() { }
-
-		//! Returns a new instance of the UML edge insertion module with the same option settings.
-		virtual UMLEdgeInsertionModule *clone() const = 0;
-
-
-		//! Inserts all edges in \a origEdges into \a pr while avoiding crossings between generalizations.
-		/**
-		 * @param pr        is the input planarized representation and will also receive the result.
-		 * @param origEdges is the array of original edges (edges in the original graph of \a pr)
-		 *                  that have to be inserted.
-		 * @return the status of the result.
-		 */
-		ReturnType call(PlanRepLight &pr, const Array<edge> &origEdges)
-		{
-			return doCall(pr, origEdges, 0, 0);
-		}
-
-		//! Inserts all edges in \a origEdges with given costs into \a pr while avoiding crossings between generalizations.
-		/**
-		 * @param pr        is the input planarized representation and will also receive the result.
-		 * @param costOrig  is an edge array containing the costs of original edges; edges in
-		 *                  \a pr without an original edge have zero costs.
-		 * @param origEdges is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
-		 * @return the status of the result.
-		 */
-		ReturnType call(PlanRepLight &pr,
-			const Array<edge> &origEdges,
-			const EdgeArray<int> &costOrig)
-		{
-			return doCall(pr, origEdges, &costOrig, 0);
-		}
+	//! Inserts all edges in \a origEdges with given costs into \a pr while avoiding crossings between generalizations.
+	/**
+	 * @param pr        is the input planarized representation and will also receive the result.
+	 * @param costOrig  is an edge array containing the costs of original edges; edges in
+	 *                  \a pr without an original edge have zero costs.
+	 * @param origEdges is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
+	 * @return the status of the result.
+	 */
+	ReturnType call(PlanRepLight &pr,
+		const Array<edge> &origEdges,
+		const EdgeArray<int> &costOrig)
+	{
+		return doCall(pr, origEdges, &costOrig, 0);
+	}
 
 
-		//! Inserts all edges in \a origEdges into \a pr while avoiding crossings between generalizations, optionally costs and subgraphs may be given.
-		/**
-		 * @param pr             is the input planarized representation and will also receive the result.
-		 * @param origEdges      is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
-		 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \a pr without an original edge have zero costs.
-		 *                       May be a 0-pointer, in which case all edges have cost 1.
-		 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
-		 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.
-		 * @return the status of the result.
-		 */
-		ReturnType callEx(
-			PlanRepLight              &pr,
-			const Array<edge>         &origEdges,
-			const EdgeArray<int>      *pCostOrig = 0,
-			const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
-		{
-			return doCall(pr, origEdges, pCostOrig, pEdgeSubGraphs);
-		}
+	//! Inserts all edges in \a origEdges into \a pr while avoiding crossings between generalizations, optionally costs and subgraphs may be given.
+	/**
+	 * @param pr             is the input planarized representation and will also receive the result.
+	 * @param origEdges      is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
+	 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \a pr without an original edge have zero costs.
+	 *                       May be a 0-pointer, in which case all edges have cost 1.
+	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
+	 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.
+	 * @return the status of the result.
+	 */
+	ReturnType callEx(
+		PlanRepLight              &pr,
+		const Array<edge>         &origEdges,
+		const EdgeArray<int>      *pCostOrig = 0,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
+	{
+		return doCall(pr, origEdges, pCostOrig, pEdgeSubGraphs);
+	}
 
 
-	protected:
-		//! Actual algorithm call that has to be implemented by derived classes.
-		/**
-		 * @param pr             is the input planarized representation and will also receive the result.
-		 * @param origEdges      is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
-		 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \a pr without an original edge have zero costs.
-		 *                       May be a 0-pointer, in which case all edges have cost 1.
-		 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
-		 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.
-		 * @return the status of the result.
-		 */
-		virtual ReturnType doCall(
-			PlanRepLight              &pr,
-			const Array<edge>         &origEdges,
-			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<uint32_t> *pEdgeSubGraphs) = 0;
+protected:
+	//! Actual algorithm call that has to be implemented by derived classes.
+	/**
+	 * @param pr             is the input planarized representation and will also receive the result.
+	 * @param origEdges      is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
+	 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \a pr without an original edge have zero costs.
+	 *                       May be a 0-pointer, in which case all edges have cost 1.
+	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
+	 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.
+	 * @return the status of the result.
+	 */
+	virtual ReturnType doCall(
+		PlanRepLight              &pr,
+		const Array<edge>         &origEdges,
+		const EdgeArray<int>      *pCostOrig,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs) = 0;
 
 
-		OGDF_MALLOC_NEW_DELETE
-	};
+	OGDF_MALLOC_NEW_DELETE
+};
 
 } // end namespace ogdf
-
-#endif

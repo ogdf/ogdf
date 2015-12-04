@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MEDIAN_HEURISTIC_H
-#define OGDF_MEDIAN_HEURISTIC_H
-
-
 
 #include <ogdf/module/LayerByLayerSweep.h>
 
@@ -82,6 +74,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAX_FLOW_GOLDBERG_TARJAN_H
-#define OGDF_MAX_FLOW_GOLDBERG_TARJAN_H
 
 #include <ogdf/module/MaxFlowModule.h>
 
@@ -213,8 +208,7 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		queue.pushBack(*this->m_t);
 		while (!queue.empty()) { // is there a node to check?
 			node w = queue.popFrontRet();
-			adjEntry adj;
-			forall_adj(adj, w) {
+			for(adjEntry adj : w->adjEntries) {
 				node x = adj->twinNode();
 				if (isResidualEdge(adj->twin())
 				 && dist[x] == n) { // not already seen
@@ -224,8 +218,7 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 			}
 		}
 		// set distance of unreachable nodes to "number of nodes" thus making them inactive
-		node w;
-		forall_nodes(w, *this->m_G) {
+		for(node w : this->m_G->nodes) {
 			setLabel(w, dist[w]);
 		}
 	}
@@ -233,8 +226,7 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 	void relabel(const node v)
 	{
 		int minLabel = this->m_G->numberOfNodes() - 1;
-		adjEntry adj;
-		forall_adj(adj, v) {
+		for(adjEntry adj : v->adjEntries) {
 			if (isResidualEdge(adj)) {
 				const int label = m_label[adj->twinNode()];
 				if (label < minLabel) {
@@ -250,8 +242,7 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 	void relabelStage2(const node v)
 	{
 		int minLabel = this->m_G->numberOfNodes() - 1;
-		adjEntry adj;
-		forall_adj(adj, v) {
+		for(adjEntry adj : v->adjEntries) {
 			if (isResidualEdge(adj)) {
 				const int label = m_label[adj->twinNode()];
 				if (label < minLabel) {
@@ -287,8 +278,7 @@ public:
 		m_cutNodes.clear();
 
 		// initialize residual graph for first preflow
-		edge e;
-		forall_edges(e, *this->m_G) {
+		for(edge e : this->m_G->edges) {
 			if (e->source() == *this->m_s
 			&& e->target() != *this->m_s) { // ignore loops
 				(*this->m_flow)[e] = getCap(e);
@@ -316,9 +306,10 @@ public:
 			OGDF_ASSERT(m_activeLabelListPosition[v] == m_activeLabelList[m_maxLabel].begin());
 #else
 		List<node> active;
-		forall_adj_edges(e, *this->m_s) {
-			if (e->target() != *this->m_s) {
-				active.pushBack(e->target());
+		for(adjEntry adj : this->m_s->adjEntries) {
+			node w = adj->theEdge()->target();
+			if (w != *this->m_s) {
+				active.pushBack(w);
 			}
 		}
 		while (!active.empty()) {
@@ -384,7 +375,8 @@ public:
 		}
 
 		TCap result = 0;
-		forall_adj_edges(e, *this->m_t) {
+		for(adjEntry adj : (*this->m_t)->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->target() == *this->m_t) {
 				result += (*this->m_flow)[e];
 			} else {
@@ -475,5 +467,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif // OGDF_MAX_FLOW_GOLDBERG_TARJAN_H

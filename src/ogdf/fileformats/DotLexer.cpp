@@ -34,6 +34,7 @@
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/fileformats/DotLexer.h>
+#include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
 
@@ -138,7 +139,7 @@ bool Lexer::tokenizeLine()
 				// Get a new line if a current one has ended.
 				if(m_col >= m_buffer.size()) {
 					if(!m_input.good()) {
-						OGDF_ERROR("Unclosed comment at" << column << ", " << row);
+						GraphIO::logger.lout() << "Unclosed comment at" << column << ", " << row << endl;
 						return false;
 					}
 					std::getline(m_input, m_buffer);
@@ -188,7 +189,7 @@ bool Lexer::tokenizeLine()
 		} else if(identifier(token)) {
 			token.type = Token::identifier;
 		} else {
-			OGDF_ERROR("Unknown token at: " << m_row << "; " << m_col);
+			GraphIO::logger.lout() << "Unknown token at: " << m_row << "; " << m_col << endl;
 			return false;
 		}
 
@@ -238,7 +239,7 @@ bool Lexer::identifier(Token &token)
 			// Get a new line if a current one has ended.
 			if(m_col >= m_buffer.size()) {
 				if(!m_input.good()) {
-					OGDF_ERROR("Unclosed string at " << token.row << ", " << token.column);
+					GraphIO::logger.lout() << "Unclosed string at " << token.row << ", " << token.column << endl;
 					return false;
 				}
 				std::getline(m_input, m_buffer);

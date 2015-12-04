@@ -45,21 +45,36 @@
 #include <ogdf/fileformats/GdfParser.h>
 #include <ogdf/fileformats/TlpParser.h>
 #include <ogdf/fileformats/DLParser.h>
+#include <ogdf/fileformats/SvgPrinter.h>
 #include <sstream>
 #include <map>
-
 
 // we use these data structures from the stdlib
 using std::map;
 using std::istringstream;
 
-
 namespace ogdf {
-
 
 char GraphIO::s_indentChar  = ' ';
 int  GraphIO::s_indentWidth = 2;
+Logger GraphIO::logger;
 
+typedef bool (*Reader)(Graph&, istream&);
+
+//! Supported formats for automated detection
+const int NUMBER_OF_READERS = 10;
+const Reader readers[NUMBER_OF_READERS] = {
+	GraphIO::readDOT,
+	GraphIO::readGML,
+	GraphIO::readTLP,
+	GraphIO::readLEDA,
+	GraphIO::readChaco,
+	GraphIO::readDL,
+	GraphIO::readGDF,
+	GraphIO::readGraphML,
+	GraphIO::readGEXF,
+	GraphIO::readOGML
+};
 
 ostream &GraphIO::indent(ostream &os, int depth)
 {
@@ -70,109 +85,92 @@ ostream &GraphIO::indent(ostream &os, int depth)
 	return os;
 }
 
+//---------------------------------------------------------
+// Graph: Generic readers
+//---------------------------------------------------------
+
+bool GraphIO::read(Graph &G, const string &filename)
+{
+	ifstream is(filename);
+	return read(G, is);
+}
+
+bool GraphIO::read(Graph &G, istream &is)
+{
+	for(int i = 0; i < NUMBER_OF_READERS; i++) {
+		if(readers[i](G, is)) {
+			return true;
+		} else {
+			G.clear();
+			is.clear();
+			is.seekg(0, ios::beg);
+		}
+	}
+
+	return false;
+}
 
 //---------------------------------------------------------
 // Graph: GML format
 //---------------------------------------------------------
 
-bool GraphIO::readGML(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readGML(G, is);
-}
-
 bool GraphIO::readGML(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readGML(G, is);
 }
 
 bool GraphIO::readGML(Graph &G, istream &is)
 {
+	if(!is.good()) return false;
 	GmlParser parser(is);
 	if (parser.error()) return false;
 	return parser.read(G);
 }
 
-
-bool GraphIO::writeGML(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGML(G, os);
-}
-
 bool GraphIO::writeGML(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGML(G, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: OGML format
 //---------------------------------------------------------
 
-bool GraphIO::readOGML(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readOGML(G, is);
-}
-
 bool GraphIO::readOGML(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readOGML(G, is);
 }
 
 bool GraphIO::readOGML(Graph &G, istream &is)
 {
+	if(!is.good()) return false;
 	OgmlParser parser;
 	return parser.read(is, G);
-}
-
-
-bool GraphIO::writeOGML(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeOGML(G, os);
 }
 
 bool GraphIO::writeOGML(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeOGML(G, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: Rome format
 //---------------------------------------------------------
 
-bool GraphIO::readRome(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readRome(G, is);
-}
-
 bool GraphIO::readRome(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readRome(G, is);
 }
 
-
 bool GraphIO::readRome(Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	G.clear();  // start with empty graph
 
 	bool readNodes = true;
@@ -222,24 +220,16 @@ bool GraphIO::readRome(Graph &G, istream &is)
 	return true;
 }
 
-
-bool GraphIO::writeRome(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeRome(G, os);
-}
-
 bool GraphIO::writeRome(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeRome(G, os);
 }
 
-
 bool GraphIO::writeRome(const Graph &G, ostream &os)
 {
+	if(!os.good()) return false;
+
 	// assign indices 1, 2, 3, ... to nodes
 	NodeArray<int> index(G);
 
@@ -261,61 +251,36 @@ bool GraphIO::writeRome(const Graph &G, ostream &os)
 	return true;
 }
 
-
 //---------------------------------------------------------
 // Graph: LEDA format
 //---------------------------------------------------------
 
-bool GraphIO::readLEDA(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readLEDA(G, is);
-}
-
 bool GraphIO::readLEDA(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readLEDA(G, is);
-}
-
-
-bool GraphIO::writeLEDA(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeLEDA(G, os);
 }
 
 bool GraphIO::writeLEDA(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeLEDA(G, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: Chaco format
 //---------------------------------------------------------
 
-bool GraphIO::readChaco(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readChaco(G, is);
-}
-
 bool GraphIO::readChaco(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readChaco(G, is);
 }
 
 bool GraphIO::readChaco(Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	G.clear();
 
 	string buffer;
@@ -369,23 +334,16 @@ bool GraphIO::readChaco(Graph &G, istream &is)
 	return true;
 }
 
-
-bool GraphIO::writeChaco(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeChaco(G, os);
-}
-
 bool GraphIO::writeChaco(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeChaco(G, os);
 }
 
 bool GraphIO::writeChaco(const Graph &G, ostream &os)
 {
+	if(!os.good()) return false;
+
 	os << G.numberOfNodes() << " " << G.numberOfEdges() << "\n";
 
 	NodeArray<int> index(G);
@@ -395,7 +353,7 @@ bool GraphIO::writeChaco(const Graph &G, ostream &os)
 		index[v] = ++count;
 
 	for(node v : G.nodes) {
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 			os << " " << index[adj->twinNode()];
 		os << "\n";
 	}
@@ -403,27 +361,20 @@ bool GraphIO::writeChaco(const Graph &G, ostream &os)
 	return true;
 }
 
-
 //---------------------------------------------------------
 // Graph: Chaco format
 //---------------------------------------------------------
 
-bool GraphIO::readYGraph(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readYGraph(G, is);
-}
-
 bool GraphIO::readYGraph(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readYGraph(G, is);
 }
 
 bool GraphIO::readYGraph(Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	const char *errorLineTooShort = "GraphIO::readYGraph: line too short!\n";
 
 	G.clear();
@@ -471,27 +422,20 @@ bool GraphIO::readYGraph(Graph &G, istream &is)
 	return true;
 }
 
-
 //---------------------------------------------------------
 // Graph: Petra Mutzel Diss format
 //---------------------------------------------------------
 
-bool GraphIO::readPMDissGraph(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readPMDissGraph(G, is);
-}
-
 bool GraphIO::readPMDissGraph(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readPMDissGraph(G, is);
 }
 
 bool GraphIO::readPMDissGraph(Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	const char *errorInFileHeader = "GraphIO::readPMDissGraph: Error in file header.\n";
 
 	G.clear();
@@ -568,23 +512,16 @@ bool GraphIO::readPMDissGraph(Graph &G, istream &is)
 	return true;
 }
 
-
-bool GraphIO::writePMDissGraph(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writePMDissGraph(G, os);
-}
-
 bool GraphIO::writePMDissGraph(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writePMDissGraph(G, os);
 }
 
 bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 {
+	if(!os.good()) return false;
+
 	os << "*BEGIN unknown_name." << G.numberOfNodes() << "." << G.numberOfEdges() << "\n";
 	os << "*GRAPH " << G.numberOfNodes() << " " << G.numberOfEdges() << " UNDIRECTED UNWEIGHTED\n";
 
@@ -602,7 +539,6 @@ bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 	return true;
 }
 
-
 //---------------------------------------------------------
 // Graph: Graph6 format
 //---------------------------------------------------------
@@ -610,6 +546,11 @@ bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 bool
 GraphIO::readGraph6(Graph &G, istream &is)
 {
+	if (!is.good()) {
+		return false;
+	}
+
+	const int asciishift = 63;
 	Array<node> index;
 	int sourceIdx = 0;
 	int targetIdx = 1;
@@ -624,7 +565,6 @@ GraphIO::readGraph6(Graph &G, istream &is)
 			++targetIdx;
 		}
 	};
-	unsigned char byte;
 	enum {
 		STATE_START,
 		STATE_18BIT,
@@ -639,7 +579,8 @@ GraphIO::readGraph6(Graph &G, istream &is)
 		state = STATE_TRIANGLE;
 	};
 	int remainingBits;
-	while (is >> byte) {
+	for (unsigned char readbyte; is >> readbyte;) {
+		int byte = readbyte;
 		switch (state) {
 		case STATE_TRIANGLE:
 			if (byte >= '?' && byte <= '~') {
@@ -648,7 +589,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 				if (targetIdx >= numberOfNodes) {
 					return false;
 				}
-				byte -= 63;
+				byte -= asciishift;
 				addEdge(byte & 040);
 				addEdge(byte & 020);
 				addEdge(byte & 010);
@@ -663,7 +604,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 				remainingBits = 6;
 			} else
 			if (byte >= '?' && byte < '~') {
-				numberOfNodes |= ((byte - 63) << 12);
+				numberOfNodes |= ((byte - asciishift) << 12);
 				state = STATE_REMAINING_BITS;
 				remainingBits = 2;
 			}
@@ -671,7 +612,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 		case STATE_REMAINING_BITS:
 			if (byte >= '?' && byte <= '~') {
 				--remainingBits;
-				numberOfNodes |= ((byte - 63) << (6*remainingBits));
+				numberOfNodes |= ((byte - asciishift) << (6*remainingBits));
 				if (remainingBits == 0) {
 					addNodes();
 				}
@@ -691,7 +632,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 				state = STATE_18BIT;
 			} else
 			if (byte >= '?' && byte < '~') {
-				numberOfNodes = byte - 63;
+				numberOfNodes = byte - asciishift;
 				addNodes();
 			}
 			// ignore others
@@ -704,33 +645,23 @@ GraphIO::readGraph6(Graph &G, istream &is)
 	return true;
 }
 
-bool
-GraphIO::readGraph6(Graph &G, const char *filename)
+bool GraphIO::readGraph6(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if (!is.is_open()) {
-		return false;
-	}
 	return readGraph6(G, is);
 }
 
-bool
-GraphIO::readGraph6(Graph &G, const string &filename)
+bool GraphIO::writeGraph6(const Graph &G, ostream &os)
 {
-	ifstream is(filename);
-	if (!is.is_open()) {
+	if (!os.good()) {
 		return false;
 	}
-	return readGraph6(G, is);
-}
+	const int asciishift = 63;
 
-bool
-GraphIO::writeGraph6(const Graph &G, ostream &os)
-{
 	os << ">>graph6<<";
 	int n = G.numberOfNodes();
-	auto sixtetChar = [&n](int sixtet) {
-		return static_cast<unsigned char>(((n >> (6*sixtet)) & 63) + 63);
+	auto sixtetChar = [&](int sixtet) {
+		return static_cast<unsigned char>(((n >> (6*sixtet)) & asciishift) + asciishift);
 	};
 	if (n < 64) {
 		os << sixtetChar(0);
@@ -756,7 +687,7 @@ GraphIO::writeGraph6(const Graph &G, ostream &os)
 
 	AdjacencyOracle oracle(G);
 	int shift = 6;
-	unsigned char sixtet = 0;
+	int sixtet = 0;
 	for (node v : G.nodes) {
 		for (node w : G.nodes) {
 			if (v == w) {
@@ -764,39 +695,25 @@ GraphIO::writeGraph6(const Graph &G, ostream &os)
 			}
 			int bit = oracle.adjacent(v, w);
 			--shift;
-			sixtet |= (bit << shift);
+			sixtet |= bit << shift;
 			if (shift == 0) {
-				os << static_cast<unsigned char>(sixtet + 63);
+				os << static_cast<unsigned char>(sixtet + asciishift);
 				shift = 6;
 				sixtet = 0;
 			}
 		}
 	}
 	if (shift != 6) {
-		os << static_cast<unsigned char>(sixtet + 63);
+		os << static_cast<unsigned char>(sixtet + asciishift);
 	}
 	os << "\n";
 
 	return true;
 }
 
-bool
-GraphIO::writeGraph6(const Graph &G, const char *filename)
+bool GraphIO::writeGraph6(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if (!os.is_open()) {
-		return false;
-	}
-	return writeGraph6(G, os);
-}
-
-bool
-GraphIO::writeGraph6(const Graph &G, const string &filename)
-{
-	ofstream os(filename);
-	if (!os.is_open()) {
-		return false;
-	}
 	return writeGraph6(G, os);
 }
 
@@ -804,22 +721,16 @@ GraphIO::writeGraph6(const Graph &G, const string &filename)
 // ClusterGraph: GML format
 //---------------------------------------------------------
 
-bool GraphIO::readGML(ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readGML(C, G, is);
-}
-
 bool GraphIO::readGML(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readGML(C, G, is);
 }
 
 bool GraphIO::readGML(ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	GmlParser gml(is);
 	if (gml.error())
 		return false;
@@ -830,36 +741,19 @@ bool GraphIO::readGML(ClusterGraph &C, Graph &G, istream &is)
 	return gml.readCluster(G, C);
 }
 
-bool GraphIO::writeGML(const ClusterGraph &C, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGML(C, os);
-}
-
 bool GraphIO::writeGML(const ClusterGraph &C, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGML(C, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraph: OGML format
 //---------------------------------------------------------
 
-bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readOGML(C, G, is);
-}
-
 bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readOGML(C, G, is);
 }
 
@@ -869,122 +763,73 @@ bool GraphIO::readOGML(ClusterGraph &C, Graph &G, istream &is)
 	return parser.read(is, G, C);
 }
 
-bool GraphIO::writeOGML(const ClusterGraph &C, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeOGML(C, os);
-}
-
 bool GraphIO::writeOGML(const ClusterGraph &C, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeOGML(C, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: GML format
 //---------------------------------------------------------
 
-bool GraphIO::readGML(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readGML(A, G, is);
-}
-
 bool GraphIO::readGML(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readGML(A, G, is);
 }
 
 bool GraphIO::readGML(GraphAttributes &A, Graph &G, istream &is)
 {
+	if (!is.good()) return false;
 	GmlParser parser(is);
 	if (parser.error()) return false;
 	return parser.read(G, A);
 }
 
-
-bool GraphIO::writeGML(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGML(A, os);
-}
-
 bool GraphIO::writeGML(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGML(A, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: OGML format
 //---------------------------------------------------------
 
-bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readOGML(A, G, is);
-}
-
 bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readOGML(A, G, is);
 }
 
 bool GraphIO::readOGML(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) return false;
 	OgmlParser parser;
 	return parser.read(is, G, A);
-}
-
-
-bool GraphIO::writeOGML(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeOGML(A, os);
 }
 
 bool GraphIO::writeOGML(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeOGML(A, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: Rudy format
 //---------------------------------------------------------
 
-bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readRudy(A, G, is);
-}
-
 bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readRudy(A, G, is);
 }
 
 bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	if(!is) return false;
 
 	G.clear();
@@ -1001,7 +846,7 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 	for(int i = 0; i < n; ++i)
 		mapToNode[i] = G.newNode();
 
-	bool haveDoubleWeight = (A.attributes() & GraphAttributes::edgeDoubleWeight) != 0;
+	bool haveDoubleWeight = A.has(GraphAttributes::edgeDoubleWeight) != 0;
 
 	for(int i = 0; i < m; i++)
 	{
@@ -1024,23 +869,16 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 	return true;
 }
 
-
-bool GraphIO::writeRudy(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeRudy(A, os);
-}
-
 bool GraphIO::writeRudy(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeRudy(A, os);
 }
 
 bool GraphIO::writeRudy(const GraphAttributes &A, ostream &os)
 {
+	if(!os.good()) return false;
+
 	const Graph &G = A.constGraph();
 	os << G.numberOfNodes() << " " << G.numberOfEdges() << endl;
 
@@ -1051,7 +889,7 @@ bool GraphIO::writeRudy(const GraphAttributes &A, ostream &os)
 	for(node v : G.nodes)
 		index[v] = ++i;
 
-	bool haveDoubleWeight = (A.attributes() & GraphAttributes::edgeDoubleWeight) != 0;
+	bool haveDoubleWeight = A.has(GraphAttributes::edgeDoubleWeight) != 0;
 
 	for(edge e : G.edges) {
 		double w = (haveDoubleWeight) ? A.doubleWeight(e) : 1.0;
@@ -1061,27 +899,20 @@ bool GraphIO::writeRudy(const GraphAttributes &A, ostream &os)
 	return true;
 }
 
-
 //---------------------------------------------------------
 // ClusterGraphAttributes: GML format
 //---------------------------------------------------------
 
-bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readGML(A, C, G, is);
-}
-
 bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readGML(A, C, G, is);
 }
 
 bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) return false;
+
 	GmlParser gml(is);
 	if (gml.error())
 		return false;
@@ -1092,59 +923,32 @@ bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istr
 	return gml.readAttributedCluster(G, C, A);
 }
 
-
-bool GraphIO::writeGML(const ClusterGraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGML(A, os);
-}
-
 bool GraphIO::writeGML(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGML(A, os);
 }
-
-
 
 //---------------------------------------------------------
 // ClusterGraphAttributes: OGML format
 //---------------------------------------------------------
 
-bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readOGML(A, C, G, is);
-}
-
 bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readOGML(A, C, G, is);
 }
 
 bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) return false;
 	OgmlParser parser;
 	return parser.read(is, G, C, A);
-}
-
-
-bool GraphIO::writeOGML(const ClusterGraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeOGML(A, os);
 }
 
 bool GraphIO::writeOGML(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeOGML(A, os);
 }
 
@@ -1253,7 +1057,6 @@ bool GraphIO::readMatrixMarket(Graph& G, istream &inStream)
 bool GraphIO::readMatrixMarket(Graph& G, const string& filename)
 {
 	ifstream inStream(filename);
-	if(!inStream.is_open()) return false;
 	return readMatrixMarket(G, inStream);
 }
 
@@ -1261,56 +1064,32 @@ bool GraphIO::readMatrixMarket(Graph& G, const string& filename)
 // Hypergraphs (point-based expansion): PLA format
 //---------------------------------------------------------
 
-bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readBENCH(G, hypernodes, shell, is);
-}
-
 bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readBENCH(G, hypernodes, shell, is);
-}
-
-
-bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readPLA(G, hypernodes, shell, is);
 }
 
 bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readPLA(G, hypernodes, shell, is);
 }
-
 
 //---------------------------------------------------------
 // Graph Drawing Challenge
 //---------------------------------------------------------
 
-bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readChallengeGraph(G, gl, is);
-}
-
 bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readChallengeGraph(G, gl, is);
 }
 
 bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, istream &is)
 {
+	if(!is.good()) return false;
+
 	G.clear();
 
 	string buffer;
@@ -1382,18 +1161,9 @@ bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, istream &is)
 	return true;
 }
 
-
-bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeChallengeGraph(G, gl, os);
-}
-
 bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeChallengeGraph(G, gl, os);
 }
 
@@ -1424,27 +1194,20 @@ bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, ostream 
 	return true;
 }
 
-
 //---------------------------------------------------------
 // Edge List Subgraph
 //---------------------------------------------------------
 
-bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) return false;
-	return readEdgeListSubgraph(G, delEdges, is);
-}
-
 bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) return false;
 	return readEdgeListSubgraph(G, delEdges, is);
 }
 
 bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, istream &is)
 {
+	if(!is.good()) return false;
+
 	G.clear();
 	delEdges.clear();
 
@@ -1486,18 +1249,9 @@ bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, istream &is)
 	return true;
 }
 
-
-bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeEdgeListSubgraph(G, delEdges, os);
-}
-
 bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeEdgeListSubgraph(G, delEdges, os);
 }
 
@@ -1527,185 +1281,115 @@ bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, 
 	for(edge e : delEdges)
 		os << index[e->source()] << " " << index[e->target()] << "\n";
 
-
 	return true;
 }
-
 
 //---------------------------------------------------------
 // SVG graphics format
 //---------------------------------------------------------
 
-bool GraphIO::drawSVG(const GraphAttributes &A, const char *filename, const SVGSettings &settings)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return drawSVG(A, os, settings);
-}
-
 bool GraphIO::drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return drawSVG(A, os, settings);
-}
-
-bool GraphIO::drawSVG(const ClusterGraphAttributes &A, const char *filename, const SVGSettings &settings)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return drawSVG(A, os, settings);
 }
 
 bool GraphIO::drawSVG(const ClusterGraphAttributes &A, const string &filename, const SVGSettings &settings)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return drawSVG(A, os, settings);
 }
 
+bool GraphIO::drawSVG(const GraphAttributes &attr, ostream &os, const SVGSettings &settings)
+{
+	SvgPrinter printer(attr, settings);
+	return printer.draw(os);
+}
+
+bool GraphIO::drawSVG(const ClusterGraphAttributes &attr, ostream &os, const SVGSettings &settings)
+{
+	SvgPrinter printer(attr, settings);
+	return printer.draw(os);
+}
 
 //---------------------------------------------------------
 // Graph: GraphML format
 //---------------------------------------------------------
 
-bool GraphIO::readGraphML(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGraphML(G, is);
-}
-
 bool GraphIO::readGraphML(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGraphML(G, is);
 }
 
 bool GraphIO::readGraphML(Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	GraphMLParser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeGraphML(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGraphML(G, os);
 }
 
 bool GraphIO::writeGraphML(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGraphML(G, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraph: GraphML format
 //---------------------------------------------------------
 
-bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGraphML(C, G, is);
-}
-
 bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGraphML(C, G, is);
 }
 
 bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	GraphMLParser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeGraphML(const ClusterGraph &C, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGraphML(C, os);
 }
 
 bool GraphIO::writeGraphML(const ClusterGraph &C, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGraphML(C, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: GraphML format
 //---------------------------------------------------------
 
-bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGraphML(A, G, is);
-}
-
 bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGraphML(A, G, is);
 }
 
 bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	GraphMLParser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeGraphML(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGraphML(A, os);
 }
 
 bool GraphIO::writeGraphML(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGraphML(A, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraphAttributes: GraphML format
 //---------------------------------------------------------
-
-bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGraphML(A, C, G, is);
-}
 
 bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
@@ -1722,527 +1406,304 @@ bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, 
 	return parser.read(G, C, A);
 }
 
-bool GraphIO::writeGraphML(const ClusterGraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGraphML(A, os);
-}
-
 bool GraphIO::writeGraphML(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGraphML(A, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: DOT format
 //---------------------------------------------------------
 
-bool GraphIO::readDOT(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readDOT(G, is);
-}
-
 bool GraphIO::readDOT(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readDOT(G, is);
 }
 
 bool GraphIO::readDOT(Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	dot::Parser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeDOT(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeDOT(G, os);
 }
 
 bool GraphIO::writeDOT(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeDOT(G, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraph: DOT format
 //---------------------------------------------------------
 
-bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readDOT(C, G, is);
-}
-
 bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readDOT(C, G, is);
 }
 
 bool GraphIO::readDOT(ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	dot::Parser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeDOT(const ClusterGraph &C, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeDOT(C, os);
 }
 
 bool GraphIO::writeDOT(const ClusterGraph &C, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeDOT(C, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: DOT format
 //---------------------------------------------------------
 
-bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readDOT(A, G, is);
-}
-
 bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readDOT(A, G, is);
 }
 
 bool GraphIO::readDOT(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	dot::Parser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeDOT(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeDOT(A, os);
 }
 
 bool GraphIO::writeDOT(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeDOT(A, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraphAttributes: DOT format
 //---------------------------------------------------------
 
-bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readDOT(A, C, G, is);
-}
-
 bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readDOT(A, C, G, is);
 }
 
 bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	dot::Parser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeDOT(const ClusterGraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeDOT(A, os);
 }
 
 bool GraphIO::writeDOT(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeDOT(A, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: GEXF format
 //---------------------------------------------------------
 
-bool GraphIO::readGEXF(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGEXF(G, is);
-}
-
 bool GraphIO::readGEXF(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGEXF(G, is);
 }
 
 bool GraphIO::readGEXF(Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	gexf::Parser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeGEXF(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGEXF(G, os);
 }
 
 bool GraphIO::writeGEXF(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGEXF(G, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraph: GEXF format
 //---------------------------------------------------------
 
-bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGEXF(C, G, is);
-}
-
 bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGEXF(C, G, is);
 }
 
 bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	gexf::Parser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeGEXF(const ClusterGraph &C, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGEXF(C, os);
 }
 
 bool GraphIO::writeGEXF(const ClusterGraph &C, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGEXF(C, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: GEXF format
 //---------------------------------------------------------
 
-bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGEXF(A, G, is);
-}
-
 bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGEXF(A, G, is);
 }
 
 bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	gexf::Parser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeGEXF(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGEXF(A, os);
 }
 
 bool GraphIO::writeGEXF(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGEXF(A, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraphAttributes: GEXF format
 //---------------------------------------------------------
 
-bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGEXF(A, C, G, is);
-}
-
 bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGEXF(A, C, G, is);
 }
 
 bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	gexf::Parser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeGEXF(const ClusterGraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGEXF(A, os);
 }
 
 bool GraphIO::writeGEXF(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGEXF(A, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: GDF format
 //---------------------------------------------------------
 
-bool GraphIO::readGDF(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGDF(G, is);
-}
-
 bool GraphIO::readGDF(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGDF(G, is);
 }
 
 bool GraphIO::readGDF(Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	gdf::Parser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeGDF(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGDF(G, os);
 }
 
 bool GraphIO::writeGDF(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGDF(G, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: GDF format
 //---------------------------------------------------------
 
-bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGDF(A, G, is);
-}
-
 bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readGDF(A, G, is);
 }
 
 bool GraphIO::readGDF(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	gdf::Parser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeGDF(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeGDF(A, os);
 }
 
 bool GraphIO::writeGDF(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeGDF(A, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: TLP format
 //---------------------------------------------------------
 
-bool GraphIO::readTLP(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readTLP(G, is);
-}
-
 bool GraphIO::readTLP(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readTLP(G, is);
 }
 
 bool GraphIO::readTLP(Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	tlp::Parser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeTLP(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeTLP(G, os);
 }
 
 bool GraphIO::writeTLP(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeTLP(G, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraph: TLP format
 //---------------------------------------------------------
 
-bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readTLP(C, G, is);
-}
-
 bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readTLP(C, G, is);
 }
 
 bool GraphIO::readTLP(ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	tlp::Parser parser(is);
 	return parser.read(G, C);
-}
-
-bool GraphIO::writeTLP(const ClusterGraph &C, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeTLP(C, os);
 }
 
 bool GraphIO::writeTLP(const ClusterGraph &C, const string &filename)
@@ -2252,178 +1713,104 @@ bool GraphIO::writeTLP(const ClusterGraph &C, const string &filename)
 	return writeTLP(C, os);
 }
 
-
 //---------------------------------------------------------
 // GraphAttributes: TLP format
 //---------------------------------------------------------
 
-bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readTLP(A, G, is);
-}
-
 bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readTLP(A, G, is);
 }
 
 bool GraphIO::readTLP(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	tlp::Parser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeTLP(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeTLP(A, os);
 }
 
 bool GraphIO::writeTLP(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeTLP(A, os);
 }
-
 
 //---------------------------------------------------------
 // ClusterGraphAttributes: TLP format
 //---------------------------------------------------------
 
-bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readTLP(A, C, G, is);
-}
-
 bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readTLP(A, C, G, is);
 }
 
 bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	tlp::Parser parser(is);
 	return parser.read(G, C, A);
-}
-
-bool GraphIO::writeTLP(const ClusterGraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeTLP(A, os);
 }
 
 bool GraphIO::writeTLP(const ClusterGraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeTLP(A, os);
 }
-
 
 //---------------------------------------------------------
 // Graph: UCINET DL format
 //---------------------------------------------------------
 
-bool GraphIO::readDL(Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readDL(G, is);
-}
-
 bool GraphIO::readDL(Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readDL(G, is);
 }
 
 bool GraphIO::readDL(Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	DLParser parser(is);
 	return parser.read(G);
-}
-
-bool GraphIO::writeDL(const Graph &G, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeDL(G, os);
 }
 
 bool GraphIO::writeDL(const Graph &G, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeDL(G, os);
 }
-
 
 //---------------------------------------------------------
 // GraphAttributes: UCINET DL format
 //---------------------------------------------------------
 
-bool GraphIO::readDL(GraphAttributes &A, Graph &G, const char *filename)
-{
-	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readDL(A, G, is);
-}
-
 bool GraphIO::readDL(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
 	return readDL(A, G, is);
 }
 
 bool GraphIO::readDL(GraphAttributes &A, Graph &G, istream &is)
 {
+	if(!is.good()) {
+		return false;
+	}
 	DLParser parser(is);
 	return parser.read(G, A);
-}
-
-bool GraphIO::writeDL(const GraphAttributes &A, const char *filename)
-{
-	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeDL(A, os);
 }
 
 bool GraphIO::writeDL(const GraphAttributes &A, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
 	return writeDL(A, os);
 }
 
-
 } // end namespace ogdf
-

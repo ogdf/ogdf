@@ -35,24 +35,15 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FAST_LAYOUT_H
-#define OGDF_FAST_LAYOUT_H
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/GraphCopyAttributes.h>
 #include <random>
 
 
 namespace ogdf {
-
-	class OGDF_EXPORT GraphCopy;
-	class OGDF_EXPORT GraphCopyAttributes;
-
 
 //! The energy-based GEM layout algorithm.
 /**
@@ -298,6 +289,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif
-

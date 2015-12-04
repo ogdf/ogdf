@@ -33,26 +33,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_NON_PLANAR_CORE_H
-#define OGDF_NON_PLANAR_CORE_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
-
+#include <ogdf/decomposition/SPQRTree.h>
 
 namespace ogdf {
-
-	class OGDF_EXPORT SPQRTree;
-	class OGDF_EXPORT Skeleton;
-
 
 //! Non-planar core reduction.
 /**
@@ -90,6 +78,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

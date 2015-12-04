@@ -538,7 +538,7 @@ void FindKuratowskis::extractExternalSubgraphBundles(
 		m_wasHere[v] = nodeMarker;
 
 		// search for unvisited nodes and add them to stack
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			node temp = adj->twinNode();
 			if (m_edgeType[adj->theEdge()] == EDGE_BACK_DELETED) continue;
 
@@ -581,7 +581,7 @@ void FindKuratowskis::extractPertinentSubgraph(
 		m_getWInfo[(*it).w] = &(*it);
 
 	// add all pertinent paths to WInfo
-	for (adjEntry adj : k.V->adjEdges) {
+	for (adjEntry adj : k.V->adjEntries) {
 		if (m_edgeType[adj->theEdge()] == EDGE_BACK_DELETED) continue;
 		int targetDFI = m_dfi[adj->twinNode()];
 		if (targetDFI >= minDFI && targetDFI <= maxDFI) {
@@ -647,7 +647,7 @@ void FindKuratowskis::extractPertinentSubgraphBundles(
 			m_wasHere[w] = nodeMarker;
 
 			// search for unvisited nodes and add them to stack
-			for (adjEntry adj : w->adjEdges) {
+			for (adjEntry adj : w->adjEntries) {
 				edge e = adj->theEdge();
 				if (m_edgeType[e] == EDGE_BACK_DELETED) continue;
 				node x = adj->twinNode();

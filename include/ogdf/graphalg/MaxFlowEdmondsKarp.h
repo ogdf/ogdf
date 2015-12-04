@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAX_FLOW_EDMONDS_KARP_H
-#define OGDF_MAX_FLOW_EDMONDS_KARP_H
 
 #include <ogdf/module/MaxFlowModule.h>
 
@@ -91,8 +86,7 @@ private:
 				}
 				return true;
 			}
-			adjEntry adj;
-			forall_adj(adj, v) {
+			for(adjEntry adj : v->adjEntries) {
 				const node w = adj->twinNode();
 				if (w != (*this->m_s)
 					&& !pred[w]) // if not already visited
@@ -143,8 +137,8 @@ public:
 
 		while (augmentShortestSourceSinkPath());
 		TCap flowValue = 0;
-		edge e;
-		forall_adj_edges(e,s) {
+		for(adjEntry adj : s->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->source() == s) {
 				flowValue += (*this->m_flow)[e];
 			} else {
@@ -167,5 +161,3 @@ public:
 };
 
 }// namespace ogdf
-
-#endif // OGDF_MAX_FLOW_EDMONDS_KARP_H

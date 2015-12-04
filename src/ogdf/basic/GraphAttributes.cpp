@@ -47,7 +47,7 @@ namespace ogdf {
 // graph topology + graphical attributes
 //---------------------------------------------------------
 
-GraphAttributes::GraphAttributes() : m_pGraph(nullptr), m_directed(true) { }
+GraphAttributes::GraphAttributes() : m_pGraph(nullptr), m_directed(true), m_attributes(0) { }
 
 
 
@@ -227,39 +227,37 @@ void GraphAttributes::clearAllBends()
 // calculates the bounding box of the graph
 DRect GraphAttributes::boundingBox() const
 {
-	double minx, maxx, miny, maxy;
-	const Graph           &G  = constGraph();
-	const GraphAttributes &AG = *this;
+	const Graph &G = constGraph();
+	double minx = 0;
+	double maxx = 0;
+	double miny = 0;
+	double maxy = 0;
 
-	node vFirst = G.firstNode();
-	if (vFirst == nullptr) {
-		minx = maxx = miny = maxy = 0.0;
-	}
-	else {
-		minx = maxx = AG.x(vFirst);
-		miny = maxy = AG.y(vFirst);
+	if(has(nodeGraphics) && !G.empty()) {
+		minx = maxx = x(G.firstNode());
+		miny = maxy = y(G.firstNode());
 
 		for(node v : G.nodes) {
-			double x1 = AG.x(v) - AG.width(v)/2;
-			double x2 = AG.x(v) + AG.width(v)/2;
-			double y1 = AG.y(v) - AG.height(v)/2;
-			double y2 = AG.y(v) + AG.height(v)/2;
+			double lw = has(GraphAttributes::nodeStyle) ? 0.5*strokeWidth(v) : 0;
 
-			if (x1 < minx) minx = x1;
-			if (x2 > maxx) maxx = x2;
-			if (y1 < miny) miny = y1;
-			if (y2 > maxy) maxy = y2;
+			minx = min(minx, x(v) - width(v) / 2 - lw);
+			maxx = max(maxx, x(v) + width(v) / 2 + lw);
+			miny = min(miny, y(v) - height(v) / 2 - lw);
+			maxy = max(maxy, y(v) + height(v) / 2 + lw);
 		}
 	}
 
-	for(edge e : G.edges) {
-		const DPolyline &dpl = AG.bends(e);
-		ListConstIterator<DPoint> iter;
-		for (const DPoint &p : dpl) {
-			if (p.m_x < minx) minx = p.m_x;
-			if (p.m_x > maxx) maxx = p.m_x;
-			if (p.m_y < miny) miny = p.m_y;
-			if (p.m_y > maxy) maxy = p.m_y;
+	if(has(edgeGraphics)) {
+		for(edge e : G.edges) {
+			const DPolyline &dpl = bends(e);
+			double lw = has(GraphAttributes::edgeStyle) ? 0.5*strokeWidth(e) : 0;
+
+			for (const DPoint &p : dpl) {
+				minx = min(minx, p.m_x - lw);
+				maxx = max(maxx, p.m_x + lw);
+				miny = min(miny, p.m_y - lw);
+				maxy = max(maxy, p.m_y + lw);
+			}
 		}
 	}
 
@@ -302,8 +300,9 @@ int GraphAttributes::hierarchyList(List<List<node>* > &list) const
 			hierachy->pushBack(v); // push v to the list of nodes in this hierachy
 
 			// process all the neighbours of v, e.g. push them into 'nodeSet'
-			edge e;
-			forall_adj_edges(e, v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+
 				if (type(e) == Graph::generalization) {
 					node w = e->source() == v ? e->target() : e->source();
 					if (!processed[w->index()]) {
@@ -356,8 +355,9 @@ int GraphAttributes::hierarchyList(List<List<edge>* > &list) const
 			node v = nodeSet.popFrontRet();
 
 			// process all the neighbours of v, e.g. push them into 'nodeSet'
-			edge e;
-			forall_adj_edges(e, v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+
 				if (type(e) == Graph::generalization) {
 					node w = e->source() == v ? e->target() : e->source();
 					if (!processed[w->index()]) {
@@ -483,7 +483,8 @@ void GraphAttributes::addNodeCenter2Bends(int mode)
 				bendpoints.pushBack(a2);
 				break;
 			}
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}
 		bendpoints.normalize();
 	}

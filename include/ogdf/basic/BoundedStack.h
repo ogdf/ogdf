@@ -32,26 +32,11 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_B_STACK_H
-#define OGDF_B_STACK_H
-
-
-#include <ogdf/basic/basic.h>
-
+#include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
-
-template<class E, class INDEX> class BoundedStack;
-
-// output
-template<class E, class INDEX>
-void print(ostream &os, const BoundedStack<E,INDEX> &S, char delim = ' ');
-
 
 //! The parameterized class \a BoundedStack<E,INDEX> implements stacks with bounded size.
 /**
@@ -228,6 +213,3 @@ ostream &operator<<(ostream &os, const BoundedStack<E,INDEX> &S)
 }
 
 } // end namespace ogdf
-
-
-#endif

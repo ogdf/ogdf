@@ -100,6 +100,13 @@ namespace bandit { namespace detail {
       stm_.flush();
     }
 
+    virtual void it_list(const char* desc)
+    {
+      progress_reporter::it_skip(desc);
+      stm_ << indent() << "- it " << desc << std::endl;
+      stm_.flush();
+    }
+
     private:
     void increase_indent()
     {

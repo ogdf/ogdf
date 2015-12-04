@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_ST_CUT_H
-#define OGDF_MIN_ST_CUT_H
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EpsilonTest.h>
@@ -109,7 +104,7 @@ public:
 		// front cut
 		while(!queue.empty()) {
 			const node v = queue.popFrontRet();
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
 				if(m_nodeSet[w] == NO_CUT
@@ -128,7 +123,7 @@ public:
 
 		while(!queue.empty()) {
 			const node v = queue.popFrontRet();
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
 				if(m_nodeSet[w] == NO_CUT
@@ -206,4 +201,3 @@ public:
 };
 
 }
-#endif

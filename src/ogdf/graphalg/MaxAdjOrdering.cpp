@@ -1,38 +1,39 @@
 /** \file
-         * \brief Calculate one or all Maximum Adjacency Ordering(s) of a given simple undirected graph.
-         *
-         * \author Sebastian Semper
-         *
-         * \par License:
-         * This file is part of the Open Graph Drawing Framework (OGDF).
-         *
-         * \par
-         * Copyright (C)<br>
-         * See README.txt in the root directory of the OGDF installation for details.
-         *
-         * \par
-         * This program is free software; you can redistribute it and/or
-         * modify it under the terms of the GNU General Public License
-         * Version 2 or 3 as published by the Free Software Foundation;
-         * see the file LICENSE.txt included in the packaging of this file
-         * for details.
-         *
-         * \par
-         * This program is distributed in the hope that it will be useful,
-         * but WITHOUT ANY WARRANTY; without even the implied warranty of
-         * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-         * GNU General Public License for more details.
-         *
-         * \par
-         * You should have received a copy of the GNU General Public
-         * License along with this program; if not, write to the Free
-         * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-         * Boston, MA 02110-1301, USA.
-         *
-         * \see  http://www.gnu.org/copyleft/gpl.html
-         ***************************************************************/
+ * \brief Calculate one or all Maximum Adjacency Ordering(s) of a given simple undirected graph.
+ *
+ * \author Sebastian Semper
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.txt in the root directory of the OGDF installation for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+ * Boston, MA 02110-1301, USA.
+ *
+ * \see  http://www.gnu.org/copyleft/gpl.html
+ ***************************************************************/
 
 #include <ogdf/graphalg/MaxAdjOrdering.h>
+#include <ogdf/basic/Logger.h>
 
 
 namespace ogdf {
@@ -89,8 +90,9 @@ void MaxAdjOrdering::calc(
         }
 
         //edges to iterate over
-        edge e;
-        forall_adj_edges(e,lastAdded){
+        for(adjEntry adj : lastAdded->adjEntries) {
+            edge e = adj->theEdge();
+
             //node at the other side
             node end(e->opposite(lastAdded));
 
@@ -180,12 +182,12 @@ void MaxAdjOrdering::calcBfs(
             }
             //now calc the lex-bfs-value for every tied node
             for (auto& t : tiedNodes){
-                edge e;
                 int tieVal = 0;
-                forall_adj_edges(e,t){
-                    ListIterator<node> opIt = MAO->search(e->opposite(t));
+                for(adjEntry adj : t->adjEntries) {
+                    ListIterator<node> opIt = MAO->search(adj->twinNode());
                     if (opIt.valid()){
-                        tieVal += pow(2,MAO->size()-MAO->pos(opIt));
+                        OGDF_ASSERT(MAO->size() - MAO->pos(opIt) < 31);
+                        tieVal += 1 << (MAO->size() - MAO->pos(opIt));
                     }
                 }
                 //update the currently maximum tied node
@@ -197,8 +199,8 @@ void MaxAdjOrdering::calcBfs(
         }
 
         //edges to iterate over
-        edge e;
-        forall_adj_edges(e,lastAdded){
+        for(adjEntry adj : lastAdded->adjEntries) {
+            edge e = adj->theEdge();
             //node at the other side
             node end(e->opposite(lastAdded));
 
@@ -229,12 +231,12 @@ void MaxAdjOrdering::calcBfs(
                     curMaxTieNode = end;
                     curMaxTie = 0;
                     for (auto& t : tiedNodes){
-                        edge e2;
                         int tieVal = 0;
-                        forall_adj_edges(e2,t){
-                            ListIterator<node> opIt = MAO->search(e2->opposite(t));
+                        for(adjEntry adj : t->adjEntries) {
+                            ListIterator<node> opIt = MAO->search(adj->twinNode());
                             if (opIt.valid()){
-                                tieVal += pow(2,MAO->size()-MAO->pos(opIt));
+                                OGDF_ASSERT(MAO->size() - MAO->pos(opIt) < 31);
+                                tieVal += 1 << (MAO->size() - MAO->pos(opIt));
                             }
                         }
                         //update the currently maximum tied node
@@ -247,11 +249,11 @@ void MaxAdjOrdering::calcBfs(
             }
         }
 
-        std::cout << "Tied nodes with maximal tie value -" << curMaxTie << "- among the nodes: ";
+        Logger::slout(Logger::LL_MINOR) << "Tied nodes with maximal tie value -" << curMaxTie << "- among the nodes: ";
         for (auto& t : tiedNodes){
-            std::cout << t->index() << ",";
+            Logger::slout(Logger::LL_MINOR) << t->index() << ",";
         }
-        std::cout <<" and  node "<< curMaxTieNode->index() << " wins." << std::endl;
+        Logger::slout(Logger::LL_MINOR) <<" and  node "<< curMaxTieNode->index() << " wins." << std::endl;
 
     }
 }
@@ -303,10 +305,10 @@ void MaxAdjOrdering::calc(
         }
 
         //edges to iterate over
-        edge e;
-        forall_adj_edges(e,lastAdded){
+        for(adjEntry adj : lastAdded->adjEntries) {
+            edge e = adj->theEdge();
             //node at the other side
-            node end(e->opposite(lastAdded));
+            node end(adj->twinNode());
 
             //search it in unsorted nodes
             ListIterator<NodeElement *> endIt(unsortedNodes.search(end));
@@ -375,8 +377,8 @@ void MaxAdjOrdering::calc(
         }
 
         //edges to iterate over
-        edge e;
-        forall_adj_edges(e,lastAdded){
+        for(adjEntry adj : lastAdded->adjEntries) {
+            edge e = adj->theEdge();
             //node at the other side
             node end(e->opposite(lastAdded));
 
@@ -445,8 +447,8 @@ void MaxAdjOrdering::calc(
         }
 
         //edges to iterate over
-        edge e;
-        forall_adj_edges(e,lastAdded){
+        for(adjEntry adj : lastAdded->adjEntries) {
+            edge e = adj->theEdge();
             //node at the other side
             node end(e->opposite(lastAdded));
 
@@ -538,8 +540,8 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(
     }
 
     //edges to iterate over
-    edge e;
-    forall_adj_edges(e,lastAdded){
+    for(adjEntry adj : lastAdded->adjEntries) {
+        edge e = adj->theEdge();
         //node at the other side
         node end(e->opposite(lastAdded));
         ListIterator<NodeElement *> endIt(currentUnsorted.search(end));
@@ -661,8 +663,8 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(
     }
 
     //edges to iterate over
-    edge e;
-    forall_adj_edges(e,lastAdded){
+    for(adjEntry adj : lastAdded->adjEntries) {
+        edge e = adj->theEdge();
         //node at the other side
         node end(e->opposite(lastAdded));
         ListIterator<NodeElement *> endIt(currentUnsorted.search(end));
@@ -670,7 +672,7 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(
         //if is unsorted
         if (endIt.valid()){
             //increase value of neighborhood and store it
-            float r_(++r[((*endIt)->index())]);
+            int r_(++r[((*endIt)->index())]);
 
             //if it is the current maximum, add it to the list
             if (r_ == maxValue){
@@ -726,12 +728,12 @@ bool MaxAdjOrdering::testIfMAO(const Graph *G, ListPure<NodeElement *> *Ordering
     unsigned int i = 0;
     unsigned int n = Ordering->size();
     NodeArray<unsigned int> r(*G,0);
-    edge e;
     node op;
     ListPure<NodeElement *> tested;
     for (auto& o : *Ordering){
         tested.pushBack(o);
-        forall_adj_edges(e,o){
+        for(adjEntry adj : o->adjEntries) {
+            edge e = adj->theEdge();
             op = e->opposite(o);
             //check if edge goes to the right
             if (!tested.search(op).valid()){
@@ -760,12 +762,12 @@ bool MaxAdjOrdering::testIfMAOBfs(const Graph *G, ListPure<NodeElement *> *Order
     unsigned int i = 0;
     NodeArray<unsigned int> r(*G,0);
     NodeArray<unsigned int> nbh(*G,0);
-    edge e;
     node op;
     ListPure<NodeElement *> tested;
     for (auto& o : *Ordering){
 
-        forall_adj_edges(e,o){
+        for(adjEntry adj : o->adjEntries) {
+            edge e = adj->theEdge();
             op = e->opposite(o);
             //check if edge goes to the right
             if (!tested.search(op).valid()){
@@ -889,7 +891,7 @@ void MaxAdjOrdering::visualize(
     k = 1;
     for (auto& f : *F){
         for (auto& e : f){
-            GA->strokeWidth(e) = 2*k;
+            GA->strokeWidth(e) = 2.f * static_cast<float>(k);
             GA->arrowType(e) = eaNone;
         }
         k++;

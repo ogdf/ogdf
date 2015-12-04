@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLAN_REP_EXPANSION_H
-#define OGDF_PLAN_REP_EXPANSION_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/tuples.h>
@@ -498,6 +491,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -37,14 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CLUSTER_GRAPH_OBSERVER_H
-#define OGDF_CLUSTER_GRAPH_OBSERVER_H
-
 
 #include <ogdf/basic/List.h>
 #include <ogdf/cluster/ClusterGraph.h>
@@ -106,5 +99,3 @@ protected:
 };
 
 } // end of namespace
-
-#endif

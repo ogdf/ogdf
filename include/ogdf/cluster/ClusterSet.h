@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NODE_SET_H
-#define OGDF_NODE_SET_H
-
 
 #include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/List.h>
@@ -325,6 +319,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -38,6 +38,7 @@
 #include <ogdf/energybased/FMMMLayout.h>
 
 namespace ogdf {
+namespace energybased {
 
 MAARPacking::MAARPacking()
 {
@@ -149,7 +150,7 @@ ListIterator<PackingRowInfo> MAARPacking::find_Best_Fit_insert_position(
 	double& aspect_ratio_area,
 	PQueue& total_width_of_row)
 {
-	numexcept N;
+	energybased::numexcept N;
 	double area_2;
 	int best_try_index,index_2;
 	Rectangle r = *rect_item;
@@ -399,4 +400,5 @@ inline Rectangle MAARPacking::tipp_over(ListIterator<Rectangle> rect_item)
 	return r_tipped_over;
 }
 
-}//namespace ogdf
+}
+}

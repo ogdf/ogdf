@@ -34,6 +34,7 @@
 
 #include <ogdf/fileformats/DotParser.h>
 #include <ogdf/fileformats/Utils.h>
+#include <ogdf/fileformats/GraphIO.h>
 
 
 namespace ogdf {
@@ -597,10 +598,10 @@ Ast::Graph *Ast::parseGraph(
 		directed = true;
 		break;
 	default:
-		OGDF_ERROR("Unexpected token \""
+		GraphIO::logger.lout() << "Unexpected token \""
 		          << Token::toString(curr->type)
 		          << "\" at "
-		          << curr->row << ", " << curr->column << ".");
+		          << curr->row << ", " << curr->column << "." << endl;
 		return nullptr;
 	}
 	curr++;
@@ -629,12 +630,12 @@ Ast::Graph *Ast::parseGraph(
 	StmtList *statements = parseStmtList(curr, curr);
 
 	if(curr == m_tend || curr->type != Token::rightBrace) {
-		OGDF_ERROR("Expected \""
+		GraphIO::logger.lout() << "Expected \""
 		          << Token::toString(Token::rightBrace)
 		          << ", found \""
 		          << Token::toString(curr->type)
 		          << "\" at "
-		          << curr->row << ", " << curr->column << ".");
+		          << curr->row << ", " << curr->column << "." << endl;
 		delete id;
 		delete statements;
 		return nullptr;
@@ -776,8 +777,8 @@ static bool readAttribute(
 		}
 		break;
 	default:
-		OGDF_WARNING("Attribute \"" << stmt.lhs
-		          << "\" is  not supported by node or incorrect. Ignoring.");
+		GraphIO::logger.lout(Logger::LL_MINOR) << "Attribute \"" << stmt.lhs
+		          << "\" is  not supported by node or incorrect. Ignoring." << endl;
 	}
 
 	return true;
@@ -823,7 +824,7 @@ static bool readAttribute(
 		}
 		break;
 	default:
-		OGDF_WARNING("Attribute \"" << stmt.lhs << "\" is not supported by edge or incorrect. Ignoring.");
+		GraphIO::logger.lout(Logger::LL_MINOR) << "Attribute \"" << stmt.lhs << "\" is not supported by edge or incorrect. Ignoring." << endl;
 	}
 
 	return true;
@@ -848,8 +849,8 @@ static bool readAttribute(
 		CA.strokeColor(c) = stmt.rhs;
 		break;
 	default:
-		OGDF_WARNING("Attribute \"" << stmt.lhs
-	              << "\" is not supported by cluster or incorrect. Ignoring.");
+		GraphIO::logger.lout(Logger::LL_MINOR) << "Attribute \"" << stmt.lhs
+	              << "\" is not supported by cluster or incorrect. Ignoring." << endl;
 	}
 	return true;
 }
@@ -1079,7 +1080,7 @@ node Parser::requestNode(
 		// first time. This may sound strange but Graphviz's DOT tool behaves
 		// exactly the same so I guess this is a right place to use these.
 		if(GA) {
-			if(GA->attributes() & GraphAttributes::nodeLabel) {
+			if(GA->has(GraphAttributes::nodeLabel)) {
 				GA->label(v) = id;
 			}
 			readAttributes(*GA, v, data.nodeDefaults);

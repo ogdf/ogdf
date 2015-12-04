@@ -40,9 +40,8 @@
 #define POS_SMALL_DOUBLE 1e-300
 #define POS_BIG_DOUBLE   1e+300
 
-
 namespace ogdf {
-
+namespace energybased {
 
 DPoint numexcept::choose_distinct_random_point_in_disque(DPoint old_point,
 	double xmin,double xmax,double ymin,double ymax)
@@ -203,4 +202,5 @@ bool numexcept::nearly_equal(double a,double b)
 		return false;
 }
 
-}//namespace ogdf
+}
+}

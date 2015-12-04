@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LAYERED_CROSS_MIN_MODULE_H
-#define OGDF_LAYERED_CROSS_MIN_MODULE_H
-
-
 
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
@@ -82,6 +74,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

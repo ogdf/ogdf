@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_HEAP_H
-#define OGDF_MIN_HEAP_H
 
 #include<ogdf/basic/Array.h>
 #include<ogdf/basic/comparer.h>
@@ -332,6 +327,3 @@ public:
 };
 
 } // end namespace ogdf
-
-
-#endif

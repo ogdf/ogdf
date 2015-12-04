@@ -123,8 +123,8 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	List<node> baseClasses;
 	for(node v : G.nodes) {
 		bool isBase = false;
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(AG.type(e) != Graph::generalization)
 				continue;
 
@@ -187,11 +187,12 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	// marked edges belong to tree
 	NodeArray<int> outdeg(GC,0);
 	for(node v : GC.nodes) {
-		edge e;
-		forall_adj_edges(e,v)
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(!e->isSelfLoop() && e->source() == v &&
 				AGC.type(e) == Graph::generalization /*&& reversed[e] == true*/)
 				++outdeg[v];
+		}
 	}
 
 	Queue<node> Q;
@@ -199,8 +200,8 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 	EdgeArray<bool> marked(GC,false);
 	while(!Q.empty()) {
 		node v = Q.pop();
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node u = e->source();
 			if(u == v || AGC.type(e) != Graph::generalization/* || reversed[e] == false*/)
 				continue;
@@ -243,8 +244,8 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 
 		for(node v : GC.nodes) {
 			node v1 = nullptr;
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if(marked[e] == false || e->source() == v)
 					continue;
 
@@ -305,7 +306,7 @@ void LongestPathRanking::join(
 	joinedNodes[v].conc(joinedNodes[w]);
 
 	SListPure<edge> edges;
-	GC.adjEdges(w,edges);
+	w->adjEdges(edges);
 	for(edge e : edges) {
 		if(e->source() == w)
 			GC.moveSource(e, v);

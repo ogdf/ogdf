@@ -32,69 +32,57 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_GRAPHML_H
-#define OGDF_GRAPHML_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/HashArray.h>
 #include <string>
 
-
 namespace ogdf {
-
 namespace graphml {
 
-	enum Attribute {
-		a_nodeLabel = 0,
-		a_edgeLabel,
+enum Attribute {
+	a_nodeLabel = 0,
+	a_edgeLabel,
 
-		a_x, a_y, a_z,
-		a_width, a_height,
-		a_size, // Gephi compatibility (size = max(width, height)).
-		a_shape,
+	a_x, a_y, a_z,
+	a_width, a_height,
+	a_size, // Gephi compatibility (size = max(width, height)).
+	a_shape,
 
-		a_nodeStroke,
-		a_edgeStroke,
-		a_clusterStroke,
-		a_nodeFill,
-		a_r, a_g, a_b, // Gephi compatibility (fill compounds).
+	a_nodeStroke,
+	a_edgeStroke,
+	a_clusterStroke,
+	a_nodeFill,
+	a_r, a_g, a_b, // Gephi compatibility (fill compounds).
 
-		a_nodeWeight,
-		a_edgeWeight,
+	a_nodeWeight,
+	a_edgeWeight,
 
-		a_nodeType,
-		a_edgeType,
+	a_nodeType,
+	a_edgeType,
 
-		a_template,
+	a_template,
 
-		a_edgeArrow,
-		a_edgeSubGraph,
-		a_edgeBends,
+	a_edgeArrow,
+	a_edgeSubGraph,
+	a_edgeBends,
 
-		a_unknown // Has to be the last one!
-	};
+	a_unknown // Has to be the last one!
+};
 
-	std::string toString(const Attribute &attr);
-	std::string toString(const Shape &shape);
-	std::string toString(const EdgeArrow &arrow);
-	std::string toString(const Graph::NodeType &type);
-	std::string toString(const Graph::EdgeType &type);
+std::string toString(const Attribute &attr);
+std::string toString(const Shape &shape);
+std::string toString(const EdgeArrow &arrow);
+std::string toString(const Graph::NodeType &type);
+std::string toString(const Graph::EdgeType &type);
 
-	Attribute toAttribute(const std::string &str);
-	Shape toShape(const std::string &str);
-	EdgeArrow toArrow(const std::string &str);
-	Graph::NodeType toNodeType(const std::string &str);
-	Graph::EdgeType toEdgeType(const std::string &str);
+Attribute toAttribute(const std::string &str);
+Shape toShape(const std::string &str);
+EdgeArrow toArrow(const std::string &str);
+Graph::NodeType toNodeType(const std::string &str);
+Graph::EdgeType toEdgeType(const std::string &str);
+
 }
-
-} // end namespace ogdf
-
-
-#endif
+}

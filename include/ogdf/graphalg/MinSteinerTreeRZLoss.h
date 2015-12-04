@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef MIN_STEINER_TREE_RZ_LOSS_OGDF_H_
-#define MIN_STEINER_TREE_RZ_LOSS_OGDF_H_
+#pragma once
 
 #include <set>
 #include <ogdf/basic/Queue.h>
@@ -280,8 +279,6 @@ T MinSteinerTreeRZLoss<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, con
 	// cleanup
 	delete m_fullCompStore;
 	m_nonterminals.clear();
-	m_distance.init(); // disconnect softly (otherwise some OGDF bug may occur)
-	m_pred.init(); // disconnect softly (otherwise some OGDF bug may occur)
 
 	// obtain final Steiner Tree using (MST-based) Steiner tree approximation algorithm
 	return steinertree::obtainFinalSteinerTree(*m_originalGraph, isNewTerminal, *m_isTerminal, finalSteinerTree);
@@ -495,5 +492,3 @@ void MinSteinerTreeRZLoss<T>::contractLoss(EdgeWeightedGraphCopy<T> &steinerTree
 }
 
 }
-
-#endif /* MIN_STEINER_TREE_RZ_LOSS_OGDF_H_ */

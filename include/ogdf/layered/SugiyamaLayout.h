@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SUGIYAMA_LAYOUT_H
-#define OGDF_SUGIYAMA_LAYOUT_H
-
-
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/module/RankingModule.h>
@@ -50,11 +42,9 @@
 #include <ogdf/module/CCLayoutPackModule.h>
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
-
+#include <ogdf/layered/ExtendedNestingGraph.h>
 
 namespace ogdf {
-
-	class ExtendedNestingGraph;
 
 /**
  * \brief Sugiyama's layout algorithm.
@@ -83,7 +73,7 @@ namespace ogdf {
  * IEEE Trans. Software Eng. 19(3), pp. 214-230, 1993.
  *
  * Georg Sander: <i>%Layout of compound directed graphs</i>.
- * Technical Report, Universit&auml;t des Saarlandes, 1996.
+ * Technical Report, Universität des Saarlandes, 1996.
  *
  * <H3>Optional parameters</H3>
  * The following options affect the crossing minimization step
@@ -492,5 +482,3 @@ private:
 
 
 }
-
-#endif

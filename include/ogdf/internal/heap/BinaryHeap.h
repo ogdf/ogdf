@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BINARY_HEAP_H
-#define OGDF_BINARY_HEAP_H
 
 #include <ogdf/internal/heap/HeapBase.h>
 
@@ -379,5 +374,3 @@ void BinaryHeap<T, C>::siftDown(int pos)
 }
 
 } // end namespace ogdf
-
-#endif

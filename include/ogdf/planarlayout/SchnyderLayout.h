@@ -2,7 +2,7 @@
  * \brief Declaration of the Schnyder Layout Algorithm (SchnyderLayout)
  *        algorithm.
  *
- * \author Till Sch&auml;fer
+ * \author Till Schäfer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SCHNYDER_LAYOUT_H
-#define OGDF_SCHNYDER_LAYOUT_H
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/module/GridLayoutModule.h>
@@ -106,6 +100,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif //define

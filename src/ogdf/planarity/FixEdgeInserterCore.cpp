@@ -342,7 +342,7 @@ namespace ogdf {
 		// The edges are directed from the left face to the right face.
 		for(node v : m_pr.nodes)
 		{
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				// Do not insert edges into dual if crossing the original edge
 				// is forbidden
@@ -379,7 +379,7 @@ namespace ogdf {
 		// The edges are directed from the left face to the right face.
 		for(node v : m_pr.nodes)
 		{
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				node vLeft  = m_nodeOf[E.leftFace (adj)];
 				node vRight = m_nodeOf[E.rightFace(adj)];
@@ -408,8 +408,8 @@ namespace ogdf {
 
 	void FixEdgeInserterCore::appendCandidates(QueuePure<edge> &queue, node v)
 	{
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(v == e->source())
 				queue.append(e);
 		}
@@ -417,8 +417,8 @@ namespace ogdf {
 
 	void FixEdgeInserterUMLCore::appendCandidates(QueuePure<edge> &queue, node v)
 	{
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(v == e->source() &&
 				(m_typeOfCurrentEdge != Graph::generalization || m_primalIsGen[e] == false))
 			{
@@ -438,7 +438,7 @@ namespace ogdf {
 		int oldIdCount = m_dual.maxEdgeIndex();
 
 		// augment dual by edges from s to all adjacent faces of s ...
-		for(adjEntry adj : s->adjEdges) {
+		for(adjEntry adj : s->adjEntries) {
 			// starting edges of bfs-search are all edges leaving s
 			edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
 			m_primalAdj[eDual] = adj;
@@ -446,7 +446,7 @@ namespace ogdf {
 		}
 
 		// ... and from all adjacent faces of t to t
-		for(adjEntry adj : t->adjEdges) {
+		for(adjEntry adj : t->adjEntries) {
 			edge eDual = m_dual.newEdge(m_nodeOf[E.rightFace(adj)], m_vT);
 			m_primalAdj[eDual] = adj;
 		}
@@ -534,8 +534,8 @@ namespace ogdf {
 	void FixEdgeInserterCore::appendCandidates(
 		Array<SListPure<edge> > &nodesAtDist, EdgeArray<int> &costDual, int maxCost, node v, int currentDist)
 	{
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(v == e->source()) {
 				int listPos = (currentDist + costDual[e]) % maxCost;
 				nodesAtDist[listPos].pushBack(e);
@@ -546,8 +546,8 @@ namespace ogdf {
 	void FixEdgeInserterUMLCore::appendCandidates(
 		Array<SListPure<edge> > &nodesAtDist, EdgeArray<int> &costDual, int maxCost, node v, int currentDist)
 	{
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(v == e->source() &&
 				(m_typeOfCurrentEdge != Graph::generalization || m_primalIsGen[e] == false))
 			{
@@ -582,7 +582,7 @@ namespace ogdf {
 		int oldIdCount = m_dual.maxEdgeIndex();
 
 		// augment dual by edges from s to all adjacent faces of s ...
-		for(adjEntry adj : s->adjEdges) {
+		for(adjEntry adj : s->adjEntries) {
 			// starting edges of bfs-search are all edges leaving s
 			edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
 			m_primalAdj[eDual] = adj;
@@ -590,7 +590,7 @@ namespace ogdf {
 		}
 
 		// ... and from all adjacent faces of t to t
-		for(adjEntry adj : t->adjEdges) {
+		for(adjEntry adj : t->adjEntries) {
 			edge eDual = m_dual.newEdge(m_nodeOf[E.rightFace(adj)], m_vT);
 			m_primalAdj[eDual] = adj;
 		}

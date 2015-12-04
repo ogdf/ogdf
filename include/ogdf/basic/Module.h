@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_MODULE_H
-#define OGDF_MODULE_H
-
 
 #include <ogdf/basic/basic.h>
 
@@ -82,6 +75,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

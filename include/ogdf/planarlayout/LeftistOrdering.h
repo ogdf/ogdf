@@ -34,13 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LEFTIST_ORDERING_H
-#define OGDF_LEFTIST_ORDERING_H
-
 
 #include <ogdf/module/ShellingOrderModule.h>
 #include <ogdf/basic/AdjEntryArray.h>
@@ -199,6 +193,3 @@ public:
 };
 
 } // end of namespace ogdf
-
-#endif
-

@@ -78,7 +78,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 		cout << "original graph:" << endl << flush;
 		for(node n : m_pGraph->nodes) {
 			cout << n->index() << ": ";
-			for(adjEntry nAdj : n->adjEdges)
+			for(adjEntry nAdj : n->adjEntries)
 				cout << nAdj << " ";
 			cout << endl << flush;
 		}
@@ -153,7 +153,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 				cout << " graphCopy:" << endl << flush;
 				for(node n : m_graphCopy.nodes) {
 					cout << n->index() << "(" << (m_graphCopy.original(n))->index() << "):" << flush;
-					for(adjEntry nAdj : n->adjEdges) {
+					for(adjEntry nAdj : n->adjEntries) {
 						cout << nAdj << "(" << nAdj->theEdge() << "[" << nAdj->index() << "]) " << flush;
 					}
 					cout << endl << flush;
@@ -178,9 +178,9 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 		//  for next iteration
 		for (node v : activeNodesList) {
 			activeNodes[v] = false;
-			edge e;
-			forall_adj_edges(e, v)
-				m_eCopy[e] = nullptr;
+			for(adjEntry adj : v->adjEntries) {
+				m_eCopy[adj->theEdge()] = nullptr;
+			}
 		}
 		activeNodesList.clear();
 

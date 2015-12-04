@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FIXED_EMBEDDING_UPWARD_EDGE_INSERTER_H
-#define OGDF_FIXED_EMBEDDING_UPWARD_EDGE_INSERTER_H
-
-
 
 #include <ogdf/module/UpwardEdgeInserterModule.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
@@ -156,5 +149,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

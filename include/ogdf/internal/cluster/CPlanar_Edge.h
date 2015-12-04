@@ -33,14 +33,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CPLANAR_EDGE_H
-#define OGDF_CPLANAR_EDGE_H
+#pragma once
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/internal/cluster/Cluster_EdgeVar.h>
 
-#include <ogdf/abacus/variable.h>
+#include <ogdf/lib/abacus/variable.h>
 
 namespace ogdf {
 
@@ -68,6 +67,3 @@ public:
 };
 
 }
-
-#endif
-

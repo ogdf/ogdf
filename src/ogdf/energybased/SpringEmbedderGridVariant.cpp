@@ -801,7 +801,7 @@ void SpringEmbedderGridVariant::Worker::operator()()
 		if(y > ymax) ymax = y;
 
 		vInfo[j].m_adjBegin = adjCounter;
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 			adjLists[adjCounter++] = index[adj->twinNode()];
 		vInfo[j].m_adjStop = adjCounter;
 

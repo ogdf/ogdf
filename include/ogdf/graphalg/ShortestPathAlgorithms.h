@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SHORTEST_PATH_ALGORITHMS_H_
-#define OGDF_SHORTEST_PATH_ALGORITHMS_H_
 
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/Graph_d.h>
@@ -122,4 +117,3 @@ void floydWarshall_SPAP(NodeArray<NodeArray<double> >& shortestPathMatrix, const
 
 
 } /* namespace ogdf */
-#endif /* SHORTESTPATHALGORITHMS_H_ */

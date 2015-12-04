@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-
-#ifndef OGDF_EMBED_PQTREE_H
-#define OGDF_EMBED_PQTREE_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
@@ -165,5 +158,3 @@ private:
 };
 
 }
-
-#endif

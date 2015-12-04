@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_IMPL_HOT_QUEUE_H
-#define OGDF_IMPL_HOT_QUEUE_H
-
 
 #include <functional>
 #include <utility>
@@ -349,6 +342,3 @@ void HotQueue<V, P, H>::decrease(
 }
 
 } // end namespace ogdf
-
-
-#endif

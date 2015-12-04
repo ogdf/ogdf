@@ -34,15 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_ORTHO_FORMER_GENERIC_H
-#define OGDF_ORTHO_FORMER_GENERIC_H
-
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/uml/PlanRepUML.h>
@@ -122,32 +114,52 @@ public:
 	int getBendBound(){return m_startBoundBendsPerEdge;}
 
 private:
-	bool m_distributeEdges; // distribute edges among all sides if degree > 4
-	bool m_fourPlanar;      // should the input graph be four planar
-							// (no zero degree)
-	bool m_allowLowZero;    // allow low degree nodes zero degree
-							// (to low for zero...)
-	bool m_multiAlign;      // multi edges aligned on the same side
-	bool m_deg4free;        // allow degree four nodes free angle assignment
-	bool m_traditional;     // do not prefer 180 degree angles,
-							// traditional is not tamassia,
-	// traditional is a kandinsky - ILP - like network with node supply 4,
-	// not traditional interprets angle flow zero as 180 degree, "flow
-	// through the node"
-	bool m_align;           //try to achieve an alignment in hierarchy levels
-	// A maximum number of bends per edge can be specified in
-	// m_startBoundBendsPerEdge. If the algorithm is not successful in
-	// producing a bend minimal representation subject to
-	// startBoundBendsPerEdge, it successively enhances the bound by
-	// one trying to compute an orthogonal representation.
-	//
-	// Using m_startBoundBendsPerEdge may not produce a bend minimal
-	// representation in general.
-	int m_startBoundBendsPerEdge;	//!< bound on the number of bends per edge for flow
-									//!< if == 0, no bound is used
+	//! distribute edges among all sides if degree > 4
+	bool m_distributeEdges;
 
-	//set angle boundary
-	//warning: sets upper AND lower bounds, therefore may interfere with existing bounds
+	//! should the input graph be four planar
+	//! (no zero degree)
+	bool m_fourPlanar;
+
+	//! allow low degree nodes zero degree
+	//! (to low for zero...)
+	bool m_allowLowZero;
+
+	//! multi edges aligned on the same side
+	bool m_multiAlign;
+
+	//! allow degree four nodes free angle assignment
+	bool m_deg4free;
+
+	/**
+	 * Do not prefer 180-degree angles.
+	 * Traditional is not tamassia,
+	 * traditional is a kandinsky-ILP-like network with node supply 4,
+	 * not traditional interprets angle flow zero as 180 degree, "flow
+	 * through the node"
+	 */
+	bool m_traditional;
+
+	//! Try to achieve an alignment in hierarchy levels
+	bool m_align;
+
+	/**
+	 * Bound on the number of bends per edge for flow.
+	 * If == 0, no bound is used.
+	 *
+	 * A maximum number of bends per edge can be specified in
+	 * m_startBoundBendsPerEdge. If the algorithm is not successful in
+	 * producing a bend minimal representation subject to
+	 * startBoundBendsPerEdge, it successively enhances the bound by
+	 * one trying to compute an orthogonal representation.
+	 *
+	 * Using m_startBoundBendsPerEdge may not produce a bend minimal
+	 * representation in general.
+	 */
+	int m_startBoundBendsPerEdge;
+
+	//! Set angle boundary.
+	//! Warning: sets upper AND lower bounds, therefore may interfere with existing bounds
 	void setAngleBound(
 		edge netArc,
 		int angle,
@@ -156,101 +168,33 @@ private:
 		EdgeArray<edge>& aTwin,
 		bool maxBound = true)
 	{
-		//vorlaeufig
+		// preliminary
 		OGDF_ASSERT(!m_traditional);
-		if (m_traditional)
-		{
-			switch (angle)
-			{
-				case 0:
-				case 90:
-				case 180:
-						break;
-				OGDF_NODEFAULT
-			}//switch
-		}//trad
-		else
-		{
-			switch (angle)
-			{
-				case 0: if (maxBound)
-						{
-							upB[netArc] = lowB[netArc] = 2;
-							edge e2 = aTwin[netArc];
-							if (e2)
-							{
-								upB[e2] = lowB[e2] = 0;
-							}
-						}
-						else
-						{
-							upB[netArc] = 2; lowB[netArc] = 0;
-							edge e2 = aTwin[netArc];
-							if (e2)
-							{
-								upB[e2] = 2;
-								lowB[e2] = 0;
-							}
 
-						}
-						break;
-				case 90:
-						if (maxBound)
-						{
-							lowB[netArc] = 1;
-							upB[netArc] = 2;
-							edge e2 = aTwin[netArc];
-							if (e2)
-							{
-								upB[e2] = lowB[e2] = 0;
-							}
-						}
-						else
-						{
-							upB[netArc] = 1;
-							lowB[netArc] = 0;
-							edge e2 = aTwin[netArc];
-							if (e2)
-							{
-								upB[e2] = 2;
-								lowB[e2] = 0;
-							}
+		const int angleId = angle / 90;
+		const edge e2 = aTwin[netArc];
 
-						}
-						break;
-				case 180:
-						if (maxBound)
-						{
-							lowB[netArc] = 0;
-							upB[netArc] = 2;
-							edge e2 = aTwin[netArc];
-							if (e2)
-							{
-								upB[e2] = lowB[e2] = 0;
-							}
-						}
-						else
-						{
-							upB[netArc] = 0;
-							lowB[netArc] = 0;
-							edge e2 = aTwin[netArc];
-							if (e2)
-							{
-								upB[e2] = 2;
-								lowB[e2] = 0;
-							}
+		OGDF_ASSERT(angleId >= 0);
+		OGDF_ASSERT(angleId <= 2);
 
-						}
-						break;
-				OGDF_NODEFAULT // wrong bound
-			}//switch
-		}//progressive
+		if (maxBound) {
+			lowB[netArc] = 2 - angleId;
+			upB[netArc] = 2;
 
-	}//setAngle
+			if (e2) {
+				upB[e2] = lowB[e2] = 0;
+			}
+		} else {
+			upB[netArc] = 2 - angleId;
+			lowB[netArc] = 0;
+
+			if (e2) {
+				upB[e2] = 2;
+				lowB[e2] = 0;
+			}
+		}
+	}//setAngleBound
 };
 
 
 } // end namespace ogdf
-
-
-#endif

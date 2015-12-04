@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FIXED_EMB_INSERTER_H
-#define OGDF_FIXED_EMB_INSERTER_H
-
 
 #include <ogdf/module/EdgeInsertionModule.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
@@ -47,102 +41,100 @@
 namespace ogdf {
 
 
-	//! Edge insertion module that inserts each edge optimally into a fixed embedding.
+//! Edge insertion module that inserts each edge optimally into a fixed embedding.
+/**
+ * @ingroup ga-insert
+ */
+class OGDF_EXPORT FixedEmbeddingInserter : public EdgeInsertionModule
+{
+public:
+	//! Creates an instance of fixed embedding edge inserter with default settings.
+	FixedEmbeddingInserter();
+
+	//! Creates an instance of fixed embedding edge inserter with the same settings as \a inserter.
+	FixedEmbeddingInserter(const FixedEmbeddingInserter &inserter);
+
+	//! Destructor.
+	~FixedEmbeddingInserter() { }
+
+	//! Returns a new instance of the fixed embedding inserter with the same option settings.
+	virtual EdgeInsertionModule *clone() const override;
+
+	//! Assignment operator. Copies option settings only.
+	FixedEmbeddingInserter &operator=(const FixedEmbeddingInserter &inserter);
+
+
 	/**
-	 * @ingroup ga-insert
+	 *  @name Optional parameters
+	 *  @{
 	 */
-	class OGDF_EXPORT FixedEmbeddingInserter : public EdgeInsertionModule
-	{
-	public:
-		//! Creates an instance of fixed embedding edge inserter with default settings.
-		FixedEmbeddingInserter();
 
-		//! Creates an instance of fixed embedding edge inserter with the same settings as \a inserter.
-		FixedEmbeddingInserter(const FixedEmbeddingInserter &inserter);
+	//! Sets the remove-reinsert postprocessing method.
+	void removeReinsert(RemoveReinsertType rrOption) {
+		m_rrOption = rrOption;
+	}
 
-		//! Destructor.
-		~FixedEmbeddingInserter() { }
-
-		//! Returns a new instance of the fixed embedding inserter with the same option settings.
-		virtual EdgeInsertionModule *clone() const override;
-
-		//! Assignment operator. Copies option settings only.
-		FixedEmbeddingInserter &operator=(const FixedEmbeddingInserter &inserter);
+	//! Returns the current setting of the remove-reinsert postprocessing method.
+	RemoveReinsertType removeReinsert() const {
+		return m_rrOption;
+	}
 
 
-		/**
-		 *  @name Optional parameters
-		 *  @{
-		 */
+	//! Sets the option <i>percentMostCrossed</i> to \a percent.
+	/**
+	 * This option determines the portion of most crossed edges used if the remove-reinsert
+	 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
+	 */
+	void percentMostCrossed(double percent) {
+		m_percentMostCrossed = percent;
+	}
 
-		//! Sets the remove-reinsert postprocessing method.
-		void removeReinsert(RemoveReinsertType rrOption) {
-			m_rrOption = rrOption;
-		}
+	//! Returns the current setting of option percentMostCrossed.
+	double percentMostCrossed() const {
+		return m_percentMostCrossed;
+	}
 
-		//! Returns the current setting of the remove-reinsert postprocessing method.
-		RemoveReinsertType removeReinsert() const {
-			return m_rrOption;
-		}
+	//! Sets the option <i>keepEmbedding</i> to \a keep.
+	/**
+	 * This option determines if the planar embedding of the planarized representation \a PG passed to the call-method
+	 * is preserved, or if always a new embedding is computed. If <i>keepEmbedding</i> is set to true,
+	 * \a PG must always be planarly embedded.
+	 */
+	void keepEmbedding(bool keep) {
+		m_keepEmbedding = keep;
+	}
 
+	//! Returns the current setting of option <i>keepEmbedding</i>.
+	bool keepEmbeding() const {
+		return m_keepEmbedding;
+	}
 
-		//! Sets the option <i>percentMostCrossed</i> to \a percent.
-		/**
-		 * This option determines the portion of most crossed edges used if the remove-reinsert
-		 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
-		 */
-		void percentMostCrossed(double percent) {
-			m_percentMostCrossed = percent;
-		}
+	/** @}
+	 *  @name Further information
+	 *  @{
+	 */
 
-		//! Returns the current setting of option percentMostCrossed.
-		double percentMostCrossed() const {
-			return m_percentMostCrossed;
-		}
+	//! Returns the number of runs performed by the remove-reinsert method after the algorithm has been called.
+	int runsPostprocessing() const {
+		return m_runsPostprocessing;
+	}
 
-		//! Sets the option <i>keepEmbedding</i> to \a keep.
-		/**
-		 * This option determines if the planar embedding of the planarized representation \a PG passed to the call-method
-		 * is preserved, or if always a new embedding is computed. If <i>keepEmbedding</i> is set to true,
-		 * \a PG must always be planarly embedded.
-		 */
-		void keepEmbedding(bool keep) {
-			m_keepEmbedding = keep;
-		}
+	//! @}
 
-		//! Returns the current setting of option <i>keepEmbedding</i>.
-		bool keepEmbeding() const {
-			return m_keepEmbedding;
-		}
+private:
+	//! Implements the algorithm call.
+	virtual ReturnType doCall(
+		PlanRepLight              &pr,
+		const Array<edge>         &origEdges,
+		const EdgeArray<int>      *costOrig,
+		const EdgeArray<bool>     *pForbiddenOrig,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs) override;
 
-		/** @}
-		 *  @name Further information
-		 *  @{
-		 */
+	RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
+	double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
+	bool m_keepEmbedding;
 
-		//! Returns the number of runs performed by the remove-reinsert method after the algorithm has been called.
-		int runsPostprocessing() const {
-			return m_runsPostprocessing;
-		}
-
-		//! @}
-
-	private:
-		//! Implements the algorithm call.
-		virtual ReturnType doCall(
-			PlanRepLight              &pr,
-			const Array<edge>         &origEdges,
-			const EdgeArray<int>      *costOrig,
-			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<uint32_t> *pEdgeSubGraphs) override;
-
-		RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
-		double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
-		bool m_keepEmbedding;
-
-		int m_runsPostprocessing; //!< Runs of remove-reinsert method.
-	};
+	int m_runsPostprocessing; //!< Runs of remove-reinsert method.
+};
 
 } // end namespace ogdf
-
-#endif

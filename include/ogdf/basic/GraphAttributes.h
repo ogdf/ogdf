@@ -36,17 +36,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_ATTRIBUTED_GRAPH_H
-#define OGDF_ATTRIBUTED_GRAPH_H
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/LayoutStandards.h>
+#include <ogdf/basic/exceptions.h>
 
 
 namespace ogdf {
@@ -136,8 +132,7 @@ public:
 		nodeTemplate     = 0x01000, //!< node attribute  m_nodeTemplate
 		edgeSubGraphs    = 0x02000, //!< edge attribute  m_subGraph
 		nodeWeight       = 0x04000, //!< node attribute  m_nodeIntWeight
-		threeD           = 0x08000, //!< node attribute  m_z, note that all methods
-									//!< (bounding box etc. work on 2D coordinates only)
+		threeD           = 0x08000, //!< node attribute  m_z, note that all methods work on 2D coordinates only
 		nodeLabelPosition = 0x10000, //!< node attribute  m_nodeLabelPosX,Y,Z
 	};
 
@@ -168,7 +163,7 @@ public:
 	}
 
 	//! Returns true iff all attributes in \a attr are available.
-	bool haveAttributes(long attr) const {
+	inline bool has(long attr) const {
 		return (m_attributes & attr) == attr;
 	}
 
@@ -215,247 +210,600 @@ public:
 	 */
 	//@{
 
+
 	//! Returns the x-coordinate of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double x(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_x[v];
 	}
+
+
 	//! Returns the x-coordinate of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double &x(node v) {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_x[v];
 	}
 
+
 	//! Returns the y-coordinate of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double y(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_y[v];
 	}
+
+
 	//! Returns the y-coordinate of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double &y(node v) {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_y[v];
 	}
 
+
 	//! Returns the z-coordinate of node \a v.
+	/**
+	 * \pre \a threeD is enabled
+	 */
 	double z(node v) const {
-		OGDF_ASSERT(haveAttributes(threeD));
+#ifdef OGDF_DEBUG
+		if(!has(threeD)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_z[v];
 	}
+
+
 	//! Returns the z-coordinate of node \a v.
+	/**
+	 * \pre \a threeD is enabled
+	 */
 	double &z(node v) {
-		OGDF_ASSERT(haveAttributes(threeD));
+#ifdef OGDF_DEBUG
+		if(!has(threeD)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_z[v];
 	}
 
+
 	//! Returns the label x-coordinate of node \a v.
+	/**
+	 * \pre \a nodeLabelPosition is enabled
+	 */
 	double xLabel(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabelPosition)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabelPosX[v];
 	}
+
 	//! Returns the label x-coordinate of node \a v.
+	/**
+	 * \pre \a nodeLabelPosition is enabled
+	 */
 	double &xLabel(node v) {
-		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabelPosition)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabelPosX[v];
 	}
 
+
 	//! Returns the label y-coordinate of node \a v.
+	/**
+	 * \pre \a nodeLabelPosition is enabled
+	 */
 	double yLabel(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabelPosition)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabelPosY[v];
 	}
+
 	//! Returns the label y-coordinate of node \a v.
+	/**
+	 * \pre \a nodeLabelPosition is enabled
+	 */
 	double &yLabel(node v) {
-		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabelPosition)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabelPosY[v];
 	}
 
+
 	//! Returns the label z-coordinate of node \a v.
+	/**
+	 * \pre \a nodeLabelPosition and \a threeD are enabled
+	 */
 	double zLabel(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
-		OGDF_ASSERT(haveAttributes(threeD));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabelPosition | threeD)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabelPosZ[v];
 	}
+
 	//! Returns the label z-coordinate of node \a v.
+	/**
+	 * \pre \a nodeLabelPosition and \a threeD are enabled
+	 */
 	double &zLabel(node v) {
-		OGDF_ASSERT(haveAttributes(nodeLabelPosition));
-		OGDF_ASSERT(haveAttributes(threeD));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabelPosition | threeD)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabelPosZ[v];
 	}
 
+
 	//! Returns the width of the bounding box of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double width(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_width[v];
 	}
+
 	//! Returns the width of the bounding box of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double &width(node v) {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_width[v];
 	}
 
+
 	//! Returns a reference to the node array \a m_width.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	const NodeArray<double> &width() const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_width;
 	}
+
 	//! Returns a reference to the node array \a m_width.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	NodeArray<double> &width() {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_width;
 	}
 
+
 	//! Returns the height of the bounding box of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double height(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_height[v];
 	}
+
 	//! Returns the height of the bounding box of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	double &height(node v) {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_height[v];
 	}
 
+
 	//! Returns a reference to the node array \a m_height.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	const NodeArray<double> &height() const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
-		return m_height;
-	}
-	//! Returns a reference to the node array \a m_height.
-	NodeArray<double> &height() {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_height;
 	}
 
+	//! Returns a reference to the node array \a m_height.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
+	NodeArray<double> &height() {
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
+		return m_height;
+	}
+
+
 	//! Returns the shape type of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	Shape shape(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeShape[v];
 	}
+
 	//! Returns the shape type of node \a v.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	Shape &shape(node v) {
-		OGDF_ASSERT(haveAttributes(nodeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(nodeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeShape[v];
 	}
+
 
 	//! Returns the stroke type of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	StrokeType strokeType(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeStroke[v].m_type;
 	}
+
 	//! Sets the stroke type of node \a v to \a st.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	void setStrokeType(node v, StrokeType st) {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		m_nodeStroke[v].m_type = st;
 	}
 
+
 	//! Returns the stroke color of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	const Color &strokeColor(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
-		return m_nodeStroke[v].m_color;
-	}
-	//! Returns the stroke color of node \a v.
-	Color &strokeColor(node v) {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeStroke[v].m_color;
 	}
 
+	//! Returns the stroke color of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
+	Color &strokeColor(node v) {
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
+		return m_nodeStroke[v].m_color;
+	}
+
+
 	//! Returns the stroke width of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	float strokeWidth(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeStroke[v].m_width;
 	}
+
 	//! Returns the stroke width of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	float &strokeWidth(node v) {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeStroke[v].m_width;
 	}
+
 
 	//! Returns the fill pattern of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	FillPattern fillPattern(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeFill[v].m_pattern;
 	}
+
 	//! Sets the fill pattern of node \a v to \a fp.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	void setFillPattern(node v, FillPattern fp) {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		m_nodeFill[v].m_pattern = fp;
 	}
 
+
 	//! Returns the fill color of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	const Color &fillColor(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeFill[v].m_color;
 	}
+
 	//! Returns the fill color of node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	Color &fillColor(node v) {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeFill[v].m_color;
 	}
 
+
 	//! Returns the background color of fill patterns for node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	const Color &fillBgColor(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeFill[v].m_bgColor;
 	}
+
 	//! Returns the background color of fill patterns for node \a v.
+	/**
+	 * \pre \a nodeStyle is enabled
+	 */
 	Color &fillBgColor(node v) {
-		OGDF_ASSERT(haveAttributes(nodeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(nodeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeFill[v].m_bgColor;
 	}
 
+
 	//! Returns the label of node \a v.
+	/**
+	 * \pre \a nodeLabel is enabled
+	 */
 	const string &label(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeLabel));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabel)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabel[v];
 	}
+
 	//! Returns the label of node \a v.
+	/**
+	 * \pre \a nodeLabel is enabled
+	 */
 	string &label(node v) {
-		OGDF_ASSERT(haveAttributes(nodeLabel));
+#ifdef OGDF_DEBUG
+		if(!has(nodeLabel)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeLabel[v];
 	}
 
+
 	//! Returns the template name of node \a v.
+	/**
+	 * \pre \a nodeTemplate is enabled
+	 */
 	const string &templateNode(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeTemplate));
-		return m_nodeTemplate[v];
-	}
-	//! Returns the template name of node \a v.
-	string &templateNode(node v) {
-		OGDF_ASSERT(haveAttributes(nodeTemplate));
+#ifdef OGDF_DEBUG
+		if(!has(nodeTemplate)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeTemplate[v];
 	}
 
+	//! Returns the template name of node \a v.
+	/**
+	 * \pre \a nodeTemplate is enabled
+	 */
+	string &templateNode(node v) {
+#ifdef OGDF_DEBUG
+		if(!has(nodeTemplate)){
+			throw PreconditionViolatedException();
+		}
+#endif
+		return m_nodeTemplate[v];
+	}
+
+
 	//! Returns the weight of node \a v.
+	/**
+	 * \pre \a nodeWeight is enabled
+	 */
 	int weight(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeWeight));
+#ifdef OGDF_DEBUG
+		if(!has(nodeWeight)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeIntWeight[v];
 	}
+
 	//! Returns the weight of node \a v.
+	/**
+	 * \pre \a nodeWeight is enabled
+	 */
 	int &weight(node v) {
-		OGDF_ASSERT(haveAttributes(nodeWeight));
+#ifdef OGDF_DEBUG
+		if(!has(nodeWeight)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeIntWeight[v];
 	}
+
 
 	//! Returns the type of node \a v.
+	/**
+	 * \pre \a nodeType is enabled
+	 */
 	Graph::NodeType type(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeType));
+#ifdef OGDF_DEBUG
+		if(!has(nodeType)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_vType.valid() ? m_vType[v] : Graph::vertex;
 	}
+
 	//! Returns the type of node \a v.
+	/**
+	 * \pre \a nodeType is enabled
+	 */
 	Graph::NodeType &type(node v) {
-		OGDF_ASSERT(haveAttributes(nodeType));
+#ifdef OGDF_DEBUG
+		if(!has(nodeType)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_vType[v];
 	}
 
+
 	//! Returns the user ID of node \a v.
+	/**
+	 * \pre \a nodeId is enabled
+	 */
 	int idNode(node v) const {
-		OGDF_ASSERT(haveAttributes(nodeId));
+#ifdef OGDF_DEBUG
+		if(!has(nodeId)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeId[v];
 	}
+
 	//! Returns the user ID of node \a v.
+	/**
+	 * \pre \a nodeId is enabled
+	 */
 	int &idNode(node v) {
-		OGDF_ASSERT(haveAttributes(nodeId));
+#ifdef OGDF_DEBUG
+		if(!has(nodeId)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_nodeId[v];
 	}
 
@@ -465,135 +813,319 @@ public:
 	 */
 	//@{
 
+
 	//! Returns the list of bend points of edge \a e.
+	/**
+	 * \pre \a edgeGraphics is enabled
+	 */
 	const DPolyline &bends(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeGraphics));
-		return m_bends[e];
-	}
-	//! Returns the list of bend points of edge \a e.
-	DPolyline &bends(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeGraphics));
+#ifdef OGDF_DEBUG
+		if(!has(edgeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_bends[e];
 	}
 
+	//! Returns the list of bend points of edge \a e.
+	/**
+	 * \pre \a edgeGraphics is enabled
+	 */
+	DPolyline &bends(edge e) {
+#ifdef OGDF_DEBUG
+		if(!has(edgeGraphics)){
+			throw PreconditionViolatedException();
+		}
+#endif
+		return m_bends[e];
+	}
+
+
 	//! Returns the arrow type of edge \a e.
+	/**
+	 * \pre \a edgeArrow is enabled
+	 */
 	EdgeArrow arrowType(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeArrow));
+#ifdef OGDF_DEBUG
+		if(!has(edgeArrow)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeArrow[e];
 	}
+
 	//! Returns the arrow type of edge \a e.
+	/**
+	 * \pre \a edgeArrow is enabled
+	 */
 	EdgeArrow &arrowType(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeArrow));
+#ifdef OGDF_DEBUG
+		if(!has(edgeArrow)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeArrow[e];
 	}
+
 
 	//! Returns the stroke type of edge \a e.
+	/**
+	 * \pre \a edgeStyle is enabled
+	 */
 	StrokeType strokeType(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(edgeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeStroke[e].m_type;
 	}
+
 	//! Sets the stroke type of edge \a e to \a st.
+	/**
+	 * \pre \a edgeStyle is enabled
+	 */
 	void setStrokeType(edge e, StrokeType st) {
-		OGDF_ASSERT(haveAttributes(edgeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(edgeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		m_edgeStroke[e].m_type = st;
 	}
 
+
 	//! Returns the stroke color of edge \a e.
+	/**
+	 * \pre \a edgeStyle is enabled
+	 */
 	const Color &strokeColor(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(edgeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeStroke[e].m_color;
 	}
+
 	//! Returns the stroke color of edge \a e.
+	/**
+	 * \pre \a edgeStyle is enabled
+	 */
 	Color &strokeColor(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(edgeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeStroke[e].m_color;
 	}
 
+
 	//! Returns the stroke width of edge \a e.
+	/**
+	 * \pre \a edgeStyle is enabled
+	 */
 	float strokeWidth(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(edgeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeStroke[e].m_width;
 	}
+
 	//! Returns the stroke width of edge \a e.
+	/**
+	 * \pre \a edgeStyle is enabled
+	 */
 	float &strokeWidth(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeStyle));
+#ifdef OGDF_DEBUG
+		if(!has(edgeStyle)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeStroke[e].m_width;
 	}
 
+
 	//! Returns the label of edge \a e.
+	/**
+	 * \pre \a edgeLabel is enabled
+	 */
 	const string &label(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeLabel));
+#ifdef OGDF_DEBUG
+		if(!has(edgeLabel)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeLabel[e];
 	}
+
 	//! Returns the label of edge \a e.
+	/**
+	 * \pre \a edgeLabel is enabled
+	 */
 	string &label(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeLabel));
+#ifdef OGDF_DEBUG
+		if(!has(edgeLabel)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_edgeLabel[e];
 	}
 
+
 	//! Returns the (integer) weight of edge \a e.
+	/**
+	 * \pre \a edgeIntWeight is enabled
+	 */
 	int intWeight(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeIntWeight));
-		return m_intWeight[e];
-	}
-	//! Returns the (integer) weight of edge \a e.
-	int &intWeight(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeIntWeight));
+#ifdef OGDF_DEBUG
+		if(!has(edgeIntWeight)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_intWeight[e];
 	}
 
+	//! Returns the (integer) weight of edge \a e.
+	/**
+	 * \pre \a edgeIntWeight is enabled
+	 */
+	int &intWeight(edge e) {
+#ifdef OGDF_DEBUG
+		if(!has(edgeIntWeight)){
+			throw PreconditionViolatedException();
+		}
+#endif
+		return m_intWeight[e];
+	}
+
+
 	//! Returns the (real number) weight of edge \a e.
+	/**
+	 * \pre \a edgeDoubleWeight is enabled
+	 */
 	double doubleWeight(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeDoubleWeight));
+#ifdef OGDF_DEBUG
+		if(!has(edgeDoubleWeight)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_doubleWeight[e];
 	}
+
 	//! Returns the (real number) weight of edge \a e.
+	/**
+	 * \pre \a edgeDoubleWeight is enabled
+	 */
 	double &doubleWeight(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeDoubleWeight));
+#ifdef OGDF_DEBUG
+		if(!has(edgeDoubleWeight)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_doubleWeight[e];
 	}
+
 
 	//! Returns the type of edge \a e.
+	/**
+	 * \pre \a edgeType is enabled
+	 */
 	Graph::EdgeType type(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeType));
+#ifdef OGDF_DEBUG
+		if(!has(edgeType)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_eType.valid() ? m_eType[e] : Graph::association;
 	}
+
 	//! Returns the type of edge \a e.
+	/**
+	 * \pre \a edgeType is enabled
+	 */
 	Graph::EdgeType &type(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeType));
+#ifdef OGDF_DEBUG
+		if(!has(edgeType)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_eType[e];
 	}
 
+
 	//! Returns the edgesubgraph value of an edge \a e.
+	/**
+	 * \pre \a edgeSubGraphs is enabled
+	 */
 	uint32_t subGraphBits(edge e) const {
-		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
-		return m_subGraph[e];
-	}
-	//! Returns the edgesubgraph value of an edge \a e.
-	uint32_t &subGraphBits(edge e) {
-		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+#ifdef OGDF_DEBUG
+		if(!has(edgeSubGraphs)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		return m_subGraph[e];
 	}
 
+	//! Returns the edgesubgraph value of an edge \a e.
+	/**
+	 * \pre \a edgeSubGraphs is enabled
+	 */
+	uint32_t &subGraphBits(edge e) {
+#ifdef OGDF_DEBUG
+		if(!has(edgeSubGraphs)){
+			throw PreconditionViolatedException();
+		}
+#endif
+		return m_subGraph[e];
+	}
+
+
 	//! Checks whether edge \a e belongs to basic graph \a n.
+	/**
+	 * \pre \a edgeSubGraphs is enabled
+	 */
 	bool inSubGraph(edge e, int n) const {
-		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+#ifdef OGDF_DEBUG
+		if(!has(edgeSubGraphs)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		OGDF_ASSERT(n>=0);
 		OGDF_ASSERT(n<32);
 		return (m_subGraph[e] & (1 << n)) != 0;
 	}
 
+
 	//! Adds edge \a e to basic graph \a n.
+	/**
+	 * \pre \a edgeSubGraphs is enabled
+	 */
 	void addSubGraph(edge e, int n) {
-		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+#ifdef OGDF_DEBUG
+		if(!has(edgeSubGraphs)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		OGDF_ASSERT(n>=0);
 		OGDF_ASSERT(n<32);
 		m_subGraph[e] |= (1 << n);
 	}
 
+
 	//! Removes edge \a e from basic graph \a n.
+	/**
+	 * \pre \a edgeSubGraphs is enabled
+	 */
 	void removeSubGraph(edge e, int n) {
-		OGDF_ASSERT(haveAttributes(edgeSubGraphs));
+#ifdef OGDF_DEBUG
+		if(!has(edgeSubGraphs)){
+			throw PreconditionViolatedException();
+		}
+#endif
 		OGDF_ASSERT(n>=0);
 		OGDF_ASSERT(n<32);
 		m_subGraph[e] &= ~(1 << n);
@@ -612,6 +1144,8 @@ public:
 	 * \param sx         is the scaling factor for x-coordinates.
 	 * \param sy         is the scaling factor for y-coordinates.
 	 * \param scaleNodes determines if nodes size are scaled as well (true) or not.
+	 *
+	 * \pre \a nodeGraphics and \a edgeGraphics are enabled
 	 */
 	virtual void scale(double sx, double sy, bool scaleNodes = true);
 
@@ -621,6 +1155,8 @@ public:
 	*
 	* \param s          is the scaling factor for both x- and y-coordinates.
 	* \param scaleNodes determines if nodes size are scaled as well (true) or not.
+	*
+	* \pre \a nodeGraphics and \a edgeGraphics are enabled
 	*/
 	virtual void scale(double s, bool scaleNodes = true) { scale(s, s, scaleNodes); }
 
@@ -702,15 +1238,27 @@ public:
 	//@{
 
 	//! Returns the bounding box of the graph.
+	/**
+	 * \pre \a nodeGraphics and \a edgeGraphics is enabled
+	 */
 	virtual DRect boundingBox() const;
 
 	//! Sets the width of all nodes to \a w.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	void setAllWidth(double w);
 
 	//! Sets the height of all nodes to \a h.
+	/**
+	 * \pre \a nodeGraphics is enabled
+	 */
 	void setAllHeight(double h);
 
 	//! Removes all edge bends.
+	/**
+	 * \pre \a edgeGraphics is enabled
+	 */
 	void clearAllBends();
 
 	//! Removes unnecessary bend points in orthogonal segements.
@@ -719,6 +1267,9 @@ public:
 	 * of the edge, i.e., bend points such that the preceding and succeeding bend point
 	 * form a horizontal or vertical segement containing this bend point. This function
 	 * is useful to remove redundant bend points in an orthogonal layout.
+	 *
+	 * \pre \a edgeGraphics is enabled
+	 *
 	 */
 	void removeUnnecessaryBendsHV();
 
@@ -731,6 +1282,8 @@ public:
 	 *     and the boundary of the rectangular node
 	 *   - \a mode = 2: compute intersection with the first/last line segment
 	 *     and the boundary of the rectangular node
+	 *
+	 * \pre \a nodeGraphics and \a edgeGraphics is enabled
 	 */
 	void addNodeCenter2Bends(int mode = 1);
 
@@ -740,6 +1293,8 @@ public:
 	 * the user to be able to change this later (semantic node type member array).
 	 * We are not allowed to set association classes manually, only by calling
 	 * createAssociationClass().
+	 *
+	 * \pre \a nodeGraphics are enabled
 	 */
 	bool isAssociationClass(node v) const {
 		return (type(v) == Graph::associationClass);
@@ -771,6 +1326,3 @@ public:
 };
 
 } // end namespace ogdf
-
-
-#endif

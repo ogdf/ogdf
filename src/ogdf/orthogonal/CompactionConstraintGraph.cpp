@@ -146,7 +146,7 @@ void CompactionConstraintGraphBase::dfsInsertPathVertex(
 	m_path[pathVertex].pushFront(v);
 	m_pathNode[v] = pathVertex;
 
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		OrthoDir dirAdj = m_pOR->direction(adj);
 		OGDF_ASSERT(dirAdj != odUndefined);
@@ -185,7 +185,7 @@ void CompactionConstraintGraphBase::insertBasicArcs(const PlanRep &PG)
 	{
 		node start = m_pathNode[v];
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (m_pOR->direction(adj) == m_arcDir) {
 				edge e = newEdge(start, m_pathNode[adj->theEdge()->opposite(v)]);
 				m_edgeToBasicArc[adj] = e;
@@ -304,8 +304,8 @@ void CompactionConstraintGraphBase::computeTopologicalSegmentNum(
 	{
 		node v = sources.pop();
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->source() != v) continue;
 
 			node w = e->target();
@@ -531,7 +531,8 @@ void CompactionConstraintGraphBase::writeGML(ostream &os) const
 		case cetFixToZeroArc: //violett
 			os << "      fill \"#3F00FF\"\n";
 			break;
-		OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}
 
 		os << "    ]\n"; // graphics
@@ -619,7 +620,8 @@ void CompactionConstraintGraphBase::writeGML(ostream &os, NodeArray<bool> one) c
 		case cetFixToZeroArc: //violett
 			os << "      fill \"#3F00FF\"\n";
 			break;
-		OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}
 
 		os << "    ]\n"; // graphics

@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_SAVEDYNAMIC_H_
-#define OGDF_SAVEDYNAMIC_H_
+#pragma once
 
 #include <ogdf/tree/LCA.h>
 #include <ogdf/internal/steinertree/Save.h>
@@ -196,8 +195,8 @@ public:
 
 			if (v0 != save1
 			 && v0 != save2) {
-				edge e;
-				forall_adj_edges(e, currentNode) {
+				for(adjEntry adj : currentNode->adjEntries) {
+					edge e = adj->theEdge();
 					if (e->target() == currentNode) {
 						m_tree.delEdge(e);
 						break;
@@ -210,8 +209,9 @@ public:
 			// set v0 to its parent or to nullptr if there is no parent
 			v = v0;
 			v0 = nullptr;
-			edge e = nullptr;
-			forall_adj_edges(e, v) {
+			edge e;
+			for(adjEntry adj : v->adjEntries) {
+				e = adj->theEdge();
 				if (e->target() == v) {
 					v0 = e->source();
 					--v0level;
@@ -284,5 +284,3 @@ private:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif /* OGDF_SAVEDYNAMIC_H_ */

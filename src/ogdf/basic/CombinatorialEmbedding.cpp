@@ -57,6 +57,9 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding()
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph &G) :
 	m_cpGraph(&G), m_rightFace(G,nullptr)
 {
+	if(!G.representsCombEmbedding()){
+			throw PreconditionViolatedException();
+	}
 	computeFaces();
 }
 
@@ -91,6 +94,9 @@ ConstCombinatorialEmbedding::~ConstCombinatorialEmbedding() {
 
 void ConstCombinatorialEmbedding::init(const Graph &G)
 {
+	if(!G.representsCombEmbedding()){
+		throw PreconditionViolatedException();
+	}
 	m_cpGraph = &G;
 	m_rightFace.init(G,nullptr);
 	computeFaces();
@@ -119,7 +125,7 @@ void ConstCombinatorialEmbedding::computeFaces()
 	m_rightFace.fill(nullptr);
 
 	for(node v : m_cpGraph->nodes) {
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (m_rightFace[adj]) continue;
 
 #ifdef OGDF_DEBUG
@@ -224,7 +230,7 @@ node CombinatorialEmbedding::splitNode(adjEntry adjStartLeft, adjEntry adjStartR
 
 node CombinatorialEmbedding::contract(edge e)
 {
-	// Since we remove face e, we also remove adjSrc and adjTgt.
+	// Since we remove edge e, we also remove adjSrc and adjTgt.
 	// We make sure that node of them is stored as first adjacency
 	// entry of a face.
 	adjEntry adjSrc = e->adjSource();
@@ -255,8 +261,12 @@ node CombinatorialEmbedding::contract(edge e)
 
 edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
 {
-	OGDF_ASSERT(m_rightFace[adjSrc] == m_rightFace[adjTgt])
-	OGDF_ASSERT(adjSrc != adjTgt)
+	if(m_rightFace[adjSrc] != m_rightFace[adjTgt]){
+		throw PreconditionViolatedException();
+	}
+	if(adjSrc == adjTgt){
+		throw PreconditionViolatedException();
+	}
 
 	edge e = m_pGraph->newEdge(adjSrc,adjTgt);
 
@@ -279,105 +289,41 @@ edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
 	return e;
 }
 
-//special version of the above function doing a pushback of the new edge
-//on the adjacency list of v making it possible to insert new degree 0
-//nodes into a face
 edge CombinatorialEmbedding::splitFace(node v, adjEntry adjTgt)
 {
-	adjEntry adjSrc = v->lastAdj();
-	edge e = nullptr;
-	bool degZ = v->degree() == 0;
-	if (degZ) {
-		e = m_pGraph->newEdge(v, adjTgt);
-	}
-	else
-	{
-		OGDF_ASSERT(m_rightFace[adjSrc] == m_rightFace[adjTgt])
-		OGDF_ASSERT(adjSrc != adjTgt)
-		e = m_pGraph->newEdge(adjSrc,adjTgt); //could use ne(v,ad) here, too
-	}
-
-	face f1 = m_rightFace[adjTgt];
-	//if v already had an adjacent edge, we split the face in two faces
-	int subSize = 0;
-	if (!degZ)
-	{
-		face f2 = createFaceElement(adjSrc);
-
-		adjEntry adj = adjSrc;
-		do
-		{
-			m_rightFace[adj] = f2;
-			f2->m_size++;
-			adj = adj->faceCycleSucc();
-		} while (adj != adjSrc);
-		subSize = f2->m_size;
-	}//if not zero degree
-	else
-	{
-		m_rightFace[e->adjTarget()] = f1;
-	}
-
-	f1->entries.m_adjFirst = adjTgt;
-	f1->m_size += (2 - subSize);
-	m_rightFace[e->adjSource()] = f1;
-
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
-
-	return e;
+	return splitFace(adjTgt, v, false);
 }//splitface
-//--
-//-----------------
+
+edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, node v)
+{
+	return splitFace(adjSrc, v, true);
+}//splitface
+
 //incremental stuff
 //special version of the above function doing a pushback of the new edge
 //on the adjacency list of v making it possible to insert new degree 0
 //nodes into a face, end node v
-edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, node v)
-{
-	adjEntry adjTgt = v->lastAdj();
+edge CombinatorialEmbedding::splitFace(adjEntry adj, node v, bool adjSrc){
+
 	edge e = nullptr;
-	bool degZ = v->degree() == 0;
-	if (degZ)
-	{
-		e = m_pGraph->newEdge(adjSrc, v);
-	}
-	else
-	{
-		OGDF_ASSERT(m_rightFace[adjSrc] == m_rightFace[adjTgt])
-		OGDF_ASSERT(adjSrc != adjTgt)
-		e = m_pGraph->newEdge(adjSrc, adjTgt); //could use ne(v,ad) here, too
-	}
-
-	face f1 = m_rightFace[adjSrc];
-	//if v already had an adjacent edge, we split the face in two faces
-	int subSize = 0;
-	if (!degZ)
-	{
-		face f2 = createFaceElement(adjTgt);
-
-		adjEntry adj = adjTgt;
-		do
-		{
-			m_rightFace[adj] = f2;
-			f2->m_size++;
-			adj = adj->faceCycleSucc();
-		} while (adj != adjTgt);
-		subSize = f2->m_size;
-	}//if not zero degree
-	else
-	{
+	if(v->degree() != 0){
+		e = (adjSrc ? splitFace(adj, v->lastAdj()) : splitFace(adj, v->lastAdj()));
+	} else {
+		if(adjSrc){
+			e = m_pGraph->newEdge(adj, v);
+		} else {
+			e = m_pGraph->newEdge(v, adj);
+		}
+		face f1 = m_rightFace[adj];
 		m_rightFace[e->adjSource()] = f1;
+		f1->entries.m_adjFirst = adj;
+		f1->m_size += 2;
+		m_rightFace[e->adjTarget()] = f1;
+
+		OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
 	}
-
-	f1->entries.m_adjFirst = adjSrc;
-	f1->m_size += (2 - subSize);
-	m_rightFace[e->adjTarget()] = f1;
-
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
-
 	return e;
-}//splitface
-
+}
 //update face information after inserting a merger ith edge e in a copy graph
 void CombinatorialEmbedding::updateMerger(edge e, face fRight, face fLeft)
 {
@@ -627,7 +573,7 @@ bool ConstCombinatorialEmbedding::consistencyCheck()
 		return false;
 
 	for(node v : m_cpGraph->nodes) {
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (visited[adj] == false)
 				return false;
 		}

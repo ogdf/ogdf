@@ -32,9 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_LOGGER_H
-#define OGDF_LOGGER_H
+#pragma once
 
 //#include <ogdf/basic/basic.h>
 #include <ogdf/internal/basic/config.h>
@@ -256,6 +254,3 @@ private:
 };
 
 }
-
-#endif // OGDF_LOGGER_H
-

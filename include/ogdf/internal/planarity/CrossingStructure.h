@@ -32,34 +32,29 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_CROSSING_STRUCTURE_H
-#define OGDF_CROSSING_STRUCTURE_H
-
+#pragma once
 
 #include <ogdf/planarity/PlanRepLight.h>
 
 
 namespace ogdf {
 
-	class CrossingStructure
-	{
-	public:
-		CrossingStructure() : m_numCrossings(0), m_weightedCrossingNumber(0) { }
+class CrossingStructure
+{
+public:
+	CrossingStructure() : m_numCrossings(0), m_weightedCrossingNumber(0) { }
 
-		void init(PlanRepLight &PG, int weightedCrossingNumber);
-		void restore(PlanRep &PG, int cc);
+	void init(PlanRepLight &PG, int weightedCrossingNumber);
+	void restore(PlanRep &PG, int cc);
 
-		int numberOfCrossings() const { return m_numCrossings; }
-		int weightedCrossingNumber() const { return m_weightedCrossingNumber; }
-		const SListPure<int> &crossings(edge e) const { return m_crossings[e]; }
+	int numberOfCrossings() const { return m_numCrossings; }
+	int weightedCrossingNumber() const { return m_weightedCrossingNumber; }
+	const SListPure<int> &crossings(edge e) const { return m_crossings[e]; }
 
-	private:
-		int m_numCrossings;
-		int m_weightedCrossingNumber;
-		EdgeArray<SListPure<int> > m_crossings;
-	};
+private:
+	int m_numCrossings;
+	int m_weightedCrossingNumber;
+	EdgeArray<SListPure<int> > m_crossings;
+};
 
 }
-
-#endif

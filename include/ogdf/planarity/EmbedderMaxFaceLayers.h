@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EMBEDDER_MAX_FACE_LAYERS_H
-#define OGDF_EMBEDDER_MAX_FACE_LAYERS_H
 
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/decomposition/BCTree.h>
@@ -54,7 +49,7 @@ namespace ogdf {
  * The algorithm for maximum external face is combined with the
  * algorithm for maximum external layers which defines how to embed
  * blocks into inner faces. See diploma thesis "Algorithmen zur
- * Bestimmung von guten Graph-Einbettungen f&uuml;r orthogonale
+ * Bestimmung von guten Graph-Einbettungen für orthogonale
  * Zeichnungen" (in german) by Thorsten Kerkhof (2007) for details.
  */
 class OGDF_EXPORT EmbedderMaxFaceLayers : public EmbedderModule
@@ -69,7 +64,7 @@ public:
 	 * \param G is the original graph. Its adjacency list has to be  changed by the embedder.
 	 * \param adjExternal is assigned an adjacency entry on the external face and has to be set by the embedder.
 	 */
-	virtual void call(Graph& G, adjEntry& adjExternal) override;
+	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
 private:
 	/**
@@ -159,5 +154,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

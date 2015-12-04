@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PLANAR_SPQR_TREE_H
-#define OGDF_PLANAR_SPQR_TREE_H
-
 
 #include <ogdf/decomposition/SPQRTree.h>
 
@@ -190,6 +182,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

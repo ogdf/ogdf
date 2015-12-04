@@ -32,36 +32,29 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NODE_ATTRIBUTES_H
-#define OGDF_NODE_ATTRIBUTES_H
 
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 
 namespace ogdf {
+namespace energybased {
 
+//! helping data structure that stores the graphical attributes of a node
+//! that are needed for the force-directed algorithms.
 class OGDF_EXPORT NodeAttributes
 {
-	//helping data structure that stores the graphical attributes of a node
-	//that are needed for the force-directed algorithms.
-
-
-	//outputstream for NodeAttributes
+	//! outputstream for NodeAttributes
 	friend ostream &operator<< (ostream &,const NodeAttributes &);
 
-	//inputstream for NodeAttributes
+	//! inputstream for NodeAttributes
 	friend istream &operator>> (istream &,NodeAttributes &);
 
 public:
 
-	NodeAttributes();       //constructor
-	~NodeAttributes() { }   //destructor
+	NodeAttributes();       //!< constructor
+	~NodeAttributes() { }   //!< destructor
 
 	void set_NodeAttributes(double w, double h, DPoint pos,node v_low,node
 		v_high)
@@ -86,19 +79,21 @@ public:
 	double get_height() const {return height;}
 
 
-	//for preprocessing step in FMMM
+	//! \name for preprocessing step in FMMM @{
 
 	void set_original_node (node v) {v_lower_level = v;}
 	void set_copy_node (node v) {v_higher_level = v;}
 	node get_original_node() const {return v_lower_level;}
 	node get_copy_node() const {return v_higher_level;}
 
-	//for divide et impera step in FMMM (set/get_original_node() are needed, too)
+	//! @}
+	//! \name for divide et impera step in FMMM (set/get_original_node() are needed, too) @{
 
 	void set_subgraph_node (node v) {v_higher_level = v;}
 	node get_subgraph_node() const {return v_higher_level;}
 
-	//for the multilevel step in FMMM
+	//! @}
+	//! \name for the multilevel step in FMMM @{
 
 	void set_lower_level_node (node v) {v_lower_level = v;}
 	void set_higher_level_node (node v) {v_higher_level = v;}
@@ -112,6 +107,8 @@ public:
 	void place(){placed = true;}
 	void set_angle_1(double a) {angle_1 = a;}
 	void set_angle_2(double a) {angle_2 = a;}
+
+	//! @}
 
 	int get_mass() const {return mass;}
 	int get_type() const {return type;}
@@ -128,7 +125,7 @@ public:
 	List<node>* get_dedicated_moon_node_List_ptr() {return moon_List_ptr;}
 
 
-	//initialzes all values needed for multilevel representations
+	//! initialzes all values needed for multilevel representations
 	void init_mult_values();
 
 private:
@@ -137,37 +134,40 @@ private:
 	double width;
 	double height;
 
-	//for the multilevel and divide et impera and preprocessing step
+	//! \name for the multilevel and divide et impera and preprocessing step @{
 
-	node v_lower_level; //the corresponding node in the lower level graph
-	node v_higher_level;//the corresponding node in the higher level graph
-	//for divide et impera v_lower_level is the original graph and
-	//v_higher_level is the copy of the copy of this node in the
-	//maximum connected subraph
+	node v_lower_level; //!< the corresponding node in the lower level graph
+	node v_higher_level;//!< the corresponding node in the higher level graph
+	//! for divide et impera v_lower_level is the original graph and
+	//! v_higher_level is the copy of the copy of this node in the
+	//! maximum connected subraph
 
-	//for the multilevel step
+	//! @}
+	//! \name for the multilevel step @{
 
-	int mass; //the mass (= number of previously collapsed nodes) of this node
-	int type; //1 = sun node (s_node); 2 = planet node (p_node) without a dedicate moon
-	//3 = planet node with dedicated moons (pm_node);4 = moon node (m_node)
-	node dedicated_sun_node; //the dedicates s_node of the solar system of this node
-	double dedicated_sun_distance;//the distance to the dedicated sun node of the galaxy
-	//of this node
-	node dedicated_pm_node;//if type == 4 the dedicated_pm_node is saved here
-	List<double> lambda; //the factors lambda for scaling the length of this edge
-	//relative to the pass between v's sun and the sun of a
-	//neighbour solar system
-	List<node> neighbour_s_node;//this is the list of the neighbour solar systems suns
-	//lambda[i] corresponds to neighbour_s_node[i]
-	List<double>* lambda_List_ptr; //a pointer to the lambda list
-	List<node>* neighbour_s_node_List_ptr; //a pointer to to the neighbour_s_node list
-	List<node>  moon_List;//the list of all dedicated moon nodes (!= nil if type == 3)
-	List<node>* moon_List_ptr;//a pointer to the moon_List
-	bool placed;   //indicates weather an initial position has been assigned to this
-	//node or not
-	double angle_1;//describes the sector where nodes that are not adjacent to other
-	double angle_2;//solar systems have to be placed
+	int mass; //!< the mass (= number of previously collapsed nodes) of this node
+	int type; //!< 1 = sun node (s_node); 2 = planet node (p_node) without a dedicate moon
+	//! 3 = planet node with dedicated moons (pm_node);4 = moon node (m_node)
+	node dedicated_sun_node; //!< the dedicates s_node of the solar system of this node
+	double dedicated_sun_distance;//!< the distance to the dedicated sun node of the galaxy
+	//! of this node
+	node dedicated_pm_node;//!< if type == 4 the dedicated_pm_node is saved here
+	List<double> lambda; //!< the factors lambda for scaling the length of this edge
+	//! relative to the pass between v's sun and the sun of a
+	//! neighbour solar system
+	List<node> neighbour_s_node;//!< this is the list of the neighbour solar systems suns
+	//! lambda[i] corresponds to neighbour_s_node[i]
+	List<double>* lambda_List_ptr; //!< a pointer to the lambda list
+	List<node>* neighbour_s_node_List_ptr; //!< a pointer to to the neighbour_s_node list
+	List<node>  moon_List;//!< the list of all dedicated moon nodes (!= nil if type == 3)
+	List<node>* moon_List_ptr;//!< a pointer to the moon_List
+	bool placed;   //!< indicates weather an initial position has been assigned to this
+	//! node or not
+	double angle_1;//!< describes the sector where nodes that are not adjacent to other
+	double angle_2;//!< solar systems have to be placed
+
+	//! @}
 };
 
-}//namespace ogdf
-#endif
+}
+}

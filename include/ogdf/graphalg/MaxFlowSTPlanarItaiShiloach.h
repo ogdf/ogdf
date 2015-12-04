@@ -35,12 +35,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAX_FLOW_PLANAR_ITAI_SHILOACH_H
-#define OGDF_MAX_FLOW_PLANAR_ITAI_SHILOACH_H
 
 #include <limits>
 #include <ogdf/module/MaxFlowModule.h>
@@ -394,5 +389,3 @@ private:
 };
 
 }
-
-#endif

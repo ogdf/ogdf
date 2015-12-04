@@ -32,34 +32,21 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SPRING_FORCE_MODEL_H
-#define OGDF_SPRING_FORCE_MODEL_H
-
 
 #include <ogdf/basic/basic.h>
 
-
 namespace ogdf {
 
-
-	//! The force model used for computing forces on nodes.
-	//! @ingroup gd-energy
-	enum class SpringForceModel {
-		FruchtermanReingold,	//!< the force model proposed by Fruchterman and Reingold.
-		FruchtermanReingoldModAttr,
-		FruchtermanReingoldModRep,
-		Eades,					//!< the force model proposed by Eades for the original spring embedder.
-		Hachul,					//!< the force model proposed by Hachul (FMMMLayout)
-		Gronemann				//!< the force model proposed by Gronemann (FastMultipoleEmbedder).
-	};
-
+//! The force model used for computing forces on nodes.
+//! @ingroup gd-energy
+enum class SpringForceModel {
+	FruchtermanReingold,	//!< the force model proposed by Fruchterman and Reingold.
+	FruchtermanReingoldModAttr,
+	FruchtermanReingoldModRep,
+	Eades,					//!< the force model proposed by Eades for the original spring embedder.
+	Hachul,					//!< the force model proposed by Hachul (FMMMLayout)
+	Gronemann				//!< the force model proposed by Gronemann (FastMultipoleEmbedder).
+};
 
 } // end namespace ogdf
-
-
-#endif

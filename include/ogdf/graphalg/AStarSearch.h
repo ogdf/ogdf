@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_ASTAR_H
-#define OGDF_ASTAR_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/EpsilonTest.h>
@@ -47,14 +42,14 @@ namespace ogdf {
 
 namespace a_star_internal {
 
-	//! Default heuristic
-	// Always returns 0 as a valid lower bound for the distance from the target.
-	template<typename T>
-	struct UninformedHeuristic {
-		const T operator()(const node v) const {
-			return T(0);
-		}
-	};
+//! Default heuristic
+// Always returns 0 as a valid lower bound for the distance from the target.
+template<typename T>
+struct UninformedHeuristic {
+	const T operator()(const node v) const {
+		return T(0);
+	}
+};
 
 }
 
@@ -203,5 +198,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

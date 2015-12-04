@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_COST_FLOW_REINELT_H
-#define OGDF_MIN_COST_FLOW_REINELT_H
 
 #include <ogdf/module/MinCostFlowModule.h>
 #include <ogdf/basic/EpsilonTest.h>
@@ -1232,5 +1226,3 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 
 } // end namespace ogdf
-
-#endif

@@ -1,7 +1,7 @@
 /** \file
  * \brief Definition of the Fraysseix, Pach, Pollack Algorithm (FPPLayout)
  *
- * \author Till Sch&auml;fer
+ * \author Till Schäfer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

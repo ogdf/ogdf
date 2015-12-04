@@ -53,15 +53,13 @@ namespace ogdf {
 	  : m_nodeNum(G)
 	{
 		int i = 1;
-		node v;
-		forall_nodes(v,G) m_nodeNum[v] = i++;
+		for(node v : G.nodes) m_nodeNum[v] = i++;
 		int nodeNum = i-1;
 		m_adjacencyMatrix.init(1, i, 1, i);
 		for(i = 1; i < nodeNum; i++)
 			for(int j = i+1; j <= nodeNum; j++)
 				m_adjacencyMatrix(i, j) = false;
-		edge e;
-		forall_edges(e,G) {
+		for(edge e : G.edges) {
 			int num1 = m_nodeNum[e->source()];
 			int num2 = m_nodeNum[e->target()];
 			m_adjacencyMatrix(min(num1, num2), max(num1, num2)) = true;

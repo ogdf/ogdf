@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_CLUSTER_GRAPH_H
-#define OGDF_CLUSTER_GRAPH_H
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
@@ -345,7 +339,7 @@ public:
 	*/
 	//@{
 
-	//!< The container containing all cluster objects.
+	//! The container containing all cluster objects.
 	internal::GraphObjectContainer<ClusterElement> clusters;
 
 	//@}
@@ -891,5 +885,3 @@ ostream &operator<<(ostream &os, ogdf::cluster c);
 
 
 } // end namespace ogdf
-
-#endif

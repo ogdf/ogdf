@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HIER_LAYOUT_MODULE_H
-#define OGDF_HIER_LAYOUT_MODULE_H
-
-
 
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/basic/GraphCopyAttributes.h>
@@ -126,6 +118,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DAVIDSON_HAREL_H
-#define OGDF_DAVIDSON_HAREL_H
-
 
 #include <ogdf/internal/energybased/EnergyFunction.h>
 
@@ -126,4 +120,3 @@ private:
 };
 
 } //end namespace
-#endif

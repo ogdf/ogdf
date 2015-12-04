@@ -32,14 +32,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_INDEXCOMPARER_H
-#define OGDF_INDEXCOMPARER_H
-
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
 
 namespace ogdf {
 
@@ -65,6 +60,3 @@ public:
 };
 
 }
-
-#endif // OGDF_INDEXCOMPARER_H
-

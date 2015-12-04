@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EPSILON_TEST_H
-#define OGDF_EPSILON_TEST_H
 
 #include <ogdf/basic/basic.h>
 #include <type_traits>
@@ -196,5 +191,3 @@ public:
 };
 
 } // namespace
-
-#endif // OGDF_EPSILON_TEST_H

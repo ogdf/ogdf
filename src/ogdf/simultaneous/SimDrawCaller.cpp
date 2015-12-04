@@ -110,7 +110,7 @@ int SimDrawCaller::callSubgraphPlanarizer(int cc, int numberOfPermutations)
 {
 	// transfer edge costs if existent
 	EdgeArray<int> ec(*m_G, 1);
-	if(m_GA->attributes() & GraphAttributes::edgeIntWeight)
+	if(m_GA->has(GraphAttributes::edgeIntWeight))
 	{
 		for(edge e : m_G->edges)
 			ec[e] = m_GA->intWeight(e);
@@ -152,9 +152,9 @@ int SimDrawCaller::callSubgraphPlanarizer(int cc, int numberOfPermutations)
 		if(PR.isDummy(vPR))
 		{
 			node vNewOrig = newOrigNode[vPR]; //lebt in *m_G
-			edge e;
-			forall_adj_edges(e, vPR) //lebt in PR
-			{
+			//lebt in PR
+			for(adjEntry adj : vPR->adjEntries) {
+				edge e = adj->theEdge();
 				if(!visited[e])
 				{
 					node w = e->opposite(vPR); //lebt in PR

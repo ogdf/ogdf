@@ -106,12 +106,14 @@ int stNumber(const Graph &G,
 	if (s && t)
 	{
 		bool found = false;
-		forall_adj_edges(st,s)
-			if (st->opposite(s) == t)
+		for(adjEntry adj : s->adjEntries) {
+			if (adj->twinNode() == t)
 			{
+				st = adj->theEdge();
 				found = true;
 				break;
 			}
+		}
 		if (!found)
 			return 0;
 	}
@@ -204,24 +206,23 @@ void stSearch(
 	count++;
 	low[v] = dfn[v];
 
-	edge e;
-	forall_adj_edges(e,v)
-	{
-		node adj = e->opposite(v);
+	for(adjEntry adj : v->adjEntries) {
+		node w = adj->twinNode();
+		edge e = adj->theEdge();
 
-		if(!dfn[adj]) // node not visited yet
+		if(!dfn[w]) // node not visited yet
 		{
-			dfsInEdge[adj] = e;
-			stSearch(G,adj,count,low,dfn,dfsInEdge,followLowPath);
-			if (low[v] > low[adj])
+			dfsInEdge[w] = e;
+			stSearch(G,w,count,low,dfn,dfsInEdge,followLowPath);
+			if (low[v] > low[w])
 			{
-				low[v] = low[adj];
+				low[v] = low[w];
 				followLowPath[v] = e;
 			}
 		}
-		else if (low[v] > dfn[adj])
+		else if (low[v] > dfn[w])
 		{
-			low[v] = dfn[adj];
+			low[v] = dfn[w];
 			followLowPath[v] = e;
 		}
 	}
@@ -299,7 +300,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 		foundHigh = foundLow = 0;
 		if (st_no[v] == 1)
 		{
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				if (st_no[adj->theEdge()->opposite(v)] == max)
 					foundLow = foundHigh = 1;
@@ -308,7 +309,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 
 		else if (st_no[v] == max)
 		{
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				if (st_no[adj->theEdge()->opposite(v)] == 1)
 					foundLow = foundHigh = 1;
@@ -317,7 +318,7 @@ bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max)
 
 		else
 		{
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				if (st_no[adj->theEdge()->opposite(v)] < st_no[v])
 					foundLow = 1;

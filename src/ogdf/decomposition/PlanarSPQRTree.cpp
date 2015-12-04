@@ -74,7 +74,7 @@ void PlanarSPQRTree::adoptEmbedding()
 
 	for (node vOrig : originalGraph().nodes)
 	{
-		for(adjEntry adjOrig : vOrig->adjEdges)
+		for(adjEntry adjOrig : vOrig->adjEntries)
 		{
 			edge            eOrig = adjOrig->theEdge();
 			const Skeleton &S     = skeletonOfReal(eOrig);
@@ -117,7 +117,7 @@ void PlanarSPQRTree::setPosInEmbedding(
 		currentCopy[vT] = vCopy;
 		current.pushBack(vT);
 
-		for (adjEntry adjVirt : vCopy->adjEdges) {
+		for (adjEntry adjVirt : vCopy->adjEntries) {
 			edge eCopy = S.twinEdge(adjVirt->theEdge());
 			if (eCopy == nullptr) continue;
 			if (adjVirt == adj) {
@@ -169,7 +169,7 @@ void PlanarSPQRTree::embed(Graph &G)
 		node vOrig = S.original(v);
 		SListPure<adjEntry> adjEdges;
 
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			edge eOrig = S.realEdge(e);
 
@@ -192,9 +192,9 @@ void PlanarSPQRTree::embed(Graph &G)
 		G.sort(vOrig,adjEdges);
 	}
 
-	edge e;
-	forall_adj_edges(e,rootNode()) {
-		node wT = e->target();
+
+	for(adjEntry adj : rootNode()->adjEntries) {
+		node wT = adj->theEdge()->target();
 		if (wT != rootNode())
 			createInnerVerticesEmbed(G, wT);
 	}
@@ -249,7 +249,7 @@ void PlanarSPQRTree::createInnerVerticesEmbed(Graph &G, node vT)
 		node vOrig = S.original(v);
 		SListPure<adjEntry> adjEdges;
 
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			edge eOrig = S.realEdge(e);
 
@@ -271,9 +271,8 @@ void PlanarSPQRTree::createInnerVerticesEmbed(Graph &G, node vT)
 		G.sort(vOrig,adjEdges);
 	}
 
-	edge e;
-	forall_adj_edges(e,vT) {
-		node wT = e->target();
+	for(adjEntry adj : vT->adjEntries) {
+		node wT = adj->theEdge()->target();
 		if (wT != vT)
 			createInnerVerticesEmbed(G, wT);
 	}
@@ -334,9 +333,8 @@ double PlanarSPQRTree::numberOfEmbeddings(node vT) const
 		break;
 	}
 
-	edge e;
-	forall_adj_edges(e,vT) {
-		node wT = e->target();
+	for(adjEntry adj : vT->adjEntries) {
+		node wT = adj->theEdge()->target();
 		if(wT != vT)
 			num *= numberOfEmbeddings(wT);
 	}
@@ -462,7 +460,7 @@ void PlanarSPQRTree::embed(node &vT, long long x) {
 		//first vertex
 		List<adjEntry> order;
 		node nP = skeleton(vT).getGraph().firstNode();
-		skeleton(vT).getGraph().adjEntries(nP,order);
+		nP->allAdjEntries(order);
 		TargetComparer<AdjElement,AdjElement> comp;
 		order.quicksort(comp);
 		Array<adjEntry> normalized(p);
@@ -545,7 +543,7 @@ void PlanarSPQRTree::firstEmbedding(node &vT)
 		//first vertex
 		List<adjEntry> order;
 		node nP = skeleton(vT).getGraph().firstNode();
-		skeleton(vT).getGraph().adjEntries(nP,order);
+		nP->allAdjEntries(order);
 		TargetComparer<AdjElement,AdjElement> comp;
 		order.quicksort(comp);
 		skeleton(vT).getGraph().sort(nP,order);

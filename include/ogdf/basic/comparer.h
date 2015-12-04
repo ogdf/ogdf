@@ -32,15 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_COMPARER_H
-#define OGDF_COMPARER_H
-
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
 
@@ -378,5 +373,3 @@ public:
 
 
 } //namespace
-
-#endif /*OGF_COMPARER_H*/

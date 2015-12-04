@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_TLP_H
-#define OGDF_TLP_H
-
 
 #include <string>
 
@@ -66,6 +59,3 @@ Attribute toAttribute(const std::string &str);
 } // end namespace tlp
 
 } // end namespace ogdf
-
-
-#endif

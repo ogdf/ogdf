@@ -2,7 +2,7 @@
  * \brief Implementation of the FastSimpleHierarchyLayout
  * (third phase of sugiyama)
  *
- * \author Till Sch&auml;fer, Carsten Gutwenger
+ * \author Till Schäfer, Carsten Gutwenger
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

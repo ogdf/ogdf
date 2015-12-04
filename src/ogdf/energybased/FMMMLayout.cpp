@@ -38,13 +38,9 @@
 #include <ogdf/internal/energybased/numexcept.h>
 #include <ogdf/internal/energybased/MAARPacking.h>
 #include <ogdf/internal/energybased/Multilevel.h>
-#include <ogdf/internal/energybased/Edge.h>
+#include <ogdf/internal/energybased/Rectangle.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/basic.h>
-
-#include <ogdf/internal/energybased/NodeAttributes.h>
-#include <ogdf/internal/energybased/EdgeAttributes.h>
-#include <ogdf/internal/energybased/Rectangle.h>
 
 namespace ogdf {
 
@@ -170,7 +166,7 @@ void FMMMLayout::call_MULTILEVEL_step_for_subGraph(
 	EdgeArray<EdgeAttributes>& E,
 	int comp_index)
 {
-	Multilevel Mult;
+	energybased::Multilevel Mult;
 
 	int max_level = 30;//sufficient for all graphs with upto pow(2,30) nodes!
 	//adapt mingraphsize such that no levels are created beyond input graph.
@@ -527,10 +523,10 @@ void FMMMLayout::delete_parallel_edges(
 	List<edge>& S,
 	EdgeArray<double>& new_edgelength)
 {
-	EdgeMaxBucketFunc MaxSort;
-	EdgeMinBucketFunc MinSort;
-	Edge f_act;
-	List<Edge> sorted_edges;
+	energybased::EdgeMaxBucketFunc MaxSort;
+	energybased::EdgeMinBucketFunc MinSort;
+	energybased::Edge f_act;
+	List<energybased::Edge> sorted_edges;
 	EdgeArray<edge> original_edge (G_reduced); //helping array
 	int save_s_index,save_t_index;
 	int counter = 1;
@@ -554,7 +550,7 @@ void FMMMLayout::delete_parallel_edges(
 
 	//now parallel edges are consecutive in sorted_edges
 	bool firstEdge = true;
-	for (const Edge &ei : sorted_edges)
+	for (const auto &ei : sorted_edges)
 	{//for
 		edge e_act = ei.get_edge();
 		int act_s_index = e_act->source()->index();
@@ -838,7 +834,7 @@ void FMMMLayout::pack_subGraph_drawings(
 	NodeArray<NodeAttributes> A_sub[])
 {
 	double aspect_ratio_area, bounding_rectangles_area;
-	MAARPacking P;
+	energybased::MAARPacking P;
 	List<Rectangle> R;
 
 	if(stepsForRotatingComponents() == 0) //no rotation
@@ -870,7 +866,7 @@ void FMMMLayout::calculate_bounding_rectangles_of_components(
 }
 
 
-Rectangle FMMMLayout::calculate_bounding_rectangle(
+energybased::Rectangle FMMMLayout::calculate_bounding_rectangle(
 	Graph& G,
 	NodeArray<NodeAttributes>& A,
 	int componenet_index)
@@ -1140,7 +1136,8 @@ void FMMMLayout::create_initial_placement(Graph& G, NodeArray<NodeAttributes>& A
 	{ //(uniform on a grid)
 		init_boxlength_and_cornercoordinate(G, A);
 		int level = static_cast<int>(ceil(Math::log4(G.numberOfNodes())));
-		int m = static_cast<int>(pow(2.0, level)) - 1;
+		OGDF_ASSERT(level < 31);
+		int m = (1 << level) - 1;
 		bool finished = false;
 		double blall = boxlength / (m + 1); //boxlength for boxes at the lowest level (depth)
 		Array<node> all_nodes(G.numberOfNodes());
@@ -1221,7 +1218,7 @@ void FMMMLayout::calculate_attractive_forces(
 	EdgeArray<EdgeAttributes> & E,
 	NodeArray<DPoint>& F_attr)
 {
-	numexcept N;
+	energybased::numexcept N;
 	DPoint f_u;
 	DPoint nullpoint (0,0);
 
@@ -1294,7 +1291,7 @@ void FMMMLayout::add_attr_rep_forces(
 	int iter,
 	int fine_tuning_step)
 {
-	numexcept N;
+	energybased::numexcept N;
 	DPoint nullpoint(0, 0);
 
 	//set cool_factor

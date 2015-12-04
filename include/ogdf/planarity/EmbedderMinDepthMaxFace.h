@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EMBEDDER_MIN_DEPTH_MAX_FACE_H
-#define OGDF_EMBEDDER_MIN_DEPTH_MAX_FACE_H
 
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/decomposition/BCTree.h>
@@ -64,7 +59,7 @@ public:
 	 * \param G is the original graph. Its adjacency list has to be  changed by the embedder.
 	 * \param adjExternal is an adjacency entry on the external face and has to be set by the embedder.
 	 */
-	virtual void call(Graph& G, adjEntry& adjExternal) override;
+	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
 private:
 	/**
@@ -180,5 +175,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_Connectivity_TESTER
-#define OGDF_Connectivity_TESTER
 
 #include <ogdf/module/MaxFlowModule.h>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
@@ -193,5 +187,3 @@ private:
 };
 
 }
-
-#endif

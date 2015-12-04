@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_TIMEOUTER_H
-#define OGDF_TIMEOUTER_H
-
 
 #include <ogdf/basic/basic.h>
 
@@ -101,6 +94,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

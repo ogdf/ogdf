@@ -32,13 +32,7 @@
 * \see  http://www.gnu.org/copyleft/gpl.html
 ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef _OGDF_SIMPLE_CC_PACKER_MODULE_H
-#define _OGDF_SIMPLE_CC_PACKER_MODULE_H
-
 
 #include <ogdf/module/LayoutModule.h>
 
@@ -79,5 +73,3 @@ protected:
 };
 
 } // end of namespace ogdf
-
-#endif // CCPACKER_H

@@ -1593,7 +1593,7 @@ void ClusterGraph::unregisterObserver(ListIterator<ClusterGraphObserver*> it) co
 
 
 //****************************************************************
-ostream &operator<<(ostream &os, ogdf::cluster c)
+ogdf::ostream &operator<<(ogdf::ostream &os, ogdf::cluster c)
 {
 	if (c) os << c->index(); else os << "nil";
 	return os;

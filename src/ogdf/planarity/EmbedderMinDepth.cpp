@@ -40,7 +40,7 @@
 
 namespace ogdf {
 
-void EmbedderMinDepth::call(Graph& G, adjEntry& adjExternal)
+void EmbedderMinDepth::doCall(Graph& G, adjEntry& adjExternal)
 {
 	adjExternal = nullptr;
 	pAdjExternal = &adjExternal;
@@ -102,16 +102,14 @@ void EmbedderMinDepth::call(Graph& G, adjEntry& adjExternal)
 
 	//Bottom-up traversal: (set m_cB for all {c, B} \in bcTree)
 	nodeLength[rootBlockNode].init(blockG[rootBlockNode], 0);
-	edge e;
-	forall_adj_edges(e, rootBlockNode)
-	{
+	for(adjEntry adj : rootBlockNode->adjEntries) {
+		edge e = adj->theEdge();
 		node cT = e->source();
 		//node cH = pBCTree->cutVertex(cT, rootBlockNode);
 
 		//set length of c in block graph of root block node:
-		edge e2;
-		forall_adj_edges(e2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+			edge e2 = adj->theEdge();
 			if (e2->target() != cT)
 				continue;
 
@@ -165,16 +163,14 @@ void EmbedderMinDepth::call(Graph& G, adjEntry& adjExternal)
 void EmbedderMinDepth::computeBlockGraphs(const node& bT, const node& cH)
 {
 	//recursion:
-	edge e;
-	forall_adj_edges(e, bT)
-	{
+	for(adjEntry adj : bT->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->source() == bT)
 			continue;
 
 		node cT = e->source();
-		edge e2;
-		forall_adj_edges(e2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+			edge e2 = adj->theEdge();
 			if (e2->source() == cT)
 				continue;
 			node cH2 = pBCTree->cutVertex(cT, e2->source());
@@ -205,18 +201,16 @@ int EmbedderMinDepth::bottomUpTraversal(const node& bT, const node& cH)
 	List<node> M_B; //{c \in B | m_B(c) = m_B}
 
 	//Recursion:
-	edge e;
-	forall_adj_edges(e, bT)
-	{
+	for(adjEntry adj : bT->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->target() != bT)
 			continue;
 		node cT = e->source();
 		//node c_in_bT = pBCTree->cutVertex(cT, bT);
 
 		//set length of c in block graph of root block node:
-		edge e_cT_bT2;
-		forall_adj_edges(e_cT_bT2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+			edge e_cT_bT2 = adj->theEdge();
 			if (e == e_cT_bT2)
 				continue;
 
@@ -274,32 +268,29 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 
 	//Compute m_B and M_B:
 	node cT_parent = nullptr;
-	edge e_bT_cT;
-	{
-		forall_adj_edges(e_bT_cT, bT)
-		{
-			if (e_bT_cT->source() == bT)
-				cT_parent = e_bT_cT->target();
-			node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
-			edge e_cT_bT2;
-			forall_adj_edges(e_cT_bT2, cT)
-			{
-				if (e_cT_bT2 == e_bT_cT)
-					continue;
 
-				//update m_B and M_B:
-				if (m_B < m_cB[e_cT_bT2])
-				{
-					m_B = m_cB[e_cT_bT2];
-					M_B[bT].clear();
-					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
-				}
-				else if (m_B == m_cB[e_cT_bT2] && !M_B[bT].search(pBCTree->cutVertex(cT, bT)).valid())
-				{
-					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
-				}
-			}//forall_adj_edges(e_cT_bT2, cT)
-		}//forall_adj_edges(e_bT_cT, bT)
+	for(adjEntry adj : bT->adjEntries) {
+		edge e_bT_cT = adj->theEdge();
+		if (e_bT_cT->source() == bT)
+			cT_parent = e_bT_cT->target();
+		node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
+		for(adjEntry adj : cT->adjEntries) {
+			edge e_cT_bT2 = adj->theEdge();
+			if (e_cT_bT2 == e_bT_cT)
+				continue;
+
+			//update m_B and M_B:
+			if (m_B < m_cB[e_cT_bT2])
+			{
+				m_B = m_cB[e_cT_bT2];
+				M_B[bT].clear();
+				M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
+			}
+			else if (m_B == m_cB[e_cT_bT2] && !M_B[bT].search(pBCTree->cutVertex(cT, bT)).valid())
+			{
+				M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
+			}
+		}
 	}
 	//set vertex length for all vertices in bH to 1 if vertex is in M_B:
 	nodeLength[bT].fill(0);
@@ -331,8 +322,8 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 			calculateNewNodeLengths = true;
 		else
 			calculateNewNodeLengths = false;
-		forall_adj_edges(e_bT_cT, bT)
-		{
+		for(adjEntry adj : bT->adjEntries) {
+			edge e_bT_cT = adj->theEdge();
 			if (e_bT_cT->target() != bT)
 				continue;
 			node cT = e_bT_cT->source();
@@ -346,15 +337,13 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 				int m2 = 0;
 
 				//Compute m2 and M2:
-				edge e_bT_cT2;
-				forall_adj_edges(e_bT_cT2, bT)
-				{
+				for(adjEntry adj : bT->adjEntries) {
+					edge e_bT_cT2 = adj->theEdge();
 					node cT2 = (e_bT_cT2->source() == bT) ? e_bT_cT2->target() : e_bT_cT2->source();
 					if (cT1 == cT2)
 						continue;
-					edge e_cT2_bT2;
-					forall_adj_edges(e_cT2_bT2, cT2)
-					{
+					for(adjEntry adj : cT2->adjEntries) {
+						edge e_cT2_bT2 = adj->theEdge();
 						if (e_cT2_bT2 == e_bT_cT2)
 							continue;
 
@@ -369,8 +358,8 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 						{
 							M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 						}
-					}//forall_adj_edges(e_cT2_bT2, cT2)
-				}//forall_adj_edges(e_bT_cT2, bT)
+					}
+				}
 
 				//set vertex length for all vertices in bH to 1 if vertex is in M2 and
 				//0 otherwise:
@@ -434,7 +423,7 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 						m_cB[e_bT_cT] = m_B + 2;
 				}
 			}
-		}//forall_adj_edges(e_bT_cT, bT)
+		}
 
 		if (calculateNewNodeLengths)
 		{
@@ -444,15 +433,13 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 			int m2 = 0;
 
 			//Compute m2 and M2:
-			edge e_bT_cT2;
-			forall_adj_edges(e_bT_cT2, bT)
-			{
+			for(adjEntry adj : bT->adjEntries) {
+				edge e_bT_cT2 = adj->theEdge();
 				node cT2 = (e_bT_cT2->source() == bT) ? e_bT_cT2->target() : e_bT_cT2->source();
 				if (cT1 == cT2)
 					continue;
-				edge e_cT2_bT2;
-				forall_adj_edges(e_cT2_bT2, cT2)
-				{
+				for(adjEntry adj : cT2->adjEntries) {
+					edge e_cT2_bT2 = adj->theEdge();
 					if (e_cT2_bT2 == e_bT_cT2)
 						continue;
 
@@ -467,8 +454,8 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					{
 						M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
-				}//forall_adj_edges(e_cT2_bT2, cT2)
-			}//forall_adj_edges(e_bT_cT2, bT)
+				}
+			}
 
 			//set vertex length for all vertices in bH to 1 if vertex is in M2 and
 			//0 otherwise:
@@ -481,15 +468,13 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 			//Compute M2 = {c \in V_B \ {v} | m_B(c) = m2} with
 			//m2 = max_{v \in V_B, v != c} m_B(v).
 			int m2 = 0;
-			edge e_bT_cT2;
-			forall_adj_edges(e_bT_cT2, bT)
-			{
+			for(adjEntry adj : bT->adjEntries) {
+				edge e_bT_cT2 = adj->theEdge();
 				node cT2 = (e_bT_cT2->source() == bT) ? e_bT_cT2->target() : e_bT_cT2->source();
 				if (cT1 == cT2)
 					continue;
-				edge e_cT2_bT2;
-				forall_adj_edges(e_cT2_bT2, cT2)
-				{
+				for(adjEntry adj : cT2->adjEntries) {
+					edge e_cT2_bT2 = adj->theEdge();
 					if (e_cT2_bT2 == e_bT_cT2)
 						continue;
 
@@ -504,21 +489,20 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					{
 						M2[bT].pushBack(pBCTree->cutVertex(cT2, bT));
 					}
-				}//forall_adj_edges(e_cT2_bT2, cT2)
-			}//forall_adj_edges(e_bT_cT2, bT)
+				}
+			}
 		}
 	}
 
 	//Recursion:
-	forall_adj_edges(e_bT_cT, bT)
-	{
+	for(adjEntry adj : bT->adjEntries) {
+		edge e_bT_cT = adj->theEdge();
 		if (e_bT_cT->target() != bT)
 			continue;
 
 		node cT = e_bT_cT->source();
-		edge e_cT_bT2;
-		forall_adj_edges(e_cT_bT2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+			edge e_cT_bT2 = adj->theEdge();
 			if (e_cT_bT2 == e_bT_cT)
 				continue;
 
@@ -531,12 +515,11 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 		M_B[bT].clear();
 		M2[bT].clear();
 		m_B = 0;
-		forall_adj_edges(e_bT_cT, bT)
-		{
+		for(adjEntry adj : bT->adjEntries) {
+			edge e_bT_cT = adj->theEdge();
 			node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
-			edge e_cT_bT2;
-			forall_adj_edges(e_cT_bT2, cT)
-			{
+			for(adjEntry adj : cT->adjEntries) {
+				edge e_cT_bT2 = adj->theEdge();
 				if (e_bT_cT == e_cT_bT2)
 					continue;
 
@@ -551,22 +534,21 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 				{
 					M_B[bT].pushBack(pBCTree->cutVertex(cT, bT));
 				}
-			}//forall_adj_edges(e_cT_bT2, cT)
-		}//forall_adj_edges(e_bT_cT, bT)
+			}
+		}
 
 		if (M_B[bT].size() == 1)
 		{
 			int m2 = 0;
 			node cT1 = pBCTree->bcproper(pBCTree->original(*(M_B[bT].begin())));
-			forall_adj_edges(e_bT_cT, bT)
-			{
+			for(adjEntry adj : bT->adjEntries) {
+				edge e_bT_cT = adj->theEdge();
 				node cT2 = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
 				if (cT1 == cT2)
 					continue;
 				node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
-				edge e_cT_bT2;
-				forall_adj_edges(e_cT_bT2, cT)
-				{
+				for(adjEntry adj : cT->adjEntries) {
+					edge e_cT_bT2 = adj->theEdge();
 					//update m2 and M2:
 					if (m2 < m_cB[e_cT_bT2])
 					{
@@ -579,8 +561,8 @@ void EmbedderMinDepth::topDownTraversal(const node& bT)
 					{
 						M2[bT].pushBack(pBCTree->cutVertex(cT, bT));
 					}
-				}//forall_adj_edges(e_cT_bT2, cT)
-			}//forall_adj_edges(e_bT_cT, bT)
+				}
+			}
 		}
 	}
 
@@ -676,9 +658,8 @@ void EmbedderMinDepth::embedBlock(
 			if (cT2 == cT)
 			{
 				node parent_bT_of_cT2 = nullptr;
-				edge e_cT2_to_bT2;
-				forall_adj_edges(e_cT2_to_bT2, cT2)
-				{
+				for(adjEntry adj : cT2->adjEntries) {
+					edge e_cT2_to_bT2 = adj->theEdge();
 					if (e_cT2_to_bT2->source() == cT2)
 					{
 						parent_bT_of_cT2 = e_cT2_to_bT2->target();
@@ -730,9 +711,8 @@ void EmbedderMinDepth::embedBlock(
 
 				//if (aeExtExists)
 				//{
-					edge e_cT2_to_bT2;
-					forall_adj_edges(e_cT2_to_bT2, cT2)
-					{
+					for(adjEntry adj : cT2->adjEntries) {
+						edge e_cT2_to_bT2 = adj->theEdge();
 						node bT2;
 						if (e_cT2_to_bT2->source() == cT2)
 							bT2 = e_cT2_to_bT2->target();

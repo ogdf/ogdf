@@ -186,8 +186,8 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				bIndex[v] = nBalanced++;
 
 			// consider all outgoing edges
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				node w = e->target();
 				if(w == v)
 					continue;
@@ -272,7 +272,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				if(nBalanced > 0) {
 					if(v->degree() > 1)
 						count += 2;
-					for(adjEntry adj : v->adjEdges) {
+					for(adjEntry adj : v->adjEntries) {
 						node w = adj->twinNode();
 						if(bIndex[w] != -1)
 							count += 2;
@@ -284,7 +284,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 			} else if (nBalanced > 0) {
 				i = vIndex[v];
-				for(adjEntry adj : v->adjEdges) {
+				for(adjEntry adj : v->adjEntries) {
 					node w = adj->twinNode();
 					if(bIndex[w] != -1)
 						count[i] += 2;
@@ -441,7 +441,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				debugNonZeroCount++;
 
 				double f = 1.0 / v->degree();
-				for(adjEntry adj : v->adjEdges) {
+				for(adjEntry adj : v->adjEntries) {
 					node u = adj->twinNode();
 					int uCol = vIndex[u];
 					uCol += (isVirtual[u]) ? segmentOffset : vertexOffset;
@@ -469,7 +469,7 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				debugNonZeroCount++;
 
 				f = -1.0 / v->degree();
-				for(adjEntry adj : v->adjEdges) {
+				for(adjEntry adj : v->adjEntries) {
 					node u = adj->twinNode();
 					int uCol = vIndex[u];
 					uCol += (isVirtual[u]) ? segmentOffset : vertexOffset;
@@ -613,8 +613,8 @@ void OptimalHierarchyLayout::computeYCoordinates(
 		{
 			for(int j = 0; j < L.size(); ++j) {
 				node v = L[j];
-				edge e;
-				forall_adj_edges(e,v) {
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					node w = e->target();
 					if(w != v) {
 						double dvw = fabs(AGC.x(v)-AGC.x(w)) / 3.0;

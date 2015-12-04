@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DTREE_EMBEDDER_H_
-#define OGDF_DTREE_EMBEDDER_H_
 
 #include <ogdf/internal/energybased/DTreeForce.h>
 #include <ogdf/internal/energybased/DTreeGalaxy.h>
@@ -852,5 +847,3 @@ double DTreeEmbedder<Dim>::edgeWeight(edge e) const
 }
 
 } // end namespace
-
-#endif

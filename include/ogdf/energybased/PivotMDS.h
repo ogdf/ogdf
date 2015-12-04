@@ -35,9 +35,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_PIVOT_MDS_H
-#define OGDF_PIVOT_MDS_H
-
+#pragma once
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/graphalg/ShortestPathAlgorithms.h>
@@ -159,5 +157,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

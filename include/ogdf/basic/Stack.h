@@ -33,16 +33,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_STACK_H
-#define OGDF_STACK_H
-
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 
 namespace ogdf {
@@ -314,6 +308,3 @@ ostream &operator<<(ostream &os, const Stack<E> &S)
 }
 
 } // end namespace ogdf
-
-
-#endif

@@ -3,7 +3,7 @@ snowhouse
 
 An assertion library for C++
 
-Snowhouse is a stand alone assertion framework for C++. It was originally 
+Snowhouse is a stand alone assertion framework for C++. It was originally
 developed as part of [Igloo](http://github.com/joakimkarlsson/igloo) and has
 been extracted to be usable in other contexts.
 
@@ -35,7 +35,7 @@ int main()
 ### Assertions
 
 Snowhouse uses a constraint based assertion model that is heavily inspired by the
-model used in [NUnit](http://nunit.org/). An assertion in Snowhouse is written 
+model used in [NUnit](http://nunit.org/). An assertion in Snowhouse is written
 using the following format:
 
 ```cpp
@@ -111,6 +111,33 @@ AssertThat(x, IsLessThan(3));
 AssertThat(x, Is().LessThan(3));
 ```
 
+####GreaterThanOrEqualTo Constraint
+
+Used to verify that actual is greater than or equal to a value.
+
+```cpp
+AssertThat(x, IsGreaterThanOrEqualTo(5));
+AssertThat(x, Is().GreaterThanOrEqualTo(5));
+```
+
+####LessThanOrEqualTo Constraint
+
+Used to verify that actual is less than or equal to a value.
+
+```cpp
+AssertThat(x, IsLessThanOrEqualTo(6));
+AssertThat(x, Is().LessThanOrEqualTo(6));
+```
+
+### Pointer Constraints
+
+Used to check for `nullptr` equality.
+
+```cpp
+AssertThat(x, IsNull());
+AssertThat(x, Is().Null());
+```
+
 ### String Constraints
 
 String assertions in Snowhouse are used to verify the values of STL strings (std::string).
@@ -120,7 +147,7 @@ String assertions in Snowhouse are used to verify the values of STL strings (std
 Used to verify that actual is equal to an expected value.
 
 ```cpp
-Assert:That(actual_str, Equals("foo")); 
+AssertThat(actual_str, Equals("foo"));
 AssertThat(actual_str, Is().EqualTo("foo"));
 ```
 
@@ -129,7 +156,7 @@ AssertThat(actual_str, Is().EqualTo("foo"));
 Used to verify that a string contains a substring.
 
 ```cpp
-AssertThat(actual_str, Contains("foo")); 
+AssertThat(actual_str, Contains("foo"));
 AssertThat(actual_str, Is().Containing("foo"));
 ```
 
@@ -167,7 +194,7 @@ If you have a string that contains multiple lines, you can use the collection co
 Snowhouse can handle both windows (CR+LF) and unix (LF) line endings
 
 ```cpp
-std::string lines = "First line\r\nSecond line\r\nThird line"; 
+std::string lines = "First line\r\nSecond line\r\nThird line";
 AssertThat(lines, Has().Exactly(1).StartingWith("Second"));
 ```
 
@@ -313,7 +340,7 @@ struct IsEvenNumber
 {
   bool Matches(const int actual) const
   {
-    return (actual % 2) == 0; 
+    return (actual % 2) == 0;
   }
 
   friend std::ostream& operator<<(std::ostream& stm, const IsEvenNumber& );
@@ -336,3 +363,57 @@ AssertThat(42, Is().Fulfilling(IsEvenNumber()));
 Your custom matcher should implement a method called Matches() that takes a parameter of the type you expect and returns true if the passed parameter fulfills the constraint.
 
 To get more expressive failure messages, you should also implement the streaming operator as in the example above.
+
+##Getting better output for your types
+
+Whenever Snowhouse prints an error message for a type, it will use the stream operator for that type, otherwise it will print "[unsupported type]"
+as a placeholder.
+
+```cpp
+struct MyType { /*...*/ };
+
+AssertThat(myType, Fulfills(MyConstraint());
+```
+
+Will output the following if the constraint fails:
+
+```bash
+Expected: To fulfill my constraint
+Actual: [unsupported type]
+```
+
+If we add a stream operator:
+
+```cpp
+std::ostream& operator<<(std::ostream& stream, const MyType& a)
+{
+  stream << "MyType( x = " << a.x << " )";
+  return stream;
+}
+```
+
+the output will be a bit more readable:
+
+```bash
+Expected: To fullfill my constraint
+Actual: MyType( x = 23 )
+```
+
+##Configurable Failure Handlers
+
+You can provide Snowhouse with custom failure handlers, for example to call `std::terminate` instead of throwing an exception. See `DefaultFailureHandler` for an example of a failure handler. You can derive your own macros with custom failure handlers using `SNOWHOUSE_ASSERT_THAT` and `SNOWHOUSE_ASSERT_THROWS`. See the definitions of `AssertThat` and `AssertThrows` for examples of these. Define `SNOWHOUSE_NO_MACROS` to disable the unprefixed macros `AssertThat` and `AssertThrows`.
+
+### Example Use Cases
+
+#### Assert Program State
+
+Log an error immediately as we may crash if we try to continue. Don't attempt to unwind the stack as we may be inside a destructor or `nothrow` function. We may want to call `std::terminate`, or attempt to muddle along with the rest of the program.
+
+#### Assert Program State in Safe Builds
+
+As above, but only in debug builds.
+
+#### Test Assert
+
+Assert that a test behaved as expected. Throw an exception and let our testing framework deal with the test failure.
+

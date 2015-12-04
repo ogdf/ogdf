@@ -35,14 +35,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_LINEARLAYOUT_H
-#define OGDF_LINEARLAYOUT_H
-
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/Graph.h>
@@ -54,63 +47,60 @@
 #include <ogdf/basic/Math.h>
 
 namespace ogdf {
+/**
+	* \brief Layout the graph with nodes next to each other with natural or custom
+	* order and draw the edges as semicircular bows above them.
+	*/
+
+class OGDF_EXPORT LinearLayout : public LayoutModule{
+private:
 	/**
-		* \brief Layout the graph with nodes next to each other with natural or custom
-		* order and draw the edges as semicircular bows above them.
-		*/
+	* \brief If true a custom order stored in \a m_nodeOrder will be used
+	*/
+	bool m_customOrder;
 
-	class OGDF_EXPORT LinearLayout : public LayoutModule{
-	private:
-		/**
-		* \brief If true a custom order stored in \a m_nodeOrder will be used
-		*/
-		bool m_customOrder;
+	/**
+	* \brief Contains a custom ordering for putting the graphs next to each other
+	*/
+	ListPure<NodeElement *> m_nodeOrder;
+	double m_outWidth;
+public:
 
-		/**
-		* \brief Contains a custom ordering for putting the graphs next to each other
-		*/
-		ListPure<NodeElement *> m_nodeOrder;
-		float m_outWidth;
-	public:
+	/**
+	* \brief Constructor that takes a desired width and a custom ordering
+	* @param w Width of the output
+	* @param o custom order
+	*/
+	LinearLayout(
+		double w,
+		ListPure<NodeElement *> o
+	);
 
-		/**
-		* \brief Constructor that takes a desired width and a custom ordering
-		* @param w Width of the output
-		* @param o custom order
-		*/
-		LinearLayout(
-			float w,
-			ListPure<NodeElement *> o
-		);
+	/**
+	 * \brief Constructor that uses a standard width and no custom order of the nodes
+	 */
+	LinearLayout();
 
-		/**
-		 * \brief Constructor that uses a standard width and no custom order of the nodes
-		 */
-		LinearLayout();
+	/**
+	 * \brief Standard destructor
+	 */
+	~LinearLayout();
 
-		/**
-		 * \brief Standard destruktor
-		 */
-		~LinearLayout();
+	/**
+	 * \brief Overloaded function from the \a LayoutModule base class.
+	 */
 
-		/**
-		 * \brief Overloaded function from the \a LayoutModule base class.
-		 */
+	virtual void call(
+		GraphAttributes& GA
+	);
 
-		virtual void call(
-			GraphAttributes& GA
-		);
-
-		/**
-		 * \brief Interface function to toggle custom ordering
-		 */
-		virtual void setCustomOrder(
-			bool o
-		);
-	};
+	/**
+	 * \brief Interface function to toggle custom ordering
+	 */
+	virtual void setCustomOrder(
+		bool o
+	);
+};
 
 
 } // end namespace ogdf
-
-
-#endif

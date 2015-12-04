@@ -177,10 +177,10 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 
 	//mark the incident edges e1..e_i of super source s and the incident edges of the target node of the edge e1.._e_i as tree edge.
 	visited[s] = true;
-	for(adjEntry adj : s->adjEdges) {
+	for(adjEntry adj : s->adjEntries) {
 		isTreeEdge[adj] = true;
 		visited[adj->theEdge()->target()];
-		for(adjEntry adjTmp : adj->theEdge()->target()->adjEdges) {
+		for(adjEntry adjTmp : adj->theEdge()->target()->adjEntries) {
 			isTreeEdge[adjTmp] = true;
 			node tgt = adjTmp->theEdge()->target();
 			if (!visited[tgt]) {
@@ -192,7 +192,7 @@ void FUPSSimple::getSpanTree(GraphCopy &GC, List<edge> &delEdges, bool random)
 
 	//traversing with dfs
 	for(node start : toDo) {
-		for(adjEntry adj : start->adjEdges) {
+		for(adjEntry adj : start->adjEntries) {
 			node v = adj->theEdge()->target();
 			if (!visited[v])
 				dfs_visit(GC, adj->theEdge(), visited, isTreeEdge, random);
@@ -223,7 +223,7 @@ void FUPSSimple::dfs_visit(
 {
 	treeEdges[e] = true;
 	List<edge> elist;
-	G.outEdges(e->target(), elist);
+	e->target()->outEdges(elist);
 	if (!elist.empty()) {
 		if (random)
 			elist.permute();

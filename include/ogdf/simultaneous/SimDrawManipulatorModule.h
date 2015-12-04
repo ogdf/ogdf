@@ -32,63 +32,60 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_SIMDRAW_MANIPULATOR_MODULE_H
-#define OGDF_SIMDRAW_MANIPULATOR_MODULE_H
+#pragma once
 
 #include<ogdf/simultaneous/SimDraw.h>
 
 namespace ogdf
 {
-	//! Interface for simdraw manipulators
-	/**
-	*  To avoid class SimDraw to become too large, several functions
-	*  have been outsourced. These are systematically
-	*  grouped in creation methods (SimDrawCreator), algorithm calls
-	*  (SimDrawCaller) and coloring methods (SimDrawColorizer).
-	*
-	*  A manipulator instance always needs a SimDraw instance (base instance)
-	*  to work on. The base instance is linked by pointers,
-	*  thus a change within the base instance after initializing does
-	*  not cause trouble:
-	*  \code
-	*  SimDraw SD;
-	*  SimDrawCreatorSimple SDCr(SD);
-	*  SimDrawColorizer SDCo(SD);
-	*  SDCr.createTrees_GKV05(4);
-	*  SimDrawCaller SDCa(SD);
-	*  SDCa.callUMLPlanarizationLayout();
-	*  SDCo.addColor();
-	*  \endcode
+//! Interface for simdraw manipulators
+/**
+*  To avoid class SimDraw to become too large, several functions
+*  have been outsourced. These are systematically
+*  grouped in creation methods (SimDrawCreator), algorithm calls
+*  (SimDrawCaller) and coloring methods (SimDrawColorizer).
+*
+*  A manipulator instance always needs a SimDraw instance (base instance)
+*  to work on. The base instance is linked by pointers,
+*  thus a change within the base instance after initializing does
+*  not cause trouble:
+*  \code
+*  SimDraw SD;
+*  SimDrawCreatorSimple SDCr(SD);
+*  SimDrawColorizer SDCo(SD);
+*  SDCr.createTrees_GKV05(4);
+*  SimDrawCaller SDCa(SD);
+*  SDCa.callUMLPlanarizationLayout();
+*  SDCo.addColor();
+*  \endcode
+*/
+class OGDF_EXPORT SimDrawManipulatorModule
+{
+
+protected:
+	//! pointer to current simdraw instance
+	SimDraw *m_SD;
+
+	//! pointer to current graph
+	Graph *m_G;
+
+	//! pointer to current graphattributes
+	GraphAttributes *m_GA;
+
+public:
+	//! default constructor
+	/** creates its own simdraw instance
 	*/
-	class OGDF_EXPORT SimDrawManipulatorModule
-	{
+	SimDrawManipulatorModule();
 
-	protected:
-		//! pointer to current simdraw instance
-		SimDraw *m_SD;
+	//! constructor
+	SimDrawManipulatorModule(SimDraw &SD) { init(SD); }
 
-		//! pointer to current graph
-		Graph *m_G;
+	//! initializing base instance
+	void init(SimDraw &SD);
 
-		//! pointer to current graphattributes
-		GraphAttributes *m_GA;
-
-	public:
-		//! default constructor
-		/** creates its own simdraw instance
-		*/
-		SimDrawManipulatorModule();
-
-		//! constructor
-		SimDrawManipulatorModule(SimDraw &SD) { init(SD); }
-
-		//! initializing base instance
-		void init(SimDraw &SD);
-
-		//! returns base instance
-		const SimDraw &constSimDraw() const { return *m_SD; }
-	};
+	//! returns base instance
+	const SimDraw &constSimDraw() const { return *m_SD; }
+};
 
 } // end namespace ogdf
-
-#endif

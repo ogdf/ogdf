@@ -32,28 +32,18 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FME_THREAD_H
-#define OGDF_FME_THREAD_H
 
 #include <ogdf/basic/Thread.h>
 #include <ogdf/basic/Barrier.h>
 
 #include <ogdf/internal/energybased/FastUtils.h>
-
+#include <ogdf/internal/energybased/ArrayGraph.h>
+#include <ogdf/internal/energybased/LinearQuadtree.h>
 
 namespace ogdf {
 
-class ArrayGraph;
-class LinearQuadtree;
-class LinearQuadtreeExpansion;
 class FMEThreadPool;
-class FMEThread;
-class WSPD;
-
 
 /*!
  * The thread task class
@@ -185,6 +175,3 @@ private:
 };
 
 }
-
-#endif
-

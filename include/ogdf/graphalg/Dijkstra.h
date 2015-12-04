@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DIJKSTRA_H_
-#define OGDF_DIJKSTRA_H_
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/EpsilonTest.h>
@@ -98,7 +93,7 @@ public:
 			 && m_eps.greater(distance[v], static_cast<T>(0))) { // v is unreachable, ignore
 				continue;
 			}
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				node w = adj->twinNode();
 				if (directed && e->target() == v) { // edge is in wrong direction
@@ -134,5 +129,3 @@ public:
 };
 
 } // end namespace ogdf
-
-#endif /* OGDF_DIJKSTRA_H_ */

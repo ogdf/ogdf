@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_SKELETON_H
-#define OGDF_SKELETON_H
-
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -48,7 +40,7 @@
 
 namespace ogdf {
 
-	class OGDF_EXPORT SPQRTree;
+class OGDF_EXPORT SPQRTree;
 
 
 //! %Skeleton graphs of nodes in an SPQR-tree.
@@ -159,6 +151,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

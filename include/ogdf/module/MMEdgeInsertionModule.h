@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MM_EDGE_INSERTION_MODULE_H
-#define OGDF_MM_EDGE_INSERTION_MODULE_H
-
 
 #include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/basic/Module.h>
@@ -116,5 +110,3 @@ protected:
 };
 
 } // end namespace ogdf
-
-#endif

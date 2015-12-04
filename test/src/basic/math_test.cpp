@@ -38,16 +38,35 @@
 using namespace bandit;
 using namespace ogdf;
 
+template<typename T>
+static void testGcdAndLcm(const char *type)
+{
+	it(string("computes gcd of large numbers of type ") + string(type), []() {
+		T big = numeric_limits<T>::max();
+		AssertThat(Math::gcd(big, big), Equals(big));
+	});
+	it(string("computes lcm of large numbers of type ") + string(type), []() {
+		T big = numeric_limits<T>::max();
+		AssertThat(Math::lcm(big, big), Equals(big));
+	});
+}
+
 go_bandit([]() {
-	describe("Math.h", [&]() {
-		it("computes gcd with two arguments", [&]() {
-            AssertThat(Math::gcd(5,7), Equals(1));
-            AssertThat(Math::gcd(5,15), Equals(5));
-            AssertThat(Math::gcd(6,9), Equals(3));
+	describe("Math.h", []() {
+		it("computes gcd with two arguments", []() {
+			AssertThat(Math::gcd(5,7), Equals(1));
+			AssertThat(Math::gcd(5,15), Equals(5));
+			AssertThat(Math::gcd(6,9), Equals(3));
 		});
-		it("computes gcd with array of arguments", [&]() {
-            AssertThat(Math::gcd(Array<int>({5,7,11})), Equals(1));
-            AssertThat(Math::gcd(Array<int>({6,12,45})), Equals(3));
+		it("computes gcd with array of arguments", []() {
+			AssertThat(Math::gcd(Array<int>({5,7,11})), Equals(1));
+			AssertThat(Math::gcd(Array<int>({6,12,45})), Equals(3));
 		});
+		testGcdAndLcm<int>("int");
+		testGcdAndLcm<unsigned int>("unsigned int");
+		testGcdAndLcm<long>("long");
+		testGcdAndLcm<unsigned long>("unsigned long");
+		testGcdAndLcm<long long>("long long");
+		testGcdAndLcm<unsigned long long>("unsigned long long");
 	});
 });

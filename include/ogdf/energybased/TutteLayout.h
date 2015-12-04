@@ -43,14 +43,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_TUTTE_LAYOUT_H
-#define OGDF_TUTTE_LAYOUT_H
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
@@ -125,5 +118,3 @@ private:
 #endif // USE_COIN
 
 } // end namespace ogdf
-
-#endif // OGDF_TUTTE_LAYOUT_H

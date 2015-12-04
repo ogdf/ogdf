@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_RANKING_MODULE_H
-#define OGDF_RANKING_MODULE_H
-
-
 
 #include <ogdf/basic/Graph.h>
 
@@ -91,6 +83,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -57,13 +57,12 @@ namespace ogdf {
 
 		GraphCopy GC;
 		GC.createEmpty(G);
-		node n;
-		forall_nodes(n,G) {
+		for(node n : G.nodes) {
 			GC.newNode(n);
 		}
 		if(singleSource) {
-			edge eG;
-			forall_adj_edges(eG,source) {
+			for(adjEntry adj : source->adjEntries) {
+				edge eG = adj->theEdge();
 				OGDF_ASSERT( source == eG->source() );
 				GC.newEdge( eG );
 			}
@@ -95,8 +94,7 @@ namespace ogdf {
 			return Module::retError;
 
 		if(!singleSource) { //make single source
-			node n;
-			forall_nodes(n, G) {
+			for(node n : G.nodes) {
 				if(n->indeg() == 0 && (*nodeOrder)[n]>0) {
 					adjEntry adj = n->lastAdj();
 					do {

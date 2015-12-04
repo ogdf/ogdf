@@ -35,11 +35,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CPLANAR_BASICS_H
-#define OGDF_CPLANAR_BASICS_H
+#pragma once
 
-#include <ogdf/abacus/master.h>
-#include <ogdf/abacus/constraint.h>
+#include <ogdf/lib/abacus/master.h>
+#include <ogdf/lib/abacus/constraint.h>
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
@@ -82,5 +81,3 @@ public:
 };
 
 }//end namespace ogdf
-
-#endif

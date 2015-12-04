@@ -2,7 +2,7 @@
  * \brief declaration of the FastSimpleHierarchyLayout
  * (third phase of sugiyama)
  *
- * \author Till Sch&auml;fer, Carsten Gutwenger
+ * \author Till Schäfer, Carsten Gutwenger
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FAST_SIMPLE_LAYOUT_H
-#define OGDF_FAST_SIMPLE_LAYOUT_H
-
 
 #include <ogdf/module/HierarchyLayoutModule.h>
 #include <ogdf/layered/Hierarchy.h>
@@ -48,7 +42,7 @@
 namespace ogdf {
 
 /**
- * \brief Coordinate assignment phase for the Sugiyama algorithm by Ulrik Brandes and Boris K&ouml;pf
+ * \brief Coordinate assignment phase for the Sugiyama algorithm by Ulrik Brandes and Boris Köpf
  *
  * @ingroup gd-hlm
  *
@@ -66,7 +60,7 @@ namespace ogdf {
  *
  * The implementation is based on:
  *
- * Ulrik Brandes, Boris K&ouml;pf: <i>Fast and Simple Horizontal Coordinate Assignment</i>.
+ * Ulrik Brandes, Boris Köpf: <i>Fast and Simple Horizontal Coordinate Assignment</i>.
  * LNCS 2002, Volume 2265/2002, pp. 33-36
  *
  * <h3>Optional Parameters</h3>
@@ -287,6 +281,3 @@ private:
 };
 
 } // end namespace ogdf
-
-
-#endif

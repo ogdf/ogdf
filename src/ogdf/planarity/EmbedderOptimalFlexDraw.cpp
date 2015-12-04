@@ -252,7 +252,7 @@ namespace ogdf {
 			optimizeOverEmbeddings(T, parent, mu, bends, cost, embedding);
 	}
 
-	void EmbedderOptimalFlexDraw::call(Graph &G, adjEntry &adjExternal)
+	void EmbedderOptimalFlexDraw::doCall(Graph &G, adjEntry &adjExternal)
 	{
 		StaticPlanarSPQRTree T(G);
 

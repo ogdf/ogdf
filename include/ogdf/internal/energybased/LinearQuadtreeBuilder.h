@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_LINEAR_QUADTREE__BUILDER_H
-#define OGDF_LINEAR_QUADTREE__BUILDER_H
+#pragma once
 
 #include <ogdf/internal/energybased/FastUtils.h>
 #include <ogdf/internal/energybased/LinearQuadtree.h>
@@ -127,7 +126,3 @@ public:
 };
 
 } // end of namespace ogdf
-
-#endif
-
-

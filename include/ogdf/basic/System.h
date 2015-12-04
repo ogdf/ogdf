@@ -33,17 +33,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-// must be included first here
-#include <ogdf/basic/basic.h>
-
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_SYSTEM_H
-#define OGDF_SYSTEM_H
-
+#include <ogdf/basic/basic.h>
 
 #if defined(OGDF_SYSTEM_OSX)
 #include <stdlib.h>
@@ -332,6 +324,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

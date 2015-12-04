@@ -130,26 +130,26 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 		GraphIO::indent(os,1) << "node [\n";
 		GraphIO::indent(os,2) << "id " << (index[v] = nextId++) << "\n";
 
-		if (A.attributes() & GraphAttributes::nodeTemplate) {
+		if (A.has(GraphAttributes::nodeTemplate)) {
 			GraphIO::indent(os,2) << "template ";
 			writeLongString(os, A.templateNode(v));
 			os << "\n";
 		}
-		if (A.attributes() & GraphAttributes::nodeLabel) {
+		if (A.has(GraphAttributes::nodeLabel)) {
 			GraphIO::indent(os,2) << "label ";
 			writeLongString(os, A.label(v));
 			os << "\n";
 		}
-		if (A.attributes() & GraphAttributes::nodeWeight) {
+		if (A.has(GraphAttributes::nodeWeight)) {
 			GraphIO::indent(os,2) << "weight "  << A.weight(v) << "\n";
 		}
-		if (A.attributes() & GraphAttributes::nodeGraphics) {
+		if (A.has(GraphAttributes::nodeGraphics)) {
 			GraphIO::indent(os,2) << "graphics [\n";
 			GraphIO::indent(os,3) << "x " << A.x     (v) << "\n";
 			GraphIO::indent(os,3) << "y " << A.y     (v) << "\n";
 			GraphIO::indent(os,3) << "w " << A.width (v) << "\n";
 			GraphIO::indent(os,3) << "h " << A.height(v) << "\n";
-			if (A.attributes() & GraphAttributes::nodeStyle)
+			if (A.has(GraphAttributes::nodeStyle))
 			{
 				GraphIO::indent(os,3) << "fill \"" << A.fillColor(v) << "\"\n";
 				GraphIO::indent(os,3) << "line \"" << A.strokeColor (v) << "\"\n";
@@ -216,24 +216,24 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 		GraphIO::indent(os,2) << "source " << index[e->source()] << "\n";
 		GraphIO::indent(os,2) << "target " << index[e->target()] << "\n";
 
-		if (A.attributes() & GraphAttributes::edgeLabel){
+		if (A.has(GraphAttributes::edgeLabel)){
 			GraphIO::indent(os,2) << "label ";
 			writeLongString(os, A.label(e));
 			os << "\n";
 		}
-		if (A.attributes() & GraphAttributes::edgeType)
+		if (A.has(GraphAttributes::edgeType))
 			GraphIO::indent(os,2) << "generalization " << A.type(e) << "\n";
 
-		if (A.attributes() & GraphAttributes::edgeSubGraphs)
+		if (A.has(GraphAttributes::edgeSubGraphs))
 			GraphIO::indent(os,2) << "subgraph " << A.subGraphBits(e) << "\n";
 
-		if (A.attributes() & GraphAttributes::edgeGraphics) {
+		if (A.has(GraphAttributes::edgeGraphics)) {
 			GraphIO::indent(os,2) << "graphics [\n";
 
 			GraphIO::indent(os,3) << "type \"line\"\n";
 
-			if (A.attributes() & GraphAttributes::edgeType) {
-				if (A.attributes() & GraphAttributes::edgeArrow) {
+			if (A.has(GraphAttributes::edgeType)) {
+				if (A.has(GraphAttributes::edgeArrow)) {
 					int ae = (int)A.arrowType(e);
 					if(0 <= ae && ae < 4)
 						GraphIO::indent(os,3) << "arrow \"" << arrow_str[ae] << "\"\n";
@@ -254,12 +254,12 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 				}
 			}
 
-			if (A.attributes() & GraphAttributes::edgeStyle) {
+			if (A.has(GraphAttributes::edgeStyle)) {
 				GraphIO::indent(os,3) << "stipple "   << A.strokeType(e) << "\n";
 				GraphIO::indent(os,3) << "lineWidth " << A.strokeWidth(e) << "\n";
 			}
 
-			if (A.attributes() & GraphAttributes::edgeDoubleWeight) {
+			if (A.has(GraphAttributes::edgeDoubleWeight)) {
 				GraphIO::indent(os,3) << "weight " << A.doubleWeight(e) << "\n";
 			}
 
@@ -292,7 +292,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 			}//bends
 
 			//output width and color
-			if ((A.attributes() & GraphAttributes::edgeStyle))
+			if (A.has(GraphAttributes::edgeStyle))
 				GraphIO::indent(os,3) << "fill \"" << A.strokeColor(e) << "\"\n";
 
 			GraphIO::indent(os,2) << "]\n"; // graphics

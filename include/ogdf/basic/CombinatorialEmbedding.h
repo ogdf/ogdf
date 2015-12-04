@@ -34,88 +34,76 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_COMBINATORIAL_EMBEDDING_H
-#define OGDF_COMBINATORIAL_EMBEDDING_H
-
 
 #include <ogdf/basic/AdjEntryArray.h>
 
-
 namespace ogdf {
 
-class ConstCombinatorialEmbedding;
-class GraphCopy;
-
-
 typedef FaceElement *face;
-
 
 // Definition of iterator and container types for adjacency entries in a face
 // These declarations are just internal representations
 namespace internal {
 
-	//! Forward iterator for adjacency entries in a face
-	class FaceAdjIterator {
+//! Forward iterator for adjacency entries in a face
+class FaceAdjIterator {
 
-		adjEntry m_adj;
-		adjEntry m_adjFirst;
+	adjEntry m_adj;
+	adjEntry m_adjFirst;
 
-	public:
-		FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
-		FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
-		FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
+public:
+	FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
+	FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
+	FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
 
-		bool operator==(const FaceAdjIterator &other) const {
-			return (m_adj == other.m_adj);
-		}
+	bool operator==(const FaceAdjIterator &other) const {
+		return (m_adj == other.m_adj);
+	}
 
-		bool operator!=(const FaceAdjIterator &other) const {
-			return (m_adj != other.m_adj);
-		}
+	bool operator!=(const FaceAdjIterator &other) const {
+		return (m_adj != other.m_adj);
+	}
 
-		FaceAdjIterator &operator=(FaceAdjIterator &other) {
-			m_adjFirst = other.m_adjFirst;
-			m_adj = other.m_adj;
-			return *this;
-		}
+	FaceAdjIterator &operator=(FaceAdjIterator &other) {
+		m_adjFirst = other.m_adjFirst;
+		m_adj = other.m_adj;
+		return *this;
+	}
 
-		adjEntry operator*() const { return m_adj; }
+	adjEntry operator*() const { return m_adj; }
 
-		FaceAdjIterator &operator++() {
-			m_adj = m_adj->faceCycleSucc();
-			if (m_adj == m_adjFirst)
-				m_adj = nullptr;
-			return *this;
-		}
-	};
+	FaceAdjIterator &operator++() {
+		m_adj = m_adj->faceCycleSucc();
+		if (m_adj == m_adjFirst)
+			m_adj = nullptr;
+		return *this;
+	}
+};
 
 
-	//! Container for the adjacency entries in a face.
-	/**
-	 * The entries are not stored explicitly (in a list), but implicitly by the cyclic ordering of the adjacency lists
-	 * in the underlying graph and by storing the first adjacency entry in the face.
-	 */
-	class FaceAdjContainer {
+//! Container for the adjacency entries in a face.
+/**
+ * The entries are not stored explicitly (in a list), but implicitly by the cyclic ordering of the adjacency lists
+ * in the underlying graph and by storing the first adjacency entry in the face.
+ */
+class FaceAdjContainer {
 
-		friend class ogdf::FaceElement;
-		friend class ogdf::ConstCombinatorialEmbedding;
-		friend class ogdf::CombinatorialEmbedding;
+	friend class ogdf::FaceElement;
+	friend class ogdf::ConstCombinatorialEmbedding;
+	friend class ogdf::CombinatorialEmbedding;
 
-		adjEntry m_adjFirst;
+	adjEntry m_adjFirst;
 
-		FaceAdjContainer() : m_adjFirst(nullptr) { }
-		FaceAdjContainer(adjEntry adjFirst) : m_adjFirst(adjFirst) { }
+	FaceAdjContainer() : m_adjFirst(nullptr) { }
+	FaceAdjContainer(adjEntry adjFirst) : m_adjFirst(adjFirst) { }
 
-	public:
-		typedef FaceAdjIterator iterator;
+public:
+	typedef FaceAdjIterator iterator;
 
-		iterator begin() const { return iterator(m_adjFirst); }
-		iterator end() const { return iterator(); }
-	};
+	iterator begin() const { return iterator(m_adjFirst); }
+	iterator end() const { return iterator(); }
+};
 
 } // end namespace internal
 
@@ -232,10 +220,8 @@ public:
 	//! Provides a bidirectional iterator to a face in a combinatorial embedding.
 	typedef internal::GraphIterator<face> face_iterator;
 
-
-	//!< The continer containing all face objects.
+	//! The container containing all face objects.
 	internal::GraphObjectContainer<FaceElement> faces;
-
 
 	/** @{
 	 * \brief Creates a combinatorial embedding associated with no graph.
@@ -512,7 +498,7 @@ public:
 	 *
 	 * This operation introduces a new edge \a e from the node to which \a adjSrc
 	 * belongs to the node to which \a adjTgt belongs.
-	 * \pre \a adjSrc and \a adjTgt belong to the same face.
+	 * \pre \a adjSrc and \a adjTgt are distinct AdjEntries, belonging to the same face.
 	 * \return the new edge \a e.
 	 */
 	edge splitFace(adjEntry adjSrc, adjEntry adjTgt);
@@ -567,38 +553,24 @@ protected:
 	 */
 	face joinFacesPure(edge e);
 
+private:
+	/**
+	 * \brief Splits a face by inserting a new edge.
+	 *
+	 * This is a special version of splitFace doing a pushback
+	 * of the new edge \a e on the adjacency list of \a v making it
+	 * possible to insert new degree 0 nodes into a face.
+	 * It's used by splitFace(adjEntry adjSource, node v) and
+	 * splitFace(node v, adjEntry adjTarget) and calls
+	 * splitFace(adjEntry adjSource, adjEntry adjTarget),
+	 * if v is not degree 0, to reduce redundant code.
+	 *
+	 * @param adj is the adjEntry after which the adjEntry of the new edge is added.
+	 * @param v is the node to which the adjEntry of \a e is pushed back on.
+	 * @param adjSrc is true if the node of \a adj should be the source of \a e.
+	 * \return the new edge \a e
+	 */
+	edge splitFace(adjEntry adj, node v, bool adjSrc);
 }; // class CombinatorialEmbedding
 
-
-//---------------------------------------------------------
-// iteration macros
-//---------------------------------------------------------
-
-//! Iteration over all faces \a f of the combinatorial embedding \a E.
-//! @ingroup graphs
-#define forall_faces(f,E) for((f)=(E).firstFace(); (f); (f)=(f)->succ())
-
-
-//! Iteration over all faces \a f of the combinatorial embedding \a E (in reverse order).
-#define forall_rev_faces(f,E) for((f)=(E).lastFace(); (f); (f)=(f)->pred())
-
-//! Iteration over all adjacency entries \a adj of the face \a f.
-/**
- * @ingroup graphs
- *
- * A faster version for this iteration demonstrates the following code snippet:
- * \code
- *   adjEntry adj1 = f->firstAdj(), adj = adj1;
- *   do {
- * 	   ...
- *	   adj = adj->faceCycleSucc();
- *   } while (adj != adj1);
- * \endcode
- */
-#define forall_face_adj(adj,f) for((adj)=(f)->firstAdj(); (adj); (adj)=(f)->nextFaceEdge(adj))
-
-
 } // end namespace ogdf
-
-
-#endif

@@ -40,12 +40,7 @@
  * \see http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EMBEDDER_OPTIMAL_FLEX_DRAW_H
-#define OGDF_EMBEDDER_OPTIMAL_FLEX_DRAW_H
 
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/basic/ModuleOption.h>
@@ -69,7 +64,7 @@ public:
 
 	~EmbedderOptimalFlexDraw() { }
 
-	virtual void call(Graph &G, adjEntry &adjExternal) override;
+	virtual void doCall(Graph &G, adjEntry &adjExternal) override;
 
 	/// Sets the module option to compute min-cost flow.
 	void setMinCostFlowComputer(MinCostFlowModule<int> *pMinCostFlowComputer) {
@@ -117,5 +112,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

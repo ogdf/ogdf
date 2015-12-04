@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAXIMUM_PLANAR_SUBGRAPH_H
-#define OGDF_MAXIMUM_PLANAR_SUBGRAPH_H
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
@@ -94,6 +88,3 @@ protected:
 #endif // USE_ABACUS
 
 } //end namespace ogdf
-
-
-#endif // OGDF_MAXIMUM_PLANAR_SUBGRAPH_H

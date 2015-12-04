@@ -1,7 +1,7 @@
 /** \file
  * \brief Implementation of class BCTree
  *
- * \author Jan Papenfu&szlig;
+ * \author Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -131,7 +131,7 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 {
 	m_lowpt[vG] = m_number[vG] = ++m_count;
 
-	for(adjEntry adj : vG->adjEdges) {
+	for(adjEntry adj : vG->adjEntries) {
 		//edge eG = adj->theEdge();
 		node wG = adj->twinNode();
 		if ((adjuG != nullptr) && (adj == adjuG->twin())) continue;

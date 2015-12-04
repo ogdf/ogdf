@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BOOTH_LUEKER_H
-#define OGDF_BOOTH_LUEKER_H
 
 //=========================================================
 // Main functions:
@@ -136,4 +130,3 @@ private:
 };
 
 }
-#endif

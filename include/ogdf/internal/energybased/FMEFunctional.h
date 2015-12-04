@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_FME_FUNCTIONAL_H
-#define OGDF_FME_FUNCTIONAL_H
+#pragma once
 
 #include <ogdf/basic/basic.h>
 
@@ -226,5 +225,3 @@ struct min_max_functor
 };
 
 }
-
-#endif

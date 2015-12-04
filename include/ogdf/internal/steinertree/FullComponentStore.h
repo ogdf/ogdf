@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_FULLCOMPONENTSTORE_H_
-#define OGDF_FULLCOMPONENTSTORE_H_
+#pragma once
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/IndexComparer.h>
@@ -166,7 +165,7 @@ public:
 			while (!stack.empty()) {
 				const node v = stack.pop();
 				if (!isTerminal(v)) {
-					for (adjEntry adj : v->adjEdges) {
+					for (adjEntry adj : v->adjEntries) {
 						stack.push(adj->twinNode());
 					}
 					m_graph.delNode(v);
@@ -290,7 +289,7 @@ public:
 			adjEntry start = m_components[id].start;
 			const node c = start->twinNode();
 			f(original(c));
-			for (adjEntry adj : c->adjEdges) {
+			for (adjEntry adj : c->adjEntries) {
 				const node u = original(adj->twinNode());
 				node v = original(c);
 				while (v != u) {
@@ -443,5 +442,3 @@ public:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif /* FULLCOMPONENTSTORE_OGDF_H_ */

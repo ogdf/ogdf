@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EXTENDED_NESTING_GRAPH_H
-#define OGDF_EXTENDED_NESTING_GRAPH_H
-
-
 
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -444,6 +437,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

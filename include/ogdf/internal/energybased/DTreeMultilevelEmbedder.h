@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DTREE_MULTILEVEL_EMBEDDER_H_
-#define OGDF_DTREE_MULTILEVEL_EMBEDDER_H_
 
 #include <ogdf/internal/energybased/DTreeEmbedder.h>
 #include <ogdf/internal/energybased/DTreeGalaxy.h>
@@ -126,7 +121,7 @@ public:
     void call(GraphAttributes& GA)
     {
         // assert 3d
-        OGDF_ASSERT(GA.attributes() & GraphAttributes::threeD);
+        OGDF_ASSERT(GA.has(GraphAttributes::threeD));
 
         // the graph
         const Graph& G = GA.constGraph();
@@ -281,5 +276,3 @@ void DTreeMultilevelEmbedder<Dim>::call(const Graph& graph, NodeArray<NodeCoords
 }
 
 } // end namespace ogdf
-
-#endif

@@ -1056,7 +1056,7 @@ CglKnapsackCover::deriveAKnapsack(
   if (b < 0 ){
     OsiColCut cc;
     int index = krow.getIndices()[0];
-    const double fakeLb = colupper[index] + 1.0;;  // yes, colupper.
+    const double fakeLb = colupper[index] + 1.0;  // yes, colupper.
 #ifdef CGL_DEBUG
     const double fakeUb = collower[index];
     assert( fakeUb < fakeLb );

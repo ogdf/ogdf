@@ -41,12 +41,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HYPERGRAPH_LAYOUT_H
-#define OGDF_HYPERGRAPH_LAYOUT_H
 
 #include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
@@ -75,16 +70,16 @@ public:
 
 private:
 
-	//!< Determines whether polygons should be convex (if possible).
+	//! Determines whether polygons should be convex (if possible).
 	bool m_convex;
 
-	//!< Defines the minimum distance between polygons and hypernodes.
+	//! Defines the minimum distance between polygons and hypernodes.
 	int m_separation;
 
-	//!< Defines the number of algorithm iterations.
+	//! Defines the number of algorithm iterations.
 	int m_iterations;
 
-	//!< Defines what method is used to represent hyperedges.
+	//! Defines what method is used to represent hyperedges.
 	/**
 	 * The following representation methods are available:
 	 *
@@ -167,7 +162,7 @@ class OGDF_EXPORT HypergraphLayoutES : public HypergraphLayoutModule {
 
 public:
 
-	//!< Final appearance is driven by given profile.
+	//! Final appearance is driven by given profile.
 	enum Profile {
 		Normal          = 0x000001,
 		ElectricCircuit = 0x000002
@@ -175,29 +170,29 @@ public:
 
 private:
 
-	//!< The ration between width and height of a drawing.
+	//! The ration between width and height of a drawing.
 	double m_ratio;
 
-	//!< The number of crossings in the layout.
+	//! The number of crossings in the layout.
 	int m_crossings;
 
-	//!< Defines whether a drawing IO constraint is desired or not.
+	//! Defines whether a drawing IO constraint is desired or not.
 	bool m_constraintIO;
 
-	//!< Defines whether inputs and outputs are placed on different "sides".
+	//! Defines whether inputs and outputs are placed on different "sides".
 	// TODO: This might require some tweaks in Hypergraph class.
 	bool m_constraintPorts;
 
-	//!< Defines the profile of the layout (eg. Electric Circuit).
+	//! Defines the profile of the layout (eg. Electric Circuit).
 	Profile m_profile;
 
-	//!< The module for computing the final layout.
+	//! The module for computing the final layout.
 	ModuleOption<LayoutPlanRepModule>  m_planarLayoutModule;
 
-	//!< The module for crossing minimization.
+	//! The module for crossing minimization.
 	ModuleOption<CrossingMinimizationModule> m_crossingMinimizationModule;
 
-	//!< The module for embedding planarization.
+	//! The module for embedding planarization.
 	ModuleOption<EmbedderModule>  m_embeddingModule;
 
 public:
@@ -307,5 +302,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif // OGDF_HYPERGRAPH_LAYOUT_H

@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HIERARCHYLEVELS_H
-#define OGDF_HIERARCHYLEVELS_H
-
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/layered/Level.h>
@@ -172,6 +165,3 @@ namespace ogdf {
 
 
 } // end namespace ogdf
-
-
-#endif

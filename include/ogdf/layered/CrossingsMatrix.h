@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CROSSINGS_MATRIX_H
-#define OGDF_CROSSINGS_MATRIX_H
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/Array2D.h>
@@ -88,5 +83,3 @@ private:
 };
 
 }// end namespace ogdf
-
-#endif

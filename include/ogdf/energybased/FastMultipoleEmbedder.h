@@ -32,26 +32,16 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FAST_MULTIPOLE_EMBEDDER_H
-#define OGDF_FAST_MULTIPOLE_EMBEDDER_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/internal/energybased/MultilevelGraph.h>
+#include <ogdf/internal/energybased/FMEThread.h>
+#include <ogdf/internal/energybased/FMEFunc.h>
+#include <ogdf/internal/energybased/GalaxyMultilevel.h>
 
 namespace ogdf {
-
-class ArrayGraph;
-class LinearQuadtree;
-class LinearQuadtreeExpansion;
-class FMEThreadPool;
-class FMEThread;
-struct FMEGlobalOptions;
-class GalaxyMultilevel;
 
 //! The fast multipole embedder approach for force-directed layout.
 /**
@@ -221,6 +211,3 @@ private:
 };
 
 } // end of namespace ogdf
-
-#endif
-

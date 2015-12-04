@@ -138,7 +138,7 @@ SubgraphPlanarizer::ThreadMaster::ThreadMaster(
 
 CrossingStructure *SubgraphPlanarizer::ThreadMaster::postNewResult(CrossingStructure *pCS)
 {
-	int newCR = pCS->numberOfCrossings();
+	int newCR = pCS->weightedCrossingNumber();
 
 	lock_guard<mutex> guard(m_mutex);
 

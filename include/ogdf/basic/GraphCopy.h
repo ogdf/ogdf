@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRAPH_COPY_H
-#define OGDF_GRAPH_COPY_H
-
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -90,6 +83,9 @@ public:
 
 	virtual ~GraphCopySimple() { }
 
+	//! Re-initializes the copy using \a G.
+	void init(const Graph &G);
+
 	//! Returns a reference to the original graph.
 	const Graph &original() const { return *m_pGraph; }
 
@@ -138,12 +134,6 @@ public:
 	//! Assignment operator.
 	GraphCopySimple &operator=(const GraphCopySimple &GC);
 
-
-	//! Creates a new node in the graph copy.
-	node newNode() {
-		return Graph::newNode();
-	}
-
 	/**
 	 * \brief Creates a new node in the graph copy with original node \a vOrig.
 	 * \warning You have to make sure that the original node makes sense, in
@@ -157,10 +147,7 @@ public:
 		return v;
 	}
 
-	//! Creates a new edge from \a v to \a w in the graph copy.
-	edge newEdge(node v, node w) {
-		return Graph::newEdge(v,w);
-	}
+	using Graph::newNode;
 
 	/**
 	 * \brief Creates a new edge in the graph copy with original edge \a eOrig.
@@ -170,10 +157,14 @@ public:
 	edge newEdge(edge eOrig) {
 		OGDF_ASSERT(eOrig != nullptr);
 		OGDF_ASSERT(eOrig->graphOf() == m_pGraph);
+
 		edge e = Graph::newEdge(m_vCopy[eOrig->source()], m_vCopy[eOrig->target()]);
 		m_eCopy[m_eOrig[e] = eOrig] = e;
+
 		return e;
 	}
+
+	using Graph::newEdge;
 
 private:
 	void initGC(const GraphCopySimple &GC, NodeArray<node> &vCopy,
@@ -235,9 +226,7 @@ protected:
 public:
 	//! Creates a graph copy of \a G.
 	/**
-	 * The constructor assures that the adjacency lists of nodes in the
-	 * constructed copy are in the same order as the adjacency lists in \a G.
-	 * This is in particular important when dealing with embedded graphs.
+	 * See #init for details.
 	 */
 	GraphCopy(const Graph &G);
 
@@ -327,11 +316,6 @@ public:
 	 */
 	//@{
 
-	//! Creates a new node in the graph copy.
-	node newNode() {
-		return Graph::newNode();
-	}
-
 	/**
 	 * \brief Creates a new node in the graph copy with original node \a vOrig.
 	 * \warning You have to make sure that the original node makes sense, in
@@ -344,6 +328,8 @@ public:
 		m_vCopy[m_vOrig[v] = vOrig] = v;
 		return v;
 	}
+
+	using Graph::newNode;
 
 	/**
 	 * \brief Removes node \a v and all its adjacent edges cleaning-up their corresponding lists of original edges.
@@ -382,36 +368,7 @@ public:
 	//! Creates a new edge (\a v,\a w) with original edge \a eOrig.
 	edge newEdge(edge eOrig);
 
-	//! Creates a new edge with original edge \a eOrig at predefined positions in the adjacency lists.
-	/**
-	 * Let \a v be the node whose adjacency list contains \a adjSrc. Then,
-	 * the created edge is (\a v,\a w).
-	 * @param eOrig is the original edge.
-	 * @param adjSrc is the adjacency entry after which the new edge is inserted
-	 *        in the adjacency list of \a v.
-	 * @param w is the source node of the new edge; the edge is added at the end
-	 *        of the adjacency list of \a w.
-	 * @return the created edge.
-	 */
-	edge newEdge(edge eOrig, adjEntry adjSrc, node w);
-
-	//! Creates a new edge with original edge \a eOrig at predefined positions in the adjacency lists.
-	/**
-	 * Let \a w be the node whose adjacency list contains \a adjTgt. Then,
-	 * the created edge is (\a v,\a w).
-	 * @param eOrig is the original edge.
-	 * @param v is the source node of the new edge; the edge is added at the end
-	 *        of the adjacency list of \a v.
-	 * @param adjTgt is the adjacency entry after which the new edge is inserted
-	 *        in the adjacency list of \a w.
-	 * @return the created edge.
-	 */
-	edge newEdge(edge eOrig, node v, adjEntry adjTgt);
-
-	edge newEdge(node v, node w)                   { return Graph::newEdge(v, w); }
-	edge newEdge(adjEntry adjSrc, adjEntry adjTgt) { return Graph::newEdge(adjSrc, adjTgt); }
-	edge newEdge(node v, adjEntry adjTgt)          { return Graph::newEdge(v, adjTgt); }
-	edge newEdge(adjEntry adjSrc, node w)          { return Graph::newEdge(adjSrc, w); }
+	using Graph::newEdge;
 
 	//! sets eOrig to be the corresponding original edge of eCopy and vice versa
 	/**
@@ -455,7 +412,7 @@ public:
 	 * Let \a crossingEdge = (\a a, \a b) and \a crossedEdge = (\a v, \a w).
 	 * Then \a crossedEdge is split creating two edges \a crossedEdge = (\a v, \a u)
 	 * and (\a u, \a w), \a crossingEdge is removed and replaced by two new edges
-	 * \a e1  = (\a a, \a u) and \a e1 = (\a u, \a b).
+	 * \a e1  = (\a a, \a u) and \a e2 = (\a u, \a b).
 	 * Finally it sets \a crossingEdge to \a e2 and returns (\a u, \a w).
 	 *
 	 * @param crossingEdge is the edge that gets split.
@@ -545,12 +502,20 @@ public:
 	//! Checks the consistency of the data structure (for debugging only).
 	bool consistencyCheck() const;
 
+	//! Re-initializes the copy using the graph \a G.
+	/**
+	 * This method assures that the adjacency lists of nodes in the
+	 * constructed copy are in the same order as the adjacency lists in \a G.
+	 * This is in particular important when dealing with embedded graphs.
+	 *
+	 * \param G the graph to be copied
+	 */
+	void init(const Graph &G);
+
 	//! Associates the graph copy with \a G, but does not create any nodes or edges.
 	/**
-	 * This method is used for a special creation of the graph copy.
-	 * The graph copy needs to be constructed with the default constructor,
-	 * gets associated with \a G using this method, and then is initialized
-	 * using either initByNodes() or initByActiveNodes().
+	 * By using this method, the graph copy gets associated with \a G.
+	 * This does not modify the existing nodes and edges, but they become dummies.
 	 *
 	 * The following code snippet shows a typical application of this functionality:
 	 * \code
@@ -657,5 +622,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

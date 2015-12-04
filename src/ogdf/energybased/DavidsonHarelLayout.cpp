@@ -169,7 +169,7 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 	//NodeIntersection ni(AG);
 
 	// Either use a fixed value...
-	if (DIsGreater(m_prefEdgeLength, 0.0))
+	if (OGDF_GEOM_ET.greater(m_prefEdgeLength, 0.0))
 	{
 		atr.setPreferredEdgelength(m_prefEdgeLength);
 	}

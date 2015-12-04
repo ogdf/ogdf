@@ -60,6 +60,12 @@ namespace bandit { namespace detail {
       stm_.flush();
     }
 
+    void it_list(const char* desc)
+    {
+      progress_reporter::it_list(desc);
+      stm_ << current_context_name() << " " << desc << std::endl;
+    }
+
     private:
     std::ostream& stm_;
     const detail::colorizer& colorizer_;

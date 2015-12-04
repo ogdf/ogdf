@@ -32,10 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
 #include <ogdf/internal/energybased/Set.h>
 
 namespace ogdf {
+namespace energybased {
 
 Set::Set()
 {
@@ -130,9 +130,8 @@ void Set::init_node_set(Graph& G, NodeArray<NodeAttributes>& A)
 	for (node v : G.nodes)
 	{
 		mass_of_star[v] = A[v].get_mass();
-		edge e_adj;
-		forall_adj_edges(e_adj, v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e_adj = adj->theEdge();
 			node v_adj;
 			if (e_adj->source() != v)
 				v_adj = e_adj->source();
@@ -228,4 +227,5 @@ node Set::get_random_node_with_highest_star_mass(int rand_tries)
 	return random_node;
 }
 
-}//namespace ogdf
+}
+}

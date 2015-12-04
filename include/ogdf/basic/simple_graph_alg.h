@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SIMPLE_GRAPH_ALG_H
-#define OGDF_SIMPLE_GRAPH_ALG_H
-
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/SList.h>
@@ -930,5 +923,3 @@ inline bool isArborescence(const Graph &G) {
 
 
 } // end namespace ogdf
-
-#endif

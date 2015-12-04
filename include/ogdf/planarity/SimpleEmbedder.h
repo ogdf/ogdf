@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SIMPLE_EMBEDDER_H
-#define OGDF_SIMPLE_EMBEDDER_H
 
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/basic/extended_graph_alg.h>
@@ -62,7 +57,7 @@ public:
 	 * \param G is the original graph. Its adjacency list is changed by the embedder.
 	 * \param adjExternal is an adjacency entry on the external face and is set by the embedder.
 	 */
-	virtual void call(Graph& G, adjEntry& adjExternal) override;
+	virtual void doCall(Graph& G, adjEntry& adjExternal) override;
 
 private:
 	/**
@@ -76,5 +71,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

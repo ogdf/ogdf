@@ -118,7 +118,7 @@ void ExpansionGraph::init(int i)
 			m_vRep[vPrime] = m_vOrig[v];
 
 			SListPure<edge> edges;
-			outEdges(v,edges);
+			v->outEdges(edges);
 
 			SListConstIterator<edge> it;
 			for(it = edges.begin(); it.valid(); ++it)
@@ -160,7 +160,7 @@ void ExpansionGraph::init(const Graph &G)
 			node vPrime = newNode();
 
 			SListPure<edge> edges;
-			outEdges(v,edges);
+			v->outEdges(edges);
 
 			SListConstIterator<edge> it;
 			for(it = edges.begin(); it.valid(); ++it)

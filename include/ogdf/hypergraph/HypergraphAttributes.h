@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HYPERGRAPH_ATTRIBUTES_H
-#define OGDF_HYPERGRAPH_ATTRIBUTES_H
 
 #include <ogdf/hypergraph/HypergraphArray.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
@@ -63,25 +58,25 @@ class OGDF_EXPORT HypergraphAttributes
 {
 protected:
 
-	//!< Only points to an existing hypergraph.
+	//! Only points to an existing hypergraph.
 	const Hypergraph * m_hypergraph;
 
-	//!< Label of a hypernode.
+	//! Label of a hypernode.
 	HypernodeArray<string> m_label;
 
-	//!< Coordinate x of a hypernod.e
+	//! Coordinate x of a hypernod.e
 	HypernodeArray<double> m_x;
 
-	//!< Coordinate y of a hypernode.
+	//! Coordinate y of a hypernode.
 	HypernodeArray<double> m_y;
 
-	//!< Width of a hypernode bounding box.
+	//! Width of a hypernode bounding box.
 	HypernodeArray<double> m_width;
 
-	//!< Height of a hypernodes bounding box.
+	//! Height of a hypernodes bounding box.
 	HypernodeArray<double> m_height;
 
-	//!< Shape of a hypernode.
+	//! Shape of a hypernode.
 	HypernodeArray<int>    m_shape;
 
 public:
@@ -104,7 +99,7 @@ public:
 		m_shape.init(H, shEllipse);
 	}
 
-	//! Desctructor.
+	//! Destructor.
 	virtual ~HypergraphAttributes()
 	{
 	}
@@ -384,5 +379,3 @@ public:
 };
 
 } // end namespace ogdf
-
-#endif

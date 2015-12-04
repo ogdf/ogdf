@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LAYOUT_CLUSTER_PLAN_REP_MODULE_H
-#define OGDF_LAYOUT_CLUSTER_PLAN_REP_MODULE_H
-
-
 
 #include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/basic/Layout.h>
@@ -50,7 +42,7 @@
 
 namespace ogdf {
 
-	class NodePair;
+class NodePair;
 
 /**
  * \brief Interface for planar cluster layout algorithms.
@@ -114,6 +106,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

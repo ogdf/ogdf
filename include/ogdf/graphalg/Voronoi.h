@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_VORONOI_H
-#define OGDF_VORONOI_H
-
 
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/Dijkstra.h>
@@ -136,5 +130,3 @@ void Voronoi<T>::computeVoronoiRegions(const Graph &G, const EdgeArray<T> &weigh
 }
 
 } // end namespace ogdf
-
-#endif // OGDF_VORONOI_H

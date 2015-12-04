@@ -35,15 +35,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HASHING_H
-#define OGDF_HASHING_H
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 
 namespace ogdf {
@@ -505,5 +500,3 @@ inline HashConstIterator<K,I,H> Hashing<K,I,H>::begin() const
 
 
 } // end namespace ogdf
-
-#endif

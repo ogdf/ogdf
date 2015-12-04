@@ -178,8 +178,8 @@ void OptimalRanking::doCall(
 
 		for(node v : GC.nodes) {
 			int s = 0;
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if(v == e->source())
 					s += costOrig[GC.original(e)];
 				else

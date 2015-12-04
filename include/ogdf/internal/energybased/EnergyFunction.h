@@ -36,13 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_ENERGY_FUNCTION_H
-#define OGDF_ENERGY_FUNCTION_H
-
 
 #include <ogdf/basic/GraphAttributes.h>
 
@@ -120,4 +114,3 @@ private:
 };
 
 }// end namespace
-#endif

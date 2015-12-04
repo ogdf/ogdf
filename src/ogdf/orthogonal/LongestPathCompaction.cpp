@@ -199,8 +199,8 @@ void LongestPathCompaction::applyLongestPaths(
 		int predComp = -1; // means "unset"
 		bool isPseudoSource = true;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->source() != v) {
 				// incoming edge
 				if (D.cost(e) > 0) {
@@ -268,8 +268,8 @@ void LongestPathCompaction::moveComponents(
 		for(node w : nodesInComp[c])
 		{
 			//cout << " " << w;
-			edge e;
-			forall_adj_edges(e,w) {
+			for(adjEntry adj : w->adjEntries) {
+				edge e = adj->theEdge();
 				if(m_component[e->target()] != c) {
 					outCompV.pushBack(e);
 				} else if (m_component[e->source()] != c)
@@ -331,8 +331,8 @@ void LongestPathCompaction::computeCoords(
 	{
 		node v = sources.pop();
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->source() != v) continue;
 
 			node w = e->target();

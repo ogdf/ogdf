@@ -1,7 +1,7 @@
 #define OGDF_MEMORY_@OGDF_MEMORY_MANAGER@
 
 #ifndef NDEBUG
-	#define OGDF_DEBUG
+  #cmakedefine OGDF_DEBUG
 #endif
 
 #if @LIBS_ARE_SHARED@
@@ -15,4 +15,3 @@
 #if @COIN_SOLVER_IS_EXTERNAL@
 	#define OSI_@COIN_SOLVER@
 #endif
-

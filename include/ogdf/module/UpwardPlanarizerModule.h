@@ -32,9 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_UPWARD_PLANARIZER_MODULE_H
-#define OGDF_UPWARD_PLANARIZER_MODULE_H
-
+#pragma once
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/upward/UpwardPlanRep.h>
@@ -141,6 +139,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif
-

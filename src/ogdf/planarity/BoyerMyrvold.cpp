@@ -95,21 +95,21 @@ void BoyerMyrvold::transform(
 
 	// transform edgelist of KuratowskiSubdivision to KuratowskiWrapper
 	OGDF_ASSERT(p==5 || p==6);
-	node n;
-	edge e,f,h;
 	List<edge> L;
 	if (p==5) { // K5
 		kn[5] = nullptr;
 		target.init(10);
 		for (int k = 0; k<5; k++) {
-			forall_adj_edges(e,kn[k]) {
+			for(adjEntry adj : kn[k]->adjEntries) {
+				edge e = adj->theEdge();
 				if (!countEdge[e]) continue;
-				n = kn[k];
-				f = e;
+				node n = kn[k];
+				edge f = e;
 				// traverse degree-2-path
 				while (count[n = f->opposite(n)] == 2) {
 					L.pushBack(f);
-					forall_adj_edges(h,n) {
+					for(adjEntry adj : n->adjEntries) {
+						edge h = adj->theEdge();
 						if (countEdge[h] && h != f) {
 							f = h;
 							break;
@@ -132,13 +132,15 @@ void BoyerMyrvold::transform(
 		int touched[6] = { -1, -1, -1, -1, -1, -1}, t=0, i=0;
 		for (int k = 0; k<6; k++) {
 			if (touched[k] != -1) continue;
-			forall_adj_edges(e,kn[k]) {
+			for(adjEntry adj : kn[k]->adjEntries) {
+				edge e = adj->theEdge();
 				if (!countEdge[e]) continue;
-				n = kn[k];
-				f = e;
+				node n = kn[k];
+				edge f = e;
 				while(count[n = f->opposite(n)] == 2) {
 					L.pushBack(f);
-					forall_adj_edges(h,n) {
+					for(adjEntry adj : n->adjEntries) {
+						edge h = adj->theEdge();
 						if (countEdge[h] && h != f) {
 							f = h;
 							break;
@@ -284,7 +286,7 @@ bool BoyerMyrvold::planarEmbed(
 		SListPure<adjEntry> entries;
 		for (node v : g.nodes) {
 			entries.clear();
-			for (adjEntry adj : h.copy(v)->adjEdges) {
+			for (adjEntry adj : h.copy(v)->adjEntries) {
 				OGDF_ASSERT(adj->theNode() == h.copy(v));
 				edge e = h.original(adj->theEdge());
 				OGDF_ASSERT(e->graphOf() == &g);

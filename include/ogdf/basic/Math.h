@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MATH_H
-#define OGDF_MATH_H
+#pragma once
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/Stack.h>
@@ -52,31 +51,20 @@ public:
 	//! The constant \f$\frac{\pi}{2}\f$.
 	static const double pi_2;
 
-	//! The constant \f$\frac{\pi}{4}\f$.
-	static const double pi_4;
-
-	//! The constant \f$2\pi\f$.
-	static const double two_pi;
-
-	//! Euler's number.
-	static const double e;
-
-	//! The constant log(2.0).
-	static const double log_of_2;
-
 	//! The constant log(4.0).
 	static const double log_of_4;
 
     //! Returns the logarithm of \a x to the base 2.
     template<typename T>
+	OGDF_DEPRECATED
     static T log2(T x) {
-        OGDF_ASSERT(x >= 0);
+        OGDF_ASSERT(x > 0);
         return std::log2(x);
     }
 
 	//! Returns the logarithm of \a x to the base 4.
 	static double log4(double x) {
-		OGDF_ASSERT(x >= 0)
+		OGDF_ASSERT(x > 0)
 		return log(x) / log_of_4;
 	}
 
@@ -87,48 +75,25 @@ public:
 	static double binomial_d(int n, int k);
 
 	//! Returns \a n!.
+	OGDF_DEPRECATED
 	static int factorial(int n);
 
 	//! Returns \a n!.
+	OGDF_DEPRECATED
 	static double factorial_d(int n);
 
-	//static bool equald(double a, double b) {
-	//	double d = a-b;
-	//	return d < DOUBLE_EPS && d > -DOUBLE_EPS;
-	//}
-
 	/*!
-	 * \brief A fast method to obtain the rounded down binary logarithm of an 32-bit integer
+	 * \brief A method to obtain the rounded down binary logarithm of an 32-bit integer
 	 *
-	 * This is based on http://en.wikipedia.org/wiki/Binary_logarithm
 	 * @param v The number of which the binary logarithm is to be determined
 	 * @return The rounded down logarithm base 2 if v is positive, -1 otherwise
 	 */
+	OGDF_DEPRECATED
 	static int floorLog2(int v) {
 		if (v <= 0) {
 			return -1;
 		} else {
-			int result = 0;
-			if (v >= (1 << 16)) {
-				v >>= 16;
-				result += 16;
-			}
-			if (v >= (1 << 8)) {
-				v >>= 8;
-				result += 8;
-			}
-			if (v >= (1 << 4)) {
-				v >>= 4;
-				result += 4;
-			}
-			if (v >= (1 << 2)) {
-				v >>= 2;
-				result += 2;
-			}
-			if (v >= (1 << 1)) {
-				result += 1;
-			}
-			return result;
+			return std::ilogb(v);
 		}
 	}
 
@@ -158,7 +123,9 @@ public:
     //! Returns the least common multipler of two numbers.
     template<typename T>
     static T lcm(T a, T b) {
-        return a*b / gcd(a,b);
+        T g = gcd(a,b);
+        OGDF_ASSERT(g != 0);
+        return (a / g) * b;
     }
 
 	//! Converts a double to a fraction.
@@ -191,5 +158,3 @@ public:
 
 
 }
-
-#endif // OGDF_MATH_H

@@ -53,7 +53,7 @@ void MedianPlacer::placeOneNode(MultilevelGraph &MLG)
 	int i = 0;
 	std::vector<double> xVector;
 	std::vector<double> yVector;
-	for(adjEntry adj : merged->adjEdges) {
+	for(adjEntry adj : merged->adjEntries) {
 		i++;
 		xVector.push_back(MLG.x(adj->twinNode()));
 		yVector.push_back(MLG.y(adj->twinNode()));

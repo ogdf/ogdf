@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_LINEAR_QUADTREE_EXPANSION_H
-#define OGDF_LINEAR_QUADTREE_EXPANSION_H
+#pragma once
 
 #include <ogdf/internal/energybased/LinearQuadtree.h>
 
@@ -106,5 +105,3 @@ public:
 
 
 } // end of namespace ogdf
-
-#endif

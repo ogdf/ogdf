@@ -12,7 +12,27 @@
 
 namespace snowhouse {
 
-   class Assert
+   struct DefaultFailureHandler
+   {
+      template <class ExpectedType, class ActualType>
+      static void Handle(const ExpectedType& expected, const ActualType& actual, const char* file_name, int line_number)
+      {
+         std::ostringstream str;
+
+         str << "Expected: " << snowhouse::Stringize(expected) << std::endl;
+         str << "Actual: " << snowhouse::Stringize(actual) << std::endl;
+
+         throw AssertionException(str.str(), file_name, line_number);
+      }
+
+      static void Handle(const std::string& message)
+      {
+         throw AssertionException(message);
+      }
+   };
+
+   template<typename FailureHandler>
+   class ConfigurableAssert
    {
    public:
 
@@ -22,7 +42,7 @@ namespace snowhouse {
         const char* no_file = "";
         int line_number = 0;
 
-        Assert::That(actual, expression, no_file, line_number);
+        ConfigurableAssert<FailureHandler>::That(actual, expression, no_file, line_number);
       }
 
       template <typename ActualType, typename ConstraintListType>
@@ -48,12 +68,12 @@ namespace snowhouse {
 
             if (!result.top())
             {
-               throw AssertionException(CreateErrorText(expression, actual), file_name, line_number);
+               FailureHandler::Handle(expression, actual, file_name, line_number);
             }
          }
          catch (const InvalidExpressionException& e)
          {
-            throw AssertionException("Malformed expression: \"" + snowhouse::Stringize(expression) + "\"\n" + e.Message());
+            FailureHandler::Handle("Malformed expression: \"" + snowhouse::Stringize(expression) + "\"\n" + e.Message());
          }
       }
 
@@ -76,7 +96,7 @@ namespace snowhouse {
       {
          if (!expression(actual))
          {
-            throw AssertionException(CreateErrorText(expression, actual), file_name, line_number);
+            FailureHandler::Handle(expression, actual, file_name, line_number);
          }
       }
 
@@ -90,27 +110,17 @@ namespace snowhouse {
       {
          if (!actual)
          {
-            throw AssertionException("Expected: true\nActual: false");
+            FailureHandler::Handle("Expected: true\nActual: false");
          }
       }
 
       static void Failure(const std::string& message)
       {
-         throw AssertionException(message);
-      }
-
-   private:
-      template <class ExpectedType, class ActualType>
-      static std::string CreateErrorText(const ExpectedType& expected, const ActualType& actual)
-      {
-         std::ostringstream str;
-
-         str << "Expected: " << snowhouse::Stringize(expected) << std::endl;
-         str << "Actual: " << snowhouse::Stringize(actual) << std::endl;
-
-         return str.str();
+         FailureHandler::Handle(message);
       }
    };
+
+   typedef ConfigurableAssert<DefaultFailureHandler> Assert;
 }
 
 #endif	// IGLOO_ASSERT_H

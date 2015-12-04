@@ -36,16 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PLANAR_SUBGRAPH_PQTREE_H
-#define OGDF_PLANAR_SUBGRAPH_PQTREE_H
-
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
@@ -114,5 +105,3 @@ private:
 };
 
 }
-
-#endif

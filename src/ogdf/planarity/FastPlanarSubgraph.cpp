@@ -389,9 +389,8 @@ void FastPlanarSubgraph::planarize(
 
 	for(node v : G.nodes)
 	{
-		edge e;
-		forall_adj_edges(e,v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (numbering[e->opposite(v)] > numbering[v])
 				// sideeffect: ignores selfloops
 			{

@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NODE_PAIR_ENERGY_H
-#define OGDF_NODE_PAIR_ENERGY_H
-
 
 #include <ogdf/basic/AdjacencyOracle.h>
 #include <ogdf/internal/energybased/EnergyFunction.h>
@@ -103,5 +96,3 @@ private:
 
 
 }// namespace ogdf
-
-#endif

@@ -36,9 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_STRESS_MINIMIZATION_H
-#define OGDF_STRESS_MINIMIZATION_H
-
+#pragma once
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/energybased/PivotMDS.h>
@@ -240,4 +238,3 @@ void StressMinimization::useEdgeCostsAttribute(bool useEdgeCostsAttribute) {
 }
 
 } // end namespace
-#endif // OGDF_STRESS_MINIMIZATION_H

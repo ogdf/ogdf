@@ -79,8 +79,8 @@ namespace ogdf {
 			bfs.pushBack(e->target());
 			while (!bfs.empty()) {
 				node x = bfs.popFrontRet();
-				edge f;
-				forall_adj_edges(f,x) {
+				for(adjEntry adj : x->adjEntries) {
+					edge f = adj->theEdge();
 					if (f->source() == x) {
 						if (!visit[f->target()]) bfs.pushBack(f->target());
 						visit[f->target()] = true;
@@ -540,8 +540,7 @@ namespace ogdf {
 			if (v->degree() > 2) {
 				List<adjEntry> inc;
 				List<adjEntry> out;
-				adjEntry adj;
-				forall_adj(adj,v) {
+				for(adjEntry adj : v->adjEntries) {
 					if (adj->theEdge()->source() == v) {
 						out.pushBack(adj);
 					} else {

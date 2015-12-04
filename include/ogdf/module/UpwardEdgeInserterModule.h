@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UPWARD_EDGE_INSERTER_MODULE_H
-#define OGDF_UPWARD_EDGE_INSERTER_MODULE_H
-
 
 #include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/basic/Module.h>
@@ -153,5 +147,3 @@ protected:
 };
 
 } // end namespace ogdf
-
-#endif

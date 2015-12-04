@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_ARRAY_BUFFER_H
-#define OGDF_ARRAY_BUFFER_H
 
 #include <ogdf/basic/Array.h>
 #include <cstring>
@@ -404,5 +399,3 @@ ostream &operator<<(ostream &os, const ogdf::ArrayBuffer<E,INDEX> &a)
 }
 
 } // end namespace ogdf
-
-#endif

@@ -286,7 +286,7 @@ void ComputeTricOrder::initOuterNodes(node v1, node v2){
 	 	 	node v = adjRun->theNode();
 			// now traverse the faces f of v
 			// and increase outv[f] and add v to outerNodes[f]
-			for(adjEntry adjV : v->adjEdges){
+			for(adjEntry adjV : v->adjEntries){
 				face f = m_pEmbedding->rightFace(adjV);
 				if (f != m_outerFace){
 					m_outv[f]++;
@@ -489,7 +489,7 @@ void TriconnectedShellingOrder::doCall(
 		cout << "adjacency lists:" << endl;
 		for(node vh : G.nodes) {
 			cout << "  node " << vh << ":";
-			for(adjEntry adj : vh->adjEdges)
+			for(adjEntry adj : vh->adjEntries)
 				cout << " " << adj;
 			cout << endl;
 		}

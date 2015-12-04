@@ -52,8 +52,8 @@
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-#include <ogdf/abacus/lpsub.h>
-#include <ogdf/abacus/setbranchrule.h>
+#include <ogdf/lib/abacus/lpsub.h>
+#include <ogdf/lib/abacus/setbranchrule.h>
 
 //output intermediate results when new sons are generated
 //#define IM_OUTPUT
@@ -88,13 +88,12 @@ MaxCPlanarSub::MaxCPlanarSub(Master *master) : Sub(master, 500, static_cast<MaxC
 		MaxPlanarEdgesConstraint* cmax = dynamic_cast<MaxPlanarEdgesConstraint*>(c);
 		if (ccon) {
 			Logger::slout() << "ChunkConstraint: Chunk=";
-			int j;
-			forall_arrayindices(j, ccon->m_chunk) {
-				Logger::slout() << ccon->m_chunk[j] << ",";
+			for(node v : ccon->m_chunk) {
+				Logger::slout() << v << ",";
 			}
 			Logger::slout() << " Co-Chunk=";
-			forall_arrayindices(j, ccon->m_cochunk) {
-				Logger::slout() << ccon->m_cochunk[j] << ",";
+			for(node v : ccon->m_cochunk) {
+				Logger::slout() << v << ",";
 			}
 			Logger::slout() << "\n";
 		}
@@ -1258,7 +1257,6 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 		Queue<node> activeNodes; //could use arraybuffer
 		activeNodes.append(start);
 		isVisited[start] = true;
-		edge e;
 		while (!activeNodes.empty())
 		{
 			node v = activeNodes.pop(); //running node
@@ -1266,9 +1264,9 @@ int MaxCPlanarSub::clusterBags(ClusterGraph &CG, cluster c)
 //            cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
 			count++;
 
-			forall_adj_edges(e, v)
-			{
-				node w = e->opposite(v);
+
+			for(adjEntry adj : v->adjEntries) {
+				node w = adj->twinNode();
 
 				if (v == w) continue; // ignore self-loops
 
@@ -1375,17 +1373,15 @@ bool MaxCPlanarSub::checkCConnectivity(const GraphCopy& support)
 
 		//could do a shortcut here for case |c| = 1, but
 		//this would make the code more complicated without large benefit
-		edge e;
-		node u;
 		while (!activeNodes.empty())
 		{
 			node v = activeNodes.pop(); //running node
 			count++;
-			u = support.copy(v);
+			node u = support.copy(v);
 
-			forall_adj_edges(e, u)
-			{
-				node w = support.original(e->opposite(support.copy(v)));
+
+			for(adjEntry adj : u->adjEntries) {
+				node w = support.original(adj->twinNode());
 
 				if (v == w) continue; // ignore self-loops
 
@@ -1425,11 +1421,10 @@ bool MaxCPlanarSub::checkCConnectivity(const GraphCopy& support)
 		{
 			node v = activeNodes.pop(); //running node
 			ccount++;
-			u = support.copy(v);
+			node u = support.copy(v);
 
-			forall_adj_edges(e, u)
-			{
-				node w = support.original(e->opposite(support.copy(v)));
+			for(adjEntry adj : u->adjEntries) {
+				node w = support.original(adj->twinNode());
 
 				if (v == w) continue; // ignore self-loops
 
@@ -1564,8 +1559,8 @@ static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
 	count++;
 	visited[v] = true;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node w = e->opposite(v);
 		if (!visited[w]) dfsIsConnected(w,visited,count);
 	}
@@ -2440,9 +2435,9 @@ int MaxCPlanarSub::solveLp() {
 					ArrayBuffer<Variable*> vars(1,false);
 					vars.push( master()->createVariable(best) );
 					myAddVars(vars);
-					int i;
-					forall_arrayindices(i,bestKickout)
-						criticalSinceBranching.del(bestKickout[i]);
+					for(auto elem : bestKickout) {
+						criticalSinceBranching.del(elem);
+					}
 					m_reportCreation = -1;
 					++(master()->m_varsBranch);
 					master()->clearActiveRepairs();

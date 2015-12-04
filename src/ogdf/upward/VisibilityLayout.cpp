@@ -72,7 +72,7 @@ void VisibilityLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	CombinatorialEmbedding &gamma = UPR.getEmbedding();
 	//add edge (s,t)
 	adjEntry adjSrc = nullptr;
-	for(adjEntry adj : UPR.getSuperSource()->adjEdges) {
+	for(adjEntry adj : UPR.getSuperSource()->adjEntries) {
 		if (gamma.rightFace(adj) == gamma.externalFace())
 			adjSrc = adj;
 			break;

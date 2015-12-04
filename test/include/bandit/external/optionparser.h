@@ -271,7 +271,7 @@ enum ArgStatus
  * @code ArgStatus CheckArg(const Option& option, bool msg); @endcode
  *
  * It is used to check if a potential argument would be acceptable for the option.
- * It will even be called if there is no argument. In that case @c option.arg will be @c NULL.
+ * It will even be called if there is no argument. In that case @c option.arg will be @c nullptr.
  *
  * If @c msg is @c true and the function determines that an argument is not acceptable and
  * that this is a fatal error, it should output a message to the user before
@@ -350,7 +350,7 @@ struct Descriptor
    * behaviour.
    *
    * If this Descriptor should not have short option characters, use the empty
-   * string "". NULL is not permitted here!
+   * string "". nullptr is not permitted here!
    *
    * See @ref longopt for more information.
    */
@@ -360,7 +360,7 @@ struct Descriptor
    * @brief The long option name (without the leading @c -- ).
    *
    * If this Descriptor should not have a long option name, use the empty
-   * string "". NULL is not permitted here!
+   * string "". nullptr is not permitted here!
    *
    * While @ref shortopt allows multiple short option characters, each
    * Descriptor can have only a single long option name. If you have multiple
@@ -396,7 +396,7 @@ struct Descriptor
    * will be called to check a potential argument to the option.
    *
    * This function will be called even if there is no potential argument. In that case
-   * it will be passed @c NULL as @c arg parameter. Do not confuse this with the empty
+   * it will be passed @c nullptr as @c arg parameter. Do not confuse this with the empty
    * string.
    *
    * See @ref CheckArg for more information.
@@ -450,7 +450,7 @@ public:
    * for unknown options.
    *
    * @attention
-   * @c desc==NULL signals that this Option is unused. This is the default state of
+   * @c desc==nullptr signals that this Option is unused. This is the default state of
    * elements in the result array. You don't need to test @c desc explicitly. You
    * can simply write something like this:
    * @code
@@ -482,7 +482,7 @@ public:
   /**
    * @brief Pointer to this Option's argument (if any).
    *
-   * NULL if this option has no argument. Do not confuse this with the empty string which
+   * nullptr if this option has no argument. Do not confuse this with the empty string which
    * is a valid argument.
    */
   const char* arg;
@@ -634,10 +634,10 @@ public:
   }
 
   /**
-   * @brief Returns a pointer to the previous element of the linked list or NULL if
+   * @brief Returns a pointer to the previous element of the linked list or nullptr if
    * called on first().
    *
-   * If called on first() this method returns NULL. Otherwise it will return the
+   * If called on first() this method returns nullptr. Otherwise it will return the
    * option with the same Descriptor::index that precedes this option on the command
    * line.
    */
@@ -660,10 +660,10 @@ public:
   }
 
   /**
-   * @brief Returns a pointer to the next element of the linked list or NULL if called
+   * @brief Returns a pointer to the next element of the linked list or nullptr if called
    * on last().
    *
-   * If called on last() this method returns NULL. Otherwise it will return the
+   * If called on last() this method returns nullptr. Otherwise it will return the
    * option with the same Descriptor::index that follows this option on the command
    * line.
    */
@@ -708,8 +708,8 @@ public:
   /**
    * @brief Casts from Option to const Option* but only if this Option is valid.
    *
-   * If this Option is valid (i.e. @c desc!=NULL), returns this.
-   * Otherwise returns NULL. This allows testing an Option directly
+   * If this Option is valid (i.e. @c desc!=nullptr), returns this.
+   * Otherwise returns nullptr. This allows testing an Option directly
    * in an if-clause to see if it is used:
    * @code
    * if (options[CREATE])
@@ -729,8 +729,8 @@ public:
   /**
    * @brief Casts from Option to Option* but only if this Option is valid.
    *
-   * If this Option is valid (i.e. @c desc!=NULL), returns this.
-   * Otherwise returns NULL. This allows testing an Option directly
+   * If this Option is valid (i.e. @c desc!=nullptr), returns this.
+   * Otherwise returns nullptr. This allows testing an Option directly
    * in an if-clause to see if it is used:
    * @code
    * if (options[CREATE])
@@ -748,7 +748,7 @@ public:
   }
 
   /**
-   * @brief Creates a new Option that is a one-element linked list and has NULL
+   * @brief Creates a new Option that is a one-element linked list and has nullptr
    * @ref desc, @ref name, @ref arg and @ref namelen.
    */
   Option() :
@@ -1107,10 +1107,10 @@ public:
    * @param usage Array of Descriptor objects that describe the options to support. The last entry
    *              of this array must have 0 in all fields.
    * @param argc The number of elements from @c argv that are to be parsed. If you pass -1, the number
-   *             will be determined automatically. In that case the @c argv list must end with a NULL
+   *             will be determined automatically. In that case the @c argv list must end with a nullptr
    *             pointer.
    * @param argv The arguments to be parsed. If you pass -1 as @c argc the last pointer in the @c argv
-   *             list must be NULL to mark the end.
+   *             list must be nullptr to mark the end.
    * @param options Each entry is the first element of a linked list of Options. Each new option
    *                that is parsed will be appended to the list specified by that Option's
    *                Descriptor::index. If an entry is not yet used (i.e. the Option is invalid),
@@ -1506,7 +1506,7 @@ inline void Stats::add(bool gnu, const Descriptor usage[], int argc, const char*
 inline bool Parser::workhorse(bool gnu, const Descriptor usage[], int numargs, const char** args, Action& action,
                               bool single_minus_longopt, bool print_errors, int min_abbr_len)
 {
-  // protect against NULL pointer
+  // protect against nullptr pointer
   if (args == nullptr)
     numargs = 0;
 
@@ -1884,8 +1884,8 @@ struct PrintUsageImplementation
    * iterates over these components.
    *
    * The top-level organizational unit is the @e table.
-   * A table begins at a Descriptor with @c help!=NULL and extends up to
-   * a Descriptor with @c help==NULL.
+   * A table begins at a Descriptor with @c help!=nullptr and extends up to
+   * a Descriptor with @c help==nullptr.
    *
    * A table consists of @e rows. Due to line-wrapping and explicit breaks
    * a row may take multiple lines on screen. Rows within the table are separated

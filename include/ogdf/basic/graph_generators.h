@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRAPH_GENERATORS_H
-#define OGDF_GRAPH_GENERATORS_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/cluster/ClusterGraph.h>
@@ -298,6 +291,14 @@ OGDF_EXPORT void randomClusterGraph(ClusterGraph& C, const Graph& G, const node 
  */
 OGDF_EXPORT void completeGraph(Graph &G, int n);
 
+/**
+ * Creates the complete k-partite graph \f$K_{k1,k2,...,kn}\f$.
+ *
+ * @param G is assigned the generated graph.
+ * @param signature contains the positive values k1, k2, ..., kn.
+ */
+OGDF_EXPORT void completeKPartiteGraph(Graph &G, const Array<int> &signature);
+
 //! Creates the complete bipartite graph \f$K_{n,m}\f$.
 /**
  * @param G is assigned the generated graph.
@@ -370,6 +371,3 @@ OGDF_EXPORT void randomSeriesParallelDAG(Graph &G, int edges, double p = 0.5, do
 //@}
 
 }
-
-
-#endif

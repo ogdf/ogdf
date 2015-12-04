@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAXIMALFUPS_H
-#define OGDF_MAXIMALFUPS_H
 
 #include <ogdf/module/FUPSModule.h>
 
@@ -66,5 +61,3 @@ class MaximalFUPS : public FUPSModule {
 };
 
 } // end namespace ogdf
-
-#endif

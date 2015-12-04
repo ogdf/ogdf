@@ -147,7 +147,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 				//mark the source arcs of block
 				UPR_tmp.m_isSourceArc[UPR_tmp.copy(s_block->firstAdj()->theEdge())] = true;
-				for (adjEntry adj_tmp : UPR_tmp.copy(s_block->firstAdj()->theEdge()->target())->adjEdges) {
+				for (adjEntry adj_tmp : UPR_tmp.copy(s_block->firstAdj()->theEdge()->target())->adjEntries) {
 					edge e_tmp = UPR_tmp.original(adj_tmp->theEdge());
 					if (e_tmp != nullptr && block.original(e_tmp) != nullptr && sourceArcs[block.original(e_tmp)])
 						UPR_tmp.m_isSourceArc[adj_tmp->theEdge()] = true;
@@ -233,7 +233,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 			//mark the source arcs of  block
 			UPR_tmp.m_isSourceArc[UPR_tmp.copy(s->firstAdj()->theEdge())] = true;
-			for (adjEntry adj_tmp : UPR_tmp.copy(s->firstAdj()->theEdge()->target())->adjEdges) {
+			for (adjEntry adj_tmp : UPR_tmp.copy(s->firstAdj()->theEdge()->target())->adjEntries) {
 				edge e_tmp = UPR_tmp.original(adj_tmp->theEdge());
 				if (e_tmp != nullptr && block.original(e_tmp) != nullptr && sourceArcs[block.original(e_tmp)])
 					UPR_tmp.m_isSourceArc[adj_tmp->theEdge()] = true;
@@ -392,7 +392,7 @@ void SubgraphUpwardPlanarizer::dfsMerge(
 		return;
 	}
 
-	for(adjEntry adj : current_BC->adjEdges) {
+	for(adjEntry adj : current_BC->adjEntries) {
 		node next_BC = adj->twin()->theNode();
 		if (BC.typeOfBNode(current_BC) == BCTree::CComp) {
 			if (parent_BC != nullptr && !nodesDone[parent_BC]) {
@@ -444,7 +444,7 @@ void SubgraphUpwardPlanarizer::merge(
 	adjEntry pos = nullptr;
 	if (!empty) {
 		adjEntry adj_ext = nullptr, adj_int = nullptr;
-		for(adjEntry run : startRes->adjEdges) {
+		for(adjEntry run : startRes->adjEntries) {
 			if (UPR_res.getEmbedding().rightFace(run) == UPR_res.getEmbedding().externalFace()) {
 				adj_ext = run;
 				break;
@@ -554,7 +554,7 @@ void SubgraphUpwardPlanarizer::merge(
 
 		node v_UPR_res = nodeUPR2UPR_res[v];
 		List<adjEntry> adj_UPR, adj_UPR_res;
-		UPR.adjEntries(v, adj_UPR);
+		v->allAdjEntries(adj_UPR);
 
 		// convert adj_UPR of v to adj_UPR_res of v_UPR_res
 		for(adjEntry adj : adj_UPR) {

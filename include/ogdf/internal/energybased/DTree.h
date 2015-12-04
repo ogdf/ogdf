@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LINEAR_DTREE_H_
-#define OGDF_LINEAR_DTREE_H_
 
 #include <algorithm>
 #include <ogdf/internal/energybased/DTreeUtils.h>
@@ -397,5 +392,3 @@ void DTree<IntType, Dim>::build()
 };
 
 } // end namespace ogdf
-
-#endif

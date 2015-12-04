@@ -1,7 +1,7 @@
 /** \file
  * \brief Implementation of class DynamicSPQRForest
  *
- * \author Jan Papenfu&szlig;
+ * \author Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -265,7 +265,7 @@ edge DynamicSPQRForest::updateInsertedEdgeSPQR (node vB, edge eG)
 	m_gEdge_hEdge[eG] = eH;
 	m_hEdge_gEdge[eH] = eG;
 
-	for (adjEntry aH : sH->adjEdges) {
+	for (adjEntry aH : sH->adjEntries) {
 		edge fH = aH->theEdge();
 		if (fH==eH) continue;
 		if (fH->opposite(sH)!=tH) continue;

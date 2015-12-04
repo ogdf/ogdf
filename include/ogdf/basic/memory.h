@@ -33,21 +33,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MEMORY_H
-#define OGDF_MEMORY_H
-
 
 #include <new>
 
-
 #include <ogdf/internal/basic/PoolMemoryAllocator.h>
 #include <ogdf/internal/basic/MallocMemoryAllocator.h>
-
 
 namespace ogdf {
 
@@ -87,6 +78,3 @@ static void operator delete(void *, void *) { }
 #define OGDF_MALLOC_NEW_DELETE OGDF_MM(ogdf::MallocMemoryAllocator)
 
 } // namespace ogdf
-
-
-#endif

@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NODE_ARRAY_H
-#define OGDF_NODE_ARRAY_H
-
 
 #include <ogdf/basic/Graph_d.h>
 
@@ -114,7 +107,7 @@ public:
 /**
  * @ingroup graph-containers
  *
- * Node arrays represent a mapping from nodes to data of type \a T.
+ * NodeArrays represent a mapping from nodes to data of type \a T.
  * They adjust their table size automatically when the graph grows.
  *
  * @tparam T is the element type.
@@ -152,14 +145,14 @@ public:
 
 	//! Constructs a node array containing the elements of \a A (move semantics).
 	/**
-	 * Node array \a A is empty afterwards and not associated with any graph.
+	 * NodeArray \a A is empty afterwards and not associated with any graph.
 	 */
 	NodeArray(NodeArray<T> &&A) : Array<T>(std::move(A)), NodeArrayBase(A), m_x(A.m_x) { }
 
 
 	/**
 	 * @name Access methods
-	 * These methods provide access to elements, size, and corresponding graph.
+	 * These methods provide access to elements and the corresponding graph.
 	 */
 	//@{
 
@@ -203,22 +196,20 @@ public:
 	/**
 	 * \attention Make sure that \a index is a valid index for a node in the associated graph!
 	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             Node arrays should be index by a node, not an integer index.
+	 *             NodeArrays should be index by a node, not an integer index.
 	 */
-	OGDF_DEPRECATED_BEGIN
+	OGDF_DEPRECATED
 	const T &operator[](int index) const
-	OGDF_DEPRECATED_END
 		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
 	/**
 	 * \attention Make sure that \a index is a valid index for a node in the associated graph!
 	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             Node arrays should be index by a node, not an integer index.
+	 *             NodeArrays should be index by a node, not an integer index.
 	 */
-	OGDF_DEPRECATED_BEGIN
+	OGDF_DEPRECATED
 	T &operator[](int index)
-	OGDF_DEPRECATED_END
 		{ return Array<T>::operator [](index); }
 
 
@@ -231,73 +222,73 @@ public:
 
 	//! Returns an iterator to the first entry in the node array.
 	/**
-	 * If the node array is empty, a null pointer iterator is returned.
+	 * If the node array is empty, an invalid iterator is returned.
 	 */
 	iterator begin() { return iterator(m_pGraph->firstNode(), this); }
 
 	//! Returns a const iterator to the first entry in the node array.
 	/**
-	 * If the node array is empty, a null pointer iterator is returned.
+	 * If the node array is empty, an invalid iterator is returned.
 	 */
 	const_iterator begin() const { return const_iterator(m_pGraph->firstNode(), this); }
 
 	//! Returns a const iterator to the first entry in the node array.
 	/**
-	 * If the node array is empty, a null pointer iterator is returned.
+	 * If the node array is empty, an invalid iterator is returned.
 	 */
 	const_iterator cbegin() const { return const_iterator(m_pGraph->firstNode(), this); }
 
 	//! Returns an iterator to one-past-last entry in the node array.
 	/**
-	 * This is always a null pointer iterator.
+	 * This is always an invalid iterator.
 	 */
 	iterator end() { return iterator(nullptr, this); }
 
 	//! Returns a const iterator to one-past-last entry in the node array.
 	/**
-	 * This is always a null pointer iterator.
+	 * This is always an invalid iterator.
 	 */
 	const_iterator end() const { return const_iterator(nullptr, this); }
 
 	//! Returns a const iterator to one-past-last entry in the node array.
 	/**
-	 * This is always a null pointer iterator.
+	 * This is always an invalid iterator.
 	 */
 	const_iterator cend() const { return const_iterator(nullptr, this); }
 
 	//! Returns an iterator to the last entry in the node array.
 	/**
-	 * If the node array is empty, a null pointer iterator is returned.
+	 * If the node array is empty, an invalid iterator is returned.
 	 */
 	iterator rbegin() { return iterator(m_pGraph->lastNode(), this); }
 
 	//! Returns a const iterator to the last entry in the node array.
 	/**
-	 * If the node array is empty, a null pointer iterator is returned.
+	 * If the node array is empty, an invalid iterator is returned.
 	 */
 	const_iterator rbegin() const { return const_iterator(m_pGraph->lastNode(), this); }
 
 	//! Returns a const iterator to the last entry in the node array.
 	/**
-	 * If the node array is empty, a null pointer iterator is returned.
+	 * If the node array is empty, an invalid iterator is returned.
 	 */
 	const_iterator crbegin() const { return const_iterator(m_pGraph->lastNode(), this); }
 
 	//! Returns an iterator to one-before-first entry in the node array.
 	/**
-	 * This is always a null pointer iterator.
+	 * This is always an invalid iterator.
 	 */
 	iterator rend() { return iterator(nullptr, this); }
 
 	//! Returns a const iterator to one-before-first entry in the node array.
 	/**
-	 * This is always a null pointer iterator.
+	 * This is always an invalid iterator.
 	 */
 	const_iterator rend() const { return const_iterator(nullptr, this); }
 
 	//! Returns a const iterator to one-before-first entry in the node array.
 	/**
-	 * This is always a null pointer iterator.
+	 * This is always an invalid iterator.
 	 */
 	const_iterator crend() const { return const_iterator(nullptr, this); }
 
@@ -345,7 +336,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Node array \a a is empty afterwards and not associated with any graph.
+	 * Nodearray \a a is empty afterwards and not associated with any graph.
 	 */
 	NodeArray<T> &operator=(NodeArray<T> &&a) {
 		Array<T>::operator=(std::move(a));
@@ -387,7 +378,3 @@ private:
 
 
 } // end namespace ogdf
-
-#include <ogdf/basic/Graph.h>
-
-#endif

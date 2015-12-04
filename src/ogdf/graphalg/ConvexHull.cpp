@@ -169,8 +169,8 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 	std::vector<double> qDistances;
 	for (unsigned int i = 0; i < points.size(); i++) {
 		double d = leftOfLine(normal, points[i], q1);
-		if (!DIsGreater(dist, d)) {
-			if (DIsGreater(d, dist)) {
+		if (!OGDF_GEOM_ET.greater(dist, d)) {
+			if (OGDF_GEOM_ET.greater(d, dist)) {
 				qCandidates.clear();
 				qDistances.clear();
 				dist = d;
@@ -183,7 +183,7 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 		}
 	}
 	for (unsigned int i = 0; i < qCandidates.size();) {
-		if (DIsLess(qDistances[i], dist)) {
+		if (OGDF_GEOM_ET.less(qDistances[i], dist)) {
 			qCandidates[i] = qCandidates.back();
 			qCandidates.pop_back();
 			qDistances[i] = qDistances.back();
@@ -228,20 +228,20 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 
 	if (indexQ1 != indexQ)
 	{
-		if (DIsGreater(leftOfLine(sqNormal, q1, q), 0.0)) {
+		if (OGDF_GEOM_ET.greater(leftOfLine(sqNormal, q1, q), 0.0)) {
 			lPoints.push_back(q1);
-			OGDF_ASSERT(!DIsGreater(leftOfLine(qeNormal, q1, q), 0.0));
-		} else if (DIsGreater(leftOfLine(qeNormal, q1, q), 0.0)) {
+			OGDF_ASSERT(!OGDF_GEOM_ET.greater(leftOfLine(qeNormal, q1, q), 0.0));
+		} else if (OGDF_GEOM_ET.greater(leftOfLine(qeNormal, q1, q), 0.0)) {
 			rPoints.push_back(q1);
 		}
 	}
 
 	if (indexQ2 != indexQ)
 	{
-		if (DIsGreater(leftOfLine(sqNormal, q2, q), 0.0)) {
+		if (OGDF_GEOM_ET.greater(leftOfLine(sqNormal, q2, q), 0.0)) {
 			lPoints.push_back(q2);
-			OGDF_ASSERT(!DIsGreater(leftOfLine(qeNormal, q2, q), 0.0));
-		} else if (DIsGreater(leftOfLine(qeNormal, q2, q), 0.0)) {
+			OGDF_ASSERT(!OGDF_GEOM_ET.greater(leftOfLine(qeNormal, q2, q), 0.0));
+		} else if (OGDF_GEOM_ET.greater(leftOfLine(qeNormal, q2, q), 0.0)) {
 			rPoints.push_back(q2);
 		}
 	}
@@ -308,10 +308,10 @@ void ConvexHull::leftHull(std::vector<DPoint> points, DPoint &start, DPoint &end
 				}
 			}
 
-			if (DIsGreater(leftOfLine(sqNormal, p, q), 0.0)) {
+			if (OGDF_GEOM_ET.greater(leftOfLine(sqNormal, p, q), 0.0)) {
 				lPoints.push_back(p);
-				OGDF_ASSERT(!DIsGreater(leftOfLine(qeNormal, p, q), 0.0));
-			} else if (DIsGreater(leftOfLine(qeNormal, p, q), 0.0)) {
+				OGDF_ASSERT(!OGDF_GEOM_ET.greater(leftOfLine(qeNormal, p, q), 0.0));
+			} else if (OGDF_GEOM_ET.greater(leftOfLine(qeNormal, p, q), 0.0)) {
 				rPoints.push_back(p);
 			}
 		}
@@ -409,7 +409,7 @@ DPolygon ConvexHull::call(std::vector<DPoint> points) const
 		DPolygon::iterator sp = poly.begin();
 		DPolygon::iterator spn = poly.cyclicSucc(sp);
 		for (std::vector<DPoint>::iterator n = normals.begin(); n != normals.end(); ++n, ++sp) {
-			if ((*sp != p) && (*spn != p) && DIsGreater(leftOfLine(*n, p, *sp), 0.0)) {
+			if ((*sp != p) && (*spn != p) && OGDF_GEOM_ET.greater(leftOfLine(*n, p, *sp), 0.0)) {
 				pointArray[component].push_back(p);
 				break;
 			}

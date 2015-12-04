@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_LPSOLVER_COIN_H
-#define OGDF_LPSOLVER_COIN_H
 
 #include <ogdf/basic/Array.h>
 #include <ogdf/external/coin.h>
@@ -112,6 +105,3 @@ private:
 
 
 }
-
-
-#endif

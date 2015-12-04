@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANARIZATION_LAYOUT_LIGHT_H
-#define OGDF_PLANARIZATION_LAYOUT_LIGHT_H
-
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/module/CrossingMinimizationModule.h>
@@ -47,13 +40,9 @@
 #include <ogdf/module/LayoutPlanRepModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
 #include <ogdf/basic/ModuleOption.h>
-
-
+#include <ogdf/internal/planarity/CliqueReplacer.h>
 
 namespace ogdf {
-
-	class CliqueReplacer;
-
 
 //! The planarization approach for drawing graphs.
 /**
@@ -205,6 +194,3 @@ private:
 };
 
 } // end namespace ogdf
-
-
-#endif

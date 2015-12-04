@@ -48,12 +48,8 @@
  * Finally, the layout is shifted into the positive quadrant
  * of the cartesian plane
  * */
-#ifdef _MSC_VER
-#pragma once
-#endif
 
-#ifndef OGDF_BALLOON_LAYOUT_H_
-#define OGDF_BALLOON_LAYOUT_H_
+#pragma once
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/List.h>
@@ -160,4 +156,3 @@ private:
 }; //class BalloonLayout
 
 }//end namespace ogdf
-#endif /*BALLOONLAYOUT_H_*/

@@ -158,10 +158,8 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 					{
 						node w = S.pop();
 						compNodes.pushFront(w);
-						edge e;
-						forall_adj_edges(e,w)
-						{
-							node x = e->opposite(w);
+						for(adjEntry adj : w->adjEntries) {
+							node x = adj->twinNode();
 							if (!(done[x]))
 							{
 								done[x] = true;
@@ -240,10 +238,8 @@ void Clusterer::computeClustering(SList<SimpleCluster*> &clustering)
 				{
 					node w = S.pop();
 					compNodes.pushFront(w);
-					edge e;
-					forall_adj_edges(e,w)
-					{
-						node x = e->opposite(w);
+					for(adjEntry adj : w->adjEntries) {
+						node x = adj->twinNode();
 						if (!(done[x]))
 						{
 							done[x] = true;
@@ -332,7 +328,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		//-----------------------------------------
 		//Compute neighbourhood
 		//Muss man selfloops gesondert beruecksichtigen
-		for(adjEntry adjE : v->adjEdges)
+		for(adjEntry adjE : v->adjEntries)
 		{
 			node u = adjE->twinNode();
 			if (u == v) continue;
@@ -341,7 +337,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 				nba[u] = 1;
 			}
 		}
-		for(adjEntry adjE : w->adjEdges)
+		for(adjEntry adjE : w->adjEntries)
 		{
 			node u = adjE->twinNode();
 			if (u == w) continue;
@@ -365,7 +361,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		//ohne Nutzung vorheriger Informationen
 
 		//We know the neighbourhood of v and w and have to compute the connectivity
-		for(adjEntry adjE : v->adjEdges)
+		for(adjEntry adjE : v->adjEntries)
 		{
 			node u = adjE->twinNode();
 
@@ -377,7 +373,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 					//vertex in Mv
 					sizeMv++;
 					//check links within Mv, to Mw and Wvw
-					for(adjEntry adjE2 : u->adjEdges)
+					for(adjEntry adjE2 : u->adjEntries)
 					{
 						processed[adjE2->theEdge()] = true;
 						node t = adjE2->twinNode();
@@ -396,7 +392,7 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 					//vertex in Wvw, nba == 2
 					OGDF_ASSERT(nba[u] == 2);
 					sizeWvw++;
-					for(adjEntry adjE2 : u->adjEdges)
+					for(adjEntry adjE2 : u->adjEntries)
 					{
 						node t = adjE2->twinNode();
 						//processed testen?
@@ -521,10 +517,8 @@ void Clusterer::createClusterGraph(ClusterGraph &C)
 			{
 				node w = S.pop();
 				theCluster.pushFront(GC.original(w));
-				edge e;
-				forall_adj_edges(e,w)
-				{
-					node x = e->opposite(w);
+				for(adjEntry adj : w->adjEntries) {
+					node x = adj->twinNode();
 					if (!(done[x]))
 					{
 						done[x] = true;

@@ -7,25 +7,16 @@
 #ifndef IGLOO_CONTRAINTOPERATOR_H
 #define IGLOO_CONTRAINTOPERATOR_H
 
+#include "invalidexpressionexception.h"
+
 namespace snowhouse {
-
-  struct InvalidExpressionException
-  {
-    InvalidExpressionException(const std::string& message) : m_message(message)
-    {
-    }
-
-    const std::string& Message() const
-    {
-      return m_message;
-    }
-
-    std::string m_message;
-  };
 
   struct ConstraintOperator
   {
+#if __cplusplus > 199711L
+#else
     virtual ~ConstraintOperator() {}
+#endif
 
     virtual void PerformOperation(ResultStack& result) = 0;
     virtual int Precedence() const = 0;

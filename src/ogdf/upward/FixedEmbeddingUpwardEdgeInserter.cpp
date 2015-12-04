@@ -335,9 +335,9 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 	staticLock(UPR, locked, origEdges, e_orig);
 
 	//locked the adjacent edges of x_1 and y_1
-	for(adjEntry adjTmp : x_1->adjEdges)
+	for(adjEntry adjTmp : x_1->adjEntries)
 		locked[adjTmp->theEdge()] = true;
-	for(adjEntry adjTmp : y_1->adjEdges)
+	for(adjEntry adjTmp : y_1->adjEntries)
 		locked[adjTmp->theEdge()] = true;
 
 	EdgeArray<adjEntry> predAdj(UPR, nullptr); // for path reconstruction
@@ -351,7 +351,7 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 	*/
 	List<edge> outEdges;
 	List<adjEntry> adjOut;
-	UPR.outEdges(x_1, outEdges);
+	x_1->outEdges(outEdges);
 	for(edge eOut : outEdges) {
 		adjEntry adj = eOut->adjSource();
 		adjOut.pushBack(adj);
@@ -382,7 +382,7 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 				if (Gamma.rightFace(adj) == Gamma.externalFace()) {
 					//we have to compute the correct adjEntry
 					adjEntry tgtLeft = nullptr, tgtRight = nullptr;
-					for(adjEntry runAdj : y_1->adjEdges) {
+					for(adjEntry runAdj : y_1->adjEntries) {
 						if (Gamma.rightFace(runAdj) == Gamma.externalFace()) {
 							if (runAdj->theEdge()->target() == y_1)
 								tgtLeft = runAdj;
@@ -445,7 +445,7 @@ void FixedEmbeddingUpwardEdgeInserter::getPath(
 					if (Gamma.rightFace(adj_cur) == Gamma.externalFace()) {
 						//we have to compute the correct adjEntry
 						adjEntry tgtLeft = nullptr, tgtRight = nullptr;
-						for(adjEntry runAdj : y_1->adjEdges) {
+						for(adjEntry runAdj : y_1->adjEntries) {
 							if (Gamma.rightFace(runAdj) == Gamma.externalFace()) {
 								if (runAdj->theEdge()->target() == y_1)
 									tgtLeft = runAdj;
@@ -751,7 +751,7 @@ void FixedEmbeddingUpwardEdgeInserter::markUp(
 	while(!nodesToDo.empty()) {
 		node w = nodesToDo.pop();
 		List<edge> outEdges;
-		G.outEdges(w, outEdges);
+		w->outEdges(outEdges);
 		ListIterator <edge> it;
 		for (it = outEdges.begin(); it.valid(); ++it) {
 			edge e = *it;
@@ -778,7 +778,7 @@ void FixedEmbeddingUpwardEdgeInserter::markDown(
 	while(!nodesToDo.empty()) {
 		node w = nodesToDo.pop();
 		List<edge> inEdges;
-		G.inEdges(w, inEdges);
+		w->inEdges(inEdges);
 		ListIterator <edge> it;
 		for (it = inEdges.begin(); it.valid(); ++it) {
 			edge e = *it;

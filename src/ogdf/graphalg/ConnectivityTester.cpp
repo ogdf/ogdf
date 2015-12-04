@@ -63,7 +63,7 @@ void ConnectivityTester::restrictNodes(Graph & graph)
 		(*m_source)[v] = w;
 
 		List<edge> edges;
-		graph.adjEdges(v, edges);
+		v->adjEdges(edges);
 
 		for (edge e : edges) {
 			if (e->source() == v) {

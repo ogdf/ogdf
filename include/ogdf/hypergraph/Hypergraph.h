@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HYPERGRAPH_H
-#define OGDF_HYPERGRAPH_H
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/GraphList.h>
@@ -66,13 +61,13 @@ class OGDF_EXPORT HypernodeElement;
 class OGDF_EXPORT HyperedgeElement;
 class OGDF_EXPORT AdjHypergraphElement;
 
-//!< The type of hypernodes.
+//! The type of hypernodes.
 typedef HypernodeElement *hypernode;
 
-//!< The type of hyperedges.
+//! The type of hyperedges.
 typedef HyperedgeElement *hyperedge;
 
-//!< The type of adjacency entries.
+//! The type of adjacency entries.
 typedef AdjHypergraphElement *adjHypergraphEntry;
 
 //! Class for adjacency list elements.
@@ -88,10 +83,10 @@ class OGDF_EXPORT AdjHypergraphElement : private internal::GraphElement
 
 private:
 
-	//!< The associated hyperedge or hypernode.
+	//! The associated hyperedge or hypernode.
 	GraphElement *m_element;
 
-	//!< The corresponding adjacency entry.
+	//! The corresponding adjacency entry.
 	/**
 	 * Note: For instance, if this AdjHypergraphElement is associated with
 	 * a hypernode v, its element is an hyperedge e (incident with v) then
@@ -100,7 +95,7 @@ private:
 	 */
 	adjHypergraphEntry m_twin;
 
-	//!< The (unique) index of the adjacency entry.
+	//! The (unique) index of the adjacency entry.
 	int m_index;
 
 	//! Constructs an adjacency element for a given hyper{node,edge}.
@@ -176,7 +171,7 @@ public:
 
 private:
 
-	//!< The adjacency list of the hyperedge.
+	//! The adjacency list of the hyperedge.
 	internal::GraphList<AdjHypergraphElement> m_adjHypernodes;
 
 	//! The (unique) index of the hyperedge.
@@ -320,28 +315,28 @@ public:
 
 private:
 
-	//!< The adjacency list of the hypernode.
+	//! The adjacency list of the hypernode.
 	internal::GraphList<AdjHypergraphElement> m_adjHyperedges;
 
-	//!< The (unique) index of the hypernode.
+	//! The (unique) index of the hypernode.
 	int m_index;
 
-	//!< The number of incident hyperedges.
+	//! The number of incident hyperedges.
 	int m_degree;
 
-	//!< The type of the hypernode.
+	//! The type of the hypernode.
 	Type m_type;
 
-	//!< The hypergraph containing the hypernode (if any).
+	//! The hypergraph containing the hypernode (if any).
 	Hypergraph * m_hypergraph;
 
-	//!< Constructor.
+	//! Constructor.
 	HypernodeElement(int pIndex)
 	  : m_index(pIndex), m_degree(0), m_type(normal), m_hypergraph(0)
 	{
 	}
 
-	//!< Constructor.
+	//! Constructor.
 	HypernodeElement(int pIndex, Type pType)
 	  : m_index(pIndex), m_degree(0), m_type(pType), m_hypergraph(0)
 	{
@@ -439,31 +434,31 @@ class OGDF_EXPORT HypergraphObserver;
 
 class OGDF_EXPORT Hypergraph
 {
-	//!< The list of all hypernodes.
+	//! The list of all hypernodes.
 	internal::GraphList<HypernodeElement> m_hypernodes;
 
-	//!< The list of all hyperedges.
+	//! The list of all hyperedges.
 	internal::GraphList<HyperedgeElement> m_hyperedges;
 
-	//!< The number of hypernodes in the hypergraph.
+	//! The number of hypernodes in the hypergraph.
 	int m_nHypernodes;
 
-	//!< The number of hyperedges in the hypergraph.
+	//! The number of hyperedges in the hypergraph.
 	int m_nHyperedges;
 
-	//!< The Index that will be assigned to the next created hypernode.
+	//! The Index that will be assigned to the next created hypernode.
 	int m_hypernodeIdCount;
 
-	//!< The Index that will be assigned to the next created hyperedge.
+	//! The Index that will be assigned to the next created hyperedge.
 	int m_hyperedgeIdCount;
 
-	//!< The current table size of hypernode arrays within the hypergraph.
+	//! The current table size of hypernode arrays within the hypergraph.
 	int m_hypernodeArrayTableSize;
 
-	//!< The current table size of hyperedge arrays within the hypergraph.
+	//! The current table size of hyperedge arrays within the hypergraph.
 	int m_hyperedgeArrayTableSize;
 
-	//!< The registered hypergraph arrays & observers.
+	//! The registered hypergraph arrays & observers.
 	mutable ListPure<HypergraphArrayBase *> m_hypernodeArrays;
 	mutable ListPure<HypergraphArrayBase *> m_hyperedgeArrays;
 	mutable ListPure<HypergraphObserver *> m_observers;
@@ -677,5 +672,3 @@ private:
 }; // class Hypergraph
 
 } // end of namespace ogdf
-
-#endif /* HYPERGRAPH_H_ */

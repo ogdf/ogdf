@@ -351,7 +351,7 @@ void MultiEdgeApproxInserter::Block::constructDual(node n)
 	// construct dual edges (for primal edges in M)
 	for(node v : M.nodes)
 	{
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			if(adj->index() & 1) {
 				node vLeft  = (*faceNode)[emb->leftFace (adj)];
@@ -381,7 +381,7 @@ void MultiEdgeApproxInserter::Block::constructDualBlock()
 	// construct dual edges (for primal edges in block)
 	for(node v : nodes)
 	{
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			if(adj->index() & 1) {
 				node vLeft  = (*m_faceNodeB)[m_embB->leftFace (adj)];
@@ -423,7 +423,7 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 	int oldIdCount = m_dualB->maxEdgeIndex();
 
 	// augment dual by edges from s to all adjacent faces of s ...
-	for(adjEntry adj : s->adjEdges) {
+	for(adjEntry adj : s->adjEntries) {
 		// starting edges of bfs-search are all edges leaving s
 		edge eDual = m_dualB->newEdge(m_vS, (*m_faceNodeB)[m_embB->rightFace(adj)]);
 		(*m_primalAdjB)[eDual->adjSource()] = adj;
@@ -432,7 +432,7 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 	}
 
 	// ... and from all adjacent faces of t to t
-	for(adjEntry adj : t->adjEdges) {
+	for(adjEntry adj : t->adjEntries) {
 		edge eDual = m_dualB->newEdge((*m_faceNodeB)[m_embB->rightFace(adj)], m_vT);
 		(*m_primalAdjB)[eDual->adjSource()] = adj;
 		(*m_primalAdjB)[eDual->adjTarget()] = nullptr;
@@ -471,7 +471,7 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if(adj->twinNode() != m_vS)
 					queue.append(adj);
 			}
@@ -592,7 +592,7 @@ int  MultiEdgeApproxInserter::Block::findShortestPath(node n, edge eRef)
 	node vT = faceNode[emb.rightFace(eRef->adjTarget())];
 
 	// start with all edges leaving from vS
-	for(adjEntry adj : vS->adjEdges) {
+	for(adjEntry adj : vS->adjEntries) {
 		edge eOrig = primalAdj[adj]->theEdge();
 		if(eOrig != eRef)
 			nodesAtDist[tcS[eOrig]].pushBack(adj);
@@ -619,7 +619,7 @@ int  MultiEdgeApproxInserter::Block::findShortestPath(node n, edge eRef)
 			}
 
 			// append next candidates to end of queue
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				int listPos = (currentDist + tcS[primalAdj[adj]->theEdge()]) % maxTC;
 				nodesAtDist[listPos].pushBack(adj);
 			}
@@ -668,7 +668,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjSource())], nullptr) );
 		nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(e1->adjTarget())], nullptr) );
 	} else {
-		for(adjEntry adj : v1->adjEdges)
+		for(adjEntry adj : v1->adjEntries)
 			nodesAtDist[0].pushBack( Tuple2<node,node>(faceNode[emb.rightFace(adj)], nullptr) );
 	}
 
@@ -679,7 +679,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 		stopVertex[faceNode[emb.rightFace(e2->adjSource())]] = true;
 		stopVertex[faceNode[emb.rightFace(e2->adjTarget())]] = true;
 	} else {
-		for(adjEntry adj : v2->adjEdges)
+		for(adjEntry adj : v2->adjEntries)
 			stopVertex[faceNode[emb.rightFace(adj)]] = true;
 	}
 
@@ -730,7 +730,7 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 			}
 
 			// append next candidates to end of queue
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				edge eM = primalAdj[adj]->theEdge();
 				if(eM != e1 && eM != e2) {
 					int listPos = (currentDist + tcS[eM]) % maxTC;
@@ -875,8 +875,8 @@ bool MultiEdgeApproxInserter::dfsPathSPQR(node v, node v2, edge eParent, List<ed
 	if(v == v2)
 		return true;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if(e == eParent) continue;
 
 		if(dfsPathSPQR(e->opposite(v),v2,e,path) == true) {
@@ -1188,7 +1188,7 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 					node n_succ = (j+1 < len) ? p[j+1].m_node : nullptr;
 					node n_pred = (j-1 >=  0) ? p[j-1].m_node : nullptr;
 
-					for(adjEntry adj : n->adjEdges) {
+					for(adjEntry adj : n->adjEntries) {
 						node x = adj->twinNode();
 						if(x != n_succ && x != n_pred && visited[x])
 							recFlipPref(adj->twin(), pi_pick, visited, spqr);
@@ -1238,7 +1238,7 @@ void MultiEdgeApproxInserter::recFlipPref(
 	if(pref.type() == EmbeddingPreference::epPNode)
 		spqr.reverse(n);
 
-	for(adjEntry adj : n->adjEdges) {
+	for(adjEntry adj : n->adjEntries) {
 		if(adj != adjP && visited[adj->twinNode()])
 			recFlipPref(adj->twin(), pi_pick, visited, spqr);
 	}
@@ -1298,8 +1298,8 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 	m_costOrig = costOrig;
 	const int m = origEdges.size();
 
-	OGDF_ASSERT(m_edge->low() == 0);
 	m_edge = &origEdges;
+	OGDF_ASSERT(m_edge->low() == 0);
 	m_pathBCs.init(m);
 	m_insertionCosts.init(0,m-1,0);
 
@@ -1468,7 +1468,7 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 			const Block &B = *m_block[copies.front().m_block];
 			node vB = copies.front().m_vertex;
 
-			for(adjEntry adj : vB->adjEdges)
+			for(adjEntry adj : vB->adjEntries)
 				adjList.pushBack(B.m_BCtoG[adj]);
 
 		} else {
@@ -1652,7 +1652,7 @@ void MultiEdgeApproxInserter::constructDual(const PlanRepLight &PG)
 	// construct dual edges (for primal edges in block)
 	for(node v : PG.nodes)
 	{
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			if(adj->index() & 1) {
 				node vLeft  = m_faceNode[m_E.leftFace (adj)];
@@ -1677,7 +1677,7 @@ int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 	int oldIdCount = m_dual.maxEdgeIndex();
 
 	// augment dual by edges from s to all adjacent faces of s ...
-	for(adjEntry adj : s->adjEdges) {
+	for(adjEntry adj : s->adjEntries) {
 		// starting edges of bfs-search are all edges leaving s
 		edge eDual = m_dual.newEdge(m_vS, m_faceNode[m_E.rightFace(adj)]);
 		m_primalAdj[eDual->adjSource()] = adj;
@@ -1686,7 +1686,7 @@ int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 	}
 
 	// ... and from all adjacent faces of t to t
-	for(adjEntry adj : t->adjEdges) {
+	for(adjEntry adj : t->adjEntries) {
 		edge eDual = m_dual.newEdge(m_faceNode[m_E.rightFace(adj)], m_vT);
 		m_primalAdj[eDual->adjSource()] = adj;
 		m_primalAdj[eDual->adjTarget()] = nullptr;
@@ -1723,7 +1723,7 @@ int MultiEdgeApproxInserter::findShortestPath(node s, node t)
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if(adj->twinNode() != m_vS)
 					queue.append(adj);
 			}

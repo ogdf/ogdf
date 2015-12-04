@@ -63,6 +63,12 @@ namespace bandit { namespace detail {
       print_status_line();
     }
 
+    void it_list(const char* desc)
+    {
+      progress_reporter::it_list(desc);
+      stm_ << current_context_name() << " " << desc << std::endl;
+    }
+
     private:
     void print_status_line()
     {

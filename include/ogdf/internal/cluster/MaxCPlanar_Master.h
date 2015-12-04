@@ -37,8 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MAX_CPLANAR_MASTER_H
-#define OGDF_MAX_CPLANAR_MASTER_H
+#pragma once
 
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/internal/cluster/Cluster_EdgeVar.h>
@@ -326,5 +325,3 @@ private:
 };
 
 }//end namespace
-
-#endif

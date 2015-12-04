@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-
-#ifndef OGDF_MODIFIED_NIBBLE_CLUSTERER_H
-#define OGDF_MODIFIED_NIBBLE_CLUSTERER_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphCopy.h>
@@ -164,10 +156,8 @@ private:
 		for(node v : m_pGC->nodes) {
 			sum += m_prob[v];
 		}
-		return DIsEqual(sum, 1.0);
+		return OGDF_GEOM_ET.equal(sum, 1.0);
 	}
 };
 
 } // end namespace ogdf
-
-#endif

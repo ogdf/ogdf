@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef TRIPLE_OGDF_H_
-#define TRIPLE_OGDF_H_
+#pragma once
 
 #include <ogdf/basic/Graph.h>
 
@@ -120,5 +119,3 @@ private:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif /* TRIPLE_OGDF_H_ */

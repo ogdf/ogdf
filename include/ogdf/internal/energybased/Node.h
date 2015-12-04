@@ -32,56 +32,49 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-//Data structure for representing nodes and an int value (needed for class ogdf/list)
-//to perform bucket sort.
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NODE_H
-#define OGDF_NODE_H
 
 #include <ogdf/basic/Graph.h>
 
-
 namespace ogdf {
+namespace energybased {
 
-	class Node
+//! Data structure for representing nodes and an int value (needed for class ogdf/list)
+//! to perform bucket sort.
+class Node
+{
+	friend int value(const Node& A) { return A.value; }
+
+	friend ostream &operator<< (ostream & output,const Node & A)
 	{
-		friend int value(const Node& A) { return A.value; }
+		output <<"node index ";
+		if(A.vertex == nullptr)
+			output<<"nil";
+		else
+			output<<A.vertex->index();
+		output<<" value "<< A.value;
+		return output;
+	}
 
-		friend ostream &operator<< (ostream & output,const Node & A)
-		{
-			output <<"node index ";
-			if(A.vertex == nullptr)
-				output<<"nil";
-			else
-				output<<A.vertex->index();
-			output<<" value "<< A.value;
-			return output;
-		}
+	friend istream &operator>> (istream & input,Node & A) {
+		input >> A.value;
+		return input;
+	}
 
-		friend istream &operator>> (istream & input,Node & A) {
-			input >> A.value;
-			return input;
-		}
-
-	public:
-		Node() { vertex = nullptr; value = 0; }        //constructor
-		~Node() { }    //destructor
+public:
+	Node() { vertex = nullptr; value = 0; }        //!< constructor
+	~Node() { }    //!< destructor
 
 
-		void set_Node(node v,int a) { vertex = v; value = a; }
-		int  get_value() const { return value; }
-		node get_node() const { return vertex; }
+	void set_Node(node v,int a) { vertex = v; value = a; }
+	int  get_value() const { return value; }
+	node get_node() const { return vertex; }
 
-	private:
-		node vertex;
-		int value ;
-	};
+private:
+	node vertex;
+	int value ;
+};
 
-}//namespace ogdf
-#endif
-
-
+}
+}

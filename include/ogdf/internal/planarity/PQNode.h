@@ -38,15 +38,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PQ_NODE_H
-#define OGDF_PQ_NODE_H
-
 
 #include <ogdf/basic/List.h>
 #include <ogdf/internal/planarity/PQNodeRoot.h>
@@ -638,6 +630,3 @@ PQNode<T,X,Y>::PQNode(int count)
 }
 
 }
-
-#endif
-

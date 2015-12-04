@@ -38,13 +38,7 @@
 // but we already set types in Attributedgraph, therefore set them
 // in PlanRep, too
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANREP_H
-#define OGDF_PLANREP_H
-
 
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/planarity/EdgeTypePatterns.h>
@@ -56,7 +50,7 @@
 
 namespace ogdf {
 
-	class OrthoRep;
+class OrthoRep;
 
 
 //! Planarized representations (of a connected component) of a graph.
@@ -775,6 +769,3 @@ protected:
 };//PlanRep
 
 } // end namespace ogdf
-
-
-#endif

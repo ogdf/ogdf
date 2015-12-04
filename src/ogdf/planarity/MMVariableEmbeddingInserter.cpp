@@ -219,7 +219,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 
 		//		for(itV = origInCC.begin(); itV.valid(); ++itV) {
 		//			node vG = *itV;
-		//			for(adjEntry adj : vG->adjEdges) {
+		//			for(adjEntry adj : vG->adjEntries) {
 		//				if ((adj->index() & 1) == 0) continue;
 		//				edge eG = adj->theEdge();
 		//				rrEdges.pushBack(eG);
@@ -490,7 +490,7 @@ node MMVariableEmbeddingInserter::prepareAnchorNode(
 		//	PG.nodeSplitOf(adj->theEdge()) == PG.nodeSplitOf(anchor.m_adj_2->theEdge()))
 		//{
 		//	node u = adj->theNode();
-		//	for(adjEntry adj : u->adjEdges) {
+		//	for(adjEntry adj : u->adjEntries) {
 		//		List<edge> *pathStraight = &PG.setOrigs(adj->theEdge(), eStraight, nsStraight);
 		//		vStraight = pathStraight->front()->source();
 		//		if(PG.original(vStraight) == vOrig)
@@ -524,7 +524,7 @@ node MMVariableEmbeddingInserter::prepareAnchorNode(
 			node u = adj->theNode();
 			adjEntry adjA[2];
 			int i = 0;
-			for(adjEntry adj_x : u->adjEdges) {
+			for(adjEntry adj_x : u->adjEntries) {
 				if(adj_x != anchor.m_adj_1 && adj_x != anchor.m_adj_2)
 					adjA[i++] = adj_x;
 			}
@@ -551,7 +551,7 @@ node MMVariableEmbeddingInserter::prepareAnchorNode(
 			edge eStraightOld = eStraight;
 			PlanRepExpansion::NodeSplit *nsStraightOld = nsStraight;
 
-			for(adjEntry adjRun : vDummy->adjEdges) {
+			for(adjEntry adjRun : vDummy->adjEntries) {
 				pathStraight = &PG.setOrigs(adjRun->theEdge(), eStraight, nsStraight);
 				if((eStraightOld && eStraight != eStraightOld) || (nsStraightOld && nsStraight != nsStraightOld))
 					break;
@@ -686,7 +686,7 @@ void MMVariableEmbeddingInserter::insertWithCommonDummy(
 	adjEntry adjSrc = nullptr, adjTgt = nullptr;
 	bool bOrigEdgeSrc = true, bOrigEdgeTgt = true;
 
-	for(adjEntry adj : vDummy->adjEdges) {
+	for(adjEntry adj : vDummy->adjEntries) {
 		edge e = adj->theEdge();
 		edge eStraight;
 		PlanRepExpansion::NodeSplit *nsStraight;
@@ -840,7 +840,7 @@ adjEntry MMVariableEmbeddingInserter::Block::containsSourceAdj(node v) const
 
 	if(wOrig == nullptr) return nullptr;
 
-	for(adjEntry adj : wOrig->adjEdges) {
+	for(adjEntry adj : wOrig->adjEntries) {
 		if(m_pT->skeletonOfReal(adj->theEdge()).treeNode() == v)
 			return adj;
 	}
@@ -862,7 +862,7 @@ adjEntry MMVariableEmbeddingInserter::Block::containsTargetAdj(node v) const
 
 	if(wOrig == nullptr) return nullptr;
 
-	for(adjEntry adj : wOrig->adjEdges) {
+	for(adjEntry adj : wOrig->adjEntries) {
 		if(m_pT->skeletonOfReal(adj->theEdge()).treeNode() == v)
 			return adj;
 	}
@@ -1083,7 +1083,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 	{
 		node vDual = dualOfNode[v];
 
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			// cannot cross virtual edge representing sources / targets
 			adjEntry adjBC = m_expToG[adj];
@@ -1158,10 +1158,11 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 void MMVariableEmbeddingInserter::ExpandedSkeleton::addOutgoingEdges(
 	node v, SListPure<edge> &edges)
 {
-	edge e;
-	forall_adj_edges(e,v)
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if(e->target() != v)
 			edges.pushBack(e);
+	}
 }
 
 MMVariableEmbeddingInserter::PathType
@@ -1380,8 +1381,8 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::findShortestPath(
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if (v != e->source()) continue;
 
 				int listPos = (currentDist + m_dualCost[e]) % maxCost;
@@ -1561,8 +1562,8 @@ bool MMVariableEmbeddingInserter::pathSearch(
 	if(BC.containsTarget(v) != nullptr)
 		return true;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if(e == parent) continue;
 		if(pathSearch(e->opposite(v),e,BC,path) == true) {
 			path.pushFront(e);
@@ -1809,7 +1810,7 @@ void MMVariableEmbeddingInserter::collectAnchorNodes(
 	if(m_pPG->original(v) != nullptr)
 		nodes.insert(v);
 
-	for(adjEntry adj : v->adjEdges) {
+	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		const PlanRepExpansion::NodeSplit *ns = m_pPG->nodeSplitOf(e);
 		if(ns == nullptr) {

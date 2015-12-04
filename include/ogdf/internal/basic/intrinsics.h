@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_INTRINSICS_H
-#define OGDF_INTRINSICS_H
 
 #include <ogdf/basic/basic.h>
 
@@ -60,9 +54,6 @@
 
 #if (defined(__x86_64__) || defined(__i386__))  && !(defined(__GNUC__) && !defined(__SSE3__))
 #define OGDF_SSE3_EXTENSIONS
-#endif
-
-
 #endif
 
 

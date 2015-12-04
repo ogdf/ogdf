@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UPWARDPLANREP_H
-#define OGDF_UPWARDPLANREP_H
-
 
 #include <ogdf/basic/GraphCopy.h>
 
@@ -137,7 +131,7 @@ public:
 			return nullptr;
 
 		adjEntry adjFound = nullptr;
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->target() == v && adj->cyclicSucc()->theEdge()->source() == v) {
 				adjFound = adj;
 				break;
@@ -206,6 +200,3 @@ private:
 };//UpwardPlanRep
 
 } // end namespace ogdf
-
-
-#endif

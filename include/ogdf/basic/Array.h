@@ -33,16 +33,11 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_ARRAY_H
-#define OGDF_ARRAY_H
-
-
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/comparer.h>
+#include <ogdf/basic/memory.h>
+#include <ogdf/basic/exceptions.h>
 #include <random>
 #include <type_traits>
 
@@ -50,49 +45,6 @@
 namespace ogdf {
 
 template<class E, class INDEX> class ArrayBuffer;
-
-//! Iteration over all indices \a i of an array \a A.
-/**
- * @ingroup containers
- *
- * Note that the index variable \a i has to be defined prior to this macro
- * (just as for \c #forall_edges, etc.).
- * <h3>Example</h3>
- *
- *   \code
- *   Array<double> A;
- *   ...
- *   int i;
- *   forall_arrayindices(i, A) {
- *     cout << A[i] << endl;
- *   }
- *   \endcode
- *
- *   Note that this code is equivalent to the following tedious long version
- *
- *   \code
- *   Array<double> A;
- *   ...
- *   int i;
- *   for(i = A.low(); i <= A.high(); ++i) {
- *     cout << A[i] << endl;
- *   }
- *   \endcode
- */
-#define forall_arrayindices(i, A) \
-	for(i = (A).low(); i<=(A).high(); ++i)
-
-//! Iteration over all indices \a i of an array \a A, in reverse order.
-/**
- * @ingroup containers
- * Note that the index variable \a i has to be defined prior to this macro
- * (just as for \c #forall_edges, etc.).
- * See \c #forall_arrayindices for an example
- */
-#define forall_rev_arrayindices(i, A) \
-	for(i = (A).high(); i>=(A).low(); --i)
-
-
 
 //! The parameterized class \a Array<E,INDEX> implements dynamic arrays of type \a E.
 /**
@@ -849,6 +801,3 @@ Array<E,INDEX>::Array(const ArrayBuffer<E, INDEX> &A) {
 }
 
 } // end namespace ogdf
-
-
-#endif

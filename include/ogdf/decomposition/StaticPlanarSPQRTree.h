@@ -32,18 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-
-// disable wrong warnings (VS compiler bug regarding virtual base classes)
-#pragma warning(disable:4250)
-#endif
-
-
-#ifndef OGDF_STATIC_PLANAR_SPQR_TREE_H
-#define OGDF_STATIC_PLANAR_SPQR_TREE_H
-
 
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
@@ -113,6 +102,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

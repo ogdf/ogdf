@@ -32,21 +32,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_CIRCULAR_LAYOUT_H
-#define OGDF_CIRCULAR_LAYOUT_H
-
 
 #include <ogdf/module/LayoutModule.h>
-
+#include <ogdf/basic/GraphCopyAttributes.h>
 
 namespace ogdf {
 
-class OGDF_EXPORT GraphCopyAttributes;
 struct ClusterStructure;
 
 //! The circular layout algorithm.
@@ -54,7 +46,7 @@ struct ClusterStructure;
  * The implementation used in CircularLayout is based on
  * the following publication:
  *
- * Ugur Dogrus&ouml;z, Brendan Madden, Patrick Madden: <i>Circular %Layout in the
+ * Ugur Dogrusöz, Brendan Madden, Patrick Madden: <i>Circular %Layout in the
  * %Graph %Layout Toolkit</i>. Proc. %Graph Drawing 1996, LNCS 1190, pp. 92-100, 1997.
  *
  * <H3>Optional parameters</H3>
@@ -166,6 +158,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

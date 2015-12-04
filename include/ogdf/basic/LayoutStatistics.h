@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LAYOUT_STATISTICS_H
-#define OGDF_LAYOUT_STATISTICS_H
-
 
 #include <ogdf/basic/GraphAttributes.h>
 
@@ -156,6 +150,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

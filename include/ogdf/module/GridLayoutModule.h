@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRID_LAYOUT_MODULE_H
-#define OGDF_GRID_LAYOUT_MODULE_H
-
-
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/GridLayout.h>
@@ -318,6 +310,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

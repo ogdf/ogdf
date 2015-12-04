@@ -37,13 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NODEINFO_H
-#define OGDF_NODEINFO_H
 
 #include <ogdf/internal/orthogonal/RoutingChannel.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
@@ -241,7 +235,8 @@ public:
 			if (dval > box_x_size) {
 				dval = int(floor(((double)box_x_size / 2))) - m_eps[bside][bneighbour];
 			} break;
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}//switch
 		m_delta[bside][bneighbour] = dval;
 	}
@@ -331,5 +326,3 @@ private:
 ostream& operator<<(ostream& O, const NodeInfo& inf);
 
 } //end namespace
-
-#endif

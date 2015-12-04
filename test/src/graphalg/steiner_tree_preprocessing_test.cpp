@@ -147,7 +147,7 @@ template<typename T>
 static void
 testBasicReductions(const string &typeName, int numberOfTests)
 {
-	describe(string("basic reductions (" + typeName + ")").c_str(), [numberOfTests]() {
+	describe(string("basic reductions (" + typeName + ")"), [numberOfTests]() {
 		for (int i = 1; i <= numberOfTests; ++i) {
 			it("does not change solution cost and finds a solution in the original graph", [&]() {
 				testReduction<T>([](SteinerTreePreprocessing<T> &stp) {
@@ -173,9 +173,9 @@ testComposedReductions(const string &typeName, int numberOfTests)
 			stprep.reduceFast();
 		}},
 	};
-	describe(string("composed reductions (" + typeName + ")").c_str(), [numberOfTests, &reductions]() {
+	describe(string("composed reductions (" + typeName + ")"), [numberOfTests, &reductions]() {
 		for (const auto &reduction : reductions) {
-			describe(reduction.first.c_str(), [numberOfTests, &reduction]() {
+			describe(reduction.first, [numberOfTests, &reduction]() {
 				for (int i = 1; i <= numberOfTests; ++i) {
 					it("does not change solution cost and finds a solution in the original graph", [&]() {
 						testReduction<T>(reduction.second);
@@ -250,7 +250,7 @@ testLotsOfReductions(string typeName, int numberOfTests)
 		}
 		desc += " (" + typeName + ")";
 
-		describe(desc.c_str(), [numberOfTests, &usedReductions, &reductions]() {
+		describe(desc, [numberOfTests, &usedReductions, &reductions]() {
 			Array<int> order(usedReductions.size());
 			for (int j = 0; j < order.size(); ++j) {
 				order[j] = j;
@@ -259,7 +259,7 @@ testLotsOfReductions(string typeName, int numberOfTests)
 				std::stringstream ss;
 				ss << "does not change solution cost and finds a solution in the original graph (order "
 				   << order << ")";
-				it(ss.str().c_str(), [&]() {
+				it(ss.str(), [&]() {
 					testReduction<T>([&usedReductions, &reductions](SteinerTreePreprocessing<T> &stp) {
 						for (auto i : usedReductions) {
 							reductions[i].second(stp);

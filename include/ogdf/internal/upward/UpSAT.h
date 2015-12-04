@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UPSAT_H
-#define OGDF_UPSAT_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/Graph_d.h>
@@ -47,7 +42,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
-#include <ogdf/minisat/Minisat.h>
+#include <ogdf/lib/minisat/Minisat.h>
 #include <vector>
 
 namespace ogdf {
@@ -105,6 +100,3 @@ class UpSAT {
 	};
 
 } // end namespace ogdf
-
-
-#endif

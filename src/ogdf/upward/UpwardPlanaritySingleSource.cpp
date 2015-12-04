@@ -268,8 +268,8 @@ bool UpwardPlanaritySingleSource::ConstraintRooting::checkEdge(
 	checked[e] = true;
 	node child = e->source();
 
-	edge eAdj;
-	forall_adj_edges(eAdj,child) {
+	for(adjEntry adj : child->adjEntries) {
+		edge eAdj = adj->theEdge();
 		if (eAdj != e) {
 			if (checkEdge(eAdj,child,checked) == false)
 				return false;
@@ -476,7 +476,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 			assignSinks(F,extFace,assignedFace);
 
 			adjEntry adj1 = nullptr;
-			for(adjEntry adj : s->adjEdges) {
+			for(adjEntry adj : s->adjEntries) {
 				if (E.leftFace(adj) == extFace) {
 					adj1 = adj;
 					break;
@@ -524,7 +524,7 @@ bool UpwardPlanaritySingleSource::testBiconnectedComponent(
 				node vG = exp.original(v);
 
 				adj1 = nullptr;
-				for(adjEntry adj : v->adjEdges) {
+				for(adjEntry adj : v->adjEntries) {
 					if (E.leftFace(adj) == assignedFace[v]) {
 						adj1 = adj;
 						break;
@@ -647,8 +647,8 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	// recursively compute in- and outdegrees at virtual edges except for
 	// the reference edge of S; additionally compute if source is contained
 	// in pertinent (and no endpoint of reference edge)
-	edge eT;
-	forall_adj_edges(eT,vT) {
+	for(adjEntry adj : vT->adjEntries) {
+		edge eT = adj->theEdge();
 		node wT = eT->target();
 		if (wT != vT)
 			computeDegreesInPertinent(T,s,skInfo,wT);
@@ -688,8 +688,8 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	int indegSrc = 0;
 	int outdegSrc = 0;
 	{
-		edge e;
-		forall_adj_edges(e, src) {
+		for(adjEntry adj : src->adjEntries) {
+			edge e = adj->theEdge();
 			if (e == eRef) continue;
 			if (e->source() == src) {
 				indegSrc += degInfo[e].m_indegSrc;
@@ -705,8 +705,8 @@ void UpwardPlanaritySingleSource::computeDegreesInPertinent(
 	int indegTgt = 0;
 	int outdegTgt = 0;
 	{
-		edge e;
-		forall_adj_edges(e, tgt) {
+		for(adjEntry adj : tgt->adjEntries) {
+			edge e = adj->theEdge();
 			if (e == eRef) continue;
 			if (e->source() == tgt) {
 				indegTgt += degInfo[e].m_indegSrc;
@@ -1012,7 +1012,7 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 		adjEntry adjRef     = eRef->adjSource();
 		adjEntry adjRefTwin = adjRef->twin();
 
-		for(adjEntry adj : lowerPole->adjEdges) {
+		for(adjEntry adj : lowerPole->adjEntries) {
 			// ignore reference edge
 			if (adj == adjRef) continue;
 
@@ -1207,7 +1207,7 @@ node UpwardPlanaritySingleSource::dfsAssignSinks(
 	node vf = nullptr;
 
 	// we perform a dfs-traversal (underlying graph is a tree)
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		node w = adj->twinNode();
 

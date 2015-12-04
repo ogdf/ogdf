@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of class SiftingHeuristic
  *
- * \author Till Sch&auml;fer
+ * \author Till Schäfer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SIFTING_HEURISTIC_H
-#define OGDF_SIFTING_HEURISTIC_H
-
 
 #include <ogdf/module/LayerByLayerSweep.h>
 #include <ogdf/layered/CrossingsMatrix.h>
@@ -103,5 +96,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

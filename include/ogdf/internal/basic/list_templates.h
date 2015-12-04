@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LIST_TEMPLATES_H
-#define OGDF_LIST_TEMPLATES_H
-
 
 #include <ogdf/basic/Array.h>
 
@@ -86,5 +79,3 @@ void quicksortTemplate(LIST &L, COMPARER &comp)
 
 
 } // end namespace ogdf
-
-#endif

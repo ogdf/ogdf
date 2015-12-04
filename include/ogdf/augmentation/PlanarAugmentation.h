@@ -32,22 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANAR_AUGMENTATION_H
-#define OGDF_PLANAR_AUGMENTATION_H
 
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/internal/augmentation/PALabel.h>
-
+#include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
-
-	class DynamicBCTree;
-
 
 /**
  * \brief The algorithm for planar biconnectivity augmentation (Mutzel, Fialko).
@@ -295,5 +287,3 @@ private:
 
 
 } // namespace ogdf
-
-#endif

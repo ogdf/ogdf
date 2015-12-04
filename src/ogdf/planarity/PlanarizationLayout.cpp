@@ -102,7 +102,7 @@ namespace ogdf {
 				ga.x(vG) = drawing.x(pr.copy(vG));
 				ga.y(vG) = drawing.y(pr.copy(vG));
 
-				for(adjEntry adj : vG->adjEdges) {
+				for(adjEntry adj : vG->adjEntries) {
 					if ((adj->index() & 1) == 0)
 						continue;
 					edge eG = adj->theEdge();
@@ -238,7 +238,7 @@ namespace ogdf {
 				}//if boundary exists
 				else
 				{
-					for(adjEntry adjBoundary : centerNode->adjEdges)
+					for(adjEntry adjBoundary : centerNode->adjEntries)
 					{
 						node w = adjBoundary->twinNode();
 						double vx = drawing.x(pr.copy(w));
@@ -280,7 +280,7 @@ namespace ogdf {
 				// the clique
 
 				// assign shifted coordinates to drawing
-				for(adjEntry adjBoundary : centerNode->adjEdges)
+				for(adjEntry adjBoundary : centerNode->adjEntries)
 				{
 					node w = adjBoundary->twinNode();
 					drawing.x(pr.copy(w)) = centralX-circleX+cliqueReplacer.cliquePos(w).m_x;
@@ -313,7 +313,7 @@ namespace ogdf {
 				ga.x(vG) = drawing.x(pr.copy(vG));
 				ga.y(vG) = drawing.y(pr.copy(vG));
 
-				for(adjEntry adj : vG->adjEdges) {
+				for(adjEntry adj : vG->adjEntries) {
 					if ((adj->index() & 1) == 0)
 						continue;
 					edge eG = adj->theEdge();
@@ -508,7 +508,7 @@ namespace ogdf {
 				ga.x(vG) = drawing.x(pr.copy(vG));
 				ga.y(vG) = drawing.y(pr.copy(vG));
 
-				for(adjEntry adj : vG->adjEdges) {
+				for(adjEntry adj : vG->adjEntries) {
 					if ((adj->index() & 1) == 0)
 						continue;
 					edge eG = adj->theEdge();
@@ -547,7 +547,7 @@ namespace ogdf {
 				ga.x(v) += dx;
 				ga.y(v) += dy;
 
-				for(adjEntry adj : v->adjEdges) {
+				for(adjEntry adj : v->adjEntries) {
 					if ((adj->index() & 1) == 0) continue;
 					edge e = adj->theEdge();
 

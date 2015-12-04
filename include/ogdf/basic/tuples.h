@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_TUPLE_H
-#define OGDF_TUPLE_H
-
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/Hashing.h>
@@ -125,6 +118,3 @@ private:
 };
 
 } // namespace ogdf
-
-
-#endif

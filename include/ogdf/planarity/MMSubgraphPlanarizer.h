@@ -32,9 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_MM_SUBGRAPH_PLANARIZER_H
-#define OGDF_MM_SUBGRAPH_PLANARIZER_H
+#pragma once
 
 #include <ogdf/module/MMCrossingMinimizationModule.h>
 #include <ogdf/module/PlanarSubgraphModule.h>
@@ -88,5 +86,3 @@ private:
 };
 
 }
-
-#endif

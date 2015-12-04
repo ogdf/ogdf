@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DINO_XML_PARSER_H
-#define OGDF_DINO_XML_PARSER_H
 
 #include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Hashing.h>
@@ -49,414 +44,412 @@
 
 namespace ogdf {
 
-	//---------------------------------------------------------
-	// H a s h e d S t r i n g
-	//---------------------------------------------------------
+//---------------------------------------------------------
+// H a s h e d S t r i n g
+//---------------------------------------------------------
 
-	typedef HashElement<string,int> HashedString;
+typedef HashElement<string,int> HashedString;
 
-	//---------------------------------------------------------
-	// X m l A t t r i b u t e O b j e c t
-	//---------------------------------------------------------
-	/** This struct represents an attribute associated to a tag.
+//---------------------------------------------------------
+// X m l A t t r i b u t e O b j e c t
+//---------------------------------------------------------
+/** This struct represents an attribute associated to a tag.
+ */
+struct OGDF_EXPORT XmlAttributeObject {
+
+	/** Contains the name of the attribute, i.e.
+	 *  for <A attr1="value1"> ... </A> it contains "attr1"
 	 */
-	struct OGDF_EXPORT XmlAttributeObject {
+	HashedString *m_pAttributeName;
 
-		/** Contains the name of the attribute, i.e.
-		 *  for <A attr1="value1"> ... </A> it contains "attr1"
-		 */
-		HashedString *m_pAttributeName;
-
-		/** Contains the value assigned to this attribute without qoutes, i.e.
-		 *  for <A attr1="value1"> ... </A> it contains "value1" and not "\"value1\"".
-		 */
-		HashedString *m_pAttributeValue;
-
-		/** Pointer to the next attribute and 0 if this is the only attribute. */
-		XmlAttributeObject *m_pNextAttribute;
-
-		/** Flag denotes whether attribute is valid or not (default: invalid). */
-		bool m_valid;
-
-		/** Constructor */
-		XmlAttributeObject(HashedString *name, HashedString *value)
-		 : m_pAttributeName(name)
-		 , m_pAttributeValue(value)
-		 , m_pNextAttribute(0)
-		 , m_valid(false)
-		{}
-
-		/** Destructor; will be performed in destroyParseTree(). */
-		~XmlAttributeObject(){};
-
-		/** Getter. */
-		const string& getName() const {
-			return m_pAttributeName->key();
-		}
-
-		const string& getValue() const {
-			return m_pAttributeValue->key();
-		}
-
-		bool valid() const {
-			return m_valid;
-		}
-
-		/** Setter. */
-		void setValid() {
-			m_valid = true;
-		}
-
-		void setInvalid() {
-			m_valid = false;
-		}
-
-		// Overloaded new and delete operators
-		OGDF_NEW_DELETE
-
-	}; // struct XmlAttributeObject
-
-	//---------------------------------------------------------
-	// X m l T a g O b j e c t
-	//---------------------------------------------------------
-	/** This struct represents a node in the XML parse tree.
+	/** Contains the value assigned to this attribute without qoutes, i.e.
+	 *  for <A attr1="value1"> ... </A> it contains "value1" and not "\"value1\"".
 	 */
-	struct OGDF_EXPORT XmlTagObject {
+	HashedString *m_pAttributeValue;
 
-		/** The identifier of the tag,
-		 *i.e. for <A> the identifier is "A"
-		 */
-		HashedString *m_pTagName;
+	/** Pointer to the next attribute and 0 if this is the only attribute. */
+	XmlAttributeObject *m_pNextAttribute;
 
-		/** Pointer to the first attribute;
-		 *  if there is more than one attribute these are linked by
-		 * m_pNextAttribute in struct XmlAttributeObject
-		 */
-		XmlAttributeObject *m_pFirstAttribute;
+	/** Flag denotes whether attribute is valid or not (default: invalid). */
+	bool m_valid;
 
-		/** Contains the characters inbetween the start tag and the end tag,
-		 *  i.e. for <A attr1=... attr2=...> lala </A> it contains " lala "
-		 */
-		HashedString *m_pTagValue;
+	/** Constructor */
+	XmlAttributeObject(HashedString *name, HashedString *value)
+	 : m_pAttributeName(name)
+	 , m_pAttributeValue(value)
+	 , m_pNextAttribute(0)
+	 , m_valid(false)
+	{}
 
-		/** Contains the pointer to the first son tag object,
-		 *  i.e. for <A> <B> ... </B> <C> ... </C> </A> it contains a pointer
-		 *  to the object representing B
-		 *  The other children of A are reachable via m_pBrother of the first son,
-		 *  i.e. the variable m_pBrother of the object representing B contains a
-		 * pointer to the object representing C
-		 */
-		XmlTagObject *m_pFirstSon;
+	/** Destructor; will be performed in destroyParseTree(). */
+	~XmlAttributeObject(){};
 
-		/** Contains the pointer to a brother tag object or 0 if this
-		 *  object is the only child
-		 */
-		XmlTagObject *m_pBrother;
+	/** Getter. */
+	const string& getName() const {
+		return m_pAttributeName->key();
+	}
 
-		/** Constructor */
-		XmlTagObject(HashedString *name) :
-			m_pTagName(name),
-			m_pFirstAttribute(0),
-			m_pTagValue(0),
-			m_pFirstSon(0),
-			m_pBrother(0),
-			m_valid(0)
-			{};
+	const string& getValue() const {
+		return m_pAttributeValue->key();
+	}
 
-		/** Destructor; will be performed in destroyParseTree(). */
-		~XmlTagObject(){};
+	bool valid() const {
+		return m_valid;
+	}
 
-		/** Flag denotes whether attribute is valid or not. */
-		mutable bool m_valid;
+	/** Setter. */
+	void setValid() {
+		m_valid = true;
+	}
 
-		/** integer value for the depth in the xml parse tree */
-		int m_depth;
+	void setInvalid() {
+		m_valid = false;
+	}
 
-		/** integer value that stores the line number
-		 *  of the tag in the parsed xml document */
-		 int m_line;
+	// Overloaded new and delete operators
+	OGDF_NEW_DELETE
 
-		public:
+}; // struct XmlAttributeObject
 
-		/**Checks if currentNode is leaf in the parse tree.
-		 * Returns true if list of sons is empty.
-		 * Returns false otherwise.
-		 *
-		 * NEW
-		 */
-		bool isLeaf() const;
+//---------------------------------------------------------
+// X m l T a g O b j e c t
+//---------------------------------------------------------
+/** This struct represents a node in the XML parse tree.
+ */
+struct OGDF_EXPORT XmlTagObject {
 
-		/**Searches for a son with tag name sonsName.
-		 * Returns the son via the referenced pointer son.
-		 * Returns true if son is found.
-		 * Returns false, otherwise, son is set to nullptr.
-		 *
-		 * NEW
-		 */
-		bool findSonXmlTagObjectByName(	const string &sonsName,
-										XmlTagObject *&son) const;
-
-		/**Searches for sons with tag name sonsName.
-		 * Returns the sons via a list with pointers to the sons.
-		 * Returns true if at least one son was found.
-		 * Returns false otherwise, sons is set to nullptr.
-		 *
-		 * NEW
-		 */
-		bool findSonXmlTagObjectByName(	const string &sonsName,
-										List<XmlTagObject*> &sons) const;
-
-		/**Searches for sons of father which names are inequal to those
-		 * in list sonsNames.
-		 * Returns true if at least one son of father is found whose name
-		 * doesn't match one in sonsNames.
-		 * Returns false otherwise.
-		 *
-		 * NEW
-		 */
-		bool hasMoreSonXmlTagObject(const List<string> &sonNamesToIgnore) const;
-
-		/**Searches for an attribute with name name.
-		 *
-		 * NEW
-		 */
-		bool findXmlAttributeObjectByName(
-			const string &attName,
-			XmlAttributeObject*& attribute) const;
-
-		/**Checks if currentTag owns at least one attribute.
-		 * Returns true if list of attributes isn't empty.
-		 * Returns false otherwise.
-		 *
-		 * NEW
-		 */
-		bool isAttributeLess() const;
-
-		/** Getter. */
-		const bool& valid() const {
-			return m_valid;
-		}
-
-		const string& getName() const {
-			return m_pTagName->key();
-		}
-
-		const string& getValue() const {
-			return m_pTagValue->key();
-		}
-
-		/** Setter. */
-		void setValid() const {
-			m_valid = true;
-		}
-
-		void setInvalid() {
-			m_valid = false;
-		}
-
-		/* get for depth of xml-tag-object */
-		const int& getDepth() const {
-			return m_depth;
-		}
-
-		/* setter for new depth */
-		void setDepth(int newDepth){
-			m_depth = newDepth;
-		}
-
-
-		/* get for line of xml-tag-object */
-		const int& getLine() const {
-			return m_line;
-		}
-
-		/* setter for line */
-		void setLine(int line) {
-			m_line = line;
-		}
-
-		// Overloaded new and delete operators
-		OGDF_NEW_DELETE
-
-	}; // struct XmlTagObject
-
-
-	//---------------------------------------------------------
-	// X m l P a r s e r
-	//---------------------------------------------------------
-	/** This class parses the XML input file and builds up a
-	 *  parse tree with linked elements XMLTagObject and
-	 *  XMLAttributeObject. The class XmlScanner is used to
-	 *  get the token for the parse process.
+	/** The identifier of the tag,
+	 *i.e. for <A> the identifier is "A"
 	 */
-	 class OGDF_EXPORT XmlParser {
+	HashedString *m_pTagName;
 
-		 friend ostream &operator<<(ostream&, const XmlParser &);
+	/** Pointer to the first attribute;
+	 *  if there is more than one attribute these are linked by
+	 * m_pNextAttribute in struct XmlAttributeObject
+	 */
+	XmlAttributeObject *m_pFirstAttribute;
 
-	 private:
+	/** Contains the characters inbetween the start tag and the end tag,
+	 *  i.e. for <A attr1=... attr2=...> lala </A> it contains " lala "
+	 */
+	HashedString *m_pTagValue;
 
-		/** Pointer to the root element of the parse tree. */
-		XmlTagObject *m_pRootTag;
+	/** Contains the pointer to the first son tag object,
+	 *  i.e. for <A> <B> ... </B> <C> ... </C> </A> it contains a pointer
+	 *  to the object representing B
+	 *  The other children of A are reachable via m_pBrother of the first son,
+	 *  i.e. the variable m_pBrother of the object representing B contains a
+	 * pointer to the object representing C
+	 */
+	XmlTagObject *m_pFirstSon;
 
-		/** Pointer to the scanner. */
-		XmlScanner *m_pScanner;
+	/** Contains the pointer to a brother tag object or 0 if this
+	 *  object is the only child
+	 */
+	XmlTagObject *m_pBrother;
 
-		/** Hash table for storing names of TagObjects and
-		 *  AttributeObjects in an efficient manner.
-		 *  The key element is string.
-		 *  The info element is int.
-		 */
-		Hashing<string,int> m_hashTable;
+	/** Constructor */
+	XmlTagObject(HashedString *name) :
+		m_pTagName(name),
+		m_pFirstAttribute(0),
+		m_pTagValue(0),
+		m_pFirstSon(0),
+		m_pBrother(0),
+		m_valid(0)
+		{};
 
-		/** The info element of the hash table is simply an integer
-		 * number which is incremented for each new element (starting at 0).
-		 * The value m_hashTableInfoIndex - 1 is the last used index.
-		 */
-		int m_hashTableInfoIndex;
+	/** Destructor; will be performed in destroyParseTree(). */
+	~XmlTagObject(){};
 
-		/** Recursion depth of parse(). */
-		int m_recursionDepth;
-		/** stack for checking correctness of correspondent closing tags */
-		Stack<string> m_tagObserver;
+	/** Flag denotes whether attribute is valid or not. */
+	mutable bool m_valid;
 
-		bool m_parseError;
+	/** integer value for the depth in the xml parse tree */
+	int m_depth;
 
+	/** integer value that stores the line number
+	 *  of the tag in the parsed xml document */
+	 int m_line;
 
 	public:
 
-		/** Constructor.
-		 *  Inside the constructor the scanner is generated.
-		 */
-		XmlParser(istream &is);
+	/**Checks if currentNode is leaf in the parse tree.
+	 * Returns true if list of sons is empty.
+	 * Returns false otherwise.
+	 *
+	 * NEW
+	 */
+	bool isLeaf() const;
 
-		/** Destructor; destroys the parse tree. */
-		~XmlParser();
+	/**Searches for a son with tag name sonsName.
+	 * Returns the son via the referenced pointer son.
+	 * Returns true if son is found.
+	 * Returns false, otherwise, son is set to nullptr.
+	 *
+	 * NEW
+	 */
+	bool findSonXmlTagObjectByName(	const string &sonsName,
+									XmlTagObject *&son) const;
 
-		/** Creates a new hash element and inserts it into the hash table.
-		 */
-		void addNewHashElement(const string &key, int info){
-			OGDF_ASSERT(info >= m_hashTableInfoIndex)
-			m_hashTable.fastInsert(key, info);
-			m_hashTableInfoIndex = info + 1;
-		}
+	/**Searches for sons with tag name sonsName.
+	 * Returns the sons via a list with pointers to the sons.
+	 * Returns true if at least one son was found.
+	 * Returns false otherwise, sons is set to nullptr.
+	 *
+	 * NEW
+	 */
+	bool findSonXmlTagObjectByName(	const string &sonsName,
+									List<XmlTagObject*> &sons) const;
 
-		/** Creates the parse tree and anchors it in m_pRootTag.
-		 *  returns true to indicate if success; false if parse error.
-		 */
-		bool createParseTree();
+	/**Searches for sons of father which names are inequal to those
+	 * in list sonsNames.
+	 * Returns true if at least one son of father is found whose name
+	 * doesn't match one in sonsNames.
+	 * Returns false otherwise.
+	 *
+	 * NEW
+	 */
+	bool hasMoreSonXmlTagObject(const List<string> &sonNamesToIgnore) const;
 
-		/** Allows (non modifying) access to the parse tree. */
-		const XmlTagObject &getRootTag() const {
-			return *m_pRootTag;
-		}
+	/**Searches for an attribute with name name.
+	 *
+	 * NEW
+	 */
+	bool findXmlAttributeObjectByName(
+		const string &attName,
+		XmlAttributeObject*& attribute) const;
 
-		/** Traverses the parseTree starting at startTag using the path
-		 * description in path, which contains the infoIndices of the tags
-		 * which have to be traversed.
-		 * If the XmlTagObject associated to the last infoIndex in the path is
-		 * found, it is returned via targetTag and the return value is true
-		 * If the XmlTagObject is not found the return value is false.
-		 */
-		bool traversePath(
-			const XmlTagObject &startTag,
-			const Array<int> &infoIndexPath,
-			const XmlTagObject *&targetTag) const;
+	/**Checks if currentTag owns at least one attribute.
+	 * Returns true if list of attributes isn't empty.
+	 * Returns false otherwise.
+	 *
+	 * NEW
+	 */
+	bool isAttributeLess() const;
 
-		/** Searches for a specific son (identified by sonInfoIndex)
-		 *  of father.
-		 *  Returns the son via the referenced pointer son.
-		 *  Returns true if son is found.
-		 *  Returns false otherwise, son is set to nullptr.
-		 */
-		bool findSonXmlTagObject(
-			const XmlTagObject &father,
-			int sonInfoIndex,
-			const XmlTagObject *&son) const;
+	/** Getter. */
+	const bool& valid() const {
+		return m_valid;
+	}
 
-		/** Searches for a specific brother (identified by brotherInfoIndex)
-		 *  of current.
-		 *  Returns the brother via the referenced pointer brother.
-		 *  Returns true if brother is found.
-		 *  Returns false otherwise, brother is set to nullptr.
-		 */
-		bool findBrotherXmlTagObject(
-			const XmlTagObject &currentTag,
-			int brotherInfoIndex,
-			const XmlTagObject *&brother) const;
+	const string& getName() const {
+		return m_pTagName->key();
+	}
 
-		/** Searches for a specific attribute (identified by attributeInfoIndex)
-		 *  of current.
-		 *  Returns the attribute via the referenced pointer attribute.
-		 *  Returns true if attribute is found.
-		 *  Returns false otherwise, attribute is set to nullptr.
-		 */
-		bool findXmlAttributeObject(
-			const XmlTagObject &currentTag,
-			int attributeInfoIndex,
-			const XmlAttributeObject *&attribute) const;
+	const string& getValue() const {
+		return m_pTagValue->key();
+	}
 
-		/** Returns line number of the most recently read line of
-		 *  the input file.
-		 */
-		inline int getInputFileLineCounter() const {
-			return m_pScanner->getInputFileLineCounter();
-		}
+	/** Setter. */
+	void setValid() const {
+		m_valid = true;
+	}
 
-		/** Prints the content of the hash table to os. */
-		void printHashTable(ostream &os);
+	void setInvalid() {
+		m_valid = false;
+	}
 
-	private:
+	/* get for depth of xml-tag-object */
+	const int& getDepth() const {
+		return m_depth;
+	}
 
-		/** Destroys the parse tree appended to root. */
-		void destroyParseTree(XmlTagObject *root);
+	/* setter for new depth */
+	void setDepth(int newDepth){
+		m_depth = newDepth;
+	}
 
-		/** Parses the token stream provided by the scanner until a complete
-		 *  XmlTagObject is identified which will be returned.
-		 *  This function is likely to be called recursively
-		 * due to the recursive structure of XML documents.
-		 */
-		XmlTagObject* parse();
 
-		/** Append attributeObject to list of attributes of tagObject. */
-		void appendAttributeObject(
-			XmlTagObject *tagObject,
-			XmlAttributeObject *attributeObject);
+	/* get for line of xml-tag-object */
+	const int& getLine() const {
+		return m_line;
+	}
 
-		/** Appends sonTagObject to the list of sons of currentTagObject. */
-		void appendSonTagObject(
-			XmlTagObject *currentTagObject,
-			XmlTagObject *sonTagObject);
+	/* setter for line */
+	void setLine(int line) {
+		m_line = line;
+	}
 
-		/** Returns the hash element for the given string.
-		 *  If the key str is not contained in the table yet, it is
-		 *  inserted together with a new info index and the new
-		 *  hash element is returned.
-		 *  If the key str exists, the associated hash element is returned.
-		 */
-		HashedString *hashString(const string &str);
+	// Overloaded new and delete operators
+	OGDF_NEW_DELETE
 
-		/** Prints the given XmlTagObject and its children recursively.
-		 *  The parameter indent is used as indentation value.
-		 */
-		void printXmlTagObjectTree(
-			ostream &os,
-			const XmlTagObject &rootObject,
-			int indent = 0) const;
+}; // struct XmlTagObject
 
-		/** Little helper that prints nOfSpaces space characters. */
-		void printSpaces(ostream &os, int nOfSpaces) const;
 
-		void reportError(
-			const char *functionName,
-			int sourceLine,
-			const char *message,
-			int inputFileLine = -1);
+//---------------------------------------------------------
+// X m l P a r s e r
+//---------------------------------------------------------
+/** This class parses the XML input file and builds up a
+ *  parse tree with linked elements XMLTagObject and
+ *  XMLAttributeObject. The class XmlScanner is used to
+ *  get the token for the parse process.
+ */
+ class OGDF_EXPORT XmlParser {
 
-	}; // class XmlParser
+	 friend ostream &operator<<(ostream&, const XmlParser &);
 
-	/** Output operator for XmlParser. */
-	ostream &operator<<(ostream &os, const XmlParser &parser);
+ private:
+
+	/** Pointer to the root element of the parse tree. */
+	XmlTagObject *m_pRootTag;
+
+	/** Pointer to the scanner. */
+	XmlScanner *m_pScanner;
+
+	/** Hash table for storing names of TagObjects and
+	 *  AttributeObjects in an efficient manner.
+	 *  The key element is string.
+	 *  The info element is int.
+	 */
+	Hashing<string,int> m_hashTable;
+
+	/** The info element of the hash table is simply an integer
+	 * number which is incremented for each new element (starting at 0).
+	 * The value m_hashTableInfoIndex - 1 is the last used index.
+	 */
+	int m_hashTableInfoIndex;
+
+	/** Recursion depth of parse(). */
+	int m_recursionDepth;
+	/** stack for checking correctness of correspondent closing tags */
+	Stack<string> m_tagObserver;
+
+	bool m_parseError;
+
+
+public:
+
+	/** Constructor.
+	 *  Inside the constructor the scanner is generated.
+	 */
+	XmlParser(istream &is);
+
+	/** Destructor; destroys the parse tree. */
+	~XmlParser();
+
+	/** Creates a new hash element and inserts it into the hash table.
+	 */
+	void addNewHashElement(const string &key, int info){
+		OGDF_ASSERT(info >= m_hashTableInfoIndex)
+		m_hashTable.fastInsert(key, info);
+		m_hashTableInfoIndex = info + 1;
+	}
+
+	/** Creates the parse tree and anchors it in m_pRootTag.
+	 *  returns true to indicate if success; false if parse error.
+	 */
+	bool createParseTree();
+
+	/** Allows (non modifying) access to the parse tree. */
+	const XmlTagObject &getRootTag() const {
+		return *m_pRootTag;
+	}
+
+	/** Traverses the parseTree starting at startTag using the path
+	 * description in path, which contains the infoIndices of the tags
+	 * which have to be traversed.
+	 * If the XmlTagObject associated to the last infoIndex in the path is
+	 * found, it is returned via targetTag and the return value is true
+	 * If the XmlTagObject is not found the return value is false.
+	 */
+	bool traversePath(
+		const XmlTagObject &startTag,
+		const Array<int> &infoIndexPath,
+		const XmlTagObject *&targetTag) const;
+
+	/** Searches for a specific son (identified by sonInfoIndex)
+	 *  of father.
+	 *  Returns the son via the referenced pointer son.
+	 *  Returns true if son is found.
+	 *  Returns false otherwise, son is set to nullptr.
+	 */
+	bool findSonXmlTagObject(
+		const XmlTagObject &father,
+		int sonInfoIndex,
+		const XmlTagObject *&son) const;
+
+	/** Searches for a specific brother (identified by brotherInfoIndex)
+	 *  of current.
+	 *  Returns the brother via the referenced pointer brother.
+	 *  Returns true if brother is found.
+	 *  Returns false otherwise, brother is set to nullptr.
+	 */
+	bool findBrotherXmlTagObject(
+		const XmlTagObject &currentTag,
+		int brotherInfoIndex,
+		const XmlTagObject *&brother) const;
+
+	/** Searches for a specific attribute (identified by attributeInfoIndex)
+	 *  of current.
+	 *  Returns the attribute via the referenced pointer attribute.
+	 *  Returns true if attribute is found.
+	 *  Returns false otherwise, attribute is set to nullptr.
+	 */
+	bool findXmlAttributeObject(
+		const XmlTagObject &currentTag,
+		int attributeInfoIndex,
+		const XmlAttributeObject *&attribute) const;
+
+	/** Returns line number of the most recently read line of
+	 *  the input file.
+	 */
+	inline int getInputFileLineCounter() const {
+		return m_pScanner->getInputFileLineCounter();
+	}
+
+	/** Prints the content of the hash table to os. */
+	void printHashTable(ostream &os);
+
+private:
+
+	/** Destroys the parse tree appended to root. */
+	void destroyParseTree(XmlTagObject *root);
+
+	/** Parses the token stream provided by the scanner until a complete
+	 *  XmlTagObject is identified which will be returned.
+	 *  This function is likely to be called recursively
+	 * due to the recursive structure of XML documents.
+	 */
+	XmlTagObject* parse();
+
+	/** Append attributeObject to list of attributes of tagObject. */
+	void appendAttributeObject(
+		XmlTagObject *tagObject,
+		XmlAttributeObject *attributeObject);
+
+	/** Appends sonTagObject to the list of sons of currentTagObject. */
+	void appendSonTagObject(
+		XmlTagObject *currentTagObject,
+		XmlTagObject *sonTagObject);
+
+	/** Returns the hash element for the given string.
+	 *  If the key str is not contained in the table yet, it is
+	 *  inserted together with a new info index and the new
+	 *  hash element is returned.
+	 *  If the key str exists, the associated hash element is returned.
+	 */
+	HashedString *hashString(const string &str);
+
+	/** Prints the given XmlTagObject and its children recursively.
+	 *  The parameter indent is used as indentation value.
+	 */
+	void printXmlTagObjectTree(
+		ostream &os,
+		const XmlTagObject &rootObject,
+		int indent = 0) const;
+
+	/** Little helper that prints nOfSpaces space characters. */
+	void printSpaces(ostream &os, int nOfSpaces) const;
+
+	void reportError(
+		const char *functionName,
+		int sourceLine,
+		const char *message,
+		int inputFileLine = -1);
+
+}; // class XmlParser
+
+/** Output operator for XmlParser. */
+ostream &operator<<(ostream &os, const XmlParser &parser);
 
 } // end namespace ogdf
-
-#endif

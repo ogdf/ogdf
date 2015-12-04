@@ -1,30 +1,46 @@
-# OGDF - Open Graph Drawing Framework
+# OGDF
 
-OGDF is a portable C++ class library for graph drawing.
-OGDF offers sophisticated algorithms and data structures to use within your own
-applications or scientific projects.
+The **O**pen **G**raph **D**rawing **F**ramework is a self-contained C++ class library for the automatic layout of diagrams. OGDF offers sophisticated algorithms and data structures to use within your own applications or scientific projects. The library is available under the GNU General Public License.
 
-Official homepage: http://www.ogdf.net
+OGDF is developed and supported by [TU Dortmund](http://ls11-www.cs.uni-dortmund.de/), [Osnabrück University](http://www.inf.uni-osnabrueck.de/theoinf), [University of Cologne](http://www.informatik.uni-koeln.de/ls_juenger/), [Monash University](http://www.infotech.monash.edu.au/about/schools/caulfield/), and [TU Ilmenau](http://www.tu-ilmenau.de/dma/).
 
-### License
+## Shortcuts
 
-The library is available under the GNU General Public License.
-See [LICENSE.txt](LICENSE.txt) for mor information on licensing.
+* [How to Install](doc/build.md)
+* [Porting Guide](doc/porting.md)
+* [Compiler Defines](doc/defines.md)
+* [Official Website](http://ogdf.net/)
+* [Snapshot Reference Documentation](http://www.ogdf.net/doc-ogdf-dev/)
 
+## License
 
-### Note for GitHub users
+This software is distributed under the terms of the GNU
+General Public License v2 or v3, with special exceptions.
+By installing this software you agree to these license terms.
 
-OGDF is actively developed using a non-public Subversion repository.
+See [LICENSE.txt](LICENSE.txt) for more information on the license and
+included third-party software, like frameworks for
+linear programming or unit testing.
 
-This Git repository contains the [official releases](http://ogdf.net/doku.php/tech:download) and
-[snapshots](http://ogdf.net/doku.php/tech:download#download_snapshots) from the OGDF homepage.
+## Copyright
 
-However, [@sbeyer](https://github.com/sbeyer)
-is more or less responsible for this repository.
-I try to take care of issues and pull requests.
+All files in the OGDF distribution (except for third-party
+software) are copyrighted:
 
-### Do you use OGDF?
+Copyright (C) 2005-2015
+
+## Note for GitHub users
+
+OGDF is actively developed using a non-public Git repository.
+
+The [Git repository on GitHub](https://github.com/ogdf/ogdf) is not a
+mirror but contains the [official releases](http://ogdf.net/doku.php/tech:download)
+and [snapshots](http://ogdf.net/doku.php/tech:download#download_snapshots)
+of OGDF.
+We however attempt to take care of issues and pull requests.
+
+## Do you use OGDF?
 
 If you use OGDF for some software project, we would be proud to mention it on
 [our list of projects using OGDF](http://ogdf.net/doku.php/project:external).
-In this case, just send an e-mail to info@ogdf.net.
+In this case, please contact us.

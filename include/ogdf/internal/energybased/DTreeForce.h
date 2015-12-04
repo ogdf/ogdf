@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DTREE_FORCE_H_
-#define OGDF_DTREE_FORCE_H_
 
 #include <ogdf/internal/energybased/DTreeWSPD.h>
 #include <ogdf/internal/energybased/DTreeForceTypes.h>
@@ -451,5 +446,3 @@ void DTreeForce<Dim>::resetPointForces()
 }
 
 } // end namespace ogdf
-
-#endif

@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UPR_LAYOUT_MODULE_H
-#define OGDF_UPR_LAYOUT_MODULE_H
-
 
 #include <ogdf/basic/GraphCopyAttributes.h>
 #include <ogdf/upward/UpwardPlanRep.h>
@@ -86,6 +80,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

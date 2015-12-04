@@ -32,9 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_SUBGRAPH_UPWARD_PLANARIZER_H
-#define OGDF_SUBGRAPH_UPWARD_PLANARIZER_H
-
+#pragma once
 
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/module/AcyclicSubgraphModule.h>
@@ -120,5 +118,3 @@ private:
 };
 
 }
-
-#endif

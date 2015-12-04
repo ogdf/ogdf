@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_ADJ_ENTRY_ARRAY_H
-#define OGDF_ADJ_ENTRY_ARRAY_H
-
 
 #include <ogdf/basic/Graph.h>
 
@@ -133,7 +126,7 @@ public:
 	//! The type for edge array iterators.
 	typedef internal::GraphArrayIterator<AdjEntryArray<T>> iterator;
 	//! The type for edge array const iterators.
-	typedef internal::GraphArrayConstIterator<EdgeArray<T>> const_iterator;
+	typedef internal::GraphArrayConstIterator<AdjEntryArray<T>> const_iterator;
 
 
 	//! Constructs an empty adjacency entry array associated with no graph.
@@ -414,6 +407,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

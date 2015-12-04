@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_IMPL_BINOMIAL_HEAP_H
-#define OGDF_IMPL_BINOMIAL_HEAP_H
-
 
 #include <functional>
 #include <utility>
@@ -253,6 +246,9 @@ void BinomialHeap<T, C>::pop()
 template<typename T, typename C>
 void BinomialHeap<T, C>::decrease(BinomialHeapNode<T> *node, const T &value)
 {
+	// BinomialHeap::decrease is not supported
+	OGDF_ASSERT(false);
+
 	node->value = value;
 
 	while(node->parent != nullptr &&
@@ -357,6 +353,3 @@ inline void BinomialHeap<T, C>::link(
 }
 
 } // end namespace ogdf
-
-
-#endif

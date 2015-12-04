@@ -34,8 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef LCA_OGDF_H_
-#define LCA_OGDF_H_
+#pragma once
 
 #include <ogdf/basic/Graph.h>
 
@@ -117,4 +116,3 @@ private:
 };
 
 } // end namespace ogdf
-#endif // LCA_OGDF_H_

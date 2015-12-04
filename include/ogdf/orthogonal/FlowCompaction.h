@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_FLOW_COMPACTION_H
-#define OGDF_FLOW_COMPACTION_H
-
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/planarity/PlanRep.h>
@@ -49,12 +42,9 @@
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/basic/GridLayoutMapped.h>
 
-
 namespace ogdf {
 
-	template<class ATYPE> class CompactionConstraintGraph;
-	class Layout;
-
+template<class ATYPE> class CompactionConstraintGraph;
 
 //! represents compaction algorithm using min-cost flow in the dual of the constraint graph
 class OGDF_EXPORT FlowCompaction
@@ -161,6 +151,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

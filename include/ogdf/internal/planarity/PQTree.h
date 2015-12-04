@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PQ_TREE_H
-#define OGDF_PQ_TREE_H
-
 
 #include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Queue.h>
@@ -3954,5 +3946,3 @@ bool PQTree<T,X,Y>::templateQ3(PQNode<T,X,Y> *nodePtr)
 
 
 }
-
-#endif

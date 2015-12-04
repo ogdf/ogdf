@@ -119,33 +119,35 @@ namespace ogdf {
 	{
 		node v = testNode();
 		m_candidateEnergy = energy();
-		edge e;
 		m_crossingChanges.clear();
 
-		forall_adj_edges(e, v) if (!e->isSelfLoop()) {
-			// first we compute the two endpoints of e if v is on its new position
-			node s = e->source();
-			node t = e->target();
-			DPoint p1 = testPos();
-			DPoint p2 = (s == v) ? currentPos(t) : currentPos(s);
-			int e_num = (*m_edgeNums)[e];
-			// now we compute the crossings of all other edges with e
-			for (edge f : m_nonSelfLoops) {
-				if (f != e) {
-					node s2 = f->source();
-					node t2 = f->target();
-					if (s2 != s && s2 != t && t2 != s && t2 != t) {
-						bool cross = lowLevelIntersect(p1, p2, currentPos(s2), currentPos(t2));
-						int f_num = (*m_edgeNums)[f];
-						bool priorIntersect = (*m_crossingMatrix)(min(e_num, f_num), max(e_num, f_num));
-						if (priorIntersect != cross) {
-							if (priorIntersect) m_candidateEnergy--; // this intersection was saved
-							else m_candidateEnergy++; // produced a new intersection
-							ChangedCrossing cc;
-							cc.edgeNum1 = min(e_num, f_num);
-							cc.edgeNum2 = max(e_num, f_num);
-							cc.cross = cross;
-							m_crossingChanges.pushBack(cc);
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+			if (!e->isSelfLoop()) {
+				// first we compute the two endpoints of e if v is on its new position
+				node s = e->source();
+				node t = e->target();
+				DPoint p1 = testPos();
+				DPoint p2 = (s == v) ? currentPos(t) : currentPos(s);
+				int e_num = (*m_edgeNums)[e];
+				// now we compute the crossings of all other edges with e
+				for (edge f : m_nonSelfLoops) {
+					if (f != e) {
+						node s2 = f->source();
+						node t2 = f->target();
+						if (s2 != s && s2 != t && t2 != s && t2 != t) {
+							bool cross = lowLevelIntersect(p1, p2, currentPos(s2), currentPos(t2));
+							int f_num = (*m_edgeNums)[f];
+							bool priorIntersect = (*m_crossingMatrix)(min(e_num, f_num), max(e_num, f_num));
+							if (priorIntersect != cross) {
+								if (priorIntersect) m_candidateEnergy--; // this intersection was saved
+								else m_candidateEnergy++; // produced a new intersection
+								ChangedCrossing cc;
+								cc.edgeNum1 = min(e_num, f_num);
+								cc.edgeNum2 = max(e_num, f_num);
+								cc.cross = cross;
+								m_crossingChanges.pushBack(cc);
+							}
 						}
 					}
 				}

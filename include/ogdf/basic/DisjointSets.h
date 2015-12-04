@@ -32,15 +32,11 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DISJOINT_SETS_H
-#define OGDF_DISJOINT_SETS_H
 
 #include <cstring>
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
 
@@ -64,12 +60,12 @@ enum CompressionOptions { PC=0, PS=1, PH=2, R1=4, CO=5, NF=6 };
 template<CompressionOptions compressionOption> struct CompressionOption : AnyOption {};
 extern const char *compressionOptionNames[];
 
-/*
+/**
  * Defines options for interleaving find/link operations in quickUnion.
- * NI = No Interleaving
- * Rem = Rem's Algorithm (only compatible with linkOption = LI) (default)
+ * NI = No Interleaving (default)
+ * Rem = Rem's Algorithm (only compatible with linkOption = LI)
  * TvL = Tarjan's and van Leeuwen's Algorithm (only compatible with linkOption = LR)
- * IR0 = Interleaved Reversal of Type 0 (only compatible with linkOption = NF)
+ * IR0 = Interleaved Reversal of Type 0 (only compatible with linkOption = NL)
  * IPSPC = Interleaved Path Splitting Path Compression (only compatible with linkOption = LI)
  */
 enum InterleavingOptions { NI=0, Rem=1, TvL=2, IR0=3, IPSPC=4 };
@@ -81,6 +77,10 @@ extern const char *interleavingOptionNames[];
 template <LinkOptions linkOption = LI, CompressionOptions compressionOption = PS, InterleavingOptions interleavingOption = NI>
 class DisjointSets
 {
+static_assert(interleavingOption != Rem || linkOption == LI, "Rem's Algorithm requires linking by index.");
+static_assert(interleavingOption != TvL || linkOption == LR, "Tarjan and van Leeuwen's Algorithm requires linking by rank.");
+static_assert(interleavingOption != IR0 || linkOption == NL, "Interleaved Reversal Type 0 requires naïve linking.");
+static_assert(interleavingOption != IPSPC || linkOption == LI, "Interleaved Path Splitting Path Compression requires linking by index.");
 private:
 	int numberOfSets; //!< Current number of disjoint sets.
 	int numberOfElements; //!< Current number of elements.
@@ -143,6 +143,9 @@ public:
 	*/
 	int find(int set)
 	{
+#ifdef OGDF_DEBUG
+		if(set < 0 || set >= numberOfElements){ throw PreconditionViolatedException(); }
+#endif
 		return find(CompressionOption<compressionOption>(), set);
 	}
 
@@ -154,6 +157,9 @@ public:
 	*/
 	int getRepresentative(int set)
 	{
+#ifdef OGDF_DEBUG
+		if(set < 0 || set >= numberOfElements){ throw PreconditionViolatedException(); }
+#endif
 		while (set!=parents[set]) set=parents[set];
 		return set;
 	}
@@ -205,8 +211,41 @@ public:
 	*/
 	int link(int set1, int set2)
 	{
+#ifdef OGDF_DEBUG
+		if(set1 != getRepresentative(set1)) { throw PreconditionViolatedException(); }
+		if(set2 != getRepresentative(set2)) { throw PreconditionViolatedException(); }
+#endif
 		if (set1==set2) return -1;
 		this->numberOfSets--;
+		return linkPure(set1, set2);
+	}
+
+	//! Unions the maximal disjoint sets containing \a set1 and \a set2.
+	/**
+	* \return True, if the maximal sets containing \a set1 and \a set2 were disjoint und joined correctly. False otherwise.
+	*/
+	bool quickUnion(int set1, int set2)
+	{
+		if (set1==set2) return false;
+		bool result = quickUnion(LinkOption<linkOption>(),InterleavingOption<interleavingOption>(), set1, set2); 
+		numberOfSets -= result;
+		return result;
+	}
+
+	//! Returns the current number of disjoint sets.
+	int getNumberOfSets() { return numberOfSets; }
+
+	//! Returns the current number of elements.
+	int getNumberOfElements() {return numberOfElements; }
+
+private:
+	//! Unions \a set1 and \a set2 w/o decreasing the \a numberOfSets
+	/**
+	 * \pre \a set1 and \a set2 are maximal disjoint sets.
+	 * \return Set id of the union
+	 */
+	int linkPure(int set1, int set2)
+	{
 		int superset = link(LinkOption<linkOption>(), set1, set2);
 		//Collapse subset tree.
 		if (compressionOption == CO)
@@ -223,23 +262,6 @@ public:
 		}
 		return superset;
 	}
-
-	//! Unions the maximal disjoint sets containing \a set1 and \a set2.
-	/**
-	* \return True, if the maximal sets containing \a set1 and \a set2 were disjoint und joined correctly. False otherwise.
-	*/
-	bool quickUnion(int set1, int set2)
-	{
-		if (set1==set2) return false;
-		this->numberOfSets--;
-		return quickUnion(LinkOption<linkOption>(),InterleavingOption<interleavingOption>(), set1, set2);
-	}
-
-	//! Returns the current number of disjoint sets.
-	int getNumberOfSets() { return numberOfSets; }
-
-	//! Returns the current number of elements.
-	int getNumberOfElements() {return numberOfElements; }
 };
 
 
@@ -329,7 +351,7 @@ bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(A
 	set2 = find(set2);
 	if (set1 != set2)
 	{
-		link(set1,set2);
+		linkPure(set1,set2);
 		return true;
 	}
 	return false;
@@ -363,7 +385,9 @@ bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(L
 	{
 		if (parent == root) return false;
 		parents[set] = root;
-		if (parent == set) return true;
+		if (parent == set){
+			return true;
+		}
 		set = parent;
 		parent = parents[set];
 	}
@@ -440,7 +464,9 @@ bool DisjointSets<linkOption,compressionOption,interleavingOption>::quickUnion(L
 		if (parent < root)
 		{
 			parents[set]=root;
-			if (set == parent) return true;
+			if (set == parent){
+				return true;
+			}
 			set=parent;
 			parent = parents[set];
 		}
@@ -565,5 +591,3 @@ int DisjointSets<linkOption,compressionOption,interleavingOption>::link(LinkOpti
 }
 
 }  // end namespace ogdf
-
-#endif

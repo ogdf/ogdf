@@ -32,17 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PQ_NODE_ROOT_H
-#define OGDF_PQ_NODE_ROOT_H
 
 #include <ogdf/basic/basic.h>
-
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 
@@ -68,15 +61,18 @@ public:
 		PERTINENT     = 4,
 		TO_BE_DELETED = 5,
 
-		// Extra node status defines
+		//! Indicator for extra node status defines
 		INDICATOR     = 6,
-		ELIMINATED    = 6,	//!< Nodes removed durign the template reduction are marked as
-							//!< as ELIMINATED. Their memory is not freed. They are kept
-							//!< for parent pointer update.
-		WHA_DELETE    = 7,	//!< Nodes that need to be removed in order to obtain a
-							//!< maximal pertinent sequence are marked WHA_DELETE.
-		PERTROOT      = 8	//!< The pertinent Root is marked PERTROOTduring the clean up
-							//!< after a reduction. Technical.
+		//! Nodes removed durign the template reduction are marked as
+		//! as ELIMINATED. Their memory is not freed. They are kept
+		//! for parent pointer update.
+		ELIMINATED    = 6,
+		//! Nodes that need to be removed in order to obtain a
+		//! maximal pertinent sequence are marked WHA_DELETE.
+		WHA_DELETE    = 7,
+		//! The pertinent Root is marked PERTROOTduring the clean up
+		//! after a reduction. Technical.
+		PERTROOT      = 8
 	};
 
 	// Mark Definitions for Bubble Phase
@@ -90,6 +86,3 @@ public:
 };
 
 }
-
-#endif
-

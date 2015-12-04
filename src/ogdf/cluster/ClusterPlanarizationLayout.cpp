@@ -208,12 +208,12 @@ void ClusterPlanarizationLayout::call(
 			for (node workv : GW.nodes)
 			{
 				//should set same attributes in construction!!!
-				if (acGraph.attributes() & GraphAttributes::nodeType)
+				if (acGraph.has(GraphAttributes::nodeType))
 					workACG->type(workv) = acGraph.type(orNode[workv]);
 				workACG->height(workv) = acGraph.height(orNode[workv]);
 				workACG->width(workv) = acGraph.width(orNode[workv]);
 			}
-			if (acGraph.attributes() & GraphAttributes::edgeType) {
+			if (acGraph.has(GraphAttributes::edgeType)) {
 				for (edge worke : GW.edges) {
 					workACG->type(worke) = acGraph.type(orEdge[worke]);
 					//all other attributes are not needed or will be set
@@ -312,7 +312,7 @@ void ClusterPlanarizationLayout::call(
 				acGraph.x(orNode[vG]) = drawing.x(CP.copy(vG));
 				acGraph.y(orNode[vG]) = drawing.y(CP.copy(vG));
 
-				for(adjEntry adj : vG->adjEdges)
+				for(adjEntry adj : vG->adjEntries)
 				{
 					if ((adj->index() & 1) == 0) continue;
 					edge eG = adj->theEdge();
@@ -387,7 +387,7 @@ void ClusterPlanarizationLayout::call(
 				shifted[cl->index()] = true;
 			}//if real cluster
 
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if ((adj->index() & 1) == 0) continue;
 				edge e = adj->theEdge();
 

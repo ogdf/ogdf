@@ -33,10 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MM_CROSSING_MINIMIZATION_MODULE_H
-#define OGDF_MM_CROSSING_MINIMIZATION_MODULE_H
-
-
+#pragma once
 
 #include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/basic/Module.h>
@@ -147,5 +144,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

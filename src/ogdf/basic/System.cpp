@@ -32,8 +32,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/exceptions.h>
+#include <ogdf/basic/memory.h>
+#include <ogdf/basic/System.h>
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
 #define WIN32_EXTRA_LEAN
@@ -73,12 +74,18 @@
 
 static void __cpuid(int CPUInfo[4], int infoType)
 {
-	uint32_t a = CPUInfo[0];
-	uint32_t b = CPUInfo[1];
-	uint32_t c = CPUInfo[2];
-	uint32_t d = CPUInfo[3];
+	uint32_t a = 0;
+	uint32_t b = 0;
+	uint32_t c = 0;
+	uint32_t d = 0;
 
 #if defined(__i386__) || defined(__x86_64__) && !defined(__APPLE__)
+
+	a = CPUInfo[0];
+	b = CPUInfo[1];
+	c = CPUInfo[2];
+	d = CPUInfo[3];
+
 	__asm__ __volatile__ ("xchgl	%%ebx,%0\n\t"
 						"cpuid	\n\t"
 						"xchgl	%%ebx,%0\n\t"
@@ -86,7 +93,6 @@ static void __cpuid(int CPUInfo[4], int infoType)
 						: "1" (infoType), "2" (c));
 #else
 	// not supported on other systems!
-	a = b = c = d = 0;
 #endif
 
 	CPUInfo[0] = a;

@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SHORTEST_PATH_MODULE_H
-#define OGDF_SHORTEST_PATH_MODULE_H
-
 
 #include <ogdf/basic/Graph.h>
 
@@ -70,6 +63,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

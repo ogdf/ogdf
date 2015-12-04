@@ -20,7 +20,7 @@ namespace bandit { namespace detail {
         ss << ": ";
       }
 
-      ss << err.what();
+      ss << std::endl << err.what();
 
       return ss.str();
     }

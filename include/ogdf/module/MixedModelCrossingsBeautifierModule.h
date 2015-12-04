@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIXED_MODEL_CROSSINGS_BEAUTIFIER_MODULE_H
-#define OGDF_MIXED_MODEL_CROSSINGS_BEAUTIFIER_MODULE_H
-
-
 
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GridLayout.h>
@@ -110,11 +103,9 @@ private:
 class MMDummyCrossingsBeautifier : public MixedModelCrossingsBeautifierModule
 {
 protected:
-	//!< Dummy implementation.
+	//! Dummy implementation.
 	virtual void doCall(const PlanRep &, GridLayout &, const List<node> &) override { }
 };
 
 
 } // end namespace ogdf
-
-#endif

@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_KURATOWSKI_SUBDIVISION_H
-#define OGDF_KURATOWSKI_SUBDIVISION_H
-
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/Graph.h>
@@ -50,6 +43,3 @@ namespace ogdf {
 class OGDF_EXPORT KuratowskiSubdivision : public Array<List<edge> > { };
 
 } // end namespace ogdf
-
-
-#endif

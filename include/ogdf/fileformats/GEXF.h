@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GEXF_H
-#define OGDF_GEXF_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -51,12 +45,9 @@ namespace ogdf {
 
 namespace gexf {
 
-	std::string toString(const Shape &shape);
-	Shape toShape(const std::string &str);
+std::string toString(const Shape &shape);
+Shape toShape(const std::string &str);
 
 } // end namespace gexf
 
 } // end namespace ogdf
-
-
-#endif

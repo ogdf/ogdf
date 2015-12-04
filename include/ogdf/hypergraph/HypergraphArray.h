@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HYPERGRAPH_ARRAY_H
-#define OGDF_HYPERGRAPH_ARRAY_H
 
 #include <ogdf/hypergraph/Hypergraph.h>
 
@@ -56,7 +51,7 @@ public:
 	 */
 	ListIterator<HypergraphArrayBase *> m_it;
 
-	//!< The associated hypergraph.
+	//! The associated hypergraph.
 	const Hypergraph *m_hypergraph;
 
 	//! Initializes an array not associated with a hypergraph.
@@ -99,7 +94,7 @@ public:
 template<class T> class HypernodeArray :
 private Array<T>, protected HypergraphArrayBase {
 
-	//!< The default value for array elements.
+	//! The default value for array elements.
 	T m_x;
 
 public:
@@ -196,7 +191,7 @@ private:
 template<class T> class HyperedgeArray :
 private Array<T>, protected HypergraphArrayBase {
 
-	//!< The default value for array elements.
+	//! The default value for array elements.
 	T m_x;
 
 public:
@@ -215,7 +210,7 @@ public:
 		m_it = H.registerHyperedgeArray(this);
 	}
 
-	//! Desctructor.
+	//! Destructor.
 	virtual ~HyperedgeArray()
 	{
 		if (m_hypergraph)
@@ -300,5 +295,3 @@ private:
 }; // class HyperedgeArray<T>
 
 } // end namespace ogdf
-
-#endif

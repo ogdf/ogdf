@@ -36,115 +36,107 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CLUSTERER_H
-#define OGDF_CLUSTERER_H
 
 #include <ogdf/module/ClustererModule.h>
 
 namespace ogdf {
 
 
-	/**
-	 * @ingroup ga-clustering
-	 *
-	 * Clustering is determined based on the threshold values (connectivity
-	 * thresholds determine edges to be deleted) and stopped if average
-	 * clustering index drops below m_stopIndex.
-	 *
-	 * \pre Input graph has to be connected
-	 */
-	class OGDF_EXPORT Clusterer : public ClustererModule
+/**
+ * @ingroup ga-clustering
+ *
+ * Clustering is determined based on the threshold values (connectivity
+ * thresholds determine edges to be deleted) and stopped if average
+ * clustering index drops below m_stopIndex.
+ *
+ * \pre Input graph has to be connected
+ */
+class OGDF_EXPORT Clusterer : public ClustererModule
+{
+public:
+	//! Constructor taking a graph G to be clustered
+	Clusterer(const Graph &G);
+
+	/**Default constructor allowing to cluster multiple
+	*graphs with the same instance of the Clusterer
+	*graphs */
+	Clusterer();
+
+	virtual ~Clusterer() {}
+
+	//The clustering can be done recursively (use single threshold
+	//on component to delete weak edges (recompute strengths)) or
+	//by applying a set of thresholds, set the behaviour in
+	//function setRecursive
+	virtual void computeClustering(SList<SimpleCluster*> &sl) override;
+
+	//set the thresholds defining the hierarchy assignment decision
+	//should be dependent on the used metrics
+	void setClusteringThresholds(const List<double> &threshs);
+
+	//thresholds are computed from edge strengths to split off
+	//at least some edges as long as there is a difference between
+	//min and max strength (progressive clustering)
+	//set this value to 0 to use your own or the default values
+	void setAutomaticThresholds(int numValues)
 	{
-	public:
-		//! Constructor taking a graph G to be clustered
-		Clusterer(const Graph &G);
+		m_autoThreshNum = numValues;
+	}
 
-		/**Default constructor allowing to cluster multiple
-		*graphs with the same instance of the Clusterer
-		*graphs */
-		Clusterer();
+	//for recursive clustering, only the first threshold is used
+	void setRecursive(bool b) { m_recursive = b; }
 
-		virtual ~Clusterer() {}
+	//preliminary
+	void computeEdgeStrengths(EdgeArray<double> & strength);
+	void computeEdgeStrengths(const Graph &G, EdgeArray<double> & strength);
 
-		//The clustering can be done recursively (use single threshold
-		//on component to delete weak edges (recompute strengths)) or
-		//by applying a set of thresholds, set the behaviour in
-		//function setRecursive
-		virtual void computeClustering(SList<SimpleCluster*> &sl) override;
+	virtual void createClusterGraph(ClusterGraph &C) override;
 
-		//set the thresholds defining the hierarchy assignment decision
-		//should be dependent on the used metrics
-		void setClusteringThresholds(const List<double> &threshs);
+	void setStopIndex(double stop) { m_stopIndex = stop; }
 
-		//thresholds are computed from edge strengths to split off
-		//at least some edges as long as there is a difference between
-		//min and max strength (progressive clustering)
-		//set this value to 0 to use your own or the default values
-		void setAutomaticThresholds(int numValues)
+	//compute a clustering index for node v
+	//number of connections in neighborhood compared to clique
+	virtual double computeCIndex(node v) override
+	{
+		return computeCIndex(*m_pGraph, v);
+	}
+
+	virtual double computeCIndex(const Graph &G, node v) override
+	{
+		OGDF_ASSERT(v->graphOf() == &G);
+		if (v->degree() < 2) return 1.0;
+		int conns = 0; //connections, without v
+		NodeArray<bool> neighbor(G, false);
+		for (adjEntry adjE : v->adjEntries)
 		{
-			m_autoThreshNum = numValues;
+			neighbor[adjE->twinNode()] = true;
 		}
-
-		//for recursive clustering, only the first threshold is used
-		void setRecursive(bool b) { m_recursive = b; }
-
-		//preliminary
-		void computeEdgeStrengths(EdgeArray<double> & strength);
-		void computeEdgeStrengths(const Graph &G, EdgeArray<double> & strength);
-
-		virtual void createClusterGraph(ClusterGraph &C) override;
-
-		void setStopIndex(double stop) { m_stopIndex = stop; }
-
-		//compute a clustering index for node v
-		//number of connections in neighborhood compared to clique
-		virtual double computeCIndex(node v) override
+		for (adjEntry adjE : v->adjEntries)
 		{
-			return computeCIndex(*m_pGraph, v);
-		}
-
-		virtual double computeCIndex(const Graph &G, node v) override
-		{
-			OGDF_ASSERT(v->graphOf() == &G);
-			if (v->degree() < 2) return 1.0;
-			int conns = 0; //connections, without v
-			NodeArray<bool> neighbor(G, false);
-			for (adjEntry adjE : v->adjEdges)
+			for (adjEntry adjEE : adjE->twinNode()->adjEntries)
 			{
-				neighbor[adjE->twinNode()] = true;
+				if (neighbor[adjEE->twinNode()])
+					conns++;
 			}
-			for (adjEntry adjE : v->adjEdges)
-			{
-				for (adjEntry adjEE : adjE->twinNode()->adjEdges)
-				{
-					if (neighbor[adjEE->twinNode()])
-						conns++;
-				}
-			}
-			//connections were counted twice
-			double index = conns / 2.0;
-			return index / (v->degree()*(v->degree() - 1));
 		}
+		//connections were counted twice
+		double index = conns / 2.0;
+		return index / (v->degree()*(v->degree() - 1));
+	}
 
-	protected:
-		EdgeArray<double> m_edgeValue; //strength value for edge clustering index
-		NodeArray<double> m_vertexValue; //clustering index for vertices
-		List<double> m_thresholds; //clustering level thresholds
-		List<double> m_autoThresholds; //automatically generated values (dep. on graph instance)
-		List<double> m_defaultThresholds; //some default values
-		double m_stopIndex; //average clustering index when recursive clustering stops
-		//between 0 and 1
-		bool m_recursive; //recursive clustering or list of tresholds
-		//bool m_autoThresholds; //compute thresholds according to edge strengths
-		int m_autoThreshNum; //number of thresholds to be computed
+protected:
+	EdgeArray<double> m_edgeValue; //strength value for edge clustering index
+	NodeArray<double> m_vertexValue; //clustering index for vertices
+	List<double> m_thresholds; //clustering level thresholds
+	List<double> m_autoThresholds; //automatically generated values (dep. on graph instance)
+	List<double> m_defaultThresholds; //some default values
+	double m_stopIndex; //average clustering index when recursive clustering stops
+	//between 0 and 1
+	bool m_recursive; //recursive clustering or list of tresholds
+	//bool m_autoThresholds; //compute thresholds according to edge strengths
+	int m_autoThreshNum; //number of thresholds to be computed
 
-	};//class Clusterer
+};//class Clusterer
 
 } //end namespace ogdf
-
-#endif

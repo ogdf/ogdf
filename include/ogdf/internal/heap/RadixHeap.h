@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_IMPL_RADIX_HEAP_H
-#define OGDF_IMPL_RADIX_HEAP_H
-
 
 #include <functional>
 #include <utility>
@@ -264,6 +257,3 @@ inline void RadixHeap<V, P>::insert(RadixHeapNode<V, P> *node)
 }
 
 } // end namespace ogdf
-
-
-#endif

@@ -206,9 +206,9 @@ void ClusterAnalysis::init() {
 	}
 	for(node v : G.nodes)
 	{
-		edge e;
-		forall_adj_edges(e,v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+
 			if (!visited[e])
 			{
 				node w = e->opposite(v);
@@ -596,10 +596,8 @@ void ClusterAnalysis::computeBags() {
 			//Todo could use lcaEdges list here too, see below
 			for (node u : c->nodes)
 			{
-				edge e;
-				forall_adj_edges(e,u)
-				{
-					node w = e->opposite(u);
+				for(adjEntry adj : u->adjEntries) {
+					node w = adj->twinNode();
 					if (m_C->clusterOf(w) == c)
 					{
 						uf.link(uf.find(setid[u]),uf.find(setid[w]));

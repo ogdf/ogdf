@@ -37,15 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_INCNODEINSERTER_H
-#define OGDF_INCNODEINSERTER_H
-
 
 #include <ogdf/planarity/PlanRepInc.h>
 #include <ogdf/uml/UMLGraph.h>
@@ -83,5 +75,3 @@ protected:
 }; //incnodeinserter
 
 } //end namespace ogdf
-
-#endif

@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PLANAR_LEAFKEY_H
-#define OGDF_PLANAR_LEAFKEY_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/internal/planarity/PQLeafKey.h>
@@ -71,5 +63,3 @@ public:
 };
 
 }
-
-#endif

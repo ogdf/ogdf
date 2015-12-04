@@ -195,7 +195,7 @@ void FeasibleUpwardPlanarSubgraph::dfs_visit(
 {
 	treeEdges[e] = true;
 	List<edge> elist;
-	G.outEdges(e->target(), elist);
+	e->target()->outEdges(elist);
 	if (!elist.empty()) {
 		if (random)
 			elist.permute();

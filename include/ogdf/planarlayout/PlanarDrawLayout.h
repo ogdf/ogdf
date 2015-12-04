@@ -33,26 +33,16 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PLANAR_DRAW_LAYOUT_H
-#define OGDF_PLANAR_DRAW_LAYOUT_H
-
 
 #include <ogdf/module/GridLayoutModule.h>
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/module/ShellingOrderModule.h>
 #include <ogdf/module/EmbedderModule.h>
-
+#include <ogdf/planarlayout/ShellingOrder.h>
 
 namespace ogdf {
-
-	class ShellingOrder;
 
 /**
  * \brief Implementation of the Planar-Draw layout algorithm.
@@ -229,6 +219,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

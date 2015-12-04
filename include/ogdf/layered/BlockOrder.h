@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_BLOCK_ORDER_H
-#define OGDF_BLOCK_ORDER_H
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
@@ -300,7 +294,7 @@ private:
 	 */
 	int verticalSwap( Block *b, int level );
 
-	//!< (Only used in verticalSwap().)
+	//! Only used in verticalSwap().
 	int localCountCrossings( const Array<int> &levels );
 
 	/**
@@ -315,7 +309,7 @@ public:
 	int m_verticalStepsBound;
 
 	/**
-	 * \brief Calss the grid sifting algorithm on a graph (its hierarchy).
+	 * \brief Calls the grid sifting algorithm on a graph (its hierarchy).
 	 */
 	void gridSifting( int nRepeats = 10 );
 
@@ -327,6 +321,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

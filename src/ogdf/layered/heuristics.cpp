@@ -2,7 +2,7 @@
  * \brief Implementation of heuristics for two-layer crossing
  * minimization (BarycenterHeuristic, MedianHeuristic)
  *
- * \author Carsten Gutwenger, Till Sch&auml;fer
+ * \author Carsten Gutwenger, Till Schäfer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

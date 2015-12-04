@@ -37,16 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PLAN_REP_INC_H
-#define OGDF_PLAN_REP_INC_H
-
-
 
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/uml/PlanRepUML.h>
@@ -182,5 +173,3 @@ private:
 
 
 }//namespace ogdf
-
-#endif

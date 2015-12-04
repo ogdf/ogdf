@@ -206,7 +206,9 @@ GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 		case gmlError:
 			return firstSon;
 
-		OGDF_NODEFAULT // one of the cases above has to occur
+		// one of the cases above has to occur
+		default:
+			OGDF_ASSERT(false);
 		}
 
 		*pPrev = object;
@@ -701,7 +703,7 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 			// create new node if necessary and assign attributes
 			if (m_mapToNode[vId] == nullptr) m_mapToNode[vId] = G.newNode();
 			node v = m_mapToNode[vId];
-			if (AG.attributes() & GraphAttributes::nodeGraphics)
+			if (AG.has(GraphAttributes::nodeGraphics))
 			{
 				AG.x(v) = x;
 				AG.y(v) = y;
@@ -709,15 +711,15 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 				AG.height(v) = h;
 				AG.shape(v) = strToShape[shape];
 			}
-			if (AG.attributes() & GraphAttributes::nodeLabel)
+			if (AG.has(GraphAttributes::nodeLabel))
 				AG.label(m_mapToNode[vId]) = label;
-			if (AG.attributes() & GraphAttributes::nodeTemplate)
+			if (AG.has(GraphAttributes::nodeTemplate))
 				AG.templateNode(m_mapToNode[vId]) = templ;
-			if (AG.attributes() & GraphAttributes::nodeId)
+			if (AG.has(GraphAttributes::nodeId))
 				AG.idNode(m_mapToNode[vId]) = vId;
-			if (AG.attributes() & GraphAttributes::nodeWeight)
+			if (AG.has(GraphAttributes::nodeWeight))
 				AG.weight(m_mapToNode[vId]) = weight;
-			if (AG.attributes() & GraphAttributes::nodeStyle)
+			if (AG.has(GraphAttributes::nodeStyle))
 			{
 				AG.fillColor(m_mapToNode[vId]) = fill;
 				AG.strokeColor(m_mapToNode[vId]) = line;
@@ -824,16 +826,16 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 			if (m_mapToNode[targetId] == nullptr) m_mapToNode[targetId] = G.newNode();
 
 			edge e = G.newEdge(m_mapToNode[sourceId],m_mapToNode[targetId]);
-			if (AG.attributes() & GraphAttributes::edgeGraphics)
+			if (AG.has(GraphAttributes::edgeGraphics))
 				AG.bends(e).conc(bends);
-			if (AG.attributes() & GraphAttributes::edgeType)
+			if (AG.has(GraphAttributes::edgeType))
 				AG.type(e) = umlType;
-			if(AG.attributes() & GraphAttributes::edgeSubGraphs)
+			if(AG.has(GraphAttributes::edgeSubGraphs))
 				AG.subGraphBits(e) = subGraph;
-			if (AG.attributes() & GraphAttributes::edgeLabel)
+			if (AG.has(GraphAttributes::edgeLabel))
 				AG.label(e) = label;
 
-			if (AG.attributes() & GraphAttributes::edgeArrow) {
+			if (AG.has(GraphAttributes::edgeArrow)) {
 				if (arrow == "none")
 					AG.arrowType(e) = eaNone;
 				else if (arrow == "last")
@@ -846,14 +848,14 @@ bool GmlParser::read(Graph &G, GraphAttributes &AG)
 					AG.arrowType(e) = eaUndefined;
 			}
 
-			if (AG.attributes() & GraphAttributes::edgeStyle)
+			if (AG.has(GraphAttributes::edgeStyle))
 			{
 				AG.strokeColor(e) = fill;
 				AG.setStrokeType(e, intToStrokeType(stipple));
 				AG.strokeWidth(e) = lineWidth;
 			}
 
-			if (AG.attributes() & GraphAttributes::edgeDoubleWeight)
+			if (AG.has(GraphAttributes::edgeDoubleWeight))
 				AG.doubleWeight(e) = edgeWeight;
 
 

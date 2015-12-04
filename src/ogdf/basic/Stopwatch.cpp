@@ -34,6 +34,8 @@
 
 
 #include <ogdf/basic/Stopwatch.h>
+#include <ogdf/basic/System.h>
+#include <ogdf/basic/exceptions.h>
 
 
 namespace ogdf {

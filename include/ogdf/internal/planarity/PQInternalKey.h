@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PQ_INTERNAL_KEY_H
-#define OGDF_PQ_INTERNAL_KEY_H
-
 
 #include <ogdf/internal/planarity/PQBasicKey.h>
 
@@ -96,6 +88,3 @@ public:
 };
 
 }
-
-#endif
-

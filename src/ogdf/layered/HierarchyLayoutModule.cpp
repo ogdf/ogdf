@@ -76,7 +76,7 @@ namespace ogdf {
 //			/*
 //			compute the edges, which overlap a node in lvl_cur
 //			*/
-//			for(adjEntry adj : v->adjEdges) {
+//			for(adjEntry adj : v->adjEntries) {
 //				edge e = adj->theEdge();
 //
 //				if (done[e] == i)
@@ -171,7 +171,7 @@ namespace ogdf {
 //				int num = 0;
 //				int edgeNum = 1;
 //
-//				for(adjEntry adj : v->adjEdges) {
+//				for(adjEntry adj : v->adjEntries) {
 //					edge eTmp = adj->theEdge();
 //
 //					if (incomming && eTmp->target() == v) {
@@ -236,7 +236,7 @@ namespace ogdf {
 //						a = AGC.x(v) + AGC.getWidth(v)/2;
 //						b = AGC.x(w) - AGC.getWidth(w)/2;
 //					}
-//					for(adjEntry adj : w->adjEdges) {
+//					for(adjEntry adj : w->adjEntries) {
 //						edge eTmp = adj->theEdge();
 //						if (incomming && toRight && eTmp->target() == w && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
 //							num++;
@@ -339,7 +339,7 @@ namespace ogdf {
 //			for(int z = 0; z <= lvl_cur.high(); z++) {
 //				node uu = lvl_cur[z];
 //
-//				for(adjEntry adj : uu->adjEdges) {
+//				for(adjEntry adj : uu->adjEntries) {
 //					edge ee = adj->theEdge();
 //
 //					DLine line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
@@ -391,7 +391,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 
 			int ci = 0;
 			int cj = 0;
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				node w = e->source();
 
@@ -433,7 +433,7 @@ void HierarchyLayoutModule::dynLayerDistance(GraphCopyAttributes &AGC, Hierarchy
 			if (v->indeg() == 0)
 				continue;
 
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				node w = e->source();
 				if (w == v)

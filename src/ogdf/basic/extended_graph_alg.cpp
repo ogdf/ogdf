@@ -79,9 +79,9 @@ bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
 	while (!bfs.empty())
 	{
 		v = bfs.popFrontRet();
-		edge e;
-		forall_adj_edges(e,v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+
 			if (mark[e->source()])
 			{
 				mark[e->source()] = false;
@@ -214,9 +214,9 @@ void recursiveConnect(
 	{
 		node vo = (*its);
 		processed[vo] = true;
-		edge e;
-		forall_adj_edges(e, vo)
-		{
+		for(adjEntry adj : vo->adjEntries) {
+			edge e = adj->theEdge();
+
 			//if node in cluster and edge not yet inserted
 			if (vCopy[e->opposite(vo)] && !processed[e->opposite(vo)])
 				//we don't care about the edge direction
@@ -276,10 +276,8 @@ static void dfsMakeCConnected(node v,
 {
 	visited[v] = true;
 
-	edge e;
-	forall_adj_edges(e,v)
-	{
-		node w = e->opposite(v);
+	for(adjEntry adj : v->adjEntries) {
+		node w = adj->twinNode();
 		if (!visited[w])
 		{
 			//hier grad als erste unterscheidung: kleiner Grad besser
@@ -410,9 +408,9 @@ void recursiveCConnect(
 	{
 		node vo = (*its);
 		processed[vo] = true;
-		edge e;
-		forall_adj_edges(e, vo)
-		{
+		for(adjEntry adj : vo->adjEntries) {
+			edge e = adj->theEdge();
+
 			//if node in cluster and edge not yet inserted
 			if (vCopy[e->opposite(vo)] && !processed[e->opposite(vo)])
 				//we don't care about the edge direction
@@ -488,11 +486,10 @@ void cconnect(
 	{
 		node w  = fullCopy.newNode();
 		fullCopyNode[v] = w;
-		edge e2;
 		cluster c = CG.clusterOf(v);
-		forall_adj_edges(e2, v)
-		{
-			node u = e2->target();
+
+		for(adjEntry adj : v->adjEntries) {
+			node u = adj->theEdge()->target();
 			//badnode is the case if lca(v,u) is != c(v)
 			cluster lca = CG.commonCluster(v, u);
 			if (c != lca)

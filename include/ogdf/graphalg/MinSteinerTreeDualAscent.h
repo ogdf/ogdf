@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_STEINER_TREE_DUAL_ASCENT_H
-#define OGDF_MIN_STEINER_TREE_DUAL_ASCENT_H
 
 #include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
@@ -289,7 +284,7 @@ List<edge> *MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const
 	while(!queue.empty()) {
 		node v = queue.popFrontRet();
 		weakComp.pushBack(v);
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = e->source();
 			if(!visited[w]) {
@@ -304,7 +299,7 @@ List<edge> *MinSteinerTreeDualAscent<T>::computeCutSet(const node root) const
 
 	for(node v : weakComp) {
 		node w = m_steinerGraph.original(v);
-		for(adjEntry adj : w->adjEdges) {
+		for(adjEntry adj : w->adjEntries) {
 			edge e = adj->theEdge();
 			if(!visited[m_steinerGraph.copy(e->source())]) {
 				result->pushBack(e);
@@ -340,7 +335,7 @@ bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
 #endif
 	node v = queue.popFrontRet();
 		hasTerminal |= isTerminal(v, false) && findComponent(v) == comp;
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = e->source();
 			if(!visited[w]) {
@@ -450,6 +445,3 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 }
 
 }
-
-#endif
-

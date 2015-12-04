@@ -144,7 +144,7 @@ void NonPlanarCore::markCore(const SPQRTree &T, NodeArray<bool> &mark)
 			mark[v] = false; // unmark this leaf
 
 			node w = nullptr;
-			for (adjEntry adj : v->adjEdges) {
+			for (adjEntry adj : v->adjEntries) {
 				node x = adj->twinNode();
 				if(mark[x] == true) {
 					w = x; break;
@@ -208,7 +208,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 			mapE[H.newEdge(mapV[src],mapV[tgt])] = S.realEdge(e);
 		}
 
-		for (adjEntry adj : current->adjEdges) {
+		for (adjEntry adj : current->adjEntries) {
 			node w = adj->twinNode();
 			if(w != parent)
 				Q.append(QueueEntry(current,w));
@@ -244,7 +244,7 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 	// The edges are directed from the left face to the right face.
 	for (node v : H.nodes)
 	{
-		for (adjEntry adj : v->adjEdges)
+		for (adjEntry adj : v->adjEntries)
 		{
 			// do not insert edges crossing e_st
 			if(adj->theEdge() == e_st)
@@ -262,8 +262,8 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 	NodeArray<edge> spPred(dual,nullptr);
 	QueuePure<edge> queue;
 
-	edge eDual;
-	forall_adj_edges(eDual,s) {
+	for(adjEntry adj : s->adjEntries) {
+		edge eDual = adj->theEdge();
 		if(s == eDual->source())
 			queue.append(eDual);
 	}
@@ -302,8 +302,8 @@ void NonPlanarCore::traversingPath(Skeleton &Sv, edge eS, List<edge> &path, Node
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if (v == e->source())
 					queue.append(e);
 			}

@@ -32,66 +32,56 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_THREAD_H
-#define OGDF_THREAD_H
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 #include <thread>
 
 
 namespace ogdf {
 
-	//! Threads supporting OGDF's memory management.
-	/**
-	 * @ingroup threads
-	 *
-	 * This class derives from std::thread and extends the constructor in such a way
-	 * that worker functions correctly call thread-specific initialization and clean-up
-	 * functions for OGDF's memory management.
-	 *
-	 * If you use OGDF data structures in your threads you have to use the Thread class
-	 * (instead of just using std::thread), or you need to the initThread() and flushPool()
-	 * functions of the memory allocator manually (see Thread's constructor for an example).
-	 */
-	class Thread : public std::thread
-	{
-	public:
-		Thread() : thread() { }
-		Thread(Thread &&other) : thread(std::move((thread&&)other)) { }
+//! Threads supporting OGDF's memory management.
+/**
+ * @ingroup threads
+ *
+ * This class derives from std::thread and extends the constructor in such a way
+ * that worker functions correctly call thread-specific initialization and clean-up
+ * functions for OGDF's memory management.
+ *
+ * If you use OGDF data structures in your threads you have to use the Thread class
+ * (instead of just using std::thread), or you need to the initThread() and flushPool()
+ * functions of the memory allocator manually (see Thread's constructor for an example).
+ */
+class Thread : public std::thread
+{
+public:
+	Thread() : thread() { }
+	Thread(Thread &&other) : thread(std::move((thread&&)other)) { }
 
-		// Visual C++ 2013 Preview cannot compile that combination of variadic templates and lambda function (though it should).
-		// Therefore we use the version without function arguments for MSVC untils this works.
+	// Visual C++ 2013 Preview cannot compile that combination of variadic templates and lambda function (though it should).
+	// Therefore we use the version without function arguments for MSVC untils this works.
 #ifdef _MSC_VER
-		template<class Function>
-		explicit Thread(Function && f) : thread([&]{
-			OGDF_ALLOCATOR::initThread();
-			f();
-			OGDF_ALLOCATOR::flushPool();
-		}) { }
+	template<class Function>
+	explicit Thread(Function && f) : thread([&]{
+		OGDF_ALLOCATOR::initThread();
+		f();
+		OGDF_ALLOCATOR::flushPool();
+	}) { }
 
 #else
-		template<class Function, class ... Args>
-		explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... args){
-			OGDF_ALLOCATOR::initThread();
-			f(std::forward<Args>(args)...);
-			OGDF_ALLOCATOR::flushPool();
-		}, std::forward<Args>(args)...) { }
+	template<class Function, class ... Args>
+	explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... args){
+		OGDF_ALLOCATOR::initThread();
+		f(std::forward<Args>(args)...);
+		OGDF_ALLOCATOR::flushPool();
+	}, std::forward<Args>(args)...) { }
 #endif
 
-		Thread &operator=(Thread &&other) {
-			thread::operator=(std::move((thread&&)other));
-			return *this;
-		}
-	};
-
+	Thread &operator=(Thread &&other) {
+		thread::operator=(std::move((thread&&)other));
+		return *this;
+	}
+};
 
 } // end namespace ogdf
-
-
-#endif

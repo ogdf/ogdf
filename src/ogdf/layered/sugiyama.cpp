@@ -397,8 +397,8 @@ void HierarchyLevels::buildAdjNodes(int i)
 
 	for(int j = 0; j <= level.high(); ++j) {
 		node v = level[j];
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (e->source() == v) {
 				(m_lowerAdjNodes[e->target()])[m_nSet[e->target()]++] = v;
 			} else {
@@ -564,14 +564,14 @@ int HierarchyLevels::calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t> 
 	for(int j = 0; j < L.size(); ++j)
 	{
 		node v = L[j];
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (e->source() == v){
 				int pos_adj_e = pos(e->target());
 				for (int k = j+1; k < L.size(); k++) {
 					node w = L[k];
-					edge f;
-					forall_adj_edges(f,w) {
+					for(adjEntry adj : w->adjEntries) {
+						edge f = adj->theEdge();
 						if (f->source() == w) {
 							int pos_adj_f = pos(f->target());
 							if(pos_adj_f < pos_adj_e)
@@ -1213,9 +1213,8 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 				AG.x(v) += dx;
 				AG.y(v) += dy;
 
-				edge e;
-				forall_adj_edges(e,v)
-				{
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					if(e->isSelfLoop() || e->source() != v) continue;
 
 					DPolyline &dpl = AG.bends(e);

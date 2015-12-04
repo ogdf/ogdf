@@ -2,7 +2,7 @@
  * \brief Implementation of class VarEdgeInserterCore and VarEdgeInserterUMLCore,
  * which are the implementation classes for edge insertion with variable embedding.
  *
- * \author Carsten Gutwenger<br>Jan Papenfu&szlig;
+ * \author Carsten Gutwenger, Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -387,7 +387,7 @@ namespace ogdf {
 		// construct dual edges (for primal edges in exp)
 		for (node v : m_exp.nodes)
 		{
-			for (adjEntry adj : v->adjEdges)
+			for (adjEntry adj : v->adjEntries)
 			{
 				// cannot cross edges that does not correspond to real edges
 				adjEntry adjG = m_expToG[adj];
@@ -411,7 +411,7 @@ namespace ogdf {
 		m_vS = m_dual.newNode();
 		if (m_GtoExp[s] != nullptr)
 		{
-			for (adjEntry adj : m_GtoExp[s]->adjEdges)
+			for (adjEntry adj : m_GtoExp[s]->adjEntries)
 				m_dual.newEdge(m_vS, faceNode[m_E.rightFace(adj)]);
 		}
 		else
@@ -423,7 +423,7 @@ namespace ogdf {
 		m_vT = m_dual.newNode();
 		if (m_GtoExp[t] != nullptr)
 		{
-			for (adjEntry adj : m_GtoExp[t]->adjEdges)
+			for (adjEntry adj : m_GtoExp[t]->adjEntries)
 				m_dual.newEdge(faceNode[m_E.rightFace(adj)], m_vT);
 		}
 		else
@@ -452,7 +452,7 @@ namespace ogdf {
 #endif
 		// construct dual edges (for primal edges in exp)
 		for (node v : m_exp.nodes) {
-			for (adjEntry adj : v->adjEdges) {
+			for (adjEntry adj : v->adjEntries) {
 				// cannot cross edges that does not correspond to real edges
 				adjEntry adjG = m_expToG[adj];
 				if (adjG == nullptr)
@@ -475,7 +475,7 @@ namespace ogdf {
 		// augment dual by m_vS and m_vT
 		m_vS = m_dual.newNode();
 		if (m_GtoExp[s] != nullptr) {
-			for (adjEntry adj : m_GtoExp[s]->adjEdges) {
+			for (adjEntry adj : m_GtoExp[s]->adjEntries) {
 #ifdef OGDF_DEBUG
 				eDual =
 #endif
@@ -498,7 +498,7 @@ namespace ogdf {
 
 		m_vT = m_dual.newNode();
 		if (m_GtoExp[t] != nullptr) {
-			for (adjEntry adj : m_GtoExp[t]->adjEdges) {
+			for (adjEntry adj : m_GtoExp[t]->adjEntries) {
 #ifdef OGDF_DEBUG
 				eDual =
 #endif
@@ -528,8 +528,8 @@ namespace ogdf {
 
 	void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(List<edge> &queue, node v, Graph::EdgeType /* eType */)
 	{
-		edge e;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (v == e->source())
 				queue.pushBack(e);
 		}
@@ -537,8 +537,8 @@ namespace ogdf {
 
 	void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(List<edge> &queue, node v, Graph::EdgeType eType)
 	{
-		edge e;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (v == e->source() &&
 				(eType != Graph::generalization || m_primalIsGen[e] == false))
 			{
@@ -553,9 +553,10 @@ namespace ogdf {
 		List<edge> queue; // candidate edges
 
 		// start with all edges leaving from m_vS
-		edge e;
-		forall_adj_edges(e, m_vS)
+		for(adjEntry adj : m_vS->adjEntries) {
+			edge e = adj->theEdge();
 			queue.pushBack(e);
+		}
 
 		for (;;) {
 			edge eCand = queue.popFrontRet(); // next candidate from front of queue
@@ -592,8 +593,8 @@ namespace ogdf {
 	void VarEdgeInserterDynCore::ExpandedGraph::appendCandidates(
 		Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist)
 	{
-		edge e;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (v == e->source()) {
 				int listPos = (currentDist + costDual(e)) % maxCost;
 				nodesAtDist[listPos].pushBack(e);
@@ -604,8 +605,8 @@ namespace ogdf {
 	void VarEdgeInserterDynUMLCore::ExpandedGraphUML::appendCandidates(
 		Array<SListPure<edge> > &nodesAtDist, int maxCost, node v, Graph::EdgeType eType, int currentDist)
 	{
-		edge e;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (v == e->source() &&
 				(eType != Graph::generalization || m_primalIsGen[e] == false))
 			{
@@ -629,9 +630,10 @@ namespace ogdf {
 		NodeArray<edge> spPred(m_dual, nullptr); // predecessor in shortest path tree
 
 		// start with all edges leaving from m_vS
-		edge e;
-		forall_adj_edges(e, m_vS)
+		for(adjEntry adj : m_vS->adjEntries) {
+			edge e = adj->theEdge();
 			nodesAtDist[0].pushBack(e);
+		}
 
 		// actual search (using extended bfs on directed dual)
 		int currentDist = 0;

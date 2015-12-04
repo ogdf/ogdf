@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EXTENDED_GRAPH_ALG_H
-#define OGDF_EXTENDED_GRAPH_ALG_H
-
 
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/basic/PriorityQueue.h>
@@ -101,7 +95,7 @@ void inducedSubGraph(
 		OGDF_ASSERT(w->graphOf() == &G);
 		nodeTableOrig2New[w] = subGraph.newNode();
 
-		for(adjEntry adj : w->adjEdges)
+		for(adjEntry adj : w->adjEntries)
 		{
 			edge e = adj->theEdge();
 			if (nodeTableOrig2New[e->source()] && nodeTableOrig2New[e->target()] && !mark[e])
@@ -148,7 +142,7 @@ void inducedSubGraph(
 		OGDF_ASSERT(w->graphOf() == &G);
 		nodeTableOrig2New[w] = subGraph.newNode();
 
-		for(adjEntry adj : w->adjEdges)
+		for(adjEntry adj : w->adjEntries)
 		{
 			edge e = adj->theEdge();
 			if (nodeTableOrig2New[e->source()] &&
@@ -189,7 +183,7 @@ void inducedSubgraph(Graph &G, NODELISTITERATOR &it, EDGELIST &E)
 	for (;it.valid();it++)
 	{
 		node v = (*it);
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			edge e = adj->theEdge();
 			if (mark[e->source()] && mark[e->target()])
@@ -525,6 +519,3 @@ inline bool planarEmbedPlanarGraph(Graph &G) {
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -450,10 +450,9 @@ void BalloonLayout::computeBFSTree(const Graph &G, node v)
 	{
 		w = bfsqueue.popFrontRet();
 
-		edge e;
+		for(adjEntry adj : w->adjEntries) {
 
-		forall_adj_edges(e, w)
-		{
+			edge e = adj->theEdge();
 			node u = e->opposite(w);
 			if (!marked[u])
 			{

@@ -32,26 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SPRING_EMBEDDER_GV_H
-#define OGDF_SPRING_EMBEDDER_GV_H
-
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/energybased/SpringForceModel.h>
-
+#include <ogdf/basic/GraphCopyAttributes.h>
 
 namespace ogdf {
-
-
-	class OGDF_EXPORT GraphCopyAttributes;
-	class OGDF_EXPORT GraphCopy;
-
 
 //! The spring-embedder layout algorithm with force approximation using hte grid variant approach.
 /**
@@ -333,6 +321,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

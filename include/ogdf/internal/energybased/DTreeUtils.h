@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DTREE_UTILS_H_
-#define OGDF_DTREE_UTILS_H_
 
 #include <cstddef>
 
@@ -238,5 +233,3 @@ int lowestCommonAncestorLevel<unsigned int, 1>(const unsigned int a[1], const un
 }
 
 } // end namespace
-
-#endif

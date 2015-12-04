@@ -33,17 +33,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_ARRAY2D_H
-#define OGDF_ARRAY2D_H
-
-
-#include <ogdf/basic/basic.h>
-
+#include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
 
@@ -351,6 +343,3 @@ float Array2D<E>::det() const
 
 
 } // end namespace ogdf
-
-
-#endif

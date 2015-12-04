@@ -49,8 +49,8 @@ long ModifiedNibbleClusterer::call(Graph &G, NodeArray<long> &clusterNum, NodeAr
 	for(node v : G.nodes) {
 		if (cNode[clusterNum[v]] == nullptr)
 			cNode[clusterNum[v]] = clusterStructure.newNode();
-		edge e;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->opposite(v);
 			if (clusterNum[v] != clusterNum[w]) {
 				if (cNode[clusterNum[w]] == nullptr)
@@ -173,7 +173,7 @@ double ModifiedNibbleClusterer::findBestCluster(NodeArray<bool> &isActive, std::
 		if (wasAbandoned[next]) numRealAband--;
 		else volume += next->degree();
 		//cutsize changes according to new nodes adjacency
-		for(adjEntry adj : next->adjEdges){
+		for(adjEntry adj : next->adjEntries){
 			node w = adj->theEdge()->opposite(next);
 			if (inCluster[w]) {
 				cutSize--;
@@ -194,7 +194,7 @@ double ModifiedNibbleClusterer::findBestCluster(NodeArray<bool> &isActive, std::
 				continue;
 			}
 			bool aband = true;
-			for(adjEntry adj : t->adjEdges){
+			for(adjEntry adj : t->adjEntries){
 				if (!inCluster[adj->theEdge()->opposite(t)]) {
 					aband = false;
 					break;
@@ -304,7 +304,7 @@ void ModifiedNibbleClusterer::spreadValues(NodeArray<bool> &isActive, std::vecto
 		// distribute evenly
 		double spread = m_spreadProbability*m_prob[v] / v->degree();
 		m_prob[v] -= m_spreadProbability*m_prob[v];
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			node opp = adj->theEdge()->opposite(v);
 			//we assume that nodes never run dry, i.e. spread > 0.0
 			if (!isActive[opp]) {

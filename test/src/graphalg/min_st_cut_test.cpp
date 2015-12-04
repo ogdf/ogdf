@@ -10,7 +10,7 @@ using std::string;
 
 template<typename T>
 void describeSuite(const string &name) {
-describe(string("MinSTCut<" + name + ">").c_str(), [](){
+describe(string("MinSTCut<" + name + ">"), [](){
 	it("works on a simple example", [](){
 		Graph graph;
 		node s = graph.newNode();

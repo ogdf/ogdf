@@ -190,10 +190,10 @@ MultilevelGraph::MultilevelGraph(const char *filename) : m_createdGraph(true)
 void MultilevelGraph::prepareGraphAttributes(GraphAttributes &GA) const
 {
 	long additionalAttributes = 0;
-	if (!(GA.attributes() & GraphAttributes::edgeDoubleWeight)) {
+	if (!GA.has(GraphAttributes::edgeDoubleWeight)) {
 		additionalAttributes |= GraphAttributes::edgeDoubleWeight;
 	}
-	if (!(GA.attributes() & GraphAttributes::nodeWeight)) {
+	if (!GA.has(GraphAttributes::nodeWeight)) {
 		additionalAttributes |= GraphAttributes::nodeWeight;
 	}
 	GA.initAttributes(additionalAttributes);
@@ -492,10 +492,10 @@ MultilevelGraph * MultilevelGraph::removeOneCC(std::vector<node> &componentSubAr
 
 	// move edges
 	for (node v : componentSubArray) {
-		edge e;
 //		std::vector<edge> toDelete;
-		forall_adj_edges(e, v) {
-			if (e != nullptr && e->source() == v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+			if (e->source() == v) {
 				copyEdgeTo(e, *MLGcomponent, tempNodeAssociations, true);
 //				toDelete.push_back(e);
 			}
@@ -598,9 +598,9 @@ std::vector<edge> MultilevelGraph::moveEdgesToParent(NodeMerge * NM, node theNod
 
 	std::vector<edge> doubleEdges;
 	std::vector<edge> adjEdges;
-	edge e;
-	forall_adj_edges(e, theNode) {
-		adjEdges.push_back(e);
+
+	for(adjEntry adj : theNode->adjEntries) {
+		adjEdges.push_back(adj->theEdge());
 	}
 
 	double nodeToParentLen = 0.0;
@@ -629,7 +629,7 @@ std::vector<edge> MultilevelGraph::moveEdgesToParent(NodeMerge * NM, node theNod
 
 		bool exists = false;
 		edge twinEdge = nullptr;
-		for(adjEntry adj : parent->adjEdges) {
+		for(adjEntry adj : parent->adjEntries) {
 			if (adj->twinNode() != parent && (adj->twinNode() == newSource || adj->twinNode() == newTarget)) {
 				exists = true;
 				twinEdge = adj->theEdge();

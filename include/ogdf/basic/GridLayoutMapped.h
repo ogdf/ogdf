@@ -33,25 +33,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_GRID_LAYOUT_MAPPED_H
-#define OGDF_GRID_LAYOUT_MAPPED_H
-
 
 #include <ogdf/basic/GridLayout.h>
-
+#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/orthogonal/OrthoRep.h>
 
 namespace ogdf {
-
-	class PlanRep;
-	class PlanRepUML;
-	class OrthoRep;
-
 
 //---------------------------------------------------------
 // GridLayoutMapped
@@ -118,6 +106,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

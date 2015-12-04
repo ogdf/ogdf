@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EDGE_ARRAY_H
-#define OGDF_EDGE_ARRAY_H
-
 
 #include <ogdf/basic/Graph_d.h>
 
@@ -232,9 +226,8 @@ public:
 	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
 	 *             Edge arrays should be index by an edge, not an integer index.
 	 */
-	OGDF_DEPRECATED_BEGIN
+	OGDF_DEPRECATED
 	const T &operator[](int index) const
-	OGDF_DEPRECATED_END
 		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
@@ -243,9 +236,8 @@ public:
 	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
 	 *             Edge arrays should be index by an edge, not an integer index.
 	 */
-	OGDF_DEPRECATED_BEGIN
+	OGDF_DEPRECATED
 	T &operator[](int index)
-	OGDF_DEPRECATED_END
 		{ return Array<T>::operator [](index); }
 
 
@@ -436,6 +428,3 @@ public:
 
 
 } // end namespace ogdf
-#include <ogdf/basic/Graph.h>
-
-#endif

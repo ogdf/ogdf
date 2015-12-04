@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GALAXY_MULTILEVEL_H
-#define OGDF_GALAXY_MULTILEVEL_H
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/tuples.h>
@@ -156,5 +151,3 @@ private:
 };
 
 } // end of namespace ogdf
-
-#endif

@@ -7,13 +7,18 @@ namespace bandit {
 
     inline run_policy_ptr create_run_policy(const options& opt)
     {
-      return run_policy_ptr(new bandit_run_policy(opt.skip(), opt.only()));
+      return run_policy_ptr(new bandit_run_policy(opt.skip(), opt.only(), opt.break_on_failure()));
     }
 
     inline listener_ptr create_reporter(const options& opt,
         const failure_formatter* formatter, const colorizer& colorizer)
     {
       std::string name(opt.reporter() ? opt.reporter() : "");
+
+      if(name == "spec" || opt.list_tests())
+      {
+        return std::unique_ptr<detail::listener>(new spec_reporter(*formatter, colorizer));
+      }
 
       if(name == "singleline")
       {
@@ -28,11 +33,6 @@ namespace bandit {
       if(name == "dots")
       {
         return std::unique_ptr<detail::listener>(new dots_reporter(*formatter, colorizer));
-      }
-
-      if(name == "spec")
-      {
-        return std::unique_ptr<detail::listener>(new spec_reporter(*formatter, colorizer));
       }
 
       return std::unique_ptr<detail::listener>(new info_reporter(*formatter, colorizer));
@@ -74,12 +74,15 @@ namespace bandit {
     listener.test_run_starting();
 
     bool hard_skip = false;
-    detail::bandit_context global_context("", hard_skip);
+    bool list_tests = opt.list_tests();
+    detail::bandit_context global_context("", hard_skip, list_tests);
     context_stack.push_back(&global_context);
 
     for_each(specs.begin(), specs.end(), call_func);
 
-    listener.test_run_complete();
+    if(!opt.list_tests()) {
+      listener.test_run_complete();
+    }
 
     return listener.did_we_pass() ? 0 : 1;
   }

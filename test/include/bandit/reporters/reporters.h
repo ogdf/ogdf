@@ -12,7 +12,7 @@
 
 namespace bandit { namespace detail {
 
-  inline listener& registered_listener(listener* reporter = NULL)
+  inline listener& registered_listener(listener* reporter = nullptr)
   {
     static struct listener* reporter_;
 

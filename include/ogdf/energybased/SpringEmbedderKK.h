@@ -33,25 +33,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SPRING_EMBEDDER_KK_H
-#define OGDF_SPRING_EMBEDDER_KK_H
-
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/Array2D.h>
 #include <ogdf/basic/tuples.h>
-
+#include <ogdf/basic/GraphCopyAttributes.h>
 
 namespace ogdf {
-
-
-	class OGDF_EXPORT GraphCopyAttributes;
-	class OGDF_EXPORT GraphCopy;
-
 
 //! The spring-embedder layout algorithm by Kamada and Kawai.
 /**
@@ -276,8 +265,7 @@ private:
 	double m_desLength; //!< Desirable edge length, used instead if > 0
 	double m_distFactor; //introduces some distance for scaling in case BFS is used
 
-	bool m_useLayout; //!< use positions or allow to shuffle nodes to
-	//!< avoid degeneration
+	bool m_useLayout; //!< use positions or allow to shuffle nodes to avoid degeneration
 	int m_gItBaseVal; //!< minimum number of global iterations
 	int m_gItFactor;  //!< factor for global iterations: m_gItBaseVal+m_gItFactor*|V|
 
@@ -329,6 +317,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

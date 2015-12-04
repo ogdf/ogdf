@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAX_FLOW_S_T_PLANAR_DIGRAPH_H
-#define OGDF_MAX_FLOW_S_T_PLANAR_DIGRAPH_H
 
 #include <ogdf/module/MaxFlowModule.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -67,7 +62,7 @@ class OGDF_EXPORT MaxFlowSTPlanarDigraph : public MaxFlowModule<TCap> {
    */
   face findOuterFace(const CombinatorialEmbedding &ce, const node &s,
                      const node &t) {
-    for (adjEntry a_s : s->adjEdges) {
+    for (adjEntry a_s : s->adjEntries) {
       for (adjEntry a_f : ce.rightFace(a_s)->entries) {
         if (a_f->theNode() == t) {
           return ce.rightFace(a_s);
@@ -113,13 +108,15 @@ class OGDF_EXPORT MaxFlowSTPlanarDigraph : public MaxFlowModule<TCap> {
     ce.setExternalFace(f_infty);
     // find adjEntries to split the external face
     adjEntry adjAtTarget, adjAtSource;
-    forall_adj(adjAtTarget, copyT) {
-      if (ce.rightFace(adjAtTarget) == f_infty) {
+    for(adjEntry adj : copyT->adjEntries) {
+      if (ce.rightFace(adj) == f_infty) {
+        adjAtTarget = adj;
         break;
       }
     }
-    forall_adj(adjAtSource, copyS) {
-      if (ce.rightFace(adjAtSource) == f_infty) {
+    for(adjEntry adj : copyS->adjEntries) {
+      if (ce.rightFace(adj) == f_infty) {
+        adjAtSource = adj;
         break;
       }
     }
@@ -147,8 +144,8 @@ class OGDF_EXPORT MaxFlowSTPlanarDigraph : public MaxFlowModule<TCap> {
 
     // compute flow value
     TCap flowValue = 0;
-    edge e;
-    forall_adj_edges(e, s) {
+    for(adjEntry adj : s->adjEntries) {
+      edge e = adj->theEdge();
       if (e->source() == s) {
         flowValue += (*this->m_flow)[e];
       } else {
@@ -197,5 +194,3 @@ class OGDF_EXPORT MaxFlowSTPlanarDigraph : public MaxFlowModule<TCap> {
 };
 
 }  // namespace
-
-#endif  // OGDF_MAX_FLOW_S_T_PLANAR_DIGRAPH_H

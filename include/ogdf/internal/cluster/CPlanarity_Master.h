@@ -36,8 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CPLANARITY_MASTER_H
-#define OGDF_CPLANARITY_MASTER_H
+#pragma once
 
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Logger.h>
@@ -57,16 +56,18 @@ class CPlanarityMaster : public CP_MasterBase {
 
 	friend class CPlanaritySub;
 
-	// Pointers to the given Clustergraph and underlying Graph are stored.
-	//const ClusterGraph *m_C;
-	//const Graph *m_G;
+#if 0
+	//! Pointers to the given Clustergraph and underlying Graph are stored.
+	const ClusterGraph *m_C;
+	const Graph *m_G;
 
 
-	// Each time the primal bound is improved, the integer solution induced Graph is built.
-	// \a m_solutionGraph is a pointer to the currently best solution induced Graph.
-	//GraphCopy *m_solutionGraph;
+	//! Each time the primal bound is improved, the integer solution induced Graph is built.
+	//! \a m_solutionGraph is a pointer to the currently best solution induced Graph.
+	GraphCopy *m_solutionGraph;
 
-	//List<nodePair> m_connectionOneEdges;  //<! Contains connection nodePairs whose variable is set to 1.0
+	List<nodePair> m_connectionOneEdges;  //<! Contains connection nodePairs whose variable is set to 1.0
+#endif
 
 public:
 
@@ -161,28 +162,32 @@ public:
 	void setStrongVariableViolation(double d) { m_strongVariableViolation=d;}
 	void setSearchSpaceShrinking(bool b) {m_shrink = b;}//!< Toggles reduction of search space (using only some bag/satchel connections) on/off
 
-	// Updating global constraint counter
-	//void updateAddedCCons(int n) {m_nCConsAdded += n;}
-	//void updateAddedKCons(int n) {m_nKConsAdded += n;}
+#if 0
+	//! Updating global constraint counter
+	void updateAddedCCons(int n) {m_nCConsAdded += n;}
+	void updateAddedKCons(int n) {m_nKConsAdded += n;}
 
-	// Returns global primal and dual bounds.
-	//double getPrimalBound() {return globalPrimalBound;}
-	//double getDualBound() {return globalDualBound;}
+	//! Returns global primal and dual bounds.
+	double getPrimalBound() {return globalPrimalBound;}
+	double getDualBound() {return globalDualBound;}
 
 	// Cut pools for connectivity and planarity
 	//! Returns cut pool for connectivity
-	//StandardPool<Constraint, Variable> *getCutConnPool() {return m_cutConnPool;}
+	StandardPool<Constraint, Variable> *getCutConnPool() {return m_cutConnPool;}
 	//! Returns cut pool for planarity
-	//StandardPool<Constraint, Variable> *getCutKuraPool() {return m_cutKuraPool;}
+	StandardPool<Constraint, Variable> *getCutKuraPool() {return m_cutKuraPool;}
 
 	//! Returns true if default cut pool is used. Otherwise, separate
 	//! connectivity and Kuratowski pools are generated and used.
-	//bool &useDefaultCutPool() { return m_useDefaultCutPool;}
+	bool &useDefaultCutPool() { return m_useDefaultCutPool;}
+#endif
 
 #ifdef OGDF_DEBUG
-	bool m_solByHeuristic; //solution computed by heuristic or ILP
-		// Simple output function to print the given graph to the console.
-	// Used for debugging only.
+	//! Solution computed by heuristic or ILP
+	bool m_solByHeuristic;
+
+	//! Simple output function to print the given graph to the console.
+	//! Used for debugging only.
 	void printGraph(const Graph &G);
 #endif
 
@@ -239,10 +244,10 @@ protected:
 
 private:
 
-	// Computes a dual bound for the optimal solution.
-	// Tries to find as many edge-disjoint Kuratowski subdivisions as possible.
-	// If k edge-disjoint groups of subdivisions are found, the upper bound can be
-	// initialized with number of edges in underlying graph minus k.
+	//! Computes a dual bound for the optimal solution.
+	//! Tries to find as many edge-disjoint Kuratowski subdivisions as possible.
+	//! If k edge-disjoint groups of subdivisions are found, the upper bound can be
+	//! initialized with number of edges in underlying graph minus k.
 	double heuristicInitialUpperBound();
 
 	//! Is invoked by heuristicInitialLowerBound()
@@ -256,7 +261,8 @@ private:
 
 
 	// Parameters
-	/*int m_nKuratowskiSupportGraphs; 	// Maximal number of times the Kuratowski support graph is computed
+#if 0
+	int m_nKuratowskiSupportGraphs; 	// Maximal number of times the Kuratowski support graph is computed
 	int m_nKuratowskiIterations; 		// Maximal number of times BoyerMyrvold is invoked
 	int m_nSubdivisions; 				// Maximal number of extracted Kuratowski subdivisions
 	int m_nMaxVars; 					// Max Number of variables
@@ -276,15 +282,15 @@ private:
 	int m_numAddVariables;				// how many variables should i add maximally per pricing round?
 	double m_strongConstraintViolation; // when do i consider a constraint strongly violated -> separate in first stage
 	double m_strongVariableViolation;   // when do i consider a variable strongly violated (red.cost) -> separate in first stage
-	*/
-	//AbaString *m_maxCpuTime;			// Time threshold for optimization
 
-	// If perturbation is used, this variable stores the largest occuring coeff,
-	// i.e. the one closest to 0. Otherwise it corresponds to \a m_epsilon
-	//double m_largestConnectionCoeff;
+	AbaString *m_maxCpuTime;			// Time threshold for optimization
+
+	//! If perturbation is used, this variable stores the largest occuring coeff,
+	//! i.e. the one closest to 0. Otherwise it corresponds to \a m_epsilon
+	double m_largestConnectionCoeff;
 
 	// Counters for the number of added constraints
-	/*int m_nCConsAdded;
+	int m_nCConsAdded;
 	int m_nKConsAdded;
 	int m_solvesLP;
 	int m_varsInit;
@@ -311,21 +317,22 @@ private:
 		long tempo = act->centiSeconds()+100*act->seconds()+6000*act->minutes()+360000*act->hours();
 		return  ((double) tempo)/ 100.0;
 	}
-	*/
-	//number of calls of the fast max planar subgraph heuristic
-	//const int m_fastHeuristicRuns;
+
+	//! number of calls of the fast max planar subgraph heuristic
+	const int m_fastHeuristicRuns;
 
 	//! Cut pools for connectivity and Kuratowski constraints
-	//StandardPool< Constraint, Variable > *m_cutConnPool; //!< Connectivity Cuts
-	//StandardPool< Constraint, Variable > *m_cutKuraPool; //!< Kuratowski Cuts
+	StandardPool< Constraint, Variable > *m_cutConnPool; //!< Connectivity Cuts
+	StandardPool< Constraint, Variable > *m_cutKuraPool; //!< Kuratowski Cuts
 
 	//! Defines if the ABACUS default cut pool or the separate Connectivity
 	//! and Kuratowski constraint pools are used
-	//bool m_useDefaultCutPool;
+	bool m_useDefaultCutPool;
 
-	//!
-	//double m_delta;
-	//double m_deltaCount;
+	double m_delta;
+	double m_deltaCount;
+#endif
+
 	//Switch to minimization of additional edges, no delta necessary
 	virtual double nextConnectCoeff() {return 1.0;}
 	//double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; };
@@ -374,14 +381,13 @@ private:
 	//! reduction (Chimani/Klein)
 	ClusterAnalysis* m_ca;
 
-	bool m_shrink; //!< If set to true, search space reduction is performed. Reduction is
-				   //!< only feasible when only a single independent bag exists, which
-				   //!< has to be assured by external partitioning.
+	//! If set to true, search space reduction is performed. Reduction is
+	//! only feasible when only a single independent bag exists, which
+	//! has to be assured by external partitioning.
+	bool m_shrink;
 	GraphCopy* m_ssg; //Search space graph, input graph plus edges modelled by initial variables.
 	int m_nSep; //!< Stores number of separation calls
 	ClusterArray<List<node> > m_cNodes; //!< Static storage of cluster node lists to avoid repeated computation.
 };
 
 }//end namespace
-
-#endif

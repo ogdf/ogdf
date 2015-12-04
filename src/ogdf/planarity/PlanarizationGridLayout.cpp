@@ -88,7 +88,7 @@ namespace ogdf {
 				gridLayout.x(vG) = gridLayoutPG.x(pr.copy(vG));
 				gridLayout.y(vG) = gridLayoutPG.y(pr.copy(vG));
 
-				for(adjEntry adj : vG->adjEdges) {
+				for(adjEntry adj : vG->adjEntries) {
 					if ((adj->index() & 1) == 0) continue;
 					edge eG = adj->theEdge();
 					IPolyline &ipl = gridLayout.bends(eG);
@@ -133,7 +133,7 @@ namespace ogdf {
 				gridLayout.x(vG) += dx;
 				gridLayout.y(vG) += dy;
 
-				for(adjEntry adj : vG->adjEdges) {
+				for(adjEntry adj : vG->adjEntries) {
 					if ((adj->index() & 1) == 0) continue;
 					edge eG = adj->theEdge();
 

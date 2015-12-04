@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_ORTHO_REP_H
-#define OGDF_ORTHO_REP_H
-
 
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/FaceArray.h>
@@ -50,8 +42,8 @@
 
 namespace ogdf {
 
-	class OGDF_EXPORT PlanRep;
-	class OGDF_EXPORT PlanRepUML;
+class OGDF_EXPORT PlanRep;
+class OGDF_EXPORT PlanRepUML;
 
 
 // type for bends (convex or reflex)
@@ -508,6 +500,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

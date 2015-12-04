@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_SAVEENUM_H_
-#define OGDF_SAVEENUM_H_
+#pragma once
 
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/HashArray.h>
@@ -180,7 +179,7 @@ protected:
 		while (!q.empty()) {
 			const node v = q.pop();
 			processedNodes.pushBack(v);
-			for (adjEntry adj : v->adjEdges) {
+			for (adjEntry adj : v->adjEntries) {
 				const edge e = adj->theEdge();
 				if (!hidden[e]) {
 					const node w = adj->twinNode();
@@ -223,5 +222,3 @@ private:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif /* OGDF_SAVEENUM_H_ */

@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_QUEUE_H
-#define OGDF_QUEUE_H
-
 
 #include <ogdf/basic/SList.h>
 
@@ -405,6 +398,3 @@ ostream &operator<<(ostream &os, const Queue<E> &Q)
 
 
 } // end namespace ogdf
-
-
-#endif

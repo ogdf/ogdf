@@ -139,7 +139,7 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 			HA.setX(vG, ccPlaneRep.x(planarRep.copy(vGC)));
 			HA.setY(vG, ccPlaneRep.y(planarRep.copy(vGC)));
 
-			for(adjEntry adj : vG->adjEdges)
+			for(adjEntry adj : vG->adjEntries)
 				if ((adj->index() & 1) != 0)
 					ccPlaneRep.computePolylineClear
 					(planarRep, adj->theEdge(), HA.bends(adj->theEdge()));
@@ -193,7 +193,7 @@ void HypergraphLayoutES::packAllCC(PlanRep &planarRep,
 			pHA.setX(vG, pHA.x(vG) + position[i].m_x);
 			pHA.setY(vG, pHA.y(vG) + position[i].m_y);
 
-			for (adjEntry entry : vG->adjEdges)
+			for (adjEntry entry : vG->adjEntries)
 			for (ListIterator<DPoint> ite = pHA.bends(entry->theEdge()).begin();
 				ite.valid(); ++ite)
 				(*ite).m_x += position[i].m_x, (*ite).m_y += position[i].m_y;

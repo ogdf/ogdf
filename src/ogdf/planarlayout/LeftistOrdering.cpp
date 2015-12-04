@@ -463,7 +463,7 @@ void LeftistOrdering::beltExtension(List<Candidate>& extension)
         adjEntry first = *it;
 
         // the iterating one for the face
-        adjEntry adj_vw = first;
+        adjEntry adj_vw;
         do {
             // advance one on the adj list of v_start
             adj_vw = first = first->cyclicSucc();

@@ -33,14 +33,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_GRAPH_IO_H
-#define OGDF_GRAPH_IO_H
-
-
+#include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/GridLayout.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/internal/steinertree/EdgeWeightedGraph.h>
@@ -57,19 +52,30 @@ namespace ogdf {
 class OGDF_EXPORT GraphIO
 {
 public:
+	static Logger logger;
+
 	class SVGSettings
 	{
 		double m_margin;
-
 		int    m_fontSize;
+		double m_curviness;
+		bool m_bezierInterpolation;
 		string m_fontColor;
 		string m_fontFamily;
+		string m_width;
+		string m_height;
 
 	public:
 		SVGSettings();
 
+		//! Returns whether Bézier-interpolation for curved edges is enabled.
+		bool bezierInterpolation() const { return m_bezierInterpolation; }
+
 		//! Returns the size of the margin around the drawing.
 		double margin() const { return m_margin; }
+
+		//! Returns the curviness of the edges (value ranges from 0 to 1).
+		double curviness() const { return m_curviness; }
 
 		//! Returns the default font size (font height in pixels).
 		int fontSize() const { return m_fontSize; }
@@ -80,9 +86,26 @@ public:
 		//! Returns the default font family.
 		const string &fontFamily() const { return m_fontFamily; }
 
+		//! Returns the default width
+		const string &width() const { return m_width; }
+
+		//! Returns the default height
+		const string &height() const { return m_height; }
 
 		//! Sets the size of the margin around the drawing to \a m.
 		void margin(double m) { m_margin = m; }
+
+		//! Sets the curviness of all edges (value ranges from 0 to 1).
+		void curviness(double value) {
+			if(value > 1 || value < 0) {
+				throw PreconditionViolatedException();
+			}
+
+			m_curviness = value;
+		}
+
+		//! Enables or disables Bézier-interpolation.
+		void bezierInterpolation(bool enable) { m_bezierInterpolation = enable; }
 
 		//! Sets the default font size (font height in pixels) to \a fs.
 		void fontSize(int fs) { m_fontSize = fs; }
@@ -92,8 +115,19 @@ public:
 
 		//! Sets the default font family to \a fm.
 		void fontFamily(const string &fm) { m_fontFamily = fm; }
-	};
 
+		//! Sets the width.
+		/**
+		 * The value should include a unit of measure (e.g., percentage for relative width or pixel values).
+		 */
+		void width(const string &width) { m_width = width; }
+
+		//! Sets the height.
+		/**
+		 * The value should include a unit of measure (e.g., percentage for relative height or pixel values).
+		 */
+		void height(const string &height) { m_height = height; }
+	};
 
 	/**
 	 * @name Graphs
@@ -101,16 +135,35 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in GML format from file \a filename.
+	//! Reads graph \a G of arbitrary graph format form \a filename.
 	/**
-	 * \sa readGML(Graph &G, istream &is) for more details.<br>
-	 *     writeGML(const Graph &G, const char *filename)
+	 * \sa read(Graph &G, istream &is) for more details.
 	 *
 	 * @param G        is assigned the read graph.
 	 * @param filename is the name of the file to be read.
 	 * @return true if successful, false otherwise.
 	 */
-	static bool readGML(Graph &G, const char *filename);
+	static bool read(Graph &G, const string &filename);
+
+	//! Reads graph \a G of arbitrary graph format form \a filename.
+	/**
+	 * The following file formats are currently supported:
+	 *  - DOT
+	 *  - GML
+	 *  - TLP
+	 *  - LEDA
+	 *  - Chaco
+	 *  - DL
+	 *  - GDF
+	 *  - GraphML
+	 *  - GEXF
+	 *  - OGML
+	 *
+	 * @param G        is assigned the read graph.
+	 * @param is  is the input stream to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static bool read(Graph &G, istream &is);
 
 	//! Reads graph \a G in GML format from file \a filename.
 	/**
@@ -141,17 +194,6 @@ public:
 	//! Writes graph \a G in GML format to file \a filename.
 	/**
 	 * \sa writeGML(const Graph &G, ostream &os) for more details.<br>
-	 *     readGML(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGML(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in GML format to file \a filename.
-	/**
-	 * \sa writeGML(const Graph &G, ostream &os) for more details.<br>
 	 *     readGML(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -174,18 +216,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGML(const Graph &G, ostream &os);
-
-
-	//! Reads graph \a G in OGML format from file \a filename.
-	/**
-	 * \sa readOGML(Graph &G, istream &is) for more details.<br>
-	 *     writeOGML(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readOGML(Graph &G, const char *filename);
 
 	//! Reads graph \a G in OGML format from file \a filename.
 	/**
@@ -211,17 +241,6 @@ public:
 	//! Writes graph \a G in OGML format to file \a filename.
 	/**
 	 * \sa writeOGML(const Graph &G, ostream &os) for more details.<br>
-	 *     readOGML(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeOGML(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in OGML format to file \a filename.
-	/**
-	 * \sa writeOGML(const Graph &G, ostream &os) for more details.<br>
 	 *     readOGML(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -239,18 +258,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeOGML(const Graph &G, ostream &os);
-
-
-	//! Reads graph \a G in Rome-Lib format from file \a filename.
-	/**
-	 * \sa readRome(Graph &G, istream &is) for more details.<br>
-	 *     writeRome(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readRome(Graph &G, const char *filename);
 
 	//! Reads graph \a G in Rome-Lib format from file \a filename.
 	/**
@@ -282,17 +289,6 @@ public:
 	//! Writes graph \a G in Rome-Lib format to file \a filename.
 	/**
 	 * \sa writeRome(const Graph &G, ostream &os) for more details.<br>
-	 *     readRome(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeRome(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in Rome-Lib format to file \a filename.
-	/**
-	 * \sa writeRome(const Graph &G, ostream &os) for more details.<br>
 	 *     readRome(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -310,18 +306,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeRome(const Graph &G, ostream &os);
-
-
-	//! Reads graph \a G in LEDA graph format from file \a filename.
-	/**
-	 * \sa readLEDA(Graph &G, istream &is) for more details.<br>
-	 *     writeLEDA(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readLEDA(Graph &G, const char *filename);
 
 	//! Reads graph \a G in LEDA graph format from file \a filename.
 	/**
@@ -350,18 +334,6 @@ public:
 	 */
 	static bool readLEDA(Graph &G, istream &is);
 
-
-	//! Writes graph \a G in LEDA graph format to file \a filename.
-	/**
-	 * \sa writeLEDA(const Graph &G, ostream &os) for more details.<br>
-	 *     readLEDA(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeLEDA(const Graph &G, const char *filename);
-
 	//! Writes graph \a G in LEDA graph format to file \a filename.
 	/**
 	 * \sa writeLEDA(const Graph &G, ostream &os) for more details.<br>
@@ -388,18 +360,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeLEDA(const Graph &G, ostream &os);
-
-
-	//! Reads graph \a G in Chaco format from file \a filename.
-	/**
-	 * \sa readChaco(Graph &G, istream &is) for more details.<br>
-	 *     writeChaco(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readChaco(Graph &G, const char *filename);
 
 	//! Reads graph \a G in Chaco format from file \a filename.
 	/**
@@ -431,17 +391,6 @@ public:
 	//! Writes graph \a G in Chaco format to file \a filename.
 	/**
 	 * \sa writeChaco(const Graph &G, ostream &os) for more details.<br>
-	 *     readChaco(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeChaco(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in Chaco format to file \a filename.
-	/**
-	 * \sa writeChaco(const Graph &G, ostream &os) for more details.<br>
 	 *     readChaco(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -465,18 +414,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeChaco(const Graph &G, ostream &os);
-
-
-	//! Reads graph \a G in a simple format as used in Petra Mutzel's thesis from file \a filename.
-	/**
-	 * \sa readPMDissGraph(Graph &G, istream &is) for more details.<br>
-	 *     writePMDissGraph(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readPMDissGraph(Graph &G, const char *filename);
 
 	//! Reads graph \a G in a simple format as used in Petra Mutzel's thesis from file \a filename.
 	/**
@@ -510,17 +447,6 @@ public:
 	//! Writes graph \a G in a simple format as used in Petra Mutzel's thesis to file \a filename.
 	/**
 	 * \sa writePMDissGraph(const Graph &G, ostream &os) for more details.<br>
-	 *     readPMDissGraph(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writePMDissGraph(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in a simple format as used in Petra Mutzel's thesis to file \a filename.
-	/**
-	 * \sa writePMDissGraph(const Graph &G, ostream &os) for more details.<br>
 	 *     readPMDissGraph(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -546,17 +472,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writePMDissGraph(const Graph &G, ostream &os);
-
-
-	//! Reads graph \a G in Y-graph format from file \a filename.
-	/**
-	 * \sa readYGraph(Graph &G, istream &is) for more details.
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readYGraph(Graph &G, const char *filename);
 
 	//! Reads graph \a G in Y-graph format from file \a filename.
 	/**
@@ -591,18 +506,6 @@ public:
 	 */
 	static bool readYGraph(Graph &G, istream &is);
 
-
-	//! Reads graph \a G in Graph6 format from file \a filename.
-	/**
-	 * \sa readGraph6(Graph &G, istream &is) for more details.<br>
-	 *     writeGraph6(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGraph6(Graph &G, const char *filename);
-
 	//! Reads graph \a G in Graph6 format from file \a filename.
 	/**
 	 * \sa readGraph6(Graph &G, istream &is) for more details.<br>
@@ -628,17 +531,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readGraph6(Graph &G, istream &is);
-
-	//! Writes graph \a G in Graph6 format to file \a filename.
-	/**
-	 * \sa writeGraph6(const Graph &G, ostream &os) for more details.<br>
-	 *     readGraph6(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGraph6(const Graph &G, const char *filename);
 
 	//! Writes graph \a G in Graph6 format to file \a filename.
 	/**
@@ -680,19 +572,6 @@ public:
 	/**
 	 * \pre \a G is the graph associated with clustered graph \a C.
 	 * \sa readGML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeGML(const ClusterGraph &C, const char *filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGML(ClusterGraph &C, Graph &G, const char *filename);
-
-	//! Reads clustered graph (\a C, \a G) in GML format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
-	 * \sa readGML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const ClusterGraph &C, const string &filename)
 	 *
 	 * @param C        is assigned the read clustered graph (cluster structure).
@@ -717,17 +596,6 @@ public:
 	//! Writes clustered graph \a C in GML format to file \a filename.
 	/**
 	 * \sa writeGML(const ClusterGraph &C, ostream &os) for more details.<br>
-	 *     readGML(ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGML(const ClusterGraph &C, const char *filename);
-
-	//! Writes clustered graph \a C in GML format to file \a filename.
-	/**
-	 * \sa writeGML(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readGML(ClusterGraph &C, Graph &G, const string &filename)
 	 *
 	 * @param C        is the clustered graph to be written.
@@ -745,20 +613,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGML(const ClusterGraph &C, ostream &os);
-
-
-	//! Reads clustered graph (\a C, \a G) in OGML format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
-	 * \sa readOGML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeOGML(const ClusterGraph &C, const char *filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readOGML(ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) in OGML format from file \a filename.
 	/**
@@ -784,18 +638,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readOGML(ClusterGraph &C, Graph &G, istream &is);
-
-
-	//! Writes clustered graph \a C in OGML format to file \a filename.
-	/**
-	 * \sa writeOGML(const ClusterGraph &C, ostream &os) for more details.<br>
-	 *     readOGML(ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeOGML(const ClusterGraph &C, const char *filename);
 
 	//! Writes clustered graph \a C in OGML format to file \a filename.
 	/**
@@ -832,19 +674,6 @@ public:
 	/**
 	 * \pre \a G is the graph associated with attributes \a A.
 	 * \sa readGML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeGML(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGML(GraphAttributes &A, Graph &G, const char *filename);
-
-	//! Reads graph \a G with attributes \a A in GML format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readGML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const GraphAttributes &A, const string &filename)
 	 *
 	 * @param A        is assigned the graph's attributes.
@@ -869,17 +698,6 @@ public:
 	//! Writes graph with attributes \a A in GML format to file \a filename.
 	/**
 	 * \sa writeGML(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGML(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGML(const GraphAttributes &A, const char *filename);
-
-	//! Writes graph with attributes \a A in GML format to file \a filename.
-	/**
-	 * \sa writeGML(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGML(GraphAttributes &A, Graph &G, const string &filename)
 	 *
 	 * @param A        specifies the graph and its attributes to be written.
@@ -897,20 +715,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGML(const GraphAttributes &A, ostream &os);
-
-
-	//! Reads graph \a G with attributes \a A in OGML format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readOGML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeOGML(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readOGML(GraphAttributes &A, Graph &G, const char *filename);
 
 	//! Reads graph \a G with attributes \a A in OGML format from file \a filename.
 	/**
@@ -940,17 +744,6 @@ public:
 	//! Writes graph with attributes \a A in OGML format to file \a filename.
 	/**
 	 * \sa writeOGML(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readOGML(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeOGML(const GraphAttributes &A, const char *filename);
-
-	//! Writes graph with attributes \a A in OGML format to file \a filename.
-	/**
-	 * \sa writeOGML(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readOGML(GraphAttributes &A, Graph &G, const string &filename)
 	 *
 	 * @param A        specifies the graph and its attributes to be written.
@@ -968,20 +761,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeOGML(const GraphAttributes &A, ostream &os);
-
-
-	//! Reads graph \a G with edge weights stored in \a A in Rudy format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readRudy(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeRudy(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes (only edge weights (as doubles) are used).
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readRudy(GraphAttributes &A, Graph &G, const char *filename);
 
 	//! Reads graph \a G with edge weights stored in \a A in Rudy format from file \a filename.
 	/**
@@ -1007,18 +786,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readRudy(GraphAttributes &A, Graph &G, istream &is);
-
-	//! Writes graph with edge weights stored in \a A in Rudy format to file \a filename.
-	/**
-	 * \sa writeRudy(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readRudy(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written (only edge weights
-	 *                 (as doubles) are stored in this format).
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeRudy(const GraphAttributes &A, const char *filename);
 
 	//! Writes graph with edge weights stored in \a A in Rudy format to file \a filename.
 	/**
@@ -1058,20 +825,6 @@ public:
 	/**
 	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
 	 * \sa readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeGML(const ClusterGraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename);
-
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GML format from file \a filename.
-	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
-	 * \sa readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const ClusterGraphAttributes &A, const string &filename)
 	 *
 	 * @param A        is assigned the graph's attributes.
@@ -1095,17 +848,6 @@ public:
 	 */
 	static bool readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes with attributes \a A in GML format to file \a filename.
-	/**
-	 * \sa writeGML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGML(const ClusterGraphAttributes &A, const char *filename);
-
 	//! Writes graph with attributes \a A in GML format to file \a filename.
 	/**
 	 * \sa writeGML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
@@ -1126,21 +868,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGML(const ClusterGraphAttributes &A, ostream &os);
-
-
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in OGML format from file \a filename.
-	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
-	 * \sa readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeOGML(const ClusterGraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) with attributes \a A in OGML format from file \a filename.
 	/**
@@ -1168,17 +895,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
-
-	//! Writes with attributes \a A in OGML format to file \a filename.
-	/**
-	 * \sa writeOGML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
-	 *     readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeOGML(const ClusterGraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in OGML format to file \a filename.
 	/**
@@ -1216,7 +932,7 @@ public:
 	 * @param filename is the path to the input file to read from
 	 * @return true if successful, false otherwise.
 	 */
-	static bool readMatrixMarket(Graph& G, const string& filename);
+	static bool readMatrixMarket(Graph& G, const string &filename);
 
 	//@}
 	/**
@@ -1226,26 +942,6 @@ public:
 	 * in a usual Graph and not a Hypergraph).
 	 */
 	//@{
-
-	//!  Reads a hypergraph (as point-based expansion) in BENCH format from file \a filename.
-	/**
-	 * A hypergraph in OGDF is represented by its point-based expansion, i.e., for each
-	 * hyperedge <i>h</i> we have a corresponding hypernode <i>n</i>. All nodes originally
-	 * incident to <i>h</i> are incident to <i>n</i>, i.e., have regular edges to <i>n</i>.
-	 *
-	 * \warning
-	 * This is a very simple implementation only usable for very properly formatted files!
-	 *
-	 * @param G          is assigned the read graph (point-based expansion of the hypergraph).
-	 * @param hypernodes is assigned the list of nodes which have to be interpreted as hypernodes.
-	 * @param shell      if 0 only the BENCH-hypergraph is read. Otherwise we extend the graph
-	 *                   by a simple edge <i>e=(i,o)</i> and two hyperedges: one hyperedges groups all input nodes and
-	 *                   <i>i</i> together, the other hyperedge groups all output edges and <i>o</i>.
-	 *                   These additional edges are then also collocated in shell.
-	 * @param filename   is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readBENCH(Graph &G, List<node>& hypernodes, List<edge> *shell, const char *filename);
 
 	//!  Reads a hypergraph (as point-based expansion) in BENCH format from file \a filename.
 	/**
@@ -1286,22 +982,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readBENCH(Graph &G, List<node>& hypernodes, List<edge> *shell, istream &is);
-
-
-	//! Reads a hypergraph (as point-based expansion) in PLA format from file \a filename.
-	/**
-	 * @param G          is assigned the read graph (point-based expansion of the hypergraph).
-	 * @param hypernodes is assigned the list of nodes which have to be interpreted as hypernodes.
-	 * @param shell      if 0 only the PLA-hypergraph is read. Otherwise we extend the graph
-	 *                   by a simple edge <i>e=(i,o)</i> and two hyperedges: one hyperedges groups all input nodes and
-	 *                   <i>i</i> together, the other hyperedge groups all output edges and <i>o</i>.
-	 *                   These additional edges are then also collocated in shell.
-	 * @param filename   is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 *
-	 * \sa readPLA(Graph &G, List<node>& hypernodes, List<edge> *shell, istream &is) for details
-	 */
-	static bool readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const char *filename);
 
 	//! Reads a hypergraph (as point-based expansion) in PLA format from file \a filename.
 	/**
@@ -1350,18 +1030,6 @@ public:
 	//! Reads graph \a G with grid layout \a gl in GD-Challenge-format from input stream \a is.
 	/**
 	 * \pre \a G is the graph associated with grid layout \a gl.
-	 * \sa writeChallengeGraph(const Graph &G, const GridLayout &gl, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param gl       is assigned the grid layout.
-	 * @param filename is the name of the file to be read.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool readChallengeGraph(Graph &G, GridLayout &gl, const char *filename);
-
-	//! Reads graph \a G with grid layout \a gl in GD-Challenge-format from input stream \a is.
-	/**
-	 * \pre \a G is the graph associated with grid layout \a gl.
 	 * \sa writeChallengeGraph(const Graph &G, const GridLayout &gl, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -1382,18 +1050,6 @@ public:
 	 * \return true if successful, false otherwise.
 	 */
 	static bool readChallengeGraph(Graph &G, GridLayout &gl, istream &is);
-
-	//! Writes graph \a G with grid layout \a gl in GD-Challenge-format to output stream \a os.
-	/**
-	 * \pre \a G is the graph associated with grid layout \a gl.
-	 * \sa readChallengeGraph(Graph &G, GridLayout &gl, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param gl       specifies the grid layout of \a G to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool writeChallengeGraph(const Graph &G, const GridLayout &gl, const char *filename);
 
 	//! Writes graph \a G with grid layout \a gl in GD-Challenge-format to output stream \a os.
 	/**
@@ -1422,17 +1078,6 @@ public:
 	//! Reads graph \a G in GraphML format from file \a filename.
 	/**
 	 * \sa readGraphML(Graph &G, istream &is) for more details.<br>
-	 *     writeGraphML(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGraphML(Graph &G, const char *filename);
-
-	//! Reads graph \a G in GraphML format from file \a filename.
-	/**
-	 * \sa readGraphML(Graph &G, istream &is) for more details.<br>
 	 *     writeGraphML(const Graph &G, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -1450,19 +1095,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readGraphML(Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) in GraphML format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
-	 * \sa readGraphML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeGraphML(const ClusterGraph &C, const char *filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGraphML(ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) in GraphML format from file \a filename.
 	/**
@@ -1493,19 +1125,6 @@ public:
 	/**
 	 * \pre \a G is the graph associated with attributes \a A.
 	 * \sa readGraphML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeGraphML(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGraphML(GraphAttributes &A, Graph &G, const char *filename);
-
-	//! Reads graph \a G with attributes \a A in GraphML format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readGraphML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGraphML(const GraphAttributes &A, const string &filename)
 	 *
 	 * @param A        is assigned the graph's attributes.
@@ -1526,20 +1145,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readGraphML(GraphAttributes &A, Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GraphML format from file \a filename.
-	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
-	 * \sa readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeGraphML(const ClusterGraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) with attributes \a A in GraphML format from file \a filename.
 	/**
@@ -1571,17 +1176,6 @@ public:
 	//! Writes graph \a G in GraphML format to file \a filename.
 	/**
 	 * \sa writeGraphML(const Graph &G, ostream &os) for more details.<br>
-	 *     readGraphML(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGraphML(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in GraphML format to file \a filename.
-	/**
-	 * \sa writeGraphML(const Graph &G, ostream &os) for more details.<br>
 	 *     readGraphML(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -1598,17 +1192,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGraphML(const Graph &G, ostream &os);
-
-	//! Writes clustered graph \a C in GraphML format to file \a filename.
-	/**
-	 * \sa writeGraphML(const ClusterGraph &C, ostream &os) for more details.<br>
-	 *     readGraphML(ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGraphML(const ClusterGraph &C, const char *filename);
 
 	//! Writes clustered graph \a C in GraphML format to file \a filename.
 	/**
@@ -1633,17 +1216,6 @@ public:
 	//! Writes graph with attributes \a A in GraphML format to file \a filename.
 	/**
 	 * \sa writeGraphML(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGraphML(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGraphML(const GraphAttributes &A, const char *filename);
-
-	//! Writes graph with attributes \a A in GraphML format to file \a filename.
-	/**
-	 * \sa writeGraphML(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGraphML(GraphAttributes &A, Graph &G, const string &filename)
 	 *
 	 * @param A        specifies the graph and its attributes to be written.
@@ -1660,17 +1232,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGraphML(const GraphAttributes &A, ostream &os);
-
-	//! Writes with attributes \a A in GraphML format to file \a filename.
-	/**
-	 * \sa writeGraphML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGraphML(const ClusterGraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in GraphML format to file \a filename.
 	/**
@@ -1695,17 +1256,6 @@ public:
 	//! Reads graph \a G in DOT format from file \a filename.
 	/**
 	 * \sa readDOT(Graph &G, istream &is) for more details.<br>
-	 *     writeDOT(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readDOT(Graph &G, const char *filename);
-
-	//! Reads graph \a G in DOT format from file \a filename.
-	/**
-	 * \sa readDOT(Graph &G, istream &is) for more details.<br>
 	 *     writeDOT(const Graph &G, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -1723,19 +1273,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readDOT(Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) in DOT format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
-	 * \sa readDOT(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeDOT(const ClusterGraph &C, const char *filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readDOT(ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) in DOT format from file \a filename.
 	/**
@@ -1766,19 +1303,6 @@ public:
 	/**
 	 * \pre \a G is the graph associated with attributes \a A.
 	 * \sa readDOT(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeDOT(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readDOT(GraphAttributes &A, Graph &G, const char *filename);
-
-	//! Reads graph \a G with attributes \a A in DOT format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readDOT(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeDOT(const GraphAttributes &A, const string &filename)
 	 *
 	 * @param A        is assigned the graph's attributes.
@@ -1799,20 +1323,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readDOT(GraphAttributes &A, Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in DOT format from file \a filename.
-	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
-	 * \sa readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeDOT(const ClusterGraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) with attributes \a A in DOT format from file \a filename.
 	/**
@@ -1844,17 +1354,6 @@ public:
 	//! Writes graph \a G in DOT format to file \a filename.
 	/**
 	 * \sa writeDOT(const Graph &G, ostream &os) for more details.<br>
-	 *     readDOT(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeDOT(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in DOT format to file \a filename.
-	/**
-	 * \sa writeDOT(const Graph &G, ostream &os) for more details.<br>
 	 *     readDOT(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -1871,17 +1370,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeDOT(const Graph &G, ostream &os);
-
-	//! Writes clustered graph \a C in DOT format to file \a filename.
-	/**
-	 * \sa writeDOT(const ClusterGraph &C, ostream &os) for more details.<br>
-	 *     readDOT(ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeDOT(const ClusterGraph &C, const char *filename);
 
 	//! Writes clustered graph \a C in DOT format to file \a filename.
 	/**
@@ -1906,17 +1394,6 @@ public:
 	//! Writes graph with attributes \a A in DOT format to file \a filename.
 	/**
 	 * \sa writeDOT(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readDOT(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeDOT(const GraphAttributes &A, const char *filename);
-
-	//! Writes graph with attributes \a A in DOT format to file \a filename.
-	/**
-	 * \sa writeDOT(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readDOT(GraphAttributes &A, Graph &G, const string &filename)
 	 *
 	 * @param A        specifies the graph and its attributes to be written.
@@ -1933,17 +1410,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeDOT(const GraphAttributes &A, ostream &os);
-
-	//! Writes with attributes \a A in DOT format to file \a filename.
-	/**
-	 * \sa writeDOT(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
-	 *     readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeDOT(const ClusterGraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in DOT format to file \a filename.
 	/**
@@ -1968,17 +1434,6 @@ public:
 	//! Reads graph \a G in GEXF format from file \a filename.
 	/**
 	 * \sa readGEXF(Graph &G, istream &is) for more details.<br>
-	 *     writeGEXF(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGEXF(Graph &G, const char *filename);
-
-	//! Reads graph \a G in GEXF format from file \a filename.
-	/**
-	 * \sa readGEXF(Graph &G, istream &is) for more details.<br>
 	 *     writeGEXF(const Graph &G, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -1996,19 +1451,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readGEXF(Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) in GEXF format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
-	 * \sa readGEXF(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeGEXF(const ClusterGraph &C, const char *filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGEXF(ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) in GEXF format from file \a filename.
 	/**
@@ -2039,19 +1481,6 @@ public:
 	/**
 	 * \pre \a G is the graph associated with attributes \a A.
 	 * \sa readGEXF(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeGEXF(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGEXF(GraphAttributes &A, Graph &G, const char *filename);
-
-	//! Reads graph \a G with attributes \a A in GEXF format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readGEXF(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGEXF(const GraphAttributes &A, const string &filename)
 	 *
 	 * @param A        is assigned the graph's attributes.
@@ -2072,20 +1501,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readGEXF(GraphAttributes &A, Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GEXF format from file \a filename.
-	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
-	 * \sa readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeGEXF(const ClusterGraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) with attributes \a A in GEXF format from file \a filename.
 	/**
@@ -2117,17 +1532,6 @@ public:
 	//! Writes graph \a G in GEXF format to file \a filename.
 	/**
 	 * \sa writeGEXF(const Graph &G, ostream &os) for more details.<br>
-	 *     readGEXF(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGEXF(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in GEXF format to file \a filename.
-	/**
-	 * \sa writeGEXF(const Graph &G, ostream &os) for more details.<br>
 	 *     readGEXF(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -2144,17 +1548,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGEXF(const Graph &G, ostream &os);
-
-	//! Writes clustered graph \a C in GEXF format to file \a filename.
-	/**
-	 * \sa writeGEXF(const ClusterGraph &C, ostream &os) for more details.<br>
-	 *     readGEXF(ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGEXF(const ClusterGraph &C, const char *filename);
 
 	//! Writes clustered graph \a C in GEXF format to file \a filename.
 	/**
@@ -2179,17 +1572,6 @@ public:
 	//! Writes graph with attributes \a A in GEXF format to file \a filename.
 	/**
 	 * \sa writeGEXF(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGEXF(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGEXF(const GraphAttributes &A, const char *filename);
-
-	//! Writes graph with attributes \a A in GEXF format to file \a filename.
-	/**
-	 * \sa writeGEXF(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGEXF(GraphAttributes &A, Graph &G, const string &filename)
 	 *
 	 * @param A        specifies the graph and its attributes to be written.
@@ -2206,17 +1588,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGEXF(const GraphAttributes &A, ostream &os);
-
-	//! Writes with attributes \a A in GEXF format to file \a filename.
-	/**
-	 * \sa writeGEXF(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGEXF(const ClusterGraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in GEXF format to file \a filename.
 	/**
@@ -2241,17 +1612,6 @@ public:
 	//! Reads graph \a G in GDF format from file \a filename.
 	/**
 	 * \sa readGDF(Graph &G, istream &is) for more details.<br>
-	 *     writeGDF(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGDF(Graph &G, const char *filename);
-
-	//! Reads graph \a G in GDF format from file \a filename.
-	/**
-	 * \sa readGDF(Graph &G, istream &is) for more details.<br>
 	 *     writeGDF(const Graph &G, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -2269,19 +1629,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readGDF(Graph &G, istream &is);
-
-	//! Reads graph \a G with attributes \a A in GDF format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readGDF(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeGDF(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readGDF(GraphAttributes &A, Graph &G, const char *filename);
 
 	//! Reads graph \a G with attributes \a A in GDF format from file \a filename.
 	/**
@@ -2311,17 +1658,6 @@ public:
 	//! Writes graph \a G in GDF format to file \a filename.
 	/**
 	 * \sa writeGDF(const Graph &G, ostream &os) for more details.<br>
-	 *     readGDF(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGDF(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in GDF format to file \a filename.
-	/**
-	 * \sa writeGDF(const Graph &G, ostream &os) for more details.<br>
 	 *     readGDF(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -2338,17 +1674,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeGDF(const Graph &G, ostream &os);
-
-	//! Writes graph with attributes \a A in GDF format to file \a filename.
-	/**
-	 * \sa writeGDF(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readGDF(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeGDF(const GraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in GDF format to file \a filename.
 	/**
@@ -2373,17 +1698,6 @@ public:
 	//! Reads graph \a G in TLP format from file \a filename.
 	/**
 	 * \sa readTLP(Graph &G, istream &is) for more details.<br>
-	 *     writeTLP(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readTLP(Graph &G, const char *filename);
-
-	//! Reads graph \a G in TLP format from file \a filename.
-	/**
-	 * \sa readTLP(Graph &G, istream &is) for more details.<br>
 	 *     writeTLP(const Graph &G, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -2401,19 +1715,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readTLP(Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) in TLP format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
-	 * \sa readTLP(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeTLP(const ClusterGraph &C, const char *filename)
-	 *
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readTLP(ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) in TLP format from file \a filename.
 	/**
@@ -2444,19 +1745,6 @@ public:
 	/**
 	 * \pre \a G is the graph associated with attributes \a A.
 	 * \sa readTLP(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeTLP(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readTLP(GraphAttributes &A, Graph &G, const char *filename);
-
-	//! Reads graph \a G with attributes \a A in TLP format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readTLP(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeTLP(const GraphAttributes &A, const string &filename)
 	 *
 	 * @param A        is assigned the graph's attributes.
@@ -2477,20 +1765,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readTLP(GraphAttributes &A, Graph &G, istream &is);
-
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in TLP format from file \a filename.
-	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
-	 * \sa readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
-	 *     writeTLP(const ClusterGraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param C        is assigned the read clustered graph (cluster structure).
-	 * @param G        is assigned the read clustered graph (graph structure).
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename);
 
 	//! Reads clustered graph (\a C, \a G) with attributes \a A in TLP format from file \a filename.
 	/**
@@ -2519,18 +1793,6 @@ public:
 	 */
 	static bool readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-
-	//! Writes graph \a G in TLP format to file \a filename.
-	/**
-	 * \sa writeTLP(const Graph &G, ostream &os) for more details.<br>
-	 *     readTLP(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeTLP(const Graph &G, const char *filename);
-
 	//! Writes graph \a G in TLP format to file \a filename.
 	/**
 	 * \sa writeTLP(const Graph &G, ostream &os) for more details.<br>
@@ -2550,17 +1812,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeTLP(const Graph &G, ostream &os);
-
-	//! Writes clustered graph \a C in TLP format to file \a filename.
-	/**
-	 * \sa writeTLP(const ClusterGraph &C, ostream &os) for more details.<br>
-	 *     readTLP(ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param C        is the clustered graph to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeTLP(const ClusterGraph &C, const char *filename);
 
 	//! Writes clustered graph \a C in TLP format to file \a filename.
 	/**
@@ -2585,17 +1836,6 @@ public:
 	//! Writes graph with attributes \a A in TLP format to file \a filename.
 	/**
 	 * \sa writeTLP(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readTLP(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeTLP(const GraphAttributes &A, const char *filename);
-
-	//! Writes graph with attributes \a A in TLP format to file \a filename.
-	/**
-	 * \sa writeTLP(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readTLP(GraphAttributes &A, Graph &G, const string &filename)
 	 *
 	 * @param A        specifies the graph and its attributes to be written.
@@ -2612,17 +1852,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeTLP(const GraphAttributes &A, ostream &os);
-
-	//! Writes with attributes \a A in TLP format to file \a filename.
-	/**
-	 * \sa writeTLP(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
-	 *     readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the clustered graph and its attributes to be written.
-	 * @param filename is the name of the file to which the clustered graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeTLP(const ClusterGraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in TLP format to file \a filename.
 	/**
@@ -2647,17 +1876,6 @@ public:
 	//! Reads graph \a G in DL format from file \a filename.
 	/**
 	 * \sa readDL(Graph &G, istream &is) for more details.<br>
-	 *     writeDL(const Graph &G, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readDL(Graph &G, const char *filename);
-
-	//! Reads graph \a G in DL format from file \a filename.
-	/**
-	 * \sa readDL(Graph &G, istream &is) for more details.<br>
 	 *     writeDL(const Graph &G, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -2675,19 +1893,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool readDL(Graph &G, istream &is);
-
-	//! Reads graph \a G with attributes \a A in DL format from file \a filename.
-	/**
-	 * \pre \a G is the graph associated with attributes \a A.
-	 * \sa readDL(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
-	 *     writeDL(const GraphAttributes &A, const char *filename)
-	 *
-	 * @param A        is assigned the graph's attributes.
-	 * @param G        is assigned the read graph.
-	 * @param filename is the name of the file to be read.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool readDL(GraphAttributes &A, Graph &G, const char *filename);
 
 	//! Reads graph \a G with attributes \a A in DL format from file \a filename.
 	/**
@@ -2717,17 +1922,6 @@ public:
 	//! Writes graph \a G in DL format to file \a filename.
 	/**
 	 * \sa writeDL(const Graph &G, ostream &os) for more details.<br>
-	 *     readDL(Graph &G, const char *filename)
-	 *
-	 * @param G        is the graph to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeDL(const Graph &G, const char *filename);
-
-	//! Writes graph \a G in DL format to file \a filename.
-	/**
-	 * \sa writeDL(const Graph &G, ostream &os) for more details.<br>
 	 *     readDL(Graph &G, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
@@ -2744,17 +1938,6 @@ public:
 	 * @return true if successful, false otherwise.
 	 */
 	static bool writeDL(const Graph &G, ostream &os);
-
-	//! Writes graph with attributes \a A in DL format to file \a filename.
-	/**
-	 * \sa writeDL(const GraphAttributes &A, ostream &os) for more details.<br>
-	 *     readDL(GraphAttributes &A, Graph &G, const char *filename)
-	 *
-	 * @param A        specifies the graph and its attributes to be written.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * @return true if successful, false otherwise.
-	 */
-	static bool writeDL(const GraphAttributes &A, const char *filename);
 
 	//! Writes graph with attributes \a A in DL format to file \a filename.
 	/**
@@ -2802,30 +1985,7 @@ public:
 		NodeArray<bool>      &isTerminal,
 		const string         &filename)
 	{
-		return readSTP(wG, terminals, isTerminal, filename.c_str());
-	}
-
-
-	/**
-	 * Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
-	 * \warning The coordinate section of the SteinLib instance is not read!
-	 *
-	 * @param wG the edge weighteed graph
-	 * @param terminals will contain a list of all terminals in the graph
-	 * @param isTerminal maps whether each node is a terminal or a Steiner node
-	 * @param filename the name of the file to be read
-	 *
-	 * @return true if the STP was read successfully, false otherwise
-	 */
-	template<typename T>
-	static bool readSTP(
-		EdgeWeightedGraph<T> &wG,
-		List<node>           &terminals,
-		NodeArray<bool>      &isTerminal,
-		const char           *filename)
-	{
 		ifstream is(filename);
-		if(!is.is_open()) return false;
 		return readSTP(wG, terminals, isTerminal, is);
 	}
 
@@ -2875,13 +2035,13 @@ public:
 		for (int i = 0; i < 6; ++i) {
 			is >> buffer;
 			if (!is.good() || !equalIgnoreCase(buffer, firstline[i])) {
-				OGDF_ERROR("Could not parse first line.");
+				logger.lout() << "Could not parse first line." << endl;
 				return false;
 			}
 		}
 		is >> version;
 		if (!is.good() || version != 1.0) {
-			OGDF_ERROR("Encountered unknwon STP format version.");
+			logger.lout() << "Encountered unknwon STP format version." << endl;
 			return false;
 		}
 
@@ -2909,7 +2069,7 @@ public:
 					else
 					if (equalIgnoreCase(what, "Graph")) {
 						if (wG.numberOfNodes() != 0) {
-							OGDF_WARNING("Encountered duplicate graph section.");
+							logger.lout(Logger::LL_MINOR) << "Encountered duplicate graph section.";
 							section = SECTION_IGNORE;
 						} else {
 							section = SECTION_GRAPH;
@@ -2918,7 +2078,7 @@ public:
 					else
 					if (equalIgnoreCase(what, "Terminals")) {
 						if (!terminals.empty()) {
-							OGDF_WARNING("Encountered duplicate terminal section.");
+							logger.lout(Logger::LL_MINOR) << "Encountered duplicate terminal section.";
 							section = SECTION_IGNORE;
 						} else {
 							section = SECTION_TERMINALS;
@@ -2938,12 +2098,13 @@ public:
 				}
 				else
 				if (equalIgnoreCase(buffer, "EOF")) {
-					OGDF_WARNING_IF(
-					  expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size(),
-					  "Invalid number of terminals. Was " << terminals.size() << " but expected " << expectedNumberOfTerminals << ".");
-					OGDF_WARNING_IF(
-					  expectedNumberOfEdges != -1 && expectedNumberOfEdges != wG.numberOfEdges(),
-					  "Invalid number of edges. Was " << wG.numberOfEdges() << " but expected " << expectedNumberOfEdges << ".");
+					if(expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size()) {
+						logger.lout(Logger::LL_MINOR) << "Invalid number of terminals. Was " << terminals.size() << " but expected " << expectedNumberOfTerminals << "." << endl;
+					}
+
+					if(expectedNumberOfEdges != -1 && expectedNumberOfEdges != wG.numberOfEdges()) {
+						logger.lout(Logger::LL_MINOR) <<  "Invalid number of edges. Was " << wG.numberOfEdges() << " but expected " << expectedNumberOfEdges << "." << endl;
+					}
 					return true;
 				}
 				break;
@@ -2958,7 +2119,7 @@ public:
 					int n = -1;
 					iss >> n;
 					if (n < 0) {
-						OGDF_ERROR("Invalid number of nodes specified: " << n);
+						logger.lout() << "Invalid number of nodes specified: " << n << endl;
 						return false;
 					}
 
@@ -2977,12 +2138,12 @@ public:
 					if (source <= 0 || source > wG.numberOfNodes()
 					 || target <= 0 || target > wG.numberOfNodes()
 					 || weight < 0) {
-						OGDF_ERROR("Invalid edge given: " << source << "->" << target << "(weight: " << weight << ")");
+						logger.lout() << "Invalid edge given: " << source << "->" << target << "(weight: " << weight << ")" << endl;
 						return false;
 					}
 					wG.newEdge(indexToNode[source], indexToNode[target], weight);
 				} else {
-					OGDF_WARNING("Invalid edge key encountered: " << key);
+					logger.lout(Logger::LL_MINOR) << "Invalid edge key encountered: " << key << endl;
 				}
 				break;
 
@@ -2993,18 +2154,18 @@ public:
 					int v = -1;
 					iss >> v;
 					if (v <= 0 || v > wG.numberOfNodes()) {
-						OGDF_ERROR("Invalid terminal encountered: " << v);
+						logger.lout() << "Invalid terminal encountered: " << v << endl;
 						return false;
 					}
 					terminals.pushBack(indexToNode[v]);
 					isTerminal[indexToNode[v]] = true;
 				} else if(!equalIgnoreCase(key, "Root")) {
-					OGDF_WARNING("Invalid terminal key encountered: " << key);
+					logger.lout(Logger::LL_MINOR) << "Invalid terminal key encountered: " << key << endl;
 				}
 				break;
 			}
 		}
-		OGDF_ERROR("Unexpected end of file.");
+		logger.lout() << "Unexpected end of file." << endl;
 		return false;
 	}
 
@@ -3023,32 +2184,11 @@ public:
 	static bool writeSTP(
 		const EdgeWeightedGraph<T> &wG,
 		const List<node>           &terminals,
-		const string         &filename,
-		const string         &comments = "")
+		const string               &filename,
+		const string               &comments = "")
 	{
-		return writeSTP(wG, terminals, filename.c_str(), comments);
-	}
-
-	/**
-	 * Writes an Steiner problem instance to an STP file.
-	 *
-	 * @param wG the edge weighteed graph
-	 * @param terminals a list of all terminals in the graph
-	 * @param filename the file to be written to
-	 * @param comments a string containing all comments seperated by LF
-	 *   if this is an empty string no comment section will be created
-	 *
-	 * @return true if the write operation succeeded, false otherwise
-	 */
-	template<typename T>
-	static bool writeSTP(
-		const EdgeWeightedGraph<T> &wG,
-		const List<node>           &terminals,
-		const char           *filename,
-		const string         &comments = "")
-	{
-		ofstream is(filename);
-		return writeSTP(wG, terminals, is, comments);
+		ifstream os(filename);
+		return writeSTP(wG, terminals, os, comments);
 	}
 
 	/**
@@ -3066,8 +2206,8 @@ public:
 	static bool writeSTP(
 		const EdgeWeightedGraph<T> &wG,
 		const List<node>           &terminals,
-		ostream              &os,
-		const string         &comments = "")
+		ostream                    &os,
+		const string               &comments = "")
 	{
 		if(!os.good()) return false;
 
@@ -3122,26 +2262,8 @@ public:
 			node &source,
 			node &sink,
 			const string &filename) {
-		return readDMF(graph, source, sink, filename.c_str());
-	}
-
-	/**
-	 * Reads a maximum flow instance in DIMACS format.
-	 *
-	 * @param graph will contain the parsed graph
-	 * @param source will contain the flow source
-	 * @param sink will contain the flow sink
-	 * @param filename name of the file to be read
-	 * @return \c true iff the instances was parsed successfully
-	 */
-	template<typename T>
-	static bool readDMF(
-			EdgeWeightedGraph<T> &graph,
-			node &source,
-			node &sink,
-			const char* filename) {
 		ifstream is(filename);
-		return is.is_open() && readDMF(graph, source, sink, is);
+		return readDMF(graph, source, sink, is);
 	}
 
 	/**
@@ -3178,14 +2300,14 @@ public:
 				if(buffer[0] == 'p') {
 					// problem definition section
 					if(!graph.empty()) {
-						OGDF_ERROR("Ambigious problem definition encountered.");
+						logger.lout() << "Ambigious problem definition encountered." << endl;
 						return false;
 					}
 
 					string problemType = "";
 					iss >> problemType;
 					if(problemType.compare("max")) {
-						OGDF_ERROR("Invalid problem type encountered: " << problemType);
+						logger.lout() << "Invalid problem type encountered: " << problemType << endl;
 						return false;
 					}
 
@@ -3193,12 +2315,12 @@ public:
 					iss >> numberOfNodes >> expectedNumberOfEdges;
 
 					if(numberOfNodes < 2) {
-						OGDF_ERROR("The given number of nodes is invalid (at least two).");
+						logger.lout() << "The given number of nodes is invalid (at least two)." << endl;
 						return false;
 					}
 
 					if(expectedNumberOfEdges < 0) {
-						OGDF_ERROR("The given number of edges is invalid.");
+						logger.lout() << "The given number of edges is invalid." << endl;
 						return false;
 					}
 
@@ -3213,25 +2335,25 @@ public:
 					iss >> nodeIndex >> nodeType;
 
 					if (nodeIndex < 1 || nodeIndex > nodes.size()) {
-						OGDF_ERROR("Invalid node index supplied: " << nodeIndex);
+						logger.lout() << "Invalid node index supplied: " << nodeIndex << endl;
 						return false;
 					}
 
 					node w = *nodes.get(nodeIndex - 1);
 					if (!nodeType.compare("t")) {
 						if(sink != nullptr) {
-							OGDF_ERROR("Duplicate sink encountered: " << nodeType);
+							logger.lout() << "Duplicate sink encountered: " << nodeType << endl;
 							return false;
 						}
 						sink = w;
 					} else if (!nodeType.compare("s")) {
 						if(source != nullptr) {
-							OGDF_ERROR("Duplicate source encountered: " << nodeType);
+							logger.lout() << "Duplicate source encountered: " << nodeType << endl;
 							return false;
 						}
 						source = w;
 					} else {
-						OGDF_ERROR("Malformed node type encountered: " << nodeType);
+						logger.lout() << "Malformed node type encountered: " << nodeType << endl;
 						return false;
 					}
 
@@ -3244,52 +2366,52 @@ public:
 					iss >> sourceIndex >> targetIndex >> cap;
 
 					if (sourceIndex < 1 || sourceIndex > nodes.size()) {
-						OGDF_ERROR("Invalid node index supplied: " << sourceIndex);
+						logger.lout() << "Invalid node index supplied: " << sourceIndex << endl;
 						return false;
 					}
 					node source = *nodes.get(sourceIndex - 1);
 
 					if (targetIndex < 1 || targetIndex > nodes.size()) {
-						OGDF_ERROR("Invalid node index supplied: " << targetIndex);
+						logger.lout() << "Invalid node index supplied: " << targetIndex << endl;
 						return false;
 					}
 					node target = *nodes.get(targetIndex - 1);
 
 					if(cap < 0) {
-						OGDF_ERROR("Negative capacity supplied: " << targetIndex);
+						logger.lout() << "Negative capacity supplied: " << targetIndex << endl;
 						return false;
 					}
 
 					graph.newEdge(source, target, cap);
 				} else {
-					OGDF_ERROR("Encountered invalid line: " << buffer);
+					logger.lout() << "Encountered invalid line: " << buffer << endl;
 					return false;
 				}
 			}
 		}
 
 		if (graph.empty()) {
-			OGDF_ERROR("Missing problem definition.");
+			logger.lout() << "Missing problem definition." << endl;
 			return false;
 		}
 
 		if (source == nullptr) {
-			OGDF_ERROR("Missing source node.");
+			logger.lout() << "Missing source node." << endl;
 			return false;
 		}
 
 		if(sink == nullptr) {
-			OGDF_ERROR("Missing sink node.");
+			logger.lout() << "Missing sink node." << endl;
 			return false;
 		}
 
 		if(sink == source) {
-			OGDF_ERROR("Source must be different from sink.");
+			logger.lout() << "Source must be different from sink." << endl;
 			return false;
 		}
 
 		if(expectedNumberOfEdges != graph.numberOfEdges()) {
-			OGDF_ERROR("Invalid number of edges: expected " << expectedNumberOfEdges << " but was " << graph.numberOfEdges());
+			logger.lout() << "Invalid number of edges: expected " << expectedNumberOfEdges << " but was " << graph.numberOfEdges() << endl;
 			return false;
 		}
 
@@ -3313,28 +2435,8 @@ public:
 			const node sink,
 			const string &filename)
 	{
-		return writeDMF(graph, source, sink, filename.c_str());
-	}
-
-	/**
-	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
-	 *
-	 * @param graph edge weighted graph to be written
-	 * @param source source of the maximum flow
-	 * @param sink sink of the maximum flow
-	 * @param filename name of the file to be written to
-	 *
-	 * @return \c true if the write operation succeeded, false otherwise
-	 */
-	template<typename T>
-	static bool writeDMF(
-			const EdgeWeightedGraph<T> &graph,
-			const node source,
-			const node sink,
-			const char *filename)
-	{
-		ofstream is(filename);
-		return writeDMF(graph, source, sink, is);
+		ofstream os(filename);
+		return writeDMF(graph, source, sink, os);
 	}
 
 	/**
@@ -3384,17 +2486,6 @@ public:
 
 	//! Reads graph \a G with subgraph defined by \a delEdges from file \a filename.
 	/**
-	 * \sa writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const char *filename)
-	 *
-	 * @param G        is assigned the read graph.
-	 * @param delEdges is assigned the edges of the subgraph.
-	 * @param filename is the name of the file to be read.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const char *filename);
-
-	//! Reads graph \a G with subgraph defined by \a delEdges from file \a filename.
-	/**
 	 * \sa writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -3414,17 +2505,6 @@ public:
 	 * \return true if successful, false otherwise.
 	 */
 	static bool readEdgeListSubgraph(Graph &G, List<edge> &delEdges, istream &is);
-
-	//! Writes graph \a G with subgraph defined by \a delEdges to file \a filename.
-	/**
-	 * \sa readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const char *filename)
-	 *
-	 * @param G is the graph to be written.
-	 * @param delEdges specifies the edges of the subgraph to be stored.
-	 * @param filename is the name of the file to which the graph will be written.
-	 * \return true if successful, false otherwise.
-	 */
-	static bool writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const char *filename);
 
 	//! Writes graph \a G with subgraph defined by \a delEdges to file \a filename.
 	/**
@@ -3456,11 +2536,9 @@ public:
 	 */
 	//@{
 
-	static bool drawSVG(const GraphAttributes &A, const char *filename, const SVGSettings &settings = svgSettings);
 	static bool drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings = svgSettings);
 	static bool drawSVG(const GraphAttributes &A, ostream &os, const SVGSettings &settings = svgSettings);
 
-	static bool drawSVG(const ClusterGraphAttributes &A, const char *filename, const SVGSettings &settings = svgSettings);
 	static bool drawSVG(const ClusterGraphAttributes &A, const string &filename, const SVGSettings &settings = svgSettings);
 	static bool drawSVG(const ClusterGraphAttributes &A, ostream &os, const SVGSettings &settings = svgSettings);
 
@@ -3479,7 +2557,7 @@ public:
 	//! Returns the currently used indentation width.
 	static int indentWidth() { return s_indentWidth; }
 
-	//! Sets the indentation character to \ c.
+	//! Sets the indentation character to \a c.
 	/**
 	 * \pre \a c must be a white-space character (e.g., a space or a tab).
 	 */
@@ -3500,7 +2578,23 @@ public:
 	//! Prints indentation for indentation \a depth to output stream \a os and returns \a os.
 	static ostream &indent(ostream &os, int depth);
 
-	//@}
+	//! @}
+	//! @name Other utility functions
+	//! @{
+
+	//! Set a color value (R/G/B/A) based on an integer.
+	//! Checks if the value is in the right range.
+	static bool setColorValue(int value, std::function<void(uint8_t)> setFunction)
+	{
+		if (value < 0 || value > 255) {
+			GraphIO::logger.lout() << "Error: color value is not between 0 and 255." << endl;
+			return false;
+		}
+		setFunction(static_cast<uint8_t>(value));
+		return true;
+	}
+
+	//! @}
 
 
 	static SVGSettings svgSettings;
@@ -3512,6 +2606,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

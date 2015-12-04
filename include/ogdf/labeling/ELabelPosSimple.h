@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_E_LABEL_POS_SIMPLE_H
-#define OGDF_E_LABEL_POS_SIMPLE_H
 
 #include <ogdf/labeling/ELabelInterface.h>
 
@@ -69,5 +62,3 @@ private:
 
 
 }
-
-#endif

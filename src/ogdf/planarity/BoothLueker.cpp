@@ -212,7 +212,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 				for(node v : C.nodes)
 				{
 					node w = backTableNodes[v];
-					for(adjEntry a : v->adjEdges)
+					for(adjEntry a : v->adjEntries)
 					{
 						edge e = backTableEdges[a->theEdge()];
 						adjEntry adj = (e->adjSource()->theNode() == w)?
@@ -256,9 +256,8 @@ bool BoothLueker::doTest(Graph &G,NodeArray<int> &numbering)
 
 	for(node v : G.nodes)
 	{
-		edge e;
-		forall_adj_edges(e,v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (numbering[e->opposite(v)] > numbering[v])
 				//sideeffect: loops are ignored
 			{
@@ -332,9 +331,8 @@ bool BoothLueker::doEmbed(
 
 	for(node v : G.nodes)
 	{
-		edge e;
-		forall_adj_edges(e,v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (numbering[e->opposite(v)] > numbering[v])
 			{
 				PlanarLeafKey<IndInfo*>* L = OGDF_NEW PlanarLeafKey<IndInfo*>(e);

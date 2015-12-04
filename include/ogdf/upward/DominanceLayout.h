@@ -36,15 +36,7 @@
 // Dominance Drawing Method. see "Graph Drawing" by Di Battista et al.
 //***
 
-
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DOMINANCE_LAYOUT_H
-#define OGDF_DOMINANCE_LAYOUT_H
-
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/ModuleOption.h>
@@ -84,7 +76,7 @@ public:
 
 private:
 
-	double m_angle; //rotate angle to obtain an upward drawing; default is 45°
+	double m_angle; //rotate angle to obtain an upward drawing; default is 45Â°
 
 	NodeArray<edge> firstout;
 	NodeArray<edge> lastout;
@@ -124,5 +116,3 @@ private:
 
 
 }//namespace
-
-#endif

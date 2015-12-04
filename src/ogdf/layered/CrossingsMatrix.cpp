@@ -115,16 +115,16 @@ void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 		for (int i = 0; i < L.size(); i++)
 		{
 			node v = L[i];
-			edge e;
 			// H.direction == 1 if direction == upward
 			if (levels.direction()) {
-				forall_adj_edges(e,v) {
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					if ((e->source() == v) && ((*edgeSubGraphs)[GC.original(e)] & (1 << k))) {
 						int pos_adj_e = levels.pos(e->target());
 						for (int j = i+1; j < L.size(); j++) {
 							node w = L[j];
-							edge f;
-							forall_adj_edges(f,w) {
+							for(adjEntry adj : w->adjEntries) {
+								edge f = adj->theEdge();
 								if ((f->source() == w) && ((*edgeSubGraphs)[GC.original(f)] & (1 << k)))
 								{
 									int pos_adj_f = levels.pos(f->target());
@@ -137,13 +137,14 @@ void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 				}
 			}
 			else {
-				forall_adj_edges(e,v) {
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					if ((e->target() == v) && ((*edgeSubGraphs)[GC.original(e)] & (1 << k))) {
 						int pos_adj_e = levels.pos(e->source());
 						for (int j = i+1; j < L.size(); j++) {
 							node w = L[j];
-							edge f;
-							forall_adj_edges(f,w) {
+							for(adjEntry adj : w->adjEntries) {
+								edge f = adj->theEdge();
 								if ((f->target() == w) && ((*edgeSubGraphs)[GC.original(f)] & (1 << k)))
 								{
 									int pos_adj_f = levels.pos(f->source());

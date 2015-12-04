@@ -32,35 +32,27 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EDGE_ATTRIBUTES_H
-#define OGDF_EDGE_ATTRIBUTES_H
 
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/Graph.h>
 
 namespace ogdf {
+namespace energybased {
 
-
+//! helping data structure that stores the graphical attributes of an edge
+//! that are needed for the force-directed  algorithms.
 class OGDF_EXPORT EdgeAttributes
 {
-	//helping data structure that stores the graphical attributes of an edge
-	//that are needed for the force-directed  algorithms.
-
-	//outputstream for EdgeAttributes
+	//! outputstream for EdgeAttributes
 	friend ostream &operator<< (ostream &,const EdgeAttributes &);
 
-	//inputstream for EdgeAttributes
+	//! inputstream for EdgeAttributes
 	friend istream &operator>> (istream &,EdgeAttributes &);
 
 public:
-
-	EdgeAttributes();       //constructor
-	~EdgeAttributes() { }   //destructor
+	EdgeAttributes();       //!< constructor
+	~EdgeAttributes() { }   //!< destructor
 
 	void set_EdgeAttributes(double l, edge e_orig, edge e_sub)
 	{
@@ -72,20 +64,21 @@ public:
 	void set_length(double l) { length = l; }
 	double get_length() const { return length; }
 
-
-	//needed for the divide et impera step in FMMM
+	//! \name for the divide et impera step in FMMM @{
 
 	void set_original_edge (edge e) { e_original = e; }
 	void set_subgraph_edge (edge e) { e_subgraph = e; }
 	edge get_original_edge() const { return e_original; }
 	edge get_subgraph_edge() const { return e_subgraph; }
 
-	//needed for the preprocessing step in FMMM (set/get_original_edge are needed, too)
+	//! @}
+	//! \name for the preprocessing step in FMMM (set/get_original_edge are needed, too) @{
 
 	void set_copy_edge (edge e) {e_subgraph = e;}
 	edge get_copy_edge() const {return e_subgraph;}
 
-	//needed for multilevel step
+	//! @}
+	//! \name for multilevel step @{
 
 	void set_higher_level_edge (edge e) { e_subgraph = e; }
 	edge get_higher_level_edge() const { return e_subgraph; }
@@ -96,15 +89,20 @@ public:
 	void mark_as_normal_edge() { extra_edge = false; }
 	void init_mult_values() { e_subgraph = nullptr; moon_edge = false; }
 
+	//! @}
+
 private:
 	double length;
 	edge e_original;
 	edge e_subgraph;
-	bool moon_edge; //indicates if this edge is associasted with a moon node
-	bool extra_edge;//indicates if this edge is an extra edge that is added to
-	//enforce few edge crossings
+
+	//! indicates if this edge is associasted with a moon node
+	bool moon_edge;
+
+	//! indicates if this edge is an extra edge that is added to
+	//! enforce few edge crossings
+	bool extra_edge;
 };
 
-}//namespace ogdf
-#endif
-
+}
+}

@@ -361,7 +361,7 @@ void CPlanarityMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	visited.fill(false);
 	visited[u] = true;
 	int nodesVisited = 1;
-	for(adjEntry adj : u->adjEdges) {
+	for(adjEntry adj : u->adjEntries) {
 		visited[adj->twinNode()] = true;
 		nodesVisited++;
 		dist[u][adj->twinNode()] += 1;
@@ -370,7 +370,7 @@ void CPlanarityMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
 		node v = queue.front();
 		queue.popFront();
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (!visited[adj->twinNode()]) {
 				visited[adj->twinNode()] = true;
 				nodesVisited++;
@@ -527,11 +527,9 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 	OGDF_ASSERT(!oaNodes.empty()); //May never be empty here
 	for(node oav : oaNodes)
 	{
-		edge e;
 		//Check for edges that lead to external vertices.
-		forall_adj_edges(e,oav)
-		{
-			node w = e->opposite(oav);
+		for(adjEntry adj : oav->adjEntries) {
+			node w = adj->twinNode();
 			if (mark[w] == 0)
 			{   // A vertex that we haven't seen yet. Traverse its CC in complement(c)
 				// We maintain two lists (could reduce this to a single one...), one
@@ -553,9 +551,9 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 				}
 				while (!queue.empty()) {
 					w = queue.popFrontRet();
-					forall_adj_edges(e,w)
-					{
-						node u = e->opposite(w);
+
+					for(adjEntry adj : w->adjEntries) {
+						node u = adj->twinNode();
 						if (mark[u] == 0) {
 							// A new member of our current satchel run
 							mark[u] = 2;
@@ -1136,12 +1134,11 @@ void CPlanarityMaster::terminateOptimization() {
 	}
 	Logger::ssout() << ">\n";
 
-	edge e;
 	for(node n : m_G->nodes) {
 		for(node m : m_G->nodes) {
 			if(m->index()<=n->index()) continue;
-			forall_adj_edges(e, n) {
-				if(e->opposite(n)==m) {
+			for(adjEntry adj : n->adjEntries) {
+				if(adj->twinNode()==m) {
 #ifdef OGDF_DEBUG
 					Logger::slout() << "ORIG: " << n << "-" << m << "\n";
 #endif
@@ -1153,8 +1150,8 @@ void CPlanarityMaster::terminateOptimization() {
 	for (node n : m_G->nodes) {
 		for (node m : m_G->nodes) {
 			if (m->index() <= n->index()) continue;
-			forall_adj_edges(e, n) {
-				if (e->opposite(n) == m) {
+			for(adjEntry adj : n->adjEntries) {
+				if (adj->twinNode() == m) {
 					goto wup;
 				}
 			}

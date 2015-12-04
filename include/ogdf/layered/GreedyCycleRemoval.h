@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GREEDY_CYCLE_REMOVAL_H
-#define OGDF_GREEDY_CYCLE_REMOVAL_H
-
-
 
 #include <ogdf/module/AcyclicSubgraphModule.h>
 #include <ogdf/basic/NodeArray.h>
@@ -74,6 +66,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

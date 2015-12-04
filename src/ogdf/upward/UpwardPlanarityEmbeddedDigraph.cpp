@@ -61,7 +61,7 @@ void UpwardPlanarityEmbeddedDigraph::getPath(Stack<node> &st, EdgeArray<int> &ca
 	st.push(u);
 	while (!st.empty() && u != m_t) {
 		u = st.pop();
-		for (adjEntry adj : u->adjEdges) {
+		for (adjEntry adj : u->adjEntries) {
 			if (adj->theEdge()->target() == u) continue;
 			node x = adj->twinNode();
 			edge e = adj->theEdge();
@@ -83,7 +83,7 @@ int UpwardPlanarityEmbeddedDigraph::getMin(Stack<node> stack, EdgeArray<int> &ca
 		if (stack.empty()) break;
 		node v = stack.top();
 		adjEntry adj_u = nullptr;
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->target() == u) {
 				adj_u = adj;
 				break;
@@ -106,7 +106,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 		bool check = true;
 		node u = e->source();
 		node v = e->target();
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->target() == u) {
 				check = false;
 				edge k = adj->theEdge();
@@ -137,7 +137,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 			if (stack.empty()) break;
 			node v = stack.top();
 			adjEntry adj_u = nullptr;
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if (adj->theEdge()->target() == u) {
 					adj_u = adj;
 					break;
@@ -149,7 +149,7 @@ bool UpwardPlanarityEmbeddedDigraph::isFlow(EdgeArray<int> &capacity, EdgeArray<
 		}
 
 		int currentFlow = 0;
-		for (adjEntry adj : m_s->adjEdges) {
+		for (adjEntry adj : m_s->adjEntries) {
 			//calculate the current flow in B
 			if (adj->theEdge()->target() == m_s) continue;
 			edge k = adj->theEdge();

@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DOT_PARSER_H
-#define OGDF_DOT_PARSER_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -58,8 +53,6 @@ namespace ogdf {
 
 namespace dot {
 
-
-class Ast;
 class Parser;
 struct SubgraphData;
 
@@ -481,6 +474,3 @@ struct SubgraphData {
 } // end namespace dot
 
 } // end namespace ogdf
-
-
-#endif

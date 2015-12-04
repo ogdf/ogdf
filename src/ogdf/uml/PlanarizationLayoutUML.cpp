@@ -127,7 +127,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 			GA.x(vG) = drawing.x(pr.copy(vG));
 			GA.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEdges) {
+			for(adjEntry adj : vG->adjEntries) {
 				if ((adj->index() & 1) == 0)
 					continue;
 				edge eG = adj->theEdge();
@@ -272,7 +272,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 			umlGraph.x(vG) = drawing.x(pr.copy(vG));
 			umlGraph.y(vG) = drawing.y(pr.copy(vG));
 
-			for(adjEntry adj : vG->adjEdges) {
+			for(adjEntry adj : vG->adjEntries) {
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
 
@@ -384,7 +384,7 @@ face PlanarizationLayoutUML::findBestExternalFace(
 			continue;
 
 		adjEntry adjOut = nullptr;
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->source() == v) {
 				adjOut = adj;
 				break;
@@ -396,7 +396,7 @@ face PlanarizationLayoutUML::findBestExternalFace(
 		node w = adjOut->theEdge()->target();
 		bool isBase = true;
 
-		for(adjEntry adj2 : w->adjEdges) {
+		for(adjEntry adj2 : w->adjEntries) {
 			edge e = adj2->theEdge();
 			if(e->target() != w && PG.typeOf(e) == Graph::generalization) {
 				isBase = false;
@@ -447,7 +447,7 @@ void PlanarizationLayoutUML::arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<
 			GA.x(v) += dx;
 			GA.y(v) += dy;
 
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if ((adj->index() & 1) == 0) continue;
 				edge e = adj->theEdge();
 
@@ -614,7 +614,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 			umlGraph.x(vG) = drawing.x(PG.copy(vG));
 			umlGraph.y(vG) = drawing.y(PG.copy(vG));
 
-			for(adjEntry adj : vG->adjEdges)
+			for(adjEntry adj : vG->adjEntries)
 			{
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
@@ -665,7 +665,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 				}
 				else //currently all nodes are expanded, but this is not guaranteed
 				{
-					for(adjEntry adjMerger : vMerger->adjEdges)
+					for(adjEntry adjMerger : vMerger->adjEntries)
 					{
 						if (adjMerger->theEdge()->target() == vMerger)
 						{

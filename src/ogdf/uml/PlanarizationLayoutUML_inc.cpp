@@ -306,7 +306,7 @@ void PlanarizationLayoutUML::callIncremental(
 					umlGraph.x(vG) = drawing.x(PG.copy(vG));
 					umlGraph.y(vG) = drawing.y(PG.copy(vG));
 
-					for(adjEntry adj : vG->adjEdges)
+					for(adjEntry adj : vG->adjEntries)
 					{
 						if ((adj->index() & 1) == 0) continue;
 						edge eG = adj->theEdge();
@@ -389,7 +389,7 @@ void PlanarizationLayoutUML::callIncremental(
 						{
 							//first save the bends
 							adjEntry adjUp = nullptr;
-							for(adjEntry adjMerger : vMerger->adjEdges)
+							for(adjEntry adjMerger : vMerger->adjEntries)
 							{
 								//upgoing edge
 								if (adjMerger->theEdge()->source() == vMerger)
@@ -406,7 +406,7 @@ void PlanarizationLayoutUML::callIncremental(
 								}//if
 							}
 
-							for(adjEntry adjMerger : vMerger->adjEdges)
+							for(adjEntry adjMerger : vMerger->adjEntries)
 							{
 								if (adjMerger->theEdge()->target() == vMerger)
 								{
@@ -518,7 +518,7 @@ void PlanarizationLayoutUML::getFixationDistance(node startNode,
 		//zur sicherheit: fixed uebergeben und vergleichen
 		bool fixedBase = fixedNodes[topNode];
 
-		for(adjEntry adjE : topNode->adjEdges)
+		for(adjEntry adjE : topNode->adjEntries)
 		{
 			node testNode = adjE->twinNode();
 			int ind = testNode->index();

@@ -36,14 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_CLUSTER_PQ_CONTAINER_H
-#define OGDF_CLUSTER_PQ_CONTAINER_H
 
 #include <ogdf/internal/planarity/EmbedPQTree.h>
 #include <ogdf/basic/NodeArray.h>
@@ -174,5 +167,3 @@ public:
 };
 
 }
-
-#endif

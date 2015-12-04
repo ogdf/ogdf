@@ -132,7 +132,7 @@ void RadialTreeLayout::FindRoot(const Graph &G)
 				while(!leaves.empty()) {
 					v = leaves.pop();
 
-					for(adjEntry adj : v->adjEdges) {
+					for(adjEntry adj : v->adjEntries) {
 						node u = adj->twinNode();
 						if(--degree[u] == 1)
 							leaves.append(u);
@@ -169,7 +169,7 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 
 		bool isLeaf = true;
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			node u = adj->twinNode();
 			if(u == m_parent[v])
 				continue;
@@ -218,9 +218,6 @@ void RadialTreeLayout::ComputeDiameters(GraphAttributes &AG)
 		double h = AG.height(v);
 
 		m_diameter[v] = sqrt(w*w+h*h);
-
-		double m = max(w, h);
-		m = max(m, sqrt(w*w+h*h));
 
 		if(m_diameter[v] > m_width[i])
 			m_width[i] = m_diameter[v];
@@ -337,7 +334,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 				// compute weight of all non-leaves
 				double weight = 0.0;
 
-				for(adjEntry adjSon : w->adjEdges)
+				for(adjEntry adjSon : w->adjEntries)
 				{
 					node u = adjSon->twinNode();
 					if(u == m_parent[w])
@@ -350,7 +347,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 
 				double D = (w->degree() - 1) * m_levelDistance;
 
-				for(adjEntry adjSon : w->adjEdges)
+				for(adjEntry adjSon : w->adjEntries)
 				{
 					node u = adjSon->twinNode();
 					if(u == m_parent[w])
@@ -400,7 +397,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 
 /*
 		double restWedge = m_wedge[v];
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			node u = adj->twinNode();
 			if(u == m_parent[v])

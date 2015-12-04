@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_LINEAR_QUADTREE_H
-#define OGDF_LINEAR_QUADTREE_H
+#pragma once
 
 #include <ogdf/internal/energybased/FastUtils.h>
 #include <ogdf/internal/energybased/FMEFunctional.h>
@@ -797,6 +796,3 @@ inline bool LQPointComparer(const LinearQuadtree::LQPoint& a, const LinearQuadtr
 }
 
 } // end of namespace ogdf
-
-#endif
-

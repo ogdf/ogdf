@@ -32,10 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
 #include <ogdf/internal/energybased/NodeAttributes.h>
 
 namespace ogdf {
+namespace energybased {
 
 ostream &operator<< (ostream & output, const NodeAttributes & A)
 {
@@ -138,4 +138,5 @@ NodeAttributes::NodeAttributes()
 	angle_2 = 6.2831853;
 }
 
-}//namespace ogdf
+}
+}

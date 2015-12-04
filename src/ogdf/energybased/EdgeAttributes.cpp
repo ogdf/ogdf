@@ -32,11 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
 #include <ogdf/internal/energybased/EdgeAttributes.h>
 
-
 namespace ogdf {
+namespace energybased {
 
 ostream &operator<< (ostream & output, const EdgeAttributes & A)
 {
@@ -76,4 +75,5 @@ EdgeAttributes::EdgeAttributes()
 	extra_edge = false;
 }
 
-}//namespace ogdf
+}
+}

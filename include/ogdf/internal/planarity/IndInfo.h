@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-
-#ifndef OGDF_EMBED_KEY_H
-#define OGDF_EMBED_KEY_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/internal/planarity/PQNodeKey.h>
@@ -70,4 +63,3 @@ private:
 
 
 }
-#endif

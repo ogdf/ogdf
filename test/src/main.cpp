@@ -36,6 +36,9 @@
 #include <iostream>
 #include <bandit/bandit.h>
 #include <resources.h>
+#include <ogdf/basic/Logger.h>
+
+using namespace ogdf;
 
 int main(int argc, char **argv)
 {
@@ -45,5 +48,24 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	return bandit::run(argc, argv);
+	bool verbose = false;
+	bool help = false;
+
+	for(int i = 1; i < argc; i++) {
+		verbose |= string(argv[i]) == "--ogdf-verbose";
+		help |= string(argv[i]) == "--help";
+	}
+
+	if(!verbose) {
+		Logger::globalLogLevel(Logger::LL_FORCE);
+	}
+
+	int result = bandit::run(argc, argv);
+
+	if(help) {
+		cout << "OGDF specific options:" << endl;
+		cout << "  --ogdf-verbose\t\tEnable verbose OGDF logging." << endl;
+	}
+
+	return result;
 }

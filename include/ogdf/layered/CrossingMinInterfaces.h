@@ -32,23 +32,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CROSSINGMININTERFACES_H
-#define OGDF_CROSSINGMININTERFACES_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/layered/Hierarchy.h>
 
 
 namespace ogdf {
-
-class Hierarchy;
-
-// I am not good at naming things, so feel free to rename these interfaces as well as this file.
-
 
 //! Representation of levels in hierarchies.
 /**
@@ -108,5 +98,3 @@ public:
 };
 
 }
-
-#endif

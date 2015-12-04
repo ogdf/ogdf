@@ -220,7 +220,7 @@ bool FaceSinkGraph::dfsCheckForest(
 		++nInternalVertices;
 
 	// iterate over all adjacent nodes of v different from parent
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		node w = adj->twinNode();
 
@@ -247,7 +247,7 @@ void FaceSinkGraph::gatherExternalFaces(
 		externalFaces.pushBack(m_originalFace[v]);
 
 	// since we already know that T is a tree we can omit the visited array
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		node w = adj->twinNode();
 
@@ -264,7 +264,7 @@ node FaceSinkGraph::dfsFaceNodeOf(node v, node parent, face f1, face f2)
 		return v;
 
 	// since we already know that T is a tree we can omit the visited array
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		node w = adj->twinNode();
 
@@ -316,7 +316,7 @@ node FaceSinkGraph::dfsStAugmentation(
 	node vf = nullptr;
 
 	// since we already know that T is a tree we can omit the visited array
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		node w = adj->twinNode();
 
@@ -380,7 +380,7 @@ node FaceSinkGraph::dfsStAugmentation(
 	node vf = (parent != nullptr) ? m_originalNode[parent] : nullptr;
 
 	// since we already know that T is a tree we can omit the visited array
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		node w = adj->twinNode();
 
@@ -425,9 +425,9 @@ void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
 
 		if (u->indeg() > 1 && !visited[u]) {
 			List<edge> outEdges;
-			m_pE->getGraph().outEdges(u, outEdges);
+			u->outEdges(outEdges);
 			if (outEdges.empty()) {
-				for(adjEntry run : u->adjEdges) {
+				for(adjEntry run : u->adjEntries) {
 					if (m_pE->rightFace(run) != m_pE->externalFace())
 						toDo.pushBack(m_pE->rightFace(run));
 				}
@@ -469,9 +469,9 @@ void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
 
 			if (u->indeg() > 1) {
 				List<edge> outEdges;
-				m_pE->getGraph().outEdges(u, outEdges);
+				u->outEdges(outEdges);
 				if (outEdges.empty()) {
-					for(adjEntry run : u->adjEdges) {
+					for(adjEntry run : u->adjEntries) {
 						if (m_pE->rightFace(run) != f)
 							toDo.pushBack(m_pE->rightFace(run));
 					}

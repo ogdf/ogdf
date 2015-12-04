@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LIST_H
-#define OGDF_LIST_H
-
 
 #include <ogdf/internal/basic/list_templates.h>
 #include <random>
@@ -1025,16 +1019,6 @@ public:
 		std::swap(m_tail, other.m_tail);
 	}
 
-	//! Deprecated, use swap instead.
-	/**
-	 * \deprecated This method has been marked as deprecated and might be removed in a future version of the library.
-	 *             Use the equivalent swap() method instead.
-	 */
-	OGDF_DEPRECATED_BEGIN
-	void exchange(List<E>& L2)
-	OGDF_DEPRECATED_END
-		{ swap(L2); }
-
 	//! Splits the list at element \a it into lists \a L1 and \a L2.
 	/**
 	 * If \a it is not a null pointer and \a L = x1,...,x{k-1}, \a it,x_{k+1},xn, then
@@ -1763,16 +1747,6 @@ public:
 		std::swap(m_count, other.m_count);
 	}
 
-	//! Deprecated, use swap instead.
-	/**
-	* \deprecated This method has been marked as deprecated and might be removed in a future version of the library.
-	*             Use the equivalent swap() method instead.
-	*/
-	OGDF_DEPRECATED_BEGIN
-	void exchange(List<E>& L2)
-	OGDF_DEPRECATED_END
-		{ swap(L2); }
-
 	//! Splits the list at element \a it into lists \a L1 and \a L2.
 	/**
 	 * If \a it is not a null pointer and \a L = x1,...,x{k-1}, \a it,x_{k+1},xn, then
@@ -2039,6 +2013,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

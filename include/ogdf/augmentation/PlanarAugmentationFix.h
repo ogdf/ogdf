@@ -33,22 +33,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANAR_AUGMENTATION_FIX_H
-#define OGDF_PLANAR_AUGMENTATION_FIX_H
 
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/internal/augmentation/PALabel.h>
-
+#include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
-
-	class DynamicBCTree;
-
 
 /**
  * \brief The algorithm for biconnectivity augmentation with fixed combinatorial embedding.
@@ -214,5 +206,3 @@ private:
 
 
 } // namespace ogdf
-
-#endif

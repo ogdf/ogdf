@@ -29,12 +29,8 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_DTREE_MULTILEVEL_H__
-#define OGDF_DTREE_MULTILEVEL_H__
 #include <ogdf/basic/Graph.h>
 
 namespace ogdf {
@@ -116,5 +112,3 @@ private:
 };
 
 }
-
-#endif

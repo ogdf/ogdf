@@ -34,12 +34,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MIN_STEINER_TREE_KOU_H_
-#define OGDF_MIN_STEINER_TREE_KOU_H_
+#pragma once
 
 #include <ogdf/basic/List.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 #include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+
+#include <ogdf/graphalg/Dijkstra.h>
 
 namespace ogdf {
 
@@ -105,13 +106,7 @@ protected:
 	void insertPath(const List<edge> &ssspPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG);
 };
 
-} // end namespace ogdf
-
 // ============= Implementation =================
-
-#include <ogdf/graphalg/Dijkstra.h>
-
-namespace ogdf {
 
 template<typename T>
 T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
@@ -199,5 +194,3 @@ void MinSteinerTreeKou<T>::insertPath(const List<edge> &ssspPred, EdgeWeightedGr
 }
 
 } // end namespace ogdf
-
-#endif /* OGDF_MINIMUM_STEINER_TREE_KOU_H_ */

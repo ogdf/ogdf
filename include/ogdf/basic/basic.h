@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BASIC_H
-#define OGDF_BASIC_H
-
 
 #include <ogdf/internal/basic/config.h>
 
@@ -57,36 +50,33 @@
 
 #define OGDF_DEBUG_OUTPUT(kind, str) \
 	std::cerr << std::endl << "OGDF " << kind << " from " << __FILE__ << ":" << __LINE__ << "(" << __func__ << "): " << str << std::endl;
-#define OGDF_WARNING(str) OGDF_DEBUG_OUTPUT("warning", str)
-#define OGDF_WARNING_IF(cond, str) if (cond) { OGDF_WARNING(str) } else { }
-#define OGDF_ERROR(str) OGDF_DEBUG_OUTPUT("error", str)
 
 #else
 #define OGDF_ASSERT(expr)
 #define OGDF_ASSERT_IF(minLevel,expr)
 #define OGDF_SET_DEBUG_LEVEL(level)
 #define OGDF_DEBUG_OUTPUT(kind, str)
-#define OGDF_WARNING(str)
-#define OGDF_WARNING_IF(cond, str)
-#define OGDF_ERROR(str)
 #endif
 
 //---------------------------------------------------------
 // deprecation
 //---------------------------------------------------------
 
-#ifdef _MSC_VER
-#define OGDF_DEPRECATED_BEGIN __declspec(deprecated)
-#define OGDF_DEPRECATED_END
 
-#elif defined(__GNUC__)
-#define OGDF_DEPRECATED_BEGIN
-#define OGDF_DEPRECATED_END   __attribute__ ((deprecated))
-
+#if __cplusplus >= 201402L
+#define OGDF_DEPRECATED [[deprecated]]
 #else
-#define OGDF_DEPRECATED_BEGIN
-#define OGDF_DEPRECATED_END
+
+#ifdef _MSC_VER
+#define OGDF_DEPRECATED __declspec(deprecated)
+#elif defined(__GNUC__)
+#define OGDF_DEPRECATED __attribute__ ((deprecated))
+#else
+#define OGDF_DEPRECATED
 #endif
+
+#endif
+
 
 
 //---------------------------------------------------------
@@ -99,12 +89,6 @@
 #define OGDF_LIKELY(x)    (x)
 #define OGDF_UNLIKELY(x)  (x)
 
-#ifdef OGDF_DEBUG
-#define OGDF_NODEFAULT    default: assert(0);
-#else
-#define OGDF_NODEFAULT    default: __assume(0);
-#endif
-
 #define OGDF_DECL_ALIGN(b) __declspec(align(b))
 #define OGDF_DECL_THREAD __declspec(thread)
 
@@ -116,7 +100,6 @@
 
 #define OGDF_LIKELY(x)    __builtin_expect((x),1)
 #define OGDF_UNLIKELY(x)  __builtin_expect((x),0)
-#define OGDF_NODEFAULT    default: ;
 
 #define OGDF_DECL_ALIGN(b) __attribute__ ((aligned(b)))
 #define OGDF_DECL_THREAD __thread
@@ -126,7 +109,6 @@
 #else
 #define OGDF_LIKELY(x)    (x)
 #define OGDF_UNLIKELY(x)  (x)
-#define OGDF_NODEFAULT
 
 #define OGDF_DECL_ALIGN(b)
 #endif
@@ -152,24 +134,14 @@
 #include <algorithm>
 #include <limits>
 
+//! The namespace for all OGDF objects.
+namespace ogdf {
+
 using std::ifstream;		// from <fstream>
 using std::ofstream;		// from <fstream>
 using std::min;				// from <algorithm>
 using std::max;				// from <algorithm>
 using std::numeric_limits;	// from <limits>
-
-
-// ogdf
-#include <ogdf/basic/Logger.h>
-#include <ogdf/basic/exceptions.h>
-#include <ogdf/basic/System.h>
-#include <ogdf/basic/memory.h>
-#include <ogdf/basic/comparer.h>
-
-
-
-//! The namespace for all OGDF objects.
-namespace ogdf {
 
 #ifndef OGDF_DLL
 
@@ -274,106 +246,6 @@ static Initialization s_ogdfInitializer;
 	//! Tests if \a prefix is a prefix of \a str, ignoring the case of characters.
 	OGDF_EXPORT bool prefixIgnoreCase(const string &prefix, const string &str);
 
-	/**
-	 * @addtogroup file-system
-	 */
-	//@{
-
-	//! The type of an entry in a directory.
-	enum FileType {
-		ftEntry,     /**< file or directory */
-		ftFile,      /**< file */
-		ftDirectory  /**< directory */
-	};
-
-	//! Returns true iff \a fileName is a regular file (not a directory).
-	OGDF_EXPORT bool isFile(const char *fileName);
-
-	//! Returns true iff \a fileName is a directory.
-	OGDF_EXPORT bool isDirectory(const char *fileName);
-
-	//! Changes current directory to \a dirName; returns true if successful.
-	OGDF_EXPORT bool changeDir(const char *dirName);
-
-	//! Returns in \a files the list of files in directory \a dirName.
-	/** The optional argument \a pattern can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getFiles(const char *dirName,
-		List<string> &files,
-		const char *pattern = "*");
-
-	//! Appends to \a files the list of files in directory \a dirName.
-	/** The optional argument \a pattern can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getFilesAppend(const char *dirName,
-		List<string> &files,
-		const char *pattern = "*");
-
-
-	//! Returns in \a subdirs the list of directories contained in directory \a dirName.
-	/** The optional argument \a pattern can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getSubdirs(const char *dirName,
-		List<string> &subdirs,
-		const char *pattern = "*");
-
-	//! Appends to \a subdirs the list of directories contained in directory \a dirName.
-	/** The optional argument \a pattern can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getSubdirsAppend(const char *dirName,
-		List<string> &subdirs,
-		const char *pattern = "*");
-
-
-	//! Returns in \a entries the list of all entries contained in directory \a dirName.
-	/** Entries may be files or directories. The optional argument \a pattern
-	 *  can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getEntries(const char *dirName,
-		List<string> &entries,
-		const char *pattern = "*");
-
-	//! Appends to \a entries the list of all entries contained in directory \a dirName.
-	/** Entries may be files or directories. The optional argument \a pattern
-	 *  can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getEntriesAppend(const char *dirName,
-		List<string> &entries,
-		const char *pattern = "*");
-
-
-	//! Returns in \a entries the list of all entries of type \a t contained in directory \a dirName.
-	/** The optional argument \a pattern can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getEntries(const char *dirName,
-		FileType t,
-		List<string> &entries,
-		const char *pattern = "*");
-
-	//! Appends to \a entries the list of all entries of type \a t contained in directory \a dirName.
-	/** The optional argument \a pattern can be used to filter files.
-	 *
-	 *  \pre \a dirName is a directory
-	 */
-	OGDF_EXPORT void getEntriesAppend(const char *dirName,
-		FileType t,
-		List<string> &entries,
-		const char *pattern = "*");
-
 	//@}
 	/**
 	* @addtogroup container-functions
@@ -436,6 +308,16 @@ public:
 	virtual int getBucket(const E &x) = 0;
 };
 
+using std::stoi;
+using std::stoll;
+using std::stoul;
+using std::stoull;
+
+using std::stof;
+using std::stod;
+using std::stold;
+
+using std::to_string;
 
 } // end namespace ogdf
 
@@ -448,19 +330,4 @@ public:
 //@{
 
 
-using std::stoi;
-using std::stoll;
-using std::stoul;
-using std::stoull;
-
-using std::stof;
-using std::stod;
-using std::stold;
-
-using std::to_string;
-
-
 //@}
-
-
-#endif

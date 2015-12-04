@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_COMPONENT_SPLITTER_LAYOUT_H
-#define OGDF_COMPONENT_SPLITTER_LAYOUT_H
 
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/internal/energybased/MultilevelGraph.h>
@@ -79,5 +74,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif

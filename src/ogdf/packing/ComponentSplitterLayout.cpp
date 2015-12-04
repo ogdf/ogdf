@@ -93,7 +93,7 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 				cGA.y(v) = GA.y(GC.original(v));
 			}
 			// copy information on edges
-			if (GA.attributes() & GraphAttributes::edgeDoubleWeight) {
+			if (GA.has(GraphAttributes::edgeDoubleWeight)) {
 				for (edge e : GC.edges) {
 					cGA.doubleWeight(e) = GA.doubleWeight(GC.original(e));
 				}
@@ -108,7 +108,7 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 				{
 					GA.x(w) = cGA.x(v);
 					GA.y(w) = cGA.y(v);
-					if (GA.attributes() & GraphAttributes::threeD) {
+					if (GA.has(GraphAttributes::threeD)) {
 						GA.z(w) = cGA.z(v);
 					}
 				}

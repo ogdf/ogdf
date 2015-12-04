@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CLUSTER_PLANARITY_H
-#define OGDF_CLUSTER_PLANARITY_H
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
@@ -251,6 +246,3 @@ private:
 #endif // USE_ABACUS
 
 } //end namespace ogdf
-
-
-#endif // OGDF_CLUSTER_PLANARITY_H

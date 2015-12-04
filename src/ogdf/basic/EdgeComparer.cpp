@@ -81,7 +81,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 
 
 	//meet check not yet implemented, assume same start point
-	OGDF_ASSERT(!((!DIsEqual(x1a,x2a)) && (!(DIsEqual(y1a,y2a)))) || (s1 != s2))
+	OGDF_ASSERT(!((!OGDF_GEOM_ET.equal(x1a,x2a)) && (!(OGDF_GEOM_ET.equal(y1a,y2a)))) || (s1 != s2))
 
 	//check if we have bends without representation node
 	//use them as second end point

@@ -36,14 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PRECONDITION_H
-#define OGDF_PRECONDITION_H
 
 #include <ogdf/orthogonal/EdgeRouter.h>
 #include <ogdf/uml/UMLGraph.h>
@@ -67,8 +60,8 @@ bool dfsGenTreeRec(
 
 	bool returnValue = true;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->source() == v) continue;
 		if (!(UG.type(e) == Graph::generalization)) continue;
 		if (used[e]) continue; //error ??
@@ -98,9 +91,8 @@ bool dfsGenTreeRec(
 
 edge firstOutGen(UMLGraph& UG, node v, EdgeArray<bool>& /* used */)
 {
-	edge e;
-	forall_adj_edges(e, v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->target() == v) continue;
 		if (UG.type(e) == Graph::generalization)
 		{
@@ -162,5 +154,3 @@ bool dfsGenTree(
 }
 
 }//end namespace ogdf
-
-#endif

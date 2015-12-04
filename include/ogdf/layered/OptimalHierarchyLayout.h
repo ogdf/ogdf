@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_OPTIMAL_HIERARCHY_LAYOUT_H
-#define OGDF_OPTIMAL_HIERARCHY_LAYOUT_H
-
-
 
 #include <ogdf/module/HierarchyLayoutModule.h>
 
@@ -199,6 +191,3 @@ private:
 };
 
 }
-
-
-#endif

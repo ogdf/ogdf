@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MULTILEVEL_LAYOUT_MODULE_H
-#define OGDF_MULTILEVEL_LAYOUT_MODULE_H
-
-
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/internal/energybased/MultilevelGraph.h>
@@ -109,6 +101,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

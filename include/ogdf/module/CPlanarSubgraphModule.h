@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CPLANAR_SUBGRAPH_MODULE_H
-#define OGDF_CPLANAR_SUBGRAPH_MODULE_H
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
@@ -97,6 +91,3 @@ protected:
 };
 
 } //end namespace ogdf
-
-
-#endif // OGDF_CPLANAR_SUBGRAPH_MODULE_H

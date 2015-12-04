@@ -104,15 +104,13 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 		//-------------------------------------------------
 		if (typeOf(v) == Graph::generalizationMerger)
 		{
-			edge e;
-
 			// Scan the list of edges of v to find the outgoing edge of v
 			// Get then the cirular list of ingoing edges corresponding to
 			// the planar embedding.
 			SList<edge> inGens;
 			bool detect = false;
-			forall_adj_edges(e,v)
-			{
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				OGDF_ASSERT(typeOf(e) == Graph::generalization);
 				if (e->target() != v)
 				{
@@ -122,12 +120,12 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				if (detect)
 					inGens.pushBack(e);
 			}
-			{forall_adj_edges(e,v)
-			{
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if (e->target() != v)
 					break;
 				inGens.pushBack(e);
-			}}
+			}
 
 
 			setExpandedNode(v, v);
@@ -174,7 +172,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 
 			for (itn = expander.begin(); itn.valid(); ++itn)
 			{
-				e = newEdge(adjPrev,(*itn)->firstAdj());
+				edge e = newEdge(adjPrev,(*itn)->firstAdj());
 
 				setExpansion(e);
 				setGeneralization(e);
@@ -185,7 +183,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				adjPrev = (*itn)->firstAdj();
 			}
 
-			e = newEdge(adjPrev,v->lastAdj());
+			edge e = newEdge(adjPrev,v->lastAdj());
 
 			setExpansion(e);
 			setGeneralization(e);
@@ -202,14 +200,12 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				 typeOf(v) != Graph::dummy &&
 				 !lowDegreeExpand)
 		{
-			edge e;
-
 			// Check first how many generalizations there are.
 			// If the node has degree 4 and at most one generalization
 			// nothing is to do.
 			int detect = 0;
-			forall_adj_edges(e,v)
-			{
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if (!detect && typeOf(e) == Graph::generalization)
 					detect = 1;
 				else if (typeOf(e) == Graph::generalization)
@@ -234,13 +230,14 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			// will get a new adjacent node
 			// the planar embedding.
 			SList<edge> adjEdges;
-			{forall_adj_edges(e,v)
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				adjEdges.pushBack(e);
 			}
 
 			//The first edge remains at v. remove it from the list.
 			// Check if it is a generalization.
-			e = adjEdges.popFrontRet();
+			edge e = adjEdges.popFrontRet();
 
 			//super sink check: don't use sink generalization, as the node may be deleted
 			while (typeOf(e) == Graph::generalization)
@@ -350,14 +347,12 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				 typeOf(v) != Graph::dummy &&
 				 lowDegreeExpand)
 		{
-			edge e;
-
 			// Check first how many generalizations there are.
 			// If the node has degree 4 and at most one generalization
 			// nothing is to do.
 			int detect = 0;
-			forall_adj_edges(e,v)
-			{
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if (!detect && typeOf(e) == Graph::generalization)
 					detect = 1;
 				else if (typeOf(e) == Graph::generalization)
@@ -382,13 +377,14 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			// will get a new adjacent node
 			// the planar embedding.
 			SList<edge> adjEdges;
-			{forall_adj_edges(e,v)
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				adjEdges.pushBack(e);
 			}
 
 			//The first edge remains at v. remove it from the list.
 			// Check if it is a generalization.
-			e = adjEdges.popFrontRet();
+			edge e = adjEdges.popFrontRet();
 			if (typeOf(e) == Graph::generalization)
 					genNodes.pushBack(v);
 
@@ -496,7 +492,7 @@ void PlanRepUML::expandLowDegreeVertices(OrthoRep &OR, bool alignSmallDegree)
 
 		setExpandedNode(v, v);//obsolete?! u=v
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			adjEdges.pushBack(adj->theEdge());
 
 			if(!firstTime)
@@ -1074,7 +1070,7 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 			os << "  node [\n";
 			os << "    id " << nextId++ << "\n";
 
-			if (m_pGraphAttributes->attributes() & GraphAttributes::nodeLabel) {
+			if (m_pGraphAttributes->has(GraphAttributes::nodeLabel)) {
 				os << "    label \"" << m_pGraphAttributes->label(vOrig) << "\"\n";
 			}
 
@@ -1222,7 +1218,7 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 			os << "  node [\n";
 			os << "    id " << nextId++ << "\n";
 
-			if (m_pGraphAttributes->attributes() & GraphAttributes::nodeLabel) {
+			if (m_pGraphAttributes->has(GraphAttributes::nodeLabel)) {
 				os << "    label \"" << m_pGraphAttributes->label(vOrig) << "\"\n";
 			} else {
 				os << "    label \"N " << vOrig->index() << "\"\n";

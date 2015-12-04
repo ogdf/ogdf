@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_TLP_PARSER_H
-#define OGDF_TLP_PARSER_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -114,6 +107,3 @@ public:
 } // end namespace tlp
 
 } // end namespace ogdf
-
-
-#endif

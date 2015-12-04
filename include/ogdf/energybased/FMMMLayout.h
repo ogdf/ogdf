@@ -32,25 +32,17 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FMMMLAYOUT_H
-#define OGDF_FMMMLAYOUT_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/internal/energybased/FruchtermanReingold.h>
-#include <ogdf/internal/energybased/NMM.h>
-
+#include <ogdf/internal/energybased/NewMultipoleMethod.h>
+#include <ogdf/internal/energybased/Rectangle.h>
 
 namespace ogdf {
-
-	class Rectangle;
 
 /**
  * \brief The fast multipole multilevel layout algorithm.
@@ -65,7 +57,7 @@ namespace ogdf {
  *
  * The implementation is based on the following publication:
  *
- * Stefan Hachul, Michael J&uuml;nger: <i>Drawing Large Graphs with a
+ * Stefan Hachul, Michael Jünger: <i>Drawing Large Graphs with a
  * Potential-Field-Based Multilevel Algorithm</i>. 12th International
  * Symposium on %Graph Drawing 1998, New York (GD '04), LNCS 3383,
  * pp. 285-295, 2004.
@@ -243,6 +235,10 @@ namespace ogdf {
  */
 class OGDF_EXPORT FMMMLayout : public LayoutModule
 {
+	using Rectangle = energybased::Rectangle;
+	using NodeAttributes = energybased::NodeAttributes;
+	using EdgeAttributes = energybased::EdgeAttributes;
+
 public:
 	//! Possible page formats.
 	enum PageFormatType {
@@ -945,14 +941,17 @@ private:
 	PreSort               m_presortCCs; //!< The option for presorting connected components.
 
 	//options for multilevel step
-	bool  		          m_singleLevel; //!< Option for pure single level.
+	bool                  m_singleLevel; //!< Option for pure single level.
 	int                   m_minGraphSize; //!< The option for minimal graph size.
 	GalaxyChoice          m_galaxyChoice; //!< The selection of galaxy nodes.
 	int                   m_randomTries; //!< The number of random tries.
-	MaxIterChange         m_maxIterChange; //!< The option for how to change MaxIterations.
-							//!< If maxIterChange != micConstant, the iterations are decreased
-							//!< depending on the level, starting from
-							//!< ((maxIterFactor()-1) * fixedIterations())
+
+	//! The option for how to change MaxIterations.
+	//! If maxIterChange != micConstant, the iterations are decreased
+	//! depending on the level, starting from
+	//! ((maxIterFactor()-1) * fixedIterations())
+	MaxIterChange         m_maxIterChange;
+
 	int                   m_maxIterFactor; //!< The factor used for decreasing MaxIterations.
 	InitialPlacementMult m_initialPlacementMult; //!< The option for creating initial placement.
 
@@ -995,8 +994,8 @@ private:
 	NodeArray<double> radius; //!< Holds the radius of the surrounding circle for each node.
 	double time_total; //!< The runtime (=CPU-time) of the algorithm in seconds.
 
-	FruchtermanReingold FR; //!< Class for repulsive force calculation (Fruchterman, Reingold).
-	NMM NM; //!< Class for repulsive force calculation.
+	energybased::FruchtermanReingold FR; //!< Class for repulsive force calculation (Fruchterman, Reingold).
+	energybased::NewMultipoleMethod NM; //!< Class for repulsive force calculation.
 
 
 	//------------------- most important functions ----------------------------
@@ -1379,6 +1378,3 @@ private:
 };
 
 } //end namespace ogdf
-
-#endif
-

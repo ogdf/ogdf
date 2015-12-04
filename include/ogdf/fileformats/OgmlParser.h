@@ -32,17 +32,10 @@
  *
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
-
-
-#ifdef _MSC_VER
-#pragma once
-#endif
-
 //KK: Commented out the constraint stuff using //o
 //CG: compound graph stuff has been removed with commit 2465
 
-#ifndef OGDF_OGML_PARSER_H
-#define OGDF_OGML_PARSER_H
+#pragma once
 
 #include <ogdf/fileformats/Ogml.h>
 #include <ogdf/fileformats/XmlParser.h>
@@ -298,6 +291,3 @@ public:
 };//end class OGMLParser
 
 }//end namespace ogdf
-
-#endif
-

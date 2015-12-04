@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FACE_SINK_GRAPH_H
-#define OGDF_FACE_SINK_GRAPH_H
-
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/NodeArray.h>
@@ -204,6 +198,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

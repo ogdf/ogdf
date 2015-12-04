@@ -1,7 +1,7 @@
 /** \file
  * \brief Implementation of classes DynamicSkeleton and DynamicSPQRTree
  *
- * \author Jan Papenfu&szlig;
+ * \author Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -202,7 +202,7 @@ edge DynamicSPQRTree::updateInsertedEdge(edge eG)
 	SList<node> marked;
 	node sH = m_gNode_hNode[eG->source()];
 	node tH = m_gNode_hNode[eG->target()];
-	for (adjEntry aH : sH->adjEdges) {
+	for (adjEntry aH : sH->adjEntries) {
 		edge fH = aH->theEdge();
 		node vT = spqrproper(fH);
 		if (fH->opposite(sH) == tH) {
@@ -242,7 +242,7 @@ edge DynamicSPQRTree::updateInsertedEdge(edge eG)
 	}
 	int count = 0;
 	node found[2];
-	for (adjEntry aH : tH->adjEdges) {
+	for (adjEntry aH : tH->adjEntries) {
 		edge fH = aH->theEdge();
 		node vT = spqrproper(fH);
 		if (!m_tNode_isMarked[vT]) continue;

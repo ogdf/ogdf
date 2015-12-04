@@ -59,6 +59,10 @@ UMLGraph::UMLGraph(
 
 UMLGraph::~UMLGraph()
 {
+	if (m_hiddenEdges != nullptr) {
+		delete m_hiddenEdges;
+	}
+
 	SListIterator<AssociationClass*> it = m_assClassList.begin();
 	while (it.valid())
 	{
@@ -83,9 +87,8 @@ void UMLGraph::insertGenMergers()
 	{
 		SList<edge> inGens;
 
-		edge e;
-		forall_adj_edges(e,v)
-		{
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (e->target() != v || type(e) != Graph::generalization)
 				continue;
 
@@ -107,7 +110,7 @@ void UMLGraph::adjustHierarchyParents()
 	for(node v : m_pG->nodes)
 	{
 		if (!m_hierarchyParent[v]) continue;
-		for(adjEntry ae : v->adjEdges)
+		for(adjEntry ae : v->adjEntries)
 		{
 			if (ae->theNode() != v)
 				continue;
@@ -212,7 +215,7 @@ void UMLGraph::sortEdgesFromLayout()
 
 	for(node v : m_pG->nodes)
 	{
-		for(adjEntry ae : v->adjEdges)
+		for(adjEntry ae : v->adjEntries)
 		{
 			adjList[v].pushBack(ae);
 		}
@@ -514,7 +517,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	height(center) = m_cliqueCenterSize;
 #ifdef OGDF_DEBUG
 //should ask for attributes
-	if(attributes() & nodeStyle)
+	if(has(nodeStyle))
 		fillColor(center) = Color(0x55,0x55,0x55);
 #endif
 	//we delete all edges inzident to two clique nodes
@@ -528,7 +531,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 
 		int numIt = cliqueNum[v];
 
-		for(adjEntry ad : v->adjEdges)
+		for(adjEntry ad : v->adjEntries)
 		{
 			if (cliqueNum[ad->twinNode()] == numIt)
 			{
@@ -553,7 +556,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	while (itEdge.valid())
 	{
 		//m_pG->delEdge((*itEdge));
-		m_pG->hideEdge(m_hiddenEdges, *itEdge);
+		m_hiddenEdges->hide(*itEdge);
 		++itEdge;
 	}//while
 
@@ -570,8 +573,7 @@ void UMLGraph::undoStars()
 		++it;
 	}//while
 
-	m_pG->restoreEdges(m_hiddenEdges);
-	m_hiddenEdges = m_pG->newHiddenEdgeSet();
+	m_hiddenEdges->restore();
 	m_centerNodes.clear();
 	m_replacementEdge.init();
 
@@ -584,8 +586,7 @@ void UMLGraph::undoStar(node center, bool restoreAllEdges)
 	OGDF_ASSERT(center)
 
 	if (restoreAllEdges) {
-		m_pG->restoreEdges(m_hiddenEdges);
-		m_hiddenEdges = m_pG->newHiddenEdgeSet();
+		m_hiddenEdges->restore();
 	}
 
 	//remove center node
@@ -627,10 +628,10 @@ void UMLGraph::writeGML(ostream &os)
 
 		os << "    id " << (id[v] = nextId++) << "\n";
 
-		if (attributes() & nodeLabel)
+		if (has(nodeLabel))
 			os << "    label \"" << label(v) << "\"\n";
 
-		//if (attributes() & nodeGraphics)
+		//if (has(nodeGraphics)
 		{
 			os << "    graphics [\n";
 			os << "      x " << x(v) << "\n";
@@ -646,7 +647,7 @@ void UMLGraph::writeGML(ostream &os)
 				os << "      fill \"#00FF00\"\n";
 			else
 			{
-				if (attributes() & nodeStyle)
+				if (has(nodeStyle))
 				{
 					os << "      fill \"" << fillColor(v) << "\"\n";
 					os << "      line \"" << strokeColor(v) << "\"\n";
@@ -667,13 +668,13 @@ void UMLGraph::writeGML(ostream &os)
 		os << "    source " << id[e->source()] << "\n";
 		os << "    target " << id[e->target()] << "\n";
 
-		if (attributes() & edgeType)
+		if (has(edgeType))
 			os << "    generalization " << type(e) << "\n";
 
-		if (attributes() & edgeGraphics) {
+		if (has(edgeGraphics)) {
 			os << "    graphics [\n";
 			os << "      type \"line\"\n";
-			if (attributes() & GraphAttributes::edgeType) {
+			if (has(GraphAttributes::edgeType)) {
 				if (type(e) == Graph::generalization)
 				{
 					os << "      arrow \"last\"\n";
@@ -684,7 +685,7 @@ void UMLGraph::writeGML(ostream &os)
 				}
 				else
 				{
-					if (attributes() & edgeStyle)
+					if (has(edgeStyle))
 					{
 						// color edges, if specific color in attribut is set
 						os << "      fill \"" << m_edgeStroke[e].m_color << "\"\n";

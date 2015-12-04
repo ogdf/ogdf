@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MULTI_EDGE_APPROX_INSERTER_H
-#define OGDF_MULTI_EDGE_APPROX_INSERTER_H
-
 
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/module/EdgeInsertionModule.h>
@@ -204,5 +198,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

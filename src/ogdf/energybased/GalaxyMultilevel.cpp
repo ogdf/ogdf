@@ -50,7 +50,7 @@ void GalaxyMultilevelBuilder::computeSystemMass()
 
 	for (node v : m_pGraph->nodes)
 	{
-		for (adjEntry adj : v->adjEdges)
+		for (adjEntry adj : v->adjEntries)
 		{
 			m_nodeState[v].sysMass += (*m_pNodeInfo)[adj->twinNode()].mass;
 		}
@@ -90,7 +90,7 @@ void GalaxyMultilevelBuilder::labelSystem(node u, node v, int d, float df)
 {
 	if (d>0)
 	{
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			node w = adj->twinNode();
 			// this node may have been labeled before but its closer to the current sun

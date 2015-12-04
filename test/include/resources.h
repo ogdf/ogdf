@@ -17,14 +17,10 @@
 
 #include <ogdf/fileformats/GraphIO.h>
 
-using namespace bandit;
-using namespace ogdf;
-using std::string;
-using std::function;
-using std::vector;
+namespace ogdf {
 
 const string RESOURCE_DIR = "test/resources";
-typedef bool (*GraphReader)(Graph&, const char*);
+typedef bool (*GraphReader)(Graph&, const string&);
 
 /**
  * Tests whether the resource directory is present (i.e. the working directory is correct).
@@ -46,7 +42,7 @@ inline bool resourceCheck() {
  * \param recurse Whether to include sub directories.
  * \return False, if an error occured, True otherwise
  */
-inline bool for_each_file(const string &directory, function<void (const string&)> callback, bool recurse = false) {
+inline bool for_each_file(const string &directory, std::function<void (const string&)> callback, bool recurse = false) {
 	string resourceDirectory = RESOURCE_DIR + "/" + directory;
 	tinydir_dir dir;
 
@@ -61,7 +57,7 @@ inline bool for_each_file(const string &directory, function<void (const string&)
 
 		if (!file.is_dir) {
 			callback(resourceDirectory + "/" + file.name);
-		} else if (recurse) {
+		} else if (recurse && strcmp(file.name, ".") && strcmp(file.name, "..")) {
 			for_each_file(directory + "/" + file.name, callback, true);
 		}
 
@@ -80,14 +76,16 @@ inline bool for_each_file(const string &directory, function<void (const string&)
  * \param recurse testFunc The actual test to be performed.
  * \param reader The function used to parse the files, defaults to GraphIO::readGML.
  */
-inline void for_each_graph_it(const string &title, const vector<string> &filenames, function<void (Graph &graph, const string&)> testFunc, GraphReader reader = GraphIO::readGML) {
+inline void for_each_graph_it(const string &title, const std::vector<string> &filenames, std::function<void (Graph &graph, const string&)> testFunc, GraphReader reader = GraphIO::readGML) {
 	for(const string filename : filenames) {
-		it(string(title + " [" + filename.c_str() + "] ").c_str(), [&](){
+		bandit::it(string(title + " [" + filename.c_str() + "] "), [&](){
 			Graph graph;
 			AssertThat(reader(graph, (RESOURCE_DIR + "/" + filename).c_str()), IsTrue());
 			testFunc(graph, filename);
 		});
 	}
+}
+
 }
 
 #endif

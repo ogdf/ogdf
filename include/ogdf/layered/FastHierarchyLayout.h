@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FAST_HIERARCHY_LAYOUT_H
-#define OGDF_FAST_HIERARCHY_LAYOUT_H
-
-
 
 #include <ogdf/module/HierarchyLayoutModule.h>
 #include <ogdf/basic/List.h>
@@ -49,7 +42,7 @@ namespace ogdf {
 
 
 /**
- * \brief Coordinate assignment phase for the Sugiyama algorithm by Buchheim et al..
+ * \brief Coordinate assignment phase for the Sugiyama algorithm by Buchheim et al.
  *
  * @ingroup gd-hlm
  *
@@ -64,7 +57,7 @@ namespace ogdf {
  *
  * The implementation is based on:
  *
- * Christoph Buchheim, Michael J&uuml;nger, Sebastian Leipert: <i>A Fast %Layout
+ * Christoph Buchheim, Michael Jünger, Sebastian Leipert: <i>A Fast %Layout
  * Algorithm for k-Level Graphs</i>. LNCS 1984 (Proc. %Graph Drawing 2000),
  * pp. 229-240, 2001.
  *
@@ -221,6 +214,3 @@ private:
 };
 
 } // end namespace ogdf
-
-
-#endif

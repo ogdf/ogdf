@@ -685,7 +685,7 @@ bool BoyerMyrvoldPlanar::embed()
 		// call Walkup
 		// for all sources of backedges of v: find pertinent subgraph
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode(); // dfs-descendant of v
 			edge e = adj->theEdge();
 			if (m_dfi[w] > i && m_edgeType[e] == EDGE_BACK) {
@@ -731,10 +731,15 @@ bool BoyerMyrvoldPlanar::embed()
 
 		// if !embed, check, if there are any backedges left
 		if (!m_extractSubgraph && m_embeddingGrade <= doNotFind) {
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if (m_edgeType[adj->theEdge()] == EDGE_BACK &&
 						m_dfi[adj->twinNode()] > m_dfi[v])
+				{
+					if (findKuratowskis != nullptr) {
+						delete findKuratowskis;
+					}
 					return false; // nonplanar
+				}
 			}
 		}
 	}
@@ -846,7 +851,7 @@ void BoyerMyrvoldPlanar::flipBicomp(
 		}
 
 		// go along the dfs-edges
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			int temp = m_dfi[adj->twinNode()];
 			OGDF_ASSERT(m_edgeType[adj->theEdge()] != EDGE_UNDEFINED);
 			if (temp > m_dfi[v] && m_edgeType[adj->theEdge()]==EDGE_DFS) {

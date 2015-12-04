@@ -37,13 +37,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CLUSTER_CUT_CONSTRAINT_H
-#define OGDF_CLUSTER_CUT_CONSTRAINT_H
+#pragma once
 
 #include <ogdf/internal/cluster/Cluster_EdgeVar.h>
 #include <ogdf/internal/cluster/basics.h>
 
-#include <ogdf/abacus/constraint.h>
+#include <ogdf/lib/abacus/constraint.h>
 
 namespace ogdf {
 
@@ -80,5 +79,3 @@ private:
 };
 
 }
-
-#endif

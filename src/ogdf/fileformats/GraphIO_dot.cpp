@@ -181,7 +181,7 @@ static inline bool writeHeader(
 
 	bool whitespace = false;
 
-	if(GA->attributes() & GraphAttributes::threeD) {
+	if(GA->has(GraphAttributes::threeD)) {
 		GraphIO::indent(out, depth + 1) << "dim=3\n";
 		whitespace = true;
 	}

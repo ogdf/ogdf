@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of class DynamicPlanarSPQRTree.
  *
- * \author Jan Papenfu&szlig;
+ * \author Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,26 +32,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_DYNAMIC_PLANAR_SPQR_TREE_H
-#define OGDF_DYNAMIC_PLANAR_SPQR_TREE_H
-
 
 #include <ogdf/decomposition/DynamicSPQRTree.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
 
 
 namespace ogdf {
-
-
-template<class T, class I> class Array;
-template<class A, class B> class Tuple2;
-
 
 //---------------------------------------------------------
 // DynamicPlanarSPQRTree
@@ -111,6 +98,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

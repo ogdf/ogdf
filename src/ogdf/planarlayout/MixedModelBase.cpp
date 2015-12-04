@@ -110,7 +110,7 @@ void MixedModelBase::computeOrder(
 
 			//edge e, er = 0, el = 0;
 			adjEntry adjR = nullptr, adjL = nullptr;
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				node t = adj->twinNode();
 				if (t == cr) adjR = adj;
@@ -885,7 +885,7 @@ void MixedModelBase::setBends ()
 		for (int i = 1; i <= m_mmo[k].len(); ++i)
 		{
 			node v_s = m_mmo(k,i);
-			for(adjEntry adj : v_s->adjEdges)
+			for(adjEntry adj : v_s->adjEntries)
 			{
 				node v_t = adj->twinNode();
 				edge e = adj->theEdge();

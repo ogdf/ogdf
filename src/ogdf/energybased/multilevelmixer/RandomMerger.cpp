@@ -70,7 +70,7 @@ bool RandomMerger::buildOneLevel(MultilevelGraph &MLG)
 		if (mergeNode->degree() > 0) {
 			int index = randomNumber(0, mergeNode->degree()-1);
 			int i = 0;
-			for(adjEntry adj : mergeNode->adjEdges) {
+			for(adjEntry adj : mergeNode->adjEntries) {
 				if (i == index) {
 					parent = adj->twinNode();
 					break;

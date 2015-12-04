@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_FUPS_MODULE_H
-#define OGDF_FUPS_MODULE_H
+#pragma once
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/upward/UpwardPlanRep.h>
@@ -98,5 +97,3 @@ protected:
 };
 
 } // end namespace ogdf
-
-#endif

@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_ADJACENCY_ORACLE_H
-#define OGDF_ADJACENCY_ORACLE_H
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Array2D.h>
@@ -66,4 +60,3 @@ private:
 };
 
 }
-#endif

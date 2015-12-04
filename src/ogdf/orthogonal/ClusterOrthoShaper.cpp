@@ -311,7 +311,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 		if (PG.typeOf(v) != Graph::generalizationMerger
 			&& PG.typeOf(v) != Graph::generalizationExpander)
 		{
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				if (PG.typeOf(adj->theEdge()) == Graph::generalization)
 				{
@@ -322,7 +322,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 		}// if not generalization
 
 
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			edge e2 = Network.newEdge(networkNode[v],F[adjF[adj]]);
 
@@ -368,7 +368,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 
 		//second run to have all angleArcs already initialized
 		//set the flow boundaries
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			edge e2 = angleArc[adj];
 			edge e3 = nullptr;
@@ -438,9 +438,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 
 					// Node w is in Network
 					node w = networkNode[adj->twinNode()];
-					edge e;
-					forall_adj_edges(e,w)
-					{
+					for(adjEntry adj : w->adjEntries) {
+						edge e = adj->theEdge();
 						if (e->target() == F[f])
 						{
 							//is this: 180 degree?
@@ -493,7 +492,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				node w = networkNode[PG.expandAdj(v)->twinNode()];
 
 				adjEntry adjFound = nullptr;
-				for(adjEntry adj : w->adjEdges)
+				for(adjEntry adj : w->adjEntries)
 				{
 					if (adj->theEdge()->target() == F[f])
 					{
@@ -573,7 +572,7 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				w = networkNode[PG.expandAdj(v)->faceCyclePred()->theNode()];
 
 				adjFound = nullptr;
-				for(adjEntry adj : w->adjEdges)
+				for(adjEntry adj : w->adjEntries)
 				{
 					if (adj->theEdge()->target() == F[f])
 					{
@@ -831,9 +830,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 					//					if (w && !(m_traditional && m_fourPlanar && (w->degree() != 4)))
 					{
 						//should be: inner face angles set to 180
-						edge e;
-						forall_adj_edges(e,w)
-						{
+						for(adjEntry adj : w->adjEntries) {
+							edge e = adj->theEdge();
 							if (e->target() == F[f])
 							{
 								upperBound[e] = piAngleFlow;
@@ -873,9 +871,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 						node w = networkNode[adj->twinNode()];
 						//if (w && !(m_traditional && m_fourPlanar && (w->degree() != 4)))
 						{
-							edge e;
-							forall_adj_edges(e,w)
-							{
+							for(adjEntry adj : w->adjEntries) {
+								edge e = adj->theEdge();
 								if (e->target() == F[f2])
 								{
 									upperBound[e] = piAngleFlow;
@@ -913,9 +910,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				//int lowerb = 0;
 
 				bool allMulti = true;
-				edge e;
-				forall_adj_edges(e,w)
-				{
+				for(adjEntry adj : w->adjEntries) {
+					edge e = adj->theEdge();
 					//lowerb += max(lowerBound[e], 0);
 
 					OGDF_ASSERT((!m_traditional) || (e->source() == w));
@@ -970,8 +966,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 
 					//find an edge that allows 360 degree without bends
 					bool twoNodeCC = true;
-					forall_adj_edges(e, w)
-					{
+					for(adjEntry adj : w->adjEntries) {
+						edge e = adj->theEdge();
 						//now check for expanded nodes
 						adjEntry runAdj = adjCor[e];
 						node vOpp = runAdj->twinNode();
@@ -1024,8 +1020,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 						//it would be difficult to guarantee that the networkedge
 						//on the other side of the face would get the 360, so alllow
 						//360 for all edges or search for external face
-						forall_adj_edges(e, w)
-						{
+						for(adjEntry adj : w->adjEntries) {
+							edge e = adj->theEdge();
 							adjEntry adje = adjCor[e];
 							if (adjF[adje] == E.externalFace())
 							{
@@ -1080,9 +1076,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				if (m_deg4free)
 				{
 					fixAssignment = false;
-					edge te;
-					forall_adj_edges(te, tv)
-					{
+					for(adjEntry adj : tv->adjEntries) {
+						edge te = adj->theEdge();
 						if (te->source() == tv)
 						{
 							adjEntry pgEntry = adjCor[te];
@@ -1102,9 +1097,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 
 				//CHECK
 				//now set the angles at degree 4 nodes to distribute edges
-				edge te;
-				forall_adj_edges(te, tv)
-				{
+				for(adjEntry adj : tv->adjEntries) {
+					edge te = adj->theEdge();
 
 					if (te->source() == tv)
 					{
@@ -1142,9 +1136,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				}
 			}//degree 4 node
 			int lowsum = 0, upsum = 0;
-			edge te;
-			forall_adj_edges(te, tv)
-			{
+			for(adjEntry adj : tv->adjEntries) {
+				edge te = adj->theEdge();
 				OGDF_ASSERT(lowerBound[te] <= upperBound[te]);
 				if (noBendEdge[te]) lowerBound[te] = 0;
 				lowsum += lowerBound[te];
@@ -1160,9 +1153,8 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 	for(node tv : Network.nodes)
 	{
 		//int lowsum = 0, upsum = 0;
-		edge te;
-		forall_adj_edges(te, tv)
-		{
+		for(adjEntry adj : tv->adjEntries) {
+			edge te = adj->theEdge();
 			if (noBendEdge[te]) lowerBound[te] = 0;
 			//lowsum += lowerBound[te];
 			//upsum += upperBound[te];
@@ -1286,31 +1278,21 @@ void ClusterOrthoShaper::call(ClusterPlanRep &PG,
 				if (m_traditional) OR.angle(adjCor[e]) = (flow[e]);
 				else
 				{
-					OGDF_ASSERT(angleTwin[e] != 0);
-					switch (flow[e])
-					{
-					case 0: switch (flow[angleTwin[e]])
-							{
-					case 0: OR.angle(adjCor[e]) = 2; break;
-					case 1: OR.angle(adjCor[e]) = 3; break;
-					case 2: OR.angle(adjCor[e]) = 4; break;
-						OGDF_NODEFAULT
-							}//switch
-							break;
-					case 1: switch (flow[angleTwin[e]])
-							{
-					case 0: OR.angle(adjCor[e]) = 1; break;
-						OGDF_NODEFAULT
-							}//switch
-							break;
-					case 2: switch (flow[angleTwin[e]])
-							{
-					case 0: OR.angle(adjCor[e]) = 0; break;
-						OGDF_NODEFAULT
-							}//switch
-							break;
-							OGDF_NODEFAULT
-					}//switch
+					OGDF_ASSERT(angleTwin[e]);
+					OGDF_ASSERT(flow[e] >= 0);
+					OGDF_ASSERT(flow[e] <= 2);
+
+					const int twinFlow = flow[angleTwin[e]];
+
+					if (flow[e] == 0) {
+						OGDF_ASSERT(twinFlow >= 0);
+						OGDF_ASSERT(twinFlow <= 2);
+
+						OR.angle(adjCor[e]) = 2 + twinFlow;
+					} else {
+						OGDF_ASSERT(twinFlow == 0);
+						OR.angle(adjCor[e]) = 2 - flow[e];
+					}
 				}//progressive mode
 			}//if angle arc
 		}

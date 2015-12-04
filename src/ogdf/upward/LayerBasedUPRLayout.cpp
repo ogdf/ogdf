@@ -76,7 +76,7 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 	adjEntry inLeft = nullptr, outLeft = nullptr;
 	//compute left in and left out edge of the common node v if exist
 	if (v->indeg() != 0) {
-		for(adjEntry run : v->adjEdges) {
+		for(adjEntry run : v->adjEntries) {
 			if (run->cyclicSucc()->theEdge()->source() == v) {
 				inLeft = run;
 				break;
@@ -84,7 +84,7 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 		}
 	}
 	if (v->outdeg() != 0) {
-		for(adjEntry run : v->adjEdges) {
+		for(adjEntry run : v->adjEntries) {
 			if (run->cyclicPred()->theEdge()->target() == v || UPR.getEmbedding().leftFace(run) == UPR.getEmbedding().externalFace()) {
 				outLeft = run;
 				break;
@@ -140,7 +140,7 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 	for(it = chain1.rbegin(); it.valid(); --it) {
 		node u = (*it)->source();
 		if (visitedNode[u]) {
-			for(adjEntry run : u->adjEdges) {
+			for(adjEntry run : u->adjEntries) {
 				if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()) // outgoing edges only
 					return left(*it, run->theEdge()); //(outEdgeOrder[*it] > outEdgeOrder[run->theEdge()]);
 			}
@@ -160,7 +160,7 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 
 	OGDF_ASSERT(adj_v1 != 0);
 
-	for(adjEntry run : adj_v1->theNode()->adjEdges) {
+	for(adjEntry run : adj_v1->theNode()->adjEntries) {
 		if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()){ // outgoing edges only
 			adj_v2 = run;
 			break;
@@ -189,7 +189,7 @@ bool OrderComparer::checkUp(node vUPR, int level) const
 		if (vOrig != nullptr && H.rank(GC.copy(vOrig)) <= level)
 			return true;
 		List<edge> outEdges;
-		UPR.outEdges(v, outEdges);
+		v->outEdges(outEdges);
 		for(edge e : outEdges) {
 			node tgt = e->target();
 			if (!inList[tgt]) {
@@ -336,7 +336,7 @@ void OrderComparer::dfs_LR(
 	if (e->target()->outdeg() > 0) {
 		// compute left out edge
 		adjEntry run = nullptr;
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			adjEntry adj_pred = adj->cyclicPred();
 			if (adj_pred->theEdge()->target() == v && adj->theEdge()->source() == v) {
 				run = adj;
@@ -476,7 +476,7 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 		while (!toDo.empty()) {
 			node u = toDo.popFrontRet();
 			List<edge> inEdges;
-			UPR.inEdges(u, inEdges);
+			u->inEdges(inEdges);
 			for(edge eIn : inEdges) {
 				node w = eIn->source();
 				if (UPR.isDummy(w)) {
@@ -568,7 +568,7 @@ void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels &levels, 
 			node tgt =  s->firstAdj()->theEdge()->target();
 			List<node> nodes;
 
-			for(adjEntry adj : tgt->adjEdges) {
+			for(adjEntry adj : tgt->adjEntries) {
 				if (adj->theEdge()->target() == tgt)
 					nodes.pushBack(adj->theEdge()->source());
 			}
@@ -584,7 +584,7 @@ void LayerBasedUPRLayout::postProcessing_sourceReorder(HierarchyLevels &levels, 
 		else {
 			List<node> nodes;
 
-			for(adjEntry adj : s->adjEdges)
+			for(adjEntry adj : s->adjEntries)
 				nodes.pushBack(adj->theEdge()->source());
 
 			RankComparer comp;
@@ -652,7 +652,7 @@ void LayerBasedUPRLayout::postProcessing_markUp(HierarchyLevels &levels, node s,
 		node w = nodesToDo.pop();
 		markedNodes[w] = true;
 		List<edge> outEdges;
-		GC.outEdges(w, outEdges);
+		w->outEdges(outEdges);
 		ListIterator <edge> it;
 		for (it = outEdges.begin(); it.valid(); ++it) {
 			edge e = *it;
@@ -704,7 +704,7 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 					maxIdx = levels.pos(u);
 
 				sumInDeg += u->indeg();
-				for(adjEntry adj : u->adjEdges) {
+				for(adjEntry adj : u->adjEntries) {
 					if (adj->theEdge()->target()==u && markedNodes[adj->theEdge()->source()])
 						numEdges++;
 				}
@@ -984,7 +984,7 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 
 	//compute the left edge
 	adjEntry adjLeft = nullptr;
-	for(adjEntry adj : UPR.getSuperSource()->adjEdges) {
+	for(adjEntry adj : UPR.getSuperSource()->adjEntries) {
 		if (UPR.getEmbedding().rightFace(adj) == UPR.getEmbedding().externalFace()) {
 			adjLeft = adj;
 			break;
@@ -1060,9 +1060,10 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	/*cout << "stGraph:" << endl;
 	for(node x : stGraph.nodes) {
 		cout << x << ":";
-		edge e;
-		forall_adj_edges(e,x)
+		for(adjEntry adj : x->adjEntries) {
+			edge e = adj->theEdge();
 			cout << " " << e;
+		}
 		cout << endl;
 	}*/
 
@@ -1242,8 +1243,8 @@ void LayerBasedUPRLayout::longestPathRanking(
 	{
 		node v = sources.pop();
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if (w == v) continue;
 

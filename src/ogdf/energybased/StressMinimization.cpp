@@ -66,7 +66,7 @@ void StressMinimization::call(GraphAttributes& GA)
 	// if the edge costs are defined by the attribute copy it to an array and
 	// construct the proper shortest path matrix
 	if (m_hasEdgeCostsAttribute) {
-		if (!(GA.attributes() & GraphAttributes::edgeDoubleWeight)) {
+		if (!GA.has(GraphAttributes::edgeDoubleWeight)) {
 			OGDF_THROW(PreconditionViolatedException);
 			return;
 		}
@@ -169,7 +169,7 @@ double StressMinimization::calcStress(
 			double xDiff = GA.x(v) - GA.x(w);
 			double yDiff = GA.y(v) - GA.y(w);
 			double zDiff = 0.0;
-			if (GA.attributes() & GraphAttributes::threeD)
+			if (GA.has(GraphAttributes::threeD))
 			{
 				zDiff = GA.z(v) - GA.z(w);
 			}
@@ -236,12 +236,12 @@ void StressMinimization::minimizeStress(
 	if (m_terminationCriterion == POSITION_DIFFERENCE) {
 		newX.init(G);
 		newY.init(G);
-		if (GA.attributes() & GraphAttributes::threeD)
+		if (GA.has(GraphAttributes::threeD))
 			newZ.init(G);
 	}
 	do {
 		if (m_terminationCriterion == POSITION_DIFFERENCE) {
-			if (GA.attributes() & GraphAttributes::threeD)
+			if (GA.has(GraphAttributes::threeD))
 				copyLayout(GA, newX, newY, newZ);
 			else copyLayout(GA, newX, newY);
 		}
@@ -280,7 +280,7 @@ void StressMinimization::nextIteration(
 			// calculate euclidean distance between both points
 			double xDiff = currXCoord - GA.x(w);
 			double yDiff = currYCoord - GA.y(w);
-			double zDiff = (GA.attributes() & GraphAttributes::threeD) ? GA.z(v) - GA.z(w) : 0.0;
+			double zDiff = (GA.has(GraphAttributes::threeD)) ? GA.z(v) - GA.z(w) : 0.0;
 			double euclideanDist = sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 			// get the weight
 			double weight = weights[v][w];
@@ -307,7 +307,7 @@ void StressMinimization::nextIteration(
 				}
 				newYCoord += weight * voteY;
 			}
-			if (GA.attributes() & GraphAttributes::threeD)
+			if (GA.has(GraphAttributes::threeD))
 			{
 				// reset the voted z coordinate
 				// z is not fixed
@@ -331,7 +331,7 @@ void StressMinimization::nextIteration(
 			if (!m_fixYCoords) {
 				currYCoord = newYCoord / totalWeight;
 			}
-			if (GA.attributes() & GraphAttributes::threeD)
+			if (GA.has(GraphAttributes::threeD))
 			{
 				if (!m_fixZCoords) {
 					GA.z(v) = newZCoord / totalWeight;

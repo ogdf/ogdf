@@ -320,7 +320,7 @@ void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	visited.fill(false);
 	visited[u] = true;
 	int nodesVisited = 1;
-	for(adjEntry adj : u->adjEdges) {
+	for(adjEntry adj : u->adjEntries) {
 		visited[adj->twinNode()] = true;
 		nodesVisited++;
 		dist[u][adj->twinNode()] += 1;
@@ -329,7 +329,7 @@ void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
 		node v = queue.front();
 		queue.popFront();
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (!visited[adj->twinNode()]) {
 				visited[adj->twinNode()] = true;
 				nodesVisited++;
@@ -499,12 +499,11 @@ void CP_MasterBase::terminateOptimization() {
 	}
 	Logger::ssout() << ">\n";
 
-	edge e;
 	for(node n : m_G->nodes) {
 		for(node m : m_G->nodes) {
 			if(m->index()<=n->index()) continue;
-			forall_adj_edges(e, n) {
-				if(e->opposite(n)==m) {
+			for(adjEntry adj : n->adjEntries) {
+				if(adj->twinNode()==m) {
 					Logger::slout() << "ORIG: " << n << "-" << m << "\n";
 					continue;
 				}
@@ -514,8 +513,8 @@ void CP_MasterBase::terminateOptimization() {
 	for (node n : m_G->nodes) {
 		for (node m : m_G->nodes) {
 			if (m->index() <= n->index()) continue;
-			forall_adj_edges(e, n) {
-				if (e->opposite(n) == m) {
+			for(adjEntry adj : n->adjEntries) {
+				if (adj->twinNode() == m) {
 					goto wup;
 				}
 			}

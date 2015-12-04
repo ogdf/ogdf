@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EMBEDDER_MDMF_LENGTH_ATTRIBUTE_H
-#define OGDF_EMBEDDER_MDMF_LENGTH_ATTRIBUTE_H
 
 #include <ogdf/basic/basic.h>
 
@@ -87,5 +82,3 @@ MDMFLengthAttribute operator-=(const MDMFLengthAttribute& x, const MDMFLengthAtt
 ostream& operator<<(ostream& s, const MDMFLengthAttribute& x);
 
 } // end namespace ogdf
-
-#endif

@@ -38,14 +38,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_OVERLAP_H
-#define OGDF_OVERLAP_H
-
 
 #include <ogdf/internal/energybased/NodePairEnergy.h>
 
@@ -65,4 +58,3 @@ private:
 
 
 }// namespace ogdf
-#endif

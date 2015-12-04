@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_GDF_PARSER_H
-#define OGDF_GDF_PARSER_H
 
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/Graph.h>
@@ -98,6 +92,3 @@ public:
 } // end namespace gdf
 
 } // end namespace ogdf
-
-
-#endif

@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BARYCENTER_PLACER_H
-#define OGDF_BARYCENTER_PLACER_H
 
 #include <ogdf/energybased/multilevelmixer/InitialPlacer.h>
 
@@ -61,5 +56,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif

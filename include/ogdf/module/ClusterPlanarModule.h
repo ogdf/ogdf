@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CLUSTERPLANAR_MODULE_H
-#define OGDF_CLUSTERPLANAR_MODULE_H
 
 //=========================================================
 // Main function:
@@ -77,4 +72,3 @@ protected:
 };
 
 }
-#endif

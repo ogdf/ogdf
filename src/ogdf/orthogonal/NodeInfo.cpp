@@ -108,7 +108,8 @@ int NodeInfo::free_coord(OrthoDir s_main, OrthoDir s_to)
 		result += flips(odWest, s_to)*delta(s_to, odWest);
 	case odEast:
 		result += -flips(odEast, s_to)*delta(s_to, odEast);
-	OGDF_NODEFAULT
+	default:
+		OGDF_ASSERT(false);
 	}//switch
 
 	return result;

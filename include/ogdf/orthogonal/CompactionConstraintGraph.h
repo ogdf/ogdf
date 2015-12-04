@@ -35,33 +35,27 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_COMP_CONSTR_GRAPH_H
-#define OGDF_COMP_CONSTR_GRAPH_H
-
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/internal/orthogonal/RoutingChannel.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
 
+#include <ogdf/planarity/PlanRep.h>
+
 
 namespace ogdf {
 
 
-	// types of edges in the constraint graph
-	enum ConstraintEdgeType {
-		cetBasicArc,
-		cetVertexSizeArc,
-		cetVisibilityArc,
-		cetFixToZeroArc, //can be compacted to zero length, can be fixed
-		cetReducibleArc, //can be compacted to zero length
-		cetMedianArc //inserted to replace some reducible in fixzerolength
-	};
+// types of edges in the constraint graph
+enum ConstraintEdgeType {
+	cetBasicArc,
+	cetVertexSizeArc,
+	cetVisibilityArc,
+	cetFixToZeroArc, //can be compacted to zero length, can be fixed
+	cetReducibleArc, //can be compacted to zero length
+	cetMedianArc //inserted to replace some reducible in fixzerolength
+};
 
 //---------------------------------------------------------
 // CompactionConstraintGraph
@@ -490,12 +484,6 @@ const int CompactionConstraintGraph<ATYPE>::c_MedianFactor = 10*c_doubleBendFact
 // implementation of member functions
 //
 //************************************
-}
-
-#include <ogdf/planarity/PlanRep.h>
-
-namespace ogdf {
-
 
 // allow 0-length for sides of generalization merger cages
 template<class ATYPE>
@@ -1178,7 +1166,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 			/*bool subtractSep = true;
 			if (nodeLow->degree() == 2) {
 				adjEntry adjFound = nullptr;
-				for(adjEntry adj : nodeLow->adjEdges) {
+				for(adjEntry adj : nodeLow->adjEntries) {
 					if(m_pOR->direction(adj) == m_arcDir || m_pOR->direction(adj) == m_oppArcDir) {
 						adjFound = adj;
 						break;
@@ -1487,7 +1475,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 
 	for(node v : PG.nodes) {
 		node seg = m_pathNode[v];
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if(m_pOR->direction(adj) != segDir) continue;
 			edge eAdj = adj->theEdge();
 			edge eOrig = PG.original(eAdj);
@@ -1692,6 +1680,3 @@ void CompactionConstraintGraph<ATYPE>::writeGML(ostream &os) const
 
 
 } // end namespace ogdf
-
-
-#endif

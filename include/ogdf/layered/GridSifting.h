@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of classes GridSifting and GlobalSifting.
  *
- * \author Pawe� Schmidt
+ * \author Paweł Schmidt
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRID_SIFTING_H
-#define OGDF_GRID_SIFTING_H
-
 
 #include <ogdf/layered/SugiyamaLayout.h>
 #include <ogdf/layered/BlockOrder.h>
@@ -54,7 +47,7 @@ namespace ogdf {
  * @ingroup gd-layered-crossmin
  *
  * Implementation of the global sifting heuristic based on
- * C. Bachmaier, F. J. Brandenburg, W. Brunner, F. H&uuml;bner,
+ * C. Bachmaier, F. J. Brandenburg, W. Brunner, F. Hübner,
  * <i>Global k-Level Crossing Reduction</i>, J. Graph Algorithms and
  * Appl. 15(5), 2011, pp. 631-659.
  * This class implements the interface LayeredCrossMinModule and should be
@@ -99,7 +92,7 @@ private:
  * @ingroup gd-layered-crossmin
  *
  * Implementation of the grid sifting heuristic based on
- * C. Bachmaier, W. Brunner, A. Glei&szlig;ner, <i>Grid Sifting: Leveling
+ * C. Bachmaier, W. Brunner, A. Gleißner, <i>Grid Sifting: Leveling
  * and Crossing Reduction</i>, Technical Report MIP-1103, University
  * of Passau, 2011.
 
@@ -144,6 +137,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

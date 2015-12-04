@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_INITIAL_PLACER_H
-#define OGDF_INITIAL_PLACER_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/internal/energybased/MultilevelGraph.h>
@@ -67,5 +62,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif

@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_CLUSTER_ORTHO_SHAPER_H
-#define OGDF_CLUSTER_ORTHO_SHAPER_H
-
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/cluster/ClusterPlanRep.h>
@@ -197,102 +190,33 @@ private:
 		EdgeArray<edge>& aTwin,
 		bool maxBound = true)
 	{
-		//vorlaeufig
+		// preliminary
 		OGDF_ASSERT(!m_traditional);
-		if (m_traditional)
-		{
-			switch (angle)
-			{
-				case 0:
-				case 90:
-				case 180:
-						break;
-				OGDF_NODEFAULT
-			}//switch
-		}//trad
-		else
-		{
-			switch (angle)
-			{
-			case 0:
-				if (maxBound)
-				{
-					upB[netArc] = lowB[netArc] = 2;
-					edge e2 = aTwin[netArc];
-					if (e2)
-					{
-						upB[e2] = lowB[e2] = 0;
-					}
-				}
-				else
-				{
-					upB[netArc] = 2; lowB[netArc] = 0;
-					edge e2 = aTwin[netArc];
-					if (e2)
-					{
-						upB[e2] = 2;
-						lowB[e2] = 0;
-					}
 
-				}
-				break;
-			case 90:
-				if (maxBound)
-				{
-					lowB[netArc] = 1;
-					upB[netArc] = 2;
-					edge e2 = aTwin[netArc];
-					if (e2)
-					{
-						upB[e2] = lowB[e2] = 0;
-					}
-				}
-				else
-				{
-					upB[netArc] = 1;
-					lowB[netArc] = 0;
-					edge e2 = aTwin[netArc];
-					if (e2)
-					{
-						upB[e2] = 2;
-						lowB[e2] = 0;
-					}
+		const int angleId = angle / 90;
+		const edge e2 = aTwin[netArc];
 
-				}
-				break;
-			case 180:
-				if (maxBound)
-				{
-					lowB[netArc] = 0;
-					upB[netArc] = 2;
-					edge e2 = aTwin[netArc];
-					if (e2)
-					{
-						upB[e2] = lowB[e2] = 0;
-					}
-				}
-				else
-				{
-					upB[netArc] = 0;
-					lowB[netArc] = 0;
-					edge e2 = aTwin[netArc];
-					if (e2)
-					{
-						upB[e2] = 2;
-						lowB[e2] = 0;
-					}
+		OGDF_ASSERT(angleId >= 0);
+		OGDF_ASSERT(angleId <= 2);
 
-				}
-				break;
-				OGDF_NODEFAULT
-			}//switch
-		}//progressive
+		if (maxBound) {
+			lowB[netArc] = 2 - angleId;
+			upB[netArc] = 2;
 
-	}//setAngle
+			if (e2) {
+				upB[e2] = lowB[e2] = 0;
+			}
+		} else {
+			upB[netArc] = 2 - angleId;
+			lowB[netArc] = 0;
+
+			if (e2) {
+				upB[e2] = 2;
+				lowB[e2] = 0;
+			}
+		}
+	}//setAngleBound
 };
 
 
 } // end namespace ogdf
-
-
-#endif

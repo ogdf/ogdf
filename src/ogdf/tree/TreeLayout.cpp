@@ -309,7 +309,7 @@ void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reve
 				}
 			}
 
-			for(adjEntry adj : x->adjEdges) {
+			for(adjEntry adj : x->adjEntries) {
 				node w = adj->twinNode();
 				if(!visited[w])
 					S.push(w);
@@ -328,7 +328,7 @@ void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reve
 
 void TreeLayout::adjustEdgeDirections(Graph &G, SListPure<edge> &reversedEdges, node v, node parent)
 {
-	for (adjEntry adj : v->adjEdges) {
+	for (adjEntry adj : v->adjEntries) {
 		node w = adj->twinNode();
 		if (w == parent) continue;
 		edge e = adj->theEdge();
@@ -362,7 +362,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 		double cx = AG.x(v);
 		double cy = AG.y(v);
 
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			// adjacent node
 			node w = adj->twinNode();
@@ -400,7 +400,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 
 		// get list of all adjacency entries at v
 		SListPure<adjEntry> entries;
-		tree.adjEntries(v, entries);
+		v->allAdjEntries(entries);
 
 		// sort entries according to angle
 		entries.quicksort(cmp);
@@ -542,8 +542,8 @@ void TreeLayout::findMinX(GraphAttributes &AG, node root, double &minX)
 		double left = AG.x(v) - AG.width(v)/2;
 		if(left < minX) minX = left;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if(w != v) S.push(w);
 		}
@@ -562,8 +562,8 @@ void TreeLayout::findMinY(GraphAttributes &AG, node root, double &minY)
 		double left = AG.y(v) - AG.height(v)/2;
 		if(left < minY) minY = left;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if(w != v) S.push(w);
 		}
@@ -581,8 +581,8 @@ void TreeLayout::shiftTreeX(GraphAttributes &AG, node root, double shift)
 
 		AG.x(v) += shift;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if(w != v) {
 				ListIterator<DPoint> itP;
@@ -604,8 +604,8 @@ void TreeLayout::shiftTreeY(GraphAttributes &AG, node root, double shift)
 
 		AG.y(v) += shift;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if(w != v) {
 				ListIterator<DPoint> itP;
@@ -629,8 +629,8 @@ void TreeLayout::findMaxX(GraphAttributes &AG, node root, double &maxX)
 		double right = AG.x(v) + AG.width(v)/2;
 		if(right > maxX) maxX = right;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if(w != v) S.push(w);
 		}
@@ -648,8 +648,8 @@ void TreeLayout::findMaxY(GraphAttributes &AG, node root, double &maxY)
 		double right = AG.y(v) + AG.height(v)/2;
 		if(right > maxY) maxY = right;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->target();
 			if(w != v) S.push(w);
 		}
@@ -862,9 +862,11 @@ void TreeLayout::secondWalkX(
 	// by recursively aggregating modifiers
 	ts.m_ga.x(subtree) = ts.m_preliminary[subtree] + modifierSum;
 	modifierSum += ts.m_modifier[subtree];
-	edge e;
-	forall_adj_edges(e, subtree) if (e->target() != subtree)
-		secondWalkX(ts, e->target(), modifierSum);
+	for(adjEntry adj : subtree->adjEntries) {
+		edge e = adj->theEdge();
+		if (e->target() != subtree)
+			secondWalkX(ts, e->target(), modifierSum);
+	}
 }
 
 
@@ -881,9 +883,11 @@ void TreeLayout::secondWalkY(
 	// by recursively aggregating modifiers
 	ts.m_ga.y(subtree) = ts.m_preliminary[subtree] + modifierSum;
 	modifierSum += ts.m_modifier[subtree];
-	edge e;
-	forall_adj_edges(e, subtree) if (e->target() != subtree)
-		secondWalkY(ts, e->target(), modifierSum);
+	for(adjEntry adj : subtree->adjEntries) {
+		node t = adj->theEdge()->target();
+		if (t != subtree)
+			secondWalkY(ts, t, modifierSum);
+	}
 }
 
 
@@ -892,8 +896,6 @@ void TreeLayout::computeYCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 	OGDF_ASSERT(root != 0);
 
 	// compute y-coordinates and edge shapes
-	node v,w;
-	edge e;
 	List<node> oldLevel;   // the nodes of the old level
 	List<node> newLevel;   // the nodes of the new level
 	ListIterator<node> it;
@@ -910,24 +912,27 @@ void TreeLayout::computeYCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 		newHeight = 0;
 		oldLevel.conc(newLevel);
 		while(!oldLevel.empty()) {
-			v = oldLevel.popFrontRet();
-			forall_adj_edges(e,v) if(e->target() != v) {
-				w = e->target();
-				newLevel.pushBack(w);
+			node v = oldLevel.popFrontRet();
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+				if(e->target() != v) {
+					node w = adj->theEdge()->target();
+					newLevel.pushBack(w);
 
-				// compute the shape of edge e
-				DPolyline &edgeBends = AG.bends(e);
-				edgeBends.clear();
-				if(m_orthogonalLayout) {
-					edgeCoordinate =
-						yCoordinate + (oldHeight + m_levelDistance) / 2;
-					edgeBends.pushBack(DPoint(AG.x(v),edgeCoordinate));
-					edgeBends.pushBack(DPoint(AG.x(w),edgeCoordinate));
+					// compute the shape of edge e
+					DPolyline &edgeBends = AG.bends(e);
+					edgeBends.clear();
+					if(m_orthogonalLayout) {
+						edgeCoordinate =
+							yCoordinate + (oldHeight + m_levelDistance) / 2;
+						edgeBends.pushBack(DPoint(AG.x(v),edgeCoordinate));
+						edgeBends.pushBack(DPoint(AG.x(w),edgeCoordinate));
+					}
+
+					// compute the maximal node height on the new level
+					if(AG.height(e->target()) > newHeight)
+						newHeight = AG.height(e->target());
 				}
-
-				// compute the maximal node height on the new level
-				if(AG.height(e->target()) > newHeight)
-					newHeight = AG.height(e->target());
 			}
 		}
 
@@ -943,8 +948,6 @@ void TreeLayout::computeXCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 	OGDF_ASSERT(root != 0);
 
 	// compute y-coordinates and edge shapes
-	node v,w;
-	edge e;
 	List<node> oldLevel;   // the nodes of the old level
 	List<node> newLevel;   // the nodes of the new level
 	ListIterator<node> it;
@@ -961,24 +964,28 @@ void TreeLayout::computeXCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 		newWidth = 0;
 		oldLevel.conc(newLevel);
 		while(!oldLevel.empty()) {
-			v = oldLevel.popFrontRet();
-			forall_adj_edges(e,v) if(e->target() != v) {
-				w = e->target();
-				newLevel.pushBack(w);
+			node v = oldLevel.popFrontRet();
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+				if(e->target() != v) {
+					edge e = adj->theEdge();
+					node w = e->target();
+					newLevel.pushBack(w);
 
-				// compute the shape of edge e
-				DPolyline &edgeBends = AG.bends(e);
-				edgeBends.clear();
-				if(m_orthogonalLayout) {
-					edgeCoordinate =
-						xCoordinate + (oldWidth + m_levelDistance) / 2;
-					edgeBends.pushBack(DPoint(edgeCoordinate,AG.y(v)));
-					edgeBends.pushBack(DPoint(edgeCoordinate,AG.y(w)));
+					// compute the shape of edge e
+					DPolyline &edgeBends = AG.bends(e);
+					edgeBends.clear();
+					if(m_orthogonalLayout) {
+						edgeCoordinate =
+							xCoordinate + (oldWidth + m_levelDistance) / 2;
+						edgeBends.pushBack(DPoint(edgeCoordinate,AG.y(v)));
+						edgeBends.pushBack(DPoint(edgeCoordinate,AG.y(w)));
+					}
+
+					// compute the maximal node width on the new level
+					if(AG.width(e->target()) > newWidth)
+						newWidth = AG.width(e->target());
 				}
-
-				// compute the maximal node width on the new level
-				if(AG.width(e->target()) > newWidth)
-					newWidth = AG.width(e->target());
 			}
 		}
 

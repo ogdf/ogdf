@@ -52,7 +52,7 @@ void BarycenterPlacer::placeOneNode(MultilevelGraph &MLG)
 	double x = 0.0;
 	double y = 0.0;
 	double i = 0.0;
-	for(adjEntry adj : merged->adjEdges) {
+	for(adjEntry adj : merged->adjEntries) {
 		if(m_weightedPositions) {
 			double weight = 1.0 / MLG.weight(adj->theEdge());
 			i = i + weight;

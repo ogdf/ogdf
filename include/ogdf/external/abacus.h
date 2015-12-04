@@ -37,23 +37,21 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_ABACUS_H
-#define OGDF_ABACUS_H
+#pragma once
 
 #include <ogdf/basic/basic.h>
 
 #ifdef USE_ABACUS
 
-#include <ogdf/abacus/variable.h>
-#include <ogdf/abacus/constraint.h>
-#include <ogdf/abacus/master.h>
-#include <ogdf/abacus/sub.h>
-#include <ogdf/abacus/row.h>
-#include <ogdf/abacus/nonduplpool.h>
-#include <ogdf/abacus/active.h>
-#include <ogdf/abacus/branchrule.h>
-#include <ogdf/abacus/conbranchrule.h>
+#include <ogdf/lib/abacus/variable.h>
+#include <ogdf/lib/abacus/constraint.h>
+#include <ogdf/lib/abacus/master.h>
+#include <ogdf/lib/abacus/sub.h>
+#include <ogdf/lib/abacus/row.h>
+#include <ogdf/lib/abacus/nonduplpool.h>
+#include <ogdf/lib/abacus/active.h>
+#include <ogdf/lib/abacus/branchrule.h>
+#include <ogdf/lib/abacus/conbranchrule.h>
 
 #else // USE_ABACUS
 
@@ -61,5 +59,3 @@
 
 
 #endif // USE_ABACUS
-
-#endif // OGDF_ABACUS_H

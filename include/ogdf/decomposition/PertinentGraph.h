@@ -32,20 +32,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PERTINENT_GRAPH_H
-#define OGDF_PERTINENT_GRAPH_H
 
 #include <ogdf/basic/Graph.h>
 
 namespace ogdf {
 
-	class OGDF_EXPORT SPQRTree;
+class OGDF_EXPORT SPQRTree;
 
 
 //---------------------------------------------------------
@@ -161,6 +154,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

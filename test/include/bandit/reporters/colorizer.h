@@ -2,7 +2,7 @@
 #define BANDIT_REPORTERS_COLORIZER_H
 
 #ifdef _WIN32
-  #ifndef MINGW32
+  #ifndef NOMINMAX
     #define NOMINMAX
   #endif
 
@@ -79,7 +79,7 @@ namespace bandit { namespace detail {
   private:
 	  WORD get_console_color() const
 	  {
-		  CONSOLE_SCREEN_BUFFER_INFO info = {0};
+		  CONSOLE_SCREEN_BUFFER_INFO info{};
 		  GetConsoleScreenBufferInfo(stdout_handle_, &info);
 		  return info.wAttributes;
 	  }

@@ -37,10 +37,8 @@
 
 namespace ogdf {
 
-	void SimpleEmbedder::call(Graph& G, adjEntry& adjExternal)
+	void SimpleEmbedder::doCall(Graph& G, adjEntry& adjExternal)
 	{
-		OGDF_ASSERT(isPlanar(G));
-
 		//----------------------------------------------------------
 		//
 		// determine embedding of G
@@ -82,7 +80,7 @@ namespace ogdf {
 				continue;
 
 			adjEntry adjFound = nullptr;
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if (adj->theEdge()->source() == v) {
 					adjFound = adj;
 					break;
@@ -94,7 +92,7 @@ namespace ogdf {
 			node w = adjFound->theEdge()->target();
 			bool isBase = true;
 
-			for(adjEntry adj : w->adjEdges) {
+			for(adjEntry adj : w->adjEntries) {
 				edge e = adj->theEdge();
 				if(e->target() != w && PG.typeOf(e) == Graph::generalization) {
 					isBase = false;

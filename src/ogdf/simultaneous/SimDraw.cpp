@@ -71,9 +71,10 @@ bool SimDraw::isProperDummy(node v) const
 	if(!isDummy(v))
 		return false;
 	int sgb = m_GA.subGraphBits(v->firstAdj()->theEdge());
-	edge e;
-	forall_adj_edges(e, v)
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		sgb &= m_GA.subGraphBits(e);
+	}
 
 	return (sgb != 0);
 
@@ -208,7 +209,7 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 			{
 				if(compare(GA,v,m_GA,eLE->source()))
 				{
-					if(m_GA.attributes() & GraphAttributes::nodeGraphics)
+					if(m_GA.has(GraphAttributes::nodeGraphics))
 					{
 						GA.x(v) = m_GA.x(eLE->source());
 						GA.y(v) = m_GA.y(eLE->source());
@@ -216,16 +217,16 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 						GA.width(v) = m_GA.width(eLE->source());
 					}
 
-					if(m_GA.attributes() & GraphAttributes::nodeId)
+					if(m_GA.has(GraphAttributes::nodeId))
 						GA.idNode(v) = m_GA.idNode(eLE->source());
 
-					if(m_GA.attributes() & GraphAttributes::nodeLabel)
+					if(m_GA.has(GraphAttributes::nodeLabel))
 						GA.label(v) = m_GA.label(eLE->source());
 				}
 
 				if(compare(GA,v,m_GA,eLE->target()))
 				{
-					if(m_GA.attributes() & GraphAttributes::nodeGraphics)
+					if(m_GA.has(GraphAttributes::nodeGraphics))
 					{
 						GA.x(v) = m_GA.x(eLE->target());
 						GA.y(v) = m_GA.y(eLE->target());
@@ -233,10 +234,10 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 						GA.width(v) = m_GA.width(eLE->target());
 					}
 
-					if(m_GA.attributes() & GraphAttributes::nodeId)
+					if(m_GA.has(GraphAttributes::nodeId))
 						GA.idNode(v) = m_GA.idNode(eLE->target());
 
-					if(m_GA.attributes() & GraphAttributes::nodeLabel)
+					if(m_GA.has(GraphAttributes::nodeLabel))
 						GA.label(v) = m_GA.label(eLE->target());
 				}
 			}
@@ -246,16 +247,16 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 				if(compare(GA,e->source(),m_GA,eLE->source())
 					&& compare(GA,e->target(),m_GA,eLE->target()))
 				{
-					if(m_GA.attributes() & GraphAttributes::edgeIntWeight)
+					if(m_GA.has(GraphAttributes::edgeIntWeight))
 						GA.intWeight(e) = m_GA.intWeight(eLE);
 
-					if(m_GA.attributes() & GraphAttributes::edgeLabel)
+					if(m_GA.has(GraphAttributes::edgeLabel))
 						GA.label(e) = m_GA.label(eLE);
 
-					if(m_GA.attributes() & GraphAttributes::edgeStyle)
+					if(m_GA.has(GraphAttributes::edgeStyle))
 						GA.strokeColor(e) = m_GA.strokeColor(eLE);
 
-					if(m_GA.attributes() & GraphAttributes::edgeGraphics)
+					if(m_GA.has(GraphAttributes::edgeGraphics))
 						GA.bends(e) = m_GA.bends(eLE);
 				}
 			}
@@ -294,7 +295,7 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 		return false;
 
 	//if(compareBy() == label)
-	OGDF_ASSERT((compareBy() != label) || (m_GA.attributes() & GraphAttributes::edgeLabel));
+	OGDF_ASSERT((compareBy() != label) || m_GA.has(GraphAttributes::edgeLabel));
 
 	int max = numberOfBasicGraphs();
 	bool foundEdge = false;

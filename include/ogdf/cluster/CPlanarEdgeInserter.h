@@ -37,15 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_CPLANAR_EDGE_INSERTER_H
-#define OGDF_CPLANAR_EDGE_INSERTER_H
-
 
 #include <ogdf/cluster/ClusterPlanRep.h>
 
@@ -151,6 +143,3 @@ private:
 };//class CPlanarEdgeInserter
 
 } // end namespace ogdf
-
-
-#endif

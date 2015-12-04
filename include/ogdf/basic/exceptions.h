@@ -32,18 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-// must be included first here
-#include <ogdf/basic/basic.h>
-
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-
-#ifndef OGDF_EXCEPTIONS_H
-#define OGDF_EXCEPTIONS_H
-
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Logger.h>
 
 namespace ogdf {
 
@@ -381,6 +373,3 @@ namespace ogdf {
 	}; // class LibraryNotSupportedException
 
 } // end namespace ogdf
-
-
-#endif

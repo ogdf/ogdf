@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_A_CLUSTER_GRAPH_COPY_H
-#define OGDF_A_CLUSTER_GRAPH_COPY_H
-
-
 
 #include <ogdf/layered/ExtendedNestingGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
@@ -151,6 +143,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

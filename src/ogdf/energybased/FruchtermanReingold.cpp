@@ -32,14 +32,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
 #include <ogdf/internal/energybased/FruchtermanReingold.h>
-
 #include <ogdf/internal/energybased/numexcept.h>
 #include <ogdf/basic/Array2D.h>
 
-
 namespace ogdf {
+namespace energybased {
 
 FruchtermanReingold::FruchtermanReingold()
 {
@@ -53,7 +51,7 @@ void FruchtermanReingold::calculate_exact_repulsive_forces(
 	NodeArray<DPoint>& F_rep)
 {
 	//naive algorithm by Fruchterman & Reingold
-	numexcept N;
+	energybased::numexcept N;
 	DPoint f_rep_u_on_v;
 	DPoint vector_v_minus_u;
 	DPoint pos_u, pos_v;
@@ -105,7 +103,7 @@ void FruchtermanReingold::calculate_approx_repulsive_forces(
 	NodeArray<DPoint>& F_rep)
 {
 	//GRID algorithm by Fruchterman & Reingold
-	numexcept N;
+	energybased::numexcept N;
 	List<IPoint> neighbour_boxes;
 	List<node> neighbour_box;
 	IPoint act_neighbour_box;
@@ -256,4 +254,5 @@ inline double FruchtermanReingold::f_rep_scalar(double d)
 	}
 }
 
-}//namespace ogdf
+}
+}

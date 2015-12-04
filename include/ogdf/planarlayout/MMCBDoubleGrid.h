@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MMCB_DOUBLE_GRID_H
-#define OGDF_MMCB_DOUBLE_GRID_H
-
-
 
 #include <ogdf/planarlayout/MMCBBase.h>
 
@@ -66,5 +59,3 @@ protected:
 
 
 } // end namespace ogdf
-
-#endif

@@ -34,13 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BITONIC_ORDERING_H
-#define OGDF_BITONIC_ORDERING_H
-
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/AdjEntryArray.h>
@@ -151,5 +145,3 @@ private:
 }; // end of BitonicOrdering
 
 } // end of namespace ogdf
-
-#endif /* defined(__CanonicalOrdering__BitonicOrdering__) */

@@ -39,12 +39,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EDGE_STANDARD_REP_H
-#define OGDF_EDGE_STANDARD_REP_H
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/NodeArray.h>
@@ -55,7 +50,7 @@
 
 namespace ogdf {
 
-//!< Enumeration class of possible edge standard representations.
+//! Enumeration class of possible edge standard representations.
 /**
  * There are the following possibilities:
  *
@@ -87,42 +82,42 @@ class OGDF_EXPORT EdgeStandardRep : public HypergraphObserver
 {
 private:
 
-	//!< The type of edge standard representation.
+	//! The type of edge standard representation.
 	EdgeStandardType::Type m_type;
 
-	//!< The reference to the original hypergraph.
+	//! The reference to the original hypergraph.
 	const Hypergraph *m_hypergraph;
 
-	//!< Edge standard representation of the hypergraph.
+	//! Edge standard representation of the hypergraph.
 	Graph m_graphRep;
 
-	//!< The map from representation nodes to hypernodes.
+	//! The map from representation nodes to hypernodes.
 	NodeArray<hypernode> m_hypernodeMap;
 
-	//!< The map from representation hypernodes to nodes.
+	//! The map from representation hypernodes to nodes.
 	HypernodeArray<node> m_nodeMap;
 
-	//!< The map from representation edge to hyperedges.
+	//! The map from representation edge to hyperedges.
 	EdgeArray<hyperedge> m_hyperedgeMap;
 
-	//!< The map from representation hyperedge to edges.
+	//! The map from representation hyperedge to edges.
 	HyperedgeArray<List<edge> > m_edgeMap;
 
-	//!< The list of all newly created nodes.
+	//! The list of all newly created nodes.
 	List<node> m_dummyNodes;
 
 public:
 
-	//!< Creates an edge standard representation.
+	//! Creates an edge standard representation.
 	EdgeStandardRep();
 
-	//!< Creates an edge standard rep. of a given type associated with \a H.
+	//! Creates an edge standard rep. of a given type associated with \a H.
 	EdgeStandardRep(const Hypergraph &pH, EdgeStandardType::Type pType);
 
-	//!< Desctructor.
+	//! Destructor.
 	virtual ~EdgeStandardRep();
 
-	//!< Clears all cluster data.
+	//! Clears all cluster data.
 	void clear();
 
 	//! Conversion to original hypergraph reference.
@@ -137,36 +132,36 @@ public:
 		return m_graphRep;
 	}
 
-	//!< Returns the type of edge standard representation.
+	//! Returns the type of edge standard representation.
 	EdgeStandardType::Type type() const {
 		return m_type;
 	}
 
-	//!< Returns the node associated with the hypernode.
+	//! Returns the node associated with the hypernode.
 	node nodeMap(hypernode v)
 	{
 		return m_nodeMap[v];
 	}
 
-	//!< Returns the hypernode associated with the node (if any).
+	//! Returns the hypernode associated with the node (if any).
 	hypernode hypernodeMap(node v)
 	{
 		return m_hypernodeMap[v];
 	}
 
-	//!< Returns the list of edges associated with the hyperedge.
+	//! Returns the list of edges associated with the hyperedge.
 	const List<edge> & edgeMap(hyperedge e)
 	{
 		return m_edgeMap[e];
 	}
 
-	//!< Returns the hyperedge associated with the edge.
+	//! Returns the hyperedge associated with the edge.
 	hyperedge hyperedgeMap(edge e)
 	{
 		return m_hyperedgeMap[e];
 	}
 
-	//!< Returns the list of dummy nodes.
+	//! Returns the list of dummy nodes.
 	const List<node> & dummyNodes() const
 	{
 		return m_dummyNodes;
@@ -174,19 +169,19 @@ public:
 
 protected:
 
-	//!< Hypernode removal reaction.
+	//! Hypernode removal reaction.
 	virtual void hypernodeDeleted(hypernode v);
 
-	//!< Hypernode addition reaction.
+	//! Hypernode addition reaction.
 	virtual void hypernodeAdded(hypernode v);
 
-	//!< Hyperedge removal reaction.
+	//! Hyperedge removal reaction.
 	virtual void hyperedgeDeleted(hyperedge e);
 
-	//!< Hyperedge addition reaction.
+	//! Hyperedge addition reaction.
 	virtual void hyperedgeAdded(hyperedge e);
 
-	//!< Hypergraph clean-up reaction.
+	//! Hypergraph clean-up reaction.
 	virtual void cleared();
 
 private:
@@ -206,5 +201,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif

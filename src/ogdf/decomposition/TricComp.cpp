@@ -579,8 +579,6 @@ void TricComp::assembleTriconnectedComponents()
 
 void TricComp::DFS1 (const Graph& G, node v, node u)
 {
-	edge e;
-
 	m_NUMBER[v] = ++m_numCount;
 	m_FATHER[v] = u;
 	m_DEGREE[v] = v->degree();
@@ -588,7 +586,8 @@ void TricComp::DFS1 (const Graph& G, node v, node u)
 	m_LOWPT1[v] = m_LOWPT2[v] = m_NUMBER[v];
 	m_ND[v] = 1;
 
-	forall_adj_edges (e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 
 		if (m_TYPE[e] != unseen)
 			continue;
@@ -633,7 +632,6 @@ void TricComp::DFS1 (const Graph& G, node v, node u)
 void TricComp::DFS1 (const Graph& G, node v, node u, node &s1)
 {
 	node firstSon = nullptr;
-	edge e;
 
 	m_NUMBER[v] = ++m_numCount;
 	m_FATHER[v] = u;
@@ -642,7 +640,8 @@ void TricComp::DFS1 (const Graph& G, node v, node u, node &s1)
 	m_LOWPT1[v] = m_LOWPT2[v] = m_NUMBER[v];
 	m_ND[v] = 1;
 
-	forall_adj_edges (e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 
 		if (m_TYPE[e] != unseen)
 			continue;

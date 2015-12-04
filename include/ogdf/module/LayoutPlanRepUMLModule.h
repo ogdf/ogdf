@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LAYOUT_PLANREP_UML_MODULE_H
-#define OGDF_LAYOUT_PLANREP_UML_MODULE_H
-
-
 
 #include <ogdf/uml/PlanRepUML.h>
 #include <ogdf/basic/Layout.h>
@@ -117,6 +109,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

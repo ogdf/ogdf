@@ -321,7 +321,7 @@ UniformGrid::UniformGrid(
 #endif
 	//compute the list of edge incident to v
 	List<edge> incident;
-	m_graph.adjEdges(v,incident);
+	v->adjEdges(incident);
 	//set the crossings of all these edges to zero, update the global crossing
 	//number, remove them from their cells. Note that we cannot insert the edge
 	//with its new position into the grid in the same loop because we may get

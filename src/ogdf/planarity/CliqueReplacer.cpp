@@ -40,7 +40,7 @@
 
 namespace ogdf {
 
-	CliqueReplacer::CliqueReplacer(GraphAttributes &ga, Graph &G) : m_G(G), m_ga(ga), m_hiddenEdges(G.newHiddenEdgeSet())
+	CliqueReplacer::CliqueReplacer(GraphAttributes &ga, Graph &G) : m_G(G), m_ga(ga), m_hiddenEdges(G)
 	{
 	}
 
@@ -101,7 +101,7 @@ namespace ogdf {
 		m_ga.height(center) = m_cliqueCenterSize;
 #ifdef OGDF_DEBUG
 		//should ask for attributes
-		if(m_ga.attributes() & GraphAttributes::nodeStyle)
+		if(m_ga.has(GraphAttributes::nodeStyle))
 			m_ga.fillColor(center) = Color(0x55,0x55,0x55);
 #endif
 		//we delete all edges inzident to two clique nodes
@@ -114,7 +114,7 @@ namespace ogdf {
 
 			int numIt = cliqueNum[v];
 
-			for(adjEntry ad : v->adjEdges)
+			for(adjEntry ad : v->adjEntries)
 			{
 				if (cliqueNum[ad->twinNode()] == numIt)
 				{
@@ -138,7 +138,7 @@ namespace ogdf {
 		while (itEdge.valid())
 		{
 			//m_pG->delEdge((*itEdge));
-			m_G.hideEdge(m_hiddenEdges, *itEdge);
+			m_hiddenEdges.hide(*itEdge);
 			++itEdge;
 		}//while
 
@@ -201,8 +201,7 @@ namespace ogdf {
 			++it;
 		}//while
 
-		m_G.restoreEdges(m_hiddenEdges);
-		m_hiddenEdges = m_G.newHiddenEdgeSet();
+		m_hiddenEdges.restore();
 		m_centerNodes.clear();
 		m_replacementEdge.init();
 
@@ -215,8 +214,7 @@ namespace ogdf {
 		OGDF_ASSERT(center)
 
 			if (restoreAllEdges) {
-				m_G.restoreEdges(m_hiddenEdges);
-				m_hiddenEdges = m_G.newHiddenEdgeSet();
+				m_hiddenEdges.restore();
 			}
 
 		//remove center node

@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_INTERNAL_STEINERTREE_COMMON_ALGORITHMS_H
-#define OGDF_INTERNAL_STEINERTREE_COMMON_ALGORITHMS_H
 
 #include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
@@ -207,5 +202,3 @@ T obtainFinalSteinerTree(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &i
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif

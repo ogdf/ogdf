@@ -173,7 +173,7 @@ namespace ogdf {
 			double vx = ga.x(v), vy = ga.y(v);
 
 			List<double> angles;
-			for (adjEntry adj : v->adjEdges) {
+			for (adjEntry adj : v->adjEntries) {
 				const DPolyline &dpl = ga.bends(adj->theEdge());
 				double ex, ey;
 				if (dpl.empty()) {

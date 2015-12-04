@@ -192,11 +192,11 @@ namespace ogdf {
 			processedBlock = m_Blocks[m_currentPermInv[i]];
 
 			if (processedBlock->isVertexBlock()) {
-				edge e;
 				node v = processedBlock->m_Node;
 
 				//foreach s in { (u,v) in E' | v=upper(A)}
-				forall_adj_edges(e,v) {
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					if (v == e->target()) {
 						// if e is a short edge
 						if (!m_isActiveEdge[e]) {
@@ -239,11 +239,12 @@ namespace ogdf {
 							}
 						}
 					}
-				} // forall_adj_edges(e,v)
+				}
 
 				node w = processedBlock->m_Node;
 				// foreach s in { (w,x) in E' | w = lower(A) }
-				forall_adj_edges(e,w) {
+				for(adjEntry adj : w->adjEntries) {
+					edge e = adj->theEdge();
 					if (w == e->source()) {
 						// if e is a short edge
 						if (!m_isActiveEdge[e]) {
@@ -286,7 +287,7 @@ namespace ogdf {
 							}
 						}
 					}
-				} // forall_adj_edges(e,w)
+				}
 			} // if (processedBlock->isVertexBlock())
 
 			if (processedBlock->isEdgeBlock()) {
@@ -648,8 +649,8 @@ namespace ogdf {
 					nodesInBlock.pushBack(v);
 					while (!mark[low])
 					{
-						edge e;
-						forall_adj_edges(e, low) {
+						for(adjEntry adj : low->adjEntries) {
+							edge e = adj->theEdge();
 							if (low == e->source()) {
 								low = e->target();
 								nodesInBlock.pushBack(low);
@@ -659,8 +660,8 @@ namespace ogdf {
 					}
 					while (!mark[high])
 					{
-						edge e;
-						forall_adj_edges(e, high) {
+						for(adjEntry adj : high->adjEntries) {
+							edge e = adj->theEdge();
 							if (high == e->target()) {
 								high = e->source();
 								nodesInBlock.pushBack(high);
@@ -763,8 +764,8 @@ namespace ogdf {
 			const ArrayLevel &level = *m_levels[i];
 			for(int j = 0; j <= level.high(); ++j) {
 				node v = level[j];
-				edge e;
-				forall_adj_edges(e,v) {
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					if (e->source() == v) {
 						(m_lowerAdjNodes[e->target()])[m_nSet[e->target()]++] = v;
 					} else {
@@ -938,8 +939,8 @@ namespace ogdf {
 
 		node v = b->m_Node;
 
-		edge e;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			Block *BlockOfE = m_EdgeBlocks[e];
 			if (v == e->source()) {
 				BlockOfE->m_upper = level + 1;
@@ -1039,7 +1040,8 @@ namespace ogdf {
 
 		// do horizontal steps
 		v = b->m_Node;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (m_isActiveEdge[e]) {
 				int delta = siftingStep(m_EdgeBlocks[e]);
 				Delta += delta;
@@ -1084,9 +1086,9 @@ namespace ogdf {
 
 		int lMin = 1;
 		int lMax = maxLevel + 1;
-		edge e;
 		node v = b->m_Node;
-		forall_adj_edges(e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if (v == e->source()) {
 				lMax = min<int>(lMax, m_NodeBlocks[e->target()]->m_upper - 1);
 			} else {
@@ -1220,7 +1222,7 @@ namespace ogdf {
 				currentBlock->m_lower = normalizedLvl[currentBlock->m_lower];
 			} else {
 			  // currentBlock->isEdgeBlock()
-				e = currentBlock->m_Edge;
+				edge e = currentBlock->m_Edge;
 				currentBlock->m_upper = m_NodeBlocks[e->source()]->m_lower  + 1;
 				currentBlock->m_lower = m_NodeBlocks[e->target()]->m_upper  - 1;
 			}

@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef _OGDF_HEAPINTERFACE_H_
-#define _OGDF_HEAPINTERFACE_H_
+#pragma once
 
 #include <stdexcept>
 
@@ -129,5 +128,3 @@ public:
 
 
 } // end namespace ogdf
-
-#endif //_OGDF_HEAPBASE_H_

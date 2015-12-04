@@ -66,7 +66,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 	int ev[4][3];
 	int count = 0;
 
-	for(adjEntry adj : v->adjEdges)
+	for(adjEntry adj : v->adjEntries)
 	{
 		edge e = adj->theEdge();
 
@@ -338,7 +338,8 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 			retVal = 0;
 			break;
 
-		OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 	}
 
 	return retVal;

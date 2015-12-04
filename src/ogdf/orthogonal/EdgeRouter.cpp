@@ -3632,7 +3632,8 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 			bt3 = bend_1right;
 			bt4 = bend_2right;
 			break;
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}//switch s_to
 		break;
 	case odWest:
@@ -3650,7 +3651,8 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 			bt3 = bend_1left;
 			bt4 = bend_2left;
 			break;
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}//switch s_to
 		break;
 	case odNorth:
@@ -3668,7 +3670,8 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 			bt3 = bend_1left;
 			bt4 = bend_2left;
 			break;
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}//switch s_to
 		break;
 	case odSouth:
@@ -3686,11 +3689,13 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 			bt3 = bend_1left;
 			bt4 = bend_2left;
 			break;
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}//switch s_to
 		break;
 
-		OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 	}//switch s_from
 
 
@@ -3765,7 +3770,8 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 				+ infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_y(ae) < gp_y(ae));
 			break;
-			OGDF_NODEFAULT
+		default:
+			OGDF_ASSERT(false);
 		}//switch
 
 		//compare edges connection point with available space
@@ -3824,7 +3830,8 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 						+ infos[v].eps(s_from, s_to)));
 					in_E_sfrom_sto =  (cp_y(ae) < gp_y(ae));
 					break;
-					OGDF_NODEFAULT
+				default:
+					OGDF_ASSERT(false);
 				}//switch
 			}//if
 		}//while

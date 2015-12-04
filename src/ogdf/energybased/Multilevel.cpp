@@ -41,8 +41,8 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/energybased/FMMMLayout.h>
 
-
 namespace ogdf {
+namespace energybased {
 
 void Multilevel::create_multilevel_representations(
 	Graph& G,
@@ -190,9 +190,8 @@ void Multilevel::create_suns_and_planets(
 		(*A_mult_ptr[act_level])[sun_node].set_dedicated_sun_distance(0);
 
 		//update information for planet_nodes
-		edge sun_edge;
-		forall_adj_edges(sun_edge, sun_node)
-		{
+		for(adjEntry adj : sun_node->adjEntries) {
+			edge sun_edge = adj->theEdge();
 			double dist_to_sun = (*E_mult_ptr[act_level])[sun_edge].get_length();
 			node planet_node;
 			if (sun_edge->source() != sun_node)
@@ -213,9 +212,9 @@ void Multilevel::create_suns_and_planets(
 
 		for (node planet_node : planet_nodes)
 		{
-			edge e;
-			forall_adj_edges(e, planet_node)
-			{
+			for(adjEntry adj : planet_node->adjEntries) {
+				edge e = adj->theEdge();
+
 				node pos_moon_node = (e->source() == planet_node) ? e->target() : e->source();
 				if (!Node_Set.is_deleted(pos_moon_node))
 					Node_Set.delete_node(pos_moon_node);
@@ -252,8 +251,8 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 		if ((*A_mult_ptr[act_level])[v].get_type() == 0) { //a moon node
 			//find nearest neighbour node
 			bool first_adj_edge = true;
-			edge e;
-			forall_adj_edges(e, v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				node neighbour_node = (v == e->source()) ? e->target() : e->source();
 				int neighbour_type = (*A_mult_ptr[act_level])[neighbour_node].get_type();
 				if ((neighbour_type == 2)
@@ -519,9 +518,8 @@ void Multilevel::set_initial_positions_of_planet_and_moon_nodes(
 
 			if (init_placement_way == FMMMLayout::ipmAdvanced)
 			{
-				edge e;
-				forall_adj_edges(e, v)
-				{
+				for(adjEntry adj : v->adjEntries) {
+					edge e = adj->theEdge();
 					node v_adj = (e->source() != v) ? e->source() : e->target();
 					if (((*A_mult_ptr[level])[v].get_dedicated_sun_node() ==
 						(*A_mult_ptr[level])[v_adj].get_dedicated_sun_node()) &&
@@ -579,8 +577,10 @@ void Multilevel::create_all_placement_sectors(
 		//find pos of adjacent nodes
 		List<DPoint> adj_pos;
 		DPoint v_high_pos((*A_mult_ptr[level+1])[v_high].get_x(), (*A_mult_ptr[level+1])[v_high].get_y());
-		edge e_high;
-		forall_adj_edges(e_high,v_high) {
+
+		for(adjEntry adj : v_high->adjEntries) {
+			edge e_high = adj->theEdge();
+
 			if (!(*E_mult_ptr[level+1])[e_high].is_extra_edge()) {
 				node w_high;
 				if (v_high == e_high->source())
@@ -662,7 +662,6 @@ void Multilevel::set_initial_positions_of_pm_nodes(
 {
 	double moon_dist, lambda;
 	node v_adj, sun_node;
-	edge e;
 	DPoint sun_pos, moon_pos, new_pos, adj_sun_pos;
 	List<DPoint> L;
 	ListIterator<double> lambdaIterator;
@@ -676,8 +675,9 @@ void Multilevel::set_initial_positions_of_pm_nodes(
 
 		if(init_placement_way == FMMMLayout::ipmAdvanced)
 		{//if
-			forall_adj_edges(e,v)
-			{
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+
 				if(e->source() != v)
 					v_adj = e->source();
 				else
@@ -815,4 +815,5 @@ double Multilevel::angle(const DPoint& P, const DPoint& Q, const DPoint& R)
 	return fi;
 }
 
-}//namespace ogdf
+}
+}

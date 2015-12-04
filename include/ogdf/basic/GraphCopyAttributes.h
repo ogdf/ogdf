@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_A_GRAPH_COPY_H
-#define OGDF_A_GRAPH_COPY_H
-
-
 
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -108,6 +100,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

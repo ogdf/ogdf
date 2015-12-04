@@ -32,21 +32,16 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GEOMETRY_H
-#define OGDF_GEOMETRY_H
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/EpsilonTest.h>
 #include <cfloat>
 
-#define OGDF_GEOM_EPS  1e-06
-
-
 namespace ogdf {
+
+extern const EpsilonTest OGDF_GEOM_ET;
 
 //! Determines the orientation in hierarchical layouts.
 enum Orientation {
@@ -55,38 +50,6 @@ enum Orientation {
 	leftToRight, //!< Edges are oriented from left to right.
 	rightToLeft  //!< Edges are oriented from right to left.
 };
-
-
-// Important: be careful, if compared values are (+/-)DBL_MAX !!!
-inline
-	bool DIsEqual(const double &a, const double &b, const double eps = OGDF_GEOM_EPS)
-{
-	return (a < (b + eps) && a > (b - eps));
-}
-
-inline
-	bool DIsGreaterEqual(const double &a, const double &b, const double eps = OGDF_GEOM_EPS)
-{
-	return (a > (b - eps));
-}
-
-inline
-	bool DIsGreater(const double &a, const double &b, const double eps = OGDF_GEOM_EPS)
-{
-	return (a > (b + eps));
-}
-
-inline
-	bool DIsLessEqual(const double &a, const double &b, const double eps = OGDF_GEOM_EPS)
-{
-	return (a < (b + eps));
-}
-
-inline
-	bool DIsLess(const double &a, const double &b, const double eps = OGDF_GEOM_EPS)
-{
-	return (a < (b - eps));
-}
 
 inline
 	double DRound(const double &d, int prec = 0)
@@ -238,7 +201,7 @@ public:
 
 	//! Relaxed equality operator.
 	bool operator==(const DPoint &dp) const {
-		return DIsEqual(m_x, dp.m_x) && DIsEqual(m_y,dp.m_y);
+		return OGDF_GEOM_ET.equal(m_x, dp.m_x) && OGDF_GEOM_ET.equal(m_y,dp.m_y);
 	}
 
 	//! Returns the norm of the point.
@@ -462,10 +425,10 @@ public:
 	double yAbs() const { return (dx() == 0) ? numeric_limits<double>::max() : m_start.m_y - (slope() * m_start.m_x); }
 
 	//! Returns true iff this line runs vertically.
-	bool isVertical()   const { return (DIsEqual(dx(), 0.0)); }
+	bool isVertical()   const { return (OGDF_GEOM_ET.equal(dx(), 0.0)); }
 
 	//! Returns true iff this line runs horizontally.
-	bool isHorizontal() const { return (DIsEqual(dy(), 0.0)); }
+	bool isHorizontal() const { return (OGDF_GEOM_ET.equal(dy(), 0.0)); }
 
 	/**
 	 * \brief Returns true iff \a line and this line intersect.
@@ -620,10 +583,10 @@ public:
 
 	//! Returns true iff \a p lies within this rectangle.
 	bool contains(const DPoint &p) const {
-		if (DIsLess   (p.m_x, m_p1.m_x) ||
-			DIsGreater(p.m_x, m_p2.m_x) ||
-			DIsLess   (p.m_y, m_p1.m_y) ||
-			DIsGreater(p.m_y, m_p2.m_y))
+		if (OGDF_GEOM_ET.less(p.m_x, m_p1.m_x) ||
+			OGDF_GEOM_ET.greater(p.m_x, m_p2.m_x) ||
+			OGDF_GEOM_ET.less(p.m_y, m_p1.m_y) ||
+			OGDF_GEOM_ET.greater(p.m_y, m_p2.m_y))
 			return false;
 		return true;
 	}
@@ -815,5 +778,3 @@ inline int orientation(const DSegment &s, const DPoint &p)
 
 
 } // end namespace ogdf
-
-#endif

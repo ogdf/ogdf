@@ -85,7 +85,7 @@ bool TopologyModule::setEmbeddingFromGraph(
 		//we only allow PlanReps that have no bend nodes for the bends
 		for(node v : PG.nodes)
 		{
-			for(adjEntry ae : v->adjEdges)
+			for(adjEntry ae : v->adjEntries)
 			{
 				adjList[v].pushBack(ae);
 			}//forall adjacency edges
@@ -173,7 +173,7 @@ bool TopologyModule::setEmbeddingFromGraph(
 		if (PG.original(v))
 		{
 			f << "\nNode: " << PG.original(v)->index() <<"\n";
-			for(adjEntry ae : v->adjEdges)
+			for(adjEntry ae : v->adjEntries)
 			{
 				node w = PG.original(ae->twinNode());
 				if (w)
@@ -947,16 +947,16 @@ bool TopologyModule::hasCrossing(EdgeLeg* legA, EdgeLeg* legB, DPoint& xp)
 	double bVal1 = xB2 - xB1;
 	double bVal2 = yB2 - yB1;
 
-	if ( ((DIsLess(aVal1*yB1 - aVal2*xB1,
+	if ( ((OGDF_GEOM_ET.less(aVal1*yB1 - aVal2*xB1,
 		aVal1*y1  - aVal2*x1))
 		^
-		(DIsLess(aVal1*yB2 - aVal2*xB2,
+		(OGDF_GEOM_ET.less(aVal1*yB2 - aVal2*xB2,
 		aVal1*y1  - aVal2*x1)))
 		&&
-		((DIsLess(bVal1*y1 - bVal2*x1,
+		((OGDF_GEOM_ET.less(bVal1*y1 - bVal2*x1,
 		bVal1*yB1 - bVal2*xB1))
 		^
-		(DIsLess(bVal1*y2  - bVal2*x2,
+		(OGDF_GEOM_ET.less(bVal1*y2  - bVal2*x2,
 		bVal1*yB1 - bVal2*xB1)))
 		)
 	{
@@ -1133,7 +1133,7 @@ void TopologyModule::sortEdgesFromLayout(Graph &G, GraphAttributes& GA)
 
 	for(node v : G.nodes)
 	{
-		for(adjEntry ae : v->adjEdges)
+		for(adjEntry ae : v->adjEntries)
 		{
 			adjList[v].pushBack(ae);
 		}//forall adjacency edges

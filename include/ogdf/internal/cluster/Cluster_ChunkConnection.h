@@ -41,8 +41,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CLUSTER_CHUNK_CONNECTION_H
-#define OGDF_CLUSTER_CHUNK_CONNECTION_H
+#pragma once
 
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/ArrayBuffer.h>
@@ -50,7 +49,7 @@
 #include <ogdf/internal/cluster/Cluster_EdgeVar.h>
 #include <ogdf/internal/cluster/basics.h>
 
-#include <ogdf/abacus/constraint.h>
+#include <ogdf/lib/abacus/constraint.h>
 
 namespace ogdf {
 
@@ -80,13 +79,12 @@ public:
 
 	void printMe(ostream& out) const {
 		out << "[ChunkCon: (";
-		int j;
-		forall_arrayindices(j,m_chunk) {
-			Logger::slout() << m_chunk[j] << ",";
+		for(node v : m_chunk) {
+			Logger::slout() << v << ",";
 		}
 		out << "|";
-		forall_arrayindices(j,m_cochunk) {
-			Logger::slout() << m_cochunk[j] << ",";
+		for(node v : m_cochunk) {
+			Logger::slout() << v << ",";
 		}
 		out << ")]";
 	}
@@ -99,5 +97,3 @@ private:
 };
 
 }
-
-#endif

@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_STEINER_TREE_MODULE_H
-#define OGDF_MIN_STEINER_TREE_MODULE_H
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/PriorityQueue.h>
@@ -346,7 +341,7 @@ void MinSteinerTreeModule<T>::singleSourceShortestPaths(const EdgeWeightedGraph<
 		if (distance[v] == numeric_limits<T>::max()) { // min is unreachable, finished
 			break;
 		}
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = adj->twinNode();
 			if (distance[w] > distance[v] + G.weight(e)) {
@@ -374,7 +369,7 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(const EdgeWeighted
 	queue.pop();
 
 	OGDF_ASSERT(v == source);
-	for (adjEntry adj : v->adjEdges) {
+	for (adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		node w = adj->twinNode();
 		if (distance[w] > G.weight(e)) { // this check is only necessary for multigraphs, otherwise this is always true
@@ -390,7 +385,7 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsStrict(const EdgeWeighted
 		if (distance[v] == numeric_limits<T>::max()) { // min is unreachable, finished
 			break;
 		}
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = adj->twinNode();
 			T dist = distance[v] + G.weight(e);
@@ -437,7 +432,7 @@ void MinSteinerTreeModule<T>::singleSourceShortestPathsDetour(const EdgeWeighted
 		if (distance[v] == numeric_limits<T>::max()) { // min is unreachable, finished
 			break;
 		}
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = adj->twinNode();
 			if (distance[w] > distance[v] + G.weight(e)) {
@@ -466,8 +461,7 @@ void MinSteinerTreeModule<T>::allPairShortestPaths(const EdgeWeightedGraph<T> &G
 
 	// main loop
 	for(node v : nonterminals) {
-		node u;
-		forall_nodes(u, G) {
+		for (node u : G.nodes) {
 			const T duv = distance[u][v];
 			if (duv < numeric_limits<T>::max()) {
 				for (node w = u->succ(); w; w = w->succ()) {
@@ -583,10 +577,9 @@ void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> 
 
 	GA.setDirected(false);
 
-	node v;
 	string s;
 
-	forall_nodes(v, steinerTree) {
+	for (node v : steinerTree.nodes) {
 		std::stringstream out;
 		GA.width(v) = GA.height(v) = 25.0;
 		if (isTerminal[steinerTree.original(v)]) {
@@ -626,19 +619,17 @@ void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T> &G, const NodeA
 
 	GA.setDirected(false);
 
-	edge e;
-	forall_edges(e, G) {
+	for (edge e : G.edges) {
 		GA.strokeColor(e) = Color::Black;
 		GA.label(e) = to_string(G.weight(e));
 		GA.strokeWidth(e) = 1;
 	}
-	forall_edges(e, steinerTree) {
+	for (edge e : steinerTree.edges) {
 		GA.strokeColor(steinerTree.original(e)) = Color::Red;
 		GA.strokeWidth(steinerTree.original(e)) = 2;
 	}
 
-	node v;
-	forall_nodes(v, G) {
+	for (node v : G.nodes) {
 		std::stringstream out;
 		GA.width(v) = GA.height(v) = 25.0;
 		GA.strokeColor(v) = Color::Black;
@@ -674,5 +665,3 @@ void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T> &G, const NodeA
 }
 
 } // end namespace ogdf
-
-#endif

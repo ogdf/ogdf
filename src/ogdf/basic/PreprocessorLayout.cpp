@@ -96,7 +96,7 @@ void PreprocessorLayout::call(Graph &G, MultilevelGraph &MLG)
 			deletedEdges.push_back(e);
 			m_deletedEdges.push_back(EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));
 		} else {
-			for(adjEntry adj : e->source()->adjEdges) {
+			for(adjEntry adj : e->source()->adjEntries) {
 				if (adj->theEdge()->index() < index && adj->twinNode() == e->target()) {
 					deletedEdges.push_back(e);
 					m_deletedEdges.push_back(EdgeData(index, e->source()->index(), e->target()->index(), MLG.weight(e)));

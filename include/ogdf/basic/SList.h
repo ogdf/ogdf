@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SLIST_H
-#define OGDF_SLIST_H
-
 
 #include <ogdf/internal/basic/list_templates.h>
 
@@ -1443,6 +1436,3 @@ void bucketSort(Array<E> &a, int min, int max, BucketFunc<E> &f)
 
 
 } // namespace ogdf
-
-
-#endif

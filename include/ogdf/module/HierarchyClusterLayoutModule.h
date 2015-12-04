@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HIER_CLUSTER_LAYOUT_MODULE_H
-#define OGDF_HIER_CLUSTER_LAYOUT_MODULE_H
-
-
 
 #include <ogdf/cluster/ClusterGraphCopyAttributes.h>
 
@@ -90,6 +82,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

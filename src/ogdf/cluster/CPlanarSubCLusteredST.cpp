@@ -172,11 +172,10 @@ void CPlanarSubClusteredST::dfsBuildOriginalST(node v,
 {
 	visited[v] = true;
 
-	edge e;
-	forall_adj_edges(e,v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
+		node w = adj->twinNode();
 		//no selfloops
-		node w = e->opposite(v);
 		if (w == v) continue;
 		//only repgraph ST edges are allowed
 		//we should save the common cluster at the first computation above,
@@ -208,10 +207,9 @@ void CPlanarSubClusteredST::dfsBuildSpanningTree(
 	OGDF_ASSERT(isConnected(*(v->graphOf())));
 	visited[v] = true;
 
-	edge e;
-	forall_adj_edges(e,v)
-	{
-		node w = e->opposite(v);
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
+		node w = adj->twinNode();
 		if(w == v) continue;
 
 		if(!visited[w]) {

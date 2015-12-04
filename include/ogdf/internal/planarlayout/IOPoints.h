@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_IO_POINTS_H
-#define OGDF_IO_POINTS_H
-
 
 #include <ogdf/planarity/PlanRep.h>
 
@@ -237,6 +231,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

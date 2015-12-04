@@ -40,10 +40,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CLUSTER_ANALYSIS
-#define OGDF_CLUSTER_ANALYSIS
-
-
+#pragma once
 
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/basic/Skiplist.h>
@@ -136,10 +133,14 @@ public:
 	cluster indyBagRoot(int i);
 
 protected:
-	void computeBags(); //!< Compute bags per cluster and store result as vertex-bag
-						//!< index in m_bagIndex.
-	void computeIndyBags(); //!< Compute independent bags per cluster and store result
-							//!< as vertex-indyBag index in m_indyBagNumber.
+	//! Compute bags per cluster and store result as vertex-bag
+	//! index in m_bagIndex.
+	void computeBags();
+
+	//! Compute independent bags per cluster and store result
+	//! as vertex-indyBag index in m_indyBagNumber.
+	void computeIndyBags();
+
 private:
 	//! Runs through a list of vertices (starting with \a the one nodeIT points to)
 	//! which is expected to be a full list of cluster vertices in \a c. Depending on
@@ -152,9 +153,9 @@ private:
 	void init(); //!< Initialize the structures, performs analyses.
 	void cleanUp(); //!< Deletes dynamically allocated structures.
 	const ClusterGraph* m_C;
-	//we keep data structures to save inner/outer activity status
-	//instead of computing them on the fly when needed
-	//keep number of activity defining adjacent edges
+	// we keep data structures to save inner/outer activity status
+	// instead of computing them on the fly when needed
+	// keep number of activity defining adjacent edges
 	NodeArray< ClusterArray<int> *> m_iactive;
 	NodeArray< ClusterArray<int> *> m_oactive;
 
@@ -168,19 +169,19 @@ private:
 	ClusterArray<int>* m_oanum; //!< Number of outer active vertices
 	ClusterArray<int>* m_ianum; //!< Number of inner active vertices
 	ClusterArray<int>* m_bags;  //!< Number of bags per cluster (stored even if vertex list is not stored)
-	ClusterArray<List<node> >* m_oalists;  //!< For each cluster we store the outeractive vertices.
-								//!< In case you want to save space, set m_storeoalists to false.
+
+	//! For each cluster we store the outeractive vertices.
+	//! In case you want to save space, set m_storeoalists to false.
+	ClusterArray<List<node> >* m_oalists;
 	const bool m_storeoalists; //!< If set to true (default) lists of outeractive vertices are stored.
 
 	ClusterArray<List<edge> >* m_lcaEdges; //!< For each cluster c we store the edges with lca c.
 
-	const bool m_indyBags; //!< If true, a node partition into independent bags is computed which can
-					 //!< be used for dividing the input instance into smaller problems wrt cluster planarization.
+	//! If true, a node partition into independent bags is computed which can
+	//! be used for dividing the input instance into smaller problems wrt cluster planarization.
+	const bool m_indyBags;
 	NodeArray<int> m_indyBagNumber;  //!< Each independent bag has a different number.
 	int m_numIndyBags; //<! Number of independent bags in clustergraph
 	cluster* m_indyBagRoots; //<! Root clusters of independent bags (only when computed).
-
 };
 }
-
-#endif

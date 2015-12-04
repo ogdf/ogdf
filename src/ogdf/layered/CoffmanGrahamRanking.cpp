@@ -1,7 +1,7 @@
 /** \file
  * \brief Definition of coffman graham ranking algorithm for Sugiyama
  *
- * \author Till Sch&auml;fer
+ * \author Till Schäfer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -62,7 +62,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 
 	for(node v : gc.nodes) {
 		edges.clear();
-		gc.inEdges(v, edges);
+		v->inEdges(edges);
 		deg[v] = edges.size();
 		if (deg[v] == 0) {
 			ready_nodes.pushBack(Tuple2<node,int>(v,0));
@@ -75,7 +75,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 		node v = ready_nodes.popFrontRet().x1();
 		pi[v] = i++;
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if ((adj->theEdge()->source()) == v) {
 				node u = adj->twinNode();
 				m_s[u].insert(pi[v]);
@@ -91,7 +91,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 
 	for(node v : gc.nodes) {
 		edges.clear();
-		gc.outEdges(v, edges);
+		v->outEdges(edges);
 		deg[v] = edges.size();
 		if (deg[v] == 0) {
 			insert(v,ready,pi);  // ready.append(v);
@@ -106,7 +106,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 			node u = ready.popFrontRet();
 			rank[gc.original(u)] = k;
 
-			gc.inEdges<List<edge> >(u, edges);
+			u->inEdges<List<edge>>(edges);
 			for (edge e : edges) {
 				if (--deg[e->source()] == 0){
 					waiting.pushBack(e->source());
@@ -187,7 +187,7 @@ void CoffmanGrahamRanking::dfs(node v)
 	visited->push(v);
 	mark[v] |= 1;
 
-	for(adjEntry adj : v->adjEdges) {
+	for(adjEntry adj : v->adjEntries) {
 		if ((adj->theEdge()->source()) == v) {
 			node w = adj->twinNode();
 			if (mark[w] & 2) {
@@ -210,10 +210,10 @@ void CoffmanGrahamRanking::removeTransitiveEdges (Graph& G)
 	StackPure<node> visited;
 
 	for(node v : G.nodes) {
-		G.outEdges<List<edge> >(v, vout);
+		v->outEdges<List<edge>>(vout);
 		/* alternative: iterate over all adjELements (only out Edges)
 		 *
-		 * for(adjEntry adj : v->adjEdges) {
+		 * for(adjEntry adj : v->adjEntries) {
 		 * if ((adj->theEdge()->source()) == v) ...
 		 *
 		 * In this solution a List is generated, because we iterate three times

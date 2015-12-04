@@ -40,13 +40,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UPWARDPLANARITY_H
-#define OGDF_UPWARDPLANARITY_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/SList.h>
@@ -235,6 +229,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

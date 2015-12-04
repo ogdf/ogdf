@@ -31,12 +31,8 @@
  *
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
-#ifdef _MSC_VER
-#pragma once
-#endif
 
-#ifndef OGDF_E_LABEL_INTERFACE_H
-#define OGDF_E_LABEL_INTERFACE_H
+#pragma once
 
 #include <ogdf/basic/GridLayout.h>
 #include <ogdf/basic/GridLayoutMapped.h>
@@ -288,5 +284,3 @@ private:
 
 
 }//end namespace
-
-#endif

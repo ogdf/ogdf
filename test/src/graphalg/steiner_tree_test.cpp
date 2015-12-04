@@ -24,10 +24,75 @@
 #include <ogdf/graphalg/MinSteinerTreeGoemans139.h>
 #include <resources.h>
 
-#define ZELIKOVSKY_VARIANTS (2*2*4*2*3*2)
-
 using namespace ogdf;
 using namespace bandit;
+
+template<typename T> using ModuleTuple = std::tuple<std::string, MinSteinerTreeModule<T>*, int, double>;
+
+// Test MinSteinerTreeModule<T>::isSteinerTree()
+template<typename T>
+static void testIsSteinerTree()
+{
+	EdgeWeightedGraph<T> graph;
+	EdgeWeightedGraphCopy<T> *tree;
+	NodeArray<bool> isTerminal;
+	List<node> terminals;
+
+	before_each([&]() {
+		node v0 = graph.newNode();
+		node v1 = graph.newNode();
+		node v2 = graph.newNode();
+		graph.newEdge(v0, v1, 2);
+		graph.newEdge(v1, v2, 3);
+		edge eCycle = graph.newEdge(v2, v0, 7);
+
+		isTerminal.init(graph, false);
+		isTerminal[v0] = isTerminal[v2] = true;
+
+		for (auto v : graph.nodes) {
+			if (isTerminal[v]) {
+				terminals.pushBack(v);
+			}
+		}
+
+		tree = new EdgeWeightedGraphCopy<T>(graph);
+		tree->delEdge(tree->copy(eCycle));
+	});
+
+	after_each([&]() {
+		delete tree;
+		graph.clear();
+		terminals.clear();
+	});
+
+	it("recognizes a valid Steiner tree", [&]() {
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsTrue());
+	});
+
+	it("recognizes a disconnected Steiner tree", [&]() {
+		tree->delEdge(tree->chooseEdge());
+
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsFalse());
+	});
+
+	it("recognizes a Steiner tree with extra nodes", [&]() {
+		node v = graph.newNode();
+		isTerminal[v] = true;
+		terminals.pushFront(v);
+
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsFalse());
+	});
+
+	it("recognizes a Steiner tree with redundant Steiner node", [&]() {
+		node u = terminals.front();
+		node v = graph.newNode();
+		edge e = graph.newEdge(u, v, 1);
+		tree->newNode(v);
+		tree->newEdge(e, 1);
+
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *tree), IsFalse());
+	});
+}
 
 /**
  * Generates a new graph with an optimal Steiner tree.
@@ -105,7 +170,8 @@ T randomOptimalSteiner(
 					i += 2;
 				}
 				else {
-					if(graph.searchEdge(v, u) == NULL && graph.searchEdge(u, v) == NULL) {
+					if (graph.searchEdge(v, u) == nullptr
+					 && graph.searchEdge(u, v) == nullptr) {
 						graph.newEdge(v, u, n);
 						i++;
 					}
@@ -123,6 +189,49 @@ T randomOptimalSteiner(
 }
 
 /**
+ * Test if modules generates a valid Steiner tree for a graph with given number of nodes
+ */
+template<typename T>
+void testModuleOnRandomGraph(MinSteinerTreeModule<T> &alg, int n, double factor)
+{
+	it(string("generates a valid Steiner tree for a graph of " + to_string(n) + " nodes"), [&](){
+		EdgeWeightedGraph<T> graph;
+		EdgeWeightedGraphCopy<T> tree;
+		NodeArray<bool> isTerminal(graph, false);
+		List<node> terminals;
+
+		T cost = randomOptimalSteiner<T>(n, graph, terminals, isTerminal, tree);
+		cout << endl << "        graph has " << terminals.size() << " terminals" << endl;
+
+		EdgeWeightedGraphCopy<T> *algTree;
+		T algCost = alg.call(graph, terminals, isTerminal, algTree);
+
+		AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *algTree), Equals(true));
+
+		// only check optimum approximation
+		// for algorithms with factor of 2 or better
+		if(factor != 0 && factor <= 2) {
+			AssertThat(algCost, Equals(cost));
+			AssertThat(algTree->numberOfNodes(), Equals(tree.numberOfNodes()));
+			AssertThat(algTree->numberOfEdges(), Equals(tree.numberOfEdges()));
+
+			List<node> nodes;
+			tree.allNodes(nodes);
+			for(node v : nodes) {
+				AssertThat(algTree->copy(tree.original(v)), !IsNull());
+			}
+
+			List<edge> edges;
+			tree.allEdges(edges);
+			for(edge e : edges) {
+				AssertThat(algTree->copy(tree.original(e)), !IsNull());
+			}
+		}
+		delete algTree;
+	});
+}
+
+/**
  * Tests one subclass of MinSteinerTreeModule for a specific type.
  *
  * \param moduleName
@@ -135,45 +244,12 @@ T randomOptimalSteiner(
  *	the approximation factor of this algorithm, needed for validating the results
  */
 template<typename T>
-void testModule(const std::string moduleName, MinSteinerTreeModule<T> &alg, int maxNodes, double factor)
+void testModule(const std::string &moduleName, MinSteinerTreeModule<T> &alg, int maxNodes, double factor)
 {
-describe(moduleName.c_str(), [&](){
-	for(int n = 0; n < maxNodes; n++) {
-			it(string("generates a valid Steiner tree for a graph of " + to_string(n) + " nodes").c_str(), [&](){
-				EdgeWeightedGraph<T> graph;
-				EdgeWeightedGraphCopy<T> tree;
-				NodeArray<bool> isTerminal(graph, false);
-				List<node> terminals;
-
-				T cost = randomOptimalSteiner<T>(n, graph, terminals, isTerminal, tree);
-				cout << endl << "        graph has " << terminals.size() << " terminals" << endl;
-
-				EdgeWeightedGraphCopy<T> *algTree;
-				T algCost = alg.call(graph, terminals, isTerminal, algTree);
-
-				AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, *algTree), Equals(true));
-
-				// only check optimum approximation
-				// for algorithms with factor of 2 or better
-				if(factor != 0 && factor <= 2) {
-					AssertThat(algCost, Equals(cost));
-					AssertThat(algTree->numberOfNodes(), Equals(tree.numberOfNodes()));
-					AssertThat(algTree->numberOfEdges(), Equals(tree.numberOfEdges()));
-
-					List<node> nodes;
-					tree.allNodes(nodes);
-					for(node v : nodes) {
-						AssertThat(algTree->copy(tree.original(v)), Is().Not().EqualTo((node)NULL));
-					}
-
-					List<edge> edges;
-					tree.allEdges(edges);
-					for(edge e : edges) {
-						AssertThat(algTree->copy(tree.original(e)), Is().Not().EqualTo((edge)NULL));
-					}
-				}
-				delete algTree;
-			});
+	describe(moduleName, [&]() {
+		// only test a subset of the numbers <= maxNodes
+		for (int n = 2, nold = 1, tmp; n <= maxNodes; tmp = n, n += nold / 2, nold = tmp) {
+				testModuleOnRandomGraph(alg, n, factor);
 		}
 
 		for_each_file("steiner", [&](const string &filename){
@@ -184,7 +260,7 @@ describe(moduleName.c_str(), [&](){
 			T opt = -1;
 			ss >> opt;
 
-			it(string("yields correct results on " + filename + " (optimum is " + to_string(opt) + ")").c_str(), [&](){
+			it(string("yields correct results on " + filename + " (optimum is " + to_string(opt) + ")"), [&](){
 				EdgeWeightedGraph<T> graph;
 				List<node> terminals;
 				NodeArray<bool> isTerminal(graph);
@@ -206,159 +282,12 @@ describe(moduleName.c_str(), [&](){
 }
 
 /**
- * Creates a variant of the Zelikovsky module if possible.
- * Can generate approximately ZELIKOVSKY_VARIANTS different variants.
- *
- * Will return false if the requested variant is not valid.
+ * Registers one instance of the MinSteinerTreeDirectedCut class for each of its variants
  */
 template <typename T>
-static bool
-createZelikovskyVariant(MinSteinerTreeModule<T> *&alg, std::string &desc, int id)
+static void
+registerDirectedCutVariants(std::vector<ModuleTuple<T>*> &modules)
 {
-	typedef std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::WinCalculation> WCalc;
-	typedef std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::TripleGeneration> TGen;
-	typedef std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::TripleReduction> TRed;
-	typedef std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::SaveCalculation> SCalc;
-	typedef std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::Pass> Pass;
-	typedef std::tuple<std::string, bool> APSPStrategy;
-
-	std::vector<WCalc> winCalculations = {
-		WCalc("absolute win function", MinSteinerTreeZelikovsky<T>::absolute),
-		WCalc("relative win function", MinSteinerTreeZelikovsky<T>::relative)
-	};
-	std::vector<TGen> tripleGenStrategies = {
-		TGen("exhaustive triple generation", MinSteinerTreeZelikovsky<T>::exhaustive),
-		TGen("Voronoi triple generation", MinSteinerTreeZelikovsky<T>::voronoi),
-		TGen("direct triple generation", MinSteinerTreeZelikovsky<T>::ondemand)
-	};
-	std::vector<TRed> tripleReductStrategies = {
-		TRed("enabled reduction", MinSteinerTreeZelikovsky<T>::on),
-		TRed("disabled reduction", MinSteinerTreeZelikovsky<T>::off),
-	};
-	std::vector<SCalc> saveCalculations = {
-		SCalc("static enumeration save calculation", MinSteinerTreeZelikovsky<T>::staticEnum),
-		SCalc("static LCATree save calculation", MinSteinerTreeZelikovsky<T>::staticLCATree),
-		SCalc("dynamic LCATree save calculation", MinSteinerTreeZelikovsky<T>::dynamicLCATree),
-		SCalc("hybrid save calculation", MinSteinerTreeZelikovsky<T>::hybrid)
-	};
-	std::vector<Pass> passes = {
-		Pass("one-pass", MinSteinerTreeZelikovsky<T>::one),
-		Pass("multi-pass", MinSteinerTreeZelikovsky<T>::multi)
-	};
-	std::vector<APSPStrategy> apspStrategies = {
-		APSPStrategy("forced APSP", true),
-		APSPStrategy("SSSP", false),
-	};
-
-	desc = "Zelikovsky: ";
-
-	MinSteinerTreeZelikovsky<T> *module = new MinSteinerTreeZelikovsky<T>();
-
-	Pass pass = passes[id % passes.size()];
-	desc += std::get<0>(pass);
-	module->pass(std::get<1>(pass));
-	id /= static_cast<int>(passes.size());
-
-	SCalc saveCalc = saveCalculations[id % saveCalculations.size()];
-	desc += ", " + std::get<0>(saveCalc);
-	module->saveCalculation(std::get<1>(saveCalc));
-	id /= static_cast<int>(saveCalculations.size());
-
-	TGen tripleGen = tripleGenStrategies[id % tripleGenStrategies.size()];
-	desc += ", " + std::get<0>(tripleGen);
-	module->tripleGeneration(std::get<1>(tripleGen));
-	id /= static_cast<int>(tripleGenStrategies.size());
-
-	WCalc winCalc = winCalculations[id % winCalculations.size()];
-	desc += ", " + std::get<0>(winCalc);
-	module->winCalculation(std::get<1>(winCalc));
-	id /= static_cast<int>(winCalculations.size());
-
-	APSPStrategy apspStrategy = apspStrategies[id % apspStrategies.size()];
-	desc += ", " + std::get<0>(apspStrategy);
-	module->forceAPSP(std::get<1>(apspStrategy));
-
-	bool invalidConfig = (module->tripleGeneration() == MinSteinerTreeZelikovsky<T>::ondemand
-      && ((module->winCalculation() != MinSteinerTreeZelikovsky<T>::absolute)
-       || (module->saveCalculation() == MinSteinerTreeZelikovsky<T>::hybrid)
-       || (module->tripleReduction() == MinSteinerTreeZelikovsky<T>::off)
-       || (module->pass() == MinSteinerTreeZelikovsky<T>::one))
-	);
-
-	alg = module;
-	if(invalidConfig) {
-		delete module;
-		alg = NULL;
-	}
-	return !invalidConfig;
-}
-
-/**
- * Registers a complete Steiner test suite for a given
- * template parameter, like int or double.
- */
-template<typename T>
-void registerSuite(const std::string typeName)
-{
-	describe(string("MinSteinerTreeModule for " + typeName).c_str(), [&](){
-		EdgeWeightedGraph<T> graph;
-		EdgeWeightedGraphCopy<T> tree;
-		NodeArray<bool> isTerminal;
-		List<node> terminals;
-		int n;
-
-		before_each([&](){
-			randomOptimalSteiner<T>(n, graph, terminals, isTerminal, tree);
-		});
-
-		for(n = 0; n < 100; n++) {
-			it(string("recognizes a valid Steiner tree with " + to_string(n) + " nodes").c_str(), [&](){
-				AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, tree), Equals(true));
-			});
-
-			it(string("recognizes an errorneous Steiner tree with " + to_string(n) + " nodes").c_str(), [&](){
-				node v = nullptr;
-				node u = nullptr;
-				edge e = nullptr;
-				switch(n % 3) {
-					case 0: // remove edge from tree (if possible)
-						e = tree.chooseEdge();
-						if(e != nullptr) {
-							tree.delEdge(e);
-							break;
-						}
-					case 1: // or add a new terminal
-						v = graph.newNode();
-						isTerminal[v] = true;
-						terminals.pushFront(v);
-						break;
-					default: // or add redundant Steiner node
-						v = graph.newNode();
-						u = terminals.front();
-						e = graph.newEdge(u, v, 1);
-						tree.newNode(v);
-						tree.newEdge(e, 1);
-				}
-				AssertThat(MinSteinerTreeModule<T>::isSteinerTree(graph, terminals, isTerminal, tree), Equals(false));
-			});
-		}
-	});
-
-	typedef std::tuple<std::string, MinSteinerTreeModule<T>*, int, double> ModuleTuple;
-	std::vector<ModuleTuple*> modules = {
-		new ModuleTuple("DirectedCut default", new MinSteinerTreeDirectedCut<T>(), 75, 1),
-		new ModuleTuple("Kou", new MinSteinerTreeKou<T>(), 200, 2),
-		new ModuleTuple("Mehlhorn", new MinSteinerTreeMehlhorn<T>(), 200, 2),
-		new ModuleTuple("RZLoss default", new MinSteinerTreeRZLoss<T>(), 200, 2),
-		new ModuleTuple("Goemans139 default", new MinSteinerTreeGoemans139<T>(), 100, 2),
-		new ModuleTuple("Takahashi", new MinSteinerTreeTakahashi<T>(), 200, 2),
-		new ModuleTuple("Shore", new MinSteinerTreeShore<T>(), 75, 1),
-		new ModuleTuple("Primal-Dual", new MinSteinerTreePrimalDual<T>(), 100, 2),
-		new ModuleTuple("DualAscent", new MinSteinerTreeDualAscent<T>(), 150, 0),
-		new ModuleTuple("Zelikovsky default", new MinSteinerTreeZelikovsky<T>(), 200, 11/6.0),
-	};
-
-	// add DirectedCut variations
 	for(int i = 0; i <
 	  2 * // maximum flow modules
 	  2 * // back cuts on/off
@@ -399,19 +328,135 @@ void registerSuite(const std::string typeName)
 		alg->useIndegreeEdgeConstraints(i % n);
 		ss << (i % n ? ", all constraints enabled" : ", static constraints disabled");
 
-		modules.push_back(new ModuleTuple(ss.str(), alg, 30, 1));
+		modules.push_back(new ModuleTuple<T>(ss.str(), alg, 30, 1));
 	}
+}
 
-	// add Zelikovsky variations
-	for(int i = 0; i < ZELIKOVSKY_VARIANTS; i+=10) {
-		MinSteinerTreeModule<T> *alg = NULL;
-		std::string desc;
-		if(createZelikovskyVariant<T>(alg, desc, i)) {
-			OGDF_ASSERT(alg != NULL);
-			modules.push_back(new ModuleTuple(desc, alg, 50, 11/6));
-		}
-	}
+/**
+ * Registers one instance of the MinSteinerTreeZelikovsky class for each of its variants
+ */
+template <typename T>
+static void
+registerZelikovskyVariants(std::vector<ModuleTuple<T>*> &modules)
+{
+	using WCalc = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::WinCalculation>;
+	using TGen = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::TripleGeneration>;
+	using TRed = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::TripleReduction>;
+	using SCalc = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::SaveCalculation>;
+	using Pass = std::tuple<std::string, typename MinSteinerTreeZelikovsky<T>::Pass>;
+	using APSPStrategy = std::tuple<std::string, bool>;
 
+	std::vector<WCalc> winCalculations = {
+		WCalc("absolute win function", MinSteinerTreeZelikovsky<T>::absolute),
+		WCalc("relative win function", MinSteinerTreeZelikovsky<T>::relative)
+	};
+	std::vector<TGen> tripleGenStrategies = {
+		TGen("exhaustive triple generation", MinSteinerTreeZelikovsky<T>::exhaustive),
+		TGen("Voronoi triple generation", MinSteinerTreeZelikovsky<T>::voronoi),
+		TGen("direct triple generation", MinSteinerTreeZelikovsky<T>::ondemand)
+	};
+	std::vector<TRed> tripleReductStrategies = {
+		TRed("enabled reduction", MinSteinerTreeZelikovsky<T>::on),
+		TRed("disabled reduction", MinSteinerTreeZelikovsky<T>::off),
+	};
+	std::vector<SCalc> saveCalculations = {
+		SCalc("static enumeration save calculation", MinSteinerTreeZelikovsky<T>::staticEnum),
+		SCalc("static LCATree save calculation", MinSteinerTreeZelikovsky<T>::staticLCATree),
+		SCalc("dynamic LCATree save calculation", MinSteinerTreeZelikovsky<T>::dynamicLCATree),
+		SCalc("hybrid save calculation", MinSteinerTreeZelikovsky<T>::hybrid)
+	};
+	std::vector<Pass> passes = {
+		Pass("one-pass", MinSteinerTreeZelikovsky<T>::one),
+		Pass("multi-pass", MinSteinerTreeZelikovsky<T>::multi)
+	};
+	std::vector<APSPStrategy> apspStrategies = {
+		APSPStrategy("forced APSP", true),
+		APSPStrategy("SSSP", false),
+	};
+
+	std::vector<typename decltype(winCalculations)::size_type>
+	  choice = { 0, 0, 0, 0, 0, 0 },
+	  maxchoice = {
+	    winCalculations.size(),
+	    tripleGenStrategies.size(),
+	    tripleReductStrategies.size(),
+	    saveCalculations.size(),
+	    passes.size(),
+	    apspStrategies.size(),
+	  };
+	enum indices {
+		winIdx = 0,
+		tgenIdx,
+		tredIdx,
+		saveIdx,
+		passIdx,
+		apspIdx,
+	};
+
+	auto nextChoice = [&]() {
+		bool overflow;
+		unsigned int i = 0;
+		do {
+			overflow = false;
+			++choice[i];
+			choice[i] %= maxchoice[i];
+			if (choice[i] == 0) {
+				++i;
+				overflow = true;
+			}
+		} while (overflow && i < choice.size());
+		return !overflow;
+	};
+
+	do {
+		string desc = "Zelikovsky: ";
+
+		MinSteinerTreeZelikovsky<T> *module = new MinSteinerTreeZelikovsky<T>();
+
+		Pass pass = passes[choice[passIdx]];
+		desc += std::get<0>(pass);
+		module->pass(std::get<1>(pass));
+
+		SCalc saveCalc = saveCalculations[choice[saveIdx]];
+		desc += ", " + std::get<0>(saveCalc);
+		module->saveCalculation(std::get<1>(saveCalc));
+
+		TGen tripleGen = tripleGenStrategies[choice[tgenIdx]];
+		desc += ", " + std::get<0>(tripleGen);
+		module->tripleGeneration(std::get<1>(tripleGen));
+
+		TRed tripleRed = tripleReductStrategies[choice[tredIdx]];
+		desc += ", " + std::get<0>(tripleRed);
+		module->tripleReduction(std::get<1>(tripleRed));
+
+		WCalc winCalc = winCalculations[choice[winIdx]];
+		desc += ", " + std::get<0>(winCalc);
+		module->winCalculation(std::get<1>(winCalc));
+
+		APSPStrategy apspStrategy = apspStrategies[choice[apspIdx]];
+		desc += ", " + std::get<0>(apspStrategy);
+		module->forceAPSP(std::get<1>(apspStrategy));
+
+		// check for invalid configurations
+		if (module->tripleGeneration() == MinSteinerTreeZelikovsky<T>::ondemand
+		 && ((module->winCalculation() != MinSteinerTreeZelikovsky<T>::absolute)
+		  || (module->saveCalculation() == MinSteinerTreeZelikovsky<T>::hybrid)
+		  || (module->tripleReduction() == MinSteinerTreeZelikovsky<T>::off)
+		  || (module->pass() == MinSteinerTreeZelikovsky<T>::one))) {
+			delete module;
+		} else {
+			modules.push_back(new ModuleTuple<T>(desc, module, 200, 11/6));
+		};
+	} while (nextChoice());
+}
+
+/**
+ * Registers one instance of the MinSteinerTreeRZLoss class for each of its variants
+ */
+template <typename T>
+static void
+registerRZLossVariants(std::vector<ModuleTuple<T>*> &modules)
+{
 	// RZLoss for different maximum component sizes
 	for(int i = 2; i < 6; i++) {
 		MinSteinerTreeRZLoss<T> *alg = new MinSteinerTreeRZLoss<T>();
@@ -424,9 +469,17 @@ void registerSuite(const std::string typeName)
 			maxCompSize = 3;
 		}
 		alg->setMaxComponentSize(maxCompSize);
-		modules.push_back(new ModuleTuple("RZLoss with maximum component size of " + to_string(maxCompSize) + info, alg, 100, 2));
+		modules.push_back(new ModuleTuple<T>("RZLoss with maximum component size of " + to_string(maxCompSize) + info, alg, 100, 2));
 	}
+}
 
+/**
+ * Registers one instance of the MinSteinerTreeGoemans139 class for each of its variants
+ */
+template <typename T>
+static void
+registerGoemans139Variants(std::vector<ModuleTuple<T>*> &modules)
+{
 	// Goemans139 for different maximum component sizes
 	for(int i = 2; i < 6; i++) {
 		// and for standard and stronger LP relaxation
@@ -451,22 +504,58 @@ void registerSuite(const std::string typeName)
 					alg->use2Approximation();
 					info += " with upper bound";
 				}
-				modules.push_back(new ModuleTuple(info, alg, 100/maxCompSize, 2));
+				modules.push_back(new ModuleTuple<T>(info, alg, 100/maxCompSize, 2));
 			}
 		}
 	}
+}
+
+/**
+ * Registers a complete Steiner test suite for a given
+ * template parameter, like int or double.
+ */
+template<typename T>
+void registerSuite(const std::string typeName)
+{
+	auto typeString = [&typeName](std::string str) {
+		return str + string(" [") + typeName + string("]");
+	};
+
+	describe(typeString("MinSteinerTreeModule"), [&]() {
+		describe(typeString("isSteinerTree"), []() {
+			testIsSteinerTree<T>();
+		});
+	});
+
+	std::vector<ModuleTuple<T>*> modules = {
+		new ModuleTuple<T>("DirectedCut default", new MinSteinerTreeDirectedCut<T>(), 75, 1),
+		new ModuleTuple<T>("Kou", new MinSteinerTreeKou<T>(), 200, 2),
+		new ModuleTuple<T>("Mehlhorn", new MinSteinerTreeMehlhorn<T>(), 200, 2),
+		new ModuleTuple<T>("RZLoss default", new MinSteinerTreeRZLoss<T>(), 200, 2),
+		new ModuleTuple<T>("Goemans139 default", new MinSteinerTreeGoemans139<T>(), 100, 2),
+		new ModuleTuple<T>("Takahashi", new MinSteinerTreeTakahashi<T>(), 200, 2),
+		new ModuleTuple<T>("Shore", new MinSteinerTreeShore<T>(), 75, 1),
+		new ModuleTuple<T>("Primal-Dual", new MinSteinerTreePrimalDual<T>(), 100, 2),
+		new ModuleTuple<T>("DualAscent", new MinSteinerTreeDualAscent<T>(), 150, 0),
+		new ModuleTuple<T>("Zelikovsky default", new MinSteinerTreeZelikovsky<T>(), 200, 11/6.0),
+	};
+
+	registerDirectedCutVariants<T>(modules);
+	registerZelikovskyVariants<T>(modules);
+	registerRZLossVariants<T>(modules);
+	registerGoemans139Variants<T>(modules);
 
 	// register suites
-	for(ModuleTuple *module : modules) {
-		testModule<T>(std::get<0>(*module), *std::get<1>(*module), std::get<2>(*module), std::get<3>(*module));
+	for(auto module : modules) {
+		testModule<T>(typeString(std::get<0>(*module)), *std::get<1>(*module), std::get<2>(*module), std::get<3>(*module));
 		delete std::get<1>(*module);
 		delete module;
 	}
 }
 
 go_bandit([](){
-	describe(string("MinSteinerTreeModule").c_str(), []() {
-		registerSuite<int>("Integer");
-		registerSuite<double>("Double");
+	describe("MinSteinerTreeModule", []() {
+		registerSuite<int>("int");
+		registerSuite<double>("double");
 	});
 });

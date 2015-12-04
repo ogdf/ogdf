@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_FEASIBLE_UPWARD_PLANAR_SUBGRAPH_H
-#define OGDF_FEASIBLE_UPWARD_PLANAR_SUBGRAPH_H
-
-
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/GraphCopy.h>
@@ -89,7 +81,7 @@ public:
 	adjEntry getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f)
 	{
 		adjEntry adjFound = nullptr;
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (Gamma.rightFace(adj) == f) {
 				adjFound = adj;
 				break;
@@ -125,5 +117,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

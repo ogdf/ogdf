@@ -32,11 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_SKIPLIST_H
-#define OGDF_SKIPLIST_H
+#pragma once
 
 #include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 
@@ -217,5 +216,3 @@ public:
 };
 
 }
-
-#endif /*OGDF_SKIPLIST_H*/

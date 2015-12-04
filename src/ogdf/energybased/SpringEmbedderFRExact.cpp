@@ -108,10 +108,10 @@ void SpringEmbedderFRExact::ArrayGraph::initCC(int i)
 		m_y[j] = m_ga->y(v);
 
 		if (m_useNodeWeight)
-			m_nodeWeight[j] = (m_ga->attributes() & GraphAttributes::nodeWeight) ? m_ga->weight(v) : 1.0;
+			m_nodeWeight[j] = m_ga->has(GraphAttributes::nodeWeight) ? m_ga->weight(v) : 1.0;
 		else
 			m_nodeWeight[j] = 1.0;
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 			if(v->index() < adj->twinNode()->index())
 				++m_numEdges;
 		++j;
@@ -123,7 +123,7 @@ void SpringEmbedderFRExact::ArrayGraph::initCC(int i)
 	j = 0;
 	int srcId = 0;
 	for(node v : m_nodesInCC[i]) {
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			node w = adj->twinNode();
 			if(v->index() < w->index()) {
 				m_src[j] = srcId;

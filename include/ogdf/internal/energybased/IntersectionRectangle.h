@@ -37,15 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_INTERSECTION_RECTANGLE_H
-#define OGDF_INTERSECTION_RECTANGLE_H
-
 
 #include <ogdf/basic/geometry.h>
 
@@ -131,10 +123,10 @@ public:
 
 	// tests if p is inside the rectangle modulo the comparison epsilon
 	bool inside(const DPoint &p) const {
-		if ((p.m_x + OGDF_GEOM_EPS) < m_p1.m_x ||
-			(p.m_x - OGDF_GEOM_EPS) > m_p2.m_x ||
-			(p.m_y + OGDF_GEOM_EPS) < m_p1.m_y ||
-			(p.m_y - OGDF_GEOM_EPS) > m_p2.m_y)
+		if (OGDF_GEOM_ET.less(p.m_x, m_p1.m_x) ||
+			OGDF_GEOM_ET.greater(p.m_x, m_p2.m_x) ||
+			OGDF_GEOM_ET.less(p.m_y, m_p1.m_y) ||
+			OGDF_GEOM_ET.greater(p.m_y, m_p2.m_y))
 			return false;
 		return true;
 	}
@@ -197,4 +189,3 @@ public:
 */
 
 }
-#endif

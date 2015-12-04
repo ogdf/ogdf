@@ -160,7 +160,7 @@ void GEMLayout::call(GraphAttributes &AG)
 
 		// main loop
 		int counter = m_numberOfRounds;
-		while(DIsGreater(m_globalTemperature,m_minimalTemperature) && counter--) {
+		while(OGDF_GEOM_ET.greater(m_globalTemperature,m_minimalTemperature) && counter--) {
 
 			// choose nodes by random permutations
 			if(permutation.empty()) {
@@ -242,7 +242,6 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	//const Graph &G = AG.constGraph();
 	int n = G.numberOfNodes();
 
-	edge e;
 	double deltaX,deltaY,delta,deltaSqu;
 	double desiredLength,desiredSqu;
 
@@ -266,7 +265,7 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 			deltaX = AG.x(v) - AG.x(u);
 			deltaY = AG.y(v) - AG.y(u);
 			delta = length(deltaX,deltaY);
-			if(DIsGreater(delta,0)) {
+			if(OGDF_GEOM_ET.greater(delta,0.0)) {
 				deltaSqu = delta * delta;
 				m_newImpulseX += deltaX * desiredSqu / deltaSqu;
 				m_newImpulseY += deltaY * desiredSqu / deltaSqu;
@@ -274,8 +273,8 @@ void GEMLayout::computeImpulse(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	}
 
 	// compute attractive forces
-	forall_adj_edges(e,v) {
-		node u = e->opposite(v);
+	for(adjEntry adj : v->adjEntries) {
+		node u = adj->twinNode();
 		deltaX = AG.x(v) - AG.x(u);
 		deltaY = AG.y(v) - AG.y(u);
 		delta = length(deltaX,deltaY);
@@ -299,7 +298,7 @@ void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 	double impulseLength;
 
 	impulseLength = length(m_newImpulseX,m_newImpulseY);
-	if(DIsGreater(impulseLength,0)) {
+	if(OGDF_GEOM_ET.greater(impulseLength,0.0)) {
 
 		// scale impulse by node temperature
 		m_newImpulseX *= m_localTemperature[v] / impulseLength;
@@ -315,7 +314,7 @@ void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 
 		impulseLength = length(m_newImpulseX,m_newImpulseY)
 						* length(m_impulseX[v],m_impulseY[v]);
-		if(DIsGreater(impulseLength,0)) {
+		if(OGDF_GEOM_ET.greater(impulseLength,0.0)) {
 
 			m_globalTemperature -= m_localTemperature[v] / n;
 
@@ -329,17 +328,17 @@ void GEMLayout::updateNode(GraphCopy &G, GraphCopyAttributes &AG,node v) {
 					/ impulseLength;
 
 			// check for rotation
-			if(DIsGreater(sinBeta,m_sin))
+			if(OGDF_GEOM_ET.greater(sinBeta,m_sin))
 				m_skewGauge[v] += m_rotationSensitivity;
 
 			// check for oscillation
-			if(DIsGreater(length(cosBeta),m_cos))
+			if(OGDF_GEOM_ET.greater(length(cosBeta),m_cos))
 				m_localTemperature[v] *=
 					(1 + cosBeta * m_oscillationSensitivity);
 
 			// cool down according to skew gauge
 			m_localTemperature[v] *= (1.0 - length(m_skewGauge[v]));
-			if(DIsGreaterEqual(m_localTemperature[v],m_initialTemperature))
+			if(OGDF_GEOM_ET.geq(m_localTemperature[v],m_initialTemperature))
 				m_localTemperature[v] = m_initialTemperature;
 
 			// adjust global temperature

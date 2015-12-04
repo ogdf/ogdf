@@ -341,13 +341,13 @@ void CPlanarEdgeInserter::findShortestPath(
 
 	//insert connections to adjacent faces
 	//be careful with selfloops and bridges (later)
-	for(adjEntry adjE : s->adjEdges)
+	for(adjEntry adjE : s->adjEntries)
 	{
 		edge eNew = m_dualGraph.newEdge(sDummy, nodeOfFace[E.rightFace(adjE)]);
 		m_arcOrig[eNew] = adjE;
 		m_eStatus[eNew] = 1;
 	}
-	for(adjEntry adjE : t->adjEdges)
+	for(adjEntry adjE : t->adjEntries)
 	{
 		edge eNew = m_dualGraph.newEdge(nodeOfFace[E.rightFace(adjE)], tDummy);
 		m_arcOrig[eNew] = adjE;
@@ -355,7 +355,7 @@ void CPlanarEdgeInserter::findShortestPath(
 	}
 
 	// Start with outgoing edges
-	for(adjEntry adj : sDummy->adjEdges) {
+	for(adjEntry adj : sDummy->adjEntries) {
 		// starting edges of bfs-search are all edges leaving s
 		//edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
 		//m_primalAdj[eDual] = adj;
@@ -422,8 +422,9 @@ void CPlanarEdgeInserter::findShortestPath(
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+
 				if ((v == e->source()) &&
 					(m_eStatus[e] == 1) )
 				{
@@ -445,14 +446,14 @@ void CPlanarEdgeInserter::findShortestPath(
 	//delete dummies
 	//connections and update graph
 	List<edge> delMe;
-	for(adjEntry adjE : sDummy->adjEdges)
+	for(adjEntry adjE : sDummy->adjEntries)
 	{
 		delMe.pushBack(adjE->theEdge());
 	}
 	while (!delMe.empty())
 		m_dualGraph.delEdge(delMe.popFrontRet());
 
-	for(adjEntry adjE : tDummy->adjEdges)
+	for(adjEntry adjE : tDummy->adjEntries)
 	{
 		delMe.pushBack(adjE->theEdge());
 	}

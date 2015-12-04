@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DUAL_GRAPH_H
-#define OGDF_DUAL_GRAPH_H
-
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/NodeArray.h>
@@ -111,5 +105,3 @@ protected:
 }; // class DualGraph
 
 } // end namespace ogdf
-
-#endif

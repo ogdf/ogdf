@@ -33,14 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_TWO_LAYER_CROSS_MIN_SIMDRAW_H
-#define OGDF_TWO_LAYER_CROSS_MIN_SIMDRAW_H
-
 
 #include <ogdf/module/LayerByLayerSweep.h>
 
@@ -48,31 +41,28 @@
 namespace ogdf {
 
 
-	class OGDF_EXPORT TwoLayerCrossMinSimDraw : public LayerByLayerSweep
-	{
-	public:
-		//! Initializes a two-layer crossing minimization module.
-		TwoLayerCrossMinSimDraw() : LayerByLayerSweep() { }
+class OGDF_EXPORT TwoLayerCrossMinSimDraw : public LayerByLayerSweep
+{
+public:
+	//! Initializes a two-layer crossing minimization module.
+	TwoLayerCrossMinSimDraw() : LayerByLayerSweep() { }
 
-		//! Returns a new instance of the two-layer crossing minimization module with the same option settings.
-		virtual TwoLayerCrossMinSimDraw *clone() const = 0;
+	//! Returns a new instance of the two-layer crossing minimization module with the same option settings.
+	virtual TwoLayerCrossMinSimDraw *clone() const = 0;
 
-		/**
-		* \brief Performs crossing minimization for level \a L.
-		*
-		* @param L is the level in the hierarchy on which nodes are permuted; the
-		*        neighbor level (fixed level) is determined by the hierarchy.
-		* @param esg points to an edge array which specifies to which subgraphs
-		*        an edge belongs; there are up to 32 possible subgraphs each of which
-		*        is represented by a bit of an <code>uint32_t</code>.
-		*/
-		virtual void call(Level &L, const EdgeArray<uint32_t> *esg) = 0;
+	/**
+	* \brief Performs crossing minimization for level \a L.
+	*
+	* @param L is the level in the hierarchy on which nodes are permuted; the
+	*        neighbor level (fixed level) is determined by the hierarchy.
+	* @param esg points to an edge array which specifies to which subgraphs
+	*        an edge belongs; there are up to 32 possible subgraphs each of which
+	*        is represented by a bit of an <code>uint32_t</code>.
+	*/
+	virtual void call(Level &L, const EdgeArray<uint32_t> *esg) = 0;
 
-		void call(Level &L) = 0;
-	};
+	void call(Level &L) = 0;
+};
 
 
 } // end namespace ogdf
-
-
-#endif

@@ -94,7 +94,7 @@ UpwardPlanRep::UpwardPlanRep(const GraphCopy &GC, ogdf::adjEntry adj_ext) :
 		extFaceHandle = extFaceHandle->twin();
 	m_Gamma.setExternalFace(m_Gamma.rightFace(extFaceHandle));
 
-	for(adjEntry adj : s_hat->adjEdges)
+	for(adjEntry adj : s_hat->adjEntries)
 		m_isSourceArc[adj->theEdge()] = true;
 
 	computeSinkSwitches();
@@ -203,7 +203,7 @@ void UpwardPlanRep::augment()
 	hasSingleSource(*this, s_hat);
 	OGDF_ASSERT(this == &m_Gamma.getGraph());
 
-	for(adjEntry adj : s_hat->adjEdges)
+	for(adjEntry adj : s_hat->adjEntries)
 		m_isSourceArc[adj->theEdge()] = true;
 
 	FaceSinkGraph fsg(m_Gamma, s_hat);
@@ -316,7 +316,7 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 	node v =  crossedEdges.front()->theNode();
 	List<edge> outEdges;
 	if (v->outdeg() == 1)
-		this->outEdges(v, outEdges); // we delete this edges later
+		v->outEdges(outEdges); // we delete these edges later
 
 	m_eCopy[eOrig].clear();
 
@@ -516,7 +516,7 @@ void UpwardPlanRep::initMe()
 		}
 	}
 	m_Gamma.setExternalFace(f_ext);
-	for(adjEntry adj : s_hat->adjEdges) {
+	for(adjEntry adj : s_hat->adjEntries) {
 		if (m_Gamma.rightFace(adj) == m_Gamma.externalFace()) {
 			extFaceHandle = adj;
 			break;
@@ -528,7 +528,7 @@ void UpwardPlanRep::initMe()
 
 adjEntry UpwardPlanRep::getAdjEntry(const CombinatorialEmbedding &Gamma, node v, face f) const {
 	adjEntry adjFound = nullptr;
-	for(adjEntry adj : v->adjEdges) {
+	for(adjEntry adj : v->adjEntries) {
 		if (Gamma.rightFace(adj) == f) {
 			adjFound = adj;
 			break;

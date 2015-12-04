@@ -73,7 +73,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 	List<node> bfsQueue;
 	List<node> neighbors;
 	int minIndex = numeric_limits<int>::max();
-	for(adjEntry adj : parent->adjEdges) {
+	for(adjEntry adj : parent->adjEntries) {
 		node temp = adj->twinNode();
 		bfsQueue.pushBack(temp);
 		nodeMark[temp] = temp->index();
@@ -85,7 +85,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 			}
 		}
 	}
-	for(adjEntry adj : mergePartner->adjEdges) {
+	for(adjEntry adj : mergePartner->adjEntries) {
 		node temp = adj->twinNode();
 		bfsQueue.pushBack(temp);
 		nodeMark[temp] = temp->index();
@@ -104,7 +104,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 	{
 		minIndex = numeric_limits<int>::max();
 		for (node temp : neighbors) {
-			for(adjEntry adj : temp->adjEdges) {
+			for(adjEntry adj : temp->adjEntries) {
 				node neighbor = adj->twinNode();
 				if (neighborStatus[neighbor] == 0 && !seen[neighbor]) {
 					nonReachedNeighbors.pushBack(neighbor);
@@ -139,7 +139,7 @@ bool LocalBiconnectedMerger::canMerge( Graph &G, node parent, node mergePartner,
 		seen[temp] = true;
 		visitedNodes++;
 
-		for(adjEntry adj : temp->adjEdges) {
+		for(adjEntry adj : temp->adjEntries) {
 			node neighbor = adj->twinNode();
 			if (neighbor == parent || neighbor == mergePartner) {
 				continue;

@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_ROUTING_CHANNEL_H
-#define OGDF_ROUTING_CHANNEL_H
-
 
 #include <ogdf/orthogonal/OrthoRep.h>
 
@@ -146,6 +138,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

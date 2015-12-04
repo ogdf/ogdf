@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_TWO_LAYER_CROSS_MIN_H
-#define OGDF_TWO_LAYER_CROSS_MIN_H
-
-
 
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/layered/HierarchyLevels.h>
@@ -122,6 +114,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

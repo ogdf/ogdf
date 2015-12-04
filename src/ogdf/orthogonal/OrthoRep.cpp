@@ -160,7 +160,7 @@ bool OrthoRep::check(string &error) const
 	for(node v : G.nodes)
 	{
 		int sumAngles = 0;
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 			sumAngles += angle(adj);
 		if(sumAngles != 4) {
 			oss << "Angle sum at vertex " << v->index() << " is " << sumAngles << ".";

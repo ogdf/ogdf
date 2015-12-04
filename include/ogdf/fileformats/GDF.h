@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_GDF_H
-#define OGDF_GDF_H
-
 
 #include <ogdf/basic/graphics.h>
 #include <ogdf/basic/Hashing.h>
@@ -93,6 +86,3 @@ Shape toShape(const std::string &str);
 } // end namespace gdf
 
 } // end namespace ogdf
-
-
-#endif

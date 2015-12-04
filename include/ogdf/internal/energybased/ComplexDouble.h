@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_COMPLEX_DOUBLE_H
-#define OGDF_COMPLEX_DOUBLE_H
+#pragma once
 
 #include <ogdf/internal/energybased/FastUtils.h>
 
@@ -468,6 +467,3 @@ public:
 }
 
 } // end of namespace ogdf::sse
-
-#endif // _COMPLEX_DOUBLE_H_
-

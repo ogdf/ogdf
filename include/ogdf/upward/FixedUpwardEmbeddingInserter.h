@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_FIXED_UPWARD_EMBEDDING_INSERTER_H
-#define OGDF_FIXED_UPWARD_EMBEDDING_INSERTER_H
-
-
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/upward/UpwardPlanarity.h>
@@ -140,5 +132,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

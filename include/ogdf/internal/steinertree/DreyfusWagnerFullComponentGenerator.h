@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DREYFUS_WAGNER_FULL_COMPONENT_GENERATOR_H
-#define OGDF_DREYFUS_WAGNER_FULL_COMPONENT_GENERATOR_H
 
 #include <ogdf/basic/Hashing.h>
 #include <ogdf/basic/SubsetEnumerator.h>
@@ -269,5 +264,3 @@ public:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif

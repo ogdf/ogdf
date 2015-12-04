@@ -44,13 +44,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MAX_CPLANAR_MINIMAL_CLUSTER_CONNECTION_H
-#define OGDF_MAX_CPLANAR_MINIMAL_CLUSTER_CONNECTION_H
+#pragma once
 
 #include <ogdf/internal/cluster/Cluster_EdgeVar.h>
 #include <ogdf/internal/cluster/MaxCPlanar_Master.h>
 
-#include <ogdf/abacus/constraint.h>
+#include <ogdf/lib/abacus/constraint.h>
 
 namespace ogdf {
 
@@ -74,5 +73,3 @@ private:
 };
 
 }
-
-#endif

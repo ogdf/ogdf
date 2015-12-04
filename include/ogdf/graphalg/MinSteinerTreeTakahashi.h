@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MIN_STEINER_TREE_TAKAHASHI_H_
-#define OGDF_MIN_STEINER_TREE_TAKAHASHI_H_
+#pragma once
 
 #include <ogdf/basic/List.h>
 #include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
@@ -44,7 +43,7 @@
 namespace ogdf {
 
 /*!
- * \brief This class implements the minimum Steiner tree 2-approximation algorithm by Takahashi and Matsuyama with improvements proposed by Poggi de Aragao et al..
+ * \brief This class implements the minimum Steiner tree 2-approximation algorithm by Takahashi and Matsuyama with improvements proposed by Poggi de Aragao et al.
  *
  * @ingroup ga-steiner
  *
@@ -208,7 +207,7 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 				v = w;
 			}
 		} else { // !isTerminal[v] || distance[v] == 0
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
 				if (distance[w] > distance[v] + wG.weight(e)
@@ -229,5 +228,3 @@ T MinSteinerTreeTakahashi<T>::terminalDijkstra(const EdgeWeightedGraph<T> &wG,
 }
 
 } // end namespace ogdf
-
-#endif /* OGDF_MIN_STEINER_TREE_TAKAHASHI_H_ */

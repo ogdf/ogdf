@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MULTILEVEL_LAYOUT_H
-#define OGDF_MULTILEVEL_LAYOUT_H
-
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -54,40 +47,40 @@
 
 namespace ogdf {
 
-	//! The multilevel drawing framework.
-	/**
-	 * @ingroup gd-energy
-	 */
-	class OGDF_EXPORT MultilevelLayout : public LayoutModule
-	{
-		public:
-			//! Constructor
-			MultilevelLayout();
+//! The multilevel drawing framework.
+/**
+ * @ingroup gd-energy
+ */
+class OGDF_EXPORT MultilevelLayout : public LayoutModule
+{
+	public:
+		//! Constructor
+		MultilevelLayout();
 
-			//! Destructor
-			virtual ~MultilevelLayout() {delete m_pp;}
+		//! Destructor
+		virtual ~MultilevelLayout() {delete m_pp;}
 
-			//! Calculates a drawing for the Graph GA.
-			virtual void call(GraphAttributes &GA) override;
+		//! Calculates a drawing for the Graph GA.
+		virtual void call(GraphAttributes &GA) override;
 
-			//! Calculates a drawing for the Graph GA and tries to satisfy
-			//! the constraints in CG if supported.
-			virtual void call(GraphAttributes &GA, GraphConstraints &GC) override;
+		//! Calculates a drawing for the Graph GA and tries to satisfy
+		//! the constraints in CG if supported.
+		virtual void call(GraphAttributes &GA, GraphConstraints &GC) override;
 
-			//Setting of the three main phases' methods
-			//! Sets the single level layout
-			void setLayout(LayoutModule* L);
-			//! Sets the method used for coarsening
-			void setMultilevelBuilder(MultilevelBuilder* B);
-			//! Sets the placement method used when refining the levels again.
-			void setPlacer(InitialPlacer* P);
+		//Setting of the three main phases' methods
+		//! Sets the single level layout
+		void setLayout(LayoutModule* L);
+		//! Sets the method used for coarsening
+		void setMultilevelBuilder(MultilevelBuilder* B);
+		//! Sets the placement method used when refining the levels again.
+		void setPlacer(InitialPlacer* P);
 
 
-		private:
-			ModularMultilevelMixer* m_mmm;
-			ScalingLayout* m_sc;
-			ComponentSplitterLayout* m_cs;
-			PreprocessorLayout* m_pp;
-	};
+	private:
+		ModularMultilevelMixer* m_mmm;
+		ScalingLayout* m_sc;
+		ComponentSplitterLayout* m_cs;
+		PreprocessorLayout* m_pp;
+};
+
 } //end namespace ogdf
-#endif

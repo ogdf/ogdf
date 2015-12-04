@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DTREE_FORCE_TYPES_H_
-#define OGDF_DTREE_FORCE_TYPES_H_
 
 #include <ogdf/basic/basic.h>
 
@@ -196,5 +191,3 @@ inline void RepForceFunctionInvGauss(const double a[Dim], const double b[Dim], d
  */
 
 } // end namespace
-
-#endif

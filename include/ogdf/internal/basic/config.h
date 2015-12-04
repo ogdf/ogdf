@@ -32,28 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CONFIG_H
-#define OGDF_CONFIG_H
 
 #include <ogdf/internal/version.h>
-
 #include <ogdf/internal/config_autogen.h>
-
-// define minimal MS runtime version for mingw32
-#if defined(__MINGW32__) && !defined(__MINGW64__)
-#ifndef __MSVCRT_VERSION__
-#define __MSVCRT_VERSION__ 0x0700
-#endif
-#endif
-
-
-// common stdlib includes
 #include <iostream>
 #include <string>
+
+namespace ogdf {
 
 // generally used <iostream> members
 using std::ios;
@@ -179,7 +165,7 @@ using std::string;
 
 // warning C4251: 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'
 #pragma warning(disable : 4251)
-// warning C4275: non – DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
+// warning C4275: non-DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
 #pragma warning(disable : 4275)
 #endif
 
@@ -209,8 +195,6 @@ using std::string;
 #define OGDF_MEMORY_POOL_TS
 #endif
 
-
-namespace ogdf {
 
 	//! Provides information about how OGDF has been configured.
 	/**
@@ -305,6 +289,3 @@ namespace ogdf {
 		return os;
 	}
 }
-
-
-#endif

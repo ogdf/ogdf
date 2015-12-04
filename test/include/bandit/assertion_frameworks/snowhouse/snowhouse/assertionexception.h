@@ -19,9 +19,19 @@ namespace snowhouse {
         : m_message(message), m_fileName(fileName), m_line(line)
       {}
 
+#if __cplusplus > 199711L
+      AssertionException(const AssertionException&) = default;
+#endif
+
+#if __cplusplus > 199711L
+      virtual ~AssertionException() noexcept
+      {
+      }
+#else
       virtual ~AssertionException() throw()
       {
       }
+#endif
 
       std::string GetMessage() const
       {

@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HYPER_GRAPH_H
-#define OGDF_HYPER_GRAPH_H
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/EList.h>
@@ -901,5 +895,3 @@ static std::istream& operator>>(std::istream& inStream, HyperGraph& graph)
 }
 
 } // end of namespace ogdf
-
-#endif /* HYPERGRAPH_H_ */

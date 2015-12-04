@@ -34,15 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_ORTHO_LAYOUT_UML_H
-#define OGDF_ORTHO_LAYOUT_UML_H
-
 
 #include <ogdf/module/LayoutPlanRepUMLModule.h>
 #include <ogdf/orthogonal/OrthoRep.h>
@@ -50,7 +42,7 @@
 
 namespace ogdf {
 
-	enum OptionProfile { standard, minBendsperEdge, fullService }; //just to think about it...
+enum OptionProfile { standard, minBendsperEdge, fullService }; //just to think about it...
 
 //---------------------------------------------------------
 // OrthoLayoutUML
@@ -199,6 +191,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

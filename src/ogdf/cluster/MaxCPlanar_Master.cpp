@@ -400,15 +400,14 @@ double MaxCPlanarMaster::heuristicInitialLowerBound()
 
 double MaxCPlanarMaster::heuristicInitialUpperBound() {
 
-	double upperBoundO = m_G->numberOfEdges();
+	double upperBoundO( m_G->numberOfEdges() );
 	double upperBoundC = 0.0;
 
 	// Checking graph for planarity
 	// If \a m_G is planar \a upperBound is simply set to the number of edges of \a m_G.
 	GraphCopy gc(*m_G);
 	BoyerMyrvold bm;
-	if (bm.isPlanarDestructive(gc)) upperBoundO = m_G->numberOfEdges();
-	else {
+	if (!bm.isPlanarDestructive(gc)) {
 
 		// Extract all possible Kuratowski subdivisions.
 		// Compare extracted subdivisions and try to obtain the
@@ -418,8 +417,6 @@ double MaxCPlanarMaster::heuristicInitialUpperBound() {
 		// a subdivision (sd) does overlap with a subdivision for which
 		// we already decreased the upper bound. In this case,
 		// upperBound stays the same.
-
-		upperBoundO = m_G->numberOfEdges();
 
 		GraphCopy *gCopy = new GraphCopy(*m_G);
 		SList<KuratowskiWrapper> subDivs;
@@ -499,7 +496,7 @@ void MaxCPlanarMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	visited.fill(false);
 	visited[u] = true;
 	int nodesVisited = 1;
-	for(adjEntry adj : u->adjEdges) {
+	for(adjEntry adj : u->adjEntries) {
 		visited[adj->twinNode()] = true;
 		nodesVisited++;
 		dist[u][adj->twinNode()] += 1;
@@ -508,7 +505,7 @@ void MaxCPlanarMaster::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 	while (!queue.empty() || nodesVisited!=m_G->numberOfNodes()) {
 		node v = queue.front();
 		queue.popFront();
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if (!visited[adj->twinNode()]) {
 				visited[adj->twinNode()] = true;
 				nodesVisited++;
@@ -662,7 +659,7 @@ void MaxCPlanarMaster::initializeOptimization() {
 		c->getClusterNodes(clusterNodes);
 		ListConstIterator<node> it;
 		for (it=clusterNodes.begin(); it.valid(); ++it) {
-			for(adjEntry adj : (*it).adjEdges) {
+			for(adjEntry adj : (*it).adjEntries) {
 				if(m_C->clusterOf(adj->twinNode()) != c) {
 					connected[m_C->clusterOf(adj->twinNode())] = true;
 				}
@@ -678,7 +675,7 @@ void MaxCPlanarMaster::initializeOptimization() {
 				//determine all nodePairs between \a c and \a succ and add them to list \a mcc_edges
 				for (it=clusterNodes.begin(); it.valid(); ++it) {
 					nodePair np;
-					for(adjEntry adj : (*it).adjEdges) {
+					for(adjEntry adj : (*it).adjEntries) {
 						if (m_C->clusterOf(adj->twinNode()) == succ) {
 							np.v1 = (*it);
 							np.v2 = adj->twinNode();
@@ -903,12 +900,11 @@ void MaxCPlanarMaster::terminateOptimization() {
 	}
 	Logger::ssout() << ">\n";
 
-	edge e;
 	for(node n : m_G->nodes) {
 		for(node m : m_G->nodes) {
 			if(m->index()<=n->index()) continue;
-			forall_adj_edges(e, n) {
-				if(e->opposite(n)==m) {
+			for(adjEntry adj : n->adjEntries) {
+				if(adj->twinNode()==m) {
 					Logger::slout() << "ORIG: " << n << "-" << m << "\n";
 					continue;
 				}
@@ -918,8 +914,8 @@ void MaxCPlanarMaster::terminateOptimization() {
 	for (node n : m_G->nodes) {
 		for (node m : m_G->nodes) {
 			if (m->index() <= n->index()) continue;
-			forall_adj_edges(e, n) {
-				if (e->opposite(n) == m) {
+			for(adjEntry adj : n->adjEntries) {
+				if (adj->twinNode() == m) {
 					goto wup;
 				}
 			}

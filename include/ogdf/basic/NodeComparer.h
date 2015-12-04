@@ -33,63 +33,58 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_NODECOMPARER_H
-#define OGDF_NODECOMPARER_H
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/basic/NodeArray.h>
 
 namespace ogdf {
 
-	/**
-	 * @ingroup comparer
-	 */
-	template<class sorterType>
-	class NodeComparer
+/**
+ * @ingroup comparer
+ */
+template<class sorterType>
+class NodeComparer
+{
+public:
+	NodeComparer(NodeArray<sorterType> &valArray, bool ascending = true)
+		: m_valArray(&valArray)
 	{
-	public:
-		NodeComparer(NodeArray<sorterType> &valArray, bool ascending = true)
-			: m_valArray(&valArray)
+		if (ascending)
 		{
-			if (ascending)
-			{
-				m_smaller = -1;
-//				m_greater = 1;
-			}//if
-			else
-			{
-				m_smaller = 1;
-//				m_greater = -1;
-			}
-
-		}//constructor
-
-		int compare(const node &v1, const node &v2) const
+			m_smaller = -1;
+#if 0
+			m_greater = 1;
+#endif
+		}//if
+		else
 		{
-			if ((*m_valArray)[v1] < (*m_valArray)[v2]) return m_smaller;
-			else if ((*m_valArray)[v1] > (*m_valArray)[v2]) return -m_smaller;//m_greater;
-			else return 0;
+			m_smaller = 1;
+#if 0
+			m_greater = -1;
+#endif
 		}
 
-		void init(NodeArray<sorterType> &valArray) {m_valArray = &valArray;}
+	}//constructor
 
-		OGDF_AUGMENT_COMPARER(node)
+	int compare(const node &v1, const node &v2) const
+	{
+		if ((*m_valArray)[v1] < (*m_valArray)[v2]) return m_smaller;
+		else if ((*m_valArray)[v1] > (*m_valArray)[v2]) return -m_smaller;//m_greater;
+		else return 0;
+	}
 
-	private:
-		NodeArray<sorterType> *m_valArray;
-		int m_smaller;
-//		int m_greater;
+	void init(NodeArray<sorterType> &valArray) {m_valArray = &valArray;}
 
-	};//NodeComparer
+	OGDF_AUGMENT_COMPARER(node)
 
-
-}//namespace
-
+private:
+	NodeArray<sorterType> *m_valArray;
+	int m_smaller;
+#if 0
+	int m_greater;
 #endif
 
+};//NodeComparer
+
+}//namespace

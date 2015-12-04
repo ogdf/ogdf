@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_IMPL_FIBONACCI_HEAP_H
-#define OGDF_IMPL_FIBONACCI_HEAP_H
-
 
 #include <array>
 #include <utility>
@@ -433,6 +426,3 @@ inline void FibonacciHeap<T, C>::restore(FibonacciHeapNode<T> *node)
 }
 
 } // end namespace ogdf
-
-
-#endif

@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CPLANAR_SUBCLUSTERED_ST_H
-#define OGDF_CPLANAR_SUBCLUSTERED_ST_H
-
 
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterArray.h>
@@ -202,6 +196,3 @@ private:
 };//cplanarsubclusteredST
 
 } // end namespace ogdf
-
-
-#endif

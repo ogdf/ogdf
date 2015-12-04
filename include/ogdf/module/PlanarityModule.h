@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANARITY_MODULE_H
-#define OGDF_PLANARITY_MODULE_H
 
 #include <ogdf/basic/Graph.h>
 
@@ -87,4 +81,3 @@ public:
 };
 
 }
-#endif

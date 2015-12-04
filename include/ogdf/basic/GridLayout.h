@@ -32,24 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRID_LAYOUT_H
-#define OGDF_GRID_LAYOUT_H
-
 
 #include <ogdf/basic/NodeArray.h>
+#include <ogdf/basic/EdgeArray.h>
+#include <ogdf/basic/Layout.h>
 #include <ogdf/basic/geometry.h>
 
-
 namespace ogdf {
-
-	class Layout;
-
-
 
 /**
  * \brief Representation of a graph's grid layout
@@ -185,5 +175,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

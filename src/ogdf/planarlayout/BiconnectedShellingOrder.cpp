@@ -342,7 +342,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	cout << "adjacency lists:" << endl;
 	for(node vh : G.nodes) {
 		cout << vh << ":";
-		for(adjEntry adj : vh->adjEdges)
+		for(adjEntry adj : vh->adjEntries)
 			cout << " " << adj;
 		cout << endl;
 	}
@@ -402,7 +402,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 	adj = m_adjLeft;
 	do {
 		node v = adj->theNode();
-		for(adjEntry adj2 : v->adjEdges)
+		for(adjEntry adj2 : v->adjEntries)
 		{
 			face f = E.rightFace(adj2);
 			if (f != m_extFace) {
@@ -426,7 +426,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 		m_onOuter[w] = true;
 		edgeToContour(adj);
 
-		for(adjEntry adj2 : w->adjEdges)
+		for(adjEntry adj2 : w->adjEntries)
 		{
 			face f = left(adj2);
 			if (vInF(v,f))
@@ -436,7 +436,7 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 
 	for (node v = m_vLeft; v != nullptr; v = next(v))
 	{
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			face f = left(adj);
 			if ((m_isSf[f] = (m_outv[f] > m_seqp[f]+1)) == true)
 				++m_numsf[v];

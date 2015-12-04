@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_SPQR_TREE_H
-#define OGDF_SPQR_TREE_H
-
 
 #include <ogdf/decomposition/Skeleton.h>
 #include <ogdf/decomposition/PertinentGraph.h>
@@ -240,6 +232,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

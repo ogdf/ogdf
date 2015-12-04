@@ -33,29 +33,21 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_REMOVE_REINSERT_TYPE_H
-#define OGDF_REMOVE_REINSERT_TYPE_H
-
 
 namespace ogdf {
 
-	//! The postprocessing method for edge insertion algorithms.
-	/**
-	 * @ingroup ga-insert
-	 */
-	enum RemoveReinsertType {
-		rrNone,        //!< No postprocessing.
-		rrInserted,    //!< Postprocessing only with the edges that have to be inserted.
-		rrMostCrossed, //!< Postprocessing with the edges involved in the most crossings.
-		rrAll,         //!< Postproceesing with all edges.
-		rrIncremental, //!< Full postprocessing after each edge insertion.
-		rrIncInserted  //!< Postprocessing for (so far) inserted edges after each edge insertion.
-	};
+//! The postprocessing method for edge insertion algorithms.
+/**
+ * @ingroup ga-insert
+ */
+enum RemoveReinsertType {
+	rrNone,        //!< No postprocessing.
+	rrInserted,    //!< Postprocessing only with the edges that have to be inserted.
+	rrMostCrossed, //!< Postprocessing with the edges involved in the most crossings.
+	rrAll,         //!< Postproceesing with all edges.
+	rrIncremental, //!< Full postprocessing after each edge insertion.
+	rrIncInserted  //!< Postprocessing for (so far) inserted edges after each edge insertion.
+};
 
 }
-
-#endif

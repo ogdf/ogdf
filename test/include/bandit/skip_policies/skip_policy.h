@@ -11,7 +11,7 @@ namespace bandit {
 
   namespace detail {
 
-    inline skip_policy& registered_skip_policy(skip_policy* policy = NULL)
+    inline skip_policy& registered_skip_policy(skip_policy* policy = nullptr)
     {
       static struct skip_policy* policy_;
 

@@ -303,7 +303,7 @@ void randomTriconnectedGraph(Graph &G, int n, double p1, double p2)
 		int d = v->degree();
 
 		int j = 0;
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 			neighbors[j++] = adj->theEdge();
 
 		// mark two distinct neighbors for left
@@ -571,10 +571,9 @@ void planarConnectedGraph(Graph &G, int n, int m)
 				if(n1==n2 || adj1->faceCyclePred() == adj || adj->faceCyclePred() == adj1) {
 					continue;
 				}
-				edge e;
 				okay = true;
-				forall_adj_edges(e,n1) {
-					if(e->opposite(n1) == n2) {
+				for(adjEntry adj : n1->adjEntries) {
+					if(adj->twinNode() == n2) {
 						okay = false;
 						break;
 					}
@@ -1051,10 +1050,9 @@ static void bfs(node v, SList<node> &newCluster, NodeArray<bool> &visited, Clust
 {
 	uniform_int_distribution<> dist(0,99);
 
-	edge e;
 	SListPure<node> bfsL;
-	forall_adj_edges (e,v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node w = e->opposite(v);
 		int probability = dist(rng);
 		if (probability < 70 && !visited[w])
@@ -1103,9 +1101,8 @@ void createClustersHelper(ClusterGraph& C, const node curr, const node pred, con
 	if(curr->degree()==1 && pred!=nullptr) {
 		leaves.pushBack(currC);
 	} else {
-		edge e;
-		forall_adj_edges(e,curr) {
-			node next = e->opposite(curr);
+		for(adjEntry adj : curr->adjEntries) {
+			node next = adj->twinNode();
 			if(next == pred) continue;
 			createClustersHelper(C,  next,curr,currC,  internal,leaves);
 		}
@@ -1174,23 +1171,37 @@ void completeGraph(Graph &G, int n)
 			G.newEdge(v[i],v[j]);
 }
 
-
-void completeBipartiteGraph(Graph &G, int n, int m)
+void completeKPartiteGraph(Graph &G, const Array<int> &signature)
 {
 	G.clear();
 
-	Array<node> a(n);
-	Array<node> b(m);
+	OGDF_ASSERT(signature.size() > 0);
+	Array<Array<node>> partitions(signature.size());
 
-	int i,j;
-	for(i = n; i-->0;)
-		a[i] = G.newNode();
-	for(j = m; j-->0;)
-		b[j] = G.newNode();
+	// generate nodes in partitions
+	for (int i = 0; i < partitions.size(); ++i) {
+		OGDF_ASSERT(signature[i] > 0);
+		partitions[i].init(signature[i]);
+		for (int j = 0; j < signature[i]; ++j) {
+			partitions[i][j] = G.newNode();
+		}
+	}
 
-	for(i = n; i-->0;)
-		for(j = m; j-->0;)
-			G.newEdge(a[i],b[j]);
+	// generate edges
+	for (int i = 0; i < partitions.size(); ++i) {
+		for (node u : partitions[i]) {
+			for (int j = i+1; j < partitions.size(); ++j) {
+				for (node v : partitions[j]) {
+					G.newEdge(u, v);
+				}
+			}
+		}
+	}
+}
+
+void completeBipartiteGraph(Graph &G, int n, int m)
+{
+	completeKPartiteGraph(G, {n, m});
 }
 
 
@@ -1369,10 +1380,10 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt)
 		bool serial = dist(rng) < p;
 		if (!serial) {
 			bool fnd_1 = false, fnd_2 = false;
-			for(adjEntry adj : s_1->adjEdges) {
+			for(adjEntry adj : s_1->adjEntries) {
 				if (adj->twinNode() == sT[s_1]) fnd_1 = true;
 			}
-			for(adjEntry adj : s_2->adjEdges) {
+			for(adjEntry adj : s_2->adjEntries) {
 				if (adj->twinNode() == sT[s_2]) fnd_2 = true;
 			}
 			if (fnd_1 && fnd_2) serial = true;

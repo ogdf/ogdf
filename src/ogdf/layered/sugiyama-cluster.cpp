@@ -671,8 +671,8 @@ void ExtendedNestingGraph::createDummyNodes()
 		node vTop = top(c);
 		node vBottom = bottom(c);
 
-		edge e;
-		forall_adj_edges(e,vTop)
+		for(adjEntry adj : vTop->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->target() == vBottom) {
 				int span = m_rank[vBottom] - m_rank[vTop];
 				OGDF_ASSERT(span >= 1);
@@ -689,6 +689,7 @@ void ExtendedNestingGraph::createDummyNodes()
 				}
 				break;
 			}
+		}
 	}
 }
 
@@ -755,7 +756,7 @@ void ExtendedNestingGraph::createVirtualClusters(
 
 		for(itV = c->nBegin(); itV.valid(); ++itV) {
 			node v = *itV;
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				if(origEdge(adj->theEdge()) == nullptr)
 					continue;
 
@@ -960,8 +961,8 @@ void ExtendedNestingGraph::buildLayers()
 	for(i = 0; i < m_numLayers-1; ++i)
 	{
 		for(node u : L[i]) {
-			edge e;
-			forall_adj_edges(e,u) {
+			for(adjEntry adj : u->adjEntries) {
+				edge e = adj->theEdge();
 				if(origEdge(e) == nullptr)
 					continue;
 				if(e->source() == u) {
@@ -977,8 +978,8 @@ void ExtendedNestingGraph::buildLayers()
 		}
 
 		for(node u : L[i]) {
-			edge e;
-			forall_adj_edges(e,u) {
+			for(adjEntry adj : u->adjEntries) {
+				edge e = adj->theEdge();
 				if(e->source() == u && origEdge(e) == nullptr) {
 					LHTreeNode *aNode = treeNode[e->target()];
 					cluster ca = aNode->parent()->originalCluster();
@@ -1527,8 +1528,8 @@ bool ExtendedNestingGraph::reachable(node v, node u, SListPure<node> &successors
 		node w = Q.popFrontRet();
 		successors.pushBack(w);
 
-		edge e;
-		forall_adj_edges(e, w) {
+		for(adjEntry adj : w->adjEntries) {
+			edge e = adj->theEdge();
 			node t = e->target();
 
 			if(t == u) {
@@ -1565,8 +1566,8 @@ void ExtendedNestingGraph::moveDown(node v, const SListPure<node> &successors, N
 	}
 
 	for(node vi : successors) {
-		edge e;
-		forall_adj_edges(e,vi) {
+		for(adjEntry adj : vi->adjEntries) {
+			edge e = adj->theEdge();
 			node s = e->source();
 			if(s != vi && m_aeVisited[s])
 				++m_auxDeg[vi];
@@ -1574,8 +1575,8 @@ void ExtendedNestingGraph::moveDown(node v, const SListPure<node> &successors, N
 	}
 
 	SListPure<node> Q;
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node t = e->target();
 		if(t != v) {
 			if( --m_auxDeg[t] == 0 )
@@ -1588,8 +1589,8 @@ void ExtendedNestingGraph::moveDown(node v, const SListPure<node> &successors, N
 		node w = Q.popFrontRet();
 
 		int maxLevel = 0;
-		edge e;
-		forall_adj_edges(e, w) {
+		for(adjEntry adj : w->adjEntries) {
+			edge e = adj->theEdge();
 			node s = e->source();
 			node t = e->target();
 

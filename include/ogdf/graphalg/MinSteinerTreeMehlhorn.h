@@ -33,13 +33,16 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_MIN_STEINER_TREE_MEHLHORN_H_
-#define OGDF_MIN_STEINER_TREE_MEHLHORN_H_
+#pragma once
 
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/Voronoi.h>
 #include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
+
+#include <ogdf/basic/GraphAttributes.h>
+#include <ogdf/basic/List.h>
+#include <sstream>
 
 namespace ogdf {
 
@@ -156,15 +159,7 @@ protected:
 	};
 };
 
-} // end namespace ogdf
-
 // ============= Implementation =================
-
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/List.h>
-#include <sstream>
-
-namespace ogdf {
 
 template<typename T>
 T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
@@ -294,5 +289,3 @@ void MinSteinerTreeMehlhorn<T>::insertPath(node u, const Voronoi<T> &voronoi, Ed
 }
 
 } // end namespace ogdf
-
-#endif /* OGDF_MIN_STEINER_TREE_MEHLHORN_H_ */

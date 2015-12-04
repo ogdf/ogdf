@@ -6,7 +6,7 @@
  * The algorithm for maximum external face is combined with the
  * algorithm for maximum external layers which defines how to embed
  * blocks into inner faces. See diploma thesis "Algorithmen zur
- * Bestimmung von guten Graph-Einbettungen f&uuml;r orthogonale
+ * Bestimmung von guten Graph-Einbettungen für orthogonale
  * Zeichnungen" (in german) by Thorsten Kerkhof (2007) for details.
  *
  * \author Thorsten Kerkhof
@@ -46,7 +46,7 @@
 
 namespace ogdf {
 
-void EmbedderMaxFaceLayers::call(Graph& G, adjEntry& adjExternal)
+void EmbedderMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 {
 	adjExternal = nullptr;
 	pAdjExternal = &adjExternal;
@@ -104,18 +104,16 @@ void EmbedderMaxFaceLayers::call(Graph& G, adjEntry& adjExternal)
 	computeBlockGraphs(rootBlockNode, nullptr);
 
 	//Bottom-Up-Traversal:
-	edge e;
-	forall_adj_edges(e, rootBlockNode)
-	{
+	for(adjEntry adj : rootBlockNode->adjEntries) {
+		edge e = adj->theEdge();
 		node cT = e->source();
 		node cH = pBCTree->cutVertex(cT, rootBlockNode);
 		node cB = nH_to_nBlockEmbedding[rootBlockNode][cH];
 
 		//set length of v in block graph of root block node:
 		int length_v_in_rootBlock = 0;
-		edge e2;
-		forall_adj_edges(e2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+			edge e2 = adj->theEdge();
 			//check if edge is an incoming edge:
 			if (e2->target() != cT)
 				continue;
@@ -152,16 +150,14 @@ void EmbedderMaxFaceLayers::call(Graph& G, adjEntry& adjExternal)
 void EmbedderMaxFaceLayers::computeBlockGraphs(const node& bT, const node& cH)
 {
 	//recursion:
-	edge e;
-	forall_adj_edges(e, bT)
-	{
+	for(adjEntry adj : bT->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->source() == bT)
 			continue;
 
 		node cT = e->source();
-		edge e2;
-		forall_adj_edges(e2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+			edge e2 = adj->theEdge();
 			if (e2->source() == cT)
 				continue;
 			node cH2 = pBCTree->cutVertex(cT, e2->source());
@@ -191,9 +187,8 @@ int EmbedderMaxFaceLayers::constraintMaxFace(const node& bT, const node& cH)
 {
 	//forall (v \in B, v \neq c) do:
 	//  length_B(v) := \sum_{(v, B') \in B} ConstraintMaxFace(B', v);
-	edge e;
-	forall_adj_edges(e, bT)
-	{
+	for(adjEntry adj : bT->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->target() != bT)
 			continue;
 		node vT = e->source();
@@ -201,9 +196,8 @@ int EmbedderMaxFaceLayers::constraintMaxFace(const node& bT, const node& cH)
 
 		//set length of vertex v in block graph of bT:
 		int length_v_in_block = 0;
-		edge e2;
-		forall_adj_edges(e2, vT)
-		{
+		for(adjEntry adj : vT->adjEntries) {
+			edge e2 = adj->theEdge();
 			//check if edge is an incoming edge:
 			if (e2->target() != vT)
 				continue;
@@ -240,9 +234,8 @@ void EmbedderMaxFaceLayers::maximumFaceRec(const node& bT, node& bT_opt, int& el
 		spqrTrees[bT],
 		edgeLengthSkel);
 
-	edge e;
-	forall_adj_edges(e, bT)
-	{
+	for(adjEntry adj : bT->adjEntries) {
+		edge e = adj->theEdge();
 		if (e->target() != bT)
 			continue;
 		node cT = e->source();
@@ -259,23 +252,21 @@ void EmbedderMaxFaceLayers::maximumFaceRec(const node& bT, node& bT_opt, int& el
 
 		//L := \sum_{(B', c) \in bcTree} cstrLength(B', c)
 		int L = 0;
-		edge e2;
-		{
-			forall_adj_edges(e2, cT)
-			{
-				//check if edge is an incoming edge:
-				if (e2->source() != cT)
-					continue;
+		for(adjEntry adj : cT->adjEntries) {
+			edge e2 = adj->theEdge();
+			//check if edge is an incoming edge:
+			if (e2->source() != cT)
+				continue;
 
-				//get partner vertex of c in the block graph of B'=e->target() and add
-				//cstrLength(B', c) to L:
-				node bT2 = e2->target();
-				L += cstrLength[bT2][nH_to_nBlockEmbedding[bT2][pBCTree->cutVertex(cT, bT2)]];
-			}
+			//get partner vertex of c in the block graph of B'=e->target() and add
+			//cstrLength(B', c) to L:
+			node bT2 = e2->target();
+			L += cstrLength[bT2][nH_to_nBlockEmbedding[bT2][pBCTree->cutVertex(cT, bT2)]];
 		}
 
-		forall_adj_edges(e2, cT)
-		{
+		for(adjEntry adj : cT->adjEntries) {
+
+			edge e2 = adj->theEdge();
 			//check if edge is an outgoing edge or the edge from bT to cT:
 			if (e2->target() != cT || e2->source() == bT)
 				continue;
@@ -383,9 +374,8 @@ void EmbedderMaxFaceLayers::embedBlock(
 			if (cT2 == cT)
 			{
 				node parent_bT_of_cT2 = nullptr;
-				edge e_cT2_to_bT2;
-				forall_adj_edges(e_cT2_to_bT2, cT2)
-				{
+				for(adjEntry adj : cT2->adjEntries) {
+					edge e_cT2_to_bT2 = adj->theEdge();
 					if (e_cT2_to_bT2->source() == cT2)
 					{
 						parent_bT_of_cT2 = e_cT2_to_bT2->target();
@@ -449,14 +439,14 @@ void EmbedderMaxFaceLayers::embedBlock(
 						p_adjacencyList->init(blockG[bT]);
 						for(node nBG : blockG[bT].nodes)
 						{
-							for(adjEntry ae_nBG : nBG->adjEdges)
+							for(adjEntry ae_nBG : nBG->adjEntries)
 								(*p_adjacencyList)[nBG].pushBack(ae_nBG);
 						}
 
 						NodeArray< List<adjEntry> > adjEntryTreated(blockG[bT]);
 						for(node nBG : blockG[bT].nodes)
 						{
-							for(adjEntry adj : nBG->adjEdges)
+							for(adjEntry adj : nBG->adjEntries)
 							{
 								if (adjEntryTreated[nBG].search(adj).valid())
 									continue;
@@ -573,9 +563,8 @@ void EmbedderMaxFaceLayers::embedBlock(
 					} //for (int fID = 0; fID < faces.size(); fID++)
 				} //if (!aeExtExists)
 
-				edge e_cT2_to_bT2;
-				forall_adj_edges(e_cT2_to_bT2, cT2)
-				{
+				for(adjEntry adj : cT2->adjEntries) {
+					edge e_cT2_to_bT2 = adj->theEdge();
 					node bT2;
 					if (e_cT2_to_bT2->source() == cT2)
 						bT2 = e_cT2_to_bT2->target();

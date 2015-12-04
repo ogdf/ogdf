@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SUBSET_ENUMERATOR_H
-#define OGDF_SUBSET_ENUMERATOR_H
 
 #include <ogdf/basic/List.h>
 
@@ -262,4 +257,3 @@ ostream &operator<<(ostream &os, const SubsetEnumerator<T> &subset)
 }
 
 }
-#endif // OGDF_SUBSET_ENUMERATOR_H

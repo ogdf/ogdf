@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_ARRAY_GRAPH_H
-#define OGDF_ARRAY_GRAPH_H
+#pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
 
@@ -339,6 +338,3 @@ private:
 };
 
 } // end of namespace ogdf
-
-#endif
-

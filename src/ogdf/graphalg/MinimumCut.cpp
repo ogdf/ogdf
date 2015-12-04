@@ -102,7 +102,7 @@ void MinCut::contraction(node t, node s) {
 	// NodeArray containing parallel edges
 	NodeArray<List<edge> > adjNodes(m_GC);
 
-	for(adjEntry adj : t->adjEdges) {
+	for(adjEntry adj : t->adjEntries) {
 		adjNodes[adj->twinNode()].pushBack(adj->theEdge());
 	}
 
@@ -166,7 +166,7 @@ double MinCut::minimumCutPhase() {
 	// Here, always the first node in the list \a leftoverNodes is chosen.
 	node v = leftoverNodes.popFrontRet(); markedNodes.pushBack(v);
 	//assumes that no multiedges exist
-	for(adjEntry adj : v->adjEdges) {
+	for(adjEntry adj : v->adjEntries) {
 		nodePrio[adj->twinNode()] = m_w[adj->theEdge()];
 #ifdef USE_PRIO
 		pq.decrease(adj->twinNode(), -m_w[adj->theEdge()]);
@@ -227,12 +227,12 @@ double MinCut::minimumCutPhase() {
 		leftoverNodes.del(maxWeightNodeIt);
 
 		// Updating the node priorities
-		for(adjEntry a : maxWeightNode->adjEdges) {
+		for(adjEntry a : maxWeightNode->adjEntries) {
 			nodePrio[a->twinNode()] += m_w[a->theEdge()];
 		}
 #ifdef USE_PRIO
 		//replaces loop above
-		for(adjEntry a : maxWeightNodePq->adjEdges) {
+		for(adjEntry a : maxWeightNodePq->adjEntries) {
 			//should have some decreasePriorityBy instead...
 			pq.decrease(a->twinNode(), pq.priority(a->twinNode()) - m_w[a->theEdge()]);
 		}
@@ -243,7 +243,7 @@ double MinCut::minimumCutPhase() {
 	cutOfThePhase = 0.0;
 	ListConstIterator<node> last = markedNodes.rbegin();
 	t = (*last); s = *(last.pred());
-	for(adjEntry t_adj : t->adjEdges) {
+	for(adjEntry t_adj : t->adjEntries) {
 		cutOfThePhase += m_w[t_adj->theEdge()];
 	}
 
@@ -308,8 +308,8 @@ void MinCut::cutEdges(List<edge> &edges, Graph &G) {
 	}
 
 	for (node v : m_partition) {
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			if(e->source() == v) {
 				if(inPartition[e->target()] == false) {
 					edges.pushBack(e);

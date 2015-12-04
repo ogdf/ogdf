@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_TREE_LAYOUT_H
-#define OGDF_TREE_LAYOUT_H
 
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/SList.h>
@@ -52,7 +46,7 @@ namespace ogdf {
  * The class TreeLayout represents the improved version of the tree layout
  * algorithm by Walker presented in:
  *
- * Christoph Buchheim, Michael J&uuml;nger, Sebastian Leipert: <i>Drawing
+ * Christoph Buchheim, Michael Jünger, Sebastian Leipert: <i>Drawing
  * rooted trees in linear time</i>. Software: Practice and Experience 36(6),
  * pp. 651-665, 2006.
  *
@@ -255,6 +249,3 @@ private:
 };
 
 } // end namespace ogdf
-
-#endif
-

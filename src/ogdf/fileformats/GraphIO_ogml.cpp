@@ -146,7 +146,7 @@ static void write_ogml_graph_edges(const GraphAttributes &A, ostream &os)
 
 	for(edge e : G.edges) {
 		GraphIO::indent(os,3) << "<edge id=\"e" << e->index() << "\">\n";
-		if (A.attributes() & GraphAttributes::edgeLabel) {
+		if (A.has(GraphAttributes::edgeLabel)) {
 			GraphIO::indent(os,4) << "<label id=\"le" << e->index() << "\">\n";
 			GraphIO::indent(os,5) << "<content>" << formatLabel(A.label(e)) << "</content>\n";
 			GraphIO::indent(os,4) << "</label>\n";
@@ -167,7 +167,7 @@ static void write_ogml_graph(const GraphAttributes &A, ostream &os)
 
 	for(node v : G.nodes) {
 		GraphIO::indent(os,3) << "<node id=\"n" << v->index() << "\">\n";
-		if (A.attributes() & GraphAttributes::nodeLabel) {
+		if (A.has(GraphAttributes::nodeLabel)) {
 			GraphIO::indent(os,4) << "<label id=\"ln" << v->index() << "\">\n";
 			GraphIO::indent(os,5) << "<content>" << formatLabel(A.label(v)) << "</content>\n";
 			GraphIO::indent(os,4) << "</label>\n";
@@ -186,7 +186,7 @@ static void write_ogml_graph(const ClusterGraphAttributes &A, cluster c, int lev
 {
 	if(level > 0) {
 		GraphIO::indent(os,2+level) << "<node id=\"c" << c->index() << "\">\n";
-		if (A.attributes() & GraphAttributes::nodeLabel) {
+		if (A.has(GraphAttributes::nodeLabel)) {
 			GraphIO::indent(os,4) << "<label id=\"lc" << c->index() << "\">\n";
 			GraphIO::indent(os,5) << "<content>" << formatLabel(A.label(c)) << "</content>\n";
 			GraphIO::indent(os,4) << "</label>\n";
@@ -197,7 +197,7 @@ static void write_ogml_graph(const ClusterGraphAttributes &A, cluster c, int lev
 	for (itn = c->nBegin(); itn.valid(); ++itn) {
 		node v = *itn;
 		GraphIO::indent(os,3+level) << "<node id=\"n" << v->index() << "\">\n";
-		if (A.attributes() & GraphAttributes::nodeLabel) {
+		if (A.has(GraphAttributes::nodeLabel)) {
 			GraphIO::indent(os,4) << "<label id=\"ln" << v->index() << "\">\n";
 			GraphIO::indent(os,5) << "<content>" << formatLabel(A.label(v)) << "</content>\n";
 			GraphIO::indent(os,4) << "</label>\n";
@@ -292,12 +292,12 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 {
 	const Graph &G = A.constGraph();
 
-	if (A.attributes() & (GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle))
+	if (A.has(GraphAttributes::nodeGraphics | GraphAttributes::nodeStyle))
 	{
 		for(node v : G.nodes) {
 			GraphIO::indent(os,4) << "<nodeStyle idRef=\"n" << v->index() << "\">\n";
 
-			if(A.attributes() & GraphAttributes::nodeGraphics) {
+			if(A.has(GraphAttributes::nodeGraphics)) {
 				GraphIO::indent(os,5) << "<location x=\"" << A.x(v)-0.5*A.width(v) << "\" y=\""<< A.y(v)-0.5*A.height(v) << "\" />\n";
 				GraphIO::indent(os,5) << "<shape type=\"";
 				switch (A.shape(v)) {
@@ -347,7 +347,7 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 				os << "\" width=\"" << A.width(v) << "\" height=\"" << A.height(v) << "\" />\n";
 			}
 
-			if(A.attributes() & (GraphAttributes::nodeStyle)) {
+			if(A.has(GraphAttributes::nodeStyle)) {
 				// fill-tag
 				GraphIO::indent(os,5) << "<fill";
 
@@ -368,16 +368,16 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 		}
 	}
 
-	if (A.attributes() & (GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle))
+	if (A.has(GraphAttributes::edgeGraphics | GraphAttributes::edgeStyle))
 	{
 		int pointId = 0;
 
 		for(edge e : G.edges) {
 			GraphIO::indent(os,4) << "<edgeStyle idRef=\"e" << e->index() << "\">\n";
 
-			if(A.attributes() & GraphAttributes::edgeStyle) {
+			if(A.has(GraphAttributes::edgeStyle)) {
 				GraphIO::indent(os,5) << "<line ";
-				if (A.attributes() & GraphAttributes::edgeStyle) {
+				if (A.has(GraphAttributes::edgeStyle)) {
 					os << "type=\"" << edgeStyleToOGML(A.strokeType(e)) << "\" width=\"" << A.strokeWidth(e) << "\" ";
 					os << "color=\"" << A.strokeColor(e) << "\" />\n";
 				} else 	{
@@ -386,7 +386,7 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 			}
 
 			// TODO review the handling of edge arrows
-			if(A.attributes() & GraphAttributes::edgeArrow)
+			if(A.has(GraphAttributes::edgeArrow))
 			{
 				switch(A.arrowType(e)) {
 				case eaNone:

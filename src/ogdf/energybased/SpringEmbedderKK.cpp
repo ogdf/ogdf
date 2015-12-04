@@ -519,11 +519,11 @@ double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<doub
 		while (!bfs.empty())
 		{
 			node w = bfs.popFrontRet();
-			edge e;
 			double d = distance[v][w]+1.0f;
-			forall_adj_edges(e,w)
-			{
-				node u = e->opposite(w);
+
+
+			for(adjEntry adj : w->adjEntries) {
+				node u = adj->twinNode();
 				if (mark[u])
 				{
 					mark[u] = false;
@@ -585,7 +585,7 @@ void SpringEmbedderKK::scale(GraphAttributes& GA)
 		double elength = sqrt(xdist*xdist + ydist*ydist);
 
 		//Avoid a max factor of inf!!
-		if (DIsGreater(elength, 0.0001))
+		if (OGDF_GEOM_ET.greater(elength, 0.0001))
 		{
 			w2 = m_distFactor * w2 / elength;//relative to edge length
 

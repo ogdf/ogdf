@@ -32,23 +32,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_STATIC_SPQR_TREE_H
-#define OGDF_STATIC_SPQR_TREE_H
-
 
 #include <ogdf/decomposition/SPQRTree.h>
 #include <ogdf/decomposition/StaticSkeleton.h>
-
+#include <ogdf/internal/decomposition/TricComp.h>
 
 namespace ogdf {
-
-	class TricComp;
 
 //---------------------------------------------------------
 // StaticSPQRTree
@@ -231,9 +221,8 @@ protected:
 			if (eOrig != 0) cpAddEdge(eOrig,Gp);
 		}
 
-		edge e;
-		forall_adj_edges(e, v) {
-			node w = e->target();
+		for(adjEntry adj : v->adjEntries) {
+			node w = adj->theEdge()->target();
 			if (w != v) cpRec(w,Gp);
 		}
 	}
@@ -262,6 +251,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

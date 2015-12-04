@@ -33,12 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EMBEDDER_MAX_FACE_BICONNECTED_GRAPHS_Layers_H
-#define OGDF_EMBEDDER_MAX_FACE_BICONNECTED_GRAPHS_Layers_H
 
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
@@ -56,7 +51,7 @@ namespace ogdf {
  * The algorithm for maximum external face is combined with the
  * algorithm for maximum external layers which defines how to embed
  * blocks into inner faces. See diploma thesis "Algorithmen zur
- * Bestimmung von guten Graph-Einbettungen f&uuml;r orthogonale
+ * Bestimmung von guten Graph-Einbettungen für orthogonale
  * Zeichnungen" (in german) by Thorsten Kerkhof (2007) for details.
  */
 template<class T>
@@ -555,12 +550,10 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::embed(
 	}
 	else
 	{
-		edge nAdjEdge;
 		node* mus = new node[n->degree()];
 		int i = 0;
-		forall_adj_edges(nAdjEdge, n)
-		{
-			mus[i] = spqrTree.skeletonOfReal(nAdjEdge).treeNode();
+		for(adjEntry adj : n->adjEntries) {
+			mus[i] = spqrTree.skeletonOfReal(adj->theEdge()).treeNode();
 			bool alreadySeenMu = false;
 			for (int j = 0; j < i && !alreadySeenMu; j++)
 			{
@@ -737,7 +730,8 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdge(
 			nodeLength, edgeLength, thickness, newOrder, adjBeforeNodeArraySource,
 			adjBeforeNodeArrayTarget, delta_u, delta_d, adjExternal, n);
 		break;
-	OGDF_NODEFAULT
+	default:
+		OGDF_ASSERT(false);
 	}
 }
 
@@ -1453,14 +1447,14 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::expandEdgeRNode(
 						adjacencyList.init(S.getGraph());
 						for(node nBG : S.getGraph().nodes)
 						{
-							for(adjEntry ae_nBG : nBG->adjEdges)
+							for(adjEntry ae_nBG : nBG->adjEntries)
 								adjacencyList[nBG].pushBack(ae_nBG);
 						}
 
 						NodeArray< List<adjEntry> > adjEntryTreated(S.getGraph());
 						for(node nBG : S.getGraph().nodes)
 						{
-							for(adjEntry adj : nBG->adjEdges)
+							for(adjEntry adj : nBG->adjEntries)
 							{
 								if (adjEntryTreated[nBG].search(adj).valid())
 									continue;
@@ -1881,13 +1875,11 @@ T EmbedderMaxFaceBiconnectedGraphsLayers<T>::computeSize(
 			nodeLength[e1->target()];
 	}
 
-	edge nAdjEdges;
 	node* mus = new node[n->degree()];
 	int i = 0;
 	T biggestFace = -1;
-	forall_adj_edges(nAdjEdges, n)
-	{
-		mus[i] = spqrTree->skeletonOfReal(nAdjEdges).treeNode();
+	for(adjEntry adj : n->adjEntries) {
+		mus[i] = spqrTree->skeletonOfReal(adj->theEdge()).treeNode();
 		bool alreadySeenMu = false;
 		for (int j = 0; j < i && !alreadySeenMu; j++)
 		{
@@ -1923,7 +1915,7 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpTraversal(
 	NodeArray< EdgeArray<T> >& edgeLength)
 {
 	//Recursion:
-	for(adjEntry adj : mu->adjEdges)
+	for(adjEntry adj : mu->adjEntries)
 	{
 		edge ed = adj->theEdge();
 		if (ed->source() == mu)
@@ -2016,9 +2008,8 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::topDownTraversal(
 	Skeleton& S = spqrTree.skeleton(mu);
 
 	//Get all reference edges of the children nu of mu and set their component length:
-	edge ed;
-	forall_adj_edges(ed, mu)
-	{
+	for(adjEntry adj : mu->adjEntries) {
+		edge ed = adj->theEdge();
 		if (ed->source() != mu)
 			continue;
 
@@ -2290,9 +2281,8 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpThickness(
 	const NodeArray< EdgeArray<T> >& edgeLength)
 {
 	//recursion:
-	edge e_mu_to_nu;
-	forall_adj_edges(e_mu_to_nu, mu)
-	{
+	for(adjEntry adj : mu->adjEntries) {
+		edge e_mu_to_nu = adj->theEdge();
 		if (e_mu_to_nu->source() != mu)
 			continue;
 		else
@@ -2402,14 +2392,14 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpThickness(
 
 			for(node nBG : S.getGraph().nodes)
 			{
-				for(adjEntry ae_nBG : nBG->adjEdges)
+				for(adjEntry ae_nBG : nBG->adjEntries)
 					adjacencyList[nBG].pushBack(ae_nBG);
 			}
 
 			NodeArray< List<adjEntry> > adjEntryTreated(S.getGraph());
 			for(node nBG : S.getGraph().nodes)
 			{
-				for(adjEntry adj : nBG->adjEdges)
+				for(adjEntry adj : nBG->adjEntries)
 				{
 					if (adjEntryTreated[nBG].search(adj).valid())
 						continue;
@@ -2519,7 +2509,8 @@ void EmbedderMaxFaceBiconnectedGraphsLayers<T>::bottomUpThickness(
 			}
 			thickness[mu] = minDist + 1;
 		} break;
-	OGDF_NODEFAULT
+	default:
+		OGDF_ASSERT(false);
 	}
 }
 
@@ -2561,5 +2552,3 @@ bool EmbedderMaxFaceBiconnectedGraphsLayers<T>::sssp(
 
 
 } // end namespace ogdf
-
-#endif

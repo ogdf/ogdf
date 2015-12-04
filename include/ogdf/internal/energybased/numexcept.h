@@ -32,62 +32,51 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_NUMEXCEPT_H
-#define OGDF_NUMEXCEPT_H
 
 #include <ogdf/basic/geometry.h>
 
 namespace ogdf {
+namespace energybased {
 
-//--------------------------------------------------------------------------
-// this class is developed for exceptions that might occure, when nodes are
-// placed at the same position and a new random position has to be found, or
-// when the calculated forces are near the machine accuracy, where no
-// reasonable numeric and logic calculations are possible any more
-//---------------------------------------------------------------------------
+//! This class is developed for exceptions that might occure, when nodes are
+//! placed at the same position and a new random position has to be found, or
+//! when the calculated forces are near the machine accuracy, where no
+//! reasonable numeric and logic calculations are possible any more
+class numexcept
+{
+public:
+	//! Returns a distinct random point within the smallest disque D with center
+	//! old_point that is contained in the box defined by xmin,...,ymax; The size of
+	//! D is shrunk by multiplying with epsilon = 0.1; Precondition:
+	//! old_point is contained in the box and the box is not equal to old_point.
+	DPoint choose_distinct_random_point_in_disque(
+		DPoint old_point,
+		double xmin,
+		double xmax,
+		double ymin,
+		double ymax);
 
-	class numexcept
-	{
-	public:
+	//! A random point (distinct from old_pos) on the disque around old_pos with
+	//! radius epsilon = 0.1 is computed.
+	DPoint choose_distinct_random_point_in_radius_epsilon(DPoint old_pos);
 
-		//Returns a distinct random point within the smallest disque D with center
-		//old_point that is contained in the box defined by xmin,...,ymax; The size of
-		//D is shrunk by multiplying with epsilon = 0.1; Precondition:
-		//old_point is contained in the box and the box is not equal to old_point.
-		DPoint choose_distinct_random_point_in_disque(
-			DPoint old_point,
-			double xmin,
-			double xmax,
-			double ymin,
-			double ymax);
+	//! If distance has a value near the machine precision the repulsive force calculation
+	//! is not possible (calculated values exceed the machine accuracy) in this cases
+	//! true is returned and force is set to a reasonable value that does
+	//! not cause problems; Else false is returned and force keeps unchanged.
+	bool f_rep_near_machine_precision(double distance, DPoint& force);
 
-		//A random point (distinct from old_pos) on the disque around old_pos with
-		//radius epsilon = 0.1 is computed.
-		DPoint choose_distinct_random_point_in_radius_epsilon(DPoint old_pos);
+	//! If distance has a value near the machine precision the (attractive)force
+	//! calculation is not possible (calculated values exceed the machine accuracy) in
+	//! this cases true is returned and force is set to a reasonable value that does
+	//! not cause problems; Else false is returned and force keeps unchanged.
+	bool f_near_machine_precision(double distance, DPoint& force);
 
-		//If distance has a value near the machine precision the repulsive force calculation
-		//is not possible (calculated values exceed the machine accuracy) in this cases
-		//true is returned and force is set to a reasonable value that does
-		//not cause problems; Else false is returned and force keeps unchanged.
-		bool f_rep_near_machine_precision(double distance, DPoint& force);
+	//! Returns true if a is "nearly" equal to b (needed, when machine accuracy is
+	//! insufficient in functions well_seperated and bordering of NMM)
+	bool nearly_equal(double a, double b);
+};
 
-		//If distance has a value near the machine precision the (attractive)force
-		//calculation is not possible (calculated values exceed the machine accuracy) in
-		//this cases true is returned and force is set to a reasonable value that does
-		//not cause problems; Else false is returned and force keeps unchanged.
-		bool f_near_machine_precision(double distance, DPoint& force);
-
-		//Returns true if a is "nearly" equal to b (needed, when machine accuracy is
-		//insufficient in functions well_seperated and bordering of NMM)
-		bool nearly_equal(double a, double b);
-
-	};
-
-}//namespace ogdf
-#endif
-
+}
+}

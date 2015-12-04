@@ -33,19 +33,8 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_LP_SOLVER_H
-#define OGDF_LP_SOLVER_H
-
 
 #ifdef USE_COIN
 #include <ogdf/internal/lpsolver/LPSolver_coin.h>
-#endif
-
-
 #endif

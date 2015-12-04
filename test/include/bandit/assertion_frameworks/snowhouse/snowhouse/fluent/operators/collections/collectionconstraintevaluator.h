@@ -1,5 +1,5 @@
 
-//          Copyright Joakim Karlsson & Kim Gr‰sman 2010-2012.
+//          Copyright Joakim Karlsson & Kim Gr√§sman 2010-2012.
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
@@ -8,7 +8,7 @@
 #define IGLOO_COLLECTIONCONSTRAINTEVALUATOR_H
 
 #include <string>
-#include "../../../assertionexception.h"
+#include "../invalidexpressionexception.h"
 
 namespace snowhouse
 {
@@ -91,7 +91,7 @@ private:
     std::ostringstream stm;
     stm << "This string seems to contain an invalid line ending at position "
         << newline << ":\n" << str << std::endl;
-    throw AssertionException(stm.str());
+    throw InvalidExpressionException(stm.str());
   }
 };
 

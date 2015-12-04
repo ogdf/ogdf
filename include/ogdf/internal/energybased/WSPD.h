@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_WSPD_H
-#define OGDF_WSPD_H
+#pragma once
 
 #include <ogdf/internal/energybased/LinearQuadtree.h>
 
@@ -216,6 +215,3 @@ private:
 };
 
 } // end of namespace ogdf
-
-#endif
-

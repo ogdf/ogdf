@@ -32,17 +32,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PQ_BASIC_KEY_ROOT_H
-#define OGDF_PQ_BASIC_KEY_ROOT_H
 
 #include <ogdf/basic/basic.h>
-
+#include <ogdf/basic/memory.h>
 
 namespace ogdf {
 
@@ -67,6 +60,3 @@ namespace ogdf {
 	};
 
 }
-
-#endif
-

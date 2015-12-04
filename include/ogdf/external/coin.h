@@ -42,8 +42,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_COINY_H
-#define OGDF_COINY_H
+#pragma once
 
 #include <ogdf/basic/basic.h>
 
@@ -100,6 +99,3 @@
 
 
 #endif // USE_COIN
-
-#endif // OGDF_COINY_H
-

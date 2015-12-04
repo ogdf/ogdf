@@ -44,7 +44,7 @@ SolarMerger::SolarMerger(bool simple, bool massAsNodeRadius)
 
 int SolarMerger::calcSystemMass(node v) {
 	unsigned int sum = m_mass[v];
-	for(adjEntry adj : v->adjEdges) {
+	for(adjEntry adj : v->adjEntries) {
 		sum += m_mass[adj->twinNode()];
 	}
 	return sum;
@@ -72,7 +72,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 				continue;
 			}
 			bool hasForeignPlanet = false;
-			for(adjEntry adj : sun->adjEdges) {
+			for(adjEntry adj : sun->adjEntries) {
 				if(m_celestial[adj->twinNode()] != 0) {
 					hasForeignPlanet = true;
 					break;
@@ -85,7 +85,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			m_celestial[sun] = 1;
 			suns.push_back(sun);
 			// mark neighbours as planet
-			for(adjEntry adj : sun->adjEdges) {
+			for(adjEntry adj : sun->adjEntries) {
 				m_celestial[adj->twinNode()] = 2;
 				m_orbitalCenter[adj->twinNode()] = sun;
 				m_distanceToOrbit[adj->twinNode()] = MLG.weight(adj->theEdge());
@@ -106,7 +106,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 					continue;
 				}
 				bool hasForeignPlanet = false;
-				for(adjEntry adj : rndNode->adjEdges) {
+				for(adjEntry adj : rndNode->adjEntries) {
 					if(m_celestial[adj->twinNode()] != 0) {
 						hasForeignPlanet = true;
 						break;
@@ -150,7 +150,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			m_celestial[minNode] = 1;
 			suns.push_back(minNode);
 			// mark neighbours as planet
-			for(adjEntry adj : minNode->adjEdges) {
+			for(adjEntry adj : minNode->adjEntries) {
 				m_celestial[adj->twinNode()] = 2;
 				m_orbitalCenter[adj->twinNode()] = minNode;
 				m_distanceToOrbit[adj->twinNode()] = MLG.weight(adj->theEdge());
@@ -163,7 +163,7 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 			m_celestial[v] = 3;
 			std::vector<adjEntry> planets;
 			node planet;
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				planet = adj->twinNode();
 				if (m_celestial[planet] == 2) {
 					planets.push_back(adj);
@@ -252,7 +252,7 @@ double SolarMerger::distanceToSun(node object, MultilevelGraph &MLG)
 #ifdef OGDF_DEBUG
 	bool found = false;
 #endif
-	for(adjEntry adj : object->adjEdges) {
+	for(adjEntry adj : object->adjEntries) {
 		if (adj->twinNode() == center) {
 #ifdef OGDF_DEBUG
 			found = true;
@@ -363,7 +363,7 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 
 	OGDF_ASSERT(m_celestial[sun] == 1)
 
-	for(adjEntry adj : sun->adjEdges) {
+	for(adjEntry adj : sun->adjEntries) {
 #ifdef OGDF_DEBUG
 		node planet = adj->twinNode();
 #endif
@@ -371,11 +371,11 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 		OGDF_ASSERT(m_orbitalCenter[planet] == sun)
 		systemNodes.push_back(adj->twinNode());
 	}
-	for(adjEntry adj : sun->adjEdges) {
+	for(adjEntry adj : sun->adjEntries) {
 		node planet = adj->twinNode();
 		OGDF_ASSERT(m_celestial[planet] == 2)
 		OGDF_ASSERT(m_orbitalCenter[planet] == sun)
-		for(adjEntry adj2 : planet->adjEdges) {
+		for(adjEntry adj2 : planet->adjEntries) {
 			node moon = adj2->twinNode();
 			if(m_celestial[moon] == 3 && m_orbitalCenter[moon] == planet) {
 				systemNodes.push_back(moon);

@@ -120,8 +120,8 @@ void DfsAcyclicSubgraph::callUML (
 
 		numV[v] = countV++;
 
-		edge e;
-		forall_adj_edges(e,v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node w = e->source();
 			if(w != v) {
 				if(--outdeg[w] == 0)
@@ -163,8 +163,8 @@ int DfsAcyclicSubgraph::dfsFindHierarchies(
 	int count = 1;
 	hierarchy[v] = i;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if(AG.type(e) != Graph::generalization)
 			continue;
 
@@ -187,9 +187,8 @@ void DfsAcyclicSubgraph::dfsBackedgesHierarchies(
 {
 	number[v] = ++nNumber;
 
-	edge e;
-	forall_adj_edges(e,v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if(AG.type(e) != Graph::generalization)
 			continue;
 
@@ -225,8 +224,8 @@ void GreedyCycleRemoval::dfs (node v, const Graph &G)
 	m_out[v] = v->outdeg();
 	m_counter++;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node u = e->opposite(v);
 		if (!m_visited[u])
 			dfs(u,G);
@@ -287,8 +286,8 @@ void GreedyCycleRemoval::call (const Graph &G, List<edge> &arcSet)
 
 			m_item[u] = ListIterator<node>();
 
-			edge e;
-			forall_adj_edges(e,u) {
+			for(adjEntry adj : u->adjEntries) {
+				edge e = adj->theEdge();
 				node w;
 				if (e->target() == u) {
 					w = e->source();

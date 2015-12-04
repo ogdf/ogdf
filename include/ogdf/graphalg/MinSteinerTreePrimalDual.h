@@ -34,12 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_STEINER_TREE_PRIMAL_DUAL_H
-#define OGDF_MIN_STEINER_TREE_PRIMAL_DUAL_H
 
 #include <limits>
 
@@ -340,5 +335,3 @@ double MinSteinerTreePrimalDual<T>::getLastLowerBound() const
 }
 
 } // end namespace ogdf
-
-#endif /* OGDF_MIN_STEINER_TREE_PRIMAL_DUAL_H_ */

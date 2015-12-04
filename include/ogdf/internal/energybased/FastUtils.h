@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_FAST_UTILS_H
-#define OGDF_FAST_UTILS_H
+#pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
 
@@ -596,5 +595,3 @@ createFuncInvoker(FunctionType func)
 }
 
 }
-
-#endif // fast utils h

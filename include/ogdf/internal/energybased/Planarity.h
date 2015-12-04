@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANARITY_H
-#define OGDF_PLANARITY_H
-
 
 #include <ogdf/internal/energybased/EnergyFunction.h>
 #include <ogdf/basic/Array2D.h>
@@ -101,5 +94,3 @@ private:
 
 
 }// namespace ogdf
-
-#endif

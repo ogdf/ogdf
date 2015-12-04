@@ -33,11 +33,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
 #include <ogdf/basic/Thread.h>
 #include <ogdf/basic/List.h>
 #include <random>
-
 
 // Windows includes
 #ifdef OGDF_SYSTEM_WINDOWS
@@ -74,7 +72,6 @@
 #include <sys/stat.h>
 #include <fnmatch.h>
 #endif
-
 
 #ifdef OGDF_DLL
 
@@ -144,7 +141,6 @@ Initialization::~Initialization()
 
 #endif
 
-
 namespace ogdf {
 
 inline bool charCompareIgnoreCase(char a, char b)
@@ -175,12 +171,10 @@ bool prefixIgnoreCase(const string &prefix, const string &str)
 		std::equal(prefix.begin(), prefix.end(), str.begin(), charCompareIgnoreCase));
 }
 
-
 // debug level (in debug build only)
 #ifdef OGDF_DEBUG
 DebugLevel debugLevel;
 #endif
-
 
 static std::mt19937 s_random;
 
@@ -225,7 +219,6 @@ double randomDouble(double low, double high)
 	return dist(s_random);
 }
 
-
 double usedTime(double& T)
 {
 	double t = T;
@@ -250,185 +243,5 @@ double usedTime(double& T)
 
 	return T - t;
 }
-
-
-#ifdef OGDF_SYSTEM_WINDOWS
-
-bool isFile(const char *fileName)
-{
-	DWORD att = GetFileAttributes(fileName);
-
-	if (att == 0xffffffff) return false;
-	return (att & FILE_ATTRIBUTE_DIRECTORY) == 0;
-}
-
-
-bool isDirectory(const char *fileName)
-{
-	DWORD att = GetFileAttributes(fileName);
-
-	if (att == 0xffffffff) return false;
-	return (att & FILE_ATTRIBUTE_DIRECTORY) != 0;
-}
-
-
-bool changeDir(const char *dirName)
-{
-	return (_chdir(dirName) == 0);
-}
-
-
-void getEntriesAppend(const char *dirName,
-		FileType t,
-		List<string> &entries,
-		const char *pattern)
-{
-	OGDF_ASSERT(isDirectory(dirName));
-
-	string filePattern = string(dirName) + "\\" + pattern;
-
-	WIN32_FIND_DATA findData;
-	HANDLE handle = FindFirstFile(filePattern.c_str(), &findData);
-
-	if (handle != INVALID_HANDLE_VALUE)
-	{
-		do {
-			DWORD isDir = (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-			if(isDir && (
-				strcmp(findData.cFileName,".") == 0 ||
-				strcmp(findData.cFileName,"..") == 0)
-			)
-				continue;
-
-			if (t == ftEntry || (t == ftFile && !isDir) ||
-				(t == ftDirectory && isDir))
-			{
-				entries.pushBack(findData.cFileName);
-			}
-		} while(FindNextFile(handle, &findData));
-
-		FindClose(handle);
-	}
-}
-#endif
-
-#ifdef OGDF_SYSTEM_UNIX
-
-bool isDirectory(const char *fname)
-{
-	struct stat stat_buf;
-
-	if (stat(fname,&stat_buf) != 0)
-		return false;
-	return (stat_buf.st_mode & S_IFMT) == S_IFDIR;
-}
-
-bool isFile(const char *fname)
-{
-	struct stat stat_buf;
-
-	if (stat(fname,&stat_buf) != 0)
-		return false;
-	return (stat_buf.st_mode & S_IFMT) == S_IFREG;
-}
-
-bool changeDir(const char *dirName)
-{
-	return (chdir(dirName) == 0);
-}
-
-void getEntriesAppend(const char *dirName,
-	FileType t,
-	List<string> &entries,
-	const char *pattern)
-{
-	OGDF_ASSERT(isDirectory(dirName));
-
-	DIR* dir_p = opendir(dirName);
-
-	dirent* dir_e;
-	while ( (dir_e = readdir(dir_p)) != nullptr )
-	{
-		const char *fname = dir_e->d_name;
-		if (pattern != nullptr && fnmatch(pattern,fname,0)) continue;
-
-		string fullName = string(dirName) + "/" + fname;
-
-		bool isDir = isDirectory(fullName.c_str());
-		if(isDir && (
-			strcmp(fname,".") == 0 ||
-			strcmp(fname,"..") == 0)
-			)
-			continue;
-
-		if (t == ftEntry || (t == ftFile && !isDir) ||
-			(t == ftDirectory && isDir))
-		{
-			entries.pushBack(fname);
-		}
-	}
-
-	closedir(dir_p);
-}
-#endif
-
-
-void getEntries(const char *dirName,
-		FileType t,
-		List<string> &entries,
-		const char *pattern)
-{
-	entries.clear();
-	getEntriesAppend(dirName, t, entries, pattern);
-}
-
-
-void getFiles(const char *dirName,
-	List<string> &files,
-	const char *pattern)
-{
-	getEntries(dirName, ftFile, files, pattern);
-}
-
-
-void getSubdirs(const char *dirName,
-	List<string> &subdirs,
-	const char *pattern)
-{
-	getEntries(dirName, ftDirectory, subdirs, pattern);
-}
-
-
-void getEntries(const char *dirName,
-	List<string> &entries,
-	const char *pattern)
-{
-	getEntries(dirName, ftEntry, entries, pattern);
-}
-
-
-void getFilesAppend(const char *dirName,
-	List<string> &files,
-	const char *pattern)
-{
-	getEntriesAppend(dirName, ftFile, files, pattern);
-}
-
-
-void getSubdirsAppend(const char *dirName,
-	List<string> &subdirs,
-	const char *pattern)
-{
-	getEntriesAppend(dirName, ftDirectory, subdirs, pattern);
-}
-
-
-void getEntriesAppend(const char *dirName,
-	List<string> &entries,
-	const char *pattern)
-{
-	getEntriesAppend(dirName, ftEntry, entries, pattern);
-}
-
 
 } // end namespace ogdf

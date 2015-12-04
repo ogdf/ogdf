@@ -42,7 +42,7 @@
 namespace ogdf {
 
 	LinearLayout::LinearLayout(
-		float w,
+		double w,
 		ListPure<NodeElement *> o
 	){
 		m_outWidth = w;
@@ -69,8 +69,8 @@ namespace ogdf {
 			G.allNodes(nodes);
 		}
 
-		float x = 0;
-		float step = m_outWidth/float(nodes.size()-1);
+		double x(0);
+		double step(m_outWidth / double(nodes.size()-1));
 
 		//first position all nodes next to each other
 		for (auto &n : nodes){
@@ -86,12 +86,15 @@ namespace ogdf {
 			node n2 = e->target();
 			if (!(++(nodes.search(n1)) == nodes.search(n2)) && !(++(nodes.search(n2)) == nodes.search(n1))){
 				DPolyline &pL = GA.bends(e);
-				double m = 0.5*(GA.x(n1) + GA.x(n2));
-                double r = std::abs(GA.x(n1) - m);
-				double sgn = 2 * (float(GA.x(n1) > GA.x(n2)) - 0.5);
+				const double m(0.5 * (GA.x(n1) + GA.x(n2)));
+				const double r(std::abs(GA.x(n1) - m));
+				const double sgn(GA.x(n1) > GA.x(n2) ? 1.0 : -1.0);
 				int segments = int(sqrt(r*Math::pi / 0.2));
-				for(int i = segments; i--;){
-					pL.pushBack(DPoint(m - sgn*r*cos(float(i) / segments*Math::pi), 0.5*float(GA.height(n1)) - r*sin(float(i) / segments*Math::pi)));
+				for (int i = segments; i--;) {
+					const double di = double(i);
+					const double x = m - sgn*r*cos(di / segments*Math::pi);
+					const double y = 0.5*GA.height(n1) - r*sin(di / segments*Math::pi);
+					pL.pushBack(DPoint(x, y));
 				}
 			}
 		}

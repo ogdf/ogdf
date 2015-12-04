@@ -41,6 +41,8 @@
 
 namespace ogdf {
 
+const EpsilonTest OGDF_GEOM_ET(1.0e-6);
+
 //---------------------------------------------------------
 // IPoint
 //---------------------------------------------------------
@@ -473,9 +475,9 @@ bool DLine::contains(const DPoint &p) const
 		return false;
 
 	if (dx() == 0.0) { // first check, if line is vertical
-		if (DIsEqual       (p.m_x, start().m_x)                     &&
-			DIsLessEqual   (p.m_y, (max(start().m_y, end().m_y)))   &&
-			DIsGreaterEqual(p.m_y, (min(start().m_y, end().m_y))))
+		if (OGDF_GEOM_ET.equal(p.m_x, start().m_x) &&
+			OGDF_GEOM_ET.leq(p.m_y, (max(start().m_y, end().m_y))) &&
+			OGDF_GEOM_ET.geq(p.m_y, (min(start().m_y, end().m_y))))
 			return true;
 		return false;
 	}
@@ -486,7 +488,7 @@ bool DLine::contains(const DPoint &p) const
 	if (dx2p == 0.0) // dx() != 0.0, already checked
 		return false;
 
-	if (DIsEqual(slope(), (dy2p/dx2p)))
+	if (OGDF_GEOM_ET.equal(slope(), (dy2p/dx2p)))
 		return true;
 	return false;
 }

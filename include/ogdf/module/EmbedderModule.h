@@ -33,14 +33,9 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_EMBEDDER_MODULE_H
-#define OGDF_EMBEDDER_MODULE_H
-
-#include <ogdf/planarity/PlanRep.h>
+#include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
 
@@ -63,18 +58,32 @@ public:
 
 	/**
 	 * \brief Calls the embedder algorithm for graph \a G.
+	 * \pre \a G is planar.
 	 * \param G is the graph that shall be embedded.
 	 * \param adjExternal is set (by the algorithm) to an adjacency entry on the
 	 *        external face of \a G.
 	 */
-	virtual void call(Graph& G, adjEntry& adjExternal) = 0;
+	void call(Graph& G, adjEntry& adjExternal) {
+#ifdef OGDF_DEBUG
+		if(!isPlanar(G)) {
+			throw PreconditionViolatedException();
+		}
+#endif
+		doCall(G, adjExternal);
+	};
 
 	//! Calls the embedder algorithm for planarized representation \a PG.
 	void operator()(Graph& G, adjEntry& adjExternal) { call(G, adjExternal); }
 
 	OGDF_MALLOC_NEW_DELETE
+protected:
+
+	/**
+	 * \brief Calls the embedder algorithm for graph \a G.
+	 * \a G is guaranteed to be planar.
+	 * See #call .
+	 */
+	virtual void doCall(Graph& G, adjEntry& adjExternal) = 0;
 };
 
 } // end namespace ogdf
-
-#endif

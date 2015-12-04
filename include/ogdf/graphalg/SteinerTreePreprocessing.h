@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_STEINER_TREE_PREPROCESSING_H
-#define OGDF_STEINER_TREE_PREPROCESSING_H
 
 #include <forward_list>
 #include <set>
@@ -732,7 +727,7 @@ void SteinerTreePreprocessing<T>::deleteSteinerDegreeTwoNode(node v,
 		T weight;
 	};
 	std::forward_list<NewEdgeData> newEdges;
-	for (adjEntry adj1 : v->adjEdges) {
+	for (adjEntry adj1 : v->adjEntries) {
 		const edge e1 = adj1->theEdge();
 		const node adjacentNode1 = adj1->twinNode();
 
@@ -940,9 +935,9 @@ private:
 		node heaviestSon = nullptr;
 		closestSteinerAncestor[v] = closestSteinerUpNode;
 
-		edge e;
-		forall_adj_edges (e, v) {
-			node son = e->opposite(v);
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+			node son = adj->twinNode();
 
 			if (weightOfSubtree[son] != 0) { // the parent
 				continue;
@@ -1221,9 +1216,8 @@ bool SteinerTreePreprocessing<T>::makeSimple()
 			}
 		}
 
-		edge e;
-		forall_adj_edges(e, v) {
-			minCostEdge[e->opposite(v)] = nullptr;
+		for(adjEntry adj : v->adjEntries) {
+			minCostEdge[adj->twinNode()] = nullptr;
 		}
 	}
 	return changed;
@@ -1233,10 +1227,9 @@ template<typename T>
 void SteinerTreePreprocessing<T>::floydWarshall(NodeArray<NodeArray<T>> &shortestPath) const
 {
 	for (node v1 : m_copyGraph.nodes) {
-		edge e; node v2;
-		forall_adj_edges(e, v1) {
-			v2 = e->opposite(v1);
-			shortestPath[v1][v2] = shortestPath[v2][v1] = min(shortestPath[v1][v2], m_copyGraph.weight(e));
+		for(adjEntry adj : v1->adjEntries) {
+			node v2 = adj->twinNode();
+			shortestPath[v1][v2] = shortestPath[v2][v1] = min(shortestPath[v1][v2], m_copyGraph.weight(adj->theEdge()));
 		}
 	}
 
@@ -1384,8 +1377,8 @@ void SteinerTreePreprocessing<T>::findClosestNonTerminals(node source, List<node
 
 		reachedNodes.pushBack(currentNode);
 
-		edge e;
-		forall_adj_edges (e, currentNode) {
+		for(adjEntry adj : currentNode->adjEntries) {
+			edge e = adj->theEdge();
 			if (expandedEdges <= 0) {
 				break;
 			}
@@ -1511,8 +1504,8 @@ void SteinerTreePreprocessing<T>::computeClosestKTerminals(const int k, NodeArra
 			continue; // check if the current path needs to be expanded
 		}
 
-		edge e;
-		forall_adj_edges (e, currentNode) {
+		for(adjEntry adj : currentNode->adjEntries) {
+			edge e = adj->theEdge();
 			node adjacentNode = e->opposite(currentNode);
 
 			if (m_copyIsTerminal[adjacentNode]) {
@@ -1598,7 +1591,7 @@ bool SteinerTreePreprocessing<T>::NTDkTest(const int maxTestedDegree, const int 
 
 		// collect neighbors
 		List<adjEntry> outgoingAdjs;
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			outgoingAdjs.pushBack(adj);
 		}
 		SubsetEnumerator<adjEntry> neighborSubset(outgoingAdjs);
@@ -1660,8 +1653,8 @@ void SteinerTreePreprocessing<T>::markSuccessors(node currentNode, const Voronoi
 
 	OGDF_ASSERT(voronoiRegions.seed(currentNode) != currentNode);
 
-	edge e;
-	forall_adj_edges (e, currentNode) {
+	for(adjEntry adj : currentNode->adjEntries) {
+		edge e = adj->theEdge();
 		node adjacentNode = e->opposite(currentNode);
 
 		if (voronoiRegions.predecessor(adjacentNode) == currentNode) {
@@ -1706,8 +1699,8 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 		}
 
 		// compute his two lowest cost incident edges
-		edge e;
-		forall_adj_edges (e, terminal) {
+		for(adjEntry adj : terminal->adjEntries) {
+			edge e = adj->theEdge();
 			if (minCostIncidentEdge1[terminal] == nullptr
 			 || m_copyGraph.weight(minCostIncidentEdge1[terminal]) > m_copyGraph.weight(e)) {
 				minCostIncidentEdge2[terminal] = minCostIncidentEdge1[terminal];
@@ -1849,8 +1842,8 @@ void SteinerTreePreprocessing<T>::computeRadiusOfTerminals(NodeArray<T> &termina
 		node seedV = voronoiRegions.seed(v);
 		T distanceToSeedV = voronoiRegions.distance(v);
 
-		edge e;
-		forall_adj_edges (e, v) {
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
 			node adjacentNode = e->opposite(v);
 
 			if (voronoiRegions.seed(adjacentNode) != seedV) {
@@ -1884,7 +1877,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 	NodeArray<List<std::pair<node, T>>> closestTerminals;
 	computeClosestKTerminals(3, closestTerminals);
 
-	// Update the lowerbound of the cost of a steiner tree containing one particular node
+	// Update the lowerbound of the cost of a Steiner tree containing one particular node
 	// as explained in [PV01, page 278, Observation 3.5]
 	const T radiusSum = computeRadiusSum();
 	for (node v : m_copyGraph.nodes) {
@@ -1903,7 +1896,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 		lowerBoundWithNode[v] = max(lowerBoundWithNode[v], distanceToClosestTerminal1 + distanceToClosestTerminal2 + radiusSum);
 	}
 
-	// Update the lowerbound of the cost of a steiner tree containing one particular node
+	// Update the lowerbound of the cost of a Steiner tree containing one particular node
 	// as explained in [PV01, pages 279-280, Observation 3.8]
 	Graph auxiliaryGraph;
 	NodeArray<node> terminalInAuxiliaryGraph(m_copyGraph, nullptr);
@@ -2156,7 +2149,7 @@ bool SteinerTreePreprocessing<T>::cutReachabilityTest()
 	T cK = T();
 	NodeArray<T> minCostOfAdjacentEdge(m_copyGraph, numeric_limits<T>::max());
 	for (node terminal : m_copyTerminals) {
-		for (adjEntry adj : terminal->adjEdges) {
+		for (adjEntry adj : terminal->adjEntries) {
 			minCostOfAdjacentEdge[terminal] = min(minCostOfAdjacentEdge[terminal], m_copyGraph.weight(adj->theEdge()));
 		}
 		cK += minCostOfAdjacentEdge[terminal];
@@ -2227,5 +2220,3 @@ bool SteinerTreePreprocessing<T>::cutReachabilityTest()
 }
 
 } // ends namespace ogdf
-
-#endif // OGDF_STEINER_TREE_PREPROCESSING_H

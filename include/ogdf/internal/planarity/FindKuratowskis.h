@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FIND_KURATOWSKIS_H
-#define OGDF_FIND_KURATOWSKIS_H
 
 #include <ogdf/internal/planarity/BoyerMyrvoldPlanar.h>
 
@@ -342,5 +336,3 @@ class FindKuratowskis {
 };
 
 }
-
-#endif

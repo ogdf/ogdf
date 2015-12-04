@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EDGE_COVER_MERGER_H
-#define OGDF_EDGE_COVER_MERGER_H
 
 #include <ogdf/energybased/multilevelmixer/MultilevelBuilder.h>
 
@@ -62,5 +57,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif

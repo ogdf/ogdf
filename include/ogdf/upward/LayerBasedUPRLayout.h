@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LAYER_BASED_UPR_LAYOUT_H
-#define OGDF_LAYER_BASED_UPR_LAYOUT_H
-
-
 
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/upward/UpwardPlanRep.h>
@@ -223,5 +216,3 @@ private:
 };
 
 }
-
-#endif

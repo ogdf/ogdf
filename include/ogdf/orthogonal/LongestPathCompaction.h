@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_LONGEST_PATH_COMPACTION_H
-#define OGDF_LONGEST_PATH_COMPACTION_H
-
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/planarity/PlanRep.h>
@@ -49,12 +41,9 @@
 #include <ogdf/basic/tuples.h>
 #include <ogdf/basic/GridLayoutMapped.h>
 
-
 namespace ogdf {
 
-	template<class ATYPE> class CompactionConstraintGraph;
-	class Layout;
-
+template<class ATYPE> class CompactionConstraintGraph;
 
 /**
  * \brief Compaction algorithm using longest paths in the constraint graph.
@@ -142,6 +131,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

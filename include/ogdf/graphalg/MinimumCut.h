@@ -35,12 +35,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MINIMUM_CUT_H
-#define OGDF_MINIMUM_CUT_H
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
@@ -111,5 +106,3 @@ private:
 };
 
 }// end namespace
-
-#endif

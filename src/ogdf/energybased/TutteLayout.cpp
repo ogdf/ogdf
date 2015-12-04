@@ -317,10 +317,9 @@ bool TutteLayout::doCall(
 	// initialize non-zero entries in matrix A
 	for (node v : otherNodes) {
 		oneOverD = (double) (1.0 / (v->degree()));
-		edge e;
-		forall_adj_edges(e, v) {
-			// get second node of e
-			node w = e->opposite(v);
+
+		for(adjEntry adj : v->adjEntries) {
+			node w = adj->twinNode();
 			if (!fixed[w]) {
 				A.modifyCoefficient(ind[v], ind[w], oneOverD);
 			}
@@ -332,10 +331,9 @@ bool TutteLayout::doCall(
 	for (node v : otherNodes) {
 		rhs[ind[v]] = 0;
 		oneOverD = (double) (1.0 / (v->degree()));
-		edge e;
-		forall_adj_edges(e, v) {
-			// get second node of e
-			node w = e->opposite(v);
+
+		for(adjEntry adj : v->adjEntries) {
+			node w = adj->twinNode();
 			if (fixed[w]) rhs[ind[v]] -= (oneOverD*AGC.x(w));
 		}
 	}
@@ -349,10 +347,9 @@ bool TutteLayout::doCall(
 	for (node v : otherNodes) {
 		rhs[ind[v]] = 0;
 		oneOverD = (double) (1.0 / (v->degree()));
-		edge e;
-		forall_adj_edges(e, v) {
-			// get second node of e
-			node w = e->opposite(v); //(*it == e->source()) ? e->target() : e->source();
+
+		for(adjEntry adj : v->adjEntries) {
+			node w = adj->twinNode();
 			if (fixed[w]) rhs[ind[v]] -= (oneOverD*AGC.y(w));
 		}
 	}

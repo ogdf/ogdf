@@ -37,14 +37,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRAPH_STRUCTURE_H
-#define OGDF_GRAPH_STRUCTURE_H
-
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Graph.h>
@@ -127,5 +120,3 @@ protected:
 };
 
 } //end namespace ogdf
-
-#endif

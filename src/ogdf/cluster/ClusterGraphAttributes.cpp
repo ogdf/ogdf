@@ -70,18 +70,14 @@ DRect ClusterGraphAttributes::boundingBox() const
 
 	for (cluster c : m_pClusterGraph->clusters)
 	{
-		if(c == m_pClusterGraph->rootCluster())
-			continue;
+		if (c != m_pClusterGraph->rootCluster()) {
+			double lw = 0.5*strokeWidth(c);
 
-		double x1 = x(c);
-		double y1 = y(c);
-		double x2 = x1 + width(c);
-		double y2 = y1 + height(c);
-
-		if (x1 < minx) minx = x1;
-		if (x2 > maxx) maxx = x2;
-		if (y1 < miny) miny = y1;
-		if (y2 > maxy) maxy = y2;
+			minx = min(minx, x(c) - lw);
+			maxx = max(maxx, x(c) + width(c) + lw);
+			miny = min(miny, y(c) - lw);
+			maxy = max(maxy, y(c) + height(c) + lw);
+		}
 	}
 
 	return DRect(minx, miny, maxx, maxy);

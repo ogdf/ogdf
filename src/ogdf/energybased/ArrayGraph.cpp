@@ -86,6 +86,10 @@ ArrayGraph::~ArrayGraph(void)
 
 void ArrayGraph::allocate(uint32_t numNodes, uint32_t numEdges)
 {
+	// prevent call to malloc(0)
+	OGDF_ASSERT( numNodes >= 1 );
+	OGDF_ASSERT( numEdges >= 1 );
+
 	m_nodeXPos = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
 	m_nodeYPos = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
 	m_nodeSize = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));

@@ -117,7 +117,7 @@ DPoint Layout::computeBoundingBox(PlanRep &PG) const
 		if (maxY > maxHeight) maxHeight = maxY;
 
 		// check polylines of all (original) edges
-		for(adjEntry adj : vG->adjEdges) {
+		for(adjEntry adj : vG->adjEntries) {
 			if ((adj->index() & 1) == 0) continue;
 			edge eG = adj->theEdge();
 

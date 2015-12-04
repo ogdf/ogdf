@@ -33,24 +33,13 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SPRING_EMBEDDER_FR_EXACT_H
-#define OGDF_SPRING_EMBEDDER_FR_EXACT_H
-
 
 #include <ogdf/module/ForceLayoutModule.h>
 #include <ogdf/basic/SList.h>
-
+#include <ogdf/basic/GraphCopyAttributes.h>
 
 namespace ogdf {
-
-
-class OGDF_EXPORT GraphCopyAttributes;
-class OGDF_EXPORT GraphCopy;
-
 
 class OGDF_EXPORT SpringEmbedderFRExact : public ForceLayoutModule
 {
@@ -210,6 +199,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

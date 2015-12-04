@@ -32,17 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_MAXIMAL_PLANAR_SUBGRAPH_SIMPLE_H
-#define OGDF_MAXIMAL_PLANAR_SUBGRAPH_SIMPLE_H
-
-
-
 
 #include <ogdf/module/PlanarSubgraphModule.h>
 
@@ -86,5 +76,3 @@ protected:
 
 
 } // end namespace ogdf
-
-#endif

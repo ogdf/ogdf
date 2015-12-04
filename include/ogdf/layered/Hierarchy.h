@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HIERARCHY_H
-#define OGDF_HIERARCHY_H
-
 
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/GraphCopy.h>
@@ -47,51 +40,48 @@
 
 namespace ogdf {
 
-	//! Representation of proper hierarchies used by Sugiyama-layout.
-	/**
-	 * \see Level, SugiyamaLayout
-	 */
-	class OGDF_EXPORT Hierarchy {
+//! Representation of proper hierarchies used by Sugiyama-layout.
+/**
+ * \see Level, SugiyamaLayout
+ */
+class OGDF_EXPORT Hierarchy {
 
-		friend class LayerBasedUPRLayout;
+	friend class LayerBasedUPRLayout;
 
-		GraphCopy m_GC; //!< The graph copy representing the topology of the proper hierarchy.
-		NodeArray<int> m_rank; //!< The rank (level) of a node.
-		Array<int> m_size;
+	GraphCopy m_GC; //!< The graph copy representing the topology of the proper hierarchy.
+	NodeArray<int> m_rank; //!< The rank (level) of a node.
+	Array<int> m_size;
 
-	public:
-		//! Creates an empty hierarchy.
-		Hierarchy() { }
-		//! Creates an hierarchy of graph \a G with node ranks \a rank.
-		Hierarchy(const Graph &G, const NodeArray<int> &rank);
+public:
+	//! Creates an empty hierarchy.
+	Hierarchy() { }
+	//! Creates an hierarchy of graph \a G with node ranks \a rank.
+	Hierarchy(const Graph &G, const NodeArray<int> &rank);
 
-		// destruction
-		~Hierarchy() { }
+	// destruction
+	~Hierarchy() { }
 
-		void createEmpty(const Graph &G);
-		void initByNodes(const List<node> &nodes,
-			EdgeArray<edge> &eCopy,
-			const NodeArray<int> &rank);
+	void createEmpty(const Graph &G);
+	void initByNodes(const List<node> &nodes,
+		EdgeArray<edge> &eCopy,
+		const NodeArray<int> &rank);
 
-		//! Conversion to const GraphCopy reference.
-		operator const GraphCopy &() const { return m_GC; }
+	//! Conversion to const GraphCopy reference.
+	operator const GraphCopy &() const { return m_GC; }
 
-		//! Returns the rank (level) of node \a v.
-		int rank(node v) const { return m_rank[v]; }
+	//! Returns the rank (level) of node \a v.
+	int rank(node v) const { return m_rank[v]; }
 
-		int maxRank() const { return m_size.high(); }
+	int maxRank() const { return m_size.high(); }
 
-		int size(int i) const { return m_size[i]; }
+	int size(int i) const { return m_size[i]; }
 
-		bool isLongEdgeDummy(node v) const {
-			return (m_GC.isDummy(v) && v->outdeg() == 1);
-		}
+	bool isLongEdgeDummy(node v) const {
+		return (m_GC.isDummy(v) && v->outdeg() == 1);
+	}
 
-	private:
-		void doInit(const NodeArray<int> &rank);
-	};
+private:
+	void doInit(const NodeArray<int> &rank);
+};
 
 } // end namespace ogdf
-
-
-#endif

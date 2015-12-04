@@ -37,6 +37,9 @@
 
 
 namespace ogdf {
+namespace energybased {
+
+using std::complex;
 
 ostream &operator<< (ostream & output, const QuadTreeNodeNM & A)
 {
@@ -182,4 +185,5 @@ QuadTreeNodeNM::~QuadTreeNodeNM()
 	delete [] LE;
 }
 
-}//namespace ogdf
+}
+}

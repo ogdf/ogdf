@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef MIN_STEINER_TREE_ZELIKOVSKY_OGDF_H_
-#define MIN_STEINER_TREE_ZELIKOVSKY_OGDF_H_
+#pragma once
 
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/Voronoi.h>
@@ -62,7 +61,7 @@ namespace ogdf {
  * (A. Zelikovsky, A faster approximation algorithm for the Steiner problem in graphs,
  * Information Processing Letters, volume 46, number 2, pages 79-83, 1993)
  *
- * (A. Zelikovsky, Better approximation bound for the network and euclidean steiner
+ * (A. Zelikovsky, Better approximation bound for the network and euclidean Steiner
  * tree problems, Technical Report, 2006)
  */
 template<typename T>
@@ -92,23 +91,28 @@ public:
 
 	//! Different methods for obtaining save edges
 	enum SaveCalculation {
-		staticEnum, //!< stores explicitly the save edge for every pair of terminals,
-					//!< needs O(n^2) space but has fast query times
-		staticLCATree,	//!< builds a "weight tree" (save edges are inner nodes, terminals are leaves
-						//!< and searches save edges via LCA calculation of two nodes
-		dynamicLCATree, //!< same as staticLCATree but each time a triple has been contracted
-						//!< the "weight tree" is updated dynamically rather than completely new from scratch.
-						//!< Has the fastest update time
-
-		hybrid  //!< uses staticEnum for the triple generation phase (many queries)
-			//!< and dynamicLCATree during the contraction phase (few updates)
+		//! Stores explicitly the save edge for every pair of terminals.
+		//! Needs O(n^2) space but has fast query times
+		staticEnum,
+		//! Builds a "weight tree" (save edges are inner nodes, terminals are leaves
+		//! and searches save edges via LCA calculation of two nodes
+		staticLCATree,
+		//! Same as staticLCATree but each time a triple has been contracted
+		//! the "weight tree" is updated dynamically rather than completely
+		//! new from scratch.  Has the fastest update time
+		dynamicLCATree,
+		//! Uses staticEnum for the triple generation phase (many queries)
+		//! and dynamicLCATree during the contraction phase (few updates)
+		hybrid
 	};
 
 	//! Enables a heuristic version (for TG exhaustive and voronoi only)
 	enum Pass {
-		one, //!< heuristic: evaluate all triples, sort them descending by gain, traverse sorted triples
-			 //!< once, contract when possible
-		multi	//!< normal, greedy version
+		//! heuristic: evaluate all triples, sort them descending by gain,
+		//! traverse sorted triples once, contract when possible
+		one,
+		//! normal, greedy version
+		multi
 	};
 
 	MinSteinerTreeZelikovsky(WinCalculation wc = absolute, TripleGeneration tg = voronoi, SaveCalculation sc = hybrid, TripleReduction tr = on, Pass pass = multi)
@@ -468,7 +472,6 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 
 		// cleanup
 		m_triples.clear();
-		m_distance.init(); // disconnect softly (otherwise some OGDF bug may occur)
 	}
 
 	// obtain final Steiner Tree using (MST-based) Steiner tree approximation algorithm
@@ -691,5 +694,3 @@ void MinSteinerTreeZelikovsky<T>::multiPass(Save<T> &save, NodeArray<bool> &isNe
 
 }
 // end namespace ogdf
-
-#endif /* MIN_STEINER_TREE_ZELIKOVSKY_OGDF_H_ */

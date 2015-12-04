@@ -32,23 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_LAYOUT_H
-#define OGDF_LAYOUT_H
-
 
 #include <ogdf/basic/GraphAttributes.h>
-
+#include <ogdf/basic/GraphCopy.h>
 
 namespace ogdf {
 
-	class GraphCopy;
-	class PlanRep;
-
+class PlanRep;
 
 /**
  * \brief Stores a layout of a graph (coordinates of nodes, bend points of edges).
@@ -172,5 +163,3 @@ private:
 
 
 } // end namespace ogdf
-
-#endif

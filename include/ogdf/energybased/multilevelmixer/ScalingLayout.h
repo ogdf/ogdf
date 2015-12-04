@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SCALING_LAYOUT_H
-#define OGDF_SCALING_LAYOUT_H
 
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/module/MultilevelLayoutModule.h>
@@ -157,5 +152,3 @@ private:
 };
 
 } // namespace ogdf
-
-#endif

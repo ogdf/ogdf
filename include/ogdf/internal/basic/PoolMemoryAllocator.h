@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_POOL_MEMORY_ALLOCATOR_H
-#define OGDF_POOL_MEMORY_ALLOCATOR_H
 
 #include <ogdf/basic/System.h>
 
@@ -199,5 +193,3 @@ private:
 
 
 }
-
-#endif

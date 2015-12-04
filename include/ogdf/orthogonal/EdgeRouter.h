@@ -35,14 +35,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EDGE_ROUTER_H
-#define OGDF_EDGE_ROUTER_H
-
-
 
 #include <ogdf/internal/orthogonal/RoutingChannel.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
@@ -252,8 +245,7 @@ private:
 	int compute_move(OrthoDir s_from, OrthoDir s_to, int& kflip, node v);
 
 	NodeArray<int> m_newx, m_newy; //!< new placement position for original node
-	//!< node array saves info about changed position, no further change is allowed
-	NodeArray<bool> m_fixed;
+	NodeArray<bool> m_fixed; //!< saves info about changed position, no further change is allowed
 	EdgeArray<int>  lowe, uppe, lefte, righte; //!< max box borders for bendfree edges
 	AdjEntryArray<int>  alowe, auppe, alefte, arighte;
 	AdjEntryArray<int>  m_agp_x, m_agp_y; //!< because edges can connect two replacement cages
@@ -281,5 +273,3 @@ private:
 };
 
 } //end namespace
-
-#endif

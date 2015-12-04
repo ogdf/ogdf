@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_TILE_TO_ROWS_CC_PACKER_H
-#define OGDF_TILE_TO_ROWS_CC_PACKER_H
-
-
 
 #include <ogdf/module/CCLayoutPackModule.h>
 
@@ -107,6 +99,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

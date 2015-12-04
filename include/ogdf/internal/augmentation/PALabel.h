@@ -32,20 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PA_LABEL_H
-#define OGDF_PA_LABEL_H
-
 
 #include <ogdf/basic/Graph.h>
 
 
 namespace ogdf {
 
-	enum paStopCause { paPlanarity, paCDegree, paBDegree, paRoot };
+enum paStopCause { paPlanarity, paCDegree, paBDegree, paRoot };
 
 /**
  * \brief auxiliary class for the planar augmentation algorithm
@@ -162,5 +156,3 @@ typedef PALabel* pa_label;
 
 
 } // namespace ogdf
-
-#endif

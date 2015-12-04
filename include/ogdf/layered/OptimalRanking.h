@@ -33,15 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_OPTIMAL_RANKING_H
-#define OGDF_OPTIMAL_RANKING_H
-
-
 
 #include <ogdf/module/RankingModule.h>
 #include <ogdf/module/AcyclicSubgraphModule.h>
@@ -163,6 +155,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

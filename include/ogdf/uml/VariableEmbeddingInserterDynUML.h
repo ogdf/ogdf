@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of class VariablEmbeddingInserterDynUML.
  *
- * \author Carsten Gutwenger<br>Jan Papenfu&szlig;
+ * \author Carsten Gutwenger, Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_VAR_EMB_INSERTER_DYN_UML_H
-#define OGDF_VAR_EMB_INSERTER_DYN_UML_H
-
 
 #include <ogdf/module/UMLEdgeInsertionModule.h>
 #include <ogdf/planarity/RemoveReinsertType.h>
@@ -47,81 +41,79 @@
 namespace ogdf {
 
 
-	//! Optimal edge insertion module.
+//! Optimal edge insertion module.
+/**
+ * The class VariableEmbeddingInserterDynUML represents the optimal edge insertion
+ * algorithm, which inserts a single edge with a minum number of crossings
+ * into a planar graph. This version is specialized for UML class diagrams and
+ * makes sure that generalization edges do not cross.
+ *
+ * The implementation is based on the following publication:
+ *
+ * Carsten Gutwenger, Petra Mutzel, Rene Weiskircher: <i>Inserting an Edge into
+ * a Planar %Graph</i>. Algorithmica 41(4), pp. 289-308, 2005.
+ */
+class OGDF_EXPORT VariableEmbeddingInserterDynUML : public UMLEdgeInsertionModule
+{
+public:
+	//! Creates an instance of variable embedding edge inserter with default settings.
+	VariableEmbeddingInserterDynUML();
+
+	//! Creates an instance of variable embedding inserter with the same settings as \a inserter.
+	VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML &inserter);
+
+	//! Destructor.
+	~VariableEmbeddingInserterDynUML() { }
+
+	//! Returns a new instance of the variable embedding inserter with the same option settings.
+	virtual UMLEdgeInsertionModule *clone() const override;
+
+	//! Assignment operator. Copies option settings only.
+	VariableEmbeddingInserterDynUML &operator=(const VariableEmbeddingInserterDynUML &inserter);
+
+
 	/**
-	 * The class VariableEmbeddingInserterDynUML represents the optimal edge insertion
-	 * algorithm, which inserts a single edge with a minum number of crossings
-	 * into a planar graph. This version is specialized for UML class diagrams and
-	 * makes sure that generalization edges do not cross.
-	 *
-	 * The implementation is based on the following publication:
-	 *
-	 * Carsten Gutwenger, Petra Mutzel, Rene Weiskircher: <i>Inserting an Edge into
-	 * a Planar %Graph</i>. Algorithmica 41(4), pp. 289-308, 2005.
+	 *  @name Optional parameters
+	 *  @{
 	 */
-	class OGDF_EXPORT VariableEmbeddingInserterDynUML : public UMLEdgeInsertionModule
-	{
-	public:
-		//! Creates an instance of variable embedding edge inserter with default settings.
-		VariableEmbeddingInserterDynUML();
 
-		//! Creates an instance of variable embedding inserter with the same settings as \a inserter.
-		VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML &inserter);
+	//! Sets the remove-reinsert postprocessing method.
+	void removeReinsert(RemoveReinsertType rrOption) {
+		m_rrOption = rrOption;
+	}
 
-		//! Destructor.
-		~VariableEmbeddingInserterDynUML() { }
-
-		//! Returns a new instance of the variable embedding inserter with the same option settings.
-		virtual UMLEdgeInsertionModule *clone() const override;
-
-		//! Assignment operator. Copies option settings only.
-		VariableEmbeddingInserterDynUML &operator=(const VariableEmbeddingInserterDynUML &inserter);
+	//! Returns the current setting of the remove-reinsert postprocessing method.
+	RemoveReinsertType removeReinsert() const {
+		return m_rrOption;
+	}
 
 
-		/**
-		 *  @name Optional parameters
-		 *  @{
-		 */
+	//! Sets the option <i>percentMostCrossed</i> to \a percent.
+	/**
+	 * This option determines the portion of most crossed edges used if the remove-reinsert
+	 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
+	 */
+	void percentMostCrossed(double percent) {
+		m_percentMostCrossed = percent;
+	}
 
-		//! Sets the remove-reinsert postprocessing method.
-		void removeReinsert(RemoveReinsertType rrOption) {
-			m_rrOption = rrOption;
-		}
+	//! Returns the current setting of option percentMostCrossed.
+	double percentMostCrossed() const {
+		return m_percentMostCrossed;
+	}
 
-		//! Returns the current setting of the remove-reinsert postprocessing method.
-		RemoveReinsertType removeReinsert() const {
-			return m_rrOption;
-		}
+	//! @}
 
+private:
+	//! Implements the algorithm call.
+	virtual ReturnType doCall(
+		PlanRepLight              &pr,
+		const Array<edge>         &origEdges,
+		const EdgeArray<int>      *pCostOrig,
+		const EdgeArray<uint32_t> *pEdgeSubgraph) override;
 
-		//! Sets the option <i>percentMostCrossed</i> to \a percent.
-		/**
-		 * This option determines the portion of most crossed edges used if the remove-reinsert
-		 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
-		 */
-		void percentMostCrossed(double percent) {
-			m_percentMostCrossed = percent;
-		}
-
-		//! Returns the current setting of option percentMostCrossed.
-		double percentMostCrossed() const {
-			return m_percentMostCrossed;
-		}
-
-		//! @}
-
-	private:
-		//! Implements the algorithm call.
-		virtual ReturnType doCall(
-			PlanRepLight              &pr,
-			const Array<edge>         &origEdges,
-			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<uint32_t> *pEdgeSubgraph) override;
-
-		RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
-		double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
-	};
+	RemoveReinsertType m_rrOption; //!< The remove-reinsert method.
+	double m_percentMostCrossed;   //!< The portion of most crossed edges considered.
+};
 
 } // end namespace ogdf
-
-#endif

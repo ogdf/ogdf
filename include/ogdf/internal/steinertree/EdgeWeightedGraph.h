@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EDGE_WEIGHTED_GRAPH_H_
-#define OGDF_EDGE_WEIGHTED_GRAPH_H_
 
 #include <ogdf/basic/GraphCopy.h>
 
@@ -93,5 +88,3 @@ protected:
 };
 
 }
-
-#endif /* OGDF_EDGE_WEIGHTED_GRAPH_H_ */

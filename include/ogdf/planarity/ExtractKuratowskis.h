@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_EXTRACT_KURATOWSKIS_H
-#define OGDF_EXTRACT_KURATOWSKIS_H
 
 #include <ogdf/internal/planarity/BoyerMyrvoldPlanar.h>
 #include <ogdf/internal/planarity/FindKuratowskis.h>
@@ -465,5 +459,3 @@ class ExtractKuratowskis {
 };
 
 }
-
-#endif

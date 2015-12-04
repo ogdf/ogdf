@@ -73,9 +73,9 @@ void BertaultLayout::call(GraphAttributes &AG)
 	const Graph &G = AG.constGraph();
 	if(G.numberOfNodes() == 0)
 		return;
-	if( (AG.attributes() & GraphAttributes::nodeGraphics) == 0 )
+	if(!AG.has(GraphAttributes::nodeGraphics))
 		return;
-	if( (AG.attributes() & GraphAttributes::edgeGraphics) != 0 )
+	if(AG.has(GraphAttributes::edgeGraphics))
 		AG.clearAllBends();
 	if(iter_no==0)
 		iter_no=G.numberOfNodes()*10;
@@ -127,7 +127,7 @@ void BertaultLayout::call(GraphAttributes &AG)
 			}
 
 			//calculate total node-node attractive force
-			for(adjEntry adj : v->adjEdges)
+			for(adjEntry adj : v->adjEntries)
 			{
 				node ad=adj->twinNode();
 				f_Node_Attractive(&v,&ad,AG);
@@ -401,7 +401,7 @@ void BertaultLayout::move(node *v, GraphAttributes &AG)
 
 void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 {
-	if( (AG.attributes() & GraphAttributes::nodeGraphics) == 0 && (c=='c'||c=='m'||c=='r'))
+	if( !AG.has(GraphAttributes::nodeGraphics) && (c=='c'||c=='m'||c=='r'))
 	{
 		if(req_length==0)
 			req_length=50;
@@ -642,12 +642,8 @@ void BertaultLayout::crossingPlanarize(GraphAttributes &AG)
 
 	for(edge e : G.edges)
 	{
-		edge i;
-		forall_rev_edges(i,G)
+		for(edge i = G.lastEdge(); i != e; i = i->pred())
 		{
-			if(i==e)
-				break;
-
 			node a=e->source();
 			node b=e->target();
 			double m=(AG.y(a)-AG.y(b))/(AG.x(a)-AG.x(b));
@@ -933,12 +929,8 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 		node b = e->target();
 		double m = (AG.y(a) - AG.y(b)) / (AG.x(a) - AG.x(b));
 		double c = AG.y(a) - m*AG.x(a);
-		edge i;
-		forall_rev_edges(i, G)
+		for(edge i = G.lastEdge(); i != e; i = i->pred())
 		{
-			if (i == e)
-				break;
-
 			node x = i->source();
 			node y = i->target();
 			double m2 = (AG.y(x) - AG.y(y)) / (AG.x(x) - AG.x(y));

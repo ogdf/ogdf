@@ -276,10 +276,8 @@ void CliqueFinder::doCall(int minDegree)
 			{
 				node vOrig = s.original(w);
 
-				edge eSkel;
-				forall_adj_edges(eSkel, w)
-				{
-					edge goodEdge = s.realEdge(eSkel);
+				for(adjEntry adj : w->adjEntries) {
+					edge goodEdge = s.realEdge(adj->theEdge());
 					bool isGoodEdge = goodEdge != nullptr;
 					if (isGoodEdge) isGoodEdge = m_pCopy->original(goodEdge) != nullptr;
 					//if (s.realEdge(eSkel))
@@ -507,7 +505,7 @@ void CliqueFinder::postProcessCliques(
 					}//for
 
 					//now delete nodes if connectivity too small
-					if (DIsLess(adCount, ceil((pCand->size() - 1)*m_density / 100.0)))
+					if (OGDF_GEOM_ET.less(adCount, (int) ceil((pCand->size() - 1)*m_density / 100.0)))
 					{
 						leftOver.pushBack(*itNode);
 						m_usedNode[*itNode] = false;
@@ -588,7 +586,7 @@ void CliqueFinder::postProcessCliques(
 		NodeArray<int>  neighbourDegree(*m_pCopy, 0);
 		node v = *itNode;
 		OGDF_ASSERT(!m_usedNode[v])
-		for(adjEntry adj1 : v->adjEdges)
+		for(adjEntry adj1 : v->adjEntries)
 		{
 			if (!usableEdge[adj1->theEdge()]) continue;
 			node w = adj1->twinNode();
@@ -599,7 +597,7 @@ void CliqueFinder::postProcessCliques(
 		//this loop counts every triangle (two times)
 		//TODO: man kann besser oben schon liste neighbours fuellen
 		//und hier nur noch darueber laufen
-		for(adjEntry adj1 : v->adjEdges)
+		for(adjEntry adj1 : v->adjEntries)
 		{
 			//if (!usableEdge[adj1->theEdge()]) continue;
 			node w = adj1->twinNode();
@@ -611,7 +609,7 @@ void CliqueFinder::postProcessCliques(
 			neighbours->pushBack(w);
 			neighbourDegree[w]++; //connected to v
 
-			for(adjEntry adj2 : w->adjEdges)
+			for(adjEntry adj2 : w->adjEntries)
 			{
 				if (!usableEdge[adj2->theEdge()]) continue;
 				node u = adj2->twinNode();
@@ -700,7 +698,7 @@ int CliqueFinder::evaluate(node v, EdgeArray<bool> &usableEdge)
 	//der Ergebnisse fuer andere Knoten
 	//TODO: Geht das auch effizienter als mit Nodearray?
 	NodeArray<bool> neighbour(*m_pCopy, false);
-	for(adjEntry adj1 : v->adjEdges)
+	for(adjEntry adj1 : v->adjEntries)
 	{
 		if (!usableEdge[adj1->theEdge()]) continue;
 		node w = adj1->twinNode();
@@ -708,12 +706,12 @@ int CliqueFinder::evaluate(node v, EdgeArray<bool> &usableEdge)
 	}
 
 	//this loop counts every triangle (twice)
-	for(adjEntry adj1 : v->adjEdges)
+	for(adjEntry adj1 : v->adjEntries)
 	{
 		if (!usableEdge[adj1->theEdge()]) continue;
 		node w = adj1->twinNode();
 		if (m_usedNode[w]) continue; //dont use paths over other cliques
-		for(adjEntry adj2 : w->adjEdges)
+		for(adjEntry adj2 : w->adjEntries)
 		{
 			if (!usableEdge[adj2->theEdge()]) continue;
 			node u = adj2->twinNode();
@@ -840,7 +838,7 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 	int threshold = int(ceil(max(1.0, ceil((vList->size()*m_density/100.0)))));
 	//we do not want to run into some rounding error if m_density == 100
 	if (m_density == 100) {if (v->degree() < vList->size()) return false;}
-	else if (DIsLess(v->degree(), threshold)) return false;
+	else if (OGDF_GEOM_ET.less(v->degree(), threshold)) return false;
 	if (vList->size() == 0) return true;
 	int adCount = 0;
 	//Check: can the runtime be improved, e.g. by an adjacency oracle
@@ -861,7 +859,7 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 
 	//we do not want to run into some rounding error if m_density == 100
 	if (m_density == 100) { if (adCount == vList->size()) return true;}
-	else if (DIsGreaterEqual(adCount, threshold))
+	else if (OGDF_GEOM_ET.geq(adCount, threshold))
 		return true;
 
 	return false;
@@ -892,7 +890,7 @@ bool CliqueFinder::cliqueOK(List<node> *clique)
 
 	for(node v : *clique)
 	{
-		for(adjEntry adj1 : v->adjEdges)
+		for(adjEntry adj1 : v->adjEntries)
 		{
 			connect[adj1->twinNode()]++;
 
@@ -911,7 +909,7 @@ bool CliqueFinder::cliqueOK(List<node> *clique)
 			//value
 			//TODO:postprocess and delete all "bad" nodes
 			//double minVal = (clique->size()-1)*m_density/100.0;
-			//if (DIsLess(connect[v], minVal))
+			//if (OGDF_GEOM_ET.less(connect[v], minVal))
 			//	return false;
 		}
 	}

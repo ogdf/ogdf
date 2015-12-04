@@ -32,97 +32,88 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SEGV_FORCE_MODEL_H
-#define OGDF_SEGV_FORCE_MODEL_H
-
 
 #include <ogdf/energybased/SpringEmbedderGridVariant.h>
 
-
 namespace ogdf {
 
-	class SpringEmbedderGridVariant::ForceModelBase
-	{
-	public:
-		ForceModelBase(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: m_vInfo(vInfo), m_adjLists(adjLists), m_gridCell(gridCell), m_idealEdgeLength(idealEdgeLength) { }
+class SpringEmbedderGridVariant::ForceModelBase
+{
+public:
+	ForceModelBase(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: m_vInfo(vInfo), m_adjLists(adjLists), m_gridCell(gridCell), m_idealEdgeLength(idealEdgeLength) { }
 
-		virtual ~ForceModelBase() { }
+	virtual ~ForceModelBase() { }
 
-		virtual DPoint computeDisplacement(int j, double boxLength) const = 0;
+	virtual DPoint computeDisplacement(int j, double boxLength) const = 0;
 
-		double eps() const { return 0.01*m_idealEdgeLength; }
+	double eps() const { return 0.01*m_idealEdgeLength; }
 
-	protected:
-		const Array<NodeInfo>        &m_vInfo;
-		const Array<int>             &m_adjLists;
-		const Array2D<ListPure<int>> &m_gridCell;
+protected:
+	const Array<NodeInfo>        &m_vInfo;
+	const Array<int>             &m_adjLists;
+	const Array2D<ListPure<int>> &m_gridCell;
 
-		double m_idealEdgeLength;
-	};
-
-
-	class SpringEmbedderGridVariant::ForceModelFR : public ForceModelBase
-	{
-	public:
-		ForceModelFR(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
-
-		DPoint computeDisplacement(int j, double boxLength) const;
-	};
-
-	class SpringEmbedderGridVariant::ForceModelFRModAttr : public ForceModelBase
-	{
-	public:
-		ForceModelFRModAttr(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
-
-		DPoint computeDisplacement(int j, double boxLength) const;
-	};
-
-	class SpringEmbedderGridVariant::ForceModelFRModRep : public ForceModelBase
-	{
-	public:
-		ForceModelFRModRep(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
-
-		DPoint computeDisplacement(int j, double boxLength) const;
-	};
+	double m_idealEdgeLength;
+};
 
 
-	class SpringEmbedderGridVariant::ForceModelEades : public ForceModelBase
-	{
-	public:
-		ForceModelEades(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
+class SpringEmbedderGridVariant::ForceModelFR : public ForceModelBase
+{
+public:
+	ForceModelFR(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-		DPoint computeDisplacement(int j, double boxLength) const;
-	};
+	DPoint computeDisplacement(int j, double boxLength) const;
+};
+
+class SpringEmbedderGridVariant::ForceModelFRModAttr : public ForceModelBase
+{
+public:
+	ForceModelFRModAttr(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
+
+	DPoint computeDisplacement(int j, double boxLength) const;
+};
+
+class SpringEmbedderGridVariant::ForceModelFRModRep : public ForceModelBase
+{
+public:
+	ForceModelFRModRep(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
+
+	DPoint computeDisplacement(int j, double boxLength) const;
+};
 
 
-	class SpringEmbedderGridVariant::ForceModelHachul : public ForceModelBase
-	{
-	public:
-		ForceModelHachul(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
+class SpringEmbedderGridVariant::ForceModelEades : public ForceModelBase
+{
+public:
+	ForceModelEades(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-		DPoint computeDisplacement(int j, double boxLength) const;
-	};
+	DPoint computeDisplacement(int j, double boxLength) const;
+};
 
 
-	class SpringEmbedderGridVariant::ForceModelGronemann : public ForceModelBase
-	{
-	public:
-		ForceModelGronemann(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
-			: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
+class SpringEmbedderGridVariant::ForceModelHachul : public ForceModelBase
+{
+public:
+	ForceModelHachul(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-		DPoint computeDisplacement(int j, double boxLength) const;
-	};
+	DPoint computeDisplacement(int j, double boxLength) const;
+};
+
+
+class SpringEmbedderGridVariant::ForceModelGronemann : public ForceModelBase
+{
+public:
+	ForceModelGronemann(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
+		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
+
+	DPoint computeDisplacement(int j, double boxLength) const;
+};
 
 }
-
-#endif

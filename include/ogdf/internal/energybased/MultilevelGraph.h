@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MULTILEVEL_GRAPH_H
-#define OGDF_MULTILEVEL_GRAPH_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -148,9 +143,8 @@ public:
 	void writeGML(const char *fileName);
 
 	// the original graph will be cleared to save Memory
-	OGDF_DEPRECATED_BEGIN
+	OGDF_DEPRECATED
 	std::vector<MultilevelGraph *> splitIntoComponents();
-	OGDF_DEPRECATED_END
 
 	bool postMerge(NodeMerge * NM, node merged);
 	//\a merged is the node now represented by \a theNode
@@ -167,5 +161,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif

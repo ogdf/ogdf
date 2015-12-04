@@ -57,13 +57,12 @@ void bfs_SPSS(node s, const Graph& G, NodeArray<double>& distanceArray, double e
 	while (!bfs.empty()) {
 		node w = bfs.popFrontRet();
 		double d = distanceArray[w] + edgeCosts;
-		edge e;
-		forall_adj_edges(e, w){
-			node adj = e->opposite(w);
-			if (!mark[adj]) {
-				mark[adj] = true;
-				bfs.pushBack(adj);
-				distanceArray[adj] = d;
+		for(adjEntry adj : w->adjEntries) {
+			node v = adj->twinNode();
+			if (!mark[v]) {
+				mark[v] = true;
+				bfs.pushBack(v);
+				distanceArray[v] = d;
 			}
 		}
 	}

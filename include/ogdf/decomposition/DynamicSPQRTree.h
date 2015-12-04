@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of class DynamicSPQRTree
  *
- * \author Jan Papenfu&szlig;
+ * \author Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_DYNAMIC_SPQR_TREE_H
-#define OGDF_DYNAMIC_SPQR_TREE_H
-
 
 #include <ogdf/decomposition/SPQRTree.h>
 #include <ogdf/decomposition/DynamicSPQRForest.h>
@@ -260,6 +252,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

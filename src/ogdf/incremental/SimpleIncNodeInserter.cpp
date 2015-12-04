@@ -193,9 +193,8 @@ face SimpleIncNodeInserter::getInsertionFace(node v, CombinatorialEmbedding &E)
 	//we iterate over all adjacent edges and over all
 	//touching faces on the opposite nodes
 	//in case of a tie, return the larger face
-	edge e;
-	forall_adj_edges(e, v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node wCopy = m_planRep->copy(e->opposite(v));
 		if (wCopy == nullptr) continue; //not yet inserted
 
@@ -204,7 +203,7 @@ face SimpleIncNodeInserter::getInsertionFace(node v, CombinatorialEmbedding &E)
 			m_incidentEdges[wCopy] = OGDF_NEW List<edge>;
 		m_incidentEdges[wCopy]->pushBack(e);
 		OGDF_ASSERT(m_planRep->chain(e).size() == 0)
-		for(adjEntry adRun : wCopy->adjEdges)
+		for(adjEntry adRun : wCopy->adjEntries)
 		{
 			face f = E.rightFace(adRun);
 			numAdj[f]++;
@@ -237,7 +236,6 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 	//plus the new copy
 	if ((f == nullptr) && (m_planRep->numberOfNodes() == 2))
 	{
-		edge e;
 		node sv = m_planRep->firstNode();
 		node svOriginal = m_planRep->original(sv);
 
@@ -246,8 +244,8 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 		//remaining multiple edges
 		bool firstEdge = true;
 		adjEntry behindAdj = nullptr;
-		forall_adj_edges(e, svOriginal)
-		{
+		for(adjEntry adj : svOriginal->adjEntries) {
+			edge e = adj->theEdge();
 			if (e->opposite(svOriginal) == v)
 			{
 				//edge e2;
@@ -373,15 +371,12 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 	//there can exist treeConnectivity edges
 	//if (v->degree() == vCopy->degree()) return;
 	bool processed = true;
-	edge e;
-	{
-		forall_adj_edges(e, v)
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
+		if (m_planRep->chain(e).size() == 0)
 		{
-			if (m_planRep->chain(e).size() == 0)
-			{
-				processed = false;
-				break;
-			}
+			processed = false;
+			break;
 		}
 	}
 
@@ -389,8 +384,8 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 
 	constructDual(*m_planRep, E, m_forbidCrossings);
 
-	forall_adj_edges(e, v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		//already inserted face edge, unten weglassen
 		if (m_planRep->chain(e).size() != 0)
 			continue;
@@ -457,7 +452,7 @@ void SimpleIncNodeInserter::constructDual(const Graph &G,
 	// The edges are directed from the left face to the right face.
 	for(node v : G.nodes)
 	{
-		for(adjEntry adj : v->adjEdges)
+		for(adjEntry adj : v->adjEntries)
 		{
 			node vLeft  = m_nodeOf[E.leftFace (adj)];
 			node vRight = m_nodeOf[E.rightFace(adj)];
@@ -500,7 +495,7 @@ void SimpleIncNodeInserter::findShortestPath(
 	int oldIdCount = m_dual.maxEdgeIndex();
 
 	// augment dual by edges from s to all adjacent faces of s ...
-	for(adjEntry adj : s->adjEdges)
+	for(adjEntry adj : s->adjEntries)
 	{
 		// starting edges of bfs-search are all edges leaving s
 		edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
@@ -509,7 +504,7 @@ void SimpleIncNodeInserter::findShortestPath(
 	}
 
 	// ... and from all adjacent faces of t to t
-	for(adjEntry adj : t->adjEdges) {
+	for(adjEntry adj : t->adjEntries) {
 		edge eDual = m_dual.newEdge(m_nodeOf[E.rightFace(adj)], m_vT);
 		m_primalAdj[eDual] = adj;
 	}
@@ -546,8 +541,8 @@ void SimpleIncNodeInserter::findShortestPath(
 
 			// append next candidate edges to queue
 			// (all edges leaving v)
-			edge e;
-			forall_adj_edges(e,v) {
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				if (v == e->source() &&
 					(eType != Graph::generalization || m_primalIsGen[e] == false))
 				{

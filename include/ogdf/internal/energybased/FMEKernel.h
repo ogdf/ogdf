@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FME_KERNEL_H
-#define OGDF_FME_KERNEL_H
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/internal/energybased/FastUtils.h>
@@ -278,5 +273,3 @@ public:
 };
 
 } // end of namespace ogdf
-
-#endif

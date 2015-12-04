@@ -524,8 +524,8 @@ void FlowCompaction::dfsAssignPos(
 	pos[v] = x;
 	visited[v] = true;
 
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node w = e->opposite(v);
 		if (visited[w]) continue;
 

@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_CONNECTED_SUBGRAPH_h
-#define OGDF_CONNECTED_SUBGRAPH_h
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -317,9 +312,8 @@ void ConnectedSubgraph<T>::recursion(
 	nSG_to_nG[nSG] = nG;
 	nodeVisited[nG] = true;
 
-	edge eG;
-	forall_adj_edges(eG, nG)
-	{
+	for(adjEntry adj : nG->adjEntries) {
+		edge eG = adj->theEdge();
 		if (!nodeVisited[eG->source()])
 			recursion(SG, nodeVisited, edgeVisited, eG->source(),
 				nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
@@ -424,5 +418,3 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 
 
 } // end namespace ogdf
-
-#endif

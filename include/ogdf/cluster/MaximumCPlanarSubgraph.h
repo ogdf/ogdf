@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MAXIMUM_CPLANAR_SUBGRAPH_H
-#define OGDF_MAXIMUM_CPLANAR_SUBGRAPH_H
 
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
@@ -85,7 +79,7 @@ public:
 							   m_perturbation(false),
 							   m_branchingGap(0.4),
 							   m_time("00:20:00"),
-							   m_pricing(true),
+							   m_pricing(false),
 							   m_checkCPlanar(false),
 							   m_numAddVariables(15),
 							   m_strongConstraintViolation(0.3),
@@ -252,6 +246,3 @@ private:
 #endif // USE_ABACUS
 
 } //end namespace ogdf
-
-
-#endif // OGDF_MAXIMUM_CPLANAR_SUBGRAPH_H

@@ -48,7 +48,7 @@ void PivotMDS::call(GraphAttributes& GA)
 		return;
 	}
 	if (m_hasEdgeCostsAttribute
-			&& !(GA.attributes() & GraphAttributes::edgeDoubleWeight)) {
+			&& !GA.has(GraphAttributes::edgeDoubleWeight)) {
 				OGDF_THROW(PreconditionViolatedException);
 		return;
 	}
@@ -94,7 +94,7 @@ void PivotMDS::centerPivotmatrix(Array<Array<double> >& pivotMatrix)
 void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 {
 	const Graph& G = GA.constGraph();
-	bool use3D = GA.haveAttributes(GraphAttributes::threeD) && DIMENSION_COUNT > 2;
+	bool use3D = GA.has(GraphAttributes::threeD) && DIMENSION_COUNT > 2;
 
 	const int n = G.numberOfNodes();
 
@@ -157,21 +157,19 @@ void PivotMDS::doPathLayout(GraphAttributes& GA, const node& v)
 	double xPos = 0;
 	node prev = v;
 	node cur = v;
-	edge e;
 	// since the given node is the beginning of the path just
 	// use bfs and increment the x coordinate by the average
 	// edge costs.
 	do {
 		GA.x(cur) = xPos;
 		GA.y(cur) = 0;
-		node adj;
-		forall_adj_edges(e,cur) {
-			adj = e->opposite(cur);
-			if (!(adj == prev) || adj == cur) {
+		for(adjEntry adj : cur->adjEntries) {
+			node w = adj->twinNode();
+			if (!(w == prev) || w == cur) {
 				prev = cur;
-				cur = adj;
+				cur = w;
 				if(m_hasEdgeCostsAttribute) {
-					xPos+=GA.doubleWeight(e);
+					xPos+=GA.doubleWeight(adj->theEdge());
 				} else {
 					xPos += m_edgeCosts;
 				}
@@ -324,13 +322,12 @@ node PivotMDS::getRootedPath(const Graph& G)
 		visited[v] = true;
 		neighbors.pushBack(v);
 
-		edge e;
-		forall_adj_edges(e,v) {
-			node adj = e->opposite(v);
-			if (!visited[adj])
+		for(adjEntry adj : v->adjEntries) {
+			node w = adj->twinNode();
+			if (!visited[w])
 			{
-				neighbors.pushBack(adj);
-				visited[adj]=true;
+				neighbors.pushBack(w);
+				visited[w]=true;
 				++degree;
 			}
 		}

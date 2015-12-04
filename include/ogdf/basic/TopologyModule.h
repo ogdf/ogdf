@@ -36,16 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_TOPOLOGYMODULE_H
-#define OGDF_TOPOLOGYMODULE_H
-
-
 
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/GraphAttributes.h>
@@ -53,7 +44,45 @@
 
 namespace ogdf {
 
-class EdgeLeg;
+//! Helper class for the computation of crossings
+/**
+ * Represents a part of the edge between two consecutive bends (in the layout, there are no bends
+ *  allowed in the representation) or crossings. There can be multiple EdgeLegs associated to one
+ * copy edge in the PlanRep because of bends.
+ */
+class EdgeLeg
+{
+public:
+	EdgeLeg() : m_xp(0.0, 0.0), m_topDown(false), m_copyEdge(nullptr) { }
+
+	EdgeLeg(edge e, int number, DPoint p1, DPoint p2) :
+		m_xp(DPoint(0.0,0.0)), m_topDown(false), m_copyEdge(e), m_p1(p1), m_p2(p2), m_number(number)
+		{ }
+
+	DPoint& start() { return m_p1; }
+	DPoint& end()   { return m_p2; }
+	int& number()    { return m_number; }
+	edge& copyEdge() { return m_copyEdge; }
+
+	//! to avoid sorting both edgelegs and crossing points,
+	//! do not store a pair of them, but allow the xp to be
+	//! stored in the edgeleg
+	DPoint m_xp;
+	//! we store the direction of the crossed EdgeLeg, too
+	//! if crossingEdgeLeg is horizontally left to right
+	bool m_topDown;
+
+	//! each edgeLeg holds an entry with a ListIterator pointing to
+	//! its entry in a <edgeLeg*> List for an original edge
+	ListIterator< EdgeLeg* > m_eIterator;
+
+private:
+	edge m_copyEdge; //!< the edge in the PlanRep copy corresponding to the EdgeLeg
+	DPoint m_p1, m_p2; //!< "Starting" and "End" point of the EdgeLeg
+	int    m_number; //!< the order nuumber on the edge, starting at 0
+
+};//edgeleg
+
 
 //===============================================
 //main function(s):
@@ -86,13 +115,18 @@ public:
 	 * opLoop increases running time by constant * m
 	 */
 	enum Options {
-		opDegOneCrossings = 0x0001, //!< should degree one node's edge be crossed
-		opGenToAss        = 0x0002, //!< should generalizations be turned into associations
-		opCrossFlip       = 0x0004, //!< if there is a crossing between two edges with the same start or end point,
-		                            //!< should their position at the node be flipped and the crossing be skipped?
-		opFlipUML         = 0x0010, //!< only flip if same edge type
-		opLoop            = 0x0008  //!< should loops between crossings (consecutive on both crossing edges) be deleted
-		                            //!< (we dont check for enclosed CC's; therefore it is safe to remove the crossing).
+		//! should degree-one node's edge be crossed
+		opDegOneCrossings = 0x0001,
+		//! should generalizations be turned into associations
+		opGenToAss = 0x0002,
+		//! if there is a crossing between two edges with the same start or end point,
+		//! should their position at the node be flipped and the crossing be skipped?
+		opCrossFlip = 0x0004,
+		//! only flip if same edge type
+		opFlipUML = 0x0010,
+		//! should loops between crossings (consecutive on both crossing edges) be deleted
+		//! (we dont check for enclosed CC's; therefore it is safe to remove the crossing).
+		opLoop = 0x0008,
 	};
 
 	void setOptions(int i) { m_options = i; }
@@ -186,46 +220,4 @@ private:
 	const DPoint m_refPoint;
 };//PointComparer
 
-//! Helper class for the computation of crossings
-/**
- * Represents a part of the edge between two consecutive bends (in the layout, there are no bends
- *  allowed in the representation) or crossings. There can be multiple EdgeLegs associated to one
- * copy edge in the PlanRep because of bends.
- */
-class EdgeLeg
-{
-public:
-	EdgeLeg() : m_xp(0.0, 0.0), m_topDown(false), m_copyEdge(nullptr) { }
-
-	EdgeLeg(edge e, int number, DPoint p1, DPoint p2) :
-		m_xp(DPoint(0.0,0.0)), m_topDown(false), m_copyEdge(e), m_p1(p1), m_p2(p2), m_number(number)
-		{ }
-
-	DPoint& start() { return m_p1; }
-	DPoint& end()   { return m_p2; }
-	int& number()    { return m_number; }
-	edge& copyEdge() { return m_copyEdge; }
-
-	//to avoid sorting both edgelegs and crossing points,
-	//do not store a pair of them, but allow the xp to be
-	//stored in the edgeleg
-	DPoint m_xp;
-	//we store the direction of the crossed EdgeLeg, too
-	//if crossingEdgeLeg is horizontally left to right
-	bool m_topDown;
-
-	//each edgeLeg holds an entry with a ListIterator pointing to
-	//its entry in a <edgeLeg*> List for an original edge
-	ListIterator< EdgeLeg* > m_eIterator;
-
-private:
-	edge m_copyEdge; //the edge in the PlanRep copy corresponding to the EdgeLeg
-	DPoint m_p1, m_p2;  //"Starting" and "End" point of the EdgeLeg
-	int    m_number;    //the order nuumber on the edge, starting at 0
-
-};//edgeleg
-
-
 } // end namespace ogdf
-
-#endif

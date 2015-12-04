@@ -36,13 +36,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_HASH_ARRAY_2D_H
-#define OGDF_HASH_ARRAY_2D_H
 
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/tuples.h>
@@ -156,5 +150,3 @@ private:
 };
 
 }
-
-#endif

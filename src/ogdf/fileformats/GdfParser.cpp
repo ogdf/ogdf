@@ -34,6 +34,7 @@
 
 #include <ogdf/fileformats/GdfParser.h>
 #include <ogdf/fileformats/Utils.h>
+#include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
 
@@ -70,7 +71,7 @@ static inline bool readDef(
 
 		Attr attr = toAttribute(name);
 		if(attr == a_unknown) {
-			OGDF_WARNING("attribute \"" << name << "\"" << " not supported. Ignoring.");
+			GraphIO::logger.lout(Logger::LL_MINOR) << "attribute \"" << name << "\"" << " not supported. Ignoring." << endl;
 		}
 		attrs.push_back(attr);
 	}
@@ -121,7 +122,7 @@ static bool split(
 			if(quoted) {
 				i += quoted;
 			} else {
-				OGDF_ERROR("Unescaped quote.");
+				GraphIO::logger.lout() << "Unescaped quote." << endl;
 				return false;
 			}
 		} else if(str[i] == ',') {
@@ -147,8 +148,8 @@ bool Parser::readNodeStmt(
 	split(str, values);
 
 	if(values.size() != m_nodeAttrs.size()) {
-		OGDF_ERROR("node definition does not match the header "
-		          << "(line " << line << ").");
+		GraphIO::logger.lout() << "node definition does not match the header "
+		          << "(line " << line << ")." << endl;
 		return false;
 	}
 
@@ -175,8 +176,8 @@ bool Parser::readEdgeStmt(
 	split(str, values);
 
 	if(values.size() != m_edgeAttrs.size()) {
-		OGDF_ERROR("edge definition does not match the header "
-		          << "(line " << line << ").");
+		GraphIO::logger.lout() << "edge definition does not match the header "
+		          << "(line " << line << ")." << endl;
 		return false;
 	}
 
@@ -191,8 +192,8 @@ bool Parser::readEdgeStmt(
 			} else if(values[i] == "false") {
 				directed = false;
 			} else {
-				OGDF_ERROR("edge direction must be a boolean "
-				          << "(line " << line << ").");
+				GraphIO::logger.lout() << "edge direction must be a boolean "
+				          << "(line " << line << ")." << endl;
 			}
 			break;
 		case ea_source:
@@ -208,20 +209,19 @@ bool Parser::readEdgeStmt(
 
 	// Then, we can create edge(s) and read attributes (if needed).
 	if(!source || !target) {
-		OGDF_ERROR("source or target for edge not found "
-		          << "(line " << line << ").");
+		GraphIO::logger.lout() << "source or target for edge not found "
+		          << "(line " << line << ")." << endl;
 		return false;
 	}
 
 	edge st = G.newEdge(source, target);
-	edge ts = directed ? nullptr : G.newEdge(target, source);
+	OGDF_ASSERT(st);
 
-	if(GA && st && !readAttributes(*GA, st, values)) {
-		return false;
-	}
-
-	if(GA && ts && !readAttributes(*GA, ts, values)) {
-		return false;
+	if (GA) {
+		GA->setDirected(directed);
+		if (!readAttributes(*GA, st, values)) {
+			return false;
+		}
 	}
 
 	return true;
@@ -475,8 +475,8 @@ bool gdf::Parser::readGraph(
 				return false;
 			}
 		} else {
-			OGDF_ERROR("Expected node or edge definition header "
-			          << "(line " << line << ").");
+			GraphIO::logger.lout() << "Expected node or edge definition header "
+			          << "(line " << line << ")." << endl;
 			return false;
 		}
 	}

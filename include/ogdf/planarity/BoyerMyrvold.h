@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BOYER_MYRVOLD_H
-#define OGDF_BOYER_MYRVOLD_H
 
 #include <ogdf/module/PlanarityModule.h>
 #include <ogdf/internal/planarity/BoyerMyrvoldPlanar.h>
@@ -275,5 +269,3 @@ public:
 };
 
 }
-
-#endif

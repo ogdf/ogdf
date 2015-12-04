@@ -32,22 +32,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_STATIC_SKELETON_H
-#define OGDF_STATIC_SKELETON_H
-
 
 #include <ogdf/decomposition/Skeleton.h>
 
 
 namespace ogdf {
 
-	class OGDF_EXPORT StaticSPQRTree;
+class OGDF_EXPORT StaticSPQRTree;
 
 
 //! %Skeleton graphs of nodes in a static SPQR-tree.
@@ -152,6 +144,3 @@ protected:
 
 
 } // end namespace ogdf
-
-
-#endif

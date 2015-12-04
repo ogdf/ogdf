@@ -113,7 +113,7 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 		{
 			m_vCopy[vG] = nullptr;
 
-			for(adjEntry adj : vG->adjEdges)
+			for(adjEntry adj : vG->adjEntries)
 			{
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
@@ -145,7 +145,7 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 	GraphCopy::initByActiveNodes(activeOrigCCNodes, m_activeNodes, m_eAuxCopy);
 
 	// set type of edges (gen. or assoc.) in the current CC
-	if (m_pGraphAttributes->attributes() & GraphAttributes::edgeType)
+	if (m_pGraphAttributes->has(GraphAttributes::edgeType))
 		for(edge e : edges)
 		{
 			m_eType[e] = m_pGraphAttributes->type(original(e));
@@ -155,12 +155,12 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 				{
 					case Graph::generalization: setGeneralization(e); break;
 					case Graph::association: setAssociation(e); break;
-					OGDF_NODEFAULT
+					default: OGDF_ASSERT(false);
 				}//switch
 			}//if original
 		}
 
-	if (m_pGraphAttributes->attributes() & GraphAttributes::nodeType)
+	if (m_pGraphAttributes->has(GraphAttributes::nodeType))
 		for(node v : nodes)
 			m_vType[v] = m_pGraphAttributes->type(original(v));
 	//TODO:check only in CCs or global?
@@ -493,7 +493,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 			AG.strokeWidth(u) = 8;
 		}//if
 
-		for(adjEntry adj1 : v->adjEdges) {
+		for(adjEntry adj1 : v->adjEntries) {
 			bool handled = visited[adj1];
 			adjEntry adj = adj1;
 

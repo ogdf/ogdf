@@ -255,7 +255,7 @@ void FastMultipoleMultilevelEmbedder::computeAutoEdgeLength(const GraphAttribute
 		float radius_v = (float)sqrt(GA.width(v)*GA.width(v) + GA.height(v)*GA.height(v)) * 0.5f;
 		float radius_w = (float)sqrt(GA.width(w)*GA.width(w) + GA.height(w)*GA.height(w)) * 0.5f;
 		float sum = radius_v + radius_w;
-		if (DIsEqual(sum, 0.0))
+		if (OGDF_GEOM_ET.equal(sum, (float) 0))
 			sum = 1.0;
 		edgeLength[e] = factor*(sum);
 	}

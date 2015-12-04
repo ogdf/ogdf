@@ -65,7 +65,7 @@ void IndependentSetMerger::buildAllLevels(MultilevelGraph &MLG)
 		IScandidates.pop_back();
 
 		if(!nodeMarks[ISnode]) {
-			for(adjEntry adj : ISnode->adjEdges) {
+			for(adjEntry adj : ISnode->adjEntries) {
 				nodeMarks[adj->twinNode()] = true;
 			}
 			levelNodes[0].push_back(ISnode);
@@ -129,7 +129,7 @@ std::vector<node> IndependentSetMerger::prebuildLevel(const Graph &G, const std:
 						marks[bfsNode] = 2;
 					}
 					seen[bfsNode] = true;
-					for(adjEntry adj : bfsNode->adjEdges) {
+					for(adjEntry adj : bfsNode->adjEntries) {
 						stacks[two].push_back(adj->twinNode());
 					}
 				}
@@ -182,7 +182,7 @@ bool IndependentSetMerger::buildOneLevel(MultilevelGraph &MLG, std::vector<node>
 
 		if (!seen[bfsNode]) {
 			seen[bfsNode] = true;
-			for(adjEntry adj : bfsNode->adjEdges) {
+			for(adjEntry adj : bfsNode->adjEntries) {
 				node twin = adj->twinNode();
 				stacks[two].push_back(twin);
 				if(parents[twin] == nullptr) {

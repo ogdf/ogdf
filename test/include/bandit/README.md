@@ -1,6 +1,5 @@
 bandit
 ======
-[![Build Status](https://travis-ci.org/joakimkarlsson/bandit.png)](https://travis-ci.org/joakimkarlsson/bandit)
 
 Human friendly unit testing for C++11
 
@@ -10,6 +9,11 @@ experience.
 For more information, go to [the bandit website](http://banditcpp.org).
 
 Bandit is released under the [MIT license](LICENSE.md)
+
+Please note that
+[this repository](https://github.com/ogdf/bandit) is a fork of the
+[original bandit framework](https://github.com/joakimkarlsson/bandit) v1.1.4.
+The fork is used within the [Open Graph Drawing Framework](http://ogdf.net).
 
 #An example
 

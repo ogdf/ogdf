@@ -32,25 +32,11 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_B_QUEUE_H
-#define OGDF_B_QUEUE_H
-
-
-#include <ogdf/basic/basic.h>
-
+#include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
-
-template<class E, class INDEX> class BoundedQueue;
-
-// output
-template<class E, class INDEX>
-void print(ostream &os, const BoundedQueue<E,INDEX> &S, char delim = ' ');
-
 
 //! The parameterized class \a BoundedQueue<E,INDEX> implements queues with bounded size.
 /**
@@ -234,8 +220,6 @@ private:
 	}
 }; // class BoundedQueue
 
-
-
 // output operator
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const BoundedQueue<E,INDEX> &Q)
@@ -245,6 +229,3 @@ ostream &operator<<(ostream &os, const BoundedQueue<E,INDEX> &Q)
 }
 
 } // end namespace ogdf
-
-
-#endif

@@ -34,15 +34,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CP_MASTER_BASE_H
-#define OGDF_CP_MASTER_BASE_H
+#pragma once
 
 #include <ogdf/internal/cluster/basics.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/internal/cluster/CPlanar_Edge.h>
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/ArrayBuffer.h>
-#include <ogdf/abacus/master.h>
+#include <ogdf/lib/abacus/master.h>
 
 
 namespace ogdf {
@@ -356,5 +355,3 @@ private:
 };
 
 }//end namespace
-
-#endif

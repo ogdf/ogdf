@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_SAVE_H_
-#define OGDF_SAVE_H_
+#pragma once
 
 #include <ogdf/internal/steinertree/Triple.h>
 
@@ -87,5 +86,3 @@ public:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif /* OGDF_SAVE_H_ */

@@ -1123,7 +1123,7 @@ namespace ogdf {
 		if(v->degree() > w->degree())
 			swap(v,w);
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			if(w == adj->twinNode())
 				return true;
 		}
@@ -1155,7 +1155,7 @@ namespace ogdf {
 					removeV = true;
 
 				else {
-					for(adjEntry adj : u->adjEdges) {
+					for(adjEntry adj : u->adjEntries) {
 						node w = adj->twinNode();
 						cluster cw = C.clusterOf(w);
 						if(w == v || cw == cu) continue;
@@ -1249,7 +1249,7 @@ namespace ogdf {
 			bool replaceByStar = true;
 			node w = nullptr; // node with deg > 1
 			for(node v : c->nodes) {
-				for(adjEntry adj : v->adjEdges) {
+				for(adjEntry adj : v->adjEntries) {
 					if(C.clusterOf(adj->twinNode()) == c)
 						replaceByStar = false;
 				}

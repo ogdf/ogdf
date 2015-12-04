@@ -32,33 +32,21 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_GRAPH_H
-#define OGDF_GRAPH_H
-
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 
-
-
 namespace ogdf {
 
-	//! Output operator for nodes; prints node index (or "nil").
-	OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::node v);
+//! Output operator for nodes; prints node index (or "nil").
+OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::node v);
 
-	//! Output operator for edges; prints source and target indices (or "nil").
-	OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::edge e);
+//! Output operator for edges; prints source and target indices (or "nil").
+OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::edge e);
 
-	//! Output operator for adjacency entries; prints node and twin indices (or "nil").
-	OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::adjEntry adj);
-
+//! Output operator for adjacency entries; prints node and twin indices (or "nil").
+OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::adjEntry adj);
 
 } // end namespace ogdf
-
-#endif

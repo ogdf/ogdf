@@ -33,10 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_GRAPH_REDUCTION_H
-#define OGDF_GRAPH_REDUCTION_H
-
+#pragma once
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -87,5 +84,3 @@ public:
 
 
 } // end namespace ogdf
-
-#endif

@@ -33,15 +33,10 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
 
-#ifndef OGDF_MALLOC_MEMORY_ALLOCATOR_H
-#define OGDF_MALLOC_MEMORY_ALLOCATOR_H
-
-#include <ogdf/basic/basic.h>
+#include <ogdf/basic/Logger.h>
+#include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
 
@@ -104,5 +99,3 @@ public:
 };
 
 } // namespace ogdf
-
-#endif

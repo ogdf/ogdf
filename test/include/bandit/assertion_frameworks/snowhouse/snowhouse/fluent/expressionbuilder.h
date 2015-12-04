@@ -7,6 +7,8 @@
 #ifndef IGLOO_EXPRESSIONBUILDER_H
 #define IGLOO_EXPRESSIONBUILDER_H
 
+#include <cstddef>
+
 namespace snowhouse {
 
   // ---- Evaluation of list of constraints
@@ -79,23 +81,43 @@ namespace snowhouse {
       return EqualTo<bool>(true);
     }
 
+#if __cplusplus > 199711L
+    ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<EqualsConstraint<std::nullptr_t> >, Nil> >::t>
+      Null()
+    {
+      return EqualTo<std::nullptr_t>(nullptr);
+    }
+#endif
+
     ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<EqualsConstraint<std::string> >, Nil> >::t>
       EqualTo(const char* expected)
     {
       return EqualTo<std::string>(std::string(expected));
     }
 
-    template <typename ExpectedType>
-    ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<IsGreaterThanConstraint<ExpectedType> >, Nil> >::t>
-      GreaterThan(const ExpectedType& expected)
-    {
-      typedef ConstraintAdapter<IsGreaterThanConstraint<ExpectedType> > ConstraintAdapterType;
+	template <typename ExpectedType>
+	ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<IsGreaterThanConstraint<ExpectedType> >, Nil> >::t>
+		GreaterThan(const ExpectedType& expected)
+	{
+		typedef ConstraintAdapter<IsGreaterThanConstraint<ExpectedType> > ConstraintAdapterType;
 
-      typedef ExpressionBuilder< typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapterType, Nil> >::t > BuilderType;
-      ConstraintAdapterType constraint(expected);
-      ConstraintList<ConstraintAdapterType, Nil> node(constraint, Nil());
-      return BuilderType(Concatenate(m_constraint_list, node));
-    }
+		typedef ExpressionBuilder< typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapterType, Nil> >::t > BuilderType;
+		ConstraintAdapterType constraint(expected);
+		ConstraintList<ConstraintAdapterType, Nil> node(constraint, Nil());
+		return BuilderType(Concatenate(m_constraint_list, node));
+	}
+
+	template <typename ExpectedType>
+	ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<IsGreaterThanOrEqualToConstraint<ExpectedType> >, Nil> >::t>
+		GreaterThanOrEqualTo(const ExpectedType& expected)
+	{
+		typedef ConstraintAdapter<IsGreaterThanOrEqualToConstraint<ExpectedType> > ConstraintAdapterType;
+
+		typedef ExpressionBuilder< typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapterType, Nil> >::t > BuilderType;
+		ConstraintAdapterType constraint(expected);
+		ConstraintList<ConstraintAdapterType, Nil> node(constraint, Nil());
+		return BuilderType(Concatenate(m_constraint_list, node));
+	}
 
     template <typename ExpectedType>
     ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<IsLessThanConstraint<ExpectedType> >, Nil> >::t>
@@ -108,6 +130,18 @@ namespace snowhouse {
       ConstraintList<ConstraintAdapterType, Nil> node(constraint, Nil());
       return BuilderType(Concatenate(m_constraint_list, node));
     }
+
+	template <typename ExpectedType>
+	ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<IsLessThanOrEqualToConstraint<ExpectedType> >, Nil> >::t>
+		LessThanOrEqualTo(const ExpectedType& expected)
+	{
+		typedef ConstraintAdapter<IsLessThanOrEqualToConstraint<ExpectedType> > ConstraintAdapterType;
+
+		typedef ExpressionBuilder< typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapterType, Nil> >::t > BuilderType;
+		ConstraintAdapterType constraint(expected);
+		ConstraintList<ConstraintAdapterType, Nil> node(constraint, Nil());
+		return BuilderType(Concatenate(m_constraint_list, node));
+	}
 
     template <typename ExpectedType>
     ExpressionBuilder<typename type_concat<ConstraintListType, ConstraintList<ConstraintAdapter<ContainsConstraint<ExpectedType> >, Nil> >::t>

@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_PRIORITY_QUEUE_H
-#define OGDF_PRIORITY_QUEUE_H
-
 
 #include <utility>
 #include <functional>
@@ -603,6 +596,3 @@ public:
 
 
 } // end namespace ogdf
-
-
-#endif

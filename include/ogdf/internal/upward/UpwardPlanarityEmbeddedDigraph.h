@@ -34,13 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UPWARDPLANARITYEMBEDDEDDIGRAPH_H
-#define OGDF_UPWARDPLANARITYEMBEDDEDDIGRAPH_H
-
 
 #include <ogdf/basic/Graph_d.h>
 #include <ogdf/basic/Graph.h>
@@ -98,6 +92,3 @@ class UpwardPlanarityEmbeddedDigraph {
 };
 
 } // end namespace ogdf
-
-
-#endif

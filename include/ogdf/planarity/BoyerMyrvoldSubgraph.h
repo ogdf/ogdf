@@ -33,13 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_BOYER_MYRVOLD_SUBGRAPH_H
-#define OGDF_BOYER_MYRVOLD_SUBGRAPH_H
 
 #include <random>
 #include <ogdf/module/PlanarSubgraphModule.h>
@@ -120,5 +114,3 @@ protected:
 };
 
 }
-
-#endif

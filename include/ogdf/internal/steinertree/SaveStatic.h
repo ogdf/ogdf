@@ -33,8 +33,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_SAVESTATIC_H_
-#define OGDF_SAVESTATIC_H_
+#pragma once
 
 #include <ogdf/tree/LCA.h>
 #include <ogdf/internal/steinertree/Save.h>
@@ -165,5 +164,3 @@ private:
 
 } // end namespace steinertree
 } // end namespace ogdf
-
-#endif /* OGDF_SAVESTATIC_H_ */

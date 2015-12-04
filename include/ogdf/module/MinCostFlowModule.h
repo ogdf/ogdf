@@ -35,16 +35,12 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_COST_FLOW_MODULE_H
-#define OGDF_MIN_COST_FLOW_MODULE_H
-
 
 #include <ogdf/basic/Graph.h>
+
+#include <ogdf/basic/graph_generators.h>
+#include <ogdf/basic/simple_graph_alg.h>
 
 
 namespace ogdf {
@@ -214,16 +210,7 @@ public:
 	}
 };
 
-
-} // end namespace ogdf
-
-
 // Implementation
-
-#include <ogdf/basic/graph_generators.h>
-#include <ogdf/basic/simple_graph_alg.h>
-
-namespace ogdf {
 
 template<typename TCost>
 void MinCostFlowModule<TCost>::generateProblem(
@@ -312,8 +299,10 @@ bool MinCostFlowModule<TCost>::checkComputedFlow(
 
 	for (node v : G.nodes) {
 		int sum = 0;
-		edge e;
-		forall_adj_edges(e,v) {
+
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+
 			if (e->isSelfLoop()) {
 				continue;
 			}
@@ -334,6 +323,3 @@ bool MinCostFlowModule<TCost>::checkComputedFlow(
 
 
 } // end namespace ogdf
-
-
-#endif

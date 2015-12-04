@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FME_MULTIPOLE_KERNEL_H
-#define OGDF_FME_MULTIPOLE_KERNEL_H
 
 #include <ogdf/internal/energybased/FMEKernel.h>
 #include <ogdf/internal/energybased/FMEFunc.h>
@@ -202,5 +197,3 @@ private:
 };
 
 }
-
-#endif

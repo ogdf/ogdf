@@ -109,7 +109,7 @@ void PlanRepExpansion::initCC(int i)
 
 			m_vCopy[vG].clear();
 
-			for(adjEntry adj : vG->adjEdges) {
+			for(adjEntry adj : vG->adjEntries) {
 				if ((adj->index() & 1) == 0) continue;
 				edge eG = adj->theEdge();
 
@@ -133,7 +133,7 @@ void PlanRepExpansion::initCC(int i)
 		m_vIterator[v] = m_vCopy[vOrig].pushBack(v);
 		m_splittable[v] = m_splittableOrig[vOrig];
 
-		for(adjEntry adj : vOrig->adjEdges) {
+		for(adjEntry adj : vOrig->adjEntries) {
 			if ((adj->index() & 1) == 0) {
 				edge e = adj->theEdge();
 				m_eIterator[m_eAuxCopy[e]] = m_eCopy[e].pushBack(m_eAuxCopy[e]);
@@ -962,14 +962,15 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 	edge ec[2], eOrig[2];
 	PlanRepExpansion::nodeSplit nsplit[2];
 	int i = 0;
-	edge e;
-	forall_adj_edges(e,u)
+	for(adjEntry adj : u->adjEntries) {
+		edge e = adj->theEdge();
 		if(e->source() == u) {
 			ec    [i] = e;
 			eOrig [i] = m_eOrig[e];
 			nsplit[i] = m_eNodeSplit[e];
 			++i;
 		}
+	}
 
 	List<edge> &path_0 = (eOrig[0] != nullptr) ? m_eCopy[eOrig[0]] : nsplit[0]->m_path;
 	if(m_vOrig[path_0.front()->source()] == vOrig)
@@ -1062,7 +1063,7 @@ edge PlanRepExpansion::separateDummy(
 	//Array<adjEntry> adjA(2), adjB(2);
 	//int i = 0, j = 0;
 
-	//for(adjEntry adj : u->adjEdges) {
+	//for(adjEntry adj : u->adjEntries) {
 	//	edge e = adj->theEdge();
 	//	if(m_eOrig[e] == eOrig && m_eNodeSplit[e] == ns)
 	//		adjA[i++] = adj;
@@ -1162,8 +1163,8 @@ void PlanRepExpansion::resolvePseudoCrossing(node v)
 
 	edge eIn[2];
 	int i = 0;
-	edge e;
-	forall_adj_edges(e,v) {
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		if(e->target() == v)
 			eIn[i++] = e;
 	}

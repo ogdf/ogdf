@@ -1,7 +1,7 @@
 /** \file
  * \brief Implementation of class DynamicBCTree
  *
- * \author Jan Papenfu&szlig;
+ * \author Jan Papenfuß
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).

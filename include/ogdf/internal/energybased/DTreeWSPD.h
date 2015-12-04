@@ -29,12 +29,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_DTREE_WSPD_H_
-#define OGDF_DTREE_WSPD_H_
 
 #include <ogdf/basic/basic.h>
 #include <ogdf/internal/energybased/DTree.h>
@@ -493,5 +488,3 @@ void DTreeWSPD<Dim>::updateTreeNodeGeometry(int curr)
 }
 
 }// end namespace ogdf
-
-#endif

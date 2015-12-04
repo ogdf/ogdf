@@ -36,6 +36,9 @@
 #include <ogdf/internal/energybased/QuadTreeNM.h>
 
 namespace ogdf {
+namespace energybased {
+
+using std::complex;
 
 QuadTreeNM::QuadTreeNM()
 {
@@ -276,4 +279,5 @@ void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr, int precision)
 	}
 }
 
-}//namespace ogdf
+}
+}

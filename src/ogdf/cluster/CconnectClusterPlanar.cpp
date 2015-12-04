@@ -159,7 +159,7 @@ bool CconnectClusterPlanar::planarityTest(
 	for (node w : act->nodes)
 	{
 		//adjEntry adj = w->firstAdj();
-		for(adjEntry adj : w->adjEdges)
+		for(adjEntry adj : w->adjEntries)
 		{
 			edge e = adj->theEdge();
 			edge cor = nullptr;
@@ -554,13 +554,11 @@ bool CconnectClusterPlanar::doTest(
 
 	for(node v : G.nodes)
 	{
-		edge e;
-		forall_adj_edges(e,v)
-		{
-			if (numbering[e->opposite(v)] > numbering[v])
+		for (adjEntry adj : v->adjEntries) {
+			if (numbering[adj->twinNode()] > numbering[v])
 				//sideeffect: loops are ignored
 			{
-				PlanarLeafKey<IndInfo*>* L = OGDF_NEW PlanarLeafKey<IndInfo*>(e);
+				PlanarLeafKey<IndInfo*>* L = OGDF_NEW PlanarLeafKey<IndInfo*>(adj->theEdge());
 				inLeaves[v].pushFront(L);
 			}
 		}

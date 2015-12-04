@@ -32,15 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PLANAR_SUBGRAPH_MODULE_H
-#define OGDF_PLANAR_SUBGRAPH_MODULE_H
-
-
 
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Module.h>
@@ -214,5 +206,3 @@ protected:
 };
 
 } // end namespace ogdf
-
-#endif

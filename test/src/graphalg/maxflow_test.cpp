@@ -43,9 +43,6 @@
 
 #include <resources.h>
 
-const int MAX_NODES = 50;
-const int MAX_CAPACITY = 100;
-
 // if defined will print the first failed instance
 #define PRINT_FIRST_FAIL
 
@@ -169,7 +166,7 @@ void validateFlow(
 	for(node v : graph.nodes) {
 		VALUE_TYPE income(ZERO);
 		VALUE_TYPE output(ZERO);
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if(e->isSelfLoop()) {
 				// self-loop, flow must be 0
@@ -211,10 +208,13 @@ void validateFlow(
 template<typename MAX_FLOW_ALGO, typename VALUE_TYPE>
 void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = MFR_NONE)
 {
-	describe(name.c_str(), [&](){
+	const int maxCapacity = 100;
+	const int maxNodes = 50;
+
+	describe(name, [&](){
 		// test predefined instances
 		for_each_file("maxflow", [&](const string &filename){
-			it(string("works on " + filename).c_str(), [&](){
+			it(string("works on " + filename), [&](){
 				// optimal solution value is extracted from the filename
 				string tmp = filename.substr(0, filename.length() - 4);
 				tmp = tmp.substr(tmp.find_last_of('.') + 1);
@@ -256,8 +256,8 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 		});
 
 		// test random instances
-		for(int n = 2; n < MAX_NODES; n++) {
-			it(string("works on a random graph of approximate size " + to_string(n)).c_str(), [&](){
+		for(int n = 2; n < maxNodes; n++) {
+			it(string("works on a random graph of approximate size " + to_string(n)), [&](){
 				Graph graph;
 				EdgeArray<VALUE_TYPE> caps(graph);
 				node s = nullptr;
@@ -300,7 +300,7 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 				// generate capacities
 				caps.init(graph);
 				for (edge e: graph.edges) {
-					caps[e] = (VALUE_TYPE) randomDouble(1, MAX_CAPACITY);
+					caps[e] = (VALUE_TYPE) randomDouble(1, maxCapacity);
 				}
 
 				// choose source and sink
@@ -359,8 +359,10 @@ void describeConnectivityTester(
         int expected,
         std::function<void (Graph&, int)> initializer)
 {
-describe(title.c_str(), [&]()
+describe(title, [&]()
 {
+	const int maxNodes = 50;
+
 	// undirected node connectivity
 	ConnectivityTester nodeAlgo;
 
@@ -373,8 +375,8 @@ describe(title.c_str(), [&]()
 	// directed edge connectivity
 	ConnectivityTester edgeDirAlgo(false, true);
 
-	for (int n = 3; n < MAX_NODES / 2; n++) {
-		it(string("works for " + to_string(n) + " nodes").c_str(), [&]() {
+	for (int n = 3; n < maxNodes / 2; n++) {
+		it(string("works for " + to_string(n) + " nodes"), [&]() {
 			Graph graph;
 			initializer(graph, n);
 
@@ -443,7 +445,7 @@ describe(title.c_str(), [&]()
 });
 }
 
-go_bandit([](){
+go_bandit([]() {
 	describe("Maximum flow algorithms", [](){
 		registerTestSuite<int>("int");
 		registerTestSuite<double>("double");

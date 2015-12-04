@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MODULAR_MULTILEVEL_MIXER_H
-#define OGDF_MODULAR_MULTILEVEL_MIXER_H
 
 #include <ogdf/basic/ModuleOption.h>
 #include <ogdf/module/LayoutModule.h>
@@ -197,5 +192,3 @@ private:
 };
 
 } // namespace ogdf
-
-#endif

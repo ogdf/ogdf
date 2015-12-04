@@ -32,8 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_PAGE_RANK_H_
-#define OGDF_PAGE_RANK_H_
+#pragma once
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -118,6 +117,3 @@ private:
 };
 
 } // end of namespace ogdf
-
-#endif // OGDF_PAGE_RANK_H_
-

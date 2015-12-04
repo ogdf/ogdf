@@ -238,9 +238,9 @@ node StaticSPQRTree::rootTreeAt(node v)
 
 void StaticSPQRTree::rootRec(node v, edge eFather)
 {
-	edge e;
-	forall_adj_edges(e,v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
+
 		if (e == eFather) continue;
 
 		node w = e->target();

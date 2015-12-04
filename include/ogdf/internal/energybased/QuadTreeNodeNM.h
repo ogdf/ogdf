@@ -32,13 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_QUAD_TREE_NODE_NM_H
-#define OGDF_QUAD_TREE_NODE_NM_H
-
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
@@ -46,26 +40,23 @@
 #include <ogdf/internal/energybased/ParticleInfo.h>
 #include <complex>
 
-
-using std::complex;
-
 namespace ogdf {
+namespace energybased {
 
+//! Helping data structure that stores the information needed to represent
+//! a node of the reduced quad tree in the New Multipole Method (NMM).
 class QuadTreeNodeNM
 {
-	//Helping data structure that stores the information needed to represent
-	//a node of the reduced quad tree in the New Multipole Method (NMM).
-
-	//Outputstream for QuadTreeNodeNM.
+	//! Outputstream for QuadTreeNodeNM.
 	friend ostream &operator<< (ostream &,const QuadTreeNodeNM &);
 
-	//Inputstream for QuadTreeNodeNM.
+	//! Inputstream for QuadTreeNodeNM.
 	friend istream &operator>> (istream &,QuadTreeNodeNM &);
 
 public:
 
-	QuadTreeNodeNM();     //constructor
-	~QuadTreeNodeNM();    //destructor
+	QuadTreeNodeNM();     //!< constructor
+	~QuadTreeNodeNM();    //!< destructor
 
 	void set_Sm_level(int l) { Sm_level = l;}
 	void set_Sm_downleftcorner(DPoint dlc) {Sm_downleftcorner = dlc;}
@@ -73,7 +64,7 @@ public:
 	void set_x_List_ptr(List<ParticleInfo>* x_ptr) {L_x_ptr = x_ptr;}
 	void set_y_List_ptr(List<ParticleInfo>* y_ptr) {L_y_ptr = y_ptr;}
 	void set_particlenumber_in_subtree(int p){ subtreeparticlenumber = p;}
-	void set_Sm_center(complex<double> c) {Sm_center = c;}
+	void set_Sm_center(std::complex<double> c) {Sm_center = c;}
 	void set_contained_nodes(List<node>&  L) {contained_nodes = L;}
 	void pushBack_contained_nodes(node v) {contained_nodes.pushBack(v);}
 	node pop_contained_nodes() {return contained_nodes.popFrontRet();}
@@ -84,26 +75,26 @@ public:
 	void set_D2(List<QuadTreeNodeNM*>& l)  {D2 = l;}
 	void set_M(List<QuadTreeNodeNM*>& l)  {M = l;}
 
-	//LE[i] is set to local[i] for i = 0 to precision and space for LE is reserved.
-	void set_locale_exp(Array<complex<double> > &local,int precision)
+	//! LE[i] is set to local[i] for i = 0 to precision and space for LE is reserved.
+	void set_locale_exp(Array<std::complex<double> > &local,int precision)
 	{
 		int i;
-		LE = new complex<double> [precision+1];
+		LE = new std::complex<double> [precision+1];
 		for (i = 0 ; i<= precision; i++)
 			LE[i] = local[i];
 	}
 
-	//ME[i] is set to multi[i] for i = 0 to precision and space for LE is reserved.
-	void set_multipole_exp(Array<complex<double> > &multi,int precision)
+	//! ME[i] is set to multi[i] for i = 0 to precision and space for LE is reserved.
+	void set_multipole_exp(Array<std::complex<double> > &multi,int precision)
 	{
 		int i;
-		ME = new complex<double> [precision+1];
+		ME = new std::complex<double> [precision+1];
 		for (i = 0 ; i<= precision; i++)
 			ME[i] = multi[i];
 	}
 
-	//ME[i] is set to multi[i] for i = 0 to precision and no space for LE is reserved.
-	void replace_multipole_exp(Array<complex<double> > &multi,int precision)
+	//! ME[i] is set to multi[i] for i = 0 to precision and no space for LE is reserved.
+	void replace_multipole_exp(Array<std::complex<double> > &multi,int precision)
 	{
 		int i;
 		for (i = 0 ; i<= precision; i++)
@@ -131,9 +122,9 @@ public:
 	List<ParticleInfo>*  get_x_List_ptr()  {return L_x_ptr;}
 	List<ParticleInfo>*  get_y_List_ptr()  {return L_y_ptr;}
 	int get_particlenumber_in_subtree()const { return subtreeparticlenumber;}
-	complex<double> get_Sm_center() const {return Sm_center;}
-	complex<double>* get_local_exp () const {return LE;}
-	complex<double>* get_multipole_exp () const {return ME;}
+	std::complex<double> get_Sm_center() const {return Sm_center;}
+	std::complex<double>* get_local_exp () const {return LE;}
+	std::complex<double>* get_multipole_exp () const {return ME;}
 	void get_contained_nodes(List<node>& L) const {L =  contained_nodes;}
 	void get_I (List <QuadTreeNodeNM*>& l) const {l = I;}
 	void get_D1 (List <QuadTreeNodeNM*>& l) const {l = D1;}
@@ -148,33 +139,32 @@ public:
 
 private:
 
-	int  Sm_level;                     //level of the small cell
-	DPoint Sm_downleftcorner;          //coords of the down left corner of the small cell
-	double Sm_boxlength;               //length of small cell
-	List<ParticleInfo>* L_x_ptr;       //points to the lists that contain each Particle
-	//of G with its x(y)coordinate in increasing order
-	List<ParticleInfo>* L_y_ptr;       //and a cross reference to the list_item in the
-	//list  with the other coordinate
-	int subtreeparticlenumber;         //the number of particles in the subtree rooted
-	//at this node
-	complex<double>  Sm_center;        //center of the small cell
-	complex<double>* ME;               //Multipole Expansion terms
-	complex<double>* LE;               //Locale Expansion terms
-	List <node>  contained_nodes;      //list of nodes of G that are contained in this
-	//QuadTreeNode  (emty if it is not a leave of
-	//the ModQuadTree
-	List <QuadTreeNodeNM*> I;          //the list of min. ill sep. nodes in DIM2
-	List <QuadTreeNodeNM*> D1,D2;      //list of neighbouring(=D1) and not adjacent(=D2)
-	//leaves for direct force calculation in DIM2
-	List<QuadTreeNodeNM*>  M;          //list of nodes with multipole force contribution
-	//like in DIM2
-	QuadTreeNodeNM*  father_ptr;   //points to the father node
-	QuadTreeNodeNM*  child_lt_ptr; //points to left top child
-	QuadTreeNodeNM*  child_rt_ptr; //points to right bottom child
-	QuadTreeNodeNM*  child_lb_ptr; //points to left bottom child
-	QuadTreeNodeNM*  child_rb_ptr; //points to right bottom child
+	int  Sm_level;                     //!< level of the small cell
+	DPoint Sm_downleftcorner;          //!< coords of the down left corner of the small cell
+	double Sm_boxlength;               //!< length of small cell
+	List<ParticleInfo>* L_x_ptr;       //!< points to the lists that contain each Particle
+	//! of G with its x(y)coordinate in increasing order
+	List<ParticleInfo>* L_y_ptr;       //!< and a cross reference to the list_item in the
+	//! list  with the other coordinate
+	int subtreeparticlenumber;         //!< the number of particles in the subtree rooted
+	//! at this node
+	std::complex<double>  Sm_center;        //!< center of the small cell
+	std::complex<double>* ME;               //!< Multipole Expansion terms
+	std::complex<double>* LE;               //!< Locale Expansion terms
+	List <node>  contained_nodes;      //!< list of nodes of G that are contained in this
+	//! QuadTreeNode  (emty if it is not a leave of
+	//! the ModQuadTree
+	List <QuadTreeNodeNM*> I;          //!< the list of min. ill sep. nodes in DIM2
+	List <QuadTreeNodeNM*> D1,D2;      //!< list of neighbouring(=D1) and not adjacent(=D2)
+	//! leaves for direct force calculation in DIM2
+	List<QuadTreeNodeNM*>  M;          //!< list of nodes with multipole force contribution
+	//! like in DIM2
+	QuadTreeNodeNM*  father_ptr;   //!< points to the father node
+	QuadTreeNodeNM*  child_lt_ptr; //!< points to left top child
+	QuadTreeNodeNM*  child_rt_ptr; //!< points to right bottom child
+	QuadTreeNodeNM*  child_lb_ptr; //!< points to left bottom child
+	QuadTreeNodeNM*  child_rb_ptr; //!< points to right bottom child
 };
 
-}//namespace ogdf
-
-#endif
+}
+}

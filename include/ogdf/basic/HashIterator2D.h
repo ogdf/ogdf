@@ -34,14 +34,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-
-#ifndef OGDF_HASHITERATOR2D_H
-#define OGDF_HASHITERATOR2D_H
 
 #include <ogdf/basic/tuples.h>
 
@@ -106,8 +99,3 @@ public:
 };
 
 }
-
-
-
-#endif
-

@@ -42,12 +42,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_MIN_STEINER_TREE_DIRECTED_CUT_H
-#define OGDF_MIN_STEINER_TREE_DIRECTED_CUT_H
 
 #include <ogdf/external/abacus.h>
 
@@ -64,7 +59,7 @@
 #include <ogdf/graphalg/MinSTCut.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 
-#include <ogdf/abacus/opensub.h>
+#include <ogdf/lib/abacus/opensub.h>
 // heuristics, approximation algorithms:
 #include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 
@@ -978,8 +973,7 @@ public:
 #endif
 		m_hashKey = 0;
 		m_marked.init(g);
-		node n;
-		forall_nodes(n, g) {
+		for (node n : g.nodes) {
 			if(_cutType == MinSTCut<double>::FRONT_CUT) {
 				m_marked[n] = minSTCut->isInFrontCut(n);
 #ifdef OGDF_STP_EXACT_LOGGING
@@ -999,15 +993,14 @@ public:
 		}
 		m_hashKey += m_nMarkedNodes*g.numberOfNodes()*g.numberOfNodes();
 #ifdef OGDF_STP_EXACT_LOGGING
-		edge e;
 		cout << "  front cut edges:" << std::endl;
-		forall_edges(e, g) {
+		for (edge e : g.edges) {
 			if(minSTCut->isFrontCutEdge(e)) {
 				cout << "    " << e << std::endl;
 			}
 		}
 		cout << "  back cut edges:" << std::endl;
-		forall_edges(e, g) {
+		for (edge e : g.edges) {
 			if(minSTCut->isBackCutEdge(e)) {
 				cout << "    " << e << std::endl;
 			}
@@ -1100,8 +1093,8 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 #endif
 	m_pGraph = new Graph();
 
-	node n, nOrig;
-	edge e1, e2, eOrig;
+	node n;
+	edge e1, e2;
 	int i = 0;
 
 	m_nodes = new node[m_wG.numberOfNodes()];
@@ -1117,7 +1110,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 #endif
 	NodeArray<node> nodeMapping(m_wG);
 
-	forall_nodes(nOrig, m_wG) {
+	for (node nOrig : m_wG.nodes) {
 		n = m_pGraph->newNode();
 		nodeMapping[nOrig] = n;
 		m_nodes[i] = n;
@@ -1151,7 +1144,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 	m_mapToBidirectedGraph2.init(m_wG);
 
 	i = 0;
-	forall_edges(eOrig, m_wG) {
+	for (edge eOrig : m_wG.edges) {
 		e1 = m_pGraph->newEdge(nodeMapping[eOrig->source()],
 				nodeMapping[eOrig->target()]);
 		e2 = m_pGraph->newEdge(nodeMapping[eOrig->target()], nodeMapping[eOrig->source()]);
@@ -1173,7 +1166,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 #ifdef OGDF_STP_EXACT_LOGGING
 	lout(LL_DEFAULT) << endl;
 #endif
-	forall_nodes(n, *m_pGraph) {
+	for (node n : m_pGraph->nodes) {
 		if (m_isTerminal[n]) {
 			// possibility to set the root node
 			// default: terminal with highest degree
@@ -1203,7 +1196,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 	m_isTerminalPH.init(*m_pWeightedGraphPH);
 	m_edgesWgToGPH.init(*m_pWeightedGraphPH);
 
-	forall_nodes(nOrig, *m_pGraph) {
+	for (node nOrig : m_pGraph->nodes) {
 		n = m_pWeightedGraphPH->newNode();
 		m_nodesGToWgPH[nOrig] = n;
 		m_isTerminalPH[n] = m_isTerminal[nOrig];
@@ -1213,9 +1206,8 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 			m_rootPH = n;
 	}
 
-	edge e;
-	forall_edges(eOrig, *m_pGraph) {
-		e = m_pWeightedGraphPH->newEdge(m_nodesGToWgPH[eOrig->source()], m_nodesGToWgPH[eOrig->target()], 0.0);
+	for (edge eOrig : m_pGraph->edges) {
+		edge e = m_pWeightedGraphPH->newEdge(m_nodesGToWgPH[eOrig->source()], m_nodesGToWgPH[eOrig->target()], 0.0);
 		m_edgesGToWgPH[eOrig] = e;
 		m_edgesWgToGPH[e] = eOrig;
 	}
@@ -1306,7 +1298,6 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 		<< endl;
 #endif
 	int i;
-	node n;
 	edge e;
 
 	// buffer for variables; one for each directed edge
@@ -1358,7 +1349,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 	i = 0;
 	if (m_addGSEC2Constraints) {
 		EdgeArray<bool> marked(*m_pGraph, false);
-		forall_edges(e, *m_pGraph) {
+		for (edge e : m_pGraph->edges) {
 			if (!marked[e]
 			 && !e->isSelfLoop()) { // we have to ignore self-loops here
 				EdgeConstraint *newCon =
@@ -1380,7 +1371,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 	// (3) for the root                : x(delta+(m_root)) >= 1
 	if (m_addDegreeConstraints)
 	{
-		forall_nodes(n, *m_pGraph) {
+		for (node n : m_pGraph->nodes) {
 			DegreeConstraint *newCon;
 			if (n == m_root) {
 				// (3)
@@ -1405,7 +1396,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 	}
 
 	if (m_addIndegreeEdgeConstraints) {
-		forall_edges(e, *m_pGraph) {
+		for (edge e : m_pGraph->edges) {
 			if (e->source() != m_root) {
 				DegreeEdgeConstraint *newCon =
 						new DegreeEdgeConstraint(this, e, 1.0, -1.0, abacus::CSense::Greater, 0.0);
@@ -1419,7 +1410,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 	}
 
 	if (m_addFlowBalanceConstraints) {
-		forall_nodes(n, *m_pGraph) {
+		for (node n : m_pGraph->nodes) {
 			if (!m_isTerminal[n]) {
 				DegreeConstraint *newCon =
 						new DegreeConstraint(this, n, -1.0, 1.0, abacus::CSense::Greater, 0.0);
@@ -1466,8 +1457,7 @@ MinSteinerTreeDirectedCut<T>::Master::terminateOptimization()
 	lout(LL_HIGH) << endl;
 	if (is_lout(LL_MEDIUM)) {
 		lout(LL_MEDIUM) << "\toptimum solution edges:" << endl;
-		edge e;
-		forall_edges(e, *m_pGraph) {
+		for (edge e : m_pGraph->edges) {
 			if (m_isSolutionEdge[e])
 				lout(LL_MEDIUM) << "\t" << e << endl;
 		}
@@ -1785,7 +1775,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 	EdgeArray<double> capacities;
 	capacities.init(g, 0);
-	forall_edges(e, g) {
+	for (edge e : g.edges) {
 		capacities[e] = xVal_[m_pMaster->edgeID(e)];
 		if (m_minCardinalityCuts)
 			capacities[e] += cardEps;
@@ -1794,9 +1784,11 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 #ifdef OGDF_STP_EXACT_LOGGING
 	m_pMaster->lout(Logger::LL_MINOR)
 			<< "Sub::mySeparate(): current capacities (>0) for mincut computation:" << endl;
-	forall_edges(e, g)
-		if (capacities[e] >= 2*cardEps)
+	for (edge e : g.edges) {
+		if (capacities[e] >= 2*cardEps) {
 			m_pMaster->lout(Logger::LL_MINOR) << "\tcapacity[" << e << "]=" << capacities[e] << endl;
+		}
+	}
 #endif
 	// Minimum s-t-cut object
 	MinSTCut<double> minSTCut;
@@ -1852,8 +1844,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 			cutValue = mf->computeFlow(capacities, r, t, flow);
 #ifdef OGDF_STP_EXACT_LOGGING
 			m_pMaster->lout(Logger::LL_MEDIUM) << "  Calculated flow:" << endl;
-			edge flowEdge;
-			forall_edges(flowEdge, g) {
+			for (edge flowEdge : g.edges) {
 				m_pMaster->lout(Logger::LL_MEDIUM)
 				  << "    " << flowEdge << " : "
 				  << flow[flowEdge] << " / " << capacities[flowEdge] << endl;
@@ -1873,15 +1864,17 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 			// min cardinality
 			if (m_minCardinalityCuts && (cutValue < uBound)) {
-				forall_edges(e, g) {
-					if (minSTCut.isFrontCutEdge(e))
+				for (edge e : g.edges) {
+					if (minSTCut.isFrontCutEdge(e)) {
 						cutValue -= cardEps;
-					if (m_computeBackCuts && minSTCut.isBackCutEdge(e))
+					}
+					if (m_computeBackCuts && minSTCut.isBackCutEdge(e)) {
 						cutValueBack += capacities[e] - cardEps;
+					}
 				}
-			} else if(m_computeBackCuts) {
-				forall_edges(e, g) {
-					if(minSTCut.isBackCutEdge(e)) {
+			} else if (m_computeBackCuts) {
+				for (edge e : g.edges) {
+					if (minSTCut.isBackCutEdge(e)) {
 						cutValueBack += capacities[e];
 					}
 				}
@@ -1889,7 +1882,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 
 			if (m_saturationStrategy == 2) {
 				cardinalityCut = cardinalityBackcut = 0;
-				forall_edges(e, g) {
+				for (edge e : g.edges) {
 					if (minSTCut.isFrontCutEdge(e))
 						cardinalityCut++;
 					if (m_computeBackCuts && minSTCut.isBackCutEdge(e))
@@ -1940,7 +1933,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 				// saturate cut edges in case of nested cut computation
 				if (m_computeNestedCuts)
 				{
-					forall_edges(e, g) {
+					for (edge e : g.edges) {
 						if (minSTCut.isFrontCutEdge(e)) {
 							if (m_saturationStrategy == 2)
 								capacities[e] = 1.0/(double)cardinalityCut + eps;
@@ -2022,21 +2015,19 @@ MinSteinerTreeDirectedCut<T>::Sub::isSteinerArborescence(const EdgeWeightedGraph
 {
 	EdgeWeightedGraph<double> &ewg = m_pMaster->weightedGraphPH();
 	const NodeArray<bool> isTerminal = m_pMaster->isTerminalPH();
-	edge e;
 
 	// indegrees
 	NodeArray<int> indeg(ewg, 0);
 	// outdegrees
 	NodeArray<int> outdeg(ewg, 0);
 
-	forall_edges(e, steinerTree) {
+	for (edge e : steinerTree.edges) {
 		outdeg[steinerTree.original(e)->source()]++;
 		indeg[steinerTree.original(e)->target()]++;
 	}
-	node n;
 	int nSources = 0;
 	node root;
-	forall_nodes(n, steinerTree) {
+	for (node n : steinerTree.nodes) {
 		if (indeg[steinerTree.original(n)] == 0) {
 			nSources++;
 			root = n;
@@ -2047,14 +2038,17 @@ MinSteinerTreeDirectedCut<T>::Sub::isSteinerArborescence(const EdgeWeightedGraph
 		return false;
 	}
 
-	forall_nodes(n, steinerTree) {
-		if (n==root)
-			continue;
-		if (indeg[steinerTree.original(n)] != 1) {
-			return false;
-		}
-		if (!isTerminal[steinerTree.original(n)]) {
-			if (outdeg[steinerTree.original(n)] == 0) {
+	for (node n : steinerTree.nodes) {
+		const node nOrig = steinerTree.original(n);
+		if (n != root) {
+			if (indeg[nOrig] != 1
+			 || (!isTerminal[nOrig]
+			  && outdeg[nOrig] == 0)) {
+				return false;
+			}
+		} else {
+			if (indeg[nOrig] != 0
+			 || !isTerminal[nOrig]) {
 				return false;
 			}
 		}
@@ -2076,13 +2070,12 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 	double eps = master_->eps();
 	const Graph &g = m_pMaster->graph();
 	EdgeWeightedGraph<double> &ewg = m_pMaster->weightedGraphPH();
-	edge e, e2;
 
 #ifdef OGDF_STP_EXACT_LOGGING
 	if (m_pMaster->ilout(Logger::LL_MINOR)) {
 		m_pMaster->lout(Logger::LL_MINOR)
 			<< "Sub::myImprove(): current solution:" << endl;
-		forall_edges(e, g) {
+		for(edge e : g.edges) {
 			m_pMaster->lout(Logger::LL_MINOR)
 				<< "\tx" << m_pMaster->edgeID(e) << "=" << xVal_[m_pMaster->edgeID(e)]
 				<< ", edge " << e << endl;
@@ -2093,8 +2086,8 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 	// set edge weights to eps + (1-x_e)*c_e, forall edges e
 	// thereby, use minimum of e and twin(e), respectively
 	double currWeight, twinWeight;
-	forall_edges(e, g) {
-		e2 = m_pMaster->twin(e);
+	for (edge e : g.edges) {
+		edge e2 = m_pMaster->twin(e);
 		currWeight = 1.0-xVal_[m_pMaster->edgeID(e)];
 		twinWeight = 1.0-xVal_[m_pMaster->edgeID(e2)];
 		if (twinWeight < currWeight)
@@ -2108,7 +2101,7 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 	if (m_pMaster->ilout(Logger::LL_MINOR)) {
 		m_pMaster->lout(Logger::LL_MINOR)
 			<< "Sub::myImprove(): edge weights:" << endl;
-		forall_edges(e, g) {
+		for (edge e : g.edges) {
 			m_pMaster->lout(Logger::LL_MINOR)
 				<< "\tweight[" << e << "]=" << ewg.weight(m_pMaster->edgeGToWgPH(e)) << endl;
 		}
@@ -2146,14 +2139,13 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 #endif
 
 	if (isSteinerTree) {
-		edge e2;
 		// actual heuristic solution value, i.e., by using real edge weights
 		double heuristicSolutionValue = 0.0;
 		// list of edges in the heuristic solution
 		List<edge> solutionEdges;
 
-		forall_edges(e, *heuristicSolutionWg) {
-			e2 = m_pMaster->edgeWgToGPH(heuristicSolutionWg->original(e));
+		for (edge e : heuristicSolutionWg->edges) {
+			edge e2 = m_pMaster->edgeWgToGPH(heuristicSolutionWg->original(e));
 			solutionEdges.pushBack(e2);
 			heuristicSolutionValue +=  m_pMaster->capacities(e2);
 #ifdef OGDF_STP_EXACT_LOGGING
@@ -2255,10 +2247,10 @@ MinSteinerTreeDirectedCut<T>::DirectedCutConstraint::equal(const ConVar *cv) con
 	DirectedCutConstraint *dirCut = (DirectedCutConstraint*)cv;
 	if (m_nMarkedNodes != dirCut->nMarkedNodes())
 		return false;
-	node n;
-	forall_nodes(n, *m_pGraph) {
-		if (m_marked[n] != dirCut->marked(n))
+	for (node n : m_pGraph->nodes) {
+		if (m_marked[n] != dirCut->marked(n)) {
 			return false;
+		}
 	}
 	return true;
 }
@@ -2269,9 +2261,9 @@ double
 MinSteinerTreeDirectedCut<T>::DirectedCutConstraint::coeff(const abacus::Variable *v) const
 {
 	EdgeVariable *edgeVar = (EdgeVariable*)v;
-	edge e = edgeVar->theEdge();
-	if (this->cutedge(e))
+	if (this->cutedge(edgeVar->theEdge())) {
 		return 1.0;
+	}
 	return 0.0;
 }
 
@@ -2341,6 +2333,3 @@ T MinSteinerTreeDirectedCut<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G
 
 
 } // end namespace ogdf
-
-
-#endif // OGDF_MIN_STEINER_TREE_DIRECTED_CUT_H

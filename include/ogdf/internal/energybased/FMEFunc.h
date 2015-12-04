@@ -32,12 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_FME_FUNC_H
-#define OGDF_FME_FUNC_H
 
 #include <ogdf/internal/energybased/ArrayGraph.h>
 #include <ogdf/internal/energybased/LinearQuadtree.h>
@@ -1033,6 +1028,3 @@ inline void for_loop_array_set(uint32_t threadNr, uint32_t numThreads, TYP* a, u
 }
 
 } // end of namespace
-
-#endif
-

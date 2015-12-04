@@ -44,10 +44,6 @@
 using namespace bandit;
 using namespace ogdf;
 
-const int NUMBER_OF_GRAPHS = 100;
-const int MIN_NODES = 100;
-const int MAX_NODES = 200;
-
 template<typename T>
 struct DistanceHeuristic {
 	NodeArray<T> distance;
@@ -136,6 +132,10 @@ void performSingleTest(
 
 template<typename T>
 void performTests(const bool directed, const double maxGap, const bool pathLike) {
+	const int NUMBER_OF_GRAPHS = 100;
+	const int MIN_NODES = 100;
+	const int MAX_NODES = 200;
+
 	AStarSearch<T, DistanceHeuristic<T>> astar(directed, maxGap);
 	AStarSearch<T> astarUninformed(directed, maxGap);
 	Dijkstra<T> dijkstra;
@@ -214,7 +214,7 @@ void registerTests(string typeName) {
 		title += (pathLike ? "path-like" : "biconnected");
 		title += " graphs";
 
-		it(title.c_str(), [&](){
+		it(title, [&](){
 			performTests<T>(directed, maxGap, pathLike);
 		});
 	}

@@ -1,7 +1,7 @@
 /** \file
  * \brief Implements GEXF write functionality of class GraphIO.
  *
- * \author Łukasz Hanuszczak
+ * \author Łukasz Hanuszczak, Tilo Wiedera
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -35,6 +35,7 @@
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GEXF.h>
 #include <ogdf/fileformats/GraphML.h>
+#include <ogdf/lib/pugixml/pugixml.h>
 
 
 namespace ogdf {
@@ -42,107 +43,105 @@ namespace ogdf {
 namespace gexf {
 
 
-static inline void writeHeader(std::ostream &out, bool viz = false)
+static inline pugi::xml_node writeHeader(pugi::xml_document &doc, bool viz)
 {
-	out << "<?xml "
-	    << "version=\"1.0\" "
-	    << "encoding=\"UTF-8\"?"
-	    << ">\n";
-	out << "<gexf "
-	    << "xmlns=\"http://www.gexf.net/1.2draft\" "
-	    << (viz ? "xmlns:viz=\"http://www.gexf.net/1.2draft/viz\"" : "")
-	    << "version=\"1.2\""
-	    << ">\n";
+	pugi::xml_node rootNode = doc.append_child("gexf");
+	rootNode.append_attribute("version") = "1.2";
+	rootNode.append_attribute("xmlns") = "http://www.gexf.net/1.2draft";
+
+	if(viz) {
+		rootNode.append_attribute("xmlns:viz") = "http://www.gexf.net/1.2draft/viz";
+	}
 
 	// TODO: creator, description and date information.
-}
 
-
-static inline void writeFooter(std::ostream &out)
-{
-	out << "</gexf>\n";
+	return rootNode;
 }
 
 
 template <typename T>
 static inline void writeAttValue(
-	std::ostream &out, int depth,
-	const graphml::Attribute &attr, const T &value)
+	pugi::xml_node xmlNode,
+	const graphml::Attribute &attr,
+	const T &value)
 {
-	const std::string &title = graphml::toString(attr);
-	GraphIO::indent(out, depth) << "<attvalue "
-	                            << "for=\"" << title << "\" "
-	                            << "value=\"" << value << "\" "
-	                            << "/>\n";
+	pugi::xml_node child = xmlNode.append_child("attvalue");
+	child.append_attribute("for") = graphml::toString(attr).c_str();
+	child.append_attribute("value") = value;
 }
 
 
 static inline void defineAttribute(
-	std::ostream &out, int depth,
-	const std::string &name, const std::string &type)
+	pugi::xml_node xmlNode,
+	const std::string &name,
+	const std::string &type)
 {
-	GraphIO::indent(out, depth) << "<attribute "
-	                            << "id=\"" << name << "\" "
-	                            << "title=\"" << name << "\" "
-	                            << "type=\"" << type << "\" "
-	                            << "/>\n";
+	pugi::xml_node child = xmlNode.append_child("attribute");
+	child.append_attribute("id") = name.c_str();
+	child.append_attribute("title") = name.c_str();
+	child.append_attribute("type") = type.c_str();
 }
 
 
 static inline void defineAttributes(
-	std::ostream &out, int depth,
+	pugi::xml_node xmlNode,
 	const GraphAttributes &GA)
 {
 	const long attrs = GA.attributes();
 
 	// Declare node attributes.
-	GraphIO::indent(out, depth) << "<attributes class=\"node\">\n";
+	pugi::xml_node child = xmlNode.append_child("attributes");
+	child.append_attribute("class") = "node";
+
 	if(attrs & GraphAttributes::nodeType) {
-		defineAttribute(
-			out, depth + 1,
-			graphml::toString(graphml::a_nodeType), "string");
+		defineAttribute(child, graphml::toString(graphml::a_nodeType), "string");
 	}
+
 	if(attrs & GraphAttributes::nodeTemplate) {
-		defineAttribute(
-			out, depth + 1,
-			graphml::toString(graphml::a_template), "string");
+		defineAttribute(child, graphml::toString(graphml::a_template), "string");
 	}
+
 	if(attrs & GraphAttributes::nodeWeight) {
-		defineAttribute(
-			out, depth + 1,
-			graphml::toString(graphml::a_nodeWeight), "float");
+		defineAttribute(child, graphml::toString(graphml::a_nodeWeight), "float");
 	}
-	GraphIO::indent(out, depth) << "</attributes>\n";
 
 	// Declare edge attributes.
-	GraphIO::indent(out, depth) << "<attributes class=\"edge\">\n";
+	child = xmlNode.append_child("attributes");
+	child.append_attribute("class") = "edge";
+
 	if(attrs & GraphAttributes::edgeType) {
-		defineAttribute(
-			out, depth + 1,
-			graphml::toString(graphml::a_edgeType), "string");
+		defineAttribute(child, graphml::toString(graphml::a_edgeType), "string");
 	}
+
 	if(attrs & GraphAttributes::edgeArrow) {
-		defineAttribute(
-			out, depth + 1,
-			graphml::toString(graphml::a_edgeArrow), "string");
+		defineAttribute(child, graphml::toString(graphml::a_edgeArrow), "string");
 	}
-	GraphIO::indent(out, depth) << "</attributes>\n";
+}
+
+
+static inline void writeColor(pugi::xml_node xmlNode, const Color color)
+{
+	pugi::xml_node child = xmlNode.append_child("viz:color");
+	child.attribute("red") = color.red();
+	child.attribute("green") = color.green();
+	child.attribute("blue") = color.blue();
+	child.attribute("alpha") = color.alpha();
 }
 
 
 static inline void writeAttributes(
-	std::ostream &out, int depth,
-	const GraphAttributes &GA, node v)
+	pugi::xml_node xmlNode,
+	const GraphAttributes &GA,
+	node v)
 {
 	const long attrs = GA.attributes();
 
 	if(attrs & GraphAttributes::nodeGraphics) {
 		const double z = (attrs & GraphAttributes::threeD) ? GA.z(v) : 0.0;
-		GraphIO::indent(out, depth) << "<viz:position "
-		                            << "x=\"" << GA.x(v) << "\" "
-		                            << "y=\"" << GA.y(v) << "\" "
-		                            << "z=\"" << z << "\" "
-		                            << "/>\n";
+		pugi::xml_node child = xmlNode.append_child("viz:position");
+		child.attribute("x") = GA.x(v);
+		child.attribute("y") = GA.y(v);
+		child.attribute("z") = z;
 
 		// TODO: size is a scale here, so we have to know average size first.
 		// const double size = std::max(GA.width(v), GA.height(v));
@@ -151,26 +150,11 @@ static inline void writeAttributes(
 		//                             << "/>\n";
 
 		const Shape shape = GA.shape(v);
-		GraphIO::indent(out, depth) << "<viz:shape "
-		                            << "value=\"" << toString(shape) << "\" "
-		                            << "/>\n";
+		xmlNode.append_child("viz:shape").append_attribute("value") = toString(shape).c_str();
 	}
 
 	if(attrs & GraphAttributes::nodeStyle) {
-		const Color &color = GA.fillColor(v);
-
-		const int red = color.red();
-		const int green = color.green();
-		const int blue = color.blue();
-		const int alpha = color.alpha();
-
-		GraphIO::indent(out, depth) << "<viz:color "
-		                            << "red=\"" << red << "\" "
-		                            << "green=\"" << green << "\" "
-		                            << "blue=\"" << blue << "\" "
-		                            << "alpha=\"" << alpha << "\" "
-		                            << "/>\n";
-
+		writeColor(xmlNode, GA.fillColor(v));
 	}
 
 	/*
@@ -185,58 +169,37 @@ static inline void writeAttributes(
 		return;
 	}
 
-	GraphIO::indent(out, depth) << "<attvalues>\n";
+	pugi::xml_node attValues = xmlNode.append_child("attvalues");
 
 	if(attrs & GraphAttributes::nodeType) {
-		writeAttValue(
-			out, depth + 1,
-			graphml::a_nodeType, graphml::toString(GA.type(v)));
+		writeAttValue(attValues, graphml::a_nodeType, graphml::toString(GA.type(v)).c_str());
 	}
 
 	if(attrs & GraphAttributes::nodeTemplate) {
-		writeAttValue(out, depth + 1, graphml::a_template, GA.templateNode(v));
+		writeAttValue(attValues, graphml::a_template, GA.templateNode(v).c_str());
 	}
 
 	if(attrs & GraphAttributes::nodeWeight) {
-		writeAttValue(out, depth + 1, graphml::a_nodeWeight, GA.weight(v));
+		writeAttValue(attValues, graphml::a_nodeWeight, GA.weight(v));
 	}
-
-	GraphIO::indent(out, depth) << "</attvalues>\n";
 }
 
 
 static inline void writeAttributes(
-	std::ostream &out, int depth,
-	const GraphAttributes &GA, edge e)
+	pugi::xml_node xmlNode,
+	const GraphAttributes &GA,
+	edge e)
 {
 	const long attrs = GA.attributes();
 
 	if(attrs & GraphAttributes::edgeStyle) {
-		const Color &color = GA.strokeColor(e);
-
-		const int red = color.red();
-		const int green = color.green();
-		const int blue = color.blue();
-		const int alpha = color.alpha();
-
-		GraphIO::indent(out, depth) << "<viz:color "
-		                            << "red=\"" << red << "\" "
-		                            << "green=\"" << green << "\" "
-		                            << "blue=\"" << blue << "\" "
-		                            << "alpha=\"" << alpha << "\" "
-		                            << "/>\n";
+		writeColor(xmlNode, GA.strokeColor(e));
 	}
 
 	if(attrs & GraphAttributes::edgeDoubleWeight) {
-		const double weight = GA.doubleWeight(e);
-		GraphIO::indent(out, depth) << "<viz:thickness "
-		                            << "value=\"" << weight << "\" "
-		                            << "/>\n";
+		xmlNode.append_child("viz:thickness").append_attribute("value") = GA.doubleWeight(e);
 	} else if(attrs & GraphAttributes::edgeIntWeight) {
-		const int weight = GA.intWeight(e);
-		GraphIO::indent(out, depth) << "<viz:thickness "
-		                            << "value=\"" << weight << "\" "
-		                            << "/>\n";
+		xmlNode.append_child("viz:thickness").append_attribute("value") = GA.intWeight(e);
 	}
 
 	/*
@@ -249,150 +212,126 @@ static inline void writeAttributes(
 		return;
 	}
 
-	GraphIO::indent(out, depth) << "<attvalues>\n";
+	pugi::xml_node attValues = xmlNode.append_child("attvalues");
 
 	if(attrs & GraphAttributes::edgeType) {
-		writeAttValue(
-			out, depth + 1,
-			graphml::a_edgeType, graphml::toString(GA.type(e)));
+		writeAttValue(attValues, graphml::a_edgeType, graphml::toString(GA.type(e)).c_str());
 	}
 	if(attrs & GraphAttributes::edgeArrow) {
-		writeAttValue(
-			out, depth + 1,
-			graphml::a_edgeArrow, graphml::toString(GA.arrowType(e)));
+		writeAttValue(attValues, graphml::a_edgeArrow, graphml::toString(GA.arrowType(e)).c_str());
 	}
-
-	GraphIO::indent(out, depth) << "</attvalues>\n";
 }
 
 
 static inline void writeNode(
-	std::ostream &out, int depth,
-	const GraphAttributes *GA, node v)
+	pugi::xml_node xmlNode,
+	const GraphAttributes *GA,
+	node v)
 {
+	pugi::xml_node nodeTag = xmlNode.append_child("node");
+	nodeTag.append_attribute("id") = v->index();
+
 	if(GA) {
-		GraphIO::indent(out, depth) << "<node id=\"" << v->index() << "\"";
-		if(GA->attributes() & GraphAttributes::nodeLabel) {
-			out << " label=\"" << GA->label(v) << "\"";
+		if(GA->has(GraphAttributes::nodeLabel)) {
+			nodeTag.append_attribute("label") = GA->label(v).c_str();
 		}
-		out << ">\n";
 
-		writeAttributes(out, depth + 1, *GA, v);
-
-		GraphIO::indent(out, depth) << "</node>\n";
-	} else {
-		GraphIO::indent(out, depth) << "<node "
-		                            << "id=\"" << v->index() << "\" "
-		                            << "/>\n";
+		writeAttributes(nodeTag, *GA, v);
 	}
 }
 
 
 static inline void writeEdge(
-	std::ostream &out, int depth,
-	const GraphAttributes *GA, edge e)
+	pugi::xml_node xmlNode,
+	const GraphAttributes *GA,
+	edge e)
 {
+	pugi::xml_node edge = xmlNode.append_child("edge");
+	edge.append_attribute("id") = e->index();
+
 	if(GA) {
-		GraphIO::indent(out, depth) << "<edge id=\"" << e->index() << "\"";
-		if(GA->attributes() & GraphAttributes::edgeLabel) {
-			out << " label=\"" << GA->label(e) << "\"";
+		if(GA->has(GraphAttributes::edgeLabel)) {
+			edge.append_attribute("label") = GA->label(e).c_str();
 		}
-		out << ">\n";
 
-		writeAttributes(out, depth + 1, *GA, e);
-
-		GraphIO::indent(out, depth) << "</edge>\n";
+		writeAttributes(edge, *GA, e);
 	} else {
-		GraphIO::indent(out, depth) << "<edge "
-		                            << "id=\"" << e->index() << "\" "
-		                            << "source=\"" << e->source() << "\" "
-		                            << "target=\"" << e->target() << "\" "
-		                            << "/>\n";
+		edge.append_attribute("source") = e->source()->index();
+		edge.append_attribute("target") = e->target()->index();
 	}
 }
 
 
 static inline void writeEdges(
-	std::ostream &out,
-	const Graph &G, const GraphAttributes *GA)
+	pugi::xml_node xmlNode,
+	const Graph &G,
+	const GraphAttributes *GA)
 {
-	GraphIO::indent(out, 2) << "<edges>\n";
+	pugi::xml_node edges = xmlNode.append_child("edges");
 
 	for(edge e : G.edges) {
-		writeEdge(out, 3, GA, e);
+		writeEdge(edges, GA, e);
 	}
-
-	GraphIO::indent(out, 2) << "</edges>\n";
 }
 
 
 static void writeCluster(
-	std::ostream &out, int depth,
-	const ClusterGraph &C, const ClusterGraphAttributes *CA, cluster c)
+	pugi::xml_node rootNode,
+	const ClusterGraph &C,
+	const ClusterGraphAttributes *CA,
+	cluster c)
 {
+	pugi::xml_node graph;
+
 	if(C.rootCluster() != c) {
-		GraphIO::indent(out, depth) << "<node "
-		                            << "id=\"cluster" << c->index() << "\""
-		                            << ">\n";
+		graph = rootNode.append_child("node");
+		graph.append_attribute("id") = ("cluster" + to_string(c->index())).c_str();
 	} else {
-		const std::string dir =
-			(CA && !CA->directed()) ? "undirected" : "directed";
-		GraphIO::indent(out, depth) << "<graph "
-		                            << "mode=\"static\""
-		                            << "defaultedgetype=\"" << dir << "\""
-		                            << ">\n";
+		graph = rootNode.append_child("graph");
+		graph.append_attribute("mode") = "static";
+		graph.append_attribute("defaultedgetype") = CA && !CA->directed() ? "undirected" : "directed";
 
 		if(CA) {
-			defineAttributes(out, depth + 1, *CA);
+			defineAttributes(graph, *CA);
 		}
 	}
 
-	GraphIO::indent(out, depth + 1) << "<nodes>\n";
+	pugi::xml_node nodes = graph.append_child("nodes");
 
 	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		writeCluster(out, depth + 2, C, CA, *cit);
+		writeCluster(nodes, C, CA, *cit);
 	}
 
 	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-		writeNode(out, depth + 2, CA, *nit);
+		writeNode(nodes, CA, *nit);
 	}
 
-	GraphIO::indent(out, depth + 1) << "</nodes>\n";
-
-	if(C.rootCluster() != c) {
-		GraphIO::indent(out, depth) << "</node>\n";
-	} else {
-		writeEdges(out, C.constGraph(), CA);
-		GraphIO::indent(out, depth) << "</graph>\n";
+	if(C.rootCluster() == c) {
+		writeEdges(graph, C.constGraph(), CA);
 	}
 }
 
 
 static void writeGraph(
-	std::ostream &out,
-	const Graph &G, const GraphAttributes *GA)
+	pugi::xml_node rootNode,
+	const Graph &G,
+	const GraphAttributes *GA)
 {
-	const std::string dir =
-		(GA && !GA->directed()) ? "undirected" : "directed";
-	GraphIO::indent(out, 1) << "<graph "
-	                        << "mode=\"static\" "
-	                        << "defaultedgetype=\"" << dir << "\""
-	                        << ">\n";
+	pugi::xml_node graph = rootNode.append_child("graph");
+	graph.append_attribute("mode") = "static";
+	graph.append_attribute("defaultedgetype") = GA && !GA->directed() ? "undirected" : "directed";
 
 	if(GA) {
-		defineAttributes(out, 2, *GA);
+		defineAttributes(graph, *GA);
 	}
 
-	GraphIO::indent(out, 2) << "<nodes>\n";
+	pugi::xml_node nodes = graph.append_child("nodes");
 
 	for(node v : G.nodes) {
-		writeNode(out, 3, GA, v);
+		writeNode(nodes, GA, v);
 	}
-	GraphIO::indent(out, 2) << "</nodes>\n";
 
-	gexf::writeEdges(out, G, GA);
-
-	GraphIO::indent(out, 1) << "</graph>\n";
+	gexf::writeEdges(graph, G, GA);
 }
 
 
@@ -401,9 +340,10 @@ static void writeGraph(
 
 bool GraphIO::writeGEXF(const Graph &G, std::ostream &out)
 {
-	gexf::writeHeader(out);
-	gexf::writeGraph(out, G, nullptr);
-	gexf::writeFooter(out);
+	pugi::xml_document doc;
+	pugi::xml_node rootNode = gexf::writeHeader(doc, false);
+	gexf::writeGraph(rootNode, G, nullptr);
+	doc.save(out);
 
 	return true;
 }
@@ -411,9 +351,10 @@ bool GraphIO::writeGEXF(const Graph &G, std::ostream &out)
 
 bool GraphIO::writeGEXF(const ClusterGraph &C, std::ostream &out)
 {
-	gexf::writeHeader(out);
-	gexf::writeCluster(out, 1, C, nullptr, C.rootCluster());
-	gexf::writeFooter(out);
+	pugi::xml_document doc;
+	pugi::xml_node rootNode = gexf::writeHeader(doc, false);
+	gexf::writeCluster(rootNode, C, nullptr, C.rootCluster());
+	doc.save(out);
 
 	return true;
 }
@@ -421,11 +362,10 @@ bool GraphIO::writeGEXF(const ClusterGraph &C, std::ostream &out)
 
 bool GraphIO::writeGEXF(const GraphAttributes &GA, std::ostream &out)
 {
-	const Graph &G = GA.constGraph();
-
-	gexf::writeHeader(out, true);
-	gexf::writeGraph(out, G, &GA);
-	gexf::writeFooter(out);
+	pugi::xml_document doc;
+	pugi::xml_node rootNode = gexf::writeHeader(doc, true);
+	gexf::writeGraph(rootNode, GA.constGraph(), &GA);
+	doc.save(out);
 
 	return true;
 }
@@ -435,9 +375,10 @@ bool GraphIO::writeGEXF(const ClusterGraphAttributes &CA, std::ostream &out)
 {
 	const ClusterGraph &C = CA.constClusterGraph();
 
-	gexf::writeHeader(out, true);
-	gexf::writeCluster(out, 1, C, &CA, C.rootCluster());
-	gexf::writeFooter(out);
+	pugi::xml_document doc;
+	pugi::xml_node rootNode = gexf::writeHeader(doc, true);
+	gexf::writeCluster(rootNode, C, &CA, C.rootCluster());
+	doc.save(out);
 
 	return true;
 }

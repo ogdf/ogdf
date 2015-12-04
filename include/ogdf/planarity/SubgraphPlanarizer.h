@@ -32,9 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifndef OGDF_SUBGRAPH_PLANARIZER_H
-#define OGDF_SUBGRAPH_PLANARIZER_H
+#pragma once
 
 #include <ogdf/module/EdgeInsertionModule.h>
 #include <ogdf/module/CrossingMinimizationModule.h>
@@ -193,5 +191,3 @@ private:
 };
 
 }
-
-#endif // OGDF_SUBGRAPH_PLANARIZER_H

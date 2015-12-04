@@ -160,7 +160,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 	//adjacent edges
 	SList<adjEntry> outAdj;
 
-	for(adjEntry adj : center->adjEdges)
+	for(adjEntry adj : center->adjEntries)
 	{
 		//--------------------------------------------------------------
 		//check if external face was saved over adjEntry on center edges
@@ -421,8 +421,6 @@ void PlanRep::expand(bool lowDegreeExpand)
 		// adjacent in the embedding list by a cage.
 		if ((v->degree() > 4)  && (typeOf(v) != Graph::dummy) && !lowDegreeExpand)
 		{
-			edge e;
-
 			//Set the type of the node v. It remains in the graph
 			// as one of the nodes of the expanded face.
 			typeOf(v) = Graph::highDegreeExpander;
@@ -431,12 +429,13 @@ void PlanRep::expand(bool lowDegreeExpand)
 			// according to the planar embedding. All except one edge
 			// will get a new adjacent node
 			SList<edge> adjEdges;
-			{forall_adj_edges(e,v)
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				adjEdges.pushBack(e);
 			}
 
 			//The first edge remains at v. remove it from the list.
-			e = adjEdges.popFrontRet();
+			edge e = adjEdges.popFrontRet();
 
 			// Create the list of high degree expanders
 			// We need degree(v)-1 of them to construct a face.
@@ -509,8 +508,6 @@ void PlanRep::expand(bool lowDegreeExpand)
 		else if (v->degree() >= 2  && typeOf(v) != Graph::dummy &&
 				 lowDegreeExpand)
 		{
-			edge e;
-
 			//Set the type of the node v. It remains in the graph
 			// as one of the nodes of the expanded face.
 			typeOf(v) = Graph::lowDegreeExpander; //high??
@@ -519,13 +516,14 @@ void PlanRep::expand(bool lowDegreeExpand)
 			// according to the planar embedding. All except one edge
 			// will get a new adjacent node
 			SList<edge> adjEdges;
-			{forall_adj_edges(e,v)
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
 				adjEdges.pushBack(e);
 			}
 
 			//The first edge remains at v. remove it from the list.
 			// Check if it is a generalization.
-			e = adjEdges.popFrontRet();
+			edge e = adjEdges.popFrontRet();
 
 			// Create the list of high degree expanders
 			// We need degree(v)-1 of them to construct a face.
@@ -606,7 +604,7 @@ void PlanRep::expandLowDegreeVertices(OrthoRep &OR)
 
 		setExpandedNode(v, v);
 
-		for(adjEntry adj : v->adjEdges) {
+		for(adjEntry adj : v->adjEntries) {
 			adjEdges.pushBack(adj->theEdge());
 
 			if(!firstTime)
@@ -693,8 +691,8 @@ void PlanRep::collapseVertices(const OrthoRep &OR, Layout &drawing)
 		drawing.x(vCenter) = 0.5*(drawing.x(lowerLeft)+drawing.x(lowerRight));
 		drawing.y(vCenter) = 0.5*(drawing.y(lowerLeft)+drawing.y(upperLeft ));
 
-		edge eOrig;
-		forall_adj_edges(eOrig,vOrig) {
+		for(adjEntry adj : vOrig->adjEntries) {
+			edge eOrig = adj->theEdge();
 			if(eOrig->target() == vOrig) {
 				node connect = m_eCopy[eOrig].back()->target();
 				edge eNew = newEdge(connect,vCenter);
@@ -735,8 +733,8 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 		drawing.x(vCenter) = (drawing.x(lowerLeft)+drawing.x(lowerRight)) >> 1;
 		drawing.y(vCenter) = (drawing.y(lowerLeft)+drawing.y(upperLeft )) >> 1;
 
-		edge eOrig;
-		forall_adj_edges(eOrig,vOrig) {
+		for(adjEntry adj : vOrig->adjEntries) {
+			edge eOrig = adj->theEdge();
 			if(eOrig->target() == vOrig) {
 				node connect = m_eCopy[eOrig].back()->target();
 				edge eNew = newEdge(connect,vCenter);
@@ -767,7 +765,7 @@ void PlanRep::setCopyType(edge eCopy, edge eOrig)
 			case Graph::generalization: setGeneralization(eCopy); break;
 			case Graph::association: setAssociation(eCopy); break;
 			case Graph::dependency: setDependency(eCopy); break;
-			OGDF_NODEFAULT
+			default: OGDF_ASSERT(false);
 		}//switch
 	}//if original
 }//setCopyType
@@ -787,7 +785,7 @@ void PlanRep::removeDeg1Nodes(Stack<Deg1RestoreInfo> &S, const NodeArray<bool> &
 
 		if(adjRef == nullptr) {
 			// only marked nodes adjacent with v (need no reference entry)
-			for(adjEntry adj : v->adjEdges) {
+			for(adjEntry adj : v->adjEntries) {
 				node x = adj->twinNode();
 				S.push(Deg1RestoreInfo(m_eOrig[adj->theEdge()],m_vOrig[x],nullptr));
 				delNode(x);
@@ -822,10 +820,13 @@ void PlanRep::restoreDeg1Nodes(Stack<Deg1RestoreInfo> &S, List<node> &deg1s)
 		node v = newNode(vOrig);
 
 		if(adjRef) {
-			if(vOrig == eOrig->source())
-				newEdge(eOrig, v, adjRef);
-			else
-				newEdge(eOrig, adjRef, v);
+			edge e = nullptr;
+			if(vOrig == eOrig->source()) {
+				e = newEdge(v, adjRef);
+			} else {
+				e = newEdge(adjRef, v);
+			}
+			setEdge(eOrig, e);
 		} else {
 			if(vOrig == eOrig->source())
 				newEdge(eOrig);
@@ -980,7 +981,7 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 			os << "  node [\n";
 			os << "    id " << nextId++ << "\n";
 
-			if (m_pGraphAttributes->attributes() & GraphAttributes::nodeLabel) {
+			if (m_pGraphAttributes->has(GraphAttributes::nodeLabel)) {
 				os << "    label \"" << m_pGraphAttributes->label(vOrig) << "\"\n";
 			}
 

@@ -107,9 +107,8 @@ void UpwardPlanarSubgraphSimple::dfsBuildSpanningTree(
 {
 	visited[v] = true;
 
-	edge e;
-	forall_adj_edges(e,v)
-	{
+	for(adjEntry adj : v->adjEntries) {
+		edge e = adj->theEdge();
 		node w = e->target();
 		if(w == v) continue;
 

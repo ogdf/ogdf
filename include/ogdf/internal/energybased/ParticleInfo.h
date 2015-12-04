@@ -32,24 +32,18 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_PARTICLE_INFO_H
-#define OGDF_PARTICLE_INFO_H
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/basic/List.h>
 
 namespace ogdf {
+namespace energybased {
 
+//! Helping data structure for building up the reduced quad tree by NMM.
 class OGDF_EXPORT ParticleInfo
 {
-	//Helping data structure for building up the reduced quad tree by NMM.
-
-	//Outputstream for ParticleInfo.
+	//! Output stream for ParticleInfo.
 	friend ostream &operator<< (ostream & output, const ParticleInfo & A)
 	{
 		output <<" node_index "<<A.vertex->index()<<" x_y_coord "<<A.x_y_coord;
@@ -65,7 +59,7 @@ class OGDF_EXPORT ParticleInfo
 		return output;
 	}
 
-	//inputstream for ParticleInfo
+	//! inputstream for ParticleInfo
 	friend istream &operator>> (istream & input,  ParticleInfo & A)
 	{
 		input >> A;
@@ -74,7 +68,7 @@ class OGDF_EXPORT ParticleInfo
 
 public:
 
-	//constructor
+	//! constructor
 	ParticleInfo() :
 		vertex(nullptr),
 		x_y_coord(0),
@@ -85,7 +79,7 @@ public:
 		tmp_item(nullptr)
 	{ }
 
-	~ParticleInfo() { }   //destructor
+	~ParticleInfo() { }   //!< destructor
 
 	void set_vertex(node v) { vertex = v; }
 	void set_x_y_coord(double c) { x_y_coord = c; }
@@ -105,27 +99,33 @@ public:
 	ListIterator<ParticleInfo> get_tmp_cross_ref_item() const { return tmp_item; }
 
 private:
-	node vertex;      //the vertex of G that is associated with this attributes
-	double x_y_coord; //the x (resp. y) coordinate of the actual position of the vertex
-	ListIterator<ParticleInfo> cross_ref_item;	//the Listiterator of the
-												//ParticleInfo-Element that
-												//containes the vertex in the List storing the other
-												//coordinates (a cross reference)
-	List<ParticleInfo>*  subList_ptr;	//points to the subList of L_x(L_y) where the
-										//actual entry of ParticleInfo has to be stored
-	ListIterator<ParticleInfo>  copy_item;  //the item of this entry in the copy List
-	bool marked; //indicates if this ParticleInfo object is marked or not
-	ListIterator<ParticleInfo> tmp_item;	//a temporily item that is used to construct
-											//the cross references for the copy_Lists
-											//and the subLists
+	node vertex;      //!< the vertex of G that is associated with this attributes
+	double x_y_coord; //!< the x (resp. y) coordinate of the actual position of the vertex
+
+	//! the Listiterator of the
+	//! ParticleInfo-Element that
+	//! containes the vertex in the List storing the other
+	//! coordinates (a cross reference)
+	ListIterator<ParticleInfo> cross_ref_item;
+
+	//! Points to the subList of L_x(L_y) where the
+	//! actual entry of ParticleInfo has to be stored
+	List<ParticleInfo>* subList_ptr;
+	ListIterator<ParticleInfo> copy_item; //!< the item of this entry in the copy List
+	bool marked; //!< indicates if this ParticleInfo object is marked or not
+
+	//! A temporary item that is used to construct
+	//! the cross references for the copy_Lists
+	//! and the subLists
+	ListIterator<ParticleInfo> tmp_item;
 };
 
 
-//Needed for sorting algorithms in ogdf/List and ogdf/Array.
+//! Needed for sorting algorithms in ogdf/List and ogdf/Array.
 class ParticleInfoComparer {
 public:
-	//Returns -1(1) if height of a <(>) height of b. If they are equal 0 is
-	//returned.
+	//! Returns -1(1) if height of a <(>) height of b. If they are equal 0 is
+	//! returned.
 	static int compare(const ParticleInfo& a,const ParticleInfo & b)
 	{
 		double p = a.get_x_y_coord();
@@ -137,6 +137,5 @@ public:
 	OGDF_AUGMENT_STATICCOMPARER(ParticleInfo)
 };
 
-}//namespace ogdf
-
-#endif
+}
+}

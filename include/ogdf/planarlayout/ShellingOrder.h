@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_SHELLING_ORDER_H
-#define OGDF_SHELLING_ORDER_H
-
 
 #include <ogdf/basic/NodeArray.h>
 
@@ -251,6 +244,3 @@ private:
 
 
 } // end namespace ogdf
-
-
-#endif

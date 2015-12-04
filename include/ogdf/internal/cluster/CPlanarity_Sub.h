@@ -35,15 +35,14 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-#ifndef OGDF_CPLANARITY_SUB_H
-#define OGDF_CPLANARITY_SUB_H
+#pragma once
 
 #include <ogdf/internal/cluster/CPlanarity_Master.h>
 #include <ogdf/basic/ArrayBuffer.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 
-#include <ogdf/abacus/sub.h>
-#include <ogdf/abacus/standardpool.h>
+#include <ogdf/lib/abacus/sub.h>
+#include <ogdf/lib/abacus/standardpool.h>
 
 
 namespace ogdf {
@@ -277,5 +276,3 @@ private:
 };
 
 }//end namespace
-
-#endif

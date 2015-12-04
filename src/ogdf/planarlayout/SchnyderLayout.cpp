@@ -1,7 +1,7 @@
 /** \file
  * \brief Definition of the Schnyder Layout Algorithm (SchnyderLayout)
  *
- * \author Till Sch&auml;fer
+ * \author Till Schäfer
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -211,15 +211,15 @@ void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 	deg[a] = deg[b] = deg[c] = N;
 
 	// mark neighbours of a and calc the degree of the second (virtual) neighbours
-	for(adjEntry adj1 : a->adjEdges) {
+	for(adjEntry adj1 : a->adjEntries) {
 		marked[adj1->twinNode()] = true;
-		for(adjEntry adj2 : adj1->twinNode()->adjEdges) {
+		for(adjEntry adj2 : adj1->twinNode()->adjEntries) {
 			deg[adj2->twinNode()]++;
 		}
 	}
 
 	// find first candidates
-	for(adjEntry adj1 : a->adjEdges) {
+	for(adjEntry adj1 : a->adjEntries) {
 		if (deg[adj1->twinNode()] <= 2) {
 			candidates.pushBack(adj1->twinNode());
 		}
@@ -230,12 +230,12 @@ void SchnyderLayout::contract(Graph& G, node a, node b, node c, List<node>& L)
 		if (deg[u] == 2) {
 			L.pushFront(u);
 			deg[u] = N;
-			for(adjEntry adj1 : u->adjEdges) {
+			for(adjEntry adj1 : u->adjEntries) {
 				node v = adj1->twinNode();
 				deg[v]--;										// u is virtualy deleted
 				if (!marked[v]) {								// v is new neighbour of a
 					marked[v] = true;
-					for(adjEntry adj2 : v->adjEdges) {
+					for(adjEntry adj2 : v->adjEntries) {
 						deg[adj2->twinNode()]++;				// degree of virtaul neighbours increase
 					}
 					if (deg[v] <= 2) candidates.pushBack(v);	// next candidate v
@@ -285,7 +285,7 @@ void SchnyderLayout::realizer(
 		node u = T.copy(G.original(v));   // u is copy of v in T
 
 		adjEntry adj = nullptr;
-		for(adjEntry adjRun : v->adjEdges) {
+		for(adjEntry adjRun : v->adjEntries) {
 			if (ord[adjRun->twinNode()] > ord[v]) {
 				adj = adjRun;
 				break;
@@ -318,7 +318,7 @@ void SchnyderLayout::realizer(
 	node c_in_T = T.copy(G.original(c));
 
 	// all edges to node a get realizer value 1
-	for(adjEntry adj : a->adjEdges) {
+	for(adjEntry adj : a->adjEntries) {
 		e = T.newEdge(a_in_T, T.copy(G.original(adj->twinNode())));
 		rValues[e] = 1;
 	}
@@ -346,7 +346,7 @@ void SchnyderLayout::subtreeSizes(
 	NodeArray<int>& size)
 {
 	int sum = 0;
-	for(adjEntry adj : r->adjEdges) {
+	for(adjEntry adj : r->adjEntries) {
 		if (adj->theEdge()->source() == r && rValues[adj->theEdge()] == i) {
 			node w = adj->twinNode();
 			subtreeSizes(rValues, i, w, size);
@@ -374,7 +374,7 @@ void SchnyderLayout::prefixSum(
 
 	while (!Q.empty()) {
 		node v = Q.popFrontRet();
-		for (adjEntry adj : v->adjEdges) {
+		for (adjEntry adj : v->adjEntries) {
 			if (adj->theEdge()->source() == v && rValues[adj->theEdge()] == i) {
 				node w = adj->twinNode();
 				Q.pushBack(w);

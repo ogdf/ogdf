@@ -32,14 +32,7 @@
  * \see  http://www.gnu.org/copyleft/gpl.html
  ***************************************************************/
 
-
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_UML_GRAPH_H
-#define OGDF_UML_GRAPH_H
-
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/AdjEntryArray.h>
@@ -79,7 +72,12 @@ public:
 		GraphAttributes::init(G, initAttr);
 		m_hierarchyParent.init(constGraph(), 0);
 		m_upwardEdge.init(constGraph(), false);
-		m_hiddenEdges = G.newHiddenEdgeSet();
+
+		if (m_hiddenEdges != nullptr) {
+			delete m_hiddenEdges;
+		}
+
+		m_hiddenEdges = new Graph::HiddenEdgeSet(G);
 	}
 
 	virtual void init(const Graph &G, long initAttr) {
@@ -335,10 +333,8 @@ private:
 	//only set during insertgenmergers to avoid the extra computation
 	NodeArray<node> m_hierarchyParent;
 
-	Graph::HiddenEdgeSetHandle m_hiddenEdges;
+	Graph::HiddenEdgeSet *m_hiddenEdges;
 };
 
 
 } // end namespace ogdf
-
-#endif
