@@ -49,14 +49,23 @@ namespace ogdf {
 class TricComp
 {
 public:
-	//! construction
+	/**
+	 * Divides G into triconnected components.
+	 * \param G graph
+	 */
 	TricComp(const Graph &G);
 
+	/**
+	 * Tests G for triconnectivity.
+	 * \param G graph
+	 * \param isTric true if G is triconnected, false otherwise.
+	 * \param s1 first vertex of separation pair if G is biconnected, cut vertex of G if G is not biconnected, nullptr if G is not connected.
+	 * \param s2 second vertex of separation pair if G is biconnected, nullptr otherwise.
+	 */
 	TricComp(const Graph &G, bool &isTric, node &s1, node &s2);
 
 	TricComp(const TricComp &) = delete;
 
-	//! destruction
 	~TricComp();
 
 	//! type of split-components / triconnected components
@@ -85,7 +94,10 @@ public:
 	//! number of components
 	int m_numComp;
 
-	//! check if computed triconnected componets are correct
+	/**
+	 * Checks if computed triconnected componets are correct.
+	 * \pre checkComp() assumes that the graph is simple!
+	 */
 	bool checkComp();
 
 
