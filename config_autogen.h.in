@@ -4,7 +4,9 @@
   #cmakedefine OGDF_DEBUG
 #endif
 
-#if @LIBS_ARE_SHARED@
+#cmakedefine BUILD_SHARED_LIBS
+
+#ifdef BUILD_SHARED_LIBS
 	#define OGDF_DLL
 	#define OGDF_INSTALL
 #endif
@@ -12,6 +14,8 @@
 #define USE_COIN
 #define COIN_OSI_@COIN_SOLVER@
 
-#if @COIN_SOLVER_IS_EXTERNAL@
+#cmakedefine COIN_SOLVER_IS_EXTERNAL
+
+#ifdef COIN_SOLVER_IS_EXTERNAL
 	#define OSI_@COIN_SOLVER@
 #endif

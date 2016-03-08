@@ -124,7 +124,7 @@ void System::init()
 	s_cacheLine   = 0;
 
 	// currently not working for shared libs on Linux
-#if !defined(OGDF_DLL) || !defined(OGDF_SYSTEM_UNIX)
+#if (!defined(OGDF_DLL) || !defined(OGDF_SYSTEM_UNIX)) && !defined(__MINGW64__)
 
 	int CPUInfo[4] = {-1};
 	__cpuid(CPUInfo, 0);
