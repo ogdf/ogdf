@@ -1,0 +1,8 @@
+libdir=@CMAKE_CURRENT_BINARY_DIR@
+includedir=@CMAKE_CURRENT_SOURCE_DIR@/include
+
+Name: @PROJECT_NAME@
+Description: OGDF library, uninstalled version
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lOGDF -lCOIN
+Cflags: -I${includedir} -I@CMAKE_CURRENT_BINARY_DIR@/include

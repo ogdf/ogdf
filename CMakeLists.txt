@@ -138,3 +138,22 @@ configure_file("${CMAKE_SOURCE_DIR}/config_autogen.h.in" "${CMAKE_BINARY_DIR}/in
 find_package(Doxygen)
 set(DOC_DIR "${CMAKE_SOURCE_DIR}/doc")
 add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOC_DIR}/ogdf-doxygen.cfg WORKING_DIRECTORY ${DOC_DIR})
+
+# installation of the two libraries
+install(
+    TARGETS OGDF COIN
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    )
+# all the header files using the same directory structure as in the source folder
+install(
+    DIRECTORY include/ogdf include/coin ${CMAKE_CURRENT_BINARY_DIR}/include/ogdf
+    DESTINATION include FILES_MATCHING REGEX ".?\\.h|.?\\.hpp")
+
+# fill-out the pkg-config templates
+configure_file(ogdf.pc.in
+    ${CMAKE_BINARY_DIR}/ogdf.pc @ONLY)
+configure_file(ogdf-uninstalled.pc.in
+    ${CMAKE_BINARY_DIR}/ogdf-uninstalled.pc @ONLY)
+# and installiing them as well
+install(FILES ${CMAKE_BINARY_DIR}/ogdf.pc DESTINATION lib/pkgconfig)
