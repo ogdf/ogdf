@@ -149,3 +149,11 @@ install(
 install(
     DIRECTORY include/ogdf include/coin ${CMAKE_CURRENT_BINARY_DIR}/include/ogdf
     DESTINATION include FILES_MATCHING REGEX ".?\\.h|.?\\.hpp")
+
+# fill-out the pkg-config templates
+configure_file(ogdf.pc.in
+    ${CMAKE_BINARY_DIR}/ogdf.pc @ONLY)
+configure_file(ogdf-uninstalled.pc.in
+    ${CMAKE_BINARY_DIR}/ogdf-uninstalled.pc @ONLY)
+# and installiing them as well
+install(FILES ${CMAKE_BINARY_DIR}/ogdf.pc DESTINATION lib/pkgconfig)
