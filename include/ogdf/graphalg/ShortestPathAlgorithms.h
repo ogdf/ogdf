@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -56,10 +53,10 @@ void bfs_SPAP(const Graph& G, NodeArray<NodeArray<double> >& distance,
 
 //! Computes single-source shortest paths from \a s in \a G using breadth-first serach (BFS).
 /**
-* @ingroup ga-sp
-*
-* The cost of each edge are \a edgeCost and the result is stored in \a distance.
-*/
+ * @ingroup ga-sp
+ *
+ * The cost of each edge are \a edgeCost and the result is stored in \a distance.
+ */
 OGDF_EXPORT
 void bfs_SPSS(node s, const Graph& G, NodeArray<double> & distanceArray, double edgeCosts);
 
@@ -96,7 +93,7 @@ void dijkstra_SPAP(
  * The cost of an edge are given by \a edgeCosts and the result is stored in \a shortestPathMatrix.
  * Note this algorithm equals Dijkstra<T>::call, though it does not
  * compute the predecessors on the path and is not inlined.
-*/
+ */
 OGDF_EXPORT
 void dijkstra_SPSS(
 	node s,

@@ -805,4 +805,3 @@ void OsiSolverInterface::setRowColNames (CoinLpIO &mod)
   And we're done.
 */
   return ; }
-

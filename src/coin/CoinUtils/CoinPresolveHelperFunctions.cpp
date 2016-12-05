@@ -442,4 +442,3 @@ void presolve_delete_from_major2 (int majndx, int minndx,
   assert(*free_listp >= 0) ;
 
   return ; }
-

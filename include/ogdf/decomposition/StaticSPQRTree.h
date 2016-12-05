@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -93,7 +90,7 @@ public:
 	 * \pre \a G is biconnected and contains at least 3 nodes,
 	 *      or \a G has exactly 2 nodes and at least 3 edges.
 	 */
-	StaticSPQRTree(const Graph &G) : m_skOf(G), m_copyOf(G) { m_pGraph = &G; init(G.firstEdge()); }
+	StaticSPQRTree(const Graph &G) : m_skOf(G), m_copyOf(G) { OGDF_ASSERT(G.numberOfEdges() > 0); m_pGraph = &G; init(G.firstEdge()); }
 
 	/**
 	 * \brief Creates an SPQR tree \a T for graph \a G rooted at the edge \a e.
@@ -120,40 +117,40 @@ public:
 	//
 
 	//! Returns a reference to the original graph \a G.
-	const Graph &originalGraph() const { return *m_pGraph; }
+	const Graph &originalGraph() const override { return *m_pGraph; }
 
 	//! Returns a reference to the tree \a T.
-	const Graph &tree() const { return m_tree; }
+	const Graph &tree() const override { return m_tree; }
 
 	//! Returns the edge of \a G at which \a T is rooted.
-	edge rootEdge() const { return m_rootEdge; }
+	edge rootEdge() const override { return m_rootEdge; }
 
 	//! Returns the root node of \a T.
-	node rootNode() const { return m_rootNode; }
+	node rootNode() const override { return m_rootNode; }
 
 	//! Returns the number of S-nodes in \a T.
-	int numberOfSNodes() const { return m_numS; }
+	int numberOfSNodes() const override { return m_numS; }
 
 	//! Returns the number of P-nodes in \a T.
-	int numberOfPNodes() const { return m_numP; }
+	int numberOfPNodes() const override { return m_numP; }
 
 	//! Returns the number of R-nodes in \a T.
-	int numberOfRNodes() const { return m_numR; }
+	int numberOfRNodes() const override { return m_numR; }
 
 	/**
 	 * \brief Returns the type of node \a v.
 	 * \pre \a v is a node in \a T
 	 */
-	NodeType typeOf(node v) const { return m_type[v]; }
+	NodeType typeOf(node v) const override { return m_type[v]; }
 
 	//! Returns the list of all nodes with type \a t.
-	List<node> nodesOfType(NodeType t) const;
+	List<node> nodesOfType(NodeType t) const override;
 
 	/**
 	 * \brief Returns the skeleton of node \a v.
 	 * \pre \a v is a node in \a T
 	 */
-	Skeleton &skeleton(node v) const { return *m_sk[v]; }
+	Skeleton &skeleton(node v) const override { return *m_sk[v]; }
 
 	/**
 	 * \brief Returns the edge in skeleton of source(\a e) that corresponds to tree edge \a e.
@@ -171,13 +168,13 @@ public:
 	 * \brief Returns the skeleton that contains the real edge \a e.
 	 * \pre \a e is an edge in \a G
 	 */
-	const Skeleton &skeletonOfReal(edge e) const { return *m_skOf[e]; }
+	const Skeleton &skeletonOfReal(edge e) const override { return *m_skOf[e]; }
 
 	/**
 	 * \brief Returns the skeleton edge that corresponds to the real edge \a e.
 	 * \pre \a e is an edge in \a G
 	 */
-	edge copyOfReal(edge e) const { return m_copyOf[e]; }
+	edge copyOfReal(edge e) const override { return m_copyOf[e]; }
 
 
 	//
@@ -188,13 +185,13 @@ public:
 	 * \brief Roots \a T at edge \a e and returns the new root node of \a T.
 	 * \pre \a e is an edge in \a G
 	 */
-	node rootTreeAt(edge e);
+	node rootTreeAt(edge e) override;
 
 	/**
 	 * \brief Roots \a T at node \a v and returns \a v.
 	 * \pre \a v is a node in \a T
 	 */
-	node rootTreeAt(node v);
+	node rootTreeAt(node v) override;
 
 
 protected:
@@ -212,13 +209,13 @@ protected:
 	 * \brief Recursively performs the task of adding edges (and nodes)
 	 * to the pertinent graph \a Gp for each involved skeleton graph.
 	 */
-	void cpRec(node v, PertinentGraph &Gp) const
+	void cpRec(node v, PertinentGraph &Gp) const override
 	{
 		const Skeleton &S = skeleton(v);
 
 		for(edge e : S.getGraph().edges) {
 			edge eOrig = S.realEdge(e);
-			if (eOrig != 0) cpAddEdge(eOrig,Gp);
+			if (eOrig != nullptr) cpAddEdge(eOrig,Gp);
 		}
 
 		for(adjEntry adj : v->adjEntries) {

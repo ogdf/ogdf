@@ -34,32 +34,32 @@ The Base cut class contains:
 
 
 class OsiCut  {
-  
+
 public:
-    
+
   //-------------------------------------------------------------------
   /**@name Effectiveness */
   //@{
   /// Set effectiveness
-  inline void setEffectiveness( double e ); 
+  inline void setEffectiveness( double e );
   /// Get effectiveness
-  inline double effectiveness() const; 
+  inline double effectiveness() const;
   //@}
 
   /**@name GloballyValid */
   //@{
   /// Set globallyValid (nonzero true)
-  inline void setGloballyValid( bool trueFalse ) 
+  inline void setGloballyValid( bool trueFalse )
   { globallyValid_=trueFalse ? 1 : 0;}
-  inline void setGloballyValid( ) 
+  inline void setGloballyValid( )
   { globallyValid_=1;}
-  inline void setNotGloballyValid( ) 
+  inline void setNotGloballyValid( )
   { globallyValid_=0;}
   /// Get globallyValid
   inline bool globallyValid() const
   { return globallyValid_!=0;}
   /// Set globallyValid as integer (nonzero true)
-  inline void setGloballyValidAsInteger( int trueFalse ) 
+  inline void setGloballyValidAsInteger( int trueFalse )
   { globallyValid_=trueFalse;}
   /// Get globallyValid
   inline int globallyValidAsInteger() const
@@ -71,7 +71,7 @@ public:
     /// Print cuts in collection
   virtual void print() const {}
   //@}
-   
+
 #if 0
   / **@name Times used */
   / /@{
@@ -82,7 +82,7 @@ public:
   / // Get times used
   inline int timesUsed() const;
   / /@}
-  
+
   / **@name Times tested */
   / /@{
   / // Set times tested
@@ -99,13 +99,13 @@ public:
   /**@name Comparison operators  */
   //@{
     ///equal. 2 cuts are equal if there effectiveness are equal
-    inline virtual bool operator==(const OsiCut& rhs) const; 
+    inline virtual bool operator==(const OsiCut& rhs) const;
     /// not equal
-    inline virtual bool operator!=(const OsiCut& rhs) const; 
+    inline virtual bool operator!=(const OsiCut& rhs) const;
     /// less than. True if this.effectiveness < rhs.effectiveness
-    inline virtual bool operator< (const OsiCut& rhs) const; 
+    inline virtual bool operator< (const OsiCut& rhs) const;
     /// less than. True if this.effectiveness > rhs.effectiveness
-    inline virtual bool operator> (const OsiCut& rhs) const; 
+    inline virtual bool operator> (const OsiCut& rhs) const;
   //@}
 
   //----------------------------------------------------------------
@@ -113,13 +113,13 @@ public:
   //         This might include checks to ensure that a packed vector
   //         itself does not have a negative index.
   // consistent(const OsiSolverInterface& si) - returns true if cut is consistent with
-  //         respect to the solver interface's model. This might include a check to 
+  //         respect to the solver interface's model. This might include a check to
   //         make sure a column index is not greater than the number
   //         of columns in the problem.
-  // infeasible(const OsiSolverInterface& si) - returns true if the cut is infeasible 
-  //         "with respect to itself". This might include a check to ensure 
+  // infeasible(const OsiSolverInterface& si) - returns true if the cut is infeasible
+  //         "with respect to itself". This might include a check to ensure
   //         the lower bound is greater than the upper bound, or if the
-  //         cut simply replaces bounds that the new bounds are feasible with 
+  //         cut simply replaces bounds that the new bounds are feasible with
   //         respect to the old bounds.
   //-----------------------------------------------------------------
   /**@name Sanity checks on cut */
@@ -129,7 +129,7 @@ public:
       data in the model. For example, it might check to ensure
       that a column index is not negative.
   */
-  inline virtual bool consistent() const=0; 
+  inline virtual bool consistent() const=0;
 
   /** Returns true if cut is consistent when considering the solver
       interface's model.  For example, it might check to ensure
@@ -142,16 +142,16 @@ public:
       cannot be satisfied. This method does NOT check whether adding the
       cut to the solver interface's model will make the -model- infeasble.
       A cut which returns !infeasible(si) may very well make the model
-      infeasible. (Of course, adding a cut with returns infeasible(si) 
+      infeasible. (Of course, adding a cut with returns infeasible(si)
       will make the model infeasible.)
 
-      The "with respect to itself" is in quotes becaues 
+      The "with respect to itself" is in quotes becaues
       in the case where the cut
       simply replaces existing bounds, it may make
       sense to test infeasibility with respect to the current bounds
-      held in the solver interface's model. For example, if the cut 
+      held in the solver interface's model. For example, if the cut
       has a single variable in it, it might check that the maximum
-      of new and existing lower bounds is greater than the minium of 
+      of new and existing lower bounds is greater than the minium of
       the new and existing upper bounds.
 
       Assumes that consistent(si) is true.<br>
@@ -161,8 +161,8 @@ public:
   */
   inline virtual bool infeasible(const OsiSolverInterface &si) const=0;
 
-  /** Returns infeasibility of the cut with respect to solution 
-      passed in i.e. is positive if cuts off that solution.  
+  /** Returns infeasibility of the cut with respect to solution
+      passed in i.e. is positive if cuts off that solution.
       solution is getNumCols() long..
   */
   virtual double violated(const double * solution) const=0;
@@ -172,21 +172,21 @@ protected:
 
   /**@name Constructors and destructors */
   //@{
-  /// Default Constructor 
+  /// Default Constructor
   OsiCut ();
-  
-  /// Copy constructor 
+
+  /// Copy constructor
   OsiCut ( const OsiCut &);
-   
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiCut & operator=( const OsiCut& rhs);
 
-  /// Destructor 
+  /// Destructor
   virtual ~OsiCut ();
   //@}
-  
+
 private:
-  
+
   /**@name Private member data */
   //@{
   /// Effectiveness
@@ -220,7 +220,7 @@ int OsiCut::timesTested() const{ return timesTested_; }
 #endif
 
 //----------------------------------------------------------------
-// == operator 
+// == operator
 //-------------------------------------------------------------------
 bool
 OsiCut::operator==(const OsiCut& rhs) const

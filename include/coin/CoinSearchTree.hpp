@@ -95,7 +95,7 @@ public:
     inline double       getQuality()       const { return quality_; }
     inline double       getTrueLB()        const { return true_lower_bound_; }
     inline BitVector128 getPreferred()     const { return preferred_; }
-    
+
     inline void setDepth(int d)              { depth_ = d; }
     inline void setFractionality(int f)      { fractionality_ = f; }
     inline void setQuality(double q)         { quality_ = q; }
@@ -375,7 +375,7 @@ protected:
 	}
 	candidates[pos] = s;
     }
-  
+
 public:
     CoinSearchTree() : CoinSearchTreeBase(), comp_() {}
     CoinSearchTree(const CoinSearchTreeBase& t) :
@@ -413,7 +413,7 @@ private:
 
     /** variable used to test whether we need to reevaluate search strategy */
     bool recentlyReevaluatedSearchStrategy_;
-    
+
 public:
     CoinSearchTreeManager() :
 	candidates_(nullptr),
@@ -423,7 +423,7 @@ public:
     virtual ~CoinSearchTreeManager() {
 	delete candidates_;
     }
-    
+
     inline void setTree(CoinSearchTreeBase* t) {
 	delete candidates_;
 	candidates_ = t;

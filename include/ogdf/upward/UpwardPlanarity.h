@@ -16,7 +16,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -33,12 +33,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -96,13 +93,15 @@ public:
 	 */
 	static bool embedUpwardPlanar(Graph &G, adjEntry& externalToItsRight);
 
-//	//! Computes a maximal feasible upward planar subgraph (MFUPS).
-//	/**
-//	 * \param G is the input graph, GC has to be a GraphCopy of G.
-//	 * \return number of edges of the MFUPS.
-//	 * 		   GC is the graph copy of G containing the upward planar embedding of the MFUPS
-//	 */
-//	static int maximalFeasibleUpwardPlanarSubgraph(const Graph &G, GraphCopy &GC);
+#if 0
+	//! Computes a maximal feasible upward planar subgraph (MFUPS).
+	/**
+	 * \param G is the input graph, GC has to be a GraphCopy of G.
+	 * \return number of edges of the MFUPS.
+	 * 		   GC is the graph copy of G containing the upward planar embedding of the MFUPS
+	 */
+	static int maximalFeasibleUpwardPlanarSubgraph(const Graph &G, GraphCopy &GC);
+#endif
 
 	//@}
 	/**

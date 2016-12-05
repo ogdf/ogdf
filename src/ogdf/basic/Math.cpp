@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/Math.h>
@@ -38,9 +35,9 @@
 
 namespace ogdf {
 
-
 	const double Math::pi     = 3.14159265358979323846;
 	const double Math::pi_2   = 1.57079632679489661923;
+	const double Math::gamma  = 0.57721566490153286061;
 	const double Math::log_of_4 = log(4.0);
 
 	int Math::binomial(int n, int k)
@@ -63,14 +60,47 @@ namespace ogdf {
 		return r;
 	}
 
-	int Math::factorial(int n)
+	static constexpr double compiletimeHarmonic(unsigned n)
 	{
-		return (int) std::tgamma(n+1);
+		return n <= 1 ? 1.0 : (compiletimeHarmonic(n-1) + 1.0 / n);
 	}
 
-	double Math::factorial_d(int n)
+	template<unsigned... Is>
+	struct seq { };
+	// rec_seq<3>{} : rec_seq<2,2>{} : rec_seq<1,1,2>{} : rec_seq<0,0,1,2> : seq<0,1,2>
+	template<unsigned N, unsigned... Is>
+	struct rec_seq : rec_seq<N-1, N-1, Is...> { };
+	template<unsigned... Is>
+	struct rec_seq<0, Is...> : seq<Is...> { };
+
+	static constexpr unsigned compiletimeLimit = 128;
+
+	struct compiletimeTable {
+		double value[compiletimeLimit];
+	};
+
+	template<unsigned... Is>
+	static constexpr compiletimeTable generateCompiletimeHarmonics(seq<Is...>)
 	{
-		return std::tgamma(n+1);
+		return {{compiletimeHarmonic(Is)...}};
 	}
 
+	double Math::harmonic(unsigned n)
+	{
+		if (n < compiletimeLimit) {
+			return generateCompiletimeHarmonics(rec_seq<compiletimeLimit>{}).value[n];
+		}
+
+		const double n_recip = 1.0 / n;
+		const double n2_recip = n_recip * n_recip;
+		const double n4_recip = n2_recip * n2_recip;
+		const double n6_recip = n4_recip * n2_recip;
+		const double n8_recip = n4_recip * n4_recip;
+		const double n8_term = n8_recip / 240;
+		const double n6_term = n6_recip / 252;
+		const double n4_term = n4_recip / 120;
+		const double n2_term = n2_recip / 12;
+		const double n_term = n_recip / 2;
+		return n8_term - n6_term + n4_term - n2_term + n_term + gamma + std::log(n);
+	}
 } // namespace ogdf

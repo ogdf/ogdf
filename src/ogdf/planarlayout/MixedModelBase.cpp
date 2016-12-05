@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/planarlayout/MixedModelBase.h>
@@ -54,7 +51,7 @@ bool MixedModelBase::hasLeft (int k) const
 	const List<InOutPoint> &L = m_iops.inpoints(V[1]);
 
 	ListConstIterator<InOutPoint> it = L.begin();
-	return (it.valid() && (*it).m_adj->twinNode() == m_mmo.m_left[k]);
+	return it.valid() && (*it).m_adj->twinNode() == m_mmo.m_left[k];
 }
 
 bool MixedModelBase::hasRight(int k) const
@@ -63,7 +60,7 @@ bool MixedModelBase::hasRight(int k) const
 	const List<InOutPoint> &L = m_iops.inpoints(V[V.len()]);
 
 	ListConstIterator<InOutPoint> it = L.rbegin();
-	return (it.valid() && (*it).m_adj->twinNode() == m_mmo.m_right[k]);
+	return it.valid() && (*it).m_adj->twinNode() == m_mmo.m_right[k];
 }
 
 
@@ -687,7 +684,7 @@ void SetYCoords::getNextRegion()
 				m_xNext = m_infinity;
 			} else {
 				const InOutPoint &ip = *m_itIp;
-				m_xNext = (marked(ip.m_adj)) ? (m_x[z(m_i)] + ip.m_dx) :
+				m_xNext = marked(ip.m_adj) ? (m_x[z(m_i)] + ip.m_dx) :
 					(m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx);
 			}
 			m_onBase = (m_iNext != m_i);
@@ -698,10 +695,10 @@ void SetYCoords::getNextRegion()
 			searchNextInpoint();
 			if (m_itIpNext.valid() && ip.m_dx < 0) {
 				const InOutPoint &m_ipNext = *m_itIpNext;
-				m_xNext = (marked(m_ipNext.m_adj)) ? (m_x[z(m_i)] + m_ipNext.m_dx) :
+				m_xNext = marked(m_ipNext.m_adj) ? (m_x[z(m_i)] + m_ipNext.m_dx) :
 					(m_x[m_ipNext.m_adj->twinNode()] + outpoint(m_ipNext).m_dx);
 			} else {
-				m_xNext = (marked(ip.m_adj)) ? (m_x[z(m_i)] + ip.m_dx + 1) :
+				m_xNext = marked(ip.m_adj) ? (m_x[z(m_i)] + ip.m_dx + 1) :
 					(m_x[ip.m_adj->twinNode()] + outpoint(ip).m_dx + 1);
 			}
 
@@ -982,7 +979,7 @@ bool MixedModelBase::isRedundant(int x1, int y1, int x2, int y2, int x3, int y3)
 	int dzy2 = y3 - y2;
 	int dyx1 = x2 - x1;
 
-	if (dzy1 == 0) return (dyx1 == 0);
+	if (dzy1 == 0) return dyx1 == 0;
 
 	int f = dyx1 * dzy2;
 

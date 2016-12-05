@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -68,7 +65,7 @@ public:
 	 * @return the status of the result.
 	 */
 	ReturnType call(PlanRepLight &pr, const Array<edge> &origEdges) {
-		return doCall(pr, origEdges, 0, 0, 0);
+		return doCall(pr, origEdges, nullptr, nullptr, nullptr);
 	}
 
 	//! Inserts all edges in \a origEdges with given costs into \a pr.
@@ -84,7 +81,7 @@ public:
 		const EdgeArray<int> &costOrig,
 		const Array<edge>    &origEdges)
 	{
-		return doCall(pr, origEdges, &costOrig, 0, 0);
+		return doCall(pr, origEdges, &costOrig, nullptr, nullptr);
 	}
 
 
@@ -103,7 +100,7 @@ public:
 		const Array<edge>         &origEdges,
 		const EdgeArray<uint32_t> &edgeSubGraphs)
 	{
-		return doCall(pr, origEdges, &costOrig, 0, &edgeSubGraphs);
+		return doCall(pr, origEdges, &costOrig, nullptr, &edgeSubGraphs);
 	}
 
 
@@ -121,7 +118,7 @@ public:
 		const EdgeArray<bool> &forbiddenOrig,
 		const Array<edge>     &origEdges)
 	{
-		return doCall(pr, origEdges, 0, &forbiddenOrig, 0);
+		return doCall(pr, origEdges, nullptr, &forbiddenOrig, nullptr);
 	}
 
 	//! Inserts all edges in \a origEdges with given costs and forbidden edges into \a pr.
@@ -141,7 +138,7 @@ public:
 		const EdgeArray<bool> &forbiddenOrig,
 		const Array<edge>     &origEdges)
 	{
-		return doCall(pr, origEdges, &costOrig, &forbiddenOrig, 0);
+		return doCall(pr, origEdges, &costOrig, &forbiddenOrig, nullptr);
 	}
 
 
@@ -184,9 +181,9 @@ public:
 	ReturnType callEx(
 		PlanRepLight              &pr,
 		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig = 0,
-		const EdgeArray<bool>     *pForbiddenOrig = 0,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
+		const EdgeArray<int>      *pCostOrig = nullptr,
+		const EdgeArray<bool>     *pForbiddenOrig = nullptr,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs = nullptr)
 	{
 		return doCall(pr, origEdges, pCostOrig, pForbiddenOrig, pEdgeSubGraphs);
 	}

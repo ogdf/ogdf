@@ -691,4 +691,3 @@ bool fileCoinReadable(std::string & fileName, const std::string &dfltPrefix)
     return true;
   }
 }
-

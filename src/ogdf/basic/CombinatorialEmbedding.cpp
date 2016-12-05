@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/CombinatorialEmbedding.h>
@@ -57,9 +54,7 @@ ConstCombinatorialEmbedding::ConstCombinatorialEmbedding()
 ConstCombinatorialEmbedding::ConstCombinatorialEmbedding(const Graph &G) :
 	m_cpGraph(&G), m_rightFace(G,nullptr)
 {
-	if(!G.representsCombEmbedding()){
-			throw PreconditionViolatedException();
-	}
+	OGDF_ASSERT(G.representsCombEmbedding());
 	computeFaces();
 }
 
@@ -94,9 +89,7 @@ ConstCombinatorialEmbedding::~ConstCombinatorialEmbedding() {
 
 void ConstCombinatorialEmbedding::init(const Graph &G)
 {
-	if(!G.representsCombEmbedding()){
-		throw PreconditionViolatedException();
-	}
+	OGDF_ASSERT(G.representsCombEmbedding());
 	m_cpGraph = &G;
 	m_rightFace.init(G,nullptr);
 	computeFaces();
@@ -129,9 +122,9 @@ void ConstCombinatorialEmbedding::computeFaces()
 			if (m_rightFace[adj]) continue;
 
 #ifdef OGDF_DEBUG
-			face f = OGDF_NEW FaceElement(this,adj,m_faceIdCount++);
+			face f = new FaceElement(this,adj,m_faceIdCount++);
 #else
-			face f = OGDF_NEW FaceElement(adj,m_faceIdCount++);
+			face f = new FaceElement(adj,m_faceIdCount++);
 #endif
 
 			faces.pushBack(f);
@@ -161,9 +154,9 @@ face ConstCombinatorialEmbedding::createFaceElement(adjEntry adjFirst)
 	}
 
 #ifdef OGDF_DEBUG
-	face f = OGDF_NEW FaceElement(this,adjFirst,m_faceIdCount++);
+	face f = new FaceElement(this,adjFirst,m_faceIdCount++);
 #else
-	face f = OGDF_NEW FaceElement(adjFirst,m_faceIdCount++);
+	face f = new FaceElement(adjFirst,m_faceIdCount++);
 #endif
 
 	faces.pushBack(f);
@@ -261,12 +254,8 @@ node CombinatorialEmbedding::contract(edge e)
 
 edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
 {
-	if(m_rightFace[adjSrc] != m_rightFace[adjTgt]){
-		throw PreconditionViolatedException();
-	}
-	if(adjSrc == adjTgt){
-		throw PreconditionViolatedException();
-	}
+	OGDF_ASSERT(m_rightFace[adjSrc] == m_rightFace[adjTgt]);
+	OGDF_ASSERT(adjSrc != adjTgt);
 
 	edge e = m_pGraph->newEdge(adjSrc,adjTgt);
 
@@ -289,41 +278,31 @@ edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
 	return e;
 }
 
-edge CombinatorialEmbedding::splitFace(node v, adjEntry adjTgt)
+edge CombinatorialEmbedding::addEdgeToIsolatedNode(node v, adjEntry adjTgt)
 {
-	return splitFace(adjTgt, v, false);
-}//splitface
+	return addEdgeToIsolatedNode(adjTgt, v, false);
+}
 
-edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, node v)
+edge CombinatorialEmbedding::addEdgeToIsolatedNode(adjEntry adjSrc, node v)
 {
-	return splitFace(adjSrc, v, true);
-}//splitface
+	return addEdgeToIsolatedNode(adjSrc, v, true);
+}
 
-//incremental stuff
-//special version of the above function doing a pushback of the new edge
-//on the adjacency list of v making it possible to insert new degree 0
-//nodes into a face, end node v
-edge CombinatorialEmbedding::splitFace(adjEntry adj, node v, bool adjSrc){
+edge CombinatorialEmbedding::addEdgeToIsolatedNode(adjEntry adj, node v, bool adjSrc)
+{
+	OGDF_ASSERT(v->degree() == 0);
 
-	edge e = nullptr;
-	if(v->degree() != 0){
-		e = (adjSrc ? splitFace(adj, v->lastAdj()) : splitFace(adj, v->lastAdj()));
-	} else {
-		if(adjSrc){
-			e = m_pGraph->newEdge(adj, v);
-		} else {
-			e = m_pGraph->newEdge(v, adj);
-		}
-		face f1 = m_rightFace[adj];
-		m_rightFace[e->adjSource()] = f1;
-		f1->entries.m_adjFirst = adj;
-		f1->m_size += 2;
-		m_rightFace[e->adjTarget()] = f1;
+	edge e = adjSrc ? m_pGraph->newEdge(adj, v) : m_pGraph->newEdge(v, adj);
+	face f = m_rightFace[adj];
+	m_rightFace[e->adjSource()] = f;
+	f->m_size += 2;
+	m_rightFace[e->adjTarget()] = f;
 
-		OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
-	}
+	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+
 	return e;
 }
+
 //update face information after inserting a merger ith edge e in a copy graph
 void CombinatorialEmbedding::updateMerger(edge e, face fRight, face fLeft)
 {
@@ -463,15 +442,13 @@ void CombinatorialEmbedding::clear()
 }
 
 
-face ConstCombinatorialEmbedding::chooseFace() const
+face ConstCombinatorialEmbedding::chooseFace(std::function<bool(face)> includeFace, bool isFastTest) const
 {
-	if (numberOfFaces() == 0) return nullptr;
-
-	int k = ogdf::randomNumber(0, numberOfFaces()-1);
-	face f = firstFace();
-	while(k--) f = f->succ();
-
-	return f;
+	return *chooseIteratorFrom<internal::GraphObjectContainer<FaceElement>, face>(
+			const_cast<internal::GraphObjectContainer<FaceElement>&>(faces),
+			[&](const face &f) { return includeFace(f); },
+			isFastTest
+	);
 }
 
 

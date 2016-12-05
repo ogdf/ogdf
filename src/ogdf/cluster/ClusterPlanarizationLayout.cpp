@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/cluster/ClusterPlanarizationLayout.h>
@@ -50,8 +47,8 @@ ClusterPlanarizationLayout::ClusterPlanarizationLayout()
 {
 	m_pageRatio = 1.0;
 
-	m_planarLayouter.set(new ClusterOrthoLayout);
-	m_packer.set(new TileToRowsCCPacker);
+	m_planarLayouter.reset(new ClusterOrthoLayout);
+	m_packer.reset(new TileToRowsCCPacker);
 }
 
 
@@ -173,10 +170,12 @@ void ClusterPlanarizationLayout::call(
 			else
 				cps.call(cGraph, inSubGraph, leftEdges);
 #ifdef OGDF_DEBUG
-			//			for(edge worke : G.edges) {
-			//				if (inSubGraph[worke])
-			//					acGraph.strokeColor(worke) = "#FF0000";
-			//			}
+#if 0
+			for(edge worke : G.edges) {
+				if (inSubGraph[worke])
+					acGraph.strokeColor(worke) = "#FF0000";
+			}
+#endif
 #endif
 			//---------------------------------------------------------------
 			//now we delete the copies of all edges not in subgraph and embed
@@ -243,7 +242,7 @@ void ClusterPlanarizationLayout::call(
 		else
 		{
 			if (!connect)
-			OGDF_THROW_PARAM(PreconditionViolatedException, pvcClusterPlanar);
+				OGDF_THROW_PARAM(PreconditionViolatedException, pvcClusterPlanar);
 		}
 
 	}//if
@@ -270,11 +269,13 @@ void ClusterPlanarizationLayout::call(
 			CP.initCC(ikl);
 			CP.setOriginalEmbedding();
 
-			OGDF_ASSERT(CP.representsCombEmbedding())
+			OGDF_ASSERT(CP.representsCombEmbedding());
 
 			Layout drawing(CP);
 
-			//m_planarLayouter.get().setOptions(4);//progressive
+#if 0
+			m_planarLayouter->setOptions(4);//progressive
+#endif
 
 			adjEntry ae = nullptr;
 
@@ -283,10 +284,10 @@ void ClusterPlanarizationLayout::call(
 			//edges that are reinserted in workGraph (in the same
 			//order as leftWNodes)
 			List<edge> newEdges;
-			m_planarLayouter.get().call(CP, ae, drawing, leftWNodes, newEdges, *workGraph);
+			m_planarLayouter->call(CP, ae, drawing, leftWNodes, newEdges, *workGraph);
 
-			OGDF_ASSERT(leftWNodes.size()==newEdges.size())
-			OGDF_ASSERT(leftEdges.size()==newEdges.size())
+			OGDF_ASSERT(leftWNodes.size()==newEdges.size());
+			OGDF_ASSERT(leftEdges.size()==newEdges.size());
 
 			ListConstIterator<edge> itE = newEdges.begin();
 			ListConstIterator<edge> itEor = leftEdges.begin();
@@ -328,7 +329,9 @@ void ClusterPlanarizationLayout::call(
 			for(cluster c : workCG->clusters)
 			{
 				int clNumber = c->index();
-				//int orNumber = originalClId[c];
+#if 0
+				int orNumber = originalClId[c];
+#endif
 				cluster orCl = orCluster[c];
 
 				if (c != workCG->rootCluster())
@@ -343,18 +346,20 @@ void ClusterPlanarizationLayout::call(
 
 			// the width/height of the layout has been computed by the planar
 			// layout algorithm; required as input to packing algorithm
-			boundingBox[ikl] = m_planarLayouter.get().getBoundingBox();
+			boundingBox[ikl] = m_planarLayouter->getBoundingBox();
 
 	}//for connected components
 
-	//postProcess(acGraph);
-	//
+#if 0
+	postProcess(acGraph);
+#endif
+
 	// arrange layouts of connected components
 	//
 
 	Array<DPoint> offset(numCC);
 
-	m_packer.get().call(boundingBox,offset,m_pageRatio);
+	m_packer->call(boundingBox,offset,m_pageRatio);
 
 	// The arrangement is given by offset to the origin of the coordinate
 	// system. We still have to shift each node, edge and cluster by the offset
@@ -377,7 +382,9 @@ void ClusterPlanarizationLayout::call(
 			acGraph.y(orNode[v]) += dy;
 
 			// update cluster positions accordingly
-			//int clNumber = cGraph.clusterOf(orNode[v])->index();
+#if 0
+			int clNumber = cGraph.clusterOf(orNode[v])->index();
+#endif
 			cluster cl = cGraph.clusterOf(orNode[v]);
 
 			if ((cl->index() > 0) && !shifted[cl->index()])
@@ -391,7 +398,9 @@ void ClusterPlanarizationLayout::call(
 				if ((adj->index() & 1) == 0) continue;
 				edge e = adj->theEdge();
 
-				//edge eOr = orEdge[e];
+#if 0
+				edge eOr = orEdge[e];
+#endif
 				if (orEdge[e])
 				{
 					DPolyline &dpl = acGraph.bends(orEdge[e]);
@@ -411,7 +420,9 @@ void ClusterPlanarizationLayout::call(
 
 	if (subGraph)
 	{
-		//originalClId.init();
+#if 0
+		originalClId.init();
+#endif
 		orCluster.init();
 		orNode.init();
 		orEdge.init();

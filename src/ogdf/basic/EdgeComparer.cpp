@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,21 +28,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/EdgeComparer.h>
-#include <ogdf/basic/Math.h>
 
 
 namespace ogdf {
-
-
 
 //compares outgoing adjEntries
 int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
@@ -65,14 +59,16 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 
 	double x1a, x1b, x2a, x2b, y1a, y1b, y2a, y2b;
 
+#if 0
 	//debug stuff
-	//bool output = false;
-	//if ( ( (s1->degree() == 5) || (s2->degree() == 5)) &&
-	//	( (m_AG->type(ed1)== Graph::generalization) ||
-	//	(m_AG->type(ed2)== Graph::generalization)))
-	//{
-	//	output = true;
-	//}
+	bool output = false;
+	if ( ( (s1->degree() == 5) || (s2->degree() == 5)) &&
+		( (m_AG->type(ed1)== Graph::generalization) ||
+		(m_AG->type(ed2)== Graph::generalization)))
+	{
+		output = true;
+	}
+#endif
 
 	x1a = m_AG->x(s1);
 	x2a = m_AG->x(s2);
@@ -81,7 +77,7 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 
 
 	//meet check not yet implemented, assume same start point
-	OGDF_ASSERT(!((!OGDF_GEOM_ET.equal(x1a,x2a)) && (!(OGDF_GEOM_ET.equal(y1a,y2a)))) || (s1 != s2))
+	OGDF_ASSERT(!((!OGDF_GEOM_ET.equal(x1a,x2a)) && (!(OGDF_GEOM_ET.equal(y1a,y2a)))) || (s1 != s2));
 
 	//check if we have bends without representation node
 	//use them as second end point
@@ -169,14 +165,16 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 	}
 
 	//now we have all the points necessary to sort
-	//double dx1, dx2, dy1, dy2;
-	//dx1 = x1b - x1a;
-	//dx2 = x2b - x2a;
-	//dy1 = y1b - y1a;
-	//dy2 = y2b - y2a;
+#if 0
+	double dx1, dx2, dy1, dy2;
+	dx1 = x1b - x1a;
+	dx2 = x2b - x2a;
+	dy1 = y1b - y1a;
+	dy2 = y2b - y2a;
+#endif
 
+#if 0
 	//debug
-	/*
 	ofstream f("c:\\Temp\\Karsten\\ASorting.txt", ios::app);
 
 	f << "\nEntries at node: " << s1->index() <<"\n";
@@ -186,13 +184,15 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 	f << "Resultat: "<<-orientation(DPoint(x1a, y1a),
 		DPoint(x1b, y1b),
 		DPoint(x2b, y2b)) << "\n";
-	*/
+#endif
 
 	//hier rueckgabe Vergleich e1->id, e2->id, falls nicht selber knoten
 	//...
 	//clockwise ist -, counterclockwise ist +
 	//in AGD alle +!
-	//return -compareVectors(dx1, dy1, dx2, dy2);
+#if 0
+	return -compareVectors(dx1, dy1, dx2, dy2);
+#endif
 	//HIER fuer debuggen -davor
 
 	if (s1 == s2)
@@ -245,8 +245,9 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 		//--
 		else
 			dp = DPoint(m_AG->x(uvw)-2, m_AG->y(uvw)+1);
-		double w1 = angle(DPoint(x1a, y1a), dp, DPoint(x1b, y1b));
-		double w2 = angle(DPoint(x1a, y1a), dp, DPoint(x2b, y2b));
+		DPoint dp1a(x1a, y1a);
+		double w1 = dp1a.angle(dp, DPoint(x1b, y1b));
+		double w2 = dp1a.angle(dp, DPoint(x2b, y2b));
 		OGDF_ASSERT(w1 >= 0);
 		OGDF_ASSERT(w2 >= 0);
 
@@ -256,7 +257,8 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 		if (ed2 == ed3)
 			return -1;
 
-/*debug stuff
+#if 0
+		// debug stuff
 		if (output)
 		{
 			ofstream fout("c:\\temp\\ogdl\\EComp.txt",ios::app);
@@ -269,7 +271,8 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 			fout << "1 vor 2? " << (w1<w2? "JA" :(w1>w2?"NEIN":"Vielleicht")) <<"\n";
 
 		}//output
-*/
+#endif
+
 		if (w1 < w2)
 			return 1;
 		else if (w1 > w2) return -1;
@@ -283,16 +286,18 @@ int EdgeComparer::compare(const adjEntry &e1, const adjEntry &e2) const
 
 bool EdgeComparer::before(const DPoint &u, const DPoint &v, const DPoint &w) const
 {
-	/*
+#if 0
 	double dx1 = v.m_x - u.m_x;
 	double dx2 = w.m_x - u.m_x;
 	double dy1 = v.m_y - u.m_y;
 	double dy2 = w.m_y - u.m_y;
 
 	return (compareVectors(dx1, dy1, dx2, dy2) < 0);
-	*/
+#else
 	return orientation(u, v, w) > 0;
+#endif
 }
+
 //orientation of two vectors uv, uw:
 //does v lie to the left of the line through u and w?
 //returns 1 if v lies to the left, -1 if to the right
@@ -320,33 +325,5 @@ int EdgeComparer::orientation(
 	return 0;
 
 }//orientation
-
-
-//computes angle between vectors
-double EdgeComparer::angle(DPoint p, DPoint q, DPoint r) const
-{
-	double dx1 = q.m_x - p.m_x, dy1 = q.m_y - p.m_y;
-	double dx2 = r.m_x - p.m_x, dy2 = r.m_y - p.m_y;
-
-	//two vertices on the same place!
-	if ((dx1 == 0 && dy1 == 0) || (dx2 == 0 && dy2 == 0))
-		return 0.0;
-
-	double norm = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
-
-	double cosphi = (dx1*dx2+dy1*dy2) / sqrt(norm);
-
-	if (cosphi >= 1.0 ) return 0; if (cosphi <= -1.0 ) return Math::pi;
-
-	double phi = acos(cosphi);
-
-	if (dx1*dy2 < dy1*dx2) phi = -phi;
-
-	if (phi < 0) phi += 2*Math::pi;
-
-	return phi;
-}//angle
-
-
 
 }//namespace ogdf

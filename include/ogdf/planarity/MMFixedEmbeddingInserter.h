@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -232,7 +229,7 @@ private:
 		PlanRepExpansion &PG,
 		CombinatorialEmbedding &E,
 		node u,
-		const PlanRepExpansion::nodeSplit nsCurrent = 0);
+		const PlanRepExpansion::nodeSplit nsCurrent = nullptr);
 
 	/**
 	 * \brief Converts a dummy node to a copy of an original node.
@@ -307,24 +304,26 @@ private:
 		const PlanRepExpansion &PG,
 		const EdgeArray<bool> *forbiddenEdgeOrig) const
 	{
-		if(forbiddenEdgeOrig == 0)
+		if(forbiddenEdgeOrig == nullptr)
 			return false;
 
 		if(e->source() == m_vS || e->target() == m_vT)
 			return false;
 
-		if(m_primalNode[e->source()] != 0)
+		if(m_primalNode[e->source()] != nullptr)
 			return false;
-		if(m_primalNode[e->target()] != 0)
+		if(m_primalNode[e->target()] != nullptr)
 			return false;
 
 		adjEntry adj = m_primalAdj[e];
-		if(adj == 0) return false;
+		if(adj == nullptr) return false;
 
 		edge eOrig = PG.originalEdge(adj->theEdge());
-		if(eOrig != 0) {
-			//if((*forbiddenEdgeOrig)[eOrig] == true)
-			//	cout << "forbidden: " << eOrig << ", dual: " << e << endl;
+		if(eOrig != nullptr) {
+#if 0
+			if((*forbiddenEdgeOrig)[eOrig] == true)
+				cout << "forbidden: " << eOrig << ", dual: " << e << endl;
+#endif
 			return (*forbiddenEdgeOrig)[eOrig];
 		} else return false;
 	}

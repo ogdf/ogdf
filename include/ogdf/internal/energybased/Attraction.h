@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -58,7 +55,7 @@ public:
 		//! set multiplier for the edge length with repspect to node size to multi
 		void reinitializeEdgeLength(double multi);
 #ifdef OGDF_DEBUG
-		void printInternalData() const;
+		void printInternalData() const override;
 #endif
 private:
 	//! Average length and height of nodes is multiplied by this factor to get preferred edge length
@@ -66,7 +63,7 @@ private:
 	//! the length that that all edges should ideally have
 	double m_preferredEdgeLength;
 	//! computes the energy contributed by the two nodes if they are placed at the two given positions
-	double computeCoordEnergy(node,node, const DPoint&, const DPoint &) const;
+	double computeCoordEnergy(node,node, const DPoint&, const DPoint &) const override;
 };
 
 }// namespace ogdf

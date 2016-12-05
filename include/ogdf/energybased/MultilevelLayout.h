@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -43,7 +40,6 @@
 #include <ogdf/energybased/multilevelmixer/ScalingLayout.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/basic/PreprocessorLayout.h>
-#include <ogdf/basic/Constraints.h>
 
 namespace ogdf {
 
@@ -62,10 +58,6 @@ class OGDF_EXPORT MultilevelLayout : public LayoutModule
 
 		//! Calculates a drawing for the Graph GA.
 		virtual void call(GraphAttributes &GA) override;
-
-		//! Calculates a drawing for the Graph GA and tries to satisfy
-		//! the constraints in CG if supported.
-		virtual void call(GraphAttributes &GA, GraphConstraints &GC) override;
 
 		//Setting of the three main phases' methods
 		//! Sets the single level layout

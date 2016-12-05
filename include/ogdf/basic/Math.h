@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -54,18 +51,27 @@ public:
 	//! The constant log(4.0).
 	static const double log_of_4;
 
-    //! Returns the logarithm of \a x to the base 2.
-    template<typename T>
-	OGDF_DEPRECATED
-    static T log2(T x) {
-        OGDF_ASSERT(x > 0);
-        return std::log2(x);
-    }
+	//! The Euler-Mascheroni constant gamma
+	static const double gamma;
+
+	//! Returns the logarithm of \a x to the base 2.
+	template<typename T>
+	OGDF_DEPRECATED("Use std::log2(x).")
+	static inline T log2(T x) {
+		OGDF_ASSERT(x > 0);
+		return std::log2(x);
+	}
 
 	//! Returns the logarithm of \a x to the base 4.
-	static double log4(double x) {
-		OGDF_ASSERT(x > 0)
+	static inline double log4(double x) {
+		OGDF_ASSERT(x > 0);
 		return log(x) / log_of_4;
+	}
+
+	//! Returns +1 for val > 0, 0 for val = 0, and -1 for val < 0
+	template <typename T>
+	static inline int sgn(T val) {
+		return (T(0) < val) - (val < T(0));
 	}
 
 	//! Returns \f$n \choose k\f$.
@@ -75,12 +81,21 @@ public:
 	static double binomial_d(int n, int k);
 
 	//! Returns \a n!.
-	OGDF_DEPRECATED
-	static int factorial(int n);
+	OGDF_DEPRECATED("Use std::tgamma(n+1).")
+	static inline int factorial(int n)
+	{
+		return (int) std::tgamma(n+1);
+	}
 
 	//! Returns \a n!.
-	OGDF_DEPRECATED
-	static double factorial_d(int n);
+	OGDF_DEPRECATED("Use std::tgamma(n+1).")
+	static inline double factorial_d(int n)
+	{
+		return std::tgamma(n+1);
+	}
+
+	//! Returns the \a n-th harmonic number or 1.0 if \a n < 1.
+	static double harmonic(unsigned n);
 
 	/*!
 	 * \brief A method to obtain the rounded down binary logarithm of an 32-bit integer
@@ -88,8 +103,8 @@ public:
 	 * @param v The number of which the binary logarithm is to be determined
 	 * @return The rounded down logarithm base 2 if v is positive, -1 otherwise
 	 */
-	OGDF_DEPRECATED
-	static int floorLog2(int v) {
+	OGDF_DEPRECATED("Use std::ilogb(v).")
+	static inline int floorLog2(int v) {
 		if (v <= 0) {
 			return -1;
 		} else {
@@ -98,7 +113,7 @@ public:
 	}
 
 	//! Returns the greatest common divisor of two numbers.
-    template<typename T>
+	template<typename T>
 	static T gcd(T a, T b)
 	{
 		// If b > a, they will be swapped in the first iteration.

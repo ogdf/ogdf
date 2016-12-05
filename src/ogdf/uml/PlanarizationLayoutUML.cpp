@@ -15,7 +15,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -32,12 +32,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/uml/PlanarizationLayoutUML.h>
@@ -60,10 +57,10 @@ namespace ogdf {
 PlanarizationLayoutUML::PlanarizationLayoutUML()
 {
 	//modules
-	m_crossMin      .set(new SubgraphPlanarizerUML);
-	m_planarLayouter.set(new OrthoLayoutUML);
-	m_packer        .set(new TileToRowsCCPacker);
-	m_embedder      .set(new SimpleEmbedder);
+	m_crossMin      .reset(new SubgraphPlanarizerUML);
+	m_planarLayouter.reset(new OrthoLayoutUML);
+	m_packer        .reset(new TileToRowsCCPacker);
+	m_embedder      .reset(new SimpleEmbedder);
 
 	//parameters
 	m_pageRatio = 1.0;
@@ -97,7 +94,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 		// 1. crossing minimization
 		//---------------------------------------
 		int cr;
-		m_crossMin.get().call(pr, i, cr);
+		m_crossMin->call(pr, i, cr);
 		m_nCrossings += cr;
 
 
@@ -105,7 +102,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 		// 2. embed resulting planar graph
 		//---------------------------------------
 		adjEntry adjExternal = nullptr;
-		m_embedder.get().call(pr, adjExternal);
+		m_embedder->call(pr, adjExternal);
 
 
 		//---------------------------------------------------------
@@ -115,7 +112,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 		Layout drawing(pr);
 
 		//call the Layouter for the CC's UMLGraph
-		m_planarLayouter.get().call(pr,adjExternal,drawing);
+		m_planarLayouter->call(pr,adjExternal,drawing);
 
 		// copy layout into umlGraph
 		// Later, we move nodes and edges in each connected component, such
@@ -137,7 +134,7 @@ void PlanarizationLayoutUML::doSimpleCall(GraphAttributes &GA)
 
 		// the width/height of the layout has been computed by the planar
 		// layout algorithm; required as input to packing algorithm
-		boundingBox[i] = m_planarLayouter.get().getBoundingBox();
+		boundingBox[i] = m_planarLayouter->getBoundingBox();
 	}
 
 	//----------------------------------------
@@ -178,7 +175,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 	// with them), move later
 	// we have to distinguish between cc's with and without generalizations
 	// if the alignment option is set
-	int l_layoutOptions = m_planarLayouter.get().getOptions();
+	int l_layoutOptions = m_planarLayouter->getOptions();
 	bool l_align = ((l_layoutOptions & umlOpAlign) > 0);
 	//end alignment section
 
@@ -221,7 +218,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		}
 
 		int cr;
-		m_crossMin.get().call(pr, i, cr, &costOrig);
+		m_crossMin->call(pr, i, cr, &costOrig);
 		m_nCrossings += cr;
 
 
@@ -255,12 +252,12 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 		// distinguish between CC's with/without generalizations
 		// this changes the input layout modules options!
 		if (l_gensExist)
-			m_planarLayouter.get().setOptions(l_layoutOptions);
+			m_planarLayouter->setOptions(l_layoutOptions);
 		else
-			m_planarLayouter.get().setOptions((l_layoutOptions & ~umlOpAlign));
+			m_planarLayouter->setOptions((l_layoutOptions & ~umlOpAlign));
 
 		// call the Layouter for the CC's UMLGraph
-		m_planarLayouter.get().call(pr, adjExternal, drawing);
+		m_planarLayouter->call(pr, adjExternal, drawing);
 
 		// copy layout into umlGraph
 		// Later, we move nodes and edges in each connected component, such
@@ -282,7 +279,7 @@ void PlanarizationLayoutUML::call(UMLGraph &umlGraph)
 
 		// the width/height of the layout has been computed by the planar
 		// layout algorithm; required as input to packing algorithm
-		boundingBox[i] = m_planarLayouter.get().getBoundingBox();
+		boundingBox[i] = m_planarLayouter->getBoundingBox();
 	}//for cc's
 
 	//----------------------------------------
@@ -428,7 +425,7 @@ void PlanarizationLayoutUML::arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<
 {
 	int numCC = PG.numberOfCCs();
 	Array<DPoint> offset(numCC);
-	m_packer.get().call(boundingBox,offset,m_pageRatio);
+	m_packer->call(boundingBox,offset,m_pageRatio);
 
 	// The arrangement is given by offset to the origin of the coordinate
 	// system. We still have to shift each node and edge by the offset
@@ -485,7 +482,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 	//check necessary preconditions
 	preProcess(umlGraph);
 
-	int l_layoutOptions = m_planarLayouter.get().getOptions();
+	int l_layoutOptions = m_planarLayouter->getOptions();
 	bool l_align = ((l_layoutOptions & umlOpAlign)>0);
 
 	//--------------------------------------------------------
@@ -578,8 +575,10 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 			//face fExternal = E.maximalFace();
 			face fExternal = findBestExternalFace(PG,E);
 			adjExternal = fExternal->firstAdj();
-			//while (PG.sinkConnect(adjExternal->theEdge()))
-			//	adjExternal = adjExternal->faceCycleSucc();
+#if 0
+			while (PG.sinkConnect(adjExternal->theEdge()))
+				adjExternal = adjExternal->faceCycleSucc();
+#endif
 		}
 
 		m_nCrossings += PG.numberOfNodes() - nOrigVerticesPG;
@@ -594,12 +593,12 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 		//distinguish between CC's with/without generalizations
 		//this changes the input layout modules options!
 		if (l_gensExist)
-			m_planarLayouter.get().setOptions(l_layoutOptions);
-		else m_planarLayouter.get().setOptions((l_layoutOptions & ~umlOpAlign));
+			m_planarLayouter->setOptions(l_layoutOptions);
+		else m_planarLayouter->setOptions((l_layoutOptions & ~umlOpAlign));
 
 		//***************************************
 		//call the Layouter for the CC's UMLGraph
-		m_planarLayouter.get().call(PG,adjExternal,drawing);
+		m_planarLayouter->call(PG,adjExternal,drawing);
 
 		// copy layout into umlGraph
 		// Later, we move nodes and edges in each connected component, such
@@ -646,16 +645,19 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 						//because of the node collapse using the original
 						//edges instead of the merger copy edges (should be
 						//fixed for incremental mode) the  degree is 4
-						//if (vConnect->degree() != 3)
+#if 0
+						if (vConnect->degree() != 3)
+#else
 						if (vConnect->degree() != 4)
+#endif
 						{
 							runAdj = runAdj->faceCycleSucc();
 							continue;
 						}
 						edge eCopy = runAdj->cyclicPred()->theEdge();
-						OGDF_ASSERT(eCopy->target() == runAdj->theNode())
-						OGDF_ASSERT(PG.isGeneralization(eCopy))
-						OGDF_ASSERT(PG.original(eCopy))
+						OGDF_ASSERT(eCopy->target() == runAdj->theNode());
+						OGDF_ASSERT(PG.isGeneralization(eCopy));
+						OGDF_ASSERT(PG.original(eCopy));
 						umlGraph.bends(PG.original(eCopy)).pushBack(
 						DPoint(drawing.x(vMerger), drawing.y(vMerger)));
 						runAdj = runAdj->faceCycleSucc();
@@ -684,7 +686,7 @@ void PlanarizationLayoutUML::callFixEmbed(UMLGraph &umlGraph)
 
 		// the width/height of the layout has been computed by the planar
 		// layout algorithm; required as input to packing algorithm
-		boundingBox[i] = m_planarLayouter.get().getBoundingBox();
+		boundingBox[i] = m_planarLayouter->getBoundingBox();
 	}//for cc's
 
 	postProcess(umlGraph);

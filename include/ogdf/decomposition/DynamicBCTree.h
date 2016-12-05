@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -119,7 +116,7 @@ protected:
  * root of the BC-tree, and \e nullptr, if \a vB is \e nullptr or the root of the
  * BC-tree. The UNION/FIND-tree structures are considered.
  */
-	node parent (node vB) const;
+	node parent (node vB) const override;
 /**
  * \brief performs path condensation.
  *
@@ -169,7 +166,7 @@ public:
  * The difference between BCTree::bcproper() and DynamicBCTree::bcproper() is,
  * that the latter one considers the UNION/FIND-tree structures.
  */
-	node bcproper (node vG) const;
+	node bcproper (node vG) const override;
 /**
  * \brief returns the BC-tree-vertex representing the biconnected component
  * which a given edge of the original graph is belonging to.
@@ -180,7 +177,7 @@ public:
  * The difference between BCTree::bcproper() and DynamicBCTree::bcproper() is,
  * that the latter one considers the UNION/FIND-tree structures.
  */
-	node bcproper (edge eG) const;
+	node bcproper (edge eG) const override;
 
 /** @} @{
  * \brief returns a vertex of the biconnected components graph corresponding to
@@ -198,7 +195,7 @@ public:
  * The difference between BCTree::repVertex() and DynamicBCTree::repVertex()
  * is, that the latter one considers the UNION/FIND-tree structures.
  */
-	node repVertex (node uG, node vB) const { return BCTree::repVertex(uG,find(vB)); }
+	node repVertex (node uG, node vB) const override { return BCTree::repVertex(uG,find(vB)); }
 /**
  * \brief returns the copy of a cut-vertex in the biconnected components graph
  * which belongs to a certain B-component and leads to another B-component.
@@ -231,7 +228,7 @@ public:
  * The difference between BCTree::cutVertex() and DynamicBCTree::cutVertex()
  * is, that the latter one considers the UNION/FIND-tree structures.
  */
-	node cutVertex (node uB, node vB) const { return BCTree::cutVertex(find(uB),find(vB)); }
+	node cutVertex (node uB, node vB) const override { return BCTree::cutVertex(find(uB),find(vB)); }
 
 /** @} @{
  * \brief Update of the dynamic BC-tree after edge insertion into the original

@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -66,33 +63,33 @@ public:
 		AGC.transform();
 	}
 
-	//
-	// * \brief Computes a hierarchy layout of \a H in \a AG.
-	// * @param H is the input hierarchy.
-	// * @param AG is assigned the hierarchy layout.
-	// */
-	//void call(Hierarchy& H, GraphAttributes &AG) {
-	//	GraphCopyAttributes AGC(H,AG);
-	//	doCall(H,AGC);
-	//	HierarchyLayoutModule::dynLayerDistance(AGC, H);
-	//	HierarchyLayoutModule::addBends(AGC, H);
-	//	AGC.transform();
-	//}
+#if 0
+	/**
+	 *\brief Computes a hierarchy layout of \a H in \a AG.
+	 * @param H is the input hierarchy.
+	 * @param AG is assigned the hierarchy layout.
+	 */
+	void call(Hierarchy& H, GraphAttributes &AG) {
+		GraphCopyAttributes AGC(H,AG);
+		doCall(H,AGC);
+		HierarchyLayoutModule::dynLayerDistance(AGC, H);
+		HierarchyLayoutModule::addBends(AGC, H);
+		AGC.transform();
+	}
 
-
-	//
-	// * \brief Computes a hierarchy layout of \a H in \a AG.
-	// * @param H is the input hierarchy.
-	// * @param AG is assigned the hierarchy layout.
-	// * @param AGC is GraphCopyAttribute init. with H and AG
-	// */
-	//void call(const Hierarchy& H, GraphAttributes &, GraphCopyAttributes &AGC) {
-	//	doCall(H,AGC);
-	//}
-
+	/**
+	 * \brief Computes a hierarchy layout of \a H in \a AG.
+	 * @param H is the input hierarchy.
+	 * @param AG is assigned the hierarchy layout.
+	 * @param AGC is GraphCopyAttribute init. with H and AG
+	 */
+	void call(const Hierarchy& H, GraphAttributes &, GraphCopyAttributes &AGC) {
+		doCall(H,AGC);
+	}
 
 	//! Adds bends to edges for avoiding crossings with nodes.
-	//static void addBends(GraphCopyAttributes &AGC, HierarchyLevels &levels);
+	static void addBends(GraphCopyAttributes &AGC, HierarchyLevels &levels);
+#endif
 
 	static void dynLayerDistance(GraphCopyAttributes &AGC, HierarchyLevelsBase &levels);
 

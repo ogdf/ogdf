@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/PreprocessorLayout.h>
 
@@ -45,7 +42,7 @@ PreprocessorLayout::PreprocessorLayout()
 
 void PreprocessorLayout::call(GraphAttributes &GA)
 {
-	if (m_secondaryLayout.valid()) {
+	if (m_secondaryLayout) {
 		MultilevelGraph MLG(GA);
 		call(MLG);
 		MLG.exportAttributes(GA);
@@ -70,11 +67,11 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 			MLG.y(v, randomDouble( -sqrsize, sqrsize ));
 		}
 	}
-	if (m_secondaryLayout.valid()) {
 
+	if (m_secondaryLayout) {
 		call(*G, MLG);
 
-		m_secondaryLayout.get().call(MLG.getGraphAttributes());
+		m_secondaryLayout->call(MLG.getGraphAttributes());
 		MLG.updateReverseIndizes();
 
 		for( const EdgeData &ed : m_deletedEdges ) {

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarlayout/MMCBDoubleGrid.h>
 #include <ogdf/planarlayout/MMCBLocalStretch.h>
@@ -59,6 +56,11 @@ void MMCBBase::copyOn(int old_a[] , int new_a[])
 		new_a[i] = old_a[i];
 }
 
+enum {
+	CHANGE_NONE = 0,
+	CHANGE_X = 1,
+	CHANGE_Y = 2,
+};
 
 int MMCBBase::workOn(GridLayout &gl, node v)
 {
@@ -116,20 +118,20 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 			break;
 	}
 
-	for (int i = 0; i < 4 ; i++)
+	for (auto &elem : ev)
 	{
-		if (ev[i][0] > 0) {
-			ev[i][2] = 4 + ev[i][1] + 2;
+		if (elem[0] > 0) {
+			elem[2] = 4 + elem[1] + 2;
 
-		} else if (ev[i][0] == 0) {
-			if(ev[i][1] > 0) {
-				ev[i][2] = 0;
+		} else if (elem[0] == 0) {
+			if(elem[1] > 0) {
+				elem[2] = 0;
 			} else {
-				ev[i][2] = 4;
+				elem[2] = 4;
 			}
 
 		} else {
-			ev[i][2] = -ev[i][1]+2;
+			elem[2] = -elem[1]+2;
 		}
 	}
 
@@ -270,7 +272,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 	edge e2 = Lw[(2+lw_add) %4];
 	edge e3 = Lw[(3+lw_add) %4];
 
-	int retVal = 0;
+	int retVal = CHANGE_NONE;
 
 	switch(crossingCase)
 	{
@@ -292,9 +294,9 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 				gl.x(v) = gl.x(v)+ev[2][0]-ev[1][0];
 				gl.y(v) = gl.y(v)+ev[2][1]-ev[1][1];
 				if (ev[2][0]-ev[1][0] == 0) {
-					retVal = 2;
+					retVal = CHANGE_Y;
 				} else {
-					retVal = 1;
+					retVal = CHANGE_X;
 				}
 			}
 			break;
@@ -316,7 +318,7 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 				insertBend(gl,e3,v,old_x,old_y);
 				gl.x(v) = old_x+x_plus;
 				gl.y(v) = old_y+y_plus;
-				retVal = 3;
+				retVal = CHANGE_X | CHANGE_Y;
 			} else {
 				int old_x = gl.x(v);
 				int old_y = gl.y(v);
@@ -326,16 +328,14 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 				insertBend(gl,e3,v,old_x,old_y);
 				insertBend(gl,e1,v,gl.x(v)+ev[1][0],gl.y(v)+ev[1][1]);
 				if (ev[1][0] != 0) {
-					retVal = 1;
+					retVal = CHANGE_X;
 				} else {
-					retVal = 2;
+					retVal = CHANGE_Y;
 				}
-
 			}
 			break;
 
 		case 0:
-			retVal = 0;
 			break;
 
 		default:
@@ -345,6 +345,18 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 	return retVal;
 }
 
+static void doForEachCoordinate(const PlanRep &PG, GridLayout &gl, std::function<void(int &, int &)> func)
+{
+	for (edge e : PG.edges) {
+		for (IPoint &p : gl.bends(e)) {
+			func(p.m_x, p.m_y);
+		}
+	}
+
+	for (node v : PG.nodes) {
+		func(gl.x(v), gl.y(v));
+	}
+}
 
 //------------------------------------------------------------------
 //                         MMCBDoubleGrid
@@ -352,23 +364,22 @@ int MMCBBase::workOn(GridLayout &gl, node v)
 
 void MMCBDoubleGrid::doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L)
 {
-	for (edge e : PG.edges) {
-		for (IPoint &p : gl.bends(e)) {
-			p.m_x *= 2;
-			p.m_y *= 2;
-		}
-	}
-
-	for (node v : PG.nodes) {
-		gl.x(v) *= 2;
-		gl.y(v) *= 2;
-	}
+	doForEachCoordinate(PG, gl, [](int &x, int &y) {
+		x *= 2;
+		y *= 2;
+	});
 
 	ListConstIterator<node> itV;
 	for (node v : L)
 		workOn(gl, v);
 }
 
+static void fillSignum(Array<int> &array)
+{
+	for (int i = array.low(); i <= array.high(); i++) {
+		array[i] = Math::sgn(i);
+	}
+}
 
 //------------------------------------------------------------------
 //                        MMCBLocalStretch
@@ -377,59 +388,53 @@ void MMCBDoubleGrid::doCall(const PlanRep &PG, GridLayout &gl, const List<node> 
 void MMCBLocalStretch::doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L)
 {
 	int max_x = 0, max_y = 0;
+	int min_x = 0, min_y = 0;
 
-	for (edge e : PG.edges) {
-		for (IPoint &p : gl.bends(e)) {
-			if (p.m_x > max_x) max_x = p.m_x;
-			if (p.m_y > max_y) max_y = p.m_y;
-			p.m_x *= 2;
-			p.m_y *= 2;
-		}
-	}
+	doForEachCoordinate(PG, gl, [&](int &x, int &y) {
+		max_x = max(max_x, x);
+		min_x = min(min_x, x);
+		max_y = max(max_y, y);
+		min_y = min(min_y, y);
+		x *= 2;
+		y *= 2;
+	});
 
-	for (node v : PG.nodes) {
-		if (gl.x(v) > max_x) max_x = gl.x(v);
-		if (gl.y(v) > max_y) max_y = gl.y(v);
-		gl.x(v) *= 2;
-		gl.y(v) *= 2;
-	}
+	Array<int> change_x(min_x, max_x);
+	fillSignum(change_x);
+	Array<int> change_y(min_y, max_y);
+	fillSignum(change_y);
 
-	Array<int> change_x(0, max_x, 1);
-	Array<int> change_y(0, max_y, 1);
-
-	change_x[0] = 0;
-	change_y[0] = 0;
+	auto index = [](int pos) {
+		return pos >= 0 ? (pos + 1) / 2 : (pos - 1) / 2;
+	};
 
 	for (node v : L) {
 		int val = workOn(gl, v);
-		if (val > 0) {
-			if (val != 2)
-				change_x[(gl.x(v) + 1) / 2] = 0;
-			if (val != 1)
-				change_y[(gl.y(v) + 1) / 2] = 0;
+		if (val & CHANGE_X) {
+			change_x[index(gl.x(v))] = 0;
+		}
+		if (val & CHANGE_Y) {
+			change_y[index(gl.y(v))] = 0;
 		}
 	}
 
-	if (max_x > 1)
+	for (int i = -1; i >= min_x; i--) {
+		change_x[i] += change_x[i + 1];
+	}
 	for (int i = 1; i <= max_x; i++) {
-		change_x[i] = change_x[i] + change_x[i - 1];
+		change_x[i] += change_x[i - 1];
 	}
-	if (max_y > 1)
+	for (int i = -1; i >= min_y; i--) {
+		change_y[i] += change_y[i + 1];
+	}
 	for (int i = 1; i <= max_y; i++) {
-		change_y[i] = change_y[i] + change_y[i - 1];
+		change_y[i] += change_y[i - 1];
 	}
 
-	for (edge e : PG.edges) {
-		for (IPoint &p : gl.bends(e)) {
-			p.m_x = p.m_x - change_x[(p.m_x + 1) / 2];
-			p.m_y = p.m_y - change_y[(p.m_y + 1) / 2];
-		}
-	}
-
-	for (node v : PG.nodes) {
-		gl.x(v) = gl.x(v) - change_x[(gl.x(v) + 1) / 2];
-		gl.y(v) = gl.y(v) - change_y[(gl.y(v) + 1) / 2];
-	}
+	doForEachCoordinate(PG, gl, [&](int &x, int &y) {
+		x -= change_x[index(x)];
+		y -= change_y[index(y)];
+	});
 }
 
 

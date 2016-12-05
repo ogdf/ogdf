@@ -39,9 +39,7 @@ describe(string("MinSTCut<" + name + ">"), [](){
 
 	it("works on a more complex example", [](){
 		Graph graph;
-		for(int i = 0; i < 8; i++) {
-			graph.newNode();
-		}
+		emptyGraph(graph, 8);
 		List<node> nodes;
 		graph.allNodes(nodes);
 		EdgeArray<T> weights(graph);

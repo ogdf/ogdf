@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 
 # folder wich contains the script
 folder="$(dirname $0)" || exit 0 # abort on failure

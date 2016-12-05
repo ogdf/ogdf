@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/cluster/CPlanarEdgeInserter.h>
@@ -50,11 +47,13 @@ void CPlanarEdgeInserter::call(
 	const List<NodePair>& origEdges,
 	List<edge>& newEdges)
 {
-	OGDF_ASSERT(&E.getGraph() == &CPR)
+	OGDF_ASSERT(&E.getGraph() == &CPR);
 
 	m_originalGraph = &G;
 	FaceArray<node> nodeOfFace(E, nullptr);
-	//NodeArray<face>&, faceOfNode(m_dualGraph, 0);
+#if 0
+	NodeArray<face>&, faceOfNode(m_dualGraph, 0);
+#endif
 	EdgeArray<edge> arcRightToLeft(CPR, nullptr);//arc from srcadj face to tgtadj face
 	EdgeArray<edge> arcLeftToRight(CPR, nullptr);//vice versa
 	EdgeArray<edge> arcTwin(m_dualGraph, nullptr);
@@ -109,7 +108,7 @@ void CPlanarEdgeInserter::call(
 
 			ListIterator<cluster> itC = cList.begin();
 
-			OGDF_ASSERT(itC.valid())
+			OGDF_ASSERT(itC.valid());
 			//run over path and search for c1, c2
 			int ind = 1, ind1 = 0, ind2 = 0;
 			while (itC.valid())
@@ -203,7 +202,9 @@ void CPlanarEdgeInserter::constructDualGraph(ClusterPlanRep& CPR,
 	//the edge to be reinserted
 
 	m_dualGraph.clear();
-	//faceOfNode.init(m_dualGraph, 0);
+#if 0
+	faceOfNode.init(m_dualGraph, 0);
+#endif
 
 	//*********************************
 	//construct nodes
@@ -213,7 +214,9 @@ void CPlanarEdgeInserter::constructDualGraph(ClusterPlanRep& CPR,
 	{
 		node v = m_dualGraph.newNode();
 		nodeOfFace[f] = v;
-		//faceOfNode[v] = f;
+#if 0
+		faceOfNode[v] = f;
+#endif
 	}
 
 	//*********************************
@@ -324,11 +327,11 @@ void CPlanarEdgeInserter::findShortestPath(
 	SList<adjEntry> &crossed,
 	FaceArray<node>& nodeOfFace)
 {
-	OGDF_ASSERT(s != t)
+	OGDF_ASSERT(s != t);
 
-	OGDF_ASSERT(sDummy->graphOf() == tDummy->graphOf())
+	OGDF_ASSERT(sDummy->graphOf() == tDummy->graphOf());
 
-	OGDF_ASSERT(s->graphOf() == t->graphOf())
+	OGDF_ASSERT(s->graphOf() == t->graphOf());
 
 	NodeArray<edge> spPred(m_dualGraph,nullptr);
 	QueuePure<edge> queue;
@@ -357,11 +360,13 @@ void CPlanarEdgeInserter::findShortestPath(
 	// Start with outgoing edges
 	for(adjEntry adj : sDummy->adjEntries) {
 		// starting edges of bfs-search are all edges leaving s
-		//edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
-		//m_primalAdj[eDual] = adj;
+#if 0
+		edge eDual = m_dual.newEdge(m_vS, m_nodeOf[E.rightFace(adj)]);
+		m_primalAdj[eDual] = adj;
+#endif
 		queue.append(adj->theEdge());
 	}
-	OGDF_ASSERT(!queue.empty())
+	OGDF_ASSERT(!queue.empty());
 	// actual search (using bfs on directed dual)
 	for( ; ; )
 	{
@@ -393,7 +398,6 @@ void CPlanarEdgeInserter::findShortestPath(
 					v = eDual->source();
 				} while(v != sDummy);
 
-				//break;
 				//now check if the current solution is cheaper than bestCrossed
 				//min cross is 1 at this point
 				bool betterSol = false;
@@ -459,16 +463,14 @@ void CPlanarEdgeInserter::findShortestPath(
 	}
 	while (!delMe.empty())
 		m_dualGraph.delEdge(delMe.popFrontRet());
-/*
+#if 0
 	// remove augmented edges again
 	while ((adj = sDummy->firstAdj()) != 0)
 		m_dualGraph.delEdge(adj->theEdge());
 
 	while ((adj = tDummy->firstAdj()) != 0)
 		m_dualGraph.delEdge(adj->theEdge());
-
-
-	*/
+#endif
 	m_dualGraph.resetEdgeIdCount(oldIdCount);
 }//shortestPath
 
@@ -495,7 +497,9 @@ edge CPlanarEdgeInserter::insertEdge(
 	Stack<node> delS;
 	for(adjEntry adj : crossed)
 	{
-		//m_dualGraph.delNode(nodeOfFace[E.rightFace(*it)]);
+#if 0
+		m_dualGraph.delNode(nodeOfFace[E.rightFace(*it)]);
+#endif
 		if (!delS.empty())
 		{
 			if (!(delS.top() == nodeOfFace[E.rightFace(adj)]))
@@ -515,15 +519,15 @@ edge CPlanarEdgeInserter::insertEdge(
 	{
 		m_dualGraph.delNode(delS.pop());
 	}
-	/*
+#if 0
 	for(it = crossed.begin(); it.valid(); it++)
 	{
-	//it != crossed.rbegin(); ++it) {
 		//only dummy edge
 		if (!( (CPR.copy(np.m_src) == (*it)->theNode())
 			 || (CPR.copy(np.m_tgt) == (*it)->theNode())))
 			m_dualGraph.delNode(nodeOfFace[E.rightFace(*it)]);
-	}*/
+	}
+#endif
 
 	//---------------------
 	//update original Graph
@@ -531,15 +535,15 @@ edge CPlanarEdgeInserter::insertEdge(
 	adjEntry orE;
 	SListConstIterator<adjEntry> it = crossed.begin();
 	edge e = CPR.original((*it)->theEdge());
-	OGDF_ASSERT(e)
-	OGDF_ASSERT((np.m_src == e->source()) || (np.m_src == e->target()))
+	OGDF_ASSERT(e);
+	OGDF_ASSERT((np.m_src == e->source()) || (np.m_src == e->target()));
 	if (np.m_src == e->source()) orE = e->adjSource();
 	else orE = e->adjTarget();
 	adjEntry orF;
 	it = crossed.rbegin();
 	e = CPR.original((*it)->theEdge());
-	OGDF_ASSERT(e)
-	OGDF_ASSERT((np.m_tgt == e->source()) || (np.m_tgt == e->target()))
+	OGDF_ASSERT(e);
+	OGDF_ASSERT((np.m_tgt == e->source()) || (np.m_tgt == e->target()));
 	if (np.m_tgt == e->source()) orF = e->adjSource();
 	else orF = e->adjTarget();
 	//*****************
@@ -552,7 +556,7 @@ edge CPlanarEdgeInserter::insertEdge(
 	// insert new face nodes into dual
 	const List<edge> &path = CPR.chain(orEdge);
 
-	OGDF_ASSERT(faceCluster.size() == path.size())
+	OGDF_ASSERT(faceCluster.size() == path.size());
 	ListConstIterator<cluster> itC = faceCluster.begin();
 
 	for(edge ei : path)
@@ -597,15 +601,19 @@ edge CPlanarEdgeInserter::insertEdge(
 			{
 				arcLeftToRight[adj->theEdge()] = eLR;
 				arcRightToLeft[adj->theEdge()] = eRL;
-				//m_arcOrig[eLR] = e->adjTarget();
-				//m_arcOrig[eRL] = e->adjSource();
+#if 0
+				m_arcOrig[eLR] = e->adjTarget();
+				m_arcOrig[eRL] = e->adjSource();
+#endif
 			}
 			else
 			{
 				arcLeftToRight[adj->theEdge()] = eRL;
 				arcRightToLeft[adj->theEdge()] = eLR;
-				//m_arcOrig[eRL] = e->adjTarget();
-				//m_arcOrig[eLR] = e->adjSource();
+#if 0
+				m_arcOrig[eRL] = e->adjTarget();
+				m_arcOrig[eLR] = e->adjSource();
+#endif
 			}
 
 		}
@@ -633,15 +641,19 @@ edge CPlanarEdgeInserter::insertEdge(
 			{
 				arcLeftToRight[adj->theEdge()] = eLR;
 				arcRightToLeft[adj->theEdge()] = eRL;
-				//m_arcOrig[eLR] = e->adjTarget();
-				//m_arcOrig[eRL] = e->adjSource();
+#if 0
+				m_arcOrig[eLR] = e->adjTarget();
+				m_arcOrig[eRL] = e->adjSource();
+#endif
 			}
 			else
 			{
 				arcLeftToRight[adj->theEdge()] = eRL;
 				arcRightToLeft[adj->theEdge()] = eLR;
-				//m_arcOrig[eRL] = e->adjTarget();
-				//m_arcOrig[eLR] = e->adjSource();
+#if 0
+				m_arcOrig[eRL] = e->adjTarget();
+				m_arcOrig[eLR] = e->adjSource();
+#endif
 			}
 
 		}
@@ -663,29 +675,37 @@ void CPlanarEdgeInserter::setArcStatus(
 {
 	cluster c1 = clusterOfFaceNode[eArc->source()];
 	cluster c2 = clusterOfFaceNode[eArc->target()];
-			//cout<< "Searching for clusters " << c1 << " and " << c2 << "\n";
+#if 0
+	cout<< "Searching for clusters " << c1 << " and " << c2 << "\n";
+#endif
 	List<cluster> cList;
 
 	//we compute the cluster tree path between oS and oT
 	CG.commonClusterPath(oSrc, oTgt, cList);
 	ListIterator<cluster> itC = cList.begin();
-	OGDF_ASSERT(itC.valid())
+	OGDF_ASSERT(itC.valid());
 	//run over path and search for c1, c2
 	int ind = 0, ind1 = 0, ind2 = 0;
 	while (itC.valid())
 	{
 		cluster cCheck = (*itC);
-		//cout << "Checking " << cCheck << "\n" << flush;
+#if 0
+		cout << "Checking " << cCheck << "\n" << flush;
+#endif
 
 		if (cCheck == c1)
 		{
 			ind1 = ind;
-				 //cout << "Found c1 " << cCheck << " at number "<< ind << "\n" << flush;
+#if 0
+			cout << "Found c1 " << cCheck << " at number "<< ind << "\n" << flush;
+#endif
 		}//if
 		if (cCheck == c2)
 		{
 			ind2 = ind;
-				 //cout << "Found c2 " << cCheck << " at number "<< ind << "\n" << flush;
+#if 0
+			cout << "Found c2 " << cCheck << " at number "<< ind << "\n" << flush;
+#endif
 		}//if
 
 		++itC;
@@ -698,7 +718,7 @@ void CPlanarEdgeInserter::setArcStatus(
 
 	//**********
 	//set status
-	OGDF_ASSERT(arcTwin[eArc])
+	OGDF_ASSERT(arcTwin[eArc]);
 	if ((ind1 > 0 ) && (ind2 > 0))
 	{
 		if (ind1 == ind2) //bidirectional
@@ -819,4 +839,3 @@ void CPlanarEdgeInserter::writeGML(ostream &os, const Layout &drawing)
 
 
 } // end namespace ogdf
-

@@ -946,6 +946,3 @@ forcing_constraint_action::~forcing_constraint_action()
   // delete [] actions_; MS Visual C++ V6 can not compile
   deleteAction(actions_,action *);
 }
-
-
-

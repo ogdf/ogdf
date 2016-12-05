@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -121,13 +118,10 @@ inline void printProfiledTime(double t, const char* text) { std::cout << t <<"s\
 inline void printProfiledTime(double t, double sum, const char* text) { std::cout << t <<"s\t" << text << "\t" << (t / sum)*100.0 <<"%"<< std::endl; }
 
 //! 16-byte aligned memory allocation macro
-#define MALLOC_16(s) System::alignedMemoryAlloc16((s))
+#define OGDF_MALLOC_16(s) System::alignedMemoryAlloc16((s))
 
 //! 16-byte aligned memory deallocation macro
-#define FREE_16(ptr) System::alignedMemoryFree((ptr))
-
-//! square root of two
-#define SQRT_OF_TWO 1.4142135623730950488016887242097
+#define OGDF_FREE_16(ptr) System::alignedMemoryFree((ptr))
 
 //! common template for bit-interleaving to compute the morton number  assumes sizeOf(MNR_T) = 2*sizeOf(C_T)
 template<typename MNR_T, typename C_T>
@@ -222,9 +216,9 @@ public:
 		m_numNodesChoosen++;
 	}
 
-	bool isAvailable(node v) const { return (m_nodeIndex[v]>=m_numNodesChoosen); }
+	bool isAvailable(node v) const { return m_nodeIndex[v] >= m_numNodesChoosen; }
 
-	//! number of nodes available;
+	//! number of nodes available
 	int nodesLeft() const { return m_numNodes - m_numNodesChoosen; }
 
 private:

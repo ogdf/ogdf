@@ -14,7 +14,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -31,16 +31,11 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/basic.h>
-
-#ifdef USE_ABACUS
 
 #include <ogdf/internal/cluster/CPlanarity_Master.h>
 #include <ogdf/internal/cluster/CPlanarity_Sub.h>
@@ -89,14 +84,18 @@ CPlanarityMaster::CPlanarityMaster(
 		CP_MasterBase(C, heuristicLevel, heuristicRuns, heuristicOEdgeBound, heuristicNPermLists,
 		kuratowskiIterations, subdivisions, kSupportGraphs, kHigh, kLow, perturbation, branchingGap,
 		time, dopricing, numAddVariables, strongConstraintViolation, strongVariableViolation), m_ca(nullptr), m_ssg(nullptr)
-	//Master("CPlanarity", true, false, OptSense::Min) //no pricing so far
+#if 0
+	Master("CPlanarity", true, false, OptSense::Min) //no pricing so far
+#endif
 {
 
+#if 0
 	// Reference to the given ClusterGraph and the underlying Graph.
-	//m_C = &C;
-	//m_G = &(C.getGraph());
+	m_C = &C;
+	m_G = &(C.getGraph());
 	// Create a copy of the graph as we need to modify it
-	//m_solutionGraph = new GraphCopy(*m_G);
+	m_solutionGraph = new GraphCopy(*m_G);
+#endif
 
 	// Define the maximum number of variables needed.
 	// The actual number needed may be much smaller, so there
@@ -154,8 +153,10 @@ CPlanarityMaster::CPlanarityMaster(
 
 
 CPlanarityMaster::~CPlanarityMaster() {
-	//delete m_maxCpuTime; done in base class
-	//delete m_solutionGraph; done in base class
+#if 0
+	delete m_maxCpuTime; // done in base class
+	delete m_solutionGraph; // done in base class
+#endif
 	if (m_ssg != nullptr) delete m_ssg;
 }
 
@@ -191,7 +192,7 @@ void CPlanarityMaster::updateBestSubGraph(List<nodePair> &connection) {
 	}
 
 #ifdef OGDF_DEBUG
-	GraphIO::writeGML(*m_solutionGraph, "UpdateSolutionGraph.gml");
+	GraphIO::write(*m_solutionGraph, "UpdateSolutionGraph.gml", GraphIO::writeGML);
 	//Just for special debugging purposes:
 	if (true) {
 		ClusterArray<cluster> ca(*m_C);
@@ -218,7 +219,7 @@ void CPlanarityMaster::updateBestSubGraph(List<nodePair> &connection) {
 			cout << &GG << "\n";
 			CGA.strokeColor(e) = "#FF0000";
 		}
-		GraphIO::writeGML(CGA, "PlanarExtension.gml");
+		GraphIO::write(CGA, "PlanarExtension.gml", GraphIO::writeGML);
 	}
 #endif
 }
@@ -246,7 +247,9 @@ double CPlanarityMaster::clusterConnection(cluster c, GraphCopy &gc) {
 	// to make the cluster induced graph connected.
 	if (c->cCount() == 0) { 	//cluster \a c is a leaf cluster
 		GraphCopy *inducedC = new GraphCopy((const Graph&) gc);
-		//List<node> clusterNodes;
+#if 0
+		List<node> clusterNodes;
+#endif
 		//c->getClusterNodes(clusterNodes); // \a clusterNodes now contains all (original) nodes of cluster \a c.
 		for (node w : m_cNodes[c]) {
 			vInC[gc.copy(w)] = true;
@@ -278,7 +281,9 @@ double CPlanarityMaster::clusterConnection(cluster c, GraphCopy &gc) {
 
 		// Create cluster induced graph.
 		GraphCopy *inducedC = new GraphCopy((const Graph&)gc);
-		//List<node> clusterNodes;
+#if 0
+		List<node> clusterNodes;
+#endif
 		//c->getClusterNodes(clusterNodes); //\a clusterNodes now contains all (original) nodes of cluster \a c.
 		for (node w : m_cNodes[c]) {
 			vInC[gc.copy(w)] = true;
@@ -387,7 +392,8 @@ bool CPlanarityMaster::goodVar(node a, node b) {
 	//we may need to add such variables as we could have made the bad
 	//decision before and need to detect this...
 
-/*//or do a simple planarity check in advance
+	//or do a simple planarity check in advance
+#if 0
 	Logger::slout() << "Good Var? " << a << "->" << b << ": ";
 	GraphCopy GC(*m_G);
 	edge e = GC.newEdge(GC.copy(a),GC.copy(b));
@@ -395,13 +401,15 @@ bool CPlanarityMaster::goodVar(node a, node b) {
 	int ret =  bm.planarDestructive(GC);
 	Logger::slout() << ret << "\n";
 	return ret;
-	*/
+#endif
 }
 
 // Create variables for complete connectivity - any solution allowed
 void CPlanarityMaster::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 {
-	//initVars.clear(); We don't care if there are already vars added
+#if 0
+	initVars.clear(); // We don't care if there are already vars added
+#endif
 	//We create a copy of the clustergraph and insert connections to
 	//make the clusters connected. Afterwards, we check if the complements
 	//need to be made connected and add corresponding edges
@@ -472,8 +480,10 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 
 	// First we create a NodeArray to mark what we have seen already
 	NodeArray<int> mark(*m_G, 0); //value 0 means not touched so far
-	//List<node> cnodes;
-	//c->getClusterNodes(cnodes);
+#if 0
+	List<node> cnodes;
+	c->getClusterNodes(cnodes);
+#endif
 	for(node v : getClusterNodes(c)) {
 		mark[v] = 1; // value 1 means part of the cluster, must be skipped
 	}
@@ -634,7 +644,6 @@ void CPlanarityMaster::addExternalConnections(cluster c, List<CPlanarEdgeVar*>& 
 			}// if new satchel
 		}
 	}
-
 }//addexternalconnections
 
 //! Create variables for inner cluster connections in case we search
@@ -677,7 +686,6 @@ void CPlanarityMaster::addInnerConnections(cluster c, List<CPlanarEdgeVar*>& con
 		}
 		++it;
 	}
-
 }
 
 
@@ -688,9 +696,11 @@ void CPlanarityMaster::generateVariablesForFeasibility(
 		List<CPlanarEdgeVar*>& connectVars)
 {
 	List<ChunkConnection*> cpy(ccons);
-//	for(ChunkConnection *cc : cpy) {
-//		cc->printMe();
-//	}
+#if 0
+	for(ChunkConnection *cc : cpy) {
+		cc->printMe();
+	}
+#endif
 
 	//First we check which of the constraints are already covered by existing
 	//connect vars and delete them.
@@ -729,10 +739,12 @@ void CPlanarityMaster::generateVariablesForFeasibility(
 	}
 
 	OGDF_ASSERT(cpy.size()==0);
-	//Logger::slout() << "Creating " << creationBuffer.size() << " Connect-Variables for feasibility\n";
+#if 0
+	Logger::slout() << "Creating " << creationBuffer.size() << " Connect-Variables for feasibility\n";
+#endif
 	m_varsInit = creationBuffer.size();
 	// realize creationList
-	for(int i = creationBuffer.size(); i-->0;) {
+	for(int i = creationBuffer.size(); i-- > 0;) {
 	  connectVars.pushBack( createVariable( creationBuffer[i] ) );
 	}
 }//generateVariablesForFeasability
@@ -742,7 +754,9 @@ void CPlanarityMaster::initializeOptimization() {
 	m_solState = ss_udf;
 	//we don't try heuristic improvement (edge addition)
 	heuristicLevel(0);
-	//enumerationStrategy(BreadthFirst);
+#if 0
+	enumerationStrategy(BreadthFirst);
+#endif
 	// Create an analysis object to check for vertex activity state
 	// Todo: As a partition into independent bags has to be done
 	// externally, we could save work by using these results instead
@@ -783,7 +797,7 @@ void CPlanarityMaster::initializeOptimization() {
 	if (m_shrink)
 	{
 #ifdef OGDF_DEBUG
-Logger::slout() << "Starting shrinking\n";
+		Logger::slout() << "Starting shrinking\n";
 #endif
 		// We check for two restrictions:
 		// Only edges connecting bags in a cluster
@@ -800,8 +814,6 @@ Logger::slout() << "Starting shrinking\n";
 			if (c!=m_C->rootCluster())
 				addExternalConnections(c, connectVars);
 		}
-
-
 	}
 	else {
 		// The edge check here is slow, can be sped up as we only handle
@@ -835,7 +847,7 @@ Logger::slout() << "Starting shrinking\n";
 	//values is intermingled with other sections, so in order not to mess it up,
 	//I leave it for now as it is, wasting computation time. KK
 
-		int nChunks = 0;
+	int nChunks = 0;
 
 	List<ChunkConnection*> constraintsCC;
 
@@ -851,9 +863,10 @@ Logger::slout() << "Starting shrinking\n";
 	// Iterate over all clusters of the Graph
 	ListConstIterator<node> it;
 	for(cluster c : m_C->clusters) {
-
-		//List<node> clusterNodes;
-		//c->getClusterNodes(clusterNodes);
+#if 0
+		List<node> clusterNodes;
+		c->getClusterNodes(clusterNodes);
+#endif
 
 		// Compute the cluster-induced Subgraph
 		it = getClusterNodes(c).begin();
@@ -898,25 +911,32 @@ Logger::slout() << "Starting shrinking\n";
 	   test how fast the implementation is when checking non-planar graphs,
 	   therefore the code is not deleted. However, in this case first the
 	   alternative part for the shrinked search space model needs to be added,
-	   as so far all node pairs are added to the constraint.
+	   as so far all node pairs are added to the constraint. */
+#if 0
 	//------------Creation of MaxPlanarEdges-Constraints---------------//
 
 	List<MaxPlanarEdgesConstraint*> constraintsMPE;
 
 	int nMaxPlanarEdges = 3*m_G->numberOfNodes() - 6 - m_G->numberOfEdges();
-//temp removal of all mpe
+	//temp removal of all mpe
 	if (m_G->numberOfNodes() > 2)
 		constraintsMPE.pushBack(new MaxPlanarEdgesConstraint(this,nMaxPlanarEdges));
 
-	//List<node> clusterNodes;
+#if 0
+	List<node> clusterNodes;
+#endif
 	List<nodePair> clusterEdges;
 	for(cluster c : m_C->clusters) {
 
 		if (c == m_C->rootCluster()) continue;
-		//clusterNodes.clear();
+#if 0
+		clusterNodes.clear();
+#endif
 		clusterEdges.clear();
 		const List<node> &clusterNodes = getClusterNodes(c);
-		//c->getClusterNodes(clusterNodes);
+#if 0
+		c->getClusterNodes(clusterNodes);
+#endif
 		if (clusterNodes.size() >= 4) {
 			nodePair np;
 			ListConstIterator<node> it;
@@ -933,7 +953,8 @@ Logger::slout() << "Starting shrinking\n";
 			//subtract their number, could use edge number from subgraph computation above
 			constraintsMPE.pushBack(new MaxPlanarEdgesConstraint(this,maxPlanarEdges,clusterEdges));
 		}
-	}*/
+	}
+#endif
 
 	//------------------------Adding Constraints to the Pool---------------------//
 
@@ -945,14 +966,16 @@ Logger::slout() << "Starting shrinking\n";
 		initConstraints.push(cc);
 	}
 	//KK: Could be slow however, so comparison would be nice
-	//ListConstIterator<MinimalClusterConnection*> mccIt;
-	//for (mccIt = constraintsMCC.begin(); mccIt.valid(); ++mccIt) {
-	//	initConstraints.push(*mccIt);
-	//}
-	//ListConstIterator<MaxPlanarEdgesConstraint*> mpeIt;
-	//for (mpeIt = constraintsMPE.begin(); mpeIt.valid(); ++mpeIt) {
-	//	initConstraints.push(*mpeIt);
-	//}
+#if 0
+	ListConstIterator<MinimalClusterConnection*> mccIt;
+	for (mccIt = constraintsMCC.begin(); mccIt.valid(); ++mccIt) {
+		initConstraints.push(*mccIt);
+	}
+	ListConstIterator<MaxPlanarEdgesConstraint*> mpeIt;
+	for (mpeIt = constraintsMPE.begin(); mpeIt.valid(); ++mpeIt) {
+		initConstraints.push(*mpeIt);
+	}
+#endif
 
 	//---------------------Create Search Space Graph with initial variables-//
 	// Currently this graph is only used for mincut in CPlanarity_Sub
@@ -1002,8 +1025,10 @@ Logger::slout() << "Starting shrinking\n";
 
 		for (edge e : le)
 		{
-			//cout << (*it)->graphOf() << "\n";
-			//cout << &GG << "\n";
+#if 0
+			cout << (*it)->graphOf() << "\n";
+			cout << &GG << "\n";
+#endif
 			CGA.strokeColor(e) = "#FF0000";
 		}
 
@@ -1014,8 +1039,9 @@ Logger::slout() << "Starting shrinking\n";
 			CGA.strokeWidth(cc) = 1.0;
 
 		}
-		GraphIO::writeGML(CGA, "CompleteExtension.gml");
-		GraphIO::writeGML(CG, "CompleteExtensionCG.gml");
+		ofstream of("CompleteExtension.gml");
+		GraphIO::writeGML(CGA, of);
+		GraphIO::write(CG, "CompleteExtensionCG.gml", GraphIO::writeGML);
 	}
 #endif
 	//-------------------------------
@@ -1038,10 +1064,12 @@ Logger::slout() << "Starting shrinking\n";
 	//---------------------Initialize Lower Bound---------------------------//
 
 	//if we check only for c-planarity, we cannot set bounds
-	//if (!m_checkCPlanar)
-	//{
-		//This seems to be no good practice with ABACUS
-		//dualBound(heuristicInitialLowerBound()); // TODO-TESTING
+#if 0
+	if (!m_checkCPlanar)
+	{
+		This seems to be no good practice with ABACUS
+		dualBound(heuristicInitialLowerBound()); // TODO-TESTING
+#endif
 
 #ifdef OGDF_DEBUG
 		cout << "Dualbound: "<<dualBound()<<"\n";
@@ -1049,12 +1077,16 @@ Logger::slout() << "Starting shrinking\n";
 #endif
 	//---------------------Initialize Upper Bound---------------------------//
 	//TODO: Should be working here but abacus wont work if set
-		//primalBound(heuristicInitialUpperBound());
+#if 0
+	primalBound(heuristicInitialUpperBound());
+#endif
 	//TODO: Check bound initialization here
 
 	//----------------------Setting Parameters------------------------------//
 
-//	conElimMode(Master::NonBinding);
+#if 0
+	conElimMode(Master::NonBinding);
+#endif
 	maxCpuTime(*m_maxCpuTime);
 
 	Logger::ssout() << "#Nodes: " << m_G->numberOfNodes() << "\n";
@@ -1096,11 +1128,15 @@ void CPlanarityMaster::terminateOptimization() {
 	Logger::slout() << "Terminate Optimization:\n";
 	Logger::slout() << "(primal Bound: " << primalBound() << ")\n";
 	Logger::slout() << "(dual Bound: " << dualBound() << ")\n";
-	//if(m_checkCPlanar2) {
-	Logger::slout() << "*** " << (isCP() ? "" : "NON ") << "C-PLANAR ***\n";
-	//} else {
-	//	Logger::slout() << "*** " << (feasibleFound() ? "" : "NON ") << "C-PLANAR ***\n";
-	//}
+#if 0
+	if(m_checkCPlanar2) {
+#endif
+		Logger::slout() << "*** " << (isCP() ? "" : "NON ") << "C-PLANAR ***\n";
+#if 0
+	} else {
+		Logger::slout() << "*** " << (feasibleFound() ? "" : "NON ") << "C-PLANAR ***\n";
+	}
+#endif
 	Logger::slout() << "=================================================\n";
 
 	Logger::ssout() << "\n";
@@ -1129,8 +1165,8 @@ void CPlanarityMaster::terminateOptimization() {
 	Logger::ssout() << pre<<"#Vars-unused: " << m_inactiveVariables.size() << "\n";
 	Logger::ssout() << pre<<"KuraRepair-Stat: <";
 
-	for(int i =0; i<m_repairStat.size(); ++i) {
-		Logger::ssout() << m_repairStat[i] << ",";
+	for(auto &elem : m_repairStat) {
+		Logger::ssout() << elem << ",";
 	}
 	Logger::ssout() << ">\n";
 
@@ -1170,6 +1206,3 @@ void CPlanarityMaster::terminateOptimization() {
 	globalPrimalBound = primalBound();
 	globalDualBound = dualBound();
 }
-
-
-#endif // USE_ABACUS

@@ -65,8 +65,10 @@ inline  int  toInt     (Var v)              { return v; }
 inline  int  toInt     (Lit p)              { return p.x; }
 inline  Lit  toLit     (int i)              { Lit p; p.x = i; return p; }
 
-//const Lit lit_Undef = mkLit(var_Undef, false);  // }- Useful special constants.
-//const Lit lit_Error = mkLit(var_Undef, true );  // }
+#if 0
+const Lit lit_Undef = mkLit(var_Undef, false);  // }- Useful special constants.
+const Lit lit_Error = mkLit(var_Undef, true );  // }
+#endif
 
 const Lit lit_Undef = { -2 };  // }- Useful special constants.
 const Lit lit_Error = { -1 };  // }
@@ -94,7 +96,9 @@ public:
 	lbool()       : value(0) { }
 	explicit lbool(bool x) : value(!x) { }
 
-	//bool  operator == (lbool b) const { return ( (b.value & 2) & (value & 2) ) | (!(b.value & 2) & (value == b.value)); }
+#if 0
+	bool  operator == (lbool b) const { return ( (b.value & 2) & (value & 2) ) | (!(b.value & 2) & (value == b.value)); }
+#endif
 	bool  operator == (lbool b) const {
 		return (( (b.value & 2) & (value & 2) ) | (((b.value & 2) == 0) & (value == b.value))) != 0;
 	}
@@ -277,7 +281,9 @@ class OccLists
 	OccLists(const Deleted& d) : deleted(d) {}
 
 	void  init      (const Idx& idx){ occs.growTo(toInt(idx)+1); dirty.growTo(toInt(idx)+1, 0); }
-	// Vec&  operator[](const Idx& idx){ return occs[toInt(idx)]; }
+#if 0
+	Vec&  operator[](const Idx& idx){ return occs[toInt(idx)]; }
+#endif
 	Vec&  operator[](const Idx& idx){ return occs[toInt(idx)]; }
 	Vec&  lookup    (const Idx& idx){ if (dirty[toInt(idx)]) clean(idx); return occs[toInt(idx)]; }
 
@@ -379,8 +385,10 @@ class CMap
 |________________________________________________________________________________________________@*/
 inline Lit Clause::subsumes(const Clause& other) const
 {
-	//if (other.size() < size() || (extra.abst & ~other.extra.abst) != 0)
-	//if (other.size() < size() || (!learnt() && !other.learnt() && (extra.abst & ~other.extra.abst) != 0))
+#if 0
+	if (other.size() < size() || (extra.abst & ~other.extra.abst) != 0)
+	if (other.size() < size() || (!learnt() && !other.learnt() && (extra.abst & ~other.extra.abst) != 0))
+#endif
 	assert(!header.learnt);   assert(!other.header.learnt);
 	assert(header.has_extra); assert(other.header.has_extra);
 	if (other.header.size < header.size || (data[header.size].abs & ~other.data[other.header.size].abs) != 0)

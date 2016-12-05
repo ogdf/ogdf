@@ -870,4 +870,3 @@ void clp_free(void * oldArray);
   return (irtcod);
 } /* c_ekkcmfc */
 #endif
-

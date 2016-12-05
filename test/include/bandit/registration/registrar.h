@@ -16,4 +16,10 @@ namespace bandit { namespace detail {
 #define go_bandit \
   static bandit::detail::spec_registrar bandit_registrar
 
+#define SPEC_BEGIN(name)    \
+go_bandit([]{
+
+#define SPEC_END            \
+});
+
 #endif

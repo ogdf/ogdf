@@ -743,5 +743,3 @@ transferCosts(CoinPresolveMatrix * prob)
   //printf("new bias %g\n",bias);
   prob->dobias_ = bias;
 }
-
-

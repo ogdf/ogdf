@@ -13,7 +13,7 @@
   The reduced cost of x_j is d_j = c_j - y*a_j (1). Assume minimization,
   so that at optimality d_j >= 0 for x_j nonbasic at lower bound, and
   d_j <= 0 for x_j nonbasic at upper bound.
- 
+
   For a slack variable s_i, c_(n+i) = 0 and a_(n+i) is a unit vector, hence
   d_(n+i) = -y_i. If s_i has a finite lower bound and no upper bound, we
   must have y_i <= 0 at optimality. Similarly, if s_i has no lower bound and a
@@ -49,5 +49,3 @@ class remove_dual_action : public CoinPresolveAction {
 					 const CoinPresolveAction *next);
 };
 #endif
-
-

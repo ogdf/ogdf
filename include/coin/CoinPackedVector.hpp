@@ -71,9 +71,9 @@ Here is a sample usage:
     assert( r.indices ()[2]== 4  );
     assert( r.elements()[2]==40. );
     assert( r.indices ()[3]== 2  );
-    assert( r.elements()[3]==50. );    
+    assert( r.elements()[3]==50. );
 
-    // access original position of index    
+    // access original position of index
     assert( r.originalPosition()[0]==2 );
     assert( r.originalPosition()[1]==0 );
     assert( r.originalPosition()[2]==1 );
@@ -88,7 +88,7 @@ Here is a sample usage:
 
     // Restore orignal sort order
     r.sortOriginalOrder();
-    
+
     assert( r.indices ()[0]== 1  );
     assert( r.elements()[0]==10. );
     assert( r.indices ()[1]== 4  );
@@ -122,7 +122,7 @@ Here is a sample usage:
 */
 class CoinPackedVector : public CoinPackedVectorBase {
    friend void CoinPackedVectorUnitTest();
-  
+
 public:
    /**@name Get methods. */
    //@{
@@ -141,10 +141,10 @@ public:
        function returns the vector: 0, 1, 2, ..., size()-1. */
    const int * getOriginalPosition() const { return origIndices_; }
    //@}
- 
+
    //-------------------------------------------------------------------
    // Set indices and elements
-   //------------------------------------------------------------------- 
+   //-------------------------------------------------------------------
    /**@name Set methods */
    //@{
    /// Reset the vector (as if were just created an empty vector)
@@ -176,11 +176,11 @@ public:
        to be checked for duplicate indices whenever that can happen. */
    void setVector(int size, const int * inds, const double * elems,
 		  bool testForDuplicateIndex = COIN_DEFAULT_VALUE_FOR_DUPLICATE);
-  
+
    /** Elements set to have the same scalar value */
    void setConstant(int size, const int * inds, double elems,
 		    bool testForDuplicateIndex = COIN_DEFAULT_VALUE_FOR_DUPLICATE);
-  
+
    /** Indices are not specified and are taken to be 0,1,...,size-1 */
    void setFull(int size, const double * elems,
 		bool testForDuplicateIndex = COIN_DEFAULT_VALUE_FOR_DUPLICATE);
@@ -201,11 +201,11 @@ public:
    void append(const CoinPackedVectorBase & caboose);
 
    /// Swap values in positions i and j of indices and elements
-   void swap(int i, int j); 
+   void swap(int i, int j);
 
    /** Resize the packed vector to be the first newSize elements.
        Problem with truncate: what happens with origIndices_ ??? */
-   void truncate(int newSize); 
+   void truncate(int newSize);
    //@}
 
    /**@name Arithmetic operators. */
@@ -221,14 +221,14 @@ public:
    //@}
 
    /**@name Sorting */
-   //@{ 
+   //@{
    /** Sort the packed storage vector.
        Typcical usages:
-       <pre> 
+       <pre>
        packedVector.sort(CoinIncrIndexOrdered());   //increasing indices
        packedVector.sort(CoinIncrElementOrdered()); // increasing elements
        </pre>
-   */ 
+   */
    template <class CoinCompare3>
    void sort(const CoinCompare3 & tc)
    { CoinSort_3(indices_, indices_ + nElements_, origIndices_, elements_,
@@ -241,7 +241,7 @@ public:
    void sortDecrIndex()
    { CoinSort_3(indices_, indices_ + nElements_, origIndices_, elements_,
 		CoinFirstGreater_3<int, int, double>()); }
-  
+
    void sortIncrElement()
    { CoinSort_3(elements_, elements_ + nElements_, origIndices_, indices_,
 		CoinFirstLess_3<double, int, int>()); }
@@ -249,7 +249,7 @@ public:
    void sortDecrElement()
    { CoinSort_3(elements_, elements_ + nElements_, origIndices_, indices_,
 		CoinFirstGreater_3<double, int, int>()); }
-  
+
 
    /** Sort in original order.
        If the vector has been sorted, then this method restores
@@ -275,7 +275,7 @@ public:
    /** Default constructor */
    CoinPackedVector(bool testForDuplicateIndex = COIN_DEFAULT_VALUE_FOR_DUPLICATE);
    /** \brief Alternate Constructors - set elements to vector of doubles
-   
+
      This constructor copies the vectors provided as parameters.
    */
    CoinPackedVector(int size, const int * inds, const double * elems,
@@ -301,10 +301,10 @@ public:
    /** Destructor */
    virtual ~CoinPackedVector ();
    //@}
-    
+
 private:
    /**@name Private methods */
-   //@{  
+   //@{
    /// Copy internal date
    void gutsOfSetVector(int size,
 			const int * inds, const double * elems,
@@ -408,7 +408,7 @@ binaryOp(CoinPackedVector& retVal,
       // if (val != 0.0) // *THINK* : should we put in only nonzeros?
       retVal.insert(index, val);
    }
-   // loop once for each element in operand2  
+   // loop once for each element in operand2
    for ( i=0; i<s2; ++i ) {
       const int index = inds2[i];
       // if index exists in op1, then element was processed in prior loop

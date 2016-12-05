@@ -48,7 +48,7 @@ static const std::size_t CoinAllocRoundMask = ~((std::size_t)7);
 
 //#############################################################################
 
-class CoinMempool 
+class CoinMempool
 {
 private:
 #if (COIN_MEMPOOL_SAVE_BLOCKHEADS == 1)
@@ -85,7 +85,7 @@ public:
   ~CoinMempool();
 
   char* alloc();
-  inline void dealloc(char *p) 
+  inline void dealloc(char *p)
   {
     char** pp = (char**)p;
     lock_mutex();

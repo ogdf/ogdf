@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -76,7 +73,11 @@ protected:
  * @tparam C Denotes comparison functor determining value ordering.
  */
 template<typename T, typename C = std::less<T>>
-class BinomialHeap : public HeapBase<BinomialHeap, BinomialHeapNode<T>, T, C> {
+class BinomialHeap : public HeapBase<BinomialHeap<T, C>, BinomialHeapNode<T>, T, C>
+{
+
+	using base_type = HeapBase<BinomialHeap<T, C>, BinomialHeapNode<T>, T, C>;
+
 public:
 
 	/**
@@ -96,7 +97,7 @@ public:
 	virtual ~BinomialHeap();
 
 	//! Returns reference to the top element in the heap.
-	const T &top() const;
+	const T &top() const override;
 
 	/**
 	 * Inserts a new node with given \a value into a heap.
@@ -104,14 +105,14 @@ public:
 	 * @param value A value to be inserted.
 	 * @return Handle to the inserted node.
 	 */
-	BinomialHeapNode<T> *push(const T &value);
+	BinomialHeapNode<T> *push(const T &value) override;
 
 	/**
 	 * Removes the top element from the heap.
 	 *
 	 * Behaviour of this function is undefined if the heap is empty.
 	 */
-	void pop();
+	void pop() override;
 
 	/**
 	 * Decreases value of the given \a node to \a value.
@@ -122,7 +123,7 @@ public:
 	 * @param node A node for which the value is to be decreased.
 	 * @param value A new value for the node.
 	 */
-	void decrease(BinomialHeapNode<T> *node, const T &value);
+	void decrease(BinomialHeapNode<T> *node, const T &value) override;
 
 	/**
 	 * Merges in values of \a other heap.
@@ -131,15 +132,15 @@ public:
 	 *
 	 * @param other A heap to be merged in.
 	 */
-	void merge(BinomialHeap<T, C> &other);
+	void merge(BinomialHeap<T, C> &other) override;
 
-	/*
-	* Retuns the value of the node
-	*
-	* @param node The nodes handle
-	* @return the value of the node
-	*/
-	const T &value(BinomialHeapNode<T> *node) const {
+	/**
+	 * Returns the value of the node
+	 *
+	 * @param node The nodes handle
+	 * @return the value of the node
+	 */
+	const T &value(BinomialHeapNode<T> *node) const override {
 		return node->value;
 	}
 
@@ -160,10 +161,8 @@ private:
 
 
 template<typename T, typename C>
-BinomialHeap<T, C>::BinomialHeap(const C &cmp, int initialSize) : m_root(nullptr)
-{
-	this->m_comp = cmp;
-}
+BinomialHeap<T, C>::BinomialHeap(const C &cmp, int initialSize)
+: base_type(cmp), m_root(nullptr) {}
 
 
 template<typename T, typename C>
@@ -192,7 +191,7 @@ inline const T &BinomialHeap<T, C>::top() const
 {
 	BinomialHeapNode<T> *min = m_root;
 	for(BinomialHeapNode<T> *it = m_root->next; it != nullptr; it = it->next) {
-		if(this->m_comp(it->value, min->value)) {
+		if(this->comparator()(it->value, min->value)) {
 			min = it;
 		}
 	}
@@ -217,7 +216,7 @@ void BinomialHeap<T, C>::pop()
 	BinomialHeapNode<T> *curr = m_root, *min = m_root, *minPrev = nullptr;
 
 	while(curr->next != nullptr) {
-		if(this->m_comp(curr->next->value, min->value)) {
+		if(this->comparator()(curr->next->value, min->value)) {
 			min = curr->next;
 			minPrev = curr;
 		}
@@ -252,7 +251,7 @@ void BinomialHeap<T, C>::decrease(BinomialHeapNode<T> *node, const T &value)
 	node->value = value;
 
 	while(node->parent != nullptr &&
-	      this->m_comp(node->value, node->parent->value))
+	      this->comparator()(node->value, node->parent->value))
 	{
 		std::swap(node->value, node->parent->value);
 		node = node->parent;
@@ -325,7 +324,7 @@ inline void BinomialHeap<T, C>::merge(BinomialHeapNode<T> *other)
 			continue;
 		}
 
-		if(this->m_comp(curr->value, next->value)) {
+		if(this->comparator()(curr->value, next->value)) {
 			curr->next = next->next;
 			link(curr, next);
 		} else if(prev == nullptr) {

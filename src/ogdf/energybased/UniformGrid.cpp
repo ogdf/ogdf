@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include<ogdf/internal/energybased/UniformGrid.h>
 #include<cfloat>
@@ -175,8 +172,10 @@ namespace ogdf {
 			//Since computeGridPoint rounds down, this gives us the point p1 and
 			//below each of the points. This is the address of the cell that contains
 			//the point
-			//int Yincr = 1;
-			//if(left.m_y > right.m_y) Yincr = -1;
+#if 0
+			int Yincr = 1;
+			if(left.m_y > right.m_y) Yincr = -1;
+#endif
 			double slope = (right.m_y-left.m_y)/(right.m_x-left.m_x);
 			double c = left.m_y-slope*left.m_x;
 			OGDF_ASSERT(fabs(slope*right.m_x+c - right.m_y) < m_epsilon);
@@ -187,7 +186,7 @@ namespace ogdf {
 			for(int i = start.m_x; i <= endX; i++) {
 				crossedCells.pushBack(IPoint(i,oldY));
 				double newY = OldYPos + dYincr;
-				OGDF_ASSERT(newY - ((i+1)*m_CellSize*slope+c) < m_epsilon)
+				OGDF_ASSERT(newY - ((i+1)*m_CellSize*slope+c) < m_epsilon);
 				int newCellY = (int)floor(newY/m_CellSize);
 				if(newCellY != oldY) {
 					oldY = newCellY;
@@ -209,8 +208,10 @@ namespace ogdf {
 			}
 			IPoint start(computeGridPoint(bottom));
 			IPoint end(computeGridPoint(top));
-			//int Xincr = 1;
-			//if(bottom.m_x > top.m_x) Xincr = -1;
+#if 0
+			int Xincr = 1;
+			if(bottom.m_x > top.m_x) Xincr = -1;
+#endif
 			double slope = (top.m_x-bottom.m_x)/(top.m_y-bottom.m_y);
 			double c = bottom.m_x-slope*bottom.m_y;
 			OGDF_ASSERT(fabs(slope*top.m_y+c - top.m_x) < m_epsilon);
@@ -221,7 +222,7 @@ namespace ogdf {
 			for(int i = start.m_y; i <= endY; i++) {
 				crossedCells.pushBack(IPoint(oldX,i));
 				double newX = OldXPos + dXincr;
-				OGDF_ASSERT(newX - ((i+1)*m_CellSize*slope+c) < m_epsilon)
+				OGDF_ASSERT(newX - ((i+1)*m_CellSize*slope+c) < m_epsilon);
 				int newCellX = (int)floor(newX/m_CellSize);
 				if(newCellX != oldX) {
 					oldX = newCellX;
@@ -242,7 +243,9 @@ UniformGrid::UniformGrid(const GraphAttributes &AG) :
 	m_CellSize(0.0),
 	m_crossNum(0)
 {
-	//cout<<"New grid \n";
+#if 0
+	cout<<"New grid \n";
+#endif
 	node v = m_graph.firstNode();
 	DPoint pos(m_layout.x(v),m_layout.y(v));
 #ifdef OGDF_DEBUG

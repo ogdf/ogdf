@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/upward/UpwardPlanRep.h>
 #include <ogdf/module/RankingModule.h>
 #include <ogdf/module/UPRLayoutModule.h>
@@ -58,7 +55,9 @@ private:
 	const UpwardPlanRep &UPR;
 	Hierarchy &H;
 	NodeArray<int> dfsNum;
-	//EdgeArray<int> outEdgeOrder;
+#if 0
+	EdgeArray<int> outEdgeOrder;
+#endif
 	mutable NodeArray<bool> crossed;
 
 	//traverse with dfs using edge order from left to right and compute the dfs number.
@@ -103,10 +102,10 @@ public:
 		fhl->nodeDistance(40.0);
 		fhl->layerDistance(40.0);
 		fhl->fixedLayerDistance(true);
-		m_layout.set(fhl);
+		m_layout.reset(fhl);
 		OptimalRanking *opRank = new OptimalRanking();
 		opRank->separateMultiEdges(false);
-		m_ranking.set(opRank);
+		m_ranking.reset(opRank);
 		m_numLevels = 0;
 		m_maxLevelSize = 0;
 	}
@@ -120,12 +119,12 @@ public:
 
 	// module option for the computation of the final layout
 	void setLayout(HierarchyLayoutModule *pLayout) {
-		m_layout.set(pLayout);
+		m_layout.reset(pLayout);
 	}
 
 
 	void setRanking(RankingModule *pRanking) {
-		m_ranking.set(pRanking);
+		m_ranking.reset(pRanking);
 	}
 
 	//! Use only the 3. phase of Sugiyama' framework for layout.
@@ -147,15 +146,15 @@ protected :
 
 	int m_crossings;
 
-	ModuleOption<RankingModule> m_ranking;
+	std::unique_ptr<RankingModule> m_ranking;
 
-	ModuleOption<HierarchyLayoutModule> m_layout;
+	std::unique_ptr<HierarchyLayoutModule> m_layout;
 
 
 	struct RankComparer {
 		const Hierarchy *H;
 		bool less(node v1, node v2) const {
-			return (H->rank(v1) < H->rank(v2));
+			return H->rank(v1) < H->rank(v2);
 		}
 	};
 
@@ -211,8 +210,6 @@ private:
 
 	// needed for UPRLayoutSimple
 	void longestPathRanking(const Graph &G, NodeArray<int> &rank);
-
-
 };
 
 }

@@ -74,7 +74,7 @@ template<class BaseType, class CoType> class CutBuffer;
  * of the optimization process, except that it can be guaranteed that
  * there is no reference to this slot from any other place of the program.
  */
-template<class BaseType, class CoType> class  PoolSlot :  public AbacusRoot  {
+template<class BaseType, class CoType> class OGDF_EXPORT PoolSlot : public AbacusRoot {
 
 	friend class PoolSlotRef<BaseType,CoType>;
 	friend class Pool<BaseType,CoType>;
@@ -132,7 +132,7 @@ private:
 	 * \return 0 if the constraint/variable in the slot could be deleted, 1 otherwise.
 	 */
 	int softDelete() {
-		if (conVar_ == 0)
+		if (conVar_ == nullptr)
 			return 0;
 		if (conVar_->deletable() == false)
 			return 1;
@@ -146,7 +146,7 @@ private:
 	 */
 	void hardDelete() {
 		delete conVar_;
-		conVar_ = 0;
+		conVar_ = nullptr;
 	}
 
 	//! Removes the constraint contained in this slot from its pool.

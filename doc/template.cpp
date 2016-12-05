@@ -1,14 +1,14 @@
 /** \file
- * \brief TO DO: DESCRIBE WHAT IS DECLARED
+ * \brief <<DESCRIBE WHAT IS IMPLEMENTED>>
  *
- * \author AUTHOR1 NAME, AUTHOR2 NAME
+ * \author <<AUTHOR NAMES (RESPONSIBLE PERSONS)>>
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
  * You should have received a copy of the GNU General Public
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ */
 
 //
 // TO DO: INSERT YOUR INCLUDES

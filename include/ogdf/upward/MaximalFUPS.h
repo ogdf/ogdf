@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -47,15 +44,16 @@ class MaximalFUPS : public FUPSModule {
 	public:
 		//constructor
 	MaximalFUPS() : m_timelimit(0) {};
-	//		(const Graph &Orig, int timelimit);
 
 	private:
 		int m_timelimit;
 
 	protected:
-		Module::ReturnType doCall(UpwardPlanRep &UPR, List<edge> &delEdges);
+		Module::ReturnType doCall(UpwardPlanRep &UPR, List<edge> &delEdges) override;
 	public:
-//		int computeMFUPS(GraphCopy &GC);
+#if 0
+		int computeMFUPS(GraphCopy &GC);
+#endif
 		int getTimelimit()                 { return m_timelimit;      }
 		void setTimelimit(int timelimit)   { m_timelimit = timelimit; }
 };

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -43,14 +40,14 @@ namespace ogdf {
 /**
  * \brief The node set in a shelling order of a graph.
  */
-class OGDF_EXPORT ShellingOrderSet : public Array<node>
+class ShellingOrderSet : public Array<node>
 {
 public:
 	//! Creates an empty shelling order set.
 	ShellingOrderSet() : Array<node>()
 	{
-		m_leftVertex = m_rightVertex = 0;
-		m_leftAdj    = m_rightAdj    = 0;
+		m_leftVertex = m_rightVertex = nullptr;
+		m_leftAdj    = m_rightAdj    = nullptr;
 	}
 
 	//! Creates a shelling order set for \a l nodes.
@@ -59,10 +56,10 @@ public:
 	 * @param adjL points to the left-node of the set.
 	 * @param adjR points to the right-node of the set.
 	 */
-	ShellingOrderSet(int l, adjEntry adjL = 0, adjEntry adjR = 0) : Array<node>(1,l)
+	ShellingOrderSet(int l, adjEntry adjL = nullptr, adjEntry adjR = nullptr) : Array<node>(1,l)
 	{
-		m_leftVertex  = (adjL != 0) ? adjL->twinNode() : 0;
-		m_rightVertex = (adjR != 0) ? adjR->twinNode() : 0;
+		m_leftVertex  = (adjL != nullptr) ? adjL->twinNode() : nullptr;
+		m_rightVertex = (adjR != nullptr) ? adjR->twinNode() : nullptr;
 		m_leftAdj     = adjL;
 		m_rightAdj    = adjR;
 	}
@@ -93,12 +90,12 @@ public:
 
 	//! Returns true iff the adjacency entry to the left-node exists.
 	bool hasLeft() const {
-		return m_leftAdj != 0;
+		return m_leftAdj != nullptr;
 	}
 
 	//! Returns true iff the adjacency entry to the right-node exists.
 	bool hasRight() const {
-		return m_rightAdj != 0;
+		return m_rightAdj != nullptr;
 	}
 
 	//! Sets the left-node to \a cl.
@@ -165,15 +162,14 @@ public:
 
 	//! Creates an empty shelling order.
 	ShellingOrder() {
-		m_pGraph = 0;
+		m_pGraph = nullptr;
 	}
 
-	//ShellingOrder(const Graph &G, const List<ShellingOrderSet> &partition);
-
+#if 0
+	ShellingOrder(const Graph &G, const List<ShellingOrderSet> &partition);
+#endif
 
 	~ShellingOrder() { }
-
-
 
 	//! Returns the graph associated with the shelling order.
 	const Graph& getGraph() const {

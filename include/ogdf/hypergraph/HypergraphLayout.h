@@ -17,7 +17,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -34,12 +34,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -49,7 +46,7 @@
 #include <ogdf/hypergraph/HypergraphLayoutModule.h>
 
 #include <ogdf/basic/exceptions.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/module/CrossingMinimizationModule.h>
 #include <ogdf/module/LayoutPlanRepModule.h>
@@ -118,7 +115,7 @@ public:
 	 * @param HA is the input hypergraph and will also be assigned the
 	 *           layout information.
 	 */
-	void call(HypergraphAttributes &HA)
+	void call(HypergraphAttributes &HA) override
 	{
 	  layout(HA);
 	}
@@ -187,13 +184,13 @@ private:
 	Profile m_profile;
 
 	//! The module for computing the final layout.
-	ModuleOption<LayoutPlanRepModule>  m_planarLayoutModule;
+	std::unique_ptr<LayoutPlanRepModule>  m_planarLayoutModule;
 
 	//! The module for crossing minimization.
-	ModuleOption<CrossingMinimizationModule> m_crossingMinimizationModule;
+	std::unique_ptr<CrossingMinimizationModule> m_crossingMinimizationModule;
 
 	//! The module for embedding planarization.
-	ModuleOption<EmbedderModule>  m_embeddingModule;
+	std::unique_ptr<EmbedderModule>  m_embeddingModule;
 
 public:
 
@@ -205,9 +202,11 @@ public:
 
 	// Dynamic casting is currently not working as desired and hence we left
 	// the following call inherited from superclass empty.
-	virtual void call(HypergraphAttributes &HA);
+	virtual void call(HypergraphAttributes &HA) override;
 
-	//void call(HypergraphAttributesES &HA);
+#if 0
+	void call(HypergraphAttributesES &HA);
+#endif
 
 	//! Assignment operator.
 	HypergraphLayoutES &operator=(const HypergraphLayoutES &hl);
@@ -252,7 +251,7 @@ public:
 	void setPlanarLayoutModule
 		(LayoutPlanRepModule *pPlanarLayoutModule)
 	{
-		m_planarLayoutModule.set(pPlanarLayoutModule);
+		m_planarLayoutModule.reset(pPlanarLayoutModule);
 	}
 
 
@@ -265,7 +264,7 @@ public:
 	void setCrossingMinimizationModule
 		(CrossingMinimizationModule *pCrossingMinimizationModule)
 	{
-		m_crossingMinimizationModule.set(pCrossingMinimizationModule);
+		m_crossingMinimizationModule.reset(pCrossingMinimizationModule);
 	}
 
 	/**
@@ -277,18 +276,21 @@ public:
 	void setEmbeddingModule
 		(EmbedderModule *pEmbeddingModule)
 	{
-		m_embeddingModule.set(pEmbeddingModule);
+		m_embeddingModule.reset(pEmbeddingModule);
 	}
 
 private:
 
 	void layout(HypergraphAttributesES &pHA);
 
-	//void planarizeCC(PlanRep &ccPlanarRep, List<edge> &fixedShell);
+#if 0
+	void planarizeCC(PlanRep &ccPlanarRep, List<edge> &fixedShell);
+#endif
 
-	void packAllCC(PlanRep &planarRep,
-				   HypergraphAttributesES &pHA,
-				   Array<DPoint> &bounding);
+	void packAllCC(const PlanRep &planarRep,
+	               const GraphCopySimple &gc,
+	               HypergraphAttributesES &pHA,
+	               Array<DPoint> &bounding);
 
 	std::pair<node,node> * insertShell(GraphCopySimple &planarRep,
 									   List<node> &src,

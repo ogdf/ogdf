@@ -1,14 +1,14 @@
 /** \file
- * \brief Tests for the basic graph copy class
+ * \brief Tests for ogdf::GraphCopy and ogdf::GraphCopySimple.
  *
  * \author Mirko Wagner
  *
  * \par License:
- * This file is part of the Open myGraPath Halving, Drawing Framework (OGDF).
+ * This file is part of the Open Graph Drawing Framework (OGDF).
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 FRank,lin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <bandit/bandit.h>
 
@@ -223,6 +220,22 @@ void describeGraphCopySimple(int numberOfNodes)
 		AssertThat(graphCopy->original(graphCopy->copy(originalEdge)), Equals(originalEdge));
 	});
 
+	it("maps adjacency entries", [&] {
+		for(edge e : graph.edges) {
+			edge f = graphCopy->copy(e);
+
+			adjEntry adjSrc = graphCopy->copy(e->adjSource());
+			adjEntry adjTgt = graphCopy->copy(e->adjTarget());
+
+			AssertThat(adjSrc->isSource(), IsTrue());
+			AssertThat(adjTgt->isSource(), IsFalse());
+			AssertThat(adjSrc->theEdge() == f, IsTrue());
+			AssertThat(adjTgt->theEdge() == f, IsTrue());
+			AssertThat(graphCopy->original(adjSrc) == e->adjSource(), IsTrue());
+			AssertThat(graphCopy->original(adjTgt) == e->adjTarget(), IsTrue());
+		}
+	});
+
 	it("detects dummies",[&](){
 		randomGraph(graph,numberOfNodes,0);
 		delete graphCopy;
@@ -346,6 +359,22 @@ go_bandit([](){
 				testInitGraph<GraphCopy>(graph, *graphCopy, false, &origNodes, &eCopy);
 			});
 
+			it("maps adjacency entries of chains", [&] {
+				edge e = graph.chooseEdge();
+				edge f0 = graphCopy->copy(e);
+				edge f1 = graphCopy->split(f0);
+				edge f2 = graphCopy->split(f1);
+
+				adjEntry adjSrc = graphCopy->copy(e->adjSource());
+				adjEntry adjTgt = graphCopy->copy(e->adjTarget());
+
+				AssertThat(adjSrc == f0->adjSource(), IsTrue());
+				AssertThat(adjTgt == f2->adjTarget(), IsTrue());
+
+				AssertThat(graphCopy->original(adjSrc) == e->adjSource(), IsTrue());
+				AssertThat(graphCopy->original(adjTgt) == e->adjTarget(), IsTrue());
+			});
+
 			it("is initialized by either all or none of the nodes of a component",[&](){
 				origNodes.clear();
 				delete graphCopy;
@@ -362,14 +391,14 @@ go_bandit([](){
 				graphCopy->initByNodes(origNodes, eCopy);
 				testInitGraph<GraphCopy>(graph, *graphCopy, true, &origNodes, &eCopy);
 
-#ifdef OGDF_DEBUG
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 				origNodes = List<node>();
 				origNodes.pushBack(graph.firstNode());
 				origNodes.pushBack(graph.lastNode());
 				eCopy = EdgeArray<edge>(graph);
 				delete graphCopy;
 				graphCopy = new GraphCopy(graph);
-				AssertThrows(PreconditionViolatedException, graphCopy->initByNodes(origNodes, eCopy));
+				AssertThrows(AssertionFailed, graphCopy->initByNodes(origNodes, eCopy));
 #endif
 			});
 
@@ -392,13 +421,13 @@ go_bandit([](){
 				testInitGraph<GraphCopy>(graph, *graphCopy, false, &origNodes, &eCopy);
 			});
 		});
-/*
-#ifdef OGDF_DEBUG
-		it("doesn't add a copied edge twice",[&](){
-			AssertThrows(PreconditionViolatedException,graphCopy->newEdge(graph.chooseEdge()));
+
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+		it_skip("doesn't add a copied edge twice", [&]{
+			AssertThrows(AssertionFailed, graphCopy->newEdge(graph.chooseEdge()));
 		});
 #endif
-*/
+
 		it("adds copied nodes",[&](){
 			int n = graph.numberOfNodes();
 			AssertThat(graphCopy->newNode(graph.newNode()),!IsNull());
@@ -417,13 +446,22 @@ go_bandit([](){
 		});
 
 		it("detects reversed edges",[&](){
-			edge reversedEdge;
-			do {
-				reversedEdge = graphCopy->chooseEdge();
-			} while(reversedEdge->isSelfLoop());
+			edge reversedEdge = graphCopy->chooseEdge([](edge e) { return !e->isSelfLoop(); });
 			AssertThat(graphCopy->isReversed(graphCopy->original(reversedEdge)),IsFalse());
 			graphCopy->reverseEdge(reversedEdge);
 			AssertThat(graphCopy->isReversed(graphCopy->original(reversedEdge)),IsTrue());
+		});
+
+		it("does not return cleared elements", [&]() {
+			graphCopy->clear();
+
+			for(node v : graph.nodes) {
+				AssertThat(graphCopy->copy(v), Equals(nullptr));
+			}
+
+			for(edge e : graph.edges) {
+				AssertThat(graphCopy->copy(e), Equals(nullptr));
+			}
 		});
 
 		describe("original embedding",[&](){
@@ -446,20 +484,22 @@ go_bandit([](){
 				AssertThat(graphCopy->genus(), Equals(graph.genus()));
 			});
 
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 			it("doesn't embed split edges",[&](){
 				graphCopy->split(graphCopy->chooseEdge());
-				AssertThrows(PreconditionViolatedException, graphCopy->setOriginalEmbedding());
+				AssertThrows(AssertionFailed, graphCopy->setOriginalEmbedding());
 			});
 
 			it("doesn't embed dummies",[&](){
 				graphCopy->newNode();
-				AssertThrows(PreconditionViolatedException, graphCopy->setOriginalEmbedding());
+				AssertThrows(AssertionFailed, graphCopy->setOriginalEmbedding());
 			});
 
 			it("doesn't embed added edges",[&](){
 				graphCopy->newEdge(graphCopy->chooseNode(),graphCopy->chooseNode());
-				AssertThrows(PreconditionViolatedException, graphCopy->setOriginalEmbedding());
+				AssertThrows(AssertionFailed, graphCopy->setOriginalEmbedding());
 			});
+#endif
 		});
 
 		describe("edge path",[&](){
@@ -573,24 +613,107 @@ go_bandit([](){
 			edge copyEdge = graphCopy->chooseEdge();
 			edge origEdge = graphCopy->original(copyEdge);
 			graphCopy->delEdge(copyEdge);
+			copyEdge = graphCopy->newEdge(graphCopy->copy(origEdge->source()), graphCopy->copy(origEdge->target()));
 			graphCopy->setEdge(origEdge, copyEdge);
 			AssertThat(graphCopy->original(copyEdge), Equals(origEdge));
 			AssertThat(graphCopy->copy(origEdge), Equals(copyEdge));
 		});
 
-		it("inserts crossings",[&](){
-			edge crossingEdge = graphCopy->chooseEdge();
-			edge crossedEdge = graphCopy->chooseEdge();
-			while(crossedEdge == crossingEdge){
-				crossedEdge = graphCopy->chooseEdge();
-			}
-			graphCopy->insertCrossing(crossingEdge, crossedEdge, true);
-			List<edge> crossingEdgeList = graphCopy->chain(graphCopy->original(crossingEdge));
-			List<edge> crossedEdgeList = graphCopy->chain(graphCopy->original(crossedEdge));
-			AssertThat(crossingEdgeList.size(), Equals(2));
-			AssertThat(crossedEdgeList.size(), Equals(2));
-			AssertThat(crossedEdgeList.front()->source(), Equals(crossedEdgeList.front()->source()));
-		});
+		for(int caseCounter = 0; caseCounter < 8; caseCounter++) {
+			bool crossingEdgeIsDummy = caseCounter / 4;
+			bool crossedEdgeIsDummy = (caseCounter / 2) % 2;
+			bool rightToLeft = caseCounter % 2;
+
+			auto chooseEdge = [&](bool createDummy, edge other) {
+				edge result;
+
+				if(createDummy) {
+					node u = graphCopy->chooseNode([&](node w) { return other == nullptr || !other->isIncident(w); });
+					node v = graphCopy->chooseNode([&](node w) { return w != u && (other == nullptr || !other->isIncident(w)); });
+					result = graphCopy->newEdge(u, v);
+				} else {
+					result = graphCopy->chooseEdge([&](edge e) {
+						return !graphCopy->isDummy(e) && (other == nullptr || e->commonNode(other) == nullptr);
+					});
+				}
+
+				return result;
+			};
+
+			it("inserts crossings (case #" + to_string(caseCounter) + ")" ,[&] {
+				completeGraph(graph, 10);
+				delete graphCopy;
+				graphCopy = new GraphCopy(graph);
+
+				edge crossingEdge = chooseEdge(crossingEdgeIsDummy, nullptr);
+				edge crossedEdge = chooseEdge(crossedEdgeIsDummy, crossingEdge);
+
+				// store auxiliary data
+				edge origCrossingEdge = graphCopy->original(crossingEdge);
+				edge origCrossedEdge = graphCopy->original(crossedEdge);
+
+				adjEntry adjSrcCrossing = crossingEdge->adjSource()->cyclicPred();
+				adjEntry adjTgtCrossing = crossingEdge->adjTarget()->cyclicPred();
+				adjEntry adjSrcCrossed = crossedEdge->adjSource()->cyclicPred();
+				adjEntry adjTgtCrossed = crossedEdge->adjTarget()->cyclicPred();
+
+				int n = graphCopy->numberOfNodes();
+				int m = graphCopy->numberOfEdges();
+
+				// actually insert the crossing
+				crossedEdge = graphCopy->insertCrossing(crossingEdge, crossedEdge, rightToLeft);
+
+				// validate graph size
+				AssertThat(graphCopy->numberOfNodes(), Equals(n+1));
+				AssertThat(graphCopy->numberOfEdges(), Equals(m+2));
+
+				// validate degree of dummy node
+				node dummy = crossedEdge->source();
+				AssertThat(graphCopy->isDummy(dummy), IsTrue());
+				AssertThat(dummy->outdeg(), Equals(2));
+				AssertThat(dummy->indeg(), Equals(2));
+
+				AssertThat(graphCopy->isDummy(crossingEdge), Equals(crossingEdgeIsDummy));
+				AssertThat(graphCopy->isDummy(crossedEdge), Equals(crossedEdgeIsDummy));
+
+				AssertThat(adjTgtCrossing->cyclicSucc(), Equals(crossingEdge->adjTarget()));
+				AssertThat(adjTgtCrossed->cyclicSucc(), Equals(crossedEdge->adjTarget()));
+
+				// validate chains and adjacency order at the dummy node
+				auto validateChains = [&](edge e, edge other, edge formerOrig, adjEntry adjSrcPred, bool isCrossingEdge) {
+					List<edge> chain = graphCopy->chain(graphCopy->original(e));
+
+					AssertThat(chain.size(), Equals(2));
+
+					AssertThat(chain.back(), Equals(e));
+
+					AssertThat(graphCopy->original(chain.front()), Equals(formerOrig));
+					AssertThat(graphCopy->original(chain.back()), Equals(formerOrig));
+
+					AssertThat(adjSrcPred->cyclicSucc(), Equals(chain.front()->adjSource()));
+
+					AssertThat(e->adjSource()->cyclicSucc()->cyclicSucc(), Equals(chain.front()->adjTarget()));
+
+					adjEntry adj = other->adjSource();
+
+					if (rightToLeft == isCrossingEdge) {
+						AssertThat(adj->cyclicPred(), Equals(chain.back()->adjSource()));
+						AssertThat(adj->cyclicSucc(), Equals(chain.front()->adjTarget()));
+					} else {
+						AssertThat(adj->cyclicPred(), Equals(chain.front()->adjTarget()));
+						AssertThat(adj->cyclicSucc(), Equals(chain.back()->adjSource()));
+					}
+				};
+
+				if(!crossingEdgeIsDummy) {
+					validateChains(crossingEdge, crossedEdge, origCrossingEdge, adjSrcCrossing, true);
+				}
+
+				if(!crossedEdgeIsDummy) {
+					validateChains(crossedEdge, crossingEdge, origCrossedEdge, adjSrcCrossed, false);
+				}
+			});
+		}
 
 		it("removes pseudo crossings, where two edges merely touch",[&](){
 			graph.clear();
@@ -608,11 +731,28 @@ go_bandit([](){
 			AssertThat(graphCopy->chain(graphCopy->original(fCopy)).size(), Equals(1));
 		});
 
-#ifdef OGDF_DEBUG
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 		it("won't delete a split edge",[&](){
 			edge splittedEdge=graphCopy->split(graphCopy->chooseEdge());
-			AssertThrows(PreconditionViolatedException,graphCopy->delEdge(splittedEdge));
+			AssertThrows(AssertionFailed, graphCopy->delEdge(splittedEdge));
 		});
 #endif
+		it("splits a reinserted edge", [&](){
+			edge eOrig = graph.chooseEdge();
+			graphCopy->delEdge(graphCopy->copy(eOrig));
+			edge eCopy = graphCopy->newEdge(eOrig);
+			graphCopy->split(eCopy);
+		});
+
+		it("knows if a copy edge is reversed w.r.t. the original edge", [&](){
+			edge eOrig = graph.chooseEdge();
+			edge eCopy = graphCopy->copy(eOrig);
+			AssertThat(graphCopy->isReversedCopyEdge(eCopy), IsFalse());
+			graphCopy->split(eCopy);
+			eCopy = graphCopy->split(eCopy);
+			AssertThat(graphCopy->isReversedCopyEdge(eCopy), IsFalse());
+			graphCopy->reverseEdge(eCopy);
+			AssertThat(graphCopy->isReversedCopyEdge(eCopy), IsTrue());
+		});
 	});
 });

@@ -23,14 +23,14 @@
 
 /*! \class CoinWarmStartBasis
     \brief The default COIN simplex (basis-oriented) warm start class
-    
+
     CoinWarmStartBasis provides for a warm start object which contains the
     status of each variable (structural and artificial).
 
     \todo Modify this class so that the number of status entries per byte
 	  and bytes per status vector allocation unit are not hardcoded.
 	  At the least, collect this into a couple of macros.
-    
+
     \todo Consider separate fields for allocated capacity and actual basis
 	  size. We could avoid some reallocation, at the price of retaining
 	  more space than we need. Perhaps more important, we could do much
@@ -90,7 +90,7 @@ public:
   inline int getNumArtificial() const { return numArtificial_; }
 
   /** Return the number of basic structurals
-  
+
     A fast test for an all-slack basis.
   */
   int numberBasicStructurals() const ;
@@ -109,7 +109,7 @@ public:
   }
 
   /** Return the status array for the structural variables
-  
+
     The status information is stored using the codes defined in the
     Status enum, 2 bits per variable, packed 4 variables per byte.
   */
@@ -294,7 +294,7 @@ public:
   virtual CoinWarmStartBasis& operator=(const CoinWarmStartBasis& rhs) ;
 
   /** Assign the status vectors to be the warm start information.
-  
+
       In this method the CoinWarmStartBasis object assumes ownership of the
       pointers and upon return the argument pointers will be NULL.
       If copying is desirable, use the
@@ -406,7 +406,7 @@ class CoinWarmStartBasisDiff : public virtual CoinWarmStartDiff
   protected:
 
   /*! \brief Default constructor
-  
+
     This is protected (rather than private) so that derived classes can
     see it when they make <i>their</i> default constructor protected or
     private.
@@ -414,7 +414,7 @@ class CoinWarmStartBasisDiff : public virtual CoinWarmStartDiff
   CoinWarmStartBasisDiff () : sze_(0), difference_(nullptr) { }
 
   /*! \brief Copy constructor
-  
+
     For convenience when copying objects containing CoinWarmStartBasisDiff
     objects. But consider whether you should be using #clone() to retain
     polymorphism.
@@ -431,7 +431,7 @@ class CoinWarmStartBasisDiff : public virtual CoinWarmStartDiff
 
   /*! \brief Constructor when full is smaller than diff!*/
   CoinWarmStartBasisDiff (const CoinWarmStartBasis * rhs);
-  
+
   private:
 
   friend CoinWarmStartDiff*

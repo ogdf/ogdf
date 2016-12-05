@@ -5,7 +5,10 @@
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
- * Copyright (C) 2005-2010
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -22,23 +25,17 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/basic.h>
-
-#ifdef USE_ABACUS
 
 #include <ogdf/cluster/ClusterPlanarity.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <sstream>
-//#include <ogdf/basic/exceptions.h>
 #include <ogdf/internal/cluster/CPlanarity_Master.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 
@@ -93,7 +90,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 		// We can solve the c-planarity testing for all indyBags independently,
 		// and in case all are c-planar, also our input c-graph is c-planar.
 		const int numIndyBags = ca.numberOfIndyBags();
-		GraphCopy** theGraphs = new GraphCopy * [numIndyBags]; //Stores copies for the bag graphs.
+		std::vector<GraphCopy*> theGraphs(numIndyBags); //Stores copies for the bag graphs.
 #ifdef OGDF_DEBUG
 		cout << "Number of IndyBags "<<numIndyBags<<"\n";
 #endif
@@ -120,7 +117,6 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 			EdgeArray<edge> eCopy(G);
 			theGraphs[i]->initByNodes(nodesInBag[i], eCopy);
 			ClusterGraph bagCG(*theGraphs[i]);
-			//node v;
 			ClusterArray<List<node> > cNodes(CG);
 			ClusterArray<List<cluster> > cChildren(CG);
 			ClusterArray<cluster> cCopy(CG);
@@ -191,7 +187,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 			string filename = string("IndySubcgraph") + to_string(i) + ".gml";
 
 			ClusterGraphAttributes CGA(bagCG);
-			GraphIO::writeGML(CGA, filename);
+			GraphIO::write(CGA, filename, GraphIO::writeGML);
 #endif
 			//now the actual test, similar to the one below...
 			if (theGraphs[i]->numberOfNodes() > 2) //could even start at 4...
@@ -221,12 +217,6 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 			}
 #endif
 		}//for indy bags
-
-		for (int i = 0; i < numIndyBags; i++)
-		{
-			delete theGraphs[i];
-		}
-		delete [] theGraphs;
 
 		// We test consistency by summing up the number of vertices.
 	}
@@ -266,7 +256,9 @@ bool ClusterPlanarity::doTest(const ClusterGraph &CG)
 bool ClusterPlanarity::doTest(const ClusterGraph &G,
 			List<nodePair> &addedEdges)
 {
-//	if (m_solmeth==sm_new) return doFastTest(G,addedEdges);
+#if 0
+	if (m_solmeth==sm_new) return doFastTest(G,addedEdges);
+#endif
 	// We could take care of multiedges, but as long this is
 	// not done, we do not allow this.
 	OGDF_ASSERT(isParallelFreeUndirected(G)); // Graph has to be simple
@@ -289,9 +281,11 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G,
 		static_cast<CPlanarityMaster*>(cplanMaster)->setSearchSpaceShrinking(true);
 	else
 		static_cast<CPlanarityMaster*>(cplanMaster)->setSearchSpaceShrinking(false);
-		//new CPlanarMaster(G,m_heuristicLevel,m_heuristicRuns,m_heuristicOEdgeBound,m_heuristicNPermLists,m_kuratowskiIterations,
-		//m_subdivisions,m_kSupportGraphs,m_kuratowskiHigh, m_kuratowskiLow,m_perturbation,m_branchingGap,m_time, m_pricing,
-		//m_numAddVariables,m_strongConstraintViolation,m_strongVariableViolation,m_ol);
+#if 0
+		new CPlanarMaster(G,m_heuristicLevel,m_heuristicRuns,m_heuristicOEdgeBound,m_heuristicNPermLists,m_kuratowskiIterations,
+		m_subdivisions,m_kSupportGraphs,m_kuratowskiHigh, m_kuratowskiLow,m_perturbation,m_branchingGap,m_time, m_pricing,
+		m_numAddVariables,m_strongConstraintViolation,m_strongVariableViolation,m_ol);
+#endif
 	cplanMaster->setTimeLimit(m_time.c_str());
 	cplanMaster->setPortaFile(m_portaOutput);
 	cplanMaster->useDefaultCutPool() = m_defaultCutPool;
@@ -332,7 +326,9 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G,
 #endif
 
 	cplanMaster->getConnectionOptimalSolutionEdges(addedEdges);
-	//int addE = addedEdges.size();
+#if 0
+	int addE = addedEdges.size();
+#endif
 
 #ifdef OGDF_DEBUG
 	cout<<"-Number of added edges "<< addedEdges.size()<<"\n";
@@ -508,13 +504,15 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 		while ( (i < connPairs.size()) && (cons[i].connected == true) )
 		{
 			cons[i].connected = false;
-			OGDF_ASSERT(cons[i].e != 0);
+			OGDF_ASSERT(cons[i].e != nullptr);
 			G2.delEdge(cons[i].e);
 			i++;
 		}//while
 		if (i >= connPairs.size()) break;
-		//cout<<"v1graph: "<<&(*(cons[i].v1->graphOf()))<<"\n";
-		//cout<<"origNodesgraph: "<<&(*(origNodes.graphOf()))<<"\n";
+#if 0
+		cout<<"v1graph: "<<&(*(cons[i].v1->graphOf()))<<"\n";
+		cout<<"origNodesgraph: "<<&(*(origNodes.graphOf()))<<"\n";
+#endif
 		cons[i].connected = true; //i.e., (false) will never be a feasible solution
 		cons[i].e = G2.newEdge(origNodes[cons[i].v1], origNodes[cons[i].v2]);
 
@@ -550,7 +548,9 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	os << "\nEND" <<"\n";
 	os.close();
 
-	//return;
+#if 0
+	return;
+#endif
 
 	os.open(getIeqFileName());
 	os << "DIM = " << m_numVars << "\n";
@@ -623,15 +623,17 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	if (master.useDefaultCutPool())
 	{
 		os << "#No cut constraints read from master\n";
-		//StandardPool<Constraint, Variable> *connCon = master.cutPool();
+#if 0
+		StandardPool<Constraint, Variable> *connCon = master.cutPool();
+#endif
 	}
 	else
 	{
 		StandardPool<Constraint, Variable> *connCon = master.getCutConnPool();
 		StandardPool<Constraint, Variable> *kuraCon = master.getCutKuraPool();
 		StandardPool<Variable, Constraint> *stdVar = master.varPool();
-		OGDF_ASSERT(connCon != 0);
-		OGDF_ASSERT(kuraCon != 0);
+		OGDF_ASSERT(connCon != nullptr);
+		OGDF_ASSERT(kuraCon != nullptr);
 		cout << connCon->number() << " Constraints im MasterConnpool \n";
 		cout << kuraCon->number() << " Constraints im MasterKurapool \n";
 		cout << connCon->size() << " Größe ConnPool"<<"\n";
@@ -641,13 +643,16 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	os << "\nEND" <<"\n";
 	os.close();
 	cout << "Cutting is set: "<<master.cutting()<<"\n";
-	//cout <<"Bounds for the variables:\n";
-	//Sub &theSub = *(master.firstSub());
-	//for ( i = 0; i < theSub.nVar(); i++)
-	//{
-	//	cout << i << ": " << theSub.lBound(i) << " - " << theSub.uBound(i) << "\n";
-	//}
-	/*// OLD CRAP
+#if 0
+	cout <<"Bounds for the variables:\n";
+	Sub &theSub = *(master.firstSub());
+	for ( i = 0; i < theSub.nVar(); i++)
+	{
+		cout << i << ": " << theSub.lBound(i) << " - " << theSub.uBound(i) << "\n";
+	}
+#endif
+#if 0
+	// OLD CRAP
 	cout << "Constraints: \n";
 	StandardPool< Constraint, Variable > *spool = master.conPool();
 	StandardPool< Constraint, Variable > *cpool = master.cutPool();
@@ -681,8 +686,6 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 			default: cout << "Inequality sense doesn't make any sense \n"; break;
 		}//switch
 	}
-	*/
-	/*
 	for ( i = 0; i < theSub.nCon(); i++)
 	{
 		Constraint &theCon = *(theSub.constraint(i));
@@ -707,7 +710,8 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 			std::cin.clear();
 			std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
 		}
-	}*/
+	}
+#endif
 }//writeportaieq
 
 void ClusterPlanarity::outputCons(ofstream &os,
@@ -719,7 +723,7 @@ void ClusterPlanarity::outputCons(ofstream &os,
 		{
 			PoolSlot< Constraint, Variable > * sloty = connCon->slot(i);
 			Constraint *mycon = sloty->conVar();
-			OGDF_ASSERT(mycon != 0);
+			OGDF_ASSERT(mycon != nullptr);
 			int count;
 			for (count = 0; count < stdVar->size(); count++)
 			{
@@ -746,5 +750,3 @@ void ClusterPlanarity::outputCons(ofstream &os,
 }
 
 } //end namespace ogdf
-
-#endif //USE_ABACUS

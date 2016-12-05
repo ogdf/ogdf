@@ -60,7 +60,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -77,12 +77,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -136,7 +133,7 @@ public:
 	//! Returns true if \a pStack is empty
 	static inline bool empty(const S* pStack)
 	{
-		return (pStack->*first == 0);
+		return pStack->*first == 0;
 	}
 };
 
@@ -156,7 +153,7 @@ public:
 	inline EListIterator(const EListIterator<E, prev, next>& other) : m_ptr(other.m_ptr) {}
 
 	//! returns false if the iterator points at nullptr
-	inline bool valid() const {  return (m_ptr != nullptr); }
+	inline bool valid() const {  return m_ptr != nullptr; }
 
 	//! Equality operator.
 	inline bool operator==(const EListIterator<E, prev, next>& other) const { return m_ptr == other.m_ptr; }
@@ -170,8 +167,10 @@ public:
 	//! Returns predecessor iterator.
 	inline EListIterator<E, prev, next> pred() const { return m_ptr->*prev; }
 
+#if 0
 	//! Returns a reference to the element.
-	//E& operator*() const { return *m_ptr; }
+	E& operator*() const { return *m_ptr; }
+#endif
 
 	//! Returns a pointer to the element.
 	E* operator*() const { return m_ptr; }
@@ -244,10 +243,10 @@ public:
 	}
 
 	//! Returns the number of elements in this embedded list by reading the numElem var.
-	static inline int size(const L* pList) { return (pList->*numElem); }
+	static inline int size(const L* pList) { return pList->*numElem; }
 
 	//! Returns true if /a pList is empty.
-	static inline bool empty(const L* pList) { return (pList->*first == 0); }
+	static inline bool empty(const L* pList) { return pList->*first == 0; }
 
 	//! Returns a pointer to the first element.
 	static inline E* front(const L* pList) { return pList->*first; }

@@ -45,7 +45,7 @@ class AbacusGlobal;
  * We implement the sense of optimization as a class
  * since we require it both in the classes Constraint and Row.
  */
-class  CSense : public AbacusRoot  {
+class OGDF_EXPORT CSense : public AbacusRoot {
 public:
 
 	enum SENSE { Less, Equal, Greater };

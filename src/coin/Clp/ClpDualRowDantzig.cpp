@@ -177,4 +177,3 @@ ClpDualRowPivot * ClpDualRowDantzig::clone(bool CopyData) const
           return new ClpDualRowDantzig();
      }
 }
-

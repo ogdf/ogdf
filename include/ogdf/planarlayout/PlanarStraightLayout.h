@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,17 +26,14 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/GridLayoutModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/module/ShellingOrderModule.h>
 #include <ogdf/module/EmbedderModule.h>
@@ -162,17 +159,17 @@ public:
 	 * connectivity required for calling the shelling order module.
 	 */
 	void setAugmenter(AugmentationModule *pAugmenter) {
-		m_augmenter.set(pAugmenter);
+		m_augmenter.reset(pAugmenter);
 	}
 
 	//! Sets the shelling order module.
 	void setShellingOrder(ShellingOrderModule *pOrder){
-		m_computeOrder.set(pOrder);
+		m_computeOrder.reset(pOrder);
 	}
 
 	//! Sets the module option for the graph embedding algorithm.
 	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.set(pEmbedder);
+		m_embedder.reset(pEmbedder);
 	}
 
 	//! @}
@@ -181,9 +178,9 @@ private:
 	bool   m_sizeOptimization; //!< The option for size optimization.
 	double m_baseRatio; //!< The option for specifying the base ratio.
 
-	ModuleOption<EmbedderModule>      m_embedder;       //!< The planar embedder module.
-	ModuleOption<AugmentationModule>  m_augmenter;		//!< The augmentation module.
-	ModuleOption<ShellingOrderModule> m_computeOrder;	//!< The shelling order module.
+	std::unique_ptr<EmbedderModule>      m_embedder;       //!< The planar embedder module.
+	std::unique_ptr<AugmentationModule>  m_augmenter;		//!< The augmentation module.
+	std::unique_ptr<ShellingOrderModule> m_computeOrder;	//!< The shelling order module.
 
 	virtual void doCall(
 		const Graph &G,

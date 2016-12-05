@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/GraphCopy.h>
@@ -124,6 +121,7 @@ GraphCopy::GraphCopy(const Graph &G)
 
 GraphCopy::GraphCopy(const GraphCopy &GC) : Graph()
 {
+	m_pGraph = nullptr; // just a temporary value to make "clear" work correctly
 	*this = GC;
 }
 
@@ -208,29 +206,24 @@ void GraphCopy::initByCC(const CCsInfo &info, int cc, EdgeArray<edge> &eCopy)
 void GraphCopy::initByNodes(const List<node> &origNodes, EdgeArray<edge> &eCopy)
 {
 #ifdef OGDF_DEBUG
-	Stack<node> *stack = new Stack<node>();
-	List<node> *copyList = new List<node>(origNodes);
-	while(!copyList->empty()){
-		stack->push(copyList->popFrontRet());
+	Stack<node> stack;
+	List<node> copyList(origNodes);
+	while (!copyList.empty()) {
+		stack.push(copyList.popFrontRet());
 		node v;
-		while(!stack->empty()){
-			v = stack->pop();
-			for(adjEntry adj = v->firstAdj(); adj != nullptr; adj = adj->succ()){
+		while (!stack.empty()) {
+			v = stack.pop();
+			for (adjEntry adj : v->adjEntries) {
 				node w = adj->twinNode();
-				if(copyList->search(w).valid()){
-					stack->push(w);
-					copyList->del(copyList->search(w));
-				}
-				if(!origNodes.search(w).valid()){
-					delete stack;
-					delete copyList;
-					throw PreconditionViolatedException();
+				OGDF_ASSERT(origNodes.search(w).valid());
+				auto it = copyList.search(w);
+				if (it.valid()) {
+					stack.push(w);
+					copyList.del(it);
 				}
 			}
 		}
 	}
-	delete stack;
-	delete copyList;
 #endif
 
 	Graph::constructInitByNodes(*m_pGraph,origNodes,m_vCopy,eCopy);
@@ -242,9 +235,6 @@ void GraphCopy::initByNodes(const List<node> &origNodes, EdgeArray<edge> &eCopy)
 		for(adjEntry adj : v->adjEntries) {
 			if ((adj->index() & 1) == 0) {
 				edge e = adj->theEdge();
-				//
-				// edge ec = eCopy[e];
-				//
 				m_eIterator[eCopy[e]] = m_eCopy[e].pushBack(eCopy[e]);
 				m_eOrig[eCopy[e]] = e;
 			}
@@ -267,10 +257,7 @@ void GraphCopy::initByActiveNodes(
 		for(adjEntry adj : v->adjEntries) {
 			if ((adj->index() & 1) == 0) {
 				edge e = adj->theEdge();
-				//
-				// edge ec = eCopy[e];
-				//
-				OGDF_ASSERT(m_eCopy[e].size() == 0)
+				OGDF_ASSERT(m_eCopy[e].size() == 0);
 				if (activeNodes[e->opposite(v)])
 				{
 					m_eIterator[eCopy[e]] = m_eCopy[e].pushBack(eCopy[e]);
@@ -297,42 +284,26 @@ GraphCopy &GraphCopy::operator=(const GraphCopy &GC)
 
 void GraphCopy::setOriginalEmbedding()
 {
-	if(m_pGraph->numberOfNodes() != numberOfNodes() || m_pGraph->numberOfEdges() != numberOfEdges()){
-		throw PreconditionViolatedException();
-	}
-	for(node v : m_pGraph->nodes)
-	{
-		if (m_vCopy[v] != nullptr)
-		{
-			List<adjEntry> newAdjOrder;
-			newAdjOrder.clear();
+	OGDF_ASSERT(m_pGraph->numberOfNodes() == numberOfNodes());
+	OGDF_ASSERT(m_pGraph->numberOfEdges() == numberOfEdges());
+	for (node v : m_pGraph->nodes) {
+		OGDF_ASSERT(m_vCopy[v] != nullptr);
+		List<adjEntry> newAdjOrder;
+		newAdjOrder.clear();
 
-			for(adjEntry adjOr : v->adjEntries)
-			{
-				if (m_eCopy[adjOr->theEdge()].size() > 0){
-					//we have outgoing adjEntries for all
-					//incoming and outgoing edges, check the direction
-					//to find the correct copy adjEntry
-					bool outEdge = (adjOr == (adjOr->theEdge()->adjSource()));
+		for (adjEntry adjOr : v->adjEntries) {
+			OGDF_ASSERT(m_eCopy[adjOr->theEdge()].size() > 0);
+			// we have outgoing adjEntries for all
+			// incoming and outgoing edges, check the direction
+			// to find the correct copy adjEntry
+			bool outEdge = (adjOr == (adjOr->theEdge()->adjSource()));
 
-					if(chain(adjOr->theEdge()).size() != 1){
-						throw PreconditionViolatedException();
-					}
-					edge cEdge = chain(adjOr->theEdge()).front();
-					adjEntry cAdj = (outEdge ? cEdge->adjSource() : cEdge->adjTarget());
-					newAdjOrder.pushBack(cAdj);
-				}
-				else
-				{
-					throw PreconditionViolatedException();
-				}
-			}
-			sort(copy(v), newAdjOrder);
+			OGDF_ASSERT(chain(adjOr->theEdge()).size() == 1);
+			edge cEdge = chain(adjOr->theEdge()).front();
+			adjEntry cAdj = (outEdge ? cEdge->adjSource() : cEdge->adjTarget());
+			newAdjOrder.pushBack(cAdj);
 		}
-		else
-		{
-			throw PreconditionViolatedException();
-		}
+		sort(copy(v), newAdjOrder);
 	}
 }
 
@@ -365,20 +336,12 @@ void GraphCopy::unsplit(edge eIn, edge eOut)
 
 edge GraphCopy::newEdge(edge eOrig)
 {
-#ifdef OGDF_DEBUG
-	if(eOrig == nullptr){
-		throw PreconditionViolatedException();
-	}
-	if(eOrig->graphOf() != m_pGraph){
-		throw PreconditionViolatedException();
-	}
-	if(!m_eCopy[eOrig].empty()){
-		throw PreconditionViolatedException();
-	} // no support for edge splitting!
-#endif
+	OGDF_ASSERT(eOrig != nullptr);
+	OGDF_ASSERT(eOrig->graphOf() == m_pGraph);
+	OGDF_ASSERT(m_eCopy[eOrig].empty()); // no support for edge splitting!
 
 	edge e = Graph::newEdge(m_vCopy[eOrig->source()], m_vCopy[eOrig->target()]);
-	m_eCopy[m_eOrig[e] = eOrig].pushBack(e);
+	m_eIterator[e] = m_eCopy[m_eOrig[e] = eOrig].pushBack(e);
 
 	return e;
 }
@@ -388,33 +351,19 @@ edge GraphCopy::newEdge(edge eOrig)
 //todo: rename adjEnd to show the symmetric character
 edge GraphCopy::newEdge(node v, adjEntry adjEnd, edge eOrig, CombinatorialEmbedding &E)
 {
-#ifdef OGDF_DEBUG
-	if(v == nullptr){
-		throw PreconditionViolatedException();
-	}
-	if(adjEnd == nullptr){
-		throw PreconditionViolatedException();
-	}
-	if(v->graphOf() != this){
-		throw PreconditionViolatedException();
-	}
-	if(adjEnd->graphOf() != this){
-		throw PreconditionViolatedException();
-	}
-	if(&E.getGraph() != this){
-		throw PreconditionViolatedException();
-	}
-	if(!m_eCopy[eOrig].empty()){
-		throw PreconditionViolatedException();
-	}
-#endif
+	OGDF_ASSERT(v != nullptr);
+	OGDF_ASSERT(adjEnd != nullptr);
+	OGDF_ASSERT(v->graphOf() == this);
+	OGDF_ASSERT(adjEnd->graphOf() == this);
+	OGDF_ASSERT(&E.getGraph() == this);
+	OGDF_ASSERT(m_eCopy[eOrig].empty());
 
 	//check which direction is correct
 	edge e;
 	if (original(v) == eOrig->source())
-		e = E.splitFace(v, adjEnd);
+		e = E.addEdgeToIsolatedNode(v, adjEnd);
 	else
-		e = E.splitFace(adjEnd, v);
+		e = E.addEdgeToIsolatedNode(adjEnd, v);
 	m_eIterator[e] = m_eCopy[eOrig].pushBack(e);
 	m_eOrig[e] = eOrig;
 
@@ -423,29 +372,13 @@ edge GraphCopy::newEdge(node v, adjEntry adjEnd, edge eOrig, CombinatorialEmbedd
 
 
 void GraphCopy::setEdge(edge eOrig, edge eCopy){
-#ifdef OGDF_DEBUG
-	if(eOrig == nullptr){
-		throw PreconditionViolatedException();
-	}
-	if(eOrig->graphOf() != m_pGraph){
-		throw PreconditionViolatedException();
-	}
-	if(eCopy == nullptr){
-		throw PreconditionViolatedException();
-	}
-	if(eCopy->graphOf() != this){
-		throw PreconditionViolatedException();
-	}
-	if(eCopy->target() != m_vCopy[eOrig->target()]){
-		throw PreconditionViolatedException();
-	}
-	if(eCopy->source() != m_vCopy[eOrig->source()]){
-		throw PreconditionViolatedException();
-	}
-	if(!m_eCopy[eOrig].empty()){
-		throw PreconditionViolatedException();
-	}
-#endif
+	OGDF_ASSERT(eOrig != nullptr);
+	OGDF_ASSERT(eOrig->graphOf() == m_pGraph);
+	OGDF_ASSERT(eCopy != nullptr);
+	OGDF_ASSERT(eCopy->graphOf() == this);
+	OGDF_ASSERT(eCopy->target() == m_vCopy[eOrig->target()]);
+	OGDF_ASSERT(eCopy->source() == m_vCopy[eOrig->source()]);
+	OGDF_ASSERT(m_eCopy[eOrig].empty());
 
 	m_eCopy[m_eOrig[eCopy] = eOrig].pushBack(eCopy);
 }
@@ -531,70 +464,61 @@ void GraphCopy::insertEdgePath(node srcOrig, node tgtOrig, const SList<adjEntry>
 		node u = split(adj->theEdge())->source();
 
 		edge eNew = newEdge(v,u);
-	//	m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
+#if 0
+		m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
+#endif
 		m_eOrig[eNew] = nullptr;
 
 		v = u;
 	}
 
 	edge eNew = newEdge(v,copy(tgtOrig));
-	//m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
+#if 0
+	m_eIterator[eNew] = m_eCopy[eOrig].pushBack(eNew);
+#endif
 	m_eOrig[eNew] = nullptr;
 }
 
-//inserts crossing between two copy edges already in PlanRep
-//returns newly introduced copy edge of crossed edge
-//the crossing edge parameter is changed to allow iteration
-//over an edge's crossings in the edge direction
-//the parameter topDown describes he following:
-// if the crossingEdge is running horizontally from left to right,
-// is the crossedEdge direction top->down?
 edge GraphCopy::insertCrossing(
 	edge& crossingEdge,
 	edge crossedEdge,
-	bool topDown)
-	//const SList<edge> &crossedCopies)
+	bool rightToLeft)
+#if 0
+	const SList<edge> &crossedCopies)
+#endif
 {
-	//we first split the crossed edge
 	edge e = split(crossedEdge);
-	edge eOrig = original(crossingEdge);
-	adjEntry adSource = crossingEdge->adjSource();
 
-	//now we delete the crossing copy edge and replace it
-	//by two edges adjacent to the crossing vertex
-	//we have to consider the copy ordering of the
-	//original edge
-	//we have to keep the correct order of the adjacency entries
-	//because even without a combinatorial embedding, the
-	//ordering of the edges may already be fixed
-	//Problem: wie erkennt man die Reihenfolge am split?
-	//Man muss die Richtung der gekreuzten Kante kennen
-	//=>Parameter, und hier adjSource und adjTarget trennen
-	edge eNew1, eNew2;
-	if (topDown)
-	{
-		//case 1: crossingEdge runs top-down
-		eNew1 = newEdge(adSource, e->adjSource());
-		eNew2 = newEdge(e->adjSource()->cyclicPred(),
-			crossingEdge->adjTarget()->cyclicPred());
+	// insert edges replacing the crossing edge
+	adjEntry adjIn = e->adjSource();
+	adjEntry adjOut = e->adjSource()->cyclicPred();
+
+	if (!rightToLeft) {
+		swap(adjIn, adjOut);
 	}
-	else
-	{
-		//case 2: crossingEdge runs bottom-up
-		eNew1 = newEdge(adSource, e->adjSource()->cyclicPred());
-		eNew2 = newEdge(e->adjSource(), crossingEdge->adjTarget()->cyclicPred());
-	}//else bottom up
-	//insert new edge after old entry
-	m_eIterator[eNew1] = m_eCopy[eOrig].insert(eNew1, m_eIterator[crossingEdge]);
+
+	edge eNew1 = newEdge(crossingEdge->adjSource(), adjIn);
+	edge eNew2 = newEdge(adjOut, crossingEdge->adjTarget()->cyclicPred());
+
+	// restore copy mapping
+	edge eOrig = original(crossingEdge);
+
+	if(eOrig != nullptr) {
+		m_eIterator[eNew1] = m_eCopy[eOrig].insert(eNew1, m_eIterator[crossingEdge]);
+		m_eIterator[eNew2] = m_eCopy[eOrig].insert(eNew2, m_eIterator[eNew1]);
+	}
+
 	m_eOrig[eNew1] = eOrig;
-	m_eIterator[eNew2] = m_eCopy[eOrig].insert(eNew2, m_eIterator[eNew1]);
 	m_eOrig[eNew2] = eOrig;
-	//now we delete the input copy edge
-	m_eCopy[eOrig].del(m_eIterator[crossingEdge]);
+
+	// remove crossing edge
+	if(eOrig != nullptr) {
+		m_eCopy[eOrig].del(m_eIterator[crossingEdge]);
+	}
 	Graph::delEdge(crossingEdge);
 	crossingEdge = eNew2;
 
-	return e;//eNew2;
+	return e;
 }
 
 void GraphCopy::delEdge(edge e)
@@ -604,11 +528,7 @@ void GraphCopy::delEdge(edge e)
 	Graph::delEdge(e);
 	if (eOrig == nullptr)	return;
 
-#ifdef OGDF_DEBUG
-	if(m_eCopy[eOrig].size() != 1){
-		throw PreconditionViolatedException();
-	}
-#endif
+	OGDF_ASSERT(m_eCopy[eOrig].size() == 1);
 	m_eCopy[eOrig].clear();
 }
 
@@ -619,6 +539,16 @@ void GraphCopy::delNode(node v)
 	if (w != nullptr) m_vCopy[w] = nullptr;
 
 	Graph::delNode(v);
+}
+
+void GraphCopy::clear()
+{
+	if(m_pGraph != nullptr) {
+		m_vCopy.init(*m_pGraph, nullptr);
+		m_eCopy.init(*m_pGraph);
+	}
+
+	Graph::clear();
 }
 
 
@@ -632,15 +562,9 @@ void GraphCopy::removeEdgePathEmbedded(
 	ListConstIterator<edge> testIt = path.begin();
 	for(++testIt; testIt.valid(); ++testIt){
 		node v = (*testIt)->source();
-		if(v->degree() != 4){
-			throw PreconditionViolatedException();
-		}
-		if(original(v->firstAdj()->theEdge()) != original(v->lastAdj()->pred()->theEdge())){
-			throw PreconditionViolatedException();
-		}
-		if(original(v->lastAdj()->theEdge()) != original(v->firstAdj()->succ()->theEdge())){
-			throw PreconditionViolatedException();
-		}
+		OGDF_ASSERT(v->degree() == 4);
+		OGDF_ASSERT(original(v->firstAdj()->theEdge()) == original(v->lastAdj()->pred()->theEdge()));
+		OGDF_ASSERT(original(v->lastAdj()->theEdge()) == original(v->firstAdj()->succ()->theEdge()));
 	}
 #endif
 
@@ -679,9 +603,7 @@ void GraphCopy::removeEdgePath(edge eOrig)
 	ListConstIterator<edge> testIt = path.begin();
 	for(++testIt; testIt.valid(); ++testIt){
 		node v = (*testIt)->source();
-		if(v->degree() != 4){
-			throw PreconditionViolatedException();
-		}
+		OGDF_ASSERT(v->degree() == 4);
 	}
 #endif
 	ListConstIterator<edge> it = path.begin();
@@ -768,6 +690,30 @@ void GraphCopy::removePseudoCrossings()
 	}
 }
 
+
+bool GraphCopy::isReversedCopyEdge (edge e) const {
+	List<edge> chainOfE = chain(original(e));
+#ifdef OGDF_DEBUG
+	auto it = chainOfE.begin();
+	edge prev = *it;
+	OGDF_ASSERT(prev->isIncident(copy(original(e)->source())) ||
+	            prev->isIncident(copy(original(e)->target())));
+	for(++it; it.valid(); prev = *it, ++it){
+		OGDF_ASSERT(prev->commonNode(*it));
+	}
+	OGDF_ASSERT(prev->isIncident(copy(original(e)->source())) ||
+	            prev->isIncident(copy(original(e)->target())));
+#endif
+	int pos = chainOfE.pos(chainOfE.search(e));
+	if(chainOfE.size() == 1){
+		return isReversed(original(e));
+	}
+	if(pos == 0){
+		return e->commonNode(*(chainOfE.get(pos + 1))) == e->source();
+	} else {
+		return e->commonNode(*(chainOfE.get(pos - 1))) == e->target();
+	}
+}
 
 bool GraphCopy::consistencyCheck() const
 {

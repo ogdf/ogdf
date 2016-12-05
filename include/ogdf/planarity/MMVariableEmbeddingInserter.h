@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -90,10 +87,10 @@ private:
 	typedef PlanRepExpansion::Crossing Crossing;
 
 	struct AnchorNodeInfo {
-		AnchorNodeInfo() { m_adj_1 = m_adj_2 = 0; }
+		AnchorNodeInfo() { m_adj_1 = m_adj_2 = nullptr; }
 		AnchorNodeInfo(adjEntry adj) {
 			m_adj_1 = adj;
-			m_adj_2 = 0;
+			m_adj_2 = nullptr;
 		}
 		AnchorNodeInfo(adjEntry adj_1, adjEntry adj_2) {
 			m_adj_1 = adj_1;
@@ -110,7 +107,7 @@ private:
 		Paths() :
 			m_addPartLeft(3), m_addPartRight(3),
 			m_paths(3),
-			m_src(0,2,0), m_tgt(0,2,0),
+			m_src(0,2,nullptr), m_tgt(0,2,nullptr),
 			m_pred(0,2,0)
 		{ }
 

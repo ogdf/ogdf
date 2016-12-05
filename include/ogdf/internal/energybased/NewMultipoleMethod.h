@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -123,7 +120,7 @@ private:
 		QuadTreeNM& T);
 
 	//! Makes L_x(y)_copy a copy of L_x(y)_orig and sets p.copy_item for each element in
-	//! L_x(y)_orig to the ListIterator of the corresponding element in L_x(y)_copy;
+	//! L_x(y)_orig to the ListIterator of the corresponding element in L_x(y)_copy.
 	//! Furthermore, the p.cross_ref_items in L_x(y)_copy are set and p.subList_ptr and
 	//! p.tmp_cross_ref_item is reset to nullptr in both lists.
 	void make_copy_and_init_Lists(List<ParticleInfo>& L_x_orig,

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/internal/energybased/MultilevelGraph.h>
 #include <ogdf/module/CCLayoutPackModule.h>
 #include <ogdf/module/LayoutModule.h>
@@ -48,8 +45,8 @@ namespace ogdf {
 class OGDF_EXPORT ComponentSplitterLayout : public LayoutModule
 {
 private:
-	ModuleOption<LayoutModule> m_secondaryLayout;
-	ModuleOption<CCLayoutPackModule> m_packer;
+	std::unique_ptr<LayoutModule> m_secondaryLayout;
+	std::unique_ptr<CCLayoutPackModule> m_packer;
 
 	double m_targetRatio;
 	int m_border;
@@ -62,14 +59,14 @@ private:
 public:
 	ComponentSplitterLayout();
 
-	void call(GraphAttributes &GA);
+	void call(GraphAttributes &GA) override;
 
 	void setLayoutModule(LayoutModule *layout) {
-		m_secondaryLayout.set(layout);
+		m_secondaryLayout.reset(layout);
 	}
 
 	void setPacker(CCLayoutPackModule *packer) {
-		m_packer.set(packer);
+		m_packer.reset(packer);
 	}
 };
 

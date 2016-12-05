@@ -58,7 +58,7 @@ class Variable;
  * LP-solvers supported by the Open Solver Interface (OSI) is the class
  * LpSubOsi.
  */
-class  LpSub :  public virtual LP  {
+class OGDF_EXPORT LpSub : public virtual LP {
 
 	friend class Sub;
 	friend class SetBranchRule;
@@ -121,32 +121,32 @@ public:
 	 * of the LP-solver the objective function part of the eliminated
 	 * variables, to get the right value of \a value().
 	 */
-	virtual double value() const { return LP::value() + valueAdd_; }
+	virtual double value() const override { return LP::value() + valueAdd_; }
 
 	//! We have to redefine the function \a xVal(i) since variables may have been eliminated.
 	/**
 	 * \return The x-value of variable \a i after the solution of the linear program.
 	 */
-	virtual double xVal(int i) const;
+	virtual double xVal(int i) const override;
 
 	//! We have to redefine the function \a barXVal(i) since variables may have been eliminated.
 	/**
 	 * \return The x-value of variable \a i after the solution of the linear
 	 *         program before crossing over to a basic solution.
 	 */
-	virtual double barXVal(int i) const;
+	virtual double barXVal(int i) const override;
 
 	//! We define the reduced costs of eliminated variables as 0.
 	/**
 	 * \return The reduced cost of variable \a i.
 	 */
-	virtual double reco(int i) const;
+	virtual double reco(int i) const override;
 
 	//! Returns the status of the variable in the linear program.
 	/**
 	 * If the variable \a i is eliminated, then LPVARSTAT::Eliminated is returned.
 	 */
-	virtual LPVARSTAT::STATUS lpVarStat(int i) const;
+	virtual LPVARSTAT::STATUS lpVarStat(int i) const override;
 
 
 	//! Is called if the last linear program has been solved with the dual simplex method and is infeasible.
@@ -161,7 +161,7 @@ public:
 	 *                  variable. Note, either \a infeasCon or \a infeasVar is nonnegative.
 	 * \param bInvRow   An array containing the corresponding row of the basis inverse.
 	 */
-	virtual int getInfeas(int &infeasCon, int &infeasVar, double *bInvRow) const;
+	virtual int getInfeas(int &infeasCon, int &infeasVar, double *bInvRow) const override;
 
 	/**
 	 * \return true If the \a LP turned out to be
@@ -171,7 +171,7 @@ public:
 	 *              construction of the LP or during the addition of constraints,
 	 * \return false otherwise.
 	 */
-	virtual bool infeasible() const {
+	virtual bool infeasible() const override {
 		return (LP::infeasible() || infeasCons_.size());
 	}
 
@@ -187,7 +187,7 @@ public:
 	 * \param slackStat An array storing the status of the slack variables.
 	 */
 	virtual void loadBasis(Array<LPVARSTAT::STATUS> &lpVarStat,
-		Array<SlackStat::STATUS> &slackStat);
+		Array<SlackStat::STATUS> &slackStat) override;
 
 protected:
 
@@ -215,7 +215,7 @@ private:
 	 * \a LP should be deleted and reconstructed. This is done by the function
 	 * \a solveLp() in the cutting plane algorithm of the class Sub.
 	 */
-	virtual OPTSTAT optimize(METHOD method);
+	virtual OPTSTAT optimize(METHOD method) override;
 
 	//! Removes all constraints listed in the buffer \a ind from the linear program.
 	virtual void removeCons(ArrayBuffer<int> &ind) {
@@ -245,14 +245,14 @@ private:
 	 * It is not allowed to change the lower bound of an
 	 * eliminated variable. This will cause a run-time error.
 	 */
-	virtual void changeLBound(int i, double newLb);
+	virtual void changeLBound(int i, double newLb) override;
 
 	//! Sets the upper bound of variable \a i to \a newUb.
 	/**
 	 * It is not allowed to change the upper bound of
 	 * an eliminated variable. This will cause a run-time error.
 	 */
-	virtual void changeUBound(int i, double newUb);
+	virtual void changeUBound(int i, double newUb) override;
 
 	//! Sets the maximal number of variables to \a newSize.
 	virtual void varRealloc(int newSize);

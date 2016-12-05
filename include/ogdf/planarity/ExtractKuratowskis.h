@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -215,7 +212,9 @@ class ExtractKuratowskis {
 		 */
 		static int whichKuratowskiArray(
 				const Graph& g,
-				//const NodeArray<int>& m_dfi,
+#if 0
+				const NodeArray<int>& m_dfi,
+#endif
 				EdgeArray<int>& edgenumber);
 
 		//! Returns true, iff the Kuratowski is not already contained in output
@@ -227,7 +226,9 @@ class ExtractKuratowskis {
 		/** \pre Kuratowski Edges are all edges != 0 in the Array.
 		 */
 		static bool isANewKuratowski(
-				//const Graph& g,
+#if 0
+				const Graph& g,
+#endif
 				const EdgeArray<int>& test,
 				const SList<KuratowskiWrapper>& output);
 
@@ -294,7 +295,9 @@ class ExtractKuratowskis {
 		void extractMinorA(
 				SList<KuratowskiWrapper>& output,
 				const KuratowskiStructure& k,
-				//const WInfo& info,
+#if 0
+				const WInfo& info,
+#endif
 				const SListPure<edge>& pathX,
 				const node endnodeX,
 				const SListPure<edge>& pathY,
@@ -380,7 +383,9 @@ class ExtractKuratowskis {
 		void extractMinorE1(
 				SList<KuratowskiWrapper>& output,
 				int before,
-				//const node z,
+#if 0
+				const node z,
+#endif
 				const node px,
 				const node py,
 				const KuratowskiStructure& k,
@@ -395,19 +400,26 @@ class ExtractKuratowskis {
 		//! Extracts minorsubtype E2 and adds it to list \a output
 		void extractMinorE2(
 				SList<KuratowskiWrapper>& output,
-				/*int before,
+#if 0
+				int before,
 				const node z,
 				const node px,
-				const node py,*/
+				const node py,
+#endif
 				const KuratowskiStructure& k,
 				const WInfo& info,
 				const SListPure<edge>& pathX,
 				const node endnodeX,
 				const SListPure<edge>& pathY,
 				const node endnodeY,
-				//const SListPure<edge>& pathW,
-				const SListPure<edge>& pathZ/*,
-				const node endnodeZ*/);
+#if 0
+				const SListPure<edge>& pathW,
+#endif
+				const SListPure<edge>& pathZ
+#if 0
+				, const node endnodeZ
+#endif
+				);
 		//! Extracts minorsubtype E3 and adds it to list \a output
 		void extractMinorE3(
 				SList<KuratowskiWrapper>& output,
@@ -443,10 +455,12 @@ class ExtractKuratowskis {
 		//! Extracts minorsubtype E5 and adds it to list \a output
 		void extractMinorE5(
 				SList<KuratowskiWrapper>& output,
-				/*int before,
+#if 0
+				int before,
 				const node z,
 				const node px,
-				const node py,*/
+				const node py,
+#endif
 				const KuratowskiStructure& k,
 				const WInfo& info,
 				const SListPure<edge>& pathX,

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -40,25 +37,25 @@ namespace ogdf
 {
 //! Interface for simdraw manipulators
 /**
-*  To avoid class SimDraw to become too large, several functions
-*  have been outsourced. These are systematically
-*  grouped in creation methods (SimDrawCreator), algorithm calls
-*  (SimDrawCaller) and coloring methods (SimDrawColorizer).
-*
-*  A manipulator instance always needs a SimDraw instance (base instance)
-*  to work on. The base instance is linked by pointers,
-*  thus a change within the base instance after initializing does
-*  not cause trouble:
-*  \code
-*  SimDraw SD;
-*  SimDrawCreatorSimple SDCr(SD);
-*  SimDrawColorizer SDCo(SD);
-*  SDCr.createTrees_GKV05(4);
-*  SimDrawCaller SDCa(SD);
-*  SDCa.callUMLPlanarizationLayout();
-*  SDCo.addColor();
-*  \endcode
-*/
+ *  To avoid class SimDraw to become too large, several functions
+ *  have been outsourced. These are systematically
+ *  grouped in creation methods (SimDrawCreator), algorithm calls
+ *  (SimDrawCaller) and coloring methods (SimDrawColorizer).
+ *
+ *  A manipulator instance always needs a SimDraw instance (base instance)
+ *  to work on. The base instance is linked by pointers,
+ *  thus a change within the base instance after initializing does
+ *  not cause trouble:
+ *  \code
+ *  SimDraw SD;
+ *  SimDrawCreatorSimple SDCr(SD);
+ *  SimDrawColorizer SDCo(SD);
+ *  SDCr.createTrees_GKV05(4);
+ *  SimDrawCaller SDCa(SD);
+ *  SDCa.callUMLPlanarizationLayout();
+ *  SDCo.addColor();
+ *  \endcode
+ */
 class OGDF_EXPORT SimDrawManipulatorModule
 {
 

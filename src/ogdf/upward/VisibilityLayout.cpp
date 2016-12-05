@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/upward/VisibilityLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -48,7 +45,7 @@ void VisibilityLayout::call(GraphAttributes &GA)
 	//call upward planarizer
 	UpwardPlanRep UPR;
 	UPR.createEmpty(GA.constGraph());
-	m_upPlanarizer.get().call(UPR);
+	m_upPlanarizer->call(UPR);
 	layout(GA, UPR);
 }
 
@@ -73,9 +70,10 @@ void VisibilityLayout::layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig)
 	//add edge (s,t)
 	adjEntry adjSrc = nullptr;
 	for(adjEntry adj : UPR.getSuperSource()->adjEntries) {
-		if (gamma.rightFace(adj) == gamma.externalFace())
+		if (gamma.rightFace(adj) == gamma.externalFace()) {
 			adjSrc = adj;
 			break;
+		}
 	}
 
 	OGDF_ASSERT(adjSrc != nullptr);
@@ -231,15 +229,16 @@ void VisibilityLayout::constructDualGraph(UpwardPlanRep &UPR)
 void VisibilityLayout::constructVisibilityRepresentation(UpwardPlanRep &UPR)
 {
 	constructDualGraph(UPR);
-	//makeSimple(D);
-	//if (t_D->degree() <= 1)
-	//	D.newEdge(s_D, t_D); // make biconnected
+#if 0
+	makeSimple(D);
+	if (t_D->degree() <= 1)
+		D.newEdge(s_D, t_D); // make biconnected
 
-
-	//OGDF_ASSERT(isSimple(UPR));
-	//OGDF_ASSERT(isBiconnected(UPR));
-	//OGDF_ASSERT(isSimple(D));
-	//OGDF_ASSERT(isBiconnected(D));
+	OGDF_ASSERT(isSimple(UPR));
+	OGDF_ASSERT(isBiconnected(UPR));
+	OGDF_ASSERT(isSimple(D));
+	OGDF_ASSERT(isBiconnected(D));
+#endif
 
 	//compute top. numbering
 	NodeArray<int> topNumberUPR(UPR);

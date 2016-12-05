@@ -12,7 +12,7 @@
 #include "CoinFinite.hpp"
 
 
-/** 
+/**
     In many cases it is natural to build a model by adding one row at a time.  In Coin this
     is inefficient so this class gives some help.  An instance of CoinBuild can be built up
     more efficiently and then added to the Clp/OsiModel in one go.
@@ -25,23 +25,23 @@
 */
 
 class CoinBuild {
-  
+
 public:
   /**@name Useful methods */
    //@{
    /// add a row
    void addRow(int numberInRow, const int * columns,
-	       const double * elements, double rowLower=-COIN_DBL_MAX, 
+	       const double * elements, double rowLower=-COIN_DBL_MAX,
               double rowUpper=COIN_DBL_MAX);
    /// add a column
    void addColumn(int numberInColumn, const int * rows,
-                  const double * elements, 
-                  double columnLower=0.0, 
+                  const double * elements,
+                  double columnLower=0.0,
                   double columnUpper=COIN_DBL_MAX, double objectiveValue=0.0);
    /// add a column
    inline void addCol(int numberInColumn, const int * rows,
-                  const double * elements, 
-                  double columnLower=0.0, 
+                  const double * elements,
+                  double columnLower=0.0,
                   double columnUpper=COIN_DBL_MAX, double objectiveValue=0.0)
   { addColumn(numberInColumn, rows, elements, columnLower, columnUpper, objectiveValue);}
    /// Return number of rows or maximum found so far
@@ -68,7 +68,7 @@ public:
   int currentRow() const;
   /**  Returns number of elements in a column and information in column
    */
-  int column(int whichColumn, 
+  int column(int whichColumn,
              double & columnLower, double & columnUpper,double & objectiveValue,
              const int * & indices, const double * & elements) const;
   /**  Returns number of elements in current column and information in column
@@ -104,16 +104,16 @@ public:
    CoinBuild& operator=(const CoinBuild&);
    //@}
 private:
-  /// Set current 
+  /// Set current
   void setMutableCurrent(int which) const;
    /// add a item
    void addItem(int numberInItem, const int * indices,
-                  const double * elements, 
-                  double itemLower, 
+                  const double * elements,
+                  double itemLower,
                   double itemUpper, double objectiveValue);
   /**  Returns number of elements in a item and information in item
    */
-  int item(int whichItem, 
+  int item(int whichItem,
              double & itemLower, double & itemUpper,double & objectiveValue,
              const int * & indices, const double * & elements) const;
   /**  Returns number of elements in current item and information in item
@@ -125,7 +125,7 @@ private:
   void setCurrentItem(int whichItem);
   /// Returns current item number
   int currentItem() const;
-   
+
 private:
   /**@name Data members */
    //@{

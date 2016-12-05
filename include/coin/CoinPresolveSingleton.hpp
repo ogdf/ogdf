@@ -50,7 +50,7 @@ class slack_doubleton_action : public CoinPresolveAction {
   const char *name() const { return ("slack_doubleton_action"); }
 
   /*! \brief Convert explicit bound constraints to column bounds.
-  
+
     Not now There is a hard limit (#MAX_SLACK_DOUBLETONS) on the number of
     constraints processed in a given call. \p notFinished is set to true
     if candidates remain.

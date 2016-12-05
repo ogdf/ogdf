@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <algorithm>
 #include <string>
@@ -48,9 +45,6 @@
 
 using namespace ogdf;
 using namespace bandit;
-
-typedef bool (*ReaderFunc)(Graph&, istream&);
-typedef bool (*WriterFunc)(const Graph&, ostream&);
 
 bool seemsEqual(const Graph &G1, const Graph &G2)
 {
@@ -126,7 +120,8 @@ void describeSTP(const string &typeName) {
 				EdgeWeightedGraph<T> graph;
 				List<node> terminals;
 				NodeArray<bool> isTerminal;
-				AssertThat(GraphIO::readSTP(graph, terminals, isTerminal, filename), IsTrue());
+				ifstream is(filename);
+				AssertThat(GraphIO::readSTP(graph, terminals, isTerminal, is), IsTrue());
 
 				AssertThat(graph.numberOfNodes(), IsGreaterThan(0));
 				AssertThat(graph.numberOfEdges(), IsGreaterThan(0));
@@ -146,7 +141,8 @@ void describeSTP(const string &typeName) {
 				EdgeWeightedGraph<T> graph;
 				List<node> terminals;
 				NodeArray<bool> isTerminal;
-				AssertThat(GraphIO::readSTP(graph, terminals, isTerminal, filename), IsFalse());
+				ifstream is(filename);
+				AssertThat(GraphIO::readSTP(graph, terminals, isTerminal, is), IsFalse());
 			});
 		});
 	});
@@ -163,7 +159,8 @@ void describeDMF(const string &typeName) {
 				node source;
 				node sink;
 
-				AssertThat(GraphIO::readDMF(graph, source, sink, filename), IsTrue());
+				ifstream is(filename);
+				AssertThat(GraphIO::readDMF(graph, source, sink, is), IsTrue());
 				AssertThat(graph.numberOfNodes(), IsGreaterThan(1));
 				AssertThat(source, Is().Not().EqualTo(nullPointer));
 				AssertThat(sink, Is().Not().EqualTo(nullPointer));
@@ -184,7 +181,8 @@ void describeDMF(const string &typeName) {
 				EdgeWeightedGraph<T> graph;
 				node source;
 				node sink;
-				AssertThat(GraphIO::readDMF(graph, source, sink, filename), IsFalse());
+				ifstream is(filename);
+				AssertThat(GraphIO::readDMF(graph, source, sink, is), IsFalse());
 			});
 		});
 
@@ -194,10 +192,8 @@ void describeDMF(const string &typeName) {
 			node sink;
 
 			randomGraph(graph, 42, 189);
-			sink = source = graph.chooseNode();
-			while(sink == source) {
-				sink = graph.chooseNode();
-			}
+			source = graph.chooseNode();
+			sink = graph.chooseNode([&](node v) { return v != source; });
 
 			T sum = 0;
 			for(edge e : graph.edges) {
@@ -250,7 +246,7 @@ void describeDMF(const string &typeName) {
  * \param writer The write function to be tested.
  * \param isXml Whether the format is based on XML.
  */
-void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer, bool isXml)
+void describeFormat(const std::string name, GraphIO::ReaderFunc reader, GraphIO::WriterFunc writer, bool isXml)
 {
 	std::string lowerCaseName = name;
 	std::transform(lowerCaseName.begin(), lowerCaseName.end(), lowerCaseName.begin(), ::tolower);
@@ -294,6 +290,22 @@ void describeFormat(const std::string name, ReaderFunc reader, WriterFunc writer
 		if(isXml) {
 			for_each_file("fileformats/xml/invalid", errorTest);
 		}
+
+		it("detects invalid input streams", [&](){
+			Graph G;
+			randomGraph(G, 10, 20);
+			std::istringstream badStream;
+			badStream.setstate(std::istringstream::badbit);
+			AssertThat(reader(G, badStream), IsFalse());
+		});
+
+		it("detects invalid output streams", [&](){
+			Graph G;
+			randomGraph(G, 10, 20);
+			std::ostringstream badStream;
+			badStream.setstate(std::ostringstream::badbit);
+			AssertThat(writer(G, badStream), IsFalse());
+		});
 
 		resourceBasedTest();
 
@@ -364,7 +376,7 @@ describe("GraphIO", [](){
 		std::function<void (const string&)> genericTest = [](const string &filename) {
 			it(string("parses " + filename), [&]() {
 				Graph graph;
-				AssertThat(GraphIO::read(graph, filename), IsTrue());
+				AssertThat(GraphIO::read(graph, filename, GraphIO::read), IsTrue());
 			});
 		};
 

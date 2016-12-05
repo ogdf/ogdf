@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -41,7 +38,7 @@
 #include <ogdf/graphalg/Voronoi.h>
 #include <ogdf/graphalg/MinSteinerTreeMehlhorn.h>
 #include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/basic/BoundedQueue.h>
 #include <ogdf/basic/SubsetEnumerator.h>
 
@@ -115,7 +112,7 @@ protected:
 	EdgeArray<int> m_edgeSonsListIndex; /*!< See m_nodeSonsListIndex but for edges. */
 	std::vector<std::vector<int>> m_sonsList; //!< List with lists (corresponding to nodes and containing the indexes of their sons)
 
-	ModuleOption<MinSteinerTreeModule<T>> m_costUpperBoundAlgorithm; //!< Algorithm used for computing the upper bound for the cost of a minimum Steiner tree.
+	std::unique_ptr<MinSteinerTreeModule<T>> m_costUpperBoundAlgorithm; //!< Algorithm used for computing the upper bound for the cost of a minimum Steiner tree.
 
 	class HeavyPathDecomposition; /*!< An implementation of the HeavyPathDecomposition on trees.
 	                                   It contains very specific queries used by reductions. */
@@ -257,8 +254,10 @@ public:
 			// can occur: parallel edges
 
 			// precond: connected
+#if 0
 			// commented out because it is too expensive
-			//changed |= longEdgesTest();
+			changed |= longEdgesTest();
+#endif
 
 			// precond: connected
 			changed |= lowerBoundBasedNodeTest();
@@ -460,7 +459,7 @@ public:
 	//@{
 	//! Set the module option for the algorithm used for computing the MinSteinerTree cost upper bound.
 	inline void setCostUpperBoundAlgorithm(MinSteinerTreeModule<T> *pMinSteinerTreeModule) {
-		m_costUpperBoundAlgorithm.set(pMinSteinerTreeModule);
+		m_costUpperBoundAlgorithm.reset(pMinSteinerTreeModule);
 	}
 
 	//@}
@@ -536,7 +535,7 @@ protected:
 	inline T computeMinSteinerTreeUpperBound(EdgeWeightedGraphCopy<T> *&finalSteinerTree) const
 	{
 		finalSteinerTree = nullptr;
-		return m_costUpperBoundAlgorithm.get().call(m_copyGraph, m_copyTerminals, m_copyIsTerminal, finalSteinerTree);
+		return m_costUpperBoundAlgorithm->call(m_copyGraph, m_copyTerminals, m_copyIsTerminal, finalSteinerTree);
 	}
 
 	// for convenience:
@@ -640,7 +639,7 @@ SteinerTreePreprocessing<T>::SteinerTreePreprocessing(const EdgeWeightedGraph<T>
 	}
 
 	// set the default approximation algorithm for computing the upper bound cost of the solution
-	m_costUpperBoundAlgorithm.set(new MinSteinerTreeTakahashi<T>);
+	m_costUpperBoundAlgorithm.reset(new MinSteinerTreeTakahashi<T>);
 }
 
 template<typename T>
@@ -2125,7 +2124,8 @@ void SteinerTreePreprocessing<T>::computeOptimalTerminals(node v, LAMBDA dist, n
 			}
 		}
 	}
-	OGDF_ASSERT(optimalTerminal1 && optimalTerminal2);
+	OGDF_ASSERT(optimalTerminal1 != nullptr);
+	OGDF_ASSERT(optimalTerminal2 != nullptr);
 	OGDF_ASSERT(optimalTerminal1 != optimalTerminal2);
 }
 

@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -50,7 +47,7 @@ protected:
     // struct for a candidate aka belt item
     struct Candidate
     {
-        Candidate() : stopper(0) {};
+        Candidate() : stopper(nullptr) {};
 
         // the edges in the belt item
         List<adjEntry> chain;
@@ -124,7 +121,7 @@ public:
             if (m_ears[k][0])
                 return m_ears[k][0]->twin();
             else
-                return 0;
+                return nullptr;
         }
 
         // returns the adjEntry to the left node in G_k-1

@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarity/EmbedderMinDepth.h>
 #include <ogdf/internal/planarity/EmbedderMaxFaceBiconnectedGraphs.h>
@@ -85,7 +82,7 @@ void EmbedderMinDepth::doCall(Graph& G, adjEntry& adjExternal)
 			break;
 		}
 	}
-	OGDF_ASSERT(rootBlockNode != 0);
+	OGDF_ASSERT(rootBlockNode != nullptr);
 
 	//compute block graphs:
 	blockG.init(pBCTree->bcTree());
@@ -649,7 +646,7 @@ void EmbedderMinDepth::embedBlock(
 		if (pBCTree->bcproper(nG) == cT)
 			pAfter = &after;
 		else
-			pAfter = OGDF_NEW ListIterator<adjEntry>();
+			pAfter = new ListIterator<adjEntry>();
 
 		if (pBCTree->typeOfGNode(nG) == BCTree::CutVertex)
 		{
@@ -666,7 +663,7 @@ void EmbedderMinDepth::embedBlock(
 						break;
 					}
 				}
-				OGDF_ASSERT(parent_bT_of_cT2 != 0);
+				OGDF_ASSERT(parent_bT_of_cT2 != nullptr);
 				if (treeNodeTreated[parent_bT_of_cT2])
 					no_recursion = true;
 			}
@@ -690,27 +687,35 @@ void EmbedderMinDepth::embedBlock(
 			}
 			else //!no_recursion
 			{
-				//(if exists) find adjacency entry of nSG which lies on external face f:
-				//bool aeExtExists = false;
+				// (if exists) find adjacency entry of nSG which lies on external face f:
+#if 0
+				bool aeExtExists = false;
+				List<edge> extFaceEdges;
+#endif
 				adjEntry aeFace = f->firstAdj();
-				//List<edge> extFaceEdges;
 				do
 				{
-					//extFaceEdges.pushBack(aeFace->theEdge());
+#if 0
+					extFaceEdges.pushBack(aeFace->theEdge());
+#endif
 					if (aeFace->theNode() == nSG)
 					{
 						if (aeFace->succ())
 							ae = aeFace->succ();
 						else
 							ae = nSG->firstAdj();
-						//aeExtExists = true;
+#if 0
+						aeExtExists = true;
+#endif
 						break;
 					}
 					aeFace = aeFace->faceCycleSucc();
 				} while(aeFace != f->firstAdj());
 
-				//if (aeExtExists)
-				//{
+#if 0
+				if (aeExtExists)
+#endif
+				{
 					for(adjEntry adj : cT2->adjEntries) {
 						edge e_cT2_to_bT2 = adj->theEdge();
 						node bT2;
@@ -721,31 +726,33 @@ void EmbedderMinDepth::embedBlock(
 						if (!treeNodeTreated[bT2])
 							embedBlock(bT2, cT2, *pAfter);
 					}
-				//}
-				//else
-				//{
-				//	//cannot embed block into external face, so find a face with an adjacent
-				//	//edge of the external face:
-				//	bool foundIt = false;
-				//	edge adjEdge;
-				//	forall_adj_edges(adjEdge, nSG)
-				//	{
-				//		face m_f = CE.leftFace(adjEdge->adjSource());
-				//		adjEntry aeF = m_f->firstAdj();
-				//		do
-				//		{
-				//			if (extFaceEdges.search(aeF->theEdge()).valid())
-				//			{
-				//				ae = adjEdge->adjSource();
-				//				foundIt = true;
-				//				break;
-				//			}
-				//			aeF = aeF->faceCycleSucc();
-				//		} while(aeF != m_f->firstAdj());
-				//		if (foundIt)
-				//			break;
-				//	}
-				//}
+				}
+#if 0
+				else
+				{
+					//cannot embed block into external face, so find a face with an adjacent
+					//edge of the external face:
+					bool foundIt = false;
+					edge adjEdge;
+					forall_adj_edges(adjEdge, nSG)
+					{
+						face m_f = CE.leftFace(adjEdge->adjSource());
+						adjEntry aeF = m_f->firstAdj();
+						do
+						{
+							if (extFaceEdges.search(aeF->theEdge()).valid())
+							{
+								ae = adjEdge->adjSource();
+								foundIt = true;
+								break;
+							}
+							aeF = aeF->faceCycleSucc();
+						} while(aeF != m_f->firstAdj());
+						if (foundIt)
+							break;
+					}
+				}
+#endif
 			}
 		}
 

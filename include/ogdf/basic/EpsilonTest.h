@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -59,7 +56,7 @@ public:
 	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
 		less(const T &x, const T &y) const
 	{
-			return (x < y);
+			return x < y;
 	}
 
 	//! Compare if x is LESS than y for floating point types, using the given
@@ -73,7 +70,7 @@ public:
 	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
 		less(const T &x, const T &y) const
 	{
-			return (x < (y - eps));
+			return x < (y - eps);
 	}
 
 	// LEQ: integral and floating_point
@@ -87,7 +84,7 @@ public:
 	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
 		leq(const T &x, const T &y) const
 	{
-			return (x <= y);
+			return x <= y;
 	}
 
 	//! Compare if x is LEQ than y for floating point types, using the given
@@ -101,7 +98,7 @@ public:
 	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
 		leq(const T &x, const T &y) const
 	{
-			return (x < (y + eps));
+			return x < (y + eps);
 	}
 
 	// EQUAL: integral and floating_point
@@ -115,7 +112,7 @@ public:
 	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
 		equal(const T &x, const T &y) const
 	{
-			return (x == y);
+			return x == y;
 	}
 
 	//! Compare if x is EQUAL to y for floating point types, using the given
@@ -129,7 +126,7 @@ public:
 	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
 		equal(const T &x, const T &y) const
 	{
-			return (leq(x, y) && geq(x, y));
+			return leq(x, y) && geq(x, y);
 	}
 
 	// GEQ: integral and floating_point
@@ -143,7 +140,7 @@ public:
 	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
 		geq(const T &x, const T &y) const
 	{
-			return (x >= y);
+			return x >= y;
 	}
 
 	//! Compare if x is GEQ to y for floating point types, using the given
@@ -157,7 +154,7 @@ public:
 	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
 		geq(const T &x, const T &y) const
 	{
-			return (x > (y - eps));
+			return x > (y - eps);
 	}
 
 	// GREATER: integral and floating_point
@@ -171,7 +168,7 @@ public:
 	inline typename std::enable_if<std::is_integral<T>::value, bool>::type
 		greater(const T &x, const T &y) const
 	{
-			return (x > y);
+			return x > y;
 	}
 
 	//! Compare if x is GREATER than y for floating point types, using the given
@@ -185,7 +182,7 @@ public:
 	inline typename std::enable_if<std::is_floating_point<T>::value, bool>::type
 		greater(const T &x, const T &y) const
 	{
-			return (x > (y + eps));
+			return x > (y + eps);
 	}
 
 };

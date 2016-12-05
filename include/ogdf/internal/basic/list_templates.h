@@ -2,14 +2,14 @@
  * \brief Implementation of algorithms as templates working with
  *        different list types
  *
- * \author Carsten Gutwenger
+ * \author Carsten Gutwenger, Tilo Wiedera
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -77,5 +74,143 @@ void quicksortTemplate(LIST &L, COMPARER &comp)
 		x = A[i++];
 }
 
+namespace internal {
+
+/**
+ * @see chooseIteratorFrom
+ *
+ * Don't allocate additional space but count the number of feasible elements instead.
+ */
+template<typename CONTAINER, typename TYPE, typename ITERATOR>
+ITERATOR chooseIteratorByFastTest(
+		CONTAINER &container,
+		std::function<bool(const TYPE &)> includeElement) {
+	int nElements = 0;
+
+	for(const auto &e : container) {
+		nElements += includeElement(e) ? 1 : 0;
+	}
+
+	ITERATOR result = container.end();
+
+	if(nElements > 0) {
+		int chosenElement = randomNumber(1, nElements);
+		int elemCounter = 0;
+
+		for (ITERATOR it = container.begin(); result == container.end(); it++) {
+			if(includeElement(*it)) {
+				elemCounter++;
+
+				if(elemCounter == chosenElement) {
+					result = it;
+				}
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * @see chooseIteratorFrom
+ *
+ * Store elements in permuted order and call includeElement at most once per element.
+ */
+template<typename CONTAINER, typename TYPE, typename ITERATOR>
+ITERATOR chooseIteratorBySlowTest(
+		CONTAINER &container,
+		std::function<bool(const TYPE &)> includeElement) {
+	Array<ITERATOR> other(container.size());
+
+	int i = 0;
+	for (ITERATOR it = container.begin(); it != container.end(); it++) {
+		other[i] = it;
+		i++;
+	}
+
+	other.permute();
+
+	ITERATOR result = container.end();
+
+	for (auto it : other) {
+		if (includeElement(*it)) {
+			result = it;
+			break;
+		}
+	}
+
+	return result;
+};
+
+
+/**
+ * Returns an iterator to a random element in the \p container.
+ *
+ * Takes linear time (given that \p includeElement runs in constant time).
+ * An invalid iterator is returned iff no feasible element exists.
+ * When \p includeElement has a non-constant runtime it is recommended to set \p isFastTest to \c false.
+ *
+ * @tparam CONTAINER Type of the container.
+ *                   Any iterable container that implements \c size() is applicable.
+ * @tparam TYPE Type of elements returned by the iterator of the container.
+ * @param container The container that we want to pick an element from.
+ * @param includeElement Specifies for each element whether it is feasible to be chosen.
+ *                       Defaults to all elements being feasible.
+ *                       Must return the same value when called twice with the same element.
+ * @param isFastTest Should be set to false to prevent querying the same element multiple times for feasibility.
+ *                   Note that this will result in additional space allocated linear in the size of the container.
+ * @return An iterator to the picked element or an invalid iterator if no such element exists.
+ */
+template<typename CONTAINER, typename TYPE, typename ITERATOR>
+ITERATOR chooseIteratorFrom(
+		CONTAINER &container,
+		std::function<bool(const TYPE &)> includeElement,
+		bool isFastTest) {
+	ITERATOR result = container.begin();
+	int size = container.size();
+
+	if (size > 0) {
+		// let's try to pick *any* element
+		int index = randomNumber(0, size - 1);
+
+		for (int i = 0; i < index; i++) {
+			result++;
+		}
+
+		// the initially chosen element is not feasible?
+		if (!includeElement(*result)) {
+			if(isFastTest) {
+				result = chooseIteratorByFastTest<CONTAINER, TYPE, ITERATOR>(container, includeElement);
+			} else {
+				result = chooseIteratorBySlowTest<CONTAINER, TYPE, ITERATOR>(container, includeElement);
+			}
+		}
+	}
+
+	return result;
+}
+
+
+}
+
+//! @copydoc internal::chooseIteratorFrom
+template<typename CONTAINER, typename TYPE>
+typename CONTAINER::iterator chooseIteratorFrom(
+		CONTAINER &container,
+		std::function<bool(const TYPE&)> includeElement = [](const TYPE&) { return true; },
+		bool isFastTest = true) {
+	return internal::chooseIteratorFrom
+			<CONTAINER, TYPE, typename CONTAINER::iterator>(container, includeElement, isFastTest);
+}
+
+//! @copydoc internal::chooseIteratorFrom
+template<typename CONTAINER, typename TYPE>
+typename CONTAINER::const_iterator chooseIteratorFrom(
+		const CONTAINER &container,
+		std::function<bool(const TYPE&)> includeElement = [](const TYPE&) { return true; },
+		bool isFastTest = true) {
+	return internal::chooseIteratorFrom
+			<const CONTAINER, TYPE, typename CONTAINER::const_iterator>(container, includeElement, isFastTest);
+}
 
 } // end namespace ogdf

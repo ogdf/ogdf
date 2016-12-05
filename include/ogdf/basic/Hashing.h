@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -50,7 +47,7 @@ class HashingBase;
  * This class realizes only chaining of elements and maintianing hash values
  * for rehashing.
  */
-class HashElementBase {
+class OGDF_EXPORT HashElementBase {
 	friend class HashingBase;
 
 	HashElementBase *m_next; //!< The successor in the list.
@@ -76,7 +73,7 @@ public:
  * The actual hashing is provided by the parameterized class Hashing<K,I>
  * which derives from HashingBase.
  */
-class HashingBase {
+class OGDF_EXPORT HashingBase {
 protected:
 	int m_tableSize;     //!< The current table size.
 	int m_hashMask;      //!< The current table size minus one.
@@ -93,7 +90,7 @@ public:
 	//! Copy constructor.
 	HashingBase(const HashingBase &H);
 
-	// destruction
+	//! Destruction
 	virtual ~HashingBase();
 
 	//! Resizes the hash table to \a newTableSize.
@@ -115,7 +112,7 @@ public:
 	int size() const { return m_count; }
 
 	//! Returns if the hash table is empty
-	int empty() const { return (m_count==0); }
+	int empty() const { return m_count==0; }
 
 	/**
 	 * \brief Returns the first element in the list for elements with hash value \a hashValue.
@@ -281,17 +278,17 @@ public:
 	//! Copy constructor.
 	Hashing(const Hashing<K,I> &h) : HashingBase(h) { }
 
-	// destruction
+	//! Destruction
 	~Hashing() { HashingBase::destroyAll(); }
 
 	//! Returns the number of elements in the hash table.
 	int size() const { return HashingBase::size(); }
 
 	//! Returns true iff the table is empty, i.e., contains no elements.
-	bool empty() const { return (HashingBase::size() == 0); }
+	bool empty() const { return HashingBase::size() == 0; }
 
 	//! Returns true iff the hash table contains an element with key \a key.
-	bool member(const K &key) const { return (lookup(key) != 0); }
+	bool member(const K &key) const { return lookup(key) != nullptr; }
 
 	//! Returns an hash iterator to the first element in the list of all elements.
 	HashConstIterator<K,I,H> begin() const;
@@ -303,7 +300,7 @@ public:
 		for (; pElement; pElement = pElement->next())
 			if (pElement->key() == key) return pElement;
 
-		return 0;
+		return nullptr;
 	}
 
 	//! Assignment operator.
@@ -327,7 +324,7 @@ public:
 			pElement->info() = info;
 		else
 			HashingBase::insert(pElement =
-				OGDF_NEW HashElement<K,I>(m_hashFunc.hash(key),key,info));
+				new HashElement<K,I>(m_hashFunc.hash(key),key,info));
 
 		return pElement;
 	}
@@ -343,7 +340,7 @@ public:
 		HashElement<K,I> *pElement = lookup(key);
 
 		if (!pElement)
-			HashingBase::insert(pElement = OGDF_NEW HashElement<K,I>(m_hashFunc.hash(key),key,info));
+			HashingBase::insert(pElement = new HashElement<K,I>(m_hashFunc.hash(key),key,info));
 
 		return pElement;
 	}
@@ -355,7 +352,7 @@ public:
 	 * \a key is already contained in the hash table.
 	 */
 	HashElement<K,I> *fastInsert(const K &key, const I &info) {
-		HashElement<K,I> *pElement = OGDF_NEW HashElement<K,I>(m_hashFunc.hash(key),key,info);
+		HashElement<K,I> *pElement = new HashElement<K,I>(m_hashFunc.hash(key),key,info);
 		HashingBase::insert(pElement);
 		return pElement;
 	}
@@ -403,14 +400,14 @@ protected:
 
 private:
 	//! Deletes hash element \a pElement.
-	virtual void destroy(HashElementBase *pElement) {
+	virtual void destroy(HashElementBase *pElement) override {
 		delete (HashElement<K,I> *)(pElement);
 	}
 
 	//! Returns a copy of hash element \a pElement.
-	virtual HashElementBase *copy(HashElementBase *pElement) const {
+	virtual HashElementBase *copy(HashElementBase *pElement) const override {
 		HashElement<K,I> *pX = (HashElement<K,I> *)(pElement);
-		return OGDF_NEW HashElement<K,I>(pX->hashValue(),pX->key(),pX->info());
+		return new HashElement<K,I>(pX->hashValue(),pX->key(),pX->info());
 	}
 };
 
@@ -446,7 +443,7 @@ class HashConstIterator {
 
 public:
 	//! Creates a hash iterator pointing to no element.
-	HashConstIterator() : m_pElement(0), m_pList(0), m_pHashing(0) { }
+	HashConstIterator() : m_pElement(nullptr), m_pList(nullptr), m_pHashing(nullptr) { }
 
 	//! Creates a hash iterator pointing to element \a pElement in list \a pList of hash table \a pHashing.
 	HashConstIterator(HashElement<K,I> *pElement, HashElement<K,I> **pList,
@@ -466,7 +463,7 @@ public:
 	}
 
 	//! Returns true if the hash iterator points to an element.
-	bool valid() const { return (m_pElement != 0); }
+	bool valid() const { return m_pElement != nullptr; }
 
 	//! Returns the key of the hash element pointed to.
 	const K &key() const { return m_pElement->key(); }
@@ -476,11 +473,11 @@ public:
 
 	//! Equality operator.
 	friend bool operator==(const HashConstIterator<K,I,H> &it1,
-		const HashConstIterator<K,I,H> &it2) { return (it1.m_pElement == it2.m_pElement); }
+		const HashConstIterator<K,I,H> &it2) { return it1.m_pElement == it2.m_pElement; }
 
 	//! Inequality operator.
 	friend bool operator!=(const HashConstIterator<K,I,H> &it1,
-		const HashConstIterator<K,I,H> &it2) { return (it1.m_pElement != it2.m_pElement); }
+		const HashConstIterator<K,I,H> &it2) { return it1.m_pElement != it2.m_pElement; }
 
 	//! Moves this hash iterator to the next element (iterator gets invalid if no more elements).
 	HashConstIterator<K,I,H> &operator++() {

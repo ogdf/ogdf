@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@
  * You should have received a copy of the GNU General Public
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ */
 
 #include <bandit/bandit.h>
 #include <resources.h>
@@ -43,6 +43,7 @@
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/basic/simple_graph_alg.h>
+#include <set>
 
 using namespace ogdf;
 using namespace bandit;
@@ -69,29 +70,34 @@ int verifyCrossings(const GraphCopy &graph, const EdgeArray<int> *cost) {
 			dummyCounter++;
 
 			AssertThat(v->degree(), Equals(4));
+			AssertThat(v->indeg(), Equals(2));
+
+			std::set<edge> set;
 			edge e = graph.original(v->firstAdj()->theEdge());
 			edge f = graph.original(v->lastAdj()->theEdge());
+			set.insert(e);
+			set.insert(f);
+			set.insert(graph.original(v->firstAdj()->cyclicSucc()->theEdge()));
+			set.insert(graph.original(v->lastAdj()->cyclicPred()->theEdge()));
+			AssertThat(set.size(), Equals(2));
+
+			List<edge> inEdges;
+			v->inEdges(inEdges);
+			AssertThat(graph.original(inEdges.front()), !Equals(graph.original(inEdges.back())));
 
 			AssertThat(e, !Equals(none));
 			AssertThat(f, !Equals(none));
-			AssertThat(e, !Equals(f));
-
-			result += cost ? (*cost)[e] * (*cost)[f] : 1;
+			result += cost ? (*cost)[*set.begin()] * (*cost)[*set.rbegin()] : 1;
 		}
 	}
 
 	AssertThat(dummyCounter, Equals(numberOfDummies));
-	dummyCounter = 0;
 
 	for(edge e : graph.edges) {
 		node s = e->source();
 		node t = e->target();
 
 		AssertThat(graph.isDummy(e), IsFalse());
-
-		if(graph.isDummy(s) || graph.isDummy(t)) {
-			dummyCounter++;
-		}
 
 		if(!graph.isDummy(s)) {
 			AssertThat(s, Equals(graph.copy(graph.original(e)->source())));
@@ -101,9 +107,6 @@ int verifyCrossings(const GraphCopy &graph, const EdgeArray<int> *cost) {
 			AssertThat(t, Equals(graph.copy(graph.original(e)->target())));
 		}
 	}
-
-	AssertThat(dummyCounter, !IsGreaterThan(4*numberOfDummies));
-	AssertThat(dummyCounter, !IsLessThan(2 + 2*numberOfDummies));
 
 	return result;
 }
@@ -122,7 +125,7 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
 
 	PlanRep planRep(graph);
 	planRep.initCC(0);
-	int actual;
+	int actual(17); // an arbitrary nonzero number
 	ReturnType result = cmm.call(planRep, 0, actual, cost);
 	if(isOptimal) {
 		AssertThat(result, Equals(ReturnType::retOptimal));
@@ -136,7 +139,7 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
 		AssertThat(actual, !IsLessThan(expected));
 	}
 
-	bool planar = isPlanar(planRep);
+	bool planar = planarEmbed(planRep);
 
 	// optimal algorithms don't need to return planarizations
 	if(!isOptimal) {
@@ -145,6 +148,9 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
 
 	if(planar) {
 		AssertThat(verifyCrossings(planRep, cost), Equals(actual));
+	}
+	if(planar && isLoopFree(graph)) {
+		AssertThat(isLoopFree(planRep), IsTrue());
 	}
 }
 
@@ -158,6 +164,11 @@ void testComputation(CrossingMinimizationModule &cmm, const Graph &graph, int ex
 void testModule(CrossingMinimizationModule &cmm, const std::string title, bool isOptimal) {
 	describe(title, [&]() {
 		Graph graph;
+
+		it("works on a K4", [&]() {
+			completeGraph(graph, 4);
+			testComputation(cmm, graph, 0, isOptimal);
+		});
 
 		it("works on a K5", [&]() {
 			completeGraph(graph, 5);
@@ -212,20 +223,20 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 		// TODO test forbidden edges ?
 
 		if(isOptimal) {
-#ifdef OGDF_DEBUG
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 			// optimal algorithms should throw exceptions on non-pre-processed instances
 
 			it("aborts if the graph contains self-loops", [&](){
 				completeGraph(graph, 5);
 				node v = graph.chooseNode();
 				graph.newEdge(v, v);
-				AssertThrows(PreconditionViolatedException, testComputation(cmm, graph, 1, true));
+				AssertThrows(AssertionFailed, testComputation(cmm, graph, 1, true));
 			});
 
 			it("aborts if the graph contains parallel edges", [&](){
 				completeGraph(graph, 5);
 				graph.newEdge(graph.firstNode(), graph.lastNode());
-				AssertThrows(PreconditionViolatedException, testComputation(cmm, graph, 1, true));
+				AssertThrows(AssertionFailed, testComputation(cmm, graph, 1, true));
 			});
 
 			it("aborts if the graph contains nodes with degree 2", [&](){
@@ -233,7 +244,7 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 				node v = graph.newNode();
 				graph.newEdge(graph.chooseNode(), v);
 				graph.newEdge(graph.chooseNode(), v);
-				AssertThrows(PreconditionViolatedException, testComputation(cmm, graph, 1, true));
+				AssertThrows(AssertionFailed, testComputation(cmm, graph, 1, true));
 			});
 
 			it("aborts if the graph isn't biconnected", [&](){
@@ -254,7 +265,7 @@ void testModule(CrossingMinimizationModule &cmm, const std::string title, bool i
 					}
 				}
 
-				AssertThrows(PreconditionViolatedException, testComputation(cmm, graph, 1, true));
+				AssertThrows(AssertionFailed, testComputation(cmm, graph, 1, true));
 			});
 #endif
 		} else {

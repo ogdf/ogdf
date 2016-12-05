@@ -65,7 +65,7 @@ class SimpSolver : public Solver {
 
     // Memory managment:
     //
-    virtual void garbageCollect();
+    virtual void garbageCollect() override;
 
 
     // Generate a (possibly simplified) DIMACS file:
@@ -109,11 +109,13 @@ class SimpSolver : public Solver {
         uint64_t cost  (Var x)        const { return (uint64_t)n_occ[toInt(mkLit(x))] * (uint64_t)n_occ[toInt(~mkLit(x))]; }
         bool operator()(Var x, Var y) const { return cost(x) < cost(y); }
 
+#if 0
         // TODO: investigate this order alternative more.
-        // bool operator()(Var x, Var y) const {
-        //     int c_x = cost(x);
-        //     int c_y = cost(y);
-        //     return c_x < c_y || c_x == c_y && x < y; }
+        bool operator()(Var x, Var y) const {
+            int c_x = cost(x);
+            int c_y = cost(y);
+            return c_x < c_y || c_x == c_y && x < y; }
+#endif
     };
 
     struct ClauseDeleted {
@@ -169,7 +171,9 @@ class SimpSolver : public Solver {
 inline bool SimpSolver::isEliminated (Var v) const { return (eliminated[v] != 0); }
 inline void SimpSolver::updateElimHeap(Var v) {
     assert(use_simplification);
-    // if (!frozen[v] && !isEliminated(v) && value(v) == l_Undef)
+#if 0
+    if (!frozen[v] && !isEliminated(v) && value(v) == l_Undef)
+#endif
     if (elim_heap.inHeap(v) || (!frozen[v] && !isEliminated(v) && value(v) == l_Undef))
         elim_heap.update(v); }
 

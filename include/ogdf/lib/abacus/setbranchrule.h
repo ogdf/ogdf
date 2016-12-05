@@ -74,7 +74,7 @@ public:
 	 *
 	 * \param sub The subproblem being modified.
 	 */
-	virtual int extract(Sub *sub);
+	virtual int extract(Sub *sub) override;
 
 
 	//! Overloaded to modify directly the linear programming relaxation.
@@ -85,17 +85,17 @@ public:
 	 *
 	 * \param lp A pointer to the linear programming relaxation of a subproblem.
 	 */
-	virtual void extract(LpSub *lp);
+	virtual void extract(LpSub *lp) override;
 
 
-	virtual void unExtract(LpSub *lp);
+	virtual void unExtract(LpSub *lp) override;
 
 
 	//! Redefined for returning true, as this branching rule is setting a binary variable.
 	/**
 	 * \return Always true.
 	 */
-	virtual bool branchOnSetVar() {
+	virtual bool branchOnSetVar() override {
 		return true;
 	}
 

@@ -65,7 +65,7 @@ template<class BaseType, class CoType> class LpSolution;
  * Essential is that every subproblem has its own sets of active
  * constraints and variables, which provides a very high flexibility.
  */
-class  Sub :  public AbacusRoot  {
+class OGDF_EXPORT Sub : public AbacusRoot {
 
 	friend class Master;
 	friend class BoundBranchRule;
@@ -118,8 +118,8 @@ public:
 		double varRes,
 		double nnzRes,
 		bool relativeRes = true,
-		ArrayBuffer<PoolSlot<Constraint, Variable> *> *constraints = 0,
-		ArrayBuffer<PoolSlot<Variable, Constraint> *> *variables = 0);
+		ArrayBuffer<PoolSlot<Constraint, Variable> *> *constraints = nullptr,
+		ArrayBuffer<PoolSlot<Variable, Constraint> *> *variables = nullptr);
 
 	//! Creates a non-root node of the enumeration tree.
 	/**
@@ -455,9 +455,9 @@ protected:
 	 * \return The number of added constraints.
 	 */
 	virtual int addCons(ArrayBuffer<Constraint*> &constraints,
-		Pool<Constraint, Variable> *pool = 0,
-		ArrayBuffer<bool> *keepInPool = 0,
-		ArrayBuffer<double> *rank = 0);
+		Pool<Constraint, Variable> *pool = nullptr,
+		ArrayBuffer<bool> *keepInPool = nullptr,
+		ArrayBuffer<double> *rank = nullptr);
 
 	//! Adds constraints to the active constraints and the linear program.
 	/**
@@ -487,9 +487,9 @@ protected:
 	 * \return The number of added variables.
 	 */
 	virtual int addVars(ArrayBuffer<Variable*> &variables,
-		Pool<Variable, Constraint> *pool = 0,
-		ArrayBuffer<bool> *keepInPool = 0,
-		ArrayBuffer<double> *rank = 0);
+		Pool<Variable, Constraint> *pool = nullptr,
+		ArrayBuffer<bool> *keepInPool = nullptr,
+		ArrayBuffer<double> *rank = nullptr);
 
 	//! Adds both the variables in \a newVars to the set of active variables and to the linear program of the subproblem.
 	/**
@@ -523,7 +523,7 @@ protected:
 	 */
 	virtual int variablePoolSeparation(
 		int ranking = 0,
-		Pool<Variable, Constraint> *pool = 0,
+		Pool<Variable, Constraint> *pool = nullptr,
 		double minViolation = 0.001);
 
 	//! Tries to generate inactive constraints from a pool.
@@ -545,7 +545,7 @@ protected:
 	 */
 	virtual int constraintPoolSeparation(
 		int ranking = 0,
-		Pool<Constraint, Variable> *pool = 0,
+		Pool<Constraint, Variable> *pool = nullptr,
 		double minViolation = 0.001);
 
 	//! Can be used as an entrance point for problem specific activations.
@@ -1718,7 +1718,7 @@ private:
 	 * Per default the value of \a localStatus is 0.
 	 */
 	virtual void addVarsToLp(ArrayBuffer<PoolSlot<Variable, Constraint>*> &newVars,
-		ArrayBuffer<FSVarStat*> *localStatus = 0);
+		ArrayBuffer<FSVarStat*> *localStatus = nullptr);
 
 	//! Selects the \a master_->maxVarAdd() best variables from the buffered variables.
 	/**

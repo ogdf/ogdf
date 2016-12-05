@@ -39,7 +39,7 @@ Indices array has capacity_ extra chars which are zeroed and can
 be used for any purpose - but must be re-zeroed
 
 Stores vector of indices and associated element values.
-Supports sorting of indices.  
+Supports sorting of indices.
 
 Does not support negative indices.
 
@@ -103,7 +103,7 @@ Here is a sample usage:
 */
 class CoinIndexedVector {
    friend void CoinIndexedVectorUnitTest();
-  
+
 public:
    /**@name Get methods. */
    //@{
@@ -127,13 +127,13 @@ public:
   { indices_ = array;}
    /** Access the i'th element of the full storage vector.
    */
-   double & operator[](int i) const; 
+   double & operator[](int i) const;
 
    //@}
- 
+
    //-------------------------------------------------------------------
    // Set indices and elements
-   //------------------------------------------------------------------- 
+   //-------------------------------------------------------------------
    /**@name Set methods */
    //@{
    /// Set the size
@@ -169,16 +169,16 @@ public:
        The indices and elements vectors are copied into this class instance's
        member data. Assumed to have no duplicates */
   void setVector(int numberIndices, const int * inds, const double * elems);
-  
+
    /** Set vector size, indices, and elements.
        Size is the length of the unpacked elements vector.
        The indices and elements vectors are copied into this class instance's
        member data. We do not check for duplicate indices */
    void setVector(int size, int numberIndices, const int * inds, const double * elems);
-  
+
    /** Elements set to have the same scalar value */
   void setConstant(int size, const int * inds, double elems);
-  
+
    /** Indices are not specified and are taken to be 0,1,...,size-1 */
   void setFull(int size, const double * elems);
 
@@ -242,7 +242,7 @@ public:
        This version does no checking */
    inline void zero(int index)
                {
-		 if (elements_[index]) 
+		 if (elements_[index])
 		   elements_[index] = COIN_DBL_MIN;
 	       }
    /** set all small values to zero and return number remaining
@@ -278,7 +278,7 @@ public:
    int scanAndPack(double tolerance);
    int scanAndPack(int start, int end, double tolerance);
    /// Create packed array
-   void createPacked(int number, const int * indices, 
+   void createPacked(int number, const int * indices,
 		    const double * elements);
    /// This is mainly for testing - goes from packed to indexed
    void expand();
@@ -290,10 +290,10 @@ public:
    void append(const CoinIndexedVector & caboose);
 
    /// Swap values in positions i and j of indices and elements
-   void swap(int i, int j); 
+   void swap(int i, int j);
 
    /// Throw away all entries in rows >= newSize
-   void truncate(int newSize); 
+   void truncate(int newSize);
    ///  Print out
    void print() const;
    //@}
@@ -335,7 +335,7 @@ public:
 
 
    /**@name Sorting */
-   //@{ 
+   //@{
    /** Sort the indexed storage vector (increasing indices). */
    void sort()
    { std::sort(indices_,indices_+nElements_); }
@@ -344,7 +344,7 @@ public:
    { std::sort(indices_,indices_+nElements_); }
 
    void sortDecrIndex();
-  
+
    void sortIncrElement();
 
    void sortDecrElement();
@@ -435,10 +435,10 @@ void operator/=(const CoinIndexedVector& op2);
    /** Destructor */
    ~CoinIndexedVector ();
    //@}
-    
+
 private:
    /**@name Private methods */
-   //@{  
+   //@{
    /// Copy internal data
    void gutsOfSetVector(int size,
 			const int * inds, const double * elems);
@@ -478,7 +478,7 @@ private:
 void
 CoinIndexedVectorUnitTest();
 /** Pointer with length in bytes
-    
+
     This has a pointer to an array and the number of bytes in array.
     If number of bytes==-1 then
     CoinConditionalNew deletes existing pointer and returns new pointer
@@ -490,41 +490,41 @@ CoinIndexedVectorUnitTest();
     CoinConditionalNew just returns existing pointer if array big enough
     otherwise deletes existing pointer, allocates array with spare 1%+64 bytes
     and updates number of bytes
-    CoinConditionalDelete sets number of bytes = -size-2 and then array 
+    CoinConditionalDelete sets number of bytes = -size-2 and then array
     returns NULL
 */
 class CoinArrayWithLength {
-  
+
 public:
   /**@name Get methods. */
   //@{
   /// Get the size
-  inline int getSize() const 
+  inline int getSize() const
   { return size_; }
   /// Get the size
-  inline int rawSize() const 
+  inline int rawSize() const
   { return size_; }
   /// See if persistence already on
-  inline bool switchedOn() const 
+  inline bool switchedOn() const
   { return size_!=-1; }
   /// Get the capacity
-  inline int getCapacity() const 
+  inline int getCapacity() const
   { return (size_>-2) ? size_ : (-size_)-2; }
   /// Set the capacity to >=0 if <=-2
-  inline void setCapacity() 
+  inline void setCapacity()
   { if (size_<=-2) size_ = (-size_)-2; }
   /// Get Array
-  inline const char * array() const 
+  inline const char * array() const
   { return (size_>-2) ? array_ : nullptr; }
   //@}
-  
+
   /**@name Set methods */
   //@{
   /// Set the size
-  inline void setSize(int value) 
+  inline void setSize(int value)
   { size_ = value; }
   /// Set the size to -1
-  inline void switchOff() 
+  inline void switchOff()
   { size_ = -1; }
   /// Does what is needed to set persistence
   void setPersistence(int flag,int currentLength);
@@ -535,15 +535,15 @@ public:
   /// Extend a persistent array keeping data (size in bytes)
   void extend(int newSize);
   //@}
-  
+
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
-  char * conditionalNew(long sizeWanted); 
+  char * conditionalNew(long sizeWanted);
   /// Conditionally deletes
   void conditionalDelete();
   //@}
-  
+
   /**@name Constructors and destructors */
   //@{
   /** Default constructor - NULL*/
@@ -552,7 +552,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinArrayWithLength(int size)
   { array_=new char [size]; size_=-1;}
-  /** Alternate Constructor - length in bytes 
+  /** Alternate Constructor - length in bytes
       mode -  0 size_ set to size
       1 size_ set to size and zeroed
   */
@@ -573,7 +573,7 @@ public:
   { delete [] array_; }
   // was { free(array_); }
   //@}
-  
+
 protected:
   /**@name Private member data */
   //@{
@@ -586,32 +586,32 @@ protected:
 /// double * version
 
 class CoinDoubleArrayWithLength : public CoinArrayWithLength {
-  
+
 public:
   /**@name Get methods. */
   //@{
   /// Get the size
-  inline int getSize() const 
+  inline int getSize() const
   { return size_/CoinSizeofAsInt(double); }
   /// Get Array
-  inline double * array() const 
+  inline double * array() const
   { return reinterpret_cast<double *> ((size_>-2) ? array_ : nullptr); }
   //@}
-  
+
   /**@name Set methods */
   //@{
   /// Set the size
-  inline void setSize(int value) 
+  inline void setSize(int value)
   { size_ = value*CoinSizeofAsInt(double); }
   //@}
-  
+
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
   inline double * conditionalNew(int sizeWanted)
   { return reinterpret_cast<double *> ( CoinArrayWithLength::conditionalNew(sizeWanted>=0 ? static_cast<long> ((sizeWanted)*CoinSizeofAsInt(double)) : -1)); }
   //@}
-  
+
   /**@name Constructors and destructors */
   //@{
   /** Default constructor - NULL*/
@@ -620,7 +620,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinDoubleArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(double)]; size_=-1;}
-  /** Alternate Constructor - length in bytes 
+  /** Alternate Constructor - length in bytes
       mode -  0 size_ set to size
       1 size_ set to size and zeroed
   */
@@ -640,32 +640,32 @@ public:
 /// CoinFactorizationDouble * version
 
 class CoinFactorizationDoubleArrayWithLength : public CoinArrayWithLength {
-  
+
 public:
   /**@name Get methods. */
   //@{
   /// Get the size
-  inline int getSize() const 
+  inline int getSize() const
   { return size_/CoinSizeofAsInt(CoinFactorizationDouble); }
   /// Get Array
-  inline CoinFactorizationDouble * array() const 
+  inline CoinFactorizationDouble * array() const
   { return reinterpret_cast<CoinFactorizationDouble *> ((size_>-2) ? array_ : nullptr); }
   //@}
-  
+
   /**@name Set methods */
   //@{
   /// Set the size
-  inline void setSize(int value) 
+  inline void setSize(int value)
   { size_ = value*CoinSizeofAsInt(CoinFactorizationDouble); }
   //@}
-  
+
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
   inline CoinFactorizationDouble * conditionalNew(int sizeWanted)
   { return reinterpret_cast<CoinFactorizationDouble *> (CoinArrayWithLength::conditionalNew(sizeWanted>=0 ? static_cast<long> (( sizeWanted)*CoinSizeofAsInt(CoinFactorizationDouble)) : -1)); }
   //@}
-  
+
   /**@name Constructors and destructors */
   //@{
   /** Default constructor - NULL*/
@@ -674,7 +674,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinFactorizationDoubleArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(CoinFactorizationDouble)]; size_=-1;}
-  /** Alternate Constructor - length in bytes 
+  /** Alternate Constructor - length in bytes
       mode -  0 size_ set to size
       1 size_ set to size and zeroed
   */
@@ -694,32 +694,32 @@ public:
 /// int * version
 
 class CoinIntArrayWithLength : public CoinArrayWithLength {
-  
+
 public:
   /**@name Get methods. */
   //@{
   /// Get the size
-  inline int getSize() const 
+  inline int getSize() const
   { return size_/CoinSizeofAsInt(int); }
   /// Get Array
-  inline int * array() const 
+  inline int * array() const
   { return reinterpret_cast<int *> ((size_>-2) ? array_ : nullptr); }
   //@}
-  
+
   /**@name Set methods */
   //@{
   /// Set the size
-  inline void setSize(int value) 
+  inline void setSize(int value)
   { size_ = value*CoinSizeofAsInt(int); }
   //@}
-  
+
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
   inline int * conditionalNew(int sizeWanted)
   { return reinterpret_cast<int *> (CoinArrayWithLength::conditionalNew(sizeWanted>=0 ? static_cast<long> (( sizeWanted)*CoinSizeofAsInt(int)) : -1)); }
   //@}
-  
+
   /**@name Constructors and destructors */
   //@{
   /** Default constructor - NULL*/
@@ -728,7 +728,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinIntArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(int)]; size_=-1;}
-  /** Alternate Constructor - length in bytes 
+  /** Alternate Constructor - length in bytes
       mode -  0 size_ set to size
       1 size_ set to size and zeroed
   */
@@ -748,32 +748,32 @@ public:
 /// CoinBigIndex * version
 
 class CoinBigIndexArrayWithLength : public CoinArrayWithLength {
-  
+
 public:
   /**@name Get methods. */
   //@{
   /// Get the size
-  inline int getSize() const 
+  inline int getSize() const
   { return size_/CoinSizeofAsInt(CoinBigIndex); }
   /// Get Array
-  inline CoinBigIndex * array() const 
+  inline CoinBigIndex * array() const
   { return reinterpret_cast<CoinBigIndex *> ((size_>-2) ? array_ : nullptr); }
   //@}
-  
+
   /**@name Set methods */
   //@{
   /// Set the size
-  inline void setSize(int value) 
+  inline void setSize(int value)
   { size_ = value*CoinSizeofAsInt(CoinBigIndex); }
   //@}
-  
+
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
   inline CoinBigIndex * conditionalNew(int sizeWanted)
   { return reinterpret_cast<CoinBigIndex *> (CoinArrayWithLength::conditionalNew(sizeWanted>=0 ? static_cast<long> (( sizeWanted)*CoinSizeofAsInt(CoinBigIndex)) : -1)); }
   //@}
-  
+
   /**@name Constructors and destructors */
   //@{
   /** Default constructor - NULL*/
@@ -782,7 +782,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinBigIndexArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(CoinBigIndex)]; size_=-1;}
-  /** Alternate Constructor - length in bytes 
+  /** Alternate Constructor - length in bytes
       mode -  0 size_ set to size
       1 size_ set to size and zeroed
   */
@@ -802,32 +802,32 @@ public:
 /// unsigned int * version
 
 class CoinUnsignedIntArrayWithLength : public CoinArrayWithLength {
-  
+
 public:
   /**@name Get methods. */
   //@{
   /// Get the size
-  inline int getSize() const 
+  inline int getSize() const
   { return size_/CoinSizeofAsInt(unsigned int); }
   /// Get Array
-  inline unsigned int * array() const 
+  inline unsigned int * array() const
   { return reinterpret_cast<unsigned int *> ((size_>-2) ? array_ : nullptr); }
   //@}
-  
+
   /**@name Set methods */
   //@{
   /// Set the size
-  inline void setSize(int value) 
+  inline void setSize(int value)
   { size_ = value*CoinSizeofAsInt(unsigned int); }
   //@}
-  
+
   /**@name Condition methods */
   //@{
   /// Conditionally gets new array
   inline unsigned int * conditionalNew(int sizeWanted)
   { return reinterpret_cast<unsigned int *> (CoinArrayWithLength::conditionalNew(sizeWanted>=0 ? static_cast<long> (( sizeWanted)*CoinSizeofAsInt(unsigned int)) : -1)); }
   //@}
-  
+
   /**@name Constructors and destructors */
   //@{
   /** Default constructor - NULL*/
@@ -836,7 +836,7 @@ public:
   /** Alternate Constructor - length in bytes - size_ -1 */
   inline CoinUnsignedIntArrayWithLength(int size)
   { array_=new char [size*CoinSizeofAsInt(unsigned int)]; size_=-1;}
-  /** Alternate Constructor - length in bytes 
+  /** Alternate Constructor - length in bytes
       mode -  0 size_ set to size
       1 size_ set to size and zeroed
   */

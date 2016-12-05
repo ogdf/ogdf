@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -62,13 +59,13 @@ public:
 
 	virtual ~EmbedPQTree() { }
 
-	virtual void emptyAllPertinentNodes();
+	virtual void emptyAllPertinentNodes() override;
 
-	virtual void clientDefinedEmptyNode(PQNode<edge,IndInfo*,bool>* nodePtr);
+	virtual void clientDefinedEmptyNode(PQNode<edge,IndInfo*,bool>* nodePtr) override;
 
 	virtual int Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
-	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override {
 		return PQTree<edge,IndInfo*,bool>::Initialize(leafKeys);
 	}
 
@@ -81,7 +78,7 @@ public:
 
 	virtual bool Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
-	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override {
 		return PQTree<edge,IndInfo*,bool>::Reduction(leafKeys);
 	}
 
@@ -114,22 +111,22 @@ public:
 protected:
 
 	virtual PQNode<edge,IndInfo*,bool>*
-		clientSibLeft(PQNode<edge,IndInfo*,bool> *nodePtr) const;
+		clientSibLeft(PQNode<edge,IndInfo*,bool> *nodePtr) const override;
 
 	virtual PQNode<edge,IndInfo*,bool>*
-		clientSibRight(PQNode<edge,IndInfo*,bool> *nodePtr) const;
+		clientSibRight(PQNode<edge,IndInfo*,bool> *nodePtr) const override;
 
 	virtual PQNode<edge,IndInfo*,bool>*
-		clientLeftEndmost(PQNode<edge,IndInfo*,bool> *nodePtr) const;
+		clientLeftEndmost(PQNode<edge,IndInfo*,bool> *nodePtr) const override;
 
 	virtual PQNode<edge,IndInfo*,bool>*
-		clientRightEndmost(PQNode<edge,IndInfo*,bool> *nodePtr) const;
+		clientRightEndmost(PQNode<edge,IndInfo*,bool> *nodePtr) const override;
 
 	virtual PQNode<edge,IndInfo*,bool>*
 		clientNextSib(PQNode<edge,IndInfo*,bool> *nodePtr,
-		PQNode<edge,IndInfo*,bool> *other) const;
+		PQNode<edge,IndInfo*,bool> *other) const override;
 	virtual const char*
-		clientPrintStatus(PQNode<edge,IndInfo*,bool> *nodePtr);
+		clientPrintStatus(PQNode<edge,IndInfo*,bool> *nodePtr) override;
 
 	virtual void front(
 		PQNode<edge,IndInfo*,bool>* nodePtr,
@@ -137,7 +134,7 @@ protected:
 
 	void front(
 		PQNode<edge,IndInfo*,bool>* nodePtr,
-		SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys)
+		SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override
 	{
 		PQTree<edge,IndInfo*,bool>::front(nodePtr, leafKeys);
 	}
@@ -149,7 +146,7 @@ private:
 		SListPure<PQBasicKey<edge,IndInfo*,bool>*> &frontier,
 		node v,
 		bool addIndicator = false,
-		PQNode<edge,IndInfo*,bool> *opposite = 0);
+		PQNode<edge,IndInfo*,bool> *opposite = nullptr);
 
 	void ReplacePartialRoot(
 		SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys,

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/MMFixedEmbeddingInserter.h>
@@ -44,7 +41,7 @@
 
 namespace ogdf {
 
-	static int globalCounter = 0;
+static int globalCounter = 0;
 
 //---------------------------------------------------------
 // constructor
@@ -75,7 +72,7 @@ public:
 };
 
 
-/*
+#if 0
 static void draw(
 	const PlanRepExpansion &PG,
 	const EdgeArray<bool> *forbiddenEdgeOrig)
@@ -113,7 +110,7 @@ static void draw(
 	string fileName = string("layout-") + to_string(num++) + ".gml";
 	GraphIO::writeGML(GA, fileName);
 }
-*/
+#endif
 
 void MMFixedEmbeddingInserter::drawDual(
 	const PlanRepExpansion &PG,
@@ -141,7 +138,7 @@ void MMFixedEmbeddingInserter::drawDual(
 			GA.strokeColor(e) = Color::Black;
 	}
 
-	GraphIO::writeGML(GA, "dual.gml");
+	GraphIO::write(GA, "dual.gml", GraphIO::writeGML);
 }
 
 
@@ -157,11 +154,13 @@ Module::ReturnType MMFixedEmbeddingInserter::doCall(
 {
 	ReturnType retValue = retFeasible;
 
-	//cout << "orig edges: ";
-	//ListConstIterator<edge> itE;
-	//for(itE = origEdges.begin(); itE.valid(); ++itE)
-	//	cout << *itE << " ";
-	//cout << endl;
+#if 0
+	cout << "orig edges: ";
+	ListConstIterator<edge> itE;
+	for(itE = origEdges.begin(); itE.valid(); ++itE)
+		cout << *itE << " ";
+	cout << endl;
+#endif
 
 	PG.embed();
 	OGDF_ASSERT(PG.representsCombEmbedding() == true);
@@ -183,14 +182,16 @@ Module::ReturnType MMFixedEmbeddingInserter::doCall(
 	constructDual(PG,E);
 	OGDF_ASSERT(checkDualGraph(PG,E));
 
-	//draw(PG, forbiddenEdgeOrig);
+#if 0
+	draw(PG, forbiddenEdgeOrig);
 
-	//if(forbiddenEdgeOrig) {
-	//	cout << "forbidden edges: ";
-	//	for(edge e : PG.original().edges)
-	//		if((*forbiddenEdgeOrig)[e]) cout << e << " ";
-	//	cout << endl;
-	//}
+	if(forbiddenEdgeOrig) {
+		cout << "forbidden edges: ";
+		for(edge e : PG.original().edges)
+			if((*forbiddenEdgeOrig)[e]) cout << e << " ";
+		cout << endl;
+	}
+#endif
 
 	m_delFaces = new FaceSetSimple(E);
 
@@ -537,25 +538,27 @@ void MMFixedEmbeddingInserter::findShortestPath(
 	List<Tuple2<adjEntry,adjEntry> > &crossed,
 	const EdgeArray<bool> *forbiddenEdgeOrig)
 {
-	//static int count = 1;
-	//cout << "==> " << count++ << endl;
-	//cout << "Insert:" << endl;
-	//cout << "  sources: ";
-	//ListConstIterator<node> itV;
-	//for(itV = sources.begin(); itV.valid(); ++itV)
-	//	cout << *itV << " ";
-	//cout << "\n  targets: ";
-	//for(itV = targets.begin(); itV.valid(); ++itV)
-	//	cout << *itV << " ";
-	//cout << endl;
-	//drawDual(PG, forbiddenEdgeOrig);
+#if 0
+	static int count = 1;
+	cout << "==> " << count++ << endl;
+	cout << "Insert:" << endl;
+	cout << "  sources: ";
+	ListConstIterator<node> itV;
+	for(itV = sources.begin(); itV.valid(); ++itV)
+		cout << *itV << " ";
+	cout << "\n  targets: ";
+	for(itV = targets.begin(); itV.valid(); ++itV)
+		cout << *itV << " ";
+	cout << endl;
+	drawDual(PG, forbiddenEdgeOrig);
 
-	//cout << "forbidden dual edges: ";
-	//for(edge ed : m_dual.edges) {
-	//	if(origOfDualForbidden(ed,PG,forbiddenEdgeOrig) == true)
-	//		cout << ed << " ";
-	//}
-	//cout << endl;
+	cout << "forbidden dual edges: ";
+	for(edge ed : m_dual.edges) {
+		if(origOfDualForbidden(ed,PG,forbiddenEdgeOrig) == true)
+			cout << ed << " ";
+	}
+	cout << endl;
+#endif
 	Array<SListPure<edge> > nodesAtDist(m_maxCost);
 	NodeArray<edge> spPred(m_dual,nullptr);
 

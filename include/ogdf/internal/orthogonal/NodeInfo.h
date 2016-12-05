@@ -13,7 +13,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -30,12 +30,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -91,7 +88,10 @@ public:
 		get_data(H, L, v, rc, nw, nh);
 	}
 
-	NodeInfo(const NodeInfo & other) = default;
+	// The following two definitions are necessary because the existence
+	// of the move constructor deletes the implicitly defined copy constructor.
+	NodeInfo(const NodeInfo &) = default;
+	NodeInfo &operator=(const NodeInfo &) = default;
 
 	NodeInfo(NodeInfo && other)
 		: m_rc(other.m_rc), m_coord(other.m_coord), m_ccoord(other.m_ccoord),
@@ -243,9 +243,12 @@ public:
 
 	void set_eps(OrthoDir mainside, OrthoDir neighbour, int dval) { m_eps[mainside][neighbour] = dval; }
 
-	//number of bending edges on one side at corner to second side
-	//void set_num_bend_edges(box_side bs1, box_side bs2, int num) {nbe[bs1][bs2] = num;}
-	//set position of generalization on each side
+#if 0
+	//! number of bending edges on one side at corner to second side
+	void set_num_bend_edges(box_side bs1, box_side bs2, int num) {nbe[bs1][bs2] = num;}
+#endif
+
+	//! set position of generalization on each side
 	void set_gen_pos(OrthoDir od, int pos) {
 		m_gen_pos[od] = pos; //odir: N 0, E 1
 	}
@@ -254,7 +257,7 @@ public:
 	}
 
 
-	//computes the size of the cage face and the node box
+	//! compute the size of the cage face and the node box
 	void compute_cage_size() {
 		cage_x_size = m_ccoord[odSouth]-m_ccoord[odNorth];
 		cage_y_size = m_ccoord[odEast] - m_ccoord[odWest];

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/graph_generators.h>
@@ -52,38 +49,88 @@ using std::uniform_real_distribution;
 
 namespace ogdf {
 
+void randomRegularGraph(Graph &G, int n, int d)
+{
+	OGDF_ASSERT(n >= 0);
+	OGDF_ASSERT(n*d % 2 == 0);
 
-inline int __IDX(int a, int b, int n, int max) {
-	int t = n - a - 1;
-	int s = t * (t+1) / 2;
-	int w = max - s;
-	int o = b - a - 1;
-	return w + o;
+	minstd_rand rng(randomSeed());
+
+	do {
+		G.clear();
+
+		// create the set of required half-edges
+		std::vector<node> pairs(n*d);
+		for (int i = 0; i < n; i++) {
+			node v = G.newNode();
+
+			for (int j = 0; j < d; j++) {
+				pairs[i * d + j] = v;
+			}
+		}
+
+		bool promising = true;
+		while (promising && !pairs.empty()) {
+			// test whether feasible pair exists (=promising)
+			promising = false;
+			for (auto i = 0u; !promising && i < pairs.size(); i++) {
+				for (auto j = i+1; !promising && j < pairs.size(); j++) {
+					node v = pairs[i];
+					node w = pairs[j];
+					promising |= v != w && G.searchEdge(v, w) == nullptr;
+				}
+			}
+
+			// randomly pick a feasible pair if possible
+			bool edgeCreated = !promising;
+			while (!edgeCreated) {
+				uniform_int_distribution<> dist(0, int(pairs.size()) - 1);
+
+				int idV = dist(rng);
+				int idW = dist(rng);
+				node v = pairs[idV];
+				node w = pairs[idW];
+
+				// create edge if feasible and update required half-edges
+				if (v != w && G.searchEdge(v, w) == nullptr) {
+					G.newEdge(v, w);
+
+					if (idV < idW) {
+						swap(idV, idW);
+					}
+
+					pairs.erase(pairs.begin() + idV);
+					pairs.erase(pairs.begin() + idW);
+
+					edgeCreated = true;
+				}
+			}
+		}
+	} while (G.numberOfEdges() != n*d/2);
 }
 
-
-
-void circulantGraph (Graph &G, int n, Array<int> jumps) {
-    G.clear();
-    Array<node> nodes(n);
-    for (int i=0; i<n; i++) {
-        nodes[i] = G.newNode();
-    }
-    Array2D<bool> buildEdge(0,n-1,0,n-1,false);
-    auto pos_modulo = [&n](int i) {return (i % n + n) % n;};
-    for (int s: jumps) {
-        for (int i=0; i<n; i++) {
-            buildEdge(i, pos_modulo(i+s)) = true;
-            buildEdge(i, pos_modulo(i-s)) = true;
-        }
-    }
-    for (int i=0; i<n; i++) {
-        for (int j=i; j<n; j++) {
-            if (buildEdge(i,j)) {
-                G.newEdge(nodes[i], nodes[j]);
-            }
-        }
-    }
+void circulantGraph(Graph &G, int n, Array<int> jumps)
+{
+	G.clear();
+	Array<node> nodes(n);
+	for (int i=0; i<n; i++) {
+		nodes[i] = G.newNode();
+	}
+	Array2D<bool> buildEdge(0,n-1,0,n-1,false);
+	auto pos_modulo = [&n](int i) {return (i % n + n) % n;};
+	for (int s: jumps) {
+		for (int i=0; i<n; i++) {
+			buildEdge(i, pos_modulo(i+s)) = true;
+			buildEdge(i, pos_modulo(i-s)) = true;
+		}
+	}
+	for (int i=0; i<n; i++) {
+		for (int j=i; j<n; j++) {
+			if (buildEdge(i,j)) {
+				G.newEdge(nodes[i], nodes[j]);
+			}
+		}
+	}
 }
 
 
@@ -109,6 +156,15 @@ void randomGraph(Graph &G, int n, int m)
 	}
 }
 
+constexpr int getMaxNumberEdges(int n)
+{
+	return n * (n-1) / 2;
+}
+
+constexpr int getEdgeIndex(int a, int b, int n, int max)
+{
+	return max - getMaxNumberEdges(n - a) + b - a - 1;
+}
 
 bool randomSimpleGraph(Graph &G, int n, int m)
 {
@@ -117,24 +173,24 @@ bool randomSimpleGraph(Graph &G, int n, int m)
 	if (n == 0 && m == 0)
 		return true;
 
-	if(n < 1)
+	if (n < 1)
 		return false;
 
-	int max = n * (n-1) / 2;
-	if(m > max)
+	int max = getMaxNumberEdges(n);
+	if (m > max)
 		return false;
 
 	Array<node> v(n);
 
 	int i;
-	for(i = 0; i < n; i++)
+	for (i = 0; i < n; i++)
 		v[i] = G.newNode();
 
 	if (m == 0)
 		return true;
 
 	bool remove;
-	if(m > max /2) {
+	if (m > max /2) {
 		m = max - m;
 		remove = true;
 	} else {
@@ -142,31 +198,32 @@ bool randomSimpleGraph(Graph &G, int n, int m)
 	}
 
 	Array<bool> used(max);
-	for(i = max; i-->0;)
+	for (i = max; i-- > 0;)
 		used[i] = remove;
 
 	minstd_rand rng(randomSeed());
 	uniform_int_distribution<> dist_a(0,n-1);
 	uniform_int_distribution<> dist_b(0,n-2);
 
-	while(m > 0) {
+	while (m > 0) {
 		int a = dist_a(rng);
 		int b = dist_b(rng);
-		if(b >= a) b++;
-		else {
+		if (b >= a) {
+			b++;
+		} else {
 			int c = a;
 			a = b;
 			b = c;
 		}
-		if(used[i = __IDX(a,b,n,max)] == remove) {
+		if (used[i = getEdgeIndex(a,b,n,max)] == remove) {
 			used[i] = !remove;
 			m--;
 		}
 	}
 
-	for(int a = 0; a < n; a++)
-		for(int b = a+1; b < n; b++)
-			if(used[__IDX(a,b,n,max)])
+	for (int a = 0; a < n; a++)
+		for (int b = a+1; b < n; b++)
+			if (used[getEdgeIndex(a,b,n,max)])
 				G.newEdge(v[a],v[b]);
 
 	return true;
@@ -608,7 +665,9 @@ void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 
 	Array<edge> edges(m);
 	Array<face> bigFaces(m);
-	//random_source S;
+#if 0
+	random_source S;
+#endif
 
 	// we start with a triangle
 	node v1 = G.newNode(), v2 = G.newNode(), v3 = G.newNode();
@@ -696,7 +755,6 @@ void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 					e->adjSource()->faceCycleSucc()->twin(), ogdf::before);
 			}
 		}
-
 	}
 }
 
@@ -726,7 +784,6 @@ void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
 		bool y = GA.x(u) == GA.x(v) && GA.y(u) > GA.y(v);
 
 		if (x || y) G.reverseEdge(e);
-
 	}
 
 	const int MAX_ERR = (int)(G.numberOfEdges() * (1/(1-p)));
@@ -744,11 +801,10 @@ void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
 				G.reverseEdge(e);
 			}
 	}
-
 }
 
 
-void planarCNBGraph(Graph &G, int n, int m,	int b)
+void planarCNBGraph(Graph &G, int n, int m, int b)
 {
 	G.clear();
 	if (b <= 0) b = 1;
@@ -943,7 +999,7 @@ void randomClusterGraph(ClusterGraph &C,Graph &G,int cNum)
 
 	OGDF_ASSERT(C.consistencyCheck());
 
-}//randomClusterGraph
+}
 
 
 void randomClusterPlanarGraph(ClusterGraph &C,Graph &G,int cNum)
@@ -986,7 +1042,6 @@ void randomClusterPlanarGraph(ClusterGraph &C,Graph &G,int cNum)
 		C.delCluster(cl);
 	}
 
-
 	OGDF_ASSERT(C.consistencyCheck());
 }
 
@@ -1010,7 +1065,7 @@ static void constructCConnectedCluster(node v, ClusterGraph &C, minstd_rand &rng
 }
 
 
-//construct new (child) cluster by randomly choosing nodes in v's cluster
+// Construct new (child) cluster by randomly choosing nodes in v's cluster
 static void constructCluster(node v,ClusterGraph &C)
 {
 	if (C.clusterOf(v)->nCount() < 2) return;
@@ -1021,9 +1076,11 @@ static void constructCluster(node v,ClusterGraph &C)
 	minstd_rand rng(randomSeed());
 	uniform_int_distribution<> dist(0,99);
 
-	//store the cluster nodes for random selection
-	//we  could just randomly select by running up the list
-	//HashArray<int, node> clusterNodes;
+	// store the cluster nodes for random selection
+	// we could just randomly select by running up the list
+#if 0
+	HashArray<int, node> clusterNodes;
+#endif
 	ListConstIterator<node> it = C.clusterOf(v)->nBegin();
 	while (it.valid())
 	{
@@ -1042,10 +1099,10 @@ static void constructCluster(node v,ClusterGraph &C)
 		C.reassignNode(w,cl);
 	}
 
-}//constructcluster
+}
 
 
-//insert nodes in v's cluster to new cluster with a certain probability
+// Insert nodes in v's cluster to new cluster with a certain probability
 static void bfs(node v, SList<node> &newCluster, NodeArray<bool> &visited, ClusterGraph &C, minstd_rand &rng)
 {
 	uniform_int_distribution<> dist(0,99);
@@ -1163,11 +1220,11 @@ void completeGraph(Graph &G, int n)
 	Array<node> v(n);
 
 	int i,j;
-	for(i = n; i-->0;)
+	for(i = n; i-- > 0;)
 		v[i] = G.newNode();
 
-	for(i = n; i-->0;)
-		for(j = i; j-->0;)
+	for(i = n; i-- > 0;)
+		for(j = i; j-- > 0;)
 			G.newEdge(v[i],v[j]);
 }
 
@@ -1268,8 +1325,8 @@ void gridGraph(Graph &G, int n, int m, bool loopN, bool loopM)
 	node first = nullptr;
 	node last = nullptr;
 	node cur;
-	for(int j=m; j-->0;) {
-		for(int i=n; i-->0;) {
+	for(int j = m; j-- > 0;) {
+		for(int i = n; i-- > 0;) {
 			cur = G.newNode();
 			if(!last) first=cur;
 			else G.newEdge(last,cur);
@@ -1283,7 +1340,7 @@ void gridGraph(Graph &G, int n, int m, bool loopN, bool loopM)
 		last = nullptr;
 	}
 	if(loopM) {
-		for(int i=n; i-->0;) {
+		for(int i = n; i-- > 0;) {
 			G.newEdge(fringe[i],front[i]);
 		}
 	}
@@ -1296,7 +1353,7 @@ void petersenGraph(Graph &G, int n, int m)
 	Array<node> inner(0, n-1, nullptr);
 	node first = nullptr;
 	node last = nullptr;
-	for(int i=n; i-->0;) {
+	for(int i = n; i-- > 0;) {
 		node outn = G.newNode();
 		node inn = G.newNode();
 		G.newEdge(outn,inn);
@@ -1306,7 +1363,7 @@ void petersenGraph(Graph &G, int n, int m)
 		last = outn;
 	}
 	G.newEdge(last, first);
-	for(int i=n; i-->0;) {
+	for(int i = n; i-- > 0;) {
 		G.newEdge(inner[i],inner[(i+m)%n]);
 	}
 }
@@ -1321,8 +1378,7 @@ void randomDiGraph(Graph &G, int n, double p)
 	// permute() doesn't work if n==0
 	if (n == 0) return;
 
-	for(int i=0; i<n; i++)
-		G.newNode();
+	emptyGraph(G,n);
 
 	minstd_rand rng(randomSeed());
 	uniform_real_distribution<> dist(0.0,1.0);
@@ -1422,10 +1478,51 @@ void randomSeriesParallelDAG(Graph &G, int edges, double p, double flt)
 			it_dag++;
 		} else {
 			err_dl++;
-			while (e->target() == t_pol || e->source() == s_pol)
-				e = G.chooseEdge();
+			e = G.chooseEdge([&](edge f) { return f->target() != t_pol && f->source() != s_pol; });
 			G.reverseEdge(e);
 		}
+	}
+}
+
+void randomGeometricCubeGraph(Graph &G, int nodes, double threshold, int dimension)
+{
+	OGDF_ASSERT( dimension >= 1 );
+
+	G.clear();
+
+	// create nodes with random d-dim coordinate
+	emptyGraph(G, nodes);
+	NodeArray<Array<double>> cord(G, Array<double>(dimension));
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	uniform_real_distribution<> dist(0, 1);
+	for (node v : G.nodes) {
+		for (int i = 0; i < dimension; i++){
+			cord[v][i] = dist(gen);
+		}
+	}
+
+	// connect nodes if distance is smaller than threshold
+	threshold *= threshold; //no need for sqrt() when we later compare
+	                        //the distance with the threshold
+	for (node v : G.nodes) {
+		for (node w = v->succ(); w; w = w->succ()) {
+			double distance = 0.0;
+			for (int i = 0; i < dimension; i++) {
+				distance += (cord[v][i] - cord[w][i])*(cord[v][i] - cord[w][i]);
+			}
+			if (distance < threshold) {
+				G.newEdge(v, w);
+			}
+		}
+	}
+}
+
+void emptyGraph(Graph &G, int nodes)
+{
+	G.clear();
+	for (int i = 0; i < nodes; i++) {
+		G.newNode();
 	}
 }
 

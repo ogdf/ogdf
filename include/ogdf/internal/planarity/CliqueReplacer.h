@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -88,7 +85,11 @@ public:
 	//ccP(List...)
 	//rectMin is a temporary solution until compaction with constraints allows stretching
 	//of rect to clique size, it gives the min(w,h) of the given fixed size rect around the clique
-	void computeCliquePosition(node center, double rectMin);//, const adjEntry &startAdj);
+#if 1
+	void computeCliquePosition(node center, double rectMin);
+#else
+	void computeCliquePosition(node center, double rectMin, const adjEntry &startAdj);
+#endif
 
 	//compute positions for the nodes in adjNodes on a circle
 	//tries to keep the relative placement of the nodes in the clique

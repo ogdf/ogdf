@@ -16,13 +16,13 @@ class OsiHotInfo;
 
 /** This class chooses a variable to branch on
 
-    The base class just chooses the variable and direction without strong branching but it 
+    The base class just chooses the variable and direction without strong branching but it
     has information which would normally be used by strong branching e.g. to re-enter
     having fixed a variable but using same candidates for strong branching.
 
     The flow is :
     a) initialize the process.  This decides on strong branching list
-       and stores indices of all infeasible objects  
+       and stores indices of all infeasible objects
     b) do strong branching on list.  If list is empty then just
        choose one candidate and return without strong branching.  If not empty then
        go through list and return best.  However we may find that the node is infeasible
@@ -31,34 +31,34 @@ class OsiHotInfo;
 */
 
 class OsiChooseVariable  {
- 
+
 public:
-    
-  /// Default Constructor 
+
+  /// Default Constructor
   OsiChooseVariable ();
 
   /// Constructor from solver (so we can set up arrays etc)
   OsiChooseVariable (const OsiSolverInterface * solver);
 
-  /// Copy constructor 
+  /// Copy constructor
   OsiChooseVariable (const OsiChooseVariable &);
-   
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiChooseVariable & operator= (const OsiChooseVariable& rhs);
 
   /// Clone
   virtual OsiChooseVariable * clone() const;
 
-  /// Destructor 
+  /// Destructor
   virtual ~OsiChooseVariable ();
 
   /** Sets up strong list and clears all if initialize is true.
-      Returns number of infeasibilities. 
+      Returns number of infeasibilities.
       If returns -1 then has worked out node is infeasible!
   */
   virtual int setupList ( OsiBranchingInformation *info, bool initialize);
   /** Choose a variable
-      Returns - 
+      Returns -
      -1 Node is infeasible
      0  Normal termination - we have a candidate
      1  All looks satisfied - no candidate
@@ -85,7 +85,7 @@ public:
 				  int branch, OsiHotInfo * hotInfo);
 #if 1
   /// Given a branch fill in useful information e.g. estimates
-  virtual void updateInformation( int whichObject, int branch, 
+  virtual void updateInformation( int whichObject, int branch,
 				  double changeInObjective, double changeInValue,
 				  int status);
 #endif
@@ -137,13 +137,13 @@ public:
   /// Number left on strong list
   inline int numberOnList() const
   { return numberOnList_;}
-  /// Number of strong branches actually done 
+  /// Number of strong branches actually done
   inline int numberStrongDone() const
   { return numberStrongDone_;}
-  /// Number of strong iterations actually done 
+  /// Number of strong iterations actually done
   inline int numberStrongIterations() const
   { return numberStrongIterations_;}
-  /// Number of strong branches which changed bounds 
+  /// Number of strong branches which changed bounds
   inline int numberStrongFixed() const
   { return numberStrongFixed_;}
   /// List of candidates
@@ -163,7 +163,7 @@ public:
   { trustStrongForSolution_ = yesNo;}
   /// Set solver and redo arrays
   void setSolver (const OsiSolverInterface * solver);
-  /** Return status - 
+  /** Return status -
      -1 Node is infeasible
      0  Normal termination - we have a candidate
      1  All looks satisfied - no candidate
@@ -219,9 +219,9 @@ protected:
   int numberStrong_;
   /// Number left on strong list
   int numberOnList_;
-  /// Number of strong branches actually done 
+  /// Number of strong branches actually done
   int numberStrongDone_;
-  /// Number of strong iterations actually done 
+  /// Number of strong iterations actually done
   int numberStrongIterations_;
   /// Number of bound changes due to strong branching
   int numberStrongFixed_;
@@ -293,9 +293,9 @@ public:
   /// Given a candidate fill in useful information e.g. estimates
   virtual void updateInformation(const OsiBranchingInformation *info,
 				  int branch, OsiHotInfo * hotInfo);
-#if 1 
+#if 1
   /// Given a branch fill in useful information e.g. estimates
-  virtual void updateInformation( int whichObject, int branch, 
+  virtual void updateInformation( int whichObject, int branch,
 				  double changeInObjective, double changeInValue,
 				  int status);
 #endif
@@ -307,7 +307,7 @@ public:
 
     The flow is :
     a) initialize the process.  This decides on strong branching list
-       and stores indices of all infeasible objects  
+       and stores indices of all infeasible objects
     b) do strong branching on list.  If list is empty then just
        choose one candidate and return without strong branching.  If not empty then
        go through list and return best.  However we may find that the node is infeasible
@@ -316,34 +316,34 @@ public:
 */
 
 class OsiChooseStrong  : public OsiChooseVariable {
- 
+
 public:
-    
-  /// Default Constructor 
+
+  /// Default Constructor
   OsiChooseStrong ();
 
   /// Constructor from solver (so we can set up arrays etc)
   OsiChooseStrong (const OsiSolverInterface * solver);
 
-  /// Copy constructor 
+  /// Copy constructor
   OsiChooseStrong (const OsiChooseStrong &);
-   
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiChooseStrong & operator= (const OsiChooseStrong& rhs);
 
   /// Clone
   virtual OsiChooseVariable * clone() const override;
 
-  /// Destructor 
+  /// Destructor
   virtual ~OsiChooseStrong ();
 
   /** Sets up strong list and clears all if initialize is true.
-      Returns number of infeasibilities. 
+      Returns number of infeasibilities.
       If returns -1 then has worked out node is infeasible!
   */
   virtual int setupList ( OsiBranchingInformation *info, bool initialize) override;
   /** Choose a variable
-      Returns - 
+      Returns -
      -1 Node is infeasible
      0  Normal termination - we have a candidate
      1  All looks satisfied - no candidate
@@ -396,11 +396,11 @@ protected:
        -1 - one branch was infeasible both ways
        0 - all inspected - nothing can be fixed
        1 - all inspected - some can be fixed (returnCriterion==0)
-       2 - may be returning early - one can be fixed (last one done) (returnCriterion==1) 
+       2 - may be returning early - one can be fixed (last one done) (returnCriterion==1)
        3 - returning because max time
-       
+
   */
-  int doStrongBranching( OsiSolverInterface * solver, 
+  int doStrongBranching( OsiSolverInterface * solver,
 			 OsiBranchingInformation *info,
 			 int numberToDo, int returnCriterion);
 
@@ -411,7 +411,7 @@ protected:
   /** Pseudo Shadow Price mode
       0 - off
       1 - use and multiply by strong info
-      2 - use 
+      2 - use
   */
   int shadowPriceMode_;
 
@@ -430,28 +430,28 @@ protected:
 */
 
 class OsiHotInfo  {
- 
+
 public:
-    
-  /// Default Constructor 
+
+  /// Default Constructor
   OsiHotInfo ();
 
   /// Constructor from useful information
-  OsiHotInfo ( OsiSolverInterface * solver, 
+  OsiHotInfo ( OsiSolverInterface * solver,
 	       const OsiBranchingInformation *info,
 	       const OsiObject * const * objects,
 	       int whichObject);
 
-  /// Copy constructor 
+  /// Copy constructor
   OsiHotInfo (const OsiHotInfo &);
-   
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiHotInfo & operator= (const OsiHotInfo& rhs);
 
   /// Clone
   virtual OsiHotInfo * clone() const;
 
-  /// Destructor 
+  /// Destructor
   virtual ~OsiHotInfo ();
 
   /** Fill in useful information after strong branch.

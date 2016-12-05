@@ -5,9 +5,6 @@
 /* include the public project specific macros */
 #include "config_coinutils_default.h"
 
-/* include the public project specific macros */
-#include "config_sym_default.h"
-
 /***************************************************************************/
 /*             HERE DEFINE THE PROJECT SPECIFIC MACROS                     */
 /*    These are only in effect in a setting that doesn't use configure     */
@@ -20,7 +17,7 @@
 /* #define COIN_HAS_CBC 1 */
 
 /* Define to 1 if the Cgl package is used */
-#define COIN_HAS_CGL 1
+/* #undef COIN_HAS_CGL */
 
 /* Define to 1 if the Clp package is used */
 #define COIN_HAS_CLP 1
@@ -63,4 +60,3 @@
 
 /* Define to 1 if the Xpress package is used */
 /* #undef COIN_HAS_XPR */
-

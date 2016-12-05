@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/simple_graph_alg.h>
@@ -72,6 +69,9 @@ PlanRep::PlanRep(const GraphAttributes& AG) :
 	m_oriEdgeTypes(AG.constGraph(), 0),
 	m_eAuxCopy(AG.constGraph())
 {
+	OGDF_ASSERT(m_pGraphAttributes->has(GraphAttributes::edgeType));
+	OGDF_ASSERT(m_pGraphAttributes->has(GraphAttributes::nodeGraphics));
+
 	m_vType        .init(*this,Graph::dummy);
 	m_nodeTypes    .init(*this, 0); //the new node type info
 	m_expandedNode .init(*this,nullptr);
@@ -119,7 +119,7 @@ void PlanRep::initCC(int cc)
 	{
 		m_vType[v] = m_pGraphAttributes->type(original(v));
 		if (m_pGraphAttributes->isAssociationClass(original(v))) {
-			OGDF_ASSERT(v->degree() == 1)
+			OGDF_ASSERT(v->degree() == 1);
 			edge e = v->firstAdj()->theEdge();
 			setAssClass(e);
 		}
@@ -148,11 +148,11 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 	//by splitting the outgoing edges and connecting the
 	//split nodes
 	node center = copy(centerOrig);
-	OGDF_ASSERT(center)
+	OGDF_ASSERT(center != nullptr);
 
 	if (center->degree() < 1) return;
 
-	OGDF_ASSERT(original(center))
+	OGDF_ASSERT(original(center));
 
 	//---------------------------
 	//retrieve the outgoing edges
@@ -286,7 +286,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 
 	//keep it simple: just assign the last adjEntry to boundaryAdj
 	//we have to save at the original, the copy may be replaced
-	OGDF_ASSERT(m_boundaryAdj[original(center)] == 0)
+	OGDF_ASSERT(m_boundaryAdj[original(center)] == nullptr);
 	m_boundaryAdj[original(center)] = e->adjSource();
 
 }//insertBoundary
@@ -295,27 +295,29 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 //*****************************************************************************
 //embedding and crossings
 
-//void PlanRep::removePseudoCrossings()
-//{
-//	node v, vSucc;
-//	for(v = firstNode(); v != 0; v = vSucc)
-//	{
-//		vSucc = v->succ();
-//
-//		if (typeOf(v) != PlanRep::dummy || v->degree() != 4)
-//			continue;
-//
-//		adjEntry adj1 = v->firstAdj();
-//		adjEntry adj2 = adj1->succ();
-//		adjEntry adj3 = adj2->succ();
-//		adjEntry adj4 = adj3->succ();
-//
-//		if(original(adj1->theEdge()) == original(adj2->theEdge()))
-//			removeUnnecessaryCrossing(adj1,adj2,adj3,adj4);
-//		else if (original(adj2->theEdge()) == original(adj3->theEdge()))
-//			removeUnnecessaryCrossing(adj2,adj3,adj4,adj1);
-//	}
-//}
+#if 0
+void PlanRep::removePseudoCrossings()
+{
+	node v, vSucc;
+	for(v = firstNode(); v != 0; v = vSucc)
+	{
+		vSucc = v->succ();
+
+		if (typeOf(v) != PlanRep::dummy || v->degree() != 4)
+			continue;
+
+		adjEntry adj1 = v->firstAdj();
+		adjEntry adj2 = adj1->succ();
+		adjEntry adj3 = adj2->succ();
+		adjEntry adj4 = adj3->succ();
+
+		if(original(adj1->theEdge()) == original(adj2->theEdge()))
+			removeUnnecessaryCrossing(adj1,adj2,adj3,adj4);
+		else if (original(adj2->theEdge()) == original(adj3->theEdge()))
+			removeUnnecessaryCrossing(adj2,adj3,adj4,adj1);
+	}
+}
+#endif
 
 void PlanRep::insertEdgePathEmbedded(
 	edge eOrig,
@@ -385,7 +387,7 @@ edge PlanRep::insertCrossing(
 	m_edgeTypes[newCopy]      = eTypsd;
 
 	setCrossingType(newCopy->source());
-	OGDF_ASSERT(isCrossingType(newCopy->source()))
+	OGDF_ASSERT(isCrossingType(newCopy->source()));
 
 	//TODO: hier sollte man die NodeTypes setzen, d.h. crossing
 
@@ -396,8 +398,8 @@ edge PlanRep::insertCrossing(
 
 void PlanRep::removeCrossing(node v)
 {
-	OGDF_ASSERT(v->degree() == 4)
-	OGDF_ASSERT(isCrossingType(v))
+	OGDF_ASSERT(v->degree() == 4);
+	OGDF_ASSERT(isCrossingType(v));
 
 	adjEntry a1 = v->firstAdj();
 	adjEntry b1 = a1->cyclicSucc();
@@ -678,7 +680,7 @@ void PlanRep::collapseVertices(const OrthoRep &OR, Layout &drawing)
 			continue;
 
 		node vOrig = original(v);
-		OGDF_ASSERT(vOrig != 0);
+		OGDF_ASSERT(vOrig != nullptr);
 
 		node vCenter = newNode();
 		m_vOrig[vCenter] = vOrig;
@@ -720,7 +722,7 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 			continue;
 
 		node vOrig = original(v);
-		OGDF_ASSERT(vOrig != 0);
+		OGDF_ASSERT(vOrig != nullptr);
 
 		node vCenter = newNode();
 		m_vOrig[vCenter] = vOrig;
@@ -756,7 +758,7 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 //set type of eCopy according to type of eOrig
 void PlanRep::setCopyType(edge eCopy, edge eOrig)
 {
-	OGDF_ASSERT(original(eCopy) == eOrig)
+	OGDF_ASSERT(original(eCopy) == eOrig);
 	m_eType[eCopy] = m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::association;
 	if (eOrig)
 	{
@@ -840,7 +842,7 @@ void PlanRep::restoreDeg1Nodes(Stack<Deg1RestoreInfo> &S, List<node> &deg1s)
 
 node PlanRep::newCopy(node v, Graph::NodeType vTyp)
 {
-	OGDF_ASSERT(m_vCopy[v] == 0)
+	OGDF_ASSERT(m_vCopy[v] == nullptr);
 
 	node u = newNode();
 	m_vCopy[v] = u;
@@ -854,15 +856,15 @@ node PlanRep::newCopy(node v, Graph::NodeType vTyp)
 //inserts copy for original edge eOrig after adAfter
 edge PlanRep::newCopy(node v, adjEntry adAfter, edge eOrig)
 {
-	OGDF_ASSERT(eOrig->graphOf() == &(original()))
-	OGDF_ASSERT(m_eCopy[eOrig].size() == 0)
+	OGDF_ASSERT(eOrig->graphOf() == &(original()));
+	OGDF_ASSERT(m_eCopy[eOrig].size() == 0);
 	edge e;
 	if (adAfter != nullptr)
 		e = Graph::newEdge(v, adAfter);
 	else
 	{
 		node w = copy(eOrig->opposite(original(v)));
-		OGDF_ASSERT(w)
+		OGDF_ASSERT(w);
 		e = Graph::newEdge(v, w);
 	}//else
 	m_eOrig[e] = eOrig;
@@ -876,8 +878,8 @@ edge PlanRep::newCopy(node v, adjEntry adAfter, edge eOrig)
 //inserts copy for original edge eOrig preserving the embedding
 edge PlanRep::newCopy(node v, adjEntry adAfter, edge eOrig, CombinatorialEmbedding &E)
 {
-	OGDF_ASSERT(eOrig->graphOf() == &(original()))
-	OGDF_ASSERT(m_eCopy[eOrig].size() == 0)
+	OGDF_ASSERT(eOrig->graphOf() == &(original()));
+	OGDF_ASSERT(m_eCopy[eOrig].size() == 0);
 
 	edge e;
 	//GraphCopy checks direction for us

@@ -28,7 +28,7 @@
 /// for going through row or column
 
 class CoinModelLink {
-  
+
 public:
   /**@name Constructors, destructor */
    //@{
@@ -145,7 +145,7 @@ struct symrec
   } value;
   struct symrec *next;  /* link field */
 };
-     
+
 typedef struct symrec symrec;
 
 class CoinYacc {
@@ -169,7 +169,7 @@ public:
       free(symtable);
     }
   }
-    
+
 public:
   symrec * symtable;
   char * symbuf;
@@ -178,7 +178,7 @@ public:
 };
 
 class CoinModelHash {
-  
+
 public:
   /**@name Constructors, destructor */
   //@{
@@ -187,7 +187,7 @@ public:
   /** Destructor */
   ~CoinModelHash();
   //@}
-  
+
   /**@name Copy method */
   //@{
   /** The copy constructor. */
@@ -241,7 +241,7 @@ private:
   char ** names_;
   /// hash
   CoinModelHashLink * hash_;
-  /// Number of items 
+  /// Number of items
   int numberItems_;
   /// Maximum number of items
   int maximumItems_;
@@ -251,7 +251,7 @@ private:
 };
 /// For int,int hashing
 class CoinModelHash2 {
-  
+
 public:
   /**@name Constructors, destructor */
   //@{
@@ -260,7 +260,7 @@ public:
   /** Destructor */
   ~CoinModelHash2();
   //@}
-  
+
   /**@name Copy method */
   //@{
   /** The copy constructor. */
@@ -301,7 +301,7 @@ private:
   //@{
   /// hash
   CoinModelHashLink * hash_;
-  /// Number of items 
+  /// Number of items
   int numberItems_;
   /// Maximum number of items
   int maximumItems_;
@@ -310,7 +310,7 @@ private:
   //@}
 };
 class CoinModelLinkedList {
-  
+
 public:
   /**@name Constructors, destructor */
   //@{
@@ -319,7 +319,7 @@ public:
   /** Destructor */
   ~CoinModelLinkedList();
   //@}
-  
+
   /**@name Copy method */
   //@{
   /** The copy constructor. */

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/DTreeGalaxy.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -386,13 +383,13 @@ void GalaxyLevel::setEdgeWeight(edge e, double weight)
 // returns true if this is the level of the original graph
 bool GalaxyLevel::isFinestLevel() const
 {
-    return (m_pNextFiner == nullptr);
+    return m_pNextFiner == nullptr;
 }
 
 // returns true if this is coarsest level in the chain
 bool GalaxyLevel::isCoarsestLevel() const
 {
-    return (m_pNextCoarser == nullptr);
+    return m_pNextCoarser == nullptr;
 }
 
 // return the next coarser one

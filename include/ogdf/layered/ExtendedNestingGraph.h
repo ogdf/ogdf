@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -83,16 +80,16 @@ struct OGDF_EXPORT RCCrossings
 
 	bool operator<=(const RCCrossings &cr) const {
 		if(m_cnClusters == cr.m_cnClusters)
-			return (m_cnEdges <= cr.m_cnEdges);
+			return m_cnEdges <= cr.m_cnEdges;
 		else
-			return (m_cnClusters <= cr.m_cnClusters);
+			return m_cnClusters <= cr.m_cnClusters;
 	}
 
 	bool operator<(const RCCrossings &cr) const {
 		if(m_cnClusters == cr.m_cnClusters)
-			return (m_cnEdges < cr.m_cnEdges);
+			return m_cnEdges < cr.m_cnEdges;
 		else
-			return (m_cnClusters < cr.m_cnClusters);
+			return m_cnClusters < cr.m_cnClusters;
 	}
 
 	bool isZero() const {
@@ -129,7 +126,7 @@ public:
 
 	struct Adjacency
 	{
-		Adjacency() { m_u = 0; m_v = 0; m_weight = 0; }
+		Adjacency() { m_u = nullptr; m_v = nullptr; m_weight = 0; }
 		Adjacency(node u, LHTreeNode *vNode, int weight = 1) {
 			m_u      = u;
 			m_v      = vNode;
@@ -145,7 +142,7 @@ public:
 
 	struct ClusterCrossing
 	{
-		ClusterCrossing() { m_uc = 0; m_u = 0; m_cNode = 0; m_uNode = 0; }
+		ClusterCrossing() { m_uc = nullptr; m_u = nullptr; m_cNode = nullptr; m_uNode = nullptr; }
 		ClusterCrossing(node uc, LHTreeNode *cNode, node u, LHTreeNode *uNode, edge e) {
 			m_uc = uc;
 			m_u  = u;
@@ -165,11 +162,11 @@ public:
 
 	// Construction
 	LHTreeNode(cluster c, LHTreeNode *up) {
-		m_parent      = 0;
+		m_parent      = nullptr;
 		m_origCluster = c;
-		m_node        = 0;
+		m_node        = nullptr;
 		m_type        = Compound;
-		m_down        = 0;
+		m_down        = nullptr;
 
 		m_up = up;
 		if(up)
@@ -178,11 +175,11 @@ public:
 
 	LHTreeNode(LHTreeNode *parent, node v, Type t = Node) {
 		m_parent      = parent;
-		m_origCluster = 0;
+		m_origCluster = nullptr;
 		m_node        = v;
 		m_type        = t;
-		m_up          = 0;
-		m_down        = 0;
+		m_up          = nullptr;
+		m_down        = nullptr;
 	}
 
 	// Access functions
@@ -247,7 +244,7 @@ private:
 class OGDF_EXPORT ENGLayer
 {
 public:
-	ENGLayer() { m_root = 0; }
+	ENGLayer() { m_root = nullptr; }
 	~ENGLayer();
 
 	const LHTreeNode *root() const { return m_root; }
@@ -330,7 +327,7 @@ public:
 	cluster originalCluster(node v) const { return m_CGC.original(m_CGC.clusterOf(v)); }
 	cluster parent(node v) const { return m_CGC.clusterOf(v); }
 	cluster parent(cluster c) const { return c->parent(); }
-	bool isVirtual(cluster c) const { return m_CGC.original(c) == 0; }
+	bool isVirtual(cluster c) const { return m_CGC.original(c) == nullptr; }
 
 	const List<edge> &chain(edge e) const { return m_copyEdge[e]; }
 
@@ -388,9 +385,13 @@ private:
 	void buildLayers();
 	void removeAuxNodes();
 
-	// original graph
-	//const ClusterGraph &m_CG;
+#if 0
+	//! original graph
+	const ClusterGraph &m_CG;
+#else
+	//! copy of original cluster graph
 	ClusterGraphCopy m_CGC;
+#endif
 
 	// mapping: nodes in CG <-> nodes in this copy
 	NodeArray<node>    m_copy;

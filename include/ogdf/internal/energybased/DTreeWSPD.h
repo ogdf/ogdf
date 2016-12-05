@@ -5,7 +5,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -304,10 +301,16 @@ bool DTreeWSPD<Dim>::areWellSeparated(int a, int b) const
     // this ws <=> d > (s + 2)r
     // more efficient: d^2 > (s + 2)^2 r^2
     // d_sq > (s^2 + 4s + 4) * r_max
-    // const double s = (m_wspdSeparationFactor + 2.0);
-    //return dist_sq > (m_wspdSeparationFactor * m_wspdSeparationFactor + 4.0 * m_wspdSeparationFactor + 4) * r_max * r_max;
-//    return dist_sq > s * s * r_max_sq;
+#if 0
+# if 0
+    const double s = (m_wspdSeparationFactor + 2.0);
+    return dist_sq > (m_wspdSeparationFactor * m_wspdSeparationFactor + 4.0 * m_wspdSeparationFactor + 4) * r_max * r_max;
+# else
+    return dist_sq > s * s * r_max_sq;
+# endif
+#else
     return dist_sq > m_wspdSeparationFactorPlus2Squared_cached * r_max_sq;
+#endif
 }
 
 template<>
@@ -398,7 +401,9 @@ void DTreeWSPD<Dim>::updateTreeGridPoints()
         for (int d = 0; d < Dim; d++)
         {
             // put it in the bounding square
-//            double nx = ((point(i).x[d] - m_bboxMin[d] + 0.01) / quad_size + 0.02);
+#if 0
+            double nx = ((point(i).x[d] - m_bboxMin[d] + 0.01) / quad_size + 0.02);
+#endif
             double nx = ((point(i).x[d] - m_bboxMin[d]) * scale);
 
 

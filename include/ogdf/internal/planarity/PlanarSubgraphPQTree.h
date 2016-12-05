@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -75,7 +72,7 @@ public:
 	//! Initializes a new PQ-tree with a set of leaves.
 	virtual int Initialize(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys);
 
-	int Initialize(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) {
+	int Initialize(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) override {
 		return MaxSequencePQTree<edge,bool>::Initialize(leafKeys);
 	}
 
@@ -87,7 +84,7 @@ public:
 		SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys,
 		SList<PQLeafKey<edge,whaInfo*,bool>*> &eliminatedKeys);
 
-	bool Reduction(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) {
+	bool Reduction(SListPure<PQLeafKey<edge,whaInfo*,bool>*> &leafKeys) override {
 		return MaxSequencePQTree<edge,bool>::Reduction(leafKeys);
 	}
 

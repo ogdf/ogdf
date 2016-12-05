@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <iomanip>
 #include <chrono>
@@ -84,8 +81,7 @@ void performSingleTest(
 		const double maxGap,
 		const bool directed,
 		Dijkstra<T> &dijkstra,
-		AStarSearch<T> &astarUninformed,
-		AStarSearch<T, DistanceHeuristic<T>> &astar,
+		AStarSearch<T> &astar,
 		long &ticksDijkstra,
 		long &ticksUninformedAStar,
 		long &ticksAStarHeuristic)
@@ -99,19 +95,17 @@ void performSingleTest(
 	bool foundPath = pred[target] != nullptr;
 	T opt = distance[target];
 
-	DistanceHeuristic<T> heuristic;
-
 	if(foundPath) {
 		validatePath(source, target, graph, cost, pred, distance[target]);
-
-		// utilize distances as returned by Dijkstra for a perfect heuristic
-		heuristic.distance = distance;
 
 		distance.init(graph, -1);
 		pred.init(graph, nullptr);
 
 		start = std::chrono::system_clock::now();
-		T result = astar.call(graph, cost, source, target, pred, heuristic);
+		T result = astar.call(graph, cost, source, target, pred, [&](node v) {
+			// utilize distances as returned by Dijkstra for a perfect heuristic
+			return distance[v];
+		});
 		ticksAStarHeuristic += (std::chrono::system_clock::now() - start).count();
 
 		validatePath(source, target, graph, cost, pred, result);
@@ -120,7 +114,7 @@ void performSingleTest(
 	}
 
 	start = std::chrono::system_clock::now();
-	T result = astarUninformed.call(graph, cost, source, target, pred);
+	T result = astar.call(graph, cost, source, target, pred);
 	ticksUninformedAStar += (std::chrono::system_clock::now() - start).count();
 
 	AssertThat(pred[target] != nullptr, Equals(foundPath));
@@ -136,8 +130,7 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 	const int MIN_NODES = 100;
 	const int MAX_NODES = 200;
 
-	AStarSearch<T, DistanceHeuristic<T>> astar(directed, maxGap);
-	AStarSearch<T> astarUninformed(directed, maxGap);
+	AStarSearch<T> astar(directed, maxGap);
 	Dijkstra<T> dijkstra;
 
 	long ticksDijkstra = 0;
@@ -179,11 +172,10 @@ void performTests(const bool directed, const double maxGap, const bool pathLike)
 			}
 
 			source = graph.chooseNode();
-			target = source;
-			while(target == source) { target = graph.chooseNode(); }
+			target = graph.chooseNode([&](node v) { return v != source; });
 		}
 
-		performSingleTest(graph, source, target, cost, maxGap, directed, dijkstra, astarUninformed, astar,
+		performSingleTest(graph, source, target, cost, maxGap, directed, dijkstra, astar,
 				ticksDijkstra, ticksUninformedAStar, ticksAStarHeuristic);
 	}
 

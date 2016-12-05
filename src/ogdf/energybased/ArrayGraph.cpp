@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/ArrayGraph.h>
 #include <ogdf/internal/energybased/FastUtils.h>
@@ -90,13 +87,13 @@ void ArrayGraph::allocate(uint32_t numNodes, uint32_t numEdges)
 	OGDF_ASSERT( numNodes >= 1 );
 	OGDF_ASSERT( numEdges >= 1 );
 
-	m_nodeXPos = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
-	m_nodeYPos = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
-	m_nodeSize = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
-	m_nodeMoveRadius = static_cast<float*>(MALLOC_16(numNodes*sizeof(float)));
-	m_nodeAdj = static_cast<NodeAdjInfo*>(MALLOC_16(numNodes*sizeof(NodeAdjInfo)));
-	m_desiredEdgeLength = static_cast<float*>(MALLOC_16(numEdges*sizeof(float)));
-	m_edgeAdj = static_cast<EdgeAdjInfo*>(MALLOC_16(numEdges*sizeof(EdgeAdjInfo)));
+	m_nodeXPos = static_cast<float*>(OGDF_MALLOC_16(numNodes*sizeof(float)));
+	m_nodeYPos = static_cast<float*>(OGDF_MALLOC_16(numNodes*sizeof(float)));
+	m_nodeSize = static_cast<float*>(OGDF_MALLOC_16(numNodes*sizeof(float)));
+	m_nodeMoveRadius = static_cast<float*>(OGDF_MALLOC_16(numNodes*sizeof(float)));
+	m_nodeAdj = static_cast<NodeAdjInfo*>(OGDF_MALLOC_16(numNodes*sizeof(NodeAdjInfo)));
+	m_desiredEdgeLength = static_cast<float*>(OGDF_MALLOC_16(numEdges*sizeof(float)));
+	m_edgeAdj = static_cast<EdgeAdjInfo*>(OGDF_MALLOC_16(numEdges*sizeof(EdgeAdjInfo)));
 
 	for (uint32_t i=0; i < numNodes; i++)
 		nodeInfo(i).degree = 0;
@@ -104,13 +101,13 @@ void ArrayGraph::allocate(uint32_t numNodes, uint32_t numEdges)
 
 void ArrayGraph::deallocate()
 {
-	FREE_16(m_nodeXPos);
-	FREE_16(m_nodeYPos);
-	FREE_16(m_nodeSize);
-	FREE_16(m_nodeMoveRadius);
-	FREE_16(m_nodeAdj);
-	FREE_16(m_desiredEdgeLength);
-	FREE_16(m_edgeAdj);
+	OGDF_FREE_16(m_nodeXPos);
+	OGDF_FREE_16(m_nodeYPos);
+	OGDF_FREE_16(m_nodeSize);
+	OGDF_FREE_16(m_nodeMoveRadius);
+	OGDF_FREE_16(m_nodeAdj);
+	OGDF_FREE_16(m_desiredEdgeLength);
+	OGDF_FREE_16(m_edgeAdj);
 }
 
 void ArrayGraph::pushBackEdge(uint32_t a, uint32_t b, float desiredEdgeLength)
@@ -239,4 +236,3 @@ void ArrayGraph::centerGraph()
 }
 
 } // end of namespace ogdf
-

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -75,7 +72,7 @@ public:
 	 */
 	ReturnType call(PlanRepLight &pr, const Array<edge> &origEdges)
 	{
-		return doCall(pr, origEdges, 0, 0);
+		return doCall(pr, origEdges, nullptr, nullptr);
 	}
 
 	//! Inserts all edges in \a origEdges with given costs into \a pr while avoiding crossings between generalizations.
@@ -90,7 +87,7 @@ public:
 		const Array<edge> &origEdges,
 		const EdgeArray<int> &costOrig)
 	{
-		return doCall(pr, origEdges, &costOrig, 0);
+		return doCall(pr, origEdges, &costOrig, nullptr);
 	}
 
 
@@ -107,8 +104,8 @@ public:
 	ReturnType callEx(
 		PlanRepLight              &pr,
 		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig = 0,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
+		const EdgeArray<int>      *pCostOrig = nullptr,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs = nullptr)
 	{
 		return doCall(pr, origEdges, pCostOrig, pEdgeSubGraphs);
 	}

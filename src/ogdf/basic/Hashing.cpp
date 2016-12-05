@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/Hashing.h>
 
@@ -58,7 +55,7 @@ HashingBase::~HashingBase()
 
 void HashingBase::init(int tableSize)
 {
-	OGDF_ASSERT(tableSize >= m_minTableSize)
+	OGDF_ASSERT(tableSize >= m_minTableSize);
 
 	m_tableSize = tableSize;
 	m_hashMask = tableSize-1;
@@ -200,8 +197,9 @@ size_t DefHashFunc<string>::hash(const string &key) const
 {
 	size_t hashValue = 0;
 
-	for(string::size_type i = 0; i < key.size(); ++i)
-		hashValue += int(key[i]);
+	for(auto &elem : key) {
+		hashValue += int(elem);
+	}
 
 	return hashValue;
 }

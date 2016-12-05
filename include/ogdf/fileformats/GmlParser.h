@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -71,17 +68,17 @@ struct OGDF_EXPORT GmlObject {
 	};
 
 	// construction
-	GmlObject(GmlKey key, int intValue) : m_pBrother(0), m_key(key),
+	GmlObject(GmlKey key, int intValue) : m_pBrother(nullptr), m_key(key),
 		m_valueType(gmlIntValue), m_intValue(intValue)  { }
 
-	GmlObject(GmlKey key, double doubleValue) : m_pBrother(0), m_key(key),
+	GmlObject(GmlKey key, double doubleValue) : m_pBrother(nullptr), m_key(key),
 		m_valueType(gmlDoubleValue), m_doubleValue(doubleValue)  { }
 
-	GmlObject(GmlKey key, const char *stringValue) : m_pBrother(0), m_key(key),
+	GmlObject(GmlKey key, const char *stringValue) : m_pBrother(nullptr), m_key(key),
 		m_valueType(gmlStringValue), m_stringValue(stringValue)  { }
 
-	GmlObject(GmlKey key) : m_pBrother(0), m_key(key),
-		m_valueType(gmlListBegin), m_pFirstSon(0)  { }
+	GmlObject(GmlKey key) : m_pBrother(nullptr), m_key(key),
+		m_valueType(gmlListBegin), m_pFirstSon(nullptr)  { }
 
 	OGDF_NEW_DELETE
 };
@@ -131,7 +128,7 @@ public:
 	GmlParser(const char *fileName, bool doCheck = false);
 	GmlParser(istream &is, bool doCheck = false);
 
-	// destruction: destroys object tree
+	//! Destruction: destroys object tree
 	~GmlParser();
 
 	// returns id of object
@@ -146,8 +143,10 @@ public:
 	bool read(Graph &G);
 	// creates attributed graph from GML parse tree
 	bool read(Graph &G, GraphAttributes &AG);
+#if 0
 	//creates clustergraph from GML parse tree
-	//bool read(Graph &G, ClusterGraph & CG);
+	bool read(Graph &G, ClusterGraph & CG);
+#endif
 	//read only cluster part of object tree and create cluster graph structure
 	bool readCluster(Graph &G, ClusterGraph& CG);
 	//the same with attributes

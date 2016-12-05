@@ -39,7 +39,7 @@ namespace abacus {
  * This class is derived from the class Variable and implements
  * a variable which is uniquely defined by a number.
  */
-class  NumVar :  public Variable  {
+class OGDF_EXPORT NumVar : public Variable {
 public:
 
 	//! The constructor.

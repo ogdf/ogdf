@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/GalaxyMultilevel.h>
 #include <ogdf/internal/energybased/FastUtils.h>
@@ -144,7 +141,7 @@ GalaxyMultilevel* GalaxyMultilevelBuilder::build(GalaxyMultilevel* pMultiLevel)
 	m_pGraph = pMultiLevel->m_pGraph;
 	m_pNodeInfo = pMultiLevel->m_pNodeInfo;
 	m_pEdgeInfo = pMultiLevel->m_pEdgeInfo;
-	m_nodeMassOrder = static_cast<NodeOrderInfo*>(MALLOC_16(sizeof(NodeOrderInfo)*m_pGraph->numberOfNodes()));
+	m_nodeMassOrder = static_cast<NodeOrderInfo*>(OGDF_MALLOC_16(sizeof(NodeOrderInfo)*m_pGraph->numberOfNodes()));
 	m_nodeState.init(*m_pGraph);
 
 	this->computeSystemMass();
@@ -153,7 +150,7 @@ GalaxyMultilevel* GalaxyMultilevelBuilder::build(GalaxyMultilevel* pMultiLevel)
 	GalaxyMultilevel* pMultiLevelResult = new GalaxyMultilevel(pMultiLevel);
 	this->createResult(pMultiLevelResult);
 
-	FREE_16(m_nodeMassOrder);
+	OGDF_FREE_16(m_nodeMassOrder);
 
 	return pMultiLevelResult;
 }
@@ -229,4 +226,3 @@ void GalaxyMultilevelBuilder::createResult(GalaxyMultilevel* pMultiLevelResult)
 }
 
 } // end of namespace
-

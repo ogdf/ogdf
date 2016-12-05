@@ -48,7 +48,7 @@ private:
 			 const action *const actions,
 			 const CoinPresolveAction *next) :
     CoinPresolveAction(next),
-    nactions_(nactions), 
+    nactions_(nactions),
     actions_(actions)
   {}
 
@@ -113,4 +113,3 @@ private:
   ~drop_empty_rows_action() { deleteAction(actions_,action*); }
 };
 #endif
-

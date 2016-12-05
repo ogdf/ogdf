@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -42,6 +39,10 @@
 
 namespace ogdf {
 
+//! @name Managing memory
+//! @{
+
+//! Creates new and delete operators in a class using the given memory allocator (helper macro).
 #define OGDF_MM(Alloc) \
 public: \
 static void *operator new(size_t nBytes) { \
@@ -62,19 +63,30 @@ static void operator delete(void *p, size_t nBytes) { \
 static void *operator new(size_t, void *p) { return p; } \
 static void operator delete(void *, void *) { }
 
-
-#define OGDF_NEW new
-
 #ifdef OGDF_MEMORY_MALLOC_TS
 #define OGDF_ALLOCATOR ogdf::MallocMemoryAllocator
 #else
+//! The used memory manager
 #define OGDF_ALLOCATOR ogdf::PoolMemoryAllocator
 #endif
 
-//! Creates new and delete operators in a class using ogdf's memory allocator.
+/**
+ * Creates new and delete operators in a class (using the chosen memory manager).
+ * In other words, adding this macro in a class declaration makes that class
+ * managed by the chosen memory manager.
+ * @ingroup macros
+ */
 #define OGDF_NEW_DELETE OGDF_MM(OGDF_ALLOCATOR)
 
-//! Creates new and delete operators in a class using the malloc memory allocator.
+/**
+ * Creates new and delete operators in a class using the malloc memory allocator.
+ * In other words, adding this macro in a class declaration makes that class
+ * managed by malloc (as usual), but throws an InsufficientMemoryException
+ * when memory allocation failed.
+ * @ingroup macros
+ */
 #define OGDF_MALLOC_NEW_DELETE OGDF_MM(ogdf::MallocMemoryAllocator)
+
+//! @}
 
 } // namespace ogdf

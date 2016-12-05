@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 //KK: Commented out the constraint stuff using //o
 //CG: compound graph stuff has been removed with commit 2465
 
@@ -62,7 +59,9 @@ private:
 	// struct definitions for mapping of templates
 	struct OgmlNodeTemplate;
 	struct OgmlEdgeTemplate;
-	//struct OgmlLabelTemplate;
+#if 0
+	struct OgmlLabelTemplate;
+#endif
 
 	struct OgmlSegment;
 
@@ -93,11 +92,13 @@ private:
 	 */
 	int validate(const XmlTagObject *xmlTag, int ogmlTag);
 
+#if 0
 	/**
 	 * Wrapper method for validate method above.
 	 * Returns true when validation is successfull, false otherwise.
 	 */
-	//bool validate(const char* fileName);
+	bool validate(const char* fileName);
+#endif
 
 	//! Prints some useful information about un-/successful validation.
 	void printValidityInfo(const OgmlTag &ot,
@@ -105,13 +106,15 @@ private:
 		int valStatus,
 		int line);
 
+#if 0
 	/**
 	 * Finds the OGML-tag in the parse tree with the specified id,
 	 * stores the tag in xmlTag
 	 * recTag is the tag for recursive calls
 	 * returns false if something goes wrong
 	 */
-	//bool getXmlTagObjectById(XmlTagObject *recTag, string id, XmlTagObject *&xmlTag);
+	bool getXmlTagObjectById(XmlTagObject *recTag, string id, XmlTagObject *&xmlTag);
+#endif
 
 	/**
 	 * Checks the graph type and stores it in the member variable m_graphType
@@ -243,7 +246,7 @@ public:
 	 * @return true if succesfull, false otherwise.
 	 */
 	bool read(istream &is, Graph &G) {
-		return doRead(is, G, 0, 0, 0);
+		return doRead(is, G, nullptr, nullptr, nullptr);
 	}
 
 	//! Reads a cluster graph \a CG from file \a fileName in OGML format.
@@ -254,7 +257,7 @@ public:
 	 * @return true if succesfull, false otherwise.
 	 */
 	bool read(istream &is, Graph &G, ClusterGraph &CG) {
-		return doRead(is, G, &CG, 0, 0);
+		return doRead(is, G, &CG, nullptr, nullptr);
 	}
 
 	//! Reads a cluster graph \a CG with attributes \a CGA from file \a fileName in OGML format.
@@ -269,7 +272,7 @@ public:
 		Graph &G,
 		GraphAttributes &GA)
 	{
-		return doRead(is, G, 0, &GA, 0);
+		return doRead(is, G, nullptr, &GA, nullptr);
 	}
 
 	//! Reads a cluster graph \a CG with attributes \a CGA from file \a fileName in OGML format.

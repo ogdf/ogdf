@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -486,7 +483,8 @@ public:
 	//! Clears the graph.
 	void clear();
 
-	/* void toCliqueGraph(
+#if 0
+	void toCliqueGraph(
 		Graph* pG,
 		NodeArray<HyperGraph::NodeElement*>* pNodeMap = 0,
 		EdgeArray<HyperGraph::EdgeElement*>* pEdgeMap = 0)
@@ -552,7 +550,8 @@ public:
 					(*pEdgeMap)[gEdge] = hgEdge;
 			}
 		}
-	} */
+	}
+#endif
 }; // end of class HyperGraph
 
 
@@ -701,14 +700,14 @@ inline HyperGraph::AdjElement* HyperGraph::findAdjElement(HyperGraph::NodeElemen
 		for (HyperGraphTypes::EdgeAdjList::iterator it = HyperGraphTypes::EdgeAdjList::begin(pEdge);
 				it.valid(); it++)
 		{
-			if ((*it)->theNode() == pNode) return (*it);
+			if ((*it)->theNode() == pNode) return *it;
 		}
 	} else
 	{
 		for (HyperGraphTypes::NodeAdjList::iterator it = HyperGraphTypes::NodeAdjList::begin(pNode);
 				it.valid(); it++)
 		{
-			if ((*it)->theEdge() == pEdge) return (*it);
+			if ((*it)->theEdge() == pEdge) return *it;
 		}
 	}
 	return 0;
@@ -778,7 +777,7 @@ static void readFromStream(std::istream& inStream, ArrayType& array)
 {
 	for (typename ListType::iterator it = ListType::begin(array.graph());it.valid(); it++)
 	{
-		inStream >> array[(*it)];
+		inStream >> array[*it];
 	}
 }
 
@@ -804,7 +803,7 @@ static std::ostream& operator<<(std::ostream& outStream, HyperGraph::AdjArray<T>
 		HyperGraph::edge e = *it;
 		for (HyperGraphTypes::EdgeAdjList::iterator adj_it = HyperGraphTypes::EdgeAdjList::begin(e); adj_it.valid(); adj_it++)
 		{
-			outStream << array[(*adj_it)] << std::endl;
+			outStream << array[*adj_it] << std::endl;
 		}
 	}
 	return outStream;
@@ -835,7 +834,7 @@ static std::istream& operator>>(std::istream& inStream, HyperGraph::AdjArray<T>&
 		HyperGraph::edge e = *it;
 		for (HyperGraphTypes::EdgeAdjList::iterator adj_it = HyperGraphTypes::EdgeAdjList::begin(e); adj_it.valid(); adj_it++)
 		{
-			inStream >> array[(*adj_it)];
+			inStream >> array[*adj_it];
 		}
 	}
 	return inStream;
@@ -875,7 +874,7 @@ static std::istream& operator>>(std::istream& inStream, HyperGraph& graph)
 	inStream >> numNodes;
 	inStream >> numEdges;
 
-	HyperGraph::node* pNodes = new HyperGraph::node[numNodes];
+	std::vector<HyperGraph::node> pNodes(numNodes);
 	for (int i=0; i<numNodes;i++)
 		pNodes[i] = graph.newNode();
 

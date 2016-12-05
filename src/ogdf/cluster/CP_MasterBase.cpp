@@ -14,7 +14,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -31,19 +31,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/basic.h>
 
-#ifdef USE_ABACUS
-
 #include <ogdf/internal/cluster/CP_MasterBase.h>
-//#include <ogdf/internal/cluster/CPlanarity_Sub.h>
 #include <ogdf/internal/cluster/Cluster_ChunkConnection.h>
 #include <ogdf/internal/cluster/Cluster_MaxPlanarEdges.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
@@ -156,9 +150,11 @@ CP_MasterBase::~CP_MasterBase() {
 }
 
 
-//Sub *CP_MasterBase::firstSub() {
-//	return new CPlanaritySub(this);
-//}
+#if 0
+Sub *CP_MasterBase::firstSub() {
+	return new CPlanaritySub(this);
+}
+#endif
 
 
 // Replaces current m_solutionGraph by new GraphCopy based on \a connection list
@@ -186,7 +182,7 @@ void CP_MasterBase::updateBestSubGraph(List<nodePair> &connection) {
 	}
 
 #ifdef OGDF_DEBUG
-	GraphIO::writeGML(*m_solutionGraph, "UpdateSolutionGraph.gml");
+	GraphIO::write(*m_solutionGraph, "UpdateSolutionGraph.gml", GraphIO::writeGML);
 #endif
 }
 
@@ -343,7 +339,9 @@ void CP_MasterBase::nodeDistances(node u, NodeArray<NodeArray<int> > &dist) {
 // Create variables for complete connectivity - any solution allowed
 void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 {
-	//initVars.clear(); We don't care if there are already vars added
+#if 0
+	initVars.clear(); // We don't care if there are already vars added
+#endif
 	//We create a copy of the clustergraph and insert connections to
 	//make the clusters connected. Afterwards, we check if the complements
 	//need to be made connected and add corresponding edges
@@ -378,14 +376,15 @@ void CP_MasterBase::createCompConnVars(List<CPlanarEdgeVar*>& initVars)
 
 }
 
+#if 0
 //create the variables at start of optimization
-/*void CP_MasterBase::createInitialVariables(List<CPlanarEdgeVar*>& initVars) {
+void CP_MasterBase::createInitialVariables(List<CPlanarEdgeVar*>& initVars) {
 	// In case of pricing, create an initial variable pool allowing
 	// connectivity
 	if (pricing())
 		createCompConnVars(initVars);
-}*/
-/*
+}
+
 //! Checks which of the inactive vars are needed to cover all chunk connection constraints.
 //! Those then are added to the connectVars.
 void CP_MasterBase::generateVariablesForFeasibility(
@@ -393,9 +392,11 @@ void CP_MasterBase::generateVariablesForFeasibility(
 		List<CPlanarEdgeVar*>& connectVars)
 {
 	List<ChunkConnection*> cpy(ccons);
-//	for(ChunkConnection *cc : cpy) {
-//		cc->printMe();
-//	}
+#if 0
+	for(ChunkConnection *cc : cpy) {
+		cc->printMe();
+	}
+#endif
 
 	//First we check which of the constraints are already covered by existing
 	//connect vars and delete them.
@@ -439,12 +440,11 @@ void CP_MasterBase::generateVariablesForFeasibility(
 	Logger::slout() << "Creating " << creationBuffer.size() << " Connect-Variables for feasibility\n";
 	m_varsInit = creationBuffer.size();
 	// realize creationList
-	for(int i = creationBuffer.size(); i-->0;) {
+	for(int i = creationBuffer.size(); i-- > 0;) {
 	  connectVars.pushBack( createVariable( creationBuffer[i] ) );
 	}
 }//generateVariablesForFeasability
-
-*/
+#endif
 
 // returns coefficients of all variables in connect in constraint con
 // as list coeffs
@@ -466,11 +466,15 @@ void CP_MasterBase::terminateOptimization() {
 	Logger::slout() << "Terminate Optimization:\n";
 	Logger::slout() << "(primal Bound: " << primalBound() << ")\n";
 	Logger::slout() << "(dual Bound: " << dualBound() << ")\n";
-	//if(m_checkCPlanar2) {
+#if 0
+	if(m_checkCPlanar2) {
+#endif
 	Logger::slout() << "*** " << (isCP() ? "" : "NON ") << "C-PLANAR ***\n";
-	//} else {
-	//	Logger::slout() << "*** " << (feasibleFound() ? "" : "NON ") << "C-PLANAR ***\n";
-	//}
+#if 0
+	} else {
+		Logger::slout() << "*** " << (feasibleFound() ? "" : "NON ") << "C-PLANAR ***\n";
+	}
+#endif
 	Logger::slout() << "=================================================\n";
 
 	Logger::ssout() << "\n";
@@ -494,8 +498,8 @@ void CP_MasterBase::terminateOptimization() {
 	Logger::ssout() << "#Vars-branch: " << m_varsBranch << "\n";
 	Logger::ssout() << "#Vars-unused: " << m_inactiveVariables.size() << "\n";
 	Logger::ssout() << "KuraRepair-Stat: <";
-	for(int i =0; i<m_repairStat.size(); ++i) {
-		Logger::ssout() << m_repairStat[i] << ",";
+	for(auto &elem : m_repairStat) {
+		Logger::ssout() << elem << ",";
 	}
 	Logger::ssout() << ">\n";
 
@@ -531,6 +535,3 @@ void CP_MasterBase::terminateOptimization() {
 	globalPrimalBound = primalBound();
 	globalDualBound = dualBound();
 }
-
-
-#endif // USE_ABACUS

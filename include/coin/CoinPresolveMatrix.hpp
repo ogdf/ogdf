@@ -63,7 +63,7 @@ inline void DIE(const char *s)	{ std::cout<<s; abort(); }
 
 #else
 
-#define PRESOLVEASSERT(x) {} 
+#define PRESOLVEASSERT(x) {}
 #define	PRESOLVE_STMT(s) {}
 
 inline void DIE(const char *)	{}
@@ -138,23 +138,23 @@ class CoinPresolveAction
 {
  public:
   /*! \brief Stub routine to throw exceptions.
-  
+
    Exceptions are inefficient, particularly with g++.  Even with xlC, the
    use of exceptions adds a long prologue to a routine.  Therefore, rather
    than use throw directly in the routine, I use it in a stub routine.
   */
   static void throwCoinError(const char *error, const char *ps_routine)
-  { throw CoinError(error, ps_routine, "CoinPresolve"); } 
+  { throw CoinError(error, ps_routine, "CoinPresolve"); }
 
 
   /*! \brief The next presolve transformation
-  
+
     Set at object construction.
   */
   const CoinPresolveAction *next;
-  
+
   /*! \brief Construct a postsolve object and add it to the transformation list.
-  
+
     This is an `add to head' operation. This object will point to the
     one passed as the parameter.
   */
@@ -194,7 +194,7 @@ class CoinPresolveAction
 /*! \class CoinPrePostsolveMatrix
     \brief Collects all the information about the problem that is needed
 	   in both presolve and postsolve.
-    
+
     In a bit more detail, a column-major representation of the constraint
     matrix and upper and lower bounds on variables and constraints, plus row
     and column solutions, reduced costs, and status. There's also a set of
@@ -208,7 +208,7 @@ class CoinPresolveAction
 	   the smaller presolved system is transformed back to the original
 	   system.
       <li> During both pre- and postsolve, transforms can increase the number
-	   of coefficients in a row or column. (See the 
+	   of coefficients in a row or column. (See the
 	   variable substitution, doubleton, and tripleton transforms.)
     </ul>
 
@@ -281,7 +281,7 @@ class CoinPrePostsolveMatrix
   //@}
 
   /*! \brief Enum for status of various sorts
-  
+
     Matches CoinWarmStartBasis::Status and adds superBasic. Most code that
     converts between CoinPrePostsolveMatrix::Status and
     CoinWarmStartBasis::Status will break if this correspondence is broken.
@@ -303,7 +303,7 @@ class CoinPrePostsolveMatrix
     related vectors.
   */
   //@{
-  
+
   /// Set row status (<i>i.e.</i>, status of artificial for this row)
   inline void setRowStatus(int sequence, Status status)
   {
@@ -431,40 +431,40 @@ class CoinPrePostsolveMatrix
   //@{
   /// Get current number of columns
   inline int getNumCols()
-  { return (ncols_) ; } 
+  { return (ncols_) ; }
   /// Get current number of rows
   inline int getNumRows()
-  { return (nrows_) ; } 
+  { return (nrows_) ; }
   /// Get current number of non-zero coefficients
   inline int getNumElems()
-  { return (nelems_) ; } 
+  { return (nelems_) ; }
   /// Get column start vector for column-major packed matrix
   inline const CoinBigIndex *getColStarts() const
-  { return (mcstrt_) ; } 
+  { return (mcstrt_) ; }
   /// Get column length vector for column-major packed matrix
   inline const int *getColLengths() const
-  { return (hincol_) ; } 
+  { return (hincol_) ; }
   /// Get vector of row indices for column-major packed matrix
   inline const int *getRowIndicesByCol() const
-  { return (hrow_) ; } 
+  { return (hrow_) ; }
   /// Get vector of elements for column-major packed matrix
   inline const double *getElementsByCol() const
-  { return (colels_) ; } 
+  { return (colels_) ; }
   /// Get column lower bounds
   inline const double *getColLower() const
-  { return (clo_) ; } 
+  { return (clo_) ; }
   /// Get column upper bounds
   inline const double *getColUpper() const
-  { return (cup_) ; } 
+  { return (cup_) ; }
   /// Get objective coefficients
   inline const double *getCost() const
-  { return (cost_) ; } 
+  { return (cost_) ; }
   /// Get row lower bounds
   inline const double *getRowLower() const
-  { return (rlo_) ; } 
+  { return (rlo_) ; }
   /// Get row upper bounds
   inline const double *getRowUpper() const
-  { return (rup_) ; } 
+  { return (rup_) ; }
   /// Get column solution (primal variable values)
   inline const double *getColSolution() const
   { return (sol_) ; }
@@ -488,7 +488,7 @@ class CoinPrePostsolveMatrix
   /*! \name Message handling */
   //@{
   /// Return message handler
-  inline CoinMessageHandler *messageHandler() const 
+  inline CoinMessageHandler *messageHandler() const
   { return handler_; }
   /*! \brief Set message handler
 
@@ -501,7 +501,7 @@ class CoinPrePostsolveMatrix
       defaultHandler_ = false ; }
     handler_ = handler ; }
   /// Return messages
-  inline CoinMessages messages() const 
+  inline CoinMessages messages() const
   { return messages_; }
   //@}
 
@@ -598,7 +598,7 @@ class CoinPrePostsolveMatrix
   //@}
 
   /*! \name Problem solution information
-   
+
     The presolve phase will work without any solution information
     (appropriate for initial optimisation) or with solution information
     (appropriate for reoptimisation).  When solution information is supplied,
@@ -625,13 +625,13 @@ class CoinPrePostsolveMatrix
   */
   double *rowduals_;
   /*! \brief Vector of constraint left-hand-side values (row activity)
-  
+
     Produced by evaluating constraints according to #sol_. Updated iff
     #sol_ exists.
   */
   double *acts_;
   /*! \brief Vector of reduced costs
-  
+
     Produced by evaluating dual constraints according to #rowduals_. Updated
     iff #rowduals_ exists.
   */
@@ -663,11 +663,11 @@ class CoinPrePostsolveMatrix
   */
   //@{
   /// Message handler
-  CoinMessageHandler *handler_; 
+  CoinMessageHandler *handler_;
   /// Indicates if the current #handler_ is default (true) or not (false).
   bool defaultHandler_;
   /// Standard COIN messages
-  CoinMessage messages_; 
+  CoinMessage messages_;
   //@}
 
 };
@@ -710,7 +710,7 @@ class presolvehlink
   Remove vector i from the ordering.
 */
 inline void PRESOLVE_REMOVE_LINK(presolvehlink *link, int i)
-{ 
+{
   int ipre = link[i].pre;
   int isuc = link[i].suc;
   if (ipre >= 0) {
@@ -750,7 +750,7 @@ inline void PRESOLVE_INSERT_LINK(presolvehlink *link, int i, int j)
    But, this routine will work even if i happens to be first in the order.
 */
 inline void PRESOLVE_MOVE_LINK(presolvehlink *link, int i, int j)
-{ 
+{
   int ipre = link[i].pre;
   int isuc = link[i].suc;
   if (ipre >= 0) {
@@ -877,7 +877,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
     integerType_[i] = static_cast<unsigned char>(variableType) ; }
 
   /*! \brief Set variable type information for all variables
-  
+
     Set \p variableType[i] to 0 for continuous, 1 for integer.
     Does not manipulate the #anyInteger_ flag.
   */
@@ -938,7 +938,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
   //@}
 
   /*! \name Matrix storage management links
-  
+
     Linked lists, modelled after the linked lists used in OSL
     factorization. They are used for management of the bulk coefficient
     and minor index storage areas.
@@ -1096,7 +1096,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
       - 2 set to allow code to try and fix infeasibilities
       - 4 set to inhibit x+y+z=1 mods
       - 8 not used
-      - 16 set to allow stuff which won't unroll easily 
+      - 16 set to allow stuff which won't unroll easily
       - 0x80000000 set by presolve to say dupcol_action compressed columns
   */
   int presolveOptions_;
@@ -1187,7 +1187,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
     colChanged_[i] = static_cast<unsigned char>(colChanged_[i] | (2)) ;
   }
   /*! \brief Test if column is marked as used
-  
+
     This is for doing faster lookups to see where two columns have entries
     in common.
   */
@@ -1290,7 +1290,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
   }
 
 
-  /// Check if there are any prohibited rows or columns 
+  /// Check if there are any prohibited rows or columns
   inline bool anyProhibited() const
   { return anyProhibited_;}
   /// Set a flag for presence of prohibited rows or columns
@@ -1301,7 +1301,7 @@ class CoinPresolveMatrix : public CoinPrePostsolveMatrix
   int recomputeSums(int iRow);
   /// Initialize random numbers etc (nonzero if infeasible)
   int initializeStuff();
-  /// Delete useful arrays 
+  /// Delete useful arrays
   void deleteStuff();
   //@}
 
@@ -1354,7 +1354,7 @@ class CoinPostsolveMatrix : public CoinPrePostsolveMatrix
 		   int ncols0,
 		   int nrows0,
 		   CoinBigIndex nelems0,
-		     
+
 		   double maxmin_,
 		   // end prepost members
 
@@ -1373,7 +1373,7 @@ class CoinPostsolveMatrix : public CoinPrePostsolveMatrix
 		   int ncols0,
 		   int nrows0,
 		   CoinBigIndex nelems0,
-		     
+
 		   double maxmin_,
 		   // end prepost members
 
@@ -1554,7 +1554,7 @@ CoinBigIndex presolve_find_minor1(int tgt, CoinBigIndex ks, CoinBigIndex ke,
 */
 inline CoinBigIndex presolve_find_row1(int row, CoinBigIndex kcs,
 				       CoinBigIndex kce, const int *hrow)
-{ return presolve_find_minor1(row,kcs,kce,hrow) ; } 
+{ return presolve_find_minor1(row,kcs,kce,hrow) ; }
 
 /*! \relates CoinPrePostsolveMatrix
     \brief Find position of a column in a row in a row-major matrix.
@@ -1564,7 +1564,7 @@ inline CoinBigIndex presolve_find_row1(int row, CoinBigIndex kcs,
 */
 inline CoinBigIndex presolve_find_col1(int col, CoinBigIndex krs,
 				       CoinBigIndex kre, const int *hcol)
-{ return presolve_find_minor1(col,krs,kre,hcol) ; } 
+{ return presolve_find_minor1(col,krs,kre,hcol) ; }
 
 /*! \relates CoinPostsolveMatrix
     \brief Find position of a minor index in a major vector in a threaded
@@ -1625,7 +1625,7 @@ inline CoinBigIndex presolve_find_row3(int row, CoinBigIndex kcs, int collen,
 */
 inline void presolve_delete_from_major(int majndx, int minndx,
 				const CoinBigIndex *majstrts,
-				int *majlens, int *minndxs, double *els) 
+				int *majlens, int *minndxs, double *els)
 { CoinBigIndex ks = majstrts[majndx] ;
   CoinBigIndex ke = ks + majlens[majndx] ;
 
@@ -1634,13 +1634,13 @@ inline void presolve_delete_from_major(int majndx, int minndx,
   minndxs[kmi] = minndxs[ke-1] ;
   els[kmi] = els[ke-1] ;
   majlens[majndx]-- ;
-  
+
   return ; }
 // Delete all marked from major (and zero marked)
 inline void presolve_delete_many_from_major(int majndx, char * marked,
 				const CoinBigIndex *majstrts,
-				int *majlens, int *minndxs, double *els) 
-{ 
+				int *majlens, int *minndxs, double *els)
+{
   CoinBigIndex ks = majstrts[majndx] ;
   CoinBigIndex ke = ks + majlens[majndx] ;
   CoinBigIndex put=ks;
@@ -1652,7 +1652,7 @@ inline void presolve_delete_many_from_major(int majndx, char * marked,
     } else {
       marked[iMinor]=0;
     }
-  } 
+  }
   majlens[majndx] = put-ks ;
   return ;
 }
@@ -1734,7 +1734,7 @@ inline void presolve_delete_from_col2(int row, int col, CoinBigIndex *mcstrt,
     (\p elems) and minor index (\p indices) arrays used in the standard
     packed matrix representation. Copies \p length entries starting at
     \p offset.
-    
+
     If \p tgt is specified, the entry with minor index == \p tgt is
     omitted from the copy.
 */

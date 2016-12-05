@@ -33,7 +33,7 @@ class isolated_constraint_action : public CoinPresolveAction {
     CoinPresolveAction(next),
     rlo_(rlo), rup_(rup), row_(row), ninrow_(ninrow),
     rowcols_(rowcols), rowels_(rowels), costs_(costs) {}
-      
+
  public:
   const char *name() const override;
 

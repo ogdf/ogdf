@@ -14,7 +14,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -31,12 +31,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/energybased/DavidsonHarelLayout.h>
 #include <ogdf/internal/energybased/Repulsion.h>
@@ -164,9 +161,11 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 	Attraction atr(AG);
 	Overlap over(AG);
 	Planarity plan(AG);
-	//PlanarityGrid plan(AG);
-	//PlanarityGrid2 plan(AG);
-	//NodeIntersection ni(AG);
+#if 0
+	PlanarityGrid plan(AG);
+	PlanarityGrid2 plan(AG);
+	NodeIntersection ni(AG);
+#endif
 
 	// Either use a fixed value...
 	if (OGDF_GEOM_ET.greater(m_prefEdgeLength, 0.0))
@@ -181,10 +180,12 @@ void DavidsonHarelLayout::call(GraphAttributes &AG)
 	dh.addEnergyFunction(&atr,m_attractionWeight);
 	dh.addEnergyFunction(&over,m_nodeOverlapWeight);
 	if (m_crossings) dh.addEnergyFunction(&plan,m_planarityWeight);
-	//dh.addEnergyFunction(&ni,2000.0);
+#if 0
+	dh.addEnergyFunction(&ni,2000.0);
 
-	//dh.setNumberOfIterations(m_numberOfIterations);
-	//dh.setStartTemperature(m_startTemperature);
+	dh.setNumberOfIterations(m_numberOfIterations);
+	dh.setStartTemperature(m_startTemperature);
+#endif
 	const Graph& G = AG.constGraph();
 	//TODO: Number of iterations always depending on size
 	if (m_numberOfIterations == 0)

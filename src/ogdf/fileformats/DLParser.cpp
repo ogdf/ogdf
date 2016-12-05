@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/DLParser.h>
 #include <ogdf/fileformats/GraphIO.h>
@@ -299,7 +296,7 @@ bool DLParser::readNodeList(Graph &G, GraphAttributes *GA)
 		node v = m_nodeId[vid];
 
 		int uid;
-		while((is >> uid)) {
+		while(is >> uid) {
 			if(!fineId(uid)) {
 				GraphIO::logger.lout() << "Node id incorrect (data line "
 						  << line << ")." << endl;
@@ -333,7 +330,7 @@ bool DLParser::readEmbeddedNodeList(Graph &G, GraphAttributes *GA)
 		}
 
 		std::string ulabel;
-		while((is >> ulabel)) {
+		while(is >> ulabel) {
 			node u = requestLabel(GA, nextFree, ulabel);
 			if(u == nullptr) {
 				return false;
@@ -568,4 +565,3 @@ bool DLParser::readGraph(Graph &G, GraphAttributes *GA)
 
 
 } // end namespace ogdf
-

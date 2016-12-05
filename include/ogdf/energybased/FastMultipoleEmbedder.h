@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -56,9 +53,11 @@ public:
 	//! destructor
 	~FastMultipoleEmbedder();
 
+#if 0
 	//! Calls the algorithm for graph \a MLG.
 	//Does not do anything smart, can be safely removed
-	//void call(MultilevelGraph &MLG);
+	void call(MultilevelGraph &MLG);
+#endif
 
 	//! Calls the algorithm for graph \a G with the given edgelength and returns the layout information in \a nodeXPosition, nodeYPosition.
 	void call(
@@ -67,8 +66,6 @@ public:
 		NodeArray<float>& nodeYPosition,
 		const EdgeArray<float>& edgeLength,
 		const NodeArray<float>& nodeSize);
-
-	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	//! Calls the algorithm for graph \a GA with the given edgelength and returns the layout information in \a GA.
 	void call(GraphAttributes &GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
@@ -98,7 +95,10 @@ public:
 #endif
 	}
 
-	//void setEnablePostProcessing(bool b) { m_doPostProcessing = b; }
+#if 0
+	void setEnablePostProcessing(bool b) { m_doPostProcessing = b; }
+#endif
+
 private:
 	void initOptions();
 
@@ -139,15 +139,15 @@ private:
 
 //! The fast multipole multilevel embedder approach for force-directed multilevel layout.
 /**
-* @ingroup gd-energy
-*/
+ * @ingroup gd-energy
+ */
 class OGDF_EXPORT FastMultipoleMultilevelEmbedder : public LayoutModule
 {
 public:
 	//! Constructor, just sets number of maximum threads
 	FastMultipoleMultilevelEmbedder() : m_iMaxNumThreads(1) {}
 	//! Calls the algorithm for graph \a GA and returns the layout information in \a GA.
-	void call(GraphAttributes &GA);
+	void call(GraphAttributes &GA) override;
 
 	//! sets the bound for the number of nodes for multilevel step
 	void multilevelUntilNumNodesAreLess(int nodesBound) { m_multiLevelNumNodesBound = nodesBound; }

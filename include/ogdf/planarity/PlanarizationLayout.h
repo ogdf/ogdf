@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -39,7 +36,7 @@
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/module/LayoutPlanRepModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/internal/planarity/CliqueReplacer.h>
 
 namespace ogdf {
@@ -62,9 +59,7 @@ public:
 	 * \pre The graph has no self-loops.
 	 * @param ga is the input graph and will also be assigned the layout information.
 	 */
-	void call(GraphAttributes &ga);
-
-	void call(GraphAttributes &ga, GraphConstraints & gc) { call(ga); }
+	void call(GraphAttributes &ga) override;
 
 	//! Calls planarization layout with clique handling for GraphAttributes \a ga with associated graph \a g.
 	/**
@@ -118,7 +113,7 @@ public:
 
 	//! Sets the module option for crossing minimization.
 	void setCrossMin(CrossingMinimizationModule *pCrossMin) {
-		m_crossMin.set(pCrossMin);
+		m_crossMin.reset(pCrossMin);
 	}
 
 	//! Sets the module option for the graph embedding algorithm.
@@ -128,7 +123,7 @@ public:
 	 * module then computes a planar embedding of this planar graph.
 	 */
 	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.set(pEmbedder);
+		m_embedder.reset(pEmbedder);
 	}
 
 	//! Sets the module option for the planar layout algorithm.
@@ -141,7 +136,7 @@ public:
 	 * layout algorithm produces an orthogonal drawing.
 	 */
 	void setPlanarLayouter(LayoutPlanRepModule *pPlanarLayouter) {
-		m_planarLayouter.set(pPlanarLayouter);
+		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
 	//! Sets the module option for the arrangement of connected components.
@@ -151,7 +146,7 @@ public:
 	 * using a packing algorithm.
 	 */
 	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.set(pPacker);
+		m_packer.reset(pPacker);
 	}
 
 	/** @}
@@ -176,16 +171,16 @@ private:
 		Layout& drawing);
 
 	//! The module for computing a planar subgraph.
-	ModuleOption<CrossingMinimizationModule> m_crossMin;
+	std::unique_ptr<CrossingMinimizationModule> m_crossMin;
 
 	//! The module for planar embedding.
-	ModuleOption<EmbedderModule> m_embedder;
+	std::unique_ptr<EmbedderModule> m_embedder;
 
 	//! The module for computing a planar layout.
-	ModuleOption<LayoutPlanRepModule> m_planarLayouter;
+	std::unique_ptr<LayoutPlanRepModule> m_planarLayouter;
 
 	//! The module for arranging connected components.
-	ModuleOption<CCLayoutPackModule> m_packer;
+	std::unique_ptr<CCLayoutPackModule> m_packer;
 
 	double m_pageRatio;    //!< The desired page ratio.
 	int m_nCrossings;      //!< The number of crossings in the computed layout.

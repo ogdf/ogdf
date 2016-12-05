@@ -17,7 +17,7 @@
 	   a x + b y = c
 	   l1 <= x <= u1
 	   l2 <= y <= u2	==>
-	  
+
 	   l2 <= (c - a x) / b <= u2
 	   b/-a > 0 ==> (b l2 - c) / -a <= x <= (b u2 - c) / -a
 	   b/-a < 0 ==> (b u2 - c) / -a <= x <= (b l2 - c) / -a
@@ -30,7 +30,7 @@ class doubleton_action : public CoinPresolveAction {
     double clox;
     double cupx;
     double costx;
-    
+
     double costy;
 
     double rlo;
@@ -63,11 +63,9 @@ class doubleton_action : public CoinPresolveAction {
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *,
 					 const CoinPresolveAction *next);
-  
+
   void postsolve(CoinPostsolveMatrix *prob) const;
 
   ~doubleton_action();
 };
 #endif
-
-

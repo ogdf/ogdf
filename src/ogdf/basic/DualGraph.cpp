@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/DualGraph.h>
 
@@ -38,17 +35,20 @@ namespace ogdf{
 
 // Computes combinatorial embedding of dual graph
 // Precondition: CE must be combinatorial embedding of connected planar graph
-DualGraph::DualGraph(CombinatorialEmbedding &CE)
+DualGraph::DualGraph(const ConstCombinatorialEmbedding &CE) : m_primalEmbedding(CE)
 {
-	m_primalEmbedding = &CE;
-	Graph &primalGraph = CE.getGraph();
+	const Graph &primalGraph = CE.getGraph();
 	init(*(new Graph));
 	Graph &dualGraph = getGraph();
 
 	m_dualNode.init(CE);
 	m_dualEdge.init(primalGraph);
 	m_dualFace.init(primalGraph);
+#ifdef OGDF_DEBUG
+	m_primalNode.init(*this, nullptr);
+#else
 	m_primalNode.init(*this);
+#endif
 	m_primalFace.init(dualGraph);
 	m_primalEdge.init(dualGraph);
 
@@ -72,28 +72,25 @@ DualGraph::DualGraph(CombinatorialEmbedding &CE)
 	}
 
 	// sort adjElements of every dual node corresponding to dual embedding
-	EdgeArray<bool> visited(dualGraph, false);   // needed for self-loops
 	for(face f : CE.faces)
 	{
 		node vDual = m_dualNode[f];
-		adjEntry aePrimal = f->firstAdj();
-		List<adjEntry> aeList;
-		do
-		{
-			edge eDual = m_dualEdge[aePrimal->theEdge()];
-			adjEntry aeDual = eDual->adjSource();
-			if((aeDual->theNode()!=vDual) || (eDual->isSelfLoop() && visited[eDual]))
-				aeDual = eDual->adjTarget();
-			aeList.pushBack( aeDual );
-			visited[eDual] = true; // only needed for self-loops
-			aePrimal = aePrimal->faceCycleSucc();
+		List<adjEntry> newOrder;
+
+		for(adjEntry adj : f->entries) {
+			edge e = adj->theEdge();
+			edge eDual = m_dualEdge[e];
+			bool isSource = adj == e->adjSource();
+			adjEntry adjDual = isSource ? eDual->adjSource() : eDual->adjTarget();
+			newOrder.pushBack(adjDual);
 		}
-		while(aePrimal != f->firstAdj());
-		dualGraph.sort(vDual, aeList);
+
+		dualGraph.sort(vDual, newOrder);
 	}
 
 	// calculate dual faces and links to corresponding primal nodes
 	computeFaces();
+
 	for(node v : primalGraph.nodes)
 	{
 		edge ePrimal = v->firstAdj()->theEdge();
@@ -101,6 +98,9 @@ DualGraph::DualGraph(CombinatorialEmbedding &CE)
 		face fDual = rightFace(eDual->adjSource());
 		if(ePrimal->source()==v)
 			fDual = leftFace(eDual->adjSource());
+
+		OGDF_ASSERT(m_primalNode[fDual] == nullptr);
+
 		m_dualFace[v] = fDual;
 		m_primalNode[fDual] = v;
 	}

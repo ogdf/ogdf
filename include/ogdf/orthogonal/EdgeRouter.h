@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -188,9 +185,10 @@ public:
 	*/
 	void align(bool b) { m_align = b; }
 
-	//test fuer skalierende Kompaktierung
-	//void setOrSep(int sep)
-	//{m_hasOrSep = true; m_orSep = sep;}
+#if 0
+	//! Test for scaling compaction
+	void setOrSep(int sep) {m_hasOrSep = true; m_orSep = sep;}
+#endif
 
 
 private:

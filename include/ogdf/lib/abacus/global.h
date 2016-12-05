@@ -54,7 +54,7 @@ namespace abacus {
  * of the literal values of the parameters. Moreover, functions are
  * provided for assigning the literal valued parameters to specific types.
  */
-class  AbacusGlobal :  public AbacusRoot  {
+class OGDF_EXPORT AbacusGlobal : public AbacusRoot {
 public:
 
 	//! The constructor.
@@ -105,7 +105,9 @@ public:
 	 * \param nTab The number of tabulators which should be written to the
 	 *             global output stream. The default value is 0.
 	 */
-	//virtual AbaOStream& lout() const;
+#if 0
+	virtual AbaOStream& lout() const;
+#endif
 
 	//! Writes \a nTab tabs to the error stream.
 	/**
@@ -116,7 +118,9 @@ public:
 	 * \param nTab The number of tabulators which should be written to the
 	 *             global error stream. The default value is 0.
 	 */
-	//virtual AbaOStream& fout() const;
+#if 0
+	virtual AbaOStream& fout() const;
+#endif
 #endif
 
 	//! Returns the zero tolerance.
@@ -298,7 +302,7 @@ public:
 		string &param,
 		const char *name,
 		unsigned nFeasible = 0,
-		const char *feasible[] = 0) const;
+		const char *feasible[] = nullptr) const;
 
 	//! See AbacusGlobal::assignParameter(int&,const char*,int,int) for a description.
 	/**
@@ -308,7 +312,7 @@ public:
 	 *                 If \a feasible is zero, then all characters are allowed.
 	 */
 	void assignParameter(char &param, const char *name,
-		const char *feasible=0) const;
+		const char *feasible=nullptr) const;
 
 	//! See AbacusGlobal::assignParameter(int&,const char*,int,int) for a description.
 	/**

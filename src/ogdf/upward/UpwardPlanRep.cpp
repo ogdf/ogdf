@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/upward/UpwardPlanRep.h>
@@ -50,7 +47,7 @@ UpwardPlanRep::UpwardPlanRep(const CombinatorialEmbedding &Gamma) :
 	extFaceHandle(nullptr),
 	crossings(0)
 {
-	OGDF_ASSERT(Gamma.externalFace() != 0);
+	OGDF_ASSERT(Gamma.externalFace() != nullptr);
 	OGDF_ASSERT(hasSingleSource(*this));
 	OGDF_ASSERT(isSimple(*this));
 
@@ -79,7 +76,7 @@ UpwardPlanRep::UpwardPlanRep(const GraphCopy &GC, ogdf::adjEntry adj_ext) :
 	extFaceHandle(nullptr),
 	crossings(0)
 {
-	OGDF_ASSERT(adj_ext != 0);
+	OGDF_ASSERT(adj_ext != nullptr);
 	OGDF_ASSERT(hasSingleSource(*this));
 
 	m_isSourceArc.init(*this, false);
@@ -154,7 +151,7 @@ void UpwardPlanRep::copyMe(const UpwardPlanRep &UPR)
 	if (UPR.augmented())
 		t_hat = vCopy[UPR.getSuperSink()];
 
-	OGDF_ASSERT(UPR.extFaceHandle != 0);
+	OGDF_ASSERT(UPR.extFaceHandle != nullptr);
 
 	edge eC = eCopy[UPR.extFaceHandle->theEdge()];
 	node vC = vCopy[UPR.extFaceHandle->theNode()];
@@ -238,7 +235,7 @@ void UpwardPlanRep::augment()
 		adjEntry adj = switches.popFrontRet();
 		edge e_new;
 		if (t->degree() == 0) {
-			e_new = m_Gamma.splitFace(adj, t);
+			e_new = m_Gamma.addEdgeToIsolatedNode(adj, t);
 		}
 		else {
 			adjEntry adjTgt = getAdjEntry(m_Gamma, t, m_Gamma.rightFace(adj));
@@ -255,7 +252,7 @@ void UpwardPlanRep::augment()
 	*/
 	t_hat = this->newNode();
 	adjEntry adjSource = getAdjEntry(m_Gamma, t, m_Gamma.externalFace());
-	extFaceHandle = m_Gamma.splitFace(adjSource, t_hat)->adjTarget();
+	extFaceHandle = m_Gamma.addEdgeToIsolatedNode(adjSource, t_hat)->adjTarget();
 	m_isSinkArc[extFaceHandle->theEdge()] = true; // not really a sink arc !! TODO??
 
 	m_Gamma.setExternalFace(m_Gamma.rightFace(extFaceHandle));
@@ -267,7 +264,7 @@ void UpwardPlanRep::augment()
 
 		edge e_new = nullptr;
 		if (pair.x2()->theNode()->degree() == 0 ) {
-			e_new = m_Gamma.splitFace(pair.x1(), pair.x2()->theNode());
+			e_new = m_Gamma.addEdgeToIsolatedNode(pair.x1(), pair.x2()->theNode());
 		}
 		else {
 			adjEntry adjTgt = getAdjEntry(m_Gamma, pair.x2()->theNode(), m_Gamma.rightFace(pair.x1()));
@@ -438,7 +435,7 @@ void UpwardPlanRep::constructSinkArcs(face f, node t)
 			adjEntry adjSrc = srcList.popFrontRet();
 			edge eNew;
 			if (t->degree() == 0)
-				eNew = m_Gamma.splitFace(adjSrc, t);
+				eNew = m_Gamma.addEdgeToIsolatedNode(adjSrc, t);
 			else {
 				adjEntry adjTgt = getAdjEntry(m_Gamma, t, m_Gamma.rightFace(adjSrc));
 				eNew = m_Gamma.splitFace(adjSrc, adjTgt);
@@ -450,7 +447,7 @@ void UpwardPlanRep::constructSinkArcs(face f, node t)
 		for(adjEntry adj : f->entries) {
 			node v = adj->theNode();
 
-			OGDF_ASSERT(s_hat != 0);
+			OGDF_ASSERT(s_hat != nullptr);
 
 			if (v->outdeg() == 0 && v != t_hat)
 				srcList.pushBack(adj);
@@ -475,7 +472,7 @@ void UpwardPlanRep::constructSinkArcs(face f, node t)
 
 void UpwardPlanRep::computeSinkSwitches()
 {
-	OGDF_ASSERT(m_Gamma.externalFace() != 0);
+	OGDF_ASSERT(m_Gamma.externalFace() != nullptr);
 
 	if (s_hat == nullptr)
 		hasSingleSource(*this, s_hat);

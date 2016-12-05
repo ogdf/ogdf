@@ -35,12 +35,13 @@ go_bandit([](){ bandit::describe("Energy-based layouts", [](){
 	fmmmNice.qualityVersusSpeed(FMMMLayout::qvsNiceAndIncredibleSpeed);
 	frlHQ.iterations(1000);
 
-	describeLayoutModule("Fast Multipole Multilevel Embedder", fmmm);
-	describeLayoutModule("Fast Multipole Multilevel Embedder with high quality settings", fmmmHQ);
-	describeLayoutModule("Fast Multipole Multilevel Embedder with nice quality and incredible speed", fmmmHQ);
-	describeLayoutModule("Spring Embedder grid variant", frl);
-	describeLayoutModule("Spring Embedder grid variant with high quality settings", fmmmHQ);
-	describeLayoutModule("GEM layout", gem);
-	describeLayoutModule("Davidson-Harel layout", dhl);
-	describeLayoutModule("PivotMDS layout", pmds, 0, GR_CONNECTED);
+	// call              name                                                                         module    extraAttributes req            maxNodes isGridLayout skipTreeWithProbablyNegativeCoordinates
+	describeLayoutModule("Fast Multipole Multilevel Embedder"                                       , fmmm);
+	describeLayoutModule("Fast Multipole Multilevel Embedder with high quality settings"            , fmmmHQ);
+	describeLayoutModule("Fast Multipole Multilevel Embedder with nice quality and incredible speed", fmmmNice);
+	describeLayoutModule("Spring Embedder grid variant"                                             , frl     , 0              , GR_ALL      , 200    , false       , true );
+	describeLayoutModule("Spring Embedder grid variant with high quality settings"                  , frlHQ   , 0              , GR_ALL      , 200    , false       , true );
+	describeLayoutModule("GEM layout"                                                               , gem);
+	describeLayoutModule("Davidson-Harel layout"                                                    , dhl);
+	describeLayoutModule("PivotMDS layout"                                                          , pmds    , 0              , GR_CONNECTED);
 }); });

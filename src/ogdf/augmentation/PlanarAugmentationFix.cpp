@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
@@ -522,7 +519,7 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 
 		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::CutVertex){
 			if (!dominatingTree){
-				if ((adj->theNode() == cutvBFNode)){
+				if (adj->theNode() == cutvBFNode){
 					dominatingTree = true;
 				}
 				else{
@@ -592,7 +589,7 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 		cout << "findMatching() finished with found == "<< found << endl << flush;
 	#endif
 
-	return (found);
+	return found;
 }
 
 
@@ -784,7 +781,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 		while (loop){
 
 			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::CutVertex){
-				if ((adjRun->theNode() == cutvBFNode)){
+				if (adjRun->theNode() == cutvBFNode){
 					loop = false;
 				}
 				else{
@@ -843,7 +840,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 		while (loop){
 
 			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::CutVertex){
-				if ((adjRun->theNode() == cutvBFNode)){
+				if (adjRun->theNode() == cutvBFNode){
 					loop = false;
 				}
 				else{
@@ -928,7 +925,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node pendant, paStopCause whyStop)
 {
 	pa_label l;
-	l = OGDF_NEW PALabel(parent, cutvertex, whyStop);
+	l = new PALabel(parent, cutvertex, whyStop);
 
 	m_belongsTo[pendant] = l;
 	m_belongsToIt[pendant] = (l->m_pendants).pushBack(pendant);
@@ -1067,7 +1064,9 @@ void PlanarAugmentationFix::changeBCRoot(node oldRoot, node newRoot)
 	m_pBCTree->m_bNode_hParNode[oldRoot] = m_pBCTree->m_bNode_hRefNode[newRoot];
 
 	//   for the new root:
-	// m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
+#if 0
+	 m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
+#endif
 	m_pBCTree->m_bNode_hParNode[newRoot] = nullptr;
 }
 

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/FMEMultipoleKernel.h>
 #include <ogdf/internal/energybased/ArrayGraph.h>
@@ -517,7 +514,7 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 	}
 
 	uint32_t maxNumIt = options->preProcMaxNumIterations;
-	for (uint32_t currNumIteration = 0; ((currNumIteration < maxNumIt) ); currNumIteration++)
+	for (uint32_t currNumIteration = 0; currNumIteration < maxNumIt; currNumIteration++)
 	{
 		// iterate over all edges and store the resulting forces in the threads array
 		for_loop(edgePartition,
@@ -539,7 +536,7 @@ void FMEMultipoleKernel::operator()(FMEGlobalContext* globalContext)
 	}
 	sync();
 
-	for (uint32_t currNumIteration = 0; ((currNumIteration < maxNumIterations) && !globalContext->earlyExit); currNumIteration++)
+	for (uint32_t currNumIteration = 0; currNumIteration < maxNumIterations && !globalContext->earlyExit; currNumIteration++)
 	{
 		// reset the coefficients
 		for_loop_array_set(threadNr(), numThreads(), treeExp.m_multiExp, treeExp.m_numExp*(treeExp.m_numCoeff << 1), 0.0);
@@ -609,13 +606,13 @@ FMEGlobalContext* FMEMultipoleKernel::allocateContext(ArrayGraph* pGraph, FMEGlo
 	typedef FMELocalContext* FMELocalContextPtr;
 
 	globalContext->pLocalContext = new FMELocalContextPtr[numThreads];
-	globalContext->globalForceX = (float*)MALLOC_16(sizeof(float)*numPoints);
-	globalContext->globalForceY = (float*)MALLOC_16(sizeof(float)*numPoints);
+	globalContext->globalForceX = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
+	globalContext->globalForceY = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
 	for (uint32_t i=0; i < numThreads; i++)
 	{
 		globalContext->pLocalContext[i] = new FMELocalContext;
-		globalContext->pLocalContext[i]->forceX = (float*)MALLOC_16(sizeof(float)*numPoints);
-		globalContext->pLocalContext[i]->forceY = (float*)MALLOC_16(sizeof(float)*numPoints);
+		globalContext->pLocalContext[i]->forceX = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
+		globalContext->pLocalContext[i]->forceY = (float*)OGDF_MALLOC_16(sizeof(float)*numPoints);
 		globalContext->pLocalContext[i]->pGlobalContext = globalContext;
 	}
 	return globalContext;
@@ -627,12 +624,12 @@ void FMEMultipoleKernel::deallocateContext(FMEGlobalContext* globalContext)
 	uint32_t numThreads = globalContext->numThreads;
 	for (uint32_t i=0; i < numThreads; i++)
 	{
-		FREE_16(globalContext->pLocalContext[i]->forceX);
-		FREE_16(globalContext->pLocalContext[i]->forceY);
+		OGDF_FREE_16(globalContext->pLocalContext[i]->forceX);
+		OGDF_FREE_16(globalContext->pLocalContext[i]->forceY);
 		delete globalContext->pLocalContext[i];
 	}
-	FREE_16(globalContext->globalForceX);
-	FREE_16(globalContext->globalForceY);
+	OGDF_FREE_16(globalContext->globalForceX);
+	OGDF_FREE_16(globalContext->globalForceY);
 	delete[] globalContext->pLocalContext;
 	delete globalContext->pExpansion;
 	delete globalContext->pQuadtree;

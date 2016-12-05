@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/Tlp.h>
@@ -336,29 +333,49 @@ static void writeGraph(
 
 bool GraphIO::writeTLP(const Graph &G, std::ostream &os)
 {
-	tlp::writeGraph(os, G, nullptr, nullptr);
-	return true;
+	bool result = os.good();
+
+	if(result) {
+		tlp::writeGraph(os, G, nullptr, nullptr);
+	}
+
+	return result;
 }
 
 
 bool GraphIO::writeTLP(const GraphAttributes &GA, std::ostream &os)
 {
-	tlp::writeGraph(os, GA.constGraph(), nullptr, &GA);
-	return true;
+	bool result = os.good();
+
+	if(result) {
+		tlp::writeGraph(os, GA.constGraph(), nullptr, &GA);
+	}
+
+	return result;
 }
 
 
 bool GraphIO::writeTLP(const ClusterGraph &C, std::ostream &os)
 {
-	tlp::writeGraph(os, C.constGraph(), &C, nullptr);
-	return true;
+	bool result = os.good();
+
+	if(result) {
+		tlp::writeGraph(os, C.constGraph(), &C, nullptr);
+	}
+
+	return result;
 }
 
 
 bool GraphIO::writeTLP(const ClusterGraphAttributes &CA, std::ostream &os)
 {
-	tlp::writeGraph(os, CA.constGraph(), &CA.constClusterGraph(), &CA);
-	return true;
+	bool result = os.good();
+
+	if(result) {
+		tlp::writeGraph(os, CA.constGraph(), &CA.constClusterGraph(), &CA);
+	}
+
+	return result;
 }
 
 

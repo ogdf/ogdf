@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -71,10 +68,14 @@ bool dfsGenTreeRec(
 
 		if (hierNumber[w]) {
 			//temporarily fake trees
-			//if (hierNumber[w] == hierNum) //forward search edge
+#if 0
+			if (hierNumber[w] == hierNum) //forward search edge
+#endif
 			if (fakeTree)
 			{
-				//UG.type(e) = Graph::association;
+#if 0
+				UG.type(e) = Graph::association;
+#endif
 				fakedGens.pushBack(e);
 				continue;
 			}
@@ -96,12 +97,14 @@ edge firstOutGen(UMLGraph& UG, node v, EdgeArray<bool>& /* used */)
 		if (e->target() == v) continue;
 		if (UG.type(e) == Graph::generalization)
 		{
-			//OGDF_ASSERT(!used[e]);
+#if 0
+			OGDF_ASSERT(!used[e]);
+#endif
 			return e;
 		}
 		else continue;
 	}//forall
-	return 0;
+	return nullptr;
 }//firstOutGen
 
 bool dfsGenTree(
@@ -110,7 +113,9 @@ bool dfsGenTree(
 	bool fakeTree)
 {
 	EdgeArray<bool> used(UG.constGraph(), false);
-	//NodeArray<bool> visited(UG,false);
+#if 0
+	NodeArray<bool> visited(UG,false);
+#endif
 	NodeArray<int>  hierNumber(UG.constGraph(), 0);
 
 	int hierNum = 0; //number of hierarchy tree
@@ -137,7 +142,7 @@ bool dfsGenTree(
 					UG.type(sinkPath) = Graph::association;
 					fakedGens.pushBack(sinkPath);
 					sink = sinkPath->source();
-					sinkPath = 0;
+					sinkPath = nullptr;
 				}
 			}
 

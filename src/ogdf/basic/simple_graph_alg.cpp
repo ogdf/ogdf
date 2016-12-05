@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/simple_graph_alg.h>
@@ -222,7 +219,7 @@ bool isConnected(const Graph &G)
 		}
 	}
 
-	return (count == G.numberOfNodes());
+	return count == G.numberOfNodes();
 }
 
 
@@ -338,104 +335,223 @@ int connectedIsolatedComponents(const Graph &G, List<node> &isolated,
 // isBiconnected(), makeBiconnected()
 // testing biconnectivity, establishing biconnectivity
 //---------------------------------------------------------
-static node dfsIsBicon (const Graph &G, node v, node father,
-	NodeArray<int> &number, NodeArray<int> &lowpt, int &numCount)
+//! Build up a dfs-tree starting from the node root by assigning each reachable
+//! node in the graph a discovery time (number) and a parent.
+/**
+ * @param root is the node which should be the root of the dfs-tree.
+ * @param number is assigned the number (discovery time) for each node.
+ *        The number of root is firstNr, the number of unvisited nodes is 0.
+ * @param parent is assigned the parent in the dfs-tree for each node.
+ * @param childNr is assigned the number of children for each node.
+ * @param revS is assigned all visited nodes such that the top element of revS
+ *        is the node that was visited last.
+ * @param directed should be set to true if the directionality of edges should
+ *        be respected.
+ * @param firstNr is the index > 0 at which the numbering of the nodes starts.
+ * @return the number of visited nodes, i.e., nodes in the dfs-tree.
+ */
+int buildDfsTree(const node &root,
+		NodeArray<int> &number,
+		NodeArray<node> &parent,
+		NodeArray<int> &childNr,
+		ArrayBuffer<node> &revS,
+		bool directed = false,
+		int firstNr = 1)
 {
-	node first_son = nullptr;
+	OGDF_ASSERT(firstNr > 0);
 
-	lowpt[v] = number[v] = ++numCount;
+	ArrayBuffer<node> S;
+	S.push(root);
 
-	for(adjEntry adj : v->adjEntries) {
-		node w = adj->twinNode();
-		if (v == w) continue; // ignore self-loops
+	int numCount = firstNr;
+	childNr.fill(0);
 
-		if (number[w] == 0) {
-			if (first_son == nullptr) first_son = w;
+	// Build up search tree and note discovery time and parent for each node.
+	while (!S.empty()) {
+		node v = S.popRet();
 
-			node cutVertex = dfsIsBicon(G,w,v,number,lowpt,numCount);
-			if (cutVertex) return cutVertex;
+		// Ignore nodes that were already visited.
+		if (number[v] != 0) {
+			continue;
+		}
 
-			// is v cut vertex ?
-			if (lowpt[w] >= number[v] && (w != first_son || father != nullptr))
-				return v;
+		revS.push(v);
 
-			if (lowpt[w] < lowpt[v]) lowpt[v] = lowpt[w];
+		// Set correct discovery time for v.
+		number[v] = numCount++;
 
-		} else {
+		// For all adjacent nodes w of v:
+		for (adjEntry adj : v->adjEntries) {
+			if (directed && adj->theEdge()->source() != v) {
+				continue;
+			}
 
-			if (number[w] < lowpt[v]) lowpt[v] = number[w];
+			node w = adj->twinNode();
+
+			// If w has not been visited yet:
+			// Push it on the stack, remember its parent and number of children.
+			if (number[w] == 0) {
+				S.push(w);
+
+				// If a parent was determined previously, revert that.
+				if (parent[w] != nullptr) {
+					childNr[parent[w]]--;
+				}
+
+				parent[w] = v;
+				childNr[v]++;
+			}
 		}
 	}
 
-	return nullptr;
+	return numCount - firstNr;
 }
 
+//! Find cut vertices and potential edges that could be added to turn the cut
+//! vertices into non-cut vertices.
+/**
+ * The algorithm is applied to the graph whose nodes were pushed to the
+ * ArrayBuffer revS. number, parent and revS can be obtained with buildDfsTree.
+ *
+ * @param number contains the number (discovery time) for each node.
+ *        The number of root is 1, the number of unvisited nodes is 0.
+ * @param parent contains the parent in the dfs-tree for each node.
+ * @param revS contains the nodes of a graph such that the node that was visited
+ *        last during the dfs-traversal is its top element.
+ * @param cutVertices is assigned the cut vertices of the graph.
+ * @param addEdges is assigned the tuples of nodes which have to be connected in
+ *        order to turn each cut vertex into a non-cut vertex.
+ * @param only_one should be set to true if the search should stop after finding
+ *        one cut vertex, to false if all cut vertices should be found.
+ * @return true if the graph contains at least one cut vertex, false otherwise.
+ */
+bool findCutVertices(NodeArray<int> &number,
+		NodeArray<node> &parent,
+		ArrayBuffer<node> &revS,
+		ArrayBuffer<node> &cutVertices,
+		ArrayBuffer<Tuple2<node,node>> &addEdges,
+		bool only_one)
+{
+	NodeArray<int> lowpt(number);
+
+	// Go backwards through the dfs-tree:
+	// Calculate the lowpoint for each node and test for cut vertices.
+	while (!revS.empty()) {
+		node v = revS.popRet();
+		node firstChild = nullptr;
+
+		// For all adjacent nodes w of v:
+		for (adjEntry adj : v->adjEntries) {
+			node w = adj->twinNode();
+
+			// Ignore self-loops and the parent of v.
+			if (v == w || parent[v] == w) {
+				continue;
+			}
+
+			// If v->w is a backedge in the dfs-tree, update v's lowpoint.
+			if (number[v] > number[w] ) {
+				if (lowpt[v] > number[w]) {
+					lowpt[v] = number[w];
+				}
+			} else {
+				// If w is v's child in the dfs-tree, update v's lowpoint.
+				if (parent[w] == v) {
+					if (lowpt[v] > lowpt[w]) {
+						lowpt[v] = lowpt[w];
+					}
+
+					// See whether w is v's first son.
+					if (firstChild == nullptr) {
+						firstChild = w;
+					}
+
+					// Non-root v is a cut vertex if lowpt[w] >= number[v].
+					if (parent[v] != nullptr && lowpt[w] >= number[v]) {
+						// Suggest to add an edge between w and v's parent.
+						cutVertices.push(v);
+						addEdges.push(Tuple2<node,node>(w, parent[v]));
+
+						if (only_one) {
+							return true;
+						}
+					}
+
+					// Root v is a cut vertex if v has two or more children.
+					if  (parent[v] == nullptr && w != firstChild) {
+						// Suggest to add an edge between those children.
+						cutVertices.push(v);
+						addEdges.push(Tuple2<node,node>(w, firstChild));
+
+						if (only_one) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return !cutVertices.empty();
+}
 
 bool isBiconnected(const Graph &G, node &cutVertex)
 {
-	if (G.empty()) return true;
+	cutVertex = nullptr;
 
-	NodeArray<int> number(G,0);
-	NodeArray<int> lowpt(G);
-	int numCount = 0;
+	if (G.empty()) {
+		return true;
+	}
 
-	cutVertex = dfsIsBicon(G,G.firstNode(),nullptr,number,lowpt,numCount);
+	NodeArray<int> number(G,0);        // discovery times
+	NodeArray<node> parent(G,nullptr); // parents in the dfs tree
+	ArrayBuffer<node> revS;            // nodes of the dfs tree in reverse order
 
-	return (numCount == G.numberOfNodes() && cutVertex == nullptr);
-}
+	// Build the dfs-tree and get the number of visited nodes.
+	NodeArray<int> childNr(G);
+	int numCount = buildDfsTree(G.firstNode(), number, parent, childNr, revS);
 
+	// If the graph is not connected, return false.
+	if (numCount != G.numberOfNodes()) {
+		return false;
+	}
 
-static void dfsMakeBicon (Graph &G,
-	node v, node father,
-	NodeArray<int> &number,
-	NodeArray<int> &lowpt,
-	int &numCount,
-	List<edge> &added)
-{
-	node predSon = nullptr;
-
-	lowpt[v] = number[v] = ++numCount;
-
-	for(adjEntry adj : v->adjEntries) {
-		node w = adj->twinNode();
-
-		if (v == w) continue; // ignore self-loops
-
-		if (number[w] == 0) {
-
-			dfsMakeBicon(G,w,v,number,lowpt,numCount,added);
-
-			// is v cut vertex ?
-			if (lowpt[w] >= number[v]) {
-				if (predSon == nullptr && father != nullptr)
-					added .pushBack(G.newEdge(w,father));
-
-				else if (predSon != nullptr)
-					added.pushBack(G.newEdge(w,predSon));
-			}
-
-			if (lowpt[w] < lowpt[v]) lowpt[v] = lowpt[w];
-			predSon = w;
-
-		} else {
-
-			if (number[w] < lowpt[v]) lowpt[v] = number[w];
-		}
+	// If there are cut vertices in the graph, return false, else true.
+	ArrayBuffer<node> cutVertices;
+	ArrayBuffer<Tuple2<node,node>> addEdges;
+	if (findCutVertices(number, parent, revS, cutVertices, addEdges, true)) {
+		cutVertex = cutVertices.top();
+		return false;
+	} else {
+		return true;
 	}
 }
 
-
 void makeBiconnected(Graph &G, List<edge> &added)
 {
-	if (G.empty()) return;
+	if (G.empty()) {
+		return;
+	}
 
-	makeConnected(G,added);
+	makeConnected(G, added);
 
-	NodeArray<int> number(G,0);
-	NodeArray<int> lowpt(G);
-	int numCount = 0;
+	NodeArray<int> number(G,0);        // discovery times
+	NodeArray<node> parent(G,nullptr); // parents in the dfs tree
+	ArrayBuffer<node> revS;            // nodes of the dfs tree in reverse order
 
-	dfsMakeBicon(G,G.firstNode(),nullptr,number,lowpt,numCount,added);
+	// Build the dfs-tree.
+	NodeArray<int> childNr(G);
+	buildDfsTree(G.firstNode(), number, parent, childNr, revS);
+
+	// Find all cut vertices.
+	ArrayBuffer<node> cutVertices;
+	ArrayBuffer<Tuple2<node,node>> addEdges;
+	findCutVertices(number, parent, revS, cutVertices, addEdges, false);
+
+	// Add a new edge for each cut vertex to make the graph biconnected.
+	for (Tuple2<node,node> nodes : addEdges) {
+		added.pushBack(G.newEdge(nodes.x1(), nodes.x2()));
+	}
 }
 
 
@@ -625,63 +741,71 @@ void triangulate(Graph &G)
 // isAcyclic(), isAcyclicUndirected(), makeAcyclic(), makeAcyclicByReverse()
 // testing acyclicity, establishing acyclicity
 //--------------------------------------------------------------------------
-void dfsIsAcyclic(const Graph &G,
-	node v,
-	NodeArray<int> &number,
-	NodeArray<int> &completion,
-	int &nNumber,
-	int &nCompletion)
-{
-	number[v] = ++nNumber;
-
-	for(adjEntry adj : v->adjEntries) {
-		node w = adj->theEdge()->target();
-
-		if (number[w] == 0)
-			dfsIsAcyclic(G,w,number,completion,nNumber,nCompletion);
-	}
-
-	completion[v] = ++nCompletion;
-}
-
-
-void dfsIsAcyclicUndirected(const Graph &G,
-	node v,
-	NodeArray<int> &number,
-	int &nNumber,
-	List<edge> &backedges)
-{
-	number[v] = ++nNumber;
-
-	for(adjEntry adj : v->adjEntries) {
-		node w = adj->twinNode();
-		if (number[w] == 0) {
-			dfsIsAcyclicUndirected(G,w,number,nNumber,backedges);
-		} else {
-			if (number[w] > number[v]) {
-				backedges.pushBack(adj->theEdge());
-			}
-		}
-	}
-}
-
-
 bool isAcyclic(const Graph &G, List<edge> &backedges)
 {
 	backedges.clear();
 
-	NodeArray<int> number(G,0), completion(G);
-	int nNumber = 0, nCompletion = 0;
+	NodeArray<int> number(G,0);        // discovery times
+	NodeArray<node> parent(G,nullptr); // parents in the dfs tree
+	NodeArray<int> childNr(G);         // number of children in the dfs tree
+	ArrayBuffer<node> revS;
 
-	for(node v : G.nodes)
-		if (number[v] == 0)
-			dfsIsAcyclic(G,v,number,completion,nNumber,nCompletion);
+	ArrayBuffer<node> leaves;          // leaves of the dfs tree
+	NodeArray<int> completion(G,0);    // completion times
+	int complCount = 0;
+	int numCount = 0;
 
+	// For all unvisited nodes:
+	for (node v : G.nodes) {
+		if (number[v] == 0) {
+			// Build the dfs-tree starting at v.
+			numCount += buildDfsTree(v, number, parent, childNr, revS, true, numCount+1);
+
+			// Get all leaves of the dfs-tree.
+			while (!revS.empty()) {
+				node w = revS.popRet();
+				if (childNr[w] == 0) {
+					leaves.push(w);
+				}
+			}
+
+			node lastParent = parent[leaves.top()];
+
+			// Go through leaves of the dfs-tree.
+			while (!leaves.empty()) {
+				node w = leaves.top();
+
+				// If the new leaf is a child of the same parent as before,
+				// assign it a completion time and pop it from the stack.
+				if (parent[w] == lastParent) {
+					completion[w] = complCount++;
+					leaves.pop();
+
+					// The last parent has now one child less. If it has no
+					// children anymore, push it as a new leaf on the stack.
+					if (lastParent != nullptr) {
+						childNr[lastParent]--;
+						if (childNr[lastParent] == 0) {
+							leaves.push(lastParent);
+							lastParent = parent[lastParent];
+						}
+					}
+				} else {
+					// Else just continue with the next leaves and their parent.
+					lastParent = parent[w];
+				}
+			}
+		}
+	}
+
+	// Remember backedges.
 	for(edge e : G.edges) {
-		node src = e->source(), tgt = e->target();
+		node src = e->source();
+		node tgt = e->target();
 
-		if (number[src] >= number[tgt] && completion[src] <= completion[tgt])
+		if (number[src] >= number[tgt] && completion[src] <= completion[tgt]) {
 			backedges.pushBack(e);
+		}
 	}
 
 	return backedges.empty();
@@ -691,14 +815,50 @@ bool isAcyclic(const Graph &G, List<edge> &backedges)
 bool isAcyclicUndirected(const Graph &G, List<edge> &backedges)
 {
 	backedges.clear();
-	int nNumber = 0;
-	NodeArray<int> number(G,0);
 
-	for(node v : G.nodes) {
+	NodeArray<int> number(G,0);        // discovery times
+	NodeArray<node> parent(G,nullptr); // parents in the dfs tree
+	ArrayBuffer<node> S;
+	int numCount = 0;
+
+	// For all unvisited nodes:
+	for (node v : G.nodes) {
 		if (number[v] == 0) {
-			dfsIsAcyclicUndirected(G,v,number,nNumber,backedges);
+			// Start depth first search at v.
+			S.push(v);
+			while (!S.empty()) {
+				node w = S.popRet();
+
+				// Ignore nodes that were already visited.
+				if (number[w] != 0) {
+					continue;
+				}
+
+				// Set correct discovery time for w.
+				number[w] = ++numCount;
+				bool parentSeen = false;
+
+				// For all adjacent nodes u of w:
+				for (adjEntry adj : w->adjEntries) {
+					node u = adj->twinNode();
+
+					// If u has not been visited yet,
+					// push it on the stack and remember its parent.
+					if (number[u] == 0) {
+						S.push(u);
+						parent[u] = w;
+					} else if (parent[w] == u && !parentSeen) {
+						// The first time you see w's parent, it is no backedge.
+						parentSeen = true;
+					} else if (w != u || adj->isSource()) {
+						// Collect backedges (self-loops only in one direction).
+						backedges.pushBack(adj->theEdge());
+					}
+				}
+			}
 		}
 	}
+
 	return backedges.empty();
 }
 
@@ -787,7 +947,7 @@ bool isStGraph(const Graph &G, node &s, node &t, edge &st)
 		}
 	}
 
-	return (st != nullptr);
+	return st != nullptr;
 }
 
 
@@ -1043,6 +1203,21 @@ bool isArborescence (const Graph& G, node &root)
 	return false;
 }
 
+bool isRegular(const Graph& G) {
+	if (G.numberOfEdges() == 0) {
+		return true;
+	}
+	return isRegular(G, G.firstNode()->degree());
+}
+
+bool isRegular(const Graph& G, int d) {
+	for (auto n: G.nodes) {
+		if (n->degree() != d) {
+			return false;
+		}
+	}
+	return true;
+}
 
 
 } // end namespace ogdf

@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -90,7 +87,7 @@ public:
 		S.m_head = nullptr;
 	}
 
-	// destruction
+	//! Destruction
 	~StackPure() {
 		clear();
 	}
@@ -128,7 +125,7 @@ public:
 
 	//! Adds element \a x as top-most element to the stack.
 	void push(const E &x) {
-		m_head = OGDF_NEW Element(m_head,x);
+		m_head = new Element(m_head,x);
 	}
 
 	//! Adds a new element at as top-most element to the stack.
@@ -137,12 +134,12 @@ public:
 	*/
 	template<class ... Args>
 	void emplace(Args && ... args) {
-		m_head = OGDF_NEW Element(m_head, std::forward<Args>(args)...);
+		m_head = new Element(m_head, std::forward<Args>(args)...);
 	}
 
 	//! Removes the top-most element from the stack and returns it.
 	E pop() {
-		OGDF_ASSERT(m_head != nullptr)
+		OGDF_ASSERT(m_head != nullptr);
 		Element *pX = m_head;
 		m_head = m_head->m_next;
 		E x = pX->m_x;
@@ -174,7 +171,7 @@ private:
 		Element **p = &m_head;
 
 		for(Element *q = S.m_head; q != nullptr; q = q->m_next) {
-			*p = OGDF_NEW Element(nullptr, q->m_x);
+			*p = new Element(nullptr, q->m_x);
 			p = &(*p)->m_next;
 		}
 	}
@@ -218,7 +215,7 @@ public:
 		S.m_count = 0;
 	}
 
-	// destruction
+	//! Destruction
 	~Stack() { }
 
 	//! Returns true iff the stack is empty.

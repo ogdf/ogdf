@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
@@ -142,7 +139,7 @@ public:
 	node prev(node v) { return m_prev[v]; }
 
 	// returns true <=> f contains a virtual edge
-	bool cutv(face f) { return (m_virtSrc[f] != nullptr); }
+	bool cutv(face f) { return m_virtSrc[f] != nullptr; }
 
 	// returns true <=> f is a possible next face, i.e
 	//   outv(f) >= 3 and outv(f) = oute(f)+1
@@ -656,7 +653,8 @@ bool ComputeBicOrder::getPossible()
 
 node ComputeBicOrder::getFaceCl(face f)
 {
-	node v;
+	node v = nullptr;
+
 	if (cutv(f)) {
 		v = m_virtSrc [f];
 
@@ -1176,7 +1174,7 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 
 	NodeArray<int> num(G, -1);
 
-	int i = 0, j, d;
+	int i = 0;
 
 	for (adjEntry adj : f->entries)
 		num[adj->theNode()] = i++;
@@ -1189,7 +1187,7 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 		for (adj2 = adj->cyclicPred(); adj2 != adj->cyclicSucc();
 			adj2 = adj2->cyclicPred())
 		{
-			j = num[adj2->twinNode()];
+			int j = num[adj2->twinNode()];
 			if (j != -1)
 				diag[i].pushBack(j);
 		}
@@ -1207,7 +1205,7 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 	do {
 		if (posInQ[i].valid()) {
 			adjEntry adj2 = Q.front().m_start;
-			d = (i - num[adj2->theNode()] + p) % p + 1;
+			int d = (i - num[adj2->theNode()] + p) % p + 1;
 			if (d > length || (d == length && adj2->theNode()->index() < adjStart->theNode()->index())) {
 				length = d;
 				adjStart = adj2;
@@ -1220,17 +1218,19 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 			} while (it != itLimit);
 		}
 
+		int j = -1;
 		if (diag[i].empty())
 			j = (i - 2 + p) % p;
 		else {
 			int m = p;
 			for (int k : diag[i]) {
-				d = (k - i + p) % p;
+				int d = (k - i + p) % p;
 				if (d < m) {
 					m = d;
 					j = k;
 				}
 			}
+			OGDF_ASSERT(j != -1);
 			j = (j - 1 + p) % p;
 			if (!firstRun) {
 				posInQ[Q.back().m_limit] = nullptr;
@@ -1308,4 +1308,3 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 
 
 } // end namespace ogdf
-

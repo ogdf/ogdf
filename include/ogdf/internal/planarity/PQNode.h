@@ -14,7 +14,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -31,12 +31,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -125,7 +122,7 @@ public:
 	 * then it has a valid parent pointer.
 	 */
 	bool endmostChild() {
-		return (m_sibLeft == 0 || m_sibRight == 0);
+		return (m_sibLeft == nullptr || m_sibRight == nullptr);
 	}
 
 	/**
@@ -143,7 +140,7 @@ public:
 		else if (m_rightEndmost != other)
 			return m_rightEndmost;
 
-		return 0;
+		return nullptr;
 	}
 
 	/**
@@ -157,7 +154,7 @@ public:
 		else if(side == RIGHT)
 			return m_rightEndmost;
 
-		return 0;
+		return nullptr;
 	}
 
 	//! Returns the identification number of a node.
@@ -174,7 +171,7 @@ public:
 		else if (side == RIGHT)
 			return m_sibRight;
 
-		return 0;
+		return nullptr;
 	}
 
 	/**
@@ -192,7 +189,7 @@ public:
 		else if (m_sibRight != other)
 			return m_sibRight;
 
-		return 0;
+		return nullptr;
 	}
 
 
@@ -256,12 +253,12 @@ public:
 	 */
 	SibDirection putSibling(PQNode<T,X,Y>* newSib)
 	{
-		if (m_sibLeft == 0) {
+		if (m_sibLeft == nullptr) {
 			m_sibLeft = newSib;
 			return LEFT;
 		}
 
-		OGDF_ASSERT(m_sibRight == 0);
+		OGDF_ASSERT(m_sibRight == nullptr);
 		m_sibRight = newSib;
 		return RIGHT;
 	}
@@ -289,13 +286,13 @@ public:
 
 		OGDF_ASSERT(preference == RIGHT);
 
-		if (m_sibRight == 0)
+		if (m_sibRight == nullptr)
 		{
 			m_sibRight = newSib;
 			return RIGHT;
 		}
 
-		OGDF_ASSERT(m_sibLeft == 0);
+		OGDF_ASSERT(m_sibLeft == nullptr);
 		m_sibLeft = newSib;
 		return LEFT;
 	}
@@ -309,7 +306,7 @@ public:
 	//! Sets the pointer \a m_pointerToInfo to the specified adress of \a pointerToInfo.
 	bool  setNodeInfo(PQNodeKey<T,X,Y>* pointerToInfo) {
 		m_pointerToInfo = pointerToInfo;
-		if (pointerToInfo != 0)
+		if (pointerToInfo != nullptr)
 		{
 			m_pointerToInfo->setNodePointer(this);
 			return true;
@@ -583,17 +580,17 @@ PQNode<T,X,Y>::PQNode(int count,PQNodeKey<T,X,Y>* infoPtr)
 	m_debugTreeNumber = 0;
 	m_parentType = 0;
 
-	m_parent = 0;
-	m_firstFull = 0;
-	m_sibLeft = 0;
-	m_sibRight = 0;
-	m_referenceChild = 0;
-	m_referenceParent = 0;
-	m_leftEndmost = 0;
-	m_rightEndmost = 0;
+	m_parent = nullptr;
+	m_firstFull = nullptr;
+	m_sibLeft = nullptr;
+	m_sibRight = nullptr;
+	m_referenceChild = nullptr;
+	m_referenceParent = nullptr;
+	m_leftEndmost = nullptr;
+	m_rightEndmost = nullptr;
 
-	fullChildren = OGDF_NEW List<PQNode<T,X,Y>*>;
-	partialChildren = OGDF_NEW List<PQNode<T,X,Y>*>;
+	fullChildren = new List<PQNode<T,X,Y>*>;
+	partialChildren = new List<PQNode<T,X,Y>*>;
 
 	m_pointerToInfo = infoPtr;
 	infoPtr->setNodePointer(this);
@@ -614,19 +611,19 @@ PQNode<T,X,Y>::PQNode(int count)
 	m_debugTreeNumber = 0;
 	m_parentType = 0;
 
-	m_parent = 0;
-	m_firstFull = 0;
-	m_sibLeft = 0;
-	m_sibRight = 0;
-	m_referenceChild = 0;
-	m_referenceParent = 0;
-	m_leftEndmost = 0;
-	m_rightEndmost = 0;
+	m_parent = nullptr;
+	m_firstFull = nullptr;
+	m_sibLeft = nullptr;
+	m_sibRight = nullptr;
+	m_referenceChild = nullptr;
+	m_referenceParent = nullptr;
+	m_leftEndmost = nullptr;
+	m_rightEndmost = nullptr;
 
-	fullChildren = OGDF_NEW List<PQNode<T,X,Y>*>;
-	partialChildren = OGDF_NEW List<PQNode<T,X,Y>*>;
+	fullChildren = new List<PQNode<T,X,Y>*>;
+	partialChildren = new List<PQNode<T,X,Y>*>;
 
-	m_pointerToInfo = 0;
+	m_pointerToInfo = nullptr;
 }
 
 }

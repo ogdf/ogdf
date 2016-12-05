@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/energybased/FMMMLayout.h>
@@ -41,6 +38,8 @@
 #include <ogdf/internal/energybased/Rectangle.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/basic.h>
+
+#include <cmath>
 
 namespace ogdf {
 
@@ -71,7 +70,7 @@ void FMMMLayout::call(ClusterGraphAttributes &GA)
 	for(edge e : G.edges)
 	{
 		edgeLength[e] = cdepth - CG.clusterDepth(CG.commonCluster(e->source(),e->target())) + 1;
-		OGDF_ASSERT(edgeLength[e] > 0)
+		OGDF_ASSERT(edgeLength[e] > 0);
 	}
 	call(GA,edgeLength);
 	GA.updateClusterPositions();
@@ -252,7 +251,7 @@ void FMMMLayout::call_POSTPROCESSING_step(
 	for(int i = 1; i<= 10; i++)
 		calculate_forces(G,A,E,F,F_attr,F_rep,last_node_movement,i,1);
 
-	if((resizeDrawing() == true))
+	if(resizeDrawing())
 	{
 		adapt_drawing_to_ideal_average_edgelength(G,A,E);
 		update_boxlength_and_cornercoordinate(G,A);
@@ -261,7 +260,7 @@ void FMMMLayout::call_POSTPROCESSING_step(
 	for(int i = 1; i<= fineTuningIterations(); i++)
 		calculate_forces(G,A,E,F,F_attr,F_rep,last_node_movement,i,2);
 
-	if((resizeDrawing() == true))
+	if(resizeDrawing())
 		adapt_drawing_to_ideal_average_edgelength(G,A,E);
 }
 
@@ -614,10 +613,12 @@ void FMMMLayout::update_edgelength(
 }
 
 
-//inline double FMMMLayout::get_post_rep_force_strength(int n)
-//{
-//	return min(0.2,400.0/double(n));
-//}
+#if 0
+inline double FMMMLayout::get_post_rep_force_strength(int n)
+{
+	return min(0.2,400.0/double(n));
+}
+#endif
 
 
 void FMMMLayout::make_positions_integer(Graph& G, NodeArray<NodeAttributes>& A)
@@ -914,7 +915,9 @@ void FMMMLayout::rotate_components_and_calculate_bounding_rectangles(
 {
 	Array<NodeArray<DPoint> > best_coords(number_of_components);
 	Array<NodeArray<DPoint> > old_coords(number_of_components);
-	//node v_sub;
+#if 0
+	node v_sub;
+#endif
 	Rectangle r_act, r_best;
 	DPoint new_pos, new_dlc;
 
@@ -1053,7 +1056,7 @@ inline int FMMMLayout::get_max_mult_iter(int act_level, int max_level, int node_
 			iter = fixedIterations() +  ((maxIterFactor()-1) * fixedIterations());
 		else
 			iter = fixedIterations() + int((double(act_level)/double(max_level) ) *
-			((maxIterFactor()-1)) * fixedIterations());
+			(maxIterFactor() - 1) * fixedIterations());
 	}
 	else //maxIterChange == micRapidlyDecreasing (rapidly decreasing values)
 	{
@@ -1249,7 +1252,7 @@ void FMMMLayout::calculate_attractive_forces(
 
 double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 {
-	double s;
+	double s(0);
 
 	switch (forceModel()) {
 	case fmFruchtermanReingold:
@@ -1261,12 +1264,12 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 			if (d == 0)
 				s = -1e10;
 			else
-				s =  c * Math::log2(d/ind_ideal_edge_length) /(ind_ideal_edge_length);
+				s =  c * std::log2(d/ind_ideal_edge_length) / ind_ideal_edge_length;
 			break;
 		}
 	case fmNew:
 		{
-			const double c =  Math::log2(d/ind_ideal_edge_length);
+			const double c =  std::log2(d/ind_ideal_edge_length);
 			if (d > 0)
 				s =  c * d * d /
 				(ind_ideal_edge_length * ind_ideal_edge_length * ind_ideal_edge_length);
@@ -1477,62 +1480,52 @@ void FMMMLayout::prevent_oscilations(
 				// prevent oszilations
 				// angle in [0,2pi) measured counterclockwise
 				double fi = angle(nullpoint,force_old,force_new);
-				if(((fi <= pi_times_1_over_6)||(fi >= pi_times_11_over_6))&&
-					((norm_new > (norm_old*2.0))) )
+				if( ( fi <= pi_times_1_over_6 || fi >= pi_times_11_over_6 ) && norm_new > norm_old*2.0 )
 				{
 					F[v].m_x = quot_old_new * 2.0 * F[v].m_x;
 					F[v].m_y = quot_old_new * 2.0 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_1_over_6)&&(fi <= pi_times_2_over_6)&&
-					(norm_new > (norm_old*1.5) ) )
+				else if ( fi >= pi_times_1_over_6 && fi <= pi_times_2_over_6 && norm_new > norm_old*1.5 )
 				{
 					F[v].m_x = quot_old_new * 1.5 * F[v].m_x;
 					F[v].m_y = quot_old_new * 1.5 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_2_over_6)&&(fi <= pi_times_3_over_6)&&
-					(norm_new > (norm_old)) )
+				else if ( fi >= pi_times_2_over_6 && fi <= pi_times_3_over_6 && norm_new > norm_old )
 				{
 					F[v].m_x = quot_old_new * F[v].m_x;
 					F[v].m_y = quot_old_new * F[v].m_y;
 				}
-				else if ((fi >= pi_times_3_over_6)&&(fi <= pi_times_4_over_6)&&
-					(norm_new > (norm_old*0.66666666)) )
+				else if ( fi >= pi_times_3_over_6 && fi <= pi_times_4_over_6 && norm_new > norm_old*0.66666666 )
 				{
 					F[v].m_x = quot_old_new * 0.66666666 * F[v].m_x;
 					F[v].m_y = quot_old_new * 0.66666666 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_4_over_6)&&(fi <= pi_times_5_over_6)&&
-					(norm_new > (norm_old*0.5)) )
+				else if ( fi >= pi_times_4_over_6 && fi <= pi_times_5_over_6 && norm_new > norm_old*0.5 )
 				{
 					F[v].m_x = quot_old_new * 0.5 * F[v].m_x;
 					F[v].m_y = quot_old_new * 0.5 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_5_over_6)&&(fi <= pi_times_7_over_6)&&
-					(norm_new > (norm_old*0.33333333)) )
+				else if ( fi >= pi_times_5_over_6 && fi <= pi_times_7_over_6 && norm_new > norm_old*0.33333333 )
 				{
 					F[v].m_x = quot_old_new * 0.33333333 * F[v].m_x;
 					F[v].m_y = quot_old_new * 0.33333333 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_7_over_6)&&(fi <= pi_times_8_over_6)&&
-					(norm_new > (norm_old*0.5)) )
+				else if ( fi >= pi_times_7_over_6 && fi <= pi_times_8_over_6 && norm_new > norm_old*0.5 )
 				{
 					F[v].m_x = quot_old_new * 0.5 * F[v].m_x;
 					F[v].m_y = quot_old_new * 0.5 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_8_over_6)&&(fi <= pi_times_9_over_6)&&
-					(norm_new > (norm_old*0.66666666)) )
+				else if ( fi >= pi_times_8_over_6 && fi <= pi_times_9_over_6 && norm_new > norm_old*0.66666666 )
 				{
 					F[v].m_x = quot_old_new * 0.66666666 * F[v].m_x;
 					F[v].m_y = quot_old_new * 0.66666666 * F[v].m_y;
 				}
-				else if ((fi >= pi_times_9_over_6)&&(fi <= pi_times_10_over_6)&&
-					(norm_new > (norm_old)) )
+				else if ( fi >= pi_times_9_over_6 && fi <= pi_times_10_over_6 && norm_new > norm_old )
 				{
 					F[v].m_x = quot_old_new * F[v].m_x;
 					F[v].m_y = quot_old_new * F[v].m_y;
 				}
-				else if ((fi >= pi_times_10_over_6)&&(fi <= pi_times_11_over_6)&&
-					(norm_new > (norm_old*1.5) ) )
+				else if ( fi >= pi_times_10_over_6 && fi <= pi_times_11_over_6 && norm_new > norm_old*1.5 )
 				{
 					F[v].m_x = quot_old_new * 1.5 * F[v].m_x;
 					F[v].m_y = quot_old_new * 1.5 * F[v].m_y;
@@ -1560,7 +1553,6 @@ double FMMMLayout::angle(DPoint& P, DPoint& Q, DPoint& R)
 	double norm  = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
 	double cosfi = (dx1*dx2+dy1*dy2) / sqrt(norm);
 
-	if (cosfi >=  1.0 ) fi = 0;
 	if (cosfi <= -1.0 ) fi = Math::pi;
 	else
 	{

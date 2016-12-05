@@ -39,8 +39,8 @@ typedef int COINRowIndex;
 enum COINSectionType { COIN_NO_SECTION, COIN_NAME_SECTION, COIN_ROW_SECTION,
 		       COIN_COLUMN_SECTION,
 		       COIN_RHS_SECTION, COIN_RANGES_SECTION, COIN_BOUNDS_SECTION,
-		       COIN_ENDATA_SECTION, COIN_EOF_SECTION, COIN_QUADRATIC_SECTION, 
-		       COIN_CONIC_SECTION,COIN_QUAD_SECTION,COIN_SOS_SECTION, 
+		       COIN_ENDATA_SECTION, COIN_EOF_SECTION, COIN_QUADRATIC_SECTION,
+		       COIN_CONIC_SECTION,COIN_QUAD_SECTION,COIN_SOS_SECTION,
 		       COIN_BASIS_SECTION,COIN_UNKNOWN_SECTION
 };
 
@@ -61,7 +61,7 @@ public:
 
   /**@name Constructor and destructor */
   //@{
-  /// Constructor expects file to be open 
+  /// Constructor expects file to be open
   /// This one takes gzFile if fp null
   CoinMpsCardReader ( CoinFileInput *input, CoinMpsIO * reader );
 
@@ -81,7 +81,7 @@ public:
       0 - what we expected (and processed so pointer moves past)
       1 - not what we expected
       leading blanks always ignored
-      input types 
+      input types
       0 - anything - stops on non blank card
       1 - name (in columnname)
       2 - value
@@ -98,11 +98,11 @@ public:
   inline void setWhichSection(COINSectionType section  ) {
     section_=section;
   }
-  /// Sees if free format. 
+  /// Sees if free format.
   inline bool freeFormat() const
   { return freeFormat_;}
   /// Sets whether free format.  Mainly for blank RHS etc
-  inline void setFreeFormat(bool yesNo) 
+  inline void setFreeFormat(bool yesNo)
   { freeFormat_=yesNo;}
   /// Only for first field on card otherwise BLANK_COLUMN
   /// e.g. COIN_E_ROW
@@ -191,7 +191,7 @@ protected:
   CoinMessageHandler * handler_;
   /// Messages
   CoinMessages messages_;
-  /// Current element as characters (only if strings allowed) 
+  /// Current element as characters (only if strings allowed)
   char valueString_[COIN_MAX_FIELD_LENGTH];
   /// Whether strings allowed
   bool stringsAllowed_;
@@ -201,7 +201,7 @@ public:
   //@{
   /// type - 0 normal, 1 INTEL IEEE, 2 other IEEE
   double osi_strtod(char * ptr, char ** output, int type);
-  /// remove blanks 
+  /// remove blanks
   static void strcpyAndCompress ( char *to, const char *from );
   ///
   static char * nextBlankOr ( char *image );
@@ -223,17 +223,17 @@ public:
 
   /**@name Constructor and destructor */
   //@{
-  /// Default constructor 
+  /// Default constructor
   CoinSet ( );
-  /// Constructor 
+  /// Constructor
   CoinSet ( int numberEntries, const int * which);
 
-  /// Copy constructor 
+  /// Copy constructor
   CoinSet (const CoinSet &);
-  
-  /// Assignment operator 
-  CoinSet & operator=(const CoinSet& rhs);  
-  
+
+  /// Assignment operator
+  CoinSet & operator=(const CoinSet& rhs);
+
   /// Destructor
   virtual ~CoinSet (  );
   //@}
@@ -242,16 +242,16 @@ public:
   /**@name gets */
   //@{
   /// Returns number of entries
-  inline int numberEntries (  ) const 
+  inline int numberEntries (  ) const
   { return numberEntries_;  }
   /// Returns type of set - 1 =SOS1, 2 =SOS2
-  inline int setType (  ) const 
+  inline int setType (  ) const
   { return setType_;  }
   /// Returns list of variables
-  inline const int * which (  ) const 
+  inline const int * which (  ) const
   { return which_;  }
   /// Returns weights
-  inline const double * weights (  ) const 
+  inline const double * weights (  ) const
   { return weights_;  }
   //@}
 
@@ -259,7 +259,7 @@ public:
   /**@name Use in sbb */
   //@{
   /// returns an object of type SbbObject
-  virtual SbbObject * sbbObject(SbbModel * model) const 
+  virtual SbbObject * sbbObject(SbbModel * model) const
   { return NULL;}
   //@}
 #endif
@@ -288,7 +288,7 @@ public:
 
   /**@name Constructor and destructor */
   //@{
-  /// Constructor 
+  /// Constructor
   CoinSosSet ( int numberEntries, const int * which, const double * weights, int type);
 
   /// Destructor
@@ -334,7 +334,7 @@ public:
 
    These methods return information about the problem held by the CoinMpsIO
    object.
-   
+
    Querying an object that has no data associated with it result in zeros for
    the number of rows and columns, and NULL pointers from the methods that
    return vectors.  Const pointers returned from any data-query method are
@@ -382,7 +382,7 @@ public:
 
     /** Get pointer to array[getNumRows()] of row ranges.
 
-	Given constraints with upper (rowupper) and/or lower (rowlower) bounds, 
+	Given constraints with upper (rowupper) and/or lower (rowlower) bounds,
 	the constraint range (rowrange) is set as
 	<ul>
           <li> if rowsense()[i] == 'R' then
@@ -419,7 +419,7 @@ public:
         is a binary or general integer variable.
     */
     bool isInteger(int columnNumber) const;
-  
+
     /** Returns array[getNumCols()] specifying if a variable is integer.
 
 	At present, simply coded as zero (continuous) and non-zero (integer)
@@ -440,7 +440,7 @@ public:
     const char * columnName(int index) const;
 
     /** Returns the index for the specified row name
-  
+
 	Returns -1 if the name is not found.
         Returns numberRows for the objective row and > numberRows for
 	dropped free rows.
@@ -448,13 +448,13 @@ public:
     int rowIndex(const char * name) const;
 
     /** Returns the index for the specified column name
-  
+
 	Returns -1 if the name is not found.
     */
     int columnIndex(const char * name) const;
 
     /** Returns the (constant) objective offset
-    
+
 	This is the RHS entry for the objective row
     */
     double objectiveOffset() const;
@@ -490,7 +490,7 @@ public:
     Methods to load a problem into the CoinMpsIO object.
 */
 //@{
-  
+
     /// Set the problem data
     void setMpsData(const CoinPackedMatrix& m, const double infinity,
 		     const double* collb, const double* colub,
@@ -562,14 +562,14 @@ public:
     inline double getSmallElementValue() const
     { return smallElement_;}
     inline void setSmallElementValue(double value)
-    { smallElement_=value;} 
+    { smallElement_=value;}
 //@}
 
 
 /** @name Methods for problem input and output
 
   Methods to read and write MPS format problem files.
-   
+
   The read and write methods return the number of errors that occurred during
   the IO operation, or -1 if no file is opened.
 
@@ -692,13 +692,13 @@ public:
     /// Return card reader object so can see what last card was e.g. QUADOBJ
     inline const CoinMpsCardReader * reader() const
     { return cardReader_;}
-  
+
     /** Read in a quadratic objective from the given filename.
 
       If filename is NULL (or the same as the currently open file) then
       reading continues from the current file.
       If not, the file is closed and the specified file is opened.
-      
+
       Code should be added to
       general MPS reader to read this if QSECTION
       Data is assumed to be Q and objective is c + 1/2 xT Q x
@@ -706,7 +706,7 @@ public:
       No check is made for duplicates or non-triangular if checkSymmetry==0.
       If 1 checks lower triangular (so off diagonal should be 2*Q)
       if 2 makes lower triangular and assumes full Q (but adds off diagonals)
-      
+
       Arrays should be deleted by delete []
 
       Returns number of errors:
@@ -724,7 +724,7 @@ public:
 			 int * &columnStart, int * &column, double * &elements,
 			 int checkSymmetry);
 
-    /** Read in a list of cones from the given filename.  
+    /** Read in a list of cones from the given filename.
 
       If filename is NULL (or the same as the currently open file) then
       reading continues from the current file.
@@ -753,15 +753,15 @@ public:
 /** @name Constructors and destructors */
 //@{
     /// Default Constructor
-    CoinMpsIO(); 
-      
-    /// Copy constructor 
+    CoinMpsIO();
+
+    /// Copy constructor
     CoinMpsIO (const CoinMpsIO &);
-  
-    /// Assignment operator 
+
+    /// Assignment operator
     CoinMpsIO & operator=(const CoinMpsIO& rhs);
-  
-    /// Destructor 
+
+    /// Destructor
     ~CoinMpsIO ();
 //@}
 
@@ -769,7 +769,7 @@ public:
 /**@name Message handling */
 //@{
   /** Pass in Message handler
-  
+
       Supply a custom message handler. It will not be destroyed when the
       CoinMpsIO object is destroyed.
   */
@@ -798,7 +798,7 @@ public:
 */
 //@{
     /** Release all information which can be re-calculated.
-    
+
 	E.g., row sense, copies of rows, hash tables for names.
     */
     void releaseRedundantInformation();
@@ -823,7 +823,7 @@ public:
   //@}
 
 protected:
-  
+
 /**@name Miscellaneous helper functions */
   //@{
 
@@ -843,13 +843,13 @@ protected:
 		      char const * const * const colnames,
 		      char const * const * const rownames);
 
-  
+
     /// Does the heavy lifting for destruct and assignment.
     void gutsOfDestructor();
 
     /// Does the heavy lifting for copy and assignment.
     void gutsOfCopy(const CoinMpsIO &);
-  
+
     /// Clears problem data from the CoinMpsIO object.
     void freeAll();
 
@@ -867,7 +867,7 @@ protected:
 			double& lower, double& upper) const;
 
   /** Deal with a filename
-  
+
     As the name says.
     Returns +1 if the file name is new, 0 if it's the same as before
     (i.e., matches fileName_), and -1 if there's an error and the file
@@ -879,7 +879,7 @@ protected:
   */
 
   int dealWithFileName(const char * filename,  const char * extension,
-		       CoinFileInput * &input); 
+		       CoinFileInput * &input);
   /** Add string to list
       iRow==numberRows is objective, nr+1 is lo, nr+2 is up
       iColumn==nc is rhs (can't cope with ranges at present)
@@ -889,7 +889,7 @@ protected:
   void decodeString(int iString, int & iRow, int & iColumn, const char * & value) const;
   //@}
 
-  
+
   // for hashing
   typedef struct {
     int index, next;
@@ -935,20 +935,20 @@ protected:
 
       /// Pointer to dense vector of row sense indicators
       mutable char    *rowsense_;
-  
+
       /// Pointer to dense vector of row right-hand side values
       mutable double  *rhs_;
-  
-      /** Pointer to dense vector of slack variable upper bounds for range 
+
+      /** Pointer to dense vector of slack variable upper bounds for range
           constraints (undefined for non-range rows)
       */
       mutable double  *rowrange_;
-   
+
       /// Pointer to row-wise copy of problem matrix coefficients.
-      mutable CoinPackedMatrix *matrixByRow_;  
+      mutable CoinPackedMatrix *matrixByRow_;
 
       /// Pointer to column-wise copy of problem matrix coefficients.
-      CoinPackedMatrix *matrixByColumn_;  
+      CoinPackedMatrix *matrixByColumn_;
 
       /// Pointer to dense vector of row lower bounds
       double * rowlower_;
@@ -995,7 +995,7 @@ protected:
     /** @name CoinMpsIO object parameters */
     //@{
       /// Upper bound when no bounds for integers
-      int defaultBound_; 
+      int defaultBound_;
 
       /// Value to use for infinity
       double infinity_;

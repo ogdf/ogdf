@@ -37,7 +37,7 @@
 namespace abacus {
 
 //! Implements a branching rule for modifying the lower and the upper bound of a variable.
-class  BoundBranchRule :  public BranchRule  {
+class OGDF_EXPORT BoundBranchRule : public BranchRule {
 public:
 
 	//! Creates a bound branch rule for given branching \a variable, lower bound \a lBound and upper bound \a uBound.

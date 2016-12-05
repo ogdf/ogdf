@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GraphML.h>
@@ -396,88 +393,104 @@ static void writeGraphMLCluster(
 
 bool GraphIO::writeGraphML(const Graph &G, std::ostream &out)
 {
-	pugi::xml_document doc;
+	bool result = out.good();
 
-	pugi::xml_node rootNode = writeGraphMLHeader(doc);
-	pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
+	if(result) {
+		pugi::xml_document doc;
 
-	for(node v : G.nodes) {
-		writeGraphMLNode(graphNode, v);
+		pugi::xml_node rootNode = writeGraphMLHeader(doc);
+		pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
+
+		for (node v : G.nodes) {
+			writeGraphMLNode(graphNode, v);
+		}
+
+		for (edge e : G.edges) {
+			writeGraphMLEdge(graphNode, e);
+		}
+
+		doc.save(out);
 	}
 
-	for(edge e : G.edges) {
-		writeGraphMLEdge(graphNode, e);
-	}
-
-	doc.save(out);
-
-	return true;
+	return result;
 }
 
 
 bool GraphIO::writeGraphML(const ClusterGraph &C, std::ostream &out)
 {
-	const Graph &G = C.constGraph();
-	pugi::xml_document doc;
+	bool result = out.good();
 
-	pugi::xml_node rootNode = writeGraphMLHeader(doc);
-	pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
+	if(result) {
+		const Graph &G = C.constGraph();
+		pugi::xml_document doc;
 
-	writeGraphMLCluster(graphNode, G, C.rootCluster(), 0);
+		pugi::xml_node rootNode = writeGraphMLHeader(doc);
+		pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
 
-	for(edge e : G.edges) {
-		writeGraphMLEdge(graphNode, e);
+		writeGraphMLCluster(graphNode, G, C.rootCluster(), 0);
+
+		for (edge e : G.edges) {
+			writeGraphMLEdge(graphNode, e);
+		}
+
+		doc.save(out);
 	}
 
-	doc.save(out);
-
-	return true;
+	return result;
 }
 
 
 bool GraphIO::writeGraphML(const GraphAttributes &GA, std::ostream &out)
 {
-	const Graph &G = GA.constGraph();
-	const std::string edgeDefault = GA.directed() ? "directed" : "undirected";
-	pugi::xml_document doc;
+	bool result = out.good();
 
-	pugi::xml_node rootNode = writeGraphMLHeader(doc);
-	defineGraphMLAttributes(rootNode, GA.attributes());
-	pugi::xml_node graphNode = writeGraphTag(rootNode, edgeDefault);
+	if(result) {
+		const Graph &G = GA.constGraph();
+		const std::string edgeDefault = GA.directed() ? "directed" : "undirected";
+		pugi::xml_document doc;
 
-	for(node v : G.nodes) {
-		writeGraphMLNode(graphNode, GA, v);
+		pugi::xml_node rootNode = writeGraphMLHeader(doc);
+		defineGraphMLAttributes(rootNode, GA.attributes());
+		pugi::xml_node graphNode = writeGraphTag(rootNode, edgeDefault);
+
+		for (node v : G.nodes) {
+			writeGraphMLNode(graphNode, GA, v);
+		}
+
+		for (edge e : G.edges) {
+			writeGraphMLEdge(graphNode, GA, e);
+		}
+
+		doc.save(out);
 	}
 
-	for(edge e : G.edges) {
-		writeGraphMLEdge(graphNode, GA, e);
-	}
-
-	doc.save(out);
-
-	return true;
+	return result;
 }
 
 
 bool GraphIO::writeGraphML(const ClusterGraphAttributes &CA, std::ostream &out)
 {
-	const Graph &G = CA.constGraph();
-	const ClusterGraph &C = CA.constClusterGraph();
-	pugi::xml_document doc;
+	bool result = out.good();
 
-	pugi::xml_node rootNode = writeGraphMLHeader(doc);
-	defineGraphMLAttributes(rootNode, CA.attributes());
-	defineGraphMLAttribute(rootNode, "node", toString(graphml::a_clusterStroke), "string");
-	pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
-	writeGraphMLCluster(graphNode, CA, C.rootCluster(), 0);
+	if(result) {
+		const Graph &G = CA.constGraph();
+		const ClusterGraph &C = CA.constClusterGraph();
+		pugi::xml_document doc;
 
-	for(edge e : G.edges) {
-		writeGraphMLEdge(graphNode, CA, e);
+		pugi::xml_node rootNode = writeGraphMLHeader(doc);
+		defineGraphMLAttributes(rootNode, CA.attributes());
+		defineGraphMLAttribute(rootNode, "node", toString(graphml::a_clusterStroke), "string");
+		pugi::xml_node graphNode = writeGraphTag(rootNode, "directed");
+		writeGraphMLCluster(graphNode, CA, C.rootCluster(), 0);
+
+		for (edge e : G.edges) {
+			writeGraphMLEdge(graphNode, CA, e);
+		}
+
+		doc.save(out);
 	}
 
-	doc.save(out);
-
-	return true;
+	return result;
 }
 
 

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,19 +25,16 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/EdgeInsertionModule.h>
 #include <ogdf/module/CrossingMinimizationModule.h>
 #include <ogdf/module/PlanarSubgraphModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/basic/Logger.h>
 
 #include <random>
@@ -137,13 +134,13 @@ public:
 
 
 	//! Sets the module option for the computation of the planar subgraph.
-	void setSubgraph(PlanarSubgraphModule *pSubgraph) {
-		m_subgraph.set(pSubgraph);
+	void setSubgraph(PlanarSubgraphModule<int> *pSubgraph) {
+		m_subgraph.reset(pSubgraph);
 	}
 
 	//! Sets the module option for the edge insertion module.
 	void setInserter(EdgeInsertionModule *pInserter) {
-		m_inserter.set(pInserter);
+		m_inserter.reset(pInserter);
 	}
 
 	//! Returns the number of permutations.
@@ -182,8 +179,8 @@ private:
 		std::minstd_rand &rng,
 		int &crossingNumber);
 
-	ModuleOption<PlanarSubgraphModule>  m_subgraph; //!< The planar subgraph algorithm.
-	ModuleOption<EdgeInsertionModule>   m_inserter; //!< The edge insertion module.
+	std::unique_ptr<PlanarSubgraphModule<int>>  m_subgraph; //!< The planar subgraph algorithm.
+	std::unique_ptr<EdgeInsertionModule>   m_inserter; //!< The edge insertion module.
 
 	int m_permutations;	//!< The number of permutations.
 	bool m_setTimeout;	//!< The option for setting timeouts in submodules.

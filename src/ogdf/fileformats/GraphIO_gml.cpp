@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -81,9 +78,9 @@ static void writeLongString(ostream &os, const string &str)
 	os << "\"";
 
 	int num = 1;
-	for(string::size_type p = 0; p < str.size(); ++p)
+	for(auto &elem : str)
 	{
-		switch(str[p]) {
+		switch(elem) {
 		case '\\':
 			os << "\\\\";
 			num += 2;
@@ -100,7 +97,7 @@ static void writeLongString(ostream &os, const string &str)
 			break;
 
 		default:
-			os << str[p];
+			os << elem;
 			++num;
 		}
 
@@ -390,56 +387,72 @@ static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d,
 // write Graph
 bool GraphIO::writeGML(const Graph &G, ostream &os)
 {
-	write_gml_header(os,true);
-	NodeArray<int> index(G);
-	write_gml_graph(G, os, index);
-	write_gml_footer(os);
+	bool result = os.good();
 
-	return true;
+	if(result) {
+		write_gml_header(os, true);
+		NodeArray<int> index(G);
+		write_gml_graph(G, os, index);
+		write_gml_footer(os);
+	}
+
+	return result;
 }
 
 
 // write ClusterGraph
 bool GraphIO::writeGML(const ClusterGraph &C, ostream &os)
 {
-	const Graph &G = C.constGraph();
+	bool result = os.good();
 
-	write_gml_header(os,true);
-	NodeArray<int> index(G);
-	write_gml_graph(G, os, index);
-	write_gml_footer(os);
+	if(result) {
+		const Graph &G = C.constGraph();
 
-	int nextClusterIndex = 0;
-	write_gml_cluster(C.rootCluster(), 1, os, index, nextClusterIndex);
+		write_gml_header(os,true);
+		NodeArray<int> index(G);
+		write_gml_graph(G, os, index);
+		write_gml_footer(os);
 
-	return true;
+		int nextClusterIndex = 0;
+		write_gml_cluster(C.rootCluster(), 1, os, index, nextClusterIndex);
+	}
+
+	return result;
 }
 
 
 // write GraphAttributes
 bool GraphIO::writeGML(const GraphAttributes &A, ostream &os)
 {
-	write_gml_header(os, A.directed());
-	NodeArray<int> index(A.constGraph());
-	write_gml_graph(A, os, index);
-	write_gml_footer(os);
+	bool result = os.good();
 
-	return true;
+	if(result) {
+		write_gml_header(os, A.directed());
+		NodeArray<int> index(A.constGraph());
+		write_gml_graph(A, os, index);
+		write_gml_footer(os);
+	}
+
+	return result;
 }
 
 
 // write ClusterGraphAttributes
 bool GraphIO::writeGML(const ClusterGraphAttributes &A, ostream &os)
 {
-	write_gml_header(os, A.directed());
-	NodeArray<int> index(A.constGraph());
-	write_gml_graph(A, os, index);
-	write_gml_footer(os);
+	bool result = os.good();
 
-	int nextClusterIndex = 0;
-	write_gml_cluster(A, A.constClusterGraph().rootCluster(), 1, os, index, nextClusterIndex);
+	if(result) {
+		write_gml_header(os, A.directed());
+		NodeArray<int> index(A.constGraph());
+		write_gml_graph(A, os, index);
+		write_gml_footer(os);
 
-	return true;
+		int nextClusterIndex = 0;
+		write_gml_cluster(A, A.constClusterGraph().rootCluster(), 1, os, index, nextClusterIndex);
+	}
+
+	return result;
 }
 
 

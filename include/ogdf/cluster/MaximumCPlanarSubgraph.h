@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -44,6 +41,9 @@
 
 #include <ogdf/external/abacus.h>
 
+#include <chrono>
+#include <sstream>
+
 namespace ogdf {
 
 //! Exact computation of a maximum c-planar subgraph.
@@ -52,19 +52,6 @@ namespace ogdf {
  */
 class OGDF_EXPORT MaximumCPlanarSubgraph : public CPlanarSubgraphModule
 {
-
-#ifndef USE_ABACUS
-protected:
-	virtual ReturnType doCall(
-		const ClusterGraph &G,
-		List<edge> &delEdges)
-	{
-		THROW_NO_ABACUS_EXCEPTION;
-		return retError;
-	}
-};
-#else // USE_ABACUS
-
 public:
 	//! Construction
 	MaximumCPlanarSubgraph() : m_heuristicLevel(1),
@@ -95,7 +82,8 @@ public:
 							   m_numLPs(-1),
 							   m_numBCs(-1),
 							   m_numSubSelected(-1),
-							   m_portaOutput(false) {}
+							   m_portaOutput(false),
+							   m_defaultCutPool(true) {}
 	//destruction
 	~MaximumCPlanarSubgraph() {}
 
@@ -107,9 +95,18 @@ public:
 	//! up by setting setCheckCPlanar(2). Then, in case G is not c-planar,
 	//! the list of deleted edges does not need to correspond
 	//! to a valid solution, it just indicates the result.
-	ReturnType call(const ClusterGraph &G, List<edge> &delEdges,
-		List<nodePair> &addedEdges) {
-			return doCall(G, delEdges, addedEdges);
+	/*
+	 * @param ClusterGraph the graph that we want to compute a subgraph of
+	 * @param pCost the cost of each edge or \c nullptr if edges should have uniform cost
+	 * @param delEdges contains all deleted edges after the call
+	 * @param addedEdges the set of edges that makes the subgraph connected
+	 */
+	ReturnType callAndConnect(
+			const ClusterGraph &G,
+			const EdgeArray<int> *pCost,
+			List<edge> &delEdges,
+			List<nodePair> &addedEdges) {
+		return doCall(G, pCost, delEdges, addedEdges);
 	}
 	//setter methods for the  module parameters
 	void setHeuristicLevel(int i) {m_heuristicLevel = i;}
@@ -124,6 +121,20 @@ public:
 	void setPerturbation(bool b) {m_perturbation = b;}
 	void setBranchingGap(double d) {m_branchingGap = d;}
 	void setTimeLimit(string s) {m_time = s.c_str();}
+	void setTimeLimit(std::chrono::milliseconds milliSec) {
+		// format string only supports seconds
+		OGDF_ASSERT( milliSec.count() >= 1000 );
+		// transform to format string
+		std::chrono::milliseconds remaining(milliSec);
+		auto h = std::chrono::duration_cast<std::chrono::hours>(remaining);
+		remaining -= h;
+		auto m = std::chrono::duration_cast<std::chrono::minutes>(remaining);
+		remaining -= m;
+		auto s = std::chrono::duration_cast<std::chrono::seconds>(remaining);
+		std::stringstream ss;
+		ss << h.count() << ":" << m.count() << ":" << s.count();
+		setTimeLimit(ss.str());
+	}
 	void setPortaOutput(bool b) {m_portaOutput = b;}
 	void setPricing(bool b) { m_pricing = b;}
 	void setCheckCPlanar(bool b) {m_checkCPlanar = b;}
@@ -167,19 +178,23 @@ protected:
 	//! set of edges that have to be deleted in delEdges
 	//! if delEdges is empty on return, the clustered
 	//! graph G is c-planar
-	virtual ReturnType doCall(const ClusterGraph &G,
+	virtual ReturnType doCall(
+		const ClusterGraph &G,
+		const EdgeArray<int> *pCost,
 		List<edge> &delEdges) override
 	{
 		List<nodePair> addEdges;
-		return doCall(G, delEdges, addEdges);
+		return doCall(G, pCost, delEdges, addEdges);
 	}
 
 	//as above, also returns the set of edges that were
 	//added to construct a completely connected planar
 	//graph that contains the computed c-planar subgraph
-	virtual ReturnType doCall(const ClusterGraph &G,
-		List<edge> &delEdges,
-		List<nodePair> &addedEdges);
+	virtual ReturnType doCall(
+			const ClusterGraph &G,
+			const EdgeArray<int> *pCost,
+			List<edge> &delEdges,
+			List<nodePair> &addedEdges);
 
 	double getDoubleTime(const Stopwatch &act)
 	{
@@ -242,7 +257,5 @@ private:
 #endif
 
 };
-
-#endif // USE_ABACUS
 
 } //end namespace ogdf

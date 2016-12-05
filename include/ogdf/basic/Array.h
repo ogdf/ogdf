@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -60,7 +57,9 @@ template<class E, class INDEX = int> class Array {
 public:
 	//! Threshold used by \a quicksort() such that insertion sort is
 	//! called for instances smaller than \a maxSizeInsertionSort.
-	enum { maxSizeInsertionSort = 40 };
+	enum {
+		maxSizeInsertionSort = 40 ///< insertion sort is used for instances smaller than \a maxSizeInsertionSort
+	};
 
 	//! Represents the data type stored in an array element.
 	typedef E value_type;
@@ -116,7 +115,7 @@ public:
 	//! Creates an array that is a copy of \a A. The array-size is set to be the number of elements (not the capacity) of the buffer.
 	Array(const ArrayBuffer<E,INDEX> &A);
 
-	// destruction
+	//! Destruction
 	~Array() {
 		deconstruct();
 	}
@@ -136,17 +135,20 @@ public:
 	//! Returns the size (number of elements) of the array.
 	INDEX size() const { return m_high - m_low + 1; }
 
+	//! Returns \c true iff there are no elements in the array.
+	bool empty() const { return size() == 0; }
+
 	//! Returns a reference to the element at position \a i.
 	const_reference operator[](INDEX i) const {
 		OGDF_ASSERT(m_low <= i);
-		OGDF_ASSERT(i <= m_high)
+		OGDF_ASSERT(i <= m_high);
 		return m_vpStart[i];
 	}
 
 	//! Returns a reference to the element at position \a i.
 	reference operator[](INDEX i) {
 		OGDF_ASSERT(m_low <= i);
-		OGDF_ASSERT(i <= m_high)
+		OGDF_ASSERT(i <= m_high);
 		return m_vpStart[i];
 	}
 
@@ -241,9 +243,9 @@ public:
 	//! Sets elements in the intervall [\a i..\a j] to \a x.
 	void fill(INDEX i, INDEX j, const E &x) {
 		OGDF_ASSERT(m_low <= i);
-		OGDF_ASSERT(i <= m_high)
+		OGDF_ASSERT(i <= m_high);
 		OGDF_ASSERT(m_low <= j);
-		OGDF_ASSERT(j <= m_high)
+		OGDF_ASSERT(j <= m_high);
 
 		E *pI = m_vpStart + i, *pJ = m_vpStart + j+1;
 		while(pJ > pI)
@@ -315,9 +317,9 @@ public:
 	//! Swaps the elements at position \a i and \a j.
 	void swap(INDEX i, INDEX j) {
 		OGDF_ASSERT(m_low <= i);
-		OGDF_ASSERT(i <= m_high)
+		OGDF_ASSERT(i <= m_high);
 		OGDF_ASSERT(m_low <= j);
-		OGDF_ASSERT(j <= m_high)
+		OGDF_ASSERT(j <= m_high);
 
 		std::swap(m_vpStart[i], m_vpStart[j]);
 	}
@@ -333,11 +335,19 @@ public:
 		permute(low(), high());
 	}
 
-	//! Randomly permutes the subarray with index set [\a l..\a r] using random number generator \a rng.
+	/**
+	 * Randomly permutes the subarray with index set [\a l..\a r] using random number generator \a rng.
+	 * @param l left border
+	 * @param r right border
+	 * @param rng random number generator
+	 */
 	template<class RNG>
 	void permute(INDEX l, INDEX r, RNG &rng);
 
-	//! Randomly permutes the array using random number generator \a rng.
+	/**
+	 * Randomly permutes the array using random number generator \a rng.
+	 * @param rng random number generator
+	 */
 	template<class RNG>
 	void permute(RNG &rng) {
 		permute(low(), high(), rng);
@@ -563,14 +573,11 @@ void Array<E, INDEX>::expandArray(INDEX add)
 
 	// expand allocated memory block
 	if (m_pStart != nullptr) {
-
 		// if the element type is trivially copiable, just use realloc
-#ifdef __GLIBCXX__
-#if __GNUC__ >= 5
-        if (std::is_trivially_copy_assignable<E>::value) {
-#else
-        if (std::has_trivial_copy_assign<E>::value) {
-#endif
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 5
+		// g++ 4.8/4.9 does not have is_trivially_copyable, but
+		// clang 3.5 (which is also __GNUC__ < 5) has it
+		if (std::has_trivial_copy_assign<E>::value) {
 #else
 		if (std::is_trivially_copyable<E>::value) {
 #endif
@@ -717,7 +724,9 @@ void Array<E,INDEX>::copy(const Array<E,INDEX> &array2)
 		E *pSrc = array2.m_pStop;
 		E *pDest = m_pStop;
 		while(pDest > m_pStart)
-			//*--pDest = *--pSrc;
+#if 0
+			*--pDest = *--pSrc;
+#endif
 			new (--pDest) E(*--pSrc);
 	}
 }
@@ -741,7 +750,12 @@ void Array<E,INDEX>::permute (INDEX l, INDEX r, RNG &rng)
 }
 
 
-// prints array a to output stream os using delimiter delim
+/**
+ * Prints array \a a to output stream \a os using delimiter \a delim.
+ * @param os output stream
+ * @param a Array
+ * @param delim delimiter
+ */
 template<class E, class INDEX>
 void print(ostream &os, const Array<E,INDEX> &a, char delim = ' ')
 {
@@ -752,7 +766,7 @@ void print(ostream &os, const Array<E,INDEX> &a, char delim = ' ')
 }
 
 
-// output operator
+//! Prints array \a a to output stream \a os.
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const ogdf::Array<E,INDEX> &a)
 {
@@ -772,17 +786,13 @@ void Array<E,INDEX>::leftShift(ArrayBuffer<INDEX, INDEX> &ind) {
 	if (nInd == 0) return;
 
 	//! shift all items up to the last element of \a ind to the left
-#ifdef OGDF_DEBUG
-	if(ind[0] < low() || ind[0] > high())
-		OGDF_THROW_PARAM(AlgorithmFailureException, afcIndexOutOfBounds);
-#endif
+	OGDF_ASSERT(ind[0] >= low());
+	OGDF_ASSERT(ind[0] <= high());
 
 	INDEX j, current = ind[0];
 	for (INDEX i = 0; i < nInd - 1; i++) {
-#ifdef OGDF_DEBUG
-		if(ind[i+1] < low() || ind[i+1] > high())
-			OGDF_THROW_PARAM(AlgorithmFailureException, afcIndexOutOfBounds);
-#endif
+		OGDF_ASSERT(ind[i+1] >= low());
+		OGDF_ASSERT(ind[i+1] <= high());
 
 		const INDEX last = ind[i+1];
 		for(j = ind[i]+1; j < last; j++)

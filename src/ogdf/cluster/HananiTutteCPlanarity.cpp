@@ -1,37 +1,34 @@
 /** \file
-* \brief Implements class HananiTutteCPlanarity, which represents a
-*        c-planarity test based on the Hanani-Tutte theorem.
-*
-* \author Carsten Gutwenger
-*
-* \par License:
-* This file is part of the Open Graph Drawing Framework (OGDF).
-*
-* \par
-* Copyright (C)<br>
-* See README.txt in the root directory of the OGDF installation for details.
-*
-* \par
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* Version 2 or 3 as published by the Free Software Foundation;
-* see the file LICENSE.txt included in the packaging of this file
-* for details.
-*
-* \par
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* \par
-* You should have received a copy of the GNU General Public
-* License along with this program; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-* Boston, MA 02110-1301, USA.
-*
-* \see  http://www.gnu.org/copyleft/gpl.html
-***************************************************************/
+ * \brief Implements class HananiTutteCPlanarity, which represents a
+ *        c-planarity test based on the Hanani-Tutte theorem.
+ *
+ * \author Carsten Gutwenger
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/cluster/HananiTutteCPlanarity.h>
 #include <ogdf/basic/GF2Solver.h>
@@ -119,16 +116,16 @@ namespace ogdf {
 
 			bool operator<(const Object &other) const {
 				if(m_t != other.m_t)
-					return ( m_t < other.m_t );
+					return m_t < other.m_t;
 				if(m_st != other.m_st)
-					return ( m_st < other.m_st );
+					return m_st < other.m_st;
 
 				if(m_v != other.m_v) {
 					if(other.m_v == nullptr)
 						return true;
 					if(m_v == nullptr)
 						return false;
-					return ( m_v->index() < other.m_v->index() );
+					return m_v->index() < other.m_v->index();
 				}
 
 				if(m_e != other.m_e) {
@@ -136,7 +133,7 @@ namespace ogdf {
 						return true;
 					if(m_e == nullptr)
 						return false;
-					return ( m_e->index() < other.m_e->index() );
+					return m_e->index() < other.m_e->index();
 				}
 
 				if(m_c != other.m_c) {
@@ -144,7 +141,7 @@ namespace ogdf {
 						return true;
 					if(m_c == nullptr)
 						return false;
-					return ( m_c->index() < other.m_c->index() );
+					return m_c->index() < other.m_c->index();
 				}
 
 				if(m_c2 != other.m_c2) {
@@ -152,7 +149,7 @@ namespace ogdf {
 						return true;
 					if(m_c2 == nullptr)
 						return false;
-					return ( m_c2->index() < other.m_c2->index() );
+					return m_c2->index() < other.m_c2->index();
 				}
 
 				return false;
@@ -166,16 +163,20 @@ namespace ogdf {
 				size_t hc  = std::hash<int>()( (obj.m_c  == nullptr) ? -1 : obj.m_c ->index() );
 				size_t hc2 = std::hash<int>()( (obj.m_c2 == nullptr) ? -1 : obj.m_c2->index() );
 
-				//size_t hv = std::hash<void*>()(obj.m_v);
-				//size_t he = std::hash<void*>()(obj.m_e);
-				//size_t hc = std::hash<void*>()(obj.m_c);
-				//size_t hc2 = std::hash<void*>()(obj.m_c2);
+#if 0
+				size_t hv = std::hash<void*>()(obj.m_v);
+				size_t he = std::hash<void*>()(obj.m_e);
+				size_t hc = std::hash<void*>()(obj.m_c);
+				size_t hc2 = std::hash<void*>()(obj.m_c2);
+#endif
 				size_t ht = std::hash<uint32_t>()(static_cast<uint32_t>(obj.m_t) + (static_cast<uint32_t>(obj.m_st) << 4));
 				return hv ^ he ^ hc ^ hc2 ^ ht;
 			}
 		};
 
-		//typedef unordered_map<Object,int,ObjectHash> ObjectTable;
+#if 0
+		typedef unordered_map<Object,int,ObjectHash> ObjectTable;
+#endif
 		typedef map<Object,int> ObjectTable;
 
 		CLinearSystem() : m_ox() {
@@ -190,7 +191,9 @@ namespace ogdf {
 
 		int addTrivialEquation();
 
-		//const unordered_map<Object,int,ObjectHash> &objects() const {
+#if 0
+		const unordered_map<Object,int,ObjectHash> &objects() const {
+#endif
 		const map<Object,int> &objects() const {
 			return m_ox;
 		}
@@ -275,7 +278,9 @@ namespace ogdf {
 
 		int c = m_matrix.addColumn();
 		m_mx[p] = c;
-		//cout << "(" << p.first << "," << p.second << ") : " << c << endl;
+#if 0
+		cout << "(" << p.first << "," << p.second << ") : " << c << endl;
+#endif
 
 		return c;
 	}
@@ -609,7 +614,7 @@ namespace ogdf {
 				return true;
 
 		if(obj12 == obj21 || obj12 == obj22)
-			return (obj11.m_t == Type::vertex && obj11.m_st == SubType::cluster);
+			return obj11.m_t == Type::vertex && obj11.m_st == SubType::cluster;
 
 		return false;
 	}
@@ -623,7 +628,7 @@ namespace ogdf {
 		if(!(eo->m_t == Type::edge && (eo->m_st == SubType::innerCluster || eo->m_st == SubType::outerCluster) ))
 			return false;
 
-		return (m_cbeRot[eo->m_c].search(eo->m_e).valid());
+		return m_cbeRot[eo->m_c].search(eo->m_e).valid();
 	}
 
 
@@ -646,7 +651,7 @@ namespace ogdf {
 			OGDF_ASSERT(p1 != -1);
 			OGDF_ASSERT(p2 != -1);
 
-			return ( p1 > p2 );
+			return p1 > p2;
 		}
 
 		const List<edge> &rot_c = m_cbeRot[c];
@@ -655,7 +660,7 @@ namespace ogdf {
 
 		if(p1 != -1) {
 			if(p2 != -1)
-				return ( p1 > p2 );
+				return p1 > p2;
 			else
 				return true;
 
@@ -669,7 +674,7 @@ namespace ogdf {
 			OGDF_ASSERT(p1 != -1);
 			OGDF_ASSERT(p2 != -1);
 
-			return ( p1 > p2 );
+			return p1 > p2;
 		}
 	}
 
@@ -686,7 +691,7 @@ namespace ogdf {
 		switch (st1) {
 		case SubType::vertex:
 			if (st2 == SubType::vertex) {
-				return (vo1.m_v->index() < vo2.m_v->index());
+				return vo1.m_v->index() < vo2.m_v->index();
 			} else {
 				return true;
 			}
@@ -709,7 +714,7 @@ namespace ogdf {
 				if (vo1.m_c == vo2.m_c) {
 					return bdbefore(vo1.m_e, vo2.m_e, vo1.m_c);
 				} else {
-					return (vo1.m_c->index() < vo2.m_c->index());
+					return vo1.m_c->index() < vo2.m_c->index();
 				}
 			}
 
@@ -932,10 +937,10 @@ namespace ogdf {
 
 	void HananiTutteCPlanarity::CGraph::createSparse()
 	{
-		for(auto it2 = m_aff.begin(); it2 != m_aff.end(); ++it2) {
-			const CLinearSystem::Object *eo2 = it2->first;
+		for(auto &elem : m_aff) {
+			const CLinearSystem::Object *eo2 = elem.first;
 
-			for(const auto &p : it2->second) {
+			for(const auto &p : elem.second) {
 				const CLinearSystem::Object *eo1 = p.first;
 
 				// TODO for given Rot: add condition wrt fixed and cAdjacent here! [DONE]
@@ -1015,7 +1020,6 @@ namespace ogdf {
 
 			case Solver::ILP:
 				{
-#ifdef USE_ABACUS
 				ClusterPlanarity cPlanarity;
 					cPlanarity.setTimeLimit("00:10:00");
 					bool icp = cPlanarity.isClusterPlanar(H);
@@ -1034,10 +1038,6 @@ namespace ogdf {
 					if (m_status != Status::applyILP)
 						return Verification::timeout;
 					return (icp == true) ? Verification::cPlanarVerified : Verification::nonCPlanarVerified;
-
-#else
-				OGDF_THROW_PARAM(LibraryNotSupportedException, lnscAbacus);
-#endif
 				}
 			}
 
@@ -1079,7 +1079,6 @@ namespace ogdf {
 
 				case Solver::ILP:
 					{
-#ifdef USE_ABACUS
 						ClusterPlanarity cPlanarity;
 						cPlanarity.setTimeLimit("00:10:00");
 						bool icp = cPlanarity.isClusterPlanar(H);
@@ -1098,10 +1097,6 @@ namespace ogdf {
 						if (m_status != Status::applyILP)
 							return Verification::timeout;
 						return (icp == true) ? Verification::cPlanarVerified : Verification::nonCPlanarVerified;
-
-#else
-						OGDF_THROW_PARAM(LibraryNotSupportedException, lnscAbacus);
-#endif
 					}
 				}
 			}

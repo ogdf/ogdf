@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/SEGV_ForceModel.h>
 
@@ -40,7 +37,8 @@
 #include <ogdf/basic/Barrier.h>
 #include <ogdf/basic/Thread.h>
 #include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/basic/Math.h>
+
+#include <cmath>
 #include <random>
 
 
@@ -551,7 +549,7 @@ void SpringEmbedderGridVariant::Master::computeFinalBB()
 void SpringEmbedderGridVariant::Master::coolDown()
 {
 	m_cF += m_spring.forceLimitStep();
-	m_t = m_tNull / Math::log2(m_cF);
+	m_t = m_tNull / std::log2(m_cF);
 
 	m_coolingFactor *= m_spring.coolDownFactor();
 }
@@ -603,13 +601,14 @@ void SpringEmbedderGridVariant::Master::scaleLayout(double sumLengths)
 
 void SpringEmbedderGridVariant::call(GraphAttributes &AG)
 {
-	//static int i = 0;
+#if 0
+	static int i = 0;
 
-	//string inputfilename = "input_" + to_string(i) + ".gml";
-	//string outputfilename = "output_" + to_string(i++) + ".gml";
+	string inputfilename = "input_" + to_string(i) + ".gml";
+	string outputfilename = "output_" + to_string(i++) + ".gml";
 
-	//GraphIO::writeGML(AG, inputfilename);
-
+	GraphIO::writeGML(AG, inputfilename);
+#endif
 
 	const Graph &G = AG.constGraph();
 	if(G.empty())

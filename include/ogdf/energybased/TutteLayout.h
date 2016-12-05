@@ -19,7 +19,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -36,12 +36,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -49,9 +46,7 @@
 #include <ogdf/basic/geometry.h>
 #include <ogdf/external/coin.h>
 
-#ifdef USE_COIN
 #include <coin/CoinPackedMatrix.hpp>
-#endif
 
 namespace ogdf {
 
@@ -61,15 +56,6 @@ namespace ogdf {
  */
 class OGDF_EXPORT TutteLayout : public LayoutModule
 {
-#ifndef USE_COIN
-public:
-
-	void call(GraphAttributes &AG) { THROW_NO_COIN_EXCEPTION; }
-	void call(GraphAttributes &AG, const List<node>& givenNodes) { THROW_NO_COIN_EXCEPTION; }
-
-};
-
-#else // USE_COIN
 public:
 
 	TutteLayout();
@@ -85,7 +71,6 @@ public:
 
 	virtual void call(GraphAttributes &AG) override;
 	void call(GraphAttributes &AG, const List<node> &givenNodes);
-	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 private:
 
@@ -114,7 +99,5 @@ private:
 
 	DRect m_bbox;
 };
-
-#endif // USE_COIN
 
 } // end namespace ogdf

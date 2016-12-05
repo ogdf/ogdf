@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -52,18 +49,6 @@ namespace ogdf {
  */
 class OGDF_EXPORT ClusterPlanarity : public ClusterPlanarModule
 {
-
-#ifndef USE_ABACUS
-protected:
-	virtual bool doTest(const ClusterGraph &CG) override
-	{
-		THROW_NO_ABACUS_EXCEPTION;
-		return false;
-	}
-
-};
-#else // USE_ABACUS
-
 public:
 
 	//! Solution method, fallback to old version (allowing all extension edges,
@@ -177,7 +162,9 @@ protected:
 
 	// Performs a c-planarity test using only a reduced set
 	// of allowed extension edges, returns c-planarity status
-	// virtual bool doFastTest(const ClusterGraph &G);
+#if 0
+	virtual bool doFastTest(const ClusterGraph &G);
+#endif
 
 	double getDoubleTime(const Stopwatch &act)
 	{
@@ -242,7 +229,5 @@ private:
 #endif
 
 };
-
-#endif // USE_ABACUS
 
 } //end namespace ogdf

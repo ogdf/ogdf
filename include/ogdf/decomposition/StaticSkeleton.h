@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -83,13 +80,13 @@ public:
 
 
 	//! Returns the owner tree \a T.
-	const SPQRTree &owner() const;
+	const SPQRTree &owner() const override;
 
 	//! Returns the vertex in the original graph \a G that corresponds to \a v.
 	/**
 	 * \pre \a v is a node in \a M.
 	 */
-	node original (node v) const {
+	node original (node v) const override {
 		return m_orig[v];
 	}
 
@@ -97,8 +94,8 @@ public:
 	/**
 	 * \pre \a e is an edge in \a M
 	 */
-	bool isVirtual (edge e) const {
-		return (m_real[e] == 0);
+	bool isVirtual (edge e) const override {
+		return m_real[e] == nullptr;
 	}
 
 	//! Returns the real edge that corresponds to skeleton edge \a e
@@ -106,7 +103,7 @@ public:
 	 * If \a e is virtual edge, then 0 is returned.
 	 * \pre \a e is an edge in \a M
 	 */
-	edge realEdge (edge e) const {
+	edge realEdge (edge e) const override {
 		return m_real[e];
 	}
 
@@ -115,14 +112,14 @@ public:
 	 * If \a e is not a virtual edge, then 0 is returned.
 	 * \pre \a e is an edge in \a M
 	 */
-	edge twinEdge (edge e) const;
+	edge twinEdge (edge e) const override;
 
 	//! Returns the tree node in T containing the twin edge of skeleton edge \a e.
 	/**
 	 * If \a e is not a virtual edge, then 0 is returned.
 	 * \pre \a e is an edge in \a M
 	 */
-	node twinTreeNode (edge e) const;
+	node twinTreeNode (edge e) const override;
 
 	//! Returns the tree edge which is associated with skeleton edge \a e.
 	/**

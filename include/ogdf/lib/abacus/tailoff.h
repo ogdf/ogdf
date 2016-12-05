@@ -67,7 +67,7 @@ public:
 		if (master->tailOffNLp() > 0)
 			lpHistory_ = new AbaRing<double>(master->tailOffNLp());
 		else
-			lpHistory_ = 0;
+			lpHistory_ = nullptr;
 	}
 
 	//! An alternative constructor takes the length of the tailing off history from the parameter NLp.
@@ -80,7 +80,7 @@ public:
 		if (NLp > 0)
 			lpHistory_ = new AbaRing<double>(NLp);
 		else
-			lpHistory_ = 0;
+			lpHistory_ = nullptr;
 	}
 
 	//! The destructor.

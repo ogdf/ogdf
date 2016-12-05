@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -55,7 +52,7 @@ public:
 	 * @param adj is an adjacency entry on the external face; if \a adj is 0, a suitable
 	 *        external face is chosen.
 	 */
-	void call(const Graph &G, ShellingOrder &order, adjEntry adj = 0);
+	void call(const Graph &G, ShellingOrder &order, adjEntry adj = nullptr);
 
 	//! Computes a lefmost shelling order of an embedded graph G such that \a adj lies on the external face.
 	/**
@@ -64,7 +61,7 @@ public:
 	 * @param adj is an adjacency entry on the external face; if \a adj is 0, a suitable
 	 *        external face is chosen.
 	 */
-	void callLeftmost(const Graph &G, ShellingOrder &order, adjEntry adj = 0);
+	void callLeftmost(const Graph &G, ShellingOrder &order, adjEntry adj = nullptr);
 
 	//! Sets the option <i>base ratio</i> to \a x.
 	void baseRatio(double x) {m_baseRatio = x;}

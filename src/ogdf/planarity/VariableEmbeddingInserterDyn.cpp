@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
@@ -38,42 +35,17 @@
 
 
 namespace ogdf {
-
-	//---------------------------------------------------------
-	// constructor
-	// sets default values for options
-	//
-	VariableEmbeddingInserterDyn::VariableEmbeddingInserterDyn()
-	{
-		m_rrOption = rrNone;
-		m_percentMostCrossed = 25;
-	}
-
-
-	// copy constructor
-	VariableEmbeddingInserterDyn::VariableEmbeddingInserterDyn(const VariableEmbeddingInserterDyn &inserter)
-		: EdgeInsertionModule(inserter)
-	{
-		m_rrOption = inserter.m_rrOption;
-		m_percentMostCrossed = inserter.m_percentMostCrossed;
-	}
-
-
 	// clone method
 	EdgeInsertionModule *VariableEmbeddingInserterDyn::clone() const
 	{
 		return new VariableEmbeddingInserterDyn(*this);
 	}
 
-
-	// assignment operator
 	VariableEmbeddingInserterDyn &VariableEmbeddingInserterDyn::operator=(const VariableEmbeddingInserterDyn &inserter)
 	{
-		m_rrOption = inserter.m_rrOption;
-		m_percentMostCrossed = inserter.m_percentMostCrossed;
+		VariableEmbeddingInserterBase::operator=(inserter);
 		return *this;
 	}
-
 
 	// actual call method
 	Module::ReturnType VariableEmbeddingInserterDyn::doCall(
@@ -86,10 +58,8 @@ namespace ogdf {
 		VarEdgeInserterDynCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
 		core.timeLimit(timeLimit());
 
-		ReturnType retVal = core.call(origEdges, m_rrOption, m_percentMostCrossed);
-		m_runsPostprocessing = core.runsPostprocessing();
+		ReturnType retVal = core.call(origEdges, removeReinsert(), percentMostCrossed());
+		runsPostprocessing(core.runsPostprocessing());
 		return retVal;
 	}
-
-
 }

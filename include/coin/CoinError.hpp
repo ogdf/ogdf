@@ -55,26 +55,26 @@ private:
     }
 
 public:
-    
+
   //-------------------------------------------------------------------
   // Get methods
-  //-------------------------------------------------------------------   
+  //-------------------------------------------------------------------
   /**@name Get error attributes */
   //@{
     /// get message text
-    inline const std::string & message() const 
+    inline const std::string & message() const
     { return message_; }
     /// get name of method instantiating error
-    inline const std::string & methodName() const 
+    inline const std::string & methodName() const
     { return method_;  }
     /// get name of class instantiating error (or hint for assert)
-    inline const std::string & className() const 
+    inline const std::string & className() const
     { return class_;   }
     /// get name of file for assert
-    inline const std::string & fileName() const 
+    inline const std::string & fileName() const
     { return file_;  }
     /// get line number of assert (-1 if not assert)
-    inline int lineNumber() const 
+    inline int lineNumber() const
     { return lineNumber_;   }
     /// Just print (for asserts)
     inline void print(bool doPrint = true) const
@@ -91,14 +91,14 @@ public:
       }
     }
   //@}
-  
-    
+
+
   /**@name Constructors and destructors */
   //@{
-    /// Alternate Constructor 
-    CoinError ( 
-      std::string message__, 
-      std::string methodName__, 
+    /// Alternate Constructor
+    CoinError (
+      std::string message__,
+      std::string methodName__,
       std::string className__,
       std::string fileName_ = std::string(),
       int line = -1)
@@ -112,7 +112,7 @@ public:
       print(printErrors_);
     }
 
-    /// Copy constructor 
+    /// Copy constructor
     CoinError (const CoinError & source)
       :
       message_(source.message_),
@@ -124,7 +124,7 @@ public:
       // nothing to do here
     }
 
-    /// Assignment operator 
+    /// Assignment operator
     CoinError & operator=(const CoinError& rhs)
     {
       if (this != &rhs) {
@@ -137,15 +137,15 @@ public:
       return *this;
     }
 
-    /// Destructor 
+    /// Destructor
     virtual ~CoinError ()
     {
       // nothing to do here
     }
   //@}
-    
+
 private:
-    
+
   /**@name Private member data */
   //@{
     /// message test
@@ -171,7 +171,7 @@ public:
 
 #ifndef __GNUC_PREREQ
 # define __GNUC_PREREQ(maj, min) (0)
-#endif 
+#endif
 
 #ifndef COIN_ASSERT
 #   define CoinAssertDebug(expression) assert(expression)

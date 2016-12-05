@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -155,7 +152,7 @@ public:
 	int size() const { return m_size; }
 
 	//! Returns true if the sequence is empty, false otherwise.
-	int empty() const { return (m_size == 0); }
+	int empty() const { return m_size == 0; }
 
 	//! Returns an iterator pointing to the first element.
 	iterator begin();
@@ -344,7 +341,7 @@ private:
 		m_realHeight = 5;
 		m_height = 1;
 
-		m_dummy = OGDF_NEW Element(m_realHeight);
+		m_dummy = new Element(m_realHeight);
 		m_dummy->m_next[0] = m_dummy;
 		m_dummy->m_prev[0] = m_dummy;
 	}
@@ -389,7 +386,7 @@ public:
 
 
 	//! Returns true if the iterator points to an element.
-	bool valid() const { return (m_pElement != 0); }
+	bool valid() const { return m_pElement != nullptr; }
 
 	//! Move the iterator one item forward (prefix notation)
 	SortedSequenceIterator<KEY,INFO,CMP> &operator++() {
@@ -435,21 +432,21 @@ public:
 
 	//! Equality operator.
 	bool operator==(const SortedSequenceIterator<KEY,INFO,CMP> &it) const {
-		return (m_pElement == it.m_pElement);
+		return m_pElement == it.m_pElement;
 	}
 
 	//! Inequality operator.
 	bool operator!=(const SortedSequenceIterator<KEY,INFO,CMP> &it) const {
-		return (m_pElement != it.m_pElement);
+		return m_pElement != it.m_pElement;
 	}
 
 private:
 	typename SortedSequence<KEY,INFO,CMP>::Element *succElement() const {
-		return (m_pElement->m_next[0]->m_height > 0) ? m_pElement->m_next[0] : 0;
+		return (m_pElement->m_next[0]->m_height > 0) ? m_pElement->m_next[0] : nullptr;
 	}
 
 	typename SortedSequence<KEY,INFO,CMP>::Element *predElement() const {
-		return (m_pElement->m_prev[0]->m_height > 0) ? m_pElement->m_prev[0] : 0;
+		return (m_pElement->m_prev[0]->m_height > 0) ? m_pElement->m_prev[0] : nullptr;
 	}
 };
 
@@ -485,7 +482,7 @@ public:
 
 
 	//! Returns true if the iterator points to an element.
-	bool valid() const { return (m_pElement != 0); }
+	bool valid() const { return m_pElement != 0; }
 
 	//! Moves the iterator one item forward (prefix notation).
 	SortedSequenceConstIterator<KEY,INFO,CMP> &operator++() {
@@ -531,12 +528,12 @@ public:
 
 	//! Equality operator.
 	bool operator==(const SortedSequenceConstIterator<KEY,INFO,CMP> &it) const {
-		return (m_pElement == it.m_pElement);
+		return m_pElement == it.m_pElement;
 	}
 
 	//! Inequality operator.
 	bool operator!=(const SortedSequenceConstIterator<KEY,INFO,CMP> &it) const {
-		return (m_pElement != it.m_pElement);
+		return m_pElement != it.m_pElement;
 	}
 
 private:
@@ -680,7 +677,7 @@ const typename SortedSequence<KEY,INFO,CMP>::Element *SortedSequence<KEY,INFO,CM
 		if( pElement[h] != m_dummy && m_comparer.less(pElement[h]->m_key, key) )
 			pElement = pElement[h]->m_next;
 		else if(--h < 0) {
-			Element *p = (pElement[0] != m_dummy) ? pElement[0] : 0;
+			Element *p = (pElement[0] != m_dummy) ? pElement[0] : nullptr;
 			return p;
 		}
 	}
@@ -778,7 +775,7 @@ typename SortedSequence<KEY,INFO,CMP>::iterator SortedSequence<KEY,INFO,CMP>::in
 
 	int nh = randomHeightAndGrow();
 
-	Element* pNewElement = OGDF_NEW Element(key, info, nh);
+	Element* pNewElement = new Element(key, info, nh);
 	insertElementAfterElement(pNewElement, it.m_pElement);
 
 	return pNewElement;
@@ -843,7 +840,7 @@ template<class KEY, class INFO, class CMP>
 inline typename SortedSequence<KEY,INFO,CMP>::iterator
 	SortedSequence<KEY,INFO,CMP>::begin()
 {
-	return (m_dummy->m_next[0] != m_dummy) ? m_dummy->m_next[0] : 0;
+	return (m_dummy->m_next[0] != m_dummy) ? m_dummy->m_next[0] : nullptr;
 }
 
 template<class KEY, class INFO, class CMP>

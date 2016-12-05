@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -78,7 +75,11 @@ protected:
  * @tparam C Denotes comparison functor determining value ordering.
  */
 template<typename T, typename C=std::less<T>>
-class RMHeap : public HeapBase<RMHeap, RMHeapNode<T>, T, C> {
+class RMHeap : public HeapBase<RMHeap<T, C>, RMHeapNode<T>, T, C>
+{
+
+	using base_type = HeapBase<RMHeap<T, C>, RMHeapNode<T>, T, C>;
+
 public:
 
 	/**
@@ -98,7 +99,7 @@ public:
 	virtual ~RMHeap();
 
 	//! Returns reference to the top element in the heap.
-	const T &top() const;
+	const T &top() const override;
 
 	/**
 	 * Inserts a new node with given \a value into a heap.
@@ -106,14 +107,14 @@ public:
 	 * @param value A value to be inserted.
 	 * @return Handle to the inserted node.
 	 */
-	RMHeapNode<T> *push(const T &value);
+	RMHeapNode<T> *push(const T &value) override;
 
 	/**
 	 * Removes the top element from the heap.
 	 *
 	 * Behaviour of this function is undefined if the heap is empty.
 	 */
-	void pop();
+	void pop() override;
 
 	/**
 	 * Decreases value of the given \a node to \a value.
@@ -124,7 +125,7 @@ public:
 	 * @param node A node for which the value is to be decreased.
 	 * @param value A new value for the node.
 	 */
-	void decrease(RMHeapNode<T> *node, const T &value);
+	void decrease(RMHeapNode<T> *node, const T &value) override;
 
 	/**
 	 * Merges in values of \a other heap.
@@ -133,15 +134,15 @@ public:
 	 *
 	 * @param other A heap to be merged in.
 	 */
-	void merge(RMHeap<T, C> &other);
+	void merge(RMHeap<T, C> &other) override;
 
-	/*
-	* Retuns the value of the node
-	*
-	* @param node The nodes handle
-	* @return the value of the node
-	*/
-	const T &value(RMHeapNode<T> *node) const {
+	/**
+	 * Returns the value of the node
+	 *
+	 * @param node The nodes handle
+	 * @return the value of the node
+	 */
+	const T &value(RMHeapNode<T> *node) const override {
 		return node->value;
 	}
 
@@ -161,10 +162,7 @@ private:
 
 template<typename T, typename C>
 RMHeap<T, C>::RMHeap(const C &cmp, int initialSize)
-: m_rand((std::random_device())()), m_root(nullptr)
-{
-	this->m_comp = cmp;
-}
+: base_type(cmp), m_rand((std::random_device())()), m_root(nullptr) {}
 
 
 template<typename T, typename C>
@@ -238,7 +236,7 @@ RMHeapNode<T> *RMHeap<T, C>::merge(RMHeapNode<T> *a, RMHeapNode<T> *b)
 		return a;
 	}
 
-	if(this->m_comp(a->value, b->value)) {
+	if(this->comparator()(a->value, b->value)) {
 		if(m_rand() % 2 == 0) {
 			a->left = merge(a->left, b);
 			if(a->left != nullptr) {

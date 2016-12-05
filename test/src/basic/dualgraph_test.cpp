@@ -1,14 +1,14 @@
 /** \file
- * \brief Tests for the basic dual graph class
+ * \brief Tests for ogdf::DualGraph.
  *
- * \author Mirko Wagner
+ * \author Mirko Wagner, Tilo Wiedera
  *
  * \par License:
- * This file is part of the Open myGraPath Halving, Drawing Framework (OGDF).
+ * This file is part of the Open Graph Drawing Framework (OGDF).
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,78 +25,78 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 FRank,lin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <bandit/bandit.h>
 
 #include <ogdf/basic/DualGraph.h>
-#include <ogdf/basic/Graph.h>
 #include <ogdf/basic/graph_generators.h>
-#include <resources.h>
-#include <ogdf/basic/Graph_d.h>
 
 using namespace ogdf;
 using namespace bandit;
 
-
-go_bandit([](){
-describe("DualGraph",[&](){
+//! Runs all tests on a single randomly generated graph with \c n nodes and \c m edges.
+void performIteration(int n, int m) {
 	Graph graph;
-	CombinatorialEmbedding *combEmb;
-	DualGraph *dualGraph;
-	node u,v,w;
-	edge e,f,g;
+	planarConnectedGraph(graph, n, m);
+	ConstCombinatorialEmbedding emb(graph);
+	DualGraph dual(emb);
 
-	before_each([&](){
-		graph = Graph();
-		u = graph.newNode();
-		v = graph.newNode();
-		w = graph.newNode();
-		e = graph.newEdge(u, v);
-		f = graph.newEdge(v, w);
-		g = graph.newEdge(w, u);
-		combEmb = new CombinatorialEmbedding(graph);
-		dualGraph = new DualGraph(*combEmb);
+	it("returns its primal embedding", [&] {
+		AssertThat(&dual.getPrimalEmbedding(), Equals(&emb));
 	});
 
-	after_each([&](){
-		delete dualGraph;
-		delete combEmb;
+	it("returns its primal graph", [&] {
+		AssertThat(&dual.getPrimalGraph(), Equals(&graph));
 	});
 
-	it("knows its primal embedding",[&](){
-		AssertThat(&dualGraph->getPrimalEmbedding(), Equals(combEmb));
+	it("has a matching number of nodes, faces, and edges", [&] {
+		AssertThat(dual.numberOfFaces(), Equals(graph.numberOfNodes()));
+		AssertThat(dual.getGraph().numberOfNodes(), Equals(emb.numberOfFaces()));
+		AssertThat(dual.getGraph().numberOfEdges(), Equals(graph.numberOfEdges()));
 	});
 
-	it("knows its primal graph",[&](){
-		AssertThat(&dualGraph->getPrimalGraph(), Equals(&graph));
+	it("maps primal faces to dual nodes", [&] {
+		for (face f : emb.faces) {
+			node v = dual.dualNode(f);
+			AssertThat(dual.primalFace(v), Equals(f));
+			AssertThat(v->degree(), Equals(f->size()));
+		}
 	});
 
-	it("knows the dual edge to a primal one and the other way round",[&](){
-		delete dualGraph;
-		delete combEmb;
-		graph = Graph();
-		planarTriconnectedGraph(graph, 42, 42*3 - 6);
-		combEmb = new CombinatorialEmbedding(graph);
-		dualGraph = new DualGraph(*combEmb);
-		e = graph.chooseEdge();
-		AssertThat(dualGraph->primalEdge(dualGraph->dualEdge(e)), Equals(e));
-		AssertThat(dualGraph->dualEdge(e), !Equals(e));
-		AssertThat(dualGraph->primalFace(dualGraph->dualEdge(e)->source()), Equals(combEmb->rightFace(e->adjSource())) || Equals(combEmb->rightFace(e->adjTarget())));
+	it("maps primal nodes to dual faces", [&] {
+		for (node v: graph.nodes) {
+			face f = dual.dualFace(v);
+			AssertThat(dual.primalNode(f), Equals(v));
+			AssertThat(f->size(), Equals(v->degree()));
+		}
 	});
 
-	it("knows the dual node to a primal face and the other way round",[&](){
-		face a = combEmb->chooseFace();
-		AssertThat(dualGraph->primalFace(dualGraph->dualNode(a)), Equals(a));
-	});
+	it("maps edges and faces", [&] {
+		for (edge e : graph.edges) {
+			edge g = dual.dualEdge(e);
+			AssertThat(g, !Equals(e));
+			AssertThat(dual.primalEdge(g), Equals(e));
 
-	it("knows the dual face to a primal node and the other way round",[&](){
-		AssertThat(dualGraph->primalNode(dualGraph->dualFace(v)), Equals(v));
+			face f = dual.primalFace(g->source());
+			AssertThat(f, Equals(emb.rightFace(e->adjSource())));
+			AssertThat(f, Equals(emb.leftFace(e->adjTarget())));
+
+			f = dual.primalFace(g->target());
+			AssertThat(f, Equals(emb.leftFace(e->adjSource())));
+			AssertThat(f, Equals(emb.rightFace(e->adjTarget())));
+		}
 	});
-});
+}
+
+go_bandit([]() {
+	describe("DualGraph",[] {
+		for(int i = 1; i <= 100; i++) {
+			describe("iteration #" + to_string(i), []() {
+				performIteration(100, 200);
+			});
+		}
+	});
 });

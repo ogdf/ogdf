@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/energybased/Multilevel.h>
@@ -57,7 +54,9 @@ void Multilevel::create_multilevel_representations(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int & max_level)
 {
-	//make initialisations;
+#if 0
+	make initialisations;
+#endif
 	srand(rand_seed);
 	G_mult_ptr[0] = &G; //init graph at level 0 to the original undirected simple
 	A_mult_ptr[0] = &A; //and loopfree connected graph G/A/E
@@ -71,8 +70,8 @@ void Multilevel::create_multilevel_representations(
 		edgenumbersum_of_all_levels_is_linear(G_mult_ptr,act_level,bad_edgenr_counter) )
 	{
 		Graph* G_new = new (Graph);
-		NodeArray<NodeAttributes>* A_new = OGDF_NEW NodeArray<NodeAttributes>;
-		EdgeArray<EdgeAttributes>* E_new = OGDF_NEW EdgeArray<EdgeAttributes>;
+		NodeArray<NodeAttributes>* A_new = new NodeArray<NodeAttributes>;
+		EdgeArray<EdgeAttributes>* E_new = new EdgeArray<EdgeAttributes>;
 		G_mult_ptr[act_level+1] = G_new;
 		A_mult_ptr[act_level+1] = A_new;
 		E_mult_ptr[act_level+1] = E_new;
@@ -243,29 +242,24 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 	Array<EdgeArray<EdgeAttributes>*> &E_mult_ptr,
 	int act_level)
 {
-	node nearest_neighbour_node;
-	double dist_to_nearest_neighbour;
-	edge moon_edge = nullptr;
-
 	for (node v : G_mult_ptr[act_level]->nodes) {
 		if ((*A_mult_ptr[act_level])[v].get_type() == 0) { //a moon node
+			node nearest_neighbour_node = nullptr;
+			double dist_to_nearest_neighbour(0);
+			edge moon_edge = nullptr;
+
 			//find nearest neighbour node
-			bool first_adj_edge = true;
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				node neighbour_node = (v == e->source()) ? e->target() : e->source();
 				int neighbour_type = (*A_mult_ptr[act_level])[neighbour_node].get_type();
+				const double dist = (*E_mult_ptr[act_level])[e].get_length();
 				if ((neighbour_type == 2)
 				 || (neighbour_type == 3)) {
-					if (first_adj_edge) {
-						first_adj_edge = false;
+					if (nearest_neighbour_node == nullptr
+					 || dist_to_nearest_neighbour > dist) {
 						moon_edge = e;
-						dist_to_nearest_neighbour = (*E_mult_ptr[act_level])[e].get_length();
-						nearest_neighbour_node = neighbour_node;
-					}
-					else if (dist_to_nearest_neighbour > (*E_mult_ptr[act_level])[e].get_length()) {
-						moon_edge = e;
-						dist_to_nearest_neighbour = (*E_mult_ptr[act_level])[e].get_length();
+						dist_to_nearest_neighbour = dist;
 						nearest_neighbour_node = neighbour_node;
 					}
 				}
@@ -273,8 +267,8 @@ void Multilevel::create_moon_nodes_and_pm_nodes(
 			//find dedic. solar system for v and update information in *A_mult_ptr[act_level]
 			//and *E_mult_ptr[act_level]
 
-			OGDF_ASSERT(moon_edge) // otherwise undefined behavior; implicitly affected: dist_to_nearest_neighbor and neares_neighbour_node
-				(*E_mult_ptr[act_level])[moon_edge].make_moon_edge(); //mark this edge
+			OGDF_ASSERT(nearest_neighbour_node != nullptr);
+			(*E_mult_ptr[act_level])[moon_edge].make_moon_edge(); //mark this edge
 			node dedicated_sun_node = (*A_mult_ptr[act_level])[nearest_neighbour_node].
 				get_dedicated_sun_node();
 			double dedicated_sun_distance = dist_to_nearest_neighbour
@@ -573,7 +567,7 @@ void Multilevel::create_all_placement_sectors(
 	int level)
 {
 	for(node v_high : G_mult_ptr[level+1]->nodes) {
-		double angle_1, angle_2;
+		double angle_1(0), angle_2(0);
 		//find pos of adjacent nodes
 		List<DPoint> adj_pos;
 		DPoint v_high_pos((*A_mult_ptr[level+1])[v_high].get_x(), (*A_mult_ptr[level+1])[v_high].get_y());
@@ -593,40 +587,30 @@ void Multilevel::create_all_placement_sectors(
 				adj_pos.pushBack(w_high_pos);
 			}
 		}
+		const DPoint x_parallel_pos(v_high_pos.m_x + 1, v_high_pos.m_y);
 		if (adj_pos.empty()) { //easy case
-			angle_1 = 0;
-			angle_2 = 6.2831853;
+			angle_2 = 2.0 * Math::pi;
 		} else if (adj_pos.size() == 1) { //special case
-			//create angle_1
-			const DPoint x_parallel_pos (v_high_pos.m_x + 1, v_high_pos.m_y);
 			angle_1 = angle(v_high_pos, x_parallel_pos, *adj_pos.begin());
-			//create angle_2
 			angle_2 = angle_1 + Math::pi;
 		} else { //usual case
 			const int MAX = 10; //the biggest of at most MAX random selected sectors is choosen
 			int steps = 1;
 			ListIterator<DPoint> it = adj_pos.begin();
 			do {
-				//create act_angle_1
-				const DPoint x_parallel_pos(v_high_pos.m_x + 1, v_high_pos.m_y);
 				double act_angle_1 = angle(v_high_pos, x_parallel_pos, *it);
-				//create act_angle_2
-				ListIterator<DPoint> next_pos_ptr = adj_pos.begin();
 				double min_next_angle = numeric_limits<double>::max();
-				for (; next_pos_ptr.valid(); ++next_pos_ptr) {
-					const double next_angle = angle(v_high_pos, *it, *next_pos_ptr);
-					if (*it != *next_pos_ptr
-					 && next_angle < min_next_angle) {
-						min_next_angle = next_angle;
+				for (const auto &next_pos : adj_pos) {
+					if (*it != next_pos) {
+						min_next_angle = min(min_next_angle, angle(v_high_pos, *it, next_pos));
 					}
 				}
 				OGDF_ASSERT(min_next_angle < numeric_limits<double>::max());
 
-				double act_angle_2 = act_angle_1 + min_next_angle;
 				if ((it == adj_pos.begin())
-				 || (act_angle_2 - act_angle_1 > angle_2 - angle_1)) {
+				 || (min_next_angle > angle_2 - angle_1)) {
 					angle_1 = act_angle_1;
-					angle_2 = act_angle_2;
+					angle_2 = act_angle_1 + min_next_angle;
 				}
 				if (it != adj_pos.rbegin())
 					it = adj_pos.cyclicSucc(it);
@@ -750,7 +734,7 @@ inline DPoint Multilevel::get_waggled_inbetween_position(DPoint s, DPoint t, dou
 	double radius = WAGGLEFACTOR * (t-s).norm();
 	double rnd = double(randomNumber(1,BILLION)+1)/(BILLION+2);//rand number in (0,1)
 	double rand_radius =  radius * rnd;
-	return create_random_pos(inbetween_point,rand_radius,0,6.2831853);
+	return create_random_pos(inbetween_point,rand_radius,0,2.0*Math::pi);
 }
 
 
@@ -804,7 +788,6 @@ double Multilevel::angle(const DPoint& P, const DPoint& Q, const DPoint& R)
 	double norm  = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
 	double cosfi = (dx1*dx2+dy1*dy2) / sqrt(norm);
 
-	if (cosfi >=  1.0 ) fi = 0;
 	if (cosfi <= -1.0 ) fi = Math::pi;
 	else
 	{

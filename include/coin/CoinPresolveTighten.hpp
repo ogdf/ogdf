@@ -51,5 +51,3 @@ class do_tighten_action : public CoinPresolveAction {
 
 };
 #endif
-
-

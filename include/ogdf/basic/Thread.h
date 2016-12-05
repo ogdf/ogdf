@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -50,8 +47,8 @@ namespace ogdf {
  * functions for OGDF's memory management.
  *
  * If you use OGDF data structures in your threads you have to use the Thread class
- * (instead of just using std::thread), or you need to the initThread() and flushPool()
- * functions of the memory allocator manually (see Thread's constructor for an example).
+ * (instead of just using std::thread), or you need to call the flushPool()
+ * function of the memory allocator manually (see Thread's constructor for an example).
  */
 class Thread : public std::thread
 {
@@ -64,7 +61,6 @@ public:
 #ifdef _MSC_VER
 	template<class Function>
 	explicit Thread(Function && f) : thread([&]{
-		OGDF_ALLOCATOR::initThread();
 		f();
 		OGDF_ALLOCATOR::flushPool();
 	}) { }
@@ -72,7 +68,6 @@ public:
 #else
 	template<class Function, class ... Args>
 	explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... args){
-		OGDF_ALLOCATOR::initThread();
 		f(std::forward<Args>(args)...);
 		OGDF_ALLOCATOR::flushPool();
 	}, std::forward<Args>(args)...) { }

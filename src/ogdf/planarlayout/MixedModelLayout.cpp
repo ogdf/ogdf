@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarlayout/MixedModelLayout.h>
@@ -59,10 +56,10 @@ void MMOrder::init(
 
 MixedModelLayout::MixedModelLayout()
 {
-	m_augmenter.set(new PlanarAugmentation);
-	m_compOrder.set(new BiconnectedShellingOrder);
-	m_crossingsBeautifier.set(new MMDummyCrossingsBeautifier);
-	m_embedder.set(new SimpleEmbedder);
+	m_augmenter.reset(new PlanarAugmentation);
+	m_compOrder.reset(new BiconnectedShellingOrder);
+	m_crossingsBeautifier.reset(new MMDummyCrossingsBeautifier);
+	m_embedder.reset(new SimpleEmbedder);
 }
 
 
@@ -100,9 +97,9 @@ void MixedModelLayout::doCall(
 	if(fixEmbedding) {
 		OGDF_ASSERT(PG.representsCombEmbedding());
 		PlanarAugmentationFix fixAugmenter;
-		mm.computeOrder(fixAugmenter, nullptr, adjExternal, m_compOrder.get());
+		mm.computeOrder(fixAugmenter, nullptr, adjExternal, *m_compOrder);
 	} else
-		mm.computeOrder(m_augmenter.get(),&m_embedder.get(),nullptr,m_compOrder.get());
+		mm.computeOrder(*m_augmenter,m_embedder.get(),nullptr,*m_compOrder);
 
 	mm.assignIopCoords();
 	mm.placeNodes();
@@ -110,7 +107,7 @@ void MixedModelLayout::doCall(
 	mm.setBends();
 	mm.postprocessing2();
 
-	m_crossingsBeautifier.get().call(PG,gridLayout);
+	m_crossingsBeautifier->call(PG,gridLayout);
 
 	int xmin, ymin;
 	gridLayout.computeBoundingBox(xmin,boundingBox.m_x,ymin,boundingBox.m_y);

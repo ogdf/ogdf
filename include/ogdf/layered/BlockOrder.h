@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -53,13 +50,13 @@ public:
 
 	ArrayLevel(const Array<node> &nodes) : m_nodes(nodes) { }
 
-	const node &operator[](int i) const { return m_nodes[i]; }
+	const node &operator[](int i) const override { return m_nodes[i]; }
 
-	node &operator[](int i) { return m_nodes[i]; }
+	node &operator[](int i) override { return m_nodes[i]; }
 
-	int size() const { return m_nodes.size(); }
+	int size() const override { return m_nodes.size(); }
 
-	int high() const { return m_nodes.high(); }
+	int high() const override { return m_nodes.high(); }
 
 };
 
@@ -147,8 +144,10 @@ private:
 	int m_storedCrossings; //!< Numebr of crossings stored in the sifting step.
 	int m_bestCrossings; //!< The lowest number of crossing found in the sifting step.
 
-	//unsigned int m_storedCrossings;
-	//unsigned int m_currentCrossings;
+#if 0
+	unsigned int m_storedCrossings;
+	unsigned int m_currentCrossings;
+#endif
 
 	Array<Block *> m_Blocks; //!< The array of all blocks.
 	NodeArray<Block *> m_NodeBlocks; //!< The array of all vertex blocks.
@@ -156,7 +155,9 @@ private:
 
 	EdgeArray<bool> m_isActiveEdge; //!< Stores information about active edge blocks.
 
-	//unsigned int m_blocksCount;
+#if 0
+	unsigned int m_blocksCount;
+#endif
 	int m_activeBlocksCount;
 
 	Hierarchy &m_hierarchy; //!< The hierarchy on grid- and globalsifting operates.
@@ -176,24 +177,24 @@ public:
 
 	// ---- HierarchyLevelsBase members ----
 	//! Returns the <i>i</i>-th level.
-	const ArrayLevel &operator[](int i) const {
+	const ArrayLevel &operator[](int i) const override {
 		return *(m_levels[i]);
 	}
 	//! Returns the position of node \a v on its level.
-	int pos(node v) const {
+	int pos(node v) const override {
 		return m_pos[v];
 	}
 	//! Returns the number of levels.
-	int size() const {
+	int size() const override {
 		return m_levels.size();
 	}
 
-	const Hierarchy &hierarchy() const {
+	const Hierarchy &hierarchy() const override {
 		return m_hierarchy;
 	}
 
 	//! Returns the adjacent nodes of \a v.
-	const Array<node> &adjNodes(node v, TraversingDir dir) const {
+	const Array<node> &adjNodes(node v, TraversingDir dir) const override {
 		if ( dir == upward ) {
 			return m_upperAdjNodes[v];
 		} else {
@@ -209,16 +210,21 @@ public:
 	//! Returns the number of blocks.
 	int blocksCount() { return m_Blocks.size(); }
 
-	//BlockOrder( const Graph &G, const NodeArray<int> &rank);
+#if 0
+	BlockOrder(const Graph &G, const NodeArray<int> &rank);
+#endif
 
-	BlockOrder( Hierarchy& hierarchy, bool longEdgesOnly = true );
+	BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly = true);
 
 	//! Calls the global sifting algorithm on graph (its hierarchy).
 	void globalSifting( int rho = 1, int nRepeats = 10, int *pNumCrossings = nullptr );
 
 private:
 	//! Does some initialization.
-	void doInit( bool longEdgesOnly = true ); //const NodeArray<int> &ranks);
+	void doInit( bool longEdgesOnly = true);
+#if 0
+	void doInit( bool longEdgesOnly = true, const NodeArray<int> &ranks);
+#endif
 
 	/**
 	 * \brief Creates sorted lists of neighbours for all blocks.

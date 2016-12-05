@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
@@ -336,7 +333,7 @@ void MultiEdgeApproxInserter::Block::constructDual(node n)
 	const StaticSkeleton &S = *dynamic_cast<StaticSkeleton*>(&m_spqr->skeleton(n));
 	const Graph &M = S.getGraph();
 
-	OGDF_ASSERT(m_info[n].m_dual == 0);
+	OGDF_ASSERT(m_info[n].m_dual == nullptr);
 
 	ConstCombinatorialEmbedding *emb = m_info[n].m_emb = new ConstCombinatorialEmbedding(M);
 	Graph *dual = m_info[n].m_dual = new Graph;
@@ -900,8 +897,8 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 
 	node v = copy(vOrig,b);
 	node w = copy(wOrig,b);
-	OGDF_ASSERT(v != 0);
-	OGDF_ASSERT(w != 0);
+	OGDF_ASSERT(v != nullptr);
+	OGDF_ASSERT(w != nullptr);
 
 	B.initSPQR(m_edge->size());
 
@@ -1545,29 +1542,33 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
 
+#if 0
 	// arbitrary embedding for testing
-	//planarEmbed(PG);
+	planarEmbed(PG);
+#endif
 
 	// generate further statistic information
 	if(m_statistics) {
 		constructDual(PG);
 
-		//cout << "\ncutvertex preferences:\n" << endl;
-		//for(node v : PG.nodes)
-		//{
-		//	SListConstIterator<CutvertexPreference> it = cvPref[v].begin();
-		//	if(!it.valid()) continue;
+#if 0
+		cout << "\ncutvertex preferences:\n" << endl;
+		for(node v : PG.nodes)
+		{
+			SListConstIterator<CutvertexPreference> it = cvPref[v].begin();
+			if(!it.valid()) continue;
 
-		//	cout << v << ":\n";
-		//	for(; it.valid(); ++it) {
-		//		const CutvertexPreference &p = *it;
+			cout << v << ":\n";
+			for(; it.valid(); ++it) {
+				const CutvertexPreference &p = *it;
 
-		//		int sp1 = findShortestPath(p.m_v1, v);
-		//		int sp2 = findShortestPath(v, p.m_v2);
-		//		cout << "   ( v" << p.m_v1 << ", b" << p.m_b1 << "; v" << p.m_v2 << ", b" << p.m_b2 << " )  ";
-		//		cout << "[ " << p.m_len1 << " / " << sp1 << " ; " << p.m_len2 << " / " << sp2 << " ]" << endl;
-		//	}
-		//}
+				int sp1 = findShortestPath(p.m_v1, v);
+				int sp2 = findShortestPath(v, p.m_v2);
+				cout << "   ( v" << p.m_v1 << ", b" << p.m_b1 << "; v" << p.m_v2 << ", b" << p.m_b2 << " )  ";
+				cout << "[ " << p.m_len1 << " / " << sp1 << " ; " << p.m_len2 << " / " << sp2 << " ]" << endl;
+			}
+		}
+#endif
 
 		m_sumFEInsertionCosts = 0;
 		for(int i = 0; i < m; ++i) {

@@ -93,7 +93,9 @@ class Map {
 
         delete [] old;
 
-        // printf(" --- rehashing, old-cap=%d, new-cap=%d\n", cap, newsize);
+#if 0
+         printf(" --- rehashing, old-cap=%d, new-cap=%d\n", cap, newsize);
+#endif
     }
 
 

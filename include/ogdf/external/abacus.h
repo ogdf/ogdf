@@ -1,10 +1,8 @@
 /** \file
- * \brief Handles Abacus Dependencies.
+ * \brief Includes Abacus
  *
  * Include this file whenever you want to use Abacus. It does the
- * rest for you. Just be sure to structure your code using the
- * USE_ABACUS Flag. (See AbacusOptimalCrossingMinimizer for an
- * example).
+ * rest for you.
  *
  * \author Markus Chimani
  *
@@ -13,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -30,18 +28,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/basic/basic.h>
-
-#ifdef USE_ABACUS
 
 #include <ogdf/lib/abacus/variable.h>
 #include <ogdf/lib/abacus/constraint.h>
@@ -52,10 +45,3 @@
 #include <ogdf/lib/abacus/active.h>
 #include <ogdf/lib/abacus/branchrule.h>
 #include <ogdf/lib/abacus/conbranchrule.h>
-
-#else // USE_ABACUS
-
-#define THROW_NO_ABACUS_EXCEPTION OGDF_THROW_PARAM(LibraryNotSupportedException, lnscAbacus)
-
-
-#endif // USE_ABACUS

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -47,7 +44,7 @@ public:
 	// construction
 
 	// Creates a UML graph for no associated graph (default constructor).
-	UMLGraph() : GraphAttributes(), m_pG(0) { }
+	UMLGraph() : GraphAttributes(), m_pG(nullptr) { }
 
 	// Creates a UML graph associated with graph \a G.
 	/**
@@ -70,7 +67,7 @@ public:
 	{
 		m_pG = &G;
 		GraphAttributes::init(G, initAttr);
-		m_hierarchyParent.init(constGraph(), 0);
+		m_hierarchyParent.init(constGraph(), nullptr);
 		m_upwardEdge.init(constGraph(), false);
 
 		if (m_hiddenEdges != nullptr) {
@@ -80,7 +77,7 @@ public:
 		m_hiddenEdges = new Graph::HiddenEdgeSet(G);
 	}
 
-	virtual void init(const Graph &G, long initAttr) {
+	virtual void init(const Graph &G, long initAttr) override {
 		init(const_cast<Graph &>(G), initAttr);
 	}
 
@@ -116,12 +113,15 @@ public:
 		return m_cliqueCirclePos[v];
 	}
 
+#if 0
 	//compute circle positions for all nodes around center
 	//using the ordering given in this UMLGraph, calls
 	//ccP(List...)
 	//rectMin is a temporary solution until compaction with constraints allows stretching
 	//of rect to clique size, it gives the min(w,h) of the given fixed size rect around the clique
-	//void computeCliquePosition(node center, double rectMin);//, const adjEntry &startAdj);
+	void computeCliquePosition(node center, double rectMin);
+	void computeCliquePosition(node center, double rectMin, const adjEntry &startAdj);
+#endif
 
 	//compute positions for the nodes in adjNodes on a circle
 	//tries to keep the relative placement of the nodes in the clique
@@ -146,12 +146,14 @@ public:
 
 	//------------------- end cliques ---------------------
 
+#if 0
+	//! allow change, but should not be declared const
+	Graph& pureGraph() const {return *m_pG;}
 
-	//allow change, but should not be declared const
-	//Graph& pureGraph() const {return *m_pG;}
+	//! set status value
+	void setAlign(edge e, bool b) {m_alignEdge[e] = b;}
+#endif
 
-	//set status value
-	//void setAlign(edge e, bool b) {m_alignEdge[e] = b;}
 	//set status of edges to be specially embedded (if alignment)
 	void setUpwards(adjEntry a, bool b) {m_upwardEdge[a] = b;}
 	bool upwards(adjEntry a) const {return m_upwardEdge[a];}
@@ -180,7 +182,7 @@ public:
 	public:
 		AssociationClass(edge e, double width = 1.0, double height = 1.0,
 			double x = 0.0, double y = 0.0)
-			: m_width(width), m_height(height), m_x(x), m_y(y), m_edge(e), m_node(0)
+			: m_width(width), m_height(height), m_x(x), m_y(y), m_edge(e), m_node(nullptr)
 		{ }
 
 		double m_width;
@@ -195,7 +197,6 @@ public:
 	const AssociationClass*  assClass(edge e) const {return m_assClass[e];}
 
 	//adds association class to edge e
-	//void createAssociationClass(edge e, double width = 1.0, double height = 1.0)
 	node createAssociationClass(edge e, double width = 1.0, double height = 1.0)
 	{
 		AssociationClass* ac = new AssociationClass(e, width, height);
@@ -215,8 +216,8 @@ public:
 			m_vType[v] = Graph::associationClass;
 		}
 		return v;
-
 	}
+
 	//this modelling should only take place in the preprocessing steps
 	//of the drawing algorithms?
 	//insert representation for association class in underlying graph
@@ -235,7 +236,7 @@ public:
 
 		m_height[dummy] = 1; //just a dummy size
 		m_width[dummy]  = 1;
-		OGDF_ASSERT(ac->m_node)
+		OGDF_ASSERT(ac->m_node);
 		m_pG->newEdge(ac->m_node, dummy);
 
 		return dummy;
@@ -250,12 +251,13 @@ public:
 			++it;
 		}//while
 	}
+
 	//remove the modeling of the association class without removing the information
 	void undoAssociationClass(AssociationClass* ac)
 	{
 		node v = m_associationClassModel[ac->m_edge];
-		OGDF_ASSERT(v)
-		OGDF_ASSERT(v->degree() == 1)
+		OGDF_ASSERT(v);
+		OGDF_ASSERT(v->degree() == 1);
 		if (v->degree() != 1) throw AlgorithmFailureException(afcLabel);
 		//save layout information
 		ac->m_x = x(v);
@@ -268,12 +270,12 @@ public:
 		adjEntry dummyAdj = outAdj->twin();
 
 		node dummy = dummyAdj->theNode();
-		OGDF_ASSERT(dummy->degree() == 3)
+		OGDF_ASSERT(dummy->degree() == 3);
 
 		//we do not delete the node if we already inserted it in create...
 		//because it is a part of the graph now (in contrast to the split node)
 		m_pG->delEdge(v->firstAdj()->theEdge());
-		OGDF_ASSERT(v->degree() == 0)
+		OGDF_ASSERT(v->degree() == 0);
 
 		m_pG->unsplit(dummy);
 	}//undoAssociationClass
@@ -295,12 +297,14 @@ private:
 	//---------------------- cliques ----------------------
 
 	//information about edges that are deleted in clique processing
-	//class CliqueInfo {
-	//public:
-	//	CliqueInfo(node v, int i) : m_target(v), m_edgeIndex(i) {}
-	//	node m_target;    //target node of deleted edge
-	//	int  m_edgeIndex; //index of deleted edge, has to be restored
-	//};
+#if 0
+	class CliqueInfo {
+	public:
+		CliqueInfo(node v, int i) : m_target(v), m_edgeIndex(i) {}
+		node m_target;    //target node of deleted edge
+		int  m_edgeIndex; //index of deleted edge, has to be restored
+	};
+#endif
 
 	double m_cliqueCenterSize; //default size of inserted clique replacement center nodes
 	SListPure<node> m_centerNodes; //center nodes introduced at clique replacement

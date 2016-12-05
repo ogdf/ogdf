@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/decomposition/TricComp.h>
@@ -196,7 +193,9 @@ TricComp::TricComp (const Graph& G) :
 	assembleTriconnectedComponents();
 
 	// Caution: checkComp() assumes that the graph is simple!
-	//OGDF_ASSERT(checkComp());
+#if 0
+	OGDF_ASSERT(checkComp());
+#endif
 
 #ifdef TRIC_COMP_OUTPUT
 	cout << "\n\nTriconnected components:\n";
@@ -443,15 +442,16 @@ bool TricComp::checkComp()
 				for(edge e : L)
 					Gp.newEdge(map[e->source()],map[e->target()]);
 
-				for (node v : Gp.nodes)
+				for (node v : Gp.nodes) {
 					if (v->degree() != 2) {
 						ok = false;
 						cout << "polygon [" << i << "] contains node with degree " << v->degree() << endl;
 					}
-					if (!isConnected(Gp)) {
-						ok = false;
-						cout << "polygon [" << i << "] not connected." << endl;
-					}
+				}
+				if (!isConnected(Gp)) {
+					ok = false;
+					cout << "polygon [" << i << "] not connected." << endl;
+				}
 			}
 			break;
 
@@ -1163,4 +1163,3 @@ void TricComp::printStacks()
 
 
 } // end namespace ogdf
-

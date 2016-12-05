@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -38,6 +35,7 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
 
+#define OGDF_OCM_ATTRIBUTE(T, N) private: T _##N; public: const T& N() const { return _##N; } T& N() { return _##N; }
 
 namespace ogdf {
 
@@ -76,9 +74,9 @@ public:
 	ReturnType call(PlanRep &pr,
 		int cc,
 		int&  crossingNumber,
-		const EdgeArray<int>      *pCostOrig = 0,
-		const EdgeArray<bool>     *pForbiddenOrig = 0,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
+		const EdgeArray<int>      *pCostOrig = nullptr,
+		const EdgeArray<bool>     *pForbiddenOrig = nullptr,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs = nullptr)
 	{
 		return doCall(pr, cc, pCostOrig, pForbiddenOrig, pEdgeSubGraphs, crossingNumber);
 	}
@@ -101,9 +99,9 @@ public:
 	ReturnType operator()(PlanRep &pr,
 		int cc,
 		int & crossingNumber,
-		const EdgeArray<int>      *pCostOrig = 0,
-		const EdgeArray<bool>     *pForbiddenOrig = 0,
-		const EdgeArray<uint32_t> *pEdgeSubGraphs = 0)
+		const EdgeArray<int>      *pCostOrig = nullptr,
+		const EdgeArray<bool>     *pForbiddenOrig = nullptr,
+		const EdgeArray<uint32_t> *pEdgeSubGraphs = nullptr)
 	{
 		return call(pr, cc, crossingNumber, pCostOrig, pForbiddenOrig, pEdgeSubGraphs);
 	}

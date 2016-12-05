@@ -1,6 +1,6 @@
-[OGDF](/README.md) » Porting Guide
+[OGDF](README.md) » Porting Guide
 
-# Porting Guide
+# Porting Guide {#porting}
 
 Compatibility-breaking changes are changes that may require OGDF users to
 change their code after an OGDF update.

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -158,6 +155,9 @@ public:
 	 */
 	HotQueue(const P &change, std::size_t levels);
 
+	//! Releases all buckets on destruction
+	~HotQueue();
+
 	//! Returns reference to the top element in the heap.
 	const V &top() const;
 
@@ -232,6 +232,22 @@ HotQueue<V, P, H>::HotQueue(const P &change, std::size_t levels)
 {
 }
 
+template<typename V, typename P, template<typename T, typename C> class H>
+HotQueue<V, P, H>::~HotQueue()
+{
+	if (empty()) {
+		return;
+	}
+	for (auto &bucket : m_buckets) {
+		if (bucket != nullptr) {
+			for (HotQueueNode<V, P> *it = bucket; it != nullptr;) {
+				HotQueueNode<V, P> *next = it->next;
+				delete it;
+				it = next;
+			}
+		}
+	}
+}
 
 template<typename V, typename P, template<typename T, typename C> class H>
 inline const V &HotQueue<V, P, H>::top() const

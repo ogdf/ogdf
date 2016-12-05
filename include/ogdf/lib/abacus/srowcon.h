@@ -123,7 +123,7 @@ public:
 	 *            since the the variable set is assumed to be fixed for this constraint class.
 	 * \param row Holds the row format of the constraint after the execution of this function.
 	 */
-	virtual int genRow(Active<Variable, Constraint> *var, Row &row) const {
+	virtual int genRow(Active<Variable, Constraint> *var, Row &row) const override {
 		row.copy(row_);
 		return row_.nnz();
 	}
@@ -140,7 +140,7 @@ public:
 	 * \return The slack of the vector \a x.
 	 */
 	virtual double slack(Active<Variable, Constraint> *variables,
-		double *x) const;
+		double *x) const override;
 };
 
 } //namespace abacus

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -134,7 +131,7 @@ public:
 		m_type = typ;
 		m_status = stat;
 		m_mark = PQNodeRoot::UNMARKED;
-		m_pointerToInternal = 0;
+		m_pointerToInternal = nullptr;
 
 	}
 
@@ -153,7 +150,7 @@ public:
 
 
 	//! Returns 0. An element of type PQInternalNode does not have a PQLeafKey.
-	virtual PQLeafKey<T,X,Y>* getKey() const { return 0; }
+	virtual PQLeafKey<T,X,Y>* getKey() const { return nullptr; }
 
 	/**
 	 * Accepts only pointers \a pointerToKey = 0.
@@ -169,7 +166,7 @@ public:
 	 */
 	virtual bool setKey(PQLeafKey<T,X,Y>* pointerToKey)
 	{
-		return (pointerToKey == 0);
+		return pointerToKey == nullptr;
 	}
 
 	//! Returns a pointer to the PQInternalKey information.
@@ -189,7 +186,7 @@ public:
 	virtual bool setInternal(PQInternalKey<T,X,Y>* pointerToInternal)
 	{
 		m_pointerToInternal = pointerToInternal;
-		if (pointerToInternal != 0)
+		if (pointerToInternal != nullptr)
 		{
 			m_pointerToInternal->setNodePointer(this);
 			return true;

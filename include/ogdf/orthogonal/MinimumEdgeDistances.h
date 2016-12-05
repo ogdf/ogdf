@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -60,14 +57,16 @@ public:
 	const ATYPE &delta(node v, OrthoDir s, int i) const {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
-		OGDF_ASSERT(0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= i);
+		OGDF_ASSERT(i <= 1);
 		return m_delta[v].info[s][i];
 	}
 
 	ATYPE &delta(node v, OrthoDir s, int i) {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
-		OGDF_ASSERT(0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= i);
+		OGDF_ASSERT(i <= 1);
 		return m_delta[v].info[s][i];
 	}
 
@@ -75,14 +74,16 @@ public:
 	const ATYPE &epsilon(node v, OrthoDir s, int i) const {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
-		OGDF_ASSERT(0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= i);
+		OGDF_ASSERT(i <= 1);
 		return m_epsilon[v].info[s][i];
 	}
 
 	ATYPE &epsilon(node v, OrthoDir s, int i) {
 		OGDF_ASSERT(0 <= int(s));
 		OGDF_ASSERT(int(s) <= 3);
-		OGDF_ASSERT(0 <= i && i <= 1);
+		OGDF_ASSERT(0 <= i);
+		OGDF_ASSERT(i <= 1);
 		return m_epsilon[v].info[s][i];
 	}
 

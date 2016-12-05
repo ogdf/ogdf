@@ -66,7 +66,7 @@ template<class BaseType, class CoType> class StandardPool;
  * The class Master is an abstract class from which a problem specific
  * master has to be derived.
  */
-class  Master :  public AbacusGlobal  {
+class OGDF_EXPORT Master : public AbacusGlobal {
 
 	friend class Sub;
 	friend class FixCand;

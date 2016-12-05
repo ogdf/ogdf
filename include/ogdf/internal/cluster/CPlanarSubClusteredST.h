@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -120,8 +117,8 @@ private:
 			}//if
 			else
 			{
-				OGDF_ASSERT(!((uAncestor == CG.rootCluster())&&
-					(vAncestor == CG.rootCluster())))
+				OGDF_ASSERT(uAncestor != CG.rootCluster()
+				         || vAncestor != CG.rootCluster());
 				//now only one node can be directly in rootcluster
 				//this case now seems to fall together with else else...
 				if (uAncestor == CG.rootCluster())
@@ -136,12 +133,12 @@ private:
 				}//if v in rootcluster
 				else
 				{
-					OGDF_ASSERT(allocCluster != 0)
+					OGDF_ASSERT(allocCluster != nullptr);
 					//now create edge in lowest common cluster
 					node v1, v2;
-					v1 = ( (uAncestor == 0) ? m_vRepNode[u] :
+					v1 = ( (uAncestor == nullptr) ? m_vRepNode[u] :
 								m_cRepNode[uAncestor]);
-					v2 = ( (vAncestor == 0) ? m_vRepNode[v] :
+					v2 = ( (vAncestor == nullptr) ? m_vRepNode[v] :
 								m_cRepNode[vAncestor]);
 					m_repEdge[e] = RepGraph[allocCluster]->newEdge(v1, v2);
 				}
@@ -178,8 +175,10 @@ private:
 	//****************************************************
 	//data fields
 
-	// store status of original edge: in subclustered graph? also used to check spanning tree
-	//EdgeArray<int> m_edgeStatus;
+#if 0
+	//! store status of original edge: in subclustered graph? also used to check spanning tree
+	EdgeArray<int> m_edgeStatus;
+#endif
 
 	//! store the allocation cluster to avoid multiple computation
 	EdgeArray<cluster> m_allocCluster;
@@ -188,10 +187,9 @@ private:
 	//! store the representation nodes for nodes and clusters
 	ClusterArray<node> m_cRepNode;
 	NodeArray<node> m_vRepNode;
-	//pointer to input ClusterPlanRep
-	//set in call, not to be used anywhere else
-	//m_pCPR;
-	//int m_genDebug; //only for debugging
+#if 0
+	int m_genDebug; //only for debugging
+#endif
 
 };//cplanarsubclusteredST
 

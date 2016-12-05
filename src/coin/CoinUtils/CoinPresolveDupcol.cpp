@@ -1226,4 +1226,3 @@ void gubrow_action::postsolve(CoinPostsolveMatrix *) const
   printf("STILL NO POSTSOLVE FOR GUBROW!\n");
   abort();
 }
-

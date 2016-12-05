@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphML.h>
 
@@ -44,7 +41,9 @@ std::string toString(const Attribute &attr)
 {
 	switch(attr) {
 	// (moved down to default case)
-	//case a_unknown: return "unknown";
+#if 0
+	case a_unknown: return "unknown";
+#endif
 
 	case a_nodeLabel: return "label";
 	case a_edgeLabel: return "edgelabel";
@@ -219,4 +218,3 @@ Graph::EdgeType toEdgeType(const std::string &str)
 } // end namespace graphml
 
 } // end namespace ogdf
-

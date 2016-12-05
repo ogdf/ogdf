@@ -542,4 +542,3 @@ void drop_empty_rows_action::postsolve(CoinPostsolveMatrix *prob) const
 # endif
 
 }
-

@@ -4,12 +4,7 @@
  * \author Tilo Wiedera
  */
 
-#ifdef _MSC_VER
 #pragma once
-#endif
-
-#ifndef OGDF_TEST_RESOURCES
-#define OGDF_TEST_RESOURCES
 
 #include <bandit/bandit.h>
 #include <tinydir.h>
@@ -20,7 +15,6 @@
 namespace ogdf {
 
 const string RESOURCE_DIR = "test/resources";
-typedef bool (*GraphReader)(Graph&, const string&);
 
 /**
  * Tests whether the resource directory is present (i.e. the working directory is correct).
@@ -76,16 +70,14 @@ inline bool for_each_file(const string &directory, std::function<void (const str
  * \param recurse testFunc The actual test to be performed.
  * \param reader The function used to parse the files, defaults to GraphIO::readGML.
  */
-inline void for_each_graph_it(const string &title, const std::vector<string> &filenames, std::function<void (Graph &graph, const string&)> testFunc, GraphReader reader = GraphIO::readGML) {
+inline void for_each_graph_it(const string &title, const std::vector<string> &filenames, std::function<void (Graph &graph, const string&)> testFunc, GraphIO::ReaderFunc reader = GraphIO::readGML) {
 	for(const string filename : filenames) {
 		bandit::it(string(title + " [" + filename.c_str() + "] "), [&](){
 			Graph graph;
-			AssertThat(reader(graph, (RESOURCE_DIR + "/" + filename).c_str()), IsTrue());
+			AssertThat(GraphIO::read(graph, (RESOURCE_DIR + "/" + filename).c_str(), reader), IsTrue());
 			testFunc(graph, filename);
 		});
 	}
 }
 
 }
-
-#endif

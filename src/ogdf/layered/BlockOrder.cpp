@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/layered/BlockOrder.h>
 #include <ogdf/basic/List.h>
@@ -345,10 +342,12 @@ namespace ogdf {
 
 	void BlockOrder::deconstruct()
 	{
-		for (int i = 0; i < m_Blocks.size(); ++i)
-			delete m_Blocks[i];
-		for (int i = 0; i < m_levels.size(); ++i)
-			delete m_levels[i];
+		for (auto &elem : m_Blocks) {
+			delete elem;
+		}
+		for (auto &elem : m_levels) {
+			delete elem;
+		}
 	}
 
 
@@ -556,8 +555,9 @@ namespace ogdf {
 		Array<int> storedPermInv(m_activeBlocksCount);
 		int p = 0;
 
-		for (int i = 0; i < m_storedPerm.size(); ++i)
-			m_storedPerm[i] = -1;
+		for (auto &elem : m_storedPerm) {
+			elem = -1;
+		}
 
 		for (int i = 0; i < m_Blocks.size(); ++i)
 			if (m_Blocks[i]->isVertexBlock()
@@ -578,10 +578,10 @@ namespace ogdf {
 
 			int times = nRepeats;
 			while (times-- > 0) {
-				for (int i = 0; i < m_Blocks.size(); ++i) {
-					if (m_Blocks[i]->isVertexBlock()
-					 || (m_Blocks[i]->isEdgeBlock() && m_isActiveEdge[m_Blocks[i]->m_Edge])) {
-						siftingStep(m_Blocks[i]);
+				for (auto &block : m_Blocks) {
+					if (block->isVertexBlock()
+					 || (block->isEdgeBlock() && m_isActiveEdge[block->m_Edge])) {
+						siftingStep(block);
 					}
 				}
 
@@ -613,10 +613,8 @@ namespace ogdf {
 
 		NodeArray<int> ranks(GC);
 
-		for (int i = 0; i < m_Blocks.size(); ++i) {
-			Block *b = m_Blocks[i];
-
-			if (b->isVertexBlock()) 	{
+		for (auto b : m_Blocks) {
+			if (b->isVertexBlock()) {
 				node v = b->m_Node;
 				int rank = m_ranks[v];
 				b->m_nodes.init(rank, rank, nullptr);
@@ -695,8 +693,9 @@ namespace ogdf {
 
 
 		m_pos = NodeArray<int>(m_hierarchy,0);
-		for (int i = 0; i < m_levels.size(); ++i)
-			delete m_levels[i];
+		for (auto &level : m_levels) {
+			delete level;
+		}
 
 		m_levels.init(0);
 
@@ -782,8 +781,9 @@ namespace ogdf {
 
 		if (levels.size() < 2) return 0;
 		// set m_currentPerm
-		for (int i = 0; i < m_levels.size(); ++i)
-			delete m_levels[i];
+		for (auto &level : m_levels) {
+			delete level;
+		}
 
 		Graph G;
 
@@ -1059,9 +1059,7 @@ namespace ogdf {
 	{
 		int maxLevel = 0;
 		//normalize levels to 2,4,6,8,...
-		for (int i = 0; i < m_Blocks.size(); ++i) {
-			Block *currentBlock = m_Blocks[i];
-
+		for (auto currentBlock : m_Blocks) {
 			if (currentBlock->isVertexBlock()) {
 				currentBlock->m_upper = 2 + 2 * (currentBlock->m_upper);
 				currentBlock->m_lower = 2 + 2 * (currentBlock->m_lower);
@@ -1078,9 +1076,9 @@ namespace ogdf {
 
 		m_nNodesOnLvls.init(1, maxLevel + 1, 0);
 
-		for (int i = 0; i < m_Blocks.size(); ++i) {
-			if (m_Blocks[i]->isVertexBlock()) {
-				m_nNodesOnLvls[m_Blocks[i]->m_upper] += 1;
+		for (auto &block : m_Blocks) {
+			if (block->isVertexBlock()) {
+				m_nNodesOnLvls[block->m_upper] += 1;
 			}
 		}
 
@@ -1162,9 +1160,9 @@ namespace ogdf {
 
 		m_nNodesOnLvls.init(1, maxLevel + 1, 0);
 
-		for (int i = 0; i < m_Blocks.size(); ++i) {
-			if (m_Blocks[i]->isVertexBlock()) {
-				m_nNodesOnLvls[m_Blocks[i]->m_upper] += 1;
+		for (auto &block : m_Blocks) {
+			if (block->isVertexBlock()) {
+				m_nNodesOnLvls[block->m_upper] += 1;
 			}
 		}
 
@@ -1200,9 +1198,9 @@ namespace ogdf {
 		// delete empty levels
 		m_nNodesOnLvls.init(1, maxLevel + 1, 0);
 
-		for (int i = 0; i < m_Blocks.size(); ++i) {
-			if (m_Blocks[i]->isVertexBlock()) {
-				m_nNodesOnLvls[m_Blocks[i]->m_upper] += 1;
+		for (auto &block : m_Blocks) {
+			if (block->isVertexBlock()) {
+				m_nNodesOnLvls[block->m_upper] += 1;
 			}
 		}
 
@@ -1215,13 +1213,11 @@ namespace ogdf {
 			}
 		}
 
-		for (int i = 0; i < m_Blocks.size(); ++i) {
-			Block *currentBlock = m_Blocks[i];
+		for (auto currentBlock : m_Blocks) {
 			if (currentBlock->isVertexBlock()) {
 				currentBlock->m_upper = normalizedLvl[currentBlock->m_upper];
 				currentBlock->m_lower = normalizedLvl[currentBlock->m_lower];
-			} else {
-			  // currentBlock->isEdgeBlock()
+			} else { // currentBlock->isEdgeBlock()
 				edge e = currentBlock->m_Edge;
 				currentBlock->m_upper = m_NodeBlocks[e->source()]->m_lower  + 1;
 				currentBlock->m_lower = m_NodeBlocks[e->target()]->m_upper  - 1;
@@ -1232,7 +1228,9 @@ namespace ogdf {
 
 	void BlockOrder::gridSifting(int nRepeats)
 	{
-		//while (rho-- > 0)
+#if 0
+		while (rho-- > 0)
+#endif
 		{
 			Array<int> storedPermInv(0, m_Blocks.high(), -1);
 			m_storedPerm.init(0, m_Blocks.high(), -1);
@@ -1284,4 +1282,3 @@ namespace ogdf {
 	}
 
 } // end namespace ogdf
-

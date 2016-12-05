@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 //***
 // Dominance Drawing Method. see "Graph Drawing" by Di Battista et al.
@@ -39,7 +36,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/basic/Math.h>
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/module/UpwardPlanarizerModule.h>
@@ -56,7 +53,7 @@ public:
 	DominanceLayout() {
 		m_grid_dist = 1;
 		// set default module
-		m_upPlanarizer.set(new SubgraphUpwardPlanarizer());
+		m_upPlanarizer.reset(new SubgraphUpwardPlanarizer());
 
 		m_angle = 45.0 / 180.0 * Math::pi;
 
@@ -67,7 +64,7 @@ public:
 	void layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig);
 
 	void setUpwardPlanarizer(UpwardPlanarizerModule *upPlanarizer) {
-		m_upPlanarizer.set(upPlanarizer);
+		m_upPlanarizer.reset(upPlanarizer);
 	}
 
 	void setMinGridDistance(int dist) {m_grid_dist = dist;}
@@ -102,7 +99,7 @@ private:
 	//min grid distance
 	int m_grid_dist;
 
-	ModuleOption<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
+	std::unique_ptr<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
 
 	void labelX(const UpwardPlanRep &UPR, node v, int &count);
 

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,19 +25,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/GridLayoutModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/CrossingMinimizationModule.h>
-#include <ogdf/module/GridLayoutModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
 
 
@@ -133,7 +129,7 @@ public:
 
 	//! Sets the module option for crossing minimization.
 	void setCrossMin(CrossingMinimizationModule *pCrossMin) {
-		m_crossMin.set(pCrossMin);
+		m_crossMin.reset(pCrossMin);
 	}
 
 
@@ -148,7 +144,7 @@ public:
 	 * layout algorithm produces an orthogonal drawing.
 	 */
 	void setPlanarLayouter(GridLayoutPlanRepModule *pPlanarLayouter) {
-		m_planarLayouter.set(pPlanarLayouter);
+		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
 	/**
@@ -159,7 +155,7 @@ public:
 	 * using a packing algorithm.
 	 */
 	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.set(pPacker);
+		m_packer.reset(pPacker);
 	}
 
 
@@ -181,13 +177,13 @@ protected:
 
 private:
 	//! The module for computing a planar subgraph.
-	ModuleOption<CrossingMinimizationModule> m_crossMin;
+	std::unique_ptr<CrossingMinimizationModule> m_crossMin;
 
 	//! The module for computing a planar grid layout.
-	ModuleOption<GridLayoutPlanRepModule> m_planarLayouter;
+	std::unique_ptr<GridLayoutPlanRepModule> m_planarLayouter;
 
 	//! The module for arranging connected components.
-	ModuleOption<CCLayoutPackModule>      m_packer;
+	std::unique_ptr<CCLayoutPackModule>      m_packer;
 
 	double m_pageRatio; //!< The desired page ratio.
 

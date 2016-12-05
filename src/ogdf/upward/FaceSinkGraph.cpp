@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/upward/FaceSinkGraph.h>
@@ -124,9 +121,7 @@ void FaceSinkGraph::doInit()
 }
 
 
-
-
-/* original:
+#if 0
 void FaceSinkGraph::doInit()
 {
 	const ConstCombinatorialEmbedding &E = *m_pE;
@@ -164,7 +159,8 @@ void FaceSinkGraph::doInit()
 			adj = adjPred->cyclicPred();
 		} while (adj != adj1);
 	}
-}*/
+}
+#endif
 
 
 // checks if F is a forest with
@@ -404,7 +400,7 @@ node FaceSinkGraph::dfsStAugmentation(
 
 
 void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
-	OGDF_ASSERT(m_pE->externalFace() != 0);
+	OGDF_ASSERT(m_pE->externalFace() != nullptr);
 
 	List<adjEntry> dummyList;
 	faceSwitches.init(*m_pE, dummyList);
@@ -413,8 +409,9 @@ void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
 	List<face> toDo;
 	FaceArray<bool> faceDone(*m_pE, false);
 
-	//debug
-	//m_pE->getGraph().writeGML("c:/temp/debug.gml");
+#if 0
+	m_pE->getGraph().writeGML("c:/temp/debug.gml");
+#endif
 
 	//compute sink-switches for the ext. face
 	for(adjEntry adj : m_pE->externalFace()->entries)
@@ -495,24 +492,18 @@ void FaceSinkGraph::sinkSwitches(FaceArray< List<adjEntry> > &faceSwitches) {
 		OGDF_ASSERT(!faceSwitches[f].empty());
 	}
 
-
-
-
-	//-------------------------------------debug
-	//cout << endl;
-	//cout << "switche (FaceSinkGraph::sinkSwitches) : " << endl;
-	//for(face f : m_pE->faces) {
-	//	cout << "face : " << f->index() << endl;
-	//	const List<adjEntry> &adjList = faceSwitches[f];
-	//	for(adjEntry adj : adjList) {
-	//		cout << adj->theNode() << ";   ";
-	//	}
-	//	cout << endl;
-	//}
-	// --------------------------------end debug
-
-
+#if 0
+	cout << endl;
+	cout << "switche (FaceSinkGraph::sinkSwitches) : " << endl;
+	for(face f : m_pE->faces) {
+		cout << "face : " << f->index() << endl;
+		const List<adjEntry> &adjList = faceSwitches[f];
+		for(adjEntry adj : adjList) {
+			cout << adj->theNode() << ";   ";
+		}
+		cout << endl;
+	}
+#endif
 }
 
 } // end namespace ogdf
-

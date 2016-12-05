@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/PriorityQueue.h>
 #include <ogdf/graphalg/MinimumCut.h>
@@ -48,7 +45,9 @@ MinCut::MinCut(Graph &G, EdgeArray<double> &w) : m_GC(G) {
 
 	// Due to the node contraction (which destroys the Graph step by step),
 	// we have to create a GraphCopy.
-	//m_GC = new GraphCopy(G);
+#if 0
+	m_GC = new GraphCopy(G);
+#endif
 
 	// Edge weights are initialized.
 	m_w.init(m_GC);
@@ -202,10 +201,10 @@ double MinCut::minimumCutPhase() {
 		ListIterator<node> it1;
 		for(it1=leftoverNodes.begin(); it1.valid(); ++it1) {
 
-			if(nodePrio[(*it1)] > mostTightly) {
-				maxWeightNode = (*it1);
+			if(nodePrio[*it1] > mostTightly) {
+				maxWeightNode = *it1;
 				maxWeightNodeIt = it1;
-				mostTightly = nodePrio[(*it1)];
+				mostTightly = nodePrio[*it1];
 			}
 		}
 #ifdef USE_PRIO

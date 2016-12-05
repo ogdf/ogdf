@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/decomposition/StaticSPQRTree.h>
@@ -131,7 +128,7 @@ void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
 			m_numR++; break;
 		}
 
-		m_sk[vT] = OGDF_NEW StaticSkeleton(this,vT);
+		m_sk[vT] = new StaticSkeleton(this,vT);
 		StaticSkeleton &S = *m_sk[vT];
 
 		for(edge e : C.m_edges)

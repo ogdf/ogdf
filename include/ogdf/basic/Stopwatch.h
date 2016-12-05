@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -133,7 +130,7 @@ public:
 
 	//! Returns true iff the currently elapsed time exceeds \a maxSeconds.
 	bool exceeds(int64_t maxSeconds) const {
-		return (seconds() >= maxSeconds);
+		return seconds() >= maxSeconds;
 	}
 
 	//! Adds \a centiSeconds to total time.
@@ -190,7 +187,7 @@ public:
 
 private:
 	//! Returns the current CPU time in milliseconds (from some fixed starting point).
-	virtual int64_t theTime() const;
+	virtual int64_t theTime() const override;
 };
 
 
@@ -217,7 +214,7 @@ public:
 
 private:
 	//! Returns the current wall-clock time in milliseconds (from some fixed starting point).
-	virtual int64_t theTime() const;
+	virtual int64_t theTime() const override;
 };
 
 }

@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -431,7 +428,7 @@ public:
 		//initialize depth at first call
 		if (!m_depthUpToDate)
 			computeSubTreeDepth(rootCluster());
-		OGDF_ASSERT(c->depth() != 0)
+		OGDF_ASSERT(c->depth() != 0);
 		return c->m_depth;
 	}
 
@@ -533,14 +530,14 @@ public:
 			}
 			//because nodes can already be unassigned (they are always
 			//unassigned if deleted), we have to check this
-			/*
+#if 0
 			if (m_nodeMap[w])
 			{
-			cluster c = m_nodeMap[w];
-			c->m_entries.del(m_itMap[w]);
+				cluster c = m_nodeMap[w];
+				c->m_entries.del(m_itMap[w]);
 			}
-			*/
-			//removeNodeAssignment(w);
+			removeNodeAssignment(w);
+#endif
 			G.delNode(w);
 		}
 	}
@@ -623,19 +620,23 @@ public:
 	 * to allow efficient checking in the case
 	 * that you know which clusters were recently changed (e.g. node reass.)
 	 */
-	void emptyClusters(SList<cluster>& emptyCluster, SList<cluster>* checkCluster = 0);
+	void emptyClusters(SList<cluster>& emptyCluster, SList<cluster>* checkCluster = nullptr);
 
 	//! Returns true if cluster \a c has only one node and no children.
 	inline bool emptyOnNodeDelete(cluster c) //virtual?
 	{
-		//if (!c) return false; //Allows easy use in loops
+#if 0
+		if (!c) return false; //Allows easy use in loops
+#endif
 		return (c->nCount() == 1) && (c->cCount() == 0);
 	}
 
 	//! Returns true if cluster \a c has only one child and no nodes.
 	inline bool emptyOnClusterDelete(cluster c) //virtual?
 	{
-		//if (!c) return false; //Allows easy use in loops
+#if 0
+		if (!c) return false; //Allows easy use in loops
+#endif
 		return (c->nCount() == 0) && (c->cCount() == 1);
 	}
 
@@ -785,24 +786,24 @@ protected:
 	//define how to cope with graph changes
 
 	//! Implementation of inherited method: Updates data if node deleted.
-	virtual void nodeDeleted(node v);
+	virtual void nodeDeleted(node v) override;
 
 	//! Implementation of inherited method: Updates data if node added.
-	virtual void nodeAdded(node v) {
+	virtual void nodeAdded(node v) override {
 		assignNode(v, rootCluster());
 	}
 
 	//! Implementation of inherited method: Updates data if edge deleted.
-	virtual void edgeDeleted(edge /* e */) { }
+	virtual void edgeDeleted(edge /* e */) override { }
 
 	//! Implementation of inherited method: Updates data if edge added.
-	virtual void edgeAdded(edge /* e */) { }
+	virtual void edgeAdded(edge /* e */) override { }
 
 	//! Currently does nothing.
-	virtual void reInit() { }
+	virtual void reInit() override { }
 
 	//! Clears cluster data without deleting root when underlying graphs' clear method is called.
-	virtual void cleared() {
+	virtual void cleared() override {
 		//we don't want a complete clear, as the graph still exists
 		//and can be updated from input stream
 		clear();

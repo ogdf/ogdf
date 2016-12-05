@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -105,8 +102,6 @@ public:
 	//! distinction of BFS/APSS. Precondition: Graph is connected.
 	virtual void call(GraphAttributes& GA) override;
 
-	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
-
 	//! Calls the layout algorithm for graph attributes \a GA
 	//! using values in eLength for distance computation.
 	//! Precondition: Graph is connected.
@@ -155,16 +150,19 @@ public:
 	{
 		m_computeMaxIt = b;
 	}
+#if 0
 	//We could add some noise to the computation
-	// Returns the current setting of nodes.
-	//bool noise() const {
-	//	return m_noise;
-	//}
-	// Sets the parameter noise to \a on.
-	//void noise(bool on) {
-	//	m_noise = on;
-	//}
 
+	//! Returns the current setting of nodes.
+	bool noise() const {
+		return m_noise;
+	}
+
+	//! Sets the parameter noise to \a on.
+	void noise(bool on) {
+		m_noise = on;
+	}
+#endif
 
 protected:
 	//! Does the actual call
@@ -180,9 +178,11 @@ protected:
 
 		double diff = m_prevEnergy - maxdelta; //energy difference
 		if (diff < 0.0) diff = -diff;
-		//#ifdef OGDF_DEBUG
-		//        cout << "Finished(): maxdelta: "<< maxdelta<<" diff/prev: "<<diff / m_prevEnergy<<"\n";
-		//#endif
+#if 0
+#ifdef OGDF_DEBUG
+		cout << "Finished(): maxdelta: "<< maxdelta<<" diff/prev: "<<diff / m_prevEnergy<<"\n";
+#endif
+#endif
 		//check if we want to stop
 		bool done = (maxdelta < m_tolerance);// || (diff / m_prevEnergy) < m_tolerance);
 
@@ -199,9 +199,11 @@ protected:
 			m_prevLEnergy = deltav;
 			return deltav == 0.0;//<m_ltolerance; //locally stable
 		}
-		//#ifdef OGDF_DEBUG
-		//        cout << "Local delta: "<<deltav<<"\n";
-		//#endif
+#if 0
+#ifdef OGDF_DEBUG
+		cout << "Local delta: "<<deltav<<"\n";
+#endif
+#endif
 		double diff = m_prevLEnergy - deltav;
 		//check if we want to stop
 		bool done = (deltav == 0.0 || (diff / m_prevLEnergy) < m_ltolerance);
@@ -280,40 +282,41 @@ private:
 		NodeArray< NodeArray<double> >& distance,	const double threshold = numeric_limits<double>::max());
 };//SpringEmbedderKK
 
-//Things that potentially could be added
-//	//! Returns the page ratio.
-//    double pageRatio() { return m_pageRatio; }
-//
-//	//! Sets the page ration to \a x.
-//    void pageRatio(double x) { m_pageRatio = x; }
-//
-//	//! Returns the current scaling method.
-//	Scaling scaling() const {
-//		return m_scaling;
-//	}
-//
-//	//! Sets the method for scaling the inital layout to \a sc.
-//	void scaling(Scaling sc) {
-//		m_scaling = sc;
-//	}
-//
-//	//! Returns the current scale function factor.
-//	double scaleFunctionFactor() const {
-//		return m_scaleFactor;
-//	}
-//
-//	//! Sets the scale function factor to \a f.
-//	void scaleFunctionFactor(double f) {
-//		m_scaleFactor = f;
-//	}
-//
-//	//! Sets the user bounding box (used if scaling method is scUserBoundingBox).
-//	void userBoundingBox(double xmin, double ymin, double xmax, double ymax) {
-//		m_bbXmin = xmin;
-//		m_bbYmin = ymin;
-//		m_bbXmax = xmax;
-//		m_bbYmax = ymax;
-//	}
+#if 0
+	//Things that potentially could be added
 
+	//! Returns the page ratio.
+	double pageRatio() { return m_pageRatio; }
 
+	//! Sets the page ration to \a x.
+	void pageRatio(double x) { m_pageRatio = x; }
+
+	//! Returns the current scaling method.
+	Scaling scaling() const {
+		return m_scaling;
+	}
+
+	//! Sets the method for scaling the inital layout to \a sc.
+	void scaling(Scaling sc) {
+		m_scaling = sc;
+	}
+
+	//! Returns the current scale function factor.
+	double scaleFunctionFactor() const {
+		return m_scaleFactor;
+	}
+
+	//! Sets the scale function factor to \a f.
+	void scaleFunctionFactor(double f) {
+		m_scaleFactor = f;
+	}
+
+	//! Sets the user bounding box (used if scaling method is scUserBoundingBox).
+	void userBoundingBox(double xmin, double ymin, double xmax, double ymax) {
+		m_bbXmin = xmin;
+		m_bbYmin = ymin;
+		m_bbXmax = xmax;
+		m_bbYmax = ymax;
+	}
+#endif
 } // end namespace ogdf

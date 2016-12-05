@@ -21,8 +21,8 @@ namespace bandit {
     class bandit_context : public context
     {
       public:
-        bandit_context(const char* desc, bool hard_skip, bool list_tests)
-          : desc_(desc), hard_skip_(hard_skip), list_tests_(list_tests), is_executing_(false)
+        bandit_context(const char* desc, bool hard_skip_a, bool list_tests)
+          : desc_(desc), hard_skip_(hard_skip_a), list_tests_(list_tests), is_executing_(false)
         {}
 
         const std::string& name()

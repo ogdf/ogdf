@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -43,14 +40,14 @@ namespace ogdf
 
 //! The Base class for simultaneous graph drawing.
 /**
-* This class provides functions for simultaneous graph drawing,
-* such as adding new subgraphs.
-*
-* It is possible to store up to 32 basicgraphs in one instance of the class.
-* The basic graph membership for all edges is stored via
-* GraphAttributes::edgeSubgraph.
-* Several functions are outsourced in corresponding manipulator modules.
-*/
+ * This class provides functions for simultaneous graph drawing,
+ * such as adding new subgraphs.
+ *
+ * It is possible to store up to 32 basicgraphs in one instance of the class.
+ * The basic graph membership for all edges is stored via
+ * GraphAttributes::edgeSubgraph.
+ * Several functions are outsourced in corresponding manipulator modules.
+ */
 
 class OGDF_EXPORT SimDraw
 {
@@ -115,7 +112,7 @@ public:
 	//! returns true if node \a v is a cost zero dummy node
 	bool isPhantomDummy(node v) const
 	{
-		return((isDummy(v)) && (!isProperDummy(v)));
+		return isDummy(v) && !isProperDummy(v);
 	}
 	//! returns true if node \a v is a cost greater zero dummy node
 	bool isProperDummy(node v) const;
@@ -191,7 +188,7 @@ public:
 
 private:
 	//! compares two nodes \a v and \a w by their ids
-	bool compareById(node v, node w) const { return (v->index() == w->index()); }
+	bool compareById(node v, node w) const { return v->index() == w->index(); }
 
 	//! compares two nodes \a v and \a w by their labels
 	/**
@@ -199,10 +196,9 @@ private:
 	* and set properly.
 	* Otherwise it is recommended to use compareById.
 	*/
-	bool compareByLabel(const GraphAttributes &vGA, node v,
-		const GraphAttributes &wGA, node w) const
+	bool compareByLabel(const GraphAttributes &vGA, node v, const GraphAttributes &wGA, node w) const
 	{
-		return(vGA.label(v) == wGA.label(w));
+		return vGA.label(v) == wGA.label(w);
 	}
 
 	//! compares two nodes \a v and \a w by compare mode stored in m_compareBy

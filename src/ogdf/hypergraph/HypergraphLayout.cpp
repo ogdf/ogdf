@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/HypergraphLayout.h>
@@ -40,7 +37,7 @@
 #include <ogdf/packing/TileToRowsCCPacker.h>
 
 #include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarity/FastPlanarSubgraph.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 
@@ -57,11 +54,11 @@ HypergraphLayoutES::HypergraphLayoutES()
 	m_constraintIO = false;
 	m_constraintPorts = false;
 	SubgraphPlanarizer *crossMin = new SubgraphPlanarizer;
-	crossMin->setSubgraph(new FastPlanarSubgraph);
+	crossMin->setSubgraph(new PlanarSubgraphFast);
 	crossMin->setInserter(new FixedEmbeddingInserter);
-	m_crossingMinimizationModule.set(crossMin);
-	m_planarLayoutModule.set(new OrthoLayout);
-	m_embeddingModule.set(new SimpleEmbedder);
+	m_crossingMinimizationModule.reset(crossMin);
+	m_planarLayoutModule.reset(new OrthoLayout);
+	m_embeddingModule.reset(new SimpleEmbedder);
 }
 
 
@@ -73,7 +70,9 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	HypergraphAttributesES &HA = dynamic_cast<HypergraphAttributesES &>(pHA);
 
 	GraphCopySimple gc(HA.repGraph());
-	GraphAttributes ga(gc);
+	GraphAttributes ga(gc,
+	  GraphAttributes::nodeGraphics | GraphAttributes::nodeType |
+	  GraphAttributes::edgeType);
 
 	for(node v : gc.nodes) {
 		node vOrig = gc.original(v);
@@ -118,18 +117,18 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 	{
 		// Planarize.
 		int cr;
-		m_crossingMinimizationModule.get().call(planarRep, i, cr, nullptr, &forbid);
+		m_crossingMinimizationModule->call(planarRep, i, cr, nullptr, &forbid);
 		m_crossings += cr;
 		//planarizeCC(planarRep, fixedShell);
 
 		// Embed.
 		adjEntry adjExternal = nullptr;
-		m_embeddingModule.get().call(planarRep, adjExternal);
+		m_embeddingModule->call(planarRep, adjExternal);
 
 		// Draw.
 		Layout ccPlaneRep(planarRep);
 		applyProfile(HA);
-		m_planarLayoutModule.get().call(planarRep, adjExternal, ccPlaneRep);
+		m_planarLayoutModule->call(planarRep, adjExternal, ccPlaneRep);
 
 		// Copy drawing of this CC into the planar representation.
 		for(int j = planarRep.startNode(); j < planarRep.stopNode(); ++j) {
@@ -139,40 +138,44 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 			HA.setX(vG, ccPlaneRep.x(planarRep.copy(vGC)));
 			HA.setY(vG, ccPlaneRep.y(planarRep.copy(vGC)));
 
-			for(adjEntry adj : vG->adjEntries)
-				if ((adj->index() & 1) != 0)
-					ccPlaneRep.computePolylineClear
-					(planarRep, adj->theEdge(), HA.bends(adj->theEdge()));
+			for (adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) != 0) {
+					ccPlaneRep.computePolylineClear(planarRep,
+					  gc.copy(adj->theEdge()),
+					  HA.bends(adj->theEdge()));
+				}
+			}
 		}
 
 		// Store current bounding box and the number of crossings.
-		bounding[i] = m_planarLayoutModule.get().getBoundingBox();
+		bounding[i] = m_planarLayoutModule->getBoundingBox();
 
 	}
 
 	// Pack all components together.
-	packAllCC(planarRep, HA, bounding);
+	packAllCC(planarRep, gc, HA, bounding);
 }
 
+#if 0
+void HypergraphLayoutES::planarizeCC(PlanRep &ccPlanarRep,
+	List<edge> &fixedShell)
+{
+	//int ccPlanarRepSize = ccPlanarRep.numberOfNodes();
 
-//void HypergraphLayoutES::planarizeCC(PlanRep &ccPlanarRep,
-//	List<edge> &fixedShell)
-//{
-//	//int ccPlanarRepSize = ccPlanarRep.numberOfNodes();
-//
-//	EdgeArray<int> costs(ccPlanarRep.original(), 1);
-//
-//	List<edge> crossingEdges;
-//	m_planarSubgraphModule.get().callAndDelete
-//		(ccPlanarRep, fixedShell, crossingEdges);
-//
-//	m_crossingMinimizationModule.get().call(ccPlanarRep, costs, crossingEdges);
-//}
+	EdgeArray<int> costs(ccPlanarRep.original(), 1);
 
+	List<edge> crossingEdges;
+	m_planarSubgraphModule->callAndDelete
+		(ccPlanarRep, fixedShell, crossingEdges);
 
-void HypergraphLayoutES::packAllCC(PlanRep &planarRep,
-	HypergraphAttributesES &pHA,
-	Array<DPoint> &bounding)
+	m_crossingMinimizationModule->call(ccPlanarRep, costs, crossingEdges);
+}
+#endif
+
+void HypergraphLayoutES::packAllCC(const PlanRep &planarRep,
+                                   const GraphCopySimple &gc,
+                                   HypergraphAttributesES &pHA,
+                                   Array<DPoint> &bounding)
 {
 	int componentsCount = planarRep.numberOfCCs();
 
@@ -188,15 +191,18 @@ void HypergraphLayoutES::packAllCC(PlanRep &planarRep,
 	// All nodes, edges or bends must be positioned according to the offset.
 	for (int i = 0; i < componentsCount; i++) {
 		for (int j = planarRep.startNode(i); j < planarRep.stopNode(i); ++j) {
-			node vG = planarRep.v(j);
+			node vGC = planarRep.v(j);
+			node vG = gc.original(vGC);
 
 			pHA.setX(vG, pHA.x(vG) + position[i].m_x);
 			pHA.setY(vG, pHA.y(vG) + position[i].m_y);
 
-			for (adjEntry entry : vG->adjEntries)
-			for (ListIterator<DPoint> ite = pHA.bends(entry->theEdge()).begin();
-				ite.valid(); ++ite)
-				(*ite).m_x += position[i].m_x, (*ite).m_y += position[i].m_y;
+			for (adjEntry entry : vG->adjEntries) {
+				for (auto &dp : pHA.bends(entry->theEdge())) {
+					dp.m_x += position[i].m_x;
+					dp.m_y += position[i].m_y;
+				}
+			}
 		}
 	}
 }

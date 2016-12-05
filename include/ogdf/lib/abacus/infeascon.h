@@ -48,7 +48,7 @@ class Master;
  * constraint's left hand side, which is implicitly zero,
  * is either \a TooLarge, \a Feasible, or \a TooSmall.
  */
-class  InfeasCon :  public AbacusRoot  {
+class OGDF_EXPORT InfeasCon : public AbacusRoot {
 public:
 
 	//! The different ways of infeasibility of a constraint.

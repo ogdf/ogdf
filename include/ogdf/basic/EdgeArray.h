@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -161,7 +158,7 @@ public:
 	//@{
 
 	//! Returns true iff the array is associated with a graph.
-	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
+	bool valid() const { return Array<T>::low() <= Array<T>::high(); }
 
 	//! Returns a pointer to the associated graph.
 	const Graph *graphOf() const {
@@ -170,76 +167,67 @@ public:
 
 	//! Returns a reference to the element with index \a e.
 	const T &operator[](edge e) const {
-		OGDF_ASSERT(e != nullptr)
-		OGDF_ASSERT(e->graphOf() == m_pGraph)
+		OGDF_ASSERT(e != nullptr);
+		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
 	//! Returns a reference to the element with index \a e.
 	T &operator[](edge e) {
-		OGDF_ASSERT(e != nullptr)
-		OGDF_ASSERT(e->graphOf() == m_pGraph)
+		OGDF_ASSERT(e != nullptr);
+		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
 	//! Returns a reference to the element with index \a e.
 	const T &operator()(edge e) const {
-		OGDF_ASSERT(e != nullptr)
-		OGDF_ASSERT(e->graphOf() == m_pGraph)
+		OGDF_ASSERT(e != nullptr);
+		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
 	//! Returns a reference to the element with index \a e.
 	T &operator()(edge e) {
-		OGDF_ASSERT(e != nullptr)
-		OGDF_ASSERT(e->graphOf() == m_pGraph)
+		OGDF_ASSERT(e != nullptr);
+		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
 	//! Returns a reference to the element with index edge of \a adj.
 	const T &operator[](adjEntry adj) const {
-		OGDF_ASSERT(adj != nullptr)
+		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \a adj.
 	T &operator[](adjEntry adj) {
-		OGDF_ASSERT(adj != nullptr)
+		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \a adj.
 	const T &operator()(adjEntry adj) const {
-		OGDF_ASSERT(adj != nullptr)
+		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index edge of \a adj.
 	T &operator()(adjEntry adj) {
-		OGDF_ASSERT(adj != nullptr)
+		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
 	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for an edge in the associated graph!
-	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             Edge arrays should be index by an edge, not an integer index.
-	 */
-	OGDF_DEPRECATED
+	//! \attention Make sure that \a index is a valid index for an edge in the associated graph!
+	OGDF_DEPRECATED("Edge arrays should be indexed by an edge, not an integer index.")
 	const T &operator[](int index) const
 		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for an edge in the associated graph!
-	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             Edge arrays should be index by an edge, not an integer index.
-	 */
-	OGDF_DEPRECATED
+	//! \attention Make sure that \a index is a valid index for an edge in the associated graph!
+	OGDF_DEPRECATED("Edge arrays should be indexed by an edge, not an integer index.")
 	T &operator[](int index)
 		{ return Array<T>::operator [](index); }
-
 
 	//@}
 	/**
@@ -423,7 +411,7 @@ public:
 	BucketEdgeArray(const EdgeArray<int> &edgeArray) : m_pEdgeArray(&edgeArray) { }
 
 	//! Returns bucket of edge \a e.
-	int getBucket(const edge &e) { return (*m_pEdgeArray)[e]; }
+	int getBucket(const edge &e) override { return (*m_pEdgeArray)[e]; }
 };
 
 

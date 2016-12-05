@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,11 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/basic.h>
-
-#ifdef USE_ABACUS
 
 #include <ogdf/cluster/MaximumCPlanarSubgraph.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
@@ -54,13 +49,15 @@ struct connStruct {
 };
 
 Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
+												  const EdgeArray<int> *pCost,
 												  List<edge> &delEdges,
 												  List<nodePair> &addedEdges)
 {
 #ifdef OGDF_DEBUG
 	cout << "Creating new Masterproblem for clustergraph with "<<G.constGraph().numberOfNodes()<<" nodes\n";
 #endif
-	MaxCPlanarMaster* cplanMaster = new MaxCPlanarMaster(G,m_heuristicLevel,
+	MaxCPlanarMaster* cplanMaster = new MaxCPlanarMaster(G, pCost,
+		m_heuristicLevel,
 		m_heuristicRuns,
 		m_heuristicOEdgeBound,
 		m_heuristicNPermLists,
@@ -292,13 +289,15 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 		while ( (i < connPairs.size()) && (cons[i].connected == true) )
 		{
 			cons[i].connected = false;
-			OGDF_ASSERT(cons[i].e != 0);
+			OGDF_ASSERT(cons[i].e != nullptr);
 			G2.delEdge(cons[i].e);
 			i++;
 		}//while
 		if (i >= connPairs.size()) break;
-		//cout<<"v1graph: "<<&(*(cons[i].v1->graphOf()))<<"\n";
-		//cout<<"origNodesgraph: "<<&(*(origNodes.graphOf()))<<"\n";
+#if 0
+		cout<<"v1graph: "<<&(*(cons[i].v1->graphOf()))<<"\n";
+		cout<<"origNodesgraph: "<<&(*(origNodes.graphOf()))<<"\n";
+#endif
 		cons[i].connected = true; //i.e., (false) will never be a feasible solution
 		cons[i].e = G2.newEdge(origNodes[cons[i].v1], origNodes[cons[i].v2]);
 
@@ -332,7 +331,9 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	os << "\nEND" <<"\n";
 	os.close();
 
-	//return;
+#if 0
+	return;
+#endif
 
 	os.open(getIeqFileName());
 	os << "DIM = " << m_numVars << "\n";
@@ -405,15 +406,17 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	if (master.useDefaultCutPool())
 	{
 		os << "#No cut constraints read from master\n";
-		//StandardPool<Constraint, Variable> *connCon = master.cutPool();
+#if 0
+		StandardPool<Constraint, Variable> *connCon = master.cutPool();
+#endif
 	}
 	else
 	{
 		StandardPool<Constraint, Variable> *connCon = master.getCutConnPool();
 		StandardPool<Constraint, Variable> *kuraCon = master.getCutKuraPool();
 		StandardPool<Variable, Constraint> *stdVar = master.varPool();
-		OGDF_ASSERT(connCon != 0);
-		OGDF_ASSERT(kuraCon != 0);
+		OGDF_ASSERT(connCon != nullptr);
+		OGDF_ASSERT(kuraCon != nullptr);
 		cout << connCon->number() << " Constraints im MasterConnpool \n";
 		cout << kuraCon->number() << " Constraints im MasterKurapool \n";
 		cout << connCon->size() << " Größe ConnPool"<<"\n";
@@ -423,13 +426,16 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	os << "\nEND" <<"\n";
 	os.close();
 	cout << "Cutting is set: "<<master.cutting()<<"\n";
-	//cout <<"Bounds for the variables:\n";
-	//Sub &theSub = *(master.firstSub());
-	//for ( i = 0; i < theSub.nVar(); i++)
-	//{
-	//	cout << i << ": " << theSub.lBound(i) << " - " << theSub.uBound(i) << "\n";
-	//}
-	/*// OLD CRAP
+#if 0
+	cout <<"Bounds for the variables:\n";
+	Sub &theSub = *(master.firstSub());
+	for ( i = 0; i < theSub.nVar(); i++)
+	{
+		cout << i << ": " << theSub.lBound(i) << " - " << theSub.uBound(i) << "\n";
+	}
+#endif
+#if 0
+	// OLD CRAP
 	cout << "Constraints: \n";
 	StandardPool< Constraint, Variable > *spool = master.conPool();
 	StandardPool< Constraint, Variable > *cpool = master.cutPool();
@@ -463,8 +469,6 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 			default: cout << "Inequality sense doesn't make any sense \n"; break;
 		}//switch
 	}
-	*/
-	/*
 	for ( i = 0; i < theSub.nCon(); i++)
 	{
 		Constraint &theCon = *(theSub.constraint(i));
@@ -489,7 +493,8 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 			std::cin.clear();
 			std::cin.ignore(numeric_limits<streamsize>::max(),'\n');
 		}
-	}*/
+	}
+#endif
 }//writeportaieq
 
 void MaximumCPlanarSubgraph::outputCons(ofstream &os,
@@ -501,7 +506,7 @@ void MaximumCPlanarSubgraph::outputCons(ofstream &os,
 		{
 			PoolSlot< Constraint, Variable > * sloty = connCon->slot(i);
 			Constraint *mycon = sloty->conVar();
-			OGDF_ASSERT(mycon != 0);
+			OGDF_ASSERT(mycon != nullptr);
 			int count;
 			for (count = 0; count < stdVar->size(); count++)
 			{
@@ -528,5 +533,3 @@ void MaximumCPlanarSubgraph::outputCons(ofstream &os,
 }
 
 } //end namespace ogdf
-
-#endif //USE_ABACUS

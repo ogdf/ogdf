@@ -17,7 +17,7 @@
 
 /** CoinDistance
 
-This is the Coin implementation of the std::function that is 
+This is the Coin implementation of the std::function that is
 designed to work on multiple platforms.
 */
 template <class ForwardIterator, class Distance>

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,15 +25,12 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/layered/CoffmanGrahamRanking.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/basic/GraphCopy.h>
 
@@ -41,7 +38,7 @@ namespace ogdf {
 
 CoffmanGrahamRanking::CoffmanGrahamRanking() : m_w(3)
 {
-	m_subgraph.set(new DfsAcyclicSubgraph());
+	m_subgraph.reset(new DfsAcyclicSubgraph());
 }
 
 
@@ -50,7 +47,7 @@ void CoffmanGrahamRanking::call (const Graph& G, NodeArray<int>& rank)
 	rank.init(G);
 	GraphCopy gc(G);
 
-	m_subgraph.get().callAndReverse(gc);
+	m_subgraph->callAndReverse(gc);
 	removeTransitiveEdges(gc);
 
 	List<Tuple2<node, int> > ready_nodes;
@@ -228,8 +225,11 @@ void CoffmanGrahamRanking::removeTransitiveEdges (Graph& G)
 		for (edge e : vout) {
 			node w = e-> target();
 
-			// if (w != 1)
+#if 0
+			if (w != 1) {
+#else
 			if ((mark[w] & 1) == 0) {
+#endif
 				dfs(w);
 			}
 		}

@@ -1,37 +1,34 @@
 /** \file
-* \brief Defines class GF2Solver, which represents a solver for
-*        linear equation systems over GF(2).
-*
-* \author Carsten Gutwenger
-*
-* \par License:
-* This file is part of the Open Graph Drawing Framework (OGDF).
-*
-* \par
-* Copyright (C)<br>
-* See README.txt in the root directory of the OGDF installation for details.
-*
-* \par
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* Version 2 or 3 as published by the Free Software Foundation;
-* see the file LICENSE.txt included in the packaging of this file
-* for details.
-*
-* \par
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* \par
-* You should have received a copy of the GNU General Public
-* License along with this program; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-* Boston, MA 02110-1301, USA.
-*
-* \see  http://www.gnu.org/copyleft/gpl.html
-***************************************************************/
+ * \brief Defines class GF2Solver, which represents a solver for
+ *        linear equation systems over GF(2).
+ *
+ * \author Carsten Gutwenger
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -90,23 +87,25 @@ class GF2Solver {
 		OGDF_NEW_DELETE
 	};
 
-	//struct Row {
-	//	Chunk *m_pHead;
-	//	Chunk *m_pTail;
+#if 0
+	struct Row {
+		Chunk *m_pHead;
+		Chunk *m_pTail;
 
-	//	Row() {
-	//		m_pHead = m_pTail = nullptr;
-	//	}
+		Row() {
+			m_pHead = m_pTail = nullptr;
+		}
 
-	//	void addChunk(Chunk *p) {
-	//		if(m_pHead == nullptr)
-	//			m_pHead = m_pTail = p;
-	//		else {
-	//			m_pTail->m_next = p;
-	//			m_pTail = p;
-	//		}
-	//	}
-	//};
+		void addChunk(Chunk *p) {
+			if(m_pHead == nullptr)
+				m_pHead = m_pTail = p;
+			else {
+				m_pTail->m_next = p;
+				m_pTail = p;
+			}
+		}
+	};
+#endif
 
 	struct Row2 {
 		Chunk2 *m_pHead;
@@ -129,16 +128,18 @@ class GF2Solver {
 	Chunk *m_freelist;
 	Chunk2 *m_freelist2;
 
-	//Chunk *getChunk() {
-	//	if(m_freelist != nullptr) {
-	//		Chunk *p = m_freelist;
-	//		m_freelist = p->m_next;
-	//		p->m_next = nullptr;
-	//		p->m_max = -1;
-	//		return p;
-	//	}
-	//	return new Chunk;
-	//}
+#if 0
+	Chunk *getChunk() {
+		if(m_freelist != nullptr) {
+			Chunk *p = m_freelist;
+			m_freelist = p->m_next;
+			p->m_next = nullptr;
+			p->m_max = -1;
+			return p;
+		}
+		return new Chunk;
+	}
+#endif
 
 	Chunk2 *getChunk2() {
 		if(m_freelist2 != nullptr) {
@@ -151,29 +152,35 @@ class GF2Solver {
 		return new Chunk2;
 	}
 
-	//void freeChunk(Chunk *p) {
-	//	p->m_next = m_freelist;
-	//	m_freelist = p;
-	//}
+#if 0
+	void freeChunk(Chunk *p) {
+		p->m_next = m_freelist;
+		m_freelist = p;
+	}
+#endif
 
 	void freeChunk2(Chunk2 *p) {
 		p->m_next = m_freelist2;
 		m_freelist2 = p;
 	}
 
-	//void freeChunks(Chunk *pHead, Chunk *pTail) {
-	//	pTail->m_next = m_freelist;
-	//	m_freelist = pHead;
-	//}
+#if 0
+	void freeChunks(Chunk *pHead, Chunk *pTail) {
+		pTail->m_next = m_freelist;
+		m_freelist = pHead;
+	}
+#endif
 
 	void freeChunks2(Chunk2 *pHead, Chunk2 *pTail) {
 		pTail->m_next = m_freelist2;
 		m_freelist2 = pHead;
 	}
 
-	//bool contains(const Row &r, int x) const;
+#if 0
+	bool contains(const Row &r, int x) const;
 
-	//void symDiff(Row &r, const Row &other);
+	void symDiff(Row &r, const Row &other);
+#endif
 	void symDiff2(int r1, int r2, Array<Row2> &rows, Array<List<int>> &cols);
 
 public:
@@ -192,15 +199,17 @@ public:
 		ListConstIterator<int> begin() const { return m_objects.begin(); }
 		ListConstIterator<int> end() const { return m_objects.end(); }
 
-		//bool contains(OBJ obj) const {
-		//	for(OBJ x : m_objects) {
-		//		if(x == obj)
-		//			return true;
-		//		else if(x > obj)
-		//			return false;
-		//	}
-		//	return false;
-		//}
+#if 0
+		bool contains(OBJ obj) const {
+			for(OBJ x : m_objects) {
+				if(x == obj)
+					return true;
+				else if(x > obj)
+					return false;
+			}
+			return false;
+		}
+#endif
 
 		int size() const {
 			return m_objects.size();
@@ -219,32 +228,34 @@ public:
 			return *this;
 		}
 
-		//Equation &operator^=(const Equation &other) {
-		//	ListConstIterator<OBJ> itOther = other.m_objects.begin();
-		//	ListIterator<OBJ> it = m_objects.begin();
+#if 0
+		Equation &operator^=(const Equation &other) {
+			ListConstIterator<OBJ> itOther = other.m_objects.begin();
+			ListIterator<OBJ> it = m_objects.begin();
 
-		//	while(itOther.valid())
-		//	{
-		//		if(!it.valid()) {
-		//			m_objects.pushBack(*itOther);
-		//			++itOther;
+			while(itOther.valid())
+			{
+				if(!it.valid()) {
+					m_objects.pushBack(*itOther);
+					++itOther;
 
-		//		} else if(*it == *itOther) {
-		//			ListIterator<OBJ> itDel = it;
-		//			++it; ++itOther;
-		//			m_objects.del(itDel);
+				} else if(*it == *itOther) {
+					ListIterator<OBJ> itDel = it;
+					++it; ++itOther;
+					m_objects.del(itDel);
 
-		//		} else if(*itOther < *it) {
-		//			m_objects.insertBefore(*itOther, it);
-		//			++itOther;
+				} else if(*itOther < *it) {
+					m_objects.insertBefore(*itOther, it);
+					++itOther;
 
-		//		} else {
-		//			++it;
-		//		}
-		//	}
+				} else {
+					++it;
+				}
+			}
 
-		//	return *this;
-		//}
+			return *this;
+		}
+#endif
 
 		OGDF_NEW_DELETE
 	};

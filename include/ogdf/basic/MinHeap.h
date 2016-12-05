@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -309,10 +306,12 @@ public:
 	 * paremeter class, which can be any function returning \a true if two objects should be considered equal, and \a false otherwise.
 	 */
 	void pushAndDeleteNoRedundancy(X* x, Priority p) {
-		for(INDEX i = Top10Heap<Prioritized<X*,Priority>,INDEX >::size(); i-->0;) {
+		for(INDEX i = Top10Heap<Prioritized<X*,Priority>,INDEX >::size(); i-- > 0;) {
 			X* k = Top10Heap<Prioritized<X*,Priority>,INDEX >::operator[](i).item();
-//			OGDF_ASSERT( x )
-//			OGDF_ASSERT( k )
+#if 0
+			OGDF_ASSERT(x);
+			OGDF_ASSERT(k);
+#endif
 			if(TargetComparer<X,STATICCOMPARER>::equal(k,x)) {
 				delete x;
 				return;

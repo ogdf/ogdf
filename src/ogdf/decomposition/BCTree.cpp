@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/decomposition/BCTree.h>
@@ -106,7 +103,9 @@ void BCTree::initNotConnected (node vG)
 	m_gtoh.init(m_G);
 
 	biComp(nullptr,vG);
-	// cout << m_count << endl << flush;
+#if 0
+	 cout << m_count << endl << flush;
+#endif
 
 	// call biComp for all nodes that are not in the
 	//  first connected component
@@ -132,7 +131,9 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 	m_lowpt[vG] = m_number[vG] = ++m_count;
 
 	for(adjEntry adj : vG->adjEntries) {
-		//edge eG = adj->theEdge();
+#if 0
+		edge eG = adj->theEdge();
+#endif
 		node wG = adj->twinNode();
 		if ((adjuG != nullptr) && (adj == adjuG->twin())) continue;
 		if (m_number[wG]==0) {
@@ -254,7 +255,7 @@ node BCTree::findNCA (node uB, node vB) const
 
 SList<node>& BCTree::findPath (node sG, node tG) const
 {
-	SList<node>& pB = *OGDF_NEW SList<node>;
+	SList<node>& pB = *new SList<node>;
 	node sB = bcproper(sG);
 	node tB = bcproper(tG);
 	node nB = findNCA(sB,tB);
@@ -266,7 +267,7 @@ SList<node>& BCTree::findPath (node sG, node tG) const
 
 SList<node>* BCTree::findPathBCTree (node sB, node tB) const
 {
-	SList<node> *pB = OGDF_NEW SList<node>;
+	SList<node> *pB = new SList<node>;
 	node nB = findNCA(sB,tB);
 	for (pB->pushBack(sB); sB!=nB; pB->pushBack(sB)) sB = parent(sB);
 	for (SListIterator<node> iB=pB->rbegin(); tB!=nB; tB=parent(tB)) pB->insertAfter(tB,iB);

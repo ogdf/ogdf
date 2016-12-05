@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -69,23 +66,41 @@ public:
 	 *
 	 */
 	ReturnType call(const ClusterGraph &G, List<edge> &delEdges) {
-		return doCall(G, delEdges);
+		return call(G, nullptr, delEdges);
+	}
+
+	/**
+	 *  \brief  Computes set of edges delEdges, which have to be deleted
+	 *  in order to get a c-planar subgraph.
+	 *
+	 * Must be implemented by derived classes.
+	 * @param G is the clustergraph.
+	 * @param pCost Assigns integral weight to all edges.
+	 *        We ask for a heavy subgraph.
+	 *        If set to \c nullptr all edges have a weight of 1.
+	 * @param delEdges holds the edges not in the subgraph on return.
+	 *
+	 */
+	ReturnType call(const ClusterGraph &G, const EdgeArray<int> *pCost, List<edge> &delEdges) {
+		return doCall(G, pCost, delEdges);
 	}
 
 
 protected:
 
 	/**
-	 * \brief Computes a maximum c-planar subgraph.
+	 * \brief Computes a c-planar subgraph.
 	 *
 	 * If delEdges is empty on return, the clustered graph G is c-planar-
 	 * The actual algorithm call that must be implemented by derived classes!
 	 *
 	 * @param CG is the given cluster graph.
+	 * @param pCost Assigns integral weight to all edges.
+	 *        We ask for a heavy subgraph.
+	 *        If set to \c nullptr all edges have a weight of 1.
 	 * @param delEdges holds the set of edges that have to be deleted.
 	 */
-	virtual ReturnType doCall(const ClusterGraph &CG,
-		List<edge> &delEdges) = 0;
+	virtual ReturnType doCall(const ClusterGraph &CG, const EdgeArray<int> *pCost, List<edge> &delEdges) = 0;
 
 	OGDF_MALLOC_NEW_DELETE
 };

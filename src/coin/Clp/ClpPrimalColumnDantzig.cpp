@@ -250,4 +250,3 @@ ClpPrimalColumnPivot * ClpPrimalColumnDantzig::clone(bool CopyData) const
           return new ClpPrimalColumnDantzig();
      }
 }
-

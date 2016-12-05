@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/memory.h>
@@ -63,76 +60,60 @@
 #include <malloc.h>
 #endif
 
-
-#ifdef _MSC_VER
-#include <intrin.h>
-
+#if defined(_MSC_VER)
+# include <intrin.h>
 #elif defined(OGDF_SYSTEM_UNIX) || (defined(__MINGW32__) && !defined(__MINGW64__))
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/time.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <sys/time.h>
+#endif
+#ifdef __GNUC__
+# include <cpuid.h>
+#endif
 
-static void __cpuid(int CPUInfo[4], int infoType)
+static inline void cpuid(int CPUInfo[4], int infoType)
 {
+#if defined(OGDF_SYSTEM_WINDOWS)
+	__cpuid(CPUInfo, infoType);
+#else
 	uint32_t a = 0;
 	uint32_t b = 0;
 	uint32_t c = 0;
 	uint32_t d = 0;
 
-#if defined(__i386__) || defined(__x86_64__) && !defined(__APPLE__)
-
-	a = CPUInfo[0];
-	b = CPUInfo[1];
-	c = CPUInfo[2];
-	d = CPUInfo[3];
-
-	__asm__ __volatile__ ("xchgl	%%ebx,%0\n\t"
-						"cpuid	\n\t"
-						"xchgl	%%ebx,%0\n\t"
-						: "+r" (b), "=a" (a), "=c" (c), "=d" (d)
-						: "1" (infoType), "2" (c));
-#else
-	// not supported on other systems!
-#endif
+# ifdef __GNUC__
+	__get_cpuid(infoType, &a, &b, &c, &d);
+# endif
 
 	CPUInfo[0] = a;
 	CPUInfo[1] = b;
 	CPUInfo[2] = c;
 	CPUInfo[3] = d;
-}
 #endif
+}
 
 
 namespace ogdf {
 
-unsigned int System::s_cpuFeatures;
-int          System::s_cacheSize;
-int          System::s_cacheLine;
-int          System::s_pageSize;
-int          System::s_numberOfProcessors;
-
+unsigned int System::s_cpuFeatures = 0;
+int System::s_cacheSize = 0;
+int System::s_cacheLine = 0;
+int System::s_pageSize = 0;
+int System::s_numberOfProcessors = 1;
 
 #if defined(OGDF_SYSTEM_WINDOWS) || defined(__CYGWIN__)
 int64_t System::s_HPCounterFrequency;
 #endif
 
-
 void System::init()
 {
-	s_cpuFeatures = 0;
-	s_cacheSize   = 0;
-	s_cacheLine   = 0;
-
-	// currently not working for shared libs on Linux
-#if !defined(OGDF_DLL) || !defined(OGDF_SYSTEM_UNIX)
-
 	int CPUInfo[4] = {-1};
-	__cpuid(CPUInfo, 0);
+	cpuid(CPUInfo, 0);
 
 	unsigned int nIds = CPUInfo[0];
 	if(nIds >= 1)
 	{
-		__cpuid(CPUInfo, 1);
+		cpuid(CPUInfo, 1);
 
 		int featureInfoECX = CPUInfo[2];
 		int featureInfoEDX = CPUInfo[3];
@@ -150,11 +131,11 @@ void System::init()
 		if(featureInfoECX & (1 <<  3)) s_cpuFeatures |= cpufmMONITOR;
 	}
 
-	__cpuid(CPUInfo, 0x80000000);
+	cpuid(CPUInfo, 0x80000000);
 	unsigned int nExIds = CPUInfo[0];
 
 	if(nExIds >= 0x80000006) {
-		__cpuid(CPUInfo, 0x80000006);
+		cpuid(CPUInfo, 0x80000006);
 		s_cacheLine = CPUInfo[2] & 0xff;
 		s_cacheSize = (CPUInfo[2] >> 16) & 0xffff;
 	}
@@ -166,29 +147,20 @@ void System::init()
 	GetSystemInfo(&siSysInfo);
 	s_pageSize = siSysInfo.dwPageSize;
 	s_numberOfProcessors = siSysInfo.dwNumberOfProcessors;
-
-#elif defined(OGDF_SYSTEM_UNIX) && defined(__APPLE__)
-	unsigned long long value;
-	size_t  size = sizeof( value );
-		if (sysctlbyname("hw.pagesize", &value, &size, nullptr, 0) !=-1)
-		s_pageSize = (int)value;
-	else
-		s_pageSize = 0;
-
-	if (sysctlbyname("hw.ncpu", &value, &size, nullptr, 0) !=-1)
-		s_numberOfProcessors = (int)value;
-	else
-		s_numberOfProcessors = 1;
-
 #elif defined(OGDF_SYSTEM_UNIX)
+# if defined(__APPLE__)
+	unsigned long long value;
+	size_t size = sizeof(value);
+	if (sysctlbyname("hw.pagesize", &value, &size, nullptr, 0) != -1) {
+		s_pageSize = (int)value;
+	}
+	if (sysctlbyname("hw.ncpu", &value, &size, nullptr, 0) != -1) {
+		s_numberOfProcessors = (int)value;
+	}
+# else
 	s_pageSize = (int)sysconf(_SC_PAGESIZE);
 	s_numberOfProcessors = (int)sysconf(_SC_NPROCESSORS_CONF);
-
-#else
-	s_pageSize = 0; // just a placeholder!!!
-	s_numberOfProcessors = 1; // just a placeholder!!!
-#endif
-
+# endif
 #endif
 }
 
@@ -428,17 +400,17 @@ int64_t System::realTime()
 
 size_t System::memoryAllocatedByMemoryManager()
 {
-	return PoolMemoryAllocator::memoryAllocatedInBlocks();
+	return OGDF_ALLOCATOR::memoryAllocatedInBlocks();
 }
 
 size_t System::memoryInGlobalFreeListOfMemoryManager()
 {
-	return PoolMemoryAllocator::memoryInGlobalFreeList();
+	return OGDF_ALLOCATOR::memoryInGlobalFreeList();
 }
 
 size_t System::memoryInThreadFreeListOfMemoryManager()
 {
-	return PoolMemoryAllocator::memoryInThreadFreeList();
+	return OGDF_ALLOCATOR::memoryInThreadFreeList();
 }
 
 

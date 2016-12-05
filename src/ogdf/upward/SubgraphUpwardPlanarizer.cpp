@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
 //#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
@@ -57,7 +54,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 	//reverse some edges in order to obtain a DAG
 	List<edge> feedBackArcSet;
-	m_acyclicMod.get().call(GC, feedBackArcSet);
+	m_acyclicMod->call(GC, feedBackArcSet);
 	for(edge e : feedBackArcSet) {
 		GC.reverseEdge(e);
 	}
@@ -85,23 +82,20 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	}
 
 
-	/*
-	//------------------------------------------------debug
-	GraphAttributes AG_GC(GC, GraphAttributes::nodeGraphics|
-						GraphAttributes::edgeGraphics|
-						GraphAttributes::nodeColor|
-						GraphAttributes::edgeColor|
-						GraphAttributes::nodeLabel|
-						GraphAttributes::edgeLabel
-						);
+#if 0
+	GraphAttributes AG_GC(GC, GraphAttributes::nodeGraphics |
+	                          GraphAttributes::edgeGraphics |
+	                          GraphAttributes::nodeColor |
+	                          GraphAttributes::edgeColor |
+	                          GraphAttributes::nodeLabel |
+	                          GraphAttributes::edgeLabel);
 	AG_GC.setAllHeight(30.0);
 	AG_GC.setAllWidth(30.0);
 	for(node z : AG_GC.constGraph().nodes) {
 		AG_GC.label(z) = to_string(z->index());
 	}
 	AG_GC.writeGML("c:/temp/GC.gml");
-	// --------------------------------------------end debug
-	*/
+#endif
 
 	BCTree BC(GC);
 	const Graph &bcTree = BC.bcTree();
@@ -122,7 +116,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 		GraphCopy &block = biComps[v];
 
-		OGDF_ASSERT(m_subgraph.valid());
+		OGDF_ASSERT(m_subgraph);
 
 		// construct a super source for this block
 		node s, s_block;
@@ -140,7 +134,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 				UPR_tmp.createEmpty(block);
 				List<edge> delEdges;
 
-				m_subgraph.get().call(UPR_tmp, delEdges);
+				m_subgraph->call(UPR_tmp, delEdges);
 
 				OGDF_ASSERT( isSimple(UPR_tmp) );
 				UPR_tmp.augment();
@@ -162,58 +156,56 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 						cost_Block[e] = cost_GC[block.original(e)];
 				}
 
-				/*
-				if (false) {
-					//---------------------------------------------------debug
-					LayerBasedUPRLayout uprLayout;
-					UpwardPlanRep upr_bug(UPR_tmp.getEmbedding());
-					adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
-					node s_upr_bug = upr_bug.newNode();
-					upr_bug.getEmbedding().splitFace(s_upr_bug, adj_bug);
-					upr_bug.m_isSourceArc.init(upr_bug, false);
-					upr_bug.m_isSourceArc[s_upr_bug->firstAdj()->theEdge()] = true;
-					upr_bug.s_hat = s_upr_bug;
-					upr_bug.augment();
+#if 0
+				LayerBasedUPRLayout uprLayout;
+				UpwardPlanRep upr_bug(UPR_tmp.getEmbedding());
+				adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
+				node s_upr_bug = upr_bug.newNode();
+				upr_bug.getEmbedding().splitFace(s_upr_bug, adj_bug);
+				upr_bug.m_isSourceArc.init(upr_bug, false);
+				upr_bug.m_isSourceArc[s_upr_bug->firstAdj()->theEdge()] = true;
+				upr_bug.s_hat = s_upr_bug;
+				upr_bug.augment();
 
-					GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics|
-							GraphAttributes::edgeGraphics|
-							GraphAttributes::nodeColor|
-							GraphAttributes::edgeColor|
-							GraphAttributes::nodeLabel|
-							GraphAttributes::edgeLabel
-							);
-					GA_UPR_tmp.setAllHeight(30.0);
-					GA_UPR_tmp.setAllWidth(30.0);
+				GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics|
+						GraphAttributes::edgeGraphics|
+						GraphAttributes::nodeColor|
+						GraphAttributes::edgeColor|
+						GraphAttributes::nodeLabel|
+						GraphAttributes::edgeLabel
+						);
+				GA_UPR_tmp.setAllHeight(30.0);
+				GA_UPR_tmp.setAllWidth(30.0);
 
-					uprLayout.call(upr_bug, GA_UPR_tmp);
+				uprLayout.call(upr_bug, GA_UPR_tmp);
 
-					// label the nodes with their index
-					for(node z : GA_UPR_tmp.constGraph().nodes) {
-						GA_UPR_tmp.label(z) = to_string(z->index());
-						GA_UPR_tmp.y(z)=-GA_UPR_tmp.y(z);
-						GA_UPR_tmp.x(z)=-GA_UPR_tmp.x(z);
-					}
-					for(edge eee : GA_UPR_tmp.constGraph().edges) {
-						DPolyline &line = GA_UPR_tmp.bends(eee);
-						ListIterator<DPoint> it;
-						for(it = line.begin(); it.valid(); it++) {
-							(*it).m_y = -(*it).m_y;
-							(*it).m_x = -(*it).m_x;
-						}
-					}
-					GA_UPR_tmp.writeGML("c:/temp/UPR_tmp_fups.gml");
-					cout << "UPR_tmp/fups faces:";
-					UPR_tmp.outputFaces(UPR_tmp.getEmbedding());
-					//end -----------------------------------------------debug
+				// label the nodes with their index
+				for(node z : GA_UPR_tmp.constGraph().nodes) {
+					GA_UPR_tmp.label(z) = to_string(z->index());
+					GA_UPR_tmp.y(z)=-GA_UPR_tmp.y(z);
+					GA_UPR_tmp.x(z)=-GA_UPR_tmp.x(z);
 				}
-				*/
+				for(edge eee : GA_UPR_tmp.constGraph().edges) {
+					DPolyline &line = GA_UPR_tmp.bends(eee);
+					ListIterator<DPoint> it;
+					for(it = line.begin(); it.valid(); it++) {
+						(*it).m_y = -(*it).m_y;
+						(*it).m_x = -(*it).m_x;
+					}
+				}
+				GA_UPR_tmp.writeGML("c:/temp/UPR_tmp_fups.gml");
+				cout << "UPR_tmp/fups faces:";
+				UPR_tmp.outputFaces(UPR_tmp.getEmbedding());
+#endif
 
 				delEdges.permute();
-				m_inserter.get().call(UPR_tmp, cost_Block, delEdges);
+				m_inserter->call(UPR_tmp, cost_Block, delEdges);
 
 				if (i != 0) {
 					if (UPR_tmp.numberOfCrossings() < bestUPR.numberOfCrossings()) {
-						//cout << endl << "new cr_nr:" << UPR_tmp.numberOfCrossings() << " old  cr_nr : " << bestUPR.numberOfCrossings() << endl;
+#if 0
+						cout << endl << "new cr_nr:" << UPR_tmp.numberOfCrossings() << " old  cr_nr : " << bestUPR.numberOfCrossings() << endl;
+#endif
 						bestUPR = UPR_tmp;
 					}
 				}
@@ -241,9 +233,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 			bestUPR = UPR_tmp;
 
-			/*
-			//debug
-			//---------------------------------------------------debug
+#if 0
 			GraphAttributes GA_UPR_tmp(UPR_tmp, GraphAttributes::nodeGraphics|
 					GraphAttributes::edgeGraphics|
 					GraphAttributes::nodeColor|
@@ -271,9 +261,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 			GA_UPR_tmp.writeGML("c:/temp/UPR_tmp_fups.gml");
 			cout << "UPR_tmp/fups faces:";
 			UPR_tmp.outputFaces(UPR_tmp.getEmbedding());
-			//end -----------------------------------------------debug
-			*/
-
+#endif
 		}
 		uprs[v] = bestUPR;
 	}
@@ -296,9 +284,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	//set crossings
 	UPR.crossings = nr_cr;
 
-
-	//------------------------------------------------debug
-	/*
+#if 0
 	LayerBasedUPRLayout uprLayout;
 	UpwardPlanRep upr_bug(UPR.getEmbedding());
 	adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
@@ -308,13 +294,12 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	upr_bug.m_isSourceArc[s_upr_bug->firstAdj()->theEdge()] = true;
 	upr_bug.s_hat = s_upr_bug;
 	upr_bug.augment();
-	GraphAttributes AG(UPR, GraphAttributes::nodeGraphics|
-						GraphAttributes::edgeGraphics|
-						GraphAttributes::nodeColor|
-						GraphAttributes::edgeColor|
-						GraphAttributes::nodeLabel|
-						GraphAttributes::edgeLabel
-						);
+	GraphAttributes AG(UPR, GraphAttributes::nodeGraphics |
+	                        GraphAttributes::edgeGraphics |
+	                        GraphAttributes::nodeColor |
+	                        GraphAttributes::edgeColor |
+	                        GraphAttributes::nodeLabel |
+	                        GraphAttributes::edgeLabel);
 	AG.setAllHeight(30.0);
 	AG.setAllWidth(30.0);
 
@@ -324,10 +309,8 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 		int idx;
 		idx = v->index();
 
-
 		if (UPR.original(v) != 0)
 			idx = UPR.original(v)->index();
-
 
 		AG.label(v) = to_string(idx);
 		if (UPR.isDummy(v))
@@ -349,28 +332,29 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 		}
 	}
 	AG.writeGML("c:/temp/upr_res.gml");
-	//cout << "UPR_RES";
-	//UPR.outputFaces(UPR.getEmbedding());
-	//cout << "Mapping :" << endl;
-	//for(node v : UPR.nodes) {
-	//	if (UPR.original(v) != 0) {
-	//		cout << "node UPR  " << v << "   node G  " << UPR.original(v) << endl;
-	//	}
-	//}
-	// --------------------------------------------end debug
-	*/
+#if 0
+	cout << "UPR_RES";
+	UPR.outputFaces(UPR.getEmbedding());
+	cout << "Mapping :" << endl;
+	for(node v : UPR.nodes) {
+		if (UPR.original(v) != 0) {
+			cout << "node UPR  " << v << "   node G  " << UPR.original(v) << endl;
+		}
+	}
+#endif
+#endif
 
 	OGDF_ASSERT(hasSingleSource(UPR));
 	OGDF_ASSERT(isSimple(UPR));
 	OGDF_ASSERT(isAcyclic(UPR));
 	OGDF_ASSERT(UpwardPlanarity::isUpwardPlanar_singleSource(UPR));
 
-/*
+#if 0
 	for(edge eee : UPR.original().edges) {
 		if (UPR.isReversed(eee))
 			cout << endl << eee << endl;
 	}
-*/
+#endif
 	return Module::retFeasible;
 }
 
@@ -426,7 +410,7 @@ void SubgraphUpwardPlanarizer::merge(
 
 	if (empty) {
 
-		OGDF_ASSERT(startG == 0);
+		OGDF_ASSERT(startG == nullptr);
 
 		// contruct a node in UPR_res assocciated with startUPR
 		startRes = UPR_res.newNode();
@@ -438,7 +422,7 @@ void SubgraphUpwardPlanarizer::merge(
 		startRes = UPR_res.copy(startG);
 	}
 
-	OGDF_ASSERT(startRes != 0);
+	OGDF_ASSERT(startRes != nullptr);
 
 	// compute the adjEntry position (in UPR_res) of the cutvertex startRes
 	adjEntry pos = nullptr;
@@ -462,7 +446,7 @@ void SubgraphUpwardPlanarizer::merge(
 			else
 				pos = adj_ext;
 		}
-		OGDF_ASSERT(pos != 0);
+		OGDF_ASSERT(pos != nullptr);
 	}
 
 	// construct for each node (except the two super sink and the super source) of UPR a associated of UPR to UPR_res
@@ -470,7 +454,7 @@ void SubgraphUpwardPlanarizer::merge(
 	nodeUPR2UPR_res[startUPR] = startRes;
 	for(node v : UPR.nodes) {
 
-		// allready constructed or is super sink or super source
+		// already constructed or is super sink or super source
 		if (v == startUPR || v == UPR.getSuperSink() || v == UPR.getSuperSink()->firstAdj()->theEdge()->source() || v == UPR.getSuperSource())
 			continue;
 
@@ -528,11 +512,7 @@ void SubgraphUpwardPlanarizer::merge(
 		}
 	}
 
-
-	///*
-	//* embed the new component in UPR_res with respect to the embedding of UPR
-	//*/
-
+	// embed the new component in UPR_res with respect to the embedding of UPR
 	// for the cut vertex
 	if (!empty) {
 		adjEntry run = UPR.getAdjEntry(UPR.getEmbedding(), startUPR, UPR.getEmbedding().externalFace());
@@ -570,8 +550,7 @@ void SubgraphUpwardPlanarizer::merge(
 		UPR_res.sort(v_UPR_res, adj_UPR_res);
 	}
 
-	/*
-	//---------------------------------------------------debug
+#if 0
 	if (!UPR_res.empty()) {
 		GraphAttributes GA_UPR_res(UPR_res, GraphAttributes::nodeGraphics|
 				GraphAttributes::edgeGraphics|
@@ -607,8 +586,7 @@ void SubgraphUpwardPlanarizer::merge(
 	GA_UPR.writeGML("c:/temp/UPR_tmp.gml");
 	cout << "UPR_tmp faces:";
 	UPR.outputFaces(UPR.getEmbedding());
-	//end -----------------------------------------------debug
-	*/
+#endif
 
 	// update UPR_res
 	UPR_res.initMe();

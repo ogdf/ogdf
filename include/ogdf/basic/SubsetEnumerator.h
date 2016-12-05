@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -48,7 +45,7 @@ namespace ogdf {
  *
  *     do_something_eg_fill_edges();
  *
- *     SubsetEnumerator<edge> edgeSubset(edges);
+ *     SubsetEnumerator<edge> subset(edges);
  *
  *     for (subset.begin(3); subset.valid(); subset.next()) {
  *       do_something_with(subset[0], subset[1], subset[2]);
@@ -57,7 +54,7 @@ namespace ogdf {
  *   </li>
  *   <li> Enumerate all subsets of edges:
  *    \code
- *     SubsetEnumerator<edge> edgeSubset(edges);
+ *     SubsetEnumerator<edge> subset(edges);
  *
  *     for (subset.begin(); subset.valid(); subset.next()) {
  *       for (int i = 0; i < subset.size(); ++i) {
@@ -69,7 +66,7 @@ namespace ogdf {
  *   </li>
  *   <li> Do something with element lists and complement lists of all 2-, 3-, and 4-element subsets
  *    \code
- *     SubsetEnumerator<edge> edgeSubset(edges);
+ *     SubsetEnumerator<edge> subset(edges);
  *
  *     for (subset.begin(2, 4); subset.valid(); subset.next()) {
  *       List<edge> list1, list2;

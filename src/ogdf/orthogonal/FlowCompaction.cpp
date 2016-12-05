@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/orthogonal/FlowCompaction.h>
@@ -234,7 +231,9 @@ void FlowCompaction::improvementHeuristics(
 void FlowCompaction::improvementHeuristics(
 	PlanRep &PG,
 	OrthoRep &OR,
-	//const
+#if 0
+	const
+#endif
 	MinimumEdgeDistances<int> &minDist,
 	GridLayoutMapped &drawing,
 	int originalSeparation //test for compaction improvement
@@ -452,13 +451,15 @@ void FlowCompaction::computeCoords(
 		//reducible arcs are currently out of play
 		//maybe they will be inserted later on for some special purpose,
 		//therefore we keep the code
-		OGDF_ASSERT(D.typeOf(e) != cetReducibleArc)
-		//     if (D.typeOf(e) == cetReducibleArc)
-		//         {
-		//OGDF_ASSERT(false);
-		//           lowerBound[eDual] = min(0, currentLength);
-		//           upperBound[eDual] = infinity;
-		//         }
+#if 1
+		OGDF_ASSERT(D.typeOf(e) != cetReducibleArc);
+#else
+		if (D.typeOf(e) == cetReducibleArc) {
+		{
+			lowerBound[eDual] = min(0, currentLength);
+			upperBound[eDual] = infinity;
+		}
+#endif
 		//should we reset median arcs here?
 
 		if (onlyGen)
@@ -735,4 +736,3 @@ void printCCGy(const char *filename,
 
 
 } // end namespace ogdf
-

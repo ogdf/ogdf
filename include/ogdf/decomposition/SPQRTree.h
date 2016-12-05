@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -148,7 +145,7 @@ public:
 	 */
 	void pertinentGraph(node v, PertinentGraph &Gp) const
 	{
-		if (m_cpV == 0) m_cpV = OGDF_NEW NodeArray<node>(originalGraph(),0);
+		if (m_cpV == nullptr) m_cpV = new NodeArray<node>(originalGraph(),nullptr);
 		NodeArray<node> &cpV = *m_cpV;
 
 		Gp.init(v);
@@ -157,10 +154,10 @@ public:
 		const Skeleton &S = skeleton(v);
 
 		edge e = Gp.m_skRefEdge = S.referenceEdge();
-		if (e != 0) e = Gp.m_P.newEdge(cpV[S.original(e->source())],cpV[S.original(e->target())]);
+		if (e != nullptr) e = Gp.m_P.newEdge(cpV[S.original(e->source())],cpV[S.original(e->target())]);
 		Gp.m_vEdge = e;
 
-		while (!m_cpVAdded.empty()) cpV[m_cpVAdded.popFrontRet()] = 0;
+		while (!m_cpVAdded.empty()) cpV[m_cpVAdded.popFrontRet()] = nullptr;
 	}
 
 
@@ -183,7 +180,7 @@ public:
 
 	void directSkEdge(node vT, edge e, node src)
 	{
-		OGDF_ASSERT(e != 0);
+		OGDF_ASSERT(e != nullptr);
 		OGDF_ASSERT(src == e->source() || src == e->target());
 
 		if(e->source() != src) skeleton(vT).getGraph().reverseEdge(e);
@@ -216,7 +213,7 @@ protected:
 	node cpAddNode(node vOrig, PertinentGraph &Gp) const
 	{
 		node &vP = (*m_cpV)[vOrig];
-		if (vP == 0) {
+		if (vP == nullptr) {
 			m_cpVAdded.pushBack(vOrig);
 			Gp.m_origV[vP = Gp.m_P.newNode()] = vOrig;
 		}

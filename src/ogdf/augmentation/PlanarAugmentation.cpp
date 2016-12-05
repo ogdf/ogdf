@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/augmentation/PlanarAugmentation.h>
@@ -1067,7 +1064,9 @@ void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 #endif
 
 	for (node v : getConnected) {
-		//first->removePendant(v);
+#if 0
+		first->removePendant(v);
+#endif
 		deletePendant(v);
 	}
 
@@ -1126,7 +1125,7 @@ void PlanarAugmentation::connectLabels(pa_label first, pa_label second)
 //  ----------------------------------------------------
 pa_label PlanarAugmentation::newLabel(node cutvertex, node p, paStopCause whyStop)
 {
-	pa_label l = OGDF_NEW PALabel(nullptr, cutvertex, whyStop);
+	pa_label l = new PALabel(nullptr, cutvertex, whyStop);
 	l->addPendant(p);
 	m_belongsTo[p] = l;
 	m_isLabel[cutvertex] = m_labels.pushBack(l);
@@ -1350,7 +1349,9 @@ void PlanarAugmentation::modifyBCRoot(node oldRoot, node newRoot)
 	m_pBCTree->m_bNode_hParNode[oldRoot] = m_pBCTree->m_bNode_hRefNode[newRoot];
 
 	//   for the new root:
-	// m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
+#if 0
+	 m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
+#endif
 	m_pBCTree->m_bNode_hParNode[newRoot] = nullptr;
 }
 

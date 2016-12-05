@@ -28,10 +28,8 @@ go_bandit([](){ bandit::describe("Sugiyama layouts", [](){
 	describeLayoutModule("Sugiyama with fast hierarchy", sugi, 0, GR_ALL, 100);
 
 	std::string desc = "Sugiyama with optimal ranking, median";
-#ifdef OGDF_LP_SOLVER
 	sugiOpt.setLayout(new OptimalHierarchyLayout);
 	desc += " and optimal hierarchy";
-#endif
 	OptimalRanking *optr = new OptimalRanking;
 	optr->setSubgraph(new GreedyCycleRemoval);
 	sugiOpt.setRanking(optr);

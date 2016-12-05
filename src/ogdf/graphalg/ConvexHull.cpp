@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/graphalg/ConvexHull.h>
 #include <cfloat>
@@ -56,7 +53,7 @@ bool ConvexHull::sameDirection(const DPoint &start, const DPoint &end, const DPo
 	double len2_b = b.m_x * b.m_x + b.m_y * b.m_y;
 	double len2_c = c.m_x * c.m_x + c.m_y * c.m_y;
 
-	return (len2_c > max(len2_a, len2_b));
+	return len2_c > max(len2_a, len2_b);
 }
 
 
@@ -69,7 +66,7 @@ DPoint ConvexHull::calcNormal(const DPoint &start, const DPoint &end) const
 
 double ConvexHull::leftOfLine(const DPoint &normal, const DPoint &point, const DPoint &pointOnLine) const
 {
-	return ((point.m_x - pointOnLine.m_x) * normal.m_x + (point.m_y - pointOnLine.m_y) * normal.m_y);
+	return (point.m_x - pointOnLine.m_x) * normal.m_x + (point.m_y - pointOnLine.m_y) * normal.m_y;
 }
 
 

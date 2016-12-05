@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -45,6 +42,18 @@ namespace ogdf {
  */
 
 
+//! Creates a random d-regular graph. This method is not guaranteed to terminate!
+/**
+ * @param G is assigned the generated graph.
+ * @param n is the number of nodes of the generated graph.
+ * @param d is the degree of each vertex
+ * @code
+ * ogdf::Graph G;
+ * ogdf::randomRegularGraph(G, 20, 6);
+ * @endcode
+ */
+OGDF_EXPORT void randomRegularGraph(Graph &G, int n, int d);
+
 //! Creates a circulant graph.
 /**
  * @param G is assigned the generated graph.
@@ -55,7 +64,7 @@ namespace ogdf {
  * ogdf::circulantGraph(G, 11, ogdf::Array<int>({1,2,4}));
  * @endcode
  */
-void circulantGraph (Graph &G, int n, Array<int> jumps);
+OGDF_EXPORT void circulantGraph (Graph &G, int n, Array<int> jumps);
 
 //! Creates a random graph.
 /**
@@ -221,7 +230,7 @@ OGDF_EXPORT void randomTree(Graph &G, int n, int maxDeg, int maxWidth);
  * indizes 1...children, the children of node 1 have indizes children+1...2*children, etc.
  * if number of nodes does not allow a regular node, the "last" node will have fewer children.
  */
-void regularTree(Graph& G, int n, int children);
+OGDF_EXPORT void regularTree(Graph& G, int n, int children);
 
 
 
@@ -367,6 +376,24 @@ OGDF_EXPORT void randomDiGraph(Graph &G, int n, double p);
  * @param flt = up to edges*flt edges will be reversed preversing acyclicity; default = 0.0
  */
 OGDF_EXPORT void randomSeriesParallelDAG(Graph &G, int edges, double p = 0.5, double flt = 0.0);
+
+//! Creates a Random Geometeric Graph by laying out nodes in a unit n-cube.
+//! Nodes with a distance < threshold are connected,
+//! 0 <= threshold <= sqrt(dimension). The graph is simple.
+/**
+ * @param G is assigned the generated graph.
+ * @param nodes is the number of nodes of the generated graph.
+ * @param threshold is threshold radius of nodes which will be connected.
+ * @param dimension is the dimension of the cube.
+ */
+OGDF_EXPORT void randomGeometricCubeGraph(Graph &G, int nodes, double threshold, int dimension = 2);
+
+//! Creates a graph with \a nodes nodes and no edges.
+/**
+ * @param G is assigned the generated graph.
+ * @param nodes is the number of nodes of the generated graph.
+ */
+OGDF_EXPORT void emptyGraph(Graph &G, int nodes);
 
 //@}
 

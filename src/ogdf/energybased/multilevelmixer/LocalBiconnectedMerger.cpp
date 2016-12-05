@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/energybased/multilevelmixer/LocalBiconnectedMerger.h>
 #include <ogdf/decomposition/BCTree.h>
@@ -220,15 +217,18 @@ void LocalBiconnectedMerger::initCuts(Graph &G)
 	// BCTree does not work for large graphs due to recursion depth (stack overflow)
 	// Uncomment below to get speedup once BCTree is fixed.
 
-//	BCTree BCT(G);
+#if 0
+	BCTree BCT(G);
+#endif
 	m_isCut.init(G, false);
 
-/*
+#if 0
 	for(node v : G.nodes) {
 		if( BCT.typeOfGNode(v) == BCTree::GNodeType::CutVertex ) {
 			m_isCut[v] = true;
 		}
-	}*/
+	}
+#endif
 }
 
 
@@ -236,7 +236,9 @@ bool LocalBiconnectedMerger::buildOneLevel(MultilevelGraph &MLG)
 {
 	Graph &G = MLG.getGraph();
 	int level = MLG.getLevel() + 1;
-//	std::cout << "Level: " << level << std::endl;
+#if 0
+	std::cout << "Level: " << level << std::endl;
+#endif
 
 	m_substituteNodes.init(G, nullptr);
 	initCuts(G);

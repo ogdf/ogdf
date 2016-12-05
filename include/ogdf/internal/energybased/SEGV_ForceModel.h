@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -65,7 +62,7 @@ public:
 	ForceModelFR(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
 		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-	DPoint computeDisplacement(int j, double boxLength) const;
+	DPoint computeDisplacement(int j, double boxLength) const override;
 };
 
 class SpringEmbedderGridVariant::ForceModelFRModAttr : public ForceModelBase
@@ -74,7 +71,7 @@ public:
 	ForceModelFRModAttr(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
 		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-	DPoint computeDisplacement(int j, double boxLength) const;
+	DPoint computeDisplacement(int j, double boxLength) const override;
 };
 
 class SpringEmbedderGridVariant::ForceModelFRModRep : public ForceModelBase
@@ -83,7 +80,7 @@ public:
 	ForceModelFRModRep(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
 		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-	DPoint computeDisplacement(int j, double boxLength) const;
+	DPoint computeDisplacement(int j, double boxLength) const override;
 };
 
 
@@ -93,7 +90,7 @@ public:
 	ForceModelEades(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
 		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-	DPoint computeDisplacement(int j, double boxLength) const;
+	DPoint computeDisplacement(int j, double boxLength) const override;
 };
 
 
@@ -103,7 +100,7 @@ public:
 	ForceModelHachul(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
 		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-	DPoint computeDisplacement(int j, double boxLength) const;
+	DPoint computeDisplacement(int j, double boxLength) const override;
 };
 
 
@@ -113,7 +110,7 @@ public:
 	ForceModelGronemann(const Array<NodeInfo> &vInfo, const Array<int> &adjLists, const Array2D<ListPure<int>> &gridCell, double idealEdgeLength)
 		: ForceModelBase(vInfo, adjLists, gridCell, idealEdgeLength) { }
 
-	DPoint computeDisplacement(int j, double boxLength) const;
+	DPoint computeDisplacement(int j, double boxLength) const override;
 };
 
 }

@@ -72,3 +72,7 @@ This distribution integrates source code from
   - the TinyDir project, licensed under the 2-clause BSD license
     (see test/include/tinydir.h header).
     The only included file is test/include/tinydir.h.
+
+  - the Backward project, licensed under the MIT license
+    (see include/ogdf/lib/backward/backward.hpp header)
+    The only included file is include/ogdf/lib/backward/backward.hpp.

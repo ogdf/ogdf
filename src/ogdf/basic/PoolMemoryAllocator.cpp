@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/memory.h>
@@ -60,39 +57,12 @@ PoolMemoryAllocator::BlockChainPtr PoolMemoryAllocator::s_blocks;
 size_t PoolMemoryAllocator::s_nettoAlloc;
 #endif
 
-
 #ifdef OGDF_MEMORY_POOL_NTS
 PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[eTableSize];
-
-#elif defined(OGDF_NO_COMPILER_TLS)
-std::mutex PoolMemoryAllocator::s_mutex;
-pthread_key_t PoolMemoryAllocator::s_tpKey;
-
 #else
-
 std::mutex PoolMemoryAllocator::s_mutex;
-OGDF_DECL_THREAD PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[eTableSize];
+thread_local PoolMemoryAllocator::MemElemPtr PoolMemoryAllocator::s_tp[eTableSize];
 #endif
-
-
-void PoolMemoryAllocator::init()
-{
-#ifndef OGDF_MEMORY_POOL_NTS
-#ifdef OGDF_NO_COMPILER_TLS
-	pthread_key_create(&s_tpKey,nullptr);
-#endif
-#endif
-
-	initThread();
-}
-
-
-void PoolMemoryAllocator::initThread() {
-#if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-		pthread_setspecific(s_tpKey,calloc(eTableSize,sizeof(MemElemPtr)));
-#endif
-}
-
 
 void PoolMemoryAllocator::cleanup()
 {
@@ -101,7 +71,7 @@ void PoolMemoryAllocator::cleanup()
 	size_t memThreadFreelist = memoryInThreadFreeList();
 
 	// check if all memory is correctly freed (if not we have a memory leak)
-	OGDF_ASSERT(memGlobalFreelist + memThreadFreelist == s_nettoAlloc * __SIZEOF_POINTER__);
+	OGDF_ASSERT(memGlobalFreelist + memThreadFreelist == s_nettoAlloc * OGDF_SIZEOF_POINTER);
 #endif
 
 	//----------
@@ -111,21 +81,11 @@ void PoolMemoryAllocator::cleanup()
 		free(p);
 		p = pNext;
 	}
-
-#ifndef OGDF_MEMORY_POOL_NTS
-#ifdef OGDF_NO_COMPILER_TLS
-	pthread_key_delete(s_tpKey);
-#endif
-#endif
 }
 
 
 void *PoolMemoryAllocator::allocate(size_t nBytes) {
-#if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
-#else
 	MemElemPtr &pFreeBytes = s_tp[nBytes];
-#endif
 	if (OGDF_LIKELY(pFreeBytes != nullptr)) {
 		MemElemPtr p = pFreeBytes;
 		pFreeBytes = p->m_next;
@@ -138,22 +98,14 @@ void *PoolMemoryAllocator::allocate(size_t nBytes) {
 
 
 void PoolMemoryAllocator::deallocate(size_t nBytes, void *p) {
-#if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
-#else
 	MemElemPtr &pFreeBytes = s_tp[nBytes];
-#endif
 	MemElemPtr(p)->m_next = pFreeBytes;
 	pFreeBytes = MemElemPtr(p);
 }
 
 
 void PoolMemoryAllocator::deallocateList(size_t nBytes, void *pHead, void *pTail) {
-#if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-	MemElemPtr &pFreeBytes = *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
-#else
 	MemElemPtr &pFreeBytes = s_tp[nBytes];
-#endif
 	MemElemPtr(pTail)->m_next = pFreeBytes;
 	pFreeBytes = MemElemPtr(pHead);
 }
@@ -164,11 +116,7 @@ void PoolMemoryAllocator::flushPool()
 {
 #ifndef OGDF_MEMORY_POOL_NTS
 	for(uint16_t nBytes = 1; nBytes < eTableSize; ++nBytes) {
-#ifdef OGDF_NO_COMPILER_TLS
-		MemElemPtr &pHead =  *((MemElemPtr*)pthread_getspecific(s_tpKey)+nBytes);
-#else
 		MemElemPtr &pHead = s_tp[nBytes];
-#endif
 		if(pHead != nullptr) {
 			MemElemPtr pTail = pHead;
 			int n = 1;
@@ -305,11 +253,7 @@ size_t PoolMemoryAllocator::memoryInThreadFreeList()
 	size_t bytesFree = 0;
 	for (int sz = 1; sz < eTableSize; ++sz)
 	{
-#if !defined(OGDF_MEMORY_POOL_NTS) && defined(OGDF_NO_COMPILER_TLS)
-		MemElemPtr p = ((MemElemPtr*)pthread_getspecific(s_tpKey))[sz];
-#else
-		MemElemPtr p = s_tp[sz];
-#endif
+		MemElemPtr &p = s_tp[sz];
 		for(; p != nullptr; p = p->m_next)
 			bytesFree += sz;
 	}

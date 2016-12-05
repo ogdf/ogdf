@@ -40,13 +40,13 @@
   #redoSolution().)
 */
 class OsiRowCutDebugger {
-  friend void OsiRowCutDebuggerUnitTest(const OsiSolverInterface * siP,    
+  friend void OsiRowCutDebuggerUnitTest(const OsiSolverInterface * siP,
 					const std::string & mpsDir);
 
 public:
-  
+
   /*! @name Validate Row Cuts
-  
+
     Check that the specified cuts do not cut off the known solution.
   */
   //@{
@@ -60,7 +60,7 @@ public:
 
   /*! \brief Check that the cut does not cut off the solution known to the
   	     debugger.
-  
+
     Return true if cut is invalid
   */
   virtual bool invalidCut(const OsiRowCut & rowcut) const;
@@ -75,7 +75,7 @@ public:
   //@}
 
   /*! @name Activate the Debugger
-  
+
     The debugger is considered to be active when it holds a known solution.
   */
   //@{
@@ -101,7 +101,7 @@ public:
   bool activate(const OsiSolverInterface &si, const double* solution,
   		bool keepContinuous = false) ;
 
-  /// Returns true if the debugger is active 
+  /// Returns true if the debugger is active
   bool active() const;
   //@}
 
@@ -135,7 +135,7 @@ public:
 
   /**@name Constructors and Destructors */
   //@{
-  /// Default constructor - no checking 
+  /// Default constructor - no checking
   OsiRowCutDebugger ();
 
   /*! \brief Constructor with name of model.
@@ -150,19 +150,19 @@ public:
   */
   OsiRowCutDebugger(const OsiSolverInterface &si, const double *solution,
   		    bool enforceOptimality = false) ;
- 
-  /// Copy constructor 
+
+  /// Copy constructor
   OsiRowCutDebugger(const OsiRowCutDebugger &);
 
-  /// Assignment operator 
+  /// Assignment operator
   OsiRowCutDebugger& operator=(const OsiRowCutDebugger& rhs);
-  
-  /// Destructor 
+
+  /// Destructor
   virtual ~OsiRowCutDebugger ();
   //@}
-      
+
 private:
-  
+
   // Private member data
 
   /**@name Private member data */
@@ -171,7 +171,7 @@ private:
   double knownValue_;
 
   /*! \brief Number of columns in known solution
-  
+
     This must match the number of columns reported by the solver.
   */
   int numberColumns_;
@@ -183,5 +183,5 @@ private:
   double * knownSolution_;
   //@}
 };
-  
+
 #endif

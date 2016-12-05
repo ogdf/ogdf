@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/AdjEntryArray.h>
@@ -38,6 +35,7 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/GraphObserver.h>
 #include <ogdf/basic/Stack.h>
+#include <ogdf/internal/basic/list_templates.h>
 
 using std::mutex;
 
@@ -93,7 +91,8 @@ Graph::~Graph()
 
 Graph &Graph::operator=(const Graph &G)
 {
-	clear(); copy(G);
+	clear();
+	copy(G);
 	m_nodeArrayTableSize = nextPower2(MIN_NODE_TABLE_SIZE,m_nodeIdCount);
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
@@ -144,17 +143,15 @@ void Graph::copy(const Graph &G, NodeArray<node> &mapNode,
 	for(edge e : G.edges) {
 		edge eC;
 		edges.pushBack(eC = mapEdge[e] =
-			OGDF_NEW EdgeElement(
+			new EdgeElement(
 				mapNode[e->source()],mapNode[e->target()],m_edgeIdCount));
 
-		eC->m_adjSrc = OGDF_NEW AdjElement(eC,m_edgeIdCount<<1);
-		(eC->m_adjTgt = OGDF_NEW AdjElement(eC,(m_edgeIdCount<<1)|1))
+		eC->m_adjSrc = new AdjElement(eC,m_edgeIdCount<<1);
+		(eC->m_adjTgt = new AdjElement(eC,(m_edgeIdCount<<1)|1))
 			->m_twin = eC->m_adjSrc;
 		eC->m_adjSrc->m_twin = eC->m_adjTgt;
 		m_edgeIdCount++;
 	}
-
-	EdgeArray<bool> mark(G,false);
 
 	for(node vG : G.nodes) {
 		node v = mapNode[vG];
@@ -163,17 +160,7 @@ void Graph::copy(const Graph &G, NodeArray<node> &mapNode,
 			edge e = adjG->m_edge;
 			edge eC = mapEdge[e];
 
-			adjEntry adj;
-			if (eC->isSelfLoop()) {
-				if (mark[e])
-					adj = eC->m_adjTgt;
-				else {
-					adj = eC->m_adjSrc;
-					mark[e] = true;
-				}
-			} else
-				adj = (v == eC->m_src) ? eC->m_adjSrc : eC->m_adjTgt;
-
+			adjEntry adj = adjG->isSource() ? eC->adjSource() : eC->adjTarget();
 			v->adjEntries.pushBack(adj);
 			adj->m_node = v;
 		}
@@ -212,9 +199,9 @@ void Graph::constructInitByCC(
 		node vG = info.v(i);
 
 #ifdef OGDF_DEBUG
-		node v = OGDF_NEW NodeElement(this,m_nodeIdCount++);
+		node v = new NodeElement(this,m_nodeIdCount++);
 #else
-		node v = OGDF_NEW NodeElement(m_nodeIdCount++);
+		node v = new NodeElement(m_nodeIdCount++);
 #endif
 		mapNode[vG] = v;
 		nodes.pushBack(v);
@@ -229,11 +216,11 @@ void Graph::constructInitByCC(
 		node v = mapNode[eG->source()];
 		node w = mapNode[eG->target()];
 
-		edge eC = mapEdge[eG] = OGDF_NEW EdgeElement(v, w, m_edgeIdCount);
+		edge eC = mapEdge[eG] = new EdgeElement(v, w, m_edgeIdCount);
 		edges.pushBack(eC);
 
-		adjEntry adjSrc = OGDF_NEW AdjElement(eC,  m_edgeIdCount<<1   );
-		adjEntry adjTgt = OGDF_NEW AdjElement(eC, (m_edgeIdCount<<1)|1);
+		adjEntry adjSrc = new AdjElement(eC,  m_edgeIdCount<<1   );
+		adjEntry adjTgt = new AdjElement(eC, (m_edgeIdCount<<1)|1);
 
 		(eC->m_adjSrc = adjSrc)->m_twin = adjTgt;
 		(eC->m_adjTgt = adjTgt)->m_twin = adjSrc;
@@ -309,11 +296,11 @@ void Graph::constructInitByNodes(
 		node v = mapNode[eG->source()];
 		node w = mapNode[eG->target()];
 
-		edge eC = mapEdge[eG] = OGDF_NEW EdgeElement(v, w, m_edgeIdCount);
+		edge eC = mapEdge[eG] = new EdgeElement(v, w, m_edgeIdCount);
 		edges.pushBack(eC);
 
-		eC->m_adjSrc = OGDF_NEW AdjElement(eC, m_edgeIdCount<<1);
-		(eC->m_adjTgt = OGDF_NEW AdjElement(eC, (m_edgeIdCount<<1)|1))
+		eC->m_adjSrc = new AdjElement(eC, m_edgeIdCount<<1);
+		(eC->m_adjTgt = new AdjElement(eC, (m_edgeIdCount<<1)|1))
 			->m_twin = eC->m_adjSrc;
 		eC->m_adjSrc->m_twin = eC->m_adjTgt;
 		++m_edgeIdCount;
@@ -409,11 +396,11 @@ void Graph::constructInitByActiveNodes(
 		node v = mapNode[eG->source()];
 		node w = mapNode[eG->target()];
 
-		AdjElement *adjSrc = OGDF_NEW AdjElement(v);
+		AdjElement *adjSrc = new AdjElement(v);
 
 		v->adjEntries.pushBack(adjSrc);
 
-		AdjElement *adjTgt = OGDF_NEW AdjElement(w);
+		AdjElement *adjTgt = new AdjElement(w);
 
 		w->adjEntries.pushBack(adjTgt);
 
@@ -421,7 +408,7 @@ void Graph::constructInitByActiveNodes(
 		adjTgt->m_twin = adjSrc;
 
 		adjTgt->m_id = (adjSrc->m_id = m_edgeIdCount << 1) | 1;
-		edge e = OGDF_NEW EdgeElement(v,w,adjSrc,adjTgt,m_edgeIdCount++);
+		edge e = new EdgeElement(v,w,adjSrc,adjTgt,m_edgeIdCount++);
 
 		edges.pushBack(e);
 
@@ -450,9 +437,9 @@ node Graph::newNode()
 	}
 
 #ifdef OGDF_DEBUG
-	node v = OGDF_NEW NodeElement(this,m_nodeIdCount++);
+	node v = new NodeElement(this,m_nodeIdCount++);
 #else
-	node v = OGDF_NEW NodeElement(m_nodeIdCount++);
+	node v = new NodeElement(m_nodeIdCount++);
 #endif
 
 	nodes.pushBack(v);
@@ -479,9 +466,9 @@ node Graph::newNode(int index)
 	}
 
 #ifdef OGDF_DEBUG
-	node v = OGDF_NEW NodeElement(this,index);
+	node v = new NodeElement(this,index);
 #else
-	node v = OGDF_NEW NodeElement(index);
+	node v = new NodeElement(index);
 #endif
 
 	nodes.pushBack(v);
@@ -497,9 +484,9 @@ node Graph::newNode(int index)
 node Graph::pureNewNode()
 {
 #ifdef OGDF_DEBUG
-	node v = OGDF_NEW NodeElement(this,m_nodeIdCount++);
+	node v = new NodeElement(this,m_nodeIdCount++);
 #else
-	node v = OGDF_NEW NodeElement(m_nodeIdCount++);
+	node v = new NodeElement(m_nodeIdCount++);
 #endif
 
 	nodes.pushBack(v);
@@ -530,7 +517,7 @@ edge Graph::createEdgeElement(node v, node w, adjEntry adjSrc, adjEntry adjTgt)
 	}
 
 	adjTgt->m_id = (adjSrc->m_id = m_edgeIdCount << 1) | 1;
-	edge e = OGDF_NEW EdgeElement(v,w,adjSrc,adjTgt,m_edgeIdCount++);
+	edge e = new EdgeElement(v,w,adjSrc,adjTgt,m_edgeIdCount++);
 	edges.pushBack(e);
 
 	// notify all registered observers
@@ -548,12 +535,12 @@ edge Graph::newEdge(node v, node w, int index)
 	OGDF_ASSERT(v->graphOf() == this);
 	OGDF_ASSERT(w->graphOf() == this);
 
-	AdjElement *adjSrc = OGDF_NEW AdjElement(v);
+	AdjElement *adjSrc = new AdjElement(v);
 
 	v->adjEntries.pushBack(adjSrc);
 	v->m_outdeg++;
 
-	AdjElement *adjTgt = OGDF_NEW AdjElement(w);
+	AdjElement *adjTgt = new AdjElement(w);
 
 	w->adjEntries.pushBack(adjTgt);
 	w->m_indeg++;
@@ -576,7 +563,7 @@ edge Graph::newEdge(node v, node w, int index)
 	}
 
 	adjTgt->m_id = (adjSrc->m_id = index/*m_edgeIdCount*/ << 1) | 1;
-	edge e = OGDF_NEW EdgeElement(v,w,adjSrc,adjTgt,index);
+	edge e = new EdgeElement(v,w,adjSrc,adjTgt,index);
 	edges.pushBack(e);
 
 	// notify all registered observers
@@ -594,12 +581,12 @@ edge Graph::newEdge(node v, node w)
 	OGDF_ASSERT(v->graphOf() == this);
 	OGDF_ASSERT(w->graphOf() == this);
 
-	AdjElement *adjSrc = OGDF_NEW AdjElement(v);
+	AdjElement *adjSrc = new AdjElement(v);
 
 	v->adjEntries.pushBack(adjSrc);
 	v->m_outdeg++;
 
-	AdjElement *adjTgt = OGDF_NEW AdjElement(w);
+	AdjElement *adjTgt = new AdjElement(w);
 
 	w->adjEntries.pushBack(adjTgt);
 	w->m_indeg++;
@@ -616,14 +603,14 @@ edge Graph::newEdge(node v, node w)
 edge Graph::newEdge(adjEntry adjStart, adjEntry adjEnd, Direction dir)
 {
 	OGDF_ASSERT(adjStart != nullptr);
-	OGDF_ASSERT(adjEnd != nullptr)
+	OGDF_ASSERT(adjEnd != nullptr);
 	OGDF_ASSERT(adjStart->graphOf() == this);
 	OGDF_ASSERT(adjEnd->graphOf() == this);
 
 	node v = adjStart->theNode(), w = adjEnd->theNode();
 
-	AdjElement *adjTgt = OGDF_NEW AdjElement(w);
-	AdjElement *adjSrc = OGDF_NEW AdjElement(v);
+	AdjElement *adjTgt = new AdjElement(w);
+	AdjElement *adjSrc = new AdjElement(v);
 
 	if(dir == ogdf::after) {
 		w->adjEntries.insertAfter(adjTgt,adjEnd);
@@ -647,18 +634,18 @@ edge Graph::newEdge(adjEntry adjStart, adjEntry adjEnd, Direction dir)
 edge Graph::newEdge(node v, adjEntry adjEnd)
 {
 	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(adjEnd != nullptr)
+	OGDF_ASSERT(adjEnd != nullptr);
 	OGDF_ASSERT(v->graphOf() == this);
 	OGDF_ASSERT(adjEnd->graphOf() == this);
 
 	node w = adjEnd->theNode();
 
-	AdjElement *adjTgt = OGDF_NEW AdjElement(w);
+	AdjElement *adjTgt = new AdjElement(w);
 
 	w->adjEntries.insertAfter(adjTgt,adjEnd);
 	w->m_indeg++;
 
-	AdjElement *adjSrc = OGDF_NEW AdjElement(v);
+	AdjElement *adjSrc = new AdjElement(v);
 
 	v->adjEntries.pushBack(adjSrc);
 	v->m_outdeg++;
@@ -675,18 +662,18 @@ edge Graph::newEdge(node v, adjEntry adjEnd)
 edge Graph::newEdge(adjEntry adjStart, node v)
 {
 	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(adjStart != nullptr)
+	OGDF_ASSERT(adjStart != nullptr);
 	OGDF_ASSERT(v->graphOf() == this);
 	OGDF_ASSERT(adjStart->graphOf() == this);
 
 	node w = adjStart->theNode();
 
-	AdjElement *adjSrc = OGDF_NEW AdjElement(w);
+	AdjElement *adjSrc = new AdjElement(w);
 
 	w->adjEntries.insertAfter(adjSrc, adjStart);
 	w->m_outdeg++;
 
-	AdjElement *adjTgt = OGDF_NEW AdjElement(v);
+	AdjElement *adjTgt = new AdjElement(v);
 
 	v->adjEntries.pushBack(adjTgt);
 	v->m_indeg++;
@@ -795,7 +782,7 @@ edge Graph::split(edge e)
 	node u = newNode();
 	u->m_indeg = u->m_outdeg = 1;
 
-	adjEntry adjTgt = OGDF_NEW AdjElement(u);
+	adjEntry adjTgt = new AdjElement(u);
 	adjTgt->m_edge = e;
 	adjTgt->m_twin = e->m_adjSrc;
 	e->m_adjSrc->m_twin = adjTgt;
@@ -805,7 +792,7 @@ edge Graph::split(edge e)
 
 	u->adjEntries.pushBack(adjTgt);
 
-	adjEntry adjSrc = OGDF_NEW AdjElement(u);
+	adjEntry adjSrc = new AdjElement(u);
 	adjSrc->m_twin = e->m_adjTgt;
 	u->adjEntries.pushBack(adjSrc);
 
@@ -941,7 +928,7 @@ void Graph::clear()
 void Graph::reverseEdge(edge e)
 {
 	OGDF_ASSERT(e != nullptr);
-	OGDF_ASSERT(e->graphOf() == this)
+	OGDF_ASSERT(e->graphOf() == this);
 	node &src = e->m_src, &tgt = e->m_tgt;
 
 	swap(src,tgt);
@@ -967,32 +954,32 @@ void Graph::reverseAdjEdges()
 }
 
 
-node Graph::chooseNode() const
+node Graph::chooseNode(std::function<bool(node)> includeNode, bool isFastTest) const
 {
-	if (nodes.empty()) return nullptr;
-	int k = ogdf::randomNumber(0, numberOfNodes()-1);
-	node v = firstNode();
-	while(k--) v = v->succ();
-	return v;
+	return *chooseIteratorFrom<internal::GraphObjectContainer<NodeElement>, node>(
+			const_cast<internal::GraphObjectContainer<NodeElement>&>(nodes),
+			[&](const node &v) { return includeNode(v); },
+			isFastTest
+	);
 }
 
 
-edge Graph::chooseEdge() const
+edge Graph::chooseEdge(std::function<bool(edge)> includeEdge, bool isFastTest) const
 {
-	if (edges.size() == 0) return nullptr;
-	int k = ogdf::randomNumber(0, numberOfEdges()-1);
-	edge e = firstEdge();
-	while(k--) e = e->succ();
-	return e;
+	return *chooseIteratorFrom<internal::GraphObjectContainer<EdgeElement>, edge>(
+			const_cast<internal::GraphObjectContainer<EdgeElement>&>(edges),
+			[&](const edge &e) { return includeEdge(e); },
+			isFastTest
+	);
 }
 
 
 edge Graph::searchEdge(node v, node w) const
 {
 	OGDF_ASSERT(v != nullptr);
-	OGDF_ASSERT(v->graphOf() == this)
+	OGDF_ASSERT(v->graphOf() == this);
 	OGDF_ASSERT(w != nullptr);
-	OGDF_ASSERT(w->graphOf() == this)
+	OGDF_ASSERT(w->graphOf() == this);
 	if (w->degree() < v->degree()) {
 		swap(v,w);
 	}
@@ -1428,15 +1415,9 @@ Graph::CCsInfo::CCsInfo(const Graph& G)
 
 void Graph::HiddenEdgeSet::hide(edge e)
 {
-#ifdef OGDF_DEBUG
-	if (m_graph != e->graphOf()) {
-		throw PreconditionViolatedException();
-	}
+	OGDF_ASSERT(m_graph == e->graphOf());
+	OGDF_ASSERT(!e->m_hidden);
 
-	if (e->m_hidden) {
-		throw PreconditionViolatedException();
-	}
-#endif
 	node src = e->m_src, tgt = e->m_tgt;
 
 	src->adjEntries.delPure(e->m_adjSrc);
@@ -1452,19 +1433,10 @@ void Graph::HiddenEdgeSet::hide(edge e)
 
 void Graph::HiddenEdgeSet::restore(edge e)
 {
-#ifdef OGDF_DEBUG
-	if (m_graph != e->graphOf()) {
-		throw PreconditionViolatedException();
-	}
+	OGDF_ASSERT(m_graph == e->graphOf());
+	OGDF_ASSERT(e->m_hidden);
+	OGDF_ASSERT(!m_edges.empty());
 
-	if (!e->m_hidden) {
-		throw PreconditionViolatedException();
-	}
-
-	if (m_edges.empty()) {
-		throw PreconditionViolatedException();
-	}
-#endif
 	node v = e->m_src;
 	v->adjEntries.pushBack(e->m_adjSrc);
 	++v->m_outdeg;
@@ -1481,11 +1453,8 @@ void Graph::HiddenEdgeSet::restore(edge e)
 
 void Graph::HiddenEdgeSet::restore()
 {
-#ifdef OGDF_DEBUG
-	if (!m_graph) {
-		throw PreconditionViolatedException();
-	}
-#endif
+	OGDF_ASSERT(m_graph != nullptr);
+
 	while (!m_edges.empty()) {
 		restore(m_edges.head());
 	}
@@ -1497,4 +1466,3 @@ int Graph::HiddenEdgeSet::size()
 }
 
 } // end namespace ogdf
-

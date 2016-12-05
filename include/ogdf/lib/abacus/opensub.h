@@ -46,7 +46,7 @@ class Sub;
  * becomes dormant. A subproblem is extracted from this list if it becomes the active
  * subproblem which is optimized.
  */
-class  OpenSub :  public AbacusRoot  {
+class OGDF_EXPORT OpenSub : public AbacusRoot {
 
 	friend class Sub;
 	friend class Master;

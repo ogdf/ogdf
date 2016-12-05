@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -50,10 +47,10 @@ class OGDF_EXPORT GraphListBase;
 
 //! The base class for objects used by (hyper)graphs.
 /**
-* Such graph objects are maintained in list (see GraphList<T>),
-* and \a GraphElement basically provides a next and previous pointer
-* for these objects.
-*/
+ * Such graph objects are maintained in list (see GraphList<T>),
+ * and \a GraphElement basically provides a next and previous pointer
+ * for these objects.
+ */
 class OGDF_EXPORT GraphElement {
 
 	friend class ogdf::Graph;
@@ -80,12 +77,12 @@ protected:
 public:
 
 	//! Constructs an empty list.
-	GraphListBase() { m_head = m_tail = 0; m_size = 0; }
+	GraphListBase() { m_head = m_tail = nullptr; m_size = 0; }
 
-	// destruction
+	//! Destruction
 	~GraphListBase() { }
 
-	//! Retuns the size of the list.
+	//! Returns the size of the list.
 	int size() const
 	{
 		return m_size;
@@ -93,7 +90,7 @@ public:
 
 	//! Adds element \a pX at the end of the list.
 	void pushBack(GraphElement *pX) {
-		pX->m_next = 0;
+		pX->m_next = nullptr;
 		pX->m_prev = m_tail;
 		if (m_head)
 			m_tail = m_tail->m_next = pX;
@@ -140,18 +137,18 @@ public:
 	//! Sorts the list according to \a newOrder.
 	template<class LIST>
 	void sort(const LIST &newOrder) {
-		GraphElement *pPred = 0;
+		GraphElement *pPred = nullptr;
 		typename LIST::const_iterator it = newOrder.begin();
 		if (!it.valid()) return;
 
 		m_head = *it;
 		for (; it.valid(); ++it) {
 			GraphElement *p = *it;
-			if ((p->m_prev = pPred) != 0) pPred->m_next = p;
+			if ((p->m_prev = pPred) != nullptr) pPred->m_next = p;
 			pPred = p;
 		}
 
-		(m_tail = pPred)->m_next = 0;
+		(m_tail = pPred)->m_next = nullptr;
 	}
 
 	//! Reverses the order of the list elements.
@@ -210,18 +207,17 @@ public:
 
 	//! Checks consistency of graph list.
 	bool consistencyCheck() {
-		if (m_head == 0) {
-			return (m_tail == 0);
-
+		if (m_head == nullptr) {
+			return m_tail == nullptr;
 		}
-		else if (m_tail == 0) {
+		else if (m_tail == nullptr) {
 			return false;
 
 		}
 		else {
-			if (m_head->m_prev != 0)
+			if (m_head->m_prev != nullptr)
 				return false;
-			if (m_tail->m_next != 0)
+			if (m_tail->m_next != nullptr)
 				return false;
 
 			GraphElement *pX = m_head;
@@ -251,8 +247,8 @@ public:
 
 //! Lists of graph objects (like nodes, edges, etc.).
 /**
-* The template type \a T must be a class derived from GraphElement.
-*/
+ * The template type \a T must be a class derived from GraphElement.
+ */
 template<class T> class GraphList : protected GraphListBase {
 
 public:
@@ -260,7 +256,7 @@ public:
 	//! Constructs an empty list.
 	GraphList() { }
 
-	// destruction (deletes all elements)
+	//! Destruction: deletes all elements
 	~GraphList() {
 		if (m_head)
 			OGDF_ALLOCATOR::deallocateList(sizeof(T), m_head, m_tail);
@@ -335,7 +331,7 @@ public:
 	void clear() {
 		if (m_head) {
 			OGDF_ALLOCATOR::deallocateList(sizeof(T), m_head, m_tail);
-			m_head = m_tail = 0;
+			m_head = m_tail = nullptr;
 			m_size = 0;
 		}
 	}
@@ -376,7 +372,9 @@ class GraphObjectContainer : private GraphList<GraphObject> {
 	friend class ogdf::ConstCombinatorialEmbedding;
 	friend class ogdf::CombinatorialEmbedding;
 
-	//GraphList<GraphObject> m_list;
+#if 0
+	GraphList<GraphObject> m_list;
+#endif
 
 public:
 	//! Provides a bidirectional iterator to an object in the container.

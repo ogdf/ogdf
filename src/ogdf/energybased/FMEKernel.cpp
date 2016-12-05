@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/FMEKernel.h>
 #include <ogdf/internal/energybased/ComplexDouble.h>
@@ -73,9 +70,11 @@ inline void eval_direct_aligned_SSE(
 				__m128 dx = _mm_sub_ps(x, x_shuffled);
 				__m128 dy = _mm_sub_ps(y, y_shuffled);
 				__m128 s_sum = _mm_add_ps(s, s_shuffled);
-				__m128 f  = _MM_COMPUTE_FORCE(dx,dy,s_sum);
-//				__m128 dsq= _mm_add_ps(_mm_mul_ps(dx, dx), _mm_mul_ps(dy, dy));
-//				__m128 f  = _mm_div_ps(_mm_add_ps(s, s_shuffled), dsq);
+				__m128 f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
+#if 0
+				__m128 dsq= _mm_add_ps(_mm_mul_ps(dx, dx), _mm_mul_ps(dy, dy));
+				__m128 f  = _mm_div_ps(_mm_add_ps(s, s_shuffled), dsq);
+#endif
 				__m128 fx = _mm_mul_ps(dx, f);
 				__m128 fy = _mm_mul_ps(dy, f);
 				// add forces to i's sum
@@ -85,11 +84,11 @@ inline void eval_direct_aligned_SSE(
 				fx_sum_shuffled = _mm_sub_ps(fx_sum_shuffled, fx);
 				fy_sum_shuffled = _mm_sub_ps(fy_sum_shuffled, fy);
 				// shuffle everything for the next pairing
-				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  _MM_SHUFFLE(0,3,2,1));
-				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  _MM_SHUFFLE(0,3,2,1));
-				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  _MM_SHUFFLE(0,3,2,1));
-				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
-				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
+				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
+				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
+				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
+				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
+				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
 			}
 			// note: after shuffling 4 times we are back to original order
 			_mm_store_ps(ptr_fx2 + j, fx_sum_shuffled);
@@ -103,7 +102,8 @@ inline void eval_direct_aligned_SSE(
 //! kernel function to evaluate forces between 4 points with coords x, y (16 byte aligned) directly. result is stored in fx, fy
 inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, float* ptr_fx, float* ptr_fy)
 {
-/*	// SSE 2 implementation
+#if 0
+	// SSE 2 implementation
 	// A = (a, b, c, d) (original order)
 	__m128 x_A  = _mm_load_ps( ptr_x );
 	__m128 y_A  = _mm_load_ps( ptr_y );
@@ -112,14 +112,14 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fy_A = _mm_load_ps( ptr_fy );
 
 	// B = (b, c, d, a) (1x left rotate)
-	__m128 x_B = _mm_shuffle_ps( x_A, x_A, _MM_SHUFFLE(0,3,2,1) );
-	__m128 y_B = _mm_shuffle_ps( y_A, y_A, _MM_SHUFFLE(0,3,2,1) );
-	__m128 s_B = _mm_shuffle_ps( s_A, s_A, _MM_SHUFFLE(0,3,2,1) );
+	__m128 x_B = _mm_shuffle_ps( x_A, x_A, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 y_B = _mm_shuffle_ps( y_A, y_A, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 s_B = _mm_shuffle_ps( s_A, s_A, OGDF_MM_SHUFFLE(0,3,2,1) );
 
 	// C = (c, d, a, b) (2x left rotate)
-	__m128 x_C = _mm_shuffle_ps( x_B, x_B, _MM_SHUFFLE(0,3,2,1) );
-	__m128 y_C = _mm_shuffle_ps( y_B, y_B, _MM_SHUFFLE(0,3,2,1) );
-	__m128 s_C = _mm_shuffle_ps( s_B, s_B, _MM_SHUFFLE(0,3,2,1) );
+	__m128 x_C = _mm_shuffle_ps( x_B, x_B, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 y_C = _mm_shuffle_ps( y_B, y_B, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 s_C = _mm_shuffle_ps( s_B, s_B, OGDF_MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,b), f(b,c), f(c,d), f(d,a) )
 	__m128 x_AB = _mm_sub_ps( x_A, x_B ); // dx = Ax - Bx
@@ -130,8 +130,8 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fx_AB = _mm_mul_ps( x_AB, f_AB ); 	// fx(a,b), fx(b,c), fx(c,d), fx(d,a)
 	__m128 fy_AB = _mm_mul_ps( y_AB, f_AB );	// fy(a,b), fy(b,c), fy(c,d), fy(d,a)
 	// unshuffle
-	__m128 fx_AB_shuffled = _mm_shuffle_ps( fx_AB, fx_AB, _MM_SHUFFLE(2,1,0,3) ); // fx(d,a), fx(a,b), fx(b,c), fx(c,d)
-	__m128 fy_AB_shuffled = _mm_shuffle_ps( fy_AB, fy_AB, _MM_SHUFFLE(2,1,0,3) ); // fy(d,a), fy(a,b), fy(b,c), fy(c,d)
+	__m128 fx_AB_shuffled = _mm_shuffle_ps( fx_AB, fx_AB, OGDF_MM_SHUFFLE(2,1,0,3) ); // fx(d,a), fx(a,b), fx(b,c), fx(c,d)
+	__m128 fy_AB_shuffled = _mm_shuffle_ps( fy_AB, fy_AB, OGDF_MM_SHUFFLE(2,1,0,3) ); // fy(d,a), fy(a,b), fy(b,c), fy(c,d)
 
 	// A x C = ( f(a,c), f(b,d), f(c,a), f(d,b) )
 	__m128 x_AC = _mm_sub_ps( x_A, x_C ); // dx = Ax - Cx
@@ -158,7 +158,7 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 
 	_mm_store_ps(ptr_fx, fx_A);
 	_mm_store_ps(ptr_fy, fy_A);
-*/
+#endif
 	// SSE 2 implementation (compressed)
 	// A = (a, b, c, d) (original order)
 	__m128 x      = _mm_load_ps( ptr_x );
@@ -168,37 +168,39 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 	__m128 fy_sum = _mm_load_ps( ptr_fy );
 
 	// B = (b, c, d, a) (1x left rotate)
-	__m128 x_shuffled = _mm_shuffle_ps( x, x, _MM_SHUFFLE(0,3,2,1) );
-	__m128 y_shuffled = _mm_shuffle_ps( y, y, _MM_SHUFFLE(0,3,2,1) );
-	__m128 s_shuffled = _mm_shuffle_ps( s, s, _MM_SHUFFLE(0,3,2,1) );
+	__m128 x_shuffled = _mm_shuffle_ps( x, x, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 y_shuffled = _mm_shuffle_ps( y, y, OGDF_MM_SHUFFLE(0,3,2,1) );
+	__m128 s_shuffled = _mm_shuffle_ps( s, s, OGDF_MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,b), f(b,c), f(c,d), f(d,a) )
 	__m128 dx	= _mm_sub_ps( x, x_shuffled );								// dx = x_A - x_B
 	__m128 dy	= _mm_sub_ps( y, y_shuffled );								// dy = y_A - y_B
 	__m128 s_sum = _mm_add_ps(s, s_shuffled);
-	__m128 f  = _MM_COMPUTE_FORCE(dx,dy,s_sum);
-//	__m128 dsq	= _mm_add_ps( _mm_mul_ps( dx, dx ),
-//							  _mm_mul_ps( dy, dy ) );						// dsq = (dx*dx + dy*dy)
-//	__m128 f	= _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq );			// f = (s_A+s_B)/d^2
+	__m128 f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
+#if 0
+	__m128 dsq	= _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
+	__m128 f	= _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
+#endif
 	__m128 fx	= _mm_mul_ps( dx, f ); 	// ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
 	__m128 fy	= _mm_mul_ps( dy, f );	// ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
 
-	fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
-	fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
+	fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
+	fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
 
 	// B = (c, d, a, b) (2x left rotate)
-	x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, _MM_SHUFFLE(0,3,2,1) );
-	y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, _MM_SHUFFLE(0,3,2,1) );
-	s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, _MM_SHUFFLE(0,3,2,1) );
+	x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
+	y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
+	s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
 
 	// A x B = ( f(a,c), f(b,d), f(c,a), f(d,b) )
 	dx = _mm_sub_ps( x, x_shuffled );										// dx = x_A - x_B
 	dy = _mm_sub_ps( y, y_shuffled );										// dy = y_A - y_B
-//	dsq = _mm_add_ps( _mm_mul_ps( dx, dx ),
-//					  _mm_mul_ps( dy, dy ) );								// dsq = (dx*dx + dy*dy)
-//	f = _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq );						// f = (s_A+s_B)/d^2
+#if 0
+	dsq = _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
+	f = _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
+#endif
 	s_sum = _mm_add_ps(s, s_shuffled);
-	f  = _MM_COMPUTE_FORCE(dx,dy,s_sum);
+	f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
 	fx = _mm_mul_ps( dx, f );												// fx(a,c), fx(b,d), fx(c,a), fx(d,b)
 	fy = _mm_mul_ps( dy, f );												// fy(a,c), fy(b,d), fy(c,a), fy(d,b)
 
@@ -226,37 +228,39 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 		__m128 fy_sum = _mm_load_ps( ptr_fy+ i );
 
 		// register for j, first we need to deal with Block(i,i)
-		__m128 x_shuffled = _mm_shuffle_ps( x, x, _MM_SHUFFLE(0,3,2,1) );
-		__m128 y_shuffled = _mm_shuffle_ps( y, y, _MM_SHUFFLE(0,3,2,1) );
-		__m128 s_shuffled = _mm_shuffle_ps( s, s, _MM_SHUFFLE(0,3,2,1) );
+		__m128 x_shuffled = _mm_shuffle_ps( x, x, OGDF_MM_SHUFFLE(0,3,2,1) );
+		__m128 y_shuffled = _mm_shuffle_ps( y, y, OGDF_MM_SHUFFLE(0,3,2,1) );
+		__m128 s_shuffled = _mm_shuffle_ps( s, s, OGDF_MM_SHUFFLE(0,3,2,1) );
 		__m128 fx_sum_shuffled;
 		__m128 fy_sum_shuffled;
 
 		// begin copy paste from above
 		__m128 dx	= _mm_sub_ps( x, x_shuffled );								// dx = x_A - x_B
 		__m128 dy	= _mm_sub_ps( y, y_shuffled );								// dy = y_A - y_B
-//		__m128 dsq	= _mm_add_ps( _mm_mul_ps( dx, dx ),
-//								  _mm_mul_ps( dy, dy ) );						// dsq = (dx*dx + dy*dy)
-//		__m128 f	= _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq );			// f = (s_A+s_B)/d^2
+#if 0
+		__m128 dsq	= _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
+		__m128 f	= _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
+#endif
 		__m128 s_sum = _mm_add_ps(s, s_shuffled);
-		__m128 f    = _MM_COMPUTE_FORCE(dx,dy,s_sum);
+		__m128 f    = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
 		__m128 fx	= _mm_mul_ps( dx, f ); 	// ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) )
 		__m128 fy	= _mm_mul_ps( dy, f );	// ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) )
 
-		fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
-		fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, _MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
+		fx_sum = _mm_add_ps( fx_sum, _mm_sub_ps( fx, _mm_shuffle_ps( fx, fx, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fx(a,b), fx(b,c), fx(c,d), fx(d,a) ) - ( fx(d,a), fx(a,b), fx(b,c), fx(c,d) )
+		fy_sum = _mm_add_ps( fy_sum, _mm_sub_ps( fy, _mm_shuffle_ps( fy, fy, OGDF_MM_SHUFFLE(2,1,0,3) ) ) ); // ( fy(a,b), fy(b,c), fy(c,d), fy(d,a) ) - ( fy(d,a), fy(a,b), fy(b,c), fy(c,d) )
 
-		x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, _MM_SHUFFLE(0,3,2,1) );
-		y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, _MM_SHUFFLE(0,3,2,1) );
-		s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, _MM_SHUFFLE(0,3,2,1) );
+		x_shuffled = _mm_shuffle_ps( x_shuffled, x_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
+		y_shuffled = _mm_shuffle_ps( y_shuffled, y_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
+		s_shuffled = _mm_shuffle_ps( s_shuffled, s_shuffled, OGDF_MM_SHUFFLE(0,3,2,1) );
 
 		dx = _mm_sub_ps( x, x_shuffled );										// dx = x_A - x_B
 		dy = _mm_sub_ps( y, y_shuffled );										// dy = y_A - y_B
-//		dsq = _mm_add_ps( _mm_mul_ps( dx, dx ),
-//						  _mm_mul_ps( dy, dy ) );								// dsq = (dx*dx + dy*dy)
-//		f = _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq );						// f = (s_A+s_B)/d^2
+#if 0
+		dsq = _mm_add_ps( _mm_mul_ps( dx, dx ), _mm_mul_ps( dy, dy ) ); // dsq = (dx*dx + dy*dy)
+		f = _mm_div_ps( _mm_add_ps( s, s_shuffled ), dsq ); // f = (s_A+s_B)/d^2
+#endif
 		s_sum = _mm_add_ps(s, s_shuffled);
-		f  = _MM_COMPUTE_FORCE(dx,dy,s_sum);
+		f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
 		fx = _mm_mul_ps( dx, f );												// fx(a,c), fx(b,d), fx(c,a), fx(d,b)
 		fy = _mm_mul_ps( dy, f );												// fy(a,c), fy(b,d), fy(c,a), fy(d,b)
 
@@ -276,10 +280,12 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 			{
 				dx = _mm_sub_ps(x, x_shuffled);
 				dy = _mm_sub_ps(y, y_shuffled);
-//				dsq= _mm_add_ps(_mm_mul_ps(dx, dx), _mm_mul_ps(dy, dy));
-//				f  = _mm_div_ps(_mm_add_ps(s, s_shuffled), dsq);
+#if 0
+				dsq= _mm_add_ps(_mm_mul_ps(dx, dx), _mm_mul_ps(dy, dy));
+				f  = _mm_div_ps(_mm_add_ps(s, s_shuffled), dsq);
+#endif
 				s_sum = _mm_add_ps(s, s_shuffled);
-				f  = _MM_COMPUTE_FORCE(dx,dy,s_sum);
+				f  = OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s_sum);
 				fx = _mm_mul_ps(dx, f);
 				fy = _mm_mul_ps(dy, f);
 				// add forces to i's sum
@@ -289,11 +295,11 @@ inline void eval_direct_aligned_SSE(float* ptr_x, float* ptr_y, float* ptr_s, fl
 				fx_sum_shuffled = _mm_sub_ps(fx_sum_shuffled, fx);
 				fy_sum_shuffled = _mm_sub_ps(fy_sum_shuffled, fy);
 				// shuffle everything for the next pairing
-				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  _MM_SHUFFLE(0,3,2,1));
-				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  _MM_SHUFFLE(0,3,2,1));
-				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  _MM_SHUFFLE(0,3,2,1));
-				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
-				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, _MM_SHUFFLE(0,3,2,1));
+				x_shuffled		= _mm_shuffle_ps(x_shuffled,  x_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
+				y_shuffled		= _mm_shuffle_ps(y_shuffled,  y_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
+				s_shuffled		= _mm_shuffle_ps(s_shuffled,  s_shuffled,  OGDF_MM_SHUFFLE(0,3,2,1));
+				fx_sum_shuffled = _mm_shuffle_ps(fx_sum_shuffled, fx_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
+				fy_sum_shuffled = _mm_shuffle_ps(fy_sum_shuffled, fy_sum_shuffled, OGDF_MM_SHUFFLE(0,3,2,1));
 			}
 			// note: after shuffling 4 times we are back to original order
 			_mm_store_ps(ptr_fx + j, fx_sum_shuffled);
@@ -326,7 +332,9 @@ void eval_direct_fast(float* x, float* y, float* s, float* fx, float* fy, size_t
 		eval_direct(x, y, s, fx, fy, numA,
 					x+numAB, y+numAB, s+numAB, fx+numAB, fy+numAB, numC);
 		// eval BxB
-		//eval_direct(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
+#if 0
+		eval_direct(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
+#endif
 		eval_direct_aligned_SSE(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
 		// eval BxC
 		eval_direct(x+ numA, y+ numA, s+ numA, fx+ numA, fy+ numA, numB,
@@ -387,19 +395,24 @@ void eval_direct_fast(float* x1, float* y1, float* s1, float* fx1, float* fy1, s
 #endif
 
 
-/*template<typename T>
+#if 0
+template<typename T>
 inline __w64 int align_16_begin(T* ptr)
 {
 	return align_16_next_ptr(ptr) - ptr;
-	//return ((T*)((((int)ptr) + 15) &~ 0x0F)) - ptr;
+#if 0
+	return ((T*)((((int)ptr) + 15) &~ 0x0F)) - ptr;
+#endif
 }
 
 template<typename T, typename N>
 inline __w64 int align_16_end(T* ptr, const N n)
 {
 	return (n) - ( (ptr+n) - align_16_prev_ptr( ptr+n ) );
-	//return ((T*)(((int)(ptr + n)) &~ 0x0F)) - ptr;
-}*/
+#if 0
+	return ((T*)(((int)(ptr + n)) &~ 0x0F)) - ptr;
+#endif
+}
 
 //
 //  ______________________
@@ -413,10 +426,9 @@ inline __w64 int align_16_end(T* ptr, const N n)
 //  |AxA|            |   |
 //  |___|____________|___|
 //   x   fence1    fence2 x+n
-/*void eval_direct_sse(float* x, float* y, float* s, float* fx, float* fy, uint32_t n)
+void eval_direct_sse(float* x, float* y, float* s, float* fx, float* fy, uint32_t n)
 {
-	if (n>8)
-	{
+	if (n > 8) {
 		const float* ptr = x;
 		const float* fence1 =  align_16_next_ptr(ptr);
 		const float* fence2 =  align_16_prev_ptr(ptr+n);
@@ -435,21 +447,22 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		eval_direct(x, y, s, fx, fy, numA,
 					x+numAB, y+numAB, s+numAB, fx+numAB, fy+numAB, numC);
 		// eval BxB
-		//eval_direct(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
+#if 0
+		eval_direct(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
+#endif
 		eval_direct_aligned_aligned_sse(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
-		//eval_direct_aligned_aligned_sse(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
+#if 0
+		eval_direct_aligned_aligned_sse(x+numA, y+numA, s+numA, fx+numA, fy+numA, numB);
+#endif
 		// eval BxC
 		eval_direct(x+ numA, y+ numA, s+ numA, fx+ numA, fy+ numA, numB,
 					x+numAB, y+numAB, s+numAB, fx+numAB, fy+numAB, numC);
 
 		// eval CxC
 		eval_direct(x+numAB, y+numAB, s+numAB, fx+numAB, fy+numAB, numC);
-	} else
-	{
-		for (uint32_t i=0; i < n; i++)
-		{
-			for (uint32_t j=i+1; j < n; j++)
-			{
+	} else {
+		for (uint32_t i=0; i < n; i++) {
+			for (uint32_t j=i+1; j < n; j++) {
 				float dx = x[i] - x[j];
 				float dy = y[i] - y[j];
 				float dsq = dx*dx + dy*dy;
@@ -460,21 +473,21 @@ inline __w64 int align_16_end(T* ptr, const N n)
 				fy[j] -= dy*f;
 			}
 		}
-	}*/
+	}
 
-/*	//const void* start16 = (void*)(((int)x + 15) &~ 0x0F);
-	//const void* end16 = (void*)(((int)(y + n)) &~ 0x0F);
-	//std::cout << x  << " " << n << " begin i: " << x+align_16_begin(x) << " end i: " << x+align_16_end(x, n) << std::endl;
+#if 0
+	const void* start16 = (void*)(((int)x + 15) &~ 0x0F);
+	const void* end16 = (void*)(((int)(y + n)) &~ 0x0F);
+	std::cout << x  << " " << n << " begin i: " << x+align_16_begin(x) << " end i: " << x+align_16_end(x, n) << std::endl;
+#endif
 	int i = 0;
 	// i beginning (not 16 byte aligned)
-	for (i = 0; i < (align_16_begin(x)); i++)
-	{
+	for (i = 0; i < (align_16_begin(x)); i++) {
 		const float* inner_ptr = x + i + 1;
 		int j;
 		// i beginning (not 16 byte aligned)
 		// j beginning (not 16 byte aligned)
-		for (j = i + 1; j < (i+1+align_16_begin(inner_ptr)); j++)
-		{
+		for (j = i + 1; j < (i+1+align_16_begin(inner_ptr)); j++) {
 			// 1 vs 1
 			float dx = x[i] - x[j];
 			float dy = y[i] - y[j];
@@ -487,8 +500,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		}
 		// i beginning (not 16 byte aligned)
 		// j 16 byte aligned blocks
-		for ( ; j < (i+1+align_16_end(inner_ptr, n-i)); j += 4)
-		{
+		for ( ; j < (i+1+align_16_end(inner_ptr, n-i)); j += 4) {
 			if (!is_align_16(x+j)) std::cout << "Not aligned j 1 vs 4"<< std::endl;
 			// 1 vs 4
 			Vec4f dx(x[i] - Vec4f(x+j));
@@ -509,8 +521,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		}
 		// i beginning (not 16 byte aligned)
 		// j end (not 16 byte aligned)
-		for ( ; j < (n); j++)
-		{
+		for ( ; j < (n); j++) {
 			// 1 vs 1
 			float dx = x[i] - x[j];
 			float dy = y[i] - y[j];
@@ -523,8 +534,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		}
 	}
 	// i 16 byte aligned blocks
-	for ( ; i < (align_16_end(x, n)); i += 4)
-	{
+	for ( ; i < (align_16_end(x, n)); i += 4) {
 		if (!is_align_16(x+i)) std::cout << "Not aligned 4 vs 1"<< std::endl;
 		Vec4f x_i(x+i);
 		Vec4f y_i(y+i);
@@ -536,8 +546,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		int j;
 		// i 16 byte aligned blocks
 		// j beginning (not 16 byte aligned)
-		for (j = i + 1; j < (i+1+align_16_begin(inner_ptr)); j++)
-		{
+		for (j = i + 1; j < (i+1+align_16_begin(inner_ptr)); j++) {
 			if (!is_align_16(x+i)) std::cout << "Not aligned i 4 vs 1 "<< j<< std::endl;
 			// 4 vs 1
 			Vec4f dx = x_i - x[j];
@@ -553,12 +562,13 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		}
 		// i 16 byte aligned blocks
 		// j 16 byte aligned blocks
-		for ( ; j < i+1+align_16_end(inner_ptr, n-i); j += 4)
-		{
-			//std::cout << j << std::endl;
-			//std::cout << x+align_16_begin(inner_ptr) << std::endl;
-			//if (!is_align_16(x+i)) std::cout << "Not aligned i  4 vs 4 " << x+i<< std::endl;
-			//if (!is_align_16(x+j)) std::cout << "Not aligned j  4 vs 4 "<<  n-i << " "<< x+j<< std::endl;
+		for ( ; j < i+1+align_16_end(inner_ptr, n-i); j += 4) {
+#if 0
+			std::cout << j << std::endl;
+			std::cout << x+align_16_begin(inner_ptr) << std::endl;
+			if (!is_align_16(x+i)) std::cout << "Not aligned i  4 vs 4 " << x+i<< std::endl;
+			if (!is_align_16(x+j)) std::cout << "Not aligned j  4 vs 4 "<<  n-i << " "<< x+j<< std::endl;
+#endif
 
 			// 4 vs 4
 			Vec4f fx_j(fx+j);
@@ -583,8 +593,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		}
 		// i 16 byte aligned blocks
 		// j end (not 16 byte aligned)
-		for ( ; j < (n); j++)
-		{
+		for ( ; j < (n); j++) {
 			// 4 vs 1
 			Vec4f dx = x_i - x[j];
 			Vec4f dy = y_i - y[j];
@@ -601,17 +610,21 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		fy_i.store(fy+i);
 	}
 	// i end (not 16 byte aligned)
-	for ( ; i < (n); i++)
-	{
+	for ( ; i < (n); i++) {
 		const float* inner_ptr = x + i + 1;
 		int j;
-		//std::cout << x  << " " << n << " begin j: " << align_16_begin(inner_ptr) << " end j: " << align_16_end(inner_ptr, n-i-1) << std::endl;
+#if 0
+		std::cout << x  << " " << n << " begin j: " << align_16_begin(inner_ptr) << " end j: " << align_16_end(inner_ptr, n-i-1) << std::endl;
+#endif
 		// i end (not 16 byte aligned)
 		// j beginning (not 16 byte aligned)
-		//std::cout << "before first loop i: "  << i<< std::endl;
-		for (j = i + 1; j < i+1+(align_16_begin(inner_ptr)); j++)
-		{
-			//std::cout << i << " " << j << std::endl;
+#if 0
+		std::cout << "before first loop i: "  << i<< std::endl;
+#endif
+		for (j = i + 1; j < i+1+(align_16_begin(inner_ptr)); j++) {
+#if 0
+			std::cout << i << " " << j << std::endl;
+#endif
 			// 1 vs 1
 			float dx = x[i] - x[j];
 			float dy = y[i] - y[j];
@@ -623,11 +636,12 @@ inline __w64 int align_16_end(T* ptr, const N n)
 			fy[j] -= dy*f;
 		}
 
-		//std::cout << "after first loop" << std::endl;
+#if 0
+		std::cout << "after first loop" << std::endl;
+#endif
 		// i beginning (not 16 byte aligned)
 		// j 16 byte aligned blocks
-		for ( ; j < i+1+(align_16_end(inner_ptr, n-i)); j += 4)
-		{
+		for ( ; j < i+1+(align_16_end(inner_ptr, n-i)); j += 4) {
 			if (!is_align_16(x+j)) std::cout << "Not aligned"<< std::endl;
 			// 1 vs 4
 			Vec4f dx(x[i] - Vec4f(x+j));
@@ -648,8 +662,7 @@ inline __w64 int align_16_end(T* ptr, const N n)
 		}
 		// i beginning (not 16 byte aligned)
 		// j end (not 16 byte aligned)
-		for ( ; j < (n); j++)
-		{
+		for ( ; j < (n); j++) {
 			// 1 vs 1
 			float dx = x[i] - x[j];
 			float dy = y[i] - y[j];
@@ -660,13 +673,9 @@ inline __w64 int align_16_end(T* ptr, const N n)
 			fx[j] -= dx*f;
 			fy[j] -= dy*f;
 		}
-	}
-	} else
-	{
-		for (uint32_t i=0; i < n; i++)
-		{
-			for (uint32_t j=i+1; j < n; j++)
-			{
+	} else {
+		for (uint32_t i=0; i < n; i++) {
+			for (uint32_t j=i+1; j < n; j++) {
 				float dx = x[i] - x[j];
 				float dy = y[i] - y[j];
 				float dsq = dx*dx + dy*dy;
@@ -677,10 +686,9 @@ inline __w64 int align_16_end(T* ptr, const N n)
 				fy[j] -= dy*f;
 			}
 		}
-	}*/
-//}
-
-
+	}
+}
+#endif
 
 void fast_multipole_l2p(double* localCoeffiecients, uint32_t numCoeffiecients, double centerX, double centerY,
 				float x, float y, float q, float& fx, float&fy)
@@ -699,7 +707,7 @@ void fast_multipole_l2p(double* localCoeffiecients, uint32_t numCoeffiecients, d
 	res = res.conj();
 	double resTemp[2];
 	res.store_unaligned(resTemp);
-#ifdef FME_KERNEL_USE_OLD
+#ifdef OGDF_FME_KERNEL_USE_OLD
 	fx -= (float)resTemp[0];
 	fy -= (float)resTemp[1];
 #else

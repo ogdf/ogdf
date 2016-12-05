@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -52,12 +49,12 @@ public:
 	virtual ~PlanarPQTree() { }
 
 	//! Does a clean up after a reduction.
-	virtual void emptyAllPertinentNodes();
+	virtual void emptyAllPertinentNodes() override;
 
 	//! Initializes a new PQ-tree with a set of leaves.
 	virtual int Initialize(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
-	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+	int Initialize(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override {
 		return PQTree<edge,IndInfo*,bool>::Initialize(leafKeys);
 	}
 
@@ -67,7 +64,7 @@ public:
 	//! Reduces a set of leaves.
 	virtual bool Reduction(SListPure<PlanarLeafKey<IndInfo*>*> &leafKeys);
 
-	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) {
+	bool Reduction(SListPure<PQLeafKey<edge,IndInfo*,bool>*> &leafKeys) override {
 		return PQTree<edge,IndInfo*,bool>::Reduction(leafKeys);
 	}
 

@@ -13,7 +13,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -30,12 +30,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -57,6 +54,7 @@ class MaxCPlanarMaster : public abacus::Master {
 	// Pointers to the given Clustergraph and underlying Graph are stored.
 	const ClusterGraph *m_C;
 	const Graph *m_G;
+	const EdgeArray<int> *m_pCost;
 
 
 	// Each time the primal bound is improved, the integer solution induced Graph is built.
@@ -73,6 +71,7 @@ public:
 	// Construction and default values
 	MaxCPlanarMaster(
 		const ClusterGraph &C,
+		const EdgeArray<int> *pCost,
 		int heuristicLevel=1,
 		int heuristicRuns=2,
 		double heuristicOEdgeBound=0.3,
@@ -91,11 +90,11 @@ public:
 		double strongConstraintViolation = 0.3,
 		double strongVariableViolation = 0.3);
 
-	// Destruction
+	//! Destruction
 	virtual ~MaxCPlanarMaster();
 
 	// Initialisation of the first Subproblem
-	virtual abacus::Sub *firstSub();
+	virtual abacus::Sub *firstSub() override;
 
 	// Returns the objective function coefficient of C-edges
 	double epsilon() const {return m_epsilon;}
@@ -202,10 +201,10 @@ public:
 protected:
 
 	// Initializes constraints and variables and an initial dual bound.
-	virtual void initializeOptimization();
+	virtual void initializeOptimization() override;
 
 	// Function that is invoked at the end of the optimization
-	virtual void terminateOptimization();
+	virtual void terminateOptimization() override;
 
 	double heuristicInitialLowerBound();
 

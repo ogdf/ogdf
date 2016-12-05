@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/graphalg/MaxAdjOrdering.h>
 #include <ogdf/basic/Logger.h>
@@ -672,7 +669,7 @@ void MaxAdjOrdering::m_calcAllMAOs_recursion(
         //if is unsorted
         if (endIt.valid()){
             //increase value of neighborhood and store it
-            int r_(++r[((*endIt)->index())]);
+            int r_(++r[(*endIt)->index()]);
 
             //if it is the current maximum, add it to the list
             if (r_ == maxValue){
@@ -898,4 +895,3 @@ void MaxAdjOrdering::visualize(
     }
 }
 } // end namespace ogdf
-

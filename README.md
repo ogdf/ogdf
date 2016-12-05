@@ -10,7 +10,7 @@ OGDF is developed and supported by [TU Dortmund](http://ls11-www.cs.uni-dortmund
 * [Porting Guide](doc/porting.md)
 * [Compiler Defines](doc/defines.md)
 * [Official Website](http://ogdf.net/)
-* [Snapshot Reference Documentation](http://www.ogdf.net/doc-ogdf-dev/)
+* [Snapshot Reference Documentation](http://ogdf.github.io/doc/ogdf-snapshot/)
 
 ## License
 
@@ -27,7 +27,7 @@ linear programming or unit testing.
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 2005-2015
+Copyright (C) 2005-2016
 
 ## Note for GitHub users
 

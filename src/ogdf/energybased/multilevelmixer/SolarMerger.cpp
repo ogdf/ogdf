@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/energybased/multilevelmixer/SolarMerger.h>
 
@@ -136,10 +133,9 @@ std::vector<node> SolarMerger::selectSuns(MultilevelGraph &MLG)
 				}
 			}
 
-			for (std::vector< std::pair<node, int> >::iterator i = sunCandidates.begin();
-				i != sunCandidates.end(); ++i)
+			for (auto &sunCandidate : sunCandidates)
 			{
-				node temp = (*i).first;
+				node temp = sunCandidate.first;
 				if (temp == minNode) {
 					continue;
 				}
@@ -247,7 +243,7 @@ double SolarMerger::distanceToSun(node object, MultilevelGraph &MLG)
 	}
 
 	node center = m_orbitalCenter[object];
-	OGDF_ASSERT(center != 0);
+	OGDF_ASSERT(center != nullptr);
 
 #ifdef OGDF_DEBUG
 	bool found = false;
@@ -361,20 +357,20 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 		mass = m_mass[sun];
 	}
 
-	OGDF_ASSERT(m_celestial[sun] == 1)
+	OGDF_ASSERT(m_celestial[sun] == 1);
 
 	for(adjEntry adj : sun->adjEntries) {
 #ifdef OGDF_DEBUG
 		node planet = adj->twinNode();
 #endif
-		OGDF_ASSERT(m_celestial[planet] == 2)
-		OGDF_ASSERT(m_orbitalCenter[planet] == sun)
+		OGDF_ASSERT(m_celestial[planet] == 2);
+		OGDF_ASSERT(m_orbitalCenter[planet] == sun);
 		systemNodes.push_back(adj->twinNode());
 	}
 	for(adjEntry adj : sun->adjEntries) {
 		node planet = adj->twinNode();
-		OGDF_ASSERT(m_celestial[planet] == 2)
-		OGDF_ASSERT(m_orbitalCenter[planet] == sun)
+		OGDF_ASSERT(m_celestial[planet] == 2);
+		OGDF_ASSERT(m_orbitalCenter[planet] == sun);
 		for(adjEntry adj2 : planet->adjEntries) {
 			node moon = adj2->twinNode();
 			if(m_celestial[moon] == 3 && m_orbitalCenter[moon] == planet) {
@@ -401,8 +397,8 @@ bool SolarMerger::collapsSolarSystem(MultilevelGraph &MLG, node sun, int level)
 
 		NodeMerge * NM = new NodeMerge(level);
 		std::vector<PathData> positions = m_pathDistances[mergeNode];
-		for (std::vector<PathData>::iterator j = positions.begin(); j != positions.end(); ++j) {
-			NM->m_position.push_back(std::pair<int,double>((*j).targetSun, (*j).length));
+		for (auto &position : positions) {
+			NM->m_position.push_back(std::pair<int,double>(position.targetSun, position.length));
 		}
 
 		bool ret;

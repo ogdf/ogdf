@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/basic.h>
@@ -40,7 +37,7 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/STNumbering.h>
 #include <ogdf/internal/planarity/PlanarPQTree.h>
 #include <ogdf/internal/planarity/PlanarLeafKey.h>
 #include <ogdf/planarity/BoothLueker.h>
@@ -145,8 +142,8 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 #ifdef OGDF_DEBUG
 			int n =
 #endif
-				stNumber(G,numbering);
-			OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(G,numbering,n))
+			computeSTNumbering(G, numbering);
+			OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(G, numbering, n));
 
 			EdgeArray<edge> backTableEdges(G,nullptr);
 			for(edge e : G.edges)
@@ -195,8 +192,8 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 #ifdef OGDF_DEBUG
 				int n =
 #endif
-					stNumber(C,numbering);
-				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(C,numbering,n))
+				computeSTNumbering(C, numbering);
+				OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(C, numbering, n));
 
 				if (embed)
 					planar = doEmbed(C,numbering,backTableEdges,tableEdges);
@@ -237,8 +234,9 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 		G.newEdge(v,v);
 	}
 
-	OGDF_ASSERT_IF(dlConsistencyChecks,
-		planar == false || embed == false || G.representsCombEmbedding())
+	OGDF_ASSERT_IF(dlConsistencyChecks, planar == false
+	                                 || embed == false
+	                                 || G.representsCombEmbedding());
 
 	return planar;
 }
@@ -261,7 +259,7 @@ bool BoothLueker::doTest(Graph &G,NodeArray<int> &numbering)
 			if (numbering[e->opposite(v)] > numbering[v])
 				//sideeffect: loops are ignored
 			{
-				PlanarLeafKey<IndInfo*>* L = OGDF_NEW PlanarLeafKey<IndInfo*>(e);
+				PlanarLeafKey<IndInfo*>* L = new PlanarLeafKey<IndInfo*>(e);
 				inLeaves[v].pushFront(L);
 			}
 		}
@@ -335,7 +333,7 @@ bool BoothLueker::doEmbed(
 			edge e = adj->theEdge();
 			if (numbering[e->opposite(v)] > numbering[v])
 			{
-				PlanarLeafKey<IndInfo*>* L = OGDF_NEW PlanarLeafKey<IndInfo*>(e);
+				PlanarLeafKey<IndInfo*>* L = new PlanarLeafKey<IndInfo*>(e);
 				inLeaves[v].pushFront(L);
 			}
 		}

@@ -21,7 +21,7 @@ private:
 
     double *coeffxs;
     int *rows;
-    
+
     int *ninrowxs;
     /*const*/ int *rowcolsxs;
     /*const*/ double *rowelsxs;

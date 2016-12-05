@@ -1,28 +1,4 @@
 //----------------------
-// CGL
-//
-
-#include <cinttypes>
-
-/* Version number of project */
-#define CGL_VERSION "0.57.3"
-
-/* Major Version number of project */
-#define CGL_VERSION_MAJOR 0
-
-/* Minor Version number of project */
-#define CGL_VERSION_MINOR 57
-
-/* Release Version number of project */
-#define CGL_VERSION_RELEASE 3
-
-/* Define to the debug sanity check level (0 is no test) */
-#define COIN_CGL_CHECKLEVEL 0
-
-/* Define to the debug verbosity level (0 is no output) */
-#define COIN_CGL_VERBOSITY 0
-
-//----------------------
 // CLP
 //
 
@@ -89,34 +65,11 @@
 
 
 //----------------------
-// Symphony
-//
-
-/* Version number of project */
-#define SYMPHONY_VERSION "5.4.5"
-
-/* Major Version number of project */
-#define SYMPHONY_VERSION_MAJOR 5
-
-/* Minor Version number of project */
-#define SYMPHONY_VERSION_MINOR 4
-
-/* Release Version number of project */
-#define SYMPHONY_VERSION_RELEASE 5
-
-/* Define to the debug sanity check level (0 is no test) */
-#define COIN_SYMPHONY_CHECKLEVEL 0
-
-/* Define to the debug verbosity level (0 is no output) */
-#define COIN_SYMPHONY_VERBOSITY 0
-
-
-//----------------------
 // Available Packages
 //
 
 /* Define to 1 if the Cgl package is available */
-#define COIN_HAS_CGL 1
+/* #undef COIN_HAS_CGL */
 
 /* Define to 1 if the Clp package is available */
 #define COIN_HAS_CLP 1
@@ -158,7 +111,7 @@
 /* #undef COIN_HAS_MSK */
 
 /* Define to 1 if the Sample package is available */
-#define COIN_HAS_SAMPLE 1
+/* #undef COIN_HAS_SAMPLE */
 
 /* Define to 1 if the Vol package is available */
 /* #undef COIN_HAS_VOL */

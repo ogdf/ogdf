@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -67,7 +64,7 @@ public:
 		setEdgeTypeOf(e, edgeTypeOf(e) | clusterPattern());
 	}
 	bool isClusterBoundary(edge e) {
-		return ((edgeTypeOf(e) & clusterPattern()) == clusterPattern());
+		return (edgeTypeOf(e) & clusterPattern()) == clusterPattern();
 	}
 	const ClusterGraph &getClusterGraph() const {
 		return *m_pClusterGraph;
@@ -97,12 +94,12 @@ public:
 	//structural alterations
 
 	// Expands nodes with degree > 4 and merge nodes for generalizations
-	virtual void expand(bool lowDegreeExpand = false);
+	virtual void expand(bool lowDegreeExpand = false) override;
 
 	virtual void expandLowDegreeVertices(OrthoRep &OR);
 
 	//splits edge e, updates clustercage lists if necessary and returns new edge
-	virtual edge split(edge e)
+	virtual edge split(edge e) override
 	{
 		edge eNew = PlanRep::split(e);
 
@@ -119,44 +116,37 @@ public:
 	//we derive the edge cluster from the endnode cluster information
 	cluster clusterOfEdge(edge e)
 	{
+		const auto sourceId = ClusterID(e->source());
+		const auto targetId = ClusterID(e->target());
+		cluster targetCluster = clusterOfIndex(targetId);
 
-		OGDF_ASSERT(m_clusterOfIndex.isDefined(ClusterID(e->source())))
-		OGDF_ASSERT(m_clusterOfIndex.isDefined(ClusterID(e->target())))
+		if (sourceId == targetId)
+			return targetCluster;
 
-		OGDF_ASSERT(
-			(ClusterID(e->source()) == ClusterID(e->target())) ||
-			(clusterOfIndex(ClusterID(e->source())) ==
-			clusterOfIndex(ClusterID(e->target()))->parent()) ||
-			(clusterOfIndex(ClusterID(e->target())) ==
-			clusterOfIndex(ClusterID(e->source()))->parent()) ||
-			(clusterOfIndex(ClusterID(e->target()))->parent() ==
-			clusterOfIndex(ClusterID(e->source()))->parent())
-		)
+		cluster sourceCluster = clusterOfIndex(sourceId);
 
-		if (ClusterID(e->source()) == ClusterID(e->target()))
-			return clusterOfIndex(ClusterID(e->target()));
-		if (clusterOfIndex(ClusterID(e->source())) ==
-			clusterOfIndex(ClusterID(e->target()))->parent())
-			return clusterOfIndex(ClusterID(e->source()));
-		if (clusterOfIndex(ClusterID(e->target())) ==
-			clusterOfIndex(ClusterID(e->source()))->parent())
-			return clusterOfIndex(ClusterID(e->target()));
-		if (clusterOfIndex(ClusterID(e->target()))->parent() ==
-			clusterOfIndex(ClusterID(e->source()))->parent())
-			return clusterOfIndex(ClusterID(e->source()))->parent();
+		if (sourceCluster == targetCluster->parent())
+			return sourceCluster;
+		if (targetCluster == sourceCluster->parent())
+			return targetCluster;
+		if (targetCluster->parent() == sourceCluster->parent())
+			return sourceCluster->parent();
 
+		OGDF_ASSERT(false);
 		OGDF_THROW(AlgorithmFailureException);
-		//return 0;
 	}//clusterOfEdge
 
 	inline int ClusterID(node v) const {return m_nodeClusterID[v];}
 	inline int ClusterID(edge e) const {return m_edgeClusterID[e];}
-	cluster clusterOfIndex(int i) {return m_clusterOfIndex[i];}
+	cluster clusterOfIndex(int i) {
+		OGDF_ASSERT(m_clusterOfIndex.isDefined(i));
+		return m_clusterOfIndex[i];
+	}
 
 	inline cluster clusterOfDummy(node v)
 		{
-			OGDF_ASSERT(!original(v))
-			OGDF_ASSERT(ClusterID(v) != -1)
+			OGDF_ASSERT(!original(v));
+			OGDF_ASSERT(ClusterID(v) != -1);
 			return clusterOfIndex(ClusterID(v));
 		}
 

@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/geometry.h>
@@ -158,13 +155,13 @@ double DVector::length() const
 // determinante
 double DVector::operator^(const DVector &dv) const
 {
-	return ((m_x * dv.m_y) - (m_y * dv.m_x));
+	return (m_x * dv.m_y) - (m_y * dv.m_x);
 }
 
 // s-product
 double DVector::operator*(const DVector &dv) const
 {
-	return ((m_x * dv.m_x) + (m_y * dv.m_y));
+	return (m_x * dv.m_x) + (m_y * dv.m_y);
 }
 
 DVector DVector::orthogonal() const
@@ -252,7 +249,7 @@ DPoint DPolyline::position(const double fraction, double len) const
 		double dx = DX * segpos / seglen;
 		double dy = DY * segpos / seglen;
 
-		p = (*pred);
+		p = *pred;
 		p.m_x += dx;
 		p.m_y += dy;
 	}
@@ -384,21 +381,22 @@ bool DLine::intersection(
 	// compute crossing otherwise
 	// or skip computation if endpoints overlap (can't have "real" crossing)
 	// (currently implemented)
-	//if (endpoints) {
+#if 0
+	if (endpoints)
+#endif
+	{
+		if (m_start == line.m_start || m_start == line.m_end) {
+			inter = m_start;
+			if (endpoints) return true;
+			else return false;
+		}
 
-	if (m_start == line.m_start || m_start == line.m_end) {
-		inter = m_start;
-		if (endpoints) return true;
-		else return false;
+		if (m_end == line.m_start || m_end == line.m_end) {
+			inter = m_end;
+			if (endpoints) return true;
+			else return false;
+		}
 	}
-
-	if (m_end == line.m_start || m_end == line.m_end) {
-		inter = m_end;
-		if (endpoints) return true;
-		else return false;
-	}
-
-	//}//if endpoints
 
 	//if the edge is vertical, we cannot compute the slope
 	if (isVertical())
@@ -421,7 +419,7 @@ bool DLine::intersection(
 	DRect tRect(line);
 	DRect mRect(*this);
 
-	return (tRect.contains(inter) && mRect.contains(inter));
+	return tRect.contains(inter) && mRect.contains(inter);
 }
 
 
@@ -663,7 +661,6 @@ int DPolygon::getCrossPoints(const DPolygon &p, List<DPoint> &crossPoints) const
 		DSegment s1 = segment(i);
 		for (j = p.begin(); j.valid(); ++j) {
 			DSegment s2 = p.segment(j);
-
 			DPoint intersec;
 
 			if (s1.intersection(s2, intersec))
@@ -672,14 +669,16 @@ int DPolygon::getCrossPoints(const DPolygon &p, List<DPoint> &crossPoints) const
 	}
 	// unify the list
 	ListIterator<DPoint> k, l;
-	for (k = crossPoints.begin(); k.valid(); ++k)
-		for (l = k, ++l; l.valid(); ++l)
+	for (k = crossPoints.begin(); k.valid(); ++k) {
+		for (l = k, ++l; l.valid(); ++l) {
 			if (*k == *l) {
 				--l;
 				crossPoints.del(crossPoints.cyclicSucc(l));
 			}
+		}
+	}
 
-			return crossPoints.size();
+	return crossPoints.size();
 }
 
 
@@ -745,7 +744,7 @@ bool DPolygon::containsPoint(DPoint &p) const
 	double d = angle / (2.0 * Math::pi);
 	int rounds = static_cast<int>(d<0?d-.5:d+.5);
 
-	return ((rounds % 2) != 0);
+	return (rounds % 2) != 0;
 }
 
 

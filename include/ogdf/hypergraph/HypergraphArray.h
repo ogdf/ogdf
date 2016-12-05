@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -56,7 +53,7 @@ public:
 
 	//! Initializes an array not associated with a hypergraph.
 	HypergraphArrayBase()
-		: m_hypergraph(0)
+		: m_hypergraph(nullptr)
 	{
 	}
 
@@ -161,7 +158,7 @@ HypernodeArray() : Array<T>(), HypergraphArrayBase() { }
 		if (m_hypergraph)
 			m_hypergraph->unregisterHypernodeArray(m_it);
 
-		if ((m_hypergraph = H) != 0)
+		if ((m_hypergraph = H) != nullptr)
 			m_it = H->registerHypernodeArray(this);
 	}
 
@@ -220,7 +217,7 @@ public:
 	//! Returns true iff the array is associated with a hypergraph.
 	bool valid() const
 	{
-		return (Array<T>::low() <= Array<T>::high());
+		return Array<T>::low() <= Array<T>::high();
 	}
 
 	//! Returns a reference to the element with index \a v.
@@ -268,7 +265,7 @@ public:
 		if (m_hypergraph)
 			m_hypergraph->unregisterHyperedgeArray(m_it);
 
-		if ((m_hypergraph = H) != 0)
+		if ((m_hypergraph = H) != nullptr)
 			m_it = H->registerHyperedgeArray(this);
 	}
 
@@ -287,7 +284,7 @@ private:
 	virtual void disconnect()
 	{
 		Array<T>::init();
-		m_hypergraph = 0;
+		m_hypergraph = nullptr;
 	}
 
 	OGDF_NEW_DELETE;

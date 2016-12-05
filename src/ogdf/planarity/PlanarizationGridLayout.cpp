@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/PlanarizationGridLayout.h>
@@ -45,9 +42,9 @@ namespace ogdf {
 
 	PlanarizationGridLayout::PlanarizationGridLayout()
 	{
-		m_crossMin      .set(new SubgraphPlanarizer);
-		m_planarLayouter.set(new MixedModelLayout);
-		m_packer        .set(new TileToRowsCCPacker);
+		m_crossMin      .reset(new SubgraphPlanarizer);
+		m_planarLayouter.reset(new MixedModelLayout);
+		m_packer        .reset(new TileToRowsCCPacker);
 
 		m_pageRatio = 1.0;
 	}
@@ -73,12 +70,12 @@ namespace ogdf {
 			// 1. crossing minimization
 			//--------------------------------------
 			int cr;
-			m_crossMin.get().call(pr, cc, cr);
+			m_crossMin->call(pr, cc, cr);
 			m_nCrossings += cr;
 			OGDF_ASSERT(isPlanar(pr));
 
 			GridLayout gridLayoutPG(pr);
-			m_planarLayouter.get().callGrid(pr,gridLayoutPG);
+			m_planarLayouter->callGrid(pr,gridLayoutPG);
 
 			// copy grid layout of PG into grid layout of G
 			for(int j = pr.startNode(); j < pr.stopNode(); ++j)
@@ -106,13 +103,13 @@ namespace ogdf {
 				}
 			}
 
-			boundingBox[cc] = m_planarLayouter.get().gridBoundingBox();
+			boundingBox[cc] = m_planarLayouter->gridBoundingBox();
 			boundingBox[cc].m_x += 1; // one row/column space between components
 			boundingBox[cc].m_y += 1;
 		}
 
 		Array<IPoint> offset(numCC);
-		m_packer.get().call(boundingBox,offset,m_pageRatio);
+		m_packer->call(boundingBox,offset,m_pageRatio);
 
 		bb.m_x = bb.m_y = 0;
 		for(int cc = 0; cc < numCC; ++cc)
@@ -151,4 +148,3 @@ namespace ogdf {
 
 
 } // end namespace ogdf
-

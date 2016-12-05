@@ -73,4 +73,3 @@ ClpObjective::markNonlinear(char *)
 {
      return 0;
 }
-

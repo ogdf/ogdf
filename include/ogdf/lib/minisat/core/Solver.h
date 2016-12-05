@@ -80,9 +80,9 @@ public:
     bool    solve        (Lit p, Lit q, Lit r);     // Search for a model that respects three assumptions.
     bool    okay         () const;                  // FALSE means solver is in a conflicting state
 
-    void    toDimacs     (FILE* f, const vec<Lit>& assumps);            // Write CNF to file in DIMACS-format.
+    void    toDimacs     (std::ostream &out, const vec<Lit>& assumps);            // Write CNF to file in DIMACS-format.
     void    toDimacs     (const char *file, const vec<Lit>& assumps);
-    void    toDimacs     (FILE* f, Clause& c, vec<Var>& map, Var& max);
+    void    toDimacs     (std::ostream &out, Clause& c, vec<Var>& map, Var& max);
 
     // Convenience versions of 'toDimacs()':
     void    toDimacs     (const char* file);
@@ -373,8 +373,10 @@ inline bool     Solver::solve         (double t, SolverStatus& st)       {
     assumptions.clear();
     lbool solver_value = solve_(t);
     st.restarts = starts;
-    //uint64_t solves, decisions, rnd_decisions, propagations, conflicts;
-    //uint64_t dec_vars, clauses_literals, learnts_literals, max_literals, tot_literals;
+#if 0
+    uint64_t solves, decisions, rnd_decisions, propagations, conflicts;
+    uint64_t dec_vars, clauses_literals, learnts_literals, max_literals, tot_literals;
+#endif
     st.conflicts = conflicts;
     st.decisions = decisions;
     st.propagations = propagations;

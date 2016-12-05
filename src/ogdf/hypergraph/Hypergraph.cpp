@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/HashArray.h>
@@ -66,7 +63,7 @@ hypernode Hypergraph::newHypernode(int pIndex)
 {
 	++m_nHypernodes;
 
-	hypernode v = OGDF_NEW HypernodeElement(pIndex);
+	hypernode v = new HypernodeElement(pIndex);
 	if (m_hypernodeIdCount <= pIndex)
 		m_hypernodeIdCount = pIndex + 1;
 
@@ -121,7 +118,7 @@ hyperedge Hypergraph::newHyperedge(int pIndex, List<hypernode> &pHypernodes)
 				it.valid(); (*it)->enlargeTable(m_hyperedgeArrayTableSize), ++it);
 	}
 
-	hyperedge e = OGDF_NEW HyperedgeElement(pIndex);
+	hyperedge e = new HyperedgeElement(pIndex);
 	m_hyperedges.pushBack(e);
 
 	if (m_hyperedgeIdCount <= pIndex)
@@ -134,8 +131,8 @@ hyperedge Hypergraph::newHyperedge(int pIndex, List<hypernode> &pHypernodes)
 
 		hypernode v = *it;
 
-		adjHypergraphEntry adjHypergraphEntryE = OGDF_NEW AdjHypergraphElement(v);
-		adjHypergraphEntry adjHypergraphEntryV = OGDF_NEW AdjHypergraphElement(e);
+		adjHypergraphEntry adjHypergraphEntryE = new AdjHypergraphElement(v);
+		adjHypergraphEntry adjHypergraphEntryV = new AdjHypergraphElement(e);
 
 		adjHypergraphEntryE->m_twin = adjHypergraphEntryV;
 		adjHypergraphEntryV->m_twin = adjHypergraphEntryE;
@@ -157,7 +154,7 @@ hyperedge Hypergraph::newHyperedge(List<hypernode> &pHypernodes)
 
 void Hypergraph::delHypernode(hypernode v)
 {
-	OGDF_ASSERT(v != 0);
+	OGDF_ASSERT(v != nullptr);
 
 	for (ListIterator<HypergraphObserver *> it = m_observers.begin();
 			it.valid(); (*it)->hypernodeDeleted(v), ++it);
@@ -184,7 +181,7 @@ void Hypergraph::delHypernode(hypernode v)
 
 void Hypergraph::delHyperedge(hyperedge e)
 {
-	OGDF_ASSERT(e != 0);
+	OGDF_ASSERT(e != nullptr);
 
 	for (ListIterator<HypergraphObserver *> it = m_observers.begin();
 			it.valid(); (*it)->hyperedgeDeleted(e), ++it)

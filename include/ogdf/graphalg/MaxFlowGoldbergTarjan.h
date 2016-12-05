@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,24 +26,21 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/MaxFlowModule.h>
 
-//#define USE_GAP_RELABEL_HEURISTIC
-#define USE_MAX_ACTIVE_LABEL
-#ifdef USE_GAP_RELABEL_HEURISTIC
-#  define GRH_STEPS	1	// gap relabel frequency: call gapRelabel() after GRH_STEPS relabel() operations (1 == off)
+//#define OGDF_GT_USE_GAP_RELABEL_HEURISTIC
+#define OGDF_GT_USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
+//#define OGDF_GT_GRH_STEPS	1	// gap relabel frequency: call gapRelabel() after OGDF_GT_GRH_STEPS relabel() operations (1 == off)
 #endif
-#define USE_PUSH_RELABEL_SECOND_STAGE
-// world666 is much better without USE_PUSH_RELABEL_SECOND_STAGE
+#define OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
+// world666 is much better without OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
 
 namespace ogdf {
 
@@ -52,16 +49,16 @@ namespace ogdf {
  * @ingroup ga-flow
  */
 template<typename TCap>
-class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
+class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 {
 	NodeArray<int> m_label;
 	NodeArray<TCap> m_ex; // ex_f(v) values will be saved here to save runtime
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 	NodeArray< ListIterator<node> > m_activeLabelListPosition; // holds the iterator of every active node in the corresp. list of m_labeList
 	Array< List<node> > m_activeLabelList; // array indexed by label, contains list of active nodes with that label
 	int m_maxLabel; // the maximum label among all active nodes
 #endif
-#ifdef USE_GAP_RELABEL_HEURISTIC
+#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 	NodeArray< ListIterator<node> > m_labelListPosition; // holds the iterator of every node in the corresp. list of m_labeList
 	Array< List<node> > m_labelList; // array indexed by label, contains list of nodes with that label
 #endif
@@ -101,7 +98,7 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		     && m_label[v] > 0);
 	}
 
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 	inline void setActive(const node v)
 	{
 		const int label = m_label[v];
@@ -129,18 +126,18 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		m_activeLabelListPosition[v] = nullptr;
 		findNewMaxLabel();
 	}
-#endif // USE_MAX_ACTIVE_LABEL
+#endif
 
 	// sets label of v, maintaining m_labelList (moves node v to the correct list in the array)
 	inline void setLabel(const node v, int label)
 	{
-#ifdef USE_GAP_RELABEL_HEURISTIC
+#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 		if (m_labelListPosition[v].valid()) {
 			m_labelList[m_label[v]].del(m_labelListPosition[v]); // delete node from old list using noted position
 		}
 		m_labelListPosition[v] = m_labelList[label].pushBack(v); // push node to new list and update iterator
 #endif
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 		if (m_activeLabelListPosition[v].valid()) {
 			OGDF_ASSERT(0 < m_label[v]);
 			OGDF_ASSERT(m_label[v] < this->m_G->numberOfNodes());
@@ -157,10 +154,10 @@ class OGDF_EXPORT MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 #endif
 	}
 
-#ifdef USE_GAP_RELABEL_HEURISTIC
+#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 	void gapRelabel()
 	{
-#  ifdef USE_MAX_ACTIVE_LABEL
+#  ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 		// XXX: this is a test but it seems to work and it seems to be fast!
 		const int n = m_maxLabel + 1;
 #  else
@@ -266,12 +263,12 @@ public:
 
 		m_label.init(*this->m_G);
 		m_ex.init(*this->m_G, 0);
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 		m_activeLabelListPosition.init(*this->m_G, nullptr);
 		m_activeLabelList.init(1, this->m_G->numberOfNodes() - 1);
 		m_maxLabel = 0;
 #endif
-#ifdef USE_GAP_RELABEL_HEURISTIC
+#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 		m_labelListPosition.init(*this->m_G, nullptr);
 		m_labelList.init(this->m_G->numberOfNodes() + 1);
 #endif
@@ -298,7 +295,7 @@ public:
 		globalRelabel(); // initialize distance labels
 
 		int relCount = 0; // counts the relabel operations for the global relabeling heuristic
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 		while (m_maxLabel != 0) {
 			OGDF_ASSERT(!m_activeLabelList[m_maxLabel].empty());
 			const node v = m_activeLabelList[m_maxLabel].front();
@@ -320,7 +317,7 @@ public:
 			 || v == *this->m_t
 			 || !isActive(v)) {
 				// source, sink or not active: remove activity status
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 				setInactive(v);
 #else
 				active.popFront();
@@ -329,7 +326,7 @@ public:
 				while (this->m_et->greater(m_ex[v], (TCap) 0)) {
 					if (isAdmissible(adj)) {
 						// push and adjacent node becomes active
-#ifdef USE_MAX_ACTIVE_LABEL
+#ifdef OGDF_GT_USE_MAX_ACTIVE_LABEL
 						const node w = adj->twinNode();
 						if (w != *this->m_s
 						 && w != *this->m_t
@@ -353,11 +350,11 @@ public:
 							adj = v->firstAdj();
 							relabel(v);
 							++relCount;
-#ifdef USE_GAP_RELABEL_HEURISTIC
+#ifdef OGDF_GT_USE_GAP_RELABEL_HEURISTIC
 							// only gapRelabel if we do not do a globalRelabel directly afterwards
 							if (relCount != this->m_G->numberOfNodes()
-#  if (GRH_STEPS > 1)
-							 && relCount % GRH_STEPS == 0 // obey frequency of gap relabel heuristic
+#  if (OGDF_GT_GRH_STEPS > 1)
+							 && relCount % OGDF_GT_GRH_STEPS == 0 // obey frequency of gap relabel heuristic
 #  endif
 							  ) {
 								gapRelabel();
@@ -390,7 +387,7 @@ public:
 	void computeFlowAfterValue()
 	{
 		List<node> active;
-#ifdef USE_PUSH_RELABEL_SECOND_STAGE
+#ifdef OGDF_GT_USE_PUSH_RELABEL_SECOND_STAGE
 		NodeArray<adjEntry> curr(*this->m_G);
 		for (node v = this->m_G->firstNode(); v; v = v->succ()) {
 			curr[v] = v->firstAdj();

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 //TODO: handle multiedges in a way that forbids assignment of different sides
@@ -189,7 +186,7 @@ void EdgeRouter::call(
 			 (pru.typeOf(v) != Graph::generalizationMerger)) //==Expander) )
 		//adjEntry != nil, this cage node is a copy(original node)
 		{
-			OGDF_ASSERT(pru.widthOrig(pru.original(v)) > 0.0)
+			OGDF_ASSERT(pru.widthOrig(pru.original(v)) > 0.0);
 			initialize_node_info(v, mysep); //delta, epsilon, cagesize, boxsize
 		}
 	}
@@ -344,116 +341,118 @@ void EdgeRouter::call(
 		}//if expanded
 	}
 
-	////try to place deg1 nodes
-	//for(node v : pru.nodes)
-	//   {
-	//	//there is an omission of placement here leading to errors
-	//	if (false) //preliminary until umlex4 error checked
-	//       {
-	//		if ( (pru.expandAdj(v) != 0) && (pru.typeOf(v) != Graph::generalizationMerger) )
-	//		{
-	//			//****************************************
-	//			//Re - Place degree one nodes if possible, to neighbour cage
-	//			//mag sein, dass firstadj ein zeiger sein muss
-	//			adjEntry fa = infos[v].firstAdj();
-	//			//step over possibly inserted bends
-	//			while (pru.typeOf(fa->twinNode()) == Graph::dummy)
-	//				fa = fa->faceCycleSucc();
-	//			if ((pru.typeOf(fa->twinNode()) != Graph::highDegreeExpander) &&
-	//				(pru.typeOf(fa->twinNode()) != Graph::lowDegreeExpander) )
-	//			{
-	//				//place(v, m_sep, m_overh);
-	//				continue;
-	//			}//if expander
-	//			//get neighbour node
-	//			node v1 = fa->twinNode();
-	//			//get attachment side
-	//			OrthoDir od = OrthoRep::prevDir(H.direction(fa));
-	//
-	//			node expandNode = pru.expandedNode(v1);
-	//			//v is neighbour of expanded node and may fit in its cage
-	//			//check if deg 1 can be placed near to node
-	//			//problem: wenn nicht geflippt wird, ist meistens auch kein Platz auf der Seite
-	//			if ( (infos[v].vDegree() == 1) && //can be placed freely
-	//				//no edges to cross on neighbours side
-	//				(infos[expandNode].num_edges(od) + infos[expandNode].flips(OrthoRep::prevDir(od), od) +
-	//					infos[expandNode].flips(OrthoRep::nextDir(od), od) == 1) &&
-	//				//enough space to host trabant
-	//				(infos[expandNode].coordDistance(od) > infos[v].nodeSize(OrthoRep::prevDir(od)) + m_sep) &&
-	//				(infos[expandNode].cageSize(od) > infos[v].nodeSize(od)) &&
-	//				//dumm gelaufen: der Knoten muss auch kleiner als der Nachbar sein, damit er nicht in
-	//				//abgeknickte Kanten der Seite laeuft, deshalb hier spaeter deren Position testen, Bed. weg
-	//				//das ist etwas doppelt, damit man spaeter nur diese entfernen muss, die oben bleibt
-	//				(infos[expandNode].nodeSize(od) >= infos[v].nodeSize(od))
-	//			)
-	//			{
-	//				//find new place, v must be cage node with out edge attached
-	//				int npos, spos, epos, wpos, vxpos, vypos;
-	//				switch (od)
-	//	            {
-	//					case odNorth:
-	//						npos = infos[expandNode].coord(odNorth) - m_sep - infos[v].node_xsize();
-	//						spos = infos[expandNode].coord(odNorth) - m_sep;
-	//						wpos = infos[expandNode].cageCoord(odWest)
-	//                                        + int(floor(infos[expandNode].cageSize(odNorth)/2.0)
-	//                                        - floor(infos[v].nodeSize(odNorth)/2.0));
-	//						epos = wpos + infos[v].nodeSize(odNorth);
-	//						vxpos = spos;
-	//						vypos = wpos + int(floor(infos[v].nodeSize(odNorth)/2.0));
-	//						break;
-	//					case odSouth:
-	//						npos = infos[expandNode].coord(odSouth) + m_sep;
-	//						spos = infos[expandNode].coord(odSouth) + m_sep + infos[v].node_xsize();
-	//						wpos = infos[expandNode].cageCoord(odWest)
-	//                                        + int(floor(infos[expandNode].cageSize(odNorth)/2.0)
-	//                                        - floor(infos[v].nodeSize(odNorth)/2.0));
-	//						epos = wpos + infos[v].nodeSize(odNorth);
-	//						vxpos = npos;
-	//						vypos = wpos + int(floor(infos[v].nodeSize(odNorth)/2.0));
-	//						break;
-	//	                case odEast:
-	//	                    npos = infos[expandNode].cageCoord(odNorth)
-	//                              + int(floor(infos[expandNode].cageSize(odEast)/2.0)
-	//                              - floor(infos[v].nodeSize(odEast)/2.0));
-	//						spos = npos + infos[v].cageSize(odEast);
-	//						wpos = infos[expandNode].coord(odEast) + m_sep;
-	//						epos = wpos + infos[v].nodeSize(odEast);
-	//						vypos = wpos;
-	//						vxpos = npos + int(floor(infos[v].nodeSize(odEast)/2.0));
-	//						break;
-	//	                case odWest:
-	//			            npos = infos[expandNode].cageCoord(odNorth)
-	//                              + int(floor(infos[expandNode].cageSize(odEast)/2.0)
-	//                              - floor(infos[v].nodeSize(odEast)/2.0));
-	//						spos = npos + infos[v].cageSize(odEast);
-	//						epos = infos[expandNode].coord(odWest) - m_sep;
-	//						wpos = epos - infos[v].nodeSize(odNorth);
-	//						vypos = epos;
-	//						vxpos = npos + int(floor(infos[v].nodeSize(odEast)/2.0));
-	//						break;
-	//                }//switch
-	//				infos[v].set_coord(odNorth, npos);
-	//				infos[v].set_coord(odSouth, spos);
-	//				infos[v].set_coord(odWest, wpos);
-	//				infos[v].set_coord(odEast, epos);
-	//				infos[v].setCageCoord(odNorth, npos);
-	//				infos[v].setCageCoord(odSouth, spos);
-	//				infos[v].setCageCoord(odWest, wpos);
-	//				infos[v].setCageCoord(odEast, epos);
-	//				//set v coordinates
-	//				m_layoutp->x(v) = vxpos;
-	//				m_layoutp->y(v) = vypos;
-	//				m_layoutp->x(v1) = vxpos;
-	//				m_layoutp->y(v1) = vypos;
-	//				//set corner coordinates after placing
-	//				set_corners(v);
-	//				m_processStatus[v] = processed;
-	//				m_processStatus[v1] = used;
-	//				//hier muss man auch die Kantenendpunkte setzen, sonst gibt es einen Fehler
-	//			}//if
-	//		}//if degreeexpander
-	//       }//debug stop
-	//}
+#if 0
+	//try to place deg1 nodes
+	for(node v : pru.nodes)
+	{
+		//there is an omission of placement here leading to errors
+		if (false) //preliminary until umlex4 error checked
+		{
+			if ( (pru.expandAdj(v) != 0) && (pru.typeOf(v) != Graph::generalizationMerger) )
+			{
+				//****************************************
+				//Re - Place degree one nodes if possible, to neighbour cage
+				//mag sein, dass firstadj ein zeiger sein muss
+				adjEntry fa = infos[v].firstAdj();
+				//step over possibly inserted bends
+				while (pru.typeOf(fa->twinNode()) == Graph::dummy)
+					fa = fa->faceCycleSucc();
+				if ((pru.typeOf(fa->twinNode()) != Graph::highDegreeExpander) &&
+					(pru.typeOf(fa->twinNode()) != Graph::lowDegreeExpander) )
+				{
+					//place(v, m_sep, m_overh);
+					continue;
+				}//if expander
+				//get neighbour node
+				node v1 = fa->twinNode();
+				//get attachment side
+				OrthoDir od = OrthoRep::prevDir(H.direction(fa));
+
+				node expandNode = pru.expandedNode(v1);
+				//v is neighbour of expanded node and may fit in its cage
+				//check if deg 1 can be placed near to node
+				//problem: wenn nicht geflippt wird, ist meistens auch kein Platz auf der Seite
+				if ( (infos[v].vDegree() == 1) && //can be placed freely
+					//no edges to cross on neighbours side
+					(infos[expandNode].num_edges(od) + infos[expandNode].flips(OrthoRep::prevDir(od), od) +
+						infos[expandNode].flips(OrthoRep::nextDir(od), od) == 1) &&
+					//enough space to host trabant
+					(infos[expandNode].coordDistance(od) > infos[v].nodeSize(OrthoRep::prevDir(od)) + m_sep) &&
+					(infos[expandNode].cageSize(od) > infos[v].nodeSize(od)) &&
+					//dumm gelaufen: der Knoten muss auch kleiner als der Nachbar sein, damit er nicht in
+					//abgeknickte Kanten der Seite laeuft, deshalb hier spaeter deren Position testen, Bed. weg
+					//das ist etwas doppelt, damit man spaeter nur diese entfernen muss, die oben bleibt
+					(infos[expandNode].nodeSize(od) >= infos[v].nodeSize(od))
+				)
+				{
+					//find new place, v must be cage node with out edge attached
+					int npos, spos, epos, wpos, vxpos, vypos;
+					switch (od)
+		            {
+						case odNorth:
+							npos = infos[expandNode].coord(odNorth) - m_sep - infos[v].node_xsize();
+							spos = infos[expandNode].coord(odNorth) - m_sep;
+							wpos = infos[expandNode].cageCoord(odWest)
+	                                        + int(floor(infos[expandNode].cageSize(odNorth)/2.0)
+	                                        - floor(infos[v].nodeSize(odNorth)/2.0));
+							epos = wpos + infos[v].nodeSize(odNorth);
+							vxpos = spos;
+							vypos = wpos + int(floor(infos[v].nodeSize(odNorth)/2.0));
+							break;
+						case odSouth:
+							npos = infos[expandNode].coord(odSouth) + m_sep;
+							spos = infos[expandNode].coord(odSouth) + m_sep + infos[v].node_xsize();
+							wpos = infos[expandNode].cageCoord(odWest)
+	                                        + int(floor(infos[expandNode].cageSize(odNorth)/2.0)
+	                                        - floor(infos[v].nodeSize(odNorth)/2.0));
+							epos = wpos + infos[v].nodeSize(odNorth);
+							vxpos = npos;
+							vypos = wpos + int(floor(infos[v].nodeSize(odNorth)/2.0));
+							break;
+		                case odEast:
+		                    npos = infos[expandNode].cageCoord(odNorth)
+	                              + int(floor(infos[expandNode].cageSize(odEast)/2.0)
+	                              - floor(infos[v].nodeSize(odEast)/2.0));
+							spos = npos + infos[v].cageSize(odEast);
+							wpos = infos[expandNode].coord(odEast) + m_sep;
+							epos = wpos + infos[v].nodeSize(odEast);
+							vypos = wpos;
+							vxpos = npos + int(floor(infos[v].nodeSize(odEast)/2.0));
+							break;
+		                case odWest:
+				            npos = infos[expandNode].cageCoord(odNorth)
+	                              + int(floor(infos[expandNode].cageSize(odEast)/2.0)
+	                              - floor(infos[v].nodeSize(odEast)/2.0));
+							spos = npos + infos[v].cageSize(odEast);
+							epos = infos[expandNode].coord(odWest) - m_sep;
+							wpos = epos - infos[v].nodeSize(odNorth);
+							vypos = epos;
+							vxpos = npos + int(floor(infos[v].nodeSize(odEast)/2.0));
+							break;
+	                }//switch
+					infos[v].set_coord(odNorth, npos);
+					infos[v].set_coord(odSouth, spos);
+					infos[v].set_coord(odWest, wpos);
+					infos[v].set_coord(odEast, epos);
+					infos[v].setCageCoord(odNorth, npos);
+					infos[v].setCageCoord(odSouth, spos);
+					infos[v].setCageCoord(odWest, wpos);
+					infos[v].setCageCoord(odEast, epos);
+					//set v coordinates
+					m_layoutp->x(v) = vxpos;
+					m_layoutp->y(v) = vypos;
+					m_layoutp->x(v1) = vxpos;
+					m_layoutp->y(v1) = vypos;
+					//set corner coordinates after placing
+					set_corners(v);
+					m_processStatus[v] = processed;
+					m_processStatus[v1] = used;
+					//hier muss man auch die Kantenendpunkte setzen, sonst gibt es einen Fehler
+				}//if
+			}//if degreeexpander
+	       }//debug stop
+	}
+#endif
 
 	for(node v : pru.nodes)
 	{
@@ -466,9 +465,11 @@ void EdgeRouter::call(
 
 	setDistances();
 
-	//  PathFinder pf(pru, H, L, *m_comb);
-	//  int routable = pf.analyse();
-	//if (routable > 0) pf.route(false);
+#if 0
+	PathFinder pf(pru, H, L, *m_comb);
+	int routable = pf.analyse();
+	if (routable > 0) pf.route(false);
+#endif
 
 	OGDF_ASSERT(H.check(msg));
 }//call
@@ -656,7 +657,6 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 			++l_it;
 			++pos;
 		}//while
-
 	}//else left gen
 
 	//RIGHT SIDE **************************************************************
@@ -1264,7 +1264,6 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			++l_it;
 			++pos;
 		}//while
-
 	}//else leftgen
 	//end set m_gx
 
@@ -1981,7 +1980,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		//starting from the lowest horizontal edge, we move the virtual node box up and count the number of potentially
 		//unbend edges to find the best starting unbend edge additionally, we set the values for the connection/glue point position
 		int stop = l_horz.size();
-		int bestvalue;
+		int bestvalue = m_init;
 
 		if (l_horz.size() == 1)
 		{
@@ -2006,7 +2005,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				while (p.valid())
 				{
 					//the edge indicated by p fits in the box started with l_horzl.front lower value
-					if (uppe[(*p)]<= (lowe[l_horzl.front()]+boxy)) //+machineeps)) //||(p == horz_entry[l_horzl.front()]))
+					if (uppe[*p]<= (lowe[l_horzl.front()]+boxy)) //+machineeps)) //||(p == horz_entry[l_horzl.front()]))
 					//assert first edge int horzl is edge i?
 					//p's entry needs no bend => increase num_unbend (edges)
 					{
@@ -2047,7 +2046,6 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 
 				l_horzl.popFront();
 			}//for, l_horz list entries
-
 		}//else bugfix size 1
 
 		m_newy[v] = min((inf.cage_coord(odEast) - inf.node_ysize() - inf.rc(odEast)), bestvalue);
@@ -2114,7 +2112,6 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		}//else merger
 	}//else horz
 
-
 	//forall horizontal edges we computed the y-coordinate of their glue point in m_gp_y
 	//and we computed the y-coordinate of the lower box segment in m_newy
 	//horizontal position****************************
@@ -2125,14 +2122,18 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		//to find the best starting unbend edge
 		num_unbend = 0;
 		best_unbend = -1;
-		//edge bestedge;
-		int bestvalue;
+#if 0
+		edge bestedge;
+#endif
+		int bestvalue = m_init;
 		int stop = l_vert.size();
 		//bugfix
 		if (l_vert.size() == 1)
 		{
 			best_unbend = 1;
-			//bestedge = l_vert.front();
+#if 0
+			bestedge = l_vert.front();
+#endif
 			if (at_top[*(l_vert.begin())])
 				bestvalue = alefte[outEntry(inf, odEast, 0)];
 			else bestvalue = alefte[outEntry(inf, odWest, 0)];
@@ -2146,8 +2147,11 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			{
 				while (p.valid())
 				{
-					if  (righte[(*p)] <= lefte[l_vertl.front()]+boxx+machineeps) //assert first edge is edge i?
-					//(p == vert_entry[l_vertl.front()]))
+#if 1
+					if (righte[*p] <= lefte[l_vertl.front()] + boxx + machineeps) //assert first edge is edge i?
+#else
+					if (p == vert_entry[l_vertl.front()]))
+#endif
 					//p's entry needs no bend => increase num_unbend (edges)
 					{
 						num_unbend++;
@@ -2166,7 +2170,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 
 				if (p == vert_entry[l_vertl.front()]) ++p; //may be -- if valid
 
-				OGDF_ASSERT(p != vert_entry[l_vertl.front()])
+				OGDF_ASSERT(p != vert_entry[l_vertl.front()]);
 
 				l_vert.del(vert_entry[l_vertl.front()]);
 				l_vertl.popFront();
@@ -2287,14 +2291,17 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		set_corners(v);
 	//we computed the new placement position for original node box v and stored it in m_new as well as in inf (debug)
 	//assert some assigment
-	//{
-	//	if ( (m_prup->expandAdj(v) != 0) && (m_prup->typeOf(v) != Graph::generalizationMerger) )
-	//	{
-	//		OGDF_ASSERT( (m_newx[v] >= inf.cage_coord(odNorth)) && (m_newy[v] >= inf.cage_coord(odWest)) );
-	//		OGDF_ASSERT( (m_newx[v] + inf.node_xsize()<= inf.cage_coord(odSouth)) &&
- //                   (m_newy[v] + inf.node_ysize()<= inf.cage_coord(odEast)));
-	//	}
-	//}
+#if 0
+	{
+		if ( (m_prup->expandAdj(v) != 0) && (m_prup->typeOf(v) != Graph::generalizationMerger) )
+		{
+			OGDF_ASSERT(m_newx[v] >= inf.cage_coord(odNorth));
+			OGDF_ASSERT(m_newy[v] >= inf.cage_coord(odWest));
+			OGDF_ASSERT(m_newx[v] + inf.node_xsize() <= inf.cage_coord(odSouth));
+			OGDF_ASSERT(m_newy[v] + inf.node_ysize() <= inf.cage_coord(odEast));
+		}
+	}
+#endif
 
 	//now assign boolean values for reroutability: is edge to box distance large enough to allow rerouting
 	//{} is done in call function in classify_edges()
@@ -2765,7 +2772,7 @@ void EdgeRouter::place(node l_v)
 			switch (abendType(ae))
 			{
 				case bend_1left:
-					if ((!corn))
+					if (!corn)
 					{
 						corn = true;
 						edge newe2;
@@ -2816,9 +2823,11 @@ void EdgeRouter::place(node l_v)
 						- infos[l_v].inList(odSouth).size())*m_sep;
 					newe = addLeftBend(e);
 
-					//gy = gp_y(ae) - infos[l_v].flips(odEast, odSouth)*infos[l_v].delta(odSouth, odEast);
-					//if (inedge) fix_position(e->target(), m_agp_x[ae], gy);
-					//else fix_position(e->source(), m_agp_x[ae], gy);
+#if 0
+					gy = gp_y(ae) - infos[l_v].flips(odEast, odSouth)*infos[l_v].delta(odSouth, odEast);
+					if (inedge) fix_position(e->target(), m_agp_x[ae], gy);
+					else fix_position(e->source(), m_agp_x[ae], gy);
+#endif
 					fix_position(newe->source(), xtacy, (inedge ? cp_y(ae) : gp_y(ae)-leftofs));
 					newe = addRightBend(newe);
 					fix_position(newe->source(), xtacy, (inedge ? gp_y(ae)-leftofs : cp_y(ae)));
@@ -3219,7 +3228,8 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	ListIterator<edge> l_it;
 
 	OrthoDir od = odNorth;
-/*TO BE REMOVED IF OBSOLETE
+#if 0
+	// TO BE REMOVED IF OBSOLETE
 	do
 	{
 		l_it = infos[v].inList(od).begin();
@@ -3229,7 +3239,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 		}
 		od =OrthoRep::nextDir(od);
 	} while (od != odNorth);
-*/
+#endif
 	//start flipping
 	l_it = infos[v].inList(odNorth).rbegin();
 	for (flipedges = 0; flipedges < flip_lt; flipedges++)
@@ -3387,15 +3397,20 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 {
 	//derive simple data
 	const OrthoRep::VertexInfoUML* vinfo = m_orp->cageInfo(v);
-	//inf.get_data(*m_prup, *m_orp, v);
+#if 0
+	inf.get_data(*m_prup, *m_orp, v);
+#endif
 	//zuerst die kantenlisten und generalizations finden und pos festlegen
 	{//construct the edge lists for the incoming edges on ev side
-		//struct VertexInfoUML {
 		// side information (odNorth, odEast, odSouth, odWest corresponds to left, top, right, bottom)
-		//SideInfoUML m_side[4];
+#if 0
+		SideInfoUML m_side[4];
+#endif
 		// m_corner[dir] is adjacency entry in direction dir starting at
 		// a corner
-		//adjEntry m_corner[4];
+#if 0
+		adjEntry m_corner[4];
+#endif
 		infos[v].firstAdj() = nullptr;
 
 		adjEntry adj = m_prup->expandAdj(v);
@@ -3616,87 +3631,24 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 	//try to find out which bend direction is opposite
 	//these edges can not be routed bendfree
 	bend_type bt1, bt2, bt3, bt4;
-	switch (s_from)
-	{
-	case odEast:
-		switch (s_to)
-		{
-		case odSouth:
-			bt1 = prob_b1l;
-			bt2 = prob_b2l;
-			bt3 = bend_1left;
-			bt4 = bend_2left;
-			break;
-		case odNorth: bt1 = prob_b1r;
-			bt2 = prob_b2r;
-			bt3 = bend_1right;
-			bt4 = bend_2right;
-			break;
-		default:
-			OGDF_ASSERT(false);
-		}//switch s_to
-		break;
-	case odWest:
-		switch (s_to)
-		{
-		case odSouth:
-			bt1 = prob_b1r;
-			bt2 = prob_b2r;
-			bt3 = bend_1right;
-			bt4 = bend_2right;
-			break;
-		case odNorth:
-			bt1 = prob_b1l;
-			bt2 = prob_b2l;
-			bt3 = bend_1left;
-			bt4 = bend_2left;
-			break;
-		default:
-			OGDF_ASSERT(false);
-		}//switch s_to
-		break;
-	case odNorth:
-		switch (s_to)
-		{
-		case odWest:
-			bt1 = prob_b1r;
-			bt2 = prob_b2r;
-			bt3 = bend_1right;
-			bt4 = bend_2right;
-			break;
-		case odEast:
-			bt1 = prob_b1l;
-			bt2 = prob_b2l;
-			bt3 = bend_1left;
-			bt4 = bend_2left;
-			break;
-		default:
-			OGDF_ASSERT(false);
-		}//switch s_to
-		break;
-	case odSouth:
-		switch (s_to)
-		{
-		case odEast:
-			bt1 = prob_b1r;
-			bt2 = prob_b2r;
-			bt3 = bend_1right;
-			bt4 = bend_2right;
-			break;
-		case odWest:
-			bt1 = prob_b1l;
-			bt2 = prob_b2l;
-			bt3 = bend_1left;
-			bt4 = bend_2left;
-			break;
-		default:
-			OGDF_ASSERT(false);
-		}//switch s_to
-		break;
-
-		default:
-			OGDF_ASSERT(false);
-	}//switch s_from
+	if ((s_from == odEast && s_to == odSouth)
+	 || (s_from == odNorth && s_to == odEast)
+	 || (s_from == odWest && s_to == odNorth)
+	 || (s_from == odSouth && s_to == odWest)) {
+		bt1 = prob_b1l;
+		bt2 = prob_b2l;
+		bt3 = bend_1left;
+		bt4 = bend_2left;
+	} else {
+		OGDF_ASSERT((s_from == odEast && s_to == odNorth)
+		         || (s_from == odNorth && s_to == odWest)
+		         || (s_from == odWest && s_to == odSouth)
+		         || (s_from == odSouth && s_to == odEast));
+		bt1 = prob_b1r;
+		bt2 = prob_b2r;
+		bt3 = bend_1right;
+		bt4 = bend_2right;
+	}
 
 
 	{//debug top side to
@@ -3747,31 +3699,29 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 		switch (s_to)
 		{
 		case odEast: //from left and right
-			bend_saveable = (cp_y(ae) <= (infos[v].coord(odEast)
+			bend_saveable = (cp_y(ae) <= (infos[v].coord(s_to)
 				- infos[v].delta(s_from, s_to)*ic
 				- infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_y(ae) > gp_y(ae));
 			break;
 		case odNorth:  //from top and bottom
-			bend_saveable = (cp_x(ae) >= (infos[v].coord(odNorth)
+			bend_saveable = (cp_x(ae) >= (infos[v].coord(s_to)
 				+ infos[v].delta(s_from, s_to)*ic
 				+ infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_x(ae) < gp_x(ae));
 			break;
 		case odSouth:
-			bend_saveable = (cp_x(ae) <= (infos[v].coord(odSouth)
+			bend_saveable = (cp_x(ae) <= (infos[v].coord(s_to)
 				- infos[v].delta(s_from, s_to)*ic
 				- infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_x(ae) > gp_x(ae));
 			break;
-		case odWest:
-			bend_saveable = (cp_y(ae) >= (infos[v].coord(odWest)
+		default:
+			OGDF_ASSERT(s_to == odWest);
+			bend_saveable = (cp_y(ae) >= (infos[v].coord(s_to)
 				+ infos[v].delta(s_from, s_to)*ic
 				+ infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_y(ae) < gp_y(ae));
-			break;
-		default:
-			OGDF_ASSERT(false);
 		}//switch
 
 		//compare edges connection point with available space
@@ -4120,4 +4070,3 @@ void EdgeRouter::fix_position(node v, int x, int y)
 }
 
 } //end namespace
-

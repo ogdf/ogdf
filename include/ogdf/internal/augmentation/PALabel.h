@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -77,24 +74,24 @@ public:
 	}
 
 	bool isBLabel() {
-		return (m_parent != 0);
+		return m_parent != nullptr;
 	}
 
 	bool isCLabel() {
-		return (m_parent == 0);
+		return m_parent == nullptr;
 	}
 
 	//! return pendant with number nr, starts counting at 0
 	node getPendant(int nr) {
-		return (nr < m_pendants.size()) ? (*(m_pendants.get(nr))) : 0;
+		return (nr < m_pendants.size()) ? (*(m_pendants.get(nr))) : nullptr;
 	}
 
 	node getFirstPendant() {
-		return (m_pendants.size() > 0) ? m_pendants.front() : 0;
+		return (m_pendants.size() > 0) ? m_pendants.front() : nullptr;
 	}
 
 	node getLastPendant() {
-		return (m_pendants.size() > 0) ? m_pendants.back() : 0;
+		return (m_pendants.size() > 0) ? m_pendants.back() : nullptr;
 	}
 
 	//! return number of pendants
@@ -124,7 +121,7 @@ public:
 
 	//! return the parent node. If the label is a c-label it returns m_head
 	node parent() {
-		return (m_parent != 0) ? m_parent : m_head;
+		return (m_parent != nullptr) ? m_parent : m_head;
 	}
 
 	//! returns the head node

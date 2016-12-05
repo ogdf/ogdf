@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -295,7 +292,7 @@ public:
 	 * \pre The list is not empty!
 	 */
 	const_reference front() const {
-		OGDF_ASSERT(m_head != nullptr)
+		OGDF_ASSERT(m_head != nullptr);
 		return m_head->m_x;
 	}
 
@@ -304,7 +301,7 @@ public:
 	 * \pre The list is not empty!
 	 */
 	reference front() {
-		OGDF_ASSERT(m_head != nullptr)
+		OGDF_ASSERT(m_head != nullptr);
 		return m_head->m_x;
 	}
 
@@ -313,7 +310,7 @@ public:
 	 * \pre The list is not empty!
 	 */
 	const_reference back() const {
-		OGDF_ASSERT(m_tail != nullptr)
+		OGDF_ASSERT(m_tail != nullptr);
 		return m_tail->m_x;
 	}
 
@@ -322,7 +319,7 @@ public:
 	 * \pre The list is not empty!
 	 */
 	reference back() {
-		OGDF_ASSERT(m_tail != nullptr)
+		OGDF_ASSERT(m_tail != nullptr);
 		return m_tail->m_x;
 	}
 
@@ -354,7 +351,7 @@ public:
 	 * \pre \a it is an iterator pointing to an element in this list.
 	 */
 	int pos(const_iterator it) const {
-		OGDF_ASSERT(it.valid())
+		OGDF_ASSERT(it.valid());
 		int p = 0;
 		for(SListElement<E> *pX = m_head; pX != nullptr; pX = pX->m_next, ++p)
 			if (pX == it) break;
@@ -494,7 +491,7 @@ public:
 
 	//! Adds element \a x at the beginning of the list.
 	iterator pushFront(const E &x) {
-		m_head = OGDF_NEW SListElement<E>(x,m_head);
+		m_head = new SListElement<E>(x,m_head);
 		if (m_tail == nullptr) m_tail = m_head;
 		return m_head;
 	}
@@ -505,14 +502,14 @@ public:
 	*/
 	template<class ... Args>
 	iterator emplaceFront(Args && ... args) {
-		m_head = OGDF_NEW SListElement<E>(m_head, std::forward<Args>(args)...);
+		m_head = new SListElement<E>(m_head, std::forward<Args>(args)...);
 		if (m_tail == nullptr) m_tail = m_head;
 		return m_head;
 	}
 
 	//! Adds element \a x at the end of the list.
 	iterator pushBack(const E &x) {
-		SListElement<E> *pNew = OGDF_NEW SListElement<E>(x);
+		SListElement<E> *pNew = new SListElement<E>(x);
 		if (m_head == nullptr)
 			m_head = m_tail = pNew;
 		else
@@ -526,7 +523,7 @@ public:
 	*/
 	template<class ... Args>
 	iterator emplaceBack(Args && ... args) {
-		SListElement<E> *pNew = OGDF_NEW SListElement<E>(nullptr, std::forward<Args>(args)...);
+		SListElement<E> *pNew = new SListElement<E>(nullptr, std::forward<Args>(args)...);
 		if (m_head == nullptr)
 			m_head = m_tail = pNew;
 		else
@@ -540,8 +537,8 @@ public:
 	 */
 	iterator insertAfter(const E &x, iterator itBefore) {
 		SListElement<E> *pBefore = itBefore;
-		OGDF_ASSERT(pBefore != nullptr)
-		SListElement<E> *pNew = OGDF_NEW SListElement<E>(x,pBefore->m_next);
+		OGDF_ASSERT(pBefore != nullptr);
+		SListElement<E> *pNew = new SListElement<E>(x,pBefore->m_next);
 		if (pBefore == m_tail) m_tail = pNew;
 		return (pBefore->m_next = pNew);
 	}
@@ -559,7 +556,7 @@ public:
 	 * \pre The list is not empty!
 	 */
 	void popFront() {
-		OGDF_ASSERT(m_head != nullptr)
+		OGDF_ASSERT(m_head != nullptr);
 		SListElement<E> *pX = m_head;
 		if ((m_head = m_head->m_next) == nullptr) m_tail = nullptr;
 		delete pX;
@@ -581,9 +578,9 @@ public:
 	 */
 	void delSucc(iterator itBefore) {
 		SListElement<E> *pBefore = itBefore;
-		OGDF_ASSERT(pBefore != nullptr)
+		OGDF_ASSERT(pBefore != nullptr);
 		SListElement<E> *pDel = pBefore->m_next;
-		OGDF_ASSERT(pDel != nullptr)
+		OGDF_ASSERT(pDel != nullptr);
 		if ((pBefore->m_next = pDel->m_next) == nullptr) m_tail = pBefore;
 		delete pDel;
 	}
@@ -611,8 +608,8 @@ public:
 
 	//! Moves the first element of this list to the begin of list \a L2.
 	void moveFrontToFront(SListPure<E> &L2) {
-		OGDF_ASSERT(m_head != nullptr)
-		OGDF_ASSERT(this != &L2)
+		OGDF_ASSERT(m_head != nullptr);
+		OGDF_ASSERT(this != &L2);
 		SListElement<E> *pX = m_head;
 		if ((m_head = m_head->m_next) == nullptr) m_tail = nullptr;
 		pX->m_next = L2.m_head;
@@ -622,8 +619,8 @@ public:
 
 	//! Moves the first element of this list to the end of list \a L2.
 	void moveFrontToBack(SListPure<E> &L2) {
-		OGDF_ASSERT(m_head != nullptr)
-		OGDF_ASSERT(this != &L2)
+		OGDF_ASSERT(m_head != nullptr);
+		OGDF_ASSERT(this != &L2);
 		SListElement<E> *pX = m_head;
 		if ((m_head = m_head->m_next) == nullptr) m_tail = nullptr;
 		pX->m_next = nullptr;
@@ -638,8 +635,8 @@ public:
 	 * \pre \a itBefore points to an element in \a L2.
 	 */
 	void moveFrontToSucc(SListPure<E> &L2, iterator itBefore) {
-		OGDF_ASSERT(m_head != nullptr)
-		OGDF_ASSERT(this != &L2)
+		OGDF_ASSERT(m_head != nullptr);
+		OGDF_ASSERT(this != &L2);
 		SListElement<E> *pBefore = itBefore;
 		SListElement<E> *pX = m_head;
 		if ((m_head = m_head->m_next) == nullptr) m_tail = nullptr;
@@ -743,42 +740,36 @@ public:
 	 */
 	//@{
 
-	//! Returns a const iterator to a random element in the list (or an invalid iterator if the list is empty).
-	/**
-	 * This method takes linear time.
-	 */
-	const_iterator chooseIterator() const {
-		return empty() ? const_iterator() : get(randomNumber(0,size()-1));
+	//! @copydoc List#chooseIterator
+	const_iterator chooseIterator(
+			std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+			bool isFastTest = true) const {
+		return chooseIteratorFrom(*this, includeElement, isFastTest);
 	}
 
-	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty).
-	/**
-	 * This method takes linear time.
-	 */
-	iterator chooseIterator() {
-		return empty() ? iterator() : get(randomNumber(0,size()-1));
+	//! @copydoc #chooseIterator
+	iterator chooseIterator(
+			std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+			bool isFastTest = true) {
+		return chooseIteratorFrom(*this, includeElement, isFastTest);
 	}
 
-	//! Returns a random element from the list.
-	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
-	 */
-	const_reference chooseElement() const {
-		OGDF_ASSERT(!empty());
-		return *chooseIterator();
+	//! List#chooseElement
+	const_reference chooseElement(
+			std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+			bool isFastTest = true) const {
+		const_iterator result = chooseIterator(includeElement, isFastTest);
+		OGDF_ASSERT(result.valid());
+		return *result;
 	}
 
-	//! Returns a random element from the list.
-	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
-	 */
-	reference chooseElement() {
-		OGDF_ASSERT(!empty());
-		return *chooseIterator();
+	//! @copydoc #chooseElement
+	reference chooseElement(
+			std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+			bool isFastTest = true) {
+		iterator result = chooseIterator(includeElement, isFastTest);
+		OGDF_ASSERT(result.valid());
+		return *result;
 	}
 
 	//! Randomly permutes the elements in the list.
@@ -1238,43 +1229,37 @@ public:
 	 */
 	//@{
 
-	//! Returns a const iterator to a random element in the list (or an invalid iterator if the list is empty).
-	/**
-	 * This method takes linear time.
-	 */
-	const_iterator chooseIterator() const {
-		return (m_count > 0) ? get(randomNumber(0,m_count-1)) : const_iterator();
-	}
+    //! @copydoc List#chooseIterator
+    const_iterator chooseIterator(
+            std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+            bool isFastTest = true) const {
+        return chooseIteratorFrom(*this, includeElement, isFastTest);
+    }
 
-	//! Returns an iterator to a random element in the list (or an invalid iterator if the list is empty).
-	/**
-	 * This method takes linear time.
-	 */
-	iterator chooseIterator() {
-		return (m_count > 0) ? get(randomNumber(0,m_count-1)) : iterator();
-	}
+    //! @copydoc #chooseIterator
+    iterator chooseIterator(
+            std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+            bool isFastTest = true) {
+        return chooseIteratorFrom(*this, includeElement, isFastTest);
+    }
 
-	//! Returns a random element from the list.
-	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
-	 */
-	const_reference chooseElement() const {
-		OGDF_ASSERT(!empty());
-		return *chooseIterator();
-	}
+    //! List#chooseElement
+    const_reference chooseElement(
+            std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+            bool isFastTest = true) const {
+        const_iterator result = chooseIterator(includeElement, isFastTest);
+        OGDF_ASSERT(result.valid());
+        return *result;
+    }
 
-	//! Returns a random element from the list.
-	/**
-	 * \pre The list is not empty!
-	 *
-	 * This method takes linear time.
-	 */
-	reference chooseElement() {
-		OGDF_ASSERT(!empty());
-		return *chooseIterator();
-	}
+    //! @copydoc #chooseElement
+    reference chooseElement(
+            std::function<bool(const E&)> includeElement = [](const E&) { return true; },
+            bool isFastTest = true) {
+        iterator result = chooseIterator(includeElement, isFastTest);
+        OGDF_ASSERT(result.valid());
+        return *result;
+    }
 
 	//! Randomly permutes the elements in the list.
 	void permute() {

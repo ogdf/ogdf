@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -59,19 +56,19 @@ public:
 	inline bool isMainThread() const { return m_pThread->isMainThread(); }
 
 	//! returns true if this run only uses one thread )
-	inline bool isSingleThreaded() const { return (m_pThread->numThreads() == 1); };
+	inline bool isSingleThreaded() const { return m_pThread->numThreads() == 1; };
 
 private:
 	FMEThread* m_pThread;
 };
 
 
-#define FME_KERNEL_USE_OLD
+#define OGDF_FME_KERNEL_USE_OLD
 
-#define COMPUTE_FORCE_PROTECTION_FACTOR 0.25f
+#define OGDF_FME_KERNEL_COMPUTE_FORCE_PROTECTION_FACTOR 0.25f
 // makro for force computation via SSE   s / max(s*0.5, (dx*dx + dy*dy))
-#define _MM_COMPUTE_FORCE(dx,dy,s) _mm_div_ps((s),_mm_max_ps(_mm_mul_ps((s),_mm_set1_ps(COMPUTE_FORCE_PROTECTION_FACTOR)), _mm_add_ps(_mm_mul_ps((dx),(dx)), _mm_mul_ps((dy),(dy)))))
-#define COMPUTE_FORCE(dx,dy,s) (s/(max<float>(s*COMPUTE_FORCE_PROTECTION_FACTOR, (dx)*(dx) + (dy)*(dy))))
+#define OGDF_FME_KERNEL_MM_COMPUTE_FORCE(dx,dy,s) _mm_div_ps((s),_mm_max_ps(_mm_mul_ps((s),_mm_set1_ps(OGDF_FME_KERNEL_COMPUTE_FORCE_PROTECTION_FACTOR)), _mm_add_ps(_mm_mul_ps((dx),(dx)), _mm_mul_ps((dy),(dy)))))
+#define OGDF_FME_KERNEL_COMPUTE_FORCE(dx,dy,s) (s/(max<float>(s*OGDF_FME_KERNEL_COMPUTE_FORCE_PROTECTION_FACTOR, (dx)*(dx) + (dy)*(dy))))
 
 inline double move_nodes(float* x, float* y, const uint32_t begin, const uint32_t end, const float* fx, const float* fy, const float t)
 {
@@ -123,12 +120,12 @@ inline void eval_direct(float* x, float* y, float* s, float* fx, float* fy, size
 		{
 			float dx = x[i] - x[j];
 			float dy = y[i] - y[j];
-#ifdef FME_KERNEL_USE_OLD
+#ifdef OGDF_FME_KERNEL_USE_OLD
 			float s_sum = s[i]+s[j];
 #else
 			float s_sum = s[i]*s[j];
 #endif
-			float f = COMPUTE_FORCE(dx, dy, s_sum);
+			float f = OGDF_FME_KERNEL_COMPUTE_FORCE(dx, dy, s_sum);
 			fx[i] += dx*f;
 			fy[i] += dy*f;
 			fx[j] -= dx*f;
@@ -148,12 +145,12 @@ inline void eval_direct(float* x1, float* y1, float* s1, float* fx1, float* fy1,
 		{
 			float dx = x1[i] - x2[j];
 			float dy = y1[i] - y2[j];
-#ifdef FME_KERNEL_USE_OLD
+#ifdef OGDF_FME_KERNEL_USE_OLD
 			float s_sum = s1[i]+s2[j];
 #else
 			float s_sum = s1[i]*s2[j];
 #endif
-			float f = COMPUTE_FORCE(dx, dy, s_sum);
+			float f = OGDF_FME_KERNEL_COMPUTE_FORCE(dx, dy, s_sum);
 			fx1[i] += dx*f;
 			fy1[i] += dy*f;
 			fx2[j] -= dx*f;
@@ -230,8 +227,8 @@ public:
 	inline void simpleForceDirected(ArrayGraph& graph, float timeStep, uint32_t minIt, uint32_t maxIt, uint32_t preProcIt, double threshold)
 	{
 		bool earlyExit = false;
-		float* fx = (float*)MALLOC_16(sizeof(float)*graph.numNodes());
-		float* fy = (float*)MALLOC_16(sizeof(float)*graph.numNodes());
+		float* fx = (float*)OGDF_MALLOC_16(sizeof(float)*graph.numNodes());
+		float* fy = (float*)OGDF_MALLOC_16(sizeof(float)*graph.numNodes());
 
 		for (uint32_t i = 0; i<preProcIt; i++)
 		{
@@ -254,8 +251,8 @@ public:
 				earlyExit = true;
 		}
 
-		FREE_16(fx);
-		FREE_16(fy);
+		OGDF_FREE_16(fx);
+		OGDF_FREE_16(fy);
 	}
 
 private:
@@ -265,7 +262,10 @@ private:
 class FMESingleKernel : FMEBasicKernel
 {
 public:
-	//FMESingleKernel(FMEThread* pThread) : FMEKernel(pThread) {};
+#if 0
+	FMESingleKernel(FMEThread* pThread) : FMEKernel(pThread) {};
+#endif
+
 	void operator()(ArrayGraph& graph, float timeStep, uint32_t minIt, uint32_t maxIt, double threshold)
 	{
 		simpleForceDirected(graph, timeStep, minIt, maxIt, 20, threshold);

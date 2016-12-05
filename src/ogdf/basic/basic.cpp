@@ -1,6 +1,5 @@
 /** \file
- * \brief Implementation of basic functionality (incl. file and
- * directory handling)
+ * \brief Implementation of basic functionality
  *
  * \author Carsten Gutwenger
  *
@@ -9,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,52 +25,59 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
-#include <ogdf/basic/Thread.h>
-#include <ogdf/basic/List.h>
 #include <random>
 
-// Windows includes
+#include <ogdf/basic/basic.h>
+#include <ogdf/basic/memory.h>
+
 #ifdef OGDF_SYSTEM_WINDOWS
-
-#define WIN32_EXTRA_LEAN
-#define WIN32_LEAN_AND_MEAN
-#undef NOMINMAX
-#define NOMINMAX
-#include <windows.h>
-
-#include <direct.h>
-#if defined(_MSC_VER) && defined(UNICODE)
-#undef GetFileAttributes
-#undef FindFirstFile
-#undef FindNextFile
-#define GetFileAttributes  GetFileAttributesA
-#define FindFirstFile  FindFirstFileA
-#define WIN32_FIND_DATA WIN32_FIND_DATAA
-#define FindNextFile  FindNextFileA
+# define WIN32_EXTRA_LEAN
+# define WIN32_LEAN_AND_MEAN
+# undef NOMINMAX
+# define NOMINMAX
+# include <windows.h>
 #endif
-#endif
-
-#ifdef __BORLANDC__
-#define _chdir chdir
-#endif
-
-// Unix includes
 #ifdef OGDF_SYSTEM_UNIX
-#include <cstring>
-#include <unistd.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/times.h>
-#include <sys/stat.h>
-#include <fnmatch.h>
+# include <unistd.h>
+# include <sys/times.h>
 #endif
+
+// When OGDF_DLL is not set, we use the static initializer object
+// that is instantiated in basic.h. Because it is instantiated in
+// the header file, it becomes instantiated (a lot) more than once.
+// We cannot simply instantiate it in the source file because
+// this does not guarantee that it is instantiated at all (depends
+// on the linker and different other things).
+// Defining it in basic.h, which is always one of the first used
+// header files, assures that the initializer instantiation takes
+// place before any other static object is instantiated.
+//
+// The following counter is necessary to make sure that init is
+// called when the constructor is called the first time, and that
+// deinit is called when the destructor is called the *last* time.
+//
+// The latter is important. Otherwise, it could happen that static
+// objects' destructors deallocate memory in the pool manager after
+// the pool manager is already deinitialized.
+static int initializerCount = 0;
+
+static void initializeOGDF()
+{
+	if (initializerCount++ == 0) {
+		ogdf::System::init();
+	}
+}
+
+static void deinitializeOGDF()
+{
+	if (--initializerCount == 0) {
+		ogdf::PoolMemoryAllocator::cleanup();
+	}
+}
 
 #ifdef OGDF_DLL
 
@@ -85,8 +91,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		ogdf::PoolMemoryAllocator::init();
-		ogdf::System::init();
+		initializeOGDF();
 		break;
 
 	case DLL_THREAD_ATTACH:
@@ -94,7 +99,7 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 		break;
 
 	case DLL_PROCESS_DETACH:
-		ogdf::PoolMemoryAllocator::cleanup();
+		deinitializeOGDF();
 		break;
 	}
 	return TRUE;
@@ -104,13 +109,12 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserv
 
 void __attribute__ ((constructor)) my_load(void)
 {
-	ogdf::PoolMemoryAllocator::init();
-	ogdf::System::init();
+	initializeOGDF();
 }
 
 void __attribute__ ((destructor)) my_unload(void)
 {
-	ogdf::PoolMemoryAllocator::cleanup();
+	deinitializeOGDF();
 }
 
 #endif
@@ -119,25 +123,17 @@ void __attribute__ ((destructor)) my_unload(void)
 
 namespace ogdf {
 
-//static int variables are automatically initialized with 0
-int Initialization::s_count;
-
 Initialization::Initialization()
 {
-	if (s_count++ == 0) {
-		ogdf::PoolMemoryAllocator::init();
-		ogdf::System::init();
-	}
+	initializeOGDF();
 }
 
 Initialization::~Initialization()
 {
-	if (--s_count == 0) {
-		ogdf::PoolMemoryAllocator::cleanup();
-	}
+	deinitializeOGDF();
 }
 
-} // namespace ogdf
+}
 
 #endif
 
@@ -145,7 +141,7 @@ namespace ogdf {
 
 inline bool charCompareIgnoreCase(char a, char b)
 {
-	return (toupper(a) == toupper(b));
+	return toupper(a) == toupper(b);
 }
 
 void removeTrailingWhitespace(std::string &str)

@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -92,7 +89,7 @@ public:
 
 	node representative(node v) const {
 		node vOrig = m_vOrig[v];
-		return (vOrig != 0) ? vOrig : m_vRep[v];
+		return (vOrig != nullptr) ? vOrig : m_vRep[v];
 	}
 
 	node copy(node vG) const {
@@ -125,7 +122,7 @@ public:
 private:
 	node getCopy(node vOrig) {
 		node vCopy = m_vCopy[vOrig];
-		if (vCopy == 0) {
+		if (vCopy == nullptr) {
 			vCopy = newNode();
 			m_vOrig[m_vCopy[vOrig] = vCopy] = vOrig;
 		}

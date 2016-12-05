@@ -43,7 +43,7 @@ class AbacusGlobal;
  * value in the subproblem where the setting is performed and in the
  * subproblems of the subtree rooted at this subproblem.
  */
-class  FSVarStat :  public AbacusRoot  {
+class OGDF_EXPORT FSVarStat : public AbacusRoot {
 public:
 
 	//! The enumeration defining the different statuses of variables from the point of view of fixing and setting.

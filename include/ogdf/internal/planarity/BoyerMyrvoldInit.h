@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -45,9 +42,9 @@ namespace ogdf {
 
 //! This class is used in the Boyer-Myrvold planarity test for preprocessing purposes.
 /**
-* Among these is the computation of lowpoints, highestSubtreeDFIs,
-* separatedDFSChildList and of course building the DFS-tree.
-*/
+ * Among these is the computation of lowpoints, highestSubtreeDFIs,
+ * separatedDFSChildList and of course building the DFS-tree.
+ */
 class BoyerMyrvoldInit {
 	public:
 		//! Constructor, the parameter BoyerMyrvoldPlanar is needed
@@ -133,15 +130,14 @@ class BoyerMyrvoldInit {
 		void createVirtualVertex(const adjEntry father);
 };
 
-//! BucketFunction for lowPoint buckets
-/** Parameter lowPoint may not be deleted til destruction of this class.
-*/
+//! BucketFunction for lowPoint buckets.
+//! Parameter lowPoint may not be deleted til destruction of this class.
 class BucketLowPoint : public BucketFunc<node> {
 	public:
 		BucketLowPoint(const NodeArray<int>& lowPoint) :m_pLow(&lowPoint) { }
 
 		//! This function has to be derived from BucketFunc, it gets the buckets from lowPoint-Array
-		int getBucket(const node& v) {
+		int getBucket(const node& v) override {
 			return (*m_pLow)[v];
 		}
 	private:

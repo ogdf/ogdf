@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -98,6 +95,14 @@ public:
 	node get_random_node_with_highest_star_mass(int rand_tries);
 
 	//! @}
+
+protected:
+	//! Common updates for each get_random_node method
+	node get_random_node_common(int, int &);
+
+	//! Helper function for get_random_node methods with lowest or highest star mass
+	template<typename Comp>
+	node get_random_node_with_some_star_mass(int rand_tries, Comp comp = Comp());
 
 private:
 

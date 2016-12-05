@@ -103,7 +103,9 @@ void RegionAllocator<T>::capacity(uint32_t min_cap)
 		if (cap <= prev_cap)
 			throw OutOfMemoryException();
 	}
-	// printf(" .. (%p) cap = %u\n", this, cap);
+#if 0
+	 printf(" .. (%p) cap = %u\n", this, cap);
+#endif
 
 	OGDF_ASSERT(cap > 0);
 	memory = static_cast<T*>(xrealloc(memory, sizeof(T)*cap));
@@ -114,7 +116,9 @@ template<class T>
 typename RegionAllocator<T>::Ref
 RegionAllocator<T>::alloc(int size)
 {
-	// printf("ALLOC called (this = %p, size = %d)\n", this, size); fflush(stdout);
+#if 0
+	 printf("ALLOC called (this = %p, size = %d)\n", this, size); fflush(stdout);
+#endif
 	OGDF_ASSERT(size > 0);
 	capacity(sz + size);
 

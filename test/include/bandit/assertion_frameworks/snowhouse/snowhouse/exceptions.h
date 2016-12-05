@@ -116,5 +116,3 @@ namespace snowhouse {
 #endif // SNOWHOUSE_NO_MACROS
 
 #endif
-
-

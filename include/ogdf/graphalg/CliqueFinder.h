@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -143,7 +140,9 @@ private:
 	GraphCopy* m_pCopy;
 	NodeArray<int> m_copyCliqueNumber;
 	NodeArray<bool> m_usedNode; //node is assigned to clique
-	//List< List<node>* > m_cliqueList;
+#if 0
+	List< List<node>* > m_cliqueList;
+#endif
 	int m_minDegree;
 	int m_numberOfCliques; //stores the number of found cliques
 	postProcess m_postProcess;

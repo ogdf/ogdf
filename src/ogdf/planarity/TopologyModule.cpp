@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 //debug
 #include <ogdf/planarity/PlanRepInc.h>
@@ -149,7 +146,7 @@ bool TopologyModule::setEmbeddingFromGraph(
 	if(!PG.representsCombEmbedding())
 	{
 #ifdef OGDF_DEBUG
-		GraphIO::writeGML(PG, "outputEmbed.gml");
+		GraphIO::write(PG, "outputEmbed.gml", GraphIO::writeGML);
 #endif
 		planarEmbed(PG);
 		PG.removePseudoCrossings();
@@ -195,14 +192,16 @@ void TopologyModule::handleImprecision(PlanRep &PG)
 	List<node> problems;
 	//we don't need to check processing from both sides as long
 	//as we only process crossings at original nodes
-	//EdgeArray<bool> processed(PG, false);
+#if 0
+	EdgeArray<bool> processed(PG, false);
+#endif
 	for(node v : PG.nodes)
 	{
 		if (PG.isCrossingType(v))
 		{
 			//if cases can occur where the assertion fails,
 			//the following loop condition may fail, too
-			OGDF_ASSERT(v->degree() == 4)
+			OGDF_ASSERT(v->degree() == 4);
 			adjEntry adFirst = v->firstAdj();
 			adjEntry adRun = adFirst;
 			do
@@ -247,7 +246,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 	//TODO: should be automatically detected while inserting
 	//crossings
 
-	OGDF_ASSERT(PG.representsCombEmbedding())
+	OGDF_ASSERT(PG.representsCombEmbedding());
 	//remove consecutive crossings between two edges
 	if (m_options & opLoop)
 	{
@@ -290,7 +289,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 
 		}
 
-		OGDF_ASSERT((obsoleteCrossings.size() % 2) == 0)
+		OGDF_ASSERT((obsoleteCrossings.size() % 2) == 0);
 		ListIterator<node> it = obsoleteCrossings.begin();
 		while (it.valid())
 		{
@@ -299,7 +298,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 		}//while obsolete crossings
 	}//if oploop
 
-	OGDF_ASSERT(PG.representsCombEmbedding())
+	OGDF_ASSERT(PG.representsCombEmbedding());
 
 	if (m_options & opCrossFlip)
 	{
@@ -329,7 +328,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 		}
 	}//if opcrossflip
 
-	OGDF_ASSERT(PG.representsCombEmbedding())
+	OGDF_ASSERT(PG.representsCombEmbedding());
 
 }//postprocess after planarization
 
@@ -384,7 +383,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 			continue;
 		}//if not in CC
 		//guarantee that there are no bends or crossings yet
-		OGDF_ASSERT((PG.chain(e)).size() == 1)
+		OGDF_ASSERT((PG.chain(e)).size() == 1);
 
 			m_eLegs[e].clear();
 
@@ -464,11 +463,12 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 			if ((PG.isGeneralization(crossLeg->copyEdge()) &&
 					PG.isGeneralization((*runIt)->copyEdge())))
 			{
-				/*if ( (crossLeg->start().m_x == (*runIt)->start().m_x) &&
+#if 0
+				if ( (crossLeg->start().m_x == (*runIt)->start().m_x) &&
 					(crossLeg->start().m_y == (*runIt)->start().m_y) &&
 					(crossLeg->end().m_x == (*runIt)->end().m_x) &&
 					(crossLeg->end().m_y == (*runIt)->end().m_y))
-					*/
+#endif
 				{
 					//EdgeLeg* teste = (*runIt);
 				}
@@ -577,11 +577,11 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				//we implicitly change the crossleg edge and do not
 				//introduce new edgelegs for the crossing edge,
 				//because they won't be used anymore
-				OGDF_ASSERT(PG.original((*itLeg)->copyEdge()))
+				OGDF_ASSERT(PG.original((*itLeg)->copyEdge()));
 				edge newEdge = PG.insertCrossing(crossLeg->copyEdge(),
 					(*itLeg)->copyEdge(), ((*itLeg)->m_topDown));
 				m_crossPosition[newEdge->source()] = (*itLeg)->m_xp;//(*itXp);
-				OGDF_ASSERT(PG.original((*itLeg)->copyEdge()))
+				OGDF_ASSERT(PG.original((*itLeg)->copyEdge()));
 				//automatischer Seiteneffekt
 				//crossLeg->copyEdge() = newEdge;
 				//----------------------------------------
@@ -609,7 +609,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				//TODO: we have to check the right direction??
 				//muesste automatisch immer hinter der alten Kante liegen
 				edge searchEdge = (*itLeg)->copyEdge();
-				OGDF_ASSERT(PG.original(searchEdge) == PG.original(newEdge))
+				OGDF_ASSERT(PG.original(searchEdge) == PG.original(newEdge));
 				eLeg->m_eIterator =
 					m_eLegs[PG.original(newEdge)].insert(eLeg, (*itLeg)->m_eIterator);
 				//We update (depending on the direction) all
@@ -695,8 +695,8 @@ double TopologyModule::faceSum(PlanRep &PG,
 		//CASE A: no crossings
 		if (PG.chain(PG.original(iti->theEdge())).size() == 1 )
 		{
-			OGDF_ASSERT(PG.original((iti)->theNode()))
-			OGDF_ASSERT(PG.original((iti->twin())->theNode()))
+			OGDF_ASSERT(PG.original((iti)->theNode()));
+			OGDF_ASSERT(PG.original((iti->twin())->theNode()));
 
 			B.pushFront(DPoint(GA.x(srcNode), GA.y(srcNode)));
 
@@ -744,13 +744,15 @@ double TopologyModule::faceSum(PlanRep &PG,
 		//die drei cases in Funktion DPolyline getSegmentBends() packen
 		if (case1)
 		{
-			OGDF_ASSERT(!case2)
-			OGDF_ASSERT((iti->twin())->theNode()->degree() == 4)
+			OGDF_ASSERT(!case2);
+			OGDF_ASSERT((iti->twin())->theNode()->degree() == 4);
 			DPoint sNode = DPoint(GA.x(srcNode), GA.y(srcNode));
 			//sourceNode is on face border
 			B.pushFront(sNode);
 			//search segment with crossing point
-			//if (!(dp.empty())) always a bend in Case C
+#if 0
+			if (!(dp.empty())) // always a bend in Case C
+#endif
 			{
 				DPoint p1 = m_crossPosition[(iti->twin())->theNode()];
 
@@ -777,8 +779,8 @@ double TopologyModule::faceSum(PlanRep &PG,
 		//case 2: segment from crossing to original node
 		if (case2)
 		{
-			OGDF_ASSERT(!case1)
-			OGDF_ASSERT(iti->theNode()->degree() == 4)
+			OGDF_ASSERT(!case1);
+			OGDF_ASSERT(iti->theNode()->degree() == 4);
 
 			DPoint dp1 = m_crossPosition[(iti)->theNode()];
 			B.pushFront(dp1);
@@ -864,9 +866,11 @@ double TopologyModule::faceSum(PlanRep &PG,
 
 	while (it.valid())
 	{
-		//DPoint p = (*it), r = (*( l.cyclicPred(it) )), q = (*( l.cyclicSucc(it) ));
+#if 0
+		DPoint p = (*it), r = (*( l.cyclicPred(it) )), q = (*( l.cyclicSucc(it) ));
+#endif
 		DPoint p = (*it), r = (*( l.cyclicSucc(it) )), q = (*( l.cyclicPred(it) ));
-		rho += angle(p, r, q) - Math::pi;
+		rho += p.angle(r, q) - Math::pi;
 		++it;
 	}
 
@@ -889,8 +893,9 @@ face TopologyModule::getExternalFace(
 	//debug or release? sollte das abgefangen werden??
 	throw AlgorithmFailureException(afcExternalFace);
 
-	//return 0;
-
+#if 0
+	return 0;
+#endif
 }
 
 
@@ -982,7 +987,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 	if (PG.isCrossingType(v))
 	{
 		bool crossing = false;
-		OGDF_ASSERT(v->degree() == 4)
+		OGDF_ASSERT(v->degree() == 4);
 		adjEntry a1 = v->firstAdj();
 		adjEntry b1 = a1->cyclicSucc();
 		adjEntry a2 = b1->cyclicSucc();
@@ -1026,7 +1031,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 					}
 					else
 					{
-						OGDF_ASSERT(a1->twin() == b1->twin()->cyclicPred())
+						OGDF_ASSERT(a1->twin() == b1->twin()->cyclicPred());
 					}
 				}
 
@@ -1053,7 +1058,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 					if (flip)
 					{
 						PG.removeCrossing(v);
-						OGDF_ASSERT(a1->twin() == b1->cyclicPred())
+						OGDF_ASSERT(a1->twin() == b1->cyclicPred());
 						PG.moveAdj(a1->twin(), after, b1);
 					}
 				}
@@ -1079,7 +1084,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 				if (flip)
 				{
 					PG.removeCrossing(v);
-					OGDF_ASSERT(a1 == b1->twin()->cyclicPred())
+					OGDF_ASSERT(a1 == b1->twin()->cyclicPred());
 					PG.moveAdj(a1, after,b1->twin());
 				}
 			}
@@ -1104,7 +1109,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 					if (flip)
 					{
 						PG.removeCrossing(v);
-						OGDF_ASSERT(a1 == b1->cyclicSucc())
+						OGDF_ASSERT(a1 == b1->cyclicSucc());
 						PG.moveAdj(a1, before,b1);
 					}
 
@@ -1144,32 +1149,6 @@ void TopologyModule::sortEdgesFromLayout(Graph &G, GraphAttributes& GA)
 	}//forall nodes
 }//sortedgesfromlayout
 //*/
-
-//computes angle between vectors, used to compute external face
-double TopologyModule::angle(DPoint p, DPoint q, DPoint r)
-{
-	double dx1 = q.m_x - p.m_x, dy1 = q.m_y - p.m_y;
-	double dx2 = r.m_x - p.m_x, dy2 = r.m_y - p.m_y;
-
-	//two vertices on the same place!
-	if ((dx1 == 0 && dy1 == 0) || (dx2 == 0 && dy2 == 0))
-		return 0.0;
-
-	double norm = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
-
-	double cosphi = (dx1*dx2+dy1*dy2) / sqrt(norm);
-
-	if (cosphi >= 1.0 ) return 0; if (cosphi <= -1.0 ) return Math::pi;
-
-	double phi = acos(cosphi);
-
-	if (dx1*dy2 < dy1*dx2) phi = -phi;
-
-	if (phi < 0) phi += 2*Math::pi;
-
-	return phi;
-}
-
 
 //is independent of y-axis flipping
 int PointComparer::compare(const ListIterator<EdgeLeg*> &ep1, const ListIterator<EdgeLeg*> &ep2) const

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/decomposition/DynamicSPQRForest.h>
@@ -195,7 +192,7 @@ node DynamicSPQRForest::findNCASPQR (node sT, node tT) const
 
 SList<node>& DynamicSPQRForest::findPathSPQR (node sH, node tH, node& rT) const
 {
-	SList<node>& pT = *OGDF_NEW SList<node>;
+	SList<node>& pT = *new SList<node>;
 	node sT = spqrproper(sH->firstAdj()->theEdge());
 	node tT = spqrproper(tH->firstAdj()->theEdge());
 	node nT = findNCASPQR(sT,tT);
@@ -228,9 +225,9 @@ SList<node>& DynamicSPQRForest::findPathSPQR (node sH, node tH, node& rT) const
 SList<node>& DynamicSPQRForest::findPathSPQR (node sH, node tH) const
 {
 	node vB = bComponent(m_hNode_gNode[sH],m_hNode_gNode[tH]);
-	if (!vB) return *OGDF_NEW SList<node>;
+	if (!vB) return *new SList<node>;
 	if (!m_bNode_SPQR[vB]) {
-		if (m_bNode_hEdges[vB].size()<3) return *OGDF_NEW SList<node>;
+		if (m_bNode_hEdges[vB].size()<3) return *new SList<node>;
 		createSPQR(vB);
 	}
 	node rT;

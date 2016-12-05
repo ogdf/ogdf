@@ -189,7 +189,7 @@ void CutBuffer<BaseType, CoType>::extract(
 	*/
 	PoolSlot<BaseType, CoType> *s;
 
-	for (int i = nExtract; i < n_; i++)
+	for (int i = nExtract; i < n_; i++) {
 		if (!keepInPool_[i]) {
 			s = psRef_[i]->slot();
 			delete psRef_[i];
@@ -197,18 +197,18 @@ void CutBuffer<BaseType, CoType>::extract(
 				s->removeConVarFromPool();
 		}
 		else delete psRef_[i];
+	}
 
-		n_ = 0;
+	n_ = 0;
 
-		// extract the items
-		for (int i = 0; i < nExtract; i++) {
-			newSlots.push(psRef_[i]->slot());
-			delete psRef_[i];
-		}
+	// extract the items
+	for (int i = 0; i < nExtract; i++) {
+		newSlots.push(psRef_[i]->slot());
+		delete psRef_[i];
+	}
 
-		// allow ranking in next iteration
-		ranking_ = true;
-
+	// allow ranking in next iteration
+	ranking_ = true;
 }
 
 } // namespace abacus

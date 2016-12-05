@@ -300,13 +300,13 @@ void OsiIF::_addRows(ArrayBuffer<Row*> &rows)
 {
 	CoinPackedVector *coinrow = new CoinPackedVector();
 
-	for (int i = 0; i < rows.size(); i++) {
+	for (auto &row : rows) {
 		coinrow->clear();
-		for (int j = 0; j < rows[i]->nnz(); j++){
-			coinrow->insert(rows[i]->support(j), rows[i]->coeff(j));
+		for (int j = 0; j < row->nnz(); j++){
+			coinrow->insert(row->support(j), row->coeff(j));
 		}
 		lpSolverTime_.start();
-		osiLP_->addRow(*coinrow, csense2osi(rows[i]->sense()), rows[i]->rhs(), 0.0);
+		osiLP_->addRow(*coinrow, csense2osi(row->sense()), row->rhs(), 0.0);
 		lpSolverTime_.stop();
 	}
 
@@ -346,17 +346,17 @@ void OsiIF::_addCols(ArrayBuffer<Column*> &newCols)
 {
 	CoinPackedVector *newcol = new CoinPackedVector;
 
-	for (int i = 0; i < newCols.size(); i++) {
-		int num = newCols[i]->nnz();
-		double ub =  newCols[i]->uBound();
-		double lb =  newCols[i]->lBound();
-		double obj =  newCols[i]->obj();
+	for (auto &newCol : newCols) {
+		int num = newCol->nnz();
+		double ub =  newCol->uBound();
+		double lb =  newCol->lBound();
+		double obj =  newCol->obj();
 		int *supports = new int[num]; //!< supports of added rows
 		double  *coeffs = new double[num]; //!< coefficients of added rows
 
 		for (int j = 0; j < num; j++) {
-			supports[j] = newCols[i]->support(j);
-			coeffs[j] = newCols[i]->coeff(j);
+			supports[j] = newCol->support(j);
+			coeffs[j] = newCol->coeff(j);
 		}
 
 		newcol->setVector(num, supports, coeffs);
@@ -853,67 +853,67 @@ OsiSolverInterface* OsiIF::getDefaultInterface()
 {
 	OsiSolverInterface *interface=nullptr;
 	switch(master_->defaultLpSolver()) {
-#ifdef OSI_CBC
+#ifdef COIN_OSI_CBC
 	case Master::Cbc:
 		interface = new OsiCbcSolverInterface;
 		break;
 #endif
-#ifdef OSI_CLP
+#ifdef COIN_OSI_CLP
 	case Master::Clp:
 		interface = new OsiClpSolverInterface;
 		break;
 #endif
-#ifdef OSI_CPX
+#ifdef COIN_OSI_CPX
 	case Master::CPLEX:
 		interface = new OsiCpxSolverInterface;
 		break;
 #endif
-#ifdef OSI_DYLP
+#ifdef COIN_OSI_DYLP
 	case Master::DyLP:
 		interface = new OsiDylpSolverInterface;
 		break;
 #endif
-#ifdef OSI_FORTMP
+#ifdef COIN_OSI_FORTMP
 	case Master::FortMP:
 		interface = new OsiFmpSolverInterface;
 		break;
 #endif
-#ifdef OSI_GLPK
+#ifdef COIN_OSI_GLPK
 	case Master::GLPK:
 		interface =  new OsiGlpkSolverInterface;
 		break;
 #endif
-#ifdef OSI_MOSEK
+#ifdef COIN_OSI_MOSEK
 	case Master::MOSEK:
 		interface =  new OsiMskSolverInterface;
 		break;
 #endif
-#ifdef OSI_OSL
+#ifdef COIN_OSI_OSL
 	case Master::OSL:
 		interface = new OsiOslSolverInterface;
 		break;
 #endif
-#ifdef OSI_SOPLEX
+#ifdef COIN_OSI_SOPLEX
 	case Master::SoPlex:
 		interface = new OsiSpxSolverInterface;
 		break;
 #endif
-#ifdef OSI_SYM
+#ifdef COIN_OSI_SYM
 	case Master::SYMPHONY:
 		interface = new OsiSymSolverInterface;
 		break;
 #endif
-#ifdef OSI_XPRESS
+#ifdef COIN_OSI_XPRESS
 	case Master::XPRESS_MP:
 		interface = new OsiXprSolverInterface;
 		break;
 #endif
-#ifdef OSI_GRB
+#ifdef COIN_OSI_GRB
 	case Master::Gurobi:
 		interface = new OsiGrbSolverInterface;
 		break;
 #endif
-#ifdef OSI_CSDP
+#ifdef COIN_OSI_CSDP
 	case Master::Csdp:
 		interface = new OsiCsdpSolverInterface;
 		break;
@@ -941,7 +941,7 @@ OsiSolverInterface* OsiIF::switchInterfaces(SOLVERTYPE newMethod)
 	}
 	else
 	{
-#ifdef OSI_VOL
+#ifdef COIN_OSI_VOL
 		// TODO switchInterfaces
 		// s2 = getApproxInterface()
 		s2 = new OsiVolSolverInterface;

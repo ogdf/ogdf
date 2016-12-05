@@ -13,7 +13,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -30,12 +30,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -51,7 +48,7 @@ namespace ogdf {
 class SimpleCluster
 {
 public:
-	SimpleCluster(SimpleCluster* parent = 0) : m_size(0), m_parent(parent), m_index(-1) { }
+	SimpleCluster(SimpleCluster* parent = nullptr) : m_size(0), m_parent(parent), m_index(-1) { }
 
 	//insert vertices and children
 	void pushBackVertex(node v) { m_nodes.pushBack(v); }
@@ -78,12 +75,12 @@ private:
 };//class SimpleCluster
 
 /**
-* \brief Interface for algorithms that compute a clustering for a
-*      given graph
-*
-* The class ClustererModule is the base class for clustering
-* classes that allow  to compute some hierarchical clustering
-*/
+ * \brief Interface for algorithms that compute a clustering for a
+ *      given graph
+ *
+ * The class ClustererModule is the base class for clustering
+ * classes that allow  to compute some hierarchical clustering
+ */
 class OGDF_EXPORT ClustererModule
 {
 

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -54,22 +51,24 @@ public:
 	//! Creates a new instance of the split heuristic.
 	SplitHeuristic(const SplitHeuristic &crossMin) : m_cm(nullptr) { }
 
-	~SplitHeuristic() { delete m_cm; }
+	~SplitHeuristic() {
+		cleanup();
+	}
 
 	//! Returns a new instance of the splitheurisitc with the same option settings.
-	TwoLayerCrossMinSimDraw *clone() const { return new SplitHeuristic(*this); }
+	TwoLayerCrossMinSimDraw *clone() const override { return new SplitHeuristic(*this); }
 
 	//! Initializes crossing minimization for hierarchy \a H.
-	void init (const HierarchyLevels &levels);
+	void init (const HierarchyLevels &levels) override;
 
 	//! Calls the split heuristic for level \a L.
-	void call (Level &L);
+	void call (Level &L) override;
 
 	//! Calls the median heuristic for level \a L (simultaneous drawing).
-	void call (Level &L, const EdgeArray<uint32_t> *edgeSubGraphs);
+	void call (Level &L, const EdgeArray<uint32_t> *edgeSubGraphs) override;
 
 	//! Does some clean-up after calls.
-	void cleanup ();
+	void cleanup () override;
 
 private:
 	CrossingsMatrix *m_cm;

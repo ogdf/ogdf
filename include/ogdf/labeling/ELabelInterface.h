@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -185,7 +182,7 @@ public:
 	edge theEdge() const { return m_edge; }
 
 	bool usedLabel(eLabelType elt) const {
-		return ( ( m_usedLabels & (1 << elt) ) > 0 );
+		return ( m_usedLabels & (1 << elt) ) > 0;
 	}
 
 	int &usedLabel() { return m_usedLabels; }
@@ -208,7 +205,9 @@ private:
 	edge m_edge;
 
 	//the label text
-	//string m_string;
+#if 0
+	string m_string;
+#endif
 
 
 };//edgelabel

@@ -1,6 +1,14 @@
 #ifndef BANDIT_BANDIT_H
 #define BANDIT_BANDIT_H
 
+#ifdef _MSC_VER
+#if (_MSC_VER < 1900)
+// Visual Studio versions before 2015 do not support the noexcept keyword
+#define _ALLOW_KEYWORD_MACROS
+#define noexcept
+#endif
+#endif
+
 #include <cassert>
 #include <functional>
 #include <iostream>
@@ -8,7 +16,7 @@
 #include <deque>
 #include <stdexcept>
 
-#define BANDIT_VERSION "1.1.4"
+#define BANDIT_VERSION "2.0.0"
 
 namespace bandit { namespace detail {
   typedef std::function<void ()> voidfunc_t;

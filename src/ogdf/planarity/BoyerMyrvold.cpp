@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/BoyerMyrvold.h>
@@ -252,34 +249,7 @@ bool BoyerMyrvold::planarEmbed(
 
 	clear();
 	GraphCopySimple h(g);
-	SListPure<KuratowskiStructure> dummy;
-	pBMP = new BoyerMyrvoldPlanar(h,bundles,embeddingGrade,limitStructures,dummy,
-									randomDFSTree ? 1 : 0,avoidE2Minors,false);
-	bool planar = pBMP->start();
-	OGDF_ASSERT(!planar || h.genus()==0);
-
-	nOfStructures = dummy.size();
-
-	// Kuratowski extraction
-	if (embeddingGrade > BoyerMyrvoldPlanar::doFindZero ||
-		embeddingGrade == BoyerMyrvoldPlanar::doFindUnlimited) {
-		ExtractKuratowskis extract(*pBMP);
-		if (bundles) {
-			extract.extractBundles(dummy, output);
-		}
-		else {
-			extract.extract(dummy, output);
-		}
-		OGDF_ASSERT(planar || !output.empty());
-
-		// convert kuratowski edges in original graph edges
-		if (!output.empty()) {
-			for (KuratowskiWrapper &kw : output) {
-				for (edge &e : kw.edgeList)
-					e = h.original(e);
-			}
-		}
-	}
+	bool planar = planarEmbed(h, output, embeddingGrade, bundles, limitStructures, randomDFSTree, avoidE2Minors);
 
 	// copy adjacency lists, if planar
 	if (planar) {
@@ -314,7 +284,9 @@ bool BoyerMyrvold::planarEmbed(
 // use the value 0 to extract no kuratowski subdivision and the value -1 to find as much
 // as possible. value -2 doesn't even invoke the FIND-procedure.
 bool BoyerMyrvold::planarEmbed(
-	//const Graph& g,
+#if 0
+	const Graph& g,
+#endif
 	GraphCopySimple& h,
 	SList<KuratowskiWrapper>& output,
 	int embeddingGrade,
@@ -326,7 +298,9 @@ bool BoyerMyrvold::planarEmbed(
 	OGDF_ASSERT(embeddingGrade != BoyerMyrvoldPlanar::doNotEmbed);
 
 	clear();
-	//OGDF_ASSERT(&h.original() == &g);
+#if 0
+	OGDF_ASSERT(&h.original() == &g);
+#endif
 	SListPure<KuratowskiStructure> dummy;
 	pBMP = new BoyerMyrvoldPlanar(h,bundles,embeddingGrade,limitStructures,dummy,
 									randomDFSTree ? 1 : 0,avoidE2Minors,false);

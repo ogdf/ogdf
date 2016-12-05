@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/basic/config.h>
 
@@ -64,79 +61,4 @@ namespace ogdf {
 	{
 		return mm_str[(mm < mmSTOP) ? mm : mmSTOP];
 	}
-
-
-	Configuration::System Configuration::whichSystem()
-	{
-#ifdef OGDF_SYSTEM_WINDOWS
-		return sysWindows;
-#elif defined(OGDF_SYSTEM_OSX)
-		return sysOSX;
-#elif defined(OGDF_SYSTEM_UNIX)
-		return sysUnix;
-#else
-		return sysUnknown
-#endif
-	}
-
-
-	bool Configuration::haveLPSolver()
-	{
-#ifdef OGDF_LP_SOLVER
-		return true;
-#else
-		return false;
-#endif
-	}
-
-
-	Configuration::LPSolver Configuration::whichLPSolver()
-	{
-#if defined(COIN_OSI_CLP)
-		return lpsClp;
-#elif defined(COIN_OSI_SYM)
-		return lpsSymphony;
-#elif defined(COIN_OSI_CPX)
-		return lpsCPLEX;
-#elif defined(COIN_OSI_GRB)
-		return lpsGurobi;
-#else
-		return lpsNone;
-#endif
-	}
-
-
-	bool Configuration::haveCoin()
-	{
-#ifdef USE_COIN
-		return true;
-#else
-		return false;
-#endif
-	}
-
-
-	bool Configuration::haveAbacus()
-	{
-#ifdef USE_ABACUS
-		return true;
-#else
-		return false;
-#endif
-	}
-
-
-	Configuration::MemoryManager Configuration::whichMemoryManager()
-	{
-#ifdef OGDF_MEMORY_POOL_TS
-		return mmPoolTS;
-#elif defined(OGDF_MEMORY_POOL_NTS)
-		return mmPoolNTS;
-#elif defined(OGDF_MEMORY_MALLOC_TS)
-		return mmMalloc;
-#else
-		return sysSTOP
-#endif
-	}
-
 }

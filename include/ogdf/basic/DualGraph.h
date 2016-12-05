@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -41,21 +38,24 @@
 
 namespace ogdf {
 
-//! A dual graph including its combinatorial embedding of an embedded graph
 /**
+ * A dual graph including its combinatorial embedding of an embedded graph.
+ *
+ * Dual edges are rotated counter-clockwise compared to the primal ones.
+ *
  * @ingroup graphs
  */
 class OGDF_EXPORT DualGraph : public CombinatorialEmbedding
 {
 public:
 	//! Constructor; creates dual graph and its combinatorial embedding
-	DualGraph(CombinatorialEmbedding &CE);
+	DualGraph(const ConstCombinatorialEmbedding &CE);
 	//! Destructor
 	~DualGraph();
 	//! Returns a reference to the combinatorial embedding of the primal graph
-	const CombinatorialEmbedding &getPrimalEmbedding() const { return *m_primalEmbedding; }
+	const ConstCombinatorialEmbedding &getPrimalEmbedding() const { return m_primalEmbedding; }
 	//! Returns a reference to the primal graph
-	const Graph &getPrimalGraph() const { return m_primalEmbedding->getGraph(); }
+	const Graph &getPrimalGraph() const { return m_primalEmbedding.getGraph(); }
 
 	//! Returns the node in the primal graph corresponding to \a f.
 	/**
@@ -95,7 +95,7 @@ public:
 	const face &dualFace(node v) const { return m_dualFace[v]; }
 
 protected:
-	CombinatorialEmbedding *m_primalEmbedding; //!< The embedding of the primal graph.
+	const ConstCombinatorialEmbedding &m_primalEmbedding; //!< The embedding of the primal graph.
 	FaceArray<node> m_primalNode; //!< The corresponding node in the primal graph.
 	NodeArray<face> m_primalFace; //!< The corresponding facee in the embedding of the primal graph.
 	EdgeArray<edge> m_primalEdge; //!< The corresponding edge in the primal graph.

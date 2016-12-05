@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -150,7 +147,7 @@ public:
 	// sets bend string to the empty bend string
 	void set() {
 		delete [] m_pBend;
-		m_pBend = 0;
+		m_pBend = nullptr;
 		m_len = 0;
 	}
 
@@ -186,7 +183,7 @@ public:
 		else
 		{
 			char *p = temp;
-			if (m_pBend != 0)
+			if (m_pBend != nullptr)
 			{
 				const char *str = m_pBend;
 				while ((*p++ = *str++) != 0) ;
@@ -253,13 +250,13 @@ public:
 
 		// constructor
 		SideInfoUML() {
-			m_adjGen = 0;
+			m_adjGen = nullptr;
 			m_nAttached[0] = m_nAttached[1] = 0;
 		}
 
 		// returns the total number of edges attached at this side
 		int totalAttached() const {
-			int nGen = (m_adjGen == 0) ? 0 : 1;
+			int nGen = (m_adjGen == nullptr) ? 0 : 1;
 			return nGen + m_nAttached[0] + m_nAttached[1];
 		}
 
@@ -293,7 +290,7 @@ public:
 		// constructor
 		VertexInfoUML() {
 #ifdef OGDF_DEBUG
-			m_corner[0] = m_corner[1] = m_corner[2] = m_corner[3] = 0;
+			m_corner[0] = m_corner[1] = m_corner[2] = m_corner[3] = nullptr;
 #endif
 		}
 		OGDF_NEW_DELETE
@@ -303,7 +300,7 @@ public:
 	// construction
 
 	// dummy
-	OrthoRep() { m_pE = 0; }
+	OrthoRep() { m_pE = nullptr; }
 	// associates orthogonal representation with embedding E
 	OrthoRep(CombinatorialEmbedding &E);
 
@@ -386,7 +383,7 @@ public:
 	// Precond.: The orth. repr. is normalized and contains no 0-degree angles
 	void dissect();
 	// same as dissect, attempting to save artificial nodes and allow preprocessing
-	void dissect2(PlanRep* PG = 0);
+	void dissect2(PlanRep* PG = nullptr);
 	// variant for use with simple PlanRep
 	void gridDissect(PlanRep* PG);
 	// undoes a previous dissect() by removing dissection edges and unsplitting

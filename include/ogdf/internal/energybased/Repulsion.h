@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -49,7 +46,7 @@ public:
 	Repulsion(GraphAttributes &AG);
 private:
 	//computes for two vertices an the given positions the repulsive energy
-	double computeCoordEnergy(node, node, const DPoint&, const DPoint&) const;
+	double computeCoordEnergy(node, node, const DPoint&, const DPoint&) const override;
 };
 
 

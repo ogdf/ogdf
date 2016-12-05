@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -803,7 +800,8 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		List<int> denominators;
 
 		for (int i = 0; i < m_fullCompStore.size(); ++i) {
-			OGDF_ASSERT(m_fullCompStore.extra(i) <= 1.0 + m_eps && m_fullCompStore.extra(i) >= m_eps);
+			OGDF_ASSERT(m_fullCompStore.extra(i) <= 1.0 + m_eps);
+			OGDF_ASSERT(m_fullCompStore.extra(i) >= m_eps);
 			int num, denom;
 			Math::getFraction(m_fullCompStore.extra(i), num, denom);
 			OGDF_ASSERT(Math::gcd(num, denom) == 1);
@@ -1115,7 +1113,8 @@ class MinSteinerTreeGoemans139<T>::UFCR
 		List<node> cleanup;
 		cleanup.pushBack(v->firstAdj()->twinNode());
 		cleanup.pushBack(v->lastAdj()->twinNode());
-		OGDF_ASSERT(v->degree() == 2 && v->firstAdj()->twinNode() != v->lastAdj()->twinNode());
+		OGDF_ASSERT(v->degree() == 2);
+		OGDF_ASSERT(v->firstAdj()->twinNode() != v->lastAdj()->twinNode());
 		blowupGraph.delNode(v);
 
 		while (!cleanup.empty()) {
@@ -1418,7 +1417,9 @@ MinSteinerTreeGoemans139<T>::UFCR::doGoemansApproximation(NodeArray<bool> &isNew
 		}
 
 		if (bgTerminals.size() > 1) {
-			//y_R += updateSourceAndTargetArcCapacities(blowupGraph, capacity, v, source, pseudotarget, N);
+#if 0
+			y_R += updateSourceAndTargetArcCapacities(blowupGraph, capacity, v, source, pseudotarget, N);
+#endif
 			// update capacities from source to terminals and terminals to pseudotarget
 			for (node t : bgTerminals) {
 				y_R += updateSourceAndTargetArcCapacities(blowupGraph, capacity, t, source, pseudotarget, N);
@@ -1496,7 +1497,8 @@ MinSteinerTreeGoemans139<T>::UFCR::generateProblem(bool perturb)
 	m_osiSolver->loadProblem(*m_matrix, m_lowerBounds, m_upperBounds, m_objective, nullptr, nullptr);
 
 	if (m_use2approx != Approx2State::Off) { // add upper bound by 2-approximation
-		CoinPackedVector row(m_objective);
+		CoinPackedVector row;
+		row.setFull(m_fullCompStore.size(), m_objective);
 		m_osiSolver->addRow(row, 0, m_approx2Weight);
 	}
 }
@@ -1916,7 +1918,7 @@ MinSteinerTreeGoemans139<T>::UFCR::separateCycles(const ArrayBuffer<int> &active
 			}
 		}
 	}
-	return (count > 0);
+	return count > 0;
 }
 
 template<typename T>

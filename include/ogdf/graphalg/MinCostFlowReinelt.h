@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -47,7 +44,7 @@ namespace ogdf {
  * @ingroup ga-flow
  */
 template<typename TCost>
-class OGDF_EXPORT MinCostFlowReinelt : public MinCostFlowModule<TCost>
+class MinCostFlowReinelt : public MinCostFlowModule<TCost>
 {
 public:
 	MinCostFlowReinelt()
@@ -265,7 +262,7 @@ bool MinCostFlowReinelt<TCost>::call(
 	}
 
 	// successful if retCode == 0
-	return (retCode == 0);
+	return retCode == 0;
 }
 
 
@@ -290,7 +287,7 @@ void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
 	TCost highCost = 1 + (nn+1) * m_maxCost;
 
 	for (int i = 1; i <= nn; ++i) {   /* for every node an artificial arc is created */
-		arctype *ep = OGDF_NEW arctype;
+		arctype *ep = new arctype;
 		if (supply[i - 1] >= 0) {
 			ep->tail = &nodes[i];
 			ep->head = root;
@@ -756,7 +753,9 @@ int MinCostFlowReinelt<TCost>::mcf(
 	// from_ub = true <=> entering arc at upper bound
 	bool from_ub = false;
 	startsearch = start_n1;
-	//startsearchpre = nullptr;
+#if 0
+	startsearchpre = nullptr;
+#endif
 	last_n1 = nullptr;
 	last_n2 = nullptr;
 	nodetype *np; // general nodeptr
@@ -1218,7 +1217,9 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 	// deallocate artificial arcs
 	for(i = 1; i <= nn; ++i)
-		//delete p[i]->arc_id;
+#if 0
+		delete p[i]->arc_id;
+#endif
 		delete nodes[i].arc_id;
 
 	return retValue;

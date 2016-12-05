@@ -4,11 +4,11 @@
  * \author Mirko Wagner, Tilo Wiedera
  *
  * \par License:
- * This file is part of the Open Graph Drawing, Drawing Framework (OGDF).
+ * This file is part of the Open Graph Drawing Framework (OGDF).
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 FRank,lin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 #include "array_helper.h"
 #include <ogdf/basic/AdjEntryArray.h>
 
@@ -60,4 +57,3 @@ go_bandit([]() {
 	describeArray<AdjEntryArray, adjEntry, int>("AdjEntryArray filled with ints", 42, 43, chooseAdjEntry, allAdjEntries, createAdjEntry);
 	describeArray<AdjEntryArray, adjEntry, List<int>>("AdjEntryArray filled with lists of ints", {1, 2, 3}, {42}, chooseAdjEntry, allAdjEntries, createAdjEntry);
 });
-

@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -57,8 +54,10 @@ public:
 
 	friend class SubgraphUpwardPlanarizer;
 
+#if 0
 	//debug only
-	//friend class FixedEmbeddingUpwardEdgeInserter;
+	friend class FixedEmbeddingUpwardEdgeInserter;
+#endif
 
 	/* @{
 	 * \brief Creates a planarized representation with respect to \a Gamma.
@@ -75,7 +74,7 @@ public:
 	UpwardPlanRep(const UpwardPlanRep &UPR);
 
 	//! standart constructor
-	UpwardPlanRep(): GraphCopy(), isAugmented(false), t_hat(0), s_hat(0), extFaceHandle(0), crossings(0) // multisources(false)
+	UpwardPlanRep(): GraphCopy(), isAugmented(false), t_hat(nullptr), s_hat(nullptr), extFaceHandle(nullptr), crossings(0) // multisources(false)
 	{
 		m_Gamma.init(*this);
 		m_isSinkArc.init(*this, false);
@@ -152,7 +151,7 @@ public:
 			} while (adjNext != f->firstAdj());
 			cout << endl;
 		}
-		if (embedding.externalFace() != 0)
+		if (embedding.externalFace() != nullptr)
 			cout << "ext. face of the graph is: " << embedding.externalFace()->index() << endl;
 		else
 			cout << "no ext. face set." << endl;

@@ -403,47 +403,49 @@ int LP::writeBasisMatrix(const char*fileName)
 	//! mark the basic slack variables
 
 	Array<int> basisIndexRow(nRow());
-	for(int i = 0; i < nRow(); i++)
+	for(int i = 0; i < nRow(); i++) {
 		if(slackStat(i) == SlackStat::Basic) {
 			basisIndexRow[i] = nBasic;
 			nBasic++;
 		}
+	}
 
-		// check the number of the basic variables
+	// check the number of the basic variables
 
-		if(nBasic != nRow()) {
-			int _nR = nRow();
-			Logger::ifout() << "number of basic variables " << nBasic << " != number of rows " << _nR << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLp);
-		}
+	if(nBasic != nRow()) {
+		int _nR = nRow();
+		Logger::ifout() << "number of basic variables " << nBasic << " != number of rows " << _nR << "\n";
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLp);
+	}
 
-		// write the basis row by row
-		file << nRow() << endl;
+	// write the basis row by row
+	file << nRow() << endl;
 
-		Row sparseRow(master_,nCol());
+	Row sparseRow(master_,nCol());
 
-		for(int i = 0; i < nRow(); i++) {
-			row(i,sparseRow);
-			int nBasicInRow = 0;
-			const int sparseRowNnz = sparseRow.nnz();
+	for(int i = 0; i < nRow(); i++) {
+		row(i,sparseRow);
+		int nBasicInRow = 0;
+		const int sparseRowNnz = sparseRow.nnz();
 
-			for(int j = 0; j < sparseRowNnz; j++)
-				if(basicCol[sparseRow.support(j)])
-					nBasicInRow++;
-			if(slackStat(i) == SlackStat::Basic)
+		for(int j = 0; j < sparseRowNnz; j++)
+			if(basicCol[sparseRow.support(j)])
 				nBasicInRow++;
+		if(slackStat(i) == SlackStat::Basic)
+			nBasicInRow++;
 
-			file << i << ' ' << nBasicInRow << ' ';
-			for(int j = 0; j < sparseRowNnz; j++)
-				if(basicCol[sparseRow.support(j)]){
-					file << basisIndexCol[sparseRow.support(j)] << ' ';
-					file << sparseRow.coeff(j) << ' ';
-				}
-				if(slackStat(i) == SlackStat::Basic)
-					file << basisIndexRow[i] << " 1";
-				file << endl;
+		file << i << ' ' << nBasicInRow << ' ';
+		for(int j = 0; j < sparseRowNnz; j++) {
+			if(basicCol[sparseRow.support(j)]){
+				file << basisIndexCol[sparseRow.support(j)] << ' ';
+				file << sparseRow.coeff(j) << ' ';
+			}
 		}
+		if(slackStat(i) == SlackStat::Basic)
+			file << basisIndexRow[i] << " 1";
+		file << endl;
+	}
 
-		return 0;
+	return 0;
 }
 } //namespace abacus

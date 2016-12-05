@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -65,40 +62,6 @@
 #elif defined(__sparc_v9__)
 #define OGDF_ARCH_SPARC_V9
 #endif
-
-// use SSE2 always if x64-platform or compiler option is set
-#ifndef OGDF_USE_SSE2
-#if defined(OGDF_ARCH_X64)
-#define OGDF_USE_SSE2
-#elif defined(_MSC_VER)
-#if _M_IX86_FP >= 2
-#define OGDF_USE_SSE2
-#endif
-#endif
-#endif
-
-// macros to check for using special cpu features
-//
-// OGDF_CHECK_SSE2   returns true if SSE2 can be used
-
-#ifdef OGDF_USE_SSE2
-#define OGDF_CHECK_SSE2 true
-#elif defined(OGDF_ARCH_X86)
-#define OGDF_CHECK_SSE2 ogdf::System::cpuSupports(ogdf::cpufSSE2)
-#else
-#define OGDF_USE_SSE2 false
-#endif
-
-// work-around for MinGW-w64
-#ifdef __MINGW64__
-#ifndef _aligned_free
-#define _aligned_free(a) __mingw_aligned_free(a)
-#endif
-#ifndef _aligned_malloc
-#define _aligned_malloc(a,b) __mingw_aligned_malloc(a,b)
-#endif
-#endif
-
 
 namespace ogdf {
 
@@ -166,7 +129,11 @@ public:
 
 	static void *alignedMemoryAlloc16(size_t size) {
 #ifdef OGDF_SYSTEM_WINDOWS
+# ifdef __MINGW64__
+		return __mingw_aligned_malloc(size, 16);
+# else
 		return _aligned_malloc(size, 16);
+# endif
 #elif defined(OGDF_SYSTEM_OSX)
 		// malloc returns 16 byte aligned memory on OS X.
 		return malloc(size);
@@ -177,7 +144,11 @@ public:
 
 	static void alignedMemoryFree(void *p) {
 #ifdef OGDF_SYSTEM_WINDOWS
+# ifdef __MINGW64__
+		__mingw_aligned_free(p);
+# else
 		_aligned_free(p);
+# endif
 #else
 		free(p);
 #endif

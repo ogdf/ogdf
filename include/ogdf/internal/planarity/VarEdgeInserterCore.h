@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -124,22 +121,22 @@ public:
 	VarEdgeInserterUMLCore(
 		PlanRepLight &pr,
 		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraph) : VarEdgeInserterCore(pr, pCostOrig, 0, pEdgeSubgraph) { }
+		const EdgeArray<uint32_t> *pEdgeSubgraph) : VarEdgeInserterCore(pr, pCostOrig, nullptr, pEdgeSubgraph) { }
 
 protected:
 	class BiconnectedComponentUML;
 	class ExpandedGraphUML;
 
-	void storeTypeOfCurrentEdge(edge eOrig) { m_typeOfCurrentEdge = m_pr.typeOrig(eOrig); }
-	BiconnectedComponent *createBlock();
-	ExpandedGraph *createExpandedGraph(const BiconnectedComponent &BC, const StaticSPQRTree &T);
+	void storeTypeOfCurrentEdge(edge eOrig) override { m_typeOfCurrentEdge = m_pr.typeOrig(eOrig); }
+	BiconnectedComponent *createBlock() override;
+	ExpandedGraph *createExpandedGraph(const BiconnectedComponent &BC, const StaticSPQRTree &T) override;
 	virtual void buildSubpath(node v,
 		edge eIn,
 		edge eOut,
 		List<adjEntry> &L,
 		ExpandedGraph &Exp,
 		node s,
-		node t);
+		node t) override;
 
 	Graph::EdgeType	m_typeOfCurrentEdge;
 };

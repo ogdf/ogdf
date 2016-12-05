@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -83,7 +80,7 @@ void inducedSubGraph(
 	NodeArray<node> &nodeTableOrig2New)
 {
 	subGraph.clear();
-	nodeTableOrig2New.init(G,0);
+	nodeTableOrig2New.init(G,nullptr);
 
 	EdgeArray<bool> mark(G,false);
 
@@ -129,8 +126,8 @@ void inducedSubGraph(
 	EdgeArray<edge> &edgeTableOrig2New)
 {
 	subGraph.clear();
-	nodeTableOrig2New.init(G,0);
-	edgeTableOrig2New.init(G,0);
+	nodeTableOrig2New.init(G,nullptr);
+	edgeTableOrig2New.init(G,nullptr);
 
 	EdgeArray<bool> mark(G,false);
 
@@ -178,7 +175,7 @@ void inducedSubgraph(Graph &G, NODELISTITERATOR &it, EDGELIST &E)
 	NodeArray<bool>  mark(G,false);
 
 	for (;it.valid();it++)
-		mark[(*it)] = true;
+		mark[*it] = true;
 	it = itBegin;
 	for (;it.valid();it++)
 	{
@@ -221,46 +218,6 @@ OGDF_EXPORT void makeCConnected(
 	bool simple = true);
 
 
-
-
-//---------------------------------------------------------
-// Methods for st-numbering
-//---------------------------------------------------------
-
-
-//! Computes an st-Numbering of \a G.
-/**
- * @ingroup ga-orient
- *
- * \pre \a G must be biconnected and simple, with the exception that
- * the graph is allowed to have isolated nodes. If both \a s and \a t
- * are set to nodes (both are not 0), they must be adjacent.
- *
- * @param G is the input graph.
- * @param numbering is assigned the st-number for each node.
- * @param s is the source node for the st-numbering.
- * @param t is the target node for the st-numbering.
- * @param randomized is only used when both \a s and \a t are not set (both are 0);
- *        in this case a random edge (s,t) is chosen; otherwise the first node s with degree
- *        > 0 is chosen and its first neighbor is used as t.
- * @return the number assigned to \a t, or 0 if no st-numbering could be computed.
- */
-OGDF_EXPORT int stNumber(const Graph &G,
-	NodeArray<int> &numbering,
-	node s = 0,
-	node t = 0,
-	bool randomized = false);
-
-//! Tests, whether a numbering of the nodes is an st-numbering.
-/**
- * @ingroup ga-orient
- *
- * \pre \a G must be biconnected and simple, with the exception that
- * the graph is allowed to have isolated nodes.
- */
-OGDF_EXPORT bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max);
-
-
 //---------------------------------------------------------
 // Methods for minimum spanning tree computation
 //---------------------------------------------------------
@@ -278,7 +235,7 @@ OGDF_EXPORT bool testSTnumber(const Graph &G, NodeArray<int> &st_no,int max);
 template<typename T>
 inline T computeMinST(const Graph &G, const EdgeArray<T> &weight, EdgeArray<bool> &isInTree)
 {
-	NodeArray<edge> pred(G, 0);
+	NodeArray<edge> pred(G, nullptr);
 	return computeMinST(G.firstNode(), G, weight, pred, isInTree);
 }
 

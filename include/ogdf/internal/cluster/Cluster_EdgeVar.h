@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -61,7 +58,9 @@ enum edgeType {ORIGINAL, CONNECT};
 	node sourceNode() const {return m_source;}
 	node targetNode() const {return m_target;}
 	edgeType theEdgeType() const {return m_eType;}
-	//double objCoeff() const {return m_objCoeff;}
+#if 0
+	double objCoeff() const {return m_objCoeff;}
+#endif
 
 	virtual void printMe(ostream& out) {
 		out << "[Var: " << sourceNode() << "->" << targetNode() << " (" << ((theEdgeType()==EdgeVar::ORIGINAL)?"original":"connect") << ") ZF=" << obj() << "]";

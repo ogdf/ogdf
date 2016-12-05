@@ -43,7 +43,7 @@
 inline double CoinGetTimeOfDay()
 {
   FILETIME ft;
- 
+
   GetSystemTimeAsFileTime(&ft);
   double t = ft.dwHighDateTime * TWO_TO_THE_THIRTYTWO + ft.dwLowDateTime;
   t = t/10000000.0 - DELTA_EPOCH_IN_SECS;
@@ -92,7 +92,7 @@ inline double CoinWallclockTime(double callType = 0)
 
 //#############################################################################
 
-//#define HAVE_SDK // if SDK under Win32 is installed, for CPU instead of elapsed time under Win 
+//#define HAVE_SDK // if SDK under Win32 is installed, for CPU instead of elapsed time under Win
 #ifdef HAVE_SDK
 #include <windows.h>
 #ifdef small
@@ -199,7 +199,7 @@ class CoinTimer
 private:
    /// When the timer was initialized/reset/restarted
    double start;
-   /// 
+   ///
    double limit;
    double end;
 #ifdef COIN_COMPILE_WITH_TRACING
@@ -214,7 +214,7 @@ private:
       if (stream) {
 	 if (write_stream)
 	    (*stream) << i_tmp << "\n";
-	 else 
+	 else
 	    (*stream) >> i_tmp;
       }
       return i_tmp;
@@ -223,7 +223,7 @@ private:
       if (stream) {
 	 if (write_stream)
 	    (*stream) << d_tmp << "\n";
-	 else 
+	 else
 	    (*stream) >> d_tmp;
       }
       return d_tmp;
@@ -235,7 +235,7 @@ private:
    inline double evaluate(const double d_tmp) const {
       return d_tmp;
    }
-#endif   
+#endif
 
 public:
    /// Default constructor creates a timer with no time limit and no tracing
@@ -260,14 +260,14 @@ public:
    CoinTimer(std::fstream* s, bool write) :
       start(0), limit(1e100), end(1e100),
       stream(s), write_stream(write) {}
-   
+
    /** Create a timer with the given time limit and with writing/reading the
        trace to/from the given stream, depending on the argument \c write. */
    CoinTimer(double lim, std::fstream* s, bool w) :
       start(CoinCpuTime()), limit(lim), end(start+lim),
       stream(s), write_stream(w) {}
 #endif
-   
+
    /// Restart the timer (keeping the same time limit)
    inline void restart() { start=CoinCpuTime(); end=start+limit; }
    /// An alternate name for \c restart()

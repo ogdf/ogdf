@@ -44,7 +44,7 @@ namespace abacus {
  * is a class ColVar derived from Variable having a member of type
  * Column, but there are also other classes derived from Variable.
  */
-class  Column :  public SparVec  {
+class OGDF_EXPORT Column : public SparVec {
 public:
 
 	//! Creates and initializes a column.

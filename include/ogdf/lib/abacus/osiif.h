@@ -150,7 +150,7 @@ private:
 		Array<double> &obj,
 		Array<double> &lBound,
 		Array<double> &uBound,
-		Array<Row*> &rows);
+		Array<Row*> &rows) override;
 
 	//! Loads a basis to the solver
 	/**
@@ -158,31 +158,31 @@ private:
 	 * \param slackStat An array storing the status of the slack variables.
 	 */
 	virtual void _loadBasis(Array<LPVARSTAT::STATUS> &lpVarStat,
-		Array<SlackStat::STATUS> &slackStat);
+		Array<SlackStat::STATUS> &slackStat) override;
 
 	//! Returns the sense of the optimization.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual OptSense _sense() const;
+	virtual OptSense _sense() const override;
 
 	//! Changes the sense of the optimization to \a newSense.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _sense(const OptSense &newSense);
+	virtual void _sense(const OptSense &newSense) override;
 
 	//! Returns the number of rows of the linear program.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int  _nRow()  const { return numRows_; }
+	virtual int  _nRow()  const override { return numRows_; }
 
 	//! Returns the maximal number of rows of the linear program.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int  _maxRow() const {
+	virtual int  _maxRow() const override {
 		return numRows_;  // Size management is completely done by Osi!
 	}
 
@@ -190,13 +190,13 @@ private:
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int  _nCol() const { return numCols_; }
+	virtual int  _nCol() const override { return numCols_; }
 
 	//! Returns the maximal number of columns of the linear program.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int  _maxCol() const {
+	virtual int  _maxCol() const override {
 		return numCols_;  // Size management is completely done by Osi!
 	}
 
@@ -204,109 +204,109 @@ private:
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _obj(int i) const { return objcoeff_[i]; }
+	virtual double _obj(int i) const override { return objcoeff_[i]; }
 
 	//! Returns the lower bound of column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _lBound(int i) const { return collower_[i]; }
+	virtual double _lBound(int i) const override { return collower_[i]; }
 
 	//! Returns the upper bound of column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _uBound(int i) const { return colupper_[i]; }
+	virtual double _uBound(int i) const override { return colupper_[i]; }
 
 	//! Returns the right hand side of row \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _rhs(int i) const { return rhs_[i]; }
+	virtual double _rhs(int i) const override { return rhs_[i]; }
 
 	//! Stores a copy of row \a i in \a r.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _row(int i, Row &r) const;
+	virtual void _row(int i, Row &r) const override;
 
 	//! Returns the number of nonzero elements in the constraint matrix (not including the right hand side).
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int _nnz() const { return osiLP_->getNumElements(); }
+	virtual int _nnz() const override { return osiLP_->getNumElements(); }
 
 	//! Calls the primal simplex method.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual OPTSTAT _primalSimplex();
+	virtual OPTSTAT _primalSimplex() override;
 
 	//! Calls the dual simplex method.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual OPTSTAT _dualSimplex();
+	virtual OPTSTAT _dualSimplex() override;
 
 	//! Calls the barrier method.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual OPTSTAT _barrier(bool doCrossover);
+	virtual OPTSTAT _barrier(bool doCrossover) override;
 
 	//! Calls an approximate method.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual OPTSTAT _approx();
+	virtual OPTSTAT _approx() override;
 
 	//! Returns the optimum value of the linear program.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _value() const { return value_; }
+	virtual double _value() const override { return value_; }
 
 	//! Returns the value of the column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _xVal(int i) const { return xVal_[i]; }
+	virtual double _xVal(int i) const override { return xVal_[i]; }
 
 	//! Returns the value of the column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _barXVal(int i) const;
+	virtual double _barXVal(int i) const override;
 
 	//! Returns the reduced cost of the column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _reco(int i) const { return reco_[i]; }
+	virtual double _reco(int i) const override { return reco_[i]; }
 
 	//! Returns the value of the slack column of the row \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _slack(int i) const;
+	virtual double _slack(int i) const override;
 
 	//! Returns the value of the dual column of the row \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual double _yVal(int i) const { return yVal_[i]; }
+	virtual double _yVal(int i) const override { return yVal_[i]; }
 
 	//! Returns the status of the column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual LPVARSTAT::STATUS _lpVarStat(int i) const;
+	virtual LPVARSTAT::STATUS _lpVarStat(int i) const override;
 
 	//! Returns the status of the slack column \a i.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual SlackStat::STATUS _slackStat(int i) const;
+	virtual SlackStat::STATUS _slackStat(int i) const override;
 
 	//! Can be called if the last linear program has been solved with the dual simplex method and is infeasible.
 	/**
@@ -323,50 +323,50 @@ private:
 	 *
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual int  _getInfeas(int &infeasRow, int &infeasCol, double *bInvRow) const;
+	virtual int  _getInfeas(int &infeasRow, int &infeasCol, double *bInvRow) const override;
 
 	//! Removes the rows listed in \a ind.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _remRows(ArrayBuffer<int> &ind);
+	virtual void _remRows(ArrayBuffer<int> &ind) override;
 
 	//! Adds the \a rows to the linear program.
 	/**
 	 *  It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _addRows(ArrayBuffer<Row*> &newRows) ;
+	virtual void _addRows(ArrayBuffer<Row*> &newRows) override ;
 
 	//! Removes the columns listed in \a vars.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _remCols(ArrayBuffer<int> &vars);
+	virtual void _remCols(ArrayBuffer<int> &vars) override;
 
 	//! Adds the columns \a newCols to the linear program.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _addCols(ArrayBuffer<Column*> &newVars);
+	virtual void _addCols(ArrayBuffer<Column*> &newVars) override;
 
 	//! Sets the right hand side of the linear program to \a newRhs.
 	/**
 	 * This array must have at least length of the number of rows.
 	 * This function implements the pure virtual function of the base class LP.
 	 */
-	virtual void _changeRhs(Array<double> &newRhs);
+	virtual void _changeRhs(Array<double> &newRhs) override;
 
 	//! Sets the lower bound of column \a i to \a newLb.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _changeLBound(int i, double newLb);
+	virtual void _changeLBound(int i, double newLb) override;
 
 	//! Sets the upper bound of column \a i to \a newLb.
 	/**
 	 * It implements the pure virtual function of the base class LP.
 	 */
-	virtual void _changeUBound(int i, double newUb);
+	virtual void _changeUBound(int i, double newUb) override;
 
 	//! Pivots the slack variables stored in the buffer \a rows into the basis.
 	/**
@@ -377,7 +377,7 @@ private:
 	 *
 	 * \param rows The numbers of the slack variables that should be pivoted in.
 	 */
-	virtual int _pivotSlackVariableIn(ArrayBuffer<int> &rows);
+	virtual int _pivotSlackVariableIn(ArrayBuffer<int> &rows) override;
 
 	//! Extracts the solution.
 	/**
@@ -429,7 +429,7 @@ private:
 	 * to be consistent, and if a reallocation is performed to
 	 * decrease the size of the arrays we call \a reinitialize().
 	 */
-	void _rowRealloc(int newSize);
+	void _rowRealloc(int newSize) override;
 
 	//! Reallocates the internal memory such that \a newSize columns can be stored.
 	/**
@@ -438,7 +438,7 @@ private:
 	 * It implements the corresponding pure virtual function of the base
 	 * class LP.
 	 */
-	void _colRealloc(int newSize);
+	void _colRealloc(int newSize) override;
 
 	//! Changes the iteration limit of the Simplex algorithm.
 	/**
@@ -448,7 +448,7 @@ private:
 	 *
 	 * \return 0 If the iteration limit could be set, 1 otherwise.
 	 */
-	virtual int _setSimplexIterationLimit(int limit) {
+	virtual int _setSimplexIterationLimit(int limit) override {
 		return(!osiLP_->setIntParam(OsiMaxNumIteration, limit));
 	}
 
@@ -458,7 +458,7 @@ private:
 	 *
 	 *  \return 0 If the iteration limit could be retrieved, \return 1 otherwise.
 	 */
-	virtual int _getSimplexIterationLimit(int &limit) const {
+	virtual int _getSimplexIterationLimit(int &limit) const override {
 		return(!osiLP_->getIntParam(OsiMaxNumIteration, limit));
 	}
 

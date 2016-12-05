@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -507,8 +504,8 @@ OGDF_EXPORT int connectedIsolatedComponents(
  * @ingroup ga-connectivity
  *
  * @param G is the input graph.
- * @param cutVertex If false is returned, \a cutVertex is assigned either 0 if \a G is not connected,
- *                  or a cut vertex in \a G.
+ * @param cutVertex If false is returned and \a G is connected, \a cutVertex is
+ *                  assigned a cut vertex in \a G, else it is assigned nullptr.
  */
 OGDF_EXPORT bool isBiconnected(const Graph &G, node &cutVertex);
 
@@ -921,5 +918,20 @@ inline bool isArborescence(const Graph &G) {
 	return isArborescence(G,root);
 }
 
+//! Checks if a graph is regular
+/**
+ * @param G is the input graph.
+ * @return true if \a G is regular, false otherwise.
+ */
+OGDF_EXPORT bool isRegular(const Graph& G);
+
+
+//! Checks if a graph is d-regular
+/**
+ * @param G is the input graph.
+ * @param d is the vertex degree.
+ * @return true if \a G is d-regular, false otherwise.
+ */
+OGDF_EXPORT bool isRegular(const Graph& G, int d);
 
 } // end namespace ogdf

@@ -19,7 +19,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -36,12 +36,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarity/EmbedderMinDepthMaxFaceLayers.h>
 #include <ogdf/internal/planarity/ConnectedSubgraph.h>
@@ -96,7 +93,7 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 			break;
 		}
 	}
-	OGDF_ASSERT(rootBlockNode != 0);
+	OGDF_ASSERT(rootBlockNode != nullptr);
 
 	/****************************************************************************/
 	/* MIN DEPTH                                                                */
@@ -842,7 +839,7 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 						break;
 					}
 				}
-				OGDF_ASSERT(parent_bT_of_cT2 != 0);
+				OGDF_ASSERT(parent_bT_of_cT2 != nullptr);
 				if (treeNodeTreated[parent_bT_of_cT2])
 					no_recursion = true;
 			}
@@ -888,11 +885,11 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 					if (!DGcomputed)
 					{
 						p_DG = new Graph();
-						p_fPG_to_nDG = OGDF_NEW ArrayBuffer<node>();
-						p_nDG_to_fPG = OGDF_NEW NodeArray<int>();
-						p_adjacencyList = OGDF_NEW NodeArray< List<adjEntry> >();
-						p_faces = OGDF_NEW List< List<adjEntry> >;
-						p_distances = OGDF_NEW NodeArray<int>;
+						p_fPG_to_nDG = new ArrayBuffer<node>();
+						p_nDG_to_fPG = new NodeArray<int>();
+						p_adjacencyList = new NodeArray< List<adjEntry> >();
+						p_faces = new List< List<adjEntry> >;
+						p_distances = new NodeArray<int>;
 						DGcomputed = true;
 
 						//compute dual graph of skeleton graph:

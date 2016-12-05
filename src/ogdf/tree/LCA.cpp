@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,19 +26,17 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/tree/LCA.h>
-#include <ogdf/basic/Math.h>
 
 #ifdef OGDF_DEBUG
 #include <ogdf/basic/simple_graph_alg.h>
 #endif
+
+#include <cmath>
 
 namespace ogdf {
 
@@ -46,15 +44,15 @@ LCA::LCA(const Graph &G, node root)
 	: m_root(root)
 	, m_n(G.numberOfNodes())
 	, m_len(2 * m_n - 1)
-	, m_rangeJ(Math::floorLog2(m_len))
+	, m_rangeJ(std::ilogb(m_len))
 	, m_euler(m_len)
 	, m_representative(G)
 	, m_level(m_len)
 	, m_table(m_len * m_rangeJ)
 {
-	if(m_n == 1) {
-		OGDF_ASSERT(G.firstNode() == root)
-	} else {
+	OGDF_ASSERT(root->graphOf() == &G);
+
+	if(m_n > 1) {
 		dfs(G, m_root);
 		buildTable();
 	}
@@ -143,7 +141,7 @@ int LCA::rmq(int i, int j) const
 		}
 	}
 	// lookup minima in one precomputed interval at the start and one at the end
-	const int k = Math::floorLog2(j - i);
+	const int k = std::ilogb(j - i);
 	const int interval1 = sparseTable(i, k);
 	const int interval2 = sparseTable(j - (1 << k) + 1, k);
 	OGDF_ASSERT(interval1 >= 0);

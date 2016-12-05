@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/module/HierarchyLayoutModule.h>
@@ -38,322 +35,323 @@
 
 namespace ogdf {
 
-//void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &levels)
-//{
-//	const Hierarchy &H = levels.hierarchy();
-//
-//	EdgeArray<int> done(H, -1);
-//	NodeArray<bool> dirty(H, false);
-//
-//	for (int i = 0; i <= levels.high(); i++) { // all level
-//		const Level &lvl_cur = levels[i];
-//
-//		/*
-//			compute the max. height (y coord.) of the bounding boxex of lvl_cur
-//		*/
-//		// y coord. of the top
-//		double y_h = AGC.y(lvl_cur[0]) + AGC.getHeight(lvl_cur[0])/2;
-//		//y coord. of the bottom
-//		double y_l = AGC.y(lvl_cur[0]) - AGC.getHeight(lvl_cur[0])/2;
-//
-//		//iterate over all nodes and find the max. height
-//		for(int j = 0; j <= lvl_cur.high(); j++) {
-//			node v = lvl_cur[j];
-//			double a = AGC.y(v) - AGC.getHeight(v)/2;
-//			double b = AGC.y(v) + AGC.getHeight(v)/2;
-//			if (y_h < b )
-//				y_h = b;
-//			if (y_l > a)
-//				y_l = a;
-//		}
-//
-//		// list with edges, which muss be bended later
-//		List<edge> bendMe;
-//
-//		for(int j = 0; j <= lvl_cur.high(); j++) {
-//			node v = lvl_cur[j];
-//
-//			/*
-//			compute the edges, which overlap a node in lvl_cur
-//			*/
-//			for(adjEntry adj : v->adjEntries) {
-//				edge e = adj->theEdge();
-//
-//				if (done[e] == i)
-//					continue; // already bended
-//
-//				node w = e->target();
-//				if (w == v)
-//					w = e->source();
-//
-//				node nodeLeft = v, nodeRight = w;
-//
-//				if (AGC.x(v) == AGC.x(w))
-//					continue; // edge e cannot overlap a node
-//
-//				if (AGC.x(v) > AGC.x(w))
-//					swap(nodeLeft, nodeRight);
-//
-//				DLine line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
-//
-//				//iterate over all node of lvl_cur and find out wether line_v2w overlap a node or not
-//				for(int k = 0; k <= lvl_cur.high(); k++) {
-//					node u = lvl_cur[k];
-//
-//					if (u == v)
-//						continue;
-//
-//					int ci = 0;
-//					int cj = 0;
-//
-//					overlap(AGC, levels, e->source(), e->target(), i, ci, cj);
-//
-//					if (ci > 0)
-//						bendMe.pushBack(e);
-//
-//				} // for k
-//
-//			}
-//		}
-//
-//		NodeArray<bool> isNewNode(H, false);
-//		while (!bendMe.empty()) {
-//			edge splitMe = bendMe.popFrontRet();
-//
-//			if (done[splitMe] == i)
-//				continue; //already bended
-//
-//			// coord of the new bend point
-//			double bendX, bendY = y_h;
-//			// represents a incomming edges, i.e. the target of splitMe is on current level i
-//			bool incomming = false;
-//			// v is the node of splitMe on current level i
-//			node v;
-//			v = splitMe->source();
-//			node t = splitMe->target();
-//
-//			if (H.rank(v) != i) {
-//				v = t;
-//				incomming = true;
-//			}
-//
-//			// compute coord. of the new bend
-//			if (incomming)
-//				bendY = y_l;
-//
-//			// the x coord. of splitMe is smaler than of the x coord. of the source, i.e the segment is pointing upward from left to right
-//			bool toRight = true;
-//			if (AGC.x(splitMe->source()) > AGC.x(splitMe->target()))
-//				toRight = false;
-//
-//			if (H.isLongEdgeDummy(v))
-//				// long edge dummy v, just add a new bend point "above" v
-//				bendX = AGC.x(v);
-//			else {
-//				// we have to compute the x coord. of the new bend point and ensure that other bend point do not have the same coord. assigned
-//
-//				//the "neighbour" of node v, the bend points are placed between w and v if some edges of v are bended
-//				node w = 0;
-//
-//				if (toRight && incomming && levels.pos(v) != 0)
-//					w = lvl_cur[levels.pos(v) - 1];
-//
-//				if (toRight && !incomming && levels.pos(v) != lvl_cur.high())
-//					w = lvl_cur[levels.pos(v) + 1];
-//
-//				if (!toRight && incomming && levels.pos(v) != lvl_cur.high())
-//					w = lvl_cur[levels.pos(v) + 1];
-//
-//				if (!toRight && !incomming && levels.pos(v) != 0)
-//					w = lvl_cur[levels.pos(v) - 1];
-//
-//				//number of edges, which crossed the area between v und w
-//				int num = 0;
-//				int edgeNum = 1;
-//
-//				for(adjEntry adj : v->adjEntries) {
-//					edge eTmp = adj->theEdge();
-//
-//					if (incomming && eTmp->target() == v) {
-//						node src = eTmp->source();
-//						if (isNewNode[src]) {
-//							src = eTmp->adjSource()->cyclicSucc()->theEdge()->source();
-//							if (isNewNode[src])
-//								src = eTmp->adjSource()->cyclicSucc()->theEdge()->adjSource()->cyclicSucc()->theEdge()->source();
-//						}
-//
-//						if (AGC.x(src) < AGC.x(v) && toRight) {
-//							if (AGC.x(src) < AGC.x(splitMe->source()))
-//								edgeNum++;
-//						}
-//						else {
-//							if (AGC.x(src) > AGC.x(v) && !toRight) {//in-edges from right to left
-//								if (AGC.x(src) < AGC.x(splitMe->source()))
-//									edgeNum++;
-//							}
-//						}
-//					}
-//					else {
-//						node tgt = eTmp->target();
-//						if (isNewNode[tgt]) {
-//							tgt = eTmp->adjTarget()->cyclicSucc()->theEdge()->target();
-//							if (isNewNode[tgt])
-//								tgt = eTmp->adjTarget()->cyclicSucc()->theEdge()->adjTarget()->cyclicSucc()->theEdge()->target();
-//						}
-//
-//						if (AGC.x(tgt) < AGC.x(v) && !toRight) {//out-edges from left to right
-//							if (AGC.x(splitMe->target()) > AGC.x(tgt) )
-//								edgeNum++;
-//						}
-//						else {
-//							if (AGC.x(tgt) > AGC.x(v) && toRight) { //in-edges from right to left
-//								if (AGC.x(splitMe->target()) > AGC.x(tgt) )
-//									edgeNum++;
-//							}
-//						}
-//					}
-//
-//					if (incomming && toRight && eTmp->target() == v && AGC.x(eTmp->source()) > AGC.x(eTmp->target()))
-//						num++;
-//
-//					if (incomming && !toRight && eTmp->target() == v && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
-//						num++;
-//
-//					if (!incomming && toRight && eTmp->source() == v && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
-//						num++;
-//
-//					if (!incomming && !toRight && eTmp->source() == v && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
-//						num++;
-//				}
-//
-//				// default value if w is null
-//				double delta = 10;
-//				double a = AGC.x(v) - AGC.getWidth(v)/2;
-//				double b = a;
-//				if (w != 0) {
-//					b = AGC.x(w) + AGC.getWidth(w)/2;
-//					if (AGC.x(v) < AGC.x(w)) {
-//						a = AGC.x(v) + AGC.getWidth(v)/2;
-//						b = AGC.x(w) - AGC.getWidth(w)/2;
-//					}
-//					for(adjEntry adj : w->adjEntries) {
-//						edge eTmp = adj->theEdge();
-//						if (incomming && toRight && eTmp->target() == w && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
-//							num++;
-//
-//						if (incomming && !toRight && eTmp->target() == w && AGC.x(eTmp->source()) > AGC.x(eTmp->target()))
-//							num++;
-//
-//						if (!incomming && toRight && eTmp->source() == w && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
-//							num++;
-//
-//						if (!incomming && !toRight && eTmp->source() == w && AGC.x(eTmp->source()) > AGC.x(eTmp->target()))
-//							num++;
-//					}
-//
-//					delta = fabs(a - b)/(num+3);
-//					if (AGC.x(v) < AGC.x(w))
-//						bendX = a + edgeNum * delta;
-//					else
-//						bendX = b + edgeNum * delta;
-//				}
-//				else {
-//					if (levels.pos(v)==0)
-//						bendX = b + edgeNum * delta;
-//					else
-//						bendX = a + edgeNum * delta;
-//				}
-//				if (levels.pos(v) % 2 != 0)
-//						bendX = bendX + delta/2;
-//			}// else x coord
-//
-//			DLine segment1, segment2;
-//
-//			//replace v if it is a bend point
-//			double oldPosX = AGC.x(v);
-//			double oldPosY = AGC.y(v);
-//			bool ok = false;
-//
-//			// replace v or add new bend if v is long edge dummy
-//			if (H.isLongEdgeDummy(v)) {
-//				AGC.y(v) = bendY;
-//				AGC.x(v) = bendX;
-//				int c_out = 0;
-//				int c_in = 0;
-//
-//				edge e_out = v->firstAdj()->theEdge();
-//				edge e_in = v->lastAdj()->theEdge();
-//
-//				if (e_out->source() != v)
-//					swap(e_out, e_in);
-//
-//				overlap(AGC, levels, e_out->source(), e_out->target(), i, c_out, c_out);
-//
-//				overlap(AGC, levels, e_in->source(), e_in->target(), i, c_in, c_in);
-//
-//				// add new bend point
-//				if (c_in + c_out == 0)
-//					ok = true;
-//			}
-//
-//			if (ok && !dirty[v]) {
-//
-//				done[v->firstAdj()] = done[v->lastAdj()] = i;
-//
-//				edge e1 = v->firstAdj()->theEdge();
-//				edge e2 = v->lastAdj()->theEdge();
-//
-//				segment1 = DLine( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
-//							DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
-//
-//				segment2 = DLine( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
-//							DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
-//
-//				dirty[v] = true;
-//			}
-//			else {
-//				//retore old position
-//				AGC.y(v) = oldPosY;
-//				AGC.x(v) = oldPosX;
-//
-//				// create a new bend point by splitting splitMe
-//				node newNode = levels.m_GC.split(splitMe)->source();
-//				isNewNode[newNode] = true;
-//				AGC.y(newNode) = bendY;
-//				AGC.x(newNode) = bendX;
-//				done[newNode->firstAdj()] = done[newNode->lastAdj()] = i;
-//
-//				edge e1 = newNode->firstAdj()->theEdge();
-//				edge e2 = newNode->lastAdj()->theEdge();
-//
-//				/*
-//					compute edges which crossed the two new segment of the bended edge
-//				*/
-//				segment1 = DLine( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
-//								DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
-//
-//				segment2 =DLine( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
-//								DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
-//			}
-//
-//			for(int z = 0; z <= lvl_cur.high(); z++) {
-//				node uu = lvl_cur[z];
-//
-//				for(adjEntry adj : uu->adjEntries) {
-//					edge ee = adj->theEdge();
-//
-//					DLine line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
-//
-//					DPoint dummy;
-//					if (line_ee.intersection(segment1, dummy) && line_ee.intersection(segment2, dummy))
-//						bendMe.pushBack(ee);
-//				}
-//			}
-//		} // while
-//
-//	}//for i (all level)
-//
-//}
+#if 0
+void HierarchyLayoutModule::addBends(GraphCopyAttributes &AGC, HierarchyLevels &levels)
+{
+	const Hierarchy &H = levels.hierarchy();
+
+	EdgeArray<int> done(H, -1);
+	NodeArray<bool> dirty(H, false);
+
+	for (int i = 0; i <= levels.high(); i++) { // all level
+		const Level &lvl_cur = levels[i];
+
+		/*
+			compute the max. height (y coord.) of the bounding boxex of lvl_cur
+		*/
+		// y coord. of the top
+		double y_h = AGC.y(lvl_cur[0]) + AGC.getHeight(lvl_cur[0])/2;
+		//y coord. of the bottom
+		double y_l = AGC.y(lvl_cur[0]) - AGC.getHeight(lvl_cur[0])/2;
+
+		//iterate over all nodes and find the max. height
+		for(int j = 0; j <= lvl_cur.high(); j++) {
+			node v = lvl_cur[j];
+			double a = AGC.y(v) - AGC.getHeight(v)/2;
+			double b = AGC.y(v) + AGC.getHeight(v)/2;
+			if (y_h < b )
+				y_h = b;
+			if (y_l > a)
+				y_l = a;
+		}
+
+		// list with edges, which muss be bended later
+		List<edge> bendMe;
+
+		for(int j = 0; j <= lvl_cur.high(); j++) {
+			node v = lvl_cur[j];
+
+			/*
+			compute the edges, which overlap a node in lvl_cur
+			*/
+			for(adjEntry adj : v->adjEntries) {
+				edge e = adj->theEdge();
+
+				if (done[e] == i)
+					continue; // already bended
+
+				node w = e->target();
+				if (w == v)
+					w = e->source();
+
+				node nodeLeft = v, nodeRight = w;
+
+				if (AGC.x(v) == AGC.x(w))
+					continue; // edge e cannot overlap a node
+
+				if (AGC.x(v) > AGC.x(w))
+					swap(nodeLeft, nodeRight);
+
+				DLine line_v2w( DPoint(AGC.x(v), AGC.y(v)), DPoint(AGC.x(w), AGC.y(w)) );
+
+				//iterate over all node of lvl_cur and find out wether line_v2w overlap a node or not
+				for(int k = 0; k <= lvl_cur.high(); k++) {
+					node u = lvl_cur[k];
+
+					if (u == v)
+						continue;
+
+					int ci = 0;
+					int cj = 0;
+
+					overlap(AGC, levels, e->source(), e->target(), i, ci, cj);
+
+					if (ci > 0)
+						bendMe.pushBack(e);
+
+				} // for k
+
+			}
+		}
+
+		NodeArray<bool> isNewNode(H, false);
+		while (!bendMe.empty()) {
+			edge splitMe = bendMe.popFrontRet();
+
+			if (done[splitMe] == i)
+				continue; //already bended
+
+			// coord of the new bend point
+			double bendX, bendY = y_h;
+			// represents a incomming edges, i.e. the target of splitMe is on current level i
+			bool incomming = false;
+			// v is the node of splitMe on current level i
+			node v;
+			v = splitMe->source();
+			node t = splitMe->target();
+
+			if (H.rank(v) != i) {
+				v = t;
+				incomming = true;
+			}
+
+			// compute coord. of the new bend
+			if (incomming)
+				bendY = y_l;
+
+			// the x coord. of splitMe is smaler than of the x coord. of the source, i.e the segment is pointing upward from left to right
+			bool toRight = true;
+			if (AGC.x(splitMe->source()) > AGC.x(splitMe->target()))
+				toRight = false;
+
+			if (H.isLongEdgeDummy(v))
+				// long edge dummy v, just add a new bend point "above" v
+				bendX = AGC.x(v);
+			else {
+				// we have to compute the x coord. of the new bend point and ensure that other bend point do not have the same coord. assigned
+
+				//the "neighbour" of node v, the bend points are placed between w and v if some edges of v are bended
+				node w = 0;
+
+				if (toRight && incomming && levels.pos(v) != 0)
+					w = lvl_cur[levels.pos(v) - 1];
+
+				if (toRight && !incomming && levels.pos(v) != lvl_cur.high())
+					w = lvl_cur[levels.pos(v) + 1];
+
+				if (!toRight && incomming && levels.pos(v) != lvl_cur.high())
+					w = lvl_cur[levels.pos(v) + 1];
+
+				if (!toRight && !incomming && levels.pos(v) != 0)
+					w = lvl_cur[levels.pos(v) - 1];
+
+				//number of edges, which crossed the area between v und w
+				int num = 0;
+				int edgeNum = 1;
+
+				for(adjEntry adj : v->adjEntries) {
+					edge eTmp = adj->theEdge();
+
+					if (incomming && eTmp->target() == v) {
+						node src = eTmp->source();
+						if (isNewNode[src]) {
+							src = eTmp->adjSource()->cyclicSucc()->theEdge()->source();
+							if (isNewNode[src])
+								src = eTmp->adjSource()->cyclicSucc()->theEdge()->adjSource()->cyclicSucc()->theEdge()->source();
+						}
+
+						if (AGC.x(src) < AGC.x(v) && toRight) {
+							if (AGC.x(src) < AGC.x(splitMe->source()))
+								edgeNum++;
+						}
+						else {
+							if (AGC.x(src) > AGC.x(v) && !toRight) {//in-edges from right to left
+								if (AGC.x(src) < AGC.x(splitMe->source()))
+									edgeNum++;
+							}
+						}
+					}
+					else {
+						node tgt = eTmp->target();
+						if (isNewNode[tgt]) {
+							tgt = eTmp->adjTarget()->cyclicSucc()->theEdge()->target();
+							if (isNewNode[tgt])
+								tgt = eTmp->adjTarget()->cyclicSucc()->theEdge()->adjTarget()->cyclicSucc()->theEdge()->target();
+						}
+
+						if (AGC.x(tgt) < AGC.x(v) && !toRight) {//out-edges from left to right
+							if (AGC.x(splitMe->target()) > AGC.x(tgt) )
+								edgeNum++;
+						}
+						else {
+							if (AGC.x(tgt) > AGC.x(v) && toRight) { //in-edges from right to left
+								if (AGC.x(splitMe->target()) > AGC.x(tgt) )
+									edgeNum++;
+							}
+						}
+					}
+
+					if (incomming && toRight && eTmp->target() == v && AGC.x(eTmp->source()) > AGC.x(eTmp->target()))
+						num++;
+
+					if (incomming && !toRight && eTmp->target() == v && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
+						num++;
+
+					if (!incomming && toRight && eTmp->source() == v && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
+						num++;
+
+					if (!incomming && !toRight && eTmp->source() == v && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
+						num++;
+				}
+
+				// default value if w is null
+				double delta = 10;
+				double a = AGC.x(v) - AGC.getWidth(v)/2;
+				double b = a;
+				if (w != 0) {
+					b = AGC.x(w) + AGC.getWidth(w)/2;
+					if (AGC.x(v) < AGC.x(w)) {
+						a = AGC.x(v) + AGC.getWidth(v)/2;
+						b = AGC.x(w) - AGC.getWidth(w)/2;
+					}
+					for(adjEntry adj : w->adjEntries) {
+						edge eTmp = adj->theEdge();
+						if (incomming && toRight && eTmp->target() == w && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
+							num++;
+
+						if (incomming && !toRight && eTmp->target() == w && AGC.x(eTmp->source()) > AGC.x(eTmp->target()))
+							num++;
+
+						if (!incomming && toRight && eTmp->source() == w && AGC.x(eTmp->source()) < AGC.x(eTmp->target()))
+							num++;
+
+						if (!incomming && !toRight && eTmp->source() == w && AGC.x(eTmp->source()) > AGC.x(eTmp->target()))
+							num++;
+					}
+
+					delta = fabs(a - b)/(num+3);
+					if (AGC.x(v) < AGC.x(w))
+						bendX = a + edgeNum * delta;
+					else
+						bendX = b + edgeNum * delta;
+				}
+				else {
+					if (levels.pos(v)==0)
+						bendX = b + edgeNum * delta;
+					else
+						bendX = a + edgeNum * delta;
+				}
+				if (levels.pos(v) % 2 != 0)
+						bendX = bendX + delta/2;
+			}// else x coord
+
+			DLine segment1, segment2;
+
+			//replace v if it is a bend point
+			double oldPosX = AGC.x(v);
+			double oldPosY = AGC.y(v);
+			bool ok = false;
+
+			// replace v or add new bend if v is long edge dummy
+			if (H.isLongEdgeDummy(v)) {
+				AGC.y(v) = bendY;
+				AGC.x(v) = bendX;
+				int c_out = 0;
+				int c_in = 0;
+
+				edge e_out = v->firstAdj()->theEdge();
+				edge e_in = v->lastAdj()->theEdge();
+
+				if (e_out->source() != v)
+					swap(e_out, e_in);
+
+				overlap(AGC, levels, e_out->source(), e_out->target(), i, c_out, c_out);
+
+				overlap(AGC, levels, e_in->source(), e_in->target(), i, c_in, c_in);
+
+				// add new bend point
+				if (c_in + c_out == 0)
+					ok = true;
+			}
+
+			if (ok && !dirty[v]) {
+
+				done[v->firstAdj()] = done[v->lastAdj()] = i;
+
+				edge e1 = v->firstAdj()->theEdge();
+				edge e2 = v->lastAdj()->theEdge();
+
+				segment1 = DLine( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
+							DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
+
+				segment2 = DLine( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
+							DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
+
+				dirty[v] = true;
+			}
+			else {
+				//retore old position
+				AGC.y(v) = oldPosY;
+				AGC.x(v) = oldPosX;
+
+				// create a new bend point by splitting splitMe
+				node newNode = levels.m_GC.split(splitMe)->source();
+				isNewNode[newNode] = true;
+				AGC.y(newNode) = bendY;
+				AGC.x(newNode) = bendX;
+				done[newNode->firstAdj()] = done[newNode->lastAdj()] = i;
+
+				edge e1 = newNode->firstAdj()->theEdge();
+				edge e2 = newNode->lastAdj()->theEdge();
+
+				/*
+					compute edges which crossed the two new segment of the bended edge
+				*/
+				segment1 = DLine( DPoint(AGC.x(e1->source()), AGC.y(e1->source())),
+								DPoint(AGC.x(e1->target()), AGC.y(e1->target())) );
+
+				segment2 =DLine( DPoint(AGC.x(e2->source()), AGC.y(e2->source())),
+								DPoint(AGC.x(e2->target()), AGC.y(e2->target())) );
+			}
+
+			for(int z = 0; z <= lvl_cur.high(); z++) {
+				node uu = lvl_cur[z];
+
+				for(adjEntry adj : uu->adjEntries) {
+					edge ee = adj->theEdge();
+
+					DLine line_ee( DPoint(AGC.x(ee->source()), AGC.y(ee->source())), DPoint(AGC.x(ee->target()), AGC.y(ee->target()) ) );
+
+					DPoint dummy;
+					if (line_ee.intersection(segment1, dummy) && line_ee.intersection(segment2, dummy))
+						bendMe.pushBack(ee);
+				}
+			}
+		} // while
+
+	}//for i (all level)
+}
+#endif
 
 
 

@@ -121,4 +121,3 @@ OsiColCut::violated(const double * solution) const
   }
   return sum;
 }
-

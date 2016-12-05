@@ -53,7 +53,7 @@ public:
 private:
      // Mumps structure
      DMUMPS_STRUC_C* mumps_;
-     
+
           // Copy
      ClpCholeskyMumps(const ClpCholeskyMumps&);
      // Assignment

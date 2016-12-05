@@ -16,19 +16,19 @@ public:
 
   /**@name Constructors, destructor */
    //@{
-  /// Default Constructor 
+  /// Default Constructor
   CoinBaseModel ();
 
-  /// Copy constructor 
+  /// Copy constructor
   CoinBaseModel ( const CoinBaseModel &rhs);
-   
-  /// Assignment operator 
+
+  /// Assignment operator
   CoinBaseModel & operator=( const CoinBaseModel& rhs);
 
   /// Clone
   virtual CoinBaseModel * clone() const=0;
 
-  /// Destructor 
+  /// Destructor
   virtual ~CoinBaseModel () ;
    //@}
 
@@ -73,16 +73,16 @@ public:
   inline const std::string & getRowBlock() const
   { return rowBlockName_;}
   /// Set row block name
-  inline void setRowBlock(const std::string &name) 
+  inline void setRowBlock(const std::string &name)
   { rowBlockName_ = name;}
   /// Return the column block name
   inline const std::string & getColumnBlock() const
   { return columnBlockName_;}
   /// Set column block name
-  inline void setColumnBlock(const std::string &name) 
+  inline void setColumnBlock(const std::string &name)
   { columnBlockName_ = name;}
    //@}
-  
+
 protected:
   /**@name Data members */
    //@{
@@ -113,7 +113,7 @@ protected:
 
 };
 
-/** 
+/**
     This is a simple minded model which is stored in a format which makes
     it easier to construct and modify but not efficient for algorithms.  It has
     to be passed across to ClpModel or OsiSolverInterface by addRows, addCol(umn)s
@@ -145,54 +145,54 @@ protected:
         be useful but I thought it might be fun.
 	Quadratic terms are allowed in strings!  A solver could try and use this
 	if so - the convention is that 0.5* quadratic is stored
-	
+
     B)  This class could be useful for modeling.
 */
 
 class CoinModel : public CoinBaseModel {
-  
+
 public:
   /**@name Useful methods for building model */
    //@{
    /** add a row -  numberInRow may be zero */
    void addRow(int numberInRow, const int * columns,
-	       const double * elements, double rowLower=-COIN_DBL_MAX, 
+	       const double * elements, double rowLower=-COIN_DBL_MAX,
               double rowUpper=COIN_DBL_MAX, const char * name=nullptr);
   /// add a column - numberInColumn may be zero */
    void addColumn(int numberInColumn, const int * rows,
-                  const double * elements, 
-                  double columnLower=0.0, 
+                  const double * elements,
+                  double columnLower=0.0,
                   double columnUpper=COIN_DBL_MAX, double objectiveValue=0.0,
                   const char * name=nullptr, bool isInteger=false);
   /// add a column - numberInColumn may be zero */
   inline void addCol(int numberInColumn, const int * rows,
-                     const double * elements, 
-                     double columnLower=0.0, 
+                     const double * elements,
+                     double columnLower=0.0,
                      double columnUpper=COIN_DBL_MAX, double objectiveValue=0.0,
                      const char * name=nullptr, bool isInteger=false)
   { addColumn(numberInColumn, rows, elements, columnLower, columnUpper, objectiveValue,
               name,isInteger);}
-  /// Sets value for row i and column j 
-  inline void operator() (int i,int j,double value) 
+  /// Sets value for row i and column j
+  inline void operator() (int i,int j,double value)
   { setElement(i,j,value);}
-  /// Sets value for row i and column j 
+  /// Sets value for row i and column j
   void setElement(int i,int j,double value) ;
-  /** Gets sorted row - user must provide enough space 
+  /** Gets sorted row - user must provide enough space
       (easiest is allocate number of columns).
       If column or element NULL then just returns number
       Returns number of elements
   */
   int getRow(int whichRow, int * column, double * element);
-  /** Gets sorted column - user must provide enough space 
+  /** Gets sorted column - user must provide enough space
       (easiest is allocate number of rows).
       If row or element NULL then just returns number
       Returns number of elements
   */
   int getColumn(int whichColumn, int * column, double * element);
-  /// Sets quadratic value for column i and j 
+  /// Sets quadratic value for column i and j
   void setQuadraticElement(int i,int j,double value) ;
   /// Sets value for row i and column j as string
-  inline void operator() (int i,int j,const char * value) 
+  inline void operator() (int i,int j,const char * value)
   { setElement(i,j,value);}
   /// Sets value for row i and column j as string
   void setElement(int i,int j,const char * value) ;
@@ -201,127 +201,127 @@ public:
   /** Sets rowLower (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowLower(int whichRow,double rowLower); 
+  void setRowLower(int whichRow,double rowLower);
   /** Sets rowUpper (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowUpper(int whichRow,double rowUpper); 
+  void setRowUpper(int whichRow,double rowUpper);
   /** Sets rowLower and rowUpper (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowBounds(int whichRow,double rowLower,double rowUpper); 
+  void setRowBounds(int whichRow,double rowLower,double rowUpper);
   /** Sets name (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowName(int whichRow,const char * rowName); 
+  void setRowName(int whichRow,const char * rowName);
   /** Sets columnLower (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnLower(int whichColumn,double columnLower); 
+  void setColumnLower(int whichColumn,double columnLower);
   /** Sets columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnUpper(int whichColumn,double columnUpper); 
+  void setColumnUpper(int whichColumn,double columnUpper);
   /** Sets columnLower and columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnBounds(int whichColumn,double columnLower,double columnUpper); 
+  void setColumnBounds(int whichColumn,double columnLower,double columnUpper);
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnObjective(int whichColumn,double columnObjective); 
+  void setColumnObjective(int whichColumn,double columnObjective);
   /** Sets name (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnName(int whichColumn,const char * columnName); 
+  void setColumnName(int whichColumn,const char * columnName);
   /** Sets integer state (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnIsInteger(int whichColumn,bool columnIsInteger); 
+  void setColumnIsInteger(int whichColumn,bool columnIsInteger);
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setObjective(int whichColumn,double columnObjective) 
-  { setColumnObjective( whichColumn, columnObjective);} 
+  inline void setObjective(int whichColumn,double columnObjective)
+  { setColumnObjective( whichColumn, columnObjective);}
   /** Sets integer state (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setIsInteger(int whichColumn,bool columnIsInteger) 
-  { setColumnIsInteger( whichColumn, columnIsInteger);} 
+  inline void setIsInteger(int whichColumn,bool columnIsInteger)
+  { setColumnIsInteger( whichColumn, columnIsInteger);}
   /** Sets integer (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setInteger(int whichColumn) 
-  { setColumnIsInteger( whichColumn, true);} 
+  inline void setInteger(int whichColumn)
+  { setColumnIsInteger( whichColumn, true);}
   /** Sets continuous (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setContinuous(int whichColumn) 
-  { setColumnIsInteger( whichColumn, false);} 
+  inline void setContinuous(int whichColumn)
+  { setColumnIsInteger( whichColumn, false);}
   /** Sets columnLower (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColLower(int whichColumn,double columnLower) 
-  { setColumnLower( whichColumn, columnLower);} 
+  inline void setColLower(int whichColumn,double columnLower)
+  { setColumnLower( whichColumn, columnLower);}
   /** Sets columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColUpper(int whichColumn,double columnUpper) 
-  { setColumnUpper( whichColumn, columnUpper);} 
+  inline void setColUpper(int whichColumn,double columnUpper)
+  { setColumnUpper( whichColumn, columnUpper);}
   /** Sets columnLower and columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColBounds(int whichColumn,double columnLower,double columnUpper) 
-  { setColumnBounds( whichColumn, columnLower, columnUpper);} 
+  inline void setColBounds(int whichColumn,double columnLower,double columnUpper)
+  { setColumnBounds( whichColumn, columnLower, columnUpper);}
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColObjective(int whichColumn,double columnObjective) 
-  { setColumnObjective( whichColumn, columnObjective);} 
+  inline void setColObjective(int whichColumn,double columnObjective)
+  { setColumnObjective( whichColumn, columnObjective);}
   /** Sets name (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColName(int whichColumn,const char * columnName) 
-  { setColumnName( whichColumn, columnName);} 
+  inline void setColName(int whichColumn,const char * columnName)
+  { setColumnName( whichColumn, columnName);}
   /** Sets integer (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setColIsInteger(int whichColumn,bool columnIsInteger) 
-  { setColumnIsInteger( whichColumn, columnIsInteger);} 
+  inline void setColIsInteger(int whichColumn,bool columnIsInteger)
+  { setColumnIsInteger( whichColumn, columnIsInteger);}
   /** Sets rowLower (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowLower(int whichRow,const char * rowLower); 
+  void setRowLower(int whichRow,const char * rowLower);
   /** Sets rowUpper (if row does not exist then
       all rows up to this are defined with default values and no elements)
   */
-  void setRowUpper(int whichRow,const char * rowUpper); 
+  void setRowUpper(int whichRow,const char * rowUpper);
   /** Sets columnLower (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnLower(int whichColumn,const char * columnLower); 
+  void setColumnLower(int whichColumn,const char * columnLower);
   /** Sets columnUpper (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnUpper(int whichColumn,const char * columnUpper); 
+  void setColumnUpper(int whichColumn,const char * columnUpper);
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnObjective(int whichColumn,const char * columnObjective); 
+  void setColumnObjective(int whichColumn,const char * columnObjective);
   /** Sets integer (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  void setColumnIsInteger(int whichColumn,const char * columnIsInteger); 
+  void setColumnIsInteger(int whichColumn,const char * columnIsInteger);
   /** Sets columnObjective (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setObjective(int whichColumn,const char * columnObjective) 
-  { setColumnObjective( whichColumn, columnObjective);} 
+  inline void setObjective(int whichColumn,const char * columnObjective)
+  { setColumnObjective( whichColumn, columnObjective);}
   /** Sets integer (if column does not exist then
       all columns up to this are defined with default values and no elements)
   */
-  inline void setIsInteger(int whichColumn,const char * columnIsInteger) 
-  { setColumnIsInteger( whichColumn, columnIsInteger);} 
+  inline void setIsInteger(int whichColumn,const char * columnIsInteger)
+  { setColumnIsInteger( whichColumn, columnIsInteger);}
   /** Deletes all entries in row and bounds.  Will be ignored by
       writeMps etc and will be packed down if asked for. */
   void deleteRow(int whichRow);
@@ -361,14 +361,14 @@ public:
   /** Sets columnLower array
   */
   inline void setColLower(int numberColumns,const double * columnLower)
-  { setColumnLower( numberColumns, columnLower);} 
+  { setColumnLower( numberColumns, columnLower);}
   /** Sets columnUpper array
   */
   void setColumnUpper(int numberColumns,const double * columnUpper);
   /** Sets columnUpper array
   */
   inline void setColUpper(int numberColumns,const double * columnUpper)
-  { setColumnUpper( numberColumns, columnUpper);} 
+  { setColumnUpper( numberColumns, columnUpper);}
   /** Sets rowLower array
   */
   void setRowLower(int numberRows,const double * rowLower);
@@ -377,7 +377,7 @@ public:
   void setRowUpper(int numberRows,const double * rowUpper);
 
   /** Write the problem in MPS format to a file with the given filename.
-      
+
   \param compression can be set to three values to indicate what kind
   of file should be written
   <ul>
@@ -387,7 +387,7 @@ public:
   </ul>
   If the library was not compiled with the requested compression then
   writeMps falls back to writing a plain text file.
-  
+
   \param formatType specifies the precision to used for values in the
   MPS file
   <ul>
@@ -395,15 +395,15 @@ public:
   <li> 1: extra accuracy
   <li> 2: IEEE hex
   </ul>
-  
+
   \param numberAcross specifies whether 1 or 2 (default) values should be
   specified on every data line in the MPS file.
-  
+
   not const as may change model e.g. fill in default bounds
   */
   int writeMps(const char *filename, int compression = 0,
                int formatType = 0, int numberAcross = 2, bool keepStrings=false) ;
-  
+
   /** Check two models against each other.  Return nonzero if different.
       Ignore names if that set.
       May modify both models by cleaning up
@@ -457,15 +457,15 @@ public:
   */
   const char * getElementAsString(int i,int j) const;
   /** Returns pointer to element for row i column j.
-      Only valid until next modification. 
+      Only valid until next modification.
       NULL if element does not exist */
   double * pointer (int i,int j) const;
   /** Returns position in elements for row i column j.
-      Only valid until next modification. 
+      Only valid until next modification.
       -1 if element does not exist */
   int position (int i,int j) const;
-  
-  
+
+
   /** Returns first element in given row - index is -1 if none.
       Index is given by .index and value by .value
   */
@@ -504,13 +504,13 @@ public:
   CoinModelLink lastInQuadraticColumn(int whichColumn) const ;
   /** Gets rowLower (if row does not exist then -COIN_DBL_MAX)
   */
-  double  getRowLower(int whichRow) const ; 
+  double  getRowLower(int whichRow) const ;
   /** Gets rowUpper (if row does not exist then +COIN_DBL_MAX)
   */
-  double  getRowUpper(int whichRow) const ; 
+  double  getRowUpper(int whichRow) const ;
   /** Gets name (if row does not exist then NULL)
   */
-  const char * getRowName(int whichRow) const ; 
+  const char * getRowName(int whichRow) const ;
   inline double  rowLower(int whichRow) const
   { return getRowLower(whichRow);}
   /** Gets rowUpper (if row does not exist then COIN_DBL_MAX)
@@ -523,19 +523,19 @@ public:
   { return getRowName(whichRow);}
   /** Gets columnLower (if column does not exist then 0.0)
   */
-  double  getColumnLower(int whichColumn) const ; 
+  double  getColumnLower(int whichColumn) const ;
   /** Gets columnUpper (if column does not exist then COIN_DBL_MAX)
   */
-  double  getColumnUpper(int whichColumn) const ; 
+  double  getColumnUpper(int whichColumn) const ;
   /** Gets columnObjective (if column does not exist then 0.0)
   */
-  double  getColumnObjective(int whichColumn) const ; 
+  double  getColumnObjective(int whichColumn) const ;
   /** Gets name (if column does not exist then NULL)
   */
-  const char * getColumnName(int whichColumn) const ; 
+  const char * getColumnName(int whichColumn) const ;
   /** Gets if integer (if column does not exist then false)
   */
-  bool getColumnIsInteger(int whichColumn) const ; 
+  bool getColumnIsInteger(int whichColumn) const ;
   /** Gets columnLower (if column does not exist then 0.0)
   */
   inline double  columnLower(int whichColumn) const
@@ -586,10 +586,10 @@ public:
   { return getColumnIsInteger(whichColumn);}
   /** Gets rowLower (if row does not exist then -COIN_DBL_MAX)
   */
-  const char *  getRowLowerAsString(int whichRow) const ; 
+  const char *  getRowLowerAsString(int whichRow) const ;
   /** Gets rowUpper (if row does not exist then +COIN_DBL_MAX)
   */
-  const char *  getRowUpperAsString(int whichRow) const ; 
+  const char *  getRowUpperAsString(int whichRow) const ;
   inline const char *  rowLowerAsString(int whichRow) const
   { return getRowLowerAsString(whichRow);}
   /** Gets rowUpper (if row does not exist then COIN_DBL_MAX)
@@ -598,16 +598,16 @@ public:
   { return getRowUpperAsString(whichRow) ;}
   /** Gets columnLower (if column does not exist then 0.0)
   */
-  const char *  getColumnLowerAsString(int whichColumn) const ; 
+  const char *  getColumnLowerAsString(int whichColumn) const ;
   /** Gets columnUpper (if column does not exist then COIN_DBL_MAX)
   */
-  const char *  getColumnUpperAsString(int whichColumn) const ; 
+  const char *  getColumnUpperAsString(int whichColumn) const ;
   /** Gets columnObjective (if column does not exist then 0.0)
   */
-  const char *  getColumnObjectiveAsString(int whichColumn) const ; 
+  const char *  getColumnObjectiveAsString(int whichColumn) const ;
   /** Gets if integer (if column does not exist then false)
   */
-  const char * getColumnIsIntegerAsString(int whichColumn) const ; 
+  const char * getColumnIsIntegerAsString(int whichColumn) const ;
   /** Gets columnLower (if column does not exist then 0.0)
   */
   inline const char *  columnLowerAsString(int whichColumn) const
@@ -643,7 +643,7 @@ public:
   inline double unsetValue() const
   { return -1.23456787654321e-97;}
   /// Creates a packed matrix - return number of errors
-  int createPackedMatrix(CoinPackedMatrix & matrix, 
+  int createPackedMatrix(CoinPackedMatrix & matrix,
 			 const double * associated);
   /** Fills in startPositive and startNegative with counts for +-1 matrix.
       If not +-1 then startPositive[0]==-1 otherwise counts and
@@ -726,82 +726,82 @@ public:
    //@{
   /*! \brief Load in a problem by copying the arguments. The constraints on
     the rows are given by lower and upper bounds.
-    
+
     If a pointer is 0 then the following values are the default:
     <ul>
     <li> <code>colub</code>: all columns have upper bound infinity
-    <li> <code>collb</code>: all columns have lower bound 0 
+    <li> <code>collb</code>: all columns have lower bound 0
     <li> <code>rowub</code>: all rows have upper bound infinity
     <li> <code>rowlb</code>: all rows have lower bound -infinity
     <li> <code>obj</code>: all variables have 0 objective coefficient
     </ul>
-    
+
     Note that the default values for rowub and rowlb produce the
     constraint -infty <= ax <= infty. This is probably not what you want.
   */
   void loadBlock (const CoinPackedMatrix& matrix,
-		  const double* collb, const double* colub,   
+		  const double* collb, const double* colub,
 		  const double* obj,
 		  const double* rowlb, const double* rowub) ;
   /*! \brief Load in a problem by copying the arguments.
     The constraints on the rows are given by sense/rhs/range triplets.
-    
+
     If a pointer is 0 then the following values are the default:
     <ul>
     <li> <code>colub</code>: all columns have upper bound infinity
-    <li> <code>collb</code>: all columns have lower bound 0 
+    <li> <code>collb</code>: all columns have lower bound 0
     <li> <code>obj</code>: all variables have 0 objective coefficient
     <li> <code>rowsen</code>: all rows are >=
     <li> <code>rowrhs</code>: all right hand sides are 0
     <li> <code>rowrng</code>: 0 for the ranged rows
     </ul>
-    
+
     Note that the default values for rowsen, rowrhs, and rowrng produce the
     constraint ax >= 0.
   */
   void loadBlock (const CoinPackedMatrix& matrix,
 		  const double* collb, const double* colub,
 		  const double* obj,
-		  const char* rowsen, const double* rowrhs,   
+		  const char* rowsen, const double* rowrhs,
 		  const double* rowrng) ;
-  
+
   /*! \brief Load in a problem by copying the arguments. The constraint
     matrix is is specified with standard column-major
-    column starts / row indices / coefficients vectors. 
+    column starts / row indices / coefficients vectors.
     The constraints on the rows are given by lower and upper bounds.
-    
+
     The matrix vectors must be gap-free. Note that <code>start</code> must
     have <code>numcols+1</code> entries so that the length of the last column
     can be calculated as <code>start[numcols]-start[numcols-1]</code>.
-    
+
     See the previous loadBlock method using rowlb and rowub for default
     argument values.
   */
   void loadBlock (const int numcols, const int numrows,
 		  const CoinBigIndex * start, const int* index,
 		  const double* value,
-		  const double* collb, const double* colub,   
+		  const double* collb, const double* colub,
 		  const double* obj,
 		  const double* rowlb, const double* rowub) ;
-  
+
   /*! \brief Load in a problem by copying the arguments. The constraint
     matrix is is specified with standard column-major
-    column starts / row indices / coefficients vectors. 
+    column starts / row indices / coefficients vectors.
     The constraints on the rows are given by sense/rhs/range triplets.
-    
+
     The matrix vectors must be gap-free. Note that <code>start</code> must
     have <code>numcols+1</code> entries so that the length of the last column
     can be calculated as <code>start[numcols]-start[numcols-1]</code>.
-    
+
     See the previous loadBlock method using sense/rhs/range for default
     argument values.
   */
   void loadBlock (const int numcols, const int numrows,
 		  const CoinBigIndex * start, const int* index,
 		  const double* value,
-		  const double* collb, const double* colub,   
+		  const double* collb, const double* colub,
 		  const double* obj,
-		  const char* rowsen, const double* rowrhs,   
+		  const char* rowsen, const double* rowrhs,
 		  const double* rowrng) ;
 
    //@}
@@ -853,7 +853,7 @@ private:
   /** Fill in default linked list information (1= row, 2 = column)
       Marked as const as list is mutable */
   void fillList(int which, CoinModelLinkedList & list,int type) const ;
-  /** Create a linked list and synchronize free 
+  /** Create a linked list and synchronize free
       type 1 for row 2 for column
       Marked as const as list is mutable */
   void createList(int type) const;
@@ -903,7 +903,7 @@ public:
   { return priority_;}
   /// For decomposition set original row and column indices
   void setOriginalIndices(const int * row, const int * column);
-  
+
 private:
   /** Read a problem from AMPL nl file
       so not constructor so gdb will work
@@ -927,9 +927,9 @@ private:
   int numberQuadraticElements_;
   /// Maximum number of quadratic elements
   int maximumQuadraticElements_;
-  /// Row lower 
+  /// Row lower
   double * rowLower_;
-  /// Row upper 
+  /// Row upper
   double * rowUpper_;
   /// Row names
   CoinModelHash rowName_;
@@ -937,7 +937,7 @@ private:
       Has information - at present
       bit 0 - rowLower is a string
       bit 1 - rowUpper is a string
-      NOTE - if converted to CoinPackedMatrix - may be indices of 
+      NOTE - if converted to CoinPackedMatrix - may be indices of
       original rows (i.e. when decomposed)
   */
   int * rowType_;
@@ -959,7 +959,7 @@ private:
       bit 1 - columnUpper is a string
       bit 2 - objective is a string
       bit 3 - integer setting is a string
-      NOTE - if converted to CoinPackedMatrix - may be indices of 
+      NOTE - if converted to CoinPackedMatrix - may be indices of
       original columns (i.e. when decomposed)
   */
   int * columnType_;
@@ -1013,7 +1013,7 @@ private:
   void * moreInfo_;
   /** Type of build -
       -1 unset,
-      0 for row, 
+      0 for row,
       1 for column,
       2 linked.
       3 matrix is CoinPackedMatrix (and at present can't be modified);

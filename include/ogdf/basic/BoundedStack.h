@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -64,7 +61,7 @@ public:
 
 	//! Constructs an empty bounded stack for at most \a n elements.
 	explicit BoundedStack(INDEX n) {
-		OGDF_ASSERT(n >= 1)
+		OGDF_ASSERT(n >= 1);
 		m_pStart = new E[n];
 		if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);
 		m_pTop  = m_pStart - 1;
@@ -88,20 +85,20 @@ public:
 		S.m_pTop = S.m_pStart = S.m_pStop = nullptr;
 	}
 
-	// destruction
+	//! Destruction
 	~BoundedStack() {
 		delete [] m_pStart;
 	}
 
 	//! Returns top element.
 	const E &top() const {
-		OGDF_ASSERT(m_pTop != m_pStart-1)
+		OGDF_ASSERT(m_pTop != m_pStart-1);
 		return *m_pTop;
 	}
 
 	//! Returns top element.
 	E &top() {
-		OGDF_ASSERT(m_pTop != m_pStart-1)
+		OGDF_ASSERT(m_pTop != m_pStart-1);
 		return *m_pTop;
 	}
 
@@ -128,7 +125,7 @@ public:
 
 	//! Reinitializes the stack for \a n elements.
 	void init(INDEX n) {
-		OGDF_ASSERT(n >= 1)
+		OGDF_ASSERT(n >= 1);
 
 		delete [] m_pStart;
 
@@ -163,13 +160,13 @@ public:
 
 	//! Adds element \a x as top-most element to the stack.
 	void push(const E &x) {
-		OGDF_ASSERT(m_pTop != m_pStop-1)
+		OGDF_ASSERT(m_pTop != m_pStop-1);
 		*++m_pTop = x;
 	}
 
 	//! Removes the top-most element from the stack and returns it.
 	E pop() {
-		OGDF_ASSERT(m_pTop != (m_pStart-1))
+		OGDF_ASSERT(m_pTop != (m_pStart-1));
 		return *m_pTop--;
 	}
 

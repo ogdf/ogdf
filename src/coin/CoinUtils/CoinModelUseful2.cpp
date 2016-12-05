@@ -1553,5 +1553,3 @@ getFunctionValueFromString(const char * string, const char * x, double xValue)
   free(info.symbuf);
   return value;
 }
-
-

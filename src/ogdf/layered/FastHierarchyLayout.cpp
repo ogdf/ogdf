@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/layered/FastHierarchyLayout.h>
@@ -135,26 +132,28 @@ public:
 	//! Scans the list for pairs of elements with the same double key.
 	/**
 	 * Replaces them by one element. If integer key is 0, it removes element from list.
-	 * Precondition : list is sorted.
+	 * \pre List must be sorted by key (in any direction)
 	 */
 	void reduce(kList& newList) {
-		if(empty()) return;
+		if (empty()) return;
 		withKey oldWK,newWK;
 		newWK = oldWK = popFrontRet();
 
-		while(!empty()) {
+		while (!empty()) {
 			oldWK = popFrontRet();
-			if ((oldWK.key) > (newWK.key) + ALLOW ||
-				(oldWK.key) < (newWK.key) - ALLOW) {
-				if(newWK.element)
+			if (oldWK.key > newWK.key + ALLOW ||
+			    oldWK.key < newWK.key - ALLOW) {
+				if (newWK.element) {
 					newList.pushBack(newWK);
-					newWK = oldWK;
-			}
-			else
+				}
+				newWK = oldWK;
+			} else {
 				newWK.element += oldWK.element;
+			}
 		}
-		if(newWK.element)
+		if (newWK.element) {
 			newList.pushBack(newWK);
+		}
 	}
 };
 
@@ -236,7 +235,7 @@ void FastHierarchyLayout::doCall(const HierarchyLevelsBase &levels,
 		if(!virt[n1]) {
 			breadth[n1] = AGC.getWidth(v1);
 			incrTo(height[layer[n1]],AGC.getHeight(v1));
-			newEdge = OGDF_NEW List<int>;
+			newEdge = new List<int>;
 			newEdge->pushBack(n1);
 			longEdge[n1] = newEdge;
 		}
@@ -249,7 +248,7 @@ void FastHierarchyLayout::doCall(const HierarchyLevelsBase &levels,
 		//if(GC.chain(e1).size() > 1) {
 		if(e1 && GC.chain(e1).size() > 1 && e == GC.chain(e1).front())
 		{
-			newEdge = OGDF_NEW List<int>;
+			newEdge = new List<int>;
 			for (edge e2 : GC.chain(e1)) {
 				node v1 = e2->target();
 				int n1 = first[H.rank(v1)] + levels.pos(v1); // Number nodes top down and from left to right
@@ -897,7 +896,7 @@ void FastHierarchyLayout::findPlacement()
 					if(last!=-1&&last>down) {
 						oldEdge = longEdge[actNode];
 						spl = actLayer - layer[oldEdge->front()] + 1;
-						newEdge = OGDF_NEW List<int>;
+						newEdge = new List<int>;
 						oldEdge->split(oldEdge->get(spl),(*newEdge),
 							(*oldEdge));
 						for (int next : *newEdge) {
@@ -1070,9 +1069,10 @@ void FastHierarchyLayout::findPlacement()
 		{
 			// for every layer (if dir = 0 top down)
 
-/*			// NEU : ?nderungen vorgeschlagen von Christoph
-			//       f?hren aber dazu, dass sich Knoten zu Nahe kommen
-			//       k?nnen (n?her als minDist) (Carsten)
+#if 0
+			// Änderungen vorgeschlagen von Christoph
+			// führen aber dazu, dass sich Knoten zu Nahe kommen
+			// können (näher als minDist) (Carsten)
 			for(int i1 = first[actLayer]; i1 < first[actLayer+1]; i1++)
 				mDist[i1] = x[i1];
 
@@ -1097,7 +1097,7 @@ void FastHierarchyLayout::findPlacement()
 
 			for(int i1 = first[actLayer]; i1 < first[actLayer+1]; i1++)
 				mDist[i1] = totalB[i1];
-			// ENDE NEU*/
+#endif
 
 			leftBnd=-1;
 			forallnodesonlayer {

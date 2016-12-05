@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/fileformats/UmlToGraphConverter.h>
@@ -302,7 +299,7 @@ namespace ogdf {
 			// Create new name for the subpackage
 			const XmlAttributeObject *nameAttribute;
 			m_xmlParser->findXmlAttributeObject(*packageSon, name, nameAttribute);
-			OGDF_ASSERT(nameAttribute != 0)
+			OGDF_ASSERT(nameAttribute != nullptr);
 			string subPackageName = currentPackageName;
 			if (currentPackageName.length() != 0){
 				subPackageName += "::";
@@ -749,7 +746,7 @@ namespace ogdf {
 		// Currently we are only interested in class diagrams.
 
 		// Model graph must exist!
-		OGDF_ASSERT(m_modelGraph != 0)
+		OGDF_ASSERT(m_modelGraph != nullptr);
 
 		// Message
 		//cout << "Creating diagram graph(s)..." << endl;

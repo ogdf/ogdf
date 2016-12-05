@@ -16,20 +16,20 @@ class OsiSolverInterface;
 */
 
 class OsiSolverBranch  {
-  
+
 public:
-  ///@name Add and Get methods 
+  ///@name Add and Get methods
   //@{
   /// Add a simple branch (i.e. first sets ub of floor(value), second lb of ceil(value))
-  void addBranch(int iColumn, double value); 
-  
-  /// Add bounds - way =-1 is first , +1 is second 
+  void addBranch(int iColumn, double value);
+
+  /// Add bounds - way =-1 is first , +1 is second
   void addBranch(int way,int numberTighterLower, const int * whichLower, const double * newLower,
                  int numberTighterUpper, const int * whichUpper, const double * newUpper);
-  /// Add bounds - way =-1 is first , +1 is second 
+  /// Add bounds - way =-1 is first , +1 is second
   void addBranch(int way,int numberColumns,const double * oldLower, const double * newLower,
                  const double * oldUpper, const double * newUpper);
-  
+
   /// Apply bounds
   void applyBounds(OsiSolverInterface & solver,int way) const;
   /// Returns true if current solution satsifies one side of branch
@@ -44,26 +44,26 @@ public:
   inline const double * bounds() const
   { return bound_;}
   //@}
-  
-  
+
+
   ///@name Constructors and destructors
   //@{
   /// Default Constructor
-  OsiSolverBranch(); 
-  
-  /// Copy constructor 
+  OsiSolverBranch();
+
+  /// Copy constructor
   OsiSolverBranch(const OsiSolverBranch & rhs);
-  
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiSolverBranch & operator=(const OsiSolverBranch & rhs);
-  
-  /// Destructor 
+
+  /// Destructor
   ~OsiSolverBranch ();
-  
+
   //@}
-  
+
 private:
-  ///@name Private member data 
+  ///@name Private member data
   //@{
   /// Start of lower first, upper first, lower second, upper second
   int start_[5];
@@ -81,21 +81,21 @@ private:
 */
 
 class OsiSolverResult  {
-  
+
 public:
-  ///@name Add and Get methods 
+  ///@name Add and Get methods
   //@{
   /// Create result
   void createResult(const OsiSolverInterface & solver,const double * lowerBefore,
                     const double * upperBefore);
-  
+
   /// Restore result
   void restoreResult(OsiSolverInterface & solver) const;
-  
+
   /// Get basis
   inline const CoinWarmStartBasis & basis() const
   { return basis_;}
-  
+
   /// Objective value (as minimization)
   inline double objectiveValue() const
   { return objectiveValue_;}
@@ -112,32 +112,32 @@ public:
   inline const OsiSolverBranch & fixed() const
   { return fixed_;}
   //@}
-  
-  
+
+
   ///@name Constructors and destructors
   //@{
   /// Default Constructor
-  OsiSolverResult(); 
-  
+  OsiSolverResult();
+
   /// Constructor from solver
   OsiSolverResult(const OsiSolverInterface & solver,const double * lowerBefore,
-                  const double * upperBefore); 
-  
-  /// Copy constructor 
+                  const double * upperBefore);
+
+  /// Copy constructor
   OsiSolverResult(const OsiSolverResult & rhs);
-  
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiSolverResult & operator=(const OsiSolverResult & rhs);
-  
-  /// Destructor 
+
+  /// Destructor
   ~OsiSolverResult ();
-  
+
   //@}
-  
+
 private:
-  ///@name Private member data 
+  ///@name Private member data
   //@{
-  /// Value of objective (if >= OsiSolverInterface::getInfinity() then infeasible) 
+  /// Value of objective (if >= OsiSolverInterface::getInfinity() then infeasible)
   double objectiveValue_;
   /// Warm start information
   CoinWarmStartBasis basis_;

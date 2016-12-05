@@ -14,7 +14,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -31,12 +31,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -66,7 +63,7 @@ public:
 
 	//insert copy in m_planRep for original node v
 	void insertCopyNode(node v, CombinatorialEmbedding &E,
-		Graph::NodeType vTyp);
+		Graph::NodeType vTyp) override;
 
 	//insert copy without respecting embedding
 	void insertCopyNode(node v, Graph::NodeType vTyp);
@@ -75,7 +72,7 @@ protected:
 	//insertAfterAdj will be filled with adjEntries for the
 	//(new) edges around the copy of v to be inserted after.
 	//sorted in the order of the edge around v
-	face getInsertionFace(node v, CombinatorialEmbedding &E);
+	face getInsertionFace(node v, CombinatorialEmbedding &E) override;
 
 	//constructs a dual graph on the copy PlanRep,
 	//vCopy is the node to be inserted

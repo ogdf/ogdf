@@ -992,4 +992,3 @@ void slack_singleton_action::postsolve(CoinPostsolveMatrix *prob) const
 
   return ;
 }
-

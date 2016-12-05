@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/planarity/EmbedPQTree.h>
@@ -180,9 +177,9 @@ void EmbedPQTree::ReplaceFullRoot(
 	front(m_pertinentRoot,frontier);
 	if (addIndicator)
 	{
-		IndInfo *newInfo = OGDF_NEW IndInfo(v);
-		PQNodeKey<edge,IndInfo*,bool> *nodeInfoPtr = OGDF_NEW PQNodeKey<edge,IndInfo*,bool>(newInfo);
-		newInd = OGDF_NEW EmbedIndicator(m_identificationNumber++, nodeInfoPtr);
+		IndInfo *newInfo = new IndInfo(v);
+		PQNodeKey<edge,IndInfo*,bool> *nodeInfoPtr = new PQNodeKey<edge,IndInfo*,bool>(newInfo);
+		newInd = new EmbedIndicator(m_identificationNumber++, nodeInfoPtr);
 		newInd->setNodeInfo(nodeInfoPtr);
 		nodeInfoPtr->setNodePointer(newInd);
 	}
@@ -208,7 +205,7 @@ void EmbedPQTree::ReplaceFullRoot(
 			newInd->putSibling(opposite,PQNodeRoot::RIGHT);
 		}
 		PQLeaf<edge,IndInfo*,bool> *leafPtr =
-			OGDF_NEW PQLeaf<edge,IndInfo*,bool>(m_identificationNumber++,
+			new PQLeaf<edge,IndInfo*,bool>(m_identificationNumber++,
 			PQNodeRoot::EMPTY,(PQLeafKey<edge,IndInfo*,bool>*)leafKeys.front());
 		exchangeNodes(m_pertinentRoot,(PQNode<edge,IndInfo*,bool>*) leafPtr);
 		if (m_pertinentRoot == m_root)
@@ -253,7 +250,7 @@ void EmbedPQTree::ReplaceFullRoot(
 		}
 		else if (m_pertinentRoot->type() == PQNodeRoot::leaf)
 		{
-			nodePtr = OGDF_NEW PQInternalNode<edge,IndInfo*,bool>(m_identificationNumber++,
+			nodePtr = new PQInternalNode<edge,IndInfo*,bool>(m_identificationNumber++,
 														 PQNodeRoot::PNode,PQNodeRoot::EMPTY);
 			exchangeNodes(m_pertinentRoot,nodePtr);
 			m_pertinentRoot = nullptr;  // check for this emptyAllPertinentNodes
@@ -326,6 +323,7 @@ void EmbedPQTree::ReplacePartialRoot(
 	// Call ReplaceFullRoot on the last one.
 	// For every full node get its frontier. Scan intermediate indicators.
 
+	OGDF_ASSERT(beginSequence != nullptr);
 	PQNode<edge,IndInfo*,bool> *currentNode = beginSequence;
 	while (currentNode != endSequence)
 	{
@@ -493,6 +491,7 @@ void EmbedPQTree::front(
 				// since the left endmost child will be on top of the stack
 			}
 
+			OGDF_ASSERT(firstSon != nullptr);
 			if (firstSon->status() == PQNodeRoot::INDICATOR)
 			{
 				keys.pushBack((PQBasicKey<edge,IndInfo*,bool>*) firstSon->getNodeInfo());

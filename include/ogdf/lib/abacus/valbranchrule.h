@@ -73,17 +73,17 @@ public:
 	 * \return 0 If the subproblem can be modified according to the branching rule.
 	 * \return 1 If a contradiction occurs.
 	 */
-	virtual int extract(Sub *sub);
+	virtual int extract(Sub *sub) override;
 
 
 	//! Overloaded to modify directly the linear programming relaxation.
 	/**
 	 * This required to evaluate the quality of a branching rule.
 	 */
-	virtual void extract(LpSub *lp);
+	virtual void extract(LpSub *lp) override;
 
 
-	virtual void unExtract(LpSub *lp);
+	virtual void unExtract(LpSub *lp) override;
 
 
 	//! Returns the number of the branching variable.

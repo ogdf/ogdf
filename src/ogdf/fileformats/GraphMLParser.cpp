@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphMLParser.h>
 #include <ogdf/fileformats/GraphML.h>
@@ -71,7 +68,7 @@ GraphMLParser::GraphMLParser(istream &in) : m_error(false)
 		if (!idAttr) {
 			GraphIO::logger.lout() << "Key does not have an id attribute." << endl;
 			m_error = true;
-			return;			
+			return;
 		}
 		if (!nameAttr) {
 			GraphIO::logger.lout() << "Key does not have an attr.name attribute." << endl;
@@ -91,7 +88,7 @@ GraphMLParser::~GraphMLParser()
 
 bool GraphMLParser::readData(
 	GraphAttributes &GA,
-	const node &v, 
+	const node &v,
 	const pugi::xml_node nodeData)
 {
 	pugi::xml_attribute keyId = nodeData.attribute("key");
@@ -442,11 +439,13 @@ bool GraphMLParser::readClusters(
 bool GraphMLParser::read(Graph &G)
 {
 	// Check whether graph is directed or not (directed by default).
-	// XmlAttributeObject *edgeDefaultAttr;
-	// m_graphTag->findXmlAttributeObjectByName("edgedefault", edgeDefaultAttr);
+#if 0
+	XmlAttributeObject *edgeDefaultAttr;
+	m_graphTag->findXmlAttributeObjectByName("edgedefault", edgeDefaultAttr);
 
-	// bool directed = edgeDefaultAttr == nullptr ||
-	//                 edgeDefaultAttr->getValue() == "directed";
+	bool directed = edgeDefaultAttr == nullptr ||
+	                edgeDefaultAttr->getValue() == "directed";
+#endif
 	if(m_error) {
 		return false;
 	}

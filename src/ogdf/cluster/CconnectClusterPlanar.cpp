@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,17 +27,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/cluster/CconnectClusterPlanar.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
+#include <ogdf/basic/STNumbering.h>
 
 namespace ogdf {
 
@@ -158,7 +156,6 @@ bool CconnectClusterPlanar::planarityTest(
 
 	for (node w : act->nodes)
 	{
-		//adjEntry adj = w->firstAdj();
 		for(adjEntry adj : w->adjEntries)
 		{
 			edge e = adj->theEdge();
@@ -194,7 +191,9 @@ bool CconnectClusterPlanar::planarityTest(
 		while (!subGraphNodes.empty())
 		{
 			node w = subGraphNodes.popFrontRet();
-//			C.unassignNode(w);
+#if 0
+			C.unassignNode(w);
+#endif
 			G.delNode(w);
 		}
 
@@ -265,7 +264,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 		{
 			// correspond is a cut node
 
-			OGDF_ASSERT(checkNode->referenceChild())
+			OGDF_ASSERT(checkNode->referenceChild());
 			firstSon = checkNode->referenceChild();
 
 			if (firstSon->type() != PQNodeRoot::leaf)
@@ -282,7 +281,9 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 				PQLeaf<edge,IndInfo*,bool>* leaf =
 					(PQLeaf<edge,IndInfo*,bool>*) firstSon;
 				edge f = leaf->getKey()->m_userStructKey;
-				//node x = outgoingTable[f];
+#if 0
+				node x = outgoingTable[f];
+#endif
 				G.newEdge(correspond,outgoingTable[f]);
 				delete leaf->getKey();
 			}
@@ -307,7 +308,9 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 					PQLeaf<edge,IndInfo*,bool>* leaf =
 						(PQLeaf<edge,IndInfo*,bool>*) nextSon;
 					edge f = leaf->getKey()->m_userStructKey;
-					//node x = outgoingTable[f];
+#if 0
+					node x = outgoingTable[f];
+#endif
 					G.newEdge(correspond,outgoingTable[f]);
 					delete leaf->getKey();
 				}
@@ -320,7 +323,7 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 		else if (checkNode->type() == PQNodeRoot::QNode)
 		{
 			// correspond is the anchor of a hub
-			OGDF_ASSERT(checkNode->getEndmost(PQNodeRoot::LEFT))
+			OGDF_ASSERT(checkNode->getEndmost(PQNodeRoot::LEFT));
 			firstSon = checkNode->getEndmost(PQNodeRoot::LEFT);
 
 			hub = G.newNode();
@@ -345,7 +348,9 @@ void CconnectClusterPlanar::constructWheelGraph(ClusterGraph &C,
 				PQLeaf<edge,IndInfo*,bool>* leaf =
 					(PQLeaf<edge,IndInfo*,bool>*) firstSon;
 				edge f = leaf->getKey()->m_userStructKey;
-				//node x = outgoingTable[f];
+#if 0
+				node x = outgoingTable[f];
+#endif
 				G.newEdge(next,outgoingTable[f]);
 				delete leaf->getKey();
 			}
@@ -465,8 +470,9 @@ bool CconnectClusterPlanar::preparation(
 #ifdef OGDF_DEBUG
 		int n =
 #endif
-		(superSink) ? stNumber(G,numbering,nullptr,superSink) : stNumber(G,numbering);
-		OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(G,numbering,n))
+		(superSink) ? computeSTNumbering(G, numbering, nullptr, superSink)
+		            : computeSTNumbering(G, numbering);
+		OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(G, numbering, n));
 
 		EdgeArray<edge> backTableEdges(G,nullptr);
 		for(edge e : G.edges)
@@ -516,15 +522,15 @@ bool CconnectClusterPlanar::preparation(
 #ifdef OGDF_DEBUG
 				int n =
 #endif
-				stNumber(C,numbering,nullptr,tableNodes[superSink]);
-				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(C,numbering,n))
+				computeSTNumbering(C, numbering, nullptr, tableNodes[superSink]);
+				OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(C ,numbering, n));
 				cPlanar = doTest(C,numbering,cl,tableNodes[superSink],backTableEdges);
 			} else {
 #ifdef OGDF_DEBUG
 				int n =
 #endif
-				stNumber(C,numbering);
-				OGDF_ASSERT_IF(dlConsistencyChecks,testSTnumber(C,numbering,n))
+				computeSTNumbering(C, numbering);
+				OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(C, numbering, n));
 				cPlanar = doTest(C,numbering,cl,nullptr,backTableEdges);
 			}
 
@@ -558,7 +564,7 @@ bool CconnectClusterPlanar::doTest(
 			if (numbering[adj->twinNode()] > numbering[v])
 				//sideeffect: loops are ignored
 			{
-				PlanarLeafKey<IndInfo*>* L = OGDF_NEW PlanarLeafKey<IndInfo*>(adj->theEdge());
+				PlanarLeafKey<IndInfo*>* L = new PlanarLeafKey<IndInfo*>(adj->theEdge());
 				inLeaves[v].pushFront(L);
 			}
 		}
@@ -656,4 +662,3 @@ void CconnectClusterPlanar::prepareParallelEdges(Graph &G)
 
 
 } // end namespace ogdf
-

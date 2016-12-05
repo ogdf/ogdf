@@ -133,7 +133,7 @@ public:
 	 *
 	 * \return The coefficient of the variable \a v.
 	 */
-	virtual double coeff(const Variable *v) const {
+	virtual double coeff(const Variable *v) const override {
 		const NumVar *numVar = static_cast<const NumVar *>(v);
 		return row_.origCoeff(numVar->number());
 	}
@@ -144,7 +144,7 @@ public:
 	 *
 	 * \param out The output stream.
 	 */
-	virtual void print(ostream &out) const {
+	virtual void print(ostream &out) const override {
 		out << row_;
 	}
 

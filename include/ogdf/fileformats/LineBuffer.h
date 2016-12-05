@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -41,9 +38,6 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// L i n e B u f f e r P o s i t i o n
-//---------------------------------------------------------
 /** This class characterizes uniquely a position in the line
  *  buffer.
  *
@@ -113,9 +107,7 @@ public:
 
 }; // LineBufferPosition
 
-//---------------------------------------------------------
-// L i n e B u f f e r
-//---------------------------------------------------------
+
 /** This class maintains the input file and provides a
  *  convenient interface to handle it.
  */
@@ -123,41 +115,43 @@ class OGDF_EXPORT LineBuffer {
 
 private:
 
-	// Handle to the input file
+	//! Handle to the input file
 	istream *m_pIs;
 
-	// Contains for each line of the line buffer its update count
+	//! Contains for each line of the line buffer its update count
 	ArrayBuffer<int> m_lineUpdateCountArray;
 
-	// Pointer to the line buffer
+	//! Pointer to the line buffer
 	ArrayBuffer<string> m_linBuf;
 
-	// The current position in m_linBuf
+	//! The current position in m_linBuf
 	LineBufferPosition m_currentPosition;
 
-	// The line which has been read from the file most recently;
-	// this does not have to be equal to m_currentPosition.m_lineNumber
-	// because of the lookahead facilities.
-	// Range is [0 .. c_maxNoOfLines - 1]
+	/**
+	 * The line which has been read from the file most recently;
+	 * this does not have to be equal to m_currentPosition.m_lineNumber
+	 * because of the lookahead facilities.
+	 * Range is [0 .. \a c_maxNoOfLines - 1]
+	 */
 	int m_numberOfMostRecentlyReadLine;
 
-	// Contains the current line number of the input file;
+	//! Contains the current line number of the input file;
 	int m_inputFileLineCounter;
 
 public:
 
-	// construction
+	//! Construction
 	LineBuffer(istream &is);
 
-	// destruction
+	//! Destruction
 	~LineBuffer();
 
-	// Returns the current position (as a copy)
+	//! Returns the current position (as a copy)
 	LineBufferPosition getCurrentPosition() const{
 		return m_currentPosition;
 	}
 
-	// Returns the character which is currently pointed to
+	//! Returns the character which is currently pointed to
 	inline char getCurrentCharacter() const {
 		if (m_currentPosition.getLineNumber() >= m_linBuf.size()
 		 || m_currentPosition.getLinePosition() > (int)m_linBuf[m_currentPosition.getLineNumber()].size()) {
@@ -166,32 +160,41 @@ public:
 		return m_linBuf[m_currentPosition.getLineNumber()][m_currentPosition.getLinePosition()];
 	}
 
-	// Returns line number of the most recently read line of the input file
+	//! Returns line number of the most recently read line of the input file
 	inline int getInputFileLineCounter() const {
 		return m_inputFileLineCounter;
 	}
 
-	// Moves to the next position;
-	// reading of new lines and handling of eof are done internally.
-	// If end of file is reached the position will stuck to EOF character.
-	// The current character after moving is returned
+	/**
+	 * Moves to the next position;
+	 * reading of new lines and handling of eof are done internally.
+	 * If end of file is reached the position will stuck to EOF character.
+	 * The current character after moving is returned
+	 */
 	char moveToNextCharacter();
 
-	// Sets the current position to new positon.
-	// Takes care if the given newPosition is valid.
-	// Returns false if given position is invalid
+	/**
+	 * Sets the current position to new positon.
+	 * Takes care if the given newPosition is valid.
+	 * @param newPosition new position
+	 * @return false if given position is invalid
+	 */
 	bool setCurrentPosition(const LineBufferPosition &newPosition);
 
-	// Moves to the next character until the currentCharacter is
-	// no whitespace.
+	/**
+	 * Moves to the next character until the currentCharacter is no whitespace.
+	 */
 	void skipWhitespace();
 
-	// Copys the characters which have been extracted from the
-	// line buffer starting from position startPosition (including it)
-	// to endPosition (excluding it) to targetString.
-	//
-	// Returns false if the startPosition is not valid, i.e. the string
-	// is too long; targetString will contain the message "String too long!"
+	/**
+	 * Copies the characters which have been extracted from the
+	 * line buffer starting from position \a startPosition (including it)
+	 * to \a endPosition (excluding it) to targetString.
+	 * @param startPostion start position
+	 * @param endPosition end position
+	 * @param targetString string [\a startPostion .. \a endPosition] of the LineBuffer
+	 * @return false if the startPosition is not valid, i.e. the string is too long; targetString will contain the message "String too long!"
+	 */
 	bool extractString(
 		const LineBufferPosition &startPostion,
 		const LineBufferPosition &endPosition,
@@ -199,7 +202,7 @@ public:
 
 private:
 
-	// Checks wether the given position is valid
+	//! Checks wether the given \a position is valid
 	bool isValidPosition(const LineBufferPosition &position) const;
 
 }; // class LineBuffer

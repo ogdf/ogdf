@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -935,7 +932,11 @@ template<unsigned int FLAGS>
 class NodeMoveFunctor
 {
 public:
-	inline NodeMoveFunctor( FMELocalContext* pLocalContext )// float* xCoords, float* yCoords, float ftimeStep, float* globalForceArray): x(xCoords), y(yCoords), timeStep(ftimeStep), forceArray(globalForceArray)
+#if 1
+	inline NodeMoveFunctor(FMELocalContext* pLocalContext)
+#else
+	inline NodeMoveFunctor(FMELocalContext* pLocalContext, float* xCoords, float* yCoords, float ftimeStep, float* globalForceArray): x(xCoords), y(yCoords), timeStep(ftimeStep), forceArray(globalForceArray)
+#endif
 	{
 		if (FLAGS & TIME_STEP_NORMAL)
 			timeStep = pLocalContext->pGlobalContext->pOptions->timeStep * pLocalContext->pGlobalContext->coolDown;
@@ -954,10 +955,12 @@ public:
 		currentEdgeLength = pLocalContext->pGlobalContext->pGraph->desiredEdgeLength();
 	}
 
-/*	inline void operator()(void) const
+#if 0
+	inline void operator()(void) const
 	{
 		return pGraph->numNodes();
-	}; */
+	};
+#endif
 
 	inline void operator()(uint32_t i)
 	{
@@ -970,16 +973,16 @@ public:
 		localContext->avgForce += d;
 		if (d < FLT_MAX)
 		{
-			x[i] += (float)((d_x));
-			y[i] += (float)((d_y));
+			x[i] += d_x;
+			y[i] += d_y;
 			if (FLAGS & ZERO_GLOBAL_ARRAY)
 			{
 				forceArrayX[i] = 0.0;
 				forceArrayY[i] = 0.0;
 			} else
 			{
-				forceArrayX[i] = (float)((d_x));
-				forceArrayY[i] = (float)((d_y));
+				forceArrayX[i] = d_x;
+				forceArrayY[i] = d_y;
 			}
 		} else
 		{

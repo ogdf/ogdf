@@ -46,7 +46,7 @@ public:
                                  bool doRowObjective = false);
 #ifndef CLP_NO_STD
      /** This version saves data in a file.  The passed in model
-         is updated to be presolved model.  
+         is updated to be presolved model.
          Returns non-zero if infeasible*/
      int presolvedModelToFile(ClpSimplex &si, std::string fileName,
                               double feasibilityTolerance = 0.0,

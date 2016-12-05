@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
-#include <ogdf/planarity/FastPlanarSubgraph.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/internal/planarity/CrossingStructure.h>
 
@@ -259,13 +256,13 @@ void SubgraphPlanarizer::Worker::operator()()
 // default constructor
 SubgraphPlanarizer::SubgraphPlanarizer()
 {
-	FastPlanarSubgraph* s = new FastPlanarSubgraph();
+	PlanarSubgraphFast* s = new PlanarSubgraphFast();
 	s->runs(64);
-	m_subgraph.set(s);
+	m_subgraph.reset(s);
 
 	VariableEmbeddingInserter *pInserter = new VariableEmbeddingInserter();
 	pInserter->removeReinsert(rrAll);
-	m_inserter.set(pInserter);
+	m_inserter.reset(pInserter);
 
 	m_permutations = 1;
 	m_setTimeout = true;
@@ -282,8 +279,8 @@ SubgraphPlanarizer::SubgraphPlanarizer()
 SubgraphPlanarizer::SubgraphPlanarizer(const SubgraphPlanarizer &planarizer)
 	: CrossingMinimizationModule(planarizer), Logger()
 {
-	m_subgraph.set(planarizer.m_subgraph.get().clone());
-	m_inserter.set(planarizer.m_inserter.get().clone());
+	m_subgraph.reset(planarizer.m_subgraph->clone());
+	m_inserter.reset(planarizer.m_inserter->clone());
 
 	m_permutations = planarizer.m_permutations;
 	m_setTimeout   = planarizer.m_setTimeout;
@@ -301,8 +298,8 @@ CrossingMinimizationModule *SubgraphPlanarizer::clone() const {
 SubgraphPlanarizer &SubgraphPlanarizer::operator=(const SubgraphPlanarizer &planarizer)
 {
 	m_timeLimit = planarizer.m_timeLimit;
-	m_subgraph.set(planarizer.m_subgraph.get().clone());
-	m_inserter.set(planarizer.m_inserter.get().clone());
+	m_subgraph.reset(planarizer.m_subgraph->clone());
+	m_inserter.reset(planarizer.m_inserter->clone());
 
 	m_permutations = planarizer.m_permutations;
 	m_setTimeout   = planarizer.m_setTimeout;
@@ -321,9 +318,10 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 	int                       &crossingNumber)
 {
 	OGDF_ASSERT(m_permutations >= 1);
+	crossingNumber = 0;
 
-	PlanarSubgraphModule &subgraph = m_subgraph.get();
-	EdgeInsertionModule  &inserter = m_inserter.get();
+	PlanarSubgraphModule<int> &subgraph = *m_subgraph;
+	EdgeInsertionModule  &inserter = *m_inserter;
 
 	unsigned int nThreads = min(m_maxThreads, (unsigned int)m_permutations);
 

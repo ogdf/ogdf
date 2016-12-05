@@ -43,7 +43,7 @@ public:
   static bool haveBzip2Support();
 
   /// Factory method, that creates a CoinFileInput (more precisely
-  /// a subclass of it) for the file specified. This method reads the 
+  /// a subclass of it) for the file specified. This method reads the
   /// first few bytes of the file and determines if this is a compressed
   /// or a plain file and returns the correct subclass to handle it.
   /// If the file does not exist or uses a compression not compiled in
@@ -64,11 +64,11 @@ public:
   /// @return Number of bytes read.
   virtual int read (void *buffer, int size) = 0;
 
-  /// Reads up to (size-1) characters an stores them into the buffer, 
+  /// Reads up to (size-1) characters an stores them into the buffer,
   /// similar to fgets.
   /// Reading ends, when EOF or a newline occurs or (size-1) characters have
   /// been read. The resulting string is terminated with '\0'. If reading
-  /// ends due to an encoutered newline, the '\n' is put into the buffer, 
+  /// ends due to an encoutered newline, the '\n' is put into the buffer,
   /// before the '\0' is appended.
   /// @param buffer The buffer to put the string into.
   /// @param size The size of the buffer in characters.
@@ -82,27 +82,27 @@ class CoinFileOutput: public CoinFileIOBase
 public:
 
   /// The compression method.
-  enum Compression { 
+  enum Compression {
     COMPRESS_NONE = 0, ///< No compression.
     COMPRESS_GZIP = 1, ///< gzip compression.
     COMPRESS_BZIP2 = 2 ///< bzip2 compression.
   };
 
-  /// Returns whether the specified compression method is supported 
+  /// Returns whether the specified compression method is supported
   /// (i.e. was compiled into COIN).
   static bool compressionSupported (Compression compression);
 
   /// Factory method, that creates a CoinFileOutput (more precisely
   /// a subclass of it) for the file specified. If the compression method
   /// is not supported an exception is thrown (so use compressionSupported
-  /// first, if this is a problem). The reason for not providing direct 
+  /// first, if this is a problem). The reason for not providing direct
   /// access to the subclasses (and using such a method instead) is that
-  /// depending on the build configuration some of the classes are not 
+  /// depending on the build configuration some of the classes are not
   /// available (or functional). This way we can handle all required ifdefs
   /// here instead of polluting other files.
   /// @param fileName The file that should be read.
   /// @param compression Compression method used.
-  static CoinFileOutput *create (const std::string &fileName, 
+  static CoinFileOutput *create (const std::string &fileName,
 				 Compression compression);
 
   /// Constructor (don't use this, use the create method instead).
@@ -131,7 +131,7 @@ public:
   inline bool puts (const std::string &s)
   {
     return puts (s.c_str ());
-  } 
+  }
 };
 
 /*! \relates CoinFileInput

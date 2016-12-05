@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/GraphAttributes.h>
@@ -279,7 +276,7 @@ int GraphAttributes::hierarchyList(List<List<node>* > &list) const
 	Array<bool> processed(0, G.maxNodeIndex(), false);
 
 	// initialize the first list of all single nodes
-	List<node> *firstList = OGDF_NEW List<node>;
+	List<node> *firstList = new List<node>;
 	list.pushBack(firstList);
 
 	for(node v : G.nodes) { // scan all nodes
@@ -290,7 +287,7 @@ int GraphAttributes::hierarchyList(List<List<node>* > &list) const
 
 		List<node> nodeSet;                    // set of nodes in this hierachy,
 		// whose neighbours have to be processed
-		List<node> *hierachy = OGDF_NEW List<node>; // holds all nodes in this hierachy
+		List<node> *hierachy = new List<node>; // holds all nodes in this hierachy
 
 		nodeSet.pushBack(v);           // push the unprocessed node to the list
 		processed[v->index()] = true;  // and mark it as processed
@@ -346,7 +343,7 @@ int GraphAttributes::hierarchyList(List<List<edge>* > &list) const
 
 		List<node> nodeSet;                    // set of nodes in this hierarchy,
 		// whose neighbours have to be processed
-		List<edge> *hierarchy = OGDF_NEW List<edge>; // holds all edges in this hierarchy
+		List<edge> *hierarchy = new List<edge>; // holds all edges in this hierarchy
 
 		nodeSet.pushBack(v);           // push the unprocessed node to the list
 		processed[v->index()] = true;  // and mark it as processed

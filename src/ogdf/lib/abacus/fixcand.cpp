@@ -87,7 +87,7 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 	ArrayBuffer<int> fixed(nCandidates,false);  // fixed variables
 	Variable    *v;                                // variable being fi0xed
 
-	for (int i = 0; i < nCandidates; i++)
+	for (int i = 0; i < nCandidates; i++) {
 		if ((master_->optSense()->max() &&
 			((*lhs_)[i] + master_->eps() < master_->primalBound())) ||
 			(master_->optSense()->min() &&
@@ -129,23 +129,23 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 				fixed.push(i);
 			}
 		}
-		// remove fixed candidates
-		/* We delete allocated memory of \a fsVarStat_ for the fixed variables
-		*  und remove the fixed variables from the three buffers.
-		*/
-		const int nFixed = fixed.size();
+	}
+	// remove fixed candidates
+	/* We delete allocated memory of \a fsVarStat_ for the fixed variables
+	*  und remove the fixed variables from the three buffers.
+	*/
+	const int nFixed = fixed.size();
 
-		for (int i = 0; i < nFixed; i++) {
-			delete (*candidates_)[fixed[i]];
-			delete (*fsVarStat_)[fixed[i]];
-		}
+	for (int i = 0; i < nFixed; i++) {
+		delete (*candidates_)[fixed[i]];
+		delete (*fsVarStat_)[fixed[i]];
+	}
 
-		candidates_->leftShift(fixed);
-		fsVarStat_->leftShift(fixed);
-		lhs_->leftShift(fixed);
+	candidates_->leftShift(fixed);
+	fsVarStat_->leftShift(fixed);
+	lhs_->leftShift(fixed);
 
-		Logger::ilout(Logger::LL_MINOR) << "\t" << fixed.size() << " variables fixed" << endl;
-
+	Logger::ilout(Logger::LL_MINOR) << "\t" << fixed.size() << " variables fixed" << endl;
 }
 
 

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/MultilevelLayoutModule.h>
 
 
@@ -72,7 +69,7 @@ private:
 		double weight;
 	};
 
-	ModuleOption<LayoutModule> m_secondaryLayout;
+	std::unique_ptr<LayoutModule> m_secondaryLayout;
 	std::vector<EdgeData> m_deletedEdges;
 	bool m_randomize;
 
@@ -97,7 +94,7 @@ public:
 
 	//! Sets the secondary layout.
 	void setLayoutModule(LayoutModule *layout) {
-		m_secondaryLayout.set(layout);
+		m_secondaryLayout.reset(layout);
 	}
 
 	//! Defines whether the positions of the node are randomized before the secondary layout call.

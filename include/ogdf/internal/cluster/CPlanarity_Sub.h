@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -58,20 +55,22 @@ public:
 
 	// Creation of a child-node in the Branch&Bound tree according to the
 	// branching rule \a rule
-	virtual abacus::Sub *generateSon(abacus::BranchRule *rule);
+	virtual abacus::Sub *generateSon(abacus::BranchRule *rule) override;
 
 protected:
 
 
 	// Checks if the current solution of the LP relaxation is also a feasible solution to the ILP,
 	// i.e. Integer-feasible + satisfying all Kuratowski- and Cut-constraints.
-	virtual bool feasible();
+	virtual bool feasible() override;
 
-	virtual int makeFeasible() { return 0; }  // to trick Sub::solveLp...
-//	virtual int removeNonLiftableCons() { return 0; } // to trick Sub::solveLp into returning 2
+	virtual int makeFeasible() override { return 0; }  // to trick Sub::solveLp...
+#if 0
+	virtual int removeNonLiftableCons() { return 0; } // to trick Sub::solveLp into returning 2
+#endif
 	int repair();
 
-	virtual int optimize() {
+	virtual int optimize() override {
 		Logger::slout() << "OPTIMIZE BEGIN\tNode=" << this->id() << "\n";
 		int ret = abacus::Sub::optimize();
 		Logger::slout() << "OPTIMIZE END\tNode=" << this->id() << " db=" << dualBound() << "\tReturn=" << (ret?"(error)":"(ok)") << "\n";
@@ -98,13 +97,15 @@ protected:
 	// publically available
 	int clusterBags(ClusterGraph &CG, cluster c);
 
-// using the below two functions iunstead (and instead of solveLp) we would get a more traditional situation
-//	virtual int separate() {
-//		return separateRealO(0.001);
-//	}
-//	virtual int pricing()  {
-//		return pricingRealO(0.001);
-//	}
+#if 0
+	// using the below two functions iunstead (and instead of solveLp) we would get a more traditional situation
+	virtual int separate() {
+		return separateRealO(0.001);
+	}
+	virtual int pricing()  {
+		return pricingRealO(0.001);
+	}
+#endif
 
 	/** these functions are mainly reporting to let abacus think everthing is normal. the actual work is done
 	 * by separateReal() and pricingReal().
@@ -112,7 +113,9 @@ protected:
 	 */
 
 	int separateReal(double minViolate);
-	//int pricingReal(double minViolate);
+#if 0
+	int pricingReal(double minViolate);
+#endif
 
 	inline int separateRealO(double minViolate) {
 		Logger::slout() << "\tSeparate (minViolate=" << minViolate << ")..";
@@ -120,25 +123,27 @@ protected:
 		Logger::slout() << "..done: " << r << "\n";
 		return r;
 	}
-	//inline int pricingRealO(double minViolate) {
-	//	Logger::slout() << "\tPricing (minViolate=" << minViolate << ")..";
-	//	int r = pricingReal(minViolate);
-	//	master()->m_varsPrice += r;
-	//	Logger::slout() << "..done: " << r << "\n";
-	//	return r;
-	//}
+#if 0
+	inline int pricingRealO(double minViolate) {
+		Logger::slout() << "\tPricing (minViolate=" << minViolate << ")..";
+		int r = pricingReal(minViolate);
+		master()->m_varsPrice += r;
+		Logger::slout() << "..done: " << r << "\n";
+		return r;
+	}
+#endif
 
-	virtual int separate() {
+	virtual int separate() override {
 		Logger::slout() << "\tReporting Separation: "<<((m_reportCreation>0)?m_reportCreation:0)<<"\n";
 		return (m_reportCreation>0)?m_reportCreation:0;
 	}
-	virtual int pricing()  {
+	virtual int pricing() override  {
 		if(inOrigSolveLp) return 1;
 		Logger::slout() << "\tReporting Prizing: "<<((m_reportCreation<0)?-m_reportCreation:0)<<"\n";
 		return (m_reportCreation<0)?-m_reportCreation:0;
 	}
 
-	virtual int solveLp();
+	virtual int solveLp() override;
 
 	// Implementation of virtual function improve() inherited from ABA::SUB.
 	// Invokes the function heuristicImprovePrimalBound().
@@ -147,11 +152,11 @@ protected:
 	// to run the heuristic even if additional constraints have been found, the heuristic
 	// is run "by hand" each time no further constraints could be found, i.e. after having solved
 	// the LP-relaxation optimally.
-	virtual int improve(double &primalValue);
+	virtual int improve(double &primalValue) override;
 
 	// Two functions inherited from ABACUS and overritten to manipulate the branching behaviour.
-	virtual int selectBranchingVariableCandidates(ArrayBuffer<int> &candidates);
-	virtual int selectBranchingVariable(int &variable);
+	virtual int selectBranchingVariableCandidates(ArrayBuffer<int> &candidates) override;
+	virtual int selectBranchingVariable(int &variable) override;
 
 	//! Adds the given constraints to the given pool
 	inline int addPoolCons(ArrayBuffer<abacus::Constraint *> &cons, abacus::StandardPool<abacus::Constraint, abacus::Variable> *pool)
@@ -184,13 +189,13 @@ private:
 	void myAddVars(ArrayBuffer<abacus::Variable*>& b) {
 		int num = b.size();
 		ArrayBuffer<bool> keep(num,false);
-		for(int i=num; i-->0;)
+		for(int i = num; i-- > 0;)
 			keep.push(true);
 #ifdef OGDF_DEBUG
 		int r =
 #endif
-		addVars(b,0,&keep);
-		OGDF_ASSERT(r == num)
+		addVars(b,nullptr,&keep);
+		OGDF_ASSERT(r == num);
 	}
 
 

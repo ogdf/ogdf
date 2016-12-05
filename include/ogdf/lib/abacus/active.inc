@@ -96,12 +96,7 @@ ostream &operator<<(ostream &out, const Active<BaseType, CoType> &rhs)
 template <class BaseType, class CoType>
 void Active<BaseType, CoType>::insert(PoolSlot<BaseType, CoType> *ps)
 {
-#ifdef OGDF_DEBUG
-	if (n_ == max()) {
-		Logger::ifout() << "Active::insert(): buffer is full\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcActive);
-	}
-#endif
+	OGDF_ASSERT(n_ != max()); // buffer is full
 
 	active_[n_] = new PoolSlotRef<BaseType, CoType>(ps);
 	redundantAge_[n_] = 0;

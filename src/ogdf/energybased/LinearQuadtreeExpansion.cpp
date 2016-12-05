@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/LinearQuadtreeExpansion.h>
 #include <ogdf/internal/energybased/ComplexDouble.h>
@@ -56,15 +53,15 @@ LinearQuadtreeExpansion::~LinearQuadtreeExpansion(void)
 
 void LinearQuadtreeExpansion::allocate()
 {
-	m_multiExp = (double*)MALLOC_16(m_numCoeff*sizeof(double)*2*m_numExp);
-	m_localExp = (double*)MALLOC_16(m_numCoeff*sizeof(double)*2*m_numExp);
+	m_multiExp = (double*)OGDF_MALLOC_16(m_numCoeff*sizeof(double)*2*m_numExp);
+	m_localExp = (double*)OGDF_MALLOC_16(m_numCoeff*sizeof(double)*2*m_numExp);
 }
 
 
 void LinearQuadtreeExpansion::deallocate()
 {
-	FREE_16(m_multiExp);
-	FREE_16(m_localExp);
+	OGDF_FREE_16(m_multiExp);
+	OGDF_FREE_16(m_localExp);
 }
 
 
@@ -221,22 +218,29 @@ void LinearQuadtreeExpansion::M2L(uint32_t source, uint32_t receiver)
 
 	// b0
 	b.load(receiv_coeff);
-	//std::complex<double> sdelta(m_center[(receiver<<1)] - m_center[(source<<1)],  m_center[(receiver<<1)+1] - m_center[(source<<1) +1]);//, m_x[receiver] - m_x[source], m_y[receiver] - m_y[source]);
-	/*std::complex<double> sdelta(center_x_receiver - center_x_source,
+#if 0
+	std::complex<double> sdelta(m_center[(receiver<<1)] - m_center[(source<<1)],  m_center[(receiver<<1)+1] - m_center[(source<<1) +1]);//, m_x[receiver] - m_x[source], m_y[receiver] - m_y[source]);
+#endif
+#if 0
+	std::complex<double> sdelta(center_x_receiver - center_x_source,
 								center_y_receiver - center_y_source);//, m_x[receiver] - m_x[source], m_y[receiver] - m_y[source]);
 
 	if ((sdelta.real() <=0) && (sdelta.imag() == 0)) //no cont. compl. log fct exists !!!
 		sdelta = log(sdelta + 0.00000001);
 	else
 		sdelta = log(sdelta);
+#endif
 
-	*/
 	double r = delta1.length();//= sqrt(sdelta.real()*sdelta.real()+sdelta.imag()*sdelta.imag());
 	double phi = atan((center_x_receiver - center_x_source)/(center_y_receiver - center_y_source));
-	// sum = a0*log(z1 - z0)
+#if 0
+	sum = a0*log(z1 - z0)
+#endif
 	b += a0*ComplexDouble(log(r), phi);
 	// (z1 - z0)^1
-	//b += a0*ComplexDouble(sdelta.real(), sdelta.imag());
+#if 0
+	b += a0*ComplexDouble(sdelta.real(), sdelta.imag());
+#endif
 	delta1_l = delta1;
 	for (uint32_t k=1;k<m_numCoeff;k++)
 	{

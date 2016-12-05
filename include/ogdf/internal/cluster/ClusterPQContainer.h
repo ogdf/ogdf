@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -95,38 +92,38 @@ class ClusterPQContainer {
 public:
 
 	ClusterPQContainer():
-		m_inLeaves(0),m_outLeaves(0),m_frontier(0),
-		m_opposed(0),m_nonOpposed(0),m_edge2Key(0),
-		m_numbering(0),m_tableNumber2Node(0),
-		m_superSink(0),m_subGraph(0),m_T(0), m_stEdgeLeaf(0) { }
+		m_inLeaves(nullptr),m_outLeaves(nullptr),m_frontier(nullptr),
+		m_opposed(nullptr),m_nonOpposed(nullptr),m_edge2Key(nullptr),
+		m_numbering(nullptr),m_tableNumber2Node(nullptr),
+		m_superSink(nullptr),m_subGraph(nullptr),m_T(nullptr), m_stEdgeLeaf(nullptr) { }
 
 	~ClusterPQContainer() { }
 
 	void init(Graph *subGraph){
 		m_subGraph = subGraph;
 		m_inLeaves
-			= OGDF_NEW NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > >(*subGraph);
+			= new NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > >(*subGraph);
 
 		m_outLeaves
-			= OGDF_NEW NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > >(*subGraph);
+			= new NodeArray<SListPure<PlanarLeafKey<IndInfo*>* > >(*subGraph);
 
 		m_frontier
-			= OGDF_NEW NodeArray<SListPure<edge> >(*subGraph);
+			= new NodeArray<SListPure<edge> >(*subGraph);
 
 		m_opposed
-			= OGDF_NEW NodeArray<SListPure<node> >(*subGraph);
+			= new NodeArray<SListPure<node> >(*subGraph);
 
 		m_nonOpposed
-			= OGDF_NEW NodeArray<SListPure<node> >(*subGraph);
+			= new NodeArray<SListPure<node> >(*subGraph);
 
 		m_edge2Key
-			= OGDF_NEW EdgeArray<PlanarLeafKey<IndInfo*>*>(*subGraph);
+			= new EdgeArray<PlanarLeafKey<IndInfo*>*>(*subGraph);
 
 		m_numbering
-			= OGDF_NEW NodeArray<int >(*subGraph);
+			= new NodeArray<int >(*subGraph);
 
 		m_tableNumber2Node
-			= OGDF_NEW Array<node>(subGraph->numberOfNodes()+1);
+			= new Array<node>(subGraph->numberOfNodes()+1);
 	}
 
 

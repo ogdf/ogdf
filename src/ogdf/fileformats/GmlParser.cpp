@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,15 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
-
-// disable VC++ warnings when using strcpy
-#define _CRT_SECURE_NO_WARNINGS
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GmlParser.h>
 #include <ogdf/basic/HashArray.h>
@@ -170,11 +164,11 @@ GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 
 		switch (symbol) {
 		case gmlIntValue:
-			object = OGDF_NEW GmlObject(key,m_intSymbol);
+			object = new GmlObject(key,m_intSymbol);
 			break;
 
 		case gmlDoubleValue:
-			object = OGDF_NEW GmlObject(key,m_doubleSymbol);
+			object = new GmlObject(key,m_doubleSymbol);
 			break;
 
 		case gmlStringValue: {
@@ -182,12 +176,16 @@ GmlObject *GmlParser::parseList(GmlObjectType closingKey,
 			char *pChar = new char[len];
 			if (pChar == nullptr) OGDF_THROW(InsufficientMemoryException);
 
-			strcpy(pChar,m_stringSymbol);
-			object = OGDF_NEW GmlObject(key,pChar); }
+#ifdef _MSC_VER
+			strcpy_s(pChar, len, m_stringSymbol);
+#else
+			strcpy(pChar, m_stringSymbol);
+#endif
+			object = new GmlObject(key,pChar); }
 			break;
 
 		case gmlListBegin:
-			object = OGDF_NEW GmlObject(key);
+			object = new GmlObject(key);
 			object->m_pFirstSon = parseList(gmlListEnd,gmlEOF);
 			break;
 
@@ -563,7 +561,7 @@ bool GmlParser::read(Graph &G)
 
 bool GmlParser::read(Graph &G, GraphAttributes &AG)
 {
-	OGDF_ASSERT(&G == &(AG.constGraph()))
+	OGDF_ASSERT(&G == &(AG.constGraph()));
 
 	G.clear();
 
@@ -877,7 +875,7 @@ bool GmlParser::readAttributedCluster(
 	ClusterGraph& CG,
 	ClusterGraphAttributes& ACG)
 {
-	OGDF_ASSERT(&CG.constGraph() == &G)
+	OGDF_ASSERT(&CG.constGraph() == &G);
 
 
 	//now we need the cluster object
@@ -906,7 +904,7 @@ bool GmlParser::readAttributedCluster(
 //no clusters other then root cluster may exist, which holds all nodes
 bool GmlParser::readCluster(Graph &G, ClusterGraph& CG)
 {
-	OGDF_ASSERT(&CG.constGraph() == &G)
+	OGDF_ASSERT(&CG.constGraph() == &G);
 
 	//now we need the cluster object
 	GmlObject *rootObject = m_objectTree;
@@ -974,16 +972,18 @@ bool GmlParser::clusterRead(
 					vIDString[0] = '0'; //leading zero to allow conversion
 				int vID = stoi(vIDString);
 
-				OGDF_ASSERT(m_mapToNode[vID] != 0)
+				OGDF_ASSERT(m_mapToNode[vID] != nullptr);
 
-					//we assume that no node is already assigned ! Changed:
-					//all new nodes are assigned to root
-					//CG.reassignNode(mapToNode[vID], CG.rootCluster());
-					//it seems that this may be unnessecary, TODO check
-					CG.reassignNode(m_mapToNode[vID], CG.rootCluster());
-				//char* vIDChar = new char[vIDString.length()+1];
-				//for (int ind = 1; ind < vIDString.length(); ind++)
-				//	vIDChar
+				//we assume that no node is already assigned ! Changed:
+				//all new nodes are assigned to root
+				//CG.reassignNode(mapToNode[vID], CG.rootCluster());
+				//it seems that this may be unnessecary, TODO check
+				CG.reassignNode(m_mapToNode[vID], CG.rootCluster());
+#if 0
+				char* vIDChar = new char[vIDString.length()+1];
+				for (int ind = 1; ind < vIDString.length(); ind++)
+					vIDChar
+#endif
 
 			}//case vertex
 		}//switch
@@ -1042,16 +1042,18 @@ bool GmlParser::attributedClusterRead(
 					vIDString[0] = '0'; //leading zero to allow conversion
 				int vID = stoi(vIDString);
 
-				OGDF_ASSERT(m_mapToNode[vID] != 0)
+				OGDF_ASSERT(m_mapToNode[vID] != nullptr);
 
-					//we assume that no node is already assigned
-					//CG.reassignNode(mapToNode[vID], CG.rootCluster());
-					//changed: all nodes are already assigned to root
-					//this code seems to be obsolete, todo: check
-					CG.reassignNode(m_mapToNode[vID], CG.rootCluster());
-				//char* vIDChar = new char[vIDString.length()+1];
-				//for (int ind = 1; ind < vIDString.length(); ind++)
-				//	vIDChar
+				//we assume that no node is already assigned
+				//CG.reassignNode(mapToNode[vID], CG.rootCluster());
+				//changed: all nodes are already assigned to root
+				//this code seems to be obsolete, todo: check
+				CG.reassignNode(m_mapToNode[vID], CG.rootCluster());
+#if 0
+				char* vIDChar = new char[vIDString.length()+1];
+				for (int ind = 1; ind < vIDString.length(); ind++)
+					vIDChar
+#endif
 
 			}//case vertex
 		}//switch
@@ -1175,15 +1177,15 @@ bool GmlParser::recursiveClusterRead(GmlObject* clusterObject,
 						vIDString[0] = '0'; //leading zero to allow conversion
 					int vID = stoi(vIDString);
 
-					OGDF_ASSERT(m_mapToNode[vID] != 0)
+					OGDF_ASSERT(m_mapToNode[vID] != nullptr);
 
-					//we assume that no node is already assigned
-					//CG.reassignNode(mapToNode[vID], c);
-					//changed: all nodes are already assigned to root
+					// all nodes are already assigned to root
 					CG.reassignNode(m_mapToNode[vID], c);
-					//char* vIDChar = new char[vIDString.length()+1];
-					//for (int ind = 1; ind < vIDString.length(); ind++)
-					//	vIDChar
+#if 0
+					char* vIDChar = new char[vIDString.length()+1];
+					for (int ind = 1; ind < vIDString.length(); ind++)
+						vIDChar
+#endif
 
 				}//case vertex
 		}//switch
@@ -1251,7 +1253,7 @@ bool GmlParser::recursiveAttributedClusterRead(GmlObject* clusterObject,
 						vIDString[0] = '0'; //leading zero to allow conversion
 					int vID = stoi(vIDString);
 
-					OGDF_ASSERT(m_mapToNode[vID] != 0)
+					OGDF_ASSERT(m_mapToNode[vID] != nullptr);
 
 					//we assume that no node is already assigned
 					//changed: all nodes are already assigned to root

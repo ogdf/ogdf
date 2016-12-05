@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -40,33 +37,18 @@
 
 namespace ogdf {
 
-namespace a_star_internal {
-
-//! Default heuristic
-// Always returns 0 as a valid lower bound for the distance from the target.
-template<typename T>
-struct UninformedHeuristic {
-	const T operator()(const node v) const {
-		return T(0);
-	}
-};
-
-}
-
 //! A-Star informed search algorithm.
 /**
  * The algorithm is a generalization the the shortest path algorithm by Dijkstra.
  * It was first described in "A Formal Basis for the Heuristic Determination of Minimum Cost Paths" by Hart, Nilsson and Raphael in 1968.
  *
- * The algorithms yields an optimal solution to the single pair shortest pair problem.
- * A heuristic for calculating a lower bound on the distance from any node to the target is required.
+ * The algorithm yields an optimal solution to the single pair shortest pair problem.
+ * A heuristic for calculating a lower bound on the distance from any node to the target is optional.
  * The algorithm can also be used to compute approximate solutions at a faster pace.
  *
  * @tparam T The type of edge cost
- * @tparam H The heuristic to be used.
- *           Defaults to a heuristic which always returns null, thus behaving like ::ogdf::Dijkstra.
  */
-template<typename T, typename H = a_star_internal::UninformedHeuristic<T>>
+template<typename T>
 class AStarSearch {
 private:
 	using NodeQueue = PrioritizedMapQueue<node, T>;
@@ -77,7 +59,7 @@ private:
 
 	NodeArray<bool> m_folded;
 	const EdgeArray<T> *m_cost;
-	const H *m_heuristic;
+	std::function<T(node)> m_heuristic;
 	NodeArray<edge> *m_predecessor;
 	NodeArray<T> m_distance;
 	NodeQueue *m_queue;
@@ -98,16 +80,17 @@ public:
 	}
 
 	/**
-	 * Computes the shortests path between \a source and \a target.
+	 * Computes the shortests path between \c source and \c target.
 	 *
 	 * @param graph The graph to investigate
 	 * @param cost The positive cost of each edge
 	 * @param source The start of the path to compute
 	 * @param target The end of the path to compute
 	 * @param predecessor Will contain the preceding edge of each node in the path
-	 *        \a predecessor[target] will be \a nullptr if no path could be found
+	 *        \c predecessor[target] will be \c nullptr if no path could be found
 	 * @param heuristic The heuristic to be used.
-	 *                  If the heuristic always returns 0 this algorithm will behave just like ::ogdf::Dijkstra.
+	 *                  Note that the type ::ogdf::NodeArray is implicitly applicable here.
+	 *                  The default heuristic will always return the trivial lower bound of zero.
 	 * @return The total length of the found path
 	 */
 	T call(const Graph &graph,
@@ -115,14 +98,20 @@ public:
 		  const node source,
 		  const node target,
 		  NodeArray<edge> &predecessor,
-		  const H &heuristic = H())
+		  std::function<T(node)> heuristic = [](node) {
+#ifdef _MSC_VER
+			  return 0;
+#else
+			  return T(0);
+#endif
+		  })
 	{
 		// initialize auxiliary structures
 		m_cost = &cost;
 		m_distance.init(graph);
 		m_predecessor = &predecessor;
 		m_predecessor->init(graph);
-		m_heuristic = &heuristic;
+		m_heuristic = heuristic;
 
 		m_folded.init(graph, false);
 		NodeQueue queue(graph);
@@ -152,6 +141,7 @@ public:
 
 private:
 
+#ifdef OGDF_DEBUG
 	bool validatePath(const node source, const node target) {
 		NodeArray<bool> visited(*m_predecessor->graphOf(), false);
 
@@ -174,6 +164,7 @@ private:
 
 		return true;
 	}
+#endif
 
 	void investigateNode(const node v) {
 		for(adjEntry adj = v->firstAdj(); adj != nullptr; adj = adj->succ()) {
@@ -184,7 +175,7 @@ private:
 				if(!m_folded(w) && (!m_queue->contains(w) || m_et.less(distanceW, m_distance[w]))) {
 					m_distance[w] = distanceW;
 					(*m_predecessor)[w] = e;
-					T priority = (T)(m_distance[w] + m_maxGap * (*m_heuristic)(w));
+					T priority = (T)(m_distance[w] + m_maxGap * m_heuristic(w));
 
 					if(!m_queue->contains(w)) {
 						m_queue->push(w, priority);
@@ -197,4 +188,4 @@ private:
 	}
 };
 
-} // end namespace ogdf
+}

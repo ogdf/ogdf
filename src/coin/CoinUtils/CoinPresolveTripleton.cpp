@@ -1069,4 +1069,3 @@ void check_tripletons(const CoinPresolveAction * paction)
     }
   }
 }
-

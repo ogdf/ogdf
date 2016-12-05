@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/energybased/PivotMDS.h>
 
@@ -47,9 +44,8 @@ void PivotMDS::call(GraphAttributes& GA)
 		OGDF_THROW_PARAM(PreconditionViolatedException,pvcConnected);
 		return;
 	}
-	if (m_hasEdgeCostsAttribute
-			&& !GA.has(GraphAttributes::edgeDoubleWeight)) {
-				OGDF_THROW(PreconditionViolatedException);
+	if (m_hasEdgeCostsAttribute && !GA.has(GraphAttributes::edgeDoubleWeight)) {
+		OGDF_THROW(PreconditionViolatedException);
 		return;
 	}
 	pivotMDSLayout(GA);
@@ -124,8 +120,8 @@ void PivotMDS::pivotMDSLayout(GraphAttributes& GA)
 		centerPivotmatrix(pivDistMatrix);
 		// init the coordinate matrix
 		Array<Array<double> > coord(DIMENSION_COUNT);
-		for (int i = 0; i < coord.size(); i++) {
-			coord[i].init(n);
+		for (auto &elem : coord) {
+			elem.init(n);
 		}
 		// init the eigen values array
 		Array<double> eVals(DIMENSION_COUNT);
@@ -351,8 +347,8 @@ double PivotMDS::normalize(Array<double>& x)
 {
 	double norm = sqrt(prod(x, x));
 	if (norm != 0) {
-		for (int i = 0; i < x.size(); i++) {
-			x[i] /= norm;
+		for (auto &elem : x) {
+			elem /= norm;
 		}
 	}
 	return norm;
@@ -372,9 +368,9 @@ double PivotMDS::prod(const Array<double>& x, const Array<double>& y)
 void PivotMDS::randomize(Array<Array<double> >& matrix)
 {
 	srand(SEED);
-	for (int i = 0; i < matrix.size(); i++) {
-		for (int j = 0; j < matrix[i].size(); j++) {
-			matrix[i][j] = ((double) rand()) / RAND_MAX;
+	for (auto &elem : matrix) {
+		for (int j = 0; j < elem.size(); j++) {
+			elem[j] = ((double) rand()) / RAND_MAX;
 		}
 	}
 }

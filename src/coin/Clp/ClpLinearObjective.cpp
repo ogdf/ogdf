@@ -285,4 +285,3 @@ ClpLinearObjective::reallyScale(const double * columnScale)
           objective_[iColumn] *= columnScale[iColumn];
      }
 }
-

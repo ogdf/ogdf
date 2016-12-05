@@ -44,6 +44,7 @@
 #include <ogdf/lib/abacus/master.h>
 #include <ogdf/lib/abacus/sub.h>
 
+#define ABACUS_LP_OSI
 #ifdef ABACUS_LP_OSI
 #include <ogdf/lib/abacus/lpmasterosi.h>
 #include <ogdf/lib/abacus/lpsubosi.h>
@@ -133,4 +134,3 @@ void Master::_outputLpStatistics() const
 #endif
 }
 } //namespace abacus
-

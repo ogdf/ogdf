@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,13 +25,11 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
+#include <functional>
 #include <ogdf/internal/energybased/Set.h>
 
 namespace ogdf {
@@ -108,15 +106,19 @@ void Set::delete_node(node del_node)
 
 node Set::get_random_node()
 {
-	int rand_index = randomNumber(0,last_selectable_index_of_S_node);
-	node random_node =  S_node[rand_index];
-	node last_selectable_node = S_node[last_selectable_index_of_S_node];
+	return get_random_node_common(randomNumber(0,last_selectable_index_of_S_node), last_selectable_index_of_S_node);
+}
 
-	S_node[last_selectable_index_of_S_node] = random_node;
-	S_node[rand_index] = last_selectable_node;
-	position_in_node_set[random_node] = last_selectable_index_of_S_node;
-	position_in_node_set[last_selectable_node] = rand_index;
-	last_selectable_index_of_S_node -=1;
+node Set::get_random_node_common(int rand_index, int &last_trie_index)
+{
+	node random_node = S_node[rand_index];
+	node last_trie_node = S_node[last_trie_index];
+
+	S_node[last_trie_index] = random_node;
+	S_node[rand_index] = last_trie_node;
+	position_in_node_set[random_node] = last_trie_index;
+	position_in_node_set[last_trie_node] = rand_index;
+	--last_trie_index;
 	return random_node;
 }
 
@@ -142,89 +144,42 @@ void Set::init_node_set(Graph& G, NodeArray<NodeAttributes>& A)
 	}
 }
 
-//---------------- for set of nodes with "lower mass" probability --------------
+//---------------- for set of nodes with "lower mass" or "higher mass" probability --------------
+
+template<typename Comp>
+node Set::get_random_node_with_some_star_mass(int rand_tries, Comp comp)
+{
+	int rand_index = -1;
+	int cmp_mass(0);
+
+	// randomly select rand_tries distinct!!! nodes from S_node and select one
+	// by the lowest (std::less) or the highest (std::greater) star mass
+
+	int last_trie_index = last_selectable_index_of_S_node;
+	OGDF_ASSERT(last_trie_index >= 0);
+
+	for (int i = 1; i <= rand_tries && last_trie_index >= 0; ++i) {
+		int new_rand_index = randomNumber(0, last_trie_index);
+		int mass = mass_of_star[S_node[new_rand_index]];
+		get_random_node_common(new_rand_index, last_trie_index);
+		if ((i == 1) || (comp(mass, cmp_mass))) {
+			rand_index = last_trie_index + 1;
+			cmp_mass = mass;
+		}
+	}
+	OGDF_ASSERT(rand_index != -1);
+
+	return get_random_node_common(rand_index, last_selectable_index_of_S_node);
+}
 
 node Set::get_random_node_with_lowest_star_mass(int rand_tries)
 {
-	int rand_index, min_mass;
-	int i = 1;
-	node random_node, new_rand_node, last_trie_node, last_selectable_node;
-
-	//randomly select rand_tries distinct!!! nodes from S_node and select the one
-	//with the lowest mass
-
-	int last_trie_index = last_selectable_index_of_S_node;
-	while ((i <= rand_tries) && (last_trie_index >= 0))
-	{
-		last_trie_node = S_node[last_trie_index];
-		int new_rand_index = randomNumber(0, last_trie_index);
-		new_rand_node = S_node[new_rand_index];
-		S_node[last_trie_index] = new_rand_node;
-		S_node[new_rand_index] = last_trie_node;
-		position_in_node_set[new_rand_node] = last_trie_index;
-		position_in_node_set[last_trie_node] = new_rand_index;
-
-		if ((i == 1) || (min_mass > mass_of_star[S_node[last_trie_index]]))
-		{
-			rand_index = last_trie_index;
-			random_node = S_node[last_trie_index];
-			min_mass = mass_of_star[random_node];
-		}
-		++i;
-		--last_trie_index;
-	}
-
-	//now rand_index and random_node have been fixed
-	last_selectable_node = S_node[last_selectable_index_of_S_node];
-	S_node[last_selectable_index_of_S_node] = random_node;
-	S_node[rand_index] = last_selectable_node;
-	position_in_node_set[random_node] = last_selectable_index_of_S_node;
-	position_in_node_set[last_selectable_node] = rand_index;
-	--last_selectable_index_of_S_node;
-	return random_node;
+	return get_random_node_with_some_star_mass<std::less<int>>(rand_tries);
 }
-
-
-//---------------- for set of nodes with "higher mass" probability --------------
 
 node Set::get_random_node_with_highest_star_mass(int rand_tries)
 {
-	int rand_index, min_mass;
-	int i = 1;
-	node random_node, new_rand_node, last_trie_node, last_selectable_node;
-
-	//randomly select rand_tries distinct!!! nodes from S_node and select the one
-	//with the lowest mass
-
-	int last_trie_index = last_selectable_index_of_S_node;
-	while ((i <= rand_tries) && (last_trie_index >= 0))
-	{
-		last_trie_node = S_node[last_trie_index];
-		int new_rand_index = randomNumber(0, last_trie_index);
-		new_rand_node = S_node[new_rand_index];
-		S_node[last_trie_index] = new_rand_node;
-		S_node[new_rand_index] = last_trie_node;
-		position_in_node_set[new_rand_node] = last_trie_index;
-		position_in_node_set[last_trie_node] = new_rand_index;
-
-		if ((i == 1) || (min_mass < mass_of_star[S_node[last_trie_index]]))
-		{
-			rand_index = last_trie_index;
-			random_node = S_node[last_trie_index];
-			min_mass = mass_of_star[random_node];
-		}
-		++i;
-		--last_trie_index;
-	}//while
-
-	//now rand_index and random_node have been fixed
-	last_selectable_node = S_node[last_selectable_index_of_S_node];
-	S_node[last_selectable_index_of_S_node] = random_node;
-	S_node[rand_index] = last_selectable_node;
-	position_in_node_set[random_node] = last_selectable_index_of_S_node;
-	position_in_node_set[last_selectable_node] = rand_index;
-	--last_selectable_index_of_S_node;
-	return random_node;
+	return get_random_node_with_some_star_mass<std::greater<int>>(rand_tries);
 }
 
 }

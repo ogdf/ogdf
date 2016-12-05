@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/upward/LayerBasedUPRLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -158,7 +155,7 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 		run = UPR.leftInEdge(run->theEdge()->source());
 	}
 
-	OGDF_ASSERT(adj_v1 != 0);
+	OGDF_ASSERT(adj_v1 != nullptr);
 
 	for(adjEntry run : adj_v1->theNode()->adjEntries) {
 		if (visitedEdge[run->theEdge()] && run->theEdge()->source() == run->theNode()){ // outgoing edges only
@@ -167,7 +164,7 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 		}
 	}
 
-	OGDF_ASSERT(adj_v2 != 0);
+	OGDF_ASSERT(adj_v2 != nullptr);
 
 	return left(adj_v1->theEdge(), adj_v2->theEdge());
 }
@@ -296,7 +293,7 @@ bool OrderComparer::less(node vH1, node vH2) const
 		OGDF_ASSERT(!chain2.empty());
 
 		int level = H.rank(vH1);
-		return (left(chain1, chain2, level));
+		return left(chain1, chain2, level);
 	}//end both are long edge dummies
 
 	/*
@@ -371,9 +368,8 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 	HierarchyLevels levels(H);
 	const GraphCopy &GC = H;
 
-	/*
-	//debug
-	//UPR.outputFaces(UPR.getEmbedding());
+#if 0
+	// UPR.outputFaces(UPR.getEmbedding());
 	for(node x : G.nodes) {
 		cout << "vOrig " << x << ";   vUPR " << UPR.copy(x) << endl;
 	}
@@ -386,7 +382,7 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 			adj = adj->cyclicSucc();
 		} while (adj != x->firstAdj());
 	}
-	*/
+#endif
 
 	//adjust order
 	OrderComparer oComparer(UPR, H);
@@ -413,8 +409,7 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 	postProcessing_reduceLED(H, levels, sources);
 	levels.buildAdjNodes();
 
-	/*
-	//debug
+#if 0
 	cout << endl << endl;
 	for(int i = 0; i <= levels.high(); i++) {
 		Level &lvl = levels[i];
@@ -425,16 +420,16 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 		}
 		cout << endl;
 	}
-	*/
+#endif
 
 	postProcessing_sourceReorder(levels, sources);
 	m_crossings = levels.calculateCrossings();
 
 	OGDF_ASSERT(m_crossings <= UPR.numberOfCrossings());
-	OGDF_ASSERT(m_layout.valid());
+	OGDF_ASSERT(m_layout);
 
 	GraphCopyAttributes AGC(H, AG);
-	m_layout.get().call(levels,AG);
+	m_layout->call(levels,AG);
 	// ********************** end postprocessing *******************************************
 
 	numberOfLevels = levels.size();
@@ -503,9 +498,7 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 
 	OGDF_ASSERT(isAcyclic(GC));
 
-
-	// ****************************debug*******************************
-	/*
+#if 0
 	GraphAttributes GA(GC, GraphAttributes::nodeGraphics|
 						GraphAttributes::edgeGraphics|
 						GraphAttributes::nodeColor|
@@ -518,14 +511,12 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 		GA.label(vTmp) = to_string(w->index());
 	}
 	GA.writeGML("c:/temp/ranking_graph.gml");
-	*/
-	//********************************************************************
-
+#endif
 
 	NodeArray<int> ranking(GC, 0);
 	EdgeArray<int> length(GC,1);
 
-	m_ranking.get().call(GC, length, cost, ranking);
+	m_ranking->call(GC, length, cost, ranking);
 
 	// adjust ranking
 	int minRank = numeric_limits<int>::max();
@@ -544,12 +535,11 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 		rank[vOrig] = ranking[v];
 	}
 
-	/*
-	//debug output ranking
+#if 0
 	cout << "Ranking GOrig: " << endl;
 	for(node v : UPR.original().nodes)
 		cout << "node :" << v << " ranking : "<< rank[v] << endl;
-	*/
+#endif
 }
 
 
@@ -729,8 +719,7 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 			H.m_GC.unsplit(inEdge, outEdge);
 		}
 
-		/*
-		//debug
+#if 0
 		cout << endl << endl;
 		cout << "vor :					" << endl;
 		for(int ii = 0; ii <= H.high(); ii++) {
@@ -743,12 +732,11 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 			}
 			cout << endl;
 		}
-		*/
+#endif
 
 		post_processing_reduce(H, levels, i, s, minIdx, maxIdx, markedNodes);
 
-		/*
-		//debug
+#if 0
 		cout << endl << endl;
 		cout << endl << endl;
 		cout << "nach :					" << endl;
@@ -762,8 +750,7 @@ void LayerBasedUPRLayout::postProcessing_reduceLED(Hierarchy &H, HierarchyLevels
 			}
 			cout << endl;
 		}
-		*/
-
+#endif
 	}
 }
 
@@ -822,8 +809,7 @@ void LayerBasedUPRLayout::post_processing_reduce(
 			return; //a level was deleted, we are done
 		}
 
-		/*
-		//debug
+#if 0
 		cout << endl << endl;
 		cout << "nach delete :					" << endl;
 		for(int ii = 0; ii <= H.high(); ii++) {
@@ -836,12 +822,11 @@ void LayerBasedUPRLayout::post_processing_reduce(
 			}
 			cout << endl;
 		}
-		*/
+#endif
 
 		post_processing_CopyInterval(H, levels, j, idxl2, idxh2, idxl1);
 
-		/*
-		//debug
+#if 0
 		cout << endl << endl;
 		cout << "nach copy :					" << endl;
 		for(int ii = 0; ii <= H.high(); ii++) {
@@ -854,7 +839,7 @@ void LayerBasedUPRLayout::post_processing_reduce(
 			}
 			cout << endl;
 		}
-		*/
+#endif
 
 	}
 
@@ -894,8 +879,7 @@ void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLe
 		lvl_cur[lvl_cur.high() - k] = lvl_cur[lastIdx - k];
 	}
 
-	/*
-	//debug
+#if 0
 	cout << endl << endl;
 	cout << "level after shift block to end of array : " << lvl.index() << endl;
 	cout << "nodes : ";
@@ -903,7 +887,7 @@ void LayerBasedUPRLayout::post_processing_CopyInterval(Hierarchy &H, HierarchyLe
 		cout << lvl[j] << " ; pos() " << pos(lvl[j]) << "  ";
 	}
 	cout << endl;
-	*/
+#endif
 
 	//copy the nodes of nodeList into the array
 	Level &lvl_low = levels[i-1];
@@ -1057,7 +1041,8 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 
 	adjEntry adjCopy = stGraph.copy(adj->theEdge())->adjSource();
 
-	/*cout << "stGraph:" << endl;
+#if 0
+	cout << "stGraph:" << endl;
 	for(node x : stGraph.nodes) {
 		cout << x << ":";
 		for(adjEntry adj : x->adjEntries) {
@@ -1065,7 +1050,8 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 			cout << " " << e;
 		}
 		cout << endl;
-	}*/
+	}
+#endif
 
 	// For the st-graph, we compute a longest path ranking. Since the graph
 	// is st-planar, it is also level planar for the computed rank assignment.
@@ -1086,10 +1072,12 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 		rank[vG] = stRank[stGraph.copy(vG)];
 
 
-	/*cout << "rank assignment G:" << endl;
+#if 0
+	cout << "rank assignment G:" << endl;
 	for(node vG : G.nodes) {
 		cout << vG << ": " << rank[vG] << endl;
-	}*/
+	}
+#endif
 
 	Hierarchy H(G,rank);
 	HierarchyLevels levels(H);
@@ -1132,13 +1120,15 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 #ifdef OGDF_DEBUG
 	for(node v : stGraph.nodes) {
 		node vGC = st2GC[v];
-		OGDF_ASSERT(vGC == 0 || stRank[v] == H.rank(vGC));
+		OGDF_ASSERT(vGC == nullptr || stRank[v] == H.rank(vGC));
 	}
 #endif
 
-	/*cout << "mapping stGraph -> GC -> G:" << endl;
+#if 0
+	cout << "mapping stGraph -> GC -> G:" << endl;
 	for(node v : stGraph.nodes)
-		cout << v << ": " << st2GC[v] << " " << stGraph.original(v) << endl;*/
+		cout << v << ": " << st2GC[v] << " " << stGraph.original(v) << endl;
+#endif
 
 
 	// The array nodes contains the sorted nodes of stGraph on each level.
@@ -1146,7 +1136,8 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 
 	dfsSortLevels(adjCopy,stRank,nodes);
 
-	/*for(int i = stRank[s]; i <= stRank[t]; ++i) {
+#if 0
+	for(int i = stRank[s]; i <= stRank[t]; ++i) {
 		cout << i << ": ";
 		SListPure<node> &L = nodes[i];
 		SListConstIterator<node> it;
@@ -1156,7 +1147,8 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 			OGDF_ASSERT(vGC == 0 || H.rank(vGC) == i);
 		}
 		cout << endl;
-	}*/
+	}
+#endif
 
 	// We translate the node lists to node lists of nodes in GC using node
 	// array st2GC. Note that there are also nodes in stGraph which have
@@ -1166,8 +1158,10 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 	for (i = 0; i <= levels.high(); ++i) {
 		Level &level = levels[i];
 
-		//cout << i << endl;
-		//cout << level << endl;
+#if 0
+		cout << i << endl;
+		cout << level << endl;
+#endif
 
 		int j = 0;
 		SListConstIterator<node> itSt;
@@ -1191,7 +1185,7 @@ void LayerBasedUPRLayout::callSimple(GraphAttributes &GA, adjEntry adj)
 
 	// Finally, we draw the computed hierarchy applying a hierarchy layout
 	// module.
-	m_layout.get().call(levels,GA);
+	m_layout->call(levels,GA);
 }
 
 

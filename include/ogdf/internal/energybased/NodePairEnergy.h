@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -54,7 +51,7 @@ public:
 	}
 
 	//computes the energy of the initial layout
-	void computeEnergy();
+	void computeEnergy() override;
 
 protected:
 	//computes the energy stored by a pair of vertices at the given positions
@@ -70,7 +67,7 @@ protected:
 	const IntersectionRectangle& shape(const node v) const { return m_shape[v]; }
 
 #ifdef OGDF_DEBUG
-	virtual void printInternalData() const;
+	virtual void printInternalData() const override;
 #endif
 
 private:
@@ -87,11 +84,11 @@ private:
 	double computePairEnergy(const node v, const node w) const;
 
 	//computes energy of whole layout if new position of the candidate vertex is chosen
-	void compCandEnergy();
+	void compCandEnergy() override;
 
 	//If a candidate change is chosen as the new position, this function sets the
 	//internal data accordingly
-	void internalCandidateTaken();
+	void internalCandidateTaken() override;
 };
 
 

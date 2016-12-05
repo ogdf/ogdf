@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -133,8 +130,10 @@ public:
 	//! Set bound on the number of bends
 	void setBendBound(int i) { OGDF_ASSERT(i >= 0); m_bendBound = i; }
 
+#if 0
 	//in planarlayout
-	//enum LayoutOptions {umloptAlignment = 1, optScaling = 2, optProgressive = 4}
+	enum LayoutOptions {umloptAlignment = 1, optScaling = 2, optProgressive = 4}
+#endif
 	//set generic options by setting field bits,
 	//necessary to allow setting over base class pointer
 	//bit 0 = alignment

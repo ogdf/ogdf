@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,16 +26,11 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/basic.h>
-
-#ifdef USE_COIN
 
 #include <ogdf/external/coin.h>
 #include <coin/CoinPackedVector.hpp>
@@ -53,7 +48,7 @@
 #elif defined(COIN_OSI_GRB)
 	#include <coin/OsiGrbSolverInterface.hpp> // Gurobi
 #else
-	#error "Compiler-flag USE_COIN requires an additional COIN_OSI_xxx-flag to select the LP solver backend."
+	#error "CMake configuration requires an additional COIN_OSI_xxx-flag to choose the default LP solver backend."
 #endif
 
 namespace ogdf {
@@ -78,7 +73,7 @@ namespace ogdf {
 		CoinCallbacks::CutReturn ret = ccc->cutCallback(objVal, solution, cuts);
 
 		if(ret == CoinCallbacks::CR_AddCuts) {
-			for(int i = cuts->sizeRowCuts(); i-->0;) {
+			for(int i = cuts->sizeRowCuts(); i-- > 0;) {
 				const OsiRowCut& c = cuts->rowCut(i);
 				const CoinPackedVector& vec = c.row();
 
@@ -152,7 +147,7 @@ namespace ogdf {
 		}
 		return 0;
 	}
-/*
+#if 0
 	int CPXPUBLIC CPX_BranchCallback (CPXCENVptr env, void *cbdata, int wherefrom, void *cbhandle,
 			int type, int  sos, int nodecnt, int bdcnt, double *nodeest, int *nodebeg, int *indices,
 			char *lu, int *bd, int *useraction_p) {
@@ -176,7 +171,7 @@ namespace ogdf {
 		}
 		return 0;
 	}
-	*/
+#endif
 
 #endif // COIN_OSI_CPX
 
@@ -210,8 +205,10 @@ namespace ogdf {
 			CPXsetheuristiccallbackfunc(envptr, &CPX_HeuristicCallback, this);
 		if(callbackTypes & CT_Incumbent)
 			CPXsetincumbentcallbackfunc(envptr, &CPX_IncumbentCallback, this);
-//		if(callbackTypes & CT_Branch)
-//			CPXsetbranchcallbackfunc(envptr, &CPX_BranchCallback, this);
+#if 0
+		if(callbackTypes & CT_Branch)
+			CPXsetbranchcallbackfunc(envptr, &CPX_BranchCallback, this);
+#endif
 
 		CPXsetintparam(envptr, CPX_PARAM_MIPCBREDLP, CPX_OFF);
 
@@ -223,7 +220,9 @@ namespace ogdf {
 		CPXsetintparam(envptr, CPX_PARAM_COEREDIND, 0);
 		CPXsetintparam(envptr, CPX_PARAM_RELAXPREIND, 0);
 		CPXsetintparam(envptr, CPX_PARAM_PREPASS, 0);
-	//	CPXsetintparam(envptr, CPX_PARAM_REPEATPRESOLVE, 0); // only exists on cplex10
+#if 0
+		CPXsetintparam(envptr, CPX_PARAM_REPEATPRESOLVE, 0); // only exists on cplex10
+#endif
 		CPXsetintparam(envptr, CPX_PARAM_REDUCE, 0);
 
 		return true;
@@ -234,5 +233,3 @@ namespace ogdf {
 	}
 
 }
-
-#endif // USE_COIN

@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,25 +28,18 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
-
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/tree/RadialTreeLayout.h>
-
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/Stack.h>
 #include <ogdf/basic/Math.h>
 
-
 namespace ogdf {
-
 
 RadialTreeLayout::RadialTreeLayout()
 	:m_levelDistance(50),
@@ -54,17 +47,14 @@ RadialTreeLayout::RadialTreeLayout()
 	 m_selectRoot(rootIsCenter)
 { }
 
-
 RadialTreeLayout::RadialTreeLayout(const RadialTreeLayout &tl)
 	:m_levelDistance(tl.m_levelDistance),
 	 m_connectedComponentDistance(tl.m_connectedComponentDistance),
 	 m_selectRoot(tl.m_selectRoot)
 { }
 
-
 RadialTreeLayout::~RadialTreeLayout()
 { }
-
 
 RadialTreeLayout &RadialTreeLayout::operator=(const RadialTreeLayout &tl)
 {
@@ -74,7 +64,6 @@ RadialTreeLayout &RadialTreeLayout::operator=(const RadialTreeLayout &tl)
 
 	return *this;
 }
-
 
 void RadialTreeLayout::call(GraphAttributes &AG)
 {
@@ -101,7 +90,6 @@ void RadialTreeLayout::call(GraphAttributes &AG)
 	// computes final coordinates of nodes
 	ComputeCoordinates(AG);
 }
-
 
 void RadialTreeLayout::FindRoot(const Graph &G)
 {
@@ -144,7 +132,6 @@ void RadialTreeLayout::FindRoot(const Graph &G)
 			break;
 	}
 }
-
 
 void RadialTreeLayout::ComputeLevels(const Graph &G)
 {
@@ -199,7 +186,6 @@ void RadialTreeLayout::ComputeLevels(const Graph &G)
 	}
 }
 
-
 void RadialTreeLayout::ComputeDiameters(GraphAttributes &AG)
 {
 	const Graph &G = AG.constGraph();
@@ -224,8 +210,6 @@ void RadialTreeLayout::ComputeDiameters(GraphAttributes &AG)
 	}
 }
 
-
-
 void RadialTreeLayout::ComputeAngles(const Graph &G)
 {
 	m_angle.init(G);
@@ -241,8 +225,10 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 	m_wedge[m_root] = 2*Math::pi;
 	m_radius[0] = 0;
 
-	//Grouping grouping;
-	//double D, W;
+#if 0
+	Grouping grouping;
+	double D, W;
+#endif
 
 	NodeArray<double> D(G), W(G);
 
@@ -296,7 +282,8 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 			}
 
 			// ********
-			/*deltaL = (m_radius[i+1] * 2*Math::pi) - D;
+#if 0
+			deltaL = (m_radius[i+1] * 2*Math::pi) - D;
 
 			double offset = 0;
 			for(itG = grouping.begin(); itG.valid(); ++itG)
@@ -323,10 +310,11 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 					Q.append(v);
 				}
 			}
-*/
+#endif
 
 			//*************************
-/*			SListConstIterator<node> it;
+#if 0
+			SListConstIterator<node> it;
 			for(it = m_nodes[i].begin(); it.valid(); ++it)
 			{
 				node w = *it;
@@ -359,7 +347,8 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 				double r = D / m_wedge[w];
 				if(r > m_radius[i+1])
 					m_radius[i+1] = r;
-			}*/
+			}
+#endif
 
 			iProcessed = i+1;
 		}
@@ -395,7 +384,7 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 		}
 
 
-/*
+#if 0
 		double restWedge = m_wedge[v];
 		for(adjEntry adj : v->adjEntries)
 		{
@@ -442,7 +431,8 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 			Q.append(u);
 
 			adj = adj->cyclicSucc();
-		} while(adj != adjStop);*/
+		} while(adj != adjStop);
+#endif
 	}
 
 	m_outerRadius = m_radius[m_numLevels-1] + 0.5*m_width[m_numLevels-1];
@@ -529,7 +519,6 @@ void RadialTreeLayout::ComputeGrouping(int i)
 		} while(adj != adjStop);
 	}
 }
-
 
 void RadialTreeLayout::ComputeCoordinates(GraphAttributes &AG)
 {

@@ -178,7 +178,7 @@ protected:
 	 * This function defines the pure virtual function of the base class Pool.
 	 */
 	virtual PoolSlot<BaseType,CoType> *getSlot() {
-		return (freeSlots_.empty()) ? 0 : freeSlots_.popFrontRet();
+		return (freeSlots_.empty()) ? nullptr : freeSlots_.popFrontRet();
 	}
 
 	//! Inserts the \a slot in the list of free slots.

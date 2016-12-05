@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -199,11 +196,28 @@ public:
 		EdgeArray<int>& countEdge);
 
 	//! Transforms KuratowskiWrapper-List in KuratowskiSubdivision-List with respect to sieving constraints
+	/**
+	 * This method is called if BoyerMyrvold::planarEmbed was called with the Graph g previously.
+	 */
 	void transform(
 		const SList<KuratowskiWrapper>& sourceList,
 		SList<KuratowskiSubdivision>& targetList,
 		const Graph& g,
 		const bool onlyDifferent = false);
+
+
+	//! Transforms KuratowskiWrapper-List in KuratowskiSubdivision-List with respect to sieving constraints
+	/**
+	 * This method is called if BoyerMyrvold::planarEmbed was called with the GraphCopySimple h previously.
+	 */
+	void transform(
+		const SList<KuratowskiWrapper>& sourceList,
+		SList<KuratowskiSubdivision>& targetList,
+		const GraphCopySimple& h,
+		const bool onlyDifferent = false)
+	{
+		transform(sourceList, targetList, h.original(), onlyDifferent);
+	}
 
 
 	//! Returns an embedding, if \a g is planar and Kuratowski Subdivisions otherwise

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,18 +25,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/RankingModule.h>
 #include <ogdf/module/AcyclicSubgraphModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/tuples.h>
 #include <ogdf/basic/NodeArray.h>
@@ -98,7 +95,7 @@ namespace ogdf {
  */
 class OGDF_EXPORT LongestPathRanking : public RankingModule {
 
-	ModuleOption<AcyclicSubgraphModule> m_subgraph; //!< The acyclic sugraph module.
+	std::unique_ptr<AcyclicSubgraphModule> m_subgraph; //!< The acyclic sugraph module.
 	bool m_sepDeg0; //!< Put isolated nodes on a separate layer?
 	bool m_separateMultiEdges; //!< Separate multi-edges?
 	bool m_optimizeEdgeLength; //!< Optimize for short edges.
@@ -211,7 +208,7 @@ public:
 
 	//! Sets the module for the computation of the acyclic subgraph.
 	void setSubgraph(AcyclicSubgraphModule *pSubgraph) {
-		m_subgraph.set(pSubgraph);
+		m_subgraph.reset(pSubgraph);
 	}
 
 	//! @}

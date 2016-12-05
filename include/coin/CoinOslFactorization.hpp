@@ -3,9 +3,9 @@
 // Corporation and others.  All Rights Reserved.
 // This code is licensed under the terms of the Eclipse Public License (EPL).
 
-/* 
+/*
    Authors
-   
+
    John Forrest
 
  */
@@ -112,9 +112,9 @@ public:
   //@{
   /// Default constructor
   CoinOslFactorization (  );
-  /// Copy constructor 
+  /// Copy constructor
   CoinOslFactorization ( const CoinOslFactorization &other);
-  
+
   /// Destructor
   virtual ~CoinOslFactorization (  );
   /// = copy
@@ -130,7 +130,7 @@ public:
 		  int numberColumns,
 		  CoinBigIndex maximumL,
 		  CoinBigIndex maximumU ) override;
-  
+
   /// PreProcesses column ordered copy of basis
   virtual void preProcess ( ) override;
   /** Does most of factorization returning status
@@ -150,20 +150,20 @@ public:
   If status is singular, then basic variables have pivot row
   and ones thrown out have -1
   returns 0 -okay, -1 singular, -2 too many in basis, -99 memory */
-  int factorize ( const CoinPackedMatrix & matrix, 
-		  int rowIsBasic[], int columnIsBasic[] , 
+  int factorize ( const CoinPackedMatrix & matrix,
+		  int rowIsBasic[], int columnIsBasic[] ,
 		  double areaFactor = 0.0 );
   //@}
 
   /**@name general stuff such as number of elements */
-  //@{ 
+  //@{
   /// Total number of elements in factorization
   virtual inline int numberElements (  ) const override {
     return numberRows_*(numberColumns_+numberPivots_);
   }
   /// Returns array to put basis elements in
   virtual CoinFactorizationDouble * elements() const override;
-  /// Returns pivot row 
+  /// Returns pivot row
   virtual int * pivotRow() const override;
   /// Returns work area
   virtual CoinFactorizationDouble * workArea() const override;
@@ -212,7 +212,7 @@ public:
 			      double acceptablePivot=1.0e-8) override;
   //@}
 
-  /**@name various uses of factorization (return code number elements) 
+  /**@name various uses of factorization (return code number elements)
    which user may want to know about */
   //@{
   /** Updates one column (FTRAN) from regionSparse2
@@ -235,7 +235,7 @@ public:
 			   CoinIndexedVector * regionSparse3,
 			   bool noPermute=false) override;
   /** Updates one column (BTRAN) from regionSparse2
-      regionSparse starts as zero and is zero at end 
+      regionSparse starts as zero and is zero at end
       Note - if regionSparse2 packed on input - will be packed on output
   */
   virtual int updateColumnTranspose ( CoinIndexedVector * regionSparse,
@@ -256,7 +256,7 @@ public:
   { return nullptr;/*pivotRow_*/;}
   //@}
 
-  /// The real work of desstructor 
+  /// The real work of desstructor
   void gutsOfDestructor(bool clearFact=true);
   /// The real work of constructor
   void gutsOfInitialize(bool zapFact=true);

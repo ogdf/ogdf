@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,18 +26,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/LayoutClusterPlanRepModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 
 
 namespace ogdf {
@@ -88,7 +85,7 @@ public:
 	//! Creates an instance of cluster planarization layout.
 	ClusterPlanarizationLayout();
 
-	// Destruction
+	//! Destruction
 	virtual ~ClusterPlanarizationLayout() { }
 
 
@@ -133,18 +130,20 @@ public:
 
 	//! Sets the module option for the planar layout algorithm to \a pPlanarLayouter.
 	void setPlanarLayouter(LayoutClusterPlanRepModule *pPlanarLayouter) {
-		m_planarLayouter.set(pPlanarLayouter);
+		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
 	//! Sets the module option for the arrangement of connected components to \a pPacker.
 	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.set(pPacker);
+		m_packer.reset(pPacker);
 	}
 
-	////! Returns the number of crossings in the layout produced in last call.
-	//int numberOfCrossings() const {
-	//	return m_nCrossings;
-	//}
+#if 0
+	//! Returns the number of crossings in the layout produced in last call.
+	int numberOfCrossings() const {
+		return m_nCrossings;
+	}
+#endif
 
 
 protected:
@@ -160,8 +159,8 @@ protected:
 
 
 private:
-	ModuleOption<LayoutClusterPlanRepModule> m_planarLayouter; //!< The planar layouter.
-	ModuleOption<CCLayoutPackModule>         m_packer; //!< The packing algorithm.
+	std::unique_ptr<LayoutClusterPlanRepModule> m_planarLayouter; //!< The planar layouter.
+	std::unique_ptr<CCLayoutPackModule>         m_packer; //!< The packing algorithm.
 
 	double m_pageRatio; //!< The page ratio.
 

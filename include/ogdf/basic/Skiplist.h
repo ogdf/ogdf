@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -108,7 +105,7 @@ public:
 		lSize++;
 
 		int nh = random_height();
-		Element* n = OGDF_NEW Element(item, nh);
+		Element* n = new Element(item, nh);
 		if(nh > height)
 			grow(nh);
 
@@ -132,7 +129,7 @@ public:
 	int size() const { return lSize; }
 
 	//! Returns true if the skiplist contains no elements
-	int empty() const { return (lSize==0); }
+	int empty() const { return lSize==0; }
 
 	//! Clears the current skiplist
 	/**
@@ -150,7 +147,7 @@ public:
 		}
 		lSize = 0;
 		height = 1;
-		start[0] = 0;
+		start[0] = nullptr;
 	}
 
 	//! returns an (forward) iterator for the skiplist
@@ -171,9 +168,14 @@ private:
 	void grow(int newheight) {
 		if(newheight > realheight) {
 			realheight = newheight;
-			start = (Element**)realloc(start, realheight*sizeof(Element*));
+			Element** newStart = static_cast<Element**>(realloc(start, realheight*sizeof(Element*)));
+			if (newStart == nullptr) {
+				free(start);
+			} else {
+				start = newStart;
+			}
 		}
-		for(int i = newheight; i-->height;) {
+		for(int i = newheight; i-- > height;) {
 			start[i] = nullptr;
 		}
 		height = newheight;
@@ -194,7 +196,7 @@ public:
 	//! Returns the item to which the iterator points
 	const X &operator*() const { return el->entry; }
 
-	bool valid() const { return (el != 0); }
+	bool valid() const { return el != nullptr; }
 
 	//! Move the iterator one item forward (prefix notation)
 	SkiplistIterator<X> &operator++() {

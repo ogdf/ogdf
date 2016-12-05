@@ -42,7 +42,7 @@ class CoinPresolveAction;
   care of creating a clone properly loaded with the presolved problem and ready
   for optimization. After optimization, it will apply postsolve
   transformations and load the result back into \c origModel.
-  
+
   Assuming a problem has been loaded into an
   \c OsiSolverInterface \c origModel, a bare-bones application looks like this:
   \code
@@ -81,7 +81,7 @@ public:
 
     This should be paired with postsolve(). It is up to the client to
     destroy the returned OsiSolverInterface, <i>after</i> calling postsolve().
-    
+
     This method is virtual. Override this method if you need to customize
     the steps of creating a model to apply presolve transformations.
 
@@ -97,7 +97,7 @@ public:
 
   /*! \brief Restate the solution to the presolved problem in terms of the
 	     original problem and load it into the original model.
-  
+
     postsolve() restates the solution in terms of the original problem and
     updates the original OsiSolverInterface supplied to presolvedModel().  If
     the problem has not been solved to optimality, there are no guarantees.
@@ -165,7 +165,7 @@ private:
   OsiSolverInterface * originalModel_;
 
   /*! Presolved  model (solver interface loaded with the presolved problem)
-  
+
     Must be destroyed by the client (using delete) after postsolve().
   */
   OsiSolverInterface * presolvedModel_;
@@ -211,9 +211,9 @@ private:
 
 protected:
   /*! \brief Apply presolve transformations to the problem.
-  
+
     Handles the core activity of applying presolve transformations.
-    
+
     If you want to apply the individual presolve routines differently, or
     perhaps add your own to the mix, define a derived class and override
     this method
@@ -233,7 +233,7 @@ protected:
   virtual void postsolve(CoinPostsolveMatrix &prob);
 
   /*! \brief Destroys queued postsolve actions.
-  
+
     <i>E.g.</i>, when presolve() determines the problem is infeasible, so that
     it will not be necessary to actually solve the presolved problem and
     convert the result back to the original problem.

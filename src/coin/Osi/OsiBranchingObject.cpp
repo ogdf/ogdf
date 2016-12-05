@@ -2003,4 +2003,3 @@ OsiLotsizeBranchingObject::print(const OsiSolverInterface * solver)
 	   iColumn,olb,oub,up_[0],up_[1]) ; }
   }
 }
-

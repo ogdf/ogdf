@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,20 +26,14 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/layered/OptimalHierarchyLayout.h>
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/lpsolver/LPSolver.h>
-
-
-#ifdef OGDF_LP_SOLVER
 
 namespace ogdf {
 
@@ -522,9 +516,9 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	for(; i < nCols; ++i)
 		obj[i] = m_weightBalancing;
 
-
 	// output problem
-	/*ofstream os("c:\\work\\GDE\\out.txt");
+#if 0
+	ofstream os("c:\\work\\GDE\\out.txt");
 	os << "nRows = " << nRows << "\n";
 	os << "nCols = " << nCols << "\n";
 	os << "nNonZeroes = " << nNonZeroes << "\n";
@@ -538,8 +532,8 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	for(i = 0; i < nRows; ++i)
 		os << " [" << i << "]  " << equationSense[i] << ", " << rightHandSide[i] << "\n";
 
-	os.flush();*/
-
+	os.flush();
+#endif
 
 	// solve LP
 	double optimum;
@@ -555,11 +549,13 @@ void OptimalHierarchyLayout::computeXCoordinates(
 
 	OGDF_ASSERT(status == LPSolver::lpOptimal);
 
-	/*os << "\nx\n";
+#if 0
+	os << "\nx\n";
 	for(i = 0; i < nCols; ++i)
 		os << " [" << i << "]  " << x[i] << "\n";
 
-	os.close();*/
+	os.close();
+#endif
 
 	// assign x coordinates
 	for (node v : GC.nodes) {
@@ -633,5 +629,3 @@ void OptimalHierarchyLayout::computeYCoordinates(
 }
 
 }
-
-#endif

@@ -151,4 +151,3 @@ class gubrow_action : public CoinPresolveAction {
 };
 
 #endif
-

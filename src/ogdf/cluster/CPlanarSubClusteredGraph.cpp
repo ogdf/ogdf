@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/cluster/CPlanarSubClusteredGraph.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
@@ -113,7 +110,9 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 	ListIterator<edge> itE = leftOver.begin();
 	while (itE.valid())
 	{
-		//testG=CG.getGraph()
+#if 0
+		testG=CG.getGraph()
+#endif
 		edge newCopy = testG.newEdge(nodeCopy[(*itE)->source()],
 											 nodeCopy[(*itE)->target()]);
 		edgeCopy[*itE] = newCopy;
@@ -134,7 +133,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 		}
 	}//while
 
-	/*
+#if 0
 	ListConstIterator<edge> it;
 	for(it = preferedEdges.begin(); it.valid(); ++it)
 	{
@@ -148,9 +147,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 			delEdges.pushBack(eG);
 		}
 	}
-	*/
-
-
+#endif
 }//call
 
 }//end namespace ogdf

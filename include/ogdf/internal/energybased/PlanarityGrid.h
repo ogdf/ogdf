@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -51,14 +48,14 @@ public:
 	PlanarityGrid(GraphAttributes &AG);
 	~PlanarityGrid();
 	// computes energy of initial layout and stores it in m_energy
-	void computeEnergy();
+	void computeEnergy() override;
 private:
 	// computes energy of candidate
-	void compCandEnergy();
+	void compCandEnergy() override;
 	// changes internal data if candidate is taken
-	void internalCandidateTaken();
+	void internalCandidateTaken() override;
 #ifdef OGDF_DEBUG
-		virtual void printInternalData() const;
+		virtual void printInternalData() const override;
 #endif
 	const GraphAttributes &m_layout; //The current layout
 	UniformGrid *m_currentGrid; //stores grid for current layout

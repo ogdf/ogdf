@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -192,7 +189,11 @@ V RadixHeap<V, P>::pop()
 
 	if(m_buckets[0] != nullptr) {
 		V result = std::move(m_buckets[0]->value);
-		m_buckets[0] = m_buckets[0]->next;
+
+		Bucket tmp = m_buckets[0]->next;
+		delete m_buckets[0];
+		m_buckets[0] = tmp;
+
 		if(m_buckets[0] != nullptr) {
 			m_buckets[0]->prev = nullptr;
 		}
@@ -207,8 +208,9 @@ V RadixHeap<V, P>::pop()
 		m_bucketMask ^= (P(1) << (8 * sizeof(P) - ind));
 	}
 
-	RadixHeapNode<V, P> *min = bucket;
-	for(RadixHeapNode<V, P> *it = bucket; it != nullptr; it = it->next) {
+
+	Bucket min = bucket;
+	for(Bucket it = bucket; it != nullptr; it = it->next) {
 		if(it->priority < min->priority) {
 			min = it;
 		}
@@ -229,7 +231,7 @@ V RadixHeap<V, P>::pop()
 	delete min;
 
 	while(bucket != nullptr) {
-		RadixHeapNode<V, P> *next = bucket->next;
+		Bucket next = bucket->next;
 		bucket->prev = nullptr;
 		insert(bucket);
 

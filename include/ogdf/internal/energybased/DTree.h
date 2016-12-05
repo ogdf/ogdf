@@ -5,7 +5,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -236,7 +233,9 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 	Node* leafLayer	 = m_nodes;
 	Node* innerLayer = m_nodes + m_numPoints;
 
-	//int last = 0;
+#if 0
+	int last = 0;
+#endif
 	for (int i = 0; i<m_numPoints; )
 	{
 		Node& leaf		= leafLayer[i];
@@ -261,7 +260,9 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 		{
 			// Note: the n-th inner node is not needed because we only need n-1 inner nodes to cover n leaves
 			// if we reach the n-1-th inner node, the variable last is set for the last time
-			//last = i;
+#if 0
+			last = i;
+#endif
 			// init the node on the inner node layer
 			innerNode.child[0] = i;		//< node sits above the first leaf
 			innerNode.child[1] = j;		//< this leaf hasnt been created yet but we use indices so its ok
@@ -279,7 +280,9 @@ void DTree<IntType, Dim>::prepareNodeLayer()
 		i = j;
 	};
 	// here we set the successor of the n-1-th inner node to zero to avoid dealing with the n-th inner node
-	//innerLayer[last].next = 0;
+#if 0
+	innerLayer[last].next = 0;
+#endif
 };
 
 //! Merges curr with next node in the chain (used by linkNodes)
@@ -291,9 +294,9 @@ inline void DTree<IntType, Dim>::mergeWithNext(int curr)
 	// it is still linked to only two leaves,
 	node(curr).child[node(curr).numChilds++] = node(next).child[1];
 
-    // thus we don't need this ugly loop:
-	//	for (int i=1; i<node(next).numChilds; i++)
-	//		node(curr).child[node(curr).numChilds++] = node(next).child[i];
+	// thus we don't need this ugly loop:
+	//   for (int i=1; i<node(next).numChilds; i++)
+	//      node(curr).child[node(curr).numChilds++] = node(next).child[i];
 	node(curr).next = node(next).next;
 };
 
@@ -320,29 +323,26 @@ int DTree<IntType, Dim>::linkNodes(int curr, int maxLevel)
 		// get next node in the chain
 		int next = node(curr).next;
 		// First case: same level => merge, discard next
-		if (node(curr).level == node(next).level)
-		{
+		if (node(curr).level == node(next).level) {
 			mergeWithNext(curr);
 		} else // Second case: next is higher => become first child
-            if (node(curr).level < node(next).level)
-            {
-                // set the first child of next to the current node
-                node(next).child[0] = curr;
+		if (node(curr).level < node(next).level) {
+			// set the first child of next to the current node
+			node(next).child[0] = curr;
 
-                // adjust the point info of the curr
-                adjustPointInfo(curr);
+			// adjust the point info of the curr
+			adjustPointInfo(curr);
 
-                // this is the only case where we advance curr
-                curr = next;
-            } else // Third case: next is smaller => construct a maximal subtree starting with next
-            {
-                int r = linkNodes(next, node(curr).level);
-                node(curr).child[node(curr).numChilds-1] = r;
-                node(curr).next = node(r).next;
-            };
+			// this is the only case where we advance curr
+			curr = next;
+		} else { // Third case: next is smaller => construct a maximal subtree starting with next
+			int r = linkNodes(next, node(curr).level);
+			node(curr).child[node(curr).numChilds-1] = r;
+			node(curr).next = node(r).next;
+		};
 	};
-    // adjust the point info of the curr
-    adjustPointInfo(curr);
+	// adjust the point info of the curr
+	adjustPointInfo(curr);
 
 	// we are done with this subtree, return the root
 	return curr;

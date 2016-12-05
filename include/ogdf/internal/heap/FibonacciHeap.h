@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -88,7 +85,11 @@ protected:
  * @tparam C Denotes comparison functor determining value ordering.
  */
 template<typename T, typename C = std::less<T>>
-class FibonacciHeap : public HeapBase<FibonacciHeap, FibonacciHeapNode<T>, T, C> {
+class FibonacciHeap : public HeapBase<FibonacciHeap<T, C>, FibonacciHeapNode<T>, T, C>
+{
+
+	using base_type = HeapBase<FibonacciHeap<T, C>, FibonacciHeapNode<T>, T, C>;
+
 public:
 
 	/**
@@ -108,7 +109,7 @@ public:
 	virtual ~FibonacciHeap();
 
 	//! Returns reference to the top element in the heap.
-	const T &top() const;
+	const T &top() const override;
 
 	/**
 	 * Inserts a new node with given \a value into a heap.
@@ -116,14 +117,14 @@ public:
 	 * @param value A value to be inserted.
 	 * @return Handle to the inserted node.
 	 */
-	FibonacciHeapNode<T> *push(const T &value);
+	FibonacciHeapNode<T> *push(const T &value) override;
 
 	/**
 	 * Removes the top element from the heap.
 	 *
 	 * Behaviour of this function is undefined if the heap is empty.
 	 */
-	void pop();
+	void pop() override;
 
 	/**
 	 * Decreases value of the given \a node to \a value.
@@ -134,7 +135,7 @@ public:
 	 * @param node A node for which the value is to be decreased.
 	 * @param value A new value for the node.
 	 */
-	void decrease(FibonacciHeapNode<T> *node, const T &value);
+	void decrease(FibonacciHeapNode<T> *node, const T &value) override;
 
 	/**
 	 * Merges in values of \a other heap.
@@ -143,15 +144,15 @@ public:
 	 *
 	 * @param other A heap to be merged in.
 	 */
-	void merge(FibonacciHeap<T, C> &other);
+	void merge(FibonacciHeap<T, C> &other) override;
 
-	/*
-	* Retuns the value of the node
-	*
-	* @param node The nodes handle
-	* @return the value of the node
-	*/
-	const T &value(FibonacciHeapNode<T> *node) const {
+	/**
+	 * Returns the value of the node
+	 *
+	 * @param node The nodes handle
+	 * @return the value of the node
+	 */
+	const T &value(FibonacciHeapNode<T> *node) const override {
 		return node->value;
 	}
 
@@ -187,9 +188,8 @@ private:
 
 template<typename T, typename C>
 FibonacciHeap<T, C>::FibonacciHeap(const C &cmp, int initialSize)
-: m_minimal(nullptr), m_knot(new FibonacciHeapNode<T>())
+: base_type(cmp), m_minimal(nullptr), m_knot(new FibonacciHeapNode<T>())
 {
-	this->m_comp = cmp;
 	m_ranked.fill(nullptr);
 }
 
@@ -232,7 +232,7 @@ FibonacciHeapNode<T> *FibonacciHeap<T, C>::push(const T &value)
 	FibonacciHeapNode<T> *node = new FibonacciHeapNode<T>(value);
 	splice(m_knot, node);
 
-	if(m_minimal == nullptr || this->m_comp(node->value, m_minimal->value)) {
+	if(m_minimal == nullptr || this->comparator()(node->value, m_minimal->value)) {
 		m_minimal = node;
 	}
 
@@ -259,7 +259,7 @@ void FibonacciHeap<T, C>::pop()
 	// Find new minimal node in compressed tree list.
 	m_minimal = m_knot->next;
 	for(auto it = m_knot->next->next; it != m_knot; it = it->next) {
-		if(this->m_comp(it->value, m_minimal->value)) {
+		if(this->comparator()(it->value, m_minimal->value)) {
 			m_minimal = it;
 		}
 	}
@@ -270,7 +270,7 @@ template<typename T, typename C>
 void FibonacciHeap<T, C>::decrease(FibonacciHeapNode<T> *node, const T &value)
 {
 	node->value = value;
-	if(this->m_comp(node->value, m_minimal->value)) {
+	if(this->comparator()(node->value, m_minimal->value)) {
 		m_minimal = node;
 	}
 
@@ -289,7 +289,7 @@ void FibonacciHeap<T, C>::merge(FibonacciHeap<T, C> &other)
 	detach(other.m_knot);
 	merge(next);
 
-	if(this->m_comp(other.m_minimal->value, m_minimal->value)) {
+	if(this->comparator()(other.m_minimal->value, m_minimal->value)) {
 		m_minimal = other.m_minimal;
 	}
 	other.m_minimal = nullptr;
@@ -325,7 +325,7 @@ inline void FibonacciHeap<T, C>::compress()
 		size_t r = it->rank;
 		maxr = std::max(r, maxr);
 		while(m_ranked[r]) {
-			if(this->m_comp(m_ranked[r]->value, it->value)) {
+			if(this->comparator()(m_ranked[r]->value, it->value)) {
 				link(m_ranked[r], it);
 				it = m_ranked[r];
 			} else {

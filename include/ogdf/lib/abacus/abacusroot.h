@@ -61,7 +61,7 @@ using namespace ogdf;
  * By embedding an enumeration and some useful functions in this class
  * we can avoid a global scope of these names.
  */
-class AbacusRoot {
+class OGDF_EXPORT AbacusRoot {
 public:
 	//! The destructor
 	/**

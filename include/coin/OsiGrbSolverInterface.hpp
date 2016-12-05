@@ -34,7 +34,7 @@ public:
 	//---------------------------------------------------------------------------
 	/**@name Solve methods */
 	//@{
-	/// Solve initial LP relaxation 
+	/// Solve initial LP relaxation
 	virtual void initialSolve() override;
 
 	/// Resolve an LP relaxation after problem modification
@@ -110,7 +110,7 @@ public:
 	//@{
 
 	/*! \brief Get an empty warm start object
-	 
+
 	 This routine returns an empty CoinWarmStartBasis object. Its purpose is
 	 to provide a way to give a client a warm start basis object of the
 	 appropriate type, which can resized and modified as desired.
@@ -140,14 +140,14 @@ public:
 	//@}
 
 	//---------------------------------------------------------------------------
-	/**@name Problem information methods 
-	 
+	/**@name Problem information methods
+
 	 These methods call the solver's query routines to return
 	 information about the problem referred to by the current object.
 	 Querying a problem that has no data associated with it result in
 	 zeros for the number of rows and columns, and NULL pointers from
 	 the methods that return vectors.
-	 
+
 	 Const pointers returned from any data-query method are valid as
 	 long as the data is unchanged and the solver is not called.
 	 */
@@ -255,11 +255,11 @@ public:
 	 the final getNumCols() entries will correspond to the ray components
 	 associated with the nonbasic variables. If the full ray is requested
 	 and the method cannot provide it, it will throw an exception.
-	 
+
 	 <strong>NOTE for implementers of solver interfaces:</strong> <br>
 	 The double pointers in the vector should point to arrays of length
 	 getNumRows() and they should be allocated via new[]. <br>
-	 
+
 	 <strong>NOTE for users of solver interfaces:</strong> <br>
 	 It is the user's responsibility to free the double pointers in the
 	 vector using delete[].
@@ -268,11 +268,11 @@ public:
 						 bool fullRay=false) const override;
 	/** Get as many primal rays as the solver can provide. (In case of proven
 	 dual infeasibility there should be at least one.)
-	 
+
 	 <strong>NOTE for implementers of solver interfaces:</strong> <br>
 	 The double pointers in the vector should point to arrays of length
 	 getNumCols() and they should be allocated via new[]. <br>
-	 
+
 	 <strong>NOTE for users of solver interfaces:</strong> <br>
 	 It is the user's responsibility to free the double pointers in the
 	 vector using delete[].
@@ -390,26 +390,26 @@ public:
 	virtual void setObjSense(double s) override;
 
 	/** Set the primal solution column values
-	 
+
 	 colsol[numcols()] is an array of values of the problem column
 	 variables. These values are copied to memory owned by the
 	 solver object or the solver.  They will be returned as the
 	 result of colsol() until changed by another call to
 	 setColsol() or by a call to any solver routine.  Whether the
 	 solver makes use of the solution in any way is
-	 solver-dependent. 
+	 solver-dependent.
 	 */
 	virtual void setColSolution(const double * colsol) override;
 
 	/** Set dual solution vector
-	 
+
 	 rowprice[numrows()] is an array of values of the problem row
 	 dual variables. These values are copied to memory owned by the
 	 solver object or the solver.  They will be returned as the
 	 result of rowprice() until changed by another call to
 	 setRowprice() or by a call to any solver routine.  Whether the
 	 solver makes use of the solution in any way is
-	 solver-dependent. 
+	 solver-dependent.
 	 */
 	virtual void setRowPrice(const double * rowprice) override;
 
@@ -462,7 +462,7 @@ public:
 	 following values are the default:
 	 <ul>
 	 <li> <code>colub</code>: all columns have upper bound infinity
-	 <li> <code>collb</code>: all columns have lower bound 0 
+	 <li> <code>collb</code>: all columns have lower bound 0
 	 <li> <code>rowub</code>: all rows have upper bound infinity
 	 <li> <code>rowlb</code>: all rows have lower bound -infinity
 	 <li> <code>obj</code>: all variables have 0 objective coefficient
@@ -477,7 +477,7 @@ public:
 	 default values see the previous method. <br>
 	 <strong>WARNING</strong>: The arguments passed to this method will be
 	 freed using the C++ <code>delete</code> and <code>delete[]</code>
-	 functions. 
+	 functions.
 	 */
 	virtual void assignProblem(CoinPackedMatrix*& matrix, double*& collb,
 			double*& colub, double*& obj, double*& rowlb, double*& rowub) override;
@@ -487,7 +487,7 @@ public:
 	 following values are the default:
 	 <ul>
 	 <li> <code>colub</code>: all columns have upper bound infinity
-	 <li> <code>collb</code>: all columns have lower bound 0 
+	 <li> <code>collb</code>: all columns have lower bound 0
 	 <li> <code>obj</code>: all variables have 0 objective coefficient
 	 <li> <code>rowsen</code>: all rows are >=
 	 <li> <code>rowrhs</code>: all right hand sides are 0
@@ -503,7 +503,7 @@ public:
 	 default values see the previous method. <br>
 	 <strong>WARNING</strong>: The arguments passed to this method will be
 	 freed using the C++ <code>delete</code> and <code>delete[]</code>
-	 functions. 
+	 functions.
 	 */
 	virtual void assignProblem(CoinPackedMatrix*& matrix, double*& collb,
 			double*& colub, double*& obj, char*& rowsen, double*& rowrhs,
@@ -577,13 +577,13 @@ public:
 
   /// Return whether the current Gurobi environment runs in demo mode.
   bool isDemoLicense() const;
-	//@}  
+	//@}
 
 	/// return a vector of variable types (continous, binary, integer)
 	const char* getCtype() const;
 
 	/**@name Static instance counter methods */
-	/** Gurobi has a context which must be created prior to all other Gurobi calls.  
+	/** Gurobi has a context which must be created prior to all other Gurobi calls.
 	 This method:
 	 <ul>
 	 <li>Increments by 1 the number of uses of the Gurobi environment.
@@ -602,7 +602,7 @@ public:
 	 </ul>
 	 */
 	static void decrementInstanceCounter();
-	
+
 	/// sets the global gurobi environment to a user given one
 	static void setEnvironment(GRBenv* globalenv);
 
@@ -622,13 +622,13 @@ public:
 	/// Clone
 	virtual OsiSolverInterface * clone(bool copyData = true) const override;
 
-	/// Copy constructor 
+	/// Copy constructor
 	OsiGrbSolverInterface(const OsiGrbSolverInterface&);
 
-	/// Assignment operator 
+	/// Assignment operator
 	OsiGrbSolverInterface& operator=(const OsiGrbSolverInterface& rhs);
 
-	/// Destructor 
+	/// Destructor
 	virtual ~OsiGrbSolverInterface();
 
 	/// Resets as if default constructor
@@ -636,18 +636,18 @@ public:
 	//@}
 
 	/***************************************************************************/
-	/**@name OsiSimplexInterface methods 
-	 Gurobi adds a slack with coeff +1 in "<=" and "=" constraints, 
-	 with coeff -1 in ">=", 
-	 slack being non negative. We switch in order to get a "Clp tableau" 
+	/**@name OsiSimplexInterface methods
+	 Gurobi adds a slack with coeff +1 in "<=" and "=" constraints,
+	 with coeff -1 in ">=",
+	 slack being non negative. We switch in order to get a "Clp tableau"
 	 where all the slacks have coefficient +1 in the original tableau.
 
-	 If a slack for ">=" is non basic, invB is not changed; 
+	 If a slack for ">=" is non basic, invB is not changed;
 	 column of the slack in the optimal tableau is flipped.
 
-	 If a slack for ">=" is basic, corresp. row of invB is flipped; 
-	 whole row of the optimal tableau is flipped; 
-	 then whole column for the slack in opt tableau is flipped. 
+	 If a slack for ">=" is basic, corresp. row of invB is flipped;
+	 whole row of the optimal tableau is flipped;
+	 then whole column for the slack in opt tableau is flipped.
 
 	 Ranged rows are not supported. It might work, but no garantee is given.
 	 */
@@ -659,28 +659,28 @@ public:
 	virtual int canDoSimplexInterface() const override;
 
 	using OsiSolverInterface::enableSimplexInterface;
-	/** Useless function, defined only for compatibility with 
+	/** Useless function, defined only for compatibility with
 	 OsiSimplexInterface
 	 */
 	virtual void enableSimplexInterface(int doingPrimal) {
 	}
 	;
 
-	/** Useless function, defined only for compatibility with 
+	/** Useless function, defined only for compatibility with
 	 OsiSimplexInterface
 	 */
 	virtual void disableSimplexInterface() override {
 	}
 	;
 
-	/** Useless function, defined only for compatibility with 
+	/** Useless function, defined only for compatibility with
 	 OsiSimplexInterface
 	 */
 	virtual void enableFactorization() const override {
 	}
 	;
 
-	/** Useless function, defined only for compatibility with 
+	/** Useless function, defined only for compatibility with
 	 OsiSimplexInterface
 	 */
 	virtual void disableFactorization() const override {
@@ -690,7 +690,7 @@ public:
 	///Returns true if a basis is available
 	virtual bool basisIsAvailable() const override;
 
-	/** Returns a basis status of the structural/artificial variables 
+	/** Returns a basis status of the structural/artificial variables
 	 At present as warm start i.e 0: free, 1: basic, 2: upper, 3: lower
 	 */
 	virtual void getBasisStatus(int* cstat, int* rstat) const override;
@@ -729,7 +729,7 @@ protected:
 	/// Apply a row cut. Return true if cut was applied.
 	virtual void applyRowCut(const OsiRowCut & rc) override;
 
-	/** Apply a column cut (bound adjustment). 
+	/** Apply a column cut (bound adjustment).
 	 Return true if cut was applied.
 	 */
 	virtual void applyColCut(const OsiColCut & cc) override;
@@ -806,9 +806,9 @@ private:
 	//@{
 	/// Gurobi environment used only by this class instance
 	mutable GRBenv* localenv_;
-	
+
 	/// Gurobi model represented by this class instance
-	mutable GRBmodel* lp_;	
+	mutable GRBmodel* lp_;
 
 	/// Hotstart information
 	int *hotStartCStat_;

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -48,7 +45,8 @@ namespace ogdf {
  *
  * \see PlanarizationLayout, PlanarizationGridLayout
  */
-class OGDF_EXPORT PlanarSubgraphModule : public Module, public Timeouter {
+template<typename TCost>
+class PlanarSubgraphModule : public Module, public Timeouter {
 
 	unsigned int m_maxThreads;	//!< The maximal number of used threads.
 
@@ -75,33 +73,33 @@ public:
 	 * \brief Returns the set of edges \a delEdges which have to be deleted to obtain the planar subgraph.
 	 * @param G is the input graph.
 	 * @param cost are the costs of edges.
-	 * @param preferedEdges are edges that should be contained in the planar subgraph.
+	 * @param preferredEdges are edges that should be contained in the planar subgraph.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
-	 * @param preferedImplyPlanar indicates that the edges \a preferedEdges induce a planar graph.
+	 * @param preferredImplyPlanar indicates that the edges \a preferredEdges induce a planar graph.
 	 */
 	ReturnType call(const Graph &G,
-		const EdgeArray<int> &cost,
-		const List<edge> &preferedEdges,
+		const EdgeArray<TCost> &cost,
+		const List<edge> &preferredEdges,
 		List<edge> &delEdges,
-		bool preferedImplyPlanar = false)
+		bool preferredImplyPlanar = false)
 	{
-		return doCall(G,preferedEdges,delEdges,&cost,preferedImplyPlanar);
+		return doCall(G,preferredEdges,delEdges,&cost,preferredImplyPlanar);
 	}
 
 
 	/**
 	 * \brief Returns the set of edges \a delEdges which have to be deleted to obtain the planar subgraph.
 	 * @param G is the input graph.
-	 * @param preferedEdges are edges that should be contained in the planar subgraph.
+	 * @param preferredEdges are edges that should be contained in the planar subgraph.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
-	 * @param preferedImplyPlanar indicates that the edges \a preferedEdges induce a planar graph.
+	 * @param preferredImplyPlanar indicates that the edges \a preferredEdges induce a planar graph.
 	 */
 	ReturnType call(const Graph &G,
-		const List<edge> &preferedEdges,
+		const List<edge> &preferredEdges,
 		List<edge> &delEdges,
-		bool preferedImplyPlanar = false)
+		bool preferredImplyPlanar = false)
 	{
-		return doCall(G,preferedEdges,delEdges,0,preferedImplyPlanar);
+		return doCall(G,preferredEdges,delEdges,nullptr,preferredImplyPlanar);
 	}
 
 
@@ -111,9 +109,9 @@ public:
 	 * @param cost are the costs of edges.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 */
-	ReturnType call(const Graph &G, const EdgeArray<int> &cost, List<edge> &delEdges) {
-		List<edge> preferedEdges;
-		return doCall(G,preferedEdges,delEdges, &cost);
+	ReturnType call(const Graph &G, const EdgeArray<TCost> &cost, List<edge> &delEdges) {
+		List<edge> preferredEdges;
+		return doCall(G,preferredEdges,delEdges, &cost);
 	}
 
 	/**
@@ -122,18 +120,18 @@ public:
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 */
 	ReturnType call(const Graph &G, List<edge> &delEdges) {
-		List<edge> preferedEdges;
-		return doCall(G,preferedEdges,delEdges);
+		List<edge> preferredEdges;
+		return doCall(G,preferredEdges,delEdges);
 	}
 
 
 	//! Returns the set of edges \a delEdges which have to be deleted to obtain the planar subgraph.
 	ReturnType operator()(const Graph &G,
-		const List<edge> &preferedEdges,
+		const List<edge> &preferredEdges,
 		List<edge> &delEdges,
-		bool preferedImplyPlanar = false)
+		bool preferredImplyPlanar = false)
 	{
-		return call(G,preferedEdges,delEdges,preferedImplyPlanar);
+		return call(G,preferredEdges,delEdges,preferredImplyPlanar);
 	}
 
 	//! Returns the set of edges \a delEdges which have to be deleted to obtain the planar subgraph.
@@ -145,14 +143,25 @@ public:
 	/**
 	 * \brief Makes \a G planar by deleting edges.
 	 * @param GC is a copy of the input graph.
-	 * @param preferedEdges are edges in \a GC that should be contained in the planar subgraph.
+	 * @param preferredEdges are edges in \a GC that should be contained in the planar subgraph.
 	 * @param delOrigEdges is the set of original edges whose copy has been deleted in \a GC.
-	 * @param preferedImplyPlanar indicates that the edges \a preferedEdges induce a planar graph.
+	 * @param preferredImplyPlanar indicates that the edges \a preferredEdges induce a planar graph.
 	 */
 	ReturnType callAndDelete(GraphCopy &GC,
-		const List<edge> &preferedEdges,
+		const List<edge> &preferredEdges,
 		List<edge> &delOrigEdges,
-		bool preferedImplyPlanar = false);
+		bool preferredImplyPlanar = false)
+	{
+		List<edge> delEdges;
+		ReturnType retValue = call(GC, preferredEdges, delEdges, preferredImplyPlanar);
+		if(isSolution(retValue)) {
+			for (edge eCopy : delEdges) {
+				delOrigEdges.pushBack(GC.original(eCopy));
+				GC.delEdge(eCopy);
+			}
+		}
+		return retValue;
+	}
 
 	/**
 	 * \brief Makes \a G planar by deleting edges.
@@ -160,8 +169,8 @@ public:
 	 * @param delOrigEdges is the set of original edges whose copy has been deleted in \a GC.
 	 */
 	ReturnType callAndDelete(GraphCopy &GC, List<edge> &delOrigEdges) {
-		List<edge> preferedEdges;
-		return callAndDelete(GC,preferedEdges,delOrigEdges);
+		List<edge> preferredEdges;
+		return callAndDelete(GC,preferredEdges,delOrigEdges);
 	}
 
 	//! Returns a new instance of the planar subgraph module with the same option settings.
@@ -179,7 +188,7 @@ public:
 
 protected:
 	// computes set of edges delEdges, which have to be deleted
-	// in order to get a planar subgraph; edges in preferedEdges
+	// in order to get a planar subgraph; edges in preferredEdges
 	// should be contained in planar subgraph
 	// must be implemented by derived classes!
 	/**
@@ -188,17 +197,17 @@ protected:
 	 * This is the actual algorithm call and needs to be implemented
 	 * by derived classes.
 	 * @param G is the input graph.
-	 * @param preferedEdges are edges that should be contained in the planar subgraph.
+	 * @param preferredEdges are edges that should be contained in the planar subgraph.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 * @param pCost is apointer to an edge array containing the edge costs; this pointer
 	 *        can be 0 if no costs are given (all edges have cost 1).
-	 * @param preferedImplyPlanar indicates that the edges \a preferedEdges induce a planar graph.
+	 * @param preferredImplyPlanar indicates that the edges \a preferredEdges induce a planar graph.
 	 */
 	virtual ReturnType doCall(const Graph &G,
-		const List<edge> &preferedEdges,
+		const List<edge> &preferredEdges,
 		List<edge> &delEdges,
-		const EdgeArray<int>  *pCost = 0,
-		bool preferedImplyPlanar = false) = 0;
+		const EdgeArray<TCost>  *pCost = nullptr,
+		bool preferredImplyPlanar = false) = 0;
 
 
 

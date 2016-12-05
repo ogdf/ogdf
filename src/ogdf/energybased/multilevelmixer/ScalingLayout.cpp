@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/energybased/multilevelmixer/ScalingLayout.h>
@@ -144,9 +141,9 @@ void ScalingLayout::call(MultilevelGraph &MLG)
 			}
 		}//no fix scaling
 
-		if (m_secondaryLayoutModule.valid()) {
+		if (m_secondaryLayoutModule) {
 			for (unsigned int j = 1; j <= m_layoutRepeats; j++) {
-				m_secondaryLayoutModule.get().call(MLG.getGraphAttributes());
+				m_secondaryLayoutModule->call(MLG.getGraphAttributes());
 			}
 		}
 	}
@@ -168,7 +165,7 @@ void ScalingLayout::setExtraScalingSteps(unsigned int steps)
 
 void ScalingLayout::setSecondaryLayout(LayoutModule * layout)
 {
-	m_secondaryLayoutModule.set(layout);
+	m_secondaryLayoutModule.reset(layout);
 }
 
 void ScalingLayout::setMMM(ModularMultilevelMixer* mmm)

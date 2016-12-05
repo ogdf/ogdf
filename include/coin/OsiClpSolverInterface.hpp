@@ -30,7 +30,7 @@ static const double OsiClpInfinity = COIN_DBL_MAX;
 //#############################################################################
 
 /** Clp Solver Interface
-    
+
 Instantiation of OsiClpSolverInterface for the Model Algorithm.
 
 */
@@ -38,20 +38,20 @@ Instantiation of OsiClpSolverInterface for the Model Algorithm.
 class OsiClpSolverInterface :
   virtual public OsiSolverInterface {
   friend void OsiClpSolverInterfaceUnitTest(const std::string & mpsDir, const std::string & netlibDir);
-  
+
 public:
   //---------------------------------------------------------------------------
   /**@name Solve methods */
   //@{
-  /// Solve initial LP relaxation 
+  /// Solve initial LP relaxation
   virtual void initialSolve() override;
-  
+
   /// Resolve an LP relaxation after problem modification
   virtual void resolve() override;
-  
+
   /// Resolve an LP relaxation after problem modification (try GUB)
   virtual void resolveGub(int needed);
-  
+
   /// Invoke solver's built-in enumeration algorithm
   virtual void branchAndBound() override;
 
@@ -64,7 +64,7 @@ public:
   */
   void crossover(int options,int basis);
   //@}
-  
+
   /*! @name OsiSimplexInterface methods
       \brief Methods for the Osi Simplex API.
 
@@ -74,7 +74,7 @@ public:
   */
   //@{
   /** \brief Simplex API capability.
-  
+
     Returns
      - 0 if no simplex API
      - 1 if can just do getBInv etc
@@ -83,9 +83,9 @@ public:
   virtual int canDoSimplexInterface() const override;
 
   /*! \brief Enables simplex mode 1 (tableau access)
-  
+
     Tells solver that calls to getBInv etc are about to take place.
-    Underlying code may need mutable as this may be called from 
+    Underlying code may need mutable as this may be called from
     CglCut::generateCuts which is const.  If that is too horrific then
     each solver e.g. BCP or CBC will have to do something outside
     main loop.
@@ -94,75 +94,75 @@ public:
 
   /*! \brief Undo any setting changes made by #enableFactorization */
   virtual void disableFactorization() const override;
-  
+
   /** Returns true if a basis is available
       AND problem is optimal.  This should be used to see if
-      the BInvARow type operations are possible and meaningful. 
+      the BInvARow type operations are possible and meaningful.
   */
   virtual bool basisIsAvailable() const override;
-  
+
   /** The following two methods may be replaced by the
       methods of OsiSolverInterface using OsiWarmStartBasis if:
       1. OsiWarmStartBasis resize operation is implemented
       more efficiently and
       2. It is ensured that effects on the solver are the same
-      
-      Returns a basis status of the structural/artificial variables 
+
+      Returns a basis status of the structural/artificial variables
       At present as warm start i.e 0 free, 1 basic, 2 upper, 3 lower
-      
+
       NOTE  artificials are treated as +1 elements so for <= rhs
       artificial will be at lower bound if constraint is tight
-      
+
       This means that Clpsimplex flips artificials as it works
       in terms of row activities
   */
   virtual void getBasisStatus(int* cstat, int* rstat) const override;
-  
+
   /** Set the status of structural/artificial variables and
-      factorize, update solution etc 
-      
+      factorize, update solution etc
+
       NOTE  artificials are treated as +1 elements so for <= rhs
       artificial will be at lower bound if constraint is tight
-      
+
       This means that Clpsimplex flips artificials as it works
       in terms of row activities
       Returns 0 if OK, 1 if problem is bad e.g. duplicate elements, too large ...
   */
   virtual int setBasisStatus(const int* cstat, const int* rstat) override;
-  
-  ///Get the reduced gradient for the cost vector c 
-  virtual void getReducedGradient(double* columnReducedCosts, 
+
+  ///Get the reduced gradient for the cost vector c
+  virtual void getReducedGradient(double* columnReducedCosts,
 				  double * duals,
 				  const double * c) const override ;
-  
+
   ///Get a row of the tableau (slack part in slack if not NULL)
   virtual void getBInvARow(int row, double* z, double * slack=nullptr) const override;
-  
+
   /** Get a row of the tableau (slack part in slack if not NULL)
       If keepScaled is true then scale factors not applied after so
       user has to use coding similar to what is in this method
   */
   virtual void getBInvARow(int row, CoinIndexedVector * z, CoinIndexedVector * slack=nullptr,
 			   bool keepScaled=false) const;
-  
+
   ///Get a row of the basis inverse
   virtual void getBInvRow(int row, double* z) const override;
-  
+
   ///Get a column of the tableau
   virtual void getBInvACol(int col, double* vec) const override ;
-  
+
   ///Get a column of the tableau
   virtual void getBInvACol(int col, CoinIndexedVector * vec) const ;
-  
+
   /** Update (i.e. ftran) the vector passed in.
       Unscaling is applied after - can't be applied before
   */
-  
+
   virtual void getBInvACol(CoinIndexedVector * vec) const ;
-  
+
   ///Get a column of the basis inverse
   virtual void getBInvCol(int col, double* vec) const override ;
-  
+
   /** Get basic indices (order of indices corresponds to the
       order of elements in a vector retured by getBInvACol() and
       getBInvCol()).
@@ -176,11 +176,11 @@ public:
      and can be queried by other methods.
   */
   virtual void enableSimplexInterface(bool doingPrimal) override;
-  
+
   /*! \brief Undo setting changes made by #enableSimplexInterface */
   virtual void disableSimplexInterface() override;
 
-  /** Perform a pivot by substituting a colIn for colOut in the basis. 
+  /** Perform a pivot by substituting a colIn for colOut in the basis.
       The status of the leaving variable is given in statOut. Where
       1 is to upper bound, -1 to lower bound
       Return code is 0 for okay,
@@ -188,37 +188,37 @@ public:
       -1 for singular factorization
   */
   virtual int pivot(int colIn, int colOut, int outStatus) override;
-  
-  /** Obtain a result of the primal pivot 
+
+  /** Obtain a result of the primal pivot
       Outputs: colOut -- leaving column, outStatus -- its status,
       t -- step size, and, if dx!=NULL, *dx -- primal ray direction.
       Inputs: colIn -- entering column, sign -- direction of its change (+/-1).
       Both for colIn and colOut, artificial variables are index by
       the negative of the row index minus 1.
-      Return code (for now): 0 -- leaving variable found, 
+      Return code (for now): 0 -- leaving variable found,
       -1 -- everything else?
-      Clearly, more informative set of return values is required 
+      Clearly, more informative set of return values is required
       Primal and dual solutions are updated
   */
-  virtual int primalPivotResult(int colIn, int sign, 
-				int& colOut, int& outStatus, 
+  virtual int primalPivotResult(int colIn, int sign,
+				int& colOut, int& outStatus,
 				double& t, CoinPackedVector* dx) override;
-  
+
   /** Obtain a result of the dual pivot (similar to the previous method)
       Differences: entering variable and a sign of its change are now
       the outputs, the leaving variable and its statuts -- the inputs
       If dx!=NULL, then *dx contains dual ray
       Return code: same
   */
-  virtual int dualPivotResult(int& colIn, int& sign, 
-			      int colOut, int outStatus, 
+  virtual int dualPivotResult(int& colIn, int& sign,
+			      int colOut, int outStatus,
 			      double& t, CoinPackedVector* dx) override;
-  
-  
+
+
   //@}
   //---------------------------------------------------------------------------
   /**@name Parameter set/get methods
-     
+
   The set methods return true if the parameter was set to the given value,
   false otherwise. There can be various reasons for failure: the given
   parameter is not applicable for the solver (e.g., refactorization
@@ -226,7 +226,7 @@ public:
   for the solver or simply the value of the parameter is out of the range
   the solver accepts. If a parameter setting call returns false check the
   details of your solver.
-  
+
   The get methods return true if the given parameter is applicable for the
   solver and is implemented. In this case the value of the parameter is
   returned in the second argument. Otherwise they return false.
@@ -249,7 +249,7 @@ public:
                             OsiHintStrength strength=OsiHintTry,
                             void * otherInformation=nullptr) override;
   //@}
-  
+
   //---------------------------------------------------------------------------
   ///@name Methods returning info on how the solution process terminated
   //@{
@@ -268,36 +268,36 @@ public:
   /// Iteration limit reached?
   virtual bool isIterationLimitReached() const override;
   //@}
-  
+
   //---------------------------------------------------------------------------
   /**@name WarmStart related methods */
   //@{
-  
+
   /*! \brief Get an empty warm start object
-    
+
   This routine returns an empty CoinWarmStartBasis object. Its purpose is
   to provide a way to give a client a warm start basis object of the
   appropriate type, which can resized and modified as desired.
   */
-  
+
   virtual CoinWarmStart *getEmptyWarmStart () const override;
-  
+
   /// Get warmstarting information
   virtual CoinWarmStart* getWarmStart() const override;
   /// Get warmstarting information
-  inline CoinWarmStartBasis* getPointerToWarmStart() 
+  inline CoinWarmStartBasis* getPointerToWarmStart()
   { return &basis_;}
   /// Get warmstarting information
-  inline const CoinWarmStartBasis* getConstPointerToWarmStart() const 
+  inline const CoinWarmStartBasis* getConstPointerToWarmStart() const
   { return &basis_;}
   /** Set warmstarting information. Return true/false depending on whether
       the warmstart information was accepted or not. */
   virtual bool setWarmStart(const CoinWarmStart* warmstart) override;
   /** \brief Get warm start information.
-      
+
       Return warm start information for the current state of the solver
       interface. If there is no valid warm start information, an empty warm
-      start object wil be returned.  This does not necessarily create an 
+      start object wil be returned.  This does not necessarily create an
       object - may just point to one.  must Delete set true if user
       should delete returned object.
       OsiClp version always returns pointer and false.
@@ -305,7 +305,7 @@ public:
   virtual CoinWarmStart* getPointerToWarmStart(bool & mustDelete) override ;
 
   //@}
-  
+
   //---------------------------------------------------------------------------
   /**@name Hotstart related methods (primarily used in strong branching).
      The user can create a hotstart (a snapshot) of the optimization process
@@ -333,16 +333,16 @@ public:
   /// Sets integer tolerance and increment
   void setStuff(double tolerance,double increment);
   //@}
-  
+
   //---------------------------------------------------------------------------
   /**@name Problem information methods
-     
+
   These methods call the solver's query routines to return
   information about the problem referred to by the current object.
   Querying a problem that has no data associated with it result in
   zeros for the number of rows and columns, and NULL pointers from
   the methods that return vectors.
-  
+
   Const pointers returned from any data-query method are valid as
   long as the data is unchanged and the solver is not called.
   */
@@ -352,11 +352,11 @@ public:
   /// Get number of columns
   virtual int getNumCols() const override {
     return modelPtr_->numberColumns(); }
-  
+
   /// Get number of rows
   virtual int getNumRows() const override {
     return modelPtr_->numberRows(); }
-  
+
   /// Get number of nonzero elements
   virtual int getNumElements() const override {
     int retVal = 0;
@@ -365,22 +365,22 @@ public:
     return retVal; }
 
     /// Return name of row if one exists or Rnnnnnnn
-    /// maxLen is currently ignored and only there to match the signature from the base class! 
+    /// maxLen is currently ignored and only there to match the signature from the base class!
     virtual std::string getRowName(int rowIndex,
 				   unsigned maxLen = static_cast<unsigned>(std::string::npos)) const override;
-    
+
     /// Return name of column if one exists or Cnnnnnnn
-    /// maxLen is currently ignored and only there to match the signature from the base class! 
+    /// maxLen is currently ignored and only there to match the signature from the base class!
     virtual std::string getColName(int colIndex,
 				   unsigned maxLen = static_cast<unsigned>(std::string::npos)) const override;
-    
-  
+
+
   /// Get pointer to array[getNumCols()] of column lower bounds
   virtual const double * getColLower() const override { return modelPtr_->columnLower(); }
-  
+
   /// Get pointer to array[getNumCols()] of column upper bounds
   virtual const double * getColUpper() const override { return modelPtr_->columnUpper(); }
-  
+
   /** Get pointer to array[getNumRows()] of row constraint senses.
       <ul>
       <li>'L' <= constraint
@@ -391,7 +391,7 @@ public:
       </ul>
   */
   virtual const char * getRowSense() const override;
-  
+
   /** Get pointer to array[getNumRows()] of rows right-hand sides
       <ul>
       <li> if rowsense()[i] == 'L' then rhs()[i] == rowupper()[i]
@@ -401,7 +401,7 @@ public:
       </ul>
   */
   virtual const double * getRightHandSide() const override ;
-  
+
   /** Get pointer to array[getNumRows()] of row ranges.
       <ul>
       <li> if rowsense()[i] == 'R' then
@@ -411,39 +411,39 @@ public:
       </ul>
   */
   virtual const double * getRowRange() const override ;
-  
+
   /// Get pointer to array[getNumRows()] of row lower bounds
   virtual const double * getRowLower() const override { return modelPtr_->rowLower(); }
-  
+
   /// Get pointer to array[getNumRows()] of row upper bounds
   virtual const double * getRowUpper() const override { return modelPtr_->rowUpper(); }
-  
+
   /// Get pointer to array[getNumCols()] of objective function coefficients
   virtual const double * getObjCoefficients() const override
   { if (fakeMinInSimplex_)
       return linearObjective_ ;
     else
       return modelPtr_->objective(); }
-  
+
   /// Get objective function sense (1 for min (default), -1 for max)
   virtual double getObjSense() const override
   { return ((fakeMinInSimplex_)?-modelPtr_->optimizationDirection():
   				 modelPtr_->optimizationDirection()); }
-  
+
   /// Return true if column is continuous
   virtual bool isContinuous(int colNumber) const override;
   /// Return true if variable is binary
   virtual bool isBinary(int colIndex) const override;
-  
+
   /** Return true if column is integer.
       Note: This function returns true if the the column
       is binary or a general integer.
   */
   virtual bool isInteger(int colIndex) const override;
-  
+
   /// Return true if variable is general integer
   virtual bool isIntegerNonBinary(int colIndex) const override;
-  
+
   /// Return true if variable is binary and not fixed at either bound
   virtual bool isFreeBinary(int colIndex) const override;
   /**  Return array of column length
@@ -452,7 +452,7 @@ public:
        2 - general integer (may get fixed later)
   */
   virtual const char * getColType(bool refresh=false) const override;
-  
+
   /** Return true if column is integer but does not have to
       be declared as such.
       Note: This function returns true if the the column
@@ -461,43 +461,43 @@ public:
   bool isOptionalInteger(int colIndex) const;
   /** Set the index-th variable to be an optional integer variable */
   void setOptionalInteger(int index);
-  
+
   /// Get pointer to row-wise copy of matrix
   virtual const CoinPackedMatrix * getMatrixByRow() const override;
-  
+
   /// Get pointer to column-wise copy of matrix
   virtual const CoinPackedMatrix * getMatrixByCol() const override;
-  
+
   /// Get pointer to mutable column-wise copy of matrix
   virtual CoinPackedMatrix * getMutableMatrixByCol() const override;
-  
+
     /// Get solver's value for infinity
   virtual double getInfinity() const override { return OsiClpInfinity; }
   //@}
-  
+
   /**@name Methods related to querying the solution */
   //@{
   /// Get pointer to array[getNumCols()] of primal solution vector
   virtual const double * getColSolution() const override;
-  
+
   /// Get pointer to array[getNumRows()] of dual prices
   virtual const double * getRowPrice() const override;
-  
+
   /// Get a pointer to array[getNumCols()] of reduced costs
   virtual const double * getReducedCost() const override;
-  
+
   /** Get pointer to array[getNumRows()] of row activity levels (constraint
       matrix times the solution vector */
   virtual const double * getRowActivity() const override;
-  
+
   /// Get objective function value
   virtual double getObjValue() const override;
-  
+
   /** Get how many iterations it took to solve the problem (whatever
       "iteration" mean to the solver. */
   virtual int getIterationCount() const override
   { return modelPtr_->numberIterations(); }
-  
+
   /** Get as many dual rays as the solver can provide. (In case of proven
       primal infeasibility there should be at least one.)
 
@@ -510,7 +510,7 @@ public:
       <strong>NOTE for implementers of solver interfaces:</strong> <br>
       The double pointers in the vector should point to arrays of length
       getNumRows() and they should be allocated via new[]. <br>
-      
+
       <strong>NOTE for users of solver interfaces:</strong> <br>
       It is the user's responsibility to free the double pointers in the
       vector using delete[].
@@ -519,22 +519,22 @@ public:
 					   bool fullRay = false) const override;
   /** Get as many primal rays as the solver can provide. (In case of proven
       dual infeasibility there should be at least one.)
-      
+
       <strong>NOTE for implementers of solver interfaces:</strong> <br>
       The double pointers in the vector should point to arrays of length
       getNumCols() and they should be allocated via new[]. <br>
-      
+
       <strong>NOTE for users of solver interfaces:</strong> <br>
       It is the user's responsibility to free the double pointers in the
       vector using delete[].
   */
   virtual std::vector<double*> getPrimalRays(int maxNumRays) const override;
-  
+
   //@}
   //@}
-  
+
   //---------------------------------------------------------------------------
-  
+
   /**@name Problem modifying methods */
   //@{
   //-------------------------------------------------------------------------
@@ -542,19 +542,19 @@ public:
   //@{
   /** Set an objective function coefficient */
   virtual void setObjCoeff( int elementIndex, double elementValue ) override;
-  
+
   /** Set a single column lower bound<br>
       Use -DBL_MAX for -infinity. */
   virtual void setColLower( int elementIndex, double elementValue ) override;
-  
+
   /** Set a single column upper bound<br>
       Use DBL_MAX for infinity. */
   virtual void setColUpper( int elementIndex, double elementValue ) override;
-  
+
   /** Set a single column lower and upper bound */
   virtual void setColBounds( int elementIndex,
                              double lower, double upper ) override;
-  
+
   /** Set the bounds on a number of columns simultaneously<br>
       The default implementation just invokes setColLower() and
       setColUpper() over and over again.
@@ -566,23 +566,23 @@ public:
   virtual void setColSetBounds(const int* indexFirst,
                                const int* indexLast,
                                const double* boundList) override;
-  
+
   /** Set a single row lower bound<br>
       Use -DBL_MAX for -infinity. */
   virtual void setRowLower( int elementIndex, double elementValue ) override;
-  
+
   /** Set a single row upper bound<br>
       Use DBL_MAX for infinity. */
   virtual void setRowUpper( int elementIndex, double elementValue ) override ;
-  
+
   /** Set a single row lower and upper bound */
   virtual void setRowBounds( int elementIndex,
                              double lower, double upper ) override ;
-  
+
   /** Set the type of a single row<br> */
   virtual void setRowType(int index, char sense, double rightHandSide,
                           double range) override;
-  
+
   /** Set the bounds on a number of rows simultaneously<br>
       The default implementation just invokes setRowLower() and
       setRowUpper() over and over again.
@@ -594,7 +594,7 @@ public:
   virtual void setRowSetBounds(const int* indexFirst,
                                const int* indexLast,
                                const double* boundList) override;
-  
+
   /** Set the type of a number of rows simultaneously<br>
       The default implementation just invokes setRowType()
       over and over again.
@@ -632,14 +632,14 @@ public:
     /// Set name of row
 //    virtual void setRowName(int rowIndex, std::string & name) ;
     virtual void setRowName(int rowIndex, std::string  name) override ;
-    
+
 //    using OsiSolverInterface::setColName ;
     /// Set name of column
 //    virtual void setColName(int colIndex, std::string & name) ;
     virtual void setColName(int colIndex, std::string  name) override ;
-    
+
   //@}
-  
+
   //-------------------------------------------------------------------------
   /**@name Integrality related changing methods */
   //@{
@@ -660,7 +660,7 @@ public:
   inline const CoinSet * setInfo() const
   { return setInfo_;}
   /** \brief Identify integer variables and SOS and create corresponding objects.
-  
+
     Record integer variables and create an OsiSimpleInteger object for each
     one.  All existing OsiSimpleInteger objects will be destroyed.
     If the solver supports SOS then do the same for SOS.
@@ -670,36 +670,36 @@ public:
 
   virtual int findIntegersAndSOS(bool justCount) override;
   //@}
-  
+
   //-------------------------------------------------------------------------
   /// Set objective function sense (1 for min (default), -1 for max,)
   virtual void setObjSense(double s ) override
   { modelPtr_->setOptimizationDirection( s < 0 ? -1 : 1); }
-  
+
   /** Set the primal solution column values
-      
+
   colsol[numcols()] is an array of values of the problem column
   variables. These values are copied to memory owned by the
   solver object or the solver.  They will be returned as the
   result of colsol() until changed by another call to
   setColsol() or by a call to any solver routine.  Whether the
   solver makes use of the solution in any way is
-  solver-dependent. 
+  solver-dependent.
   */
   virtual void setColSolution(const double * colsol) override;
-  
+
   /** Set dual solution vector
-      
+
   rowprice[numrows()] is an array of values of the problem row
   dual variables. These values are copied to memory owned by the
   solver object or the solver.  They will be returned as the
   result of rowprice() until changed by another call to
   setRowprice() or by a call to any solver routine.  Whether the
   solver makes use of the solution in any way is
-  solver-dependent. 
+  solver-dependent.
   */
   virtual void setRowPrice(const double * rowprice) override;
-  
+
   //-------------------------------------------------------------------------
   /**@name Methods to expand a problem.<br>
      Note that if a column is added then by default it will correspond to a
@@ -709,42 +709,42 @@ public:
   //using OsiSolverInterface::addCol ;
   /** */
   virtual void addCol(const CoinPackedVectorBase& vec,
-                      const double collb, const double colub,   
+                      const double collb, const double colub,
                       const double obj) override;
   /*! \brief Add a named column (primal variable) to the problem.
   */
   virtual void addCol(const CoinPackedVectorBase& vec,
-		      const double collb, const double colub,   
+		      const double collb, const double colub,
 		      const double obj, std::string name) override ;
   /** Add a column (primal variable) to the problem. */
   virtual void addCol(int numberElements, const int * rows, const double * elements,
-                      const double collb, const double colub,   
+                      const double collb, const double colub,
                       const double obj) override ;
   /*! \brief Add a named column (primal variable) to the problem.
    */
   virtual void addCol(int numberElements,
 		      const int* rows, const double* elements,
-		      const double collb, const double colub,   
+		      const double collb, const double colub,
 		      const double obj, std::string name) override ;
   /** */
   virtual void addCols(const int numcols,
                        const CoinPackedVectorBase * const * cols,
-                       const double* collb, const double* colub,   
+                       const double* collb, const double* colub,
                        const double* obj) override;
   /**  */
   virtual void addCols(const int numcols,
 		       const int * columnStarts, const int * rows, const double * elements,
-		       const double* collb, const double* colub,   
+		       const double* collb, const double* colub,
 		       const double* obj) override;
   /** */
   virtual void deleteCols(const int num, const int * colIndices) override;
-  
+
   /** */
   virtual void addRow(const CoinPackedVectorBase& vec,
                       const double rowlb, const double rowub) override;
   /** */
     /*! \brief Add a named row (constraint) to the problem.
-    
+
       The default implementation adds the row, then changes the name. This
       can surely be made more efficient within an OsiXXX class.
     */
@@ -752,7 +752,7 @@ public:
 			const double rowlb, const double rowub,
 			std::string name) override ;
   virtual void addRow(const CoinPackedVectorBase& vec,
-                      const char rowsen, const double rowrhs,   
+                      const char rowsen, const double rowrhs,
                       const double rowrng) override;
   /** Add a row (constraint) to the problem. */
   virtual void addRow(int numberElements, const int * columns, const double * element,
@@ -760,7 +760,7 @@ public:
     /*! \brief Add a named row (constraint) to the problem.
     */
     virtual void addRow(const CoinPackedVectorBase& vec,
-			const char rowsen, const double rowrhs,   
+			const char rowsen, const double rowrhs,
 			const double rowrng, std::string name) override ;
   /** */
   virtual void addRows(const int numrows,
@@ -769,7 +769,7 @@ public:
   /** */
   virtual void addRows(const int numrows,
                        const CoinPackedVectorBase * const * rows,
-                       const char* rowsen, const double* rowrhs,   
+                       const char* rowsen, const double* rowrhs,
                        const double* rowrng) override;
 
   /** */
@@ -790,7 +790,7 @@ public:
        If solver wants it can restore a copy of "base" (continuous) model here
   */
   virtual void restoreBaseModel(int numberRows) override;
-  
+
   //-----------------------------------------------------------------------
   /** Apply a collection of row cuts which are all effective.
       applyCuts seems to do one at a time which seems inefficient.
@@ -828,11 +828,11 @@ public:
 
   //@}
   //@}
-  
+
   //---------------------------------------------------------------------------
-  
+
 public:
-  
+
   /**@name Methods to input a problem */
   //@{
   /** Load in an problem by copying the arguments (the constraints on the
@@ -840,34 +840,34 @@ public:
       following values are the default:
       <ul>
       <li> <code>colub</code>: all columns have upper bound infinity
-      <li> <code>collb</code>: all columns have lower bound 0 
+      <li> <code>collb</code>: all columns have lower bound 0
       <li> <code>rowub</code>: all rows have upper bound infinity
       <li> <code>rowlb</code>: all rows have lower bound -infinity
       <li> <code>obj</code>: all variables have 0 objective coefficient
       </ul>
   */
   virtual void loadProblem(const CoinPackedMatrix& matrix,
-                           const double* collb, const double* colub,   
+                           const double* collb, const double* colub,
                            const double* obj,
                            const double* rowlb, const double* rowub) override;
-  
+
   /** Load in an problem by assuming ownership of the arguments (the
       constraints on the rows are given by lower and upper bounds). For
       default values see the previous method.  <br>
       <strong>WARNING</strong>: The arguments passed to this method will be
       freed using the C++ <code>delete</code> and <code>delete[]</code>
-      functions. 
+      functions.
   */
   virtual void assignProblem(CoinPackedMatrix*& matrix,
     			     double*& collb, double*& colub, double*& obj,
 			     double*& rowlb, double*& rowub) override;
-  
+
   /** Load in an problem by copying the arguments (the constraints on the
       rows are given by sense/rhs/range triplets). If a pointer is NULL then the
       following values are the default:
       <ul>
       <li> <code>colub</code>: all columns have upper bound infinity
-      <li> <code>collb</code>: all columns have lower bound 0 
+      <li> <code>collb</code>: all columns have lower bound 0
       <li> <code>obj</code>: all variables have 0 objective coefficient
       <li> <code>rowsen</code>: all rows are >=
       <li> <code>rowrhs</code>: all right hand sides are 0
@@ -877,21 +877,21 @@ public:
   virtual void loadProblem(const CoinPackedMatrix& matrix,
     			   const double* collb, const double* colub,
     			   const double* obj,
-    			   const char* rowsen, const double* rowrhs,   
+    			   const char* rowsen, const double* rowrhs,
 			   const double* rowrng) override;
-  
+
   /** Load in an problem by assuming ownership of the arguments (the
       constraints on the rows are given by sense/rhs/range triplets). For
       default values see the previous method. <br>
       <strong>WARNING</strong>: The arguments passed to this method will be
       freed using the C++ <code>delete</code> and <code>delete[]</code>
-      functions. 
+      functions.
   */
   virtual void assignProblem(CoinPackedMatrix*& matrix,
     			     double*& collb, double*& colub, double*& obj,
     			     char*& rowsen, double*& rowrhs,
 			     double*& rowrng) override;
-  
+
   /** Just like the other loadProblem() methods except that the matrix is
       given as a ClpMatrixBase. */
   virtual void loadProblem(const ClpMatrixBase& matrix,
@@ -904,18 +904,18 @@ public:
   virtual void loadProblem(const int numcols, const int numrows,
                            const CoinBigIndex * start, const int* index,
                            const double* value,
-                           const double* collb, const double* colub,   
+                           const double* collb, const double* colub,
                            const double* obj,
                            const double* rowlb, const double* rowub) override;
-  
+
   /** Just like the other loadProblem() methods except that the matrix is
       given in a standard column major ordered format (without gaps). */
   virtual void loadProblem(const int numcols, const int numrows,
                            const CoinBigIndex * start, const int* index,
                            const double* value,
-                           const double* collb, const double* colub,   
+                           const double* collb, const double* colub,
                            const double* obj,
-                           const char* rowsen, const double* rowrhs,   
+                           const char* rowsen, const double* rowrhs,
                            const double* rowrng) override;
   /// This loads a model from a coinModel object - returns number of errors
   virtual int loadFromCoinModel (  CoinModel & modelObject, bool keepSolution=false) override;
@@ -931,7 +931,7 @@ public:
   /// Read an mps file
   virtual int readMps (const char *filename, const char*extension,
 			int & numberSets, CoinSet ** & sets) override;
-  
+
   /** Write the problem into an mps file of the given filename.
       If objSense is non zero then -1.0 forces the code to write a
       maximization objective and +1.0 to write a minimization one.
@@ -942,12 +942,12 @@ public:
   /** Write the problem into an mps file of the given filename,
       names may be null.  formatType is
       0 - normal
-      1 - extra accuracy 
+      1 - extra accuracy
       2 - IEEE hex (later)
-      
+
       Returns non-zero on I/O error
   */
-  virtual int writeMpsNative(const char *filename, 
+  virtual int writeMpsNative(const char *filename,
                              const char ** rowNames, const char ** columnNames,
                              int formatType=0,int numberAcross=2,
                              double objSense=0.0) const ;
@@ -965,8 +965,8 @@ public:
                        int decimals = 5,
                        double objSense = 0.0,
                        bool useRowNames = true) const override;
-  /** Write the problem into the file pointed to by the parameter fp. 
-      Other parameters are similar to 
+  /** Write the problem into the file pointed to by the parameter fp.
+      Other parameters are similar to
       those of writeLp() with first parameter filename.
   */
   virtual void writeLp(FILE *fp,
@@ -984,16 +984,16 @@ public:
   /// And if it does matter (not used at present)
   virtual void replaceMatrix(const CoinPackedMatrix & matrix) override ;
   //@}
-  
+
   /**@name Message handling (extra for Clp messages).
      Normally I presume you would want the same language.
      If not then you could use underlying model pointer */
   //@{
   /** Pass in a message handler
-      
+
       It is the client's responsibility to destroy a message handler installed
       by this routine; it will not be destroyed when the solver interface is
-      destroyed. 
+      destroyed.
   */
   virtual void passInMessageHandler(CoinMessageHandler * handler) override;
   /// Set language
@@ -1006,7 +1006,7 @@ public:
   void generateCpp( FILE * fp);
   //@}
   //---------------------------------------------------------------------------
-  
+
   /**@name Clp specific public interfaces */
   //@{
   /// Get pointer to Clp model
@@ -1051,7 +1051,7 @@ public:
   { smallestElementInCut_=value;}
   /** Get smallest change in cut.
       If (upper-lower)*element < this then element is
-      taken out and cut relaxed. 
+      taken out and cut relaxed.
       (upper-lower) is taken to be at least 1.0 and
       this is assumed >= smallestElementInCut_
   */
@@ -1059,7 +1059,7 @@ public:
   { return smallestChangeInCut_;}
   /** Set smallest change in cut.
       If (upper-lower)*element < this then element is
-      taken out and cut relaxed. 
+      taken out and cut relaxed.
       (upper-lower) is taken to be at least 1.0 and
       this is assumed >= smallestElementInCut_
   */
@@ -1101,7 +1101,7 @@ public:
     - 2 - don't bother doing most extreme termination checks e.g. don't bother
 	  re-factorizing if less than 20 iterations.
     - 3 - Actually safer than 1 (mainly just keeps factorization)
-      
+
     \p printOut
     - -1 always skip round common messages instead of doing some work
     -  0 skip if normal defaults
@@ -1117,84 +1117,84 @@ public:
   void setSpecialOptionsMutable(unsigned int value) const;
 
   //@}
-  
+
   //---------------------------------------------------------------------------
-  
+
   /**@name Constructors and destructors */
   //@{
   /// Default Constructor
   OsiClpSolverInterface ();
-  
+
   /// Clone
   virtual OsiSolverInterface * clone(bool copyData = true) const override;
-  
-  /// Copy constructor 
+
+  /// Copy constructor
   OsiClpSolverInterface (const OsiClpSolverInterface &);
-  
+
   /// Borrow constructor - only delete one copy
   OsiClpSolverInterface (ClpSimplex * rhs, bool reallyOwn=false);
-  
+
   /// Releases so won't error
   void releaseClp();
-  
-  /// Assignment operator 
+
+  /// Assignment operator
   OsiClpSolverInterface & operator=(const OsiClpSolverInterface& rhs);
-  
-  /// Destructor 
+
+  /// Destructor
   virtual ~OsiClpSolverInterface ();
-  
+
   /// Resets as if default constructor
   virtual void reset() override;
   //@}
-  
+
   //---------------------------------------------------------------------------
-  
+
 protected:
   ///@name Protected methods
   //@{
   /** Apply a row cut (append to constraint matrix). */
   virtual void applyRowCut(const OsiRowCut& rc) override;
-  
+
   /** Apply a column cut (adjust one or more bounds). */
   virtual void applyColCut(const OsiColCut& cc) override;
   //@}
-  
+
   //---------------------------------------------------------------------------
-  
+
 protected:
   /**@name Protected methods */
   //@{
   /// The real work of a copy constructor (used by copy and assignment)
   void gutsOfDestructor();
-  
+
   /// Deletes all mutable stuff
   void freeCachedResults() const;
-  
+
   /// Deletes all mutable stuff for row ranges etc
   void freeCachedResults0() const;
-  
+
   /// Deletes all mutable stuff for matrix etc
   void freeCachedResults1() const;
-  
+
   /// A method that fills up the rowsense_, rhs_ and rowrange_ arrays
   void extractSenseRhsRange() const;
-  
+
   ///
   void fillParamMaps();
   /** Warm start
-      
+
   NOTE  artificials are treated as +1 elements so for <= rhs
   artificial will be at lower bound if constraint is tight
-  
+
   This means that Clpsimplex flips artificials as it works
   in terms of row activities
   */
   CoinWarmStartBasis getBasis(ClpSimplex * model) const;
   /** Sets up working basis as a copy of input
-      
+
   NOTE  artificials are treated as +1 elements so for <= rhs
   artificial will be at lower bound if constraint is tight
-  
+
   This means that Clpsimplex flips artificials as it works
   in terms of row activities
   */
@@ -1239,7 +1239,7 @@ public:
   /// Sort of lexicographic resolve
   void lexSolve();
   //@}
-  
+
 protected:
   /**@name Protected member data */
   //@{
@@ -1250,15 +1250,15 @@ protected:
   //@{
   /// Pointer to dense vector of row sense indicators
   mutable char    *rowsense_;
-  
+
   /// Pointer to dense vector of row right-hand side values
   mutable double  *rhs_;
-  
-  /** Pointer to dense vector of slack upper bounds for range 
+
+  /** Pointer to dense vector of slack upper bounds for range
       constraints (undefined for non-range rows)
   */
   mutable double  *rowrange_;
-  
+
   /** A pointer to the warmstart information to be used in the hotstarts.
       This is NOT efficient and more thought should be given to it... */
   mutable CoinWarmStartBasis* ws_;
@@ -1291,9 +1291,9 @@ protected:
   CoinWarmStartBasis basis_;
   /** The original iteration limit before hotstarts started. */
   int itlimOrig_;
-  
+
   /*! \brief Last algorithm used
-  
+
     Coded as
     -    0 invalid
     -    1 primal
@@ -1303,19 +1303,19 @@ protected:
            basis
   */
   mutable int lastAlgorithm_;
-  
+
   /// To say if destructor should delete underlying model
   bool notOwned_;
-  
+
   /// Pointer to row-wise copy of problem matrix coefficients.
-  mutable CoinPackedMatrix *matrixByRow_;  
-  
+  mutable CoinPackedMatrix *matrixByRow_;
+
   /// Pointer to row-wise copy of continuous problem matrix coefficients.
-  CoinPackedMatrix *matrixByRowAtContinuous_;  
-  
+  CoinPackedMatrix *matrixByRowAtContinuous_;
+
   /// Pointer to integer information
   char * integerInformation_;
-  
+
   /** Pointer to variables for which we want range information
       The number is in [0]
       memory is not owned by OsiClp
@@ -1325,11 +1325,11 @@ protected:
   //std::map<OsiIntParam, ClpIntParam> intParamMap_;
   //std::map<OsiDblParam, ClpDblParam> dblParamMap_;
   //std::map<OsiStrParam, ClpStrParam> strParamMap_;
-  
+
   /*! \brief Faking min to get proper dual solution signs in simplex API */
   mutable bool fakeMinInSimplex_ ;
   /*! \brief Linear objective
-  
+
     Normally a pointer to the linear coefficient array in the clp objective.
     An independent copy when #fakeMinInSimplex_ is true, because we need
     something permanent to point to when #getObjCoefficients is called.
@@ -1378,7 +1378,7 @@ protected:
       262144 Don't try and tighten bounds (funny global cuts)
       524288 Fake objective and 0-1
       1048576 Don't recompute ray after crunch
-      2097152 
+      2097152
   */
   mutable unsigned int specialOptions_;
   /// Copy of model when option 131072 set
@@ -1392,12 +1392,12 @@ protected:
   /// Fake objective
   ClpLinearObjective * fakeObjective_;
   /// Row scale factors (has inverse at end)
-  CoinDoubleArrayWithLength rowScale_; 
+  CoinDoubleArrayWithLength rowScale_;
   /// Column scale factors (has inverse at end)
-  CoinDoubleArrayWithLength columnScale_; 
+  CoinDoubleArrayWithLength columnScale_;
   //@}
 };
-  
+
 class OsiClpDisasterHandler : public ClpDisasterHandler {
 public:
   /**@name Virtual methods that the derived classe should provide.
@@ -1412,8 +1412,8 @@ public:
   /// Type of disaster 0 can fix, 1 abort
   virtual int typeOfDisaster() override;
   //@}
-  
-  
+
+
   /**@name Constructors, destructor */
 
   //@{
@@ -1429,7 +1429,7 @@ public:
   virtual ClpDisasterHandler * clone() const override;
 
   //@}
-  
+
   /**@name Sets/gets */
 
   //@{
@@ -1444,26 +1444,26 @@ public:
   /// Get where from
   inline int whereFrom() const
   { return whereFrom_;}
-  /// Set phase 
+  /// Set phase
   inline void setPhase(int value)
   { phase_=value;}
-  /// Get phase 
+  /// Get phase
   inline int phase() const
   { return phase_;}
   /// are we in trouble
   inline bool inTrouble() const
   { return inTrouble_;}
-  
+
   //@}
-  
-  
+
+
 protected:
   /**@name Data members
      The data members are protected to allow access for derived classes. */
   //@{
   /// Pointer to model
   OsiClpSolverInterface * osiModel_;
-  /** Where from 
+  /** Where from
       0 dual (resolve)
       1 crunch
       2 primal (resolve)

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/GEXF.h>
@@ -144,10 +141,12 @@ static inline void writeAttributes(
 		child.attribute("z") = z;
 
 		// TODO: size is a scale here, so we have to know average size first.
-		// const double size = std::max(GA.width(v), GA.height(v));
-		// GraphIO::indent(out, depth) << "<viz:size "
-		//                             << "value=\"" << size << "\" "
-		//                             << "/>\n";
+#if 0
+		const double size = std::max(GA.width(v), GA.height(v));
+		GraphIO::indent(out, depth) << "<viz:size "
+		                            << "value=\"" << size << "\" "
+		                            << "/>\n";
+#endif
 
 		const Shape shape = GA.shape(v);
 		xmlNode.append_child("viz:shape").append_attribute("value") = toString(shape).c_str();
@@ -340,49 +339,70 @@ static void writeGraph(
 
 bool GraphIO::writeGEXF(const Graph &G, std::ostream &out)
 {
-	pugi::xml_document doc;
-	pugi::xml_node rootNode = gexf::writeHeader(doc, false);
-	gexf::writeGraph(rootNode, G, nullptr);
-	doc.save(out);
+	bool result = out.good();
 
-	return true;
+	if(result) {
+		pugi::xml_document doc;
+		pugi::xml_node rootNode = gexf::writeHeader(doc, false);
+		gexf::writeGraph(rootNode, G, nullptr);
+		doc.save(out);
+	}
+
+	return result;
 }
 
 
 bool GraphIO::writeGEXF(const ClusterGraph &C, std::ostream &out)
 {
-	pugi::xml_document doc;
-	pugi::xml_node rootNode = gexf::writeHeader(doc, false);
-	gexf::writeCluster(rootNode, C, nullptr, C.rootCluster());
-	doc.save(out);
+	bool result = out.good();
 
-	return true;
+	if(result) {
+		pugi::xml_document doc;
+		pugi::xml_node rootNode = gexf::writeHeader(doc, false);
+		gexf::writeCluster(rootNode, C, nullptr, C.rootCluster());
+		doc.save(out);
+
+		return true;
+	}
+
+	return result;
 }
 
 
 bool GraphIO::writeGEXF(const GraphAttributes &GA, std::ostream &out)
 {
-	pugi::xml_document doc;
-	pugi::xml_node rootNode = gexf::writeHeader(doc, true);
-	gexf::writeGraph(rootNode, GA.constGraph(), &GA);
-	doc.save(out);
+	bool result = out.good();
 
-	return true;
+	if(result) {
+		pugi::xml_document doc;
+		pugi::xml_node rootNode = gexf::writeHeader(doc, true);
+		gexf::writeGraph(rootNode, GA.constGraph(), &GA);
+		doc.save(out);
+
+		return true;
+	}
+
+return result;
 }
 
 
 bool GraphIO::writeGEXF(const ClusterGraphAttributes &CA, std::ostream &out)
 {
-	const ClusterGraph &C = CA.constClusterGraph();
+	bool result = out.good();
 
-	pugi::xml_document doc;
-	pugi::xml_node rootNode = gexf::writeHeader(doc, true);
-	gexf::writeCluster(rootNode, C, &CA, C.rootCluster());
-	doc.save(out);
+	if(result) {
+		const ClusterGraph &C = CA.constClusterGraph();
 
-	return true;
+		pugi::xml_document doc;
+		pugi::xml_node rootNode = gexf::writeHeader(doc, true);
+		gexf::writeCluster(rootNode, C, &CA, C.rootCluster());
+		doc.save(out);
+
+		return true;
+	}
+
+return result;
 }
 
 
 } // end namespace ogdf
-

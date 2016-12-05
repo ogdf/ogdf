@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarity/EmbedderMinDepthPiTa.h>
 #include <ogdf/basic/extended_graph_alg.h>
@@ -120,7 +117,7 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 			break;
 		}
 	}
-	OGDF_ASSERT(rootBlockNode != 0);
+	OGDF_ASSERT(rootBlockNode != nullptr);
 
 	blockG.init(pBCTree->bcTree());
 	nBlockEmbedding_to_nH.init(pBCTree->bcTree());
@@ -162,9 +159,11 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 	for(node n : G.nodes)
 		G.sort(n, newOrder[n]);
 
-	//adjExternal = tmpAdjExtFace;
-	//deleteDummyNodes(G, adjExternal);
-	//return;
+#if 0
+	adjExternal = tmpAdjExtFace;
+	deleteDummyNodes(G, adjExternal);
+	return;
+#endif
 
 	//***************************************************************************/
 	//Fourth step: Find the knot of the block cutface tree of the embedding and,
@@ -333,8 +332,10 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 	{
 		rmBCFT = m_rootOfBlockCutfaceTree->firstAdj()->twinNode();
 
-		//adjExternal = *((*(faces.get(nDG_to_fPG[m_blockCutfaceTree.original(m_blockCutfaceTree.cutVertex(m_rootOfBlockCutfaceTree->firstAdj()->twinNode(), m_rootOfBlockCutfaceTree->firstAdj()->twinNode()))]))).begin());
-		//return;
+#if 0
+		adjExternal = *((*(faces.get(nDG_to_fPG[m_blockCutfaceTree.original(m_blockCutfaceTree.cutVertex(m_rootOfBlockCutfaceTree->firstAdj()->twinNode(), m_rootOfBlockCutfaceTree->firstAdj()->twinNode()))]))).begin());
+		return;
+#endif
 	}
 
 	node rootOfBlockCutfaceTree = nm_blockCutfaceTree_to_nBlockCutfaceTree[rmBCFT];
@@ -469,9 +470,10 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 						adjEntry ae = nullptr;
 						for(adjEntry ae2 : f->entries)
 						{
-							if (pBCTree->original(nBlockEmbedding_to_nH[bT][ae2->theNode()]) == nG)
+							if (pBCTree->original(nBlockEmbedding_to_nH[bT][ae2->theNode()]) == nG) {
 								ae = ae2;
 								break;
+							}
 						}
 						ListIterator<adjEntry> after = newOrder[nG].search(ae);
 						for (ListIterator<adjEntry> it_cpy = adjList[bT][nG].begin(); it_cpy.valid(); ++it_cpy)
@@ -1038,7 +1040,7 @@ void EmbedderMinDepthPiTa::embedCutVertex(const node& vT, bool root /*= false*/)
 				} while(aeFace != Gamma_adjExt_nT[bTp]);
 			}
 			else
-				pAfter = OGDF_NEW ListIterator<adjEntry>();
+				pAfter = new ListIterator<adjEntry>();
 
 			//embed all edges of Gamma(B):
 			bool after_ae = true;
@@ -1273,7 +1275,7 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 					else
 					{
 						ae = n_G_cT->firstAdj();
-						pAfter = OGDF_NEW ListIterator<adjEntry>();
+						pAfter = new ListIterator<adjEntry>();
 					}
 
 					bool after_ae = true;
@@ -1358,10 +1360,12 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 int EmbedderMinDepthPiTa::depthBlock(const node& bT/*, const node& parent_cT*/)
 {
 	node bTp = nBCTree_to_npBCTree[bT];
-	//node parent_cTp = nBCTree_to_npBCTree[parent_cT];
-	//node parent_cH = pBCTree->cutVertex(parent_cTp, bTp);
-	//node parent_cPG = pBCTree->original(parent_cH);
-	//node parent_cG_nT = nPG_to_nG_nT[bTp][parent_cPG];
+#if 0
+	node parent_cTp = nBCTree_to_npBCTree[parent_cT];
+	node parent_cH = pBCTree->cutVertex(parent_cTp, bTp);
+	node parent_cPG = pBCTree->original(parent_cH);
+	node parent_cG_nT = nPG_to_nG_nT[bTp][parent_cPG];
+#endif
 
 	int dP = 0;
 	int dNP = 0;

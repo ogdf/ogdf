@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -109,7 +106,7 @@ public:
 		// | a0*b0 - a1*b1 | a0*b1 + a1*b0 |
 		// ---------------------------------
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, _MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, OGDF_MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, other.reg);
 		// right = | a0*b1 | a1*b0 |
@@ -126,7 +123,7 @@ public:
 		// bt = | b0 | -b1 |
 		__m128d conj_reg = _mm_mul_pd(other.reg, _mm_setr_pd(1.0, -1.0) ) ;
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, _MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, OGDF_MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, conj_reg);
 		// right = | a0*b1 | a1*b0 |
@@ -173,7 +170,7 @@ public:
 	inline void operator*=(const ComplexDouble& other)
 	{
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, _MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(other.reg, other.reg, OGDF_MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, other.reg);
 		// right = | a0*b1 | a1*b0 |
@@ -196,7 +193,7 @@ public:
 		// bt = | b0 | -b1 |
 		__m128d conj_reg = _mm_mul_pd(other.reg, _mm_setr_pd(1.0, -1.0) ) ;
 		// bt = | b1 | b0 |
-		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, _MM_SHUFFLE2(0, 1));
+		__m128d b_t = _mm_shuffle_pd(conj_reg, conj_reg, OGDF_MM_SHUFFLE2(0, 1));
 		// left = | a0*b0 | a1*b1 |
 		__m128d left = _mm_mul_pd(reg, conj_reg);
 		// right = | a0*b1 | a1*b0 |

@@ -119,5 +119,3 @@ ClpDisasterHandler::typeOfDisaster()
 {
      return 0;
 }
-
-

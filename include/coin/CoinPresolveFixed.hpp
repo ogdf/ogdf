@@ -150,8 +150,8 @@ class make_fixed_action : public CoinPresolveAction {
   void postsolve(CoinPostsolveMatrix *prob) const;
 
   /// Destructor
-  ~make_fixed_action() { 
-    deleteAction(actions_,action*); 
+  ~make_fixed_action() {
+    deleteAction(actions_,action*);
     delete faction_;
   }
 };

@@ -42,7 +42,7 @@ namespace abacus {
 class Master;
 
 
-class  LpSubOsi :  public LpSub, public OsiIF  {
+class OGDF_EXPORT LpSubOsi : public LpSub, public OsiIF {
 public:
 
 	//! The constructor.

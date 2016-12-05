@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -50,36 +47,35 @@ namespace ogdf {
  * @tparam C The comparator used to order the stored values.
  */
 template<
-  template<typename T, typename C> class IMPL,
+  typename IMPL,
   typename H,
   typename T,
   typename C
 >
 class HeapBase
 {
-protected:
+
 	C m_comp;
+
 public:
 
 	/**
-	* The type of handle used to identify stored values.
-	* The handle type accessible from outside of the heap will always be a pointer.
-	*/
+	 * The type of handle used to identify stored values.
+	 * The handle type accessible from outside of the heap will always be a pointer.
+	 */
 	typedef H* Handle;
 
-	HeapBase() {}
+	explicit HeapBase(C const &comp = C()) : m_comp(comp) {}
 
 	/**
 	 * Returns the comparator used to sort the values in the heap.
 	 *
 	 * @return The comparator for sorting the heaps values
 	 */
-	virtual const C &comparator() {
-		return m_comp;
-	}
+	virtual const C &comparator() const { return m_comp; }
 
 	/**
-	 * Retuns the topmost value in the heap.
+	 * Returns the topmost value in the heap.
 	 *
 	 * @return the topmost value
 	 */
@@ -121,10 +117,20 @@ public:
 	 *
 	 * @param other A heap to be merged in.
 	 */
-	virtual void merge(IMPL<T, C> &other) {
-		throw std::runtime_error("Merging two binary heaps is not supported");
-	}
+	virtual void merge(IMPL &other);
+
 };
+
+
+template<
+  typename IMPL,
+  typename H,
+  typename T,
+  typename C
+>
+void HeapBase<IMPL, H, T, C>::merge(IMPL &/*other*/) {
+	throw std::runtime_error("Merging two binary heaps is not supported");
+}
 
 
 } // end namespace ogdf

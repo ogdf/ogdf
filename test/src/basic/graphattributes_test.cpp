@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 #include <bandit/bandit.h>
 
 #include <ogdf/basic/DualGraph.h>
@@ -76,9 +73,9 @@ void testAttribute(
 		});
 
 		it("throws an Exception, if "+attributeName+" is called without the right GraphAttributes set",[&](){
-#ifdef OGDF_DEBUG
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 			grattr.destroyAttributes(neededAttributes);
-			AssertThrows(PreconditionViolatedException, functionToTest());
+			AssertThrows(AssertionFailed, functionToTest());
 #endif
 		});
 
@@ -221,8 +218,8 @@ describe("graph attributes",[&](){
 			Type::nodeGraphics, "width of a node");
 
 		it("it assings width using a NodeArray",[&](){
-#ifdef OGDF_DEBUG
-			AssertThrows(PreconditionViolatedException, grattr.width());
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, grattr.width());
 #endif
 			grattr.initAttributes(Type::nodeGraphics);
 			NodeArray<double> widthNA(graph,42);
@@ -245,8 +242,8 @@ describe("graph attributes",[&](){
 			Type::nodeGraphics, "height of a node");
 
 		it("it assigns height using a NodeArray",[&](){
-#ifdef OGDF_DEBUG
-			AssertThrows(PreconditionViolatedException, grattr.height());
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, grattr.height());
 #endif
 			grattr.initAttributes(Type::nodeGraphics);
 			NodeArray<double> heightNA(graph,42);
@@ -297,8 +294,8 @@ describe("graph attributes",[&](){
 			Type::nodeStyle | Type::nodeGraphics, "strokeWidth node");
 
 		it("strokeType node",[&](){
-#ifdef OGDF_DEBUG
-			AssertThrows(PreconditionViolatedException, grattr.strokeType(v));
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, grattr.strokeType(v));
 #endif
 			grattr.initAttributes(Type::nodeStyle | Type::nodeGraphics);
 			AssertThat(cGrattr.strokeType(v), Equals(LayoutStandards::defaultNodeStroke().m_type));
@@ -308,8 +305,8 @@ describe("graph attributes",[&](){
 		});
 
 		it("strokeType edge",[&](){
-#ifdef OGDF_DEBUG
-			AssertThrows(PreconditionViolatedException, grattr.strokeType(e));
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, grattr.strokeType(e));
 #endif
 			grattr.initAttributes(Type::edgeStyle | Type::edgeGraphics);
 			AssertThat(cGrattr.strokeType(e), Equals(LayoutStandards::defaultEdgeStroke().m_type));
@@ -361,8 +358,8 @@ describe("graph attributes",[&](){
 			Type::nodeStyle | Type::nodeGraphics, "fillColor");
 
 		it("fillPattern",[&](){
-#ifdef OGDF_DEBUG
-			AssertThrows(PreconditionViolatedException, grattr.fillPattern(v));
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, grattr.fillPattern(v));
 #endif
 			grattr.initAttributes(Type::nodeStyle | Type::nodeGraphics);
 			AssertThat(cGrattr.fillPattern(v), Equals(LayoutStandards::defaultNodeFill().m_pattern));
@@ -371,17 +368,24 @@ describe("graph attributes",[&](){
 			AssertThat(grattr.fillPattern(v), Equals(FillPattern::fpCross));
 		});
 
-		grattr.initAttributes(Type::nodeId);
-		testAttribute<int>(
-			[&]() -> int& { return grattr.idNode(v); },
-			[&]() { return cGrattr.idNode(v); },
-			grattr.idNode(v), 42,
-			Type::nodeId, "idNode");
-		grattr.destroyAttributes(Type::nodeId);
+
+		it("idNode",[&](){
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			grattr.destroyAttributes(Type::nodeId);
+			AssertThrows(AssertionFailed, grattr.idNode(v));
+#endif
+			grattr.initAttributes(Type::nodeId);
+			AssertThat(cGrattr.idNode(v), Equals(grattr.idNode(v)));
+
+			int &id = grattr.idNode(v);
+			id = 42;
+			AssertThat(grattr.idNode(v), Equals(42));
+			AssertThat(cGrattr.idNode(v), Equals(42));
+		});
 
 		it("(in|add|remove)SubGraph",[&](){
-#ifdef OGDF_DEBUG
-			AssertThrows(PreconditionViolatedException, grattr.inSubGraph(e, 13));
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+			AssertThrows(AssertionFailed, grattr.inSubGraph(e, 13));
 #endif
 			grattr.initAttributes(Type::edgeSubGraphs);
 			AssertThat(cGrattr.inSubGraph(e, 13), IsFalse());
@@ -432,9 +436,6 @@ describe("graph attributes",[&](){
 			}
 			grattr.addNodeCenter2Bends(1);
 			grattr.translateToNonNeg();
-		});
-
-		after_each([&](){
 		});
 
 		it("translates to non-negative coordinates",[&](){

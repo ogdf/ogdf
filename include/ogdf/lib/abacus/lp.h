@@ -67,7 +67,7 @@ class Column;
  * Therefore, we design the class LP that it can be used very
  * generally.
  */
-class  LP :  public AbacusRoot  {
+class OGDF_EXPORT LP : public AbacusRoot {
 public:
 
 	//! The optimization status of the linear program.
@@ -849,181 +849,183 @@ private:
 };
 
 
-//inline OptSense LP::sense() const
-//{
-//	return _sense();
-//}
-//
-//inline void LP::sense(const OptSense &newSense)
-//{
-//	_sense(newSense);
-//}
+#if 0
+inline OptSense LP::sense() const
+{
+	return _sense();
+}
 
-//inline int LP::nRow() const
-//{
-//	return _nRow();
-//}
-//
-//inline int LP::maxRow() const
-//{
-//	return _maxRow();
-//}
+inline void LP::sense(const OptSense &newSense)
+{
+	_sense(newSense);
+}
 
-//inline int LP::nCol() const
-//{
-//	return _nCol();
-//}
+inline int LP::nRow() const
+{
+	return _nRow();
+}
 
-//inline int LP::maxCol() const
-//{
-//	return _maxCol();
-//}
+inline int LP::maxRow() const
+{
+	return _maxRow();
+}
 
-//inline int LP::nnz() const
-//{
-//	return _nnz();
-//}
+inline int LP::nCol() const
+{
+	return _nCol();
+}
 
-//inline double LP::obj(int i) const
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _obj(i);
-//}
+inline int LP::maxCol() const
+{
+	return _maxCol();
+}
 
-//inline double LP::lBound(int i) const
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _lBound(i);
-//}
+inline int LP::nnz() const
+{
+	return _nnz();
+}
 
-//inline double LP::uBound(int i) const
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _uBound(i);
-//}
+inline double LP::obj(int i) const
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _obj(i);
+}
 
-//inline void LP::row(int i, Row &r) const
-//{
-//#ifdef OGDF_DEBUG
-//	rowRangeCheck(i);
-//#endif
-//	_row(i, r);
-//}
+inline double LP::lBound(int i) const
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _lBound(i);
+}
 
-//inline double LP::rhs(int i) const
-//{
-//#ifdef ABACUSSAFE
-//	rowRangeCheck(i);
-//#endif
-//	return _rhs(i);
-//}
+inline double LP::uBound(int i) const
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _uBound(i);
+}
 
-//inline double LP::value() const
-//{
-//	return _value();
-//}
+inline void LP::row(int i, Row &r) const
+{
+#ifdef OGDF_DEBUG
+	rowRangeCheck(i);
+#endif
+	_row(i, r);
+}
 
-//inline double LP::xVal(int i)
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _xVal(i);
-//}
+inline double LP::rhs(int i) const
+{
+#ifdef ABACUSSAFE
+	rowRangeCheck(i);
+#endif
+	return _rhs(i);
+}
 
-//inline double LP::barXVal(int i)
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _barXVal(i);
-//}
+inline double LP::value() const
+{
+	return _value();
+}
 
-//inline double LP::reco(int i)
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _reco(i);
-//}
+inline double LP::xVal(int i)
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _xVal(i);
+}
 
-//inline double LP::yVal(int c)
-//{
-//#ifdef OGDF_DEBUG
-//	rowRangeCheck(c);
-//#endif
-//	return _yVal(c);
-//}
+inline double LP::barXVal(int i)
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _barXVal(i);
+}
 
-//inline double LP::slack(int c)
-//{
-//#ifdef OGDF_DEBUG
-//	rowRangeCheck(c);
-//#endif
-//	return _slack(c);
-//}
+inline double LP::reco(int i)
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _reco(i);
+}
 
-//inline LP::SOLSTAT LP::xValStatus() const
-//{
-//	return xValStatus_;
-//}
-//
-//inline LP::SOLSTAT LP::barXValStatus() const
-//{
-//	return barXValStatus_;
-//}
+inline double LP::yVal(int c)
+{
+#ifdef OGDF_DEBUG
+	rowRangeCheck(c);
+#endif
+	return _yVal(c);
+}
 
-//inline LP::SOLSTAT LP::recoStatus() const
-//{
-//	return recoStatus_;
-//}
+inline double LP::slack(int c)
+{
+#ifdef OGDF_DEBUG
+	rowRangeCheck(c);
+#endif
+	return _slack(c);
+}
 
-//inline LP::SOLSTAT LP::yValStatus() const
-//{
-//	return yValStatus_;
-//}
+inline LP::SOLSTAT LP::xValStatus() const
+{
+	return xValStatus_;
+}
 
-//inline LP::SOLSTAT LP::slackStatus() const
-//{
-//	return slackStatus_;
-//}
+inline LP::SOLSTAT LP::barXValStatus() const
+{
+	return barXValStatus_;
+}
 
-//inline LP::SOLSTAT LP::basisStatus() const
-//{
-//	return basisStatus_;
-//}
+inline LP::SOLSTAT LP::recoStatus() const
+{
+	return recoStatus_;
+}
 
-//inline int LP::nOpt() const
-//{
-//	return nOpt_;
-//}
+inline LP::SOLSTAT LP::yValStatus() const
+{
+	return yValStatus_;
+}
 
-//inline bool LP::infeasible() const
-//{
-//	if (optStat_ == Infeasible) return true;
-//	else                        return false;
-//}
+inline LP::SOLSTAT LP::slackStatus() const
+{
+	return slackStatus_;
+}
 
-//inline LPVARSTAT::STATUS LP::lpVarStat(int i)
-//{
-//#ifdef OGDF_DEBUG
-//	colRangeCheck(i);
-//#endif
-//	return _lpVarStat(i);
-//}
+inline LP::SOLSTAT LP::basisStatus() const
+{
+	return basisStatus_;
+}
 
-//inline SlackStat::STATUS LP::slackStat(int i)
-//{
-//#ifdef OGDF_DEBUG
-//	rowRangeCheck(i);
-//#endif
-//	return _slackStat(i);
-//}
+inline int LP::nOpt() const
+{
+	return nOpt_;
+}
+
+inline bool LP::infeasible() const
+{
+	if (optStat_ == Infeasible) return true;
+	else                        return false;
+}
+
+inline LPVARSTAT::STATUS LP::lpVarStat(int i)
+{
+#ifdef OGDF_DEBUG
+	colRangeCheck(i);
+#endif
+	return _lpVarStat(i);
+}
+
+inline SlackStat::STATUS LP::slackStat(int i)
+{
+#ifdef OGDF_DEBUG
+	rowRangeCheck(i);
+#endif
+	return _slackStat(i);
+}
+#endif
 
 } //namespace abacus

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/PlanRepExpansion.h>
@@ -191,7 +188,7 @@ void PlanRepExpansion::insertEdgePath(
 	edge eSrc,
 	edge eTgt)
 {
-	OGDF_ASSERT((eOrig != 0 && ns == 0) || (eOrig == 0 && ns != 0));
+	OGDF_ASSERT((eOrig != nullptr && ns == nullptr) || (eOrig == nullptr && ns != nullptr));
 
 	if(eOrig)
 		m_eCopy[eOrig].clear();
@@ -273,7 +270,7 @@ void PlanRepExpansion::insertEdgePathEmbedded(
 	CombinatorialEmbedding &E,
 	const List<Tuple2<adjEntry,adjEntry> > &crossedEdges)
 {
-	OGDF_ASSERT((eOrig != 0 && ns == 0) || (eOrig == 0 && ns != 0));
+	OGDF_ASSERT((eOrig != nullptr && ns == nullptr) || (eOrig == nullptr && ns != nullptr));
 
 	if(eOrig)
 		m_eCopy[eOrig].clear();
@@ -359,7 +356,7 @@ void PlanRepExpansion::removeEdgePathEmbedded(
 	node &oldSrc,
 	node &oldTgt)
 {
-	OGDF_ASSERT((eOrig != 0 && ns == 0) || (eOrig == 0 && ns != 0));
+	OGDF_ASSERT((eOrig != nullptr && ns == nullptr) || (eOrig == nullptr && ns != nullptr));
 
 	const List<edge> &path = (eOrig) ? m_eCopy[eOrig] : ns->m_path;
 	ListConstIterator<edge> it = path.begin();
@@ -419,7 +416,7 @@ void PlanRepExpansion::removeEdgePath(
 	node &oldSrc,
 	node &oldTgt)
 {
-	OGDF_ASSERT((eOrig != 0 && ns == 0) || (eOrig == 0 && ns != 0));
+	OGDF_ASSERT((eOrig != nullptr && ns == nullptr) || (eOrig == nullptr && ns != nullptr));
 
 	const List<edge> &path = (eOrig) ? m_eCopy[eOrig] : ns->m_path;
 	ListConstIterator<edge> it = path.begin();
@@ -953,7 +950,7 @@ PlanRepExpansion::nodeSplit PlanRepExpansion::convertDummy(
 {
 	OGDF_ASSERT(u->indeg() == 2);
 	OGDF_ASSERT(u->outdeg() == 2);
-	OGDF_ASSERT(m_vOrig[u] == 0);
+	OGDF_ASSERT(m_vOrig[u] == nullptr);
 
 	m_vOrig     [u] = vOrig;
 	m_vIterator [u] = m_vCopy[vOrig].pushBack(u);
@@ -1007,7 +1004,7 @@ edge PlanRepExpansion::separateDummy(
 	adjEntry adj_1, adjEntry adj_2, node vStraight, bool isSrc)
 {
 	node u = adj_1->theNode();
-	OGDF_ASSERT(m_vOrig[u] == 0);
+	OGDF_ASSERT(m_vOrig[u] == nullptr);
 
 	node vOrig = m_vOrig[vStraight];
 	node v = newNode();
@@ -1057,69 +1054,72 @@ edge PlanRepExpansion::separateDummy(
 
 	return eNew;
 
-	//edge       eOrig = m_eOrig[adjStraight->theEdge()];
-	//NodeSplit *ns    = m_eNodeSplit[adjStraight->theEdge()];
+#if 0
+	edge       eOrig = m_eOrig[adjStraight->theEdge()];
+	NodeSplit *ns    = m_eNodeSplit[adjStraight->theEdge()];
 
-	//Array<adjEntry> adjA(2), adjB(2);
-	//int i = 0, j = 0;
+	Array<adjEntry> adjA(2), adjB(2);
+	int i = 0, j = 0;
 
-	//for(adjEntry adj : u->adjEntries) {
-	//	edge e = adj->theEdge();
-	//	if(m_eOrig[e] == eOrig && m_eNodeSplit[e] == ns)
-	//		adjA[i++] = adj;
-	//	else
-	//		adjB[j++] = adj;
-	//}
+	for(adjEntry adj : u->adjEntries) {
+		edge e = adj->theEdge();
+		if(m_eOrig[e] == eOrig && m_eNodeSplit[e] == ns)
+			adjA[i++] = adj;
+		else
+			adjB[j++] = adj;
+	}
 
-	//OGDF_ASSERT(i == 2 && j == 2);
+	OGDF_ASSERT(i == 2);
+	OGDF_ASSERT(j == 2);
 
-	//// resolve split on adjB
-	//edge eB = adjB[0]->theEdge();
-	//node vB = adjB[1]->twinNode();
+	// resolve split on adjB
+	edge eB = adjB[0]->theEdge();
+	node vB = adjB[1]->twinNode();
 
-	//edge eOrigB;
-	//NodeSplit *nsB;
-	//List<edge> &pathB = (m_eOrig[eB] != 0) ? m_eCopy[m_eOrig[eB]] : m_eNodeSplit[eB]->m_path;
+	edge eOrigB;
+	NodeSplit *nsB;
+	List<edge> &pathB = (m_eOrig[eB] != 0) ? m_eCopy[m_eOrig[eB]] : m_eNodeSplit[eB]->m_path;
 
-	//if(eB->target() == u)
-	//	moveTarget(eB,vB);
-	//else
-	//	moveSource(eB,vB);
+	if(eB->target() == u)
+		moveTarget(eB,vB);
+	else
+		moveSource(eB,vB);
 
-	//edge eB2 = adjB[1]->theEdge();
-	//pathB.del(m_eIterator[eB2]);
-	//delEdge(eB2);
+	edge eB2 = adjB[1]->theEdge();
+	pathB.del(m_eIterator[eB2]);
+	delEdge(eB2);
 
-	//// split path at u
-	//node vOrig = m_vOrig[vStraight];
+	// split path at u
+	node vOrig = m_vOrig[vStraight];
 
-	//m_vOrig     [u] = vOrig;
-	//m_vIterator [u] = m_vCopy[vOrig].pushBack(u);
-	//m_splittable[u] = true;
+	m_vOrig     [u] = vOrig;
+	m_vIterator [u] = m_vCopy[vOrig].pushBack(u);
+	m_splittable[u] = true;
 
-	//ListIterator<NodeSplit> itNS = m_nodeSplits.pushBack(NodeSplit());
-	//nodeSplit nsNew = &(*itNS);
-	//nsNew->m_nsIterator = itNS;
+	ListIterator<NodeSplit> itNS = m_nodeSplits.pushBack(NodeSplit());
+	nodeSplit nsNew = &(*itNS);
+	nsNew->m_nsIterator = itNS;
 
-	//List<edge> &pathA = (eOrig != 0) ? m_eCopy[eOrig] : ns->m_path;
-	//if(vStraight == pathA.front()->source()) {
-	//	ListIterator<edge> it, itNext;
-	//	for(it = pathA.begin(); (*it)->source() != u; it = itNext) {
-	//		itNext = it.succ();
-	//		pathA.moveToBack(it, nsNew->m_path);
-	//		m_eOrig     [*it] = 0;
-	//		m_eNodeSplit[*it] = nsNew;
-	//	}
+	List<edge> &pathA = (eOrig != 0) ? m_eCopy[eOrig] : ns->m_path;
+	if(vStraight == pathA.front()->source()) {
+		ListIterator<edge> it, itNext;
+		for(it = pathA.begin(); (*it)->source() != u; it = itNext) {
+			itNext = it.succ();
+			pathA.moveToBack(it, nsNew->m_path);
+			m_eOrig     [*it] = 0;
+			m_eNodeSplit[*it] = nsNew;
+		}
 
-	//} else {
-	//	ListIterator<edge> it, itPrev;
-	//	for(it = pathA.rbegin(); (*it)->target() != u; it = itPrev) {
-	//		itPrev = it.pred();
-	//		pathA.moveToFront(it, nsNew->m_path);
-	//		m_eOrig     [*it] = 0;
-	//		m_eNodeSplit[*it] = nsNew;
-	//	}
-	//}
+	} else {
+		ListIterator<edge> it, itPrev;
+		for(it = pathA.rbegin(); (*it)->target() != u; it = itPrev) {
+			itPrev = it.pred();
+			pathA.moveToFront(it, nsNew->m_path);
+			m_eOrig     [*it] = 0;
+			m_eNodeSplit[*it] = nsNew;
+		}
+	}
+#endif
 }
 
 

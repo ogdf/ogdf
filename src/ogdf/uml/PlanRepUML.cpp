@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/uml/PlanRepUML.h>
@@ -53,7 +50,7 @@ PlanRepUML::PlanRepUML(const UMLGraph &umlGraph) :
 
 
 PlanRepUML::PlanRepUML(const GraphAttributes &GA) :
-PlanRep(GA),
+	PlanRep(GA),
 	m_pUmlGraph(nullptr)
 {
 	m_alignUpward .init(*this, false);
@@ -95,7 +92,7 @@ void PlanRepUML::initCC(int i)
 //--------------------------------
 void PlanRepUML::expand(bool lowDegreeExpand)
 {
-	OGDF_ASSERT(representsCombEmbedding())
+	OGDF_ASSERT(representsCombEmbedding());
 
 	for(node v : nodes)
 	{
@@ -127,7 +124,6 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				inGens.pushBack(e);
 			}
 
-
 			setExpandedNode(v, v);
 			// Create the list of generalization expanders
 			// We need degree(v)-1 of them to construct a face.
@@ -139,7 +135,6 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
-
 
 			// We move the target node of each ingoing generalization of v to a new
 			// node stored in expander.
@@ -165,7 +160,6 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			}
 			ar[v] = v->firstAdj();
 
-
 			// Now introduce the circular list of new edges
 			// forming the border of the merge face. Keep the embedding.
 			adjEntry adjPrev = v->firstAdj();
@@ -188,7 +182,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			setExpansion(e);
 			setGeneralization(e);
 
-			OGDF_ASSERT(representsCombEmbedding())
+			OGDF_ASSERT(representsCombEmbedding());
 		}
 
 		//-------------------------------------------------
@@ -223,8 +217,6 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			// as one of the nodes of the expanded face.
 			typeOf(v) = Graph::highDegreeExpander;
 
-
-
 			// Scann the list of edges of v to find the adjacent edges of v
 			// according to the planar embedding. All except one edge
 			// will get a new adjacent node
@@ -251,13 +243,13 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				genNodes.pushBack(v);
 
 			// The node has maximum two generalization edges.
-			OGDF_ASSERT(genNodes.size() <= 2)
+			OGDF_ASSERT(genNodes.size() <= 2);
 
+			// Create the list of high degree expanders
+			// We need degree(v)-1 of them to construct a face.
+			// and set expanded Node to v
+			setExpandedNode(v, v);
 
-				// Create the list of high degree expanders
-				// We need degree(v)-1 of them to construct a face.
-				// and set expanded Node to v
-				setExpandedNode(v, v);
 			SListPure<node> expander;
 			for (int i = 0; i < v->degree()-1; i++)
 			{
@@ -266,7 +258,6 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
-
 
 			// We move the target node of each ingoing generalization of v to a new
 			// node stored in expander.
@@ -300,7 +291,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 
 
 			// There may be at most two generalizations adjacent to v.
-			OGDF_ASSERT(genNodes.size() <= 2)
+			OGDF_ASSERT(genNodes.size() <= 2);
 
 			//---------------------------------------------
 			// Now introduce the circular list of new edges
@@ -337,9 +328,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				m_faceSplitter[e] = true;
 			}
 
-
-			OGDF_ASSERT(representsCombEmbedding())
-
+			OGDF_ASSERT(representsCombEmbedding());
 		}
 
 		// Replace all vertices with degree > 2 by cages.
@@ -358,8 +347,10 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				else if (typeOf(e) == Graph::generalization)
 					detect = 2;
 			}
-//			if (v->degree() == 4 && detect < 2)
-//				continue;  // Nothing to do.
+#if 0
+			if (v->degree() == 4 && detect < 2)
+				continue;  // Nothing to do.
+#endif
 
 			// Collects the nodes in the expanded face that
 			// are adjacent to a generalization.
@@ -370,9 +361,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			// as one of the nodes of the expanded face.
 			typeOf(v) = Graph::highDegreeExpander;
 
-
-
-			// Scann the list of edges of v to find the adjacent edges of v
+			// Scan the list of edges of v to find the adjacent edges of v
 			// according to the planar embedding. All except one edge
 			// will get a new adjacent node
 			// the planar embedding.
@@ -389,7 +378,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 					genNodes.pushBack(v);
 
 			// The node has maximum two generalization edges.
-			OGDF_ASSERT(genNodes.size() <= 2)
+			OGDF_ASSERT(genNodes.size() <= 2);
 
 				// Create the list of high degree expanders
 				// We need degree(v)-1 of them to construct a face.
@@ -437,7 +426,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 
 
 			// There may be at most two generalizations adjacent to v.
-			OGDF_ASSERT(genNodes.size() <= 2)
+			OGDF_ASSERT(genNodes.size() <= 2);
 
 			// Now introduce the circular list of new edges
 			// forming the border of the merge face. Keep the embedding.
@@ -469,7 +458,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				m_faceSplitter[e] = true;
 			}
 
-			OGDF_ASSERT(representsCombEmbedding())
+			OGDF_ASSERT(representsCombEmbedding());
 		 }
 	}
 }
@@ -584,7 +573,7 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 			continue;
 
 		node vOrig = original(v);
-		OGDF_ASSERT(vOrig != 0);
+		OGDF_ASSERT(vOrig != nullptr);
 
 		node vCenter = newNode();
 		m_vOrig[vCenter] = vOrig;
@@ -612,14 +601,17 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 			int count = 0; //should be max. 4 (3) edges at boundary node
 			//the order of the edges in the copy may be incorrect, we search for the
 			//edge with an original
-			//do
-			//{
+#if 0
+			do {
+#endif
 				runAdj = runAdj->cyclicSucc();
 				eOrig  = original(runAdj->theEdge());
 				count++;
-			//} while ((count < 4) && !eOrig);
+#if 0
+			} while ((count < 4) && !eOrig);
+#endif
 			//edge found or corner reached
-			OGDF_ASSERT((count == 1) || (runAdj->theNode()->degree() == 2))
+			OGDF_ASSERT((count == 1) || (runAdj->theNode()->degree() == 2));
 			if (eOrig)
 			{
 				adjEdges.pushBack(eOrig);
@@ -627,13 +619,16 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 			adjCorner = adjCorner->faceCycleSucc(); //TODO: pred?
 		} while (adjCorner != vi->m_corner[odNorth]);
 
-		OGDF_ASSERT(adjEdges.size() == vOrig->degree())
+		OGDF_ASSERT(adjEdges.size() == vOrig->degree());
 		ListIterator<edge> itEdge = adjEdges.begin();
 
-		while (itEdge.valid())
-		{
-		edge eOrig = *itEdge;
-		//forall_adj_edges(eOrig,vOrig) {
+#if 0
+		edge eOrig;
+		forall_adj_edges(eOrig,vOrig) {
+#else
+		while (itEdge.valid()) {
+			edge eOrig = *itEdge;
+#endif
 			if(eOrig->target() == vOrig) {
 				node connect = m_eCopy[eOrig].back()->target();
 				edge eNew = newEdge(connect,vCenter);
@@ -739,13 +734,17 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 					//no infinite loop because new sequence found
 					edge e = runGenAdj->theEdge();
 					while ((e->target() == v) && isGeneralization(e))
-						//(uml.type(e) == Graph::generalization))
+#if 0
+						(uml.type(e) == Graph::generalization))
+#endif
 					{
 						setAssociation(e);
 						runGenAdj = runGenAdj->cyclicSucc();
 						e = runGenAdj->theEdge();
 					}//while
-					//changeAdj = 0;
+#if 0
+					changeAdj = 0;
+#endif
 				}
 				maxSeqRun = 0;
 			}//else
@@ -763,7 +762,9 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 			edge e = maxSeqAdj->theEdge();
 			adjEntry runAdj = maxSeqAdj;
 			while ((e->target() == v) && isGeneralization(e))
-				//(uml.type(e) == Graph::generalization))
+#if 0
+				(uml.type(e) == Graph::generalization))
+#endif
 			{
 				inGens.pushBack(e);
 				runAdj = runAdj->cyclicSucc();
@@ -774,16 +775,18 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 			}//while generalizations
 
 			//insert the merger for v
-			OGDF_ASSERT(representsCombEmbedding())
+			OGDF_ASSERT(representsCombEmbedding());
 			node newMerger = insertGenMerger(v, inGens, E);
-			OGDF_ASSERT(representsCombEmbedding())
+			OGDF_ASSERT(representsCombEmbedding());
 			if (newMerger)
 				m_incMergers[indexCC].pushBack(newMerger);
 		}//if sequence of generalizations
 
 	}
 
-	//uml.adjustHierarchyParents();
+#if 0
+	uml.adjustHierarchyParents();
+#endif
 
 }//prepareIncrementalMergers
 
@@ -822,7 +825,10 @@ node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens,
 		for(it = inGens.begin(); it.valid(); ++it)
 		{
 			// all edges in the list inGens must be ingoing generalizations of v
-			//OGDF_ASSERT(((*it)->target() == v) && (typeOf(*it) == Graph::generalization));
+#if 0
+			OGDF_ASSERT((*it)->target() == v);
+			OGDF_ASSERT(typeOf(*it) == Graph::generalization);
+#endif
 
 			moveTarget(*it,u);
 		}
@@ -858,7 +864,7 @@ void PlanRepUML::writeGML(const char *fileName)
 //zu debugzwecken
 void PlanRepUML::writeGML(const char *fileName, GraphAttributes &AG)
 {
-	OGDF_ASSERT(m_pGraphAttributes == &(AG))
+	OGDF_ASSERT(m_pGraphAttributes == &(AG));
 	Layout drawing(*this);
 	for(node v : nodes)
 	{

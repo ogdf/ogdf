@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/PlanarizationLayout.h>
@@ -53,10 +50,10 @@ namespace ogdf {
 	PlanarizationLayout::PlanarizationLayout()
 	{
 		//modules
-		m_crossMin      .set(new SubgraphPlanarizer);
-		m_planarLayouter.set(new OrthoLayout);
-		m_packer        .set(new TileToRowsCCPacker);
-		m_embedder      .set(new SimpleEmbedder);
+		m_crossMin      .reset(new SubgraphPlanarizer);
+		m_planarLayouter.reset(new OrthoLayout);
+		m_packer        .reset(new TileToRowsCCPacker);
+		m_embedder      .reset(new SimpleEmbedder);
 
 		//parameters
 		m_pageRatio = 1.0;
@@ -79,7 +76,7 @@ namespace ogdf {
 			// 1. crossing minimization
 			//--------------------------------------
 			int cr;
-			m_crossMin.get().call(pr, cc, cr);
+			m_crossMin->call(pr, cc, cr);
 			m_nCrossings += cr;
 			OGDF_ASSERT(isPlanar(pr));
 
@@ -87,14 +84,14 @@ namespace ogdf {
 			// 2. embedding
 			//--------------------------------------
 			adjEntry adjExternal;
-			m_embedder.get().call(pr, adjExternal);
+			m_embedder->call(pr, adjExternal);
 
 			//--------------------------------------
 			// 3. (planar) layout
 			//--------------------------------------
 
 			Layout drawing(pr);
-			m_planarLayouter.get().call(pr, adjExternal, drawing);
+			m_planarLayouter->call(pr, adjExternal, drawing);
 
 			for(int i = pr.startNode(); i < pr.stopNode(); ++i) {
 				node vG = pr.v(i);
@@ -110,7 +107,7 @@ namespace ogdf {
 				}
 			}
 
-			boundingBox[cc] = m_planarLayouter.get().getBoundingBox();
+			boundingBox[cc] = m_planarLayouter->getBoundingBox();
 		}
 
 		//--------------------------------------
@@ -165,7 +162,7 @@ namespace ogdf {
 			// 1. crossing minimization
 			//--------------------------------------
 			int cr;
-			m_crossMin.get().call(pr, cc, cr, &costOrig, &forbiddenOrig);
+			m_crossMin->call(pr, cc, cr, &costOrig, &forbiddenOrig);
 			m_nCrossings += cr;
 			OGDF_ASSERT(isPlanar(pr));
 
@@ -173,7 +170,7 @@ namespace ogdf {
 			// 2. embedding
 			//--------------------------------------
 			adjEntry adjExternal;
-			m_embedder.get().call(pr, adjExternal);
+			m_embedder->call(pr, adjExternal);
 
 			//--------------------------------------
 			// 3. (planar) layout
@@ -190,7 +187,7 @@ namespace ogdf {
 			}
 
 			Layout drawing(pr);
-			m_planarLayouter.get().call(pr, adjExternal, drawing);
+			m_planarLayouter->call(pr, adjExternal, drawing);
 
 			//--------------------------------------
 			// we now have to reposition clique nodes
@@ -228,9 +225,9 @@ namespace ogdf {
 						if (vy > maxy) maxy = vy;
 
 						// are we at a bend or a crossing?
-						OGDF_ASSERT((adjRunner->twinNode()->degree() == 2) ||
-							(adjRunner->twinNode()->degree() == 4))
-							// bend
+						OGDF_ASSERT(adjRunner->twinNode()->degree() == 2
+						         || adjRunner->twinNode()->degree() == 4);
+						// bend
 						if (adjRunner->twinNode()->degree() < 4)
 							adjRunner = adjRunner->faceCycleSucc();
 						else adjRunner = adjRunner->faceCycleSucc()->cyclicPred();
@@ -321,7 +318,7 @@ namespace ogdf {
 				}
 			}
 
-			boundingBox[cc] = m_planarLayouter.get().getBoundingBox();
+			boundingBox[cc] = m_planarLayouter->getBoundingBox();
 		}
 
 		//--------------------------------------
@@ -336,7 +333,7 @@ namespace ogdf {
 
 	void PlanarizationLayout::preprocessCliques(Graph &G, CliqueReplacer &cliqueReplacer)
 	{
-		cliqueReplacer.setDefaultCliqueCenterSize(m_planarLayouter.get().separation());
+		cliqueReplacer.setDefaultCliqueCenterSize(m_planarLayouter->separation());
 
 		CliqueFinder cf(G);
 		cf.setMinSize(m_cliqueSize);
@@ -358,7 +355,7 @@ namespace ogdf {
 		// at this point, cages are collapsed, i.e. we have a center node
 		// in the planrep representing the copy of the original node
 		node cCopy = PG.copy(centerNode);
-		OGDF_ASSERT(cCopy != 0);
+		OGDF_ASSERT(cCopy != nullptr);
 		OGDF_ASSERT(cCopy->degree() == centerNode->degree());
 		OGDF_ASSERT(cCopy->degree() > 1);
 		// store the node with mostright position TODO: consider cage
@@ -388,7 +385,7 @@ namespace ogdf {
 
 			// hier besser: if... und alle anderen ignorieren
 			edge umlEdge = PG.original(outerEdgeAdj->theEdge());
-			OGDF_ASSERT(umlEdge != 0);
+			OGDF_ASSERT(umlEdge != nullptr);
 			node u = umlEdge->opposite(centerNode);
 			adjNodes.pushBack(u);
 			isClique[PG.copy(u)] = true;
@@ -454,7 +451,6 @@ namespace ogdf {
 		} while (adjRun != cCopy->firstAdj());
 
 		// adjust ordering to start with rightNode
-		// if (true) //zum debuggen ausschalten koennen
 		while (adjNodes.front() != rightNode)
 		{
 			node tempV = adjNodes.popFrontRet();
@@ -485,7 +481,7 @@ namespace ogdf {
 			// 1. crossing minimization
 			//--------------------------------------
 			int cr;
-			m_crossMin.get().call(pr, cc, cr, &costOrig, nullptr, &esgOrig);
+			m_crossMin->call(pr, cc, cr, &costOrig, nullptr, &esgOrig);
 			m_nCrossings += cr;
 			OGDF_ASSERT(isPlanar(pr));
 
@@ -493,14 +489,14 @@ namespace ogdf {
 			// 2. embedding
 			//--------------------------------------
 			adjEntry adjExternal;
-			m_embedder.get().call(pr, adjExternal);
+			m_embedder->call(pr, adjExternal);
 
 			//--------------------------------------
 			// 3. (planar) layout
 			//--------------------------------------
 
 			Layout drawing(pr);
-			m_planarLayouter.get().call(pr, adjExternal, drawing);
+			m_planarLayouter->call(pr, adjExternal, drawing);
 
 			for(int i = pr.startNode(); i < pr.stopNode(); ++i) {
 				node vG = pr.v(i);
@@ -516,7 +512,7 @@ namespace ogdf {
 				}
 			}
 
-			boundingBox[cc] = m_planarLayouter.get().getBoundingBox();
+			boundingBox[cc] = m_planarLayouter->getBoundingBox();
 		}
 
 		//--------------------------------------
@@ -532,7 +528,7 @@ namespace ogdf {
 	{
 		const int numCC = pr.numberOfCCs();
 		Array<DPoint> offset(numCC);
-		m_packer.get().call(boundingBox, offset, m_pageRatio);
+		m_packer->call(boundingBox, offset, m_pageRatio);
 
 		for(int cc = 0; cc < numCC; ++cc) {
 

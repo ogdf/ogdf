@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/planarity/MDMFLengthAttribute.h>
 
@@ -54,7 +51,7 @@ MDMFLengthAttribute &MDMFLengthAttribute::operator=(int x)
 
 bool MDMFLengthAttribute::operator==(const MDMFLengthAttribute& x)
 {
-	return (this->d == x.d && this->l == x.l);
+	return this->d == x.d && this->l == x.l;
 }
 
 bool MDMFLengthAttribute::operator!=(const MDMFLengthAttribute& x)
@@ -64,7 +61,7 @@ bool MDMFLengthAttribute::operator!=(const MDMFLengthAttribute& x)
 
 bool MDMFLengthAttribute::operator>(const MDMFLengthAttribute& x)
 {
-	return (this->d > x.d || (this->d == x.d && this->l > x.l));
+	return this->d > x.d || (this->d == x.d && this->l > x.l);
 }
 
 bool MDMFLengthAttribute::operator<(const MDMFLengthAttribute& x)
@@ -108,7 +105,7 @@ MDMFLengthAttribute MDMFLengthAttribute::operator-=(const MDMFLengthAttribute& x
 
 bool operator==(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y)
 {
-	return (x.d == y.d && x.l == y.l);
+	return x.d == y.d && x.l == y.l;
 }
 
 bool operator!=(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y)
@@ -118,7 +115,7 @@ bool operator!=(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y)
 
 bool operator>(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y)
 {
-	return (x.d > y.d || (x.d == y.d && x.l > y.l));
+	return x.d > y.d || (x.d == y.d && x.l > y.l);
 }
 
 bool operator<(const MDMFLengthAttribute& x, const MDMFLengthAttribute& y)

@@ -17,7 +17,19 @@ namespace bandit { namespace detail {
     //
     // To make gcc < 4.7 happy.
     //
-    virtual ~assertion_exception() throw()
+    assertion_exception(const assertion_exception&) = default;
+
+#ifndef _MSC_VER
+    assertion_exception(assertion_exception&&) = default;
+#else
+	assertion_exception(assertion_exception&& other)
+		: std::runtime_error(other), file_name_(), line_number_(other.line_number_)
+	{
+		std::swap(file_name_, other.file_name_);
+	}
+#endif
+
+    virtual ~assertion_exception() noexcept
     {}
 
     const std::string& file_name() const

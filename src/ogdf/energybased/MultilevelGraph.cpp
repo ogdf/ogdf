@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/MultilevelGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -62,7 +59,7 @@ MultilevelGraph::~MultilevelGraph()
 //initialize internal structures such as the GraphAttributes that store the layout
 void MultilevelGraph::initInternal()
 {
-	OGDF_ASSERT(m_G != 0);
+	OGDF_ASSERT(m_G != nullptr);
 	m_GA = new GraphAttributes(*m_G);
 }
 
@@ -105,7 +102,9 @@ MultilevelGraph::MultilevelGraph(GraphAttributes &GA)
 	prepareGraphAttributes(GA);
 	importAttributes(GA);
 
-	//initReverseIndizes();
+#if 0
+	initReverseIndizes();
+#endif
 }
 
 
@@ -157,7 +156,9 @@ MultilevelGraph::MultilevelGraph(istream &is)
 	m_weight.init(*m_G);
 
 	initInternal();
-	//GraphAttributes tempGA(*m_G);
+#if 0
+	GraphAttributes tempGA(*m_G);
+#endif
 	GraphIO::readGML(*m_GA, *m_G, is);
 	prepareGraphAttributes(*m_GA);
 	importAttributesSimple(*m_GA);
@@ -178,8 +179,10 @@ MultilevelGraph::MultilevelGraph(const char *filename) : m_createdGraph(true)
 	m_weight.init(*m_G);
 
 	initInternal();
-	//GraphAttributes tempGA(*m_G);
-	GraphIO::readGML(*m_GA, *m_G, filename);
+#if 0
+	GraphAttributes tempGA(*m_G);
+#endif
+	GraphIO::read(*m_GA, *m_G, filename, GraphIO::readGML);
 	prepareGraphAttributes(*m_GA);
 	importAttributesSimple(*m_GA);
 
@@ -410,7 +413,6 @@ void MultilevelGraph::reInsertAll(std::vector<MultilevelGraph *> &components)
 // keeps Node and Edge Associations
 // deletes Nodes and Eges from Graph
 // deletes Attributes
-// deprecated, use componentsplitterlayout instead
 std::vector<MultilevelGraph *> MultilevelGraph::splitIntoComponents()
 {
 	std::vector<MultilevelGraph *> components;
@@ -427,8 +429,7 @@ std::vector<MultilevelGraph *> MultilevelGraph::splitIntoComponents()
 		componentArray[componentNumbers[v]].push_back(v);
 	}
 
-	for (unsigned int componentNumber = 0; componentNumber < componentArray.size(); componentNumber++) {
-		std::vector<node> componentSubArray = componentArray[componentNumber];
+	for (auto componentSubArray : componentArray) {
 		MultilevelGraph * component = removeOneCC(componentSubArray);
 		components.push_back(component);
 	}
@@ -492,21 +493,26 @@ MultilevelGraph * MultilevelGraph::removeOneCC(std::vector<node> &componentSubAr
 
 	// move edges
 	for (node v : componentSubArray) {
-//		std::vector<edge> toDelete;
+#if 0
+		std::vector<edge> toDelete;
+#endif
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if (e->source() == v) {
 				copyEdgeTo(e, *MLGcomponent, tempNodeAssociations, true);
-//				toDelete.push_back(e);
+#if 0
+				toDelete.push_back(e);
+#endif
 			}
 		}
-/*		// Test if this is good for Performace.
+#if 0
+		// Test if this is good for Performace.
 		// makes Assert Edges == 0 fail!
 		// Because of self loops!
 		for(std::vector<edge>::iterator j = toDelete.begin(); j != toDelete.end(); j++) {
 			m_G->delEdge(*j);
 		}
-*/
+#endif
 	}
 
 	tempNodeAssociations.clear();

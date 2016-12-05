@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -46,12 +43,39 @@ namespace ogdf {
 
 //! Computes a max flow in s-t-planar network via uppermost paths.
 /**
-* @ingroup ga-flow
-*/
+ * @ingroup ga-flow
+ */
 template<typename TCap>
-class OGDF_EXPORT MaxFlowSTPlanarItaiShiloach : public MaxFlowModule<TCap>
+class MaxFlowSTPlanarItaiShiloach : public MaxFlowModule<TCap>
 {
 private:
+
+	/**
+	 * \brief To work with unsigned, we need a priority shifting of the elements in the priority queue.
+	 * @param e edge in #m_prioritizedEdges
+	 * @return unshifted priority
+	 */
+	TCap unshiftedPriority(edge e) {
+		return m_prioritizedEdges->priority(e) - TCap(1);
+	}
+
+	/**
+	 * see #unshiftedPriority
+	 * @return unshifted priority of top element
+	 */
+	TCap unshiftedTopPriority() {
+		return m_prioritizedEdges->topPriority() - TCap(1);
+	}
+
+	/**
+	 * see #unshiftedPriority
+	 * @param priority original priority
+	 * @return shifted priority
+	 */
+	TCap shiftPriority(TCap priority) {
+		OGDF_ASSERT(priority < std::numeric_limits<TCap>::max());
+		return priority + TCap(1);
+	}
 
 	/**
 	 * Each node has a certain type depending on its participation in any path.
@@ -151,7 +175,7 @@ public:
 		while(findUppermostPath(lastSaturated)) {
 
 			lastSaturated = m_prioritizedEdges->topElement();
-			m_partialFlow = m_prioritizedEdges->topPriority();
+			m_partialFlow = unshiftedTopPriority();
 			m_prioritizedEdges->pop();
 
 			(*this->m_flow)[lastSaturated] = (*this->m_cap)[lastSaturated];
@@ -299,7 +323,7 @@ private:
 		// insert into priority queue while
 		// taking into account the partial flow
 		TCap value = m_partialFlow + (*this->m_cap)[e];
-		m_prioritizedEdges->push(e, value);
+		m_prioritizedEdges->push(e, shiftPriority(value));
 	}
 
 	/**
@@ -318,8 +342,8 @@ private:
 		m_status[v] = v == *this->m_t ? NT_PATH : NT_DONE;
 
 		// remove edge from priority queue
-		TCap modCap = m_prioritizedEdges->priority(e);
-		m_prioritizedEdges->decrease(e, TCap(-1));
+		TCap modCap = unshiftedPriority(e);
+		m_prioritizedEdges->decrease(e, std::numeric_limits<TCap>::min());
 #ifdef OGDF_DEBUG
 		edge f = m_prioritizedEdges->topElement();
 #endif

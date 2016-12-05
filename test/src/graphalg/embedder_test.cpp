@@ -88,17 +88,18 @@ void describeEmbedder(const string &title, EmbedderModule &embedder) {
 				testEmbedder(embedder, graph);
 			});
 		}
-#ifdef OGDF_DEBUG
+
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 		it("fails on a K5", [&]() {
 			adjEntry adjExternal;
 			completeGraph(graph, 5);
-			AssertThrows(PreconditionViolatedException, embedder(graph, adjExternal));
+			AssertThrows(AssertionFailed, embedder(graph, adjExternal));
 		});
 
 		it("fails on a random non-planar graph", [&]() {
 			adjEntry adjExternal;
 			randomGraph(graph, numberOfNodes, 3*numberOfNodes-5);
-			AssertThrows(PreconditionViolatedException, embedder(graph, adjExternal));
+			AssertThrows(AssertionFailed, embedder(graph, adjExternal));
 		});
 #endif
 	});

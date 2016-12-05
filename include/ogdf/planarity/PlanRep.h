@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 // PlanRep should not know about generalizations and association,
@@ -66,7 +63,7 @@ public:
 	//! Information for restoring degree-1 nodes.
 	struct Deg1RestoreInfo
 	{
-		Deg1RestoreInfo() : m_eOriginal(0), m_deg1Original(0), m_adjRef(0) { }
+		Deg1RestoreInfo() : m_eOriginal(nullptr), m_deg1Original(nullptr), m_adjRef(nullptr) { }
 		Deg1RestoreInfo(edge eOrig, node deg1Orig, adjEntry adjRef)
 			: m_eOriginal(eOrig), m_deg1Original(deg1Orig), m_adjRef(adjRef) { }
 
@@ -195,7 +192,7 @@ public:
 		setEdgeTypeOf(e, edgeTypeOf(e) | cliquePattern());
 	}
 	bool isCliqueBoundary(edge e) {
-		return ((edgeTypeOf(e) & cliquePattern()) == cliquePattern());
+		return (edgeTypeOf(e) & cliquePattern()) == cliquePattern();
 	}
 
 
@@ -400,7 +397,7 @@ public:
 
 	//! Returns true iff edge \a e is classified as expansion edge.
 	bool isExpansion(edge e) {
-		return ((m_edgeTypes[e] & expansionPattern()) == expansionPattern());
+		return (m_edgeTypes[e] & expansionPattern()) == expansionPattern();
 	}
 
 	//should add things like cluster and clique boundaries that need rectangle shape
@@ -421,7 +418,7 @@ public:
 	//! Returns true iff edge \a e is classified as connection at an association class.
 	bool isAssClass(edge e)
 	{
-		return ((m_edgeTypes[e] & assClassPattern()) == assClassPattern());
+		return (m_edgeTypes[e] & assClassPattern()) == assClassPattern();
 	}
 
 
@@ -440,12 +437,12 @@ public:
 
 	//! Returns true if edge \a e is classified as brother.
 	bool isBrother(edge e) {
-		return ( (((m_edgeTypes[e] & etpFourth) & brotherPattern())>> etoFourth) == etcBrother);
+		return ( (m_edgeTypes[e] & etpFourth & brotherPattern()) >> etoFourth) == etcBrother;
 	}
 
 	//! Returns true if edge \a e is classified as half-brother.
 	bool isHalfBrother(edge e) {
-		return ( (((m_edgeTypes[e] & etpFourth) & halfBrotherPattern())>> etoFourth) == etcHalfBrother);
+		return ( (m_edgeTypes[e] & etpFourth & halfBrotherPattern()) >> etoFourth) == etcHalfBrother;
 	}
 
 	//-----------------
@@ -486,7 +483,7 @@ public:
 	bool isUserType(edge e, edgeType et)
 	{
 		OGDF_ASSERT( et < 147);
-		return ( (m_edgeTypes[e] & (et << etoUser)) == (et << etoUser));
+		return (m_edgeTypes[e] & (et << etoUser)) == (et << etoUser);
 	}
 
 	//---------------
@@ -507,7 +504,7 @@ public:
 
 	//! Returns if \a e is an expansion edge.
 	bool isExpansionEdge(edge e) const {
-		return (m_expansionEdge[e] > 0);
+		return m_expansionEdge[e] > 0;
 	}
 
 	//! Returns the expansion edge type of \a e.
@@ -516,8 +513,11 @@ public:
 	//precondition normalized
 	//! Returns if \a e is a degree expansion edge.
 	bool isDegreeExpansionEdge(edge e) const {
-		//return (m_eType[e] == Graph::expand);
-		return ( m_expansionEdge[e]  == 2);
+#if 0
+		return (m_eType[e] == Graph::expand);
+#else
+		return m_expansionEdge[e]  == 2;
+#endif
 	}
 
 
@@ -532,31 +532,37 @@ public:
 
 	//! Gives access to the node array of the widths of original nodes.
 	const NodeArray<double> &widthOrig() const {
+		OGDF_ASSERT(m_pGraphAttributes != nullptr);
 		return m_pGraphAttributes->width();
 	}
 
 	//! Returns the width of original node \a v.
 	double widthOrig(node v) const {
+		OGDF_ASSERT(m_pGraphAttributes != nullptr);
 		return m_pGraphAttributes->width(v);
 	}
 
 	//! Gives access to the node array of the heights of original nodes.
 	const NodeArray<double> &heightOrig() const {
+		OGDF_ASSERT(m_pGraphAttributes != nullptr);
 		return m_pGraphAttributes->height();
 	}
 
 	//! Returns the height of original node \a v.
 	double heightOrig(node v) const {
+		OGDF_ASSERT(m_pGraphAttributes != nullptr);
 		return m_pGraphAttributes->height(v);
 	}
 
 	//! Returns the type of original edge \a e.
 	EdgeType typeOrig(edge e) const {
+		OGDF_ASSERT(m_pGraphAttributes != nullptr);
 		return m_pGraphAttributes->type(e);
 	}
 
 	//! Returns the graph attributes of the original graph (the pointer may be 0).
 	const GraphAttributes &getGraphAttributes() const {
+		OGDF_ASSERT(m_pGraphAttributes != nullptr);
 		return *m_pGraphAttributes;
 	}
 
@@ -588,7 +594,7 @@ public:
 	//@{
 
 	//! Splits edge \a e.
-	virtual edge split(edge e);
+	virtual edge split(edge e) override;
 
 
 	//returns node which was expanded using v

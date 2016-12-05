@@ -43,7 +43,7 @@ namespace abacus {
  * Like the class NumVar for variables we provide the class NumCon
  * for constraints which are uniquely defined by an integer number.
  */
-class  NumCon :  public Constraint  {
+class OGDF_EXPORT NumCon : public Constraint {
 public:
 
 	//! Creates a constraint defined by \a number.

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/upward/FUPSSimple.h>
 //#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
@@ -85,21 +82,19 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 	//insert nonTreeEdges
 	while (!nonTreeEdges_orig.empty()) {
 
-	/*
-	//------------------------------------debug
-	GraphAttributes AG(FUPS, GraphAttributes::nodeGraphics|
-						GraphAttributes::edgeGraphics|
-						GraphAttributes::nodeColor|
-						GraphAttributes::edgeColor|
-						GraphAttributes::nodeLabel|
-						GraphAttributes::edgeLabel
-						);
-	// label the nodes with their index
-	for(node v : AG.constGraph().nodes) {
-		AG.label(v) = to_string(v->index());
-	}
-	AG.writeGML("c:/temp/spannTree.gml");
-	*/
+#if 0
+		GraphAttributes AG(FUPS, GraphAttributes::nodeGraphics |
+		                         GraphAttributes::edgeGraphics |
+		                         GraphAttributes::nodeColor |
+		                         GraphAttributes::edgeColor |
+		                         GraphAttributes::nodeLabel |
+		                         GraphAttributes::edgeLabel);
+		// label the nodes with their index
+		for(node v : AG.constGraph().nodes) {
+			AG.label(v) = to_string(v->index());
+		}
+		AG.writeGML("c:/temp/spannTree.gml");
+#endif
 
 		// make identical copy FUPSCopy of FUPS
 		//and insert e_orig in FUPSCopy
@@ -121,7 +116,6 @@ void FUPSSimple::computeFUPS(UpwardPlanRep &UPR, List<edge> &delEdges)
 
 
 #if 0
-			//*************************** debug ********************************
 			cout << endl << "FUPS : " << endl;
 			for(face ff : Beta.faces) {
 				cout << "face " << ff->index() << ": ";
@@ -246,8 +240,7 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 	adjEntry ext_adj = M.copy(adj_orig->theEdge())->adjSource();
 	Beta.setExternalFace(Beta.rightFace(ext_adj));
 
-	//*************************** debug ********************************
-	/*
+#if 0
 	cout << endl << "FUPS : " << endl;
 	for(face ff : Beta.faces) {
 		cout << "face " << ff->index() << ": ";
@@ -262,7 +255,7 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 		cout << "ext. face of the graph is: " << Beta.externalFace()->index() << endl;
 	else
 		cout << "no ext. face set." << endl;
-	*/
+#endif
 
 	FaceSinkGraph fsg(Beta, M.copy(adj_orig->theNode()));
 	SList<node> aug_nodes;
@@ -271,12 +264,11 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 	fsg.possibleExternalFaces(fList); // use this method to call the methode checkForest()
 	node v_ext = fsg.faceNodeOf(Beta.externalFace());
 
-	OGDF_ASSERT(v_ext != 0);
+	OGDF_ASSERT(v_ext != nullptr);
 
 	fsg.stAugmentation(v_ext, M, aug_nodes, aug_edges);
 
-	/*
-	//------------------------------------debug
+#if 0
 	GraphAttributes AG(M, GraphAttributes::nodeGraphics|
 						GraphAttributes::edgeGraphics|
 						GraphAttributes::nodeColor|
@@ -289,8 +281,7 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 		AG.label(v) = to_string(v->index());
 	}
 	AG.writeGML("c:/temp/MergeFUPS.gml");
-	*/
-
+#endif
 
 	OGDF_ASSERT(isStGraph(M));
 
@@ -300,8 +291,7 @@ bool FUPSSimple::constructMergeGraph(GraphCopy &M, adjEntry adj_orig, const List
 		node b = M.copy(eOrig->target());
 		M.newEdge(a, b);
 	}
-	return (isAcyclic(M));
+	return isAcyclic(M);
 }
 
 } // end namespace ogdf
-

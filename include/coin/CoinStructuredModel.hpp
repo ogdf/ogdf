@@ -9,7 +9,7 @@
 #include "CoinModel.hpp"
 #include <vector>
 
-/** 
+/**
     This is a model which is made up of Coin(Structured)Model blocks.
 */
   typedef struct CoinModelInfo2 {
@@ -21,7 +21,7 @@
     char integer; // nonzero if integer information exists
     char bounds; // nonzero if non default bounds/objective exists
     char columnName; // nonzero if column names exists
-    CoinModelInfo2() : 
+    CoinModelInfo2() :
       rowBlock(0),
       columnBlock(0),
       matrix(0),
@@ -34,11 +34,11 @@
 } CoinModelBlockInfo;
 
 class CoinStructuredModel : public CoinBaseModel {
-  
+
 public:
   /**@name Useful methods for building model */
   //@{
-  /** add a block from a CoinModel using names given as parameters 
+  /** add a block from a CoinModel using names given as parameters
       returns number of errors (e.g. both have objectives but not same)
    */
   int addBlock(const std::string & rowBlock,
@@ -48,14 +48,14 @@ public:
       returns number of errors (e.g. both have objectives but not same)
  */
   int addBlock(const CoinBaseModel & block);
-  /** add a block from a CoinModel using names given as parameters 
+  /** add a block from a CoinModel using names given as parameters
       returns number of errors (e.g. both have objectives but not same)
       This passes in block - structured model takes ownership
    */
   int addBlock(const std::string & rowBlock,
 		const std::string & columnBlock,
 		CoinBaseModel * block);
-  /** add a block using names 
+  /** add a block using names
    */
   int addBlock(const std::string & rowBlock,
 	       const std::string & columnBlock,
@@ -65,7 +65,7 @@ public:
 	       const double * objective);
 
   /** Write the problem in MPS format to a file with the given filename.
-      
+
   \param compression can be set to three values to indicate what kind
   of file should be written
   <ul>
@@ -75,7 +75,7 @@ public:
   </ul>
   If the library was not compiled with the requested compression then
   writeMps falls back to writing a plain text file.
-  
+
   \param formatType specifies the precision to used for values in the
   MPS file
   <ul>
@@ -83,10 +83,10 @@ public:
   <li> 1: extra accuracy
   <li> 2: IEEE hex
   </ul>
-  
+
   \param numberAcross specifies whether 1 or 2 (default) values should be
   specified on every data line in the MPS file.
-  
+
   not const as may change model e.g. fill in default bounds
   */
   int writeMps(const char *filename, int compression = 0,
@@ -110,7 +110,7 @@ public:
 		const double * columnLower, const double * columnUpper,
 		const double * objective, int type,int maxBlocks=50,
 		double objectiveOffset=0.0);
-  
+
    //@}
 
 
@@ -131,7 +131,7 @@ public:
   inline const std::string & getRowBlock(int i) const
   { return rowBlockNames_[i];}
   /// Set i'th row block name
-  inline void setRowBlock(int i,const std::string &name) 
+  inline void setRowBlock(int i,const std::string &name)
   { rowBlockNames_[i] = name;}
   /// Add or check a row block name and number of rows
   int addRowBlock(int numberRows,const std::string &name) ;
@@ -141,7 +141,7 @@ public:
   inline const std::string & getColumnBlock(int i) const
   { return columnBlockNames_[i];}
   /// Set i'th column block name
-  inline void setColumnBlock(int i,const std::string &name) 
+  inline void setColumnBlock(int i,const std::string &name)
   { columnBlockNames_[i] = name;}
   /// Add or check a column block name and number of columns
   int addColumnBlock(int numberColumns,const std::string &name) ;

@@ -40,7 +40,7 @@ namespace abacus {
  * OSI specific parameters and global data. The master instance of
  * Master keeps a pointer to an instance of this class.
  */
-class  LpMasterOsi :  public LpMaster  {
+class OGDF_EXPORT LpMasterOsi : public LpMaster {
 	friend class OsiIF;
 public:
 
@@ -54,16 +54,16 @@ public:
 	virtual ~LpMasterOsi();
 
 	//! Initializes the LP solver specific Parameters.
-	virtual void initializeLpParameters();
+	virtual void initializeLpParameters() override;
 
 	//! Sets default values of the LP solver specific Parameters.
-	virtual void setDefaultLpParameters() { }
+	virtual void setDefaultLpParameters() override { }
 
 	//! Prints the settings of the LP solver specific Parameters.
-	virtual void printLpParameters() const { }
+	virtual void printLpParameters() const override { }
 
 	//! Prints LP solver specific Statistics.
-	virtual void outputLpStatistics() const { }
+	virtual void outputLpStatistics() const override { }
 };
 
 } //namespace abacus

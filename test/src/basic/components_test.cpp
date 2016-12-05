@@ -70,9 +70,7 @@ go_bandit([](){
 
 		it("works on a predefined graph with overlapping circles", [](){
 			Graph graph;
-			for(int i = 0; i < 8; i++) {
-				graph.newNode();
-			}
+			emptyGraph(graph, 8);
 			List<node> nodes;
 			graph.allNodes(nodes);
 			graph.newEdge(*nodes.get(2), *nodes.get(5));

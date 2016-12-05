@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/LinearQuadtree.h>
 #include <ogdf/internal/energybased/WSPD.h>
@@ -81,34 +78,34 @@ void LinearQuadtree::allocate(uint32_t n)
 
 	m_numPoints = n;
 	m_maxNumNodes = 2 * n;
-	m_tree = static_cast<LQNode*>(MALLOC_16(m_maxNumNodes*sizeof(LQNode)));
-	m_nodeXPos = static_cast<float*>(MALLOC_16(m_maxNumNodes*sizeof(float)));
-	m_nodeYPos = static_cast<float*>(MALLOC_16(m_maxNumNodes*sizeof(float)));
-	m_nodeSize = static_cast<float*>(MALLOC_16(m_maxNumNodes*sizeof(float)));
-	m_points = static_cast<LQPoint*>(MALLOC_16(m_numPoints*sizeof(LQPoint)));
+	m_tree = static_cast<LQNode*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(LQNode)));
+	m_nodeXPos = static_cast<float*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(float)));
+	m_nodeYPos = static_cast<float*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(float)));
+	m_nodeSize = static_cast<float*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(float)));
+	m_points = static_cast<LQPoint*>(OGDF_MALLOC_16(m_numPoints*sizeof(LQPoint)));
 	for (uint32_t i = 0; i < m_numPoints; i++)
 		m_points[i].ref = i;
-	m_pointXPos = static_cast<float*>(MALLOC_16(m_numPoints*sizeof(float)));
-	m_pointYPos = static_cast<float*>(MALLOC_16(m_numPoints*sizeof(float)));
-	m_pointSize = static_cast<float*>(MALLOC_16(m_numPoints*sizeof(float)));
-	m_notWspd = static_cast<LQWSPair*>(MALLOC_16(m_maxNumNodes*sizeof(LQWSPair) * 27));
-	m_directNodes = static_cast<NodeID*>(MALLOC_16(m_maxNumNodes*sizeof(NodeID)));
+	m_pointXPos = static_cast<float*>(OGDF_MALLOC_16(m_numPoints*sizeof(float)));
+	m_pointYPos = static_cast<float*>(OGDF_MALLOC_16(m_numPoints*sizeof(float)));
+	m_pointSize = static_cast<float*>(OGDF_MALLOC_16(m_numPoints*sizeof(float)));
+	m_notWspd = static_cast<LQWSPair*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(LQWSPair) * 27));
+	m_directNodes = static_cast<NodeID*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(NodeID)));
 	m_WSPD = new WSPD(m_maxNumNodes);
 }
 
 
 void LinearQuadtree::deallocate()
 {
-	FREE_16(m_tree);
-	FREE_16(m_nodeXPos);
-	FREE_16(m_nodeYPos);
-	FREE_16(m_nodeSize);
-	FREE_16(m_points);
-	FREE_16(m_pointXPos);
-	FREE_16(m_pointYPos);
-	FREE_16(m_pointSize);
-	FREE_16(m_notWspd);
-	FREE_16(m_directNodes);
+	OGDF_FREE_16(m_tree);
+	OGDF_FREE_16(m_nodeXPos);
+	OGDF_FREE_16(m_nodeYPos);
+	OGDF_FREE_16(m_nodeSize);
+	OGDF_FREE_16(m_points);
+	OGDF_FREE_16(m_pointXPos);
+	OGDF_FREE_16(m_pointYPos);
+	OGDF_FREE_16(m_pointSize);
+	OGDF_FREE_16(m_notWspd);
+	OGDF_FREE_16(m_directNodes);
 	delete m_WSPD;
 }
 

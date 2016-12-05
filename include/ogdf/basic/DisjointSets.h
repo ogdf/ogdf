@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -124,15 +121,15 @@ public:
 		this->numberOfElements=0;
 		this->maxNumberOfElements = maxNumberOfElements;
 		this->parents = new int[this->maxNumberOfElements];
-		this->parameters = (linkOption==LR || linkOption==LS) ? new int[this->maxNumberOfElements] : 0;
-		this->siblings = (compressionOption==CO) ? new int[this->maxNumberOfElements] : 0;
+		this->parameters = (linkOption==LR || linkOption==LS) ? new int[this->maxNumberOfElements] : nullptr;
+		this->siblings = (compressionOption==CO) ? new int[this->maxNumberOfElements] : nullptr;
 	}
 
 	~DisjointSets()
 	{
 		delete [] this->parents;
-		if (this->parameters != 0) delete [] this->parameters;
-		if (this->siblings != 0) delete [] this->siblings;
+		if (this->parameters != nullptr) delete [] this->parameters;
+		if (this->siblings != nullptr) delete [] this->siblings;
 	}
 
 	//! Returns the id of the largest superset of \a set and compresses the path according to \a compressionOption.
@@ -143,9 +140,8 @@ public:
 	*/
 	int find(int set)
 	{
-#ifdef OGDF_DEBUG
-		if(set < 0 || set >= numberOfElements){ throw PreconditionViolatedException(); }
-#endif
+		OGDF_ASSERT(set >= 0);
+		OGDF_ASSERT(set < numberOfElements);
 		return find(CompressionOption<compressionOption>(), set);
 	}
 
@@ -157,9 +153,8 @@ public:
 	*/
 	int getRepresentative(int set)
 	{
-#ifdef OGDF_DEBUG
-		if(set < 0 || set >= numberOfElements){ throw PreconditionViolatedException(); }
-#endif
+		OGDF_ASSERT(set >= 0);
+		OGDF_ASSERT(set < numberOfElements);
 		while (set!=parents[set]) set=parents[set];
 		return set;
 	}
@@ -177,7 +172,7 @@ public:
 			memcpy(this->parents,parents,sizeof(int)*this->maxNumberOfElements);
 			delete [] parents;
 
-			if (this->parameters != 0)
+			if (this->parameters != nullptr)
 			{
 				int *parameters = this->parameters;
 				this->parameters = new int[this->maxNumberOfElements*2];
@@ -185,7 +180,7 @@ public:
 				delete [] parameters;
 			}
 
-			if (this->siblings != 0)
+			if (this->siblings != nullptr)
 			{
 				int *siblings = this->siblings;
 				this->siblings = new int[this->maxNumberOfElements*2];
@@ -211,10 +206,8 @@ public:
 	*/
 	int link(int set1, int set2)
 	{
-#ifdef OGDF_DEBUG
-		if(set1 != getRepresentative(set1)) { throw PreconditionViolatedException(); }
-		if(set2 != getRepresentative(set2)) { throw PreconditionViolatedException(); }
-#endif
+		OGDF_ASSERT(set1 == getRepresentative(set1));
+		OGDF_ASSERT(set2 == getRepresentative(set2));
 		if (set1==set2) return -1;
 		this->numberOfSets--;
 		return linkPure(set1, set2);
@@ -227,7 +220,7 @@ public:
 	bool quickUnion(int set1, int set2)
 	{
 		if (set1==set2) return false;
-		bool result = quickUnion(LinkOption<linkOption>(),InterleavingOption<interleavingOption>(), set1, set2); 
+		bool result = quickUnion(LinkOption<linkOption>(),InterleavingOption<interleavingOption>(), set1, set2);
 		numberOfSets -= result;
 		return result;
 	}

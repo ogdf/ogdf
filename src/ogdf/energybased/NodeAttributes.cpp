@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/NodeAttributes.h>
 
@@ -108,7 +105,7 @@ void NodeAttributes::init_mult_values()
 	moon_List_ptr = &moon_List;
 	placed = false;
 	angle_1 = 0;
-	angle_2 = 6.2831853;
+	angle_2 = 2.0 * Math::pi;
 }
 
 
@@ -123,19 +120,7 @@ NodeAttributes::NodeAttributes()
 
 	//for multilevel step
 	mass = 0;
-	type = 0;
-	dedicated_sun_node = nullptr;
-	dedicated_sun_distance = 0;
-	dedicated_pm_node = nullptr;
-	lambda.clear();
-	neighbour_s_node.clear();
-	lambda_List_ptr = &lambda;
-	neighbour_s_node_List_ptr = &neighbour_s_node;
-	moon_List.clear();
-	moon_List_ptr = &moon_List;
-	placed = false;
-	angle_1 = 0;
-	angle_2 = 6.2831853;
+	init_mult_values();
 }
 
 }

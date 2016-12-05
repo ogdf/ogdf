@@ -81,11 +81,11 @@ public:
   inline int externalNumber() const
   {return externalNumber_;}
   /** \brief Set message ID number
-  
+
     In the default CoinMessageHandler, this number is printed in the message
     prefix and is used to determine the message severity level.
   */
-  inline void setExternalNumber(int number) 
+  inline void setExternalNumber(int number)
   {externalNumber_=number;}
   /// Severity
   inline char severity() const
@@ -97,7 +97,7 @@ public:
   inline int detail() const
   {return detail_;}
   /// Return the message text
-  inline char * message() const 
+  inline char * message() const
   {return message_;}
   //@}
 
@@ -125,7 +125,7 @@ class CoinMessages {
 
 public:
   /** \brief Supported languages
-  
+
     These are the languages that are supported.  At present only
     us_en is serious and the rest are for testing.
   */
@@ -194,7 +194,7 @@ public:
   //@{
   /// Number of messages
   int numberMessages_;
-  /// Language 
+  /// Language
   Language language_;
   /// Source (null-terminated string, maximum 4 characters).
   char source_[5];
@@ -263,7 +263,7 @@ enum CoinMessageMarker {
     CoinMessageHandler can print integers (normal, long, and long long),
     doubles, characters, and strings. See the descriptions of the
     various << operators.
-    
+
     When processing a standard message with a format string, the formatting
     codes specified in the format string will be passed to the sprintf
     function, along with the argument. When generating a message with no
@@ -317,7 +317,7 @@ friend bool CoinMessageHandlerUnitTest () ;
 private:
   /** The body of the copy constructor and the assignment operator */
   void gutsOfCopy(const CoinMessageHandler& rhs);
-  
+
 public:
    /**@name Virtual methods that the derived classes may provide */
    //@{
@@ -460,7 +460,7 @@ public:
   inline void setFilePointer(FILE * fp)
   { fp_ = fp;}
   //@}
-  
+
   /**@name Actions to create a message  */
   //@{
   /*! \brief Start a message
@@ -479,8 +479,8 @@ public:
     message after code that interrupts the usual sequence of << operators.
   */
   CoinMessageHandler & message();
-  /*! \brief Generate a standard prefix and append \c msg `as is'. 
-  
+  /*! \brief Generate a standard prefix and append \c msg `as is'.
+
      Intended as a transition mechanism. The standard prefix is generated (if
      enabled), and \c msg is appended. Only the operator<<(CoinMessageMarker)
      operator can be used with a message started with this call.
@@ -532,7 +532,7 @@ public:
   */
   CoinMessageHandler & operator<< (CoinMessageMarker);
   /** Finish (and print) the message.
-  
+
     Equivalent to using the CoinMessageEol marker.
   */
   int finish();
@@ -553,7 +553,7 @@ public:
   */
   char * nextPerCent(char * start , const bool initial=false);
   /*! \brief Internal printing function.
-  
+
     Makes it easier to split up print into clean, print and check severity
   */
   int internalPrint();

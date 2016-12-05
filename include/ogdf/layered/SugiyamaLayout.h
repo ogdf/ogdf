@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -40,7 +37,7 @@
 #include <ogdf/module/HierarchyLayoutModule.h>
 #include <ogdf/module/HierarchyClusterLayoutModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/layered/ExtendedNestingGraph.h>
 
@@ -161,27 +158,29 @@ namespace ogdf {
  */
 class OGDF_EXPORT SugiyamaLayout : public LayoutModule {
 
-	//class CrossMinMaster;
-	//class CrossMinWorker;
+#if 0
+	class CrossMinMaster;
+	class CrossMinWorker;
+#endif
 
 protected:
 
 	//! the ranking module (level assignment)
-	ModuleOption<RankingModule>                m_ranking;
+	std::unique_ptr<RankingModule>                m_ranking;
 
 	//! the module for two-layer crossing minimization
-	ModuleOption<LayeredCrossMinModule>        m_crossMin;
+	std::unique_ptr<LayeredCrossMinModule>        m_crossMin;
 
-	ModuleOption<TwoLayerCrossMinSimDraw>      m_crossMinSimDraw;
+	std::unique_ptr<TwoLayerCrossMinSimDraw>      m_crossMinSimDraw;
 
 	//! the hierarchy layout module (final coordinate assignment)
-	ModuleOption<HierarchyLayoutModule>        m_layout;
+	std::unique_ptr<HierarchyLayoutModule>        m_layout;
 
 	//! the hierarchy cluster layout module (final coordinate assignment for clustered graphs)
-	ModuleOption<HierarchyClusterLayoutModule> m_clusterLayout;
+	std::unique_ptr<HierarchyClusterLayoutModule> m_clusterLayout;
 
 	//! The module for arranging connected components.
-	ModuleOption<CCLayoutPackModule>           m_packer;
+	std::unique_ptr<CCLayoutPackModule>           m_packer;
 
 	int    m_fails;			//!< Option for maximal number of fails.
 	int    m_runs;			//!< Option for number of runs.
@@ -221,8 +220,6 @@ public:
 	 * Returns the computed layout in \a GA.
 	 */
 	virtual void call(GraphAttributes &GA) override;
-
-	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	/**
 	 * \brief Calls the layout algorithm for clustered graph \a CGA.
@@ -347,7 +344,7 @@ public:
 	void setSubgraphs(EdgeArray<uint32_t> *esg) { m_subgraphs = esg; }
 
 	//! Returns true iff subgraphs for simultaneous drawing are set.
-	bool useSubgraphs() const { return (m_subgraphs != 0); }
+	bool useSubgraphs() const { return m_subgraphs != nullptr; }
 
 	bool permuteFirst() const { return m_permuteFirst; }
 	void permuteFirst(bool b) { m_permuteFirst = b; }
@@ -379,7 +376,7 @@ public:
 	 * the acyclic subgraph.
 	 */
 	void setRanking(RankingModule *pRanking) {
-		m_ranking.set(pRanking);
+		m_ranking.reset(pRanking);
 	}
 
 	/**
@@ -389,7 +386,7 @@ public:
 	 * of the Sugiyama crossing minimization procedure.
 	 */
 	void setCrossMin(LayeredCrossMinModule *pCrossMin) {
-		m_crossMin.set(pCrossMin);
+		m_crossMin.reset(pCrossMin);
 	}
 
 	/**
@@ -400,7 +397,7 @@ public:
 	 * of nodes and bend points.
 	 */
 	void setLayout(HierarchyLayoutModule *pLayout) {
-		m_layout.set(pLayout);
+		m_layout.reset(pLayout);
 	}
 
 	/**
@@ -411,7 +408,7 @@ public:
 	 * of nodes and bend points.
 	 */
 	void setClusterLayout(HierarchyClusterLayoutModule *pLayout) {
-		m_clusterLayout.set(pLayout);
+		m_clusterLayout.reset(pLayout);
 	}
 
 	/**
@@ -422,7 +419,7 @@ public:
 	 * resulting drawings using this packing module.
 	 */
 	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.set(pPacker);
+		m_packer.reset(pPacker);
 	}
 
 	/** @}
@@ -452,7 +449,9 @@ public:
 
 protected:
 
-	//void reduceCrossings(HierarchyLevels &levels);
+#if 0
+	void reduceCrossings(HierarchyLevels &levels);
+#endif
 	void reduceCrossings(ExtendedNestingGraph &H);
 
 	const HierarchyLevelsBase *reduceCrossings(Hierarchy &H);
@@ -464,12 +463,14 @@ private:
 	void doCall(GraphAttributes &AG, bool umlCall);
 	void doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &rank);
 
-	//int traverseTopDown (HierarchyLevels &levels);
-	//int traverseBottomUp(HierarchyLevels &levels);
+#if 0
+	int traverseTopDown(HierarchyLevels &levels);
+	int traverseBottomUp(HierarchyLevels &levels);
 
-	//bool transposeLevel(int i, HierarchyLevels &levels);
-	//void doTranspose(HierarchyLevels &levels);
-	//void doTransposeRev(HierarchyLevels &levels);
+	bool transposeLevel(int i, HierarchyLevels &levels);
+	void doTranspose(HierarchyLevels &levels);
+	void doTransposeRev(HierarchyLevels &levels);
+#endif
 
 
 	int m_numLevels;

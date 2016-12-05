@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -195,14 +192,16 @@ public:
 	//! \brief Returns the list of terminals in the full component with given id
 	const Array<node> &terminals(int id) const
 	{
-		OGDF_ASSERT(id >= 0 && id < m_components.size());
+		OGDF_ASSERT(id >= 0);
+		OGDF_ASSERT(id < m_components.size());
 		return m_components[id].terminals;
 	}
 
 	//! \brief checks if a given node t is a terminal in the full component with given id
 	bool isTerminal(int id, node t) const
 	{
-		OGDF_ASSERT(id >= 0 && id < m_components.size());
+		OGDF_ASSERT(id >= 0);
+		OGDF_ASSERT(id < m_components.size());
 		return m_components[id].terminals.linearSearch(t) != -1;
 	}
 
@@ -214,13 +213,15 @@ public:
 	//! \brief Returns the sum of edge costs of this full component
 	T cost(int i) const
 	{
-		OGDF_ASSERT(i >= 0 && i < m_components.size());
+		OGDF_ASSERT(i >= 0);
+		OGDF_ASSERT(i < m_components.size());
 		return m_components[i].cost;
 	}
 
 	adjEntry start(int i) const
 	{
-		OGDF_ASSERT(i >= 0 && i < m_components.size());
+		OGDF_ASSERT(i >= 0);
+		OGDF_ASSERT(i < m_components.size());
 		return m_components[i].start;
 	}
 
@@ -321,14 +322,16 @@ public:
 	//! \brief Returns a reference to the extra data of this full component
 	ExtraDataType &extra(int i)
 	{
-		OGDF_ASSERT(i >= 0 && i < this->m_components.size());
+		OGDF_ASSERT(i >= 0);
+		OGDF_ASSERT(i < this->m_components.size());
 		return this->m_components[i].extra;
 	}
 
 	//! \brief Returns a const reference to the extra data of this full component
 	const ExtraDataType &extra(int i) const
 	{
-		OGDF_ASSERT(i >= 0 && i < this->m_components.size());
+		OGDF_ASSERT(i >= 0);
+		OGDF_ASSERT(i < this->m_components.size());
 		return this->m_components[i].extra;
 	}
 };

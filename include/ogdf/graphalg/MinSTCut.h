@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,18 +25,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EpsilonTest.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 
 namespace ogdf {
 
@@ -57,7 +54,7 @@ public:
 	};
 
 private:
-	ModuleOption<EpsilonTest> m_et; // the module used for epsilon tests
+	std::unique_ptr<EpsilonTest> m_et; // the module used for epsilon tests
 	NodeArray<cutType> m_nodeSet; // holds the partition type for each node
 	int m_frontCutCount; // the number of nodes in the front cut
 	int m_backCutCount; // the number of nodes in the back cut
@@ -75,7 +72,7 @@ public:
 	 */
 	void setEpsilonTest(EpsilonTest *et)
 	{
-		m_et.set(et);
+		m_et.reset(et);
 	}
 
 	/**
@@ -108,8 +105,8 @@ public:
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
 				if(m_nodeSet[w] == NO_CUT
-				  && ((e->source() == v && m_et.get().less(flow[e], weights[e]))
-				    || (e->target() == v && m_et.get().greater(flow[e], (T) 0)))) {
+				  && ((e->source() == v && m_et->less(flow[e], weights[e]))
+				    || (e->target() == v && m_et->greater(flow[e], (T) 0)))) {
 					queue.pushBack(w);
 					m_nodeSet[w] = FRONT_CUT;
 					m_frontCutCount++;
@@ -127,8 +124,8 @@ public:
 				const node w = adj->twinNode();
 				const edge e = adj->theEdge();
 				if(m_nodeSet[w] == NO_CUT
-				  && ((e->target() == v && m_et.get().less(flow[e], weights[e]))
-				    || (e->source() == v && m_et.get().greater(flow[e], (T) 0)))) {
+				  && ((e->target() == v && m_et->less(flow[e], weights[e]))
+				    || (e->source() == v && m_et->greater(flow[e], (T) 0)))) {
 					queue.pushBack(w);
 					m_nodeSet[w] = BACK_CUT;
 					m_backCutCount++;

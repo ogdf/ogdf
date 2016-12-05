@@ -51,9 +51,11 @@ PoolSlot<BaseType, CoType>::~PoolSlot()
 	if (conVar_ && conVar_->nReferences()) {
 		Logger::ifout() << "~PoolSlot(): it is not allowed to destruct objects of class PoolSlot with a constraint/variable with positive reference counter = " << conVar_->nReferences() << ".\n";
 	}
-#endif
 
+#ifndef OGDF_USE_ASSERT_EXCEPTIONS // do not throw exceptions in destructor
 	OGDF_ASSERT((conVar_ && conVar_->nReferences()) == false);
+#endif
+#endif
 
 	delete conVar_;
 }
@@ -62,7 +64,7 @@ PoolSlot<BaseType, CoType>::~PoolSlot()
 template<class BaseType, class CoType>
 void PoolSlot<BaseType, CoType>::insert(BaseType *convar)
 {
-	if (conVar_ != 0) {
+	if (conVar_ != nullptr) {
 		Logger::ifout() << "PoolSlot::insert(): insertion failed, the slot is not void\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPoolslot);
 	}

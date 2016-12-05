@@ -68,12 +68,7 @@ template<class Type, class Key>
 void AbaBHeap<Type, Key>::insert(Type elem, Key key)
 {
 	//! check if the heap is full
-#ifdef OGDF_DEBUG
-	if(n_ >= size()) {
-		Logger::ifout() << "AbaBHeap::insert : bounded heap for " << size() << " elements is full\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcBHeap);
-	}
-#endif
+	OGDF_ASSERT(n_ < size());
 
 	// go up towards the root and insert \a elem
 	/* The position \a n_ of the array representing the heap becomes the
@@ -105,12 +100,7 @@ Type AbaBHeap<Type, Key>::getMin() const
 	/* The check on an empty heap is only performed if is the code
 	* is compiled with the precompiler flag <tt>OGDF_DEBUG</tt>.
 	*/
-#ifdef OGDF_DEBUG
-	if (empty()) {
-		Logger::ifout() << "AbaBHeap:: getMin/extractMin/getMinKey: heap is empty\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcBHeap);
-	}
-#endif
+	OGDF_ASSERT(!empty());
 
 	return heap_[0];
 }
@@ -123,12 +113,8 @@ Key AbaBHeap<Type, Key>::getMinKey() const
 	/* The check on an empty heap is only performed if is the code
 	* is compiled with the precompiler flag <tt>OGDF_DEBUG</tt>.
 	*/
-#ifdef OGDF_DEBUG
-	if (empty()) {
-		Logger::ifout() << "AbaBHeap:: getMin/extractMin/getMinKey: heap is empty\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcBHeap);
-	}
-#endif
+	OGDF_ASSERT(!empty());
+
 	return keys_[0];
 }
 

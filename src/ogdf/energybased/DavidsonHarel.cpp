@@ -15,7 +15,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -32,12 +32,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/energybased/DavidsonHarel.h>
 #include <ogdf/basic/Math.h>
@@ -198,7 +195,7 @@ namespace ogdf {
 		m_diskRadius=max(m_diskRadius,max(maxX-minX,maxY-minY)/5.0);
 
 		//TODO: also use node sizes
-		/*
+#if 0
 		double lengthSum(0.0);
 		for(node v : m_G.nodes) {
 			const IntersectionRectangle &i = shape(v);
@@ -207,21 +204,26 @@ namespace ogdf {
 			}
 			lengthSum /= (2*m_G.numberOfNodes());
 			// lengthSum is now the average of all lengths and widths
-		*/
+#endif
+
 		//change the initial radius depending on the settings
 		//this is legacy crap
-//		double divo = 2.0;
-//		if (m_fineTune == tpCoarse) {
-//			m_diskRadius = 1000.0;
-//			divo = 0.5;
-//		}
-//		if (m_fineTune == tpFine) {
-//			m_diskRadius = 10.0;
-//            divo = 15.0;
-//		}
-//		//m_diskRadius=max(m_diskRadius,max(maxX-minX,maxY-minY));
-//		m_diskRadius = max(maxX-minX,maxY-minY);
-//		m_diskRadius /= divo;
+#if 0
+		double divo = 2.0;
+		if (m_fineTune == tpCoarse) {
+			m_diskRadius = 1000.0;
+			divo = 0.5;
+		}
+		if (m_fineTune == tpFine) {
+			m_diskRadius = 10.0;
+			divo = 15.0;
+		}
+#if 0
+		m_diskRadius=max(m_diskRadius,max(maxX-minX,maxY-minY));
+#endif
+		m_diskRadius = max(maxX-minX,maxY-minY);
+		m_diskRadius /= divo;
+#endif
 	}
 
 	//steps through all energy functions and adds the initial energy computed by each

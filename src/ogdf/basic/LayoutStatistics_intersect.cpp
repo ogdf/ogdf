@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -24,14 +24,11 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
-  * \par
+ * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/LayoutStatistics.h>
 #include <ogdf/basic/PriorityQueue.h>
@@ -297,7 +294,7 @@ namespace ogdf {
 			s = orientation(s2, s1.end());
 
 			return (s != 0) ? s : (int)(s1.id() - s2.id());
-			//return s; // TBD: distinguish overlapping segments by id
+			// TODO: distinguish overlapping segments by id
 		}
 
 		OGDF_AUGMENT_COMPARER(DSegmentHandle)
@@ -453,31 +450,32 @@ namespace ogdf {
 				}
 			}
 
+#if 0
+			double x1 = ga.x(e->source()), y1 = ga.y(e->source());
+			double x2 = ga.x(e->target()), y2 = ga.y(e->target());
 
-			//double x1 = ga.x(e->source()), y1 = ga.y(e->source());
-			//double x2 = ga.x(e->target()), y2 = ga.y(e->target());
+			DPoint p = DPoint(x1,y1);
+			DPoint q = DPoint(x2,y2);
 
-			//DPoint p = DPoint(x1,y1);
-			//DPoint q = DPoint(x2,y2);
+			x1 = abs(x1);
+			x1 = max(x1, abs(x2));
+			x1 = max(x1, abs(y1));
+			x1 = max(x1, abs(y2));
 
-			//x1 = abs(x1);
-			//x1 = max(x1, abs(x2));
-			//x1 = max(x1, abs(y1));
-			//x1 = max(x1, abs(y2));
+			while(x1 >= infinity)
+				infinity *= 2;
 
-			//while(x1 >= infinity)
-			//	infinity *= 2;
+			XSequence::iterator it1 = xStructure.insert(p, SeqItemY(e->source()));
+			XSequence::iterator it2 = xStructure.insert(q, SeqItemY(e->target()));
 
-			//XSequence::iterator it1 = xStructure.insert(p, SeqItemY(e->source()));
-			//XSequence::iterator it2 = xStructure.insert(q, SeqItemY(e->target()));
+			if(it1 == it2) continue;
 
-			//if(it1 == it2) continue;
+			DSegment s1 = (eventCmp.compare(p,q) < 0) ? DSegment(p,q) : DSegment(q,p);
 
-			//DSegment s1 = (eventCmp.compare(p,q) < 0) ? DSegment(p,q) : DSegment(q,p);
-
-			//original[s1] = e;
-			//internal.pushBack(s1);
-			//segQueue.insert(s1, s1.start());
+			original[s1] = e;
+			internal.pushBack(s1);
+			segQueue.insert(s1, s1.start());
+#endif
 		}
 
 		DSegmentHandle lowerSentinel(-infinity, -infinity, infinity, -infinity);

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include "bandit/bandit.h"
 #include "ogdf/basic/Graph.h"
@@ -146,5 +143,46 @@ describe("Random generators", [](){
 		}
 	});
 
+	describe("randomRegularGraph", []() {
+		for (int n = 10; n <= 30; n += 5) {
+			for (int d = 2; d <= 6; d += 2) {
+				it(string("generates a graph with degree " + to_string(d) + " and " + to_string(n) + " nodes"), [&]() {
+					Graph G;
+					randomRegularGraph(G, n, d);
+					AssertThat(G.numberOfNodes(), Equals(n));
+					AssertThat(isSimple(G), Equals(true));
+					AssertThat(isRegular(G, d), Equals(true));
+				});
+			}
+		}
+	});
+
+	describe("randomGeometricCubeGraph", [](){
+		for(int d = 1; d < 4; d++){
+			for(double t : {0.0, 0.1, 0.5}) {
+				for(int n = 0; n < 100; n++) {
+					it(string("generates a graph with " + to_string(n) +
+							  " nodes in dim " + to_string(d) +
+							  " and threshold " + to_string(t)), [&](){
+						Graph G;
+						randomGeometricCubeGraph(G,n,t,d);
+						AssertThat(G.numberOfNodes(), Equals(n));
+						AssertThat(isSimple(G), Equals(true));
+					});
+				}
+			}
+		}
+	});
+
+	describe("emptyGraph", [](){
+		for(int n = 0; n < 100; n++) {
+			it(string("generates a graph with " + to_string(n) + " nodes"), [&](){
+				Graph G;
+				emptyGraph(G, n);
+				AssertThat(G.numberOfNodes(), Equals(n));
+				AssertThat(G.numberOfEdges(), Equals(0));
+			});
+		}
+	});
 });
 });

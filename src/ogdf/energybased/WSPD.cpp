@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/WSPD.h>
 #include <ogdf/internal/energybased/FastUtils.h>
@@ -61,15 +58,15 @@ unsigned long WSPD::sizeInBytes() const
 
 void WSPD::allocate()
 {
-	m_nodeInfo = static_cast<WSPDNodeInfo*>(MALLOC_16(m_maxNumNodes*sizeof(WSPDNodeInfo)));
-	m_pairs = static_cast<WSPDPairInfo*>(MALLOC_16(m_maxNumPairs*sizeof(WSPDPairInfo)));
+	m_nodeInfo = static_cast<WSPDNodeInfo*>(OGDF_MALLOC_16(m_maxNumNodes*sizeof(WSPDNodeInfo)));
+	m_pairs = static_cast<WSPDPairInfo*>(OGDF_MALLOC_16(m_maxNumPairs*sizeof(WSPDPairInfo)));
 }
 
 
 void WSPD::deallocate()
 {
-	FREE_16(m_nodeInfo);
-	FREE_16(m_pairs);
+	OGDF_FREE_16(m_nodeInfo);
+	OGDF_FREE_16(m_pairs);
 }
 
 

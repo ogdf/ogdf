@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -155,7 +152,7 @@ public:
 		const EdgeArray<T>& edgeLengthG,
 		EdgeArray<T>& edgeLengthSG)
 	{
-		node nSG = 0;
+		node nSG = nullptr;
 		call(G, SG, nG, nSG, nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG);
 	}
 
@@ -353,15 +350,17 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 	NodeArray<bool> nodeVisited(G,false);
 	EdgeArray<bool> edgeVisited(G,false);
 
-	//const int n = G.numberOfNodes();
-	//const int m = G.numberOfEdges();
+#if 0
+	const int n = G.numberOfNodes();
+	const int m = G.numberOfEdges();
 
-	//bool* nodeVisited = new bool[n];
-	//bool* edgeVisited = new bool[m];
-	//for (int i = 0; i < n; i++)
-	//	nodeVisited[i] = false;
-	//for (int i = 0; i < m; i++)
-	//	edgeVisited[i] = false;
+	bool* nodeVisited = new bool[n];
+	bool* edgeVisited = new bool[m];
+	for (int i = 0; i < n; i++)
+		nodeVisited[i] = false;
+	for (int i = 0; i < m; i++)
+		edgeVisited[i] = false;
+#endif
 	nSG_to_nG.init(SG);
 	eSG_to_eG.init(SG);
 	nodeLengthSG.init(SG);
@@ -374,8 +373,10 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 		nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
 	nSG = nG_to_nSG[nG];
 
-	//delete [] nodeVisited;
-	//delete [] edgeVisited;
+#if 0
+	delete [] nodeVisited;
+	delete [] edgeVisited;
+#endif
 }
 
 
@@ -393,12 +394,14 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 	NodeArray<bool> nodeVisited(G,false);
 	EdgeArray<bool> edgeVisited(G,false);
 
-	//bool* nodeVisited = new bool[G.numberOfNodes()];
-	//bool* edgeVisited = new bool[G.numberOfEdges()];
-	//for (int i = 0; i < G.numberOfNodes(); i++)
-	//	nodeVisited[i] = false;
-	//for (int i = 0; i < G.numberOfEdges(); i++)
-	//	edgeVisited[i] = false;
+#if 0
+	bool* nodeVisited = new bool[G.numberOfNodes()];
+	bool* edgeVisited = new bool[G.numberOfEdges()];
+	for (int i = 0; i < G.numberOfNodes(); i++)
+		nodeVisited[i] = false;
+	for (int i = 0; i < G.numberOfEdges(); i++)
+		edgeVisited[i] = false;
+#endif
 	nSG_to_nG.init(SG);
 	eSG_to_eG.init(SG);
 	NodeArray<T> nodeLengthG(G, 0);
@@ -412,8 +415,10 @@ void ConnectedSubgraph<T>::call(const Graph& G,
 		nodeLengthG, nodeLengthSG, edgeLengthG, edgeLengthSG,
 		nSG_to_nG, eSG_to_eG, nG_to_nSG, eG_to_eSG);
 
-	//delete [] nodeVisited;
-	//delete [] edgeVisited;
+#if 0
+	delete [] nodeVisited;
+	delete [] edgeVisited;
+#endif
 }
 
 

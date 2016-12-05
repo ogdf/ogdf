@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -91,11 +88,11 @@ public:
 			double strongConstraintViolation = 0.3,
 			double strongVariableViolation = 0.3);
 
-	// Destruction
+	//! Destruction
 	virtual ~CPlanarityMaster();
 
 	// Initialization of the first Subproblem
-	virtual abacus::Sub *firstSub();
+	virtual abacus::Sub *firstSub() override;
 
 	// Returns the number of variables
 	int nMaxVars() const {return m_nMaxVars;}
@@ -114,13 +111,13 @@ public:
 	const GraphCopy *searchSpaceGraph() const {return m_ssg; }
 	// Updates the "best" Subgraph \a m_solutionGraph found so far and fills edge lists with
 	// corresponding edges (nodePairs).
-	void updateBestSubGraph(List<nodePair> &connection);
+	void updateBestSubGraph(List<nodePair> &connection) override;
 
 	// Returns the optimal solution induced Clustergraph
-	Graph *solutionInducedGraph() {return static_cast<Graph*>(m_solutionGraph);}
+	Graph *solutionInducedGraph() override {return static_cast<Graph*>(m_solutionGraph);}
 
 	// Returns nodePairs of connecting optimal solution edges in list \a edges.
-	void getConnectionOptimalSolutionEdges(List<nodePair> &egdes) const;
+	void getConnectionOptimalSolutionEdges(List<nodePair> &egdes) const override;
 
 	// Get parameters
 	int getKIterations() const {return m_nKuratowskiIterations;}
@@ -139,9 +136,11 @@ public:
 	double getStrongConstraintViolation() const {return m_strongConstraintViolation;}
 	double getStrongVariableViolation() const {return m_strongVariableViolation;}
 
+#if 0
 	// Read global constraint counter, i.e. the number of added constraints of specific type.
-	//int addedKConstraints() const {return m_nKConsAdded;}
-	//int addedCConstraints() const {return m_nCConsAdded;}
+	int addedKConstraints() const {return m_nKConsAdded;}
+	int addedCConstraints() const {return m_nCConsAdded;}
+#endif
 
 
 	// Set parameters
@@ -218,16 +217,16 @@ public:
 protected:
 
 	// Initializes constraints and variables and an initial dual bound.
-	virtual void initializeOptimization();
+	virtual void initializeOptimization() override;
 
 	// Function that is invoked at the end of the optimization
-	virtual void terminateOptimization();
+	virtual void terminateOptimization() override;
 
-	double heuristicInitialLowerBound();
+	double heuristicInitialLowerBound() override;
 
 	//! All variables that have to be present at start of optimization
 	//! are created here. Their number is returned.
-	void createInitialVariables(List<CPlanarEdgeVar*>& initVars);
+	void createInitialVariables(List<CPlanarEdgeVar*>& initVars) override;
 
 	//! Adds inner cluster connection variables in bag-reduced search space.
 	void addInnerConnections(cluster c, List<CPlanarEdgeVar*>& connectVars);
@@ -237,10 +236,10 @@ protected:
 	void addExternalConnections(cluster c, List<CPlanarEdgeVar*>& connectVars);
 
 
-	bool isCP() {return feasibleFound();}//(dualBound()!=-infinity());}
+	bool isCP() override {return feasibleFound();}//(dualBound()!=-infinity());}
 
 	//! Node pair is potential candidate for new edge variable
-	bool goodVar(node a, node b);
+	bool goodVar(node a, node b) override;
 
 private:
 
@@ -248,16 +247,16 @@ private:
 	//! Tries to find as many edge-disjoint Kuratowski subdivisions as possible.
 	//! If k edge-disjoint groups of subdivisions are found, the upper bound can be
 	//! initialized with number of edges in underlying graph minus k.
-	double heuristicInitialUpperBound();
+	double heuristicInitialUpperBound() override;
 
 	//! Is invoked by heuristicInitialLowerBound()
-	double clusterConnection(cluster c, GraphCopy &GC);
+	double clusterConnection(cluster c, GraphCopy &GC) override;
 
 	//! Creates variables for complete connectivity
-	void createCompConnVars(List<CPlanarEdgeVar*>& initVars);
+	void createCompConnVars(List<CPlanarEdgeVar*>& initVars) override;
 
 	//! Computes the graphtheoretical distances of edges incident to node \a u.
-	void nodeDistances(node u, NodeArray<NodeArray<int> > &dist);
+	void nodeDistances(node u, NodeArray<NodeArray<int> > &dist) override;
 
 
 	// Parameters
@@ -333,11 +332,13 @@ private:
 	double m_deltaCount;
 #endif
 
-	//Switch to minimization of additional edges, no delta necessary
-	virtual double nextConnectCoeff() {return 1.0;}
-	//double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; };
+	//! Switch to minimization of additional edges, no delta necessary
+	virtual double nextConnectCoeff() override {return 1.0;}
+#if 0
+	double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; };
+#endif
 	//! Variable creation for nodePair
-	virtual CPlanarEdgeVar* createVariable(ListIterator<nodePair>& it) {
+	virtual CPlanarEdgeVar* createVariable(ListIterator<nodePair>& it) override {
 		++m_varsAdded;
 		CPlanarEdgeVar* v = new CPlanarEdgeVar(this, nextConnectCoeff(), (*it).v1, (*it).v2);
 		v->printMe(Logger::slout());
@@ -357,7 +358,7 @@ private:
 				return v;
 	}
 	//! Variable creation for pair of nodes which is not stored in m_inactiveVariables.
-	virtual CPlanarEdgeVar* createVariable(node a, node b) {
+	virtual CPlanarEdgeVar* createVariable(node a, node b) override {
 			OGDF_ASSERT(!(m_varCreated[a][b] || m_varCreated[b][a]));
 			++m_varsAdded;
 			CPlanarEdgeVar* v = new CPlanarEdgeVar(this, nextConnectCoeff(), a, b);
@@ -366,16 +367,23 @@ private:
 			m_varCreated[a][b] = true;
 			return v;
 	}
-	//List<nodePair> m_inactiveVariables;
+
+#if 0
+	List<nodePair> m_inactiveVariables;
+#endif
+
 	//used in initialization
 	virtual void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
-	// Keeps track of created variables
-	// NodeArray< NodeArray<bool> > m_varCreated;
+
+#if 0
+	//! Keeps track of created variables
+	NodeArray< NodeArray<bool> > m_varCreated;
+#endif
 
 	//! writes coefficients of all orig and connect variables in constraint con into
 	//! emptied list coeffs
 	virtual void getCoefficients(abacus::Constraint* con, const List<CPlanarEdgeVar* > & connect,
-			List<double> & coeffs);
+			List<double> & coeffs) override;
 
 	//! Used to check if variables are truly needed wrt to search space
 	//! reduction (Chimani/Klein)
@@ -385,7 +393,7 @@ private:
 	//! only feasible when only a single independent bag exists, which
 	//! has to be assured by external partitioning.
 	bool m_shrink;
-	GraphCopy* m_ssg; //Search space graph, input graph plus edges modelled by initial variables.
+	GraphCopy* m_ssg; //!< Search space graph, input graph plus edges modelled by initial variables.
 	int m_nSep; //!< Stores number of separation calls
 	ClusterArray<List<node> > m_cNodes; //!< Static storage of cluster node lists to avoid repeated computation.
 };

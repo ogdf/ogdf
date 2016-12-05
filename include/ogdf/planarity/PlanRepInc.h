@@ -13,7 +13,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -30,12 +30,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -78,18 +75,20 @@ public:
 
 	//in the case that the underlying incremental structure
 	//changes, we update this copy
-	virtual void nodeDeleted(node v);
-	virtual void nodeAdded(node v);
-	virtual void edgeDeleted(edge e);
-	virtual void edgeAdded(edge e);
-	virtual void reInit();
-	virtual void cleared();//Graph cleared
+	virtual void nodeDeleted(node v) override;
+	virtual void nodeAdded(node v) override;
+	virtual void edgeDeleted(edge e) override;
+	virtual void edgeAdded(edge e) override;
+	virtual void reInit() override;
+	virtual void cleared() override;//Graph cleared
 
 	//sets activity status to true and updates the structures
 	//node activation activates all adjacent edges
 	void activateNode(node v);
-	//TODO: auch deaktivieren
-	//void activateNode(node v, bool b);
+	//TODO: deactivate, too
+#if 0
+	void activateNode(node v, bool b);
+#endif
 	void activateEdge(edge e);
 
 	//handles copies of original CCs that are split into
@@ -116,7 +115,7 @@ public:
 		if (m_treeInit) {
 			return m_eTreeArray(i, j);
 		}
-		return 0;
+		return nullptr;
 	}
 	bool treeInit() {return m_treeInit;}
 
@@ -126,7 +125,7 @@ public:
 
 	// splits edge e, can be removed when edge status in edgetype
 	// m_treedge can be removed afterwards
-	virtual edge split(edge e) {
+	virtual edge split(edge e) override {
 
 		edge eNew = PlanRepUML::split(e);
 		if (m_treeEdge[e]) m_treeEdge[eNew] = true;

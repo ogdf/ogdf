@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 //Debug
 #include <ogdf/basic/simple_graph_alg.h>
@@ -227,9 +224,11 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 
 	//now we have faces for all partial CCs that are not isolated nodes
 
-	OGDF_ASSERT(extAdjs.size() + isolatedNodes.size() == numPartialCC)
-	//OGDF_ASSERT(extAdjs.size() > 1) //eigentlich: = #partial CCs
-	//OGDF_ASSERT(extAdjs.size() == numPartialCC)
+	OGDF_ASSERT(extAdjs.size() + isolatedNodes.size() == numPartialCC);
+#if 0
+	OGDF_ASSERT(extAdjs.size() > 1) //eigentlich: = #partial CCs
+	OGDF_ASSERT(extAdjs.size() == numPartialCC);
+#endif
 
 	const int n1 = numPartialCC-1;
 	m_eTreeArray.init(0, n1, 0, n1, nullptr);
@@ -283,7 +282,7 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 		else //connect the first two isolated nodes / only iso nodes exist
 		{
 			//MUST BE #isonodes>1, else we returned already because CC connected
-			OGDF_ASSERT(!isolatedNodes.empty())
+			OGDF_ASSERT(!isolatedNodes.empty());
 			node secv = isolatedNodes.popFrontRet();
 			//same block as above
 			edge eTree = newEdge(uvw, secv);
@@ -301,9 +300,10 @@ bool PlanRepInc::makeTreeConnected(adjEntry /* adjExternal */)
 
 	OGDF_ASSERT(isConnected(*this));
 
-
-	//List<adjEntry> extAdjs;
-	//getExtAdjs(extAdjs);
+#if 0
+	List<adjEntry> extAdjs;
+	getExtAdjs(extAdjs);
+#endif
 
 
 	return true;
@@ -324,7 +324,7 @@ void PlanRepInc::deleteTreeConnection(int i, int j)
 		m_treeEdge[e->adjTarget()->cyclicSucc()->cyclicSucc()->theEdge()])
 	{
 		nexte = e->adjTarget()->cyclicSucc()->cyclicSucc()->theEdge();
-		OGDF_ASSERT(original(nexte) == 0)
+		OGDF_ASSERT(original(nexte) == nullptr);
 		delEdge(e);
 		e = nexte;
 	}
@@ -351,7 +351,7 @@ void PlanRepInc::deleteTreeConnection(int i, int j, CombinatorialEmbedding &E)
 		m_treeEdge[e->adjTarget()->cyclicSucc()->cyclicSucc()->theEdge()])
 	{
 		nexte = e->adjTarget()->cyclicSucc()->cyclicSucc()->theEdge();
-		OGDF_ASSERT(original(nexte) == 0)
+		OGDF_ASSERT(original(nexte) == nullptr);
 		E.joinFaces(e);
 		e = nexte;
 	}
@@ -400,26 +400,23 @@ void PlanRepInc::getExtAdjs(List<adjEntry> & /* extAdjs */)
 		//now we derive an outer face of GC by using the
 		//layout information on it's original
 
-
+#if 0
 		//TODO: Insert the bend points into the copy
 
-
-		//CombinatorialEmbedding E(GC);
+		CombinatorialEmbedding E(GC);
 
 		//run through the faces and compute angles to
 		//derive outer face
 		//we dont care about the original structure of
 		//the graph, i.e., if crossings are inserted aso
 		//we only take the given partial CC and its layout
-		//adjEntry extAdj = getExtAdj(GC, E);
+		adjEntry extAdj = getExtAdj(GC, E);
 
-		//for(node v : GC.nodes)
-		//{
-		//
-		//}
+		for(node v : GC.nodes)
+		{
+		}
+#endif
 	}//for
-
-
 }//getextadj
 
 
@@ -456,9 +453,9 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 		GraphAttributes::edgeStyle
 		);
 	Layout xy;
-	NodeArray<node> tcopy(*this, 0);
+	NodeArray<node> tcopy(*this, nullptr);
 	EdgeArray<bool> finished(*this, false);
-	EdgeArray<edge> eOrig(testGraph, 0);
+	EdgeArray<edge> eOrig(testGraph, nullptr);
 	Color invalid(0,0,0,0);
 	EdgeArray<Color> eCol(*this, invalid);
 
@@ -482,7 +479,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 		colBase = (colBase*3) % 233;
 		colBase2 = (colBase*2) % 233;
 
-		if (tcopy[v] == 0)
+		if (tcopy[v] == nullptr)
 		{
 			node u = testGraph.newNode();
 			tcopy[v] = u;
@@ -499,7 +496,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 
 			do {
 				node z = adj->theNode();
-				if (tcopy[z] == 0)
+				if (tcopy[z] == nullptr)
 				{
 					node u1 = testGraph.newNode();
 					tcopy[z] = u1;
@@ -510,7 +507,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 				if (!finished[adj->theEdge()])
 				{
 					node w = adj->theEdge()->opposite(z);
-					if (tcopy[w] != 0)
+					if (tcopy[w] != nullptr)
 					{
 						edge e;
 						if (w == adj->theEdge()->source())
@@ -526,12 +523,11 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 						}
 						finished[adj->theEdge()] = true;
 					}
-					/*
-					else
-					{
+#if 0
+					else {
 						eCol[adj->theEdge()] = col;
-					}*/
-
+					}
+#endif
 				}
 				visited[adj] = true;
 				adj = adj->faceCycleSucc();
@@ -542,16 +538,20 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 			++nFaceCycles;
 		}
 	}
+#if 0
 	//insert the current embedding order by setting bends
-	//for(node v : testGraph.nodes)
-	//{
-	//	adjEntry ad1 = v->firstAdj();
-	//}
+	for(node v : testGraph.nodes)
+	{
+		adjEntry ad1 = v->firstAdj();
+	}
+#endif
 
 	int genus = (numberOfEdges() - numberOfNodes() - nIsolated - nFaceCycles + 2*nCC) / 2;
-	//if (genus != 0)
+#if 0
+	if (genus != 0)
+#endif
 	{
-		GraphIO::writeGML(AG, "GenusErrorLayout.gml");
+		GraphIO::write(AG, "GenusErrorLayout.gml", GraphIO::writeGML);
 	}
 	return genus;
 }
@@ -569,7 +569,7 @@ void PlanRepInc::writeGML(const char *fileName, GraphAttributes &AG, bool colorE
 
 void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 {
-	OGDF_ASSERT(m_pGraphAttributes == &(AG))
+	OGDF_ASSERT(m_pGraphAttributes == &(AG));
 	const Graph &G = *this;
 
 	NodeArray<int> id(*this);
@@ -676,7 +676,7 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 			os << "      width 1.0\n";
 		}//else generalization
 
-		if (original(e) != 0)
+		if (original(e) != nullptr)
 		{
 			const DPolyline &dpl = AG.bends(original(e));
 			if (!dpl.empty()) {
@@ -703,35 +703,6 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 	os << "]\n"; // graph
 }
 //#endif
-
-double angle(DPoint p, DPoint q, DPoint r)
-{
-	double dx1 = q.m_x - p.m_x, dy1 = q.m_y - p.m_y;
-	double dx2 = r.m_x - p.m_x, dy2 = r.m_y - p.m_y;
-
-	//two vertices on the same place!
-	if ((dx1 == 0 && dy1 == 0) || (dx2 == 0 && dy2 == 0))
-		return 0.0;
-
-	double norm = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
-
-	double cosphi = (dx1*dx2+dy1*dy2) / sqrt(norm);
-
-	if (cosphi >= 1.0 ) return 0; if (cosphi <= -1.0 ) return Math::pi;
-
-	double phi = acos(cosphi);
-
-	if (dx1*dy2 < dy1*dx2) phi = -phi;
-
-	if (phi < 0) phi += 2*Math::pi;
-
-	return phi;
-}//angle
-
-double fAngle(DPoint p, DPoint q, DPoint r)
-{
-	return angle(p, q, r)*360.0/(2*Math::pi);
-}
 
 
 void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
@@ -958,10 +929,10 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 				}
 				else
 				{
-					OGDF_ASSERT(sNum < vs->degree())
+					OGDF_ASSERT(sNum < vs->degree());
 					double angleS = sNum*360.0/vs->degree();
 
-					double refAngleS = fAngle(DPoint(xs, ys),
+					double refAngleS = DPoint(xs, ys).angleDegrees(
 						DPoint(refSx2, refSy2),
 						DPoint(xs+1.0, ys)
 						);
@@ -980,10 +951,10 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 				}
 				else
 				{
-					OGDF_ASSERT(tNum < vt->degree())
+					OGDF_ASSERT(tNum < vt->degree());
 					double angleT = tNum*360/vt->degree();
 
-					double refAngleT = fAngle(DPoint(xt, yt),
+					double refAngleT = DPoint(xt, yt).angleDegrees(
 						DPoint(refTx2, refTy2),
 						DPoint(xt+1.0, yt)
 						);

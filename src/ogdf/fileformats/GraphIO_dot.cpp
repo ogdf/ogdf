@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/DOT.h>
@@ -230,94 +227,105 @@ static inline bool writeNode(
 }
 
 
-static void writeCluster(
+static bool writeCluster(
 	std::ostream &out, int depth,
 	const ClusterArray < std::vector<edge> > &edgeMap,
 	const ClusterGraph &C, const ClusterGraphAttributes *CA, const cluster &c,
 	int &clusterId)
 {
-	if(C.rootCluster() == c) {
-		writeHeader(out, depth++, CA);
-	} else {
-		GraphIO::indent(out, depth++) << "subgraph cluster" << clusterId
-		                              << " {\n";
+	bool result = out.good();
+
+	if(result) {
+		if (C.rootCluster() == c) {
+			writeHeader(out, depth++, CA);
+		} else {
+			GraphIO::indent(out, depth++) << "subgraph cluster" << clusterId << " {\n";
+		}
+		clusterId++;
+
+		bool whitespace; // True if a whitespace should printed (readability).
+
+		whitespace = false;
+		if (CA) {
+			writeAttributes(out, depth, *CA, c);
+			whitespace = true;
+		}
+
+		if (whitespace) {
+			out << "\n";
+		}
+
+		// Recursively export all subclusters.
+		whitespace = false;
+		for (ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
+			writeCluster(out, depth, edgeMap, C, CA, *cit, clusterId);
+			whitespace = true;
+		}
+
+		if (whitespace) {
+			out << "\n";
+		}
+
+		// Then, print all nodes whithout an adjacent edge.
+		whitespace = false;
+		for (ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
+			whitespace |= writeNode(out, depth, CA, *nit);
+		}
+
+		if (whitespace) {
+			out << "\n";
+		}
+
+		// Finally, we print all edges for this cluster (ugly version for now).
+		const std::vector<edge> &edges = edgeMap[c];
+		whitespace = false;
+		for (auto &e : edges) {
+			whitespace |= writeEdge(out, depth, CA, e);
+		}
+
+		GraphIO::indent(out, --depth) << "}\n";
 	}
-	clusterId++;
 
-	bool whitespace; // True if a whitespace should printed (readability).
-
-	whitespace = false;
-	if(CA) {
-		writeAttributes(out, depth, *CA, c);
-		whitespace = true;
-	}
-
-	if(whitespace) {
-		out << "\n";
-	}
-
-	// Recursively export all subclusters.
-	whitespace = false;
-	for(ListConstIterator<cluster> cit = c->cBegin(); cit.valid(); ++cit) {
-		writeCluster(out, depth, edgeMap, C, CA, *cit, clusterId);
-		whitespace = true;
-	}
-
-	if(whitespace) {
-		out << "\n";
-	}
-
-	// Then, print all nodes whithout an adjacent edge.
-	whitespace = false;
-	for(ListConstIterator<node> nit = c->nBegin(); nit.valid(); ++nit) {
-		whitespace |= writeNode(out, depth, CA, *nit);
-	}
-
-	if(whitespace) {
-		out << "\n";
-	}
-
-	// Finally, we print all edges for this cluster (ugly version for now).
-	const std::vector<edge> &edges = edgeMap[c];
-	whitespace = false;
-	for(size_t i = 0; i < edges.size(); i++) {
-		whitespace |= writeEdge(out, depth, CA, edges[i]);
-	}
-
-	GraphIO::indent(out, --depth) << "}\n";
+	return result;
 }
 
 
-static void writeGraph(
+static bool writeGraph(
 	std::ostream &out,
 	const Graph &G, const GraphAttributes *GA)
 {
-	bool whitespace = false;
+	bool result = out.good();
 
-	whitespace |= writeHeader(out, 0, GA);
+	if(result) {
+		bool whitespace = false;
 
-	if(whitespace) {
-		out << "\n";
+		whitespace |= writeHeader(out, 0, GA);
+
+		if (whitespace) {
+			out << "\n";
+		}
+
+		// We need to print all the nodes that do not have any adjacent edge.
+		whitespace = false;
+		for (node v : G.nodes) {
+			whitespace |= dot::writeNode(out, 1, GA, v);
+		}
+
+		if (whitespace) {
+			out << "\n";
+		}
+
+		// In this dummy version we just output list of all edges. It works, sure,
+		// but is ugly as hell. A nicer approach has to be developed in future.
+		whitespace = false;
+		for (edge e : G.edges) {
+			whitespace |= dot::writeEdge(out, 1, GA, e);
+		}
+
+		out << "}\n";
 	}
 
-	// We need to print all the nodes that do not have any adjacent edge.
-	whitespace = false;
-	for(node v : G.nodes) {
-		whitespace |= dot::writeNode(out, 1, GA, v);
-	}
-
-	if(whitespace) {
-		out << "\n";
-	}
-
-	// In this dummy version we just output list of all edges. It works, sure,
-	// but is ugly as hell. A nicer approach has to be developed in future.
-	whitespace = false;
-	for(edge e : G.edges) {
-		whitespace |= dot::writeEdge(out, 1, GA, e);
-	}
-
-	out << "}\n";
+	return result;
 }
 
 
@@ -326,15 +334,13 @@ static void writeGraph(
 
 bool GraphIO::writeDOT(const Graph &G, std::ostream &out)
 {
-	dot::writeGraph(out, G, nullptr);
-	return true;
+	return dot::writeGraph(out, G, nullptr);
 }
 
 
 bool GraphIO::writeDOT(const GraphAttributes &GA, std::ostream &out)
 {
-	dot::writeGraph(out, GA.constGraph(), &GA);
-	return true;
+	return dot::writeGraph(out, GA.constGraph(), &GA);
 }
 
 
@@ -352,8 +358,7 @@ bool GraphIO::writeDOT(const ClusterGraph &C, std::ostream &out)
 		edgeMap[C.commonCluster(s, t)].push_back(e);
 	}
 
-	dot::writeCluster(out, 0, edgeMap, C, nullptr, C.rootCluster(), id);
-	return true;
+	return dot::writeCluster(out, 0, edgeMap, C, nullptr, C.rootCluster(), id);
 }
 
 
@@ -372,8 +377,7 @@ bool GraphIO::writeDOT(const ClusterGraphAttributes &CA, std::ostream &out)
 		edgeMap[C.commonCluster(s, t)].push_back(e);
 	}
 
-	dot::writeCluster(out, 0, edgeMap, C, &CA, C.rootCluster(), id);
-	return true;
+	return dot::writeCluster(out, 0, edgeMap, C, &CA, C.rootCluster(), id);
 }
 
 

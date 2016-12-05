@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -65,6 +62,7 @@ public:
 	//! Creates an instance of the planar augmentation algorithm.
 	PlanarAugmentation() { }
 
+	//! Destruction
 	~PlanarAugmentation() { }
 
 protected:
@@ -150,7 +148,7 @@ private:
 	 * \param p is a pendant in the BC-Tree.
 	 * \param labelOld is the old label of \a p.
 	 */
-	void reduceChain(node p, pa_label labelOld = 0);
+	void reduceChain(node p, pa_label labelOld = nullptr);
 
 	/**
 	 * \brief Is called in reduceChain. It traverses to the root and checks
@@ -179,7 +177,7 @@ private:
 	 * \param cutvertex is the last cutvertex found.
 	 * \return a node of the original graph.
 	 */
-	node adjToCutvertex(node v, node cutvertex = 0);
+	node adjToCutvertex(node v, node cutvertex = nullptr);
 
 	/**
 	 * \brief Traverses from pendant to ancestor and returns the

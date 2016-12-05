@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -58,11 +55,11 @@ public:
 	FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
 
 	bool operator==(const FaceAdjIterator &other) const {
-		return (m_adj == other.m_adj);
+		return m_adj == other.m_adj;
 	}
 
 	bool operator!=(const FaceAdjIterator &other) const {
-		return (m_adj != other.m_adj);
+		return m_adj != other.m_adj;
 	}
 
 	FaceAdjIterator &operator=(FaceAdjIterator &other) {
@@ -109,8 +106,8 @@ public:
 
 
 /**
-* \brief Faces in a combinatorial embedding.
-*/
+ * \brief Faces in a combinatorial embedding.
+ */
 class OGDF_EXPORT FaceElement : private internal::GraphElement
 {
 	friend class ConstCombinatorialEmbedding;
@@ -159,7 +156,7 @@ public:
 	//! Returns the successor of \a adj in the list of all adjacency elements in the face.
 	adjEntry nextFaceEdge(adjEntry adj) const {
 		adj = adj->faceCycleSucc();
-		return (adj != entries.m_adjFirst) ? adj : 0;
+		return (adj != entries.m_adjFirst) ? adj : nullptr;
 	}
 
 #ifdef OGDF_DEBUG
@@ -246,13 +243,21 @@ public:
 	//! Destructor
 	virtual ~ConstCombinatorialEmbedding();
 
+	//! Returns whether the embedding is associated with a graph.
+	bool valid() const { return m_cpGraph != nullptr; }
+
 	/** @} @{
 	 * \brief Returns the associated graph of the combinatorial embedding.
+	 *
+	 * \pre The associated graph exists. See #valid().
 	 */
-	const Graph &getGraph() const { return *m_cpGraph; }
+	const Graph &getGraph() const {
+		OGDF_ASSERT(valid());
+		return *m_cpGraph;
+	}
 
 	//! Returns associated graph
-	operator const Graph &() const { return *m_cpGraph; }
+	operator const Graph &() const { return getGraph(); }
 
 	/** @} @{
 	 * \brief Returns the first face in the list of all faces.
@@ -286,9 +291,12 @@ public:
 	int faceArrayTableSize() const { return m_faceArrayTableSize; }
 
 	/** @} @{
-	 * \brief Returns a random face.
+	 * Returns a random face.
+	 * \c nullptr is returned if no feasible face exists.
+	 *
+	 * @see chooseIteratorFrom
 	 */
-	face chooseFace() const;
+	face chooseFace(std::function<bool(face)> includeFace = [](face) { return true; }, bool isFastTest = true) const;
 
 	//! Returns a face of maximal size.
 	face maximalFace() const;
@@ -411,16 +419,22 @@ public:
 	 */
 	//@{
 
-	/**
-	 * \brief Returns the associated graph.
-	 */
-	const Graph &getGraph() const { return *m_cpGraph; }
+	//! Returns the associated graph.
+	const Graph &getGraph() const
+	{
+		OGDF_ASSERT(valid());
+		return *m_cpGraph;
+	}
 
-	Graph &getGraph() { return *m_pGraph; }
+	Graph &getGraph()
+	{
+		OGDF_ASSERT(valid());
+		return *m_pGraph;
+	}
 
-	operator const Graph &() const { return *m_cpGraph; }
+	operator const Graph &() const { return getGraph(); }
 
-	operator Graph &() { return *m_pGraph; }
+	operator Graph &() { return getGraph(); }
 
 
 	//@}
@@ -494,34 +508,37 @@ public:
 	node contract(edge e);
 
 	/**
-	 * \brief Splits a face by inserting a new edge.
+	 * Splits a face by inserting a new edge.
 	 *
-	 * This operation introduces a new edge \a e from the node to which \a adjSrc
-	 * belongs to the node to which \a adjTgt belongs.
-	 * \pre \a adjSrc and \a adjTgt are distinct AdjEntries, belonging to the same face.
-	 * \return the new edge \a e.
+	 * Creates a new edge from the node of \c adjSrc to the one of \c adjTgt.
+	 * Note that this can also be achieved by inserting an edge
+	 * in the underlying graph directly and calling #computeFaces again.
+	 * In contrast, this operation achieves constant running time.
+	 *
+	 * \pre \c adjSrc and \c adjTgt are distinct AdjEntries, belonging to the same face.
+	 * \return The new edge.
 	 */
 	edge splitFace(adjEntry adjSrc, adjEntry adjTgt);
 
-	// incremental stuff
+	/**
+	 * Inserts a new edge similarly to #splitFace without having to call #computeFaces again.
+	 *
+	 * Creates a new edge from the degree 0 node \c v to the node of \c adjTgt.
+	 * The face that \c adjTgt belongs to is split.
+	 *
+	 * \return The new edge.
+	 */
+	edge addEdgeToIsolatedNode(node v, adjEntry adjTgt);
 
 	/**
-	 * \brief Splits a face by inserting a new edge.
+	 * Inserts a new edge similarly to #splitFace without having to call #computeFaces again.
 	 *
-	 * Special version of splitFace doing a pushback of the new edge
-	 * on the adjacency list of \a v making it possible to insert new degree 0
-	 * nodes into a face.
-	 */
-	edge splitFace(node v, adjEntry adjTgt);
-
-	/**
-	 * \brief Splits a face by inserting a new edge.
+	 * Creates a new edge from the node of \c adjSrc to the degree 0 node \c v.
+	 * The face that \c adjSrc belongs to is split.
 	 *
-	 * Special version of splitFace doing a pushback of the new edge
-	 * on the adjacency list of \a v making it possible to insert new degree 0
-	 * nodes into a face.
+	 * \return The new edge.
 	 */
-	edge splitFace(adjEntry adjSrc, node v);
+	edge addEdgeToIsolatedNode(adjEntry adjSrc, node v);
 
 	/**
 	 * \brief Removes edge e and joins the two faces adjacent to \a e.
@@ -555,22 +572,14 @@ protected:
 
 private:
 	/**
-	 * \brief Splits a face by inserting a new edge.
+	 * Inserts a new edge similarly to #splitFace without having to call #computeFaces again.
 	 *
-	 * This is a special version of splitFace doing a pushback
-	 * of the new edge \a e on the adjacency list of \a v making it
-	 * possible to insert new degree 0 nodes into a face.
-	 * It's used by splitFace(adjEntry adjSource, node v) and
-	 * splitFace(node v, adjEntry adjTarget) and calls
-	 * splitFace(adjEntry adjSource, adjEntry adjTarget),
-	 * if v is not degree 0, to reduce redundant code.
-	 *
-	 * @param adj is the adjEntry after which the adjEntry of the new edge is added.
-	 * @param v is the node to which the adjEntry of \a e is pushed back on.
-	 * @param adjSrc is true if the node of \a adj should be the source of \a e.
-	 * \return the new edge \a e
+	 * \param adj The adjacency entry belonging to the face that we want to insert the new edge into
+	 * \param v The degree 0 node.
+	 * \param adjSrc whether v will be the target node.
+	 * \return The new edge.
 	 */
-	edge splitFace(adjEntry adj, node v, bool adjSrc);
+	edge addEdgeToIsolatedNode(adjEntry adj, node v, bool adjSrc);
 }; // class CombinatorialEmbedding
 
 } // end namespace ogdf

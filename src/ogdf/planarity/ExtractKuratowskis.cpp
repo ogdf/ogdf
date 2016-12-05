@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarity/ExtractKuratowskis.h>
@@ -278,7 +275,9 @@ int ExtractKuratowskis::whichKuratowski(
 // the edgenumber has to be 1 for used edges, otherwise 0
 int ExtractKuratowskis::whichKuratowskiArray(
 	const Graph& m_g,
-	//const NodeArray<int>& /* m_dfi */,
+#if 0
+	const NodeArray<int> &m_dfi,
+#endif
 	EdgeArray<int>& edgenumber)
 {
 	NodeArray<int> nodenumber(m_g, 0);
@@ -388,12 +387,12 @@ int ExtractKuratowskis::whichKuratowskiArray(
 		if (degree3nodes > 0) {
 			return ExtractKuratowskis::none;
 		}
-		for (int i = 0; i<5; ++i) {
-			for(adjEntry adj : K5Nodes[i]->adjEntries) {
+		for (auto &K5Node : K5Nodes) {
+			for(adjEntry adj : K5Node->adjEntries) {
 				edge e = adj->theEdge();
 				if (edgenumber[e] > 0) { // not visited
 					edgenumber[e] = -2; // visited
-					node v = e->opposite(K5Nodes[i]);
+					node v = e->opposite(K5Node);
 					// traverse nodedegree-2 path until degree-4 node found
 					while (nodenumber[v] != 4) {
 						nodenumber[v] = -2; // visited
@@ -425,7 +424,9 @@ int ExtractKuratowskis::whichKuratowskiArray(
 
 // returns true, if kuratowski EdgeArray isn't already contained in output
 bool ExtractKuratowskis::isANewKuratowski(
-		//const Graph& g,
+#if 0
+		const Graph& g,
+#endif
 		const EdgeArray<int>& test,
 		const SList<KuratowskiWrapper>& output)
 {
@@ -525,7 +526,9 @@ inline void ExtractKuratowskis::truncateEdgelist(
 void ExtractKuratowskis::extractMinorA(
 				SList<KuratowskiWrapper>& output,
 				const KuratowskiStructure& k,
-				//const WInfo& info,
+#if 0
+				const WInfo& info,
+#endif
 				const SListPure<edge>& pathX,
 				const node endnodeX,
 				const SListPure<edge>& pathY,
@@ -564,8 +567,10 @@ void ExtractKuratowskis::extractMinorA(
 // each virtual node has to be merged into its real counterpart.
 void ExtractKuratowskis::extractMinorB(
 				SList<KuratowskiWrapper>& output,
-				//NodeArray<int>& nodeflags,
-				//const int nodemarker,
+#if 0
+				NodeArray<int>& nodeflags,
+				const int nodemarker,
+#endif
 				const KuratowskiStructure& k,
 				const WInfo& info,
 				const SListPure<edge>& pathX,
@@ -917,7 +922,9 @@ void ExtractKuratowskis::extractMinorD(
 void ExtractKuratowskis::extractMinorE1(
 				SList<KuratowskiWrapper>& output,
 				int before,
-				//const node z,
+#if 0
+				const node z,
+#endif
 				const node px,
 				const node py,
 				const KuratowskiStructure& k,
@@ -1011,10 +1018,12 @@ void ExtractKuratowskis::extractMinorE1(
 // each virtual node has to be merged into its real counterpart.
 void ExtractKuratowskis::extractMinorE2(
 				SList<KuratowskiWrapper>& output,
-				/*int before,
+#if 0
+				int before,
 				const node z,
 				const node px,
-				const node py,*/
+				const node py,
+#endif
 				const KuratowskiStructure& k,
 				const WInfo& info,
 				const SListPure<edge>& pathX,
@@ -1314,10 +1323,15 @@ void ExtractKuratowskis::extractMinorE5(
 		return;
 
 	KuratowskiWrapper E5;
-	//OGDF_ASSERT(px==k.stopX && py==k.stopY && z==info.w && k.V == k.RReal);
-	OGDF_ASSERT((endnodeX == endnodeY && m_dfi[endnodeZ] <= m_dfi[endnodeX]) ||
-				(endnodeX == endnodeZ && m_dfi[endnodeY] <= m_dfi[endnodeX]) ||
-				(endnodeY == endnodeZ && m_dfi[endnodeX] <= m_dfi[endnodeY]));
+#if 0
+	OGDF_ASSERT(px == k.stopX);
+	OGDF_ASSERT(py == k.stopY);
+	OGDF_ASSERT(z == info.w);
+	OGDF_ASSERT(k.V == k.RReal);
+#endif
+	OGDF_ASSERT((endnodeX == endnodeY && m_dfi[endnodeZ] <= m_dfi[endnodeX])
+	         || (endnodeX == endnodeZ && m_dfi[endnodeY] <= m_dfi[endnodeX])
+	         || (endnodeY == endnodeZ && m_dfi[endnodeX] <= m_dfi[endnodeY]));
 
 	// compute dfi-minimum of all three paths to node Ancestor u and
 	// add the dfs-path from minimum to V
@@ -1590,12 +1604,15 @@ void ExtractKuratowskis::extractMinorEBundles(
 						((endnodeX == endnodeY && m_dfi[endnodeZ] <= m_dfi[endnodeX]) ||
 						 (endnodeX == endnodeZ && m_dfi[endnodeY] <= m_dfi[endnodeX]) ||
 						 (endnodeY == endnodeZ && m_dfi[endnodeX] <= m_dfi[endnodeY]))) {
+#if 0
 					// instead of slower code:
-					//backtrackZ.init(z,k.V,true,DynamicBacktrack::externalPath,
-					//					DynamicBacktrack::externalPath,nullptr,pathW.back());
-					//while (backtrackZ.addNextPathExclude(pathZ,endnodeZ,nodeflags,nodemarker,0)) {
+					backtrackZ.init(z,k.V,true,DynamicBacktrack::externalPath,
+										DynamicBacktrack::externalPath,nullptr,pathW.back());
+					while (backtrackZ.addNextPathExclude(pathZ,endnodeZ,nodeflags,nodemarker,0)) {
+#else
 					if (pathZ.back() != pathW.back() &&
 						(pathZ.back()->source() == z || pathZ.back()->target() == z)) {
+#endif
 						extractMinorE5(output,/*before,z,px,py,*/k,info,pathX,
 										endnodeX,pathY,endnodeY,pathW,pathZ,endnodeZ);
 					}

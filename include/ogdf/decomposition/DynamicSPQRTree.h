@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -113,37 +110,37 @@ public:
 	//
 
 	//! Returns a reference to the original graph \e G.
-	const Graph& originalGraph () const { return m_G; }
+	const Graph& originalGraph () const override { return m_G; }
 
 	//! Returns a reference to the tree \e T.
-	const Graph& tree () const { return m_T; }
+	const Graph& tree () const override { return m_T; }
 
 	//! Returns the edge of \e G at which \e T is rooted.
-	edge rootEdge () const { return m_rootEdge; }
+	edge rootEdge () const override { return m_rootEdge; }
 
 	//! Returns the root node of \e T.
-	node rootNode () const { return findSPQR(m_bNode_SPQR[m_B.firstNode()]); }
+	node rootNode () const override { return findSPQR(m_bNode_SPQR[m_B.firstNode()]); }
 
 	//! Returns the number of S-nodes in \e T.
-	int numberOfSNodes () const { return m_bNode_numS[m_B.firstNode()]; }
+	int numberOfSNodes () const override { return m_bNode_numS[m_B.firstNode()]; }
 
 	//! Returns the number of P-nodes in \e T.
-	int numberOfPNodes () const { return m_bNode_numP[m_B.firstNode()]; }
+	int numberOfPNodes () const override { return m_bNode_numP[m_B.firstNode()]; }
 
 	//! Returns the number of R-nodes in \e T.
-	int numberOfRNodes () const { return m_bNode_numR[m_B.firstNode()]; }
+	int numberOfRNodes () const override { return m_bNode_numR[m_B.firstNode()]; }
 
 	/**
 	 * \brief Returns the type of node \a v.
 	 * \pre \a v is a node in \e T
 	 */
-	NodeType typeOf (node v) const
+	NodeType typeOf (node v) const override
 	{
 		return (NodeType)m_tNode_type[findSPQR(v)];
 	}
 
 	//! Returns the list of all nodes with type \a t.
-	List<node> nodesOfType (NodeType t) const;
+	List<node> nodesOfType (NodeType t) const override;
 
 	//! Finds the shortest path between the two sets of vertices of \e T which \a s and \a t of \e G belong to.
 	SList<node>& findPath (node s, node t) { return findPathSPQR(m_gNode_hNode[s],m_gNode_hNode[t]); }
@@ -152,7 +149,7 @@ public:
 	 * \brief Returns the skeleton of node \a v.
 	 * \pre \a v is a node in \e T
 	 */
-	Skeleton& skeleton (node v) const
+	Skeleton& skeleton (node v) const override
 	{
 		v = findSPQR(v);
 		if (!m_sk[v]) return createSkeleton(v);
@@ -163,13 +160,13 @@ public:
 	 * \brief Returns the skeleton that contains the real edge \a e.
 	 * \pre \a e is an edge in \e G
 	 */
-	const Skeleton& skeletonOfReal (edge e) const { return skeleton(spqrproper(m_gEdge_hEdge[e])); }
+	const Skeleton& skeletonOfReal (edge e) const override { return skeleton(spqrproper(m_gEdge_hEdge[e])); }
 
 	/**
 	 * \brief Returns the skeleton edge that corresponds to the real edge \a e.
 	 * \pre \a e is an edge in \e G
 	 */
-	edge copyOfReal (edge e) const
+	edge copyOfReal (edge e) const override
 	{
 		e = m_gEdge_hEdge[e];
 		skeleton(spqrproper(e));
@@ -198,25 +195,25 @@ public:
 	 * \brief Roots \e T at edge \a e and returns the new root node of \e T.
 	 * \pre \a e is an edge in \e G
 	 */
-	node rootTreeAt (edge e);
+	node rootTreeAt (edge e) override;
 
 	/**
 	 * \brief Roots \e T at node \a v and returns \a v.
 	 * \pre \a v is a node in \e T
 	 */
-	node rootTreeAt (node v);
+	node rootTreeAt (node v) override;
 
 	/**
 	 * \brief Updates the whole data structure after a new edge \a e has
 	 * been inserted into \e G.
 	 */
-	edge updateInsertedEdge (edge e);
+	edge updateInsertedEdge (edge e) override;
 
 	/**
 	 * \brief Updates the whole data structure after a new vertex has been
 	 * inserted into \e G by splitting an edge into \a e and \a f.
 	 */
-	node updateInsertedNode (edge e, edge f);
+	node updateInsertedNode (edge e, edge f) override;
 
 
 protected:
@@ -231,7 +228,7 @@ protected:
 	 * \brief Recursively performs the task of adding edges (and nodes)
 	 * to the pertinent graph \a Gp for each involved skeleton graph.
 	 */
-	void cpRec (node v, PertinentGraph& Gp) const
+	void cpRec (node v, PertinentGraph& Gp) const override
 	{
 		v = findSPQR(v);
 		for (ListConstIterator<edge> i=m_tNode_hEdges[v].begin(); i.valid(); ++i) {

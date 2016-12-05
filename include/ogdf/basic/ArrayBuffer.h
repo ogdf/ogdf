@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -155,13 +152,13 @@ public:
 	//! Returns a reference to the element at position \a i.
 	const E &operator[](INDEX i) const {
 		OGDF_ASSERT(0 <= i);
-		OGDF_ASSERT(i < num)
+		OGDF_ASSERT(i < num);
 		return Array<E,INDEX>::operator[](i);
 	}
 	//! Returns a reference to the element at position \a i.
 	E &operator[](INDEX i) {
 		OGDF_ASSERT(0 <= i);
-		OGDF_ASSERT(i < num)
+		OGDF_ASSERT(i < num);
 		return Array<E,INDEX>::operator[](i);
 	}
 
@@ -203,7 +200,7 @@ public:
 		OGDF_ASSERT(this != &A2);
 		if(num) {
 			A2.init(num);
-			for(INDEX i = num; i-->0;)
+			for(INDEX i = num; i-- > 0;)
 				A2[i] = (*this)[i];
 		} else
 			A2.init(0);
@@ -261,7 +258,7 @@ public:
 	 */
 	INDEX linearSearch (const E& x) const {
 		INDEX i;
-		for(i = num; i-->0;)
+		for(i = num; i-- > 0;)
 			if(x == Array<E,INDEX>::m_vpStart[i]) break;
 		return i;
 	}
@@ -275,7 +272,7 @@ public:
 	template<class COMPARER>
 	INDEX linearSearch (const E& x, const COMPARER &comp) const {
 		INDEX i;
-		for(i = num; i-->0;)
+		for(i = num; i-- > 0;)
 			if(comp.equal(x, Array<E,INDEX>::m_vpStart[i])) break;
 		return i;
 	}
@@ -342,17 +339,13 @@ public:
 		if (nInd == 0) return;
 
 		//! shift all items up to the last element of \a ind to the left
-	#ifdef OGDF_DEBUG
-		if(ind[0] < 0 || ind[0] >= num)
-			OGDF_THROW_PARAM(AlgorithmFailureException, afcIndexOutOfBounds);
-	#endif
+		OGDF_ASSERT(ind[0] >= 0);
+		OGDF_ASSERT(ind[0] < num);
 
 		INDEX j, current = ind[0];
 		for (INDEX i = 0; i < nInd - 1; i++) {
-	#ifdef OGDF_DEBUG
-			if(ind[i+1] < 0 || ind[i+1] >= num)
-				OGDF_THROW_PARAM(AlgorithmFailureException, afcIndexOutOfBounds);
-	#endif
+			OGDF_ASSERT(ind[i+1] >= 0);
+			OGDF_ASSERT(ind[i+1] < num);
 
 			const INDEX last = ind[i+1];
 			for(j = ind[i]+1; j < last; j++)
@@ -379,7 +372,12 @@ public:
 };
 
 
-// prints array a to output stream os using delimiter delim
+/**
+ * Prints ArrayBuffer \a a to output stream \a os using delimiter \a delim.
+ * @param os output stream
+ * @param a ArrayBuffer
+ * @param delim delimiter
+ */
 template<class E, class INDEX>
 void print(ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
 {
@@ -390,7 +388,7 @@ void print(ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
 }
 
 
-// output operator
+//! Prints ArrayBuffer \a a to output stream \a os
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const ogdf::ArrayBuffer<E,INDEX> &a)
 {

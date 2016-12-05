@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -289,13 +286,12 @@ public:
  * Also defines comparator function using the keys.
  * This class is intended as a helpful convenience class for using with BinaryHeapSimple, Top10Heap,..
  */
- template<class X, class Priority=double>
- class Prioritized {
-
+template<class X, class Priority=double>
+class Prioritized {
 	 X x;
 	 Priority p;
 
- public:
+public:
 	 //! Constructor of empty element. Be careful!
 	 Prioritized() : x(0), p(0) { }
 
@@ -334,7 +330,7 @@ public:
 
 	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
 	 bool operator!=(const Prioritized<X,Priority>& P) const { return p!=P.p; }
- };
+};
 
 template<class X, class Priority> class StdComparer< Prioritized<X,Priority> >
 {

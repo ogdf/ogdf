@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/Logger.h>
 #include <ogdf/basic/AdjacencyOracle.h>
@@ -59,11 +56,9 @@ char GraphIO::s_indentChar  = ' ';
 int  GraphIO::s_indentWidth = 2;
 Logger GraphIO::logger;
 
-typedef bool (*Reader)(Graph&, istream&);
-
 //! Supported formats for automated detection
 const int NUMBER_OF_READERS = 10;
-const Reader readers[NUMBER_OF_READERS] = {
+const GraphIO::ReaderFunc readers[NUMBER_OF_READERS] = {
 	GraphIO::readDOT,
 	GraphIO::readGML,
 	GraphIO::readTLP,
@@ -89,16 +84,10 @@ ostream &GraphIO::indent(ostream &os, int depth)
 // Graph: Generic readers
 //---------------------------------------------------------
 
-bool GraphIO::read(Graph &G, const string &filename)
-{
-	ifstream is(filename);
-	return read(G, is);
-}
-
 bool GraphIO::read(Graph &G, istream &is)
 {
-	for(int i = 0; i < NUMBER_OF_READERS; i++) {
-		if(readers[i](G, is)) {
+	for(auto &reader : readers) {
+		if(reader(G, is)) {
 			return true;
 		} else {
 			G.clear();
@@ -830,8 +819,6 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 {
 	if(!is.good()) return false;
 
-	if(!is) return false;
-
 	G.clear();
 
 	int n, m;
@@ -842,14 +829,14 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 		return false;
 	}
 
-	Array<node> mapToNode(0,n-1,nullptr);
-	for(int i = 0; i < n; ++i)
+	Array<node> mapToNode(0, n-1, nullptr);
+	for(int i = 0; i < n; ++i) {
 		mapToNode[i] = G.newNode();
+	}
 
-	bool haveDoubleWeight = A.has(GraphAttributes::edgeDoubleWeight) != 0;
+	bool haveDoubleWeight = A.has(GraphAttributes::edgeDoubleWeight);
 
-	for(int i = 0; i < m; i++)
-	{
+	for(int i = 0; i < m; i++) {
 		int src = 0, tgt = 0;
 		double weight = 1.0;
 
@@ -862,8 +849,9 @@ bool GraphIO::readRudy(GraphAttributes &A, Graph &G, istream &is)
 		src--; tgt--;
 
 		edge e = G.newEdge(mapToNode[src],mapToNode[tgt]);
-		if (haveDoubleWeight)
+		if (haveDoubleWeight) {
 			A.doubleWeight(e) = weight;
+		}
 	}
 
 	return true;

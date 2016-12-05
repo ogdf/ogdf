@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -74,11 +71,13 @@ public:
 			double strongConstraintViolation = 0.3,
 			double strongVariableViolation = 0.3);
 
-	// Destruction
+	//! Destruction
 	virtual ~CP_MasterBase();
 
+#if 0
 	// Initialization of the first Subproblem
-	//virtual Sub *firstSub();
+	virtual Sub *firstSub();
+#endif
 
 	// Returns the objective function coefficient of C-edges
 	double epsilon() const {return m_epsilon;}
@@ -113,7 +112,9 @@ public:
 	double getKBoundHigh() const {return m_kuratowskiBoundHigh;}
 	double getKBoundLow() const {return m_kuratowskiBoundLow;}
 	bool perturbation() const {return m_usePerturbation;}
-	//double branchingOEdgeSelectGap() const {return m_branchingGap;}
+#if 0
+	double branchingOEdgeSelectGap() const {return m_branchingGap;}
+#endif
 	double getHeuristicFractionalBound() const {return m_heuristicFractionalBound;}
 	int numberOfHeuristicPermutationLists() const {return m_nHeuristicPermutationLists;}
 	bool getMPHeuristic() const {return m_mpHeuristic;}
@@ -206,11 +207,11 @@ protected:
 	string *m_maxCpuTime;			//!< Time threshold for optimization
 
 	// Initializes constraints and variables and an initial dual bound.
-	virtual void initializeOptimization() = 0;
+	virtual void initializeOptimization() override = 0;
 
 	//! Function that is invoked at the end of the optimization.
 	//! Does nothing but output in CP_MasterBase.
-	virtual void terminateOptimization();
+	virtual void terminateOptimization() override;
 
 	virtual double heuristicInitialLowerBound();
 
@@ -232,8 +233,10 @@ protected:
 	virtual bool goodVar(node a, node b) { return true;}
 
 	List<nodePair> m_inactiveVariables; //! Keeps track of variables that are currently inactive during optimization
+#if 0
 	//used in initialization
-	//void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
+	void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
+#endif
 	NodeArray< NodeArray<bool> > m_varCreated; //! Keeps track of created variables
 
 
@@ -288,11 +291,12 @@ protected:
 		return  ((double) tempo)/ 100.0;
 	}
 
+#if 0
 	//number of calls of the fast max planar subgraph heuristic
-	//const int m_fastHeuristicRuns;
+	const int m_fastHeuristicRuns;
+#endif
+
 private:
-
-
 	// Is invoked by heuristicInitialLowerBound()
 	virtual double clusterConnection(cluster c, GraphCopy &GC);
 
@@ -306,20 +310,25 @@ private:
 	double m_epsilon;
 	// If perturbation is used, this variable stores the largest occuring coeff,
 	// i.e. the one closest to 0. Otherwise it corresponds to \a m_epsilon
-	//double m_largestConnectionCoeff;
-
-
+#if 0
+	double m_largestConnectionCoeff;
+#endif
 
 	//! Defines if the ABACUS default cut pool or the separate Connectivity
 	//! and Kuratowski constraint pools are used
 	bool m_useDefaultCutPool;
 
 	//!
-	//double m_delta;
-	//double m_deltaCount;
+#if 0
+	double m_delta;
+	double m_deltaCount;
+#endif
 	//Switch to minimization of additional edges, no delta necessary
+#if 1
 	virtual double nextConnectCoeff() {return 1.0;}
-	//double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; };
+#else
+	virtual double nextConnectCoeff() { return  -1  + m_deltaCount--*m_delta; }
+#endif
 	//! Variable creation for nodePair
 	virtual CPlanarEdgeVar* createVariable(ListIterator<nodePair>& it) {
 		++m_varsAdded;
@@ -340,11 +349,15 @@ private:
 			m_varCreated[a][b] = true;
 			return v;
 	}
-	//List<nodePair> m_inactiveVariables;
+#if 0
+	List<nodePair> m_inactiveVariables;
+
 	//used in initialization
-	//void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
-	// Keeps track of created variables
-	//NodeArray< NodeArray<bool> > m_varCreated;
+	void generateVariablesForFeasibility(const List<ChunkConnection*>& ccons, List<CPlanarEdgeVar*>& connectVars);
+
+	//! Keeps track of created variables
+	NodeArray< NodeArray<bool> > m_varCreated;
+#endif
 
 	//! If set to true, PORTA output is written in a file
 	bool m_porta;

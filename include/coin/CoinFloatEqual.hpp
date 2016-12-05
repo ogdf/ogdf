@@ -53,7 +53,7 @@ class CoinAbsFltEq
 
   { if (CoinIsnan(f1) || CoinIsnan(f2)) return false ;
     if (f1 == f2) return true ;
-    return (fabs(f1-f2) < epsilon_) ; } 
+    return (fabs(f1-f2) < epsilon_) ; }
 
   /*! \name Constructors and destructors */
   //@{
@@ -63,30 +63,30 @@ class CoinAbsFltEq
     Default tolerance is 1.0e-10.
   */
 
-  CoinAbsFltEq () : epsilon_(1.e-10) {} 
+  CoinAbsFltEq () : epsilon_(1.e-10) {}
 
   //! Alternate constructor with epsilon as a parameter
 
-  CoinAbsFltEq (const double epsilon) : epsilon_(epsilon) {} 
+  CoinAbsFltEq (const double epsilon) : epsilon_(epsilon) {}
 
   //! Destructor
 
-  virtual ~CoinAbsFltEq () {} 
+  virtual ~CoinAbsFltEq () {}
 
   //! Copy constructor
 
-  CoinAbsFltEq (const CoinAbsFltEq& src) : epsilon_(src.epsilon_) {} 
+  CoinAbsFltEq (const CoinAbsFltEq& src) : epsilon_(src.epsilon_) {}
 
   //! Assignment
 
   CoinAbsFltEq& operator= (const CoinAbsFltEq& rhs)
 
   { if (this != &rhs) epsilon_ = rhs.epsilon_ ;
-    return (*this) ; } 
+    return (*this) ; }
 
   //@}
 
-  private:  
+  private:
 
   /*! \name Private member data */
   //@{
@@ -131,7 +131,7 @@ class CoinRelFltEq
 
     Default tolerance is 1.0e-10.
   */
-  CoinRelFltEq () : epsilon_(1.e-10) {} 
+  CoinRelFltEq () : epsilon_(1.e-10) {}
 #else
   /*! Default constructor
 
@@ -142,26 +142,26 @@ class CoinRelFltEq
 
   //! Alternate constructor with epsilon as a parameter
 
-  CoinRelFltEq (const double epsilon) : epsilon_(epsilon) {} 
+  CoinRelFltEq (const double epsilon) : epsilon_(epsilon) {}
 
   //! Destructor
 
-  virtual ~CoinRelFltEq () {} 
+  virtual ~CoinRelFltEq () {}
 
   //! Copy constructor
 
-  CoinRelFltEq (const CoinRelFltEq & src) : epsilon_(src.epsilon_) {} 
+  CoinRelFltEq (const CoinRelFltEq & src) : epsilon_(src.epsilon_) {}
 
   //! Assignment
 
   CoinRelFltEq& operator= (const CoinRelFltEq& rhs)
 
   { if (this != &rhs) epsilon_ = rhs.epsilon_ ;
-    return (*this) ; } 
+    return (*this) ; }
 
   //@}
 
-private: 
+private:
 
   /*! \name Private member data */
   //@{

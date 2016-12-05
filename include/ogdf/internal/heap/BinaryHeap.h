@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -50,8 +47,11 @@ template<
   typename T,
   typename C=std::less<T>
 >
-class BinaryHeap : public HeapBase<BinaryHeap, int, T, C>
+class BinaryHeap : public HeapBase<BinaryHeap<T, C>, int, T, C>
 {
+
+	using base_type = HeapBase<BinaryHeap<T, C>, int, T, C>;
+
 public:
 
 	/**
@@ -64,16 +64,20 @@ public:
 
 	virtual ~BinaryHeap() {
 		if (m_heapArray) {
+			for(int i = 1; i <= m_size; i++) {
+				delete m_heapArray[i].handle;
+			}
+
 			delete[] m_heapArray;
 		}
 	}
 
 	/**
-	 * Retuns the topmost value in the heap.
+	 * Returns the topmost value in the heap.
 	 *
 	 * @return the topmost value
 	 */
-	const T &top() const;
+	const T &top() const override;
 
 	/**
 	 * Inserts a value into the heap.
@@ -81,12 +85,12 @@ public:
 	 * @param value The value to be inserted
 	 * @return A handle to access and modify the value
 	 */
-	int *push(const T &value);
+	int *push(const T &value) override;
 
 	/**
 	 * Removes the topmost value from the heap.
 	 */
-	void pop();
+	void pop() override;
 
 	/**
 	 * Decreases a single value.
@@ -94,7 +98,7 @@ public:
 	 * @param handle The handle of the value to be decreased
 	 * @param value The decreased value. This must be less than the former value
 	 */
-	void decrease(int *handle, const T &value);
+	void decrease(int *handle, const T &value) override;
 
 	/**
 	 * Returns the value of that handle.
@@ -102,7 +106,7 @@ public:
 	 * @param handle The handle
 	 * @return The value
 	 */
-	const T &value(int *handle) const;
+	const T &value(int *handle) const override;
 
 	//! Returns the current size.
 	int capacity() const { return m_arraySize; }
@@ -264,7 +268,7 @@ void BinaryHeap<T, C>::pop() {
 template <typename T, typename C>
 void BinaryHeap<T, C>::decrease(int *handle, const T &value) {
 	HeapEntry& he = m_heapArray[*handle];
-	OGDF_ASSERT(this->m_comp(value, he.value));
+	OGDF_ASSERT(this->comparator()(value, he.value));
 
 	he.value = value;
 	siftUp(*handle);
@@ -281,8 +285,8 @@ const T &BinaryHeap<T, C>::value(int *handle) const {
 
 template <typename T, typename C>
 BinaryHeap<T, C>::BinaryHeap(const C &comp, int initialSize)
+: base_type(comp)
 {
-	this->m_comp = comp;
 	init(initialSize);
 }
 
@@ -321,7 +325,7 @@ void BinaryHeap<T, C>::siftUp(int pos)
 		int run = pos;
 
 		while ((parentIndex(run) >= 1) &&
-				this->m_comp(tempEntry.value, m_heapArray[parentIndex(run)].value)) {
+				this->comparator()(tempEntry.value, m_heapArray[parentIndex(run)].value)) {
 			m_heapArray[run] = m_heapArray[parentIndex(run)];
 			*(m_heapArray[run].handle) = run;
 
@@ -346,13 +350,14 @@ void BinaryHeap<T, C>::siftDown(int pos)
 	} else {
 		T value = m_heapArray[pos].value;
 		int sIndex = pos;
+		C const &compare = this->comparator();
 
 		// left child is smallest child?
-		if (hasLeft(pos) && this->m_comp(m_heapArray[leftChildIndex(pos)].value, value)
-			&& this->m_comp(m_heapArray[leftChildIndex(pos)].value, m_heapArray[rightChildIndex(pos)].value)) {
+		if (hasLeft(pos) && compare(m_heapArray[leftChildIndex(pos)].value, value)
+			&& compare(m_heapArray[leftChildIndex(pos)].value, m_heapArray[rightChildIndex(pos)].value)) {
 			sIndex = leftChildIndex(pos);
 		// or is right child smaller?
-		} else if (hasRight(pos) && this->m_comp(m_heapArray[rightChildIndex(pos)].value, value)) {
+		} else if (hasRight(pos) && compare(m_heapArray[rightChildIndex(pos)].value, value)) {
 			sIndex = rightChildIndex(pos);
 		}
 

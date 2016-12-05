@@ -13,7 +13,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -30,12 +30,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/upward/UpwardPlanaritySingleSource.h>
@@ -256,7 +253,7 @@ bool UpwardPlanaritySingleSource::ConstraintRooting::checkEdge(
 	EdgeArray<bool> &checked)
 {
 	if (checked[e])
-		return (e->target() == parent);
+		return e->target() == parent;
 
 	if (e->target() != parent) {
 		if (m_isConstrained[e])
@@ -977,7 +974,7 @@ bool UpwardPlanaritySingleSource::initFaceSinkGraph(
 
 	node s;
 	hasSingleSource(M,s);
-	OGDF_ASSERT(s != 0);
+	OGDF_ASSERT(s != nullptr);
 
 	F.init(E,s);
 
@@ -1032,9 +1029,7 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 
 		// is reference edge a peak
 		bool isRefPeak = (S.original(eRef->target()) == nullptr);
-		adjEntry adjRefUpper = (isRefPeak) ?
-			(adjRefTwin->cyclicSucc()->twin()) :
-			adjRefTwin;
+		adjEntry adjRefUpper = isRefPeak ? adjRefTwin->cyclicSucc()->twin() : adjRefTwin;
 
 		if (isRefPeak) {
 			// lowerAdjs: ref. peak, other peaks, non-peaks
@@ -1081,7 +1076,7 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 			extFace = f;
 	}
 
-	OGDF_ASSERT(extFace != 0);
+	OGDF_ASSERT(extFace != nullptr);
 
 	// possibly we have to mirror the embedding of S
 	bool mirrorEmbedding = (extFaceIsLeft != (extFace == fLeft));
@@ -1153,7 +1148,7 @@ void UpwardPlanaritySingleSource::embedSkeleton(
 			if(S.realEdge(e1) != nullptr || S.twinEdge(e1) != nullptr) {
 				M.reverseEdge(e2);
 			} else {
-				OGDF_ASSERT(S.realEdge(e2) != 0 || S.twinEdge(e2) != 0);
+				OGDF_ASSERT(S.realEdge(e2) != nullptr || S.twinEdge(e2) != nullptr);
 				M.reverseEdge(e1);
 			}
 
@@ -1226,4 +1221,3 @@ node UpwardPlanaritySingleSource::dfsAssignSinks(
 
 
 } // end namespace ogdf
-

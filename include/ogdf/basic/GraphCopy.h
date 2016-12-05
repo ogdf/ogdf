@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -106,6 +103,21 @@ public:
 	edge original(edge e) const { return m_eOrig[e]; }
 
 	/**
+	* Returns the adjacency entry in the original graph corresponding to \a adj.
+	*
+	* Note that this method does not pay attention to reversed edges.
+	* Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	* original edge is returned.
+	*
+	* @param adj is an adjacency entry in the copy graph.
+	* \return the corresponding adjacency entry in the original graph.
+	*/
+	adjEntry original(adjEntry adj) const {
+		edge f = m_eOrig[adj->theEdge()];
+		return adj->isSource() ? f->adjSource() : f->adjTarget();
+	}
+
+	/**
 	 * \brief Returns the node in the graph copy corresponding to \a v.
 	 * @param v is a node in the original graph.
 	 * \return the corresponding node in the graph copy.
@@ -120,16 +132,31 @@ public:
 	edge copy(edge e) const { return m_eCopy[e]; }
 
 	/**
+	 * Returns the adjacency entry in the graph copy corresponding to \a adj.
+	 *
+	 * Note that this method does not pay attention to reversed edges.
+	 * Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	 * copy edge is returned.
+	 *
+	 * @param adj is an adjacency entry in the original graph.
+	 * \return the corresponding adjacency entry in the graph copy.
+	 */
+	adjEntry copy(adjEntry adj) const {
+		edge f = m_eCopy[adj->theEdge()];
+		return adj->isSource() ? f->adjSource() : f->adjTarget();
+	}
+
+	/**
 	 * \brief Returns true iff \a v has no corresponding node in the original graph.
 	 * @param v is a node in the graph copy.
 	 */
-	bool isDummy(node v) const { return (m_vOrig[v] == 0); }
+	bool isDummy(node v) const { return m_vOrig[v] == nullptr; }
 
 	/**
 	 * \brief Returns true iff \a e has no corresponding edge in the original graph.
 	 * @param e is an edge in the graph copy.
 	 */
-	bool isDummy(edge e) const { return (m_eOrig[e] == 0); }
+	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
 
 	//! Assignment operator.
 	GraphCopySimple &operator=(const GraphCopySimple &GC);
@@ -268,6 +295,32 @@ public:
 	edge original(edge e) const { return m_eOrig[e]; }
 
 	/**
+	* Returns the adjacency entry in the original graph corresponding to \a adj.
+	*
+	* Note that this method does not pay attention to reversed edges.
+	* Given a source (target) adjacency entry, the source (target) adjacency entry of the
+	* original edge is returned.
+	*
+	* This method must not be called on inner adjacency entries of a
+	* copy chain but only on a chain's source/target entry.
+	*
+	* @param adj is an adjacency entry in the copy graph.
+	* \return the corresponding adjacency entry in the original graph.
+	*/
+	adjEntry original(adjEntry adj) const {
+		edge e = adj->theEdge();
+		edge f = m_eOrig[e];
+
+		if (adj->isSource()) {
+			OGDF_ASSERT(m_eCopy[f].front() == e);
+			return f->adjSource();
+		} else {
+			OGDF_ASSERT(m_eCopy[f].back() == e);
+			return f->adjTarget();
+		}
+	}
+
+	/**
 	 * \brief Returns the node in the graph copy corresponding to \a v.
 	 * @param v is a node in the original graph.
 	 * \return the corresponding node in the graph copy.
@@ -291,16 +344,36 @@ public:
 	edge copy(edge e) const { return (m_eCopy[e].empty() ? nullptr : m_eCopy[e].front()); }
 
 	/**
+	* Returns the adjacency entry in the copy graph corresponding to \a adj.
+	*
+	* Note that this method does not pay attention to reversed edges.
+	* Given a source (target) adjacency entry, the first (last) source (target) adjacency entry of the
+	* copy chain is returned.
+	*
+	* @param adj is an adjacency entry in the copy graph.
+	* \return the corresponding adjacency entry in the original graph.
+	*/
+	adjEntry copy(adjEntry adj) const {
+		edge e = adj->theEdge();
+
+		if (adj->isSource()) {
+			return m_eCopy[e].front()->adjSource();
+		} else {
+			return m_eCopy[e].back()->adjTarget();
+		}
+	}
+
+	/**
 	 * \brief Returns true iff \a v has no corresponding node in the original graph.
 	 * @param v is a node in the graph copy.
 	 */
-	bool isDummy(node v) const { return (m_vOrig[v] == 0); }
+	bool isDummy(node v) const { return m_vOrig[v] == nullptr; }
 
 	/**
 	 * \brief Returns true iff \a e has no corresponding edge in the original graph.
 	 * @param e is an edge in the graph copy.
 	 */
-	bool isDummy(edge e) const { return (m_eOrig[e] == 0); }
+	bool isDummy(edge e) const { return m_eOrig[e] == nullptr; }
 
 	/**
 	 * \brief Returns true iff edge \a e has been reversed.
@@ -309,6 +382,14 @@ public:
 	bool isReversed (edge e) const {
 		return e->source() != original(copy(e)->source());
 	}
+
+	/**
+ 	 * \brief Returns true iff \a e is reversed w.r.t. the original edge of \a e.
+ 	 * This method should be used, if the copy edge is split and \a e is part of the chain of the original edge.
+ 	 * This method assumes that the list of copy edges forms a chain
+ 	 * \param e is an edge in the graphcopy
+ 	 */
+	bool isReversedCopyEdge (edge e) const;
 
 
 	/**
@@ -337,7 +418,7 @@ public:
 	 * \pre The corresponding lists oforiginal edges contain each only one edge.
 	 * \param v is a node in the graph copy.
 	 */
-	virtual void delNode(node v);
+	virtual void delNode(node v) override;
 
 	/**
 	 * \brief Removes edge e and clears the list of edges corresponding to \a e's original edge.
@@ -345,14 +426,17 @@ public:
 	 * \pre The list of edges corresponding to \a e's original edge contains only \a e.
 	 * \param e is an edge in the graph copy.
 	 */
-	virtual void delEdge(edge e);
+	virtual void delEdge(edge e) override;
 
+
+	virtual void clear() override;
 
 	/**
-	 * \brief Splits edge \a e.
+	 * \brief Splits edge \a e. See Graph::split for details.
+	 * Both resulting edges have the same original edge.
 	 * @param e is an edge in the graph copy.
 	 */
-	virtual edge split(edge e);
+	virtual edge split(edge e) override;
 
 
 	/**
@@ -363,7 +447,7 @@ public:
 	 * @param eIn is an edge (*,\a u) in the graph copy.
 	 * @param eOut is an edge (\a u,*) in the graph copy.
 	 */
-	void unsplit(edge eIn, edge eOut);
+	void unsplit(edge eIn, edge eOut) override;
 
 	//! Creates a new edge (\a v,\a w) with original edge \a eOrig.
 	edge newEdge(edge eOrig);
@@ -415,15 +499,17 @@ public:
 	 * \a e1  = (\a a, \a u) and \a e2 = (\a u, \a b).
 	 * Finally it sets \a crossingEdge to \a e2 and returns (\a u, \a w).
 	 *
-	 * @param crossingEdge is the edge that gets split.
-	 * @param crossedEdge is the edge that is replaced by two new edges.
-	 * @param topDown is used as follows: If set to true, \a crossingEdge will cross
+	 * @param crossingEdge is the edge that is replaced by two new edges.
+	 *                     Note that this parameter will be modified to equal the newly created edge (\a u, \a b).
+	 * @param crossedEdge is the edge that gets split.
+	 * @param rightToLeft is used as follows: If set to true, \a crossingEdge will cross
 	 *        \a crossedEdge from right to left, otherwise from left to right.
+	 * @return the rear edge resulting from the split operation: (\a u, \a w)
 	*/
 	edge insertCrossing(
 		edge& crossingEdge,
 		edge crossedEdge,
-		bool topDown);
+		bool rightToLeft);
 
 
 	/**

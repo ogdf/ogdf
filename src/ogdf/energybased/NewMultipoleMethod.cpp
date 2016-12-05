@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,18 +25,17 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/energybased/NewMultipoleMethod.h>
 #include <ogdf/energybased/FMMMLayout.h>
 #include <ogdf/basic/Math.h>
 #include <ogdf/internal/energybased/numexcept.h>
+
+#include <cmath>
 
 
 #define MIN_BOX_LENGTH   1e-300
@@ -178,7 +177,7 @@ inline int NewMultipoleMethod::power_of_two(int i)
 
 inline int NewMultipoleMethod::maxboxindex (int level)
 {
-	if ((level < 0 )) {
+	if (level < 0) {
 		cout <<"Failure NewMultipoleMethod::maxboxindex :wrong level "<<endl;
 		cout <<"level" <<level<<endl;
 		return -1;
@@ -305,8 +304,8 @@ void NewMultipoleMethod::build_up_root_node(
 	T.get_root_ptr()->set_Sm_downleftcorner(down_left_corner);
 	T.get_root_ptr()->set_Sm_boxlength(boxlength);
 	//allocate space for L_x and L_y List of the root node
-	T.get_root_ptr()->set_x_List_ptr(OGDF_NEW List<ParticleInfo>);
-	T.get_root_ptr()->set_y_List_ptr(OGDF_NEW List<ParticleInfo>);
+	T.get_root_ptr()->set_x_List_ptr(new List<ParticleInfo>);
+	T.get_root_ptr()->set_y_List_ptr(new List<ParticleInfo>);
 	create_sorted_coordinate_Lists(G, A, *(T.get_root_ptr()->get_x_List_ptr()), *(T.get_root_ptr()->get_y_List_ptr()));
 }
 
@@ -765,8 +764,8 @@ void NewMultipoleMethod::x_delete_right_subLists(
 
 	L_x_left_ptr = act_ptr->get_x_List_ptr();
 	L_y_left_ptr = act_ptr->get_y_List_ptr();
-	L_x_right_ptr = OGDF_NEW List<ParticleInfo>;
-	L_y_right_ptr = OGDF_NEW List<ParticleInfo>;
+	L_x_right_ptr = new List<ParticleInfo>;
+	L_y_right_ptr = new List<ParticleInfo>;
 
 	act_item = L_x_left_ptr->cyclicSucc(last_left_item);
 
@@ -813,8 +812,8 @@ void NewMultipoleMethod::x_delete_left_subLists(
 
 	L_x_right_ptr = act_ptr->get_x_List_ptr();
 	L_y_right_ptr = act_ptr->get_y_List_ptr();
-	L_x_left_ptr = OGDF_NEW List<ParticleInfo>;
-	L_y_left_ptr = OGDF_NEW List<ParticleInfo>;
+	L_x_left_ptr = new List<ParticleInfo>;
+	L_y_left_ptr = new List<ParticleInfo>;
 
 	act_item = L_x_right_ptr->begin();
 
@@ -861,8 +860,8 @@ void NewMultipoleMethod::y_delete_right_subLists(
 
 	L_x_left_ptr = act_ptr->get_x_List_ptr();
 	L_y_left_ptr = act_ptr->get_y_List_ptr();
-	L_x_right_ptr = OGDF_NEW List<ParticleInfo>;
-	L_y_right_ptr = OGDF_NEW List<ParticleInfo>;
+	L_x_right_ptr = new List<ParticleInfo>;
+	L_y_right_ptr = new List<ParticleInfo>;
 
 	act_item = L_y_left_ptr->cyclicSucc(last_left_item);
 
@@ -909,8 +908,8 @@ void NewMultipoleMethod::y_delete_left_subLists(
 
 	L_x_right_ptr = act_ptr->get_x_List_ptr();
 	L_y_right_ptr = act_ptr->get_y_List_ptr();
-	L_x_left_ptr = OGDF_NEW List<ParticleInfo>;
-	L_y_left_ptr = OGDF_NEW List<ParticleInfo>;
+	L_x_left_ptr = new List<ParticleInfo>;
+	L_y_left_ptr = new List<ParticleInfo>;
 
 	act_item = L_y_right_ptr->begin();
 
@@ -1032,8 +1031,8 @@ void NewMultipoleMethod::y_move_left_subLists(
 
 	L_x_r_ptr = L_x_ptr;
 	L_y_r_ptr = L_y_ptr;
-	L_x_l_ptr = OGDF_NEW List<ParticleInfo>;
-	L_y_l_ptr = OGDF_NEW List<ParticleInfo>;
+	L_x_l_ptr = new List<ParticleInfo>;
+	L_y_l_ptr = new List<ParticleInfo>;
 
 	p_in_L_y_item = L_y_r_ptr->begin();
 
@@ -1107,8 +1106,8 @@ void NewMultipoleMethod::y_move_right_subLists(
 
 	L_x_l_ptr = L_x_ptr;
 	L_y_l_ptr = L_y_ptr;
-	L_x_r_ptr = OGDF_NEW List<ParticleInfo>;
-	L_y_r_ptr = OGDF_NEW List<ParticleInfo>;
+	L_x_r_ptr = new List<ParticleInfo>;
+	L_y_r_ptr = new List<ParticleInfo>;
 
 	p_in_L_y_item = L_y_l_ptr->cyclicSucc(last_left_item);
 
@@ -1704,10 +1703,10 @@ void NewMultipoleMethod::collect_contained_nodes(QuadTreeNM& T, QuadTreeNodeNM* 
 bool NewMultipoleMethod::find_smallest_quad(NodeArray<NodeAttributes>& A, QuadTreeNM& T)
 {
 	OGDF_ASSERT(!T.get_act_ptr()->contained_nodes_empty());
-	//if(T.get_act_ptr()->contained_nodes_empty())
-	//  cout<<"Error NewMultipoleMethod :: find_smallest_quad()"<<endl;
-	//else
-	// {//else
+#if 0
+	if(T.get_act_ptr()->contained_nodes_empty())
+		cout<<"Error NewMultipoleMethod :: find_smallest_quad()"<<endl;
+#endif
 	List<node>L;
 	T.get_act_ptr()->get_contained_nodes(L);
 	node v = L.popFrontRet();
@@ -1738,7 +1737,6 @@ bool NewMultipoleMethod::find_smallest_quad(NodeArray<NodeAttributes>& A, QuadTr
 	}
 	else
 		return false;
-	//}//else
 }
 
 
@@ -1843,12 +1841,12 @@ void NewMultipoleMethod::find_small_cell_by_formula(
 	else if(x_min == x_max && y_min != y_max)
 		rectangle_is_vertical_line = true;
 	else //x_min != x_max
-		j_x = static_cast<int>(ceil(Math::log2(Sm_boxlength/(x_max-x_min))));
+		j_x = static_cast<int>(ceil(std::log2(Sm_boxlength/(x_max-x_min))));
 
 	if(x_min != x_max && y_min == y_max)
 		rectangle_is_horizontal_line = true;
 	else //y_min != y_max
-		j_y = static_cast<int>(ceil(Math::log2(Sm_boxlength/(y_max-y_min))));
+		j_y = static_cast<int>(ceil(std::log2(Sm_boxlength/(y_max-y_min))));
 
 	if(rectangle_is_point)
 	{
@@ -2627,6 +2625,7 @@ void NewMultipoleMethod::calculate_neighbourcell_forces(
 			}
 
 			for(k = 1; k<length; k++)
+			{
 				for(int l = k+1; l<=length; l++)
 				{
 					node u = numbered_nodes[k];
@@ -2648,63 +2647,35 @@ void NewMultipoleMethod::calculate_neighbourcell_forces(
 					F_direct[v] = F_direct[v] + f_rep_u_on_v;
 					F_direct[u] = F_direct[u] - f_rep_u_on_v;
 				}
+			}
 
-				//Step 2: calculated forces to nodes in act_contained_nodes() of
-				//leaf_ptr->get_D1()
+			//Step 2: calculated forces to nodes in act_contained_nodes() of
+			//leaf_ptr->get_D1()
 
-				act_leaf->get_D1(neighboured_leaves);
-				act_leaf_boxlength = act_leaf->get_Sm_boxlength();
-				act_leaf_dlc = act_leaf->get_Sm_downleftcorner();
+			act_leaf->get_D1(neighboured_leaves);
+			act_leaf_boxlength = act_leaf->get_Sm_boxlength();
+			act_leaf_dlc = act_leaf->get_Sm_downleftcorner();
 
-				for(const QuadTreeNodeNM *neighbour_leaf : neighboured_leaves)
-				{//forall2
-					//forget boxes that have already been looked at
+			for(const QuadTreeNodeNM *neighbour_leaf : neighboured_leaves)
+			{//forall2
+				//forget boxes that have already been looked at
 
-					neighbour_leaf_boxlength = neighbour_leaf->get_Sm_boxlength();
-					neighbour_leaf_dlc = neighbour_leaf->get_Sm_downleftcorner();
+				neighbour_leaf_boxlength = neighbour_leaf->get_Sm_boxlength();
+				neighbour_leaf_dlc = neighbour_leaf->get_Sm_downleftcorner();
 
-					if( (act_leaf_boxlength > neighbour_leaf_boxlength) ||
-						(act_leaf_boxlength == neighbour_leaf_boxlength &&
-						act_leaf_dlc.m_x < neighbour_leaf_dlc.m_x)
-						|| (act_leaf_boxlength == neighbour_leaf_boxlength &&
-						act_leaf_dlc.m_x ==  neighbour_leaf_dlc.m_x &&
-						act_leaf_dlc.m_y < neighbour_leaf_dlc.m_y) )
-					{//if
-						neighbour_leaf->get_contained_nodes(neighbour_contained_nodes);
+				if( (act_leaf_boxlength > neighbour_leaf_boxlength) ||
+					(act_leaf_boxlength == neighbour_leaf_boxlength &&
+					act_leaf_dlc.m_x < neighbour_leaf_dlc.m_x)
+					|| (act_leaf_boxlength == neighbour_leaf_boxlength &&
+					act_leaf_dlc.m_x ==  neighbour_leaf_dlc.m_x &&
+					act_leaf_dlc.m_y < neighbour_leaf_dlc.m_y) )
+				{//if
+					neighbour_leaf->get_contained_nodes(neighbour_contained_nodes);
 
-						for(node v : act_contained_nodes)
-							for(node u : neighbour_contained_nodes)
-							{//for
-								pos_u = A[u].get_position();
-								pos_v = A[v].get_position();
-								if (pos_u == pos_v)
-								{//if2  (Exception handling if two nodes have the same position)
-									pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
-								}//if2
-								vector_v_minus_u = pos_v - pos_u;
-								norm_v_minus_u = vector_v_minus_u.norm();
-								if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
-								{
-									scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
-									f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
-									f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
-								}
-								F_direct[v] = F_direct[v] + f_rep_u_on_v;
-								F_direct[u] = F_direct[u] - f_rep_u_on_v;
-							}//for
-					}//if
-				}//forall2
-
-				//Step 3: calculated forces to nodes in act_contained_nodes() of
-				//leaf_ptr->get_D2()
-
-				act_leaf->get_D2(non_neighboured_leaves);
-				for(const QuadTreeNodeNM *non_neighbour_leaf : non_neighboured_leaves)
-				{//forall3
-					non_neighbour_leaf->get_contained_nodes(non_neighbour_contained_nodes);
 					for(node v : act_contained_nodes)
-						for(node u : non_neighbour_contained_nodes)
-						{//for
+					{
+						for(node u : neighbour_contained_nodes)
+						{
 							pos_u = A[u].get_position();
 							pos_v = A[v].get_position();
 							if (pos_u == pos_v)
@@ -2720,8 +2691,39 @@ void NewMultipoleMethod::calculate_neighbourcell_forces(
 								f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
 							}
 							F_direct[v] = F_direct[v] + f_rep_u_on_v;
-						}//for
-				}//forall3
+							F_direct[u] = F_direct[u] - f_rep_u_on_v;
+						}
+					}
+				}//if
+			}//forall2
+
+			//Step 3: calculated forces to nodes in act_contained_nodes() of
+			//leaf_ptr->get_D2()
+
+			act_leaf->get_D2(non_neighboured_leaves);
+			for(const QuadTreeNodeNM *non_neighbour_leaf : non_neighboured_leaves)
+			{//forall3
+				non_neighbour_leaf->get_contained_nodes(non_neighbour_contained_nodes);
+				for(node v : act_contained_nodes)
+					for(node u : non_neighbour_contained_nodes)
+					{//for
+						pos_u = A[u].get_position();
+						pos_v = A[v].get_position();
+						if (pos_u == pos_v)
+						{//if2  (Exception handling if two nodes have the same position)
+							pos_u = N.choose_distinct_random_point_in_radius_epsilon(pos_u);
+						}//if2
+						vector_v_minus_u = pos_v - pos_u;
+						norm_v_minus_u = vector_v_minus_u.norm();
+						if(!N.f_rep_near_machine_precision(norm_v_minus_u,f_rep_u_on_v))
+						{
+							scalar = f_rep_scalar(norm_v_minus_u)/norm_v_minus_u ;
+							f_rep_u_on_v.m_x = scalar * vector_v_minus_u.m_x;
+							f_rep_u_on_v.m_y = scalar * vector_v_minus_u.m_y;
+						}
+						F_direct[v] = F_direct[v] + f_rep_u_on_v;
+					}//for
+			}//forall3
 		}//if(usual case)
 		else //special case (more then particles_in_leaves() particles in this leaf)
 		{//else

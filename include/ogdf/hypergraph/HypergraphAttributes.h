@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -83,7 +80,7 @@ public:
 
 	//! Initializes new instance of class HypergraphAttributes.
 	HypergraphAttributes()
-	  : m_hypergraph(0)
+	  : m_hypergraph(nullptr)
 	{
 	}
 
@@ -199,7 +196,7 @@ public:
 
 	//! Initializes new instance of class HypergraphAttributes.
 	HypergraphAttributesES()
-	  : m_repGA(0), m_repG(0)
+	  : m_repGA(nullptr), m_repG(nullptr)
 	{
 	}
 
@@ -347,17 +344,19 @@ public:
 		return m_repGA->bends(e);
 	}
 
-	////! Writes the hypergraph (edge standard representation) into SVG format.
-	//void writeSVG(ostream &os, int fontSize, const string &fontColor) const
-	//{
-	//    m_repGA->writeSVG(os, fontSize, fontColor);
-	//}
-	//
-	////! Writes the hypergraph (edge standard representation) into SVG format.
-	//void writeSVG(const char *fileName, int fontSize, const string &fontColor) const
-	//{
-	//    m_repGA->writeSVG(fileName, fontSize, fontColor);
-	//}
+#if 0
+	//! Writes the hypergraph (edge standard representation) into SVG format.
+	void writeSVG(ostream &os, int fontSize, const string &fontColor) const
+	{
+		m_repGA->writeSVG(os, fontSize, fontColor);
+	}
+
+	//! Writes the hypergraph (edge standard representation) into SVG format.
+	void writeSVG(const char *fileName, int fontSize, const string &fontColor) const
+	{
+		m_repGA->writeSVG(fileName, fontSize, fontColor);
+	}
+#endif
 
 	void clearAllBends()
 	{

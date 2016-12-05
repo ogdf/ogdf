@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,19 +26,16 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
 #include <ogdf/graphalg/MinSteinerTreeTakahashi.h>
 
-//#define OGDF_COMMON_ALG__FIND_BEST_TAKAHASHI_ROOT
+//#define OGDF_COMMON_ALG_FIND_BEST_TAKAHASHI_ROOT
 
 
 namespace ogdf {
@@ -178,7 +175,7 @@ T obtainFinalSteinerTree(const EdgeWeightedGraph<T> &G, const NodeArray<bool> &i
 
 	finalSteinerTree = nullptr;
 	MinSteinerTreeTakahashi<T> mstt;
-#ifdef OGDF_COMMON_ALG__FIND_BEST_TAKAHASHI_ROOT
+#ifdef OGDF_COMMON_ALG_FIND_BEST_TAKAHASHI_ROOT
 	// find minimum Steiner tree of G among Takahashi approximations for each start node
 	T bestMstWeight = numeric_limits<T>::max();
 	for (node v : terminals) {

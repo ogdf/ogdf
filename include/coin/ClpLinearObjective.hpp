@@ -22,7 +22,7 @@ public:
      //@{
 
      /** Returns objective coefficients.
-       
+
        Offset is always set to 0.0. All other parameters unused.
      */
      virtual double * gradient(const ClpSimplex * model,

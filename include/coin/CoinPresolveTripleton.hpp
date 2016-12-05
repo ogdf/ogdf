@@ -56,11 +56,9 @@ class tripleton_action : public CoinPresolveAction {
 
   static const CoinPresolveAction *presolve(CoinPresolveMatrix *,
 					 const CoinPresolveAction *next);
-  
+
   void postsolve(CoinPostsolveMatrix *prob) const;
 
   ~tripleton_action();
 };
 #endif
-
-

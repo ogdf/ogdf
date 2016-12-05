@@ -41,7 +41,7 @@
 namespace abacus {
 
 //! Implements the branching by adding a constraint to the set of active constraints.
-class  ConBranchRule :  public BranchRule  {
+class OGDF_EXPORT ConBranchRule : public BranchRule {
 public:
 
 	//! Creates a branching constraint.
@@ -79,23 +79,23 @@ public:
 	 *
 	 * \return Always 0, since there cannot be a contractiction.
 	 */
-	virtual int extract(Sub *sub);
+	virtual int extract(Sub *sub) override;
 
 
 	//! Overloaded to modify directly the linear programming relaxation.
 	/**
 	 * This required to evaluate the quality of a branching rule.
 	 */
-	virtual void extract(LpSub *lp);
+	virtual void extract(LpSub *lp) override;
 
-	virtual void unExtract(LpSub *lp);
+	virtual void unExtract(LpSub *lp) override;
 
 
 	//! Initializes the subproblem associated with the branching constraint.
 	 /**
 	 * \param sub A pointer to the subproblem that is associated with the branching constraint.
 	 */
-	virtual void initialize(Sub *sub);
+	virtual void initialize(Sub *sub) override;
 
 
 	//! Returns a pointer to the branching constraint, or a 0-pointer if this constraint is not available.

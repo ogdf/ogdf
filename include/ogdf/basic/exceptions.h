@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -39,43 +36,37 @@
 
 namespace ogdf {
 
-#ifdef OGDF_DEBUG
+//! @name Throwing exceptions
+//! @{
+
 /**
- * If this flag is set the #OGDF_THROW macros passes the location where the
- * exception is thrown (file name and line number) to the exception
- * constructor, otherwise not.
- */
-#define OGDF_THROW_WITH_INFO
-#endif
-
-#ifdef OGDF_THROW
-#undef OGDF_THROW
-#endif
-
-
-
-#ifndef OGDF_THROW_WITH_INFO
-#define OGDF_THROW_PARAM(CLASS, PARAM) cout<<flush,Logger::sfout()<<flush,throw CLASS ( PARAM )
-#define OGDF_THROW(CLASS)              cout<<flush,Logger::sfout()<<flush,throw CLASS ( )
-#else
-//! Replacement for \c throw.
-/**
+ * Replacement for \c throw.
  * This macro is used to throw an exception and pass the file name
- * and line number of the location in the source file.
+ * and line number of the location in the source file (in Debug mode only).
  * @param CLASS is the name of the exception class.
  * @param PARAM is an additional parameter (like the error code) required
  *        by the exception calls.
+ * @ingroup macros
  */
-#define OGDF_THROW_PARAM(CLASS, PARAM) cout<<flush,Logger::sfout()<<flush,throw CLASS ( PARAM , __FILE__ , __LINE__ )
-//! Replacement for \c throw.
+#define OGDF_THROW_PARAM(CLASS, PARAM) cout<<flush,Logger::sfout()<<flush,throw CLASS ( PARAM )
+
 /**
+ * Replacement for \c throw.
  * This macro is used to throw an exception and pass the file name
- * and line number of the location in the source file.
+ * and line number of the location in the source file (in Debug mode only).
  * @param CLASS is the name of the exception class.
+ * @ingroup macros
  */
-#define OGDF_THROW(CLASS)              cout<<flush,Logger::sfout()<<flush,throw CLASS ( __FILE__ , __LINE__ )
+#define OGDF_THROW(CLASS)              cout<<flush,Logger::sfout()<<flush,throw CLASS ( )
+
+#ifdef OGDF_DEBUG
+# undef OGDF_THROW_PARAM
+# define OGDF_THROW_PARAM(CLASS, PARAM) cout<<flush,Logger::sfout()<<flush,throw CLASS ( PARAM , __FILE__ , __LINE__ )
+# undef OGDF_THROW
+# define OGDF_THROW(CLASS)              cout<<flush,Logger::sfout()<<flush,throw CLASS ( __FILE__ , __LINE__ )
 #endif
 
+//! @}
 
 	//! Error code for a violated precondition.
 	/**

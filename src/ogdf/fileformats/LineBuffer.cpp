@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
-
-
-// disable VC++ warnings when using strcpy
-#define _CRT_SECURE_NO_WARNINGS
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/LineBuffer.h>
 #include <ogdf/basic/Logger.h>
@@ -294,7 +287,7 @@ namespace ogdf {
 		}
 
 		// EndPosition must be valid
-		OGDF_ASSERT(isValidPosition(endPosition))
+		OGDF_ASSERT(isValidPosition(endPosition));
 
 		// Remember original currentPosition
 		LineBufferPosition originalCurrentPosition = getCurrentPosition();
@@ -307,7 +300,7 @@ namespace ogdf {
 		{
 
 			// Check if eof
-			OGDF_ASSERT(getCurrentCharacter() != EOF)
+			OGDF_ASSERT(getCurrentCharacter() != EOF);
 
 			// Put character into targetString
 			targetString.push_back(getCurrentCharacter());

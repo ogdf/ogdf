@@ -107,9 +107,9 @@ CoinCopy(const T* first, const T* last, T* to)
 /** This helper function copies an array to another location. The two arrays
 	must not overlap (otherwise an exception is thrown). For speed 8 entries
 	are copied at a time. The arrays are given by pointers to their first
-	entries and by the size of the source array. 
+	entries and by the size of the source array.
 
-	Note JJF - the speed claim seems to be false on IA32 so I have added 
+	Note JJF - the speed claim seems to be false on IA32 so I have added
 	CoinMemcpyN which can be used for atomic data */
 template <class T> inline void
 CoinDisjointCopyN(const T* from, const int size, T* to)
@@ -219,7 +219,7 @@ CoinCopyOfArray( const T * array, const int size, T value)
 		std::memcpy(arrayNew,array,size*sizeof(T));
 	} else {
 	int i;
-	for (i=0;i<size;i++) 
+	for (i=0;i<size;i++)
 		arrayNew[i] = value;
 	}
 	return arrayNew;
@@ -248,9 +248,9 @@ CoinCopyOfArrayOrZero( const T * array , const int size)
 /** This helper function copies an array to another location. The two arrays
 	must not overlap (otherwise an exception is thrown). For speed 8 entries
 	are copied at a time. The arrays are given by pointers to their first
-	entries and by the size of the source array. 
+	entries and by the size of the source array.
 
-	Note JJF - the speed claim seems to be false on IA32 so I have added 
+	Note JJF - the speed claim seems to be false on IA32 so I have added
 	alternative coding if USE_MEMCPY defined*/
 #ifndef COIN_USE_RESTRICT
 template <class T> inline void
@@ -264,7 +264,7 @@ CoinMemcpyN(const T* from, const int size, T* to)
 	if (size < 0)
 	throw CoinError("trying to copy negative number of entries",
 			"CoinMemcpyN", "");
-  
+
 #if 0
 	/* There is no point to do this test. If to and from are from different
 	   blocks then dist is undefined, so this can crash correct code. It's
@@ -351,9 +351,9 @@ CoinMemcpy(const T* first, const T* last,
 
 /** This helper function fills an array with a given value. For speed 8 entries
 	are filled at a time. The array is given by a pointer to its first entry
-	and its size. 
+	and its size.
 
-	Note JJF - the speed claim seems to be false on IA32 so I have added 
+	Note JJF - the speed claim seems to be false on IA32 so I have added
 	CoinZero to allow for memset. */
 template <class T> inline void
 CoinFillN(T* to, const int size, const T value)
@@ -422,7 +422,7 @@ CoinFill(T* first, T* last, const T value)
 	are filled at a time. The array is given by a pointer to its first entry
 	and its size.
 
-	Note JJF - the speed claim seems to be false on IA32 so I have allowed 
+	Note JJF - the speed claim seems to be false on IA32 so I have allowed
 	for memset as an alternative */
 template <class T> inline void
 CoinZeroN(T* to, const int size)
@@ -490,7 +490,7 @@ CoinCheckDoubleZero(double * to, const int size)
 {
 	int n=0;
 	for (int j=0;j<size;j++) {
-	if (to[j]) 
+	if (to[j])
 		n++;
 	}
 	if (n) {
@@ -503,7 +503,7 @@ CoinCheckIntZero(int * to, const int size)
 {
 	int n=0;
 	for (int j=0;j<size;j++) {
-	if (to[j]) 
+	if (to[j])
 		n++;
 	}
 	if (n) {
@@ -615,7 +615,7 @@ CoinIsSorted(const T* first, const int size)
 	for (++next; next != last; first = next, ++next)
 	if (*next < *first)
 		return false;
-#endif   
+#endif
 	return true;
 }
 
@@ -771,7 +771,7 @@ CoinDeleteEntriesFromArray(T * arrayFirst, T * arrayLast,
 inline double CoinDrand48 (bool isSeed = false, unsigned int seed = 1)
 {
   static unsigned int last = 123456;
-  if (isSeed) { 
+  if (isSeed) {
 	last = seed;
   } else {
 	last = 1664525*last+1013904223;
@@ -808,7 +808,7 @@ inline void CoinSeedRandom(int iseed) { srand48(iseed + 69822); }
 
 //#############################################################################
 
-/** This function figures out whether file names should contain slashes or 
+/** This function figures out whether file names should contain slashes or
 	backslashes as directory separator */
 inline char CoinFindDirSeparator()
 {
@@ -822,7 +822,7 @@ inline char CoinFindDirSeparator()
 		buf = nullptr;
 		size = 2*size;
 	}
-	// if first char is '/' then it's unix and the dirsep is '/'. otherwise we 
+	// if first char is '/' then it's unix and the dirsep is '/'. otherwise we
 	// assume it's dos and the dirsep is '\'
 	char dirsep = buf[0] == '/' ? '/' : '\\';
 	delete[] buf;
@@ -862,7 +862,7 @@ template <class T> inline void CoinSwap (T &x, T &y)
 
 //#############################################################################
 
-/** This helper function copies an array to file 
+/** This helper function copies an array to file
 	Returns 0 if OK, 1 if bad write.
 */
 
@@ -881,7 +881,7 @@ CoinToFile( const T* array, CoinBigIndex size, FILE * fp)
 		return 1;
 	} else {
 	size = 0;
-	numberWritten = 
+	numberWritten =
 		static_cast<CoinBigIndex>(fwrite(&size,sizeof(int),1,fp));
 	if (numberWritten!=1)
 		return 1;
@@ -926,7 +926,7 @@ CoinFromFile( T* &array, CoinBigIndex size, FILE * fp, CoinBigIndex & newSize)
 #if 0
 inline double CoinCbrt(double x)
 {
-#if defined(_MSC_VER) 
+#if defined(_MSC_VER)
 	return pow(x,(1./3.));
 #else
 	return cbrt(x);
@@ -936,9 +936,9 @@ inline double CoinCbrt(double x)
 
 //-----------------------------------------------------------------------------
 
-/// This helper returns "sizeof" as an int 
+/// This helper returns "sizeof" as an int
 #define CoinSizeofAsInt(type) (static_cast<int>(sizeof(type)))
-/// This helper returns "strlen" as an int 
+/// This helper returns "strlen" as an int
 inline int
 CoinStrlenAsInt(const char * string)
 {
@@ -958,7 +958,7 @@ public:
   { seed_=12345678;}
   /** Constructor wih seed. */
   CoinThreadRandom(int seed)
-  { 
+  {
 	seed_ = seed;
   }
   /** Destructor */
@@ -976,18 +976,18 @@ public:
   }
 
   //@}
-  
+
   /**@name Sets/gets */
 
   //@{
   /** Set seed. */
   inline void setSeed(int seed)
-  { 
+  {
 	seed_ = seed;
   }
   /** Get seed. */
   inline unsigned int getSeed() const
-  { 
+  {
 	return seed_;
   }
   /// return a random number
@@ -999,8 +999,8 @@ public:
 	return retVal;
   }
   //@}
-  
-  
+
+
 protected:
   /**@name Data members
 	 The data members are protected to allow access for derived classes. */
@@ -1023,7 +1023,7 @@ public:
   { memcpy(seed_,seed,3*sizeof(unsigned short));}
   /** Constructor wih seed. */
   CoinThreadRandom(int seed)
-  { 
+  {
 	union { int i[2]; unsigned short int s[4];} put;
 	put.i[0]=seed;
 	put.i[1]=seed;
@@ -1044,7 +1044,7 @@ public:
   }
 
   //@}
-  
+
   /**@name Sets/gets */
 
   //@{
@@ -1053,7 +1053,7 @@ public:
   { memcpy(seed_,seed,3*sizeof(unsigned short));}
   /** Set seed. */
   inline void setSeed(int seed)
-  { 
+  {
 	union { int i[2]; unsigned short int s[4];} put;
 	put.i[0]=seed;
 	put.i[1]=seed;
@@ -1072,8 +1072,8 @@ public:
 	return retVal;
   }
   //@}
-  
-  
+
+
 protected:
   /**@name Data members
 	 The data members are protected to allow access for derived classes. */

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,108 +25,72 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/internal/basic/config.h>
 
+//! @name Assertions (only active in debug builds)
+//! @{
 
-//---------------------------------------------------------
-// assertions
-//---------------------------------------------------------
+//! Assert condition \a expr. See doc/build.md for more information.
+//! @ingroup macros
+#define OGDF_ASSERT(expr)
+//! Assert condition \a expr if debug level is at least \a minLevel.
+//! @ingroup macros
+#define OGDF_ASSERT_IF(minLevel,expr)
+//! Set debug level to \a level.
+//! @ingroup macros
+#define OGDF_SET_DEBUG_LEVEL(level)
 
 #ifdef OGDF_DEBUG
-#include <cassert>
-#define OGDF_ASSERT(expr) assert(expr);
-#define OGDF_ASSERT_IF(minLevel,expr) \
-	if (int(ogdf::debugLevel) >= int(minLevel)) { assert(expr); } else { }
-#define OGDF_SET_DEBUG_LEVEL(level) ogdf::debugLevel = level;
+# undef OGDF_ASSERT
+# ifndef OGDF_USE_ASSERT_EXCEPTIONS
+#  include <cassert>
+#  define OGDF_ASSERT(expr) assert(expr)
+# else
+#  include <stdexcept>
+#  include <sstream>
 
-#define OGDF_DEBUG_OUTPUT(kind, str) \
-	std::cerr << std::endl << "OGDF " << kind << " from " << __FILE__ << ":" << __LINE__ << "(" << __func__ << "): " << str << std::endl;
+namespace ogdf {
+/**
+ * A trivial exception for failed assertions.
+ * Only available if the macro OGDF_USE_ASSERT_EXCEPTIONS is defined.
+ */
+class AssertionFailed : public std::runtime_error {
+	using std::runtime_error::runtime_error;
+};
+}
 
-#else
-#define OGDF_ASSERT(expr)
-#define OGDF_ASSERT_IF(minLevel,expr)
-#define OGDF_SET_DEBUG_LEVEL(level)
-#define OGDF_DEBUG_OUTPUT(kind, str)
+#  define OGDF_ASSERT(expr) do { \
+	if (!(expr)) { \
+		std::stringstream ogdf_assert_ss; \
+		ogdf_assert_ss \
+		 << "OGDF assertion `" #expr "' failed at " __FILE__ ":" \
+		 << __LINE__ \
+		 << "(" << OGDF_FUNCTION_NAME << ")"; \
+		ogdf::get_stacktrace(ogdf_assert_ss); \
+		throw ogdf::AssertionFailed(ogdf_assert_ss.str()); \
+	} } while (false)
+# endif
+# undef OGDF_ASSERT_IF
+# define OGDF_ASSERT_IF(minLevel,expr) do { \
+	if (int(ogdf::debugLevel) >= int(minLevel)) { \
+		OGDF_ASSERT(expr); \
+	} } while (false)
+# undef OGDF_SET_DEBUG_LEVEL
+# define OGDF_SET_DEBUG_LEVEL(level) ogdf::debugLevel = level
 #endif
 
-//---------------------------------------------------------
-// deprecation
-//---------------------------------------------------------
-
-
-#if __cplusplus >= 201402L
-#define OGDF_DEPRECATED [[deprecated]]
-#else
-
-#ifdef _MSC_VER
-#define OGDF_DEPRECATED __declspec(deprecated)
-#elif defined(__GNUC__)
-#define OGDF_DEPRECATED __attribute__ ((deprecated))
-#else
-#define OGDF_DEPRECATED
-#endif
-
-#endif
-
-
-
-//---------------------------------------------------------
-// macros for optimization
-//---------------------------------------------------------
-
-// Visual C++ compiler
-#ifdef _MSC_VER
-
-#define OGDF_LIKELY(x)    (x)
-#define OGDF_UNLIKELY(x)  (x)
-
-#define OGDF_DECL_ALIGN(b) __declspec(align(b))
-#define OGDF_DECL_THREAD __declspec(thread)
-
-
-// GNU gcc compiler (also Intel compiler)
-#elif defined(__GNUC__)
-//// make sure that SIZE_MAX gets defined
-//#define __STDC_LIMIT_MACROS
-
-#define OGDF_LIKELY(x)    __builtin_expect((x),1)
-#define OGDF_UNLIKELY(x)  __builtin_expect((x),0)
-
-#define OGDF_DECL_ALIGN(b) __attribute__ ((aligned(b)))
-#define OGDF_DECL_THREAD __thread
-
-
-// other compiler
-#else
-#define OGDF_LIKELY(x)    (x)
-#define OGDF_UNLIKELY(x)  (x)
-
-#define OGDF_DECL_ALIGN(b)
-#endif
-
-#ifndef __SIZEOF_POINTER__
-#ifdef _M_X64
-#define __SIZEOF_POINTER__ 8
-#else
-#define __SIZEOF_POINTER__ 4
-#endif
-#endif
-
+//! @}
 
 //---------------------------------------------------------
 // common includes
 //---------------------------------------------------------
 
-// stdlib
 #include <cstdint>
 #include <cmath>
 #include <ctime>
@@ -150,22 +114,21 @@ using std::numeric_limits;	// from <limits>
  *  You should never create instances of it!
 */
 class Initialization {
-	static int s_count;
-
 public:
 	Initialization();
 	~Initialization();
 };
 
+// This has to be in the header file. Being in the cpp file does not
+// guarantee that it is constructed (with all linkers).
 static Initialization s_ogdfInitializer;
 
 #endif
 
-
-	// forward declarations
-	template<class E> class List;
-
-
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
+	//! Output a mangled stack backtrace of the caller function to stream
+	extern void get_stacktrace(std::ostream &);
+#endif
 
 	enum Direction { before, after };
 
@@ -215,7 +178,7 @@ static Initialization s_ogdfInitializer;
 		w = sqrt((-2.0 * log(w))/w) ;
 		y1 = x1*w;
 
-		return(m + y1*sd);
+		return m + y1 * sd;
 	}
 
 	//@}
@@ -236,7 +199,6 @@ static Initialization s_ogdfInitializer;
 	template<>inline bool doDestruction<int>(const int *) { return false; }
 	template<>inline bool doDestruction<double>(const double *) { return false; }
 
-
 	//! Removes trailing space, horizontal and vertical tab, feed, newline, and carriage return  from \a str.
 	OGDF_EXPORT void removeTrailingWhitespace(string &str);
 
@@ -246,7 +208,6 @@ static Initialization s_ogdfInitializer;
 	//! Tests if \a prefix is a prefix of \a str, ignoring the case of characters.
 	OGDF_EXPORT bool prefixIgnoreCase(const string &prefix, const string &str);
 
-	//@}
 	/**
 	* @addtogroup container-functions
 	*/

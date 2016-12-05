@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -56,28 +53,28 @@ public:
 		delete getNodeInfo();
 	}
 
-	PQNodeType  type() const { return leaf; }
+	PQNodeType  type() const override { return leaf; }
 
-	void type(PQNodeType) { }
+	void type(PQNodeType) override { }
 
-	PQNodeStatus  status() const { return PQNodeRoot::INDICATOR; }
+	PQNodeStatus  status() const override { return PQNodeRoot::INDICATOR; }
 
-	void status(PQNodeStatus) { }
+	void status(PQNodeStatus) override { }
 
-	PQNodeMark  mark() const { return UNMARKED; }
+	PQNodeMark  mark() const override { return UNMARKED; }
 
-	void mark(PQNodeMark) { }
+	void mark(PQNodeMark) override { }
 
-	PQLeafKey<edge,IndInfo*,bool>* getKey() const { return 0; }
+	PQLeafKey<edge,IndInfo*,bool>* getKey() const override { return nullptr; }
 
-	bool setKey(PQLeafKey<edge,IndInfo*,bool>* pointerToKey) {
-		return (pointerToKey == 0);
+	bool setKey(PQLeafKey<edge,IndInfo*,bool>* pointerToKey) override {
+		return pointerToKey == nullptr;
 	}
 
-	PQInternalKey<edge,IndInfo*,bool>* getInternal() const { return 0; }
+	PQInternalKey<edge,IndInfo*,bool>* getInternal() const override { return nullptr; }
 
-	bool setInternal(PQInternalKey<edge,IndInfo*,bool>* pointerToInternal) {
-		return (pointerToInternal == 0);
+	bool setInternal(PQInternalKey<edge,IndInfo*,bool>* pointerToInternal) override {
+		return pointerToInternal == nullptr;
 	}
 };
 

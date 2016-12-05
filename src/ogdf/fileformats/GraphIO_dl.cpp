@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -98,42 +95,47 @@ static void writeEdges(
 }
 
 
-static void writeGraph(
+static bool writeGraph(
 	std::ostream &os,
 	const Graph &G, const GraphAttributes *GA)
 {
-	const long long n = G.numberOfNodes(), m = G.numberOfEdges();
+	bool result = os.good();
 
-	os << "DL N = " << n << "\n";
+	if(result) {
+		const long long n = G.numberOfNodes(), m = G.numberOfEdges();
 
-	// We pick output format basing on edge density.
-	enum { matrix, edges } format = (m > (n * n / 2)) ? matrix : edges;
+		os << "DL N = " << n << "\n";
 
-	// Specify output format.
-	os << "FORMAT = ";
-	if(format == matrix) {
-		os << "fullmatrix\n";
-		writeMatrix(os, G, GA);
-	} else if(format == edges) {
-		os << "edgelist1\n";
-		writeEdges(os, G, GA);
+		// We pick output format basing on edge density.
+		enum {
+			matrix, edges
+		} format = (m > (n * n / 2)) ? matrix : edges;
+
+		// Specify output format.
+		os << "FORMAT = ";
+		if (format == matrix) {
+			os << "fullmatrix\n";
+			writeMatrix(os, G, GA);
+		} else if (format == edges) {
+			os << "edgelist1\n";
+			writeEdges(os, G, GA);
+		}
 	}
+
+	return result;
 }
 
 
 bool GraphIO::writeDL(const Graph &G, std::ostream &os)
 {
-	writeGraph(os, G, nullptr);
-	return true;
+	return writeGraph(os, G, nullptr);
 }
 
 
 bool GraphIO::writeDL(const GraphAttributes &GA, std::ostream &os)
 {
-	writeGraph(os, GA.constGraph(), &GA);
-	return true;
+	return writeGraph(os, GA.constGraph(), &GA);
 }
 
 
 } // end namespace ogdf
-

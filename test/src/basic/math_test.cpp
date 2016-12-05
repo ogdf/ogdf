@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,15 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <bandit/bandit.h>
 #include <ogdf/basic/Math.h>
+#include <ogdf/basic/EpsilonTest.h>
 
 using namespace bandit;
 using namespace ogdf;
@@ -48,6 +46,33 @@ static void testGcdAndLcm(const char *type)
 	it(string("computes lcm of large numbers of type ") + string(type), []() {
 		T big = numeric_limits<T>::max();
 		AssertThat(Math::lcm(big, big), Equals(big));
+	});
+}
+
+static void testHarmonic()
+{
+	it("computes harmonic numbers correctly", []() {
+		EpsilonTest eps;
+		AssertThat(eps.equal(Math::harmonic(0), 1.0), IsTrue());
+		AssertThat(eps.equal(Math::harmonic(1), 1.0), IsTrue());
+		AssertThat(eps.equal(Math::harmonic(2), 1.5), IsTrue());
+		AssertThat(eps.equal(Math::harmonic(3), 1.5 + 1/3.0), IsTrue());
+		AssertThat(Math::harmonic(10), IsLessThan(3));
+		AssertThat(Math::harmonic(11), IsGreaterThan(3));
+		AssertThat(Math::harmonic(30), IsLessThan(4));
+		AssertThat(Math::harmonic(31), IsGreaterThan(4));
+		AssertThat(Math::harmonic(82), IsLessThan(5));
+		AssertThat(Math::harmonic(83), IsGreaterThan(5));
+		AssertThat(Math::harmonic(12366), IsLessThan(10));
+		AssertThat(Math::harmonic(12367), IsGreaterThan(10));
+	});
+	it("computes huge harmonic numbers correctly", []() {
+		unsigned i = 2012783313;
+		double result;
+		while ((result = Math::harmonic(i)) < 22.0) {
+			i++;
+		}
+		AssertThat(i, Equals(2012783315u));
 	});
 }
 
@@ -68,5 +93,7 @@ go_bandit([]() {
 		testGcdAndLcm<unsigned long>("unsigned long");
 		testGcdAndLcm<long long>("long long");
 		testGcdAndLcm<unsigned long long>("unsigned long long");
+
+		testHarmonic();
 	});
 });

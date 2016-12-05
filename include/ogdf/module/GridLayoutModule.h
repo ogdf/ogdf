@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -157,7 +154,7 @@ public:
 	 * @param adjExternal specifies an adjacency entry on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callFixEmbed(GraphAttributes &AG, adjEntry adjExternal = 0);
+	void callFixEmbed(GraphAttributes &AG, adjEntry adjExternal = nullptr);
 
 	/**
 	 * \brief Calls the grid layout algorithm with a fixed planar embedding (call for GridLayout).
@@ -169,7 +166,7 @@ public:
 	 * @param adjExternal specifies an adjacency entry (of \a G) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = 0);
+	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = nullptr);
 
 protected:
 
@@ -203,7 +200,7 @@ protected:
 		GridLayout &gridLayout,
 		IPoint &boundingBox) override
 	{
-		doCall(G,0,gridLayout,boundingBox,false);
+		doCall(G,nullptr,gridLayout,boundingBox,false);
 	}
 };
 
@@ -258,7 +255,7 @@ public:
 	 * @param adjExternal specifies an adjacency entry (of \a G) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = 0) {
+	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = nullptr) {
 		PlanarGridLayoutModule::callGridFixEmbed(G,gridLayout,adjExternal);
 	}
 
@@ -272,7 +269,7 @@ public:
 	 * @param adjExternal specifies an adjacency entry (of \a PG) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
-	void callGridFixEmbed(PlanRep &PG, GridLayout &gridLayout, adjEntry adjExternal = 0);
+	void callGridFixEmbed(PlanRep &PG, GridLayout &gridLayout, adjEntry adjExternal = nullptr);
 
 protected:
 	/**

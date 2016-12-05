@@ -2356,4 +2356,3 @@ CoinLpIO::newLanguage(CoinMessages::Language language)
 {
   messages_ = CoinMessage(language);
 }
-

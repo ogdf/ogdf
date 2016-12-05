@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/layered/FastSimpleHierarchyLayout.h>
@@ -275,9 +272,7 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 					for (; l <= l1; l++) {
 						const Array<node> &upperNeighbours = levels.adjNodes(nextLevel[l1], relupward);
 
-						for (int i = 0; i < upperNeighbours.size(); i++) {
-							node currentNeighbour = upperNeighbours[i];
-
+						for (auto currentNeighbour : upperNeighbours) {
 							/*
 							 * XXX: < 0 in first iteration is still ok for indizes starting
 							 * with 0 because no index can be smaller than 0

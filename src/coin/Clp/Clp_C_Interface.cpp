@@ -1193,4 +1193,3 @@ Clp_idiot(Clp_Simplex * model, int tryhard)
 #if defined(__MWERKS__)
 #pragma export off
 #endif
-

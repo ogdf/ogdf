@@ -1098,4 +1098,3 @@ ClpDualRowSteepest::maximumPivotsChanged()
                                      model_->factorization()->maximumPivots());
      }
 }
-

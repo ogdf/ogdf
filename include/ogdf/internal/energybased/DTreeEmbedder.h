@@ -5,7 +5,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -86,27 +83,31 @@ public:
     template<typename AttrForceFunc>
     void computeEdgeForcesNewton(AttrForceFunc attrForceFunc);
 
+#if 0
     // computes the edge forces for one iteration
-  //  void computeEdgeForcesSq();
+    void computeEdgeForcesSq();
+#endif
 
     // moves the nodes by the computed force vector
     double moveNodes(double timeStep);
     double moveNodesByForcePrime();
 
+#if 0
     // does a complete iteration with the given repulsive force function
- //   template<typename RepForceFunc>
- //   double doIteration(RepForceFunc repForceFunc);
+    template<typename RepForceFunc>
+    double doIteration(RepForceFunc repForceFunc);
 
     // does a complete iteration using the default inverse distance function
-//    double doIteration() { return doIteration(RepForceFunctionInvDist<Dim>); };
+    double doIteration() { return doIteration(RepForceFunctionInvDist<Dim>); };
 
     // does multiple iterations using the given repulsive force function
-   // template<typename RepForceFunc>
-   // void doIterations(int numIterations, double epsilon, RepForceFunc repForceFunc);
+    template<typename RepForceFunc>
+    void doIterations(int numIterations, double epsilon, RepForceFunc repForceFunc);
 
     // does multiple iterations using the given repulsive force function
-   // template<typename RepForceFunc>
-   // void doIterations(int numIterations, double epsilon);
+    template<typename RepForceFunc>
+    void doIterations(int numIterations, double epsilon);
+#endif
 
     // does multiple iterations using the given repulsive force function
     template<typename RepForceFunc, typename AttrForceFunc, bool UseForcePrime>
@@ -118,8 +119,10 @@ public:
     template<typename RepForceFunc, typename AttrForceFunc>
     void doIterationsNewton(int numIterations, double epsilon, RepForceFunc repForceFunc, AttrForceFunc attrForceFunc);
 
-   // template<typename RepForceFunc>
-   // void doIterationsAdaptive(int numIterations, double epsilon, RepForceFunc repForceFunc);
+#if 0
+    template<typename RepForceFunc>
+    void doIterationsAdaptive(int numIterations, double epsilon, RepForceFunc repForceFunc);
+#endif
 
     // returns the graph
     const Graph& graph() const;
@@ -227,7 +230,8 @@ void DTreeEmbedder<Dim>::computeRepForcesExact(ForceFunc forceFunc)
     }
 }
 
-/*template<int Dim>
+#if 0
+template<int Dim>
 template<typename ForceFunc>
 void DTreeEmbedder<Dim>::computeRepForcesExact(ForceFunc forceFunc)
 {
@@ -252,9 +256,8 @@ void DTreeEmbedder<Dim>::computeRepForcesExact(ForceFunc forceFunc)
             }
         }
     }
-} */
-
-
+}
+#endif
 
 template<int Dim>
 template<typename ForceFunc, bool UseForcePrime>
@@ -296,7 +299,8 @@ void DTreeEmbedder<Dim>::computeRepForcesApprox(ForceFunc forceFunc)
         currIndex++;
     }
 }
-/*
+
+#if 0
 template<int Dim>
 template<typename ForceFunc>
 void DTreeEmbedder<Dim>::computeRepForcesApproxNewton(ForceFunc forceFunc)
@@ -333,7 +337,8 @@ void DTreeEmbedder<Dim>::computeRepForcesApproxNewton(ForceFunc forceFunc)
 
         currIndex++;
     }
-} */
+}
+#endif
 
 template<int Dim>
 template<typename ForceFunc, bool UseForcePrime>
@@ -348,7 +353,7 @@ void DTreeEmbedder<Dim>::computeRepForces(ForceFunc forceFunc)
     }
 }
 
-/*
+#if 0
 template<int Dim>
 template<typename ForceFunc>
 void DTreeEmbedder<Dim>::computeRepForcesNewton(ForceFunc forceFunc)
@@ -360,7 +365,8 @@ void DTreeEmbedder<Dim>::computeRepForcesNewton(ForceFunc forceFunc)
     {
         computeRepForcesApproxNewton(forceFunc);
     }
-} */
+}
+#endif
 
 template<int Dim>
 template<typename AttrForceFunc, bool UseForcePrime>
@@ -390,7 +396,9 @@ void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
         }
 
         // we take the log of the squared distance here
-        //        double f = log(dist_sq) * 0.5;
+#if 0
+                double f = log(dist_sq) * 0.5;
+#endif
         double dist = (sqrt(dist_sq));
 
         double f;
@@ -422,7 +430,7 @@ void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
     }
 }
 
-/*
+#if 0
 template<int Dim>
 template<typename AttrForceFunc>
 void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
@@ -451,13 +459,17 @@ void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
         }
 
         // we take the log of the squared distance here
-//        double f = log(dist_sq) * 0.5;
+#if 0
+        double f = log(dist_sq) * 0.5;
+#endif
         double dist = (sqrt(dist_sq));
         double f  = (dist) * (dist) * m_edgeWeight[e];
         double f_prime = 2.0 * dist * m_edgeWeight[e];
         // for scaling the force accordingly
-       // double s_scale = 1.0/(double)s->degree();
-       // double t_scale = 1.0/(double)t->degree();
+#if 0
+        double s_scale = 1.0/(double)s->degree();
+        double t_scale = 1.0/(double)t->degree();
+#endif
 
         m_nodeInfo[s].force_prime += f_prime;
         m_nodeInfo[t].force_prime += f_prime;
@@ -469,9 +481,9 @@ void DTreeEmbedder<Dim>::computeEdgeForces(AttrForceFunc attrForceFunc)
             m_nodeInfo[t].force[d] -= f * delta[d] / dist;// * t_scale;
         }
     }
-} */
+}
 
-/*template<int Dim>
+template<int Dim>
 void DTreeEmbedder<Dim>::computeEdgeForcesSq()
 {
     for (node s = m_graph.firstNode(); s; s = s->succ())
@@ -525,7 +537,8 @@ void DTreeEmbedder<Dim>::computeEdgeForcesSq()
             m_nodeInfo[s].force[d] = m_nodeInfo[s].force[d] + sum_f[d] / sum_ddf;
         }
     }
-}*/
+}
+#endif
 
 template<int Dim>
 double DTreeEmbedder<Dim>::moveNodesByForcePrime()
@@ -553,7 +566,7 @@ double DTreeEmbedder<Dim>::moveNodesByForcePrime()
         }
     }
     std::cout << sqrt(maxDispl) << std::endl;
-    return (sqrt(maxDispl));
+    return sqrt(maxDispl);
 }
 
 template<int Dim>
@@ -583,7 +596,7 @@ double DTreeEmbedder<Dim>::moveNodes(double timeStep)
     }
 
     std::cout << sqrt(maxDispl) << std::endl;
-    return (sqrt(maxDispl));
+    return sqrt(maxDispl);
 }
 
 template<int Dim>
@@ -601,7 +614,8 @@ void DTreeEmbedder<Dim>::resetForces()
     }
 }
 
-/*template<int Dim>
+#if 0
+template<int Dim>
 template<typename RepForceFunc, bool>
 double DTreeEmbedder<Dim>::doIteration(RepForceFunc repForceFunc)
 {
@@ -616,9 +630,9 @@ double DTreeEmbedder<Dim>::doIteration(RepForceFunc repForceFunc)
 
     // move the nodes
     return moveNodes(m_defaultTimeStep);
-} */
+}
 
-/*template<int Dim>
+template<int Dim>
 template<typename RepForceFunc>
 void DTreeEmbedder<Dim>::doIterations(int numIterations, double epsilon, RepForceFunc repForceFunc)
 {
@@ -631,9 +645,8 @@ void DTreeEmbedder<Dim>::doIterations(int numIterations, double epsilon, RepForc
         // run it
         maxDisplacement = doIteration(repForceFunc);
     }
-} */
+}
 
-/*
 template<int Dim>
 template<typename RepForceFunc>
 void DTreeEmbedder<Dim>::doIterationsAdaptive(int numIterations, double epsilon, RepForceFunc repForceFunc)
@@ -684,7 +697,9 @@ void DTreeEmbedder<Dim>::doIterationsAdaptive(int numIterations, double epsilon,
         // save the maxDisplacement
         lastMaxDisplacement = maxDisplacement;
         iterationsUsed++;
-        //std::cout << maxDisplacement << std::endl;
+#if 0
+        std::cout << maxDisplacement << std::endl;
+#endif
     }
     std::cout << "IterationsUsed: " << iterationsUsed << " of " << numIterations << " energy: " << lastMaxDisplacement << std::endl;
 }
@@ -693,7 +708,9 @@ template<int Dim>
 struct MyVec
 {
     double x[Dim];
-}; */
+};
+#endif
+
 // does multiple iterations using the given repulsive force function
 template<int Dim>
 template<typename RepForceFunc, typename AttrForceFunc, bool UseForcePrime>

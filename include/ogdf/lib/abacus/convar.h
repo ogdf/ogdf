@@ -62,7 +62,7 @@ template<class BaseType, class CoType> class CutBuffer;
  * the father of a class hierarchy for abstract constraints and
  * variables which are used in the branch-and-bound algorithm.
  */
-class  ConVar : public AbacusRoot  {
+class OGDF_EXPORT ConVar : public AbacusRoot {
 
 	friend class PoolSlot<Constraint, Variable>;
 	friend class PoolSlot<Variable, Constraint>;
@@ -400,21 +400,18 @@ inline ConVar::~ConVar()
 	if (nLocks_) {
 		Logger::ifout() << "ConVar::~ConVar(): constraint/variable has still " << nLocks_ << " locks\n";
 	}
-#endif
 
+#ifndef OGDF_USE_ASSERT_EXCEPTIONS // do not throw exceptions in destructor
 	OGDF_ASSERT(nActive_ == 0);
 	OGDF_ASSERT(nLocks_ == 0);
+#endif
+#endif
 }
 
 
 inline void ConVar::deactivate()
 {
-#ifdef OGDF_DEBUG
-	if (nActive_ == 0) {
-		Logger::ifout() << "ConVar::deactivate(): constraint/variable already non-active\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
-	}
-#endif
+	OGDF_ASSERT(nActive_ != 0);
 	--nActive_;
 }
 
@@ -430,13 +427,7 @@ inline void ConVar::removeReference()
 
 inline void ConVar::unlock()
 {
-#ifdef OGDF_DEBUG
-	if (nLocks_ == 0) {
-		Logger::ifout() << "ConVar::unlock(): constraint/variable not locked.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
-	}
-#endif
-
+	OGDF_ASSERT(nLocks_ != 0);
 	--nLocks_;
 }
 

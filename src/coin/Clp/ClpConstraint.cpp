@@ -77,4 +77,3 @@ ClpConstraint::functionValue (const ClpSimplex * model,
      delete [] grad;
      return value;
 }
-

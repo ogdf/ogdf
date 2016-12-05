@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
 #include <ogdf/fileformats/GraphIO.h>
@@ -75,13 +72,13 @@ void FastMultipoleEmbedder::initOptions()
 	m_pOptions->multipolePrecision = m_precisionParameter;
 }
 
-/*
+#if 0
 void FastMultipoleEmbedder::call(MultilevelGraph &MLG)
 {
 	Graph &G = MLG.getGraph();
 	call(G, MLG.getXArray(), MLG.getYArray(), MLG.getWArray(), MLG.getRArray());
 }
-*/
+#endif
 
 void FastMultipoleEmbedder::call(const Graph& G, NodeArray<float>& nodeXPosition, NodeArray<float>& nodeYPosition,
 								 const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize)
@@ -219,7 +216,7 @@ void FastMultipoleMultilevelEmbedder::dumpCurrentLevel(const char *filename)
 		GA.y(v) = (*m_pCurrentNodeYPos)[v];
 		GA.width(v) = GA.height(v)= nodeInfo.radius / sqrt(2.0);
 	}
-	GraphIO::writeGML(GA, filename);
+	GraphIO::write(GA, filename, GraphIO::writeGML);
 }
 
 void FastMultipoleMultilevelEmbedder::call(GraphAttributes &GA)
@@ -349,7 +346,9 @@ void FastMultipoleMultilevelEmbedder::nextLevel()
 
 void FastMultipoleMultilevelEmbedder::initFinestLevel(GraphAttributes &GA, const EdgeArray<float>& edgeLength)
 {
-	//NodeArray<float> perimeter(GA.constGraph(), 0.0);
+#if 0
+	NodeArray<float> perimeter(GA.constGraph(), 0.0);
+#endif
 	for(node v : GA.constGraph().nodes)
 	{
 		GalaxyMultilevel::LevelNodeInfo& nodeInfo = (*(m_pFinestLevel->m_pNodeInfo))[v];
@@ -419,7 +418,7 @@ void FastMultipoleMultilevelEmbedder::layoutCurrentLevel()
 void FastMultipoleMultilevelEmbedder::deleteMultiLevelGraphs()
 {
 	GalaxyMultilevel* l = m_pCoarsestLevel;
-	GalaxyMultilevel* toDelete = l;
+	GalaxyMultilevel* toDelete;
 	while (l)
 	{
 		toDelete = l;

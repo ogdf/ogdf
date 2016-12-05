@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/energybased/MAARPacking.h>
@@ -242,12 +239,14 @@ void MAARPacking::export_new_rectangle_positions(
 	Array<double> row_y_min(P.size()); //stores the min. y-coordinates for each row in P
 	Array<double> act_row_x_max(P.size()); //stores the actual rightmost x-coordinate
 	//for each row in P
-	//ListIterator< ListIterator<PackingRowInfo> > row_item;
+#if 0
+	ListIterator< ListIterator<PackingRowInfo> > row_item;
+#endif
 	ListIterator<PackingRowInfo>  row_item;
 	ListIterator<Rectangle> R_item;
 	ListIterator<ListIterator<PackingRowInfo> > Rrow_item;
 
-	//init act_row_x_max;
+	//init act_row_x_max
 	for (i = 0; i < P.size(); i++)
 		act_row_x_max[i] = 0;
 
@@ -307,9 +306,9 @@ inline double MAARPacking::calculate_aspect_ratio_area(
 	double ratio = width/height;
 
 	if(ratio < aspect_ratio) //scale width
-		return ( width * height * (aspect_ratio/ratio));
+		return width * height * (aspect_ratio/ratio);
 	else //scale height
-		return ( width * height * (ratio/aspect_ratio));
+		return width * height * (ratio/aspect_ratio);
 }
 
 

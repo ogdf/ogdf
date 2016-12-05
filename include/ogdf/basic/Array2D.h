@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -80,7 +77,7 @@ public:
 		A.construct(0,-1,0,-1);
 	}
 
-	// destructor
+	//! Destructor
 	 ~Array2D() {
 		 deconstruct();
 	}
@@ -201,7 +198,7 @@ private:
 };
 
 
-
+//! Constructs the array with index set [\a a..\a b]*[\a c,\a d].
 template<class E>
 void Array2D<E>::construct(int a, int b, int c, int d)
 {
@@ -214,12 +211,12 @@ void Array2D<E>::construct(int a, int b, int c, int d)
 	m_lenDim2   = d-c+1;
 
 	if (lenDim1 < 1 || m_lenDim2 < 1) {
-		m_pStart = m_vpStart = m_pStop = 0;
+		m_pStart = m_vpStart = m_pStop = nullptr;
 
 	} else {
 		size_t len = lenDim1*m_lenDim2;
 		m_pStart = static_cast<E *>( malloc(len*sizeof(E)) );
-		if (m_pStart == 0)
+		if (m_pStart == nullptr)
 			OGDF_THROW(InsufficientMemoryException);
 
 		m_vpStart = m_pStart - c;
@@ -228,6 +225,7 @@ void Array2D<E>::construct(int a, int b, int c, int d)
 }
 
 
+//! Initializes the array with default constructor of \a E.
 template<class E>
 void Array2D<E>::initialize()
 {
@@ -244,6 +242,7 @@ void Array2D<E>::initialize()
 }
 
 
+//! Initializes the array with \a x.
 template<class E>
 void Array2D<E>::initialize(const E &x)
 {
@@ -260,17 +259,18 @@ void Array2D<E>::initialize(const E &x)
 }
 
 
+//! Call destructor of all elements.
 template<class E>
 void Array2D<E>::deconstruct()
 {
-	if (doDestruction((E*)0)) {
+	if (doDestruction((E*)nullptr)) {
 		for (E *pDest = m_pStart; pDest < m_pStop; pDest++)
 			pDest->~E();
 	}
 	free(m_pStart);
 }
 
-
+//! Copy \a array2.
 template<class E>
 void Array2D<E>::copy(const Array2D<E> &array2)
 {
@@ -285,7 +285,7 @@ void Array2D<E>::copy(const Array2D<E> &array2)
 }
 
 
-
+//! Computes the determinant via row expansion.
 template<class E>
 float Array2D<E>::det() const
 {

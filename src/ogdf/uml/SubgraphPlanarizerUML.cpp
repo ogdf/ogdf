@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/uml/SubgraphPlanarizerUML.h>
 #include <ogdf/uml/VariableEmbeddingInserterUML.h>
@@ -239,8 +236,8 @@ void SubgraphPlanarizerUML::Worker::operator()()
 // default constructor
 SubgraphPlanarizerUML::SubgraphPlanarizerUML()
 {
-	m_subgraph.set(new MaximalPlanarSubgraphSimple);
-	m_inserter.set(new VariableEmbeddingInserterUML);
+	m_subgraph.reset(new MaximalPlanarSubgraphSimple<int>);
+	m_inserter.reset(new VariableEmbeddingInserterUML);
 
 	m_permutations = 1;
 	m_setTimeout = true;
@@ -257,8 +254,8 @@ SubgraphPlanarizerUML::SubgraphPlanarizerUML()
 SubgraphPlanarizerUML::SubgraphPlanarizerUML(const SubgraphPlanarizerUML &planarizer)
 	: UMLCrossingMinimizationModule(planarizer), Logger()
 {
-	m_subgraph.set(planarizer.m_subgraph.get().clone());
-	m_inserter.set(planarizer.m_inserter.get().clone());
+	m_subgraph.reset(planarizer.m_subgraph->clone());
+	m_inserter.reset(planarizer.m_inserter->clone());
 
 	m_permutations = planarizer.m_permutations;
 	m_setTimeout   = planarizer.m_setTimeout;
@@ -276,8 +273,8 @@ UMLCrossingMinimizationModule *SubgraphPlanarizerUML::clone() const {
 SubgraphPlanarizerUML &SubgraphPlanarizerUML::operator=(const SubgraphPlanarizerUML &planarizer)
 {
 	m_timeLimit = planarizer.m_timeLimit;
-	m_subgraph.set(planarizer.m_subgraph.get().clone());
-	m_inserter.set(planarizer.m_inserter.get().clone());
+	m_subgraph.reset(planarizer.m_subgraph->clone());
+	m_inserter.reset(planarizer.m_inserter->clone());
 
 	m_permutations = planarizer.m_permutations;
 	m_setTimeout   = planarizer.m_setTimeout;
@@ -295,8 +292,8 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 {
 	OGDF_ASSERT(m_permutations >= 1);
 
-	PlanarSubgraphModule   &subgraph = m_subgraph.get();
-	UMLEdgeInsertionModule &inserter = m_inserter.get();
+	PlanarSubgraphModule<int>   &subgraph = *m_subgraph;
+	UMLEdgeInsertionModule &inserter = *m_inserter;
 
 	unsigned int nThreads = min(m_maxThreads, (unsigned int)m_permutations);
 

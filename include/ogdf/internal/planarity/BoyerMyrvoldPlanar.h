@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -84,7 +81,7 @@ public:
 	BoyerMyrvoldPlanar(
 		Graph& g,
 		bool bundles,
-		int m_embeddingGrade,
+		int embeddingGrade,
 		bool limitStructures,
 		SListPure<KuratowskiStructure>& output,
 		double randomness,
@@ -155,7 +152,7 @@ protected:
 		if (m_dfi[w] <= 0) return false;
 		if (m_leastAncestor[w] < v) return true;
 		if (m_separatedDFSChildList[w].empty()) return false;
-		return (m_lowPoint[m_separatedDFSChildList[w].front()] < v);
+		return m_lowPoint[m_separatedDFSChildList[w].front()] < v;
 	}
 
 	//! Checks whether real node \a w is inactive while embedding node with DFI \a v
@@ -165,7 +162,7 @@ protected:
 		if (!m_backedgeFlags[w].empty() || !m_pertinentRoots[w].empty()
 			|| m_leastAncestor[w] < v) return false;
 		if (m_separatedDFSChildList[w].empty()) return true;
-		return (m_lowPoint[m_separatedDFSChildList[w].front()] >= v);
+		return m_lowPoint[m_separatedDFSChildList[w].front()] >= v;
 	}
 
 	//! Checks all dynamic information about a node \a w while embedding node with DFI \a v
@@ -183,14 +180,12 @@ protected:
 			// pertinent
 			if (m_leastAncestor[w] < v) return 2;
 			if (m_separatedDFSChildList[w].empty()) return 1;
-			return (m_lowPoint[m_separatedDFSChildList[w].front()] < v
-					? 2 : 1);
+			return m_lowPoint[m_separatedDFSChildList[w].front()] < v ? 2 : 1;
 		} else {
 			// not pertinent
 			if (m_leastAncestor[w] < v) return 3;
 			if (m_separatedDFSChildList[w].empty()) return 0;
-			return (m_lowPoint[m_separatedDFSChildList[w].front()] < v
-					? 3 : 0);
+			return m_lowPoint[m_separatedDFSChildList[w].front()] < v ? 3 : 0;
 		}
 	}
 

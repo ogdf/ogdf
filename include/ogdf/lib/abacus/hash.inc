@@ -37,7 +37,7 @@ inline AbaHashItem<KeyType, ItemType>::AbaHashItem(
 	const ItemType &item) :
 key_(key),
 	item_(item),
-	next_(0)
+	next_(nullptr)
 { }
 
 
@@ -58,12 +58,12 @@ inline AbaHashItem<KeyType, ItemType> * AbaHashItem<KeyType,
 
 template <class KeyType, class ItemType>
 AbaHash<KeyType, ItemType>::AbaHash(int size)
-	: size_(size), nCollisions_(0), iter_(0)
+	: size_(size), nCollisions_(0), iter_(nullptr)
 {
 	table_ = new AbaHashItem<KeyType, ItemType>* [size];
 
 	for (int i = 0; i < size; i++)
-		table_[i] = 0;
+		table_[i] = nullptr;
 }
 
 
@@ -161,7 +161,7 @@ const ItemType * AbaHash<KeyType, ItemType>::find(const KeyType &key) const
 		if (key == slot->key_) return &(slot->item_);
 		slot = slot->next_;
 	}
-	return 0;
+	return nullptr;
 }
 
 template <class KeyType, class ItemType>
@@ -202,7 +202,7 @@ ItemType *AbaHash<KeyType, ItemType>::initializeIteration(const KeyType &key)
 		if (key == iter_->key_) return &(iter_->item_);
 		iter_ = iter_->next_;
 	}
-	return 0;
+	return nullptr;
 }
 
 template <class KeyType, class ItemType>
@@ -213,33 +213,33 @@ const ItemType *AbaHash<KeyType, ItemType>::initializeIteration(const KeyType &k
 		if (key == iter_->key_) return &(iter_->item_);
 		iter_ = iter_->next_;
 	}
-	return 0;
+	return nullptr;
 }
 
 template <class KeyType, class ItemType>
 ItemType *AbaHash<KeyType, ItemType>::next(const KeyType &key)
 {
-	if (iter_ == 0) return 0;
+	if (iter_ == nullptr) return nullptr;
 	iter_ = iter_->next_;
 
 	while (iter_) {
 		if (key == iter_->key_) return &(iter_->item_);
 		iter_ = iter_->next();
 	}
-	return 0;
+	return nullptr;
 }
 
 template <class KeyType, class ItemType>
 const ItemType *AbaHash<KeyType, ItemType>::next(const KeyType &key) const
 {
-	if (iter_ == 0) return 0;
+	if (iter_ == nullptr) return nullptr;
 	iter_ = iter_->next_;
 
 	while (iter_) {
 		if (key == iter_->key_) return &(iter_->item_);
 		iter_ = iter_->next();
 	}
-	return 0;
+	return nullptr;
 }
 
 template <class KeyType, class ItemType>
@@ -283,7 +283,7 @@ int AbaHash<KeyType, ItemType>::remove(const KeyType &key, const ItemType &item)
 	int slotNum = hf(key);
 
 	h1 = table_[slotNum];
-	if (h1 == 0)
+	if (h1 == nullptr)
 		return 1;
 
 	// check \a key and \a item of the head of the list
@@ -376,7 +376,7 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 	newTable = new AbaHashItem<KeyType, ItemType>* [newSize];
 
 	for (int i = 0; i < newSize; i++)
-		newTable[i] = 0;
+		newTable[i] = nullptr;
 
 	// insert all elements of the old table into the new table
 	/* We cannot make copies of slots of the old hash tables but have to reinsert
@@ -389,7 +389,7 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 	int oldSize = size_;
 	size_       = newSize;
 
-	for (int i = 0; i < oldSize; i++)
+	for (int i = 0; i < oldSize; i++) {
 		if (table_[i]) {
 			// move the items to the corresponding new slots
 			AbaHashItem<KeyType, ItemType> *current = table_[i];
@@ -405,10 +405,11 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 			}
 
 		}
+	}
 
-		// replace the old table by the new one
-		delete table_;
-		table_ = newTable;
+	// replace the old table by the new one
+	delete table_;
+	table_ = newTable;
 }
 
 } // namespace abacus

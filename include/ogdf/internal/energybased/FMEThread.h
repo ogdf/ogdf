@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -69,7 +66,7 @@ public:
 	FMEFuncInvokerTask(FuncInvokerType f) : funcInvoker(f) { }
 
 	//! overrides the task doWork() method and invokes the function or functor
-	void doWork() {	funcInvoker(); }
+	void doWork() override {	funcInvoker(); }
 private:
 	//! the invoker
 	FuncInvokerType funcInvoker;
@@ -92,7 +89,7 @@ public:
 	inline uint32_t numThreads() const { return m_numThreads; }
 
 	//! returns true if this is the main thread ( the main thread is always the first thread )
-	inline bool isMainThread() const { return (m_threadNr == 0); }
+	inline bool isMainThread() const { return m_threadNr == 0; }
 
 	//! returns the ThreadPool this thread belongs to
 	inline FMEThreadPool* threadPool() const { return m_pThreadPool; }
@@ -111,7 +108,7 @@ public:
 		unixSetAffinity();
 		m_pTask->doWork();
 		delete m_pTask;
-		m_pTask = 0;
+		m_pTask = nullptr;
 	}
 
 	//! sets the actual task

@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarlayout/TriconnectedShellingOrder.h>
@@ -87,7 +84,7 @@ public:
 
 	// returns true <=> there are possible nodes or faces
 	bool isPossible(){
-		return (!(m_possibleNodes.empty() && m_possibleFaces.empty()));
+		return !(m_possibleNodes.empty() && m_possibleFaces.empty());
 	}
 
 	// returns true <=> the current selection is a node
@@ -97,7 +94,7 @@ public:
 
 	// test if face f has only one edge on outer face
 	bool isOnlyEdge(face f){
-		return ((m_outv[f] == 2) && (m_oute[f] == 1));
+		return m_outv[f] == 2 && m_oute[f] == 1;
 	}
 
 	// add a node v of face f to the outer face
@@ -312,7 +309,7 @@ void ComputeTricOrder::initOuterEdges()
 		edge e = adjRun->theEdge();
 		face f = m_pEmbedding->rightFace(adjRun);
 		// verify that actual edge is not edge (v1,v2)
-		if (!((e->source() == m_v1 && e->target() == m_v2) || ((e->source() == m_v2 && e->target() == m_v1)))){
+		if (!e->isIncident(m_v1) || !e->isIncident(m_v2)) {
 			m_oute[f]++;
 			m_outerEdges[f].pushBack(e);
 		}
@@ -698,4 +695,3 @@ void TriconnectedShellingOrder::doCall(
 
 
 } // end namespace ogdf
-

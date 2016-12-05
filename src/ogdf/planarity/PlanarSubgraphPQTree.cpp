@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/planarity/PlanarSubgraphPQTree.h>
 
@@ -116,7 +113,7 @@ ReplaceFullRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 	if (!leafKeys.empty() && leafKeys.front() == leafKeys.back())
 	{
 		//ReplaceFullRoot: replace pertinent root by a single leaf
-		leafPtr = OGDF_NEW PQLeaf<edge, whaInfo*, bool>(m_identificationNumber++,
+		leafPtr = new PQLeaf<edge, whaInfo*, bool>(m_identificationNumber++,
 			PQNodeRoot::EMPTY, (PQLeafKey<edge, whaInfo*, bool>*)leafKeys.front());
 		exchangeNodes(m_pertinentRoot, (PQNode<edge, whaInfo*, bool>*) leafPtr);
 		if (m_pertinentRoot == m_root)
@@ -140,7 +137,7 @@ ReplaceFullRoot(SListPure<PlanarLeafKey<whaInfo*>*> &leafKeys)
 		}
 		else if (m_pertinentRoot->type() == PQNodeRoot::leaf)
 		{
-			nodePtr = OGDF_NEW PQInternalNode<edge, whaInfo*, bool>(m_identificationNumber++,
+			nodePtr = new PQInternalNode<edge, whaInfo*, bool>(m_identificationNumber++,
 				PQNodeRoot::PNode, PQNodeRoot::EMPTY);
 			exchangeNodes(m_pertinentRoot, nodePtr);
 		}

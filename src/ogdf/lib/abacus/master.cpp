@@ -660,37 +660,38 @@ void Master::primalBound(double x)
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPrimalBound);
 		}
 	}
-	else
+	else {
 		if (x > primalBound_) {
 			Logger::ifout() << "Error: Master::primalBound(): got worse\nold bound: " << primalBound_ << "\nnew bound: " << x << "\n";
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPrimalBound);
 		}
+	}
 
-		// make sure that this is an integer value for \a objInteger_
-		/* After the test for integrality, we round the value to the next
-		*   integer. The reason is that a new primal bound coming obtained
-		*   by the solution of the relaxation in a subproblem might have some
-		*   garbage in it (e.g., \a 10.000000000034 or \a 9.999999999987).
-		*   With this garbage the
-		*   fathoming of node might fail in the subproblem optimization, although
-		*   it is already correct.
-		*/
-		if (objInteger_) {
-			if (!isInteger(x, eps())) {
-				Logger::ifout() << "Master::primalBound(): value " << x << " is not integer, but feasible solutions with integer objective function values are expected.\n";
-				OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNotInteger);
-			}
-
-			x = floor(x + eps());
+	// make sure that this is an integer value for \a objInteger_
+	/* After the test for integrality, we round the value to the next
+	*   integer. The reason is that a new primal bound coming obtained
+	*   by the solution of the relaxation in a subproblem might have some
+	*   garbage in it (e.g., \a 10.000000000034 or \a 9.999999999987).
+	*   With this garbage the
+	*   fathoming of node might fail in the subproblem optimization, although
+	*   it is already correct.
+	*/
+	if (objInteger_) {
+		if (!isInteger(x, eps())) {
+			Logger::ifout() << "Master::primalBound(): value " << x << " is not integer, but feasible solutions with integer objective function values are expected.\n";
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNotInteger);
 		}
 
-		primalBound_ = x;
+		x = floor(x + eps());
+	}
 
-		// update the primal bound in the Tree Interface
-		if (optSense()->max()) treeInterfaceLowerBound(x);
-		else                   treeInterfaceUpperBound(x);
+	primalBound_ = x;
 
-		history_->update();
+	// update the primal bound in the Tree Interface
+	if (optSense()->max()) treeInterfaceLowerBound(x);
+	else                   treeInterfaceUpperBound(x);
+
+	history_->update();
 }
 
 
@@ -702,19 +703,20 @@ void Master::dualBound(double x)
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcDualBound);
 		}
 	}
-	else
+	else {
 		if (x < dualBound_) {
 			Logger::ifout() << "Error: Master::dualBound(): got worse\nold bound: " << dualBound_ << "\nnew bound: " << x << "\n";
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcDualBound);
 		}
+	}
 
-		dualBound_ = x;
+	dualBound_ = x;
 
-		//! update the dual bound in the Tree Interface
-		if (optSense()->max()) treeInterfaceUpperBound(x);
-		else                   treeInterfaceLowerBound(x);
+	//! update the dual bound in the Tree Interface
+	if (optSense()->max()) treeInterfaceUpperBound(x);
+	else                   treeInterfaceLowerBound(x);
 
-		history_->update();
+	history_->update();
 }
 
 

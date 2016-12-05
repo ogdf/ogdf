@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -41,7 +38,6 @@
 #include <ogdf/module/MinSteinerTreeModule.h>
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/List.h>
 #include <sstream>
 
 namespace ogdf {
@@ -251,7 +247,7 @@ template<typename T>
 void MinSteinerTreeMehlhorn<T>::reinsertShortestPaths(EdgeWeightedGraphCopy<T> &completeTerminalGraph, const Voronoi<T> &voronoi, const NodeArray<edge> &mstPred, const EdgeArray<edge> &bridges, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG)
 {
 	for(node u : completeTerminalGraph.nodes) {
-		if (mstPred[u] != 0) {
+		if (mstPred[u] != nullptr) {
 			edge bridge = bridges[mstPred[u]];
 			node v = bridge->source();
 			node w = bridge->target();
@@ -274,7 +270,7 @@ void MinSteinerTreeMehlhorn<T>::insertPath(node u, const Voronoi<T> &voronoi, Ed
 	edge e = voronoi.predecessorEdge(u);
 	edge newE;
 	while (e && finalSteinerTree.chain(e).empty()) { // e is not in ST yet
-		if ((currentSource = finalSteinerTree.copy(e->opposite(finalSteinerTree.original(currentTarget)))) == 0) {
+		if ((currentSource = finalSteinerTree.copy(e->opposite(finalSteinerTree.original(currentTarget)))) == nullptr) {
 			currentSource = finalSteinerTree.newNode(e->opposite(finalSteinerTree.original(currentTarget)));
 		}
 		if (finalSteinerTree.original(currentSource) == e->source()) {

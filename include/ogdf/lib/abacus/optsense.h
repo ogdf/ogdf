@@ -41,7 +41,7 @@ namespace abacus {
  * in various classes, e.g., in the master of the branch-and-bound algorithm and
  * in the linear program.
  */
-class  OptSense :  public AbacusRoot  {
+class OGDF_EXPORT OptSense : public AbacusRoot {
 public:
 
 	//! The enumeration defining the sense of optimization.

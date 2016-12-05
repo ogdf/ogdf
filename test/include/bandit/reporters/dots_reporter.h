@@ -53,6 +53,13 @@ namespace bandit { namespace detail {
       stm_.flush();
     }
 
+    void it_skip(const char* desc)
+    {
+        progress_reporter::it_skip(desc);
+        stm_ << colorizer_.yellow() << 'S' << colorizer_.reset();
+        stm_.flush();
+    }
+
     void it_unknown_error(const char* desc)
     {
       progress_reporter::it_unknown_error(desc);

@@ -44,7 +44,7 @@ class Master;
  * The class LpMaster is an abstract base class. An LP solver
  * specific master class has to be derived from this class.
  */
-class  LpMaster :  public AbacusRoot  {
+class OGDF_EXPORT LpMaster : public AbacusRoot {
 public:
 	LpMaster(Master *master) : master_(master) { }
 

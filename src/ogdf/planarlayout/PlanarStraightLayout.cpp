@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/planarlayout/PlanarStraightLayout.h>
@@ -50,9 +47,9 @@ PlanarStraightLayout::PlanarStraightLayout()
 	m_sizeOptimization = true;
 	m_baseRatio        = 0.33;
 
-	m_augmenter.set(new PlanarAugmentation);
-	m_computeOrder.set(new BiconnectedShellingOrder);
-	m_embedder.set(new SimpleEmbedder);
+	m_augmenter.reset(new PlanarAugmentation);
+	m_computeOrder.reset(new BiconnectedShellingOrder);
+	m_embedder.reset(new SimpleEmbedder);
 }
 
 
@@ -112,17 +109,17 @@ void PlanarStraightLayout::doCall(
 		adjExternal = nullptr;
 
 		// augment graph planar biconnected
-		m_augmenter.get().call(GC);
+		m_augmenter->call(GC);
 
 		// embed augmented graph
-		m_embedder.get().call(GC,adjExternal);
+		m_embedder->call(GC,adjExternal);
 	}
 
 	// compute shelling order with shelling order module
-	m_computeOrder.get().baseRatio(m_baseRatio);
+	m_computeOrder->baseRatio(m_baseRatio);
 
 	ShellingOrder order;
-	m_computeOrder.get().callLeftmost(GC,order,adjExternal);
+	m_computeOrder->callLeftmost(GC,order,adjExternal);
 
 	// compute grid coordinates for GC
 	NodeArray<int> x(GC), y(GC);
@@ -314,4 +311,3 @@ void PlanarStraightLayout::computeCoordinates(const Graph &G,
 }
 
 } // end namespace ogdf
-

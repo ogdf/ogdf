@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/cluster/ClusterGraph.h>
@@ -312,12 +309,12 @@ void ClusterGraph::initGraph(const Graph &G)
 
 	// root cluster must always get id 0
 #ifdef OGDF_DEBUG
-	m_rootCluster = OGDF_NEW ClusterElement(this, 0);
+	m_rootCluster = new ClusterElement(this, 0);
 #else
-	m_rootCluster = OGDF_NEW ClusterElement(0);
+	m_rootCluster = new ClusterElement(0);
 #endif
 
-	OGDF_ASSERT(numberOfClusters() == 0)
+	OGDF_ASSERT(numberOfClusters() == 0);
 
 	m_rootCluster->m_depth = 1;
 	m_clusterIdCount++;
@@ -421,7 +418,7 @@ void ClusterGraph::deepCopy(
 			originalClusterTable[c] = m_rootCluster;
 			//does not really need to be assigned HERE in for
 			m_rootCluster->m_depth = 1;
-			OGDF_ASSERT(c->depth() == 1)
+			OGDF_ASSERT(c->depth() == 1);
 			continue;
 		}
 		originalClusterTable[c] = newCluster();
@@ -509,38 +506,36 @@ cluster ClusterGraph::commonCluster(SList<node>& nodes)
 	return lowestCommon;
 }//commoncluster
 
-
+#if 0
 //lowest common cluster of v,w
-//cluster ClusterGraph::commonCluster(node v, node w) const
-//{
-//	cluster c1, c2;
-//	return commonClusterLastAncestors(v, w, c1, c2);
-//}//commonCluster
-
+cluster ClusterGraph::commonCluster(node v, node w) const
+{
+	cluster c1, c2;
+	return commonClusterLastAncestors(v, w, c1, c2);
+}//commonCluster
 
 //lowest common cluster of v,w and its ancestors
-//cluster ClusterGraph::commonClusterLastAncestors(
-//	node v,
-//	node w,
-//	cluster& c1,
-//	cluster& c2) const
-//{
-//	List<cluster> e;
-//	return commonClusterAncestorsPath(v, w, c1, c2, e);
-//}//commonClusterLastAncestors
-
+cluster ClusterGraph::commonClusterLastAncestors(
+	node v,
+	node w,
+	cluster& c1,
+	cluster& c2) const
+{
+	List<cluster> e;
+	return commonClusterAncestorsPath(v, w, c1, c2, e);
+}//commonClusterLastAncestors
 
 //lowest common cluster and path between v and w containing it
 //note that eL is directed from v to w
-//cluster ClusterGraph::commonClusterPath(
-//	node v,
-//	node w,
-//	List<cluster>& eL) const
-//{
-//	cluster c1, c2;
-//	return commonClusterAncestorsPath(v, w, c1, c2, eL);
-//}//commonClusterLastAncestors
-
+cluster ClusterGraph::commonClusterPath(
+	node v,
+	node w,
+	List<cluster>& eL) const
+{
+	cluster c1, c2;
+	return commonClusterAncestorsPath(v, w, c1, c2, eL);
+}//commonClusterLastAncestors
+#endif
 
 //note that eL is directed from v to w
 cluster ClusterGraph::commonClusterAncestorsPath(
@@ -550,8 +545,8 @@ cluster ClusterGraph::commonClusterAncestorsPath(
 	cluster& c2,
 	List<cluster>& eL) const
 {
-	OGDF_ASSERT(v->graphOf() == m_pGraph)
-	OGDF_ASSERT(w->graphOf() == m_pGraph)
+	OGDF_ASSERT(v->graphOf() == m_pGraph);
+	OGDF_ASSERT(w->graphOf() == m_pGraph);
 
 	cluster cv = clusterOf(v);
 	cluster cw = clusterOf(w);
@@ -574,16 +569,18 @@ cluster ClusterGraph::commonClusterAncestorsPath(
 	else m_lcaNumber++;
 	if (!m_lcaSearch)
 	{
-		m_lcaSearch = OGDF_NEW ClusterArray<int>(*this, -1);
-		m_vAncestor = OGDF_NEW ClusterArray<cluster>(*this, nullptr);
-		m_wAncestor = OGDF_NEW ClusterArray<cluster>(*this, nullptr);
+		m_lcaSearch = new ClusterArray<int>(*this, -1);
+		m_vAncestor = new ClusterArray<cluster>(*this, nullptr);
+		m_wAncestor = new ClusterArray<cluster>(*this, nullptr);
 	}
 
 	//CASE2: one of the nodes hangs at root: save root as ancestor
 	//any other case: save cluster of node as ancestor, too, to check this
 	//case:: common = xCluster != yCluster
-	//(*m_vAncestor)[rootCluster()] = rootCluster();
-	//(*m_wAncestor)[rootCluster()] = rootCluster();
+#if 0
+	(*m_vAncestor)[rootCluster()] = rootCluster();
+	(*m_wAncestor)[rootCluster()] = rootCluster();
+#endif
 	(*m_vAncestor)[cv] = nullptr;
 	(*m_wAncestor)[cw] = nullptr;
 
@@ -691,12 +688,14 @@ void ClusterGraph::copyLCA(
 		//otherwise, initialization won't work
 		m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 
-		m_lcaSearch = OGDF_NEW ClusterArray<int>(*this, -1);//(*C.m_lcaSearch);
+		m_lcaSearch = new ClusterArray<int>(*this, -1);//(*C.m_lcaSearch);
 
-		m_vAncestor = OGDF_NEW ClusterArray<cluster>(*this, nullptr);
-		m_wAncestor = OGDF_NEW ClusterArray<cluster>(*this, nullptr);
+		m_vAncestor = new ClusterArray<cluster>(*this, nullptr);
+		m_wAncestor = new ClusterArray<cluster>(*this, nullptr);
 		//setting of clusters is not necessary!
-		//(*m_v/wAncestor)[(*clusterCopy)[c]]= (*(C.m_v/wAncestor))[c];
+#if 0
+		(*m_v/wAncestor)[(*clusterCopy)[c]]= (*(C.m_v/wAncestor))[c];
+#endif
 	}//if
 }//copylca
 
@@ -793,9 +792,9 @@ cluster ClusterGraph::newCluster(int id)
 		}
 	}
 #ifdef OGDF_DEBUG
-	cluster c = OGDF_NEW ClusterElement(this, id);
+	cluster c = new ClusterElement(this, id);
 #else
-	cluster c = OGDF_NEW ClusterElement(id);
+	cluster c = new ClusterElement(id);
 #endif
 	clusters.pushBack(c);
 
@@ -823,9 +822,9 @@ cluster ClusterGraph::newCluster()
 		}
 	}
 #ifdef OGDF_DEBUG
-	cluster c = OGDF_NEW ClusterElement(this, m_clusterIdCount++);
+	cluster c = new ClusterElement(this, m_clusterIdCount++);
 #else
-	cluster c = OGDF_NEW ClusterElement(m_clusterIdCount++);
+	cluster c = new ClusterElement(m_clusterIdCount++);
 #endif
 	clusters.pushBack(c);
 	// notify observers
@@ -973,10 +972,12 @@ void ClusterGraph::delCluster(cluster c)
 		if (m_updateDepth && m_depthUpToDate)
 		{
 			//update depth for all children in subtree
-			OGDF_ASSERT(trace->depth() == trace->parent()->depth()+2)
+			OGDF_ASSERT(trace->depth() == trace->parent()->depth()+2);
 			pullUpSubTree(trace);
 			//could just set depth-1 here
-			//trace->depth() = trace->parent()->depth()+1;
+#if 0
+			trace->depth() = trace->parent()->depth()+1;
+#endif
 
 		}///if depth update
 		else m_depthUpToDate = false;
@@ -1146,7 +1147,7 @@ void ClusterGraph::moveCluster(cluster c, cluster newParent)
 
 	cluster oldParent = c->parent();
 	//we dont move root
-	OGDF_ASSERT(oldParent)
+	OGDF_ASSERT(oldParent);
 
 	//check if we move to a descendant
 	cluster crun = newParent->parent();
@@ -1197,7 +1198,9 @@ void ClusterGraph::moveCluster(cluster c, cluster newParent)
 			child->m_parent =  oldParent;
 			child->m_parent->children.pushBack(child);
 			child->m_it = child->m_parent->getChildren().rbegin();
-			//child++;
+#if 0
+			child++;
+#endif
 		}
 
 		//recompute depth only if option set AND it makes sense at that point
@@ -1220,7 +1223,9 @@ void ClusterGraph::moveCluster(cluster c, cluster newParent)
 
 	m_adjAvailable = false;
 
-	//checkPostOrder();
+#if 0
+	checkPostOrder();
+#endif
 }//move cluster
 
 
@@ -1258,7 +1263,7 @@ cluster ClusterGraph::postOrderPredecessor(cluster c) const
 		if (it == (run->m_parent)->children.begin())
 			run = run->parent();
 		else
-			return (*(it.pred()));
+			return *(it.pred());
 
 	} while (run);
 
@@ -1272,8 +1277,10 @@ void ClusterGraph::nodeDeleted(node v)
 	cluster c = clusterOf(v);
 	if (!c) return;
 	//never allow totally empty cluster
-	//if ((emptyOnNodeDelete(c)) &&
-	//	(c != rootCluster()) ) cRemove = true;
+#if 0
+	if ((emptyOnNodeDelete(c)) &&
+		(c != rootCluster()) ) cRemove = true;
+#endif
 	unassignNode(v);
 	if (cRemove && !m_allowEmptyClusters) //parent exists
 	{
@@ -1356,7 +1363,7 @@ void ClusterGraph::postOrder() const
 #ifdef OGDF_DEBUG
 	for(cluster c : clusters) {
 		cluster cp = leftMostCluster(c);
-		OGDF_ASSERT(cp->pPred() == postOrderPredecessor(c))
+		OGDF_ASSERT(cp->pPred() == postOrderPredecessor(c));
 	}
 #endif
 }
@@ -1373,12 +1380,12 @@ void ClusterGraph::checkPostOrder() const
 
 	while (!L.empty()) {
 		c = L.popFrontRet();
-		OGDF_ASSERT(prev->m_pNext == c)
-		OGDF_ASSERT(c->m_pPrev == prev)
+		OGDF_ASSERT(prev->m_pNext == c);
+		OGDF_ASSERT(c->m_pPrev == prev);
 		prev = c;
 	}
 	if (c != nullptr) {
-		OGDF_ASSERT(c->m_pNext == nullptr)
+		OGDF_ASSERT(c->m_pNext == nullptr);
 	} else {
 		OGDF_ASSERT(m_postOrderStart->m_pNext == nullptr);
 	}

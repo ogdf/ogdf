@@ -1982,5 +1982,3 @@ ClpPresolve::gutsOfPresolvedModel(ClpSimplex * originalModel,
      }
      return presolvedModel_;
 }
-
-

@@ -105,7 +105,7 @@ namespace bandit {
       detail::run_policy& run_policy)
   {
     if(has_context_with_list_tests(context_stack))
-	{
+    {
       it_list(desc, func, listener);
       return;
     }

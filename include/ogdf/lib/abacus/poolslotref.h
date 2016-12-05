@@ -129,7 +129,7 @@ public:
 			return slot_->conVar();
 		printDifferentVersionError();
 
-		return 0;
+		return nullptr;
 	}
 
 	//! Returns the version number of the constraint/variable stored in the referenced slot at construction time.

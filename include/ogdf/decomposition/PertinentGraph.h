@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -80,15 +77,15 @@ public:
 	 * \remarks Pertinent graphs are created by the pertinentGraph()
 	 *          function of SPQRTree.
 	 */
-	PertinentGraph() : m_vT(0) { }
+	PertinentGraph() : m_vT(nullptr) { }
 
 	//! Initialization of a pertinent graph of tree node \a vT.
 	void init(node vT) {
 		m_P = Graph();
 		m_vT = vT;
-		m_vEdge = m_skRefEdge = 0;
-		m_origV.init(m_P,0);
-		m_origE.init(m_P,0);
+		m_vEdge = m_skRefEdge = nullptr;
+		m_origV.init(m_P,nullptr);
+		m_origE.init(m_P,nullptr);
 	}
 
 

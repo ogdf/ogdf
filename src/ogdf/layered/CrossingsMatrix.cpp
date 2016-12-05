@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/layered/CrossingsMatrix.h>
@@ -59,8 +56,6 @@ CrossingsMatrix::CrossingsMatrix(const HierarchyLevels &levels)
 
 void CrossingsMatrix::init(Level &L)
 {
-	const HierarchyLevels &levels = L.levels();
-
 	for (int i = 0; i < L.size(); i++)
 	{
 		map[i] = i;
@@ -73,16 +68,14 @@ void CrossingsMatrix::init(Level &L)
 		node v = L[i];
 		const Array<node> &L_adj_i = L.adjNodes(v);
 
-		for(int k = 0; k < L_adj_i.size(); k++)
+		for(auto pos_adj_k : L_adj_i)
 		{
-			int pos_adj_k = levels.pos(L_adj_i[k]);
 			for (int j = i + 1; j < L.size(); j++)
 			{
 				const Array<node> &L_adj_j = L.adjNodes(L[j]);
 
-				for (int l = 0; l < L_adj_j.size(); l++)
+				for (auto pos_adj_l : L_adj_j)
 				{
-					int pos_adj_l = levels.pos(L_adj_j[l]);
 					matrix(i,j) += (pos_adj_k > pos_adj_l);
 					matrix(j,i) += (pos_adj_l > pos_adj_k);
 				}
@@ -94,7 +87,7 @@ void CrossingsMatrix::init(Level &L)
 
 void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 {
-	OGDF_ASSERT(edgeSubGraphs != 0);
+	OGDF_ASSERT(edgeSubGraphs != nullptr);
 	init(L);
 
 	const HierarchyLevels &levels = L.levels();

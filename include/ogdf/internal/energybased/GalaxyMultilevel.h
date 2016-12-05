@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -63,8 +60,8 @@ public:
 
 	GalaxyMultilevel(Graph* pGraph)
 	{
-		m_pFinerMultiLevel = 0;
-		m_pCoarserMultiLevel = 0;
+		m_pFinerMultiLevel = nullptr;
+		m_pCoarserMultiLevel = nullptr;
 		m_pGraph = pGraph;
 		m_pNodeInfo = new NodeArray<LevelNodeInfo>(*m_pGraph);
 		m_pEdgeInfo = new EdgeArray<LevelEdgeInfo>(*m_pGraph);
@@ -77,11 +74,11 @@ public:
 
 	GalaxyMultilevel(GalaxyMultilevel* prev)
 	{
-		m_pCoarserMultiLevel = 0;
+		m_pCoarserMultiLevel = nullptr;
 		m_pFinerMultiLevel = prev;
 		m_pFinerMultiLevel->m_pCoarserMultiLevel = this;
-		m_pGraph = 0;
-		m_pNodeInfo = 0;
+		m_pGraph = nullptr;
+		m_pNodeInfo = nullptr;
 		levelNumber = prev->levelNumber + 1;
 	}
 

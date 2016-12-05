@@ -40,7 +40,9 @@ namespace abacus {
 
 class Master;
 class Sub;
-//class VarType;
+#if 0
+class VarType;
+#endif
 class Column;
 class Constraint;
 
@@ -54,7 +56,7 @@ template<class BaseType, class CoType> class Active;
  * given in pool format and is derived from the common base class ConVar of
  * all constraints and variables.
  */
-class  Variable :  public ConVar  {
+class OGDF_EXPORT Variable : public ConVar {
 public:
 
 	//! Initializes a variable.
@@ -213,7 +215,7 @@ public:
 	 * \return true if the variable does not price out correctly, false otherwise.
 	 */
 	virtual bool violated(Active<Constraint, Variable> *constraints,
-		double *y, double *slack = 0) const;
+		double *y, double *slack = nullptr) const;
 
 	//! Computes the reduced cost of the variable corresponding the constraint set \a actCon and the dual variables \a y.
 	/**
@@ -267,12 +269,7 @@ protected:
 
 inline bool Variable::valid(const Sub *sub) const
 {
-#ifdef OGDF_DEBUG
-	if (local_ && sub == 0) {
-		//char *_error="Variable::valid(): cannot evaluate for locally valid variable with 0-pointer to subproblem.";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcVariable);
-	}
-#endif
+	OGDF_ASSERT(!local_ || sub != nullptr);
 
 	return (!local_ || sub->ancestor(sub_));
 }

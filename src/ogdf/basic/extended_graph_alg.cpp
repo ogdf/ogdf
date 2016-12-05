@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/simple_graph_alg.h>
@@ -69,9 +66,9 @@ bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
 
 	ListConstIterator<node> its;
 	for (its = act->nBegin(); its.valid(); ++its)
-		mark[(*its)] = true;
+		mark[*its] = true;
 
-	node v = (*(act->nBegin()));
+	node v = *(act->nBegin());
 	SListPure<node> bfs;
 	bfs.pushBack(v);
 	mark[v] = false;
@@ -96,7 +93,7 @@ bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
 	}
 
 	for (its = act->nBegin(); its.valid(); ++its)
-		if (mark[(*its)])
+		if (mark[*its])
 			return false;
 
 	SListPure<node> collaps;
@@ -134,7 +131,7 @@ bool isCConnected(const ClusterGraph &C)
 //is not yet recursive!!!
 node collapseCluster(ClusterGraph& CG, cluster c, Graph& G)
 {
-	OGDF_ASSERT(c->cCount() == 0)
+	OGDF_ASSERT(c->cCount() == 0);
 
 	ListConstIterator<node> its;
 	SListPure<node> collaps;
@@ -158,13 +155,13 @@ node collapseCluster(ClusterGraph& CG, cluster c, Graph& G)
 //precondition: not empty
 node getRepresentationNode(cluster c)
 {
-	OGDF_ASSERT(c->nCount() + c->cCount() > 0)
+	OGDF_ASSERT(c->nCount() + c->cCount() > 0);
 	//improvement potential: use specific nodes that optimize connection
 	//process
 	if (c->nCount() > 0)
-		return (*(c->nBegin()));
+		return *(c->nBegin());
 
-	return getRepresentationNode((*(c->cBegin())));
+	return getRepresentationNode(*(c->cBegin()));
 }
 
 
@@ -194,7 +191,7 @@ void recursiveConnect(
 
 
 	//We construct a copy of the current cluster
-	OGDF_ASSERT(act->cCount() == 0)
+	OGDF_ASSERT(act->cCount() == 0);
 	Graph cG;
 	NodeArray<node> vOrig(cG, nullptr);
 	NodeArray<node> vCopy(CG, nullptr); //larger than necessary, hashingarray(index)?
@@ -383,7 +380,7 @@ void recursiveCConnect(
 
 	//******************************************
 	//We construct a graph copy of the current cluster subgraph
-	OGDF_ASSERT(act->cCount() == 0)
+	OGDF_ASSERT(act->cCount() == 0);
 	Graph cG;
 	NodeArray<node> vOrig(cG, nullptr);
 	NodeArray<node> vCopy(CG, nullptr); //larger than necessary, hashingarray(index)?
@@ -420,7 +417,9 @@ void recursiveCConnect(
 
 	//connect the copy (should use improved version of makeconnected later)
 	List<edge> added;
-	//makeConnected(cG, added);
+#if 0
+	makeConnected(cG, added);
+#endif
 	cMakeConnected(cG, fullCopy, vFullCopy, badNode, added);
 
 	//now translate connection into clustergraph
@@ -554,11 +553,15 @@ void makeCConnected(ClusterGraph& C, Graph& GG, List<edge>& addedEdges, bool sim
 	for (const OrigNodePair &np : newEdges)
 	{
 		edge nedge = GG.newEdge(np.m_src, np.m_tgt);
-		//cout << "Adding edge: " << np.m_src << "-" << np.m_tgt << "\n" << flush;
+#if 0
+		cout << "Adding edge: " << np.m_src << "-" << np.m_tgt << "\n" << flush;
+#endif
 		addedEdges.pushBack(nedge);
 	}
 
-	//cout << "added " << addedEdges.size() << "edges\n";
+#if 0
+	cout << "added " << addedEdges.size() << "edges\n";
+#endif
 }//makeCConnected
 
 

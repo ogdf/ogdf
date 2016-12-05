@@ -2663,4 +2663,3 @@ void CoinSimpFactorization::btran(double *b, double *sol) const
     xHeqb(sol);
     xLeqb(sol);
 }
-

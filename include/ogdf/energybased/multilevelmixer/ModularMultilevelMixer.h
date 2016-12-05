@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/internal/energybased/MultilevelGraph.h>
 #include <ogdf/energybased/multilevelmixer/MultilevelBuilder.h>
@@ -83,7 +80,7 @@ private:
 	 * but do incremental beautification.
 	 * Usually a simple force-directed / energy-based Layout should be chosen.
 	 */
-	ModuleOption<LayoutModule> m_oneLevelLayoutModule;
+	std::unique_ptr<LayoutModule> m_oneLevelLayoutModule;
 
 	//! The layout algorithm applied on the last level (i.e., the largest graph in the multilevel hierarchy).
 	/**
@@ -91,13 +88,13 @@ private:
 	 * one-level layout ist relatively slow. If not set, the one-level layout
 	 * is also used on the last level.
 	 */
-	ModuleOption<LayoutModule> m_finalLayoutModule;
+	std::unique_ptr<LayoutModule> m_finalLayoutModule;
 
 	//! The multilevel builder module computes the multilevel hierarchy.
-	ModuleOption<MultilevelBuilder> m_multilevelBuilder;
+	std::unique_ptr<MultilevelBuilder> m_multilevelBuilder;
 
 	//! The initial placer module computes the initial positions for nodes inserted into the previous level.
-	ModuleOption<InitialPlacer> m_initialPlacement;
+	std::unique_ptr<InitialPlacer> m_initialPlacement;
 
 	//! The one-level layout will be called \a m_times to improve quality.
 	int m_times;
@@ -125,22 +122,22 @@ public:
 
 	//! Sets the one-level layout module to \a levelLayout.
 	void setLevelLayoutModule(LayoutModule *levelLayout) {
-		m_oneLevelLayoutModule.set(levelLayout);
+		m_oneLevelLayoutModule.reset(levelLayout);
 	}
 
 	//! Sets the final layout module to \a finalLayout.
 	void setFinalLayoutModule(LayoutModule *finalLayout) {
-		m_finalLayoutModule.set(finalLayout);
+		m_finalLayoutModule.reset(finalLayout);
 	}
 
 	//! Sets the multilevel builder module to \a levelBuilder.
 	void setMultilevelBuilder(MultilevelBuilder *levelBuilder) {
-		m_multilevelBuilder.set(levelBuilder);
+		m_multilevelBuilder.reset(levelBuilder);
 	}
 
 	//! Sets the initial placer module to \a placement.
 	void setInitialPlacer(InitialPlacer *placement) {
-		m_initialPlacement.set(placement);
+		m_initialPlacement.reset(placement);
 	}
 
 	//! Determines how many times the one-level layout will be called.
@@ -159,9 +156,7 @@ public:
 	void setLevelBound(bool b) { m_levelBound = b; }
 
 	//! Calls the multilevel layout algorithm for graph attributes \a GA.
-	void call(GraphAttributes &GA);
-
-	void call(GraphAttributes &GA, GraphConstraints & GC) { call(GA); }
+	void call(GraphAttributes &GA) override;
 
 	/**
 	 * \brief Calls the multilevel layout algorithm for multilevel graph \a MLG.
@@ -173,13 +168,16 @@ public:
 	 * All Incremental Layouts (especially energy based) CAN be called by ModularMultilevelMixer.
 	 * @param MLG is the input graph and will also be assigned the layout information.
 	 */
-	/*virtual void call(MultilevelGraph &MLG) {
+#if 0
+	virtual void call(MultilevelGraph &MLG) {
 		GraphAttributes GA(MLG.getGraph());
 		MLG.exportAttributesSimple(GA);
 		call(GA);
 		MLG.importAttributesSimple(GA);
-	};*/
+	};
+#else
 	virtual void call(MultilevelGraph &MLG);
+#endif
 
 	//! Returns the error code of last call.
 	erc errorCode() { return m_errorCode; }

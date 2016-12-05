@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -89,7 +86,7 @@ public:
 	//edge lies on cage border
 	bool onBorder(edge e) const {return m_border[e]>0;}
 	//these are subject to length fixation if length < sep
-	bool fixOnBorder(edge e) const {return (m_border[e] == 2);}
+	bool fixOnBorder(edge e) const {return m_border[e] == 2;}
 
 	//trigger alignment (=>some special edge handling to support al.)
 	void align(bool b) {m_align = b;}
@@ -197,7 +194,7 @@ public:
 		m_length   .init((Graph&)*this, sep);
 		m_extraNode.init((Graph&)*this, false);
 		m_extraOfs .init((Graph&)*this, 0);
-		m_extraRep .init((Graph&)*this, 0);
+		m_extraRep .init((Graph&)*this, nullptr);
 
 		m_sep       = sep;
 
@@ -286,8 +283,8 @@ public:
 		const RoutingChannel<ATYPE> &rc);
 
 	// inserts arcs for respecting sizes of vertices and achieving desired
-	// placement of generalizations if vertices are represented by tight cages;
-	// also corrects length of arcs belonging to cages which are adjacent to
+	// placement of generalizations if vertices are represented by tight cages.
+	// Also corrects length of arcs belonging to cages which are adjacent to
 	// a corner; takes special distances between edge segments attached at
 	// a vertex (delta's and epsilon's) into account.
 	void insertVertexSizeArcs(
@@ -397,7 +394,7 @@ private:
 		const NodeArray<int>    *m_pSec;
 	};
 
-	virtual void writeLength(ostream &os, edge e) const {
+	virtual void writeLength(ostream &os, edge e) const override {
 		os << m_length[e];
 	}
 
@@ -535,12 +532,12 @@ void CompactionConstraintGraph<ATYPE>::resetGenMergerLengths(
 			setExtra(vCenter, vMin, 0);
 			//it seems we dont need the helper, as only source-adjEntries lying on
 			//the outer face are considered later, but keep it in mind
-			/*
+#if 0
 			edge helper = newEdge(m_pathNode[vMin], vCenter);
 			m_length[helper] = 0;
 			m_cost[helper] = 0;
 			m_type[helper] = cetReducibleArc;
-			*/
+#endif
 
 			edge e1 = newEdge(vCenter,upper);
 			m_length[e1] = 0;
@@ -563,14 +560,14 @@ void CompactionConstraintGraph<ATYPE>::setBoundaryCosts(
 	adjEntry cornerDir,
 	adjEntry cornerOppDir)
 {
-	/*
+#if 0
 	adjEntry adj;
 	for (adj = cornerDir; m_pOR->direction(adj) == m_arcDir; adj = adj->faceCycleSucc())
 		m_cost[m_edgeToBasicArc[adj]] = 0;
 	for (adj = cornerOppDir; m_pOR->direction(adj) == m_oppArcDir; adj = adj->faceCycleSucc())
 		m_cost[m_edgeToBasicArc[adj]] = 0;
-	*/
-	//test fuer multi separation
+#endif
+	//test for multi separation
 	adjEntry adj;
 	for (adj = cornerDir; m_pOR->direction(adj) == m_arcDir; adj = adj->faceCycleSucc())
 	{
@@ -615,7 +612,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 
 	for(node v : PG.nodes)
 	{
-		if (PG.expandAdj(v) == 0) continue;
+		if (PG.expandAdj(v) == nullptr) continue;
 
 		if(PG.typeOf(v) == Graph::generalizationMerger)
 		{
@@ -668,7 +665,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 			node vMax = m_pathNode[cornerOppDir->theNode()];
 
 			// any attached generalizations ?
-			if (sDir.m_adjGen == 0 && sOppDir.m_adjGen == 0)
+			if (sDir.m_adjGen == nullptr && sOppDir.m_adjGen == nullptr)
 			{
 				// no, only one arc for vertex size + routing channels
 				edge e = newEdge(vMin,vMax);
@@ -683,7 +680,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 				ATYPE lenMin = rcMin + minHalf - overhang;
 				ATYPE lenMax = maxHalf + rcMax - overhang;
 
-				if (sDir.m_adjGen != 0) {
+				if (sDir.m_adjGen != nullptr) {
 					node vCenter = m_pathNode[sDir.m_adjGen->theNode()];
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
@@ -695,7 +692,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					m_type  [e2] = cetVertexSizeArc;
 				}
 
-				if (sOppDir.m_adjGen != 0) {
+				if (sOppDir.m_adjGen != nullptr) {
 					node vCenter = m_pathNode[sOppDir.m_adjGen->theNode()];
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
@@ -721,7 +718,7 @@ void CompactionConstraintGraph<ATYPE>::setBasicArcsZeroLength(
 	for(edge e : PG.edges)
 	{
 		edge arc = m_edgeToBasicArc[e];
-		if (arc == 0) continue;
+		if (arc == nullptr) continue;
 
 		node v = e->source();
 		node w = e->target();
@@ -763,7 +760,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 
 	for(node v : PG.nodes)
 	{
-		if (PG.expandAdj(v) == 0) continue;
+		if (PG.expandAdj(v) == nullptr) continue;
 
 		if(PG.typeOf(v) == Graph::generalizationMerger)
 		{
@@ -813,7 +810,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 			const OrthoRep::SideInfoUML &sOppDir = vi.m_side[m_oppArcDir];
 
 			// any attached generalizations ?
-			if (sDir.m_adjGen == 0 && sOppDir.m_adjGen == 0)
+			if (sDir.m_adjGen == nullptr && sOppDir.m_adjGen == nullptr)
 			{
 				//check for single edge case => special treatment
 				//generic case could handle all numbers
@@ -919,9 +916,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 				ATYPE lenMin = size/2;
 				ATYPE lenMax = size - lenMin;
 
-				//ATYPE len = size/2;
+#if 0
+				ATYPE len = size/2;
+#endif
 
-				if (sDir.m_adjGen != 0) {
+				if (sDir.m_adjGen != nullptr) {
 					node vCenter = m_pathNode[sDir.m_adjGen->theNode()];
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
@@ -974,7 +973,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 
 					}//if sDir case
 				}//else, only oppdir
-				if (sOppDir.m_adjGen != 0) {
+				if (sOppDir.m_adjGen != nullptr) {
 					node vCenter = m_pathNode[sOppDir.m_adjGen->theNode()];
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
@@ -1035,8 +1034,10 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 
 		} // high/lowDegreeExpander
 	}
-	//if (m_arcDir == odEast) writeGML("eastvertexsizeinserted.gml");
-	//else writeGML("northvertexsizeinserted.gml");
+#if 0
+	if (m_arcDir == odEast) writeGML("eastvertexsizeinserted.gml");
+	else writeGML("northvertexsizeinserted.gml");
+#endif
 }
 
 
@@ -1095,7 +1096,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 
 	for(node v : PG.nodes)
 	{
-		if(PG.expandAdj(v) == 0) continue;
+		if(PG.expandAdj(v) == nullptr) continue;
 
 		for(int d = 0; d < 4; ++d) {
 			minDist.delta(v,OrthoDir(d),0) = m_sep;//currentSeparation;
@@ -1163,7 +1164,8 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 		lowReal[v] = low[v];
 		Graph::NodeType typeLow = PG.typeOf(nodeLow);
 		if(typeLow == Graph::dummy || typeLow == Graph::generalizationExpander) {
-			/*bool subtractSep = true;
+#if 0
+			bool subtractSep = true;
 			if (nodeLow->degree() == 2) {
 				adjEntry adjFound = nullptr;
 				for(adjEntry adj : nodeLow->adjEntries) {
@@ -1180,8 +1182,11 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 					subtractSep = false;
 				}
 			}
-			//if (subtractSep)*/
+			if (subtractSep)
+				low[v] -= m_sep;
+#else
 			low[v] -= m_sep;
+#endif
 		}
 	}
 
@@ -1194,7 +1199,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 
 	for(node v : PG.nodes)
 	{
-		if(PG.expandAdj(v) == 0) continue;
+		if(PG.expandAdj(v) == nullptr) continue;
 		const OrthoRep::VertexInfoUML &vi = *m_pOR->cageInfo(v);
 
 		int i = 0;
@@ -1256,7 +1261,9 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 					if(low[s] >= boundary) // nothing to do?
 						break;
 					low[s] = boundary;
-					//low[s] += m_sep - delta; //minDist.delta(v,dirMin,i);
+#if 0
+					low[s] += m_sep - delta; //minDist.delta(v,dirMin,i);
+#endif
 
 					// If the compaction has eliminated bends, we can have the situation
 					// that segment s has length 0 and the next segment s' (following the
@@ -1298,7 +1305,9 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 			adjEntry adjCross = adj->cyclicPred();
 			adjEntry adjTwin = adjCross->twin();
 
-			//ATYPE delta = -posOrthDir[adj->twinNode()] + posOrthDir[adj->theNode()];
+#if 0
+			ATYPE delta = -posOrthDir[adj->twinNode()] + posOrthDir[adj->theNode()];
+#endif
 			adjEntry adjPred = adj->faceCyclePred();
 			ATYPE delta = (isCaseA) ?
 				min(abs(posOrthDir[adj->twinNode()] - posOrthDir[adj->theNode()]), m_sep) :
@@ -1347,7 +1356,9 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 					if(low[s] >= boundary) // nothing to do?
 						break;
 					low[s] = boundary;
-					//low[s] += m_sep - delta; //minDist.delta(v,dirMax,i);
+#if 0
+					low[s] += m_sep - delta; //minDist.delta(v,dirMax,i);
+#endif
 
 					// If the compaction has eliminated bends, we can have the situation
 					// that segment s has length 0 and the next segment s' (following the
@@ -1471,7 +1482,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	// belong to the same edge if they can see each other from the same side
 	// of the edge; if they see each other from different sides the arc is
 	// essential!
-	NodeArray<adjEntry> correspEdge(getGraph(),0);
+	NodeArray<adjEntry> correspEdge(getGraph(),nullptr);
 
 	for(node v : PG.nodes) {
 		node seg = m_pathNode[v];
@@ -1479,7 +1490,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 			if(m_pOR->direction(adj) != segDir) continue;
 			edge eAdj = adj->theEdge();
 			edge eOrig = PG.original(eAdj);
-			if (eOrig == 0) continue;
+			if (eOrig == nullptr) continue;
 			if (adj == eAdj->adjSource())
 				correspEdge[seg] = eOrig->adjSource();
 			else
@@ -1529,7 +1540,9 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 				m_cost  [e] = 0;
 				m_type  [e] = cetVisibilityArc;
 
-				//writeGML("visibilityinserted.gml");
+#if 0
+				writeGML("visibilityinserted.gml");
+#endif
 			}//special if 2
 		}//special if 1
 	}

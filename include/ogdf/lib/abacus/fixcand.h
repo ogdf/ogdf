@@ -60,7 +60,7 @@ template<class BaseType, class CoType> class PoolSlotRef;
  * in nodes which are not the root of the remaining branch-and-cut tree,
  * we always have to take the candidates and values from this class.
  */
-class  FixCand :  public AbacusRoot  {
+class OGDF_EXPORT FixCand : public AbacusRoot {
 
 	friend class Sub;
 	friend class Master;
@@ -73,9 +73,9 @@ public:
 	 */
 	FixCand(Master *master) :
 		master_(master),
-		candidates_(0),
-		fsVarStat_(0),
-		lhs_(0)
+		candidates_(nullptr),
+		fsVarStat_(nullptr),
+		lhs_(nullptr)
 	{ }
 
 	//! The destructor.

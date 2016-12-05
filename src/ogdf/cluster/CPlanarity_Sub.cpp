@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,16 +27,11 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/basic.h>
-
-#ifdef USE_ABACUS
 
 #include <ogdf/internal/cluster/CPlanarity_Sub.h>
 #include <ogdf/internal/cluster/CPlanar_Edge.h>
@@ -83,13 +78,17 @@ CPlanaritySub::~CPlanaritySub() {}
 
 
 Sub *CPlanaritySub::generateSon(BranchRule *rule) {
-	//dualBound_ = realDualBound;
+#if 0
+	dualBound_ = realDualBound;
+#endif
 
 	const double minViolation = 0.001; // value fixed from abacus...
 	List< Constraint* > criticalConstraints;
 	if (master()->pricing())
 	{
-		//SetBranchRule* srule = (SetBranchRule*)(rule);
+#if 0
+		SetBranchRule* srule = (SetBranchRule*)(rule);
+#endif
 		SetBranchRule* srule;
 		srule = dynamic_cast<SetBranchRule*>(rule);
 		OGDF_ASSERT( srule ); // hopefully no other branching stuff...
@@ -105,13 +104,15 @@ Sub *CPlanaritySub::generateSon(BranchRule *rule) {
 			var->printMe(Logger::slout());
 			Logger::slout() << "\n";
 
-			for(int i = nCon(); i-->0;) {
+			for(int i = nCon(); i-- > 0;) {
 				Constraint* con = constraint(i);
 				double coeff = con->coeff(var);
 				if(con->sense()->sense()==CSense::Greater && coeff>0.99) {
 					// check: yVal gives the slack and is always negative or 0
 					double slk;
-					//slk = yVal(i);
+#if 0
+					slk = yVal(i);
+#endif
 					slk = con->slack(actVar(),xVal_);
 					//quick hack using ABACUS value, needs to be corrected
 					if (slk > 0.0 && slk < minViolation)
@@ -121,22 +122,23 @@ Sub *CPlanaritySub::generateSon(BranchRule *rule) {
 					if(slk > 0.0) {
 						Logger::slout() << "ohoh..." << slk << " "; var->printMe(Logger::slout()); Logger::slout()<<flush;
 					}
-					OGDF_ASSERT( slk <= 0.0 )
+					OGDF_ASSERT(slk <= 0.0);
 					double zeroSlack = slk+xVal(varidx)*coeff;
 					if(zeroSlack > 0.0001) { // setting might introduce infeasibility
-	// TODO: is the code below valid (in terms of theory) ???
-	// "es reicht wenn noch irgendeine nicht-auf-0-fixierte variable im constraint existiert, die das rettet
-	// mögliches problem: was wenn alle kanten bis auf die aktive kante in einem kuratowski constraint
-	// auf 1 fixiert sind (zB grosse teile wegen planaritätstest-modus, und ein paar andere wg. branching).
-	//
-	//					bool good = false; // does there exist another good variable?
-	//					for(int j = nVar(); j-->0;) {
-	//						if(con->coeff(variable[j])>0.99 && VARIABLE[j]-NOT-FIXED-TO-0) {
-	//							good = true;
-	//							break;
-	//						}
-	//					}
-	//					if(!good)
+#if 0
+						// TODO: is the code below valid (in terms of theory) ???
+						// "es reicht wenn noch irgendeine nicht-auf-0-fixierte variable im constraint existiert, die das rettet
+						// mögliches problem: was wenn alle kanten bis auf die aktive kante in einem kuratowski constraint
+						// auf 1 fixiert sind (zB grosse teile wegen planaritätstest-modus, und ein paar andere wg. branching).
+						bool good = false; // does there exist another good variable?
+						for(int j = nVar(); j-- > 0;) {
+							if(con->coeff(variable[j])>0.99 && VARIABLE[j]-NOT-FIXED-TO-0) {
+								good = true;
+								break;
+							}
+						}
+						if(!good)
+#endif
 						criticalConstraints.pushBack(con);
 					}
 				}
@@ -149,15 +151,19 @@ Sub *CPlanaritySub::generateSon(BranchRule *rule) {
 
 
 int CPlanaritySub::selectBranchingVariable(int &variable) {
-	//dualBound_ = realDualBound;
+#if 0
+	dualBound_ = realDualBound;
+#endif
 
 	return Sub::selectBranchingVariable(variable);
 }
 
 
 int CPlanaritySub::selectBranchingVariableCandidates(ArrayBuffer<int> &candidates) {
-//	if(master()->m_checkCPlanar)
-//		return Sub::selectBranchingVariableCandidates(candidates);
+#if 0
+	if(master()->m_checkCPlanar)
+		return Sub::selectBranchingVariableCandidates(candidates);
+#endif
 
 	ArrayBuffer<int> candidatesABA(1,false);
 	int found = Sub::selectBranchingVariableCandidates(candidatesABA);
@@ -184,7 +190,9 @@ void CPlanaritySub::updateSolution() {
 			np.v1 = e->sourceNode();
 			np.v2 = e->targetNode();
 			connectionOneEdges.pushBack(np);
-			//cout << "******************************************************\n";
+#if 0
+			cout << "******************************************************\n";
+#endif
 		}
 	}
 #ifdef OGDF_DEBUG
@@ -246,7 +254,9 @@ int CPlanaritySub::improve(double &primalValue) {
 		master()->dualBound(master()->primalBound());
 		master()->primalBound(0);
 	}
-		//primalValue = dualBound();
+#if 0
+	primalValue = dualBound();
+#endif
 	if ( static_cast<CPlanarityMaster*>(master_)->getHeuristicLevel() == 0 ||
 			master()->feasibleFound() ) return 0;
 
@@ -328,18 +338,22 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 	NodeArray<node> parent(G); //parent for path to representative in bag gathering
 
 	//saves status of all nodes in hierarchy subtree at c
-	//c->getClusterNodes(nodesInCluster);
+#if 0
+	c->getClusterNodes(nodesInCluster);
+#endif
 	int num = nodesInCluster.size();
 	if (num == 0) return 0;
 
-//    cout << "#Starting clusterBags with cluster of size " << num << "\n";
+#if 0
+	cout << "#Starting clusterBags with cluster of size " << num << "\n";
+#endif
 
 	//now we store the iterators
 	ListIterator<node> it = nodesInCluster.begin();
 	while (it.valid())
 	{
-		listPointer[(*it)] = it;
-		inCluster[(*it)] = true;
+		listPointer[*it] = it;
+		inCluster[*it] = true;
 		++it;
 	}//while
 
@@ -360,7 +374,9 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 		{
 			node v = activeNodes.pop(); //running node
 			parent[v] = start; //representative points to itself
-//            cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
+#if 0
+			cout << "Setting parent of " << v->index() << "  to " << start->index() << "\n";
+#endif
 			count++;
 
 			for(adjEntry adj : v->adjEntries) {
@@ -378,10 +394,11 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 				}
 			}
 		}//while
-
 	}//while
 
-//    cout << "Number of chunks: " << numChunks << "\n";
+#if 0
+	cout << "Number of chunks: " << numChunks << "\n";
+#endif
 	//Now all node parents point to the representative of their chunk (start node in search)
 	numBags = numChunks; //We count backwards if chunks are connected by subcluster
 
@@ -393,29 +410,39 @@ int CPlanaritySub::clusterBags(ClusterGraph &CG, cluster c)
 	for(cluster cc : c->children)
 	{
 		const List<node> &nodesInChild = static_cast<CPlanarityMaster*>(master_)->getClusterNodes(cc);
-		//cc->getClusterNodes(nodesInChild);
-		//cout << nodesInChild.size() << "\n";
+#if 0
+		cc->getClusterNodes(nodesInChild);
+		cout << nodesInChild.size() << "\n";
+#endif
 		ListConstIterator<node> itN = nodesInChild.begin();
 		node bagRep; //stores the representative for the whole bag
 		if (itN.valid()) bagRep = getRepresentative(*itN, parent);
-//        cout << " bagRep is " << bagRep->index() << "\n";
+#if 0
+		cout << " bagRep is " << bagRep->index() << "\n";
+#endif
 		while (itN.valid())
 		{
 			node w = getRepresentative(*itN, parent);
-//            cout << "  Rep is: " << w->index() << "\n";
+#if 0
+			cout << "  Rep is: " << w->index() << "\n";
+#endif
 			if (w != bagRep)
 			{
 				numBags--; //found nodes with different representative, merge
 				parent[w] = bagRep;
 				parent[*itN] = bagRep; //shorten search path
-//                cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
+#if 0
+				cout << "  Found new node with different rep, setting numBags to " << numBags << "\n";
+#endif
 			}
 			++itN;
 		}//While all nodes in subcluster
 	}//for all child clusters
 
 	return numBags;
-//    cout << "#Number of bags: " << numBags << "\n";
+#if 0
+	cout << "#Number of bags: " << numBags << "\n";
+#endif
 }//clusterBags
 
 
@@ -499,8 +526,10 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 		//condition depends on the checked set, cluster or complement
 		set1Connected = (startState == true ? (count == num) : (count == G.numberOfNodes() - num));
 
-		//cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << " Cluster size: "<< num <<", have: "<< count <<"\n";
-		//cout << "Root:" << (CG.rootCluster() == c) << "\n";
+#if 0
+		cout << "Set 1 connected: " << set1Connected << " Cluster? " << startState << " Cluster size: "<< num <<", have: "<< count <<"\n";
+		cout << "Root:" << (CG.rootCluster() == c) << "\n";
+#endif
 
 		if (!set1Connected) return false;
 		//check if the complement of set1 is also connected
@@ -511,7 +540,7 @@ bool CPlanaritySub::checkCConnectivity(const GraphCopy& support)
 		//therefore we have to continue
 		if (G.numberOfNodes() == count)
 			continue;
-		OGDF_ASSERT(complementStart != 0);
+		OGDF_ASSERT(complementStart != nullptr);
 
 		activeNodes.append(complementStart);
 		isVisited[complementStart] = true;
@@ -609,7 +638,9 @@ bool CPlanaritySub::checkCConnectivityOld(const GraphCopy& support)
 
 
 bool CPlanaritySub::feasible() {
-//	cout << "Checking feasibility\n";
+#if 0
+	cout << "Checking feasibility\n";
+#endif
 
 	if (!integerFeasible()) {
 		return false;
@@ -628,7 +659,7 @@ bool CPlanaritySub::feasible() {
 		if (cc != ccOld)
 		{
 			cout << "CC: "<<cc<<" CCOLD: "<<ccOld<<"\n";
-			GraphIO::writeGML(support, "DifferingCC.gml");
+			GraphIO::write(support, "DifferingCC.gml", GraphIO::writeGML);
 
 		}
 #endif
@@ -664,7 +695,7 @@ bool CPlanaritySub::feasible() {
 	}
 }//feasible
 
-/*
+#if 0
 static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
 {
 	count++;
@@ -677,13 +708,12 @@ static void dfsIsConnected(node v, NodeArray<bool> &visited, int &count)
 	}
 }
 
-bool CPlanaritySub::fastfeasible() {
-
+bool CPlanaritySub::fastfeasible()
+{
 	if (!integerFeasible()) {
 		return false;
 	}
 	else {
-
 		// Checking if the solution induced Graph is completely connected.
 		GraphCopy support(*((CPlanarityMaster*)master_)->getGraph());
 		intSolutionInducedGraph(support);
@@ -738,8 +768,10 @@ bool CPlanaritySub::fastfeasible() {
 
 
 				// Step2: checking the cluster induced subgraph for connectivity
-				//NodeArray<bool> inCluster(*((CPlanarityMaster*)master_)->getGraph());
-				//inCluster.fill(false);
+#if 0
+				NodeArray<bool> inCluster(*((CPlanarityMaster*)master_)->getGraph());
+				inCluster.fill(false);
+#endif
 				blocked.init(support, true);
 
 				for (it=clusterNodes.begin(); it.valid(); ++it) {
@@ -791,12 +823,13 @@ bool CPlanaritySub::fastfeasible() {
 		}
 	}
 }//fastfeasible
+#endif
 
-*/
 //Adds all connection edges represented by value 1 variables to the input (original) graph.
 void CPlanaritySub::intSolutionInducedGraph(GraphCopy &support) {
-
-	//edge e, ce;
+#if 0
+	edge e, ce;
+#endif
 	node v, w, cv, cw;
 	for (int i=0; i<nVar(); ++i) {
 		if ( xVal(i) >= 1.0-(master_->eps()) ) {
@@ -814,8 +847,9 @@ void CPlanaritySub::intSolutionInducedGraph(GraphCopy &support) {
 
 
 void CPlanaritySub::kuratowskiSupportGraph(GraphCopy &support, double low, double high) {
-
-	//edge e, ce;
+#if 0
+	edge e, ce;
+#endif
 	node v, w, cv, cw;
 	for (int i=0; i<nVar(); ++i) {
 
@@ -844,7 +878,6 @@ void CPlanaritySub::kuratowskiSupportGraph(GraphCopy &support, double low, doubl
 				if (!support.searchEdge(cv,cw)) support.newEdge(cv,cw);
 			}
 		}
-
 	} // end for(int i=0; i<nVar(); ++i)
 }
 
@@ -853,7 +886,9 @@ void CPlanaritySub::connectivitySupportGraph(GraphCopy &support, EdgeArray<doubl
 
 	// Step 1+2: Create the support graph & Determine edge weights and fill the EdgeArray \a weight.
 	// MCh: warning: modified by unifying both steps. performance was otherwise weak.
-	//edge e, ce;
+#if 0
+	edge e, ce;
+#endif
 	node v, w, cv, cw;
 	// Initialize weight array to original graph (all original edges are part of an extension,
 	// therefore have value 1.0)
@@ -917,14 +952,16 @@ int CPlanaritySub::separateReal(double minViolate) {
 	//Add edges for variables with value > 0,
 	//graph with edge weights w given by the LP values
 	connectivitySupportGraph(support,w);
-	#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 	Logger::slout() << "Support graph size is : "<<support.numberOfEdges()<<" edges \n";
 	Logger::slout() << "If this is close to #G+#variables then it would be better to directly compute mincut on search space graph instead of >0 value graph\n";
-	#endif
+#endif
 
 	// Buffer for the constraints
-	//int nClusters = (static_cast<CPlanarityMaster*>(master_)->getClusterGraph())->numberOfClusters();
-	//ArrayBuffer<Constraint *> cConstraints(master_,2*nClusters);
+#if 0
+	int nClusters = (static_cast<CPlanarityMaster*>(master_)->getClusterGraph())->numberOfClusters();
+	ArrayBuffer<Constraint *> cConstraints(master_,2*nClusters);
+#endif
 
 	GraphCopy *c_support; //complement of a cluster induced graph
 	EdgeArray<double> c_w;
@@ -956,7 +993,9 @@ int CPlanaritySub::separateReal(double minViolate) {
 
 		// Residue graph is determined and stored in \a c_support.
 		const List<node> &clusterNodes = static_cast<CPlanarityMaster*>(master_)->getClusterNodes(c);
-		//c->getClusterNodes(clusterNodes);
+#if 0
+		c->getClusterNodes(clusterNodes);
+#endif
 		//slow and ugly, mainly to get code running
 		NodeArray<bool> isDeleted(support, false);
 		for (node u : clusterNodes) {
@@ -967,12 +1006,15 @@ int CPlanaritySub::separateReal(double minViolate) {
 			isDeleted[cCopy1] = true;
 		}
 
-
-		//const GraphCopy* const ssgp = static_cast<CPlanarityMaster*>(master())->searchSpaceGraph();
+#if 0
+		const GraphCopy* const ssgp = static_cast<CPlanarityMaster*>(master())->searchSpaceGraph();
+#endif
 
 		// Checking if Graph is connected.
 		if (isConnected(*c_support)) {
-			//Logger::slout() << "\n*** Create new cuts: Complement is connected**\n";
+#if 0
+			Logger::slout() << "\n*** Create new cuts: Complement is connected**\n";
+#endif
 			MinCut mc(*c_support,c_w);
 			List<edge> cutEdges;
 			double mincutV = mc.minimumCut();
@@ -1026,15 +1068,15 @@ int CPlanaritySub::separateReal(double minViolate) {
 						//node might be from cluster, ie deleted in c_support, this doesnt work
 						if (! c_support->copy( supv) ) continue;
 
-						#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 						cout << ssg.original(sno)<<"\n";
-												cout << (support.copy(ssg.original(sno) ))<<"\n";
-												cout << "Inpart query: " <<(c_support->copy(support.copy(ssg.original(sno) ) ))<<" "<< (c_support->copy(support.copy(ssg.original(sno) ) ))->graphOf()<<"\n";
+						cout << (support.copy(ssg.original(sno) ))<<"\n";
+						cout << "Inpart query: " <<(c_support->copy(support.copy(ssg.original(sno) ) ))<<" "<< (c_support->copy(support.copy(ssg.original(sno) ) ))->graphOf()<<"\n";
 						cout << "Inpart graph:, c_support "<<inPart.graphOf()<<" "<<c_support<<"\n";
-cout <<"ssg original (sno) "<<(ssg.original(sno))->graphOf()<<"\n";
-cout << "support copy" <<support.copy(ssg.original(sno))->graphOf()<<"\n";
-cout << "csupport copy"<<(c_support->copy(support.copy(ssg.original(sno))))->graphOf()<<"\n";
-/*
+						cout <<"ssg original (sno) "<<(ssg.original(sno))->graphOf()<<"\n";
+						cout << "support copy" <<support.copy(ssg.original(sno))->graphOf()<<"\n";
+						cout << "csupport copy"<<(c_support->copy(support.copy(ssg.original(sno))))->graphOf()<<"\n";
+#if 0
 for(node vw : c_support->nodes)
 {
 	cout << "c_s node and original + graphs: "<<vw<<" "<<vw->graphOf()<<" : "<<c_support->original(vw)<<" "<<(c_support->original(vw))->graphOf()<<"\n";
@@ -1042,7 +1084,8 @@ for(node vw : c_support->nodes)
 for(node vw : support.nodes)
 {
 	cout << "s node and original + graphs: "<<vw<<" "<<vw->graphOf()<<" : "<<support.original(vw)<<" "<<(support.original(vw))->graphOf()<<"\n";
-}*/
+}
+#endif
 #endif
 						if (!inPart[  c_support->copy(supv )])
 						{
@@ -1052,8 +1095,9 @@ for(node vw : support.nodes)
 						}
 					}
 				}
+#if 0
 				//old version using only edges with value > 0
-				/*mc.cutEdges(cutEdges,*c_support);
+				mc.cutEdges(cutEdges,*c_support);
 
 				ListConstIterator<edge> cutEdgesIt;
 				node v,w,cv,cw,ccv,ccw;
@@ -1068,7 +1112,7 @@ for(node vw : support.nodes)
 					np.v2 = ccw;
 					cutNodePairs.pushBack(np);
 				}
-*/
+#endif
 				// Create constraint
 				bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutNodePairs));
 				count++;
@@ -1115,7 +1159,8 @@ for(node vw : support.nodes)
 						}
 				}
 			}
-			/* Old version, using the complete graph
+#if 0
+			// Old version, using the complete graph
 			List<nodePair> cutEdges;
 			ListConstIterator<node> it;
 			nodePair np;
@@ -1131,7 +1176,8 @@ for(node vw : support.nodes)
 						cutEdges.pushBack(np);
 					}
 				}
-			}*/
+			}
+#endif
 
 			// Create cut-constraint
 			bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutEdges)); // always violated enough
@@ -1159,7 +1205,9 @@ for(node vw : support.nodes)
 		// KK Why not using the inducedgraph method for that?
 		// Todo There is also faster code in ClusterAnalysis for that?
 		const List<node> &clusterNodes = static_cast<CPlanarityMaster*>(master_)->getClusterNodes(c);
-		//c->getClusterNodes(clusterNodes);
+#if 0
+		c->getClusterNodes(clusterNodes);
+#endif
 		//may use a version that also gives us the nodes
 		//of the complement directly (mark cluster, for all clusters
 		//collect nodes of unmarked clusters) for slight speedup
@@ -1200,12 +1248,16 @@ for(node vw : support.nodes)
 
 		// Checking if Graph is connected.
 		if (isConnected(*c_support)) {
-			//Logger::slout() << "\n*** Create new cuts: Cluster is connected**\n";
+#if 0
+			Logger::slout() << "\n*** Create new cuts: Cluster is connected**\n";
+#endif
 			MinCut mc(*c_support,c_w);
 			List<edge> cutEdges;
 			double x = mc.minimumCut();
 			if (x < 1.0-master()->eps()-minViolate) {
-				//Logger:slout() << "\n*** Create new cuts: Cluster is connected, small cut found**\n";
+#if 0
+				Logger:slout() << "\n*** Create new cuts: Cluster is connected, small cut found**\n";
+#endif
 				// We cannot use the cut directly, as it only gives the edges set to > 0 here.
 				// We therefore compute the corresponding cut in the search space graph.
 				List<node> partNodes;
@@ -1239,7 +1291,8 @@ for(node vw : support.nodes)
 						}
 					}
 				}
-				/* old part
+#if 0
+				// old part
 				mc.cutEdges(cutEdges,*c_support);
 				List<nodePair> cutNodePairs;
 				ListConstIterator<edge> cutEdgesIt;
@@ -1256,7 +1309,7 @@ for(node vw : support.nodes)
 					np.v2 = ccw;
 					cutNodePairs.pushBack(np);
 				}
-				*/
+#endif
 
 				// Create constraint
 				bufferedForCreation.push(new CutConstraint(static_cast<CPlanarityMaster*>(master()), this, cutNodePairs));
@@ -1297,7 +1350,8 @@ for(node vw : support.nodes)
 							cutEdges.emplaceBack(ssg.original(sn), ssg.original(sno));
 						}
 				}
-				/*old version
+#if 0
+				// old version
 				node cv,cw;
 				for(node w : c_support->nodes) {
 					if ( (w!=(*it)) && !isInPartition[w] ) {
@@ -1308,7 +1362,7 @@ for(node vw : support.nodes)
 						cutEdges.pushBack(np);
 					}
 				}
-				*/
+#endif
 			}
 
 			// Create Cut-constraint
@@ -1448,8 +1502,8 @@ for(node vw : support.nodes)
 				}
 
 				// Adding constraints to the pool.
-				for(int i=0; i<kConstraints.size(); ++i) {
-					Logger::slout() <<"\n"; ((ClusterKuratowskiConstraint*&)kConstraints[i])->printMe(Logger::slout());
+				for(auto &kConstraint : kConstraints) {
+					Logger::slout() <<"\n"; ((ClusterKuratowskiConstraint*&)kConstraint)->printMe(Logger::slout());
 				}
 				nGenerated += addKuraCons(kConstraints);
 				if (nGenerated != count)
@@ -1473,13 +1527,19 @@ for(node vw : support.nodes)
 
 int CPlanaritySub::createVariablesForBufferedConstraints() {
 	List<Constraint*> crit;
-	for(int i = bufferedForCreation.size(); i-->0;) {
-//		((CutConstraint*)bufferedForCreation[i])->printMe(); Logger::slout() << ": ";
-		for(int j=nVar(); j-->0;) {
-//			((EdgeVar*)variable(j))->printMe();
-//			Logger::slout() << "=" << bufferedForCreation[i]->coeff(variable(j)) << "/ ";
+	for(int i = bufferedForCreation.size(); i-- > 0;) {
+#if 0
+		((CutConstraint*)bufferedForCreation[i])->printMe(); Logger::slout() << ": ";
+#endif
+		for(int j = nVar(); j-- > 0;) {
+#if 0
+			((EdgeVar*)variable(j))->printMe();
+			Logger::slout() << "=" << bufferedForCreation[i]->coeff(variable(j)) << "/ ";
+#endif
 			if(bufferedForCreation[i]->coeff(variable(j))!=0.0) {
-//				Logger::slout() << "!";
+#if 0
+				Logger::slout() << "!";
+#endif
 				goto nope;
 			}
 		}
@@ -1504,7 +1564,7 @@ int CPlanaritySub::createVariablesForBufferedConstraints() {
 		if(crit.size()==0) break;
 	}
 	if( crit.size() ) { // something remained here...
-		for(int i = bufferedForCreation.size(); i-->0;) {
+		for(int i = bufferedForCreation.size(); i-- > 0;) {
 			delete bufferedForCreation[i];
 		}
 		detectedInfeasibility = true;
@@ -1514,40 +1574,41 @@ int CPlanaritySub::createVariablesForBufferedConstraints() {
 	ArrayBuffer<Variable*> vars(creationBuffer.size(),false);
 	master()->m_varsCut += creationBuffer.size();
 	int gen = creationBuffer.size();
-	for(int j = gen; j-->0;) {
+	for(int j = gen; j-- > 0;) {
 		vars.push( master()->createVariable( creationBuffer[j] ) );
 	}
 	myAddVars(vars);
 	return -gen;
 }
 
-
+#if 0
 // !! This function is incorrect (due to uninitialized usage of variable rc)       !!
 // !! and cannot work correctly (seems to be a placeholder for further development) !!
 // Therefore it has been commented out
-//int CPlanaritySub::pricingReal(double minViolate) {
-//	if(!master()->pricing()) return 0; // no pricing
-//	Top10Heap<Prioritized<ListIterator<nodePair> > > goodVar(master()->m_numAddVariables);
-//	for(ListIterator<nodePair> it = master()->m_inactiveVariables.begin(); it.valid(); ++it) {
-//		double rc;
-//		CPlanarEdgeVar v(master(), master()->nextConnectCoeff(), (*it).v1, (*it).v2);
-//		if(v.violated(rc) && rc>=minViolate) {
-//			Prioritized<ListIterator<nodePair> > entry(it,rc);
-//			goodVar.pushBlind( entry );
-//		}
-//	}
-//
-//	int nv = goodVar.size();
-//	if(nv > 0) {
-//		ArrayBuffer<Variable*> vars(nv,false);
-//		for(int i = nv; i-->0;) {
-//			ListIterator<nodePair> it = goodVar[i].item();
-//			vars.push( master()->createVariable(it) );
-//		}
-//		myAddVars(vars);
-//	}
-//	return nv;
-//}
+int CPlanaritySub::pricingReal(double minViolate) {
+	if(!master()->pricing()) return 0; // no pricing
+	Top10Heap<Prioritized<ListIterator<nodePair> > > goodVar(master()->m_numAddVariables);
+	for(ListIterator<nodePair> it = master()->m_inactiveVariables.begin(); it.valid(); ++it) {
+		double rc;
+		CPlanarEdgeVar v(master(), master()->nextConnectCoeff(), (*it).v1, (*it).v2);
+		if(v.violated(rc) && rc>=minViolate) {
+			Prioritized<ListIterator<nodePair> > entry(it,rc);
+			goodVar.pushBlind( entry );
+		}
+	}
+
+	int nv = goodVar.size();
+	if(nv > 0) {
+		ArrayBuffer<Variable*> vars(nv,false);
+		for(int i = nv; i-- > 0;) {
+			ListIterator<nodePair> it = goodVar[i].item();
+			vars.push( master()->createVariable(it) );
+		}
+		myAddVars(vars);
+	}
+	return nv;
+}
+#endif
 
 int CPlanaritySub::repair() {
 	//warning. internal abacus stuff BEGIN
@@ -1617,7 +1678,9 @@ int CPlanaritySub::solveLp() {
 		if(addMe) {
 			Logger::slout() << "A problem ocurred\n";
 			Logger::slout() << nVar() << " variables of " << vp->number() << " in model. Fetching " << addMe << ".\n" << flush;
-			//master()->activeVars->loadIndices(this); // current indexing scheme
+#if 0
+			master()->activeVars->loadIndices(this); // current indexing scheme
+#endif
 			m_reportCreation = 0;
 			for(int i=0; i<vp->size(); ++i ) {
 				PoolSlot<Variable, Constraint> * slot = vp->slot(i);
@@ -1693,8 +1756,10 @@ int CPlanaritySub::solveLp() {
 					return 0;
 				}
 				criticalSinceBranching.clear(); // nothing helped... resorting to full repair
-//				master()->clearActiveRepairs();
-//				return 0;
+#if 0
+				master()->clearActiveRepairs();
+				return 0;
+#endif
 			} //else {
 			m_reportCreation = -repair();
 			if(m_reportCreation<0) {
@@ -1704,13 +1769,14 @@ int CPlanaritySub::solveLp() {
 			//}
 		}
 		master()->clearActiveRepairs();
-		//dualBound_ = +master()->infinity();
-		//cout <<"**Set dualbound to minus infinity\n";
-
+#if 0
+		dualBound_ = +master()->infinity();
+		cout <<"**Set dualbound to minus infinity\n";
+#endif
 
 #ifdef OGDF_DEBUG
+#if 0
 	//Bit of dummy code for usual debug: Run over inactive and connect vars
-	/*
 	for(const nodePair &p : master()->m_inactiveVariables) {
 	}
 	for(int t = 0; t<nVar(); ++t) {
@@ -1723,28 +1789,33 @@ int CPlanaritySub::solveLp() {
 			}
 		}
 	}
-}*/
+#endif
 #endif //OGDF_DEBUG
 
-		// infeasibleSub();
+#if 0
+		infeasibleSub();
+#endif
 		Logger::slout() << "\tInfeasible\n";
 		return 1; // report any errors
 	}
 	master()->clearActiveRepairs();
 	OGDF_ASSERT( !lp_->infeasible() );
 	//is set here for pricing only
-	//if(master()->m_checkCPlanar) // was: master()->pricing()
-	//dualBound_=master()->infinity();//666
+#if 0
+	if(master()->m_checkCPlanar) // was: master()->pricing()
+	dualBound_=master()->infinity();//666
+#endif
 	Logger::slout() << "\t\tLP-relaxation: " <<  lp_->value() << "\n";
 	Logger::slout() << "\t\tLocal/Global dual bound: " << dualBound() << "/" << master_->dualBound() << endl;
 	realDualBound = lp_->value();
 
 	//KK Is there a way to find a better corresponding shortcut here?
-	//if(dualBound()>3*master()->m_G->numberOfEdges()-6) {
-	//	dualBound(-master()->infinity());
-	//	return 1;
-	//}
-
+#if 0
+	if(dualBound()>3*master()->m_G->numberOfEdges()-6) {
+		dualBound(-master()->infinity());
+		return 1;
+	}
+#endif
 
 	if(!master()->pricing()) {
 		m_reportCreation = separateReal(minViolation);//use ...O for output
@@ -1754,25 +1825,24 @@ int CPlanaritySub::solveLp() {
 		// See CPlanaritySub::pricingReal() above for more details.
 		OGDF_THROW(AlgorithmFailureException);
 
-		//m_sepFirst = !m_sepFirst;
-		//if(m_sepFirst) {
-		//	if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< endl; return 1; }
-		//	if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
-		//	if( (m_reportCreation = separateRealO(minViolation)) ) return 0;
-		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< endl; return 1; }
-		//	m_reportCreation = -pricingRealO(minViolation);
-		//} else {
-		//	if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
-		//	if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
-		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< endl; return 1; }
-		//	if( (m_reportCreation = -pricingRealO(minViolation)) ) return 0;
-		//	m_reportCreation = separateRealO(minViolation);
-		//	if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< endl; return 1; }
-		//}
+#if 0
+		m_sepFirst = !m_sepFirst;
+		if(m_sepFirst) {
+			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (a)"<< endl; return 1; }
+			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
+			if( (m_reportCreation = separateRealO(minViolation)) ) return 0;
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (b)"<< endl; return 1; }
+			m_reportCreation = -pricingRealO(minViolation);
+		} else {
+			if( (m_reportCreation = -pricingRealO(master()->m_strongVariableViolation)) ) return 0;
+			if( (m_reportCreation = separateRealO(master()->m_strongConstraintViolation)) ) return 0;
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (c)"<< endl; return 1; }
+			if( (m_reportCreation = -pricingRealO(minViolation)) ) return 0;
+			m_reportCreation = separateRealO(minViolation);
+			if( detectedInfeasibility ) { Logger::slout() << "Infeasibility detected (d)"<< endl; return 1; }
+		}
+#endif
 	}
 	return 0;
 }
-
-
-#endif // USE_ABACUS

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/packing/ComponentSplitterLayout.h>
@@ -47,7 +44,7 @@ namespace ogdf {
 
 ComponentSplitterLayout::ComponentSplitterLayout()
 {
-	m_packer.set(new TileToRowsCCPacker);
+	m_packer.reset(new TileToRowsCCPacker);
 	m_targetRatio = 1.f;
 	m_border = 30;
 }
@@ -56,7 +53,7 @@ ComponentSplitterLayout::ComponentSplitterLayout()
 void ComponentSplitterLayout::call(GraphAttributes &GA)
 {
 	// Only do preparations and call if layout is valid
-	if (m_secondaryLayout.valid())
+	if (m_secondaryLayout)
 	{
 		//first we split the graph into its components
 		const Graph& G = GA.constGraph();
@@ -98,7 +95,7 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 					cGA.doubleWeight(e) = GA.doubleWeight(GC.original(e));
 				}
 			}
-			m_secondaryLayout.get().call(cGA);
+			m_secondaryLayout->call(cGA);
 
 			//copy layout information back into GA
 			for(node v : GC.nodes)
@@ -315,7 +312,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 	offset.init(box.size());
 
 	// call packer
-	m_packer.get().call(box, offset, m_targetRatio);
+	m_packer->call(box, offset, m_targetRatio);
 
 	int index = 0;
 	// Apply offset and rebuild Graph
@@ -350,9 +347,11 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 
 	//now we center the whole graph again
 	//TODO: why?
-	//const Graph& G = GA.constGraph();
-	//for(node v : G.nodes)
-	//MLG.moveToZero();
+#if 0
+	const Graph& G = GA.constGraph();
+	for(node v : G.nodes)
+		MLG.moveToZero();
+#endif
 }
 
 

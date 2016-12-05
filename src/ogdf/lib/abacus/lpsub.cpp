@@ -153,21 +153,22 @@ void LpSub::initialize()
 		delVar.clear();
 		double rhsDelta = 0.0; // correction of right hand side due to eliminations
 		const int rNnz = rows[c]->nnz();
-		for(int i = 0; i < rNnz; i++)
+		for(int i = 0; i < rNnz; i++) {
 			if(marked[rows[c]->support(i)]) {
 				delVar.push(i);
 				rhsDelta += rows[c]->coeff(i)*elimVal(rows[c]->support(i));
 			}
+		}
 
-			rows[c]->delInd(delVar, rhsDelta);
+		rows[c]->delInd(delVar, rhsDelta);
 
-			// check if the constraint is now infeasible
-			if (rows[c]->nnz() == 0) {
-				infeas = sub_->constraint(c)->voidLhsViolated(rows[c]->rhs());
-				if (infeas != InfeasCon::Feasible)
-					infeasCons_.push(new InfeasCon(master_, sub_->constraint(c), infeas));
-			}
-			rows[c]->rename(orig2lp_);
+		// check if the constraint is now infeasible
+		if (rows[c]->nnz() == 0) {
+			infeas = sub_->constraint(c)->voidLhsViolated(rows[c]->rhs());
+			if (infeas != InfeasCon::Feasible)
+				infeasCons_.push(new InfeasCon(master_, sub_->constraint(c), infeas));
+		}
+		rows[c]->rename(orig2lp_);
 	}
 
 	// initialize the LP-solver and clean up
@@ -338,69 +339,70 @@ void LpSub::removeVars(ArrayBuffer<int> &vars)
 	// check if sorting is required
 	bool unordered = false;
 
-	for (int i = 0; i < nVars - 1; i++)
+	for (int i = 0; i < nVars - 1; i++) {
 		if (vars[i] > vars[i+1]) {
 			unordered = true;
 			break;
 		}
+	}
 
-		// if yes, sort the variables
-		ArrayBuffer<int> varsSorted(oldNOrigVar,false);
+	// if yes, sort the variables
+	ArrayBuffer<int> varsSorted(oldNOrigVar,false);
 
-		if (unordered) {
-			Array<bool> marked(0,oldNOrigVar-1, false);
+	if (unordered) {
+		Array<bool> marked(0,oldNOrigVar-1, false);
 
-			for (int i = 0; i < nVars; i++)
-				marked[vars[i]] = true;
+		for (int i = 0; i < nVars; i++)
+			marked[vars[i]] = true;
 
-			for (int i = 0; i < oldNOrigVar; i++)
-				if (marked[i])
-					varsSorted.push(i);
-		}
-		else
-			for (int i = 0; i < nVars; i++)
-				varsSorted.push(vars[i]);
+		for (int i = 0; i < oldNOrigVar; i++)
+			if (marked[i])
+				varsSorted.push(i);
+	}
+	else
+		for (int i = 0; i < nVars; i++)
+			varsSorted.push(vars[i]);
 
-		// update mapping of original variables to LP variables
-		/* In order to update the mapping of the original variables to the LP-variables
-		*  we have to eliminate the removed variables from the array \a orig2lp_ by a
-		*   leftshift. Moreover, if the variable \a i is not removed then we have to
-		*   reduce \a orig2lp_ by the number of variables that have been removed with a
-		*   index than \a i that have not been eliminated.
-		*/
-		int current = varsSorted[0];
-		int nNotEliminatedRemoved = 0;
+	// update mapping of original variables to LP variables
+	/* In order to update the mapping of the original variables to the LP-variables
+	*  we have to eliminate the removed variables from the array \a orig2lp_ by a
+	*   leftshift. Moreover, if the variable \a i is not removed then we have to
+	*   reduce \a orig2lp_ by the number of variables that have been removed with a
+	*   index than \a i that have not been eliminated.
+	*/
+	int current = varsSorted[0];
+	int nNotEliminatedRemoved = 0;
 
-		for (int i = 0; i < nVars - 1; i++) {
-			if (orig2lp_[varsSorted[i]] != -1)
-				nNotEliminatedRemoved++;
-
-			const int last = varsSorted[i+1];
-			for(int j = varsSorted[i]+1; j < last; j++)
-				if (orig2lp_[j] == -1)
-					orig2lp_[current++] = -1;
-				else
-					orig2lp_[current++] = orig2lp_[j] - nNotEliminatedRemoved;
-		}
-
-		if (orig2lp_[varsSorted[nVars-1]] != -1)
+	for (int i = 0; i < nVars - 1; i++) {
+		if (orig2lp_[varsSorted[i]] != -1)
 			nNotEliminatedRemoved++;
 
-		for (int j = varsSorted[nVars - 1] + 1; j < oldNOrigVar; j++)
+		const int last = varsSorted[i+1];
+		for(int j = varsSorted[i]+1; j < last; j++)
 			if (orig2lp_[j] == -1)
 				orig2lp_[current++] = -1;
 			else
 				orig2lp_[current++] = orig2lp_[j] - nNotEliminatedRemoved;
+	}
 
-		// update mapping of LP variables to original variables
-		/* Since \a orig2lp_ is updated already we can update the reverse
-		*   mapping \a lp2orig_ in a straight forward way by scanning \a orig2lp_.
-		*/
-		int nVarLp = 0;
+	if (orig2lp_[varsSorted[nVars-1]] != -1)
+		nNotEliminatedRemoved++;
 
-		for (int i = 0; i < nOrigVar_; i++)
-			if (orig2lp_[i] != -1)
-				lp2orig_[nVarLp++] = i;
+	for (int j = varsSorted[nVars - 1] + 1; j < oldNOrigVar; j++)
+		if (orig2lp_[j] == -1)
+			orig2lp_[current++] = -1;
+		else
+			orig2lp_[current++] = orig2lp_[j] - nNotEliminatedRemoved;
+
+	// update mapping of LP variables to original variables
+	/* Since \a orig2lp_ is updated already we can update the reverse
+	*   mapping \a lp2orig_ in a straight forward way by scanning \a orig2lp_.
+	*/
+	int nVarLp = 0;
+
+	for (int i = 0; i < nOrigVar_; i++)
+		if (orig2lp_[i] != -1)
+			lp2orig_[nVarLp++] = i;
 }
 
 
@@ -429,29 +431,31 @@ void LpSub::addCons(ArrayBuffer<Constraint*> &newCons)
 		double rhsDelta = 0.0; //!< correction of right hand side
 		nr       = newRows[c];
 		const int nrNnz = nr->nnz();
-		for(int i = 0; i < nrNnz; i++)
+		for(int i = 0; i < nrNnz; i++) {
 			if(eliminated(nr->support(i))) {
 				delVar.push(i);
 				rhsDelta += nr->coeff(i)*elimVal(nr->support(i));
 			}
-			nr->delInd(delVar,rhsDelta);
-			nr->rename(orig2lp_);
+		}
+		nr->delInd(delVar,rhsDelta);
+		nr->rename(orig2lp_);
 
-			// check if constraint \a c has become infeasible
-			if(nr->nnz() == 0) {
-				infeas = newCons[c]->voidLhsViolated(nr->rhs());
-				if (infeas != InfeasCon::Feasible) {
-					infeasCons_.push(new InfeasCon(master_, newCons[c], infeas));
-					Logger::ifout() << "LpSub::addCons(): infeasible constraint added.\nAll variables with nonzero coefficients are eliminated and constraint is violated.\nSorry, resolution not implemented yet.\n";
-					OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
-				}
+		// check if constraint \a c has become infeasible
+		if(nr->nnz() == 0) {
+			infeas = newCons[c]->voidLhsViolated(nr->rhs());
+			if (infeas != InfeasCon::Feasible) {
+				infeasCons_.push(new InfeasCon(master_, newCons[c], infeas));
+				Logger::ifout() << "LpSub::addCons(): infeasible constraint added.\nAll variables with nonzero coefficients are eliminated and constraint is violated.\nSorry, resolution not implemented yet.\n";
+				OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
 			}
+		}
 	}
 
 	LP::addRows(newRows);
 
-	for (int i = 0; i < newRows.size(); i++)
-		delete newRows[i];
+	for (auto &newRow : newRows) {
+		delete newRow;
+	}
 }
 
 

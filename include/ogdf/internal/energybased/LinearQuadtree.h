@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,21 +25,18 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/internal/energybased/FastUtils.h>
 #include <ogdf/internal/energybased/FMEFunctional.h>
 
-#define M2L_MIN_BOUND 8
-#define WSPD_BRANCH_BOUND 16
-#define WSPD_BOUND 25
+#define OGDF_LQ_M2L_MIN_BOUND 8
+#define OGDF_LQ_WSPD_BRANCH_BOUND 16
+#define OGDF_LQ_WSPD_BOUND 25
 
 namespace ogdf {
 
@@ -285,7 +282,7 @@ public:
 		{
 			if (BranchCondFunction(u))
 			{
-				if (tree.isLeaf(u) || (tree.numberOfPoints(u) <= WSPD_BOUND))
+				if (tree.isLeaf(u) || (tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BOUND))
 				{
 					if (tree.numberOfPoints(u) > 1)
 						DNodeFunction(u);
@@ -302,14 +299,14 @@ public:
 		{
 			if (tree.isWS(u, v))
 			{
-				if ((tree.numberOfPoints(u) < M2L_MIN_BOUND) && (tree.numberOfPoints(v) < M2L_MIN_BOUND))
+				if ((tree.numberOfPoints(u) < OGDF_LQ_M2L_MIN_BOUND) && (tree.numberOfPoints(v) < OGDF_LQ_M2L_MIN_BOUND))
 					DPairFunction(u, v);
 				else
 					WSFunction(u, v);
 			}
 			else
 			{
-				if (((tree.numberOfPoints(u) <= WSPD_BRANCH_BOUND) && (tree.numberOfPoints(v) <= WSPD_BRANCH_BOUND)) ||
+				if (((tree.numberOfPoints(u) <= OGDF_LQ_WSPD_BRANCH_BOUND) && (tree.numberOfPoints(v) <= OGDF_LQ_WSPD_BRANCH_BOUND)) ||
 					(tree.isLeaf(u) || tree.isLeaf(v)))
 				{
 					DPairFunction(u, v);
@@ -582,7 +579,7 @@ public:
 		float dy = nodeY(a) - nodeY(b);
 		float d_sq = dx*dx+dy*dy;
 		float l = max(nodeSize(a), nodeSize(b));
-		return (d_sq >(s*0.5 + 1)*(s*0.5 + 1)* 2 * l * l);
+		return d_sq > (s * 0.5 + 1) * (s * 0.5 + 1) * 2 * l * l;
 	}
 
 	void computeWSPD();

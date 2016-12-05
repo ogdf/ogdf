@@ -1,36 +1,33 @@
 /** \file
-* \brief Implementation of a fast and simple clustering algorithm, Modified Nibble Clusterer
-*
-* \author Karsten Klein
-*
-* \par License:
-* This file is part of the Open Graph Drawing Framework (OGDF).
-*
-* \par
-* Copyright (C)<br>
-* See README.txt in the root directory of the OGDF installation for details.
-*
-* \par
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* Version 2 or 3 as published by the Free Software Foundation;
-* see the file LICENSE.txt included in the packaging of this file
-* for details.
-*
-* \par
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* \par
-* You should have received a copy of the GNU General Public
-* License along with this program; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-* Boston, MA 02110-1301, USA.
-*
-* \see  http://www.gnu.org/copyleft/gpl.html
-***************************************************************/
+ * \brief Implementation of a fast and simple clustering algorithm, Modified Nibble Clusterer
+ *
+ * \author Karsten Klein
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/graphalg/ModifiedNibbleClusterer.h>
 #include <ogdf/basic/List.h>
@@ -91,27 +88,33 @@ long ModifiedNibbleClusterer::call(Graph &G, NodeArray<long> &clusterNum)
 		m_startNode = selectStartNode();
 		std::vector<node>* cluster = new std::vector<node>;
 		modifiedNibble(m_startNode, *cluster);
-		for (size_t l = 0; l < cluster->size(); ++l) {
-			m_pGC->delNode(m_pGC->copy(cluster->at(l)));
+		for (auto &elem : *cluster) {
+			m_pGC->delNode(m_pGC->copy(elem));
 		}
 		clusters.push_back(cluster);
 	}
 	// Now CCs for non assigned nodes are assigned as clusters
 	// And small clusters are dissolved and assigned to their neighbors
-	//postProcess();
+#if 0
+	postProcess();
+#endif
 	// Delete cluster vectors
 	int cnum = (int)clusters.size();
 	for (int i = 0; i < (int)clusters.size(); ++i) {
 		std::vector<node> &cluster = *(clusters.at(i));
-		//if (cluster.size() < m_clusterThreshold)
+#if 0
+		if (cluster.size() < m_clusterThreshold)
+#endif
 		// Assign to neighbor(s)
-		for (size_t k = 0; k < cluster.size(); ++k) {
-			clusterNum[cluster.at(k)] = i;
+		for (auto &elem : cluster) {
+			clusterNum[elem] = i;
 		}
 		delete clusters.at(i);
 	}
 	// And small clusters are dissolved and assigned to their neighbors
-	//postProcess(clusterNum);
+#if 0
+	postProcess(clusterNum);
+#endif
 	// Delete GraphCopy
 	delete m_pGC;
 	cout << "Created " << cnum << "clusters\n";
@@ -230,7 +233,9 @@ double ModifiedNibbleClusterer::findBestCluster(NodeArray<bool> &isActive, std::
 	for (int run = 0; run <= bestindexaband; ++run) {
 		cluster.push_back(abandoned.at(run));
 	}
-	//cout << "Cluster found "<<cluster.size()<< " " << bestConductance<<"\n";
+#if 0
+	cout << "Cluster found "<<cluster.size()<< " " << bestConductance<<"\n";
+#endif
 #ifdef OGDF_DEBUG
 	NodeArray<bool> test(*m_pGC, false);
 	for (node v : cluster) {
@@ -255,8 +260,10 @@ void ModifiedNibbleClusterer::modifiedNibble(node snode, std::vector<node> & bes
 	long maxSteps = maxClusterSize();
 	NodeArray<double> probUpdate(*m_pGC, 0.0); //Needed to avoid serial update
 	NodeArray<bool> isActive (*m_pGC, false); //quick check if node is i list active nodes
-	//std::vector<node> bestCluster; // the best cluster found;
-	//
+#if 0
+	std::vector<node> bestCluster; // the best cluster found;
+#endif
+
 	// Active nodes visited along the walks
 	std::vector<node> activeNodes;
 	activeNodes.push_back(m_startNode);
@@ -282,8 +289,8 @@ void ModifiedNibbleClusterer::modifiedNibble(node snode, std::vector<node> & bes
 		if (curCon < bestCon) {
 			bestCon = curCon;
 			bestCluster.clear();
-			for (size_t m = 0; m < cluster.size(); ++m) {
-				bestCluster.push_back(m_pGC->original(cluster.at(m)));
+			for (auto &elem : cluster) {
+				bestCluster.push_back(m_pGC->original(elem));
 			}
 			//bestCluster = cluster;
 			if (t_i >= maxSteps) finished = true;

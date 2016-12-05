@@ -1,37 +1,34 @@
 /** \file
-* \brief Implements class GF2Solver, which represents a solver for
-*        linear equation systems over GF(2).
-*
-* \author Carsten Gutwenger
-*
-* \par License:
-* This file is part of the Open Graph Drawing Framework (OGDF).
-*
-* \par
-* Copyright (C)<br>
-* See README.txt in the root directory of the OGDF installation for details.
-*
-* \par
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the GNU General Public License
-* Version 2 or 3 as published by the Free Software Foundation;
-* see the file LICENSE.txt included in the packaging of this file
-* for details.
-*
-* \par
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* \par
-* You should have received a copy of the GNU General Public
-* License along with this program; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-* Boston, MA 02110-1301, USA.
-*
-* \see  http://www.gnu.org/copyleft/gpl.html
-***************************************************************/
+ * \brief Implements class GF2Solver, which represents a solver for
+ *        linear equation systems over GF(2).
+ *
+ * \author Carsten Gutwenger
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/basic/GF2Solver.h>
@@ -42,11 +39,13 @@ namespace ogdf {
 
 	GF2Solver::~GF2Solver()
 	{
-		//for(Chunk *p = m_freelist; p != nullptr; ) {
-		//	Chunk *pNext = p->m_next;
-		//	delete p;
-		//	p = pNext;
-		//}
+#if 0
+		for(Chunk *p = m_freelist; p != nullptr; ) {
+			Chunk *pNext = p->m_next;
+			delete p;
+			p = pNext;
+		}
+#endif
 
 		for(Chunk2 *p = m_freelist2; p != nullptr; ) {
 			Chunk2 *pNext = p->m_next;
@@ -74,45 +73,47 @@ namespace ogdf {
 
 		Array<bool> diagonal(0, n, false);
 
-		//int count = 0, R;
-		//for(int r = 0; r < n; ++r) {
-		//	if(contains(rows[r],maxCol)) {
-		//		count++; R = r;
-		//	}
-		//}
-		//cout << "Rows with maxCol: " << count << endl;
+#if 0
+		int count = 0, R;
+		for(int r = 0; r < n; ++r) {
+			if(contains(rows[r],maxCol)) {
+				count++; R = r;
+			}
+		}
+		cout << "Rows with maxCol: " << count << endl;
 
-		//{
-		//	int nReqRows = 0, nReqVars = 0;
+		{
+			int nReqRows = 0, nReqVars = 0;
 
-		//	Array<bool> reqVar(0, maxCol, false);
-		//	Array<bool> reqRow(0, n-1, false);
+			Array<bool> reqVar(0, maxCol, false);
+			Array<bool> reqRow(0, n-1, false);
 
-		//	Queue<int> Q;
-		//	Q.append(R);
+			Queue<int> Q;
+			Q.append(R);
 
-		//	while(!Q.empty()) {
-		//		int r = Q.pop();
+			while(!Q.empty()) {
+				int r = Q.pop();
 
-		//		if(reqRow[r])
-		//			continue;
+				if(reqRow[r])
+					continue;
 
-		//		reqRow[r] = true;
-		//		nReqRows++;
+				reqRow[r] = true;
+				nReqRows++;
 
-		//		const Equation &eq = m_matrix[r];
-		//		for(int c : eq)
-		//			if(!reqVar[c]) {
-		//				reqVar[c] = true;
-		//				nReqVars++;
-		//				for(int i = 0; i < n; ++i)
-		//					if(reqRow[i] == false && contains(rows[i], c))
-		//						Q.append(i);
-		//			}
-		//	}
+				const Equation &eq = m_matrix[r];
+				for(int c : eq)
+					if(!reqVar[c]) {
+						reqVar[c] = true;
+						nReqVars++;
+						for(int i = 0; i < n; ++i)
+							if(reqRow[i] == false && contains(rows[i], c))
+								Q.append(i);
+					}
+			}
 
-		//	cout << "required: " << nReqRows << " rows, " << nReqVars << " vars" << endl;
-		//}
+			cout << "required: " << nReqRows << " rows, " << nReqVars << " vars" << endl;
+		}
+#endif
 
 		for(int c = 0; c < maxCol; ++c)
 		{
@@ -137,23 +138,31 @@ namespace ogdf {
 			}
 		}
 
-		//count = 0;
+#if 0
+		count = 0;
+#endif
 		bool result = true;
 		for(int r = 0; r < n; ++r) {
-			//if(contains(rows[r],maxCol))
-			//	count++;
+#if 0
+			if(contains(rows[r],maxCol))
+				count++;
+#endif
 
 			if(diagonal[r]) {
 				continue;
 			}
 
 			if(contains(rows[r],maxCol)) {
-				//cout << "Rows with maxCol: " << count << endl;
+#if 0
+				cout << "Rows with maxCol: " << count << endl;
+#endif
 				result = false;
 				break;
 			}
 		}
-		//cout << "Rows with maxCol: " << count << endl;
+#if 0
+		cout << "Rows with maxCol: " << count << endl;
+#endif
 
 		for(int i = 0; i < n; ++i) {
 			Row &r = rows[i];
@@ -228,60 +237,61 @@ namespace ogdf {
 		return result;
 	}
 
+#if 0
+	bool GF2Solver::contains(const Row &r, int x) const
+	{
+		for(Chunk *p = r.m_pHead; p != nullptr; p = p->m_next)
+			if(x <= p->m_x[p->m_max]) {
+				int i = 0;
+				while(p->m_x[i] < x)
+					++i;
+				return (p->m_x[i] == x);
+			}
+		return false;
+	}
 
-	//bool GF2Solver::contains(const Row &r, int x) const
-	//{
-	//	for(Chunk *p = r.m_pHead; p != nullptr; p = p->m_next)
-	//		if(x <= p->m_x[p->m_max]) {
-	//			int i = 0;
-	//			while(p->m_x[i] < x)
-	//				++i;
-	//			return (p->m_x[i] == x);
-	//		}
-	//	return false;
-	//}
 
+	void GF2Solver::symDiff(Row &r, const Row &other)
+	{
+		Chunk *p1 = r.m_pHead;
+		const Chunk *p2 = other.m_pHead;
+		int i1 = 0, i2 = 0;
 
-	//void GF2Solver::symDiff(Row &r, const Row &other)
-	//{
-	//	Chunk *p1 = r.m_pHead;
-	//	const Chunk *p2 = other.m_pHead;
-	//	int i1 = 0, i2 = 0;
+		Chunk *pHead = getChunk();
+		Chunk *p = pHead;
 
-	//	Chunk *pHead = getChunk();
-	//	Chunk *p = pHead;
+		while( p1 != nullptr || p2 != nullptr )
+		{
+			if(p1 != nullptr && p2 != nullptr && p1->m_x[i1] == p2->m_x[i2]) {
+				if(++i1 > p1->m_max) { i1 = 0; p1 = p1->m_next; }
+				if(++i2 > p2->m_max) { i2 = 0; p2 = p2->m_next; }
 
-	//	while( p1 != nullptr || p2 != nullptr )
-	//	{
-	//		if(p1 != nullptr && p2 != nullptr && p1->m_x[i1] == p2->m_x[i2]) {
-	//			if(++i1 > p1->m_max) { i1 = 0; p1 = p1->m_next; }
-	//			if(++i2 > p2->m_max) { i2 = 0; p2 = p2->m_next; }
+			} else {
+				if(p->full())
+					p = p->m_next = getChunk();
 
-	//		} else {
-	//			if(p->full())
-	//				p = p->m_next = getChunk();
+				if(p2 == nullptr || (p1 != nullptr && p1->m_x[i1] < p2->m_x[i2])) {
+					p->add(p1->m_x[i1]);
+					if(++i1 > p1->m_max) { i1 = 0; p1 = p1->m_next; }
 
-	//			if(p2 == nullptr || (p1 != nullptr && p1->m_x[i1] < p2->m_x[i2])) {
-	//				p->add(p1->m_x[i1]);
-	//				if(++i1 > p1->m_max) { i1 = 0; p1 = p1->m_next; }
+				} else {
+					p->add(p2->m_x[i2]);
+					if(++i2 > p2->m_max) { i2 = 0; p2 = p2->m_next; }
+				}
+			}
+		}
 
-	//			} else {
-	//				p->add(p2->m_x[i2]);
-	//				if(++i2 > p2->m_max) { i2 = 0; p2 = p2->m_next; }
-	//			}
-	//		}
-	//	}
+		freeChunks(r.m_pHead,r.m_pTail);
 
-	//	freeChunks(r.m_pHead,r.m_pTail);
-
-	//	if(pHead == p && p->m_max == -1) {
-	//		freeChunk(pHead);
-	//		r.m_pHead = r.m_pTail = nullptr;
-	//	} else {
-	//		r.m_pHead = pHead;
-	//		r.m_pTail = p;
-	//	}
-	//}
+		if(pHead == p && p->m_max == -1) {
+			freeChunk(pHead);
+			r.m_pHead = r.m_pTail = nullptr;
+		} else {
+			r.m_pHead = pHead;
+			r.m_pTail = p;
+		}
+	}
+#endif
 
 
 	void GF2Solver::symDiff2(int r1, int r2, Array<Row2> &rows, Array<List<int>> &cols)
@@ -330,4 +340,3 @@ namespace ogdf {
 	}
 
 }
-

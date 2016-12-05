@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -51,7 +48,7 @@ struct InOutPoint
 	adjEntry m_adj;
 
 	InOutPoint() {
-		m_dx = m_dy = 0; m_adj = 0;
+		m_dx = m_dy = 0; m_adj = nullptr;
 	}
 	InOutPoint(adjEntry adj) {
 		m_adj = adj; m_dx = m_dy = 0;
@@ -67,7 +64,7 @@ class IOPoints {
 public:
 	IOPoints() { }
 	IOPoints(const Graph &G) : m_depth(G,0), m_height(G,0), m_in(G), m_out(G),
-		m_mark(G,false), m_pointOf(G,0)  { }
+		m_mark(G,false), m_pointOf(G,nullptr)  { }
 
 	~IOPoints () { }
 
@@ -166,7 +163,7 @@ public:
 		int i = 0;
 		for(const InOutPoint &iop : m_in[v])
 			if (!marked(iop.m_adj)) ++i;
-		return (i <= 2);
+		return i <= 2;
 	}
 
 	// width of the left-/right side of an in-/outpoint list

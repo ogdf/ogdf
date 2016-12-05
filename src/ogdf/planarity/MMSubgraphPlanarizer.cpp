@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,15 +25,12 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarity/MMSubgraphPlanarizer.h>
-#include <ogdf/planarity/FastPlanarSubgraph.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/MMFixedEmbeddingInserter.h>
 
 
@@ -42,13 +39,13 @@ namespace ogdf {
 
 MMSubgraphPlanarizer::MMSubgraphPlanarizer()
 {
-	FastPlanarSubgraph *s = new FastPlanarSubgraph();
+	PlanarSubgraphFast *s = new PlanarSubgraphFast();
 	s->runs(100);
-	m_subgraph.set(s);
+	m_subgraph.reset(s);
 
 	MMFixedEmbeddingInserter *pInserter = new MMFixedEmbeddingInserter();
 	pInserter->removeReinsert(MMEdgeInsertionModule::rrAll);
-	m_inserter.set(pInserter);
+	m_inserter.reset(pInserter);
 
 	m_permutations = 1;
 }
@@ -76,10 +73,10 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 				preferedEdges.pushBack(e);
 		}
 
-		retValue = m_subgraph.get().call(PG, preferedEdges, deletedEdges, true);
+		retValue = m_subgraph->call(PG, preferedEdges, deletedEdges, true);
 
 	} else {
-		retValue = m_subgraph.get().call(PG, deletedEdges);
+		retValue = m_subgraph->call(PG, deletedEdges);
 	}
 
 	if(isSolution(retValue) == false)
@@ -98,9 +95,9 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 		deletedEdges.permute();
 
 		if(forbid != nullptr)
-			m_inserter.get().call(PG, deletedEdges, *forbid);
+			m_inserter->call(PG, deletedEdges, *forbid);
 		else
-			m_inserter.get().call(PG, deletedEdges);
+			m_inserter->call(PG, deletedEdges);
 
 		crossingNumber = PG.computeNumberOfCrossings();
 

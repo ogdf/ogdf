@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/FMEThread.h>
 
@@ -126,7 +123,9 @@ void FMEThreadPool::allocate()
 	for (uint32_t i=0; i < m_numThreads; i++)
 	{
 		m_pThreads[i] = new FMEThread(this, i);
-		//m_pThreads[i]->cpuAffinity(1 << i);
+#if 0
+		m_pThreads[i]->cpuAffinity(1 << i);
+#endif
 	}
 }
 
@@ -141,4 +140,3 @@ void FMEThreadPool::deallocate()
 }
 
 } // end of namespace ogdf
-

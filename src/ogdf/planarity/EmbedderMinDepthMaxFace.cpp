@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/planarity/EmbedderMinDepthMaxFace.h>
 #include <ogdf/internal/planarity/ConnectedSubgraph.h>
@@ -90,7 +87,7 @@ void EmbedderMinDepthMaxFace::doCall(Graph& G, adjEntry& adjExternal)
 			break;
 		}
 	}
-	OGDF_ASSERT(rootBlockNode != 0);
+	OGDF_ASSERT(rootBlockNode != nullptr);
 
 	/****************************************************************************/
 	/* MIN DEPTH                                                                */
@@ -710,12 +707,15 @@ void EmbedderMinDepthMaxFace::mf_maximumFaceRec(const node& bT, node& bT_opt, in
 	bT_opt = m_bT_opt;
 	ell_opt = m_ell_opt;
 
-	//if (!blockGraph_bT.empty()
-	//    && blockGraph_bT.numberOfNodes() != 1
-	//    && blockGraph_bT.numberOfEdges() != 1)
-	//{
+#if 0
+	if (!blockGraph_bT.empty()
+	    && blockGraph_bT.numberOfNodes() != 1
+	    && blockGraph_bT.numberOfEdges() != 1)
+#endif
+	{
+
 		delete spqrTree;
-	//}
+	}
 }
 
 
@@ -839,7 +839,7 @@ void EmbedderMinDepthMaxFace::embedBlock(
 						break;
 					}
 				}
-				OGDF_ASSERT(parent_bT_of_cT2 != 0);
+				OGDF_ASSERT(parent_bT_of_cT2 != nullptr);
 				if (treeNodeTreated[parent_bT_of_cT2])
 					no_recursion = true;
 			}

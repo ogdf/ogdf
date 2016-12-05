@@ -70,14 +70,15 @@ ostream &operator<<(ostream &out, const StandardPool<BaseType, CoType> &rhs)
 {
 	const int s = rhs.size();
 
-	for (int i = 0; i < s; i++)
+	for (int i = 0; i < s; i++) {
 		if (rhs.pool_[i]->conVar()) {
 			out << i << ": ";
 			rhs.pool_[i]->conVar()->print(out);
 			out << endl;
 		}
+	}
 
-		return out;
+	return out;
 }
 
 
@@ -86,13 +87,13 @@ PoolSlot<BaseType, CoType> * StandardPool<BaseType, CoType>::insert(
 	BaseType *cv)
 {
 	PoolSlot<BaseType, CoType>* slot = getSlot();
-	if (slot == 0) {
+	if (slot == nullptr) {
 		if(cleanup() == 0) {
 			if (autoRealloc_)
 				increase((int) (size()*1.1 + 1));
 			else {
 				if (removeNonActive(size()/10 + 1) == 0)
-					return 0;
+					return nullptr;
 			}
 		}
 		slot = getSlot();

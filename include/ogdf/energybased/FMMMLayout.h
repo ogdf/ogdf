@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -362,8 +359,6 @@ public:
 	//! Models cluster by simple edge length adaption based on least common ancestor
 	//! cluster of end vertices.
 	void call(ClusterGraphAttributes &GA);
-
-	virtual void call(GraphAttributes &GA, GraphConstraints & GC) override { call(GA); }
 
 	//! Extended algorithm call: Allows to pass desired lengths of the edges.
 	/**
@@ -1180,18 +1175,20 @@ private:
 	 * Returns the area (aspect ratio area) of a rectangle with width w and height h
 	 * if comp_nr > 1 ( comp_nr == 1).
 	 */
-	double calculate_area(double width,double height,int comp_nr) {
-		if (comp_nr == 1)  //calculate aspect ratio area of the rectangle
-		{
-			double  ratio = width/height;
-
-			if(ratio < pageRatio()) //scale width
-				return ( width * height * (pageRatio()/ratio));
-			else //scale height
-				return (width * height * (ratio/pageRatio()));
+	double calculate_area(double width, double height, int comp_nr) {
+		double scaling = 1.0;
+		if (comp_nr == 1) {  //calculate aspect ratio area of the rectangle
+			OGDF_ASSERT( height != 0.0 );
+			double ratio = width / height;
+			if (ratio < pageRatio()) { //scale width
+				OGDF_ASSERT( ratio != 0.0 );
+				scaling = pageRatio() / ratio;
+			} else { //scale height
+				OGDF_ASSERT( pageRatio() != 0.0 );
+				scaling = ratio / pageRatio();
+			}
 		}
-		else  //calculate area of the rectangle
-			return width * height;
+		return width * height * scaling;
 	}
 
 	/**

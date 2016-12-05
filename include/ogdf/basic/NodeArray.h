@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -157,7 +154,7 @@ public:
 	//@{
 
 	//! Returns true iff the array is associated with a graph.
-	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
+	bool valid() const { return Array<T>::low() <= Array<T>::high(); }
 
 	//! Returns a pointer to the associated graph.
 	const Graph *graphOf() const {
@@ -166,52 +163,43 @@ public:
 
 	//! Returns a reference to the element with index \a v.
 	const T &operator[](node v) const {
-		OGDF_ASSERT(v != nullptr)
-		OGDF_ASSERT(v->graphOf() == m_pGraph)
+		OGDF_ASSERT(v != nullptr);
+		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
 	//! Returns a reference to the element with index \a v.
 	T &operator[](node v) {
-		OGDF_ASSERT(v != nullptr)
-		OGDF_ASSERT(v->graphOf() == m_pGraph)
+		OGDF_ASSERT(v != nullptr);
+		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
 	//! Returns a reference to the element with index \a v.
 	const T &operator()(node v) const {
-		OGDF_ASSERT(v != nullptr)
-		OGDF_ASSERT(v->graphOf() == m_pGraph)
+		OGDF_ASSERT(v != nullptr);
+		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
 	//! Returns a reference to the element with index \a v.
 	T &operator()(node v) {
-		OGDF_ASSERT(v != nullptr)
-		OGDF_ASSERT(v->graphOf() == m_pGraph)
+		OGDF_ASSERT(v != nullptr);
+		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
 	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for a node in the associated graph!
-	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             NodeArrays should be index by a node, not an integer index.
-	 */
-	OGDF_DEPRECATED
+	//! \attention Make sure that \a index is a valid index for a node in the associated graph!
+	OGDF_DEPRECATED("NodeArrays should be indexed by a node, not an integer index.")
 	const T &operator[](int index) const
 		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for a node in the associated graph!
-	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             NodeArrays should be index by a node, not an integer index.
-	 */
-	OGDF_DEPRECATED
+	//! \attention Make sure that \a index is a valid index for a node in the associated graph!
+	OGDF_DEPRECATED("NodeArrays should be indexed by a node, not an integer index.")
 	T &operator[](int index)
 		{ return Array<T>::operator [](index); }
-
 
 	//@}
 	/**

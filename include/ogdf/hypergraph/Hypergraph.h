@@ -10,7 +10,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -191,7 +188,7 @@ private:
 	 * @param pIndex is the index of the hyperedge.
 	 */
 	HyperedgeElement(int pIndex)
-	  : m_index(pIndex), m_cardinality(0), m_type(HyperedgeElement::normal), m_hypergraph(0) { }
+	  : m_index(pIndex), m_cardinality(0), m_type(HyperedgeElement::normal), m_hypergraph(nullptr) { }
 
 	//! Constructs an hyperedge element between hypernodes.
 	/**
@@ -199,7 +196,7 @@ private:
 	 * @param pType is the type of the hyperedge.
 	 */
 	HyperedgeElement(int pIndex, Type pType)
-	  : m_index(pIndex), m_cardinality(0), m_type(pType), m_hypergraph(0) { }
+	  : m_index(pIndex), m_cardinality(0), m_type(pType), m_hypergraph(nullptr) { }
 
 public:
 
@@ -332,13 +329,13 @@ private:
 
 	//! Constructor.
 	HypernodeElement(int pIndex)
-	  : m_index(pIndex), m_degree(0), m_type(normal), m_hypergraph(0)
+	  : m_index(pIndex), m_degree(0), m_type(normal), m_hypergraph(nullptr)
 	{
 	}
 
 	//! Constructor.
 	HypernodeElement(int pIndex, Type pType)
-	  : m_index(pIndex), m_degree(0), m_type(pType), m_hypergraph(0)
+	  : m_index(pIndex), m_degree(0), m_type(pType), m_hypergraph(nullptr)
 	{
 	}
 

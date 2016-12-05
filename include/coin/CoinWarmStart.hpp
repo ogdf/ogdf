@@ -26,11 +26,11 @@ public:
 
   /// `Virtual constructor'
   virtual CoinWarmStart *clone() const = 0 ;
-   
+
   virtual CoinWarmStartDiff*
   generateDiff (const CoinWarmStart *const ) const { return nullptr; }
-   
-   
+
+
   virtual void
   applyDiff (const CoinWarmStartDiff *const ) {}
 

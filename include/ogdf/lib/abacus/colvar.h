@@ -53,7 +53,7 @@ class SparVec;
  * is the class NumCon which identifies constraints only by a unique
  * integer number. NumCon is an abstract class.
  */
-class  ColVar :  public Variable  {
+class OGDF_EXPORT ColVar : public Variable {
 public:
 
 	//! The constructor.

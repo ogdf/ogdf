@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/OgmlParser.h>
 #include <ogdf/fileformats/Ogml.h>
@@ -78,21 +75,27 @@ struct OgmlParser::OgmlEdgeTemplate
 	string m_color;
 	int m_sourceType; // actually this is only a boolean value 0 or 1
 	// ogdf doesn't support source-arrow-color and size
-	//		string m_sourceColor;
-	//		double m_sourceSize;
+#if 0
+	string m_sourceColor;
+	double m_sourceSize;
+#endif
 	int m_targetType; // actually this is only a boolean value 0 or 1
 	// ogdf doesn't support target-arrow-color and size
-	//		string m_targetColor;
-	//		double m_targetSize;
+#if 0
+	string m_targetColor;
+	double m_targetSize;
+#endif
 
 	//Constructor:
 	OgmlEdgeTemplate(const string &id): m_id(id) { }
 };
 
 
-//	struct  OgmlParser::OgmlLabelTemplate{
-//		string m_id;
-//	};
+#if 0
+struct  OgmlParser::OgmlLabelTemplate{
+	string m_id;
+};
+#endif
 
 
 //---------------------------------------------------------
@@ -221,7 +224,7 @@ public:
 
 			// check every input char
 			// and set bool value to false if char-type is wrong
-			for(size_t it=1; ( (it<input.length()) && ((isInt) || (isNum) || (isHex)) ); ++it)
+			for(size_t it=1; it < input.length() && (isInt || isNum || isHex); ++it)
 			{
 				actChar = input[it];
 
@@ -1513,11 +1516,13 @@ int OgmlParser::validate(const XmlTagObject * xmlTag, int ogmlTagId)
 #endif
 			return Ogml::vs_tagEmptIncl;
 		}
+#if 0
 		// this code is not valid, as iterator it (in previous code) must be invalid at this point!
-		//if ((!tookChoice) && (xmlTag->m_pFirstSon)) {
-		//	this->printValidityInfo((**it), *xmlTag, valid = Ogml::vs_tagEmptIncl, __LINE__);
-		//	return valid;
-		//}
+		if ((!tookChoice) && (xmlTag->m_pFirstSon)) {
+			this->printValidityInfo((**it), *xmlTag, valid = Ogml::vs_tagEmptIncl, __LINE__);
+			return valid;
+		}
+#endif
 
 	}	//Check choice son tags
 
@@ -1536,8 +1541,11 @@ int OgmlParser::validate(const XmlTagObject * xmlTag, int ogmlTagId)
 		}
 
 		// Check cardinality
-		// if( (cnt<currTag->getMinOccurs() || cnt>currTag->getMaxOccurs()) )
+#if 0
+		if( (cnt<currTag->getMinOccurs() || cnt>currTag->getMaxOccurs()) )
+#else
 		if (cnt > currTag->getMaxOccurs()) {
+#endif
 #ifdef OGDF_DEBUG
 			this->printValidityInfo(*currTag, *xmlTag, Ogml::vs_cardErr, __LINE__);
 #endif
@@ -1900,18 +1908,20 @@ StrokeType OgmlParser::getStrokeType(string s)
 	if (s == Ogml::s_attributeValueNames[Ogml::av_dashDotDot])
 		return stDashdotdot;
 
+#if 0
 	// Mapping OGML-Values to ogdf
 	// solid | dotted | dashed | double | triple
 	//		 | groove | ridge | inset | outset | none
-	//if (s == Ogml::s_attributeValueNames[Ogml::av_groove])
-	//	return 5;
-	//if (s == Ogml::s_attributeValueNames[Ogml::av_ridge])
-	//	return 1;
-	//if (s == Ogml::s_attributeValueNames[Ogml::av_inset])
-	//	return 1;
-	//if (s == Ogml::s_attributeValueNames[Ogml::av_outset])
-	//	return 1;
-	//default return bpSolid
+	if (s == Ogml::s_attributeValueNames[Ogml::av_groove])
+		return 5;
+	if (s == Ogml::s_attributeValueNames[Ogml::av_ridge])
+		return 1;
+	if (s == Ogml::s_attributeValueNames[Ogml::av_inset])
+		return 1;
+	if (s == Ogml::s_attributeValueNames[Ogml::av_outset])
+		return 1;
+	default return bpSolid
+#endif
 	return stSolid;
 }
 
@@ -2152,24 +2162,26 @@ bool OgmlParser::addAttributes(
 			}// edge labels
 
 			// Labels
+#if 0
 			// ACTUALLY NOT IMPLEMENTED IN OGDF
-			//if (son->getName() == Ogml::s_tagNames[t_label]) {
-			// get the id of the actual edge
-			//XmlAttributeObject *att;
-			//if (son->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_id], att)){
-			// lookup for label
-			//label actLabel = (labels.lookup(att->getValue()))->info();
-			// get content tag
-			//XmlTagObject* content = son->m_pFirstSon;
-			// get the content as string
-			//if (content->m_pTagValue){
-			//string str = content->getValue();
-			//string labelStr = getLabelCaptionFromString(str);
-			//now set the label of the node
-			//	GA.labelLabel(actLabel) = labelStr;
-			//}
-			//}
-			//}// Labels
+			if (son->getName() == Ogml::s_tagNames[t_label]) {
+				// get the id of the actual edge
+				XmlAttributeObject *att;
+				if (son->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_id], att)){
+					// lookup for label
+					label actLabel = (labels.lookup(att->getValue()))->info();
+					// get content tag
+					XmlTagObject* content = son->m_pFirstSon;
+					// get the content as string
+					if (content->m_pTagValue){
+						string str = content->getValue();
+						string labelStr = getLabelCaptionFromString(str);
+						// now set the label of the node
+						GA.labelLabel(actLabel) = labelStr;
+					}
+				}
+			}// Labels
+#endif
 
 			// go to the next brother
 			son = son->m_pBrother;
@@ -2233,11 +2245,13 @@ bool OgmlParser::addAttributes(
 											}
 										}// template inheritance
 
-										//				// data
-										//				if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
-										//					// found data for nodeStyleTemplate
-										//					// no implementation required for ogdf
-										//				}// data
+#if 0
+										// data
+										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
+											// found data for nodeStyleTemplate
+											// no implementation required for ogdf
+										}// data
+#endif
 
 										// shape tag
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_shape], actTag))
@@ -2257,8 +2271,10 @@ bool OgmlParser::addAttributes(
 												actTemplate->m_height = stod(actAtt->getValue());
 											// uri
 											//ACTUALLY NOT SUPPORTED
-											//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
-											//	GA.uri(actNode) = actAtt->getValue();
+#if 0
+											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
+												GA.uri(actNode) = actAtt->getValue();
+#endif
 										}// shape
 
 										// fill tag
@@ -2272,8 +2288,10 @@ bool OgmlParser::addAttributes(
 												actTemplate->m_pattern = getFillPattern(actAtt->getValue());
 											// fill patternColor
 											//TODO: check if pattern color exists
-											//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_patternColor], actAtt));
-											//	actTemplate->m_patternColor = actAtt->getValue());
+#if 0
+											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_patternColor], actAtt));
+												actTemplate->m_patternColor = actAtt->getValue());
+#endif
 										}// fill
 
 										// line tag
@@ -2322,11 +2340,13 @@ bool OgmlParser::addAttributes(
 											}
 										}// template inheritance
 
-										//	// data
-										//	if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
-										//		// found data for edgeStyleTemplate
-										//		// no implementation required for ogdf
-										//	}// data
+#if 0
+										// data
+										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
+											// found data for edgeStyleTemplate
+											// no implementation required for ogdf
+										}// data
+#endif
 
 										// line tag
 										if (styleTemplatesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_line], actTag))
@@ -2349,11 +2369,15 @@ bool OgmlParser::addAttributes(
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_type], actAtt))
 												actTemplate->m_sourceType = getArrowStyleAsInt(actAtt->getValue());
 											// color
-											//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
-											//	actTemplate->m_sourceColor = actAtt->getValue();
+#if 0
+											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
+												actTemplate->m_sourceColor = actAtt->getValue();
+#endif
 											// size
-											//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
-											//	actTemplate->m_sourceSize = atof(actAtt->getValue());
+#if 0
+											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
+												actTemplate->m_sourceSize = atof(actAtt->getValue());
+#endif
 										}
 
 										// targetStyle tag
@@ -2362,11 +2386,15 @@ bool OgmlParser::addAttributes(
 											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_type], actAtt))
 												actTemplate->m_targetType = getArrowStyleAsInt(actAtt->getValue());
 											// color
-											//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
-											//	actTemplate->m_targetColor = actAtt->getValue();
+#if 0
+											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
+												actTemplate->m_targetColor = actAtt->getValue();
+#endif
 											// size
-											//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
-											//	actTemplate->m_targetSize = atof(actAtt->getValue());
+#if 0
+											if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
+												actTemplate->m_targetSize = atof(actAtt->getValue());
+#endif
 										}
 
 										//insert actual template into hash table
@@ -2405,12 +2433,14 @@ bool OgmlParser::addAttributes(
 									{
 										OgmlNodeTemplate* actTemplate = m_ogmlNodeTemplates.lookup(actAtt->getValue())->info();
 
-										//	XmlTagObject *actTag;
-										//	// data
-										//	if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
-										//		// found data for graphStyle
-										//		// no implementation required for ogdf
-										//	}// data
+#if 0
+										XmlTagObject *actTag;
+										// data
+										if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
+											// found data for graphStyle
+											// no implementation required for ogdf
+										}// data
+#endif
 
 										// set values for ALL nodes
 										for(node v : G.nodes){
@@ -2434,33 +2464,33 @@ bool OgmlParser::addAttributes(
 										}
 									}// defaultNodeTemplate
 
-									//		// defaultClusterTemplate
-									//		if (stylesSon->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_defaultCompoundTemplate], actAtt)){
-									//			//										OgmlNodeTemplate* actTemplate = m_ogmlNodeTemplates.lookup(actAtt->getValue())->info();
-									//			//										// set values for ALL Cluster
-									//			for(cluster c : G.clusters){
-									//
-									//				if (CGA.has(GraphAttributes::nodeType){
-									//					CGA.templateCluster(c) = actTemplate->m_nodeTemplate;
-									//					// no shape definition for clusters
-									//					//CGA.shapeNode(c) = actTemplate->m_shapeType;
-									//				}
-									//				if (CGA.has(GraphAttributes::nodeGraphics){
-									//						CGA.width(c) = actTemplate->m_width;
-									//						CGA.height(c) = actTemplate->m_height;
-									//				}
-									//				if (CGA.has(GraphAttributes::nodeColor)
-									//					CGA.clusterFillColor(c) = actTemplate->m_color;
-									//				if (CGA.has(GraphAttributes::nodeStyle){
-									//					CGA.clusterFillPattern(c) = actTemplate->m_pattern;
-									//					CGA.clusterBackColor(c) = actTemplate->m_patternColor;
-									//					CGA.clusterLineStyle(c) = actTemplate->m_lineType;
-									//					CGA.clusterLineWidth(c) = actTemplate->m_lineWidth;
-									//					CGA.clusterColor(c) = actTemplate->m_lineColor;
-									//				}
-									//			}
-									//		}// defaultClusterTemplate
-
+#if 0
+									// defaultClusterTemplate
+									if (stylesSon->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_defaultCompoundTemplate], actAtt)){
+										//										OgmlNodeTemplate* actTemplate = m_ogmlNodeTemplates.lookup(actAtt->getValue())->info();
+										//										// set values for ALL Cluster
+										for(cluster c : G.clusters){
+											if (CGA.has(GraphAttributes::nodeType){
+												CGA.templateCluster(c) = actTemplate->m_nodeTemplate;
+												// no shape definition for clusters
+												//CGA.shapeNode(c) = actTemplate->m_shapeType;
+											}
+											if (CGA.has(GraphAttributes::nodeGraphics){
+													CGA.width(c) = actTemplate->m_width;
+													CGA.height(c) = actTemplate->m_height;
+											}
+											if (CGA.has(GraphAttributes::nodeColor)
+												CGA.clusterFillColor(c) = actTemplate->m_color;
+											if (CGA.has(GraphAttributes::nodeStyle){
+												CGA.clusterFillPattern(c) = actTemplate->m_pattern;
+												CGA.clusterBackColor(c) = actTemplate->m_patternColor;
+												CGA.clusterLineStyle(c) = actTemplate->m_lineType;
+												CGA.clusterLineWidth(c) = actTemplate->m_lineWidth;
+												CGA.clusterColor(c) = actTemplate->m_lineColor;
+											}
+										}
+									}// defaultClusterTemplate
+#endif
 
 									// defaultEdgeTemplate
 									if (stylesSon->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_defaultEdgeTemplate], actAtt))
@@ -2504,14 +2534,16 @@ bool OgmlParser::addAttributes(
 									}//defaultEdgeTemplate
 
 									// defaultLabelTemplate
-									//if (stylesSon->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_defaultLabelTemplate], actAtt)){
-									//	// set values for ALL labels
-									//	// ACTUALLY NOT IMPLEMENTED
-									//  label l;
-									//  forall_labels(l, G){
-									//
-									//	}
-									//}//defaultLabelTemplate
+#if 0
+									if (stylesSon->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_defaultLabelTemplate], actAtt)){
+										// set values for ALL labels
+										// ACTUALLY NOT IMPLEMENTED
+										label l;
+										forall_labels(l, G){
+											// ...
+										}
+									}//defaultLabelTemplate
+#endif
 								}// graphStyle
 
 								// NODESTYLE
@@ -2531,11 +2563,13 @@ bool OgmlParser::addAttributes(
 											XmlTagObject* actTag;
 											XmlAttributeObject *actAtt;
 
-											//			// data
-											//			if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
-											//				// found data for nodeStyle
-											//				// no implementation required for ogdf
-											//			}// data
+#if 0
+											// data
+											if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
+												// found data for nodeStyle
+												// no implementation required for ogdf
+											}// data
+#endif
 
 											// check if actual nodeStyle references a template
 											if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_nodeStyleTemplateRef], actTag))
@@ -2581,8 +2615,10 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_y], actAtt))
 													GA.y(actNode) = stod(actAtt->getValue());
 												// z
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_x], actAtt))
-												//GA.z(actNode) = atof(actAtt->getValue());
+#if 0
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_x], actAtt))
+													GA.z(actNode) = atof(actAtt->getValue());
+#endif
 											}// location
 
 											// shape tag
@@ -2608,9 +2644,11 @@ bool OgmlParser::addAttributes(
 													GA.y(actNode) += 0.5 * GA.height(actNode);
 												}
 												// uri
+#if 0
 												//ACTUALLY NOT SUPPORTED
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
-												//	GA.uri(actNode) = actAtt->getValue();
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
+													GA.uri(actNode) = actAtt->getValue();
+#endif
 											}// shape
 
 											// fill tag
@@ -2625,8 +2663,10 @@ bool OgmlParser::addAttributes(
 													GA.setFillPattern(actNode, getFillPattern(actAtt->getValue()));
 												// fill patternColor
 												//TODO: check if pattern color exists
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_patternColor], actAtt))
-												//	GA.nodePatternColor(actNode) = actAtt->getValue());
+#if 0
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_patternColor], actAtt))
+													GA.nodePatternColor(actNode) = actAtt->getValue());
+#endif
 											}// fill
 
 											// line tag
@@ -2643,24 +2683,22 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_color], actAtt))
 													GA.strokeColor(actNode) = actAtt->getValue();
 											}// line
-
-											//			// ports
-											//			// go through all ports with dummy tagObject port
-											//			XmlTagObject* port = stylesSon->m_pFirstSon;
-											//			while(port){
-											//				if (port->getName() == ogmlTagObjects[t_port]){
-											//					// TODO: COMPLETE
-											//					// ACTUALLY NOT IMPLEMENTED IN OGDF
-											//				}
-											//
-											//				// go to next tag
-											//				port = port->m_pBrother;
-											//			}
-
+#if 0
+											// ports
+											// go through all ports with dummy tagObject port
+											XmlTagObject* port = stylesSon->m_pFirstSon;
+											while(port){
+												if (port->getName() == ogmlTagObjects[t_port]){
+													// TODO: COMPLETE
+													// ACTUALLY NOT IMPLEMENTED IN OGDF
+												}
+												// go to next tag
+												port = port->m_pBrother;
+											}
+#endif
 										}
 										else
-
-											// CLUSTER NODE STYLE
+										// CLUSTER NODE STYLE
 										{
 											// get the id of the cluster/compound
 											XmlAttributeObject *att;
@@ -2672,11 +2710,13 @@ bool OgmlParser::addAttributes(
 												XmlTagObject* actTag;
 												XmlAttributeObject *actAtt;
 
-												//				// data
-												//				if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
-												//					// found data for nodeStyle (CLuster/Compound)
-												//					// no implementation required for ogdf
-												//				}// data
+#if 0
+												// data
+												if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
+													// found data for nodeStyle (CLuster/Compound)
+													// no implementation required for ogdf
+												}// data
+#endif
 
 												// check if actual nodeStyle (equal to cluster) references a template
 												if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_nodeStyleTemplateRef], actTag))
@@ -2723,8 +2763,10 @@ bool OgmlParser::addAttributes(
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_y], actAtt))
 														pCGA->y(actCluster) = stod(actAtt->getValue());
 													// z
-													//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_x], actAtt))
-													//CGA.clusterZPos(actCluster) = atof(actAtt->getValue());
+#if 0
+													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_x], actAtt))
+														CGA.clusterZPos(actCluster) = atof(actAtt->getValue());
+#endif
 												}// location
 
 												// shape tag
@@ -2745,9 +2787,11 @@ bool OgmlParser::addAttributes(
 													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_height], actAtt))
 														pCGA->height(actCluster) = stod(actAtt->getValue());
 													// uri
-													//ACTUALLY NOT SUPPORTED
-													//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
-													//	CGA.uriCluster(actCluster) = actAtt->getValue();
+#if 0
+													// ACTUALLY NOT SUPPORTED
+													if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_uri], actAtt))
+														CGA.uriCluster(actCluster) = actAtt->getValue();
+#endif
 												}// shape
 
 												// fill tag
@@ -2780,22 +2824,21 @@ bool OgmlParser::addAttributes(
 														pCGA->strokeColor(actCluster) = actAtt->getValue();
 												}// line
 
+#if 0
+												// ports
+												// go through all ports with dummy tagObject port
+												XmlTagObject* port = stylesSon->m_pFirstSon;
+												while(port){
+													if (port->getName() == ogmlTagObjects[t_port]){
+														// TODO: COMPLETE
+														// no implementation required for ogdf
+													}
 
-												//				// ports
-												//				// go through all ports with dummy tagObject port
-												//				XmlTagObject* port = stylesSon->m_pFirstSon;
-												//				while(port){
-												//					if (port->getName() == ogmlTagObjects[t_port]){
-												//						// TODO: COMPLETE
-												//						// no implementation required for ogdf
-												//					}
-												//
-												//					// go to next tag
-												//					port = port->m_pBrother;
-												//				}
-
+													// go to next tag
+													port = port->m_pBrother;
+												}
+#endif
 											}//nodeIdRef (with cluster)
-
 										}// nodeStyle for cluster
 									}//nodeIdRef
 
@@ -2815,11 +2858,13 @@ bool OgmlParser::addAttributes(
 										XmlTagObject* actTag;
 										XmlAttributeObject *actAtt;
 
-										//		// data
-										//		if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
-										//			// found data for edgeStyle
-										//			// no implementation required for ogdf
-										//		}// data
+										// data
+#if 0
+										if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[t_data], actTag)){
+											// found data for edgeStyle
+											// no implementation required for ogdf
+										}// data
+#endif
 
 										// check if actual edgeStyle references a template
 										if (stylesSon->findSonXmlTagObjectByName(Ogml::s_tagNames[Ogml::t_edgeStyleTemplateRef], actTag))
@@ -2899,11 +2944,15 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_type], actAtt))
 													sourceInt = getArrowStyleAsInt((actAtt->getValue()));
 												// color
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
-												//	;
+#if 0
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
+													;
+#endif
 												// size
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
-												//	;
+#if 0
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
+													;
+#endif
 											}// sourceStyle
 
 											// targetStyle tag
@@ -2913,11 +2962,15 @@ bool OgmlParser::addAttributes(
 												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_type], actAtt))
 													targetInt = getArrowStyleAsInt((actAtt->getValue()));
 												// color
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
-												//	;
+#if 0
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_color], actAtt))
+													;
+#endif
 												// size
-												//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
-												//	;
+#if 0
+												if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_size], actAtt))
+													;
+#endif
 											}// targetStyle
 
 											// map edge arrows
@@ -2971,8 +3024,10 @@ bool OgmlParser::addAttributes(
 														if (pointTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_y], actAtt)) {
 															dp.m_y = stod(actAtt->getValue());
 														}
-														//if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_z], actAtt))
-														//	dp.m_z = atof(actAtt->getValue());
+#if 0
+														if (actTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[a_z], actAtt))
+															dp.m_z = atof(actAtt->getValue());
+#endif
 														// insert point into hash table
 														pointTag->findXmlAttributeObjectByName(Ogml::s_attributeNames[Ogml::a_id], actAtt);
 														m_points.fastInsert(actAtt->getValue(), dp);
@@ -3069,12 +3124,12 @@ bool OgmlParser::addAttributes(
 																	actSeg.point2 = dumP;
 																	segments.insertBefore(actSeg, segIt);
 																}
-																else
+																else {
 																	if (actSeg.point2 == (*segIt).point1) {
 																		segments.insertBefore(actSeg, segIt);
 																	}
-																	else
-																		if ((actSeg.point2 == (*segIt).point2)) {
+																	else {
+																		if (actSeg.point2 == (*segIt).point2) {
 																			DPoint dumP = actSeg.point1;
 																			actSeg.point1 = actSeg.point2;
 																			actSeg.point2 = dumP;
@@ -3083,8 +3138,10 @@ bool OgmlParser::addAttributes(
 																		else {
 																			segments.insertAfter(actSeg, segIt);
 																		}
-																		inserted = true;
-															} // first if
+																	}
+																}
+																inserted = true;
+															}
 															++segIt;
 														} //while
 														if (!inserted) {
@@ -3102,13 +3159,16 @@ bool OgmlParser::addAttributes(
 													GraphIO::logger.lout(Logger::LL_MINOR) << "Segment definition is not correct!" << endl
 													  << "  Not able to work with #" << segmentsUnsorted.size() << " segments" << endl
 													  << "  Please check connection and sorting of segments!" << endl;
-													//				// inserting the bends although there might be an error
-													//				// I commented this, because in this case in ogdf the edge will
-													//				//   be a straight edge and there will not be any artefacts
-													//				// TODO: uncomment if desired
-													// 				for (segIt = segments.begin(); segIt.valid(); segIt++){
-													//					dpl.pushBack((*segIt).point1);
-													//					dpl.pushBack((*segIt).point2);
+#if 0
+													// inserting the bends although there might be an error
+													// I commented this, because in this case in ogdf the edge will
+													//   be a straight edge and there will not be any artefacts
+													// TODO: uncomment if desired
+													for (segIt = segments.begin(); segIt.valid(); segIt++){
+														dpl.pushBack((*segIt).point1);
+														dpl.pushBack((*segIt).point2);
+													}
+#endif
 												}
 												else {
 													// the segments are now ordered (perhaps in wrong way)...
@@ -3176,12 +3236,13 @@ bool OgmlParser::addAttributes(
 									}//edgeIdRef
 
 								}// edgeStyle
-
-								//			// LABELSTYLE
-								//			if (stylesSon->getName() == Ogml::s_tagNames[t_labelStyle]){
-								//				// labelStyle
-								//				// ACTUALLY NOT SUPPORTED
-								//			}// labelStyle
+#if 0
+								// LABELSTYLE
+								if (stylesSon->getName() == Ogml::s_tagNames[t_labelStyle]){
+									// labelStyle
+									// ACTUALLY NOT SUPPORTED
+								}// labelStyle
+#endif
 
 								stylesSon = stylesSon->m_pBrother;
 							} // while
@@ -3209,60 +3270,56 @@ bool OgmlParser::addAttributes(
 				}// while(layoutSon)
 			}//if (layout->m_pFirstSon)
 		}// if ((layout) && (layout->getName() == Ogml::s_tagNames[t_layout]))
-
-
 	}// else
 
+#if 0
+	cout << "buildAttributedClusterGraph COMPLETE. Check... " << endl << flush;
+	for(edge e : G.edges) {
+		//cout << "CGA.label    " << e << " = " << CGA.label(e) << endl << flush;
+		cout << "CGA.arrowType" << e << "   = " << CGA.arrowType(e) << endl << flush;
+		cout << "CGA.styleEdge" << e << "   = " << CGA.styleEdge(e) << endl << flush;
+		cout << "CGA.edgeWidth" << e << "   = " << CGA.strokeWidth(e) << endl << flush;
+		cout << "CGA.strokeColor" << e << " = " << CGA.strokeColor(e) << endl << flush;
+		cout << "CGA.type     " << e << "   = " << CGA.type(e) << endl << flush;
+		ListConstIterator<DPoint> it;
+		for(it = CGA.bends(e).begin(); it!=CGA.bends(e).end(); ++it) {
+			cout << "point " << " x=" << (*it).m_x << " y=" << (*it).m_y << endl << flush;
+		}
 
+	}
 
+	for(node n : G.nodes) {
+		cout << "CGA.label(" << n << ")         = " << CGA.label(n) << endl << flush;
+		cout << "CGA.templateNode(" << n << ")  = " << CGA.templateNode(n) << endl << flush;
+		cout << "CGA.shapeNode(" << n << ")     = " << CGA.shapeNode(n) << endl << flush;
+		cout << "CGA.width(" << n << ")         = " << CGA.width(n) << endl << flush;
+		cout << "CGA.height(" << n << ")        = " << CGA.height(n) << endl << flush;
+		cout << "CGA.fillColor(" << n << ")     = " << CGA.fillColor(n) << endl << flush;
+		cout << "CGA.nodePattern(" << n << ")   = " << CGA.nodePattern(n) << endl << flush;
+		cout << "CGA.styleNode(" << n << ")     = " << CGA.styleNode(n) << endl << flush;
+		cout << "CGA.strokeWidth(" << n << ")   = " << CGA.strokeWidth(n) << endl << flush;
+		cout << "CGA.strokeColor(" << n << ")   = " << CGA.strokeColor(n) << endl << flush;
+		cout << "CGA.x(" << n << ")             = " << CGA.x(n) << endl << flush;
+		cout << "CGA.y(" << n << ")             = " << CGA.y(n) << endl << flush;
+		cout << "CGA.type(" << n << ")          = " << CGA.type(n) << endl << flush;
+	}
 
+	for(cluster c : CGA.constClusterGraph().clusters){
+		cout << "CGA.templateCluster(" << c << ")    = " << CGA.templateCluster(c) << endl << flush;
+		cout << "CGA.width(" << c << ")       = " << CGA.width(c) << endl << flush;
+		cout << "CGA.height(" << c << ")      = " << CGA.height(c) << endl << flush;
+		cout << "CGA.clusterFillColor(" << c << ")   = " << CGA.clusterFillColor(c) << endl << flush;
+		cout << "CGA.clusterFillPattern(" << c << ") = " << CGA.clusterFillPattern(c) << endl << flush;
+		cout << "CGA.clusterBackColor(" << c << ")   = " << CGA.clusterBackColor(c) << endl << flush;
+		cout << "CGA.clusterLineStyle(" << c << ")   = " << CGA.clusterLineStyle(c) << endl << flush;
+		cout << "CGA.clusterLineWidth(" << c << ")   = " << CGA.clusterLineWidth(c) << endl << flush;
+		cout << "CGA.clusterColor(" << c << ")       = " << CGA.clusterColor(c) << endl << flush;
+		cout << "CGA.x(" << c << ")        = " << CGA.x(c) << endl << flush;
+		cout << "CGA.y(" << c << ")        = " << CGA.y(c) << endl << flush;
+	}
 
-	//	cout << "buildAttributedClusterGraph COMPLETE. Check... " << endl << flush;
-	//	for(edge e : G.edges) {
-	//		//cout << "CGA.label    " << e << " = " << CGA.label(e) << endl << flush;
-	//		cout << "CGA.arrowType" << e << "   = " << CGA.arrowType(e) << endl << flush;
-	//		cout << "CGA.styleEdge" << e << "   = " << CGA.styleEdge(e) << endl << flush;
-	//		cout << "CGA.edgeWidth" << e << "   = " << CGA.strokeWidth(e) << endl << flush;
-	//		cout << "CGA.strokeColor" << e << " = " << CGA.strokeColor(e) << endl << flush;
-	//		cout << "CGA.type     " << e << "   = " << CGA.type(e) << endl << flush;
-	//		ListConstIterator<DPoint> it;
-	//		for(it = CGA.bends(e).begin(); it!=CGA.bends(e).end(); ++it) {
-	//			cout << "point " << " x=" << (*it).m_x << " y=" << (*it).m_y << endl << flush;
-	//		}
-	//
-	//	}
-	//
-	//	for(node n : G.nodes) {
-	//		cout << "CGA.label(" << n << ")         = " << CGA.label(n) << endl << flush;
-	//		cout << "CGA.templateNode(" << n << ")  = " << CGA.templateNode(n) << endl << flush;
-	//		cout << "CGA.shapeNode(" << n << ")     = " << CGA.shapeNode(n) << endl << flush;
-	//		cout << "CGA.width(" << n << ")         = " << CGA.width(n) << endl << flush;
-	//		cout << "CGA.height(" << n << ")        = " << CGA.height(n) << endl << flush;
-	//		cout << "CGA.fillColor(" << n << ")     = " << CGA.fillColor(n) << endl << flush;
-	//		cout << "CGA.nodePattern(" << n << ")   = " << CGA.nodePattern(n) << endl << flush;
-	//		cout << "CGA.styleNode(" << n << ")     = " << CGA.styleNode(n) << endl << flush;
-	//		cout << "CGA.strokeWidth(" << n << ")   = " << CGA.strokeWidth(n) << endl << flush;
-	//		cout << "CGA.strokeColor(" << n << ")   = " << CGA.strokeColor(n) << endl << flush;
-	//		cout << "CGA.x(" << n << ")             = " << CGA.x(n) << endl << flush;
-	//		cout << "CGA.y(" << n << ")             = " << CGA.y(n) << endl << flush;
-	//		cout << "CGA.type(" << n << ")          = " << CGA.type(n) << endl << flush;
-	//	}
-	//
-	//	for(cluster c : CGA.constClusterGraph().clusters){
-	//		cout << "CGA.templateCluster(" << c << ")    = " << CGA.templateCluster(c) << endl << flush;
-	//		cout << "CGA.width(" << c << ")       = " << CGA.width(c) << endl << flush;
-	//		cout << "CGA.height(" << c << ")      = " << CGA.height(c) << endl << flush;
-	//		cout << "CGA.clusterFillColor(" << c << ")   = " << CGA.clusterFillColor(c) << endl << flush;
-	//		cout << "CGA.clusterFillPattern(" << c << ") = " << CGA.clusterFillPattern(c) << endl << flush;
-	//		cout << "CGA.clusterBackColor(" << c << ")   = " << CGA.clusterBackColor(c) << endl << flush;
-	//		cout << "CGA.clusterLineStyle(" << c << ")   = " << CGA.clusterLineStyle(c) << endl << flush;
-	//		cout << "CGA.clusterLineWidth(" << c << ")   = " << CGA.clusterLineWidth(c) << endl << flush;
-	//		cout << "CGA.clusterColor(" << c << ")       = " << CGA.clusterColor(c) << endl << flush;
-	//		cout << "CGA.x(" << c << ")        = " << CGA.x(c) << endl << flush;
-	//		cout << "CGA.y(" << c << ")        = " << CGA.y(c) << endl << flush;
-	//	}
-
-	//	cout << "buildAttributedClusterGraph COMPLETE... Check COMPLETE... Let's have fun in GDE ;) " << endl << flush;
+	cout << "buildAttributedClusterGraph COMPLETE... Check COMPLETE... Let's have fun in GDE ;) " << endl << flush;
+#endif
 
 	// building terminated, so return true
 	return true;
@@ -3546,7 +3603,7 @@ bool OgmlParser::buildCluster(
 //
 // ***********************************************************
 //Commented out due to missing graphconstraints in OGDF
-/*
+#if 0
 bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 
 	// constraints-tag was already set
@@ -3618,7 +3675,7 @@ bool OgmlParser::buildConstraints(Graph& G, GraphConstraints &GC) {
 	return true;
 
 }
-*/
+#endif
 
 
 
@@ -3677,4 +3734,3 @@ bool OgmlParser::doRead(
 
 
 }//namespace ogdf
-

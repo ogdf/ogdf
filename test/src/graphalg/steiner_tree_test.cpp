@@ -159,8 +159,7 @@ T randomOptimalSteiner(
 
 			for(int i = numberOfNodes-1; i < numberOfEdges;) {
 				node v = graph.chooseNode();
-				node u = graph.chooseNode();
-				while(u == v) { u = graph.chooseNode(); }
+				node u = graph.chooseNode([&](node w) { return w != v; });
 
 				if(numberOfAdditionalNodes > 0) {
 					node w = graph.newNode();
@@ -265,7 +264,8 @@ void testModule(const std::string &moduleName, MinSteinerTreeModule<T> &alg, int
 				List<node> terminals;
 				NodeArray<bool> isTerminal(graph);
 
-				GraphIO::readSTP(graph, terminals, isTerminal, filename);
+				ifstream is(filename);
+				GraphIO::readSTP(graph, terminals, isTerminal, is);
 
 				EdgeWeightedGraphCopy<T> *algTree;
 				T algCost = alg.call(graph, terminals, isTerminal, algTree);

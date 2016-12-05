@@ -18,7 +18,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -35,12 +35,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -54,7 +51,7 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/Logger.h>
 
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/graphalg/MaxFlowGoldbergTarjan.h>
 #include <ogdf/graphalg/MinSTCut.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
@@ -84,7 +81,7 @@ protected:
 #ifdef OGDF_STP_EXACT_LOGGING
 	int m_outputLevel;
 #endif
-	ModuleOption< MaxFlowModule<double> > m_maxFlowModuleOption;
+	std::unique_ptr< MaxFlowModule<double> > m_maxFlowModuleOption;
 	bool m_addDegreeConstraints;
 	bool m_addIndegreeEdgeConstraints;
 	bool m_addGSEC2Constraints;
@@ -130,7 +127,7 @@ public:
 	//! Set the maximum flow module to be used for separation
 	void setMaxFlowModule(MaxFlowModule<double> *module)
 	{
-		m_maxFlowModuleOption.set(module);
+		m_maxFlowModuleOption.reset(module);
 	}
 	//! Switch usage of degree constraints (like indeg <= 1) on or off
 	void useDegreeConstraints(bool b)
@@ -369,16 +366,16 @@ public:
 
 	//! Set the module option for the primal heuristic
 	void setPrimalHeuristic(MinSteinerTreeModule<double> *pMinSteinerTreeModule) {
-		m_primalHeuristic.set(pMinSteinerTreeModule);
+		m_primalHeuristic.reset(pMinSteinerTreeModule);
 	}
 	//! the primal heuristic module
-	ModuleOption< MinSteinerTreeModule<double> > &getPrimalHeuristic() {return m_primalHeuristic;}
+	std::unique_ptr< MinSteinerTreeModule<double> > &getPrimalHeuristic() {return m_primalHeuristic;}
 
 	//! the non-duplicate cutpool for the separated Steiner cuts
 	abacus::NonDuplPool<abacus::Constraint, abacus::Variable> *cutPool() {return m_pCutPool;}
 
 	//! generates the first subproblem
-	virtual abacus::Sub *firstSub()
+	virtual abacus::Sub *firstSub() override
 	{
 		return new Sub(this);
 	}
@@ -473,7 +470,7 @@ public:
 	//! parameter: compute minimum cardinality cuts
 	bool minCardinalityCuts() const {return m_minCardinalityCuts;}
 	//! parameter: call primal heuristic yes/no
-	bool callPrimalHeuristic() const {return (m_callPrimalHeuristic > 0);}
+	bool callPrimalHeuristic() const {return m_callPrimalHeuristic > 0;}
 	//! strategy for calling primal heuristic (PH)
 	int callPrimalHeuristicStrategy() const {return m_callPrimalHeuristic;}
 	//! strategy for separating directed Steiner cuts; Only relevant for nested cuts
@@ -534,11 +531,11 @@ public:
 
 protected:
 	//! insert variables and base constraints
-	virtual void initializeOptimization();
+	virtual void initializeOptimization() override;
 	//! store solution in EdgeArray
-	virtual void terminateOptimization();
+	virtual void terminateOptimization() override;
 	//! read/set parameters from file
-	virtual void initializeParameters();
+	virtual void initializeParameters() override;
 
 private:
 	MaxFlowModule<double> *m_maxFlowModule;
@@ -547,7 +544,7 @@ private:
 	const char *m_configfile;
 
 	//! Algorithm used for the primal heuristic
-	ModuleOption< MinSteinerTreeModule<double> > m_primalHeuristic;
+	std::unique_ptr< MinSteinerTreeModule<double> > m_primalHeuristic;
 
 	//! parameter: indicates whether we solve the relaxed problem (LP) or the ILP
 	bool m_relaxed;
@@ -716,10 +713,10 @@ public:
 
 protected:
 	//! checks if the current solution is feasible, i.e., calls mySeparate()
-	virtual bool feasible();
+	virtual bool feasible() override;
 
 	//! calls mySeparate() if mySeparate wasn't called in another procedure
-	virtual int separate()
+	virtual int separate() override
 	{
 		if (m_alreadySeparated == -1) {
 			m_alreadySeparated = mySeparate();
@@ -780,7 +777,7 @@ private:
 	int m_callPrimalHeuristic;
 
 	//! generates a b&b node
-	virtual Sub *generateSon(abacus::BranchRule *rule)
+	virtual Sub *generateSon(abacus::BranchRule *rule) override
 	{
 		return new Sub(master_, this, rule);
 	}
@@ -792,7 +789,9 @@ class MinSteinerTreeDirectedCut<T>::EdgeVariable : public abacus::Variable
 {
 public:
 	EdgeVariable(abacus::Master *master,
-					//const abacus::Sub *sub,
+#if 0
+					const abacus::Sub *sub,
+#endif
 					int id,
 					edge e,
 					double coeff,
@@ -800,7 +799,7 @@ public:
 					double ub = 1.0,
 					abacus::VarType::TYPE vartype = abacus::VarType::Binary
 					)
-	  : abacus::Variable(master, nullptr /*sub*/, false, false, coeff, lb, ub, vartype)
+	  : abacus::Variable(master, nullptr /*, sub*/, false, false, coeff, lb, ub, vartype)
 	  , m_edge(e)
 	  , m_id(id)
 	{
@@ -836,7 +835,7 @@ public:
 						int factor = 1.0,
 						abacus::CSense::SENSE sense = abacus::CSense::Less,
 						double rhs = 1.0)
-	  : abacus::Constraint(master, 0, sense, rhs, false, false, false)
+	  : abacus::Constraint(master, nullptr, sense, rhs, false, false, false)
 	  , m_e1(e1)
 	  , m_e2(e2)
 	  , m_factor(factor)
@@ -844,7 +843,7 @@ public:
 	}
 
 	//! coefficient of variable in constraint
-	double coeff(const abacus::Variable *v) const
+	double coeff(const abacus::Variable *v) const override
 	{
 		EdgeVariable *edgeVar = (EdgeVariable*)v;
 		edge e = edgeVar->theEdge();
@@ -874,7 +873,7 @@ public:
 						double coeffOut,
 						abacus::CSense::SENSE sense,
 						double rhs)
-	  : abacus::Constraint(master, 0, sense, rhs, false, false, false)
+	  : abacus::Constraint(master, nullptr, sense, rhs, false, false, false)
 	  , m_node(n)
 	  , m_coeffIn(coeffIn)
 	  , m_coeffOut(coeffOut)
@@ -882,7 +881,7 @@ public:
 	}
 
 	//! coefficient of variable in constraint
-	virtual double coeff(const abacus::Variable *v) const
+	virtual double coeff(const abacus::Variable *v) const override
 	{
 		EdgeVariable *edgeVar = (EdgeVariable*)v;
 		edge e = edgeVar->theEdge();
@@ -921,7 +920,7 @@ public:
 							double coeffEdge,
 							abacus::CSense::SENSE sense,
 							double rhs)
-	  : abacus::Constraint(master, 0, sense, rhs, false, false, false)
+	  : abacus::Constraint(master, nullptr, sense, rhs, false, false, false)
 	  , m_edge(e)
 	  , m_coeffIn(coeffIn)
 	  , m_coeffEdge(coeffEdge)
@@ -929,7 +928,7 @@ public:
 	}
 
 	//! coefficient of variable in constraint
-	double coeff(const abacus::Variable *v) const
+	double coeff(const abacus::Variable *v) const override
 	{
 		EdgeVariable *edgeVar = (EdgeVariable*)v;
 		edge e = edgeVar->theEdge();
@@ -964,7 +963,7 @@ class MinSteinerTreeDirectedCut<T>::DirectedCutConstraint : public abacus::Const
 {
 public:
 	DirectedCutConstraint(abacus::Master *master, const Graph &g, const MinSTCut<double> *minSTCut, MinSTCut<double>::cutType _cutType)
-		: abacus::Constraint(master, 0, abacus::CSense::Greater, 1.0, false, false, false)
+		: abacus::Constraint(master, nullptr, abacus::CSense::Greater, 1.0, false, false, false)
 		, m_pGraph(&g)
 		, m_name("")
 	{
@@ -1008,11 +1007,11 @@ public:
 #endif
 	}
 
-	double coeff(const abacus::Variable *v) const;
+	double coeff(const abacus::Variable *v) const override;
 
 	//! returns true iff the node n is separated by this cut
 	bool active(node n) const {
-		return (m_marked[n]);
+		return m_marked[n];
 	}
 	//! returns true iff the edge is contained in the cut
 	bool cutedge(edge e) const {
@@ -1023,11 +1022,11 @@ public:
 	//! returns status of node n
 	bool marked(node n) const { return m_marked[n]; }
 	//! retuns an hashkey for the cut; required method for nonduplpool
-	unsigned hashKey() const { return m_hashKey; };
+	unsigned hashKey() const override { return m_hashKey; };
 	//! tests if cuts are equal; required method for nonduplpool
-	bool equal(const ConVar *cv) const;
+	bool equal(const ConVar *cv) const override;
 	//! return the name of the cut; required method for nonduplpool
-	const char *name() const { return m_name; }
+	const char *name() const override { return m_name; }
 
 private:
 	//! the graph
@@ -1068,7 +1067,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
   , m_relaxedSolValue(-1)
   , m_nIterRoot(-1)
   , m_wG(wG)
-  , m_pCutPool(0)
+  , m_pCutPool(nullptr)
   , m_poolSizeInitFactor(5)
   , m_poolSizeMax(0)
   , m_maxPoolSize(-1)
@@ -1101,7 +1100,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 	m_nodeIDs.init(*m_pGraph);
 	m_isTerminal.init(*m_pGraph);
 	m_nTerminals = terminals.size();
-	m_root = 0;
+	m_root = nullptr;
 
 #ifdef OGDF_STP_EXACT_LOGGING
 		lout(LL_DEFAULT) << "Master::Master(): nTerminals="
@@ -1213,7 +1212,7 @@ MinSteinerTreeDirectedCut<T>::Master::Master(
 	}
 
 	// set default primal heuristic module to takahashi algorithm
-	m_primalHeuristic.set(new MinSteinerTreeTakahashi<double>());
+	m_primalHeuristic.reset(new MinSteinerTreeTakahashi<double>());
 }
 
 template<typename T>
@@ -1305,7 +1304,7 @@ MinSteinerTreeDirectedCut<T>::Master::initializeOptimization()
 
 	// add (edge) variables
 	EdgeVariable *eVar;
-	m_edgeToVar.init(*m_pGraph, 0);
+	m_edgeToVar.init(*m_pGraph, nullptr);
 
 	abacus::VarType::TYPE vartype = abacus::VarType::Binary;
 	if (m_relaxed) {
@@ -1754,7 +1753,7 @@ MinSteinerTreeDirectedCut<T>::Sub::mySeparate()
 	if (m_shuffleTerminals) {
 		// shuffle the ordering of the terminals
 		int j;
-		node h = 0;
+		node h = nullptr;
 		for (int i = 0; i < nTerminals-1; i++) {
 			j = randomNumber(i, nTerminals-1);
 			h = terminal[i];
@@ -2109,7 +2108,7 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 #endif
 
 	// get primal heuristic algorithm
-	ModuleOption< MinSteinerTreeModule<double> > *primalHeuristic = &m_pMaster->getPrimalHeuristic();
+	auto &primalHeuristic = m_pMaster->getPrimalHeuristic();
 
 	// the computed heuristic solution
 	EdgeWeightedGraphCopy<double> *heuristicSolutionWg = nullptr;
@@ -2119,14 +2118,14 @@ MinSteinerTreeDirectedCut<T>::Sub::myImprove()
 	double tmpHeuristicSolutionValue =
 #endif
 	// call primal heuristic
-	primalHeuristic->get().call(
+	primalHeuristic->call(
 					m_pMaster->weightedGraphPH(),
 					m_pMaster->terminalListPH(),
 					m_pMaster->isTerminalPH(),
 					heuristicSolutionWg);
 
 	// verify that solution is a Steiner tree
-	bool isSteinerTree = primalHeuristic->get().isSteinerTree(
+	bool isSteinerTree = primalHeuristic->isSteinerTree(
 								m_pMaster->weightedGraphPH(),
 								m_pMaster->terminalListPH(),
 								m_pMaster->isTerminalPH(),
@@ -2293,7 +2292,7 @@ T MinSteinerTreeDirectedCut<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G
 	stpMaster->setSeparationStrategy(m_separationStrategy);
 	stpMaster->setSaturationStrategy(m_saturationStrategy);
 	stpMaster->useMinCardinalityCuts(m_minCardinalityCuts);
-	stpMaster->setMaxFlowModule(&m_maxFlowModuleOption.get());
+	stpMaster->setMaxFlowModule(m_maxFlowModuleOption.get());
 	if (m_primalHeuristic) {
 		stpMaster->setPrimalHeuristic(m_primalHeuristic);
 	}

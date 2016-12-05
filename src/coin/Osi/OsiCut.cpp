@@ -65,7 +65,3 @@ OsiCut::operator=(const OsiCut& rhs)
   }
   return *this;
 }
-
-
-
-

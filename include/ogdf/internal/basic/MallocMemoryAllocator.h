@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -51,27 +48,26 @@ public:
 	MallocMemoryAllocator() { }
 	~MallocMemoryAllocator() { }
 
-
-	static void init() { }
-	static void initThread() { }
 	static void cleanup() { }
 
-	static bool checkSize(size_t /* nBytes */) { return true; }
+	//! Allocates memory of size \a nBytes.
+	static inline void *allocate(size_t nBytes, const char *, int) {
+		return allocate(nBytes);
+	}
 
 	//! Allocates memory of size \a nBytes.
-	static void *allocate(size_t nBytes, const char *, int) { return allocate(nBytes); }
-
-	//! Allocates memory of size \a nBytes.
-	static void *allocate(size_t nBytes)
+	static inline void *allocate(size_t nBytes)
 	{
 		void *p = malloc(nBytes);
-		if (OGDF_UNLIKELY(p == 0)) OGDF_THROW(ogdf::InsufficientMemoryException);
+		if (OGDF_UNLIKELY(p == nullptr)) OGDF_THROW(ogdf::InsufficientMemoryException);
 		return p;
 	}
 
 
 	//! Deallocates memory at address \a p which is of size \a nBytes.
-	static void deallocate(size_t /* nBytes */, void *p) { free(p); }
+	static inline void deallocate(size_t, void *p) {
+		free(p);
+	}
 
 	//! Deallocate a complete list starting at \a pHead and ending at \a pTail.
 	/**
@@ -91,11 +87,30 @@ public:
 	static void flushPool() { }
 	static void flushPool(uint16_t /* nBytes */) { }
 
-	//! Always returns 0, since no blocks are allocated.
-	static size_t memoryAllocatedInBlocks() { return 0; }
+	//! Always returns true since we simply trust malloc().
+	static constexpr bool checkSize(size_t) {
+		return true;
+	}
 
 	//! Always returns 0, since no blocks are allocated.
-	static size_t memoryInFreelist() { return 0; }
+	static constexpr size_t memoryAllocatedInBlocks() {
+		return 0;
+	}
+
+	//! Always returns 0, since no blocks are allocated.
+	static constexpr size_t memoryInFreelist() {
+		return 0;
+	}
+
+	//! Always returns 0, since no blocks are allocated.
+	static constexpr size_t memoryInGlobalFreeList() {
+		return 0;
+	}
+
+	//! Always returns 0, since no blocks are allocated.
+	static constexpr size_t memoryInThreadFreeList() {
+		return 0;
+	}
 };
 
 } // namespace ogdf

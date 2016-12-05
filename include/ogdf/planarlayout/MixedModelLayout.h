@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,17 +25,14 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/module/GridLayoutModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/module/ShellingOrderModule.h>
@@ -134,22 +131,22 @@ public:
 	 * connectivity required for calling the shelling order module.
 	 */
 	void setAugmenter(AugmentationModule *pAugmenter) {
-		m_augmenter.set(pAugmenter);
+		m_augmenter.reset(pAugmenter);
 	}
 
 	//! Sets the shelling order module.
 	void setShellingOrder(ShellingOrderModule *pOrder) {
-		m_compOrder.set(pOrder);
+		m_compOrder.reset(pOrder);
 	}
 
 	//! Sets the crossings beautifier module.
 	void setCrossingsBeautifier(MixedModelCrossingsBeautifierModule *pBeautifier) {
-		m_crossingsBeautifier.set(pBeautifier);
+		m_crossingsBeautifier.reset(pBeautifier);
 	}
 
 	//! Sets the module option for the graph embedding algorithm.
 	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.set(pEmbedder);
+		m_embedder.reset(pEmbedder);
 	}
 
 	//! @}
@@ -164,10 +161,10 @@ protected:
 		bool fixEmbedding) override;
 
 private:
-	ModuleOption<EmbedderModule>      m_embedder;  //!< The planar embedder module.
-	ModuleOption<AugmentationModule>  m_augmenter; //!< The augmentation module.
-	ModuleOption<ShellingOrderModule> m_compOrder; //!< The shelling order module.
-	ModuleOption<MixedModelCrossingsBeautifierModule> m_crossingsBeautifier; //!< The crossings beautifier module.
+	std::unique_ptr<EmbedderModule>      m_embedder;  //!< The planar embedder module.
+	std::unique_ptr<AugmentationModule>  m_augmenter; //!< The augmentation module.
+	std::unique_ptr<ShellingOrderModule> m_compOrder; //!< The shelling order module.
+	std::unique_ptr<MixedModelCrossingsBeautifierModule> m_crossingsBeautifier; //!< The crossings beautifier module.
 };
 
 

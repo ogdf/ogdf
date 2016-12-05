@@ -83,7 +83,7 @@ public:
   /**@name Constructors etc */
   //@{
   /*! \brief Constructor
-  
+
     Build a CoinMessages object and load it with the standard set of
     Coin messages.
   */

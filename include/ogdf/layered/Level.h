@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -85,15 +82,15 @@ public:
 	~Level() { }
 
 	//! Returns the node at position \a i.
-	const node &operator[](int i) const { return m_nodes[i]; }
+	const node &operator[](int i) const override { return m_nodes[i]; }
 	//! Returns the node at position \a i.
-	node &operator[](int i) { return m_nodes[i]; }
+	node &operator[](int i) override { return m_nodes[i]; }
 
 	//! Returns the number of nodes on this level.
-	int size() const { return m_nodes.size(); }
+	int size() const override { return m_nodes.size(); }
 
 	//! Returns the maximal array index (= size()-1).
-	int high() const { return m_nodes.high(); }
+	int high() const override { return m_nodes.high(); }
 
 	//! Returns the array index of this level in the hierarchy.
 	int index() const { return m_index; }

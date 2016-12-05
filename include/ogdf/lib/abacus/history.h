@@ -40,7 +40,7 @@ namespace abacus {
  * when a better feasible solution or globally valid dual bound
  * is found, it should be memorized in this class.
  */
-class  History :  public AbacusRoot  {
+class OGDF_EXPORT History : public AbacusRoot {
 public:
 
 	//! Creates a history table with 100 possible entries.

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 //***
 // Visibility Layout Method. see "Graph Drawing" by Di Battista et al.
@@ -40,7 +37,7 @@
 
 #include <ogdf/module/UpwardPlanarizerModule.h>
 #include <ogdf/module/LayoutModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/upward/UpwardPlanRep.h>
@@ -56,7 +53,7 @@ public:
 	VisibilityLayout() {
 		m_grid_dist = 1;
 		// set default module
-		m_upPlanarizer.set(new SubgraphUpwardPlanarizer());
+		m_upPlanarizer.reset(new SubgraphUpwardPlanarizer());
 	}
 
 	virtual void call(GraphAttributes &GA) override;
@@ -64,7 +61,7 @@ public:
 	void layout(GraphAttributes &GA, const UpwardPlanRep &UPROrig);
 
 	void setUpwardPlanarizer(UpwardPlanarizerModule *upPlanarizer) {
-		m_upPlanarizer.set(upPlanarizer);
+		m_upPlanarizer.reset(upPlanarizer);
 	}
 
 	void setMinGridDistance(int dist) {m_grid_dist = dist;}
@@ -106,7 +103,7 @@ private:
 	EdgeArray<face> leftFace_edge;
 	EdgeArray<face> rightFace_edge;
 
-	ModuleOption<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
+	std::unique_ptr<UpwardPlanarizerModule> m_upPlanarizer; // upward planarizer
 
 	void constructDualGraph(UpwardPlanRep &UPR);
 

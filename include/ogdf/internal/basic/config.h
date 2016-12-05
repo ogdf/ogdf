@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -73,31 +70,6 @@ using std::string;
 #define OGDF_SYSTEM_OSX
 #endif
 
-
-// COIN and ABACUS
-#if defined(USE_COIN)
-
-#define OGDF_LP_SOLVER
-#define USE_ABACUS
-#define ABACUS_LP_OSI
-#define OSI_CLP
-#define OSI_SYM
-
-#if defined(COIN_OSI_CPX) && !defined(OSI_CPX)
-#define OSI_CPX
-#endif
-#if defined(COIN_OSI_GRB) && !defined(OSI_GRB)
-#define OSI_GRB
-#endif
-
-#if !defined(COIN_OSI_CPX) && !defined(COIN_OSI_GRB) && !defined(COIN_OSI_SYM) && !defined(COIN_OSI_CLP)
-#error "Compiler-flag USE_COIN requires an additional COIN_OSI_xxx-flag to choose the default LP solver backend."
-#endif
-
-#endif
-
-
-
 //---------------------------------------------------------
 // C++11 standard
 //---------------------------------------------------------
@@ -120,38 +92,91 @@ using std::string;
 
 #endif
 
+//! @name Important when compiling OGDF as DLL
+//! @ingroup macros
+//! @{
 
-
-#if defined(__CYGWIN__) || defined(__APPLE__) || defined(__sparc__)
-#define OGDF_NO_COMPILER_TLS
-#elif defined(__GNUC__)
-#if __GNUC__ < 4
-#define OGDF_NO_COMPILER_TLS
-#endif
-#endif
-
-
-//---------------------------------------------------------
-// macros for compiling OGDF as DLL
-//---------------------------------------------------------
+/**
+ * Specifies that a function or class is exported by the OGDF DLL.
+ * It is set according to the definition of OGDF_INSTALL (OGDF is build as DLL) and OGDF_DLL (OGDF is used as DLL).
+ * If none of these are defined (OGDF is build or used as static library), the define expands to nothing.
+ */
+#define OGDF_EXPORT
 
 #ifdef OGDF_SYSTEM_WINDOWS
-#ifdef OGDF_DLL
-
-#ifdef OGDF_INSTALL
-#define OGDF_EXPORT __declspec(dllexport)
-#else
-#define OGDF_EXPORT __declspec(dllimport)
+# ifdef OGDF_DLL
+#  undef OGDF_EXPORT
+#  ifdef OGDF_INSTALL
+#   define OGDF_EXPORT __declspec(dllexport)
+#  else
+#   define OGDF_EXPORT __declspec(dllimport)
+#  endif
+# endif
 #endif
 
-#else
-#define OGDF_EXPORT
+//! @}
+//! @name Deprecation
+//! @{
+
+//! Mark a class / member / function as deprecated
+//! @ingroup macros
+#define OGDF_DEPRECATED(reason)
+
+#if __cplusplus >= 201402L
+# undef OGDF_DEPRECATED
+# define OGDF_DEPRECATED(reason) [[deprecated(reason)]]
+#elif defined(_MSC_VER)
+# undef OGDF_DEPRECATED
+# define OGDF_DEPRECATED(reason) __declspec(deprecated(reason))
+#elif defined(__GNUC__)
+# undef OGDF_DEPRECATED
+# define OGDF_DEPRECATED(reason) __attribute__((deprecated(reason)))
 #endif
 
-#else
-#define OGDF_EXPORT
+//! @}
+
+//! @name Optimization
+//! @{
+
+/**
+ * Specify the likely branch in a condition.
+ * Usage: \code if (OGDF_LIKELY(i >= 0)) { likely branch } else { unlikely branch } \endcode
+ * @ingroup macros
+ */
+#define OGDF_LIKELY(x)    (x)
+
+/**
+ * Specify the unlikely branch in a condition.
+ * Usage: \code if (OGDF_UNLIKELY(set.empty())) { unlikely branch } else { likely branch } \endcode
+ * @ingroup macros
+ */
+#define OGDF_UNLIKELY(x)  (x)
+
+//! Specify the minimum alignment (in bytes) of a type to be \a b. This is used in type declarations.
+//! @ingroup macros
+#define OGDF_DECL_ALIGN(b)
+
+#ifdef _MSC_VER // Visual C++ compiler
+# undef OGDF_DECL_ALIGN
+# define OGDF_DECL_ALIGN(b) __declspec(align(b))
+#elif defined(__GNUC__) // GNU gcc compiler (also Intel compiler)
+# undef OGDF_LIKELY
+# define OGDF_LIKELY(x)    __builtin_expect((x),1)
+# undef OGDF_UNLIKELY
+# define OGDF_UNLIKELY(x)  __builtin_expect((x),0)
+# undef OGDF_DECL_ALIGN
+# define OGDF_DECL_ALIGN(b) __attribute__ ((aligned(b)))
 #endif
 
+//! @}
+
+//! The size of a pointer
+//! @ingroup macros
+#define OGDF_SIZEOF_POINTER sizeof(void *)
+#ifdef __SIZEOF_POINTER__
+# undef OGDF_SIZEOF_POINTER
+# define OGDF_SIZEOF_POINTER __SIZEOF_POINTER__
+#endif
 
 //---------------------------------------------------------
 // compiler adaptions
@@ -173,28 +198,6 @@ using std::string;
 #pragma warning (disable : 4355)
 
 #endif
-
-
-//---------------------------------------------------------
-// memory manager
-//
-// OGDF_MEMORY_POOL_TS:
-//   buffered-pool allocator per thread pool (thread-safe)
-//
-// OGDF_MEMORY_POOL_NTS:
-//   pool allocator (not thread-safe)
-//
-// OGDF_MEMORY_MALLOC_TS:
-//   just using malloc/free (thread-safe)
-//
-// default (nothing defined): OGDF_MEMORY_POOL_TS
-//---------------------------------------------------------
-
-// By default, we use the thread-safe pool allocator
-#if !defined(OGDF_MEMORY_POOL_NTS) && !defined(OGDF_MEMORY_MALLOC_TS) && !defined(OGDF_MEMORY_POOL_TS)
-#define OGDF_MEMORY_POOL_TS
-#endif
-
 
 	//! Provides information about how OGDF has been configured.
 	/**
@@ -230,32 +233,87 @@ using std::string;
 		};
 
 		//! Returns the operating system for which OGDF has been configured.
-		static System whichSystem();
+		static constexpr System whichSystem() {
+#ifdef OGDF_SYSTEM_WINDOWS
+			return sysWindows;
+#elif defined(OGDF_SYSTEM_OSX)
+			return sysOSX;
+#elif defined(OGDF_SYSTEM_UNIX)
+			return sysUnix;
+#else
+			return sysUnknown
+#endif
+		}
 
 		//! Returns whether OGDF has been configured with LP-solver support.
-		static bool haveLPSolver();
+		/**
+		 * Since COIN and ABACUS are required and shipped, this function
+		 * always returns true.
+		 */
+		OGDF_DEPRECATED("OGDF always has LP solver support since 2015.05")
+		static constexpr bool haveLPSolver() {
+			return true;
+		}
 
 		//! Returns the LP-solver used by OGDF.
-		static LPSolver whichLPSolver();
-
+		static constexpr LPSolver whichLPSolver() {
+#if defined(COIN_OSI_CLP)
+			return lpsClp;
+#elif defined(COIN_OSI_SYM)
+			return lpsSymphony;
+#elif defined(COIN_OSI_CPX)
+			return lpsCPLEX;
+#elif defined(COIN_OSI_GRB)
+			return lpsGurobi;
+#else
+# error "OGDF is compiled without LP solver. Check your build configuration."
+#endif
+		}
 
 		//! Returns whether OGDF has been configured with COIN support.
 		/**
-		 * COIN is used as LP-solver by some OGDF algorithms. If OGDF is configured
-		 * without COIN support, this functionality is not available.
+		 * COIN is used as LP solver by some OGDF algorithms.
+		 * In former versions, OGDF could be configured without COIN support,
+		 * so this functionality was not available.
+		 * Now this function always returns true.
 		 */
-		static bool haveCoin();
+		OGDF_DEPRECATED("OGDF always has COIN-OR since 2015.05")
+		static constexpr bool haveCoin() {
+			return true;
+		}
 
 		//! Returns whether OGDF has been configured with ABACUS support.
 		/**
 		 * ABACUS is used as branch-and-cut-solver by some OGDF algorithms.
-		 * If OGDF is configured without ABACUS support, this functionality is not available.
+		 * In former versions, OGDF could be configured without ABACUS support,
+		 * so this functionality was not available.
+		 * Now this function always returns true.
 		 */
-		static bool haveAbacus();
+		OGDF_DEPRECATED("OGDF always has ABACUS since 2015.05")
+		static constexpr bool haveAbacus() {
+			return true;
+		}
 
-		//! Returns the memory-manager used by OGDF.
-		static MemoryManager whichMemoryManager();
-
+		/**
+		 * Returns the memory manager used by OGDF.
+		 *
+		 * The memory manager is configured using the build configuration.
+		 * Depending on that, the following macros are set:
+		 * - OGDF_MEMORY_POOL_TS: buffered-pool allocator per thread pool (thread-safe)
+		 * - OGDF_MEMORY_POOL_NTS: pool allocator (not thread-safe)
+		 * - OGDF_MEMORY_MALLOC_TS: just using malloc/free (thread-safe)
+		 */
+		static constexpr MemoryManager whichMemoryManager() {
+#if defined(OGDF_MEMORY_POOL_TS)
+			return mmPoolTS;
+#elif defined(OGDF_MEMORY_POOL_NTS)
+			return mmPoolNTS;
+#elif defined(OGDF_MEMORY_MALLOC_TS)
+			return mmMalloc;
+#else
+# error "OGDF is compiled without memory manager. Check your build configuration."
+#endif
+		}
 
 		//! Converts \a sys to a (readable) string.
 		static const string &toString(System sys);

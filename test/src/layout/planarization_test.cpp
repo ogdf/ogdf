@@ -11,7 +11,7 @@
 #include <ogdf/planarity/PlanarizationLayout.h>
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
-#include <ogdf/planarity/FastPlanarSubgraph.h>
+#include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarlayout/MixedModelLayout.h>
@@ -29,7 +29,7 @@ go_bandit([](){ bandit::describe("Planarization layouts", [](){
 	FixedEmbeddingInserter *pFixInserter = new FixedEmbeddingInserter;
 
 	SubgraphPlanarizer *pCrossMin = new SubgraphPlanarizer;
-	pCrossMin->setSubgraph(new FastPlanarSubgraph);
+	pCrossMin->setSubgraph(new PlanarSubgraphFast);
 	pCrossMin->setInserter(pVarInserter);
 	pCrossMin->permutations(4);
 
@@ -50,4 +50,3 @@ go_bandit([](){ bandit::describe("Planarization layouts", [](){
 	describeGridLayoutModule("planarization grid layout", pgl, GR_ALL, 50);
 	describeGridLayoutModule("planarization grid layout with mixed model", pglMM, GR_ALL, 50);
 }); });
-

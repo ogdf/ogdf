@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -64,7 +61,7 @@ public:
 	const ClusterGraph *m_pClusterGraph; //!< The associated cluster graph.
 
 	//! Initializes a cluster array not associated with a cluster graph.
-	ClusterArrayBase() : m_pClusterGraph(0) { }
+	ClusterArrayBase() : m_pClusterGraph(nullptr) { }
 
 	//! Initializes a cluster array associated with \a pC.
 	ClusterArrayBase(const ClusterGraph *pC) : m_pClusterGraph(pC) {
@@ -94,7 +91,7 @@ public:
 	//! Associates the array with a new cluster graph.
 	void reregister(const ClusterGraph *pC) {
 		if (m_pClusterGraph) m_pClusterGraph->unregisterArray(m_it);
-		if ((m_pClusterGraph = pC) != 0) m_it = pC->registerArray(this);
+		if ((m_pClusterGraph = pC) != nullptr) m_it = pC->registerArray(this);
 	}
 
 	//! Moves array registration from \a base to this array.
@@ -181,7 +178,7 @@ public:
 	//@{
 
 	//! Returns true iff the array is associated with a graph.
-	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
+	bool valid() const { return Array<T>::low() <= Array<T>::high(); }
 
 	//! Returns a pointer to the associated cluster graph.
 	const ClusterGraph *graphOf() const {
@@ -190,52 +187,43 @@ public:
 
 	//! Returns a reference to the element with index \a c.
 	const T &operator[](cluster c) const {
-		OGDF_ASSERT(c != 0);
+		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
 	//! Returns a reference to the element with index \a c.
 	T &operator[](cluster c) {
-		OGDF_ASSERT(c != 0);
+		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
 	//! Returns a reference to the element with index \a c.
 	const T &operator()(cluster c) const {
-		OGDF_ASSERT(c != 0);
+		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
 	//! Returns a reference to the element with index \a c.
 	T &operator()(cluster c) {
-		OGDF_ASSERT(c != 0);
+		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
 	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for a cluster in the associated cluster graph!
-	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             Cluster arrays should be index by a cluster, not an integer index.
-	 */
-	OGDF_DEPRECATED
+	//! \attention Make sure that \a index is a valid index for a cluster in the associated cluster graph!
+	OGDF_DEPRECATED("Cluster arrays should be indexed by a cluster, not an integer index.")
 	const T &operator[](int index) const
 		{ return Array<T>::operator [](index); }
 
 	//! Returns a reference to the element with index \a index.
-	/**
-	 * \attention Make sure that \a index is a valid index for a cluster in the associated cluster graph!
-	 * \deprecated This method has been marked as deprecated and will be removed in a future version of the library.
-	 *             Cluster arrays should be index by a cluster, not an integer index.
-	 */
-	OGDF_DEPRECATED
+	//!\attention Make sure that \a index is a valid index for a cluster in the associated cluster graph!
+	OGDF_DEPRECATED("Cluster arrays should be indexed by a cluster, not an integer index.")
 	T &operator[](int index)
 		{ return Array<T>::operator [](index); }
-
 
 	//@}
 	/**
@@ -326,7 +314,7 @@ public:
 
 	//! Reinitializes the array. Associates the array with no cluster graph.
 	void init() {
-		Array<T>::init(); reregister(0);
+		Array<T>::init(); reregister(nullptr);
 	}
 
 	//! Reinitializes the array. Associates the array with \a C.
@@ -393,7 +381,7 @@ private:
 
 	virtual void disconnect() {
 		Array<T>::init();
-		m_pClusterGraph = 0;
+		m_pClusterGraph = nullptr;
 	}
 
 	OGDF_NEW_DELETE

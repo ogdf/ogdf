@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/fileformats/XmlParser.h>
@@ -647,12 +644,14 @@ namespace ogdf {
 
 				} // end of Read ">"
 
-				OGDF_ASSERT(false)
-				//continue;
+				OGDF_ASSERT(false);
+#if 0
+				continue;
+#endif
 
 			} // end of found identifier
 
-			OGDF_ASSERT(false)
+			OGDF_ASSERT(false);
 
 		} // end of while (true)
 
@@ -744,12 +743,11 @@ namespace ogdf {
 	{
 		// Traverse array
 		const XmlTagObject *currentTag = &startTag;
-		for (int i = 0; i < infoIndexPath.size(); i++){
-
+		for (auto &elem : infoIndexPath){
 			const XmlTagObject *sonTag;
 
 			// Not found
-			if (!findSonXmlTagObject(*currentTag, infoIndexPath[i], sonTag)){
+			if (!findSonXmlTagObject(*currentTag, elem, sonTag)){
 				return false;
 			}
 

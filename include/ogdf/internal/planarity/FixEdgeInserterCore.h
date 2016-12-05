@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -112,19 +109,19 @@ public:
 	FixEdgeInserterUMLCore(
 		PlanRepLight &pr,
 		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraph) : FixEdgeInserterCore(pr, pCostOrig, 0, pEdgeSubgraph) { }
+		const EdgeArray<uint32_t> *pEdgeSubgraph) : FixEdgeInserterCore(pr, pCostOrig, nullptr, pEdgeSubgraph) { }
 
 protected:
-	void storeTypeOfCurrentEdge(edge eOrig) { m_typeOfCurrentEdge = m_pr.typeOrig(eOrig); }
-	void init(CombinatorialEmbedding &E);
-	void cleanup();
-	void constructDual(const CombinatorialEmbedding &E);
+	void storeTypeOfCurrentEdge(edge eOrig) override { m_typeOfCurrentEdge = m_pr.typeOrig(eOrig); }
+	void init(CombinatorialEmbedding &E) override;
+	void cleanup() override;
+	void constructDual(const CombinatorialEmbedding &E) override;
 
-	void appendCandidates(QueuePure<edge> &queue, node v);
-	void appendCandidates(Array<SListPure<edge> > &nodesAtDist, EdgeArray<int> &costDual, int maxCost, node v, int currentDist);
+	void appendCandidates(QueuePure<edge> &queue, node v) override;
+	void appendCandidates(Array<SListPure<edge> > &nodesAtDist, EdgeArray<int> &costDual, int maxCost, node v, int currentDist) override;
 
-	void insertEdgesIntoDual(const CombinatorialEmbedding &E, adjEntry adjSrc);
-	void insertEdgesIntoDualAfterRemove(const CombinatorialEmbedding &E, face f);
+	void insertEdgesIntoDual(const CombinatorialEmbedding &E, adjEntry adjSrc) override;
+	void insertEdgesIntoDualAfterRemove(const CombinatorialEmbedding &E, face f) override;
 
 	EdgeArray<bool> m_primalIsGen; //!< true iff corresponding primal edge is a generalization.
 	Graph::EdgeType	m_typeOfCurrentEdge;

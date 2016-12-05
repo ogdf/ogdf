@@ -41,7 +41,7 @@ namespace abacus {
  * and the structure of the constraint. A rather rudimentary
  * classification is implemented in the class ConClass.
  */
-class  ConClass :  public AbacusRoot  {
+class OGDF_EXPORT ConClass : public AbacusRoot {
 public:
 
 	/*! \brief The constructor initializes the constraint classification with

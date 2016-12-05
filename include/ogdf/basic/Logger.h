@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -103,7 +100,7 @@ namespace ogdf {
  *  turned off whenever the (global/static) Logger is in statistics-mode.
  */
 
-class OGDF_EXPORT Logger {
+class Logger {
 
 public:
 	//! supported log-levels from lowest to highest importance
@@ -241,13 +238,13 @@ public:
 
 
 private:
-	static std::ostream nirvana;
-	static std::ostream* world;
+	static OGDF_EXPORT std::ostream nirvana;
+	static OGDF_EXPORT std::ostream* world;
 
-	static Level m_globalloglevel;
-	static Level m_globallibraryloglevel;
-	static Level m_minimumloglevel;
-	static bool m_globalstatisticmode;
+	static OGDF_EXPORT Level m_globalloglevel;
+	static OGDF_EXPORT Level m_globallibraryloglevel;
+	static OGDF_EXPORT Level m_minimumloglevel;
+	static OGDF_EXPORT bool m_globalstatisticmode;
 
 	Level m_loglevel;
 	LogMode m_logmode;

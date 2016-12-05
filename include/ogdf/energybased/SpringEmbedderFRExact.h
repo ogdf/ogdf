@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -64,8 +61,8 @@ public:
 
 	//! Sets the number of iterations to \a i.
 	void iterations(int i) {
-		OGDF_ASSERT(i > 0)
-			m_iterations = i;
+		OGDF_ASSERT(i > 0);
+		m_iterations = i;
 	}
 
 	//! Returns the current setting of nodes.
@@ -162,13 +159,15 @@ private:
 	void mainStep(ArrayGraph &component);
 	void mainStep_sse3(ArrayGraph &component);
 
+#if 0
 	// Fruchterman, Reingold
-	//double f_att(double d) { return d*d / m_idealEdgeLength; }
-	//double f_rep(double d) { return m_idealEdgeLength*m_idealEdgeLength / d; }
+	double f_att(double d) { return d*d / m_idealEdgeLength; }
+	double f_rep(double d) { return m_idealEdgeLength*m_idealEdgeLength / d; }
 
-	// eades
-	//double f_att(double d) { return 5.0 * d * log2(d/m_idealEdgeLength); }
-	//double f_rep(double d) { return 20.0 / d; }
+	// Eades
+	double f_att(double d) { return 5.0 * d * log2(d/m_idealEdgeLength); }
+	double f_rep(double d) { return 20.0 / d; }
+#endif
 
 	// cooling function
 	void cool(double &tx, double &ty, int &cF);
@@ -177,9 +176,10 @@ private:
 	bool   m_noise;      //!< Perform random perturbations?
 	CoolingFunction m_coolingFunction; //!< The selected cooling function
 
-
-	//double m_tx;
-	//double m_ty;
+#if 0
+	double m_tx;
+	double m_ty;
+#endif
 
 	double m_coolFactor_x;
 	double m_coolFactor_y;
@@ -188,7 +188,9 @@ private:
 	double m_minDistCC;       //!< The minimal distance between connected components.
 	double m_pageRatio;       //!< The page ratio.
 
-	//int m_cF;
+#if 0
+	int m_cF;
+#endif
 	double m_txNull;
 	double m_tyNull;
 	//see above at ArrayGraph

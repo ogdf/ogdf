@@ -5,7 +5,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -147,8 +144,7 @@ inline void AttrForceFunctionPow<2,1>(double dist, double &force, double& force_
     force_prime  =  1.0;
 }
 
-/*
-
+#if 0
 template<int Dim>
 inline void RepForceFunctionInvGauss(const double a[Dim], const double b[Dim], double result[Dim])
 {
@@ -179,7 +175,9 @@ inline void RepForceFunctionInvGauss(const double a[Dim], const double b[Dim], d
 
     // force function
         double f = (exp(- (dist * dist) / force_range ) * force_amount);
-       // double f = exp(-dist * dist * 0.01) * 10.0) / dist;
+#if 0
+        double f = exp(-dist * dist * 0.01) * 10.0) / dist;
+#endif
 
 
     // compute the force vector for each dim
@@ -188,6 +186,6 @@ inline void RepForceFunctionInvGauss(const double a[Dim], const double b[Dim], d
         result[d] = delta[d] * f/dist;
     };
 }
- */
+#endif
 
 } // end namespace

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/uml/UMLGraph.h>
@@ -160,8 +157,10 @@ node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
 	else
 		if (inGens.size() == 1)
 		{   //they are not needed yet
-			//m_hierarchyParent[inGens.front()->source()] = v;
-			//m_upwardEdge[inGens.front()->adjSource()] = true;//set status at source node
+#if 0
+			m_hierarchyParent[inGens.front()->source()] = v;
+			m_upwardEdge[inGens.front()->adjSource()] = true;//set status at source node
+#endif
 		}//if
 	return u;
 }//doInsertMergers
@@ -245,7 +244,9 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 {
 	m_cliqueCircleSize.init(*m_pG);
 	m_cliqueCirclePos.init(*m_pG);
-	//m_cliqueEdges.init(*m_pG);
+#if 0
+	m_cliqueEdges.init(*m_pG);
+#endif
 	m_replacementEdge.init(*m_pG, false);
 
 	if (cliques.empty()) return;
@@ -259,7 +260,7 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 		ListIterator<node> itNode = (*it).begin();
 		while (itNode.valid())
 		{
-			cliqueNum[(*itNode)] = num;
+			cliqueNum[*itNode] = num;
 			++itNode;
 		}//while
 
@@ -272,7 +273,7 @@ void UMLGraph::replaceByStar(List< List<node> > &cliques)
 	while (it.valid())
 	{
 		node newCenter = replaceByStar((*it), cliqueNum);
-		OGDF_ASSERT(newCenter)
+		OGDF_ASSERT(newCenter);
 		m_centerNodes.pushBack(newCenter);
 		//now we compute a circular drawing of the replacement
 		//and save its size and the node positions
@@ -299,7 +300,7 @@ DRect UMLGraph::circularBound(node center)
 	//parameters fit the drawing parameters of the whole graph
 	//umlgraph clique parameter members?
 
-	OGDF_ASSERT(center->degree() > 0)
+	OGDF_ASSERT(center->degree() > 0);
 	node lastNode = nullptr;
 	node firstNode = nullptr;
 
@@ -330,22 +331,24 @@ DRect UMLGraph::circularBound(node center)
 }//circularBound
 
 
+#if 0
 //computes relative positions of all nodes around center on a circle
 //keeping the topological ordering of the nodes, letting the opposite
 //node (to center) of the edge at firstAdj having the position at
 //three o'clock (TODO: unter umstaenden hier aus gegebenen coords in
 //this den Punkt auswaehlen. Aber: Was, wenn keine coords=>optional?
-//void UMLGraph::computeCliquePosition(node center, double rectMin)
-//{
-//	List<node> adjNodes;
-//	adjEntry ae = center->firstAdj();
-//	do
-//	{
-//		adjNodes.pushBack(ae->twinNode());
-//		ae = ae->cyclicPred();
-//	} while (ae != center->firstAdj());
-//	computeCliquePosition(adjNodes, center, rectMin);
-//}//computeCliquePosition
+void UMLGraph::computeCliquePosition(node center, double rectMin)
+{
+	List<node> adjNodes;
+	adjEntry ae = center->firstAdj();
+	do
+	{
+		adjNodes.pushBack(ae->twinNode());
+		ae = ae->cyclicPred();
+	} while (ae != center->firstAdj());
+	computeCliquePosition(adjNodes, center, rectMin);
+}//computeCliquePosition
+#endif
 
 
 //computes relative positions of all nodes in List cList on a minimum size
@@ -355,8 +358,8 @@ DRect UMLGraph::circularBound(node center)
 void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double rectMin)//, const adjEntry &startAdj)
 {
 	DRect boundingBox;
-	OGDF_ASSERT(center->degree() > 0)
-	OGDF_ASSERT(center->degree() == adjNodes.size())
+	OGDF_ASSERT(center->degree() > 0);
+	OGDF_ASSERT(center->degree() == adjNodes.size());
 
 	node v;
 	double radius = 0.0;
@@ -440,7 +443,7 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 		++itNode;
 	}//while
 
-	OGDF_ASSERT(adjNodes.size() == angles.size())
+	OGDF_ASSERT(adjNodes.size() == angles.size());
 
 	if(n == 1) {
 			radius      = 0;
@@ -489,16 +492,22 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 		minX -= minCCDist;
 		minY -= minCCDist;
 		//normalize
-		//cout<<"\n";
+#if 0
+		cout<<"\n";
+#endif
 
 		itNode = adjNodes.begin();
 		while (itNode.valid())
 		{
 			node w = *itNode;
-			//cout<<"x1:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+#if 0
+			cout<<"x1:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+#endif
 			m_cliqueCirclePos[w].m_x -= minX;
 			m_cliqueCirclePos[w].m_y -= minY;
-			//cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+#if 0
+			cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+#endif
 			++itNode;
 		}
 
@@ -537,7 +546,9 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 			{
 				if (ad->theEdge()->source() == v)
 				{
-					//m_cliqueEdges[v].pushBack(new CliqueInfo(ad->theEdge()->target(), ad->theEdge()->index()));
+#if 0
+					m_cliqueEdges[v].pushBack(new CliqueInfo(ad->theEdge()->target(), ad->theEdge()->index()));
+#endif
 					delEdges.pushBack(ad->theEdge());
 				}
 			}//if
@@ -555,7 +566,9 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 	ListIterator<edge>	itEdge = delEdges.begin();
 	while (itEdge.valid())
 	{
-		//m_pG->delEdge((*itEdge));
+#if 0
+		m_pG->delEdge((*itEdge));
+#endif
 		m_hiddenEdges->hide(*itEdge);
 		++itEdge;
 	}//while
@@ -583,7 +596,7 @@ void UMLGraph::undoStars()
 //remove the center node and reinsert the deleted edges
 void UMLGraph::undoStar(node center, bool restoreAllEdges)
 {
-	OGDF_ASSERT(center)
+	OGDF_ASSERT(center);
 
 	if (restoreAllEdges) {
 		m_hiddenEdges->restore();
@@ -631,7 +644,9 @@ void UMLGraph::writeGML(ostream &os)
 		if (has(nodeLabel))
 			os << "    label \"" << label(v) << "\"\n";
 
-		//if (has(nodeGraphics)
+#if 0
+		if (has(nodeGraphics)
+#endif
 		{
 			os << "    graphics [\n";
 			os << "      x " << x(v) << "\n";
@@ -696,7 +711,9 @@ void UMLGraph::writeGML(ostream &os)
 					os << "      arrow \"none\"\n";
 					os << "      width 1.0\n";
 				}
-				//os << "      generalization " << type(e) << "\n";
+#if 0
+				os << "      generalization " << type(e) << "\n";
+#endif
 
 			} else {
 				os << "      arrow \"last\"\n";

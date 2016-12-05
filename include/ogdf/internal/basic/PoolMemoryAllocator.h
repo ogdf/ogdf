@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,36 +26,28 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/basic/System.h>
 
 #ifndef OGDF_MEMORY_POOL_NTS
-#include <mutex>
-#ifdef OGDF_NO_COMPILER_TLS
-#include <pthread.h>
+# include <mutex>
 #endif
-#endif
-
 
 namespace ogdf {
 
-
-//! The class \a PoolAllocator represents ogdf's pool memory allocator.
+//! The class \a PoolMemoryAllocator represents ogdf's pool memory allocator.
 /**
  * <H3>Usage:</H3>
  *
  * Adding the macro \c #OGDF_NEW_DELETE in a class declaration overloads
  * new and delete operators of that class such that they use this
  * memory allocator. This is useful if the size of a class is less than
- * \c PoolAllocator::eTableSize bytes.
+ * \c PoolMemoryAllocator::eTableSize bytes.
  *
  * Another benefit from the OGDF memory-manager is that it throws an
  * InsufficientMemoryException if no more memory is available. Hence
@@ -94,11 +86,6 @@ public:
 
 	PoolMemoryAllocator() { }
 	~PoolMemoryAllocator() { }
-
-	//! Initializes the memory manager.
-	static OGDF_EXPORT void init();
-
-	static OGDF_EXPORT void initThread();
 
 	//! Frees all memory blocks allocated by the memory manager.
 	static OGDF_EXPORT void cleanup();
@@ -160,8 +147,8 @@ private:
 	}
 
 	static int slicesPerBlock(uint16_t nBytes, int &nWords) {
-		nWords = (nBytes + __SIZEOF_POINTER__ - 1) / __SIZEOF_POINTER__;
-		return (eBlockSize - __SIZEOF_POINTER__) / (nWords * __SIZEOF_POINTER__);
+		nWords = (nBytes + OGDF_SIZEOF_POINTER - 1) / OGDF_SIZEOF_POINTER;
+		return (eBlockSize - OGDF_SIZEOF_POINTER) / (nWords * OGDF_SIZEOF_POINTER);
 	}
 
 	static void *fillPool(MemElemPtr &pFreeBytes, uint16_t nBytes);
@@ -182,14 +169,9 @@ private:
 	static MemElemPtr s_tp[eTableSize];
 #else
 	static std::mutex s_mutex;
-#ifdef OGDF_NO_COMPILER_TLS
-	static pthread_key_t s_tpKey;
-#else
-	static OGDF_DECL_THREAD MemElemPtr s_tp[eTableSize];
-#endif
+	static thread_local MemElemPtr s_tp[eTableSize];
 #endif
 
 };
-
 
 }

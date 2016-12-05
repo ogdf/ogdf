@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 
@@ -78,7 +75,7 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 
 	m_errorCode = ercNone;
 	clock_t time = clock();
-	if ((m_multilevelBuilder.valid() == false || m_initialPlacement.valid() == false) && m_oneLevelLayoutModule.valid() == false) {
+	if ((!m_multilevelBuilder || !m_initialPlacement) && !m_oneLevelLayoutModule) {
 		OGDF_THROW(AlgorithmFailureException);
 	}
 
@@ -94,18 +91,18 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 		}
 	}
 
-	if (m_multilevelBuilder.valid() && m_initialPlacement.valid())
+	if (m_multilevelBuilder && m_initialPlacement)
 	{
 		double lbound = 16.0 * log(double(G.numberOfNodes()))/log(2.0);
-		m_multilevelBuilder.get().buildAllLevels(MLG);
+		m_multilevelBuilder->buildAllLevels(MLG);
 
 		//Part for experiments: Stop if number of levels too high
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
-		int nlevels = m_multilevelBuilder.get().getNumLevels();
+		int nlevels = m_multilevelBuilder->getNumLevels();
 #endif
 		if (m_levelBound)
 		{
-			if ( m_multilevelBuilder.get().getNumLevels() > lbound)
+			if ( m_multilevelBuilder->getNumLevels() > lbound)
 			{
 				m_errorCode = ercLevelBound;
 				return;
@@ -121,9 +118,9 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 
 		while(MLG.getLevel() > 0)
 		{
-			if (m_oneLevelLayoutModule.valid()) {
+			if (m_oneLevelLayoutModule) {
 				for(int i = 1; i <= m_times; i++) {
-					m_oneLevelLayoutModule.get().call(MLG.getGraphAttributes());
+					m_oneLevelLayoutModule->call(MLG.getGraphAttributes());
 				}
 			}
 
@@ -142,7 +139,7 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 			MLG.moveToZero();
 
 			int nNodes = G.numberOfNodes();
-			m_initialPlacement.get().placeOneLevel(MLG);
+			m_initialPlacement->placeOneLevel(MLG);
 			m_coarseningRatio = double(G.numberOfNodes()) / nNodes;
 
 #ifdef OGDF_MMM_LEVEL_OUTPUTS
@@ -155,9 +152,9 @@ void ModularMultilevelMixer::call(MultilevelGraph &MLG)
 
 	//Final level
 
-	if(m_finalLayoutModule.valid() ||  m_oneLevelLayoutModule.valid())
+	if(m_finalLayoutModule ||  m_oneLevelLayoutModule)
 	{
-		LayoutModule &lastLayoutModule = (m_finalLayoutModule.valid() != 0 ? m_finalLayoutModule.get() : m_oneLevelLayoutModule.get());
+		LayoutModule &lastLayoutModule = *(m_finalLayoutModule ? m_finalLayoutModule : m_oneLevelLayoutModule);
 
 		for(int i = 1; i <= m_times; i++) {
 			lastLayoutModule.call(MLG.getGraphAttributes());

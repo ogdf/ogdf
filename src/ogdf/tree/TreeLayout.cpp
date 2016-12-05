@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/tree/TreeLayout.h>
@@ -215,7 +212,7 @@ struct TreeLayout::TreeStructure {
 	// returns whether node v is a leaf
 	bool isLeaf(node v) const
 	{
-		OGDF_ASSERT(v != 0);
+		OGDF_ASSERT(v != nullptr);
 
 		// node v is a leaf if and only if no edge leaves v
 		return v->outdeg() == 0;
@@ -225,7 +222,7 @@ struct TreeLayout::TreeStructure {
 	// returns 0 if there is none
 	node nextOnLeftContour(node v) const
 	{
-		OGDF_ASSERT(v != 0);
+		OGDF_ASSERT(v != nullptr);
 		OGDF_ASSERT(v->graphOf() == m_firstChild.graphOf());
 		OGDF_ASSERT(v->graphOf() == m_thread.graphOf());
 
@@ -242,7 +239,7 @@ struct TreeLayout::TreeStructure {
 	// returns 0 if there is none
 	node nextOnRightContour(node v) const
 	{
-		OGDF_ASSERT(v != 0);
+		OGDF_ASSERT(v != nullptr);
 		OGDF_ASSERT(v->graphOf() == m_lastChild.graphOf());
 		OGDF_ASSERT(v->graphOf() == m_thread.graphOf());
 
@@ -519,15 +516,19 @@ void TreeLayout::call(GraphAttributes &AG)
 
 void TreeLayout::undoReverseEdges(GraphAttributes &AG, Graph &tree, SListPure<edge> &reversedEdges)
 {
-	//if(m_pGraph) {
+#if 0
+	if(m_pGraph) {
+#endif
 		while(!reversedEdges.empty()) {
 			edge e = reversedEdges.popFrontRet();
 			tree.reverseEdge(e);
 			AG.bends(e).reverse();
 		}
 
-		//m_pGraph = 0;
-	//}
+#if 0
+		m_pGraph = nullptr;
+	}
+#endif
 }
 
 void TreeLayout::findMinX(GraphAttributes &AG, node root, double &minX)
@@ -659,7 +660,7 @@ void TreeLayout::findMaxY(GraphAttributes &AG, node root, double &maxY)
 
 void TreeLayout::firstWalk(TreeStructure &ts, node subtree, bool upDown)
 {
-	OGDF_ASSERT(subtree != 0);
+	OGDF_ASSERT(subtree != nullptr);
 	OGDF_ASSERT(subtree->graphOf() == ts.m_leftSibling.graphOf());
 	OGDF_ASSERT(subtree->graphOf() == ts.m_preliminary.graphOf());
 	OGDF_ASSERT(subtree->graphOf() == ts.m_firstChild.graphOf());
@@ -742,7 +743,7 @@ void TreeLayout::apportion(
 	node &defaultAncestor,
 	bool upDown)
 {
-	OGDF_ASSERT(subtree != 0);
+	OGDF_ASSERT(subtree != nullptr);
 	OGDF_ASSERT(subtree->graphOf() == defaultAncestor->graphOf());
 	OGDF_ASSERT(subtree->graphOf() == ts.m_leftSibling.graphOf());
 	OGDF_ASSERT(subtree->graphOf() == ts.m_firstChild.graphOf());
@@ -854,7 +855,7 @@ void TreeLayout::secondWalkX(
 	node subtree,
 	double modifierSum)
 {
-	OGDF_ASSERT(subtree != 0);
+	OGDF_ASSERT(subtree != nullptr);
 	OGDF_ASSERT(subtree->graphOf() == ts.m_preliminary.graphOf());
 	OGDF_ASSERT(subtree->graphOf() == ts.m_modifier.graphOf());
 
@@ -875,7 +876,7 @@ void TreeLayout::secondWalkY(
 	node subtree,
 	double modifierSum)
 {
-	OGDF_ASSERT(subtree != 0);
+	OGDF_ASSERT(subtree != nullptr);
 	OGDF_ASSERT(subtree->graphOf() == ts.m_preliminary.graphOf());
 	OGDF_ASSERT(subtree->graphOf() == ts.m_modifier.graphOf());
 
@@ -893,7 +894,7 @@ void TreeLayout::secondWalkY(
 
 void TreeLayout::computeYCoordinatesAndEdgeShapes(node root, GraphAttributes &AG)
 {
-	OGDF_ASSERT(root != 0);
+	OGDF_ASSERT(root != nullptr);
 
 	// compute y-coordinates and edge shapes
 	List<node> oldLevel;   // the nodes of the old level
@@ -945,7 +946,7 @@ void TreeLayout::computeYCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 
 void TreeLayout::computeXCoordinatesAndEdgeShapes(node root, GraphAttributes &AG)
 {
-	OGDF_ASSERT(root != 0);
+	OGDF_ASSERT(root != nullptr);
 
 	// compute y-coordinates and edge shapes
 	List<node> oldLevel;   // the nodes of the old level

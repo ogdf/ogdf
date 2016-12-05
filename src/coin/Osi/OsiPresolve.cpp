@@ -1811,5 +1811,3 @@ CoinPostsolveMatrix::CoinPostsolveMatrix(OsiSolverInterface*  si,
   CoinZeroN(rdone_+nrows1,nrows0_in-nrows1) ;
 # endif
 }
-
-

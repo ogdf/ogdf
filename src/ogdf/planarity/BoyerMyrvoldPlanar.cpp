@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/planarity/BoyerMyrvoldPlanar.h>
@@ -104,20 +101,20 @@ m_g(g),
 // info returns the dynamic nodetype of the endnode
 node BoyerMyrvoldPlanar::activeSuccessor(node w, int& direction, int v, int& info)
 {
-	OGDF_ASSERT(w!=0);
+	OGDF_ASSERT(w!=nullptr);
 	OGDF_ASSERT(w->degree()>0);
-	OGDF_ASSERT(m_link[CW][w]!=0);
-	OGDF_ASSERT(m_link[CCW][w]!=0);
+	OGDF_ASSERT(m_link[CW][w]!=nullptr);
+	OGDF_ASSERT(m_link[CCW][w]!=nullptr);
 	node next;
 	adjEntry adj;
 
 	do {
 		adj = m_link[direction][w];
 		next = adj->theNode();
-		OGDF_ASSERT(next!=0);
+		OGDF_ASSERT(next!=nullptr);
 		OGDF_ASSERT(next->degree()>0);
-		OGDF_ASSERT(m_link[CW][next]!=0);
-		OGDF_ASSERT(m_link[CCW][next]!=0);
+		OGDF_ASSERT(m_link[CW][next]!=nullptr);
+		OGDF_ASSERT(m_link[CCW][next]!=nullptr);
 
 		if (w->degree() > 1)
 			direction = adj==beforeShortCircuitEdge(next,CCW)->twin();
@@ -195,7 +192,7 @@ void BoyerMyrvoldPlanar::mergeBiconnectedComponent(StackPure<int>& stack, const 
 	m_separatedDFSChildList[x].del(m_pNodeInParent[w_child]);
 
 	// delete virtual vertex, it must not contain any edges any more
-	OGDF_ASSERT(w->firstAdj()==0);
+	OGDF_ASSERT(w->firstAdj()==nullptr);
 	m_nodeFromDFI[m_dfi[w]]=nullptr;
 	m_g.delNode(w);
 }
@@ -245,7 +242,7 @@ void BoyerMyrvoldPlanar::mergeBiconnectedComponentOnlyPlanar(
 	m_separatedDFSChildList[x].del(m_pNodeInParent[w_child]);
 
 	// delete virtual vertex, it must not contain any edges any more
-	OGDF_ASSERT(w->firstAdj()==0);
+	OGDF_ASSERT(w->firstAdj()==nullptr);
 	m_nodeFromDFI[m_dfi[w]]=nullptr;
 	m_g.delNode(w);
 }
@@ -261,12 +258,12 @@ void BoyerMyrvoldPlanar::embedBackedges(
 	const int /* i */)
 {
 	OGDF_ASSERT(!m_backedgeFlags[w].empty());
-	OGDF_ASSERT(v!=0);
-	OGDF_ASSERT(w!=0);
-	OGDF_ASSERT(m_link[CCW][v]!=0);
-	OGDF_ASSERT(m_link[CW][v]!=0);
-	OGDF_ASSERT(m_link[CCW][w]!=0);
-	OGDF_ASSERT(m_link[CW][w]!=0);
+	OGDF_ASSERT(v!=nullptr);
+	OGDF_ASSERT(w!=nullptr);
+	OGDF_ASSERT(m_link[CCW][v]!=nullptr);
+	OGDF_ASSERT(m_link[CW][v]!=nullptr);
+	OGDF_ASSERT(m_link[CCW][w]!=nullptr);
+	OGDF_ASSERT(m_link[CW][w]!=nullptr);
 
 	// if one edge is a short circuit edge, compute the former underlying adjEntry
 	// the adjEntry of v, used for inserting backedges
@@ -278,8 +275,10 @@ void BoyerMyrvoldPlanar::embedBackedges(
 
 	// the first backedge in the backedgeFlags-list will be
 	// the new external face adjEntry
-	//edge e;
-	//SListConstIterator<adjEntry> it;
+#if 0
+	edge e;
+	SListConstIterator<adjEntry> it;
+#endif
 	// save first BackedgeEntry
 	adjEntry firstBack = m_backedgeFlags[w].front();
 	for (adjEntry adj : m_backedgeFlags[w]) {
@@ -330,10 +329,10 @@ void BoyerMyrvoldPlanar::embedBackedgesOnlyPlanar(
 	const int /* i */)
 {
 	OGDF_ASSERT(!m_backedgeFlags[w].empty());
-	OGDF_ASSERT(m_link[CCW][v]!=0);
-	OGDF_ASSERT(m_link[CW][v]!=0);
-	OGDF_ASSERT(m_link[CCW][w]!=0);
-	OGDF_ASSERT(m_link[CW][w]!=0);
+	OGDF_ASSERT(m_link[CCW][v]!=nullptr);
+	OGDF_ASSERT(m_link[CW][v]!=nullptr);
+	OGDF_ASSERT(m_link[CCW][w]!=nullptr);
+	OGDF_ASSERT(m_link[CW][w]!=nullptr);
 
 	// the last backedge in the backedgeFlags-list will be
 	// the new external face adjEntry
@@ -640,7 +639,7 @@ int BoyerMyrvoldPlanar::walkdown(
 				if (j==CCW) {
 					stopX = w;
 				} else if (w != stopX) {
-					OGDF_ASSERT(stopX!=0);
+					OGDF_ASSERT(stopX!=nullptr);
 
 					if (m_embeddingGrade <= doNotFind) return false;
 					// check, if some backedges were not embedded (=> nonplanar)
@@ -674,9 +673,12 @@ bool BoyerMyrvoldPlanar::embed()
 {
 	bool nonplanar=false; // true, if graph is not planar
 
-	//FindKuratowskis findKuratowskis(this);
+#if 0
+	FindKuratowskis findKuratowskis(this);
+#else
 	FindKuratowskis* findKuratowskis =
 		(m_embeddingGrade <= doNotFind) ? nullptr : new FindKuratowskis(this);
+#endif
 
 	for (int i = m_nodeFromDFI.high(); i >= 1; --i)
 	{

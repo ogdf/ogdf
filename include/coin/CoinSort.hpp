@@ -41,7 +41,7 @@ public:
 //#############################################################################
 
 /**@name Comparisons on first element of two ordered pairs */
-//@{   
+//@{
 /** Function operator.
     Returns true if t1.first &lt; t2.first (i.e., increasing). */
 template < class S, class T>
@@ -72,10 +72,10 @@ public:
   /// Compare function
   inline bool operator()(const CoinPair<S,T>& t1,
 			 const CoinPair<S,T>& t2) const
-  { 
+  {
     const T t1Abs = t1.first < static_cast<T>(0) ? -t1.first : t1.first;
     const T t2Abs = t2.first < static_cast<T>(0) ? -t2.first : t2.first;
-    return t1Abs < t2Abs; 
+    return t1Abs < t2Abs;
   }
 };
 //-----------------------------------------------------------------------------
@@ -86,10 +86,10 @@ class CoinFirstAbsGreater_2 {
 public:
   /// Compare function
   inline bool operator()(CoinPair<S,T> t1, CoinPair<S,T> t2) const
-  { 
+  {
     const T t1Abs = t1.first < static_cast<T>(0) ? -t1.first : t1.first;
     const T t2Abs = t2.first < static_cast<T>(0) ? -t2.first : t2.first;
-    return t1Abs > t2Abs; 
+    return t1Abs > t2Abs;
   }
 };
 //-----------------------------------------------------------------------------
@@ -365,14 +365,14 @@ public:
   T second;
   /// Third member of triple
   U third;
-public:  
+public:
   /// Construct from ordered triple
   CoinTriple(const S& s, const T& t, const U& u):first(s),second(t),third(u) {}
 };
 
 //#############################################################################
 /**@name Comparisons on first element of two ordered triples */
-//@{   
+//@{
 /** Function operator.
     Returns true if t1.first &lt; t2.first (i.e., increasing). */
 template < class S, class T, class U >
@@ -403,10 +403,10 @@ public:
   /// Compare function
   inline bool operator()(const CoinTriple<S,T,U>& t1,
 			 const CoinTriple<S,T,U>& t2) const
-  { 
+  {
     const T t1Abs = t1.first < static_cast<T>(0) ? -t1.first : t1.first;
     const T t2Abs = t2.first < static_cast<T>(0) ? -t2.first : t2.first;
-    return t1Abs < t2Abs; 
+    return t1Abs < t2Abs;
   }
 };
 //-----------------------------------------------------------------------------
@@ -418,10 +418,10 @@ public:
   /// Compare function
   inline bool operator()(const CoinTriple<S,T,U>& t1,
 			 const CoinTriple<S,T,U>& t2) const
-  { 
+  {
     const T t1Abs = t1.first < static_cast<T>(0) ? -t1.first : t1.first;
     const T t2Abs = t2.first < static_cast<T>(0) ? -t2.first : t2.first;
-    return t1Abs > t2Abs; 
+    return t1Abs > t2Abs;
   }
 };
 //-----------------------------------------------------------------------------

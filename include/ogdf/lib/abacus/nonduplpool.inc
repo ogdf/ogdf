@@ -41,7 +41,7 @@ PoolSlot<BaseType, CoType> * NonDuplPool<BaseType, CoType>::insert(
 	PoolSlot<BaseType, CoType>* slot;
 
 	slot = present(cv);
-	if (slot == 0) {
+	if (slot == nullptr) {
 		slot = StandardPool<BaseType, CoType>::insert(cv);
 		if (slot)
 			hash_.insert(cv->hashKey(), slot);
@@ -67,7 +67,7 @@ PoolSlot<BaseType, CoType> *NonDuplPool<BaseType, CoType>::present(
 		}
 		cand = hash_.next(key);
 	}
-	return 0;
+	return nullptr;
 }
 
 template<class BaseType, class CoType>
@@ -83,7 +83,7 @@ const PoolSlot<BaseType, CoType> *NonDuplPool<BaseType, CoType>::present(
 		}
 		cand = hash_.next(key);
 	}
-	return 0;
+	return nullptr;
 }
 
 template<class BaseType, class CoType>
@@ -94,8 +94,10 @@ int NonDuplPool<BaseType, CoType>::softDeleteConVar(PoolSlot<BaseType, CoType> *
 	if (Pool<BaseType, CoType>::softDeleteConVar(slot) == 0) {
 		if (hash_.remove(key, slot)) {
 			// Commented out in ABACUS 3.2
-			//Logger::ifout() << "NonDuplPool::softDeleteCon(): slot not found in hash table.\n";
-			//OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNonDuplPool);
+#if 0
+			Logger::ifout() << "NonDuplPool::softDeleteCon(): slot not found in hash table.\n";
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNonDuplPool);
+#endif
 		}
 		return 0;
 	}
@@ -109,8 +111,10 @@ void NonDuplPool<BaseType, CoType>::hardDeleteConVar(
 {
 	if (hash_.remove(slot->conVar()->hashKey(), slot)) {
 		// Commented out in ABACUS 3.2
-		//Logger::ifout() << "NonDuplPool::hardDeleteConVar(): constraint not found in hash table.\n";
-		//OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNonDuplPool);
+#if 0
+		Logger::ifout() << "NonDuplPool::hardDeleteConVar(): constraint not found in hash table.\n";
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNonDuplPool);
+#endif
 	}
 	Pool<BaseType, CoType>::hardDeleteConVar(slot);
 }

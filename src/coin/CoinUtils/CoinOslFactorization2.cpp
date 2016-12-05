@@ -4201,5 +4201,3 @@ void c_ekkftrn2(EKKfactinfo * COIN_RESTRICT2 fact, double * COIN_RESTRICT dwork1
 		      dpermu1,lastSlack, dwork1, mpt1);
 
 }
-
-

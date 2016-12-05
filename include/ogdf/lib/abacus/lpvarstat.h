@@ -47,7 +47,7 @@ class AbacusGlobal;
  * this notion since later in the interface from a cutting plane
  * algorithm to the linear program variables might be eliminated.
  */
-class LPVARSTAT :  public AbacusRoot  {
+class OGDF_EXPORT LPVARSTAT : public AbacusRoot {
 public:
 
 	//! The enumeration of the statuses a variable gets from the linear program solver.

@@ -8,6 +8,7 @@
 
 #include <random>
 #include <bandit/bandit.h>
+#include <resources.h>
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/module/LayoutModule.h>
@@ -126,12 +127,16 @@ inline int64_t callLayout(const Graph &G, LayoutModule &L, bool isGridLayout, lo
  * 	the name to be used for describing this module
  * \param L
  * 	the module to be tested
+ * \param extraAttributes
+ *  init attributes for GraphAttributes
  * \param req
  * 	the requirements for graphs to be drawn, see GraphRequirementFlags for details
  * \param maxNodes
  * 	the maximum number of nodes the algorithm should be tested on
  * \param isGridLayout
  * 	set this to true if the layout module is a grid layout module
+ * \param skipTreeWithProbablyNegativeCoordinates
+ *  set this to true if the file negative_coordinates_tree.gml should be skipped
  **/
 inline void describeLayoutModule(
   const std::string name,
@@ -139,7 +144,8 @@ inline void describeLayoutModule(
   long extraAttributes = 0,
   int req = GR_ALL,
   int maxNodes = MAX_NODES,
-  bool isGridLayout = false)
+  bool isGridLayout = false,
+  bool skipTreeWithProbablyNegativeCoordinates = false)
 {
 	int steps = (maxNodes - MIN_NODES)/STEP_SIZE;
 
@@ -156,8 +162,15 @@ inline void describeLayoutModule(
 					}
 				}
 				cout << endl << "      average time was " << time/steps/(sizeof(sizes)/sizeof(sizes[0])) << "ms" << endl;
-
 			});
+
+			if (!skipTreeWithProbablyNegativeCoordinates) {
+				for_each_graph_it("works on a tree with probably negative coordinates",
+								  { "misc/negative_coordinates_tree.gml" },
+								  [&](Graph &G, const string &filename) {
+									  callLayout(G, L, isGridLayout, extraAttributes);
+								  });
+			}
 
 			bandit::it("works on planar connected graphs", [&](){
 				int64_t time = 0;

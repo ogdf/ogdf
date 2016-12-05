@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -42,20 +39,20 @@ namespace ogdf
 
 //! Calls modified algorithms for simdraw instances
 /**
-*  Runs special algorithms suitable for simultaneous drawing
-*  on current SimDraw instance. The algorithms take
-*  care of all necessary GraphAttributes activations and
-*  take over calculated coordinates and dummy nodes.
-*
-*  A typical use of SimDrawCaller involves a predefined SimDraw
-*  instance on which SimDrawCaller works.
-*  \code
-*  SimDraw SD;
-*  ...
-*  SimDrawCaller SDC(SD);
-*  SDC.callSubgraphPlanarizer();
-*  \endcode
-*/
+ *  Runs special algorithms suitable for simultaneous drawing
+ *  on current SimDraw instance. The algorithms take
+ *  care of all necessary GraphAttributes activations and
+ *  take over calculated coordinates and dummy nodes.
+ *
+ *  A typical use of SimDrawCaller involves a predefined SimDraw
+ *  instance on which SimDrawCaller works.
+ *  \code
+ *  SimDraw SD;
+ *  ...
+ *  SimDrawCaller SDC(SD);
+ *  SDC.callSubgraphPlanarizer();
+ *  \endcode
+ */
 class OGDF_EXPORT SimDrawCaller : public SimDrawManipulatorModule
 {
 

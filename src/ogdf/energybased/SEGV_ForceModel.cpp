@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,15 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/internal/energybased/SEGV_ForceModel.h>
-#include <ogdf/basic/Math.h>
+
+#include <cmath>
 
 
 namespace ogdf {
@@ -241,7 +239,7 @@ namespace ogdf {
 			DPoint dist = vj.m_pos - m_vInfo[u].m_pos;
 			double d = dist.norm();
 
-			force -= Math::log2((d+cEps) / cIELEps) * dist;
+			force -= std::log2((d+cEps) / cIELEps) * dist;
 			if(d < boxLength) {
 				double f = 1.0 / (d * d + cEps);
 				forceRepSub += f * dist;
@@ -299,7 +297,7 @@ namespace ogdf {
 			DPoint dist = vj.m_pos - m_vInfo[u].m_pos;
 			double d = dist.norm();
 
-			force -= d * Math::log2((d+cEps) / cIELEps) * dist;
+			force -= d * std::log2((d+cEps) / cIELEps) * dist;
 			if(d < boxLength) {
 				double f = 1.0 / (d * d + cEps);
 				forceRepSub += f * dist;

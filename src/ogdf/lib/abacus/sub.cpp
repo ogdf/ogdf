@@ -431,7 +431,7 @@ Sub::PHASE Sub::_activate()
 
 	int nVariables = nVar();
 
-	for (int i = 0; i < nVariables; i++)
+	for (int i = 0; i < nVariables; i++) {
 		if ((*actVar_)[i] == nullptr) {
 			removeVars.push(i);
 			if ((*fsVarStat_)[i]->fixedOrSet()) {
@@ -441,124 +441,126 @@ Sub::PHASE Sub::_activate()
 			delete (*fsVarStat_)[i];
 			delete (*lpVarStat_)[i];
 		}
+	}
 
-		if (removeVars.size()) {
-			Logger::ilout(Logger::LL_MEDIUM) << removeVars.size() << " variables missing for initialization" << endl;
+	if (removeVars.size()) {
+		Logger::ilout(Logger::LL_MEDIUM) << removeVars.size() << " variables missing for initialization" << endl;
 
-			actVar_->remove(removeVars);
-			fsVarStat_->leftShift(removeVars);
-			lpVarStat_->leftShift(removeVars);
-			lBound_->leftShift(removeVars);
-			uBound_->leftShift(removeVars);
+		actVar_->remove(removeVars);
+		fsVarStat_->leftShift(removeVars);
+		lpVarStat_->leftShift(removeVars);
+		lBound_->leftShift(removeVars);
+		uBound_->leftShift(removeVars);
+	}
+
+	// remove missing constraints from the active variables
+	ArrayBuffer<int> removeCons(nCon(),false);
+
+	const int nConstraints = nCon();
+	for (int i = 0; i < nConstraints; i++) {
+		if ((*actCon_)[i] == nullptr) {
+			removeCons.push(i);
+			delete (*slackStat_)[i];
 		}
+	}
+	if (removeCons.size())
+		Logger::ilout(Logger::LL_MEDIUM) << removeCons.size() << " constraints missing for initialization" << endl;
 
-		// remove missing constraints from the active variables
-		ArrayBuffer<int> removeCons(nCon(),false);
-
-		const int nConstraints = nCon();
-		for (int i = 0; i < nConstraints; i++)
-			if ((*actCon_)[i] == nullptr) {
-				removeCons.push(i);
-				delete (*slackStat_)[i];
-			}
-			if (removeCons.size())
-				Logger::ilout(Logger::LL_MEDIUM) << removeCons.size() << " constraints missing for initialization" << endl;
-
-			actCon_->remove(removeCons);
-			slackStat_->leftShift(removeCons);
+	actCon_->remove(removeCons);
+	slackStat_->leftShift(removeCons);
 
 
-			// set the active flags of variables and constraints
-			/* Setting \a status_ to \a Active at this point is necessary, since if the
-			*   subproblem turns out to be fathomed already during processing
-			*   this function, then in \a fathom() the variables and constraints
-			*   have to be deactivated.
-			*/
-			const int nActVar = actVar_->number();
-			for (int i = 0; i < nActVar; i++)
-				(*actVar_)[i]->activate();
+	// set the active flags of variables and constraints
+	/* Setting \a status_ to \a Active at this point is necessary, since if the
+	*   subproblem turns out to be fathomed already during processing
+	*   this function, then in \a fathom() the variables and constraints
+	*   have to be deactivated.
+	*/
+	const int nActVar = actVar_->number();
+	for (int i = 0; i < nActVar; i++)
+		(*actVar_)[i]->activate();
 
-			const int nActCon = actCon_->number();
-			for (int i = 0; i < nActCon; i++)
-				(*actCon_)[i]->activate();
+	const int nActCon = actCon_->number();
+	for (int i = 0; i < nActCon; i++)
+		(*actCon_)[i]->activate();
 
-			status_  = ActiveSub;
+	status_  = ActiveSub;
 
-			// perform problem specific activations
-			/* We have to memorize if activate() has been called such that in
-			*   \a _deactivate() only \a deactivate() is called when \a activate() has
-			*   been performed. This is necessary because these lines are only
-			*   reached if the dual bound is still better than the primal bound.
-			*/
-			activate();
-			activated_ = true;
+	// perform problem specific activations
+	/* We have to memorize if activate() has been called such that in
+	*   \a _deactivate() only \a deactivate() is called when \a activate() has
+	*   been performed. This is necessary because these lines are only
+	*   reached if the dual bound is still better than the primal bound.
+	*/
+	activate();
+	activated_ = true;
 
-			// update fixed and set variables and set by logical implications
-			/* We update global variable fixings which have been performed
-			*   while the subproblem was sleeping. If there is a contradiction to
-			*   set variables we can fathom the node.
+	// update fixed and set variables and set by logical implications
+	/* We update global variable fixings which have been performed
+	*   while the subproblem was sleeping. If there is a contradiction to
+	*   set variables we can fathom the node.
 
-			*   The adaption of branching variables may allow us to set further
-			*   variables by logical implications. Again contradictions to
-			*   already fixed variables can lead to an immediate \a Fathoming
-			*   of the node.
-			*/
-			double     newBound;   //!< the new local bound
+	*   The adaption of branching variables may allow us to set further
+	*   variables by logical implications. Again contradictions to
+	*   already fixed variables can lead to an immediate \a Fathoming
+	*   of the node.
+	*/
+	double     newBound;   //!< the new local bound
 
-			nVariables = nVar();
-			for (int i = 0; i < nVariables; i++) {
-				FSVarStat *global = variable(i)->fsVarStat();     //!< global status of a variable
-				FSVarStat *local = (*fsVarStat_)[i];      //!< local status of a variable
-				if (global->fixed()) {
-					if (global->contradiction(local)) {
-						infeasibleSub();
-						return Fathoming;
-					}
-					local->status(global);
-					newBound      = fixSetNewBound(i);
-					(*lBound_)[i] = newBound;
-					(*uBound_)[i] = newBound;
-				}
-			}
-
-			bool newValues;  //!< in this context only required as a dummy
-
-			if (_setByLogImp(newValues)) {
+	nVariables = nVar();
+	for (int i = 0; i < nVariables; i++) {
+		FSVarStat *global = variable(i)->fsVarStat();     //!< global status of a variable
+		FSVarStat *local = (*fsVarStat_)[i];      //!< local status of a variable
+		if (global->fixed()) {
+			if (global->contradiction(local)) {
 				infeasibleSub();
 				return Fathoming;
 			}
+			local->status(global);
+			newBound      = fixSetNewBound(i);
+			(*lBound_)[i] = newBound;
+			(*uBound_)[i] = newBound;
+		}
+	}
 
-			if (Logger::is_ilout(Logger::LL_MEDIUM)) {
+	bool newValues;  //!< in this context only required as a dummy
 
-				// output number of active constraints and variables
-				// output number of fixed and set variables
-				int nFixed = 0;  //!< number of fixed variables
-				int nSet   = 0;  //!< number of set variables
+	if (_setByLogImp(newValues)) {
+		infeasibleSub();
+		return Fathoming;
+	}
 
-				const int nVariables = nVar();
-				for (int i = 0; i < nVariables; i++)
-					if ((*fsVarStat_)[i]->fixed()) ++nFixed;
-					else if ((*fsVarStat_)[i]->set()) ++nSet;
+	if (Logger::is_ilout(Logger::LL_MEDIUM)) {
 
-				Logger::ifout() << endl
-				 << "Subproblem Size" << endl
-				 << "\tNumber of Active Constraints : " << nCon() << endl
-				 << "\tNumber of Active Variables   : " << nVar() << endl
-				 << "\tNumber of Fixed Variables    : " << nFixed << endl
-				 << "\tNumber of Set Variables      : " << nSet   << endl;
+		// output number of active constraints and variables
+		// output number of fixed and set variables
+		int nFixed = 0;  //!< number of fixed variables
+		int nSet   = 0;  //!< number of set variables
 
-			}
+		const int nVariables = nVar();
+		for (int i = 0; i < nVariables; i++)
+			if ((*fsVarStat_)[i]->fixed()) ++nFixed;
+			else if ((*fsVarStat_)[i]->set()) ++nSet;
 
-			// initialize the linear program of the subproblem
-			/* If the \a LP turns out to be infeasible already in
-			*   the initialization phase, we can again fathom the \bac\ node.
-			*/
-			if (initializeLp()) {
-				infeasibleSub();
-				return Fathoming;
-			}
+		Logger::ifout() << endl
+		 << "Subproblem Size" << endl
+		 << "\tNumber of Active Constraints : " << nCon() << endl
+		 << "\tNumber of Active Variables   : " << nVar() << endl
+		 << "\tNumber of Fixed Variables    : " << nFixed << endl
+		 << "\tNumber of Set Variables      : " << nSet   << endl;
 
-			return Cutting;
+	}
+
+	// initialize the linear program of the subproblem
+	/* If the \a LP turns out to be infeasible already in
+	*   the initialization phase, we can again fathom the \bac\ node.
+	*/
+	if (initializeLp()) {
+		infeasibleSub();
+		return Fathoming;
+	}
+
+	return Cutting;
 }
 
 
@@ -869,225 +871,226 @@ Sub::PHASE Sub::cutting ()
 
 		const int nVariables = nVar();
 
-		for (int i = 0; i < nVariables; i++)
+		for (int i = 0; i < nVariables; i++) {
 			if (variable(i)->discrete()) {
 				++nDiscrete;
 				frac = fracPart(xVal_[i]);
 				if ((frac > master_->eps()) && (frac < 1.0 - master_->machineEps()))
 					++nFractional;
 			}
+		}
 
-			Logger::ilout(Logger::LL_MINOR)  << endl << "\t" << nFractional << " of " << nDiscrete << " discrete variables are fractional" << endl;
-
-
-			// make a feasibility test
-			/* The function \a betterPrimal() might return \a false although we have
-			*   a better feasible solution, because the primal bound might have been
-			*   updated already in the function \a feasible(). This is an optional
-			*   feature for the user of the framework in order to simplify the bookkeeping
-			*   according to his needs. If no variables are added by the function
-			*   \a _pricing(), then the LP solution is also dual feasible and we can
-			*   fathom the subproblem, otherwise we continue the cutting plane algorithm.
-			*/
-			if (feasible()) {
-				Logger::ilout(Logger::LL_MEDIUM) << "LP-solution is feasible" << endl;
-				if (master_->betterPrimal(lp_->value()))
-					master_->primalBound(lp_->value());
-
-				status = _pricing(newValues);
-				if (status)     continue;
-				return Fathoming;
-			}
-
-			// improve the primal solution
-			/* Even if the function \a _improve() returns a nonzero value indicating
-			*   that a better solution has been found, we check if it is better than
-			*   the current primal bound, as the primal bound might have been
-			*   already updated during the application of the primal heuristics.
-			*   Like in the function \a feasible() this is an optional feature to simplify
-			*   the bookkeeping of the user.
-
-			*   If we have found a better solution we reset the tailing off control
-			*   because the subproblem seems to be promising.
-
-			*   It is not unusual that inactive variables are added during the
-			*   application of primal heuristics. In this case we go immediately to
-			*   the beginning of the cutting plane loop without separating variables
-			*   are constraints.
-			*/
-			double primalValue;  //!< value of a feasible solution found by primal heuristics
-
-			status = _improve(primalValue);
-
-			if (status && master_->betterPrimal(primalValue))
-				master_->primalBound(primalValue);
-
-			if (status) {
-				tailOff_->reset();
-				if (master_->primalViolated(dualRound(lp_->value()))) {
-					status = _pricing(newValues);
-					if (status)       continue;
-					return Fathoming;
-				}
-			}
-
-			if (addVarBuffer_->number()) continue;
+		Logger::ilout(Logger::LL_MINOR)  << endl << "\t" << nFractional << " of " << nDiscrete << " discrete variables are fractional" << endl;
 
 
-			// test some minor termination criteria
-			/* Note, if \a pausing() returns \a true, then we enter the
-			*   \a Branching phase but there no subproblems are generated.
-			*/
-			bool terminate = false;  //!< becomes \a true if one of the criteria is satisfied
-			bool forceFathom = false;  //!< becomes \a true if fathoming should be forced
+		// make a feasibility test
+		/* The function \a betterPrimal() might return \a false although we have
+		*   a better feasible solution, because the primal bound might have been
+		*   updated already in the function \a feasible(). This is an optional
+		*   feature for the user of the framework in order to simplify the bookkeeping
+		*   according to his needs. If no variables are added by the function
+		*   \a _pricing(), then the LP solution is also dual feasible and we can
+		*   fathom the subproblem, otherwise we continue the cutting plane algorithm.
+		*/
+		if (feasible()) {
+			Logger::ilout(Logger::LL_MEDIUM) << "LP-solution is feasible" << endl;
+			if (master_->betterPrimal(lp_->value()))
+				master_->primalBound(lp_->value());
 
-			// check if problem specific fathoming criteria is satisfied
-			/* The default implementation of \a exceptionFathom() returns always \a false.
-			*/
-			if (exceptionFathom()) {
-				Logger::ilout(Logger::LL_MEDIUM) << "exceptionFathom(): try fathoming.";
-				terminate = true;
-				forceFathom = true;
-				master_->status(Master::ExceptionFathom);
-			}
+			status = _pricing(newValues);
+			if (status)     continue;
+			return Fathoming;
+		}
 
-			// check if problem specific branching criteria is satisfied
-			/* The default implementation of \a exceptionBranch() returns always \a false.
-			*/
-			if (exceptionBranch()) {
-				Logger::ilout(Logger::LL_MEDIUM) << "exceptionBranch(): try branching." << endl;
-				terminate = true;
-			}
+		// improve the primal solution
+		/* Even if the function \a _improve() returns a nonzero value indicating
+		*   that a better solution has been found, we check if it is better than
+		*   the current primal bound, as the primal bound might have been
+		*   already updated during the application of the primal heuristics.
+		*   Like in the function \a feasible() this is an optional feature to simplify
+		*   the bookkeeping of the user.
 
-			// check if maximal CPU time is exceeded
-			if (!terminate &&
-				master_->totalTime_.exceeds(master_->maxCpuTime()))
-			{
-				Logger::ilout(Logger::LL_MEDIUM) << "Maximal CPU time " << master_->maxCpuTimeAsString() << " exceeded" << endl
-				 << "Stop subproblem optimization." << endl;
-				master_->status(Master::MaxCpuTime);
-				terminate = true;
-				forceFathom = true;
-			}
+		*   If we have found a better solution we reset the tailing off control
+		*   because the subproblem seems to be promising.
 
-			// check if maximal elapsed time is exceeded
-			if (!terminate &&
-				master_->totalCowTime_.exceeds(master_->maxCowTime()))
-			{
-				Logger::ilout(Logger::LL_MEDIUM) << "Maximal elapsed time "
-					<< master_->maxCowTimeAsString() << " exceeded" << endl
-					<< "Stop subproblem optimization." << endl;
-				master_->status(Master::MaxCowTime);
-				terminate = true;
-				forceFathom = true;
-			}
+		*   It is not unusual that inactive variables are added during the
+		*   application of primal heuristics. In this case we go immediately to
+		*   the beginning of the cutting plane loop without separating variables
+		*   are constraints.
+		*/
+		double primalValue;  //!< value of a feasible solution found by primal heuristics
 
-			// check if there is a tailing-off effect
-			if (tailOff_->tailOff()) {
-				Logger::ilout(Logger::LL_MEDIUM) << "Try to tail off subproblem processing" << endl;
-				terminate = tailingOff();
-				if (!terminate) {
-					Logger::ilout(Logger::LL_MEDIUM) << "problem specific resolution: no branching enforced" << endl;
-					tailOff_->reset();
-				}
-			}
+		status = _improve(primalValue);
 
-			// should we pause the subproblem
-			if (!terminate && pausing()) {
-				Logger::ilout(Logger::LL_MEDIUM) << "Try to pause subproblem" << endl;
-				terminate = true;
-			}
+		if (status && master_->betterPrimal(primalValue))
+			master_->primalBound(primalValue);
 
-			// check if the iteration limit is reached
-			if (!terminate && (maxIterations_ > 0) && (nIter_ >= maxIterations_)) {
-				Logger::ilout(Logger::LL_MEDIUM) << "Iteration limit reached in subproblem: enforce branching" << endl;
-				terminate = true;
-			}
-
-			// price out inactive variables if a termination criterion is fulfilled
-			/* The guarantee and the time limit criteria cause a fathoming of the
-			*   subproblem, whereas the other criteria cause a branching.
-			*   In the function \a prepareBranching() the active constraints and
-			*   variables can  still be modified. In this case the modifications
-			*   takes place at the beginning of the cutting plane algorithm. But nevertheless,
-			*   after the modifications the linear program is not solved.
-			*/
-			if (terminate) {
-				// if there has been tailing off while solving approximate
-				// switch to the exact solver and iterate
-				if (lastLP_ == LP::Approximate) {
-					forceExactSolver_ = true;
-					continue;
-				}
+		if (status) {
+			tailOff_->reset();
+			if (master_->primalViolated(dualRound(lp_->value()))) {
 				status = _pricing(newValues);
 				if (status)       continue;
-				if (guaranteed() || forceFathom) return Fathoming;
-				if (newValues)    continue;
-				status = prepareBranching(lastIteration);
-				if (status) continue;
-				else        return Branching;
+				return Fathoming;
 			}
+		}
+
+		if (addVarBuffer_->number()) continue;
 
 
-			// perform primal and dual separation
-			// should we skip the separation in this subproblem
-			if (master_->skippingMode() == Master::SkipByNode) {
-				if ((master_->nSubSelected() - 1) % master_->skipFactor() != 0)
-					return Branching;
+		// test some minor termination criteria
+		/* Note, if \a pausing() returns \a true, then we enter the
+		*   \a Branching phase but there no subproblems are generated.
+		*/
+		bool terminate = false;  //!< becomes \a true if one of the criteria is satisfied
+		bool forceFathom = false;  //!< becomes \a true if fathoming should be forced
+
+		// check if problem specific fathoming criteria is satisfied
+		/* The default implementation of \a exceptionFathom() returns always \a false.
+		*/
+		if (exceptionFathom()) {
+			Logger::ilout(Logger::LL_MEDIUM) << "exceptionFathom(): try fathoming.";
+			terminate = true;
+			forceFathom = true;
+			master_->status(Master::ExceptionFathom);
+		}
+
+		// check if problem specific branching criteria is satisfied
+		/* The default implementation of \a exceptionBranch() returns always \a false.
+		*/
+		if (exceptionBranch()) {
+			Logger::ilout(Logger::LL_MEDIUM) << "exceptionBranch(): try branching." << endl;
+			terminate = true;
+		}
+
+		// check if maximal CPU time is exceeded
+		if (!terminate &&
+			master_->totalTime_.exceeds(master_->maxCpuTime()))
+		{
+			Logger::ilout(Logger::LL_MEDIUM) << "Maximal CPU time " << master_->maxCpuTimeAsString() << " exceeded" << endl
+			 << "Stop subproblem optimization." << endl;
+			master_->status(Master::MaxCpuTime);
+			terminate = true;
+			forceFathom = true;
+		}
+
+		// check if maximal elapsed time is exceeded
+		if (!terminate &&
+			master_->totalCowTime_.exceeds(master_->maxCowTime()))
+		{
+			Logger::ilout(Logger::LL_MEDIUM) << "Maximal elapsed time "
+				<< master_->maxCowTimeAsString() << " exceeded" << endl
+				<< "Stop subproblem optimization." << endl;
+			master_->status(Master::MaxCowTime);
+			terminate = true;
+			forceFathom = true;
+		}
+
+		// check if there is a tailing-off effect
+		if (tailOff_->tailOff()) {
+			Logger::ilout(Logger::LL_MEDIUM) << "Try to tail off subproblem processing" << endl;
+			terminate = tailingOff();
+			if (!terminate) {
+				Logger::ilout(Logger::LL_MEDIUM) << "problem specific resolution: no branching enforced" << endl;
+				tailOff_->reset();
 			}
+		}
+
+		// should we pause the subproblem
+		if (!terminate && pausing()) {
+			Logger::ilout(Logger::LL_MEDIUM) << "Try to pause subproblem" << endl;
+			terminate = true;
+		}
+
+		// check if the iteration limit is reached
+		if (!terminate && (maxIterations_ > 0) && (nIter_ >= maxIterations_)) {
+			Logger::ilout(Logger::LL_MEDIUM) << "Iteration limit reached in subproblem: enforce branching" << endl;
+			terminate = true;
+		}
+
+		// price out inactive variables if a termination criterion is fulfilled
+		/* The guarantee and the time limit criteria cause a fathoming of the
+		*   subproblem, whereas the other criteria cause a branching.
+		*   In the function \a prepareBranching() the active constraints and
+		*   variables can  still be modified. In this case the modifications
+		*   takes place at the beginning of the cutting plane algorithm. But nevertheless,
+		*   after the modifications the linear program is not solved.
+		*/
+		if (terminate) {
+			// if there has been tailing off while solving approximate
+			// switch to the exact solver and iterate
+			if (lastLP_ == LP::Approximate) {
+				forceExactSolver_ = true;
+				continue;
+			}
+			status = _pricing(newValues);
+			if (status)       continue;
+			if (guaranteed() || forceFathom) return Fathoming;
+			if (newValues)    continue;
+			status = prepareBranching(lastIteration);
+			if (status) continue;
+			else        return Branching;
+		}
+
+
+		// perform primal and dual separation
+		// should we skip the separation in this subproblem
+		if (master_->skippingMode() == Master::SkipByNode) {
+			if ((master_->nSubSelected() - 1) % master_->skipFactor() != 0)
+				return Branching;
+		}
+		else {
+			if ((level_ - 1) % master_->skipFactor() != 0)
+				return Branching;
+		}
+
+		if (primalSeparation()) {
+			// perform primal separation
+			/* We do not check the return status for a successful separation, but check
+			*   if new constraints have been stored in the buffer \a cutBuffer_ because
+			*   violated inequalities might have been generated already earlier.
+
+			*   We eliminate constraints only if also constraints are generated, because
+			*   we prefer to have the same constraint set if variables are generated
+			*   by \a _pricing(). If no variables are added in \a _pricing(), then
+			*   the function
+			*   \a prepareBranching() performs the elimination of the constraints.
+			*/
+			_separate();
+
+			if (addConBuffer_->number()) _conEliminate();
 			else {
-				if ((level_ - 1) % master_->skipFactor() != 0)
-					return Branching;
-			}
-
-			if (primalSeparation()) {
-				// perform primal separation
-				/* We do not check the return status for a successful separation, but check
-				*   if new constraints have been stored in the buffer \a cutBuffer_ because
-				*   violated inequalities might have been generated already earlier.
-
-				*   We eliminate constraints only if also constraints are generated, because
-				*   we prefer to have the same constraint set if variables are generated
-				*   by \a _pricing(). If no variables are added in \a _pricing(), then
-				*   the function
-				*   \a prepareBranching() performs the elimination of the constraints.
-				*/
-				_separate();
-
-				if (addConBuffer_->number()) _conEliminate();
+				status = _pricing(newValues);
+				if (status) continue;
 				else {
-					status = _pricing(newValues);
+					if (newValues)    continue;
+					if (guaranteed()) return Fathoming;
+					status = prepareBranching(lastIteration);
 					if (status) continue;
-					else {
-						if (newValues)    continue;
-						if (guaranteed()) return Fathoming;
-						status = prepareBranching(lastIteration);
-						if (status) continue;
-						else        return Branching;
-					}
+					else        return Branching;
 				}
-
 			}
-			else {  //!< dual separation
-				// perform dual separation
-				/* Like in the previous section for the separation we check also the buffer
-				*   for new generated variables.
-				*/
-				_pricing(newValues);
 
-				if (addVarBuffer_->number()) _varEliminate();
-				else if (guaranteed()) return Fathoming;
-				else if (newValues)    continue;
+		}
+		else {  //!< dual separation
+			// perform dual separation
+			/* Like in the previous section for the separation we check also the buffer
+			*   for new generated variables.
+			*/
+			_pricing(newValues);
+
+			if (addVarBuffer_->number()) _varEliminate();
+			else if (guaranteed()) return Fathoming;
+			else if (newValues)    continue;
+			else {
+				if (_separate()) continue;
 				else {
-					if (_separate()) continue;
-					else {
-						status = prepareBranching(lastIteration);
-						if (status) continue;
-						else        return Branching;
-					}
+					status = prepareBranching(lastIteration);
+					if (status) continue;
+					else        return Branching;
 				}
-
 			}
+
+		}
 
 	}   //!< while
 }
@@ -1446,20 +1449,21 @@ bool Sub::removeNonLiftableCons()
 
 	const int nConstraints = nCon();
 
-	for (int i = 0; i < nConstraints; i++)
+	for (int i = 0; i < nConstraints; i++) {
 		if (!constraint(i)->liftable()) {
 			removeCon(i);
 			nNonLiftable++;
 		}
+	}
 
-		genNonLiftCons_ = false;
+	genNonLiftCons_ = false;
 
-		if (nNonLiftable) {
-			Logger::ilout(Logger::LL_MEDIUM) << "Removing " << nNonLiftable << " non-liftable constraints" << endl;
-			lpMethod_ = LP::Primal;
-			return false;
-		}
-		return true;
+	if (nNonLiftable) {
+		Logger::ilout(Logger::LL_MEDIUM) << "Removing " << nNonLiftable << " non-liftable constraints" << endl;
+		lpMethod_ = LP::Primal;
+		return false;
+	}
+	return true;
 }
 
 
@@ -1742,14 +1746,15 @@ bool Sub::integerFeasible()
 
 	const int nVariables = nVar();
 
-	for (int i = 0; i < nVariables; i++)
+	for (int i = 0; i < nVariables; i++) {
 		if (variable(i)->discrete()) {
 			frac = fracPart(xVal_[i]);
 			if ((frac > master_->machineEps()) && (frac < 1.0 - master_->machineEps()))
 				return false;
 		}
+	}
 
-		return true;
+	return true;
 }
 
 
@@ -2069,7 +2074,7 @@ int Sub::closeHalf(ArrayBuffer<int> &variables, VarType::TYPE branchVarType)
 	int    min;
 
 	const int nVariables = nVar();
-	for (int i = 0; i < nVariables; i++)
+	for (int i = 0; i < nVariables; i++) {
 		if ((variable(i)->varType() == branchVarType)
 			&& !(*fsVarStat_)[i]->fixedOrSet()
 			&& !( lBound(i) == uBound(i) ))
@@ -2087,13 +2092,14 @@ int Sub::closeHalf(ArrayBuffer<int> &variables, VarType::TYPE branchVarType)
 				}
 			}
 		}
+	}
 
-		// copy the best variables in the buffer \a variables
-		while(!closest.extractMin(min))
-			variables.push(min);
+	// copy the best variables in the buffer \a variables
+	while(!closest.extractMin(min))
+		variables.push(min);
 
-		if (variables.size()) return 0;
-		else                  return 1;
+	if (variables.size()) return 0;
+	else                  return 1;
 }
 
 
@@ -2136,7 +2142,7 @@ int Sub::closeHalfExpensive(
 
 	const int nVariables = nVar();
 
-	for (i = 0; i < nVariables; i++)
+	for (i = 0; i < nVariables; i++) {
 		if ((variable(i)->varType() == branchVarType)
 			&& !(*fsVarStat_)[i]->fixedOrSet()
 			&& !( lBound(i) == uBound(i) ))
@@ -2146,62 +2152,64 @@ int Sub::closeHalfExpensive(
 			if (fraction <= 0.5 && fraction > lower) lower = fraction;
 			if (fraction >= 0.5 && fraction < upper) upper = fraction;
 		}
+	}
 
-		if (lower == eps && upper == oneMinusEps) return 1;
+	if (lower == eps && upper == oneMinusEps) return 1;
 
-		double scale = 0.25;
+	double scale = 0.25;
 
-		lower   = (1.0 - scale) * lower;
-		upper = upper + scale * (1.0-upper);
+	lower   = (1.0 - scale) * lower;
+	upper = upper + scale * (1.0-upper);
 
-		// select the most expensive variables from interval
-		/* Under \a cost in this context we understand the absolute value of the
-		*   objective function coefficient.
-		*/
-		// changed uninit. Value of minCostCandidate to 0.!
-		double cost;               //!< cost of current variable
-		double minCostCandidate=0.;   //!< cost of worst variable in priority queue
-		int    dummy;              //!< for extracting item of priority queue
+	// select the most expensive variables from interval
+	/* Under \a cost in this context we understand the absolute value of the
+	*   objective function coefficient.
+	*/
+	// changed uninit. Value of minCostCandidate to 0.!
+	double cost;               //!< cost of current variable
+	double minCostCandidate=0.;   //!< cost of worst variable in priority queue
+	int    dummy;              //!< for extracting item of priority queue
 
-		for (i = 0; i < nVariables; i++)
-			if ((variable(i)->varType() == branchVarType) && !(*fsVarStat_)[i]->fixedOrSet())
-			{
-				// check if this variable might a candidate
-				/* We select the variable either if there are not enough candidates,
-				*   otherwise, we check if its cost are higher than those of the worst
-				*   element of \a candidate. In this case we replace this element with the
-				*   variable \a i.
-				*/
-				fraction = fracPart(xVal_[i]);
+	for (i = 0; i < nVariables; i++) {
+		if ((variable(i)->varType() == branchVarType) && !(*fsVarStat_)[i]->fixedOrSet())
+		{
+			// check if this variable might a candidate
+			/* We select the variable either if there are not enough candidates,
+			*   otherwise, we check if its cost are higher than those of the worst
+			*   element of \a candidate. In this case we replace this element with the
+			*   variable \a i.
+			*/
+			fraction = fracPart(xVal_[i]);
 
-				if (lower <= fraction && fraction <= upper) {
-					cost     = fabs(variable(i)->obj());
-					if (candidates.number() < candidates.size())
+			if (lower <= fraction && fraction <= upper) {
+				cost     = fabs(variable(i)->obj());
+				if (candidates.number() < candidates.size())
+					candidates.insert(i, cost);
+				else {
+					if (candidates.getMinKey(minCostCandidate)) {
+						Logger::ifout() << "Sub::CloseHalfExpensive(): internal error: candidate priorirty queue is empty.\n";
+						OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcCloseHalf);
+					}
+					if (cost > minCostCandidate) {
+						(void) candidates.extractMin(dummy);
 						candidates.insert(i, cost);
-					else {
-						if (candidates.getMinKey(minCostCandidate)) {
-							Logger::ifout() << "Sub::CloseHalfExpensive(): internal error: candidate priorirty queue is empty.\n";
-							OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcCloseHalf);
-						}
-						if (cost > minCostCandidate) {
-							(void) candidates.extractMin(dummy);
-							candidates.insert(i, cost);
-						}
 					}
 				}
-
 			}
 
-			// copy the "best" variables to \a branchVar
-			if (candidates.number() == 0) {
-				Logger::ifout() << "Sub::closeHalfExpensive(): where is the fractional variable?\n";
-				OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcCloseHalf);
-			}
+		}
+	}
 
-			while (!candidates.extractMin(dummy))
-				branchVar.push(dummy);
+	// copy the "best" variables to \a branchVar
+	if (candidates.number() == 0) {
+		Logger::ifout() << "Sub::closeHalfExpensive(): where is the fractional variable?\n";
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcCloseHalf);
+	}
 
-			return 0;
+	while (!candidates.extractMin(dummy))
+		branchVar.push(dummy);
+
+	return 0;
 }
 
 
@@ -2232,7 +2240,7 @@ int Sub::findNonFixedSet(
 
 	const int nVariables = nVar();
 
-	for (int i = 0; i < nVariables; i++)
+	for (int i = 0; i < nVariables; i++) {
 		if ((variable(i)->varType() == branchVarType)
 			&& !(*fsVarStat_)[i]->fixedOrSet()
 			&& !( lBound(i) == uBound(i) ))
@@ -2240,9 +2248,10 @@ int Sub::findNonFixedSet(
 			branchVar.push(i);
 			if (branchVar.full()) return 0;
 		}
+	}
 
-		if (branchVar.size()) return 0;
-		else                    return 1;
+	if (branchVar.size()) return 0;
+	else                  return 1;
 }
 
 
@@ -2349,15 +2358,16 @@ double Sub::lpRankBranchingRule(BranchRule *branchRule, int iterLimit)
 
 	// remove the branching rule
 	// set the iteration limit back to its old value
-	if (iterLimit >= 0 && oldIterLimit >=0)
+	if (iterLimit >= 0 && oldIterLimit >=0) {
 		if (lp_->setSimplexIterationLimit(oldIterLimit)) {
 			Logger::ifout() << "Sub::lpRankBranchingRule(): setting the iteration limit of LP-solver failed\n";
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcBranchingRule);
 		}
+	}
 
-		branchRule->unExtract(lp_);
+	branchRule->unExtract(lp_);
 
-		return value;
+	return value;
 }
 
 
@@ -2530,8 +2540,11 @@ void Sub::fathom(bool reoptimize)
 	// count the number of unfathomed sons of the father
 	int   nuf = 0;            //!< number of unfathomed sons of \a father_
 
-	for (int i = 0; i < father_->sons_->size(); i++)
-		if ((*(father_->sons_))[i]->status_ != Fathomed) ++nuf;
+	for (auto &brother : *father_->sons_) {
+		if (brother->status_ != Fathomed) {
+			++nuf;
+		}
+	}
 
 	// process the father
 	/* If all sons of the father are fathomed we can fathom the father
@@ -2819,27 +2832,28 @@ void Sub::dualBound(double x)
 			return;
 		}
 	}
-	else
+	else {
 		if (x < dualBound_) {
 			Logger::ifout() << "Warning: Sub::dualBound(): worse dual ";
 			Logger::ifout() << "bound " << x << "ignored." << endl;
 			Logger::ifout() << "Keeping old dual bound " << dualBound_ << "." << endl;
 			return;
 		}
+	}
 
-		dualBound_ = x;
+	dualBound_ = x;
 
-		if (this == master_->root() && master_->betterDual(dualBound_))
-			master_->dualBound(dualBound_);
+	if (this == master_->root() && master_->betterDual(dualBound_))
+		master_->dualBound(dualBound_);
 
-		if (status_ == ActiveSub) {
-			if (master_->optSense()->max())
-				master_->treeInterfaceNodeBounds(id_, master_->primalBound(),
-				dualBound_);
-			else
-				master_->treeInterfaceNodeBounds(id_, dualBound_,
-				master_->primalBound());
-		}
+	if (status_ == ActiveSub) {
+		if (master_->optSense()->max())
+			master_->treeInterfaceNodeBounds(id_, master_->primalBound(),
+			dualBound_);
+		else
+			master_->treeInterfaceNodeBounds(id_, dualBound_,
+			master_->primalBound());
+	}
 
 }
 
@@ -3151,10 +3165,13 @@ void Sub::fathomTheSubTree()
 		if (status_ == Dormant || status_ == Unprocessed)
 			master_->openSub()->remove(this);
 
-		if (sons_) for (int i = 0; i < sons_->size(); i++)
-			(*sons_)[i]->fathomTheSubTree();
-		else
+		if (sons_) {
+			for (auto &elem : *sons_) {
+				elem->fathomTheSubTree();
+			}
+		} else {
 			fathom(false); //!< no reoptimization desired
+		}
 	}
 }
 
@@ -3513,4 +3530,3 @@ int Sub::_initMakeFeas()
 }
 
 } //namespace abacus
-

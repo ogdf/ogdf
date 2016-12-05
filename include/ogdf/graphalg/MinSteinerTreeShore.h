@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -39,7 +36,7 @@
 // for all branches (edge inclusion or exclusion)
 // additionally a SVG image is generated for each
 // recursion depth
-//#define ENABLE_SHORE_LOGGING
+//#define OGDF_MINSTEINERTREE_SHORE_LOGGING
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/EdgeArray.h>
@@ -321,10 +318,10 @@ T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, cons
 		OGDF_ASSERT(v->graphOf() == m_originalGraph);
 		OGDF_ASSERT(w->graphOf() == m_originalGraph);
 
-		if(finalSteinerTree->copy(v) == 0) {
+		if(finalSteinerTree->copy(v) == nullptr) {
 			finalSteinerTree->newNode(v);
 		}
-		if(finalSteinerTree->copy(w) == 0) {
+		if(finalSteinerTree->copy(w) == nullptr) {
 			finalSteinerTree->newNode(w);
 		}
 		finalSteinerTree->newEdge(e, m_originalGraph->weight(e));
@@ -535,7 +532,7 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 	T result = MAX_WEIGHT;
 	m_recursionDepth++;
 
-#ifdef ENABLE_SHORE_LOGGING
+#ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
 	printSVG();
 #endif
 
@@ -554,7 +551,7 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 			edge branchingEdge = determineBranchingEdge(prevCost);
 			T branchingEdgeWeight = weightOf(branchingEdge);
 
-#ifdef ENABLE_SHORE_LOGGING
+#ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
 			for(int i = 0; i < m_recursionDepth; i++) cout << " ";
 			cout << "branching on edge: " << branchingEdge << std::endl;
 #endif
@@ -634,8 +631,8 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 							moveTarget(e, targetNode);
 						}
 						else {
-							OGDF_ASSERT(e->source() == nodeToRemove)
-							OGDF_ASSERT(e->target() != targetNode)
+							OGDF_ASSERT(e->source() == nodeToRemove);
+							OGDF_ASSERT(e->target() != targetNode);
 							movedEdges.pushFront(e->target());
 							moveSource(e, targetNode);
 						}
@@ -653,7 +650,7 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 				setTerminal(nodeToRemove, false);
 				setTerminal(targetNode, true);
 
-#ifdef ENABLE_SHORE_LOGGING
+#ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
 				for(int i = 0; i < m_recursionDepth; i++) cout << " ";
 				cout << "inclusion branch"  << std::endl;
 #endif
@@ -696,7 +693,7 @@ T MinSteinerTreeShore<T>::bnbInternal(T prevCost, List<edge> &currentEdges)
 				}
 				OGDF_ASSERT(origDelEdges.empty());
 
-#ifdef ENABLE_SHORE_LOGGING
+#ifdef OGDF_MINSTEINERTREE_SHORE_LOGGING
 				for(int i = 0; i < m_recursionDepth; i++) cout << " ";
 				cout << "exclusion branch"  << std::endl;
 #endif

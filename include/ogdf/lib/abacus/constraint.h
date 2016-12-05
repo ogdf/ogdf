@@ -53,7 +53,7 @@ template<class BaseType, class CoType> class Active;
  * given in pool format and is derived from the common base class ConVar of
  * all constraints and variables.
  */
-class  Constraint :  public ConVar  {
+class OGDF_EXPORT Constraint : public ConVar {
 
 	friend class LpSub;
 
@@ -102,7 +102,7 @@ public:
 	 * \param rhs The constraint being copied.
 	 */
 	Constraint(const Constraint &rhs)
-		: ConVar(rhs), sense_(rhs.sense_), rhs_(rhs.rhs_), conClass_(0), liftable_(rhs.liftable_)
+		: ConVar(rhs), sense_(rhs.sense_), rhs_(rhs.rhs_), conClass_(nullptr), liftable_(rhs.liftable_)
 	{
 		if (rhs.conClass_) conClass_ = new ConClass(*(rhs.conClass_));
 	}
@@ -190,7 +190,7 @@ public:
 	 * \return true If the constraint is violated, false otherwise.
 	 */
 	virtual bool violated(
-		Active<Variable, Constraint> *variables, double *x, double *sl = 0) const;
+		Active<Variable, Constraint> *variables, double *x, double *sl = nullptr) const;
 
 	//! Checks if a constraint is violated given the \a slack of a vector.
 	/**
@@ -236,7 +236,7 @@ public:
 	 * A constraint classification can only be generated if the function
 	 * classify() is redefined in a derived class.
 	 */
-	ConClass *classification(Active<Variable, Constraint> *var = 0) const;
+	ConClass *classification(Active<Variable, Constraint> *var = nullptr) const;
 
 protected:
 
@@ -258,7 +258,7 @@ protected:
 	 * The default implementation returns a 0 pointer.
 	 */
 	virtual ConClass *classify(Active<Variable, Constraint> *var) const {
-		return 0;
+		return nullptr;
 	}
 
 
@@ -293,9 +293,9 @@ inline Constraint::Constraint (
 	bool dynamic,
 	bool local,
 	bool liftable)
-	: ConVar(master, sub, dynamic, local), sense_(sense), rhs_(rhs), conClass_(0), liftable_(liftable)
+	: ConVar(master, sub, dynamic, local), sense_(sense), rhs_(rhs), conClass_(nullptr), liftable_(liftable)
 {
-	if (local && sub == 0) {
+	if (local && sub == nullptr) {
 		Logger::ifout() << "Constraint::Constraint(): subtree of local item must not be 0\n";
 		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
 	}
@@ -303,16 +303,11 @@ inline Constraint::Constraint (
 
 
 inline Constraint::Constraint (Master *master)
-	: ConVar(master, 0, true, true), conClass_(0) { }
+	: ConVar(master, nullptr, true, true), conClass_(nullptr) { }
 
 
 inline bool Constraint::valid(Sub *sub) const {
-#ifdef OGDF_DEBUG
-	if (local_ && sub == 0) {
-		Logger::ifout() << "Constraint::valid(): cannot evaluate for locally valid constraint with 0-pointer to subproblem.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
-	}
-#endif
+	OGDF_ASSERT(!local_ || sub != nullptr);
 
 	return (!local_ || sub_->ancestor(sub));
 }

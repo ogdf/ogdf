@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -41,6 +38,9 @@
 #include <ogdf/internal/basic/graph_iterators.h>
 #include <mutex>
 
+#ifdef OGDF_DEBUG
+# include <set>
+#endif
 
 namespace ogdf {
 
@@ -106,6 +106,21 @@ public:
 
 	//! Returns the index of this adjacency element.
 	int index() const { return m_id; }
+
+	//! Returns \c true iff this is the source adjacency entry of the corresponding edge.
+	bool isSource() const;
+
+	/**
+	 * Returns whether this adjacency entry lies between \c adjBefore and \c adjAfter
+	 * in clockwise rotation.
+	 *
+	 * Note that this operation takes time linear in the degree of the node.
+	 *
+	 * @param adjBefore First adjacency entry. Must be at the same node as this.
+	 * @param adjAfter Last adjacency entry. Must be at the same node as this.
+	 * @return \c true iff this adjacency entry is in between
+	 */
+	bool isBetween(adjEntry adjBefore, adjEntry adjAfter) const;
 
 	// traversing faces in clockwise (resp. counter-clockwise) order
 	// (if face is an interior face)
@@ -338,6 +353,13 @@ public:
 	//! Returns the common node of the edge and \a e. Returns nullptr if the two edges are not adjacent.
 	node commonNode(edge e) const { return (m_src==e->m_src || m_src==e->m_tgt) ? m_src : ((m_tgt==e->m_src || m_tgt==e->m_tgt) ? m_tgt: nullptr); }
 
+	//! Returns an adjacency entry of this edge at node \c v.
+	//! If this is a self-loop the source adjacency entry will always be returned.
+	adjEntry getAdj(node v) const {
+		OGDF_ASSERT(this->isIncident(v));
+		return v == m_src ? m_adjSrc : m_adjTgt;
+	}
+
 	//! Standard Comparer
 	static int compare(const EdgeElement& x,const EdgeElement& y) { return x.m_id-y.m_id; }
 	OGDF_AUGMENT_STATICCOMPARER(EdgeElement)
@@ -357,6 +379,26 @@ inline const Graph *AdjElement::graphOf() const {
 }
 #endif
 
+inline bool AdjElement::isSource() const {
+	return this == m_edge->adjSource();
+}
+
+inline bool AdjElement::isBetween(adjEntry adjBefore, adjEntry adjAfter) const {
+#ifdef OGDF_DEBUG
+	node v = this->theNode();
+	OGDF_ASSERT(adjBefore->theNode() == v);
+	OGDF_ASSERT(adjAfter->theNode() == v);
+#endif
+	bool result = this != adjBefore && this != adjAfter && adjBefore != adjAfter;
+
+	if (result) {
+		adjEntry adj = adjBefore;
+		for (; adj != this && adj != adjAfter; adj = adj->cyclicSucc());
+		result = adj == this;
+	}
+
+	return result;
+}
 
 template<class EDGELIST>
 void NodeElement::inEdges(EDGELIST &edgeList) const {
@@ -568,10 +610,23 @@ public:
 	//! Returns the last edge in the list of all edges.
 	edge lastEdge () const { return edges.tail(); }
 
-	//! Returns a randomly chosen node.
-	node chooseNode() const;
-	//! Returns a randomly chosen edge.
-	edge chooseEdge() const;
+	/**
+	 * Returns a random node.
+	 *
+	 * \c nullptr is returned if no feasible node exists.
+	 *
+	 * @see chooseIteratorFrom
+	 */
+	node chooseNode(std::function<bool(node)> includeNode = [](node) { return true; }, bool isFastTest = true) const;
+
+	/**
+	 * Returns a random edge.
+	 *
+	 * \c nullptr is returned if no feasible edge exists.
+	 *
+	 * @see chooseIteratorFrom
+	 */
+	edge chooseEdge(std::function<bool(edge)> includeEdge = [](edge) { return true; }, bool isFastTest = true) const;
 
 	//! Returns a list with all nodes of the graph.
 	/**
@@ -703,7 +758,7 @@ public:
 	virtual void delEdge(edge e);
 
 	//! Removes all nodes and all edges from the graph.
-	void clear();
+	virtual void clear();
 
 	/**
 	 * @brief Functionality for temporarily hiding edges in constant time.
@@ -724,7 +779,7 @@ public:
 	 * Do not hide edges while iterating over the edges of a ogdf::Graph.
 	 * Instead, iterate over a copied list of all edges.
 	 */
-	class HiddenEdgeSet
+	class OGDF_EXPORT HiddenEdgeSet
 	{
 		friend class Graph;
 		friend class EdgeElement;
@@ -978,10 +1033,17 @@ public:
 	template<class ADJ_ENTRY_LIST>
 	void sort(node v, const ADJ_ENTRY_LIST &newOrder) {
 #ifdef OGDF_DEBUG
-		typename ADJ_ENTRY_LIST::const_iterator it;
-		for(it = newOrder.begin(); it.valid() ; ++it) {
-			OGDF_ASSERT((*it)->theNode() == v);
+		std::set<int> entries;
+		int counter = 0;
+
+		for(adjEntry adj : newOrder) {
+			entries.insert(adj->index());
+			OGDF_ASSERT(adj->theNode() == v);
+			counter++;
 		}
+
+		OGDF_ASSERT(counter == v->degree());
+		OGDF_ASSERT(entries.size() == static_cast<unsigned int>(v->degree()));
 #endif
 		v->adjEntries.sort(newOrder);
 	}
@@ -1003,10 +1065,10 @@ public:
 	 * @param dir     specifies if \a adjMove is moved before or after \a adjPos.
 	 */
 	void moveAdj(adjEntry adjMove, Direction dir, adjEntry adjPos) {
-		OGDF_ASSERT(adjMove->graphOf() == this);
-		OGDF_ASSERT(adjPos->graphOf() == this);
 		OGDF_ASSERT(adjMove != nullptr);
 		OGDF_ASSERT(adjPos != nullptr);
+		OGDF_ASSERT(adjMove->graphOf() == this);
+		OGDF_ASSERT(adjPos->graphOf() == this);
 		internal::GraphList<AdjElement> &adjList = adjMove->m_node->adjEntries;
 		adjList.move(adjMove, adjList, adjPos, dir);
 	}
@@ -1019,10 +1081,10 @@ public:
 	 * @param adjAfter is an entry in the same adjacency list as \a adjMove.
 	 */
 	void moveAdjAfter(adjEntry adjMove, adjEntry adjAfter) {
-		OGDF_ASSERT(adjMove->graphOf() == this);
-		OGDF_ASSERT(adjAfter->graphOf() == this);
 		OGDF_ASSERT(adjMove != nullptr);
 		OGDF_ASSERT(adjAfter != nullptr);
+		OGDF_ASSERT(adjMove->graphOf() == this);
+		OGDF_ASSERT(adjAfter->graphOf() == this);
 		adjMove->m_node->adjEntries.moveAfter(adjMove,adjAfter);
 	}
 
@@ -1034,10 +1096,10 @@ public:
 	 * @param adjBefore is an entry in the same adjacency list as \a adjMove.
 	 */
 	void moveAdjBefore(adjEntry adjMove, adjEntry adjBefore) {
-		OGDF_ASSERT(adjMove->graphOf() == this);
-		OGDF_ASSERT(adjBefore->graphOf() == this);
 		OGDF_ASSERT(adjMove != nullptr);
 		OGDF_ASSERT(adjBefore != nullptr);
+		OGDF_ASSERT(adjMove->graphOf() == this);
+		OGDF_ASSERT(adjBefore->graphOf() == this);
 		adjMove->m_node->adjEntries.moveBefore(adjMove,adjBefore);
 	}
 
@@ -1083,7 +1145,7 @@ public:
 	 * @return true if the current embedding (given by the adjacency lists) represents a combinatorial embedding, false otherwise.
 	 */
 	bool representsCombEmbedding() const {
-		return (genus() == 0);
+		return genus() == 0;
 	}
 
 	//! Checks the consistency of the data structure.
@@ -1236,7 +1298,7 @@ public:
 
 
 	//! Info structure for maintaining connected components.
-	class CCsInfo {
+	class OGDF_EXPORT CCsInfo {
 
 		const Graph *m_graph;	//!< points to the associated graph.
 		int m_numCC;			//!< the number of connected components.
@@ -1341,14 +1403,14 @@ private:
 class OGDF_EXPORT BucketSourceIndex : public BucketFunc<edge> {
 public:
 	//! Returns source index of \a e.
-	int getBucket(const edge &e) { return e->source()->index(); }
+	int getBucket(const edge &e) override { return e->source()->index(); }
 };
 
 //! Bucket function using the index of an edge's target node as bucket.
 class OGDF_EXPORT BucketTargetIndex : public BucketFunc<edge> {
 public:
 	//! Returns target index of \a e.
-	int getBucket(const edge &e) { return e->target()->index(); }
+	int getBucket(const edge &e) override { return e->target()->index(); }
 };
 
 

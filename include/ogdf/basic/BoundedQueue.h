@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -61,7 +58,7 @@ public:
 
 	//! Constructs an empty bounded queue for at most \a n elements.
 	explicit BoundedQueue(INDEX n) {
-		OGDF_ASSERT(n >= 1)
+		OGDF_ASSERT(n >= 1);
 		m_pStart = m_pEnd = m_pFirst = new E[n+1];
 		if (m_pFirst == nullptr) OGDF_THROW(InsufficientMemoryException);
 
@@ -86,7 +83,7 @@ public:
 		Q.m_pStart = Q.m_pEnd = Q.m_pFirst = Q.m_pStop = nullptr;
 	}
 
-	// destruction
+	//! Destruction
 	~BoundedQueue() { delete [] m_pFirst; }
 
 	//! Reinitializes the bounded queue to a non-valid bounded queue.
@@ -99,7 +96,7 @@ public:
 	void init(INDEX n) {
 		delete [] m_pFirst;
 
-		OGDF_ASSERT(n >= 1)
+		OGDF_ASSERT(n >= 1);
 		m_pStart = m_pEnd = m_pFirst = new E[n+1];
 		if (m_pFirst == nullptr) OGDF_THROW(InsufficientMemoryException);
 
@@ -108,26 +105,26 @@ public:
 
 	//! Returns front element.
 	const E &top() const {
-		OGDF_ASSERT(m_pStart != m_pEnd)
+		OGDF_ASSERT(m_pStart != m_pEnd);
 		return *m_pStart;
 	}
 
 	//! Returns front element.
 	E &top() {
-		OGDF_ASSERT(m_pStart != m_pEnd)
+		OGDF_ASSERT(m_pStart != m_pEnd);
 		return *m_pStart;
 	}
 
 	//! Returns back element.
 	const E &bottom() const {
-		OGDF_ASSERT(m_pStart != m_pEnd)
+		OGDF_ASSERT(m_pStart != m_pEnd);
 		if (m_pEnd == m_pFirst) return *(m_pStop-1);
 		else return *(m_pEnd-1);
 	}
 
 	//! Returns back element.
 	E &bottom() {
-		OGDF_ASSERT(m_pStart != m_pEnd)
+		OGDF_ASSERT(m_pStart != m_pEnd);
 		if (m_pEnd == m_pFirst) return *(m_pStop-1);
 		else return *(m_pEnd-1);
 	}
@@ -182,12 +179,12 @@ public:
 	void append(const E &x) {
 		*m_pEnd++ = x;
 		if (m_pEnd == m_pStop) m_pEnd = m_pFirst;
-		OGDF_ASSERT(m_pStart != m_pEnd)
+		OGDF_ASSERT(m_pStart != m_pEnd);
 	}
 
 	//! Removes front element and returns it.
 	E pop() {
-		OGDF_ASSERT(m_pStart != m_pEnd)
+		OGDF_ASSERT(m_pStart != m_pEnd);
 		E x = *m_pStart++;
 		if (m_pStart == m_pStop) m_pStart = m_pFirst;
 		return x;
@@ -220,7 +217,8 @@ private:
 	}
 }; // class BoundedQueue
 
-// output operator
+
+//! Prints BoundedQueue \a Q to output stream \a os
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const BoundedQueue<E,INDEX> &Q)
 {

@@ -56,7 +56,7 @@ class LpSub;
  * for changing the bounds of an integer variable (ConBranchRule), and
  * for adding a branching constraint (ConBranchRule).
  */
-class  BranchRule :  public AbacusRoot  {
+class OGDF_EXPORT BranchRule : public AbacusRoot {
 public:
 
 	//! Initializes a branching rule.

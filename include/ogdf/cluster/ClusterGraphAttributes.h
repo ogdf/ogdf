@@ -11,7 +11,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -28,12 +28,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -100,7 +97,7 @@ public:
 	//@{
 
 	//! Constructs cluster graph attributes for no associated graph.
-	ClusterGraphAttributes() : GraphAttributes(), m_pClusterGraph(0) { }
+	ClusterGraphAttributes() : GraphAttributes(), m_pClusterGraph(nullptr) { }
 
 	//! Constructs cluster graph attributes for cluster graph \a cg with attributes \a initAttributes.
 	/**
@@ -114,7 +111,7 @@ public:
 	virtual void init(ClusterGraph &cg, long initAttributes = 0);
 
 	//! Forbidden initialization, use init(ClusterGraph &cg, long initAttributes) instead!
-	virtual void init(const Graph &, long) {
+	virtual void init(const Graph &, long) override {
 		OGDF_THROW(Exception); // We need a cluster graph for initialization
 	}
 
@@ -257,28 +254,28 @@ public:
 	* \param sy         is the scaling factor for y-coordinates.
 	* \param scaleNodes determines if nodes size are scaled as well (true) or not.
 	*/
-	virtual void scale(double sx, double sy, bool scaleNodes = true);
+	virtual void scale(double sx, double sy, bool scaleNodes = true) override;
 
 	//! Translates the layout by (\a dx,\a dy).
 	/**
 	* \param dx is the translation in x-direction.
 	* \param dy is the translation in y-direction.
 	*/
-	virtual void translate(double dx, double dy);
+	virtual void translate(double dx, double dy) override;
 
 	//! Flips the (whole) layout vertically such that the part in \a box remains in this area.
 	/**
 	* The whole layout is flipped and then moved such that the part that was in \a box before
 	* flipping is moved to this area.
 	*/
-	virtual void flipVertical(const DRect &box);
+	virtual void flipVertical(const DRect &box) override;
 
 	//! Flips the (whole) layout horizontally such that the part in \a box remains in this area.
 	/**
 	* The whole layout is flipped and then moved such that the part that was in \a box before
 	* flipping is moved to this area.
 	*/
-	virtual void flipHorizontal(const DRect &box);
+	virtual void flipHorizontal(const DRect &box) override;
 
 	//@}
 	/**
@@ -287,7 +284,7 @@ public:
 	//@{
 
 	//! Returns the bounding box of the layout.
-	virtual DRect boundingBox() const;
+	virtual DRect boundingBox() const override;
 
 	//! Updates positions of cluster boundaries wrt to children and child clusters
 	void updateClusterPositions(double boundaryDist = 1.0);

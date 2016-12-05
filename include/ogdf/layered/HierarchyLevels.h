@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -71,7 +68,7 @@ namespace ogdf {
 		explicit HierarchyLevels(const Hierarchy &H);
 		~HierarchyLevels();
 
-		const Hierarchy &hierarchy() const { return m_H; }
+		const Hierarchy &hierarchy() const override { return m_H; }
 
 		//! Returns the current direction of layer-by-layer sweep.
 		TraversingDir direction() const {
@@ -84,13 +81,13 @@ namespace ogdf {
 		}
 
 		//! Returns the number of levels.
-		int size() const { return m_pLevel.size(); }
+		int size() const override { return m_pLevel.size(); }
 
 		//! Returns the maximal array index of a level (= size()-1).
-		int high() const { return m_pLevel.high(); }
+		int high() const override { return m_pLevel.high(); }
 
 		//! Returns the position of node \a v on its level.
-		int pos(node v) const { return m_pos[v]; }
+		int pos(node v) const override { return m_pos[v]; }
 
 		//! Returns the adjacent nodes of \a v (according to direction()).
 		const Array<node> &adjNodes(node v) const {
@@ -99,7 +96,7 @@ namespace ogdf {
 		}
 
 		//! Returns the adjacent nodes of \a v.
-		const Array<node> &adjNodes(node v, TraversingDir dir) const {
+		const Array<node> &adjNodes(node v, TraversingDir dir) const override {
 			return (dir == downward) ? m_lowerAdjNodes[v] :
 			m_upperAdjNodes[v];
 		}
@@ -110,7 +107,7 @@ namespace ogdf {
 		}
 
 		//! Returns the <i>i</i>-th level.
-		const Level &operator[](int i) const { return *m_pLevel[i]; }
+		const Level &operator[](int i) const override { return *m_pLevel[i]; }
 
 		//! Returns the <i>i</i>-th level.
 		Level &operator[](int i) { return *m_pLevel[i]; }

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,13 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/AcyclicSubgraphModule.h>
 #include <ogdf/module/FUPSModule.h>
 #include <ogdf/module/UpwardEdgeInserterModule.h>
@@ -43,7 +40,6 @@
 #include <ogdf/upward/FUPSSimple.h>
 #include <ogdf/upward/FixedEmbeddingUpwardEdgeInserter.h>
 #include <ogdf/decomposition/BCTree.h>
-#include <ogdf/module/AcyclicSubgraphModule.h>
 #include <ogdf/layered/GreedyCycleRemoval.h>
 
 
@@ -60,24 +56,24 @@ public:
 	{
 		m_runs = 1;
 		//set default module
-		m_subgraph.set(new FUPSSimple());
-		m_inserter.set(new FixedEmbeddingUpwardEdgeInserter());
-		m_acyclicMod.set(new GreedyCycleRemoval());
+		m_subgraph.reset(new FUPSSimple());
+		m_inserter.reset(new FixedEmbeddingUpwardEdgeInserter());
+		m_acyclicMod.reset(new GreedyCycleRemoval());
 	}
 
 	//! Sets the module option for the computation of the feasible upward planar subgraph.
 	void setSubgraph(FUPSModule *FUPS) {
-		m_subgraph.set(FUPS);
+		m_subgraph.reset(FUPS);
 	}
 
 	//! Sets the module option for the edge insertion module.
 	void setInserter(UpwardEdgeInserterModule *pInserter) {
-		m_inserter.set(pInserter);
+		m_inserter.reset(pInserter);
 	}
 
 	//! Sets the module option for acyclic subgraph module.
 	void setAcyclicSubgraphModule(AcyclicSubgraphModule *acyclicMod) {
-		m_acyclicMod.set(acyclicMod);
+		m_acyclicMod.reset(acyclicMod);
 	}
 
 	int runs() {return m_runs;}
@@ -89,9 +85,9 @@ protected:
 		const EdgeArray<int>  &cost,
 		const EdgeArray<bool> &forbid) override;
 
-	ModuleOption<FUPSModule> m_subgraph; //!< The upward planar subgraph algorithm.
-	ModuleOption<UpwardEdgeInserterModule> m_inserter; //!< The edge insertion module.
-	ModuleOption<AcyclicSubgraphModule> m_acyclicMod; //!<The acyclic subgraph module.
+	std::unique_ptr<FUPSModule> m_subgraph; //!< The upward planar subgraph algorithm.
+	std::unique_ptr<UpwardEdgeInserterModule> m_inserter; //!< The edge insertion module.
+	std::unique_ptr<AcyclicSubgraphModule> m_acyclicMod; //!<The acyclic subgraph module.
 	int m_runs;
 
 private:

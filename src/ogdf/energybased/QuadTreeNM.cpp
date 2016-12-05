@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/energybased/QuadTreeNM.h>
@@ -263,10 +260,12 @@ void QuadTreeNM::cout_preorder(QuadTreeNodeNM* node_ptr, int precision)
 		cout << *node_ptr << endl;
 		cout << " ME: ";
 		for (int i = 0; i <= precision; i++)
-			cout << M[i] << " "; cout << endl;
+			cout << M[i] << " ";
+		cout << endl;
 		cout << " LE: ";
 		for (int i = 0; i <= precision; i++)
-			cout << L[i] << " "; cout << endl << endl;
+			cout << L[i] << " ";
+		cout << endl << endl;
 
 		if (node_ptr->get_child_lt_ptr() != nullptr)
 			cout_preorder(node_ptr->get_child_lt_ptr(), precision);

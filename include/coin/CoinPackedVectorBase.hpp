@@ -21,7 +21,7 @@ class CoinPackedVector;
     change the object. */
 
 class CoinPackedVectorBase  {
-  
+
 public:
    /**@name Virtual methods that the derived classes must provide */
    //@{
@@ -44,7 +44,7 @@ public:
    //@{
    /** \brief Set to the argument value whether to test for duplicate indices
 	      in the vector whenever they can occur.
-       
+
        Calling this method with \p test set to true will trigger an immediate
        check for duplicate indices.
    */
@@ -81,7 +81,7 @@ public:
        <strong>NOTE</strong>: This is <em>very</em> expensive. It is probably
        much better to use <code>denseVector()</code>.
    */
-   double operator[](int i) const; 
+   double operator[](int i) const;
    //@}
 
    /**@name Index methods */
@@ -98,13 +98,13 @@ public:
    /** Return true if the i'th element of the full storage vector exists in
        the packed storage vector.*/
    bool isExistingIndex(int i) const;
-   
+
    /** Return the position of the i'th element of the full storage vector.
        If index does not exist then -1 is returned  */
    int findIndex(int i) const;
- 
+
    //@}
-  
+
    /**@name Comparison operators on two packed vectors */
    //@{
    /** Equal. Returns true if vectors have same length and corresponding
@@ -120,7 +120,7 @@ public:
        smaller/equal.greater than \c rhs */
    int lexCompare(const CoinPackedVectorBase& rhs);
 #endif
-  
+
    /** This method establishes an ordering on packed vectors. It is complete
        ordering, but not the same as lexicographic ordering. However, it is
        quick and dirty to compute and thus it is useful to keep packed vectors
@@ -132,7 +132,7 @@ public:
    /** equivalent - If shallow packed vector A & B are equivalent, then they
        are still equivalent no matter how they are sorted.
        In this method the FloatEqual function operator can be specified. The
-       default equivalence test is that the entries are relatively equal.<br> 
+       default equivalence test is that the entries are relatively equal.<br>
        <strong>NOTE</strong>: This is a relatively expensive method as it
        sorts the two shallow packed vectors.
    */
@@ -225,11 +225,11 @@ private:
        no need to provide an assignment operator. */
    CoinPackedVectorBase& operator=(const CoinPackedVectorBase&);
    //@}
-   
+
 protected:
-    
+
    /**@name Protected methods */
-   //@{      
+   //@{
    /// Find Maximum and Minimum Indices
    void findMaxMinIndices() const;
 
@@ -245,7 +245,7 @@ protected:
       minIndex_ = x.minIndex_;
    }
    //@}
-    
+
 private:
    /**@name Protected member data */
    //@{

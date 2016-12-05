@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/basic/Logger.h>
 #include <ogdf/fileformats/GraphIO.h>
@@ -133,30 +130,35 @@ bool GraphIO::readLEDA(Graph &G, istream &is)
 
 bool GraphIO::writeLEDA(const Graph &G, ostream &os)
 {
-	// write header
-	os << "LEDA.GRAPH\n";	// format specification
-	os << "void\n";			// no node type
-	os << "void\n";			// no edge type
-	os << "-1\n";			// directed graph
+	bool result = os.good();
 
-	// write nodes and assign indices 1, 2, ..., n
-	os << G.numberOfNodes() << "\n";
+	if(result) {
+		// write header
+		os << "LEDA.GRAPH\n";    // format specification
+		os << "void\n";            // no node type
+		os << "void\n";            // no edge type
+		os << "-1\n";            // directed graph
 
-	NodeArray<int> index(G);
-	int nextIndex = 1;
-	for(node v : G.nodes) {
-		os << "|{}|\n";
-		index[v] = nextIndex++;
+		// write nodes and assign indices 1, 2, ..., n
+		os << G.numberOfNodes() << "\n";
+
+		NodeArray<int> index(G);
+		int nextIndex = 1;
+		for (node v : G.nodes) {
+			os << "|{}|\n";
+			index[v] = nextIndex++;
+		}
+
+		// write edges
+		os << G.numberOfEdges() << "\n";
+
+		for (edge e : G.edges) {
+			os << index[e->source()] << " " << index[e->target()] << " 0 |{}|\n";
+		}
+
 	}
 
-	// write edges
-	os << G.numberOfEdges() << "\n";
-
-	for(edge e : G.edges) {
-		os << index[e->source()] << " " << index[e->target()] << " 0 |{}|\n";
-	}
-
-	return true;
+	return result;
 }
 
 }

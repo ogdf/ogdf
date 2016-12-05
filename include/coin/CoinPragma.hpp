@@ -16,7 +16,7 @@
 #if defined(_MSC_VER)
 // Turn off compiler warning about long names
 #  pragma warning(disable:4786)
-// Turn off compiler warning: 
+// Turn off compiler warning:
 // "empty controlled statement found; is this the intent?"
 #  pragma warning(disable:4390)
 // Turn off compiler warning about deprecated functions

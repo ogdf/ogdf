@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,17 +25,15 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/Hashing.h>
+#include <ogdf/basic/Math.h>
 #include <ogdf/basic/EpsilonTest.h>
 #include <cfloat>
 
@@ -116,6 +114,36 @@ public:
 		return !operator<(p);
 	}
 
+	//! Compute angle (in radians) between vectors
+	double angle(GenericPoint q, GenericPoint r) const
+	{
+		const double dx1 = q.m_x - m_x, dy1 = q.m_y - m_y;
+		const double dx2 = r.m_x - m_x, dy2 = r.m_y - m_y;
+
+		// two vertices on the same place!
+		if ((dx1 == 0 && dy1 == 0)
+		 || (dx2 == 0 && dy2 == 0)) {
+			return 0.0;
+		}
+
+		const double norm = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
+		const double cosphi = (dx1*dx2+dy1*dy2) / sqrt(norm);
+		if (cosphi >= 1.0) return 0;
+		if (cosphi <= -1.0) return Math::pi;
+
+		double phi = acos(cosphi);
+
+		if (dx1*dy2 < dy1*dx2) phi = -phi;
+		if (phi < 0) phi += 2*Math::pi;
+
+		return phi;
+	}
+
+	//! Compute angle (in degrees) between vectors
+	double angleDegrees(GenericPoint q, GenericPoint r) const
+	{
+		return angle(q, r)*360.0/(2*Math::pi);
+	}
 };//class GenericPoint
 
 
@@ -358,7 +386,9 @@ public:
 	//! Converts all coordinates rounded to \a s_prec decimal digits.
 	void convertToInt();
 
-	//void reConvertToDouble();
+#if 0
+	void reConvertToDouble();
+#endif
 };
 
 
@@ -425,10 +455,10 @@ public:
 	double yAbs() const { return (dx() == 0) ? numeric_limits<double>::max() : m_start.m_y - (slope() * m_start.m_x); }
 
 	//! Returns true iff this line runs vertically.
-	bool isVertical()   const { return (OGDF_GEOM_ET.equal(dx(), 0.0)); }
+	bool isVertical()   const { return OGDF_GEOM_ET.equal(dx(), 0.0); }
 
 	//! Returns true iff this line runs horizontally.
-	bool isHorizontal() const { return (OGDF_GEOM_ET.equal(dy(), 0.0)); }
+	bool isHorizontal() const { return OGDF_GEOM_ET.equal(dy(), 0.0); }
 
 	/**
 	 * \brief Returns true iff \a line and this line intersect.
@@ -596,9 +626,7 @@ public:
 OGDF_EXPORT ostream &operator<<(ostream &os, const DRect &dr);
 
 
-/**
-* \brief Scaling between coordinate systems.
-*/
+//! Scaling between coordinate systems.
 class OGDF_EXPORT DScaler {
 
 private:

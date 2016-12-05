@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -38,7 +35,7 @@
 #include <ogdf/module/UMLCrossingMinimizationModule.h>
 #include <ogdf/module/LayoutPlanRepUMLModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
-#include <ogdf/basic/ModuleOption.h>
+#include <memory>
 #include <ogdf/module/EmbedderModule.h>
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/orthogonal/OrthoRep.h>
@@ -151,10 +148,12 @@ public:
 		//this simple call method does not care about any special treatments
 		//of subgraphs, layout informations etc., therefore we save the
 		//option status and set them back later on
+#if 0
 		//cliques are only handled for UMLGraphs, so it is save to
-		//only set this value here and not in the GraphAtrtibutes interface method.
-		//bool l_saveCliqueHandling = m_processCliques;
-		//m_processCliques = false;
+		//only set this value here and not in the GraphAttributes interface method.
+		bool l_saveCliqueHandling = m_processCliques;
+		m_processCliques = false;
+#endif
 
 		//---------------------------------------------------
 		// preprocessing: insert a merger for generalizations
@@ -170,7 +169,9 @@ public:
 
 		postProcess(umlGraph);
 
-		//m_processCliques = l_saveCliqueHandling;
+#if 0
+		m_processCliques = l_saveCliqueHandling;
+#endif
 	}
 
 	//! Simple call function.
@@ -180,10 +181,10 @@ public:
 		GA.removeUnnecessaryBendsHV();
 	}
 
-	//! Call for simultaneous drawing with graph \a umlGraph.
-	//virtual void callSimDraw(UMLGraph &umlGraph);
-
 #if 0
+	//! Call for simultaneous drawing with graph \a umlGraph.
+	virtual void callSimDraw(UMLGraph &umlGraph);
+
 	**
 	 * \brief Calls planarization layout with fixed embedding given by \a umlGraph.
 	 * \pre The graph has no self-loops.
@@ -227,15 +228,15 @@ public:
 
 
 	//set the option field for the planar layouter
-	void setLayouterOptions(int ops) { m_planarLayouter.get().setOptions(ops); }
+	void setLayouterOptions(int ops) { m_planarLayouter->setOptions(ops); }
 
 	//draw hierarchy nodes corresponding to their level
 	void alignSons(bool b)
 	{
-		int opts = m_planarLayouter.get().getOptions();
+		int opts = m_planarLayouter->getOptions();
 
-		if (b) m_planarLayouter.get().setOptions(opts | umlOpAlign);
-		else  m_planarLayouter.get().setOptions(opts & ~umlOpAlign);
+		if (b) m_planarLayouter->setOptions(opts | umlOpAlign);
+		else  m_planarLayouter->setOptions(opts & ~umlOpAlign);
 	}
 
 
@@ -246,7 +247,7 @@ public:
 
 	//! Sets the module option for UML crossing minimization.
 	void setCrossMin(UMLCrossingMinimizationModule *pCrossMin) {
-		m_crossMin.set(pCrossMin);
+		m_crossMin.reset(pCrossMin);
 	}
 
 	/**
@@ -257,7 +258,7 @@ public:
 	 * module then computes a planar embedding of this planar graph.
 	 */
 	void setEmbedder(EmbedderModule *pEmbedder) {
-		m_embedder.set(pEmbedder);
+		m_embedder.reset(pEmbedder);
 	}
 
 	/**
@@ -271,7 +272,7 @@ public:
 	 * layout algorithm produces an orthogonal drawing.
 	 */
 	void setPlanarLayouter(LayoutPlanRepUMLModule *pPlanarLayouter) {
-		m_planarLayouter.set(pPlanarLayouter);
+		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
 	/**
@@ -282,7 +283,7 @@ public:
 	 * using a packing algorithm.
 	 */
 	void setPacker(CCLayoutPackModule *pPacker) {
-		m_packer.set(pPacker);
+		m_packer.reset(pPacker);
 	}
 
 	/** @}
@@ -322,16 +323,16 @@ private:
 		const CombinatorialEmbedding &E);
 
 	//! The moule for UML crossing minimization
-	ModuleOption<UMLCrossingMinimizationModule> m_crossMin;
+	std::unique_ptr<UMLCrossingMinimizationModule> m_crossMin;
 
 	//! The module for planar embedding.
-	ModuleOption<EmbedderModule>       m_embedder;
+	std::unique_ptr<EmbedderModule>       m_embedder;
 
 	//! The module for computing a planar layout.
-	ModuleOption<LayoutPlanRepUMLModule>  m_planarLayouter;
+	std::unique_ptr<LayoutPlanRepUMLModule>  m_planarLayouter;
 
 	//! The module for arranging connected components.
-	ModuleOption<CCLayoutPackModule>   m_packer;
+	std::unique_ptr<CCLayoutPackModule>   m_packer;
 
 	double m_pageRatio;    //!< The desired page ratio.
 	int m_nCrossings;      //!< The number of crossings in the computed layout.

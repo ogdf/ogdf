@@ -12,7 +12,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -29,12 +29,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -216,11 +213,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double x(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_x[v];
 	}
 
@@ -230,11 +223,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double &x(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_x[v];
 	}
 
@@ -244,11 +233,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double y(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_y[v];
 	}
 
@@ -258,11 +243,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double &y(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_y[v];
 	}
 
@@ -272,11 +253,7 @@ public:
 	 * \pre \a threeD is enabled
 	 */
 	double z(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(threeD)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(threeD));
 		return m_z[v];
 	}
 
@@ -286,11 +263,7 @@ public:
 	 * \pre \a threeD is enabled
 	 */
 	double &z(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(threeD)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(threeD));
 		return m_z[v];
 	}
 
@@ -300,11 +273,7 @@ public:
 	 * \pre \a nodeLabelPosition is enabled
 	 */
 	double xLabel(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabelPosition)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabelPosition));
 		return m_nodeLabelPosX[v];
 	}
 
@@ -313,11 +282,7 @@ public:
 	 * \pre \a nodeLabelPosition is enabled
 	 */
 	double &xLabel(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabelPosition)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabelPosition));
 		return m_nodeLabelPosX[v];
 	}
 
@@ -327,11 +292,7 @@ public:
 	 * \pre \a nodeLabelPosition is enabled
 	 */
 	double yLabel(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabelPosition)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabelPosition));
 		return m_nodeLabelPosY[v];
 	}
 
@@ -340,11 +301,7 @@ public:
 	 * \pre \a nodeLabelPosition is enabled
 	 */
 	double &yLabel(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabelPosition)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabelPosition));
 		return m_nodeLabelPosY[v];
 	}
 
@@ -354,11 +311,8 @@ public:
 	 * \pre \a nodeLabelPosition and \a threeD are enabled
 	 */
 	double zLabel(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabelPosition | threeD)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabelPosition));
+		OGDF_ASSERT(has(threeD));
 		return m_nodeLabelPosZ[v];
 	}
 
@@ -367,11 +321,8 @@ public:
 	 * \pre \a nodeLabelPosition and \a threeD are enabled
 	 */
 	double &zLabel(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabelPosition | threeD)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabelPosition));
+		OGDF_ASSERT(has(threeD));
 		return m_nodeLabelPosZ[v];
 	}
 
@@ -381,11 +332,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double width(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_width[v];
 	}
 
@@ -394,11 +341,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double &width(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_width[v];
 	}
 
@@ -408,11 +351,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	const NodeArray<double> &width() const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_width;
 	}
 
@@ -421,11 +360,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	NodeArray<double> &width() {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_width;
 	}
 
@@ -435,11 +370,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double height(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_height[v];
 	}
 
@@ -448,11 +379,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	double &height(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_height[v];
 	}
 
@@ -462,11 +389,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	const NodeArray<double> &height() const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_height;
 	}
 
@@ -475,11 +398,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	NodeArray<double> &height() {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_height;
 	}
 
@@ -489,11 +408,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	Shape shape(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_nodeShape[v];
 	}
 
@@ -502,11 +417,7 @@ public:
 	 * \pre \a nodeGraphics is enabled
 	 */
 	Shape &shape(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeGraphics));
 		return m_nodeShape[v];
 	}
 
@@ -516,11 +427,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	StrokeType strokeType(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_type;
 	}
 
@@ -529,11 +436,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	void setStrokeType(node v, StrokeType st) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		m_nodeStroke[v].m_type = st;
 	}
 
@@ -543,11 +446,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	const Color &strokeColor(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_color;
 	}
 
@@ -556,11 +455,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	Color &strokeColor(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_color;
 	}
 
@@ -570,11 +465,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	float strokeWidth(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_width;
 	}
 
@@ -583,11 +474,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	float &strokeWidth(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeStroke[v].m_width;
 	}
 
@@ -597,11 +484,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	FillPattern fillPattern(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_pattern;
 	}
 
@@ -610,11 +493,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	void setFillPattern(node v, FillPattern fp) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		m_nodeFill[v].m_pattern = fp;
 	}
 
@@ -624,11 +503,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	const Color &fillColor(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_color;
 	}
 
@@ -637,11 +512,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	Color &fillColor(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_color;
 	}
 
@@ -651,11 +522,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	const Color &fillBgColor(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_bgColor;
 	}
 
@@ -664,11 +531,7 @@ public:
 	 * \pre \a nodeStyle is enabled
 	 */
 	Color &fillBgColor(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeStyle));
 		return m_nodeFill[v].m_bgColor;
 	}
 
@@ -678,11 +541,7 @@ public:
 	 * \pre \a nodeLabel is enabled
 	 */
 	const string &label(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabel)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabel));
 		return m_nodeLabel[v];
 	}
 
@@ -691,11 +550,7 @@ public:
 	 * \pre \a nodeLabel is enabled
 	 */
 	string &label(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeLabel)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeLabel));
 		return m_nodeLabel[v];
 	}
 
@@ -705,11 +560,7 @@ public:
 	 * \pre \a nodeTemplate is enabled
 	 */
 	const string &templateNode(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeTemplate)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeTemplate));
 		return m_nodeTemplate[v];
 	}
 
@@ -718,11 +569,7 @@ public:
 	 * \pre \a nodeTemplate is enabled
 	 */
 	string &templateNode(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeTemplate)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeTemplate));
 		return m_nodeTemplate[v];
 	}
 
@@ -732,11 +579,7 @@ public:
 	 * \pre \a nodeWeight is enabled
 	 */
 	int weight(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeWeight)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeWeight));
 		return m_nodeIntWeight[v];
 	}
 
@@ -745,11 +588,7 @@ public:
 	 * \pre \a nodeWeight is enabled
 	 */
 	int &weight(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeWeight)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeWeight));
 		return m_nodeIntWeight[v];
 	}
 
@@ -759,11 +598,7 @@ public:
 	 * \pre \a nodeType is enabled
 	 */
 	Graph::NodeType type(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeType)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeType));
 		return m_vType.valid() ? m_vType[v] : Graph::vertex;
 	}
 
@@ -772,11 +607,7 @@ public:
 	 * \pre \a nodeType is enabled
 	 */
 	Graph::NodeType &type(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeType)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeType));
 		return m_vType[v];
 	}
 
@@ -786,11 +617,7 @@ public:
 	 * \pre \a nodeId is enabled
 	 */
 	int idNode(node v) const {
-#ifdef OGDF_DEBUG
-		if(!has(nodeId)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeId));
 		return m_nodeId[v];
 	}
 
@@ -799,11 +626,7 @@ public:
 	 * \pre \a nodeId is enabled
 	 */
 	int &idNode(node v) {
-#ifdef OGDF_DEBUG
-		if(!has(nodeId)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(nodeId));
 		return m_nodeId[v];
 	}
 
@@ -819,11 +642,7 @@ public:
 	 * \pre \a edgeGraphics is enabled
 	 */
 	const DPolyline &bends(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeGraphics));
 		return m_bends[e];
 	}
 
@@ -832,11 +651,7 @@ public:
 	 * \pre \a edgeGraphics is enabled
 	 */
 	DPolyline &bends(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeGraphics)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeGraphics));
 		return m_bends[e];
 	}
 
@@ -846,11 +661,7 @@ public:
 	 * \pre \a edgeArrow is enabled
 	 */
 	EdgeArrow arrowType(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeArrow)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeArrow));
 		return m_edgeArrow[e];
 	}
 
@@ -859,11 +670,7 @@ public:
 	 * \pre \a edgeArrow is enabled
 	 */
 	EdgeArrow &arrowType(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeArrow)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeArrow));
 		return m_edgeArrow[e];
 	}
 
@@ -873,11 +680,7 @@ public:
 	 * \pre \a edgeStyle is enabled
 	 */
 	StrokeType strokeType(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_type;
 	}
 
@@ -886,11 +689,7 @@ public:
 	 * \pre \a edgeStyle is enabled
 	 */
 	void setStrokeType(edge e, StrokeType st) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeStyle));
 		m_edgeStroke[e].m_type = st;
 	}
 
@@ -900,11 +699,7 @@ public:
 	 * \pre \a edgeStyle is enabled
 	 */
 	const Color &strokeColor(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_color;
 	}
 
@@ -913,11 +708,7 @@ public:
 	 * \pre \a edgeStyle is enabled
 	 */
 	Color &strokeColor(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_color;
 	}
 
@@ -927,11 +718,7 @@ public:
 	 * \pre \a edgeStyle is enabled
 	 */
 	float strokeWidth(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_width;
 	}
 
@@ -940,11 +727,7 @@ public:
 	 * \pre \a edgeStyle is enabled
 	 */
 	float &strokeWidth(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeStyle)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeStyle));
 		return m_edgeStroke[e].m_width;
 	}
 
@@ -954,11 +737,7 @@ public:
 	 * \pre \a edgeLabel is enabled
 	 */
 	const string &label(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeLabel)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeLabel));
 		return m_edgeLabel[e];
 	}
 
@@ -967,11 +746,7 @@ public:
 	 * \pre \a edgeLabel is enabled
 	 */
 	string &label(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeLabel)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeLabel));
 		return m_edgeLabel[e];
 	}
 
@@ -981,11 +756,7 @@ public:
 	 * \pre \a edgeIntWeight is enabled
 	 */
 	int intWeight(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeIntWeight)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeIntWeight));
 		return m_intWeight[e];
 	}
 
@@ -994,11 +765,7 @@ public:
 	 * \pre \a edgeIntWeight is enabled
 	 */
 	int &intWeight(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeIntWeight)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeIntWeight));
 		return m_intWeight[e];
 	}
 
@@ -1008,11 +775,7 @@ public:
 	 * \pre \a edgeDoubleWeight is enabled
 	 */
 	double doubleWeight(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeDoubleWeight)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeDoubleWeight));
 		return m_doubleWeight[e];
 	}
 
@@ -1021,11 +784,7 @@ public:
 	 * \pre \a edgeDoubleWeight is enabled
 	 */
 	double &doubleWeight(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeDoubleWeight)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeDoubleWeight));
 		return m_doubleWeight[e];
 	}
 
@@ -1035,11 +794,7 @@ public:
 	 * \pre \a edgeType is enabled
 	 */
 	Graph::EdgeType type(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeType)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeType));
 		return m_eType.valid() ? m_eType[e] : Graph::association;
 	}
 
@@ -1048,11 +803,7 @@ public:
 	 * \pre \a edgeType is enabled
 	 */
 	Graph::EdgeType &type(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeType)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeType));
 		return m_eType[e];
 	}
 
@@ -1062,11 +813,7 @@ public:
 	 * \pre \a edgeSubGraphs is enabled
 	 */
 	uint32_t subGraphBits(edge e) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeSubGraphs)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeSubGraphs));
 		return m_subGraph[e];
 	}
 
@@ -1075,11 +822,7 @@ public:
 	 * \pre \a edgeSubGraphs is enabled
 	 */
 	uint32_t &subGraphBits(edge e) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeSubGraphs)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeSubGraphs));
 		return m_subGraph[e];
 	}
 
@@ -1089,11 +832,7 @@ public:
 	 * \pre \a edgeSubGraphs is enabled
 	 */
 	bool inSubGraph(edge e, int n) const {
-#ifdef OGDF_DEBUG
-		if(!has(edgeSubGraphs)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeSubGraphs));
 		OGDF_ASSERT(n>=0);
 		OGDF_ASSERT(n<32);
 		return (m_subGraph[e] & (1 << n)) != 0;
@@ -1105,11 +844,7 @@ public:
 	 * \pre \a edgeSubGraphs is enabled
 	 */
 	void addSubGraph(edge e, int n) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeSubGraphs)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeSubGraphs));
 		OGDF_ASSERT(n>=0);
 		OGDF_ASSERT(n<32);
 		m_subGraph[e] |= (1 << n);
@@ -1121,11 +856,7 @@ public:
 	 * \pre \a edgeSubGraphs is enabled
 	 */
 	void removeSubGraph(edge e, int n) {
-#ifdef OGDF_DEBUG
-		if(!has(edgeSubGraphs)){
-			throw PreconditionViolatedException();
-		}
-#endif
+		OGDF_ASSERT(has(edgeSubGraphs));
 		OGDF_ASSERT(n>=0);
 		OGDF_ASSERT(n<32);
 		m_subGraph[e] &= ~(1 << n);
@@ -1297,7 +1028,7 @@ public:
 	 * \pre \a nodeGraphics are enabled
 	 */
 	bool isAssociationClass(node v) const {
-		return (type(v) == Graph::associationClass);
+		return type(v) == Graph::associationClass;
 	}
 
 	//! Returns a list of all inheritance hierarchies in the graph.

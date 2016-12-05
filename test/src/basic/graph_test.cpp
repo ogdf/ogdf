@@ -4,11 +4,11 @@
  * \author Tilo Wiedera
  *
  * \par License:
- * This file is part of the Open myGraph Drawing Framework (OGDF).
+ * This file is part of the Open Graph Drawing Framework (OGDF).
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,14 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <bandit/bandit.h>
 
 #include <ogdf/basic/Graph.h>
+#include <ogdf/basic/graph_generators.h>
 #include <resources.h>
 
 using namespace ogdf;
@@ -42,56 +40,38 @@ using namespace bandit;
 
 /**
  * Returns an arbitrary edge where both nodes have at least \c minDegree incident edges.
+ * Requires the graph to contain at least one such edge.
  *
  * @param graph graph to investigate
  * @param minDegree minimal number of incident edges
- * @return the chosen edge or \c nullptr if none could be found
+ * @return the chosen edge
  */
 edge chooseEdge(const Graph &graph, int minDegree) {
-	for(edge e : graph.edges) {
-
-		if(e->source()->degree() >= minDegree && e->target()->degree() >= minDegree) {
-			return e;
-		}
-	}
-
-	return nullptr;
+	return graph.chooseEdge([&](edge e) { return e->source()->degree() >= minDegree && e->target()->degree() >= minDegree; });
 }
 
 /**
  * Returns an arbitrary node with at least \c minDegree incident edges.
+ * Requires the graph to contain at least one such node.
  *
  * @param graph graph to investigate
  * @param minDegree minimal number of incident edges
- * @return the chosen node or \c nullptr if none could be found
+ * @return the chosen node
  */
 node chooseNode(const Graph &graph, int minDegree) {
-	for(node v : graph.nodes) {
-
-		if(v->degree() >= minDegree) {
-			return v;
-		}
-	}
-
-	return nullptr;
+	return graph.chooseNode([&](node v) { return v->degree() >= minDegree; });
 }
 
 /**
  * Returns an arbitrary node which does not equal \c v.
+ * Requires the graph to contain at least one such node.
  *
  * @param graph graph to investigate
  * @param v the node to exclude from selection
- * @return the chosen node or \c nullptr if none could be found
+ * @return the chosen node
  */
 node chooseNode(const Graph &graph, node v) {
-	for(node w : graph.nodes) {
-
-		if(w != v) {
-			return w;
-		}
-	}
-
-	return nullptr;
+	return graph.chooseNode([&](node w) { return w != v; });
 }
 
 go_bandit([](){
@@ -116,9 +96,19 @@ describe("Graph Class", [](){
 		AssertThat(graph.lastEdge(), IsNull());
 	});
 
-	for_each_graph_it("finds a existing edges", files, [](Graph &graph, const string file){
+	for_each_graph_it("finds an existing edge", files, [](Graph &graph, const string file){
 		edge e = graph.chooseEdge();
 		AssertThat(graph.searchEdge(e->source(), e->target()), Equals(e));
+	});
+
+	for_each_graph_it("returns the adjacency entries of an edge", files, [](Graph &graph, const string file){
+		edge e = graph.chooseEdge();
+		adjEntry adjSrc = e->adjSource();
+		adjEntry adjTgt = e->adjTarget();
+
+		AssertThat(adjSrc == adjTgt, IsFalse());
+		AssertThat(adjSrc->isSource(), IsTrue());
+		AssertThat(adjTgt->isSource(), IsFalse());
 	});
 
 	for_each_graph_it("finds a reverse edge", files, [](Graph &graph, const string file){
@@ -128,8 +118,10 @@ describe("Graph Class", [](){
 
 	for_each_graph_it("does not find non-existent edges", files, [](Graph &graph, const string file){
 		edge e = graph.chooseEdge();
+		node s = e->source();
+		node t = e->target();
 		graph.delEdge(e);
-		AssertThat(graph.searchEdge(e->source(), e->target()), IsNull());
+		AssertThat(graph.searchEdge(s, t), IsNull());
 	});
 
 	for_each_graph_it("can be assigned", files, [](Graph &graph, const string file){
@@ -161,13 +153,41 @@ describe("Graph Class", [](){
 		delete[] degreeCounter;
 	});
 
+	it("maintains the adjacency order at nodes with self-loops", [] {
+		Graph graph;
+		node v = graph.newNode();
+		List<adjEntry> entries;
+
+		for(int i = 0; i < 2; i++) {
+			edge e = graph.newEdge(v, v);
+			entries.pushBack(e->adjTarget());
+			entries.pushBack(e->adjSource());
+		}
+
+		graph.sort(v, entries);
+		Graph copy(graph);
+
+		for (adjEntry adj : copy.firstNode()->adjEntries) {
+			edge e = adj->theEdge();
+			adjEntry succ = adj->cyclicSucc();
+			edge eSucc = succ->theEdge();
+
+			bool isSourceAdj = adj == e->adjSource();
+
+			AssertThat(e != eSucc, Equals(isSourceAdj));
+
+			if (isSourceAdj) {
+				AssertThat(succ == eSucc->adjTarget(), IsTrue());
+			} else {
+				AssertThat(succ == e->adjSource(), IsTrue());
+			}
+		}
+	});
+
 	it("adds nodes", [](){
 		Graph graph;
 		const int numberOfNodes = 100;
-
-		for(int i = 0; i < numberOfNodes; i++) {
-			graph.newNode();
-		}
+		emptyGraph(graph,numberOfNodes);
 
 		AssertThat(graph.empty(), IsFalse());
 		AssertThat(graph.numberOfNodes(), Equals(numberOfNodes));
@@ -201,10 +221,7 @@ describe("Graph Class", [](){
 
 	it("adds edges", [](){
 		Graph graph;
-
-		for(int i = 0; i < 100; i++) {
-			graph.newNode();
-		}
+		emptyGraph(graph, 100);
 
 		int count = 0;
 
@@ -392,24 +409,24 @@ describe("Graph Class", [](){
 		AssertThat(set.size(), Equals(0));
 	});
 
-#ifdef OGDF_DEBUG
+#ifdef OGDF_USE_ASSERT_EXCEPTIONS
 	for_each_graph_it("doesn't hide edges of other graphs", files, [](Graph &graph, const string file) {
 		GraphCopy copy(graph);
 		Graph::HiddenEdgeSet set(copy);
-		AssertThrows(PreconditionViolatedException, set.hide(graph.chooseEdge()));
+		AssertThrows(AssertionFailed, set.hide(graph.chooseEdge()));
 
 	});
 
 	for_each_graph_it("doesn't restore a non-hidden edge", files, [](Graph &graph, const string file) {
 		Graph::HiddenEdgeSet set(graph);
-		AssertThrows(PreconditionViolatedException, set.restore(graph.chooseEdge()));
+		AssertThrows(AssertionFailed, set.restore(graph.chooseEdge()));
 	});
 
 	for_each_graph_it("doesn't hide an edge twice", files, [](Graph &graph, const string file) {
 		Graph::HiddenEdgeSet set(graph);
 		edge e = graph.chooseEdge();
 		set.hide(e);
-		AssertThrows(PreconditionViolatedException, set.hide(e));
+		AssertThrows(AssertionFailed, set.hide(e));
 	});
 
 	for_each_graph_it("doesn't restore an edge twice", files, [](Graph &graph, const string file) {
@@ -417,7 +434,7 @@ describe("Graph Class", [](){
 		edge e = graph.chooseEdge();
 		set.hide(e);
 		set.restore(e);
-		AssertThrows(PreconditionViolatedException, set.restore(e));
+		AssertThrows(AssertionFailed, set.restore(e));
 	});
 #endif
 
@@ -746,6 +763,54 @@ describe("Graph Class", [](){
 
 	for_each_graph_it("detects a combinatorial embedding", files, [](Graph &graph, const string file){
 		AssertThat(graph.representsCombEmbedding(), Equals(graph.genus() == 0));
+	});
+
+	for_each_graph_it("returns wether an adjacency entry lies between two others", files, [](Graph &graph, const string file) {
+		node v = graph.newNode();
+
+		while(graph.numberOfNodes() < 12) {
+			graph.newNode();
+		}
+
+		int n = graph.numberOfNodes();
+		int count = 0;
+		adjEntry adjs[3];
+
+		// Add new edge for every third node.
+		// Pick 3 adjacency entries from the first, second, and last third.
+		for(node w : graph.nodes) {
+			if (count % 3 == 0) {
+				adjs[(count*3)/n] = graph.newEdge(v, w)->adjSource();
+			}
+
+			count++;
+		}
+
+		AssertThat(adjs[0]->isBetween(adjs[2], adjs[1]), IsTrue());
+		AssertThat(adjs[0]->isBetween(adjs[1], adjs[2]), IsFalse());
+
+		AssertThat(adjs[1]->isBetween(adjs[0], adjs[2]), IsTrue());
+		AssertThat(adjs[1]->isBetween(adjs[2], adjs[0]), IsFalse());
+
+		AssertThat(adjs[2]->isBetween(adjs[1], adjs[0]), IsTrue());
+		AssertThat(adjs[2]->isBetween(adjs[0], adjs[1]), IsFalse());
+	});
+
+	for_each_graph_it("returns the adjacency entry of an edge", files, [](Graph &graph, const string file) {
+		node v = graph.chooseNode();
+
+		for(adjEntry adj : v->adjEntries) {
+			edge e = adj->theEdge();
+
+			adjEntry adj2 = e->getAdj(v);
+
+			AssertThat(adj2->theNode(), Equals(v));
+			AssertThat(adj2->theEdge(), Equals(e));
+
+			if(!e->isSelfLoop()) {
+				AssertThat(adj2, Equals(adj));
+			}
+		}
 	});
 });
 });

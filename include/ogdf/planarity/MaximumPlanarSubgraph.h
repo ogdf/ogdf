@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -49,25 +46,15 @@ namespace ogdf {
 /**
  * @ingroup ga-plansub
  */
-class OGDF_EXPORT MaximumPlanarSubgraph : public PlanarSubgraphModule
+class OGDF_EXPORT MaximumPlanarSubgraph : public PlanarSubgraphModule<int>
 {
-
-#ifndef USE_ABACUS
-protected:
-	virtual ReturnType doCall(const Graph &G,
-		const List<edge> &preferedEdges,
-		List<edge> &delEdges,
-		const EdgeArray<int>  *pCost,
-		bool preferedImplyPlanar) override
-	{ THROW_NO_ABACUS_EXCEPTION; return retError; }
-};
-#else // Use_ABACUS
-
 public:
 	// Construction
 	MaximumPlanarSubgraph() {}
 	// Destruction
 	virtual ~MaximumPlanarSubgraph() {}
+
+	virtual MaximumPlanarSubgraph *clone() const override { return new MaximumPlanarSubgraph(); }
 
 protected:
 	// Implements the Planar Subgraph interface.
@@ -84,7 +71,5 @@ protected:
 		const EdgeArray<int>  *pCost,
 		bool preferredImplyPlanar) override;
 };
-
-#endif // USE_ABACUS
 
 } //end namespace ogdf

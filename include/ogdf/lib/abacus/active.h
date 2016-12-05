@@ -123,7 +123,7 @@ public:
 			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcActive);
 		}
 #endif
-		return (active_[i]) ? active_[i]->conVar() : 0;
+		return (active_[i]) ? active_[i]->conVar() : nullptr;
 	}
 
 	//! Access to the <i>i</i>-th active item.

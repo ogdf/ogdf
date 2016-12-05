@@ -81,7 +81,7 @@ public:
   virtual CoinWarmStart *clone() const override {
     return new CoinWarmStartVector(*this);
   }
-     
+
   virtual ~CoinWarmStartVector() {
     gutsOfDestructor();
   }
@@ -144,7 +144,7 @@ private:
   CoinWarmStartVector::generateDiff() and CoinWarmStartVector::applyDiff().
 
   The actual data structure is a pair of vectors, #diffNdxs_ and #diffVals_.
-    
+
 */
 
 template <typename T>
@@ -185,7 +185,7 @@ public:
   CoinWarmStartVectorDiff () : sze_(0), diffNdxs_(nullptr), diffVals_(NULL) {}
 
   /*! \brief Copy constructor
-  
+
   For convenience when copying objects containing CoinWarmStartVectorDiff
   objects. But consider whether you should be using #clone() to retain
   polymorphism.
@@ -195,7 +195,7 @@ public:
   /*! \brief Standard constructor */
   CoinWarmStartVectorDiff(int sze, const unsigned int* const diffNdxs,
 			  const T* const diffVals) ;
-  
+
   /*! \brief Clear the data
 
   Make it appear as if the diff was just created using the default
@@ -226,7 +226,7 @@ private:
 //##############################################################################
 
 template <typename T, typename U>
-class CoinWarmStartVectorPair : public virtual CoinWarmStart 
+class CoinWarmStartVectorPair : public virtual CoinWarmStart
 {
 private:
   CoinWarmStartVector<T> t_;
@@ -251,7 +251,7 @@ public:
     if (this != &rhs) {
       t_ = rhs.t_;
       u_ = rhs.u_;
-    }	
+    }
   }
 
   inline void swap(CoinWarmStartVectorPair<T,U>& rhs) {
@@ -330,7 +330,7 @@ public:
 
 template <typename T> CoinWarmStartDiff*
 CoinWarmStartVector<T>::generateDiff(const CoinWarmStart *const oldCWS) const
-{ 
+{
 /*
   Make sure the parameter is CoinWarmStartVector or derived class.
 */
@@ -349,8 +349,8 @@ CoinWarmStartVector<T>::generateDiff(const CoinWarmStart *const oldCWS) const
 
   assert(newCnt >= oldCnt) ;
 
-  unsigned int *diffNdx = new unsigned int [newCnt]; 
-  T* diffVal = new T[newCnt]; 
+  unsigned int *diffNdx = new unsigned int [newCnt];
+  T* diffVal = new T[newCnt];
   /*
     Scan the vector vectors.  For the portion of the vectors which overlap,
     create diffs. Then add any additional entries from newVector.
@@ -387,7 +387,7 @@ CoinWarmStartVector<T>::generateDiff(const CoinWarmStart *const oldCWS) const
 
 /*
   Apply diff to this warm start.
-  
+
   Update this warm start by applying diff. It's assumed that the
   allocated capacity of the warm start is sufficiently large.
 */

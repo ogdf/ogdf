@@ -20,19 +20,19 @@ class OsiSolverInterface;
 
 class OsiAuxInfo {
 public:
-  // Default Constructor 
+  // Default Constructor
   OsiAuxInfo (void * appData = NULL);
 
-  // Copy Constructor 
+  // Copy Constructor
   OsiAuxInfo (const OsiAuxInfo & rhs);
   // Destructor
   virtual ~OsiAuxInfo();
-  
+
   /// Clone
   virtual OsiAuxInfo * clone() const;
-  /// Assignment operator 
+  /// Assignment operator
   OsiAuxInfo & operator=(const OsiAuxInfo& rhs);
-  
+
   /// Get application data
   inline void * getApplicationData() const
   { return appData_;}
@@ -48,29 +48,29 @@ protected:
 
 class OsiBabSolver : public OsiAuxInfo {
 public:
-  // Default Constructor 
+  // Default Constructor
   OsiBabSolver (int solverType=0);
 
-  // Copy Constructor 
+  // Copy Constructor
   OsiBabSolver (const OsiBabSolver & rhs);
   // Destructor
   virtual ~OsiBabSolver();
-  
+
   /// Clone
   virtual OsiAuxInfo * clone() const;
-  /// Assignment operator 
+  /// Assignment operator
   OsiBabSolver & operator=(const OsiBabSolver& rhs);
-  
-  /// Update solver 
+
+  /// Update solver
   inline void setSolver(const OsiSolverInterface * solver)
   { solver_ = solver;}
-  /// Update solver 
+  /// Update solver
   inline void setSolver(const OsiSolverInterface & solver)
   { solver_ = &solver;}
 
   /** returns 0 if no heuristic solution, 1 if valid solution
       with better objective value than one passed in
-      Sets solution values if good, sets objective value 
+      Sets solution values if good, sets objective value
       numberColumns is size of newSolution
   */
   int solution(double & objectiveValue,
@@ -97,7 +97,7 @@ public:
           check this (rather than solver) to see if feasible and what objective value is.
           Using Outer Approximation so called lp based
           - may also return heuristic solution
-      4 - normal solver but cuts are needed for integral solution    
+      4 - normal solver but cuts are needed for integral solution
   */
   inline void setSolverType(int value)
   { solverType_=value;}
@@ -111,7 +111,7 @@ public:
           check this (rather than solver) to see if feasible and what objective value is.
           Using Outer Approximation so called lp based
           - may also return heuristic solution
-      4 - normal solver but cuts are needed for integral solution    
+      4 - normal solver but cuts are needed for integral solution
   */
   inline int solverType() const
   { return solverType_;}

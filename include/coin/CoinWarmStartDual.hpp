@@ -95,7 +95,7 @@ private:
   CoinWarmStartDual::generateDiff() and CoinWarmStartDual::applyDiff().
 
   The actual data structure is a pair of vectors, #diffNdxs_ and #diffVals_.
-    
+
 */
 
 class CoinWarmStartDualDiff : public virtual CoinWarmStartDiff
@@ -122,7 +122,7 @@ class CoinWarmStartDualDiff : public virtual CoinWarmStartDiff
   protected:
 
   /*! \brief Default constructor
-  
+
     This is protected (rather than private) so that derived classes can
     see it when they make <i>their</i> default constructor protected or
     private.
@@ -130,7 +130,7 @@ class CoinWarmStartDualDiff : public virtual CoinWarmStartDiff
   CoinWarmStartDualDiff () : diff_() {}
 
   /*! \brief Copy constructor
-  
+
     For convenience when copying objects containing CoinWarmStartDualDiff
     objects. But consider whether you should be using #clone() to retain
     polymorphism.
@@ -163,4 +163,3 @@ class CoinWarmStartDualDiff : public virtual CoinWarmStartDiff
 
 
 #endif
-

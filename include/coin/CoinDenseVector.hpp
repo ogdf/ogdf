@@ -31,7 +31,7 @@
 Stores a dense (or expanded) vector of floating point values.
 Type of vector elements is controlled by templating.
 (Some working quantities such as accumulated sums
-are explicitly declared of type double). This allows the 
+are explicitly declared of type double). This allows the
 components of the vector integer, single or double precision.
 
 Here is a sample usage:
@@ -73,7 +73,7 @@ private:
    ///Vector elements
    T * elements_;
    //@}
-  
+
 public:
    /**@name Get methods. */
    //@{
@@ -85,10 +85,10 @@ public:
    /// Get element values
    inline T * getElements() { return elements_; }
    //@}
- 
+
    //-------------------------------------------------------------------
    // Set indices and elements
-   //------------------------------------------------------------------- 
+   //-------------------------------------------------------------------
    /**@name Set methods */
    //@{
    /// Reset the vector (i.e. set all elemenets to zero)
@@ -101,13 +101,13 @@ public:
    /** Set vector size, and elements.
        Size is the length of the elements vector.
        The element vector is copied into this class instance's
-       member data. */ 
+       member data. */
    void setVector(int size, const T * elems);
 
-  
+
    /** Elements set to have the same scalar value */
    void setConstant(int size, T elems);
-  
+
 
    /** Set an existing element in the dense vector
        The first argument is the "index" into the elements() array
@@ -116,7 +116,7 @@ public:
    /** Resize the dense vector to be the first newSize elements.
        If length is decreased, vector is truncated. If increased
        new entries, set to new default element */
-   void resize(int newSize, T fill=T()); 
+   void resize(int newSize, T fill=T());
 
    /** Append a dense vector to this dense vector */
    void append(const CoinDenseVector &);
@@ -188,10 +188,10 @@ public:
     /** Destructor */
    ~CoinDenseVector ();
    //@}
-    
+
 private:
    /**@name Private methods */
-   //@{  
+   //@{
    /// Copy internal data
    void gutsOfSetVector(int size, const T * elems);
    /// Set all elements to a given value
@@ -270,7 +270,7 @@ CoinDenseVector<T> operator/(const CoinDenseVector<T>& op1,
 }
 //@}
 
-/**@name Arithmetic operators on dense vector and a constant. 
+/**@name Arithmetic operators on dense vector and a constant.
    These functions create a dense vector as a result. That dense vector will
    have the same indices as <code>op1</code> and the specified operation is
    done entry-wise with the given value. */

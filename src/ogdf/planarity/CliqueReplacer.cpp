@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/internal/planarity/CliqueReplacer.h>
@@ -67,7 +64,7 @@ namespace ogdf {
 			ListIterator<node> itNode = (*it).begin();
 			while (itNode.valid())
 			{
-				cliqueNum[(*itNode)] = num;
+				cliqueNum[*itNode] = num;
 				++itNode;
 			}//while
 
@@ -80,8 +77,8 @@ namespace ogdf {
 		while (it.valid())
 		{
 			node newCenter = replaceByStar((*it), cliqueNum);
-			OGDF_ASSERT(newCenter)
-				m_centerNodes.pushBack(newCenter);
+			OGDF_ASSERT(newCenter != nullptr);
+			m_centerNodes.pushBack(newCenter);
 			//now we compute a circular drawing of the replacement
 			//and save its size and the node positions
 			m_cliqueCircleSize[newCenter] = circularBound(newCenter);
@@ -120,7 +117,9 @@ namespace ogdf {
 				{
 					if (ad->theEdge()->source() == v)
 					{
-						//m_cliqueEdges[v].pushBack(new CliqueInfo(ad->theEdge()->target(), ad->theEdge()->index()));
+#if 0
+						m_cliqueEdges[v].pushBack(new CliqueInfo(ad->theEdge()->target(), ad->theEdge()->index()));
+#endif
 						delEdges.pushBack(ad->theEdge());
 					}
 				}//if
@@ -161,8 +160,8 @@ namespace ogdf {
 		//parameters fit the drawing parameters of the whole graph
 		//umlgraph clique parameter members?
 
-		OGDF_ASSERT(center->degree() > 0)
-			node lastNode = nullptr;
+		OGDF_ASSERT(center->degree() > 0);
+		node lastNode = nullptr;
 		node firstNode = nullptr;
 
 		adjEntry ae = center->firstAdj();
@@ -211,11 +210,11 @@ namespace ogdf {
 	//remove the center node and reinsert the deleted edges
 	void CliqueReplacer::undoStar(node center, bool restoreAllEdges)
 	{
-		OGDF_ASSERT(center)
+		OGDF_ASSERT(center);
 
-			if (restoreAllEdges) {
-				m_hiddenEdges.restore();
-			}
+		if (restoreAllEdges) {
+			m_hiddenEdges.restore();
+		}
 
 		//remove center node
 		m_G.delNode(center);
@@ -248,10 +247,10 @@ namespace ogdf {
 	void CliqueReplacer::computeCliquePosition(List<node> &adjNodes, node center, double rectMin)//, const adjEntry &startAdj)
 	{
 		DRect boundingBox;
-		OGDF_ASSERT(center->degree() > 0)
-			OGDF_ASSERT(center->degree() == adjNodes.size())
+		OGDF_ASSERT(center->degree() > 0);
+		OGDF_ASSERT(center->degree() == adjNodes.size());
 
-			node v;
+		node v;
 		double radius = 0.0;
 		//TODO: member, parameter
 		//const
@@ -284,7 +283,7 @@ namespace ogdf {
 				++itNode;
 			}//while
 			double totalSum = pureSumDiameters+(center->degree()-1)*minDist;
-			//TODO: scling, not just counting
+			//TODO: scaling, not just counting
 			while (totalSum/Math::pi < rectBound*0.75)
 			{
 				minDist = minDist + 1.0;
@@ -333,7 +332,7 @@ namespace ogdf {
 			++itNode;
 		}//while
 
-		OGDF_ASSERT(adjNodes.size() == angles.size())
+		OGDF_ASSERT(adjNodes.size() == angles.size());
 
 			if(n == 1) {
 				radius      = 0;

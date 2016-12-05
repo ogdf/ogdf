@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <sstream>
 #include <bandit/bandit.h>
@@ -72,7 +69,7 @@ checkLCA(node a, node v, node u)
 		up = u;
 		u = ancestor(u);
 	}
-	return (v == a && u == a && vp != up);
+	return v == a && u == a && vp != up;
 }
 
 static void
@@ -87,9 +84,15 @@ testTree(int q, int n, int64_t &genTime, int64_t &evalTime, int64_t &checkTime, 
 	LCA lca(G, root);
 	genTime += System::usedRealTime(time);
 
+	List<node> nodes;
+
 	while (q--) {
-		node u = G.chooseNode();
-		node v = G.chooseNode();
+		if(nodes.size() < 2) {
+			G.allNodes(nodes);
+			nodes.permute();
+		}
+		node u = nodes.popFrontRet();
+		node v = nodes.popFrontRet();
 		System::usedRealTime(time);
 		node a = lca.call(u, v);
 		evalTime += System::usedRealTime(time);

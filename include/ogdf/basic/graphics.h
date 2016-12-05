@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -41,8 +38,8 @@ namespace ogdf {
 
 //! Line types of strokes.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 enum StrokeType {
 	stNone,			//!< no line
 	stSolid,		//!< solid line
@@ -54,15 +51,15 @@ enum StrokeType {
 
 //! Converts integer \a i to stroke type.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 StrokeType intToStrokeType(int i);
 
 
 //! Line cap types of strokes.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 enum StrokeLineCap {
 	slcButt,
 	slcRound,
@@ -72,8 +69,8 @@ enum StrokeLineCap {
 
 //! Line join types of strokes.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 enum StrokeLineJoin {
 	sljMiter,
 	sljRound,
@@ -83,8 +80,8 @@ enum StrokeLineJoin {
 
 //! Fill patterns.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 enum FillPattern {
 	fpNone,
 	fpSolid,
@@ -105,15 +102,15 @@ enum FillPattern {
 
 //! Converts integer \a i to fill pattern.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 FillPattern intToFillPattern(int i);
 
 
 //! Types for node shapes.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 enum Shape {
 	shRect,               //!< rectangle
 	shRoundedRect,        //!< rectangle with rounded corners
@@ -134,8 +131,8 @@ enum Shape {
 
 //! Types for edge arrows.
 /**
-* @ingroup graph-drawing
-*/
+ * @ingroup graph-drawing
+ */
 enum EdgeArrow {
 	eaNone,		//!< no edge arrows
 	eaLast,		//!< edge arrow at target node of the edge
@@ -154,7 +151,7 @@ enum EdgeArrow {
  * Each component has a value between and 255. The alpha channel controls tranparency, where an opaque color
  * has an alpha channel of 255.
  */
-class Color {
+class OGDF_EXPORT Color {
 	uint8_t m_red, m_green, m_blue, m_alpha;
 
 public:
@@ -381,9 +378,9 @@ public:
 
 //! Properties of strokes.
 /**
-* @ingroup graph-drawing
-*/
-struct Stroke {
+ * @ingroup graph-drawing
+ */
+struct OGDF_EXPORT Stroke {
 	Color          m_color;    //!< stroke color
 	float          m_width;    //!< stroke width
 	StrokeType     m_type : 8; //!< stroke type (e.g. solid or dashed)
@@ -397,9 +394,9 @@ struct Stroke {
 
 //! Properties of fills.
 /**
-* @ingroup graph-drawing
-*/
-struct Fill {
+ * @ingroup graph-drawing
+ */
+struct OGDF_EXPORT Fill {
 	Color       m_color;   //!< fill color
 	Color       m_bgColor; //!< background color of fill pattern
 	FillPattern m_pattern; //!< fill pattern

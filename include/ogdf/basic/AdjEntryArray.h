@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -56,7 +53,7 @@ public:
 	const Graph *m_pGraph; //!< The associated graph.
 
 	//! Initializes an adjacency entry array not associated with a graph.
-	AdjEntryArrayBase() : m_pGraph(0) { }
+	AdjEntryArrayBase() : m_pGraph(nullptr) { }
 
 	//! Initializes an adjacency entry array associated with \a pG.
 	AdjEntryArrayBase(const Graph *pG) : m_pGraph(pG) {
@@ -70,7 +67,7 @@ public:
 		base.m_it     = ListIterator<AdjEntryArrayBase*>();
 	}
 
-	// destructor, unregisters the array
+	//! Destructor, unregisters the array
 	virtual ~AdjEntryArrayBase() {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
 	}
@@ -88,7 +85,7 @@ public:
 	//! Associates the array with a new graph.
 	void reregister(const Graph *pG) {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
-		if ((m_pGraph = pG) != 0) m_it = pG->registerArray(this);
+		if ((m_pGraph = pG) != nullptr) m_it = pG->registerArray(this);
 	}
 
 	//! Moves array registration from \a base to this array.
@@ -163,7 +160,7 @@ public:
 	//@{
 
 	//! Returns true iff the array is associated with a graph.
-	bool valid() const { return (Array<T>::low() <= Array<T>::high()); }
+	bool valid() const { return Array<T>::low() <= Array<T>::high(); }
 
 	//! Returns a pointer to the associated graph.
 	const Graph *graphOf() const {
@@ -172,28 +169,28 @@ public:
 
 	//! Returns a reference to the element with index \a adj.
 	const T &operator[](adjEntry adj) const {
-		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
 	//! Returns a reference to the element with index \a adj.
 	T &operator[](adjEntry adj) {
-		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
 	//! Returns a reference to the element with index \a adj.
 	const T &operator()(adjEntry adj) const {
-		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
 	//! Returns a reference to the element with index \a adj.
 	T &operator()(adjEntry adj) {
-		OGDF_ASSERT(adj != 0);
+		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
@@ -292,7 +289,7 @@ public:
 
 	//! Reinitializes the array. Associates the array with no graph.
 	void init() {
-		Array<T>::init(); reregister(0);
+		Array<T>::init(); reregister(nullptr);
 	}
 
 	//! Reinitializes the array. Associates the array with \a G.
@@ -398,7 +395,7 @@ private:
 
 	virtual void disconnect() {
 		Array<T>::init();
-		m_pGraph = 0;
+		m_pGraph = nullptr;
 	}
 
 	OGDF_NEW_DELETE

@@ -30,11 +30,11 @@ public:
 	class iterator {
 	  friend class OsiCuts;
 	public:
-	  iterator(OsiCuts& cuts); 
+	  iterator(OsiCuts& cuts);
 	  iterator(const iterator & src);
-	  iterator & operator=( const iterator& rhs);    
+	  iterator & operator=( const iterator& rhs);
 	  ~iterator ();
-	  OsiCut* operator*() const { return cutP_; }    
+	  OsiCut* operator*() const { return cutP_; }
 	  iterator operator++();
 
 	  iterator operator++(int)
@@ -43,20 +43,20 @@ public:
 		++*this;
 		return temp;
 	  }
-	
+
 	  bool operator==(const iterator& it) const {
 		return (colCutIndex_+rowCutIndex_)==(it.colCutIndex_+it.rowCutIndex_);
 	  }
-	
+
 	  bool operator!=(const iterator& it) const {
 		return !((*this)==it);
 	  }
-	
+
 	  bool operator<(const iterator& it) const {
 		return (colCutIndex_+rowCutIndex_)<(it.colCutIndex_+it.rowCutIndex_);
 	  }
-	
-	private: 
+
+	private:
 	  iterator();
 	  // *THINK* : how to inline these without sticking the code here (ugly...)
 	  iterator begin();
@@ -66,11 +66,11 @@ public:
 	  int colCutIndex_;
 	  OsiCut * cutP_;
 	};
-   
+
 	/** Const Iterator
 
 	  This is a class for iterating over the collection of cuts.
-	*/ 
+	*/
 	class const_iterator {
 	  friend class OsiCuts;
 	public:
@@ -83,12 +83,12 @@ public:
 	public:
 	  const_iterator(const OsiCuts& cuts);
 	  const_iterator(const const_iterator & src);
-	  const_iterator & operator=( const const_iterator& rhs);     
+	  const_iterator & operator=( const const_iterator& rhs);
 	  ~const_iterator ();
-	  const OsiCut* operator*() const { return cutP_; } 
-	   
+	  const OsiCut* operator*() const { return cutP_; }
+
 	  const_iterator operator++();
-	
+
 	  const_iterator operator++(int)
 	  {
 		const_iterator temp = *this;
@@ -98,20 +98,20 @@ public:
 
 	  //hedtke: Visual Studio 2014 asks for "--" operator, so here is one.
 	  const_iterator operator--();
-	
+
 	  bool operator==(const const_iterator& it) const {
 		return (colCutIndex_+rowCutIndex_)==(it.colCutIndex_+it.rowCutIndex_);
 	  }
-	
+
 	  bool operator!=(const const_iterator& it) const {
 		return !((*this)==it);
 	  }
-	
+
 	  bool operator<(const const_iterator& it) const {
 		return (colCutIndex_+rowCutIndex_)<(it.colCutIndex_+it.rowCutIndex_);
 	  }
-	private:  
-	  inline const_iterator();  
+	private:
+	  inline const_iterator();
 	  // *THINK* : how to inline these without sticking the code here (ugly...)
 	  const_iterator begin();
 	  const_iterator end();
@@ -123,11 +123,11 @@ public:
   //@}
 
   //-------------------------------------------------------------------
-  // 
+  //
   // Cuts class definition begins here:
   //
-  //------------------------------------------------------------------- 
-	
+  //-------------------------------------------------------------------
+
   /** \name Inserting a cut into collection */
   //@{
 	/** \brief Insert a row cut */
@@ -142,13 +142,13 @@ public:
 	inline void insert( const OsiColCut & cc );
 
 	/** \brief Insert a row cut.
-	
+
 	  The OsiCuts object takes control of the cut object.
 	  On return, \c rcPtr is NULL.
 	*/
 	inline void insert( OsiRowCut * & rcPtr );
 	/** \brief Insert a column cut.
-	
+
 	  The OsiCuts object takes control of the cut object.
 	  On return \c ccPtr is NULL.
 	*/
@@ -156,7 +156,7 @@ public:
 #if 0
 	inline void insert( OsiCut    * & cPtr  );
 #endif
-	
+
    /** \brief Insert a set of cuts */
    inline void insert(const OsiCuts & cs);
 
@@ -171,13 +171,13 @@ public:
 	/// Number of cuts in collection
 	inline int sizeCuts() const;
   //@}
-   
+
   /**@name Debug stuff */
   //@{
 	/// Print cuts in collection
 	inline void printCuts() const;
   //@}
-   
+
   /**@name Get a cut from collection */
   //@{
 	/// Get pointer to i'th row cut
@@ -205,15 +205,15 @@ public:
   //@}
 
   /**@name Deleting cut from collection */
-  //@{ 
+  //@{
 	/// Remove i'th row cut from collection
 	inline void eraseRowCut(int i);
 	/// Remove i'th column cut from collection
-	inline void eraseColCut(int i); 
+	inline void eraseColCut(int i);
 	/// Get pointer to i'th row cut and remove ptr from collection
 	inline OsiRowCut * rowCutPtrAndZap(int i);
 	/*! \brief Clear all row cuts without deleting them
-	
+
 	  Handy in case one wants to use CGL without managing cuts in one of
 	  the OSI containers. Client is ultimately responsible for deleting the
 	  data structures holding the row cuts.
@@ -228,15 +228,15 @@ public:
 	*/
 	inline void eraseAndDumpCuts(const std::vector<int> &to_erase) ;
   //@}
- 
+
   /**@name Sorting collection */
-  //@{ 
+  //@{
 	/// Cuts with greatest effectiveness are first.
 	inline void sort();
   //@}
-  
-   
-  /**@name Iterators 
+
+
+  /**@name Iterators
 	 Example of using an iterator to sum effectiveness
 	 of all cuts in the collection.
 	 <pre>
@@ -245,30 +245,30 @@ public:
 		   sumEff+= (*it)->effectiveness();
 	 </pre>
   */
-  //@{ 
+  //@{
 	/// Get iterator to beginning of collection
-	inline iterator begin() { iterator it(*this); it.begin(); return it; }  
+	inline iterator begin() { iterator it(*this); it.begin(); return it; }
 	/// Get const iterator to beginning of collection
-	inline const_iterator begin() const { const_iterator it(*this); it.begin(); return it; }  
-	/// Get iterator to end of collection 
+	inline const_iterator begin() const { const_iterator it(*this); it.begin(); return it; }
+	/// Get iterator to end of collection
 	inline iterator end() { iterator it(*this); it.end(); return it; }
-	/// Get const iterator to end of collection 
-	inline const_iterator end() const { const_iterator it(*this); it.end(); return it; }  
+	/// Get const iterator to end of collection
+	inline const_iterator end() const { const_iterator it(*this); it.end(); return it; }
   //@}
- 
-   
+
+
   /**@name Constructors and destructors */
   //@{
 	/// Default constructor
-	OsiCuts (); 
+	OsiCuts ();
 
-	/// Copy constructor 
+	/// Copy constructor
 	OsiCuts ( const OsiCuts &);
-  
-	/// Assignment operator 
+
+	/// Assignment operator
 	OsiCuts & operator=( const OsiCuts& rhs);
-  
-	/// Destructor 
+
+	/// Destructor
 	virtual ~OsiCuts ();
   //@}
 
@@ -276,24 +276,24 @@ private:
   //*@name Function operator for sorting cuts by efectiveness */
   //@{
 	class OsiCutCompare
-	{ 
+	{
 	public:
 	  /// Function for sorting cuts by effectiveness
-	  inline bool operator()(const OsiCut * c1P,const OsiCut * c2P) 
+	  inline bool operator()(const OsiCut * c1P,const OsiCut * c2P)
 	  { return c1P->effectiveness() > c2P->effectiveness(); }
 	};
   //@}
 
   /**@name Private methods */
-  //@{     
+  //@{
 	/// Copy internal data
 	void gutsOfCopy( const OsiCuts & source );
 	/// Delete internal data
 	void gutsOfDestructor();
   //@}
-	
+
   /**@name Private member data */
-  //@{   
+  //@{
 	/// Vector of row cuts pointers
 	OsiVectorRowCutPtr rowCutPtrs_;
 	/// Vector of column cuts pointers
@@ -345,7 +345,7 @@ void OsiCuts::insert( OsiCut* & cPtr )
   }
 }
 #endif
-	
+
 // LANNEZ SEBASTIEN added Thu May 25 01:22:51 EDT 2006
 void OsiCuts::insert(const OsiCuts & cs)
 {
@@ -363,17 +363,17 @@ void OsiCuts::insert(const OsiCuts & cs)
 
 //-------------------------------------------------------------------
 // sort
-//------------------------------------------------------------------- 
-void OsiCuts::sort() 
+//-------------------------------------------------------------------
+void OsiCuts::sort()
 {
-  std::sort(colCutPtrs_.begin(),colCutPtrs_.end(),OsiCutCompare()); 
-  std::sort(rowCutPtrs_.begin(),rowCutPtrs_.end(),OsiCutCompare()); 
+  std::sort(colCutPtrs_.begin(),colCutPtrs_.end(),OsiCutCompare());
+  std::sort(rowCutPtrs_.begin(),rowCutPtrs_.end(),OsiCutCompare());
 }
 
 
 //-------------------------------------------------------------------
 // Get number of in collections
-//------------------------------------------------------------------- 
+//-------------------------------------------------------------------
 int OsiCuts::sizeRowCuts() const {
   return static_cast<int>(rowCutPtrs_.size()); }
 int OsiCuts::sizeColCuts() const {
@@ -397,14 +397,14 @@ OsiColCut & OsiCuts::colCut(int i) { return *colCutPtr(i); }
 //----------------------------------------------------------------
 // Get most effective cut from collection
 //----------------------------------------------------------------
-const OsiCut * OsiCuts::mostEffectiveCutPtr() const 
-{ 
+const OsiCut * OsiCuts::mostEffectiveCutPtr() const
+{
   const_iterator b=begin();
   const_iterator e=end();
   return *(std::min_element(b,e,OsiCutCompare()));
 }
-OsiCut * OsiCuts::mostEffectiveCutPtr()  
-{ 
+OsiCut * OsiCuts::mostEffectiveCutPtr()
+{
   iterator b=begin();
   iterator e=end();
   //return *(std::min_element(b,e,OsiCutCompare()));
@@ -423,8 +423,8 @@ OsiCut * OsiCuts::mostEffectiveCutPtr()
 // Print all cuts
 //----------------------------------------------------------------
 void
-OsiCuts::printCuts() const  
-{ 
+OsiCuts::printCuts() const
+{
   // do all column cuts first
   int i;
   int numberColCuts=sizeColCuts();
@@ -442,23 +442,23 @@ OsiCuts::printCuts() const
 //----------------------------------------------------------------
 // Erase i'th cut from the collection
 //----------------------------------------------------------------
-void OsiCuts::eraseRowCut(int i) 
+void OsiCuts::eraseRowCut(int i)
 {
   delete rowCutPtrs_[i];
-  rowCutPtrs_.erase( rowCutPtrs_.begin()+i ); 
+  rowCutPtrs_.erase( rowCutPtrs_.begin()+i );
 }
-void OsiCuts::eraseColCut(int i) 
-{   
+void OsiCuts::eraseColCut(int i)
+{
   delete colCutPtrs_[i];
   colCutPtrs_.erase( colCutPtrs_.begin()+i );
 }
 /// Get pointer to i'th row cut and remove ptr from collection
-OsiRowCut * 
+OsiRowCut *
 OsiCuts::rowCutPtrAndZap(int i)
 {
   OsiRowCut * cut = rowCutPtrs_[i];
   rowCutPtrs_[i]=nullptr;
-  rowCutPtrs_.erase( rowCutPtrs_.begin()+i ); 
+  rowCutPtrs_.erase( rowCutPtrs_.begin()+i );
   return cut;
 }
 void OsiCuts::dumpCuts()

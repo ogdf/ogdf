@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include<ogdf/simultaneous/SimDraw.h>
 #include <ogdf/fileformats/GraphIO.h>
@@ -52,13 +49,13 @@ SimDraw::SimDraw()
 // calls GraphAttributes::readGML
 void SimDraw::readGML(const char *fileName)
 {
-	GraphIO::readGML(m_GA, m_G, fileName);
+	GraphIO::read(m_GA, m_G, fileName, GraphIO::readGML);
 }
 
 // calls GraphAttributes::writeGML
 void SimDraw::writeGML(const char *fileName) const
 {
-	GraphIO::writeGML(m_GA, fileName);
+	GraphIO::write(m_GA, fileName, GraphIO::writeGML);
 }
 
 
@@ -76,7 +73,7 @@ bool SimDraw::isProperDummy(node v) const
 		sgb &= m_GA.subGraphBits(e);
 	}
 
-	return (sgb != 0);
+	return sgb != 0;
 
 } // end isProperDummy
 
@@ -203,6 +200,7 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 	List<edge> LE;
 	m_G.allEdges(LE);
 	for(edge eLE : LE)
+	{
 		if(m_GA.inSubGraph(eLE,i))
 		{
 			for(node v : G.nodes)
@@ -274,15 +272,15 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 				}
 			}
 		}
+	}
 
-		//remove all Nodes with degree == 0
-		//this can change the IDs of the nodes in G.
-		List<node> LN;
-		G.allNodes(LN);
-		for(node v : LN)
-			if(v->degree() == 0)
-				G.delNode(v);
-
+	//remove all Nodes with degree == 0
+	//this can change the IDs of the nodes in G.
+	List<node> LN;
+	G.allNodes(LN);
+	for (node v : LN)
+		if (v->degree() == 0)
+			G.delNode(v);
 }//end getBasicGraphAttributes
 
 
@@ -294,13 +292,13 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 	if(maxSubGraph() >= 31)
 		return false;
 
-	//if(compareBy() == label)
+#if 0
+	if(compareBy() == label)
+#endif
 	OGDF_ASSERT((compareBy() != label) || m_GA.has(GraphAttributes::edgeLabel));
 
 	int max = numberOfBasicGraphs();
 	bool foundEdge = false;
-	//node v;
-	//edge e, f;
 	Graph G = GA.constGraph();
 
 	for(edge e : G.edges) {
@@ -355,7 +353,7 @@ bool SimDraw::addGraph(const Graph & G)
 	else
 	{
 		GraphAttributes newGA(G);
-		return(addGraphAttributes(newGA));
+		return addGraphAttributes(newGA);
 	}
 
 }//end addGraph

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -493,46 +490,62 @@ static void write_ogml_layout(const ClusterGraphAttributes &A, ostream &os)
 // write Graph
 bool GraphIO::writeOGML(const Graph &G, ostream &os)
 {
-	write_ogml_header(os);
-	write_ogml_graph(G, os);
-	write_ogml_footer(os);
+	bool result = os.good();
 
-	return true;
+	if(result) {
+		write_ogml_header(os);
+		write_ogml_graph(G, os);
+		write_ogml_footer(os);
+	}
+
+	return result;
 }
 
 
 // write ClusterGraph
 bool GraphIO::writeOGML(const ClusterGraph &C, ostream &os)
 {
-	write_ogml_header(os);
-	write_ogml_graph(C, os);
-	write_ogml_footer(os);
+	bool result = os.good();
 
-	return true;
+	if(result) {
+		write_ogml_header(os);
+		write_ogml_graph(C, os);
+		write_ogml_footer(os);
+	}
+
+	return result;
 }
 
 
 // write GraphAttributes
 bool GraphIO::writeOGML(const GraphAttributes &A, ostream &os)
 {
-	write_ogml_header(os);
-	write_ogml_graph(A, os);
-	write_ogml_layout(A, os);
-	write_ogml_footer(os);
+	bool result = os.good();
 
-	return true;
+	if(result) {
+		write_ogml_header(os);
+		write_ogml_graph(A, os);
+		write_ogml_layout(A, os);
+		write_ogml_footer(os);
+	}
+
+	return result;
 }
 
 
 // write ClusterGraphAttributes
 bool GraphIO::writeOGML(const ClusterGraphAttributes &A, ostream &os)
 {
-	write_ogml_header(os);
-	write_ogml_graph(A, os);
-	write_ogml_layout(A, os);
-	write_ogml_footer(os);
+	bool result = os.good();
 
-	return true;
+	if(result) {
+		write_ogml_header(os);
+		write_ogml_graph(A, os);
+		write_ogml_layout(A, os);
+		write_ogml_footer(os);
+	}
+
+	return result;
 }
 
 

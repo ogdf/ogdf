@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 
 #include <ogdf/orthogonal/OrthoRep.h>
@@ -487,9 +484,11 @@ void OrthoRep::dissect2(PlanRep* PG)
 
 				//only run until no more patterns left
 				//and dont iterate over the face, only check this one time
-				//int prerun = 0;
-				//prit = faceCycle.begin();
-				//while ( prit.valid() && (prerun < faceCycle.size() + 1))
+#if 0
+				int prerun = 0;
+				prit = faceCycle.begin();
+				while ( prit.valid() && (prerun < faceCycle.size() + 1))
+#endif
 				//check if possible
 				ListIterator<adjEntry> itEnd, itStart, it1one, it1two, it1three, it1four; //pattern defining edges
 				//take care of prit, it will be deleted
@@ -549,7 +548,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 					m_dissectionEdge[eDissect] = true;
 
 					change = true;
-					//if (PG) PG->typeOf(e) = Graph::dissect;
+#if 0
+					if (PG) PG->typeOf(e) = Graph::dissect;
+#endif
 
 					//set the angles, old values 3 are divided
 					m_angle[adEnd] = 1;
@@ -563,14 +564,18 @@ void OrthoRep::dissect2(PlanRep* PG)
 					faceCycle.del(it1two);
 					faceCycle.del(it1one);
 					//do not delete itStart, copy the new edges entry to this position
-					//faceCycle.del(itStart);
+#if 0
+					faceCycle.del(itStart);
+#endif
 					adStart = adStart->cyclicSucc();//use reference
 					//itEnd stays with angle value 1
 
-					//OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+#if 0
+					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+#endif
 				}//for
 			}//preprocessing pattern1
-			//if (m_people)
+
 			//we search for a 3111 pattern
 			if (m_pattern2)
 			{
@@ -582,7 +587,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 				ListIterator<adjEntry> it1Top, itTopSucc, it1Back, it1Base, it3Start; //pattern defining edges
 				//take care of prit, it will be deleted
 				savenext = faceCycle.begin();
-				for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>6); (prit = savenext)) //go clockwise around face!?
+				for (prit = faceCycle.begin(); prit.valid() && savenext.valid() && faceCycle.size() > 6; prit = savenext) //go clockwise around face!?
 				{
 					++savenext;
 					itTopSucc = prit; //search pattern backwards
@@ -610,7 +615,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 					m_dissectionEdge[eDissect] = true;
 
 					change = true;
-					//if (PG) PG->typeOf(e) = Graph::dissect;
+#if 0
+					if (PG) PG->typeOf(e) = Graph::dissect;
+#endif
 
 					//set the angles, old values 3 are divided
 					m_angle[adEnd] = m_angle[adEnd] - 1;
@@ -623,7 +630,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 					faceCycle.del(it1Back);
 					faceCycle.del(it1Base);
 					//do not delete itStart, copy the new edges entry to this position
-					//faceCycle.del(itStart);
+#if 0
+					faceCycle.del(itStart);
+#endif
 					adStart = adStart->cyclicSucc();//use reference
 					//check if itEnd stays
 					if (m_angle[adEnd] == 2)
@@ -631,7 +640,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 						faceCycle.del(itTopSucc);
 					}//if
 
-					//OGDF_ASSERT(check(msg));
+#if 0
+					OGDF_ASSERT(check(msg));
+#endif
 				}//for
 			}//pattern2
 
@@ -648,13 +659,15 @@ void OrthoRep::dissect2(PlanRep* PG)
 			//take care of prit, it will be deleted
 			savenext = faceCycle.begin();
 
-			for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>5); (prit = savenext)) //go clockwise around face!?
+			for (prit = faceCycle.begin(); prit.valid() && savenext.valid() && faceCycle.size() > 5; prit = savenext) //go clockwise around face!?
 			{
 				++savenext;
 				//es bleibt herauszufinden, in welcher reihenfolge die kanten ohnehin korrekt
 				//durchlaufen werden, dann die andere nehmen
 				itEnd = prit; //search pattern backwards
-				//if (m_angle[*itEnd]    != 3) continue; //nur in einer Richtung
+#if 0
+				if (m_angle[*itEnd]    != 3) continue; //nur in einer Richtung
+#endif
 				itHead = faceCycle.cyclicPred(itEnd);
 				if (m_angle[*itHead]  != 1) continue;
 				itEar = faceCycle.cyclicPred(itHead);
@@ -676,7 +689,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 				if (ov2 == nullptr) continue;
 
 				if ( (ov2->degree() != 1) && (ov->degree() != 1) ) continue;
-				///if ( PG->typeOf((*itEar)->theEdge()) == -1) continue;
+#if 0
+				if ( PG->typeOf((*itEar)->theEdge()) == -1) continue;
+#endif
 				//I dropped this classification due to dirty programmed edge type decision
 				//if not ass it is gen....
 				// we proudly present the pattern we searched for
@@ -691,17 +706,24 @@ void OrthoRep::dissect2(PlanRep* PG)
 				adjHeadSucc = adHead->faceCycleSucc();
 
 				int a1 = m_angle[adjHeadSucc];
-				//bool splitted = false;
+#if 0
+				bool splitted = false;
+#endif
 				edge eDissect;
 
 				//Hier noch einfuegen: natuerlich muss head.fcsucc statt faceCycle.succ getestet werden, da auch 180 Grad zulaessig
 
-				//if (m_angle[*itEnd] != 1)
+#if 0
+				if (m_angle[*itEnd] != 1)
+#else
 				if (m_angle[adjHeadSucc] != 1)
+#endif
 				{
 					//split the face between two corners
 					eDissect = E.splitFace(adToe, adjHeadSucc);
-					//if (PG) PG->typeOf(e) = Graph::dissect;
+#if 0
+					if (PG) PG->typeOf(e) = Graph::dissect;
+#endif
 					//hier koennte man highprio type gen setzen
 					m_angle[adjHeadSucc] = a1 - 1;
 					m_angle[adjHeadSucc->cyclicSucc()] = 1; //new edge entry from end to start
@@ -711,7 +733,6 @@ void OrthoRep::dissect2(PlanRep* PG)
 				}
 				else
 				{
-
 					//split edge
 					a1 = m_angle[adHead];
 					adjEntry adj2 = adHead->twin();
@@ -733,8 +754,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 					if (wasDissected) m_dissectionEdge[se] = true;
 					if (wasAlign) m_alignmentEdge[se] = true;
 
-					//splitted = true;
-
+#if 0
+					splitted = true;
+#endif
 
 					eDissect = E.splitFace(adToe, adjHeadSucc);
 					// restore backup angles
@@ -744,8 +766,7 @@ void OrthoRep::dissect2(PlanRep* PG)
 					m_angle[adjHeadSucc->cyclicPred()] = 2;
 					m_angle[adjHeadSucc->cyclicSucc()] = 1;
 					adHead = adjHeadSucc;
-
-				}//else
+				}
 
 				m_dissectionEdge[eDissect] = true;
 				//set the angles, old values 3 are divided
@@ -757,7 +778,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 				faceCycle.del(itToe);
 				//do not delete itStart, copy the new edges entry to this position
 
-				//OGDF_ASSERT(check(msg));
+#if 0
+				OGDF_ASSERT(check(msg));
+#endif
 
 			}//for
 		}//preprocessing 2
@@ -805,8 +828,10 @@ void OrthoRep::dissect2(PlanRep* PG)
 					// we do not have a rectangular ear anymore, so we break.
 					// We then have processed all >= 270 degree angles behind
 					// it
-					//if (itBackSucc == it)
-					//	break;
+#if 0
+					if (itBackSucc == it)
+						break;
+#endif
 
 					adjEntry &adjSplit = *faceCycle.cyclicSucc(itBackSucc);
 					ListIterator<adjEntry> itsplit = faceCycle.cyclicSucc(itBackSucc);
@@ -854,7 +879,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 						//cout<<"we will save a vertex\n"<<flush;
 					}
 					adjEntry adjSplitSucc = adjSplit->faceCycleSucc();
-					//if (savevertex) OGDF_ASSERT(adjSplitSucc == *itsucc);//doesnt work with 180 degree
+#if 0
+					if (savevertex) OGDF_ASSERT(adjSplitSucc == *itsucc);//doesnt work with 180 degree
+#endif
 					// and close a rectangular face
 					edge eDissect = E.splitFace(*itBack, adjSplitSucc);
 					m_dissectionEdge[eDissect] = true;
@@ -895,7 +922,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 					if (!savevertex)
 						if (earSlope != 4) //already has new value
 							m_angle[adjSplitSucc->cyclicPred()] = 4 - 1 - m_angle[adjSplitSucc];
-					//if (savevertex && (earSlope == 2)) m_angle[adjSplitSucc->cyclicPred()] = ???
+#if 0
+					if (savevertex && (earSlope == 2)) m_angle[adjSplitSucc->cyclicPred()] = ???
+#endif
 
 					adjEntry adjSucc = (*itBack)->cyclicSucc();
 					if (m_angle[*itBack] == 4) {
@@ -934,7 +963,10 @@ void OrthoRep::dissect2(PlanRep* PG)
 							it = faceCycle.cyclicSucc(it);
 							shiftedit = true;
 						}
-						//else cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+#if 0
+						else
+							cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+#endif
 						faceCycle.del(itsplit);
 					}
 
@@ -946,7 +978,9 @@ void OrthoRep::dissect2(PlanRep* PG)
 			it = faceCycle.cyclicSucc(it);
 			runcount++;
 		}//while
-		//OGDF_ASSERT(check(msg));
+#if 0
+		OGDF_ASSERT(check(msg));
+#endif
 	}
 }
 
@@ -1009,9 +1043,11 @@ void OrthoRep::gridDissect(PlanRep* PG)
 
 				//only run until no more patterns left
 				//and dont iterate over the face, only check this one time
-				//int prerun = 0;
-				//prit = faceCycle.begin();
-				//while ( prit.valid() && (prerun < faceCycle.size() + 1))
+#if 0
+				int prerun = 0;
+				prit = faceCycle.begin();
+				while ( prit.valid() && (prerun < faceCycle.size() + 1))
+#endif
 				//check if possible
 				ListIterator<adjEntry> itEnd, itStart, it1one, it1two, it1three, it1four; //pattern defining edges
 				//take care of prit, it will be deleted
@@ -1043,7 +1079,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					m_dissectionEdge[eDissect] = true;
 
 					change = true;
-					//if (PG) PG->typeOf(e) = Graph::dissect;
+#if 0
+					if (PG) PG->typeOf(e) = Graph::dissect;
+#endif
 
 					//set the angles, old values 3 are divided
 					m_angle[adEnd] = 1;
@@ -1057,14 +1095,18 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					faceCycle.del(it1two);
 					faceCycle.del(it1one);
 					//do not delete itStart, copy the new edges entry to this position
-					//faceCycle.del(itStart);
+#if 0
+					faceCycle.del(itStart);
+#endif
 					adStart = adStart->cyclicSucc();//use reference
 					//itEnd stays with angle value 1
 
-					//OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+#if 0
+					OGDF_ASSERT_IF(dlConsistencyChecks,check(msg));
+#endif
 				}//for
 			}//preprocessing pattern1
-			//if (m_people)
+
 			//we search for a 3111 pattern
 			if (m_pattern2)
 			{
@@ -1076,7 +1118,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				ListIterator<adjEntry> it1Top, itTopSucc, it1Back, it1Base, it3Start; //pattern defining edges
 				//take care of prit, it will be deleted
 				savenext = faceCycle.begin();
-				for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>6); (prit = savenext)) //go clockwise around face!?
+				for (prit = faceCycle.begin(); prit.valid() && savenext.valid() && (faceCycle.size()>6); prit = savenext) //go clockwise around face!?
 				{
 					++savenext;
 					itTopSucc = prit; //search pattern backwards
@@ -1104,7 +1146,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					m_dissectionEdge[eDissect] = true;
 
 					change = true;
-					//if (PG) PG->typeOf(e) = Graph::dissect;
+#if 0
+					if (PG) PG->typeOf(e) = Graph::dissect;
+#endif
 
 					//set the angles, old values 3 are divided
 					m_angle[adEnd] = m_angle[adEnd] - 1;
@@ -1117,7 +1161,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					faceCycle.del(it1Back);
 					faceCycle.del(it1Base);
 					//do not delete itStart, copy the new edges entry to this position
-					//faceCycle.del(itStart);
+#if 0
+					faceCycle.del(itStart);
+#endif
 					adStart = adStart->cyclicSucc();//use reference
 					//check if itEnd stays
 					if (m_angle[adEnd] == 2)
@@ -1125,7 +1171,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 						  faceCycle.del(itTopSucc);
 						}//if
 
-					//OGDF_ASSERT(check(msg));
+#if 0
+					OGDF_ASSERT(check(msg));
+#endif
 				}//for
 			}//pattern2
 
@@ -1142,13 +1190,15 @@ void OrthoRep::gridDissect(PlanRep* PG)
 			//take care of prit, it will be deleted
 			savenext = faceCycle.begin();
 
-			for (prit = faceCycle.begin(); (prit.valid() && savenext.valid()) && (faceCycle.size()>5); (prit = savenext)) //go clockwise around face!?
+			for (prit = faceCycle.begin(); prit.valid() && savenext.valid() && (faceCycle.size()>5); prit = savenext) //go clockwise around face!?
 			{
 				++savenext;
 				//es bleibt herauszufinden, in welcher reihenfolge die kanten ohnehin korrekt
 				//durchlaufen werden, dann die andere nehmen
 				itEnd = prit; //search pattern backwards
-				//if (m_angle[*itEnd]    != 3) continue; //nur in einer Richtung
+#if 0
+				if (m_angle[*itEnd]    != 3) continue; //nur in einer Richtung
+#endif
 				itHead = faceCycle.cyclicPred(itEnd);
 				if (m_angle[*itHead]  != 1) continue;
 				itEar = faceCycle.cyclicPred(itHead);
@@ -1169,7 +1219,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				if (ov2 == nullptr) continue;
 
 				if ( (ov2->degree() != 1) && (ov->degree() != 1) ) continue;
-				///if ( PG->typeOf((*itEar)->theEdge()) == -1) continue;
+#if 0
+				if ( PG->typeOf((*itEar)->theEdge()) == -1) continue;
+#endif
 				//I dropped this classification due to dirty programmed edge type decision
 				//if not ass it is gen....
 				// we proudly present the pattern we searched for
@@ -1184,17 +1236,24 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				adjHeadSucc = adHead->faceCycleSucc();
 
 				int a1 = m_angle[adjHeadSucc];
-				//bool splitted = false;
+#if 0
+				bool splitted = false;
+#endif
 				edge eDissect;
 
 				//Hier noch einfuegen: natuerlich muss head.fcsucc statt faceCycle.succ getestet werden, da auch 180 Grad zulaessig
 
-				//if (m_angle[*itEnd] != 1)
+#if 0
+				if (m_angle[*itEnd] != 1)
+#else
 				if (m_angle[adjHeadSucc] != 1)
+#endif
 				{
 					//split the face between two corners
 					eDissect = E.splitFace(adToe, adjHeadSucc);
-					//if (PG) PG->typeOf(e) = Graph::dissect;
+#if 0
+					if (PG) PG->typeOf(e) = Graph::dissect;
+#endif
 					//hier koennte man highprio type gen setzen
 					m_angle[adjHeadSucc] = a1 - 1;
 					m_angle[adjHeadSucc->cyclicSucc()] = 1; //new edge entry from end to start
@@ -1204,7 +1263,6 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				}
 				else
 				{
-
 					//split edge
 					a1 = m_angle[adHead];
 					adjEntry adj2 = adHead->twin();
@@ -1234,8 +1292,7 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					m_angle[adjHeadSucc->cyclicPred()] = 2;
 					m_angle[adjHeadSucc->cyclicSucc()] = 1;
 					adHead = adjHeadSucc;
-
-				}//else
+				}
 
 				m_dissectionEdge[eDissect] = true;
 				//set the angles, old values 3 are divided
@@ -1246,9 +1303,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 				faceCycle.del(itEar);
 				faceCycle.del(itToe);
 				//do not delete itStart, copy the new edges entry to this position
-
-				//OGDF_ASSERT(check(msg));
-
+#if 0
+				OGDF_ASSERT(check(msg));
+#endif
 			}//for
 		}//preprocessing 2
 
@@ -1295,8 +1352,10 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					// we do not have a rectangular ear anymore, so we break.
 					// We then have processed all >= 270 degree angles behind
 					// it
-					//if (itBackSucc == it)
-					//	break;
+#if 0
+					if (itBackSucc == it)
+						break;
+#endif
 
 					adjEntry &adjSplit = *faceCycle.cyclicSucc(itBackSucc);
 					ListIterator<adjEntry> itsplit = faceCycle.cyclicSucc(itBackSucc);
@@ -1341,10 +1400,14 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					{
 						u = (adjSplit->faceCycleSucc())->theNode(); //use this node instead
 						itsucc = faceCycle.cyclicSucc(faceCycle.cyclicSucc(itBackSucc));
-						//cout<<"we will save a vertex\n"<<flush;
+#if 0
+						cout<<"we will save a vertex\n"<<flush;
+#endif
 					}
 					adjEntry adjSplitSucc = adjSplit->faceCycleSucc();
-					//if (savevertex) OGDF_ASSERT(adjSplitSucc == *itsucc);//doesnt work with 180 degree
+#if 0
+					if (savevertex) OGDF_ASSERT(adjSplitSucc == *itsucc);//doesnt work with 180 degree
+#endif
 					// and close a rectangular face
 					edge eDissect = E.splitFace(*itBack, adjSplitSucc);
 					m_dissectionEdge[eDissect] = true;
@@ -1385,7 +1448,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 					if (!savevertex)
 					if (earSlope != 4) //already has new value
 					  m_angle[adjSplitSucc->cyclicPred()] = 4 - 1 - m_angle[adjSplitSucc];
-					//if (savevertex && (earSlope == 2)) m_angle[adjSplitSucc->cyclicPred()] = ???
+#if 0
+					if (savevertex && (earSlope == 2)) m_angle[adjSplitSucc->cyclicPred()] = ???
+#endif
 
 					adjEntry adjSucc = (*itBack)->cyclicSucc();
 					if (m_angle[*itBack] == 4) {
@@ -1424,7 +1489,10 @@ void OrthoRep::gridDissect(PlanRep* PG)
 							it = faceCycle.cyclicSucc(it);
 							shiftedit = true;
 						}
-						//else cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+#if 0
+						else
+							cout<<"deleting itsplit             "<<*itsplit<<"\n"<<flush;
+#endif
 						faceCycle.del(itsplit);
 					}
 
@@ -1436,7 +1504,9 @@ void OrthoRep::gridDissect(PlanRep* PG)
 			it = faceCycle.cyclicSucc(it);
 			runcount++;
 		}//while
-		//OGDF_ASSERT(check(msg));
+#if 0
+		OGDF_ASSERT(check(msg));
+#endif
 	}
 }
 
@@ -1500,15 +1570,17 @@ void OrthoRep::undissect(bool align) //default false
 	}
 	else m_pE->setExternalFace(m_pE->rightFace(m_adjExternal));
 
-	//ofstream out("c:\\outerface.txt");
-	//out<<"Aeusseres Face: \n";
-	//adjEntry eo = m_pE->externalFace()->firstAdj();
-	//adjEntry stop = eo;
-	//do
-	//{
-	//  out<<eo<<"\n";
-	//  eo = eo->faceCycleSucc();
-	//} while (eo!=stop);
+#if 0
+	ofstream out("c:\\outerface.txt");
+	out<<"Aeusseres Face: \n";
+	adjEntry eo = m_pE->externalFace()->firstAdj();
+	adjEntry stop = eo;
+	do
+	{
+		out<<eo<<"\n";
+		eo = eo->faceCycleSucc();
+	} while (eo!=stop);
+#endif
 }//undissect
 
 
@@ -1551,7 +1623,7 @@ void OrthoRep::orientate(const PlanRep &PG, OrthoDir preferedDir)
 void OrthoRep::orientate(adjEntry adj, OrthoDir dir)
 {
 	OGDF_ASSERT(isNormalized());
-	OGDF_ASSERT(adj != 0);
+	OGDF_ASSERT(adj != nullptr);
 	OGDF_ASSERT(
 		dir == odEast || dir == odWest || dir == odNorth || dir == odSouth
 	);
@@ -1624,7 +1696,7 @@ void OrthoRep::computeCageInfoUML(
 
 		if (adj == nullptr) continue;
 
-		m_umlCageInfo[v] = OGDF_NEW VertexInfoUML;
+		m_umlCageInfo[v] = new VertexInfoUML;
 		VertexInfoUML &vi = *m_umlCageInfo[v];
 
 		adjEntry adjSucc = adj->faceCycleSucc();

@@ -8,7 +8,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -25,12 +25,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #include <bandit/bandit.h>
 
@@ -225,7 +222,8 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 				EdgeWeightedGraph<VALUE_TYPE> graph;
 				node s;
 				node t;
-				AssertThat(GraphIO::readDMF(graph, s, t, filename), IsTrue());
+				ifstream is(filename);
+				AssertThat(GraphIO::readDMF(graph, s, t, is), IsTrue());
 				MaxFlowRequirement props = determineProperties(graph, s, t);
 
 				// create non s-t-incident face if required
@@ -304,11 +302,11 @@ void describeMaxFlowModule(const string &name, const MaxFlowRequirement reqs = M
 				}
 
 				// choose source and sink
-				while(s == nullptr || s == t) {
-					s = graph.chooseNode();
+				if(s == nullptr || s == t) {
+					s = graph.chooseNode([&](node v) { return v != t; });
 				}
 				while(t == nullptr || t == s) {
-					t = graph.chooseNode();
+					t = graph.chooseNode([&](node v) { return v != s; });
 				}
 
 				// create non s-t-incident face if required
@@ -345,15 +343,15 @@ void registerTestSuite(const string typeName)
 }
 
 /**
-* Tests the ConnectivityTester on the given graphs.
-* Node and edge connectivity is computed for both directed and undirected (i.e. bi-directed) graphs.
-* The resulting values are tested for consistency.
-*
-* @param title A description of the graphs
-* @param expected The minimal expected node connectivity
-* @param initializer A lambda expression used to initialize the test instances.
-*                    Each call is provided with the graph to be initialized and a counter.
-*/
+ * Tests the ConnectivityTester on the given graphs.
+ * Node and edge connectivity is computed for both directed and undirected (i.e. bi-directed) graphs.
+ * The resulting values are tested for consistency.
+ *
+ * @param title A description of the graphs
+ * @param expected The minimal expected node connectivity
+ * @param initializer A lambda expression used to initialize the test instances.
+ *                    Each call is provided with the graph to be initialized and a counter.
+ */
 void describeConnectivityTester(
         string title,
         int expected,
@@ -449,6 +447,7 @@ go_bandit([]() {
 	describe("Maximum flow algorithms", [](){
 		registerTestSuite<int>("int");
 		registerTestSuite<double>("double");
+		registerTestSuite<unsigned long long int>("unsigned long long int");
 	});
 
 	describe("Connectivity Tester", [](){

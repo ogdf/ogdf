@@ -9,7 +9,7 @@
  *
  * \par
  * Copyright (C)<br>
- * See README.txt in the root directory of the OGDF installation for details.
+ * See README.md in the OGDF root directory for details.
  *
  * \par
  * This program is free software; you can redistribute it and/or
@@ -26,12 +26,9 @@
  *
  * \par
  * You should have received a copy of the GNU General Public
- * License along with this program; if not, write to the Free
- * Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
- * Boston, MA 02110-1301, USA.
- *
- * \see  http://www.gnu.org/copyleft/gpl.html
- ***************************************************************/
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
 #pragma once
 
@@ -77,7 +74,7 @@ struct OGDF_EXPORT XmlAttributeObject {
 	XmlAttributeObject(HashedString *name, HashedString *value)
 	 : m_pAttributeName(name)
 	 , m_pAttributeValue(value)
-	 , m_pNextAttribute(0)
+	 , m_pNextAttribute(nullptr)
 	 , m_valid(false)
 	{}
 
@@ -151,10 +148,10 @@ struct OGDF_EXPORT XmlTagObject {
 	/** Constructor */
 	XmlTagObject(HashedString *name) :
 		m_pTagName(name),
-		m_pFirstAttribute(0),
-		m_pTagValue(0),
-		m_pFirstSon(0),
-		m_pBrother(0),
+		m_pFirstAttribute(nullptr),
+		m_pTagValue(nullptr),
+		m_pFirstSon(nullptr),
+		m_pBrother(nullptr),
 		m_valid(0)
 		{};
 
@@ -330,7 +327,7 @@ public:
 	/** Creates a new hash element and inserts it into the hash table.
 	 */
 	void addNewHashElement(const string &key, int info){
-		OGDF_ASSERT(info >= m_hashTableInfoIndex)
+		OGDF_ASSERT(info >= m_hashTableInfoIndex);
 		m_hashTable.fastInsert(key, info);
 		m_hashTableInfoIndex = info + 1;
 	}
