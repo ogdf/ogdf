@@ -43,7 +43,7 @@ private:
 
 public:
 	//! Constructs an EpsilonTest with a given epsilon (double) for comparisons.
-	EpsilonTest(double epsilon = 1.0e-8) : eps(epsilon) {}
+	explicit EpsilonTest(double epsilon = 1.0e-8) : eps(epsilon) {}
 
 	// LESS: integral and floating_point
 	//! Compare if x is LESS than y for integral types.

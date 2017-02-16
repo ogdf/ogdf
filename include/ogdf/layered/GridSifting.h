@@ -66,7 +66,7 @@ public:
 	 */
 	int nRepeats() { return m_nRepeats; }
 
-	//! Sets the option nRepeats to \a num.
+	//! Sets the option nRepeats to \p num.
 	void nRepeats( int num ) { m_nRepeats = num; }
 
 	//! Implementation of interface LateredCrossMinModule.
@@ -125,7 +125,7 @@ public:
 	 */
 	int verticalStepsBound() { return m_verticalStepsBound; }
 
-	//! Sets the option verticalStepsBound to \a b.
+	//! Sets the option verticalStepsBound to \p b.
 	void verticalStepsBound( int b ) { m_verticalStepsBound = b; }
 
 private:

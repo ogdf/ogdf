@@ -32,7 +32,6 @@
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Stack.h>
-#include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/STNumbering.h>
 
@@ -156,7 +155,6 @@ int computeSTNumbering(const Graph &G,
 	NodeArray<edge> followLowPath(G,nullptr);
 
 	edge st;
-	node v;
 
 	if (s && t)
 	{
@@ -224,7 +222,7 @@ int computeSTNumbering(const Graph &G,
 	nodeStack.push(t);
 	nodeStack.push(s);
 	count = 1;
-	v = nodeStack.pop();
+	node v = nodeStack.pop();
 	adjEntry adj = nullptr;
 	while (v != t)
 	{

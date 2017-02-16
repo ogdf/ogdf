@@ -29,122 +29,115 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarity/SubgraphPlanarizer.h>
 #include <ogdf/planarlayout/MixedModelLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/basic/extended_graph_alg.h>
-
 
 namespace ogdf {
 
+PlanarizationGridLayout::PlanarizationGridLayout()
+{
+	m_crossMin      .reset(new SubgraphPlanarizer);
+	m_planarLayouter.reset(new MixedModelLayout);
+	m_packer        .reset(new TileToRowsCCPacker);
 
-	PlanarizationGridLayout::PlanarizationGridLayout()
+	m_pageRatio = 1.0;
+}
+
+
+void PlanarizationGridLayout::doCall(
+	const Graph &G,
+	GridLayout &gridLayout,
+	IPoint &bb)
+{
+	m_nCrossings = 0;
+	if(G.empty()) return;
+
+	PlanRep pr(G);
+
+	const int numCC = pr.numberOfCCs();
+	// (width,height) of the layout of each connected component
+	Array<IPoint> boundingBox(numCC);
+
+	for(int cc = 0; cc < numCC; ++cc)
 	{
-		m_crossMin      .reset(new SubgraphPlanarizer);
-		m_planarLayouter.reset(new MixedModelLayout);
-		m_packer        .reset(new TileToRowsCCPacker);
+		// 1. crossing minimization
+		int cr;
+		m_crossMin->call(pr, cc, cr);
+		m_nCrossings += cr;
+		OGDF_ASSERT(isPlanar(pr));
 
-		m_pageRatio = 1.0;
-	}
+		GridLayout gridLayoutPG(pr);
+		m_planarLayouter->callGrid(pr,gridLayoutPG);
 
-
-	void PlanarizationGridLayout::doCall(
-		const Graph &G,
-		GridLayout &gridLayout,
-		IPoint &bb)
-	{
-		m_nCrossings = 0;
-		if(G.empty()) return;
-
-		PlanRep pr(G);
-
-		const int numCC = pr.numberOfCCs();
-		// (width,height) of the layout of each connected component
-		Array<IPoint> boundingBox(numCC);
-
-		for(int cc = 0; cc < numCC; ++cc)
+		// copy grid layout of PG into grid layout of G
+		for(int j = pr.startNode(); j < pr.stopNode(); ++j)
 		{
-			//--------------------------------------
-			// 1. crossing minimization
-			//--------------------------------------
-			int cr;
-			m_crossMin->call(pr, cc, cr);
-			m_nCrossings += cr;
-			OGDF_ASSERT(isPlanar(pr));
+			node vG = pr.v(j);
 
-			GridLayout gridLayoutPG(pr);
-			m_planarLayouter->callGrid(pr,gridLayoutPG);
+			gridLayout.x(vG) = gridLayoutPG.x(pr.copy(vG));
+			gridLayout.y(vG) = gridLayoutPG.y(pr.copy(vG));
 
-			// copy grid layout of PG into grid layout of G
-			for(int j = pr.startNode(); j < pr.stopNode(); ++j)
-			{
-				node vG = pr.v(j);
+			for(adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) continue;
+				edge eG = adj->theEdge();
+				IPolyline &ipl = gridLayout.bends(eG);
+				ipl.clear();
 
-				gridLayout.x(vG) = gridLayoutPG.x(pr.copy(vG));
-				gridLayout.y(vG) = gridLayoutPG.y(pr.copy(vG));
-
-				for(adjEntry adj : vG->adjEntries) {
-					if ((adj->index() & 1) == 0) continue;
-					edge eG = adj->theEdge();
-					IPolyline &ipl = gridLayout.bends(eG);
-					ipl.clear();
-
-					bool firstTime = true;
-					for(edge e : pr.chain(eG)) {
-						if(!firstTime) {
-							node v = e->source();
-							ipl.pushBack(IPoint(gridLayoutPG.x(v),gridLayoutPG.y(v)));
-						} else
-							firstTime = false;
-						ipl.conc(gridLayoutPG.bends(e));
-					}
-				}
-			}
-
-			boundingBox[cc] = m_planarLayouter->gridBoundingBox();
-			boundingBox[cc].m_x += 1; // one row/column space between components
-			boundingBox[cc].m_y += 1;
-		}
-
-		Array<IPoint> offset(numCC);
-		m_packer->call(boundingBox,offset,m_pageRatio);
-
-		bb.m_x = bb.m_y = 0;
-		for(int cc = 0; cc < numCC; ++cc)
-		{
-			const int dx = offset[cc].m_x;
-			const int dy = offset[cc].m_y;
-
-			if(boundingBox[cc].m_x + dx > bb.m_x)
-				bb.m_x = boundingBox[cc].m_x + dx;
-			if(boundingBox[cc].m_y + dy > bb.m_y)
-				bb.m_y = boundingBox[cc].m_y + dy;
-
-			// iterate over all nodes in i-th cc
-			for(int j = pr.startNode(cc); j < pr.stopNode(cc); ++j)
-			{
-				node vG = pr.v(j);
-
-				gridLayout.x(vG) += dx;
-				gridLayout.y(vG) += dy;
-
-				for(adjEntry adj : vG->adjEntries) {
-					if ((adj->index() & 1) == 0) continue;
-					edge eG = adj->theEdge();
-
-					for(IPoint &ip : gridLayout.bends(eG)) {
-						ip.m_x += dx;
-						ip.m_y += dy;
-					}
+				bool firstTime = true;
+				for(edge e : pr.chain(eG)) {
+					if(!firstTime) {
+						node v = e->source();
+						ipl.pushBack(IPoint(gridLayoutPG.x(v),gridLayoutPG.y(v)));
+					} else
+						firstTime = false;
+					ipl.conc(gridLayoutPG.bends(e));
 				}
 			}
 		}
 
-		bb.m_x -= 1; // remove margin of topmost/rightmost box
-		bb.m_y -= 1;
+		boundingBox[cc] = m_planarLayouter->gridBoundingBox();
+		boundingBox[cc].m_x += 1; // one row/column space between components
+		boundingBox[cc].m_y += 1;
 	}
 
+	Array<IPoint> offset(numCC);
+	m_packer->call(boundingBox,offset,m_pageRatio);
+
+	bb.m_x = bb.m_y = 0;
+	for(int cc = 0; cc < numCC; ++cc)
+	{
+		const int dx = offset[cc].m_x;
+		const int dy = offset[cc].m_y;
+
+		if(boundingBox[cc].m_x + dx > bb.m_x)
+			bb.m_x = boundingBox[cc].m_x + dx;
+		if(boundingBox[cc].m_y + dy > bb.m_y)
+			bb.m_y = boundingBox[cc].m_y + dy;
+
+		// iterate over all nodes in i-th cc
+		for(int j = pr.startNode(cc); j < pr.stopNode(cc); ++j)
+		{
+			node vG = pr.v(j);
+
+			gridLayout.x(vG) += dx;
+			gridLayout.y(vG) += dy;
+
+			for(adjEntry adj : vG->adjEntries) {
+				if ((adj->index() & 1) == 0) continue;
+				edge eG = adj->theEdge();
+
+				for(IPoint &ip : gridLayout.bends(eG)) {
+					ip.m_x += dx;
+					ip.m_y += dy;
+				}
+			}
+		}
+	}
+
+	bb.m_x -= 1; // remove margin of topmost/rightmost box
+	bb.m_y -= 1;
+}
 
 } // end namespace ogdf

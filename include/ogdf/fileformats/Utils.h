@@ -31,9 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/Hashing.h>
+#include <map>
 
-#include <string>
+#include <ogdf/basic/basic.h>
 
 namespace ogdf {
 
@@ -44,7 +44,7 @@ private:
 	char m_c;
 
 public:
-	TokenIgnorer(const char c): m_c(c) {};
+	explicit TokenIgnorer(const char c): m_c(c) {};
 
 	friend std::istream &operator >>(std::istream &is, TokenIgnorer c);
 };
@@ -55,7 +55,7 @@ std::istream &operator >>(std::istream &is, TokenIgnorer token);
 template <typename E>
 static inline E toEnum(
 	const std::string &str, // A string we want to convert.
-	Hashing<std::string, E> &map, // A map to be lazily evaluated.
+	std::map<std::string, E> &map, // A map to be lazily evaluated.
 	std::string toString(const E&),
 	const E first, const E last, const E def) // Enum informations.
 {
@@ -65,14 +65,13 @@ static inline E toEnum(
 #endif
 
 		// Iterating over enums is potentially unsafe... (fixable in C++11).
-		for(int it = last; it >= first; it--) {
+		for(int it = static_cast<int>(last); it >= static_cast<int>(first); it--) {
 			const E e = static_cast<E>(it);
-			map.insert(toString(e), e);
+			map[toString(e)] = e;
 		}
 	}
 
-	HashElement<std::string, E> *elem = map.lookup(str);
-	return elem ? elem->info() : def;
+	return map.find(str) == map.end() ? def : map[str];
 }
 
 

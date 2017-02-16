@@ -117,7 +117,7 @@ public:
 		return m_pageRatio;
 	}
 
-	//! Sets the option pageRatio to \a ratio.
+	//! Sets the option pageRatio to \p ratio.
 	void pageRatio(double ratio) {
 		m_pageRatio = ratio;
 	}

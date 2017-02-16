@@ -97,7 +97,7 @@ public:
 	~SpringEmbedderGridVariant() { }
 
 
-	//! Calls the layout algorithm for graph attributes \a GA.
+	//! Calls the layout algorithm for graph attributes \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 #if 0
@@ -109,7 +109,7 @@ public:
 		return m_forceModel;
 	}
 
-	//! Sets the used force model to \a fm.
+	//! Sets the used force model to \p fm.
 	void forceModel(SpringForceModel fm) {
 		m_forceModel = fm;
 	}
@@ -119,7 +119,7 @@ public:
 		return m_forceModelImprove;
 	}
 
-	//! Sets the used force model for the improvement step to \a fm.
+	//! Sets the used force model for the improvement step to \p fm.
 	void forceModelImprove(SpringForceModel fm) {
 		m_forceModelImprove = fm;
 	}
@@ -128,13 +128,13 @@ public:
 	/**
 	 * This factor is used for detecting convergence of the energy system.
 	 * With respect to the average displacement of a node in a single step, we assume
-	 * to have convergence if it is at most \a avgConvergenceFactor * \a idealEdgeLength.
+	 * to have convergence if it is at most #m_avgConvergenceFactor * #m_idealEdgeLength.
 	 */
 	double avgConvergenceFactor() const {
 		return m_avgConvergenceFactor;
 	}
 
-	//! Sets the <i>average convergence factor</i> to \a f.
+	//! Sets the <i>average convergence factor</i> to \p f.
 	void avgConvergenceFactor(double f) {
 		if(f >= 0)
 			m_avgConvergenceFactor = f;
@@ -144,13 +144,13 @@ public:
 	/**
 	 * This factor is used for detecting convergence of the energy system.
 	 * With respect to the maximum displacement of a node in a single step, we assume
-	 * to have convergence if it is at most \a maxConvergenceFactor * \a idealEdgeLength.
+	 * to have convergence if it is at most #m_maxConvergenceFactor * #m_idealEdgeLength.
 	 */
 	double maxConvergenceFactor() const {
 		return m_maxConvergenceFactor;
 	}
 
-	//! Sets the <i>maximum</i> convergence factor to \a f.
+	//! Sets the <i>maximum</i> convergence factor to \p f.
 	void maxConvergenceFactor(double f) {
 		if(f >= 0)
 			m_maxConvergenceFactor = f;
@@ -165,7 +165,7 @@ public:
 		return m_iterations;
 	}
 
-	//! Sets the number of iterations to \a i.
+	//! Sets the number of iterations to \p i.
 	void iterations(int i) {
 		if (i >= 0)
 			m_iterations = i;
@@ -176,7 +176,7 @@ public:
 		return m_iterationsImprove;
 	}
 
-	//! Sets the number of iterations for the improvement phase to \a i.
+	//! Sets the number of iterations for the improvement phase to \p i.
 	void iterationsImprove(int i) {
 		if (i >= 0)
 			m_iterationsImprove = i;
@@ -195,7 +195,7 @@ public:
 		return m_forceLimitStep;
 	}
 
-	//! Sets the ideal edge length to \a len.
+	//! Sets the ideal edge length to \p len.
 	/**
 	 * Edge lengths are measured between the centers of the two nodes, i.e.,
 	 * node sizes are not taken into account.
@@ -209,7 +209,7 @@ public:
 		return m_noise;
 	}
 
-	//! Sets the parameter noise to \a on.
+	//! Sets the parameter noise to \p on.
 	void noise(bool on) {
 		m_noise = on;
 	}
@@ -217,13 +217,13 @@ public:
 	//! Returns the minimum distance between connected components.
 	double minDistCC() const { return m_minDistCC; }
 
-	//! Sets the minimum distance between connected components to \a x.
+	//! Sets the minimum distance between connected components to \p x.
 	void minDistCC(double x) { m_minDistCC = x; }
 
 	//! Returns the page ratio.
 	double pageRatio() { return m_pageRatio; }
 
-	//! Sets the page ration to \a x.
+	//! Sets the page ration to \p x.
 	void pageRatio(double x) { m_pageRatio = x; }
 
 	//! Returns the current scaling method.
@@ -231,7 +231,7 @@ public:
 		return m_scaling;
 	}
 
-	//! Sets the method for scaling the inital layout to \a sc.
+	//! Sets the method for scaling the inital layout to \p sc.
 	void scaling(Scaling sc) {
 		m_scaling = sc;
 	}
@@ -241,7 +241,7 @@ public:
 		return m_scaleFactor;
 	}
 
-	//! Sets the scale function factor to \a f.
+	//! Sets the scale function factor to \p f.
 	void scaleFunctionFactor(double f) {
 		m_scaleFactor = f;
 	}
@@ -257,7 +257,7 @@ public:
 	//! Returns the maximal number of used threads.
 	unsigned int maxThreads() const { return m_maxThreads; }
 
-	//! Sets the maximal number of used threads to \a n.
+	//! Sets the maximal number of used threads to \p n.
 	void maxThreads(unsigned int n) { m_maxThreads = n; }
 
 private:

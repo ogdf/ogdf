@@ -34,7 +34,7 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/Voronoi.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 
 #include <ogdf/basic/GraphAttributes.h>
@@ -155,10 +155,11 @@ protected:
 	};
 };
 
-// ============= Implementation =================
-
 template<typename T>
-T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
+T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
+                                                const List<node> &terminals,
+                                                const NodeArray<bool> &isTerminal,
+                                                EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
 	EdgeWeightedGraphCopy<T> completeTerminalGraph;
 	EdgeArray<edge> bridges;
@@ -181,7 +182,11 @@ T MinSteinerTreeMehlhorn<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, c
 }
 
 template<typename T>
-void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG, const List<node> &terminals, const Voronoi<T> &voronoi, EdgeArray<edge> &bridges, EdgeWeightedGraphCopy<T> &completeTerminalGraph)
+void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG,
+                                                       const List<node> &terminals,
+                                                       const Voronoi<T> &voronoi,
+                                                       EdgeArray<edge> &bridges,
+                                                       EdgeWeightedGraphCopy<T> &completeTerminalGraph)
 {
 	completeTerminalGraph.createEmpty(wG);
 
@@ -244,7 +249,12 @@ void MinSteinerTreeMehlhorn<T>::calculateCompleteGraph(const EdgeWeightedGraph<T
 }
 
 template<typename T>
-void MinSteinerTreeMehlhorn<T>::reinsertShortestPaths(EdgeWeightedGraphCopy<T> &completeTerminalGraph, const Voronoi<T> &voronoi, const NodeArray<edge> &mstPred, const EdgeArray<edge> &bridges, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG)
+void MinSteinerTreeMehlhorn<T>::reinsertShortestPaths(EdgeWeightedGraphCopy<T> &completeTerminalGraph,
+                                                      const Voronoi<T> &voronoi,
+                                                      const NodeArray<edge> &mstPred,
+                                                      const EdgeArray<edge> &bridges,
+                                                      EdgeWeightedGraphCopy<T> &finalSteinerTree,
+                                                      const EdgeWeightedGraph<T> &wG)
 {
 	for(node u : completeTerminalGraph.nodes) {
 		if (mstPred[u] != nullptr) {
@@ -260,7 +270,10 @@ void MinSteinerTreeMehlhorn<T>::reinsertShortestPaths(EdgeWeightedGraphCopy<T> &
 }
 
 template<typename T>
-void MinSteinerTreeMehlhorn<T>::insertPath(node u, const Voronoi<T> &voronoi, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG)
+void MinSteinerTreeMehlhorn<T>::insertPath(node u,
+                                           const Voronoi<T> &voronoi,
+                                           EdgeWeightedGraphCopy<T> &finalSteinerTree,
+                                           const EdgeWeightedGraph<T> &wG)
 {
 	node currentSource;
 	node currentTarget = finalSteinerTree.copy(u);

@@ -40,12 +40,12 @@ namespace gexf {
 std::string toString(const Shape &shape)
 {
 	switch(shape) {
-	case shRect: return "square";
-	case shRoundedRect: return "rect"; // Not supported.
-	case shEllipse: return "disc";
-	case shTriangle: return "triangle";
-	case shRhomb: return "diamond";
-	case shImage: return "image";
+	case Shape::Rect: return "square";
+	case Shape::RoundedRect: return "rect"; // Not supported.
+	case Shape::Ellipse: return "disc";
+	case Shape::Triangle: return "triangle";
+	case Shape::Rhomb: return "diamond";
+	case Shape::Image: return "image";
 	default: return "disc";
 	}
 }
@@ -54,17 +54,17 @@ std::string toString(const Shape &shape)
 Shape toShape(const std::string &str)
 {
 	if(str == "square") {
-		return shRect;
+		return Shape::Rect;
 	} else if(str == "disc") {
-		return shEllipse;
+		return Shape::Ellipse;
 	} else if(str == "triangle") {
-		return shTriangle;
+		return Shape::Triangle;
 	} else if(str == "diamond") {
-		return shRhomb;
+		return Shape::Rhomb;
 	} else if(str == "image") {
-		return shImage;
+		return Shape::Image;
 	} else {
-		return shRect;
+		return Shape::Rect;
 	}
 }
 

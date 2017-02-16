@@ -35,64 +35,63 @@
 #pragma once
 
 #include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/internal/orthogonal/RoutingChannel.h>
+#include <ogdf/orthogonal/internal/RoutingChannel.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
-
 #include <ogdf/planarity/PlanRep.h>
-
 
 namespace ogdf {
 
-
-// types of edges in the constraint graph
-enum ConstraintEdgeType {
-	cetBasicArc,
-	cetVertexSizeArc,
-	cetVisibilityArc,
-	cetFixToZeroArc, //can be compacted to zero length, can be fixed
-	cetReducibleArc, //can be compacted to zero length
-	cetMedianArc //inserted to replace some reducible in fixzerolength
+//! Types of edges in the constraint graph
+enum class ConstraintEdgeType {
+	BasicArc,
+	VertexSizeArc,
+	VisibilityArc,
+	FixToZeroArc, //!< can be compacted to zero length, can be fixed
+	ReducibleArc, //!< can be compacted to zero length
+	MedianArc //!< inserted to replace some reducible in fixzerolength
 };
 
-//---------------------------------------------------------
-// CompactionConstraintGraph
-// base class implementing common behaviour of all parameterized
-// CompactionConstraintGraph<ATYPE>
-//---------------------------------------------------------
+//! Base class implementing common behaviour of ogdf::CompactionConstraintGraph.
 class CompactionConstraintGraphBase : protected Graph
 {
 public:
-
-	// output for debugging only
+	//! \name Output for debugging only
+	//! @{
 	void writeGML(const char *fileName) const ;
 	void writeGML(ostream &os) const;
 	//output edges on external face
 	void writeGML(const char *fileName, NodeArray<bool> one) const ;
 	void writeGML(ostream &os, NodeArray<bool> one) const;
+	// @}
 
-	//return constraint arc representing input edge e in constraint graph
+	//! Returns constraint arc representing input edge e in constraint graph
 	edge basicArc(edge e) const {
 		return m_edgeToBasicArc[e];
 	}
 
-	//***************************
-	//return some edge properties
-	//***************************
-	//returns true if e is vertical edge in PlanRepUML hierarchy
+	//! \name Edge property getters
+	//! @{
+
+	//! Returns true if e is vertical edge in PlanRepUML hierarchy
 	bool verticalGen(edge e) const {return m_verticalGen[e];}
-	//returns true if e is basic arc of vertical edge in PlanRepUML hierarchy
-	//Precond.: e is arc in the constraint graph
+
+	//! Returns true if e is basic arc of vertical edge in PlanRepUML hierarchy
+	//! @pre e is arc in the constraint graph
 	bool verticalArc(edge e) const {return m_verticalArc[e];}
-	//edge lies on cage border
+
+	//! Returns true if edge lies on cage border
 	bool onBorder(edge e) const {return m_border[e]>0;}
-	//these are subject to length fixation if length < sep
+
+	//! Returns true  if edge is subject to length fixation if length < sep
 	bool fixOnBorder(edge e) const {return m_border[e] == 2;}
 
-	//trigger alignment (=>some special edge handling to support al.)
+	//! @}
+
+	//! Triggers alignment (=>some special edge handling to support al.)
 	void align(bool b) {m_align = b;}
 
-	//return if arc is important for alignment
-	//these are the arcs representing node to gen. merger edges
+	//! Returns if arc is important for alignment.
+	//! These are the arcs representing node to gen. merger edges
 	bool alignmentArc(edge e) const {return m_alignmentArc[e];}
 
 	const PlanRep& getPlanRep() const {return *m_pPR;}
@@ -100,18 +99,18 @@ public:
 	edge pathToOriginal(node v) {return m_pathToEdge[v];}
 
 protected:
-	// construction
+	//! Construction
 	CompactionConstraintGraphBase(const OrthoRep &OR,
 		const PlanRep &PG,
 		OrthoDir arcDir,
 		int costGen = 1,
 		int costAssoc = 1, bool align = false);
 
-	// computes topological numbering on the segments of the constraint graph.
+	//! Computes topological numbering on the segments of the constraint graph.
 	void computeTopologicalSegmentNum(NodeArray<int> &topNum);
 
-	// remove "arcs" from visibArcs which we already have in the constraint graph
-	// (as basic arcs)
+	//! Removes "arcs" from visibArcs which we already have in the constraint graph
+	//! (as basic arcs)
 	void removeRedundantVisibArcs(SListPure<Tuple2<node,node> > &visibArcs);
 
 	const OrthoRep *m_pOR;
@@ -121,32 +120,30 @@ protected:
 
 	int m_edgeCost[2];
 
-	NodeArray<SListPure<node> > m_path; // list of nodes contained in a segment
-	NodeArray<node> m_pathNode;         // segment containing a node in PG
-	EdgeArray<edge> m_edgeToBasicArc;   // basic arc representing an edge in PG
+	NodeArray<SListPure<node> > m_path; //!< list of nodes contained in a segment
+	NodeArray<node> m_pathNode;         //!< segment containing a node in PG
+	EdgeArray<edge> m_edgeToBasicArc;   //!< basic arc representing an edge in PG
 
-	EdgeArray<int>    m_cost;    // cost of an edge
+	EdgeArray<int> m_cost; //!< cost of an edge
 	EdgeArray<ConstraintEdgeType> m_type;
 
 	//test fuer vorkomp. der Generalisierungen
-	EdgeArray<bool> m_verticalGen; //generalization that runs vertical relative to hierarchy
-	EdgeArray<bool> m_verticalArc; //arc corresponding to such an edge
-	EdgeArray<int> m_border; //only used for cage precompaction in flowcompaction computecoords
+	EdgeArray<bool> m_verticalGen; //!< generalization that runs vertical relative to hierarchy
+	EdgeArray<bool> m_verticalArc; //!< arc corresponding to such an edge
+	EdgeArray<int> m_border; //!< only used for cage precompaction in flowcompaction computecoords
 
-	//basic arcs that have to be short for alignment (node to gen expander)
+	//! Basic arcs that have to be short for alignment (node to gen expander)
 	EdgeArray<bool> m_alignmentArc;
 
-	NodeArray<edge> m_pathToEdge; //save the (single!) edge (segment) for a pathNode
-	NodeArray<edge> m_originalEdge; //save edge for the basic arcs
+	NodeArray<edge> m_pathToEdge; //!< save the (single!) edge (segment) for a pathNode
+	NodeArray<edge> m_originalEdge; //!< save edge for the basic arcs
 
-	// embeds constraint graph such that all sources and sinks lie in a common
-	// face
+	//! Embeds constraint graph such that all sources and sinks lie in a common face
 	void embed();
 
 	virtual void writeLength(ostream &os, edge e) const = 0;
 
 private:
-
 	//set special costs for node to merger generalizations
 	bool m_align;
 
@@ -161,25 +158,24 @@ private:
 
 	SList<node> m_sources;
 	SList<node> m_sinks;
-
-
 };
 
 
-//---------------------------------------------------------
-// CompactionConstraintGraph
-// represents a constraint graph used for compaction
-//  vertices: maximally connected horiz. (resp. vert.) paths
-//  basic arcs: paths connected by edges of opposite direction
-//  vertex size arcs: care for minimum size of cages
-//  visibility arcs: paths seeing each other
-// Each edge has a (minimum) length and cost.
-//---------------------------------------------------------
+/**
+ * Represents a constraint graph used for compaction
+ *
+ *   - Vertices: maximally connected horiz. (resp. vert.) paths.
+ *   - Basic arcs: paths connected by edges of opposite direction.
+ *   - Vertex size arcs: care for minimum size of cages.
+ *   - Visibility arcs: paths seeing each other.
+ *
+ * Each edge has a (minimum) length and cost.
+ */
 template<class ATYPE>
 class CompactionConstraintGraph : public CompactionConstraintGraphBase
 {
 public:
-	// construction
+	//! Construction
 	CompactionConstraintGraph(const OrthoRep &OR,
 		const PlanRep &PG,
 		OrthoDir arcDir,
@@ -200,107 +196,108 @@ public:
 
 		m_centerPriority = true; //should centering of single edges have prio. to gen. length
 		m_genToMedian = true;  //should outgoing merger gen. be drawn to merger median
+
 		initializeCosts();
+	}
 
-	}//constructor
-
-	// output for debugging only
+	//! Output for debugging only
+	//! @{
 	void writeGML(const char *fileName) const ;
 	void writeGML(ostream &os) const;
+	//! @}
 
-
-	// returns underlying graph
+	//! Returns underlying graph
+	//! @{
 	const Graph &getGraph() const { return (const Graph&)*this; }
 	Graph &getGraph() { return (Graph&)*this; }
+	//! @{
 
-
+	//! Returns underlying OrthoRep
 	const OrthoRep &getOrthoRep() const {
 		return *m_pOR;
 	}
 
-
-	// returns list of nodes contained in segment v
-	// Precodn.: v is in the constraint graph
+	//! Returns list of nodes contained in segment \p v
+	//! @pre \p v is in the constraint graph
 	const SListPure<node> &nodesIn(node v) const {
 		return m_path[v];
 	}
 
-	// returns the segment (path node in constraint graph) containing v
-	// Precond.: v is a node in the associated planarized representation
+	//! Returns the segment (path node in constraint graph) containing \p v
+	//! @pre \p v is a node in the associated planarized representation
 	node pathNodeOf(node v) const {
 		return m_pathNode[v];
 	}
 
-	// returns length of edge e
-	// Precond.: e is an edge in the constraint graph
+	//! Returns length of edge \p e
+	//! @pre \p e is an edge in the constraint graph
 	ATYPE length(edge e) const {
 		return m_length[e];
 	}
 
-	// returns cost of edge e
-	// Precond.: e is an edge in the constraint graph
+	//! Returns cost of edge \p e
+	//! @pre \p e is an edge in the constraint graph
 	int cost(edge e) const {
 		return m_cost[e];
 	}
 
-	// returns type of edge e
-	// Precond.: e is an edge in the constraint graph
+	//! Returns type of edge \p e
+	//! @pre \p e is an edge in the constraint graph
 	ConstraintEdgeType typeOf(edge e) const {
 		return m_type[e];
 	}
 
-	//returns node status
+	//! Returns node status
 	bool extraNode(node v) const {
 		return m_extraNode[v];
 	}
 
-	//returns extraNode position, change to save mem, only need some entries
+	//! Returns extraNode position, change to save mem, only need some entries
 	ATYPE extraOfs(node v) const {
 		return m_extraOfs[v];
 	}
 
-	//returns extraNode existing anchor representant
+	//! Returns extraNode existing anchor representant
 	node extraRep(node v) const {
 		return m_extraRep[v];
 	}
 
-	//get / set centerPriority (center single edges?)
+	//! Gets centerPriority (center single edges?)
 	bool centerPriority() {return m_centerPriority;}
+	//! Sets centerPriority (center single edges?)
 	void centerPriority(bool b) { m_centerPriority = b;}
 
-	// computes the total costs for coordintes given by pos, i.e.,
-	// the sum of the weighted lengths of edges in the constraint graph.
+	//! Computes the total costs for coordintes given by pos, i.e.,
+	//! the sum of the weighted lengths of edges in the constraint graph.
 	ATYPE computeTotalCosts(const NodeArray<ATYPE> &pos) const;
 
-
-	// inserts arcs for respecting sizes of vertices and achieving desired
-	// placement of generalizations if vertices are represented by variable
-	// cages; also corrects length of arcs belonging to cages which are
-	// adjacent to a corner; takes routing channels into account.
+	//! Inserts arcs for respecting sizes of vertices and achieving desired
+	//! placement of generalizations if vertices are represented by variable
+	//! cages; also corrects length of arcs belonging to cages which are
+	//! adjacent to a corner; takes routing channels into account.
 	void insertVertexSizeArcs(
 		const PlanRep &PG,
 		const NodeArray<ATYPE> &sizeOrig,
 		const RoutingChannel<ATYPE> &rc);
 
-	// inserts arcs for respecting sizes of vertices and achieving desired
-	// placement of generalizations if vertices are represented by tight cages.
-	// Also corrects length of arcs belonging to cages which are adjacent to
-	// a corner; takes special distances between edge segments attached at
-	// a vertex (delta's and epsilon's) into account.
+	//! Inserts arcs for respecting sizes of vertices and achieving desired
+	//! placement of generalizations if vertices are represented by tight cages.
+	//! Also corrects length of arcs belonging to cages which are adjacent to
+	//! a corner; takes special distances between edge segments attached at
+	//! a vertex (delta's and epsilon's) into account.
 	void insertVertexSizeArcs(
 		const PlanRep &PG,
 		const NodeArray<ATYPE> &sizeOrig,
 		const MinimumEdgeDistances<ATYPE> &minDist);
 
-	// inserts arcs connecting segments which can see each other in a drawing
-	// of the associated planarized representation PG which is given by
-	// posDir and posOppDir.
+	//! Inserts arcs connecting segments which can see each other in a drawing
+	//! of the associated planarized representation PG which is given by
+	//! posDir and posOppDir.
 	void insertVisibilityArcs(
-		const PlanRep &PG,  // associated planarized representation
-		const NodeArray<ATYPE> &posDir, // position of segment containing
-										// vertex in PG
-		const NodeArray<ATYPE> &posOppDir); // position of orthogonal segment
-											// containing vertex in PG
+		const PlanRep &PG,  //!< associated planarized representation
+		const NodeArray<ATYPE> &posDir, //!< position of segment containing vertex in PG
+		const NodeArray<ATYPE> &posOppDir //!< position of orthogonal segment containing vertex in PG
+	);
 
 	void insertVisibilityArcs(
 		const PlanRep &PG,
@@ -308,38 +305,30 @@ public:
 		const NodeArray<ATYPE> &posOrthDir,
 		const MinimumEdgeDistances<ATYPE> &minDist);
 
-
-	//set min sep for multi edge original
+	//! Sets min separation for multi edge original
 	void setMinimumSeparation(const PlanRep &PG,
 		const NodeArray<int> &coord,
 		const MinimumEdgeDistances<ATYPE> &minDist);
 
-
-	// embeds constraint graph such that all sources and sinks lie in a common
-	// face
+	//! Embeds constraint graph such that all sources and sinks lie in a common face
 	void embed() {
 		CompactionConstraintGraphBase::embed();
 	}
 
-
-	// performs feasibility test for position assignment pos, i.e., checks if
-	// the segment positions given by pos fulfill the constraints in the
-	// compaction constraint graph
-	// (for debuging only)
+	//! Performs feasibility test for position assignment pos, i.e., checks if
+	//! the segment positions given by pos fulfill the constraints in the
+	//! compaction constraint graph
+	//! (for debuging only)
 	bool isFeasible(const NodeArray<ATYPE> &pos);
 
-	//returns the separation value
+	//! Returns the separation value
 	ATYPE separation() const {return m_sep;}
 
-	//return PG result for flowcompaction
+	//! Return PG result for flowcompaction
 	bool areMulti(edge e1, edge e2) const;
 
-
 private:
-	//---------------------------------------------------------
-	// CompactionConstraintGraph::Interval
-	// represents an interval on the sweep line
-	//---------------------------------------------------------
+	//! Represents an interval on the sweep line
 	struct Interval
 	{
 		Interval(node v, ATYPE low, ATYPE high) {
@@ -348,10 +337,10 @@ private:
 			m_pathNode = v;
 		}
 
-		ATYPE m_low, m_high; // lower and upper bound
-		node m_pathNode;     // corresponding segment
+		ATYPE m_low, m_high; //!< lower and upper bound
+		node m_pathNode;     //!< corresponding segment
 
-		// output operator
+		//! output operator
 		friend ostream &operator<<(ostream &os,
 			const Interval &interval)
 		{
@@ -362,13 +351,10 @@ private:
 
 	};
 
-	//---------------------------------------------------------
-	// CompactionConstraintGraph::SegmentComparer
-	// comparer class used for sorting segments by increasing position
-	// (given by segPos) such that two overlapping segments come in the
-	// order imposed by the embedding (given by secSort: segment which
-	// comes first has secSort = 0, the other has 1)
-	//---------------------------------------------------------
+	//! Comparer class used for sorting segments by increasing position
+	//! (given by segPos) such that two overlapping segments come in the
+	//! order imposed by the embedding (given by secSort: segment which
+	//! comes first has secSort = 0, the other has 1)
 	class SegmentComparer
 	{
 	public:
@@ -406,37 +392,39 @@ private:
 
 	ATYPE m_sep;
 
-	EdgeArray<ATYPE> m_length;  // length of an edge
+	EdgeArray<ATYPE> m_length; //!< length of an edge
 
-	NodeArray<bool> m_extraNode; //node does not represent drawing node
-	//as we dont have positions, we save a drawing representant and an offset
-	NodeArray<ATYPE> m_extraOfs; //offset of extra node to its rep, should change this
-	NodeArray<node> m_extraRep; //existing representant of extranodes position anchor
+	//! Node does not represent drawing node as we dont have positions
+	//! we save a drawing representant and an offset
+	NodeArray<bool> m_extraNode;
+	NodeArray<ATYPE> m_extraOfs; //!< offset of extra node to its rep, should change this
+	NodeArray<node> m_extraRep; //!< existing representant of extranodes position anchor
 
-	//**********************
-	//COST SETTINGS SECTION
+	//! \name Cost settings
+	//! @{
 
 	// we make vertex size arcs more expensive than basic arcs in order
 	// to get small cages
 	// should be replaced by option/value dependent on e.g. degree
-	int m_vertexArcCost;  //get small cages
-	int m_bungeeCost;     //middle position distance penalty
-	int m_MedianArcCost;  //draw merger gen at median of incoming generalizations
-	int m_doubleBendCost; //try to minimize double bends
-	bool m_genToMedian;   //draw outgoing generalization from merger above ingoing gen.
+	int m_vertexArcCost;  //!< get small cages
+	int m_bungeeCost;     //!< middle position distance penalty
+	int m_MedianArcCost;  //!< draw merger gen at median of incoming generalizations
+	int m_doubleBendCost; //!< try to minimize double bends
+	bool m_genToMedian;   //!< draw outgoing generalization from merger above ingoing gen.
 	//this does not work if generalization costs are set very small by the user
 	//because there must be a minimum cost for centering
-	bool m_centerPriority;  //should centering be more expensive than generalizations
+	bool m_centerPriority; //!< should centering be more expensive than generalizations
 
 	//factor of costs relative to generalization
 	static const int c_vertexArcFactor;
 	static const int c_bungeeFactor;
-	static const int c_doubleBendFactor; // = 20; //double bends cost factor*vertexArcCost
-	static const int c_MedianFactor;     //median arcs cost  factor*vertexArcCost
+	static const int c_doubleBendFactor; //!< double bends cost factor*vertexArcCost
+	static const int c_MedianFactor;     //!< median arcs cost  factor*vertexArcCost
 
+	//! @}
 
 protected:
-	//node v has no representation in drawing, only internal representation
+	//! Node \p v has no representation in drawing, only internal representation
 	void setExtra(node v, node rep, ATYPE ofs) {
 		m_extraNode[v] = true;
 		m_extraRep[v] = rep;
@@ -450,7 +438,7 @@ protected:
 		// cost should be dependend on degree
 		// Z.B. DURCH OPTION ODER WERT; DER VON DER ZAHL ADJAZENTER KANTEN ABHAENGIG IST
 		// should be derived by number of edges times something
-		int costGen = m_edgeCost[Graph::generalization];
+		int costGen = m_edgeCost[static_cast<int>(Graph::EdgeType::generalization)];
 
 		m_vertexArcCost = c_vertexArcFactor*costGen; //spaeter aus Kompaktierungsmodul uebergeben
 		if (m_centerPriority)
@@ -463,7 +451,6 @@ protected:
 	}//initializeCosts
 };
 
-//********************************
 //initialization of static members
 template<class ATYPE>
 const int CompactionConstraintGraph<ATYPE>::c_vertexArcFactor = 20;
@@ -475,12 +462,6 @@ const int CompactionConstraintGraph<ATYPE>::c_doubleBendFactor = 20; //double be
 template<class ATYPE>
 const int CompactionConstraintGraph<ATYPE>::c_MedianFactor = 10*c_doubleBendFactor;
 
-
-//************************************
-//
-// implementation of member functions
-//
-//************************************
 
 // allow 0-length for sides of generalization merger cages
 template<class ATYPE>
@@ -494,8 +475,8 @@ void CompactionConstraintGraph<ATYPE>::resetGenMergerLengths(
 	do {
 		if ((m_pOR->direction(adj) == m_arcDir ||
 			m_pOR->direction(adj) == m_oppArcDir) &&
-			(PG.typeOf(adj->theNode()) == Graph::dummy ||
-			PG.typeOf(adj->twinNode()) == Graph::dummy))
+			(PG.typeOf(adj->theNode()) == Graph::NodeType::dummy ||
+			PG.typeOf(adj->twinNode()) == Graph::NodeType::dummy))
 		{
 			m_length[m_edgeToBasicArc[adj]] = 0;
 		}
@@ -504,53 +485,56 @@ void CompactionConstraintGraph<ATYPE>::resetGenMergerLengths(
 		faceSize++;
 	} while(adj != adjFirst);
 
-//****************************************
-//generalization position section
-//pull upper generalization to median of merger cage's incoming lower generalizations
+	//generalization position section
+	//pull upper generalization to median of merger cage's incoming lower generalizations
 
-	if (m_genToMedian)
-	{
-		if ((m_pOR->direction(adjFirst) == m_arcDir) ||
-			(m_pOR->direction(adjFirst) == m_oppArcDir) )
-		{
-			int numIncoming = faceSize - 3;
-			int median = (numIncoming / 2) + 1;
+	if (m_genToMedian
+	 && (m_pOR->direction(adjFirst) == m_arcDir
+	  || m_pOR->direction(adjFirst) == m_oppArcDir)) {
+		int numIncoming = faceSize - 3;
+		int median = (numIncoming / 2) + 1;
 
-			//if (numIncoming == 2) ... just the middle position
-			node upper = m_pathNode[adjFirst->theNode()];
-			if (PG.typeOf(adjFirst->theNode()) != Graph::generalizationMerger)
-				OGDF_THROW(AlgorithmFailureException);
-			node vMin;
-			if (m_pOR->direction(adjFirst) == m_arcDir)
-				vMin = adjFirst->faceCyclePred()->theNode();
-			else vMin = adjFirst->faceCycleSucc()->theNode();
-			adj = adjFirst->faceCycleSucc(); //target right or left boundary, depending on drawing direction
-			for (int i = 0; i < median; i++)
-				adj = adj->faceCycleSucc();
-			node lower = m_pathNode[adj->theNode()];
-			node vCenter = newNode();
-			setExtra(vCenter, vMin, 0);
-			//it seems we dont need the helper, as only source-adjEntries lying on
-			//the outer face are considered later, but keep it in mind
+		// if (numIncoming == 2) ... just the middle position
+		node upper = m_pathNode[adjFirst->theNode()];
+		if (PG.typeOf(adjFirst->theNode()) != Graph::NodeType::generalizationMerger) {
+			OGDF_THROW(AlgorithmFailureException);
+		}
+
+		node vMin;
+		if (m_pOR->direction(adjFirst) == m_arcDir) {
+			vMin = adjFirst->faceCyclePred()->theNode();
+		} else {
+			vMin = adjFirst->faceCycleSucc()->theNode();
+		}
+
+		adj = adjFirst->faceCycleSucc(); // target right or left boundary, depending on drawing direction
+		for (int i = 0; i < median; i++) {
+			adj = adj->faceCycleSucc();
+		}
+
+		node lower = m_pathNode[adj->theNode()];
+		node vCenter = newNode();
+		setExtra(vCenter, vMin, 0);
+
+		// it seems we dont need the helper, as only source-adjEntries lying on
+		// the outer face are considered later, but keep it in mind
 #if 0
-			edge helper = newEdge(m_pathNode[vMin], vCenter);
-			m_length[helper] = 0;
-			m_cost[helper] = 0;
-			m_type[helper] = cetReducibleArc;
+		edge helper = newEdge(m_pathNode[vMin], vCenter);
+		m_length[helper] = 0;
+		m_cost[helper] = 0;
+		m_type[helper] = ConstraintEdgeType::ReducibleArc;
 #endif
 
-			edge e1 = newEdge(vCenter,upper);
-			m_length[e1] = 0;
-			m_cost[e1]   = m_MedianArcCost;
-			m_type[e1]   = cetMedianArc;
+		edge e1 = newEdge(vCenter,upper);
+		m_length[e1] = 0;
+		m_cost[e1]   = m_MedianArcCost;
+		m_type[e1]   = ConstraintEdgeType::MedianArc;
 
-			edge e2 = newEdge(vCenter,lower);
-			m_length[e2] = 0;
-			m_cost[e2]   = m_MedianArcCost;
-			m_type[e2]   = cetMedianArc;
-		}//if compaction dir
-	}//if gentomedian option set
-	//*******************************************
+		edge e2 = newEdge(vCenter,lower);
+		m_length[e2] = 0;
+		m_cost[e2]   = m_MedianArcCost;
+		m_type[e2]   = ConstraintEdgeType::MedianArc;
+	}
 }
 
 
@@ -614,7 +598,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 	{
 		if (PG.expandAdj(v) == nullptr) continue;
 
-		if(PG.typeOf(v) == Graph::generalizationMerger)
+		if(PG.typeOf(v) == Graph::NodeType::generalizationMerger)
 		{
 			resetGenMergerLengths(PG,PG.expandAdj(v));
 
@@ -629,16 +613,16 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 			ATYPE rcMin = overhang + rc(v,dirMin);
 			ATYPE rcMax = overhang + rc(v,dirMax);
 
-			adjEntry cornerDir    = vi.m_corner[m_arcDir];
-			adjEntry cornerOppDir = vi.m_corner[m_oppArcDir];
-			adjEntry cornerMin    = vi.m_corner[dirMin];
-			adjEntry cornerMax    = vi.m_corner[dirMax];
+			adjEntry cornerDir    = vi.m_corner[static_cast<int>(m_arcDir)];
+			adjEntry cornerOppDir = vi.m_corner[static_cast<int>(m_oppArcDir)];
+			adjEntry cornerMin    = vi.m_corner[static_cast<int>(dirMin)];
+			adjEntry cornerMax    = vi.m_corner[static_cast<int>(dirMax)];
 
 			// set cost of edges on the cage boundary to 0
 			setBoundaryCosts(cornerDir,cornerOppDir);
 
-			const OrthoRep::SideInfoUML &sDir = vi.m_side[m_arcDir];
-			const OrthoRep::SideInfoUML &sOppDir = vi.m_side[m_oppArcDir];
+			const OrthoRep::SideInfoUML &sDir = vi.m_side[static_cast<int>(m_arcDir)];
+			const OrthoRep::SideInfoUML &sOppDir = vi.m_side[static_cast<int>(m_oppArcDir)];
 
 			// correct lengths of edges within cage adjacent to corners
 			if(sDir.totalAttached() > 0) {
@@ -671,7 +655,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 				edge e = newEdge(vMin,vMax);
 				m_length[e] = rcMin + size + rcMax - 2*overhang;
 				m_cost  [e] = 2*m_vertexArcCost;
-				m_type  [e] = cetVertexSizeArc;
+				m_type  [e] = ConstraintEdgeType::VertexSizeArc;
 
 			} else {
 				// yes, then two arcs for each side with an attached generalization
@@ -685,11 +669,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
 					m_cost  [e1] = m_vertexArcCost;
-					m_type  [e1] = cetVertexSizeArc;
+					m_type  [e1] = ConstraintEdgeType::VertexSizeArc;
 					edge e2 = newEdge(vCenter,vMax);
 					m_length[e2] = lenMax;
 					m_cost  [e2] = m_vertexArcCost;
-					m_type  [e2] = cetVertexSizeArc;
+					m_type  [e2] = ConstraintEdgeType::VertexSizeArc;
 				}
 
 				if (sOppDir.m_adjGen != nullptr) {
@@ -697,11 +681,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
 					m_cost  [e1] = m_vertexArcCost;
-					m_type  [e1] = cetVertexSizeArc;
+					m_type  [e1] = ConstraintEdgeType::VertexSizeArc;
 					edge e2 = newEdge(vCenter,vMax);
 					m_length[e2] = lenMax;
 					m_cost  [e2] = m_vertexArcCost;
-					m_type  [e2] = cetVertexSizeArc;
+					m_type  [e2] = ConstraintEdgeType::VertexSizeArc;
 				}
 
 			}
@@ -722,14 +706,14 @@ void CompactionConstraintGraph<ATYPE>::setBasicArcsZeroLength(
 
 		node v = e->source();
 		node w = e->target();
-		if ( ((PG.typeOf(v) == Graph::dummy) && (PG.typeOf(w) == Graph::dummy) &&
+		if ( ((PG.typeOf(v) == Graph::NodeType::dummy) && (PG.typeOf(w) == Graph::NodeType::dummy) &&
 			(v->degree() == 2) && w->degree() == 2) &&
 			(m_pOR->angle(e->adjSource()) == m_pOR->angle(e->adjTarget()) ) && //no uturns
-			(PG.typeOf(e) != Graph::generalization)
+			(PG.typeOf(e) != Graph::EdgeType::generalization)
 			)
 		{
 			m_length[arc] = 0;
-			m_type[arc] = cetFixToZeroArc;
+			m_type[arc] = ConstraintEdgeType::FixToZeroArc;
 			//we make fixtozero arcs as expensive as possible
 			m_cost[arc] = m_doubleBendCost;
 		}
@@ -762,7 +746,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 	{
 		if (PG.expandAdj(v) == nullptr) continue;
 
-		if(PG.typeOf(v) == Graph::generalizationMerger)
+		if(PG.typeOf(v) == Graph::NodeType::generalizationMerger)
 		{
 			resetGenMergerLengths(PG,PG.expandAdj(v));
 
@@ -772,10 +756,10 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 			ATYPE size = sizeOrig[v];
 			const OrthoRep::VertexInfoUML &vi = *m_pOR->cageInfo(v);
 
-			adjEntry cornerDir    = vi.m_corner[m_arcDir];
-			adjEntry cornerOppDir = vi.m_corner[m_oppArcDir];
-			adjEntry cornerMin    = vi.m_corner[dirMin];
-			adjEntry cornerMax    = vi.m_corner[dirMax];
+			adjEntry cornerDir    = vi.m_corner[static_cast<int>(m_arcDir)];
+			adjEntry cornerOppDir = vi.m_corner[static_cast<int>(m_oppArcDir)];
+			adjEntry cornerMin    = vi.m_corner[static_cast<int>(dirMin)];
+			adjEntry cornerMax    = vi.m_corner[static_cast<int>(dirMax)];
 
 			adjEntry adj = cornerDir, last = cornerMax->faceCyclePred();
 			if(adj != last) {
@@ -783,7 +767,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 				m_length[m_edgeToBasicArc[last]] = minDist.epsilon(v,m_arcDir,1);
 				int i = 0;
 				for(adj = adj->faceCycleSucc(); adj != last; adj = adj->faceCycleSucc()) {
-					if (PG.typeOf(adj->cyclicPred()->theEdge()) == Graph::generalization)
+					if (PG.typeOf(adj->cyclicPred()->theEdge()) == Graph::EdgeType::generalization)
 						i++;
 					m_length[m_edgeToBasicArc[adj]] = minDist.delta(v,m_arcDir,i);
 				}
@@ -795,7 +779,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 				m_length[m_edgeToBasicArc[last]] = minDist.epsilon(v,m_oppArcDir,1);
 				int i = 0;
 				for(adj = adj->faceCycleSucc(); adj != last; adj = adj->faceCycleSucc()) {
-					if (PG.typeOf(adj->cyclicPred()->theEdge()) == Graph::generalization)
+					if (PG.typeOf(adj->cyclicPred()->theEdge()) == Graph::EdgeType::generalization)
 						i++;
 					m_length[m_edgeToBasicArc[adj]] = minDist.delta(v,m_oppArcDir,i);
 				}
@@ -806,8 +790,8 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 			node vMin = m_pathNode[cornerDir->theNode()];
 			node vMax = m_pathNode[cornerOppDir->theNode()];
 
-			const OrthoRep::SideInfoUML &sDir = vi.m_side[m_arcDir];
-			const OrthoRep::SideInfoUML &sOppDir = vi.m_side[m_oppArcDir];
+			const OrthoRep::SideInfoUML &sDir = vi.m_side[static_cast<int>(m_arcDir)];
+			const OrthoRep::SideInfoUML &sOppDir = vi.m_side[static_cast<int>(m_oppArcDir)];
 
 			// any attached generalizations ?
 			if (sDir.m_adjGen == nullptr && sOppDir.m_adjGen == nullptr)
@@ -826,11 +810,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
 					m_cost[e1]   = m_vertexArcCost;
-					m_type[e1]   = cetVertexSizeArc;
+					m_type[e1]   = ConstraintEdgeType::VertexSizeArc;
 					edge e2 = newEdge(vCenter,vMax);
 					m_length[e2] = lenMax;
 					m_cost[e2]   = m_vertexArcCost;
-					m_type[e2]   = cetVertexSizeArc;
+					m_type[e2]   = ConstraintEdgeType::VertexSizeArc;
 
 					if (sDir.totalAttached() == 1)
 					{
@@ -842,31 +826,31 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						setExtra(vBungee, cornerDir->theNode(), minDist.epsilon(v,m_arcDir,0) );
 
 						edge eToBungee = newEdge(vMin, vBungee);
-						m_type[eToBungee] = cetMedianArc; //cetBasicArc; //is this ok !!!!!!!!!!!!!!
-						m_cost[eToBungee] = 0; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eToBungee] = ConstraintEdgeType::MedianArc; //BasicArc; // XXX: is this ok?
+						m_cost[eToBungee] = 0; // XXX: what about this?
 						m_length[eToBungee] = minDist.epsilon(v,m_arcDir,0);
 
 						edge eBungeeCenter = newEdge(vBungee, vCenter);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeCenter] = cetMedianArc;
-						m_cost[eBungeeCenter] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeCenter] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeCenter] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeCenter] = 0;
 
 						//attention: pathnode construct works only if degree 1
 						edge eBungeeOut =  newEdge(vBungee, m_pathNode[cornerDir->twinNode()]);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeOut] = cetMedianArc;
-						m_cost[eBungeeOut] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeOut] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeOut] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeOut] = 0;
-						/*
+#if 0
 						//connect outgoing segment and "right" segment, maybe obsolete
 						edge eFromOut = newEdge(m_pathNode[cornerDir->twinNode()], vMax);
-						m_type[eFromOut] = cetBasicArc; //!!!!!!!!!!!!!!!!!!!!!!!
-						m_cost[eFromOut] = 0; //!!!!!!!!!!!!!!!!!!!
+						m_type[eFromOut] = ConstraintEdgeType::BasicArc; // XXX
+						m_cost[eFromOut] = 0; // XXX
 						m_length[eFromOut] = minDist.epsilon(v,m_arcDir,1);
-						*/
+#endif
 					}//if sDir case
-					if ( (sOppDir.totalAttached() == 1) && !(m_pathNode[cornerOppDir->twinNode()] == vMin) )
+					if ( sOppDir.totalAttached() == 1 && m_pathNode[cornerOppDir->twinNode()] != vMin )
 					{
 
 						//then, insert a moveable node connecting center
@@ -876,29 +860,29 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						setExtra(vBungee, cornerDir->theNode(), minDist.epsilon(v,m_oppArcDir,0) );
 
 						edge eToBungee = newEdge(vMin, vBungee);
-						m_type[eToBungee] = cetMedianArc;//cetBasicArc; //is this ok !!!!!!!!!!!!!!
-						m_cost[eToBungee] = 0; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eToBungee] = ConstraintEdgeType::MedianArc;//BasicArc; // XXX: is this ok?
+						m_cost[eToBungee] = 0; // XXX: what about this?
 						m_length[eToBungee] = minDist.epsilon(v,m_oppArcDir,0);
 
 						edge eBungeeCenter = newEdge(vBungee, vCenter);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeCenter] = cetMedianArc;
-						m_cost[eBungeeCenter] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeCenter] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeCenter] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeCenter] = 0;
 
 						//attention: pathnode construct works only if degree 1, sometimes not at all
 						edge eBungeeOut =  newEdge(vBungee, m_pathNode[cornerOppDir->twinNode()]);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeOut] = cetMedianArc;
-						m_cost[eBungeeOut] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeOut] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeOut] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeOut] = 0;
-						/*
+#if 0
 						//connect outgoing segment and "right" segment, maybe obsolete
 						edge eFromOut = newEdge(m_pathNode[cornerOppDir->twinNode()], vMax);
-						m_type[eFromOut] = cetBasicArc; //!!!!!!!!!!!!!!!!!!!!!!!
-						m_cost[eFromOut] = 0; //!!!!!!!!!!!!!!!!!!!
+						m_type[eFromOut] = ConstraintEdgeType::BasicArc; // XXX
+						m_cost[eFromOut] = 0; // XXX
 						m_length[eFromOut] = minDist.epsilon(v,m_oppArcDir,0);
-						*/
+#endif
 					}//if sOppDir case
 				}//if special case
 				else
@@ -907,7 +891,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					edge e = newEdge(vMin,vMax);
 					m_length[e] = size;
 					m_cost[e]   = 2*m_vertexArcCost;
-					m_type[e]   = cetVertexSizeArc;
+					m_type[e]   = ConstraintEdgeType::VertexSizeArc;
 				}//else special case
 
 
@@ -925,11 +909,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
 					m_cost  [e1] = m_vertexArcCost;
-					m_type  [e1] = cetVertexSizeArc;
+					m_type  [e1] = ConstraintEdgeType::VertexSizeArc;
 					edge e2 = newEdge(vCenter,vMax);
 					m_length[e2] = lenMax;
 					m_cost  [e2] = m_vertexArcCost;
-					m_type  [e2] = cetVertexSizeArc;
+					m_type  [e2] = ConstraintEdgeType::VertexSizeArc;
 				}
 				else
 				{
@@ -941,11 +925,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						edge e1 = newEdge(vMin,vCenter);
 						m_length[e1] = lenMin;
 						m_cost[e1]   = m_vertexArcCost;
-						m_type[e1]   = cetVertexSizeArc;
+						m_type[e1]   = ConstraintEdgeType::VertexSizeArc;
 						edge e2 = newEdge(vCenter,vMax);
 						m_length[e2] = lenMax;
 						m_cost[e2]   = m_vertexArcCost;
-						m_type[e2]   = cetVertexSizeArc;
+						m_type[e2]   = ConstraintEdgeType::VertexSizeArc;
 
 						//then, insert a moveable node connecting center
 						//and outgoing segment
@@ -954,21 +938,21 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						setExtra(vBungee, cornerDir->theNode(), minDist.epsilon(v,m_arcDir,0) );
 
 						edge eToBungee = newEdge(vMin, vBungee);
-						m_type[eToBungee] = cetMedianArc;//cetBasicArc; //is this ok !!!!!!!!!!!!!!
-						m_cost[eToBungee] = 0; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eToBungee] = ConstraintEdgeType::MedianArc;//BasicArc; // XXX: is this ok?
+						m_cost[eToBungee] = 0; // XXX: what about this?
 						m_length[eToBungee] = minDist.epsilon(v,m_arcDir,0);
 
 						edge eBungeeCenter = newEdge(vBungee, vCenter);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeCenter] = cetMedianArc;
-						m_cost[eBungeeCenter] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeCenter] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeCenter] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeCenter] = 0;
 
 						//attention: pathnode construct works only if degree 1
 						edge eBungeeOut =  newEdge(vBungee, m_pathNode[cornerDir->twinNode()]);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeOut] = cetMedianArc;
-						m_cost[eBungeeOut] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeOut] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeOut] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeOut] = 0;
 
 					}//if sDir case
@@ -978,16 +962,16 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 					edge e1 = newEdge(vMin,vCenter);
 					m_length[e1] = lenMin;
 					m_cost  [e1] = m_vertexArcCost;
-					m_type  [e1] = cetVertexSizeArc;
+					m_type  [e1] = ConstraintEdgeType::VertexSizeArc;
 					edge e2 = newEdge(vCenter,vMax);
 					m_length[e2] = lenMax;
 					m_cost  [e2] = m_vertexArcCost;
-					m_type  [e2] = cetVertexSizeArc;
+					m_type  [e2] = ConstraintEdgeType::VertexSizeArc;
 				}
 				else
 				{
 					//special case single edge to middle position
-					if ( (sOppDir.totalAttached() == 1) && !(m_pathNode[cornerOppDir->twinNode()] == vMin) )
+					if ( sOppDir.totalAttached() == 1 && m_pathNode[cornerOppDir->twinNode()] != vMin )
 					{
 						node vCenter = newNode();//m_pathNode[sDir.m_adjGen->theNode()];//newNode();
 						setExtra(vCenter, cornerDir->theNode(), lenMin);
@@ -995,11 +979,11 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						edge e1 = newEdge(vMin,vCenter);
 						m_length[e1] = lenMin;
 						m_cost[e1]   = m_vertexArcCost;
-						m_type[e1]   = cetVertexSizeArc;
+						m_type[e1]   = ConstraintEdgeType::VertexSizeArc;
 						edge e2 = newEdge(vCenter,vMax);
 						m_length[e2] = lenMax;
 						m_cost[e2]   = m_vertexArcCost;
-						m_type[e2]   = cetVertexSizeArc;
+						m_type[e2]   = ConstraintEdgeType::VertexSizeArc;
 						//then, insert a moveable node connecting center
 						//and outgoing segment
 						node vBungee = newNode();
@@ -1007,21 +991,21 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 						setExtra(vBungee, cornerDir->theNode(), minDist.epsilon(v,m_oppArcDir,0) );
 
 						edge eToBungee = newEdge(vMin, vBungee);
-						m_type[eToBungee] = cetMedianArc;//cetBasicArc; //is this ok !!!!!!!!!!!!!!
-						m_cost[eToBungee] = 0; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eToBungee] = ConstraintEdgeType::MedianArc;//BasicArc; // XXX: is this ok?
+						m_cost[eToBungee] = 0; // XXX: what about this?
 						m_length[eToBungee] = minDist.epsilon(v,m_oppArcDir,0);
 
 						edge eBungeeCenter = newEdge(vBungee, vCenter);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeCenter] = cetMedianArc;
-						m_cost[eBungeeCenter] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeCenter] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeCenter] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeCenter] = 0;
 
 						//attention: pathnode construct works only if degree 1
 						edge eBungeeOut =  newEdge(vBungee, m_pathNode[cornerOppDir->twinNode()]);
 						//bungee, center and outgoing segment may build column if in the middle
-						m_type[eBungeeOut] = cetMedianArc;
-						m_cost[eBungeeOut] = m_bungeeCost; //what about this !!!!!!!!!!!!!!!!!!!
+						m_type[eBungeeOut] = ConstraintEdgeType::MedianArc;
+						m_cost[eBungeeOut] = m_bungeeCost; // XXX: what about this?
 						m_length[eBungeeOut] = 0;
 
 					}//if sOppDir case
@@ -1035,7 +1019,7 @@ void CompactionConstraintGraph<ATYPE>::insertVertexSizeArcs(
 		} // high/lowDegreeExpander
 	}
 #if 0
-	if (m_arcDir == odEast) writeGML("eastvertexsizeinserted.gml");
+	if (m_arcDir == OrthoDir::East) writeGML("eastvertexsizeinserted.gml");
 	else writeGML("northvertexsizeinserted.gml");
 #endif
 }
@@ -1163,7 +1147,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 		}
 		lowReal[v] = low[v];
 		Graph::NodeType typeLow = PG.typeOf(nodeLow);
-		if(typeLow == Graph::dummy || typeLow == Graph::generalizationExpander) {
+		if(typeLow == Graph::NodeType::dummy || typeLow == Graph::NodeType::generalizationExpander) {
 #if 0
 			bool subtractSep = true;
 			if (nodeLow->degree() == 2) {
@@ -1193,9 +1177,9 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	// correct "-= m_sep" ...
 	OrthoDir dirMin = OrthoRep::prevDir(m_arcDir);
 	OrthoDir dirMax = OrthoRep::nextDir(m_arcDir);
-	bool isCaseA = (m_arcDir == odEast || m_arcDir == odSouth);
-	const int angleAtMin = (m_arcDir == odEast || m_arcDir == odSouth) ? 3 : 1;
-	const int angleAtMax = (m_arcDir == odEast || m_arcDir == odSouth) ? 1 : 3;
+	bool isCaseA = (m_arcDir == OrthoDir::East || m_arcDir ==  OrthoDir::South);
+	const int angleAtMin = (m_arcDir ==  OrthoDir::East || m_arcDir ==  OrthoDir::South) ? 3 : 1;
+	const int angleAtMax = (m_arcDir ==  OrthoDir::East || m_arcDir ==  OrthoDir::South) ? 1 : 3;
 
 	for(node v : PG.nodes)
 	{
@@ -1205,7 +1189,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 		int i = 0;
 		adjEntry adj;
 
-		for (adj = (isCaseA) ? vi.m_corner[dirMin]->faceCycleSucc()->faceCycleSucc() : vi.m_corner[dirMin]->faceCycleSucc();
+		for (adj = (isCaseA) ? vi.m_corner[static_cast<int>(dirMin)]->faceCycleSucc()->faceCycleSucc() : vi.m_corner[static_cast<int>(dirMin)]->faceCycleSucc();
 			m_pOR->direction((isCaseA) ? adj : adj->faceCycleSucc()) == dirMin; //m_pOR->direction(adj) == dirMin;
 			adj = adj->faceCycleSucc())
 		{
@@ -1220,10 +1204,10 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 				min(posOrthDir[adjPred->theNode()], posOrthDir[adjPred->twinNode()]) :
 				min(posOrthDir[adj->theNode()],     posOrthDir[adj->twinNode()]);
 
-			if (PG.typeOf(adjCross->theEdge()) == Graph::generalization)
+			if (PG.typeOf(adjCross->theEdge()) == Graph::EdgeType::generalization)
 			{
 				if (isCaseA) {
-					if(PG.typeOf(adjTwin->theNode()) == Graph::generalizationExpander &&
+					if(PG.typeOf(adjTwin->theNode()) == Graph::NodeType::generalizationExpander &&
 						m_pOR->angle(adjTwin) == 2)
 					{
 						node s1 = m_pathNode[adjTwin->theNode()];
@@ -1234,7 +1218,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 					++i;
 				} else {
 					++i;
-					if(PG.typeOf(adjTwin->theNode()) == Graph::generalizationExpander &&
+					if(PG.typeOf(adjTwin->theNode()) == Graph::NodeType::generalizationExpander &&
 						m_pOR->angle(adjTwin->cyclicPred()) == 2)
 					{
 						node s1 = m_pathNode[adjTwin->theNode()];
@@ -1249,7 +1233,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 			//we save the current direction and stop if we run in opposite
 			OrthoDir runDir = m_pOR->direction(adjCross);
 			// if -> while
-			while (PG.typeOf(adjTwin->theNode()) == Graph::dummy &&
+			while (PG.typeOf(adjTwin->theNode()) == Graph::NodeType::dummy &&
 				adjTwin->theNode()->degree() == 2 &&
 				m_pOR->angle(adjTwin) == angleAtMin)
 			{
@@ -1298,7 +1282,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 		}
 
 		i = 0;
-		for (adj = (isCaseA) ? vi.m_corner[dirMax]->faceCycleSucc() : vi.m_corner[dirMax]->faceCycleSucc()->faceCycleSucc();
+		for (adj = (isCaseA) ? vi.m_corner[static_cast<int>(dirMax)]->faceCycleSucc() : vi.m_corner[static_cast<int>(dirMax)]->faceCycleSucc()->faceCycleSucc();
 			m_pOR->direction((isCaseA) ? adj->faceCycleSucc() : adj) == dirMax; // m_pOR->direction(adj) == dirMax;
 			adj = adj->faceCycleSucc())
 		{
@@ -1316,11 +1300,11 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 				min(posOrthDir[adj->twinNode()], posOrthDir[adj->theNode()]) :
 				min(posOrthDir[adjPred->theNode()],     posOrthDir[adjPred->twinNode()]);
 
-			if (PG.typeOf(adjCross->theEdge()) == Graph::generalization)
+			if (PG.typeOf(adjCross->theEdge()) == Graph::EdgeType::generalization)
 			{
 				if (isCaseA) {
 					++i;
-					if(PG.typeOf(adjTwin->theNode()) == Graph::generalizationExpander &&
+					if(PG.typeOf(adjTwin->theNode()) == Graph::NodeType::generalizationExpander &&
 						m_pOR->angle(adjTwin->cyclicPred()) == 2)
 					{
 						node s1 = m_pathNode[adjTwin->theNode()];
@@ -1329,7 +1313,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 						low[s2] = lowReal[s2] - delta; //minDist.delta(v,dirMax,i);
 					}
 				} else {
-					if(PG.typeOf(adjTwin->theNode()) == Graph::generalizationExpander &&
+					if(PG.typeOf(adjTwin->theNode()) == Graph::NodeType::generalizationExpander &&
 						m_pOR->angle(adjTwin) == 2)
 					{
 						node s1 = m_pathNode[adjTwin->theNode()];
@@ -1346,7 +1330,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 			//we save the current direction and stop if we run in opposite
 			OrthoDir runDir = m_pOR->direction(adjCross);
 			// if -> while
-			while (PG.typeOf(adjTwin->theNode()) == Graph::dummy &&
+			while (PG.typeOf(adjTwin->theNode()) == Graph::NodeType::dummy &&
 				adjTwin->theNode()->degree() == 2 &&
 				m_pOR->angle(adjTwin) == angleAtMax)
 			{
@@ -1416,7 +1400,7 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 	{
 		//special case nodes
 		if (m_path[*itV].empty()) continue;
-		OGDF_ASSERT_IF(dlExtendedChecking,checkSweepLine(sweepLine));
+		OGDF_ASSERT_IF(DebugLevel::ExtendedChecking,checkSweepLine(sweepLine));
 
 		node v = *itV;
 		ListIterator<Interval> it;
@@ -1520,11 +1504,10 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 
 
 	for(itT = visibArcs.begin(); itT.valid(); ++itT) {
-		//***********************************CHECK if
+		//CHECK if
 		node v = (*itT).x1(), w = (*itT).x2();
-		if (!(m_extraNode[v] || m_extraNode[w]))
-		{
-			//******************************CHECK if
+		if (!(m_extraNode[v] || m_extraNode[w])) {
+			//CHECK if
 			node boundRepresentant1 = m_path[v].front();
 			node boundRepresentant2 = m_path[w].front();
 			node en1 = m_pPR->expandedNode(boundRepresentant1);
@@ -1538,16 +1521,15 @@ void CompactionConstraintGraph<ATYPE>::insertVisibilityArcs(
 
 				m_length[e] = max(m_sep, minDist.separation()); //m_sep;
 				m_cost  [e] = 0;
-				m_type  [e] = cetVisibilityArc;
-
+				m_type  [e] = ConstraintEdgeType::VisibilityArc;
 #if 0
 				writeGML("visibilityinserted.gml");
 #endif
-			}//special if 2
-		}//special if 1
+			}
+		}
 	}
 
-	OGDF_ASSERT_IF(dlExtendedChecking,checkSweepLine(sweepLine));
+	OGDF_ASSERT_IF(DebugLevel::ExtendedChecking,checkSweepLine(sweepLine));
 
 }//insertvisibilityarcs
 
@@ -1570,17 +1552,17 @@ bool CompactionConstraintGraph<ATYPE>::isFeasible(
 			cout << "  actual distance: " << pos[w] - pos[v] << endl;
 			cout << "  type of " << e << ": ";
 			switch(m_type[e]) {
-			case cetBasicArc: cout << "basic arc" << endl;
+			case ConstraintEdgeType::BasicArc: cout << "basic arc" << endl;
 				break;
-			case cetVertexSizeArc: cout << "vertex-size arc" << endl;
+			case ConstraintEdgeType::VertexSizeArc: cout << "vertex-size arc" << endl;
 				break;
-			case cetVisibilityArc: cout << "visibility arc" << endl;
+			case ConstraintEdgeType::VisibilityArc: cout << "visibility arc" << endl;
 				break;
-			case cetMedianArc: cout << "median arc" << endl;
+			case ConstraintEdgeType::MedianArc: cout << "median arc" << endl;
 				break;
-			case cetReducibleArc: cout << "reducible arc" <<endl;
+			case ConstraintEdgeType::ReducibleArc: cout << "reducible arc" <<endl;
 				break;
-			case cetFixToZeroArc: cout << "fixtozero arc" <<endl;
+			case ConstraintEdgeType::FixToZeroArc: cout << "fixtozero arc" <<endl;
 
 			}
 			return false;
@@ -1655,22 +1637,22 @@ void CompactionConstraintGraph<ATYPE>::writeGML(ostream &os) const
 		os << "      arrow \"last\"\n";
 		switch(m_type[e])
 		{
-		case cetBasicArc: // red
+		case ConstraintEdgeType::BasicArc: // red
 			os << "      fill \"#FF0000\"\n";
 			break;
-		case cetVertexSizeArc: // blue
+		case ConstraintEdgeType::VertexSizeArc: // blue
 			os << "      fill \"#0000FF\"\n";
 			break;
-		case cetVisibilityArc: // green
+		case ConstraintEdgeType::VisibilityArc: // green
 			os << "      fill \"#00FF00\"\n";
 			break;
-		case cetReducibleArc: // red
+		case ConstraintEdgeType::ReducibleArc: // red
 			os << "      fill \"#FF0000\"\n";
 			break;
-		case cetFixToZeroArc: // violett
+		case ConstraintEdgeType::FixToZeroArc: // violett
 			os << "      fill \"#AF00FF\"\n";
 			break;
-		case cetMedianArc: // rose
+		case ConstraintEdgeType::MedianArc: // rose
 			os << "      fill \"#FF00FF\"\n";
 			break;
 		}

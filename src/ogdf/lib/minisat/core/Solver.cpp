@@ -344,17 +344,17 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
 	else{
 		int max_i = 1;
 		// Find the first literal assigned at the next-highest level:
-		for (int i = 2; i < out_learnt.size(); i++)
+		for (i = 2; i < out_learnt.size(); i++)
 			if (level(var(out_learnt[i])) > level(var(out_learnt[max_i])))
 				max_i = i;
 		// Swap-in this literal at index 1:
-		Lit p             = out_learnt[max_i];
+		Lit pNew          = out_learnt[max_i];
 		out_learnt[max_i] = out_learnt[1];
-		out_learnt[1]     = p;
-		out_btlevel       = level(var(p));
+		out_learnt[1]     = pNew;
+		out_btlevel       = level(var(pNew));
 	}
 
-	for (int j = 0; j < analyze_toclear.size(); j++) seen[var(analyze_toclear[j])] = 0;    // ('seen[]' is now cleared)
+	for (i = 0; i < analyze_toclear.size(); i++) seen[var(analyze_toclear[i])] = 0;    // ('seen[]' is now cleared)
 }
 
 
@@ -369,12 +369,12 @@ bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
 		Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
 
 		for (int i = 1; i < c.size(); i++){
-			Lit p  = c[i];
-			if (!seen[var(p)] && level(var(p)) > 0){
-				if (reason(var(p)) != CRef_Undef && (abstractLevel(var(p)) & abstract_levels) != 0){
-					seen[var(p)] = 1;
-					analyze_stack.push(p);
-					analyze_toclear.push(p);
+			Lit newP  = c[i];
+			if (!seen[var(newP)] && level(var(newP)) > 0){
+				if (reason(var(newP)) != CRef_Undef && (abstractLevel(var(newP)) & abstract_levels) != 0){
+					seen[var(newP)] = 1;
+					analyze_stack.push(newP);
+					analyze_toclear.push(newP);
 				}else{
 					for (int j = top; j < analyze_toclear.size(); j++)
 						seen[var(analyze_toclear[j])] = 0;

@@ -65,13 +65,13 @@ ExpansionGraph::ExpansionGraph(const Graph &G) :
 		for(edge e : m_component[i])
 		{
 			node v = e->source();
-			if (contained.isMember(v) == false) {
+			if (!contained.isMember(v)) {
 				contained.insert(v);
 				m_adjComponents[v].pushBack(i);
 			}
 
 			v = e->target();
-			if (contained.isMember(v) == false) {
+			if (!contained.isMember(v)) {
 				contained.insert(v);
 				m_adjComponents[v].pushBack(i);
 			}
@@ -98,11 +98,7 @@ void ExpansionGraph::init(int i)
 
 
 	// create new component
-	SListConstIterator<edge> it;
-	for(it = m_component[i].begin(); it.valid(); ++it)
-	{
-		edge e = *it;
-
+	for (edge e: m_component[i]) {
 		edge eCopy = newEdge(getCopy(e->source()),getCopy(e->target()));
 		m_eOrig[eCopy] = e;
 	}
@@ -114,12 +110,12 @@ void ExpansionGraph::init(int i)
 			node vPrime = newNode();
 			m_vRep[vPrime] = m_vOrig[v];
 
-			SListPure<edge> edges;
-			v->outEdges(edges);
+			SListPure<edge> edgeList;
+			v->outEdges(edgeList);
 
-			SListConstIterator<edge> it;
-			for(it = edges.begin(); it.valid(); ++it)
-				moveSource(*it,vPrime);
+			for (edge e: edgeList) {
+				moveSource(e,vPrime);
+			}
 
 			newEdge(v,vPrime);
 		}
@@ -156,11 +152,11 @@ void ExpansionGraph::init(const Graph &G)
 		if (original(v) && v->indeg() >= 1 && v->outdeg() >= 1) {
 			node vPrime = newNode();
 
-			SListPure<edge> edges;
-			v->outEdges(edges);
+			SListPure<edge> edgeList;
+			v->outEdges(edgeList);
 
 			SListConstIterator<edge> it;
-			for(it = edges.begin(); it.valid(); ++it)
+			for(it = edgeList.begin(); it.valid(); ++it)
 				moveSource(*it,vPrime);
 
 			newEdge(v,vPrime);

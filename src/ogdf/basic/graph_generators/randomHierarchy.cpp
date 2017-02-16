@@ -31,7 +31,6 @@
 
 
 #include <ogdf/basic/graph_generators.h>
-#include <random>
 
 using std::minstd_rand;
 using std::uniform_int_distribution;
@@ -49,7 +48,7 @@ public:
 	OGDF_NEW_DELETE
 };
 
-typedef BEdge *bEdge;
+using bEdge = BEdge*;
 
 
 int cmpId(const bEdge &a, const bEdge &b) {

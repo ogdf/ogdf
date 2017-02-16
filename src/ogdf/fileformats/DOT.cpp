@@ -40,17 +40,17 @@ namespace dot {
 std::string toString(const Attribute &attr)
 {
 	switch(attr) {
-	case a_id: return "id";
-	case a_label: return "label";
-	case a_template: return "comment";
-	case a_width: return "width";
-	case a_height: return "height";
-	case a_shape: return "shape";
-	case a_position: return "pos";
-	case a_stroke: return "color";
-	case a_fill: return "fillcolor";
-	case a_weight: return "weight";
-	case a_arrow: return "arrow";
+	case Attribute::Id: return "id";
+	case Attribute::Label: return "label";
+	case Attribute::Template: return "comment";
+	case Attribute::Width: return "width";
+	case Attribute::Height: return "height";
+	case Attribute::Shape: return "shape";
+	case Attribute::Position: return "pos";
+	case Attribute::Stroke: return "color";
+	case Attribute::Fill: return "fillcolor";
+	case Attribute::Weight: return "weight";
+	case Attribute::Arrow: return "arrow";
 	default: return "comment";
 	}
 }
@@ -59,35 +59,37 @@ std::string toString(const Attribute &attr)
 std::string toString(const Shape &shape)
 {
 	switch(shape) {
-	case shRect: return "rect";
-	case shRoundedRect: return "rect"; // Not supported.
-	case shEllipse: return "ellipse";
-	case shTriangle: return "triangle";
-	case shPentagon: return "pentagon";
-	case shHexagon: return "hexagon";
-	case shOctagon: return "octagon";
-	case shRhomb: return "diamond";
-	case shTrapeze: return "trapezium";
-	case shParallelogram: return "parallelogram";
-	case shInvTriangle: return "invtriangle";
-	case shInvTrapeze: return "invtrapezium";
-	case shInvParallelogram: return "parallelogram"; // Not supported.
-	case shImage: return "box"; // Not supported.
-	default: return "rect";
+		case Shape::Rect:             return "rect";
+		case Shape::RoundedRect:      return "rect"; // Not supported.
+		case Shape::Ellipse:          return "ellipse";
+		case Shape::Triangle:         return "triangle";
+		case Shape::Pentagon:         return "pentagon";
+		case Shape::Hexagon:          return "hexagon";
+		case Shape::Octagon:          return "octagon";
+		case Shape::Rhomb:            return "diamond";
+		case Shape::Trapeze:          return "trapezium";
+		case Shape::Parallelogram:    return "parallelogram";
+		case Shape::InvTriangle:      return "invtriangle";
+		case Shape::InvTrapeze:       return "invtrapezium";
+		case Shape::InvParallelogram: return "parallelogram"; // Not supported.
+		case Shape::Image:            return "box"; // Not supported.
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
 std::string toString(const EdgeArrow &arrow)
 {
 	switch(arrow) {
-	case eaNone: return "none";
-	case eaLast: return "forward";
-	case eaFirst: return "back";
-	case eaBoth: return "both";
-	case eaUndefined: return "none"; // Not supported.
-	default: return "none";
+		case EdgeArrow::None:      return "none";
+		case EdgeArrow::Last:      return "forward";
+		case EdgeArrow::First:     return "back";
+		case EdgeArrow::Both:      return "both";
+		case EdgeArrow::Undefined: return "none"; // Not supported.
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
@@ -97,41 +99,42 @@ std::string toString(const Graph::EdgeType &type)
 	// http://publib.boulder.ibm.com/infocenter/rsahelp/v7r0m0/index.jsp?topic=
 	// /com.ibm.xtools.modeler.doc/topics/crelsme_clssd.html
 	switch(type) {
-	case Graph::association: return "none";
-	case Graph::generalization: return "empty";
-	case Graph::dependency: return "open";
-	default: return "normal";
+		case Graph::EdgeType::association:    return "none";
+		case Graph::EdgeType::generalization: return "empty";
+		case Graph::EdgeType::dependency:     return "open";
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
 // Map is lazily-evaluated (this could be avoided with C++11 constexpr).
-static Hashing<std::string, Attribute> attrMap;
+static std::map<std::string, Attribute> attrMap;
 
 Attribute toAttribute(const std::string &str)
 {
 	return toEnum(
 		str, attrMap, toString,
-		static_cast<Attribute>(0), a_unknown, a_unknown);
+		static_cast<Attribute>(0), Attribute::Unknown, Attribute::Unknown);
 }
 
 
 // Same as attrMap but with shapes.
-static Hashing<std::string, Shape> shapeMap;
+static std::map<std::string, Shape> shapeMap;
 Shape toShape(const std::string &str) {
 	return toEnum(
 		str, shapeMap, toString,
-		shRect, shImage, shRect);
+		Shape::Rect, Shape::Image, Shape::Rect);
 }
 
 // Same as attrMap but with arrows.
-static Hashing<std::string, EdgeArrow> arrowMap;
+static std::map<std::string, EdgeArrow> arrowMap;
 
 EdgeArrow toArrow(const std::string &str)
 {
 	return toEnum(
 		str, arrowMap, toString,
-		eaNone, eaUndefined, eaUndefined);
+		EdgeArrow::None, EdgeArrow::Undefined, EdgeArrow::Undefined);
 }
 
 

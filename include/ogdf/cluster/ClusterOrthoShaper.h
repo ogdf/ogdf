@@ -49,8 +49,8 @@ class OGDF_EXPORT ClusterOrthoShaper
 
 public:
 
-	enum BendCost { defaultCost, topDownCost, bottomUpCost };
-	enum n_type { low, high, inner, outer };	//types of network nodes:
+	enum class BendCost { defaultCost, topDownCost, bottomUpCost };
+	enum class n_type { low, high, inner, outer };	//types of network nodes:
 												//nodes and faces
 
 	ClusterOrthoShaper() {
@@ -61,7 +61,7 @@ public:
 		m_traditional     = true;  //!< true;  //if set to true, prefer 3/1 flow at degree 2 (false: 2/2)
 		m_deg4free        = false; //!< if set to true, free angle assignment at degree four nodes allowed
 		m_align           = false; //!< if set to true, nodes are aligned on same hierarchy level
-		m_topToBottom     = defaultCost;     //bend costs depend on edges cluster depth
+		m_topToBottom     = BendCost::defaultCost;     //bend costs depend on edges cluster depth
 	};
 
 	~ClusterOrthoShaper() { }
@@ -118,15 +118,15 @@ public:
 		int cost = 1;
 		switch (m_topToBottom)
 		{
-			case topDownCost:
-						cost = pbc*(clDepth+1); //safeInt
-						break;
-			case bottomUpCost:
-						cost = pbc*(treeDepth - clDepth + 1); //safeInt
-						break;
-			default: //defaultCost
-						cost = pbc;
-						break;
+		case BendCost::topDownCost:
+			cost = pbc*(clDepth+1); //safeInt
+			break;
+		case BendCost::bottomUpCost:
+			cost = pbc*(treeDepth - clDepth + 1); //safeInt
+			break;
+		default: //defaultCost
+			cost = pbc;
+			break;
 		}
 
 #if 0
@@ -146,15 +146,15 @@ public:
 		int cost = 1;
 		switch (m_topToBottom)
 		{
-			case topDownCost:
-						cost = pbc*(clDepth+1); //safeInt
-						break;
-			case bottomUpCost:
-						cost = pbc*(treeDepth - clDepth + 1); //safeInt
-						break;
-			default: //defaultCost
-						cost = pbc;
-						break;
+		case BendCost::topDownCost:
+			cost = pbc*(clDepth+1); //safeInt
+			break;
+		case BendCost::bottomUpCost:
+			cost = pbc*(treeDepth - clDepth + 1); //safeInt
+			break;
+		default: //defaultCost
+			cost = pbc;
+			break;
 		}
 
 		return cost;

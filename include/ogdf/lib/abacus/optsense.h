@@ -67,7 +67,7 @@ public:
 	 *
 	 * \return The output stream.
 	 */
-	friend ostream &operator<<(ostream& out, const OptSense &rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream& out, const OptSense &rhs);
 
 	//! Sets the optimization sense to \a s.
 	/**

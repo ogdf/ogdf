@@ -33,23 +33,18 @@
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
 #include <ogdf/planarity/PlanarSubgraphFast.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/internal/planarity/CrossingStructure.h>
-
-#include <ogdf/basic/Thread.h>
-#include <mutex>
-#include <atomic>
+#include <ogdf/planarity/embedder/CrossingStructure.h>
 
 using std::atomic;
 using std::mutex;
 using std::lock_guard;
 using std::minstd_rand;
 
+namespace ogdf {
 
-namespace ogdf
-{
+using embedder::CrossingStructure;
 
 class SubgraphPlanarizer::ThreadMaster {
-
 	CrossingStructure *m_pCS;
 	int                m_bestCR;
 
@@ -256,12 +251,12 @@ void SubgraphPlanarizer::Worker::operator()()
 // default constructor
 SubgraphPlanarizer::SubgraphPlanarizer()
 {
-	PlanarSubgraphFast* s = new PlanarSubgraphFast();
+	auto* s = new PlanarSubgraphFast<int>();
 	s->runs(64);
 	m_subgraph.reset(s);
 
 	VariableEmbeddingInserter *pInserter = new VariableEmbeddingInserter();
-	pInserter->removeReinsert(rrAll);
+	pInserter->removeReinsert(RemoveReinsertType::All);
 	m_inserter.reset(pInserter);
 
 	m_permutations = 1;
@@ -354,7 +349,7 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 
 	const int m = delEdges.size();
 	if(m == 0)
-		return retOptimal;  // graph is planar
+		return ReturnType::Optimal;  // graph is planar
 
 	for(edge &eDel : delEdges)
 		eDel = pr.original(eDel);
@@ -419,7 +414,7 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 
 			if(stopTime >= 0 && System::realTime() >= stopTime) {
 				if(foundSolution == false)
-					return retTimeoutInfeasible; // not able to find a solution...
+					return ReturnType::TimeoutInfeasible; // not able to find a solution...
 				break;
 			}
 		}
@@ -430,7 +425,7 @@ Module::ReturnType SubgraphPlanarizer::doCall(
 		OGDF_ASSERT(isPlanar(pr) == true);
 	}
 
-	return retFeasible;
+	return ReturnType::Feasible;
 }
 
 

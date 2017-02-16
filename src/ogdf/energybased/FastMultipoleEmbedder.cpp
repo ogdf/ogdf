@@ -30,17 +30,12 @@
  */
 
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEMultipoleKernel.h>
 #include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/internal/energybased/FastUtils.h>
-#include <ogdf/internal/energybased/ArrayGraph.h>
-#include <ogdf/internal/energybased/LinearQuadtree.h>
-#include <ogdf/internal/energybased/LinearQuadtreeExpansion.h>
-#include <ogdf/internal/energybased/FMEThread.h>
-#include <ogdf/internal/energybased/GalaxyMultilevel.h>
-#include <ogdf/internal/energybased/FMEMultipoleKernel.h>
-
 
 namespace ogdf {
+
+using namespace fast_multipole_embedder;
 
 FastMultipoleEmbedder::FastMultipoleEmbedder()
 {
@@ -80,8 +75,9 @@ void FastMultipoleEmbedder::call(MultilevelGraph &MLG)
 }
 #endif
 
-void FastMultipoleEmbedder::call(const Graph& G, NodeArray<float>& nodeXPosition, NodeArray<float>& nodeYPosition,
-								 const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize)
+void FastMultipoleEmbedder::call(const Graph& G,
+                                 NodeArray<float>& nodeXPosition, NodeArray<float>& nodeYPosition,
+                                 const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize)
 {
 	allocate(G.numberOfNodes(), G.numberOfEdges());
 	m_pGraph->readFrom(G, nodeXPosition, nodeYPosition, edgeLength, nodeSize);
@@ -281,12 +277,9 @@ void FastMultipoleMultilevelEmbedder::run(GraphAttributes& GA, const EdgeArray<f
 	// init the coarsest level
 	initCurrentLevel();
 
-	//-------------------------
 	// layout the current level
 	layoutCurrentLevel();
-	//-------------------------
 
-	//-----------------------------
 	//proceed with remaining levels
 	while (m_iCurrentLevelNr > 0)
 	{
@@ -423,10 +416,10 @@ void FastMultipoleMultilevelEmbedder::deleteMultiLevelGraphs()
 	{
 		toDelete = l;
 		l = l->m_pFinerMultiLevel;
-		delete (toDelete->m_pNodeInfo);
-		delete (toDelete->m_pEdgeInfo);
+		delete toDelete->m_pNodeInfo;
+		delete toDelete->m_pEdgeInfo;
 		if (toDelete != m_pFinestLevel)
-			delete (toDelete->m_pGraph);
+			delete toDelete->m_pGraph;
 		delete toDelete;
 	}
 }

@@ -91,7 +91,7 @@ void ProcrustesSubLayout::flipY(GraphAttributes& graphAttributes)
 	}
 }
 
-//! Computes a circular layout for graph attributes \a GA.
+//! Computes a circular layout for graph attributes \p graphAttributes.
 void ProcrustesSubLayout::call(GraphAttributes& graphAttributes)
 {
 	// any layout?

@@ -146,7 +146,7 @@ SparVec& SparVec::operator=(const SparVec& rhs)
 
 	if(size_ != rhs.size_) {
 		Logger::ilout() << "SparVec::operator= : length of operands are different (" << size_ << " != " << rhs.size_ << " ).\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcSparVec);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::SparVec);
 	}
 
 	for(int i = 0; i < rhs.nnz_; i++) {
@@ -279,7 +279,7 @@ void SparVec::realloc(int newSize)
 {
 	if (newSize < nnz_) {
 		Logger::ilout() << "SparVec::realloc(" << newSize << "):\nlength of vector becomes less than number of nonzeros " << nnz_ << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcSparVec);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::SparVec);
 	}
 
 	int    *newSupport = new int[newSize];
@@ -303,7 +303,7 @@ void SparVec::rangeCheck(int i) const
 {
 	if (i < 0 || i >= nnz_) {
 		Logger::ilout() << "SparVec::rangeCheck(): index " << i << "\nout of ranges of nonzeros [0," << nnz_ << "-1 ].\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcSparVec);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::SparVec);
 	}
 }
 } //namespace abacus

@@ -60,7 +60,7 @@ bool dfsGenTreeRec(
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (e->source() == v) continue;
-		if (!(UG.type(e) == Graph::generalization)) continue;
+		if (!(UG.type(e) == Graph::EdgeType::generalization)) continue;
 		if (used[e]) continue; //error ??
 		used[e] = true;
 
@@ -95,7 +95,7 @@ edge firstOutGen(UMLGraph& UG, node v, EdgeArray<bool>& /* used */)
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if (e->target() == v) continue;
-		if (UG.type(e) == Graph::generalization)
+		if (UG.type(e) == Graph::EdgeType::generalization)
 		{
 #if 0
 			OGDF_ASSERT(!used[e]);
@@ -124,7 +124,7 @@ bool dfsGenTree(
 	for(edge e : G.edges)
 	{
 		//descent in the hierarchy containing e
-		if ((!used[e]) && (UG.type(e) == Graph::generalization))
+		if ((!used[e]) && (UG.type(e) == Graph::EdgeType::generalization))
 		{
 			hierNum++; //current hierarchy tree
 			//first we search for the sink
@@ -139,7 +139,7 @@ bool dfsGenTree(
 				//if there is no sink, convert Generalizations to Associations and draw
 				if (cycleCounter > G.numberOfEdges())
 				{
-					UG.type(sinkPath) = Graph::association;
+					UG.type(sinkPath) = Graph::EdgeType::association;
 					fakedGens.pushBack(sinkPath);
 					sink = sinkPath->source();
 					sinkPath = nullptr;

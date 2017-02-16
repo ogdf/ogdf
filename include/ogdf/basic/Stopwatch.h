@@ -54,14 +54,14 @@ public:
 	 */
 	Stopwatch() : m_startTime(0), m_totalTime(0), m_running(false) { }
 
-	//! Initializes a stopwatch and sets its total time to \a milliSecs.
+	//! Initializes a stopwatch and sets its total time to \p milliSecs.
 	/**
 	 * After creation the stopwatch is not running, i.e., it has to be started explicitly
 	 * for measuring time.
 	 *
 	 * \param milliSecs The intial value of the total time in milliseconds.
 	 */
-	Stopwatch(int64_t milliSecs) :  m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
+	explicit Stopwatch(int64_t milliSecs) :  m_startTime(0), m_totalTime(milliSecs), m_running(false) { }
 
 
 	virtual ~Stopwatch() { }
@@ -128,12 +128,12 @@ public:
 	int64_t hours() const { return seconds()/3600; }
 
 
-	//! Returns true iff the currently elapsed time exceeds \a maxSeconds.
+	//! Returns true iff the currently elapsed time exceeds \p maxSeconds.
 	bool exceeds(int64_t maxSeconds) const {
 		return seconds() >= maxSeconds;
 	}
 
-	//! Adds \a centiSeconds to total time.
+	//! Adds \p centiSeconds to total time.
 	/**
 	 * \param centiSeconds The number of centiseconds to be added.
 	 */
@@ -142,13 +142,13 @@ public:
 	}
 
 
-	//! Writes the currently elapsed time in the format <tt>hh:mm:ss.sec/100</tt> to output stream \a os.
+	//! Writes the currently elapsed time in the format <tt>hh:mm:ss.sec/100</tt> to output stream \p os.
 	/**
 	 * \param os        The output stream.
 	 * \param stopwatch The stopwatch whose elapsed time shall be written.
-	 * \return A reference to the output stream \a os.
+	 * \return A reference to the output stream \p os.
 	 */
-	friend ostream& operator<<(ostream& os, const Stopwatch &stopwatch);
+	friend OGDF_EXPORT ostream& operator<<(ostream& os, const Stopwatch &stopwatch);
 
 protected:
 
@@ -174,14 +174,14 @@ public:
 	 */
 	StopwatchCPU() : Stopwatch() { }
 
-	//! Creates a stopwatch for measuring CPU time and sets its total time to \a milliSecs.
+	//! Creates a stopwatch for measuring CPU time and sets its total time to \p milliSecs.
 	/**
 	 * After creation the stopwatch is not running, i.e., it has to be started explicitly
 	 * for measuring time.
 	 *
 	 * \param milliSecs The intial value of the total time in milliseconds.
 	 */
-	StopwatchCPU(int64_t milliSecs) : Stopwatch(milliSecs) { }
+	explicit StopwatchCPU(int64_t milliSecs) : Stopwatch(milliSecs) { }
 
 	virtual ~StopwatchCPU() { }
 
@@ -201,14 +201,14 @@ public:
 	 */
 	StopwatchWallClock() : Stopwatch() { }
 
-	//! Creates a stopwatch for measuring wall-clock time and sets its total time to \a milliSecs.
+	//! Creates a stopwatch for measuring wall-clock time and sets its total time to \p milliSecs.
 	/**
 	 * After creation the stopwatch is not running, i.e., it has to be started explicitly
 	 * for measuring time.
 	 *
 	 * \param milliSecs The intial value of the total time in milliseconds.
 	 */
-	StopwatchWallClock(int64_t milliSecs) : Stopwatch(milliSecs) { }
+	explicit StopwatchWallClock(int64_t milliSecs) : Stopwatch(milliSecs) { }
 
 	virtual ~StopwatchWallClock() { }
 

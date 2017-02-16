@@ -54,7 +54,7 @@ namespace dot {
  */
 struct Token {
 
-	enum Type {
+	enum class Type {
 		// Operators
 		assignment, colon, semicolon, comma, edgeOpDirected, edgeOpUndirected,
 		// Brackets
@@ -76,7 +76,7 @@ struct Token {
 	//! Identifier content (nullptr for non-id tokens).
 	std::string *value;
 
-	Token(size_t row, size_t column, std::string *value = nullptr);
+	Token(size_t tokenRow, size_t tokenColumn, std::string *identifierContent = nullptr);
 
 	//! Returns string representation of given token type.
 	static std::string toString(const Type &type);
@@ -110,12 +110,15 @@ private:
 	 * @return True if matches, false otherwise.
 	 */
 	bool match(const Token::Type &type);
+
 	//! Checks if \a head matches given string. Advances \a head on success.
 	/**
 	 * @param str A string being matched.
 	 * @return True if matches, false otherwise.
 	 */
+
 	bool match(const std::string &str);
+
 	//! Checks whether \a head is an identifier.
 	/**
 	 * @param token Function fills it with identifier value and col/row info.
@@ -125,7 +128,7 @@ private:
 
 public:
 	//! Initializes lexer with given input (but does nothing to it).
-	Lexer(std::istream &input);
+	explicit Lexer(std::istream &input);
 	~Lexer();
 
 	//! Scans input and turns it into token list.

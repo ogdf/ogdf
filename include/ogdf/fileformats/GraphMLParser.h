@@ -88,7 +88,7 @@ private:
 	bool m_error;
 
 public:
-	GraphMLParser(istream &in);
+	explicit GraphMLParser(istream &in);
 	~GraphMLParser();
 
 	bool read(Graph &G);

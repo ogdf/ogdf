@@ -43,19 +43,17 @@
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
-#include <ogdf/basic/Stack.h>
-#include <ogdf/basic/Math.h>
 
 
 namespace ogdf {
 
 
 BalloonLayout::BalloonLayout() :
-	 m_rootSelection(BalloonLayout::rootCenter),  //how to select the root
-	 m_estimateFactor(1.2),        //weight of radius addition value
-	 m_childOrder(orderFixed),    //how to arrange the children
-	 m_treeComputation(BalloonLayout::treeBfs),  //spanning tree by...
-	 m_evenAngles(false)
+	m_rootSelection(BalloonLayout::RootSelection::Center),  //how to select the root
+	m_estimateFactor(1.2),        //weight of radius addition value
+	m_childOrder(ChildOrder::Fixed),    //how to arrange the children
+	m_treeComputation(BalloonLayout::TreeComputation::Bfs),  //spanning tree by...
+	m_evenAngles(false)
 {
 #ifdef OGDF_DEBUG
 	m_treeEdge = nullptr;
@@ -65,7 +63,7 @@ BalloonLayout::BalloonLayout() :
 BalloonLayout::~BalloonLayout()
 {
 #ifdef OGDF_DEBUG
-if (m_treeEdge != nullptr) delete m_treeEdge;
+	delete m_treeEdge;
 #endif
 }
 
@@ -88,18 +86,18 @@ void BalloonLayout::call(GraphAttributes &AG)
 
 	OGDF_ASSERT(isConnected(G));
 #ifdef OGDF_DEBUG
-	if (m_treeEdge != nullptr) delete m_treeEdge;
+	delete m_treeEdge;
 	m_treeEdge = new EdgeArray<bool>();
 	m_treeEdge->init(G, false);
 #endif
 
-	m_rootSelection = rootCenter;
-	m_treeComputation = treeBfs;
-	m_childOrder = orderFixed;
+	m_rootSelection = RootSelection::Center;
+	m_treeComputation = TreeComputation::Bfs;
+	m_childOrder = ChildOrder::Fixed;
 
 	computeTree(G);
 #ifdef OGDF_DEBUG
-	AG.fillColor(m_treeRoot) = Color::Mediumblue;
+	AG.fillColor(m_treeRoot) = Color::Name::Mediumblue;
 	cout << "Treeroot is blue\n";
 #endif
 
@@ -135,7 +133,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 	switch(m_rootSelection)
 	{
 
-	case BalloonLayout::rootHighestDegree:
+	case BalloonLayout::RootSelection::HighestDegree:
 		{
 			int maxDeg = -1;
 			for(node v : G.nodes)
@@ -147,7 +145,7 @@ void BalloonLayout::selectRoot(const Graph &G)
 		}
 		break;
 
-	case BalloonLayout::rootCenter:
+	case BalloonLayout::RootSelection::Center:
 		{
 			NodeArray<int> degree(G);
 			Queue<node> leaves;
@@ -167,9 +165,9 @@ void BalloonLayout::selectRoot(const Graph &G)
 				v = leaves.pop();
 
 				node p = m_parent[v];
-				if (p != nullptr)
-					if (--degree[p] == 1)
-						leaves.append(p);
+				if (p != nullptr && --degree[p] == 1) {
+					leaves.append(p);
+				}
 				ListConstIterator<node> it = m_childList[v].begin();
 				while (it.valid())
 				{
@@ -183,7 +181,6 @@ void BalloonLayout::selectRoot(const Graph &G)
 			//we swap the parent relationship on the path
 			//from m_treeRoot to m_root
 
-			//---------------
 			node u = m_root;
 			v = nullptr;
 			while (u != nullptr)
@@ -215,8 +212,8 @@ void BalloonLayout::selectRoot(const Graph &G)
 			}//while
 		}
 		break;
-	default: {cout << BalloonLayout::rootCenter<<" "<<m_rootSelection<<"\n";
-		throw AlgorithmFailureException(afcUnknown);} break;
+	default: {cout << m_rootSelection << "\n";
+		throw AlgorithmFailureException(AlgorithmFailureCode::Unknown);} break;
 	}//switch
 
 #ifdef OGDF_DEBUG
@@ -249,8 +246,8 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 
 	switch (m_childOrder)
 	{
-		case orderOptimized: //todo
-		case orderFixed:
+		case ChildOrder::Optimized: //todo
+		case ChildOrder::Fixed:
 		{
 			//compute radii in SNS model bottom up
 			//for leaves we use the smallest enclosing circle radius
@@ -303,7 +300,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 					cout << "Non-leaf node processed\n";
 #endif
 					node v = level.pop();
-					//---------------------
+
 					//compute radii
 					//inner radius estimate, outer currently holds sum of children
 					//we add the node object size to the radii
@@ -369,7 +366,7 @@ void BalloonLayout::computeRadii(const GraphAttributes &AG)
 					}
 					else
 						t = m_radius[v] + m_maxChildRadius[v];
-					//---------------------
+
 					//adjust parent values
 					node p = m_parent[v];
 					//Invariant: outer radius of children of p is already computed
@@ -412,9 +409,9 @@ void BalloonLayout::computeTree(const Graph &G)
 	//and store the corresponding pointers in m_parent
 	switch (m_treeComputation)
 	{
-		case (treeDfs): //todo
-		case (treeBfsRandom): //todo
-		case (treeBfs):
+		case (TreeComputation::Dfs): //todo
+		case (TreeComputation::BfsRandom): //todo
+		case (TreeComputation::Bfs):
 		{
 			computeBFSTree(G, v);
 		}
@@ -716,7 +713,7 @@ void BalloonLayout::computeCoordinates(GraphAttributes &AG)
 		}//if children
 	}//while queue
 	#ifdef OGDF_DEBUG
-	AG.fillColor(m_treeRoot) = Color::Mediumblue;
+	AG.fillColor(m_treeRoot) = Color::Name::Mediumblue;
 	//AG.fillColor(m_root) = "#BBCC00";
 	#endif
 	AG.clearAllBends();
@@ -730,5 +727,12 @@ void BalloonLayout::check(Graph &G)
 }//Check
 #endif
 
+ostream &operator<<(ostream &os, const BalloonLayout::RootSelection &rs) {
+	switch (rs) {
+		case BalloonLayout::RootSelection::Center:        os << "Center";        break;
+		case BalloonLayout::RootSelection::HighestDegree: os << "HighestDegree"; break;
+	}
+	return os;
+}
 
 }//namespace ogdf

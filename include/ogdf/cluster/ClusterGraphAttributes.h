@@ -82,12 +82,10 @@ public:
 	using GraphAttributes::label;
 
 	using GraphAttributes::strokeType;
-	using GraphAttributes::setStrokeType;
 	using GraphAttributes::strokeColor;
 	using GraphAttributes::strokeWidth;
 
 	using GraphAttributes::fillPattern;
-	using GraphAttributes::setFillPattern;
 	using GraphAttributes::fillColor;
 	using GraphAttributes::fillBgColor;
 
@@ -99,15 +97,15 @@ public:
 	//! Constructs cluster graph attributes for no associated graph.
 	ClusterGraphAttributes() : GraphAttributes(), m_pClusterGraph(nullptr) { }
 
-	//! Constructs cluster graph attributes for cluster graph \a cg with attributes \a initAttributes.
+	//! Constructs cluster graph attributes for cluster graph \p cg with attributes \p initAttributes.
 	/**
 	 * \remark All attributes in ClusterElement are always available.
 	 */
-	ClusterGraphAttributes(ClusterGraph& cg, long initAttributes = 0);
+	explicit ClusterGraphAttributes(ClusterGraph& cg, long initAttributes = 0);
 
 	virtual ~ClusterGraphAttributes() { }
 
-	//! Initializes the cluster graph attributes for cluster graph \a cg with attributes \a initAttributes.
+	//! Initializes the cluster graph attributes for cluster graph \p cg with attributes \p initAttributes.
 	virtual void init(ClusterGraph &cg, long initAttributes = 0);
 
 	//! Forbidden initialization, use init(ClusterGraph &cg, long initAttributes) instead!
@@ -115,9 +113,9 @@ public:
 		OGDF_THROW(Exception); // We need a cluster graph for initialization
 	}
 
-	//! Initializes the attributes according to \a initAttributes.
+	//! Initializes the attributes according to \p initAttributes.
 	virtual void initAtt(long initAttributes = 0) {
-		GraphAttributes::initAttributes(initAttributes);
+		GraphAttributes::addAttributes(initAttributes);
 	}
 
 	//! Returns the associated cluster graph.
@@ -130,110 +128,110 @@ public:
 	 */
 	//@{
 
-	//! Returns the x-position of cluster \a c's cage (lower left corner).
+	//! Returns the x-position of cluster \p c's cage (lower left corner).
 	double x(cluster c) const { return m_clusterInfo[c].m_x; }
 
-	//! Returns the x-position of cluster \a c's cage (lower left corner).
+	//! Returns the x-position of cluster \p c's cage (lower left corner).
 	double& x(cluster c) { return m_clusterInfo[c].m_x; }
 
-	//! Returns the y-position of cluster \a c's cage (lower left corner).
+	//! Returns the y-position of cluster \p c's cage (lower left corner).
 	double y(cluster c) const { return m_clusterInfo[c].m_y; }
 
-	//! Returns the y-position of cluster \a c's cage (lower left corner).
+	//! Returns the y-position of cluster \p c's cage (lower left corner).
 	double& y(cluster c) { return m_clusterInfo[c].m_y; }
 
-	//! Returns the width of cluster \a c.
+	//! Returns the width of cluster \p c.
 	double width(cluster c) const { return m_clusterInfo[c].m_w; }
 
-	//! Returns the width of cluster \a c.
+	//! Returns the width of cluster \p c.
 	double& width(cluster c) { return m_clusterInfo[c].m_w; }
 
-	//! Returns the height of cluster \a c.
+	//! Returns the height of cluster \p c.
 	double height(cluster c) const { return m_clusterInfo[c].m_h; }
 
-	//! Returns the height of cluster \a c.
+	//! Returns the height of cluster \p c.
 	double& height(cluster c) { return m_clusterInfo[c].m_h; }
 
-	//! Returns the stroke type of cluster \a c.
+	//! Returns the stroke type of cluster \p c.
 	StrokeType strokeType(cluster c) const {
 		return m_clusterInfo[c].m_stroke.m_type;
 	}
 
-	//! Sets the stroke type of cluster \a c to \a st.
+	//! Sets the stroke type of cluster \p c to \p st.
 	void setStrokeType(cluster c, StrokeType st) {
 		m_clusterInfo[c].m_stroke.m_type = st;
 	}
 
-	//! Returns the stroke color of cluster \a c.
+	//! Returns the stroke color of cluster \p c.
 	const Color &strokeColor(cluster c) const {
 		return m_clusterInfo[c].m_stroke.m_color;
 	}
 
-	//! Returns the stroke color of cluster \a c.
+	//! Returns the stroke color of cluster \p c.
 	Color &strokeColor(cluster c) {
 		return m_clusterInfo[c].m_stroke.m_color;
 	}
 
-	//! Returns the stroke width of cluster \a c.
+	//! Returns the stroke width of cluster \p c.
 	const float &strokeWidth(cluster c) const {
 		return m_clusterInfo[c].m_stroke.m_width;
 	}
 
-	//! Returns the stroke width of cluster \a c.
+	//! Returns the stroke width of cluster \p c.
 	float &strokeWidth(cluster c) {
 		return m_clusterInfo[c].m_stroke.m_width;
 	}
 
-	//! Returns the fill pattern of cluster \a c.
+	//! Returns the fill pattern of cluster \p c.
 	FillPattern fillPattern(cluster c) const {
 		return m_clusterInfo[c].m_fill.m_pattern;
 	}
 
-	//! Sets the fill pattern of cluster \a c to \a fp.
+	//! Sets the fill pattern of cluster \p c to \p fp.
 	void setFillPattern(cluster c, FillPattern fp) {
 		m_clusterInfo[c].m_fill.m_pattern = fp;
 	}
 
-	//! Returns the fill color of cluster \a c.
+	//! Returns the fill color of cluster \p c.
 	const Color &fillColor(cluster c) const {
 		return m_clusterInfo[c].m_fill.m_color;
 	}
 
-	//! Returns the fill color of cluster \a c.
+	//! Returns the fill color of cluster \p c.
 	Color &fillColor(cluster c) {
 		return m_clusterInfo[c].m_fill.m_color;
 	}
 
-	//! Returns the background color of fill patterns for cluster \a c.
+	//! Returns the background color of fill patterns for cluster \p c.
 	const Color &fillBgColor(cluster c) const {
 		return m_clusterInfo[c].m_fill.m_bgColor;
 	}
 
-	//! Returns the background color of fill patterns for cluster \a c.
+	//! Returns the background color of fill patterns for cluster \p c.
 	Color &fillBgColor(cluster c) {
 		return m_clusterInfo[c].m_fill.m_bgColor;
 	}
 
-	//! Returns the label of cluster \a c.
+	//! Returns the label of cluster \p c.
 	const string &label(cluster c) const {
 		return m_clusterInfo[c].m_label;
 	}
 
-	//! Returns the label of cluster \a c.
+	//! Returns the label of cluster \p c.
 	string &label(cluster c) {
 		return m_clusterInfo[c].m_label;
 	}
 
-	//! Returns the template of cluster \a c.
+	//! Returns the template of cluster \p c.
 	const string &templateCluster(cluster c) const { return m_clusterTemplate[c]; }
 
-	//! Returns the template of cluster \a c.
+	//! Returns the template of cluster \p c.
 	string &templateCluster(cluster c) { return m_clusterTemplate[c]; }
 
-	//! Returns the cluster info structure of cluster \a c.
+	//! Returns the cluster info structure of cluster \p c.
 	const ClusterInfo& clusterInfo(cluster c) const { return m_clusterInfo[c]; }
 
-	//! Returns the cluster info structure of cluster \a c.
+	//! Returns the cluster info structure of cluster \p c.
 	ClusterInfo& clusterInfo(cluster c) { return m_clusterInfo[c]; }
 
 	//@}
@@ -246,9 +244,9 @@ public:
 	using GraphAttributes::flipVertical;
 	using GraphAttributes::flipHorizontal;
 
-	//! Scales the layout by (\a sx,\a sy).
+	//! Scales the layout by (\p sx,\p sy).
 	/**
-	* If \a scaleNodes is true, node sizes are scaled as well.
+	* If \p scaleNodes is true, node sizes are scaled as well.
 	*
 	* \param sx         is the scaling factor for x-coordinates.
 	* \param sy         is the scaling factor for y-coordinates.
@@ -256,23 +254,23 @@ public:
 	*/
 	virtual void scale(double sx, double sy, bool scaleNodes = true) override;
 
-	//! Translates the layout by (\a dx,\a dy).
+	//! Translates the layout by (\p dx,\p dy).
 	/**
 	* \param dx is the translation in x-direction.
 	* \param dy is the translation in y-direction.
 	*/
 	virtual void translate(double dx, double dy) override;
 
-	//! Flips the (whole) layout vertically such that the part in \a box remains in this area.
+	//! Flips the (whole) layout vertically such that the part in \p box remains in this area.
 	/**
-	* The whole layout is flipped and then moved such that the part that was in \a box before
+	* The whole layout is flipped and then moved such that the part that was in \p box before
 	* flipping is moved to this area.
 	*/
 	virtual void flipVertical(const DRect &box) override;
 
-	//! Flips the (whole) layout horizontally such that the part in \a box remains in this area.
+	//! Flips the (whole) layout horizontally such that the part in \p box remains in this area.
 	/**
-	* The whole layout is flipped and then moved such that the part that was in \a box before
+	* The whole layout is flipped and then moved such that the part that was in \p box before
 	* flipping is moved to this area.
 	*/
 	virtual void flipHorizontal(const DRect &box) override;
@@ -289,7 +287,7 @@ public:
 	//! Updates positions of cluster boundaries wrt to children and child clusters
 	void updateClusterPositions(double boundaryDist = 1.0);
 
-	//! Returns the parent cluster of node \a v.
+	//! Returns the parent cluster of node \p v.
 	cluster clusterOf(node v) { return m_pClusterGraph->clusterOf(v); }
 
 	//@}

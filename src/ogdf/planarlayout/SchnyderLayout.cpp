@@ -32,8 +32,6 @@
 #include <ogdf/planarlayout/SchnyderLayout.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/List.h>
 
 namespace ogdf {
 
@@ -51,38 +49,12 @@ void SchnyderLayout::doCall(
 	// check for double edges & self loops
 	OGDF_ASSERT(isSimple(G));
 
-	// handle special case of graphs with less than 3 nodes
-	if (G.numberOfNodes() < 3) {
-		node v1, v2;
-		switch (G.numberOfNodes()) {
-		case 0:
-			boundingBox = IPoint(0, 0);
-			return;
-
-		case 1:
-			v1 = G.firstNode();
-			gridLayout.x(v1) = gridLayout.y(v1) = 0;
-			boundingBox = IPoint(0, 0);
-			return;
-
-		case 2:
-			v1 = G.firstNode();
-			v2 = G.lastNode();
-			gridLayout.x(v1) = gridLayout.y(v1) = gridLayout.y(v2) = 0;
-			gridLayout.x(v2) = 1;
-			boundingBox = IPoint(1, 0);
-			return;
-		}
-	}
-
 	// make a copy for triangulation
 	GraphCopy GC(G);
 
 	// embed
-	if (!fixEmbedding) {
-		if (planarEmbed(GC) == false) {
-			OGDF_THROW_PARAM(PreconditionViolatedException, pvcPlanar);
-		}
+	if (!fixEmbedding && !planarEmbed(GC)) {
+		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Planar);
 	}
 
 	triangulate(GC);

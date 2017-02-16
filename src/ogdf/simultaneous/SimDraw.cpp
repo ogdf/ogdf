@@ -35,12 +35,11 @@
 
 namespace ogdf {
 
-//*************************************************************
 // default constructor
 SimDraw::SimDraw()
 {
 	m_GA.init(m_G, GraphAttributes::edgeSubGraphs);
-	m_compareBy = index;
+	m_compareBy = CompareBy::index;
 	m_isDummy.init(m_G, false);
 
 } // end constructor
@@ -59,7 +58,6 @@ void SimDraw::writeGML(const char *fileName) const
 }
 
 
-//*************************************************************
 // checks whether node is a proper dummy node
 // proper dummy means that node is marked as dummy and
 // incident edges have at least one common input graph
@@ -78,7 +76,6 @@ bool SimDraw::isProperDummy(node v) const
 } // end isProperDummy
 
 
-//*************************************************************
 // returns number of dummies
 int SimDraw::numberOfDummyNodes() const
 {
@@ -91,7 +88,6 @@ int SimDraw::numberOfDummyNodes() const
 } // end numberOfDummyNodes
 
 
-//*************************************************************
 // returns number of phantom dummies
 int SimDraw::numberOfPhantomDummyNodes() const
 {
@@ -104,7 +100,6 @@ int SimDraw::numberOfPhantomDummyNodes() const
 } // end numberOfProperDummyNodes
 
 
-//*************************************************************
 // returns number of proper dummies
 int SimDraw::numberOfProperDummyNodes() const
 {
@@ -117,7 +112,6 @@ int SimDraw::numberOfProperDummyNodes() const
 } // end numberOfNonProperDummyNodes
 
 
-//*************************************************************
 // checks whether graph and graphattributes belong to each other
 // checks whether all edges have nonzero edgesubgraph value
 // returns true if instance is ok
@@ -133,7 +127,6 @@ bool SimDraw::consistencyCheck() const
 } // end consistencyCheck
 
 
-//*************************************************************
 // calculates maximum number of input graphs
 //
 int SimDraw::maxSubGraph() const
@@ -150,7 +143,6 @@ int SimDraw::maxSubGraph() const
 } // end maxSubGraph
 
 
-//*************************************************************
 //returns number of basic graphs
 //
 int SimDraw::numberOfBasicGraphs() const
@@ -162,7 +154,6 @@ int SimDraw::numberOfBasicGraphs() const
 }//end numberOfBasicGraphs
 
 
-//*************************************************************
 // returns Graph consisting of all edges and nodes from SubGraph i
 //
 const Graph SimDraw::getBasicGraph(int i) const
@@ -189,7 +180,6 @@ const Graph SimDraw::getBasicGraph(int i) const
 }//end getBasicGraph
 
 
-//*************************************************************
 // returns GraphAttributes associated with basic graph i
 //
 void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
@@ -284,9 +274,7 @@ void SimDraw::getBasicGraphAttributes(int i, GraphAttributes &GA, Graph &G)
 }//end getBasicGraphAttributes
 
 
-//*************************************************************
 //adds new GraphAttributes to m_G if maxSubgraph() < 32
-//
 bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 {
 	if(maxSubGraph() >= 31)
@@ -295,7 +283,7 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 #if 0
 	if(compareBy() == label)
 #endif
-	OGDF_ASSERT((compareBy() != label) || m_GA.has(GraphAttributes::edgeLabel));
+	OGDF_ASSERT((compareBy() != CompareBy::label) || m_GA.has(GraphAttributes::edgeLabel));
 
 	int max = numberOfBasicGraphs();
 	bool foundEdge = false;
@@ -332,7 +320,7 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 				t = m_G.newNode(e->target()->index());
 
 			edge d = m_G.newEdge(s, t);
-			if(compareBy() == label)
+			if(compareBy() == CompareBy::label)
 				m_GA.label(d) = GA.label(e);
 
 			m_GA.addSubGraph(d, max);
@@ -343,12 +331,11 @@ bool SimDraw::addGraphAttributes(const GraphAttributes & GA)
 }// end addGraphAttributes
 
 
-//*************************************************************
 //adds the new Graph G to the instance m_G if maxSubGraph < 32
 //and CompareMode = index.
 bool SimDraw::addGraph(const Graph & G)
 {
-	if(compareBy() == label)
+	if(compareBy() == CompareBy::label)
 		return false;
 	else
 	{
@@ -359,15 +346,13 @@ bool SimDraw::addGraph(const Graph & G)
 }//end addGraph
 
 
-//*************************************************************
 //compares two nodes depending on the mode in m_CompareBy
-//
 bool SimDraw::compare(const GraphAttributes & vGA, node v,
 	const GraphAttributes & wGA, node w) const
 {
-	if(m_compareBy == index)
+	if(m_compareBy == CompareBy::index)
 		return compareById(v,w);
-	else if(m_compareBy == label)
+	else if(m_compareBy == CompareBy::label)
 		return compareByLabel(vGA, v, wGA, w);
 	else
 	{

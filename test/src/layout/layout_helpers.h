@@ -1,11 +1,37 @@
-//****************:*****************************************
-//  Test helpers for layout algorithms
-//
-//  Author: Carsten Gutwenger, Tilo Wiedera
-//*********************************************************
-#ifndef LAYOUT_HELPERS_H
-#define LAYOUT_HELPERS_H
+/** \file
+ * \brief Test helpers for layout algorithms
+ *
+ * \author Carsten Gutwenger, Tilo Wiedera
+ *
+ * \par License:
+ * This file is part of the Open Graph Drawing Framework (OGDF).
+ *
+ * \par
+ * Copyright (C)<br>
+ * See README.md in the OGDF root directory for details.
+ *
+ * \par
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 or 3 as published by the Free Software Foundation;
+ * see the file LICENSE.txt included in the packaging of this file
+ * for details.
+ *
+ * \par
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU General Public
+ * License along with this program; if not, see
+ * http://www.gnu.org/copyleft/gpl.html
+ */
 
+#pragma once
+
+#include <set>
 #include <random>
 #include <bandit/bandit.h>
 #include <resources.h>
@@ -16,19 +42,16 @@
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
-#define MAX_NODES 200
-// FIXME: Crashes upon setting MIN_NODES to 0
-//         probably related to planarBiconnectedGraph
-#define MIN_NODES 25
-#define STEP_SIZE 25
-
 namespace ogdf {
 
-enum GraphRequirementFlags {
-	GR_ALL = 0,
-	GR_PLANAR = 1,
-	GR_TRIPLE_CONNECTED = 2,
-	GR_CONNECTED = 4
+constexpr int MAX_NODES = 200;
+constexpr int MIN_NODES = 25;
+constexpr int STEP_SIZE = 50;
+
+enum class GraphRequirement {
+	planar,
+	triconnected,
+	connected
 };
 
 inline void insertGraph(Graph &g, const Graph &g2)
@@ -118,6 +141,16 @@ inline int64_t callLayout(const Graph &G, LayoutModule &L, bool isGridLayout, lo
 	return System::usedRealTime(T);
 }
 
+inline bool doesNotInclude(const std::set<GraphRequirement> &req, std::initializer_list<GraphRequirement> values) {
+	for(auto v : values) {
+		if(req.find(v) != req.end()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 /**
  * Runs several tests for a given layout module.
  * The layout algorithm is executed for different graphs.
@@ -137,122 +170,113 @@ inline int64_t callLayout(const Graph &G, LayoutModule &L, bool isGridLayout, lo
  * 	set this to true if the layout module is a grid layout module
  * \param skipTreeWithProbablyNegativeCoordinates
  *  set this to true if the file negative_coordinates_tree.gml should be skipped
- **/
+ * \param skipMe
+ *  set this to true to skip the entire test
+ */
 inline void describeLayoutModule(
   const std::string name,
   LayoutModule &L,
   long extraAttributes = 0,
-  int req = GR_ALL,
+  std::set<GraphRequirement> req = {},
   int maxNodes = MAX_NODES,
   bool isGridLayout = false,
-  bool skipTreeWithProbablyNegativeCoordinates = false)
+  bool skipMe = false)
 {
-	int steps = (maxNodes - MIN_NODES)/STEP_SIZE;
+	maxNodes = max(maxNodes, MIN_NODES+1);
+	int steps = static_cast<int>(ceil((maxNodes-MIN_NODES) / static_cast<double>(STEP_SIZE)));
+	auto performTest = [&](){
+		auto call = [&](const Graph &G) {
+			return callLayout(G, L, isGridLayout, extraAttributes);
+		};
 
-	bandit::describe(name, [&](){
-		if(!(req & GR_TRIPLE_CONNECTED)) {
+		if(doesNotInclude(req, {GraphRequirement::triconnected})) {
 			bandit::it("works on trees", [&](){
 				int64_t time = 0;
-				int sizes[] = { 38, 50, 63 };
 				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-					for(int i = 0; i < 3; i++) {
-						Graph G;
-						randomTree(G, n);
-						time += callLayout(G, L, isGridLayout, extraAttributes);
-					}
+					Graph G;
+					randomTree(G, n);
+					time += call(G);
 				}
-				cout << endl << "      average time was " << time/steps/(sizeof(sizes)/sizeof(sizes[0])) << "ms" << endl;
+				cout << endl << "      average time was " << time/steps << "ms" << endl;
 			});
 
-			if (!skipTreeWithProbablyNegativeCoordinates) {
-				for_each_graph_it("works on a tree with probably negative coordinates",
-								  { "misc/negative_coordinates_tree.gml" },
-								  [&](Graph &G, const string &filename) {
-									  callLayout(G, L, isGridLayout, extraAttributes);
-								  });
-			}
+			for_each_graph_it("works on a tree with probably negative coordinates",
+			                  { "misc/negative_coordinates_tree.gml" },
+			                  [&](Graph &G, const string &filename) { call(G); });
 
 			bandit::it("works on planar connected graphs", [&](){
 				int64_t time = 0;
-				int sizes[] = { 38, 50, 63 };
 				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-					for(int i = 0; i < 3; i++) {
-						Graph G;
-						planarCNBGraph(G, n, sizes[i], n/25);
-						makeSimpleUndirected(G);
-						time += callLayout(G, L, isGridLayout, extraAttributes);
-					}
+					Graph G;
+					planarConnectedGraph(G, n, randomNumber(n, 2*n));
+					makeSimpleUndirected(G);
+					time += call(G);
 				}
-				cout << endl << "      average time was " << time/steps/(sizeof(sizes)/sizeof(sizes[0])) << "ms" << endl;
+				cout << endl << "      average time was " << time/steps << "ms" << endl;
 			});
 
 			bandit::it("works on planar biconnected graphs", [&](){
 				int64_t time = 0;
 				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
 					Graph G;
-					planarBiconnectedGraph(G, n, 3*n/2);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
-					planarBiconnectedGraph(G, n, 2*n);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
-					planarBiconnectedGraph(G, n, 5*n/2);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
+					planarBiconnectedGraph(G, n, randomNumber(3*n/2, 2*n));
+					time += call(G);
 				}
-				cout << endl << "      average time was " << time/steps/3 << "ms" << endl;
+				cout << endl << "      average time was " << time/steps << "ms" << endl;
 			});
 		}
 
 		bandit::it("works on planar triconnected graphs", [&](){
 			int64_t time = 0;
-			int sizes[] = { 38, 50, 63 };
 			for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
-				for(int i = 0; i < 3; i++) {
-					Graph G;
-					planarTriconnectedGraph(G, n, sizes[i], n/25);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
-				}
+				Graph G;
+				planarTriconnectedGraph(G, n, .5, .5);
+				time += call(G);
 			}
-			cout << endl << "      average time was " << time/steps/(sizeof(sizes)/sizeof(sizes[0])) << "ms" << endl;
+			cout << endl << "      average time was " << time/steps << "ms" << endl;
 		});
 
-		if(!(req & (GR_PLANAR | GR_TRIPLE_CONNECTED))) {
+		if(doesNotInclude(req, {GraphRequirement::planar, GraphRequirement::triconnected})) {
 			bandit::it("works on almost planar graphs", [&](){
 				int64_t time = 0;
 				for(int n = MIN_NODES; n < MAX_NODES; n += STEP_SIZE) {
 					Graph G;
-					createAlmostPlanarGraph(G, n, 3*n/2, 10);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
 					createAlmostPlanarGraph(G, n, 2*n, 10);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
-					createAlmostPlanarGraph(G, n, 5*n/2, 10);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
+					time += call(G);
 				}
-				cout << endl << "      average time was " << time/steps/3 << "ms" << endl;
+				cout << endl << "      average time was " << time/steps << "ms" << endl;
 			});
 
 			bandit::it("works on biconnected graphs", [&](){
 				int64_t time = 0;
 				for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
 					Graph G;
-					randomBiconnectedGraph(G, n, n*(n-1)/2);
+					randomBiconnectedGraph(G, n, n*(n-1)/6);
 					makeSimpleUndirected(G);
-					time += callLayout(G, L, isGridLayout, extraAttributes);
+					time += call(G);
 				}
 				cout << endl << "      average time was " << time/steps << "ms" << endl;
 			});
 
-			if(!(req & GR_CONNECTED)) {
+			if(doesNotInclude(req, {GraphRequirement::connected})) {
 				bandit::it("works on disconnected graphs", [&](){
 					int64_t time = 0;
 					for(int n = MIN_NODES; n < maxNodes; n += STEP_SIZE) {
 						Graph G;
 						createDisconnectedGraph(G, n/7, 1.4, 2.6, 7);
-						time += callLayout(G, L, isGridLayout, extraAttributes);
+						time += call(G);
 					}
 					cout << endl << "      average time was " << time/steps << "ms" << endl;
 				});
 			}
 		}
-	});
+	};
+
+	if(skipMe) {
+		bandit::describe_skip(name, performTest);
+	} else {
+		bandit::describe(name, performTest);
+	}
 }
 
 /**
@@ -274,12 +298,11 @@ inline void describeLayoutModule(
 inline void describeGridLayoutModule(
   const std::string name,
   GridLayoutModule &L,
-  int req = GR_ALL,
-  int maxNodes = MAX_NODES)
+  std::initializer_list<GraphRequirement> req = {},
+  int maxNodes = MAX_NODES,
+  bool skipMe = false)
 {
-	describeLayoutModule(name, L, 0, req, maxNodes, true);
+	describeLayoutModule(name, L, 0, req, maxNodes, true, skipMe);
 }
 
 }
-
-#endif

@@ -97,7 +97,7 @@ private:
 	void restrictNodes(Graph &graph);
 
 	/**
-	* Retuns the node of the transformed graph corresponding to node \a v.
+	* Retuns the node of the transformed graph corresponding to node \p v.
 	*
 	* @param v the original node
 	* @param isSource Whether to return the corresponding source node.
@@ -105,17 +105,16 @@ private:
 	*/
 	node copyOf(node v, bool isSource = false) const;
 
-	public:
-
+public:
 	/**
 	* Initializes a new connectivity tester using ogdf::MaxFlowGoldbergTarjan.
 	*
 	* @param nodeConnectivity Whether to compute node connectivity instead of edge connectivity
 	* @param directed Whether to consider edges to be directed
 	*/
-	ConnectivityTester(bool nodeConnectivity = true, bool directed = false) :
+	explicit ConnectivityTester(bool nodeConnectivity = true, bool directed = false) :
 	  ConnectivityTester(new MaxFlowGoldbergTarjan<int>(), nodeConnectivity, directed) {
-	  m_usingDefaultMaxFlow = true;
+		m_usingDefaultMaxFlow = true;
 	}
 
 	/**
@@ -139,17 +138,15 @@ private:
 	* Destroys the connectivity tester and frees allocated memory.
 	*/
 	~ConnectivityTester() {
-	if (m_usingDefaultMaxFlow) {
-		delete m_flowAlgo;
-	}
+		if (m_usingDefaultMaxFlow) {
+			delete m_flowAlgo;
+		}
 
-	if (m_graphCopied) {
-		delete m_graph;
-	}
+		if (m_graphCopied) {
+			delete m_graph;
+		}
 
-	if(m_source != nullptr) {
 		delete m_source;
-	}
 	}
 
 	/**

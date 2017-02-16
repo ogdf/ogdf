@@ -29,23 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
-
 #include <ogdf/basic/NearestRectangleFinder.h>
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/BoundedStack.h>
-
-#include <cfloat>
-
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// PairCoordId
-// represents a pair of a coordinate (x or y) and the index
-// of a rectangle
-//---------------------------------------------------------
+//! Represents a pair of a coordinate (x or y) and the index of a rectangle
 struct OGDF_EXPORT NearestRectangleFinder::PairCoordId
 {
 	PairCoordId(double coord, int index) {
@@ -65,11 +54,7 @@ struct OGDF_EXPORT NearestRectangleFinder::PairCoordId
 };
 
 
-//---------------------------------------------------------
-// CoordComparer
-// comparer class for sorting PairCoordId according to
-// decreasing coordinate
-//---------------------------------------------------------
+//! Comparer class for sorting PairCoordId according to decreasing coordinate
 class NearestRectangleFinder::CoordComparer
 {
 public:
@@ -85,11 +70,7 @@ public:
 };
 
 
-//---------------------------------------------------------
-// YCoordComparer
-// comparer class for sorting points (given by index) by
-// decreasing y-coordinate
-//---------------------------------------------------------
+//! Comparer class for sorting points (given by index) by decreasing y-coordinate
 class NearestRectangleFinder::YCoordComparer
 {
 public:
@@ -112,10 +93,6 @@ private:
 };
 
 
-
-//---------------------------------------------------------
-// NearestRectangleFinder
-//---------------------------------------------------------
 
 void NearestRectangleFinder::find(
 	const Array<RectRegion> &region,

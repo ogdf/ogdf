@@ -40,18 +40,9 @@
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
 
-// constraints
-//o#include <ogdf/Constraints.h>
-
-
 namespace ogdf {
 
-//
-// ---------- O g m l P a r s e r ------------------------
-//
-
-/**Objects of this class represent a validating parser for files in Ogml.
-*/
+//! Objects of this class represent a validating parser for files in Ogml.
 class OgmlParser
 {
 private:
@@ -193,7 +184,7 @@ private:
 
 	// auxiliary methods for mapping graph attributes
 
-	//! Returns fill pattern of string \a s.
+	//! Returns fill pattern of string \p s.
 	FillPattern getFillPattern(string s);
 
 	//! Returns the shape as an integer value.
@@ -239,7 +230,7 @@ public:
 	~OgmlParser();
 
 
-	//! Reads a graph \a G from file \a fileName in OGML format.
+	//! Reads a graph \p G from istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
 	 * @param G is the graph to be build from the OGML file.
@@ -249,10 +240,10 @@ public:
 		return doRead(is, G, nullptr, nullptr, nullptr);
 	}
 
-	//! Reads a cluster graph \a CG from file \a fileName in OGML format.
+	//! Reads a cluster graph \p CG from istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
-	 * @param G is the graph to be build from the OGML file; must be the graph associated with \a CG.
+	 * @param G is the graph to be build from the OGML file; must be the graph associated with \p CG.
 	 * @param CG is the cluster graph to be build from the OGML file.
 	 * @return true if succesfull, false otherwise.
 	 */
@@ -260,11 +251,11 @@ public:
 		return doRead(is, G, &CG, nullptr, nullptr);
 	}
 
-	//! Reads a cluster graph \a CG with attributes \a CGA from file \a fileName in OGML format.
+	//! Reads a graph \p G with attributes \p GA from istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
 	 * @param G is the graph to be build from the OGML file.
-	 * @param GA are the graph attributes (associated with \a G) in which layout and style information are stored.
+	 * @param GA are the graph attributes (associated with \p G) in which layout and style information are stored.
 	 * @return true if succesfull, false otherwise.
 	 */
 	bool read(
@@ -275,12 +266,12 @@ public:
 		return doRead(is, G, nullptr, &GA, nullptr);
 	}
 
-	//! Reads a cluster graph \a CG with attributes \a CGA from file \a fileName in OGML format.
+	//! Reads a cluster graph \p CG with attributes \p CGA from istream \p is in OGML format.
 	/**
 	 * @param is is the input stream to be parsed as OGML file.
-	 * @param G is the graph to be build from the OGML file; must be the graph associated with \a CG.
+	 * @param G is the graph to be build from the OGML file; must be the graph associated with \p CG.
 	 * @param CG is the cluster graph to be build from the OGML file.
-	 * @param CGA are the cluster graph attributes (associated with \a CG) in which layout and style information are stored.
+	 * @param CGA are the cluster graph attributes (associated with \p CG) in which layout and style information are stored.
 	 * @return true if succesfull, false otherwise.
 	 */
 	bool read(

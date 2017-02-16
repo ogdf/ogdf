@@ -45,12 +45,24 @@ namespace ogdf {
  */
 class AdjacencyOracle {
 public:
-	//! The constructor for the class, needs time O(n + m)
-	AdjacencyOracle(const Graph &G);
+	/**
+	 * The constructor for the class, needs time O(n + m)
+	 *
+	 * Builds a 2D-array indexed by the numbers of vertices.
+	 *
+	 * It uses only the part
+	 * of the matrix left of the diagonal (where the first index is smaller than the
+	 * second. For each pair of vertices, the corresponding entry in the matrix is set true
+	 * if and only if the two vertices are adjacent.
+	 */
+	explicit AdjacencyOracle(const Graph &G);
+
 	//! The destructor
 	~AdjacencyOracle() { }
-	//! This returns true if the two nodes are adjacent in G, false otherwise
+
+	//! Returns true iff two vertices are adjacent.
 	bool adjacent(const node, const node) const;
+
 private:
 	NodeArray<int> m_nodeNum; //!< The internal number given to each node
 	Array2D<bool> m_adjacencyMatrix; //!< A 2D-array where the entry is true if the nodes with the corresponding number are adjacent

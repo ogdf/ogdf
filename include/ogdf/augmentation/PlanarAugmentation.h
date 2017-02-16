@@ -33,7 +33,7 @@
 
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/basic/SList.h>
-#include <ogdf/internal/augmentation/PALabel.h>
+#include <ogdf/augmentation/planar/PALabel.h>
 #include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
@@ -43,7 +43,7 @@ namespace ogdf {
  *
  * @ingroup ga-augment
  *
- * The class \a PlanarAugmentation implements an augmentation algorithm
+ * The class PlanarAugmentation implements an augmentation algorithm
  * that augments a graph to a biconnected graph. In addition, if the graph was
  * planar before augmentation, the resulting graph will be biconnected and
  * planar.
@@ -146,7 +146,7 @@ private:
 	 * 		  root and creates a label or updates one.
 	 *
 	 * \param p is a pendant in the BC-Tree.
-	 * \param labelOld is the old label of \a p.
+	 * \param labelOld is the old label of \p p.
 	 */
 	void reduceChain(node p, pa_label labelOld = nullptr);
 
@@ -159,7 +159,7 @@ private:
 	 * 		  the method.
 	 * \return the stop-cause.
 	 */
-	paStopCause followPath(node v, node& last);
+	PALabel::StopCause followPath(node v, node& last);
 
 	/**
 	 * \brief Checks planarity for a new edge (v1,v2) in the original graph.
@@ -207,7 +207,7 @@ private:
 	void removeAllPendants(pa_label& l);
 
 	/**
-	 * \brief Connects all pendants of label \a l with new edges.
+	 * \brief Connects all pendants of label \p l with new edges.
 	 */
 	void joinPendants(pa_label& l);
 
@@ -224,7 +224,7 @@ private:
 	ListIterator<pa_label> insertLabel(pa_label l);
 
 	/**
-	 * \brief deletes label \a l.
+	 * \brief deletes label \p l.
 	 */
 	void deleteLabel(pa_label& l, bool removePendants = true);
 
@@ -237,7 +237,7 @@ private:
 	/**
 	 * \brief Creates a new label and inserts it into m_labels.
 	 */
-	pa_label newLabel(node cutvertex, node p, paStopCause whyStop);
+	pa_label newLabel(node cutvertex, node p, PALabel::StopCause whyStop);
 
 	/**
 	 * \brief Finds two matching labels, so all pendants can be connected

@@ -78,18 +78,18 @@ public:
 	 */
 	//@{
 
-	//! Tests whether graph \a G is upward planar (using satisfiability).
+	//! Tests whether graph \p G is upward planar (using satisfiability).
 	/**
 	 * \param G is the input graph to be tested.
-	 * \return true if \a G is upward planar, false otherwise.
+	 * \return true if \p G is upward planar, false otherwise.
 	 */
 	static bool isUpwardPlanar(Graph &G);
 
-	//! Tests whether graph \a G is upward planar and embeds the graph by a upward planar embedding if possible (using satisfiability).
+	//! Tests whether graph \p G is upward planar and embeds the graph by a upward planar embedding if possible (using satisfiability).
 	/**
 	 * \param G is the input graph to be embedded if it allows an upward planar embedding.
 	 * \param externalToItsRight indicates the external face (on its right side)
-	 * \return true if \a G is upward planar, false otherwise.
+	 * \return true if \p G is upward planar, false otherwise.
 	 */
 	static bool embedUpwardPlanar(Graph &G, adjEntry& externalToItsRight);
 
@@ -109,16 +109,16 @@ public:
 	 */
 	//@{
 
-	//! Tests whether a biconnected graph \a G is upward planarly embedded.
+	//! Tests whether a biconnected graph \p G is upward planarly embedded.
 	/**
-	 * The fixed embedding of \a G is given by the order of \a G's adjacency lists.
+	 * The fixed embedding of \p G is given by the order of \p G's adjacency lists.
 	 *
 	 * \param G is the input graph to be tested.
-	 * \return true if \a G is upward planarly embedded, false otherwise.
+	 * \return true if \p G is upward planarly embedded, false otherwise.
 	 */
 	static bool isUpwardPlanar_embedded(const Graph &G);
 
-	//! Tests whether a biconnected graph \a G is upward planarly embedded and computes the set of possible external faces.
+	//! Tests whether a biconnected graph \p G is upward planarly embedded and computes the set of possible external faces.
 	static bool isUpwardPlanar_embedded(const Graph &G, List<adjEntry> &possibleExternalFaces);
 
 	//@}
@@ -127,21 +127,21 @@ public:
 	 */
 	//@{
 
-	//! Tests whether the triconnected digraph \a G is upward planar.
+	//! Tests whether the triconnected digraph \p G is upward planar.
 	/**
-	 * \remark If \a G is not triconnected the function returns false.
+	 * \remark If \p G is not triconnected the function returns false.
 	 *
 	 * \param G is the (triconnected) input digraph.
-	 * \return true if \a G was triconnected and upward planar, false otherwise.
+	 * \return true if \p G was triconnected and upward planar, false otherwise.
 	 */
 	static bool isUpwardPlanar_triconnected(const Graph &G);
 
-	//! Upward planarly embeds the triconnected digraph \a G.
+	//! Upward planarly embeds the triconnected digraph \p G.
 	/**
-	 * \remark If \a G is not triconnected the function returns false.
+	 * \remark If \p G is not triconnected the function returns false.
 	 *
 	 * \param G is the (triconnected) input digraph.
-	 * \return true if \a G was triconnected and upward planar, false otherwise.
+	 * \return true if \p G was triconnected and upward planar, false otherwise.
 	 */
 	static bool upwardPlanarEmbed_triconnected(Graph &G);
 
@@ -152,47 +152,47 @@ public:
 	 */
 	//@{
 
-	//! Tests whether the single-source digraph \a G is upward planar.
+	//! Tests whether the single-source digraph \p G is upward planar.
 	/**
-	 * \remark If \a G is not single-source the function returns false.
+	 * \remark If \p G is not single-source the function returns false.
 	 *
 	 * \param G is the (single-source) input digraph.
-	 * \return true if \a G was single-source and upward planar, false otherwise.
+	 * \return true if \p G was single-source and upward planar, false otherwise.
 	 */
 	static bool isUpwardPlanar_singleSource(const Graph &G);
 
-	//! Upward planarly embeds the single-source digraph \a G.
+	//! Upward planarly embeds the single-source digraph \p G.
 	/**
-	 * \remark If \a G is not single-source the function returns false.
+	 * \remark If \p G is not single-source the function returns false.
 	 *
 	 * \param G is the (single-source) input digraph.
-	 * \return true if \a G was single-source and upward planar, false otherwise.
+	 * \return true if \p G was single-source and upward planar, false otherwise.
 	 */
 	static bool upwardPlanarEmbed_singleSource(Graph &G);
 
-	//! Tests whether single-source digraph \a G is upward planar, and if yes augments it to a planar st-digraph.
+	//! Tests whether single-source digraph \p G is upward planar, and if yes augments it to a planar st-digraph.
 	/**
-	 * \remark If \a G is not single-source the function returns false.
+	 * \remark If \p G is not single-source the function returns false.
 	 *
-	 * If \a G is upward planar, this method adds a super sink node \a t and adds further edges such that the
+	 * If \p G is upward planar, this method adds a super sink node \a t and adds further edges such that the
 	 * resulting digraph is a planar st-digraph.
 	 *
 	 * \param G is the input digraph which gets augmented.
-	 * \return true if \a G is single-source and upward planar, false otherwise.
+	 * \return true if \p G is single-source and upward planar, false otherwise.
 	 */
 	static bool upwardPlanarAugment_singleSource(Graph &G);
 
-	//! Tests whether single-source digraph \a G is upward planar, and if yes augments it to a planar st-digraph.
+	//! Tests whether single-source digraph \p G is upward planar, and if yes augments it to a planar st-digraph.
 	/**
-	 * \remark If \a G is not single-source the function returns false.
+	 * \remark If \p G is not single-source the function returns false.
 	 *
-	 * If \a G is upward planar, this method adds a super sink node \a t and adds further edges such that the
+	 * If \p G is upward planar, this method adds a super sink node \p superSink and adds further edges such that the
 	 * resulting digraph is a planar st-digraph.
 	 *
 	 * \param G              is the input digraph which gets augmented.
 	 * \param superSink      is assigned the inserted super sink node.
 	 * \param augmentedEdges is assigned the list of inserted edges.
-	 * \return true if \a G is single-source and upward planar, false otherwise.
+	 * \return true if \p G is single-source and upward planar, false otherwise.
 	 */
 	static bool upwardPlanarAugment_singleSource(
 		Graph &G,
@@ -200,22 +200,22 @@ public:
 		SList<edge> &augmentedEdges);
 
 
-	//! Tests whether the embedding \a E of a single-source digraph is upward planar.
+	//! Tests whether the embedding \p E of a single-source digraph is upward planar.
 	/**
 	 * \param E             is the given combinatorial embedding to be tested.
-	 * \param externalFaces is assigned the list of possible external faces such that \a E is upward planar.
-	 * \return true if \a E is upward planar, false otherwise.
+	 * \param externalFaces is assigned the list of possible external faces such that \p E is upward planar.
+	 * \return true if \p E is upward planar, false otherwise.
 	 */
 	static bool isUpwardPlanar_singleSource_embedded(
 		const ConstCombinatorialEmbedding &E,
 		SList<face> &externalFaces);
 
-	//! Tests if \a single-source digraph G is upward planarly embedded and augments it to a planar st-digraph.
+	//! Tests if single-source digraph \p G is upward planarly embedded and augments it to a planar st-digraph.
 	/**
 	 * \param G              is the embedded input graph.
 	 * \param superSink      is assigned the added super sink.
 	 * \param augmentedEdges is assigned the list of added edges.
-	 * \return true if \a G is upward planarly embedded (in this case \a G is also augmented by adding a
+	 * \return true if \p G is upward planarly embedded (in this case \p G is also augmented by adding a
 	 *         super sink and additional edges), false otherwise.
 	 */
 	static bool upwardPlanarAugment_singleSource_embedded(

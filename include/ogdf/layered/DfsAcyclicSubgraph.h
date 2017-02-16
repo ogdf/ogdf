@@ -42,12 +42,12 @@ namespace ogdf {
  */
 class OGDF_EXPORT DfsAcyclicSubgraph : public AcyclicSubgraphModule {
 public:
-	//! Computes the set of edges \a arcSet, which have to be deleted in the acyclic subgraph.
+	//! Computes the set of edges \p arcSet, which have to be deleted in the acyclic subgraph.
 	virtual void call (const Graph &G, List<edge> &arcSet) override;
 
 	//! Call for UML graph.
 	/**
-	 * Computes the set of edges \a arcSet, which have to be deleted
+	 * Computes the set of edges \p arcSet, which have to be deleted
 	 * in the acyclic subgraph.
 	 */
 	void callUML (const GraphAttributes &AG, List<edge> &arcSet);

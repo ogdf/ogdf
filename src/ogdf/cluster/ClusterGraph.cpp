@@ -33,7 +33,6 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/cluster/ClusterGraph.h>
 #include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/cluster/ClusterGraphObserver.h>
@@ -44,14 +43,9 @@ using std::mutex;
 using std::lock_guard;
 #endif
 
-
 namespace ogdf {
 
 #define MIN_CLUSTER_TABLE_SIZE (1 << 4)
-
-//---------------------------------------------------------
-// ClusterElement
-//---------------------------------------------------------
 
 void ClusterElement::getClusterInducedNodes(List<node> &clusterNodes)
 {
@@ -73,10 +67,6 @@ void ClusterElement::getClusterInducedNodes(NodeArray<bool> &clusterNode, int& n
 		c->getClusterInducedNodes(clusterNode, num);
 }
 
-
-//---------------------------------------------------------
-// Construction
-//---------------------------------------------------------
 
 ClusterGraph::ClusterGraph() : m_pGraph(nullptr)
 {
@@ -233,10 +223,6 @@ void ClusterGraph::init(const Graph &G)
 }
 
 
-//---------------------------------------------------------
-// =
-//---------------------------------------------------------
-
 ClusterGraph &ClusterGraph::operator=(const ClusterGraph &C)
 {
 	doClear();
@@ -244,14 +230,10 @@ ClusterGraph &ClusterGraph::operator=(const ClusterGraph &C)
 	m_clusterArrayTableSize = C.m_clusterArrayTableSize;
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 	return *this;
 }
 
-
-//---------------------------------------------------------
-// copy,initGraph
-//---------------------------------------------------------
 
 // Copy Function
 void ClusterGraph::shallowCopy(const ClusterGraph &C)
@@ -333,7 +315,7 @@ void ClusterGraph::reinitGraph(const Graph &G)
 {
 	m_pGraph = &G;
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, G.consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, G.consistencyCheck());
 
 	m_clusterArrayTableSize = G.nextPower2(MIN_CLUSTER_TABLE_SIZE, G.nodeArrayTableSize());
 
@@ -437,12 +419,9 @@ void ClusterGraph::deepCopy(
 	for(node v : G.nodes)
 		reassignNode(v,originalClusterTable[C.clusterOf(orig[v])]);
 
-	copyLCA(C, &originalClusterTable);
+	copyLCA(C);
 }
 
-
-//*********************************************************
-//cluster search
 
 //We search for the lowest common cluster of a set of nodes.
 //We first compute the common path of two nodes, then update path if root
@@ -674,15 +653,14 @@ cluster ClusterGraph::commonClusterAncestorsPath(
 
 
 void ClusterGraph::copyLCA(
-	const ClusterGraph &C,
-	ClusterArray<cluster>* clusterCopy)
+	const ClusterGraph &C)
 {
 	if (m_lcaSearch)
 	{
 		delete m_lcaSearch;
 		delete m_vAncestor;
 		delete m_wAncestor;
-	}//if
+	}
 	if (C.m_lcaSearch)
 	{
 		//otherwise, initialization won't work
@@ -693,39 +671,20 @@ void ClusterGraph::copyLCA(
 		m_vAncestor = new ClusterArray<cluster>(*this, nullptr);
 		m_wAncestor = new ClusterArray<cluster>(*this, nullptr);
 		//setting of clusters is not necessary!
-#if 0
-		(*m_v/wAncestor)[(*clusterCopy)[c]]= (*(C.m_v/wAncestor))[c];
-#endif
-	}//if
-}//copylca
+	}
+}
 
 
-//---------------------------------------------------------
 // check the graph for empty clusters
-//---------------------------------------------------------
-
 // we never set rootcluster to be one of the empty clusters!!
 void ClusterGraph::emptyClusters(
 	SList<cluster>& emptyCluster,
 	SList<cluster>* checkCluster)
 {
-	emptyCluster.clear();
-
 	if (checkCluster) {
-
-		for (cluster cc : *checkCluster) {
-			if (cc->cCount() + cc->nCount() == 0)
-				if (cc != rootCluster()) //we dont add rootcluster
-					emptyCluster.pushBack(cc);
-		}
-
+		fillEmptyClusters(emptyCluster, *checkCluster);
 	} else {
-
-		for (cluster cc : clusters) {
-			if (cc->cCount() + cc->nCount() == 0)
-				if (cc != rootCluster()) //we dont add rootcluster
-					emptyCluster.pushBack(cc);
-		}
+		fillEmptyClusters(emptyCluster, clusters);
 	}
 
 	// other clusters can get empty, too, if we delete these
@@ -753,10 +712,6 @@ void ClusterGraph::emptyClusters(
 
 }//emptyClusters
 
-
-//---------------------------------------------------------
-// newCluster, delCluster, createCluster
-//---------------------------------------------------------
 
 // Inserts a new cluster prescribing its parent
 cluster ClusterGraph::newCluster(cluster parent, int id)
@@ -1006,10 +961,6 @@ void ClusterGraph::pullUpSubTree(cluster c)
 }
 
 
-//---------------------------------------------------------
-// clear, clearClusterTree
-//---------------------------------------------------------
-
 void ClusterGraph::doClear()
 {
 	//split condition
@@ -1166,13 +1117,6 @@ void ClusterGraph::moveCluster(cluster c, cluster newParent)
 	if (descendant && (c->nCount() == 0))
 		return;
 
-	// save postorder for old parent
-	bool newOrder = false;
-	if (!m_postOrderStart)
-	{
-		newOrder = true;
-	}
-
 	//temporarily only recompute postorder for all clusters
 
 	oldParent->children.del(c->m_it);
@@ -1218,8 +1162,7 @@ void ClusterGraph::moveCluster(cluster c, cluster newParent)
 	// update postorder for new parent
 	// we only recompute postorder for all clusters
 	// because of special cases like move to descendant...
-	if (newOrder) postOrder();
-	else postOrder();
+	postOrder();
 
 	m_adjAvailable = false;
 
@@ -1228,9 +1171,6 @@ void ClusterGraph::moveCluster(cluster c, cluster newParent)
 #endif
 }//move cluster
 
-
-//*****************
-//postorder updates
 
 //leftmostcluster in subtree rooted at c, has postorderpred for subtree
 cluster ClusterGraph::leftMostCluster(cluster c) const
@@ -1298,7 +1238,6 @@ void ClusterGraph::nodeDeleted(node v)
 }
 
 
-//***************
 //node assignment
 //Assigns a node to a new cluster
 void ClusterGraph::assignNode(node v, cluster c)
@@ -1335,10 +1274,6 @@ void ClusterGraph::unassignNode(node v)
 }
 
 
-//---------------------------------------------------------
-// Sort clusters in post order
-//---------------------------------------------------------
-
 // Start function for post order
 void ClusterGraph::postOrder() const
 {
@@ -1361,9 +1296,9 @@ void ClusterGraph::postOrder() const
 		m_postOrderStart->m_pNext = nullptr;
 
 #ifdef OGDF_DEBUG
-	for(cluster c : clusters) {
-		cluster cp = leftMostCluster(c);
-		OGDF_ASSERT(cp->pPred() == postOrderPredecessor(c));
+	for(cluster cl : clusters) {
+		cluster cp = leftMostCluster(cl);
+		OGDF_ASSERT(cp->pPred() == postOrderPredecessor(cl));
 	}
 #endif
 }
@@ -1404,12 +1339,6 @@ void ClusterGraph::postOrder(cluster c, SListPure<cluster> &L) const
 }
 
 
-
-//---------------------------------------------------------
-// Methods for debugging
-//---------------------------------------------------------
-
-
 // checks the consistency of the data structure
 // (for debugging only)
 bool ClusterGraph::consistencyCheck() const
@@ -1429,8 +1358,8 @@ bool ClusterGraph::consistencyCheck() const
 		}
 	}
 
-	for (cluster c : clusters)
-		if (!visitedClusters[c])
+	for (cluster cl : clusters)
+		if (!visitedClusters[cl])
 			return false;
 
 	for (node v : m_pGraph->nodes)
@@ -1453,7 +1382,7 @@ bool ClusterGraph::representsCombEmbedding() const
 	forall_postOrderClusters(c,(*this))
 	{
 #ifdef OGDF_DEBUG
-		if (int(ogdf::debugLevel) >= int(dlHeavyChecks)){
+		if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
 			cout << "__________________________________________________________________"
 				<< endl << endl
 				<< "Testing cluster " << c << endl
@@ -1471,7 +1400,7 @@ bool ClusterGraph::representsCombEmbedding() const
 			adjEntry start = *it;
 
 #ifdef OGDF_DEBUG
-			if (int(ogdf::debugLevel) >= int(dlHeavyChecks)){
+			if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
 				cout << "firstAdj " << start << endl; }
 #endif
 
@@ -1489,7 +1418,7 @@ bool ClusterGraph::representsCombEmbedding() const
 					succAdj = start;  // reached the last outgoing edge
 
 #ifdef OGDF_DEBUG
-				if (int(ogdf::debugLevel) >= int(dlHeavyChecks)){
+				if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
 					cout << "Check next " << endl;
 					cout << "current in adj list of" << adj << endl;
 					cout << "succ in adj list of c " << succAdj << endl;
@@ -1506,7 +1435,7 @@ bool ClusterGraph::representsCombEmbedding() const
 					adjEntry twin = next->twin();
 
 #ifdef OGDF_DEBUG
-					if (int(ogdf::debugLevel) >= int(dlHeavyChecks)){
+					if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
 						cout << "Running along the outer face ... " << endl;
 						cout << "next adj " << next << endl;
 						cout << "twin adj " << twin << endl;
@@ -1521,7 +1450,7 @@ bool ClusterGraph::representsCombEmbedding() const
 						next = twin->cyclicSucc();
 						twin = next->twin();
 #ifdef OGDF_DEBUG
-						if (int(ogdf::debugLevel) >= int(dlHeavyChecks)){
+						if (debugLevelIsAtLeast(DebugLevel::HeavyChecks)){
 							cout << "Running along the outer face ... " << endl;
 							cout << "next adj " << next << endl;
 							cout << "twin adj " << twin << endl;
@@ -1595,11 +1524,9 @@ void ClusterGraph::unregisterObserver(ListIterator<ClusterGraphObserver*> it) co
 	m_regObservers.del(it);
 }
 
-
 } // end namespace ogdf
 
 
-//****************************************************************
 ogdf::ostream &operator<<(ogdf::ostream &os, ogdf::cluster c)
 {
 	if (c) os << c->index(); else os << "nil";

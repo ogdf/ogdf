@@ -51,7 +51,7 @@ private:
 	bool m_initialized;
 
 	int m_nodes;
-	enum { fullmatrix, edgelist, nodelist } m_format;
+	enum class Format { FullMatrix, EdgeList, NodeList } m_format;
 	bool m_embedded;
 
 	std::vector<node> m_nodeId; // For constant-time index to node mapping.
@@ -78,7 +78,7 @@ private:
 
 	bool readMatrix(Graph &G, GraphAttributes *GA);
 	bool readEdgeList(Graph &G, GraphAttributes *GA);
-	bool readNodeList(Graph &G, GraphAttributes *GA);
+	bool readNodeList(Graph &G);
 	bool readEmbeddedMatrix(Graph &G, GraphAttributes *GA);
 	bool readEmbeddedEdgeList(Graph &G, GraphAttributes *GA);
 	bool readEmbeddedNodeList(Graph &G, GraphAttributes *GA);
@@ -93,7 +93,7 @@ private:
 	bool readGraph(Graph &G, GraphAttributes *GA);
 
 public:
-	DLParser(std::istream &is);
+	explicit DLParser(std::istream &is);
 
 	bool read(Graph &G) {
 		return readGraph(G, nullptr);

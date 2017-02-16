@@ -61,14 +61,14 @@ public:
 	  , m_spreadProbability(0.8)
 	  , m_pG(nullptr)
 	  , m_pGC(nullptr)
-	  , m_sns(snsMaxDeg)
+	  , m_sns(StartNodeStrategy::MaxDeg)
 	{
 	}
 
 	~ModifiedNibbleClusterer()
 	{
 #if 0
-		if (m_pGC != nullptr) delete m_pGC;
+		delete m_pGC;
 #endif
 	}
 
@@ -99,7 +99,7 @@ public:
 		}
 	}
 
-	enum StartNodeStrategy {snsMinDeg, snsMaxDeg, snsRandom};
+	enum class StartNodeStrategy {MinDeg, MaxDeg, Random};
 
 protected:
 	void initialize(); //1< Initialize values for calculation before first step

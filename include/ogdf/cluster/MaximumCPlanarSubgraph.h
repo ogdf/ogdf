@@ -37,7 +37,7 @@
 
 #include <ogdf/module/CPlanarSubgraphModule.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/internal/cluster/MaxCPlanar_Master.h>
+#include <ogdf/cluster/internal/MaxCPlanarMaster.h>
 
 #include <ogdf/external/abacus.h>
 
@@ -53,37 +53,40 @@ namespace ogdf {
 class OGDF_EXPORT MaximumCPlanarSubgraph : public CPlanarSubgraphModule
 {
 public:
+	using NodePairs = List<NodePair>;
+	using MaxCPlanarMaster = cluster_planarity::MaxCPlanarMaster;
+
 	//! Construction
 	MaximumCPlanarSubgraph() : m_heuristicLevel(1),
-							   m_heuristicRuns(1),
-							   m_heuristicOEdgeBound(0.4),
-							   m_heuristicNPermLists(5),
-							   m_kuratowskiIterations(10),
-							   m_subdivisions(10),
-							   m_kSupportGraphs(10),
-							   m_kuratowskiHigh(0.8),
-							   m_kuratowskiLow(0.8),
-							   m_perturbation(false),
-							   m_branchingGap(0.4),
-							   m_time("00:20:00"),
-							   m_pricing(false),
-							   m_checkCPlanar(false),
-							   m_numAddVariables(15),
-							   m_strongConstraintViolation(0.3),
-							   m_strongVariableViolation(0.3),
-							   m_totalTime(-1.0),
-							   m_heurTime(-1.0),
-							   m_lpTime(-1.0),
-							   m_lpSolverTime(-1.0),
-							   m_sepTime(-1.0),
-							   m_totalWTime(-1.0),
-							   m_numCCons(-1),
-							   m_numKCons(-1),
-							   m_numLPs(-1),
-							   m_numBCs(-1),
-							   m_numSubSelected(-1),
-							   m_portaOutput(false),
-							   m_defaultCutPool(true) {}
+	                           m_heuristicRuns(1),
+	                           m_heuristicOEdgeBound(0.4),
+	                           m_heuristicNPermLists(5),
+	                           m_kuratowskiIterations(10),
+	                           m_subdivisions(10),
+	                           m_kSupportGraphs(10),
+	                           m_kuratowskiHigh(0.8),
+	                           m_kuratowskiLow(0.8),
+	                           m_perturbation(false),
+	                           m_branchingGap(0.4),
+	                           m_time("00:20:00"),
+	                           m_pricing(false),
+	                           m_checkCPlanar(false),
+	                           m_numAddVariables(15),
+	                           m_strongConstraintViolation(0.3),
+	                           m_strongVariableViolation(0.3),
+	                           m_totalTime(-1.0),
+	                           m_heurTime(-1.0),
+	                           m_lpTime(-1.0),
+	                           m_lpSolverTime(-1.0),
+	                           m_sepTime(-1.0),
+	                           m_totalWTime(-1.0),
+	                           m_numCCons(-1),
+	                           m_numKCons(-1),
+	                           m_numLPs(-1),
+	                           m_numBCs(-1),
+	                           m_numSubSelected(-1),
+	                           m_portaOutput(false),
+	                           m_defaultCutPool(true) {}
 	//destruction
 	~MaximumCPlanarSubgraph() {}
 
@@ -105,7 +108,7 @@ public:
 			const ClusterGraph &G,
 			const EdgeArray<int> *pCost,
 			List<edge> &delEdges,
-			List<nodePair> &addedEdges) {
+			NodePairs &addedEdges) {
 		return doCall(G, pCost, delEdges, addedEdges);
 	}
 	//setter methods for the  module parameters
@@ -183,7 +186,7 @@ protected:
 		const EdgeArray<int> *pCost,
 		List<edge> &delEdges) override
 	{
-		List<nodePair> addEdges;
+		NodePairs addEdges;
 		return doCall(G, pCost, delEdges, addEdges);
 	}
 
@@ -194,7 +197,7 @@ protected:
 			const ClusterGraph &G,
 			const EdgeArray<int> *pCost,
 			List<edge> &delEdges,
-			List<nodePair> &addedEdges);
+			NodePairs &addedEdges);
 
 	double getDoubleTime(const Stopwatch &act)
 	{

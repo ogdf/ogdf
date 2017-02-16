@@ -155,7 +155,7 @@ public:
 	 */
 	void sense(CSense::SENSE s) { sense_.sense(s); }
 
-	//! Copies row \ row.
+	//! Copies \p row.
 	/**
 	 * Behaves like an assignment operator, however, the maximal number of
 	 * the elements of this row only has to be at least the number of nonzeros of \a row.

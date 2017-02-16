@@ -31,10 +31,7 @@
 
 
 #include <ogdf/uml/PlanRepUML.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/basic/Layout.h>
 #include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/basic/tuples.h>
 
 
 namespace ogdf {
@@ -87,19 +84,14 @@ void PlanRepUML::initCC(int i)
 }//initCC
 
 
-//--------------------------------
-//expand nodes
-//--------------------------------
 void PlanRepUML::expand(bool lowDegreeExpand)
 {
 	OGDF_ASSERT(representsCombEmbedding());
 
 	for(node v : nodes)
 	{
-		//-------------------------------------------------
 		// Replace merge vertices by cages.
-		//-------------------------------------------------
-		if (typeOf(v) == Graph::generalizationMerger)
+		if (typeOf(v) == Graph::NodeType::generalizationMerger)
 		{
 			// Scan the list of edges of v to find the outgoing edge of v
 			// Get then the cirular list of ingoing edges corresponding to
@@ -108,7 +100,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			bool detect = false;
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
-				OGDF_ASSERT(typeOf(e) == Graph::generalization);
+				OGDF_ASSERT(typeOf(e) == Graph::EdgeType::generalization);
 				if (e->target() != v)
 				{
 					detect = true;
@@ -131,7 +123,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			for (int i = 0; i < v->degree()-1; i++)
 			{
 				node u = newNode();
-				typeOf(u) = Graph::generalizationExpander;
+				typeOf(u) = Graph::NodeType::generalizationExpander;
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
@@ -151,7 +143,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			{
 				// all edges in the list inGens must be ingoing generalizations of v
 				OGDF_ASSERT((*it)->target() == v);
-				OGDF_ASSERT(typeOf(*it) == Graph::generalization);
+				OGDF_ASSERT(typeOf(*it) == Graph::EdgeType::generalization);
 				OGDF_ASSERT(itn.valid());
 
 				moveTarget(*it,*itn);
@@ -185,14 +177,12 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			OGDF_ASSERT(representsCombEmbedding());
 		}
 
-		//-------------------------------------------------
 		// Replace vertices with high degree by cages and
 		// replace degree 4 vertices with two generalizations
 		// adjacent in the embedding list by a cage.
-		//-------------------------------------------------
-		else if (v->degree() >= 4  &&
-				 typeOf(v) != Graph::dummy &&
-				 !lowDegreeExpand)
+		else if (v->degree() >= 4 &&
+		         typeOf(v) != Graph::NodeType::dummy &&
+		         !lowDegreeExpand)
 		{
 			// Check first how many generalizations there are.
 			// If the node has degree 4 and at most one generalization
@@ -200,9 +190,9 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			int detect = 0;
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
-				if (!detect && typeOf(e) == Graph::generalization)
+				if (!detect && typeOf(e) == Graph::EdgeType::generalization)
 					detect = 1;
-				else if (typeOf(e) == Graph::generalization)
+				else if (typeOf(e) == Graph::EdgeType::generalization)
 					detect = 2;
 			}
 			if (v->degree() == 4 && detect < 2)
@@ -215,7 +205,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 
 			//Set the type of the node v. It remains in the graph
 			// as one of the nodes of the expanded face.
-			typeOf(v) = Graph::highDegreeExpander;
+			typeOf(v) = Graph::NodeType::highDegreeExpander;
 
 			// Scann the list of edges of v to find the adjacent edges of v
 			// according to the planar embedding. All except one edge
@@ -232,14 +222,14 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			edge e = adjEdges.popFrontRet();
 
 			//super sink check: don't use sink generalization, as the node may be deleted
-			while (typeOf(e) == Graph::generalization)
+			while (typeOf(e) == Graph::EdgeType::generalization)
 			{
 				adjEdges.pushBack(e);
 				e = adjEdges.popFrontRet();
 			}
 			//check end
 
-			if (typeOf(e) == Graph::generalization)
+			if (typeOf(e) == Graph::EdgeType::generalization)
 				genNodes.pushBack(v);
 
 			// The node has maximum two generalization edges.
@@ -254,7 +244,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			for (int i = 0; i < v->degree()-1; i++)
 			{
 				node u = newNode();
-				typeOf(u) = Graph::highDegreeExpander;
+				typeOf(u) = Graph::NodeType::highDegreeExpander;
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
@@ -277,7 +267,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				OGDF_ASSERT(itn.valid());
 
 				// Check if edge is a generalization
-				if (typeOf((*it)) == Graph::generalization)
+				if (typeOf((*it)) == Graph::EdgeType::generalization)
 					genNodes.pushBack(*itn);
 
 				if ((*it)->source() == v)
@@ -293,7 +283,6 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			// There may be at most two generalizations adjacent to v.
 			OGDF_ASSERT(genNodes.size() <= 2);
 
-			//---------------------------------------------
 			// Now introduce the circular list of new edges
 			// forming the border of the merge face. Keep the embedding.
 			adjEntry adjPrev = v->firstAdj();
@@ -306,7 +295,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				setExpansion(e);
 				setAssociation(e);
 
-				typeOf(e) = association; //???
+				typeOf(e) = EdgeType::association; //???
 
 				if (!expandAdj(v))
 					expandAdj(v) = e->adjSource();
@@ -315,7 +304,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 
 			e = newEdge(adjPrev,v->lastAdj());
 
-			typeOf(e) = association; //???
+			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);//can be removed if edgetypes work properly
 			setAssociation(e);
 
@@ -332,9 +321,9 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 		}
 
 		// Replace all vertices with degree > 2 by cages.
-		else if (v->degree() >= 2  &&
-				 typeOf(v) != Graph::dummy &&
-				 lowDegreeExpand)
+		else if (v->degree() >= 2 &&
+		         typeOf(v) != Graph::NodeType::dummy &&
+		         lowDegreeExpand)
 		{
 			// Check first how many generalizations there are.
 			// If the node has degree 4 and at most one generalization
@@ -342,9 +331,9 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			int detect = 0;
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
-				if (!detect && typeOf(e) == Graph::generalization)
+				if (!detect && typeOf(e) == Graph::EdgeType::generalization)
 					detect = 1;
-				else if (typeOf(e) == Graph::generalization)
+				else if (typeOf(e) == Graph::EdgeType::generalization)
 					detect = 2;
 			}
 #if 0
@@ -359,7 +348,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 
 			//Set the type of the node v. It remains in the graph
 			// as one of the nodes of the expanded face.
-			typeOf(v) = Graph::highDegreeExpander;
+			typeOf(v) = Graph::NodeType::highDegreeExpander;
 
 			// Scan the list of edges of v to find the adjacent edges of v
 			// according to the planar embedding. All except one edge
@@ -374,7 +363,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			//The first edge remains at v. remove it from the list.
 			// Check if it is a generalization.
 			edge e = adjEdges.popFrontRet();
-			if (typeOf(e) == Graph::generalization)
+			if (typeOf(e) == Graph::EdgeType::generalization)
 					genNodes.pushBack(v);
 
 			// The node has maximum two generalization edges.
@@ -388,7 +377,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			for (int i = 0; i < v->degree()-1; i++)
 			{
 				node u = newNode();
-				typeOf(u) = Graph::highDegreeExpander;
+				typeOf(u) = Graph::NodeType::highDegreeExpander;
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
@@ -412,7 +401,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				OGDF_ASSERT(itn.valid());
 
 				// Check if edge is a generalization
-				if (typeOf((*it)) == Graph::generalization)
+				if (typeOf((*it)) == Graph::EdgeType::generalization)
 					genNodes.pushBack(*itn);
 
 				if ((*it)->source() == v)
@@ -436,7 +425,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			{
 				e = newEdge(adjPrev,(*itn)->firstAdj());
 				if (!expandAdj(v)) expandAdj(v) = e->adjSource();
-				typeOf(e) = association; //???
+				typeOf(e) = EdgeType::association; //???
 				setExpansionEdge(e, 2);
 
 				//new types
@@ -446,7 +435,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 				adjPrev = (*itn)->firstAdj();
 			}
 			e = newEdge(adjPrev,v->lastAdj());
-			typeOf(e) = association; //???
+			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);
 
 
@@ -459,7 +448,7 @@ void PlanRepUML::expand(bool lowDegreeExpand)
 			}
 
 			OGDF_ASSERT(representsCombEmbedding());
-		 }
+		}
 	}
 }
 
@@ -488,7 +477,7 @@ void PlanRepUML::expandLowDegreeVertices(OrthoRep &OR, bool alignSmallDegree)
 				u = newNode();
 
 			setExpandedNode(u, v);
-			typeOf(u) = Graph::lowDegreeExpander;
+			typeOf(u) = Graph::NodeType::lowDegreeExpander;
 			expander.pushBack(Tuple2<node,int>(u,OR.angle(adj)));
 			firstTime = false;
 		}
@@ -520,28 +509,28 @@ void PlanRepUML::expandLowDegreeVertices(OrthoRep &OR, bool alignSmallDegree)
 		{
 			e = newEdge(adjPrev,(*itn).x1()->firstAdj());
 
-			OR.bend(e->adjSource()).set(convexBend,nBends);
-			OR.bend(e->adjTarget()).set(reflexBend,nBends);
+			OR.bend(e->adjSource()).set(OrthoBendType::convexBend,nBends);
+			OR.bend(e->adjTarget()).set(OrthoBendType::reflexBend,nBends);
 			OR.angle(adjPrev) = 1;
 			OR.angle(e->adjSource()) = 2;
 			OR.angle(e->adjTarget()) = 1;
 
 			nBends = (*itn).x2();
 
-			typeOf(e) = association; //???
+			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);
 
 			adjPrev = (*itn).x1()->firstAdj();
 		}
 
 		e = newEdge(adjPrev,v->lastAdj());
-		typeOf(e) = association; //???
+		typeOf(e) = EdgeType::association; //???
 		setExpansionEdge(e, 2);
 
 		expandAdj(v) = e->adjSource();
 
-		OR.bend(e->adjSource()).set(convexBend,nBends);
-		OR.bend(e->adjTarget()).set(reflexBend,nBends);
+		OR.bend(e->adjSource()).set(OrthoBendType::convexBend,nBends);
+		OR.bend(e->adjTarget()).set(OrthoBendType::reflexBend,nBends);
 		OR.angle(adjPrev) = 1;
 		OR.angle(e->adjSource()) = 2;
 		OR.angle(e->adjTarget()) = 1;
@@ -551,7 +540,7 @@ void PlanRepUML::expandLowDegreeVertices(OrthoRep &OR, bool alignSmallDegree)
 			node vOpp = e->source();
 			if (vOpp == v) vOpp = e->target(); //only one case necessary
 			edge eAlign = newEdge(vOpp->lastAdj(), vOpp->lastAdj()->faceCycleSucc());
-			typeOf(eAlign) = association;
+			typeOf(eAlign) = EdgeType::association;
 			OR.angle(eAlign->adjSource()) = 1;
 			OR.angle(eAlign->adjTarget()) = 1;
 			OR.angle(eAlign->adjSource()->faceCycleSucc()) = 1;
@@ -568,8 +557,8 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 		const OrthoRep::VertexInfoUML *vi = OR.cageInfo(v);
 
 		if(vi == nullptr ||
-			(typeOf(v) != Graph::highDegreeExpander &&
-			typeOf(v) != Graph::lowDegreeExpander))
+			(typeOf(v) != Graph::NodeType::highDegreeExpander &&
+			typeOf(v) != Graph::NodeType::lowDegreeExpander))
 			continue;
 
 		node vOrig = original(v);
@@ -580,9 +569,9 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 		m_vCopy[vOrig] = vCenter;
 		m_vOrig[v] = nullptr;
 
-		node lowerLeft  = vi->m_corner[odNorth]->theNode();
-		node lowerRight = vi->m_corner[odWest ]->theNode();
-		node upperLeft  = vi->m_corner[odEast ]->theNode();
+		node lowerLeft  = vi->m_corner[static_cast<int>(OrthoDir::North)]->theNode();
+		node lowerRight = vi->m_corner[static_cast<int>(OrthoDir::West) ]->theNode();
+		node upperLeft  = vi->m_corner[static_cast<int>(OrthoDir::East) ]->theNode();
 		drawing.x(vCenter) = 0.5*(drawing.x(lowerLeft)+drawing.x(lowerRight));
 		drawing.y(vCenter) = 0.5*(drawing.y(lowerLeft)+drawing.y(upperLeft ));
 
@@ -594,7 +583,7 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 		//this list to insert the edges. The order is e.g. used for clique positioning
 		List<edge> adjEdges;
 		//we start at an arbitrary corner
-		adjEntry adjCorner = vi->m_corner[odNorth];
+		adjEntry adjCorner = vi->m_corner[static_cast<int>(OrthoDir::North)];
 		do {
 			adjEntry runAdj = adjCorner->twin();
 			edge eOrig = nullptr;
@@ -617,7 +606,7 @@ void PlanRepUML::collapseVertices(const OrthoRep &OR, Layout &drawing)
 				adjEdges.pushBack(eOrig);
 			}
 			adjCorner = adjCorner->faceCycleSucc(); //TODO: pred?
-		} while (adjCorner != vi->m_corner[odNorth]);
+		} while (adjCorner != vi->m_corner[static_cast<int>(OrthoDir::North)]);
 
 		OGDF_ASSERT(adjEdges.size() == vOrig->degree());
 		ListIterator<edge> itEdge = adjEdges.begin();
@@ -662,7 +651,7 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 	for(node v : nodes)
 	{
 		if (v->degree() < 2) continue;
-		if (typeOf(v) == Graph::generalizationMerger) continue;
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) continue;
 
 		int maxSeq = 0;   //stores current best sequence size
 		int maxSeqRun = 0; //stores current sequence size
@@ -674,21 +663,15 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 		//we run back til the first non-input generalization is detected
 		//if there is none, the following is also correct
 		adjEntry stopAdj = ad1;
-		edge e = ad1->theEdge();
-		while ((ad1->cyclicPred() != stopAdj) &&
-			( (e->target() == v) &&
-				 isGeneralization(e)))
+		while ( ad1->cyclicPred() != stopAdj && ad1->theEdge()->target() == v && isGeneralization(ad1->theEdge()) )
 		{
 			ad1 = ad1->cyclicPred();
-			e = ad1->theEdge();
 		}//while search start
 		adjEntry ad = ad1->cyclicSucc();
 		while (ad != ad1)
 		{
 			edge e = ad->theEdge();
-			if ( (e->target() == v) &&
-				 isGeneralization(e))
-				 //(uml.type(e) == Graph::generalization) )
+			if (e->target() == v && isGeneralization(e))
 			{
 				if (maxSeqRun == 0)
 				{
@@ -732,15 +715,12 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 				{
 					adjEntry runGenAdj = changeAdj;
 					//no infinite loop because new sequence found
-					edge e = runGenAdj->theEdge();
-					while ((e->target() == v) && isGeneralization(e))
-#if 0
-						(uml.type(e) == Graph::generalization))
-#endif
+					edge eRGA = runGenAdj->theEdge();
+					while ((eRGA->target() == v) && isGeneralization(eRGA))
 					{
-						setAssociation(e);
+						setAssociation(eRGA);
 						runGenAdj = runGenAdj->cyclicSucc();
-						e = runGenAdj->theEdge();
+						eRGA = runGenAdj->theEdge();
 					}//while
 #if 0
 					changeAdj = 0;
@@ -759,16 +739,13 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 		{
 			SList<edge> inGens;
 
-			edge e = maxSeqAdj->theEdge();
+			edge eMSA = maxSeqAdj->theEdge();
 			adjEntry runAdj = maxSeqAdj;
-			while ((e->target() == v) && isGeneralization(e))
-#if 0
-				(uml.type(e) == Graph::generalization))
-#endif
+			while ((eMSA->target() == v) && isGeneralization(eMSA))
 			{
-				inGens.pushBack(e);
+				inGens.pushBack(eMSA);
 				runAdj = runAdj->cyclicSucc();
-				e = runAdj->theEdge();
+				eMSA = runAdj->theEdge();
 				//maybe only one sequence around v
 				if (runAdj == maxSeqAdj)
 					break;
@@ -794,8 +771,7 @@ void PlanRepUML::prepareIncrementalMergers(int indexCC, CombinatorialEmbedding &
 
 //inserts a merger node for generalizations hanging at v, respecting
 //embedding E
-node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens,
-								 CombinatorialEmbedding &E)
+node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens, CombinatorialEmbedding &E)
 {
 	node u = nullptr;
 	if (empty()) return u;
@@ -803,7 +779,7 @@ node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens,
 	{
 		// create a new node representing the merge point for the generalizations
 		u = newNode();
-		typeOf(u) = Graph::generalizationMerger;
+		typeOf(u) = Graph::NodeType::generalizationMerger;
 
 		//store the embedding information before inserting objects
 		//TODO: Front or back
@@ -814,7 +790,7 @@ node PlanRepUML::insertGenMerger(node /* v */, const SList<edge> &inGens,
 		//edge eMerge = insertEdge(u, (*(inGens.rbegin()))->adjTarget(), E);
 		edge eMerge = newEdge(u,(*(inGens.rbegin()))->adjTarget());
 			//newEdge(u, (*(inGens.rbegin()))->adjTarget()); //incoming generalization
-		typeOf(eMerge) = Graph::generalization;
+		typeOf(eMerge) = Graph::EdgeType::generalization;
 		m_mergeEdges.pushBack(eMerge);
 
 		// We move the target node of each ingoing generalization of v to u.
@@ -910,18 +886,18 @@ void PlanRepUML::writeGML(ostream &os, const Layout &drawing)
 		os << "      h " << 10.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			{
 				if (isCrossingType(v))
 				{
@@ -956,7 +932,7 @@ void PlanRepUML::writeGML(ostream &os, const Layout &drawing)
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::generalization)
+		if (typeOf(e) == Graph::EdgeType::generalization)
 		{
 			os << "      arrow \"last\"\n";
 			if (m_alignUpward[e->adjSource()])
@@ -967,10 +943,10 @@ void PlanRepUML::writeGML(ostream &os, const Layout &drawing)
 		}
 		else
 		{
-			if (typeOf(e->source()) == Graph::generalizationExpander ||
-				typeOf(e->source()) == Graph::generalizationMerger ||
-				typeOf(e->target()) == Graph::generalizationExpander ||
-				typeOf(e->target()) == Graph::generalizationMerger)
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+				typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 			{
 				os << "      arrow \"none\"\n";
 				if (isBrother(e))
@@ -1037,18 +1013,18 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 		os << "      h " << 3.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			os << "      type \"oval\"\n";
 
 		else if (v->degree() > 4)
@@ -1065,13 +1041,13 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 
 	for(node v : nodes)
 	{
-		if (expandAdj(v) != nullptr && (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander))
+		if (expandAdj(v) != nullptr && (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander))
 		{
 			node vOrig = original(v);
 			const OrthoRep::VertexInfoUML &vi = *OR.cageInfo(v);
-			node ll = vi.m_corner[odNorth]->theNode();
-			node ur = vi.m_corner[odSouth]->theNode();
+			node ll = vi.m_corner[static_cast<int>(OrthoDir::North)]->theNode();
+			node ur = vi.m_corner[static_cast<int>(OrthoDir::South)]->theNode();
 
 			os << "  node [\n";
 			os << "    id " << nextId++ << "\n";
@@ -1107,9 +1083,9 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::generalization)
+		if (typeOf(e) == Graph::EdgeType::generalization)
 		{
-			if (typeOf(e->target()) == Graph::generalizationExpander)
+			if (typeOf(e->target()) == Graph::NodeType::generalizationExpander)
 				os << "      arrow \"none\"\n";
 			else
 				os << "      arrow \"last\"\n";
@@ -1119,10 +1095,10 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const Layout &drawing
 		}
 		else
 		{
-			if (typeOf(e->source()) == Graph::generalizationExpander ||
-				typeOf(e->source()) == Graph::generalizationMerger ||
-				typeOf(e->target()) == Graph::generalizationExpander ||
-				typeOf(e->target()) == Graph::generalizationMerger)
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+				typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 			{
 				os << "      arrow \"none\"\n";
 				os << "      fill \"#FF0000\"\n";
@@ -1184,18 +1160,18 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 		os << "      h " << 3.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-				typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+				typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			os << "      type \"oval\"\n";
 
 		else if (v->degree() > 4)
@@ -1213,13 +1189,13 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 	for(node v : nodes)
 	{
 		if (expandAdj(v) != nullptr &&
-			(typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander))
+			(typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander))
 		{
 			node vOrig = original(v);
 			const OrthoRep::VertexInfoUML &vi = *OR.cageInfo(v);
-			node ll = vi.m_corner[odNorth]->theNode();
-			node ur = vi.m_corner[odSouth]->theNode();
+			node ll = vi.m_corner[static_cast<int>(OrthoDir::North)]->theNode();
+			node ur = vi.m_corner[static_cast<int>(OrthoDir::South)]->theNode();
 
 			os << "  node [\n";
 			os << "    id " << nextId++ << "\n";
@@ -1256,15 +1232,15 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::generalization)
+		if (typeOf(e) == Graph::EdgeType::generalization)
 		{
-			if (typeOf(e->target()) == Graph::generalizationExpander)
+			if (typeOf(e->target()) == Graph::NodeType::generalizationExpander)
 				os << "      arrow \"none\"\n";
 			else
 				os << "      arrow \"last\"\n";
 
 			//check the vertical compaction mode
-			if ((typeOf(e) == Graph::generalization) && //only generalizations
+			if ((typeOf(e) == Graph::EdgeType::generalization) && //only generalizations
 				!isExpansionEdge(e))
 
 				if ((e->adjSource() == OR.externalAdjEntry()) ||
@@ -1290,10 +1266,10 @@ void PlanRepUML::writeGML(ostream &os, const OrthoRep &OR, const GridLayoutMappe
 		}
 		else
 		{
-			if (typeOf(e->source()) == Graph::generalizationExpander ||
-				typeOf(e->source()) == Graph::generalizationMerger ||
-				typeOf(e->target()) == Graph::generalizationExpander ||
-				typeOf(e->target()) == Graph::generalizationMerger)
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+				typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 			{
 				os << "      arrow \"none\"\n";
 

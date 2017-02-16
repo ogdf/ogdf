@@ -35,7 +35,7 @@
 
 namespace ogdf {
 
-//! The parameterized class \a BoundedStack<E,INDEX> implements stacks with bounded size.
+//! The parameterized class BoundedStack implements stacks with bounded size.
 /**
  * @ingroup containers
  *
@@ -59,7 +59,7 @@ public:
 		m_pTop = m_pStart = m_pStop = nullptr;
 	}
 
-	//! Constructs an empty bounded stack for at most \a n elements.
+	//! Constructs an empty bounded stack for at most \p n elements.
 	explicit BoundedStack(INDEX n) {
 		OGDF_ASSERT(n >= 1);
 		m_pStart = new E[n];
@@ -68,14 +68,14 @@ public:
 		m_pStop = m_pStart+n;
 	}
 
-	//! Constructs a bounded stack that is a copy of \a S.
+	//! Constructs a bounded stack that is a copy of \p S.
 	BoundedStack(const BoundedStack<E> &S) {
 		copy(S);
 	}
 
-	//! Constructs a bounded stack containing the elements of \a S (move semantics).
+	//! Constructs a bounded stack containing the elements of \p S (move semantics).
 	/**
-	 * The stack \a S is non valid afterwards, i.e., its capacity is zero.
+	 * The stack \p S is non valid afterwards, i.e., its capacity is zero.
 	 * It has to be reinitialized if new elements shall be inserted.
 	 */
 	BoundedStack(BoundedStack<E> &&S) {
@@ -87,7 +87,7 @@ public:
 
 	//! Destruction
 	~BoundedStack() {
-		delete [] m_pStart;
+		delete[] m_pStart;
 	}
 
 	//! Returns top element.
@@ -119,15 +119,15 @@ public:
 
 	//! Reinitializes the stack for no elements at all (actually frees memory).
 	void init() {
-		delete [] m_pStart;
+		delete[] m_pStart;
 		m_pTop = m_pStart = m_pStart = nullptr;
 	}
 
-	//! Reinitializes the stack for \a n elements.
+	//! Reinitializes the stack for \p n elements.
 	void init(INDEX n) {
 		OGDF_ASSERT(n >= 1);
 
-		delete [] m_pStart;
+		delete[] m_pStart;
 
 		m_pStart = new E[n];
 		if (m_pStart == nullptr) OGDF_THROW(InsufficientMemoryException);
@@ -137,18 +137,18 @@ public:
 
 	//! Assignment operator.
 	BoundedStack<E> &operator=(const BoundedStack<E> &S) {
-		delete [] m_pStart;
+		delete[] m_pStart;
 		copy(S);
 		return *this;
 	}
 
 	//! Assignment operator (move semantics).
 	/**
-	 * The stack \a S is non valid afterwards, i.e., its capacity is zero.
+	 * The stack \p S is non valid afterwards, i.e., its capacity is zero.
 	 * It has to be reinitialized if new elements shall be inserted.
 	 */
 	BoundedStack<E> &operator=(BoundedStack<E> &&S) {
-		delete [] m_pStart;
+		delete[] m_pStart;
 
 		m_pTop   = S.m_pTop;
 		m_pStart = S.m_pStart;
@@ -158,7 +158,7 @@ public:
 		return *this;
 	}
 
-	//! Adds element \a x as top-most element to the stack.
+	//! Adds element \p x as top-most element to the stack.
 	void push(const E &x) {
 		OGDF_ASSERT(m_pTop != m_pStop-1);
 		*++m_pTop = x;
@@ -173,7 +173,7 @@ public:
 	//! Makes the stack empty.
 	void clear() { m_pTop = m_pStart-1; }
 
-	//! Prints the stack to output stream \a os.
+	//! Prints the stack to output stream \p os with the seperator \p delim.
 	void print(ostream &os, char delim = ' ') const
 	{
 		if(m_pStart != nullptr) {

@@ -131,7 +131,6 @@ private:
 	 * The line which has been read from the file most recently;
 	 * this does not have to be equal to m_currentPosition.m_lineNumber
 	 * because of the lookahead facilities.
-	 * Range is [0 .. \a c_maxNoOfLines - 1]
 	 */
 	int m_numberOfMostRecentlyReadLine;
 
@@ -141,7 +140,7 @@ private:
 public:
 
 	//! Construction
-	LineBuffer(istream &is);
+	explicit LineBuffer(istream &is);
 
 	//! Destruction
 	~LineBuffer();
@@ -188,11 +187,11 @@ public:
 
 	/**
 	 * Copies the characters which have been extracted from the
-	 * line buffer starting from position \a startPosition (including it)
-	 * to \a endPosition (excluding it) to targetString.
+	 * line buffer starting from position \p startPosition (including it)
+	 * to \p endPosition (excluding it) to targetString.
 	 * @param startPostion start position
 	 * @param endPosition end position
-	 * @param targetString string [\a startPostion .. \a endPosition] of the LineBuffer
+	 * @param targetString string [\p startPostion .. \p endPosition] of the LineBuffer
 	 * @return false if the startPosition is not valid, i.e. the string is too long; targetString will contain the message "String too long!"
 	 */
 	bool extractString(
@@ -202,7 +201,7 @@ public:
 
 private:
 
-	//! Checks wether the given \a position is valid
+	//! Checks wether the given \p position is valid
 	bool isValidPosition(const LineBufferPosition &position) const;
 
 }; // class LineBuffer

@@ -53,15 +53,15 @@ class OGDF_EXPORT StressMinimization: public LayoutModule {
 public:
 
 
-	enum TERMINATION_CRITERION {
-		NONE, POSITION_DIFFERENCE, STRESS
+	enum class TerminationCriterion {
+		None, PositionDifference, Stress
 	};
 
 	//! Constructor: Constructs instance of stress majorization.
 	StressMinimization() :
 			m_hasEdgeCostsAttribute(false), m_hasInitialLayout(false), m_numberOfIterations(
 					200), m_edgeCosts(100), m_avgEdgeCosts(-1), m_componentLayout(
-					false), m_terminationCriterion(NONE), m_fixXCoords(false), m_fixYCoords(
+					false), m_terminationCriterion(TerminationCriterion::None), m_fixXCoords(false), m_fixYCoords(
 					false), m_fixZCoords(false) {
 	}
 
@@ -97,8 +97,8 @@ public:
 	//! 0 the default value (200) is used.
 	inline void setIterations(int numberOfIterations);
 
-	//! Tells which \a TERMINATION_CRITERIA should be used
-	inline void convergenceCriterion(TERMINATION_CRITERION criterion);
+	//! Tells which TerminationCriterion should be used
+	inline void convergenceCriterion(TerminationCriterion criterion);
 
 	//! Tells whether the edge costs are uniform or defined by some edge costs attribute.
 	inline void useEdgeCostsAttribute(bool useEdgeCostsAttribute);
@@ -132,7 +132,7 @@ private:
 	bool m_componentLayout;
 
 	//! Indicates whether epsilon convergence is used or not.
-	TERMINATION_CRITERION m_terminationCriterion;
+	TerminationCriterion m_terminationCriterion;
 
 	//! Indicates whether the x coordinates will be modified or not.
 	bool m_fixXCoords;
@@ -155,7 +155,6 @@ private:
 
 	//! Calculates the weight matrix of the shortest path matrix. This is done by w_ij = s_ij^{-2}
 	void calcWeights(const Graph& G,
-			const int dimension,
 			NodeArray<NodeArray<double> >& shortestPathMatrix,
 			NodeArray<NodeArray<double> >& weightMatrix);
 
@@ -224,7 +223,7 @@ void StressMinimization::setIterations(int numberOfIterations) {
 	m_numberOfIterations = (numberOfIterations > 0) ? numberOfIterations : 100;
 }
 
-void StressMinimization::convergenceCriterion(TERMINATION_CRITERION criterion) {
+void StressMinimization::convergenceCriterion(TerminationCriterion criterion) {
 	m_terminationCriterion = criterion;
 }
 

@@ -75,14 +75,14 @@ public:
 	virtual LayerByLayerSweep *clone() const = 0;
 
 	/**
-	 * \brief Initializes the crossing minimization module for hierarchy levels \a levels.
+	 * \brief Initializes the crossing minimization module for hierarchy levels \p levels.
 	 *
 	 * @param levels is the hierarchy on which the module shall operate.
 	 */
 	virtual void init(const HierarchyLevels &levels) { }
 
 	/**
-	 * \brief Performs crossing minimization for level \a L.
+	 * \brief Performs crossing minimization for level \p L.
 	 *
 	 * @param L is the level in the hierarchy on which nodes are permuted; the
 	 *        neighbor level (fixed level) is determined by the hierarchy.
@@ -90,7 +90,7 @@ public:
 	virtual void call(Level &L) = 0;
 
 	/**
-	 * \brief Performs crossing minimization for level \a L.
+	 * \brief Performs crossing minimization for level \p L.
 	 *
 	 * @param L is the level in the hierarchy on which nodes are permuted; the
 	 *        neighbor level (fixed level) is determined by the hierarchy.

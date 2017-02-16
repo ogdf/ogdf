@@ -35,7 +35,7 @@
 
 namespace ogdf {
 
-//! The parameterized class \a BoundedQueue<E,INDEX> implements queues with bounded size.
+//! The parameterized class BoundedQueue implements queues with bounded size.
 /**
  * @ingroup containers
  *
@@ -56,7 +56,7 @@ public:
 		m_pStart = m_pEnd = m_pFirst = m_pStop = nullptr;
 	}
 
-	//! Constructs an empty bounded queue for at most \a n elements.
+	//! Constructs an empty bounded queue for at most \p n elements.
 	explicit BoundedQueue(INDEX n) {
 		OGDF_ASSERT(n >= 1);
 		m_pStart = m_pEnd = m_pFirst = new E[n+1];
@@ -65,14 +65,14 @@ public:
 		m_pStop = m_pFirst+n+1;
 	}
 
-	//! Constructs a bounded queue that is a copy of \a Q.
+	//! Constructs a bounded queue that is a copy of \p Q.
 	BoundedQueue(const BoundedQueue<E> &Q) {
 		copy(Q);
 	}
 
-	//! Constructs a bounded queue containing the elements of \a Q (move semantics).
+	//! Constructs a bounded queue containing the elements of \p Q (move semantics).
 	/**
-	 * The queue \a Q is non valid afterwards, i.e., its capacity is zero.
+	 * The queue \p Q is non valid afterwards, i.e., its capacity is zero.
 	 * It has to be reinitialized if new elements shall be appended.
 	 */
 	BoundedQueue(BoundedQueue<E> &&Q) {
@@ -84,17 +84,17 @@ public:
 	}
 
 	//! Destruction
-	~BoundedQueue() { delete [] m_pFirst; }
+	~BoundedQueue() { delete[] m_pFirst; }
 
 	//! Reinitializes the bounded queue to a non-valid bounded queue.
 	void init() {
-		delete [] m_pFirst;
+		delete[] m_pFirst;
 		m_pStart = m_pEnd = m_pFirst = m_pStop = nullptr;
 	}
 
-	//! Reinitializes the bounded queue to a bounded queue for at most \a n elements.
+	//! Reinitializes the bounded queue to a bounded queue for at most \p n elements.
 	void init(INDEX n) {
-		delete [] m_pFirst;
+		delete[] m_pFirst;
 
 		OGDF_ASSERT(n >= 1);
 		m_pStart = m_pEnd = m_pFirst = new E[n+1];
@@ -152,18 +152,18 @@ public:
 
 	//! Assignment operator.
 	BoundedQueue<E> &operator=(const BoundedQueue<E> &Q) {
-		delete [] m_pFirst;
+		delete[] m_pFirst;
 		copy(Q);
 		return *this;
 	}
 
 	//! Assignment operator (move semantics).
 	/**
-	 * The queue \a Q is non valid afterwards, i.e., its capacity is zero.
+	 * The queue \p Q is non valid afterwards, i.e., its capacity is zero.
 	 * It has to be reinitialized if new elements shall be appended.
 	 */
 	BoundedQueue<E> &operator=(BoundedQueue<E> &&Q) {
-		delete [] m_pFirst;
+		delete[] m_pFirst;
 
 		m_pStart = Q.m_pStart;
 		m_pEnd   = Q.m_pEnd;
@@ -175,7 +175,7 @@ public:
 	}
 
 
-	//! Adds \a x at the end of queue.
+	//! Adds \p x at the end of queue.
 	void append(const E &x) {
 		*m_pEnd++ = x;
 		if (m_pEnd == m_pStop) m_pEnd = m_pFirst;
@@ -193,7 +193,7 @@ public:
 	//! Makes the queue empty.
 	void clear() { m_pStart = m_pEnd = m_pFirst; }
 
-	//! Prints the queue to output stream \a os.
+	//! Prints the queue to output stream \p os with the seperator \p delim.
 	void print(ostream &os, char delim = ' ') const
 	{
 		for (const E *pX = m_pStart; pX != m_pEnd; ) {
@@ -218,7 +218,7 @@ private:
 }; // class BoundedQueue
 
 
-//! Prints BoundedQueue \a Q to output stream \a os
+//! Prints BoundedQueue \p Q to output stream \p os.
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const BoundedQueue<E,INDEX> &Q)
 {

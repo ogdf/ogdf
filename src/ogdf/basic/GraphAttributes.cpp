@@ -34,28 +34,38 @@
 
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/fileformats/GmlParser.h>
 
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// GraphAttributes
-// graph topology + graphical attributes
-//---------------------------------------------------------
+const int GraphAttributes::nodeGraphics      = 0x00001;
+const int GraphAttributes::edgeGraphics      = 0x00002;
+const int GraphAttributes::edgeIntWeight     = 0x00004;
+const int GraphAttributes::edgeDoubleWeight  = 0x00008;
+const int GraphAttributes::edgeLabel         = 0x00010;
+const int GraphAttributes::nodeLabel         = 0x00020;
+const int GraphAttributes::edgeType          = 0x00040;
+const int GraphAttributes::nodeType          = 0x00080;
+const int GraphAttributes::nodeId            = 0x00100;
+const int GraphAttributes::edgeArrow         = 0x00200;
+const int GraphAttributes::edgeStyle         = 0x00400;
+const int GraphAttributes::nodeStyle         = 0x00800;
+const int GraphAttributes::nodeTemplate      = 0x01000;
+const int GraphAttributes::edgeSubGraphs     = 0x02000;
+const int GraphAttributes::nodeWeight        = 0x04000;
+const int GraphAttributes::threeD            = 0x08000;
+const int GraphAttributes::nodeLabelPosition = 0x10000;
 
 GraphAttributes::GraphAttributes() : m_pGraph(nullptr), m_directed(true), m_attributes(0) { }
 
-
-
-GraphAttributes::GraphAttributes(const Graph &G, long initAttr) :
-	m_pGraph(&G), m_directed(true), m_attributes(0)
+GraphAttributes::GraphAttributes(const Graph &G, long attr) : GraphAttributes()
 {
-	initAttributes(m_attributes = initAttr);
+	m_pGraph = &G;
+	addAttributes(attr);
 }
 
 
-void GraphAttributes::initAttributes(long attr)
+void GraphAttributes::addAttributes(long attr)
 {
 	m_attributes |= attr;
 
@@ -111,10 +121,10 @@ void GraphAttributes::initAttributes(long attr)
 		m_edgeLabel.init(*m_pGraph);
 	}
 	if (attr & edgeType) {
-		m_eType.init( *m_pGraph, Graph::association ); //should be Graph::standard and explicitly set
+		m_eType.init( *m_pGraph, Graph::EdgeType::association ); //should be Graph::standard and explicitly set
 	}
 	if (attr & nodeType) {
-		m_vType.init( *m_pGraph, Graph::vertex );
+		m_vType.init( *m_pGraph, Graph::NodeType::vertex );
 	}
 	if (attr & nodeId) {
 		m_nodeId.init( *m_pGraph, -1 );
@@ -190,13 +200,16 @@ void GraphAttributes::destroyAttributes(long attr)
 	}
 }
 
+void GraphAttributes::init(long attr)
+{
+	destroyAttributes(m_attributes);
+	addAttributes(attr);
+}
 
-void GraphAttributes::init(const Graph &G, long initAttr)
+void GraphAttributes::init(const Graph &G, long attr)
 {
 	m_pGraph = &G;
-	destroyAttributes(m_attributes);
-	m_attributes = 0;
-	initAttributes(m_attributes = initAttr);
+	init(attr);
 }
 
 void GraphAttributes::setAllWidth(double w)
@@ -293,15 +306,15 @@ int GraphAttributes::hierarchyList(List<List<node>* > &list) const
 		processed[v->index()] = true;  // and mark it as processed
 
 		do { // scan all neighbours of nodes in 'nodeSet'
-			node v = nodeSet.popFrontRet();
-			hierachy->pushBack(v); // push v to the list of nodes in this hierachy
+			node front = nodeSet.popFrontRet();
+			hierachy->pushBack(front); // push front to the list of nodes in this hierachy
 
-			// process all the neighbours of v, e.g. push them into 'nodeSet'
-			for(adjEntry adj : v->adjEntries) {
+			// process all the neighbours of front, e.g. push them into 'nodeSet'
+			for(adjEntry adj : front->adjEntries) {
 				edge e = adj->theEdge();
 
-				if (type(e) == Graph::generalization) {
-					node w = e->source() == v ? e->target() : e->source();
+				if (type(e) == Graph::EdgeType::generalization) {
+					node w = e->source() == front ? e->target() : e->source();
 					if (!processed[w->index()]) {
 						nodeSet.pushBack(w);
 						processed[w->index()] = true;
@@ -349,14 +362,14 @@ int GraphAttributes::hierarchyList(List<List<edge>* > &list) const
 		processed[v->index()] = true;  // and mark it as processed
 
 		do { // scan all neighbours of nodes in 'nodeSet'
-			node v = nodeSet.popFrontRet();
+			node front = nodeSet.popFrontRet();
 
-			// process all the neighbours of v, e.g. push them into 'nodeSet'
-			for(adjEntry adj : v->adjEntries) {
+			// process all the neighbours of front, e.g. push them into 'nodeSet'
+			for(adjEntry adj : front->adjEntries) {
 				edge e = adj->theEdge();
 
-				if (type(e) == Graph::generalization) {
-					node w = e->source() == v ? e->target() : e->source();
+				if (type(e) == Graph::EdgeType::generalization) {
+					node w = e->source() == front ? e->target() : e->source();
 					if (!processed[w->index()]) {
 						nodeSet.pushBack(w);
 						processed[w->index()] = true;

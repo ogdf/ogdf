@@ -33,7 +33,6 @@
 
 
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
-#include <ogdf/planarity/PlanRep.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
@@ -58,7 +57,7 @@ CompactionConstraintGraphBase::CompactionConstraintGraphBase(
 
 	m_path        .init(*this);
 	m_cost        .init(*this,costAssoc);
-	m_type        .init(*this,cetBasicArc);
+	m_type        .init(*this,ConstraintEdgeType::BasicArc);
 	m_verticalGen .init(PG, false);
 	m_verticalArc .init(*this, false);
 	m_border      .init(*this, false);
@@ -71,12 +70,12 @@ CompactionConstraintGraphBase::CompactionConstraintGraphBase(
 	m_align     = align;
 	m_arcDir    = arcDir;
 	m_oppArcDir = OR.oppDir(arcDir);
-	m_edgeCost[Graph::generalization] = costGen;
-	m_edgeCost[Graph::association   ] = costAssoc;
+	m_edgeCost[static_cast<int>(Graph::EdgeType::generalization)] = costGen;
+	m_edgeCost[static_cast<int>(Graph::EdgeType::association)   ] = costAssoc;
 
 	for(edge e : PG.edges)
 	{
-		if ((PG.typeOf(e) == Graph::generalization) && (!PG.isExpansionEdge(e)))
+		if ((PG.typeOf(e) == Graph::EdgeType::generalization) && (!PG.isExpansionEdge(e)))
 			m_verticalGen[e] = true;
 	}//for
 
@@ -93,10 +92,10 @@ void CompactionConstraintGraphBase::insertPathVertices(const PlanRep &PG)
 	for(node v : PG.nodes)
 	{
 		const OrthoRep::VertexInfoUML *vi = m_pOR->cageInfo(v);
-		if (vi == nullptr || PG.typeOf(v) == Graph::generalizationMerger) continue;
+		if (vi == nullptr || PG.typeOf(v) == Graph::NodeType::generalizationMerger) continue;
 
-		adjEntry adjGen = vi->m_side[m_arcDir   ].m_adjGen;
-		adjEntry adjOpp = vi->m_side[m_oppArcDir].m_adjGen;
+		adjEntry adjGen = vi->m_side[static_cast<int>(m_arcDir)   ].m_adjGen;
+		adjEntry adjOpp = vi->m_side[static_cast<int>(m_oppArcDir)].m_adjGen;
 		if (adjGen != nullptr && adjOpp != nullptr)
 		{
 			node v1 = adjGen->theNode();
@@ -146,7 +145,7 @@ void CompactionConstraintGraphBase::dfsInsertPathVertex(
 	for(adjEntry adj : v->adjEntries)
 	{
 		OrthoDir dirAdj = m_pOR->direction(adj);
-		OGDF_ASSERT(dirAdj != odUndefined);
+		OGDF_ASSERT(dirAdj != OrthoDir::Undefined);
 
 		if (dirAdj != m_arcDir && dirAdj != m_oppArcDir) {
 			//for multiedges, only useful if only one edge considered on path
@@ -187,11 +186,11 @@ void CompactionConstraintGraphBase::insertBasicArcs(const PlanRep &PG)
 				edge e = newEdge(start, m_pathNode[adj->theEdge()->opposite(v)]);
 				m_edgeToBasicArc[adj] = e;
 
-				m_cost[e] = m_edgeCost[PG.typeOf(adj->theEdge())];
+				m_cost[e] = m_edgeCost[static_cast<int>(PG.typeOf(adj->theEdge()))];
 
 				//try to pull nodes up in hierarchies
-				if ( (PG.typeOf(adj->theEdge()) == Graph::generalization) &&
-					(PG.typeOf(adj->theEdge()->target()) == Graph::generalizationExpander) &&
+				if ( (PG.typeOf(adj->theEdge()) == Graph::EdgeType::generalization) &&
+					(PG.typeOf(adj->theEdge()->target()) == Graph::NodeType::generalizationExpander) &&
 					!(PG.isExpansionEdge(adj->theEdge()))
 					)
 				{
@@ -316,25 +315,6 @@ void CompactionConstraintGraphBase::computeTopologicalSegmentNum(
 	}
 }
 
-
-
-class BucketFirstIndex : public BucketFunc<Tuple2<node,node> >
-{
-public:
-	int getBucket(const Tuple2<node,node> &t) override {
-		return t.x1()->index();
-	}
-};
-
-class BucketSecondIndex : public BucketFunc<Tuple2<node,node> >
-{
-public:
-	int getBucket(const Tuple2<node,node> &t) override {
-		return t.x2()->index();
-	}
-};
-
-
 // remove "arcs" from visibArcs which we already have in the constraint graph
 // (as basic arcs)
 void CompactionConstraintGraphBase::removeRedundantVisibArcs(
@@ -346,10 +326,18 @@ void CompactionConstraintGraphBase::removeRedundantVisibArcs(
 	parallelFreeSort(*this,all);
 
 	// bucket sort visibArcs
-	BucketFirstIndex bucketSrc;
+	struct : public BucketFunc<Tuple2<node,node>> {
+		int getBucket(const Tuple2<node,node> &t) override {
+			return t.x1()->index();
+		}
+	} bucketSrc;
 	visibArcs.bucketSort(0,maxNodeIndex(),bucketSrc);
 
-	BucketSecondIndex bucketTgt;
+	struct : public BucketFunc<Tuple2<node,node>> {
+		int getBucket(const Tuple2<node,node> &t) override {
+			return t.x2()->index();
+		}
+	} bucketTgt;
 	visibArcs.bucketSort(0,maxNodeIndex(),bucketTgt);
 
 	// now, in both lists, arcs are sorted by increasing target index,
@@ -393,7 +381,7 @@ void CompactionConstraintGraphBase::removeRedundantVisibArcs(
 			itPrev = it;
 	}//for visibArcs
 
-	//****************************CHECK for
+	// CHECK for
 	//special treatment for cage visibility
 	//two cases: input node cage: just compare arbitrary node
 	//           merger cage: check first if there are mergers
@@ -426,14 +414,14 @@ void CompactionConstraintGraphBase::removeRedundantVisibArcs(
 			{
 				node en = m_pPR->expandedNode(n);
 				if (!en) continue;
-				if (!(m_pPR->typeOf(n) == Graph::generalizationExpander)) continue;
+				if (!(m_pPR->typeOf(n) == Graph::NodeType::generalizationExpander)) continue;
 				else { firstn = en; break; }
 			}//for
 			for (node n : m_path[(*it).x2()])
 			{
 				node en = m_pPR->expandedNode(n);
 				if (!en) continue;
-				if (!(m_pPR->typeOf(n) == Graph::generalizationExpander)) continue;
+				if (!(m_pPR->typeOf(n) == Graph::NodeType::generalizationExpander)) continue;
 				else { secondn = en; break; }
 			}//for
 			if ((firstn && secondn) && (firstn == secondn))
@@ -513,19 +501,19 @@ void CompactionConstraintGraphBase::writeGML(ostream &os) const
 		os << "      arrow \"last\"\n";
 		switch(m_type[e])
 		{
-		case cetBasicArc: // red
+		case ConstraintEdgeType::BasicArc: // red
 			os << "      fill \"#FF0000\"\n";
 			break;
-		case cetVertexSizeArc: // blue
+		case ConstraintEdgeType::VertexSizeArc: // blue
 			os << "      fill \"#0000FF\"\n";
 			break;
-		case cetVisibilityArc: // green
+		case ConstraintEdgeType::VisibilityArc: // green
 			os << "      fill \"#00FF00\"\n";
 			break;
-		case cetReducibleArc: // rose
+		case ConstraintEdgeType::ReducibleArc: // rose
 			os << "      fill \"#FF00FF\"\n";
 			break;
-		case cetFixToZeroArc: //violett
+		case ConstraintEdgeType::FixToZeroArc: //violett
 			os << "      fill \"#3F00FF\"\n";
 			break;
 		default:
@@ -602,19 +590,19 @@ void CompactionConstraintGraphBase::writeGML(ostream &os, NodeArray<bool> one) c
 		os << "      arrow \"last\"\n";
 		switch(m_type[e])
 		{
-		case cetBasicArc: // red
+		case ConstraintEdgeType::BasicArc: // red
 			os << "      fill \"#FF0000\"\n";
 			break;
-		case cetVertexSizeArc: // blue
+		case ConstraintEdgeType::VertexSizeArc: // blue
 			os << "      fill \"#0000FF\"\n";
 			break;
-		case cetVisibilityArc: // green
+		case ConstraintEdgeType::VisibilityArc: // green
 			os <<       "fill \"#00FF00\"\n";
 			break;
-		case cetReducibleArc: // rose
+		case ConstraintEdgeType::ReducibleArc: // rose
 			os << "      fill \"#FF00FF\"\n";
 			break;
-		case cetFixToZeroArc: //violett
+		case ConstraintEdgeType::FixToZeroArc: //violett
 			os << "      fill \"#3F00FF\"\n";
 			break;
 		default:

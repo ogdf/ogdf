@@ -47,7 +47,7 @@ class OGDF_EXPORT SimDrawCreator : public SimDrawManipulatorModule
 
 public:
 	//! constructor
-	SimDrawCreator(SimDraw &SD) : SimDrawManipulatorModule(SD) {}
+	explicit SimDrawCreator(SimDraw &SD) : SimDrawManipulatorModule(SD) {}
 
 	//! returns SubGraphBits from edge e
 	uint32_t &SubGraphBits(edge e) { return m_GA->subGraphBits(e); }
@@ -62,7 +62,7 @@ public:
 	/**
 	* Assigns random edgeSubGraphs values to all edges to create
 	* a SimDraw instance consisting of two basic graphs.
-	* Each edge in m_G has a chance of \a doubleESGProbability (in Percent)
+	* Each edge in m_G has a chance of \p doubleESGProbability (in Percent)
 	* to belong to two SubGraphs.
 	* Otherwise it has equal chance to belong to either basic graph.
 	*/
@@ -72,8 +72,8 @@ public:
 	/**
 	* Assigns random edgeSubGraphs values to all edges to create
 	* a SimDraw instance consisting of three basic graphs.
-	* Each edge in m_G has a chance of \a doubleESGProbabilit (in Percent)
-	* to belong to two basic graphs and a chance of \a tripleESGProbability
+	* Each edge in m_G has a chance of \p doubleESGProbabilit (in Percent)
+	* to belong to two basic graphs and a chance of \p tripleESGProbability
 	* (in Percent) to belong to three basic graphs.
 	*/
 	void randomESG3(int doubleESGProbability = 50, int tripleESGProbability = 25);
@@ -81,7 +81,7 @@ public:
 	//! randomly chose edgeSubGraphs value for graphNumber graphs
 	/**
 	* Assigns random edgeSubGraphs values to all edges to create
-	* a SimDraw instance consisting of \a graphNumber basic graphs.
+	* a SimDraw instance consisting of \p graphNumber basic graphs.
 	* Each edge has an equal chance for each SubGraphBit - value.
 	*/
 	void randomESG(int graphNumber);
@@ -97,13 +97,13 @@ public:
 
 	//! randomly creates a simdraw instance
 	/**
-	* This method creates a random graph with \a numberOfNodes nodes,
-	* \a numberOfEdges edges. It is transfered into a simdraw instance with
-	* \a numberOfBasicGraphs basic graphs.
+	* This method creates a random graph with \p numberOfNodes nodes,
+	* \p numberOfEdges edges. It is transfered into a simdraw instance with
+	* \p numberOfBasicGraphs basic graphs.
 	*
 	* randomSimpleGraph from graph_generators.h is used to
 	* create a random graph. Furthermore randomESG is used on this graph
-	* to generate \a numberOfBasicGraphs basic graphs.
+	* to generate \p numberOfBasicGraphs basic graphs.
 	*/
 	void createRandom(int numberOfNodes, int numberOfEdges, int numberOfBasicGraphs);
 

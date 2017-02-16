@@ -59,7 +59,7 @@ class OGDF_EXPORT SimDraw
 
 public:
 	//! Types for node comparison
-	enum CompareBy {
+	enum class CompareBy {
 		index,                  //!< nodes are compared by their indices
 		label                   //!< nodes are compared by their labels
 	};
@@ -101,20 +101,20 @@ public:
 	*/
 	CompareBy &compareBy() { return m_compareBy; }
 
-	//! returns true if node \a v is marked as dummy
+	//! returns true if node \p v is marked as dummy
 	/**
 	* All dummy node features are introduced for usage when running
 	* callSubgraphPlanarizer of SimDrawCaller.
 	*/
 	const bool &isDummy(node v) const { return m_isDummy[v]; }
-	//! returns true if node \a v is marked as dummy
+	//! returns true if node \p v is marked as dummy
 	bool &isDummy(node v) { return m_isDummy[v]; }
-	//! returns true if node \a v is a cost zero dummy node
+	//! returns true if node \p v is a cost zero dummy node
 	bool isPhantomDummy(node v) const
 	{
 		return isDummy(v) && !isProperDummy(v);
 	}
-	//! returns true if node \a v is a cost greater zero dummy node
+	//! returns true if node \p v is a cost greater zero dummy node
 	bool isProperDummy(node v) const;
 
 	//! returns number of nodes
@@ -150,9 +150,9 @@ public:
 	//! calls GraphAttributes::writeGML
 	void writeGML(const char *fileName) const;
 
-	//! returns graph consisting of all edges and nodes from SubGraph \a i
+	//! returns graph consisting of all edges and nodes from SubGraph \p i
 	const Graph getBasicGraph(int i) const;
-	//! returns graphattributes associated with basic graph \a i
+	//! returns graphattributes associated with basic graph \p i
 	/**
 	* Supported attributes are:
 	* nodeGraphics, edgeGraphics, edgeLabel, nodeLabel, nodeId,
@@ -163,7 +163,7 @@ public:
 	//! adds new GraphAttributes to m_G
 	/**
 	* If the number of subgraphs in m_G is less than 32, this
-	* function will add the new GraphAttributes \a GA to m_G
+	* function will add the new GraphAttributes \p GA to m_G
 	* and return true.
 	* Otherwise this function returns false.
 	* The function uses the current compare mode.
@@ -174,7 +174,7 @@ public:
 	/**
 	* If the number of subgraphs in m_G is less than 32 and
 	* m_compareBy is set to index, this function will add graph
-	* \a G to m_G and return true.
+	* \p G to m_G and return true.
 	* Otherwise this function returns false.
 	*/
 	bool addGraph(const Graph & G);
@@ -183,14 +183,14 @@ public:
 	void addAttribute(long attr)
 	{
 		if(!m_GA.has(attr))
-			m_GA.initAttributes(attr);
+			m_GA.addAttributes(attr);
 	}
 
 private:
-	//! compares two nodes \a v and \a w by their ids
+	//! compares two nodes \p v and \p w by their ids
 	bool compareById(node v, node w) const { return v->index() == w->index(); }
 
-	//! compares two nodes \a v and \a w by their labels
+	//! compares two nodes \p v and \p w by their labels
 	/**
 	* This method only works, if attribute nodeLabel is activated
 	* and set properly.
@@ -201,7 +201,7 @@ private:
 		return vGA.label(v) == wGA.label(w);
 	}
 
-	//! compares two nodes \a v and \a w by compare mode stored in m_compareBy
+	//! compares two nodes \p v and \p w by compare mode stored in m_compareBy
 	/**
 	* This method checks whether m_compareBy was set to index or label and
 	* uses the corresponding compare method.

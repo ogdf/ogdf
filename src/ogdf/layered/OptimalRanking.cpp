@@ -39,12 +39,7 @@
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// OptimalRanking
 // optimal node ranking for hierarchical graphs using min-cost flow
-//---------------------------------------------------------
-
 OptimalRanking::OptimalRanking()
 {
 	m_subgraph.reset(new DfsAcyclicSubgraph);
@@ -185,7 +180,7 @@ void OptimalRanking::doCall(
 			supply[v] = s;
 		}
 
-		OGDF_ASSERT(isAcyclic(GC) == true);
+		OGDF_ASSERT(isAcyclic(GC));
 
 		// find min-cost flow
 		EdgeArray<int> flow(GC);

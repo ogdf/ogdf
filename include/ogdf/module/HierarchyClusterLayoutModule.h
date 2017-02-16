@@ -51,7 +51,7 @@ public:
 	virtual ~HierarchyClusterLayoutModule() { }
 
 	/**
-	 * \brief Computes a hierarchy layout of a clustered hierarchy \a H in \a ACG.
+	 * \brief Computes a hierarchy layout of a clustered hierarchy \p H in \p ACG.
 	 * @param H is the input clustered hierarchy.
 	 * @param ACG is assigned the cluster hierarchy layout.
 	 */

@@ -52,7 +52,7 @@ bool InfeasCon::goodVar(const Variable *v) const
 	}
 	else {
 		Logger::ifout() << "InfeasCon::goodVar(): constraint is feasible\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcInfeasCon);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::InfeasCon);
 	}
 }
 } //namespace abacus

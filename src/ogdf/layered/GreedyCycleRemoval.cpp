@@ -31,9 +31,6 @@
 
 #include <ogdf/layered/GreedyCycleRemoval.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/Queue.h>
 
 namespace ogdf {
 

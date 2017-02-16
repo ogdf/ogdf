@@ -63,10 +63,10 @@ public:
 	virtual UMLEdgeInsertionModule *clone() const = 0;
 
 
-	//! Inserts all edges in \a origEdges into \a pr while avoiding crossings between generalizations.
+	//! Inserts all edges in \p origEdges into \p pr while avoiding crossings between generalizations.
 	/**
 	 * @param pr        is the input planarized representation and will also receive the result.
-	 * @param origEdges is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges is the array of original edges (edges in the original graph of \p pr)
 	 *                  that have to be inserted.
 	 * @return the status of the result.
 	 */
@@ -75,12 +75,12 @@ public:
 		return doCall(pr, origEdges, nullptr, nullptr);
 	}
 
-	//! Inserts all edges in \a origEdges with given costs into \a pr while avoiding crossings between generalizations.
+	//! Inserts all edges in \p origEdges with given costs into \p pr while avoiding crossings between generalizations.
 	/**
 	 * @param pr        is the input planarized representation and will also receive the result.
 	 * @param costOrig  is an edge array containing the costs of original edges; edges in
-	 *                  \a pr without an original edge have zero costs.
-	 * @param origEdges is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
+	 *                  \p pr without an original edge have zero costs.
+	 * @param origEdges is the array of original edges (edges in the original graph of \p pr) that have to be inserted.
 	 * @return the status of the result.
 	 */
 	ReturnType call(PlanRepLight &pr,
@@ -91,11 +91,11 @@ public:
 	}
 
 
-	//! Inserts all edges in \a origEdges into \a pr while avoiding crossings between generalizations, optionally costs and subgraphs may be given.
+	//! Inserts all edges in \p origEdges into \p pr while avoiding crossings between generalizations, optionally costs and subgraphs may be given.
 	/**
 	 * @param pr             is the input planarized representation and will also receive the result.
-	 * @param origEdges      is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
-	 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \a pr without an original edge have zero costs.
+	 * @param origEdges      is the array of original edges (edges in the original graph of \p pr) that have to be inserted.
+	 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \p pr without an original edge have zero costs.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
 	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
 	 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.
@@ -115,8 +115,8 @@ protected:
 	//! Actual algorithm call that has to be implemented by derived classes.
 	/**
 	 * @param pr             is the input planarized representation and will also receive the result.
-	 * @param origEdges      is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
-	 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \a pr without an original edge have zero costs.
+	 * @param origEdges      is the array of original edges (edges in the original graph of \p pr) that have to be inserted.
+	 * @param pCostOrig      is an edge array containing the costs of original edges; edges in \p pr without an original edge have zero costs.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
 	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
 	 *                       May be a 0-poiner, in which case no subgraphs / simultaneous embedding is used.

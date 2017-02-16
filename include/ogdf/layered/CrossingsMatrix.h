@@ -40,11 +40,8 @@
 namespace ogdf
 {
 
-//---------------------------------------------------------
-// CrossingsMatrix
-// implements crossings matrix which is used by some
-// TwoLayerCrossingMinimization heuristics (e.g. split)
-//---------------------------------------------------------
+//! Implements crossings matrix which is used by some
+//! TwoLayerCrossingMinimization heuristics (e.g. split)
 class OGDF_EXPORT CrossingsMatrix
 {
 public:
@@ -52,7 +49,7 @@ public:
 		m_bigM = 10000;
 	}
 
-	CrossingsMatrix(const HierarchyLevels &levels);
+	explicit CrossingsMatrix(const HierarchyLevels &levels);
 
 	~CrossingsMatrix() { }
 

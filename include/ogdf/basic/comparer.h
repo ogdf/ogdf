@@ -31,21 +31,9 @@
 
 #pragma once
 
-#include <ogdf/basic/Logger.h>
 #include <ogdf/basic/exceptions.h>
 
 namespace ogdf {
-
-//--------------------------------------------------------------------
-// A comparer interface has to define
-// bool less (const E &x, const E &y);
-// bool leq  (const E &x, const E &y);
-// bool equal(const E &x, const E &y);
-// bool geq (const E &x, const E &y);
-// bool greater  (const E &x, const E &y);
-//
-// "const E &" can be replaced by "E"
-//--------------------------------------------------------------------
 
 //! Standard comparer (valid as a static comparer).
 /**
@@ -75,7 +63,7 @@ public:
 	static bool equal(const E &x, const E &y) { OGDF_THROW(NoStdComparerException); }
 };
 
-//! Generates a specialization of the standard static comparer for \a type based on compare operators.
+//! Generates a specialization of the standard static comparer for \p type based on compare operators.
 /**
  * @ingroup comparer
  */
@@ -114,7 +102,7 @@ public:
  */
 template<class CONTENTTYPE, class STATICCONTENTCOMPARER = StdComparer<CONTENTTYPE> >
 class TargetComparer {
-	typedef CONTENTTYPE* CONTENTPOINTER;
+	using CONTENTPOINTER = CONTENTTYPE*;
 public:
 	static bool less   (const CONTENTPOINTER &x, const CONTENTPOINTER &y) { return STATICCONTENTCOMPARER::less   (*x,*y); }
 	static bool leq    (const CONTENTPOINTER &x, const CONTENTPOINTER &y) { return STATICCONTENTCOMPARER::leq    (*x,*y); }
@@ -223,7 +211,7 @@ public:
 /**
  * @ingroup comparer
  *
- * The parameterized class \a VComparer<E> is an abstract base class for
+ * The parameterized class VComparer is an abstract base class for
  * encapsulating compare functions for type \a E. Implementations derive
  * from this class and implement at least the compare() method.
  *
@@ -246,7 +234,7 @@ public:
 
 	virtual ~VComparer() { }
 
-	//! Compares \a x and \a y and returns the result as an integer.
+	//! Compares \p x and \p y and returns the result as an integer.
 	/** The returns value is
 	 *  - < 0 iff x < y,
 	 *  - = 0 iff x = y,
@@ -254,27 +242,27 @@ public:
 	 */
 	virtual int compare(const E &x, const E &y) const = 0;
 
-	//! Returns true iff \a x < \a y
+	//! Returns true iff \p x < \p y
 	virtual bool less(const E &x, const E &y) const {
 		return compare(x,y) < 0;
 	}
 
-	//! Returns true iff \a x <= \a y
+	//! Returns true iff \p x <= \p y
 	virtual bool leq(const E &x, const E &y) const {
 		return compare(x,y) <= 0;
 	}
 
-	//! Returns true iff \a x > \a y
+	//! Returns true iff \p x > \p y
 	virtual bool greater(const E &x, const E &y) const {
 		return compare(x,y) > 0;
 	}
 
-	//! Returns true iff \a x >= \a y
+	//! Returns true iff \p x >= \p y
 	virtual bool geq(const E &x, const E &y) const {
 		return compare(x,y) >= 0;
 	}
 
-	//! Returns true iff \a x = \a y
+	//! Returns true iff \p x = \p y
 	virtual bool equal(const E &x, const E &y) const {
 		return compare(x,y) == 0;
 	}
@@ -288,48 +276,48 @@ public:
  */
 template<class X, class Priority=double>
 class Prioritized {
-	 X x;
-	 Priority p;
+	X x;
+	Priority p;
 
 public:
-	 //! Constructor of empty element. Be careful!
-	 Prioritized() : x(0), p(0) { }
+	//! Constructor of empty element. Be careful!
+	Prioritized() : x(0), p(0) { }
 
-	 //! Constructor using a key/value pair
-	 Prioritized(X xt, Priority pt) : x(xt),p(pt) { }
+	//! Constructor using a key/value pair
+	Prioritized(X xt, Priority pt) : x(xt),p(pt) { }
 
-	 //! Copy-constructor
-	 Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
+	//! Copy-constructor
+	Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
 
-	 //! Returns the key of the element
-	 Priority priority() const { return p; }
+	//! Returns the key of the element
+	Priority priority() const { return p; }
 
-	 //! Returns the data of the element
-	 X item() const { return x;}
+	//! Returns the data of the element
+	X item() const { return x;}
 
-	 //! Sets priority
-	 void setPriority(Priority pp) { p = pp; }
+	//! Sets priority
+	void setPriority(Priority pp) { p = pp; }
 
-	 //! Sets value x
-	 void setItem(X item) { x=item; }
+	//! Sets value x
+	void setItem(X item) { x=item; }
 
-	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-	 bool operator<(const Prioritized<X,Priority>& P) const { return p<P.p; }
+	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	bool operator<(const Prioritized<X,Priority>& P) const { return p<P.p; }
 
-	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-	 bool operator<=(const Prioritized<X,Priority>& P) const { return p<=P.p; }
+	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	bool operator<=(const Prioritized<X,Priority>& P) const { return p<=P.p; }
 
-	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-	 bool operator>(const Prioritized<X,Priority>& P) const { return p>P.p; }
+	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	bool operator>(const Prioritized<X,Priority>& P) const { return p>P.p; }
 
-	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-	 bool operator>=(const Prioritized<X,Priority>& P) const { return p>=P.p; }
+	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	bool operator>=(const Prioritized<X,Priority>& P) const { return p>=P.p; }
 
-	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-	 bool operator==(const Prioritized<X,Priority>& P) const { return p==P.p; }
+	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	bool operator==(const Prioritized<X,Priority>& P) const { return p==P.p; }
 
-	 //! Comparison oprator based on the compare-operator for the key type (\a Priority)
-	 bool operator!=(const Prioritized<X,Priority>& P) const { return p!=P.p; }
+	//! Comparison oprator based on the compare-operator for the key type (\a Priority)
+	bool operator!=(const Prioritized<X,Priority>& P) const { return p!=P.p; }
 };
 
 template<class X, class Priority> class StdComparer< Prioritized<X,Priority> >

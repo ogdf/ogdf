@@ -420,7 +420,7 @@ inline void ConVar::removeReference()
 {
 	if(--nReferences_ < 0) {
 		Logger::ifout() << "ConVar::removeReference : reference counter negative\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Convar);
 	}
 }
 

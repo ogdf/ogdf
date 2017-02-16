@@ -39,7 +39,7 @@ Module::ReturnType PlanarSubgraphBoyerMyrvold::doCall(
 	const List<edge> &preferedEdges,
 	List<edge> &delEdges,
 	const EdgeArray<int>  *pCosts,
-	bool preferedImplyPlanar)
+	bool /* unused parameter */)
 {
 	int bestCost = -1;
 
@@ -56,7 +56,7 @@ Module::ReturnType PlanarSubgraphBoyerMyrvold::doCall(
 			}
 		}
 
-		BoyerMyrvoldPlanar bmp(copy, false, BoyerMyrvoldPlanar::doFindUnlimited, false, tmp, m_randomness, true, true, costs);
+		BoyerMyrvoldPlanar bmp(copy, false, BoyerMyrvoldPlanar::EmbeddingGrade::doFindUnlimited, false, tmp, m_randomness, true, true, costs);
 		std::minstd_rand rand(m_rand());
 		bmp.seed(rand);
 		bmp.start();
@@ -83,12 +83,10 @@ Module::ReturnType PlanarSubgraphBoyerMyrvold::doCall(
 			}
 		}
 
-		if(costs != nullptr) {
-			delete costs;
-		}
+		delete costs;
 	}
 
-	return Module::ReturnType::retFeasible;
+	return Module::ReturnType::Feasible;
 }
 
 }

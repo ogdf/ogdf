@@ -53,7 +53,7 @@ public:
 	//! Creates an instance of fixed embedding edge inserter with default settings.
 	FixedEmbeddingInserter();
 
-	//! Creates an instance of fixed embedding edge inserter with the same settings as \a inserter.
+	//! Creates an instance of fixed embedding edge inserter with the same settings as \p inserter.
 	FixedEmbeddingInserter(const FixedEmbeddingInserter &inserter);
 
 	//! Destructor.
@@ -86,10 +86,10 @@ public:
 	}
 
 
-	//! Sets the option <i>percentMostCrossed</i> to \a percent.
+	//! Sets the option <i>percentMostCrossed</i> to \p percent.
 	/**
 	 * This option determines the portion of most crossed edges used if the remove-reinsert
-	 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
+	 * method is set to RemoveReinsertType::MostCrossed. This portion is number of edges * percentMostCrossed() / 100.
 	 */
 	void percentMostCrossed(double percent) {
 		m_percentMostCrossed = percent;
@@ -100,7 +100,7 @@ public:
 		return m_percentMostCrossed;
 	}
 
-	//! Sets the option <i>keepEmbedding</i> to \a keep.
+	//! Sets the option <i>keepEmbedding</i> to \p keep.
 	/**
 	 * This option determines if the planar embedding of the planarized representation \a PG passed to the call-method
 	 * is preserved, or if always a new embedding is computed. If <i>keepEmbedding</i> is set to true,

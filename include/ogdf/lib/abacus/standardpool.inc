@@ -112,7 +112,7 @@ void StandardPool<BaseType, CoType>::increase(int size)
 
 	if (size < oldSize) {
 		Logger::ifout() << "StandardPool::increase(): the pool size cannot be decreased.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcStandardPool);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::StandardPool);
 	}
 
 	pool_.resize(size);
@@ -147,7 +147,7 @@ int StandardPool<BaseType, CoType>::cleanup()
 		}
 	}
 
-	Logger::ilout(Logger::LL_MINOR) << "StandardPool::cleanup(): " << nDeleted << " items removed." << endl;
+	Logger::ilout(Logger::Level::Minor) << "StandardPool::cleanup(): " << nDeleted << " items removed." << endl;
 	return nDeleted;
 
 }
@@ -183,7 +183,7 @@ int StandardPool<BaseType, CoType>::removeNonActive(int maxRemove)
 		nRemoved++;
 	}
 
-	Logger::ilout(Logger::LL_MINOR) << nRemoved << " inactive items removed from pool." << endl;
+	Logger::ilout(Logger::Level::Minor) << nRemoved << " inactive items removed from pool." << endl;
 
 	return nRemoved;
 }
@@ -201,7 +201,7 @@ int StandardPool<BaseType, CoType>::separate(
 	double    violation;
 	int       oldSep = cutBuffer->number();
 
-	Logger::ilout(Logger::LL_MINOR) << "StandardPool::separate(): " << "size = " << size() << " n = " << Pool<BaseType, CoType>::number_;
+	Logger::ilout(Logger::Level::Minor) << "StandardPool::separate(): " << "size = " << size() << " n = " << Pool<BaseType, CoType>::number_;
 
 	PoolSlot<BaseType, CoType> *slot;
 	const int s = size();
@@ -230,7 +230,7 @@ int StandardPool<BaseType, CoType>::separate(
 			}
 	}
 
-	Logger::ilout(Logger::LL_MINOR) << " generated = " << cutBuffer->number() - oldSep << endl;
+	Logger::ilout(Logger::Level::Minor) << " generated = " << cutBuffer->number() - oldSep << endl;
 	return cutBuffer->number() - oldSep;
 }
 

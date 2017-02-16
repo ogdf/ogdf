@@ -43,7 +43,7 @@ class OGDF_EXPORT ClusterGraph;
 class OGDF_EXPORT ClusterGraphObserver;
 class OGDF_EXPORT ClusterElement;
 
-typedef ClusterElement *cluster; //!< The type of clusters.
+using cluster = ClusterElement*; //!< The type of clusters.
 
 
 //! Representation of clusters in a clustered graph.
@@ -109,7 +109,7 @@ private:
 		return adjEntries;
 	}
 
-	//! Traverses the inclusion tree and adds nodes to \a clusterNodes.
+	//! Traverses the inclusion tree and adds nodes to \p clusterNodes.
 	/**
 	 * Invoked by public function getClusterNodes(List<node> &clusterNodes).
 	 */
@@ -125,7 +125,7 @@ public:
 		m_id(id), m_depth(0), m_parent(nullptr), m_pPrev(nullptr), m_pNext(nullptr),
 		m_pClusterGraph(pClusterGraph) { }
 #else
-	ClusterElement(int id) :
+	explicit ClusterElement(int id) :
 		m_id(id), m_depth(0), m_parent(nullptr), m_pPrev(nullptr), m_pNext(nullptr) { }
 #endif
 
@@ -173,7 +173,7 @@ public:
 	//! Sets the entry for each node v to true if v is a member of the subgraph induced by the ClusterElement.
 	/**
 	 * All other entries remain unchanged!
-	 * \pre \a clusterNode is a NodeArray initialized on the clustergraph this ClusterElement belongs to.
+	 * \pre \p clusterNode is a NodeArray initialized on the clustergraph this ClusterElement belongs to.
 	 * \return the number of entries set to true.
 	 */
 	int getClusterNodes(NodeArray<bool> &clusterNode) {
@@ -221,11 +221,8 @@ public:
 
 };// class ClusterElement
 
-
-
-//---------------------------------------------------------
-// iteration macros
-//---------------------------------------------------------
+//! \name Iteration macros
+//! @{
 
 //! Iterates over all outgoing edges (given by the outgoing adjacency entries).
 //! @ingroup graphs
@@ -248,8 +245,6 @@ for(ogdf::ListConstIterator<adjEntry> ogdf_loop_var=(c)->firstAdj();\
 	ogdf::test_forall_adj_edges_of_cluster(ogdf_loop_var,(e));\
 	ogdf_loop_var=ogdf_loop_var.succ())
 
-
-
 inline bool test_forall_adj_entries_of_cluster(ListConstIterator<adjEntry> &it, adjEntry &adj)
 {
 	if (it.valid()) { adj = (*it); return true; }
@@ -270,15 +265,16 @@ inline bool test_forall_adj_edges_of_cluster(adjEntry &adj, edge &e)
 }
 
 
-//! Iteration over all clusters \a c of cluster graph \a C.
+//! Iteration over all clusters \p c of cluster graph \p C.
 //! @ingroup graphs
 #define forall_clusters(c,C) for((c)=(C).firstCluster(); (c); (c)=(c)->succ())
 
-//! Iteration over all clusters \a c of cluster graph \a C (in postorder).
+//! Iteration over all clusters \p c of cluster graph \p C (in postorder).
 //! @ingroup graphs
 #define forall_postOrderClusters(c,C)\
 for((c)=(C).firstPostOrderCluster(); (c); (c)=(c)->pSucc())
 
+//! @}
 
 class ClusterArrayBase;
 template<class T>class ClusterArray;
@@ -326,7 +322,7 @@ public:
 	//@{
 
 	//! Provides a bidirectional iterator to a cluster in a clustered graph.
-	typedef internal::GraphIterator<cluster> cluster_iterator;
+	using cluster_iterator = internal::GraphIterator<cluster>;
 
 	//@}
 
@@ -348,29 +344,29 @@ public:
 	 */
 	ClusterGraph();
 
-	//! Creates a cluster graph associated with graph \a G.
+	//! Creates a cluster graph associated with graph \p G.
 	/**
-	 * All nodes in \a G are assigned to the root cluster.
+	 * All nodes in \p G are assigned to the root cluster.
 	 */
 	ClusterGraph(const Graph &G);
 
 	//! Copy constructor.
 	/**
 	 * The copy constructor only creates a copy of the cluster tree structure, not of the underlying graph.
-	 * Consequently, this cluster graph and \a C will be associated with the same graph instance.
+	 * Consequently, this cluster graph and \p C will be associated with the same graph instance.
 	 */
 	ClusterGraph(const ClusterGraph &C);
 
-	//! Copies the underlying graph of \a C into \a G and constructs a copy of \a C associated with \a G.
+	//! Copies the underlying graph of \p C into \p G and constructs a copy of \p C associated with \p G.
 	/**
-	 * The created cluster tree is a copy of \a C except for the associated nodes, which are the newly created copies in \a G.
+	 * The created cluster tree is a copy of \p C except for the associated nodes, which are the newly created copies in \p G.
 	 */
 	ClusterGraph(const ClusterGraph &C, Graph &G);
 
-	//! Copies the underlying graph of \a C into \a G and constructs a copy of \a C associated with \a G.
+	//! Copies the underlying graph of \p C into \p G and constructs a copy of \p C associated with \p G.
 	/**
-	 * The created cluster tree is a copy of \a C except for the associated nodes, which are the newly created copies in \a G.
-	 * Stores the new copies of the original nodes and clusters in the arrays \a originalNodeTable and \a originalClusterTable.
+	 * The created cluster tree is a copy of \p C except for the associated nodes, which are the newly created copies in \p G.
+	 * Stores the new copies of the original nodes and clusters in the arrays \p originalNodeTable and \p originalClusterTable.
 	 */
 	ClusterGraph(
 		const ClusterGraph &C,
@@ -378,11 +374,11 @@ public:
 		ClusterArray<cluster> &originalClusterTable,
 		NodeArray<node> &originalNodeTable);
 
-	//! Copies the underlying graph of \a C into \a G and constructs a copy of \a C associated with \a G.
+	//! Copies the underlying graph of \p C into \p G and constructs a copy of \p C associated with \p G.
 	/**
-	 * The created cluster tree is a copy of \a C except for the associated nodes, which are the newly created copies in \a G.
+	 * The created cluster tree is a copy of \p C except for the associated nodes, which are the newly created copies in \p G.
 	 * Stores the new copies of the original nodes, edges, and clusters in the arrays
-	 * \a originalNodeTable, \a edgeCopy, and \a originalClusterTable.
+	 * \p originalNodeTable, \p edgeCopy, and \p originalClusterTable.
 	 */
 	ClusterGraph(
 		const ClusterGraph &C,
@@ -444,7 +440,7 @@ public:
 		return m_postOrderStart;
 	}
 
-	//! Returns the list of all clusters in \a clusters.
+	//! Returns the list of all clusters in \p clusterList.
 	template<class CLUSTERLIST>
 	void allClusters(CLUSTERLIST &clusterList) const {
 		clusterList.clear();
@@ -461,22 +457,22 @@ public:
 	//! Removes all clusters except for the root cluster.
 	void clear();
 
-	//! Clears all cluster data and then reinitializes the instance with underlying graph \a G.
+	//! Clears all cluster data and then reinitializes the instance with underlying graph \p G.
 	void init(const Graph &G);
 
 	//! Removes all clusters from the cluster subtree rooted at cluster C except for cluster C itself.
 	void clearClusterTree(cluster C);
 
-	//! Inserts a new cluster; makes it a child of the cluster \a parent.
+	//! Inserts a new cluster; makes it a child of the cluster \p parent.
 	cluster newCluster(cluster parent, int id = -1);
 
-	//! Creates an empty cluster with index \a clusterId and parent \a parent.
+	//! Creates an empty cluster with index \p clusterId and parent \p parent.
 	cluster createEmptyCluster(const cluster parent = nullptr, int clusterId = -1);
 
-	//! Creates a new cluster containing the nodes given by \a nodes; makes it a child of the cluster \a parent.
+	//! Creates a new cluster containing the nodes given by \p nodes; makes it a child of the cluster \p parent.
 	/**
 	 * The nodes are reassigned to the new cluster. If you turn off
-	 * \a m_allowEmptyclusters, an emptied cluster is deleted except if all
+	 * #m_allowEmptyClusters, an emptied cluster is deleted except if all
 	 * nodes are put into the same cluster.
 	 * @param nodes are the nodes that will be reassigned to the new cluster.
 	 * @param parent is the parent of the new cluster.
@@ -484,27 +480,27 @@ public:
 	 */
 	cluster createCluster(SList<node>& nodes, const cluster parent = nullptr);
 
-	//! Deletes cluster \a c.
+	//! Deletes cluster \p c.
 	/**
-	 * All subclusters become children of parent cluster of \a c.
-	 * \pre \a c is not the root cluster.
+	 * All subclusters become children of parent cluster of \p c.
+	 * \pre \p c is not the root cluster.
 	 */
 	void delCluster(cluster c);
 
-	//! Moves cluster \a c to a new parent \a newParent.
+	//! Moves cluster \p c to a new parent \p newParent.
 	void moveCluster(cluster c, cluster newParent);
 
 
-	//! Reassigns node \a v to cluster \ c.
+	//! Reassigns node \p v to cluster \p c.
 	void reassignNode(node v, cluster c);
 
-	//! Clear cluster info structure, reinitializes with underlying graph \a G.
+	//! Clear cluster info structure, reinitializes with underlying graph \p G.
 	//inserted mainly for use in gmlparser.
 	void reInit(Graph& G) {
 		reinitGraph(G);
 	}
 
-	//! Collapses all nodes in the list \a nodes to the first node; multi-edges are removed.
+	//! Collapses all nodes in the list \p nodes to the first node; multi-edges are removed.
 	template<class NODELIST>
 	void collaps(NODELIST &nodes, Graph &G) {
 		OGDF_ASSERT(&G == m_pGraph);
@@ -565,15 +561,15 @@ public:
 	//maybe later we should provide a permanent depth member update
 	int treeDepth() const;
 
-	//! Computes depth of cluster tree hanging at \a c.
+	//! Computes depth of cluster tree hanging at \p c.
 	void computeSubTreeDepth(cluster c) const;
 
-	//! Returns lowest common cluster of nodes in list \a nodes.
+	//! Returns lowest common cluster of nodes in list \p nodes.
 	cluster commonCluster(SList<node>& nodes);
 
-	//! Returns the lowest common cluster of \a v and \a w in the cluster tree
+	//! Returns the lowest common cluster of \p v and \p w in the cluster tree
 	/**
-	 * \pre \a v and \a w are nodes in the graph.
+	 * \pre \p v and \p w are nodes in the graph.
 	 */
 	cluster commonCluster(node v, node w) const {
 		cluster c1, c2;
@@ -591,9 +587,9 @@ public:
 		return commonClusterAncestorsPath(v, w, c1, c2, eL);
 	}
 
-	//! Returns lca of \a v and \a w and stores corresponding path in \a eL.
+	//! Returns lca of \p v and \p w and stores corresponding path in \p eL.
 	/**
-	 * The list \a eL is directed from \a v to \a w.
+	 * The list \p eL is directed from \p v to \p w.
 	 */
 	cluster commonClusterPath(
 		node v,
@@ -604,7 +600,7 @@ public:
 		return commonClusterAncestorsPath(v, w, c1, c2, eL);
 	}
 
-	//! Returns lca of \a v and \a w, stores corresponding path in \a eL and ancestors in \a c1, \a c2.
+	//! Returns lca of \p v and \p w, stores corresponding path in \p eL and ancestors in \p c1, \p c2.
 	cluster commonClusterAncestorsPath(
 		node v,
 		node w,
@@ -622,7 +618,7 @@ public:
 	 */
 	void emptyClusters(SList<cluster>& emptyCluster, SList<cluster>* checkCluster = nullptr);
 
-	//! Returns true if cluster \a c has only one node and no children.
+	//! Returns true if cluster \p c has only one node and no children.
 	inline bool emptyOnNodeDelete(cluster c) //virtual?
 	{
 #if 0
@@ -631,7 +627,7 @@ public:
 		return (c->nCount() == 1) && (c->cCount() == 0);
 	}
 
-	//! Returns true if cluster \a c has only one child and no nodes.
+	//! Returns true if cluster \p c has only one child and no nodes.
 	inline bool emptyOnClusterDelete(cluster c) //virtual?
 	{
 #if 0
@@ -646,7 +642,7 @@ public:
 	*/
 	//@{
 
-	//! Returns the list of all edges adjacent to cluster \a c in \a edges.
+	//! Returns the list of all edges adjacent to cluster \p c in \p edges.
 	template<class EDGELIST>
 	void adjEdges(cluster c, EDGELIST &edges) const {
 		edges.clear();
@@ -659,7 +655,7 @@ public:
 		}
 	}
 
-	//! Returns the list of all adjacency entries adjacent to cluster \a c in \a entries.
+	//! Returns the list of all adjacency entries adjacent to cluster \p c in \p entries.
 	template<class ADJLIST>
 	void adjEntries(cluster c, ADJLIST &entries) const {
 		entries.clear();
@@ -670,7 +666,7 @@ public:
 		}
 	}
 
-	//! Computes the adjacency entry list for cluster \a c.
+	//! Computes the adjacency entry list for cluster \p c.
 	template<class LISTITERATOR>
 	void makeAdjEntries(cluster c,LISTITERATOR start) {
 
@@ -718,7 +714,7 @@ public:
 	//! Unregisters a cluster array.
 	void unregisterArray(ListIterator<ClusterArrayBase*> it) const;
 
-	//! Move the registration \a it of a cluster array to \a pClusterArray (used with move semantics for cluster arrays).
+	//! Move the registration \p it of a cluster array to \p pClusterArray (used with move semantics for cluster arrays).
 	void moveRegisterArray(ListIterator<ClusterArrayBase*> it, ClusterArrayBase *pClusterArray) const;
 
 	//! Registers a cluster graph observer.
@@ -754,12 +750,12 @@ protected:
 	mutable bool m_depthUpToDate; //!< Status of cluster depth information.
 
 	//! Creates new cluster containing nodes in parameter list
-	//! with index \a clusterid.
+	//! with index \p clusterId.
 	cluster doCreateCluster(SList<node>& nodes,
 		const cluster parent, int clusterId = -1);
 
 	//! Creates new cluster containing nodes in parameter list and
-	//! stores resulting empty clusters in list, cluster has index \a clusterid.
+	//! stores resulting empty clusters in list, cluster has index \p clusterId.
 	cluster doCreateCluster(SList<node>& nodes,
 		SList<cluster>& emptyCluster,
 		const cluster parent, int clusterId = -1);
@@ -768,22 +764,21 @@ protected:
 	void doClear();
 
 	//! Copies lowest common ancestor info to copy of clustered graph.
-	void copyLCA(const ClusterGraph &C, ClusterArray<cluster>* clusterCopy = nullptr);
+	void copyLCA(const ClusterGraph &C);
 	//int m_treeDepth; //should be implemented and updated in operations?
 
 	//! Adjusts the post order structure for moved clusters.
 	//we assume that c is inserted via pushback in newparent->children
 	void updatePostOrder(cluster c, cluster oldParent, cluster newParent);
 
-	//! Computes new predecessor for subtree at moved cluster \a c (nullptr if \a c is the root).
+	//! Computes new predecessor for subtree at moved cluster \p c (nullptr if \p c is the root).
 	cluster postOrderPredecessor(cluster c) const;
 
 	//! Leftmost cluster in subtree rooted at c, gets predecessor of subtree.
 	cluster leftMostCluster(cluster c) const;
 
-	//---------------------------------------
-	//functions inherited from GraphObserver:
-	//define how to cope with graph changes
+	//! \name Functions inherited from GraphObserver (define how to cope with graph changes)
+	//! @{
 
 	//! Implementation of inherited method: Updates data if node deleted.
 	virtual void nodeDeleted(node v) override;
@@ -809,15 +804,31 @@ protected:
 		clear();
 	}//Graph cleared
 
+	//! @}
+
 private:
-	//! Assigns node \a v to cluster \a c (\a v not yet assigned!).
+	//! Fills \p emptyCluster with empty, non-root clusters from \p clusterList
+	template<typename T>
+	inline void fillEmptyClusters(SList<cluster> &emptyCluster, const T &clusterList) const
+	{
+		emptyCluster.clear();
+
+		for (cluster cc : clusterList) {
+			if (cc->cCount() + cc->nCount() == 0
+			 && cc != rootCluster()) { // we dont add rootcluster
+				emptyCluster.pushBack(cc);
+			}
+		}
+	}
+
+	//! Assigns node \p v to cluster \p C (\p v not yet assigned!).
 	void assignNode(node v, cluster C);
 
-	//! Unassigns node \a v from its cluster.
+	//! Unassigns node \p v from its cluster.
 	void unassignNode(node v);
 
 	//! Remove the assignment entries for nodes.
-	//! Checks if node is currently not assigned.
+	//! Checks if node \p v is currently not assigned.
 	void removeNodeAssignment(node v) {
 		if (m_nodeMap[v]) //iff == 0, itmap == 0 !!?
 		{
@@ -828,25 +839,24 @@ private:
 		}
 	}
 
-	//! Performs a copy of the cluster structure of C,
+	//! Performs a copy of the cluster structure of \p C,
 	//! the underlying graph stays the same.
 	void shallowCopy(const ClusterGraph &C);
 
-	//! Perform a deep copy on C, C's underlying
-	//! graph is copied into G.
+	//! Perform a deep copy on \p C, \p C's underlying
+	//! graph is copied into \p G.
 	void deepCopy(const ClusterGraph &C,Graph &G);
 
-	//! Perform a deep copy on C, C's underlying
-	//! graph is copied into G. Stores associated nodes in \a originalNodeTable.
-
+	//! Perform a deep copy on \p C, \p C's underlying
+	//! graph is copied into \p G. Stores associated nodes in \p originalNodeTable.
 	void deepCopy(
 		const ClusterGraph &C,Graph &G,
 		ClusterArray<cluster> &originalClusterTable,
 		NodeArray<node> &originalNodeTable);
 
-	//! Perform a deep copy on C, C's underlying
-	//! graph is copied into G.  Stores associated nodes in \a originalNodeTable
-	//! and edges in \a edgeCopy.
+	//! Perform a deep copy on \p C, \p C's underlying
+	//! graph is copied into \p G. Stores associated nodes in \p originalNodeTable
+	//! and edges in \p edgeCopy.
 	void deepCopy(
 		const ClusterGraph &C,Graph &G,
 		ClusterArray<cluster> &originalClusterTable,
@@ -858,7 +868,7 @@ private:
 
 	void initGraph(const Graph &G);
 
-	//! Reinitializes instance with graph \a G.
+	//! Reinitializes instance with graph \p G.
 	void reinitGraph(const Graph &G);
 
 	//! Creates new cluster with given id, precondition: id not used
@@ -882,7 +892,7 @@ private:
 
 
 
-ostream &operator<<(ostream &os, ogdf::cluster c);
+OGDF_EXPORT ostream &operator<<(ostream &os, ogdf::cluster c);
 
 
 } // end namespace ogdf

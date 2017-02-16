@@ -64,14 +64,14 @@ public:
 
 	// constructor
 
-	//! Creates a skeleton \a S with owner tree \a T and corresponding node \a vT.
+	//! Creates a skeleton \a S with owner tree \a T and corresponding node \p vT.
 	/**
-	 * \pre \a vT is a node in \a T
+	 * \pre \p vT is a node in \a T
 	 *
 	 * \remarks Skeletons are created by the constructor of SPQRTree
 	 *          and can be accessed with the skeleton() function of SPQRTree.
 	 */
-	Skeleton(node vT) : m_treeNode(vT) { }
+	explicit Skeleton(node vT) : m_treeNode(vT) { }
 
 
 	// destructor
@@ -105,36 +105,36 @@ public:
 		return m_M;
 	}
 
-	//! Returns the vertex in the original graph \a G that corresponds to \a v.
+	//! Returns the vertex in the original graph \a G that corresponds to \p v.
 	/**
-	 * \pre \a v is a node in \a M.
+	 * \pre \p v is a node in \a M.
 	 */
 	virtual node original (node v) const=0;
 
-	//! Returns true iff \a e is a virtual edge.
+	//! Returns true iff \p e is a virtual edge.
 	/**
-	 * \pre \a e is an edge in \a M
+	 * \pre \p e is an edge in \a M
 	 */
 	virtual bool isVirtual (edge e) const=0;
 
-	//! Returns the real edge that corresponds to skeleton edge \a e
+	//! Returns the real edge that corresponds to skeleton edge \p e
 	/**
-	 * If \a e is virtual edge, then 0 is returned.
-	 * \pre \a e is an edge in \a M
+	 * If \p e is virtual edge, then 0 is returned.
+	 * \pre \p e is an edge in \a M
 	 */
 	virtual edge realEdge (edge e) const=0;
 
-	//! Returns the twin edge of skeleton edge \a e.
+	//! Returns the twin edge of skeleton edge \p e.
 	/**
-	 * If \a e is not a virtual edge, then 0 is returned.
-	 * \pre \a e is an edge in \a M
+	 * If \p e is not a virtual edge, then 0 is returned.
+	 * \pre \p e is an edge in \a M
 	 */
 	virtual edge twinEdge (edge e) const=0;
 
-	//! Returns the tree node in T containing the twin edge of skeleton edge \a e.
+	//! Returns the tree node in T containing the twin edge of skeleton edge \p e.
 	/**
-	 * If \a e is not a virtual edge, then 0 is returned.
-	 * \pre \a e is an edge in \a M
+	 * If \p e is not a virtual edge, then 0 is returned.
+	 * \pre \p e is an edge in \a M
 	 */
 	virtual node twinTreeNode (edge e) const=0;
 

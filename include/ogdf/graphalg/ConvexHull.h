@@ -33,7 +33,7 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/geometry.h>
-#include <ogdf/internal/energybased/MultilevelGraph.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <vector>
 
 namespace ogdf {

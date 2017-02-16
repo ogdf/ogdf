@@ -212,14 +212,14 @@ void OsiIF::_loadBasis(
 
 	if (osiLP_->getNumCols() > lps) {
 		Logger::ifout() << "OsiIF::_loadBasis: mismatch in number of columns: OSI " << osiLP_->getNumCols() << ", Abacus: " << lps << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 	for (int i = 0; i < numCols_; i++)
 		ws->setStructStatus(i, lpVarStat2osi(lpVarStat[i]));
 
 	if (osiLP_->getNumRows() > sls) {
 		Logger::ifout() << "OsiIF::_loadBasis: mismatch in number of rows: OSI " << osiLP_->getNumCols() << ", Abacus: " << sls << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 	for (int i = 0; i < numRows_; i++)
 		ws->setArtifStatus(i, slackStat2osi(slackStat[i]));
@@ -272,7 +272,7 @@ int OsiIF::_getInfeas(int &infeasRow, int &infeasCol, double *bInvRow) const
 {
 	// This is only implemented in CPLEX and rarely used.
 	Logger::ifout() << "OsiIF::_getInfeas(): currently not available\n";
-	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 }
 
 
@@ -436,7 +436,7 @@ LP::OPTSTAT OsiIF::_primalSimplex()
 	// check for solver statuses
 	if (osiLP_->isAbandoned()){
 		Logger::ifout() << "OsiIF::_primalSimplex():\nWarning: solver Interface reports status isAbandoned\nThere have been numerical difficulties, aborting...\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 
 	// get information about the solution
@@ -449,7 +449,7 @@ LP::OPTSTAT OsiIF::_primalSimplex()
 	if (osiLP_->isIterationLimitReached()) return LimitReached;
 	else {
 		Logger::ifout() << "OsiIF::_primalSimplex():\nunable to determine status of LP, aborting...\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -470,7 +470,7 @@ LP::OPTSTAT OsiIF::_dualSimplex()
 	// check for solver statuses
 	if (osiLP_->isAbandoned()){
 		Logger::ifout() << "OsiIF::_dualSimplex():\nWarning: solver Interface reports staus isAbandoned\nThere have been numerical difficulties, aborting...\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 
 	// get information about the solution
@@ -484,7 +484,7 @@ LP::OPTSTAT OsiIF::_dualSimplex()
 	else {
 		Logger::ifout() << "OsiIF::_dualSimplex():\nunable to determine status of LP, aborting...\n";
 		//FIXME what about strong branching?
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -515,7 +515,7 @@ LP::OPTSTAT OsiIF::_approx()
 	// check for solver statuses
 	if (osiLP_->isAbandoned()){
 		Logger::ifout() << "OsiIF::_approx():\nWarning: solver Interface reports staus isAbandoned\nThere have been numerical difficulties, aborting...\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 
 	// get information about the solution
@@ -552,7 +552,7 @@ void OsiIF::_sense(const OptSense &newSense)
 {
 	if (newSense.unknown()) {
 		Logger::ifout() << "OsiIF::_sense: The objective sense can not be set to 'unknown' with OSI.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 	else if (newSense.max())
 		osiLP_->setObjSense(-1.);
@@ -589,7 +589,7 @@ double OsiIF::_barXVal(int i) const
 	// The barrier algorithm is only supported by cplex
 	// support may be added later
 	Logger::ifout() << "OsiIF::_barXVal: The barrier algorithm is currently not supported\n";
-	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	//return barXValStatus_ ? 0. : barXVal_[i];
 }
 
@@ -607,7 +607,7 @@ double OsiIF::_slack(int i) const
 		return 0.0;
 	default:
 		Logger::ifout() << "OsiIF::_slack : slack not defined for sense " << rowsense_[i] << " for row " << i << " of " << osiLP_->getNumRows() << " osiLP_->getNumRows()\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -750,7 +750,7 @@ LPVARSTAT::STATUS OsiIF::osi2lpVarStat(CoinWarmStartBasis::Status stat) const
 		return LPVARSTAT::AtLowerBound;
 	default:
 		Logger::ifout() << "OsiIF::osi2lpVarStat( " << stat << " ) unknown status\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -768,7 +768,7 @@ CoinWarmStartBasis::Status OsiIF::slackStat2osi(SlackStat::STATUS stat) const
 		return CoinWarmStartBasis::atLowerBound;
 	default:
 		Logger::ifout() << "OsiIF::slackStat2osi( " << stat << " ) corresponding OSI status unknown\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -785,7 +785,7 @@ SlackStat::STATUS OsiIF::osi2slackStat(CoinWarmStartBasis::Status stat) const
 	case CoinWarmStartBasis::isFree:
 	default:
 		Logger::ifout() << "OsiIF::osi2slackStat( " << stat << " ) unknown status\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -810,7 +810,7 @@ char OsiIF::csense2osi(CSense *sense) const
 	case CSense::Greater: return 'G';
 	default:
 		Logger::ifout() << "OsiIF::csense2osi unknown sense\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -823,7 +823,7 @@ CSense::SENSE OsiIF::osi2csense(char sense) const
 	case 'G': return CSense::Greater;
 	default:
 		Logger::ifout() << "OsiIF::osi2csense( " << sense << " ) unknown sense";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -844,7 +844,7 @@ CoinWarmStartBasis::Status OsiIF::lpVarStat2osi(LPVARSTAT::STATUS stat) const
 		return CoinWarmStartBasis::atLowerBound;
 	default:
 		Logger::ifout() << "OsiIF::lpVarStat2osi( " << stat << " ) unknown status\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 }
 
@@ -920,7 +920,7 @@ OsiSolverInterface* OsiIF::getDefaultInterface()
 #endif
 	default:
 		Logger::ifout() << "No support for solver " << Master::OSISOLVER_[master_->defaultLpSolver()] << " in Coin-Osi! (see defaultLP-Solver)\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 	}
 
 	if(interface != nullptr){
@@ -947,7 +947,7 @@ OsiSolverInterface* OsiIF::switchInterfaces(SOLVERTYPE newMethod)
 		s2 = new OsiVolSolverInterface;
 #else
 		Logger::ifout() << "ABACUS has not been compiled with support for the Volume Algorithm, cannot switch to approximate solver.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcOsiIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::OsiIf);
 #endif
 	}
 

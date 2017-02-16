@@ -79,48 +79,6 @@ static void deinitializeOGDF()
 	}
 }
 
-#ifdef OGDF_DLL
-
-#ifdef OGDF_SYSTEM_WINDOWS
-
-#ifdef __MINGW32__
-extern "C"
-#endif
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
-{
-	switch (ul_reason_for_call)
-	{
-	case DLL_PROCESS_ATTACH:
-		initializeOGDF();
-		break;
-
-	case DLL_THREAD_ATTACH:
-	case DLL_THREAD_DETACH:
-		break;
-
-	case DLL_PROCESS_DETACH:
-		deinitializeOGDF();
-		break;
-	}
-	return TRUE;
-}
-
-#else
-
-void __attribute__ ((constructor)) my_load(void)
-{
-	initializeOGDF();
-}
-
-void __attribute__ ((destructor)) my_unload(void)
-{
-	deinitializeOGDF();
-}
-
-#endif
-
-#else
-
 namespace ogdf {
 
 Initialization::Initialization()
@@ -132,12 +90,6 @@ Initialization::~Initialization()
 {
 	deinitializeOGDF();
 }
-
-}
-
-#endif
-
-namespace ogdf {
 
 inline bool charCompareIgnoreCase(char a, char b)
 {
@@ -170,6 +122,10 @@ bool prefixIgnoreCase(const string &prefix, const string &str)
 // debug level (in debug build only)
 #ifdef OGDF_DEBUG
 DebugLevel debugLevel;
+
+bool debugLevelIsAtLeast(const DebugLevel& dl) {
+	return static_cast<int>(ogdf::debugLevel) >= static_cast<int>(dl);
+}
 #endif
 
 static std::mt19937 s_random;

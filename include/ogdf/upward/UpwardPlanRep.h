@@ -60,12 +60,12 @@ public:
 #endif
 
 	/* @{
-	 * \brief Creates a planarized representation with respect to \a Gamma.
+	 * \brief Creates a planarized representation with respect to \p Gamma.
 	 * Gamma muss be an upward planar embedding with a fixed ext. face
 	 * Precondition: the graph is a single source graph
 	 */
 
-	UpwardPlanRep(const CombinatorialEmbedding &Gamma); //upward planar embedding with a fixed ext. face
+	explicit UpwardPlanRep(const CombinatorialEmbedding &Gamma); //upward planar embedding with a fixed ext. face
 
 	UpwardPlanRep(const GraphCopy &GC, // must be upward embedded and single source
 		adjEntry adj_ext); // the right face of this adjEntry is the external face
@@ -139,7 +139,7 @@ public:
 		return adjFound;
 	}
 
-	//*************************** debug ********************************
+	// debug
 	void outputFaces(const CombinatorialEmbedding &embedding) const {
 		cout << endl << "Face UPR " << endl;
 		for (face f : embedding.faces) {

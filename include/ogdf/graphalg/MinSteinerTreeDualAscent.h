@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 
 // enable this to print log
@@ -125,10 +125,8 @@ private:
 	/**
 	 * Re-establishes all strongly connected components
 	 * for the Steiner graph.
-	 *
-	 * @param insertedEdge the edge inserted since the last call of this method
 	 */
-	void updateComponents(const edge insertedEdge);
+	void updateComponents();
 
 protected:
 
@@ -153,8 +151,6 @@ protected:
 	  const NodeArray<bool> &isTerminal,
 	  EdgeWeightedGraphCopy<T> *&finalSteinerTree);
 };
-
-/*********************** IMPLEMENTATION ***********************/
 
 template<typename T>
 void MinSteinerTreeDualAscent<T>::init()
@@ -193,7 +189,7 @@ void MinSteinerTreeDualAscent<T>::init()
 		m_edgeSlacks[copiedEdgeS] = m_edgeSlacks[copiedEdgeT] = m_pOrigGraph->weight(e);
 		m_origMapping[copiedEdgeS] = m_origMapping[copiedEdgeT] = e;
 	}
-	updateComponents(nullptr);
+	updateComponents();
 
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 	cout << "directed graph has " << m_diGraph.numberOfNodes() << " nodes "
@@ -212,7 +208,7 @@ int MinSteinerTreeDualAscent<T>::findComponent(const node v) const
 
 
 template<typename T>
-void MinSteinerTreeDualAscent<T>::updateComponents(const edge insertedEdge)
+void MinSteinerTreeDualAscent<T>::updateComponents()
 {
 	strongComponents(m_steinerGraph, m_componentMapping);
 }
@@ -353,10 +349,10 @@ bool MinSteinerTreeDualAscent<T>::isActiveComponent(const node source) const
 
 template<typename T>
 T MinSteinerTreeDualAscent<T>::computeSteinerTree(
-	  const EdgeWeightedGraph<T> &G,
-	  const List<node> &terminals,
-	  const NodeArray<bool> &isTerminal,
-	  EdgeWeightedGraphCopy<T> *&finalSteinerTree)
+	const EdgeWeightedGraph<T> &G,
+	const List<node> &terminals,
+	const NodeArray<bool> &isTerminal,
+	EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
 #ifdef OGDF_DUAL_ASCENT_LOGGING
 	cout << "MinSteinerTreeDualAscent called." << std::endl;
@@ -418,7 +414,7 @@ T MinSteinerTreeDualAscent<T>::computeSteinerTree(
 
 		// insert edge
 		m_steinerGraph.newEdge(minEdge);
-		updateComponents(minEdge);
+		updateComponents();
 
 		// insert edge into final Steiner tree
 		edge origEdge = m_origMapping[minEdge];

@@ -35,8 +35,6 @@
 
 
 #include <ogdf/misclayout/BertaultLayout.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/fileformats/GraphIO.h>
 
 namespace ogdf {
 
@@ -144,7 +142,7 @@ void BertaultLayout::call(GraphAttributes &AG)
 					{
 						if((!impred)||surr(v->index(),e->index())==1)
 						{
-							 f_Edge(&v,&e,AG);
+							f_Edge(&v,&e,AG);
 						}
 						r_Calc_On_Edge(&v,&e,AG);					// updates values of section radii
 					}
@@ -213,24 +211,29 @@ void BertaultLayout::compute_I(node *v,edge *e, GraphAttributes &AG)
 	double n=-1/m;										//slope of a perpendicular
 	double c=AG.y(a)-m*(AG.x(a));							//y=mx+c for edge
 	double d=AG.y(*v)-n*(AG.x(*v));							//y=nx+d for the perpendicular
-	i.x=(d-c)/(m-n);										//solve for x
-	i.y=m*i.x+c;											//solve for y
+	proj.x=(d-c)/(m-n);										//solve for x
+	proj.y=m*proj.x+c;											//solve for y
 }
 
 bool BertaultLayout::i_On_Edge(edge *e, GraphAttributes &AG)
 {
-	node a=(*e)->source();
-	node b=(*e)->target();
-	return ((i.x<=AG.x(a)&&i.x>=AG.x(b))||(i.x>=AG.x(a)&&i.x<=AG.x(b)))&&((i.y<=AG.y(a)&&i.y>=AG.y(b))||(i.y>=AG.y(a)&&i.y<=AG.y(b)));				// x and y coordinates of i must be in between that of a and b
+	const node a = (*e)->source();
+	const node b = (*e)->target();
+	// x and y coordinates of i must be in between that of a and b
+	const bool xGood = (proj.x <= AG.x(a) && proj.x>=AG.x(b))
+	                || (proj.x >= AG.x(a) && proj.x<=AG.x(b));
+	const bool yGood = (proj.y <= AG.y(a) && proj.y>=AG.y(b))
+	                || (proj.y >= AG.y(a) && proj.y<=AG.y(b));
+	return xGood && yGood;
 }
 
 void BertaultLayout::f_Edge(node *v,edge *e, GraphAttributes &AG)
 {
-	double dist=sqrt((AG.x(*v)-i.x)*(AG.x(*v)-i.x)+(AG.y(*v)-i.y)*(AG.y(*v)-i.y));
+	double dist=sqrt((AG.x(*v)-proj.x)*(AG.x(*v)-proj.x)+(AG.y(*v)-proj.y)*(AG.y(*v)-proj.y));
 	if(dist<=limit&&dist>0)
 	{
-		double fx=(limit-dist)*(limit-dist)*(AG.x(*v)-i.x)/dist;
-		double fy=(limit-dist)*(limit-dist)*(AG.y(*v)-i.y)/dist;
+		double fx=(limit-dist)*(limit-dist)*(AG.x(*v)-proj.x)/dist;
+		double fy=(limit-dist)*(limit-dist)*(AG.y(*v)-proj.y)/dist;
 		(F_x)[*v]+=fx;
 		(F_y)[*v]+=fy;
 		node a=(*e)->source();
@@ -247,8 +250,8 @@ void BertaultLayout::r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG)
 	node a=(*e)->source();
 	node b=(*e)->target();
 	int s=0;
-	double x_diff=i.x-AG.x(*v);
-	double y_diff=i.y-AG.y(*v);
+	double x_diff=proj.x-AG.x(*v);
+	double y_diff=proj.y-AG.y(*v);
 
 	//determines the section in which the line-segment (v,i) lies
 	if(x_diff>=0)
@@ -290,7 +293,16 @@ void BertaultLayout::r_Calc_On_Edge(node *v, edge *e, GraphAttributes &AG)
 	double max_radius=(sqrt(x_diff*x_diff+y_diff*y_diff))/3;
 
 #if 0
-	cout << "node:" << (*v)->index() << "edge:" << (*e)->index() << "between" << a->index() << "and" << b->index() << "INSIDE\nsection:" << s << "x_a:" << AG.x(a) << "x_b:" << AG.x(b) << "y_a:" << AG.y(a) << "y_b:" << AG.y(b) << "i_x:" << i.x << "i_y:" << i.y << "dist_v-i:" << max_radius*3 << "\n\n" ;
+	cout << "node:" << (*v)->index() << "edge:" << (*e)->index()
+	     << "between" << a->index() << "and" << b->index()
+	     << "INSIDE\nsection:" << s
+	     << "x_a:" << AG.x(a)
+	     << "x_b:" << AG.x(b)
+	     << "y_a:" << AG.y(a)
+	     << "y_b:" << AG.y(b)
+	     << "i_x:" << i.x
+	     << "i_y:" << i.y
+	     << "dist_v-i:" << max_radius*3 << "\n\n" ;
 #endif
 
 #if 0
@@ -401,10 +413,12 @@ void BertaultLayout::move(node *v, GraphAttributes &AG)
 
 	OGDF_ASSERT(s!=0);
 
-	double mov_mag=sqrt((x_diff*x_diff)+(y_diff*y_diff));		// the length of the move
-	if((sect)[*v].R[s]<mov_mag)									// if move is greater than zone(section) radius
-	{															// magnitudes of forces are normalised so that the length becomes equal to the radius
-		(F_x)[*v]=((F_x)[*v]/mov_mag)*(sect)[*v].R[s];					// and the move will now take the node on the arc of that section
+	double mov_mag=sqrt((x_diff*x_diff)+(y_diff*y_diff)); // the length of the move
+	if ((sect)[*v].R[s] < mov_mag) // if move is greater than zone(section) radius
+	{
+		// magnitudes of forces are normalised so that the length becomes equal to the radius
+		// and the move will now take the node on the arc of that section
+		(F_x)[*v]=((F_x)[*v]/mov_mag)*(sect)[*v].R[s];
 		(F_y)[*v]=((F_y)[*v]/mov_mag)*(sect)[*v].R[s];
 	}
 	//moves the node
@@ -418,7 +432,7 @@ void BertaultLayout::initPositions(GraphAttributes &AG, char c)
 	{
 		if(req_length==0)
 			req_length=50;
-		AG.initAttributes((AG.attributes()|GraphAttributes::nodeGraphics|GraphAttributes::edgeGraphics|GraphAttributes::nodeStyle|GraphAttributes::edgeStyle));
+		AG.addAttributes((AG.attributes()|GraphAttributes::nodeGraphics|GraphAttributes::edgeGraphics|GraphAttributes::nodeStyle|GraphAttributes::edgeStyle));
 		const Graph &G = AG.constGraph();
 		int m = (int) sqrt((double)G.numberOfNodes());
 		int cnth=0,cntc=0;
@@ -526,7 +540,7 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 	surr.init(0,G.numberOfNodes()-1,0,G.numberOfEdges()-1,0);
 	GraphCopy G1(G);
 	GraphAttributes AG1(G1);
-	AG1.setDirected(AG.directed());
+	AG1.directed() = AG.directed();
 	for(node v : G1.nodes)
 	{
 		AG1.x(v)=AG.x(G1.original(v));
@@ -553,7 +567,6 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 
 	PlanRep PG(AG1);
 	int numCC = PG.numberOfCCs();
-	int i;
 #if 0
 	GraphAttributes PAG(PG, GraphAttributes::nodeGraphics|GraphAttributes::edgeGraphics);
 	List< node > list;
@@ -564,13 +577,13 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 	List<CCElement*> forest;
 	Array<CCElement> Carr(numCC);
 
-	for(i = 0; i < numCC; i++)
+	for(int i = 0; i < numCC; i++)
 	{
 		Carr[i].init(i);
 		Carr[i].faceNum=-1;
 	}
 
-	for(i = 0; i < numCC; i++)
+	for(int i = 0; i < numCC; i++)
 	{
 		CCElement* new1=&Carr[i];
 		int rootnum=0,flag=0;
@@ -626,7 +639,7 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 	// Uncomment below statements to see output... for debugging use
 #if 0
 	cout << "forest size : " << forest.size();
-	for(i=0;i<forest.size();i++)
+	for(int i=0;i<forest.size();i++)
 	{
 		cout << "\nRoot : " << i <<"\n";
 		compute(*forest.get(i),PG,AG1,G1);
@@ -646,7 +659,7 @@ void BertaultLayout::preprocess(GraphAttributes &AG)
 
 void BertaultLayout::labelling(GraphAttributes &AG)
 {
-	AG.initAttributes(GraphAttributes::edgeIntWeight);
+	AG.addAttributes(GraphAttributes::edgeIntWeight);
 	for(edge e : AG.constGraph().edges)
 	{
 		AG.intWeight(e)=e->index();
@@ -682,7 +695,12 @@ void BertaultLayout::crossingPlanarize(GraphAttributes &AG)
 				if(xinc*yinc<0&&ainc*binc<0)
 				{
 #if 0
-					cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "\n";
+					cout << "edge " << e->index()
+					     << " and edge " << i->index()
+					     << " between nodes " << a->index()
+					     << " and " << b->index()
+					     << " and nodes " << x->index()
+					     << " and " << y->index() << "\n";
 #endif
 					int temp=AG.intWeight(e);
 					edge enew=G.split(e);
@@ -997,7 +1015,12 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 				if (((xinc*yinc < 0 && ainc*binc < 0) || (xinc*yinc == 0 && ainc*binc < 0) || (xinc*yinc < 0 && ainc*binc == 0)))
 				{
 #if 0
-					cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "\n";
+					cout << "edge " << e->index()
+					     << " and edge " << i->index()
+					     << " between nodes " << a->index()
+					     << " and " << b->index()
+					     << " and nodes " << x->index()
+					     << " and " << y->index() << "\n";
 #endif
 					crossings++;
 				}
@@ -1006,16 +1029,31 @@ int BertaultLayout::edgeCrossings(GraphAttributes &AG)
 					if (m == m2&&c == c2&&distax < d&&distay < d&&distbx < d&&distby < d)
 					{
 #if 0
-						cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "OVERLAP\n";
+						cout << "edge " << e->index()
+						     << " and edge " << i->index()
+						     << " between nodes " << a->index()
+						     << " and " << b->index()
+						     << " and nodes " << x->index()
+						     << " and " << y->index() << "OVERLAP\n";
 #endif
 						crossings += 2;
 					}
 				}
 			}
-			else if (m == m2&&c == c2&&distax < d&&distay < d&&distbx < d&&distby < d && ((a != y&&b != x&&b != y) || (a != x&&b != x&&b != y) || (a != y&&a != x&&b != y) || (a != y&&a != x&&b != x)))
+			else if (m == m2 && c == c2
+			      && distax < d &&distay < d &&distbx < d &&distby < d
+			      && ((a != y && b != x && b != y)
+			       || (a != x && b != x && b != y)
+			       || (a != y && a != x && b != y)
+			       || (a != y && a != x && b != x)))
 			{
 #if 0
-				cout << "edge " << e->index() << " and edge " << i->index() << " between nodes " << a->index() << " and " << b->index() << " and nodes " << x->index() << " and " << y->index() << "OVERLAP\n";
+				cout << "edge " << e->index()
+				     << " and edge " << i->index()
+				     << " between nodes " << a->index()
+				     << " and " << b->index()
+				     << " and nodes " << x->index()
+				     << " and " << y->index() << "OVERLAP\n";
 #endif
 				crossings += 1;
 			}
@@ -1060,14 +1098,13 @@ double BertaultLayout::nodeDistribution(GraphAttributes &AG)
 	const Graph &G = AG.constGraph();
 	if (G.numberOfNodes()<2)
 		return -1;
-	node v = G.firstNode();
 	double
-		minx = AG.x(v),
-		maxx = AG.x(v),
-		miny = AG.y(v),
-		maxy = AG.y(v);
+		minx = AG.x(G.firstNode()),
+		maxx = minx,
+		miny = AG.y(G.firstNode()),
+		maxy = miny;
 
-	for (v = v->succ(); v; v = v->succ()) {
+	for (node v: G.nodes) {
 		if (AG.x(v) > maxx)
 			maxx = AG.x(v);
 		if (AG.x(v) < minx)

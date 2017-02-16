@@ -35,19 +35,16 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// X m l T o k e n
-//---------------------------------------------------------
 /** This enum type represents the values, which are returned by
  *  the function XmlScanner::getNextToken().
  *  @see XmlScanner::getNextToken()
  */
-enum XmlToken {
+enum class XmlToken {
 	openingBracket,		///< <
 	closingBracket,		///< >
 	questionMark,		///< ?
 	exclamationMark,	///< !
-	minus,				///< -
+	minus,				///< &minus;
 	slash,				///< /
 	equalSign,			///< =
 	identifier,			///< (a..z|A..Z){(a..z|A..Z|0..9|.|_|:)}
@@ -59,10 +56,6 @@ enum XmlToken {
 						///< is no lookahead token
 }; // enum XmlToken
 
-
-//---------------------------------------------------------
-// X m l S c a n n e r
-//---------------------------------------------------------
 /** This class scans the characters of the input file and
  *  provides the detected token.
  */
@@ -78,7 +71,7 @@ private:
 
 public:
 	// construction
-	XmlScanner(istream &is);
+	explicit XmlScanner(istream &is);
 
 	//! Destruction: destroys the parse tree
 	~XmlScanner();

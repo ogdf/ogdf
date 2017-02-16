@@ -47,7 +47,7 @@ class OGDF_EXPORT GreedyCycleRemoval : public AcyclicSubgraphModule {
 public:
 	GreedyCycleRemoval() { }
 
-	//! Computes the set of edges \a arcSet, which have to be deleted in the acyclic subgraph.
+	//! Computes the set of edges \p arcSet, which have to be deleted in the acyclic subgraph.
 	virtual void call (const Graph &G, List<edge> &arcSet) override;
 
 private:

@@ -76,7 +76,6 @@ private:
 		node mu,
 		int bends,
 		NodeArray<int> cost[],
-		NodeArray<long long> embedding[],
 		Skeleton &skeleton,
 		EdgeArray<node> &edgeNode,
 		Graph &N,

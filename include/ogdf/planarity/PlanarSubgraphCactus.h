@@ -132,7 +132,7 @@ protected:
 			}
 		}
 
-		return Module::ReturnType::retFeasible;
+		return Module::ReturnType::Feasible;
 	}
 
 private:
@@ -152,7 +152,7 @@ private:
 	private:
 		const EdgeComparer &m_edgeComparer;
 	public:
-		AdjEntryComparer(const EdgeComparer &edgeComparer) : m_edgeComparer(edgeComparer) { }
+		explicit AdjEntryComparer(const EdgeComparer &edgeComparer) : m_edgeComparer(edgeComparer) { }
 
 		bool less(adjEntry adjA, adjEntry adjB) const {
 			return m_edgeComparer.less(adjA->theEdge(), adjB->theEdge());

@@ -223,7 +223,7 @@ bool FaceSinkGraph::dfsCheckForest(
 		if (w == parent) continue;
 		if(visited[w]) return false;
 
-		if(dfsCheckForest(w,v,visited,nInternalVertices) == false)
+		if(!dfsCheckForest(w,v,visited,nInternalVertices))
 			return false;
 	}
 

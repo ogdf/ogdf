@@ -1,8 +1,15 @@
 # OGDF
 
-The **O**pen **G**raph **D**rawing **F**ramework is a self-contained C++ class library for the automatic layout of diagrams. OGDF offers sophisticated algorithms and data structures to use within your own applications or scientific projects. The library is available under the GNU General Public License.
+The **O**pen **G**raph **D**rawing **F**ramework is a self-contained C++ class library
+for the automatic layout of diagrams. OGDF offers sophisticated algorithms and
+data structures to use within your own applications or scientific projects.
+The library is available under the GNU General Public License.
 
-OGDF is developed and supported by [TU Dortmund](http://ls11-www.cs.uni-dortmund.de/), [Osnabrück University](http://www.inf.uni-osnabrueck.de/theoinf), [University of Cologne](http://www.informatik.uni-koeln.de/ls_juenger/), [Monash University](http://www.infotech.monash.edu.au/about/schools/caulfield/), and [TU Ilmenau](http://www.tu-ilmenau.de/dma/).
+OGDF is developed and supported by [TU Dortmund](http://ls11-www.cs.uni-dortmund.de/),
+[Osnabrück University](http://www.inf.uni-osnabrueck.de/theoinf),
+[University of Cologne](http://www.informatik.uni-koeln.de/ls_juenger/),
+[Monash University](http://www.infotech.monash.edu.au/about/schools/caulfield/),
+and [TU Ilmenau](http://www.tu-ilmenau.de/dma/).
 
 ## Shortcuts
 
@@ -27,7 +34,7 @@ linear programming or unit testing.
 All files in the OGDF distribution (except for third-party
 software) are copyrighted:
 
-Copyright (C) 2005-2016
+Copyright (C) 2005-2017
 
 ## Note for GitHub users
 

@@ -110,7 +110,7 @@ private:
 public:
 
 	//! Implementation of computeValue from the super class. The flow array is
-	//! cleared, \a cap, \a s and \a t are stored and Edmonds&Karp starts. After
+	//! cleared, \p cap, \p s and \p t are stored and Edmonds&Karp starts. After
 	//! this first phase, the flow itself is already computed!
 	//! Returns 0 if source and sink are identical.
 	/**

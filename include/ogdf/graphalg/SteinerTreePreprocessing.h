@@ -47,34 +47,34 @@
 namespace ogdf {
 
 // Helpers:
-namespace steinertree {
+namespace steiner_tree {
 /** A class used by the unordered_maps inside the reductions.
- *  The operator() is defined as a hashing function for std::pair<node, node>.
+ *  The operator() is defined as a hashing function for NodePair.
  *  The pair is unordered: (u, v) equals (v, u).
  */
 class UnorderedNodePairHasher {
 public:
-	int operator() (std::pair<node, node> const &v) const
+	int operator() (NodePair const &v) const
 	{
 		return static_cast<int>((static_cast<long long>(
-		 min(v.first->index(), v.second->index())+11) * (max(v.first->index(), v.second->index())+73)) % 700001);
+		 min(v.source->index(), v.target->index())+11) * (max(v.source->index(), v.target->index())+73)) % 700001);
 	}
 };
 
 /** A class used by the unordered_maps inside the reductions.
- *  The operator() is defined as an equality function for std::pair<node, node>.
+ *  The operator() is defined as an equality function for NodePair.
  *  The pair is unordered: (u, v) equals (v, u).
  */
 class UnorderedNodePairEquality {
 public:
-	bool operator() (std::pair<node, node> const &pair1, std::pair<node, node> const &pair2) const
+	bool operator() (NodePair const &pair1, NodePair const &pair2) const
 	{
-		return (pair1.first == pair2.first  && pair1.second == pair2.second)
-		    || (pair1.first == pair2.second && pair1.second == pair2.first);
+		return (pair1.source == pair2.source && pair1.target == pair2.target)
+		    || (pair1.source == pair2.target && pair1.target == pair2.source);
 	}
 };
 
-} // end namespace steinertree
+} // end namespace steiner_tree
 
 
 /** \brief This class implements preprocessing strategies for the Steiner tree problem.
@@ -245,29 +245,29 @@ public:
 		bool changed = deleteComponentsWithoutTerminals();
 		bool triviallyChanged = false;
 		changed |= repeat([this, &triviallyChanged, k]() {
-			bool changed = false;
+			bool innerChanged = false;
 			triviallyChanged = reduceTrivial();
 			// graph guaranteed to be simple and connected
 
 			// precond: simple, connected
-			changed |= NTDkTest(10, k);
+			innerChanged |= NTDkTest(10, k);
 			// can occur: parallel edges
 
 			// precond: connected
 #if 0
 			// commented out because it is too expensive
-			changed |= longEdgesTest();
+			innerChanged |= longEdgesTest();
 #endif
 
 			// precond: connected
-			changed |= lowerBoundBasedNodeTest();
+			innerChanged |= lowerBoundBasedNodeTest();
 
 			// precond: connected
 			if (lowerBoundBasedEdgeTest()) {
 				// can occur: disconnected
 				deleteComponentsWithoutTerminals();
 				makeSimple(); // not necessary, but does not hurt (XXX)
-				changed = true;
+				innerChanged = true;
 			}
 
 			// precond: connected
@@ -277,21 +277,21 @@ public:
 			}
 
 			// is not thaaat good but helps a little:
-			changed |= PTmTest(k);
+			innerChanged |= PTmTest(k);
 			// can occur: parallel edges
 
-			changed |= repeat([this]() {
+			innerChanged |= repeat([this]() {
 				// precond: must be connected
-				bool changed = shortLinksTest();
+				bool innerInnerChanged = shortLinksTest();
 				// can occur: parallel edges, self-loops
 				makeSimple();
 
 				// precond: loop-free, connected
-				changed |= nearestVertexTest();
+				innerInnerChanged |= nearestVertexTest();
 				// can occur: parallel edges, self-loops
-				return changed;
+				return innerInnerChanged;
 			});
-			return changed;
+			return innerChanged;
 		});
 		return changed | triviallyChanged;
 	}
@@ -588,7 +588,7 @@ protected:
 	//! Compute the sum of all radii except the two largest
 	T computeRadiusSum() const;
 
-	//! Compute first and second best terminals according to function \a dist
+	//! Compute first and second best terminals according to function \p dist
 	template<typename LAMBDA>
 	void computeOptimalTerminals(node v, LAMBDA dist, node &optimalTerminal1, node &optimalTerminal2, NodeArray<T> &distance) const;
 
@@ -1031,7 +1031,10 @@ private:
 
 		if (upmostTerminalLastChain != nullptr) {
 			longestPathDistance = max(longestPathDistance,
-			  getMaxSegmentTree(longestDistToSteinerAncestorSegTree[chainOfNode[x]], 0, 0, static_cast<int>(chains[chainOfNode[x]].size())-1, positionOnChain[upmostTerminalLastChain]+1, positionOnChain[x]));
+			  getMaxSegmentTree(longestDistToSteinerAncestorSegTree[chainOfNode[x]], 0, 0,
+			                    static_cast<int>(chains[chainOfNode[x]].size()) - 1,
+			                    positionOnChain[upmostTerminalLastChain] + 1,
+			                    positionOnChain[x]));
 		}
 
 		fromLowestToAncestor = distanceToAncestor(upmostTerminal, ancestor);
@@ -1039,17 +1042,17 @@ private:
 
 public:
 
-	HeavyPathDecomposition(const EdgeWeightedGraphCopy<T> &tree)
-	  : tree(tree)
+	HeavyPathDecomposition(const EdgeWeightedGraphCopy<T> &treeEWGraphCopy)
+	  : tree(treeEWGraphCopy)
 	{
-		node root = tree.firstNode();
+		node root = treeEWGraphCopy.firstNode();
 
-		chainOfNode.init(tree, -1);
-		positionOnChain.init(tree, -1);
-		weightOfSubtree.init(tree, 0);
-		nodeLevel.init(tree, 0);
-		distanceToRoot.init(tree, 0);
-		closestSteinerAncestor.init(tree, nullptr);
+		chainOfNode.init(treeEWGraphCopy, -1);
+		positionOnChain.init(treeEWGraphCopy, -1);
+		weightOfSubtree.init(treeEWGraphCopy, 0);
+		nodeLevel.init(treeEWGraphCopy, 0);
+		distanceToRoot.init(treeEWGraphCopy, 0);
+		closestSteinerAncestor.init(treeEWGraphCopy, nullptr);
 
 		dfsHeavyPathDecomposition(root, nullptr);
 		fatherOfChain[chainOfNode[root]] = nullptr;
@@ -1408,7 +1411,7 @@ bool SteinerTreePreprocessing<T>::longEdgesTest()
 {
 	bool changed = false;
 	NodeArray<T> xDistance(m_copyGraph, numeric_limits<T>::max()),
-				 yDistance(m_copyGraph, numeric_limits<T>::max());
+	             yDistance(m_copyGraph, numeric_limits<T>::max());
 
 	for (edge e = m_copyGraph.firstEdge(), nextE; e; e = nextE) {
 		nextE = e->succ();
@@ -1441,16 +1444,16 @@ bool SteinerTreePreprocessing<T>::longEdgesTest()
 template<typename T>
 void SteinerTreePreprocessing<T>::computeClosestKTerminals(const int k, NodeArray<List<std::pair<node,T>>> &closestTerminals) const
 {
-	typedef PrioritizedQueue<std::pair<node, node>, T> NodePairQueue;
+	using NodePairQueue = PrioritizedQueue<NodePair, T>;
 
 	closestTerminals.init(m_copyGraph);
 	NodePairQueue queue;
-	std::unordered_map<std::pair<node, node>, typename NodePairQueue::Handle, steinertree::UnorderedNodePairHasher, steinertree::UnorderedNodePairEquality> qpos;
+	std::unordered_map<NodePair, typename NodePairQueue::Handle, steiner_tree::UnorderedNodePairHasher, steiner_tree::UnorderedNodePairEquality> qpos;
 
 	// initialization
 	for (node v : m_copyTerminals) {
 		closestTerminals[v].pushBack(std::make_pair(v, 0));
-		qpos[std::make_pair(v, v)] = queue.push(std::make_pair(v, v), closestTerminals[v].front().second);
+		qpos[NodePair(v, v)] = queue.push(NodePair(v, v), closestTerminals[v].front().second);
 	}
 
 	auto getCurrentDist = [&closestTerminals](const node currentNode, const node sourceTerminal) {
@@ -1493,10 +1496,10 @@ void SteinerTreePreprocessing<T>::computeClosestKTerminals(const int k, NodeArra
 	};
 
 	while (!queue.empty()) {
-		std::pair<node,node> minDistPair = queue.topElement();
+		NodePair minDistPair = queue.topElement();
 		queue.pop();
-		node currentNode = minDistPair.first;
-		node sourceTerminal = minDistPair.second;
+		node currentNode = minDistPair.source;
+		node sourceTerminal = minDistPair.target;
 
 		T currentDist = getCurrentDist(currentNode, sourceTerminal);
 		if (currentDist == -1) { // source terminal not found
@@ -1517,13 +1520,13 @@ void SteinerTreePreprocessing<T>::computeClosestKTerminals(const int k, NodeArra
 			T currentDistToAdjacentNode = getCurrentDist(adjacentNode, sourceTerminal);
 			if (currentDistToAdjacentNode != -1) { // there is already one path from sourceTerminal to adjNode
 				if (possibleNewDistance < currentDistToAdjacentNode) {
-					queue.decrease(qpos[std::make_pair(adjacentNode, sourceTerminal)], possibleNewDistance);
+					queue.decrease(qpos[NodePair(adjacentNode, sourceTerminal)], possibleNewDistance);
 					setNewDist(adjacentNode, sourceTerminal, possibleNewDistance);
 				}
 			} else {
 				if (closestTerminals[adjacentNode].size() < k
 				 || closestTerminals[adjacentNode].back().second > possibleNewDistance) {
-					qpos[std::make_pair(adjacentNode, sourceTerminal)] = queue.push(std::make_pair(adjacentNode, sourceTerminal), possibleNewDistance);
+					qpos[NodePair(adjacentNode, sourceTerminal)] = queue.push(NodePair(adjacentNode, sourceTerminal), possibleNewDistance);
 					setNewDist(adjacentNode, sourceTerminal, possibleNewDistance);
 				}
 			}
@@ -1752,23 +1755,19 @@ bool SteinerTreePreprocessing<T>::nearestVertexTest()
 			continue;
 		}
 
-		node closestAdjacentNode = minCostIncidentEdge1[terminal]->opposite(terminal);
+		const edge e1 = minCostIncidentEdge1[terminal];
+		const node closestAdjacentNode = e1->opposite(terminal);
+		T distance;
 
 		if (voronoiRegions.seed(closestAdjacentNode) == terminal) {
-			if (m_eps.geq(m_copyGraph.weight(minCostIncidentEdge2[terminal]), distanceToClosestTerminal[terminal])) {
-				if (!willBeAddedInSolution[minCostIncidentEdge1[terminal]]) {
-					edgesToBeAddedInSolution.pushBack(minCostIncidentEdge1[terminal]);
-					willBeAddedInSolution[minCostIncidentEdge1[terminal]] = true;
-				}
-			}
+			distance = distanceToClosestTerminal[terminal];
 		} else {
-			if (m_eps.geq(m_copyGraph.weight(minCostIncidentEdge2[terminal]),
-			      m_copyGraph.weight(minCostIncidentEdge1[terminal]) + voronoiRegions.distance(closestAdjacentNode))) {
-				if (!willBeAddedInSolution[minCostIncidentEdge1[terminal]]) {
-					edgesToBeAddedInSolution.pushBack(minCostIncidentEdge1[terminal]);
-					willBeAddedInSolution[minCostIncidentEdge1[terminal]] = true;
-				}
-			}
+			distance = m_copyGraph.weight(e1) + voronoiRegions.distance(closestAdjacentNode);
+		}
+		if (m_eps.geq(m_copyGraph.weight(minCostIncidentEdge2[terminal]), distance)
+		 && !willBeAddedInSolution[e1]) {
+			edgesToBeAddedInSolution.pushBack(e1);
+			willBeAddedInSolution[e1] = true;
 		}
 	}
 
@@ -1818,11 +1817,10 @@ bool SteinerTreePreprocessing<T>::shortLinksTest()
 		const edge e1 = minCostLeavingRegionEdge1[terminal];
 		const node x = e1->source(), y = e1->target();
 		if (m_eps.geq(m_copyGraph.weight(minCostLeavingRegionEdge2[terminal]),
-		      voronoiRegions.distance(x) + m_copyGraph.weight(e1) + voronoiRegions.distance(y))) {
-			if (!willBeAddedInSolution[e1]) {
-				edgesToBeAddedInSolution.pushBack(e1);
-				willBeAddedInSolution[e1] = true;
-			}
+		              voronoiRegions.distance(x) + m_copyGraph.weight(e1) + voronoiRegions.distance(y))
+		 && !willBeAddedInSolution[e1]) {
+			edgesToBeAddedInSolution.pushBack(e1);
+			willBeAddedInSolution[e1] = true;
 		}
 	}
 
@@ -1910,7 +1908,7 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 	}
 	Voronoi<T> voronoiRegions(m_copyGraph, initialEdgeWeight, m_copyTerminals);
 
-	std::unordered_map<std::pair<node, node>, edge, steinertree::UnorderedNodePairHasher, steinertree::UnorderedNodePairEquality> edgeBetweenNodes;
+	std::unordered_map<NodePair, edge, steiner_tree::UnorderedNodePairHasher, steiner_tree::UnorderedNodePairEquality> edgeBetweenNodes;
 	EdgeArray<T> edgeWeight(auxiliaryGraph, numeric_limits<T>::max());
 	for (edge e : m_copyGraph.edges) {
 		node x = e->source(), y = e->target();
@@ -1919,10 +1917,11 @@ bool SteinerTreePreprocessing<T>::lowerBoundBasedNodeTest()
 			continue;
 		}
 
-		if (edgeBetweenNodes.find(std::make_pair(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY])) == edgeBetweenNodes.end()) {
-			edgeBetweenNodes[std::make_pair(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY])] = auxiliaryGraph.newEdge(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY]);
+		auto pair = NodePair(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY]);
+		if (edgeBetweenNodes.find(pair) == edgeBetweenNodes.end()) {
+			edgeBetweenNodes[pair] = auxiliaryGraph.newEdge(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY]);
 		}
-		edge auxiliaryEdge = edgeBetweenNodes[std::make_pair(terminalInAuxiliaryGraph[seedX], terminalInAuxiliaryGraph[seedY])];
+		edge auxiliaryEdge = edgeBetweenNodes[pair];
 		edgeWeight[auxiliaryEdge] = min(edgeWeight[auxiliaryEdge], min(voronoiRegions.distance(x), voronoiRegions.distance(y)) + m_copyGraph.weight(e));
 	}
 

@@ -59,7 +59,7 @@ public:
 	//! Initializes crossing minimization for hierarchy \a H.
 	virtual void init (const HierarchyLevels &levels) override { m_weight.init(levels.hierarchy()); }
 
-	//! Calls the barycenter heuristic for level \a L.
+	//! Calls the barycenter heuristic for level \p L.
 	virtual void call (Level &L) override;
 
 	//! Does some clean-up after calls.

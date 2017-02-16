@@ -94,7 +94,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream& out, const LPVARSTAT &rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream& out, const LPVARSTAT &rhs);
 
 	//! Returns the LP-status.
 	STATUS status() const { return status_; }

@@ -38,19 +38,14 @@
 #include <ogdf/basic/graphics.h>
 #include <ogdf/misclayout/LinearLayout.h>
 
-#include <vector>
-#include <cmath>
-#include <math.h>
-
-
 namespace ogdf {
 
 /**
  * \brief Calculate one or all Maximum Adjacency Ordering(s) of a given simple undirected graph.
  *
  *
- * The class \a MaxAdjOrdering provides one algorithm to calculate a MAO or all MAOs of a given graph.
- * It returns a ListPure of NodeElements or a list of ListPures that contain the ordering.
+ * The class MaxAdjOrdering provides one algorithm to calculate a MAO or all MAOs of a given graph.
+ * It returns a ListPure of nodes or a list of ListPures that contain the ordering.
  *
  */
 class OGDF_EXPORT MaxAdjOrdering{
@@ -66,10 +61,10 @@ private:
 	*/
 	void m_calcAllMAOs_recursion(
 	                             int n,
-	                             ListPure<NodeElement *> currentOrder,
-	                             ListPure<NodeElement *> currentUnsorted,
+	                             ListPure<node> currentOrder,
+	                             ListPure<node> currentUnsorted,
 	                             std::vector<int> r,
-	                             ListPure< ListPure<NodeElement *> > *MAOs
+	                             ListPure<ListPure<node>> *MAOs
 	                            );
 
 	/**
@@ -86,12 +81,12 @@ private:
 	*/
 	void m_calcAllMAOs_recursion(
 	                             int n,
-	                             ListPure<NodeElement *> currentOrder,
-	                             ListPure< ListPure <EdgeElement *> > currentForest,
-	                             ListPure<NodeElement *> currentUnsorted,
+	                             ListPure<node> currentOrder,
+	                             ListPure<ListPure<edge>> currentForest,
+	                             ListPure<node> currentUnsorted,
 	                             std::vector<int> r,
-	                             ListPure< ListPure<NodeElement *> > *MAOs,
-	                             ListPure< ListPure< ListPure <EdgeElement *> > > *Fs
+	                             ListPure<ListPure<node>> *MAOs,
+	                             ListPure<ListPure<ListPure<edge>>> *Fs
 	                            );
 public:
 	/**
@@ -110,7 +105,7 @@ public:
 	*/
 	void calc(
 	          const Graph *G,
-	          ListPure<NodeElement *> *MAO
+	          ListPure<node> *MAO
 	         );
 	/**
 	* \brief Calculates one MAO starting with the node with index 0
@@ -120,7 +115,7 @@ public:
 	*/
 	void calcBfs(
 	             const Graph *G,
-	             ListPure<NodeElement *> *MAO
+	             ListPure<node> *MAO
 	            );
 
 	/**
@@ -131,8 +126,8 @@ public:
 	*/
 	void calc(
 	          const Graph *G,
-	          NodeElement *s,
-	          ListPure<NodeElement *> *MAO
+	          node s,
+	          ListPure<node> *MAO
 	         );
 
 	/**
@@ -143,8 +138,8 @@ public:
 	*/
 	void calc(
 	         const Graph *G,
-	         ListPure<NodeElement *> *MAO,
-	         ListPure< ListPure<EdgeElement *> > *Forests
+	         ListPure<node> *MAO,
+	         ListPure<ListPure<edge>> *Forests
 	         );
 
 	/**
@@ -156,9 +151,9 @@ public:
 	*/
 	void calc(
 	          const Graph *G,
-	          NodeElement *s,
-	          ListPure<NodeElement *> *MAO,
-	          ListPure< ListPure<EdgeElement *> > *Forests
+	          node s,
+	          ListPure<node> *MAO,
+	          ListPure<ListPure<edge>> *Forests
 	         );
 
 	/**
@@ -168,7 +163,7 @@ public:
 	*/
 	void calcAll(
 	             const Graph *G,
-	             ListPure< ListPure<NodeElement *> > *MAOs
+	             ListPure<ListPure<node>> *MAOs
 	            );
 
 	/**
@@ -179,67 +174,65 @@ public:
 	*/
 	void calcAll(
 	             const Graph *G,
-	             ListPure< ListPure< NodeElement *> > *MAOs,
-	             ListPure< ListPure< ListPure <EdgeElement *> > > *Fs
+	             ListPure<ListPure<node>> *MAOs,
+	             ListPure<ListPure<ListPure<edge>>> *Fs
 	            );
 	/**
 	 * \brief Test if a given ordering is a MAO
 	 * @param G is the graph to work on
-	 * @param Ordering is a \a ListPure that contains a permutation of the nodes
+	 * @param Ordering is a ListPure that contains a permutation of the nodes
 	*/
 	bool testIfMAO(
 	               const Graph *G,
-	               ListPure< NodeElement *> *Ordering
+	               ListPure< node> *Ordering
 	              );
 
 	/**
 	 * \brief Test if a given ordering is a MAO that follows lex-bfs tie breaking
 	 * @param G is the graph to work on
-	 * @param Ordering is a \a ListPure that contains a permutation of the nodes
+	 * @param Ordering is a ListPure that contains a permutation of the nodes
 	*/
 	bool testIfMAOBfs(
 	                  const Graph *G,
-	                  ListPure< NodeElement *> *Ordering
+	                  ListPure< node> *Ordering
 	                 );
 
 
 	/**
 	 * @brief testIfAllMAOs checks all permutations (must be provided) if they are a MAO and if
 	 * yes searches this ordering in the provided list. If one permutation is no MAO
-	 * it still gets searched to rule out any false elements in \a Perms. So we make sure we generated
-	 * all MAOs of \a G.
+	 * it still gets searched to rule out any false elements in \p Perms. So we make sure we generated
+	 * all MAOs of \p G.
 	 * @param G is the graph to work on
 	 * @param Orderings contains Lists that are supposedly MAOs
-	 * @param Perms contains all permutations of a graph with the same size as \a G
-	 * @param verbose determines whether to generate output while testing
+	 * @param Perms contains all permutations of a graph with the same size as \p G
 	 * @return
 	 */
 	bool testIfAllMAOs(
 	                   const Graph *G,
-	                   ListPure< ListPure< NodeElement *> > *Orderings,
-	                   ListPure< ListPure< NodeElement *> > *Perms,
-	                   bool verbose
+	                   ListPure<ListPure<node>> *Orderings,
+	                   ListPure<ListPure<node>> *Perms
 	                  );
 	/**
-	* \brief Convenient way to visualize a MAO with the \a LinearLayout class.
+	* \brief Convenient way to visualize a MAO with the LinearLayout class.
 	* @param GA Graphattributes of the Graph to paint
 	* @param MAO Mao to use for ordering the nodes
 	*/
 	void visualize(
 	               GraphAttributes *GA,
-	               ListPure<NodeElement *> *MAO
+	               ListPure<node> *MAO
 	              );
 
 	/**
-	* \brief Convenient way to visualize a MAO with the \a LinearLayout class.
+	* \brief Convenient way to visualize a MAO with the LinearLayout class.
 	* @param GA Graphattributes of the Graph to paint
 	* @param MAO Mao to use for ordering the nodes
 	* @param F A Forest can also be included
 	*/
 	void visualize(
 	               GraphAttributes *GA,
-	               ListPure<NodeElement *> *MAO,
-	               ListPure< ListPure <EdgeElement *> > *F
+	               ListPure<node> *MAO,
+	               ListPure<ListPure<edge>> *F
 	              );
 
 	};

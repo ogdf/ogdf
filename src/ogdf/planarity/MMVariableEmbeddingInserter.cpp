@@ -29,14 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
+#include <ogdf/planarity/embedding_inserter/CrossingsBucket.h>
 #include <ogdf/planarity/MMVariableEmbeddingInserter.h>
-#include <ogdf/basic/NodeSet.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/decomposition/StaticPlanarSPQRTree.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
-
 
 //#define MMC_OUTPUT
 
@@ -44,33 +42,12 @@ namespace ogdf {
 
 static int globalCounter = 0;
 
-//---------------------------------------------------------
-// constructor
 // sets default values for options
-//
 MMVariableEmbeddingInserter::MMVariableEmbeddingInserter()
 {
-	m_rrOption = rrNone;
+	m_rrOption = RemoveReinsertType::None;
 	m_percentMostCrossed = 25;
 }
-
-
-//---------------------------------------------------------
-// VEICrossingsBucket
-// bucket function for sorting edges by decreasing number
-// of crossings
-class VEICrossingsBucket : public BucketFunc<edge>
-{
-	const PlanRepExpansion *m_pPG;
-
-public:
-	VEICrossingsBucket(const PlanRepExpansion *pPG) :
-		m_pPG(pPG) { }
-
-	int getBucket(const edge &e) override {
-		return -m_pPG->chain(e).size();
-	}
-};
 
 void outputPG(const PlanRepExpansion &PG, int i)
 {
@@ -103,26 +80,24 @@ void MMVariableEmbeddingInserter::writeEip(const List<Crossing> &eip)
 	}
 }
 
-//---------------------------------------------------------
 // actual call (called by all variations of call)
 //   crossing of generalizations is forbidden if forbidCrossingGens = true
 //   edge costs are obeyed if costOrig != 0
-//
 Module::ReturnType MMVariableEmbeddingInserter::doCall(
 	PlanRepExpansion &PG,
 	const List<edge> &origEdges,
 	const EdgeArray<bool> *forbiddenEdgeOrig)
 {
-	ReturnType retValue = retFeasible;
+	ReturnType retValue = ReturnType::Feasible;
 
 	if (origEdges.size() == 0)
-		return retOptimal;  // nothing to do
+		return ReturnType::Optimal;  // nothing to do
 
 	m_pPG = &PG;
 	m_forbiddenEdgeOrig = forbiddenEdgeOrig;
 
 	SListPure<edge> rrEdges;
-	if(removeReinsert() != rrNone) {
+	if(removeReinsert() != RemoveReinsertType::None) {
 		for(edge e : PG.edges)
 			rrEdges.pushBack(PG.originalEdge(e));
 
@@ -205,15 +180,16 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 #endif
 	}
 
-	if(removeReinsert() != rrNone) {
+	if(removeReinsert() != RemoveReinsertType::None) {
 		// postprocessing (remove-reinsert heuristc)
 #if 0
 		SListPure<edge> rrEdges;
 
 		switch(removeReinsert())
 		{
-		case rrAll:
-		case rrMostCrossed: {
+		case RemoveReinsertType::All:
+		case RemoveReinsertType::MostCrossed:
+			{
 				const List<node> &origInCC = PG.nodesInCC();
 				ListConstIterator<node> itV;
 
@@ -228,7 +204,8 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			}
 			break;
 
-		case rrInserted: {
+		case RemoveReinsertType::Inserted:
+			{
 				ListConstIterator<edge> it;
 				for(it = origEdges.begin(); it.valid(); ++it)
 					rrEdges.pushBack(*it);
@@ -246,9 +223,9 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			improved = false;
 
 #if 0
-			if(removeReinsert() == rrMostCrossed)
+			if(removeReinsert() == RemoveReinsertType::MostCrossed)
 			{
-				VEICrossingsBucket bucket(&PG);
+				embedding_inserter::CrossingsBucket<PlanRepExpansion> bucket(&PG);
 				rrEdges.bucketSort(bucket);
 
 				const int num = int(0.01 * percentMostCrossed() * G.numberOfEdges());
@@ -256,11 +233,8 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 			}
 #endif
 
-			SListConstIterator<edge> it;
-			for(it = rrEdges.begin(); it.valid(); ++it)
-			{
+			for(edge eOrig: rrEdges) {
 				globalCounter++;
-				edge eOrig = *it;
 				node srcOrig = eOrig->source();
 				node tgtOrig = eOrig->target();
 
@@ -315,7 +289,7 @@ Module::ReturnType MMVariableEmbeddingInserter::doCall(
 					improved = true;
 			}
 
-			if(removeReinsert() == rrAll)
+			if(removeReinsert() == RemoveReinsertType::All)
 			{
 				// process all node splits
 				int nsCount = PG.nodeSplits().size();
@@ -534,10 +508,10 @@ node MMVariableEmbeddingInserter::prepareAnchorNode(
 					adjA[i++] = adj_x;
 			}
 
-			List<edge> *pathStraight = &PG.setOrigs(adjA[0]->theEdge(), eStraight, nsStraight);
-			vStraight = pathStraight->front()->source();
+			List<edge> *pathStraightAdjA = &PG.setOrigs(adjA[0]->theEdge(), eStraight, nsStraight);
+			vStraight = pathStraightAdjA->front()->source();
 			if(PG.original(vStraight) != vOrig)
-				vStraight = pathStraight->back()->target();
+				vStraight = pathStraightAdjA->back()->target();
 			OGDF_ASSERT(PG.original(vStraight) == vOrig);
 
 			eExtra = PG.separateDummy(adjA[0], adjA[1], vStraight, isSrc);
@@ -761,15 +735,12 @@ void MMVariableEmbeddingInserter::insertWithCommonDummy(
 	}
 }
 
-//-------------------------------------------------------------------
 // Block represents a block of the original graph
-//-------------------------------------------------------------------
-
 class MMVariableEmbeddingInserter::Block : public Graph
 {
 public:
 	// constructor
-	Block(PlanRepExpansion &PG) : m_PG(PG)
+	explicit Block(PlanRepExpansion &PG) : m_PG(PG)
 	{
 		m_adjBCtoG    .init(*this,nullptr);
 		m_forbidden   .init(*this,false);
@@ -877,11 +848,8 @@ adjEntry MMVariableEmbeddingInserter::Block::containsTargetAdj(node v) const
 }
 
 
-//-------------------------------------------------------------------
 // ExpandedSkeleton represents the (partially) expanded skeleton with
 // its dual graph (search network)
-//-------------------------------------------------------------------
-
 class MMVariableEmbeddingInserter::ExpandedSkeleton
 {
 	Block &m_BC;
@@ -908,7 +876,7 @@ class MMVariableEmbeddingInserter::ExpandedSkeleton
 
 
 public:
-	ExpandedSkeleton(Block &BC) :
+	explicit ExpandedSkeleton(Block &BC) :
 		m_BC(BC),
 		m_GtoExp(BC.m_pT->originalGraph(),nullptr),
 		m_expToG(m_exp,nullptr),
@@ -941,11 +909,8 @@ private:
 };
 
 
-//-------------------------------------------------------------------
 // build expanded graph (by expanding skeleton(v), edges eIn and eOut
 // are the adjacent tree edges on the path from v1 to v2
-//-------------------------------------------------------------------
-
 void MMVariableEmbeddingInserter::ExpandedSkeleton::expand(
 	node v, edge eIn, edge eOut)
 {
@@ -980,11 +945,8 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::expand(
 }
 
 
-//-------------------------------------------------------------------
 // insert edge in exp (from a node corresponding to vG in G to a node
 // corresponding to wG)
-//-------------------------------------------------------------------
-
 edge MMVariableEmbeddingInserter::ExpandedSkeleton::insertEdge(
 	node vG, node wG, edge eG)
 {
@@ -1014,10 +976,7 @@ edge MMVariableEmbeddingInserter::ExpandedSkeleton::insertEdge(
 }
 
 
-//-------------------------------------------------------------------
 // expand one skeleton (recursive construction)
-//-------------------------------------------------------------------
-
 void MMVariableEmbeddingInserter::ExpandedSkeleton::expandSkeleton(
 	node v, edge e1, edge e2)
 {
@@ -1043,10 +1002,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::expandSkeleton(
 }
 
 
-//-------------------------------------------------------------------
 // construct augmented dual graph (search network)
-//-------------------------------------------------------------------
-
 void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 	bool bPathToEdge, bool bPathToSrc, bool bPathToTgt)
 {
@@ -1116,7 +1072,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 				}
 
 				if(m_eS == nullptr ||
-					((bPathToSrc == false || v != m_eS->source()) && (bPathToTgt == false || v != m_eS->target())))
+					((!bPathToSrc || v != m_eS->source()) && (!bPathToTgt || v != m_eS->target())))
 				{
 					edge eIn = m_dual.newEdge(vLeft,vDual);
 					m_primalAdj[eIn] = adj;
@@ -1160,10 +1116,7 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::constructDual(
 }
 
 
-//-------------------------------------------------------------------
 // finds shortest paths in the search network
-//-------------------------------------------------------------------
-
 void MMVariableEmbeddingInserter::ExpandedSkeleton::addOutgoingEdges(
 	node v, SListPure<edge> &edges)
 {
@@ -1313,11 +1266,11 @@ MMVariableEmbeddingInserter::PathType
 	}
 
 	if(v == m_startEdge)
-		return pathToEdge;
+		return PathType::pathToEdge;
 	else if (v == m_startSource)
-		return pathToSource;
+		return PathType::pathToSource;
 	else
-		return pathToTarget;
+		return PathType::pathToTarget;
 }
 
 void MMVariableEmbeddingInserter::ExpandedSkeleton::findShortestPath(
@@ -1364,27 +1317,27 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::findShortestPath(
 			if(v == m_endSource) vSourceReached = true;
 			if(v == m_endTarget) vTargetReached = true;
 
+			auto updatePred = [&](PathType pt, node n) {
+				int index = static_cast<int>(pt);
+				paths.m_pred[index] = reconstructInsertionPath(n,
+				                                               paths.m_src[index],
+				                                               paths.m_tgt[index],
+				                                               paths.m_paths[index],
+				                                               paths.m_addPartLeft[index],
+				                                               paths.m_addPartRight[index],
+				                                               spPred);
+			};
+
 			// all targets reached?
 			if (vEdgeReached && vSourceReached && vTargetReached)
 			{
-				paths.m_pred[pathToEdge] = reconstructInsertionPath(m_endEdge,
-					paths.m_src[pathToEdge], paths.m_tgt[pathToEdge],
-					paths.m_paths[pathToEdge],
-					paths.m_addPartLeft[pathToEdge], paths.m_addPartRight[pathToEdge],
-					spPred);
-				if(m_endSource != nullptr)
-					paths.m_pred[pathToSource] = reconstructInsertionPath(m_endSource,
-						paths.m_src[pathToSource], paths.m_tgt[pathToSource],
-						paths.m_paths[pathToSource],
-						paths.m_addPartLeft[pathToSource], paths.m_addPartRight[pathToSource],
-						spPred);
-				if(m_endTarget != nullptr)
-					paths.m_pred[pathToTarget] = reconstructInsertionPath(m_endTarget,
-						paths.m_src[pathToTarget], paths.m_tgt[pathToTarget],
-						paths.m_paths[pathToTarget],
-						paths.m_addPartLeft[pathToTarget], paths.m_addPartRight[pathToTarget],
-						spPred);
-
+				updatePred(PathType::pathToEdge, m_endEdge);
+				if(m_endSource != nullptr) {
+					updatePred(PathType::pathToSource, m_endSource);
+				}
+				if(m_endTarget != nullptr) {
+					updatePred(PathType::pathToSource, m_endTarget);
+				}
 				break;
 			}
 
@@ -1400,9 +1353,9 @@ void MMVariableEmbeddingInserter::ExpandedSkeleton::findShortestPath(
 		}
 	}
 
-	int lenEdge = paths.m_paths[pathToEdge].size();
-	int lenSrc  = paths.m_paths[pathToSource].size();
-	int lenTgt  = paths.m_paths[pathToTarget].size();
+	int lenEdge = paths.m_paths[static_cast<int>(PathType::pathToEdge)].size();
+	int lenSrc  = paths.m_paths[static_cast<int>(PathType::pathToSource)].size();
+	int lenTgt  = paths.m_paths[static_cast<int>(PathType::pathToTarget)].size();
 	OGDF_ASSERT(m_endSource == nullptr || lenSrc >= lenEdge);
 	OGDF_ASSERT(m_endTarget == nullptr || lenTgt >= lenEdge);
 
@@ -1429,7 +1382,7 @@ bool MMVariableEmbeddingInserter::dfsVertex(
 		if (i == parent) continue;
 
 		node repS; // representative of s in B(i)
-		if (dfsBlock(i,v,repS,eip,vStart,vEnd) == true) { // path found?
+		if (dfsBlock(i, v, repS, eip, vStart, vEnd)) { // path found?
 			if(m_conFinished) return true;
 
 			// build graph BC of biconnected component B(i)
@@ -1545,11 +1498,11 @@ bool MMVariableEmbeddingInserter::dfsBlock(int i,
 		repS = *it;
 
 		if (repS == parent) continue;
-		if (m_pSources->isMember(repS) == true) { // s found?
+		if (m_pSources->isMember(repS)) { // s found?
 			return true;
 		}
 
-		if (dfsVertex(repS,i,eip,vStart,vEnd) == true) {
+		if (dfsVertex(repS, i, eip, vStart, vEnd)) {
 			return true; // path found
 		}
 	}
@@ -1558,10 +1511,7 @@ bool MMVariableEmbeddingInserter::dfsBlock(int i,
 }
 
 
-//-------------------------------------------------------------------
 // find optimal edge insertion path for biconnected graph G
-//-------------------------------------------------------------------
-
 bool MMVariableEmbeddingInserter::pathSearch(
 	node v,
 	edge parent,
@@ -1574,7 +1524,7 @@ bool MMVariableEmbeddingInserter::pathSearch(
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
 		if(e == parent) continue;
-		if(pathSearch(e->opposite(v),e,BC,path) == true) {
+		if(pathSearch(e->opposite(v), e, BC, path)) {
 			path.pushFront(e);
 			return true;
 		}
@@ -1602,7 +1552,7 @@ void MMVariableEmbeddingInserter::blockInsert(
 		if(BC.containsSource(v) != nullptr) {
 			if(v1 == nullptr)
 				v1 = v;
-			if(T.typeOf(v) == SPQRTree::RNode && BC.containsTarget(v) != nullptr) {
+			if(T.typeOf(v) == SPQRTree::NodeType::RNode && BC.containsTarget(v) != nullptr) {
 				vx = v; break;
 			}
 		}
@@ -1634,7 +1584,7 @@ void MMVariableEmbeddingInserter::blockInsert(
 	int i = 0;
 
 	switch(T.typeOf(v1)) {
-		case SPQRTree::RNode:
+		case SPQRTree::NodeType::RNode:
 			buildSubpath(v1, nullptr,
 				(path.empty()) ? nullptr : path.front(),
 				pathsInSks[i++],
@@ -1644,10 +1594,10 @@ void MMVariableEmbeddingInserter::blockInsert(
 				exp);
 			break;
 
-		case SPQRTree::PNode:
+		case SPQRTree::NodeType::PNode:
 			break;
 
-		case SPQRTree::SNode:
+		case SPQRTree::NodeType::SNode:
 			srcInfo.m_adj_1 = BC.containsSourceAdj(v1);
 			break;
 	}
@@ -1660,20 +1610,14 @@ void MMVariableEmbeddingInserter::blockInsert(
 		v = e->opposite(v);
 
 		switch(T.typeOf(v)) {
-			case SPQRTree::RNode:
-					buildSubpath(v, e,
-						(it.succ().valid() == false) ? nullptr : *(it.succ()),
-						pathsInSks[i++],
-						bPathToEdge,
-						bPathToSrc,
-						bPathToTgt,
-						exp);
-					break;
-
-			case SPQRTree::PNode:
+			case SPQRTree::NodeType::RNode:
+				buildSubpath(v, e, it.succ().valid() ? *it.succ() : nullptr, pathsInSks[i++], bPathToEdge, bPathToSrc, bPathToTgt, exp);
 				break;
 
-			case SPQRTree::SNode:
+			case SPQRTree::NodeType::PNode:
+				break;
+
+			case SPQRTree::NodeType::SNode:
 				if(it.succ().valid()) {
 					edge eNext = *it.succ();
 
@@ -1685,19 +1629,19 @@ void MMVariableEmbeddingInserter::blockInsert(
 
 					Paths &p = pathsInSks[i];
 					if(e_2->source() == e_1->source() && bPathToSrcOld) {
-						p.m_pred[pathToSource] = pathToSource;
+						p.m_pred[static_cast<int>(PathType::pathToSource)] = PathType::pathToSource;
 						bPathToSrc = true;
 					} else if (e_2->source() == e_1->target() && bPathToTgtOld) {
-						p.m_pred[pathToSource] = pathToTarget;
+						p.m_pred[static_cast<int>(PathType::pathToSource)] = PathType::pathToTarget;
 						bPathToSrc = true;
 					} else
 						bPathToSrc = false;
 
 					if(e_2->target() == e_1->target() && bPathToTgtOld) {
-						p.m_pred[pathToTarget] = pathToTarget;
+						p.m_pred[static_cast<int>(PathType::pathToTarget)] = PathType::pathToTarget;
 						bPathToTgt = true;
 					} else if (e_2->target() == e_1->source() && bPathToSrcOld) {
-						p.m_pred[pathToTarget] = pathToSource;
+						p.m_pred[static_cast<int>(PathType::pathToTarget)] = PathType::pathToSource;
 						bPathToTgt = true;
 					} else
 						bPathToTgt = false;
@@ -1708,14 +1652,14 @@ void MMVariableEmbeddingInserter::blockInsert(
 		}
 	}
 
-	if(T.typeOf(v) == SPQRTree::SNode)
+	if(T.typeOf(v) == SPQRTree::NodeType::SNode)
 		tgtInfo.m_adj_1 = BC.containsTargetAdj(v);
 		//tgtInfo.m_adj_1 = BC.containsTarget(v)->firstAdj();
 
 	if(i == 0) return;
 
 	// construct list of crossings L
-	int currentPath = pathToEdge;
+	int currentPath = static_cast<int>(PathType::pathToEdge);
 	AnchorNodeInfo &x = pathsInSks[i-1].m_tgt[currentPath];
 	if(x.m_adj_1 != nullptr)
 		tgtInfo = x;
@@ -1742,22 +1686,19 @@ void MMVariableEmbeddingInserter::blockInsert(
 		pAddLeft  = &pathsInSks[i].m_addPartLeft [currentPath];
 		pAddRight = &pathsInSks[i].m_addPartRight[currentPath];
 		if(i == 0) {
-			AnchorNodeInfo &x = pathsInSks[0].m_src[currentPath];
-			if(x.m_adj_1 != nullptr)
-				srcInfo = x;
+			AnchorNodeInfo &ani = pathsInSks[0].m_src[currentPath];
+			if(ani.m_adj_1 != nullptr)
+				srcInfo = ani;
 			OGDF_ASSERT(srcInfo.m_adj_1 != nullptr);
 		}
 
-		currentPath = pathsInSks[i].m_pred[currentPath];
+		currentPath = static_cast<int>(pathsInSks[i].m_pred[currentPath]);
 	}
 }
 
 
-//-------------------------------------------------------------------
 // find the shortest path from represent. of s to represent. of t in
 // the dual of the (partially) expanded skeleton of v
-//-------------------------------------------------------------------
-
 void MMVariableEmbeddingInserter::buildSubpath(
 	node v,
 	edge eIn,
@@ -1856,7 +1797,7 @@ void MMVariableEmbeddingInserter::anchorNodes(
 	NodeSet &nodes) const
 {
 	node vFirst = m_pPG->expansion(vOrig).front();
-	if(m_pPG->splittableOrig(vOrig) == true)
+	if(m_pPG->splittableOrig(vOrig))
 		collectAnchorNodes(vFirst, nodes, nullptr);
 	else
 		nodes.insert(vFirst);

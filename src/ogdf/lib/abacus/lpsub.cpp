@@ -223,7 +223,7 @@ double LpSub::elimVal(int i) const
 
 	default:
 		Logger::ifout() << "LpSub::elimVal(): variable neither fixed nor set\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 	}
 }
 
@@ -240,7 +240,7 @@ double LpSub::elimVal(FSVarStat *stat, double lb, double ub) const
 
 	default:
 		Logger::ifout() << "LpSub::elimVal(): variable neither fixed nor set\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 	}
 }
 
@@ -251,7 +251,7 @@ LP::OPTSTAT LpSub::optimize(METHOD method)
 
 	if (infeasCons_.size()) {
 		Logger::ifout() << "LpSub::optimize(): there are infeasible constraints\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 	}
 	else {
 		status = LP::optimize(method);
@@ -446,7 +446,7 @@ void LpSub::addCons(ArrayBuffer<Constraint*> &newCons)
 			if (infeas != InfeasCon::Feasible) {
 				infeasCons_.push(new InfeasCon(master_, newCons[c], infeas));
 				Logger::ifout() << "LpSub::addCons(): infeasible constraint added.\nAll variables with nonzero coefficients are eliminated and constraint is violated.\nSorry, resolution not implemented yet.\n";
-				OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+				OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 			}
 		}
 	}
@@ -565,7 +565,7 @@ void LpSub::changeLBound(int i, double newLb)
 
 	if (lpVar == -1) {
 		Logger::ifout() << "LpSub::changeLBound(" << i << " ," << newLb << ")\nvariable " << i << " is eliminated, cannot change bounds!\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 	}
 	else LP::changeLBound(lpVar, newLb);
 }
@@ -577,7 +577,7 @@ void LpSub::changeUBound(int i, double newUb)
 
 	if (lpVar == -1) {
 		Logger::ifout() << "LpSub::changeUBound(" << i << " ," << newUb << ")\nvariable " << i << " is eliminated, cannot change bounds!\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 	}
 	else LP::changeUBound(lpVar, newUb);
 }
@@ -643,7 +643,7 @@ int LpSub::getInfeas(int &infeasCon, int &infeasVar, double *bInvRow) const
 
 	if (status) {
 		Logger::ifout() << "LpSub::getInfeas(): LP::getInfeas() failed\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpSub);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpSub);
 	}
 
 	if (infeasVar >= 0) infeasVar = lp2orig_[infeasVar];

@@ -364,7 +364,7 @@ void AbaHash<KeyType, ItemType>::resize(int newSize)
 	// check the value of \a newSize
 	if (newSize <= 0) {
 		Logger::ifout() << "AbaHash::resize(): new size of hash table must be positive.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcHash);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Hash);
 	}
 
 	// allocate a new hash table

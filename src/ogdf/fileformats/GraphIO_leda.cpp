@@ -31,7 +31,6 @@
 
 #include <ogdf/basic/Logger.h>
 #include <ogdf/fileformats/GraphIO.h>
-#include <sstream>
 
 using std::istringstream;
 
@@ -91,7 +90,7 @@ bool GraphIO::readLEDA(Graph &G, istream &is)
 
 		Array<node> nodes(1,n);
 		for(int i = 1; i <= n; ++i) {
-			if (read_next_line(is,buffer) == false)
+			if (!read_next_line(is, buffer))
 				return false;
 			nodes[i] = G.newNode();
 		}
@@ -105,7 +104,7 @@ bool GraphIO::readLEDA(Graph &G, istream &is)
 		if(m < 0) return false; // makes no sense
 
 		for(int i = 1; i <= m; ++i) {
-			if (read_next_line(is,buffer) == false)
+			if (!read_next_line(is, buffer))
 				return false;
 			istringstream iss(buffer);
 

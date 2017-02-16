@@ -31,8 +31,6 @@
 
 #include <ogdf/fileformats/GraphIO.h>
 
-#include <vector>
-
 namespace ogdf {
 
 
@@ -107,16 +105,16 @@ static bool writeGraph(
 		os << "DL N = " << n << "\n";
 
 		// We pick output format basing on edge density.
-		enum {
-			matrix, edges
-		} format = (m > (n * n / 2)) ? matrix : edges;
+		enum class Format {
+			Matrix, Edges
+		} format = (m > (n * n / 2)) ? Format::Matrix : Format::Edges;
 
 		// Specify output format.
 		os << "FORMAT = ";
-		if (format == matrix) {
+		if (format == Format::Matrix) {
 			os << "fullmatrix\n";
 			writeMatrix(os, G, GA);
-		} else if (format == edges) {
+		} else if (format == Format::Edges) {
 			os << "edgelist1\n";
 			writeEdges(os, G, GA);
 		}

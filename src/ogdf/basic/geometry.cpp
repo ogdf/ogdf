@@ -32,17 +32,11 @@
 
 
 #include <ogdf/basic/geometry.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <ogdf/basic/Math.h>
 
 
 namespace ogdf {
 
 const EpsilonTest OGDF_GEOM_ET(1.0e-6);
-
-//---------------------------------------------------------
-// IPoint
-//---------------------------------------------------------
 
 ostream &operator<<(ostream &os, const IPoint &ip)
 {
@@ -50,10 +44,6 @@ ostream &operator<<(ostream &os, const IPoint &ip)
 	return os;
 }
 
-
-//---------------------------------------------------------
-// DPoint
-//---------------------------------------------------------
 
 // gives the euclidean distance between p and *this
 double IPoint::distance(const IPoint &p) const
@@ -63,10 +53,6 @@ double IPoint::distance(const IPoint &p) const
 	return sqrt( (dx*dx) + (dy*dy) );
 }
 
-
-//---------------------------------------------------------
-// IPolyline
-//---------------------------------------------------------
 
 // calculates the total length of a polyline
 double IPolyline::length() const
@@ -88,10 +74,6 @@ double IPolyline::length() const
 	return len;
 }
 
-
-//---------------------------------------------------------
-// DPoint
-//---------------------------------------------------------
 
 // gives the euclidean distance between p and *this
 double DPoint::distance(const DPoint &p) const
@@ -121,9 +103,6 @@ ostream &operator<<(ostream &os, const DPoint &dp)
 }
 
 
-//---------------------------------------------------------
-// DVector
-//---------------------------------------------------------
 DVector DVector::operator+(const DVector &dv) const
 {
 	return DVector(m_x + dv.m_x, m_y + dv.m_y);
@@ -178,10 +157,6 @@ DVector DVector::orthogonal() const
 	return ret;
 }
 
-
-//---------------------------------------------------------
-// DPolyline
-//---------------------------------------------------------
 
 const double DPolyline::s_prec = 10000.0;
 
@@ -358,10 +333,6 @@ void DPolyline::convertToInt()
 }
 
 
-//---------------------------------------------------------
-// DLine
-//---------------------------------------------------------
-
 // gives the intersection-point between two lines, returns true, if any
 // computes the crossing point between the (infinite) lines
 // defined by the endpoints of the DLines, then checks if it
@@ -387,14 +358,11 @@ bool DLine::intersection(
 	{
 		if (m_start == line.m_start || m_start == line.m_end) {
 			inter = m_start;
-			if (endpoints) return true;
-			else return false;
+			return endpoints;
 		}
-
 		if (m_end == line.m_start || m_end == line.m_end) {
 			inter = m_end;
-			if (endpoints) return true;
-			else return false;
+			return endpoints;
 		}
 	}
 
@@ -473,11 +441,9 @@ bool DLine::contains(const DPoint &p) const
 		return false;
 
 	if (dx() == 0.0) { // first check, if line is vertical
-		if (OGDF_GEOM_ET.equal(p.m_x, start().m_x) &&
+		return OGDF_GEOM_ET.equal(p.m_x, start().m_x) &&
 			OGDF_GEOM_ET.leq(p.m_y, (max(start().m_y, end().m_y))) &&
-			OGDF_GEOM_ET.geq(p.m_y, (min(start().m_y, end().m_y))))
-			return true;
-		return false;
+			OGDF_GEOM_ET.geq(p.m_y, (min(start().m_y, end().m_y)));
 	}
 
 	double dx2p = p.m_x - start().m_x;
@@ -486,9 +452,7 @@ bool DLine::contains(const DPoint &p) const
 	if (dx2p == 0.0) // dx() != 0.0, already checked
 		return false;
 
-	if (OGDF_GEOM_ET.equal(slope(), (dy2p/dx2p)))
-		return true;
-	return false;
+	return OGDF_GEOM_ET.equal(slope(), (dy2p/dx2p));
 }
 
 
@@ -545,21 +509,118 @@ ostream &operator<<(ostream &os, const DLine &dl)
 }
 
 
-//---------------------------------------------------------
-// DRect
-//---------------------------------------------------------
-
 // output the rect
-ostream &operator<<(ostream &os, const DRect &dr)
-{
-	os << "Rect-LowerLeftPoint: " << dr.p1() << ", Rect-UpperRightPoint: " << dr.p2();
+ostream &operator<<(ostream &os, const DRect &dr) {
+	os << "\nLower left corner: " << dr.m_p1;
+	os << "\nUpper right corner: " << dr.m_p2;
+	os << "\nWidth: " << dr.width();
+	os << "\nHeight: " << dr.height();
 	return os;
 }
 
+double DRect::parallelDist(const DLine &d1, const DLine &d2) const {
+	OGDF_ASSERT((d1.isHorizontal() && d2.isHorizontal()) ||
+		(d1.isVertical() && d2.isVertical()));
+	double d1min, d1max, d2min, d2max, paraDist, dist;
+	if(d1.isVertical()) {
+		d1min = d1.start().m_y;
+		d1max = d1.end().m_y;
+		d2min = d2.start().m_y;
+		d2max = d2.end().m_y;
+		paraDist = fabs(d1.start().m_x - d2.start().m_x);
+	}
+	else {
+		d1min = d1.start().m_x;
+		d1max = d1.end().m_x;
+		d2min = d2.start().m_x;
+		d2max = d2.end().m_x;
+		paraDist = fabs(d1.start().m_y - d2.start().m_y);
+	}
+	if(d1min > d1max) swap(d1min,d1max);
+	if(d2min > d2max) swap(d2min,d2max);
+	if(d1min > d2max || d2min > d1max) { // no overlap
+		dist = pointDist(d1.start(),d2.start());
+		dist = min(dist,pointDist(d1.start(),d2.end()));
+		dist = min(dist,pointDist(d1.end(),d2.start()));
+		dist = min(dist,pointDist(d1.end(),d2.end()));
+	}
+	else
+		dist = paraDist; // segments overlap
+	return dist;
+}
 
-//---------------------------------------------------------
-// DScaler
-//---------------------------------------------------------
+// output the rect
+ostream &operator<<(ostream &os, const DIntersectableRect &dr) {
+	os << static_cast<DRect>(dr);
+	os << "\nCenter: " << dr.center();
+	os << "\nArea: " << dr.area();
+	return os;
+}
+
+void DIntersectableRect::initAreaAndCenter() {
+	m_area = (m_p2.m_x-m_p1.m_x)*(m_p2.m_y-m_p1.m_y);
+	m_center.m_x = m_p1.m_x + 0.5*(m_p2.m_x-m_p1.m_x);
+	m_center.m_y = m_p1.m_y + 0.5*(m_p2.m_y-m_p1.m_y);
+}
+
+void DIntersectableRect::move(const DPoint &point) {
+	double dX = point.m_x - m_center.m_x;
+	double dY = point.m_y - m_center.m_y;
+	m_center = point;
+	m_p1.m_x += dX;
+	m_p1.m_y += dY;
+	m_p2.m_x += dX;
+	m_p2.m_y += dY;
+}
+
+double DIntersectableRect::distance(const DIntersectableRect &other) const {
+	double dist = 0.0;
+	if(!intersects(other)) {
+		dist = parallelDist(top(),other.bottom());
+		dist = min(dist, parallelDist(left(),other.right()));
+		dist = min(dist, parallelDist(right(),other.left()));
+		dist = min(dist, parallelDist(bottom(),other.top()));
+	}
+	return dist;
+}
+
+bool DIntersectableRect::intersects(const DIntersectableRect &rectangle) const {
+	bool intersect = false;
+	if(contains(rectangle.m_center) || rectangle.contains(m_center)) intersect = true;
+	else {
+		DPoint p1(rectangle.m_p1.m_x, rectangle.m_p2.m_y);
+		DPoint p2(rectangle.m_p2.m_x, rectangle.m_p1.m_y);
+		intersect = contains(p1) || contains(p2) || contains(rectangle.m_p1) || contains(rectangle.m_p2);
+	}
+	return intersect;
+}
+
+DIntersectableRect DIntersectableRect::intersection(const DIntersectableRect &other) const {
+	double top1    = m_p2.m_y;
+	double bottom1 = m_p1.m_y;
+	double left1   = m_p1.m_x;
+	double right1  = m_p2.m_x;
+
+	double top2    = other.m_p2.m_y;
+	double bottom2 = other.m_p1.m_y;
+	double left2   = other.m_p1.m_x;
+	double right2  = other.m_p2.m_x;
+
+	OGDF_ASSERT(top1 >= bottom1);
+	OGDF_ASSERT(left1 <= right1);
+	OGDF_ASSERT(top2 >= bottom2);
+	OGDF_ASSERT(left2 <= right2);
+
+	double bottomInter = max(bottom1,bottom2);
+	double topInter    = min(top1,top2);
+	double leftInter   = max(left1,left2);
+	double rightInter  = min(right1,right2);
+
+	if(bottomInter > topInter)   return DIntersectableRect();
+	if(leftInter   > rightInter) return DIntersectableRect();
+
+	return DIntersectableRect(DPoint(leftInter,bottomInter),DPoint(rightInter,topInter));
+}
 
 // output the two rects in the scaler
 ostream &operator<<(ostream &os, const DScaler &ds)
@@ -567,12 +628,6 @@ ostream &operator<<(ostream &os, const DScaler &ds)
 	os << "Scale from " << ds.from() << " to " << ds.to();
 	return os;
 }
-
-
-
-//----------------------------------------------------------------
-// DPolygon
-//----------------------------------------------------------------
 
 // gives the segment starting at point 'it'
 DSegment DPolygon::segment(ListConstIterator<DPoint> it) const
@@ -642,9 +697,11 @@ void DPolygon::insertCrossPoint(const DPoint &p)
 
 	do {
 		DSegment seg = segment(i);
-		if (seg.contains(p))
-			if (seg.start() != p && seg.end() != p)
-				i = insertAfter(p, i);
+		if (seg.contains(p)
+		 && seg.start() != p
+		 && seg.end() != p) {
+			i = insertAfter(p, i);
+		}
 
 		i = cyclicSucc(i);
 	} while (i != begin());
@@ -754,12 +811,6 @@ ostream &operator<<(ostream &os, const DPolygon &dop)
 	print(os, dop, ' ');
 	return os;
 }
-
-
-
-//----------------------------------------------------------------
-// orientation of points
-//----------------------------------------------------------------
 
 int orientation(const DPoint &p, const DPoint &q, const DPoint &r)
 {

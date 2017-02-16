@@ -31,7 +31,6 @@
 
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/DOT.h>
-#include <vector>
 
 namespace ogdf {
 
@@ -140,7 +139,7 @@ static inline void writeAttributes(
 		writeAttribute(out, comma, "arrowhead", GA.arrowType(e));
 
 		// Additionaly, according to IBM UML doc dependency is a dashed edge.
-		if(GA.type(e) == Graph::dependency) {
+		if(GA.type(e) == Graph::EdgeType::dependency) {
 			writeAttribute(out, comma, "style", "dashed");
 		}
 	}

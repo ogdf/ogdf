@@ -200,9 +200,9 @@ bool Parser::readCluster(
 
 /*
  * Just a helper method to avoid ugly code in Parser#readEdges method. It just
- * populates \a nodes list with either a given \a v node (if not nullptr) or all
- * nodes in certain cluster found by performing a lookup with given \a id in
- * \a clusterId association.
+ * populates \p nodes list with either a given \p v node (if not \c nullptr) or all
+ * nodes in certain cluster found by performing a lookup with given \p id in
+ * \p clusterId association.
  */
 static inline bool edgeNodes(
 	node v,
@@ -256,10 +256,10 @@ bool Parser::readEdges(Graph &G, ClusterGraph *C, GraphAttributes *GA)
 			// So, we perform cartesian product on two sets with Graph#newEdge.
 			for(node s : sourceNodes) {
 				for(node t : targetNodes) {
-					 const edge e = G.newEdge(s, t);
-					 if(GA) {
-					 	readAttributes(*GA, e, edgeTag);
-					 }
+					const edge e = G.newEdge(s, t);
+					if(GA) {
+						readAttributes(*GA, e, edgeTag);
+					}
 				}
 			}
 		} else {
@@ -404,17 +404,17 @@ static inline void readAttValue(
 
 	// For not "viz" attributes, we use GraphML ones.
 	switch(graphml::toAttribute(name)) {
-	case graphml::a_nodeType:
+	case graphml::Attribute::NodeType:
 		if(attrs & GraphAttributes::nodeType) {
 			GA.type(v) = graphml::toNodeType(value);
 		}
 		break;
-	case graphml::a_template:
+	case graphml::Attribute::Template:
 		if(attrs & GraphAttributes::nodeTemplate) {
 			GA.templateNode(v) = value;
 		}
 		break;
-	case graphml::a_nodeWeight:
+	case graphml::Attribute::NodeWeight:
 		if(attrs & GraphAttributes::nodeWeight) {
 			std::istringstream ss(value);
 			ss >> GA.weight(v);
@@ -437,12 +437,12 @@ static inline void readAttValue(
 
 	// For not "viz" attributes, we use GraphML ones.
 	switch(graphml::toAttribute(name)) {
-	case graphml::a_edgeType:
+	case graphml::Attribute::EdgeType:
 		if(attrs & GraphAttributes::edgeType) {
 			GA.type(e) = graphml::toEdgeType(value);
 		}
 		break;
-	case graphml::a_edgeArrow:
+	case graphml::Attribute::EdgeArrow:
 		if(attrs & GraphAttributes::edgeArrow) {
 			GA.arrowType(e) = graphml::toArrow(value);
 		}

@@ -35,7 +35,7 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 
 #include <ogdf/graphalg/Dijkstra.h>
 
@@ -103,8 +103,6 @@ protected:
 	void insertPath(const List<edge> &ssspPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG);
 };
 
-// ============= Implementation =================
-
 template<typename T>
 T MinSteinerTreeKou<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
@@ -153,7 +151,11 @@ void MinSteinerTreeKou<T>::calculateCompleteGraph(const EdgeWeightedGraph<T> &wG
 }
 
 template<typename T>
-void MinSteinerTreeKou<T>::reinsertShortestPaths(const EdgeWeightedGraphCopy<T> &completeTerminalGraph, const EdgeArray<List<edge> > &ssspPred, const NodeArray<edge> &mstPred, EdgeWeightedGraphCopy<T> &finalSteinerTree, const EdgeWeightedGraph<T> &wG)
+void MinSteinerTreeKou<T>::reinsertShortestPaths(const EdgeWeightedGraphCopy<T> &completeTerminalGraph,
+                                                 const EdgeArray<List<edge>> &ssspPred,
+                                                 const NodeArray<edge> &mstPred,
+                                                 EdgeWeightedGraphCopy<T> &finalSteinerTree,
+                                                 const EdgeWeightedGraph<T> &wG)
 {
 	for(node u : completeTerminalGraph.nodes) {
 		if (mstPred[u]) {

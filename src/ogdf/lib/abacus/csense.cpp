@@ -49,7 +49,7 @@ CSense::CSense(char s)
 		break;
 	default:
 		Logger::ifout() << "CSense::CSense(): unknown argument " << s << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcCsense);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Csense);
 	}
 }
 
@@ -88,7 +88,7 @@ void CSense::sense(char s)
 		break;
 	default:
 		Logger::ifout() << "CSense::sense(): unknown argument " << s << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcCsense);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Csense);
 		break;
 	}
 }

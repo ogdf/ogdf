@@ -77,7 +77,7 @@ public:
 	 *
 	 * \return The output stream.
 	 */
-	friend ostream& operator<<(ostream &out, const CSense &rhs);
+	friend OGDF_EXPORT ostream& operator<<(ostream &out, const CSense &rhs);
 
 	//! Assignment operator.
 	/**

@@ -38,10 +38,6 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// GraphCopyAttributes
-// manages access on copy of an attributed graph
-//---------------------------------------------------------
 /**
  * \brief Helper class for accessing graph attributes from a copy of the graph.
  *

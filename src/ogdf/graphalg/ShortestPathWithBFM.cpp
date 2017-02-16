@@ -28,54 +28,50 @@
  * License along with this program; if not, see
  * http://www.gnu.org/copyleft/gpl.html
  */
+
 // Purpose:
 //   implementation of shortest path computation
 //	 via Bellman-Ford-Moore
 //
 //   implementation follows Cormen/Leiserson/Rivest
 
-
 #include <ogdf/graphalg/ShortestPathWithBFM.h>
-#include <ogdf/basic/NodeArray.h>
-#include <ogdf/basic/EdgeArray.h>
-
 
 namespace ogdf {
 
-	bool ShortestPathWithBFM::call
-		(
-		const Graph &G,						// directed graph
-		const node s,						// source node
-		const EdgeArray<int> &length,		// length of an edge
-		NodeArray<int> &d,					// contains shortest path distances after call
-		NodeArray<edge> &pi					// predecessors
-		)
-	{
-		const int infinity = 20000000;		// big number. danger. think about it.
+bool ShortestPathWithBFM::call
+	(
+	const Graph &G,						// directed graph
+	const node s,						// source node
+	const EdgeArray<int> &length,		// length of an edge
+	NodeArray<int> &d,					// contains shortest path distances after call
+	NodeArray<edge> &pi					// predecessors
+	)
+{
+	const int infinity = 20000000;		// big number. danger. think about it.
 
-		//Initialize-Single-Source(G, s):
-		for (node v : G.nodes) {
-			d[v] = infinity;
-			pi[v] = nullptr;
-		}
-		d[s] = 0;
-		for (int i = 1; i < G.numberOfNodes(); ++i) {
-			for (edge e : G.edges)	{
-				//relax(u, v, w): // e == (u, v), length == w
-				if (d[e->target()] > d[e->source()] + length[e]) {
-					d[e->target()] = d[e->source()] + length[e];
-					pi[e->target()] = e;
-				}
+	//Initialize-Single-Source(G, s):
+	for (node v : G.nodes) {
+		d[v] = infinity;
+		pi[v] = nullptr;
+	}
+	d[s] = 0;
+	for (int i = 1; i < G.numberOfNodes(); ++i) {
+		for (edge e : G.edges)	{
+			//relax(u, v, w): // e == (u, v), length == w
+			if (d[e->target()] > d[e->source()] + length[e]) {
+				d[e->target()] = d[e->source()] + length[e];
+				pi[e->target()] = e;
 			}
 		}
-
-		//check for negative cycle:
-		for (edge e : G.edges) {
-			if (d[e->target()] > d[e->source()] + length[e]) return false;
-		}
-
-		return true;
 	}
 
+	//check for negative cycle:
+	for (edge e : G.edges) {
+		if (d[e->target()] > d[e->source()] + length[e]) return false;
+	}
+
+	return true;
+}
 
 } // end namespace ogdf

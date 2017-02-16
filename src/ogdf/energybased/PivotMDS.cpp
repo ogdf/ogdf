@@ -41,7 +41,7 @@ const double PivotMDS::FACTOR = -0.5;
 void PivotMDS::call(GraphAttributes& GA)
 {
 	if (!isConnected(GA.constGraph())) {
-		OGDF_THROW_PARAM(PreconditionViolatedException,pvcConnected);
+		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Connected);
 		return;
 	}
 	if (m_hasEdgeCostsAttribute && !GA.has(GraphAttributes::edgeDoubleWeight)) {
@@ -189,7 +189,7 @@ void PivotMDS::eigenValueDecomposition(
 		eValues[i] = normalize(eVecs[i]);
 	}
 	while (r < EPSILON) {
-        if (std::isnan(r) || isinf(r)) {
+		if (std::isnan(r) || isinf(r)) {
 			// Throw arithmetic exception (Shouldn't occur
 			// for DIMEMSION_COUNT = 2
 			OGDF_THROW(AlgorithmFailureException);

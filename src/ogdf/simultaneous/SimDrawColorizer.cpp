@@ -30,9 +30,6 @@
  */
 
 #include <ogdf/simultaneous/SimDrawColorizer.h>
-#include <ogdf/simultaneous/SimDraw.h>
-#include <sstream>
-#include <iomanip>
 
 
 using namespace std;
@@ -40,7 +37,6 @@ using namespace std;
 namespace ogdf
 {
 
-//*************************************************************
 // adds some color to the edges and to the nodes
 void SimDrawColorizer::addColorNodeVersion()
 {
@@ -51,18 +47,17 @@ void SimDrawColorizer::addColorNodeVersion()
 		if(m_SD->isDummy(v))
 		{
 			if(m_SD->isProperDummy(v))
-				m_GA->fillColor(v) = Color::Darkgray;
+				m_GA->fillColor(v) = Color::Name::Darkgray;
 			else
-				m_GA->fillColor(v) = Color::Black;
+				m_GA->fillColor(v) = Color::Name::Black;
 		}
 		else
-			m_GA->fillColor(v) = Color::Yellow;
+			m_GA->fillColor(v) = Color::Name::Yellow;
 	}
 	addColor();
 } // end addColorNodeVersion
 
 
-//*************************************************************
 // adds some color to the edges
 void SimDrawColorizer::addColor()
 {
@@ -75,16 +70,10 @@ void SimDrawColorizer::addColor()
 } // end addColor
 
 
-//**************************************************************
-//
 //Implementation of class ColorScheme
-//
-//**************************************************************
 
-
-//**************************************************************
 // SimDrawColorScheme Constructor
-SimDrawColorizer::SimDrawColorScheme::SimDrawColorScheme(enum colorScheme colorScm, int numberOfGraphs)
+SimDrawColorizer::SimDrawColorScheme::SimDrawColorScheme(colorScheme colorScm, int numberOfGraphs)
 {
 	OGDF_ASSERT(numberOfGraphs>0);
 	OGDF_ASSERT(numberOfGraphs<31);
@@ -96,7 +85,6 @@ SimDrawColorizer::SimDrawColorScheme::SimDrawColorScheme(enum colorScheme colorS
 } // end SimDrawColorScheme Constructor
 
 
-//***************************************************************
 // SimDrawColorScheme Destructor
 SimDrawColorizer::SimDrawColorScheme::~SimDrawColorScheme()
 {
@@ -106,7 +94,6 @@ SimDrawColorizer::SimDrawColorScheme::~SimDrawColorScheme()
 }
 
 
-//***************************************************************
 // Calculates the number of overlapping graphs in one edge and gives them
 // a color calculated from the choosen colorscheme
 Color SimDrawColorizer::SimDrawColorScheme::getColor(int subGraphBits, int numberOfGraphs)
@@ -153,7 +140,6 @@ Color SimDrawColorizer::SimDrawColorScheme::getColor(int subGraphBits, int numbe
 } // end getColor
 
 
-//***************************************************************
 // Stores colorscheme colors and assigns them to colorscheme objects
 void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 {
@@ -183,7 +169,7 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 	/* Hier werden die Farben dem Farbschema entsprechend zugewiesen */
 	switch (m_intScheme)
 	{
-	case bluYel:
+	case colorScheme::bluYel:
 		OGDF_ASSERT(numberOfGraphs <= 2);
 		for (int i=0; i<numberOfGraphs*3; i+=3)
 		{
@@ -192,7 +178,7 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 			blue[i/3]=bluYel_colors[i+2];
 		}
 		break;
-	case redGre:
+	case colorScheme::redGre:
 		OGDF_ASSERT(numberOfGraphs <= 2);
 		for (int i=0; i<numberOfGraphs*3; i+=3)
 		{
@@ -201,7 +187,7 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 			blue[i/3]=redGre_colors[i+2];
 		}
 		break;
-	case bluOra:
+	case colorScheme::bluOra:
 		OGDF_ASSERT(numberOfGraphs <= 2);
 		for (int i=0; i<numberOfGraphs*3; i+=3)
 		{
@@ -210,7 +196,7 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 			blue[i/3]=bluOra_colors[i+2];
 		}
 		break;
-	case teaLil:
+	case colorScheme::teaLil:
 		OGDF_ASSERT(numberOfGraphs <= 2);
 		for (int i=0; i<numberOfGraphs*3; i+=3)
 		{
@@ -219,7 +205,7 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 			blue[i/3]=teaLil_colors[i+2];
 		}
 		break;
-	case redBluYel:
+	case colorScheme::redBluYel:
 		OGDF_ASSERT(numberOfGraphs <= 3);
 		for (int i=0; i<numberOfGraphs*3; i+=3)
 		{
@@ -228,7 +214,7 @@ void SimDrawColorizer::SimDrawColorScheme::assignColScm(int numberOfGraphs)
 			blue[i/3]=redBluYel_colors[i+2];
 		}
 		break;
-	case greLilOra:
+	case colorScheme::greLilOra:
 		OGDF_ASSERT(numberOfGraphs <= 3);
 		for (int i=0; i<numberOfGraphs*3; i+=3)
 		{

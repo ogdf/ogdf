@@ -57,12 +57,12 @@ public:
 	//! Initializes a face array not associated with a combinatorial embedding.
 	FaceArrayBase() : m_pEmbedding(nullptr) { }
 
-	//! Initializes a face array associated with \a pE.
-	FaceArrayBase(const ConstCombinatorialEmbedding *pE) : m_pEmbedding(pE) {
+	//! Initializes a face array associated with \p pE.
+	explicit FaceArrayBase(const ConstCombinatorialEmbedding *pE) : m_pEmbedding(pE) {
 		if(pE) m_it = pE->registerArray(this);
 	}
 
-	//! Moves face array \a base to this face array.
+	//! Moves face array \p base to this face array.
 	FaceArrayBase(FaceArrayBase &base) : m_it(base.m_it), m_pEmbedding(base.m_pEmbedding) {
 		if(m_pEmbedding) m_pEmbedding->moveRegisterArray(m_it, this);
 		base.m_pEmbedding = nullptr;
@@ -86,7 +86,7 @@ public:
 		if ((m_pEmbedding = pE) != nullptr) m_it = pE->registerArray(this);
 	}
 
-	//! Moves array registration from \a base to this array.
+	//! Moves array registration from \p base to this array.
 	void moveRegister(FaceArrayBase &base) {
 		if (m_pEmbedding) m_pEmbedding->unregisterArray(m_it);
 		m_pEmbedding = base.m_pEmbedding;
@@ -115,24 +115,24 @@ template<class T> class FaceArray : private Array<T>, protected FaceArrayBase {
 
 public:
 	//! The type for array keys.
-	typedef face key_type;
+	using key_type = face;
 	//! The type for array entries.
-	typedef T value_type;
+	using value_type = T;
 
 	//! The type for face array iterators.
-	typedef internal::GraphArrayIterator<FaceArray<T>> iterator;
+	using iterator = internal::GraphArrayIterator<FaceArray<T>>;
 	//! The type for face array const iterators.
-	typedef internal::GraphArrayConstIterator<FaceArray<T>> const_iterator;
+	using const_iterator = internal::GraphArrayConstIterator<FaceArray<T>>;
 
 
 	//! Constructs an empty face array associated with no combinatorial embedding.
 	FaceArray() : Array<T>(), FaceArrayBase() { }
 
-	//! Constructs a face array associated with \a E.
+	//! Constructs a face array associated with \p E.
 	FaceArray(const ConstCombinatorialEmbedding &E) :
 		Array<T>(E.faceArrayTableSize()), FaceArrayBase(&E) { }
 
-	//! Constructs a face array associated with \a E.
+	//! Constructs a face array associated with \p E.
 	/**
 	 * @param E is the associated combinatorial embedding.
 	 * @param x is the default value for all array elements.
@@ -140,16 +140,16 @@ public:
 	FaceArray(const ConstCombinatorialEmbedding &E, const T &x) :
 		Array<T>(0,E.faceArrayTableSize()-1,x), FaceArrayBase(&E), m_x(x) { }
 
-	//! Constructs an face array that is a copy of \a A.
+	//! Constructs an face array that is a copy of \p A.
 	/**
 	 * Associates the array with the same combinatorial embedding as
-	 * \a A and copies all elements.
+	 * \p A and copies all elements.
 	 */
 	FaceArray(const FaceArray<T> &A) : Array<T>(A), FaceArrayBase(A.m_pEmbedding), m_x(A.m_x) { }
 
-	//! Constructs a face array containing the elements of \a A (move semantics).
+	//! Constructs a face array containing the elements of \p A (move semantics).
 	/**
-	 * Face array \a A is empty afterwards and not associated with any combinatorial embedding.
+	 * Face array \p A is empty afterwards and not associated with any combinatorial embedding.
 	 */
 	FaceArray(FaceArray<T> &&A) : Array<T>(std::move(A)), FaceArrayBase(A), m_x(A.m_x) { }
 
@@ -168,28 +168,28 @@ public:
 		return m_pEmbedding;
 	}
 
-	//! Returns a reference to the element with index \a f.
+	//! Returns a reference to the element with index \p f.
 	const T &operator[](face f) const {
 		OGDF_ASSERT(f != nullptr);
 		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
 		return Array<T>::operator [](f->index());
 	}
 
-	//! Returns a reference to the element with index \a f.
+	//! Returns a reference to the element with index \p f.
 	T &operator[](face f) {
 		OGDF_ASSERT(f != nullptr);
 		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
 		return Array<T>::operator [](f->index());
 	}
 
-	//! Returns a reference to the element with index \a f.
+	//! Returns a reference to the element with index \p f.
 	const T &operator()(face f) const {
 		OGDF_ASSERT(f != nullptr);
 		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
 		return Array<T>::operator [](f->index());
 	}
 
-	//! Returns a reference to the element with index \a f.
+	//! Returns a reference to the element with index \p f.
 	T &operator()(face f) {
 		OGDF_ASSERT(f != nullptr);
 		OGDF_ASSERT(f->embeddingOf() == m_pEmbedding);
@@ -289,12 +289,12 @@ public:
 		Array<T>::init(); reregister(nullptr);
 	}
 
-	//! Reinitializes the array. Associates the array with \a E.
+	//! Reinitializes the array. Associates the array with \p E.
 	void init(const ConstCombinatorialEmbedding &E) {
 		Array<T>::init(E.faceArrayTableSize()); reregister(&E);
 	}
 
-	//! Reinitializes the array. Associates the array with \a E.
+	//! Reinitializes the array. Associates the array with \p E.
 	/**
 	 * @param E is the associated combinatorial embedding.
 	 * @param x is the default value.
@@ -303,7 +303,7 @@ public:
 		Array<T>::init(0,E.faceArrayTableSize()-1, m_x = x); reregister(&E);
 	}
 
-	//! Sets all array elements to \a x.
+	//! Sets all array elements to \p x.
 	void fill(const T &x) {
 		int high = m_pEmbedding->maxFaceIndex();
 		if(high >= 0)
@@ -320,7 +320,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Face array \a a is empty afterwards and not associated with any combinatorial embedding.
+	 * Face array \p a is empty afterwards and not associated with any combinatorial embedding.
 	 */
 	FaceArray<T> &operator=(FaceArray<T> &&a) {
 		Array<T>::operator=(std::move(a));

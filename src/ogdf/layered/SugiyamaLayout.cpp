@@ -42,23 +42,14 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Thread.h>
 
-#include <mutex>
 #include <atomic>
-#include <random>
 
 using std::atomic;
 using std::mutex;
 using std::lock_guard;
 using std::minstd_rand;
 
-
 namespace ogdf {
-
-
-//---------------------------------------------------------
-// GraphCopyAttributes
-// manages access on copy of an attributed graph
-//---------------------------------------------------------
 
 void GraphCopyAttributes::transform()
 {
@@ -107,11 +98,6 @@ void GraphCopyAttributes::transform()
 }
 
 
-//---------------------------------------------------------
-// ClusterGraphCopyAttributes
-// manages access on copy of an attributed cluster graph
-//---------------------------------------------------------
-
 void ClusterGraphCopyAttributes::transform()
 {
 	for(node v : m_pH->nodes)
@@ -158,11 +144,6 @@ void ClusterGraphCopyAttributes::transform()
 	}
 }
 
-
-//---------------------------------------------------------
-// Level
-// representation of levels in hierarchies
-//---------------------------------------------------------
 
 const Array<node> &Level::adjNodes(node v) const
 {
@@ -227,7 +208,7 @@ class WeightBucket : public BucketFunc<node> {
 	const NodeArray<int> *m_pWeight;
 
 public:
-	WeightBucket(const NodeArray<int> *pWeight) : m_pWeight(pWeight) { }
+	explicit WeightBucket(const NodeArray<int> *pWeight) : m_pWeight(pWeight) { }
 
 	int getBucket(const node &v) override { return (*m_pWeight)[v]; }
 };
@@ -267,11 +248,6 @@ void Level::sort(NodeArray<int> &weight, int minBucket, int maxBucket)
 }
 
 
-
-//---------------------------------------------------------
-// Hierarchy
-// representation of proper hierarchies used by Sugiyama
-//---------------------------------------------------------
 
 Hierarchy::Hierarchy(const Graph &G, const NodeArray<int> &rank) :
 	m_GC(G), m_rank(m_GC)
@@ -336,11 +312,6 @@ void Hierarchy::doInit(const NodeArray<int> &rank)
 		m_size[m_rank[v]]++;
 }
 
-
-//---------------------------------------------------------
-// HierarchyLevels
-// stores and maintains the levels in a hierarchy
-//---------------------------------------------------------
 
 HierarchyLevels::HierarchyLevels(const Hierarchy &H) : m_H(H), m_pLevel(0,H.maxRank()), m_pos(H), m_lowerAdjNodes(H), m_upperAdjNodes(H), m_nSet(H,0)
 {
@@ -483,73 +454,6 @@ void HierarchyLevels::separateCCs(int numCC, const NodeArray<int> &component)
 }
 
 
-int HierarchyLevelsBase::calculateCrossings() const
-{
-	int nCrossings = 0;
-
-	for(int i = 0; i < this -> high(); ++i) {
-		nCrossings += calculateCrossings(i);
-	}
-
-	return nCrossings;
-}
-
-
-// calculation of edge crossings between level i and i+1
-// implementation by Michael Juenger, Decembre 2000, adapted by Carsten Gutwenger
-// implements the algorithm by Barth, Juenger, Mutzel
-
-int HierarchyLevelsBase::calculateCrossings(int i) const
-{
-#if 0
-	const Level &L = *m_pLevel[i];             // level i
-	const int nUpper = m_pLevel[i+1]->size();  // number of nodes on level i+1
-#endif
-
-	const LevelBase &L = (*this)[i];             // level i
-	const int nUpper = (*this)[i+1].size();  // number of nodes on level i+1
-
-	int nc = 0; // number of crossings
-
-	int fa = 1;
-	while (fa < nUpper)
-		fa *= 2;
-
-	int nTreeNodes = 2*fa - 1; // number of tree nodes
-	fa -= 1;         // "first address:" indexincrement in tree
-
-	Array<int> nin(0,nTreeNodes-1,0);
-
-	for(int j = 0; j < L.size(); ++j)
-	{
-#if 0
-		const Array<node> &adjNodes = m_upperAdjNodes[L[j]];
-#endif
-		const Array<node> &adjNodes = this->adjNodes(L[j], upward); // m_upperAdjNodes[L[j]];
-
-		for(auto &adjNode : adjNodes)
-		{
-			// index of tree node for vertex adjNode[k]
-#if 0
-			int index = m_pos[adjNodes[k]] + fa;
-#endif
-			int index = pos(adjNode) + fa;
-			nin[index]++;
-
-			while (index>0) {
-				if (index % 2)
-					nc += nin[index+1]; // new crossing
-				index = (index - 1) / 2;
-				nin[index]++;
-			}
-
-		}
-	}
-
-	return nc;
-}
-
-
 int HierarchyLevels::calculateCrossingsSimDraw(const EdgeArray<uint32_t> *edgeSubGraphs) const
 {
 	int nCrossings = 0;
@@ -583,8 +487,8 @@ int HierarchyLevels::calculateCrossingsSimDraw(int i, const EdgeArray<uint32_t> 
 				int pos_adj_e = pos(e->target());
 				for (int k = j+1; k < L.size(); k++) {
 					node w = L[k];
-					for(adjEntry adj : w->adjEntries) {
-						edge f = adj->theEdge();
+					for(adjEntry adjW : w->adjEntries) {
+						edge f = adjW->theEdge();
 						if (f->source() == w) {
 							int pos_adj_f = pos(f->target());
 							if(pos_adj_f < pos_adj_e)
@@ -681,13 +585,6 @@ void HierarchyLevels::check() const
 	}
 }
 
-
-//---------------------------------------------------------
-// LayerByLayerSweep
-// Crossing reduction algorithm using 2-level heuristic.
-//---------------------------------------------------------
-
-// LayerByLayerSweep::CrossMinMaster
 
 class LayerByLayerSweep::CrossMinMaster {
 
@@ -840,7 +737,7 @@ int LayerByLayerSweep::CrossMinMaster::traverseTopDown(
 	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw,
 	Array<bool>               *pLevelChanged)
 {
-	levels.direction(HierarchyLevels::downward);
+	levels.direction(HierarchyLevels::TraversingDir::downward);
 
 	for (int i = 1; i <= levels.high(); ++i) {
 		if(pCrossMin != nullptr)
@@ -864,7 +761,7 @@ int LayerByLayerSweep::CrossMinMaster::traverseBottomUp(
 	TwoLayerCrossMinSimDraw   *pCrossMinSimDraw,
 	Array<bool>               *pLevelChanged)
 {
-	levels.direction(HierarchyLevels::upward);
+	levels.direction(HierarchyLevels::TraversingDir::upward);
 
 	for (int i = levels.high()-1; i >= 0; i--) {
 		if(pCrossMin != nullptr)
@@ -994,13 +891,6 @@ void LayerByLayerSweep::CrossMinWorker::operator()()
 	m_master.doWorkHelper(m_pCrossMin, m_pCrossMinSimDraw, levels, m_bestPos, true, rng);
 }
 
-
-//---------------------------------------------------------
-// SugiyamaLayout
-// Sugiyama drawing algorithm for hierarchical graphs
-//---------------------------------------------------------
-
-// SugiyamaLayout
 
 SugiyamaLayout::SugiyamaLayout()
 {
@@ -1144,8 +1034,8 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 
 			if(optimizeHorizEdges)
 			{
-				for(int i = 0; i < levels.size(); ++i) {
-					const LevelBase &L = levels[i];
+				for(int k = 0; k < levels.size(); ++k) {
+					const LevelBase &L = levels[k];
 					for(int j = 0; j < L.size(); ++j) {
 						node v = L[j];
 						if(!GC.isDummy(v)) continue;
@@ -1196,8 +1086,8 @@ void SugiyamaLayout::doCall(GraphAttributes &AG, bool umlCall, NodeArray<int> &r
 			offset1    [i] = DPoint(minX,minY);
 
 			m_numLevels = max(m_numLevels, levels.size());
-			for(int i = 0; i <= levels.high(); i++) {
-				const LevelBase &l = levels[i];
+			for(int iter = 0; iter <= levels.high(); iter++) {
+				const LevelBase &l = levels[iter];
 				m_maxLevelSize = max(m_maxLevelSize, l.size());
 			}
 			delete pLevels;

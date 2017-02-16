@@ -45,7 +45,7 @@ ostream &operator<<(ostream &out, const PoolSlotRef<BaseType, CoType> &slot)
 template<class BaseType, class CoType>
 void PoolSlotRef<BaseType, CoType>::printDifferentVersionError() const
 {
-	Logger::ilout(Logger::LL_MINOR) << "PoolSlotRef::con: Version of reference to slot " << version_
+	Logger::ilout(Logger::Level::Minor) << "PoolSlotRef::con: Version of reference to slot " << version_
 	 << " and version of slot " << slot_->version() << " differ." << endl;
 }
 

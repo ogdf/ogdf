@@ -55,12 +55,12 @@ public:
 	//! Initializes an adjacency entry array not associated with a graph.
 	AdjEntryArrayBase() : m_pGraph(nullptr) { }
 
-	//! Initializes an adjacency entry array associated with \a pG.
-	AdjEntryArrayBase(const Graph *pG) : m_pGraph(pG) {
+	//! Initializes an adjacency entry array associated with \p pG.
+	explicit AdjEntryArrayBase(const Graph *pG) : m_pGraph(pG) {
 		if(pG) m_it = pG->registerArray(this);
 	}
 
-	//! Moves adjacency entry array \a base to this adjacency entry array.
+	//! Moves adjacency entry array \p base to this adjacency entry array.
 	AdjEntryArrayBase(AdjEntryArrayBase &base) : m_it(base.m_it), m_pGraph(base.m_pGraph) {
 		if(m_pGraph) m_pGraph->moveRegisterArray(m_it, this);
 		base.m_pGraph = nullptr;
@@ -88,7 +88,7 @@ public:
 		if ((m_pGraph = pG) != nullptr) m_it = pG->registerArray(this);
 	}
 
-	//! Moves array registration from \a base to this array.
+	//! Moves array registration from \p base to this array.
 	void moveRegister(AdjEntryArrayBase &base) {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
 		m_pGraph = base.m_pGraph;
@@ -116,23 +116,23 @@ template<class T> class AdjEntryArray : private Array<T>, protected AdjEntryArra
 
 public:
 	//! The type for array keys.
-	typedef adjEntry key_type;
+	using key_type = adjEntry;
 	//! The type for array entries.
-	typedef T value_type;
+	using value_type = T;
 
 	//! The type for edge array iterators.
-	typedef internal::GraphArrayIterator<AdjEntryArray<T>> iterator;
+	using iterator = internal::GraphArrayIterator<AdjEntryArray<T>>;
 	//! The type for edge array const iterators.
-	typedef internal::GraphArrayConstIterator<AdjEntryArray<T>> const_iterator;
+	using const_iterator = internal::GraphArrayConstIterator<AdjEntryArray<T>>;
 
 
 	//! Constructs an empty adjacency entry array associated with no graph.
 	AdjEntryArray() : Array<T>(), AdjEntryArrayBase() { }
 
-	//! Constructs an adjacency entry array associated with \a G.
-	AdjEntryArray(const Graph &G) : Array<T>(G.adjEntryArrayTableSize()), AdjEntryArrayBase(&G) { }
+	//! Constructs an adjacency entry array associated with \p G.
+	explicit AdjEntryArray(const Graph &G) : Array<T>(G.adjEntryArrayTableSize()), AdjEntryArrayBase(&G) { }
 
-	//! Constructs an adjacency entry array associated with \a G.
+	//! Constructs an adjacency entry array associated with \p G.
 	/**
 	 * @param G is the associated graph.
 	 * @param x is the default value for all array elements.
@@ -140,15 +140,15 @@ public:
 	AdjEntryArray(const Graph &G, const T &x) :
 		Array<T>(0,G.adjEntryArrayTableSize()-1,x), AdjEntryArrayBase(&G), m_x(x) { }
 
-	//! Constructs an adjacency entry array that is a copy of \a A.
+	//! Constructs an adjacency entry array that is a copy of \p A.
 	/**
-	 * Associates the array with the same graph as \a A and copies all elements.
+	 * Associates the array with the same graph as \p A and copies all elements.
 	 */
 	AdjEntryArray(const AdjEntryArray<T> &A) : Array<T>(A), AdjEntryArrayBase(A.m_pGraph), m_x(A.m_x) { }
 
-	//! Constructs an adjacency entry array containing the elements of \a A (move semantics).
+	//! Constructs an adjacency entry array containing the elements of \p A (move semantics).
 	/**
-	 * Adjacency entry array \a A is empty afterwards and not associated with any graph.
+	 * Adjacency entry array \p A is empty afterwards and not associated with any graph.
 	 */
 	AdjEntryArray(AdjEntryArray<T> &&A) : Array<T>(std::move(A)), AdjEntryArrayBase(A), m_x(A.m_x) { }
 
@@ -167,28 +167,28 @@ public:
 		return m_pGraph;
 	}
 
-	//! Returns a reference to the element with index \a adj.
+	//! Returns a reference to the element with index \p adj.
 	const T &operator[](adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
-	//! Returns a reference to the element with index \a adj.
+	//! Returns a reference to the element with index \p adj.
 	T &operator[](adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
-	//! Returns a reference to the element with index \a adj.
+	//! Returns a reference to the element with index \p adj.
 	const T &operator()(adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
 		return Array<T>::operator [](adj->index());
 	}
 
-	//! Returns a reference to the element with index \a adj.
+	//! Returns a reference to the element with index \p adj.
 	T &operator()(adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
 		OGDF_ASSERT(adj->graphOf() == m_pGraph);
@@ -292,12 +292,12 @@ public:
 		Array<T>::init(); reregister(nullptr);
 	}
 
-	//! Reinitializes the array. Associates the array with \a G.
+	//! Reinitializes the array. Associates the array with \p G.
 	void init(const Graph &G) {
 		Array<T>::init(G.adjEntryArrayTableSize()); reregister(&G);
 	}
 
-	//! Reinitializes the array. Associates the array with \a G.
+	//! Reinitializes the array. Associates the array with \p G.
 	/**
 	 * @param G is the associated graph.
 	 * @param x is the default value.
@@ -306,7 +306,7 @@ public:
 		Array<T>::init(0,G.adjEntryArrayTableSize()-1, m_x = x); reregister(&G);
 	}
 
-	//! Sets all array elements to \a x.
+	//! Sets all array elements to \p x.
 	void fill(const T &x) {
 		int high = m_pGraph->maxAdjEntryIndex();
 		if(high >= 0)
@@ -323,7 +323,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Adjacency entry array \a a is empty afterwards and not associated with any graph.
+	 * Adjacency entry array \p a is empty afterwards and not associated with any graph.
 	 */
 	AdjEntryArray<T> &operator=(AdjEntryArray<T> &&a) {
 		Array<T>::operator=(std::move(a));
@@ -340,7 +340,7 @@ public:
 	 */
 	//@{
 
-	//! Returns the key succeeding \a adj.
+	//! Returns the key succeeding \p adj.
 	static adjEntry findSuccKey(adjEntry adj) {
 		if(adj->succ() != nullptr)
 			return adj->succ();
@@ -350,7 +350,7 @@ public:
 		return (v != nullptr) ? v->firstAdj() : nullptr;
 	}
 
-	//! Returns the key preceeding \a adj.
+	//! Returns the key preceeding \p adj.
 	static adjEntry findPredKey(adjEntry adj) {
 		if(adj->pred() != nullptr)
 			return adj->pred();

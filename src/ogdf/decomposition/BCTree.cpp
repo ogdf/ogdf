@@ -104,7 +104,7 @@ void BCTree::initNotConnected (node vG)
 
 	biComp(nullptr,vG);
 #if 0
-	 cout << m_count << endl << flush;
+	cout << m_count << endl << flush;
 #endif
 
 	// call biComp for all nodes that are not in the
@@ -142,7 +142,7 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 			if (m_lowpt[wG]<m_lowpt[vG]) m_lowpt[vG] = m_lowpt[wG];
 			if (m_lowpt[wG]>=m_number[vG]) {
 				node bB = m_B.newNode();
-				m_bNode_type[bB] = BComp;
+				m_bNode_type[bB] = BNodeType::BComp;
 				m_bNode_isMarked[bB] = false;
 				m_bNode_hRefNode[bB] = nullptr;
 				m_bNode_hParNode[bB] = nullptr;
@@ -172,7 +172,7 @@ void BCTree::biComp (adjEntry adjuG, node vG)
 								m_hNode_bNode[yH] = cB;
 								m_hNode_gNode[yH] = xG;
 								m_gNode_hNode[xG] = yH;
-								m_bNode_type[cB] = CComp;
+								m_bNode_type[cB] = BNodeType::CComp;
 								m_bNode_isMarked[cB] = false;
 								m_bNode_hRefNode[xB] = xH;
 								m_bNode_hParNode[xB] = yH;
@@ -221,13 +221,13 @@ node BCTree::bComponent (node uG, node vG) const
 	node uB = bcproper(uG);
 	node vB = bcproper(vG);
 	if (uB==vB) return uB;
-	if (typeOfBNode(uB)==BComp) {
-		if (typeOfBNode(vB)==BComp) return nullptr;
+	if (typeOfBNode(uB)==BNodeType::BComp) {
+		if (typeOfBNode(vB)==BNodeType::BComp) return nullptr;
 		if (parent(uB)==vB) return uB;
 		if (parent(vB)==uB) return uB;
 		return nullptr;
 	}
-	if (typeOfBNode(vB)==BComp) {
+	if (typeOfBNode(vB)==BNodeType::BComp) {
 		if (parent(uB)==vB) return vB;
 		if (parent(vB)==uB) return vB;
 		return nullptr;
@@ -279,7 +279,7 @@ node BCTree::repVertex (node uG, node vB) const
 {
 	node uB = bcproper(uG);
 	if (uB==vB) return m_gNode_hNode[uG];
-	if (typeOfBNode(uB)==BComp) return nullptr;
+	if (typeOfBNode(uB)==BNodeType::BComp) return nullptr;
 	if (parent(uB)==vB) return m_bNode_hParNode[uB];
 	if (uB==parent(vB)) return m_bNode_hRefNode[vB];
 	return nullptr;
@@ -287,7 +287,7 @@ node BCTree::repVertex (node uG, node vB) const
 
 node BCTree::cutVertex (node uB, node vB) const
 {
-	if (uB==vB) return typeOfBNode(uB)==CComp ? m_bNode_hRefNode[vB] : nullptr;
+	if (uB==vB) return typeOfBNode(uB)==BNodeType::CComp ? m_bNode_hRefNode[vB] : nullptr;
 	if (parent(uB)==vB) return m_bNode_hParNode[uB];
 	if (uB==parent(vB)) return m_bNode_hRefNode[vB];
 	return nullptr;

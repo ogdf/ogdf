@@ -41,7 +41,7 @@
 #include <ogdf/basic/List.h>
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 
 namespace ogdf {
@@ -261,14 +261,6 @@ private:
 	 */
 	void printSVG();
 };
-
-
-} // end namespace ogdf
-
-// ============= Implementation =================
-
-namespace ogdf {
-
 
 template<typename T>
 T MinSteinerTreeShore<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)

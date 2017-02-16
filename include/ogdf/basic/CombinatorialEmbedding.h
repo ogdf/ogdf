@@ -37,7 +37,7 @@
 
 namespace ogdf {
 
-typedef FaceElement *face;
+using face = FaceElement*;
 
 // Definition of iterator and container types for adjacency entries in a face
 // These declarations are just internal representations
@@ -51,7 +51,7 @@ class FaceAdjIterator {
 
 public:
 	FaceAdjIterator() : m_adj(nullptr), m_adjFirst(nullptr) { }
-	FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
+	explicit FaceAdjIterator(adjEntry adj) : m_adj(adj), m_adjFirst(adj) { }
 	FaceAdjIterator(adjEntry adjFirst, adjEntry adj) : m_adj(adj), m_adjFirst(adjFirst) { }
 
 	bool operator==(const FaceAdjIterator &other) const {
@@ -93,10 +93,10 @@ class FaceAdjContainer {
 	adjEntry m_adjFirst;
 
 	FaceAdjContainer() : m_adjFirst(nullptr) { }
-	FaceAdjContainer(adjEntry adjFirst) : m_adjFirst(adjFirst) { }
+	explicit FaceAdjContainer(adjEntry adjFirst) : m_adjFirst(adjFirst) { }
 
 public:
-	typedef FaceAdjIterator iterator;
+	using iterator = FaceAdjIterator;
 
 	iterator begin() const { return iterator(m_adjFirst); }
 	iterator end() const { return iterator(); }
@@ -122,14 +122,14 @@ class OGDF_EXPORT FaceElement : private internal::GraphElement
 	const ConstCombinatorialEmbedding *m_pEmbedding;
 #endif
 
-	// constructor
 #ifdef OGDF_DEBUG
+	//! Creates a face with given first adjacency element \p adjFirst, face index \p id and keeps track of the owner \p pEmbedding for debugging.
 	FaceElement(const ConstCombinatorialEmbedding *pEmbedding,
 		adjEntry adjFirst,
 		int id) :
 		m_id(id), m_size(0), m_pEmbedding(pEmbedding), entries(adjFirst) { }
 #else
-	//! Creates a face with given first adjacency element \a adjFirst and face index \a id.
+	//! Creates a face with given first adjacency element \p adjFirst and face index \p id.
 	FaceElement(adjEntry adjFirst, int id) :
 		m_id(id), m_size(0), entries(adjFirst) { }
 #endif
@@ -153,7 +153,7 @@ public:
 	//! Returns the predecessor in the list of all faces.
 	face pred() const { return static_cast<face>(m_prev); }
 
-	//! Returns the successor of \a adj in the list of all adjacency elements in the face.
+	//! Returns the successor of \p adj in the list of all adjacency elements in the face.
 	adjEntry nextFaceEdge(adjEntry adj) const {
 		adj = adj->faceCycleSucc();
 		return (adj != entries.m_adjFirst) ? adj : nullptr;
@@ -215,7 +215,7 @@ protected:
 
 public:
 	//! Provides a bidirectional iterator to a face in a combinatorial embedding.
-	typedef internal::GraphIterator<face> face_iterator;
+	using face_iterator = internal::GraphIterator<face>;
 
 	//! The container containing all face objects.
 	internal::GraphObjectContainer<FaceElement> faces;
@@ -226,9 +226,9 @@ public:
 	ConstCombinatorialEmbedding();
 
 	/**
-	 * \brief Creates a combinatorial embedding of graph \a G.
+	 * \brief Creates a combinatorial embedding of graph \p G.
 	 *
-	 * \pre Graph \a G must be embedded, i.e., the adjacency lists of its nodes
+	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
 	explicit ConstCombinatorialEmbedding(const Graph &G);
@@ -271,13 +271,13 @@ public:
 	int numberOfFaces() const { return faces.size(); }
 
 	/** @} @{
-	 * \brief Returns the face to the right of \a adj, i.e., the face containing \a adj.
+	 * \brief Returns the face to the right of \p adj, i.e., the face containing \p adj.
 	 * @param adj is an adjecency element in the associated graph.
 	 */
 	face rightFace(adjEntry adj) const { return m_rightFace[adj]; }
 
 	/**
-	 * \brief Returns the face to the left of \a adj, i.e., the face containing the twin of \a adj.
+	 * \brief Returns the face to the left of \p adj, i.e., the face containing the twin of \p adj.
 	 * @param adj is an adjacency element in the associated graph.
 	 */
 	face leftFace(adjEntry adj) const { return m_rightFace[adj->twin()]; }
@@ -309,7 +309,7 @@ public:
 	}
 
 	/**
-	 * \brief Sets the external face to \a f.
+	 * \brief Sets the external face to \p f.
 	 * @param f is a face in this embedding.
 	 */
 	void setExternalFace(face f) {
@@ -322,9 +322,9 @@ public:
 	}
 
 	/** @} @{
-	 * \brief Initializes the embedding for graph \a G.
+	 * \brief Initializes the embedding for graph \p G.
 	 *
-	 * \pre Graph \a G must be embedded, i.e., the adjacency lists of its nodes
+	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
 	void init(const Graph &G);
@@ -342,21 +342,47 @@ public:
 
 
 	/** @} @{
-	 * \brief Registers the face array \a pFaceArray.
+	 * \brief Registers the face array \p pFaceArray.
 	 *
 	 * This method is only used by face arrays.
 	 */
 	ListIterator<FaceArrayBase*> registerArray(FaceArrayBase *pFaceArray) const;
 
 	/**
-	 * \brief Unregisters the face array identified by \a it.
+	 * \brief Unregisters the face array identified by \p it.
 	 *
 	 * This method is only used by face arrays.
 	 */
 	void unregisterArray(ListIterator<FaceArrayBase*> it) const;
 
-	//! Move the registration \a it of a node array to \a pFaceArray (used with move semantics for face arrays).
+	//! Move the registration \p it of a node array to \p pFaceArray (used with move semantics for face arrays).
 	void moveRegisterArray(ListIterator<FaceArrayBase*> it, FaceArrayBase *pFaceArray) const;
+
+	/**
+	 * Identifies a common face of two nodes and returns the respective adjacency entry.
+	 *
+	 * @param v The first node, an adjacency entry of this node will be returned
+	 * @param w The second node
+	 * @param left Whether the common face should lie upon the left side of \p v and \p w.
+	 *
+	 * @return The adjacency entry to the right of a common face of v and w, incident to v.
+	 */
+	adjEntry findCommonFace(const node v, const node w, bool left = true) const {
+		adjEntry adj;
+		return findCommonFace(v, w, adj, left);
+	}
+
+	/**
+	 * Identifies a common face of two nodes and returns the respective adjacency entry.
+	 *
+	 * @param v The first node, an adjacency entry of this node will be returned
+	 * @param w The second node
+	 * @param adjW The adjacency entry to the right of a common face of v and w, incident to w.
+	 * @param left Whether the common face should lie upon the left side of \p v and \p w.
+	 *
+	 * @return The adjacency entry to the right of a common face of v and w, incident to v.
+	 */
+	adjEntry findCommonFace(const node v, const node w, adjEntry &adjW, bool left = true) const;
 
 	/** @} */
 
@@ -404,9 +430,9 @@ public:
 	}
 
 	/**
-	 * \brief Creates a combinatorial embedding of graph \a G.
+	 * \brief Creates a combinatorial embedding of graph \p G.
 	 *
-	 * \pre Graph \a G must be embedded, i.e., the adjacency lists of its nodes
+	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
 	explicit CombinatorialEmbedding(Graph &G) : ConstCombinatorialEmbedding(G) {
@@ -444,9 +470,9 @@ public:
 	//@{
 
 	/**
-	 * \brief Initializes the embedding for graph \a G.
+	 * \brief Initializes the embedding for graph \p G.
 	 *
-	 * \pre Graph \a G must be embedded, i.e., the adjacency lists of its nodes
+	 * \pre Graph \p G must be embedded, i.e., the adjacency lists of its nodes
 	 *      must define an embedding.
 	 */
 	void init(Graph &G) {
@@ -467,8 +493,8 @@ public:
 	//@{
 
 	/**
-	 * \brief Splits edge \a e=(\a v,\a w) into \a e=(\a v,\a u) and \a e'=(\a u,\a w) creating a new node \a u.
-	 * @param e is the edge to be split; \a e is modified by the split.
+	 * \brief Splits edge \p e=(\a v,\a w) into \a e=(\a v,\a u) and \a e'=(\a u,\a w) creating a new node \a u.
+	 * @param e is the edge to be split; \p e is modified by the split.
 	 * \return the edge \a e'.
 	 */
 	edge split(edge e);
@@ -484,12 +510,12 @@ public:
 	 * \brief Splits a node while preserving the order of adjacency entries.
 	 *
 	 * This method splits a node \a v into two nodes \a vl and \a vr. Node
-	 * \a vl receives all adjacent edges of \a v from \a adjStartLeft until
-	 * the edge preceding \a adjStartRight, and \a vr the remaining nodes
-	 * (thus \a adjStartRight is the first edge that goes to \a vr). The
+	 * \a vl receives all adjacent edges of \a v from \p adjStartLeft until
+	 * the edge preceding \p adjStartRight, and \a vr the remaining nodes
+	 * (thus \p adjStartRight is the first edge that goes to \a vr). The
 	 * order of adjacency entries is preserved. Additionally, a new edge
 	 * (\a vl,\a vr) is created, such that this edge is inserted before
-	 * \a adjStartLeft and \a adjStartRight in the the adjacency lists of
+	 * \p adjStartLeft and \p adjStartRight in the the adjacency lists of
 	 * \a vl and \a vr.
 	 *
 	 * Node \a v is modified to become node \a vl, and node \a vr is returned.
@@ -501,7 +527,7 @@ public:
 	node splitNode(adjEntry adjStartLeft, adjEntry adjStartRight);
 
 	/**
-	 * \brief Contracts edge \a e.
+	 * \brief Contracts edge \p e.
 	 * @param e is an edge is the associated graph.
 	 * @return the node resulting from the contraction.
 	 */
@@ -541,19 +567,19 @@ public:
 	edge addEdgeToIsolatedNode(adjEntry adjSrc, node v);
 
 	/**
-	 * \brief Removes edge e and joins the two faces adjacent to \a e.
+	 * \brief Removes edge \p e and joins the two faces adjacent to \p e.
 	 * @param e is an edge in the associated graph.
 	 * \return the resulting (joined) face.
 	 */
 	face joinFaces(edge e);
 
-	//! Reverses edges \a e and updates embedding.
+	//! Reverses edges \p e and updates embedding.
 	void reverseEdge(edge e);
 
 	//! Moves a bridge in the graph.
 	void moveBridge(adjEntry adjBridge, adjEntry adjBefore);
 
-	//! Removes degree-1 node \a v.
+	//! Removes degree-1 node \p v.
 	void removeDeg1(node v);
 
 	//! Update face information after inserting a merger in a copy graph.
@@ -564,7 +590,7 @@ public:
 
 protected:
 	/**
-	 * \brief Joins the two faces adjacent to \a e but does not remove edge \e e.
+	 * \brief Joins the two faces adjacent to \p e but does not remove edge \p e.
 	 * @param e is an edge in the associated graph.
 	 * \return the resulting (joined) face.
 	 */

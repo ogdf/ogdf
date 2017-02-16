@@ -32,7 +32,7 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/internal/basic/graph_iterators.h>
+#include <ogdf/basic/internal/graph_iterators.h>
 
 namespace ogdf {
 
@@ -48,7 +48,7 @@ class OGDF_EXPORT GraphListBase;
 //! The base class for objects used by (hyper)graphs.
 /**
  * Such graph objects are maintained in list (see GraphList<T>),
- * and \a GraphElement basically provides a next and previous pointer
+ * and GraphElement basically provides a next and previous pointer
  * for these objects.
  */
 class OGDF_EXPORT GraphElement {
@@ -88,7 +88,7 @@ public:
 		return m_size;
 	}
 
-	//! Adds element \a pX at the end of the list.
+	//! Adds element \p pX at the end of the list.
 	void pushBack(GraphElement *pX) {
 		pX->m_next = nullptr;
 		pX->m_prev = m_tail;
@@ -99,7 +99,7 @@ public:
 		++m_size;
 	}
 
-	//! Inserts element \a pX after element \a pY.
+	//! Inserts element \p pX after element \p pY.
 	void insertAfter(GraphElement *pX, GraphElement *pY) {
 		pX->m_prev = pY;
 		GraphElement *pYnext = pX->m_next = pY->m_next;
@@ -109,7 +109,7 @@ public:
 		++m_size;
 	}
 
-	//! Inserts element \a pX before element \a pY.
+	//! Inserts element \p pX before element \p pY.
 	void insertBefore(GraphElement *pX, GraphElement *pY) {
 		pX->m_next = pY;
 		GraphElement *pYprev = pX->m_prev = pY->m_prev;
@@ -119,7 +119,7 @@ public:
 		++m_size;
 	}
 
-	//! Removes element \a pX from the list.
+	//! Removes element \p pX from the list.
 	void del(GraphElement *pX) {
 		GraphElement *pxPrev = pX->m_prev, *pxNext = pX->m_next;
 
@@ -134,7 +134,7 @@ public:
 		m_size--;
 	}
 
-	//! Sorts the list according to \a newOrder.
+	//! Sorts the list according to \p newOrder.
 	template<class LIST>
 	void sort(const LIST &newOrder) {
 		GraphElement *pPred = nullptr;
@@ -163,7 +163,7 @@ public:
 		}
 	}
 
-	//! Exchanges the positions of \a pX and \a pY in the list.
+	//! Exchanges the positions of \p pX and \p pY in the list.
 	void swap(GraphElement *pX, GraphElement *pY) {
 		if (pX->m_next == pY) {
 			pX->m_next = pY->m_next;
@@ -274,55 +274,55 @@ public:
 	//! Returns true iff the list is empty.
 	bool empty() const { return m_size == 0; }
 
-	//! Adds element \a pX at the end of the list.
+	//! Adds element \p pX at the end of the list.
 	void pushBack(T *pX) {
 		GraphListBase::pushBack(pX);
 	}
 
-	//! Inserts element \a pX after element \a pY.
+	//! Inserts element \p pX after element \p pY.
 	void insertAfter(T *pX, T *pY) {
 		GraphListBase::insertAfter(pX, pY);
 	}
 
-	//! Inserts element \a pX before element \a pY.
+	//! Inserts element \p pX before element \p pY.
 	void insertBefore(T *pX, T *pY) {
 		GraphListBase::insertBefore(pX, pY);
 	}
 
-	//! Moves element \a pX to list \a L and inserts it before or after \a pY.
+	//! Moves element \p pX to list \p L and inserts it before or after \p pY.
 	void move(T *pX, GraphList<T> &L, T *pY, Direction dir) {
 		GraphListBase::del(pX);
-		if (dir == after)
+		if (dir == Direction::after)
 			L.insertAfter(pX, pY);
 		else
 			L.insertBefore(pX, pY);
 	}
 
-	//! Moves element \a pX to list \a L and inserts it at the end.
+	//! Moves element \p pX to list \p L and inserts it at the end.
 	void move(T *pX, GraphList<T> &L) {
 		GraphListBase::del(pX);
 		L.pushBack(pX);
 	}
 
-	//! Moves element \a pX from its current position to a position after \a pY.
+	//! Moves element \p pX from its current position to a position after \p pY.
 	void moveAfter(T *pX, T *pY){
 		GraphListBase::del(pX);
 		insertAfter(pX, pY);
 	}
 
-	//! Moves element \a pX from its current position to a position before \a pY.
+	//! Moves element \p pX from its current position to a position before \p pY.
 	void moveBefore(T *pX, T *pY){
 		GraphListBase::del(pX);
 		insertBefore(pX, pY);
 	}
 
-	//! Removes element \a pX from the list and deletes it.
+	//! Removes element \p pX from the list and deletes it.
 	void del(T *pX) {
 		GraphListBase::del(pX);
 		delete pX;
 	}
 
-	//! Only removes element \a pX from the list; does not delete it.
+	//! Only removes element \p pX from the list; does not delete it.
 	void delPure(T *pX) {
 		GraphListBase::del(pX);
 	}
@@ -336,7 +336,7 @@ public:
 		}
 	}
 
-	//! Sorts all elements according to \a newOrder.
+	//! Sorts all elements according to \p newOrder.
 	template<class T_LIST>
 	void sort(const T_LIST &newOrder) {
 		GraphListBase::sort(newOrder);
@@ -348,7 +348,7 @@ public:
 		GraphListBase::reverse();
 	}
 
-	//! Exchanges the positions of \a pX and \a pY in the list.
+	//! Exchanges the positions of \p pX and \p pY in the list.
 	void swap(T *pX, T *pY) {
 		GraphListBase::swap(pX, pY);
 	}
@@ -378,7 +378,7 @@ class GraphObjectContainer : private GraphList<GraphObject> {
 
 public:
 	//! Provides a bidirectional iterator to an object in the container.
-	typedef GraphIterator<GraphObject*> iterator;
+	using iterator = GraphIterator<GraphObject*>;
 
 	//! Returns an iterator to the first element in the container.
 	iterator begin() const { return GraphList<GraphObject>::head(); }

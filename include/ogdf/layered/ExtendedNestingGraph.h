@@ -37,13 +37,8 @@
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/cluster/ClusterArray.h>
 
-
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// RCCrossings
-//---------------------------------------------------------
 struct OGDF_EXPORT RCCrossings
 {
 	RCCrossings() {
@@ -115,14 +110,10 @@ struct OGDF_EXPORT RCCrossings
 
 OGDF_EXPORT ostream& operator<<(ostream &os, const RCCrossings &cr);
 
-
-//---------------------------------------------------------
-// LHTreeNode
-//---------------------------------------------------------
 class OGDF_EXPORT LHTreeNode
 {
 public:
-	enum Type { Compound, Node, AuxNode };
+	enum class Type { Compound, Node, AuxNode };
 
 	struct Adjacency
 	{
@@ -165,7 +156,7 @@ public:
 		m_parent      = nullptr;
 		m_origCluster = c;
 		m_node        = nullptr;
-		m_type        = Compound;
+		m_type        = Type::Compound;
 		m_down        = nullptr;
 
 		m_up = up;
@@ -173,7 +164,7 @@ public:
 			up->m_down = this;
 	}
 
-	LHTreeNode(LHTreeNode *parent, node v, Type t = Node) {
+	LHTreeNode(LHTreeNode *parent, node v, Type t = Type::Node) {
 		m_parent      = parent;
 		m_origCluster = nullptr;
 		m_node        = v;
@@ -183,7 +174,7 @@ public:
 	}
 
 	// Access functions
-	bool isCompound() const { return m_type == Compound; }
+	bool isCompound() const { return m_type == Type::Compound; }
 
 	int numberOfChildren() const { return m_child.size(); }
 
@@ -237,10 +228,7 @@ private:
 	OGDF_NEW_DELETE
 };
 
-
-//---------------------------------------------------------
-// ENGLayer
-//---------------------------------------------------------
+//! Represents layer in an extended nesting graph
 class OGDF_EXPORT ENGLayer
 {
 public:
@@ -265,10 +253,6 @@ private:
 	LHTreeNode *m_root;
 };
 
-
-//---------------------------------------------------------
-// ClusterGraphCopy
-//---------------------------------------------------------
 class OGDF_EXPORT ExtendedNestingGraph;
 
 class OGDF_EXPORT ClusterGraphCopy : public ClusterGraph
@@ -297,17 +281,13 @@ private:
 	ClusterArray<cluster> m_original;
 };
 
-
-//---------------------------------------------------------
-// ExtendedNestingGraph
-//---------------------------------------------------------
 class OGDF_EXPORT ExtendedNestingGraph : public Graph
 {
 public:
 	// the type of a node in this copy
-	enum NodeType { ntNode, ntClusterTop, ntClusterBottom, ntDummy, ntClusterTopBottom };
+	enum class NodeType { Node, ClusterTop, ClusterBottom, Dummy, ClusterTopBottom };
 
-	ExtendedNestingGraph(const ClusterGraph &CG);
+	explicit ExtendedNestingGraph(const ClusterGraph &CG);
 
 	const ClusterGraphCopy &getClusterGraph() const { return m_CGC; }
 	const ClusterGraph &getOriginalClusterGraph() const { return m_CGC.getOriginalClusterGraph(); }
@@ -337,7 +317,7 @@ public:
 	}
 
 	bool isLongEdgeDummy(node v) const {
-		return (type(v) == ntDummy && v->outdeg() == 1);
+		return (type(v) == NodeType::Dummy && v->outdeg() == 1);
 	}
 
 	bool verticalSegment(edge e) const { return m_vertical[e]; }

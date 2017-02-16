@@ -45,11 +45,9 @@ const double machineeps = 1.0e-10;
 const int m_init = -1234567; //just to check initialization
 
 
-//************************************************************************************************
 //edgerouter places original node boxes in preassigned cages, computes a number of
 //bendfree edges minimizing placement and routes edges, thereby introducing bends, to
 //achieve a correct layout
-//************************************************************************************************
 
 // routing channel and number of adjacent edges / generalization is supplied by previous
 // compaction step in class routingchannel
@@ -94,8 +92,8 @@ void EdgeRouter::init(
 	m_agp_y.init(pru, m_init);
 	m_acp_x.init(pru, m_init);
 	m_acp_y.init(pru, m_init);
-	m_abends.init(pru, bend_free);
-	m_oppositeBendType.init(pru, bend_free);
+	m_abends.init(pru, BendType::BendFree);
+	m_oppositeBendType.init(pru, BendType::BendFree);
 
 	m_minDelta = false;
 #ifdef SETMULTIMINDELTA
@@ -103,11 +101,11 @@ void EdgeRouter::init(
 #endif
 
 	m_mergerSon.init(pru, false);
-	m_mergeDir.init(pru, odNorth);
+	m_mergeDir.init(pru, OrthoDir::North);
 	m_align = align;
 
 	m_fixed.init(pru, false);
-	m_processStatus.init(pru, unprocessed);
+	m_processStatus.init(pru, ProcessType::unprocessed);
 	m_cage_point.init(pru);
 
 	m_sep = rou.separation();
@@ -163,19 +161,19 @@ void EdgeRouter::call(
 		for(node v : pru.nodes)
 		{
 			if ( (pru.expandAdj(v) != nullptr) &&
-				(pru.typeOf(v) != Graph::generalizationMerger))
+				(pru.typeOf(v) != Graph::NodeType::generalizationMerger))
 			{
 			int perimeter = 2*nodewidth[v] + 2*nodeheight[v];
-			OrthoDir debod = odNorth;
+			OrthoDir debod = OrthoDir::North;
 			int vdeg = 0;
 			do {
-				OrthoRep::SideInfoUML sinfo = m_orp->cageInfo(v)->m_side[debod];
+				OrthoRep::SideInfoUML sinfo = m_orp->cageInfo(v)->m_side[static_cast<int>(debod)];
 				if (sinfo.m_adjGen)
 					vdeg += (sinfo.m_nAttached[0] + 1 + sinfo.m_nAttached[1]);
 				else
 					vdeg += sinfo.m_nAttached[0];
 				debod = OrthoRep::nextDir(debod);
-				} while (debod != odNorth);
+				} while (debod != OrthoDir::North);
 				if (vdeg != 0) mysep = min(mysep, int(floor((double)perimeter / vdeg)));
 			}//if expanded
 		}
@@ -183,7 +181,7 @@ void EdgeRouter::call(
 	for(node v : pru.nodes)
 	{
 		if ( (pru.expandAdj(v) != nullptr) &&
-			 (pru.typeOf(v) != Graph::generalizationMerger)) //==Expander) )
+			 (pru.typeOf(v) != Graph::NodeType::generalizationMerger)) //==Expander) )
 		//adjEntry != nil, this cage node is a copy(original node)
 		{
 			OGDF_ASSERT(pru.widthOrig(pru.original(v)) > 0.0);
@@ -191,7 +189,8 @@ void EdgeRouter::call(
 		}
 	}
 
-	//the rerouting **********************************************************
+	// The Rerouting
+
 	//simple rerouting version: maximize the number of bend free edges in the
 	//placement step, then try to minimize bends by changing attachment sides
 	//in the rerouting step
@@ -217,125 +216,84 @@ void EdgeRouter::call(
 	//compute the lowe / uppe / lefte / righte values for every adjacent edge
 	//if generalization exists the node position is already fixed
 
-	//*********************************************************************
+
 	//compute LOWER / UPPER / LEFTER / RIGHTER border values
-	//*********************************************************************
+
+	auto createComputeValuesFunc = [&](bool leftRight) {
+		auto &low = leftRight ? lowe : lefte;
+		auto &alow = leftRight ? alowe : alefte;
+		auto &upp = leftRight ? uppe : righte;
+		auto &aupp = leftRight ? auppe : arighte;
+		auto &left = leftRight ? lefte : uppe;
+		auto &aleft = leftRight ? alefte : auppe;
+		auto &right = leftRight ? righte : lowe;
+		auto &aright = leftRight ? arighte : alowe;
+		const auto &pos = leftRight ? L.y() : L.x();
+		const auto dirA = leftRight ? OrthoDir::West : OrthoDir::North;
+		const auto dirB = leftRight ? OrthoDir::East : OrthoDir::South;
+
+		return [&, dirA, dirB](const OrthoDir dir, NodeInfo& inf) {
+			const List<edge> &side_in_edges = inf.inList(dir);
+			int pos_e = 1;
+
+			for (edge inedge : side_in_edges) {
+				// incident edges lying above line
+				int remaining_num = side_in_edges.size() - pos_e;
+
+				// adjust multiples of delta
+				int sepsA = inf.delta(dir, dirA) * (pos_e - 1);
+				int sepsB = inf.delta(dir, dirB) * remaining_num;
+
+				low[inedge] = pos[inedge->target()] - sepsA - inf.eps(dir, dirA);
+				alow[outEntry(inf, dir, pos_e - 1)] = pos[inedge->target()] - sepsA - inf.eps(dir, dirA);
+				upp[inedge] = pos[inedge->target()] + sepsB + inf.eps(dir, dirB);
+				aupp[outEntry(inf, dir, pos_e - 1)] = pos[inedge->target()] + sepsB + inf.eps(dir, dirB);
+
+				// unused for horizontal/vertical edges in twostep simple rerouting
+				aright[outEntry(inf, dir, pos_e - 1)] = right[inedge] = 0;
+				aleft[outEntry(inf, dir, pos_e - 1)] = left[inedge] = 0; // maybe initialize to -1
+				pos_e++;
+			}
+		};
+	};
+
+	auto computeLeftRightValues = createComputeValuesFunc(true);
+	auto computeTopBottomValues = createComputeValuesFunc(false);
 
 	//forall expanded nodes
 	for(node l_v : pru.nodes)
 	{
-		if ((pru.expandAdj(l_v) != nullptr) && (pru.typeOf(l_v) != Graph::generalizationMerger) )//check if replaced
+		if ((pru.expandAdj(l_v) != nullptr) && (pru.typeOf(l_v) != Graph::NodeType::generalizationMerger) )//check if replaced
 		{
 			NodeInfo& inf = infos[l_v];
 
-			//edges to the left side, pointing towards cage
-			const List<edge>& left_in_edges = inf.inList(odNorth);
-			//LEFT EDGES
-			int pos_e = 1;
-			//for all edges incident to cage, we compute lower, upper, lefter, righter values from the paper
-			for (edge inedge : left_in_edges)
-			{
-				int l_seps; //adjust multiples of delta for lower values
-				int u_seps; // -"- upper
-				int remaining_num = left_in_edges.size() - pos_e; //incident edges lying above ine
-
-				l_seps = inf.delta(odNorth, odWest)*(pos_e-1);
-				u_seps = inf.delta(odNorth, odEast)*remaining_num;
-
-				lowe[inedge] = L.y(inedge->target()) - l_seps - inf.eps(odNorth, odWest);
-				alowe[outEntry(inf, odNorth,pos_e-1)] = L.y(inedge->target()) - l_seps - inf.eps(odNorth, odWest);
-				uppe[inedge] = L.y(inedge->target()) + u_seps + inf.eps(odNorth, odEast);
-				auppe[outEntry(inf, odNorth, pos_e -1)] = L.y(inedge->target()) + u_seps + inf.eps(odNorth, odEast);
-
-				arighte[outEntry(inf, odNorth, pos_e -1)] = righte[inedge] = 0; //unused for horizontal edges in twostep simple rerouting
-				alefte[outEntry(inf, odNorth, pos_e -1)] = lefte[inedge] = 0;  //maybe initialize to -1
-				pos_e++;
-			}//for
-			//RIGHT EDGES
-			//edges to the right side, pointing towards cage , check bottom -> top!!!!!!!!!!
-			const List<edge>& right_in_edges = inf.inList(odSouth);
-			pos_e = 1;
-			for (edge inedge : right_in_edges)
-			{
-				int l_seps; //adjust multiples of delta to generalization/ no generalization for lower
-				int u_seps; // -"- upper
-				int remaining_num = right_in_edges.size() - pos_e; //incident edges lying above ine
-
-				l_seps = inf.delta(odSouth, odWest)*(pos_e-1);
-				u_seps = inf.delta(odSouth, odEast)*remaining_num;
-
-				lowe[inedge] = L.y(inedge->target()) - l_seps - inf.eps(odSouth, odWest);
-				alowe[outEntry(inf, odSouth, pos_e-1)] = L.y(inedge->target()) - l_seps - inf.eps(odSouth, odWest);
-				uppe[inedge] = L.y(inedge->target()) + u_seps + inf.eps(odSouth, odEast);
-				auppe[outEntry(inf, odSouth, pos_e-1)] = L.y(inedge->target()) + u_seps + inf.eps(odSouth, odEast);
-				//unused for horizontal edges in twostep simple rerouting
-				arighte[outEntry(inf, odSouth, pos_e-1)] = righte[inedge] = 0;
-				alefte[outEntry(inf, odSouth, pos_e-1)] = lefte[inedge] = 0;  //maybe initialize to -1
-				pos_e++;
-			}//for
-
-			//TOP EDGES
-			//edges at the top side, pointing towards cage , check left -> right!!!!!!!!!!
-			const List<edge>& top_in_edges = inf.inList(odEast); //debug!!!!!!!!!!!!
-			pos_e = 1;
-			for (edge inedge : top_in_edges)
-			{
-				int l_seps; //adjust multiples of delta for left
-				int r_seps; // -"- right
-				int remaining_num = top_in_edges.size() - pos_e; //incident edges lying above ine
-
-				l_seps = inf.delta(odEast, odNorth)*(pos_e-1);
-				r_seps = inf.delta(odEast, odSouth)*remaining_num;
-
-				lefte[inedge] = L.x(inedge->target()) - l_seps - inf.eps(odEast, odNorth); //eps are the same w/o gene
-				alefte[outEntry(inf, odEast, pos_e - 1)] = L.x(inedge->target()) - l_seps - inf.eps(odEast, odNorth);
-				righte[inedge] = L.x(inedge->target()) + r_seps + inf.eps(odEast, odSouth);
-				arighte[outEntry(inf,odEast, pos_e - 1)] = L.x(inedge->target()) + r_seps + inf.eps(odEast, odSouth);
-
-				alowe[outEntry(inf,odEast, pos_e - 1)] = lowe[inedge] = 0; //unused for vertical edges in twostep simple rerouting
-				auppe[outEntry(inf,odEast, pos_e - 1)] = uppe[inedge] = 0;  //maybe initialize to -1
-				pos_e++;
-			}//for
-			//edges at the bottom side, pointing towards cage , check left -> right!!!!!!!!!!
-			const List<edge>& bottom_in_edges = inf.inList(odWest); //debug!!!!!!!!!!!!
-			pos_e = 1;
-			for (edge inedge : bottom_in_edges)
-			{
-				int l_seps; //adjust multiples of delta for left
-				int r_seps; // -"- right
-				int remaining_num = bottom_in_edges.size() - pos_e; //incident edges lying above ine
-
-				l_seps = inf.delta(odWest, odNorth)*(pos_e-1);
-				r_seps = inf.delta(odWest, odSouth)*remaining_num;
-
-				lefte[inedge] = L.x(inedge->target()) - l_seps - inf.eps(odWest, odNorth); //eps are the same w/o gene
-				alefte[outEntry(inf, odWest, pos_e-1)] = L.x(inedge->target()) - l_seps - inf.eps(odWest, odNorth);
-				righte[inedge] = L.x(inedge->target()) + r_seps + inf.eps(odWest, odSouth);
-				arighte[outEntry(inf, odWest, pos_e-1)] = L.x(inedge->target()) + r_seps + inf.eps(odWest, odSouth);
-
-				alowe[outEntry(inf, odWest, pos_e-1)] = lowe[inedge] = 0; //unused for vertical edges in twostep simple rerouting
-				auppe[outEntry(inf, odWest, pos_e-1)] = uppe[inedge] = 0;  //maybe initialize to -1
-				pos_e++;
-			}//for
+			// for all edges incident to cage, we compute lower, upper, lefter, righter values from the paper
+			// edges to the left side, pointing towards cage
+			computeLeftRightValues(OrthoDir::North, inf);
+			// edges to the right side, pointing towards cage
+			computeLeftRightValues(OrthoDir::South, inf);
+			// edges at the top side, pointing towards cage
+			computeTopBottomValues(OrthoDir::East, inf);
+			// edges at the bottom side, pointing towards cage
+			computeTopBottomValues(OrthoDir::West, inf);
 		}//if replaced
 	}
 
-	//***********************************************************************************
+
 	//now for all edges pointing towards cages representing nodes without generalization,
 	//we defined lowe/uppe values for horizontal and lefte/righte values for vertical edges
-	//***********************************************************************************
 
 	for(node v : pru.nodes)
 	{
-		if ( (pru.expandAdj(v) != nullptr) && (pru.typeOf(v) != Graph::generalizationMerger) )//== Graph::highDegreeExpander) ) //expanded high degree
+		if ( (pru.expandAdj(v) != nullptr) && (pru.typeOf(v) != Graph::NodeType::generalizationMerger) )//== Graph::highDegreeExpander) ) //expanded high degree
 		{
 			compute_place(v, infos[v]/*, m_sep, m_overh*/);
-			//***************************************************************************
+
 			//forall expanded nodes we computed a box placement and a preliminary routing
 			//now we can reroute some edges to avoid unnecessary bends (won't be optimal)
 			//simple approach: implement only local decision at corner between two
 			//neighboured nodebox sides
-			//***************************************************************************
+
 			//classify_edges(v, infos[v]); //E sets from paper, reroutable
 			compute_routing(v); //maybe store result in structure and apply later
 		}//if expanded
@@ -350,7 +308,6 @@ void EdgeRouter::call(
 		{
 			if ( (pru.expandAdj(v) != 0) && (pru.typeOf(v) != Graph::generalizationMerger) )
 			{
-				//****************************************
 				//Re - Place degree one nodes if possible, to neighbour cage
 				//mag sein, dass firstadj ein zeiger sein muss
 				adjEntry fa = infos[v].firstAdj();
@@ -387,57 +344,56 @@ void EdgeRouter::call(
 				{
 					//find new place, v must be cage node with out edge attached
 					int npos, spos, epos, wpos, vxpos, vypos;
-					switch (od)
-		            {
-						case odNorth:
-							npos = infos[expandNode].coord(odNorth) - m_sep - infos[v].node_xsize();
-							spos = infos[expandNode].coord(odNorth) - m_sep;
-							wpos = infos[expandNode].cageCoord(odWest)
-	                                        + int(floor(infos[expandNode].cageSize(odNorth)/2.0)
-	                                        - floor(infos[v].nodeSize(odNorth)/2.0));
-							epos = wpos + infos[v].nodeSize(odNorth);
-							vxpos = spos;
-							vypos = wpos + int(floor(infos[v].nodeSize(odNorth)/2.0));
-							break;
-						case odSouth:
-							npos = infos[expandNode].coord(odSouth) + m_sep;
-							spos = infos[expandNode].coord(odSouth) + m_sep + infos[v].node_xsize();
-							wpos = infos[expandNode].cageCoord(odWest)
-	                                        + int(floor(infos[expandNode].cageSize(odNorth)/2.0)
-	                                        - floor(infos[v].nodeSize(odNorth)/2.0));
-							epos = wpos + infos[v].nodeSize(odNorth);
-							vxpos = npos;
-							vypos = wpos + int(floor(infos[v].nodeSize(odNorth)/2.0));
-							break;
-		                case odEast:
-		                    npos = infos[expandNode].cageCoord(odNorth)
-	                              + int(floor(infos[expandNode].cageSize(odEast)/2.0)
-	                              - floor(infos[v].nodeSize(odEast)/2.0));
-							spos = npos + infos[v].cageSize(odEast);
-							wpos = infos[expandNode].coord(odEast) + m_sep;
-							epos = wpos + infos[v].nodeSize(odEast);
-							vypos = wpos;
-							vxpos = npos + int(floor(infos[v].nodeSize(odEast)/2.0));
-							break;
-		                case odWest:
-				            npos = infos[expandNode].cageCoord(odNorth)
-	                              + int(floor(infos[expandNode].cageSize(odEast)/2.0)
-	                              - floor(infos[v].nodeSize(odEast)/2.0));
-							spos = npos + infos[v].cageSize(odEast);
-							epos = infos[expandNode].coord(odWest) - m_sep;
-							wpos = epos - infos[v].nodeSize(odNorth);
-							vypos = epos;
-							vxpos = npos + int(floor(infos[v].nodeSize(odEast)/2.0));
-							break;
-	                }//switch
-					infos[v].set_coord(odNorth, npos);
-					infos[v].set_coord(odSouth, spos);
-					infos[v].set_coord(odWest, wpos);
-					infos[v].set_coord(odEast, epos);
-					infos[v].setCageCoord(odNorth, npos);
-					infos[v].setCageCoord(odSouth, spos);
-					infos[v].setCageCoord(odWest, wpos);
-					infos[v].setCageCoord(odEast, epos);
+					switch (od) {
+					case OrthoDir::North:
+						npos = infos[expandNode].coord(OrthoDir::North) - m_sep - infos[v].node_xsize();
+						spos = infos[expandNode].coord(OrthoDir::North) - m_sep;
+						wpos = infos[expandNode].cageCoord(OrthoDir::West)
+						     + int(floor(infos[expandNode].cageSize(OrthoDir::North)/2.0)
+						     - floor(infos[v].nodeSize(OrthoDir::North)/2.0));
+						epos = wpos + infos[v].nodeSize(OrthoDir::North);
+						vxpos = spos;
+						vypos = wpos + int(floor(infos[v].nodeSize(OrthoDir::North)/2.0));
+						break;
+					case OrthoDir::South:
+						npos = infos[expandNode].coord(OrthoDir::South) + m_sep;
+						spos = infos[expandNode].coord(OrthoDir::South) + m_sep + infos[v].node_xsize();
+						wpos = infos[expandNode].cageCoord(OrthoDir::West)
+						     + int(floor(infos[expandNode].cageSize(OrthoDir::North)/2.0)
+						     - floor(infos[v].nodeSize(OrthoDir::North)/2.0));
+						epos = wpos + infos[v].nodeSize(OrthoDir::North);
+						vxpos = npos;
+						vypos = wpos + int(floor(infos[v].nodeSize(OrthoDir::North)/2.0));
+						break;
+					case OrthoDir::East:
+						npos = infos[expandNode].cageCoord(OrthoDir::North)
+						     + int(floor(infos[expandNode].cageSize(OrthoDir::East)/2.0)
+						     - floor(infos[v].nodeSize(OrthoDir::East)/2.0));
+						spos = npos + infos[v].cageSize(OrthoDir::East);
+						wpos = infos[expandNode].coord(OrthoDir::East) + m_sep;
+						epos = wpos + infos[v].nodeSize(OrthoDir::East);
+						vypos = wpos;
+						vxpos = npos + int(floor(infos[v].nodeSize(OrthoDir::East)/2.0));
+						break;
+					case OrthoDir::West:
+						npos = infos[expandNode].cageCoord(OrthoDir::North)
+						     + int(floor(infos[expandNode].cageSize(OrthoDir::East)/2.0)
+						     - floor(infos[v].nodeSize(OrthoDir::East)/2.0));
+						spos = npos + infos[v].cageSize(OrthoDir::East);
+						epos = infos[expandNode].coord(OrthoDir::West) - m_sep;
+						wpos = epos - infos[v].nodeSize(OrthoDir::North);
+						vypos = epos;
+						vxpos = npos + int(floor(infos[v].nodeSize(OrthoDir::East)/2.0));
+						break;
+					}//switch
+					infos[v].set_coord(OrthoDir::North, npos);
+					infos[v].set_coord(OrthoDir::South, spos);
+					infos[v].set_coord(OrthoDir::West, wpos);
+					infos[v].set_coord(OrthoDir::East, epos);
+					infos[v].setCageCoord(OrthoDir::North, npos);
+					infos[v].setCageCoord(OrthoDir::South, spos);
+					infos[v].setCageCoord(OrthoDir::West, wpos);
+					infos[v].setCageCoord(OrthoDir::East, epos);
 					//set v coordinates
 					m_layoutp->x(v) = vxpos;
 					m_layoutp->y(v) = vypos;
@@ -450,17 +406,16 @@ void EdgeRouter::call(
 					//hier muss man auch die Kantenendpunkte setzen, sonst gibt es einen Fehler
 				}//if
 			}//if degreeexpander
-	       }//debug stop
+		}//debug stop
 	}
 #endif
 
-	for(node v : pru.nodes)
-	{
-		if ( (pru.expandAdj(v) != nullptr) && (pru.typeOf(v) != Graph::generalizationMerger) )
-		{
-			if (!(m_processStatus[v] == processed))
-				place(v);
-		}//if expanded
+	for(node v : pru.nodes) {
+		if (pru.expandAdj(v) != nullptr
+		 && pru.typeOf(v) != Graph::NodeType::generalizationMerger
+		 && m_processStatus[v] != ProcessType::processed) {
+			place(v);
+		}
 	}
 
 	setDistances();
@@ -482,366 +437,264 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 //compute preliminary glue point positions based on placement
 //and generalizations for horizontal edges and set bend type accordingly
 {
-	OGDF_ASSERT(infos[v].has_gen(odNorth) || infos[v].has_gen(odSouth));
+	OGDF_ASSERT(infos[v].has_gen(OrthoDir::North) || infos[v].has_gen(OrthoDir::South));
 	int ybase = 0;
-	int gen_y = infos[v].coord(odWest) + int(floor((double)(infos[v].node_ysize())/2)); //in the middle
+	int gen_y = infos[v].coord(OrthoDir::West) + int(floor((double)(infos[v].node_ysize())/2)); //in the middle
 	//y coordinates
 	//check for left/right generalization
 
-	//NORTH SIDE *************************************************
-	ListIterator<edge> l_it = infos[v].inList(odNorth).begin();
-	//NORTH GENERATOR ******************************************
-	if (infos[v].has_gen(odNorth))//gen at left side
+	//NORTH SIDE
+	ListIterator<edge> l_it = infos[v].inList(OrthoDir::North).begin();
+	//NORTH GENERATOR
+	if (infos[v].has_gen(OrthoDir::North))//gen at left side
 	{
-		int pos = infos[v].gen_pos(odNorth)-1; //compare edge position to generalization position
-		if (pos > -1) l_it = infos[v].inList(odNorth).get(pos);//muss unter gen sein, -2???
+		int pos = infos[v].gen_pos(OrthoDir::North)-1; //compare edge position to generalization position
+		if (pos > -1) l_it = infos[v].inList(OrthoDir::North).get(pos);//muss unter gen sein, -2???
 		else {l_it = nullptr; pos = 0;}
 		bool firstcheck = true;
 		bool lastcheck = true;
 		//classify edges
-		//***************************************************
+
 		//assign gp value for edges underneath generalization
-		ybase = gen_y - infos[v].delta(odNorth, odWest);
+		ybase = gen_y - infos[v].delta(OrthoDir::North, OrthoDir::West);
 		//bendfree edges underneath
 		while (l_it.valid() &&
-			(pos*infos[v].delta(odNorth, odWest) + infos[v].eps(odNorth,odWest) <=
-			(cp_y(outEntry(infos[v], odNorth, pos)) - infos[v].coord(odWest)) )) //bendfree edges cage_coord??!!!
+			(pos*infos[v].delta(OrthoDir::North, OrthoDir::West) + infos[v].eps(OrthoDir::North, OrthoDir::West) <=
+			(cp_y(outEntry(infos[v], OrthoDir::North, pos)) - infos[v].coord(OrthoDir::West)) )) //bendfree edges cageCoord??!!!
 		{
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = cp_y(outEntry(infos[v], odNorth, pos));
+			m_agp_y[outEntry(infos[v], OrthoDir::North, pos)] = cp_y(outEntry(infos[v], OrthoDir::North, pos));
 
-			if (firstcheck) {firstcheck = false; infos[v].set_l_upper(cp_y(outEntry(infos[v], odNorth, pos)));}
+			if (firstcheck) {firstcheck = false; infos[v].set_l_upper(cp_y(outEntry(infos[v], OrthoDir::North, pos)));}
 			lastcheck = false;
-			infos[v].set_l_lower(cp_y(outEntry(infos[v], odNorth, pos)));
+			infos[v].set_l_lower(cp_y(outEntry(infos[v], OrthoDir::North, pos)));
 
-			m_abends[outEntry(infos[v], odNorth, pos)] = bend_free;
-			ybase = cp_y(outEntry(infos[v], odNorth, pos)) - infos[v].delta(odNorth, odWest);
+			m_abends[outEntry(infos[v], OrthoDir::North, pos)] = BendType::BendFree;
+			ybase = cp_y(outEntry(infos[v], OrthoDir::North, pos)) - infos[v].delta(OrthoDir::North, OrthoDir::West);
 			--l_it;
 			--pos;
-			infos[v].nbf(odNorth)++;
+			infos[v].num_bend_free_increment(OrthoDir::North);
 		}//while
 
 		//still some lower edges to bend
 		while (l_it.valid())
 		{
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odWest)
-				+ infos[v].eps(odNorth, odWest)
-				+ pos*infos[v].delta(odNorth, odWest);
-			if (cp_y(outEntry(infos[v], odNorth, pos)) < infos[v].coord(odWest) - m_sep) //paper E^
-			{  m_abends[outEntry(infos[v], odNorth, pos)] = prob_b1l; infos[v].inc_E_hook(odNorth, odWest);}//numr??
-			else {m_abends[outEntry(infos[v], odNorth, pos)] = prob_b2l; infos[v].inc_E(odNorth, odWest);}
+			NodeInfo &inf = infos[v];
+			const adjEntry adj = outEntry(inf, OrthoDir::North, pos);
 
-			ybase = ybase - infos[v].delta(odNorth, odWest);
+			m_agp_y[adj] = inf.coord(OrthoDir::West)
+				+ inf.eps(OrthoDir::North, OrthoDir::West)
+				+ pos*inf.delta(OrthoDir::North, OrthoDir::West);
+
+			updateOneBend(cp_y(adj) >= inf.coord(OrthoDir::West) - m_sep, adj, v, OrthoDir::North, true, BendType::ProbB1L, BendType::ProbB2L);
+
+			ybase = ybase - inf.delta(OrthoDir::North, OrthoDir::West);
 			--pos;
 			--l_it;
 		}
 
-		//*******************************************************
 		//assign gp value for generalization
 		ybase = gen_y; //check == y(current edge)???
-		l_it = infos[v].inList(odNorth).get(infos[v].gen_pos(odNorth));
+		l_it = infos[v].inList(OrthoDir::North).get(infos[v].gen_pos(OrthoDir::North));
 
-		infos[v].nbf(odNorth)++;
-		m_agp_y[outEntry(infos[v], odNorth, infos[v].gen_pos(odNorth))] = ybase;
-		m_abends[outEntry(infos[v], odNorth, infos[v].gen_pos(odNorth))] = bend_free;
+		infos[v].num_bend_free_increment(OrthoDir::North);
+		m_agp_y[outEntry(infos[v], OrthoDir::North, infos[v].gen_pos(OrthoDir::North))] = ybase;
+		m_abends[outEntry(infos[v], OrthoDir::North, infos[v].gen_pos(OrthoDir::North))] = BendType::BendFree;
 
 		if (lastcheck) infos[v].set_l_lower(ybase);
 		infos[v].set_l_upper(ybase);
 
-		//*******************************************************
 		//assign gp value for bendfree edges above generalization
 		++l_it;
-		pos = infos[v].gen_pos(odNorth) + 1;
+		pos = infos[v].gen_pos(OrthoDir::North) + 1;
 		while (l_it.valid() &&
-			((infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odEast)
-			+ infos[v].eps(odNorth,odEast) <=
-			(infos[v].coord(odEast) - cp_y(outEntry(infos[v], odNorth, pos))) ))
+			((infos[v].inList(OrthoDir::North).size() - 1 - pos)*infos[v].delta(OrthoDir::North, OrthoDir::East)
+			+ infos[v].eps(OrthoDir::North,OrthoDir::East) <=
+			(infos[v].coord(OrthoDir::East) - cp_y(outEntry(infos[v], OrthoDir::North, pos))) ))
 		{
-			m_abends[outEntry(infos[v], odNorth, pos)] = bend_free;
-			ybase = cp_y(outEntry(infos[v], odNorth, pos));//+= infos[v].delta(odNorth, odEast);
+			m_abends[outEntry(infos[v], OrthoDir::North, pos)] = BendType::BendFree;
+			ybase = cp_y(outEntry(infos[v], OrthoDir::North, pos));//+= infos[v].delta(OrthoDir::North, OrthoDir::East);
 
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = ybase;
+			m_agp_y[outEntry(infos[v], OrthoDir::North, pos)] = ybase;
 
 			infos[v].set_l_upper(ybase);
 			++l_it; ++pos;
-			infos[v].nbf(odNorth)++;
+			infos[v].num_bend_free_increment(OrthoDir::North);
 		}
 
-		//*******************************************************
 		//assign gp value for bend edges on top of generalization
-		int bendnum = infos[v].inList(odNorth).size() - pos;
+		int bendnum = infos[v].inList(OrthoDir::North).size() - pos;
 		while (l_it.valid())
 		{
-			//check for single/2 bend
-			//ybase += infos[v].delta(odNorth, odEast); //there is a generalization
-			ybase = infos[v].l_upper_unbend() +
-				(pos  + 1 + bendnum - infos[v].inList(odNorth).size())*infos[v].delta(odNorth, odEast);
+			NodeInfo &inf = infos[v];
+			const adjEntry adj = outEntry(inf, OrthoDir::North, pos);
 
-			if (m_acp_y[outEntry(infos[v], odNorth, pos)] < infos[v].coord(odEast) + m_sep)
-			{
-				m_abends[outEntry(infos[v],odNorth, pos)] = prob_b2r; infos[v].inc_E(odNorth, odEast);
-			}
-			else {
-				m_abends[outEntry(infos[v], odNorth, pos)] = prob_b1r; infos[v].inc_E_hook(odNorth, odEast);
-			}
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = ybase;
+			// check for single/2 bend
+			// ybase += infos[v].delta(OrthoDir::North, OrthoDir::East); // there is a generalization
+			ybase = inf.l_upper_unbend() +
+				(pos  + 1 + bendnum - inf.inList(OrthoDir::North).size())*inf.delta(OrthoDir::North, OrthoDir::East);
+
+			updateOneBend(m_acp_y[adj] < inf.coord(OrthoDir::East) + m_sep, adj, v, OrthoDir::North, false, BendType::ProbB1R, BendType::ProbB2R);
+
+			m_agp_y[adj] = ybase;
 
 			++l_it;
 			++pos;
 		}//while valid
 	}//if left gen
 
-	//NO LEFT GENERATOR ****************************************************
+	//NO LEFT GENERATOR
 	else
 	{
-		int pos = 0;
-		OGDF_ASSERT(infos[v].has_gen(odSouth));//obs
+		OGDF_ASSERT(infos[v].has_gen(OrthoDir::South));//obs
 		//classify edges
-		//******************
-		//edges bending down
-		//******************
-		while (l_it.valid() && ( infos[v].coord(odWest)  >
-				 (cp_y(outEntry(infos[v], odNorth, pos)) - pos*infos[v].delta(odNorth, odWest) - infos[v].eps(odNorth,odWest)) ))
-		{
-			if (cp_y(outEntry(infos[v], odNorth, pos)) > infos[v].coord(odWest) - m_sep)//must be doublebend
-			{
-				m_abends[outEntry(infos[v], odNorth, pos)] = bend_2left;
-				infos[v].inc_E(odNorth, odWest);
-			}
-			else //may be singlebend
-			{
-				m_abends[outEntry(infos[v], odNorth, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odNorth, odWest);
-			}
 
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odWest)
-				+ infos[v].eps(odNorth, odWest)
-				+ pos*infos[v].delta(odNorth, odWest);
-			++l_it;
-			++pos;
-		}//while
-		//*********************
+		// edges bending downwards
+		int pos = updateBends(v, l_it, false, OrthoDir::West, true, false);
+
 		//bendfree edges
-		//*********************
 		bool check = true;
-		while (l_it.valid() && ( infos[v].coord(odEast)  >= (cp_y(outEntry(infos[v], odNorth, pos))
-							 + (infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odWest)
-							 + infos[v].eps(odNorth,odWest)) ))
+		while (l_it.valid() && ( infos[v].coord(OrthoDir::East)  >= (cp_y(outEntry(infos[v], OrthoDir::North, pos))
+							 + (infos[v].inList(OrthoDir::North).size() - 1 - pos)*infos[v].delta(OrthoDir::North, OrthoDir::West)
+							 + infos[v].eps(OrthoDir::North,OrthoDir::West)) ))
 		{
-			if (check) infos[v].set_l_lower(cp_y(outEntry(infos[v], odNorth, pos)));
-			infos[v].set_l_upper(cp_y(outEntry(infos[v], odNorth, pos)));
+			if (check) infos[v].set_l_lower(cp_y(outEntry(infos[v], OrthoDir::North, pos)));
+			infos[v].set_l_upper(cp_y(outEntry(infos[v], OrthoDir::North, pos)));
 			check = false;
-			m_abends[outEntry(infos[v], odNorth, pos)] = bend_free;
-			infos[v].nbf(odNorth)++;
-			m_agp_y[outEntry(infos[v], odNorth, pos)] =  cp_y(outEntry(infos[v], odNorth, pos));//m_acp_y[outEntry(infos[v], odNorth, pos)];
+			m_abends[outEntry(infos[v], OrthoDir::North, pos)] = BendType::BendFree;
+			infos[v].num_bend_free_increment(OrthoDir::North);
+			m_agp_y[outEntry(infos[v], OrthoDir::North, pos)] =  cp_y(outEntry(infos[v], OrthoDir::North, pos));//m_acp_y[outEntry(infos[v], OrthoDir::North, pos)];
 			++l_it;
 			++pos;
 		}
-		//*********************
-		//edges bending upwards
-		//*********************
-		while (l_it.valid()) //&&???!!!
-		{
-			if (cp_y(outEntry(infos[v], odNorth, pos)) <= infos[v].coord(odEast) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odNorth, pos)] = bend_2right;
-				infos[v].inc_E(odNorth, odEast);
-			}
-			else
-			{
-				m_abends[outEntry(infos[v], odNorth, pos)] = prob_b1r; infos[v].inc_E_hook(odNorth, odEast);
-			}//else
 
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odEast)
-				- infos[v].eps(odNorth, odEast)
-				- (infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odEast);
-			++l_it;
-			++pos;
-		}//while
+		// edges bending upwards
+		updateBends(v, l_it, false, OrthoDir::East, false, true, pos);
 	}//else left gen
 
-	//RIGHT SIDE **************************************************************
-	//RIGHT GENERATOR ***********************************************
-	if (infos[v].has_gen(odSouth))
+	//RIGHT SIDE
+	//RIGHT GENERATOR
+	if (infos[v].has_gen(OrthoDir::South))
 	{
 		//left copy
-		int pos = infos[v].gen_pos(odSouth)-1; //compare edge position to generalization position
+		int pos = infos[v].gen_pos(OrthoDir::South)-1; //compare edge position to generalization position
 		if (pos > -1)
-			l_it = infos[v].inList(odSouth).get(pos);
+			l_it = infos[v].inList(OrthoDir::South).get(pos);
 		else l_it = nullptr;
 		//classify edges
-		//***************************************************
+
 		//assign gp value for edges underneath generalization
-		ybase = gen_y - infos[v].delta(odSouth, odWest);
+		ybase = gen_y - infos[v].delta(OrthoDir::South, OrthoDir::West);
 
 		//bendfree edges underneath
 		bool check = false;
 		bool lastcheck = true;
 		while (l_it.valid() &&
-			(pos*infos[v].delta(odSouth, odWest) + infos[v].eps(odSouth,odWest) <=
-			(cp_y(outEntry(infos[v], odSouth, pos)) - infos[v].coord(odWest)) ))
+			(pos*infos[v].delta(OrthoDir::South, OrthoDir::West) + infos[v].eps(OrthoDir::South,OrthoDir::West) <=
+			(cp_y(outEntry(infos[v], OrthoDir::South, pos)) - infos[v].coord(OrthoDir::West)) ))
 		{
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = cp_y(outEntry(infos[v], odSouth, pos));
+			m_agp_y[outEntry(infos[v], OrthoDir::South, pos)] = cp_y(outEntry(infos[v], OrthoDir::South, pos));
 
 			lastcheck = false;
-			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], odSouth, pos)]);
-			if (!check) {infos[v].set_r_upper(m_agp_y[outEntry(infos[v], odSouth, pos)]); check = true;}
-			m_abends[outEntry(infos[v], odSouth, pos)] = bend_free;
-			ybase = cp_y(outEntry(infos[v], odSouth, pos)) - infos[v].delta(odSouth, odWest);
+			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], OrthoDir::South, pos)]);
+			if (!check) {infos[v].set_r_upper(m_agp_y[outEntry(infos[v], OrthoDir::South, pos)]); check = true;}
+			m_abends[outEntry(infos[v], OrthoDir::South, pos)] = BendType::BendFree;
+			ybase = cp_y(outEntry(infos[v], OrthoDir::South, pos)) - infos[v].delta(OrthoDir::South, OrthoDir::West);
 			--l_it;
 			--pos;
-			infos[v].nbf(odSouth)++;
+			infos[v].num_bend_free_increment(OrthoDir::South);
 		}//while
-		while (l_it.valid()) //still some lower edges to bend, ycoord+eps+delta
-		{
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = ybase;
-			if (cp_y(outEntry(infos[v], odSouth, pos)) < infos[v].coord(odWest) - m_sep)
-			{
-				m_abends[outEntry(infos[v], odSouth, pos)] = prob_b1r;
-				infos[v].inc_E_hook(odSouth, odWest);
-			}
-			else {
-				m_abends[outEntry(infos[v], odSouth, pos)] = prob_b2r;
-				infos[v].inc_E(odSouth, odWest);
-			}
-			ybase = ybase - infos[v].delta(odSouth, odWest);
-			--l_it;
-			--pos;
-		}
-		//*******************************************************
+
+		updateLowerEdgesBends(v, l_it, pos, ybase, false, OrthoDir::West, false);
+
 		//assign gp value for generalization
 		ybase = gen_y; //check == y(current edge)???
-		l_it = infos[v].inList(odSouth).get(infos[v].gen_pos(odSouth));
-		infos[v].nbf(odSouth)++;
-		m_agp_y[outEntry(infos[v], odSouth, infos[v].gen_pos(odSouth))] = ybase;
-		m_abends[outEntry(infos[v], odSouth, infos[v].gen_pos(odSouth))] = bend_free;
+		l_it = infos[v].inList(OrthoDir::South).get(infos[v].gen_pos(OrthoDir::South));
+		infos[v].num_bend_free_increment(OrthoDir::South);
+		m_agp_y[outEntry(infos[v], OrthoDir::South, infos[v].gen_pos(OrthoDir::South))] = ybase;
+		m_abends[outEntry(infos[v], OrthoDir::South, infos[v].gen_pos(OrthoDir::South))] = BendType::BendFree;
 		if (lastcheck)
 		{
-			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], odSouth, infos[v].gen_pos(odSouth))]);
+			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], OrthoDir::South, infos[v].gen_pos(OrthoDir::South))]);
 		}
 		infos[v].set_r_upper(ybase);
-		//*******************************************************
+
 		//assign gp value for bendfree edges above generalization
 		++l_it;
-		pos = infos[v].gen_pos(odSouth) + 1;
+		pos = infos[v].gen_pos(OrthoDir::South) + 1;
 		while (l_it.valid() &&
-			((infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odEast) + infos[v].eps(odSouth,odEast) <=
-			(infos[v].coord(odEast) - cp_y(outEntry(infos[v], odSouth, pos))) ))
+			((infos[v].inList(OrthoDir::South).size() - 1 - pos)*infos[v].delta(OrthoDir::South, OrthoDir::East) + infos[v].eps(OrthoDir::South,OrthoDir::East) <=
+			(infos[v].coord(OrthoDir::East) - cp_y(outEntry(infos[v], OrthoDir::South, pos))) ))
 		{
-			m_abends[outEntry(infos[v], odSouth, pos)] = bend_free;
-			ybase = cp_y(outEntry(infos[v], odSouth, pos));//+= infos[v].delta(odNorth, odEast);
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = ybase;
+			m_abends[outEntry(infos[v], OrthoDir::South, pos)] = BendType::BendFree;
+			ybase = cp_y(outEntry(infos[v], OrthoDir::South, pos));//+= infos[v].delta(OrthoDir::North, OrthoDir::East);
+			m_agp_y[outEntry(infos[v], OrthoDir::South, pos)] = ybase;
 			infos[v].set_r_upper(ybase);
-			infos[v].nbf(odSouth)++;
+			infos[v].num_bend_free_increment(OrthoDir::South);
 			++l_it; ++pos;
 		}
-		//*******************************************************
+
 		//assign gp value for bend edges on top of generalization
 		while (l_it.valid())
 		{
-			//check for single/2 bend
-			if (cp_y(outEntry(infos[v], odSouth, pos)) > infos[v].coord(odEast) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odSouth, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odSouth, odEast);
-			}
-			else {
-				m_abends[outEntry(infos[v], odSouth, pos)] = prob_b2l;
-				infos[v].inc_E(odSouth, odEast);
-			}
+			NodeInfo &inf = infos[v];
+			const adjEntry adj = outEntry(inf, OrthoDir::South, pos);
 
-			ybase += infos[v].delta(odSouth, odEast); //there is a generalization
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = ybase;
+			// check for single/2 bend
+			updateOneBend(cp_y(adj) <= inf.coord(OrthoDir::East) + m_sep, adj, v, OrthoDir::South, true, BendType::ProbB1L, BendType::ProbB2L);
+
+			ybase += inf.delta(OrthoDir::South, OrthoDir::East); // there is a generalization
+			m_agp_y[adj] = ybase;
 			++l_it;
 			++pos;
 		}//while valid
 	}//if rightgen
-	//NO RIGHT GENERATOR ****************************************************
+	//NO RIGHT GENERATOR
 	else
 	{
-		int pos = 0;
-		l_it = infos[v].inList(odSouth).begin();
+		l_it = infos[v].inList(OrthoDir::South).begin();
 		//classify edges
-		//******************
-		//edges bending down
-		//******************
-		while (l_it.valid() && ( infos[v].coord(odWest)  >
-			 (cp_y(outEntry(infos[v], odSouth, pos)) - pos*infos[v].delta(odSouth, odWest) - infos[v].eps(odSouth,odWest)) ))
-		{
-			if (cp_y(outEntry(infos[v], odSouth, pos)) > infos[v].coord(odWest) - m_sep)//must be intbend
-			{
-				m_abends[outEntry(infos[v], odSouth, pos)] = bend_2right;
-				infos[v].inc_E(odSouth, odWest); }
-			else //may be singlebend
-			{
-				m_abends[outEntry(infos[v], odSouth, pos)] = prob_b1r;
-				infos[v].inc_E_hook(odSouth, odWest);
-			}
-			//ab unterem Rand, oder ab gen, teile Abstand Anzahl Kanten??!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			m_agp_y[outEntry(infos[v], odSouth, pos)] =
-				infos[v].coord(odWest)
-				+ infos[v].eps(odSouth, odWest)
-				+ pos*infos[v].delta(odSouth, odWest);
-			++l_it;
-			++pos;
-		}//while
-		//*********************
+
+		// edges bending downwards
+		int pos = updateBends(v, l_it, false, OrthoDir::West, false, false);
+
 		//bendfree edges
-		//*********************
 		bool check = false;
-		while (l_it.valid() && ( infos[v].coord(odEast)  >=
-			(cp_y(outEntry(infos[v], odSouth, pos))
-			+ (infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odWest)
-			+ infos[v].eps(odSouth,odWest)) ))
+		while (l_it.valid() && ( infos[v].coord(OrthoDir::East)  >=
+			(cp_y(outEntry(infos[v], OrthoDir::South, pos))
+			+ (infos[v].inList(OrthoDir::South).size() - 1 - pos)*infos[v].delta(OrthoDir::South, OrthoDir::West)
+			+ infos[v].eps(OrthoDir::South,OrthoDir::West)) ))
 		{
 			if (!check) {
-				infos[v].set_r_lower(cp_y(outEntry(infos[v], odSouth, pos)));
+				infos[v].set_r_lower(cp_y(outEntry(infos[v], OrthoDir::South, pos)));
 				check = true;
 			}
-			infos[v].set_r_upper(cp_y(outEntry(infos[v], odSouth, pos)));
-			m_abends[outEntry(infos[v], odSouth,pos)] = bend_free;
-			infos[v].nbf(odSouth)++;
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = cp_y(outEntry(infos[v], odSouth, pos));
+			infos[v].set_r_upper(cp_y(outEntry(infos[v], OrthoDir::South, pos)));
+			m_abends[outEntry(infos[v], OrthoDir::South,pos)] = BendType::BendFree;
+			infos[v].num_bend_free_increment(OrthoDir::South);
+			m_agp_y[outEntry(infos[v], OrthoDir::South, pos)] = cp_y(outEntry(infos[v], OrthoDir::South, pos));
 			++l_it;
 			++pos;
 		}//while
-		//*********************
+
 		//edges bending upwards
-		//*********************
-		while (l_it.valid())
-		{
-			if (cp_y(outEntry(infos[v], odSouth, pos)) <= infos[v].coord(odEast) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odSouth, pos)] = bend_2left;
-				infos[v].inc_E(odSouth, odEast);
-			}//N/O?????!!!!!
-			else
-			{
-				m_abends[outEntry(infos[v], odSouth, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odSouth, odEast);
-			}//else
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = infos[v].coord(odEast)
-				- infos[v].eps(odSouth, odEast)
-				- (infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odEast);
-			++l_it;
-			++pos;
-		}//while
+		updateBends(v, l_it, false, OrthoDir::East, true, true, pos);
 	}//else rightgen
 	//end set m_gy
 
 	//x coordinates, just on the cage boundary
 	int l_pos = 0;
-	l_it = infos[v].inList(odNorth).begin();
+	l_it = infos[v].inList(OrthoDir::North).begin();
 	while (l_it.valid())
 	{
-		m_agp_x[outEntry(infos[v], odNorth, l_pos)] = infos[v].coord(odNorth);
+		m_agp_x[outEntry(infos[v], OrthoDir::North, l_pos)] = infos[v].coord(OrthoDir::North);
 		++l_it;
 		++l_pos;
 	}
-	l_it = infos[v].inList(odSouth).begin();
+	l_it = infos[v].inList(OrthoDir::South).begin();
 	l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_x[outEntry(infos[v], odSouth, l_pos)] = infos[v].coord(odSouth);
+		m_agp_x[outEntry(infos[v], OrthoDir::South, l_pos)] = infos[v].coord(OrthoDir::South);
 		++l_it;
 		++l_pos;
 	}
@@ -854,358 +707,250 @@ void EdgeRouter::compute_gen_glue_points_y(node v)
 //and generalizations for horizontal edges
 void EdgeRouter::compute_gen_glue_points_x(node v)
 {
-	OGDF_ASSERT(infos[v].has_gen(odEast) || infos[v].has_gen(odWest));
+	OGDF_ASSERT(infos[v].has_gen(OrthoDir::East) || infos[v].has_gen(OrthoDir::West));
 	int xbase = 0;
 
 	//position generalization in the middle of the node
-	int gen_x = infos[v].coord(odNorth) + infos[v].node_xsize()/2; //in the middle
+	int gen_x = infos[v].coord(OrthoDir::North) + infos[v].node_xsize()/2; //in the middle
 	//x coordinates in m_gp_x, set bend types for all edges
 
-	//**********************************************************
-	//TOP SIDE *************************************************
-	ListIterator<edge> l_it = infos[v].inList(odEast).begin();
 
-	//TOP GENERATOR ******************************************
-	if (infos[v].has_gen(odEast))//gen at top side
+	//TOP SIDE
+	ListIterator<edge> l_it = infos[v].inList(OrthoDir::East).begin();
+
+	//TOP GENERATOR
+	if (infos[v].has_gen(OrthoDir::East))//gen at top side
 	{
-		int pos = infos[v].gen_pos(odEast)-1; //compare edge position to generalization position
+		int pos = infos[v].gen_pos(OrthoDir::East)-1; //compare edge position to generalization position
 		if (pos > -1)
-			l_it = infos[v].inList(odEast).get(pos);
+			l_it = infos[v].inList(OrthoDir::East).get(pos);
 		else {
 			l_it = nullptr; pos = 0;
 		}
 		//classify edges
-		//***************************************************
+
 		//assign gp value for edges underneath generalization
-		xbase = gen_x - infos[v].delta(odEast, odNorth);
+		xbase = gen_x - infos[v].delta(OrthoDir::East, OrthoDir::North);
 
 		//bendfree edges underneath
 		bool check = false;
 		while (l_it.valid() &&
-			(pos*infos[v].delta(odEast, odNorth) + infos[v].eps(odEast,odNorth) <=
-			(cp_x(outEntry(infos[v], odEast, pos)) - infos[v].coord(odNorth)) ))
+			(pos*infos[v].delta(OrthoDir::East, OrthoDir::North) + infos[v].eps(OrthoDir::East,OrthoDir::North) <=
+			(cp_x(outEntry(infos[v], OrthoDir::East, pos)) - infos[v].coord(OrthoDir::North)) ))
 		{
-			m_agp_x[outEntry(infos[v], odEast, pos)] = cp_x(outEntry(infos[v], odEast, pos));
-			infos[v].set_t_right(m_agp_x[outEntry(infos[v], odEast, pos)]);
+			m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] = cp_x(outEntry(infos[v], OrthoDir::East, pos));
+			infos[v].set_t_right(m_agp_x[outEntry(infos[v], OrthoDir::East, pos)]);
 			if (!check) {
 				check = true;
-				infos[v].set_t_left(m_agp_x[outEntry(infos[v], odEast, pos)]);
+				infos[v].set_t_left(m_agp_x[outEntry(infos[v], OrthoDir::East, pos)]);
 			}
-			m_abends[outEntry(infos[v], odEast, pos)] = bend_free;
-			xbase = cp_x(outEntry(infos[v], odEast, pos)) - infos[v].delta(odEast, odNorth);
+			m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::BendFree;
+			xbase = cp_x(outEntry(infos[v], OrthoDir::East, pos)) - infos[v].delta(OrthoDir::East, OrthoDir::North);
 			--l_it;
 			--pos;
-			infos[v].nbf(odEast)++;
+			infos[v].num_bend_free_increment(OrthoDir::East);
 		}//while
 
-		while (l_it.valid()) //still some lower edges to bend
-		{
-			m_agp_x[outEntry(infos[v], odEast, pos)] = xbase;
-			if (cp_x(outEntry(infos[v], odEast, pos)) < infos[v].coord(odNorth) - m_sep)
-			{
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odEast, odNorth);
-			}
-			else {
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b2l;
-				infos[v].inc_E(odEast, odNorth);
-			}
-			xbase = xbase - infos[v].delta(odEast, odNorth);
-			--l_it;
-			--pos;
-		}
+		updateLowerEdgesBends(v, l_it, pos, xbase, true, OrthoDir::North, true);
 
-		//*******************************************************
 		//assign gp value for generalization
 		xbase = gen_x; //check == x(current edge)???
-		l_it = infos[v].inList(odEast).get(infos[v].gen_pos(odEast));
-		m_agp_x[outEntry(infos[v], odEast, infos[v].gen_pos(odEast))] = xbase;
-		m_abends[outEntry(infos[v], odEast, infos[v].gen_pos(odEast))] = bend_free;
-		infos[v].nbf(odEast)++;
+		l_it = infos[v].inList(OrthoDir::East).get(infos[v].gen_pos(OrthoDir::East));
+		m_agp_x[outEntry(infos[v], OrthoDir::East, infos[v].gen_pos(OrthoDir::East))] = xbase;
+		m_abends[outEntry(infos[v], OrthoDir::East, infos[v].gen_pos(OrthoDir::East))] = BendType::BendFree;
+		infos[v].num_bend_free_increment(OrthoDir::East);
 		if (!check)
-			infos[v].set_t_left(m_agp_x[outEntry(infos[v], odEast, infos[v].gen_pos(odEast))]);
-		infos[v].set_t_right(m_agp_x[outEntry(infos[v], odEast, infos[v].gen_pos(odEast))]);
+			infos[v].set_t_left(m_agp_x[outEntry(infos[v], OrthoDir::East, infos[v].gen_pos(OrthoDir::East))]);
+		infos[v].set_t_right(m_agp_x[outEntry(infos[v], OrthoDir::East, infos[v].gen_pos(OrthoDir::East))]);
 
-		//*******************************************************
 		//assign gp value for bendfree edges above generalization
 		++l_it;
-		pos = infos[v].gen_pos(odEast) + 1;
+		pos = infos[v].gen_pos(OrthoDir::East) + 1;
 		while (l_it.valid() &&
-			((infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odSouth) + infos[v].eps(odEast,odSouth) <=
-			(infos[v].coord(odSouth) - cp_x(outEntry(infos[v], odEast, pos))) ))
+			((infos[v].inList(OrthoDir::East).size() - 1 - pos)*infos[v].delta(OrthoDir::East, OrthoDir::South) + infos[v].eps(OrthoDir::East,OrthoDir::South) <=
+			(infos[v].coord(OrthoDir::South) - cp_x(outEntry(infos[v], OrthoDir::East, pos))) ))
 		{
-			m_abends[outEntry(infos[v], odEast, pos)] = bend_free;
-			xbase = cp_x(outEntry(infos[v], odEast, pos));//+= infos[v].delta(odEast, odSouth);
-			m_agp_x[outEntry(infos[v], odEast, pos)] = xbase;
-			infos[v].set_t_right(m_agp_x[outEntry(infos[v], odEast, pos)]);
+			m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::BendFree;
+			xbase = cp_x(outEntry(infos[v], OrthoDir::East, pos));//+= infos[v].delta(OrthoDir::East, OrthoDir::South);
+			m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] = xbase;
+			infos[v].set_t_right(m_agp_x[outEntry(infos[v], OrthoDir::East, pos)]);
 			++l_it; ++pos;
-			infos[v].nbf(odEast)++;
+			infos[v].num_bend_free_increment(OrthoDir::East);
 		}
-		//*******************************************************
+
 		//assign gp value for bend edges on top of generalization
 		while (l_it.valid())
 		{
+			NodeInfo &inf = infos[v];
+			const adjEntry adj = outEntry(inf, OrthoDir::East, pos);
+
 			//check for single/2 bend
-			if (m_acp_x[outEntry(infos[v], odEast, pos)] < infos[v].coord(odSouth) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b2r;
-				infos[v].inc_E(odEast, odSouth);
-			}
-			else {
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b1r;
-				infos[v].inc_E_hook(odEast, odSouth);
-			}
-			xbase += infos[v].delta(odEast, odSouth); //there is a generalization
-			m_agp_x[outEntry(infos[v], odEast, pos)] = xbase;
+			updateOneBend(m_acp_x[adj] < inf.coord(OrthoDir::South) + m_sep, adj, v, OrthoDir::East, false, BendType::ProbB1R, BendType::ProbB2R);
+
+			xbase += inf.delta(OrthoDir::East, OrthoDir::South); //there is a generalization
+			m_agp_x[adj] = xbase;
 			++l_it;
 			++pos;
 		}//while valid
 	}//if top gen
-	//NO TOPGENERATOR ****************************************************
+	//NO TOPGENERATOR
 	else
 	{
-		int pos = 0;
-		int numbends = 0; //number of bend edges, used to correct position after assignment
-		OGDF_ASSERT(infos[v].has_gen(odWest));//obs
+		OGDF_ASSERT(infos[v].has_gen(OrthoDir::West));//obs
 
-		//******************
-		//edges bending down
-		//******************
-		while (l_it.valid() &&
-			( infos[v].coord(odNorth)  >
-			(cp_x(outEntry(infos[v], odEast, pos)) - pos*infos[v].delta(odEast, odNorth)
-			- infos[v].eps(odEast,odNorth)) ))
-		{
-			if (cp_x(outEntry(infos[v], odEast, pos)) > infos[v].coord(odNorth) - m_sep)//must be doublebend
-			{
-				m_abends[outEntry(infos[v], odEast, pos)] = bend_2left;
-				infos[v].inc_E(odEast, odNorth);
-			}
-			else //may be singlebend
-			{
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odEast, odNorth);
-			}
+		// edge bending downwards
+		int pos = updateBends(v, l_it, true, OrthoDir::North, true, false);
+		int numbends = pos;  //number of bend edges, used to correct position after assignment
 
-			m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odNorth)
-				+ infos[v].eps(odEast, odNorth)
-				+ pos*infos[v].delta(odEast, odNorth);
-			++l_it;
-			++pos;
-		}//while
-		numbends = pos;
-		//*********************
 		//bendfree edges
-		//*********************
 		bool check =  false;
 		int lastunbend = m_init;
 		int firstunbend = m_init;
-		while (l_it.valid() && ( infos[v].coord(odSouth)  >=
-			(cp_x(outEntry(infos[v], odEast, pos))
-			+ (infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odNorth)
-			+ infos[v].eps(odEast,odNorth)) ))
+		while (l_it.valid() && ( infos[v].coord(OrthoDir::South)  >=
+			(cp_x(outEntry(infos[v], OrthoDir::East, pos))
+			+ (infos[v].inList(OrthoDir::East).size() - 1 - pos)*infos[v].delta(OrthoDir::East, OrthoDir::North)
+			+ infos[v].eps(OrthoDir::East,OrthoDir::North)) ))
 		{
-			m_abends[outEntry(infos[v], odEast, pos)] = bend_free;
-			infos[v].nbf(odEast)++;
-			lastunbend = m_agp_x[outEntry(infos[v], odEast, pos)] = cp_x(outEntry(infos[v], odEast, pos));
+			m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::BendFree;
+			infos[v].num_bend_free_increment(OrthoDir::East);
+			lastunbend = m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] = cp_x(outEntry(infos[v], OrthoDir::East, pos));
 			if (firstunbend == m_init) firstunbend = lastunbend;
 			if (!check) {
 				check = true;
-				infos[v].set_t_left(m_agp_x[outEntry(infos[v], odEast, pos)] );
+				infos[v].set_t_left(m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] );
 			}
-			infos[v].set_t_right(m_agp_x[outEntry(infos[v], odEast, pos)]);
+			infos[v].set_t_right(m_agp_x[outEntry(infos[v], OrthoDir::East, pos)]);
 			++l_it;
 			++pos;
 		}
-		//*********************************************************************
+
 		//now we set all bending edges (left) as close as possible to the unbend edges
 		//to allow possible bend saving by edge flipping at the corner
 
 		if (firstunbend != m_init)
 		{
-			ListIterator<edge> ll_it = infos[v].inList(odEast).begin();
+			ListIterator<edge> ll_it = infos[v].inList(OrthoDir::East).begin();
 			int llpos = 0;
-			while (ll_it.valid() && ( infos[v].coord(odNorth)  >
-				(cp_x(outEntry(infos[v], odEast, llpos))
-				- llpos*infos[v].delta(odEast, odNorth)
-				- infos[v].eps(odEast,odNorth)) ))
+			while (ll_it.valid() && ( infos[v].coord(OrthoDir::North)  >
+				(cp_x(outEntry(infos[v], OrthoDir::East, llpos))
+				- llpos*infos[v].delta(OrthoDir::East, OrthoDir::North)
+				- infos[v].eps(OrthoDir::East,OrthoDir::North)) ))
 			{
-				m_agp_x[outEntry(infos[v], odEast, llpos)] = firstunbend -
-					(numbends - llpos)*infos[v].delta(odEast, odNorth);
+				m_agp_x[outEntry(infos[v], OrthoDir::East, llpos)] = firstunbend -
+					(numbends - llpos)*infos[v].delta(OrthoDir::East, OrthoDir::North);
 				++ll_it;
 				++llpos;
 			}//while
 		}//if unbend edges
-		//*********************************************************************
-		//*********************
-		//edges bending upwards
-		//*********************
-		while (l_it.valid()) //&&???!!!
-		{
-			if (cp_x(outEntry(infos[v], odEast, pos)) <= infos[v].coord(odSouth) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odEast, pos)] = bend_2right;
-				infos[v].inc_E(odEast, odSouth);
-			}
-			else {
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b1r;
-				infos[v].inc_E_hook(odEast, odSouth);
-			}//else
-			m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odSouth)
-				- infos[v].eps(odEast, odSouth)
-				- (infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odSouth);
-			++l_it;
-			++pos;
-		}
 
+		//edges bending upwards
+		updateBends(v, l_it, true, OrthoDir::South, false, true, pos);
 	}//else top gen
 
-	//BOTTOM SIDE **************************************************************
-	//BOTTOM GENERALIZATION ***********************************************
-	if (infos[v].has_gen(odWest))
+	//BOTTOM SIDE
+	//BOTTOM GENERALIZATION
+	if (infos[v].has_gen(OrthoDir::West))
 	{
 		//left copy
-		int pos = infos[v].gen_pos(odWest)-1; //compare edge position to generalization position
+		int pos = infos[v].gen_pos(OrthoDir::West)-1; //compare edge position to generalization position
 		if (pos > -1)
-			l_it = infos[v].inList(odWest).get(pos);
+			l_it = infos[v].inList(OrthoDir::West).get(pos);
 		else { l_it = nullptr; pos = 0; }
 		//classify edges
-		//***************************************************
+
 		//assign gp value for edges underneath generalization
-		xbase = gen_x - infos[v].delta(odWest, odNorth);
+		xbase = gen_x - infos[v].delta(OrthoDir::West, OrthoDir::North);
 
 		//bendfree edges underneath
 		bool firstcheck = true;
 		while (l_it.valid() &&
-			(pos*infos[v].delta(odWest, odNorth) + infos[v].eps(odWest,odNorth) <=
-			(cp_x(outEntry(infos[v], odWest, pos)) - infos[v].coord(odNorth)) ))
+			(pos*infos[v].delta(OrthoDir::West, OrthoDir::North) + infos[v].eps(OrthoDir::West,OrthoDir::North) <=
+			(cp_x(outEntry(infos[v], OrthoDir::West, pos)) - infos[v].coord(OrthoDir::North)) ))
 		{
-			m_agp_x[outEntry(infos[v], odWest, pos)] = cp_x(outEntry(infos[v], odWest, pos));
-			m_abends[outEntry(infos[v], odWest, pos)] = bend_free;
-			xbase = cp_x(outEntry(infos[v], odWest, pos)) - infos[v].delta(odWest, odNorth);
+			m_agp_x[outEntry(infos[v], OrthoDir::West, pos)] = cp_x(outEntry(infos[v], OrthoDir::West, pos));
+			m_abends[outEntry(infos[v], OrthoDir::West, pos)] = BendType::BendFree;
+			xbase = cp_x(outEntry(infos[v], OrthoDir::West, pos)) - infos[v].delta(OrthoDir::West, OrthoDir::North);
 			if (firstcheck) {
 				firstcheck = false;
-				infos[v].set_b_left(m_agp_x[outEntry(infos[v], odWest, pos)]);
+				infos[v].set_b_left(m_agp_x[outEntry(infos[v], OrthoDir::West, pos)]);
 			}
-			infos[v].set_b_right(m_agp_x[outEntry(infos[v], odWest, pos)]);
+			infos[v].set_b_right(m_agp_x[outEntry(infos[v], OrthoDir::West, pos)]);
 			--l_it;
 			--pos;
-			infos[v].nbf(odWest)++;
+			infos[v].num_bend_free_increment(OrthoDir::West);
 		}//while
-		while (l_it.valid()) //still some lower edges to bend, xcoord+eps+delta
-		{
-			m_agp_x[outEntry(infos[v], odWest, pos)] = xbase;
-			if ( cp_x(outEntry(infos[v], odWest, pos)) < infos[v].coord(odNorth) - m_sep) //paper E^
-			{
-				m_abends[outEntry(infos[v], odWest, pos)] = prob_b1r;
-				infos[v].inc_E_hook(odWest, odNorth);
-			}
-			else {
-				m_abends[outEntry(infos[v], odWest, pos)] = bend_2right;
-				infos[v].inc_E(odWest, odNorth);
-			}
-			xbase = xbase - infos[v].delta(odWest, odNorth);
-			--l_it;
-			--pos;
-		}
-		//*******************************************************
+
+		updateLowerEdgesBends(v, l_it, pos, xbase, true, OrthoDir::North, false);
+
 		//assign gp value for generalization
 		xbase = gen_x; //check == x(current edge)???cout
-		l_it = infos[v].inList(odWest).get(infos[v].gen_pos(odWest));
-		m_agp_x[outEntry(infos[v], odWest, infos[v].gen_pos(odWest))] = xbase;
-		m_abends[outEntry(infos[v], odWest, infos[v].gen_pos(odWest))] = bend_free;
-		infos[v].nbf(odWest)++;
+		l_it = infos[v].inList(OrthoDir::West).get(infos[v].gen_pos(OrthoDir::West));
+		m_agp_x[outEntry(infos[v], OrthoDir::West, infos[v].gen_pos(OrthoDir::West))] = xbase;
+		m_abends[outEntry(infos[v], OrthoDir::West, infos[v].gen_pos(OrthoDir::West))] = BendType::BendFree;
+		infos[v].num_bend_free_increment(OrthoDir::West);
 		if (firstcheck) {
 			firstcheck = false;
-			infos[v].set_b_right(m_agp_x[outEntry(infos[v], odWest, infos[v].gen_pos(odWest))]);
+			infos[v].set_b_right(m_agp_x[outEntry(infos[v], OrthoDir::West, infos[v].gen_pos(OrthoDir::West))]);
 		}
-		infos[v].set_b_left(m_agp_x[outEntry(infos[v], odWest, infos[v].gen_pos(odWest))]);
-		//*******************************************************
+		infos[v].set_b_left(m_agp_x[outEntry(infos[v], OrthoDir::West, infos[v].gen_pos(OrthoDir::West))]);
+
 		//assign gp value for bendfree edges above generalization
 		++l_it;
-		pos = infos[v].gen_pos(odWest) + 1;
+		pos = infos[v].gen_pos(OrthoDir::West) + 1;
 		while (l_it.valid() &&
-			((infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odSouth) + infos[v].eps(odWest,odSouth) <=
-			(infos[v].coord(odSouth) - cp_x(outEntry(infos[v], odWest, pos))) ))
+			((infos[v].inList(OrthoDir::West).size() - 1 - pos)*infos[v].delta(OrthoDir::West, OrthoDir::South) + infos[v].eps(OrthoDir::West,OrthoDir::South) <=
+			(infos[v].coord(OrthoDir::South) - cp_x(outEntry(infos[v], OrthoDir::West, pos))) ))
 		{
-			m_abends[outEntry(infos[v], odWest, pos)] = bend_free;
-			xbase = cp_x(outEntry(infos[v], odWest, pos));//+= infos[v].delta(odNorth, odEast);
-			m_agp_x[outEntry(infos[v], odWest, pos)] = xbase;
-			infos[v].nbf(odWest)++;
-			infos[v].set_b_left(m_agp_x[outEntry(infos[v], odWest, pos)]);
+			m_abends[outEntry(infos[v], OrthoDir::West, pos)] = BendType::BendFree;
+			xbase = cp_x(outEntry(infos[v], OrthoDir::West, pos));//+= infos[v].delta(OrthoDir::North, OrthoDir::East);
+			m_agp_x[outEntry(infos[v], OrthoDir::West, pos)] = xbase;
+			infos[v].num_bend_free_increment(OrthoDir::West);
+			infos[v].set_b_left(m_agp_x[outEntry(infos[v], OrthoDir::West, pos)]);
 			if (firstcheck)
 			{
-				infos[v].set_b_right(m_agp_x[outEntry(infos[v], odWest, pos)]);
+				infos[v].set_b_right(m_agp_x[outEntry(infos[v], OrthoDir::West, pos)]);
 				firstcheck = false;
 			}
 			++l_it; ++pos;
 		}//while
-		//*******************************************************
+
 		//assign gp value for bend edges on top of generalization
 		while (l_it.valid())
 		{
+			NodeInfo &inf = infos[v];
+			const adjEntry adj = outEntry(inf, OrthoDir::West, pos);
+
 			//check for single/2 bend
-			if (m_acp_x[outEntry(infos[v], odWest, pos)] > infos[v].coord(odSouth) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odWest, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odWest, odSouth);
-			}
-			else {
-				m_abends[outEntry(infos[v], odWest, pos)] = prob_b2l;
-				infos[v].inc_E(odWest, odSouth);
-			}
-			xbase += infos[v].delta(odWest, odSouth); //there is a generalization
-			m_agp_x[outEntry(infos[v], odWest, pos)] = xbase;
+			updateOneBend(m_acp_x[adj] <= inf.coord(OrthoDir::South) + m_sep, adj, v, OrthoDir::West, true, BendType::ProbB1L, BendType::ProbB2L);
+
+			xbase += inf.delta(OrthoDir::West, OrthoDir::South); //there is a generalization
+			m_agp_x[adj] = xbase;
 			++l_it;
 			++pos;
 		}//while valid
 	}//if bottomgen
-	//************************************************************************
-	//NO BOTTOM GENERATOR ****************************************************
+
+	//NO BOTTOM GENERATOR
 	else
 	{
-		int pos = 0;
-		int rightbend = 0; //save number of actually bend edges to correct their position later
-		l_it = infos[v].inList(odWest).begin();
-		//classify edges
-		//******************
-		//edges bending down
-		//******************
-		while (l_it.valid() && ( infos[v].coord(odNorth)  >
-			 (cp_x(outEntry(infos[v], odWest, pos)) - pos*infos[v].delta(odWest, odNorth) - infos[v].eps(odWest,odNorth)) ))
-		{
-			if (cp_x(outEntry(infos[v], odWest, pos)) > infos[v].coord(odNorth) - m_sep)//must be doublebend
-			{
-				m_abends[outEntry(infos[v], odWest, pos)] = bend_2right;
-				infos[v].inc_E(odWest, odNorth);
-			}
-			else //may be singlebend
-			{
-				m_abends[outEntry(infos[v], odWest, pos)] = prob_b1r;
-				infos[v].inc_E_hook(odWest, odNorth);
-			}
+		l_it = infos[v].inList(OrthoDir::West).begin();
 
-			m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odNorth)
-				+ infos[v].eps(odWest, odNorth)
-				+ pos*infos[v].delta(odWest, odNorth);
-			++l_it;
-			++pos;
-		}//while
-		rightbend = pos;
-		//*********************
+		// edges bending downwards
+		int pos = updateBends(v, l_it, true, OrthoDir::North, false, false);
+		int rightbend = pos; // save number of actually bend edges to correct their position later
+
 		//bendfree edges
-		//*********************
 		bool firstcheck = true;
 		int lastunbend = m_init;
 		int firstunbend = m_init;
-		while (l_it.valid() && ( infos[v].coord(odSouth)  >=
-			(cp_x(outEntry(infos[v], odWest, pos))
-			+ (infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odNorth)
-			+ infos[v].eps(odWest,odNorth)) ))
+		while (l_it.valid() && ( infos[v].coord(OrthoDir::South)  >=
+			(cp_x(outEntry(infos[v], OrthoDir::West, pos))
+			+ (infos[v].inList(OrthoDir::West).size() - 1 - pos)*infos[v].delta(OrthoDir::West, OrthoDir::North)
+			+ infos[v].eps(OrthoDir::West,OrthoDir::North)) ))
 		{
-			m_abends[outEntry(infos[v], odWest, pos)] = bend_free;
-			infos[v].nbf(odWest)++;
-			lastunbend = m_agp_x[outEntry(infos[v], odWest, pos)] = cp_x(outEntry(infos[v], odWest, pos));
+			m_abends[outEntry(infos[v], OrthoDir::West, pos)] = BendType::BendFree;
+			infos[v].num_bend_free_increment(OrthoDir::West);
+			lastunbend = m_agp_x[outEntry(infos[v], OrthoDir::West, pos)] = cp_x(outEntry(infos[v], OrthoDir::West, pos));
 
 			if (firstunbend == m_init) firstunbend = lastunbend;
 
@@ -1218,69 +963,42 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 			++l_it;
 			++pos;
 		}
-		//*********************************************************************
+
 		//no assign bend edges as close as possible
 
 		if (firstunbend != m_init)
 		{
-			ListIterator<edge> ll_it = infos[v].inList(odWest).begin();
+			ListIterator<edge> ll_it = infos[v].inList(OrthoDir::West).begin();
 			int llpos = 0;
-			while (ll_it.valid() && ( infos[v].coord(odNorth)  >
-				(cp_x(outEntry(infos[v], odWest, llpos)) - llpos*infos[v].delta(odWest, odNorth) - infos[v].eps(odWest,odNorth)) ))
+			while (ll_it.valid() && ( infos[v].coord(OrthoDir::North)  >
+				(cp_x(outEntry(infos[v], OrthoDir::West, llpos)) - llpos*infos[v].delta(OrthoDir::West, OrthoDir::North) - infos[v].eps(OrthoDir::West,OrthoDir::North)) ))
 			{
-				m_agp_x[outEntry(infos[v], odWest, llpos)] = firstunbend -
-					(rightbend - llpos)*infos[v].delta(odWest, odNorth);
+				m_agp_x[outEntry(infos[v], OrthoDir::West, llpos)] = firstunbend -
+					(rightbend - llpos)*infos[v].delta(OrthoDir::West, OrthoDir::North);
 				++ll_it;
 				++llpos;
 			}//while
 		}//if
-		//*********************************************************************
-		//*********************
+
 		//edges bending upwards
-		//*********************
-
-		while (l_it.valid()) //&&???!!!
-		{
-			if (cp_x(outEntry(infos[v], odWest, pos)) <= infos[v].coord(odSouth) + m_sep)
-			{
-				m_abends[outEntry(infos[v], odWest, pos)] = bend_2left;
-				infos[v].inc_E(odWest, odSouth);
-			}//if
-			else
-			{
-				m_abends[outEntry(infos[v], odWest, pos)] = prob_b1l;
-				infos[v].inc_E_hook(odWest, odSouth);
-			}//else
-
-			if (lastunbend != m_init)
-			{
-				m_agp_x[outEntry(infos[v], odWest, pos)] = lastunbend + infos[v].delta(odWest, odSouth);
-				lastunbend = lastunbend + infos[v].delta(odWest, odSouth);
-			}//if
-			else
-				m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odSouth)
-							- infos[v].eps(odWest, odSouth)
-							- (infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odSouth);
-			++l_it;
-			++pos;
-		}//while
+		updateBends(v, l_it, pos, lastunbend, true, OrthoDir::South, true, true, true);
 	}//else leftgen
 	//end set m_gx
 
 	//y coordinates, just on the cage boundary
-	l_it = infos[v].inList(odEast).begin();
+	l_it = infos[v].inList(OrthoDir::East).begin();
 	int l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_y[outEntry(infos[v], odEast, l_pos)] = infos[v].coord(odEast);
+		m_agp_y[outEntry(infos[v], OrthoDir::East, l_pos)] = infos[v].coord(OrthoDir::East);
 		++l_it;
 		l_pos++;
 	}
-	l_it = infos[v].inList(odWest).begin();
+	l_it = infos[v].inList(OrthoDir::West).begin();
 	l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_y[outEntry(infos[v], odWest, l_pos)] = infos[v].coord(odWest);
+		m_agp_y[outEntry(infos[v], OrthoDir::West, l_pos)] = infos[v].coord(OrthoDir::West);
 		++l_it;
 		l_pos++;
 	}
@@ -1292,215 +1010,118 @@ void EdgeRouter::compute_gen_glue_points_x(node v)
 void EdgeRouter::compute_glue_points_y(node v)
 {
 	//forall edges in horizontal lists, we set the glue point y coordinate
-	ListIterator<edge> l_it = infos[v].inList(odNorth).begin();
-	int pos = 0;
-	int bendDownCounter = 0;
+	ListIterator<edge> l_it = infos[v].inList(OrthoDir::North).begin();
 	//left edges
 	//classify edges
-	//******************
-	//edges bending down
-	//******************
-	while (l_it.valid() && ( infos[v].coord(odWest)  >
-		(cp_y(outEntry(infos[v], odNorth, pos)) - pos*infos[v].delta(odNorth, odWest) - infos[v].eps(odNorth,odWest)) ))
-	{
-		if (cp_y(outEntry(infos[v], odNorth, pos)) > infos[v].coord(odWest) - m_sep)//must be doublebend
-		{
-			m_abends[outEntry(infos[v], odNorth, pos)] = bend_2left;
-			infos[v].inc_E(odNorth, odWest);
-		}
-		else //may be singlebend
-		{
-			m_abends[outEntry(infos[v], odNorth, pos)] = prob_b1l;
-			infos[v].inc_E_hook(odNorth, odWest);
-		}
-		m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odWest)
-			+ infos[v].eps(odNorth, odWest)
-			+ pos*infos[v].delta(odNorth, odWest);
-		bendDownCounter++;
-		++l_it;
-		++pos;
-	}//while
-	//*********************
+
+	// edges bending downwards
+	int pos = updateBends(v, l_it, false, OrthoDir::West, true, false);
+	int bendDownCounter = pos;
+
 	//bendfree edges
-	//*********************
 	int lastunbend = m_init;
 	int firstunbend = m_init;
 	bool firstcheck = true;
-	while (l_it.valid() && ( infos[v].coord(odEast)  >=
-		(cp_y(outEntry(infos[v], odNorth, pos))
-		+ (infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odWest)
-		+ infos[v].eps(odNorth,odWest)) ))
+	while (l_it.valid() && ( infos[v].coord(OrthoDir::East)  >=
+		(cp_y(outEntry(infos[v], OrthoDir::North, pos))
+		+ (infos[v].inList(OrthoDir::North).size() - 1 - pos)*infos[v].delta(OrthoDir::North, OrthoDir::West)
+		+ infos[v].eps(OrthoDir::North,OrthoDir::West)) ))
 	{
-		m_abends[outEntry(infos[v], odNorth, pos)] = bend_free;
-		infos[v].nbf(odNorth)++;
-		lastunbend = m_agp_y[outEntry(infos[v], odNorth, pos)]  = cp_y(outEntry(infos[v], odNorth, pos));
+		m_abends[outEntry(infos[v], OrthoDir::North, pos)] = BendType::BendFree;
+		infos[v].num_bend_free_increment(OrthoDir::North);
+		lastunbend = m_agp_y[outEntry(infos[v], OrthoDir::North, pos)]  = cp_y(outEntry(infos[v], OrthoDir::North, pos));
 		if (firstcheck)
 		{
-			infos[v].set_l_lower(m_agp_y[outEntry(infos[v], odNorth, pos)]);
+			infos[v].set_l_lower(m_agp_y[outEntry(infos[v], OrthoDir::North, pos)]);
 			firstunbend = lastunbend;
 			firstcheck = false;
 		}
-		infos[v].set_l_upper(m_agp_y[outEntry(infos[v], odNorth, pos)]);
+		infos[v].set_l_upper(m_agp_y[outEntry(infos[v], OrthoDir::North, pos)]);
 		++l_it;
 		++pos;
 	}
-	//*********************************************************************
+
 	//correct left edges
 	if (firstunbend != m_init)
 	{
-		ListIterator<edge> ll_it = infos[v].inList(odNorth).begin();
+		ListIterator<edge> ll_it = infos[v].inList(OrthoDir::North).begin();
 		int llpos = 0;
-		while (ll_it.valid() && ( infos[v].coord(odWest)  >
-			(cp_y(outEntry(infos[v], odNorth, llpos)) - llpos*infos[v].delta(odNorth, odWest) - infos[v].eps(odNorth, odWest)) ))
+		while (ll_it.valid() && ( infos[v].coord(OrthoDir::West)  >
+			(cp_y(outEntry(infos[v], OrthoDir::North, llpos)) - llpos*infos[v].delta(OrthoDir::North, OrthoDir::West) - infos[v].eps(OrthoDir::North, OrthoDir::West)) ))
 		{
-			m_agp_y[outEntry(infos[v], odNorth, llpos)] = firstunbend -
-				(bendDownCounter - llpos)*infos[v].delta(odNorth, odWest);
+			m_agp_y[outEntry(infos[v], OrthoDir::North, llpos)] = firstunbend -
+				(bendDownCounter - llpos)*infos[v].delta(OrthoDir::North, OrthoDir::West);
 			++ll_it;
 			++llpos;
 		}//while
 	}//if
-	//*********************************************************************
-	//*********************
-	//edges bending upwards
-	//*********************
-	while (l_it.valid()) //&&???!!!
-	{
-		if (cp_y(outEntry(infos[v], odNorth, pos)) <= infos[v].coord(odEast) + m_sep)
-		{
-			m_abends[outEntry(infos[v], odNorth, pos)] = bend_2right;
-			infos[v].inc_E(odNorth, odEast);
-		}
-		else
-		{
-			m_abends[outEntry(infos[v], odNorth, pos)] = prob_b1r;
-			infos[v].inc_E_hook(odNorth, odEast);
-		}
-		//leave space to reroute
-		if (lastunbend != m_init)
-		{
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = lastunbend + infos[v].delta(odNorth, odEast);
-			lastunbend = lastunbend + infos[v].delta(odNorth, odEast);
-		}//if
-		else
-			m_agp_y[outEntry(infos[v], odNorth, pos)] = infos[v].coord(odEast)
-			 - infos[v].eps(odNorth, odEast)
-			 - (infos[v].inList(odNorth).size() - 1 - pos)*infos[v].delta(odNorth, odEast);
-		++l_it;
-		++pos;
-	}//while
-	//South edges
-	pos = 0;
-	bendDownCounter = 0;
-	l_it = infos[v].inList(odSouth).begin();
 
+	//edges bending upwards
+	updateBends(v, l_it, pos, lastunbend, false, OrthoDir::East, false, true, true);
+
+	//South edges
+
+	l_it = infos[v].inList(OrthoDir::South).begin();
 	//classify edges
-	//******************
-	//edges bending down
-	//******************
-	while (l_it.valid() && ( infos[v].coord(odWest)  >
-		(cp_y(outEntry(infos[v], odSouth, pos)) - pos*infos[v].delta(odSouth, odWest) - infos[v].eps(odSouth,odWest)) ))
-	{
-		if (cp_y(outEntry(infos[v], odSouth, pos)) > infos[v].coord(odWest) - m_sep)//must be doublebend
-		{
-			m_abends[outEntry(infos[v], odSouth, pos)] = bend_2right; //was left
-			infos[v].inc_E(odSouth, odWest);
-		}
-		else //may be singlebend
-		{
-			m_abends[outEntry(infos[v], odSouth, pos)] = prob_b1r;
-			infos[v].inc_E_hook(odSouth, odWest);
-		}
-		m_agp_y[outEntry(infos[v], odSouth, pos)] = infos[v].coord(odWest)
-			+ infos[v].eps(odSouth, odWest)
-			+ pos*infos[v].delta(odSouth, odWest);
-		++l_it;
-		bendDownCounter++;
-		++pos;
-	}//while
-	//*********************
+	pos = updateBends(v, l_it, false, OrthoDir::West, false, false);
+	bendDownCounter = pos;
+
 	//bendfree edges
-	//*********************
 	firstcheck = true;
 	lastunbend = m_init;
 	firstunbend = m_init;
-	while (l_it.valid() && ( infos[v].coord(odEast)  >=
-		(cp_y(outEntry(infos[v], odSouth, pos))
-		+ (infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odWest)
-		+ infos[v].eps(odSouth,odWest)) ))
+	while (l_it.valid() && ( infos[v].coord(OrthoDir::East)  >=
+		(cp_y(outEntry(infos[v], OrthoDir::South, pos))
+		+ (infos[v].inList(OrthoDir::South).size() - 1 - pos)*infos[v].delta(OrthoDir::South, OrthoDir::West)
+		+ infos[v].eps(OrthoDir::South,OrthoDir::West)) ))
 	{
-		m_abends[outEntry(infos[v], odSouth, pos)] = bend_free;
-		infos[v].nbf(odSouth)++;
-		lastunbend = m_agp_y[outEntry(infos[v], odSouth, pos)] = cp_y(outEntry(infos[v], odSouth, pos));
+		m_abends[outEntry(infos[v], OrthoDir::South, pos)] = BendType::BendFree;
+		infos[v].num_bend_free_increment(OrthoDir::South);
+		lastunbend = m_agp_y[outEntry(infos[v], OrthoDir::South, pos)] = cp_y(outEntry(infos[v], OrthoDir::South, pos));
 		if (firstcheck)
 		{
 			firstcheck = false;
-			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], odSouth, pos)]);
+			infos[v].set_r_lower(m_agp_y[outEntry(infos[v], OrthoDir::South, pos)]);
 			firstunbend = lastunbend;
 		}
-		infos[v].set_r_upper(m_agp_y[outEntry(infos[v], odSouth, pos)]);
+		infos[v].set_r_upper(m_agp_y[outEntry(infos[v], OrthoDir::South, pos)]);
 		++l_it;
 		++pos;
 	}//while
 
-	//***************************
 	//correct right bending edges
 	if (firstunbend != m_init)
 	{
-		ListIterator<edge> ll_it = infos[v].inList(odSouth).begin();
+		ListIterator<edge> ll_it = infos[v].inList(OrthoDir::South).begin();
 		int llpos = 0;
-		while (ll_it.valid() && ( infos[v].coord(odWest)  >
-			(cp_y(outEntry(infos[v], odSouth, llpos)) - llpos*infos[v].delta(odSouth, odWest)
-			- infos[v].eps(odSouth, odWest)) ))
+		while (ll_it.valid() && ( infos[v].coord(OrthoDir::West)  >
+			(cp_y(outEntry(infos[v], OrthoDir::South, llpos)) - llpos*infos[v].delta(OrthoDir::South, OrthoDir::West)
+			- infos[v].eps(OrthoDir::South, OrthoDir::West)) ))
 		{
-			m_agp_y[outEntry(infos[v], odSouth, llpos)] = firstunbend -
-				(bendDownCounter - llpos)*infos[v].delta(odSouth, odWest);
+			m_agp_y[outEntry(infos[v], OrthoDir::South, llpos)] = firstunbend -
+				(bendDownCounter - llpos)*infos[v].delta(OrthoDir::South, OrthoDir::West);
 			++ll_it;
 			++llpos;
 		}//while
 	}//if
-	//*********************************************************************
-	//*********************
+
 	//edges bending upwards
-	//*********************
-	while (l_it.valid()) //&&???!!!
-	{
-		if (cp_y(outEntry(infos[v], odSouth, pos)) <= infos[v].coord(odEast) + m_sep)
-		{
-			m_abends[outEntry(infos[v], odSouth, pos)] = bend_2left;
-			infos[v].inc_E(odSouth, odEast);
-		}//was right
-		else
-		{
-			m_abends[outEntry(infos[v], odSouth, pos)] = prob_b1l;
-			infos[v].inc_E_hook(odSouth, odEast);
-		}//else
-		//leave as much space as possible for rerouters
-		if (lastunbend != m_init)
-		{
-			m_agp_y[outEntry(infos[v], odSouth, pos)] = lastunbend + infos[v].delta(odSouth, odEast);
-			lastunbend = lastunbend + infos[v].delta(odSouth, odEast);
-		}//if
-		else
-			m_agp_y[outEntry(infos[v], odSouth, pos)] =
-				infos[v].coord(odEast) - infos[v].eps(odSouth, odEast) - (infos[v].inList(odSouth).size() - 1 - pos)*infos[v].delta(odSouth, odEast);
-		++l_it;
-		++pos;
-	}//while
+	updateBends(v, l_it, pos, lastunbend, false, OrthoDir::East, true, true, true);
 
 	//x coordinates, just on the cage boundary
-	l_it = infos[v].inList(odNorth).begin();
+	l_it = infos[v].inList(OrthoDir::North).begin();
 	int l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_x[outEntry(infos[v], odNorth, l_pos)] = infos[v].coord(odNorth);
+		m_agp_x[outEntry(infos[v], OrthoDir::North, l_pos)] = infos[v].coord(OrthoDir::North);
 		++l_it;
 		l_pos++;
 	}
-	l_it = infos[v].inList(odSouth).begin();
+	l_it = infos[v].inList(OrthoDir::South).begin();
 	l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_x[outEntry(infos[v], odSouth, l_pos)] = infos[v].coord(odSouth);
+		m_agp_x[outEntry(infos[v], OrthoDir::South, l_pos)] = infos[v].coord(OrthoDir::South);
 		++l_it;
 		l_pos++;
 	}
@@ -1512,47 +1133,24 @@ void EdgeRouter::compute_glue_points_x(node& v)
 //maybe: use earlier classification of edges: bendfree?
 {
 	//forall edges in vertical lists, we set the glue point x coordinate
-	//TOP SIDE *************************************************
-	ListIterator<edge> l_it = infos[v].inList(odEast).begin();
-	int pos = 0;
-	int numbends = 0;
+	//TOP SIDE
+	ListIterator<edge> l_it = infos[v].inList(OrthoDir::East).begin();
 	//classify edges
-	//******************
-	//edges bending down
-	//******************
-	while (l_it.valid() && ( infos[v].coord(odNorth)  >
-		 (cp_x(outEntry(infos[v], odEast, pos)) - pos*infos[v].delta(odEast, odNorth) - infos[v].eps(odEast,odNorth)) ))
-	{
-		if (cp_x(outEntry(infos[v], odEast, pos)) > infos[v].coord(odNorth) - m_sep)//must be doublebend
-		{
-			m_abends[outEntry(infos[v], odEast, pos)] = bend_2left;
-			infos[v].inc_E(odEast, odNorth);
-		}
-		else //may be singlebend
-		{
-			m_abends[outEntry(infos[v], odEast, pos)] = prob_b1l;
-			infos[v].inc_E_hook(odEast, odNorth);
-		}
-		m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odNorth)
-				+ infos[v].eps(odEast, odNorth) + pos*infos[v].delta(odEast, odNorth);
-		++l_it;
-		++pos;
-	}//while
-	numbends = pos;
+	int pos = updateBends(v, l_it, true, OrthoDir::North, true, false);
+	int numbends = pos;
 	int lastunbend = m_init;
 	int firstunbend = m_init;
-	//*********************
+
 	//bendfree edges
-	//*********************
 	bool firstcheck = true;
-	while (l_it.valid() && ( infos[v].coord(odSouth)  >=
-		(cp_x(outEntry(infos[v], odEast, pos))
-		+ (infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odNorth)
-		+ infos[v].eps(odEast,odNorth)) ))
+	while (l_it.valid() && ( infos[v].coord(OrthoDir::South)  >=
+		(cp_x(outEntry(infos[v], OrthoDir::East, pos))
+		+ (infos[v].inList(OrthoDir::East).size() - 1 - pos)*infos[v].delta(OrthoDir::East, OrthoDir::North)
+		+ infos[v].eps(OrthoDir::East,OrthoDir::North)) ))
 	{
-		m_abends[outEntry(infos[v], odEast, pos)] = bend_free;
-		infos[v].nbf(odEast)++;
-		lastunbend = m_agp_x[outEntry(infos[v], odEast, pos)] = cp_x(outEntry(infos[v], odEast, pos));
+		m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::BendFree;
+		infos[v].num_bend_free_increment(OrthoDir::East);
+		lastunbend = m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] = cp_x(outEntry(infos[v], OrthoDir::East, pos));
 		if (firstunbend == m_init) firstunbend = lastunbend;
 		if (firstcheck)
 		{
@@ -1563,102 +1161,76 @@ void EdgeRouter::compute_glue_points_x(node& v)
 		++l_it;
 		++pos;
 	}
-	//*********************************************************************
+
 	//temporary sol, correct left edges
 
 	if (firstunbend != m_init)
 	{
-		ListIterator<edge> ll_it = infos[v].inList(odEast).begin();
+		ListIterator<edge> ll_it = infos[v].inList(OrthoDir::East).begin();
 		int llpos = 0;
-		while (ll_it.valid() && ( infos[v].coord(odNorth)  >
-			(cp_x(outEntry(infos[v], odEast, llpos))
-			- llpos*infos[v].delta(odEast, odNorth)
-			- infos[v].eps(odEast,odNorth)) ))
+		while (ll_it.valid() && ( infos[v].coord(OrthoDir::North)  >
+			(cp_x(outEntry(infos[v], OrthoDir::East, llpos))
+			- llpos*infos[v].delta(OrthoDir::East, OrthoDir::North)
+			- infos[v].eps(OrthoDir::East,OrthoDir::North)) ))
 		{
-			m_agp_x[outEntry(infos[v], odEast, llpos)] = firstunbend -
-				(numbends - llpos)*infos[v].delta(odEast, odNorth);
+			m_agp_x[outEntry(infos[v], OrthoDir::East, llpos)] = firstunbend -
+				(numbends - llpos)*infos[v].delta(OrthoDir::East, OrthoDir::North);
 			++ll_it;
 			++llpos;
 		}//while
 	}//if
-	//*********************************************************************
-	//*********************
+
 	//edges bending to the right side
-	//*********************
 	while (l_it.valid()) //&&???!!!
 	{
-		if (cp_x(outEntry(infos[v], odEast, pos)) <= infos[v].coord(odSouth) + m_sep)
+		if (cp_x(outEntry(infos[v], OrthoDir::East, pos)) <= infos[v].coord(OrthoDir::South) + m_sep)
 		{
-			if (cp_x(outEntry(infos[v], odEast, pos)) > infos[v].coord(odSouth) - infos[v].eps(odEast, odSouth))
+			if (cp_x(outEntry(infos[v], OrthoDir::East, pos)) > infos[v].coord(OrthoDir::South) - infos[v].eps(OrthoDir::East, OrthoDir::South))
 			{
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b2r;
-				infos[v].inc_E(odEast, odSouth);
+				m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::ProbB2R;
+				infos[v].inc_E(OrthoDir::East, OrthoDir::South);
 			}//if
 			else
 			{
-				m_abends[outEntry(infos[v], odEast, pos)] = prob_b2r;//use prob_bf;
-				infos[v].inc_E(odEast, odSouth);
+				m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::ProbB2R;//use ProbBf;
+				infos[v].inc_E(OrthoDir::East, OrthoDir::South);
 			}//else
 		}//if
 		else
 		{
-			m_abends[outEntry(infos[v], odEast, pos)] = prob_b1r;
-			infos[v].inc_E_hook(odEast, odSouth);
+			m_abends[outEntry(infos[v], OrthoDir::East, pos)] = BendType::ProbB1R;
+			infos[v].inc_E_hook(OrthoDir::East, OrthoDir::South);
 		}//else
 		if (lastunbend != m_init)
 		{
-			m_agp_x[outEntry(infos[v], odEast, pos)] = lastunbend + infos[v].delta(odEast, odSouth);
-			lastunbend = lastunbend + infos[v].delta(odEast, odSouth);
+			m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] = lastunbend + infos[v].delta(OrthoDir::East, OrthoDir::South);
+			lastunbend = lastunbend + infos[v].delta(OrthoDir::East, OrthoDir::South);
 		}//if
-		else m_agp_x[outEntry(infos[v], odEast, pos)] = infos[v].coord(odSouth)
-			- infos[v].eps(odEast, odSouth)
-			- (infos[v].inList(odEast).size() - 1 - pos)*infos[v].delta(odEast, odSouth);
+		else m_agp_x[outEntry(infos[v], OrthoDir::East, pos)] = infos[v].coord(OrthoDir::South)
+			- infos[v].eps(OrthoDir::East, OrthoDir::South)
+			- (infos[v].inList(OrthoDir::East).size() - 1 - pos)*infos[v].delta(OrthoDir::East, OrthoDir::South);
 		++l_it;
 		++pos;
 	}//while
 
-	//bottom**********************************************************
-	pos = 0;
-	l_it = infos[v].inList(odWest).begin();
-	int rightbend = 0; //save number of atually bend edge to correct their position later
+	//bottom
+	l_it = infos[v].inList(OrthoDir::West).begin();
 	//classify edges
-	//******************
-	//edges bending to north dir / westright
-	//******************
-	while (l_it.valid() && ( infos[v].coord(odNorth)  >
-		(cp_x(outEntry(infos[v], odWest, pos)) - pos*infos[v].delta(odWest, odNorth) - infos[v].eps(odWest,odNorth)) ))
-	{
-		if (cp_x(outEntry(infos[v], odWest, pos)) > infos[v].coord(odNorth) - m_sep)//must be doublebend
-		{
-			m_abends[outEntry(infos[v], odWest, pos)] = bend_2right;
-			infos[v].inc_E(odWest, odNorth);
-		}
-		else //may be singlebend
-		{
-			m_abends[outEntry(infos[v], odWest, pos)] = prob_b1r;
-			infos[v].inc_E_hook(odWest, odNorth);
-		}
-		m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odNorth)
-			+ infos[v].eps(odWest, odNorth)
-			+ pos*infos[v].delta(odWest, odNorth);
-		++l_it;
-		++pos;
-	}//while
-	rightbend = pos; //NUMBER of bend edges
-	//*********************
+	pos = updateBends(v, l_it, true, OrthoDir::North, false, false);
+	int rightbend = pos; //save number of actually bend edges to correct their positions later
+
 	//bendfree edges
-	//*********************
 	firstcheck = true;
 	lastunbend = m_init;
 	firstunbend = m_init;
-	while (l_it.valid() && ( infos[v].coord(odSouth)  >=
-		(cp_x(outEntry(infos[v], odWest, pos))
-		+ (infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odNorth)
-		+ infos[v].eps(odWest,odNorth)) ))
+	while (l_it.valid() && ( infos[v].coord(OrthoDir::South)  >=
+		(cp_x(outEntry(infos[v], OrthoDir::West, pos))
+		+ (infos[v].inList(OrthoDir::West).size() - 1 - pos)*infos[v].delta(OrthoDir::West, OrthoDir::North)
+		+ infos[v].eps(OrthoDir::West,OrthoDir::North)) ))
 	{
-		m_abends[outEntry(infos[v], odWest, pos)] = bend_free;
-		infos[v].nbf(odWest)++;
-		lastunbend = m_agp_x[outEntry(infos[v], odWest, pos)] = cp_x(outEntry(infos[v], odWest, pos));
+		m_abends[outEntry(infos[v], OrthoDir::West, pos)] = BendType::BendFree;
+		infos[v].num_bend_free_increment(OrthoDir::West);
+		lastunbend = m_agp_x[outEntry(infos[v], OrthoDir::West, pos)] = cp_x(outEntry(infos[v], OrthoDir::West, pos));
 		if (firstunbend == m_init) firstunbend = lastunbend;
 		if (firstcheck)
 		{
@@ -1669,68 +1241,42 @@ void EdgeRouter::compute_glue_points_x(node& v)
 		++l_it;
 		++pos;
 	}
-	//*********************************************************************
+
 	//temporary sol, correct left edges
 
 	if (firstunbend != m_init)
 	{
-		ListIterator<edge> ll_it = infos[v].inList(odWest).begin();
+		ListIterator<edge> ll_it = infos[v].inList(OrthoDir::West).begin();
 		int llpos = 0;
-		while (ll_it.valid() && ( infos[v].coord(odNorth)  >
-			(cp_x(outEntry(infos[v], odWest, llpos)) - llpos*infos[v].delta(odWest, odNorth) - infos[v].eps(odWest,odNorth)) ))
+		while (ll_it.valid() && ( infos[v].coord(OrthoDir::North)  >
+			(cp_x(outEntry(infos[v], OrthoDir::West, llpos)) - llpos*infos[v].delta(OrthoDir::West, OrthoDir::North) - infos[v].eps(OrthoDir::West,OrthoDir::North)) ))
 		{
-			//ab unterem Rand, oder ab gen, teile Abstand Anzahl Kanten??!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			m_agp_x[outEntry(infos[v], odWest, llpos)] = firstunbend -
-				(rightbend - llpos)*infos[v].delta(odWest, odNorth);
+			//ab unterem Rand, oder ab gen, teile Abstand Anzahl Kanten?
+			m_agp_x[outEntry(infos[v], OrthoDir::West, llpos)] = firstunbend -
+				(rightbend - llpos)*infos[v].delta(OrthoDir::West, OrthoDir::North);
 			++ll_it;
 			++llpos;
 		}//while
 		OGDF_ASSERT(rightbend == llpos);
 	}//if
-	//*********************************************************************
-	//*********************
-	//edges bending upwards
-	//*********************
-	while (l_it.valid()) //&&???!!!
-	{
-		if (cp_x(outEntry(infos[v], odWest, pos)) <= infos[v].coord(odSouth) + m_sep)
-		{
-			m_abends[outEntry(infos[v], odWest, pos)] = bend_2left;
-			infos[v].inc_E(odWest, odSouth);
-		}
-		else
-		{
-			m_abends[outEntry(infos[v], odWest, pos)] = prob_b1l;
-			infos[v].inc_E_hook(odWest, odSouth);
-		}//else
 
-		if (lastunbend != m_init)
-		{
-			m_agp_x[outEntry(infos[v], odWest, pos)] = lastunbend + infos[v].delta(odWest, odSouth);
-			lastunbend = lastunbend + infos[v].delta(odWest, odSouth);
-		}
-		else
-			m_agp_x[outEntry(infos[v], odWest, pos)] = infos[v].coord(odSouth)
-			- infos[v].eps(odWest, odSouth)
-			- (infos[v].inList(odWest).size() - 1 - pos)*infos[v].delta(odWest, odSouth);
-		++l_it;
-		++pos;
-	}//while
+	//edges bending upwards
+	updateBends(v, l_it, pos, lastunbend, true, OrthoDir::South, true, true, true);
 	//y values
 	//y coordinates, just on the cage boundary
-	l_it = infos[v].inList(odEast).begin();
+	l_it = infos[v].inList(OrthoDir::East).begin();
 	int l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_y[outEntry(infos[v], odEast, l_pos)] = infos[v].coord(odEast);
+		m_agp_y[outEntry(infos[v], OrthoDir::East, l_pos)] = infos[v].coord(OrthoDir::East);
 		++l_it;
 		l_pos++;
 	}
-	l_it = infos[v].inList(odWest).begin();
+	l_it = infos[v].inList(OrthoDir::West).begin();
 	l_pos = 0;
 	while (l_it.valid())
 	{
-		m_agp_y[outEntry(infos[v], odWest, l_pos)] = infos[v].coord(odWest);
+		m_agp_y[outEntry(infos[v], OrthoDir::West, l_pos)] = infos[v].coord(OrthoDir::West);
 		++l_it;
 		l_pos++;
 	}
@@ -1749,48 +1295,45 @@ void EdgeRouter::set_corners(node v)
 	w = e->source();//pointing towards north, on left side
 	m_prup->setExpandedNode(w, v);
 
-	m_layoutp->x(w) = infos[v].coord(odNorth);
-	m_layoutp->y(w) = infos[v].coord(odWest);
+	m_layoutp->x(w) = infos[v].coord(OrthoDir::North);
+	m_layoutp->y(w) = infos[v].coord(OrthoDir::West);
 	ae = vinfo->m_corner[1];
 	e = *ae;
 	w = e->source();
 	m_prup->setExpandedNode(w, v);
 
-	m_layoutp->x(w) = infos[v].coord(odNorth);
-	m_layoutp->y(w) = infos[v].coord(odEast);
+	m_layoutp->x(w) = infos[v].coord(OrthoDir::North);
+	m_layoutp->y(w) = infos[v].coord(OrthoDir::East);
 	ae = vinfo->m_corner[2];
 	e = *ae;
 	w = e->source();
 	m_prup->setExpandedNode(w, v);
 
-	m_layoutp->x(w) = infos[v].coord(odSouth);
-	m_layoutp->y(w) = infos[v].coord(odEast);
+	m_layoutp->x(w) = infos[v].coord(OrthoDir::South);
+	m_layoutp->y(w) = infos[v].coord(OrthoDir::East);
 	ae = vinfo->m_corner[3];
 	e = *ae;
 	w = e->source();
 	m_prup->setExpandedNode(w, v);
 
-	m_layoutp->x(w) = infos[v].coord(odSouth);
-	m_layoutp->y(w) = infos[v].coord(odWest);
+	m_layoutp->x(w) = infos[v].coord(OrthoDir::South);
+	m_layoutp->y(w) = infos[v].coord(OrthoDir::West);
 }//setcorners
 
 
 
-//*****************************************************************************
 //locally decide where to place the node in the computed cage area
 //allow individual separation and overhang distance, input original node v
 //classify edges with preliminary bend_types prob_xxx
 //choose bendfree edges, bend edges may be rerouted to save bends
-//*****************************************************************************
-
 void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/)
 {
 	const int l_directvalue = 10; //value of edges connecting two cages bendfree, with bends: value = 1
 
 	//gen at left or right cage side
-	bool horizontal_merger = (inf.has_gen(odNorth) || inf.has_gen(odSouth));
+	bool horizontal_merger = (inf.has_gen(OrthoDir::North) || inf.has_gen(OrthoDir::South));
 	//gen at top or bottom side
-	bool vertical_merger = (inf.has_gen(odWest) || inf.has_gen(odEast));
+	bool vertical_merger = (inf.has_gen(OrthoDir::West) || inf.has_gen(OrthoDir::East));
 
 	List<edge> l_horz; //contains horizontal incoming edges at v's cage,  sorted increasing uppe, paper L
 	List<edge> l_horzl; //by increasing lowe
@@ -1808,27 +1351,27 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 	EdgeArray<bool> at_left(*m_prup, false);
 	EdgeArray<bool> at_top(*m_prup, false);
 
-	//Fill edge lists ******************************************************
-	int lhorz_size = inf.inList(odNorth).size() + inf.inList(odSouth).size();
+	//Fill edge lists
+	int lhorz_size = inf.inList(OrthoDir::North).size() + inf.inList(OrthoDir::South).size();
 	if (lhorz_size && (!horizontal_merger))
 	{
 		edge e;
 		//fill l_horz sorting by uppe, remember entry for edges sorted by lowe
-		//all inf.inList[odNorth] and [odSouth], sorted by lower
+		//all inf.inList[North] and [South], sorted by lower
 
-		//check: each side is already sorted by lowe/uppe definition!!!!!!!!!!!!!!!!!!!
-		ListIterator<edge> li_l = inf.inList(odNorth).begin();
-		ListIterator<edge> li_r = inf.inList(odSouth).begin();
+		// check: each side is already sorted by lowe/uppe definition!
+		ListIterator<edge> li_l = inf.inList(OrthoDir::North).begin();
+		ListIterator<edge> li_r = inf.inList(OrthoDir::South).begin();
 		//iterators for increasing lower value
-		ListIterator<edge> li_ll = inf.inList(odNorth).begin();
-		ListIterator<edge> li_lr = inf.inList(odSouth).begin();
+		ListIterator<edge> li_ll = inf.inList(OrthoDir::North).begin();
+		ListIterator<edge> li_lr = inf.inList(OrthoDir::South).begin();
 
 		int uppe_l, uppe_r, lowe_l, lowe_r;
 
-		uppe_l = (li_l.valid() ? auppe[outEntry(inf, odNorth, 0)] : numeric_limits<int>::max());//only both 10000.0 if both empty!!!
-		uppe_r = (li_r.valid() ? auppe[outEntry(inf, odSouth, 0)] : numeric_limits<int>::max());//never in for - loop
-		lowe_l = (li_ll.valid() ? alowe[outEntry(inf, odNorth, 0)] : numeric_limits<int>::max());//only both 10000.0 if both empty!!!
-		lowe_r = (li_lr.valid() ? alowe[outEntry(inf, odSouth, 0)] : numeric_limits<int>::max());//never in for - loop
+		uppe_l = li_l.valid() ? auppe[outEntry(inf, OrthoDir::North, 0)] : numeric_limits<int>::max(); // only both 10000.0 if both empty!!!
+		uppe_r = li_r.valid() ? auppe[outEntry(inf, OrthoDir::South, 0)] : numeric_limits<int>::max(); // never in for - loop
+		lowe_l = li_ll.valid() ? alowe[outEntry(inf, OrthoDir::North, 0)] : numeric_limits<int>::max(); // only both 10000.0 if both empty!!!
+		lowe_r = li_lr.valid() ? alowe[outEntry(inf, OrthoDir::South, 0)] : numeric_limits<int>::max(); // never in for - loop
 
 		int lcount, rcount, llcount, rlcount;//zaehle fuer outEntry in Listen
 		lcount = rcount = llcount = rlcount = 0;
@@ -1842,64 +1385,64 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			{
 				e = *li_l;
 				at_left[e] = true;
-				nextNeighbour = (inf.is_in_edge(odNorth, lcount) ? e->source() : e->target());
+				nextNeighbour = inf.is_in_edge(OrthoDir::North, lcount) ? e->source() : e->target();
 				++li_l;
 				++lcount;
-				uppe_l =  (lcount <  inf.inList(odNorth).size() ? auppe[outEntry(inf, odNorth, lcount)] : numeric_limits<int>::max());
+				uppe_l = lcount < inf.inList(OrthoDir::North).size() ? auppe[outEntry(inf, OrthoDir::North, lcount)] : numeric_limits<int>::max();
 			}
 			else
 			{
 				e = *li_r;
-				nextNeighbour = (inf.is_in_edge(odSouth, rcount) ? e->source() : e->target());
+				nextNeighbour = inf.is_in_edge(OrthoDir::South, rcount) ? e->source() : e->target();
 				++li_r;
 				++rcount;
-				uppe_r = (rcount < inf.inList(odSouth).size() ? auppe[outEntry(inf, odSouth, rcount)] : numeric_limits<int>::max());
+				uppe_r = rcount < inf.inList(OrthoDir::South).size() ? auppe[outEntry(inf, OrthoDir::South, rcount)] : numeric_limits<int>::max();
 			}
 			horz_entry[e] = l_horz.pushBack(e);//fill edge in L
 
-			value_entry[e] = edgevalue.pushBack((m_prup->expandedNode(nextNeighbour) ? l_directvalue : 1));
+			value_entry[e] = edgevalue.pushBack(m_prup->expandedNode(nextNeighbour) ? l_directvalue : 1);
 
 			//lower value
 			if (lowe_l <= lowe_r) //favour left edges, maybe we should prefer them
 			{
 				e = *li_ll;
-				//at_left[e] = true; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				// at_left[e] = true;
 				++li_ll;
 				++llcount;
-				lowe_l = (llcount < inf.inList(odNorth).size() ? alowe[outEntry(inf, odNorth, llcount)] : numeric_limits<int>::max());
+				lowe_l = llcount < inf.inList(OrthoDir::North).size() ? alowe[outEntry(inf, OrthoDir::North, llcount)] : numeric_limits<int>::max();
 			}
 			else
 			{
 				e = *li_lr;
 				++li_lr;
 				++rlcount;
-				//lowe_r = (li_lr.valid() ? lowe[*li_lr] : 10000.0);
-				lowe_r = (rlcount < inf.inList(odSouth).size() ? alowe[outEntry(inf, odSouth, rlcount)] : numeric_limits<int>::max());
+				// lowe_r = li_lr.valid() ? lowe[*li_lr] : 10000.0;
+				lowe_r = rlcount < inf.inList(OrthoDir::South).size() ? alowe[outEntry(inf, OrthoDir::South, rlcount)] : numeric_limits<int>::max();
 			}
 			l_horzl.pushBack(e); //fill edge in e_0,...e_k
 
 		}//for
 	}//if horz
-	//vertical edges *******************************************************
-	int lvert_size = inf.inList(odEast).size() + inf.inList(odWest).size();
+	//vertical edges
+	int lvert_size = inf.inList(OrthoDir::East).size() + inf.inList(OrthoDir::West).size();
 	if (lvert_size && !vertical_merger)
 	{
 		//fill l_vert
 		//fill l_vert sorting by righte, remember entry for edges sorted by lefte
-		//all inf.inList[odEast] and [odWest], sorted by lefte
+		//all inf.inList[East] and [West], sorted by lefte
 
-		//check: each side is already sorted by lefte/righte definition!!!!!!!!!!!!!!!!!!!
-		ListIterator<edge> li_t = inf.inList(odEast).begin();
-		ListIterator<edge> li_b = inf.inList(odWest).begin();
+		// check: each side is already sorted by lefte/righte definition!
+		ListIterator<edge> li_t = inf.inList(OrthoDir::East).begin();
+		ListIterator<edge> li_b = inf.inList(OrthoDir::West).begin();
 		//iterators for increasing lefte value
-		ListIterator<edge> li_lt = inf.inList(odEast).begin();
-		ListIterator<edge> li_lb = inf.inList(odWest).begin();
+		ListIterator<edge> li_lt = inf.inList(OrthoDir::East).begin();
+		ListIterator<edge> li_lb = inf.inList(OrthoDir::West).begin();
 
 		int righte_t, righte_b, lefte_t, lefte_b;
-		righte_t = (li_t.valid() ? arighte[outEntry(inf, odEast, 0)] : numeric_limits<int>::max());//only both 10000.0 if both empty!!!
-		righte_b = (li_b.valid() ? arighte[outEntry(inf, odWest, 0)] : numeric_limits<int>::max());//never in for - loop
-		lefte_t = (li_lt.valid() ? alefte[outEntry(inf, odEast, 0)] : numeric_limits<int>::max());//only both 10000.0 if both empty!!!
-		lefte_b = (li_lb.valid() ? alefte[outEntry(inf, odWest, 0)] : numeric_limits<int>::max());//never in for - loop
+		righte_t = li_t.valid() ? arighte[outEntry(inf, OrthoDir::East, 0)] : numeric_limits<int>::max(); // only both 10000.0 if both empty!!!
+		righte_b = li_b.valid() ? arighte[outEntry(inf, OrthoDir::West, 0)] : numeric_limits<int>::max(); // never in for - loop
+		lefte_t = li_lt.valid() ? alefte[outEntry(inf, OrthoDir::East, 0)] : numeric_limits<int>::max(); // only both 10000.0 if both empty!!!
+		lefte_b = li_lb.valid() ? alefte[outEntry(inf, OrthoDir::West, 0)] : numeric_limits<int>::max(); // never in for - loop
 
 		//forall horizontal edges, sort
 		int tcount, bcount, tlcount, blcount;//zaehle fuer outEntry in Listen
@@ -1915,11 +1458,11 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 					if (li_t.valid())
 					{
 						e = *li_t;
-						at_top[e] = true; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+						at_top[e] = true;
 						++li_t;
 						++tcount;
 					}//if
-					righte_t = (tcount < inf.inList(odEast).size() ? arighte[outEntry(inf, odEast, tcount)] : numeric_limits<int>::max());
+					righte_t = tcount < inf.inList(OrthoDir::East).size() ? arighte[outEntry(inf, OrthoDir::East, tcount)] : numeric_limits<int>::max();
 				}
 				else
 				{
@@ -1929,7 +1472,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 						++li_b;
 						++bcount;
 					}//if
-					righte_b = (bcount < inf.inList(odWest).size()  ? arighte[outEntry(inf, odWest, bcount)] : numeric_limits<int>::max());
+					righte_b = bcount < inf.inList(OrthoDir::West).size()  ? arighte[outEntry(inf, OrthoDir::West, bcount)] : numeric_limits<int>::max();
 				}
 				vert_entry[e] = l_vert.pushBack(e);//fill edge in L
 			}
@@ -1937,19 +1480,19 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			if (lefte_t <= lefte_b) //favour top edges, maybe we should prefer them
 			{
 				e = *li_lt;
-				//at_left[e] = true; //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				// at_left[e] = true;
 				++li_lt;
 				++tlcount;
-				//lefte_t = (li_lt.valid() ? lefte[*li_lt] : 100000.0);
-				lefte_t = (tlcount < inf.inList(odEast).size() ? alefte[outEntry(inf, odEast, tlcount)] : numeric_limits<int>::max());
+				// lefte_t = li_lt.valid() ? lefte[*li_lt] : 100000.0;
+				lefte_t = tlcount < inf.inList(OrthoDir::East).size() ? alefte[outEntry(inf, OrthoDir::East, tlcount)] : numeric_limits<int>::max();
 			}
 			else
 			{
 				e = *li_lb;
 				++li_lb;
 				++blcount;
-				//lefte_b = (li_lb.valid() ? lefte[*li_lb] : 100000.0);
-				lefte_b = (blcount < inf.inList(odWest).size() ? alefte[outEntry(inf, odWest, blcount)] : numeric_limits<int>::max());
+				// lefte_b = li_lb.valid() ? lefte[*li_lb] : 100000.0;
+				lefte_b = blcount < inf.inList(OrthoDir::West).size() ? alefte[outEntry(inf, OrthoDir::West, blcount)] : numeric_limits<int>::max();
 			}
 			OGDF_ASSERT(e);
 			l_vertl.pushBack(e);
@@ -1970,8 +1513,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 	int best_unbend = -1;//best number of unbend edges so far (paper: best)
 	int i;
 
-	//vertical position paper ALGORITHM1******************************************************************
-	//check e_i sorted by lowe, l_horz sorted by uppe !!!!!!!!!!!!!!
+	//vertical position paper ALGORITHM1
+	//check e_i sorted by lowe, l_horz sorted by uppe !
 	//we need to have an listentry for all edges sorted by lowe to
 	//delete them in l_horz
 
@@ -1986,8 +1529,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		{
 			best_unbend = 1;
 			if (at_left[*(l_horz.begin())])
-				bestvalue = alowe[outEntry(inf, odNorth, 0)];
-			else bestvalue = alowe[outEntry(inf, odSouth, 0)];
+				bestvalue = alowe[outEntry(inf, OrthoDir::North, 0)];
+			else bestvalue = alowe[outEntry(inf, OrthoDir::South, 0)];
 		}
 		else
 		{
@@ -2025,7 +1568,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				if (num_unbend > best_unbend)
 				{
 					best_unbend =  num_unbend;
-					bestvalue = (at_left[l_horzl.front()] ? alowe[outEntry(inf,odNorth, leftcount)] : alowe[outEntry(inf, odSouth, rightcount)]);
+					bestvalue = at_left[l_horzl.front()] ? alowe[outEntry(inf,OrthoDir::North, leftcount)] : alowe[outEntry(inf, OrthoDir::South, rightcount)];
 				}//if new best
 
 				if (at_left[l_horzl.front()]) leftcount++;
@@ -2048,23 +1591,23 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			}//for, l_horz list entries
 		}//else bugfix size 1
 
-		m_newy[v] = min((inf.cage_coord(odEast) - inf.node_ysize() - inf.rc(odEast)), bestvalue);
-		inf.set_coord(odWest, m_newy[v]);
-		inf.set_coord(odEast, m_newy[v] + inf.node_ysize());
+		m_newy[v] = min((inf.cageCoord(OrthoDir::East) - inf.node_ysize() - inf.rc(OrthoDir::East)), bestvalue);
+		inf.set_coord(OrthoDir::West, m_newy[v]);
+		inf.set_coord(OrthoDir::East, m_newy[v] + inf.node_ysize());
 	}//if horz
 	else
 	{
 		if (horizontal_merger)
 		{
-			//position is fixed //odNorth was odNorth
+			//position is fixed //North was OrthoDir::North
 			edge e;
 			//note that get starts indexing with zero, whereas gen_pos starts with one
-			if (inf.has_gen(odNorth)) e = *(inf.inList(odNorth).get(inf.gen_pos(odNorth)));
-			else e = *(inf.inList(odSouth).get(inf.gen_pos(odSouth))); //check e !!!!!!!!!!!!!
-			int gen_y = m_layoutp->y( e->target()); //koennte man auch in inf schreiben !!!!!!!!!
+			if (inf.has_gen(OrthoDir::North)) e = *(inf.inList(OrthoDir::North).get(inf.gen_pos(OrthoDir::North)));
+			else e = *(inf.inList(OrthoDir::South).get(inf.gen_pos(OrthoDir::South))); // XXX: check e
+			int gen_y = m_layoutp->y( e->target()); // XXX: koennte man auch in inf schreiben!
 			m_newy[v] =  gen_y - int(floor((double)(inf.node_ysize())/2));
-			inf.set_coord(odWest, m_newy[v]);
-			inf.set_coord(odEast, m_newy[v] + inf.node_ysize());
+			inf.set_coord(OrthoDir::West, m_newy[v]);
+			inf.set_coord(OrthoDir::East, m_newy[v] + inf.node_ysize());
 		}//if
 		else
 		{
@@ -2072,41 +1615,41 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			if (vertical_merger)
 			{
 				//find out direction of generalization
-				bool wg = inf.has_gen(odWest);
-				bool eg = inf.has_gen(odEast);
+				bool wg = inf.has_gen(OrthoDir::West);
+				bool eg = inf.has_gen(OrthoDir::East);
 				int mynewy = 0;
 				if (wg)
 				{
 					if (eg)
 					{
-						if (inf.is_in_edge(odWest, inf.gen_pos(odWest))) //position to odEast
+						if (inf.is_in_edge(OrthoDir::West, inf.gen_pos(OrthoDir::West))) //position to OrthoDir::East
 						{
-							mynewy = inf.cage_coord(odEast) - inf.rc(odEast) - inf.node_ysize();
+							mynewy = inf.cageCoord(OrthoDir::East) - inf.rc(OrthoDir::East) - inf.node_ysize();
 						}
 						else
 						{
-							mynewy = inf.cage_coord(odWest) + inf.rc(odWest);
+							mynewy = inf.cageCoord(OrthoDir::West) + inf.rc(OrthoDir::West);
 						}
 					}//both
 					else
 					{
-						mynewy = inf.cage_coord(odWest) + inf.rc(odWest);
+						mynewy = inf.cageCoord(OrthoDir::West) + inf.rc(OrthoDir::West);
 					}//only west
 				}
 				else
 				{
-					mynewy = inf.cage_coord(odEast) - inf.rc(odEast) - inf.node_ysize();
+					mynewy = inf.cageCoord(OrthoDir::East) - inf.rc(OrthoDir::East) - inf.node_ysize();
 				}//else no west
 				m_newy[v] = mynewy;
-				inf.set_coord(odWest, m_newy[v]);
-				inf.set_coord(odEast, m_newy[v] + inf.node_ysize());
+				inf.set_coord(OrthoDir::West, m_newy[v]);
+				inf.set_coord(OrthoDir::East, m_newy[v] + inf.node_ysize());
 			}//if verticalmerger
 			else
 			{
 				//we place the node at the position cage_lower_border(v)+routing_channel_bottom(v)
-				m_newy[v] = inf.cage_coord(odEast) - inf.rc(odEast) - inf.node_ysize();
-				inf.set_coord(odWest, m_newy[v]);
-				inf.set_coord(odEast, m_newy[v] + inf.node_ysize());
+				m_newy[v] = inf.cageCoord(OrthoDir::East) - inf.rc(OrthoDir::East) - inf.node_ysize();
+				inf.set_coord(OrthoDir::West, m_newy[v]);
+				inf.set_coord(OrthoDir::East, m_newy[v] + inf.node_ysize());
 				//forall horizontal edges set their glue point y coordinate
 			}//else verticalmerger
 		}//else merger
@@ -2114,7 +1657,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 
 	//forall horizontal edges we computed the y-coordinate of their glue point in m_gp_y
 	//and we computed the y-coordinate of the lower box segment in m_newy
-	//horizontal position****************************
+	//horizontal position
 	if (!l_vert.empty())
 	{
 		//starting from the leftmost vertical edge, we move the virtual
@@ -2135,8 +1678,8 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			bestedge = l_vert.front();
 #endif
 			if (at_top[*(l_vert.begin())])
-				bestvalue = alefte[outEntry(inf, odEast, 0)];
-			else bestvalue = alefte[outEntry(inf, odWest, 0)];
+				bestvalue = alefte[outEntry(inf, OrthoDir::East, 0)];
+			else bestvalue = alefte[outEntry(inf, OrthoDir::West, 0)];
 		}
 		else
 		{
@@ -2163,7 +1706,7 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 				{
 					best_unbend =  num_unbend;
 					//bestedge = l_vertl.front();
-					bestvalue = (at_top[l_vertl.front()] ? alefte[outEntry(inf,odEast, topcount)] : alefte[outEntry(inf, odWest, lowcount)]);
+					bestvalue = at_top[l_vertl.front()] ? alefte[outEntry(inf,OrthoDir::East, topcount)] : alefte[outEntry(inf, OrthoDir::West, lowcount)];
 				}//if new best
 				if (at_top[l_vertl.front()]) topcount++;
 				else lowcount++;
@@ -2180,72 +1723,71 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 		}//else bugfix
 
 		//assign computed value
-		m_newx[v] = min( (inf.cage_coord(odSouth) - inf.node_xsize() - inf.rc(odSouth)),
+		m_newx[v] = min( (inf.cageCoord(OrthoDir::South) - inf.node_xsize() - inf.rc(OrthoDir::South)),
 			(bestvalue));
 		// (lefte[bestedge]));
-		inf.set_coord(odNorth, m_newx[v]);
-		inf.set_coord(odSouth, m_newx[v] + inf.node_xsize());
-		//check: do we need this here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		inf.set_coord(OrthoDir::North, m_newx[v]);
+		inf.set_coord(OrthoDir::South, m_newx[v] + inf.node_xsize());
+		// XXX: do we need this here?
 		//- (at_left[bestedge] ?
-		// inf.eps(odNorth, odWest) : inf.eps(odSouth, odWest))));//maybe top / down epsilon
+		// inf.eps(OrthoDir::North, OrthoDir::West) : inf.eps(OrthoDir::South, OrthoDir::West))));//maybe top / down epsilon
 	}//if vert
 	else
 	{
 		if (vertical_merger)
 		{
-			//position is fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!111
-			//position is fixed //odNorth was odNorth
+			//position is fixed //North was OrthoDir::North
 			edge e;
 			//note that get starts indexing with zero, whereas gen_pos starts with one
-			if (inf.has_gen(odEast)) e = *(inf.inList(odEast).get(inf.gen_pos(odEast)));
-			else e = *(inf.inList(odWest).get(inf.gen_pos(odWest))); //check e !!!!!!!!!!!!!
+			if (inf.has_gen(OrthoDir::East)) e = *(inf.inList(OrthoDir::East).get(inf.gen_pos(OrthoDir::East)));
+			else e = *(inf.inList(OrthoDir::West).get(inf.gen_pos(OrthoDir::West))); // XXX: check e
 			int gen_x = m_layoutp->x( e->target());
-			m_newx[v] =  gen_x - int(inf.node_xsize()/2.0);//abziehen => aufrunden !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			inf.set_coord(odNorth, m_newx[v]);
-			inf.set_coord(odSouth, m_newx[v] + inf.node_xsize());
+			m_newx[v] =  gen_x - int(inf.node_xsize()/2.0);// XXX: abziehen => aufrunden!
+			inf.set_coord(OrthoDir::North, m_newx[v]);
+			inf.set_coord(OrthoDir::South, m_newx[v] + inf.node_xsize());
 		}//if
 		else
 		{
 			if (horizontal_merger)
 			{
 				//find out direction of generalization
-				bool sg = inf.has_gen(odSouth);
-				bool ng = inf.has_gen(odNorth);
+				bool sg = inf.has_gen(OrthoDir::South);
+				bool ng = inf.has_gen(OrthoDir::North);
 
 				int mynewx = 0;
 				if (sg)
 				{
 					if (ng)
 					{
-						if (inf.is_in_edge(odSouth, inf.gen_pos(odSouth))) //position to odNorth
+						if (inf.is_in_edge(OrthoDir::South, inf.gen_pos(OrthoDir::South))) //position to OrthoDir::North
 						{
-							mynewx = inf.cage_coord(odNorth) + inf.rc(odNorth);
+							mynewx = inf.cageCoord(OrthoDir::North) + inf.rc(OrthoDir::North);
 						}
 						else
 						{
-							mynewx = inf.cage_coord(odSouth) - inf.rc(odSouth) - inf.node_xsize();
+							mynewx = inf.cageCoord(OrthoDir::South) - inf.rc(OrthoDir::South) - inf.node_xsize();
 						}
 					}//both
 					else
 					{
-						mynewx = inf.cage_coord(odSouth) - inf.rc(odSouth) - inf.node_xsize();
+						mynewx = inf.cageCoord(OrthoDir::South) - inf.rc(OrthoDir::South) - inf.node_xsize();
 					}//only south
 				}
 				else
 				{
-					mynewx = inf.cage_coord(odNorth) + inf.rc(odNorth);
+					mynewx = inf.cageCoord(OrthoDir::North) + inf.rc(OrthoDir::North);
 				}//else no south
 				m_newx[v] = mynewx;
-				inf.set_coord(odNorth, mynewx);
-				inf.set_coord(odSouth, mynewx + inf.node_xsize());
+				inf.set_coord(OrthoDir::North, mynewx);
+				inf.set_coord(OrthoDir::South, mynewx + inf.node_xsize());
 			}//if horizontalmerger
 			//we place the node at the position cage_left_border(v)+routing_channel_left(v)
 			//should be handled by value assign
 			else
 			{
-				m_newx[v] = inf.cage_coord(odSouth) - inf.rc(odSouth) - inf.node_xsize();
-				inf.set_coord(odNorth, m_newx[v]);
-				inf.set_coord(odSouth, m_newx[v] + inf.node_xsize());
+				m_newx[v] = inf.cageCoord(OrthoDir::South) - inf.rc(OrthoDir::South) - inf.node_xsize();
+				inf.set_coord(OrthoDir::North, m_newx[v]);
+				inf.set_coord(OrthoDir::South, m_newx[v] + inf.node_xsize());
 			}
 		}//else merger
 	}//else vert
@@ -2257,26 +1799,26 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 			//test incons.
 			OGDF_ASSERT(!horizontal_merger);
 			//we have to know the exact direction of the edge to the merger
-			OGDF_ASSERT( (m_mergeDir[v] == odNorth) || (m_mergeDir[v] == odSouth));
-			if (m_mergeDir[v] == odNorth)
-				m_newy[v] = (inf.cage_coord(odEast) - inf.node_ysize() - inf.rc(odEast));
+			OGDF_ASSERT( (m_mergeDir[v] == OrthoDir::North) || (m_mergeDir[v] == OrthoDir::South));
+			if (m_mergeDir[v] == OrthoDir::North)
+				m_newy[v] = (inf.cageCoord(OrthoDir::East) - inf.node_ysize() - inf.rc(OrthoDir::East));
 			else
-				m_newy[v] = (inf.cage_coord(odWest) + inf.rc(odWest));
-			inf.set_coord(odWest, m_newy[v]);
-			inf.set_coord(odEast, m_newy[v] + inf.node_ysize());
+				m_newy[v] = (inf.cageCoord(OrthoDir::West) + inf.rc(OrthoDir::West));
+			inf.set_coord(OrthoDir::West, m_newy[v]);
+			inf.set_coord(OrthoDir::East, m_newy[v] + inf.node_ysize());
 		}
 		if (horizontal_merger)
 		{
 			//test inconsistency
 			OGDF_ASSERT(!vertical_merger);
 			//we have to know the exact direction of the edge to the merger
-			OGDF_ASSERT( (m_mergeDir[v] == odEast) || (m_mergeDir[v] == odWest));
-			if (m_mergeDir[v] == odWest)
-				m_newx[v] = inf.cage_coord(odNorth) + inf.rc(odNorth);
+			OGDF_ASSERT( (m_mergeDir[v] == OrthoDir::East) || (m_mergeDir[v] == OrthoDir::West));
+			if (m_mergeDir[v] == OrthoDir::West)
+				m_newx[v] = inf.cageCoord(OrthoDir::North) + inf.rc(OrthoDir::North);
 			else
-				m_newx[v] = inf.cage_coord(odSouth) - inf.rc(odSouth) - inf.node_xsize();
-			inf.set_coord(odNorth, m_newx[v]);
-			inf.set_coord(odSouth, m_newx[v] + inf.node_xsize());
+				m_newx[v] = inf.cageCoord(OrthoDir::South) - inf.rc(OrthoDir::South) - inf.node_xsize();
+			inf.set_coord(OrthoDir::North, m_newx[v]);
+			inf.set_coord(OrthoDir::South, m_newx[v] + inf.node_xsize());
 		}
 	}//if genmergeson
 	//ende test
@@ -2295,10 +1837,10 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 	{
 		if ( (m_prup->expandAdj(v) != 0) && (m_prup->typeOf(v) != Graph::generalizationMerger) )
 		{
-			OGDF_ASSERT(m_newx[v] >= inf.cage_coord(odNorth));
-			OGDF_ASSERT(m_newy[v] >= inf.cage_coord(odWest));
-			OGDF_ASSERT(m_newx[v] + inf.node_xsize() <= inf.cage_coord(odSouth));
-			OGDF_ASSERT(m_newy[v] + inf.node_ysize() <= inf.cage_coord(odEast));
+			OGDF_ASSERT(m_newx[v] >= inf.cageCoord(OrthoDir::North));
+			OGDF_ASSERT(m_newy[v] >= inf.cageCoord(OrthoDir::West));
+			OGDF_ASSERT(m_newx[v] + inf.node_xsize() <= inf.cageCoord(OrthoDir::South));
+			OGDF_ASSERT(m_newy[v] + inf.node_ysize() <= inf.cageCoord(OrthoDir::East));
 		}
 	}
 #endif
@@ -2311,7 +1853,6 @@ void EdgeRouter::compute_place(node v, NodeInfo& inf/*, int l_sep, int l_overh*/
 }//compute_place
 
 
-//************************************************************************
 //REAL PLACEMENT Change graph based on placement/rerouting
 void EdgeRouter::place(node l_v)
 {
@@ -2325,14 +1866,14 @@ void EdgeRouter::place(node l_v)
 	bool corn, acorn; //test on last and first corner transition after rerouting
 	//forall four sides check the edges
 
-	//NORTH SIDE ***************************************************
+	//NORTH SIDE
 	//integrate offset for double bend edges without bendfree edges because of rerouting
-	int leftofs = (infos[l_v].num_bend_free(odNorth) ? 0 :
-		infos[l_v].delta(odNorth, odWest)*infos[l_v].flips(odWest, odNorth));
-	int rightofs = (infos[l_v].num_bend_free(odNorth) ? 0 :
-		infos[l_v].delta(odNorth, odEast)*infos[l_v].flips(odEast, odNorth));
+	int leftofs = infos[l_v].num_bend_free(OrthoDir::North) ? 0 :
+		infos[l_v].delta(OrthoDir::North, OrthoDir::West)*infos[l_v].flips(OrthoDir::West, OrthoDir::North);
+	int rightofs = infos[l_v].num_bend_free(OrthoDir::North) ? 0 :
+		infos[l_v].delta(OrthoDir::North, OrthoDir::East)*infos[l_v].flips(OrthoDir::East, OrthoDir::North);
 
-	List<edge>& inlist = infos[l_v].inList(odNorth); //left side
+	List<edge>& inlist = infos[l_v].inList(OrthoDir::North); //left side
 	ListIterator<edge> it = inlist.begin();
 	int ipos = 0;
 	corn = false; //check if end corner changed after necessary rerouting
@@ -2343,7 +1884,7 @@ void EdgeRouter::place(node l_v)
 		e = *it;
 		node v;
 		adjEntry ae; //"outgoing" from cage
-		inedge = infos[l_v].is_in_edge(odNorth, ipos);
+		inedge = infos[l_v].is_in_edge(OrthoDir::North, ipos);
 		if (inedge)
 		{
 			ae = e->adjTarget();
@@ -2354,7 +1895,7 @@ void EdgeRouter::place(node l_v)
 		}
 		v = m_cage_point[ae];
 
-		if (m_processStatus[v] == used)
+		if (m_processStatus[v] == ProcessType::used)
 		{
 			++it;//should be enough to break
 			continue;
@@ -2384,19 +1925,19 @@ void EdgeRouter::place(node l_v)
 		OGDF_ASSERT(m_agp_x[ae] != m_init);
 
 		//bends
-		if (abendType(ae) != bend_free)
+		if (abendType(ae) != BendType::BendFree)
 		{
 			edge newe;
 			node newbend, newglue;
 			int xtacy;
 			switch (abendType(ae))
 			{
-				//case prob_b1l:
-				case bend_1left: //rerouted single bend
+				//case ProbB1L:
+				case BendType::Bend1Left: //rerouted single bend
 					//delete old corner
 					if (ipos == 0)
 					{
-						OGDF_ASSERT(infos[l_v].flips(odNorth, odWest) > 0);
+						OGDF_ASSERT(infos[l_v].flips(OrthoDir::North, OrthoDir::West) > 0);
 						adjEntry ae2 = saveadj->cyclicPred();//ae->cyclicPred(); //aussen an cage
 						adjEntry ae3 = ae2->faceCycleSucc();
 						//as long as unsplit does not work, transition
@@ -2413,7 +1954,7 @@ void EdgeRouter::place(node l_v)
 						}
 					}//if pos==0
 					//delete corner after last rerouting
-					if ((!acorn) && (ipos == infos[l_v].flips(odNorth, odWest) - 1))
+					if ((!acorn) && (ipos == infos[l_v].flips(OrthoDir::North, OrthoDir::West) - 1))
 					{
 						acorn = true;
 						edge newe2;
@@ -2428,36 +1969,36 @@ void EdgeRouter::place(node l_v)
 							newe2 = addLeftBend(ae2->theEdge());
 							vinfo->m_corner[0] = savedge->adjTarget();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odNorth), infos[l_v].coord(odWest));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::North), infos[l_v].coord(OrthoDir::West));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 
-					xtacy = infos[l_v].coord(odNorth)
-						+ infos[l_v].delta(odWest, odNorth)
-						*(infos[l_v].flips(odNorth, odWest) - 1 - ipos)
-						+ infos[l_v].eps(odWest, odNorth);
+					xtacy = infos[l_v].coord(OrthoDir::North)
+						+ infos[l_v].delta(OrthoDir::West, OrthoDir::North)
+						*(infos[l_v].flips(OrthoDir::North, OrthoDir::West) - 1 - ipos)
+						+ infos[l_v].eps(OrthoDir::West, OrthoDir::North);
 					if (inedge) newe = addLeftBend(e);
 					else newe = addRightBend(e);
 					newbend = newe->source();
 
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
-					fix_position(newglue, xtacy, infos[l_v].coord(odWest));
+					fix_position(newglue, xtacy, infos[l_v].coord(OrthoDir::West));
 					fix_position(newbend, xtacy, cp_y(ae));
 					break;
-				case prob_b1l:
-				case prob_b2l:
-				case bend_2left:
+				case BendType::ProbB1L:
+				case BendType::ProbB2L:
+				case BendType::Bend2Left:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae], m_agp_y[ae]+leftofs);
-					xtacy = infos[l_v].cage_coord(odNorth)
-						+ (infos[l_v].num_bend_edges(odNorth, odWest) -ipos)*m_sep;
+					xtacy = infos[l_v].cageCoord(OrthoDir::North)
+						+ (infos[l_v].num_bend_edges(OrthoDir::North, OrthoDir::West) -ipos)*m_sep;
 					newe = addLeftBend(e);
-					fix_position(newe->source(), xtacy, (inedge ? cp_y(ae) : (gp_y(ae)+leftofs)));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (gp_y(ae) + leftofs));
 					newe = addRightBend(newe);
-					fix_position(newe->source(), xtacy, (inedge ? (gp_y(ae)+leftofs) : cp_y(ae)));
+					fix_position(newe->source(), xtacy, inedge ? (gp_y(ae) + leftofs) : cp_y(ae));
 					break;//int bend downwards
-				case bend_1right:
+				case BendType::Bend1Right:
 					if (!corn)
 					{
 						corn = true;
@@ -2473,11 +2014,11 @@ void EdgeRouter::place(node l_v)
 							newe2 = addRightBend(ae2->theEdge());
 							vinfo->m_corner[1] = newe2->adjSource();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odNorth), infos[l_v].coord(odEast));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::North), infos[l_v].coord(OrthoDir::East));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 					//delete corner after last rerouting
-					if (corn && (ipos == infos[l_v].inList(odNorth).size()-1))
+					if (corn && (ipos == infos[l_v].inList(OrthoDir::North).size()-1))
 					{
 						adjEntry ae2 = saveadj->cyclicSucc();//ae->cyclicSucc();
 						adjEntry ae3 = ae2->faceCycleSucc();
@@ -2486,9 +2027,9 @@ void EdgeRouter::place(node l_v)
 						else
 							unsplit(ae3->theEdge(), ae2->theEdge());
 					}//if last
-					xtacy = infos[l_v].coord(odNorth)
-						+ (ipos + infos[l_v].flips(odNorth, odEast) - infos[l_v].inList(odNorth).size())
-						* infos[l_v].delta(odEast, odNorth) + infos[l_v].eps(odEast, odNorth);
+					xtacy = infos[l_v].coord(OrthoDir::North)
+						+ (ipos + infos[l_v].flips(OrthoDir::North, OrthoDir::East) - infos[l_v].inList(OrthoDir::North).size())
+						* infos[l_v].delta(OrthoDir::East, OrthoDir::North) + infos[l_v].eps(OrthoDir::East, OrthoDir::North);
 					if (inedge) newe = addRightBend(e);
 					else newe = addLeftBend(e);
 					newbend = newe->source();
@@ -2496,21 +2037,21 @@ void EdgeRouter::place(node l_v)
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
 					fix_position(newbend, xtacy, cp_y(ae));
-					fix_position(newglue, xtacy, infos[l_v].coord(odEast));
+					fix_position(newglue, xtacy, infos[l_v].coord(OrthoDir::East));
 					break;//rerouted single bend
-				case prob_b1r:
-				case prob_b2r:
-				case bend_2right:
+				case BendType::ProbB1R:
+				case BendType::ProbB2R:
+				case BendType::Bend2Right:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae], m_agp_y[ae]-rightofs);
-					xtacy = infos[l_v].cage_coord(odNorth)
-						+ (1 + ipos + infos[l_v].num_bend_edges(odNorth, odEast) - infos[l_v].inList(odNorth).size())
+					xtacy = infos[l_v].cageCoord(OrthoDir::North)
+						+ (1 + ipos + infos[l_v].num_bend_edges(OrthoDir::North, OrthoDir::East) - infos[l_v].inList(OrthoDir::North).size())
 						* m_sep;
-					//* infos[l_v].delta(odNorth, odEast);
+					//* infos[l_v].delta(OrthoDir::North, OrthoDir::East);
 					newe = addRightBend(e);
-					fix_position(newe->source(), xtacy, (inedge ? cp_y(ae) : (gp_y(ae)-rightofs)));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (gp_y(ae) - rightofs));
 					newe = addLeftBend(newe);
-					fix_position(newe->source(), xtacy, (inedge ? (gp_y(ae)-rightofs) : cp_y(ae)));
+					fix_position(newe->source(), xtacy, inedge ? (gp_y(ae) - rightofs) : cp_y(ae));
 					break; //double bend upwards
 				default: break;
 			}//switch
@@ -2520,20 +2061,19 @@ void EdgeRouter::place(node l_v)
 		++it;
 	}//while
 
-	//*********************************************
-	//EAST SIDE (bottom)************************************
-	leftofs = (infos[l_v].num_bend_free(odEast) ? 0 :
-		infos[l_v].delta(odEast, odNorth)*infos[l_v].flips(odNorth, odEast));
+	//EAST SIDE (bottom)
+	leftofs = infos[l_v].num_bend_free(OrthoDir::East) ? 0 :
+		infos[l_v].delta(OrthoDir::East, OrthoDir::North)*infos[l_v].flips(OrthoDir::North, OrthoDir::East);
 		//temp
-		//leftofs = infos[l_v].delta(odEast, odNorth)*infos[l_v].flips(odNorth, odEast);
+		//leftofs = infos[l_v].delta(OrthoDir::East, OrthoDir::North)*infos[l_v].flips(OrthoDir::North, OrthoDir::East);
 		//temp end
-	rightofs = (infos[l_v].num_bend_free(odEast) ? 0 :
-		infos[l_v].delta(odEast, odSouth)*infos[l_v].flips(odSouth, odEast));
+	rightofs = infos[l_v].num_bend_free(OrthoDir::East) ? 0 :
+		infos[l_v].delta(OrthoDir::East, OrthoDir::South)*infos[l_v].flips(OrthoDir::South, OrthoDir::East);
 		//temp
-		//rightofs = infos[l_v].delta(odEast, odSouth)*infos[l_v].flips(odSouth, odEast);
+		//rightofs = infos[l_v].delta(OrthoDir::East, OrthoDir::South)*infos[l_v].flips(OrthoDir::South, OrthoDir::East);
 		//tempend
 
-	it = infos[l_v].inList(odEast).begin();
+	it = infos[l_v].inList(OrthoDir::East).begin();
 	ipos = 0;
 	corn = false; //check if end corner changed after necessary rerouting
 	acorn = false; //check if start corner changed after necessary re
@@ -2542,7 +2082,7 @@ void EdgeRouter::place(node l_v)
 		e = *it;
 		node v;
 		adjEntry ae; //"outgoing" from cage
-		inedge = infos[l_v].is_in_edge(odEast, ipos);
+		inedge = infos[l_v].is_in_edge(OrthoDir::East, ipos);
 		if (inedge)
 		{
 			ae = e->adjTarget();
@@ -2552,7 +2092,7 @@ void EdgeRouter::place(node l_v)
 			ae = e->adjSource();
 		}
 		v = m_cage_point[ae];
-		if (m_processStatus[v] == used)
+		if (m_processStatus[v] == ProcessType::used)
 		{
 			++it;//should be enough to break
 			continue;
@@ -2579,15 +2119,15 @@ void EdgeRouter::place(node l_v)
 		OGDF_ASSERT(m_agp_y[ae] != m_init);
 		OGDF_ASSERT(m_agp_x[ae] != m_init);
 		//bends
-		if (abendType(ae) != bend_free)
+		if (abendType(ae) != BendType::BendFree)
 		{
 			switch (abendType(ae))
 			{
 				edge newe;
 				node newbend, newglue;
 				int ypsiqueen;
-				//case prob_b1l:
-				case bend_1left:
+				//case ProbB1L:
+				case BendType::Bend1Left:
 					//set new corner before first rerouting
 					//delete corner before starting
 					if (ipos == 0)
@@ -2600,7 +2140,7 @@ void EdgeRouter::place(node l_v)
 						else
 							unsplit(ae3->theEdge(), ae2->theEdge());
 						}
-						if ((!acorn) && (ipos == infos[l_v].flips(odEast, odNorth) - 1))
+						if ((!acorn) && (ipos == infos[l_v].flips(OrthoDir::East, OrthoDir::North) - 1))
 						{
 
 						acorn = true;
@@ -2616,7 +2156,7 @@ void EdgeRouter::place(node l_v)
 							newe2 = addLeftBend(ae2->theEdge());
 							vinfo->m_corner[1] = savedge->adjTarget();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odNorth), infos[l_v].coord(odEast));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::North), infos[l_v].coord(OrthoDir::East));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 					if (inedge) newe = addLeftBend(e); //abhaengig von inedge, ??
@@ -2625,26 +2165,26 @@ void EdgeRouter::place(node l_v)
 
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
-					ypsiqueen = infos[l_v].coord(odEast) - (infos[l_v].flips(odEast, odNorth) - ipos - 1)
-						* infos[l_v].delta(odNorth, odEast) - infos[l_v].eps(odNorth, odEast);
+					ypsiqueen = infos[l_v].coord(OrthoDir::East) - (infos[l_v].flips(OrthoDir::East, OrthoDir::North) - ipos - 1)
+						* infos[l_v].delta(OrthoDir::North, OrthoDir::East) - infos[l_v].eps(OrthoDir::North, OrthoDir::East);
 					fix_position(newbend, cp_x(ae), ypsiqueen);
-					fix_position(newglue, infos[l_v].coord(odNorth), ypsiqueen);
+					fix_position(newglue, infos[l_v].coord(OrthoDir::North), ypsiqueen);
 					//target oder source von newe coord
 					break; //rerouted single bend
-				case prob_b1l:
-				case prob_b2l:
-				case bend_2left:
+				case BendType::ProbB1L:
+				case BendType::ProbB2L:
+				case BendType::Bend2Left:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae]+leftofs, m_agp_y[ae]);
-					ypsiqueen = infos[l_v].cage_coord(odEast)
-							 - (infos[l_v].num_bend_edges(odEast, odNorth) - ipos)*m_sep;
+					ypsiqueen = infos[l_v].cageCoord(OrthoDir::East)
+							 - (infos[l_v].num_bend_edges(OrthoDir::East, OrthoDir::North) - ipos)*m_sep;
 					newe = addLeftBend(e);
-					fix_position(newe->source(),(inedge ? cp_x(ae) : m_agp_x[ae]+leftofs) ,ypsiqueen);
+					fix_position(newe->source(), inedge ? cp_x(ae) : (m_agp_x[ae] + leftofs), ypsiqueen);
 					newe = addRightBend(newe);
-					fix_position(newe->source(),(inedge ? m_agp_x[ae] + leftofs : cp_x(ae)) ,ypsiqueen);
+					fix_position(newe->source(), inedge ? (m_agp_x[ae] + leftofs) : cp_x(ae), ypsiqueen);
 					break;//double bend downwards
-				//case prob_b1r:
-				case bend_1right:
+				//case ProbB1R:
+				case BendType::Bend1Right:
 					//set new corner before first rerouting
 					if (!corn)
 					{
@@ -2661,13 +2201,13 @@ void EdgeRouter::place(node l_v)
 							newe2 = addRightBend(ae2->theEdge());
 							vinfo->m_corner[2] = newe2->adjSource();
 						}
-						fix_position(newe2->source(),infos[l_v].coord(odSouth), infos[l_v].coord(odEast));
+						fix_position(newe2->source(),infos[l_v].coord(OrthoDir::South), infos[l_v].coord(OrthoDir::East));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
-					ypsiqueen = infos[l_v].coord(odEast) - (ipos + infos[l_v].flips(odEast, odSouth) - infos[l_v].inList(odEast).size())
-												* infos[l_v].delta(odSouth, odEast) - infos[l_v].eps(odSouth, odEast);
+					ypsiqueen = infos[l_v].coord(OrthoDir::East) - (ipos + infos[l_v].flips(OrthoDir::East, OrthoDir::South) - infos[l_v].inList(OrthoDir::East).size())
+												* infos[l_v].delta(OrthoDir::South, OrthoDir::East) - infos[l_v].eps(OrthoDir::South, OrthoDir::East);
 					//delete corner after last rerouting
-					if (corn && (ipos == infos[l_v].inList(odEast).size() - 1))
+					if (corn && (ipos == infos[l_v].inList(OrthoDir::East).size() - 1))
 					{
 						adjEntry ae2 = adjsave->cyclicSucc();//ae->cyclicSucc();
 						adjEntry ae3 = ae2->faceCycleSucc();
@@ -2692,20 +2232,20 @@ void EdgeRouter::place(node l_v)
 					else newglue = e->source();
 
 					fix_position(newbend, cp_x(ae), ypsiqueen);
-					fix_position(newglue, infos[l_v].coord(odSouth), ypsiqueen);
+					fix_position(newglue, infos[l_v].coord(OrthoDir::South), ypsiqueen);
 					break;//rerouted single bend
-				case prob_b1r:
-				case prob_b2r:
-				case bend_2right:
+				case BendType::ProbB1R:
+				case BendType::ProbB2R:
+				case BendType::Bend2Right:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae]-rightofs, m_agp_y[ae]);
-					ypsiqueen = infos[l_v].cage_coord(odEast) -
-							 (ipos - infos[l_v].inList(odEast).size() + infos[l_v].num_bend_edges(odEast, odSouth))*m_sep;
-							 //(infos[l_v].inList(odEast).size() + infos[l_v].flips(odEast, odSouth) - ipos)*m_sep;
+					ypsiqueen = infos[l_v].cageCoord(OrthoDir::East) -
+							 (ipos - infos[l_v].inList(OrthoDir::East).size() + infos[l_v].num_bend_edges(OrthoDir::East, OrthoDir::South))*m_sep;
+							 //(infos[l_v].inList(OrthoDir::East).size() + infos[l_v].flips(OrthoDir::East, OrthoDir::South) - ipos)*m_sep;
 					newe = addRightBend(e);
-					fix_position(newe->source(), (inedge ? cp_x(ae) : m_agp_x[ae]-rightofs), ypsiqueen);
+					fix_position(newe->source(), inedge ? cp_x(ae) : (m_agp_x[ae] - rightofs), ypsiqueen);
 					newe = addLeftBend(newe);
-					fix_position(newe->source(), (inedge ? m_agp_x[ae]-rightofs : cp_x(ae)), ypsiqueen);
+					fix_position(newe->source(), inedge ? (m_agp_x[ae] - rightofs) : cp_x(ae), ypsiqueen);
 					break; //double bend upwards
 				default: break;
 			}//switch
@@ -2715,22 +2255,21 @@ void EdgeRouter::place(node l_v)
 		++it;
 	}//while
 
-	//*****************************************************
-	//SOUTH SIDE*******************************************
-	leftofs = (infos[l_v].num_bend_free(odSouth) ? 0 :
-		infos[l_v].delta(odSouth, odEast)*infos[l_v].flips(odEast, odSouth));
-	rightofs = (infos[l_v].num_bend_free(odSouth) ? 0 :
-		infos[l_v].delta(odSouth, odWest)*infos[l_v].flips(odWest, odSouth));
-	it = infos[l_v].inList(odSouth).begin();
+	//SOUTH SIDE
+	leftofs = infos[l_v].num_bend_free(OrthoDir::South) ? 0 :
+		infos[l_v].delta(OrthoDir::South, OrthoDir::East)*infos[l_v].flips(OrthoDir::East, OrthoDir::South);
+	rightofs = infos[l_v].num_bend_free(OrthoDir::South) ? 0 :
+		infos[l_v].delta(OrthoDir::South, OrthoDir::West)*infos[l_v].flips(OrthoDir::West, OrthoDir::South);
+	it = infos[l_v].inList(OrthoDir::South).begin();
 	ipos = 0;
 	corn = false; //check if end corner changed after necessary rerouting
 	acorn = false; //check if start corner changed after necessary re
-	while (it.valid() && (infos[l_v].inList(odSouth).size() > 0))
+	while (it.valid() && (infos[l_v].inList(OrthoDir::South).size() > 0))
 	{
 		e = *it;
 		node v;//test
 		adjEntry ae; //"outgoing" from cage
-		inedge = infos[l_v].is_in_edge(odSouth, ipos);
+		inedge = infos[l_v].is_in_edge(OrthoDir::South, ipos);
 		if (inedge)
 		{
 			ae = e->adjTarget();
@@ -2740,7 +2279,7 @@ void EdgeRouter::place(node l_v)
 			ae = e->adjSource();
 		}
 		v = m_cage_point[ae];
-		if (m_processStatus[v] == used)
+		if (m_processStatus[v] == ProcessType::used)
 		{
 			++it;//should be enough to break
 			continue;
@@ -2764,14 +2303,14 @@ void EdgeRouter::place(node l_v)
 		OGDF_ASSERT(m_agp_x[ae] != m_init);
 		OGDF_ASSERT(m_agp_y[ae] != m_init);
 		//bends
-		if (abendType(ae) != bend_free)
+		if (abendType(ae) != BendType::BendFree)
 		{
 			edge newe;
 			node newbend, newglue;
 			int xtacy;
 			switch (abendType(ae))
 			{
-				case bend_1left:
+				case BendType::Bend1Left:
 					if (!corn)
 					{
 						corn = true;
@@ -2787,11 +2326,11 @@ void EdgeRouter::place(node l_v)
 							newe2 = addLeftBend(ae2->theEdge());
 							vinfo->m_corner[2] = savedge->adjTarget();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odSouth), infos[l_v].coord(odEast));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::South), infos[l_v].coord(OrthoDir::East));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 					//delete corner after last rerouting
-					if (ipos == infos[l_v].inList(odSouth).size()-1)
+					if (ipos == infos[l_v].inList(OrthoDir::South).size()-1)
 					{
 						adjEntry ae2 = saveadj->cyclicPred();//ae->cyclicPred();
 						adjEntry ae3 = ae2->faceCycleSucc();
@@ -2800,40 +2339,40 @@ void EdgeRouter::place(node l_v)
 						else
 							unsplit(ae3->theEdge(), ae2->theEdge());
 					}//if last
-					xtacy = infos[l_v].coord(odSouth)
-						- infos[l_v].delta(odEast, odSouth)
-						*(infos[l_v].flips(odSouth, odEast) + ipos - infos[l_v].inList(odSouth).size())
-						-infos[l_v].eps(odEast, odSouth);
+					xtacy = infos[l_v].coord(OrthoDir::South)
+						- infos[l_v].delta(OrthoDir::East, OrthoDir::South)
+						*(infos[l_v].flips(OrthoDir::South, OrthoDir::East) + ipos - infos[l_v].inList(OrthoDir::South).size())
+						-infos[l_v].eps(OrthoDir::East, OrthoDir::South);
 					if (inedge) newe = addLeftBend(e);
 					else newe = addRightBend(e);
 					newbend = newe->source();
 
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
-					fix_position(newglue, xtacy, infos[l_v].coord(odEast));
+					fix_position(newglue, xtacy, infos[l_v].coord(OrthoDir::East));
 					fix_position(newbend, xtacy, cp_y(ae));
 					break; //rerouted single bend
-				case prob_b1l:
-				case prob_b2l:
-				case bend_2left:
+				case BendType::ProbB1L:
+				case BendType::ProbB2L:
+				case BendType::Bend2Left:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae], m_agp_y[ae]-leftofs);
-					xtacy = infos[l_v].cage_coord(odSouth)
-						- (ipos + 1 + infos[l_v].num_bend_edges(odSouth, odEast)
-						- infos[l_v].inList(odSouth).size())*m_sep;
+					xtacy = infos[l_v].cageCoord(OrthoDir::South)
+						- (ipos + 1 + infos[l_v].num_bend_edges(OrthoDir::South, OrthoDir::East)
+						- infos[l_v].inList(OrthoDir::South).size())*m_sep;
 					newe = addLeftBend(e);
 
 #if 0
-					gy = gp_y(ae) - infos[l_v].flips(odEast, odSouth)*infos[l_v].delta(odSouth, odEast);
+					gy = gp_y(ae) - infos[l_v].flips(OrthoDir::East, OrthoDir::South)*infos[l_v].delta(OrthoDir::South, OrthoDir::East);
 					if (inedge) fix_position(e->target(), m_agp_x[ae], gy);
 					else fix_position(e->source(), m_agp_x[ae], gy);
 #endif
-					fix_position(newe->source(), xtacy, (inedge ? cp_y(ae) : gp_y(ae)-leftofs));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (gp_y(ae) - leftofs));
 					newe = addRightBend(newe);
-					fix_position(newe->source(), xtacy, (inedge ? gp_y(ae)-leftofs : cp_y(ae)));
+					fix_position(newe->source(), xtacy, inedge ? (gp_y(ae) - leftofs) : cp_y(ae));
 					break;//double bend downwards
-				//case prob_b1r:
-				case bend_1right:
+				//case ProbB1R:
+				case BendType::Bend1Right:
 					//delete corner before rerouting
 					if (ipos == 0)
 					{
@@ -2853,7 +2392,7 @@ void EdgeRouter::place(node l_v)
 						}
 					}//if
 					//last flipped edge, insert sw - corner node
-					if ((!acorn) && (ipos == infos[l_v].flips(odSouth, odWest) - 1))
+					if ((!acorn) && (ipos == infos[l_v].flips(OrthoDir::South, OrthoDir::West) - 1))
 					{
 						acorn = true;
 						edge newe2;
@@ -2868,7 +2407,7 @@ void EdgeRouter::place(node l_v)
 							newe2 = addRightBend(ae2->theEdge());
 							vinfo->m_corner[3] = newe2->adjSource();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odSouth), infos[l_v].coord(odWest));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::South), infos[l_v].coord(OrthoDir::West));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 
@@ -2878,22 +2417,22 @@ void EdgeRouter::place(node l_v)
 					//source ist immer neuer Knick, aber target haengt von der Richtung ab...
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
-					xtacy = infos[l_v].coord(odSouth) - (infos[l_v].flips(odSouth, odWest) - ipos - 1)
-						* infos[l_v].delta(odWest, odSouth) - infos[l_v].eps(odWest, odSouth);
+					xtacy = infos[l_v].coord(OrthoDir::South) - (infos[l_v].flips(OrthoDir::South, OrthoDir::West) - ipos - 1)
+						* infos[l_v].delta(OrthoDir::West, OrthoDir::South) - infos[l_v].eps(OrthoDir::West, OrthoDir::South);
 					fix_position(newbend, xtacy, cp_y(ae));
-					fix_position(newglue, xtacy, infos[l_v].coord(odWest));
+					fix_position(newglue, xtacy, infos[l_v].coord(OrthoDir::West));
 					break;//rerouted single bend
-				case prob_b1r:
-				case prob_b2r:
-				case bend_2right:
+				case BendType::ProbB1R:
+				case BendType::ProbB2R:
+				case BendType::Bend2Right:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae], m_agp_y[ae]+rightofs);
-					xtacy = infos[l_v].cage_coord(odSouth) -
-						(infos[l_v].num_bend_edges(odSouth, odWest) - ipos) * m_sep;
+					xtacy = infos[l_v].cageCoord(OrthoDir::South) -
+						(infos[l_v].num_bend_edges(OrthoDir::South, OrthoDir::West) - ipos) * m_sep;
 					newe = addRightBend(e);
-					fix_position(newe->source(), xtacy,(inedge ? cp_y(ae) : m_agp_y[ae]+rightofs ));
+					fix_position(newe->source(), xtacy, inedge ? cp_y(ae) : (m_agp_y[ae] + rightofs));
 					newe = addLeftBend(newe);
-					fix_position(newe->source(), xtacy, (inedge ? m_agp_y[ae]+rightofs : cp_y(ae)));
+					fix_position(newe->source(), xtacy, inedge ? (m_agp_y[ae] + rightofs) : cp_y(ae));
 					break; //double bend downwards
 				default: break;
 			}//switch
@@ -2903,13 +2442,12 @@ void EdgeRouter::place(node l_v)
 		++it;
 	}//while
 
-	//*****************************************************
-	//WEST SIDE******************************************
-	leftofs = (infos[l_v].num_bend_free(odWest) ? 0 :
-		infos[l_v].delta(odWest, odSouth)*infos[l_v].flips(odSouth, odWest));
-	rightofs = (infos[l_v].num_bend_free(odWest) ? 0 :
-		infos[l_v].delta(odWest, odNorth)*infos[l_v].flips(odNorth, odWest));
-	it = infos[l_v].inList(odWest).begin();
+	//WEST SIDE
+	leftofs = infos[l_v].num_bend_free(OrthoDir::West) ? 0 :
+		infos[l_v].delta(OrthoDir::West, OrthoDir::South)*infos[l_v].flips(OrthoDir::South, OrthoDir::West);
+	rightofs = infos[l_v].num_bend_free(OrthoDir::West) ? 0 :
+		infos[l_v].delta(OrthoDir::West, OrthoDir::North)*infos[l_v].flips(OrthoDir::North, OrthoDir::West);
+	it = infos[l_v].inList(OrthoDir::West).begin();
 	ipos = 0;
 	corn = acorn = false;
 	while (it.valid())
@@ -2917,7 +2455,7 @@ void EdgeRouter::place(node l_v)
 		e = *it;
 		node v;
 		adjEntry ae; //"outgoing" from cage
-		inedge = infos[l_v].is_in_edge(odWest, ipos);
+		inedge = infos[l_v].is_in_edge(OrthoDir::West, ipos);
 		if (inedge)
 		{
 			ae = e->adjTarget();
@@ -2927,7 +2465,7 @@ void EdgeRouter::place(node l_v)
 			ae = e->adjSource();
 		}
 		v = m_cage_point[ae];
-		if (m_processStatus[v] == used)
+		if (m_processStatus[v] == ProcessType::used)
 		{
 			++it;//should be enough to break
 			continue;
@@ -2952,14 +2490,14 @@ void EdgeRouter::place(node l_v)
 		OGDF_ASSERT(m_agp_x[ae] != m_init);
 		OGDF_ASSERT(m_agp_y[ae] != m_init);
 		//bends
-		if (abendType(ae) != bend_free)
+		if (abendType(ae) != BendType::BendFree)
 		{
 			edge newe;
 			node newbend, newglue;
 			int ypsiqueen;
 			switch (abendType(ae))
 			{
-				case bend_1left:
+				case BendType::Bend1Left:
 					//node right side
 					//set new corner before first rerouting
 					if (!acorn)
@@ -2977,11 +2515,11 @@ void EdgeRouter::place(node l_v)
 							newe2 = addLeftBend(ae2->theEdge());
 							vinfo->m_corner[3] = savedge->adjTarget();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odSouth), infos[l_v].coord(odWest));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::South), infos[l_v].coord(OrthoDir::West));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 					//delete corner after last rerouting
-					if (acorn && (ipos == infos[l_v].inList(odWest).size()-1))
+					if (acorn && (ipos == infos[l_v].inList(OrthoDir::West).size()-1))
 					{
 						adjEntry ae2 = saveadj->cyclicPred(); //ae->cyclicPred(); //aussen an cage
 						adjEntry ae3 = ae2->faceCycleSucc();
@@ -2997,33 +2535,33 @@ void EdgeRouter::place(node l_v)
 
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
-					ypsiqueen = infos[l_v].coord(odWest)
-										 + (infos[l_v].flips(odWest, odSouth) + ipos - infos[l_v].inList(odWest).size())
-										 *infos[l_v].delta(odSouth, odWest)
-										 +infos[l_v].eps(odSouth, odWest);
+					ypsiqueen = infos[l_v].coord(OrthoDir::West)
+										 + (infos[l_v].flips(OrthoDir::West, OrthoDir::South) + ipos - infos[l_v].inList(OrthoDir::West).size())
+										 *infos[l_v].delta(OrthoDir::South, OrthoDir::West)
+										 +infos[l_v].eps(OrthoDir::South, OrthoDir::West);
 					fix_position(newbend, cp_x(ae), ypsiqueen);
-					fix_position(newglue, infos[l_v].coord(odSouth), ypsiqueen);
+					fix_position(newglue, infos[l_v].coord(OrthoDir::South), ypsiqueen);
 					break; //rerouted single bend
-				case prob_b1l:
-				case prob_b2l:
-				case bend_2left:
+				case BendType::ProbB1L:
+				case BendType::ProbB2L:
+				case BendType::Bend2Left:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae]-leftofs, m_agp_y[ae]);
-					ypsiqueen = infos[l_v].cage_coord(odWest)
-						+ (ipos + 1 + infos[l_v].num_bend_edges(odWest, odSouth)
-						- infos[l_v].inList(odWest).size())*m_sep;
-					//coord - (-infos[l_v].flips(odWest, odSouth) - ipos  + infos[l_v].inList(odWest).size())*m_sep;
+					ypsiqueen = infos[l_v].cageCoord(OrthoDir::West)
+						+ (ipos + 1 + infos[l_v].num_bend_edges(OrthoDir::West, OrthoDir::South)
+						- infos[l_v].inList(OrthoDir::West).size())*m_sep;
+					//coord - (-infos[l_v].flips(OrthoDir::West, OrthoDir::South) - ipos  + infos[l_v].inList(OrthoDir::West).size())*m_sep;
 					newe = addLeftBend(e);
-					fix_position(newe->source(), (inedge ? cp_x(ae) : m_agp_x[ae]-leftofs), ypsiqueen);
+					fix_position(newe->source(), inedge ? cp_x(ae) : (m_agp_x[ae] - leftofs), ypsiqueen);
 					newe = addRightBend(newe);
-					fix_position(newe->source(), (inedge ? m_agp_x[ae]-leftofs : cp_x(ae)), ypsiqueen);
+					fix_position(newe->source(), inedge ? (m_agp_x[ae] - leftofs) : cp_x(ae), ypsiqueen);
 					break;//double bend downwards
-				//case prob_b1r:
-				case bend_1right:
+				//case ProbB1R:
+				case BendType::Bend1Right:
 					//set new corner before first rerouting
 
 					//delete corner after last rerouting
-					if (ipos == 0)//(corn && (ipos == infos[l_v].inList(odWest).size()-1))
+					if (ipos == 0)//(corn && (ipos == infos[l_v].inList(OrthoDir::West).size()-1))
 					{
 						adjEntry ae2 = saveadj->cyclicSucc();
 						adjEntry ae3 = ae2->faceCycleSucc();
@@ -3039,7 +2577,7 @@ void EdgeRouter::place(node l_v)
 							//oldcorner = ae2->theEdge()->source();
 						}
 					}
-					if ((!corn) && (ipos == infos[l_v].flips(odWest, odNorth) - 1))
+					if ((!corn) && (ipos == infos[l_v].flips(OrthoDir::West, OrthoDir::North) - 1))
 					{
 						corn = true;
 						edge newe2;
@@ -3054,7 +2592,7 @@ void EdgeRouter::place(node l_v)
 							newe2 = addRightBend(ae2->theEdge());
 							vinfo->m_corner[0] = newe2->adjSource();
 						}
-						fix_position(newe2->source(), infos[l_v].coord(odNorth), infos[l_v].coord(odWest));
+						fix_position(newe2->source(), infos[l_v].coord(OrthoDir::North), infos[l_v].coord(OrthoDir::West));
 						m_prup->setExpandedNode(newe2->source(), l_v);
 					}
 					if (inedge) newe = addRightBend(e);
@@ -3063,24 +2601,24 @@ void EdgeRouter::place(node l_v)
 
 					if (inedge) newglue = newe->target();
 					else newglue = e->source();
-					ypsiqueen = infos[l_v].coord(odWest) + (infos[l_v].flips(odWest, odNorth) - ipos - 1)
-						* infos[l_v].delta(odNorth, odWest) + infos[l_v].eps(odNorth, odWest);
+					ypsiqueen = infos[l_v].coord(OrthoDir::West) + (infos[l_v].flips(OrthoDir::West, OrthoDir::North) - ipos - 1)
+						* infos[l_v].delta(OrthoDir::North, OrthoDir::West) + infos[l_v].eps(OrthoDir::North, OrthoDir::West);
 					fix_position(newbend, cp_x(ae), ypsiqueen);
-					fix_position(newglue, infos[l_v].coord(odNorth), ypsiqueen);
+					fix_position(newglue, infos[l_v].coord(OrthoDir::North), ypsiqueen);
 					break;//rerouted single bend
-				case prob_b1r:
-				case prob_b2r:
-				case bend_2right:
+				case BendType::ProbB1R:
+				case BendType::ProbB2R:
+				case BendType::Bend2Right:
 					//adjust glue point to rerouted edges
 					fix_position(v, m_agp_x[ae]+rightofs, m_agp_y[ae]);
-					ypsiqueen = infos[l_v].cage_coord(odWest)
-						 + (infos[l_v].num_bend_edges(odWest, odNorth) - ipos)*m_sep;
-					//infos[l_v].coord(odWest) - ((ipos + 1) - infos[l_v].flips(odNorth, odWest)) * m_sep;
+					ypsiqueen = infos[l_v].cageCoord(OrthoDir::West)
+						 + (infos[l_v].num_bend_edges(OrthoDir::West, OrthoDir::North) - ipos)*m_sep;
+					//infos[l_v].coord(OrthoDir::West) - ((ipos + 1) - infos[l_v].flips(OrthoDir::North, OrthoDir::West)) * m_sep;
 					newe = addRightBend(e);
-					fix_position(newe->source(), (inedge ? cp_x(ae) : m_agp_x[ae]+rightofs), ypsiqueen);
+					fix_position(newe->source(), inedge ? cp_x(ae) : (m_agp_x[ae] + rightofs), ypsiqueen);
 					newe = addLeftBend(newe);
 
-					fix_position(newe->source(), (inedge ? m_agp_x[ae]+rightofs : cp_x(ae)), ypsiqueen);
+					fix_position(newe->source(), inedge ? (m_agp_x[ae] + rightofs) : cp_x(ae), ypsiqueen);
 					break; //double bend upwards
 				default: break;
 			}//switch
@@ -3093,7 +2631,6 @@ void EdgeRouter::place(node l_v)
 	}//while
 
 	//OGDF_ASSERT(m_orp->check(msg));
-	//***********************************
 }//place
 
 
@@ -3101,7 +2638,7 @@ void EdgeRouter::place(node l_v)
 //and a box placement, compute a bend-minimising routing
 //box placement is in m_newx[v], m_newy[v] for left lower corner
 //now it is in NodeInfo, m_new may be obs
-//check rounding !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// XXX: check rounding!
 void EdgeRouter::compute_routing(node v) //reroute(face f)
 {
 	//compute for each box corner the possible reroutings
@@ -3110,30 +2647,27 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	//find the uppermost/lowest unbend edge on the left and right side
 	//and the rightmost/leftmost unbend edge on the top and bottom side
 	//use values stored in inf
-	//******************************************************************
+
 	//alpha used in move - functions, variable al_12 means:
 	//max. number of edges to be moved from side 2 to side 1
 	//eight cases, two for ev corner
 	//1space left for edges moved from top to left side
-	int al_lt = alpha_move(odNorth, odEast, v);
+	int al_lt = alpha_move(OrthoDir::North, OrthoDir::East, v);
 	//2space left for edges moved from left to top side
-	int al_tl = alpha_move(odEast, odNorth, v);
+	int al_tl = alpha_move(OrthoDir::East, OrthoDir::North, v);
 	//3space left for edges moved from left to bottom side
-	//int al_bl = alpha_move(odWest, odNorth, v);
+	//int al_bl = alpha_move(OrthoDir::West, OrthoDir::North, v);
 	//4Space left for edges moved from bottom side to left side
-	//int al_lb = alpha_move(odNorth, odWest, v);
+	//int al_lb = alpha_move(OrthoDir::North, OrthoDir::West, v);
 	//5space left for edges moved from right to top side
-	//int al_tr = alpha_move(odEast, odSouth, v);
+	//int al_tr = alpha_move(OrthoDir::East, OrthoDir::South, v);
 	//6space left for edges moved from top to right side
-	int al_rt = alpha_move(odSouth, odEast, v);
+	int al_rt = alpha_move(OrthoDir::South, OrthoDir::East, v);
 	//7space left for edges moved from right to bottom side
-	int al_br = alpha_move(odWest, odSouth, v);
+	int al_br = alpha_move(OrthoDir::West, OrthoDir::South, v);
 	//8space left for edges moved from bottom to right side
-	//int al_rb = alpha_move(odSouth, odWest, v);
+	//int al_rb = alpha_move(OrthoDir::South, OrthoDir::West, v);
 
-	//*******************************************************************
-
-	//*******************************************************************
 	//beta used in move functions
 	//be_12k defines the number of edges with preliminary bends
 	//but connection point in the glue point area, so that
@@ -3154,22 +2688,22 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 
 	//top-left
 	int flip_tl, flip_lt;
-	if (compute_move(odEast, odNorth, flip_tl, v) < compute_move(odNorth, odEast, flip_lt, v))
+	if (compute_move(OrthoDir::East, OrthoDir::North, flip_tl, v) < compute_move(OrthoDir::North, OrthoDir::East, flip_lt, v))
 		flip_tl = 0;
 	else flip_lt = 0;
 	//left-bottom
 	int flip_lb, flip_bl;
-	if (compute_move(odNorth, odWest, flip_lb, v) < compute_move(odWest, odNorth, flip_bl, v))
+	if (compute_move(OrthoDir::North, OrthoDir::West, flip_lb, v) < compute_move(OrthoDir::West, OrthoDir::North, flip_bl, v))
 		flip_lb = 0;
 	else flip_bl = 0;
 	//top-right
 	int flip_tr, flip_rt;
-	if (compute_move(odEast, odSouth, flip_tr, v) < compute_move(odSouth, odEast, flip_rt, v))
+	if (compute_move(OrthoDir::East, OrthoDir::South, flip_tr, v) < compute_move(OrthoDir::South, OrthoDir::East, flip_rt, v))
 		flip_tr = 0;
 	else flip_rt = 0;
 	//bottom-right
 	int flip_br, flip_rb;
-	if (compute_move(odWest, odSouth, flip_br, v) < compute_move(odSouth, odWest, flip_rb, v))
+	if (compute_move(OrthoDir::West, OrthoDir::South, flip_br, v) < compute_move(OrthoDir::South, OrthoDir::West, flip_rb, v))
 		flip_br = 0;
 	else flip_rb = 0;
 	//cout<<"resulting flip numbers: "<<flip_tl<<"/"<<flip_tr<<"/"<<flip_bl<<"/"<<flip_br<<"/"
@@ -3179,7 +2713,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	//dont take up too much space, simple approach: decrease
 	{
 		int surplus; //flippable edges without enough space to place
-		if (infos[v].num_bend_free(odEast) == 0)//top, contributing neigbours are left/right
+		if (infos[v].num_bend_free(OrthoDir::East) == 0)//top, contributing neigbours are left/right
 		{
 			surplus = flip_lt + flip_rt - al_tl;
 			if (surplus > 0)
@@ -3188,7 +2722,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 				flip_rt -= int(ceil(surplus/2.0));
 			}//if surplus
 		}//if
-		if (infos[v].num_bend_free(odWest) == 0)//bottom
+		if (infos[v].num_bend_free(OrthoDir::West) == 0)//bottom
 		{
 			surplus = flip_rb + flip_lb - al_br;
 			if (surplus > 0)
@@ -3197,7 +2731,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 				flip_rb -= int(ceil(surplus/2.0));
 			}
 		}//if
-		if (infos[v].num_bend_free(odSouth) == 0)
+		if (infos[v].num_bend_free(OrthoDir::South) == 0)
 		{
 			surplus = flip_br + flip_tr - al_rt;
 			if (surplus > 0)
@@ -3207,7 +2741,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			}
 
 		}//if
-		if (infos[v].num_bend_free(odNorth) == 0)
+		if (infos[v].num_bend_free(OrthoDir::North) == 0)
 		{
 			surplus = flip_tl + flip_bl - al_lt;
 			if (surplus > 0)
@@ -3227,7 +2761,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 	int flipedges;
 	ListIterator<edge> l_it;
 
-	OrthoDir od = odNorth;
+	OrthoDir od = OrthoDir::North;
 #if 0
 	// TO BE REMOVED IF OBSOLETE
 	do
@@ -3238,148 +2772,148 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			++l_it; //TODO: what happens here?07.2004
 		}
 		od =OrthoRep::nextDir(od);
-	} while (od != odNorth);
+	} while (od != OrthoDir::North);
 #endif
 	//start flipping
-	l_it = infos[v].inList(odNorth).rbegin();
+	l_it = infos[v].inList(OrthoDir::North).rbegin();
 	for (flipedges = 0; flipedges < flip_lt; flipedges++)
 	{
-		m_abends[outEntry(infos[v], odNorth, infos[v].inList(odNorth).size() - 1 - flipedges)] = bend_1right;
-		infos[v].flips(odNorth, odEast)++;
+		m_abends[outEntry(infos[v], OrthoDir::North, infos[v].inList(OrthoDir::North).size() - 1 - flipedges)] = BendType::Bend1Right;
+		infos[v].flips(OrthoDir::North, OrthoDir::East)++;
 		--l_it;
 	}
-	//*********************************
+
 	int newbendfree;
 	int newbf;
 	if (flip_lt) //we flipped and may save bends, if may be not necessary cause fliplt parameter in betamove
 	{
-		newbendfree = beta_move(odNorth, odEast, flip_lt, v);
+		newbendfree = beta_move(OrthoDir::North, OrthoDir::East, flip_lt, v);
 		for (newbf = 0; newbf < newbendfree; newbf++)
 		{
-			m_abends[outEntry(infos[v], odNorth, infos[v].inList(odNorth).size() - 1 - flip_lt - newbf)] = bend_free;
-			m_agp_y[outEntry(infos[v], odNorth, infos[v].inList(odNorth).size() - 1 - flip_lt - newbf)] =
-				cp_y(outEntry(infos[v], odNorth, infos[v].inList(odNorth).size() - 1 - flip_lt - newbf));
+			m_abends[outEntry(infos[v], OrthoDir::North, infos[v].inList(OrthoDir::North).size() - 1 - flip_lt - newbf)] = BendType::BendFree;
+			m_agp_y[outEntry(infos[v], OrthoDir::North, infos[v].inList(OrthoDir::North).size() - 1 - flip_lt - newbf)] =
+				cp_y(outEntry(infos[v], OrthoDir::North, infos[v].inList(OrthoDir::North).size() - 1 - flip_lt - newbf));
 		}//for
 	}//if
-	//*********************************
-	l_it = infos[v].inList(odNorth).begin();
+
+	l_it = infos[v].inList(OrthoDir::North).begin();
 	for (flipedges = 0; flipedges < flip_lb; flipedges++)
 	{
-		infos[v].flips(odNorth, odWest)++;
-		m_abends[outEntry(infos[v], odNorth, flipedges)] = bend_1left;
+		infos[v].flips(OrthoDir::North, OrthoDir::West)++;
+		m_abends[outEntry(infos[v], OrthoDir::North, flipedges)] = BendType::Bend1Left;
 		++l_it;
 	}
-	//**********************************
-	newbendfree = beta_move(odNorth, odWest, flip_lb, v);
+
+	newbendfree = beta_move(OrthoDir::North, OrthoDir::West, flip_lb, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odNorth, flip_lb + newbf)] = bend_free;
-		m_agp_y[outEntry(infos[v], odNorth, flip_lb + newbf)] =
-			cp_y(outEntry(infos[v], odNorth, flip_lb + newbf));
+		m_abends[outEntry(infos[v], OrthoDir::North, flip_lb + newbf)] = BendType::BendFree;
+		m_agp_y[outEntry(infos[v], OrthoDir::North, flip_lb + newbf)] =
+			cp_y(outEntry(infos[v], OrthoDir::North, flip_lb + newbf));
 	}//for
-	//**********************************
-	l_it = infos[v].inList(odSouth).rbegin();
+
+	l_it = infos[v].inList(OrthoDir::South).rbegin();
 	for (flipedges = 0; flipedges < flip_rt; flipedges++)
 	{
-		infos[v].flips(odSouth, odEast)++;
-		m_abends[outEntry(infos[v], odSouth, infos[v].inList(odSouth).size() - 1 - flipedges)] = bend_1left;
+		infos[v].flips(OrthoDir::South, OrthoDir::East)++;
+		m_abends[outEntry(infos[v], OrthoDir::South, infos[v].inList(OrthoDir::South).size() - 1 - flipedges)] = BendType::Bend1Left;
 		--l_it;
 	}
-	//***********************************
-	newbendfree = beta_move(odSouth, odEast, flip_rt, v);
+
+	newbendfree = beta_move(OrthoDir::South, OrthoDir::East, flip_rt, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odSouth, infos[v].inList(odSouth).size() - 1 - flip_rt - newbf)] = bend_free;
-		m_agp_y[outEntry(infos[v], odSouth, infos[v].inList(odSouth).size() - 1 - flip_rt - newbf)] =
-			cp_y(outEntry(infos[v], odSouth, infos[v].inList(odSouth).size() - 1 - flip_rt - newbf));
+		m_abends[outEntry(infos[v], OrthoDir::South, infos[v].inList(OrthoDir::South).size() - 1 - flip_rt - newbf)] = BendType::BendFree;
+		m_agp_y[outEntry(infos[v], OrthoDir::South, infos[v].inList(OrthoDir::South).size() - 1 - flip_rt - newbf)] =
+			cp_y(outEntry(infos[v], OrthoDir::South, infos[v].inList(OrthoDir::South).size() - 1 - flip_rt - newbf));
 	}//for
-	//***********************************
-	l_it = infos[v].inList(odSouth).begin();
+
+	l_it = infos[v].inList(OrthoDir::South).begin();
 	for (flipedges = 0; flipedges < flip_rb; flipedges++)
 	{
-		m_abends[outEntry(infos[v], odSouth, flipedges)] = bend_1right;
-		infos[v].flips(odSouth, odWest)++;
+		m_abends[outEntry(infos[v], OrthoDir::South, flipedges)] = BendType::Bend1Right;
+		infos[v].flips(OrthoDir::South, OrthoDir::West)++;
 		++l_it;
 	}
-	//**********************************
-	newbendfree = beta_move(odSouth, odWest, flip_rb, v);
+
+	newbendfree = beta_move(OrthoDir::South, OrthoDir::West, flip_rb, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odSouth, flip_rb + newbf)] = bend_free;
-		m_agp_y[outEntry(infos[v], odSouth, flip_rb + newbf)] =
-			cp_y(outEntry(infos[v], odSouth, flip_rb + newbf));
+		m_abends[outEntry(infos[v], OrthoDir::South, flip_rb + newbf)] = BendType::BendFree;
+		m_agp_y[outEntry(infos[v], OrthoDir::South, flip_rb + newbf)] =
+			cp_y(outEntry(infos[v], OrthoDir::South, flip_rb + newbf));
 	}//for
-	//**********************************
+
 	//only one of the quadruples will we executed
-	l_it = infos[v].inList(odEast).begin();
+	l_it = infos[v].inList(OrthoDir::East).begin();
 	for (flipedges = 0; flipedges < flip_tl; flipedges++)
 	{
-		m_abends[outEntry(infos[v], odEast, flipedges)] = bend_1left;
-		infos[v].flips(odEast, odNorth)++;
+		m_abends[outEntry(infos[v], OrthoDir::East, flipedges)] = BendType::Bend1Left;
+		infos[v].flips(OrthoDir::East, OrthoDir::North)++;
 		++l_it;
 	}
-	//**********************************
-	newbendfree = beta_move(odEast, odNorth, flip_tl, v);
+
+	newbendfree = beta_move(OrthoDir::East, OrthoDir::North, flip_tl, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odEast, flip_tl + newbf)] = bend_free;
-		m_agp_x[outEntry(infos[v], odEast, flip_tl + newbf)] =
-			cp_x(outEntry(infos[v], odEast, flip_tl + newbf));
+		m_abends[outEntry(infos[v], OrthoDir::East, flip_tl + newbf)] = BendType::BendFree;
+		m_agp_x[outEntry(infos[v], OrthoDir::East, flip_tl + newbf)] =
+			cp_x(outEntry(infos[v], OrthoDir::East, flip_tl + newbf));
 	}//for
-	//**********************************
-	l_it = infos[v].inList(odWest).begin();
+
+	l_it = infos[v].inList(OrthoDir::West).begin();
 	for (flipedges = 0; flipedges < flip_bl; flipedges++)
 	{
-		m_abends[outEntry(infos[v], odWest, flipedges)] = bend_1right;
-		infos[v].flips(odWest, odNorth)++;
+		m_abends[outEntry(infos[v], OrthoDir::West, flipedges)] = BendType::Bend1Right;
+		infos[v].flips(OrthoDir::West, OrthoDir::North)++;
 		++l_it;
 	}
-	//**********************************
-	newbendfree = beta_move(odWest, odNorth, flip_bl, v);
+
+	newbendfree = beta_move(OrthoDir::West, OrthoDir::North, flip_bl, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odWest, flip_bl + newbf)] = bend_free;
-		m_agp_x[outEntry(infos[v], odWest, flip_bl + newbf)] =
-		cp_x(outEntry(infos[v], odWest, flip_bl + newbf));
+		m_abends[outEntry(infos[v], OrthoDir::West, flip_bl + newbf)] = BendType::BendFree;
+		m_agp_x[outEntry(infos[v], OrthoDir::West, flip_bl + newbf)] =
+		cp_x(outEntry(infos[v], OrthoDir::West, flip_bl + newbf));
 	}//for
-	//**********************************
-	l_it = infos[v].inList(odEast).rbegin();
+
+	l_it = infos[v].inList(OrthoDir::East).rbegin();
 	for (flipedges = 0; flipedges < flip_tr; flipedges++)
 	{
 		if (l_it.valid()) //temporary check
 		{
-			m_abends[outEntry(infos[v], odEast, infos[v].inList(odEast).size() - 1 - flipedges)] = bend_1right;
-			infos[v].flips(odEast, odSouth)++;
+			m_abends[outEntry(infos[v], OrthoDir::East, infos[v].inList(OrthoDir::East).size() - 1 - flipedges)] = BendType::Bend1Right;
+			infos[v].flips(OrthoDir::East, OrthoDir::South)++;
 			--l_it;
 		}
 	}
-	//***************************************************
-	newbendfree = beta_move(odEast, odSouth, flip_tr, v);
+
+	newbendfree = beta_move(OrthoDir::East, OrthoDir::South, flip_tr, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odEast, infos[v].inList(odEast).size() - 1 - flip_tr - newbf)] = bend_free;
-		m_agp_x[outEntry(infos[v], odEast, infos[v].inList(odEast).size() - 1 - flip_tr - newbf)] =
-			cp_x(outEntry(infos[v], odEast, infos[v].inList(odEast).size() - 1 - flip_tr - newbf));
+		m_abends[outEntry(infos[v], OrthoDir::East, infos[v].inList(OrthoDir::East).size() - 1 - flip_tr - newbf)] = BendType::BendFree;
+		m_agp_x[outEntry(infos[v], OrthoDir::East, infos[v].inList(OrthoDir::East).size() - 1 - flip_tr - newbf)] =
+			cp_x(outEntry(infos[v], OrthoDir::East, infos[v].inList(OrthoDir::East).size() - 1 - flip_tr - newbf));
 	}//for
-	//***************************************************
-	l_it = infos[v].inList(odWest).rbegin();
+
+	l_it = infos[v].inList(OrthoDir::West).rbegin();
 	for (flipedges = 0; flipedges < flip_br; flipedges++)
 	{
-		m_abends[outEntry(infos[v], odWest, infos[v].inList(odWest).size() - 1 - flipedges)] = bend_1left;
-		infos[v].flips(odWest, odSouth)++;
+		m_abends[outEntry(infos[v], OrthoDir::West, infos[v].inList(OrthoDir::West).size() - 1 - flipedges)] = BendType::Bend1Left;
+		infos[v].flips(OrthoDir::West, OrthoDir::South)++;
 		--l_it;
 	}
-	//***************************************************
-	newbendfree = beta_move(odWest, odSouth, flip_br, v);
+
+	newbendfree = beta_move(OrthoDir::West, OrthoDir::South, flip_br, v);
 	for (newbf = 0; newbf < newbendfree; newbf++)
 	{
-		m_abends[outEntry(infos[v], odWest, infos[v].inList(odWest).size() - 1 - flip_br - newbf)] = bend_free;
-		m_agp_x[outEntry(infos[v], odWest, infos[v].inList(odWest).size() - 1 - flip_br - newbf)] =
-			cp_x(outEntry(infos[v], odWest, infos[v].inList(odWest).size() - 1 - flip_br - newbf));
+		m_abends[outEntry(infos[v], OrthoDir::West, infos[v].inList(OrthoDir::West).size() - 1 - flip_br - newbf)] = BendType::BendFree;
+		m_agp_x[outEntry(infos[v], OrthoDir::West, infos[v].inList(OrthoDir::West).size() - 1 - flip_br - newbf)] =
+			cp_x(outEntry(infos[v], OrthoDir::West, infos[v].inList(OrthoDir::West).size() - 1 - flip_br - newbf));
 	}//for
-	//***************************************************
+
 	//rest loeschen ?????
-	od = odNorth;
+	od = OrthoDir::North;
 	do
 	{
 		l_it = infos[v].inList(od).begin();
@@ -3388,7 +2922,7 @@ void EdgeRouter::compute_routing(node v) //reroute(face f)
 			++l_it;
 		}
 		od =OrthoRep::nextDir(od);
-	} while (od != odNorth);
+	} while (od != OrthoDir::North);
 
 }//reroute
 
@@ -3402,7 +2936,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 #endif
 	//zuerst die kantenlisten und generalizations finden und pos festlegen
 	{//construct the edge lists for the incoming edges on ev side
-		// side information (odNorth, odEast, odSouth, odWest corresponds to left, top, right, bottom)
+		// side information (OrthoDir::North, OrthoDir::East, OrthoDir::South, OrthoDir::West corresponds to left, top, right, bottom)
 #if 0
 		SideInfoUML m_side[4];
 #endif
@@ -3427,10 +2961,10 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 				adjRun = adjRun->faceCycleSucc();
 			} while (adjRun != adj);
 
-			OGDF_ASSERT(m_prup->typeOf(v) != Graph::generalizationMerger);
-			OrthoDir od = odNorth; //start with edges to the left
+			OGDF_ASSERT(m_prup->typeOf(v) != Graph::NodeType::generalizationMerger);
+			OrthoDir od = OrthoDir::North; //start with edges to the left
 			do {
-				adjEntry sadj = vinfo->m_corner[od];
+				adjEntry sadj = vinfo->m_corner[static_cast<int>(od)];
 				adjEntry adjSucc = sadj->faceCycleSucc();
 
 				List<edge>& inedges = infos[v].inList(od);
@@ -3447,7 +2981,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 
 					OGDF_ASSERT(m_orp->direction(in_edge_adj) == OrthoRep::nextDir(od) ||
 						m_orp->direction(in_edge_adj) == OrthoRep::prevDir(od));
-					if ((od == odNorth) || (od == odEast)) //if left or top
+					if ((od == OrthoDir::North) || (od == OrthoDir::East)) //if left or top
 					{
 						inedges.pushBack(in_edge);
 						inpoint.pushBack(is_in);
@@ -3464,7 +2998,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 						m_acp_y[in_edge_adj] = m_layoutp->y(in_edge->target());
 						m_cage_point[in_edge_adj] = in_edge->target();
 						//align test
-						if (m_prup->typeOf(in_edge->source()) == Graph::generalizationExpander)
+						if (m_prup->typeOf(in_edge->source()) == Graph::NodeType::generalizationExpander)
 						{
 							if (m_align) m_mergerSon[v] = true;
 							m_mergeDir[v] = OrthoRep::oppDir(m_orp->direction(in_edge->adjSource()));
@@ -3476,7 +3010,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 						m_acp_y[in_edge_adj] = m_layoutp->y(in_edge->source());
 						m_cage_point[in_edge_adj] = in_edge->source();
 						//align test
-						if (m_prup->typeOf(in_edge->target()) == Graph::generalizationExpander)
+						if (m_prup->typeOf(in_edge->target()) == Graph::NodeType::generalizationExpander)
 						{
 							if (m_align) m_mergerSon[v] = true;
 							m_mergeDir[v] = m_orp->direction(in_edge->adjSource());
@@ -3487,7 +3021,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 
 				}//while
 				od =  OrthoRep::nextDir(od);
-			} while (od != odNorth);
+			} while (od != OrthoDir::North);
 
 			infos[v].get_data(*m_orp, *m_layoutp, v, *m_rc, *m_nodewidth, *m_nodeheight);
 		}//if no adj, this should never happen
@@ -3497,16 +3031,16 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 	//left side
 	int dval, dsep;
 
-	if (infos[v].has_gen(odNorth))
+	if (infos[v].has_gen(OrthoDir::North))
 	{
 		int le = vinfo->m_side[0].m_nAttached[0]; //to bottom side
 		int re = vinfo->m_side[0].m_nAttached[1]; //to top
-		dsep =  ( (le+Cconst == 0) ? sep : int(floor(infos[v].node_ysize() / (2*(le+Cconst)))) );
+		dsep = (le + Cconst == 0) ? sep : int(floor(infos[v].node_ysize() / (2*(le + Cconst))));
 		dval = min(dsep,sep);
 		OGDF_ASSERT( dval > 0);
 		infos[v].set_delta(OrthoDir(0),OrthoDir(3),dval); infos[v].set_eps(OrthoDir(0),OrthoDir(3),int(floor(Cconst*dval)));
 		//top side
-		dsep = ( (re+Cconst == 0) ? sep : int(floor(infos[v].node_ysize() / (2*(re+Cconst)))) );
+		dsep = (re + Cconst == 0) ? sep : int(floor(infos[v].node_ysize() / (2*(re + Cconst))));
 		dval = min(dsep, sep);
 		OGDF_ASSERT( dval > 0);
 		infos[v].set_delta(OrthoDir(0),OrthoDir(1),dval); infos[v].set_eps(OrthoDir(0),OrthoDir(1),int(floor(Cconst*dval)));
@@ -3515,7 +3049,7 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 	{
 		int ae = vinfo->m_side[0].m_nAttached[0];
 		if (ae > 0)
-			dsep = ( (ae+Cconst == 1) ? sep : int(floor(infos[v].node_ysize() / (ae - 1 + 2*Cconst))) ); //may be < 0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			dsep = (ae+Cconst == 1) ? sep : int(floor(infos[v].node_ysize() / (ae - 1 + 2*Cconst))); // may be < 0
 		else dsep = sep;
 		dval = min(dsep, sep);
 		OGDF_ASSERT( dval > 0);
@@ -3524,78 +3058,78 @@ void EdgeRouter::initialize_node_info(node v, int sep)
 		infos[v].set_delta(OrthoDir(0),OrthoDir(1),dval); infos[v].set_eps(OrthoDir(0),OrthoDir(1),int(floor(Cconst*dval)));
 		infos[v].set_delta(OrthoDir(0),OrthoDir(3),dval); infos[v].set_eps(OrthoDir(0),OrthoDir(3),int(floor(Cconst*dval)));
 	}//else left
-	if (infos[v].has_gen(odEast))
+	if (infos[v].has_gen(OrthoDir::East))
 	{
 		int le = vinfo->m_side[1].m_nAttached[0]; //to left side
 		int re = vinfo->m_side[1].m_nAttached[1]; //to right
-		dsep = ( (le+Cconst == 0) ? sep : int(floor(infos[v].node_xsize() / (2*(le+Cconst)))) );
+		dsep = (le + Cconst == 0) ? sep : int(floor(infos[v].node_xsize() / (2*(le + Cconst))));
 		dval = min(dsep,sep);
 		OGDF_ASSERT(dval > 0);
-		infos[v].set_delta(odEast,odNorth,dval); infos[v].set_eps(odEast,odNorth,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::East,OrthoDir::North,dval); infos[v].set_eps(OrthoDir::East,OrthoDir::North,int(floor(Cconst*dval)));
 		//top side
-		dsep = ( (re+Cconst == 0) ? sep : int(floor((double)(infos[v].node_xsize()) / (2*(re+Cconst)))) );
+		dsep = (re + Cconst == 0) ? sep : int(floor((double)(infos[v].node_xsize()) / (2*(re + Cconst))));
 		dval = min(dsep, sep);
 		OGDF_ASSERT( dval > 0);
-		infos[v].set_delta(odEast,odSouth,dval); infos[v].set_eps(odEast,odSouth,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::East,OrthoDir::South,dval); infos[v].set_eps(OrthoDir::East,OrthoDir::South,int(floor(Cconst*dval)));
 	}//if top
 	else
 	{
 		int ae = vinfo->m_side[1].m_nAttached[0];
 		if (ae > 0)
-			dsep = ( (ae+Cconst == 1) ? sep : int(floor((double)(infos[v].node_xsize()) / (ae - 1 + 2*Cconst))) ); //may be <= 0
-		else dsep = (sep < int(floor((double)(infos[v].node_xsize())/2)) ? sep : int(floor((double)(infos[v].node_xsize())/2)));
+			dsep = (ae+Cconst == 1) ? sep : int(floor((double)(infos[v].node_xsize()) / (ae - 1 + 2*Cconst))); // may be <= 0
+		else dsep = sep < int(floor((double)(infos[v].node_xsize())/2)) ? sep : int(floor((double)(infos[v].node_xsize())/2));
 		dval = min(dsep, sep);
 		OGDF_ASSERT( dval > 0);
 
-		infos[v].set_delta(odEast,odNorth,dval); infos[v].set_eps(odEast,odNorth,int(floor(Cconst*dval)));
-		infos[v].set_delta(odEast,odSouth,dval); infos[v].set_eps(odEast,odSouth,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::East,OrthoDir::North,dval); infos[v].set_eps(OrthoDir::East,OrthoDir::North,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::East,OrthoDir::South,dval); infos[v].set_eps(OrthoDir::East,OrthoDir::South,int(floor(Cconst*dval)));
 	}//else top
-	if (infos[v].has_gen(odSouth))
+	if (infos[v].has_gen(OrthoDir::South))
 	{
 		int le = vinfo->m_side[2].m_nAttached[0]; //to top
 		int re = vinfo->m_side[2].m_nAttached[1]; //to bottom
-		dsep = ( (le+Cconst == 0) ? sep : int(floor((double)(infos[v].node_ysize()) / (2*(le+Cconst)))) );
+		dsep = (le + Cconst == 0) ? sep : int(floor((double)(infos[v].node_ysize()) / (2*(le + Cconst))));
 		dval = min(dsep,sep);
 		OGDF_ASSERT( dval > 0);
-		infos[v].set_delta(odSouth,odEast,dval); infos[v].set_eps(odSouth,odEast,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::South,OrthoDir::East,dval); infos[v].set_eps(OrthoDir::South,OrthoDir::East,int(floor(Cconst*dval)));
 		//top side
-		dsep = ( (re+Cconst == 0) ? sep : int(floor((double)(infos[v].node_ysize()) / (2*(re+Cconst)))) );
+		dsep = (re + Cconst == 0) ? sep : int(floor((double)(infos[v].node_ysize()) / (2*(re + Cconst))));
 		dval = min(dsep, sep);
-		infos[v].set_delta(odSouth,odWest,dval); infos[v].set_eps(odSouth,odWest,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::South,OrthoDir::West,dval); infos[v].set_eps(OrthoDir::South,OrthoDir::West,int(floor(Cconst*dval)));
 	}//if right
 	else
 	{
 		int ae = vinfo->m_side[2].m_nAttached[0];
 		if (ae > 0)
-			dsep = ( (ae+Cconst == 1) ? sep : int(floor(infos[v].node_ysize() / (ae - 1 + 2*Cconst))) ); //may be <= 0
+			dsep = (ae + Cconst == 1) ? sep : int(floor(infos[v].node_ysize() / (ae - 1 + 2*Cconst))); // may be <= 0
 		else dsep = sep;
 		dval = min(dsep, sep);
-		infos[v].set_delta(odSouth,odEast,dval); infos[v].set_eps(odSouth,odEast,int(floor(Cconst*dval)));
-		infos[v].set_delta(odSouth,odWest,dval); infos[v].set_eps(odSouth,odWest,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::South,OrthoDir::East,dval); infos[v].set_eps(OrthoDir::South,OrthoDir::East,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::South,OrthoDir::West,dval); infos[v].set_eps(OrthoDir::South,OrthoDir::West,int(floor(Cconst*dval)));
 	}//else right
-	if (infos[v].has_gen(odWest))
+	if (infos[v].has_gen(OrthoDir::West))
 	{
 		int le = vinfo->m_side[3].m_nAttached[0]; //to left side
 		int re = vinfo->m_side[3].m_nAttached[1]; //to right
-		dsep = ( (le+Cconst == 0) ? sep : int(floor((double)(infos[v].node_xsize()) / (2*(le+Cconst)))) );
+		dsep = (le + Cconst == 0) ? sep : int(floor((double)(infos[v].node_xsize()) / (2*(le + Cconst))));
 		dval = min(dsep,sep);
 		OGDF_ASSERT( dval > 0);
-		infos[v].set_delta(odWest,odSouth,dval); infos[v].set_eps(odWest,odSouth,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::West,OrthoDir::South,dval); infos[v].set_eps(OrthoDir::West,OrthoDir::South,int(floor(Cconst*dval)));
 		//top side
-		dsep = ( (re+Cconst == 0) ? sep : int(floor((double)(infos[v].node_xsize()) / (2*(re+Cconst)))) );
+		dsep = (re + Cconst == 0) ? sep : int(floor((double)(infos[v].node_xsize()) / (2*(re + Cconst))));
 		dval = min(dsep, sep);
-		infos[v].set_delta(odWest,odNorth,dval); infos[v].set_eps(odWest,odNorth,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::West,OrthoDir::North,dval); infos[v].set_eps(OrthoDir::West,OrthoDir::North,int(floor(Cconst*dval)));
 	}//if bottom
 	else
 	{
 		int ae = vinfo->m_side[3].m_nAttached[0];
 		if (ae > 0)
-			dsep = ( (ae+Cconst == 1) ? sep : int(floor((double)(infos[v].node_xsize()) / (ae - 1 + 2*Cconst))) ); //may be <= 0
+			dsep = (ae + Cconst == 1) ? sep : int(floor((double)(infos[v].node_xsize()) / (ae - 1 + 2*Cconst))); // may be <= 0
 		else dsep = sep;
 		dval = min(dsep, sep);
 		OGDF_ASSERT( dval > 0);
-		infos[v].set_delta(odWest,odSouth,dval); infos[v].set_eps(odWest,odSouth,int(floor(Cconst*dval)));
-		infos[v].set_delta(odWest,odNorth,dval); infos[v].set_eps(odWest,odNorth,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::West,OrthoDir::South,dval); infos[v].set_eps(OrthoDir::West,OrthoDir::South,int(floor(Cconst*dval)));
+		infos[v].set_delta(OrthoDir::West,OrthoDir::North,dval); infos[v].set_eps(OrthoDir::West,OrthoDir::North,int(floor(Cconst*dval)));
 	}//else bottom
 	//{cagesize, boxsize, delta, epsilon, gen_pos  ...}
 }//initialize_node_info
@@ -3626,28 +3160,28 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 	//could be routed bendfree to an glue point if move_num edges are flipped to s_to
 	if (move_num < 1) return 0;
 	int ic = 0;
-	bool down = (s_to == odNorth) || (s_to == odWest);
+	bool down = (s_to == OrthoDir::North) || (s_to == OrthoDir::West);
 
 	//try to find out which bend direction is opposite
 	//these edges can not be routed bendfree
-	bend_type bt1, bt2, bt3, bt4;
-	if ((s_from == odEast && s_to == odSouth)
-	 || (s_from == odNorth && s_to == odEast)
-	 || (s_from == odWest && s_to == odNorth)
-	 || (s_from == odSouth && s_to == odWest)) {
-		bt1 = prob_b1l;
-		bt2 = prob_b2l;
-		bt3 = bend_1left;
-		bt4 = bend_2left;
+	BendType bt1, bt2, bt3, bt4;
+	if ((s_from == OrthoDir::East && s_to == OrthoDir::South)
+	 || (s_from == OrthoDir::North && s_to == OrthoDir::East)
+	 || (s_from == OrthoDir::West && s_to == OrthoDir::North)
+	 || (s_from == OrthoDir::South && s_to == OrthoDir::West)) {
+		bt1 = BendType::ProbB1L;
+		bt2 = BendType::ProbB2L;
+		bt3 = BendType::Bend1Left;
+		bt4 = BendType::Bend2Left;
 	} else {
-		OGDF_ASSERT((s_from == odEast && s_to == odNorth)
-		         || (s_from == odNorth && s_to == odWest)
-		         || (s_from == odWest && s_to == odSouth)
-		         || (s_from == odSouth && s_to == odEast));
-		bt1 = prob_b1r;
-		bt2 = prob_b2r;
-		bt3 = bend_1right;
-		bt4 = bend_2right;
+		OGDF_ASSERT((s_from == OrthoDir::East && s_to == OrthoDir::North)
+		         || (s_from == OrthoDir::North && s_to == OrthoDir::West)
+		         || (s_from == OrthoDir::West && s_to == OrthoDir::South)
+		         || (s_from == OrthoDir::South && s_to == OrthoDir::East));
+		bt1 = BendType::ProbB1R;
+		bt2 = BendType::ProbB2R;
+		bt3 = BendType::Bend1Right;
+		bt4 = BendType::Bend2Right;
 	}
 
 
@@ -3683,7 +3217,7 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 		if (!ep.valid()) return 0;
 
 		//if this edge is already unbend, there is nothing to save
-		if ((m_abends[ae] == bend_free) ||
+		if ((m_abends[ae] == BendType::BendFree) ||
 			(m_abends[ae] == bt1) ||
 			(m_abends[ae] == bt2) ||
 			(m_abends[ae] == bt3) ||
@@ -3698,39 +3232,39 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 		//four cases:
 		switch (s_to)
 		{
-		case odEast: //from left and right
+		case OrthoDir::East: //from left and right
 			bend_saveable = (cp_y(ae) <= (infos[v].coord(s_to)
 				- infos[v].delta(s_from, s_to)*ic
 				- infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_y(ae) > gp_y(ae));
 			break;
-		case odNorth:  //from top and bottom
+		case OrthoDir::North:  //from top and bottom
 			bend_saveable = (cp_x(ae) >= (infos[v].coord(s_to)
 				+ infos[v].delta(s_from, s_to)*ic
 				+ infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_x(ae) < gp_x(ae));
 			break;
-		case odSouth:
+		case OrthoDir::South:
 			bend_saveable = (cp_x(ae) <= (infos[v].coord(s_to)
 				- infos[v].delta(s_from, s_to)*ic
 				- infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_x(ae) > gp_x(ae));
 			break;
 		default:
-			OGDF_ASSERT(s_to == odWest);
+			OGDF_ASSERT(s_to == OrthoDir::West);
 			bend_saveable = (cp_y(ae) >= (infos[v].coord(s_to)
 				+ infos[v].delta(s_from, s_to)*ic
 				+ infos[v].eps(s_from, s_to)));
 			in_E_sfrom_sto =  (cp_y(ae) < gp_y(ae));
 		}//switch
 
-		//compare edges connection point with available space
-		while (ep.valid() &&
-			bend_saveable &&
-			in_E_sfrom_sto &&//models E_from_to set in paper
-			(down ? (adjcount < infos[v].inList(s_from).size()-1) : (adjcount > 0))
-			) //valid, connection point ok and edge was preliminarily bend (far enough from corner)
-		{
+		// compare edges connection point with available space
+		// while valid, connection point ok and edge was preliminarily bend (far enough from corner)...
+		while (ep.valid()
+		    && bend_saveable
+		    && in_E_sfrom_sto // models E_from_to set in paper
+		    && (down ? adjcount < infos[v].inList(s_from).size() - 1
+		             : adjcount > 0)) {
 			if (down)
 			{
 				++ep;
@@ -3746,7 +3280,7 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 			if (ep.valid())
 			{
 
-				if ((m_abends[ae] == bend_free) ||
+				if ((m_abends[ae] == BendType::BendFree) ||
 					(m_abends[ae] == bt1) ||
 					(m_abends[ae] == bt2) ||
 					(m_abends[ae] == bt3) ||
@@ -3756,26 +3290,26 @@ int EdgeRouter::beta_move(OrthoDir s_from, OrthoDir s_to, int move_num, node v)
 
 				switch (s_to)
 				{
-				case odEast: //from left and right , ersetzte cp(*ep) durch cp(ae)
-					bend_saveable = (cp_y(ae) <= (infos[v].coord(odEast)
+				case OrthoDir::East: //from left and right , ersetzte cp(*ep) durch cp(ae)
+					bend_saveable = (cp_y(ae) <= (infos[v].coord(OrthoDir::East)
 						- infos[v].delta(s_from, s_to)*ic
 						- infos[v].eps(s_from, s_to)));
 					in_E_sfrom_sto =  (cp_y(ae) > gp_y(ae));
 					break;
-				case odNorth:  //from top and bottom
-					bend_saveable = (cp_x(ae) >= (infos[v].coord(odNorth)
+				case OrthoDir::North:  //from top and bottom
+					bend_saveable = (cp_x(ae) >= (infos[v].coord(OrthoDir::North)
 						+ infos[v].delta(s_from, s_to)*ic
 						+ infos[v].eps(s_from, s_to)));
 					in_E_sfrom_sto =  (cp_x(ae) < gp_x(ae));
 					break;
-				case odSouth:
-					bend_saveable = (cp_x(ae) <= (infos[v].coord(odSouth)
+				case OrthoDir::South:
+					bend_saveable = (cp_x(ae) <= (infos[v].coord(OrthoDir::South)
 						- infos[v].delta(s_from, s_to)*ic
 						- infos[v].eps(s_from, s_to)));
 					in_E_sfrom_sto =  (cp_x(ae) > gp_x(ae));
 					break;
-				case odWest:
-					bend_saveable = (cp_y(ae) >= (infos[v].coord(odWest)
+				case OrthoDir::West:
+					bend_saveable = (cp_y(ae) >= (infos[v].coord(OrthoDir::West)
 						+ infos[v].delta(s_from, s_to)*ic
 						+ infos[v].eps(s_from, s_to)));
 					in_E_sfrom_sto =  (cp_y(ae) < gp_y(ae));
@@ -3802,176 +3336,71 @@ int EdgeRouter::alpha_move(OrthoDir s_to, OrthoDir s_from, node v)
 {
 	//Test fuer alignment: Falls der Knoten aligned wird, Kanten nicht an Seiten verlegen
 	//zunaechst: garnicht
-	if ((m_align) && m_mergerSon[m_prup->expandedNode(v)])
-	{
+	if (m_align && m_mergerSon[m_prup->expandedNode(v)]) {
 		return 0;
 	}
 
-	int result = -1;
-	//we can implode the cases, but...
-	switch (s_to)
-	{
-	case odNorth: //two from cases: top or bottom
-		switch (s_from)
-		{
-		case odEast:
-			if (infos[v].num_bend_free(odNorth) != 0)
-				result = int(floor( (double)((infos[v].coord(odEast) - infos[v].l_upper_unbend() - //oder doch ftop
-				infos[v].delta(odNorth, odEast)*infos[v].num_bend_edges(odNorth, odEast) - infos[v].eps(odNorth, odEast)
-				) )/  infos[v].delta(odNorth, odEast)
-				));
-			else //there cant be a generalization: delta = delta_t = delta_l
-				result = int(floor( (double)((infos[v].node_ysize() -     //box size
-				(infos[v].num_bend_edges(odNorth, odEast) + infos[v].num_bend_edges(odNorth, odWest) - 1)*
-				infos[v].delta(odNorth, odEast) - //adjacent edges
-				2*infos[v].eps(odNorth, odEast)) / infos[v].delta(odNorth, odEast)) )
-				); //left side epsilon without generalization
-			break;
-		case odWest:
-			if (infos[v].num_bend_free(odNorth) != 0)
-				result = int(floor( (double)((infos[v].l_lower_unbend() - infos[v].coord(odWest) -
-				infos[v].delta(odNorth, odWest)*infos[v].num_bend_edges(odNorth, odWest) -
-				infos[v].eps(odNorth, odWest)
-				) / infos[v].delta(odNorth, odWest)
-				)));
-			else  //al_lb = al_lt, just copied, check!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				result = int(floor((double)((infos[v].node_ysize()     //box size
-				- (infos[v].num_bend_edges(odNorth, odEast) + infos[v].num_bend_edges(odNorth, odWest) - 1)
-				* infos[v].delta(odNorth, odEast) //adjacent edges
-				- 2*infos[v].eps(odNorth, odEast)) / infos[v].delta(odNorth, odEast)
-				))); //left side epsilon without generalization
-			break;
-		default:
-			//unmatched s_to in EdgeRouter::alpha_move
-			OGDF_THROW(AlgorithmFailureException);
-		}//switch
+	double result = -1.;
 
-		break;
-	case odSouth:
-		switch (s_from)
-		{
-		case odEast:
-			if (infos[v].num_bend_free(odSouth) != 0)
-			{
-				result = int(floor( (double)((infos[v].coord(odEast) - infos[v].r_upper_unbend() -
-					infos[v].num_bend_edges(odSouth, odEast)*infos[v].delta(odSouth, odEast) -
-					infos[v].eps(odSouth, odEast)
-					) / infos[v].delta(odSouth, odEast)
-					)));
-			}
-			else
-				result = int(floor((double)( (infos[v].node_ysize()
-				- (infos[v].num_bend_edges(odSouth, odEast) + infos[v].num_bend_edges(odSouth, odWest) - 1)
-				* infos[v].delta(odSouth, odEast)
-				- 2*infos[v].eps(odSouth, odEast)
-				) / infos[v].delta(odSouth, odEast)
-				)));
-			break;
-		case odWest:
-			if (infos[v].num_bend_free(odSouth) != 0)
-				result = int(floor( (double)((infos[v].r_lower_unbend()
-				- infos[v].coord(odWest)
-				- (infos[v].num_bend_edges(odSouth, odWest))*infos[v].delta(odSouth, odWest)
-				- infos[v].eps(odSouth, odWest)
-				) / infos[v].delta(odSouth, odWest)
-				)));
-			else  //same as top, check !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				result = int(floor( (double)((infos[v].node_ysize()
-				- (infos[v].num_bend_edges(odSouth, odEast) + infos[v].num_bend_edges(odSouth, odWest) - 1)
-				* infos[v].delta(odSouth, odEast)
-				- 2*infos[v].eps(odSouth, odEast)
-				) / infos[v].delta(odSouth, odEast)
-				)));
-			break;
-		default:
-			// unmatched s_to in EdgeRouter::alpha_move
-			OGDF_THROW(AlgorithmFailureException);
-		}//switch
-
-		break;
-	case odEast:
-		switch (s_from)
-		{
-		case odNorth :
-			if (infos[v].num_bend_free(odEast) != 0)
-			{
-				result = int(floor( (double)(((infos[v].t_left_unbend() - infos[v].coord(odNorth) -  //linkeste bf pos. - linken boxrand
-					infos[v].eps(odEast, odNorth) -
-					infos[v].delta(odEast, odNorth)*infos[v].num_bend_edges(odEast, odNorth)) / //linkes epsilon und linke Kanten
-					infos[v].delta(odEast, odNorth))
-					)));
-			}
-			else
-				result = int(floor( (double)((infos[v].node_xsize() -
-				(infos[v].num_bend_edges(odEast, odNorth) + infos[v].num_bend_edges(odEast, odSouth) - 1)*infos[v].delta(odEast, odNorth) -
-				2*infos[v].eps(odEast, odNorth) ) / infos[v].delta(odEast, odNorth)
-				)));
-			break;
-		case odSouth:
-			if (infos[v].num_bend_free(odEast) != 0)
-				result = int(floor( (double)((infos[v].coord(odSouth) - infos[v].t_right_unbend()
-				- infos[v].num_bend_edges(odEast, odSouth)*infos[v].delta(odEast, odSouth)
-				- infos[v].eps(odEast, odSouth)) / infos[v].delta(odEast, odSouth)
-				)));
-			else //same as left, check !!!
-				result = int(floor( (double)((infos[v].node_xsize() -
-				(infos[v].num_bend_edges(odEast, odNorth) + infos[v].num_bend_edges(odEast, odSouth) - 1)*infos[v].delta(odEast, odNorth) -
-				2*infos[v].eps(odEast, odNorth)
-				) / infos[v].delta(odEast, odNorth)
-				)));
-			break;
-		default:
-			// unmatched s_to in EdgeRouter::alpha_move
-			OGDF_THROW(AlgorithmFailureException);
-		}//switch
-		break;
-	case odWest:
-		switch (s_from)
-		{
-		case odNorth:
-			if (infos[v].num_bend_free(odWest) != 0)
-				result = int(floor( (double)((infos[v].b_right_unbend() - infos[v].coord(odNorth)
-				- infos[v].num_bend_edges(odWest, odNorth)*infos[v].delta(odWest, odNorth)
-				- infos[v].eps(odWest, odNorth)
-				) / infos[v].delta(odWest, odNorth)
-				)));
-			else
-				result = int(floor( (double)((infos[v].node_xsize()
-				- (infos[v].num_bend_edges(odWest, odNorth) + infos[v].num_bend_edges(odWest, odSouth) - 1)*infos[v].delta(odWest, odNorth)
-				- 2*infos[v].eps(odWest, odNorth)
-				) / infos[v].delta(odWest, odNorth)
-				)));
-			break;
-		case odSouth:
-			if (infos[v].num_bend_free(odWest) != 0)
-				result = int(floor ( (double)((infos[v].coord(odSouth) - infos[v].b_left_unbend()
-				- infos[v].num_bend_edges(odWest, odSouth)*infos[v].delta(odWest, odSouth)
-				- infos[v].eps(odWest, odSouth)
-				) / infos[v].delta(odWest, odSouth)
-				)));
-			else
-				result = int(floor( (double)((infos[v].node_xsize()
-				- (infos[v].num_bend_edges(odWest, odNorth) + infos[v].num_bend_edges(odWest, odSouth) - 1)*infos[v].delta(odWest, odNorth)
-				- 2*infos[v].eps(odWest, odNorth)
-				) / infos[v].delta(odWest, odNorth)
-				)));
-
-			break;
-		default:
-			// unmatched s_to in EdgeRouter::alpha_move
-			OGDF_THROW(AlgorithmFailureException);
-		}//switch
-		break;
-
-	default:
-		// unrecognized side in EdgeRouter::alpha_move
+	if (s_from == s_to || s_from == OrthoRep::oppDir(s_to)) {
 		OGDF_THROW(AlgorithmFailureException);
-	}//switch
+	}
 
-	if (result < 0) result = 0;
-	return result;
+	if (infos[v].num_bend_free(s_to) != 0) {
+		if (s_to == OrthoDir::North) {
+			if (s_from == OrthoDir::East) {
+				result = infos[v].coord(s_from) - infos[v].l_upper_unbend();
+			} else {
+				result = infos[v].l_lower_unbend() - infos[v].coord(s_from);
+			}
+		} else
+		if (s_to == OrthoDir::South) {
+			if (s_from == OrthoDir::East) {
+				result = infos[v].coord(s_from) - infos[v].r_upper_unbend();
+			} else {
+				result = infos[v].r_lower_unbend() - infos[v].coord(s_from);
+			}
+		} else
+		if (s_to == OrthoDir::East) {
+			if (s_from == OrthoDir::North) {
+				result = infos[v].t_left_unbend() - infos[v].coord(s_from);
+			} else {
+				result = infos[v].coord(s_from) - infos[v].t_right_unbend();
+			}
+		} else {
+			if (s_from == OrthoDir::North) {
+				result = infos[v].b_right_unbend() - infos[v].coord(s_from);
+			} else {
+				result = infos[v].coord(s_from) - infos[v].b_left_unbend();
+			}
+		}
+		result -= infos[v].delta(s_to, s_from) * infos[v].num_bend_edges(s_to, s_from);
+		result -= infos[v].eps(s_to, s_from);
+		result /= infos[v].delta(s_to, s_from);
+	} else {
+		OrthoDir from = s_from;
+		if (s_from == OrthoDir::East || s_from == OrthoDir::West) {
+			result = infos[v].node_ysize();
+		} else {
+			result = infos[v].node_xsize();
+		}
+		if ((s_from == OrthoDir::West && s_to == OrthoDir::North)
+		 || (s_from == OrthoDir::West && s_to == OrthoDir::South)
+		 || (s_from == OrthoDir::South && s_to == OrthoDir::East)
+		 || (s_from == OrthoDir::South && s_to == OrthoDir::West)) {
+			from = OrthoRep::oppDir(from);
+		}
+		result -= infos[v].delta(s_to, from) * (infos[v].num_bend_edges(s_to, from) + infos[v].num_bend_edges(s_to, OrthoRep::oppDir(from)) - 1);
+		result -= 2 * infos[v].eps(s_to, from);
+		result /= infos[v].delta(s_to, from);
+	}
 
-}//alpha_move
+	if (result < 0) {
+		return 0;
+	}
+
+	return int(std::floor(result));
+}
 
 
 void EdgeRouter::addbends(BendString& bs, const char* s2)
@@ -4024,9 +3453,9 @@ void EdgeRouter::setDistances()
 {
 	for(node v : m_prup->nodes)
 	{
-		if ((m_prup->expandAdj(v) != nullptr) && (m_prup->typeOf(v) != Graph::generalizationMerger))
+		if ((m_prup->expandAdj(v) != nullptr) && (m_prup->typeOf(v) != Graph::NodeType::generalizationMerger))
 		{
-			OrthoDir od = odNorth;
+			OrthoDir od = OrthoDir::North;
 			do
 			{
 				m_med->delta(v, od, 0) = infos[v].delta(od, OrthoRep::prevDir(od));
@@ -4035,7 +3464,7 @@ void EdgeRouter::setDistances()
 				m_med->epsilon(v, od, 1) = infos[v].eps(od, OrthoRep::nextDir(od));
 
 				od = OrthoRep::nextDir(od);
-			} while (od != odNorth);
+			} while (od != OrthoDir::North);
 		}//if
 	}
 }
@@ -4069,4 +3498,89 @@ void EdgeRouter::fix_position(node v, int x, int y)
 	m_fixed[v] = true;
 }
 
-} //end namespace
+void EdgeRouter::updateBends(
+		const node v,
+		ListIterator<edge> &it,
+		int &pos,
+		int &lastunbend,
+		const bool updateX,
+		const OrthoDir dir,
+		const bool bendLeft,
+		const bool bendUp,
+		const bool subtract) {
+	const OrthoDir dirB = bendLeft ? OrthoRep::nextDir(dir) : OrthoRep::prevDir(dir);
+	const auto &acp = updateX ? m_acp_x : m_acp_y;
+	auto &agp = updateX ? m_agp_x : m_agp_y;
+	const int sep = bendUp ? m_sep : - m_sep;
+	const BendType btSingle = bendLeft ? BendType::ProbB1L : BendType::ProbB1R;
+	const BendType btDouble = bendLeft ? BendType::Bend2Left : BendType::Bend2Right;
+	auto &inf = infos[v];
+	const int sign = subtract ? -1 : 1;
+	const int delta = inf.delta(dirB, dir);
+	const int eps = inf.eps(dirB, dir);
+	const int coord = inf.coord(dir);
+
+	// TODO: Do we need additional conditions if bendUp?
+	while (it.valid() && (bendUp || coord > acp[outEntry(inf, dirB, pos)] - pos*delta - eps)) {
+		const adjEntry adj = outEntry(inf, dirB, pos);
+
+		updateOneBend((acp[adj] > coord + sep) != bendUp, adj, v, dir, bendLeft, btSingle, btDouble);
+
+		// leave space to re-route
+		if(lastunbend != m_init) {
+			lastunbend += delta;
+			agp[adj] = lastunbend;
+		} else {
+			int factor = bendUp ? inf.inList(dirB).size() - 1 - pos : pos;
+			agp[adj] = coord + sign*(eps + factor*delta);
+		}
+
+		++it;
+		++pos;
+	}
+}
+
+int EdgeRouter::updateBends(
+		const node v,
+		ListIterator<edge> &it,
+		const bool updateX,
+		const OrthoDir dir,
+		const bool bendLeft,
+		const bool bendUp,
+		int pos) {
+	int lastunbend = m_init;
+	updateBends(v, it, pos, lastunbend, updateX, dir, bendLeft, bendUp, false);
+	return pos;
+}
+
+void EdgeRouter::updateLowerEdgesBends(
+		const node v,
+		ListIterator<edge> &it,
+		int &pos,
+		int &base,
+		const bool updateX,
+		const OrthoDir dir,
+		const bool bendLeft) {
+	const OrthoDir dirB = bendLeft ? OrthoRep::nextDir(dir) : OrthoRep::prevDir(dir);
+	auto &inf = infos[v];
+	const auto &acp = updateX ? m_acp_x : m_acp_y;
+
+	auto &agp = updateX ? m_agp_x : m_agp_y;
+	const BendType btSingle = bendLeft ? BendType::ProbB1L : BendType::ProbB1R;
+	const BendType btDouble = bendLeft ? BendType::ProbB2L : BendType::ProbB2R;
+
+	while (it.valid()) // still some lower edges to bend
+	{
+		const adjEntry adj = outEntry(inf, dirB, pos);
+		agp[adj] = base;
+
+		// first parameter: paper E^
+		updateOneBend(acp[adj] >= infos[v].coord(dir) - m_sep, adj, v, dir, bendLeft, btSingle, btDouble);
+
+		base -= inf.delta(dirB, dir);
+		--it;
+		--pos;
+	}
+}
+
+}

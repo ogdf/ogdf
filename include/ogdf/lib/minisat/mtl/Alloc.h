@@ -40,7 +40,7 @@ class RegionAllocator
 	void capacity(uint32_t min_cap);
 
  public:
-	typedef uint32_t Ref;
+	using Ref = uint32_t;
 
 	enum { Ref_Undef = UINT_MAX };
 	enum { Unit_Size = sizeof(uint32_t) };

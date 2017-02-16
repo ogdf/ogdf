@@ -49,7 +49,7 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::doCall(
 	const EdgeArray<bool> *forbiddenEdgeOrig)
 {
 	if (origEdges.empty())
-		return Module::retFeasible;
+		return Module::ReturnType::Feasible;
 
 	List<edge> toInsert = origEdges;
 
@@ -88,7 +88,7 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 	EdgeArray<int>  &costOrig)
 {
 	if (toInsert.empty())
-		return Module::retFeasible;
+		return Module::ReturnType::Feasible;
 
 	List<edge> l;
 	int size_new = toInsert.size();
@@ -101,8 +101,8 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 
 #if 0
 			cout << endl;
-			cout << "  insertion path for e_orig :" << e_orig << ";  e_UPR: (" << UPR.copy(e_orig->source()) << ","
-				 << UPR.copy(e_orig->target()) << ")" << endl;
+			cout << "  insertion path for e_orig :" << e_orig << ";  e_UPR: (" << m_UPR.copy(e_orig->source()) << ","
+				 << m_UPR.copy(e_orig->target()) << ")" << endl;
 #endif
 
 			minFIP(UPR, toInsert, costOrig, e_orig, path);
@@ -130,12 +130,12 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 
 #if 0
 #if 0
-			UPR.outputFaces(UPR.getEmbedding());
-			UPR.writeGML("c:/temp/bug5.gml");
+			m_UPR.outputFaces(m_UPR.getEmbedding());
+			m_UPR.writeGML("c:/temp/bug5.gml");
 #endif
 
 			LayerBasedUPRLayout uprLayout;
-			Graph GTmp( (const Graph &) UPR);
+			Graph GTmp( (const Graph &) m_UPR);
 			CombinatorialEmbedding embTmp(GTmp);
 			node tTmp = 0;
 #if 0
@@ -145,7 +145,7 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 			OGDF_ASSERT(tTmp != 0);
 			embTmp.setExternalFace(embTmp.rightFace(tTmp->firstAdj()));
 #if 0
-			adjEntry adjTmp = GCTmp.copy(UPR.extFaceHandle->theEdge())->adjTarget();
+			adjEntry adjTmp = GCTmp.copy(m_UPR.extFaceHandle->theEdge())->adjTarget();
 #endif
 			UpwardPlanRep upr_bug(embTmp);
 			adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
@@ -207,19 +207,19 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 
 #if 0
 		cout << endl;
-		cout << "heuristical insertion path for e_orig :" << e_orig << ";  e_UPR: (" << UPR.copy(e_orig->source()) << ","
-			<< UPR.copy(e_orig->target()) << ")" <<  endl;
+		cout << "heuristical insertion path for e_orig :" << e_orig << ";  e_UPR: (" << m_UPR.copy(e_orig->source()) << ","
+			<< m_UPR.copy(e_orig->target()) << ")" <<  endl;
 #endif
 
 
 #if 0
 #if 0
-		UPR.outputFaces(UPR.getEmbedding());
-		UPR.writeGML("c:/temp/bug5.gml");
+		m_UPR.outputFaces(m_UPR.getEmbedding());
+		m_UPR.writeGML("c:/temp/bug5.gml");
 #endif
 
 		LayerBasedUPRLayout uprLayout;
-		Graph GTmp( (const Graph &) UPR);
+		Graph GTmp( (const Graph &) m_UPR);
 		CombinatorialEmbedding embTmp(GTmp);
 		node tTmp = 0;
 #if 0
@@ -229,7 +229,7 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 		OGDF_ASSERT(tTmp != 0);
 		embTmp.setExternalFace(embTmp.rightFace(tTmp->firstAdj()));
 #if 0
-		adjEntry adjTmp = GCTmp.copy(UPR.extFaceHandle->theEdge())->adjTarget();
+		adjEntry adjTmp = GCTmp.copy(m_UPR.extFaceHandle->theEdge())->adjTarget();
 #endif
 		UpwardPlanRep upr_bug(embTmp);
 		adjEntry adj_bug = upr_bug.getAdjEntry(upr_bug.getEmbedding(), upr_bug.getSuperSource(), upr_bug.getEmbedding().externalFace());
@@ -288,7 +288,7 @@ Module::ReturnType FixedEmbeddingUpwardEdgeInserter::insertAll(
 
 		return insertAll(UPR, toInsert, costOrig);
 	}
-	return Module::retFeasible;
+	return Module::ReturnType::Feasible;
 }
 
 

@@ -36,7 +36,6 @@
 #include <ogdf/cluster/CPlanarSubClusteredGraph.h>
 #include <ogdf/cluster/ClusterOrthoLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/basic/HashArray.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
 
@@ -66,7 +65,7 @@ void ClusterPlanarizationLayout::call(
 
 
 //the call function that lets ClusterPlanarizationLayout compute a layout
-//for the input using \a weight for the computation of the cluster planar subgraph
+//for the input using \p edgeWeight for the computation of the cluster planar subgraph
 void ClusterPlanarizationLayout::call(
 	Graph& G,
 	ClusterGraphAttributes& acGraph,
@@ -80,9 +79,8 @@ void ClusterPlanarizationLayout::call(
 	//check some simple cases
 	if (G.numberOfNodes() == 0) return;
 
-//-------------------------------------------------------------
-//we set pointers and arrays to the working graph, which can be
-//the original or, in the case of non-c-planar input, a copy
+	//we set pointers and arrays to the working graph, which can be
+	//the original or, in the case of non-c-planar input, a copy
 
 	Graph* workGraph = &G;
 	ClusterGraph* workCG = &cGraph;
@@ -120,7 +118,6 @@ void ClusterPlanarizationLayout::call(
 	}
 
 
-	//-----------------------------------------------
 	//check if instance is clusterplanar and embed it
 	CconnectClusterPlanarEmbed CCPE; //cccp
 
@@ -134,8 +131,8 @@ void ClusterPlanarizationLayout::call(
 	{
 		bool connect = false;
 
-		if ( (CCPE.errCode() == CconnectClusterPlanarEmbed::nonConnected) ||
-				(CCPE.errCode() == CconnectClusterPlanarEmbed::nonCConnected) )
+		if ( (CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonConnected) ||
+			(CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCConnected) )
 		{
 			//we insert edges to make the input c-connected
 			makeCConnected(cGraph, G, connectEdges, simpleCConnect);
@@ -151,15 +148,15 @@ void ClusterPlanarizationLayout::call(
 
 			CCPE.embed(cGraph, G);
 
-			if ( (CCPE.errCode() == CconnectClusterPlanarEmbed::nonConnected) ||
-				(CCPE.errCode() == CconnectClusterPlanarEmbed::nonCConnected) )
+			if ( (CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonConnected) ||
+				(CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCConnected) )
 			{
 				cerr << "no correct connection made\n"<<flush;
 				OGDF_THROW(AlgorithmFailureException);
 			}
 		}//if not cconnected
-		if ((CCPE.errCode() == CconnectClusterPlanarEmbed::nonPlanar) ||
-			(CCPE.errCode() == CconnectClusterPlanarEmbed::nonCPlanar))
+		if ((CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonPlanar) ||
+			(CCPE.errCode() == CconnectClusterPlanarEmbed::ErrorCode::nonCPlanar))
 		{
 			subGraph = true;
 			EdgeArray<bool> inSubGraph(G, false);
@@ -177,7 +174,6 @@ void ClusterPlanarizationLayout::call(
 			}
 #endif
 #endif
-			//---------------------------------------------------------------
 			//now we delete the copies of all edges not in subgraph and embed
 			//the subgraph (use a new copy)
 
@@ -186,7 +182,6 @@ void ClusterPlanarizationLayout::call(
 			workGraph = &GW;
 			workCG = new ClusterGraph(cGraph, GW, resultCluster, resultNode, resultEdge);
 
-			//----------------------
 			//reinit original arrays
 			orNode.init(GW, nullptr);
 			orEdge.init(GW, nullptr);
@@ -200,7 +195,6 @@ void ClusterPlanarizationLayout::call(
 			for (cluster workc : cGraph.clusters)
 				orCluster[resultCluster[workc]] = workc;
 
-			//----------------------------------------------------
 			//create new ACG and copy values (width, height, type)
 
 			workACG = new ClusterGraphAttributes(*workCG, workACG->attributes());
@@ -223,8 +217,8 @@ void ClusterPlanarizationLayout::call(
 			{
 				edge e = resultEdge[ei];
 				NodePair np;
-				np.m_src = e->source();
-				np.m_tgt = e->target();
+				np.source = e->source();
+				np.target = e->target();
 
 				leftWNodes.pushBack(np);
 
@@ -242,7 +236,7 @@ void ClusterPlanarizationLayout::call(
 		else
 		{
 			if (!connect)
-				OGDF_THROW_PARAM(PreconditionViolatedException, pvcClusterPlanar);
+				OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::ClusterPlanar);
 		}
 
 	}//if

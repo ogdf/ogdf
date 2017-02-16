@@ -31,16 +31,10 @@
 
 
 #include <ogdf/uml/UMLGraph.h>
-#include <ogdf/basic/EdgeComparer.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/misclayout/CircularLayout.h>
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// construction / destruction
-//---------------------------------------------------------
 
 UMLGraph::UMLGraph(
 	Graph &G,
@@ -56,22 +50,16 @@ UMLGraph::UMLGraph(
 
 UMLGraph::~UMLGraph()
 {
-	if (m_hiddenEdges != nullptr) {
-		delete m_hiddenEdges;
-	}
+	delete m_hiddenEdges;
 
 	SListIterator<AssociationClass*> it = m_assClassList.begin();
 	while (it.valid())
 	{
-		delete (*it);
+		delete *it;
 		++it;
 	}//while
 }//destructor
 
-
-//---------------------------------------------------------
-// UML specific features
-//---------------------------------------------------------
 
 void UMLGraph::insertGenMergers()
 {
@@ -86,7 +74,7 @@ void UMLGraph::insertGenMergers()
 
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
-			if (e->target() != v || type(e) != Graph::generalization)
+			if (e->target() != v || type(e) != Graph::EdgeType::generalization)
 				continue;
 
 			inGens.pushBack(e);
@@ -129,12 +117,12 @@ node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
 
 		// create a new node representing the merge point for the generalizations
 		u = m_pG->newNode();
-		type(u) = Graph::generalizationMerger;
+		type(u) = Graph::NodeType::generalizationMerger;
 
 		// add the edge from v to the merge point
 		// this edge is a generalization, but has no original edge
 		edge eMerge = m_pG->newEdge(u,v);
-		type(eMerge) = Graph::generalization;
+		type(eMerge) = Graph::EdgeType::generalization;
 		m_mergeEdges.pushBack(eMerge);
 
 		// We move the target node of each ingoing generalization of v to u.
@@ -146,7 +134,7 @@ node UMLGraph::doInsertMergers(node v, SList<edge> &inGens)
 		{
 			// all edges in the list inGens must be ingoing generalizations of v
 			OGDF_ASSERT((*it)->target() == v);
-			OGDF_ASSERT(type(*it) == Graph::generalization);
+			OGDF_ASSERT(type(*it) == Graph::EdgeType::generalization);
 
 			m_pG->moveTarget(*it,u);
 			m_hierarchyParent[(*it)->source()] = u; //set to merger
@@ -228,12 +216,6 @@ void UMLGraph::sortEdgesFromLayout()
 	delete ec;
 }//sortedgesfromlayout
 #endif
-
-
-
-//---------------------------------------------------------
-// clique handling
-//---------------------------------------------------------
 
 // replace each node set in cliques by a star connecting
 // a new center node with all nodes in set, deletes all
@@ -371,7 +353,6 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 
 	ListIterator<node> itNode = adjNodes.begin();
 
-	//--------------------------------------------------------------------------
 	//for the temporary solution (scale clique to fixed rect if possible instead
 	//of guaranteeing the rect size in compaction) we check in advance if the sum
 	//of diameters plus dists fits into the given rect by heuristic estimate (biggest
@@ -405,8 +386,8 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 		//if (minDist > m_cliqueCenterSize) minDist = m_cliqueCenterSize;
 		itNode = adjNodes.begin();
 	}
-	//temporary part ends-------------------------------------------------------
-	//------------------------------------------
+	//temporary part ends
+
 	//first, we compute the radius of the circle
 
 	const int n = center->degree();
@@ -446,73 +427,71 @@ void UMLGraph::computeCliquePosition(List<node> &adjNodes, node center, double r
 	OGDF_ASSERT(adjNodes.size() == angles.size());
 
 	if(n == 1) {
-			radius      = 0;
+		radius      = 0;
+	} else if (n == 2) {
+		radius      = 0.5*minDist + sumDiameters / 4;
+	} else {
+		double perimeter = (n*minDist + sumDiameters);
+		radius      = perimeter / (2*Math::pi);
 
-		} else if (n == 2) {
-			radius      = 0.5*minDist + sumDiameters / 4;
-
-		} else {
-			double perimeter = (n*minDist + sumDiameters);
-			radius      = perimeter / (2*Math::pi);
-
-			ListIterator<double> it = angles.begin();
-			itNode = adjNodes.begin();
-			while (it.valid())
-			{
-				(*it) = (*it)*360.0/perimeter;
-				node w = *itNode;
-				double angle = Math::pi*(*it)/180.0;
-				m_cliqueCirclePos[w].m_x = radius*cos(angle);
-				m_cliqueCirclePos[w].m_y = radius*sin(angle);
-				++itNode;
-				++it;
-			}//while
-		}//if n>2
-
-		//now we normalize the values (start with 0.0) and
-		//derive the bounding box
-		v = adjNodes.front();
-		double minX = m_cliqueCirclePos[v].m_x,
-			maxX = m_cliqueCirclePos[v].m_x;
-		double minY = m_cliqueCirclePos[v].m_y,
-			maxY = m_cliqueCirclePos[v].m_y;
+		ListIterator<double> it = angles.begin();
 		itNode = adjNodes.begin();
-		while (itNode.valid())
+		while (it.valid())
 		{
+			(*it) = (*it)*360.0/perimeter;
 			node w = *itNode;
-			double wx = m_cliqueCirclePos[w].m_x;
-			double wy = m_cliqueCirclePos[w].m_y;
-			if(wx-width (w)/2.0 < minX) minX = wx-width(w)/2.0;
-			if(wx+width (w)/2.0 > maxX) maxX = wx+width(w)/2.0;
-			if(wy-height(w)/2.0 < minY) minY = wy-height(w)/2.0;
-			if(wy+height(w)/2.0 > maxY) maxY = wy+height(w)/2.0;
+			double angle = Math::pi*(*it)/180.0;
+			m_cliqueCirclePos[w].m_x = radius*cos(angle);
+			m_cliqueCirclePos[w].m_y = radius*sin(angle);
 			++itNode;
-		}
-		//allow distance
-		minX -= minCCDist;
-		minY -= minCCDist;
-		//normalize
+			++it;
+		}//while
+	}//if n>2
+
+	//now we normalize the values (start with 0.0) and
+	//derive the bounding box
+	v = adjNodes.front();
+	double minX = m_cliqueCirclePos[v].m_x,
+		maxX = m_cliqueCirclePos[v].m_x;
+	double minY = m_cliqueCirclePos[v].m_y,
+		maxY = m_cliqueCirclePos[v].m_y;
+	itNode = adjNodes.begin();
+	while (itNode.valid())
+	{
+		node w = *itNode;
+		double wx = m_cliqueCirclePos[w].m_x;
+		double wy = m_cliqueCirclePos[w].m_y;
+		if(wx-width (w)/2.0 < minX) minX = wx-width(w)/2.0;
+		if(wx+width (w)/2.0 > maxX) maxX = wx+width(w)/2.0;
+		if(wy-height(w)/2.0 < minY) minY = wy-height(w)/2.0;
+		if(wy+height(w)/2.0 > maxY) maxY = wy+height(w)/2.0;
+		++itNode;
+	}
+	//allow distance
+	minX -= minCCDist;
+	minY -= minCCDist;
+	//normalize
 #if 0
-		cout<<"\n";
+	cout<<"\n";
 #endif
 
-		itNode = adjNodes.begin();
-		while (itNode.valid())
-		{
-			node w = *itNode;
+	itNode = adjNodes.begin();
+	while (itNode.valid())
+	{
+		node w = *itNode;
 #if 0
-			cout<<"x1:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+		cout<<"x1:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
 #endif
-			m_cliqueCirclePos[w].m_x -= minX;
-			m_cliqueCirclePos[w].m_y -= minY;
+		m_cliqueCirclePos[w].m_x -= minX;
+		m_cliqueCirclePos[w].m_y -= minY;
 #if 0
-			cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
+		cout<<"x:"<<m_cliqueCirclePos[w].m_x<<":y:"<<m_cliqueCirclePos[w].m_y<<"\n";
 #endif
-			++itNode;
-		}
+		++itNode;
+	}
 
-		//reassign the size, this time it is the final value
-		m_cliqueCircleSize[center] = DRect(0.0, 0.0, maxX-minX, maxY-minY);
+	//reassign the size, this time it is the final value
+	m_cliqueCircleSize[center] = DRect(0.0, 0.0, maxX-minX, maxY-minY);
 }//computecliqueposition
 
 
@@ -556,7 +535,7 @@ node UMLGraph::replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum)
 
 		//connect center node to clique node
 		edge inserted = m_pG->newEdge(center, v);
-		this->type(inserted) = Graph::association;
+		this->type(inserted) = Graph::EdgeType::association;
 		m_replacementEdge[inserted] = true;
 
 		++it;
@@ -609,10 +588,6 @@ void UMLGraph::undoStar(node center, bool restoreAllEdges)
 
 
 
-//---------------------------------------------------------
-// output
-//---------------------------------------------------------
-
 // Same as in GraphAttributes. Except: Writes red color to generalizations
 
 void UMLGraph::writeGML(const char *fileName)
@@ -656,9 +631,9 @@ void UMLGraph::writeGML(ostream &os)
 			os << "      type \"rectangle\"\n";
 			os << "      width 1.0\n";
 
-			if (type(v) == Graph::generalizationMerger)
+			if (type(v) == Graph::NodeType::generalizationMerger)
 				os << "      fill \"#0000A0\"\n";
-			else if (type(v) == Graph::generalizationExpander)
+			else if (type(v) == Graph::NodeType::generalizationExpander)
 				os << "      fill \"#00FF00\"\n";
 			else
 			{
@@ -690,7 +665,7 @@ void UMLGraph::writeGML(ostream &os)
 			os << "    graphics [\n";
 			os << "      type \"line\"\n";
 			if (has(GraphAttributes::edgeType)) {
-				if (type(e) == Graph::generalization)
+				if (type(e) == Graph::EdgeType::generalization)
 				{
 					os << "      arrow \"last\"\n";
 					if (m_upwardEdge[e->adjSource()])

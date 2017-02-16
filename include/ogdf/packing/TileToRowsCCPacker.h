@@ -50,10 +50,10 @@ public:
 	virtual ~TileToRowsCCPacker() { }
 
 	/**
-	 * \brief Arranges the rectangles given by \a box.
+	 * \brief Arranges the rectangles given by \p box.
 	 *
-	 * The algorithm call takes an input an array \a box of rectangles with
-	 * real coordinates and computes in \a offset the offset to (0,0) of each
+	 * The algorithm call takes an input an array \p box of rectangles with
+	 * real coordinates and computes in \p offset the offset to (0,0) of each
 	 * rectangle in the layout.
 	 * @param box is the array of input rectangles.
 	 * @param offset is assigned the offset of each rectangle to the origin (0,0).
@@ -66,10 +66,10 @@ public:
 		double pageRatio = 1.0) override;
 
 	/**
-	 * \brief Arranges the rectangles given by \a box.
+	 * \brief Arranges the rectangles given by \p box.
 	 *
-	 * The algorithm call takes an input an array \a box of rectangles with
-	 * real coordinates and computes in \a offset the offset to (0,0) of each
+	 * The algorithm call takes an input an array \p box of rectangles with
+	 * real coordinates and computes in \p offset the offset to (0,0) of each
 	 * rectangle in the layout.
 	 * @param box is the array of input rectangles.
 	 * @param offset is assigned the offset of each rectangle to the origin (0,0).

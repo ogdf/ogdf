@@ -41,19 +41,19 @@ namespace gdf {
 std::string toString(const NodeAttribute &attr)
 {
 	switch(attr) {
-	case na_name: return "name";
-	case na_x: return "x";
-	case na_y: return "y";
-	case na_z: return "z";
-	case na_fillColor: return "color";
-	case na_strokeColor: return "strokecolor";
-	case na_shape: return "style";
-	case na_width: return "width";
-	case na_height: return "height";
-	case na_label: return "label";
-	case na_template: return "template";
-	case na_weight: return "weight";
-	case na_unknown: return "unknown";
+	case NodeAttribute::Name: return "name";
+	case NodeAttribute::X: return "x";
+	case NodeAttribute::Y: return "y";
+	case NodeAttribute::Z: return "z";
+	case NodeAttribute::FillColor: return "color";
+	case NodeAttribute::StrokeColor: return "strokecolor";
+	case NodeAttribute::Shape: return "style";
+	case NodeAttribute::Width: return "width";
+	case NodeAttribute::Height: return "height";
+	case NodeAttribute::Label: return "label";
+	case NodeAttribute::Template: return "template";
+	case NodeAttribute::Weight: return "weight";
+	case NodeAttribute::Unknown: return "unknown";
 	}
 
 	return "";
@@ -63,14 +63,14 @@ std::string toString(const NodeAttribute &attr)
 std::string toString(const EdgeAttribute &attr)
 {
 	switch(attr) {
-	case ea_label: return "label";
-	case ea_source: return "node1";
-	case ea_target: return "node2";
-	case ea_weight: return "weight";
-	case ea_directed: return "directed";
-	case ea_color: return "color";
-	case ea_bends: return "bends";
-	case ea_unknown: return "unknown";
+	case EdgeAttribute::Label: return "label";
+	case EdgeAttribute::Source: return "node1";
+	case EdgeAttribute::Target: return "node2";
+	case EdgeAttribute::Weight: return "weight";
+	case EdgeAttribute::Directed: return "directed";
+	case EdgeAttribute::Color: return "color";
+	case EdgeAttribute::Bends: return "bends";
+	case EdgeAttribute::Unknown: return "unknown";
 	}
 
 	return "";
@@ -84,42 +84,42 @@ std::string toString(const Shape &shape)
 	 * http://guess.wikispot.org/The_GUESS_.gdf_format
 	 */
 	switch(shape) {
-	case shRect: return "1";
-	case shEllipse: return "2";
-	case shRoundedRect: return "3";
-	case shImage: return "7";
+	case Shape::Rect: return "1";
+	case Shape::Ellipse: return "2";
+	case Shape::RoundedRect: return "3";
+	case Shape::Image: return "7";
 	default: return "1";
 	}
 }
 
 
-static Hashing<std::string, NodeAttribute> nodeAttrMap;
+static std::map<std::string, NodeAttribute> nodeAttrMap;
 
 NodeAttribute toNodeAttribute(const std::string &str)
 {
 	return toEnum(
 		str, nodeAttrMap, toString,
-		static_cast<NodeAttribute>(0), na_unknown, na_unknown);
+		static_cast<NodeAttribute>(0), NodeAttribute::Unknown, NodeAttribute::Unknown);
 }
 
 
-static Hashing<std::string, EdgeAttribute> edgeAttrMap;
+static std::map<std::string, EdgeAttribute> edgeAttrMap;
 
 EdgeAttribute toEdgeAttribute(const std::string &str)
 {
 	return toEnum(
 		str, edgeAttrMap, toString,
-		static_cast<EdgeAttribute>(0), ea_unknown, ea_unknown);
+		static_cast<EdgeAttribute>(0), EdgeAttribute::Unknown, EdgeAttribute::Unknown);
 }
 
 
-static Hashing<std::string, Shape> shapeMap;
+static std::map<std::string, Shape> shapeMap;
 
 Shape toShape(const std::string &str)
 {
 	return toEnum(
 		str, shapeMap, toString,
-		shRect, shImage, shRect);
+		Shape::Rect, Shape::Image, Shape::Rect);
 }
 
 

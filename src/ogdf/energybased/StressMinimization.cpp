@@ -95,7 +95,7 @@ void StressMinimization::call(
 				m_avgEdgeCosts * sqrt((double)(G.numberOfNodes())));
 	}
 	// calculate the weights
-	calcWeights(G, G.numberOfNodes() - 1, shortestPathMatrix, weightMatrix);
+	calcWeights(G, shortestPathMatrix, weightMatrix);
 	// minimize the stress
 	minimizeStress(GA, shortestPathMatrix, weightMatrix);
 }
@@ -139,7 +139,6 @@ void StressMinimization::replaceInfinityDistances(
 
 void StressMinimization::calcWeights(
 	const Graph& G,
-	const int dimension,
 	NodeArray<NodeArray<double> >& shortestPathMatrix,
 	NodeArray<NodeArray<double> >& weightMatrix)
 {
@@ -222,7 +221,7 @@ void StressMinimization::minimizeStress(
 	double prevStress = numeric_limits<double>::max();
 	double curStress = numeric_limits<double>::max();
 
-	if (m_terminationCriterion == STRESS) {
+	if (m_terminationCriterion == TerminationCriterion::Stress) {
 		curStress = calcStress(GA, shortestPathMatrix, weightMatrix);
 	}
 
@@ -230,20 +229,20 @@ void StressMinimization::minimizeStress(
 	NodeArray<double> newY;
 	NodeArray<double> newZ;
 
-	if (m_terminationCriterion == POSITION_DIFFERENCE) {
+	if (m_terminationCriterion == TerminationCriterion::PositionDifference) {
 		newX.init(G);
 		newY.init(G);
 		if (GA.has(GraphAttributes::threeD))
 			newZ.init(G);
 	}
 	do {
-		if (m_terminationCriterion == POSITION_DIFFERENCE) {
+		if (m_terminationCriterion == TerminationCriterion::PositionDifference) {
 			if (GA.has(GraphAttributes::threeD))
 				copyLayout(GA, newX, newY, newZ);
 			else copyLayout(GA, newX, newY);
 		}
 		nextIteration(GA, shortestPathMatrix, weightMatrix);
-		if (m_terminationCriterion == STRESS) {
+		if (m_terminationCriterion == TerminationCriterion::Stress) {
 			prevStress = curStress;
 			curStress = calcStress(GA, shortestPathMatrix, weightMatrix);
 		}
@@ -304,18 +303,14 @@ void StressMinimization::nextIteration(
 				}
 				newYCoord += weight * voteY;
 			}
-			if (GA.has(GraphAttributes::threeD))
-			{
+			if (GA.has(GraphAttributes::threeD) && !m_fixZCoords) {
 				// reset the voted z coordinate
-				// z is not fixed
-				if (!m_fixZCoords) {
-					double voteZ = GA.z(w);
-					if (euclideanDist != 0) {
-						// calc the vote
-						voteZ += desDistance * (GA.z(v) - voteZ) / euclideanDist;
-					}
-					newZCoord += weight * voteZ;
+				double voteZ = GA.z(w);
+				if (euclideanDist != 0) {
+					// calc the vote
+					voteZ += desDistance * (GA.z(v) - voteZ) / euclideanDist;
 				}
+				newZCoord += weight * voteZ;
 			}
 			// sum up the weights
 			totalWeight += weight;
@@ -328,11 +323,8 @@ void StressMinimization::nextIteration(
 			if (!m_fixYCoords) {
 				currYCoord = newYCoord / totalWeight;
 			}
-			if (GA.has(GraphAttributes::threeD))
-			{
-				if (!m_fixZCoords) {
-					GA.z(v) = newZCoord / totalWeight;
-				}
+			if (GA.has(GraphAttributes::threeD) && !m_fixZCoords) {
+				GA.z(v) = newZCoord / totalWeight;
 			}
 		}
 	}
@@ -353,7 +345,7 @@ bool StressMinimization::finished(
 
 	switch (m_terminationCriterion)
 	{
-	case POSITION_DIFFERENCE:
+	case TerminationCriterion::PositionDifference:
 	{
 		double eucNorm = 0;
 		double dividend = 0;
@@ -368,7 +360,7 @@ bool StressMinimization::finished(
 		}
 		return sqrt(dividend) / sqrt(eucNorm) < EPSILON;
 	}
-	case STRESS:
+	case TerminationCriterion::Stress:
 		return curStress == 0 || prevStress - curStress < prevStress * EPSILON;
 
 	default:

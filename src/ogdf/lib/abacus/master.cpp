@@ -254,7 +254,7 @@ Master::STATUS Master::optimize()
 	case OptSense::Unknown:
 		Logger::ifout() << "Master::optimize(): optimization sense unknown.\n"
 			<< "Specify optimization sense in the constructor or use function initializeOptSense().\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 
 	// depending on \a PRIMALBOUNDMODE reinitialize \a primalBound
@@ -278,7 +278,7 @@ Master::STATUS Master::optimize()
 
 	printParameters();
 
-	Logger::ilout(Logger::LL_MINOR) << endl << "   #sub   #open   current   #iter         LP       dual     primal" << endl;
+	Logger::ilout(Logger::Level::Minor) << endl << "   #sub   #open   current   #iter         LP       dual     primal" << endl;
 
 	// perform the branch and bound algorithm
 	// initialize the root node
@@ -321,12 +321,12 @@ Master::STATUS Master::optimize()
 	*/
 
 	// output the solution history
-	Logger::ilout(Logger::LL_DEFAULT) << endl << *history_ << endl;
+	Logger::ilout(Logger::Level::Default) << endl << *history_ << endl;
 
 	// output information on the tree, variables, constraints, etc.
 	const int w = 6;
 
-	Logger::ilout(Logger::LL_DEFAULT) << "Miscellaneous Statistics" << endl << endl
+	Logger::ilout(Logger::Level::Default) << "Miscellaneous Statistics" << endl << endl
 	 << "  Dual bound of the root node       : "
 	 << setw(w) << rootDualBound_     << endl
 	 << "  Number of subproblems             : "
@@ -354,7 +354,7 @@ Master::STATUS Master::optimize()
 
 	output();
 
-	Logger::ilout(Logger::LL_DEFAULT) << endl << endl;
+	Logger::ilout(Logger::Level::Default) << endl << endl;
 
 	// output the timing statistics
 	/* The cpu time for branching may include time for linear programming.
@@ -388,7 +388,7 @@ Master::STATUS Master::optimize()
 
 	const int wpc = 7;
 
-	Logger::ilout(Logger::LL_DEFAULT) << "Timing Statistics" << endl << endl
+	Logger::ilout(Logger::Level::Default) << "Timing Statistics" << endl << endl
 	 << "  Elapsed time           : " << totalCowTime_ << endl
 	 << "  Total cpu time         : " << totalTime_   << endl
 	 << "  LP cpu time            : " << lpTime_
@@ -406,12 +406,12 @@ Master::STATUS Master::optimize()
 
 	// output the value of the best solution
 	if (feasibleFound())
-		Logger::ilout(Logger::LL_DEFAULT) << "Best solution: " << primalBound_ << endl;
+		Logger::ilout(Logger::Level::Default) << "Best solution: " << primalBound_ << endl;
 	else
-		Logger::ilout(Logger::LL_DEFAULT) << "No feasible solution found." << endl;
+		Logger::ilout(Logger::Level::Default) << "No feasible solution found." << endl;
 
 	// output the status of the optimization
-	Logger::ilout(Logger::LL_DEFAULT) << endl << "ABACUS optimization terminated with status "
+	Logger::ilout(Logger::Level::Default) << endl << "ABACUS optimization terminated with status "
 	 << STATUS_[status_] << "." << endl;
 
 	// Master::optimize(): clean up and return
@@ -515,7 +515,7 @@ void Master::initializePools(
 	if (nCuts > cutPoolSize) {
 		//char *_error=new char[255];
 		Logger::ifout() << "Master::initializePools(): size of cutting plane too small for all initialize cuts.\nsize of cut pool: " << cutPoolSize << "\n number of cuts: " << nCuts << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 
 	for (int i = 0; i < nCuts; i++)
@@ -536,7 +536,7 @@ Sub* Master::select()
 	*   stop the optimization.
 	*/
 	if (totalTime_.exceeds(maxCpuTime())) {
-		Logger::ilout(Logger::LL_DEFAULT) << "Maximal CPU time " << maxCpuTimeAsString() << " exceeded." << endl
+		Logger::ilout(Logger::Level::Default) << "Maximal CPU time " << maxCpuTimeAsString() << " exceeded." << endl
 		 << "Stop optimization." << endl;
 		root_->fathomTheSubTree();
 		status_ = MaxCpuTime;
@@ -544,7 +544,7 @@ Sub* Master::select()
 	}
 
 	if (totalCowTime_.exceeds(maxCowTime())) {
-		Logger::ilout(Logger::LL_DEFAULT) << "Maximal elapsed time " << maxCowTimeAsString() << " exceeded." << endl
+		Logger::ilout(Logger::Level::Default) << "Maximal elapsed time " << maxCowTimeAsString() << " exceeded." << endl
 		 << "Stop optimization." << endl;
 		root_->fathomTheSubTree();
 		status_ = MaxCowTime;
@@ -552,7 +552,7 @@ Sub* Master::select()
 	}
 
 	if (guaranteed()) {
-		Logger::ilout(Logger::LL_DEFAULT) << endl
+		Logger::ilout(Logger::Level::Default) << endl
 		 << "Guarantee " << requiredGuarantee() << " % reached." << endl
 		 << "Terminate optimization." << endl;
 		status_ = Guaranteed;
@@ -561,7 +561,7 @@ Sub* Master::select()
 	}
 
 	if (nSubSelected_ >= maxNSub()) {
-		Logger::ilout(Logger::LL_DEFAULT) << endl
+		Logger::ilout(Logger::Level::Default) << endl
 		 << "Maximal number of subproblems reached: " << maxNSub() << endl
 		 << "Terminate optimization." << endl;
 		status_ = MaxNSub;
@@ -582,7 +582,7 @@ int Master::enumerationStrategy(const Sub *s1, const Sub *s2)
 	case DiveAndBest:  return diveAndBestFirstSearch(s1, s2);
 	default:
 		Logger::ifout() << "Master::enumerationStrategy(): Unknown enumeration strategy\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 }
 
@@ -657,13 +657,13 @@ void Master::primalBound(double x)
 	if (optSense()->max()) {
 		if (x < primalBound_) {
 			Logger::ifout() << "Error: Master::primalBound(): got worse\nold bound: " << primalBound_ << "\nnew bound: " << x << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPrimalBound);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::PrimalBound);
 		}
 	}
 	else {
 		if (x > primalBound_) {
 			Logger::ifout() << "Error: Master::primalBound(): got worse\nold bound: " << primalBound_ << "\nnew bound: " << x << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPrimalBound);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::PrimalBound);
 		}
 	}
 
@@ -679,7 +679,7 @@ void Master::primalBound(double x)
 	if (objInteger_) {
 		if (!isInteger(x, eps())) {
 			Logger::ifout() << "Master::primalBound(): value " << x << " is not integer, but feasible solutions with integer objective function values are expected.\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcNotInteger);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::NotInteger);
 		}
 
 		x = floor(x + eps());
@@ -700,13 +700,13 @@ void Master::dualBound(double x)
 	if (optSense()->max()) {
 		if (x > dualBound_) {
 			Logger::ifout() << "Error: Master::dualBound(): got worse\nold bound: " << dualBound_ << "\nnew bound: " << x << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcDualBound);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::DualBound);
 		}
 	}
 	else {
 		if (x < dualBound_) {
 			Logger::ifout() << "Error: Master::dualBound(): got worse\nold bound: " << dualBound_ << "\nnew bound: " << x << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcDualBound);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::DualBound);
 		}
 	}
 
@@ -780,7 +780,7 @@ void Master::rRoot(Sub *newRoot, bool /* reoptimize */)
 
 	rRoot_ = newRoot;
 
-	Logger::ilout(Logger::LL_DEFAULT) << "\t" << "subproblem " << newRoot->id() << " is now root of remaining tree" << endl;
+	Logger::ilout(Logger::Level::Default) << "\t" << "subproblem " << newRoot->id() << " is now root of remaining tree" << endl;
 
 	if ((newRoot->status() == Sub::Processed ||
 		newRoot->status() == Sub::Dormant     ) && newRootReOptimize_)
@@ -811,7 +811,7 @@ double Master::guarantee() const
 			return 0.0;
 		else {
 			Logger::ifout() << "Master::guarantee(): cannot compute guarantee with lower bound 0\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 		}
 	}
 	return fabs((upperBound() - lb)/lb * 100.0);
@@ -975,7 +975,7 @@ void Master::_initializeParameters()
 		char *abacusDir = getenv("ABACUS_DIR");
 		if (!abacusDir) {
 			Logger::ifout() << "environment variable ABACUS_DIR not found\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 		}
 
 #ifdef OGDF_SYSTEM_UNIX
@@ -1195,7 +1195,7 @@ void Master::assignParameters()
 
 void Master::printParameters() const
 {
-	Logger::ilout(Logger::LL_DEFAULT) << "Branch and Cut Parameters:" << endl << endl
+	Logger::ilout(Logger::Level::Default) << "Branch and Cut Parameters:" << endl << endl
 
 	 << "  Enumeration strategy                   : "
 	 << ENUMSTRAT_[enumerationStrategy_]
@@ -1289,7 +1289,7 @@ void Master::maxCpuTime(int hour, int min, int sec)
 
 	if(sec >59||min >59){
 		Logger::ifout() << "Master::setCpuTime() invalid argument \n - correct value: sec,min <=60\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	maxCpuTime_ = int64_t(hour)*3600 + min*60 + sec;
 }
@@ -1299,7 +1299,7 @@ void Master::nBranchingVariableCandidates(int n)
 {
 	if (n < 1) {
 		Logger::ifout() << "Master::nBranchingVariableCandidates() invalid argument\ncorrect value: positive integer number\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	nBranchingVariableCandidates_ = n;
 }
@@ -1309,7 +1309,7 @@ void Master::nStrongBranchingIterations(int n)
 {
 	if (n < 1) {
 		Logger::ifout() << "Master::nStrongBranchingIterations() invalid argument\ncorrect value: positive integer number\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	nStrongBranchingIterations_ = n;
 }
@@ -1319,7 +1319,7 @@ void Master::requiredGuarantee(double g)
 {
 	if (g < 0.0) {
 		Logger::ifout() << "Master::guarantee: " << g << "\nchoose nonnegative value.";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 
 	requiredGuarantee_ = g;
@@ -1330,7 +1330,7 @@ void Master::maxLevel(int max)
 {
 	if (max < 1) {
 		Logger::ifout() << "Master::maxLevel " << max << ", only positive integers are valid\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	maxLevel_ = max;
 }
@@ -1340,7 +1340,7 @@ void Master::maxNSub(int max)
 {
 	if (max < 1) {
 		Logger::ifout() << "Master::maxNSubl " << max << ", only positive integers are valid\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	maxNSub_ = max;
 }
@@ -1350,7 +1350,7 @@ void Master::tailOffPercent(double p)
 {
 	if (p < 0.0) {
 		Logger::ifout() << "Master::tailing_off(p): choose nonnegative value\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	tailOffPercent_ = p;
 }
@@ -1367,7 +1367,7 @@ void Master::pricingFreq(int f)
 {
 	if (f < 0) {
 		Logger::ifout() << "Master::pricingFreq(): nonnegative frequency expected\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	pricingFreq_ = f;
 }
@@ -1377,7 +1377,7 @@ void Master::skipFactor(int f)
 {
 	if (f < 0) {
 		Logger::ifout() << "Master::skipFactor(): nonnegative value expected\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::IllegalParameter);
 	}
 	skipFactor_ = f;
 }

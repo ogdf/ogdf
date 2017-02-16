@@ -87,10 +87,10 @@ public:
 	 *  @{
 	 */
 
-	//! Computes a node ranking of \a G in \a rank.
+	//! Computes a node ranking of \p G in \p rank.
 	virtual void call(const Graph &G, NodeArray<int> &rank) override;
 
-	//! Computes a node ranking of \a G with given minimal edge length in \a rank.
+	//! Computes a node ranking of \p G with given minimal edge length in \p rank.
 	/**
 	 * @param G is the input graph.
 	 * @param length specifies the minimal length of each edge.
@@ -98,7 +98,7 @@ public:
 	 */
 	void call(const Graph &G, const EdgeArray<int> &length, NodeArray<int> &rank);
 
-	//! Computes a cost-minimal node ranking of \a G for given edge costs and minimal edge lengths in \a rank.
+	//! Computes a cost-minimal node ranking of \p G for given edge costs and minimal edge lengths in \p rank.
 	/**
 	 * @param G is the input graph.
 	 * @param length specifies the minimal length of each edge.
@@ -125,7 +125,7 @@ public:
 	 */
 	bool separateMultiEdges() const { return m_separateMultiEdges; }
 
-	//! Sets the option separateMultiEdges to \a b.
+	//! Sets the option separateMultiEdges to \p b.
 	void separateMultiEdges(bool b) { m_separateMultiEdges = b; }
 
 

@@ -49,7 +49,7 @@ namespace ogdf {
 CliqueFinder::CliqueFinder(const Graph &G) : m_pGraph(&G), m_pCopy(nullptr),
 	m_minDegree(2),
 	m_numberOfCliques(0),
-	m_postProcess(ppSimple),
+	m_postProcess(postProcess::Simple),
 	m_callByList(false),
 	m_pList(nullptr),
 	m_density(100)
@@ -80,9 +80,6 @@ CliqueFinder::~CliqueFinder()
 
 
 
-//---------------------------------------------------
-//calls
-//---------------------------------------------------
 //Call with NodeArray, each clique will be assigned a
 //different number, each node gets the number of the
 //clique it is contained in, -1 if not a clique member
@@ -113,8 +110,6 @@ void CliqueFinder::call(List< List<node> > &cliqueLists)
 }//call
 
 
-//---------------------------------------------------------
-//actual call
 //minDegree default 2, all other nodes are skipped
 //only high values have an impact because we only
 //work on triconnected components, skipping all low
@@ -122,9 +117,7 @@ void CliqueFinder::call(List< List<node> > &cliqueLists)
 //afterwards)
 void CliqueFinder::doCall(int minDegree)
 {
-	//---------------------------------------------
 	//initialize structures and check preconditions
-	//---------------------------------------------
 	m_copyCliqueNumber.init(*m_pCopy, -1);
 	m_usedNode.init(*m_pCopy, false);
 	makeParallelFreeUndirected(*m_pCopy); //it doesnt make sense to count loops
@@ -142,13 +135,11 @@ void CliqueFinder::doCall(int minDegree)
 	//TODO: change for non-cliques, where this is not necessary
 	if (nodeNum < minDegree) return; //nothing to find for cliques
 
-	//-------------------------------------------------------
 	//Special cases:
 	//Precondition for SPQR-trees: graph has at least 3 nodes
 	//or 2 nodes and at least 3 edges
 	//TODO: check this after makebiconnected
 
-	//----------------------------
 	//set values for trivial cases
 	if (nodeNum < 3)
 	{
@@ -174,8 +165,9 @@ void CliqueFinder::doCall(int minDegree)
 
 			}
 		}//if two nodes
-		else if ( (nodeNum == 1) && (minDegree <= 0))
-				m_copyCliqueNumber[m_pCopy->firstNode()] = 0;
+		else if ( (nodeNum == 1) && (minDegree <= 0)) {
+			m_copyCliqueNumber[m_pCopy->firstNode()] = 0;
+		}
 
 		return;
 	}//graph too small
@@ -191,7 +183,6 @@ void CliqueFinder::doCall(int minDegree)
 	//components
 
 
-	//-------------------------------------------------------------
 	//store the original node degrees:
 	//afterwards we want to be able to sort the nodes corresponding
 	//to their real degree, not the one with the additional
@@ -252,7 +243,7 @@ void CliqueFinder::doCall(int minDegree)
 		//starting new cliques with nodes that don't fit in the
 		//existing cliques (stored in cliqueList)
 
-		if (spqrTree.typeOf(v) == SPQRTree::RNode)
+		if (spqrTree.typeOf(v) == SPQRTree::NodeType::RNode)
 		{
 			//retrieve the skeleton
 			Skeleton &s = spqrTree.skeleton(v);
@@ -325,7 +316,6 @@ void CliqueFinder::doCall(int minDegree)
 #endif
 					break;
 
-				//------------------------------------------------
 				//successively check the node against the existing
 				//clique candidates
 
@@ -340,42 +330,42 @@ void CliqueFinder::doCall(int minDegree)
 					//greater or equal to current clique size
 					//TODO: adapt to dense subgraphs
 					bool isCand = false;
-					if (m_density == 100)
+					if (m_density == 100) {
 						isCand = (vCand->degree() >= (*itCand)->size());
-					else isCand = (vCand->degree() >= ceil(m_density*(*itCand)->size()/100.0));
-					if (isCand)
+					} else {
+						isCand = (vCand->degree() >= ceil(m_density*(*itCand)->size()/100.0));
+					}
+					if (isCand
+					// TODO: insert adjacency oracle here to speed
+					//       up the check?
+					// TODO: check if change from clique to dense subgraph criterion
+					//       violates some preconditions for our search
+					// but for now:
+					 && allAdjacent(vCand, *itCand))
 					{
-						//TODO: insert adjacency oracle here to speed
-						//up the check?
-						//TODO: check if change from clique to dense subgraph criterion
-						//violates some preconditions for our search
-						if (allAdjacent(vCand, (*itCand)))
-						{
-							OGDF_ASSERT(m_usedNode[*itNode] == false);
-							(*itCand)->pushBack(*itNode);
-							setFound = true;
-							m_usedNode[*itNode] = true;
+						OGDF_ASSERT(m_usedNode[*itNode] == false);
+						(*itCand)->pushBack(*itNode);
+						setFound = true;
+						m_usedNode[*itNode] = true;
 
-							//bubble sort the clique after insertion of the node
-							//while size > predsize swap positions
-							ListIterator< List<node>* > itSearch = itCand.pred();
-							if (itSearch.valid())
-							{
-								while (itSearch.valid() &&
-									( (*itCand)->size() > (*itSearch)->size()) )
-								{
-									--itSearch;
-								}
-								//If valid, move behind itSearch, else move to front
-								if (!itSearch.valid())
-									cliqueList.moveToFront(itCand);
-								else cliqueList.moveToSucc(itCand, itSearch);
-							}//if valid
-
-							break;
-						}//if node fits into node set
-					}//if sufficient degree
-					//hier kann man mit else breaken, wenn Liste immer sortiert ist
+						// bubble sort the clique after insertion of the node
+						// while size > predsize swap positions
+						auto itSearch = itCand.pred();
+						if (itSearch.valid()) {
+							while (itSearch.valid()
+							    && (*itCand)->size() > (*itSearch)->size()) {
+								--itSearch;
+							}
+							// If valid, move behind itSearch, else move to front
+							if (itSearch.valid()) {
+								cliqueList.moveToSucc(itCand, itSearch);
+							} else {
+								cliqueList.moveToFront(itCand);
+							}
+						}
+						break;
+					}
+					// XXX: if list is always sorted, you can break here if not isCand
 
 					++itCand;
 				}//while clique candidates
@@ -472,16 +462,14 @@ void CliqueFinder::postProcessCliques(
 {
 	//TODO:hier aufpassen, das man nicht Knoten ausserhalb des
 	//R-Knotens nimmt
-	if (m_postProcess == ppNone) return;
+	if (m_postProcess == postProcess::None) return;
 
-	//------------------------------------------------------
 	//we run over all leftover nodes and try to find cliques
 	List<node> leftOver;
 
 	//list of additional cliques
 	List< List<node>* > cliqueAdd;
 
-	//-----------------------------------
 	//First we check the nodes set by the
 	//heuristic for dense subgraphs
 	//best would be to reinsert them immediatedly after
@@ -505,10 +493,9 @@ void CliqueFinder::postProcessCliques(
 					adjEntry adE = (*itNode)->firstAdj();
 					for (int i = 0; i < (*itNode)->degree(); i++)
 					{
-						if (usableEdge[adE->theEdge()])
-						{
-							if (inList[adE->twinNode()])
-								adCount++;
+						if (usableEdge[adE->theEdge()]
+						 && inList[adE->twinNode()]) {
+							adCount++;
 						}
 						adE = adE->cyclicSucc();
 					}//for
@@ -546,7 +533,7 @@ void CliqueFinder::postProcessCliques(
 				OGDF_ASSERT(m_copyCliqueNumber[v] == -1);
 			}//while nodes
 			ListIterator< List<node>* > itDel = itCand;
-			delete (*itDel);
+			delete *itDel;
 			++itCand;
 			cliqueList.del(itDel);//del
 			//Todo: remove empty lists here
@@ -569,7 +556,6 @@ void CliqueFinder::postProcessCliques(
 
 	leftOver.quicksort(cmp);
 
-	//--------------------------------------------------
 	//now start a new search at the most qualified nodes
 	//TODO: Option: wieviele?
 	ListIterator<node> itNode = leftOver.begin();
@@ -590,7 +576,7 @@ void CliqueFinder::postProcessCliques(
 		//should not be run twice, but its not efficient
 		//to save the neighbour degree values for every
 		//run of evaluate
-		//##############################
+
 		NodeArray<bool> neighbour(*m_pCopy, false);
 		NodeArray<int>  neighbourDegree(*m_pCopy, 0);
 		node v = *itNode;
@@ -633,9 +619,7 @@ void CliqueFinder::postProcessCliques(
 				}//if
 			}
 		}
-		//##############################
 
-		//---------------------------------------------
 		//now we have a (dense) set of nodes and we can
 		//delete the nodes with the smallest degree up
 		//to a TODO certain amount
@@ -686,7 +670,7 @@ void CliqueFinder::postProcessCliques(
 			{
 				ListIterator<node> itDel = itUsed;
 #if 0
-				delete (*itDel);
+				delete *itDel;
 #endif
 				++itUsed;
 				neighbours->del(itDel);
@@ -770,7 +754,7 @@ void CliqueFinder::findClique(
 		{
 			ListIterator<node> itDel = itNode;
 #if 0
-			delete (*itDel);
+			delete *itDel;
 #endif
 			++itNode;
 			neighbours.del(itDel); //remove
@@ -888,7 +872,6 @@ inline bool CliqueFinder::allAdjacent(node v, List<node>* vList)
 	return false;
 }//allAdjacent
 
-//-----------------------------------------------------------------------------
 //Debug
 
 //check

@@ -76,7 +76,7 @@ private:
 	static void error(const pugi::xml_node tag, const std::string &msg);
 
 public:
-	Parser(std::istream &is);
+	explicit Parser(std::istream &is);
 
 	bool read(Graph &G);
 	bool read(Graph &G, GraphAttributes &GA);

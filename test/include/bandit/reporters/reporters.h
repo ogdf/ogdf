@@ -9,6 +9,7 @@
 #include <bandit/reporters/xunit_reporter.h>
 #include <bandit/reporters/info_reporter.h>
 #include <bandit/reporters/spec_reporter.h>
+#include <bandit/reporters/crash_reporter.h>
 
 namespace bandit { namespace detail {
 

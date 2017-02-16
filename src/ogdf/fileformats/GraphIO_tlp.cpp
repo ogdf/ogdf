@@ -32,10 +32,6 @@
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/fileformats/Tlp.h>
 
-#include <iostream>
-#include <vector>
-#include <string>
-
 
 namespace ogdf {
 
@@ -119,7 +115,7 @@ static void writeProperties(
 	            GraphAttributes::edgeLabel))
 	{
 		os << "\n";
-		writePropertyHeader(os, a_label, "string");
+		writePropertyHeader(os, Attribute::label, "string");
 		os << "\n";
 		GraphIO::indent(os, 2) << "(default \"\" \"\")";
 
@@ -154,7 +150,7 @@ static void writeProperties(
 	            GraphAttributes::edgeStyle))
 	{
 		os << "\n";
-		writePropertyHeader(os, a_color, "color");
+		writePropertyHeader(os, Attribute::color, "color");
 
 		const Color defaultColor = Color(); // Defaults to (0, 0, 0, 255).
 
@@ -193,7 +189,7 @@ static void writeProperties(
 
 	if(attrs & GraphAttributes::nodeGraphics) {
 		os << "\n";
-		writePropertyHeader(os, a_position, "layout");
+		writePropertyHeader(os, Attribute::position, "layout");
 		for(node v : G.nodes) {
 			const double z =
 				(attrs & GraphAttributes::threeD) ? GA.z(v) : 0;
@@ -207,7 +203,7 @@ static void writeProperties(
 		os << ")";
 
 		os << "\n";
-		writePropertyHeader(os, a_size, "size");
+		writePropertyHeader(os, Attribute::size, "size");
 		for(node v : G.nodes) {
 			os << "\n";
 			GraphIO::indent(os, 2) << "(node " << v->index() << " \"("
@@ -220,9 +216,9 @@ static void writeProperties(
 
 
 /*
- * Helper functions populating \a nodes vector with nodes of given cluster and
+ * Helper functions populating \p nodes vector with nodes of given cluster and
  * all its subclusters. Why would I need something with such bad complexity?
- * See below, in \a writeGraph function.
+ * See below, in #writeGraph function.
  */
 
 static void getClusterChildren(cluster c, std::vector<node> &nodes)

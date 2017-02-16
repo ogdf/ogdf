@@ -29,37 +29,37 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/planarity/VariableEmbeddingInserterDyn.h>
-#include <ogdf/internal/planarity/VarEdgeInserterDynCore.h>
-
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterDynCore.h>
 
 namespace ogdf {
-	// clone method
-	EdgeInsertionModule *VariableEmbeddingInserterDyn::clone() const
-	{
-		return new VariableEmbeddingInserterDyn(*this);
-	}
 
-	VariableEmbeddingInserterDyn &VariableEmbeddingInserterDyn::operator=(const VariableEmbeddingInserterDyn &inserter)
-	{
-		VariableEmbeddingInserterBase::operator=(inserter);
-		return *this;
-	}
+// clone method
+EdgeInsertionModule *VariableEmbeddingInserterDyn::clone() const
+{
+	return new VariableEmbeddingInserterDyn(*this);
+}
 
-	// actual call method
-	Module::ReturnType VariableEmbeddingInserterDyn::doCall(
-		PlanRepLight &pr,
-		const Array<edge> &origEdges,
-		const EdgeArray<int> *pCostOrig,
-		const EdgeArray<bool> *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraphs)
-	{
-		VarEdgeInserterDynCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
-		core.timeLimit(timeLimit());
+VariableEmbeddingInserterDyn &VariableEmbeddingInserterDyn::operator=(const VariableEmbeddingInserterDyn &inserter)
+{
+	VariableEmbeddingInserterBase::operator=(inserter);
+	return *this;
+}
 
-		ReturnType retVal = core.call(origEdges, removeReinsert(), percentMostCrossed());
-		runsPostprocessing(core.runsPostprocessing());
-		return retVal;
-	}
+// actual call method
+Module::ReturnType VariableEmbeddingInserterDyn::doCall(
+	PlanRepLight &pr,
+	const Array<edge> &origEdges,
+	const EdgeArray<int> *pCostOrig,
+	const EdgeArray<bool> *pForbiddenOrig,
+	const EdgeArray<uint32_t> *pEdgeSubgraphs)
+{
+	VarEdgeInserterDynCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
+	core.timeLimit(timeLimit());
+
+	ReturnType retVal = core.call(origEdges, removeReinsert(), percentMostCrossed());
+	runsPostprocessing(core.runsPostprocessing());
+	return retVal;
+}
+
 }

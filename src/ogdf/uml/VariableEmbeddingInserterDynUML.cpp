@@ -29,61 +29,53 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/uml/VariableEmbeddingInserterDynUML.h>
-#include <ogdf/internal/planarity/VarEdgeInserterDynCore.h>
-
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterDynCore.h>
 
 namespace ogdf {
 
-	//---------------------------------------------------------
-	// constructor
-	// sets default values for options
-	//
-	VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML()
-	{
-		m_rrOption = rrNone;
-		m_percentMostCrossed = 25;
-	}
+// constructor
+// sets default values for options
+VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML()
+{
+	m_rrOption = RemoveReinsertType::None;
+	m_percentMostCrossed = 25;
+}
 
+// copy constructor
+VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML &inserter)
+	: UMLEdgeInsertionModule(inserter)
+{
+	m_rrOption = inserter.m_rrOption;
+	m_percentMostCrossed = inserter.m_percentMostCrossed;
+}
 
-	// copy constructor
-	VariableEmbeddingInserterDynUML::VariableEmbeddingInserterDynUML(const VariableEmbeddingInserterDynUML &inserter)
-		: UMLEdgeInsertionModule(inserter)
-	{
-		m_rrOption = inserter.m_rrOption;
-		m_percentMostCrossed = inserter.m_percentMostCrossed;
-	}
+// clone method
+UMLEdgeInsertionModule *VariableEmbeddingInserterDynUML::clone() const
+{
+	return new VariableEmbeddingInserterDynUML(*this);
+}
 
+// assignment operator
+VariableEmbeddingInserterDynUML &VariableEmbeddingInserterDynUML::operator=(const VariableEmbeddingInserterDynUML &inserter)
+{
+	m_timeLimit = inserter.m_timeLimit;
+	m_rrOption = inserter.m_rrOption;
+	m_percentMostCrossed = inserter.m_percentMostCrossed;
+	return *this;
+}
 
-	// clone method
-	UMLEdgeInsertionModule *VariableEmbeddingInserterDynUML::clone() const
-	{
-		return new VariableEmbeddingInserterDynUML(*this);
-	}
+// actual call method
+Module::ReturnType VariableEmbeddingInserterDynUML::doCall(
+	PlanRepLight              &pr,
+	const Array<edge>         &origEdges,
+	const EdgeArray<int>      *pCostOrig,
+	const EdgeArray<uint32_t> *pEdgeSubgraph)
+{
+	VarEdgeInserterDynUMLCore core(pr, pCostOrig, pEdgeSubgraph);
+	core.timeLimit(timeLimit());
 
-
-	// assignment operator
-	VariableEmbeddingInserterDynUML &VariableEmbeddingInserterDynUML::operator=(const VariableEmbeddingInserterDynUML &inserter)
-	{
-		m_timeLimit = inserter.m_timeLimit;
-		m_rrOption = inserter.m_rrOption;
-		m_percentMostCrossed = inserter.m_percentMostCrossed;
-		return *this;
-	}
-
-
-	// actual call method
-	Module::ReturnType VariableEmbeddingInserterDynUML::doCall(
-		PlanRepLight              &pr,
-		const Array<edge>         &origEdges,
-		const EdgeArray<int>      *pCostOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraph)
-	{
-		VarEdgeInserterDynUMLCore core(pr, pCostOrig, pEdgeSubgraph);
-		core.timeLimit(timeLimit());
-
-		return core.call(origEdges, m_rrOption, m_percentMostCrossed);
-	}
+	return core.call(origEdges, m_rrOption, m_percentMostCrossed);
+}
 
 }

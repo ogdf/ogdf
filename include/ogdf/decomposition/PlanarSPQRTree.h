@@ -33,13 +33,7 @@
 
 #include <ogdf/decomposition/SPQRTree.h>
 
-
 namespace ogdf {
-
-//---------------------------------------------------------
-// PlanarSPQRTree
-// extension of class SPQRTree for support of embedded graphs
-//---------------------------------------------------------
 
 //! SPQR-trees of planar graphs.
 /**
@@ -55,11 +49,9 @@ namespace ogdf {
  * around its poles, and swap(v,e_1,e_2), which exchanges the
  * positions of the edges e_1 and e_2 in the skeleton of a P-node v.
  */
-
 class OGDF_EXPORT PlanarSPQRTree : public virtual SPQRTree
 {
 public:
-
 	//
 	// a) Access operations
 	//
@@ -69,16 +61,16 @@ public:
 		return numberOfEmbeddings(rootNode());
 	}
 
-	//! Returns the number of possible embeddings of the pertinent graph of node \a v.
+	//! Returns the number of possible embeddings of the pertinent graph of node \p v.
 	/**
-	 * \pre \a v is a node in \a T
+	 * \pre \p v is a node in \a T
 	 */
 	double numberOfEmbeddings(node v) const;
 
-	//! Returns the number of possible embeddings of the skeleton of node \a vT.
+	//! Returns the number of possible embeddings of the skeleton of node \p vT.
 	/**
-	 * \pre \a vT is a node in \a T
-	 * Returns 1 if vT is a S-node, 2 if vT is a R-node, and (number of edges in the sekeleton - 1)! if vT is a P-node.
+	 * \pre \p vT is a node in \a T
+	 * Returns 1 if \p vT is a S-node, 2 if \p vT is a R-node, and (number of edges in the sekeleton - 1)! if \p vT is a P-node.
 	 */
 	long long numberOfNodeEmbeddings(node vT);
 
@@ -86,56 +78,56 @@ public:
 	// b) Update operations
 	//
 
-	//! Flips the skeleton \a S of \a vT around its poles.
+	//! Flips the skeleton \a S of \p vT around its poles.
 	/**
 	 * Reverses the order of adjacency entries of each vertex in \a S.
-	 * \pre \a vT is an R- or P-node in \a T
+	 * \pre \p vT is an R- or P-node in \a T
 	 */
 	void reverse(node vT);
 
-	//! Exchanges the positions of edges \a e1 and \a e2 in skeleton of \a vT.
+	//! Exchanges the positions of edges \p e1 and \p e2 in skeleton of \a vT.
 	/**
-	 * \pre \a vT is a P-node in \a T and \a e1 and \a e2 are in edges in
-	 *      skeleton(\a vT)
+	 * \pre \p vT is a P-node in \a T and \p e1 and \p e2 are in edges in
+	 *      skeleton(\p vT)
 	 */
 	void swap(node vT, edge e1, edge e2);
 
-	//! Exchanges the positions of the two edges corresponding to \a adj1 and \a adj2 in skeleton of \a vT.
+	//! Exchanges the positions of the two edges corresponding to \p adj1 and \p adj2 in skeleton of \p vT.
 	/**
-	 * \pre \a vT is a P-node in \a T and \a adj1 and \a adj2 are in adjacency entries
-	 *      in skeleton(\a vT) at the same owner node.
+	 * \pre \p vT is a P-node in \a T and \p adj1 and \p adj2 are in adjacency entries
+	 *      in skeleton(\p vT) at the same owner node.
 	 */
 	void swap(node vT, adjEntry adj1, adjEntry adj2);
 
-	//! Embeds \a G according to the current embeddings of the skeletons of \a T.
+	//! Embeds \p G according to the current embeddings of the skeletons of \a T.
 	/**
-	 * \pre \a G is the graph passed to the constructor of \a T
+	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
 	void embed(Graph &G);
 
 	//! Embeds all skeleton graphs randomly.
 	void randomEmbed();
 
-	//! Embeds all skeleton graphs randomly and embeds \a G according to the embeddings of the skeletons.
+	//! Embeds all skeleton graphs randomly and embeds \p G according to the embeddings of the skeletons.
 	/**
-	 * \pre \a G is the graph passed to the constructor of \a T
+	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
 	void randomEmbed(Graph &G) {
 		randomEmbed();
 		embed(G);
 	}
 
-	//! Embeds the original graph \a G canonically by the indices of their adjEntries.
+	//! Embeds the original graph \p G canonically by the indices of their adjEntries.
 	/**
-	 * \pre \a G is the graph passed to the constructor of \a T
+	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
 	void firstEmbedding(Graph &G);
 
-	//! Embeds the original graph \a G with the next embedding.
+	//! Embeds the original graph \p G with the next embedding.
 	/**
-	 * It returns \a false iff there is no feasible (planar) embedding left
+	 * It returns \c false iff there is no feasible (planar) embedding left
 	 * \pre To work correctly it has to start with firstEmbedding(G)
-	 * \pre \a G is the graph passed to the constructor of \a T
+	 * \pre \p G is the graph passed to the constructor of \a T
 	 */
 	bool nextEmbedding(Graph &G);
 

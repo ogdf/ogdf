@@ -72,7 +72,7 @@ public:
 		m_edgeCosts = edgeCosts;
 	}
 
-	//! Calls the layout algorithm for graph attributes \a GA.
+	//! Calls the layout algorithm for graph attributes \p GA.
 	virtual void call(GraphAttributes& GA) override;
 
 
@@ -113,7 +113,7 @@ private:
 	//! Centers the pivot matrix.
 	void centerPivotmatrix(Array<Array<double> >& pivotMatrix);
 
-	//! Computes the pivot mds layout of the given connected graph of \a GA.
+	//! Computes the pivot mds layout of the given connected graph of \p GA.
 	void pivotMDSLayout(GraphAttributes& GA);
 
 	void copySPSS(Array<double>& copyTo, NodeArray<double>& copyFrom);
@@ -133,19 +133,19 @@ private:
 	//! Checks whether the given graph is a path or not.
 	node getRootedPath(const Graph& G);
 
-	//! Normalizes the vector \a x.
+	//! Normalizes the vector \p x.
 	double normalize(Array<double>& x);
 
-	//! Computes the product of two vectors \a x and \a y.
+	//! Computes the product of two vectors \p x and \p y.
 	double prod(const Array<double>& x, const Array<double>& y);
 
-	//! Fills the given \a matrix with random doubles d 0 <= d <= 1.
+	//! Fills the given \p matrix with random doubles d 0 <= d <= 1.
 	void randomize(Array<Array<double> >& matrix);
 
-	//! Computes the self product of \a d.
+	//! Computes the self product of \p d.
 	void selfProduct(const Array<Array<double> >&d, Array<Array<double> >& result);
 
-	//! Computes the singular value decomposition of matrix \a K.
+	//! Computes the singular value decomposition of matrix \p K.
 	void singularValueDecomposition(
 		Array<Array<double> >& K,
 		Array<Array<double> >& eVecs,

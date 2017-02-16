@@ -58,7 +58,7 @@ void AbacusGlobal::insertParameter(const char *name, const char *value)
 {
 	if(!name||!value) {
 		Logger::ifout() << "AbacusGlobal:insertParameter(): both arguments must\nbe non-zero pointers\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	string stName(name);
 	string stValue(value);
@@ -78,7 +78,7 @@ void AbacusGlobal::readParameters(const string &fileName)
 
 	if (!paramFile) {
 		Logger::ifout() << "AbacusGlobal::readParameters(): opening file " << fileName << " failed\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	// read the parameter file line by line
 	/* Lines in a parameter file starting with \a '#' are comments and hence they
@@ -98,7 +98,7 @@ void AbacusGlobal::readParameters(const string &fileName)
 
 		if( !(is >> value) ) {
 			Logger::ifout() << "AbacusGlobal::readParameters " << fileName << " value missing for parameter " << name << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 		}
 		else {
 			paramTable_.overWrite(name, value);
@@ -115,11 +115,11 @@ void AbacusGlobal::assignParameter(
 {
 	if(getParameter(name, param)){
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " not found in parameter table\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	if(param < minVal || param > maxVal) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is out of range.\nvalue: " << param << "\nfeasible range: " << minVal << " ... " << maxVal << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 }
 
@@ -132,11 +132,11 @@ void AbacusGlobal::assignParameter(
 {
 	if(getParameter(name, param)){
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " not found in parameter table.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	if(param < minVal || param > maxVal) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is out of range.\nvalue: " << param << "\nfeasible range: " << minVal << " ... " << maxVal << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 }
 
@@ -149,11 +149,11 @@ void AbacusGlobal::assignParameter(
 {
 	if(getParameter(name, param)){
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " not found in parameter table.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	if(param < minVal || param > maxVal) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is out of range.\nvalue: " << param << "\nfeasible range: " << minVal << " ... " << maxVal << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 
 	}
 }
@@ -163,7 +163,7 @@ void AbacusGlobal::assignParameter(bool &param, const char *name) const
 {
 	if(getParameter(name, param)){
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " not found in parameter table.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 }
 
@@ -176,7 +176,7 @@ void AbacusGlobal::assignParameter(
 {
 	if(getParameter(name, param)){
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " not found in parameter table.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 
 	if(nFeasible){
@@ -194,7 +194,7 @@ void AbacusGlobal::assignParameter(
 			for(i = 0; i < nFeasible; i++)
 				Logger::ifout() << " " << feasible[i];
 			Logger::ifout() << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 		}
 	}
 }
@@ -204,7 +204,7 @@ void AbacusGlobal::assignParameter(char &param, const char *name, const char *fe
 {
 	if(getParameter(name, param)){
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " not found in parameter table.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	if(feasible){
 		string stFeasible(feasible);
@@ -214,7 +214,7 @@ void AbacusGlobal::assignParameter(char &param, const char *name, const char *fe
 				break;
 		if(feasible && i == len) {
 			Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is not feasible.\nvalue: " << param << "\nfeasible settings: " << feasible << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 		}
 	}
 }
@@ -232,7 +232,7 @@ void AbacusGlobal::assignParameter(
 	}
 	if(param < minVal || param > maxVal) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is out of range.\nvalue: " << param << "\nfeasible range: " << minVal << " ... " << maxVal << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 }
 
@@ -249,7 +249,7 @@ void AbacusGlobal::assignParameter(
 	}
 	if(param < minVal || param > maxVal) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is out of range.\nvalue: " << param << "\nfeasible range: " << minVal << " ... " << maxVal << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 }
 
@@ -266,7 +266,7 @@ void AbacusGlobal::assignParameter(
 	}
 	if(param < minVal || param > maxVal) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is out of range.\nvalue: " << param << "\nfeasible range: " << minVal << " ... " << maxVal << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 }
 
@@ -303,7 +303,7 @@ void AbacusGlobal::assignParameter(
 			for(i = 0; i < nFeasible; i++)
 				Logger::ifout() << " " << feasible[i];
 			Logger::ifout() << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 		}
 	}
 }
@@ -326,7 +326,7 @@ void AbacusGlobal::assignParameter(
 				break;
 		if(i == len) {
 			Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is not feasible.\nvalue: " << param << "\nfeasible settings: " << feasible << "\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 		}
 	}
 }
@@ -347,7 +347,7 @@ int AbacusGlobal::findParameter(const char *name, unsigned nFeasible, const int 
 		for(i = 0; i < nFeasible; i++)
 			Logger::ifout() << " " << feasible[i];
 		Logger::ifout() << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	return i;
 }
@@ -370,7 +370,7 @@ int AbacusGlobal::findParameter(const char *name, unsigned nFeasible, const char
 		for(i = 0; i < nFeasible; i++)
 			Logger::ifout() << " " << feasible[i];
 		Logger::ifout() << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	return i;
 }
@@ -380,7 +380,7 @@ int AbacusGlobal::findParameter(const char *name, const char *feasible) const
 {
 	if(!feasible){
 		Logger::ifout() << "AbacusGlobal::findParameter(const char*, const char*): second argument must be non-zero.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	char param;
 	assignParameter(param,name);
@@ -391,7 +391,7 @@ int AbacusGlobal::findParameter(const char *name, const char *feasible) const
 	}
 	if(i == len) {
 		Logger::ifout() << "AbacusGlobal::assignParameter(): parameter " << name << " is not feasible.\nvalue: " << param << "\nfeasible settings: " << feasible << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcGlobal);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Global);
 	}
 	return i;
 }

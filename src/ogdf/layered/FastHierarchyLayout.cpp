@@ -30,22 +30,16 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/layered/FastHierarchyLayout.h>
-#include <ogdf/layered/Hierarchy.h>
-
 
 namespace ogdf {
-
 
 #define forallnodes for(actNode=0;actNode<n;actNode++)
 #define foralllayers for(actLayer=0;actLayer<k;actLayer++)
 #define forallnodesonlayer \
 	for(actNode=first[actLayer];actNode<first[actLayer+1];actNode++)
 
-
 #define ALLOW .00001
-
 
 /**
  * \brief Stores a pair of an integer and a double.
@@ -54,9 +48,7 @@ namespace ogdf {
  */
 class withKey
 {
-
 public:
-
 	int element;
 	double key;
 
@@ -76,7 +68,6 @@ public:
 };
 
 
-
 class cmpWithKey {
 public:
 	static int compare(const withKey &wk1, const withKey &wk2) {
@@ -88,16 +79,13 @@ public:
 };
 
 
-
 /**
  * \brief Class kList extends the class List by functions needed in the FastHierarchLayout algorithm.
  *
  * Especially, it computes the median of a list and reduces it.
  */
 class kList : public List<withKey> {
-
 public:
-
 	bool pop(int& e,double& k) {
 		if(empty()) return 0;
 		withKey wk=popFrontRet();
@@ -326,32 +314,6 @@ void FastHierarchyLayout::doCall(const HierarchyLevelsBase &levels,
 }
 
 
-
-/*************************************************************************
-			 sortLongEdges
-**************************************************************************
-
-The function sortLongEdges places the node actNode as far as possible to the
-left (if dir = 1) or to the right (if dir = -1) within a block.
-A proper definition of blocks is given in Techreport zpr99-368, pp 5, where
-blocks are named classes. If actNode is virtual (and thus belongs to a long
-edge), the function sortLongEdges places the actNode as far as possible to
-the left such that the corresponding  long edge will be vertical.
-
-dir    :	Stores the direction of placement: 1 for placing long edges to the
-			left and -1 for placing them to the right.
-pos    :	array for all nodes. Stores the computed position.
-marked :	array for all nodes. Stores for every node, whether sortLongEdges
-			has already been applied to it.
-block  :	array for all nodes. Stores for every node the block it belongs to.
-exD    :	is 1, if there exists a node w on the longEdge of actNode,
-			that has a direct right sibling (if moving to the left (depending on
-			the direction)) on the same layer which belongs to a different block.
-dist   :	if exD is 1, it gives the minimal distance between any w of long
-			edge (see exD) and its direct right (left) sibling if the sibling
-			belongs to ANOTHER block. if exD is 0, dist is not relevant.
-*/
-
 void FastHierarchyLayout::sortLongEdges(int actNode,
 	int dir,
 	double *pos,
@@ -405,41 +367,8 @@ void FastHierarchyLayout::sortLongEdges(int actNode,
 			exD = 1;
 		}
 	}
-
 }
 
-
-
-/*************************************************************************
-			 placeSingleNode
-**************************************************************************
-
-The function placeSingleNode places a sequence of nonvirtual nodes containing
-exactly one node.
-
-actNode  :	is an nonvirtual node that has to be placed.
-best     :	is the position that is computed for actNode by placeSingleNode.
-d        :	is the direction of traversal. If d = 0 we traverse the graph top to
-			bottom. d = 1 otherwise.
-leftBnd  :	contains the number of the next virtual sibling to the left of
-			actNode, if it exists.
-			-1 otherwise. Observe that between leftBnd
-			and actNode there may be other  nonvirtual nodes.
-rightBnd :	contains the number of the next virtual sibling to the right of
-			actNode, if it exists.
-			-1 otherwise. Observe that between rightBnd
-			and actNode there may be other  nonvirtual nodes.
-
-The total length of all edges of actnode to the previous layer (if d = 0) or
-next layer (if d = 1) is minimized observing the bounds given by leftBnd and
-rightBnd. The optimal position is the median of its neighbours adapted to
-leftBnd and rightBnd. The position of the neighbours is given by the global
-variable x.
-
-The funcion returns 0 if actNode does not have neighbours on the previous
-(next) layer, 1 otherwise.
-
-*/
 
 bool FastHierarchyLayout::placeSingleNode(int leftBnd,
 	int rightBnd,
@@ -464,41 +393,6 @@ bool FastHierarchyLayout::placeSingleNode(int leftBnd,
 		decrTo(best,x[rightBnd] + mDist[actNode] - mDist[rightBnd]);
 	return 1;
 }
-
-
-
-/*************************************************************************
-				placeNodes
-**************************************************************************
-
-The function placeNode places a sequence of nonvirtual nodes.
-The function partitions the sequence, applying a divide and conquer strategy
-using recursive calls on the two subsequences.
-
-left     :	is the leftmost nonvirtual node of the sequence that has to be
-			placed.
-right    :	is the rightmost nonvirtual node of the sequence that has to be
-			placed.
-d        :	is the direction of traversal. If d = 0 we traverse the graph top to
-			bottom. d = 1 otherwise.
-leftBnd  :	contains the number of the next virtual sibling to the left of the
-			sequence, if it exists.
-			-1 otherwise. Observe that between leftBnd and actNode there may be
-			other  nonvirtual nodes.
-rightBnd :	contains the number of the next virtual sibling to the right of the
-			sequence, if it exists.
-			-1 otherwise. Observe that between rightBnd and actNode there may be
-			other  nonvirtual nodes.
-
-The total length of all edges of the sequence to the previous layer (if d = 0)
-or next layer (if d = 1) is minimized observing the bounds given by leftBnd
-and rightBnd.
-
-The position that is computed for every node of the sequence is stored in the
-global variable x. The position of the neighbours is given by the global
-variable x.
-
-*/
 
 
 void FastHierarchyLayout::placeNodes(int leftBnd,
@@ -651,33 +545,6 @@ void FastHierarchyLayout::placeNodes(int leftBnd,
 }
 
 
-
-/*************************************************************************
-				moveLongEdge
-**************************************************************************
-
-The function moveLongEdge is used for postprocessing the layout.
-If the two nonvirtual ndoes of the long edge are both to the left (right) of
-the virtual nodes, the function moveLongEdge tries to reduce the length of the
-two outermost segments by moving the virtual nodes simultaneously as far as
-possible to the left (right). If both non virtual nodes are on different sides
-of the virtual nodes, moveLongEdge tries to remove one of the edge bends by
-moving the virtual nodes.
-
-
-If there exists a conflict with another long edge on the left (right) side of
-the current long edge, the function moveLongEdge is first applied recursively
-to this long edge.
-
-actNode :	a representative node of the long edge
-dir     :	is -1 if it is preferred to move the long edge to the left,
-			1 if it is preferred to move the long edge to the right,
-			0 if there is no preference
-marked  :	array for all nodes. Stores for every node, whether moveLongEdge
-			has already been applied to it.
-
-*/
-
 void FastHierarchyLayout::moveLongEdge(int actNode,
 	int dir,
 	bool *marked)
@@ -773,24 +640,6 @@ void FastHierarchyLayout::moveLongEdge(int actNode,
 }
 
 
-/*************************************************************************
-				straightenEdge
-**************************************************************************
-
-The function straightenEdge is applied to long edges with exactly one virtual
-node and tries to remove a bend at the position of the virtual node, by
-straightening the edge.
-
-actNode :	the virtual  representative node of the long edge
-marked  :	array for all nodes. Stores for every node, whether straightenEdge
-			has already been applied to it.
-
-If there exists a conflict with a direct sibling to the left (right) side of
-the current node, the function straightenEdge is first applied recursively to
-this node.
-
-*/
-
 void FastHierarchyLayout::straightenEdge(int actNode,bool *marked)
 {
 	if(!marked[actNode] && // breadth[actNode] < ALLOW &&
@@ -831,15 +680,6 @@ void FastHierarchyLayout::straightenEdge(int actNode,bool *marked)
 	}
 }
 
-
-
-/*************************************************************************
-						findPlacement
-**************************************************************************
-
-The function findPlacement computes the layout of an embedded layered graph.
-
-*/
 
 void FastHierarchyLayout::findPlacement()
 {
@@ -962,9 +802,9 @@ void FastHierarchyLayout::findPlacement()
 			// for every block
 			exD = 0;
 			dist = 0;
-			for (int actNode : blockNodes[i]) {
+			for (int actNodeInBlock : blockNodes[i]) {
 				// for every node of the block apply sortLongEdges
-				sortLongEdges(actNode,dir,pos,exD,dist,block,marked);
+				sortLongEdges(actNodeInBlock,dir,pos,exD,dist,block,marked);
 			}
 			if(!exD) {
 				// The currently examined block does not share its layers with
@@ -989,8 +829,8 @@ void FastHierarchyLayout::findPlacement()
 			// If exD is true, dist has been computed by sortLongEdges.
 
 			// Move the nodes of the block to their positions.
-			for (int actNode : blockNodes[i]) {
-				pos[actNode] -= dir * dist;
+			for (int actNodeInBlock : blockNodes[i]) {
+				pos[actNodeInBlock] -= dir * dist;
 			}
 		}
 

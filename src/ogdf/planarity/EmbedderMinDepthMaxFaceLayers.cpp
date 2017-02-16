@@ -41,8 +41,8 @@
  */
 
 #include <ogdf/planarity/EmbedderMinDepthMaxFaceLayers.h>
-#include <ogdf/internal/planarity/ConnectedSubgraph.h>
-#include <ogdf/internal/planarity/EmbedderMaxFaceBiconnectedGraphsLayers.h>
+#include <ogdf/planarity/embedder/ConnectedSubgraph.h>
+#include <ogdf/planarity/embedder/EmbedderMaxFaceBiconnectedGraphsLayers.h>
 
 namespace ogdf {
 
@@ -81,9 +81,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 	}
 
 
-	//============================================================================
 	// First step: calculate min depth and node lengths
-	//============================================================================
+
 	//Find root Block (only node with out-degree of 0):
 	node rootBlockNode = nullptr;
 	for(node n : pBCTree->bcTree().nodes)
@@ -95,9 +94,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 	}
 	OGDF_ASSERT(rootBlockNode != nullptr);
 
-	/****************************************************************************/
 	/* MIN DEPTH                                                                */
-	/****************************************************************************/
+
 	//Node lengths of block graph:
 	md_nodeLength.init(pBCTree->auxiliaryGraph(), 0);
 
@@ -111,8 +109,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 		//node cH = pBCTree->cutVertex(cT, rootBlockNode);
 
 		//set length of c in block graph of root block node:
-		for(adjEntry adj : cT->adjEntries) {
-			edge e2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e2 = adjCT->theEdge();
 			if (e2->target() != cT)
 				continue;
 
@@ -132,9 +130,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 	md_M2.init(pBCTree->bcTree());
 	md_topDownTraversal(rootBlockNode);
 
-	/****************************************************************************/
 	/* MAX FACE                                                                 */
-	/****************************************************************************/
+
 	mf_cstrLength.init(pBCTree->auxiliaryGraph(), 0);
 	mf_nodeLength.init(pBCTree->auxiliaryGraph(), 0);
 	mf_maxFaceSize.init(pBCTree->bcTree(), 0);
@@ -147,8 +144,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 
 		//set length of v in block graph of root block node:
 		int length_v_in_rootBlock = 0;
-		for(adjEntry adj : cT->adjEntries) {
-			edge e2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e2 = adjCT->theEdge();
 			//check if edge is an incoming edge:
 			if (e2->target() != cT)
 				continue;
@@ -164,9 +161,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 	int mf_ell_opt = 0;
 	mf_maximumFaceRec(rootBlockNode, mf_bT_opt, mf_ell_opt);
 
-	/****************************************************************************/
 	/* MIN DEPTH + MAX FACE                                                     */
-	/****************************************************************************/
+
 	//compute bT_opt:
 	mdmf_edgeLength.init(pBCTree->auxiliaryGraph(), MDMFLengthAttribute(0, 1));
 	mdmf_nodeLength.init(pBCTree->auxiliaryGraph(), MDMFLengthAttribute(0, 0));
@@ -175,7 +171,7 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 	node bT_opt;
 	for(node bT : pBCTree->bcTree().nodes)
 	{
-		if (pBCTree->typeOfBNode(bT) != BCTree::BComp)
+		if (pBCTree->typeOfBNode(bT) != BCTree::BNodeType::BComp)
 			continue;
 		if (md_minDepth[bT] < d_opt || (md_minDepth[bT] == d_opt && mf_maxFaceSize[bT] > ell_opt))
 		{
@@ -185,9 +181,8 @@ void EmbedderMinDepthMaxFaceLayers::doCall(Graph& G, adjEntry& adjExternal)
 		}
 	}
 
-	//============================================================================
 	// Second step: Embed G by expanding a maximum face in bT_opt
-	//============================================================================
+
 	newOrder.init(G);
 	treeNodeTreated.init(pBCTree->bcTree(), false);
 	//reset md_nodeLength and set them during embedBlock call, because they are
@@ -217,8 +212,8 @@ int EmbedderMinDepthMaxFaceLayers::md_bottomUpTraversal(const node& bT, const no
 		//node c_in_bT = pBCTree->cutVertex(cT, bT);
 
 		//set length of c in block graph of root block node:
-		for(adjEntry adj : cT->adjEntries) {
-			edge e_cT_bT2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e_cT_bT2 = adjCT->theEdge();
 			if (e == e_cT_bT2)
 				continue;
 
@@ -250,7 +245,7 @@ int EmbedderMinDepthMaxFaceLayers::md_bottomUpTraversal(const node& bT, const no
 	Graph blockGraph_bT;
 	node cInBlockGraph_bT;
 	NodeArray<int> nodeLengthSG(blockGraph_bT);
-	ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph_bT, cH,
+	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph_bT, cH,
 		cInBlockGraph_bT, md_nodeLength, nodeLengthSG);
 
 	//leafs of BC-tree:
@@ -286,8 +281,8 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 		if (e_bT_cT->source() == bT)
 			cT_parent = e_bT_cT->target();
 		node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
-		for(adjEntry adj : cT->adjEntries) {
-			edge e_cT_bT2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e_cT_bT2 = adjCT->theEdge();
 			if (e_cT_bT2 == e_bT_cT)
 				continue;
 
@@ -315,9 +310,9 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 	Graph blockGraph_bT;
 	NodeArray<int> nodeLengthSG(blockGraph_bT);
 	NodeArray<node> nG_to_nSG;
-	ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph_bT,
-															 (*(pBCTree->hEdges(bT).begin()))->source(),
-															 m_nodeLength, nodeLengthSG, nG_to_nSG);
+	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph_bT,
+	                                       (*(pBCTree->hEdges(bT).begin()))->source(),
+	                                       m_nodeLength, nodeLengthSG, nG_to_nSG);
 
 	//set edge length for all edges in block graph to 0:
 	EdgeArray<int> edgeLengthBlock(blockGraph_bT, 0);
@@ -339,10 +334,7 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 	{
 		node cT1 = pBCTree->bcproper(pBCTree->original(*(md_M_B[bT].begin())));
 		bool calculateNewNodeLengths;
-		if (md_M_B[bT].size() == 1 && cT1 == cT_parent)
-			calculateNewNodeLengths = true;
-		else
-			calculateNewNodeLengths = false;
+		calculateNewNodeLengths = md_M_B[bT].size() == 1 && cT1 == cT_parent;
 		for(adjEntry adj : bT->adjEntries) {
 			edge e_bT_cT = adj->theEdge();
 			if (e_bT_cT->target() != bT)
@@ -358,13 +350,13 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 				int m2 = 0;
 
 				//Compute m2 and M2:
-				for(adjEntry adj : bT->adjEntries) {
-					edge e_bT_cT2 = adj->theEdge();
+				for(adjEntry adjBT : bT->adjEntries) {
+					edge e_bT_cT2 = adjBT->theEdge();
 					node cT2 = (e_bT_cT2->source() == bT) ? e_bT_cT2->target() : e_bT_cT2->source();
 					if (cT1 == cT2)
 						continue;
-					for(adjEntry adj : cT2->adjEntries) {
-						edge e_cT2_bT2 = adj->theEdge();
+					for(adjEntry adjCT2 : cT2->adjEntries) {
+						edge e_cT2_bT2 = adjCT2->theEdge();
 						if (e_cT2_bT2 == e_bT_cT2)
 							continue;
 
@@ -388,18 +380,18 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 				for (ListIterator<node> iterator = md_M2[bT].begin(); iterator.valid(); ++iterator)
 					md_nodeLength[*iterator] = 1;
 
-				Graph blockGraph_bT;
+				Graph blockGraphBT;
 				node cInBlockGraph_bT;
-				NodeArray<int> nodeLengthSG(blockGraph_bT);
-				ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph_bT, cH,
-					cInBlockGraph_bT, md_nodeLength, nodeLengthSG);
+				NodeArray<int> nodeLengthSGBT(blockGraphBT);
+				embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraphBT, cH,
+					cInBlockGraph_bT, md_nodeLength, nodeLengthSGBT);
 
 				//set edge length for all edges in block graph to 0:
-				EdgeArray<int> edgeLength(blockGraph_bT, 0);
+				EdgeArray<int> edgeLength(blockGraphBT, 0);
 
 				//compute a maximum external face size of a face containing c in block graph:
 				int maxFaceSize = EmbedderMaxFaceBiconnectedGraphsLayers<int>::computeSize(
-					blockGraph_bT, cInBlockGraph_bT, nodeLengthSG, edgeLength);
+					blockGraphBT, cInBlockGraph_bT, nodeLengthSGBT, edgeLength);
 				if (md_M2[bT].size() == 0)
 					md_m_cB[e_bT_cT] = 1;
 				else
@@ -451,8 +443,8 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 				node cT2 = (e_bT_cT2->source() == bT) ? e_bT_cT2->target() : e_bT_cT2->source();
 				if (cT1 == cT2)
 					continue;
-				for(adjEntry adj : cT2->adjEntries) {
-					edge e_cT2_bT2 = adj->theEdge();
+				for(adjEntry adjCT2 : cT2->adjEntries) {
+					edge e_cT2_bT2 = adjCT2->theEdge();
 					if (e_cT2_bT2 == e_bT_cT2)
 						continue;
 
@@ -486,8 +478,8 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 				node cT2 = (e_bT_cT2->source() == bT) ? e_bT_cT2->target() : e_bT_cT2->source();
 				if (cT1 == cT2)
 					continue;
-				for(adjEntry adj : cT2->adjEntries) {
-					edge e_cT2_bT2 = adj->theEdge();
+				for(adjEntry adjCT2 : cT2->adjEntries) {
+					edge e_cT2_bT2 = adjCT2->theEdge();
 					if (e_cT2_bT2 == e_bT_cT2)
 						continue;
 
@@ -514,8 +506,8 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 			continue;
 
 		node cT = e_bT_cT->source();
-		for(adjEntry adj : cT->adjEntries) {
-			edge e_cT_bT2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e_cT_bT2 = adjCT->theEdge();
 			if (e_cT_bT2 == e_bT_cT)
 				continue;
 
@@ -531,8 +523,8 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 		for(adjEntry adj : bT->adjEntries) {
 			edge e_bT_cT = adj->theEdge();
 			node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
-			for(adjEntry adj : cT->adjEntries) {
-				edge e_cT_bT2 = adj->theEdge();
+			for(adjEntry adjCT : cT->adjEntries) {
+				edge e_cT_bT2 = adjCT->theEdge();
 				if (e_bT_cT == e_cT_bT2)
 					continue;
 
@@ -560,8 +552,8 @@ void EmbedderMinDepthMaxFaceLayers::md_topDownTraversal(const node& bT)
 				if (cT1 == cT2)
 					continue;
 				node cT = (e_bT_cT->source() == bT) ? e_bT_cT->target() : e_bT_cT->source();
-				for(adjEntry adj : cT->adjEntries) {
-					edge e_cT_bT2 = adj->theEdge();
+				for(adjEntry adjCT : cT->adjEntries) {
+					edge e_cT_bT2 = adjCT->theEdge();
 					//update m2 and M2:
 					if (m2 < md_m_cB[e_cT_bT2])
 					{
@@ -601,8 +593,8 @@ int EmbedderMinDepthMaxFaceLayers::mf_constraintMaxFace(const node& bT, const no
 
 		//set length of vertex v in block graph of bT:
 		int length_v_in_block = 0;
-		for(adjEntry adj : vT->adjEntries) {
-			edge e2 = adj->theEdge();
+		for(adjEntry adjVT : vT->adjEntries) {
+			edge e2 = adjVT->theEdge();
 			//check if edge is an incoming edge:
 			if (e2->target() != vT)
 				continue;
@@ -618,7 +610,7 @@ int EmbedderMinDepthMaxFaceLayers::mf_constraintMaxFace(const node& bT, const no
 	Graph blockGraph;
 	node cInBlockGraph;
 	NodeArray<int> nodeLengthSG(blockGraph);
-	ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph, cH, cInBlockGraph,
+	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockGraph, cH, cInBlockGraph,
 		mf_nodeLength, nodeLengthSG);
 	EdgeArray<int> edgeLengthSG(blockGraph, 1);
 	int cstrLengthBc = EmbedderMaxFaceBiconnectedGraphsLayers<int>::computeSize(
@@ -635,7 +627,7 @@ void EmbedderMinDepthMaxFaceLayers::mf_maximumFaceRec(const node& bT, node& bT_o
 	Graph blockGraph_bT;
 	NodeArray<int> nodeLengthSG(blockGraph_bT);
 	NodeArray<node> nG_to_nSG;
-	ConnectedSubgraph<int>::call(
+	embedder::ConnectedSubgraph<int>::call(
 		pBCTree->auxiliaryGraph(), blockGraph_bT,
 		(*(pBCTree->hEdges(bT).begin()))->source(),
 		mf_nodeLength, nodeLengthSG, nG_to_nSG);
@@ -666,8 +658,8 @@ void EmbedderMinDepthMaxFaceLayers::mf_maximumFaceRec(const node& bT, node& bT_o
 
 		//L := \sum_{(B', c) \in bcTree} cstrLength(B', c)
 		int L = 0;
-		for(adjEntry adj : cT->adjEntries) {
-			edge e2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e2 = adjCT->theEdge();
 			//check if edge is an incoming edge:
 			if (e2->source() != cT)
 				continue;
@@ -677,9 +669,9 @@ void EmbedderMinDepthMaxFaceLayers::mf_maximumFaceRec(const node& bT, node& bT_o
 			L += mf_cstrLength[pBCTree->cutVertex(cT, e2->target())];
 		}
 
-		for(adjEntry adj : cT->adjEntries) {
+		for(adjEntry adjCT : cT->adjEntries) {
 
-			edge e2 = adj->theEdge();
+			edge e2 = adjCT->theEdge();
 			//check if edge is an outgoing edge or the edge from bT to cT:
 			if (e2->target() != cT || e2->source() == bT)
 				continue;
@@ -723,13 +715,11 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 {
 	treeNodeTreated[bT] = true;
 	node cH = nullptr;
-	if (!(cT == nullptr))
+	if (cT != nullptr)
 		cH = pBCTree->cutVertex(cT, bT);
 
-	//***************************************************************************
 	// 1. Compute MinDepth node lengths depending on M_B, M2 and cT
-	//***************************************************************************
-	if (!(cT == nullptr) && md_M_B[bT].size() == 1 && *(md_M_B[bT].begin()) == cH)
+	if (cT != nullptr && md_M_B[bT].size() == 1 && *(md_M_B[bT].begin()) == cH)
 	{
 		//set node length to 1 if node is in M2 and 0 otherwise
 		for (ListIterator<node> iterator = md_M2[bT].begin(); iterator.valid(); ++iterator)
@@ -742,9 +732,8 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 			md_nodeLength[*iterator] = 1;
 	}
 
-	//***************************************************************************
 	// 2. Set MinDepthMaxFace node lengths
-	//***************************************************************************
+
 	//create subgraph (block bT):
 	node nodeInBlock = cH;
 	if (nodeInBlock == nullptr)
@@ -755,25 +744,22 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 	NodeArray<node> nSG_to_nG;
 	EdgeArray<edge> eSG_to_eG;
 	node nodeInBlockSG;
-	ConnectedSubgraph<MDMFLengthAttribute>::call(
+	embedder::ConnectedSubgraph<MDMFLengthAttribute>::call(
 		pBCTree->auxiliaryGraph(), SG,
 		nodeInBlock, nodeInBlockSG,
 		nSG_to_nG, eSG_to_eG,
 		mdmf_nodeLength, nodeLengthSG,
 		mdmf_edgeLength, edgeLengthSG);
 
-	//copy (0, 1)-min depth node lengths into nodeLengthSG d component and max
-	//face sice node lengths into l component:
+	//copy (0, 1)-min depth node lengths into nodeLengthSG "a" component and max
+	//face sice node lengths into "b" component:
 	for(node nSG : SG.nodes)
 	{
-		nodeLengthSG[nSG].d = md_nodeLength[nSG_to_nG[nSG]];
-		nodeLengthSG[nSG].l = mf_nodeLength[nSG_to_nG[nSG]];
+		nodeLengthSG[nSG].a = md_nodeLength[nSG_to_nG[nSG]];
+		nodeLengthSG[nSG].b = mf_nodeLength[nSG_to_nG[nSG]];
 	}
 
-
-	//***************************************************************************
 	// 3. Compute embedding of block
-	//***************************************************************************
 	adjEntry m_adjExternal = nullptr;
 	if (cH == nullptr)
 		EmbedderMaxFaceBiconnectedGraphsLayers<MDMFLengthAttribute>::embed(
@@ -782,10 +768,8 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 		EmbedderMaxFaceBiconnectedGraphsLayers<MDMFLengthAttribute>::embed(
 			SG, m_adjExternal, nodeLengthSG, edgeLengthSG, nodeInBlockSG);
 
-	//***************************************************************************
 	// 4. Copy block embedding into graph embedding and call recursively
 	//    embedBlock for all cut vertices in bT
-	//***************************************************************************
 	CombinatorialEmbedding CE(SG);
 	face f = CE.leftFace(m_adjExternal);
 
@@ -805,12 +789,15 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 
 	bool DGcomputed = false;
 	int extFaceID = 0;
-	Graph* p_DG;
-	ArrayBuffer<node>* p_fPG_to_nDG;
-	NodeArray<int>* p_nDG_to_fPG;
-	NodeArray< List<adjEntry> >* p_adjacencyList;
-	List< List<adjEntry> >* p_faces;
-	NodeArray<int>* p_distances;
+
+	// when the following objects get allocated,
+	// the DGcomputed bool is set to true
+	Graph* p_DG = nullptr;
+	ArrayBuffer<node>* p_fPG_to_nDG = nullptr;
+	NodeArray<int>* p_nDG_to_fPG = nullptr;
+	NodeArray< List<adjEntry> >* p_adjacencyList = nullptr;
+	List< List<adjEntry> >* p_faces = nullptr;
+	NodeArray<int>* p_distances = nullptr;
 
 
 	for(node nSG : SG.nodes)
@@ -824,7 +811,7 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 		else
 			pAfter = new ListIterator<adjEntry>();
 
-		if (pBCTree->typeOfGNode(nG) == BCTree::CutVertex)
+		if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex)
 		{
 			node cT2 = pBCTree->bcproper(nG);
 			bool no_recursion = false;
@@ -1022,7 +1009,7 @@ void EmbedderMinDepthMaxFaceLayers::embedBlock(
 		bool after_ae = true;
 		for (adjEntry aeNode = ae;
 			after_ae || aeNode != ae;
-			after_ae = (!after_ae || !aeNode->succ()) ? false : true,
+			after_ae = after_ae && aeNode->succ(),
 			aeNode = aeNode->succ() ? aeNode->succ() : nSG->firstAdj())
 		{
 			edge eG = pBCTree->original(eSG_to_eG[aeNode->theEdge()]);

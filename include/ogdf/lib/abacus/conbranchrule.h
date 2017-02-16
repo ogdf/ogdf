@@ -67,7 +67,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const ConBranchRule &rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream &out, const ConBranchRule &rhs);
 
 
 	//! Adds the branching constraint to the subproblem.

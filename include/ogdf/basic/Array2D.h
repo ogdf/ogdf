@@ -37,7 +37,7 @@
 namespace ogdf {
 
 
-//! The parameterized class \a Array2D<E> implements dynamic two-dimensional arrays.
+//! The parameterized class Array2D implements dynamic two-dimensional arrays.
 /**
  * @ingroup containers
  *
@@ -51,24 +51,24 @@ public:
 	//! Creates a two-dimensional array with empty index set.
 	Array2D() { construct(0,-1,0,-1); }
 
-	//! Creates a two-dimensional array with index set [\a a..\a b]*[\a c..\a d].
+	//! Creates a two-dimensional array with index set [\p a, ..., \p b]*[\p c, ..., \p d].
 	Array2D(int a, int b, int c, int d) {
 		construct(a,b,c,d); initialize();
 	}
 
-	//! Creates a two-dimensional array with index set [\a a..\a b]*[\a c..\a d] and initailizes all elements with \a x.
+	//! Creates a two-dimensional array with index set [\p a, ..., \p b]*[\p c, ..., \p d] and initailizes all elements with \p x.
 	Array2D(int a, int b, int c, int d, const E &x) {
 		construct(a,b,c,d); initialize(x);
 	}
 
-	//! Creates a two-dimensional array that is a copy of \a A.
+	//! Creates a two-dimensional array that is a copy of \p A.
 	Array2D(const Array2D<E> &A) {
 		copy(A);
 	}
 
-	//! Creates a two-dimensional array containing the elements of \a A (move semantics).
+	//! Creates a two-dimensional array containing the elements of \p A (move semantics).
 	/**
-	 * The array \a A is empty afterwards.
+	 * The array \p A is empty afterwards.
 	 */
 	Array2D(Array2D<E> &&A)
 		: m_vpStart(A.m_vpStart), m_lenDim2(A.m_lenDim2), m_pStart(A.m_pStart), m_pStop(A.m_pStop),
@@ -78,8 +78,8 @@ public:
 	}
 
 	//! Destructor
-	 ~Array2D() {
-		 deconstruct();
+	~Array2D() {
+		deconstruct();
 	}
 
 	//! Returns the minimal array index in dimension 1.
@@ -107,7 +107,7 @@ public:
 	/*! \note use only for square matrices and floating point values */
 	float det() const;
 
-	//! Returns a reference to the element with index (\a i,\a j).
+	//! Returns a reference to the element with index (\p i,\p j).
 	const E &operator()(int i, int j) const {
 		OGDF_ASSERT(m_a <= i);
 		OGDF_ASSERT(i <= m_b);
@@ -116,7 +116,7 @@ public:
 		return m_vpStart[size_t(i-m_a)*m_lenDim2+j];
 	}
 
-	//! Returns a reference to the element with index (\a i,\a j).
+	//! Returns a reference to the element with index (\p i,\p j).
 	E &operator()(int i, int j) {
 		OGDF_ASSERT(m_a <= i);
 		OGDF_ASSERT(i <= m_b);
@@ -128,14 +128,14 @@ public:
 	//! Reinitializes the array to an array with empty index set.
 	void init() { init(0,-1,0,-1); }
 
-	//! Reinitializes the array to an array with index set [\a a..\a b]*[\a c,\a d].
+	//! Reinitializes the array to an array with index set [\p a, ..., \p b]*[\p c, ..., \p d].
 	void init(int a, int b, int c, int d) {
 		deconstruct();
 		construct(a,b,c,d);
 		initialize();
 	}
 
-	//! Reinitializes the array to an array with index set [\a a..\a b]*[\a c,\a d] and initializes all entries with \a x.
+	//! Reinitializes the array to an array with index set [\p a, ..., \p b]*[\p c, ..., \p d] and initializes all entries with \p x.
 	void init(int a, int b, int c, int d, const E &x) {
 		deconstruct();
 		construct(a,b,c,d);
@@ -151,7 +151,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Array \a A is empty afterwards.
+	 * Array \p A is empty afterwards.
 	 */
 	Array2D<E> &operator=(Array2D<E> &&A) {
 		deconstruct();
@@ -169,7 +169,7 @@ public:
 		return *this;
 	}
 
-	//! Sets all elements to \a x.
+	//! Sets all elements to \p x.
 	void fill(const E &x) {
 		E *pDest = m_pStop;
 		while(pDest > m_pStart)
@@ -198,7 +198,7 @@ private:
 };
 
 
-//! Constructs the array with index set [\a a..\a b]*[\a c,\a d].
+//! Constructs the array with index set [\p a, ..., \p b]*[\p c, ..., \p d].
 template<class E>
 void Array2D<E>::construct(int a, int b, int c, int d)
 {
@@ -242,7 +242,7 @@ void Array2D<E>::initialize()
 }
 
 
-//! Initializes the array with \a x.
+//! Initializes the array with \p x.
 template<class E>
 void Array2D<E>::initialize(const E &x)
 {
@@ -263,14 +263,14 @@ void Array2D<E>::initialize(const E &x)
 template<class E>
 void Array2D<E>::deconstruct()
 {
-	if (doDestruction((E*)nullptr)) {
+	if (!std::is_trivially_destructible<E>::value) {
 		for (E *pDest = m_pStart; pDest < m_pStop; pDest++)
 			pDest->~E();
 	}
 	free(m_pStart);
 }
 
-//! Copy \a array2.
+//! Copy \p array2.
 template<class E>
 void Array2D<E>::copy(const Array2D<E> &array2)
 {

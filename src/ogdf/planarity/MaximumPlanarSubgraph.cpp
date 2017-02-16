@@ -46,13 +46,12 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 	bool preferredImplyPlanar)
 {
 	if (G.numberOfEdges() < 9)
-		return retOptimal;
+		return ReturnType::Optimal;
 
 	//if the graph is planar, we don't have to do anything
 	if (isPlanar(G))
-		return retOptimal;
+		return ReturnType::Optimal;
 
-	//---------
 	//Exact ILP
 	MaximumCPlanarSubgraph mc;
 
@@ -143,7 +142,7 @@ Module::ReturnType MaximumPlanarSubgraph::doCall(
 			mr = mc.call(CG, pCost == nullptr ? nullptr : &cost, delEdgesOfBC);
 
 			// Abort if no optimal solution found, i.e., feasible is also not allowed
-			if (mr != retOptimal)
+			if (mr != ReturnType::Optimal)
 				break;
 
 			// Get the original edges that are deleted and

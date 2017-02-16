@@ -32,16 +32,6 @@
 
 #pragma once
 
-//=========================================================
-// Main functions:
-//
-// isPlanar(Graph &G)  Tests a graph for planarity.
-//
-// planarEmbed(Graph &G)  Tests a graph for planarity and returns
-//                        a planar embedding if G is planar.
-//
-//=========================================================
-
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/SList.h>
@@ -90,19 +80,17 @@ private:
 	//! Prepares the planarity test and the planar embedding
 	bool preparation(Graph &G, bool embed);
 
-	//! Performs a planarity test on a biconnected component of \a G.
 	/**
-	 * Performs a planarity test on a biconnected component of \a G.
+	 * Performs a planarity test on a biconnected component of \p G.
 	 *
-	 * \a numbering contains an st-numbering of the component.
+	 * \p numbering contains an st-numbering of the component.
 	 */
 	bool doTest(Graph &G,NodeArray<int> &numbering);
 
-	//! Performs a planarity test on a biconnected component of \a G and embedds it planar.
 	/**
-	 * Performs a planarity test on a biconnected component of \a G and embedds it planar.
+	 * Performs a planarity test on a biconnected component of \p G and embedds it planar.
 	 *
-	 * \a numbering contains an st-numbering of the component.
+	 * \p numbering contains an st-numbering of the component.
 	 */
 	bool doEmbed(Graph &G,
 		NodeArray<int>  &numbering,

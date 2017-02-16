@@ -29,70 +29,58 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/fileformats/UmlModelGraph.h>
-
 
 namespace ogdf {
 
-	//
-	// C o n s t r u c t o r
-	//
-	UmlModelGraph::UmlModelGraph(){
+UmlModelGraph::UmlModelGraph(){
 
-		// Initialize arrays
-		m_nodeLabel.init(*this);
-		m_eType.init(*this,Graph::association);
-		m_vType.init(*this,Graph::vertex);
+	// Initialize arrays
+	m_nodeLabel.init(*this);
+	m_eType.init(*this,Graph::EdgeType::association);
+	m_vType.init(*this,Graph::NodeType::vertex);
 
+}
+
+UmlModelGraph::~UmlModelGraph(){
+
+	// ??? Destroy arrays
+}
+
+ostream &operator<<(ostream &os, const UmlModelGraph &modelGraph)
+{
+	// Header
+	os << "\n--- UmlModelGraph ---\n" << endl;
+
+	// Traverse graph
+
+	// Nodes
+	os << "Classes/Interfaces:\n" << endl;
+	for(node v : modelGraph.nodes) {
+		os << "\t" << modelGraph.getNodeLabel(v) << endl;
 	}
 
-	//
-	// D e s t r u c t o r
-	//
-	UmlModelGraph::~UmlModelGraph(){
+	// Edges
+	os << "\nRelations:\n" << endl;
+	for(edge e : modelGraph.edges) {
+		os << "\t";
 
-		// ??? Destroy arrays
+		if (modelGraph.type(e) == Graph::EdgeType::association){
+			os << "Association between ";
+		}
+		if (modelGraph.type(e) == Graph::EdgeType::generalization){
+			os << "Generalization between ";
+		}
+		if (modelGraph.type(e) == Graph::EdgeType::dependency){
+			os << "Dependency between ";
+		}
+
+		os << modelGraph.getNodeLabel(e->source()) << " and "
+			<< modelGraph.getNodeLabel(e->target()) << endl;
 	}
 
-	//
-	// o u t p u t O p e r a t o r  for UmlModelGraph
-	//
-	ostream &operator<<(ostream &os, const UmlModelGraph &modelGraph)
-	{
-		// Header
-		os << "\n--- UmlModelGraph ---\n" << endl;
+	return os;
 
-		// Traverse graph
-
-		// Nodes
-		os << "Classes/Interfaces:\n" << endl;
-		for(node v : modelGraph.nodes) {
-			os << "\t" << modelGraph.getNodeLabel(v) << endl;
-		}
-
-		// Edges
-		os << "\nRelations:\n" << endl;
-		for(edge e : modelGraph.edges) {
-			os << "\t";
-
-			if (modelGraph.type(e) == Graph::association){
-				os << "Association between ";
-			}
-			if (modelGraph.type(e) == Graph::generalization){
-				os << "Generalization between ";
-			}
-			if (modelGraph.type(e) == Graph::dependency){
-				os << "Dependency between ";
-			}
-
-			os << modelGraph.getNodeLabel(e->source()) << " and "
-				<< modelGraph.getNodeLabel(e->target()) << endl;
-		}
-
-		return os;
-
-	} // <<
-
+} // <<
 
 } // namespace ogdf

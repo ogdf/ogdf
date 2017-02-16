@@ -30,18 +30,8 @@
  */
 
 #include <ogdf/upward/SubgraphUpwardPlanarizer.h>
-//#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/basic/Queue.h>
-#include <ogdf/upward/UpwardPlanarity.h>
 #include <ogdf/upward/FaceSinkGraph.h>
-
-#ifdef OGDF_DEBUG
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/upward/LayerBasedUPRLayout.h>
-#endif
-
 
 namespace ogdf {
 
@@ -111,7 +101,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 
 	for(node v : bcTree.nodes) {
 
-		if (BC.typeOfBNode(v) == BCTree::CComp)
+		if (BC.typeOfBNode(v) == BCTree::BNodeType::CComp)
 			continue;
 
 		GraphCopy &block = biComps[v];
@@ -269,7 +259,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 	// compute the number of crossings
 	int nr_cr = 0;
 	for(node v : bcTree.nodes) {
-		if (BC.typeOfBNode(v) != BCTree::CComp)
+		if (BC.typeOfBNode(v) != BCTree::BNodeType::CComp)
 			nr_cr = nr_cr + uprs[v].numberOfCrossings();
 	}
 
@@ -355,7 +345,7 @@ Module::ReturnType SubgraphUpwardPlanarizer::doCall(UpwardPlanRep &UPR,
 			cout << endl << eee << endl;
 	}
 #endif
-	return Module::retFeasible;
+	return Module::ReturnType::Feasible;
 }
 
 
@@ -378,7 +368,7 @@ void SubgraphUpwardPlanarizer::dfsMerge(
 
 	for(adjEntry adj : current_BC->adjEntries) {
 		node next_BC = adj->twin()->theNode();
-		if (BC.typeOfBNode(current_BC) == BCTree::CComp) {
+		if (BC.typeOfBNode(current_BC) == BCTree::BNodeType::CComp) {
 			if (parent_BC != nullptr && !nodesDone[parent_BC]) {
 				merge(GC, UPR_res, biComps[parent_BC], uprs[parent_BC]);
 				nodesDone[parent_BC] = true;
@@ -600,7 +590,7 @@ void SubgraphUpwardPlanarizer::constructComponentGraphs(BCTree &BC, NodeArray<Gr
 	int i = 0; // comp. number
 	for(node v : bcTree.nodes) {
 
-		if (BC.typeOfBNode(v) == BCTree::CComp)
+		if (BC.typeOfBNode(v) == BCTree::BNodeType::CComp)
 			continue;
 
 		const SList<edge> &edges_comp = BC.hEdges(v); //bicomp edges

@@ -33,11 +33,10 @@
 
 #pragma once
 
-#include <ogdf/internal/planarity/EmbedPQTree.h>
+#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
 #include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/Stack.h>
-#include <ogdf/internal/cluster/ClusterPQContainer.h>
-
+#include <ogdf/cluster/internal/ClusterPQContainer.h>
 
 namespace ogdf {
 
@@ -48,8 +47,7 @@ namespace ogdf {
 class OGDF_EXPORT CconnectClusterPlanarEmbed
 {
 public:
-
-	enum ccErrorCode {
+	enum class ErrorCode {
 		none = 0,
 		nonConnected = 1,
 		nonCConnected = 2,
@@ -57,21 +55,19 @@ public:
 		nonCPlanar = 4
 	};
 
-	ccErrorCode errCode() { return m_errorCode; }
+	ErrorCode errCode() { return m_errorCode; }
 
-
-	//*************************************************************************
-	// Constructor
+	//! Constructor
 	CconnectClusterPlanarEmbed();
 
-	// Destructor
+	//! Destructor
 	virtual ~CconnectClusterPlanarEmbed();
 
-	//! Tests if a clustered graph (\a C, \a G) is C-planar and embeds it.
+	//! Tests if a clustered graph (\p C, \p G) is C-planar and embeds it.
 	virtual bool embed(ClusterGraph &C,Graph &G);
 
-
 private:
+	using EmbedPQTree = booth_lueker::EmbedPQTree;
 
 	bool planarityTest(ClusterGraph &C, cluster &act, Graph &G);
 
@@ -105,7 +101,7 @@ private:
 		ClusterGraph &C,
 		Graph &G,
 		cluster &parent,
-	 	cluster &origCl,
+		cluster &origCl,
 		EmbedPQTree* T,
 		EdgeArray<node> &outgoingTable,
 		node superSink);
@@ -116,9 +112,8 @@ private:
 
 	void copyEmbedding(ClusterGraph &Ccopy,Graph &Gcopy,ClusterGraph &C,Graph &G);
 
-	//---------------------------------------------------------
-	// private member variables for testing a cluster graph
-	//---------------------------------------------------------
+	//! \name private member variables for testing a cluster graph
+	//! @{
 
 	// Stores for every cluster the PQTree corresponding
 	// to the biconnected component containing the outgoing
@@ -126,18 +121,18 @@ private:
 	ClusterArray<EmbedPQTree*> m_clusterPQTree;
 
 	//save errorcode for postprocessing if not c-planar
-	ccErrorCode m_errorCode;
+	ErrorCode m_errorCode;
 
-
-	//private Members for handling parallel edges
+	//! @}
+	//! \name private members for handling parallel edges
+	//! @{
 	EdgeArray<ListPure<edge> >	m_parallelEdges;
 	EdgeArray<bool>				m_isParallel;
 	int	m_parallelCount;
 
-
-	//---------------------------------------------------------
-	// private member variables for embedding a cluster graph
-	//---------------------------------------------------------
+	//! @}
+	//! \name private member variables for embedding a cluster graph
+	//! @{
 
 	ClusterGraph *m_instance; //The graph that has to be embedded
 
@@ -215,7 +210,7 @@ private:
 
 	// Stores for every original cluster all information on
 	// the PQ-Tree that is necessary to construct the embedding.
-	ClusterArray<ClusterPQContainer> m_clusterPQContainer;
+	ClusterArray<cluster_planarity::ClusterPQContainer> m_clusterPQContainer;
 
 	// Stores the clusters in calling order of the testing algorithm
 	// The stack stores the clusters of the original graph.
@@ -231,6 +226,8 @@ private:
 	// c. cluster does have no child clusters and no nodes;
 	// d. recursive version of c.
 	ClusterArray<bool> m_unsatisfiedCluster;
+
+	//! @}
 };
 
 } // end namespace ogdf

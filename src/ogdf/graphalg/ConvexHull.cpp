@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/graphalg/ConvexHull.h>
-#include <cfloat>
 
 namespace ogdf {
 

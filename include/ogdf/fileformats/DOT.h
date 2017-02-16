@@ -41,19 +41,19 @@ namespace ogdf {
 
 namespace dot {
 
-enum Attribute {
-	a_id = 0,
-	a_label,
-	a_template,
-	a_stroke,
-	a_fill,
-	a_width,
-	a_height,
-	a_shape,
-	a_weight,
-	a_position,
-	a_arrow,
-	a_unknown
+enum class Attribute {
+	Id = 0,
+	Label,
+	Template,
+	Stroke,
+	Fill,
+	Width,
+	Height,
+	Shape,
+	Weight,
+	Position,
+	Arrow,
+	Unknown
 };
 
 std::string toString(const Attribute &attr);

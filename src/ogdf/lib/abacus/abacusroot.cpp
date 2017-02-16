@@ -43,7 +43,7 @@ bool AbacusRoot::ascii2bool(const string &str)
 	if (str == "false") return false;
 	else {
 		Logger::ifout() << "AbacusRoot::ascii2bool(): string neither true nor false\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcString);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::String);
 	}
 }
 

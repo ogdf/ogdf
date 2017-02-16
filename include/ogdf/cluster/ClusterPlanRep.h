@@ -48,9 +48,7 @@ namespace ogdf {
  */
 class OGDF_EXPORT ClusterPlanRep : public PlanRep
 {
-
 public:
-
 	ClusterPlanRep(
 		const ClusterGraphAttributes &acGraph,
 		const ClusterGraph &clusterGraph);
@@ -90,15 +88,14 @@ public:
 	adjEntry externalAdj() { return m_rootAdj; }
 
 
-	//*************************************************************************
 	//structural alterations
 
-	// Expands nodes with degree > 4 and merge nodes for generalizations
+	//! Expands nodes with degree > 4 and merge nodes for generalizations
 	virtual void expand(bool lowDegreeExpand = false) override;
 
 	virtual void expandLowDegreeVertices(OrthoRep &OR);
 
-	//splits edge e, updates clustercage lists if necessary and returns new edge
+	//! Splits edge e, updates clustercage lists if necessary and returns new edge
 	virtual edge split(edge e) override
 	{
 		edge eNew = PlanRep::split(e);
@@ -111,9 +108,12 @@ public:
 	}//split
 
 
-	//returns cluster of edge e
-	//edges only have unique numbers if clusters are already modelled
-	//we derive the edge cluster from the endnode cluster information
+	/**
+	 * Returns cluster of edge \p e
+	 *
+	 * Edges only have unique numbers if clusters are already modelled.
+	 * We derive the edge cluster from the endnode cluster information.
+	 */
 	cluster clusterOfEdge(edge e)
 	{
 		const auto sourceId = ClusterID(e->source());
@@ -155,34 +155,29 @@ public:
 	void writeGML(const char *fileName);
 	void writeGML(ostream &os, const Layout &drawing);
 
-
 protected:
-
-	//insert boundaries for all given clusters
+	//! Insert boundaries for all given clusters
 	void convertClusterGraph(cluster act,
-							 AdjEntryArray<edge>& currentEdge,
-							 AdjEntryArray<int>& outEdge);
+	                         AdjEntryArray<edge>& currentEdge,
+	                         AdjEntryArray<int>& outEdge);
 
-	//insert edges to represent the cluster boundary
+	//! Insert edges to represent the cluster boundary
 	void insertBoundary(cluster C,
-						AdjEntryArray<edge>& currentEdge,
-						AdjEntryArray<int>& outEdge,
-						bool clusterIsLeaf);
+	                    AdjEntryArray<edge>& currentEdge,
+	                    AdjEntryArray<int>& outEdge,
+	                    bool clusterIsLeaf);
 
-	//reinsert edges to planarize the graph after convertClusterGraph
+	//! Reinserts edges to planarize the graph after convertClusterGraph
 	void reinsertEdge(edge e);
 
 private:
-
 	const ClusterGraph *m_pClusterGraph;
 
-	edgeType clusterPattern() { return etcSecCluster << etoSecondary; }
+	edgeType clusterPattern() { return UMLEdgeTypeConstants::SecCluster << UMLEdgeTypeOffsets::Secondary; }
 
-	adjEntry m_rootAdj; //connects cluster on highest level with non cluster or
-						//same level
+	//! Connects cluster on highest level with non cluster or same level
+	adjEntry m_rootAdj;
 
-
-	//******************
 	EdgeArray<int> m_edgeClusterID;
 	NodeArray<int> m_nodeClusterID;
 	//we maintain an array of index to cluster mappings (CG is const)
@@ -190,5 +185,4 @@ private:
 	HashArray<int, cluster> m_clusterOfIndex;
 };
 
-
-}//namespace
+}

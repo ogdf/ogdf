@@ -31,8 +31,6 @@
 
 #include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/EdgeStandardRep.h>
-#include <ogdf/hypergraph/HypergraphArray.h>
-#include <ogdf/hypergraph/HypergraphObserver.h>
 
 namespace ogdf {
 
@@ -41,7 +39,7 @@ EdgeStandardRep::EdgeStandardRep()
 {
 }
 
-EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType::Type pType = EdgeStandardType::star)
+EdgeStandardRep::EdgeStandardRep(const Hypergraph &pH, EdgeStandardType pType = EdgeStandardType::star)
 	: HypergraphObserver(&pH)
 {
 	m_type = pType;

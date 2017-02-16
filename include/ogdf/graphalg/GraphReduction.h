@@ -61,7 +61,7 @@ protected:
 
 public:
 	// construction
-	GraphReduction(const Graph& G);
+	explicit GraphReduction(const Graph& G);
 	virtual ~GraphReduction() { }
 
 	// returns original graph

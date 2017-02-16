@@ -38,10 +38,8 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// Computation of a shelling order for a triconnected and
-// simple (no multi-edges, no self-loops) planar graph
-//---------------------------------------------------------
+//! Computation of a shelling order for a triconnected and
+//! simple (no multi-edges, no self-loops) planar graph
 class OGDF_EXPORT TriconnectedShellingOrder : public ShellingOrderModule
 {
 public:

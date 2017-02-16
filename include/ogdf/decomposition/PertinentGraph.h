@@ -37,11 +37,6 @@ namespace ogdf {
 
 class OGDF_EXPORT SPQRTree;
 
-
-//---------------------------------------------------------
-// PertinentGraph
-// pertinent graph of a node in an SPQR-tree
-//---------------------------------------------------------
 //! Pertinent graphs of nodes in an SPQR-tree.
 /**
  * @ingroup dc-helper
@@ -61,7 +56,6 @@ class OGDF_EXPORT SPQRTree;
  * represents the combinatorial embedding which is implied by the embeddings
  * of the skeletons of \a T.
  */
-
 class OGDF_EXPORT PertinentGraph
 {
 	friend class OGDF_EXPORT SPQRTree;
@@ -79,7 +73,7 @@ public:
 	 */
 	PertinentGraph() : m_vT(nullptr) { }
 
-	//! Initialization of a pertinent graph of tree node \a vT.
+	//! Initialization of a pertinent graph of tree node \p vT.
 	void init(node vT) {
 		m_P = Graph();
 		m_vT = vT;
@@ -121,18 +115,18 @@ public:
 		return m_skRefEdge;
 	}
 
-	//! Returns the vertex in \a G that corresponds to \a v.
+	//! Returns the vertex in \a G that corresponds to \p v.
 	/**
-	 * \pre \a v is a node in \a G(\a vT)
+	 * \pre \p v is a node in \a G(\a vT)
 	 */
 	node original(node v) const {
 		return m_origV[v];
 	}
 
-	//! Returns the edge in \a G that corresponds to \a e.
+	//! Returns the edge in \a G that corresponds to \p e.
 	/**
-	 * If \a e is the reference edge, then 0 is returned.
-	 * \pre \a e is an edge in \a G(\a vT)
+	 * If \p e is the reference edge, then 0 is returned.
+	 * \pre \p e is an edge in \a G(\a vT)
 	 */
 	edge original(edge e) const {
 		return m_origE[e];
@@ -141,8 +135,8 @@ public:
 protected:
 	node  m_vT;  //!< corresponding tree node
 	Graph m_P;   //!< actual graph
-	edge  m_vEdge; //!< reference edge (in \a m_P)
-	edge  m_skRefEdge; //!< reference edge (in skeleton(\a m_vT))
+	edge  m_vEdge; //!< reference edge (in #m_P)
+	edge  m_skRefEdge; //!< reference edge (in skeleton(#m_vT))
 
 	NodeArray<node> m_origV; //!< corresp. original node
 	EdgeArray<edge> m_origE; //!< corresp. original edge

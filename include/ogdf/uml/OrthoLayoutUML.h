@@ -39,13 +39,8 @@
 
 namespace ogdf {
 
-enum OptionProfile { standard, minBendsperEdge, fullService }; //just to think about it...
-
-//---------------------------------------------------------
-// OrthoLayoutUML
-// represents planar orthogonal drawing algorithm for
-// mixed-upward planar embedded graphs (UML-diagrams)
-//---------------------------------------------------------
+//! Represents planar orthogonal drawing algorithm for
+//! mixed-upward planar embedded graphs (UML-diagrams)
 class OGDF_EXPORT OrthoLayoutUML : public LayoutPlanRepUMLModule
 {
 public:
@@ -130,10 +125,6 @@ public:
 	//! Set bound on the number of bends
 	void setBendBound(int i) { OGDF_ASSERT(i >= 0); m_bendBound = i; }
 
-#if 0
-	//in planarlayout
-	enum LayoutOptions {umloptAlignment = 1, optScaling = 2, optProgressive = 4}
-#endif
 	//set generic options by setting field bits,
 	//necessary to allow setting over base class pointer
 	//bit 0 = alignment
@@ -142,20 +133,20 @@ public:
 	//=> 0 is standard
 	virtual void setOptions(int optionField) override
 	{
-		if (optionField & umlOpAlign) m_align = true;
+		if (optionField & UMLOpt::OpAlign) m_align = true;
 		else m_align = false;
-		if (optionField & umlOpScale) m_useScalingCompaction = true;
+		if (optionField & UMLOpt::OpScale) m_useScalingCompaction = true;
 		else m_useScalingCompaction = false;
-		if (optionField & umlOpProg) m_orthoStyle = 1;
+		if (optionField & UMLOpt::OpProg) m_orthoStyle = 1;
 		else m_orthoStyle = 0; //traditional
 	}//setOptions
 
 	virtual int getOptions() override
 	{
 		int result = 0;
-		if (m_align) result = umlOpAlign;
-		if (m_useScalingCompaction) result += umlOpScale;
-		if (m_orthoStyle == 1) result += umlOpProg;
+		if (m_align) result = static_cast<int>(UMLOpt::OpAlign);
+		if (m_useScalingCompaction) result += UMLOpt::OpScale;
+		if (m_orthoStyle == 1) result += UMLOpt::OpProg;
 
 		return result;
 	}//getOptions

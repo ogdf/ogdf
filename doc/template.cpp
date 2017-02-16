@@ -37,6 +37,7 @@ namespace ogdf {
 
 //
 // TO DO: INSERT YOUR IMPLEMENTATION CODE
+// Do not indent because of namespace block.
 //
 
-} // end namespace ogdf
+}

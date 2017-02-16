@@ -54,7 +54,7 @@ public:
 	//! The Euler-Mascheroni constant gamma
 	static const double gamma;
 
-	//! Returns the logarithm of \a x to the base 2.
+	//! Returns the logarithm of \p x to the base 2.
 	template<typename T>
 	OGDF_DEPRECATED("Use std::log2(x).")
 	static inline T log2(T x) {
@@ -62,7 +62,7 @@ public:
 		return std::log2(x);
 	}
 
-	//! Returns the logarithm of \a x to the base 4.
+	//! Returns the logarithm of \p x to the base 4.
 	static inline double log4(double x) {
 		OGDF_ASSERT(x > 0);
 		return log(x) / log_of_4;
@@ -80,21 +80,21 @@ public:
 	//! Returns \f$n \choose k\f$.
 	static double binomial_d(int n, int k);
 
-	//! Returns \a n!.
+	//! Returns \p n!.
 	OGDF_DEPRECATED("Use std::tgamma(n+1).")
 	static inline int factorial(int n)
 	{
 		return (int) std::tgamma(n+1);
 	}
 
-	//! Returns \a n!.
+	//! Returns \p n!.
 	OGDF_DEPRECATED("Use std::tgamma(n+1).")
 	static inline double factorial_d(int n)
 	{
 		return std::tgamma(n+1);
 	}
 
-	//! Returns the \a n-th harmonic number or 1.0 if \a n < 1.
+	//! Returns the \p n-th harmonic number or 1.0 if \p n < 1.
 	static double harmonic(unsigned n);
 
 	/*!
@@ -125,23 +125,23 @@ public:
 		return a;
 	}
 
-    //! Returns the greatest common divisor of a list of numbers.
-    template<class T, class INDEX = int>
-    static T gcd(const Array<T,INDEX> &numbers) {
-        T current_gcd = numbers[numbers.low()];
-        for (INDEX i = numbers.low()+1; i<=numbers.high(); i++) {
-            current_gcd = gcd(current_gcd, numbers[i]);
-        }
-        return current_gcd;
-    }
+	//! Returns the greatest common divisor of a list of numbers.
+	template<class T, class INDEX = int>
+	static T gcd(const Array<T,INDEX> &numbers) {
+		T current_gcd = numbers[numbers.low()];
+		for (INDEX i = numbers.low()+1; i<=numbers.high(); i++) {
+			current_gcd = gcd(current_gcd, numbers[i]);
+		}
+		return current_gcd;
+	}
 
-    //! Returns the least common multipler of two numbers.
-    template<typename T>
-    static T lcm(T a, T b) {
-        T g = gcd(a,b);
-        OGDF_ASSERT(g != 0);
-        return (a / g) * b;
-    }
+	//! Returns the least common multipler of two numbers.
+	template<typename T>
+	static T lcm(T a, T b) {
+		T g = gcd(a,b);
+		OGDF_ASSERT(g != 0);
+		return (a / g) * b;
+	}
 
 	//! Converts a double to a fraction.
 	static void getFraction(double d, int &num, int &denom, const double epsilon = 5e-10, const int count = 10)

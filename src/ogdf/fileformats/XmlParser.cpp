@@ -30,252 +30,367 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/fileformats/XmlParser.h>
-#include <ogdf/basic/Logger.h>
-
 
 namespace ogdf {
 
-	void XmlParser::reportError(
-		const char *functionName,
-		int sourceLine,
-		const char *message,
-		int inputFileLine)
+void XmlParser::reportError(
+	const char *functionName,
+	int sourceLine,
+	const char *message,
+	int inputFileLine)
+{
+	m_parseError = true;
+
+	Logger::slout()
+		<< "Error reported!\n"
+		<< "\tFunction: " << functionName
+		<< "(), Source line: " << sourceLine
+		<< "\n\tMessage: " << message << "\n";
+	if (inputFileLine != -1) {
+		Logger::slout() << "\tCurrent line of input file: " << inputFileLine;
+	}
+} // reportError
+
+
+bool XmlTagObject::isLeaf() const {
+	if(this->m_pFirstSon)	return false;
+	else return true;
+}
+
+bool XmlTagObject::findSonXmlTagObjectByName(
+	const string &sonsName,
+	XmlTagObject *&son) const
+{
+	XmlTagObject *currentSon = this->m_pFirstSon;
+	while(currentSon && currentSon->m_pTagName->key() != sonsName)
 	{
-		m_parseError = true;
-
-		Logger::slout()
-			<< "Error reported!\n"
-			<< "\tFunction: " << functionName
-			<< "(), Source line: " << sourceLine
-			<< "\n\tMessage: " << message << "\n";
-		if (inputFileLine != -1) {
-			Logger::slout() << "\tCurrent line of input file: " << inputFileLine;
-		}
-	} // reportError
-
-
-	//-----------------------------------------------------
-	//Methods for handling XML objects for OGML file format
-	//-----------------------------------------------------
-	bool XmlTagObject::isLeaf() const {
-		if(this->m_pFirstSon)	return false;
-		else return true;
+		currentSon = currentSon->m_pBrother;
 	}
 
-	bool XmlTagObject::findSonXmlTagObjectByName(
-		const string &sonsName,
-		XmlTagObject *&son) const
-	{
-		XmlTagObject *currentSon = this->m_pFirstSon;
-		while(currentSon && currentSon->m_pTagName->key() != sonsName)
-		{
-			currentSon = currentSon->m_pBrother;
-		}
-
-		if(currentSon) {
-			son = currentSon;
-			return true;
-		}
-
-		son = nullptr;
-		return false;
+	if(currentSon) {
+		son = currentSon;
+		return true;
 	}
 
-	bool XmlTagObject::findSonXmlTagObjectByName(
-		const string &sonsName,
-		List<XmlTagObject*> &sons) const
+	son = nullptr;
+	return false;
+}
+
+bool XmlTagObject::findSonXmlTagObjectByName(
+	const string &sonsName,
+	List<XmlTagObject*> &sons) const
+{
+	bool found = false;
+	XmlTagObject *currentSon = this->m_pFirstSon;
+	while(currentSon)
 	{
+		if(currentSon->m_pTagName->key() == sonsName) {
+			found = true;
+			sons.pushBack(currentSon);
+		}
+		currentSon = currentSon->m_pBrother;
+	}
+
+	return found;
+}
+
+bool XmlTagObject::hasMoreSonXmlTagObject(const List<string> &sonNamesToIgnore) const {
+	const XmlTagObject *currentSon = this->m_pFirstSon;
+	while(currentSon)
+	{
+
+		//Proof if name of currentSon is inequal to all in sonsName
 		bool found = false;
-		XmlTagObject *currentSon = this->m_pFirstSon;
-		while(currentSon)
-		{
-			if(currentSon->m_pTagName->key() == sonsName) {
+		for(const string &str : sonNamesToIgnore) {
+			if (str == currentSon->m_pTagName->key()) {
 				found = true;
-				sons.pushBack(currentSon);
+				break;
 			}
-			currentSon = currentSon->m_pBrother;
 		}
-
-		return found;
+		if(!found) return true;
+		currentSon = currentSon->m_pBrother;
 	}
 
-	bool XmlTagObject::hasMoreSonXmlTagObject(const List<string> &sonNamesToIgnore) const {
-		const XmlTagObject *currentSon = this->m_pFirstSon;
-		while(currentSon)
-		{
+	return false;
+}
 
-			//Proof if name of currentSon is inequal to all in sonsName
-			bool found = false;
-			for(const string &str : sonNamesToIgnore) {
-				if (str == currentSon->m_pTagName->key()) {
-					found = true;
-					break;
-				}
-			}
-			if(!found) return true;
-			currentSon = currentSon->m_pBrother;
-		}
+bool XmlTagObject::findXmlAttributeObjectByName(
+	const string &attName,
+	XmlAttributeObject*& attribute) const
+{
+	XmlAttributeObject *currentAttribute = this->m_pFirstAttribute;
+	while ((currentAttribute != nullptr) &&
+		(currentAttribute->m_pAttributeName->key() != attName))
+	{
+		currentAttribute = currentAttribute->m_pNextAttribute;
+	}
 
+	// Attribute found
+	if (currentAttribute != nullptr){
+		attribute = currentAttribute;
+		return true;
+	}
+
+	// Not found
+	attribute = nullptr;
+	return false;
+}
+
+bool XmlTagObject::isAttributeLess() const {
+	if(this->m_pFirstAttribute) return false;
+	else return true;
+}
+
+
+XmlParser::XmlParser(istream &is) :
+	m_pRootTag(nullptr),
+	m_hashTableInfoIndex(0),
+	m_recursionDepth(0),
+	m_parseError(false)
+{
+	// Create scanner
+	m_pScanner = new XmlScanner(is);
+}
+
+XmlParser::~XmlParser()
+{
+	// Delete parse tree
+	if (m_pRootTag)
+		destroyParseTree(m_pRootTag);
+
+	// Delete scanner
+	delete m_pScanner;
+
+}
+
+bool XmlParser::createParseTree()
+{
+	// create parse tree
+	m_parseError = false;
+	m_pRootTag = parse();
+
+	// recursion depth not correct
+	if (m_recursionDepth != 0) {
+		reportError("XmlParser::createParseTree", __LINE__, "Recursion depth not equal to zero after parsing!");
 		return false;
 	}
 
-	bool XmlTagObject::findXmlAttributeObjectByName(
-		const string &attName,
-		XmlAttributeObject*& attribute) const
-	{
-		XmlAttributeObject *currentAttribute = this->m_pFirstAttribute;
-		while ((currentAttribute != nullptr) &&
-			(currentAttribute->m_pAttributeName->key() != attName))
-		{
-			currentAttribute = currentAttribute->m_pNextAttribute;
-		}
+	return !m_parseError;
 
-		// Attribute found
-		if (currentAttribute != nullptr){
-			attribute = currentAttribute;
-			return true;
-		}
+} // createParseTree
 
-		// Not found
-		attribute = nullptr;
-		return false;
+void XmlParser::destroyParseTree(XmlTagObject *root)
+{
+	// Destroy all attributes of root
+	XmlAttributeObject *currentAttribute = root->m_pFirstAttribute;
+	while (currentAttribute != nullptr){
+		XmlAttributeObject *nextAttribute = currentAttribute->m_pNextAttribute;
+		delete currentAttribute;
+		currentAttribute = nextAttribute;
 	}
 
-	bool XmlTagObject::isAttributeLess() const {
-		if(this->m_pFirstAttribute) return false;
-		else return true;
+	// Traverse children of root and destroy them
+	XmlTagObject *currentChild = root->m_pFirstSon;
+	while (currentChild != nullptr){
+		XmlTagObject *nextChild = currentChild->m_pBrother;
+		destroyParseTree(currentChild);
+		currentChild = nextChild;
 	}
 
+	// Destroy root itself
+	delete root;
 
-	//
-	// ---------- X m l P a r s e r ------------------------
-	//
+} // destroyParseTree
 
-	//
-	// C o n s t r u c t o r
-	//
-	XmlParser::XmlParser(istream &is) :
-		m_pRootTag(nullptr),
-		m_hashTableInfoIndex(0),
-		m_recursionDepth(0),
-		m_parseError(false)
+
+// Take a look at the state machine of parse() to understand
+// what is going on here.
+//
+// TODO: It seems to be useful that this function throws an exception
+//       if something goes wrong.
+XmlTagObject *XmlParser::parse()
+{
+	// Increment recursion depth
+	++m_recursionDepth;
+
+	// currentTagObject is the tag object we want to create
+	// in this invocation of parse()
+	XmlTagObject *currentTagObject = nullptr;
+
+	// Now we are in the start state of the state machine
+	for( ; ; )
 	{
-		// Create scanner
-		m_pScanner = new XmlScanner(is);
-	}
+		XmlToken token = m_pScanner->getNextToken();
 
-	//
-	// D e s t r u c t o r
-	//
-	XmlParser::~XmlParser()
-	{
-		// Delete parse tree
-		if (m_pRootTag)
-			destroyParseTree(m_pRootTag);
-
-		// Delete scanner
-		delete m_pScanner;
-
-	}
-
-
-	//
-	//  c r e a t e P a r s e T r e e
-	//
-	bool XmlParser::createParseTree()
-	{
-		// create parse tree
-		m_parseError = false;
-		m_pRootTag = parse();
-
-		// recursion depth not correct
-		if (m_recursionDepth != 0) {
-			reportError("XmlParser::createParseTree", __LINE__, "Recursion depth not equal to zero after parsing!");
-			return false;
+		// Expect "<", otherwise failure
+		if (token != XmlToken::openingBracket){
+			reportError("XmlParser::parse",
+						__LINE__,
+						"Opening Bracket expected!",
+						getInputFileLineCounter());
+			return currentTagObject;
 		}
 
-		return !m_parseError;
+		// Let's look what comes after "<"
+		token = m_pScanner->getNextToken();
 
-	} // createParseTree
+		// Read "?", i.e. we have the XML header line <? ... ?>
+		if (token == XmlToken::questionMark){
 
-	//
-	// d e s t r o y P a r s e T r e e
-	//
-	void XmlParser::destroyParseTree(XmlTagObject *root)
-	{
-		// Destroy all attributes of root
-		XmlAttributeObject *currentAttribute = root->m_pFirstAttribute;
-		while (currentAttribute != nullptr){
-			XmlAttributeObject *nextAttribute = currentAttribute->m_pNextAttribute;
-			delete currentAttribute;
-			currentAttribute = nextAttribute;
-		}
-
-		// Traverse children of root and destroy them
-		XmlTagObject *currentChild = root->m_pFirstSon;
-		while (currentChild != nullptr){
-			XmlTagObject *nextChild = currentChild->m_pBrother;
-			destroyParseTree(currentChild);
-			currentChild = nextChild;
-		}
-
-		// Destroy root itself
-		delete root;
-
-	} // destroyParseTree
-
-
-	//
-	// p a r s e
-	//
-	// Take a look at the state machine of parse() to understand
-	// what is going on here.
-	//
-	// TODO: It seems to be useful that this function throws an exception
-	//       if something goes wrong.
-	XmlTagObject *XmlParser::parse()
-	{
-		// Increment recursion depth
-		++m_recursionDepth;
-
-		// currentTagObject is the tag object we want to create
-		// in this invocation of parse()
-		XmlTagObject *currentTagObject = nullptr;
-
-		// Now we are in the start state of the state machine
-		for( ; ; )
-		{
-			XmlToken token = m_pScanner->getNextToken();
-
-			// Expect "<", otherwise failure
-			if (token != openingBracket){
+			// Skip until we reach the matching question mark
+			if (!m_pScanner->skipUntil('?')){
 				reportError("XmlParser::parse",
 							__LINE__,
-							"Opening Bracket expected!",
+							"Could not found the matching '?'",
 							getInputFileLineCounter());
 				return currentTagObject;
 			}
 
-			// Let's look what comes after "<"
+			// Consume ">", otherwise failure
 			token = m_pScanner->getNextToken();
+			if (token != XmlToken::closingBracket){
+				reportError("XmlParser::parse",
+							__LINE__,
+							"Closing Bracket expected!",
+							getInputFileLineCounter());
+				return currentTagObject;
+			}
 
-			// Read "?", i.e. we have the XML header line <? ... ?>
-			if (token == questionMark){
+			// Go to start state of the state machine
+			continue;
 
-				// Skip until we reach the matching question mark
-				if (!m_pScanner->skipUntil('?')){
+		} // end of Read "?"
+
+		// Read "!", i.e. we have a XML comment <!-- bla -->
+		if (token == XmlToken::exclamationMark){
+
+			// A preambel comment <!lala > which could be also nested
+			if ((m_pScanner->getNextToken() != XmlToken::minus) ||
+				(m_pScanner->getNextToken() != XmlToken::minus))
+			{
+				if (!m_pScanner->skipUntilMatchingClosingBracket()){
+
 					reportError("XmlParser::parse",
-								__LINE__,
-								"Could not found the matching '?'",
-								getInputFileLineCounter());
+						__LINE__,
+						"Could not find closing comment bracket!",
+						getInputFileLineCounter());
 					return currentTagObject;
 				}
 
+				continue;
+			}
+
+			// Find end of comment
+			bool endOfCommentFound = false;
+			while (!endOfCommentFound){
+
+				// Skip until we find a - (and skip over it)
+				if (!m_pScanner->skipUntil('-', true)){
+					reportError("XmlParser::parse",
+						__LINE__,
+						"Closing --> of comment not found!",
+						getInputFileLineCounter());
+					return currentTagObject;
+				}
+
+				// The next characters must be -> (note that one minus is already consumed)
+				if ((m_pScanner->getNextToken() == XmlToken::minus) &&
+					(m_pScanner->getNextToken() == XmlToken::closingBracket))
+				{
+					endOfCommentFound = true;
+				}
+
+			} // while
+
+			// Go to start state of the state machine
+			continue;
+
+		} // end of Read "!"
+
+		// We have found an identifier, i.e. a tag name
+		if (token == XmlToken::identifier){
+
+			// Get hash element of token string
+			HashedString *tagName =
+				hashString(m_pScanner->getCurrentToken());
+
+			// Create new tag object
+			currentTagObject = new XmlTagObject(tagName);
+			if (currentTagObject == nullptr){
+				OGDF_THROW(InsufficientMemoryException);
+			}
+
+			//push (opening) tagName to stack
+			m_tagObserver.push(tagName->key());
+			// set depth of current tag object
+			currentTagObject->setDepth(m_recursionDepth);
+
+			// set line of the tag object in the parsed xml document
+			currentTagObject->setLine(getInputFileLineCounter());
+
+			// Next token
+			token = m_pScanner->getNextToken();
+
+			// Again we found an identifier, so it must be an attribute
+			if (token == XmlToken::identifier){
+
+				// Read list of attributes
+				do {
+					// Save the attribute name
+					HashedString *attributeName =
+						hashString(m_pScanner->getCurrentToken());
+
+					// Consume "=", otherwise failure
+					token = m_pScanner->getNextToken();
+					if (token != XmlToken::equalSign)
+					{
+						reportError("XmlParser::parse",
+									__LINE__,
+									"Equal Sign expected!",
+									getInputFileLineCounter());
+						return currentTagObject;
+					}
+
+					// Read value
+					token = m_pScanner->getNextToken();
+					if ((token != XmlToken::quotedValue) &&
+						(token != XmlToken::identifier) &&
+						(token != XmlToken::attributeValue))
+					{
+						reportError("XmlParser::parse",
+									__LINE__,
+									"No valid attribute value!",
+									getInputFileLineCounter());
+						return currentTagObject;
+					}
+
+					// Create a new XmlAttributeObject
+					XmlAttributeObject *currentAttributeObject =
+						new XmlAttributeObject(attributeName, hashString(m_pScanner->getCurrentToken()));
+					if (currentAttributeObject == nullptr){
+						OGDF_THROW(InsufficientMemoryException);
+					}
+
+					// Append attribute to attribute list of the current tag object
+					appendAttributeObject(currentTagObject, currentAttributeObject);
+
+					// Get next token
+					token = m_pScanner->getNextToken();
+
+				}
+				while (token == XmlToken::identifier);
+
+			} // Found an identifier of an attribute
+
+			// Read "/", i.e. the tag is ended immeadiately, e.g.
+			// <A ... /> without a closing tag </A>
+			if (token == XmlToken::slash){
+
 				// Consume ">", otherwise failure
 				token = m_pScanner->getNextToken();
-				if (token != closingBracket){
+				if (token != XmlToken::closingBracket)
+				{
 					reportError("XmlParser::parse",
 								__LINE__,
 								"Closing Bracket expected!",
@@ -283,306 +398,40 @@ namespace ogdf {
 					return currentTagObject;
 				}
 
-				// Go to start state of the state machine
-				continue;
+				// The tag is closed and ended so we return
+				string s = m_tagObserver.pop();
+				--m_recursionDepth;
+				return currentTagObject;
 
-			} // end of Read "?"
+			} // end of Read "/"
 
-			// Read "!", i.e. we have a XML comment <!-- bla -->
-			if (token == exclamationMark){
+			// Read ">", i.e. the tag is closed and we
+			// expect some content
+			if (token == XmlToken::closingBracket){
 
-				// A preambel comment <!lala > which could be also nested
-				if ((m_pScanner->getNextToken() != minus) ||
-					(m_pScanner->getNextToken() != minus))
-				{
-					if (!m_pScanner->skipUntilMatchingClosingBracket()){
+				// We read something different from "<", so we have to
+				// deal with a tag value now, i.e. a string inbetween the
+				// opening and the closing tag, e.g. <A ...> lalala </A>
+				if (m_pScanner->testNextToken() != XmlToken::openingBracket){
 
-						reportError("XmlParser::parse",
-							__LINE__,
-							"Could not find closing comment bracket!",
-							getInputFileLineCounter());
-						return currentTagObject;
-					}
+					// Read the characters until "<" is reached and put them into
+					// currentTagObject
+					m_pScanner->readStringUntil('<');
+					currentTagObject->m_pTagValue = hashString(m_pScanner->getCurrentToken());
 
-					continue;
-				}
-
-				// Find end of comment
-				bool endOfCommentFound = false;
-				while (!endOfCommentFound){
-
-					// Skip until we find a - (and skip over it)
-					if (!m_pScanner->skipUntil('-', true)){
-						reportError("XmlParser::parse",
-							__LINE__,
-							"Closing --> of comment not found!",
-							getInputFileLineCounter());
-						return currentTagObject;
-					}
-
-					// The next characters must be -> (note that one minus is already consumed)
-					if ((m_pScanner->getNextToken() == minus) &&
-						(m_pScanner->getNextToken() == closingBracket))
-					{
-						endOfCommentFound = true;
-					}
-
-				} // while
-
-				// Go to start state of the state machine
-				continue;
-
-			} // end of Read "!"
-
-			// We have found an identifier, i.e. a tag name
-			if (token == identifier){
-
-				// Get hash element of token string
-				HashedString *tagName =
-					hashString(m_pScanner->getCurrentToken());
-
-				// Create new tag object
-				currentTagObject = new XmlTagObject(tagName);
-				if (currentTagObject == nullptr){
-					OGDF_THROW(InsufficientMemoryException);
-				}
-
-				//push (opening) tagName to stack
-				m_tagObserver.push(tagName->key());
-				// set depth of current tag object
-				currentTagObject->setDepth(m_recursionDepth);
-
-				// set line of the tag object in the parsed xml document
-				currentTagObject->setLine(getInputFileLineCounter());
-
-				// Next token
-				token = m_pScanner->getNextToken();
-
-				// Again we found an identifier, so it must be an attribute
-				if (token == identifier){
-
-					// Read list of attributes
-					do {
-						// Save the attribute name
-						HashedString *attributeName =
-							hashString(m_pScanner->getCurrentToken());
-
-						// Consume "=", otherwise failure
-						token = m_pScanner->getNextToken();
-						if (token != equalSign)
-						{
-							reportError("XmlParser::parse",
-										__LINE__,
-										"Equal Sign expected!",
-										getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						// Read value
-						token = m_pScanner->getNextToken();
-						if ((token != quotedValue) &&
-							(token != identifier) &&
-							(token != attributeValue))
-						{
-							reportError("XmlParser::parse",
-										__LINE__,
-										"No valid attribute value!",
-										getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						// Create a new XmlAttributeObject
-						XmlAttributeObject *currentAttributeObject =
-							new XmlAttributeObject(attributeName, hashString(m_pScanner->getCurrentToken()));
-						if (currentAttributeObject == nullptr){
-							OGDF_THROW(InsufficientMemoryException);
-						}
-
-						// Append attribute to attribute list of the current tag object
-						appendAttributeObject(currentTagObject, currentAttributeObject);
-
-						// Get next token
-						token = m_pScanner->getNextToken();
-
-					}
-					while (token == identifier);
-
-				} // Found an identifier of an attribute
-
-				// Read "/", i.e. the tag is ended immeadiately, e.g.
-				// <A ... /> without a closing tag </A>
-				if (token == slash){
-
-					// Consume ">", otherwise failure
-					token = m_pScanner->getNextToken();
-					if (token != closingBracket)
-					{
-						reportError("XmlParser::parse",
-									__LINE__,
-									"Closing Bracket expected!",
-									getInputFileLineCounter());
-						return currentTagObject;
-					}
-
-					// The tag is closed and ended so we return
-					string s = m_tagObserver.pop();
-					--m_recursionDepth;
-					return currentTagObject;
-
-				} // end of Read "/"
-
-				// Read ">", i.e. the tag is closed and we
-				// expect some content
-				if (token == closingBracket){
-
-					// We read something different from "<", so we have to
-					// deal with a tag value now, i.e. a string inbetween the
-					// opening and the closing tag, e.g. <A ...> lalala </A>
-					if (m_pScanner->testNextToken() != openingBracket){
-
-						// Read the characters until "<" is reached and put them into
-						// currentTagObject
-						m_pScanner->readStringUntil('<');
-						currentTagObject->m_pTagValue = hashString(m_pScanner->getCurrentToken());
-
-						// We expect a closing tag now, i.e. </id>
-						token = m_pScanner->getNextToken();
-						if (token != openingBracket)
-						{
-							reportError("XmlParser::parse",
-								__LINE__,
-								"Opening Bracket expected!",
-								getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						token = m_pScanner->getNextToken();
-						if (token != slash)
-						{
-							reportError("XmlParser::parse",
-										__LINE__,
-										"Slash expected!",
-										getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						token = m_pScanner->getNextToken();
-						if (token != identifier)
-						{
-							reportError("XmlParser::parse",
-										__LINE__,
-										"Identifier expected!",
-										getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						// next token is the closing tag
-						string nextTag(m_pScanner->getCurrentToken());
-						// pop corresponding tag from stack
-						string s = m_tagObserver.pop();
-						// compare the two tags
-						if (s != nextTag)
-						{
-							// the closing tag doesn't correspond to the opening tag:
-							reportError("XmlParser::parse",
-										__LINE__,
-										"wrong closing tag!",
-										getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						token = m_pScanner->getNextToken();
-						if (token != closingBracket)
-						{
-							reportError("XmlParser::parse",
-										__LINE__,
-										"Closing Bracket expected!",
-										getInputFileLineCounter());
-							return currentTagObject;
-						}
-
-						// The tag is closed so we return
-						--m_recursionDepth;
-						return currentTagObject;
-
-					} // end of read something different from "<"
-
-					// Found "<", so a (series of) new tag begins and we have to perform
-					// recursive invocation of parse()
-					//
-					// There are two exceptions:
-					// - a slash follows afer <, i.e. we have a closing tag
-					// - an exclamation mark follows after <, i.e. we have a comment
-					while (m_pScanner->testNextToken() == openingBracket){
-
-						// Leave the while loop if a closing tag occurs
-						if (m_pScanner->testNextNextToken() == slash){
-							break;
-						}
-
-						// Ignore comments
-						if (m_pScanner->testNextNextToken() == exclamationMark){
-
-							// Comment must start with <!--
-							if ((m_pScanner->getNextToken() != openingBracket) ||
-								(m_pScanner->getNextToken() != exclamationMark) ||
-								(m_pScanner->getNextToken() != minus) ||
-								(m_pScanner->getNextToken() != minus))
-							{
-								reportError("XmlParser::parse",
-									__LINE__,
-									"Comment must start with <!--",
-									getInputFileLineCounter());
-								return currentTagObject;
-							}
-
-							// Find end of comment
-							bool endOfCommentFound = false;
-							while (!endOfCommentFound){
-
-								// Skip until we find a - (and skip over it)
-								if (!m_pScanner->skipUntil('-', true)){
-									reportError("XmlParser::parse",
-										__LINE__,
-										"Closing --> of comment not found!",
-										getInputFileLineCounter());
-									return currentTagObject;
-								}
-
-								// The next characters must be -> (note that one minus is already consumed)
-								if ((m_pScanner->getNextToken() == minus) &&
-									(m_pScanner->getNextToken() == closingBracket))
-								{
-									endOfCommentFound = true;
-								}
-
-							} // while
-
-							// Proceed with outer while loop
-							continue;
-
-						} // Ignore comments
-
-						// The new tag object is a son of the current tag object
-						XmlTagObject *sonTagObject = parse();
-						appendSonTagObject(currentTagObject, sonTagObject);
-
-					} // while
-
-					// Now we have found all tags.
 					// We expect a closing tag now, i.e. </id>
 					token = m_pScanner->getNextToken();
-					if (token != openingBracket)
+					if (token != XmlToken::openingBracket)
 					{
 						reportError("XmlParser::parse",
-									__LINE__,
-									"Opening Bracket expected!",
-									getInputFileLineCounter());
+							__LINE__,
+							"Opening Bracket expected!",
+							getInputFileLineCounter());
 						return currentTagObject;
 					}
 
 					token = m_pScanner->getNextToken();
-					if (token != slash)
+					if (token != XmlToken::slash)
 					{
 						reportError("XmlParser::parse",
 									__LINE__,
@@ -592,7 +441,7 @@ namespace ogdf {
 					}
 
 					token = m_pScanner->getNextToken();
-					if (token != identifier)
+					if (token != XmlToken::identifier)
 					{
 						reportError("XmlParser::parse",
 									__LINE__,
@@ -617,7 +466,7 @@ namespace ogdf {
 					}
 
 					token = m_pScanner->getNextToken();
-					if (token != closingBracket)
+					if (token != XmlToken::closingBracket)
 					{
 						reportError("XmlParser::parse",
 									__LINE__,
@@ -626,318 +475,408 @@ namespace ogdf {
 						return currentTagObject;
 					}
 
+					// The tag is closed so we return
 					--m_recursionDepth;
-
-					// check if Document contains code after the last closing bracket
-					if (m_recursionDepth == 0){
-						token = m_pScanner->getNextToken();
-						if (token != endOfFile){
-							reportError("XmlParser::parse",
-									__LINE__,
-									"Document contains code after the last closing bracket!",
-									getInputFileLineCounter());
-							return currentTagObject;
-						}
-					}
-
 					return currentTagObject;
 
-				} // end of Read ">"
+				} // end of read something different from "<"
 
-				OGDF_ASSERT(false);
-#if 0
-				continue;
-#endif
+				// Found "<", so a (series of) new tag begins and we have to perform
+				// recursive invocation of parse()
+				//
+				// There are two exceptions:
+				// - a slash follows afer <, i.e. we have a closing tag
+				// - an exclamation mark follows after <, i.e. we have a comment
+				while (m_pScanner->testNextToken() == XmlToken::openingBracket){
 
-			} // end of found identifier
+					// Leave the while loop if a closing tag occurs
+					if (m_pScanner->testNextNextToken() == XmlToken::slash){
+						break;
+					}
+
+					// Ignore comments
+					if (m_pScanner->testNextNextToken() == XmlToken::exclamationMark){
+
+						// Comment must start with <!--
+						if ((m_pScanner->getNextToken() != XmlToken::openingBracket) ||
+							(m_pScanner->getNextToken() != XmlToken::exclamationMark) ||
+							(m_pScanner->getNextToken() != XmlToken::minus) ||
+							(m_pScanner->getNextToken() != XmlToken::minus))
+						{
+							reportError("XmlParser::parse",
+								__LINE__,
+								"Comment must start with <!--",
+								getInputFileLineCounter());
+							return currentTagObject;
+						}
+
+						// Find end of comment
+						bool endOfCommentFound = false;
+						while (!endOfCommentFound){
+
+							// Skip until we find a - (and skip over it)
+							if (!m_pScanner->skipUntil('-', true)){
+								reportError("XmlParser::parse",
+									__LINE__,
+									"Closing --> of comment not found!",
+									getInputFileLineCounter());
+								return currentTagObject;
+							}
+
+							// The next characters must be -> (note that one minus is already consumed)
+							if ((m_pScanner->getNextToken() == XmlToken::minus) &&
+								(m_pScanner->getNextToken() == XmlToken::closingBracket))
+							{
+								endOfCommentFound = true;
+							}
+
+						} // while
+
+						// Proceed with outer while loop
+						continue;
+
+					} // Ignore comments
+
+					// The new tag object is a son of the current tag object
+					XmlTagObject *sonTagObject = parse();
+					appendSonTagObject(currentTagObject, sonTagObject);
+
+				} // while
+
+				// Now we have found all tags.
+				// We expect a closing tag now, i.e. </id>
+				token = m_pScanner->getNextToken();
+				if (token != XmlToken::openingBracket)
+				{
+					reportError("XmlParser::parse",
+								__LINE__,
+								"Opening Bracket expected!",
+								getInputFileLineCounter());
+					return currentTagObject;
+				}
+
+				token = m_pScanner->getNextToken();
+				if (token != XmlToken::slash)
+				{
+					reportError("XmlParser::parse",
+								__LINE__,
+								"Slash expected!",
+								getInputFileLineCounter());
+					return currentTagObject;
+				}
+
+				token = m_pScanner->getNextToken();
+				if (token != XmlToken::identifier)
+				{
+					reportError("XmlParser::parse",
+								__LINE__,
+								"Identifier expected!",
+								getInputFileLineCounter());
+					return currentTagObject;
+				}
+
+				// next token is the closing tag
+				string nextTag(m_pScanner->getCurrentToken());
+				// pop corresponding tag from stack
+				string s = m_tagObserver.pop();
+				// compare the two tags
+				if (s != nextTag)
+				{
+					// the closing tag doesn't correspond to the opening tag:
+					reportError("XmlParser::parse",
+								__LINE__,
+								"wrong closing tag!",
+								getInputFileLineCounter());
+					return currentTagObject;
+				}
+
+				token = m_pScanner->getNextToken();
+				if (token != XmlToken::closingBracket)
+				{
+					reportError("XmlParser::parse",
+								__LINE__,
+								"Closing Bracket expected!",
+								getInputFileLineCounter());
+					return currentTagObject;
+				}
+
+				--m_recursionDepth;
+
+				// check if Document contains code after the last closing bracket
+				if (m_recursionDepth == 0){
+					token = m_pScanner->getNextToken();
+					if (token != XmlToken::endOfFile){
+						reportError("XmlParser::parse",
+								__LINE__,
+								"Document contains code after the last closing bracket!",
+								getInputFileLineCounter());
+						return currentTagObject;
+					}
+				}
+
+				return currentTagObject;
+
+			} // end of Read ">"
 
 			OGDF_ASSERT(false);
+#if 0
+			continue;
+#endif
 
-		} // end of while (true)
+		} // end of found identifier
 
-	} // parse
+		OGDF_ASSERT(false);
 
-	//
-	// a p p e n d A t t r i b u t e O b j e c t
-	//
-	void XmlParser::appendAttributeObject(
-		XmlTagObject *tagObject,
-		XmlAttributeObject *attributeObject)
-	{
+	} // end of while (true)
 
-		// No attribute exists yet
-		if (tagObject->m_pFirstAttribute == nullptr) {
-			tagObject->m_pFirstAttribute = attributeObject;
-		}
-		// At least one attribute exists
-		else{
+} // parse
 
-			XmlAttributeObject *currentAttribute = tagObject->m_pFirstAttribute;
+void XmlParser::appendAttributeObject(
+	XmlTagObject *tagObject,
+	XmlAttributeObject *attributeObject)
+{
 
-			// Find the last attribute
-			while (currentAttribute->m_pNextAttribute != nullptr){
-				currentAttribute = currentAttribute->m_pNextAttribute;
-			}
+	// No attribute exists yet
+	if (tagObject->m_pFirstAttribute == nullptr) {
+		tagObject->m_pFirstAttribute = attributeObject;
+	}
+	// At least one attribute exists
+	else{
 
-			// Append given attribute
-			currentAttribute->m_pNextAttribute = attributeObject;
+		XmlAttributeObject *currentAttribute = tagObject->m_pFirstAttribute;
 
-		}
-
-	} // appendAttributeObject
-
-	//
-	// a p p e n d S o n T a g O b j e c t
-	//
-	void XmlParser::appendSonTagObject(
-		XmlTagObject *currentTagObject,
-		XmlTagObject *sonTagObject)
-	{
-		// No Son exists yet
-		if (currentTagObject->m_pFirstSon == nullptr) {
-			currentTagObject->m_pFirstSon = sonTagObject;
-		}
-		// At least one son exists
-		else{
-
-			XmlTagObject *currentSon = currentTagObject->m_pFirstSon;
-
-			// Find the last son
-			while (currentSon->m_pBrother != nullptr){
-				currentSon = currentSon->m_pBrother;
-			}
-
-			// Append given son
-			currentSon->m_pBrother = sonTagObject;
+		// Find the last attribute
+		while (currentAttribute->m_pNextAttribute != nullptr){
+			currentAttribute = currentAttribute->m_pNextAttribute;
 		}
 
-	} // appendSonTagObject
+		// Append given attribute
+		currentAttribute->m_pNextAttribute = attributeObject;
 
-	//
-	// h a s h S t r i n g
-	//
-	HashedString *XmlParser::hashString(const string &str)
-	{
-		// insertByNeed inserts a new element (str, -1) into the
-		// table if no element with key str exists;
-		// otherwise nothing is done
-		HashedString *key = m_hashTable.insertByNeed(str,-1);
+	}
 
-		// String str was not contained in the table
-		// --> assign a new info index to the new string
-		if(key->info() == -1){
-			key->info() = m_hashTableInfoIndex++;
-		}
+} // appendAttributeObject
 
-		return key;
+void XmlParser::appendSonTagObject(
+	XmlTagObject *currentTagObject,
+	XmlTagObject *sonTagObject)
+{
+	// No Son exists yet
+	if (currentTagObject->m_pFirstSon == nullptr) {
+		currentTagObject->m_pFirstSon = sonTagObject;
+	}
+	// At least one son exists
+	else{
 
-	} // hashString
+		XmlTagObject *currentSon = currentTagObject->m_pFirstSon;
 
-	//
-	// t r a v e r s e P a t h
-	//
-	bool XmlParser::traversePath(
-		const XmlTagObject &startTag,
-		const Array<int> &infoIndexPath,
-		const XmlTagObject *&targetTag) const
-	{
-		// Traverse array
-		const XmlTagObject *currentTag = &startTag;
-		for (auto &elem : infoIndexPath){
-			const XmlTagObject *sonTag;
-
-			// Not found
-			if (!findSonXmlTagObject(*currentTag, elem, sonTag)){
-				return false;
-			}
-
-			// Found
-			currentTag = sonTag;
-
-		} // for
-
-		targetTag = currentTag;
-		return true;
-
-	} // traversePath
-
-	//
-	// f i n d S o n X m l T a g O b j e c t
-	//
-	bool XmlParser::findSonXmlTagObject(const XmlTagObject &father,
-											int sonInfoIndex,
-											const XmlTagObject *&son) const
-	{
-		// Traverse sons
-		const XmlTagObject *currentSon = father.m_pFirstSon;
-		while ((currentSon != nullptr) &&
-			(currentSon->m_pTagName->info() != sonInfoIndex))
-		{
+		// Find the last son
+		while (currentSon->m_pBrother != nullptr){
 			currentSon = currentSon->m_pBrother;
 		}
 
-		// Son found
-		if (currentSon != nullptr){
-			son = currentSon;
-			return true;
-		}
-
-		// Not found
-		son = nullptr;
-		return false;
-
-	} // findSonXmlTagObject
-
-	//
-	// f i n d B r o t h e r X m l T a g O b j e c t
-	//
-	bool XmlParser::findBrotherXmlTagObject(const XmlTagObject &currentTag,
-												int brotherInfoIndex,
-												const XmlTagObject *&brother) const
-	{
-
-		const XmlTagObject *currentBrother = currentTag.m_pBrother;
-		while ((currentBrother != nullptr) &&
-			(currentBrother->m_pTagName->info() != brotherInfoIndex))
-		{
-			currentBrother = currentBrother->m_pBrother;
-		}
-
-		// brother found
-		if (currentBrother != nullptr){
-			brother = currentBrother;
-			return true;
-		}
-
-		// Not found
-		brother = nullptr;
-		return false;
-
-	} // findBrotherXmlTagObject
-
-	//
-	// f i n d X m l A t t r i b u t e O b j e c t
-	//
-	bool XmlParser::findXmlAttributeObject(
-		const XmlTagObject &currentTag,
-		int attributeInfoIndex,
-		const XmlAttributeObject *&attribute) const
-	{
-		const XmlAttributeObject *currentAttribute = currentTag.m_pFirstAttribute;
-		while ((currentAttribute != nullptr) &&
-			(currentAttribute->m_pAttributeName->info() != attributeInfoIndex))
-		{
-			currentAttribute = currentAttribute->m_pNextAttribute;
-		}
-
-		// Attribute found
-		if (currentAttribute != nullptr){
-			attribute = currentAttribute;
-			return true;
-		}
-
-		// Not found
-		attribute = nullptr;
-		return false;
-
-	} // findXmlAttributeObject
-
-	//
-	// p r i n t H a s h T a b l e
-	//
-	void XmlParser::printHashTable(ostream &os)
-	{
-		// Header
-		os << "\n--- Content of Hash table: m_hashTable ---\n" << endl;
-
-		// Get iterator
-		HashConstIterator<string, int> it;
-
-		// Traverse table
-		for( it = m_hashTable.begin(); it.valid(); ++it){
-			os << "\"" << it.key() << "\" has index " << it.info() << endl;
-		}
-
-	} // printHashTable
-
-	//
-	// p r i n t X m l T a g O b j e c t T r e e
-	//
-	void XmlParser::printXmlTagObjectTree(
-		ostream &outs,
-		const XmlTagObject &rootObject,
-		int indent) const
-	{
-		printSpaces(outs, indent);
-
-		// Opening tag (bracket and Tag name)
-		outs << "<" << rootObject.m_pTagName->key();
-
-		// Attributes
-		XmlAttributeObject *currentAttribute = rootObject.m_pFirstAttribute;
-		while (currentAttribute != nullptr){
-
-			outs << " "
-				 << currentAttribute->m_pAttributeName->key()
-				 << " = \""
-				 << currentAttribute->m_pAttributeValue->key()
-				 << "\"";
-
-			// Next attribute
-			currentAttribute = currentAttribute->m_pNextAttribute;
-
-		} // while
-
-		// Closing bracket
-		outs << ">" << endl;
-
-		// Children
-		const XmlTagObject *currentChild = rootObject.m_pFirstSon;
-		while (currentChild != nullptr){
-
-			// Proceed recursively
-			printXmlTagObjectTree(outs, *currentChild, indent + 2);
-
-			// Next child
-			currentChild = currentChild->m_pBrother;
-
-		} // while
-
-		// Content
-		if (rootObject.m_pTagValue != nullptr){
-
-			printSpaces(outs, indent + 2);
-
-			outs << rootObject.m_pTagValue->key() << endl;
-
-		}
-
-		// Closing tag
-		printSpaces(outs, indent);
-		outs << "</" << rootObject.m_pTagName->key() << ">" << endl;
-
-	} // printXmlTagObjectTree
-
-	//
-	// p r i n t S p a c e s
-	//
-	void XmlParser::printSpaces(ostream &outs, int nOfSpaces) const
-	{
-		for (int i = 0; i < nOfSpaces; i++){
-			outs << " ";
-		}
-
-	} // printSpaces
-
-
-	//
-	// o u t p u t O p e r a t o r  for XmlParser
-	//
-	ostream &operator<<(ostream &os, const XmlParser &parser)
-	{
-		parser.printXmlTagObjectTree(os, parser.getRootTag(), 0);
-		return os;
+		// Append given son
+		currentSon->m_pBrother = sonTagObject;
 	}
 
+} // appendSonTagObject
+
+HashedString *XmlParser::hashString(const string &str)
+{
+	// insertByNeed inserts a new element (str, -1) into the
+	// table if no element with key str exists;
+	// otherwise nothing is done
+	HashedString *key = m_hashTable.insertByNeed(str,-1);
+
+	// String str was not contained in the table
+	// --> assign a new info index to the new string
+	if(key->info() == -1){
+		key->info() = m_hashTableInfoIndex++;
+	}
+
+	return key;
+
+} // hashString
+
+bool XmlParser::traversePath(
+	const XmlTagObject &startTag,
+	const Array<int> &infoIndexPath,
+	const XmlTagObject *&targetTag) const
+{
+	// Traverse array
+	const XmlTagObject *currentTag = &startTag;
+	for (auto &elem : infoIndexPath){
+		const XmlTagObject *sonTag;
+
+		// Not found
+		if (!findSonXmlTagObject(*currentTag, elem, sonTag)){
+			return false;
+		}
+
+		// Found
+		currentTag = sonTag;
+
+	} // for
+
+	targetTag = currentTag;
+	return true;
+
+} // traversePath
+
+bool XmlParser::findSonXmlTagObject(const XmlTagObject &father,
+										int sonInfoIndex,
+										const XmlTagObject *&son) const
+{
+	// Traverse sons
+	const XmlTagObject *currentSon = father.m_pFirstSon;
+	while ((currentSon != nullptr) &&
+		(currentSon->m_pTagName->info() != sonInfoIndex))
+	{
+		currentSon = currentSon->m_pBrother;
+	}
+
+	// Son found
+	if (currentSon != nullptr){
+		son = currentSon;
+		return true;
+	}
+
+	// Not found
+	son = nullptr;
+	return false;
+
+} // findSonXmlTagObject
+
+bool XmlParser::findBrotherXmlTagObject(const XmlTagObject &currentTag,
+											int brotherInfoIndex,
+											const XmlTagObject *&brother) const
+{
+
+	const XmlTagObject *currentBrother = currentTag.m_pBrother;
+	while ((currentBrother != nullptr) &&
+		(currentBrother->m_pTagName->info() != brotherInfoIndex))
+	{
+		currentBrother = currentBrother->m_pBrother;
+	}
+
+	// brother found
+	if (currentBrother != nullptr){
+		brother = currentBrother;
+		return true;
+	}
+
+	// Not found
+	brother = nullptr;
+	return false;
+
+} // findBrotherXmlTagObject
+
+bool XmlParser::findXmlAttributeObject(
+	const XmlTagObject &currentTag,
+	int attributeInfoIndex,
+	const XmlAttributeObject *&attribute) const
+{
+	const XmlAttributeObject *currentAttribute = currentTag.m_pFirstAttribute;
+	while ((currentAttribute != nullptr) &&
+		(currentAttribute->m_pAttributeName->info() != attributeInfoIndex))
+	{
+		currentAttribute = currentAttribute->m_pNextAttribute;
+	}
+
+	// Attribute found
+	if (currentAttribute != nullptr){
+		attribute = currentAttribute;
+		return true;
+	}
+
+	// Not found
+	attribute = nullptr;
+	return false;
+
+} // findXmlAttributeObject
+
+void XmlParser::printHashTable(ostream &os)
+{
+	// Header
+	os << "\n--- Content of Hash table: m_hashTable ---\n" << endl;
+
+	// Get iterator
+	HashConstIterator<string, int> it;
+
+	// Traverse table
+	for( it = m_hashTable.begin(); it.valid(); ++it){
+		os << "\"" << it.key() << "\" has index " << it.info() << endl;
+	}
+
+} // printHashTable
+
+void XmlParser::printXmlTagObjectTree(
+	ostream &outs,
+	const XmlTagObject &rootObject,
+	int indent) const
+{
+	printSpaces(outs, indent);
+
+	// Opening tag (bracket and Tag name)
+	outs << "<" << rootObject.m_pTagName->key();
+
+	// Attributes
+	XmlAttributeObject *currentAttribute = rootObject.m_pFirstAttribute;
+	while (currentAttribute != nullptr){
+
+		outs << " "
+			 << currentAttribute->m_pAttributeName->key()
+			 << " = \""
+			 << currentAttribute->m_pAttributeValue->key()
+			 << "\"";
+
+		// Next attribute
+		currentAttribute = currentAttribute->m_pNextAttribute;
+
+	} // while
+
+	// Closing bracket
+	outs << ">" << endl;
+
+	// Children
+	const XmlTagObject *currentChild = rootObject.m_pFirstSon;
+	while (currentChild != nullptr){
+
+		// Proceed recursively
+		printXmlTagObjectTree(outs, *currentChild, indent + 2);
+
+		// Next child
+		currentChild = currentChild->m_pBrother;
+
+	} // while
+
+	// Content
+	if (rootObject.m_pTagValue != nullptr){
+
+		printSpaces(outs, indent + 2);
+
+		outs << rootObject.m_pTagValue->key() << endl;
+
+	}
+
+	// Closing tag
+	printSpaces(outs, indent);
+	outs << "</" << rootObject.m_pTagName->key() << ">" << endl;
+
+} // printXmlTagObjectTree
+
+void XmlParser::printSpaces(ostream &outs, int nOfSpaces) const
+{
+	for (int i = 0; i < nOfSpaces; i++){
+		outs << " ";
+	}
+
+} // printSpaces
+
+ostream &operator<<(ostream &os, const XmlParser &parser)
+{
+	parser.printXmlTagObjectTree(os, parser.getRootTag(), 0);
+	return os;
+}
 
 } // namespace ogdf

@@ -36,8 +36,6 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/tuples.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
 
 
@@ -98,7 +96,7 @@ void angleRangeAdapt(double sectorStart, double sectorEnd, double &start, double
 
 struct ClusterStructure
 {
-	ClusterStructure(const Graph &G) : m_G(G), m_clusterOf(G) { }
+	explicit ClusterStructure(const Graph &G) : m_G(G), m_clusterOf(G) { }
 
 	operator const Graph &() const { return m_G; }
 
@@ -123,9 +121,8 @@ struct ClusterStructure
 	Array<int>        m_parentCluster;
 	Array<List<int> > m_childCluster;
 
-	// undefined methods to avoid automatic creation
-	ClusterStructure(const ClusterStructure &);
-	ClusterStructure &operator=(const ClusterStructure &);
+	ClusterStructure(const ClusterStructure &) = delete;
+	ClusterStructure &operator=(const ClusterStructure &) = delete;
 };
 
 
@@ -159,19 +156,6 @@ void ClusterStructure::initCluster(int nCluster, const Array<int> &parent)
 			m_childCluster[parent[i]].pushBack(i);
 	}
 }
-
-
-class WeightComparer
-{
-	typedef Tuple2<int,double> TheWeight;
-	static int compare(const TheWeight &x, const TheWeight &y)
-	{
-		if (x.x2() < y.x2()) return -1;
-		else if (x.x2() > y.x2()) return 1;
-		else return 0;
-	}
-	OGDF_AUGMENT_STATICCOMPARER(TheWeight)
-};
 
 void ClusterStructure::sortChildren(
 	int i,
@@ -225,20 +209,19 @@ void ClusterStructure::sortChildren(
 			int gapLength = L.front() - L.back() + n;
 
 			int posPred = L.front();
-			ListConstIterator<int> it;
-			for(it = L.begin().succ(); it.valid(); ++it) {
-				if (*it - posPred > gapLength) {
-					gapEnd    = *it;
-					gapLength = *it - posPred;
+			for(int j: L) {
+				if (j - posPred > gapLength) {
+					gapEnd    = j;
+					gapLength = j - posPred;
 				}
-				posPred = *it;
+				posPred = j;
 			}
 
 			int x = (n - gapEnd) % n;
 
 			int sum = 0;
-			for(it = L.begin(); it.valid(); ++it)
-				sum += ((*it + x) % n);
+			for(int j: L)
+				sum += ((j + x) % n);
 
 			double w = double(sum)/double(size);
 
@@ -249,7 +232,16 @@ void ClusterStructure::sortChildren(
 		}
 	}
 
-	WeightComparer weightComparer;
+	class {
+		using TheWeight = Tuple2<int,double>;
+		static int compare(const TheWeight &x, const TheWeight &y)
+		{
+			if (x.x2() < y.x2()) return -1;
+			else if (x.x2() > y.x2()) return 1;
+			else return 0;
+		}
+		OGDF_AUGMENT_STATICCOMPARER(TheWeight)
+	} weightComparer;
 	weights.quicksort(weightComparer);
 #ifdef OUTPUT
 	cout << "weights after: " << weights << endl;
@@ -309,8 +301,8 @@ class CircleGraph : public Graph
 public:
 	CircleGraph(const ClusterStructure &C, NodeArray<node> &toCircle, int c);
 
-	void order(List<node> &nodes);
-	void swapping(List<node> &nodes, int maxIterations);
+	void order(List<node> &nodeList);
+	void swapping(List<node> &nodeList, int maxIterations);
 
 	node fromCircle(node vCircle) const { return m_fromCircle[vCircle]; }
 
@@ -358,7 +350,7 @@ CircleGraph::CircleGraph(
 class DepthBucket : public BucketFunc<node>
 {
 public:
-	DepthBucket(const NodeArray<int> &depth) : m_depth(depth) { }
+	explicit DepthBucket(const NodeArray<int> &depth) : m_depth(depth) { }
 
 	int getBucket(const node &v) override
 	{
@@ -375,7 +367,7 @@ private:
 
 
 // Idee: Benutzung von outerplanarity (nachschlagen!)
-void CircleGraph::order(List<node> &nodes)
+void CircleGraph::order(List<node> &nodeList)
 {
 	NodeArray<int>  depth  (*this,0);
 	NodeArray<node> father (*this);
@@ -411,13 +403,13 @@ void CircleGraph::order(List<node> &nodes)
 			combinedAtRoot = true;
 
 			while(!currentPath.empty())
-				currentPath.moveToSucc(currentPath.begin(),nodes,itCombined);
+				currentPath.moveToSucc(currentPath.begin(),nodeList,itCombined);
 
 		} else {
 			if (v == nullptr)
 				itCombined = itInserted;
 
-			nodes.conc(currentPath);
+			nodeList.conc(currentPath);
 		}
 	}
 }
@@ -445,17 +437,17 @@ void CircleGraph::dfs(
 }
 
 
-void CircleGraph::swapping(List<node> &nodes, int maxIterations)
+void CircleGraph::swapping(List<node> &nodeList, int maxIterations)
 {
 	ListIterator<node> it;
 
-	if (nodes.size() >= 3)
+	if (nodeList.size() >= 3)
 	{
 		NodeArray<int> pos(*this);
 		const int n = numberOfNodes();
 
 		int currentPos = 0;
-		for(it = nodes.begin(); it.valid(); ++it)
+		for(it = nodeList.begin(); it.valid(); ++it)
 			pos[*it] = currentPos++;
 
 		int iterations = 0;
@@ -463,9 +455,9 @@ void CircleGraph::swapping(List<node> &nodes, int maxIterations)
 		do {
 			improvement = false;
 
-			for(it = nodes.begin(); it.valid(); ++it)
+			for(it = nodeList.begin(); it.valid(); ++it)
 			{
-				ListIterator<node> itNext = nodes.cyclicSucc(it);
+				ListIterator<node> itNext = nodeList.cyclicSucc(it);
 
 				node u = *it, v = *itNext;
 				// we fake a numbering around the circle starting with u at pos. 0
@@ -483,8 +475,8 @@ void CircleGraph::swapping(List<node> &nodes, int maxIterations)
 
 					int posX = (pos[x] + offset) % n;
 
-					for(adjEntry adj : v->adjEntries) {
-						edge vy = adj->theEdge();
+					for(adjEntry adjV : v->adjEntries) {
+						edge vy = adjV->theEdge();
 						node y = vy->opposite(v);
 						if (y == u || y == x) continue;
 
@@ -506,15 +498,12 @@ void CircleGraph::swapping(List<node> &nodes, int maxIterations)
 		} while(improvement && ++iterations <= maxIterations);
 	}
 
-	for(it = nodes.begin(); it.valid(); ++it)
+	for(it = nodeList.begin(); it.valid(); ++it)
 		*it = m_fromCircle[*it];
 }
 
 
 
-//---------------------------------------------------------
-// Constructor
-//---------------------------------------------------------
 CircularLayout::CircularLayout()
 {
 	// set options to defaults
@@ -526,10 +515,7 @@ CircularLayout::CircularLayout()
 }
 
 
-//---------------------------------------------------------
-// default call
 // uses biconnected components as clusters
-//---------------------------------------------------------
 void CircularLayout::call(GraphAttributes &AG)
 {
 	const Graph &G = AG.constGraph();
@@ -683,7 +669,7 @@ struct SuperCluster
 };
 
 
-typedef SuperCluster *PtrSuperCluster;
+using PtrSuperCluster = SuperCluster*;
 ostream &operator<<(ostream &os, const PtrSuperCluster &sc)
 {
 	const double fac = 180 / Math::pi;
@@ -719,10 +705,8 @@ void outputRegions(List<SCRegion> &regions)
 }
 
 
-//---------------------------------------------------------
 // call for predefined clusters
 // performs the actual layout algorithm
-//---------------------------------------------------------
 void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 {
 	// we consider currently only the case that we have a single main-site cluster
@@ -836,7 +820,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 	// estiamtion for maximal allowed angle (which is 2*maxHalfAngle)
 	double maxHalfAngle = acos(outerRadius[mainSite] / rFromMainSite);
 
-	// assignment of angles around main-site with pendulum method -------
+	// assignment of angles around main-site with pendulum method
 
 	// initialisation
 	double minDist   = outerRadius[mainSite] + m_minDistLevel;
@@ -957,30 +941,32 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 
 			} while(regions.size() >= 2 && doMerge);
 
-			double sectorStart = 0, sectorEnd, sectorLength = 0;
-			bool singleRegion = false;
-			if(regions.size() == 1) {
-				sectorLength = 2*Math::pi;
-				singleRegion = true;
-			} else {
+			double sectorStart = 0;
+			double sectorEnd = 2*Math::pi;
+			bool singleRegion = true;
+
+			if (regions.size() != 1) {
+				singleRegion = false;
 				sectorEnd = angleNormalize((*regions.cyclicSucc(itR1)).m_start);
 				ListIterator<SCRegion> itPred = regions.cyclicPred(itR1);
 				sectorStart = angleNormalize((*itPred).m_start + (*itPred).m_length);
-				sectorLength = sectorEnd - sectorStart;
-				if(sectorLength < 0) sectorLength += 2*Math::pi;
+			}
+			double sectorLength = sectorEnd - sectorStart;
+			if (sectorLength < 0) {
+				sectorLength += 2*Math::pi;
 			}
 
 			changed = true;
 			//compute deflection of R1
 			double sumLength = 0, maxGap = -1;
-			SListConstIterator<SuperCluster*> it, itStartRegion;
+			SListConstIterator<SuperCluster*> iter, itStartRegion;
 			const SList<SuperCluster*> &superClustersR1 = (*itR1).m_superClusters;
-			for(it = superClustersR1.begin(); it.valid(); ++it)
+			for(iter = superClustersR1.begin(); iter.valid(); ++iter)
 			{
-				sumLength += (*it)->m_length;
+				sumLength += (*iter)->m_length;
 
-				SListConstIterator<SuperCluster*> itSucc = superClustersR1.cyclicSucc(it);
-				double gap = (*itSucc)->m_direction - (*it)->m_direction;
+				SListConstIterator<SuperCluster*> itSucc = superClustersR1.cyclicSucc(iter);
+				double gap = (*itSucc)->m_direction - (*iter)->m_direction;
 				if (gap < 0) gap += 2*Math::pi;
 				if(gap > maxGap) {
 					maxGap = gap; itStartRegion = itSucc;
@@ -994,20 +980,20 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			double sumDef    = 0;
 			(*itR1).m_start = (*itStartRegion)->m_direction - scaleFactor * (*itStartRegion)->m_length/2;
 			double posStart  = (*itR1).m_start;
-			it = itStartRegion;
+			iter = itStartRegion;
 			do
 			{
-				double currentLength = scaleFactor * (*it)->m_length;
-				sumDef    += angleDistance((*it)->m_direction, posStart + currentLength/2);
+				double currentLength = scaleFactor * (*iter)->m_length;
+				sumDef    += angleDistance((*iter)->m_direction, posStart + currentLength/2);
 				posStart  += currentLength;
 
-				double currentPos = (*it)->m_direction;
+				double currentPos = (*iter)->m_direction;
 				if (currentPos < (*itR1).m_start)
 					currentPos += 2*Math::pi;
-				sumWAngles += (*it)->m_length * currentPos;
+				sumWAngles += (*iter)->m_length * currentPos;
 
-				it = superClustersR1.cyclicSucc(it);
-			} while(it != itStartRegion);
+				iter = superClustersR1.cyclicSucc(iter);
+			} while(iter != itStartRegion);
 
 			double deflection = sumDef / (*itR1).m_superClusters.size();
 			while(deflection < -Math::pi) deflection += 2*Math::pi;
@@ -1021,10 +1007,10 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 
 			double tmpScaleFactor = scaleFactor;
 			double left = center - tmpScaleFactor*sumLength/2;
-			for(it = (*itR1).m_superClusters.begin(); it.valid(); ++it)
+			for(iter = (*itR1).m_superClusters.begin(); iter.valid(); ++iter)
 			{
 				if(left < center) {
-					double minLeft = (*it)->m_direction-maxHalfAngle;
+					double minLeft = (*iter)->m_direction-maxHalfAngle;
 					if(angleSmaller(left, minLeft)) {
 						scaleFactor = min(scaleFactor,
 							tmpScaleFactor * angleDistance(minLeft,center) / angleDistance(left,center));
@@ -1032,10 +1018,10 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 					OGDF_ASSERT(scaleFactor > 0);
 				}
 
-				double right = left + tmpScaleFactor*(*it)->m_length;
+				double right = left + tmpScaleFactor*(*iter)->m_length;
 
 				if(right > center) {
-					double maxRight = (*it)->m_direction+maxHalfAngle;
+					double maxRight = (*iter)->m_direction+maxHalfAngle;
 					if(angleSmaller(maxRight, right)) {
 						scaleFactor = min(scaleFactor,
 							tmpScaleFactor * angleDistance(maxRight,center) / angleDistance(right,center));
@@ -1056,14 +1042,14 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			// set scale factor for all super clusters in region
 			if(!singleRegion) itStartRegion = superClustersR1.begin();
 			ListIterator<SCRegion> itFirst;
-			it = itStartRegion;
+			iter = itStartRegion;
 			do
 			{
-				(*it)->m_scaleFactor = scaleFactor;
+				(*iter)->m_scaleFactor = scaleFactor;
 
 				// build new region for each super-cluster in R1
 				ListIterator<SCRegion> itInserted =
-					regions.insertBefore(SCRegion(*(*it)),itR1);
+					regions.insertBefore(SCRegion(*(*iter)),itR1);
 
 				if(!singleRegion) {
 					angleRangeAdapt(sectorStart, sectorEnd,
@@ -1075,8 +1061,8 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				if(!itFirst.valid())
 					itFirst = itInserted;
 
-				it = superClustersR1.cyclicSucc(it);
-			} while(it != itStartRegion);
+				iter = superClustersR1.cyclicSucc(iter);
+			} while(iter != itStartRegion);
 
 			// merge regions
 			bool changedInternal;
@@ -1102,17 +1088,17 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 						(*itA).m_length += (*itB).m_length;
 
 						//compute deflection of RA
-						double sumDef    = 0;
-						double posStart  = (*itA).m_start;
-						SListConstIterator<SuperCluster*> it;
-						for(it = (*itA).m_superClusters.begin(); it.valid(); ++it) {
-							double currentDef = (*it)->m_direction - (posStart + (*it)->m_scaleFactor * (*it)->m_length/2);
+						sumDef    = 0;
+						posStart  = (*itA).m_start;
+						SListConstIterator<SuperCluster*> itSuperCluster;
+						for(itSuperCluster = (*itA).m_superClusters.begin(); itSuperCluster.valid(); ++itSuperCluster) {
+							double currentDef = (*itSuperCluster)->m_direction - (posStart + (*itSuperCluster)->m_scaleFactor * (*itSuperCluster)->m_length/2);
 							if(currentDef > Math::pi) currentDef -= 2*Math::pi;
 							if(currentDef < -Math::pi) currentDef += 2*Math::pi;
 							sumDef    += currentDef; //(*it)->m_direction - (posStart + (*it)->m_length/2);
-							posStart  += (*it)->m_length * (*it)->m_scaleFactor;
+							posStart  += (*itSuperCluster)->m_length * (*itSuperCluster)->m_scaleFactor;
 						}
-						double deflection = sumDef / (*itA).m_superClusters.size();
+						deflection = sumDef / (*itA).m_superClusters.size();
 						(*itA).m_start += deflection;
 						(*itA).m_start = angleNormalize((*itA).m_start);
 
@@ -1238,14 +1224,14 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		{
 			double scaleFactor = (*itSC)->m_scaleFactor;
 
-			SListConstIterator<int> it;
-			for(it = (*itSC)->m_cluster.begin(); it.valid(); ++it)
+			SListConstIterator<int> iter;
+			for(iter = (*itSC)->m_cluster.begin(); iter.valid(); ++iter)
 			{
-				double length = scaleFactor * preferedAngle[*it];
+				double length = scaleFactor * preferedAngle[*iter];
 
-				circleAngle[*it] = posStart + length/2;
+				circleAngle[*iter] = posStart + length/2;
 				circleQueue.append(QueuedCirclePosition(
-					*it,minDist,posStart,posStart+length));
+					*iter,minDist,posStart,posStart+length));
 
 				posStart += length;
 			}
@@ -1286,7 +1272,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 		}
 	}
 #endif
-	// end of pendulum method -------------------------------------------
+	// end of pendulum method
 
 
 #if 0
@@ -1390,10 +1376,10 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			else {
 				double gamma2 = (gamma < Math::pi) ? Math::pi - gamma : gamma - Math::pi;
 				double K = 1 + 1 /(tan(gamma2)*tan(gamma2));
-				double C = r/(a*tan(gamma2))/K;
-				double C2 = sqrt((1-(r/a)*(r/a))/K + C*C);
+				double newC = r/(a*tan(gamma2))/K;
+				double C2 = sqrt((1-(r/a)*(r/a))/K + newC*newC);
 
-				double beta = asin(C2-C);
+				double beta = asin(C2-newC);
 				if (gamma < Math::pi)
 					preferedDirection[*itC] = circleAngle[cluster]-beta;
 				else
@@ -1417,7 +1403,7 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 			}
 
 		} else {
-			List<ClusterRegion> regions;
+			List<ClusterRegion> clusterRegions;
 			for(itC = C.m_childCluster[cluster].begin(); itC.valid(); ++itC)
 			{
 				double start  = preferedDirection[*itC]-preferedAngle[*itC]/2;
@@ -1428,14 +1414,14 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 				if(start + length >  qcp.m_sectorEnd)
 					start = qcp.m_sectorEnd - length;
 
-				regions.pushBack(ClusterRegion(*itC,start,length));
+				clusterRegions.pushBack(ClusterRegion(*itC,start,length));
 			}
 
-			bool changed;
+			bool somethingChanged;
 			do {
-				changed = false;
+				somethingChanged = false;
 
-				ListIterator<ClusterRegion> itR1 = regions.begin(),itR2;
+				ListIterator<ClusterRegion> itR1 = clusterRegions.begin(),itR2;
 				for(itR2 = itR1.succ(); itR2.valid(); itR2 = itR1.succ())
 				{
 					if((*itR2).m_start < (*itR1).m_start + (*itR1).m_length)
@@ -1446,10 +1432,10 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 						//compute deflection of R1
 						double sumDef = 0;
 						double posStart = (*itR1).m_start;
-						SListConstIterator<int> it;
-						for(it = (*itR1).m_clusters.begin(); it.valid(); ++it) {
-							sumDef += preferedDirection[*it] - (posStart + preferedAngle[*it]/2);
-							posStart += preferedAngle[*it];
+						SListConstIterator<int> iter;
+						for(iter = (*itR1).m_clusters.begin(); iter.valid(); ++iter) {
+							sumDef += preferedDirection[*iter] - (posStart + preferedAngle[*iter]/2);
+							posStart += preferedAngle[*iter];
 						}
 						double deflection = sumDef / (*itR1).m_clusters.size();
 						(*itR1).m_start += deflection;
@@ -1459,47 +1445,47 @@ void CircularLayout::doCall(GraphCopyAttributes &AG, ClusterStructure &C)
 						if((*itR1).m_start + (*itR1).m_length >  qcp.m_sectorEnd)
 							(*itR1).m_start = qcp.m_sectorEnd - (*itR1).m_length;
 
-						regions.del(itR2);
-						changed = true;
+						clusterRegions.del(itR2);
+						somethingChanged = true;
 
 					} else {
 						itR1 = itR2;
 					}
 				}
-			} while(changed);
+			} while(somethingChanged);
 
 			double posStart = qcp.m_sectorStart;
 			ListIterator<ClusterRegion> itR1, itR2;
-			for(itR1 = regions.begin(); itR1.valid(); itR1 = itR2)
+			for(itR1 = clusterRegions.begin(); itR1.valid(); itR1 = itR2)
 			{
 				const ClusterRegion &R1 = *itR1;
 
 				double posRegionEnd = R1.m_start;
-				SListConstIterator<int> it;
-				for(it = R1.m_clusters.begin(); it.valid(); ++it)
+				SListConstIterator<int> iter;
+				for(iter = R1.m_clusters.begin(); iter.valid(); ++iter)
 				{
-					posRegionEnd += preferedAngle[*it];
-					if(it != R1.m_clusters.rbegin())
+					posRegionEnd += preferedAngle[*iter];
+					if(iter != R1.m_clusters.rbegin())
 					{
 						circleQueue.append(QueuedCirclePosition(
-							*it,minDist,posStart,posRegionEnd));
-						circleAngle[*it] = posRegionEnd - preferedAngle[*it]/2;
+							*iter,minDist,posStart,posRegionEnd));
+						circleAngle[*iter] = posRegionEnd - preferedAngle[*iter]/2;
 
 						posStart = posRegionEnd;
 
 					} else {
 						itR2 = itR1.succ();
-						circleAngle[*it] = posRegionEnd - preferedAngle[*it]/2;
+						circleAngle[*iter] = posRegionEnd - preferedAngle[*iter]/2;
 						if(itR2.valid()) {
 							double gap = (*itR2).m_start - posRegionEnd;
-							posRegionEnd += gap * preferedAngle[*it] /
-								(preferedAngle[*it] + preferedAngle[(*itR2).m_clusters.front()]);
+							posRegionEnd += gap * preferedAngle[*iter] /
+								(preferedAngle[*iter] + preferedAngle[(*itR2).m_clusters.front()]);
 							circleQueue.append(QueuedCirclePosition(
-								*it,minDist,posStart,posRegionEnd));
+								*iter,minDist,posStart,posRegionEnd));
 							posStart = posRegionEnd;
 						} else {
 							circleQueue.append(QueuedCirclePosition(
-								*it,minDist,posStart,qcp.m_sectorEnd));
+								*iter,minDist,posStart,qcp.m_sectorEnd));
 						}
 					}
 				}
@@ -1672,20 +1658,15 @@ void CircularLayout::assignPrefAngle(ClusterStructure &C,
 }
 
 
-//---------------------------------------------------------
 // assigns the biconnected components of the graph as clusters
-//---------------------------------------------------------
 void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 {
 	const Graph &G = C;
 
-	//---------------------------------------------------------
 	// compute biconnected components
 	EdgeArray<int> compnum(G);
 	int k = biconnectedComponents(G,compnum);
 
-
-	//---------------------------------------------------------
 	// compute BC-tree
 	//
 	// better: proved a general class BCTree with the functionality
@@ -1753,7 +1734,6 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 		}
 	}
 
-	//---------------------------------------------------------
 	// find center of BC-tree
 	//
 	// we currently use the center of the tree as main-site cluster
@@ -1869,7 +1849,6 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 #endif
 
 
-	//---------------------------------------------------------
 	// assign cluster
 	//
 	// we traverse the tree from the center to the outside
@@ -1936,8 +1915,8 @@ void CircularLayout::assignClustersByBiconnectedComponents(ClusterStructure &C)
 			node wBC = e1->opposite(info.m_vBC);
 			if(wBC == info.m_predCutBC) continue;
 
-			for(adjEntry adj : wBC->adjEntries) {
-				edge e2 = adj->theEdge();
+			for(adjEntry adjWBC : wBC->adjEntries) {
+				edge e2 = adjWBC->theEdge();
 				node bBC = e2->opposite(wBC);
 				if (bBC == info.m_vBC) continue;
 

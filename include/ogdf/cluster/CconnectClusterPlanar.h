@@ -32,7 +32,7 @@
 
 #pragma once
 
-#include <ogdf/internal/planarity/PlanarPQTree.h>
+#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
 #include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/EdgeArray.h>
 
@@ -47,7 +47,7 @@ class OGDF_EXPORT CconnectClusterPlanar
 public:
 
 	//aus CCCPE oder CCCP wieder entfernen
-	enum ccErrorCode {
+	enum class ErrorCode {
 		none = 0,
 		nonConnected = 1,
 		nonCConnected = 2,
@@ -55,7 +55,7 @@ public:
 		nonCPlanar = 4
 	};
 
-	ccErrorCode errCode() { return m_errorCode; }
+	ErrorCode errCode() { return m_errorCode; }
 
 
 	//! Constructor.
@@ -68,8 +68,9 @@ public:
 	virtual bool call(const ClusterGraph &C);
 
 private:
+	using PlanarPQTree = booth_lueker::PlanarPQTree;
 
-	//! Recursive planarity test for clustered graph induced by \a act.
+	//! Recursive planarity test for clustered graph induced by \p act.
 	bool planarityTest(ClusterGraph &C, cluster &act, Graph &G);
 
 	//! Preprocessing that initializes data structures, used in call.
@@ -103,7 +104,7 @@ private:
 	ClusterArray<PlanarPQTree*> m_clusterPQTree;
 	int	m_parallelCount;
 
-	ccErrorCode m_errorCode;
+	ErrorCode m_errorCode;
 };
 
 } // end namespace ogdf

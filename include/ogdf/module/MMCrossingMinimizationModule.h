@@ -56,11 +56,11 @@ public:
 	 * \brief Computes a planarized representation of an expansion of the input graph.
 	 *
 	 * @param PG represents the input graph as well as the computed planarized
-	 *        expansion after the call. \a PG has to be initialzed as a
+	 *        expansion after the call. \p PG has to be initialzed as a
 	 *        PlanRepExpansion of the input graph and is modified to obatain the planarized
 	 *        representation (nodes are eventually expanded by splitting the node and
 	 *        crossings are replaced by dummy vertices with degree four).
-	 * @param cc is the number of the connected component in \a PG that is considered.
+	 * @param cc is the number of the connected component in \p PG that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param forbid points to an edge array indicating which edges are not allowed
 	 *        to be crossed, i.e., (*forbid)[e] = true. If forbid = 0, no edges are
@@ -76,7 +76,7 @@ public:
 	};
 
 	/**
-	 * \brief Performs minor-monotone crossing minimization on \a G.
+	 * \brief Performs minor-monotone crossing minimization on \p G.
 	 *
 	 * @param G is the input graph.
 	 * @param cr is assigned the number of crossings.
@@ -88,7 +88,7 @@ public:
 	ReturnType call(const Graph &G, int &cr, const EdgeArray<bool> *forbid = nullptr);
 
 	/**
-	 * \brief Performs minor-monotone crossing minimization on \a G for given splittable nodes.
+	 * \brief Performs minor-monotone crossing minimization on \p G for given splittable nodes.
 	 *
 	 * @param G is the input graph.
 	 * @param splittableNodes is the list of nodes that are allowed to be split.
@@ -115,10 +115,10 @@ protected:
 	 * \brief Actual algorithm call that needs to be implemented by derived classed.
 	 *
 	 * @param PG represents the input graph as well as the computed planarized expansion
-	 *        after the call. \a PG is initialized as a PlanRepExpansion of the input
+	 *        after the call. \p PG is initialized as a PlanRepExpansion of the input
 	 *        graph and needs to be modified to obatain the planarized representation
 	 *        (crossings are replaced by dummy vertices with degree four).
-	 * @param cc is the number of the connected component in \a PG that is considered.
+	 * @param cc is the number of the connected component in \p PG that is considered.
 	 * @param forbid points to an edge array indicating which edges are not allowed
 	 *        to be crossed, i.e., (*forbid)[e] = true.
 	 * @param crossingNumber needs to be assigned the number of crossings.

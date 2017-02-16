@@ -131,8 +131,8 @@ public:
 	struct EdgeLhs;
 
 private:
-	typedef std::vector<Token> Tokens;
-	typedef Tokens::const_iterator Iterator;
+	using Tokens = std::vector<Token>;
+	using Iterator = Tokens::const_iterator;
 
 	const Tokens m_tokens;
 	const Iterator m_tend;
@@ -173,7 +173,7 @@ public:
 	/**
 	 * @param tokens DOT format token list to build the AST.
 	 */
-	Ast(const Tokens &tokens);
+	explicit Ast(const Tokens &tokens);
 	~Ast();
 
 	//! Builds the DOT format AST.
@@ -193,10 +193,10 @@ public:
 		StmtList *statements;
 
 		Graph(
-			const bool &strict,
-			const bool &directed,
-			std::string *id,
-			StmtList *statements);
+			const bool &paramStrict,
+			const bool &dir,
+			std::string *idString,
+			StmtList *statementList);
 		~Graph();
 
 		bool read(
@@ -210,8 +210,8 @@ public:
 		StmtList *tail;
 
 		StmtList(
-			Stmt *head,
-			StmtList *tail);
+			Stmt *headSTMT,
+			StmtList *tailStatementList);
 		~StmtList();
 	};
 
@@ -230,8 +230,8 @@ public:
 		AttrList *attrs;
 
 		NodeStmt(
-			NodeId *nodeId,
-			AttrList *attrs);
+			NodeId *nodeID,
+			AttrList *attrList);
 		~NodeStmt();
 
 		virtual bool read(
@@ -247,9 +247,9 @@ public:
 		AttrList *attrs;
 
 		EdgeStmt(
-			EdgeLhs *lhs,
-			EdgeRhs *rhs,
-			AttrList *attrs);
+			EdgeLhs *edgeLHS,
+			EdgeRhs *edgeRHS,
+			AttrList *attrList);
 		~EdgeStmt();
 
 		virtual bool read(
@@ -264,8 +264,8 @@ public:
 		const std::string rhs;
 
 		AsgnStmt(
-			const std::string &lhs,
-			const std::string &rhs);
+			const std::string &lhsString,
+			const std::string &rhsString);
 		~AsgnStmt();
 
 		virtual bool read(
@@ -276,14 +276,14 @@ public:
 	};
 
 	struct AttrStmt : public Stmt {
-		enum Type { graph, edge, node };
+		enum class Type { graph, edge, node };
 
 		Type type;
 		AttrList *attrs;
 
 		AttrStmt(
-			const Type &type,
-			AttrList *attrs);
+			const Type &paramType,
+			AttrList *attrList);
 		~AttrStmt();
 
 		virtual bool read(
@@ -308,8 +308,8 @@ public:
 		StmtList *statements;
 
 		Subgraph(
-			std::string *id,
-			StmtList *statements);
+			std::string *idString,
+			StmtList *statementList);
 		~Subgraph();
 
 		virtual bool read(
@@ -324,8 +324,8 @@ public:
 		Port *port;
 
 		NodeId(
-			const std::string &id,
-			Port *port);
+			const std::string &idString,
+			Port *paramPort);
 		~NodeId();
 
 		virtual bool read(
@@ -336,11 +336,11 @@ public:
 	};
 
 	struct CompassPt {
-		enum Type { n, ne, e, se, s, sw, w, nw, c, wildcard };
+		enum class Type { n, ne, e, se, s, sw, w, nw, c, wildcard };
 		Type type;
 
 		CompassPt(
-			const Type &type);
+			const Type &paramType);
 		~CompassPt();
 	};
 
@@ -349,8 +349,8 @@ public:
 		CompassPt *compassPt;
 
 		Port(
-			std::string *id,
-			CompassPt *compassPt);
+			std::string *idString,
+			CompassPt *compassPT);
 		~Port();
 	};
 
@@ -359,8 +359,8 @@ public:
 		EdgeRhs *tail;
 
 		EdgeRhs(
-			EdgeLhs *head,
-			EdgeRhs *tail);
+			EdgeLhs *headEdgeLHS,
+			EdgeRhs *tailEdgeRHS);
 		~EdgeRhs();
 	};
 
@@ -369,8 +369,8 @@ public:
 		AttrList *tail;
 
 		AttrList(
-			AList *head,
-			AttrList *tail);
+			AList *headAList,
+			AttrList *tailAttrList);
 		~AttrList();
 	};
 
@@ -379,8 +379,8 @@ public:
 		AList *tail;
 
 		AList(
-			AsgnStmt *head,
-			AList *tail);
+			AsgnStmt *headAsgnStmt,
+			AList *tailAList);
 		~AList();
 	};
 };
@@ -407,7 +407,7 @@ private:
 
 public:
 	//! Initializes parser class with given input (but does nothing to it).
-	Parser(std::istream &in);
+	explicit Parser(std::istream &in);
 
 	bool read(Graph &G);
 	bool read(Graph &G, GraphAttributes &GA);
@@ -418,7 +418,7 @@ public:
 	/**
 	 * Returns a node with given id in a graph. If node is requested for the
 	 * first time then Graph#newNode is called and node is initialized with
-	 * default attributes and placed in proper cluster (through \a data).
+	 * default attributes and placed in proper cluster (through \p data).
 	 * @param G Graph whom node is requested.
 	 * @param GA GraphAttributes for given graph, ignored if \c nullptr.
 	 * @param C ClusterGraph for given graph, ignored if \c nullptr.
@@ -442,16 +442,16 @@ struct SubgraphData {
 
 	//! Initializes structure with given data.
 	/**
-	 * @param rootCluster Root cluster of current subgraph.
-	 * @param nodeDefaults Node default attributes.
-	 * @param edgeDefaults Edge default attributes.
-	 * @param nodes Nodes in current subgraph.
+	 * @param root Root cluster of current subgraph.
+	 * @param nodeDefaultsVector Node default attributes.
+	 * @param edgeDefaultsVector Edge default attributes.
+	 * @param nodeSet Nodes in current subgraph.
 	 */
 	SubgraphData(
-		cluster rootCluster,
-		std::vector<Ast::AttrList *> &nodeDefaults,
-		std::vector<Ast::AttrList *> &edgeDefaults,
-		std::set<node> &nodes);
+		cluster root,
+		std::vector<Ast::AttrList *> &nodeDefaultsVector,
+		std::vector<Ast::AttrList *> &edgeDefaultsVector,
+		std::set<node> &nodeSet);
 
 
 	//! Returns almost the same structure, but with root cluster.

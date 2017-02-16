@@ -19,13 +19,13 @@
 
 #include <ogdf/basic/PreprocessorLayout.h>
 #include <ogdf/energybased/FastMultipoleEmbedder.h>
-#include <ogdf/energybased/multilevelmixer/BarycenterPlacer.h>
-#include <ogdf/energybased/multilevelmixer/EdgeCoverMerger.h>
-#include <ogdf/energybased/multilevelmixer/LocalBiconnectedMerger.h>
-#include <ogdf/energybased/multilevelmixer/ModularMultilevelMixer.h>
-#include <ogdf/energybased/multilevelmixer/ScalingLayout.h>
-#include <ogdf/energybased/multilevelmixer/SolarMerger.h>
-#include <ogdf/energybased/multilevelmixer/SolarPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/BarycenterPlacer.h>
+#include <ogdf/energybased/multilevel_mixer/EdgeCoverMerger.h>
+#include <ogdf/energybased/multilevel_mixer/LocalBiconnectedMerger.h>
+#include <ogdf/energybased/multilevel_mixer/ModularMultilevelMixer.h>
+#include <ogdf/energybased/multilevel_mixer/ScalingLayout.h>
+#include <ogdf/energybased/multilevel_mixer/SolarMerger.h>
+#include <ogdf/energybased/multilevel_mixer/SolarPlacer.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
@@ -59,7 +59,7 @@ static void configureFastLayout(ScalingLayout *sl, MultilevelBuilder *&merger, I
 	// It is turned off in this example.
 	sl->setExtraScalingSteps(0);
 	// In this example it is used to scale with fixed factor 2 relative to the graph drawing.
-	sl->setScalingType(ScalingLayout::st_relativeToDrawing);
+	sl->setScalingType(ScalingLayout::ScalingType::RelativeToDrawing);
 	sl->setScaling(2.0, 2.0);
 }
 
@@ -74,7 +74,7 @@ static void configureNiceLayout(ScalingLayout *sl, MultilevelBuilder *&merger, I
 	// In this example a FastMultipoleEmbedder with zero iterations is used for postprocessing.
 	sl->setExtraScalingSteps(0);
 	// No scaling is done. It is fixed to factor 1.
-	sl->setScalingType(ScalingLayout::st_relativeToDrawing);
+	sl->setScalingType(ScalingLayout::ScalingType::RelativeToDrawing);
 	sl->setScaling(1.0, 1.0);
 }
 
@@ -91,7 +91,7 @@ static void configureNoTwistLayout(ScalingLayout *sl, MultilevelBuilder *&merger
 	sl->setExtraScalingSteps(1);
 	// The ScalingLayout is used to scale with a factor between 5 and 10
 	// relative to the edge length.
-	sl->setScalingType(ScalingLayout::st_relativeToDesiredLength);
+	sl->setScalingType(ScalingLayout::ScalingType::RelativeToDesiredLength);
 	sl->setScaling(5.0, 10.0);
 }
 

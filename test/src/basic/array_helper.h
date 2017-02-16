@@ -48,7 +48,7 @@ namespace ogdf
  *
  * @param title the title of the top-level bandit::describe
  * @param fillElement an arbitrary instance of \a ElementType
- * @param secondElement a second instance of \a ElementType, must differ from \a fillElement
+ * @param secondElement a second instance of \a ElementType, must differ from \p fillElement
  * @param chooseKey a function to choose an arbitrary key element from the graph
  * @param getAllKeys a function to generate a list of all keys
  * @param createKey a function to create a new key element in the graph

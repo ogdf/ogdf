@@ -34,7 +34,6 @@
 
 #include <ogdf/layered/Hierarchy.h>
 #include <ogdf/basic/GraphCopyAttributes.h>
-//#include <ogdf/layered/HierarchyLevels.h>
 #include <ogdf/layered/CrossingMinInterfaces.h>
 
 namespace ogdf {
@@ -53,7 +52,7 @@ public:
 	virtual ~HierarchyLayoutModule() { }
 
 	/**
-	 * \brief Computes a hierarchy layout of \a H in \a AGA
+	 * \brief Computes a hierarchy layout of \p levels in \p GA
 	 * @param levels is the input hierarchy.
 	 * @param GA is assigned the hierarchy layout.
 	 */
@@ -65,7 +64,7 @@ public:
 
 #if 0
 	/**
-	 *\brief Computes a hierarchy layout of \a H in \a AG.
+	 *\brief Computes a hierarchy layout of \p H in \p AG.
 	 * @param H is the input hierarchy.
 	 * @param AG is assigned the hierarchy layout.
 	 */
@@ -78,7 +77,7 @@ public:
 	}
 
 	/**
-	 * \brief Computes a hierarchy layout of \a H in \a AG.
+	 * \brief Computes a hierarchy layout of \p H in \p AG.
 	 * @param H is the input hierarchy.
 	 * @param AG is assigned the hierarchy layout.
 	 * @param AGC is GraphCopyAttribute init. with H and AG

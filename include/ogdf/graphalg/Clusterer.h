@@ -53,7 +53,7 @@ class OGDF_EXPORT Clusterer : public ClustererModule
 {
 public:
 	//! Constructor taking a graph G to be clustered
-	Clusterer(const Graph &G);
+	explicit Clusterer(const Graph &G);
 
 	/**Default constructor allowing to cluster multiple
 	*graphs with the same instance of the Clusterer

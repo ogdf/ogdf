@@ -49,7 +49,7 @@ public:
 
 	// options
 
-	//! Sets the number of randomized runs to \a nRuns.
+	//! Sets the number of randomized runs to \p nRuns.
 	void runs (int nRuns) {
 		m_nRuns = nRuns;
 	}
@@ -81,7 +81,7 @@ protected:
 	/**
 	 * \brief Computes a feasible upward planar subgraph of the input graph.
 	 *
-	 * @param UPR represents the feasible upward planar subgraph after the call. \a UPR has to be initialzed as a
+	 * @param UPR represents the feasible upward planar subgraph after the call. \p UPR has to be initialzed as a
 	 *        UpwardPlanRep of the input connected graph G and is modified to obtain the upward planar subgraph.
 	 *		  The subgraph is represented as an upward planar representation.
 	 * @param delEdges is the deleted edges in order to obtain the subgraph. The edges are edges of the original graph G.

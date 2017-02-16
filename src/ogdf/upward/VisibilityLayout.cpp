@@ -31,8 +31,6 @@
 
 #include <ogdf/upward/VisibilityLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/FaceArray.h>
 
 namespace ogdf {
 

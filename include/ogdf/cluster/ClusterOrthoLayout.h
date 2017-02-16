@@ -53,9 +53,9 @@ public:
 
 	/** \brief Calls planar UML layout algorithm.
 	 *
-	 * Input is a planarized representation \a PG of a connected component
+	 * Input is a planarized representation \p PG of a connected component
 	 * of the graph, output is a layout of the (modified) planarized
-	 * representation in \a drawing.
+	 * representation in \p drawing.
 	 */
 	void call(ClusterPlanRep &PG, adjEntry adjExternal, Layout &drawing);
 
@@ -144,14 +144,11 @@ public:
 	//bit 1 = scaling
 	//bit 2 = progressive/traditional
 	//=> 0 is standard
-	virtual void setOptions(int optionField) override
-	{
-		if (optionField & 1) m_align = true;
-		else m_align = false;
-		if (optionField & 2) m_useScalingCompaction = true;
-		else m_useScalingCompaction = false;
-		if (optionField & 4) m_orthoStyle = 1;
-		else m_orthoStyle = 0; //traditional
+	virtual void setOptions(int optionField) override {
+		m_align =                (optionField & 1) != 0;
+		m_useScalingCompaction = (optionField & 2) != 0;
+		m_orthoStyle =           (optionField & 4) != 0;
+		// m_orthoStyle = 0 is traditional
 	}
 
 

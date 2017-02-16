@@ -120,7 +120,7 @@ public:
 #ifdef OGDF_DEBUG
 		if (i > n_) {
 			Logger::ifout() << "Active::operator[] : no active item in slot " << i << ".\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcActive);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Active);
 		}
 #endif
 		return (active_[i]) ? active_[i]->conVar() : nullptr;
@@ -136,7 +136,7 @@ public:
 #ifdef OGDF_DEBUG
 		if (i > n_) {
 			Logger::ifout() << "Active::operator[] : no active item in slot " << i << ".\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcActive);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Active);
 		}
 #endif
 		return (active_[i]) ? active_[i]->conVar() : 0;

@@ -39,34 +39,34 @@
 namespace ogdf {
 namespace graphml {
 
-enum Attribute {
-	a_nodeLabel = 0,
-	a_edgeLabel,
+enum class Attribute {
+	NodeLabel = 0,
+	EdgeLabel,
 
-	a_x, a_y, a_z,
-	a_width, a_height,
-	a_size, // Gephi compatibility (size = max(width, height)).
-	a_shape,
+	X, Y, Z,
+	Width, Height,
+	Size, // Gephi compatibility (size = max(width, height)).
+	Shape,
 
-	a_nodeStroke,
-	a_edgeStroke,
-	a_clusterStroke,
-	a_nodeFill,
-	a_r, a_g, a_b, // Gephi compatibility (fill compounds).
+	NodeStroke,
+	EdgeStroke,
+	ClusterStroke,
+	NodeFill,
+	R, G, B, // Gephi compatibility (fill compounds).
 
-	a_nodeWeight,
-	a_edgeWeight,
+	NodeWeight,
+	EdgeWeight,
 
-	a_nodeType,
-	a_edgeType,
+	NodeType,
+	EdgeType,
 
-	a_template,
+	Template,
 
-	a_edgeArrow,
-	a_edgeSubGraph,
-	a_edgeBends,
+	EdgeArrow,
+	EdgeSubGraph,
+	EdgeBends,
 
-	a_unknown // Has to be the last one!
+	Unknown // Has to be the last one!
 };
 
 std::string toString(const Attribute &attr);

@@ -44,59 +44,42 @@
 #include <ogdf/basic/Math.h>
 
 namespace ogdf {
-/**
-	* \brief Layout the graph with nodes next to each other with natural or custom
-	* order and draw the edges as semicircular bows above them.
-	*/
 
-class OGDF_EXPORT LinearLayout : public LayoutModule{
+/**
+ * Layout the graph with nodes next to each other with natural or custom
+ * order and draw the edges as semicircular bows above them.
+ */
+class OGDF_EXPORT LinearLayout : public LayoutModule {
 private:
-	/**
-	* \brief If true a custom order stored in \a m_nodeOrder will be used
-	*/
+	//! If true a custom order stored in #m_nodeOrder will be used
 	bool m_customOrder;
 
-	/**
-	* \brief Contains a custom ordering for putting the graphs next to each other
-	*/
-	ListPure<NodeElement *> m_nodeOrder;
+	//! Contains a custom ordering for putting the graphs next to each other
+	ListPure<node> m_nodeOrder;
 	double m_outWidth;
 public:
 
 	/**
-	* \brief Constructor that takes a desired width and a custom ordering
-	* @param w Width of the output
-	* @param o custom order
-	*/
+	 * Constructor that takes a desired width and a custom ordering
+	 *
+	 * @param w Width of the output
+	 * @param o custom order
+	 */
 	LinearLayout(
 		double w,
-		ListPure<NodeElement *> o
+		ListPure<node> o
 	);
 
-	/**
-	 * \brief Constructor that uses a standard width and no custom order of the nodes
-	 */
+	//! Constructor that uses a standard width and no custom order of the nodes
 	LinearLayout();
 
-	/**
-	 * \brief Standard destructor
-	 */
-	~LinearLayout();
+	//! Standard destructor
+	virtual ~LinearLayout();
 
-	/**
-	 * \brief Overloaded function from the \a LayoutModule base class.
-	 */
+	virtual void call(GraphAttributes& GA) override;
 
-	virtual void call(
-		GraphAttributes& GA
-	) override;
-
-	/**
-	 * \brief Interface function to toggle custom ordering
-	 */
-	virtual void setCustomOrder(
-		bool o
-	);
+	//! Interface function to toggle custom ordering
+	virtual void setCustomOrder(bool o);
 };
 
 

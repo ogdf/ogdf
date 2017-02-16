@@ -70,7 +70,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 	const Graph& origG = CGO.constGraph();
 	m_edgeStatus.init(origG, 0);
 
-	CPlanarSubClusteredST CPST;
+	cluster_planarity::CPlanarSubClusteredST CPST;
 	if (edgeWeight.valid())
 		CPST.call(CGO, inSub, edgeWeight);
 	else
@@ -89,7 +89,6 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 
 	CconnectClusterPlanar CCCP;
 
-	//-------------------------------------
 	//perform reinsertion of leftover edges
 	//fill list of uninserted edges
 
@@ -114,7 +113,7 @@ void CPlanarSubClusteredGraph::call(const ClusterGraph &CGO,
 		testG=CG.getGraph()
 #endif
 		edge newCopy = testG.newEdge(nodeCopy[(*itE)->source()],
-											 nodeCopy[(*itE)->target()]);
+		                             nodeCopy[(*itE)->target()]);
 		edgeCopy[*itE] = newCopy;
 
 		bool cplanar = CCCP.call(CG);

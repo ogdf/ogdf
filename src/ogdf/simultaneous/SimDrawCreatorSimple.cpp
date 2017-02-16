@@ -34,7 +34,6 @@
 
 namespace ogdf {
 
-//*************************************************************
 // creates simultaneous graph given by two trees with n^2+n+1 nodes
 // see Geyer,Kaufmann,Vrto (GD'05) for description of graph
 void SimDrawCreatorSimple::createTrees_GKV05(int n)
@@ -72,7 +71,6 @@ void SimDrawCreatorSimple::createTrees_GKV05(int n)
 } // end createGKV
 
 
-//*************************************************************
 // creates simultaneous graph given by a path and a planar graph
 // see Erten, Kobourov (GD'04) for description of instance
 void SimDrawCreatorSimple::createPathPlanar_EK04()
@@ -161,7 +159,6 @@ void SimDrawCreatorSimple::createPathPlanar_EK04()
 }//end createPathPlanar_EK04
 
 
-//*************************************************************
 // creates simultaneous graph given by a colored K5
 // see Erten, Kobourov (GD'04) for description of instance
 void SimDrawCreatorSimple::createK5_EK04()
@@ -188,7 +185,6 @@ void SimDrawCreatorSimple::createK5_EK04()
 }//end createK5_EK04
 
 
-//*************************************************************
 // creates simultaneous graph given by a colored K5
 // see Gassner, Juenger, Percan, Schaefer, Schulz (WG'06) for description of instance
 void SimDrawCreatorSimple::createK5_GJPSS06()
@@ -225,7 +221,6 @@ void SimDrawCreatorSimple::createK5_GJPSS06()
 }//end createK5_GJPSS06
 
 
-//*************************************************************
 // creates simultaneous graph given by two outerplanar graphs
 // see Brass et al. (WADS '03) for description of instance
 void SimDrawCreatorSimple::createOuterplanar_BCDEEIKLM03()
@@ -266,7 +261,6 @@ void SimDrawCreatorSimple::createOuterplanar_BCDEEIKLM03()
 }// end createOuterplanar_BCDEEIKLM03
 
 
-//*************************************************************
 // creates simultaneous graph with crossing number 0 but
 // with multicrossings of adjacent edges in mincross drawing
 // see Kratochvil (GD '98) for description of instance
@@ -434,7 +428,6 @@ void SimDrawCreatorSimple::createKrat98(int N, int nodeNumber)
 }// end createKrat
 
 
-//*************************************************************
 // creates Graph with numberofBasic*2 outer, numberOfParallels*numberOfBasic
 // inner Nodes and one Root.
 void SimDrawCreatorSimple::createWheel(int numberOfParallels, int numberOfBasic )
@@ -485,12 +478,9 @@ void SimDrawCreatorSimple::createWheel(int numberOfParallels, int numberOfBasic 
 }//end createWheel
 
 
-//*************************************************************
 // creates simultaneously planar simulatenous graph with n+1 basic graphs.
-//
 void SimDrawCreatorSimple::createExpo(int n)
 {
-
 	OGDF_ASSERT(n>0);
 	OGDF_ASSERT(n<31);
 

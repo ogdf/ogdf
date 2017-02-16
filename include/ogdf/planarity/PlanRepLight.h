@@ -62,10 +62,10 @@ public:
 	//! Returns the connected component info structure.
 	const CCsInfo &ccInfo() const { return m_ccInfo; }
 
-	//! Returns the original edge with index \a i.
+	//! Returns the original edge with index \p i.
 	edge e(int i) const { return m_ccInfo.e(i); }
 
-	//! Returns the original node with index \a i.
+	//! Returns the original node with index \p i.
 	node v(int i) const { return m_ccInfo.v(i); }
 
 	//! Returns the index of the first edge in this connected component.
@@ -76,12 +76,12 @@ public:
 
 	EdgeType typeOf(edge e) const {
 		edge eOrig = m_eOrig[e];
-		return (eOrig != nullptr) ? typeOrig(eOrig) : Graph::association;
+		return (eOrig != nullptr) ? typeOrig(eOrig) : Graph::EdgeType::association;
 	}
 
 	EdgeType typeOrig(edge eOrig) const { return m_pr.typeOrig(eOrig); }
 
-	//! Initializes the planarized representation for connected component \a cc.
+	//! Initializes the planarized representation for connected component \p cc.
 	void initCC(int cc);
 };
 

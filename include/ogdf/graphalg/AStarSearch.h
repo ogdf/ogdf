@@ -74,7 +74,7 @@ public:
 	 *               The default of 1 leads to an optimal solution.
 	 * @param et The ::ogdf::EpsilonTest to be used for comparing edge costs
 	 */
-	AStarSearch(const bool directed = false, const double maxGap = 1, const EpsilonTest &et = EpsilonTest())
+	explicit AStarSearch(const bool directed = false, const double maxGap = 1, const EpsilonTest &et = EpsilonTest())
 		: m_directed(directed), m_maxGap(maxGap), m_et(et) {
 		OGDF_ASSERT(m_et.geq(maxGap, 1.0));
 	}
@@ -94,17 +94,17 @@ public:
 	 * @return The total length of the found path
 	 */
 	T call(const Graph &graph,
-		  const EdgeArray<T> &cost,
-		  const node source,
-		  const node target,
-		  NodeArray<edge> &predecessor,
-		  std::function<T(node)> heuristic = [](node) {
+	       const EdgeArray<T> &cost,
+	       const node source,
+	       const node target,
+	       NodeArray<edge> &predecessor,
+	       std::function<T(node)> heuristic = [](node) {
 #ifdef _MSC_VER
-			  return 0;
+			return 0;
 #else
-			  return T(0);
+			return T(0);
 #endif
-		  })
+		})
 	{
 		// initialize auxiliary structures
 		m_cost = &cost;

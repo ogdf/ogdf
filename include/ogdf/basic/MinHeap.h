@@ -37,42 +37,6 @@
 
 namespace ogdf {
 
-#if 0
-//! Augments any data elements of type \a X with keys of type \a Score.
-/**
- * Also defines comparator function using the keys.
- * This class is intended as a helpful convenience class for using with BinaryHeapSimple, Top10Heap,..
- */
-template<class X, class Priority=double> class Prioritized {
-	X x;
-	Priority p;
-public:
-	//! Constructor of empty element. Be careful!
-	Prioritized() : x(0), p(0) { }
-	//! Constructor using a key/value pair
-	Prioritized(X xt, Priority pt) : x(xt),p(pt) { }
-	//! Copy-constructor
-	Prioritized(const Prioritized& P) : x(P.x),p(P.p) { }
-	//! Returns the key of the element
-	Priority priority() const { return p; }
-	//! Returns the data of the element
-	X item() const { return x;}
-	//! Comparison operator based on the compare-operator for the key type (\a Priority)
-	bool operator<(const Prioritized<X,Priority>& P) const { return p<P.p; }
-	//! Comparison operator based on the compare-operator for the key type (\a Priority)
-	bool operator<=(const Prioritized<X,Priority>& P) const { return p<=P.p; }
-	//! Comparison operator based on the compare-operator for the key type (\a Priority)
-	bool operator>(const Prioritized<X,Priority>& P) const { return p>P.p; }
-	//! Comparison operator based on the compare-operator for the key type (\a Priority)
-	bool operator>=(const Prioritized<X,Priority>& P) const { return p>=P.p; }
-	//! Comparison operator based on the compare-operator for the key type (\a Priority)
-	bool operator==(const Prioritized<X,Priority>& P) const { return p==P.p; }
-	//! Comparison operator based on the compare-operator for the key type (\a Priority)
-	bool operator!=(const Prioritized<X,Priority>& P) const { return p!=P.p; }
-};
-#endif //moved class
-
-
 //! Dynamically growing binary heap tuned for efficiency on a small interface (compared to BinaryHeap).
 /**
  * It assumes that the data-elements are themselves comparable, i.e., the compare-function
@@ -94,7 +58,7 @@ private:
 	INDEX num;
 public:
 	//! Construtor, giving initial array size
-	BinaryHeapSimple(INDEX size) : data(1, size), num(0) {}
+	explicit BinaryHeapSimple(INDEX size) : data(1, size), num(0) {}
 
 	//! Returns true if the heap is empty
 	bool empty() const { return num == 0; }
@@ -137,7 +101,7 @@ public:
 		return pop();
 	}
 
-	//! obtain const references to the element at index \a idx (the smallest array index is 0, as for traditional C-arrays)
+	//! obtain const references to the element at index \p idx (the smallest array index is 0, as for traditional C-arrays)
 	const X& operator[](INDEX idx) const {
 		return data[idx+1];
 	}
@@ -184,17 +148,17 @@ template<class X, class INDEX = int>
 class Top10Heap : protected BinaryHeapSimple<X,INDEX> { // favors the 10 highest values...
 public:
 	//! The type for results of a Top10Heap::push operation
-	enum PushResult { Accepted, Rejected, Swapped };
+	enum class PushResult { Accepted, Rejected, Swapped };
 
 	//! Convenience function: Returns true if the PushResults states that the newly pushed element is new in the heap
-	static bool successful(PushResult r) { return r != Rejected; }
+	static bool successful(PushResult r) { return r != PushResult::Rejected; }
 	//! Convenience function: Returns true if the PushResults states that push caused an element to be not/no-longer in the heap
-	static bool returnedSomething(PushResult r) { return r != Accepted; }
+	static bool returnedSomething(PushResult r) { return r != PushResult::Accepted; }
 
 	//! Constructor generating a heap which holds the 10 elements with highest value ever added to the heap
 	Top10Heap() : BinaryHeapSimple<X,INDEX>(10) {}
-	//! Constructor generating a heap which holds the \a size elements with highest value ever added to the heap
-	Top10Heap(INDEX size) : BinaryHeapSimple<X,INDEX>(size) {}
+	//! Constructor generating a heap which holds the \p size elements with highest value ever added to the heap
+	explicit Top10Heap(INDEX size) : BinaryHeapSimple<X,INDEX>(size) {}
 
 	//! Returns true if the heap contains no elements
 	bool empty() const { return BinaryHeapSimple<X,INDEX>::empty(); }
@@ -208,32 +172,32 @@ public:
 	//! empties the heap
 	void clear() { BinaryHeapSimple<X,INDEX>::clear(); }
 
-	//! Tries to push the element \a x onto the heap (and may return a removed element as \a out).
+	//! Tries to push the element \p x onto the heap (and may return a removed element as \p out).
 	/**
 	 * If the heap is not yet completely filled, the pushed element is accepted and added to the heap.
-	 * The function returns \a Accepted, and the \a out parameter is not touched.
+	 * The function returns PushResult::Accepted, and the \p out parameter is not touched.
 	 *
 	 * If the heap is filled and the key of the pushed element is too small to be accepted
 	 * (i.e. the heap is filled with all larger elements), then the element if rejected: The funtion
-	 * returns \a Rejected, and the \a out parameter is set to \a x.
+	 * returns PushResult::Rejected, and the \p out parameter is set to \p x.
 	 *
 	 * If the heap is filled and the key of the pushed element is large enough to belong to the top
 	 * elements, the element is accepted and the currently smallest element in the heap is removed
-	 * from the heap. The function returns \a Swapped and sets the \a out parameter to the element
+	 * from the heap. The function returns PushResult::Swapped and sets the \p out parameter to the element
 	 * removed from the heap.
 	 *
-	 * You may want to use the convenience funtions \a successful and \a returnedSomething on the
+	 * You may want to use the convenience funtions #successful and #returnedSomething on the
 	 * return-value if you are only interested certain aspects of the push.
 	 */
 	PushResult push(X& x, X& out) { // returns element that got kicked out - out is uninitialized if heap wasn't full (i.e. PushResult equals Accepted)
-		PushResult ret = Accepted;
+		PushResult ret = PushResult::Accepted;
 		if(capacity() == size()) {
 			if(BinaryHeapSimple<X,INDEX>::top() >= x) {// reject new item since it's too bad
 				out = x;
-				return Rejected;
+				return PushResult::Rejected;
 			}
 			out = BinaryHeapSimple<X,INDEX>::pop(); // remove worst first
-			ret = Swapped;
+			ret = PushResult::Swapped;
 		}
 		BinaryHeapSimple<X,INDEX>::push(x);
 		return ret;
@@ -260,7 +224,7 @@ public:
 		pushBlind(x);
 	}
 
-	//! obtain const references to the element at index \a idx
+	//! obtain const references to the element at index \p idx
 	/**
 	 * The smallest array index is 0, as for traditional C-arrays.
 	 * Useful, e.g., when iterating through the final heap elements.
@@ -283,11 +247,11 @@ template<class X, class Priority=double, class STATICCOMPARER=StdComparer<X>, cl
 class DeletingTop10Heap : public Top10Heap<Prioritized<X*,Priority>,INDEX > {
 public:
 	//! Construct a DeletingTop10Heap of given maximal capacity
-	DeletingTop10Heap(int size) : Top10Heap<Prioritized<X*, Priority>,INDEX >(size) {}
-	//! Inserts the element \a x into the heap with priority \a val and deletes the element with smallest priority if the heap is full
+	explicit DeletingTop10Heap(int size) : Top10Heap<Prioritized<X*, Priority>,INDEX >(size) {}
+	//! Inserts the element \p x into the heap with priority \p p and deletes the element with smallest priority if the heap is full
 	/**
-	 * Like the Top10Heap, this function pushes the element \a x onto the heap with priority \a val, and extracts the element with
-	 * smallest priority if the heap was already full. In contrast to the Top10Heap, this element which leaves the heap (or \a x
+	 * Like the Top10Heap, this function pushes the element \p x onto the heap with priority \p p, and extracts the element with
+	 * smallest priority if the heap was already full. In contrast to the Top10Heap, this element which leaves the heap (or \p x
 	 * itself if its priority was below all the priorities in the heap) gets deleted, i.e., removed from memory.
 	 */
 	void pushAndDelete(X* x, Priority p) {
@@ -302,8 +266,8 @@ public:
 	}
 	//! Analogous to pushandDelete(), but furthermore rejects (and deletes) an element if an equal element is already in the heap.
 	/**
-	 * This function takes linear time in the worst case, and uses the \a compare function of the specified COMP template
-	 * paremeter class, which can be any function returning \a true if two objects should be considered equal, and \a false otherwise.
+	 * This function takes linear time in the worst case, and uses the \c compare function of the specified \a COMP template
+	 * paremeter class, which can be any function returning \c true if two objects should be considered equal, and \c false otherwise.
 	 */
 	void pushAndDeleteNoRedundancy(X* x, Priority p) {
 		for(INDEX i = Top10Heap<Prioritized<X*,Priority>,INDEX >::size(); i-- > 0;) {

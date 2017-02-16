@@ -31,26 +31,18 @@
 
 
 #include <ogdf/energybased/FMMMLayout.h>
-#include <ogdf/basic/Math.h>
-#include <ogdf/internal/energybased/numexcept.h>
-#include <ogdf/internal/energybased/MAARPacking.h>
-#include <ogdf/internal/energybased/Multilevel.h>
-#include <ogdf/internal/energybased/Rectangle.h>
+#include <ogdf/energybased/fmmm/numexcept.h>
+#include <ogdf/energybased/fmmm/MAARPacking.h>
+#include <ogdf/energybased/fmmm/Multilevel.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/basic.h>
-
-#include <cmath>
 
 namespace ogdf {
-
 
 FMMMLayout::FMMMLayout()
 {
 	initialize_all_options();
 }
 
-
-//--------------------------- most important functions --------------------------------
 
 void FMMMLayout::call(GraphAttributes &GA)
 {
@@ -101,8 +93,7 @@ void FMMMLayout::call(GraphAttributes &GA, const EdgeArray<double> &edgeLength)
 		init_ind_ideal_edgelength(G,A,E);
 		make_simple_loopfree(G,A,E,G_reduced,A_reduced,E_reduced);
 		call_DIVIDE_ET_IMPERA_step(G_reduced,A_reduced,E_reduced);
-		if(allowedPositions() != apAll)
-			make_positions_integer(G_reduced,A_reduced);
+		adjust_positions(G_reduced, A_reduced);
 		time_total = usedTime(t_total);
 
 		export_NodeAttributes(G_reduced,A_reduced,GA);
@@ -149,10 +140,10 @@ void FMMMLayout::call_DIVIDE_ET_IMPERA_step(
 	create_maximum_connected_subGraphs(G,A,E,G_sub,A_sub,E_sub,component);
 
 	if(number_of_components == 1)
-		call_MULTILEVEL_step_for_subGraph(G_sub[0],A_sub[0],E_sub[0],-1);
+		call_MULTILEVEL_step_for_subGraph(G_sub[0],A_sub[0],E_sub[0]);
 	else
 		for(int i = 0; i < number_of_components;i++)
-			call_MULTILEVEL_step_for_subGraph(G_sub[i],A_sub[i],E_sub[i],i);
+			call_MULTILEVEL_step_for_subGraph(G_sub[i],A_sub[i],E_sub[i]);
 
 	pack_subGraph_drawings (A,G_sub,A_sub);
 	delete_all_subGraphs(G_sub,A_sub,E_sub);
@@ -162,10 +153,9 @@ void FMMMLayout::call_DIVIDE_ET_IMPERA_step(
 void FMMMLayout::call_MULTILEVEL_step_for_subGraph(
 	Graph& G,
 	NodeArray<NodeAttributes>& A,
-	EdgeArray<EdgeAttributes>& E,
-	int comp_index)
+	EdgeArray<EdgeAttributes>& E)
 {
-	energybased::Multilevel Mult;
+	energybased::fmmm::Multilevel Mult;
 
 	int max_level = 30;//sufficient for all graphs with upto pow(2,30) nodes!
 	//adapt mingraphsize such that no levels are created beyond input graph.
@@ -188,12 +178,24 @@ void FMMMLayout::call_MULTILEVEL_step_for_subGraph(
 			Mult.find_initial_placement_for_level(i,initialPlacementMult(),G_mult_ptr, A_mult_ptr,E_mult_ptr);
 			update_boxlength_and_cornercoordinate(*G_mult_ptr[i],*A_mult_ptr[i]);
 		}
-		call_FORCE_CALCULATION_step(*G_mult_ptr[i],*A_mult_ptr[i],*E_mult_ptr[i],
-				 i,max_level);
+		call_FORCE_CALCULATION_step(*G_mult_ptr[i],*A_mult_ptr[i],*E_mult_ptr[i], i,max_level);
 	}
 	Mult.delete_multilevel_representations(G_mult_ptr,A_mult_ptr,E_mult_ptr,max_level);
 }
 
+bool FMMMLayout::running(int iter, int max_mult_iter, double actforcevectorlength)
+{
+	const int ITERBOUND = 10000;
+	switch (stopCriterion()) {
+	case FMMMOptions::StopCriterion::FixedIterations:
+		return iter <= max_mult_iter;
+	case FMMMOptions::StopCriterion::Threshold:
+		return actforcevectorlength >= threshold() && iter <= ITERBOUND;
+	case FMMMOptions::StopCriterion::FixedIterationsOrThreshold:
+		return iter <= max_mult_iter && actforcevectorlength >= threshold();
+	}
+	return false;
+}
 
 void FMMMLayout::call_FORCE_CALCULATION_step(
 	Graph& G,
@@ -202,8 +204,6 @@ void FMMMLayout::call_FORCE_CALCULATION_step(
 	int act_level,
 	int max_level)
 {
-	const int ITERBOUND = 10000;//needed to guarantee termination if
-							 //stopCriterion() == scThreshold
 	if(G.numberOfNodes() > 1)
 	{
 		int iter = 1;
@@ -219,14 +219,10 @@ void FMMMLayout::call_FORCE_CALCULATION_step(
 		set_average_ideal_edgelength(G,E);//needed for easy scaling of the forces
 		make_initialisations_for_rep_calc_classes(G);
 
-		while( ((stopCriterion() == scFixedIterations)&&(iter <= max_mult_iter)) ||
-			((stopCriterion() == scThreshold)&&(actforcevectorlength >= threshold())&&
-			(iter <= ITERBOUND)) ||
-			((stopCriterion() == scFixedIterationsOrThreshold)&&(iter <= max_mult_iter) &&
-			(actforcevectorlength >= threshold())) )
+		while (running(iter, max_mult_iter, actforcevectorlength))
 		{//while
 			calculate_forces(G,A,E,F,F_attr,F_rep,last_node_movement,iter,0);
-			if(stopCriterion() != scFixedIterations)
+			if(stopCriterion() != FMMMOptions::StopCriterion::FixedIterations)
 				actforcevectorlength = get_average_forcevector_length(G,F);
 			iter++;
 		}//while
@@ -265,52 +261,50 @@ void FMMMLayout::call_POSTPROCESSING_step(
 }
 
 
-//------------------------- functions for pre/post-processing -------------------------
-
 void FMMMLayout::initialize_all_options()
 {
 	//setting high level options
 	useHighLevelOptions(false);
-	pageFormat(pfSquare);
+	pageFormat(FMMMOptions::PageFormatType::Square);
 	unitEdgeLength(LayoutStandards::defaultNodeSeparation());
 	newInitialPlacement(false);
-	qualityVersusSpeed(qvsBeautifulAndFast);
+	qualityVersusSpeed(FMMMOptions::QualityVsSpeed::BeautifulAndFast);
 
 	//setting low level options
 	//setting general options
 	randSeed(100);
-	edgeLengthMeasurement(elmBoundingCircle);
-	allowedPositions(apInteger);
+	edgeLengthMeasurement(FMMMOptions::EdgeLengthMeasurement::BoundingCircle);
+	allowedPositions(FMMMOptions::AllowedPositions::Integer);
 	maxIntPosExponent(40);
 
 	//setting options for the divide et impera step
 	pageRatio(1.0);
 	stepsForRotatingComponents(10);
-	tipOverCCs(toNoGrowingRow);
+	tipOverCCs(FMMMOptions::TipOver::NoGrowingRow);
 	minDistCC(LayoutStandards::defaultCCSeparation());
-	presortCCs(psDecreasingHeight);
+	presortCCs(FMMMOptions::PreSort::DecreasingHeight);
 
 	//setting options for the multilevel step
 	minGraphSize(50);
-	galaxyChoice(gcNonUniformProbLowerMass);
+	galaxyChoice(FMMMOptions::GalaxyChoice::NonUniformProbLowerMass);
 	randomTries(20);
-	maxIterChange(micLinearlyDecreasing);
+	maxIterChange(FMMMOptions::MaxIterChange::LinearlyDecreasing);
 	maxIterFactor(10);
-	initialPlacementMult(ipmAdvanced);
+	initialPlacementMult(FMMMOptions::InitialPlacementMult::Advanced);
 	m_singleLevel = false;
 
 	//setting options for the force calculation step
-	forceModel(fmNew);
+	forceModel(FMMMOptions::ForceModel::New);
 	springStrength(1);
 	repForcesStrength(1);
-	repulsiveForcesCalculation(rfcNMM);
-	stopCriterion(scFixedIterationsOrThreshold);
+	repulsiveForcesCalculation(FMMMOptions::RepulsiveForcesMethod::NMM);
+	stopCriterion(FMMMOptions::StopCriterion::FixedIterationsOrThreshold);
 	threshold(0.01);
 	fixedIterations(30);
 	forceScalingFactor(0.05);
 	coolTemperature(false);
 	coolValue(0.99);
-	initialPlacementForces(ipfRandomRandIterNr);
+	initialPlacementForces(FMMMOptions::InitialPlacementForces::RandomRandIterNr);
 
 	//setting options for postprocessing
 	resizeDrawing(true);
@@ -323,8 +317,8 @@ void FMMMLayout::initialize_all_options()
 
 	//setting options for different repulsive force calculation methods
 	frGridQuotient(2);
-	nmTreeConstruction(rtcSubtreeBySubtree);
-	nmSmallCell(scfIteratively);
+	nmTreeConstruction(FMMMOptions::ReducedTreeConstruction::SubtreeBySubtree);
+	nmSmallCell(FMMMOptions::SmallestCellFinding::Iteratively);
 	nmParticlesInLeaves(25);
 	nmPrecision(4);
 }
@@ -332,10 +326,10 @@ void FMMMLayout::initialize_all_options()
 
 void FMMMLayout::update_low_level_options_due_to_high_level_options_settings()
 {
-	PageFormatType pf = pageFormat();
+	FMMMOptions::PageFormatType pf = pageFormat();
 	double uel = unitEdgeLength();
 	bool nip = newInitialPlacement();
-	QualityVsSpeed qvs = qualityVersusSpeed();
+	FMMMOptions::QualityVsSpeed qvs = qualityVersusSpeed();
 
 	//update
 	initialize_all_options();
@@ -345,32 +339,34 @@ void FMMMLayout::update_low_level_options_due_to_high_level_options_settings()
 	newInitialPlacement(nip);
 	qualityVersusSpeed(qvs);
 
-	if(pageFormat() == pfSquare)
+	switch (pageFormat()) {
+	case FMMMOptions::PageFormatType::Square:
 		pageRatio(1.0);
-	else if(pageFormat() ==pfLandscape)
+		break;
+	case FMMMOptions::PageFormatType::Landscape:
 		pageRatio(1.4142);
-	else //pageFormat() == pfPortrait
+		break;
+	case FMMMOptions::PageFormatType::Portrait:
 		pageRatio(0.7071);
+	}
 
 	if(newInitialPlacement())
-		initialPlacementForces(ipfRandomTime);
+		initialPlacementForces(FMMMOptions::InitialPlacementForces::RandomTime);
 	else
-		initialPlacementForces(ipfRandomRandIterNr);
+		initialPlacementForces(FMMMOptions::InitialPlacementForces::RandomRandIterNr);
 
-	if(qualityVersusSpeed() == qvsGorgeousAndEfficient)
-	{
+	switch (qualityVersusSpeed()) {
+	case FMMMOptions::QualityVsSpeed::GorgeousAndEfficient:
 		fixedIterations(60);
 		fineTuningIterations(40);
 		nmPrecision(6);
-	}
-	else if(qualityVersusSpeed() == qvsBeautifulAndFast)
-	{
+		break;
+	case FMMMOptions::QualityVsSpeed::BeautifulAndFast:
 		fixedIterations(30);
 		fineTuningIterations(20);
 		nmPrecision(4);
-	}
-	else //qualityVersusSpeed() == qvsNiceAndIncredibleSpeed
-	{
+		break;
+	case FMMMOptions::QualityVsSpeed::NiceAndIncredibleSpeed:
 		fixedIterations(15);
 		fineTuningIterations(10);
 		nmPrecision(2);
@@ -418,16 +414,17 @@ void FMMMLayout::init_ind_ideal_edgelength(
 	NodeArray<NodeAttributes>& A,
 	EdgeArray<EdgeAttributes>& E)
 {
-	if (edgeLengthMeasurement() == elmMidpoint)
+	switch (edgeLengthMeasurement()) {
+	case FMMMOptions::EdgeLengthMeasurement::Midpoint:
 		for(edge e : G.edges)
 			E[e].set_length(E[e].get_length() * unitEdgeLength());
-
-	else //(edgeLengthMeasurement() == elmBoundingCircle)
-	{
-		set_radii(G,A);
-		for(edge e : G.edges)
-			E[e].set_length(E[e].get_length() * unitEdgeLength() + radius[e->source()]
-				+ radius[e->target()]);
+		break;
+	case FMMMOptions::EdgeLengthMeasurement::BoundingCircle:
+		set_radii(G, A);
+		for(edge e : G.edges) {
+			E[e].set_length(E[e].get_length() * unitEdgeLength()
+			  + radius[e->source()] + radius[e->target()]);
+		}
 	}
 }
 
@@ -522,10 +519,10 @@ void FMMMLayout::delete_parallel_edges(
 	List<edge>& S,
 	EdgeArray<double>& new_edgelength)
 {
-	energybased::EdgeMaxBucketFunc MaxSort;
-	energybased::EdgeMinBucketFunc MinSort;
-	energybased::Edge f_act;
-	List<energybased::Edge> sorted_edges;
+	energybased::fmmm::EdgeMaxBucketFunc MaxSort;
+	energybased::fmmm::EdgeMinBucketFunc MinSort;
+	energybased::fmmm::Edge f_act;
+	List<energybased::fmmm::Edge> sorted_edges;
 	EdgeArray<edge> original_edge (G_reduced); //helping array
 	int save_s_index,save_t_index;
 	int counter = 1;
@@ -621,13 +618,17 @@ inline double FMMMLayout::get_post_rep_force_strength(int n)
 #endif
 
 
-void FMMMLayout::make_positions_integer(Graph& G, NodeArray<NodeAttributes>& A)
+void FMMMLayout::adjust_positions(const Graph& G, NodeArray<NodeAttributes>& A)
 {
-	if (allowedPositions() == apInteger)
-	{
+	switch (allowedPositions()) {
+	case FMMMOptions::AllowedPositions::All:
+		return;
+	case FMMMOptions::AllowedPositions::Integer:
 		//calculate value of max_integer_position
-		max_integer_position = 100 * average_ideal_edgelength * G.numberOfNodes() *
-			G.numberOfNodes();
+		max_integer_position = 100 * average_ideal_edgelength
+		  * G.numberOfNodes() * G.numberOfNodes();
+	case FMMMOptions::AllowedPositions::Exponent:
+		break;
 	}
 
 	//restrict positions to lie in [-max_integer_position,max_integer_position]
@@ -671,7 +672,7 @@ void FMMMLayout::make_positions_integer(Graph& G, NodeArray<NodeAttributes>& A)
 				A[v].set_x(cross_point.m_x);
 				A[v].set_y(cross_point.m_y);
 			}
-			else cout << "Error FMMMLayout:: make_positions_integer()" << endl;
+			else cout << "Error FMMMLayout:: adjust_positions()" << endl;
 		}
 	}
 	//make positions integer
@@ -780,8 +781,6 @@ void FMMMLayout::create_postscript_drawing(GraphAttributes& AG, char* ps_file)
 }
 
 
-//------------------------- functions for divide et impera step -----------------------
-
 void FMMMLayout::create_maximum_connected_subGraphs(
 	Graph& G,
 	NodeArray<NodeAttributes>& A,
@@ -835,7 +834,7 @@ void FMMMLayout::pack_subGraph_drawings(
 	NodeArray<NodeAttributes> A_sub[])
 {
 	double aspect_ratio_area, bounding_rectangles_area;
-	energybased::MAARPacking P;
+	energybased::fmmm::MAARPacking P;
 	List<Rectangle> R;
 
 	if(stepsForRotatingComponents() == 0) //no rotation
@@ -843,7 +842,7 @@ void FMMMLayout::pack_subGraph_drawings(
 	else
 		rotate_components_and_calculate_bounding_rectangles(R,G_sub,A_sub);
 
-	P.pack_rectangles_using_Best_Fit_strategy(R,pageRatio(),presortCCs(),
+	P.pack_rectangles_using_Best_Fit_strategy(R,pageRatio(), presortCCs(),
 		tipOverCCs(),aspect_ratio_area,
 		bounding_rectangles_area);
 	export_node_positions(A,R,G_sub,A_sub);
@@ -867,7 +866,7 @@ void FMMMLayout::calculate_bounding_rectangles_of_components(
 }
 
 
-energybased::Rectangle FMMMLayout::calculate_bounding_rectangle(
+energybased::fmmm::Rectangle FMMMLayout::calculate_bounding_rectangle(
 	Graph& G,
 	NodeArray<NodeAttributes>& A,
 	int componenet_index)
@@ -1043,31 +1042,36 @@ void FMMMLayout::export_node_positions(
 }
 
 
-//----------------------- functions for multilevel step -----------------------------
-
 inline int FMMMLayout::get_max_mult_iter(int act_level, int max_level, int node_nr)
 {
 	int iter;
-	if(maxIterChange() == micConstant) //nothing to do
-		iter =  fixedIterations();
-	else if (maxIterChange() == micLinearlyDecreasing) //linearly decreasing values
-	{
-		if(max_level == 0)
-			iter = fixedIterations() +  ((maxIterFactor()-1) * fixedIterations());
-		else
-			iter = fixedIterations() + int((double(act_level)/double(max_level) ) *
-			(maxIterFactor() - 1) * fixedIterations());
-	}
-	else //maxIterChange == micRapidlyDecreasing (rapidly decreasing values)
-	{
-		if(act_level == max_level)
-			iter = fixedIterations() + int( (maxIterFactor()-1) * fixedIterations());
-		else if(act_level == max_level - 1)
+	switch (maxIterChange()) {
+	case FMMMOptions::MaxIterChange::Constant:
+		iter = fixedIterations();
+		break;
+	case FMMMOptions::MaxIterChange::LinearlyDecreasing:
+		if (max_level == 0) {
+			iter = maxIterFactor() * fixedIterations();
+		} else {
+			iter = fixedIterations() +
+			  int((double(act_level)/double(max_level)) *
+			   (maxIterFactor() - 1) * fixedIterations());
+		}
+		break;
+	case FMMMOptions::MaxIterChange::RapidlyDecreasing:
+		switch (max_level - act_level) {
+		case 0:
+			iter = fixedIterations() + int((maxIterFactor()-1) * fixedIterations());
+			break;
+		case 1:
 			iter = fixedIterations() + int(0.5 * (maxIterFactor()-1) * fixedIterations());
-		else if(act_level == max_level - 2)
+			break;
+		case 2:
 			iter = fixedIterations() + int(0.25 * (maxIterFactor()-1) * fixedIterations());
-		else //act_level >= max_level - 3
+			break;
+		default: // >= 3
 			iter = fixedIterations();
+		}
 	}
 
 	//helps to get good drawings for small graphs and graphs with few multilevels
@@ -1077,8 +1081,6 @@ inline int FMMMLayout::get_max_mult_iter(int act_level, int max_level, int node_
 		return iter;
 }
 
-
-//-------------------------- functions for force calculation ---------------------------
 
 inline void FMMMLayout::calculate_forces(
 	Graph& G,
@@ -1091,12 +1093,11 @@ inline void FMMMLayout::calculate_forces(
 	int iter,
 	int fine_tuning_step)
 {
-	if(allowedPositions() != apAll)
-		make_positions_integer(G,A);
+	adjust_positions(G, A);
 	calculate_attractive_forces(G,A,E,F_attr);
 	calculate_repulsive_forces(G,A,F_rep);
 	add_attr_rep_forces(G,F_attr,F_rep,F,iter,fine_tuning_step);
-	prevent_oscilations(G,F,last_node_movement,iter);
+	prevent_oscillations(G,F,last_node_movement,iter);
 	move_nodes(G,A,F);
 	update_boxlength_and_cornercoordinate(G,A);
 }
@@ -1125,71 +1126,68 @@ void FMMMLayout::init_boxlength_and_cornercoordinate(
 	down_left_corner.m_y = 0;
 }
 
+void FMMMLayout::create_initial_placement_uniform_grid(const Graph& G, NodeArray<NodeAttributes>& A)
+{
+	// set nodes to the midpoints of a grid
+	int level = static_cast<int>(ceil(Math::log4(G.numberOfNodes())));
+	OGDF_ASSERT(level < 31);
+	int m = (1 << level) - 1;
+	double blall = boxlength / (m + 1); //boxlength for boxes at the lowest level (depth)
+	Array<node> all_nodes(G.numberOfNodes());
 
-void FMMMLayout::create_initial_placement(Graph& G, NodeArray<NodeAttributes>& A)
+	int k = 0;
+	for (node v : G.nodes) {
+		all_nodes[k] = v;
+		k++;
+	}
+	node v = all_nodes[0];
+	k = 0;
+	for (int i = 0; i <= m; ++i) {
+		for (int j = 0; j <= m; ++j) {
+			A[v].set_x(boxlength*i / (m + 1) + blall / 2);
+			A[v].set_y(boxlength*j / (m + 1) + blall / 2);
+			if (k == G.numberOfNodes() - 1) {
+				return;
+			} else {
+				k++;
+				v = all_nodes[k];
+			}
+		}
+	}
+}
+
+void FMMMLayout::create_initial_placement_random(const Graph& G, NodeArray<NodeAttributes>& A)
 {
 	const int BILLION = 1000000000;
 
-	if (initialPlacementForces() == ipfKeepPositions) // don't change anything
-	{
-		init_boxlength_and_cornercoordinate(G, A);
-
+	for (node v : G.nodes) {
+		DPoint rndp;
+		rndp.m_x = double(randomNumber(0, BILLION)) / BILLION; //rand_x in [0,1]
+		rndp.m_y = double(randomNumber(0, BILLION)) / BILLION; //rand_y in [0,1]
+		A[v].set_x(rndp.m_x*(boxlength - 2) + 1);
+		A[v].set_y(rndp.m_y*(boxlength - 2) + 1);
 	}
-	else if (initialPlacementForces() == ipfUniformGrid) //set nodes to the midpoints of a  grid
-	{ //(uniform on a grid)
-		init_boxlength_and_cornercoordinate(G, A);
-		int level = static_cast<int>(ceil(Math::log4(G.numberOfNodes())));
-		OGDF_ASSERT(level < 31);
-		int m = (1 << level) - 1;
-		bool finished = false;
-		double blall = boxlength / (m + 1); //boxlength for boxes at the lowest level (depth)
-		Array<node> all_nodes(G.numberOfNodes());
+}
 
-		int k = 0;
-		for (node v : G.nodes)
-		{
-			all_nodes[k] = v;
-			k++;
-		}
-		node v = all_nodes[0];
-		k = 0;
-		int i = 0;
-		while ((!finished) && (i <= m))
-		{
-			int j = 0;
-			while ((!finished) && (j <= m))
-			{
-				A[v].set_x(boxlength*i / (m + 1) + blall / 2);
-				A[v].set_y(boxlength*j / (m + 1) + blall / 2);
-				if (k == G.numberOfNodes() - 1)
-					finished = true;
-				else
-				{
-					k++;
-					v = all_nodes[k];
-				}
-				j++;
-			}
-			i++;
-		}
-	} //(uniform on a grid)
-	else //randomised distribution of the nodes;
-	{ //(random)
-		init_boxlength_and_cornercoordinate(G, A);
-		if (initialPlacementForces() == ipfRandomTime)//(RANDOM based on actual CPU-time)
-			srand((unsigned int) time(nullptr));
-		else if (initialPlacementForces() == ipfRandomRandIterNr)//(RANDOM based on seed)
-			srand(randSeed());
+void FMMMLayout::create_initial_placement(Graph& G, NodeArray<NodeAttributes>& A)
+{
+	init_boxlength_and_cornercoordinate(G, A);
 
-		for (node v : G.nodes)
-		{
-			DPoint rndp;
-			rndp.m_x = double(randomNumber(0, BILLION)) / BILLION; //rand_x in [0,1]
-			rndp.m_y = double(randomNumber(0, BILLION)) / BILLION; //rand_y in [0,1]
-			A[v].set_x(rndp.m_x*(boxlength - 2) + 1);
-			A[v].set_y(rndp.m_y*(boxlength - 2) + 1);
-		}
-	} //(random)
+	switch (initialPlacementForces()) {
+	case FMMMOptions::InitialPlacementForces::KeepPositions:
+		break;
+	case FMMMOptions::InitialPlacementForces::UniformGrid:
+		create_initial_placement_uniform_grid(G, A);
+		break;
+	case FMMMOptions::InitialPlacementForces::RandomTime:
+		srand((unsigned int) time(nullptr));
+		create_initial_placement_random(G, A);
+		break;
+	case FMMMOptions::InitialPlacementForces::RandomRandIterNr:
+		srand(randSeed());
+		create_initial_placement_random(G, A);
+	}
+
 	update_boxlength_and_cornercoordinate(G, A);
 }
 
@@ -1204,14 +1202,18 @@ void FMMMLayout::init_F(Graph& G, NodeArray<DPoint>& F)
 
 void FMMMLayout::make_initialisations_for_rep_calc_classes(Graph& G)
 {
-	if (repulsiveForcesCalculation() == rfcExact)
+	switch (repulsiveForcesCalculation()) {
+	case FMMMOptions::RepulsiveForcesMethod::Exact:
 		FR.make_initialisations(boxlength, down_left_corner, frGridQuotient());
-	else if (repulsiveForcesCalculation() == rfcGridApproximation)
+		break;
+	case FMMMOptions::RepulsiveForcesMethod::GridApproximation:
 		FR.make_initialisations(boxlength, down_left_corner, frGridQuotient());
-	else //(repulsiveForcesCalculation() == rfcNMM
+		break;
+	case FMMMOptions::RepulsiveForcesMethod::NMM:
 		NM.make_initialisations(G, boxlength, down_left_corner,
 		nmParticlesInLeaves(), nmPrecision(),
 		nmTreeConstruction(), nmSmallCell());
+	}
 }
 
 
@@ -1221,7 +1223,7 @@ void FMMMLayout::calculate_attractive_forces(
 	EdgeArray<EdgeAttributes> & E,
 	NodeArray<DPoint>& F_attr)
 {
-	energybased::numexcept N;
+	energybased::fmmm::numexcept N;
 	DPoint f_u;
 	DPoint nullpoint (0,0);
 
@@ -1255,10 +1257,10 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 	double s(0);
 
 	switch (forceModel()) {
-	case fmFruchtermanReingold:
+	case FMMMOptions::ForceModel::FruchtermanReingold:
 		s =  d*d/(ind_ideal_edge_length*ind_ideal_edge_length*ind_ideal_edge_length);
 		break;
-	case fmEades:
+	case FMMMOptions::ForceModel::Eades:
 		{
 			const double c = 10;
 			if (d == 0)
@@ -1267,7 +1269,7 @@ double FMMMLayout::f_attr_scalar(double d, double ind_ideal_edge_length)
 				s =  c * std::log2(d/ind_ideal_edge_length) / ind_ideal_edge_length;
 			break;
 		}
-	case fmNew:
+	case FMMMOptions::ForceModel::New:
 		{
 			const double c =  std::log2(d/ind_ideal_edge_length);
 			if (d > 0)
@@ -1294,13 +1296,13 @@ void FMMMLayout::add_attr_rep_forces(
 	int iter,
 	int fine_tuning_step)
 {
-	energybased::numexcept N;
+	energybased::fmmm::numexcept N;
 	DPoint nullpoint(0, 0);
 
 	//set cool_factor
-	if (coolTemperature() == false)
+	if (!coolTemperature())
 		cool_factor = 1.0;
-	else if ((coolTemperature() == true) && (fine_tuning_step == 0))
+	else if (coolTemperature() && fine_tuning_step == 0)
 	{
 		if (iter == 1)
 			cool_factor = coolValue();
@@ -1412,11 +1414,14 @@ void FMMMLayout::update_boxlength_and_cornercoordinate(
 
 	//export the boxlength and down_left_corner values to the rep. calc. classes
 
-	if (repulsiveForcesCalculation() == rfcExact ||
-		repulsiveForcesCalculation() == rfcGridApproximation)
+	switch (repulsiveForcesCalculation()) {
+	case FMMMOptions::RepulsiveForcesMethod::Exact:
+	case FMMMOptions::RepulsiveForcesMethod::GridApproximation:
 		FR.update_boxlength_and_cornercoordinate(boxlength, down_left_corner);
-	else //repulsiveForcesCalculation() == rfcNMM
+		break;
+	case FMMMOptions::RepulsiveForcesMethod::NMM:
 		NM.update_boxlength_and_cornercoordinate(boxlength, down_left_corner);
+	}
 }
 
 
@@ -1446,121 +1451,39 @@ double FMMMLayout::get_average_forcevector_length(Graph& G, NodeArray<DPoint>& F
 }
 
 
-void FMMMLayout::prevent_oscilations(
+void FMMMLayout::prevent_oscillations(
 	Graph& G,
 	NodeArray<DPoint>& F,
 	NodeArray<DPoint>& last_node_movement,
 	int iter)
 {
 	const double pi_times_1_over_6 = 0.52359878;
-	const double pi_times_2_over_6 = 2 * pi_times_1_over_6;
-	const double pi_times_3_over_6 = 3 * pi_times_1_over_6;
-	const double pi_times_4_over_6 = 4 * pi_times_1_over_6;
-	const double pi_times_5_over_6 = 5 * pi_times_1_over_6;
-	const double pi_times_7_over_6 = 7 * pi_times_1_over_6;
-	const double pi_times_8_over_6 = 8 * pi_times_1_over_6;
-	const double pi_times_9_over_6 = 9 * pi_times_1_over_6;
-	const double pi_times_10_over_6 = 10 * pi_times_1_over_6;
-	const double pi_times_11_over_6 = 11 * pi_times_1_over_6;
+	const double factors[] = {
+		2.0, 2.0, 1.5, 1.0, 0.66666666, 0.5, 0.33333333,
+		0.33333333, 0.5, 0.66666666, 1.0, 1.5, 2.0, 2.0
+	};
+	const DPoint nullpoint(0, 0);
 
-	DPoint nullpoint (0,0);
-
-	if (iter > 1) // usual case
-	{
-		for(node v : G.nodes)
-		{
-			DPoint force_new (F[v].m_x,F[v].m_y);
-			DPoint force_old (last_node_movement[v].m_x,last_node_movement[v].m_y);
-			double norm_new = F[v].norm();
-			double norm_old  = last_node_movement[v].norm();
-			if ((norm_new > 0) && (norm_old > 0))
-			{
-				double quot_old_new =  norm_old / norm_new;
-
-				// prevent oszilations
-				// angle in [0,2pi) measured counterclockwise
-				double fi = angle(nullpoint,force_old,force_new);
-				if( ( fi <= pi_times_1_over_6 || fi >= pi_times_11_over_6 ) && norm_new > norm_old*2.0 )
-				{
-					F[v].m_x = quot_old_new * 2.0 * F[v].m_x;
-					F[v].m_y = quot_old_new * 2.0 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_1_over_6 && fi <= pi_times_2_over_6 && norm_new > norm_old*1.5 )
-				{
-					F[v].m_x = quot_old_new * 1.5 * F[v].m_x;
-					F[v].m_y = quot_old_new * 1.5 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_2_over_6 && fi <= pi_times_3_over_6 && norm_new > norm_old )
-				{
-					F[v].m_x = quot_old_new * F[v].m_x;
-					F[v].m_y = quot_old_new * F[v].m_y;
-				}
-				else if ( fi >= pi_times_3_over_6 && fi <= pi_times_4_over_6 && norm_new > norm_old*0.66666666 )
-				{
-					F[v].m_x = quot_old_new * 0.66666666 * F[v].m_x;
-					F[v].m_y = quot_old_new * 0.66666666 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_4_over_6 && fi <= pi_times_5_over_6 && norm_new > norm_old*0.5 )
-				{
-					F[v].m_x = quot_old_new * 0.5 * F[v].m_x;
-					F[v].m_y = quot_old_new * 0.5 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_5_over_6 && fi <= pi_times_7_over_6 && norm_new > norm_old*0.33333333 )
-				{
-					F[v].m_x = quot_old_new * 0.33333333 * F[v].m_x;
-					F[v].m_y = quot_old_new * 0.33333333 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_7_over_6 && fi <= pi_times_8_over_6 && norm_new > norm_old*0.5 )
-				{
-					F[v].m_x = quot_old_new * 0.5 * F[v].m_x;
-					F[v].m_y = quot_old_new * 0.5 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_8_over_6 && fi <= pi_times_9_over_6 && norm_new > norm_old*0.66666666 )
-				{
-					F[v].m_x = quot_old_new * 0.66666666 * F[v].m_x;
-					F[v].m_y = quot_old_new * 0.66666666 * F[v].m_y;
-				}
-				else if ( fi >= pi_times_9_over_6 && fi <= pi_times_10_over_6 && norm_new > norm_old )
-				{
-					F[v].m_x = quot_old_new * F[v].m_x;
-					F[v].m_y = quot_old_new * F[v].m_y;
-				}
-				else if ( fi >= pi_times_10_over_6 && fi <= pi_times_11_over_6 && norm_new > norm_old*1.5 )
-				{
-					F[v].m_x = quot_old_new * 1.5 * F[v].m_x;
-					F[v].m_y = quot_old_new * 1.5 * F[v].m_y;
+	if (iter > 1) { // usual case
+		for (node v : G.nodes) {
+			const DPoint force_new(F[v]);
+			const DPoint force_old(last_node_movement[v]);
+			const double norm_new = F[v].norm();
+			const double norm_old = last_node_movement[v].norm();
+			if (norm_new > 0 && norm_old > 0) {
+				const double fi = nullpoint.angle(force_old, force_new);
+				const double factor = factors[int(std::ceil(fi / pi_times_1_over_6))];
+				const double quot = norm_old * factor / norm_new;
+				if (quot < 1.0) {
+					F[v].m_x = quot * F[v].m_x;
+					F[v].m_y = quot * F[v].m_y;
 				}
 			}
-			last_node_movement[v]= F[v];
+			last_node_movement[v] = F[v];
 		}
 	}
 	else if (iter == 1)
 		init_last_node_movement(G,F,last_node_movement);
-}
-
-
-double FMMMLayout::angle(DPoint& P, DPoint& Q, DPoint& R)
-{
-	double dx1 = Q.m_x - P.m_x;
-	double dy1 = Q.m_y - P.m_y;
-	double dx2 = R.m_x - P.m_x;
-	double dy2 = R.m_y - P.m_y;
-	double fi;//the angle
-
-	if ((dx1 == 0 && dy1 == 0) || (dx2 == 0 && dy2 == 0))
-		cout<<"Multilevel::angle()"<<endl;
-
-	double norm  = (dx1*dx1+dy1*dy1)*(dx2*dx2+dy2*dy2);
-	double cosfi = (dx1*dx2+dy1*dy2) / sqrt(norm);
-
-	if (cosfi <= -1.0 ) fi = Math::pi;
-	else
-	{
-		fi = acos(cosfi);
-		if (dx1*dy2 < dy1*dx2) fi = -fi;
-		if (fi < 0) fi += 2*Math::pi;
-	}
-	return fi;
 }
 
 

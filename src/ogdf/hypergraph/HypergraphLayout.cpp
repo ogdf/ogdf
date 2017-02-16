@@ -1,6 +1,5 @@
 /** \file
- * \brief Implementation of classes HypergraphLayoutES and
- *        HypergraphLayoutSS.
+ * \brief Implementation of classes HypergraphLayoutES.
  *
  * \author Ondrej Moris
  *
@@ -32,7 +31,6 @@
 
 #include <ogdf/hypergraph/Hypergraph.h>
 #include <ogdf/hypergraph/HypergraphLayout.h>
-#include <ogdf/hypergraph/HypergraphAttributes.h>
 
 #include <ogdf/packing/TileToRowsCCPacker.h>
 
@@ -42,19 +40,18 @@
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 
 #include <ogdf/orthogonal/OrthoLayout.h>
-#include <ogdf/planarlayout/FPPLayout.h>
 
 namespace ogdf {
 
 HypergraphLayoutES::HypergraphLayoutES()
 {
-	m_profile = HypergraphLayoutES::Normal;
+	m_profile = HypergraphLayoutES::Profile::Normal;
 	m_crossings = 0;
 	m_ratio = 1.0;
 	m_constraintIO = false;
 	m_constraintPorts = false;
 	SubgraphPlanarizer *crossMin = new SubgraphPlanarizer;
-	crossMin->setSubgraph(new PlanarSubgraphFast);
+	crossMin->setSubgraph(new PlanarSubgraphFast<int>);
 	crossMin->setInserter(new FixedEmbeddingInserter);
 	m_crossingMinimizationModule.reset(crossMin);
 	m_planarLayoutModule.reset(new OrthoLayout);
@@ -85,14 +82,14 @@ void HypergraphLayoutES::call(HypergraphAttributes &pHA)
 		List<node> src;
 		List<node> tgt;
 		for(node v : gc.nodes) {
-			if (HA.type(gc.original(v)) == HypernodeElement::INPUT) {
+			if (HA.type(gc.original(v)) == HypernodeElement::Type::INPUT) {
 				src.pushBack(v);
 			} else if (HA.type(gc.original(v)) ==
-				HypernodeElement::OUTPUT) {
+				HypernodeElement::Type::OUTPUT) {
 					tgt.pushBack(v);
 			}
 		}
-		//std::pair<node, node> *st =
+		//NodePair *st =
 		insertShell(gc, src, tgt, fixedShell);
 	}
 
@@ -208,7 +205,7 @@ void HypergraphLayoutES::packAllCC(const PlanRep &planarRep,
 }
 
 
-std::pair<node, node> * HypergraphLayoutES::insertShell
+NodePair * HypergraphLayoutES::insertShell
 	(GraphCopySimple &G, List<node> &src, List<node> &tgt, List<edge> &fixedShell)
 {
 	OGDF_ASSERT(src.size() > 0);
@@ -224,14 +221,14 @@ std::pair<node, node> * HypergraphLayoutES::insertShell
 
 	G.newEdge(s, t);
 
-	return new std::pair<node,node>(s, t);
+	return new NodePair(s, t);
 }
 
 
-void HypergraphLayoutES::removeShell(PlanRep &G, std::pair<node, node> &st)
+void HypergraphLayoutES::removeShell(PlanRep &G, NodePair &st)
 {
-	G.delNode(st.first);
-	G.delNode(st.second);
+	G.delNode(st.source);
+	G.delNode(st.target);
 }
 
 
@@ -239,7 +236,7 @@ void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 {
 	switch (m_profile) {
 
-	case HypergraphLayoutES::Normal:
+		case HypergraphLayoutES::Profile::Normal:
 		for(node v_g : HA.repGraph().nodes) {
 			HA.setWidth(v_g, 5);
 			HA.setHeight(v_g, 5);
@@ -251,7 +248,7 @@ void HypergraphLayoutES::applyProfile(HypergraphAttributesES &HA)
 		}
 		break;
 
-	case HypergraphLayoutES::ElectricCircuit:
+		case HypergraphLayoutES::Profile::ElectricCircuit:
 
 		// TODO:
 		// a) all gates should be depicted

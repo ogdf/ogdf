@@ -32,29 +32,28 @@
 #include <ogdf/upward/LayerBasedUPRLayout.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
-#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
 
 
-OrderComparer::OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H) : UPR(_UPR), H(_H)
+OrderComparer::OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H) : m_UPR(_UPR), H(_H)
 {
-	dfsNum.init(UPR, -1);
-	crossed.init(UPR, false);
+	m_dfsNum.init(m_UPR, -1);
+	crossed.init(m_UPR, false);
 
 	//compute dfs number
 	node start;
-	hasSingleSource(UPR, start);
-	NodeArray<bool> visited(UPR, false);
-	adjEntry rightAdj = UPR.getAdjEntry(UPR.getEmbedding(), start, UPR.getEmbedding().externalFace());
+	hasSingleSource(m_UPR, start);
+	NodeArray<bool> visited(m_UPR, false);
+	adjEntry rightAdj = m_UPR.getAdjEntry(m_UPR.getEmbedding(), start, m_UPR.getEmbedding().externalFace());
 	int num = 0;
-	dfsNum[start] = num++;
+	m_dfsNum[start] = num++;
 	adjEntry run = rightAdj;
 	do {
 		run = run->cyclicSucc();
 		if (!visited[run->theEdge()->target()])
-			dfs_LR(run->theEdge(), visited, dfsNum, num);
+			dfs_LR(run->theEdge(), visited, m_dfsNum, num);
 	} while(run != rightAdj);
 
 }
@@ -82,7 +81,7 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 	}
 	if (v->outdeg() != 0) {
 		for(adjEntry run : v->adjEntries) {
-			if (run->cyclicPred()->theEdge()->target() == v || UPR.getEmbedding().leftFace(run) == UPR.getEmbedding().externalFace()) {
+			if (run->cyclicPred()->theEdge()->target() == v || m_UPR.getEmbedding().leftFace(run) == m_UPR.getEmbedding().externalFace()) {
 				outLeft = run;
 				break;
 			}
@@ -116,8 +115,8 @@ bool OrderComparer::left(edge e1UPR, edge e2UPR) const
 bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , const List<edge> &chain2) const
 {
 	//mark the edges an nodes of chain2 list
-	NodeArray<bool> visitedNode(UPR, false);
-	EdgeArray<bool> visitedEdge(UPR, false);
+	NodeArray<bool> visitedNode(m_UPR, false);
+	EdgeArray<bool> visitedEdge(m_UPR, false);
 	for(edge e : chain2) {
 		visitedNode[e->source()] =  visitedNode[e->target()] = true;
 		visitedEdge[e] = true;
@@ -125,11 +124,9 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 
 	// traverse from vUPR2 to the super source using left path p and marks it.
 	visitedNode[v2UPR] = true;
-	adjEntry run = UPR.leftInEdge(v2UPR);
-	while (run != nullptr) {
+	for(adjEntry run = m_UPR.leftInEdge(v2UPR); run != nullptr; run = m_UPR.leftInEdge(run->theEdge()->source())) {
 		visitedNode[run->theEdge()->source()] = visitedNode[run->theEdge()->target()] = true;
 		visitedEdge[run->theEdge()] = true;
-		run = UPR.leftInEdge(run->theEdge()->source());
 	}
 
 	//is one of the node of chain1 marked?
@@ -146,13 +143,11 @@ bool OrderComparer::left(node v1UPR, const List<edge> &chain1, node v2UPR , cons
 
 	// traverse from vUPR1 to a node of path p (using left path).
 	adjEntry adj_v1 = nullptr, adj_v2 = nullptr;
-	run = UPR.leftInEdge(v1UPR);
-	while (run != nullptr) {
+	for (adjEntry run = m_UPR.leftInEdge(v1UPR); run != nullptr; run = m_UPR.leftInEdge(run->theEdge()->source())) {
 		if (visitedNode[run->theEdge()->source()]) {
 			adj_v1 = run->twin(); //reached a marked node
 			break;
 		}
-		run = UPR.leftInEdge(run->theEdge()->source());
 	}
 
 	OGDF_ASSERT(adj_v1 != nullptr);
@@ -176,13 +171,13 @@ bool OrderComparer::checkUp(node vUPR, int level) const
 	const GraphCopy &GC = H;
 
 	//traverse from vUPR (going up)
-	NodeArray<bool> inList(UPR, false);
+	NodeArray<bool> inList(m_UPR, false);
 	List<node> l;
 	l.pushBack(vUPR);
 	inList[vUPR] = true;
 	while (!l.empty()) {
 		node v = l.popFrontRet();
-		node vOrig = UPR.original(v);
+		node vOrig = m_UPR.original(v);
 		if (vOrig != nullptr && H.rank(GC.copy(vOrig)) <= level)
 			return true;
 		List<edge> outEdges;
@@ -203,8 +198,8 @@ bool OrderComparer::checkUp(node vUPR, int level) const
 bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) const
 {
 	//mark the source nodes of the edges of chain1
-	NodeArray<bool> markedNodes(UPR, false);
-	EdgeArray<bool> markedEdges(UPR, false);
+	NodeArray<bool> markedNodes(m_UPR, false);
+	EdgeArray<bool> markedEdges(m_UPR, false);
 	for(edge e : chain1) {
 		node v = e->source();
 		markedNodes[v] = true;
@@ -238,10 +233,10 @@ bool OrderComparer::left(List<edge> &chain1, List<edge> &chain2, int level) cons
 	//no crossings between the associated edges
 	if (commonNodeList.empty()) {
 		if (chain1.front()->source() == chain2.front()->source()) {
-				return left(chain1.front(), chain2.front());
-			}
-			else
-				return left(chain1.front()->source(), chain1, chain2.front()->source(), chain2);
+			return left(chain1.front(), chain2.front());
+		} else {
+			return left(chain1.front()->source(), chain1, chain2.front()->source(), chain2);
+		}
 	}
 
 	// there is a least one crossing
@@ -274,20 +269,17 @@ bool OrderComparer::less(node vH1, node vH2) const
 	*/
 	const GraphCopy &GC = H;
 	if (!H.isLongEdgeDummy(vH1) && !H.isLongEdgeDummy(vH2)) {
-		node v1 = UPR.copy(GC.original(vH1));
-		node v2 = UPR.copy(GC.original(vH2));
-		if (dfsNum[v1] > dfsNum[v2])
-			return true;
-		else
-			return false;
+		node v1 = m_UPR.copy(GC.original(vH1));
+		node v2 = m_UPR.copy(GC.original(vH2));
+		return m_dfsNum[v1] > m_dfsNum[v2];
 	}
 
 	/*
 	vH1 and vH2 are long-edge-dummies
 	*/
 	if (H.isLongEdgeDummy(vH1) && H.isLongEdgeDummy(vH2)) {
-		List<edge> chain1 = UPR.chain(GC.original(vH1->firstAdj()->theEdge()));
-		List<edge> chain2 = UPR.chain(GC.original(vH2->firstAdj()->theEdge()));
+		List<edge> chain1 = m_UPR.chain(GC.original(vH1->firstAdj()->theEdge()));
+		List<edge> chain2 = m_UPR.chain(GC.original(vH2->firstAdj()->theEdge()));
 
 		OGDF_ASSERT(!chain1.empty());
 		OGDF_ASSERT(!chain2.empty());
@@ -302,16 +294,16 @@ bool OrderComparer::less(node vH1, node vH2) const
 	node v;
 	List<edge> chain1, chain2;
 	if (H.isLongEdgeDummy(vH1)) {
-		chain1 = UPR.chain(GC.original(vH1->firstAdj()->theEdge()));
-		v = UPR.copy(GC.original(vH2));
+		chain1 = m_UPR.chain(GC.original(vH1->firstAdj()->theEdge()));
+		v = m_UPR.copy(GC.original(vH2));
 
 		OGDF_ASSERT(!chain1.empty());
 
 		return left(chain1.front()->source(), chain1, v, chain2);
 	}
 	else {
-		chain2 = UPR.chain(GC.original(vH2->firstAdj()->theEdge()));
-		v = UPR.copy(GC.original(vH1));
+		chain2 = m_UPR.chain(GC.original(vH2->firstAdj()->theEdge()));
+		v = m_UPR.copy(GC.original(vH1));
 
 		OGDF_ASSERT(!chain2.empty());
 
@@ -369,12 +361,12 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 	const GraphCopy &GC = H;
 
 #if 0
-	// UPR.outputFaces(UPR.getEmbedding());
+	// m_UPR.outputFaces(m_UPR.getEmbedding());
 	for(node x : G.nodes) {
-		cout << "vOrig " << x << ";   vUPR " << UPR.copy(x) << endl;
+		cout << "vOrig " << x << ";   vUPR " << m_UPR.copy(x) << endl;
 	}
-	for(node x : UPR.nodes) {
-		cout << "UPR edge order:" << endl;
+	for(node x : m_UPR.nodes) {
+		cout << "m_UPR edge order:" << endl;
 		adjEntry adj = x->firstAdj();
 		cout << "node " << x << endl;
 		do {
@@ -391,8 +383,7 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 		l.sortOrder(oComparer);
 	}
 
-
-	// ********************** postprocessing *******************************************
+	// postprocessing
 	List<node> sources;
 	for(node vTmp : GC.nodes) {
 		if (vTmp->indeg() == 0)
@@ -430,7 +421,7 @@ void LayerBasedUPRLayout::doCall(const UpwardPlanRep &UPR, GraphAttributes &AG)
 
 	GraphCopyAttributes AGC(H, AG);
 	m_layout->call(levels,AG);
-	// ********************** end postprocessing *******************************************
+	// end postprocessing
 
 	numberOfLevels = levels.size();
 	m_maxLevelSize = 0;
@@ -446,7 +437,7 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 {
 	OGDF_ASSERT(UPR.augmented());
 
-	GraphCopy GC = UPR.original();
+	GraphCopy GC(UPR.original());
 	for(edge e : UPR.original().edges) {
 		if (UPR.isReversed(e)) {
 			GC.reverseEdge(GC.copy(e));
@@ -537,7 +528,7 @@ void LayerBasedUPRLayout::computeRanking(const UpwardPlanRep &UPR, NodeArray<int
 
 #if 0
 	cout << "Ranking GOrig: " << endl;
-	for(node v : UPR.original().nodes)
+	for(node v : m_UPR.original().nodes)
 		cout << "node :" << v << " ranking : "<< rank[v] << endl;
 #endif
 }
@@ -846,15 +837,15 @@ void LayerBasedUPRLayout::post_processing_reduce(
 	int idxl1 = numeric_limits<int>::max();
 	int idxh1 = -1;
 	for (int k = 0; k <= levels[startLvl].high(); k++) {
-			node u = levels[startLvl][k];
+		node u = levels[startLvl][k];
 
-			if (markedNodes[u]) {
-				if (k < idxl1)
-					idxl1 = k;
-				if (k > idxh1)
-					idxh1 = k;
-			}
+		if (markedNodes[u]) {
+			if (k < idxl1)
+				idxl1 = k;
+			if (k > idxh1)
+				idxh1 = k;
 		}
+	}
 	int tmp = startLvl;
 	post_processing_deleteInterval(H, levels, idxl1, idxh1, startLvl);
 	if (tmp!=startLvl)
@@ -937,8 +928,8 @@ void LayerBasedUPRLayout::post_processing_deleteLvl(Hierarchy &H, HierarchyLevel
 		Level &lvlTmp = levels[curPos];
 		lvlTmp.m_index = curPos;
 		//update rank
-		for(int i = 0; i <= lvlTmp.high(); i++) {
-			H.m_rank[lvlTmp[i]] = curPos;
+		for(int iter = 0; iter <= lvlTmp.high(); iter++) {
+			H.m_rank[lvlTmp[iter]] = curPos;
 		}
 		curPos++;
 	}
@@ -957,7 +948,7 @@ void LayerBasedUPRLayout::UPRLayoutSimple(const UpwardPlanRep &UPR, GraphAttribu
 		GA.bends(e).clear();
 	}
 
-	// -------------layout the representation-------------------
+	// layout the representation
 	GraphAttributes GA_UPR(UPR);
 	for(node v : GA.constGraph().nodes) {
 		node vUPR = UPR.copy(v);

@@ -39,9 +39,7 @@
 
 namespace ogdf {
 
-//*************************************************************
 // refreshes m_esg
-//
 void SimDrawCaller::updateESG()
 {
 	for(edge e : m_G->edges)
@@ -50,9 +48,7 @@ void SimDrawCaller::updateESG()
 } // end updateESG
 
 
-//*************************************************************
 // Constructor
-//
 SimDrawCaller::SimDrawCaller(SimDraw &SD) : SimDrawManipulatorModule(SD)
 {
 	m_esg = new EdgeArray<uint32_t>(*m_G);
@@ -61,7 +57,6 @@ SimDrawCaller::SimDrawCaller(SimDraw &SD) : SimDrawManipulatorModule(SD)
 } // end constructor
 
 
-//*************************************************************
 // call for SugiyamaLayout
 void SimDrawCaller::callSugiyamaLayout()
 {
@@ -81,7 +76,6 @@ void SimDrawCaller::callSugiyamaLayout()
 } // end callSugiyamaLayout
 
 
-//*************************************************************
 // call for PlanarizationLayoutUML
 void SimDrawCaller::callPlanarizationLayout()
 {
@@ -100,7 +94,6 @@ void SimDrawCaller::callPlanarizationLayout()
 } // end callPlanarizationLayout
 
 
-//*************************************************************
 // call for SubgraphPlanarizer
 // returns crossing number
 int SimDrawCaller::callSubgraphPlanarizer(int cc, int numberOfPermutations)
@@ -121,7 +114,7 @@ int SimDrawCaller::callSubgraphPlanarizer(int cc, int numberOfPermutations)
 	// actual call for connected component cc
 	SubgraphPlanarizer SP;
 	VariableEmbeddingInserter* vei = new VariableEmbeddingInserter;
-	vei->removeReinsert(rrIncremental);
+	vei->removeReinsert(RemoveReinsertType::Incremental);
 	SP.setInserter(vei);
 	SP.permutations(numberOfPermutations);
 	SP.call(PR, cc, crossNum, &ec, nullptr, m_esg);

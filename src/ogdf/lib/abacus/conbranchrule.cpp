@@ -44,12 +44,12 @@ int ConBranchRule::extract(Sub *sub)
 
 	if (poolSlotRef_.conVar() == nullptr) {
 		Logger::ifout() << "ConBranchRule::extract(): branching constraint not available\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConBranchRule);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::ConBranchRule);
 	}
 
 	if (sub->addBranchingConstraint(poolSlotRef_.slot())) {
 		Logger::ifout() << "ConBranchRule::extract(): addition of branching constaint to subproblem failed.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConBranchRule);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::ConBranchRule);
 	}
 
 	return 0;
@@ -89,7 +89,7 @@ void ConBranchRule::initialize(Sub* sub)
 {
 	if (poolSlotRef_.conVar() == nullptr) {
 		Logger::ifout() << "ConBranchRule::initialize(): branching constraint not available\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConBranchRule);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::ConBranchRule);
 	}
 
 	poolSlotRef_.conVar()->sub(sub);

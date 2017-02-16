@@ -127,8 +127,8 @@ public:
 		int m_index;
 	};
 
-	typedef NodeElement* node;
-	typedef EdgeElement* edge;
+	using node = NodeElement*;
+	using edge = EdgeElement*;
 
 protected:
 	NodeElement* m_pFirstNode;
@@ -178,20 +178,20 @@ protected:
 		friend class HyperGraph;
 	public:
 		// Creates an empty graph array not attached to a graph.
-		GraphArray() : m_pGraph(0), Array<T>() { }
+		GraphArray() : Array<T>(), m_pGraph(nullptr), m_initialValue() { }
 
-		//! Creates a graph array attached to \a pGraph.
-		GraphArray(HyperGraph* pGraph) : m_pGraph(pGraph), m_initialValue(), Array<T>()
+		//! Creates a graph array attached to \p pGraph.
+		explicit GraphArray(HyperGraph* pGraph) : GraphArray()
 		{
+			m_pGraph = pGraph;
+
 			if (m_pGraph)
 				m_pGraph->registerArray(this);
 		}
 
-		//! Creates a graph array attached to \a pGraph with default value \a initialValue.
-		GraphArray(HyperGraph* pGraph, const T& initialValue) : m_pGraph(pGraph), m_initialValue(initialValue), Array<T>()
-		{
-			if (m_pGraph)
-				m_pGraph->registerArray(this);
+		//! Creates a graph array attached to \p pGraph with default value \p initialValue.
+		GraphArray(HyperGraph* pGraph, const T& initialValue) : GraphArray(pGraph) {
+			m_initialValue = initialValue;
 		}
 
 		//! Destructor.
@@ -224,7 +224,7 @@ protected:
 
 	protected:
 
-		//! Implementation of \a GraphArrayBase::setSize(int).
+		//! Implementation of GraphArrayBase::setSize(int).
 		virtual void setSize(int numElements)
 		{
 			if (numElements > Array<T>::size())
@@ -257,7 +257,7 @@ protected:
 		//! Frees the array controller and unregisters all remaining arrays.
 		~ArrayController();
 
-		//! Registers a new graph array and sets the size to \a m_tableSize.
+		//! Registers a new graph array and sets the size to #m_tableSize.
 		void registerArray(GraphArrayBase<ElementType>* pArray);
 
 		//! Unregisters a graph array by removing it from the list.
@@ -295,12 +295,12 @@ protected:
 	{
 	public:
 		//! Type definition for the embedded list of arrays.
-		typedef EList< ArrayController<ElementType>, GraphArrayBase<ElementType>,
+		using ArrayListType = EList< ArrayController<ElementType>, GraphArrayBase<ElementType>,
 			&ArrayController<ElementType>::m_numArrays,
 			&ArrayController<ElementType>::m_first,
 			&ArrayController<ElementType>::m_last,
 			&GraphArrayBase<ElementType>::m_prev,
-			&GraphArrayBase<ElementType>::m_next> ArrayListType;
+			&GraphArrayBase<ElementType>::m_next>;
 	};
 
 
@@ -366,7 +366,7 @@ public:
 	class NodeArray : public GraphArray<T, NodeElement>
 	{
 	public:
-		NodeArray(HyperGraph* pGraph) : GraphArray<T, NodeElement>(pGraph) {}
+		explicit NodeArray(HyperGraph* pGraph) : GraphArray<T, NodeElement>(pGraph) {}
 		NodeArray(HyperGraph* pGraph, const T& initValue) : GraphArray<T, NodeElement>(pGraph, initValue) {}
 	};
 
@@ -375,7 +375,7 @@ public:
 	class EdgeArray : public GraphArray<T, EdgeElement>
 	{
 	public:
-		EdgeArray(HyperGraph* pGraph) : GraphArray<T, EdgeElement>(pGraph) {}
+		explicit EdgeArray(HyperGraph* pGraph) : GraphArray<T, EdgeElement>(pGraph) {}
 		EdgeArray(HyperGraph* pGraph, const T& initValue) : GraphArray<T, EdgeElement>(pGraph, initValue) {}
 	};
 
@@ -384,7 +384,7 @@ public:
 	class AdjArray : public GraphArray<T, AdjElement>
 	{
 	public:
-		AdjArray(HyperGraph* pGraph) : GraphArray<T, AdjElement>(pGraph) {}
+		explicit AdjArray(HyperGraph* pGraph) : GraphArray<T, AdjElement>(pGraph) {}
 		AdjArray(HyperGraph* pGraph, const T& initValue) : GraphArray<T, AdjElement>(pGraph, initValue) {}
 	};
 
@@ -398,7 +398,7 @@ public:
 	//! Creates a new edge which is not incident to any nodes.
 	EdgeElement* newEdge();
 
-	//! Creates a new edge which is incident to the two nodes \a pNode1, \a pNode2.
+	//! Creates a new edge which is incident to the two nodes \p pNode1, \p pNode2.
 	EdgeElement* newEdge(NodeElement* pNode1, NodeElement* pNode2)
 	{
 		EdgeElement* pEdge = newEdge();
@@ -407,9 +407,9 @@ public:
 		return pEdge;
 	}
 
-	//! Creates a new \a AdjElement which makes \a pNode and \a pEdge incident.
+	//! Creates a new AdjElement which makes \p pNode and \p pEdge incident.
 	/**
-	 * \note This function does not check if \a pNode and \a pEdge are already incident.
+	 * \note This function does not check if \p pNode and \p pEdge are already incident.
 	 *       Hypergraphs can deal with duplicate AdjElements. However, for reasons of clarity
 	 *       it is not a good idea to make use of it.
 	 * @param pNode is the node.
@@ -417,17 +417,17 @@ public:
 	 */
 	AdjElement* newAdjElement(NodeElement* pNode, EdgeElement* pEdge);
 
-	//! Removes one endpoint \a pAdj from a hyper edge.
+	//! Removes one endpoint \p pAdj from a hyper edge.
 	void delAdjElement(AdjElement* pAdj);
 
-	//! Removes the endpoint \a pNode from the hyper edge \a pEdge.
+	//! Removes the endpoint \p pNode from the hyper edge \p pEdge.
 	void delAdjElement(NodeElement* pNode, EdgeElement* pEdge)
 	{
 		AdjElement* pAdj = findAdjElement(pNode, pEdge);
 		if (pAdj) delAdjElement(pAdj);
 	}
 
-	//! Makes \a pNode and \a pEdge incident; returns the corresponding \a AdjElement.
+	//! Makes \p pNode and \p pEdge incident; returns the corresponding HyperGraph::AdjElement.
 	AdjElement* addNode(NodeElement* pNode, EdgeElement* pEdge, bool checkIfAlreadyExists = false)
 	{
 		if (!checkIfAlreadyExists)
@@ -439,7 +439,7 @@ public:
 		return pAdj;
 	}
 
-	//! If \a pNode and \a pEdge are incident, the corresponding AdjElement is removed.
+	//! If \p pNode and \p pEdge are incident, the corresponding AdjElement is removed.
 	/**
 	 * \note The function requires time O(min(degree(pNode), cardinality(pEdge))).
 	 * @param pNode is the node.
@@ -462,19 +462,19 @@ public:
 		}
 	}
 
-	//! Returns the \a AdjElement for pNode and pEdge.
+	//! Returns the AdjElement for \p pNode and \p pEdge.
 	/**
-	 * In case \a pNode and \a pEdge are not incident the function returns 0.
+	 * In case \p pNode and \p pEdge are not incident the function returns 0.
 	 * \note The function requires time O(min(degree(pNode), cardinality(pEdge))).
 	 * @param pNode is the node.
 	 * @param pEdge is the hyper edge.
 	 */
 	AdjElement* findAdjElement(NodeElement* pNode, EdgeElement* pEdge) const;
 
-	//! Deletes hyper edge \a pEdge.
+	//! Deletes hyper edge \p pEdge.
 	void delEdge(EdgeElement* pEdge);
 
-	//! Deletes node \a pNode.
+	//! Deletes node \p pNode.
 	void delNode(NodeElement* pNode);
 
 	int numberOfNodes() const;
@@ -560,44 +560,44 @@ class HyperGraphTypes
 {
 public:
 	//! Type definition for the embedded list of nodes.
-	typedef EList<
+	using NodeList = EList<
 				HyperGraph, HyperGraph::NodeElement,
 				&HyperGraph::m_numNodes,
 				&HyperGraph::m_pFirstNode,
 				&HyperGraph::m_pLastNode,
 				&HyperGraph::NodeElement::m_pPrev,
 				&HyperGraph::NodeElement::m_pNext
-			> NodeList;
+			>;
 
 	//! Type definition for the embedded list of edges.
-	typedef EList<
+	using EdgeList = EList<
 				HyperGraph, HyperGraph::EdgeElement,
 				&HyperGraph::m_numEdges,
 				&HyperGraph::m_pFirstEdge,
 				&HyperGraph::m_pLastEdge,
 				&HyperGraph::EdgeElement::m_pPrev,
 				&HyperGraph::EdgeElement::m_pNext
-			> EdgeList;
+			>;
 
 	//! Type definition for the embedded list of AdjElement at a node.
-	typedef EList<
+	using NodeAdjList = EList<
 				HyperGraph::NodeElement, HyperGraph::AdjElement,
 				&HyperGraph::NodeElement::m_numAdj,
 				&HyperGraph::NodeElement::m_pFirstAdj,
 				&HyperGraph::NodeElement::m_pLastAdj,
 				&HyperGraph::AdjElement::m_pPrev_nodeAdj,
 				&HyperGraph::AdjElement::m_pNext_nodeAdj
-			> NodeAdjList;
+			>;
 
 	//! Type definition for the embedded list of AdjElement at an edge.
-	typedef EList<
+	using EdgeAdjList = EList<
 				HyperGraph::EdgeElement, HyperGraph::AdjElement,
 				&HyperGraph::EdgeElement::m_numAdj,
 				&HyperGraph::EdgeElement::m_pFirstAdj,
 				&HyperGraph::EdgeElement::m_pLastAdj,
 				&HyperGraph::AdjElement::m_pPrev_edgeAdj,
 				&HyperGraph::AdjElement::m_pNext_edgeAdj
-			> EdgeAdjList;
+			>;
 };
 
 
@@ -610,7 +610,7 @@ HyperGraph::ArrayController<ElementType>::~ArrayController()
 }
 
 
-// Registers a new graph array and sets the size to \a m_tableSize.
+// Registers a new graph array and sets the size to #m_tableSize.
 template<typename ElementType>
 inline void HyperGraph::ArrayController<ElementType>::registerArray(GraphArrayBase<ElementType>* pArray)
 {

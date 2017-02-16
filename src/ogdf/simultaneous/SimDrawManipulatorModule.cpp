@@ -33,9 +33,7 @@
 
 namespace ogdf {
 
-//*************************************************************
 // default constructor
-//
 SimDrawManipulatorModule::SimDrawManipulatorModule()
 {
 	m_SD = new SimDraw;
@@ -44,9 +42,7 @@ SimDrawManipulatorModule::SimDrawManipulatorModule()
 } //end default constructor
 
 
-//*************************************************************
 // initializing base instance
-//
 void SimDrawManipulatorModule::init(SimDraw &SD)
 {
 	m_SD = &SD;

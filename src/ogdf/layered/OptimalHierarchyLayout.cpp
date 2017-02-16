@@ -32,15 +32,10 @@
 
 
 #include <ogdf/layered/OptimalHierarchyLayout.h>
-#include <ogdf/layered/Hierarchy.h>
 #include <ogdf/lpsolver/LPSolver.h>
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// Constructor
-//---------------------------------------------------------
 OptimalHierarchyLayout::OptimalHierarchyLayout()
 {
 	m_nodeDistance       = LayoutStandards::defaultNodeSeparation();
@@ -50,10 +45,6 @@ OptimalHierarchyLayout::OptimalHierarchyLayout()
 	m_weightBalancing    = 0.1;
 }
 
-
-//---------------------------------------------------------
-// Copy Constructor
-//---------------------------------------------------------
 OptimalHierarchyLayout::OptimalHierarchyLayout(const OptimalHierarchyLayout &ohl)
 {
 	m_nodeDistance       = ohl.nodeDistance();
@@ -63,10 +54,6 @@ OptimalHierarchyLayout::OptimalHierarchyLayout(const OptimalHierarchyLayout &ohl
 	m_weightBalancing    = ohl.weightBalancing();
 }
 
-
-//---------------------------------------------------------
-// Assignment Operator
-//---------------------------------------------------------
 OptimalHierarchyLayout &OptimalHierarchyLayout::operator=(const OptimalHierarchyLayout &ohl)
 {
 	m_nodeDistance       = ohl.nodeDistance();
@@ -78,10 +65,6 @@ OptimalHierarchyLayout &OptimalHierarchyLayout::operator=(const OptimalHierarchy
 	return *this;
 }
 
-
-//---------------------------------------------------------
-// Call for Graphs
-//---------------------------------------------------------
 void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphCopyAttributes &AGC)
 {
 	// trivial cases
@@ -103,10 +86,6 @@ void OptimalHierarchyLayout::doCall(const HierarchyLevelsBase &levels,GraphCopyA
 	computeYCoordinates(levels,AGC);
 }
 
-
-//---------------------------------------------------------
-// Compute x-coordinates (LP-based approach) (for graphs)
-//---------------------------------------------------------
 void OptimalHierarchyLayout::computeXCoordinates(
 	const HierarchyLevelsBase &levels,
 	GraphCopyAttributes &AGC)
@@ -129,13 +108,13 @@ void OptimalHierarchyLayout::computeXCoordinates(
 		{
 			node v = L[j];
 
-			if(H.isLongEdgeDummy(v) == true) {
+			if(H.isLongEdgeDummy(v)) {
 				isVirtual[v] = true;
 
 				node u = v->firstAdj()->theEdge()->target();
 				if(u == v) u = v->lastAdj()->theEdge()->target();
 
-				if(H.isLongEdgeDummy(u) == true) {
+				if(H.isLongEdgeDummy(u)) {
 					int down = levels.pos(u);
 					if(last != -1 && last > down) {
 						isVirtual[v] = false;
@@ -262,18 +241,18 @@ void OptimalHierarchyLayout::computeXCoordinates(
 				else
 					cstrSep = 2;
 
-				int count =  cstrSep + 2*v->degree();
+				int cnt =  cstrSep + 2*v->degree();
 				if(nBalanced > 0) {
 					if(v->degree() > 1)
-						count += 2;
+						cnt += 2;
 					for(adjEntry adj : v->adjEntries) {
 						node w = adj->twinNode();
 						if(bIndex[w] != -1)
-							count += 2;
+							cnt += 2;
 					}
 				}
 
-				matrixCount[i] = count;
+				matrixCount[i] = cnt;
 				nNonZeroes += matrixCount[i];
 
 			} else if (nBalanced > 0) {
@@ -542,12 +521,12 @@ void OptimalHierarchyLayout::computeXCoordinates(
 #ifdef OGDF_DEBUG
 	LPSolver::Status status =
 #endif
-	solver.optimize(LPSolver::lpMinimize, obj,
+	solver.optimize(LPSolver::OptimizationGoal::Minimize, obj,
 		matrixBegin, matrixCount, matrixIndex, matrixValue,
 		rightHandSide, equationSense,
 		lowerBound, upperBound, optimum, x);
 
-	OGDF_ASSERT(status == LPSolver::lpOptimal);
+	OGDF_ASSERT(status == LPSolver::Status::Optimal);
 
 #if 0
 	os << "\nx\n";
@@ -567,10 +546,6 @@ void OptimalHierarchyLayout::computeXCoordinates(
 	}
 }
 
-
-//---------------------------------------------------------
-// Compute y-coordinates (for graphs)
-//---------------------------------------------------------
 void OptimalHierarchyLayout::computeYCoordinates(
 	const HierarchyLevelsBase &levels,
 	GraphCopyAttributes &AGC)
@@ -605,7 +580,7 @@ void OptimalHierarchyLayout::computeYCoordinates(
 
 		double dy = m_layerDistance;
 
-		if(m_fixedLayerDistance == false)
+		if(!m_fixedLayerDistance)
 		{
 			for(int j = 0; j < L.size(); ++j) {
 				node v = L[j];

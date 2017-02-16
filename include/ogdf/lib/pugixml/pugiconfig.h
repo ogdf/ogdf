@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <ogdf/internal/basic/config.h>
+#include <ogdf/basic/internal/config.h>
 
 // Uncomment this to enable wchar_t mode
 // #define PUGIXML_WCHAR_MODE

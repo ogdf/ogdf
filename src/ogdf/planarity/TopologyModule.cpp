@@ -33,18 +33,52 @@
 //debug
 #include <ogdf/planarity/PlanRepInc.h>
 
-
 #include <ogdf/basic/TopologyModule.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/geometry.h>
 #include <ogdf/fileformats/GraphIO.h>
-
 
 namespace ogdf {
 
-//----------------------------------------------------------
+namespace topology_module {
+
+//! Sorts EdgeLegs according to their xp distance to a reference point.
+class PointComparer {
+public:
+	explicit PointComparer(DPoint refPoint) : m_refPoint(refPoint) {}
+
+	//compares the crossing points stored in the EdgeLeg
+	//is independent of y-axis flipping
+	int compare(const ListIterator<EdgeLeg*> &ep1, const ListIterator<EdgeLeg*> &ep2) const
+	{
+		DPoint p1 = (*ep1)->m_xp;
+		DPoint p2 = (*ep2)->m_xp;
+		//we compute the distance of the two points to
+		//our reference and return the corresponding ordering
+		//-1 if p1 closer than p2
+		double xdiff1 = p1.m_x - m_refPoint.m_x;
+		double xdiff2 = p2.m_x - m_refPoint.m_x;
+		double ydiff1 = p1.m_y - m_refPoint.m_y;
+		double ydiff2 = p2.m_y - m_refPoint.m_y;
+		double dist1 = sqrt(xdiff1*xdiff1 + ydiff1*ydiff1);
+		double dist2 = sqrt(xdiff2*xdiff2 + ydiff2*ydiff2);
+
+		if (dist1 == dist2) return 0;
+		return (dist1 < dist2 ? -1 : 1); //original: -1 1
+	}
+
+	OGDF_AUGMENT_COMPARER(ListIterator<EdgeLeg*>)
+
+	// undefined methods to avoid automatic creation
+	PointComparer &operator=(const PointComparer &);
+
+private:
+	const DPoint m_refPoint;
+};
+
+}
+
+using namespace topology_module;
+
 //sets the embedding in PG corresponding to the layout in GA
 //returns false if planarization fails (there may be diagram-
 //inherent reasons for that)
@@ -106,13 +140,17 @@ bool TopologyModule::setEmbeddingFromGraph(
 	if(!PG.representsCombEmbedding())
 	{
 #ifdef OGDF_DEBUG
-		((PlanRepInc&)PG).writeGML("Vorplanaris.gml", GA);
+		std::ofstream ofs_vor("Vorplanaris.gml", std::ofstream::out);
+		((PlanRepInc&)PG).writeGML(ofs_vor, GA);
+		ofs_vor.close();
 #endif
 		planarizeFromLayout(PG, GA);
 		if (!PG.representsCombEmbedding())
 			handleImprecision(PG);
 #ifdef OGDF_DEBUG
-		((PlanRepInc&)PG).writeGML("Nachplanaris.gml", GA);
+		std::ofstream ofs_nach("Nachplanaris.gml", std::ofstream::out);
+		((PlanRepInc&)PG).writeGML(ofs_nach, GA);
+		ofs_nach.close();
 #endif
 	}
 
@@ -204,25 +242,20 @@ void TopologyModule::handleImprecision(PlanRep &PG)
 			OGDF_ASSERT(v->degree() == 4);
 			adjEntry adFirst = v->firstAdj();
 			adjEntry adRun = adFirst;
-			do
-			{
+			do {
 				adjEntry adNext = adRun->cyclicSucc();
 				node w = adRun->theEdge()->opposite(v);
-				if (w == adNext->theEdge()->opposite(v))
-				{
-					//We only take the cases into account
-					//were the crossing is near an input node
-					//thereby respecting the input embedding
-					//vs. crossing imprecision dilemma
-					if (PG.original(w) &&
-						(adNext->twin() == adRun->twin()->cyclicSucc())
-						)
-					{//wrong order at w
-						PG.swapAdjEdges(adNext->twin(), adRun->twin()->cyclicSucc());
-						problems.pushBack(v);
-					}
-
-				}//if
+				if (w == adNext->theEdge()->opposite(v)
+				   // We only take the cases into account
+				   // were the crossing is near an input node
+				   // thereby respecting the input embedding
+				   // vs. crossing imprecision dilemma
+				 && PG.original(w)
+				 && adNext->twin() == adRun->twin()->cyclicSucc()) {
+					// wrong order at w
+					PG.swapAdjEdges(adNext->twin(), adRun->twin()->cyclicSucc());
+					problems.pushBack(v);
+				}
 				adRun = adNext;
 			} while (adRun != adFirst);
 		}//iscrossing
@@ -248,7 +281,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
 	//remove consecutive crossings between two edges
-	if (m_options & opLoop)
+	if (m_options & Options::Loop)
 	{
 		List<node> obsoleteCrossings;
 		NodeArray<bool> processed(PG, false);
@@ -265,23 +298,19 @@ void TopologyModule::postProcess(PlanRep &PG)
 			{
 				node w = adRun2->twinNode();
 				node u = adRun1->twinNode();
-				if ( (w->degree() == 4) && (w == u) &&
-					(w != v) )
-				{
-					//entweder abfragen, ob v processed
-					//oder unten continue (nur paarweise loeschen)
-					if (PG.isCrossingType(w) && !processed[w])
-					{
-						obsoleteCrossings.pushBack(w);
-						processed[w] = true;
+				if (w->degree() == 4
+				 && w == u
+				 && w != v
+				 && PG.isCrossingType(w)
+				 && !processed[w]) {
+					obsoleteCrossings.pushBack(w);
+					processed[w] = true;
 
-						if (!processed[v]) //obsolete
-						{
-							processed[v] = true;
-							obsoleteCrossings.pushBack(v);
-							continue;
-						}
-					}//if crossing
+					if (!processed[v]) { //obsolete
+						processed[v] = true;
+						obsoleteCrossings.pushBack(v);
+						continue;
+					}
 				}
 				adRun1 = adRun2;
 				adRun2 = adRun2->cyclicSucc();
@@ -300,7 +329,7 @@ void TopologyModule::postProcess(PlanRep &PG)
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
 
-	if (m_options & opCrossFlip)
+	if (m_options & Options::CrossFlip)
 	{
 		//this is useful only if the crossing is the first crossing
 		//near the common node
@@ -334,9 +363,8 @@ void TopologyModule::postProcess(PlanRep &PG)
 
 
 void TopologyModule::planarizeFromLayout(PlanRep &PG,
-							 GraphAttributes &GA)
+                                         GraphAttributes &GA)
 {
-	//------------------------
 	//Debug
 	Layout xy(PG);
 	for(node u : PG.nodes)
@@ -346,9 +374,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 			xy.x(u) = GA.x(PG.original(u));
 			xy.y(u) = GA.y(PG.original(u));
 		}
-
 	}
-	//-------------------------
 
 	//First, we create a set of EdgeLegs representing the
 	//segments in the given layout, we assign the (ASSERT!)
@@ -370,9 +396,7 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 		edge e = PG.e(i);
 		//--
 
-		//-----------------------------------------------------
 		//create edgeLeg objects for edge segments
-		//-----------------------------------------------------
 		//while (e)
 		//{
 		//there may be edges in other CCs without representation
@@ -460,55 +484,42 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 		{
 			//special case of parallel generalization segments
 			//at mergers in drawings
-			if ((PG.isGeneralization(crossLeg->copyEdge()) &&
-					PG.isGeneralization((*runIt)->copyEdge())))
-			{
 #if 0
-				if ( (crossLeg->start().m_x == (*runIt)->start().m_x) &&
-					(crossLeg->start().m_y == (*runIt)->start().m_y) &&
-					(crossLeg->end().m_x == (*runIt)->end().m_x) &&
-					(crossLeg->end().m_y == (*runIt)->end().m_y))
-#endif
-				{
-					//EdgeLeg* teste = (*runIt);
+			if (PG.isGeneralization(crossLeg->copyEdge())
+			 && PG.isGeneralization((*runIt)->copyEdge())) {
+				if ((crossLeg->start().m_x == (*runIt)->start().m_x)
+				 && (crossLeg->start().m_y == (*runIt)->start().m_y)
+				 && (crossLeg->end().m_x == (*runIt)->end().m_x)
+				 && (crossLeg->end().m_y == (*runIt)->end().m_y)) {
+					EdgeLeg* teste = (*runIt);
 				}
 			}
+#endif
 			if (hasCrossing(crossLeg, (*runIt), xp))
 			{
 				//check crossings for the special case
 				//of two generalizations:
-				if (PG.isGeneralization(crossLeg->copyEdge()) &&
-					PG.isGeneralization((*runIt)->copyEdge()))
-				{
-					//EdgeLeg* teste = (*runIt);
-					if (m_options & opDegOneCrossings)
-					{
-						//has priority over gentoass
-						//TODO
+				if (PG.isGeneralization(crossLeg->copyEdge())
+				 && PG.isGeneralization((*runIt)->copyEdge())
+				 // TODO: if (m_options & Options::DegOneCrossings)
+				 // Should be done first, then GenToAss... but for now:
+				 && m_options & Options::GenToAss) {
+					// TODO: check if we have to set all copies
+					// TODO: check if we prefer an edge, e.g. most crossed
+					// TODO: should we set original as well.
+					edge converter = crossLeg->copyEdge();
+					// check if incident to merger
+					if (PG.typeOf(converter->source()) == Graph::NodeType::generalizationMerger
+					 || PG.typeOf(converter->target()) == Graph::NodeType::generalizationMerger) {
+						converter = (*runIt)->copyEdge();
 					}
-					if (m_options & opGenToAss)
-					{
-						//TODO: check if we have to set all copies
-						//TODO: check if we prefer an edge, e.g. most crossed
-						//TODO: should we set original as well.
-						edge converter = crossLeg->copyEdge();
-						//check if incident to merger
-						if ( (PG.typeOf(converter->source()) == Graph::generalizationMerger) ||
-							 (PG.typeOf(converter->target()) == Graph::generalizationMerger) )
-							 converter = (*runIt)->copyEdge();
-						//TODO: converter may still be incident to merger
-						GA.type( PG.original(converter) ) = Graph::association;
-						PG.oriEdgeTypes(PG.original(converter) ) = Graph::association;
-						ListConstIterator<edge> it =
-							PG.chain(PG.original(converter)).begin();
-						while (it.valid())
-						{
-							PG.setAssociation((*it));
-							++it;
-						}
-					}//if option set
-
-				}//if crossing between generalizations
+					// TODO: converter may still be incident to merger
+					GA.type(PG.original(converter)) = Graph::EdgeType::association;
+					PG.oriEdgeTypes(PG.original(converter)) = static_cast<long>(Graph::EdgeType::association);
+					for (const edge e : PG.chain(PG.original(converter))) {
+						PG.setAssociation(e);
+					}
+				}
 				//first we store all crossings together
 				//with their crossing point, these are only
 				//used to compute an ordering
@@ -584,11 +595,9 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 				OGDF_ASSERT(PG.original((*itLeg)->copyEdge()));
 				//automatischer Seiteneffekt
 				//crossLeg->copyEdge() = newEdge;
-				//----------------------------------------
 				//debug
 				xy.x(newEdge->source()) = (*itLeg)->m_xp.m_x;
 				xy.y(newEdge->source()) = (*itLeg)->m_xp.m_y;
-				//----------------------------------------
 
 				//insert the edgeleg for newEdge and update (*itleg)
 				//accordingly (endpoint is now crossing point, TODO: depending
@@ -651,7 +660,6 @@ void TopologyModule::planarizeFromLayout(PlanRep &PG,
 		++legIt;
 	}//while all edgeLegs
 
-	//-----------------------------------------------
 	//debug
 #ifdef OGDF_DEBUG
 	((PlanRepInc&)PG).genusLayout(xy);
@@ -891,7 +899,7 @@ face TopologyModule::getExternalFace(
 	}
 
 	//debug or release? sollte das abgefangen werden??
-	throw AlgorithmFailureException(afcExternalFace);
+	throw AlgorithmFailureException(AlgorithmFailureCode::ExternalFace);
 
 #if 0
 	return 0;
@@ -992,12 +1000,21 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 		adjEntry b1 = a1->cyclicSucc();
 		adjEntry a2 = b1->cyclicSucc();
 		adjEntry b2 = a2->cyclicSucc();
-		//-----------------------------------------
+
 		//check if the edges have a common endpoint
 		node va1 = a1->twinNode();
 		node va2 = a2->twinNode();
 		node vb1 = b1->twinNode();
 		node vb2 = b2->twinNode();
+
+		auto noFlipping = [&](adjEntry a, adjEntry b) {
+			if (m_options & Options::FlipUML) {
+				const bool isGenA = PG.isGeneralization(a->theEdge());
+				const bool isGenB = PG.isGeneralization(b->theEdge());
+				return (isGenA ^ isGenB) != 0;
+			}
+			return false;
+		};
 
 		//to match the crossflip case, two successive edges
 		//need to have the same endpoint, with original node
@@ -1005,17 +1022,9 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 		{
 			if (va1 == vb1) //case1
 			{
-				if (m_options & opFlipUML)
-				{
-					if ( (PG.isGeneralization(a1->theEdge()) && !(PG.isGeneralization(b1->theEdge())) )
-						||
-						(PG.isGeneralization(b1->theEdge()) && !(PG.isGeneralization(a1->theEdge())))
-						)
-					{
-						return false;
-					}
-
-				}//if only equal type flip
+				if (noFlipping(a1, b1)) {
+					return false;
+				}
 				crossing = true;
 				//remove the crossing and flip the order
 				//in removeCrossing, the first two adjacency entries survive
@@ -1027,7 +1036,7 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 
 					if (a1->twin() == b1->twin()->cyclicSucc())
 					{
-						PG.moveAdj(a1->twin(), before,b1->twin());
+						PG.moveAdj(a1->twin(), Direction::before,b1->twin());
 					}
 					else
 					{
@@ -1039,27 +1048,16 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 			else //TODO: check can both b1, b2 be the same?
 				if (va1 == vb2)
 				{
-					//check if flipping allowed
-					if (m_options & opFlipUML)
-					{
-						if ( (PG.isGeneralization(a1->theEdge()) &&
-							!(PG.isGeneralization(b2->theEdge())) )
-							||
-							(PG.isGeneralization(b2->theEdge()) &&
-							!(PG.isGeneralization(a1->theEdge())))
-						)
-						{
-							return false;
-						}
-
-					}//if only equal type flip
+					if (noFlipping(a1, b2)) {
+						return false;
+					}
 					//see comments  in case1
 					crossing = true;
 					if (flip)
 					{
 						PG.removeCrossing(v);
 						OGDF_ASSERT(a1->twin() == b1->cyclicPred());
-						PG.moveAdj(a1->twin(), after, b1);
+						PG.moveAdj(a1->twin(), Direction::after, b1);
 					}
 				}
 		}//if va1
@@ -1068,49 +1066,30 @@ bool TopologyModule::checkFlipCrossing(PlanRep& PG, node v, bool flip)
 			if (va2 == vb1)
 			{
 				//check if flipping allowed
-				if (m_options & opFlipUML)
-				{
-					if ( (PG.isGeneralization(a2->theEdge()) && !(PG.isGeneralization(b1->theEdge())) )
-						||
-						(PG.isGeneralization(b1->theEdge()) && !(PG.isGeneralization(a2->theEdge())))
-						)
-					{
-						return false;
-					}
-
-				}//if only equal type flip
+				if (noFlipping(a2, b1)) {
+					return false;
+				}
 				crossing = true;
 				//see comments  in case1
 				if (flip)
 				{
 					PG.removeCrossing(v);
 					OGDF_ASSERT(a1 == b1->twin()->cyclicPred());
-					PG.moveAdj(a1, after,b1->twin());
+					PG.moveAdj(a1, Direction::after,b1->twin());
 				}
 			}
 			else
 				if (va2 == vb2)
 				{
-					//check if flipping allowed
-					if (m_options & opFlipUML)
-					{
-						if ( (PG.isGeneralization(a2->theEdge()) &&
-							!(PG.isGeneralization(b2->theEdge())) )
-							||
-							(PG.isGeneralization(b2->theEdge()) &&
-							!(PG.isGeneralization(a2->theEdge())))
-						)
-						{
-							return false;
-						}
-
-					}//if only equal type flip
+					if (noFlipping(a2, b2)) {
+						return false;
+					}
 					crossing = true;
 					if (flip)
 					{
 						PG.removeCrossing(v);
 						OGDF_ASSERT(a1 == b1->cyclicSucc());
-						PG.moveAdj(a1, before,b1);
+						PG.moveAdj(a1, Direction::before,b1);
 					}
 
 				}
@@ -1149,24 +1128,5 @@ void TopologyModule::sortEdgesFromLayout(Graph &G, GraphAttributes& GA)
 	}//forall nodes
 }//sortedgesfromlayout
 //*/
-
-//is independent of y-axis flipping
-int PointComparer::compare(const ListIterator<EdgeLeg*> &ep1, const ListIterator<EdgeLeg*> &ep2) const
-{
-	DPoint p1 = (*ep1)->m_xp;
-	DPoint p2 = (*ep2)->m_xp;
-	//we compute the distance of the two points to
-	//our reference and return the corresponding ordering
-	//-1 if p1 closer than p2
-	double xdiff1 = p1.m_x - m_refPoint.m_x;
-	double xdiff2 = p2.m_x - m_refPoint.m_x;
-	double ydiff1 = p1.m_y - m_refPoint.m_y;
-	double ydiff2 = p2.m_y - m_refPoint.m_y;
-	double dist1 = sqrt(xdiff1*xdiff1 + ydiff1*ydiff1);
-	double dist2 = sqrt(xdiff2*xdiff2 + ydiff2*ydiff2);
-
-	if (dist1 == dist2) return 0;
-	return (dist1 < dist2 ? -1 : 1); //original: -1 1
-}
 
 } // end namespace ogdf

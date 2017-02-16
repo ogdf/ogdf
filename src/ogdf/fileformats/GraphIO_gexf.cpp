@@ -91,15 +91,15 @@ static inline void defineAttributes(
 	child.append_attribute("class") = "node";
 
 	if(attrs & GraphAttributes::nodeType) {
-		defineAttribute(child, graphml::toString(graphml::a_nodeType), "string");
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeType), "string");
 	}
 
 	if(attrs & GraphAttributes::nodeTemplate) {
-		defineAttribute(child, graphml::toString(graphml::a_template), "string");
+		defineAttribute(child, graphml::toString(graphml::Attribute::Template), "string");
 	}
 
 	if(attrs & GraphAttributes::nodeWeight) {
-		defineAttribute(child, graphml::toString(graphml::a_nodeWeight), "float");
+		defineAttribute(child, graphml::toString(graphml::Attribute::NodeWeight), "float");
 	}
 
 	// Declare edge attributes.
@@ -107,11 +107,11 @@ static inline void defineAttributes(
 	child.append_attribute("class") = "edge";
 
 	if(attrs & GraphAttributes::edgeType) {
-		defineAttribute(child, graphml::toString(graphml::a_edgeType), "string");
+		defineAttribute(child, graphml::toString(graphml::Attribute::EdgeType), "string");
 	}
 
 	if(attrs & GraphAttributes::edgeArrow) {
-		defineAttribute(child, graphml::toString(graphml::a_edgeArrow), "string");
+		defineAttribute(child, graphml::toString(graphml::Attribute::EdgeArrow), "string");
 	}
 }
 
@@ -171,15 +171,15 @@ static inline void writeAttributes(
 	pugi::xml_node attValues = xmlNode.append_child("attvalues");
 
 	if(attrs & GraphAttributes::nodeType) {
-		writeAttValue(attValues, graphml::a_nodeType, graphml::toString(GA.type(v)).c_str());
+		writeAttValue(attValues, graphml::Attribute::NodeType, graphml::toString(GA.type(v)).c_str());
 	}
 
 	if(attrs & GraphAttributes::nodeTemplate) {
-		writeAttValue(attValues, graphml::a_template, GA.templateNode(v).c_str());
+		writeAttValue(attValues, graphml::Attribute::Template, GA.templateNode(v).c_str());
 	}
 
 	if(attrs & GraphAttributes::nodeWeight) {
-		writeAttValue(attValues, graphml::a_nodeWeight, GA.weight(v));
+		writeAttValue(attValues, graphml::Attribute::NodeWeight, GA.weight(v));
 	}
 }
 
@@ -214,10 +214,10 @@ static inline void writeAttributes(
 	pugi::xml_node attValues = xmlNode.append_child("attvalues");
 
 	if(attrs & GraphAttributes::edgeType) {
-		writeAttValue(attValues, graphml::a_edgeType, graphml::toString(GA.type(e)).c_str());
+		writeAttValue(attValues, graphml::Attribute::EdgeType, graphml::toString(GA.type(e)).c_str());
 	}
 	if(attrs & GraphAttributes::edgeArrow) {
-		writeAttValue(attValues, graphml::a_edgeArrow, graphml::toString(GA.arrowType(e)).c_str());
+		writeAttValue(attValues, graphml::Attribute::EdgeArrow, graphml::toString(GA.arrowType(e)).c_str());
 	}
 }
 

@@ -37,12 +37,6 @@
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// ClusterArrayBase
-// base class for ClusterArray<T>, defines interface for event handling
-// used by Graph
-//---------------------------------------------------------
 //! Abstract base class for cluster arrays.
 /**
  * @ingroup graph-containers
@@ -63,12 +57,12 @@ public:
 	//! Initializes a cluster array not associated with a cluster graph.
 	ClusterArrayBase() : m_pClusterGraph(nullptr) { }
 
-	//! Initializes a cluster array associated with \a pC.
-	ClusterArrayBase(const ClusterGraph *pC) : m_pClusterGraph(pC) {
+	//! Initializes a cluster array associated with \p pC.
+	explicit ClusterArrayBase(const ClusterGraph *pC) : m_pClusterGraph(pC) {
 		if(pC) m_it = pC->registerArray(this);
 	}
 
-	//! Moves cluster array \a base to this cluster array.
+	//! Moves cluster array \p base to this cluster array.
 	ClusterArrayBase(ClusterArrayBase &base) : m_it(base.m_it), m_pClusterGraph(base.m_pClusterGraph) {
 		if(m_pClusterGraph) m_pClusterGraph->moveRegisterArray(m_it, this);
 		base.m_pClusterGraph = nullptr;
@@ -94,7 +88,7 @@ public:
 		if ((m_pClusterGraph = pC) != nullptr) m_it = pC->registerArray(this);
 	}
 
-	//! Moves array registration from \a base to this array.
+	//! Moves array registration from \p base to this array.
 	void moveRegister(ClusterArrayBase &base) {
 		if (m_pClusterGraph) m_pClusterGraph->unregisterArray(m_it);
 		m_pClusterGraph = base.m_pClusterGraph;
@@ -118,25 +112,25 @@ template<class T> class ClusterArray : private Array<T>, protected ClusterArrayB
 
 public:
 	//! The type for array keys.
-	typedef cluster key_type;
+	using key_type = cluster;
 	//! The type for array entries.
-	typedef T value_type;
+	using value_type = T;
 
 	//! The type for cluster array iterators.
-	typedef internal::GraphArrayIterator<ClusterArray<T>> iterator;
+	using iterator = internal::GraphArrayIterator<ClusterArray<T>>;
 	//! The type for cluster array const iterators.
-	typedef internal::GraphArrayConstIterator<ClusterArray<T>> const_iterator;
+	using const_iterator = internal::GraphArrayConstIterator<ClusterArray<T>>;
 
 
 	//! Constructs an empty cluster array associated with no graph.
 	ClusterArray() : Array<T>(), ClusterArrayBase() { }
 
-	//! Constructs a cluster array associated with \a C.
+	//! Constructs a cluster array associated with \p C.
 	ClusterArray(const ClusterGraph &C) :
 		Array<T>(C.clusterArrayTableSize()),
 		ClusterArrayBase(&C) { }
 
-	//! Constructs a cluster array associated with \a C.
+	//! Constructs a cluster array associated with \p C.
 	/**
 	 * @param C is the associated cluster graph.
 	 * @param x is the default value for all array elements.
@@ -145,7 +139,7 @@ public:
 		Array<T>(0,C.clusterArrayTableSize()-1,x),
 		ClusterArrayBase(&C), m_x(x) { }
 
-	//! Constructs a cluster array associated with \a C and a given
+	//! Constructs a cluster array associated with \p C and a given
 	//! size (for static use).
 	/**
 	 * @param C is the associated cluster graph.
@@ -156,17 +150,17 @@ public:
 		Array<T>(0,size-1,x),
 		ClusterArrayBase(&C), m_x(x) { }
 
-	//! Constructs a cluster array that is a copy of \a A.
+	//! Constructs a cluster array that is a copy of \p A.
 	/**
-	 * Associates the array with the same cluster graph as \a A and copies all elements.
+	 * Associates the array with the same cluster graph as \p A and copies all elements.
 	 */
 	ClusterArray(const ClusterArray<T> &A) :
 		Array<T>(A),
 		ClusterArrayBase(A.m_pClusterGraph), m_x(A.m_x) { }
 
-	//! Constructs a cluster array containing the elements of \a A (move semantics).
+	//! Constructs a cluster array containing the elements of \p A (move semantics).
 	/**
-	 * Cluster array \a A is empty afterwards and not associated with any cluster graph.
+	 * Cluster array \p A is empty afterwards and not associated with any cluster graph.
 	 */
 	ClusterArray(ClusterArray<T> &&A) : Array<T>(std::move(A)), ClusterArrayBase(A), m_x(A.m_x) { }
 
@@ -185,42 +179,42 @@ public:
 		return m_pClusterGraph;
 	}
 
-	//! Returns a reference to the element with index \a c.
+	//! Returns a reference to the element with index \p c.
 	const T &operator[](cluster c) const {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
-	//! Returns a reference to the element with index \a c.
+	//! Returns a reference to the element with index \p c.
 	T &operator[](cluster c) {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
-	//! Returns a reference to the element with index \a c.
+	//! Returns a reference to the element with index \p c.
 	const T &operator()(cluster c) const {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
-	//! Returns a reference to the element with index \a c.
+	//! Returns a reference to the element with index \p c.
 	T &operator()(cluster c) {
 		OGDF_ASSERT(c != nullptr);
 		OGDF_ASSERT(c->graphOf() == m_pClusterGraph);
 		return Array<T>::operator [](c->index());
 	}
 
-	//! Returns a reference to the element with index \a index.
-	//! \attention Make sure that \a index is a valid index for a cluster in the associated cluster graph!
+	//! Returns a reference to the element with index \p index.
+	//! \attention Make sure that \p index is a valid index for a cluster in the associated cluster graph!
 	OGDF_DEPRECATED("Cluster arrays should be indexed by a cluster, not an integer index.")
 	const T &operator[](int index) const
 		{ return Array<T>::operator [](index); }
 
-	//! Returns a reference to the element with index \a index.
-	//!\attention Make sure that \a index is a valid index for a cluster in the associated cluster graph!
+	//! Returns a reference to the element with index \p index.
+	//!\attention Make sure that \p index is a valid index for a cluster in the associated cluster graph!
 	OGDF_DEPRECATED("Cluster arrays should be indexed by a cluster, not an integer index.")
 	T &operator[](int index)
 		{ return Array<T>::operator [](index); }
@@ -317,12 +311,12 @@ public:
 		Array<T>::init(); reregister(nullptr);
 	}
 
-	//! Reinitializes the array. Associates the array with \a C.
+	//! Reinitializes the array. Associates the array with \p C.
 	void init(const ClusterGraph &C) {
 		Array<T>::init( C.clusterArrayTableSize() ); reregister(&C);
 	}
 
-	//! Reinitializes the array. Associates the array with \a C.
+	//! Reinitializes the array. Associates the array with \p C.
 	/**
 	 * @param C is the associated cluster graph.
 	 * @param x is the default value.
@@ -331,7 +325,7 @@ public:
 		Array<T>::init(0,C.clusterArrayTableSize()-1, m_x = x); reregister(&C);
 	}
 
-	//! Sets all array elements to \a x.
+	//! Sets all array elements to \p x.
 	void fill(const T &x) {
 		int high = m_pClusterGraph->maxClusterIndex();
 		if(high >= 0)
@@ -348,7 +342,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Cluster array \a a is empty afterwards and not associated with any cluster graph.
+	 * Cluster array \p a is empty afterwards and not associated with any cluster graph.
 	 */
 	ClusterArray<T> &operator=(ClusterArray<T> &&a) {
 		Array<T>::operator=(std::move(a));

@@ -19,6 +19,10 @@
 
 #cmakedefine OGDF_DLL
 
+//! The size of a pointer
+//! @ingroup macros
+#define OGDF_SIZEOF_POINTER @CMAKE_SIZEOF_VOID_P@
+
 #define COIN_OSI_@COIN_SOLVER@
 
 #if @COIN_SOLVER_IS_EXTERNAL@

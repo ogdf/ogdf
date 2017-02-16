@@ -32,7 +32,7 @@
 #pragma once
 
 #include <ogdf/cluster/ClusterPlanRep.h>
-#include <ogdf/internal/cluster/CPlanarSubClusteredST.h>
+#include <ogdf/cluster/internal/CPlanarSubClusteredST.h>
 
 namespace ogdf {
 
@@ -42,9 +42,7 @@ namespace ogdf {
  */
 class OGDF_EXPORT CPlanarSubClusteredGraph
 {
-
 public:
-
 	CPlanarSubClusteredGraph() { }
 
 	virtual void call(const ClusterGraph& CG, EdgeArray<bool>& inSub);
@@ -54,7 +52,7 @@ public:
 		EdgeArray<bool>& inSub,
 		List<edge>& leftOver);
 
-	//! Uses \a edgeWeight to compute clustered planar subgraph
+	//! Uses \p edgeWeight to compute clustered planar subgraph
 	virtual void call(
 		const ClusterGraph& CGO,
 		EdgeArray<bool>& inSub,
@@ -62,14 +60,10 @@ public:
 		EdgeArray<double>& edgeWeight);
 
 private:
-
-	//****************************************************
-	//data fields
-
-	//store status of original edge: in subclustered graph?
-	//also used to check spanning tree
+	//! Store status of original edge: in subclustered graph?
+	//! Also used to check spanning tree
 	EdgeArray<int> m_edgeStatus;
 
-};//cplanarsubclusteredgraph
+};
 
 } // end namespace ogdf

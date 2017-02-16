@@ -33,8 +33,7 @@
  */
 
 #include <ogdf/planarity/EmbedderMinDepthPiTa.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/internal/planarity/ConnectedSubgraph.h>
+#include <ogdf/planarity/embedder/ConnectedSubgraph.h>
 
 namespace ogdf {
 
@@ -61,14 +60,14 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 		{
 			for(node bT : pBCTree->bcTree().nodes)
 			{
-				if (pBCTree->typeOfBNode(bT) != BCTree::BComp)
+				if (pBCTree->typeOfBNode(bT) != BCTree::BNodeType::BComp)
 					continue;
 
 				node cT = bT->firstAdj()->twinNode();
 				node cH = pBCTree->cutVertex(cT, bT);
 				Graph SG;
 				NodeArray<node> nSG_to_nG;
-				ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), SG, cH, nSG_to_nG);
+				embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), SG, cH, nSG_to_nG);
 				if (SG.numberOfEdges() == 1)
 				{
 					node dummyNodePG = G.newNode();
@@ -100,10 +99,7 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 		return;
 	}
 
-
-	//***************************************************************************/
 	//First step: embed all blocks
-	//***************************************************************************/
 	newOrder.init(G);
 	nodeLength.init(pBCTree->bcTree());
 	oneEdgeBlockNodes.clear();
@@ -126,9 +122,7 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 	eH_to_eBlockEmbedding.init(pBCTree->bcTree());
 	embedBlocks(rootBlockNode, nullptr);
 
-	//***************************************************************************/
 	//Second step: Constrained Minimization
-	//***************************************************************************/
 	node vT = rootBlockNode->firstAdj()->twinNode();
 	bcTreePG.clear();
 	nBCTree_to_npBCTree.init(bcTreePG);
@@ -165,10 +159,9 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 	return;
 #endif
 
-	//***************************************************************************/
 	//Fourth step: Find the knot of the block cutface tree of the embedding and,
 	//if needed, modify it into a minimum diameter embedding.
-	//***************************************************************************/
+
 	//a) Compute dual graph:
 	NodeArray< List<adjEntry> > adjacencyList(G);
 	for(node n : G.nodes)
@@ -278,9 +271,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 		delete pBCTree;
 		delete pm_blockCutfaceTree;
 		deleteDummyNodes(G, adjExternal);
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		return;//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		return;
 	}
 
 	node m_rootOfBlockCutfaceTree = nullptr;
@@ -305,9 +297,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 		delete pBCTree;
 		delete pm_blockCutfaceTree;
 		deleteDummyNodes(G, adjExternal);
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		return;//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+		return;
 	}
 
 	blockCutfaceTree.clear();
@@ -328,12 +319,14 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 	//current external face cannot be the optimum external face.
 	node rDG = fPG_to_nDG[extFaceID];
 	node rmBCFT = m_blockCutfaceTree.bcproper(rDG);
-	if (m_blockCutfaceTree.typeOfBNode(rmBCFT) != BCTree::CComp)
+	if (m_blockCutfaceTree.typeOfBNode(rmBCFT) != BCTree::BNodeType::CComp)
 	{
 		rmBCFT = m_rootOfBlockCutfaceTree->firstAdj()->twinNode();
 
 #if 0
-		adjExternal = *((*(faces.get(nDG_to_fPG[m_blockCutfaceTree.original(m_blockCutfaceTree.cutVertex(m_rootOfBlockCutfaceTree->firstAdj()->twinNode(), m_rootOfBlockCutfaceTree->firstAdj()->twinNode()))]))).begin());
+		auto twinNode = m_rootOfBlockCutfaceTree->firstAdj()->twinNode();
+		auto cutVertex = m_blockCutfaceTree.original(m_blockCutfaceTree.cutVertex(twinNode, twinNode));
+		adjExternal = *((*(faces.get(nDG_to_fPG[cutVertex]))).begin());
 		return;
 #endif
 	}
@@ -368,7 +361,7 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 		}
 
 		//c) if needed, modify the embedding into a minimum depth diameter embedding
-		if (m_blockCutfaceTree.typeOfBNode(m_knot) == BCTree::BComp
+		if (m_blockCutfaceTree.typeOfBNode(m_knot) == BCTree::BNodeType::BComp
 		 && rootOfBlockCutfaceTree != knotTdiam) {
 			//node bT = bDG_to_bPG[knot];
 			List<node> childrenOfKnot;
@@ -388,8 +381,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 
 				node child = nTdiam_to_nBlockCutfaceTree[e_knot_to_w->source()];
 				node childBCFTree = nBlockCutfaceTree_to_nm_blockCutfaceTree[child];
-				for(adjEntry adj : childBCFTree->adjEntries) {
-					edge e_childBCFTree_to_b = adj->theEdge();
+				for(adjEntry adjCBCFT : childBCFTree->adjEntries) {
+					edge e_childBCFTree_to_b = adjCBCFT->theEdge();
 					if (e_childBCFTree_to_b->target() != childBCFTree)
 						continue;
 
@@ -398,8 +391,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 					node connectingNode = nullptr;
 					while (!connectingNode) {
 						node parent_bBCTree = nullptr;
-						for(adjEntry adj : bBCTree->adjEntries) {
-							edge eParent = adj->theEdge();
+						for(adjEntry adjBBCT : bBCTree->adjEntries) {
+							edge eParent = adjBBCT->theEdge();
 							if (eParent->source() == bBCTree) {
 								parent_bBCTree = eParent->target();
 								break;
@@ -413,8 +406,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 						}
 						else
 						{
-							for(adjEntry adj : parent_bBCTree->adjEntries) {
-								edge eParent = adj->theEdge();
+							for(adjEntry adjPBBCT : parent_bBCTree->adjEntries) {
+								edge eParent = adjPBBCT->theEdge();
 								if (eParent->source() == parent_bBCTree) {
 									bBCTree = eParent->target();
 									break;
@@ -489,10 +482,8 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 		}
 	}
 
-	//***************************************************************************/
 	//Fifth step: Select face with minimum eccentricity in the block-cutface tree
 	//as external face.
-	//***************************************************************************/
 
 	eccentricity.init(blockCutfaceTree, 0);
 	eccentricity_alt.init(blockCutfaceTree, 0);
@@ -503,7 +494,7 @@ void EmbedderMinDepthPiTa::doCall(Graph& G, adjEntry& adjExternal)
 	for(node nBCFT : blockCutfaceTree.nodes)
 	{
 		node n_mBCFT = nBlockCutfaceTree_to_nm_blockCutfaceTree[nBCFT];
-		if (m_blockCutfaceTree.typeOfBNode(n_mBCFT) != BCTree::CComp)
+		if (m_blockCutfaceTree.typeOfBNode(n_mBCFT) != BCTree::BNodeType::CComp)
 			continue;
 
 		if (eccentricity[nBCFT] < ecc_opt
@@ -599,8 +590,8 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 			continue;
 
 		node cf = e_bDG_to_cDG->source();
-		for(adjEntry adj : cf->adjEntries) {
-			edge e_cf_to_bDG2 = adj->theEdge();
+		for(adjEntry adjCF : cf->adjEntries) {
+			edge e_cf_to_bDG2 = adjCF->theEdge();
 			if (e_cf_to_bDG2->target() != cf)
 				continue;
 
@@ -627,7 +618,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 				//node of one-edge-block
 				delete_node = true;
 			}
-			else if (pBCTree->typeOfGNode(n) != BCTree::CutVertex)
+			else if (pBCTree->typeOfGNode(n) != BCTree::GNodeType::CutVertex)
 			{
 				//node is a non-cutvertex node of another block
 				delete_node = true;
@@ -644,8 +635,8 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 				int numOfBlocksInList = 0;
 				node cH = pBCTree->bcproper(n);
 				node cT = pBCTree->cutVertex(cH, cH);
-				for(adjEntry adj : cT->adjEntries) {
-					edge e_cT_bT = adj->theEdge();
+				for(adjEntry adjCT : cT->adjEntries) {
+					edge e_cT_bT = adjCT->theEdge();
 					node bT = (e_cT_bT->source() == cT) ? e_cT_bT->target() : e_cT_bT->source();
 					if (childBlocks.search(bT).valid())
 						numOfBlocksInList++;
@@ -664,7 +655,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 	node parentH = pm_blockCutfaceTree->cutVertex(parentT, bDGT);
 	Graph SG;
 	NodeArray<node> nSG_to_nH;
-	ConnectedSubgraph<int>::call(pm_blockCutfaceTree->auxiliaryGraph(),
+	embedder::ConnectedSubgraph<int>::call(pm_blockCutfaceTree->auxiliaryGraph(),
 		SG, parentH, nSG_to_nH);
 
 	List<node> blockNodesDG;
@@ -689,7 +680,7 @@ node EmbedderMinDepthPiTa::computeBlockMapping(
 
 	for(node bT : pBCTree->bcTree().nodes)
 	{
-		if (pBCTree->typeOfBNode(bT) != BCTree::BComp)
+		if (pBCTree->typeOfBNode(bT) != BCTree::BNodeType::BComp)
 			continue;
 
 		bool isSearchedBlock = true;
@@ -813,8 +804,8 @@ void EmbedderMinDepthPiTa::embedBlocks(const node& bT, const node& cH)
 			continue;
 
 		node cT = e->source();
-		for(adjEntry adj : cT->adjEntries) {
-			edge e2 = adj->theEdge();
+		for(adjEntry adjCT : cT->adjEntries) {
+			edge e2 = adjCT->theEdge();
 			if (e2->source() == cT)
 				continue;
 			node cH2 = pBCTree->cutVertex(cT, e2->source());
@@ -826,21 +817,18 @@ void EmbedderMinDepthPiTa::embedBlocks(const node& bT, const node& cH)
 	node m_cH = cH;
 	if (m_cH == nullptr)
 		m_cH = pBCTree->cutVertex(bT->firstAdj()->twinNode(), bT);
-	ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockG[bT], m_cH,
+	embedder::ConnectedSubgraph<int>::call(pBCTree->auxiliaryGraph(), blockG[bT], m_cH,
 		nBlockEmbedding_to_nH[bT], eBlockEmbedding_to_eH[bT],
 		nH_to_nBlockEmbedding[bT], eH_to_eBlockEmbedding[bT]);
 	planarEmbed(blockG[bT]);
 	nodeLength[bT].init(blockG[bT], 0);
 
-	if(!useExtendedDepthDefinition())
-	{
-		if (blockG[bT].numberOfEdges() == 1)
-		{
-			for(node n : blockG[bT].nodes)
-			{
-				node nOrg = pBCTree->original(nBlockEmbedding_to_nH[bT][n]);
-				if (nOrg->degree() == 1)
-					oneEdgeBlockNodes.pushBack(nOrg);
+	if (!useExtendedDepthDefinition()
+	 && blockG[bT].numberOfEdges() == 1) {
+		for(node n : blockG[bT].nodes) {
+			node nOrg = pBCTree->original(nBlockEmbedding_to_nH[bT][n]);
+			if (nOrg->degree() == 1) {
+				oneEdgeBlockNodes.pushBack(nOrg);
 			}
 		}
 	}
@@ -983,20 +971,14 @@ void EmbedderMinDepthPiTa::embedCutVertex(const node& vT, bool root /*= false*/)
 			}
 		}
 
-		if (root)
-		{
+		if (root && tmpAdjExtFace == nullptr) {
 			//set adjacency entry of external face for G, if not already assigned:
-			if (tmpAdjExtFace == nullptr)
-			{
-				node nodeG = nG_nT_to_nPG[bTp][Gamma_adjExt_nT[bTp]->theNode()];
-				node twinG = nG_nT_to_nPG[bTp][Gamma_adjExt_nT[bTp]->twinNode()];
-				for(adjEntry ae : nodeG->adjEntries)
-				{
-					if (ae->twinNode() == twinG)
-					{
-						tmpAdjExtFace = ae->twin();
-						break;
-					}
+			node nodeG = nG_nT_to_nPG[bTp][Gamma_adjExt_nT[bTp]->theNode()];
+			node twinG = nG_nT_to_nPG[bTp][Gamma_adjExt_nT[bTp]->twinNode()];
+			for(adjEntry ae : nodeG->adjEntries) {
+				if (ae->twinNode() == twinG) {
+					tmpAdjExtFace = ae->twin();
+					break;
 				}
 			}
 		}
@@ -1045,9 +1027,9 @@ void EmbedderMinDepthPiTa::embedCutVertex(const node& vT, bool root /*= false*/)
 			//embed all edges of Gamma(B):
 			bool after_ae = true;
 			for (adjEntry aeNode = ae;
-					 after_ae || aeNode != ae;
-					 after_ae = (!after_ae || !aeNode->succ()) ? false : true,
-						 aeNode = aeNode->succ() ? aeNode->succ() : nB->firstAdj())
+			     after_ae || aeNode != ae;
+			     after_ae = after_ae && aeNode->succ(),
+			     aeNode = aeNode->succ() ? aeNode->succ() : nB->firstAdj())
 			{
 				edge eG = eG_nT_to_ePG[bTp][aeNode->theEdge()];
 				edge eG_vT = ePG_to_eG_nT[vTp][eG];
@@ -1145,7 +1127,7 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 			node nB = ae_f->theNode();
 			node nH = nBlockEmbedding_to_nH[bTp][nB];
 			node nG = pBCTree->original(nH);
-			if (pBCTree->typeOfGNode(nG) == BCTree::CutVertex)
+			if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex)
 			{
 				node nTp = pBCTree->bcproper(nG);
 				node nT = npBCTree_to_nBCTree[nTp];
@@ -1238,7 +1220,7 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 		adjEntry ae = n_blockG_bT->firstAdj();
 		ListIterator<adjEntry> after;
 
-		if (pBCTree->typeOfGNode(nG) == BCTree::CutVertex)
+		if (pBCTree->typeOfGNode(nG) == BCTree::GNodeType::CutVertex)
 		{
 			node cTp = pBCTree->bcproper(nG);
 			if (cTp != nBCTree_to_npBCTree[parent_cT])
@@ -1264,25 +1246,25 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 				{
 					node nG2 = nG_nT_to_nPG[cTp][n_G_cT];
 
-					adjEntry ae;
+					adjEntry adjE;
 					ListIterator<adjEntry>* pAfter;
 					if (nG2 == nG)
 					{
 						OGDF_ASSERT(ae_G_cT);
-						ae = ae_G_cT;
+						adjE = ae_G_cT;
 						pAfter = &after;
 					}
 					else
 					{
-						ae = n_G_cT->firstAdj();
+						adjE = n_G_cT->firstAdj();
 						pAfter = new ListIterator<adjEntry>();
 					}
 
 					bool after_ae = true;
-					for (adjEntry aeNode = ae;
-							 after_ae || aeNode != ae;
-							 after_ae = (!after_ae || !aeNode->succ()) ? false : true,
-								 aeNode = aeNode->succ() ? aeNode->succ() : n_G_cT->firstAdj())
+					for (adjEntry aeNode = adjE;
+					     after_ae || aeNode != adjE;
+					     after_ae = after_ae && aeNode->succ(),
+					     aeNode = aeNode->succ() ? aeNode->succ() : n_G_cT->firstAdj())
 					{
 						edge eG = eG_nT_to_ePG[cTp][aeNode->theEdge()];
 						edge e_G_bT = ePG_to_eG_nT[bTp][eG];
@@ -1328,7 +1310,7 @@ void EmbedderMinDepthPiTa::embedBlockVertex(const node& bT, const node& parent_c
 		bool after_ae = true;
 		for (adjEntry aeNode = ae;
 			after_ae || aeNode != ae;
-			after_ae = (!after_ae || !aeNode->succ()) ? false : true,
+			after_ae = after_ae && aeNode->succ(),
 			aeNode = aeNode->succ() ? aeNode->succ() : n_blockG_bT->firstAdj())
 		{
 			edge eG = pBCTree->original(eBlockEmbedding_to_eH[bTp][aeNode->theEdge()]);

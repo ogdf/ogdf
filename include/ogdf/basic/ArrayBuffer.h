@@ -60,18 +60,18 @@ public:
 	//! Creates an empty array buffer, without initial memory allocation.
 	ArrayBuffer() : Array<E,INDEX>(), num(0), growable(true) {}
 
-	//! Creates an empty array buffer, allocating memory for up to \a size elements; you may specify that the array should not grow automatically.
+	//! Creates an empty array buffer, allocating memory for up to \p size elements; you may specify that the array should not grow automatically.
 	explicit ArrayBuffer(INDEX size, bool autogrow = true) : Array<E,INDEX>(size), num(0), growable(autogrow) {}
 
 	//! Creates an array buffer, initialized by the given array; you may specify that the array should not grow.
 	explicit ArrayBuffer(const Array<E,INDEX>& source, bool autogrow = true) : Array<E,INDEX>(source), num(0), growable(autogrow) {}
 
-	//! Creates an array buffer that is a copy of \a buffer.
+	//! Creates an array buffer that is a copy of \p buffer.
 	ArrayBuffer(const ArrayBuffer<E,INDEX> &buffer) : Array<E,INDEX>(buffer), num(buffer.num), growable(buffer.growable) { }
 
-	//! Creates an array buffer containing the elements of \a buffer (move semantics).
+	//! Creates an array buffer containing the elements of \p buffer (move semantics).
 	/**
-	 * The array buffer \a buffer is empty (and growable) afterwards.
+	 * The array buffer \p buffer is empty (and growable) afterwards.
 	 */
 	ArrayBuffer(ArrayBuffer<E,INDEX> &&buffer) : Array<E,INDEX>(std::move(buffer)), num(buffer.num), growable(buffer.growable) {
 		buffer.num = 0;
@@ -80,7 +80,7 @@ public:
 
 	//! Reinitializes the array, clearing it, and without initial memory allocation.
 	void init() { Array<E,INDEX>::init(); }
-	//! Reinitializes the array, clearing it, and allocating memory for up to \a size elements.
+	//! Reinitializes the array, clearing it, and allocating memory for up to \p size elements.
 	void init(INDEX size) { Array<E,INDEX>::init(size); }
 
 	//! Clears the buffer
@@ -97,7 +97,7 @@ public:
 			if (growable)
 				Array<E,INDEX>::grow(max(num,1)); // double the size
 			else
-				OGDF_THROW_PARAM(PreconditionViolatedException, pvcFull);
+				OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Full);
 		}
 		Array<E,INDEX>::operator[](num++) = e;
 	}
@@ -149,13 +149,13 @@ public:
 	//! Returns a pointer to one before the first element.
 	const E *rend() const { return Array<E, INDEX>::rend(); }
 
-	//! Returns a reference to the element at position \a i.
+	//! Returns a reference to the element at position \p i.
 	const E &operator[](INDEX i) const {
 		OGDF_ASSERT(0 <= i);
 		OGDF_ASSERT(i < num);
 		return Array<E,INDEX>::operator[](i);
 	}
-	//! Returns a reference to the element at position \a i.
+	//! Returns a reference to the element at position \p i.
 	E &operator[](INDEX i) {
 		OGDF_ASSERT(0 <= i);
 		OGDF_ASSERT(i < num);
@@ -172,7 +172,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * The array buffer \a buffer is empty (and growable) afterwards.
+	 * The array buffer \p buffer is empty (and growable) afterwards.
 	 */
 	ArrayBuffer<E,INDEX> &operator=(ArrayBuffer<E,INDEX> &&buffer) {
 		Array<E,INDEX>::operator=(std::move(buffer));
@@ -187,8 +187,8 @@ public:
 	//! Generates a compact copy holding the current elements.
 	/**
 	 * Creates a copy of the ArrayBuffer and stores it into
-	 * the given Array \a A.
-	 * \a A has exactly the neccessary size to hold all
+	 * the given Array \p A2.
+	 * \p A2 has exactly the neccessary size to hold all
 	 * elements in the buffer.
 	 *
 	 * This method uses an elementwise operator=.
@@ -209,8 +209,8 @@ public:
 	//! Generates a compact copy holding the current elements.
 	/**
 	 * Creates a copy of the ArrayBuffer and stores it into
-	 * the given Array \a A.
-	 * \a A has exactly the neccessary size to hold all
+	 * the given Array \p A2.
+	 * \p A2 has exactly the neccessary size to hold all
 	 * elements in the buffer
 	 *
 	 * This method uses the Array's copy constructur. If you
@@ -232,8 +232,8 @@ public:
 	//! Generates a compact copy holding the current elements.
 	/**
 	 * Creates a copy of the ArrayBuffer and stores it into
-	 * the given Array \a A.
-	 * \a A has exactly the neccessary size to hold all
+	 * the given Array \p A2.
+	 * \p A2 has exactly the neccessary size to hold all
 	 * elements in the buffer.
 	 *
 	 * This method uses memcpy. If you need a traditional
@@ -250,7 +250,7 @@ public:
 			A2.init(0);
 	}
 
-	//! Performs a linear search for element \a x.
+	//! Performs a linear search for element \p x.
 	/**
 	 * Warning: linear running time!
 	 * Note that the linear search runs from back to front.
@@ -263,7 +263,7 @@ public:
 		return i;
 	}
 
-	//! Performs a linear search for element \a x with comparer \a comp.
+	//! Performs a linear search for element \p x with comparer \p comp.
 	/**
 	 * Warning: linear running time!
 	 * Note that the linear search runs from back to front.
@@ -285,9 +285,9 @@ public:
 		Array<E,INDEX>::quicksort(0,num-1,StdComparer<E>());
 	}
 
-	//! Sorts buffer using Quicksort and a user-defined comparer \a comp.
+	//! Sorts buffer using Quicksort and a user-defined comparer \p comp.
 	/**
-	 * @param comp is a user-defined comparer; \a C must be a class providing a \a less(x,y) method.
+	 * @param comp is a user-defined comparer; it must provide a \c less(x,y) method.
 	 */
 	template<class COMPARER>
 	inline void quicksort(const COMPARER &comp) {
@@ -297,7 +297,7 @@ public:
 		Array<E,INDEX>::quicksort(0,num-1,comp);
 	}
 
-	//! Performs a binary search for element \a x.
+	//! Performs a binary search for element \p e.
 	/**
 	 * \pre The buffer must be sorted!
 	 * \return the index of the found element, and low()-1 if not found.
@@ -306,9 +306,9 @@ public:
 		return Array<E,INDEX>::binarySearch(0, num-1, e, StdComparer<E>());
 	}
 
-	//! Performs a binary search for element \a x with comparer \a comp.
+	//! Performs a binary search for element \p e with comparer \p comp.
 	/**
-	 * \pre The buffer must be sorted according to \a comp!
+	 * \pre The buffer must be sorted according to \p comp!
 	 * \return the index of the found element, and low()-1 if not found.
 	 */
 	template<class COMPARER>
@@ -321,16 +321,16 @@ public:
 		Array<E,INDEX>::permute(0, num-1);
 	}
 
-	//! Removes the components listed in the buffer \a ind by shifting the remaining components to the left.
+	//! Removes the components listed in the buffer \p ind by shifting the remaining components to the left.
 	/**
-	 * The values stored in \a ind have to be upward sorted.
+	 * The values stored in \p ind have to be upward sorted.
 	 * Memory management of the removed components must be
 	 * carefully implemented by the user of this function to avoid
 	 * memory leaks.
 	 *
 	 * If this function is compiled with <tt>OGDF_DEBUG</tt>
-	 * then it is checked if each value of \a ind is in the
-	 * range 0,..., \a number()-1.
+	 * then it is checked if each value of \p ind is in the
+	 * range \a 0,..., #size() -1.
 	 *
 	 * \param ind The numbers of the components being removed.
 	 */
@@ -338,7 +338,6 @@ public:
 		const INDEX nInd = ind.size();
 		if (nInd == 0) return;
 
-		//! shift all items up to the last element of \a ind to the left
 		OGDF_ASSERT(ind[0] >= 0);
 		OGDF_ASSERT(ind[0] < num);
 
@@ -372,12 +371,7 @@ public:
 };
 
 
-/**
- * Prints ArrayBuffer \a a to output stream \a os using delimiter \a delim.
- * @param os output stream
- * @param a ArrayBuffer
- * @param delim delimiter
- */
+//! Prints ArrayBuffer \p a to output stream \p os using delimiter \p delim.
 template<class E, class INDEX>
 void print(ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
 {
@@ -388,7 +382,7 @@ void print(ostream &os, const ArrayBuffer<E,INDEX> &a, char delim = ' ')
 }
 
 
-//! Prints ArrayBuffer \a a to output stream \a os
+//! Prints ArrayBuffer \p a to output stream \p os.
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const ogdf::ArrayBuffer<E,INDEX> &a)
 {

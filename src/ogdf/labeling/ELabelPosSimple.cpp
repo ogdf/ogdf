@@ -95,7 +95,7 @@ void ELabelPosSimple::call(GraphAttributes &ug, ELabelInterface<double> &eli)
 		bends.normalize();
 
 		if (bends.size() < 2)
-			OGDF_THROW_PARAM(AlgorithmFailureException, afcLabel);
+			OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::Label);
 
 		double frac;
 
@@ -129,34 +129,34 @@ void ELabelPosSimple::call(GraphAttributes &ug, ELabelInterface<double> &eli)
 		DLine endLine   = segment(bends, endFrac);
 
 		// berechne die Labelpositionen
-		if (el.usedLabel(elEnd1)) {
+		if (el.usedLabel(LabelType::End1)) {
 			DPoint np = leftOfSegment(startLine, startPoint, m_edgeDistance, true);
-			el.setX(elEnd1, np.m_x);
-			el.setY(elEnd1, np.m_y);
+			el.setX(LabelType::End1, np.m_x);
+			el.setY(LabelType::End1, np.m_y);
 		}
 
-		if (el.usedLabel(elMult1)) {
+		if (el.usedLabel(LabelType::Mult1)) {
 			DPoint np = leftOfSegment(startLine, startPoint, m_edgeDistance, false);
-			el.setX(elMult1, np.m_x);
-			el.setY(elMult1, np.m_y);
+			el.setX(LabelType::Mult1, np.m_x);
+			el.setY(LabelType::Mult1, np.m_y);
 		}
 
-		if (el.usedLabel(elName)) {
+		if (el.usedLabel(LabelType::Name)) {
 			DPoint np = m_midOnEdge ? midPoint : leftOfSegment(midLine, midPoint, m_edgeDistance, true);
-			el.setX(elName, np.m_x);
-			el.setY(elName, np.m_y);
+			el.setX(LabelType::Name, np.m_x);
+			el.setY(LabelType::Name, np.m_y);
 		}
 
-		if (el.usedLabel(elEnd2)) {
+		if (el.usedLabel(LabelType::End2)) {
 			DPoint np = leftOfSegment(endLine, endPoint, m_edgeDistance, true);
-			el.setX(elEnd2, np.m_x);
-			el.setY(elEnd2, np.m_y);
+			el.setX(LabelType::End2, np.m_x);
+			el.setY(LabelType::End2, np.m_y);
 		}
 
-		if (el.usedLabel(elMult2)) {
+		if (el.usedLabel(LabelType::Mult2)) {
 			DPoint np = leftOfSegment(endLine, endPoint, m_edgeDistance, false);
-			el.setX(elMult2, np.m_x);
-			el.setY(elMult2, np.m_y);
+			el.setX(LabelType::Mult2, np.m_x);
+			el.setY(LabelType::Mult2, np.m_y);
 		}
 	}
 }

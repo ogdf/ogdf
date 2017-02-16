@@ -57,8 +57,8 @@ public:
 	{
 	}
 
-	//! Initializes an array associated with \a pH.
-	HypergraphArrayBase(const Hypergraph *pH)
+	//! Initializes an array associated with \p pH.
+	explicit HypergraphArrayBase(const Hypergraph *pH)
 	{
 	m_hypergraph = pH;
 	}
@@ -70,7 +70,7 @@ public:
 
 	//! Returns a pointer to the associated hypergraph.
 	const Hypergraph *hypergraphOf() const {
-	  return m_hypergraph;
+		return m_hypergraph;
 	}
 
 	//! Table re-initialization.
@@ -99,7 +99,7 @@ public:
 	//! Constructs an empty hypernode array associated with no hypergraph.
 HypernodeArray() : Array<T>(), HypergraphArrayBase() { }
 
-	//! Constructs a hypernode array associated with \a H.
+	//! Constructs a hypernode array associated with \p H.
 	HypernodeArray(const Hypergraph &H, const T &x)
 		: Array<T>(0,H.hypernodeArrayTableSize() - 1, x),
 		  HypergraphArrayBase(&H), m_x(x)
@@ -113,19 +113,19 @@ HypernodeArray() : Array<T>(), HypergraphArrayBase() { }
 			m_hypergraph->unregisterHypernodeArray(m_it);
 	}
 
-	//! Returns a reference to the element with index \a v.
+	//! Returns a reference to the element with index \p v.
 	T &operator[](hypernode v)
 	{
 		return Array<T>::operator [](v->index());
 	}
 
-	//! Returns a reference to the element with index \a index.
+	//! Returns a reference to the element with index \p index.
 	const T &operator[](int index) const
 	{
 		return Array<T>::operator [](index);
 	}
 
-	//! Returns a reference to the element with index \a index.
+	//! Returns a reference to the element with index \p index.
 	T &operator[](int index)
 	{
 		return Array<T>::operator [](index);
@@ -140,13 +140,13 @@ HypernodeArray() : Array<T>(), HypergraphArrayBase() { }
 		return *this;
 	}
 
-	//! Reinitializes the array. Associates the array with \a H.
+	//! Reinitializes the array. Associates the array with \p H.
 	void init(const Hypergraph &H)
 	{
 		Array<T>::init(H.hypernodeArrayTableSize()); reregister(&H);
 	}
 
-	//! Reinitializes the array. Associates the array with \a H.
+	//! Reinitializes the array. Associates the array with \p H.
 	void init(const Hypergraph &H, const T &x)
 	{
 		Array<T>::init(0, H.hypernodeArrayTableSize() - 1, m_x = 0);
@@ -199,7 +199,7 @@ public:
 	{
 	}
 
-	//! Constructs a hypernode array associated with \a G.
+	//! Constructs a hypernode array associated with \p H.
 	HyperedgeArray(const Hypergraph &H, const T &x)
 		: Array<T>(0, H.hyperedgeArrayTableSize() - 1, x),
 		  HypergraphArrayBase(&H), m_x(x)
@@ -220,19 +220,19 @@ public:
 		return Array<T>::low() <= Array<T>::high();
 	}
 
-	//! Returns a reference to the element with index \a v.
+	//! Returns a reference to the element with the index of \p e.
 	T &operator[](hyperedge e)
 	{
 		return Array<T>::operator [](e->index());
 	}
 
-	//! Returns a reference to the element with index \a index.
+	//! Returns a reference to the element with index \p index.
 	const T &operator[](int index) const
 	{
 		return Array<T>::operator [](index);
 	}
 
-	//! Returns a reference to the element with index \a index.
+	//! Returns a reference to the element with index \p index.
 	T &operator[](int index)
 	{
 		return Array<T>::operator [](index);
@@ -247,13 +247,13 @@ public:
 		return *this;
 	}
 
-	//! Reinitializes the array. Associates the array with \a H.
+	//! Reinitializes the array. Associates the array with \p H.
 	void init(const Hypergraph &H)
 	{
 		Array<T>::init(H.hyperedgeArrayTableSize()); reregister(&H);
 	}
 
-	//! Reinitializes the array. Associates the array with \a H.
+	//! Reinitializes the array. Associates the array with \p H.
 	void init(const Hypergraph &H, const T &x)
 	{
 		Array<T>::init(0, H.hyperedgeArrayTableSize() - 1, m_x = 0);

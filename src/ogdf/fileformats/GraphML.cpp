@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <ogdf/fileformats/Utils.h>
 #include <ogdf/fileformats/GraphML.h>
 
 
@@ -45,37 +46,37 @@ std::string toString(const Attribute &attr)
 	case a_unknown: return "unknown";
 #endif
 
-	case a_nodeLabel: return "label";
-	case a_edgeLabel: return "edgelabel";
+	case Attribute::NodeLabel: return "label";
+	case Attribute::EdgeLabel: return "edgelabel";
 
-	case a_x: return "x";
-	case a_y: return "y";
-	case a_z: return "z";
-	case a_width: return "width";
-	case a_height:	return "height";
-	case a_size: return "size";
+	case Attribute::X: return "x";
+	case Attribute::Y: return "y";
+	case Attribute::Z: return "z";
+	case Attribute::Width: return "width";
+	case Attribute::Height:	return "height";
+	case Attribute::Size: return "size";
 
-	case a_shape: return "shape";
+	case Attribute::Shape: return "shape";
 
-	case a_nodeStroke: return "nodestroke";
-	case a_edgeStroke: return "edgestroke";
-	case a_clusterStroke: return "clusterstroke";
-	case a_nodeFill: return "nodefill";
-	case a_r: return "r";
-	case a_g: return "g";
-	case a_b: return "b";
+	case Attribute::NodeStroke: return "nodestroke";
+	case Attribute::EdgeStroke: return "edgestroke";
+	case Attribute::ClusterStroke: return "clusterstroke";
+	case Attribute::NodeFill: return "nodefill";
+	case Attribute::R: return "r";
+	case Attribute::G: return "g";
+	case Attribute::B: return "b";
 
-	case a_nodeWeight: return "nodeweight";
-	case a_edgeWeight: return "weight";
+	case Attribute::NodeWeight: return "nodeweight";
+	case Attribute::EdgeWeight: return "weight";
 
-	case a_nodeType: return "nodetype";
-	case a_edgeType: return "edgetype";
+	case Attribute::NodeType: return "nodetype";
+	case Attribute::EdgeType: return "edgetype";
 
-	case a_template: return "template";
+	case Attribute::Template: return "template";
 
-	case a_edgeArrow: return "arrow";
-	case a_edgeSubGraph: return "avaliable-for";
-	case a_edgeBends: return "bends";
+	case Attribute::EdgeArrow: return "arrow";
+	case Attribute::EdgeSubGraph: return "avaliable-for";
+	case Attribute::EdgeBends: return "bends";
 
 	// default case (to avoid compiler warnings)
 	default: return "unknown";
@@ -86,48 +87,50 @@ std::string toString(const Attribute &attr)
 std::string toString(const Shape &shape)
 {
 	switch(shape) {
-	case shRect: return "rect";
-	case shRoundedRect: return "rounded-rect";
-	case shEllipse: return "ellipse";
-	case shTriangle: return "triangle";
-	case shPentagon: return "pentagon";
-	case shHexagon: return "hexagon";
-	case shOctagon: return "octagon";
-	case shRhomb: return "rhomb";
-	case shTrapeze: return "trapeze";
-	case shParallelogram: return "parallelogram";
-	case shInvTriangle: return "inv-triangle";
-	case shInvTrapeze: return "inv-trapeze";
-	case shInvParallelogram: return "inv-parallelogram";
-	case shImage: return "image";
-	default: return "rect";
+		case Shape::Rect:             return "rect";
+		case Shape::RoundedRect:      return "rounded-rect";
+		case Shape::Ellipse:          return "ellipse";
+		case Shape::Triangle:         return "triangle";
+		case Shape::Pentagon:         return "pentagon";
+		case Shape::Hexagon:          return "hexagon";
+		case Shape::Octagon:          return "octagon";
+		case Shape::Rhomb:            return "rhomb";
+		case Shape::Trapeze:          return "trapeze";
+		case Shape::Parallelogram:    return "parallelogram";
+		case Shape::InvTriangle:      return "inv-triangle";
+		case Shape::InvTrapeze:       return "inv-trapeze";
+		case Shape::InvParallelogram: return "inv-parallelogram";
+		case Shape::Image:            return "image";
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
 std::string toString(const EdgeArrow &arrow)
 {
 	switch(arrow) {
-	case eaNone: return "none";
-	case eaLast: return "last";
-	case eaFirst: return "first";
-	case eaBoth: return "both";
-	case eaUndefined: return "undefined";
-	default: return "undefined";
+		case EdgeArrow::None:      return "none";
+		case EdgeArrow::Last:      return "last";
+		case EdgeArrow::First:     return "first";
+		case EdgeArrow::Both:      return "both";
+		case EdgeArrow::Undefined: return "undefined";
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
 std::string toString(const Graph::NodeType &type)
 {
 	switch(type) {
-	case Graph::vertex: return "vertex";
-	case Graph::dummy: return "dummy";
-	case Graph::generalizationMerger: return "generalization-merger";
-	case Graph::generalizationExpander: return "generalization-expander";
-	case Graph::highDegreeExpander: return "high-degree-expander";
-	case Graph::lowDegreeExpander: return "low-degree-expander";
-	case Graph::associationClass: return "association-class";
+	case Graph::NodeType::vertex: return "vertex";
+	case Graph::NodeType::dummy: return "dummy";
+	case Graph::NodeType::generalizationMerger: return "generalization-merger";
+	case Graph::NodeType::generalizationExpander: return "generalization-expander";
+	case Graph::NodeType::highDegreeExpander: return "high-degree-expander";
+	case Graph::NodeType::lowDegreeExpander: return "low-degree-expander";
+	case Graph::NodeType::associationClass: return "association-class";
 	default: return "vertex";
 	}
 }
@@ -136,82 +139,61 @@ std::string toString(const Graph::NodeType &type)
 std::string toString(const Graph::EdgeType &type)
 {
 	switch(type) {
-	case Graph::association: return "association";
-	case Graph::generalization: return "generalization";
-	case Graph::dependency: return "dependency";
-	default: return "association";
+		case Graph::EdgeType::association:    return "association";
+		case Graph::EdgeType::generalization: return "generalization";
+		case Graph::EdgeType::dependency:     return "dependency";
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
-
-
-template <typename E>
-static inline E toEnum(
-	const std::string &str, // A string we want to convert.
-	Hashing<std::string, E> *&map, // A map to be lazily evaluated.
-	const E first, const E last, const E def) // Enum informations.
-{
-	if(!map) {
-		map = new Hashing<std::string, E>();
-
-		// Iterating over enums is potentially unsafe... (fixable in C++11).
-		for(int it = first; it <= last; it++) {
-			const E e = static_cast<E>(it);
-			map->insert(toString(e), e);
-		}
-	}
-
-	HashElement<std::string, E> *elem = map->lookup(str);
-	return elem ? elem->info() : def;
-}
-
 
 // Map is lazily-evaluated (this could be avoided with C++11 constexpr).
-static Hashing<std::string, Attribute> *attrMap = nullptr;
+static std::map<std::string, Attribute> attrMap;
 
 Attribute toAttribute(const std::string &str)
 {
 	return toEnum(
-		str, attrMap,
-		static_cast<Attribute>(0), a_unknown, a_unknown);
+		str, attrMap, toString,
+		static_cast<Attribute>(0), Attribute::Unknown, Attribute::Unknown);
 }
 
 
 // Same as attrMap but with shapes.
-static Hashing<std::string, Shape> *shapeMap = nullptr;
+static std::map<std::string, Shape> shapeMap;
 
 Shape toShape(const std::string &str)
 {
-	return toEnum(str, shapeMap, shRect, shImage, shRect);
+	return toEnum(str, shapeMap, toString, Shape::Rect, Shape::Image, Shape::Rect);
 }
 
 
 // Same as attrMap but with arrows.
-static Hashing<std::string, EdgeArrow> *arrowMap = nullptr;
+static std::map<std::string, EdgeArrow> arrowMap;
 
 EdgeArrow toArrow(const std::string &str)
 {
-	return toEnum(str, arrowMap, eaNone, eaUndefined, eaUndefined);
+	return toEnum(str, arrowMap, toString, EdgeArrow::None, EdgeArrow::Undefined, EdgeArrow::Undefined);
 }
 
 
 // Same as attrMap but with node types.
-static Hashing<std::string, Graph::NodeType> *nodeTypeMap = nullptr;
+static std::map<std::string, Graph::NodeType> nodeTypeMap;
 
 Graph::NodeType toNodeType(const std::string &str)
 {
 	return toEnum(
-		str, nodeTypeMap,
-		static_cast<Graph::NodeType>(0), Graph::vertex, Graph::vertex);
+		str, nodeTypeMap, toString,
+		static_cast<Graph::NodeType>(0), Graph::NodeType::vertex, Graph::NodeType::vertex);
 }
 
 // Same as attrMap but with edge types.
-static Hashing<std::string, Graph::EdgeType> *edgeTypeMap = nullptr;
+static std::map<std::string, Graph::EdgeType> edgeTypeMap;
 
 Graph::EdgeType toEdgeType(const std::string &str)
 {
 	return toEnum(
-		str, edgeTypeMap,
-		static_cast<Graph::EdgeType>(0), Graph::dependency, Graph::association);
+		str, edgeTypeMap, toString,
+		static_cast<Graph::EdgeType>(0), Graph::EdgeType::dependency, Graph::EdgeType::association);
 }
 
 

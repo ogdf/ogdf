@@ -297,7 +297,7 @@ inline Constraint::Constraint (
 {
 	if (local && sub == nullptr) {
 		Logger::ifout() << "Constraint::Constraint(): subtree of local item must not be 0\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Constraint);
 	}
 }
 

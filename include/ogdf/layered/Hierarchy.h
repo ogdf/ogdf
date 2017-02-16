@@ -52,7 +52,7 @@ class OGDF_EXPORT Hierarchy {
 public:
 	//! Creates an empty hierarchy.
 	Hierarchy() { }
-	//! Creates an hierarchy of graph \a G with node ranks \a rank.
+	//! Creates an hierarchy of graph \p G with node ranks \p rank.
 	Hierarchy(const Graph &G, const NodeArray<int> &rank);
 
 	// destruction
@@ -66,7 +66,7 @@ public:
 	//! Conversion to const GraphCopy reference.
 	operator const GraphCopy &() const { return m_GC; }
 
-	//! Returns the rank (level) of node \a v.
+	//! Returns the rank (level) of node \p v.
 	int rank(node v) const { return m_rank[v]; }
 
 	int maxRank() const { return m_size.high(); }

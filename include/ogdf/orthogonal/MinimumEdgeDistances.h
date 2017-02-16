@@ -1,7 +1,7 @@
 /** \file
  * \brief Declaration of class MinimumEdgeDistances which maintains
  *        minimum distances between attached edges at a vertex
- *       (delta's and epsilon's)
+ *       (deltas and epsilons)
  *
  * \author Carsten Gutwenger
  *
@@ -39,11 +39,7 @@
 namespace ogdf {
 
 
-//---------------------------------------------------------
-// MinimumEdgeDistances
-// maintains input sizes for improvement compaction (delta's
-// and epsilon's)
-//---------------------------------------------------------
+//! Maintains input sizes for improvement compaction (deltas and epsilons)
 template <class ATYPE>
 class MinimumEdgeDistances {
 public:
@@ -59,7 +55,7 @@ public:
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
 		OGDF_ASSERT(i <= 1);
-		return m_delta[v].info[s][i];
+		return m_delta[v].info[static_cast<int>(s)][i];
 	}
 
 	ATYPE &delta(node v, OrthoDir s, int i) {
@@ -67,7 +63,7 @@ public:
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
 		OGDF_ASSERT(i <= 1);
-		return m_delta[v].info[s][i];
+		return m_delta[v].info[static_cast<int>(s)][i];
 	}
 
 	// returns epsilon_s(v)^i (with i = 0 => l, i = 1 => r)
@@ -76,7 +72,7 @@ public:
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
 		OGDF_ASSERT(i <= 1);
-		return m_epsilon[v].info[s][i];
+		return m_epsilon[v].info[static_cast<int>(s)][i];
 	}
 
 	ATYPE &epsilon(node v, OrthoDir s, int i) {
@@ -84,7 +80,7 @@ public:
 		OGDF_ASSERT(int(s) <= 3);
 		OGDF_ASSERT(0 <= i);
 		OGDF_ASSERT(i <= 1);
-		return m_epsilon[v].info[s][i];
+		return m_epsilon[v].info[static_cast<int>(s)][i];
 	}
 
 	ATYPE separation() const {

@@ -149,16 +149,16 @@ void CutBuffer<BaseType, CoType>::sort(int threshold)
 				keepInPool_[i] = keepInPoolSorted[i];
 			}
 
-			Logger::ilout(Logger::LL_MINOR) << "\titems ranked: accepted in " << -things[0].priority() << " ... "
+			Logger::ilout(Logger::Level::Minor) << "\titems ranked: accepted in " << -things[0].priority() << " ... "
 			 << -things[threshold - 1].priority() << ", rejected in "
 			 << -things[threshold].priority() << " ... " << -things[n_ - 1].priority() << endl;
 
 		}
 		else
-			Logger::ilout(Logger::LL_MINOR) << "\tnot enough items, no ranking required" << endl;
+			Logger::ilout(Logger::Level::Minor) << "\tnot enough items, no ranking required" << endl;
 	}
 	else
-		Logger::ilout(Logger::LL_MINOR) << "\tranking of buffered items not possible" << endl;
+		Logger::ilout(Logger::Level::Minor) << "\tranking of buffered items not possible" << endl;
 }
 
 

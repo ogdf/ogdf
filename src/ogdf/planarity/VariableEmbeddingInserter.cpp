@@ -29,54 +29,53 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
-#include <ogdf/internal/planarity/VarEdgeInserterCore.h>
-
+#include <ogdf/planarity/embedding_inserter/VarEdgeInserterCore.h>
 
 namespace ogdf {
-	// clone method
-	EdgeInsertionModule *VariableEmbeddingInserter::clone() const
-	{
-		return new VariableEmbeddingInserter(*this);
-	}
 
-	VariableEmbeddingInserter &VariableEmbeddingInserter::operator=(const VariableEmbeddingInserter &inserter)
-	{
-		VariableEmbeddingInserterBase::operator=(inserter);
-		return *this;
-	}
+// clone method
+EdgeInsertionModule *VariableEmbeddingInserter::clone() const
+{
+	return new VariableEmbeddingInserter(*this);
+}
 
-	// actual call method
-	Module::ReturnType VariableEmbeddingInserter::doCall(
-		PlanRepLight &pr,
-		const Array<edge> &origEdges,
-		const EdgeArray<int> *pCostOrig,
-		const EdgeArray<bool> *pForbiddenOrig,
-		const EdgeArray<uint32_t> *pEdgeSubgraph)
-	{
-		VarEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraph);
-		core.timeLimit(timeLimit());
+VariableEmbeddingInserter &VariableEmbeddingInserter::operator=(const VariableEmbeddingInserter &inserter)
+{
+	VariableEmbeddingInserterBase::operator=(inserter);
+	return *this;
+}
 
-		ReturnType retVal = core.call(origEdges, removeReinsert(), percentMostCrossed());
-		runsPostprocessing(core.runsPostprocessing());
-		return retVal;
-	}
+// actual call method
+Module::ReturnType VariableEmbeddingInserter::doCall(
+	PlanRepLight &pr,
+	const Array<edge> &origEdges,
+	const EdgeArray<int> *pCostOrig,
+	const EdgeArray<bool> *pForbiddenOrig,
+	const EdgeArray<uint32_t> *pEdgeSubgraph)
+{
+	VarEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraph);
+	core.timeLimit(timeLimit());
 
-	// actual call method for postprocessing only
-	Module::ReturnType VariableEmbeddingInserter::doCallPostprocessing(
-			PlanRepLight              &pr,
-			const Array<edge>         &origEdges,
-			const EdgeArray<int>      *pCostOrig,
-			const EdgeArray<bool>     *pForbiddenOrig,
-			const EdgeArray<uint32_t> *pEdgeSubgraphs)
-	{
-		VarEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
-		core.timeLimit(timeLimit());
+	ReturnType retVal = core.call(origEdges, removeReinsert(), percentMostCrossed());
+	runsPostprocessing(core.runsPostprocessing());
+	return retVal;
+}
 
-		ReturnType retVal = core.callPostprocessing(origEdges, removeReinsert(), percentMostCrossed());
-		runsPostprocessing(core.runsPostprocessing());
-		return retVal;
-	}
+// actual call method for postprocessing only
+Module::ReturnType VariableEmbeddingInserter::doCallPostprocessing(
+		PlanRepLight              &pr,
+		const Array<edge>         &origEdges,
+		const EdgeArray<int>      *pCostOrig,
+		const EdgeArray<bool>     *pForbiddenOrig,
+		const EdgeArray<uint32_t> *pEdgeSubgraphs)
+{
+	VarEdgeInserterCore core(pr, pCostOrig, pForbiddenOrig, pEdgeSubgraphs);
+	core.timeLimit(timeLimit());
+
+	ReturnType retVal = core.callPostprocessing(origEdges, removeReinsert(), percentMostCrossed());
+	runsPostprocessing(core.runsPostprocessing());
+	return retVal;
+}
 
 }

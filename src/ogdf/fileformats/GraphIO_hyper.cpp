@@ -137,15 +137,15 @@ bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, ist
 			do {
 				p = newStartPos(buffer, p+1, line);
 				string::size_type pp = extractIdentifierLength(buffer, p, line);
-				string s(buffer, p, pp);
+				string str(buffer, p, pp);
 				p += pp;
-				node mm = hm[s];
+				node mm = hm[str];
 				if(!mm) {
 					// new
 					node in = G.newNode();
 					node out = G.newNode();
-					hm[s + "%$@"] = in;
-					hm[s] = out;
+					hm[str + "%$@"] = in;
+					hm[str] = out;
 					hypernodes.pushBack(out);
 					G.newEdge(in,out);
 					mm = out;

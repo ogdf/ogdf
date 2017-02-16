@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/energybased/SpringEmbedderKK.h>
-#include <ogdf/basic/SList.h>
 
 #ifdef OGDF_DEBUG
 #include <ogdf/basic/simple_graph_alg.h>
@@ -48,9 +47,9 @@ void SpringEmbedderKK::initialize(
 	const EdgeArray<double>& eLength,
 	NodeArray< NodeArray<double> >& oLength,
 	NodeArray< NodeArray<double> >& sstrength,
-	double & maxDist,
 	bool simpleBFS)
 {
+	double maxDist;
 	const Graph &G = GA.constGraph();
 	m_prevEnergy =  startVal;
 	m_prevLEnergy =  startVal;
@@ -64,9 +63,7 @@ void SpringEmbedderKK::initialize(
 	for(node v : G.nodes)
 		oLength[v].init(G, numeric_limits<double>::max());
 
-	//-------------------------------------
 	//computes shortest path distances d_ij
-	//-------------------------------------
 	if (simpleBFS)
 	{
 		//we use simply BFS n times
@@ -94,9 +91,7 @@ void SpringEmbedderKK::initialize(
 		//TODO experimentally compare speed, also with bintree dijkstra
 		maxDist = allpairssp(G, adaptedLength, oLength, numeric_limits<double>::max());
 	}
-	//------------------------------------
 	//computes original spring length l_ij
-	//------------------------------------
 
 	//first we determine desirable edge length L
 	//nodes sizes may be non-uniform, we approximate the display size (grid)
@@ -145,10 +140,8 @@ void SpringEmbedderKK::initialize(
 #endif
 #endif
 	}//set L != 0
-	//--------------------------------------------------
 	// Having L we can compute the original lengths l_ij
 	// Computes spring strengths k_ij
-	//--------------------------------------------------
 	double dij;
 	for(node v : G.nodes)
 	{
@@ -178,8 +171,7 @@ void SpringEmbedderKK::initialize(
 void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 								NodeArray<dpair>& partialDer,
 								NodeArray< NodeArray<double> >& oLength,
-								NodeArray< NodeArray<double> >& sstrength,
-								const double maxDist)
+								NodeArray< NodeArray<double> >& sstrength)
 {
 	const Graph &G = GA.constGraph();
 
@@ -222,10 +214,6 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 	while (globalItCount-- > 0 && !finished(delta_m))
 	{
 #ifdef OGDF_DEBUG
-#if 0
-		cout <<"G: "<<globalItCount <<"\n";
-		cout <<"New iteration on "<<best_m->index()<<"\n";
-#endif
 		nodeCount++;
 		nodeCounts[best_m]++;
 #endif
@@ -239,12 +227,6 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 
 		localItCount = 0;
 		do {
-#ifdef OGDF_DEBUG
-#if 0
-			cout <<"  New local iteration\n";
-			cout <<"   L: "<<localItCount <<"\n";
-#endif
-#endif
 			// Compute the 4 elements of the Jacobian
 			double dE_dx_dx = 0.0, dE_dx_dy = 0.0, dE_dy_dx = 0.0, dE_dy_dy = 0.0;
 			for(node v : G.nodes)
@@ -276,13 +258,6 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 				(dE_dx_dx * dE_dy - dE_dy_dx * dE_dx)
 				/ (dE_dy_dx * dE_dx_dy - dE_dx_dx * dE_dy_dy);
 
-
-#ifdef OGDF_DEBUG
-#if 0
-			cout <<"   x"<< delta_x<<"\n";
-			cout <<"   y" <<delta_y<<"\n";
-#endif
-#endif
 			// Move p by (delta_x, delta_y)
 			GA.x(best_m) += delta_x;
 			GA.y(best_m) += delta_y;
@@ -316,14 +291,6 @@ void SpringEmbedderKK::mainStep(GraphAttributes& GA,
 			}
 		}
 	}//while
-#ifdef OGDF_DEBUG
-#if 0
-	cout << "NodeCount: "<<nodeCount<<"\n";
-	for(node v : G.nodes) {
-		cout<<"Counts "<<v->index()<<": "<<nodeCounts[v]<<"\n";
-	}
-#endif
-#endif
 }//mainStep
 
 
@@ -331,7 +298,6 @@ void SpringEmbedderKK::doCall(GraphAttributes& GA, const EdgeArray<double>& eLen
 {
 	const Graph& G = GA.constGraph();
 	NodeArray<dpair> partialDer(G); //stores the partial derivative per node
-	double maxDist; //maximum distance between nodes
 	NodeArray< NodeArray<double> > oLength(G);//first distance, then original length
 	NodeArray< NodeArray<double> > sstrength(G);//the spring strength
 
@@ -339,10 +305,10 @@ void SpringEmbedderKK::doCall(GraphAttributes& GA, const EdgeArray<double>& eLen
 	OGDF_ASSERT(isConnected(G));
 
 	//compute relevant values
-	initialize(GA, partialDer, eLength, oLength, sstrength, maxDist, simpleBFS);
+	initialize(GA, partialDer, eLength, oLength, sstrength, simpleBFS);
 
 	//main loop with node movement
-	mainStep(GA, partialDer, oLength, sstrength, maxDist);
+	mainStep(GA, partialDer, oLength, sstrength);
 
 	if (simpleBFS) scale(GA);
 }
@@ -522,10 +488,8 @@ double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<doub
 		distance[v][v] = 0.0;
 	}
 
-	node v = G.firstNode();
-
 	//start in each node once
-	while (v != nullptr)
+	for(node v: G.nodes)
 	{
 		//do a bfs
 		NodeArray<bool> mark(G, true);
@@ -550,8 +514,6 @@ double SpringEmbedderKK::allpairsspBFS(const Graph& G, NodeArray< NodeArray<doub
 				}
 			}
 		}//while
-
-		v = v->succ();
 	}//while
 	//check for negative cycles
 	for(node v : G.nodes)

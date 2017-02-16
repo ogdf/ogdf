@@ -53,8 +53,8 @@ public:
 	enum class Status { invalid, emptyAfterPreproc, cConnectedAfterPreproc, nonPlanarAfterPreproc, applyHananiTutte, applyILP, timeoutILP, errorILP };
 	enum class Verification { cPlanar, cPlanarVerified, nonCPlanarVerified, verificationFailed, timeout };
 
-	enum class Type    : uint16_t { vertex, edge };
-	enum class SubType : uint16_t { vertex, cluster, edge, innerCluster, outerCluster, vertexCluster, clusterCluster, crossCluster };
+	enum class Type    : uint16_t { tVertex, tEdge };
+	enum class SubType : uint16_t { stVertex, stCluster, stEdge, stInnerCluster, stOuterCluster, stVertexCluster, stClusterCluster, stCrossCluster };
 
 	HananiTutteCPlanarity() {
 		m_status = Status::invalid;

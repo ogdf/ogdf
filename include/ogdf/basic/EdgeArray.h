@@ -55,12 +55,12 @@ public:
 	//! Initializes an edge array not associated with a graph.
 	EdgeArrayBase() : m_pGraph(nullptr) { }
 
-	//! Initializes an edge array associated with \a pG.
-	EdgeArrayBase(const Graph *pG) : m_pGraph(pG) {
+	//! Initializes an edge array associated with \p pG.
+	explicit EdgeArrayBase(const Graph *pG) : m_pGraph(pG) {
 		if(pG) m_it = pG->registerArray(this);
 	}
 
-	//! Moves edge array \a base to this edge array.
+	//! Moves edge array \p base to this edge array.
 	EdgeArrayBase(EdgeArrayBase &base) : m_it(base.m_it), m_pGraph(base.m_pGraph) {
 		if(m_pGraph) m_pGraph->moveRegisterArray(m_it, this);
 		base.m_pGraph = nullptr;
@@ -86,7 +86,7 @@ public:
 		if ((m_pGraph = pG) != nullptr) m_it = pG->registerArray(this);
 	}
 
-	//! Moves array registration from \a base to this array.
+	//! Moves array registration from \p base to this array.
 	void moveRegister(EdgeArrayBase &base) {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
 		m_pGraph = base.m_pGraph;
@@ -114,23 +114,23 @@ template<class T> class EdgeArray : private Array<T>, protected EdgeArrayBase {
 
 public:
 	//! The type for array keys.
-	typedef edge key_type;
+	using key_type = edge;
 	//! The type for array entries.
-	typedef T value_type;
+	using value_type = T;
 
 	//! The type for edge array iterators.
-	typedef internal::GraphArrayIterator<EdgeArray<T>> iterator;
+	using iterator = internal::GraphArrayIterator<EdgeArray<T>>;
 	//! The type for edge array const iterators.
-	typedef internal::GraphArrayConstIterator<EdgeArray<T>> const_iterator;
+	using const_iterator = internal::GraphArrayConstIterator<EdgeArray<T>>;
 
 
 	//! Constructs an empty edge array associated with no graph.
 	EdgeArray() : Array<T>(), EdgeArrayBase() { }
 
-	//! Constructs an edge array associated with \a G.
-	EdgeArray(const Graph &G) : Array<T>(G.edgeArrayTableSize()), EdgeArrayBase(&G) { }
+	//! Constructs an edge array associated with \p G.
+	explicit EdgeArray(const Graph &G) : Array<T>(G.edgeArrayTableSize()), EdgeArrayBase(&G) { }
 
-	//! Constructs an edge array associated with \a G.
+	//! Constructs an edge array associated with \p G.
 	/**
 	 * @param G is the associated graph.
 	 * @param x is the default value for all array elements.
@@ -138,15 +138,15 @@ public:
 	EdgeArray(const Graph &G, const T &x) :
 		Array<T>(0,G.edgeArrayTableSize()-1,x), EdgeArrayBase(&G), m_x(x) { }
 
-	//! Constructs an edge array that is a copy of \a A.
+	//! Constructs an edge array that is a copy of \p A.
 	/**
-	 * Associates the array with the same graph as \a A and copies all elements.
+	 * Associates the array with the same graph as \p A and copies all elements.
 	 */
 	EdgeArray(const EdgeArray<T> &A) : Array<T>(A), EdgeArrayBase(A.m_pGraph), m_x(A.m_x) { }
 
-	//! Constructs an edge array containing the elements of \a A (move semantics).
+	//! Constructs an edge array containing the elements of \p A (move semantics).
 	/**
-	 * Edge array \a A is empty afterwards and not associated with any graph.
+	 * Edge array \p A is empty afterwards and not associated with any graph.
 	 */
 	EdgeArray(EdgeArray<T> &&A) : Array<T>(std::move(A)), EdgeArrayBase(A), m_x(A.m_x) { }
 
@@ -165,66 +165,66 @@ public:
 		return m_pGraph;
 	}
 
-	//! Returns a reference to the element with index \a e.
+	//! Returns a reference to the element with index \p e.
 	const T &operator[](edge e) const {
 		OGDF_ASSERT(e != nullptr);
 		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
-	//! Returns a reference to the element with index \a e.
+	//! Returns a reference to the element with index \p e.
 	T &operator[](edge e) {
 		OGDF_ASSERT(e != nullptr);
 		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
-	//! Returns a reference to the element with index \a e.
+	//! Returns a reference to the element with index \p e.
 	const T &operator()(edge e) const {
 		OGDF_ASSERT(e != nullptr);
 		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
-	//! Returns a reference to the element with index \a e.
+	//! Returns a reference to the element with index \p e.
 	T &operator()(edge e) {
 		OGDF_ASSERT(e != nullptr);
 		OGDF_ASSERT(e->graphOf() == m_pGraph);
 		return Array<T>::operator [](e->index());
 	}
 
-	//! Returns a reference to the element with index edge of \a adj.
+	//! Returns a reference to the element with index edge of \p adj.
 	const T &operator[](adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
-	//! Returns a reference to the element with index edge of \a adj.
+	//! Returns a reference to the element with index edge of \p adj.
 	T &operator[](adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
-	//! Returns a reference to the element with index edge of \a adj.
+	//! Returns a reference to the element with index edge of \p adj.
 	const T &operator()(adjEntry adj) const {
 		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
-	//! Returns a reference to the element with index edge of \a adj.
+	//! Returns a reference to the element with index edge of \p adj.
 	T &operator()(adjEntry adj) {
 		OGDF_ASSERT(adj != nullptr);
 		return Array<T>::operator [](adj->index() >> 1);
 	}
 
-	//! Returns a reference to the element with index \a index.
-	//! \attention Make sure that \a index is a valid index for an edge in the associated graph!
+	//! Returns a reference to the element with index \p index.
+	//! \attention Make sure that \p index is a valid index for an edge in the associated graph!
 	OGDF_DEPRECATED("Edge arrays should be indexed by an edge, not an integer index.")
 	const T &operator[](int index) const
 		{ return Array<T>::operator [](index); }
 
-	//! Returns a reference to the element with index \a index.
-	//! \attention Make sure that \a index is a valid index for an edge in the associated graph!
+	//! Returns a reference to the element with index \p index.
+	//! \attention Make sure that \p index is a valid index for an edge in the associated graph!
 	OGDF_DEPRECATED("Edge arrays should be indexed by an edge, not an integer index.")
 	T &operator[](int index)
 		{ return Array<T>::operator [](index); }
@@ -321,12 +321,12 @@ public:
 		Array<T>::init(); reregister(nullptr);
 	}
 
-	//! Reinitializes the array. Associates the array with \a G.
+	//! Reinitializes the array. Associates the array with \p G.
 	void init(const Graph &G) {
 		Array<T>::init(G.edgeArrayTableSize()); reregister(&G);
 	}
 
-	//! Reinitializes the array. Associates the array with \a G.
+	//! Reinitializes the array. Associates the array with \p G.
 	/**
 	 * @param G is the associated graph.
 	 * @param x is the default value.
@@ -335,7 +335,7 @@ public:
 		Array<T>::init(0,G.edgeArrayTableSize()-1, m_x = x); reregister(&G);
 	}
 
-	//! Sets all array elements to \a x.
+	//! Sets all array elements to \p x.
 	void fill(const T &x) {
 		int high = m_pGraph->maxEdgeIndex();
 		if(high >= 0)
@@ -352,7 +352,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Edge array \a a is empty afterwards and not associated with any graph.
+	 * Edge array \p a is empty afterwards and not associated with any graph.
 	 */
 	EdgeArray<T> &operator=(EdgeArray<T> &&a) {
 		Array<T>::operator=(std::move(a));
@@ -408,9 +408,9 @@ public:
 	 * @param edgeArray contains the buckets for the edges. May not be deleted
 	 *        as long as the bucket function is used.
 	 */
-	BucketEdgeArray(const EdgeArray<int> &edgeArray) : m_pEdgeArray(&edgeArray) { }
+	explicit BucketEdgeArray(const EdgeArray<int> &edgeArray) : m_pEdgeArray(&edgeArray) { }
 
-	//! Returns bucket of edge \a e.
+	//! Returns bucket of edge \p e.
 	int getBucket(const edge &e) override { return (*m_pEdgeArray)[e]; }
 };
 

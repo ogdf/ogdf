@@ -69,9 +69,9 @@ public:
 	 * This method implements the call function of the base class LayoutModule.
 	 * A derived algorithm implements the call by implementing doCall().
 	 *
-	 * @param AG is the input graph; the new layout is also stored in \a AG.
+	 * @param GA is the input graph; the new layout is also stored in \p GA.
 	 */
-	virtual void call(GraphAttributes &AG) override final;
+	virtual void call(GraphAttributes &GA) override final;
 
 	/**
 	 * \brief Calls the grid layout algorithm (call for GridLayout).
@@ -107,7 +107,7 @@ protected:
 	 * \brief Implements the algorithm call.
 	 *
 	 * A derived algorithm must implement this method and return the computed grid
-	 * layout in \a gridLayout.
+	 * layout in \p gridLayout.
 	 *
 	 * @param G is the input graph.
 	 * @param gridLayout is assigned the computed grid layout.
@@ -150,7 +150,7 @@ public:
 	 *
 	 * A derived algorithm implements the call by implementing doCall().
 	 *
-	 * @param AG is the input graph; the new layout is also stored in \a AG.
+	 * @param AG is the input graph; the new layout is also stored in \p AG.
 	 * @param adjExternal specifies an adjacency entry on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
@@ -163,7 +163,7 @@ public:
 	 *
 	 * @param G is the input graph.
 	 * @param gridLayout is assigned the computed grid layout.
-	 * @param adjExternal specifies an adjacency entry (of \a G) on the external face,
+	 * @param adjExternal specifies an adjacency entry (of \p G) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
 	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = nullptr);
@@ -174,7 +174,7 @@ protected:
 	 * \brief Implements the algorithm call.
 	 *
 	 * A derived algorithm must implement this method and return the computed grid
-	 * layout in \a gridLayout.
+	 * layout in \p gridLayout.
 	 *
 	 * @param G is the input graph.
 	 * @param adjExternal is an adjacency entry on the external face, or 0 if no external
@@ -202,6 +202,13 @@ protected:
 	{
 		doCall(G,nullptr,gridLayout,boundingBox,false);
 	}
+
+	/**
+	 * Handles the special cases of graphs with less than 3 nodes.
+	 *
+	 * @return true iff the instance is handled
+	 */
+	bool handleTrivial(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox);
 };
 
 
@@ -241,7 +248,7 @@ public:
 	 * \brief Calls the grid layout algorithm (call for GridLayout of a PlanRep).
 	 *
 	 * @param PG is the input graph which may be modified by the algorithm.
-	 * @param gridLayout is assigned the computed grid layout of \a PG.
+	 * @param gridLayout is assigned the computed grid layout of \p PG.
 	 */
 	void callGrid(PlanRep &PG, GridLayout &gridLayout);
 
@@ -252,7 +259,7 @@ public:
 	 *
 	 * @param G is the input graph.
 	 * @param gridLayout is assigned the computed grid layout.
-	 * @param adjExternal specifies an adjacency entry (of \a G) on the external face,
+	 * @param adjExternal specifies an adjacency entry (of \p G) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
 	void callGridFixEmbed(const Graph &G, GridLayout &gridLayout, adjEntry adjExternal = nullptr) {
@@ -266,7 +273,7 @@ public:
 	 *
 	 * @param PG is the input graph which may be modified by the algorithm.
 	 * @param gridLayout is assigned the computed grid layout.
-	 * @param adjExternal specifies an adjacency entry (of \a PG) on the external face,
+	 * @param adjExternal specifies an adjacency entry (of \p PG) on the external face,
 	 *        or is set to 0 if no particular external face shall be specified.
 	 */
 	void callGridFixEmbed(PlanRep &PG, GridLayout &gridLayout, adjEntry adjExternal = nullptr);
@@ -276,7 +283,7 @@ protected:
 	 * \brief Implements the algorithm call.
 	 *
 	 * A derived algorithm must implement this method and return the computed grid
-	 * layout of \a PG in \a gridLayout.
+	 * layout of \p PG in \p gridLayout.
 	 *
 	 * @param PG is the input graph which may be modified by the algorithm.
 	 * @param adjExternal is an adjacency entry on the external face, or 0 if no external

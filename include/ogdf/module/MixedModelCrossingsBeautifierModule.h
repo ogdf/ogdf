@@ -62,10 +62,10 @@ public:
 
 
 	/*
-	 * \brief Calls the Mixed-Model crossings beautifier module for graph \a PG and grid layout \a gl.
+	 * \brief Calls the Mixed-Model crossings beautifier module for graph \p PG and grid layout \p gl.
 	 *
 	 * @param PG is the input graph.
-	 * @param gl is the grid layout of \a PG.
+	 * @param gl is the grid layout of \p PG.
 	 */
 	void call(const PlanRep &PG, GridLayout &gl);
 
@@ -80,7 +80,7 @@ protected:
 	 * \brief Implements the crossings beautifier module.
 	 *
 	 * @param PG is the input graph.
-	 * @param gl is the grid layout of \a PG.
+	 * @param gl is the grid layout of \p PG.
 	 * @param L is the list of crossing nodes.
 	 */
 	virtual void doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L) = 0;

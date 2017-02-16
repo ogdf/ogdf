@@ -34,7 +34,7 @@ class Queue {
     int     end;
 
 public:
-    typedef T Key;
+    using Key = T;
 
     Queue() : buf(1), first(0), end(0) {}
 

@@ -67,8 +67,8 @@ public:
 
 #else
 	template<class Function, class ... Args>
-	explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... args){
-		f(std::forward<Args>(args)...);
+	explicit Thread(Function && f, Args && ... args) : thread([&](Args && ... tArgs){
+		f(std::forward<Args>(tArgs)...);
 		OGDF_ALLOCATOR::flushPool();
 	}, std::forward<Args>(args)...) { }
 #endif

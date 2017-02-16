@@ -62,7 +62,7 @@ public:
 	//! Initializes weights and crossing minimization for hierarchy \a H.
 	virtual void init (const HierarchyLevels &levels) override;
 
-	//! Calls the greedy insert heuristic for level \a L.
+	//! Calls the greedy insert heuristic for level \p L.
 	virtual void call (Level &L) override;
 
 	//! Does some clean-up after calls.

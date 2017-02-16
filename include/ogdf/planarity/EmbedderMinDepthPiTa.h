@@ -52,7 +52,7 @@ public:
 		: m_useExtendedDepthDefinition(true), pBCTree(nullptr), pAdjExternal(nullptr), pm_blockCutfaceTree(nullptr) {}
 
 	/**
-	 * \brief Computes an embedding of \a G.
+	 * \brief Computes an embedding of \p G.
 	 *
 	 * \param G is the original graph.
 	 * \param adjExternal is assigned an adjacency entry on the external face.
@@ -106,8 +106,8 @@ private:
 	void computeTdiam(const node& n);
 
 	/**
-	 * \brief Directs all edges to \a n and recursively all edges of its children -
-	 * except the edge to \a n - to the child.
+	 * \brief Directs all edges to \p n and recursively all edges of its children -
+	 * except the edge to \p n - to the child.
 	 *
 	 * \param G is the tree with the inverted edges.
 	 * \param n is a node in the original tree.
@@ -209,8 +209,8 @@ private:
 	EdgeArray<int> m_cB;
 
 	/**
-	 * \f$M_B = {cH \in B | m_B(cH) = m_B}\f$ with \f$m_B = \max_{c \in B} m_B(c)\f$
-	 *  and \f$m_B(c) = \max {0} \cup {m_{c, B'} | c \in B', B' \neq B}\f$.
+	 * M_B = {cH in B | m_B(cH) = m_B} with \a m_B = max{m_B(c) : c in B}
+	 *  and m_B(c) = max( {0} cup {m_{c, B'} | c in B', B' != B}).
 	 */
 	NodeArray< List<node> > M_B;
 

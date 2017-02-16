@@ -37,7 +37,7 @@
 
 #include <ogdf/module/ClusterPlanarModule.h>
 #include <ogdf/cluster/ClusterGraph.h>
-#include <ogdf/internal/cluster/CPlanarity_Master.h>
+#include <ogdf/cluster/internal/CPlanarityMaster.h>
 
 #include <ogdf/external/abacus.h>
 
@@ -50,11 +50,13 @@ namespace ogdf {
 class OGDF_EXPORT ClusterPlanarity : public ClusterPlanarModule
 {
 public:
+	using NodePairs = List<NodePair>;
+	using CP_MasterBase = cluster_planarity::CP_MasterBase;
 
 	//! Solution method, fallback to old version (allowing all extension edges,
 	//! based on c-planar subgraph computation) or new direct version (allowing
 	//! only a reduced set of extension edges for complete connectivity).
-	enum solmeth { sm_fb, sm_new };
+	enum class solmeth { Fallback, New };
 
 	//! Construction
 	ClusterPlanarity() :
@@ -74,7 +76,7 @@ public:
 		m_numAddVariables(15),
 		m_strongConstraintViolation(0.3),
 		m_strongVariableViolation(0.3),
-		m_solmeth(sm_new),
+		m_solmeth(solmeth::New),
 		m_totalTime(-1.0),
 		m_heurTime(-1.0),
 		m_lpTime(-1.0),
@@ -93,9 +95,9 @@ public:
 
 	//! Computes a set of edges that augments the subgraph to be
 	//! completely connected and returns c-planarity status and edge set.
-	bool isClusterPlanar(const ClusterGraph &CG, List<nodePair> &addedEdges);
+	bool isClusterPlanar(const ClusterGraph &CG, NodePairs &addedEdges);
 
-	//! Returns c-planarity status of \a CG.
+	//! Returns c-planarity status of \p CG.
 	virtual bool isClusterPlanar(const ClusterGraph &CG) override;
 
 	//setter methods for the  module parameters
@@ -157,8 +159,7 @@ protected:
 
 	//as above, on success also returns the set of edges that were
 	//added to construct a completely connected planar graph.
-	virtual bool doTest(const ClusterGraph &G,
-		List<nodePair> &addedEdges);
+	virtual bool doTest(const ClusterGraph &G, NodePairs &addedEdges);
 
 	// Performs a c-planarity test using only a reduced set
 	// of allowed extension edges, returns c-planarity status
@@ -230,4 +231,4 @@ private:
 
 };
 
-} //end namespace ogdf
+}

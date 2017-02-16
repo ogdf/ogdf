@@ -33,7 +33,6 @@
 #include <iostream>
 #include <bandit/bandit.h>
 #include <resources.h>
-#include <ogdf/basic/Logger.h>
 
 using namespace ogdf;
 
@@ -54,7 +53,7 @@ int main(int argc, char **argv)
 	}
 
 	if(!verbose) {
-		Logger::globalLogLevel(Logger::LL_FORCE);
+		Logger::globalLogLevel(Logger::Level::Force);
 	}
 
 	int result = bandit::run(argc, argv);

@@ -45,15 +45,6 @@ namespace ogdf {
  */
 class OGDF_EXPORT MMEdgeInsertionModule : public Module {
 public:
-	//! The postprocessing methods.
-	enum RemoveReinsertType {
-		rrNone,        //!< No postprocessing.
-		rrInserted,    //!< Postprocessing only with the edges that have to be inserted.
-		rrMostCrossed, //!< Postprocessing with the edges involved in the most crossings.
-		rrAll,         //!< Postproceesing with all edges and all node splits.
-		rrIncremental  //!< Full postprocessing after each edge insertion.
-	};
-
 	//! Initializes a minor-monotone edge insertion module.
 	MMEdgeInsertionModule() { }
 
@@ -61,11 +52,11 @@ public:
 	virtual ~MMEdgeInsertionModule() { }
 
 	/**
-	 * \brief Inserts all edges in \a origEdges into \a PG.
+	 * \brief Inserts all edges in \p origEdges into \p PG.
 	 *
 	 * @param PG is the input planarized expansion and will also receive the result.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a PG) that have to be inserted.
+	 *        of \p PG) that have to be inserted.
 	 * \return the status of the result.
 	 */
 	ReturnType call(PlanRepExpansion &PG, const List<edge> &origEdges) {
@@ -73,11 +64,11 @@ public:
 	}
 
 	/**
-	 * \brief Inserts all edges in \a origEdges into \a PG and forbids crossing \a forbiddenEdges.
+	 * \brief Inserts all edges in \p origEdges into \p PG and forbids crossing \p forbiddenEdges.
 	 *
 	 * @param PG is the input planarized expansion and will also receive the result.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a PG) that have to be inserted.
+	 *        of \p PG) that have to be inserted.
 	 * @param forbiddenEdgeOrig is an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 * \return the status of the result.
@@ -95,7 +86,7 @@ protected:
 	 *
 	 * @param PG is the input planarized expansion and will also receive the result.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a PG) that have to be inserted.
+	 *        of \p PG) that have to be inserted.
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */

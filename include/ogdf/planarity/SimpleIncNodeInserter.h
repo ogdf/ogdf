@@ -46,19 +46,11 @@
 
 namespace ogdf {
 
-
-//===============================================
-//main function(s):
-//
-
-//===============================================
-
-
 class OGDF_EXPORT SimpleIncNodeInserter : public IncNodeInserter
 {
 public:
 	//creates inserter on PG
-	SimpleIncNodeInserter(PlanRepInc &PG);
+	explicit SimpleIncNodeInserter(PlanRepInc &PG);
 	virtual ~SimpleIncNodeInserter();
 
 	//insert copy in m_planRep for original node v
@@ -88,18 +80,20 @@ protected:
 		const SList<adjEntry> &crossed, bool forbidCrossingGens);
 
 private:
+	//! Set new number or delete treeConnnection edge
+	inline void updateComponentNumber(node vCopy, node wCopy, CombinatorialEmbedding &E, adjEntry adExternal);
+
 	//dual graph for the edge insertion
 	Graph m_dual;
-	FaceArray<node> m_nodeOf;	// node in dual corresponding to to face in primal
-	NodeArray<bool> m_insertFaceNode; //node lies at border of insertionface
-	NodeArray<bool> m_vAdjNodes; //node is adjacent to insertion node
-	NodeArray< List<edge>* > m_incidentEdges; //original edges(insertionnode) incident to original(node)
-	EdgeArray<adjEntry> m_primalAdj; //copy adj for edges in dual graph
-	EdgeArray<bool>     m_primalIsGen; // true iff corresponding primal edge is a generalization
-	bool m_forbidCrossings; //should generalization crossings be avoided
-	node m_vS; //source and sink in the dual graph for edge insertion
-	node m_vT;
-
-}; //simpleincnodeinserter
+	FaceArray<node> m_nodeOf; //!< node in dual corresponding to to face in primal
+	NodeArray<bool> m_insertFaceNode; //!< node lies at border of insertionface
+	NodeArray<bool> m_vAdjNodes; //!< node is adjacent to insertion node
+	NodeArray< List<edge>* > m_incidentEdges; //!< original edges(insertionnode) incident to original(node)
+	EdgeArray<adjEntry> m_primalAdj; //!< copy adj for edges in dual graph
+	EdgeArray<bool>     m_primalIsGen; //!< true iff corresponding primal edge is a generalization
+	bool m_forbidCrossings; //!< should generalization crossings be avoided
+	node m_vS; //!< source in the dual graph for edge insertion
+	node m_vT; //!< sink in the dual graph for edge insertion
+};
 
 } //end namespace ogdf

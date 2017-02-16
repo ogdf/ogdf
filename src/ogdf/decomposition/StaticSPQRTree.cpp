@@ -31,15 +31,9 @@
 
 
 #include <ogdf/decomposition/StaticSPQRTree.h>
-#include <ogdf/basic/GraphCopy.h>
-#include <ogdf/internal/decomposition/TricComp.h>
 
 
 namespace ogdf {
-
-//-------------------------------------------------------------------
-//                           StaticSkeleton
-//-------------------------------------------------------------------
 
 StaticSkeleton::StaticSkeleton(const StaticSPQRTree *T, node vT) : Skeleton(vT), m_owner(T)
 {
@@ -75,25 +69,21 @@ node StaticSkeleton::twinTreeNode (edge e) const
 }
 
 
-//-------------------------------------------------------------------
-//                           StaticSPQRTree
-//-------------------------------------------------------------------
-
 //
 // initialization: builds tree, skeleton graphs and cross references
 //
 void StaticSPQRTree::init(edge eRef)
 {
-	TricComp tricComp(*m_pGraph);
+	Triconnectivity tricComp(*m_pGraph);
 	init(eRef,tricComp);
 }
 
-void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
+void StaticSPQRTree::init(edge eRef, Triconnectivity &tricComp)
 {
 	m_cpV = nullptr;
 	const GraphCopySimple &GC = *tricComp.m_pGC;
 
-	m_type.init(m_tree,SNode);
+	m_type.init(m_tree, NodeType::SNode);
 	m_sk.init(m_tree,nullptr);
 
 	m_skEdgeSrc.init(m_tree,nullptr);
@@ -108,23 +98,23 @@ void StaticSPQRTree::init(edge eRef, TricComp &tricComp)
 	m_numS = m_numP = m_numR = 0;
 
 	for (int i = 0; i < tricComp.m_numComp; i++) {
-		const TricComp::CompStruct &C = tricComp.m_component[i];
+		const Triconnectivity::CompStruct &C = tricComp.m_component[i];
 
 		if (C.m_edges.empty()) continue;
 
 		node vT = m_tree.newNode();
 
 		switch(C.m_type) {
-		case TricComp::bond:
-			m_type[vT] = PNode;
+		case Triconnectivity::CompType::bond:
+			m_type[vT] = NodeType::PNode;
 			m_numP++; break;
 
-		case TricComp::polygon:
-			m_type[vT] = SNode;
+		case Triconnectivity::CompType::polygon:
+			m_type[vT] = NodeType::SNode;
 			m_numS++; break;
 
-		case TricComp::triconnected:
-			m_type[vT] = RNode;
+		case Triconnectivity::CompType::triconnected:
+			m_type[vT] = NodeType::RNode;
 			m_numR++; break;
 		}
 

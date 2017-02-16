@@ -12,7 +12,7 @@ int main()
 	HypergraphAttributesES HA(H, EdgeStandardType::tree);
 	HypergraphLayoutES hlES;
 
-	hlES.setProfile(HypergraphLayoutES::Normal);
+	hlES.setProfile(HypergraphLayoutES::Profile::Normal);
 	hlES.call(HA);
 
 	GraphIO::write(HA.repGA(), "output-c17.gml", GraphIO::writeGML);

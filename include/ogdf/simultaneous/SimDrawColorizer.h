@@ -56,7 +56,7 @@ class OGDF_EXPORT SimDrawColorizer : public SimDrawManipulatorModule
 
 public:
 	//! types for colorschemes
-	enum colorScheme
+	enum class colorScheme
 	{
 		none, //!< <= 32 different colors
 		bluYel, //!< blue and yellow <= 2 colors
@@ -73,8 +73,8 @@ private:
 
 public:
 	//! constructor assigns default color scheme
-	SimDrawColorizer(SimDraw &SD) : SimDrawManipulatorModule(SD)
-	{ m_colorScheme = none; }
+	explicit SimDrawColorizer(SimDraw &SD) : SimDrawManipulatorModule(SD)
+	{ m_colorScheme = colorScheme::none; }
 
 	//! returns current color scheme
 	const colorScheme &ColorScheme() const { return m_colorScheme; }
@@ -134,7 +134,7 @@ public:
 
 	public:
 		//! constructor
-		SimDrawColorScheme (enum colorScheme colorScm, int numberOfGraphs);
+		SimDrawColorScheme (colorScheme colorScm, int numberOfGraphs);
 
 		//! destructor
 		~SimDrawColorScheme();

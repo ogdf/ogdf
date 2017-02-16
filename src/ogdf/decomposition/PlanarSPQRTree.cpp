@@ -36,10 +36,6 @@
 
 namespace ogdf {
 
-//-------------------------------------------------------------------
-//                           PlanarSPQRTree
-//-------------------------------------------------------------------
-
 //
 // initialization: additionally embeds skeleton graphs or adpots embedding
 // given by original graph
@@ -59,7 +55,7 @@ void PlanarSPQRTree::init(bool isEmbedded)
 
 void PlanarSPQRTree::adoptEmbedding()
 {
-	OGDF_ASSERT_IF(dlExtendedChecking, originalGraph().representsCombEmbedding());
+	OGDF_ASSERT_IF(DebugLevel::ExtendedChecking, originalGraph().representsCombEmbedding());
 
 	// ordered list of adjacency entries (for one original node) in all
 	// skeletons (where this node occurs)
@@ -290,7 +286,7 @@ void PlanarSPQRTree::reverse(node vT)
 //   swapping two adjacency entries in the skeleton of a P-node
 void PlanarSPQRTree::swap(node vT, adjEntry adj1, adjEntry adj2)
 {
-	OGDF_ASSERT(typeOf(vT) == PNode);
+	OGDF_ASSERT(typeOf(vT) == NodeType::PNode);
 
 	Graph &M = skeleton(vT).getGraph();
 
@@ -302,7 +298,7 @@ void PlanarSPQRTree::swap(node vT, adjEntry adj1, adjEntry adj2)
 //   swapping two edges in the skeleton of a P-node
 void PlanarSPQRTree::swap(node vT, edge e1, edge e2)
 {
-	OGDF_ASSERT(typeOf(vT) == PNode);
+	OGDF_ASSERT(typeOf(vT) == NodeType::PNode);
 
 	if (e1->source() == e2->source())
 		swap(vT,e1->adjSource(),e2->adjSource());
@@ -319,16 +315,16 @@ double PlanarSPQRTree::numberOfEmbeddings(node vT) const
 	double num = 1.0;
 
 	switch(typeOf(vT)) {
-	case RNode:
+	case NodeType::RNode:
 		num = 2; break;
-	case PNode:
+	case NodeType::PNode:
 #if 0
 		node vFirst = skeleton(vT).getGraph().firstNode();
 #endif
 		for (int i = skeleton(vT).getGraph().firstNode()->degree()-1; i >= 2; --i)
 			num *= i;
 		break;
-	case SNode:
+	case NodeType::SNode:
 		break;
 	}
 
@@ -349,13 +345,13 @@ double PlanarSPQRTree::numberOfEmbeddings(node vT) const
 void PlanarSPQRTree::randomEmbed()
 {
 	for (node vT : tree().nodes) {
-		if (typeOf(vT) == RNode) {
+		if (typeOf(vT) == NodeType::RNode) {
 			int doReverse = randomNumber(0,1);
 
 			if (doReverse == 1)
 				reverse(vT);
 
-		} else if (typeOf(vT) == PNode) {
+		} else if (typeOf(vT) == NodeType::PNode) {
 			const Skeleton &S = skeleton(vT);
 			adjEntry adjRef = S.referenceEdge()->adjSource();
 
@@ -380,27 +376,20 @@ void PlanarSPQRTree::randomEmbed()
 	}
 }
 
-//***************************************************************
-//***************************************************************
-//**														   **
-//** Methods to enumerate all embeddings of the original graph **
-//**														   **
-//***************************************************************
-//***************************************************************
 
 long long PlanarSPQRTree::numberOfNodeEmbeddings(node vT) {
 
 	long long num = 1;
 
 	switch(typeOf(vT)) {
-		case RNode:
+		case NodeType::RNode:
 			num = 2;
 			break;
-		case PNode:
+		case NodeType::PNode:
 			for (int i = skeleton(vT).getGraph().firstNode()->degree()-1; i >= 2; --i)
 				num *= i;
 			break;
-		case SNode:
+		case NodeType::SNode:
 			break;
 	}
 
@@ -413,7 +402,7 @@ void PlanarSPQRTree::embed(node &vT, long long x) {
 	OGDF_ASSERT(x < numberOfNodeEmbeddings(vT));
 
 	//if it is a P-node
-	if (typeOf(vT) == PNode) {
+	if (typeOf(vT) == NodeType::PNode) {
 		//encode the id of the permutation
 		long long id = x;
 		//number of elements of the permutation
@@ -479,7 +468,7 @@ void PlanarSPQRTree::embed(node &vT, long long x) {
 		//P-node ends here
 	}
 	//if it is a R-node
-	if (typeOf(vT) == RNode) {
+	if (typeOf(vT) == NodeType::RNode) {
 		node nP = skeleton(vT).getGraph().firstNode();
 		if (x == 0 && nP->firstAdj()->index() > nP->lastAdj()->index()) reverse(vT);
 		if (x == 1 && nP->firstAdj()->index() < nP->lastAdj()->index()) reverse(vT);
@@ -530,14 +519,14 @@ bool PlanarSPQRTree::nextEmbedding(Graph &G)
 void PlanarSPQRTree::firstEmbedding(node &vT)
 {
 	//if vT is a R-node
-	if (typeOf(vT) == RNode) {
+	if (typeOf(vT) == NodeType::RNode) {
 		//if the R-node were reversed in former steps
 		//then reverse it to its original embedding
 		node nP = skeleton(vT).getGraph().firstNode();
 		if (nP->firstAdj()->index() > nP->lastAdj()->index()) reverse(vT);
 	}
 	//if vT is a P-node
-	if (typeOf(vT) == PNode) {
+	if (typeOf(vT) == NodeType::PNode) {
 		//then sort the adjEntries by their indices
 		//first vertex
 		List<adjEntry> order;
@@ -568,10 +557,10 @@ void PlanarSPQRTree::reverse(node &vP, adjEntry &first, adjEntry &last)
 	//while there are swapable adjEntries: swap it, i.e.
 	//if left == right or left->pred() == right->succ() then stop
 	while (it_f != it_l && it_l->succ() != it_f) {
-			swap(vP,it_f,it_l);
-			temp = it_f;
-			it_f = it_l->succ();
-			it_l = temp->pred();
+		swap(vP,it_f,it_l);
+		temp = it_f;
+		it_f = it_l->succ();
+		it_l = temp->pred();
 	}
 }
 
@@ -582,7 +571,7 @@ void PlanarSPQRTree::reverse(node &vP, adjEntry &first, adjEntry &last)
 bool PlanarSPQRTree::nextEmbedding(node &vT)
 {
 	//if vT is a R-node
-	if (typeOf(vT) == RNode) {
+	if (typeOf(vT) == NodeType::RNode) {
 		node nP = skeleton(vT).getGraph().firstNode();
 		//compute the next embedding (might be the first embedding)
 		//of the sekeleton of vT
@@ -592,7 +581,7 @@ bool PlanarSPQRTree::nextEmbedding(node &vT)
 		return nP->firstAdj()->index() > nP->lastAdj()->index();
 	}
 	//if vT is a P-node
-	if (typeOf(vT) == PNode) {
+	if (typeOf(vT) == NodeType::PNode) {
 		//take on of the two nodes of the skeleton of vT
 		node nP = skeleton(vT).getGraph().firstNode();
 		//if its degree is two then there is only one embedding
@@ -608,9 +597,9 @@ bool PlanarSPQRTree::nextEmbedding(node &vT)
 		//compute the first embedding by reversing the order of the adjEntries
 		//beginning at the second adjEntry
 		if (it == nP->firstAdj()->succ()) {
-				last = nP->lastAdj();
-				reverse(vT,it,last);
-				return false;
+			last = nP->lastAdj();
+			reverse(vT,it,last);
+			return false;
 		}
 		//otherwise compute the next permutation (embedding)
 		it = it->pred();

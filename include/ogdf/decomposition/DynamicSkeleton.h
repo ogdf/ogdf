@@ -65,9 +65,9 @@ public:
 
 	// constructor
 
-	//! Creates a skeleton \a S with owner tree \a T and corresponding node \a vT.
+	//! Creates a skeleton \a S with owner tree \p T and corresponding node \p vT.
 	/**
-	 * \pre \a vT is a node in \a T
+	 * \pre \p vT is a node in \p T
 	 *
 	 * \remarks Skeletons are created by the constructor of DynamicSPQRTree
 	 *          and can be accessed with the skeleton() function of DynamicSPQRTree.
@@ -82,38 +82,38 @@ public:
 	//! Returns the owner tree \a T.
 	const SPQRTree &owner() const override;
 
-	//! Returns the vertex in the original graph \a G that corresponds to \a v.
+	//! Returns the vertex in the original graph \a G that corresponds to \p v.
 	/**
-	 * \pre \a v is a node in \a M.
+	 * \pre \p v is a node in \a M.
 	 */
 	node original (node v) const override;
 
-	//! Returns the real edge that corresponds to skeleton edge \a e
+	//! Returns the real edge that corresponds to skeleton edge \p e
 	/**
-	 * If \a e is virtual edge, then 0 is returned.
-	 * \pre \a e is an edge in \a M
+	 * If \p e is virtual edge, then 0 is returned.
+	 * \pre \p e is an edge in \a M
 	 */
 	edge realEdge (edge e) const override;
 
-	//! Returns true iff \a e is a virtual edge.
+	//! Returns true iff \p e is a virtual edge.
 	/**
-	 * \pre \a e is an edge in \a M
+	 * \pre \p e is an edge in \a M
 	 */
 	bool isVirtual (edge e) const override {
 		return !realEdge(e);
 	}
 
-	//! Returns the twin edge of skeleton edge \a e.
+	//! Returns the twin edge of skeleton edge \p e.
 	/**
-	 * If \a e is not a virtual edge, then 0 is returned.
-	 * \pre \a e is an edge in \a M
+	 * If \p e is not a virtual edge, then 0 is returned.
+	 * \pre \p e is an edge in \a M
 	 */
 	edge twinEdge (edge e) const override;
 
-	//! Returns the tree node in T containing the twin edge of skeleton edge \a e.
+	//! Returns the tree node in T containing the twin edge of skeleton edge \p e.
 	/**
-	 * If \a e is not a virtual edge, then 0 is returned.
-	 * \pre \a e is an edge in \a M
+	 * If \p e is not a virtual edge, then 0 is returned.
+	 * \pre \p e is an edge in \a M
 	 */
 	node twinTreeNode (edge e) const override;
 

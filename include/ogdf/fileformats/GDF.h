@@ -43,31 +43,36 @@ namespace ogdf {
 namespace gdf {
 
 
-enum NodeAttribute {
+enum class NodeAttribute {
 	// GDF standard
-	na_name = 0,
-	na_label,
-	na_x, na_y, na_z,
-	na_fillColor, na_strokeColor,
-	na_shape,
-	na_width, na_height,
+	Name = 0,
+	Label,
+	X,
+	Y,
+	Z,
+	FillColor,
+	StrokeColor,
+	Shape,
+	Width,
+	Height,
 	// OGDF specific
-	na_template,
-	na_weight,
-	na_unknown
+	Template,
+	Weight,
+	Unknown
 };
 
 
-enum EdgeAttribute {
+enum class EdgeAttribute {
 	// GDF standard
-	ea_label = 0,
-	ea_source, ea_target,
-	ea_weight,
-	ea_directed,
-	ea_color,
+	Label = 0,
+	Source,
+	Target,
+	Weight,
+	Directed,
+	Color,
 	// OGDF specific
-	ea_bends,
-	ea_unknown
+	Bends,
+	Unknown
 };
 
 

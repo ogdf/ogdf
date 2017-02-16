@@ -190,7 +190,7 @@ protected:
 	virtual void putSlot(PoolSlot<BaseType,CoType> *slot) {
 		if (slot->conVar()) {
 			Logger::ifout() << "StandardPool::putSlot(): you cannot put a non-void slot.\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcStandardPool);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::StandardPool);
 		}
 		freeSlots_.pushFront(slot);
 	}

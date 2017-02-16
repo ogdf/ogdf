@@ -57,9 +57,9 @@ public:
 	virtual ~MinCostFlowModule() { }
 
 	/**
-	* \brief Computes a min-cost flow in the directed graph \a G.
+	* \brief Computes a min-cost flow in the directed graph \p G.
 	*
-	* \pre \a G must be connected, \a lowerBound[\a e] \f$\leq\f$ \a upperBound[\a e]
+	* \pre \p G must be connected, \p lowerBound[\a e] <= \p upperBound[\a e]
 	*      for all edges \a e, and the sum over all supplies must be zero.
 	*
 	* @param G is the directed input graph.
@@ -83,9 +83,9 @@ public:
 	}
 
 	/**
-	 * \brief Computes a min-cost flow in the directed graph \a G.
+	 * \brief Computes a min-cost flow in the directed graph \p G.
 	 *
-	 * \pre \a G must be connected, \a lowerBound[\a e] \f$\leq\f$ \a upperBound[\a e]
+	 * \pre \p G must be connected, \p lowerBound[\a e] <= \p upperBound[\a e]
 	 *      for all edges \a e, and the sum over all supplies must be zero.
 	 *
 	 * @param G is the directed input graph.
@@ -113,8 +113,8 @@ public:
 	//
 
 	/**
-	 * \brief Generates an instance of a min-cost flow problem with \a n nodes and
-	 *        \a m+\a n edges.
+	 * \brief Generates an instance of a min-cost flow problem with \p n nodes and
+	 *        \p m + \p n edges.
 	 */
 	static void generateProblem(
 		Graph &G,
@@ -130,8 +130,8 @@ public:
 	 * \brief Checks if a given min-cost flow problem instance satisfies
 	 *        the preconditions.
 	 * The following preconditions are checked:
-	 *   - \a lowerBound[\a e] \f$\leq\f$ \a upperBound[\a e] for all edges \a e
-	 *   - sum over all \a supply[\a v] = 0
+	 *   - \p lowerBound[\a e] <= \p upperBound[\a e] for all edges \a e
+	 *   - sum over all \p supply[\a v] = 0
 	 *
 	 * @param G is the input graph.
 	 * @param lowerBound gives the lower bound for the flow on each edge.
@@ -152,9 +152,9 @@ public:
 	 *        instance.
 	 *
 	 * Checks in particular if:
-	 *   - \a lowerBound[\a e] \f$\leq\f$ \a flow[\a e] \f$\leq\f$ \a upperBound[\a e]
-	 *   - sum \a flow[\a e], \a e is outgoing edge of \a v minus
-	 *     sum \a flow[\a e], \a e is incoming edge of \a v equals \a supply[\a v]
+	 *   - \p lowerBound[\a e] <= \p flow[\a e] <= \p upperBound[\a e]
+	 *   - sum \p flow[\a e], \a e is outgoing edge of \a v minus
+	 *     sum \p flow[\a e], \a e is incoming edge of \a v equals \p supply[\a v]
 	 *     for each node \a v
 	 *
 	 * @param G is the input graph.
@@ -180,9 +180,9 @@ public:
 	 *        instance.
 	 *
 	 * Checks in particular if:
-	 *   - \a lowerBound[\a e] \f$\leq\f$ \a flow[\a e] \f$\leq\f$ \a upperBound[\a e]
-	 *   - sum \a flow[\a e], \a e is outgoing edge of \a v minus
-	 *     sum \a flow[\a e], \a e is incoming edge of \a v equals \a supply[\a v]
+	 *   - \p lowerBound[\a e] <= \p flow[\a e] <= \p upperBound[\a e]
+	 *   - sum \p flow[\a e], \a e is outgoing edge of \a v minus
+	 *     sum \p flow[\a e], \a e is incoming edge of \a v equals \p supply[\a v]
 	 *     for each node \a v
 	 *
 	 * @param G is the input graph.
@@ -257,7 +257,7 @@ bool MinCostFlowModule<TCost>::checkProblem(
 	const EdgeArray<int> &upperBound,
 	const NodeArray<int> &supply)
 {
-	if(isConnected(G) == false)
+	if(!isConnected(G))
 		return false;
 
 	for(edge e : G.edges) {

@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/upward/FUPSSimple.h>
-//#include <ogdf/upward/FeasibleUpwardPlanarSubgraph.h>
 #include <ogdf/upward/UpwardPlanarity.h>
 #include <ogdf/upward/FaceSinkGraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
@@ -56,7 +55,7 @@ Module::ReturnType FUPSSimple::doCall(
 			delEdges = delEdges_cur;
 		}
 	}
-	return Module::retFeasible;
+	return Module::ReturnType::Feasible;
 }
 
 

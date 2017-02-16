@@ -41,6 +41,8 @@
 
 namespace ogdf {
 
+namespace topology_module {
+
 //! Helper class for the computation of crossings
 /**
  * Represents a part of the edge between two consecutive bends (in the layout, there are no bends
@@ -77,18 +79,9 @@ private:
 	edge m_copyEdge; //!< the edge in the PlanRep copy corresponding to the EdgeLeg
 	DPoint m_p1, m_p2; //!< "Starting" and "End" point of the EdgeLeg
 	int    m_number; //!< the order nuumber on the edge, starting at 0
+};
 
-};//edgeleg
-
-
-//===============================================
-//main function(s):
-//		setEmbeddingFromGraph(PlanRep&, GraphAttributes&)
-//	    assumes that PG(AG) without bend nodes in PG
-//
-//		sortEdgesFromLayout(GraphAttributes &AG)
-//      sort the edges in AG, no crossing insertion
-//===============================================
+}
 
 //! Constructs embeddings from given layout.
 /**
@@ -102,46 +95,55 @@ private:
 class OGDF_EXPORT TopologyModule
 {
 public:
-	TopologyModule() : m_options(opDegOneCrossings | opGenToAss |
-		opCrossFlip | opLoop | opFlipUML) {}
-	virtual ~TopologyModule() {}
-
 	//! The (pre/post)processing options
 	/**
-	 * opCrossFlip increases running time by constant * n,
-	 * opLoop increases running time by constant * m
+	 * CrossFlip increases running time by constant * n,
+	 * Loop increases running time by constant * m
 	 */
-	enum Options {
+	enum class Options {
 		//! should degree-one node's edge be crossed
-		opDegOneCrossings = 0x0001,
+		DegOneCrossings = 0x0001,
 		//! should generalizations be turned into associations
-		opGenToAss = 0x0002,
+		GenToAss = 0x0002,
 		//! if there is a crossing between two edges with the same start or end point,
 		//! should their position at the node be flipped and the crossing be skipped?
-		opCrossFlip = 0x0004,
+		CrossFlip = 0x0004,
 		//! only flip if same edge type
-		opFlipUML = 0x0010,
+		FlipUML = 0x0010,
 		//! should loops between crossings (consecutive on both crossing edges) be deleted
 		//! (we dont check for enclosed CC's; therefore it is safe to remove the crossing).
-		opLoop = 0x0008,
+		Loop = 0x0008,
 	};
 
-	void setOptions(int i) { m_options = i; }
-	void addOption(TopologyModule::Options o)  { m_options = (m_options | o); }
+private:
+	friend int operator | (int, TopologyModule::Options);
+	friend int operator | (TopologyModule::Options, TopologyModule::Options);
 
-	//! Uses the layout \a GA to determine an embedding for \a PG.
+public:
+
+	TopologyModule()
+	: m_options(Options::DegOneCrossings | Options::GenToAss | Options::CrossFlip | Options::Loop | Options::FlipUML) {}
+
+	virtual ~TopologyModule() {}
+
+	void setOptions(int i) { m_options = i; }
+	void addOption(TopologyModule::Options o)  {
+		m_options = m_options | o;
+	}
+
+	//! Uses the layout \p GA to determine an embedding for \p PG.
 	/**
 	 * Non-constness of GA in the following methods is only used when resolving problems,
 	 * e.g., setting edge types if two generalizations cross in the input layout
 	 *
 	 * @param PG  is the input graph.
 	 * @param GA  is the input layout.
-	 * @param adjExternal  is assigned the external face (if \a setExternal is true).
+	 * @param adjExternal  is assigned the external face (if \p setExternal is true).
 	 * @param setExternal if true, we run over faces to compute the external face.
-	 * @param reuseGAEmbedding If true, the call only checks for a correct embedding of \a PG
+	 * @param reuseGAEmbedding If true, the call only checks for a correct embedding of \p PG
 	 *                         and tries to insert crossings detected in the given layout otherwise.
 	 *                         This allows to assign already sorted UMLGraphs.
-	 *                         NOTE: if the sorting of the edges does not correspond to the layout given in \a GA,
+	 *                         NOTE: if the sorting of the edges does not correspond to the layout given in \p GA,
 	 *                         this cannot work correctly
 	 * @return false if planarization fails; true otherwise.
 	 */
@@ -152,7 +154,7 @@ public:
 		bool setExternal = true,
 		bool reuseGAEmbedding = false);
 
-	//! Sorts the edges around all nodes of \a GA corresponding to the layout given in \a GA.
+	//! Sorts the edges around all nodes of \p GA corresponding to the layout given in \p GA.
 	/**
 	 * There is no check of the embedding afterwards because this method could be used as a first step of a planarization
 	 *
@@ -168,17 +170,16 @@ public:
 protected:
 	//compute a planarization, i.e. insert crossing vertices,
 	//corresponding to the AG layout
-	void planarizeFromLayout(PlanRep &PG,
-							 GraphAttributes &AG);
+	void planarizeFromLayout(PlanRep &PG, GraphAttributes &AG);
 	//compute crossing point and return if existing
-	bool hasCrossing(EdgeLeg* legA, EdgeLeg* legB, DPoint& xp);
+	bool hasCrossing(topology_module::EdgeLeg* legA, topology_module::EdgeLeg* legB, DPoint& xp);
 	//check if node v is a crossing of two edges with a common
 	//endpoint adjacent to v, crossing is removed if flip is set
 	bool checkFlipCrossing(PlanRep &PG,node v, bool flip = true);
 
 	void postProcess(PlanRep &PG);
 	void handleImprecision(PlanRep &PG);
-	bool skipable(EdgeLeg* legA, EdgeLeg* legB);
+	bool skipable(topology_module::EdgeLeg* legA, topology_module::EdgeLeg* legB);
 
 private:
 	//compare vectors for sorting
@@ -192,29 +193,23 @@ private:
 
 	//we save a list of EdgeLegs for all original edges in
 	//AG
-	EdgeArray< List<EdgeLeg*> > m_eLegs;
-
+	EdgeArray< List<topology_module::EdgeLeg*> > m_eLegs;
 
 	//option settings as bits
 	int m_options;
 
 };//TopologyModule
 
+inline int operator & (int i, TopologyModule::Options b) {
+	return i & static_cast<int>(b);
+}
 
-//! Sorts EdgeLegs according to their xp distance to a reference point.
-class PointComparer {
-public:
-	PointComparer(DPoint refPoint) : m_refPoint(refPoint) {}
-	//compares the crossing points stored in the EdgeLeg
-	int compare(const ListIterator<EdgeLeg*> &ep1,
-		const ListIterator<EdgeLeg*> &ep2) const;
-	OGDF_AUGMENT_COMPARER(ListIterator<EdgeLeg*>)
+inline int operator | (TopologyModule::Options a, TopologyModule::Options b) {
+	return static_cast<int>(a) | static_cast<int>(b);
+}
 
-	// undefined methods to avoid automatic creation
-	PointComparer &operator=(const PointComparer &);
-
-private:
-	const DPoint m_refPoint;
-};//PointComparer
+inline int operator | (int i, TopologyModule::Options b) {
+	return i | static_cast<int>(b);
+}
 
 } // end namespace ogdf

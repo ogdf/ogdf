@@ -49,16 +49,16 @@ namespace ogdf {
 class OGDF_EXPORT CoinCallbacks {
 	friend class OGDF_EXPORT CoinManager;
 public:
-	enum CallbackType { CT_Cut = 1, CT_Heuristic = 2, CT_Incumbent = 4, CT_Branch  = 8 };
-	enum CutReturn { CR_Error, CR_SolutionValid, CR_AddCuts, CR_DontAddCuts, CR_NoCutsFound };
-	enum HeuristicReturn { HR_Error, HR_Ignore, HR_Update };
-	enum IncumbentReturn { IR_Error, IR_Ignore, IR_Update };
+	enum class CallbackType { Cut = 1, Heuristic = 2, Incumbent = 4, Branch  = 8 };
+	enum class CutReturn { Error, SolutionValid, AddCuts, DontAddCuts, NoCutsFound };
+	enum class HeuristicReturn { Error, Ignore, Update };
+	enum class IncumbentReturn { Error, Ignore, Update };
 #if 0
-	enum BranchReturn { BR_Error, ... };
+	enum class BranchReturn { Error, ... };
 #endif
-	virtual CutReturn cutCallback(const double /* objValue */, const double* /* fracSolution */, OsiCuts* /* addThese */) { return CR_Error; }
-	virtual HeuristicReturn heuristicCallback(double& /* objValue */, double* /* solution */) { return HR_Error; }
-	virtual IncumbentReturn incumbentCallback(const double /* objValue */, const double* /* solution */) { return IR_Error; }
+	virtual CutReturn cutCallback(const double /* objValue */, const double* /* fracSolution */, OsiCuts* /* addThese */) { return CutReturn::Error; }
+	virtual HeuristicReturn heuristicCallback(double& /* objValue */, double* /* solution */) { return HeuristicReturn::Error; }
+	virtual IncumbentReturn incumbentCallback(const double /* objValue */, const double* /* solution */) { return IncumbentReturn::Error; }
 #if 0
 	virtual BranchReturn branchCallback() { return BR_Error; };
 #endif

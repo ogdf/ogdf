@@ -43,11 +43,6 @@
 
 namespace ogdf {
 
-
-
-//---------------------------------------------------------
-// class ComputeTricOrder
-//---------------------------------------------------------
 class ComputeTricOrder
 {
 public:
@@ -56,7 +51,6 @@ public:
 			const Graph& G,                  	// biconnected planar graph
 			ConstCombinatorialEmbedding& E, 	// combinatorial embedding of G
 			face outerFace,              		// outer face
-			double baseRatio,          			// size of base (baseRatio * size(extFace)
 			bool preferNodes = false); 			// boolean value if nodes are prefered to faces
 
 
@@ -215,7 +209,6 @@ ComputeTricOrder::ComputeTricOrder(
 	const Graph& G, 					// the graph
 	ConstCombinatorialEmbedding &E, 	// embedding of the graph
 	face outerFace,                   	// the outer face
-	double baseRatio,          			// size of base (baseRatio * size(extFace))
 	bool preferNodes) 					// boolean value if nodes are prefered to faces
 {
 	m_pGraph = &G;
@@ -277,20 +270,20 @@ void ComputeTricOrder::initOuterNodes(node v1, node v2){
 	if (m_pEmbedding->rightFace(firstAdj) == m_outerFace)
 		firstAdj = firstAdj->cyclicSucc();
 
-	 adjEntry adjRun = firstAdj;
-	 // traverse all nodes of the outer face
-	 do {
-	 	 	node v = adjRun->theNode();
-			// now traverse the faces f of v
-			// and increase outv[f] and add v to outerNodes[f]
-			for(adjEntry adjV : v->adjEntries){
-				face f = m_pEmbedding->rightFace(adjV);
-				if (f != m_outerFace){
-					m_outv[f]++;
-					m_outerNodes[f].pushBack(v);
-				}
+	adjEntry adjRun = firstAdj;
+	// traverse all nodes of the outer face
+	do {
+		node v = adjRun->theNode();
+		// now traverse the faces f of v
+		// and increase outv[f] and add v to outerNodes[f]
+		for(adjEntry adjV : v->adjEntries){
+			face f = m_pEmbedding->rightFace(adjV);
+			if (f != m_outerFace){
+				m_outv[f]++;
+				m_outerNodes[f].pushBack(v);
 			}
-			adjRun = adjRun->twin()->cyclicSucc();
+		}
+		adjRun = adjRun->twin()->cyclicSucc();
 	} while (adjRun != firstAdj);
 }
 
@@ -439,12 +432,6 @@ void ComputeTricOrder::doUpdate()
 	}// while (!m_updateNodes.empty())
 }
 
-
-
-//---------------------------------------------------------
-// TriconnectedShellingOrder
-//---------------------------------------------------------
-
 void TriconnectedShellingOrder::doCall(
 		const Graph& G,
 		adjEntry adj,
@@ -501,7 +488,7 @@ void TriconnectedShellingOrder::doCall(
 	node v1 = firstAdj->theNode();
 	node v2 = firstAdj->cyclicPred()->twinNode();
 
-	ComputeTricOrder cto(G, E, outerFace, m_baseRatio, preferNodes);
+	ComputeTricOrder cto(G, E, outerFace, preferNodes);
 
 	// if outerFace == {v_1,...,v_q}
 	// 		adjPred(v_i) == v_i -> v_{i-1}
@@ -658,12 +645,11 @@ void TriconnectedShellingOrder::doCall(
 			adj1 = adj1->twin();
 		}
 
-		if (!cto.isNode()){
-			if ( ((adjSucc[cl])->twinNode() == cr)
-						&& ( cto.isOnlyEdge(E.rightFace(adjSucc[cl])) ) ){
-				cto.decSepf(cl);
-				cto.decSepf(cr);
-			}
+		if (!cto.isNode()
+		 && adjSucc[cl]->twinNode() == cr
+		 && cto.isOnlyEdge(E.rightFace(adjSucc[cl]))) {
+			cto.decSepf(cl);
+			cto.decSepf(cr);
 		}
 
 		// update cto

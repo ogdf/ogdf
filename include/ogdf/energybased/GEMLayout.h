@@ -152,13 +152,13 @@ public:
 	//! Assignment operator.
 	GEMLayout &operator=(const GEMLayout &fl);
 
-	//! Calls the layout algorithm for graph attributes \a GA.
+	//! Calls the layout algorithm for graph attributes \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 	//! Returns the maximal number of rounds per node.
 	int numberOfRounds() const { return m_numberOfRounds; }
 
-	//! Sets the maximal number of round per node to \a n.
+	//! Sets the maximal number of round per node to \p n.
 	void numberOfRounds(int n) {
 		m_numberOfRounds = (n < 0) ? 0 : n;
 	}
@@ -166,7 +166,7 @@ public:
 	//! Returns the minimal temperature.
 	double minimalTemperature() const { return m_minimalTemperature; }
 
-	//! Sets the minimal temperature to \a x.
+	//! Sets the minimal temperature to \p x.
 	void minimalTemperature(double x) {
 		m_minimalTemperature = (x < 0) ? 0 : x;
 	}
@@ -174,7 +174,7 @@ public:
 	//! Returns the initial temperature.
 	double initialTemperature() const { return m_initialTemperature; }
 
-	//! Sets the initial temperature to \a x; must be >= minimalTemperature.
+	//! Sets the initial temperature to \p x; must be >= minimalTemperature.
 	void initialTemperature(double x) {
 		m_initialTemperature = (x < m_minimalTemperature) ? m_minimalTemperature : x;
 	}
@@ -182,7 +182,7 @@ public:
 	//! Returns the gravitational constant.
 	double gravitationalConstant() const { return m_gravitationalConstant; }
 
-	//! Sets the gravitational constant to \a x; must be >= 0.
+	//! Sets the gravitational constant to \p x; must be >= 0.
 	//! Attention! Only (very) small values give acceptable results.
 	void gravitationalConstant(double x) {
 		m_gravitationalConstant = (x < 0) ? 0 : x;
@@ -191,7 +191,7 @@ public:
 	//! Returns the desired edge length.
 	double desiredLength() const { return m_desiredLength; }
 
-	//! Sets the desired edge length to \a x; must be >= 0.
+	//! Sets the desired edge length to \p x; must be >= 0.
 	void desiredLength(double x) {
 		m_desiredLength = (x < 0) ? 0 : x;
 	}
@@ -199,7 +199,7 @@ public:
 	//! Returns the maximal disturbance.
 	double maximalDisturbance() const { return m_maximalDisturbance; }
 
-	//! Sets the maximal disturbance to \a x; must be >= 0.
+	//! Sets the maximal disturbance to \p x; must be >= 0.
 	void maximalDisturbance(double x) {
 		m_maximalDisturbance = (x < 0) ? 0 : x;
 	}
@@ -207,7 +207,7 @@ public:
 	//! Returns the opening angle for rotations.
 	double rotationAngle() const { return m_rotationAngle; }
 
-	//! Sets the opening angle for rotations to \a x (0 <= \a x <= pi / 2).
+	//! Sets the opening angle for rotations to \p x (0 <= \p x <= pi / 2).
 	void rotationAngle(double x) {
 		if(x < 0) x = 0;
 		if(x > Math::pi / 2.0) x = Math::pi / 2.0;
@@ -217,7 +217,7 @@ public:
 	//! Returns the opening angle for oscillations.
 	double oscillationAngle() const { return m_oscillationAngle; }
 
-	//! Sets the opening angle for oscillations to \a x (0 <= \a x <= pi / 2).
+	//! Sets the opening angle for oscillations to \p x (0 <= \p x <= pi / 2).
 	void oscillationAngle(double x) {
 		if(x < 0) x = 0;
 		if(x > Math::pi / 2.0) x = Math::pi / 2.0;
@@ -227,7 +227,7 @@ public:
 	//! Returns the rotation sensitivity.
 	double rotationSensitivity() const { return m_rotationSensitivity; }
 
-	//! Sets the rotation sensitivity to \a x (0 <= \a x <= 1).
+	//! Sets the rotation sensitivity to \p x (0 <= \p x <= 1).
 	void rotationSensitivity(double x) {
 		if(x < 0) x = 0;
 		if(x > 1) x = 1;
@@ -237,7 +237,7 @@ public:
 	//! Returns the oscillation sensitivity.
 	double oscillationSensitivity() const { return m_oscillationSensitivity; }
 
-	//! Sets the oscillation sensitivity to \a x (0 <= \a x <= 1).
+	//! Sets the oscillation sensitivity to \p x (0 <= \p x <= 1).
 	void oscillationSensitivity(double x) {
 		if(x < 0) x = 0;
 		if(x > 1) x = 1;
@@ -247,7 +247,7 @@ public:
 	//! Returns the used formula for attraction (1 = Fruchterman / Reingold, 2 = GEM).
 	int attractionFormula() const { return m_attractionFormula; }
 
-	//! sets the formula for attraction to \a n (1 = Fruchterman / Reingold, 2 = GEM).
+	//! sets the formula for attraction to \p n (1 = Fruchterman / Reingold, 2 = GEM).
 	void attractionFormula(int n) {
 		if(n == 1 || n == 2) m_attractionFormula = n;
 	}
@@ -255,31 +255,31 @@ public:
 	//! Returns the minimal distance between connected components.
 	double minDistCC() const { return m_minDistCC; }
 
-	//! Sets the minimal distance between connected components to \a x.
+	//! Sets the minimal distance between connected components to \p x.
 	void minDistCC(double x) { m_minDistCC = x; }
 
 	//! Returns the page ratio used for the layout of connected components.
 	double pageRatio() const { return m_pageRatio; }
 
-	//! Sets the page ratio used for the layout of connected components to \a x.
+	//! Sets the page ratio used for the layout of connected components to \p x.
 	void pageRatio(double x) { m_pageRatio = x; }
 
 
 private:
-	//! Returns the length of the vector (\a x,\a y).
+	//! Returns the length of the vector (\p x,\p y).
 	double length(double x,double y = 0) const {
 		return sqrt(x * x + y * y);
 	}
 
-	//! Returns the weight of node \a v according to its degree.
+	//! Returns the weight of node \p v according to its degree.
 	double weight(node v) const {
 		return (double)(v->degree()) / 2.5 + 1.0;
 	}
 
-	//! Computes the new impulse for node \a v.
+	//! Computes the new impulse for node \p v.
 	void computeImpulse(GraphCopy &GC, GraphCopyAttributes &AGC,node v);
 
-	//! Updates the node data for node \a v.
+	//! Updates the node data for node \p v.
 	void updateNode(GraphCopy &GC, GraphCopyAttributes &AGC,node v);
 
 	OGDF_NEW_DELETE

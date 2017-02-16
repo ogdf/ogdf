@@ -46,9 +46,9 @@ private:
 	Array<node> m_nodes;
 public:
 
-	ArrayLevel(unsigned int size) : m_nodes(size) { }
+	explicit ArrayLevel(unsigned int size) : m_nodes(size) { }
 
-	ArrayLevel(const Array<node> &nodes) : m_nodes(nodes) { }
+	explicit ArrayLevel(const Array<node> &nodes) : m_nodes(nodes) { }
 
 	const node &operator[](int i) const override { return m_nodes[i]; }
 
@@ -73,8 +73,6 @@ class OGDF_EXPORT Block {
 
 	friend class BlockOrder;
 private:
-	//BlockOrder *m_pOrder;  //!< The order to which this block belongs.
-
 	int m_index; //!< The index of this block in BlockOrder.
 
 	int m_upper; //!< The top level of this block.
@@ -105,11 +103,11 @@ public:
 
 	bool isVertexBlock() { return m_isNodeBlock; }
 
-	//! Creates new vertex block for a node \a v.
-	Block(BlockOrder *order, node v);
+	//! Creates new vertex block for a node \p v.
+	explicit Block(node v);
 
-	//! Creates new edge block for an edge \a e.
-	Block(BlockOrder *order, edge e);
+	//! Creates new edge block for an edge \p e.
+	explicit Block(edge e);
 
 };
 
@@ -127,7 +125,7 @@ public:
 class OGDF_EXPORT BlockOrder : public HierarchyLevelsBase {
 
 private:
-	enum direction { Plus, Minus };
+	enum class Direction { Plus, Minus };
 
 	GraphCopy m_GC; //!< The graph copy representing the topology of the proper hierarchy.
 
@@ -175,12 +173,14 @@ private:
 
 public:
 
-	// ---- HierarchyLevelsBase members ----
+	//! \name HierarchyLevelsBase members
+	//! @{
+
 	//! Returns the <i>i</i>-th level.
 	const ArrayLevel &operator[](int i) const override {
 		return *(m_levels[i]);
 	}
-	//! Returns the position of node \a v on its level.
+	//! Returns the position of node \p v on its level.
 	int pos(node v) const override {
 		return m_pos[v];
 	}
@@ -193,16 +193,16 @@ public:
 		return m_hierarchy;
 	}
 
-	//! Returns the adjacent nodes of \a v.
+	//! Returns the adjacent nodes of \p v.
 	const Array<node> &adjNodes(node v, TraversingDir dir) const override {
-		if ( dir == upward ) {
+		if ( dir == TraversingDir::upward ) {
 			return m_upperAdjNodes[v];
 		} else {
 			return m_lowerAdjNodes[v];
 		}
 	}
 
-	// ---- HierarchyLevelsBase members end ----
+	//! @}
 
 	// destruction
 	~BlockOrder() { deconstruct(); }
@@ -214,7 +214,7 @@ public:
 	BlockOrder(const Graph &G, const NodeArray<int> &rank);
 #endif
 
-	BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly = true);
+	explicit BlockOrder(Hierarchy& hierarchy, bool longEdgesOnly = true);
 
 	//! Calls the global sifting algorithm on graph (its hierarchy).
 	void globalSifting( int rho = 1, int nRepeats = 10, int *pNumCrossings = nullptr );
@@ -237,11 +237,11 @@ private:
 	 * \brief Updates adjacencies lists before swaping two blocks.
 	 *
 	 * Updates adjacencies lists of two blocks and their
-	 * neighbours in direction \a d. This function is called before
+	 * neighbours in direction \p d. This function is called before
 	 * blocks are swapped.
 	 * See UPDATE-ADJACENCIES in papers.
 	 */
-	void updateAdjacencies(Block *blockOfA, Block *blockOfB, direction d);
+	void updateAdjacencies(Block *blockOfA, Block *blockOfB, Direction d);
 
 	/**
 	 * \brief Calculates change of crossings made by a single swap.
@@ -250,7 +250,7 @@ private:
 	 * blocks in current permutation.
 	 * See USWAP in papers.
 	 */
-	int uswap(Block *blockOfA, Block *blockOfB, direction d, int level);
+	int uswap(Block *blockOfA, Block *blockOfB, Direction d, int level);
 
 	/**
 	 * \brief Swaps two consecutive blocks.
@@ -293,7 +293,8 @@ private:
 	}
 
 
-	// ---- GridSifting ----
+	//! \name GridSifting
+	//! @{
 
 	/**
 	 * \brief Moves block to next level.
@@ -319,7 +320,7 @@ public:
 	 */
 	void gridSifting( int nRepeats = 10 );
 
-	// ---- GridSifting end ----
+	//! @}
 
 
 

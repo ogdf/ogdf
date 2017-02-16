@@ -31,7 +31,6 @@
 
 
 #include <ogdf/layered/SplitHeuristic.h>
-#include <ogdf/layered/CrossingsMatrix.h>
 
 namespace ogdf
 {
@@ -44,10 +43,8 @@ void SplitHeuristic::init (const HierarchyLevels &levels)
 
 void SplitHeuristic::cleanup()
 {
-	if (m_cm != nullptr) {
-		delete m_cm;
-		m_cm = nullptr;
-	}
+	delete m_cm;
+	m_cm = nullptr;
 }
 
 // ordinary call

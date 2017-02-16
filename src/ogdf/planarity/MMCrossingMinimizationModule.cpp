@@ -100,18 +100,18 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 		int crcc, numNS = 0, numSN = 0;
 		ReturnType ret = doCall(PG,0,forbidB,crcc,numNS,numSN);
 		delete forbidB;
-		if(isSolution(ret) == false)
+		if(!isSolution(ret))
 			return ret;
 		cr += crcc;
 		m_nodeSplits    += numNS;
 		m_splittedNodes += numSN;
 
-		ListConstIterator<node> itV;
-		for(itV = nodes.begin(); itV.valid(); ++itV)
-			map[*itV] = nullptr;
+		for(node v: nodes) {
+			map[v] = nullptr;
+		}
 	}
 
-	return retFeasible;
+	return ReturnType::Feasible;
 }
 
 
@@ -162,7 +162,7 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 
 		int crcc, numNS = 0, numSN = 0;
 		ReturnType ret = doCall(PG,0,forbid,crcc,numNS,numSN);
-		if(isSolution(ret) == false)
+		if(!isSolution(ret))
 			return ret;
 		cr += crcc;
 		m_nodeSplits    += numNS;
@@ -173,7 +173,7 @@ Module::ReturnType MMCrossingMinimizationModule::call(
 			map[*itV] = nullptr;
 	}
 
-	return retFeasible;
+	return ReturnType::Feasible;
 }
 
 

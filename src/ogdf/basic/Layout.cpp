@@ -93,7 +93,7 @@ void Layout::computePolylineClear(PlanRep &PG, edge eOrig, DPolyline &dpl)
 		dpl.conc(m_bends[e]);
 	}
 	node w = edgePath.back()->target();
-	if (PG.typeOf(w) == Graph::generalizationExpander)
+	if (PG.typeOf(w) == Graph::NodeType::generalizationExpander)
 		dpl.pushBack(DPoint(m_x[w], m_y[w]));
 }
 

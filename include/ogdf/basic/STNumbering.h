@@ -35,22 +35,22 @@
 
 namespace ogdf {
 
-//! Computes an st-Numbering of \a G.
+//! Computes an st-Numbering of \p G.
 /**
  * @ingroup ga-orient
  *
- * \pre \a G must be biconnected and simple, with the exception that
- * the graph is allowed to have isolated nodes. If both \a s and \a t
+ * \pre \p G must be biconnected and simple, with the exception that
+ * the graph is allowed to have isolated nodes. If both \p s and \p t
  * are set to nodes (both are not 0), they must be adjacent.
  *
  * @param G is the input graph.
  * @param numbering is assigned the st-number for each node.
  * @param s is the source node for the st-numbering.
  * @param t is the target node for the st-numbering.
- * @param randomized is only used when both \a s and \a t are not set (both are 0);
+ * @param randomized is only used when both \p s and \p t are not set (both are 0);
  *        in this case a random edge (s,t) is chosen; otherwise the first node s with degree
  *        > 0 is chosen and its first neighbor is used as t.
- * @return the number assigned to \a t, or 0 if no st-numbering could be computed.
+ * @return the number assigned to \p t, or 0 if no st-numbering could be computed.
  */
 OGDF_EXPORT int computeSTNumbering(const Graph &G, NodeArray<int> &numbering,
                                    node s = nullptr, node t = nullptr,
@@ -60,7 +60,7 @@ OGDF_EXPORT int computeSTNumbering(const Graph &G, NodeArray<int> &numbering,
 /**
  * @ingroup ga-orient
  *
- * \pre \a G must be biconnected and simple, with the exception that
+ * \pre \p G must be biconnected and simple, with the exception that
  * the graph is allowed to have isolated nodes.
  */
 OGDF_EXPORT bool isSTNumbering(const Graph &G, NodeArray<int> &st_no, int max);

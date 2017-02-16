@@ -27,6 +27,9 @@ We also removed header files that contained declarations of classes whose
 implementation has already been removed in former releases.
 This includes `FixedUpwardEmbeddingInserter.h` and `UpwardPlanarizationLayout.h`.
 
+The directory structure for internal headers (for example, helper classes)
+has also changed.
+
 ### Global namespace
 
 In former versions of the OGDF some symbols were added to the global namespace.
@@ -38,6 +41,14 @@ Thus, you may be required to explicitly use the OGDF namesapce in some places.
 
 When a `PreconditionViolationException` or `AlgorithmFailureException` was only thrown
 in debug mode, it is now replaced by an assertion (`OGDF_ASSERT`).
+
+
+### Enum Classes
+
+All enums are now enum classes or const static.
+Since the enumerators are scoped, the distinguishing prefixes
+of the enumerators have been dropped.
+Unscoped enums are now forbidden in the OGDF.
 
 
 ### COIN-OR
@@ -88,6 +99,30 @@ The respective functions were renamed:
 |--------------|---------------------|
 | stNumber     | computeSTNumbering  |
 | testSTnumber | isSTNumbering       |
+
+### DTreeMultilevelEmbedder
+
+The `DTreeMultilevelEmbedder` header file is moved
+from `include/ogdf/internal/energybased/` to `include/ogdf/energybased`
+because it is not internal.
+
+Its internal header files however have moved to
+`include/ogdf/energybased/dtree`.
+
+### TricComp
+
+The (formerly internal) class `TricComp` was renamed to `Triconnectivity`
+and can now be found in `include/ogdf/graphalg/Triconnectivity.h`.
+
+### PlanRepInc
+
+The method `writeGML(const char*, GraphAttributes&, bool)`
+was deleted. Use `writeGML(ostream &os, const GraphAttributes&)` instead.
+
+## Changed method signatures
+
+The parameter `BlockOrder* order` was deleted from the constructors of `Block` in `BlockOrder.h`.
+Use the constructors `Block(edge e)` and `Block(node v)` instead.
 
 ## Graph class
 
@@ -146,11 +181,16 @@ Use `List::swap()` and `ListPure::swap()` instead.
 `BoyerMyrvoldSubgraph` was renamed to `PlanarSubgraphBoyerMyrvold` and `FastPlanarSubgraph` to `PlanarSubgraphFast`.
 `MaximalPlanarSubgraphSimple` now supports arbitrary start heuristics.
 As such, the `doMaximize` option was removed from `PlanarSubgraphBoyerMyrvold` (formerly `BoyerMyrvoldSubgraph`).
-`MaximalPlanarSubgraphSimple::clone()` should be used to obtain a copy of the respective instance since `MaximalPlanarSubgraphSimple(const MaximalPlanarSubgraphSimple &mps)` is no longer available.
+`MaximalPlanarSubgraphSimple::clone()` should be used to obtain a copy of the respective instance
+since `MaximalPlanarSubgraphSimple(const MaximalPlanarSubgraphSimple &mps)` is no longer available.
 
-Support for edge weights was added to `MaximumCPlanarSubgraph`. The signature of `call` includes the new parameter `EdgeArray<int> *pCost` that can be set to `nullptr` for uniform weight.
+Support for edge weights was added to `MaximumCPlanarSubgraph`.
+The signature of `call` includes the new parameter `EdgeArray<int> *pCost` that can be set to `nullptr` for uniform weight.
 
-The Module `PlanarSubgraphModule` is now a template. The implementations `PlanarSubgraphCactus`, `MaximalPlanarSubgraphSimple` and `PlanarSubgraphEmpty` are templates itself. All other implementations of the module inherit from `PlanarSubgraphModule<int>`.
+The Module `PlanarSubgraphModule` is now a template.
+The implementations `PlanarSubgraphCactus`, `MaximalPlanarSubgraphSimple`,
+`PlanarSubgraphEmpty` and `PlanarSubgraphFast` are templates itself.
+All other implementations of the module inherit from `PlanarSubgraphModule<int>`.
 
 ### MaximumCPlanarSubgraph
 
@@ -158,7 +198,7 @@ The Module `PlanarSubgraphModule` is now a template. The implementations `Planar
 To avoid conflicts with the method defined by `CPlanarSubgraphModule`, `MaximumCPlanarSubgraph::call` was renamed to
 `MaximumCPlanarSubgraph::callAndConnect`.
 
-## Heaps
+## Heaps and Priority Queues
 
 In an attempt to unify the existing heap classes, `BinaryHeap` and `BinaryHeap2` were replaced by a new `BinaryHeap`.
 All heap implementations are derived from the common interface `HeapBase`.
@@ -171,11 +211,11 @@ The following heap implementations were introduced:
  * `PairingHeap`
  * `RadixHeap`
 
-Priority queues might be realized using the newly introduced `PriorityQueue` idependently of the desired heap implementation.
+Priority queues might be realized using the newly introduced `PriorityQueue` independently of the desired heap implementation.
 In contrast to `PriorityQueue` that merely stores directly comparable elements, `PrioritizedQueue` is used to store elements with priorities assigned upon insertion.
 For even simpler usage see `PrioritizedMapQueue` that keeps track of handles for the inserted elements but requires elements to be unique.
 
-The tests in `test/src/basic/heap_test.cpp` show exemplary usage of the new classes.
+The tests in `test/src/basic/heap.cpp` show exemplary usage of the new classes.
 
 ### Method equivalents
 
@@ -282,6 +322,12 @@ However, this generic reader even allows to write
 	GraphIO::write(G, "circulant.gml", GraphIO::writeGML);
 ```
 
+## GmlParser
+
+If you happened to use the `GmlParser` class directly (instead of
+`GraphIO`), the constructor with filename argument is also gone
+now. Use the constructor for input streams instead.
+
 ## Filesystem functions
 
 If you have used filesystem functions in your code,
@@ -305,7 +351,7 @@ Use `myEmbedding.addEdgeToIsolatedNode(v, adj)` if `v` is isolated.
 
 The macros mentioned above have been removed.
 You can check for the SSE2 CPU feature directly using
-`ogdf::System::cpuSupports(ogdf::cpufSSE2)`.
+`ogdf::System::cpuSupports(ogdf::CPUFeature::SSE2)`.
 
 ## ModuleOption
 
@@ -325,3 +371,89 @@ now become
 ```c++
 	double angle = point1.angle(point2, point3);
 ```
+
+## PoolMemoryAllocator
+
+Some types / constants of `PoolMemoryAllocator` were deleted or renamed.
+
+| Former              | New          |
+|---------------------|--------------|
+| `BlockChainPtr`     | -            |
+| `eBlockSize`        | `BLOCK_SIZE` |
+| `eMinBytes`         | `MIN_BYTES`  |
+| `ePoolVectorLength` | -            |
+| `eTableSize`        | `TABLE_SIZE` |
+| `MemElemEx`         | -            |
+| `MemElemExPtr`      | -            |
+| `PoolVector`        | -            |
+
+
+## NonPlanarCore
+
+`NonPlanarCore<TCost>::mincut(edge e)` now returns an `NonPlanarCore<TCost>::CutEdge` which is
+a struct with the two parameters `edge e`, the edge itself and a `bool dir` which indicates the
+direction of the edge, i.e. indicates if the edge goes from s to t or the other way round.
+Furthermore the `NonPlanarCore` can now handle weighted edges and therefore is templated with
+the type of the weights.
+
+## FMMMLayout
+
+The enumerators from `FMMMLayout` are now in a new class `FMMMOptions`.
+Hence, for example,
+`FMMMLayout::apInteger` became `FMMMOptions::AllowedPositions::Integer` and
+`FMMMLayout::gcNonUniformProbLowerMass` became `FMMMLayout::GalaxyChoice::NonUniformProbLowerMass`.
+
+## Optimal Crossing Minimizers
+
+The enumerators `Minimal` and `Few` of `PricingMode`
+in the crossing minimizers are now merged to `Few`.
+Use `Few` also in `OptimalSimultaneousCrossingMinimizer`
+instead of `Minimal` (which was previously unused).
+
+## DisjointSets
+
+The basic data structure `DisjointSets` is highly customizable using
+template parameters. The enumerator names to do so have now changed.
+
+| Former  | New                                         |
+|---------|---------------------------------------------|
+| `NL`    | `LinkOptions::Naive`                        |
+| `LI`    | `LinkOptions::Index`                        |
+| `LS`    | `LinkOptions::Size`                         |
+| `LR`    | `LinkOptions::Rank`                         |
+| `PC`    | `CompressionOptions::PathCompression`       |
+| `PS`    | `CompressionOptions::PathSplitting`         |
+| `PH`    | `CompressionOptions::PathHalving`           |
+| `R1`    | `CompressionOptions::Type1Reversal`         |
+| `CO`    | `CompressionOptions::Collapsing`            |
+| `NF`    | `CompressionOptions::Disabled`              |
+| `NI`    | `InterleavingOptions::Disabled`             |
+| `Rem`   | `InterleavingOptions::Rem`                  |
+| `TvL`   | `InterleavingOptions::Tarjan`               |
+| `IR0`   | `InterleavingOptions::Type0Reversal`        |
+| `IPSPC` | `InterleavingOptions::SplittingCompression` |
+
+The following arrays (containing the string expansions of the settings)
+are removed:
+ * `linkOptionNames`
+ * `compressionOptionNames`
+ * `interleavingOptionNames`
+
+## isForest()
+
+The function `isForest()` in `basic/simple_graph_alg.h` formerly returned `true` even when the graph contained multi-edges or self-loops.
+This is no longer the case.
+
+## doDestruction()
+
+The function template `template<class E> doDestruction(const E *)` has been removed
+in favor of `!std::is_trivially_destructible<E>::value`. Hence, lists of elements with
+trivial destructors are now deallocated in constant time automatically, without
+the necessity of writing a template specialization.
+
+## GraphAttributes
+
+The methods `setDirected`, `setStrokeType`, and `setFillPattern` have been removed from `GraphAttributes`.
+Use the respective getters (`directed`, `strokeType`, and `fillPattern`) instead to obtain a non-const reference to the underlying value.
+
+The method `initAttributes` was renamed to `addAttributes` as it does not disable previously enabled attributes.

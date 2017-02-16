@@ -51,10 +51,10 @@ public:
 	Timeouter() : m_timeLimit(-1) { }
 
 	//! timeout is set to the given value (seconds)
-	Timeouter(double t) : m_timeLimit(t) { }
+	explicit Timeouter(double t) : m_timeLimit(t) { }
 
 	//! timeout is turned off (false) or on (true) (with 0 second)
-	Timeouter(bool t) : m_timeLimit(t ? 0 : -1) { }
+	explicit Timeouter(bool t) : m_timeLimit(t ? 0 : -1) { }
 
 	Timeouter(const Timeouter &t) : m_timeLimit(t.m_timeLimit) { }
 

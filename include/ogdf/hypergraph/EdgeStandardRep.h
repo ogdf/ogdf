@@ -48,30 +48,21 @@
 namespace ogdf {
 
 //! Enumeration class of possible edge standard representations.
-/**
- * There are the following possibilities:
- *
- * a) clique - no new dummy nodes are introduced, for every hyperedge
- *             e = (v_1, ..., v_l), we add a cliqie K_l connecting
- *             hypernodes incident with e,
- * b) star   - for every hyperedge e = {v_1, ..., v_l} a single new dummy
- *             node v_e is introduced, moreover, v_e becomes the center of
- *             a new star connecting all hypernodes incident with e (ie.
- *             {v_1, v_e}, ..., {v_l, v_e} are added)
- * c) tree   - for every hyperedge e a minimal subcubic tree connecting all
- *             hypernodes incident with e together is added with all its
- *             nodes and edges, leaves of tree are hypernodes, all non-leaf
- *             nodes are newly introduced dummy nodes.
- */
-class OGDF_EXPORT EdgeStandardType
-{
-public:
-
-	enum Type {
-		clique = 0x0001,
-		star   = 0x0002,
-		tree   = 0x0003
-	};
+enum class EdgeStandardType {
+	//! no new dummy nodes are introduced, for every hyperedge
+	//! \a e = (\a v_1, ..., \a v_l), we add a cliqie \a K_l connecting
+	//! hypernodes incident with \a e
+	clique = 0x0001,
+	//! for every hyperedge \a e = {\a v_1, ..., \a v_l} a single new dummy
+	//! node \a v_e is introduced, moreover, \a v_e becomes the center of
+	//! a new star connecting all hypernodes incident with e (ie.
+	//! {\a v_1, \a v_e}, ..., {\a v_l, \a v_e} are added)
+	star   = 0x0002,
+	//! for every hyperedge \a e a minimal subcubic tree connecting all
+	//! hypernodes incident with e together is added with all its
+	//! nodes and edges, leaves of tree are hypernodes, all non-leaf
+	//! nodes are newly introduced dummy nodes.
+	tree   = 0x0003
 };
 
 //! Edge standard representation of hypergraphs.
@@ -80,7 +71,7 @@ class OGDF_EXPORT EdgeStandardRep : public HypergraphObserver
 private:
 
 	//! The type of edge standard representation.
-	EdgeStandardType::Type m_type;
+	EdgeStandardType m_type;
 
 	//! The reference to the original hypergraph.
 	const Hypergraph *m_hypergraph;
@@ -108,8 +99,8 @@ public:
 	//! Creates an edge standard representation.
 	EdgeStandardRep();
 
-	//! Creates an edge standard rep. of a given type associated with \a H.
-	EdgeStandardRep(const Hypergraph &pH, EdgeStandardType::Type pType);
+	//! Creates an edge standard rep. of a given \p pType associated with \p pH.
+	EdgeStandardRep(const Hypergraph &pH, EdgeStandardType pType);
 
 	//! Destructor.
 	virtual ~EdgeStandardRep();
@@ -130,7 +121,7 @@ public:
 	}
 
 	//! Returns the type of edge standard representation.
-	EdgeStandardType::Type type() const {
+	EdgeStandardType type() const {
 		return m_type;
 	}
 

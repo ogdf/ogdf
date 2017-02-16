@@ -3,8 +3,13 @@
 # cache
 set(COIN_SOLVER "CLP" CACHE STRING "Linear program solver to be used by COIN.")
 set_property(CACHE COIN_SOLVER PROPERTY STRINGS CLP CPX GRB)
-set(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES "" CACHE PATH "Locations of required header files for the external LP solver.")
-set(COIN_EXTERNAL_SOLVER_LIBRARIES "" CACHE FILEPATH "Libraries for the external LP solver.")
+if(NOT COIN_SOLVER STREQUAL CLP)
+  set(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES "" CACHE PATH "Locations of required header files for the external LP solver.")
+  set(COIN_EXTERNAL_SOLVER_LIBRARIES "" CACHE FILEPATH "Libraries for the external LP solver.")
+else()
+  unset(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES CACHE)
+  unset(COIN_EXTERNAL_SOLVER_LIBRARIES CACHE)
+endif()
 
 # compilation
 file(GLOB_RECURSE COIN_SOURCES src/coin/*.cpp)
@@ -17,7 +22,10 @@ endif()
 add_library(COIN ${COIN_LIBRARY_TYPE} ${COIN_SOURCES})
 group_files(COIN_SOURCES "coin")
 target_include_directories(COIN SYSTEM PUBLIC include/coin)
-target_compile_definitions(COIN PRIVATE -DCLP_BUILD -DCOINUTILS_BUILD -DOSI_BUILD -D__OSI_CLP__ -DCOMPILE_IN_CG -DCOMPILE_IN_CP -DCOMPILE_IN_LP -DCOMPILE_IN_TM -DHAVE_CONFIG_H -D_CRT_SECURE_NO_WARNINGS)
+target_compile_definitions(COIN PRIVATE
+    -DCLP_BUILD -DCOINUTILS_BUILD -DOSI_BUILD -D__OSI_CLP__
+    -DCOMPILE_IN_CG -DCOMPILE_IN_CP -DCOMPILE_IN_LP -DCOMPILE_IN_TM
+    -DHAVE_CONFIG_H -D_CRT_SECURE_NO_WARNINGS)
 
 # external LP solver
 if(COIN_EXTERNAL_SOLVER_LIBRARIES)

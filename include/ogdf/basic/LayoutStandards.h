@@ -68,7 +68,7 @@ public:
 
 	//! Returns the global default width for nodes.
 	static double defaultNodeWidth() { return s_defNodeWidth; }
-	//! Sets the global default width for nodes to \a w.
+	//! Sets the global default width for nodes to \p w.
 	/**
 	 * \param w must be a positive value and is set as new default node width.
 	 */
@@ -79,7 +79,7 @@ public:
 
 	//! Returns the global default height for nodes.
 	static double defaultNodeHeight() { return s_defNodeHeight; }
-	//! Sets the global default height for nodes to \a h.
+	//! Sets the global default height for nodes to \p h.
 	/**
 	 * \param h must be a positive value and is set as new default node height.
 	 */
@@ -90,7 +90,7 @@ public:
 
 	//! Returns the global default shape for nodes.
 	static Shape defaultNodeShape() { return s_defNodeShape; }
-	//! Sets the global default shape for nodes to \a s.
+	//! Sets the global default shape for nodes to \p s.
 	static void setDefaultNodeShape(Shape s) { s_defNodeShape = s; }
 
 	//! Returns the global default stroke for nodes.
@@ -99,14 +99,14 @@ public:
 	static Color defaultNodeStrokeColor() { return s_defNodeStroke.m_color; }
 	//! Returns the global default stroke width for nodes.
 	static float defaultNodeStrokeWidth() { return s_defNodeStroke.m_width; }
-	//! Sets the global default stroke for nodes to \a stroke.
+	//! Sets the global default stroke for nodes to \p stroke.
 	static void setDefaultNodeStroke(Stroke stroke) { s_defNodeStroke = stroke; }
 
 	//! Returns the global default fill for nodes.
 	static Fill defaultNodeFill() { return s_defNodeFill; }
 	//! Returns the global default fill color for nodes.
 	static Color defaultNodeFillColor() { return s_defNodeFill.m_color; }
-	//! Sets the global default fill for nodes to \a fill.
+	//! Sets the global default fill for nodes to \p fill.
 	static void setDefaultNodeFill(Fill fill) { s_defNodeFill = fill; }
 
 	//@}
@@ -122,12 +122,12 @@ public:
 	static Color defaultEdgeStrokeColor() { return s_defEdgeStroke.m_color; }
 	//! Returns the global default stroke width for edges.
 	static float defaultEdgeStrokeWidth() { return s_defEdgeStroke.m_width; }
-	//! Sets the global default stroke for edges to \a stroke.
+	//! Sets the global default stroke for edges to \p stroke.
 	static void setDefaultEdgeStroke(Stroke stroke) { s_defEdgeStroke = stroke; }
 
 	//! Returns the global default arrow type for edges.
 	static EdgeArrow defaultEdgeArrow() { return s_defEdgeArrow; }
-	//! Sets the global default arrow type for edges to \a arrow.
+	//! Sets the global default arrow type for edges to \p arrow.
 	static void setDefaultEdgeArrow(EdgeArrow arrow) { s_defEdgeArrow = arrow; }
 
 	//@}
@@ -143,26 +143,26 @@ public:
 	static Color defaultClusterStrokeColor() { return s_defClusterStroke.m_color; }
 	//! Returns the global default stroke width for clusters.
 	static float defaultClusterStrokeWidth() { return s_defClusterStroke.m_width; }
-	//! Sets the global default stroke for cluster to \a stroke.
+	//! Sets the global default stroke for cluster to \p stroke.
 	static void setDefaultClusterStroke(Stroke stroke) { s_defClusterStroke = stroke; }
 
 	//! Returns the global default fill for clusters.
 	static Fill defaultClusterFill() { return s_defClusterFill; }
 	//! Returns the global default fill color for clusters.
 	static Color defaultClusterFillColor() { return s_defClusterFill.m_color; }
-	//! Sets the global default fill for clusters to \a fill.
+	//! Sets the global default fill for clusters to \p fill.
 	static void setDefaultClusterFill(Fill fill) { s_defClusterFill = fill; }
 
 	//@}
 	/**
 	 * @name Global default separation parameters
-	 * These values \e can be used by layout algorithms as useful settings for separation parameters.
+	 * These values \a can be used by layout algorithms as useful settings for separation parameters.
 	 */
 	//@{
 
 	//! Returns the global default node separation.
 	static double defaultNodeSeparation() { return s_defNodeSeparation; }
-	//! Sets the global default node separation to \a d.
+	//! Sets the global default node separation to \p d.
 	/**
 	 * \param d must be a positive value and is set as new default node separation.
 	 */
@@ -173,7 +173,7 @@ public:
 
 	//! Returns the global default separation between connected components.
 	static double defaultCCSeparation() { return s_defCCSeparation; }
-	//! Sets the global default separation between connected components to \ d.
+	//! Sets the global default separation between connected components to \p d.
 	/**
 	 * \param d must be a positive value and is set as new default separation between connected components.
 	 */

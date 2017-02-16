@@ -36,8 +36,8 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/energybased/FMMMLayout.h>
-#include <ogdf/internal/steinertree/Triple.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/Triple.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/fileformats/GraphIO.h>
 #include <ogdf/graphalg/AStarSearch.h>
 #include <sstream>
@@ -221,10 +221,9 @@ bool MinSteinerTreeModule<T>::isSteinerTree(
 
 	// all Steiner nodes are inner nodes
 	for(node u : steinerTree.nodes) {
-		if (!isTerminal[steinerTree.original(u)]) {
-			if (u->degree() <= 1) {
-				return false;
-			}
+		if (!isTerminal[steinerTree.original(u)]
+		 && u->degree() <= 1) {
+			return false;
 		}
 	}
 
@@ -572,7 +571,7 @@ void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> 
 	  GraphAttributes::edgeStyle |
 	  GraphAttributes::edgeLabel);
 
-	GA.setDirected(false);
+	GA.directed() = false;
 
 	string s;
 
@@ -581,12 +580,12 @@ void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> 
 		GA.width(v) = GA.height(v) = 25.0;
 		if (isTerminal[steinerTree.original(v)]) {
 			out << "T";
-			GA.shape(v) = shRect;
-			GA.fillColor(v) = Color::Red;
+			GA.shape(v) = Shape::Rect;
+			GA.fillColor(v) = Color::Name::Red;
 		} else {
 			out << "S";
-			GA.shape(v) = shEllipse;
-			GA.fillColor(v) = Color::Gray;
+			GA.shape(v) = Shape::Ellipse;
+			GA.fillColor(v) = Color::Name::Gray;
 		}
 		out << steinerTree.original(v);
 		GA.label(v) = out.str();
@@ -597,7 +596,7 @@ void MinSteinerTreeModule<T>::drawSteinerTreeSVG(const EdgeWeightedGraphCopy<T> 
 	fmmm.useHighLevelOptions(true);
 	fmmm.unitEdgeLength(44.0);
 	fmmm.newInitialPlacement(true);
-	fmmm.qualityVersusSpeed(FMMMLayout::qvsGorgeousAndEfficient);
+	fmmm.qualityVersusSpeed(FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
 
 	fmmm.call(GA);
 	ofstream writeStream(filename, std::ofstream::out);
@@ -615,35 +614,35 @@ void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T> &G, const NodeA
 	  GraphAttributes::edgeStyle |
 	  GraphAttributes::edgeLabel);
 
-	GA.setDirected(false);
+	GA.directed() = false;
 
 	for (edge e : G.edges) {
-		GA.strokeColor(e) = Color::Black;
+		GA.strokeColor(e) = Color::Name::Black;
 		GA.label(e) = to_string(G.weight(e));
 		GA.strokeWidth(e) = 1;
 	}
 	for (edge e : steinerTree.edges) {
-		GA.strokeColor(steinerTree.original(e)) = Color::Red;
+		GA.strokeColor(steinerTree.original(e)) = Color::Name::Red;
 		GA.strokeWidth(steinerTree.original(e)) = 2;
 	}
 
 	for (node v : G.nodes) {
 		std::stringstream out;
 		GA.width(v) = GA.height(v) = 25.0;
-		GA.strokeColor(v) = Color::Black;
+		GA.strokeColor(v) = Color::Name::Black;
 		if (isTerminal[v]) {
 			out << "T" << v;
-			GA.shape(v) = shRect;
-			GA.fillColor(v) = Color::Red;
+			GA.shape(v) = Shape::Rect;
+			GA.fillColor(v) = Color::Name::Red;
 			GA.strokeWidth(v) = 2;
 		} else {
 			out << "S" << v;
-			GA.shape(v) = shEllipse;
+			GA.shape(v) = Shape::Ellipse;
 			if (steinerTree.copy(v)) {
-				GA.fillColor(v) = Color::Gray;
+				GA.fillColor(v) = Color::Name::Gray;
 				GA.strokeWidth(v) = 2;
 			} else {
-				GA.fillColor(v) = Color::White;
+				GA.fillColor(v) = Color::Name::White;
 				GA.strokeWidth(v) = 1;
 			}
 		}
@@ -655,7 +654,7 @@ void MinSteinerTreeModule<T>::drawSVG(const EdgeWeightedGraph<T> &G, const NodeA
 	fmmm.useHighLevelOptions(true);
 	fmmm.unitEdgeLength(44.0);
 	fmmm.newInitialPlacement(true);
-	fmmm.qualityVersusSpeed(FMMMLayout::qvsGorgeousAndEfficient);
+	fmmm.qualityVersusSpeed(FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
 
 	fmmm.call(GA);
 

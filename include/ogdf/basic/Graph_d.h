@@ -35,7 +35,7 @@
 #pragma once
 
 #include <ogdf/basic/GraphList.h>
-#include <ogdf/internal/basic/graph_iterators.h>
+#include <ogdf/basic/internal/graph_iterators.h>
 #include <mutex>
 
 #ifdef OGDF_DEBUG
@@ -59,15 +59,15 @@ class OGDF_EXPORT ClusterElement;
 
 //! The type of nodes.
 //! @ingroup graphs
-typedef NodeElement *node;
+using node = NodeElement*;
 
 //! The type of edges.
 //! @ingroup graphs
-typedef EdgeElement *edge;
+using edge = EdgeElement*;
 
 //! The type of adjacency entries.
 //! @ingroup graphs
-typedef AdjElement *adjEntry;
+using adjEntry = AdjElement*;
 
 
 //! Class for adjacency list elements.
@@ -86,7 +86,7 @@ class OGDF_EXPORT AdjElement : private internal::GraphElement {
 	int m_id;    //!< The (unique) index of the adjacency entry.
 
 	//! Constructs an adjacency element for a given node.
-	AdjElement(node v) : m_node(v) { }
+	explicit AdjElement(node v) : m_node(v) { }
 	//! Constructs an adjacency entry for a given edge and index.
 	AdjElement(edge e, int id) : m_edge(e), m_id(id) { }
 
@@ -179,11 +179,10 @@ class OGDF_EXPORT NodeElement : private internal::GraphElement {
 #endif
 
 
-	// construction
+	//! Constructs a node element with index \p id.
 #ifdef OGDF_DEBUG
-	//! Constructs a node element with index \a id.
 	/**
-	 * \remarks The parameter \a pGraph is only passed in a debug build.
+	 * \remarks The parameter \p pGraph is only passed in a debug build.
 	 * It is used, e.g., by NodeArray for checking if a node belongs to
 	 * the correct graph.
 	 */
@@ -299,7 +298,7 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 	AdjElement *m_adjTgt; //!< Corresponding adjacancy entry at target node.
 	int m_id; // The (unique) index of the node.
 
-	//! Constructs an edge element (\a src,\a tgt).
+	//! Constructs an edge element (\p src,\p tgt).
 	/**
 	 * @param src is the source node of the edge.
 	 * @param tgt is the target node of the edge.
@@ -310,7 +309,7 @@ class OGDF_EXPORT EdgeElement : private internal::GraphElement {
 	EdgeElement(node src, node tgt, AdjElement *adjSrc, AdjElement *adjTgt, int id) :
 		m_src(src), m_tgt(tgt), m_adjSrc(adjSrc), m_adjTgt(adjTgt), m_id(id) { }
 
-	//! Constructs an edge element (\a src,\a tgt).
+	//! Constructs an edge element (\p src,\p tgt).
 	/**
 	 * @param src is the source node of the edge.
 	 * @param tgt is the target node of the edge.
@@ -332,7 +331,7 @@ public:
 	//! Returns the corresponding adjacancy entry at target node.
 	adjEntry adjTarget() const { return m_adjTgt; }
 
-	//! Returns the adjacent node different from \a v.
+	//! Returns the adjacent node different from \p v.
 	node opposite(node v) const { return (v == m_src) ? m_tgt : m_src; }
 	// Returns true iff the edge is a self-loop (source node = target node).
 	bool isSelfLoop() const { return m_src == m_tgt; }
@@ -347,10 +346,10 @@ public:
 	const Graph *graphOf() const { return m_src->graphOf(); }
 #endif
 
-	//! Returns true iff \a v is incident to the edge.
+	//! Returns true iff \p v is incident to the edge.
 	bool isIncident(node v) const { return v == m_src || v == m_tgt; }
 
-	//! Returns the common node of the edge and \a e. Returns nullptr if the two edges are not adjacent.
+	//! Returns the common node of the edge and \p e. Returns nullptr if the two edges are not adjacent.
 	node commonNode(edge e) const { return (m_src==e->m_src || m_src==e->m_tgt) ? m_src : ((m_tgt==e->m_src || m_tgt==e->m_tgt) ? m_tgt: nullptr); }
 
 	//! Returns an adjacency entry of this edge at node \c v.
@@ -417,11 +416,6 @@ void NodeElement::outEdges(EDGELIST &edgeList) const {
 		if (adj == e->adjSource()) edgeList.pushBack(e);
 	}
 }
-
-
-template<>inline bool doDestruction<node>(const node *) { return false; }
-template<>inline bool doDestruction<edge>(const edge *) { return false; }
-template<>inline bool doDestruction<adjEntry>(const adjEntry *) { return false; }
 
 class NodeArrayBase;
 class EdgeArrayBase;
@@ -507,11 +501,11 @@ public:
 	//@{
 
 	//! Provides a bidirectional iterator to a node in a graph.
-	typedef internal::GraphIterator<node> node_iterator;
+	using node_iterator = internal::GraphIterator<node>;
 	//! Provides a bidirectional iterator to an edge in a graph.
-	typedef internal::GraphIterator<edge> edge_iterator;
+	using edge_iterator = internal::GraphIterator<edge>;
 	//! Provides a bidirectional iterator to an entry in an adjacency list.
-	typedef internal::GraphIterator<adjEntry> adjEntry_iterator;
+	using adjEntry_iterator = internal::GraphIterator<adjEntry>;
 
 	//@}
 	/**
@@ -521,21 +515,21 @@ public:
 	//@{
 
 	//! The type of edges (only used in derived classes).
-	enum EdgeType {
+	enum class EdgeType {
 		association = 0,
 		generalization = 1,
 		dependency = 2
 	}; // should be more flexible, standard, dissect, expand
 
 	//! The type of nodes.
-	enum NodeType {
-		vertex,
-		dummy,
-		generalizationMerger,
-		generalizationExpander,
-		highDegreeExpander,
-		lowDegreeExpander,
-		associationClass
+	enum class NodeType {
+		vertex = 0,
+		dummy = 1,
+		generalizationMerger = 2,
+		generalizationExpander = 3,
+		highDegreeExpander = 4,
+		lowDegreeExpander = 5,
+		associationClass = 6
 	};
 
 	//@}
@@ -559,10 +553,10 @@ public:
 	//! Constructs an empty graph.
 	Graph();
 
-	//! Constructs a graph that is a copy of \a G.
+	//! Constructs a graph that is a copy of \p G.
 	/**
 	 * The constructor assures that the adjacency lists of nodes in the
-	 * constructed graph are in the same order as the adjacency lists in \a G.
+	 * constructed graph are in the same order as the adjacency lists in \p G.
 	 * This is in particular important when dealing with embedded graphs.
 	 *
 	 * @param G is the graph that will be copied.
@@ -664,7 +658,7 @@ public:
 
 	//! Creates a new node with predefined index and returns it.
 	/**
-	 * \pre \a index is currently not the index of any other node in the graph.
+	 * \pre \p index is currently not the index of any other node in the graph.
 	 *
 	 * \attention Passing a node index that is already in use results in an inconsistent
 	 *            data structure. Only use this method if you know what you're doing!
@@ -674,7 +668,7 @@ public:
 	 */
 	node newNode(int index);
 
-	//! Creates a new edge (\a v,\a w) and returns it.
+	//! Creates a new edge (\p v,\p w) and returns it.
 	/**
 	 * @param v is the source node of the newly created edge.
 	 * @param w is the target node of the newly created edge.
@@ -682,9 +676,9 @@ public:
 	 */
 	edge newEdge(node v, node w);
 
-	//! Creates a new edge (\a v,\a w) with predefined index and returns it.
+	//! Creates a new edge (\p v,\p w) with predefined index and returns it.
 	/**
-	 * \pre \a index is currently not the index of any other edge in the graph.
+	 * \pre \p index is currently not the index of any other edge in the graph.
 	 *
 	 * \attention  Passing an edge index that is already in use results in an inconsistent
 	 *             data structure. Only use this method if you know what you're doing!
@@ -698,8 +692,8 @@ public:
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
-	 * Let \a v be the node whose adjacency list contains \a adjSrc,
-	 * and \a w the node whose adjacency list contains \a adjTgt. Then,
+	 * Let \a v be the node whose adjacency list contains \p adjSrc,
+	 * and \a w the node whose adjacency list contains \p adjTgt. Then,
 	 * the created edge is (\a v,\a w).
 	 *
 	 * @param adjSrc is the adjacency entry after which the new edge is inserted
@@ -710,15 +704,15 @@ public:
 	 *               adjacency entries.
 	 * @return the newly created edge.
 	 */
-	edge newEdge(adjEntry adjSrc, adjEntry adjTgt, Direction dir = ogdf::after);
+	edge newEdge(adjEntry adjSrc, adjEntry adjTgt, Direction dir = Direction::after);
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
-	 * Let \a w be the node whose adjacency list contains \a adjTgt. Then,
-	 * the created edge is (\a v,\a w).
+	 * Let \a w be the node whose adjacency list contains \p adjTgt. Then,
+	 * the created edge is (\p v,\a w).
 	 *
 	 * @param v      is the source node of the new edge; the edge is added at the end
-	 *               of the adjacency list of \a v.
+	 *               of the adjacency list of \p v.
 	 * @param adjTgt is the adjacency entry after which the new edge is inserted
 	 *               in the adjacency list of \a w.
 	 * @return the newly created edge.
@@ -727,13 +721,13 @@ public:
 
 	//! Creates a new edge at predefined positions in the adjacency lists.
 	/**
-	 * Let \a v be the node whose adjacency list contains \a adjSrc. Then,
-	 * the created edge is (\a v,\a w).
+	 * Let \a v be the node whose adjacency list contains \p adjSrc. Then,
+	 * the created edge is (\a v,\p w).
 	 *
 	 * @param adjSrc is the adjacency entry after which the new edge is inserted
 	 *               in the adjacency list of \a v.
 	 * @param w      is the source node of the new edge; the edge is added at the end
-	 *               of the adjacency list of \a w.
+	 *               of the adjacency list of \p w.
 	 * @return the newly created edge.
 	 */
 	edge newEdge(adjEntry adjSrc, node w);
@@ -745,16 +739,10 @@ public:
 	 */
 	//@{
 
-	//! Removes node \a v and all incident edges from the graph.
-	/**
-	 * @param v is the node that will be deleted.
-	 */
+	//! Removes node \p v and all incident edges from the graph.
 	virtual void delNode(node v);
 
-	//! Removes edge \a e from the graph.
-	/**
-	 * @param e is the egde that will be deleted.
-	 */
+	//! Removes edge \p e from the graph.
 	virtual void delEdge(edge e);
 
 	//! Removes all nodes and all edges from the graph.
@@ -790,7 +778,7 @@ public:
 		*
 		* @param graph the graph to be modified
 		*/
-		HiddenEdgeSet(Graph &graph) : m_graph(&graph)
+		explicit HiddenEdgeSet(Graph &graph) : m_graph(&graph)
 		{
 			m_it = m_graph->m_hiddenEdgeSets.pushFront(this);
 		}
@@ -850,12 +838,12 @@ public:
 	 */
 	//@{
 
-	//! Splits edge \a e into two edges introducing a new node.
+	//! Splits edge \p e into two edges introducing a new node.
 	/**
-	 * Let \a e=(\a v,\a w). Then, the resulting two edges are \a e=(\a v,\a u)
+	 * Let \p e=(\a v,\a w). Then, the resulting two edges are \a e=(\a v,\a u)
 	 * and \a e'=(\a u,\a w), where \a u is a new node.
 	 *
-	 * \note The edge \a e is modified by this operation.
+	 * \note The edge \p e is modified by this operation.
 	 *
 	 * @param e is the edge to be split.
 	 * @return The edge \a e'.
@@ -864,10 +852,10 @@ public:
 
 	//! Undoes a split operation.
 	/**
-	 * Removes node \a u by joining the two edges adjacent to \a u. The
-	 * outgoing edge of \a u is removed and the incoming edge \a e is reused
+	 * Removes node \p u by joining the two edges adjacent to \p u. The
+	 * outgoing edge of \p u is removed and the incoming edge \a e is reused
 	 *
-	 * \pre \a u has exactly one incoming and one outgoing edge, and
+	 * \pre \p u has exactly one incoming and one outgoing edge, and
 	 *    none of them is a self-loop.
 	 *
 	 * @param u is the node to be unsplit.
@@ -877,11 +865,11 @@ public:
 
 	//! Undoes a split operation.
 	/**
-	 * For two edges \a eIn = (\a x,\a u) and \a eOut = (\a u,\a y), removes
-	 * node \a u by joining \a eIn and \a eOut. Edge \a eOut is removed and
-	 * \a eIn is reused.
+	 * For two edges \p eIn = (\a x,\a u) and \p eOut = (\a u,\a y), removes
+	 * node \a u by joining \p eIn and \p eOut. Edge \p eOut is removed and
+	 * \p eIn is reused.
 	 *
-	 * \pre \a eIn and \a eOut are the only edges incident with \a u and
+	 * \pre \p eIn and \p eOut are the only edges incident with \a u and
 	 *      none of them is a self-loop.
 	 *
 	 * @param eIn  is the (only) incoming edge of \a u.
@@ -892,12 +880,12 @@ public:
 	//! Splits a node while preserving the order of adjacency entries.
 	/**
 	 * This method splits a node \a v into two nodes \a vl and \a vr. Node
-	 * \a vl receives all adjacent edges of \a v from \a adjStartLeft until
-	 * the edge preceding \a adjStartRight, and \a vr the remaining nodes
-	 * (thus \a adjStartRight is the first edge that goes to \a vr). The
+	 * \a vl receives all adjacent edges of \a v from \p adjStartLeft until
+	 * the edge preceding \p adjStartRight, and \a vr the remaining nodes
+	 * (thus \p adjStartRight is the first edge that goes to \a vr). The
 	 * order of adjacency entries is preserved. Additionally, a new edge
 	 * (\a vl,\a vr) is created, such that this edge is inserted before
-	 * \a adjStartLeft and \a adjStartRight in the the adjacency lists of
+	 * \p adjStartLeft and \p adjStartRight in the the adjacency lists of
 	 * \a vl and \a vr.
 	 *
 	 * Node \a v is modified to become node \a vl, and node \a vr is returned.
@@ -909,102 +897,99 @@ public:
 	 */
 	node splitNode(adjEntry adjStartLeft, adjEntry adjStartRight);
 
-	//! Contracts edge \a e while preserving the order of adjacency entries.
+	//! Contracts edge \p e while preserving the order of adjacency entries.
 	/**
-	 * @attention Edges parallel to \a e will also be contracted (they do not result in self-loops).
+	 * @attention Edges parallel to \p e will also be contracted (they do not result in self-loops).
 	 * @param e is the edge to be contracted.
-	 * @return The endpoint of \a e to which all edges have been moved. The implementation ensures this to be the source of the former edge \a e.
+	 * @return The endpoint of \p e to which all edges have been moved. The implementation ensures this to be the source of the former edge \p e.
 	 */
 	node contract(edge e);
 
-	//! Moves edge \a e to a different adjacency list.
+	//! Moves edge \p e to a different adjacency list.
 	/**
-	 * The source adjacency entry of \a e is moved to the adjacency list containing
-	 * \a adjSrc and is inserted before or after \a adjSrc, and its target adjacency entry
-	 * to the adjacency list containing \a adjTgt and is inserted before or after
-	 * \a adjTgt; e is afterwards an edge from owner(\a adjSrc) to owner(\a adjTgt).
+	 * The source adjacency entry of \p e is moved to the adjacency list containing
+	 * \p adjSrc and is inserted before or after \p adjSrc, and its target adjacency entry
+	 * to the adjacency list containing \p adjTgt and is inserted before or after
+	 * \p adjTgt; \p e is afterwards an edge from owner(\p adjSrc) to owner(\p adjTgt).
 	 *
 	 * @param e      is the edge to be moved.
 	 * @param adjSrc is the adjaceny entry before or after which the source adjacency entry
-	 *               of \a e will be inserted.
-	 * @param dirSrc specifies if the source adjacency entry of \a e will be inserted before or after \a adjSrc.
+	 *               of \p e will be inserted.
+	 * @param dirSrc specifies if the source adjacency entry of \p e will be inserted before or after \p adjSrc.
 	 * @param adjTgt is the adjaceny entry before or after which the target adjacency entry
-	 *               of \a e will be inserted.
-	 * @param dirTgt specifies if the target adjacency entry of \a e will be inserted before or after \a adjTgt.
+	 *               of \p e will be inserted.
+	 * @param dirTgt specifies if the target adjacency entry of \p e will be inserted before or after \p adjTgt.
 	 */
 	void move(edge e, adjEntry adjSrc, Direction dirSrc,
 		adjEntry adjTgt, Direction dirTgt);
 
-	//! Moves the target node of edge \a e to node \a w.
+	//! Moves the target node of edge \p e to node \p w.
 	/**
-	 * If \a e=(\a v,\a u) before, then \a e=(\a v,\a w) afterwards.
+	 * If \p e=(\a v,\a u) before, then \p e=(\a v,\p w) afterwards.
 	 *
 	 * @param e is the edge whose target node is moved.
-	 * @param w is the new target node of \a e.
+	 * @param w is the new target node of \p e.
 	 */
 	void moveTarget(edge e, node w);
 
-	//! Moves the target node of edge \a e to a specific position in an adjacency list.
+	//! Moves the target node of edge \p e to a specific position in an adjacency list.
 	/**
-	 * Let \a w be the node containing \a adjTgt. If \a e=(\a v,\a u) before, then \a e=(\a v,\a w) afterwards.
-	 * Inserts the adjacency entry before or after \a adjTgt according to \a dir.
+	 * Let \a w be the node containing \p adjTgt. If \p e=(\a v,\a u) before, then \a e=(\a v,\a w) afterwards.
+	 * Inserts the adjacency entry before or after \p adjTgt according to \p dir.
 	 *
 	 * @param e is the edge whose target node is moved.
-	 * @param adjTgt is the adjacency entry before or after which the target adjacency entry of \a e is inserted.
-	 * @param dir specifies if the target adjacency entry of \a e is inserted before or after \a adjTgt.
+	 * @param adjTgt is the adjacency entry before or after which the target adjacency entry of \p e is inserted.
+	 * @param dir specifies if the target adjacency entry of \p e is inserted before or after \p adjTgt.
 	 */
 	void moveTarget(edge e, adjEntry adjTgt, Direction dir);
 
-	//! Moves the source node of edge \a e to node \a w.
+	//! Moves the source node of edge \p e to node \p w.
 	/**
-	 * If \a e=(\a v,\a u) before, then \a e=(\a w,\a u) afterwards.
+	 * If \p e=(\a v,\a u) before, then \p e=(\p w,\a u) afterwards.
 	 *
 	 * @param e is the edge whose source node is moved.
-	 * @param w is the new source node of \a e.
+	 * @param w is the new source node of \p e.
 	 */
 	void moveSource(edge e, node w);
 
-	//! Moves the source node of edge \a e to a specific position in an adjacency list.
+	//! Moves the source node of edge \p e to a specific position in an adjacency list.
 	/**
-	 * Let \a w be the node containing \a adjSrc. If \a e=(\a v,\a u) before, then \a e=(\a w,\a u) afterwards.
-	 * Inserts the adjacency entry before or after \a adjSrc according to \a dir.
+	 * Let \a w be the node containing \p adjSrc. If \p e=(\a v,\a u) before, then \a e=(\a w,\a u) afterwards.
+	 * Inserts the adjacency entry before or after \p adjSrc according to \p dir.
 	 *
 	 * @param e is the edge whose source node is moved.
-	 * @param adjSrc is the adjacency entry before or after which the source adjacency entry of \a e is inserted.
-	 * @param dir specifies if the source adjacency entry of \a e is inserted before or after \a adjSrc.
+	 * @param adjSrc is the adjacency entry before or after which the source adjacency entry of \p e is inserted.
+	 * @param dir specifies if the source adjacency entry of \p e is inserted before or after \p adjSrc.
 	 */
 	void moveSource(edge e, adjEntry adjSrc, Direction dir);
 
-	//! Searches and returns an edge connecting nodes \a v and \a w in time O(min(deg(v), deg(w))).
+	//! Searches and returns an edge connecting nodes \p v and \p w in time \a O( min(deg(\p v ), deg(\p w ))).
 	/**
 	 * @param v is the source node of the edge to be searched.
 	 * @param w is the target node of the edge to be searched.
-	 * @return an edge (\ v,\a w) if such an edge exists, nullptr otherwise.
+	 * @return an edge (\p v,\p w) if such an edge exists, nullptr otherwise.
 	 */
 	edge searchEdge (node v, node w) const;
 
-	//! Reverses the edge \a e, i.e., exchanges source and target node.
-	/**
-	 * @param e is the edge to be reveresed.
-	 */
+	//! Reverses the edge \p e, i.e., exchanges source and target node.
 	void reverseEdge(edge e);
 
 	//! Reverses all edges in the graph.
 	void reverseAllEdges();
 
-	//! Collapses all nodes in the list \a nodes to the first node in the list.
+	//! Collapses all nodes in the list \p nodesToCollapse to the first node in the list.
 	/**
 	 * Parallel edges are removed.
 	 *
-	 * @tparam NODELIST is the type of input node list.
-	 * @param  nodes    is the list of nodes that will be collapsed. This list will be empty after the call.
+	 * @tparam NODELIST        is the type of input node list.
+	 * @param  nodesToCollapse is the list of nodes that will be collapsed. This list will be empty after the call.
 	 */
 	template<class NODELIST>
-	void collapse(NODELIST &nodes){
-		node v = nodes.popFrontRet();
-		while (!nodes.empty())
+	void collapse(NODELIST &nodesToCollapse){
+		node v = nodesToCollapse.popFrontRet();
+		while (!nodesToCollapse.empty())
 		{
-			node w = nodes.popFrontRet();
+			node w = nodesToCollapse.popFrontRet();
 			adjEntry adj = w->firstAdj();
 			while (adj != nullptr)
 			{
@@ -1022,13 +1007,13 @@ public:
 		}
 	}
 
-	//! Sorts the adjacency list of node \a v according to \a newOrder.
+	//! Sorts the adjacency list of node \p v according to \p newOrder.
 	/**
-	 * \pre \a newOrder contains exactly the adjacency entries of \a v!
+	 * \pre \p newOrder contains exactly the adjacency entries of \p v!
 	 *
 	 * @tparam ADJ_ENTRY_LIST is the type of the input adjacency entry list.
 	 * @param  v              is the node whose adjacency list will be sorted.
-	 * @param  newOrder       is the list of adjacency entries of \a v in the new order.
+	 * @param  newOrder       is the list of adjacency entries of \p v in the new order.
 	 */
 	template<class ADJ_ENTRY_LIST>
 	void sort(node v, const ADJ_ENTRY_LIST &newOrder) {
@@ -1048,7 +1033,7 @@ public:
 		v->adjEntries.sort(newOrder);
 	}
 
-	//! Reverses the adjacency list of \a v.
+	//! Reverses the adjacency list of \p v.
 	/**
 	 * @param v is the node whose adjacency list will be reveresed.
 	 */
@@ -1056,13 +1041,13 @@ public:
 		v->adjEntries.reverse();
 	}
 
-	//! Moves adjacency entry \a adjMove before or after \a adjPos.
+	//! Moves adjacency entry \p adjMove before or after \p adjPos.
 	/**
-	 * \pre \a adjMove and adjAfter are distinct entries in the same adjacency list.
+	 * \pre \p adjMove and adjAfter are distinct entries in the same adjacency list.
 	 *
 	 * @param adjMove is an entry in the adjacency list of a node in this graph.
-	 * @param adjPos  is an entry in the same adjacency list as \a adjMove.
-	 * @param dir     specifies if \a adjMove is moved before or after \a adjPos.
+	 * @param adjPos  is an entry in the same adjacency list as \p adjMove.
+	 * @param dir     specifies if \p adjMove is moved before or after \p adjPos.
 	 */
 	void moveAdj(adjEntry adjMove, Direction dir, adjEntry adjPos) {
 		OGDF_ASSERT(adjMove != nullptr);
@@ -1073,12 +1058,12 @@ public:
 		adjList.move(adjMove, adjList, adjPos, dir);
 	}
 
-	//! Moves adjacency entry \a adjMove after \a adjAfter.
+	//! Moves adjacency entry \p adjMove after \p adjAfter.
 	/**
-	 * \pre \a adjMove and \a adjAfter are distinct entries in the same adjacency list.
+	 * \pre \p adjMove and \p adjAfter are distinct entries in the same adjacency list.
 	 *
 	 * @param adjMove  is an entry in the adjacency list of a node in this graph.
-	 * @param adjAfter is an entry in the same adjacency list as \a adjMove.
+	 * @param adjAfter is an entry in the same adjacency list as \p adjMove.
 	 */
 	void moveAdjAfter(adjEntry adjMove, adjEntry adjAfter) {
 		OGDF_ASSERT(adjMove != nullptr);
@@ -1088,12 +1073,12 @@ public:
 		adjMove->m_node->adjEntries.moveAfter(adjMove,adjAfter);
 	}
 
-	//! Moves adjacency entry \a adjMove before \a adjBefore.
+	//! Moves adjacency entry \p adjMove before \p adjBefore.
 	/**
-	 * \pre \a adjMove and \a adjBefore are distinct entries in the same adjacency list.
+	 * \pre \p adjMove and \p adjBefore are distinct entries in the same adjacency list.
 	 *
 	 * @param adjMove   is an entry in the adjacency list of a node in this graph.
-	 * @param adjBefore is an entry in the same adjacency list as \a adjMove.
+	 * @param adjBefore is an entry in the same adjacency list as \p adjMove.
 	 */
 	void moveAdjBefore(adjEntry adjMove, adjEntry adjBefore) {
 		OGDF_ASSERT(adjMove != nullptr);
@@ -1108,7 +1093,7 @@ public:
 
 	//! Exchanges two entries in an adjacency list.
 	/**
-	 * \pre \a adj1 and \a adj2 must be belong to the same adjacency list.
+	 * \pre \p adj1 and \p adj2 must be belong to the same adjacency list.
 	 *
 	 * @param adj1 the first adjacency entry to be swapped.
 	 * @param adj2 the secomd adjacency entry to be swapped.
@@ -1129,9 +1114,9 @@ public:
 
 	//! Returns the genus of the graph's embedding.
 	/**
-	 * The genus of a graph is defined as follows. Let \f$G\f$ be a graph
-	 * with \f$m\f$ edges, \f$n\f$ nodes, \f$c\f$ connected components, \f$nz\f$
-	 * isolated vertices, and \f$fc\f$ face cycles. Then,
+	 * The genus of a graph is defined as follows. Let \a G be a graph
+	 * with \a m edges, \a n nodes, \a c connected components, \a nz
+	 * isolated vertices, and \a fc face cycles. Then,
 	 * \f[
 	 *   genus(G) = (m/2 + 2c - n -nz -fc)/2
 	 * \f]
@@ -1233,18 +1218,18 @@ public:
 	 */
 	void unregisterStructure(ListIterator<GraphObserver*> it) const;
 
-	//! Move the registration \a it of a node array to \a pNodeArray (used with move semantics for node arrays).
+	//! Move the registration \p it of a node array to \p pNodeArray (used with move semantics for node arrays).
 	void moveRegisterArray(ListIterator<NodeArrayBase*> it, NodeArrayBase *pNodeArray) const;
 
-	//! Move the registration \a it of an edge array to \a pEdgeArray (used with move semantics for edge arrays).
+	//! Move the registration \p it of an edge array to \p pEdgeArray (used with move semantics for edge arrays).
 	void moveRegisterArray(ListIterator<EdgeArrayBase*> it, EdgeArrayBase *pEdgeArray) const;
 
-	//! Move the registration \a it of an adjEntry array to \a pAdjArray (used with move semantics for adjEntry arrays).
+	//! Move the registration \p it of an adjEntry array to \p pAdjArray (used with move semantics for adjEntry arrays).
 	void moveRegisterArray(ListIterator<AdjEntryArrayBase*> it, AdjEntryArrayBase *pAdjArray) const;
 
-	//! Resets the edge id count to \a maxId.
+	//! Resets the edge id count to \p maxId.
 	/**
-	 * The next edge will get edge id \a maxId+1. Use this function with caution!
+	 * The next edge will get edge id \p maxId +1. Use this function with caution!
 	 * It is provided as an efficient way to reduce the edge id count. The Graph class
 	 * increments the edge id count whenever an edge is created; free edge ids resulting
 	 * from removing edges are not reused (there is not something like a freelist).
@@ -1264,7 +1249,7 @@ public:
 	 * Reducing the edge id count will reduce the memory consumption of edge arrays
 	 * associated with the graph.
 	 *
-	 * \pre -1 \f$\leq\f$ \a maxId \f$\leq\f$ maximal edge id in the graph.
+	 * \pre -1 <= \p maxId <= maximal edge id in the graph.
 	 *
 	 * @param maxId is an upper bound of the edge ids in the graph.
 	 */
@@ -1279,7 +1264,7 @@ public:
 	//! Assignment operator.
 	/**
 	 * The assignment operature assures that the adjacency lists of nodes in the
-	 * constructed graph are in the same order as the adjacency lists in \a G.
+	 * constructed graph are in the same order as the adjacency lists in \p G.
 	 * This is in particular important when dealing with embedded graphs.
 	 *
 	 * @param G is the graph to be copied.
@@ -1293,7 +1278,7 @@ public:
 
 public:
 
-	//! Returns the smallest power of 2 which is >= 2^\a start and > \a idCount.
+	//! Returns the smallest power of 2 which is >= 2^\p start and > \p idCount.
 	static int nextPower2(int start, int idCount);
 
 
@@ -1312,8 +1297,8 @@ public:
 		//! Creates a info structure associated with no graph.
 		CCsInfo() : m_graph(nullptr), m_numCC(0) { }
 
-		//! Creates a info structure associated with graph \a G.
-		CCsInfo(const Graph& G);
+		//! Creates a info structure associated with graph \p G.
+		explicit CCsInfo(const Graph& G);
 
 		//! Returns the associated graph.
 		const Graph &constGraph() const { return *m_graph; }
@@ -1321,28 +1306,28 @@ public:
 		//! Returns the number of connected components.
 		int numberOfCCs() const { return m_numCC; }
 
-		//! Returns the number of nodes in connected component \ cc.
+		//! Returns the number of nodes in connected component \p cc.
 		int numberOfNodes(int cc) const { return stopNode(cc) - startNode(cc); }
 
-		//! Returns the number of edges in connected component \ cc.
+		//! Returns the number of edges in connected component \p cc.
 		int numberOfEdges(int cc) const { return stopEdge(cc) - startEdge(cc); }
 
-		//! Returns the index of the first node in connected component \a cc.
+		//! Returns the index of the first node in connected component \p cc.
 		int startNode(int cc) const { return m_startNode[cc]; }
 
-		//! Returns the index of (one past) the last node in connected component \a cc.
+		//! Returns the index of (one past) the last node in connected component \p cc.
 		int stopNode (int cc) const { return m_startNode[cc+1]; }
 
-		//! Returns the index of the first edge in connected component \a cc.
+		//! Returns the index of the first edge in connected component \p cc.
 		int startEdge(int cc) const { return m_startEdge[cc]; }
 
-		//! Returns the index of (one past) the last edge in connected component \a cc.
+		//! Returns the index of (one past) the last edge in connected component \p cc.
 		int stopEdge (int cc) const { return m_startEdge[cc+1]; }
 
-		//! Returns the node with index \a i.
+		//! Returns the node with index \p i.
 		node v(int i) const { return m_nodes[i]; }
 
-		//! Returns the edge with index \a i.
+		//! Returns the edge with index \p i.
 		edge e(int i) const { return m_edges[i]; }
 	};
 
@@ -1351,10 +1336,10 @@ protected:
 
 	void assign(const Graph &G, NodeArray<node> &mapNode, EdgeArray<edge> &mapEdge);
 
-	//! Constructs a copy of the subgraph of \a G induced by \a nodeList.
+	//! Constructs a copy of the subgraph of \p G induced by \p nodeList.
 	/**
 	 * This method preserves the order in the adjacency lists, i.e., if
-	 * \a G is embedded, its embedding induces the embedding of the copy.
+	 * \p G is embedded, its embedding induces the embedding of the copy.
 	 */
 	void constructInitByNodes(
 		const Graph &G,
@@ -1368,7 +1353,7 @@ protected:
 		NodeArray<node> &mapNode,
 		EdgeArray<edge> &mapEdge);
 
-	//! Constructs a copy of connected component \a cc in \a info.
+	//! Constructs a copy of connected component \p cc in \p info.
 	void constructInitByCC(
 		const CCsInfo &info,
 		int cc,
@@ -1397,21 +1382,32 @@ private:
 
 }; // class Graph
 
-
+OGDF_EXPORT std::ostream & operator<<(std::ostream &os, const Graph::EdgeType &et);
 
 //! Bucket function using the index of an edge's source node as bucket.
 class OGDF_EXPORT BucketSourceIndex : public BucketFunc<edge> {
 public:
-	//! Returns source index of \a e.
+	//! Returns source index of \p e.
 	int getBucket(const edge &e) override { return e->source()->index(); }
 };
 
 //! Bucket function using the index of an edge's target node as bucket.
 class OGDF_EXPORT BucketTargetIndex : public BucketFunc<edge> {
 public:
-	//! Returns target index of \a e.
+	//! Returns target index of \p e.
 	int getBucket(const edge &e) override { return e->target()->index(); }
 };
 
+struct NodePair {
+	node source = nullptr;
+	node target = nullptr;
+	NodePair() = default;
+	NodePair(node src, node tgt) : source(src), target(tgt) {}
+};
+
+inline ostream &operator<<(ostream &os, const NodePair& np) {
+	os << "(" << np.source << "," << np.target << ")";
+	return os;
+}
 
 } //namespace

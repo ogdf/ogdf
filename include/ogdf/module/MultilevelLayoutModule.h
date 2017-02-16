@@ -33,18 +33,16 @@
 #pragma once
 
 #include <ogdf/module/LayoutModule.h>
-#include <ogdf/internal/energybased/MultilevelGraph.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 
 namespace ogdf {
 
-
 /**
- * \brief Interface of general layout algorithms that also allow
+ * Interface of general layout algorithms that also allow
  * a MultilevelGraph as call parameter, extending the interface
  * of a simple LayoutModule.
- *
  */
-	class OGDF_EXPORT MultilevelLayoutModule : public LayoutModule {
+class OGDF_EXPORT MultilevelLayoutModule : public LayoutModule {
 public:
 	//! Initializes a multilevel layout module.
 	MultilevelLayoutModule() { }
@@ -52,7 +50,7 @@ public:
 	virtual ~MultilevelLayoutModule() { }
 
 	/**
-	 * \brief Computes a layout of graph \a GA.
+	 * \brief Computes a layout of graph \p GA.
 	 *
 	 * This method is the actual algorithm call and must be implemented by
 	 * derived classes.

@@ -97,13 +97,13 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream& operator<<(ostream &out, const Column &rhs);
+	friend OGDF_EXPORT ostream& operator<<(ostream &out, const Column &rhs);
 
 	//! Returns the objective function coefficient of the column.
 	double obj() const { return obj_; }
 
 
-	//! Sets the objective function coefficient of the column to \ c.
+	//! Sets the objective function coefficient of the column to \p c.
 	/**
 	 * \param c The new value of the objective function coefficient.
 	 */

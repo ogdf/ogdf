@@ -34,7 +34,6 @@
 #include <ogdf/layered/OptimalHierarchyClusterLayout.h>
 #include <ogdf/lpsolver/LPSolver.h>
 #include <ogdf/basic/Array2D.h>
-#include <ogdf/basic/Stack.h>
 
 namespace ogdf {
 
@@ -47,7 +46,7 @@ int checkSolution(
 	Array<char>   &equationSense, // 'E' ==   'G' >=   'L' <=
 	Array<double> &lowerBound,    // lower bound of x[i]
 	Array<double> &upperBound,    // upper bound of x[i]
-	Array<double> &x)             // x-vector of optimal solution (if result is lpOptimal)
+	Array<double> &x)             // x-vector of optimal solution (if result is Optimal)
 {
 	const double zeroeps = 1.0E-7;
 
@@ -79,11 +78,11 @@ int checkSolution(
 					return i;
 				break;
 			case 'G':
-				if(!(val+zeroeps >= rightHandSide[i]))
+				if(val+zeroeps < rightHandSide[i])
 					return i;
 				break;
 			case 'L':
-				if(!(val-zeroeps <= rightHandSide[i]))
+				if(val-zeroeps > rightHandSide[i])
 					return i;
 				break;
 			default:
@@ -95,9 +94,6 @@ int checkSolution(
 }
 
 
-//---------------------------------------------------------
-// Constructor
-//---------------------------------------------------------
 OptimalHierarchyClusterLayout::OptimalHierarchyClusterLayout()
 {
 	m_nodeDistance       = 3;
@@ -109,9 +105,6 @@ OptimalHierarchyClusterLayout::OptimalHierarchyClusterLayout()
 }
 
 
-//---------------------------------------------------------
-// Copy Constructor
-//---------------------------------------------------------
 OptimalHierarchyClusterLayout::OptimalHierarchyClusterLayout(
 	const OptimalHierarchyClusterLayout &ohl)
 {
@@ -124,9 +117,6 @@ OptimalHierarchyClusterLayout::OptimalHierarchyClusterLayout(
 }
 
 
-//---------------------------------------------------------
-// Assignment Operator
-//---------------------------------------------------------
 OptimalHierarchyClusterLayout &OptimalHierarchyClusterLayout::operator=(
 	const OptimalHierarchyClusterLayout &ohl)
 {
@@ -141,9 +131,7 @@ OptimalHierarchyClusterLayout &OptimalHierarchyClusterLayout::operator=(
 }
 
 
-//---------------------------------------------------------
 // Call for Cluster Graphs
-//---------------------------------------------------------
 void OptimalHierarchyClusterLayout::doCall(
 	const ExtendedNestingGraph &H,
 	ClusterGraphCopyAttributes &ACGC)
@@ -170,9 +158,7 @@ void OptimalHierarchyClusterLayout::doCall(
 }
 
 
-//---------------------------------------------------------
 // Compute x-coordinates (LP-based approach) (for cluster graphs)
-//---------------------------------------------------------
 void OptimalHierarchyClusterLayout::computeXCoordinates(
 	const ExtendedNestingGraph& H,
 	ClusterGraphCopyAttributes &AGC)
@@ -205,7 +191,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 			} else {
 				node v = vNode->getNode();
 
-				if(H.isLongEdgeDummy(v) == true) {
+				if(H.isLongEdgeDummy(v)) {
 					m_isVirtual[v] = true;
 
 					edge e = v->firstAdj()->theEdge();
@@ -213,10 +199,10 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 						e = v->lastAdj()->theEdge();
 					node u = e->target();
 
-					if(H.verticalSegment(e) == false)
+					if(!H.verticalSegment(e))
 						continue;
 
-					if(H.isLongEdgeDummy(u) == true) {
+					if(H.isLongEdgeDummy(u)) {
 						int down = H.pos(u);
 						if(last != -1 && last > down) {
 							m_isVirtual[v] = false;
@@ -258,7 +244,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 			if(vNode->isCompound()) {
 				cluster c = vNode->originalCluster();
 
-				if(H.isVirtual(c) == false)
+				if(!H.isVirtual(c))
 					nSpacingConstraints += (c == CG.rootCluster()) ? 1 : 2;
 
 				for(int j = vNode->numberOfChildren()-1; j >= 0; --j)
@@ -269,7 +255,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 
 				// ignore dummy nodes and nodes representing cluster
 				// (top or bottom) border
-				if(H.type(v) == ExtendedNestingGraph::ntClusterBottom || H.type(v) == ExtendedNestingGraph::ntClusterTop)
+				if(H.type(v) == ExtendedNestingGraph::NodeType::ClusterBottom || H.type(v) == ExtendedNestingGraph::NodeType::ClusterTop)
 					continue;
 
 				++nSpacingConstraints;
@@ -324,7 +310,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 	m_cIndex.init(CG,-1);
 
 	for(cluster c : CG.clusters)
-		if(H.isVirtual(c) == false)
+		if(!H.isVirtual(c))
 			m_cIndex[c] = nClusters++;
 
 
@@ -369,10 +355,10 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 				i = m_cIndex[vNode->originalCluster()];
 
 				if(i >= 0) {
-					int count = (vNode == layerRoot) ? 1 : 2;
+					int cnt = (vNode == layerRoot) ? 1 : 2;
 
-					matrixCount[m_clusterLeftOffset  + i] += count;
-					matrixCount[m_clusterRightOffset + i] += count;
+					matrixCount[m_clusterLeftOffset  + i] += cnt;
+					matrixCount[m_clusterRightOffset + i] += cnt;
 				}
 
 				for(int j = vNode->numberOfChildren()-1; j >= 0; --j)
@@ -382,25 +368,25 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 				node v = vNode->getNode();
 
 				// ignore nodes representing cluster (top or bottom) border
-				if(H.type(v) == ExtendedNestingGraph::ntClusterBottom ||
-					H.type(v) == ExtendedNestingGraph::ntClusterTop)
+				if(H.type(v) == ExtendedNestingGraph::NodeType::ClusterBottom ||
+					H.type(v) == ExtendedNestingGraph::NodeType::ClusterTop)
 					continue;
 
 				if(m_isVirtual[v] == false) {
 					i = m_vertexOffset + m_vIndex[v];
 
-					int count =  2 + 2*v->degree();
+					int cnt =  2 + 2*v->degree();
 					if(nBalanced > 0) {
 						if(v->degree() > 1)
-							count += 2;
+							cnt += 2;
 						for(adjEntry adj : v->adjEntries) {
 							node w = adj->twinNode();
 							if(bIndex[w] != -1)
-								count += 2;
+								cnt += 2;
 						}
 					}
 
-					matrixCount[i] = count;
+					matrixCount[i] = cnt;
 
 				} else if (nBalanced > 0) {
 					i = m_vIndex[v];
@@ -678,12 +664,12 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 #ifdef OGDF_DEBUG
 	LPSolver::Status status =
 #endif
-	solver.optimize(LPSolver::lpMinimize, obj,
+	solver.optimize(LPSolver::OptimizationGoal::Minimize, obj,
 		matrixBegin, matrixCount, matrixIndex, matrixValue,
 		rightHandSide, equationSense,
 		lowerBound, upperBound, optimum, x);
 
-	OGDF_ASSERT(status == LPSolver::lpOptimal);
+	OGDF_ASSERT(status == LPSolver::Status::Optimal);
 #ifdef OGDF_DEBUG
 	int checkResult =
 #endif
@@ -695,7 +681,7 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 	for(node v : H.nodes)
 	{
 		ExtendedNestingGraph::NodeType t = H.type(v);
-		if(t == ExtendedNestingGraph::ntNode || t == ExtendedNestingGraph::ntDummy)
+		if(t == ExtendedNestingGraph::NodeType::Node || t == ExtendedNestingGraph::NodeType::Dummy)
 		{
 			if(m_isVirtual[v])
 				AGC.x(v) = x[m_segmentOffset + m_vIndex[v]];
@@ -706,11 +692,11 @@ void OptimalHierarchyClusterLayout::computeXCoordinates(
 
 	for(cluster c : CG.getOriginalClusterGraph().clusters)
 	{
-		int i = m_cIndex[CG.copy(c)];
-		OGDF_ASSERT(i >= 0);
+		int indexC = m_cIndex[CG.copy(c)];
+		OGDF_ASSERT(indexC >= 0);
 
 		AGC.setClusterLeftRight(c,
-			x[m_clusterLeftOffset+i], x[m_clusterRightOffset+i]);
+			x[m_clusterLeftOffset+indexC], x[m_clusterRightOffset+indexC]);
 	}
 
 
@@ -742,8 +728,8 @@ void OptimalHierarchyClusterLayout::buildLayerList(
 		node v = vNode->getNode();
 		ExtendedNestingGraph::NodeType t = m_pH->type(v);
 
-		if(t != ExtendedNestingGraph::ntClusterBottom &&
-			t != ExtendedNestingGraph::ntClusterTop)
+		if(t != ExtendedNestingGraph::NodeType::ClusterBottom &&
+			t != ExtendedNestingGraph::NodeType::ClusterTop)
 		{
 			int i = m_vIndex[v];
 			i += (m_isVirtual[v]) ? m_segmentOffset : m_vertexOffset;
@@ -754,9 +740,7 @@ void OptimalHierarchyClusterLayout::buildLayerList(
 }
 
 
-//---------------------------------------------------------
 // Compute y-coordinates for cluster graphs
-//---------------------------------------------------------
 void OptimalHierarchyClusterLayout::computeYCoordinates(
 	const ExtendedNestingGraph& H,
 	ClusterGraphCopyAttributes &AGC)
@@ -785,13 +769,13 @@ void OptimalHierarchyClusterLayout::computeYCoordinates(
 			} else {
 				node v = vNode->getNode();
 
-				if(H.type(v) == ExtendedNestingGraph::ntNode) {
+				if(H.type(v) == ExtendedNestingGraph::NodeType::Node) {
 					double h = AGC.getHeight(v);
 					if(h > height)
 						height = h;
 				}
 
-				if(m_fixedLayerDistance == false) {
+				if(!m_fixedLayerDistance) {
 					for(adjEntry adj : v->adjEntries) {
 						edge e = adj->theEdge();
 						node w = e->source();
@@ -816,7 +800,7 @@ void OptimalHierarchyClusterLayout::computeYCoordinates(
 	// set y-ccordinates of nodes
 	for(node v : H.nodes) {
 		ExtendedNestingGraph::NodeType t = H.type(v);
-		if(t == ExtendedNestingGraph::ntNode || t == ExtendedNestingGraph::ntDummy)
+		if(t == ExtendedNestingGraph::NodeType::Node || t == ExtendedNestingGraph::NodeType::Dummy)
 		{
 			AGC.y(v) = y[H.rank(v)];
 		}

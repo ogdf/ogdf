@@ -33,12 +33,9 @@
 #include <ogdf/basic/graph_generators.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/EdgeArray.h>
-#include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/FaceArray.h>
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/basic/Array2D.h>
-#include <random>
 
 #include <ogdf/planarity/PlanarizationGridLayout.h>
 #include <ogdf/planarlayout/SchnyderLayout.h>
@@ -48,6 +45,21 @@ using std::uniform_real_distribution;
 
 
 namespace ogdf {
+
+void customGraph(Graph &G, int n, List<std::pair<int,int>> edges, Array<node> &nodes)
+{
+	nodes.init(n);
+
+	G.clear();
+
+	for (int i = 0; i < n; i++) {
+		nodes[i] = G.newNode();
+	}
+
+	for (auto e : edges) {
+		G.newEdge(nodes[std::get<0>(e)], nodes[std::get<1>(e)]);
+	}
+}
 
 void randomRegularGraph(Graph &G, int n, int d)
 {
@@ -464,7 +476,7 @@ void planarTriconnectedGraph(Graph &G, int n, double p1, double p2)
 		if(adj1 == adj_b1)
 			G.newEdge(adj_b1, adj2->twin());
 		else if(adj2 == adj_b2)
-			G.newEdge(adj2, adj_b1->twin(), ogdf::before);
+			G.newEdge(adj2, adj_b1->twin(), Direction::before);
 		else {
 			double r = uniform_real_distribution<>(0.0,1.0)(rng);
 			if(r <= p1) {
@@ -472,7 +484,7 @@ void planarTriconnectedGraph(Graph &G, int n, double p1, double p2)
 				if(s == 0)
 					G.newEdge(adj_b1, adj2->twin());
 				else
-					G.newEdge(adj2, adj_b1->twin(), ogdf::before);
+					G.newEdge(adj2, adj_b1->twin(), Direction::before);
 			}
 		}
 
@@ -480,7 +492,7 @@ void planarTriconnectedGraph(Graph &G, int n, double p1, double p2)
 		if(r <= p2) {
 			int s = dist_0_1(rng);
 			if(s == 0)
-				G.newEdge(adj1, adj_b2->twin(), ogdf::before);
+				G.newEdge(adj1, adj_b2->twin(), Direction::before);
 			else
 				G.newEdge(adj_b2, adj1->twin());
 		}
@@ -533,7 +545,7 @@ void planarTriconnectedGraph(Graph &G, int n, int m)
 
 		} else {
 			adjEntry adj = adj1->cyclicSucc()->twin();
-			G.newEdge(adj2,adj,ogdf::before);
+			G.newEdge(adj2,adj,Direction::before);
 			nodes[i++] = G.splitNode(adj->cyclicPred(),adj->cyclicSucc());
 		}
 	}
@@ -629,8 +641,8 @@ void planarConnectedGraph(Graph &G, int n, int m)
 					continue;
 				}
 				okay = true;
-				for(adjEntry adj : n1->adjEntries) {
-					if(adj->twinNode() == n2) {
+				for(adjEntry adjN1 : n1->adjEntries) {
+					if(adjN1->twinNode() == n2) {
 						okay = false;
 						break;
 					}
@@ -737,7 +749,7 @@ void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 		}
 	}
 
-	if (multiEdges == false) {
+	if (!multiEdges) {
 		SListPure<edge> allEdges;
 		EdgeArray<int> minIndex(G), maxIndex(G);
 
@@ -751,8 +763,8 @@ void planarBiconnectedGraph(Graph &G, int n, int m, bool multiEdges)
 				maxIndex[ePrev] == maxIndex[e])
 			{
 				G.move(e,
-					e->adjTarget()->faceCycleSucc()->twin(), ogdf::before,
-					e->adjSource()->faceCycleSucc()->twin(), ogdf::before);
+					e->adjTarget()->faceCycleSucc()->twin(), Direction::before,
+					e->adjSource()->faceCycleSucc()->twin(), Direction::before);
 			}
 		}
 	}
@@ -792,14 +804,14 @@ void planarBiconnectedDiGraph(Graph &G, int n, int m, double p, bool multiEdges)
 	int err_dl = 0;
 	const double th = G.numberOfEdges()*p;
 	while(it_dag < th && err_dl < MAX_ERR) {
-			edge e = G.chooseEdge();
+		edge e = G.chooseEdge();
+		G.reverseEdge(e);
+		if (isAcyclic(G, backedges)) {
+			it_dag++;
+		} else {
+			err_dl++;
 			G.reverseEdge(e);
-			if (isAcyclic(G, backedges)) {
-				it_dag++;
-			} else {
-				err_dl++;
-				G.reverseEdge(e);
-			}
+		}
 	}
 }
 
@@ -956,8 +968,8 @@ void planarCNBGraph(Graph &G, int n, int m, int b)
 						maxIndex[ePrev] == maxIndex[e])
 					{
 						G.move(e,
-							e->adjTarget()->faceCycleSucc()->twin(), ogdf::before,
-							e->adjSource()->faceCycleSucc()->twin(), ogdf::before);
+							e->adjTarget()->faceCycleSucc()->twin(), Direction::before,
+							e->adjSource()->faceCycleSucc()->twin(), Direction::before);
 					}
 				}
 
@@ -1078,19 +1090,11 @@ static void constructCluster(node v,ClusterGraph &C)
 
 	// store the cluster nodes for random selection
 	// we could just randomly select by running up the list
-#if 0
-	HashArray<int, node> clusterNodes;
-#endif
-	ListConstIterator<node> it = C.clusterOf(v)->nBegin();
-	while (it.valid())
-	{
-		if (!((*it) == v))
-		{
-			if (dist(rng) > 65)
-				newCluster.pushBack((*it));
+	for (ListConstIterator<node> it = C.clusterOf(v)->nBegin(); it.valid(); ++it) {
+		if (*it != v && dist(rng) > 65) {
+			newCluster.pushBack(*it);
 		}
-		++it;
-	}//while
+	}
 
 	cluster cl = C.newCluster(C.clusterOf(v));
 	while (!newCluster.empty())
@@ -1231,8 +1235,10 @@ void completeGraph(Graph &G, int n)
 void completeKPartiteGraph(Graph &G, const Array<int> &signature)
 {
 	G.clear();
+	if (signature.size() <= 0) {
+		return;
+	}
 
-	OGDF_ASSERT(signature.size() > 0);
 	Array<Array<node>> partitions(signature.size());
 
 	// generate nodes in partitions
@@ -1268,8 +1274,9 @@ void wheelGraph(Graph &G, int n)
 	if (n <= 2) return;
 
 	node center = G.newNode();
+	node n0 = nullptr;
+	node n1 = nullptr;
 
-	node n0, n1 = nullptr;
 	while (n--) {
 		node n2 = G.newNode();
 		G.newEdge(center, n2);

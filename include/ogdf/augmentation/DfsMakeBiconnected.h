@@ -40,7 +40,7 @@ namespace ogdf {
  *
  * @ingroup ga-augment
  *
- * The class \a DfsMakeBiconnected implements an augmentation algorithms
+ * The class DfsMakeBiconnected implements an augmentation algorithms
  * that augments a graph to a biconnected graph. In addition, if the graph was
  * planar before augmentation, the resulting graph will be biconnected and
  * planar.

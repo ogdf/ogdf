@@ -38,11 +38,6 @@
 namespace ogdf {
 
 
-//---------------------------------------------------------
-// GraphCopySimple
-// simple graph copies (no support for edge splitting)
-//---------------------------------------------------------
-
 GraphCopySimple::GraphCopySimple(const Graph &G)
 {
 	init(G);
@@ -108,10 +103,19 @@ void GraphCopySimple::initGC(const GraphCopySimple &GC,
 }
 
 
-//---------------------------------------------------------
-// GraphCopy
-// graph copies (support for edge splitting)
-//---------------------------------------------------------
+void GraphCopySimple::delEdge(edge e) {
+	edge eOrig = m_eOrig[e];
+	Graph::delEdge(e);
+	if (eOrig != nullptr) { m_eCopy[eOrig] = nullptr; }
+}
+
+
+void GraphCopySimple::delNode(node v) {
+	node vOrig = m_vOrig[v];
+	Graph::delNode(v);
+	if (vOrig != nullptr) { m_vCopy[vOrig] = nullptr; }
+}
+
 
 GraphCopy::GraphCopy(const Graph &G)
 {
@@ -188,6 +192,7 @@ void GraphCopy::createEmpty(const Graph &G)
 
 void GraphCopy::initByCC(const CCsInfo &info, int cc, EdgeArray<edge> &eCopy)
 {
+	eCopy.init(*m_pGraph);
 	Graph::constructInitByCC(info, cc, m_vCopy, eCopy);
 
 	for(int i = info.startNode(cc); i < info.stopNode(cc); ++i) {
@@ -314,7 +319,7 @@ edge GraphCopy::split(edge e)
 	edge eOrig = m_eOrig[e];
 
 	if ((m_eOrig[eNew] = eOrig) != nullptr) {
-		m_eIterator[eNew] = m_eCopy[eOrig].insert(eNew,m_eIterator[e],after);
+		m_eIterator[eNew] = m_eCopy[eOrig].insert(eNew,m_eIterator[e],Direction::after);
 	}
 
 	return eNew;
@@ -638,14 +643,14 @@ void GraphCopy::removeUnnecessaryCrossing(
 	node v = adjA1->theNode();
 
 	if(adjA1->theEdge()->source() == v)
-		moveSource(adjA1->theEdge(), adjA2->twin(), before);
+		moveSource(adjA1->theEdge(), adjA2->twin(), Direction::before);
 	else
-		moveTarget(adjA1->theEdge(), adjA2->twin(), before);
+		moveTarget(adjA1->theEdge(), adjA2->twin(), Direction::before);
 
 	if(adjB1->theEdge()->source() == v)
-		moveSource(adjB1->theEdge(), adjB2->twin(), before);
+		moveSource(adjB1->theEdge(), adjB2->twin(), Direction::before);
 	else
-		moveTarget(adjB1->theEdge(), adjB2->twin(), before);
+		moveTarget(adjB1->theEdge(), adjB2->twin(), Direction::before);
 
 	edge eOrigA = original(adjA1->theEdge());
 	edge eOrigB = original(adjB1->theEdge());
@@ -717,7 +722,7 @@ bool GraphCopy::isReversedCopyEdge (edge e) const {
 
 bool GraphCopy::consistencyCheck() const
 {
-	if (Graph::consistencyCheck() == false) {
+	if (!Graph::consistencyCheck()) {
 		return false;
 	}
 

@@ -29,6 +29,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <limits>
 #include <ogdf/fileformats/Utils.h>
 
 namespace ogdf {

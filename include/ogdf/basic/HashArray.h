@@ -97,13 +97,13 @@ class HashArray : private Hashing<I,E,H>
 
 public:
 	//! The type of const-iterators for hash arrays.
-	typedef HashConstIterator<I,E,H> const_iterator;
+	using const_iterator = HashConstIterator<I,E,H>;
 
 	//! Creates a hashing array; the default value is the default value of the element type.
 	HashArray() : Hashing<I,E,H>() { }
 
-	//! Creates a hashing array with default value \a defaultValue.
-	HashArray(const E &defaultValue, const H &hashFunc = H())
+	//! Creates a hashing array with default value \p defaultValue.
+	explicit HashArray(const E &defaultValue, const H &hashFunc = H())
 		: Hashing<I,E,H>(256, hashFunc), m_defaultValue(defaultValue) { }
 
 	//! Copy constructor.
@@ -119,26 +119,26 @@ public:
 	int empty() const { return Hashing<I,E,H>::empty(); }
 
 
-	//! Returns the element with index \a i.
+	//! Returns the element with index \p i.
 	const E &operator[](const I &i) const {
 		HashElement<I,E> *pElement = Hashing<I,E,H>::lookup(i);
 		if (pElement) return pElement->info();
 		else return m_defaultValue;
 	}
 
-	//! Returns a reference to the element with index \a i.
+	//! Returns a reference to the element with index \p i.
 	E &operator[](const I &i) {
 		HashElement<I,E> *pElement = Hashing<I,E,H>::lookup(i);
 		if (!pElement) pElement = Hashing<I,E,H>::fastInsert(i,m_defaultValue);
 		return pElement->info();
 	}
 
-	//! Returns true iff index \a i is defined.
+	//! Returns true iff index \p i is defined.
 	bool isDefined(const I &i) const {
 		return Hashing<I,E,H>::member(i);
 	}
 
-	//! Undefines index \a i.
+	//! Undefines index \p i.
 	void undefine(const I &i) {
 		Hashing<I,E,H>::del(i);
 	}

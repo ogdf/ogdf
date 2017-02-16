@@ -43,9 +43,11 @@ namespace tlp {
 
 struct Token {
 
-	enum Type {
-		tok_leftParen, tok_rightParen,
-		tok_identifier, tok_string
+	enum class Type {
+		leftParen,
+		rightParen,
+		identifier,
+		string
 	} type;
 
 	std::string *value; // Optional token value (avaliable in id and string).
@@ -55,27 +57,27 @@ struct Token {
 	friend std::ostream &operator <<(std::istream &os, const Token &token);
 
 	bool inline leftParen() const {
-		return type == tok_leftParen;
+		return type == Type::leftParen;
 	}
 
 	bool inline rightParen() const {
-		return type == tok_rightParen;
+		return type == Type::rightParen;
 	}
 
 	bool inline identifier() const {
-		return type == tok_identifier;
+		return type == Type::identifier;
 	}
 
 	bool inline identifier(const char *str) const {
-		return type == tok_identifier && (*value) == str;
+		return type == Type::identifier && (*value) == str;
 	}
 
 	bool inline string() const {
-		return type == tok_string;
+		return type == Type::string;
 	}
 
 	bool inline string(const char *str) const {
-		return type == tok_string && (*value) == str;
+		return type == Type::string && (*value) == str;
 	}
 };
 
@@ -109,7 +111,7 @@ private:
 	static bool isIdentifier(char c);
 
 public:
-	Lexer(std::istream &is);
+	explicit Lexer(std::istream &is);
 	~Lexer();
 
 	bool tokenize();

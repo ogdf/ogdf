@@ -65,14 +65,14 @@ MinCut::~MinCut() {}
 void MinCut::contraction(node t, node s) {
 
 	/*
-	 * The contraction of the two nodes \as and \a t is performed as follows:
-	 * in the first step, all edges between \a s and \a t are deleted, and all edges incident
-	 * to \a s are redirected to \a t. Then, node \a s is deleted and the adjacency list of \a t
+	 * The contraction of the two nodes \p s and \p t is performed as follows:
+	 * in the first step, all edges between \p s and \p t are deleted, and all edges incident
+	 * to \p s are redirected to \p t. Then, node \p s is deleted and the adjacency list of \p t
 	 * is checked for parallel edges. If k parallel edges are found, k-1 of them are deleted
 	 * and their weights are added to the edge that is left.
 	 */
 
-	// Step 1: redirecting edges and deleting node \a s
+	// Step 1: redirecting edges and deleting node \p s
 	adjEntry adj = s->firstAdj();
 	while (adj != nullptr)
 	{
@@ -93,7 +93,7 @@ void MinCut::contraction(node t, node s) {
 
 	/*
 	 * Because of technical problems that occur when deleting edges and thus adjacency entries in a loop,
-	 * a NodeArray is filled with the edges incident to node \a t.
+	 * a NodeArray is filled with the edges incident to node \p t.
 	 * This NodeArray is checked for entries with more than one edge, which corresponds
 	 * to parallel edges.
 	 */
@@ -101,8 +101,8 @@ void MinCut::contraction(node t, node s) {
 	// NodeArray containing parallel edges
 	NodeArray<List<edge> > adjNodes(m_GC);
 
-	for(adjEntry adj : t->adjEntries) {
-		adjNodes[adj->twinNode()].pushBack(adj->theEdge());
+	for(adjEntry adjT : t->adjEntries) {
+		adjNodes[adjT->twinNode()].pushBack(adjT->theEdge());
 	}
 
 	// Step 2: deleting parallel edges and adding their weights
@@ -256,14 +256,14 @@ double MinCut::minimumCutPhase() {
 		}
 	}
 
-	// Since nodes in \a m_GC correspond to sets of nodes (due to the node contraction),
-	// the NodeArray \a m_contractedNodes has to be updated.
+	// Since nodes in #m_GC correspond to sets of nodes (due to the node contraction),
+	// the NodeArray #m_contractedNodes has to be updated.
 	m_contractedNodes[t].pushBack(m_GC.original(s));
 	for (node vi : m_contractedNodes[s]) {
 		m_contractedNodes[t].pushBack(vi);
 	}
 
-	// Performing the node contraction of nodes \a s and \a t.
+	// Performing the node contraction of nodes \p s and \p t.
 	contraction(t,s);
 
 	return cutOfThePhase;
@@ -274,8 +274,8 @@ double MinCut::minimumCut() {
 
 	/*
 	 * Main loop of the algorithm
-	 * As long as GraphCopy \a m_GC contains at least two nodes,
-	 * function minimumCutPhase() is invoked and \a m_minCut is updated
+	 * As long as GraphCopy #m_GC contains at least two nodes,
+	 * function minimumCutPhase() is invoked and #m_minCut is updated
 	 */
 
 	for (int i=m_GC.numberOfNodes(); i>1; --i) {

@@ -37,25 +37,23 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// MaximalFUPS
-//---------------------------------------------------------
 class MaximalFUPS : public FUPSModule {
-	public:
-		//constructor
+public:
+	//constructor
 	MaximalFUPS() : m_timelimit(0) {};
 
-	private:
-		int m_timelimit;
+private:
+	int m_timelimit;
 
-	protected:
-		Module::ReturnType doCall(UpwardPlanRep &UPR, List<edge> &delEdges) override;
-	public:
+protected:
+	Module::ReturnType doCall(UpwardPlanRep &UPR, List<edge> &delEdges) override;
+
+public:
 #if 0
-		int computeMFUPS(GraphCopy &GC);
+	int computeMFUPS(GraphCopy &GC);
 #endif
-		int getTimelimit()                 { return m_timelimit;      }
-		void setTimelimit(int timelimit)   { m_timelimit = timelimit; }
+	int getTimelimit()                 { return m_timelimit;      }
+	void setTimelimit(int timelimit)   { m_timelimit = timelimit; }
 };
 
 } // end namespace ogdf

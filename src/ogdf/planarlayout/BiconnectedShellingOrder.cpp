@@ -44,10 +44,7 @@
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
 // pair of node v and list itrator it
-//---------------------------------------------------------
 struct PairFaceItem;
 
 struct PairNodeItem
@@ -55,23 +52,19 @@ struct PairNodeItem
 	// constructor
 	PairNodeItem() { }
 
-	PairNodeItem(node v, ListIterator<PairFaceItem> it = ListIterator<PairFaceItem>()) : m_v(v), m_it(it) { }
+	explicit PairNodeItem(node v, ListIterator<PairFaceItem> it = ListIterator<PairFaceItem>()) : m_v(v), m_it(it) { }
 
 	node m_v;
 	ListIterator<PairFaceItem> m_it;
 };
 
-
-//---------------------------------------------------------
 // pair of face f and list iterator it
-//---------------------------------------------------------
-
 struct PairFaceItem
 {
 	// constructor
 	PairFaceItem() : m_f(nullptr), m_it(nullptr) { }
 
-	PairFaceItem(face f) : m_f(f), m_it(nullptr) { }
+	explicit PairFaceItem(face f) : m_f(f), m_it(nullptr) { }
 
 	PairFaceItem(face f, ListIterator<PairNodeItem> it) : m_f(f), m_it(it) { }
 
@@ -97,14 +90,11 @@ struct PairFaceItem
 	setUpdate(x);
 
 
-//---------------------------------------------------------
-// class ComputeBicOrder
-//---------------------------------------------------------
 class ComputeBicOrder
 {
 public:
 	// types of structures to be removed
-	enum CandidateType { typeFace, typeNode, typeEdge };
+	enum class CandidateType { Face, Node, Edge };
 
 
 	// constructor
@@ -433,8 +423,8 @@ ComputeBicOrder::ComputeBicOrder(const Graph &G, // the graph
 
 	for (node v = m_vLeft; v != nullptr; v = next(v))
 	{
-		for(adjEntry adj : v->adjEntries) {
-			face f = left(adj);
+		for(adjEntry adjV : v->adjEntries) {
+			face f = left(adjV);
 			if ((m_isSf[f] = (m_outv[f] > m_seqp[f]+1)) == true)
 				++m_numsf[v];
 		}
@@ -631,17 +621,17 @@ void ComputeBicOrder::initPossibles()
 bool ComputeBicOrder::getPossible()
 {
 	if (!m_possFaces.empty()) {
-		m_nextType = typeFace;
+		m_nextType = CandidateType::Face;
 		m_nextF = m_possFaces.popFrontRet();
 		return true;
 
 	} else if (!m_possNodes.empty()) {
-		m_nextType = typeNode;
+		m_nextType = CandidateType::Node;
 		m_nextV = m_possNodes.popFrontRet();
 		return true;
 
 	} else if (!m_possVirt.empty()) {
-		m_nextType = typeEdge;
+		m_nextType = CandidateType::Edge;
 		m_nextE = m_possVirt.popFrontRet();
 		m_virtLink[m_nextE] = ListIterator<node>();
 		return true;
@@ -743,7 +733,7 @@ void ComputeBicOrder::setOutv(node v)
 	for (face f : L) {
 		INC_VAR(f, m_outv)
 			putOnOuter(v, f);
-		if (cutv(f) == true) {
+		if (cutv(f)) {
 			INC_VAR(v, m_cutf)
 		}
 		if (m_isSf[f]) {
@@ -919,7 +909,7 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 	adjEntry adj,adj2;
 	for(node w : L_v)
 	{
-		if (firstTime == true) {
+		if (firstTime) {
 			adj2 = m_nextSucc[prev(m_nextV)];
 			adj = m_prevPred[m_nextV];
 			firstTime = false;
@@ -985,12 +975,12 @@ void ComputeBicOrder::removeNextNode(ShellingOrderSet &V)
 			if (adj2->theNode() == cl)
 			{
 				ListIterator<PairNodeItem> it, itSucc;
-				ListPure<PairNodeItem> &L = m_outerNodes[left(adj2)];
-				for(it = L.begin(); it.valid(); it = itSucc) {
+				ListPure<PairNodeItem> &listPNI = m_outerNodes[left(adj2)];
+				for(it = listPNI.begin(); it.valid(); it = itSucc) {
 					itSucc = it.succ();
 					if ((*it).m_v == cl) {
 						m_inOutNodes[cl].del((*it).m_it);
-						L.del(it);
+						listPNI.del(it);
 						break;
 					}
 				}
@@ -1251,16 +1241,12 @@ adjEntry ComputeBicOrder::findMaxBaseChain(ConstCombinatorialEmbedding &E,
 }
 
 
-//---------------------------------------------------------
-// BiconnectedShellingOrder
-//---------------------------------------------------------
-
 void BiconnectedShellingOrder::doCall(const Graph &G,
 	adjEntry adj,
 	List<ShellingOrderSet> &partition)
 {
-	OGDF_ASSERT(isBiconnected(G) == true);
-	OGDF_ASSERT(G.representsCombEmbedding() == true);
+	OGDF_ASSERT(isBiconnected(G));
+	OGDF_ASSERT(G.representsCombEmbedding());
 
 	ConstCombinatorialEmbedding E(G);
 
@@ -1278,17 +1264,17 @@ void BiconnectedShellingOrder::doCall(const Graph &G,
 	{
 		switch(cpo.nextPoss())
 		{
-		case ComputeBicOrder::typeFace:
+		case ComputeBicOrder::CandidateType::Face:
 			partition.pushFront(ShellingOrderSet());
 			cpo.removeNextFace(partition.front());
 			break;
 
-		case ComputeBicOrder::typeNode:
+		case ComputeBicOrder::CandidateType::Node:
 			partition.pushFront(ShellingOrderSet());
 			cpo.removeNextNode(partition.front());
 			break;
 
-		case ComputeBicOrder::typeEdge:
+		case ComputeBicOrder::CandidateType::Edge:
 			partition.pushFront(ShellingOrderSet());
 			cpo.removeNextVirt(partition.front());
 			break;

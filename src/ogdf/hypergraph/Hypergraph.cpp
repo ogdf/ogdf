@@ -433,14 +433,14 @@ void Hypergraph::readBenchHypergraph(istream &is)
 
 			// INPUT
 			string s(buffer + 6, nextEntry(buffer, 6, ")\0"));
-			hypernode n = newHypernode(HypernodeElement::INPUT);
+			hypernode n = newHypernode(HypernodeElement::Type::INPUT);
 			map[s] = n;
 
 		} else if(!strncmp("OUTPUT(", buffer, 7)) {
 
 			// OUTPUT
 			string s(buffer + 7, nextEntry(buffer, 7, ")\0"));
-			hypernode n = newHypernode(HypernodeElement::OUTPUT);
+			hypernode n = newHypernode(HypernodeElement::Type::OUTPUT);
 			map[s] = n;
 
 		} else {
@@ -521,23 +521,23 @@ int Hypergraph::nextEntry(char *buffer, int from, string stop)
 HypernodeElement::Type Hypergraph::gateType(string gate)
 {
 	if (!gate.compare("or"))
-		return HypernodeElement::OR;
+		return HypernodeElement::Type::OR;
 	else if (!gate.compare("and") || !gate.compare("AND"))
-		return HypernodeElement::AND;
+		return HypernodeElement::Type::AND;
 	else if (!gate.compare("nor") || !gate.compare("NOR"))
-		return HypernodeElement::NOR;
+		return HypernodeElement::Type::NOR;
 	else if (!gate.compare("not") || !gate.compare("NOT"))
-		return HypernodeElement::NOT;
+		return HypernodeElement::Type::NOT;
 	else if (!gate.compare("xor") || !gate.compare("XOR"))
-		return HypernodeElement::XOR;
+		return HypernodeElement::Type::XOR;
 	else if (!gate.compare("buf") || !gate.compare("BUF"))
-		return HypernodeElement::BUF;
+		return HypernodeElement::Type::BUF;
 	else if (!gate.compare("nand") || !gate.compare("NAND"))
-		return HypernodeElement::NAND;
+		return HypernodeElement::Type::NAND;
 	else if (!gate.compare("dff") || !gate.compare("DFF"))
-		return HypernodeElement::DFF;
+		return HypernodeElement::Type::DFF;
 
-	return HypernodeElement::normal;
+	return HypernodeElement::Type::normal;
 }
 
 } // end namespace ogdf

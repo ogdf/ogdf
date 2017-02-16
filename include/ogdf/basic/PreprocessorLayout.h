@@ -59,8 +59,8 @@ private:
 	 */
 	struct EdgeData
 	{
-		EdgeData(int edgeIndex, int sourceIndex, int targetIndex, double weight)
-			:edgeIndex(edgeIndex), sourceIndex(sourceIndex), targetIndex(targetIndex), weight(weight)
+		EdgeData(int edgeInd, int sourceInd, int targetInd, double edgeWeight)
+			:edgeIndex(edgeInd), sourceIndex(sourceInd), targetIndex(targetInd), weight(edgeWeight)
 		{ }
 
 		int edgeIndex;
@@ -86,10 +86,10 @@ public:
 
 	using MultilevelLayoutModule::call;
 
-	//! Calculates a drawing for the Graph \a MLG.
+	//! Calculates a drawing for the Graph \p MLG.
 	virtual void call(MultilevelGraph &MLG) override;
 
-	//! Calculates a drawing for the Graph \a GA.
+	//! Calculates a drawing for the Graph \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 	//! Sets the secondary layout.

@@ -68,9 +68,9 @@ public:
 	/**
 	 * @param graph is the graph for the flow problem.
 	 * @param flow is an optional argument that can be used to force the
-	 * algorithm to work on an user given "external" EdgeArray \a flow
+	 * algorithm to work on an user given "external" EdgeArray \p flow
 	 */
-	MaxFlowModule(const Graph &graph, EdgeArray<T> *flow = nullptr)
+	explicit MaxFlowModule(const Graph &graph, EdgeArray<T> *flow = nullptr)
 		: m_s(nullptr), m_t(nullptr)
 	{
 		init(graph, flow);
@@ -83,12 +83,12 @@ public:
 	}
 
 	//! Initialize the problem with a graph and optional flow array.
-	//! If no \a flow array is given, a new ("internal") array will be created.
-	//! If a \a flow array is giveb, the algorithm uses this "external" array.
+	//! If no \p flow array is given, a new ("internal") array will be created.
+	//! If a \p flow array is given, the algorithm uses this "external" array.
 	/**
 	 * @param graph is the graph for the flow problem.
 	 * @param flow is an optional argument that can be used to force the
-	 * algorithm to work on an user given "external" EdgeArray \a flow
+	 * algorithm to work on an user given "external" EdgeArray \p flow
 	 */
 	virtual void init(const Graph &graph, EdgeArray<T> *flow = nullptr)
 	{
@@ -120,11 +120,14 @@ public:
 		m_et = new EpsilonTest(eps);
 	}
 
-	//! Compute only the value of the flow. There algorithms with 2 phases where
-	//! where the value of the flow is known after the first phase, but the flow
-	//! itself is not feasible or not known at this time.
-	//! If source and target are the same node, the algorithm must return 0.
 	/**
+	 * @brief Compute only the value of the flow.
+	 *
+	 * There are algorithms with two phases where
+	 * the value of the flow is known after the first phase, but the flow
+	 * itself is not feasible or not known at this time.
+	 * If source and target are the same node, the algorithm must return zero.
+	 *
 	 * @return The value of the flow.
 	 * @param cap is the EdgeArray of capacities.
 	 * @param s is the source.
@@ -139,9 +142,9 @@ public:
 
 	//! Compute the flow itself after the flow value is already computed. Only
 	//! used in algorithms with 2 phases. The flow is stored in the parameter
-	//! \a flow.
+	//! \p flow.
 	/**
-	 * @param flow The "internal" flow array is given in \a flow.
+	 * @param flow The "internal" flow array is given in \p flow.
 	 */
 	void computeFlowAfterValue(EdgeArray<T> &flow)
 	{
@@ -155,7 +158,7 @@ public:
 	 * @param cap is the EdgeArray of capacities.
 	 * @param s is the source.
 	 * @param t is the sink.
-	 * @param flow A copy of the "internal" flow array is given in \a flow.
+	 * @param flow A copy of the "internal" flow array is given in \p flow.
 	 */
 	T computeFlow(EdgeArray<T> &cap, node &s, node &t, EdgeArray<T> &flow)
 	{

@@ -52,14 +52,14 @@ public:
 	Layout() { }
 
 	/**
-	 * \brief Creates a layout associated with graph \a G.
+	 * \brief Creates a layout associated with graph \p G.
 	 *
 	 * The layout is initialized such that all node positions are (0,0)
 	 * and all bend point lists of edges are empty.
 	 *
 	 * @param G is the corresponding graph .
 	 */
-	Layout(const Graph &G) : m_x(G,0), m_y(G,0), m_bends(G) { }
+	explicit Layout(const Graph &G) : m_x(G,0), m_y(G,0), m_bends(G) { }
 
 	//! Destruction
 	~Layout() { }
@@ -87,64 +87,64 @@ public:
 
 
 	/** @} @{
-	 * \brief Returns the x-coordinate of node \a v.
+	 * \brief Returns the x-coordinate of node \p v.
 	 */
 	const double &x(node v) const { return m_x[v]; }
 
 	/**
-	 * \brief Returns the x-coordinate of node \a v.
+	 * \brief Returns the x-coordinate of node \p v.
 	 */
 	double &x(node v) { return m_x[v]; }
 
 	/** @} @{
-	 * \brief Returns the y-coordinate of node \a v.
+	 * \brief Returns the y-coordinate of node \p v.
 	 */
 	const double &y(node v) const { return m_y[v]; }
 
 	/**
-	 * \brief Returns the y-coordinate of node \a v.
+	 * \brief Returns the y-coordinate of node \p v.
 	 */
 	double &y(node v) { return m_y[v]; }
 
 	/** @} @{
-	 * \brief Returns the bend point list of edge \a e.
+	 * \brief Returns the bend point list of edge \p e.
 	 */
 	const DPolyline &bends(edge e) const { return m_bends[e]; }
 
 	/**
-	 * \brief Returns the bend point list of edge \a e.
+	 * \brief Returns the bend point list of edge \p e.
 	 */
 	DPolyline &bends(edge e) { return m_bends[e]; }
 
 
 	/** @} @{
-	 * \brief Returns the polyline of edge \a eOrig in \a dpl.
+	 * \brief Returns the polyline of edge \p eOrig in \p dpl.
 	 *
-	 * @param GC is the input graph copy; \a GC must also be the associated graph.
-	 * @param eOrig is an edge in the original graph of \a GC.
-	 * @param dpl is assigned the poyline of \a eOrig.
+	 * @param GC is the input graph copy; \p GC must also be the associated graph.
+	 * @param eOrig is an edge in the original graph of \p GC.
+	 * @param dpl is assigned the poyline of \p eOrig.
 	 */
 	void computePolyline(GraphCopy &GC, edge eOrig, DPolyline &dpl) const;
 
 	/**
-	 * \brief Returns the polyline of edge \a eOrig in \a dpl and clears the
+	 * \brief Returns the polyline of edge \p eOrig in \p dpl and clears the
 	 *        bend points of the copies.
 	 *
-	 * The bend point lists of all edges in the edge path corresponding to \a eOrig are
+	 * The bend point lists of all edges in the edge path corresponding to \p eOrig are
 	 * empty afterwards! This is a faster version of computePolyline().
 	 *
-	 * @param PG is the input graph copy; \a PG must also be the associated graph.
+	 * @param PG is the input graph copy; \p PG must also be the associated graph.
 	 *        of this layout.
-	 * @param eOrig is an edge in the original graph of \a GC.
-	 * @param dpl is assigned the poyline of \a eOrig.
+	 * @param eOrig is an edge in the original graph of \p PG.
+	 * @param dpl is assigned the poyline of \p eOrig.
 	 */
 	void computePolylineClear(PlanRep &PG, edge eOrig, DPolyline &dpl);
 
-	//! Computes the bounding box of the layout, which is a drawing of \a PG.
+	//! Computes the bounding box of the layout, which is a drawing of \p PG.
 	/**
 	 * @param PG must be the planarized representation associated with this layout.
 	 * @return a point representing the with and height of this layout, respecting the sizes
-	 *         of nodes as stored in \a PG.
+	 *         of nodes as stored in \p PG.
 	 */
 	DPoint computeBoundingBox(PlanRep &PG) const;
 

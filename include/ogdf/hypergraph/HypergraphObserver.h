@@ -65,8 +65,8 @@ public:
 	{
 	}
 
-	//! Constructor assigning \a pH hypergraph to the observer.
-	HypergraphObserver(const Hypergraph *pH)
+	//! Constructor assigning \p pH hypergraph to the observer.
+	explicit HypergraphObserver(const Hypergraph *pH)
 	{
 		m_hypergraph = pH;
 		m_itObserver = pH->registerObserver(this);
@@ -79,7 +79,7 @@ public:
 			m_hypergraph->unregisterObserver(m_itObserver);
 	}
 
-	//! Associates an observer instance with hypergraph \a H
+	//! Associates an observer instance with hypergraph \p pH
 	void init(const Hypergraph *pH) {
 		if (m_hypergraph)
 			m_hypergraph->unregisterObserver(m_itObserver);

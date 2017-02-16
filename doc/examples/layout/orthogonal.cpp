@@ -24,10 +24,10 @@ int main()
 
 	SubgraphPlanarizer crossMin;
 
-	PlanarSubgraphFast *ps = new PlanarSubgraphFast;
+	auto* ps = new PlanarSubgraphFast<int>;
 	ps->runs(100);
 	VariableEmbeddingInserter *ves = new VariableEmbeddingInserter;
-	ves->removeReinsert(rrAll);
+	ves->removeReinsert(RemoveReinsertType::All);
 
 	crossMin.setSubgraph(ps);
 	crossMin.setInserter(ves);

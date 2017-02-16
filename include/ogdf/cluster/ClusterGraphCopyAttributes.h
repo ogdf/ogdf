@@ -93,16 +93,16 @@ public:
 		return m_y[v];
 	}
 
-	//! Returns coordinate of upper cluster boundary of original cluster \a cOrig.
+	//! Returns coordinate of upper cluster boundary of original cluster \p cOrig.
 	double top(cluster cOrig) const {
 		return m_pACG->y(cOrig);
 	}
-	//! Returns coordinate of lower cluster boundary of original cluster \a cOrig.
+	//! Returns coordinate of lower cluster boundary of original cluster \p cOrig.
 	double bottom(cluster cOrig) const {
 		return m_pACG->y(cOrig) + m_pACG->height(cOrig);
 	}
 
-	//! Sets the position of the cluster rectangle for original cluster \a cOrig.
+	//! Sets the position of the cluster rectangle for original cluster \p cOrig.
 	void setClusterRect(
 		cluster cOrig,
 		double left,

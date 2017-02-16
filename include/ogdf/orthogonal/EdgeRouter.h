@@ -34,34 +34,34 @@
 
 #pragma once
 
-#include <ogdf/internal/orthogonal/RoutingChannel.h>
+#include <ogdf/orthogonal/internal/RoutingChannel.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/basic/Layout.h>
 #include <ogdf/basic/GridLayout.h>
 #include <ogdf/basic/GridLayoutMapped.h>
 #include <ogdf/planarity/PlanRep.h>
 #include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/internal/orthogonal/NodeInfo.h>
+#include <ogdf/orthogonal/edge_router/NodeInfo.h>
 
 namespace ogdf {
 
 //! edge types, defined by necessary bends
-enum bend_type {
-	bend_free,
-	bend_1left,
-	bend_1right,
-	bend_2left,
-	bend_2right, //results
-	prob_bf,
-	prob_b1l,
-	prob_b1r,
-	prob_b2l,
-	prob_b2r
+enum class BendType {
+	BendFree,
+	Bend1Left,
+	Bend1Right,
+	Bend2Left,
+	Bend2Right, //results
+	ProbBf,
+	ProbB1L,
+	ProbB1R,
+	ProbB2L,
+	ProbB2R
 }; //and preliminary
 
 
 // unprocessed, processed in degree1 preprocessing, used by degree1
-enum process_type {
+enum class ProcessType {
 	unprocessed,
 	processed,
 	used
@@ -74,6 +74,7 @@ enum process_type {
  */
 class OGDF_EXPORT EdgeRouter
 {
+	using NodeInfo = edge_router::NodeInfo;
 public:
 	//constructor
 	EdgeRouter() { }
@@ -143,7 +144,7 @@ public:
 	int gp_x(adjEntry ae) { return m_agp_x[ae]; } //!< glue point (node border)
 	int gp_y(adjEntry ae) { return m_agp_y[ae]; } //!< glue point (node border)
 
-	bend_type abendType(adjEntry ae) { return m_abends[ae]; }
+	BendType abendType(adjEntry ae) { return m_abends[ae]; }
 
 	void addbends(BendString& bs, const char* s2);
 
@@ -225,7 +226,7 @@ private:
 	bool oppositeExpander(adjEntry ae) {
 		Graph::NodeType nt;
 		nt = m_prup->typeOf(oppositeNode(ae));
-		return ((nt == Graph::highDegreeExpander) || (nt == Graph::lowDegreeExpander));
+		return ((nt == Graph::NodeType::highDegreeExpander) || (nt == Graph::NodeType::lowDegreeExpander));
 	}
 	//if yes, set its m_oppositeBendType value according to the newly introduced bend
 
@@ -242,6 +243,57 @@ private:
 	 */
 	int compute_move(OrthoDir s_from, OrthoDir s_to, int& kflip, node v);
 
+	int updateBends(
+			const node v,
+			ListIterator<edge> &it,
+			const bool updateX,
+			const OrthoDir dir,
+			const bool bendLeft,
+			const bool bendUp,
+			int pos = 0);
+
+	void updateBends(
+			const node v,
+			ListIterator<edge> &it,
+			int &pos,
+			int &lastunbend,
+			const bool updateX,
+			const OrthoDir dir,
+			const bool bendLeft,
+			const bool bendUp,
+			const bool subtract);
+
+	void updateLowerEdgesBends(
+			const node v,
+			ListIterator<edge> &it,
+			int &pos,
+			int &base,
+			const bool updateX,
+			const OrthoDir dir,
+			const bool bendLeft);
+
+	void updateOneBend(
+			const bool isDoubleBend,
+			const adjEntry adj,
+			const node v,
+			const OrthoDir dir,
+			const bool bendLeft,
+			const BendType btSingle,
+			const BendType btDouble) {
+		const OrthoDir dirB = bendLeft ? OrthoRep::nextDir(dir) : OrthoRep::prevDir(dir);
+		auto &inf = infos[v];
+
+		if (isDoubleBend) { // paper E^
+			// must be double-bend
+			m_abends[adj] = btDouble;
+			inf.inc_E(dirB, dir);
+		} else {
+			// may be single-bend
+			m_abends[adj] = btSingle;
+			inf.inc_E_hook(dirB, dir);
+		}
+	}
+
 	NodeArray<int> m_newx, m_newy; //!< new placement position for original node
 	NodeArray<bool> m_fixed; //!< saves info about changed position, no further change is allowed
 	EdgeArray<int>  lowe, uppe, lefte, righte; //!< max box borders for bendfree edges
@@ -256,13 +308,13 @@ private:
 	 * 2 = single from right, 3 = int from left,
 	 * 4 = int from right,...
 	 */
-	AdjEntryArray<bend_type> m_abends;
+	AdjEntryArray<BendType> m_abends;
 
 	//! keep the information about the type of bend inserted at one end of an (originally unbend) edge, so that we can check possible bendsaving
-	NodeArray<bend_type> m_oppositeBendType;
+	NodeArray<BendType> m_oppositeBendType;
 
 	//! keep information about already processed Nodes
-	NodeArray<process_type> m_processStatus;
+	NodeArray<ProcessType> m_processStatus;
 
 	//alignment test
 	NodeArray<bool> m_mergerSon; //!< is part of merger son cage

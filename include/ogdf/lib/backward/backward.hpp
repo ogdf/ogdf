@@ -226,7 +226,7 @@ extern "C" uintptr_t _Unwind_GetIPInfo(_Unwind_Context*, int*);
 	namespace details {
 		template <typename K, typename V>
 		struct hashtable {
-			typedef std::unordered_map<K, V> type;
+			using type = std::unordered_map<K, V>;
 		};
 		using std::move;
 	} // namespace details
@@ -237,7 +237,7 @@ extern "C" uintptr_t _Unwind_GetIPInfo(_Unwind_Context*, int*);
 	namespace details {
 		template <typename K, typename V>
 		struct hashtable {
-			typedef std::map<K, V> type;
+			using type = std::map<K, V>;
 		};
 		template <typename T>
 			const T& move(const T& v) { return v; }
@@ -255,9 +255,9 @@ namespace system_tag {
 	struct unknown_tag;
 
 #if   defined(BACKWARD_SYSTEM_LINUX)
-	typedef linux_tag current_tag;
+	using current_tag = linux_tag;
 #elif defined(BACKWARD_SYSTEM_UNKNOWN)
-	typedef unknown_tag current_tag;
+	using current_tag = unknown_tag;
 #else
 #	error "May I please get my system defines?"
 #endif
@@ -271,11 +271,11 @@ namespace trace_resolver_tag {
 	struct backtrace_symbol;
 
 #	if   BACKWARD_HAS_DW == 1
-	typedef libdw current;
+	using current = libdw;
 #	elif BACKWARD_HAS_BFD == 1
-	typedef libbfd current;
+	using current = libbfd;
 #	elif BACKWARD_HAS_BACKTRACE_SYMBOL == 1
-	typedef backtrace_symbol current;
+	using current = backtrace_symbol;
 #	else
 #		error "You shall not pass, until you know what you want."
 #	endif
@@ -286,13 +286,13 @@ namespace trace_resolver_tag {
 namespace details {
 
 template <typename T>
-	struct rm_ptr { typedef T type; };
+	struct rm_ptr { using type = T; };
 
 template <typename T>
-	struct rm_ptr<T*> { typedef T type; };
+	struct rm_ptr<T*> { using type = T; };
 
 template <typename T>
-	struct rm_ptr<const T*> { typedef const T type; };
+	struct rm_ptr<const T*> { using type = const T; };
 
 template <typename R, typename T, R (*F)(T)>
 struct deleter {
@@ -375,8 +375,8 @@ public:
 	T operator->() { return _val; }
 	const T operator->() const { return _val; }
 
-	typedef typename rm_ptr<T>::type& ref_t;
-	typedef const typename rm_ptr<T>::type& const_ref_t;
+	using ref_t = typename rm_ptr<T>::type&;
+	using const_ref_t = const typename rm_ptr<T>::type&;
 	ref_t operator*() { return *_val; }
 	const_ref_t operator*() const { return *_val; }
 	ref_t operator[](size_t idx) { return _val[idx]; }
@@ -477,7 +477,7 @@ struct ResolvedTrace: public Trace {
 	// An optionals list of "inliners". All the successive sources location
 	// from where the source location of the trace (the attribute right above)
 	// is inlined. It is especially useful when you compiled with optimization.
-	typedef std::vector<SourceLoc> source_locs_t;
+	using source_locs_t = std::vector<SourceLoc>;
 	source_locs_t                  inliners;
 
 	ResolvedTrace():
@@ -926,11 +926,11 @@ public:
 private:
 	bool                _bfd_loaded;
 
-	typedef details::handle<bfd*,
+	using bfd_handle_t = details::handle<bfd*,
 			details::deleter<bfd_boolean, bfd*, &bfd_close>
-				> bfd_handle_t;
+				>;
 
-	typedef details::handle<asymbol**> bfd_symtab_t;
+	using bfd_symtab_t = details::handle<asymbol**>;
 
 
 	struct bfd_fileobject {
@@ -940,8 +940,7 @@ private:
 		bfd_symtab_t dynamic_symtab;
 	};
 
-	typedef details::hashtable<std::string, bfd_fileobject>::type
-		fobj_bfd_map_t;
+	using fobj_bfd_map_t = details::hashtable<std::string, bfd_fileobject>::type;
 	fobj_bfd_map_t      _fobj_bfd_map;
 
 	bfd_fileobject& load_object_with_bfd(const std::string& filename_object) {
@@ -1299,8 +1298,7 @@ public:
 	}
 
 private:
-	typedef details::handle<Dwfl*, details::deleter<void, Dwfl*, &dwfl_end> >
-		dwfl_handle_t;
+	using dwfl_handle_t = details::handle<Dwfl*, details::deleter<void, Dwfl*, &dwfl_end>>;
 	details::handle<Dwfl_Callbacks*, details::default_delete<Dwfl_Callbacks*> >
 		           _dwfl_cb;
 	dwfl_handle_t  _dwfl_handle;
@@ -1487,7 +1485,7 @@ class TraceResolver:
 
 class SourceFile {
 public:
-	typedef std::vector<std::pair<unsigned, std::string> > lines_t;
+	using lines_t = std::vector<std::pair<unsigned, std::string>>;
 
 	SourceFile() {}
 	SourceFile(const std::string& path): _file(new std::ifstream(path.c_str())) {}
@@ -1603,7 +1601,7 @@ private:
 
 class SnippetFactory {
 public:
-	typedef SourceFile::lines_t lines_t;
+	using lines_t = SourceFile::lines_t;
 
 	lines_t get_snippet(const std::string& filename,
 			unsigned line_start, unsigned context_size) {
@@ -1648,7 +1646,7 @@ public:
 
 
 private:
-	typedef details::hashtable<std::string, SourceFile>::type src_files_t;
+	using src_files_t = details::hashtable<std::string, SourceFile>::type;
 	src_files_t _src_files;
 
 	SourceFile& get_src_file(const std::string& filename) {
@@ -1873,7 +1871,7 @@ private:
 			int context_size)
 	{
 		using namespace std;
-		typedef SnippetFactory::lines_t lines_t;
+		using lines_t = SnippetFactory::lines_t;
 
 		lines_t lines = _snippets.get_snippet(source_loc.filename,
 				source_loc.line, context_size);

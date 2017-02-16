@@ -121,7 +121,7 @@ public:
 		return m_minXSep;
 	}
 
-	//! Sets the option node distance to \a dist.
+	//! Sets the option node distance to \p dist.
 	void nodeDistance(double dist) {
 		m_minXSep = dist;
 	}
@@ -131,7 +131,7 @@ public:
 		return m_ySep;
 	}
 
-	//! Sets the option <i>layer distance</i> to \a dist.
+	//! Sets the option <i>layer distance</i> to \p dist.
 	void layerDistance(double dist) {
 		m_ySep = dist;
 	}
@@ -141,7 +141,7 @@ public:
 		return m_downward;
 	}
 
-	//! Sets the option <i>downward</i> to \a d.
+	//! Sets the option <i>downward</i> to \p d.
 	void downward(bool d) {
 		m_downward = d;
 	}
@@ -151,7 +151,7 @@ public:
 		return m_leftToRight;
 	}
 
-	//! Sets the option <i>left-to-right</i> to \a b.
+	//! Sets the option <i>left-to-right</i> to \p b.
 	void leftToRight(bool b) {
 		m_leftToRight = b;
 	}
@@ -161,7 +161,7 @@ public:
 		return m_balanced;
 	}
 
-	//! Sets the option <i>balanced</i> to \a b.
+	//! Sets the option <i>balanced</i> to \p b.
 	void balanced(bool b) {
 		m_balanced = b;
 	}

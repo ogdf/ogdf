@@ -32,7 +32,6 @@
 #include <ogdf/energybased/TutteLayout.h>
 
 
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/GraphCopyAttributes.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
@@ -69,14 +68,9 @@ bool TutteLayout::solveLP(
 	const double *sol = osi->getColSolution();
 	for(i=0; i<cols; i++) x[i] = sol[i];
 
-	if(osi->isProvenOptimal()) {
-		delete osi;
-		return true;
-	}
-	else {
-		delete osi;
-		return false;
-	}
+	bool returnValue = osi->isProvenOptimal();
+	delete osi;
+	return returnValue;
 }
 
 
@@ -98,9 +92,9 @@ void TutteLayout::setFixedNodes(
 	// compute faces of a copy of G
 	GraphCopy GC(G);
 
-	// compute a planar embedding if \a G is planar
-	if(isPlanar(G)) planarEmbed(GC);
-	//FIXME this stuff above seems wrong!!
+	// compute a planar embedding if G is planar
+	OGDF_ASSERT(isPlanar(G));
+	planarEmbedPlanarGraph(GC);
 
 	CombinatorialEmbedding E(GC);
 	E.computeFaces();

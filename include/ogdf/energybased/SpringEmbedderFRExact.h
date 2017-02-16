@@ -41,7 +41,7 @@ namespace ogdf {
 class OGDF_EXPORT SpringEmbedderFRExact : public ForceLayoutModule
 {
 public:
-	enum CoolingFunction { cfFactor, cfLogarithmic };
+	enum class CoolingFunction { Factor, Logarithmic };
 
 	//! Creates an instance of Fruchterman/Reingold (exact) layout.
 	SpringEmbedderFRExact();
@@ -50,7 +50,7 @@ public:
 	~SpringEmbedderFRExact() { }
 
 
-	//! Calls the layout algorithm for graph attributes \a GA.
+	//! Calls the layout algorithm for graph attributes \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 
@@ -59,7 +59,7 @@ public:
 		return m_iterations;
 	}
 
-	//! Sets the number of iterations to \a i.
+	//! Sets the number of iterations to \p i.
 	void iterations(int i) {
 		OGDF_ASSERT(i > 0);
 		m_iterations = i;
@@ -70,7 +70,7 @@ public:
 		return m_noise;
 	}
 
-	//! Sets the parameter noise to \a on.
+	//! Sets the parameter noise to \p on.
 	void noise(bool on) {
 		m_noise = on;
 	}
@@ -84,7 +84,7 @@ public:
 		return m_coolingFunction;
 	}
 
-	//! Sets the parameter coolingFunction to \a f.
+	//! Sets the parameter coolingFunction to \p f.
 	void coolingFunction(CoolingFunction f) {
 		m_coolingFunction = f;
 	}
@@ -92,19 +92,19 @@ public:
 	//! Returns the ideal edge length.
 	double idealEdgeLength() const { return m_idealEdgeLength; }
 
-	//! Sets the ideal edge length to \a len.
+	//! Sets the ideal edge length to \p len.
 	void idealEdgeLength(double len) { m_idealEdgeLength = len; }
 
 	//! Returns the minimum distance between connected components.
 	double minDistCC() const { return m_minDistCC; }
 
-	//! Sets the minimum distance between connected components to \a x.
+	//! Sets the minimum distance between connected components to \p x.
 	void minDistCC(double x) { m_minDistCC = x; }
 
 	//! Returns the page ratio.
 	double pageRatio() { return m_pageRatio; }
 
-	//! Sets the page ration to \a x.
+	//! Sets the page ration to \p x.
 	void pageRatio(double x) { m_pageRatio = x; }
 
 	void checkConvergence(bool b) {m_checkConvergence = b;}
@@ -124,7 +124,7 @@ private:
 		NodeArray<int>      m_mapNode;
 
 	public:
-		ArrayGraph(GraphAttributes &ga);
+		explicit ArrayGraph(GraphAttributes &ga);
 		~ArrayGraph();
 
 		void initCC(int i);

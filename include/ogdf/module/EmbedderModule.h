@@ -54,26 +54,26 @@ public:
 	virtual ~EmbedderModule() { }
 
 	/**
-	 * \brief Calls the embedder algorithm for graph \a G.
-	 * \pre \a G is planar.
+	 * \brief Calls the embedder algorithm for graph \p G.
+	 * \pre \p G is planar.
 	 * \param G is the graph that shall be embedded.
 	 * \param adjExternal is set (by the algorithm) to an adjacency entry on the
-	 *        external face of \a G.
+	 *        external face of \p G.
 	 */
 	void call(Graph& G, adjEntry& adjExternal) {
 		OGDF_ASSERT(isPlanar(G));
 		doCall(G, adjExternal);
 	};
 
-	//! Calls the embedder algorithm for planarized representation \a PG.
+	//! Calls the embedder algorithm for graph \p G.
 	void operator()(Graph& G, adjEntry& adjExternal) { call(G, adjExternal); }
 
 	OGDF_MALLOC_NEW_DELETE
 protected:
 
 	/**
-	 * \brief Calls the embedder algorithm for graph \a G.
-	 * \a G is guaranteed to be planar.
+	 * \brief Calls the embedder algorithm for graph \p G.
+	 * \p G is guaranteed to be planar.
 	 * See #call .
 	 */
 	virtual void doCall(Graph& G, adjEntry& adjExternal) = 0;

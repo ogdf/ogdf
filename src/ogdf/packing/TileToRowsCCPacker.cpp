@@ -53,7 +53,7 @@ class DecrIndexComparer
 	const Array<POINT> &m_box;
 
 public:
-	DecrIndexComparer(const Array<POINT> &box) : m_box(box) { }
+	explicit DecrIndexComparer(const Array<POINT> &box) : m_box(box) { }
 
 	int compare(const int &i, const int &j) const
 	{
@@ -64,8 +64,7 @@ public:
 		else return 0;
 	}
 
-	// avoid automatic creation of assignment operator
-	DecrIndexComparer<POINT> &operator=(const DecrIndexComparer<POINT> &);
+	DecrIndexComparer<POINT> &operator=(const DecrIndexComparer<POINT> &) = delete;
 
 	OGDF_AUGMENT_COMPARER(int)
 };
@@ -161,8 +160,7 @@ void TileToRowsCCPacker::callGeneric(Array<POINT> &box,
 	// corresponding boxes
 	Array<int> sortedIndices(n);
 
-	int i;
-	for(i = 0; i < n; ++i)
+	for(int i = 0; i < n; ++i)
 		sortedIndices[i] = i;
 
 	DecrIndexComparer<POINT> comp(box);
@@ -170,34 +168,34 @@ void TileToRowsCCPacker::callGeneric(Array<POINT> &box,
 
 	// i iterates over all box indices according to decreasing height of
 	// the boxes
-	for(int iSI = 0; iSI < n; ++iSI)
+	for(int i = 0; i < n; ++i)
 	{
-		int i = sortedIndices[iSI];
+		int sortedIndex = sortedIndices[i];
 
 		// Find the row which increases the covered area as few as possible.
 		// The area measured is the area of the smallest rectangle that covers
 		// all boxes and whose width / height ratio is pageRatio
-		int bestRow = findBestRow(row,nRows,pageRatio,box[i]);
+		int bestRow = findBestRow(row,nRows,pageRatio,box[sortedIndex]);
 
 		// bestRow = -1 indictes that a new row is added
 		if (bestRow < 0) {
 			struct RowInfo<POINT> &r = row[nRows++];
-			r.m_boxes.pushBack(i);
-			r.m_maxHeight = box[i].m_y;
-			r.m_width = box[i].m_x;
+			r.m_boxes.pushBack(sortedIndex);
+			r.m_maxHeight = box[sortedIndex].m_y;
+			r.m_width = box[sortedIndex].m_x;
 
 		} else {
 			struct RowInfo<POINT> &r = row[bestRow];
-			r.m_boxes.pushBack(i);
-			r.m_maxHeight = max(r.m_maxHeight,box[i].m_y);
-			r.m_width += box[i].m_x;
+			r.m_boxes.pushBack(sortedIndex);
+			r.m_maxHeight = max(r.m_maxHeight,box[sortedIndex].m_y);
+			r.m_width += box[sortedIndex].m_x;
 		}
 	}
 
 	// At this moment, we know which box is contained in which row.
 	// The following loop sets the required offset of each box
 	typename POINT::numberType y = 0;  // sum of the heights of boxes 0,...,i-1
-	for(i = 0; i < nRows; ++i)
+	for(int i = 0; i < nRows; ++i)
 	{
 		const RowInfo<POINT> &r = row[i];
 
@@ -212,7 +210,7 @@ void TileToRowsCCPacker::callGeneric(Array<POINT> &box,
 		y += r.m_maxHeight;
 	}
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, checkOffsets(box,offset));
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, checkOffsets(box,offset));
 }
 
 

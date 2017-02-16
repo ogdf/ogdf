@@ -34,7 +34,7 @@
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/planarity/PlanRep.h>
-#include <ogdf/internal/orthogonal/RoutingChannel.h>
+#include <ogdf/orthogonal/internal/RoutingChannel.h>
 #include <ogdf/basic/tuples.h>
 #include <ogdf/basic/GridLayoutMapped.h>
 
@@ -63,7 +63,7 @@ class OGDF_EXPORT LongestPathCompaction
 {
 public:
 	//! Creates an instance of the longest path compaction algorithm.
-	LongestPathCompaction(bool tighten = true,
+	explicit LongestPathCompaction(bool tighten = true,
 		int maxImprovementSteps = 0);
 
 	//! Constructive heurisitic for orthogonal representations.
@@ -84,7 +84,7 @@ public:
 	//
 	// options
 
-	//! Sets option <i>tighten</i> to \a select.
+	//! Sets option <i>tighten</i> to \p select.
 	void tighten(bool select) {
 		m_tighten = select;
 	}

@@ -40,7 +40,7 @@ class ProcrustesPointSet
 {
 public:
 	//! Constructor for allocating mem for numPoints points
-	ProcrustesPointSet(int numPoints);
+	explicit ProcrustesPointSet(int numPoints);
 
 	//! Destructor which frees mem
 	~ProcrustesPointSet();
@@ -141,7 +141,7 @@ public:
 	// destructor
 	~ProcrustesSubLayout() { }
 
-	//! Computes a circular layout for graph attributes \a GA.
+	//! Computes a circular layout for graph attributes \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 	//! Should the new layout scale be used or the initial scale? Default: inital

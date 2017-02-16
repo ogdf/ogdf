@@ -33,13 +33,11 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/fileformats/GraphIO.h>
 
-//-------------------------------------
 //zwei Moeglichkeiten: Elemente verstecken mit hide/activate
 //oder Elemente, die nicht akiv sind, loeschen
 
 #include <ogdf/planarity/PlanRepInc.h>
 #include <ogdf/basic/TopologyModule.h>
-#include <ogdf/basic/Math.h>
 
 
 namespace ogdf {
@@ -121,20 +119,15 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 	}//for originals
 	//}//if non-empty
 
-	//now we check if we have to activate a single node
-	if (minNode)
-	{
-		if (activeOrigCCNodes.size() == 0)
-		{
-			//Simple strategy: take the first node
-			minActive = m_ccInfo.v(m_ccInfo.startNode(i));
-			if (minActive != nullptr)
-			{
-				m_activeNodes[minActive] = true;
-				activeOrigCCNodes.pushFront(minActive);
-			}
+	// now we check if we have to activate a single node
+	if (minNode && activeOrigCCNodes.empty()) {
+		//Simple strategy: take the first node
+		minActive = m_ccInfo.v(m_ccInfo.startNode(i));
+		if (minActive != nullptr) {
+			m_activeNodes[minActive] = true;
+			activeOrigCCNodes.pushFront(minActive);
 		}
-	}//minNode
+	}
 
 	m_currentCC = i;
 
@@ -150,8 +143,8 @@ node PlanRepInc::initActiveCCGen(int i, bool minNode)
 			{
 				switch (m_pGraphAttributes->type(original(e)))
 				{
-					case Graph::generalization: setGeneralization(e); break;
-					case Graph::association: setAssociation(e); break;
+					case Graph::EdgeType::generalization: setGeneralization(e); break;
+					case Graph::EdgeType::association: setAssociation(e); break;
 					default: OGDF_ASSERT(false);
 				}//switch
 			}//if original
@@ -427,7 +420,6 @@ adjEntry PlanRepInc::getExtAdj(GraphCopy & /* GC */, CombinatorialEmbedding & /*
 	return adjEntry();
 }//getextadj
 
-//-------------------------------------
 //structure updates of underlying graph
 //signaled by graph structure
 void PlanRepInc::nodeDeleted(node /* v */)
@@ -441,7 +433,6 @@ void PlanRepInc::reInit()            {}
 void PlanRepInc::cleared()           {}
 
 
-//----------
 //DEBUGSTUFF
 #ifdef OGDF_DEBUG
 int PlanRepInc::genusLayout(Layout &drawing) const
@@ -486,7 +477,7 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 			AG.x(u) = drawing.x(v);
 			AG.y(u) = drawing.y(v);
 			AG.fillColor(u) = col;
-			AG.strokeColor(u) = Color::Red;
+			AG.strokeColor(u) = Color::Name::Red;
 			AG.strokeWidth(u) = 8;
 		}//if
 
@@ -557,16 +548,6 @@ int PlanRepInc::genusLayout(Layout &drawing) const
 }
 //#endif
 
-//zu debugzwecken
-void PlanRepInc::writeGML(const char *fileName, GraphAttributes &AG, bool colorEmbed)
-{
-	OGDF_ASSERT(m_pGraphAttributes == &(AG));
-
-	ofstream os(fileName);
-	writeGML(os, AG);//drawing, colorEmbed);
-
-}//writegml with AG layout
-
 void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 {
 	OGDF_ASSERT(m_pGraphAttributes == &(AG));
@@ -595,18 +576,18 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 		os << "      h " << 10.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			{
 				if (isCrossingType(v))
 				{
@@ -641,7 +622,7 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::generalization)
+		if (typeOf(e) == Graph::EdgeType::generalization)
 		{
 			os << "      arrow \"last\"\n";
 			if (m_alignUpward[e->adjSource()])
@@ -652,10 +633,10 @@ void PlanRepInc::writeGML(ostream &os, const GraphAttributes &AG)
 		}
 		else
 		{
-			if (typeOf(e->source()) == Graph::generalizationExpander ||
-				typeOf(e->source()) == Graph::generalizationMerger ||
-				typeOf(e->target()) == Graph::generalizationExpander ||
-				typeOf(e->target()) == Graph::generalizationMerger)
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+				typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 			{
 				os << "      arrow \"none\"\n";
 				if (isBrother(e))
@@ -732,18 +713,18 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 		os << "      h " << 10.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			{
 				if (isCrossingType(v))
 				{
@@ -788,11 +769,9 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 			//dirty hack, quadratic time
 			//color after higher degree order
 			node w;
-			//----------------
 			if (proc[e->target()] && !proc[e->source()]) w = e->target();
 			else if (proc[e->source()] && !proc[e->target()]) w = e->source();
 			else
-			//----------------
 				w = (e->source()->degree() > e->target()->degree() ? e->source() : e->target());
 
 			proc[w] = true;
@@ -821,7 +800,7 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 
 		}//colorembed
 
-			if (typeOf(e) == Graph::generalization)
+			if (typeOf(e) == Graph::EdgeType::generalization)
 			{
 				os << "      arrow \"last\"\n";
 
@@ -845,10 +824,10 @@ void PlanRepInc::writeGML(ostream &os, const Layout &drawing, bool colorEmbed)
 			}
 			else
 			{
-				if (typeOf(e->source()) == Graph::generalizationExpander ||
-					typeOf(e->source()) == Graph::generalizationMerger ||
-					typeOf(e->target()) == Graph::generalizationExpander ||
-					typeOf(e->target()) == Graph::generalizationMerger)
+				if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+					typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+					typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+					typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 				{
 					os << "      arrow \"none\"\n";
 					if (isBrother(e))

@@ -93,7 +93,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream &out, const AbacusGlobal &rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream &out, const AbacusGlobal &rhs);
 
 #if 0
 	//! Writes \a nTab tabs to the output stream.

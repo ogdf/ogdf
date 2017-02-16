@@ -32,15 +32,13 @@
 
 #include <ogdf/energybased/SpringEmbedderFRExact.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
 #include <ogdf/basic/simple_graph_alg.h>
 
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-#include <ogdf/internal/basic/intrinsics.h>
-
+#include <ogdf/basic/internal/intrinsics.h>
 
 namespace ogdf {
 
@@ -136,7 +134,7 @@ SpringEmbedderFRExact::SpringEmbedderFRExact()
 	// default parameters
 	m_iterations = 1000;
 	m_noise      = true;
-	m_coolingFunction = cfFactor;
+	m_coolingFunction = CoolingFunction::Factor;
 
 	m_coolFactor_x = 0.9;
 	m_coolFactor_y = 0.9;
@@ -169,7 +167,7 @@ void SpringEmbedderFRExact::call(GraphAttributes &AG)
 	Array<DPoint> boundingBox(component.numberOfCCs());
 
 	int i;
-	const bool haveSSE3 = System::cpuSupports(cpufSSE3);
+	const bool haveSSE3 = System::cpuSupports(CPUFeature::SSE3);
 	for(i = 0; i < component.numberOfCCs(); ++i)
 	{
 		component.initCC(i);
@@ -281,12 +279,12 @@ void SpringEmbedderFRExact::initialize(ArrayGraph &component)
 void SpringEmbedderFRExact::cool(double &tx, double &ty, int &cF)
 {
 	switch(m_coolingFunction) {
-		case cfFactor:
+		case CoolingFunction::Factor:
 			tx *= m_coolFactor_x;
 			ty *= m_coolFactor_y;
 			break;
 
-		case cfLogarithmic:
+		case CoolingFunction::Logarithmic:
 			tx = m_txNull / mylog2(cF);
 			ty = m_tyNull / mylog2(cF);
 			cF++;

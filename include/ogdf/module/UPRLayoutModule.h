@@ -51,7 +51,7 @@ public:
 	virtual ~UPRLayoutModule() { }
 
 	/**
-	 * \brief Computes a upward layout of \a UPR in \a AG.
+	 * \brief Computes a upward layout of \p UPR in \p AG.
 	 * @param UPR is the upward planarized representation of the input graph. The original graph of UPR muss be the input graph.
 	 * @param AG is assigned the hierarchy layout.
 	 */

@@ -49,11 +49,11 @@ public:
 	virtual ~UpwardEdgeInserterModule() { }
 
 	/**
-	 * \brief Inserts all edges in \a origEdges into \a UPR.
+	 * \brief Inserts all edges in \p origEdges into \p UPR.
 	 *
 	 * @param UPR is the input upward planarized representation of a FUPS and will also receive the result.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *			of \a UPR) that have to be inserted.
+	 *			of \p UPR) that have to be inserted.
 	 * \return the status of the result.
 	 */
 	ReturnType call(UpwardPlanRep &UPR, const List<edge> &origEdges) {
@@ -61,13 +61,13 @@ public:
 	}
 
 	/**
-	 * \brief Inserts all edges in \a origEdges with given costs into \a UPR.
+	 * \brief Inserts all edges in \p origEdges with given costs into \p UPR.
 	 *
 	 * @param UPR is the input upward planarized representation of a FUPS and will also receive the result.
 	 * @param costOrig points to an edge array containing the costs of original edges; edges in
-	 *        \a UPR without an original edge have zero costs.
+	 *        \p UPR without an original edge have zero costs.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a UPR) that have to be inserted.
+	 *        of \p UPR) that have to be inserted.
 	 * \return the status of the result.
 	 */
 	ReturnType call(UpwardPlanRep &UPR,
@@ -79,15 +79,15 @@ public:
 
 
 	/**
-	 * \brief Inserts all edges in \a origEdges with given forbidden edges into \a UPR.
+	 * \brief Inserts all edges in \p origEdges with given forbidden edges into \p UPR.
 	 *
 	 * @param UPR is the input upward planarized representation of a FUPS and will also receive the result.
 	 * @param costOrig points to an edge array containing the costs of original edges; edges in
-	 *        \a UPR without an original edge have zero costs.
+	 *        \p UPR without an original edge have zero costs.
 	 * @param forbidOriginal points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a UPR) that have to be inserted.
+	 *        of \p UPR) that have to be inserted.
 	 */
 	ReturnType call(UpwardPlanRep &UPR,
 		const EdgeArray<int>  &costOrig,
@@ -99,15 +99,15 @@ public:
 
 
 	/**
-	 * \brief Inserts all edges in \a origEdges with given forbidden edges into \a UPR.
+	 * \brief Inserts all edges in \p origEdges with given forbidden edges into \p UPR.
 	 *
-	 * \pre No forbidden edge may be in \a origEdges.
+	 * \pre No forbidden edge may be in \p origEdges.
 	 *
 	 * @param UPR is the input upward planarized representation of a FUPS and will also receive the result.
 	 * @param forbidOriginal points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a UPR) that have to be inserted.
+	 *        of \p UPR) that have to be inserted.
 	 * \return the status of the result.
 	 */
 	ReturnType call(UpwardPlanRep &UPR,
@@ -127,9 +127,9 @@ protected:
 	 *
 	 * @param UPR is the input upward planarized representation of a FUPS and will also receive the result.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a UPR) that have to be inserted.
+	 *        of \p UPR) that have to be inserted.
 	 * @param costOrig points to an edge array containing the costs of original edges; edges in
-	 *        \a UPR without an original edge have zero costs.
+	 *        \p UPR without an original edge have zero costs.
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */

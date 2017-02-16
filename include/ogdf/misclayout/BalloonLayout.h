@@ -59,12 +59,12 @@ class OGDF_EXPORT BalloonLayout : public LayoutModule
 public:
 	//Root may be defined by center of the graph
 	//Directed cases: source/sink
-	enum RootSelection {rootCenter, rootHighestDegree};
+	enum class RootSelection {Center, HighestDegree};
 	//either keep the given embedding or optimize
 	//the order wrto angular resolution and minimum aspect ratio
-	enum ChildOrder {orderFixed, orderOptimized};
+	enum class ChildOrder {Fixed, Optimized};
 	//compute tree by different methods
-	enum TreeComputation {treeBfs, treeDfs, treeBfsRandom};
+	enum class TreeComputation {Bfs, Dfs, BfsRandom};
 	//! Constructor, sets options to default values.
 	BalloonLayout();
 	virtual ~BalloonLayout();
@@ -90,18 +90,19 @@ public:
 	/// returns how the angles are assigned to subtrees.
 	bool getEvenAngles() {return m_evenAngles;}
 
-
- protected:
+protected:
 	//! Computes the spanning tree that is used for the
 	//! layout computation, the non-tree edges are
 	//! simply added into the layout.
 	void computeTree(const Graph &G);
+
 	//! Computes tree by BFS, fills m_parent and m_childCount.
 	void computeBFSTree(const Graph &G, node v);
+
 	//! Selects the root of the spanning tree that
 	//! is placed in the layout center.
 	void selectRoot(const Graph &G);
-	//------------------------------------------------
+
 	//! Computes a radius for each of the vertices in G.
 	//! fractal model: same radius on same level, such
 	//! that r(m) = gamma* r(m-1) where gamma is predefined
@@ -112,8 +113,10 @@ public:
 	#else
 	void computeRadii(const GraphAttributes &AG);
 	#endif
+
 	//! Computes the angle distribution: assigns m_angle each node.
 	void computeAngles(const Graph &G);
+
 	//! Computes coordinates from angles and radii.
 	void computeCoordinates(GraphAttributes &AG);
 
@@ -134,8 +137,6 @@ private:
 	EdgeArray<bool> *m_treeEdge; //!< Holds info about tree edges.
 #endif
 
-	//-----------------------
-	//optimization parameters
 	RootSelection     m_rootSelection; //!< Defines how the tree root is selected
 	node              m_treeRoot; //!< Root of tree after computation.
 	node              m_root;     //!< Root of tree by selection method.
@@ -151,5 +152,7 @@ private:
 
 	OGDF_NEW_DELETE
 }; //class BalloonLayout
+
+OGDF_EXPORT ostream &operator<<(ostream &os, const BalloonLayout::RootSelection &rs);
 
 }//end namespace ogdf

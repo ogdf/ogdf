@@ -41,7 +41,7 @@ namespace ogdf {
  * @ingroup ga-plansub
  */
 template<typename TCost>
-class OGDF_EXPORT PlanarSubgraphEmpty : public PlanarSubgraphModule<TCost> {
+class PlanarSubgraphEmpty : public PlanarSubgraphModule<TCost> {
 public:
 	virtual PlanarSubgraphEmpty *clone() const override{
 		return new PlanarSubgraphEmpty();
@@ -54,7 +54,7 @@ public:
 			const EdgeArray<TCost> *pCost,
 			bool preferedImplyPlanar) override{
 		graph.allEdges(delEdges);
-		return Module::ReturnType::retFeasible;
+		return Module::ReturnType::Feasible;
 	}
 };
 }

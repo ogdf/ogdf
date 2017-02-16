@@ -69,7 +69,7 @@ public:
 	{ }
 
 	//! Output operator for constraint classifications.
-	friend ostream &operator<<(ostream &out, const ConClass &rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream &out, const ConClass &rhs);
 
 	//! Returns \a true if all variables with nonzero coefficients of the constraint are binary.
 	bool allVarBinary() const { return allVarBinary_; }

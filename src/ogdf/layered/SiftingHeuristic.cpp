@@ -35,7 +35,7 @@ namespace ogdf {
 
 SiftingHeuristic::SiftingHeuristic() :
   m_crossingMatrix(nullptr),
-  m_strategy(left_to_right) { }
+  m_strategy(Strategy::LeftToRight) { }
 
 SiftingHeuristic::SiftingHeuristic(const SiftingHeuristic &crossMin) :
   m_crossingMatrix(nullptr),
@@ -55,10 +55,8 @@ SiftingHeuristic::~SiftingHeuristic()
 
 void SiftingHeuristic::cleanup()
 {
-	if (m_crossingMatrix != nullptr) {
-		delete m_crossingMatrix;
-		m_crossingMatrix = nullptr;
-	}
+	delete m_crossingMatrix;
+	m_crossingMatrix = nullptr;
 }
 
 void SiftingHeuristic::call(Level &L)
@@ -70,16 +68,16 @@ void SiftingHeuristic::call(Level &L)
 
 	m_crossingMatrix->init(L); // initialize crossing matrix
 
-	if (m_strategy == left_to_right || m_strategy == random) {
+	if (m_strategy == Strategy::LeftToRight || m_strategy == Strategy::Random) {
 		for (i = 0; i < n; i++) {
 			vertices.pushBack(L[i]);
 		}
 
-		if (m_strategy == random) {
+		if (m_strategy == Strategy::Random) {
 			vertices.permute();
 		}
 
-	} else { // m_strategy == desc_degree
+	} else { // m_strategy == Strategy::DescDegree
 		int max_deg = 0;
 
 		for (i = 0; i < n; i++) {

@@ -55,17 +55,17 @@ namespace ogdf {
  */
 class OGDF_EXPORT NodeSetSimple {
 public:
-	//! Creates an empty node set associated with graph \a G.
-	NodeSetSimple(const Graph &G) : m_isContained(G,false) { }
+	//! Creates an empty node set associated with graph \p G.
+	explicit NodeSetSimple(const Graph &G) : m_isContained(G,false) { }
 
 	// destructor
 	~NodeSetSimple() { }
 
-	//! Inserts node \a v into \a S.
+	//! Inserts node \p v into \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	void insert(node v) {
 		OGDF_ASSERT(v->graphOf() == m_isContained.graphOf());
@@ -89,11 +89,11 @@ public:
 		m_nodes.clear();
 	}
 
-	//! Returns true if node \a v is contained in \a S, false otherwise.
+	//! Returns true if node \p v is contained in \a S, false otherwise.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	bool isMember(node v) const {
 		OGDF_ASSERT(v->graphOf() == m_isContained.graphOf());
@@ -109,7 +109,7 @@ public:
 	}
 
 private:
-	//! m_isContained[v] is true iff \a v is contained in \a S.
+	//! m_isContained[v] is true iff \p v is contained in \a S.
 	NodeArray<bool> m_isContained;
 
 	//! The list of nodes contained in \a S.
@@ -135,17 +135,17 @@ private:
  */
 class OGDF_EXPORT NodeSetPure {
 public:
-	//! Creates an empty node set associated with graph \a G.
-	NodeSetPure(const Graph &G) : m_it(G,ListIterator<node>()) { }
+	//! Creates an empty node set associated with graph \p G.
+	explicit NodeSetPure(const Graph &G) : m_it(G,ListIterator<node>()) { }
 
 	// destructor
 	~NodeSetPure() { }
 
-	//! Inserts node \a v into \a S.
+	//! Inserts node \p v into \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	void insert(node v) {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
@@ -154,11 +154,11 @@ public:
 			itV = m_nodes.pushBack(v);
 	}
 
-	//! Removes node \a v from \a S.
+	//! Removes node \p v from \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	void remove(node v) {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
@@ -184,11 +184,11 @@ public:
 	}
 
 
-	//! Returns true if node \a v is contained in \a S, false otherwise.
+	//! Returns true if node \p v is contained in \a S, false otherwise.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	bool isMember(node v) const {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
@@ -221,7 +221,7 @@ public:
 	}
 
 private:
-	//! m_it[v] contains the list iterator pointing to \a v if \a v is contained in S,
+	//! m_it[\a v] contains the list iterator pointing to \a v if \a v is contained in \a S,
 	//! an invalid list iterator otherwise.
 	NodeArray<ListIterator<node> > m_it;
 
@@ -248,17 +248,17 @@ private:
  */
 class OGDF_EXPORT NodeSet {
 public:
-	//! Creates an empty node set associated with graph \a G.
-	NodeSet(const Graph &G) : m_it(G,ListIterator<node>()) { }
+	//! Creates an empty node set associated with graph \p G.
+	explicit NodeSet(const Graph &G) : m_it(G,ListIterator<node>()) { }
 
 	// destructor
 	~NodeSet() { }
 
-	//! Inserts node \a v into \a S.
+	//! Inserts node \p v into \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	void insert(node v) {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
@@ -267,11 +267,11 @@ public:
 			itV = m_nodes.pushBack(v);
 	}
 
-	//! Removes node \a v from \a S.
+	//! Removes node \p v from \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	void remove(node v) {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
@@ -297,11 +297,11 @@ public:
 	}
 
 
-	//! Returns true if node \a v is contained in \a S, false otherwise.
+	//! Returns true if node \p v is contained in \a S, false otherwise.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a v is a node in the associated graph.
+	 * \pre \p v is a node in the associated graph.
 	 */
 	bool isMember(node v) const {
 		OGDF_ASSERT(v->graphOf() == m_it.graphOf());
@@ -342,7 +342,7 @@ public:
 	}
 
 private:
-	//! m_it[v] contains the list iterator pointing to \a v if \a v is contained in S,
+	//! m_it[v] contains the list iterator pointing to \a v if \a v is contained in \a S,
 	//! an invalid list iterator otherwise.
 	NodeArray<ListIterator<node> > m_it;
 

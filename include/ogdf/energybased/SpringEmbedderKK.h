@@ -75,16 +75,7 @@ namespace ogdf {
 class OGDF_EXPORT SpringEmbedderKK : public LayoutModule
 {
 public:
-	typedef Tuple2<double, double> dpair;
-
-	//! The scaling method used for the desirable length.
-	//! TODO: Non-functional so far, scScaleFunction is used
-	enum Scaling {
-		scInput,           //!< bounding box of input is used.
-		scUserBoundingBox, //!< bounding box set by userBoundingBox() is used.
-		scScaleFunction,    //!< automatic scaling is used, computed using only the node sizes.
-		scScaleAdaptive    //!< automatic scaling is used, adapting the value per iteration.
-	};
+	using dpair = Tuple2<double, double>;
 
 	//! Constructor: Constructs instance of Kamada Kawai Layout
 	SpringEmbedderKK() : m_tolerance(0.001), m_ltolerance(0.0001), m_computeMaxIt(true),
@@ -97,12 +88,12 @@ public:
 	//! Destructor
 	~SpringEmbedderKK() {}
 
-	//! Calls the layout algorithm for graph attributes \a GA.
+	//! Calls the layout algorithm for graph attributes \p GA.
 	//! Currently, GA.doubleWeight is NOT used to allow simple
 	//! distinction of BFS/APSS. Precondition: Graph is connected.
 	virtual void call(GraphAttributes& GA) override;
 
-	//! Calls the layout algorithm for graph attributes \a GA
+	//! Calls the layout algorithm for graph attributes \p GA
 	//! using values in eLength for distance computation.
 	//! Precondition: Graph is connected.
 	void call(GraphAttributes& GA, const EdgeArray<double>& eLength);
@@ -135,12 +126,12 @@ public:
 	int maxGlobalIterations() const {
 		return m_maxGlobalIt;
 	}
-	//! Sets the number of global iterations to \a i.
+	//! Sets the number of global iterations to \p i.
 	void setMaxGlobalIterations(int i) {
 		if (i>0)
 			m_maxGlobalIt = i;
 	}
-	//! Sets the number of local iterations to \a i.
+	//! Sets the number of local iterations to \p i.
 	void setMaxLocalIterations(int i) {
 		if (i>0)
 			m_maxLocalIt = i;
@@ -158,7 +149,7 @@ public:
 		return m_noise;
 	}
 
-	//! Sets the parameter noise to \a on.
+	//! Sets the parameter noise to \p on.
 	void noise(bool on) {
 		m_noise = on;
 	}
@@ -238,14 +229,12 @@ protected:
 		const EdgeArray<double>& eLength,
 		NodeArray< NodeArray<double> >& oLength,
 		NodeArray< NodeArray<double> >& sstrength,
-		double & maxDist,
 		bool simpleBFS);
 	//! Main computation loop, nodes are moved here
 	void mainStep(GraphAttributes& GA,
 		NodeArray<dpair>& partialDer,
 		NodeArray< NodeArray<double> >& oLength,
-		NodeArray< NodeArray<double> >& sstrength,
-		const double maxDist);
+		NodeArray< NodeArray<double> >& sstrength);
 	//! Does the scaling if no edge lengths are given but node sizes
 	//! are respected
 	void scale(GraphAttributes& GA);
@@ -288,7 +277,7 @@ private:
 	//! Returns the page ratio.
 	double pageRatio() { return m_pageRatio; }
 
-	//! Sets the page ration to \a x.
+	//! Sets the page ration to \p x.
 	void pageRatio(double x) { m_pageRatio = x; }
 
 	//! Returns the current scaling method.
@@ -296,7 +285,7 @@ private:
 		return m_scaling;
 	}
 
-	//! Sets the method for scaling the inital layout to \a sc.
+	//! Sets the method for scaling the inital layout to \p sc.
 	void scaling(Scaling sc) {
 		m_scaling = sc;
 	}
@@ -306,7 +295,7 @@ private:
 		return m_scaleFactor;
 	}
 
-	//! Sets the scale function factor to \a f.
+	//! Sets the scale function factor to \p f.
 	void scaleFunctionFactor(double f) {
 		m_scaleFactor = f;
 	}

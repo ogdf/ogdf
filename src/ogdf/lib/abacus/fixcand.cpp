@@ -80,7 +80,7 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 {
 	if (candidates_ == nullptr) return;
 
-	Logger::ilout(Logger::LL_MINOR) << endl << "Fixing Variables by Reduced Costs:     ";
+	Logger::ilout(Logger::Level::Minor) << endl << "Fixing Variables by Reduced Costs:     ";
 
 	const int nCandidates = candidates_->size();
 
@@ -122,7 +122,7 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 
 					default:
 						Logger::ifout() << "FixCand::fixByRedCost(): activated variable not fixed\n";
-						OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcFixCand);
+						OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::FixCand);
 					}
 				}
 
@@ -145,7 +145,7 @@ void FixCand::fixByRedCost(CutBuffer<Variable, Constraint> *addVarBuffer)
 	fsVarStat_->leftShift(fixed);
 	lhs_->leftShift(fixed);
 
-	Logger::ilout(Logger::LL_MINOR) << "\t" << fixed.size() << " variables fixed" << endl;
+	Logger::ilout(Logger::Level::Minor) << "\t" << fixed.size() << " variables fixed" << endl;
 }
 
 

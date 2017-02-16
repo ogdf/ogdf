@@ -56,7 +56,7 @@ public:
 	 * \brief Computes a upward planarized representation (UPR) of the input graph \a G.
 	 *
 	 * @param UPR represents the input graph as well as the computed upward planarized
-	 *        representation after the call. The original graph of \a UPR muss be the input graph \a G.
+	 *        representation after the call. The original graph of \p UPR has to be the input graph \a G.
 	 *		  Crossings are replaced by dummy vertices. The UPR is finaly augmented to a st-graph. Since this augmentation,
 	 *		  crossings dummies may not got an in- and outdegree of 2!
 	 *
@@ -108,7 +108,7 @@ protected:
 	 * \brief Computes an upward planarized representation of the input graph.
 	 *
 	 * @param UPR represents the input graph as well as the computed upward planarized
-	 *        representation after the call. The original graph of \a UPR muss be the input graph \a G.
+	 *        representation after the call. The original graph of \p UPR has to be the input graph \a G.
 	 *		  Crossings are replaced by dummy vertices. The UPR is finaly augmented to a st-graph. Since this augmentation,
 	 *		  crossings dummies may not got an in- and outdegree of 2!
 	 *

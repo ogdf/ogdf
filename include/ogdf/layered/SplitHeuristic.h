@@ -61,10 +61,10 @@ public:
 	//! Initializes crossing minimization for hierarchy \a H.
 	void init (const HierarchyLevels &levels) override;
 
-	//! Calls the split heuristic for level \a L.
+	//! Calls the split heuristic for level \p L.
 	void call (Level &L) override;
 
-	//! Calls the median heuristic for level \a L (simultaneous drawing).
+	//! Calls the median heuristic for level \p L (simultaneous drawing).
 	void call (Level &L, const EdgeArray<uint32_t> *edgeSubGraphs) override;
 
 	//! Does some clean-up after calls.

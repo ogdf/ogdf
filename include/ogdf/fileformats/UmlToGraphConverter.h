@@ -39,12 +39,8 @@
 #include <ogdf/fileformats/UmlDiagramGraph.h>
 #include <ogdf/uml/UMLGraph.h>
 
-
 namespace ogdf {
 
-//---------------------------------------------------------
-// U m l T o G r a p h C o n v e r t e r
-//---------------------------------------------------------
 /** This class performs all necessary steps to obtain a model
  *  graph and diagram graphs from the input file which contains
  *  an UML model in XML format.
@@ -61,12 +57,11 @@ namespace ogdf {
  *  getDiagramGraphs().
  *
  *  In debug mode warnings and the content of the model graph and the diagram
- *  graphs are written into the log file named \e umlToGraphConversionLog.txt.
+ *  graphs are written into the log file named \a umlToGraphConversionLog.txt.
  */
 class OGDF_EXPORT UmlToGraphConverter {
 
 private:
-
 	/** The parser used for parsing the input file. */
 	XmlParser *m_xmlParser;
 
@@ -85,7 +80,7 @@ private:
 	SList<UMLGraph*> m_diagramGraphsInUMLGraphFormat;
 
 	/** Predefined info indices for known tag and attribute names. */
-	enum PredefinedInfoIndex {
+	enum class PredefinedInfoIndex {
 		xmi = 0,
 		xmiContent,
 		xmiId,
@@ -127,15 +122,14 @@ private:
 	 *  as type attribute in the relation. Now we can use the hash table to
 	 *  access the corresponding node.
 	 */
-	Hashing<int,NodeElement*> m_idToNode;
+	Hashing<int,node> m_idToNode;
 
 	/** Maps string info to edge.
 	 *  The functionality is the same as for #m_idToNode.
 	 */
-	Hashing<int,EdgeElement*> m_idToEdge;
+	Hashing<int,edge> m_idToEdge;
 
 public:
-
 	/** Constructor.
 	 *  The constructor performs the following:
 	 *  - A parser object of class XmlParser is created and
@@ -149,7 +143,7 @@ public:
 	 *  @param is The input stream of the xml file which contains the data
 	 *                  of the uml model to be converted into the graph format.
 	 */
-	UmlToGraphConverter(istream &is);
+	explicit UmlToGraphConverter(istream &is);
 
 	/** Destructor.
 	 *  The destructor destroys:
@@ -180,18 +174,17 @@ public:
 		return m_diagramGraphsInUMLGraphFormat;
 	}
 
-	/** Prints the content of each diagram to \a os.
+	/** Prints the content of each diagram to \p os.
 	 *  @param os The output stream where to direct the output to.
 	 */
 	void printDiagramsInUMLGraphFormat(ofstream &os);
 
-	/** Print hash table which maps the ids to the NodeElements.
+	/** Print hash table which maps the ids to the nodes.
 	 *  @param os The output stream where to direct the output to.
 	 */
 	void printIdToNodeMappingTable(ofstream &os);
 
 private:
-
 	/**
 	 * Inserts known strings for tags and attributes into the hashtable
 	 * of the parser. The info elements for the hashtable are taken from
@@ -211,14 +204,14 @@ private:
 
 	/**
 	 * Traverses the package structure and identifies classifiers inside the parse tree
-	 * (starting at \a currentRootTag) and inserts a new node for each classifier.
+	 * (starting at \p currentRootTag) and inserts a new node for each classifier.
 	 * This function will call itself recursively while traversing nested packages.
 	 *
 	 * Valid classifiers are currently: \c class and \c interface.
 	 *
 	 * @param currentRootTag The tag where to start the search for classifiers.
 	 * @param currentPackageName This string should contain the name of the package
-	 *                           path corresponding to \a currentRootTag.
+	 *                           path corresponding to \p currentRootTag.
 	 * @param modelGraph The model graph into which nodes are inserted.
 	 * @return False if something went wrong, true otherwise.
 	 */
@@ -228,12 +221,12 @@ private:
 		UmlModelGraph &modelGraph);
 
 	/**
-	 * Tries to find all classifiers of type \a desiredClassifier inside the parse tree
-	 * (starting at \a currentRootTag). Inserts a new node into \a modelGraph for each
+	 * Tries to find all classifiers of type \p desiredClassifier inside the parse tree
+	 * (starting at \p currentRootTag). Inserts a new node into \p modelGraph for each
 	 * classifier found.
 	 *
 	 * @param currentRootTag The tag where to start the search for the desired classifier.
-	 * @param currentPackageName This string should contain the name of the package path corresponding to \a currentRootTag.
+	 * @param currentPackageName This string should contain the name of the package path corresponding to \p currentRootTag.
 	 * @param desiredClassifier The info index of the desired class (see enum #PredefinedInfoIndex).
 	 * @param modelGraph The model graph into which nodes are inserted.
 	 * @return False if something went wrong, true otherwise.
@@ -307,9 +300,6 @@ private:
 	 * @return Returns true if conversion was successful, false otherwise.
 	 */
 	bool createDiagramGraphsInUMLGraphFormat(SList<UMLGraph*> &diagramGraphsInUMLGraphFormat);
-
-
 }; // class UmlToGraphConverter
-
 
 } // end namespace ogdf

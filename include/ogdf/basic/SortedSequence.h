@@ -67,7 +67,7 @@ class SortedSequence {
 		Element** m_next; //!< array of successor elements.
 		Element** m_prev; //!< array of predecessor elements.
 
-		//! Creates a skiplist element for(\a key,\a info) and given \a height.
+		//! Creates a skiplist element for(\p key,\p info) and given \p height.
 		Element(const KEY &key, const INFO &info, int height)
 			: m_key(key), m_info(info), m_height(height)
 		{
@@ -75,7 +75,7 @@ class SortedSequence {
 			m_prev = (Element**)malloc(height * sizeof(Element*));
 		}
 
-		//! Creates a dummy (stop) element with given \a height.
+		//! Creates a dummy (stop) element with given \p height.
 		/**
 		 * Stop elements are marked with height 0, although this is not their real height.
 		 * It is not necessary to store that, as we use realloc to increase their height.
@@ -94,7 +94,7 @@ class SortedSequence {
 			free(m_next);
 		}
 
-		//! Increases the element's height to \a newHeight.
+		//! Increases the element's height to \p newHeight.
 		void grow(int newHeight) {
 			Element **p = static_cast<Element**>( realloc(m_next, newHeight * sizeof(Element*)) );
 			if (p == nullptr) OGDF_THROW(InsufficientMemoryException);
@@ -111,16 +111,16 @@ class SortedSequence {
 public:
 
 	//! The iterator type for sorted sequences (bidirectional iterator).
-	typedef SortedSequenceIterator<KEY,INFO,CMP> iterator;
+	using iterator = SortedSequenceIterator<KEY,INFO,CMP>;
 	//! The const-iterator type for sorted sequences (bidirectional iterator).
-	typedef SortedSequenceConstIterator<KEY,INFO,CMP> const_iterator;
+	using const_iterator = SortedSequenceConstIterator<KEY,INFO,CMP>;
 
 	//! Constructs an initially empty sorted sequence.
 	SortedSequence(const CMP &comparer = CMP()) : m_comparer(comparer), m_rng(randomSeed()), m_randomBits(0,1) {
 		initEmpty();
 	}
 
-	//! Constructs a sorted sequence containing the elements in \a initList.
+	//! Constructs a sorted sequence containing the elements in \p initList.
 	SortedSequence(std::initializer_list < std::pair < KEY, INFO >> initList);
 
 	//! Copy constructor.
@@ -128,7 +128,7 @@ public:
 
 	//! Copy constructor (move semantics).
 	/**
-	 * The sequence \a S is empty afterwards.
+	 * The sequence \p S is empty afterwards.
 	 */
 	SortedSequence(SortedSequence<KEY,INFO,CMP> &&S);
 
@@ -197,16 +197,16 @@ public:
 	 */
 	//@{
 
-	//! Returns an iterator to the element with key \a key, or a null iterator if no such element exists.
+	//! Returns an iterator to the element with key \p key, or a null iterator if no such element exists.
 	iterator lookup(const KEY &key);
 
-	//! Returns a const-iterator to the element with key \a key, or a null iterator if no such element exists.
+	//! Returns a const-iterator to the element with key \p key, or a null iterator if no such element exists.
 	const_iterator lookup(const KEY &key) const;
 
-	//! Returns an iterator to the element < \a k1, \a i1 > such that \a k1 is minimal with \a k1 &ge; \a key, or a null iterator if no such element exists.
+	//! Returns an iterator to the element < \a k1, \a i1 > such that \a k1 is minimal with \a k1 &ge; \p key, or a null iterator if no such element exists.
 	iterator locate(const KEY &key);
 
-	//! Returns a const-iterator to the element < \a k1, \a i1 > such that \a k1 is minimal with \a k1 &ge; \a key, or a null iterator if no such element exists.
+	//! Returns a const-iterator to the element < \a k1, \a i1 > such that \a k1 is minimal with \a k1 &ge; \p key, or a null iterator if no such element exists.
 	const_iterator locate(const KEY &key) const;
 
 	//! Returns an iterator to the element with minimal key if the sequence is not empty, an invalid iterator otherwise.
@@ -241,13 +241,13 @@ public:
 	 */
 	//@{
 
-	//! Updates information for \a key if contained in sequence, or adds a new element <\a key, \a info>.
+	//! Updates information for \p key if contained in sequence, or adds a new element <\p key, \p info>.
 	iterator insert(const KEY &key, const INFO &info);
 
-	//! Removes the element with key \a key (if such an element exists).
+	//! Removes the element with key \p key (if such an element exists).
 	void del(const KEY &key);
 
-	//! Removes the element to which \a it points from the sequence.
+	//! Removes the element to which \p it points from the sequence.
 	void delItem(iterator it);
 
 	//! Removes all elements from the sorted sequence.
@@ -275,17 +275,17 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * The sequence \a S is empty afterwards.
+	 * The sequence \p S is empty afterwards.
 	 */
 	SortedSequence<KEY,INFO,CMP> &operator=(SortedSequence<KEY,INFO,CMP> &&S);
 
-	//! Returns true if the keys stored in this sequence equal the keys in \a S, false otherwise.
+	//! Returns true if the keys stored in this sequence equal the keys in \p S, false otherwise.
 	/**
 	 * Uses the given comparer object to compare keys.
 	 */
 	bool operator==(const SortedSequence<KEY,INFO,CMP> &S);
 
-	//! Returns false if the keys stored in this sequence equal the keys in \a S, true otherwise.
+	//! Returns false if the keys stored in this sequence equal the keys in \p S, true otherwise.
 	/**
 	 * Uses the given comparer object to compare keys.
 	 */
@@ -300,17 +300,17 @@ public:
 	 */
 	//@{
 
-	//! Adds a new element <\a key, \a info> after element \a ut.
+	//! Adds a new element <\p key, \p info> after element \p it.
 	/**
-	 * \pre \a it points to an element in the sequence that shall appear before <\a key, \a info> in the sorted sequence,
-	 * and its current successor \a itSucc shall appear after <\a key, \a info>, i.e., \a it's key is smaller than \a key
-	 * and \a itSucc's key is greater than \a key.
+	 * \pre \p it points to an element in the sequence that shall appear before <\p key, \p info> in the sorted sequence,
+	 * and its current successor \a itSucc shall appear after <\p key, \p info>, i.e., \p it's key is smaller than \p key
+	 * and \a itSucc's key is greater than \p key.
 	 */
 	iterator insertAfter(iterator it, const KEY &key, const INFO &info);
 
-	//! Reverses the items in the subsequence from \a itBegin to \a itEnd (inclusive).
+	//! Reverses the items in the subsequence from \p itBegin to \p itEnd (inclusive).
 	/**
-	 * \pre \a itBegin appears before \a itEnd in the sequence.
+	 * \pre \p itBegin appears before \p itEnd in the sequence.
 	 *
 	 * \warning
 	 * Usually, you do not need this method as the sequence is always sorted.
@@ -366,7 +366,7 @@ class SortedSequenceIterator {
 
 	typename SortedSequence<KEY,INFO,CMP>::Element *m_pElement;
 
-	//! Creates an iterator pointing to \a pElement.
+	//! Creates an iterator pointing to \p pElement.
 	SortedSequenceIterator(typename SortedSequence<KEY,INFO,CMP>::Element *pElement)
 		: m_pElement(pElement) { }
 
@@ -458,7 +458,7 @@ class SortedSequenceConstIterator {
 
 	const typename SortedSequence<KEY,INFO,CMP>::Element *m_pElement;
 
-	//! Creates an iterator pointing to \a pElement.
+	//! Creates an iterator pointing to \p pElement.
 	SortedSequenceConstIterator(const typename SortedSequence<KEY,INFO,CMP>::Element *pElement)
 		: m_pElement(pElement) { }
 
@@ -470,7 +470,7 @@ public:
 	SortedSequenceConstIterator(const SortedSequenceConstIterator<KEY,INFO,CMP> &it)
 		: m_pElement(it.m_pElement) { }
 
-	//! Creates an iterator pointing to the same element as \a it.
+	//! Creates an iterator pointing to the same element as \p it.
 	SortedSequenceConstIterator(const SortedSequenceIterator<KEY,INFO,CMP> &it)
 		: m_pElement(it.m_pElement) { }
 

@@ -31,11 +31,9 @@
 
 
 #include <ogdf/planarlayout/PlanarStraightLayout.h>
-#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
-#include <ogdf/module/ShellingOrderModule.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 
@@ -64,32 +62,6 @@ void PlanarStraightLayout::doCall(
 	// planarity is checked below
 	OGDF_ASSERT(isSimple(G));
 	OGDF_ASSERT(isLoopFree(G));
-
-	// handle special case of graphs with less than 3 nodes
-	if(G.numberOfNodes() < 3)
-	{
-		node v1, v2;
-		switch(G.numberOfNodes())
-		{
-		case 0:
-			boundingBox = IPoint(0,0);
-			return;
-
-		case 1:
-			v1 = G.firstNode();
-			gridLayout.x(v1) = gridLayout.y(v1) = 0;
-			boundingBox = IPoint(0,0);
-			return;
-
-		case 2:
-			v1 = G.firstNode();
-			v2 = G.lastNode ();
-			gridLayout.x(v1) = gridLayout.y(v1) = gridLayout.y(v2) = 0;
-			gridLayout.x(v2) = 1;
-			boundingBox = IPoint(1,0);
-			return;
-		}
-	}
 
 	// we make a copy of G since we use planar biconnected augmentation
 	GraphCopySimple GC(G);

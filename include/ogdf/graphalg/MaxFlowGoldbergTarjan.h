@@ -76,10 +76,7 @@ class MaxFlowGoldbergTarjan : public MaxFlowModule<TCap>
 		if (adj->theNode() == e->source()) {
 			return this->m_et->less((*this->m_flow)[e], getCap(e));
 		}
-		if (this->m_et->greater((*this->m_flow)[e], (TCap) 0)) {
-			return true;
-		}
-		return false;
+		return this->m_et->greater((*this->m_flow)[e], (TCap) 0);
 	}
 
 	inline bool isAdmissible(const adjEntry adj) const

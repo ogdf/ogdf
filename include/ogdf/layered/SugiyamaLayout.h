@@ -215,23 +215,23 @@ public:
 	 */
 
 	/**
-	 * \brief Calls the layout algorithm for graph \a GA.
+	 * \brief Calls the layout algorithm for graph \p GA.
 	 *
-	 * Returns the computed layout in \a GA.
+	 * Returns the computed layout in \p GA.
 	 */
 	virtual void call(GraphAttributes &GA) override;
 
 	/**
-	 * \brief Calls the layout algorithm for clustered graph \a CGA.
+	 * \brief Calls the layout algorithm for clustered graph \p CGA.
 	 *
-	 * Returns the computed layout in \a CGA.
+	 * Returns the computed layout in \p CGA.
 	 */
 	void call(ClusterGraphAttributes &CGA);
 
 	/**
-	 * \brief Calls the layout algorithm for graph \a AG with a given level assignment.
+	 * \brief Calls the layout algorithm for graph \p GA with a given level assignment.
 	 *
-	 * Returns the computed layout in \a AG.
+	 * Returns the computed layout in \p GA.
 	 * @param GA is the input graph (with node size information) and is assigned
 	 *        the computed layout.
 	 * @param rank defines the level of each node.
@@ -256,7 +256,7 @@ public:
 	 */
 	int fails() const { return m_fails; }
 
-	//! Sets the option fails to \a nFails.
+	//! Sets the option fails to \p nFails.
 	void fails(int nFails) { m_fails = nFails; }
 
 	/**
@@ -269,7 +269,7 @@ public:
 	 */
 	int runs() const { return m_runs; }
 
-	//! Sets the option runs to \a nRuns.
+	//! Sets the option runs to \p nRuns.
 	void runs(int nRuns) { m_runs = nRuns; }
 
 	/**
@@ -281,7 +281,7 @@ public:
 	 */
 	bool transpose() const { return m_transpose; }
 
-	//! Sets the option transpose to \a bTranspose.
+	//! Sets the option transpose to \p bTranspose.
 	void transpose(bool bTranspose) { m_transpose = bTranspose; }
 
 	/**
@@ -292,7 +292,7 @@ public:
 	 */
 	bool arrangeCCs() const { return m_arrangeCCs; }
 
-	//! Sets the options arrangeCCs to \a bArrange.
+	//! Sets the options arrangeCCs to \p bArrange.
 	void arrangeCCs(bool bArrange) { m_arrangeCCs = bArrange; }
 
 	/**
@@ -303,7 +303,7 @@ public:
 	 */
 	double minDistCC() const { return m_minDistCC; }
 
-	//! Sets the option minDistCC to \a x.
+	//! Sets the option minDistCC to \p x.
 	void minDistCC(double x) { m_minDistCC = x; }
 
 	/**
@@ -315,7 +315,7 @@ public:
 	 */
 	double pageRatio() const { return m_pageRatio; }
 
-	//! Sets the option pageRatio to \a x.
+	//! Sets the option pageRatio to \p x.
 	void pageRatio(double x) { m_pageRatio = x; }
 
 	/**
@@ -326,7 +326,7 @@ public:
 	 */
 	bool alignBaseClasses() const { return m_alignBaseClasses; }
 
-	//! Sets the option alignBaseClasses to \a b.
+	//! Sets the option alignBaseClasses to \p b.
 	void alignBaseClasses(bool b) { m_alignBaseClasses = b; }
 
 	/**
@@ -337,7 +337,7 @@ public:
 	 */
 	bool alignSiblings() const { return m_alignSiblings; }
 
-	//! Sets the option alignSiblings to \a b.
+	//! Sets the option alignSiblings to \p b.
 	void alignSiblings(bool b) { m_alignSiblings = b; }
 
 	//! Sets the subgraphs for simultaneous drawing.
@@ -352,7 +352,7 @@ public:
 	//! Returns the maximal number of used threads.
 	unsigned int maxThreads() const { return m_maxThreads; }
 
-	//! Sets the maximal number of used threads to \a n.
+	//! Sets the maximal number of used threads to \p n.
 	void maxThreads(unsigned int n) {
 #ifndef OGDF_MEMORY_POOL_NTS
 		m_maxThreads = n;

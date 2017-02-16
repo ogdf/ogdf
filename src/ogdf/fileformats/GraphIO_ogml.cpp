@@ -227,60 +227,39 @@ static void write_ogml_graph(const ClusterGraphAttributes &A, ostream &os)
 static const char *edgeStyleToOGML(StrokeType edgeStyle)
 {
 	switch (edgeStyle)  {
-	case stNone:
-		return "none";
-	case stSolid:
-		return "solid";
-	case stDash:
-		return "dash";
-	case stDot:
-		return "dot";
-	case stDashdot:
-		return "dashDot";
-	case stDashdotdot:
-		return "dashDotDot";
-	default:
-		return "solid";
+		case StrokeType::None:       return "none";
+		case StrokeType::Solid:      return "solid";
+		case StrokeType::Dash:       return "dash";
+		case StrokeType::Dot:        return "dot";
+		case StrokeType::Dashdot:    return "dashDot";
+		case StrokeType::Dashdotdot: return "dashDotDot";
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
 static const char *fillPatternToOGML(FillPattern brushPattern)
 {
 	switch (brushPattern) {
-	case fpNone:
-		return "noFill";
-	case fpSolid:
-		return "solid";
-	case fpDense1:
-		return "dense1";
-	case fpDense2:
-		return "dense2";
-	case fpDense3:
-		return "dense3";
-	case fpDense4:
-		return "dense4";
-	case fpDense5:
-		return "dense5";
-	case fpDense6:
-		return "dense6";
-	case fpDense7:
-		return "dense7";
-	case fpHorizontal:
-		return "hor";
-	case fpVertical:
-		return "ver";
-	case fpCross:
-		return "cross";
-	case fpBackwardDiagonal:
-		return "bDiag";
-	case fpForwardDiagonal:
-		return "fDiag";
-	case fpDiagonalCross:
-		return "diagCross";
-	default:
-		return "solid";
-	}//switch
+		case FillPattern::None:             return "noFill";
+		case FillPattern::Solid:            return "solid";
+		case FillPattern::Dense1:           return "dense1";
+		case FillPattern::Dense2:           return "dense2";
+		case FillPattern::Dense3:           return "dense3";
+		case FillPattern::Dense4:           return "dense4";
+		case FillPattern::Dense5:           return "dense5";
+		case FillPattern::Dense6:           return "dense6";
+		case FillPattern::Dense7:           return "dense7";
+		case FillPattern::Horizontal:       return "hor";
+		case FillPattern::Vertical:         return "ver";
+		case FillPattern::Cross:            return "cross";
+		case FillPattern::BackwardDiagonal: return "bDiag";
+		case FillPattern::ForwardDiagonal:  return "fDiag";
+		case FillPattern::DiagonalCross:    return "diagCross";
+	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
@@ -298,46 +277,46 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 				GraphIO::indent(os,5) << "<location x=\"" << A.x(v)-0.5*A.width(v) << "\" y=\""<< A.y(v)-0.5*A.height(v) << "\" />\n";
 				GraphIO::indent(os,5) << "<shape type=\"";
 				switch (A.shape(v)) {
-				case shRect:
+				case Shape::Rect:
 					os << "rect";
 					break;
-				case shRoundedRect:
+				case Shape::RoundedRect:
 					os << "roundedRect";
 					break;
-				case shEllipse:
+				case Shape::Ellipse:
 					os << "ellipse";
 					break;
-				case shTriangle:
+				case Shape::Triangle:
 					os << "triangle";
 					break;
-				case shPentagon:
+				case Shape::Pentagon:
 					os << "pentagon";
 					break;
-				case shHexagon:
+				case Shape::Hexagon:
 					os << "hexagon";
 					break;
-				case shOctagon:
+				case Shape::Octagon:
 					os << "octagon";
 					break;
-				case shRhomb:
+				case Shape::Rhomb:
 					os << "rhomb";
 					break;
-				case shTrapeze:
+				case Shape::Trapeze:
 					os << "trapeze";
 					break;
-				case shParallelogram:
+				case Shape::Parallelogram:
 					os << "parallelogram";
 					break;
-				case shInvTriangle:
+				case Shape::InvTriangle:
 					os << "invTriangle";
 					break;
-				case shInvTrapeze:
+				case Shape::InvTrapeze:
 					os << "invTrapeze";
 					break;
-				case shInvParallelogram:
+				case Shape::InvParallelogram:
 					os << "invParallelogram";
 					break;
-				case shImage:
+				case Shape::Image:
 					os << "image";
 					break;
 				}
@@ -386,26 +365,23 @@ static void write_ogml_layout_nodes_edges(const GraphAttributes &A, ostream &os)
 			if(A.has(GraphAttributes::edgeArrow))
 			{
 				switch(A.arrowType(e)) {
-				case eaNone:
+				case EdgeArrow::None:
 					GraphIO::indent(os,5) << "<sourceStyle type=\"none\" color=\"#000000\" size=\"1\" />\n";
 					GraphIO::indent(os,5) << "<targetStyle type=\"none\" color=\"#000000\" size=\"1\" />\n";
 					break;
-				case eaLast:
+				case EdgeArrow::Last:
 					GraphIO::indent(os,5) << "<sourceStyle type=\"none\" color=\"#000000\" size=\"1\" />\n";
 					GraphIO::indent(os,5) << "<targetStyle type=\"arrow\" color=\"#000000\" size=\"1\" />\n";
 					break;
-				case eaFirst:
+				case EdgeArrow::First:
 					GraphIO::indent(os,5) << "<sourceStyle type=\"arrow\" color=\"#000000\" size=\"1\" />\n";
 					GraphIO::indent(os,5) << "<targetStyle type=\"none\" color=\"#000000\" size=\"1\" />\n";
 					break;
-				case eaBoth:
+				case EdgeArrow::Both:
 					GraphIO::indent(os,5) << "<sourceStyle type=\"arrow\" color=\"#000000\" size=\"1\" />\n";
 					GraphIO::indent(os,5) << "<targetStyle type=\"arrow\" color=\"#000000\" size=\"1\" />\n";
 					break;
-				case eaUndefined:
-					// do nothing
-					break;
-				default:
+				case EdgeArrow::Undefined:
 					// do nothing
 					break;
 				}

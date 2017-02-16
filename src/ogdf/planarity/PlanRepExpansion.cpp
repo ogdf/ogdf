@@ -33,7 +33,6 @@
 #include <ogdf/planarity/PlanRepExpansion.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
 #include <ogdf/basic/FaceSet.h>
 #include <ogdf/basic/NodeSet.h>
 
@@ -514,10 +513,10 @@ edge PlanRepExpansion::split(edge e)
 	NodeSplit *ns = m_eNodeSplit[e];
 
 	if ((m_eOrig[eNew] = eOrig) != nullptr) {
-		m_eIterator[eNew] = m_eCopy[eOrig].insert(eNew,m_eIterator[e],after);
+		m_eIterator[eNew] = m_eCopy[eOrig].insert(eNew,m_eIterator[e],Direction::after);
 
 	} else if ((m_eNodeSplit[eNew] = ns) != nullptr) {
-		m_eIterator[eNew] = ns->m_path.insert(eNew,m_eIterator[e],after);
+		m_eIterator[eNew] = ns->m_path.insert(eNew,m_eIterator[e],Direction::after);
 	}
 
 	return eNew;
@@ -874,19 +873,20 @@ bool PlanRepExpansion::consistencyCheck() const
 	}
 
 	for(node vOrig : m_pGraph->nodes) {
-		const List<node> &nodes = m_vCopy[vOrig];
+		const List<node> &nodeList = m_vCopy[vOrig];
 
-		if(nodes.size() == 1)
-			if(m_splittable[nodes.front()] != m_splittableOrig[vOrig])
-				return false;
+		if (nodeList.size() == 1
+		 && m_splittable[nodeList.front()] != m_splittableOrig[vOrig]) {
+			return false;
+		}
 
-		if(nodes.size() <= 1) continue;
+		if(nodeList.size() <= 1) continue;
 
 		if(m_splittableOrig[vOrig] == false)
 			return false;
 
 		ListConstIterator<node> it;
-		for(it = nodes.begin(); it.valid(); ++it) {
+		for(it = nodeList.begin(); it.valid(); ++it) {
 			node v = *it;
 			if(v->degree() < 2)
 				return false;

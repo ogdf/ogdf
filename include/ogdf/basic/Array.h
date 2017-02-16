@@ -43,7 +43,7 @@ namespace ogdf {
 
 template<class E, class INDEX> class ArrayBuffer;
 
-//! The parameterized class \a Array<E,INDEX> implements dynamic arrays of type \a E.
+//! The parameterized class Array implements dynamic arrays of type \a E.
 /**
  * @ingroup containers
  *
@@ -55,56 +55,54 @@ template<class E, class INDEX> class ArrayBuffer;
  */
 template<class E, class INDEX = int> class Array {
 public:
-	//! Threshold used by \a quicksort() such that insertion sort is
-	//! called for instances smaller than \a maxSizeInsertionSort.
-	enum {
-		maxSizeInsertionSort = 40 ///< insertion sort is used for instances smaller than \a maxSizeInsertionSort
-	};
+	//! Threshold used by #quicksort() such that insertion sort is
+	//! called for instances smaller than #maxSizeInsertionSort.
+	static const int maxSizeInsertionSort = 40;
 
 	//! Represents the data type stored in an array element.
-	typedef E value_type;
+	using value_type = E;
 	//! Provides a reference to an element stored in an array.
-	typedef E &reference;
+	using reference = E&;
 	//! Provides a reference to a const element stored in an array for reading and performing const operations.
-	typedef const E &const_reference;
+	using const_reference = const E&;
 	//! Provides a random-access iterator that can read a const element in an array.
-	typedef const E *const_iterator;
+	using const_iterator = const E*;
 	//! Provides a random-access iterator that can read or modify any element in an array.
-	typedef E *iterator;
+	using iterator = E*;
 
 	//! Creates an array with empty index set.
 	Array() { construct(0,-1); }
 
-	//! Creates an array with index set [0..\a s-1].
+	//! Creates an array with index set [0..\p s-1].
 	explicit Array(INDEX s) : Array(0, s - 1) { }
 
-	//! Creates an array with index set [\a a..\a b].
+	//! Creates an array with index set [\p a..\p b].
 	Array(INDEX a, INDEX b) {
 		construct(a,b); initialize();
 	}
 
-	//! Creates an array with index set [\a a..\a b] and initializes each element with \a x.
+	//! Creates an array with index set [\p a..\p b] and initializes each element with \p x.
 	Array(INDEX a, INDEX b, const E &x) {
 		construct(a,b); initialize(x);
 	}
 
-	//! Creates an array containing the elements in the initializer list \a initList.
+	//! Creates an array containing the elements in the initializer list \p initList.
 	/**
-	 * The index set of the array is set to 0, ..., number of elements in \a initList - 1.
+	 * The index set of the array is set to 0, ..., number of elements in \p initList - 1.
 	 */
 	Array(std::initializer_list<E> initList) {
 		construct(0, ((INDEX) initList.size()) - 1);
 		initialize(initList);
 	}
 
-	//! Creates an array that is a copy of \a A.
+	//! Creates an array that is a copy of \p A.
 	Array(const Array<E,INDEX> &A) {
 		copy(A);
 	}
 
-	//! Creates an array containing the elements of \a A (move semantics).
+	//! Creates an array containing the elements of \p A (move semantics).
 	/**
-	 * The array \a A is empty afterwards.
+	 * The array \p A is empty afterwards.
 	 */
 	Array(Array<E,INDEX> &&A)
 		: m_vpStart(A.m_vpStart), m_pStart(A.m_pStart), m_pStop(A.m_pStop), m_low(A.m_low), m_high(A.m_high)
@@ -112,7 +110,7 @@ public:
 		A.construct(0,-1);
 	}
 
-	//! Creates an array that is a copy of \a A. The array-size is set to be the number of elements (not the capacity) of the buffer.
+	//! Creates an array that is a copy of \p A. The array-size is set to be the number of elements (not the capacity) of the buffer.
 	Array(const ArrayBuffer<E,INDEX> &A);
 
 	//! Destruction
@@ -138,14 +136,14 @@ public:
 	//! Returns \c true iff there are no elements in the array.
 	bool empty() const { return size() == 0; }
 
-	//! Returns a reference to the element at position \a i.
+	//! Returns a reference to the element at position \p i.
 	const_reference operator[](INDEX i) const {
 		OGDF_ASSERT(m_low <= i);
 		OGDF_ASSERT(i <= m_high);
 		return m_vpStart[i];
 	}
 
-	//! Returns a reference to the element at position \a i.
+	//! Returns a reference to the element at position \p i.
 	reference operator[](INDEX i) {
 		OGDF_ASSERT(m_low <= i);
 		OGDF_ASSERT(i <= m_high);
@@ -210,13 +208,13 @@ public:
 		construct(0,-1);
 	}
 
-	//! Reinitializes the array to an array with index set [0..\a s-1].
+	//! Reinitializes the array to an array with index set [0..\p s-1].
 	/**
 	 * Notice that the elements contained in the array get discarded!
 	 */
 	void init(INDEX s) { init(0,s-1); }
 
-	//! Reinitializes the array to an array with index set [\a a..\a b].
+	//! Reinitializes the array to an array with index set [\p a..\p b].
 	/**
 	 * Notice that the elements contained in the array get discarded!
 	 */
@@ -226,21 +224,21 @@ public:
 		initialize();
 	}
 
-	//! Reinitializes the array to an array with index set [\a a..\a b] and sets all entries to \a x.
+	//! Reinitializes the array to an array with index set [\p a..\p b] and sets all entries to \p x.
 	void init(INDEX a, INDEX b, const E &x) {
 		deconstruct();
 		construct(a,b);
 		initialize(x);
 	}
 
-	//! Sets all elements to \a x.
+	//! Sets all elements to \p x.
 	void fill(const E &x) {
 		E *pDest = m_pStop;
 		while(pDest > m_pStart)
 			*--pDest = x;
 	}
 
-	//! Sets elements in the intervall [\a i..\a j] to \a x.
+	//! Sets elements in the intervall [\p i..\p j] to \p x.
 	void fill(INDEX i, INDEX j, const E &x) {
 		OGDF_ASSERT(m_low <= i);
 		OGDF_ASSERT(i <= m_high);
@@ -252,22 +250,22 @@ public:
 			*--pJ = x;
 	}
 
-	//! Enlarges the array by \a add elements and sets new elements to \a x.
+	//! Enlarges the array by \p add elements and sets new elements to \p x.
 	/**
 	 *  Note: address of array entries in memory may change!
-	 * @param add is the number of additional elements; \a add can be negative in order to shrink the array.
+	 * @param add is the number of additional elements; \p add can be negative in order to shrink the array.
 	 * @param x is the inital value of all new elements.
 	 */
 	void grow(INDEX add, const E &x);
 
-	//! Enlarges the array by \a add elements.
+	//! Enlarges the array by \p add elements.
 	/**
 	 *  Note: address of array entries in memory may change!
-	 * @param add is the number of additional elements; \a add can be negative in order to shrink the array.
+	 * @param add is the number of additional elements; \p add can be negative in order to shrink the array.
 	 */
 	void grow(INDEX add);
 
-	//! Resizes (enlarges or shrinks) the array to hold \a newSize elements and sets new elements to \a x.
+	//! Resizes (enlarges or shrinks) the array to hold \p newSize elements and sets new elements to \p x.
 	/**
 	 *  Note: address of array entries in memory may change!
 	 * @param newSize is new size of the array
@@ -275,7 +273,7 @@ public:
 	 */
 	void resize(INDEX newSize, const E &x) { grow(newSize - size(), x); }
 
-	//! Resizes (enlarges or shrinks) the array to hold \a newSize elements.
+	//! Resizes (enlarges or shrinks) the array to hold \p newSize elements.
 	/**
 	 *  Note: address of array entries in memory may change!
 	 * @param newSize is new size of the array
@@ -291,7 +289,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Array \a A is empty afterwards.
+	 * Array \p A is empty afterwards.
 	 */
 	Array<E,INDEX> &operator=(Array<E,INDEX> &&A) {
 		deconstruct();
@@ -314,7 +312,7 @@ public:
 	 */
 	//@{
 
-	//! Swaps the elements at position \a i and \a j.
+	//! Swaps the elements at position \p i and \p j.
 	void swap(INDEX i, INDEX j) {
 		OGDF_ASSERT(m_low <= i);
 		OGDF_ASSERT(i <= m_high);
@@ -324,7 +322,7 @@ public:
 		std::swap(m_vpStart[i], m_vpStart[j]);
 	}
 
-	//! Randomly permutes the subarray with index set [\a l..\a r].
+	//! Randomly permutes the subarray with index set [\p l..\p r].
 	void permute(INDEX l, INDEX r) {
 		std::minstd_rand rng(randomSeed());
 		permute(l, r, rng);
@@ -336,7 +334,7 @@ public:
 	}
 
 	/**
-	 * Randomly permutes the subarray with index set [\a l..\a r] using random number generator \a rng.
+	 * Randomly permutes the subarray with index set [\p l..\p r] using random number generator \p rng.
 	 * @param l left border
 	 * @param r right border
 	 * @param rng random number generator
@@ -345,7 +343,7 @@ public:
 	void permute(INDEX l, INDEX r, RNG &rng);
 
 	/**
-	 * Randomly permutes the array using random number generator \a rng.
+	 * Randomly permutes the array using random number generator \p rng.
 	 * @param rng random number generator
 	 */
 	template<class RNG>
@@ -361,7 +359,7 @@ public:
 	 */
 	//@{
 
-	//! Performs a binary search for element \a x.
+	//! Performs a binary search for element \p e.
 	/**
 	 * \pre The array must be sorted!
 	 * \return the index of the found element, and low()-1 if not found.
@@ -370,7 +368,7 @@ public:
 		return binarySearch(low(), high(), e, StdComparer<E>());
 	}
 
-	//! Performs a binary search for element \a x within the array section [l..r] .
+	//! Performs a binary search for element \p e within the array section [\p l, ..., \p r] .
 	/**
 	 * \pre The array must be sorted!
 	 * \return the index of the found element, and low()-1 if not found.
@@ -379,9 +377,9 @@ public:
 		return binarySearch(l, r, e, StdComparer<E>());
 	}
 
-	//! Performs a binary search for element \a x with comparer \a comp.
+	//! Performs a binary search for element \p e with comparer \p comp.
 	/**
-	 * \pre The array must be sorted according to \a comp!
+	 * \pre The array must be sorted according to \p comp!
 	 * \return the index of the found element, and low()-1 if not found.
 	 */
 	template<class COMPARER>
@@ -389,9 +387,9 @@ public:
 		return binarySearch(low(), high(), e, comp);
 	}
 
-	//! Performs a binary search for element \a x within the array section [l..r] with comparer \a comp.
+	//! Performs a binary search for element \p e within the array section [\p l, ..., \p r] with comparer \p comp.
 	/**
-	 * \pre The array must be sorted according to \a comp!
+	 * \pre The array must be sorted according to \p comp!
 	 * \return the index of the found element, and low()-1 if not found.
 	 */
 	template<class COMPARER>
@@ -406,7 +404,7 @@ public:
 		}
 		return comp.equal(e, m_vpStart[l]) ? l : low()-1;
 	}
-	//! Performs a linear search for element \a x.
+	//! Performs a linear search for element \p e.
 	/**
 	 * Warning: This method has linear running time!
 	 * Note that the linear search runs from back to front.
@@ -418,7 +416,7 @@ public:
 			if(e == m_pStart[i]) break;
 		return i+low();	}
 
-	//! Performs a linear search for element \a x with comparer \a comp.
+	//! Performs a linear search for element \p e with comparer \p comp.
 	/**
 	 * Warning: This method has linear running time!
 	 * Note that the linear search runs from back to front.
@@ -437,14 +435,14 @@ public:
 		quicksort(StdComparer<E>());
 	}
 
-	//! Sorts subarray with index set [\a l..\a r] using Quicksort.
+	//! Sorts subarray with index set [\p l, ..., \p r] using Quicksort.
 	inline void quicksort(INDEX l, INDEX r) {
 		quicksort(l, r, StdComparer<E>());
 	}
 
-	//! Sorts array using Quicksort and a user-defined comparer \a comp.
+	//! Sorts array using Quicksort and a user-defined comparer \p comp.
 	/**
-	 * @param comp is a user-defined comparer; \a C must be a class providing a \a less(x,y) method.
+	 * @param comp is a user-defined comparer; it must be a class providing a \c less(x,y) method.
 	 */
 	template<class COMPARER>
 	inline void quicksort(const COMPARER &comp) {
@@ -452,11 +450,11 @@ public:
 			quicksortInt(m_pStart,m_pStop-1,comp);
 	}
 
-	//! Sorts the subarray with index set [\a l..\a r] using Quicksort and a user-defined comparer \a comp.
+	//! Sorts the subarray with index set [\p l, ..., \p r] using Quicksort and a user-defined comparer \p comp.
 	/**
 	 * @param l is the left-most position in the range to be sorted.
 	 * @param r is the right-most position in the range to be sorted.
-	 * @param comp is a user-defined comparer; \a C must be a class providing a \a less(x,y) method.
+	 * @param comp is a user-defined comparer; it must be a class providing a \c less(x,y) method.
 	 */
 	template<class COMPARER>
 	void quicksort(INDEX l, INDEX r, const COMPARER &comp) {
@@ -468,7 +466,7 @@ public:
 			quicksortInt(m_vpStart+l,m_vpStart+r,comp);
 	}
 
-	//! Removes the components listed in \a ind by shifting the remaining components to the left.
+	//! Removes the components listed in \p ind by shifting the remaining components to the left.
 	/**
 	 * The "free" positions in the array at the end remain as they are.
 	 *
@@ -482,9 +480,9 @@ public:
 	 */
 	void leftShift(ArrayBuffer<INDEX, INDEX> &ind);
 
-	//! Removes the components listed in \a ind by shifting the remaining components to the left.
+	//! Removes the components listed in \p ind by shifting the remaining components to the left.
 	/**
-	 * The "free" positions in the array at the end are filled with \a val.
+	 * The "free" positions in the array at the end are filled with \p val.
 	 *
 	 * Memory management of the removed components must be
 	 * carefully implemented by the user of this function to avoid
@@ -509,22 +507,22 @@ private:
 	INDEX m_low;    //!< The lowest index.
 	INDEX m_high;   //!< The highest index.
 
-	//! Allocates new array with index set [\a a..\a b].
+	//! Allocates new array with index set [\p a, ..., \p b].
 	void construct(INDEX a, INDEX b);
 
 	//! Initializes elements with default constructor.
 	void initialize();
 
-	//! Initializes elements with \a x.
+	//! Initializes elements with \p x.
 	void initialize(const E &x);
 
-	//! Initializes elements from given initializer list \a initList.
+	//! Initializes elements from given initializer list \p initList.
 	void initialize(std::initializer_list<E> initList);
 
 	//! Deallocates array.
 	void deconstruct();
 
-	//! Constructs a new array which is a copy of \a A.
+	//! Constructs a new array which is a copy of \p A.
 	void copy(const Array<E,INDEX> &A);
 
 	//! Used by grow() to enlarge the array.
@@ -707,7 +705,7 @@ void Array<E, INDEX>::initialize(std::initializer_list<E> initList)
 template<class E, class INDEX>
 void Array<E,INDEX>::deconstruct()
 {
-	if (doDestruction((E*)nullptr)) {
+	if (!std::is_trivially_destructible<E>::value) {
 		for (E *pDest = m_pStart; pDest < m_pStop; pDest++)
 			pDest->~E();
 	}
@@ -750,12 +748,7 @@ void Array<E,INDEX>::permute (INDEX l, INDEX r, RNG &rng)
 }
 
 
-/**
- * Prints array \a a to output stream \a os using delimiter \a delim.
- * @param os output stream
- * @param a Array
- * @param delim delimiter
- */
+ //! Prints array \p a to output stream \p os using delimiter \p delim.
 template<class E, class INDEX>
 void print(ostream &os, const Array<E,INDEX> &a, char delim = ' ')
 {
@@ -766,7 +759,7 @@ void print(ostream &os, const Array<E,INDEX> &a, char delim = ' ')
 }
 
 
-//! Prints array \a a to output stream \a os.
+//! Prints array \p a to output stream \p os.
 template<class E, class INDEX>
 ostream &operator<<(ostream &os, const ogdf::Array<E,INDEX> &a)
 {
@@ -780,12 +773,12 @@ ostream &operator<<(ostream &os, const ogdf::Array<E,INDEX> &a)
 
 namespace ogdf {
 
+//! shift all items up to the last element of \p ind to the left
 template<class E, class INDEX>
 void Array<E,INDEX>::leftShift(ArrayBuffer<INDEX, INDEX> &ind) {
 	const INDEX nInd = ind.size();
 	if (nInd == 0) return;
 
-	//! shift all items up to the last element of \a ind to the left
 	OGDF_ASSERT(ind[0] >= low());
 	OGDF_ASSERT(ind[0] <= high());
 

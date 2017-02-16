@@ -32,12 +32,6 @@
 
 
 #include <ogdf/layered/FastSimpleHierarchyLayout.h>
-#include <ogdf/layered/Hierarchy.h>
-#include <ogdf/layered/Level.h>
-#include <ogdf/basic/exceptions.h>
-#include <ogdf/basic/Array.h>
-#include <ogdf/basic/List.h>
-
 
 
 namespace ogdf {
@@ -81,7 +75,6 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 	const GraphCopy &GC = H;
 
 	NodeArray<node> align(GC);
-	NodeArray<node> root(GC);
 
 #ifdef DEBUG_OUTPUT
 	for(int i = 0; i <= levels.high(); ++i) {
@@ -180,6 +173,7 @@ void FastSimpleHierarchyLayout::doCall(const HierarchyLevelsBase &levels, GraphC
 		markType1Conflicts(levels, m_downward, type1Conflicts);
 		NodeArray<double> blockWidth; // the width of each block (max width of node in block)
 
+		NodeArray<node> root(GC);
 		verticalAlignment(levels, root, align, type1Conflicts, m_downward, m_leftToRight);
 		computeBlockWidths(GC, AGC, root, blockWidth);
 		horizontalCompactation(align, levels, root, blockWidth, x, m_leftToRight, m_downward);
@@ -237,13 +231,13 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 			lower = 1;
 			upper = levels.high() - 2;
 
-			relupward = HierarchyLevelsBase::downward;
+			relupward = HierarchyLevelsBase::TraversingDir::downward;
 		}
 		else {
 			lower = levels.high() - 1;
 			upper = 2;
 
-			relupward = HierarchyLevelsBase::upward;
+			relupward = HierarchyLevelsBase::TraversingDir::upward;
 		}
 
 		/*
@@ -278,7 +272,7 @@ void FastSimpleHierarchyLayout::markType1Conflicts(const HierarchyLevelsBase &le
 							 * with 0 because no index can be smaller than 0
 							 */
 							if (levels.pos(currentNeighbour) < k0 || levels.pos(currentNeighbour) > k1) {
-								(type1Conflicts[l1])[currentNeighbour] = true;
+								type1Conflicts[l1][currentNeighbour] = true;
 							}
 						}
 					}
@@ -301,7 +295,7 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 	const GraphCopy& GC = levels.hierarchy();
 	HierarchyLevelsBase::TraversingDir relupward;		// upward relativ to the direction from downward
 
-	relupward = downward ? HierarchyLevelsBase::downward : HierarchyLevelsBase::upward;
+	relupward = downward ? HierarchyLevelsBase::TraversingDir::downward : HierarchyLevelsBase::TraversingDir::upward;
 
 	// initialize root and align
 	for(node v : GC.nodes) {
@@ -319,8 +313,8 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 
 		// for all nodes on Level i (with direction leftToRight)
 		for (int j = leftToRight ? 0 : currentLevel.high();
-			 (leftToRight && j <= currentLevel.high()) || (!leftToRight && j >= 0);
-			 leftToRight ? j++ : j--)
+		     (leftToRight && j <= currentLevel.high()) || (!leftToRight && j >= 0);
+		     leftToRight ? j++ : j--)
 		{
 			node v = currentLevel[j];
 			// the first median
@@ -335,16 +329,15 @@ void FastSimpleHierarchyLayout::verticalAlignment(
 			for (int count = 0; count < medianCount; count++) {
 				node u = levels.adjNodes(v, relupward)[median + count - 1];
 
-				if (align[v] == v) {
-					// if segment (u,v) not marked by type1 conflicts AND ...
-					if ((type1Conflicts[v])[u] == false &&
-						((leftToRight && r < levels.pos(u)) || (!leftToRight && r > levels.pos(u))))
-					{
-						align[u] = v;
-						root[v] = root[u];
-						align[v] = root[v];
-						r = levels.pos(u);
-					}
+				if (align[v] == v
+				 // if segment (u,v) not marked by type1 conflicts AND ...
+				 && type1Conflicts[v][u] == false
+				 && ((leftToRight && r < levels.pos(u))
+				  || (!leftToRight && r > levels.pos(u)))) {
+					align[u] = v;
+					root[v] = root[u];
+					align[v] = root[v];
+					r = levels.pos(u);
 				}
 			}
 		}

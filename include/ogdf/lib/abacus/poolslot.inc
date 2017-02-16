@@ -66,12 +66,12 @@ void PoolSlot<BaseType, CoType>::insert(BaseType *convar)
 {
 	if (conVar_ != nullptr) {
 		Logger::ifout() << "PoolSlot::insert(): insertion failed, the slot is not void\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPoolslot);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Poolslot);
 	}
 
 	if (version_ == numeric_limits<unsigned long>::max()) {
 		Logger::ifout() << "PoolSlot::insert(): insertion failed, maximum version number ULONG_MAX reached\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPoolslot);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Poolslot);
 	}
 
 	conVar_ = convar;

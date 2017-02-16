@@ -33,33 +33,18 @@
 
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
 
-#include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/CombinatorialEmbedding.h>
-#include <ogdf/basic/FaceArray.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/decomposition/DynamicBCTree.h>
-
-
 // for debug-outputs
 //#define PLANAR_AUGMENTATION_FIX_DEBUG
-
 // for additional planarity checks after each "round"
 //#define PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK
 
+#if defined(PLANAR_AUGMENTATION_FIX_DEBUG) || defined(PLANAR_AUGMENTATION_FIX_DEBUG_PLANARCHECK)
+ #include <ogdf/basic/extended_graph_alg.h>
+ #include <ogdf/basic/simple_graph_alg.h>
+#endif
 
 namespace ogdf {
 
-
-/********************************************************
- *
- * implementation of class PlanarAugmentationFix
- *
- *******************************************************/
-
-//	----------------------------------------------------
-//	doCall
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 {
 	L.clear();
@@ -129,8 +114,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 				#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
 					cout << adjFace->theNode()->index() << "(" << adjFace << ")"<< ", ";
 				#endif
-			}
-			else{
+			} else {
 				augmentationRequired = true;
 
 				#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -204,12 +188,7 @@ void PlanarAugmentationFix::doCall(Graph& g, List<edge>& L)
 
 
 
-//	----------------------------------------------------
-//	augment()
-//
-//		the main augmentation function
-//
-//  ----------------------------------------------------
+// the main augmentation function
 void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 {
 	CombinatorialEmbedding* actComb = new CombinatorialEmbedding(m_graphCopy);
@@ -235,11 +214,8 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 		if (m_pBCTree->parent(v) == nullptr){
 			root = v;
 		}
-		if (v->degree() == 1){
-			// pendant
-			if (v != bFaceNode){
-				pendants.pushBack(v);
-			}
+		if (v->degree() == 1 && v != bFaceNode) { // pendant
+			pendants.pushBack(v);
 		}
 	}
 	OGDF_ASSERT(root);
@@ -339,16 +315,10 @@ void PlanarAugmentationFix::augment(adjEntry adjOuterFace)
 
 	m_pActEmbedding = nullptr;
 	m_pBCTree = nullptr;
-	delete(actComb);
-	delete(actBCTree);
+	delete actComb;
+	delete actBCTree;
 }
 
-
-
-//	----------------------------------------------------
-//	reduceChain()
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::reduceChain(node p)
 {
 	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -365,7 +335,7 @@ void PlanarAugmentationFix::reduceChain(node p)
 
 	// last is going to be the last cutvertex in the computation of followPath()
 	node last;
-	paStopCause stopCause;
+	PALabel::StopCause stopCause;
 
 	// traverse from parent to the root of the bc-tree and check several
 	// conditions. last is going to be the last cutvertex on this path
@@ -374,24 +344,24 @@ void PlanarAugmentationFix::reduceChain(node p)
 	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
 		cout << ", stopCause == ";
 		switch(stopCause){
-			case paPlanarity:
+			case PALabel::StopCause::Planarity:
 				// cannot occur
 				break;
-			case paCDegree:
-				cout << "paCDegree ";
+			case PALabel::StopCause::CDegree:
+				cout << "CDegree ";
 				break;
-			case paBDegree:
-				cout << "paBDegree ";
+			case PALabel::StopCause::BDegree:
+				cout << "BDegree ";
 				break;
-			case paRoot:
-				cout << "paRoot ";
+			case PALabel::StopCause::Root:
+				cout << "Root ";
 				break;
 		}
 	#endif
 
 	pa_label l;
 
-	if (stopCause == paCDegree || stopCause == paRoot){
+	if (stopCause == PALabel::StopCause::CDegree || stopCause == PALabel::StopCause::Root){
 
 		if (m_isLabel[last].valid()){
 			#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -412,7 +382,7 @@ void PlanarAugmentationFix::reduceChain(node p)
 		}
 	}
 	else{
-		// stopCause == paBDegree
+		// stopCause == PALabel::StopCause::BDegree
 		parent = m_pBCTree->parent(last);
 
 		if (m_isLabel[parent].valid()){
@@ -426,23 +396,17 @@ void PlanarAugmentationFix::reduceChain(node p)
 			#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
 				cout << "reduceChain(): creating a new label with pendant " << p->index() << endl << flush;
 			#endif
-			newLabel(last, parent, p, paBDegree);
+			newLabel(last, parent, p, PALabel::StopCause::BDegree);
 		}
 	}
 }
 
-
-
-//	----------------------------------------------------
-//	followPath(node v, node& last)
-//
-//  ----------------------------------------------------
-paStopCause PlanarAugmentationFix::followPath(node v, node& last)
+PALabel::StopCause PlanarAugmentationFix::followPath(node v, node& last)
 {
 	last = nullptr;
 	node bcNode = m_pBCTree->find(v);
 
-	if (m_pBCTree->typeOfBNode(bcNode) == BCTree::CComp){
+	if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp){
 		last = bcNode;
 	}
 
@@ -450,34 +414,28 @@ paStopCause PlanarAugmentationFix::followPath(node v, node& last)
 		int deg = m_pBCTree->m_bNode_degree[bcNode];
 
 		if (deg > 2){
-			if (m_pBCTree->typeOfBNode(bcNode) == BCTree::CComp){
+			if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp){
 				last = bcNode;
-				return paCDegree;
+				return PALabel::StopCause::CDegree;
 			}
 			else{
 				if (m_pBCTree->DynamicBCTree::parent(bcNode) == nullptr)
-					return paRoot;
+					return PALabel::StopCause::Root;
 				else
-					return paBDegree;
+					return PALabel::StopCause::BDegree;
 			}
 		}
 
-		if (m_pBCTree->typeOfBNode(bcNode) == BCTree::CComp){
+		if (m_pBCTree->typeOfBNode(bcNode) == BCTree::BNodeType::CComp){
 			last = bcNode;
 		}
 
 		// iterate to parent node
 		bcNode = m_pBCTree->DynamicBCTree::parent(bcNode);
 	}
-	return paRoot;
+	return PALabel::StopCause::Root;
 }
 
-
-
-//	----------------------------------------------------
-// 	findMatching(node& pendant1, node& pendant2,...)
-//
-//  ----------------------------------------------------
 bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntry& adjV1, adjEntry& adjV2)
 {
 	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -517,7 +475,7 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 
 	while (loop){
 
-		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::CutVertex){
+		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::GNodeType::CutVertex){
 			if (!dominatingTree){
 				if (adj->theNode() == cutvBFNode){
 					dominatingTree = true;
@@ -542,8 +500,8 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 					if (dominatingTree){
 						cutvBFNode = nullptr;
 					 }
-				 }
-				 else{
+				}
+				else{
 					// found pendant of different label
 					if (dominatingTree){
 						// we have a dominating tree
@@ -592,12 +550,6 @@ bool PlanarAugmentationFix::findMatching(node& pendant1, node& pendant2, adjEntr
 	return found;
 }
 
-
-
-//	----------------------------------------------------
-// 	findMatchingRev(node& pendant1, node& pendant2,...)
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjEntry& adjV1, adjEntry& adjV2)
 {
 	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -628,7 +580,7 @@ void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjE
 
 	while (loop){
 
-		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::Normal){
+		if (m_pBCTree->typeOfGNode(adj->theNode()) == BCTree::GNodeType::Normal){
 
 			node actPendant = m_pBCTree->DynamicBCTree::bcproper(adj->theNode());
 
@@ -655,12 +607,6 @@ void PlanarAugmentationFix::findMatchingRev(node& pendant1, node& pendant2, adjE
 	}
 }
 
-
-
-//	----------------------------------------------------
-//	connectPendants(...)
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::connectPendants(node pendant1, node pendant2, adjEntry adjV1, adjEntry adjV2)
 {
 	edge newEdgeCopy = m_pActEmbedding->splitFace(adjV1, adjV2);
@@ -727,12 +673,6 @@ void PlanarAugmentationFix::connectPendants(node pendant1, node pendant2, adjEnt
 		reduceChain(bcNode);
 }
 
-
-
-//	----------------------------------------------------
-//	connectSingleLabel(...)
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::connectSingleLabel()
 {
 	pa_label l = m_labels.front();
@@ -780,7 +720,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 		// first connect pendants "on the right" of the first pendant
 		while (loop){
 
-			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::CutVertex){
+			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::GNodeType::CutVertex){
 				if (adjRun->theNode() == cutvBFNode){
 					loop = false;
 				}
@@ -839,7 +779,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 
 		while (loop){
 
-			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::CutVertex){
+			if (m_pBCTree->typeOfGNode(adjRun->theNode()) == BCTree::GNodeType::CutVertex){
 				if (adjRun->theNode() == cutvBFNode){
 					loop = false;
 				}
@@ -916,13 +856,7 @@ void PlanarAugmentationFix::connectSingleLabel()
 	deleteLabel(l);
 }
 
-
-
-//	----------------------------------------------------
-//	newLabel(...)
-//
-//  ----------------------------------------------------
-pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node pendant, paStopCause whyStop)
+pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node pendant, PALabel::StopCause whyStop)
 {
 	pa_label l;
 	l = new PALabel(parent, cutvertex, whyStop);
@@ -938,13 +872,7 @@ pa_label PlanarAugmentationFix::newLabel(node cutvertex, node parent, node penda
 	return l;
 }
 
-
-
-//	----------------------------------------------------
-//	deleteLabel(...)
-//
-//  ----------------------------------------------------
-void PlanarAugmentationFix::deleteLabel(pa_label& l, bool removePendants){
+void PlanarAugmentationFix::deleteLabel(pa_label& l){
 	ListIterator<pa_label> labelIt = m_isLabel[l->parent()];
 
 	m_labels.del(labelIt);
@@ -955,28 +883,16 @@ void PlanarAugmentationFix::deleteLabel(pa_label& l, bool removePendants){
 		m_belongsToIt[v] = nullptr;
 	}
 
-	delete(l);
+	delete l;
 	l = nullptr;
 }
 
-
-
-//	----------------------------------------------------
-//	removeLabel(...)
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::removeLabel(pa_label& l){
 	ListIterator<pa_label> labelIt = m_isLabel[l->parent()];
 
 	m_labels.del(labelIt);
 }
 
-
-
-//	----------------------------------------------------
-//	addPendant(pa_label& l, node pendant)
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::addPendant(node p, pa_label& l)
 {
 	m_belongsTo[p] = l;
@@ -988,24 +904,12 @@ void PlanarAugmentationFix::addPendant(node p, pa_label& l)
 	m_isLabel[newParent] = insertLabel(l);
 }
 
-
-
-//	----------------------------------------------------
-//	deletePendant(node pendant)
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::deletePendant(node pendant){
 	(m_belongsTo[pendant])->removePendant(m_belongsToIt[pendant]);
 	m_belongsTo[pendant] = nullptr;
 	m_belongsToIt[pendant] = nullptr;
 }
 
-
-
-//	----------------------------------------------------
-//	insertLabel(pa_label l)
-//
-//  ----------------------------------------------------
 ListIterator<pa_label> PlanarAugmentationFix::insertLabel(pa_label l)
 {
 	if (m_labels.size() == 0){
@@ -1019,16 +923,10 @@ ListIterator<pa_label> PlanarAugmentationFix::insertLabel(pa_label l)
 		if (!it.valid())
 			return m_labels.pushBack(l);
 		else
-			return m_labels.insert(l, it, before);
+			return m_labels.insert(l, it, Direction::before);
 	}
 }
 
-
-
-//	----------------------------------------------------
-//	modifyBCRoot()
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::modifyBCRoot(node oldRoot, node newRoot)
 {
 	#ifdef PLANAR_AUGMENTATION_FIX_DEBUG
@@ -1051,12 +949,6 @@ void PlanarAugmentationFix::modifyBCRoot(node oldRoot, node newRoot)
 	delete path;
 }
 
-
-
-//	----------------------------------------------------
-//	changeBCRoot()
-//
-//  ----------------------------------------------------
 void PlanarAugmentationFix::changeBCRoot(node oldRoot, node newRoot)
 {
 	//   for the old root:
@@ -1065,7 +957,7 @@ void PlanarAugmentationFix::changeBCRoot(node oldRoot, node newRoot)
 
 	//   for the new root:
 #if 0
-	 m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
+	m_pBCTree->m_bNode_hRefNode[newRoot] = no update required;
 #endif
 	m_pBCTree->m_bNode_hParNode[newRoot] = nullptr;
 }

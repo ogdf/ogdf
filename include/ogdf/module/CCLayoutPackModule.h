@@ -53,10 +53,10 @@ public:
 	virtual ~CCLayoutPackModule() { }
 
 	/**
-	 * \brief Arranges the rectangles given by \a box.
+	 * \brief Arranges the rectangles given by \p box.
 	 *
-	 * The algorithm call takes an input an array \a box of rectangles with
-	 * real coordinates and computes in \a offset the offset to (0,0) of each
+	 * The algorithm call takes an input an array \p box of rectangles with
+	 * real coordinates and computes in \p offset the offset to (0,0) of each
 	 * rectangle in the layout.
 	 *
 	 * This method is the actual algorithm call and must be overridden by derived
@@ -72,10 +72,10 @@ public:
 		double pageRatio = 1.0) = 0;
 
 	/**
-	 * \brief Arranges the rectangles given by \a box.
+	 * \brief Arranges the rectangles given by \p box.
 	 *
-	 * The algorithm call takes an input an array \a box of rectangles with
-	 * real coordinates and computes in \a offset the offset to (0,0) of each
+	 * The algorithm call takes an input an array \p box of rectangles with
+	 * real coordinates and computes in \p offset the offset to (0,0) of each
 	 * rectangle in the layout.
 	 * @param box is the array of input rectangles.
 	 * @param offset is assigned the offset of each rectangle to the origin (0,0).
@@ -91,10 +91,10 @@ public:
 	}
 
 	/**
-	 * \brief Arranges the rectangles given by \a box.
+	 * \brief Arranges the rectangles given by \p box.
 	 *
-	 * The algorithm call takes an input an array \a box of rectangles with
-	 * integer coordinates and computes in \a offset the offset to (0,0) of each
+	 * The algorithm call takes an input an array \p box of rectangles with
+	 * integer coordinates and computes in \p offset the offset to (0,0) of each
 	 * rectangle in the layout.
 	 *
 	 * This method is the actual algorithm call and must be overridden by derived
@@ -110,10 +110,10 @@ public:
 		double pageRatio = 1.0) = 0;
 
 	/**
-	 * \brief Arranges the rectangles given by \a box.
+	 * \brief Arranges the rectangles given by \p box.
 	 *
-	 * The algorithm call takes an input an array \a box of rectangles with
-	 * integer coordinates and computes in \a offset the offset to (0,0) of each
+	 * The algorithm call takes an input an array \p box of rectangles with
+	 * integer coordinates and computes in \p offset the offset to (0,0) of each
 	 * rectangle in the layout.
 	 * @param box is the array of input rectangles.
 	 * @param offset is assigned the offset of each rectangle to the origin (0,0).
@@ -129,7 +129,7 @@ public:
 	}
 
 	/**
-	 * \brief Checks if the rectangles in \a box do not overlap for given offsets.
+	 * \brief Checks if the rectangles in \p box do not overlap for given offsets.
 	 *
 	 * This function serves for checking if the computed offsets are correct in
 	 * the sense that the rectangles do not overlap in the resulting layout.
@@ -140,7 +140,7 @@ public:
 		const Array<DPoint> &offset);
 
 	/**
-	 * \brief Checks if the rectangles in \a box do not overlap for given offsets.
+	 * \brief Checks if the rectangles in \p box do not overlap for given offsets.
 	 *
 	 * This function serves for checking if the computed offsets are correct in
 	 * the sense that the rectangles do not overlap in the resulting layout.
@@ -155,11 +155,11 @@ public:
 
 private:
 	/**
-	 * \brief Checks if the rectangles in \a box do not overlap for given offsets.
+	 * \brief Checks if the rectangles in \p box do not overlap for given offsets.
 	 *
-	 * This is a parameterized function for generic point types \a POINT.
 	 * @param box is the array of rectangles.
 	 * @param offset is the array of corresponding offsets.
+	 * @tparam POINT is the generic point type.
 	 */
 	template<class POINT>
 	static bool checkOffsetsTP(

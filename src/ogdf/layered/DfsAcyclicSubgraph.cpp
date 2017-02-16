@@ -32,8 +32,6 @@
 
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/SList.h>
-#include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/basic/Queue.h>
 
 namespace ogdf {
@@ -78,7 +76,7 @@ void DfsAcyclicSubgraph::callUML(const GraphAttributes &AG, List<edge> &arcSet)
 	NodeArray<int> outdeg(G,0);
 
 	for(edge e : G.edges) {
-		if(AG.type(e) != Graph::generalization || e->isSelfLoop())
+		if(AG.type(e) != Graph::EdgeType::generalization || e->isSelfLoop())
 			continue;
 
 		node src = e->source(), tgt = e->target();
@@ -107,16 +105,15 @@ void DfsAcyclicSubgraph::callUML(const GraphAttributes &AG, List<edge> &arcSet)
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node w = e->source();
-			if(w != v) {
-				if(--outdeg[w] == 0)
-					Q.append(w);
+			if (w != v && --outdeg[w] == 0) {
+				Q.append(w);
 			}
 		}
 	}
 
 	// "direct" associations
 	for(edge e : G.edges) {
-		if(AG.type(e) == Graph::generalization || e->isSelfLoop())
+		if(AG.type(e) == Graph::EdgeType::generalization || e->isSelfLoop())
 			continue;
 
 		node src = e->source(), tgt = e->target();
@@ -149,7 +146,7 @@ int DfsAcyclicSubgraph::dfsFindHierarchies(
 
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if(AG.type(e) != Graph::generalization)
+		if(AG.type(e) != Graph::EdgeType::generalization)
 			continue;
 
 		node w = e->opposite(v);
@@ -173,7 +170,7 @@ void DfsAcyclicSubgraph::dfsBackedgesHierarchies(
 
 	for(adjEntry adj : v->adjEntries) {
 		edge e = adj->theEdge();
-		if(AG.type(e) != Graph::generalization)
+		if(AG.type(e) != Graph::EdgeType::generalization)
 			continue;
 
 		node w = e->target();

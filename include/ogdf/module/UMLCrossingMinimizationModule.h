@@ -58,10 +58,10 @@ public:
 	//! Computes a planarized representation of the input graph.
 	/**
 	 * @param prUML          represents the input graph as well as the computed planarized representation
-	 *                       after the call. \a prUML has to be initialzed as a PlanRep of the input graph and
+	 *                       after the call. \p prUML has to be initialzed as a PlanRep of the input graph and
 	 *                       is modified to obatain the planarized representation (crossings are replaced
 	 *                       by dummy vertices with degree four).
-	 * @param cc             is the index of the connected component in \a pr that is considered.
+	 * @param cc             is the index of the connected component in \p prUML that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param pCostOrig      points to an edge array (of the original graph) that gives the cost of each edge.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
@@ -78,10 +78,10 @@ public:
 	//! Computes a planarized representation of the input graph.
 	/**
 	 * @param prUML          represents the input graph as well as the computed planarized representation
-	 *                       after the call. \a prUML has to be initialzed as a PlanRep of the input graph and
+	 *                       after the call. \p prUML has to be initialzed as a PlanRep of the input graph and
 	 *                       is modified to obatain the planarized representation (crossings are replaced
 	 *                       by dummy vertices with degree four).
-	 * @param cc             is the index of the connected component in \a pr that is considered.
+	 * @param cc             is the index of the connected component in \p prUML that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param pCostOrig      points to an edge array (of the original graph) that gives the cost of each edge.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
@@ -102,10 +102,10 @@ protected:
 	//! Actual algorithm call that needs to be implemented by derived classes.
 	/**
 	 * @param prUML          represents the input graph as well as the computed planarized representation
-	 *                       after the call. \a prUML has to be initialzed as a PlanRep of the input graph and
+	 *                       after the call. \p prUML has to be initialzed as a PlanRep of the input graph and
 	 *                       is modified to obatain the planarized representation (crossings are replaced
 	 *                       by dummy vertices with degree four).
-	 * @param cc             is the index of the connected component in \a pr that is considered.
+	 * @param cc             is the index of the connected component in \p prUML that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param pCostOrig      points to an edge array (of the original graph) that gives the cost of each edge.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.

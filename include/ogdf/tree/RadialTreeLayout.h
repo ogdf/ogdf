@@ -57,7 +57,7 @@ namespace ogdf {
  *     <td><i>connectedComponentDistance</i><td>double<td>50.0
  *     <td>The minimal horizontal distance required between trees in the forest.
  *   </tr><tr>
- *     <td><i>rootSelection</i><td> #RootSelectionType <td> #rootIsCenter
+ *     <td><i>rootSelection</i><td> #RootSelectionType <td> RootSelectionType::Center
  *     <td>Specifies how to select the root of the tree.
  *   </tr>
  * </table>
@@ -66,10 +66,10 @@ class OGDF_EXPORT RadialTreeLayout : public LayoutModule
 {
 public:
 	//! Selection strategies for root of the tree.
-	enum RootSelectionType {
-		rootIsSource, //!< Select a source in the graph.
-		rootIsSink,   //!< Select a sink in the graph.
-		rootIsCenter  //!< Select the center of the tree.
+	enum class RootSelectionType {
+		Source, //!< Select a source in the graph.
+		Sink,   //!< Select a sink in the graph.
+		Center  //!< Select the center of the tree.
 	};
 
 private:
@@ -151,7 +151,7 @@ public:
 	//! Assignment operator.
 	RadialTreeLayout &operator=(const RadialTreeLayout &tl);
 
-	//! Calls the algorithm for graph attributes \a GA.
+	//! Calls the algorithm for graph attributes \p GA.
 	/**
 	 * The algorithm preserve the order of children which is given by
 	 * the adjacency lists.
@@ -168,7 +168,7 @@ public:
 	//! Returns the option <i>levelDistance</i>.
 	double levelDistance() const { return m_levelDistance; }
 
-	//! Sets the option <i>levelDistance</i> to \a x.
+	//! Sets the option <i>levelDistance</i> to \p x.
 	void levelDistance(double x) { m_levelDistance = x; }
 
 	// option that determines the minimal horizontal distance
@@ -177,7 +177,7 @@ public:
 	//! Returns the option <i>connectedComponentDistance</i>.
 	double connectedComponentDistance() const { return m_connectedComponentDistance; }
 
-	//! Sets the option <i>connectedComponentDistance</i> to \a x.
+	//! Sets the option <i>connectedComponentDistance</i> to \p x.
 	void connectedComponentDistance(double x) { m_connectedComponentDistance = x; }
 
 	// option that determines if the root is on the top or on the bottom
@@ -185,7 +185,7 @@ public:
 	//! Returns the option <i>rootSelection</i>.
 	RootSelectionType rootSelection() const { return m_selectRoot; }
 
-	//! Sets the option <i>rootSelection</i> to \a sel.
+	//! Sets the option <i>rootSelection</i> to \p sel.
 	void rootSelection(RootSelectionType sel) { m_selectRoot = sel; }
 
 	const NodeArray<double> &diameter() const { return m_diameter; }

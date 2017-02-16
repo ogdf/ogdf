@@ -83,8 +83,8 @@ void CPlanarEdgeInserter::call(
 		//m_eStatus.fill(0); do this manually
 		//first, we temporarily insert connections from node dummies
 		//to the faces adjacent to start- and endpoint of the edge
-		node oSource = np.m_src;
-		node oTarget = np.m_tgt;
+		node oSource = np.source;
+		node oTarget = np.target;
 		node u = CPR.copy(oSource);
 		node v = CPR.copy(oTarget);
 
@@ -93,7 +93,6 @@ void CPlanarEdgeInserter::call(
 		//we compute the cluster tree path between oS and oT
 		CG.commonClusterPath(oSource, oTarget, cList);
 
-		//-----------------------------------------------
 		//orient the edges according to cluster structure
 		//save which clusters are on path from u to v
 		//(do this by setting their edge status)
@@ -163,18 +162,15 @@ void CPlanarEdgeInserter::call(
 			done[eArc] = true;
 		}
 
-		//----------------------------
 		//we compute the shortest path
 		SList<adjEntry> crossed;
 		findShortestPath(E, u, v, uDummy, vDummy, crossed, nodeOfFace);
 
-		//------------------
 		//we insert the edge
 		edge newOR = insertEdge(CPR, E, np, nodeOfFace, arcRightToLeft, arcLeftToRight,
 								arcTwin, clusterOfFaceNode, crossed);
 		newEdges.pushBack(newOR);
 
-		//---------------------------------------------------------------
 		//we updated the dual graph and are ready to insert the next edge
 
 	}//while edges to be inserted
@@ -186,16 +182,15 @@ void CPlanarEdgeInserter::call(
 }//call
 
 
-//*****************************************************************************
 // protected member functions
 
 void CPlanarEdgeInserter::constructDualGraph(ClusterPlanRep& CPR,
-											 CombinatorialEmbedding& E,
-											 EdgeArray<edge>& arcRightToLeft,
-											 EdgeArray<edge>& arcLeftToRight,
-		 									 FaceArray<node>& nodeOfFace,
-											 //NodeArray<face>&, faceOfNode,
-											 EdgeArray<edge>& arcTwin)
+                                             CombinatorialEmbedding& E,
+                                             EdgeArray<edge>& arcRightToLeft,
+                                             EdgeArray<edge>& arcLeftToRight,
+                                             FaceArray<node>& nodeOfFace,
+                                             //NodeArray<face>&, faceOfNode,
+                                             EdgeArray<edge>& arcTwin)
 {
 	//dual graph gets two arcs for each edge (in both directions)
 	//these arcs get their status (usable for path) depending on
@@ -206,7 +201,6 @@ void CPlanarEdgeInserter::constructDualGraph(ClusterPlanRep& CPR,
 	faceOfNode.init(m_dualGraph, 0);
 #endif
 
-	//*********************************
 	//construct nodes
 	//corresponding to the graphs faces
 	face f;
@@ -219,8 +213,6 @@ void CPlanarEdgeInserter::constructDualGraph(ClusterPlanRep& CPR,
 #endif
 	}
 
-	//*********************************
-	//
 	for(edge e : CPR.edges)
 	{
 		edge arc1 = m_dualGraph.newEdge( nodeOfFace[E.rightFace(e->adjTarget())],
@@ -238,7 +230,6 @@ void CPlanarEdgeInserter::constructDualGraph(ClusterPlanRep& CPR,
 }//constructDualGraph
 
 
-//*****************************************************************************
 //private functions
 void CPlanarEdgeInserter::deriveFaceCluster(ClusterPlanRep& CPR,
 											CombinatorialEmbedding& E,
@@ -312,7 +303,6 @@ void CPlanarEdgeInserter::deriveFaceCluster(ClusterPlanRep& CPR,
 }//deriveFaceCluster
 
 
-//---------------------------------------------------------
 // finds a shortest path in the dual graph augmented by s and t (represented
 // by sDummy and tDummy); returns list of crossed adjacency entries (corresponding
 // to used edges in the dual) in crossed.
@@ -446,7 +436,6 @@ void CPlanarEdgeInserter::findShortestPath(
 	bestCrossed.clear();
 	currentCrossed.clear();
 
-	//--------------
 	//delete dummies
 	//connections and update graph
 	List<edge> delMe;
@@ -474,7 +463,6 @@ void CPlanarEdgeInserter::findShortestPath(
 	m_dualGraph.resetEdgeIdCount(oldIdCount);
 }//shortestPath
 
-//---------------------------------------------------------
 // inserts edge e according to insertion path crossed.
 // updates embeding and dual graph
 //
@@ -502,7 +490,7 @@ edge CPlanarEdgeInserter::insertEdge(
 #endif
 		if (!delS.empty())
 		{
-			if (!(delS.top() == nodeOfFace[E.rightFace(adj)]))
+			if (delS.top() != nodeOfFace[E.rightFace(adj)])
 			{
 				delS.push(nodeOfFace[E.rightFace(adj)]);
 				faceCluster.pushBack(clusterOfFaceNode[nodeOfFace[E.rightFace(adj)]]);
@@ -529,26 +517,25 @@ edge CPlanarEdgeInserter::insertEdge(
 	}
 #endif
 
-	//---------------------
 	//update original Graph
 
 	adjEntry orE;
 	SListConstIterator<adjEntry> it = crossed.begin();
 	edge e = CPR.original((*it)->theEdge());
 	OGDF_ASSERT(e);
-	OGDF_ASSERT((np.m_src == e->source()) || (np.m_src == e->target()));
-	if (np.m_src == e->source()) orE = e->adjSource();
+	OGDF_ASSERT((np.source == e->source()) || (np.source == e->target()));
+	if (np.source == e->source()) orE = e->adjSource();
 	else orE = e->adjTarget();
 	adjEntry orF;
 	it = crossed.rbegin();
 	e = CPR.original((*it)->theEdge());
 	OGDF_ASSERT(e);
-	OGDF_ASSERT((np.m_tgt == e->source()) || (np.m_tgt == e->target()));
-	if (np.m_tgt == e->source()) orF = e->adjSource();
+	OGDF_ASSERT((np.target == e->source()) || (np.target == e->target()));
+	if (np.target == e->source()) orF = e->adjSource();
 	else orF = e->adjTarget();
-	//*****************
+
 	edge orEdge = m_originalGraph->newEdge(orE, orF);//(np.m_src, np.m_tgt);
-	//**************
+
 	// update primal
 	CPR.insertEdgePathEmbedded(orEdge,E,crossed);
 
@@ -570,7 +557,6 @@ edge CPlanarEdgeInserter::insertEdge(
 
 	}
 
-	//*****************************
 	//update network for both faces
 
 	// insert new edges into dual
@@ -594,8 +580,8 @@ edge CPlanarEdgeInserter::insertEdge(
 			arcTwin[eRL] = eLR;
 
 			//now check if edge can be used
-			setArcStatus(eLR, np.m_src, np.m_tgt, CPR.getClusterGraph(),
-						 clusterOfFaceNode, arcTwin);
+			setArcStatus(eLR, np.source, np.target, CPR.getClusterGraph(),
+			             clusterOfFaceNode, arcTwin);
 
 			if (adj == adj->theEdge()->adjSource())
 			{
@@ -716,7 +702,6 @@ void CPlanarEdgeInserter::setArcStatus(
 			itC = cList.rbegin().succ();
 	}//while
 
-	//**********
 	//set status
 	OGDF_ASSERT(arcTwin[eArc]);
 	if ((ind1 > 0 ) && (ind2 > 0))
@@ -748,14 +733,13 @@ void CPlanarEdgeInserter::setArcStatus(
 }//setArcStatus
 
 
-//************************************
 //improve the insertion result by heuristics
 //TODO
 void CPlanarEdgeInserter::postProcess()
 {
 	switch (m_ppType)
 	{
-		case ppRemoveReinsert:
+		case PostProcessType::RemoveReinsert:
 
 			break;
 		default:
@@ -763,7 +747,6 @@ void CPlanarEdgeInserter::postProcess()
 	}//switch
 }//postprocess
 
-//*****************************************************************************
 //file output
 
 void CPlanarEdgeInserter::writeDual(const char *fileName)

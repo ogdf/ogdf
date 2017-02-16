@@ -32,14 +32,10 @@
 
 
 #include <ogdf/cluster/ClusterOrthoLayout.h>
-#include <ogdf/cluster/CconnectClusterPlanarEmbed.h>
-
 
 #include <ogdf/orthogonal/LongestPathCompaction.h>
 #include <ogdf/orthogonal/FlowCompaction.h>
 #include <ogdf/orthogonal/EdgeRouter.h>
-#include <ogdf/internal/orthogonal/RoutingChannel.h>
-#include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/cluster/ClusterOrthoShaper.h>
 
 
@@ -52,8 +48,8 @@ ClusterOrthoLayout::ClusterOrthoLayout()
 	m_separation = 40.0;
 	m_cOverhang  = 0.2;
 	m_margin     = 40.0;
-	//preferred hierarchy direction is odNorth, but we use odSouth since gml's are flipped!
-	m_preferedDir = odSouth;
+	//preferred hierarchy direction is North, but we use South since gml's are flipped!
+	m_preferedDir = OrthoDir::South;
 	m_optionProfile = 0;
 	//edge costs
 	m_costAssoc   = 1;
@@ -68,9 +64,7 @@ ClusterOrthoLayout::ClusterOrthoLayout()
 }
 
 
-/**--------------------------------------
-calling function without non-planar edges
-*/
+// calling function without non-planar edges
 void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	adjEntry adjExternal,
 	Layout &drawing)
@@ -81,12 +75,10 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	call(PG, adjExternal, drawing, npEdges, newEdges, G);
 }//call c-planar
 
-/**---------------------------------------------------
-calling function taking the planar representation, the
-external face (adjentry), the layout to be filled,
-a list of non-planar edges, a list of inserted edges
-and the original graph as input
-*/
+// calling function taking the planar representation, the
+// external face (adjentry), the layout to be filled,
+// a list of non-planar edges, a list of inserted edges
+// and the original graph as input
 void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	adjEntry adjExternal,
 	Layout &drawing,
@@ -111,13 +103,11 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	}
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
-	//-------------------------
 	// insert cluster boundaries
 	PG.ModelBoundaries();
 	OGDF_ASSERT(PG.representsCombEmbedding());
 
 
-	//--------------------------
 	// insert non-planar edges
 	CombinatorialEmbedding* CE = new CombinatorialEmbedding(PG);
 	if (!npEdges.empty())
@@ -126,7 +116,6 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 		CEI.call(PG, *CE, originalGraph, npEdges, newEdges);
 	}//if
 
-	//------------------------------------------------------------
 	// now we set the external face, currently to the largest face
 	adjEntry extAdj = nullptr;
 	int maximum = 0;
@@ -161,7 +150,6 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	OGDF_ASSERT(adjExternal != nullptr);
 
 
-	//----------------------------------------------------------
 	//Compaction scaling: help node cages to pass by each other:
 	//First, the layout is blown up and then shrunk again in several steps
 	//We change the separation value and save the original value.
@@ -172,10 +160,8 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 		m_separation = scaleFactor*m_separation; //reduce this step by step in compaction
 	}//if scaling
 
-	//***********************************
 	// PHASE 1: determine orthogonal shape
 
-	//-------------------------------------------------------
 	// expand high-degree vertices and generalization mergers
 	PG.expand();
 
@@ -190,9 +176,9 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	//set some options
 	COF.align(false); //cannot be used yet with clusters
-	COF.traditional(m_orthoStyle > 0 ? false : true); //prefer 90/270 degree angles over 180/180
+	COF.traditional(m_orthoStyle <= 0); //prefer 90/270 degree angles over 180/180
 	//bend cost depends on cluster depths avoiding unnecessary "inner" bends
-	COF.bendCostTopDown(ClusterOrthoShaper::topDownCost);
+	COF.bendCostTopDown(ClusterOrthoShaper::BendCost::topDownCost);
 
 	// New Call
 	//COF.call(PG,E,OR,2);
@@ -202,26 +188,21 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	string msg;
 	OGDF_ASSERT(OR.check(msg));
 
-	//******************************************************************
 	// PHASE 2: construction of a feasible drawing of the expanded graph
 
-	//---------------------------
 	// expand low degree vertices
 	PG.expandLowDegreeVertices(OR);
 
 	OGDF_ASSERT(PG.representsCombEmbedding());
 
-	//------------------
 	// restore embedding
 	E.computeFaces();
 	E.setExternalFace(E.rightFace(adjExternal));
 
 	OGDF_ASSERT(OR.check(msg));
 
-	//----------
 	//COMPACTION
 
-	//--------------------------
 	// apply constructive compaction heuristics
 	OR.normalize();
 	OR.dissect();
@@ -254,7 +235,6 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 		OGDF_ASSERT(OR.check(msg));
 	}
 
-	//--------------------------
 	//apply improvement compaction heuristics
 	// call flow compaction on grid
 	FlowCompaction fc(0,m_costGen,m_costAssoc);
@@ -265,10 +245,9 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	if (m_align) OR.undissect(false);
 
-	//**************************
 	// PHASE 3: routing of edges
 
-	OGDF_ASSERT(OR.check(msg) == true);
+	OGDF_ASSERT(OR.check(msg));
 
 	EdgeRouter router;
 	MinimumEdgeDistances<int> minDistGrid(PG, gridDrawing.toGrid(m_separation));
@@ -276,11 +255,10 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 	router.call(PG,OR,gridDrawing,E,rcGrid,minDistGrid, gridDrawing.width(),
 		gridDrawing.height(), m_align);
 
-	OGDF_ASSERT(OR.check(msg) == true);
+	OGDF_ASSERT(OR.check(msg));
 
-	OR.orientate(pInfoExp->m_corner[odNorth],odNorth);
+	OR.orientate(pInfoExp->m_corner[static_cast<int>(OrthoDir::North)], OrthoDir::North);
 
-	//*******************************************************
 	// PHASE 4: apply improvement compaction heuristics again
 
 	// call flow compaction on grid
@@ -291,7 +269,6 @@ void ClusterOrthoLayout::call(ClusterPlanRep &PG,
 
 	//postProcess(PG);
 
-	//--------------------------
 	// collapse all expanded vertices by introducing a new node in the center
 	// of each cage representing the original vertex
 	PG.collapseVertices(OR,drawing);

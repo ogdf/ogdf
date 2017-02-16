@@ -54,8 +54,8 @@ class OGDF_EXPORT HashElementBase {
 	size_t m_hashValue; //!< The hash value.
 
 public:
-	//! Creates a hash element with hash value \a hashValue.
-	HashElementBase(size_t hashValue) : m_next(nullptr), m_hashValue(hashValue) { }
+	//! Creates a hash element with hash value \p hashValue.
+	explicit HashElementBase(size_t hashValue) : m_next(nullptr), m_hashValue(hashValue) { }
 
 	//! Returns the successor to this element in the list.
 	HashElementBase *next() const { return m_next; }
@@ -84,8 +84,8 @@ protected:
 	HashElementBase **m_table; //!< The hash table (an array of lists).
 
 public:
-	//! Creates a hash table with minimum table size \a minTableSize.
-	HashingBase(int minTableSize);
+	//! Creates a hash table with minimum table size \p minTableSize.
+	explicit HashingBase(int minTableSize);
 
 	//! Copy constructor.
 	HashingBase(const HashingBase &H);
@@ -93,13 +93,13 @@ public:
 	//! Destruction
 	virtual ~HashingBase();
 
-	//! Resizes the hash table to \a newTableSize.
+	//! Resizes the hash table to \p newTableSize.
 	void resize(int newTableSize);
 
-	//! Inserts a new element \a pElement into the hash table.
+	//! Inserts a new element \p pElement into the hash table.
 	void insert(HashElementBase *pElement);
 
-	//! Removes the element \a pElement from the hash table.
+	//! Removes the element \p pElement from the hash table.
 	void del(HashElementBase *pElement);
 
 	//! Removes all elements from the hash table.
@@ -115,9 +115,9 @@ public:
 	int empty() const { return m_count==0; }
 
 	/**
-	 * \brief Returns the first element in the list for elements with hash value \a hashValue.
+	 * \brief Returns the first element in the list for elements with hash value \p hashValue.
 	 *
-	 * This is the list m_table[hashValue & m_hashMask].
+	 * This is the list #m_table[\ hashValue & #m_hashMask].
 	 */
 	HashElementBase *firstListElement(size_t hashValue) const {
 		return *(m_table + (hashValue & m_hashMask));
@@ -134,7 +134,7 @@ public:
 	HashElementBase *firstElement(HashElementBase ***pList) const;
 
 	/**
-	 * \brief Returns the successor of \a pElement in the list of all elements in the hash table.
+	 * \brief Returns the successor of \p pElement in the list of all elements in the hash table.
 	 *
 	 * This function is used by hash iterators for iterating over all elements
 	 * in the hash table.
@@ -157,14 +157,14 @@ protected:
 	 */
 	virtual void destroy(HashElementBase *pElement) = 0;
 
-	//! Called to create a copy of the element \a pElement.
+	//! Called to create a copy of the element \p pElement.
 	virtual HashElementBase *copy(HashElementBase *pElement) const = 0;
 
 private:
 	//! Initializes the table for given table size.
 	void init(int tableSize);
 
-	//! Copies all elements from \a H to this hash table.
+	//! Copies all elements from \p H to this hash table.
 	void copyAll(const HashingBase &H);
 };
 
@@ -173,7 +173,7 @@ private:
  * \brief Representation of elements in a hash table.
  *
  * This class adds key and information members to HashElementBase. The two
- * template parameters are \a K for the type of keys and \a I for the type
+ * template parameters are \a K for the type of keys and \p I for the type
  * of information.
  */
 template<class K, class I>
@@ -207,13 +207,6 @@ public:
 
 template<class K, class I, class H> class HashConstIterator;
 
-//--------------------------------------------------------------------
-// Hash function classes have to define
-// int hash(const E &key)
-//
-// "const E &" can be replaced by "E"
-//--------------------------------------------------------------------
-
 /**
  * \brief Default hash functions.
  *
@@ -223,18 +216,21 @@ template<class K, class I, class H> class HashConstIterator;
  * \see Hashing, HashArray, HashArray2D
  */
 template<class K> class DefHashFunc {
-	//! Returns the hash value of \a key.
-	public:	size_t hash(const K &key) const { return size_t(key); }
+public:
+	//! Returns the hash value of \p key.
+	size_t hash(const K &key) const { return size_t(key); }
 };
 
 //! Specialized default hash function for pointer types.
 template<> class DefHashFunc<void *> {
-	public:	size_t hash(const void * &key) const { return size_t(key && 0xffffffff); }
+public:
+	size_t hash(const void * &key) const { return size_t(key && 0xffffffff); }
 };
 
 //! Specialized default hash function for double.
 template<> class DefHashFunc<double> {
-	public:	size_t hash(const double &key) const {
+public:
+	size_t hash(const double &key) const {
 		int dummy;
 		return (size_t)((double)numeric_limits<size_t>::max() * frexp(key,&dummy));
 	}
@@ -255,11 +251,14 @@ public:
  * mapping from a key type \a K to an information type \a I.
  *
  * The class requires three template parameters:
- *   - \a K is the type of keys.
- *   - \a I is the type of information.
- *   - \a H is the hash function type.
+ * @tparam K is the type of keys.
+ * @tparam I is the type of information.
+ * @tparam H is the hash function type.
  * The hash function type argument is optional; its default uses the class
  * DefHashFunc.
+ *
+ * Hash function classes have to define `int hash(const E &key)`
+ * or `int hash(E key)`.
  */
 template<class K, class I, class H = DefHashFunc<K> >
 class Hashing : private HashingBase
@@ -269,9 +268,9 @@ class Hashing : private HashingBase
 
 public:
 	//! The type of const-iterators for hash tables.
-	typedef HashConstIterator<K,I,H> const_iterator;
+	using const_iterator = HashConstIterator<K,I,H>;
 
-	//! Creates a hash table for given initial table size \a minTableSize.
+	//! Creates a hash table for given initial table size \p minTableSize.
 	explicit Hashing(int minTableSize = 256, const H &hashFunc = H())
 		: HashingBase(minTableSize), m_hashFunc(hashFunc) { }
 
@@ -287,13 +286,13 @@ public:
 	//! Returns true iff the table is empty, i.e., contains no elements.
 	bool empty() const { return HashingBase::size() == 0; }
 
-	//! Returns true iff the hash table contains an element with key \a key.
+	//! Returns true iff the hash table contains an element with key \p key.
 	bool member(const K &key) const { return lookup(key) != nullptr; }
 
 	//! Returns an hash iterator to the first element in the list of all elements.
 	HashConstIterator<K,I,H> begin() const;
 
-	//! Returns the hash element with key \a key in the hash table; returns 0 if no such element.
+	//! Returns the hash element with key \p key in the hash table; returns 0 if no such element.
 	HashElement<K,I> *lookup(const K &key) const {
 		HashElement<K,I> *pElement =
 			(HashElement<K,I> *)firstListElement(m_hashFunc.hash(key));
@@ -311,11 +310,11 @@ public:
 	}
 
 	/**
-	 * \brief Inserts a new element with key \a key and information \a info into the hash table.
+	 * \brief Inserts a new element with key \p key and information \p info into the hash table.
 	 *
-	 * The new element will only be inserted if no element with key \a key is
+	 * The new element will only be inserted if no element with key \p key is
 	 * already contained; if such an element already exists the information of
-	 * this element will be changed to \a info.
+	 * this element will be changed to \p info.
 	 */
 	HashElement<K,I> *insert(const K &key, const I &info) {
 		HashElement<K,I> *pElement = lookup(key);
@@ -330,9 +329,9 @@ public:
 	}
 
 	/**
-	 * \brief Inserts a new element with key \a key and information \a info into the hash table.
+	 * \brief Inserts a new element with key \p key and information \p info into the hash table.
 	 *
-	 * The new element will only be inserted if no element with key \a key is
+	 * The new element will only be inserted if no element with key \p key is
 	 * already contained; if such an element already exists the information of
 	 * this element remains unchanged.
 	 */
@@ -346,10 +345,10 @@ public:
 	}
 
 	/**
-	 * \brief Inserts a new element with key \a key and information \a info into the hash table.
+	 * \brief Inserts a new element with key \p key and information \p info into the hash table.
 	 *
 	 * This is a faster version of insert() that assumes that no element with key
-	 * \a key is already contained in the hash table.
+	 * \p key is already contained in the hash table.
 	 */
 	HashElement<K,I> *fastInsert(const K &key, const I &info) {
 		HashElement<K,I> *pElement = new HashElement<K,I>(m_hashFunc.hash(key),key,info);
@@ -357,7 +356,7 @@ public:
 		return pElement;
 	}
 
-	//! Removes the element with key \a key from the hash table (does nothing if no such element).
+	//! Removes the element with key \p key from the hash table (does nothing if no such element).
 	void del(const K &key) {
 		HashElement<K,I> *pElement = lookup(key);
 		if (pElement) {
@@ -383,7 +382,7 @@ protected:
 	}
 
 	/**
-	 * \brief Returns the successor of \a pElement in the list of all elements in the hash table.
+	 * \brief Returns the successor of \p pElement in the list of all elements in the hash table.
 	 *
 	 * This function is used by hash iterators for iterating over all elements
 	 * in the hash table.
@@ -399,12 +398,12 @@ protected:
 	}
 
 private:
-	//! Deletes hash element \a pElement.
+	//! Deletes hash element \p pElement.
 	virtual void destroy(HashElementBase *pElement) override {
 		delete (HashElement<K,I> *)(pElement);
 	}
 
-	//! Returns a copy of hash element \a pElement.
+	//! Returns a copy of hash element \p pElement.
 	virtual HashElementBase *copy(HashElementBase *pElement) const override {
 		HashElement<K,I> *pX = (HashElement<K,I> *)(pElement);
 		return new HashElement<K,I>(pX->hashValue(),pX->key(),pX->info());
@@ -445,7 +444,7 @@ public:
 	//! Creates a hash iterator pointing to no element.
 	HashConstIterator() : m_pElement(nullptr), m_pList(nullptr), m_pHashing(nullptr) { }
 
-	//! Creates a hash iterator pointing to element \a pElement in list \a pList of hash table \a pHashing.
+	//! Creates a hash iterator pointing to element \p pElement in list \p pList of hash table \p pHashing.
 	HashConstIterator(HashElement<K,I> *pElement, HashElement<K,I> **pList,
 		const Hashing<K,I,H> *pHashing) : m_pElement(pElement), m_pList(pList),
 		m_pHashing(pHashing) { }

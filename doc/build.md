@@ -12,7 +12,7 @@ The OGDF build configuration is generated using [CMake](http://www.cmake.org/).
    * clang 3.5+
    * Microsoft Visual C++ 2015+
  * GNU Make (in most cases)
- * Doxygen (optional)
+ * Doxygen 1.8.6+ (optional)
 
 ## Build Configuration
 
@@ -20,7 +20,9 @@ CMake is a meta-build system that will generate your actual build system.
 The most common build systems include Unix Makefiles, Visual Studio project files, and XCode project files.
 We refer to [Running CMake](http://www.cmake.org/runningcmake/) for extensive information on using CMake.
 
-Note that CMake allows you to place the generated build system in a separate folder, thus allowing several parallel build configurations (called out-of-source builds). We recommend following this approach.
+Note that CMake allows you to place the generated build system in a separate folder,
+thus allowing several parallel build configurations (called out-of-source builds).
+We recommend following this approach.
 
 ## Unix Examples
 
@@ -47,10 +49,16 @@ $ cmake .
 -- Detecting CXX compiler ABI info - done
 -- Detecting CXX compile features
 -- Detecting CXX compile features - done
--- Found LIBDW: /usr/lib/x86_64-linux-gnu/libdw.so
--- Found LIBBFD: /usr/lib/x86_64-linux-gnu/libbfd.so
--- Found LIBUNWIND: /usr/lib/x86_64-linux-gnu/libunwind.so
--- Found Doxygen: /usr/bin/doxygen (found version "1.8.12")
+-- Performing Test has_sse3_pmmintrin
+-- Performing Test has_sse3_pmmintrin - Success
+-- Found Doxygen: /usr/bin/doxygen (found version "1.8.8")
+-- The default target builds OGDF (and dependencies like COIN).
+--
+-- Other important targets:
+--          doc: build doxygen documentation (in-source)
+--        tests: build tests
+--     examples: build examples
+--    build-all: build OGDF, tests, examples
 -- Configuring done
 -- Generating done
 -- Build files have been written to: ~/OGDF
@@ -101,6 +109,7 @@ This includes the specification of the linear program solver,
 whether to include OGDF specific assertions (and how to handle them),
 additional include directories, and the likes.
 Running `ccmake` also allows you to specify the compiler, linker and the respective flags.
+Note that the availability of some options may depend on other configuration values.
 
 ```
 $ mkdir ogdf-release ogdf-debug
@@ -113,13 +122,10 @@ $ ccmake .
  BUILD_SHARED_LIBS               >OFF
  CMAKE_BUILD_TYPE                 Release
  CMAKE_INSTALL_PREFIX             /usr/local
- COIN_EXTERNAL_SOLVER_INCLUDE_D
- COIN_EXTERNAL_SOLVER_LIBRARIES
  COIN_SOLVER                      CLP
  OGDF_MEMORY_MANAGER              POOL_TS
  OGDF_SEPARATE_TESTS              OFF
  OGDF_USE_ASSERT_EXCEPTIONS       OFF
- OGDF_USE_ASSERT_EXCEPTIONS_WIT   OFF
 
 BUILD_SHARED_LIBS: Whether to build shared libraries instead of static ones.
 Press [enter] to edit option
@@ -135,8 +141,10 @@ Press [t] to toggle advanced mode (Currently Off)
  COIN_EXTERNAL_SOLVER_INCLUDE_D   /opt/gurobi/linux64/include
  COIN_EXTERNAL_SOLVER_LIBRARIES   /opt/gurobi/linux64/lib/libgurobi70.so
  COIN_SOLVER                      GRB
+ OGDF_LEAK_CHECK                  OFF
  OGDF_MEMORY_MANAGER             >MALLOC_TS
- OGDF_SEPARATE_TESTS              ON
+ OGDF_SEPARATE_TESTS              OFF
+ OGDF_USE_ASSERT_EXCEPTIONS       ON
  OGDF_USE_ASSERT_EXCEPTIONS_WIT   ON_LIBDW
 
 OGDF_MEMORY_MANAGER: Memory manager to be used.

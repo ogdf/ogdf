@@ -34,10 +34,9 @@
 
 #include <ogdf/basic/GraphAttributes.h>
 #include <ogdf/module/LayoutModule.h>
-#include <ogdf/internal/energybased/MultilevelGraph.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 
 namespace ogdf {
-
 
 /**
  * \brief Interface of general layout algorithms.

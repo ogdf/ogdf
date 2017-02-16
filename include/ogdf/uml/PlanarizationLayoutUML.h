@@ -40,9 +40,7 @@
 #include <ogdf/basic/HashArray.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 
-
 namespace ogdf {
-
 
 /**
  * \brief The planarization layout algorithm.
@@ -128,7 +126,7 @@ public:
 	 */
 
 	/**
-	 * \brief Calls planarization layout for GraphAttributes \a GA and computes a layout.
+	 * \brief Calls planarization layout for GraphAttributes \p GA and computes a layout.
 	 * \pre The graph has no self-loops.
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */
@@ -137,7 +135,7 @@ public:
 	}
 
 	/**
-	 * \brief Calls planarization layout for UML-graph \a umlGraph and computes a mixed-upward layout.
+	 * \brief Calls planarization layout for UML-graph \p umlGraph and computes a mixed-upward layout.
 	 * \pre The graph has no self-loops.
 	 * @param umlGraph is the input graph and will also be assigned the layout information.
 	 */
@@ -155,7 +153,6 @@ public:
 		m_processCliques = false;
 #endif
 
-		//---------------------------------------------------
 		// preprocessing: insert a merger for generalizations
 
 		preProcess(umlGraph);
@@ -182,15 +179,15 @@ public:
 	}
 
 #if 0
-	//! Call for simultaneous drawing with graph \a umlGraph.
+	//! Call for simultaneous drawing with graph \p umlGraph.
 	virtual void callSimDraw(UMLGraph &umlGraph);
 
 	**
-	 * \brief Calls planarization layout with fixed embedding given by \a umlGraph.
+	 * \brief Calls planarization layout with fixed embedding given by \p umlGraph.
 	 * \pre The graph has no self-loops.
 	 * @param umlGraph is the input graph and will also be assigned the layout information.
 	 *        The fixed embedding is obtained from the layout information (node
-	 *        coordinates, bend points) in \a umlGraph.
+	 *        coordinates, bend points) in \p umlGraph.
 	 */
 	virtual void callFixEmbed(UMLGraph &umlGraph);
 #endif
@@ -221,7 +218,7 @@ public:
 		return m_pageRatio;
 	}
 
-	//! Sets the option pageRatio to \a ratio.
+	//! Sets the option pageRatio to \p ratio.
 	void pageRatio(double ratio) {
 		m_pageRatio = ratio;
 	}
@@ -235,8 +232,8 @@ public:
 	{
 		int opts = m_planarLayouter->getOptions();
 
-		if (b) m_planarLayouter->setOptions(opts | umlOpAlign);
-		else  m_planarLayouter->setOptions(opts & ~umlOpAlign);
+		if (b) m_planarLayouter->setOptions(opts | UMLOpt::OpAlign);
+		else  m_planarLayouter->setOptions(opts & ~UMLOpt::OpAlign);
 	}
 
 
@@ -296,7 +293,7 @@ public:
 		return m_nCrossings;
 	}
 
-	//! Throws a PreconditionViolatedException if \a umlGraph violates a precondition of planarization layout.
+	//! Throws a PreconditionViolatedException if \p umlGraph violates a precondition of planarization layout.
 	void assureDrawability(UMLGraph& umlGraph);
 
 	//! @}
@@ -342,30 +339,5 @@ private:
 	List<edge> m_fakedGens; // made to associations
 	bool m_fakeTree;
 };
-
-
-//--------------------------------------------------------
-//incremental part
-
-//! Node comparer for sorting by decreasing int values.
-class AddNodeComparer
-{
-	HashArray<int, int> *m_indToDeg;
-
-public:
-	AddNodeComparer(HashArray<int, int> &ha) : m_indToDeg(&ha) { }
-
-	int compare(const node &v1, const node &v2)	const {
-		if ((*m_indToDeg)[v1->index()] < (*m_indToDeg)[v2->index()])
-			return 1;
-		else if ((*m_indToDeg)[v1->index()] > (*m_indToDeg)[v2->index()])
-			return -1;
-		else
-			return 0;
-	}
-
-	OGDF_AUGMENT_COMPARER(node)
-};
-
 
 } // end namespace ogdf

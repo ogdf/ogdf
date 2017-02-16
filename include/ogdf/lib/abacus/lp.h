@@ -133,7 +133,7 @@ public:
 	 * \param out The output stream.
 	 * \param rhs The linear program being output.
 	 */
-	friend ostream &operator<<(ostream& out, const LP& rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream& out, const LP& rhs);
 
 	/*! \brief Loads the linear program defined by its arguments.
 	 *

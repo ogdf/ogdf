@@ -73,7 +73,7 @@ public:
 	{
 		if (status == Fixed || status == Set) {
 			Logger::ifout() << "FSVarStat::FSVarStat(): value to set/fix missing\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcFsVarStat);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::FsVarStat);
 		}
 	}
 
@@ -87,7 +87,7 @@ public:
 	{
 		if (status != Fixed && status != Set) {
 			Logger::ifout() << "FSVarStat::FSVarStat(): wrong status for this constructor\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcFsVarStat);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::FsVarStat);
 		}
 	}
 
@@ -108,7 +108,7 @@ public:
 	 *
 	 * \return A reference to the output stream.
 	 */
-	friend ostream &operator<<(ostream& out, const FSVarStat &rhs);
+	friend OGDF_EXPORT ostream &operator<<(ostream& out, const FSVarStat &rhs);
 
 	//! Returns the status of fixing or setting.
 	STATUS status() const { return status_; }

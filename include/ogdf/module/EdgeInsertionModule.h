@@ -57,10 +57,10 @@ public:
 	//! Returns a new instance of the edge insertion module with the same option settings.
 	virtual EdgeInsertionModule *clone() const = 0;
 
-	//! Inserts all edges in \a origEdges into \a pr.
+	//! Inserts all edges in \p origEdges into \p pr.
 	/**
 	 * @param pr        is the input planarized representation and will also receive the result.
-	 * @param origEdges is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges is the array of original edges (edges in the original graph of \p pr)
 	 *                  that have to be inserted.
 	 * @return the status of the result.
 	 */
@@ -68,12 +68,12 @@ public:
 		return doCall(pr, origEdges, nullptr, nullptr, nullptr);
 	}
 
-	//! Inserts all edges in \a origEdges with given costs into \a pr.
+	//! Inserts all edges in \p origEdges with given costs into \p pr.
 	/**
 	 * @param pr        is the input planarized representation and will also receive the result.
 	 * @param costOrig  is an edge array containing the costs of original edges; edges in
-	 *                  \a pr without an original edge have zero costs.
-	 * @param origEdges is the array of original edges (edges in the original graph of \a pr)
+	 *                  \p pr without an original edge have zero costs.
+	 * @param origEdges is the array of original edges (edges in the original graph of \p pr)
 	 *                  that have to be inserted.
 	 * @return the status of the result.
 	 */
@@ -85,12 +85,12 @@ public:
 	}
 
 
-	//! Inserts all edges in \a origEdges with given costs and subgraphs (for simultaneous drawing) into \a pr.
+	//! Inserts all edges in \p origEdges with given costs and subgraphs (for simultaneous drawing) into \p pr.
 	/**
 	 * @param pr            is the input planarized representation and will also receive the result.
 	 * @param costOrig      is an edge array containing the costs of original edges; edges in
-	 *                      \a pr without an original edge have zero costs.
-	 * @param origEdges     is the array of original edges (edges in the original graph of \a pr)
+	 *                      \p pr without an original edge have zero costs.
+	 * @param origEdges     is the array of original edges (edges in the original graph of \p pr)
 	 *                      that have to be inserted.
 	 * @param edgeSubGraphs is an edge array specifying to which subgraph an edge belongs.
 	 * @return the status of the result.
@@ -104,13 +104,13 @@ public:
 	}
 
 
-	//! Inserts all edges in \a origEdges with given forbidden edges into \a pr.
+	//! Inserts all edges in \p origEdges with given forbidden edges into \p pr.
 	/**
-	 * \pre No forbidden edge may be in \a origEdges.
+	 * \pre No forbidden edge may be in \p origEdges.
 	 *
 	 * @param pr            is the input planarized representation and will also receive the result.
 	 * @param forbiddenOrig is an edge array indicating if an original edge is forbidden to be crossed.
-	 * @param origEdges     is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges     is the array of original edges (edges in the original graph of \p pr)
 	 *                      that have to be inserted.
 	 * @return the status of the result.
 	 */
@@ -121,15 +121,15 @@ public:
 		return doCall(pr, origEdges, nullptr, &forbiddenOrig, nullptr);
 	}
 
-	//! Inserts all edges in \a origEdges with given costs and forbidden edges into \a pr.
+	//! Inserts all edges in \p origEdges with given costs and forbidden edges into \p pr.
 	/**
-	 * \pre No forbidden edge may be in \a origEdges.
+	 * \pre No forbidden edge may be in \p origEdges.
 	 *
 	 * @param pr            is the input planarized representation and will also receive the result.
 	 * @param costOrig      is an edge array containing the costs of original edges; edges in
-	 *                      \a pr without an original edge have zero costs.
+	 *                      \p pr without an original edge have zero costs.
 	 * @param forbiddenOrig is an edge array indicating if an original edge is forbidden to be crossed.
-	 * @param origEdges     is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges     is the array of original edges (edges in the original graph of \p pr)
 	 *                      that have to be inserted.
 	 * @return the status of the result.
 	 */
@@ -142,15 +142,15 @@ public:
 	}
 
 
-	//! Inserts all edges in \a origEdges with given costs, forbidden edges, and subgraphs (for simultaneous drawing) into \a pr.
+	//! Inserts all edges in \p origEdges with given costs, forbidden edges, and subgraphs (for simultaneous drawing) into \p pr.
 	/**
-	 * \pre No forbidden edge may be in \a origEdges.
+	 * \pre No forbidden edge may be in \p origEdges.
 	 *
 	 * @param pr            is the input planarized representation and will also receive the result.
 	 * @param costOrig      is an edge array containing the costs of original edges; edges in
-	 *                      \a pr without an original edge have zero costs.
+	 *                      \p pr without an original edge have zero costs.
 	 * @param forbiddenOrig is an edge array indicating if an original edge is forbidden to be crossed.
-	 * @param origEdges     is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges     is the array of original edges (edges in the original graph of \p pr)
 	 *                      that have to be inserted.
 	 * @param edgeSubGraphs is an edge array specifying to which subgraph an edge belongs.
 	 * @return the status of the result.
@@ -165,13 +165,13 @@ public:
 	}
 
 
-	//! Inserts all edges in \a origEdges into \a pr, optionally costs, forbidden edges, and subgraphs (for simultaneous drawing) may be given.
+	//! Inserts all edges in \p origEdges into \p pr, optionally costs, forbidden edges, and subgraphs (for simultaneous drawing) may be given.
 	/**
 	 * @param pr             is the input planarized representation and will also receive the result.
-	 * @param origEdges      is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges      is the array of original edges (edges in the original graph of \p pr)
 	 *                       that have to be inserted.
 	 * @param pCostOrig      points to an edge array containing the costs of original edges; edges in
-	 *                       \a pr without an original edge have zero costs. May be a 0-pointer, in which case all edges have cost 1.
+	 *                       \p pr without an original edge have zero costs. May be a 0-pointer, in which case all edges have cost 1.
 	 * @param pForbiddenOrig points to an edge array indicating whether an original edge is forbidden to be crossed.
 	 *                       May be a 0-pointer, in which case no edges are forbidden.
 	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
@@ -193,10 +193,10 @@ protected:
 	//! Actual algorithm call that has to be implemented by derived classes.
 	/**
 	 * @param pr             is the input planarized representation and will also receive the result.
-	 * @param origEdges      is the array of original edges (edges in the original graph of \a pr)
+	 * @param origEdges      is the array of original edges (edges in the original graph of \p pr)
 	 *                       that have to be inserted.
 	 * @param pCostOrig      points to an edge array containing the costs of original edges; edges in
-	 *                       \a pr without an original edge have zero costs.
+	 *                       \p pr without an original edge have zero costs.
 	 * @param pForbiddenOrig points to an edge array indicating whether an original edge is forbidden to be crossed.
 	 * @param pEdgeSubGraphs points to an edge array specifying to which subgraph an edge belongs.
 	 * @return the status of the result.

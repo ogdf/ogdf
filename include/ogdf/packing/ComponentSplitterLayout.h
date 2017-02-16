@@ -32,13 +32,12 @@
 #pragma once
 
 #include <memory>
-#include <ogdf/internal/energybased/MultilevelGraph.h>
+#include <ogdf/energybased/multilevel_mixer/MultilevelGraph.h>
 #include <ogdf/module/CCLayoutPackModule.h>
 #include <ogdf/module/LayoutModule.h>
 #include <ogdf/basic/geometry.h>
 #include <ogdf/basic/GraphAttributes.h>
 #include <vector>
-
 
 namespace ogdf {
 

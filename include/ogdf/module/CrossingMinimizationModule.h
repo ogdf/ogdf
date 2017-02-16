@@ -35,8 +35,6 @@
 #include <ogdf/basic/Module.h>
 #include <ogdf/basic/Timeouter.h>
 
-#define OGDF_OCM_ATTRIBUTE(T, N) private: T _##N; public: const T& N() const { return _##N; } T& N() { return _##N; }
-
 namespace ogdf {
 
 //! Base class for crossing minimization algorithms.
@@ -59,10 +57,10 @@ public:
 	//! Computes a planarized representation of the input graph.
 	/**
 	 * @param pr             represents the input graph as well as the computed planarized representation
-	 *                       after the call. \a pr has to be initialzed as a PlanRep of the input graph and
+	 *                       after the call. \p pr has to be initialzed as a PlanRep of the input graph and
 	 *                       is modified to obatain the planarized representation (crossings are replaced
 	 *                       by dummy vertices with degree four).
-	 * @param cc             is the index of the connected component in \a pr that is considered.
+	 * @param cc             is the index of the connected component in \p pr that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param pCostOrig      points to an edge array (of the original graph) that gives the cost of each edge.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
@@ -84,10 +82,10 @@ public:
 	//! Computes a planarized representation of the input graph.
 	/**
 	 * @param pr             represents the input graph as well as the computed planarized representation
-	 *                       after the call. \a pr has to be initialzed as a PlanRep of the input graph and
+	 *                       after the call. \p pr has to be initialzed as a PlanRep of the input graph and
 	 *                       is modified to obatain the planarized representation (crossings are replaced
 	 *                       by dummy vertices with degree four).
-	 * @param cc             is the index of the connected component in \a pr that is considered.
+	 * @param cc             is the index of the connected component in \p pr that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param pCostOrig      points to an edge array (of the original graph) that gives the cost of each edge.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.
@@ -110,10 +108,10 @@ protected:
 	//! Actual algorithm call that needs to be implemented by derived classes.
 	/**
 	 * @param pr             represents the input graph as well as the computed planarized representation
-	 *                       after the call. \a pr has to be initialzed as a PlanRep of the input graph and
+	 *                       after the call. \p pr has to be initialzed as a PlanRep of the input graph and
 	 *                       is modified to obatain the planarized representation (crossings are replaced
 	 *                       by dummy vertices with degree four).
-	 * @param cc             is the index of the connected component in \a pr that is considered.
+	 * @param cc             is the index of the connected component in \p pr that is considered.
 	 * @param crossingNumber is assigned the number of crossings.
 	 * @param pCostOrig      points to an edge array (of the original graph) that gives the cost of each edge.
 	 *                       May be a 0-pointer, in which case all edges have cost 1.

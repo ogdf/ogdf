@@ -44,28 +44,28 @@ class OGDF_EXPORT PlanRepUML;
 
 
 // type for bends (convex or reflex)
-enum BendType { convexBend = '0', reflexBend = '1' };
+enum class OrthoBendType : char { convexBend = '0', reflexBend = '1' };
 
 // type of (orthogonal) directions
-// horizontal: odEast or odWest
-// vertical:   odNorth or odSouth
-enum OrthoDir {
-	odNorth     = 0,
-	odEast      = 1,
-	odSouth     = 2,
-	odWest      = 3,
-	odUndefined = 4
+// horizontal: East or West
+// vertical:   North or South
+enum class OrthoDir {
+	North     = 0,
+	East      = 1,
+	South     = 2,
+	West      = 3,
+	Undefined = 4
 };
 
 // Option bits for orthogonal layouts, UML alignment, compaction scaling, progressive shape computation
-enum UMLOpt {umlOpAlign = 0x0001, umlOpScale = 0x0002, umlOpProg = 0x0004};
+enum class UMLOpt {OpAlign = 0x0001, OpScale = 0x0002, OpProg = 0x0004};
 
+inline int operator | (int lhs, UMLOpt rhs) { return lhs | static_cast<int>(rhs); }
+inline int operator ~ (UMLOpt rhs) { return ~static_cast<int>(rhs); }
+inline int operator & (int lhs, UMLOpt rhs) { return lhs & static_cast<int>(rhs); }
+inline int operator += (int &lhs, UMLOpt rhs) { lhs += static_cast<int>(rhs); return lhs; }
 
-//---------------------------------------------------------
-// BendString
-// represents the bends on an edge e consisting of vertical
-// and horizontal segments
-//---------------------------------------------------------
+//! Represents the bends on an edge e consisting of vertical and horizontal segments
 class OGDF_EXPORT BendString
 {
 public:
@@ -77,7 +77,7 @@ public:
 
 	// constructs bend string as given by str
 	// Precond.: str is a 0 terminated C++ string consisting of '0's and '1's
-	BendString(const char *str) {
+	explicit BendString(const char *str) {
 		init(str);
 	}
 
@@ -101,7 +101,7 @@ public:
 
 	// destructor
 	~BendString() {
-		delete [] m_pBend;
+		delete[] m_pBend;
 	}
 
 
@@ -132,21 +132,25 @@ public:
 	// sets bend string to the string given by str
 	// Precond.: str is a 0 terminated C++ string consisting of '0's and '1's
 	void set(const char *str) {
-		delete [] m_pBend;
+		delete[] m_pBend;
 		init(str);
 	}
 
 	// sets bend string to the string consisting of n c's
 	// Precond.: c is '0' or '1'
 	void set(char c, size_t n) {
-		delete [] m_pBend;
+		delete[] m_pBend;
 		init(c,n);
+	}
+	void set(OrthoBendType obt, size_t n) {
+		delete[] m_pBend;
+		init(static_cast<int>(obt),n);
 	}
 
 
 	// sets bend string to the empty bend string
 	void set() {
-		delete [] m_pBend;
+		delete[] m_pBend;
 		m_pBend = nullptr;
 		m_len = 0;
 	}
@@ -154,7 +158,7 @@ public:
 
 	// assignment operator
 	BendString &operator=(const BendString &bs) {
-		delete [] m_pBend;
+		delete[] m_pBend;
 		init(bs);
 		return *this;
 	}
@@ -162,13 +166,17 @@ public:
 	// assignment operator (move semantics)
 	BendString &operator=(BendString &&bs) {
 		if (&bs != this) {
-			delete [] m_pBend;
+			delete[] m_pBend;
 			m_pBend = bs.m_pBend;
 			m_len = bs.m_len;
 			bs.m_pBend = nullptr;
 			bs.m_len = 0;
 		}
 		return *this;
+	}
+
+	BendString &operator+=(const char *str) {
+		return this->operator+=(BendString(str));
 	}
 
 	BendString &operator+=(const BendString &bs) {
@@ -225,19 +233,11 @@ private:
 	size_t m_len;
 };
 
-
-
-//---------------------------------------------------------
-// OrthoRep
-// orthogonal representation of an embedded graph
-//---------------------------------------------------------
+//! Orthogonal representation of an embedded graph
 class OGDF_EXPORT OrthoRep
 {
 public:
-
-	//---------------------------------------------------------
-	// information about a side of a vertex in UML diagrams
-	//---------------------------------------------------------
+	//! Information about a side of a vertex in UML diagrams
 	struct SideInfoUML {
 		// adjacency entry of generalization attached at the side
 		// (or 0 if none)
@@ -275,12 +275,9 @@ public:
 	adjEntry externalAdjEntry() const {return m_adjExternal;}
 	adjEntry alignAdjEntry() const {return m_adjAlign;}
 
-
-	//---------------------------------------------------------
-	// further information about the cages of vertices in UML diagrams
-	//---------------------------------------------------------
+	//! Further information about the cages of vertices in UML diagrams
 	struct VertexInfoUML {
-		// side information (odNorth, odEast, odSouth, odWest corresponds to
+		// side information (North, East, South, West corresponds to
 		// left, top, right, bottom)
 		SideInfoUML m_side[4];
 		// m_corner[dir] is adjacency entry in direction dir starting at
@@ -302,7 +299,7 @@ public:
 	// dummy
 	OrthoRep() { m_pE = nullptr; }
 	// associates orthogonal representation with embedding E
-	OrthoRep(CombinatorialEmbedding &E);
+	explicit OrthoRep(CombinatorialEmbedding &E);
 
 	// destruction
 	~OrthoRep() {
@@ -434,16 +431,19 @@ public:
 		return (c == '0') ? '1' : '0';
 	}
 
+	//! Returns the opposite OrthoDir
 	static OrthoDir oppDir(OrthoDir d) {
-		return OrthoDir((d + 2) & 3);
+		return static_cast<OrthoDir>((static_cast<int>(d) + 2) & 3);
 	}
 
+	//! Returns the next OrthoDir (in a clockwise manner)
 	static OrthoDir nextDir(OrthoDir d) {
-		return OrthoDir((d + 1) & 3);
+		return static_cast<OrthoDir>((static_cast<int>(d) + 1) & 3);
 	}
 
+	//! Returns the previous OrthoDir (in a clockwise manner)
 	static OrthoDir prevDir(OrthoDir d) {
-		return OrthoDir((d + 3) & 3);
+		return static_cast<OrthoDir>((static_cast<int>(d) + 3) & 3);
 	}
 
 	friend ostream &operator<<(ostream &os, const OrthoRep &op) {

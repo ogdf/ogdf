@@ -39,9 +39,9 @@ namespace dot {
 
 
 Token::Token(
-	size_t row, size_t column,
-	std::string *value)
-: row(row), column(column), value(value)
+	size_t tokenRow, size_t tokenColumn,
+	std::string *identifierContent)
+: row(tokenRow), column(tokenColumn), value(identifierContent)
 {
 }
 
@@ -49,25 +49,26 @@ Token::Token(
 std::string Token::toString(const Type &type)
 {
 	switch(type) {
-	case assignment: return "=";
-	case colon: return ":";
-	case semicolon: return ";";
-	case comma: return ",";
-	case edgeOpDirected: return "->";
-	case edgeOpUndirected: return "--";
-	case leftBracket: return "[";
-	case rightBracket: return "]";
-	case leftBrace: return "{";
-	case rightBrace: return "}";
-	case graph: return "graph";
-	case digraph: return "digraph";
-	case subgraph: return "subgraph";
-	case node: return "node";
-	case edge: return "edge";
-	case strict: return "strict";
-	case identifier: return "identifier";
-	default: return "unknown";
+		case Type::assignment:       return "=";
+		case Type::colon:            return ":";
+		case Type::semicolon:        return ";";
+		case Type::comma:            return ",";
+		case Type::edgeOpDirected:   return "->";
+		case Type::edgeOpUndirected: return "--";
+		case Type::leftBracket:      return "[";
+		case Type::rightBracket:     return "]";
+		case Type::leftBrace:        return "{";
+		case Type::rightBrace:       return "}";
+		case Type::graph:            return "graph";
+		case Type::digraph:          return "digraph";
+		case Type::subgraph:         return "subgraph";
+		case Type::node:             return "node";
+		case Type::edge:             return "edge";
+		case Type::strict:           return "strict";
+		case Type::identifier:       return "identifier";
 	}
+	OGDF_ASSERT(false);
+	return "UNKNOWN";
 }
 
 
@@ -151,40 +152,40 @@ bool Lexer::tokenizeLine()
 
 		Token token(m_row + 1, m_col + 1);
 
-		if(match(Token::assignment)) {
-			token.type = Token::assignment;
-		} else if(match(Token::colon)) {
-			token.type = Token::colon;
-		} else if(match(Token::semicolon)) {
-			token.type = Token::semicolon;
-		} else if(match(Token::comma)) {
-			token.type = Token::comma;
-		} else if(match(Token::edgeOpDirected)) {
-			token.type = Token::edgeOpDirected;
-		} else if(match(Token::edgeOpUndirected)) {
-			token.type = Token::edgeOpUndirected;
-		} else if(match(Token::leftBracket)) {
-			token.type = Token::leftBracket;
-		} else if(match(Token::rightBracket)) {
-			token.type = Token::rightBracket;
-		} else if(match(Token::leftBrace)) {
-			token.type = Token::leftBrace;
-		} else if(match(Token::rightBrace)) {
-			token.type = Token::rightBrace;
-		} else if(match(Token::graph)) {
-			token.type = Token::graph;
-		} else if(match(Token::digraph)) {
-			token.type = Token::digraph;
-		} else if(match(Token::subgraph)) {
-			token.type = Token::subgraph;
-		} else if(match(Token::node)) {
-			token.type = Token::node;
-		} else if(match(Token::edge)) {
-			token.type = Token::edge;
-		} else if(match(Token::strict)) {
-			token.type = Token::strict;
+		if(match(Token::Type::assignment)) {
+			token.type = Token::Type::assignment;
+		} else if(match(Token::Type::colon)) {
+			token.type = Token::Type::colon;
+		} else if(match(Token::Type::semicolon)) {
+			token.type = Token::Type::semicolon;
+		} else if(match(Token::Type::comma)) {
+			token.type = Token::Type::comma;
+		} else if(match(Token::Type::edgeOpDirected)) {
+			token.type = Token::Type::edgeOpDirected;
+		} else if(match(Token::Type::edgeOpUndirected)) {
+			token.type = Token::Type::edgeOpUndirected;
+		} else if(match(Token::Type::leftBracket)) {
+			token.type = Token::Type::leftBracket;
+		} else if(match(Token::Type::rightBracket)) {
+			token.type = Token::Type::rightBracket;
+		} else if(match(Token::Type::leftBrace)) {
+			token.type = Token::Type::leftBrace;
+		} else if(match(Token::Type::rightBrace)) {
+			token.type = Token::Type::rightBrace;
+		} else if(match(Token::Type::graph)) {
+			token.type = Token::Type::graph;
+		} else if(match(Token::Type::digraph)) {
+			token.type = Token::Type::digraph;
+		} else if(match(Token::Type::subgraph)) {
+			token.type = Token::Type::subgraph;
+		} else if(match(Token::Type::node)) {
+			token.type = Token::Type::node;
+		} else if(match(Token::Type::edge)) {
+			token.type = Token::Type::edge;
+		} else if(match(Token::Type::strict)) {
+			token.type = Token::Type::strict;
 		} else if(identifier(token)) {
-			token.type = Token::identifier;
+			token.type = Token::Type::identifier;
 		} else {
 			GraphIO::logger.lout() << "Unknown token at: " << m_row << "; " << m_col << endl;
 			return false;

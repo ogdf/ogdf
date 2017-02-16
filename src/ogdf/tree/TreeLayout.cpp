@@ -32,11 +32,8 @@
 
 
 #include <ogdf/tree/TreeLayout.h>
-#include <ogdf/basic/List.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/basic/AdjEntryArray.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/Stack.h>
 
 
 namespace ogdf {
@@ -48,8 +45,8 @@ TreeLayout::TreeLayout()
 	 m_levelDistance(50),
 	 m_treeDistance(50),
 	 m_orthogonalLayout(false),
-	 m_orientation(topToBottom),
-	 m_selectRoot(rootIsSource)
+	 m_orientation(Orientation::topToBottom),
+	 m_selectRoot(RootSelectionType::Source)
 { }
 
 
@@ -85,7 +82,7 @@ TreeLayout &TreeLayout::operator=(const TreeLayout &tl)
 class TreeLayout::AdjComparer
 {
 public:
-	AdjComparer(const AdjEntryArray<double> &angle) {
+	explicit AdjComparer(const AdjEntryArray<double> &angle) {
 		m_pAngle = &angle;
 	}
 
@@ -274,32 +271,32 @@ void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reve
 			visited[x] = true;
 
 			if(!root) {
-				if(m_selectRoot == rootIsSource) {
+				if(m_selectRoot == RootSelectionType::Source) {
 					if (x->indeg() == 0)
 						root = x;
-				} else if (m_selectRoot == rootIsSink) {
+				} else if (m_selectRoot == RootSelectionType::Sink) {
 					if (x->outdeg() == 0)
 						root = x;
 				} else { // selectByCoordinate
 					root = x;
 				}
 
-			} else if(m_selectRoot == rootByCoord) {
+			} else if(m_selectRoot == RootSelectionType::ByCoord) {
 				switch(m_orientation)
 				{
-				case bottomToTop:
+				case Orientation::bottomToTop:
 					if(AG.y(x) < AG.y(root))
 						root = x;
 					break;
-				case topToBottom:
+				case Orientation::topToBottom:
 					if(AG.y(x) > AG.y(root))
 						root = x;
 					break;
-				case leftToRight:
+				case Orientation::leftToRight:
 					if(AG.x(x) < AG.x(root))
 						root = x;
 					break;
-				case rightToLeft:
+				case Orientation::rightToLeft:
 					if(AG.x(x) > AG.x(root))
 						root = x;
 					break;
@@ -315,7 +312,7 @@ void TreeLayout::setRoot(GraphAttributes &AG, Graph &tree, SListPure<edge> &reve
 
 		if(root == nullptr) {
 			undoReverseEdges(AG, tree, reversedEdges);
-			OGDF_THROW_PARAM(PreconditionViolatedException, pvcForest);
+			OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
 		}
 
 		adjustEdgeDirections(tree, reversedEdges, root, nullptr);
@@ -343,7 +340,7 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 	OGDF_ASSERT(&tree == &(AG.constGraph()));
 
 	if (!isFreeForest(tree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, pvcForest);
+		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
 
 	SListPure<edge> reversedEdges;
 	setRoot(AG, tree, reversedEdges);
@@ -374,9 +371,9 @@ void TreeLayout::callSortByPositions(GraphAttributes &AG, Graph &tree)
 				continue;
 			}
 
-			if(m_orientation == leftToRight || m_orientation == rightToLeft)
+			if(m_orientation == Orientation::leftToRight || m_orientation == Orientation::rightToLeft)
 				swap(dx,dy);
-			if(m_orientation == topToBottom || m_orientation == rightToLeft)
+			if(m_orientation == Orientation::topToBottom || m_orientation == Orientation::rightToLeft)
 				dy = -dy;
 
 			// compute angle of adj
@@ -420,7 +417,7 @@ void TreeLayout::call(GraphAttributes &AG)
 	if(tree.numberOfNodes() == 0) return;
 
 	if (!isForest(tree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, pvcForest);
+		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
 
 	OGDF_ASSERT(m_siblingDistance > 0);
 	OGDF_ASSERT(m_subtreeDistance > 0);
@@ -430,11 +427,10 @@ void TreeLayout::call(GraphAttributes &AG)
 	List<node> roots;
 	TreeStructure ts(tree, AG, roots);
 
-	if(m_orientation == topToBottom || m_orientation == bottomToTop)
+	if(m_orientation == Orientation::topToBottom || m_orientation == Orientation::bottomToTop)
 	{
-		ListConstIterator<node> it;
 		double minX = 0, maxX = 0;
-		for(it = roots.begin(); it.valid(); ++it)
+		for(ListConstIterator<node> it = roots.begin(); it.valid(); ++it)
 		{
 			node root = *it;
 
@@ -459,15 +455,14 @@ void TreeLayout::call(GraphAttributes &AG)
 
 		// The computed layout draws a tree downwards. If we want to draw the
 		// tree upwards, we simply invert all y-coordinates.
-		if(m_orientation == bottomToTop)
+		if(m_orientation == Orientation::bottomToTop)
 		{
 			for(node v : tree.nodes)
 				AG.y(v) = -AG.y(v);
 
 			for(edge e : tree.edges) {
-				ListIterator<DPoint> it;
-				for(it = AG.bends(e).begin(); it.valid(); ++it)
-					(*it).m_y = -(*it).m_y;
+				for(DPoint &p: AG.bends(e))
+					p.m_y = -p.m_y;
 			}
 		}
 
@@ -499,15 +494,14 @@ void TreeLayout::call(GraphAttributes &AG)
 
 		// The computed layout draws a tree upwards. If we want to draw the
 		// tree downwards, we simply invert all y-coordinates.
-		if(m_orientation == rightToLeft)
+		if(m_orientation == Orientation::rightToLeft)
 		{
 			for(node v : tree.nodes)
 				AG.x(v) = -AG.x(v);
 
 			for(edge e : tree.edges) {
-				ListIterator<DPoint> it;
-				for(it = AG.bends(e).begin(); it.valid(); ++it)
-					(*it).m_x = -(*it).m_x;
+				for(DPoint &p: AG.bends(e))
+					p.m_x = -p.m_x;
 			}
 		}
 
@@ -969,7 +963,6 @@ void TreeLayout::computeXCoordinatesAndEdgeShapes(node root, GraphAttributes &AG
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				if(e->target() != v) {
-					edge e = adj->theEdge();
 					node w = e->target();
 					newLevel.pushBack(w);
 

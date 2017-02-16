@@ -75,7 +75,7 @@ LpSub *Sub::generateLp()
 #endif
 	default:
 		Logger::ifout() << "Error: ABACUS library not compiled for\nselected LP-Solver " << Master::OSISOLVER_[master_->defaultLpSolver()] << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpIf);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpIf);
 	}
 }
 

@@ -24,16 +24,16 @@ int main()
 
 	cout << "Supported technologies:" << endl;
 	cout << "-----------------------" << endl;
-	cout << "MMX:    " << yn(System::cpuSupports(cpufMMX))    << endl;
-	cout << "SSE:    " << yn(System::cpuSupports(cpufSSE))    << endl;
-	cout << "SSE2:   " << yn(System::cpuSupports(cpufSSE2))   << endl;
-	cout << "SSE3:   " << yn(System::cpuSupports(cpufSSE3))   << endl;
-	cout << "SSSE3:  " << yn(System::cpuSupports(cpufSSSE3))  << endl;
-	cout << "SSE4.1: " << yn(System::cpuSupports(cpufSSE4_1)) << endl;
-	cout << "SSE4.2: " << yn(System::cpuSupports(cpufSSE4_2)) << endl;
-	cout << "VMX:    " << yn(System::cpuSupports(cpufVMX))    << endl;
-	cout << "SMX:    " << yn(System::cpuSupports(cpufSMX))    << endl;
-	cout << "EST:    " << yn(System::cpuSupports(cpufEST))    << endl;
+	cout << "MMX:    " << yn(System::cpuSupports(CPUFeature::MMX))    << endl;
+	cout << "SSE:    " << yn(System::cpuSupports(CPUFeature::SSE))    << endl;
+	cout << "SSE2:   " << yn(System::cpuSupports(CPUFeature::SSE2))   << endl;
+	cout << "SSE3:   " << yn(System::cpuSupports(CPUFeature::SSE3))   << endl;
+	cout << "SSSE3:  " << yn(System::cpuSupports(CPUFeature::SSSE3))  << endl;
+	cout << "SSE4.1: " << yn(System::cpuSupports(CPUFeature::SSE4_1)) << endl;
+	cout << "SSE4.2: " << yn(System::cpuSupports(CPUFeature::SSE4_2)) << endl;
+	cout << "VMX:    " << yn(System::cpuSupports(CPUFeature::VMX))    << endl;
+	cout << "SMX:    " << yn(System::cpuSupports(CPUFeature::SMX))    << endl;
+	cout << "EST:    " << yn(System::cpuSupports(CPUFeature::EST))    << endl;
 	cout << endl;
 
 	cout << "Memory management:" << endl;

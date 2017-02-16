@@ -33,14 +33,15 @@
 #pragma once
 
 #include <ogdf/basic/List.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 #include <ogdf/basic/extended_graph_alg.h>
 
 namespace ogdf {
 
-/*!
- * \brief This class implements the minimum Steiner tree 2-approximation algorithm by Takahashi and Matsuyama with improvements proposed by Poggi de Aragao et al.
+/**
+ * This class implements the minimum Steiner tree 2-approximation algorithm
+ * by Takahashi and Matsuyama with improvements proposed by Poggi de Aragao et al.
  *
  * @ingroup ga-steiner
  *
@@ -70,12 +71,20 @@ public:
 	 * @param startNode The source node for the special Dijkstra call
 	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree, const node startNode)
+	virtual T call(const EdgeWeightedGraph<T> &G,
+	               const List<node> &terminals,
+	               const NodeArray<bool> &isTerminal,
+	               EdgeWeightedGraphCopy<T> *&finalSteinerTree,
+	               const node startNode)
 	{
 		return call(G, terminals, isTerminal, isTerminal, finalSteinerTree, startNode);
 	}
 
-	virtual T call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, const NodeArray<bool> &isOriginalTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
+	virtual T call(const EdgeWeightedGraph<T> &G,
+	               const List<node> &terminals,
+	               const NodeArray<bool> &isTerminal,
+	               const NodeArray<bool> &isOriginalTerminal,
+	               EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 	{
 		return call(G, terminals, isTerminal, isOriginalTerminal, finalSteinerTree, terminals.front());
 	}
@@ -94,7 +103,12 @@ public:
 	 * @param startNode The source node for the special Dijkstra call
 	 * @return The objective value (sum of edge costs) of the final Steiner tree
 	 */
-	virtual T call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, const NodeArray<bool> &isOriginalTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree, const node startNode);
+	virtual T call(const EdgeWeightedGraph<T> &G,
+	               const List<node> &terminals,
+	               const NodeArray<bool> &isTerminal,
+	               const NodeArray<bool> &isOriginalTerminal,
+	               EdgeWeightedGraphCopy<T> *&finalSteinerTree,
+	               const node startNode);
 
 protected:
 	/*!
@@ -123,17 +137,20 @@ protected:
 	 * @param isTerminal terminal incivende vector
 	 * @return the weight of the intermediateTerminalSpanningTree
 	 */
-	T terminalDijkstra(const EdgeWeightedGraph<T> &wG, EdgeWeightedGraphCopy<T> &intermediateTerminalSpanningTree, const node s, int numberOfTerminals, const NodeArray<bool> &isTerminal);
+	T terminalDijkstra(const EdgeWeightedGraph<T> &wG,
+	                   EdgeWeightedGraphCopy<T> &intermediateTerminalSpanningTree,
+	                   const node s,
+	                   int numberOfTerminals,
+	                   const NodeArray<bool> &isTerminal);
 };
 
-} // end namespace ogdf
-
-// ============= Implementation =================
-
-namespace ogdf {
-
 template<typename T>
-T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, const NodeArray<bool> &isOriginalTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree, const node startNode)
+T MinSteinerTreeTakahashi<T>::call(const EdgeWeightedGraph<T> &G,
+                                   const List<node> &terminals,
+                                   const NodeArray<bool> &isTerminal,
+                                   const NodeArray<bool> &isOriginalTerminal,
+                                   EdgeWeightedGraphCopy<T> *&finalSteinerTree,
+                                   const node startNode)
 {
 	EdgeWeightedGraphCopy<T> terminalSpanningTree;
 	terminalSpanningTree.createEmpty(G);

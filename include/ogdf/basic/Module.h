@@ -48,13 +48,13 @@ class OGDF_EXPORT Module
 {
 public:
 	//! The return type of a module.
-	enum ReturnType {
-		retFeasible, //!< The solution is feasible.
-		retOptimal, //!< The solution is optimal
-		retNoFeasibleSolution, //!< There exists no feasible solution.
-		retTimeoutFeasible, //!< The solution is feasible, but there was a timeout.
-		retTimeoutInfeasible, //!< The solution is not feasible due to a timeout.
-		retError //! Computation was aborted due to an error.
+	enum class ReturnType {
+		Feasible, //!< The solution is feasible.
+		Optimal, //!< The solution is optimal
+		NoFeasibleSolution, //!< There exists no feasible solution.
+		TimeoutFeasible, //!< The solution is feasible, but there was a timeout.
+		TimeoutInfeasible, //!< The solution is not feasible due to a timeout.
+		Error //!< Computation was aborted due to an error.
 	};
 
 	//! Initializes a module.
@@ -62,11 +62,12 @@ public:
 
 	virtual ~Module() { }
 
-	//! Returns true iff \a retVal indicates that the module returned a feasible solution.
+	//! Returns true iff \p ret indicates that the module returned a feasible solution.
 	static bool isSolution(ReturnType ret) {
-		return ret == retFeasible || ret == retOptimal || ret == retTimeoutFeasible;
+		return ret == ReturnType::Feasible || ret == ReturnType::Optimal || ret == ReturnType::TimeoutFeasible;
 	}
 };
 
+OGDF_EXPORT ostream & operator<<(ostream &os, const Module::ReturnType &r);
 
 } // end namespace ogdf

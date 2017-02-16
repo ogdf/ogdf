@@ -40,11 +40,11 @@ namespace tlp {
 std::string toString(const Attribute &attr)
 {
 	switch(attr) {
-	case a_label: return "viewLabel";
-	case a_color: return "viewColor";
-	case a_position: return "viewLayout";
-	case a_size: return "viewSize";
-	case a_shape: return "viewShape";
+	case Attribute::label: return "viewLabel";
+	case Attribute::color: return "viewColor";
+	case Attribute::position: return "viewLayout";
+	case Attribute::size: return "viewSize";
+	case Attribute::shape: return "viewShape";
 	default: return "unknown";
 	}
 }
@@ -53,21 +53,21 @@ std::string toString(const Attribute &attr)
 Attribute toAttribute(const std::string &str)
 {
 	if(str == "viewLabel") {
-		return a_label;
+		return Attribute::label;
 	}
 	if(str == "viewColor") {
-		return a_color;
+		return Attribute::color;
 	}
 	if(str == "viewLayout") {
-		return a_position;
+		return Attribute::position;
 	}
 	if(str == "viewSize") {
-		return a_size;
+		return Attribute::size;
 	}
 	if(str == "viewShape") {
-		return a_shape;
+		return Attribute::shape;
 	}
-	return a_unknown;
+	return Attribute::unknown;
 }
 
 

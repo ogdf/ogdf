@@ -33,8 +33,6 @@
 
 #include <ogdf/orthogonal/LongestPathCompaction.h>
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
-#include <ogdf/basic/Stack.h>
-#include <ogdf/basic/GridLayout.h>
 
 
 namespace ogdf {
@@ -59,14 +57,14 @@ void LongestPathCompaction::constructiveHeuristics(
 	OGDF_ASSERT(OR.isOrientated());
 
 	// x-coordinates of vertical segments
-	CompactionConstraintGraph<int> Dx(OR, PG, odEast, rc.separation());
+	CompactionConstraintGraph<int> Dx(OR, PG, OrthoDir::East, rc.separation());
 	Dx.insertVertexSizeArcs(PG, drawing.width(), rc);
 
 	NodeArray<int> xDx(Dx.getGraph(), 0);
 	computeCoords(Dx, xDx);
 
 	// y-coordinates of horizontal segments
-	CompactionConstraintGraph<int> Dy(OR, PG, odNorth, rc.separation());
+	CompactionConstraintGraph<int> Dy(OR, PG, OrthoDir::North, rc.separation());
 	Dy.insertVertexSizeArcs(PG, drawing.height(), rc);
 
 	NodeArray<int> yDy(Dy.getGraph(), 0);
@@ -102,7 +100,7 @@ void LongestPathCompaction::improvementHeuristics(
 		++steps;
 
 		// x-coordinates of vertical segments
-		CompactionConstraintGraph<int> Dx(OR, PG, odEast, rc.separation());
+		CompactionConstraintGraph<int> Dx(OR, PG, OrthoDir::East, rc.separation());
 		Dx.insertVertexSizeArcs(PG, drawing.width(), rc);
 		Dx.insertVisibilityArcs(PG, drawing.x(),drawing.y());
 
@@ -116,7 +114,7 @@ void LongestPathCompaction::improvementHeuristics(
 
 
 		// y-coordinates of horizontal segments
-		CompactionConstraintGraph<int> Dy(OR, PG, odNorth, rc.separation());
+		CompactionConstraintGraph<int> Dy(OR, PG, OrthoDir::North, rc.separation());
 		Dy.insertVertexSizeArcs(PG, drawing.height(), rc);
 		Dy.insertVisibilityArcs(PG, drawing.y(),drawing.x());
 
@@ -147,7 +145,7 @@ void LongestPathCompaction::computeCoords(
 	applyLongestPaths(D,pos);
 
 
-	if (m_tighten == true)
+	if (m_tighten)
 	{
 		// improve cost of ranking by moving pseudo-components
 		moveComponents(D,pos);

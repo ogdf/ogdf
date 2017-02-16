@@ -29,22 +29,12 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/layered/LongestPathRanking.h>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Queue.h>
 
-
 namespace ogdf {
-
-
-//---------------------------------------------------------
-// LongestPathRanking
-// linear-time node ranking for hierarchical graphs
-//---------------------------------------------------------
 
 LongestPathRanking::LongestPathRanking()
 {
@@ -122,7 +112,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 		bool isBase = false;
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
-			if(AG.type(e) != Graph::generalization)
+			if(AG.type(e) != Graph::EdgeType::generalization)
 				continue;
 
 			if(e->target() == v) {
@@ -148,7 +138,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 
 	for(node v : baseClasses) {
 		edge ec = GC.newEdge(GC.copy(v), superSink);
-		AGC.type(ec) = Graph::generalization;
+		AGC.type(ec) = Graph::EdgeType::generalization;
 	}
 
 	for(edge e : G.edges)
@@ -187,7 +177,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			if(!e->isSelfLoop() && e->source() == v &&
-				AGC.type(e) == Graph::generalization /*&& reversed[e] == true*/)
+				AGC.type(e) == Graph::EdgeType::generalization /*&& reversed[e] == true*/)
 				++outdeg[v];
 		}
 	}
@@ -200,7 +190,7 @@ void LongestPathRanking::callUML(const GraphAttributes &AG, NodeArray<int> &rank
 		for(adjEntry adj : v->adjEntries) {
 			edge e = adj->theEdge();
 			node u = e->source();
-			if(u == v || AGC.type(e) != Graph::generalization/* || reversed[e] == false*/)
+			if(u == v || AGC.type(e) != Graph::EdgeType::generalization/* || reversed[e] == false*/)
 				continue;
 
 			--outdeg[u];

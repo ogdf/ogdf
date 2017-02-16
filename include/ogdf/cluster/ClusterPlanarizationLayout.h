@@ -90,7 +90,7 @@ public:
 
 
 
-	//! Calls cluster planarization layout with cluster-graph attributes \a acGraph.
+	//! Calls cluster planarization layout with cluster-graph attributes \p acGraph.
 	/**
 	 * @param G is the input graph.
 	 * @param acGraph is assigned the computed layout.
@@ -102,7 +102,7 @@ public:
 		ClusterGraphAttributes& acGraph,
 		ClusterGraph& cGraph,
 		bool simpleCConnect = true);
-	//! Calls cluster planarization layout with cluster-graph attributes \a acGraph.
+	//! Calls cluster planarization layout with cluster-graph attributes \p acGraph.
 	/**
 	 * @param G is the input graph.
 	 * @param acGraph is assigned the computed layout.
@@ -123,17 +123,17 @@ public:
 		return m_pageRatio;
 	}
 
-	//! Sets the page ratio to \a ratio.
+	//! Sets the page ratio to \p ratio.
 	void pageRatio(double ratio) {
 		m_pageRatio = ratio;
 	}
 
-	//! Sets the module option for the planar layout algorithm to \a pPlanarLayouter.
+	//! Sets the module option for the planar layout algorithm to \p pPlanarLayouter.
 	void setPlanarLayouter(LayoutClusterPlanRepModule *pPlanarLayouter) {
 		m_planarLayouter.reset(pPlanarLayouter);
 	}
 
-	//! Sets the module option for the arrangement of connected components to \a pPacker.
+	//! Sets the module option for the arrangement of connected components to \p pPacker.
 	void setPacker(CCLayoutPackModule *pPacker) {
 		m_packer.reset(pPacker);
 	}

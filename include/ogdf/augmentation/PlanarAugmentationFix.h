@@ -34,7 +34,7 @@
 
 #include <ogdf/module/AugmentationModule.h>
 #include <ogdf/basic/GraphCopy.h>
-#include <ogdf/internal/augmentation/PALabel.h>
+#include <ogdf/augmentation/planar/PALabel.h>
 #include <ogdf/decomposition/DynamicBCTree.h>
 
 namespace ogdf {
@@ -148,7 +148,7 @@ private:
 	/**
 	 * \brief Traverses upwards in the bc-tree, starting at the pendant node.
 	 */
-	paStopCause followPath(node v, node& last);
+	PALabel::StopCause followPath(node v, node& last);
 
 	/**
 	 * \brief Finds the next matching pendants.
@@ -163,10 +163,10 @@ private:
 	/**
 	 * \brief Creates a new label.
 	 */
-	pa_label newLabel(node cutvertex, node parent, node pendant, paStopCause whyStop);
+	pa_label newLabel(node cutvertex, node parent, node pendant, PALabel::StopCause whyStop);
 
 	/**
-	 * \brief Adds pendant \a p to label \a l.
+	 * \brief Adds pendant \p p to label \p l.
 	 */
 	void addPendant(node p, pa_label& l);
 
@@ -193,7 +193,7 @@ private:
 	/**
 	 * \brief Deletes the label.
 	 */
-	void deleteLabel(pa_label& l, bool removePendants = true);
+	void deleteLabel(pa_label& l);
 
 	/**
 	 * \brief Removes the label from the list of labels.

@@ -30,385 +30,354 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-
 #include <ogdf/fileformats/XmlScanner.h>
-
 
 namespace ogdf {
 
-	//
-	// C o n s t r u c t o r
-	//
-	XmlScanner::XmlScanner(istream &is)
-	{
-		// Create line buffer
-		m_pLineBuffer = new LineBuffer(is);
-	} // XmlScanner::XmlScanner
+XmlScanner::XmlScanner(istream &is) {
+	// Create line buffer
+	m_pLineBuffer = new LineBuffer(is);
+} // XmlScanner::XmlScanner
 
-	//
-	// D e s t r u c t o r
-	//
-	XmlScanner::~XmlScanner()
-	{
-		// Destroy line buffer
-		delete m_pLineBuffer;
-	} // XmlScanner::~XmlScanner
 
-	//
-	// g e t N e x t T o k e n
-	//
-	// Take a look at the state machine of getNextToken() to understand
-	// what is going on here.
-	//
-	// TODO: It seems to be useful that this function throws an exception
-	//       if something goes wrong.
-	XmlToken XmlScanner::getNextToken(){
+XmlScanner::~XmlScanner() {
+	// Destroy line buffer
+	delete m_pLineBuffer;
+} // XmlScanner::~XmlScanner
 
-		// First skip whitespaces
-		m_pLineBuffer->skipWhitespace();
+// Take a look at the state machine of getNextToken() to understand
+// what is going on here.
+//
+// TODO: It seems to be useful that this function throws an exception
+//       if something goes wrong.
+XmlToken XmlScanner::getNextToken(){
 
-		// Let's have a look at the current character
-		char currentCharacter = m_pLineBuffer->getCurrentCharacter();
+	// First skip whitespaces
+	m_pLineBuffer->skipWhitespace();
 
-		// End of file reached
-		if (currentCharacter == EOF){
-			return endOfFile;
+	// Let's have a look at the current character
+	char currentCharacter = m_pLineBuffer->getCurrentCharacter();
+
+	// End of file reached
+	if (currentCharacter == EOF){
+		return XmlToken::endOfFile;
+	}
+
+	// First we handle single characters with a switch statement
+	switch (currentCharacter){
+
+	// Opening Bracket
+	case '<':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::openingBracket;
+		}
+		break;
+
+	// Closing Bracket
+	case '>':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::closingBracket;
+		}
+		break;
+
+	// Question Mark
+	case '?':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::questionMark;
+		}
+		break;
+
+	// Exclamation Mark
+	case '!':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::exclamationMark;
+		}
+		break;
+
+	// Minus
+	case '-':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::minus;
+		}
+		break;
+
+	// Slash
+	case '/':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::slash;
+		}
+		break;
+
+	// Equal Sign
+	case '=':
+		{
+			m_pLineBuffer->moveToNextCharacter();
+			return XmlToken::equalSign;
+		}
+		break;
+
+	} // end of switch
+
+	// Now we handle more complex token
+
+	// Identifier
+	if (isalpha(currentCharacter)){
+
+		// Put a pointer to the beginning of the identifier
+		LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
+
+		currentCharacter = m_pLineBuffer->moveToNextCharacter();
+
+		// Read valid identifier characters
+		while ((isalnum(currentCharacter)) ||  // a..z|A..Z|0..9
+			(currentCharacter == '.') ||
+			(currentCharacter == ':') ||
+			(currentCharacter == '_'))
+		{
+			currentCharacter = m_pLineBuffer->moveToNextCharacter();
 		}
 
-		// First we handle single characters with a switch statement
-		switch (currentCharacter){
+		// Copy identifier to currentTokenString
+		m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
 
-		// Opening Bracket
-		case '<':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return openingBracket;
-			}
-			break;
+		// Return identifier token
+		return XmlToken::identifier;
 
-		// Closing Bracket
-		case '>':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return closingBracket;
-			}
-			break;
+	} // end of identifier
 
-		// Question Mark
-		case '?':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return questionMark;
-			}
-			break;
+	// Quoted characters " ... " or ' ... '
+	if ((currentCharacter == '\"') ||
+		(currentCharacter == '\''))
+	{
+		// Distinguish what kind of quote sign we have
+		bool doubleQuote;
+		if (currentCharacter == '\"')
+			doubleQuote = true;
+		else
+			doubleQuote = false;
 
-		// Exclamation Mark
-		case '!':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return exclamationMark;
-			}
-			break;
+		// Skip quote sign
+		currentCharacter = m_pLineBuffer->moveToNextCharacter();
 
-		// Minus
-		case '-':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return minus;
-			}
-			break;
+		// Read until the closing quotation sign is found
+		// String is copied to m_currentToken by readStringUntil()
+		if (doubleQuote){
+			readStringUntil('\"', false);
+		}
+		else{
+			readStringUntil('\'', false);
+		}
 
-		// Slash
-		case '/':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return slash;
-			}
-			break;
+		// Skip over the end quote character
+		m_pLineBuffer->moveToNextCharacter();
 
-		// Equal Sign
-		case '=':
-			{
-				m_pLineBuffer->moveToNextCharacter();
-				return equalSign;
-			}
-			break;
+		// Return token for quoted value
+		return XmlToken::quotedValue;
 
-		} // end of switch
+	} // end of quoted characters
 
-		// Now we handle more complex token
+	// An atributeValue, i.e. a sequence of characters, digits, minus - or dot .
+	if ((isalnum(currentCharacter)) ||
+		(currentCharacter == '-') ||
+		(currentCharacter == '.'))
+	{
+		// Put a pointer to the beginning of the quoted text
+		LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
 
-		// Identifier
-		if (isalpha(currentCharacter)){
-
-			// Put a pointer to the beginning of the identifier
-			LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
-
-			currentCharacter = m_pLineBuffer->moveToNextCharacter();
-
-			// Read valid identifier characters
-			while ((isalnum(currentCharacter)) ||  // a..z|A..Z|0..9
-				(currentCharacter == '.') ||
-				(currentCharacter == ':') ||
-				(currentCharacter == '_'))
-			{
-				currentCharacter = m_pLineBuffer->moveToNextCharacter();
-			}
-
-			// Copy identifier to currentTokenString
-			m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
-
-			// Return identifier token
-			return identifier;
-
-		} // end of identifier
-
-		// Quoted characters " ... " or ' ... '
-		if ((currentCharacter == '\"') ||
-			(currentCharacter == '\''))
-		{
-			// Distinguish what kind of quote sign we have
-			bool doubleQuote;
-			if (currentCharacter == '\"')
-				doubleQuote = true;
-			else
-				doubleQuote = false;
-
-			// Skip quote sign
-			currentCharacter = m_pLineBuffer->moveToNextCharacter();
-
-			// Read until the closing quotation sign is found
-			// String is copied to m_currentToken by readStringUntil()
-			if (doubleQuote){
-				readStringUntil('\"', false);
-			}
-			else{
-				readStringUntil('\'', false);
-			}
-
-			// Skip over the end quote character
-			m_pLineBuffer->moveToNextCharacter();
-
-			// Return token for quoted value
-			return quotedValue;
-
-		} // end of quoted characters
-
-		// An atributeValue, i.e. a sequence of characters, digits, minus - or dot .
-		if ((isalnum(currentCharacter)) ||
+		// Read until until an invalid character occurs
+		currentCharacter = m_pLineBuffer->moveToNextCharacter();
+		while ((isalnum(currentCharacter)) ||
 			(currentCharacter == '-') ||
 			(currentCharacter == '.'))
 		{
-			// Put a pointer to the beginning of the quoted text
-			LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
-
-			// Read until until an invalid character occurs
 			currentCharacter = m_pLineBuffer->moveToNextCharacter();
-			while ((isalnum(currentCharacter)) ||
-				(currentCharacter == '-') ||
-				(currentCharacter == '.'))
-			{
-				currentCharacter = m_pLineBuffer->moveToNextCharacter();
+		}
+
+		// Copy attributeValue to currentTokenString
+		m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
+
+		// Return token for attribute value
+		return XmlToken::attributeValue;
+
+	} // end of an attributeValue
+
+	// No valid token
+	m_pLineBuffer->moveToNextCharacter();
+	return XmlToken::invalidToken;
+
+} // getNextToken
+
+XmlToken XmlScanner::testNextToken(){
+
+	// Save pointer to the current position
+	LineBufferPosition originalPosition = m_pLineBuffer->getCurrentPosition();
+
+	// Call getNextToken()
+	XmlToken returnToken = getNextToken();
+
+	// Set pointer back to the original position
+	m_pLineBuffer->setCurrentPosition(originalPosition);
+
+	// Return token
+	return returnToken;
+
+} // testNextToken
+
+XmlToken XmlScanner::testNextNextToken(){
+
+	// Save pointer to the current position
+	LineBufferPosition originalPosition = m_pLineBuffer->getCurrentPosition();
+
+	// Call getNextToken()
+	getNextToken();
+
+	// Again Call getNextToken()
+	XmlToken returnToken = getNextToken();
+
+	// Set pointer back to the original position
+	m_pLineBuffer->setCurrentPosition(originalPosition);
+
+	// Return token
+	return returnToken;
+
+} // testNextNextToken
+
+bool XmlScanner::skipUntil(char searchCharacter, bool skipOverSearchCharacter){
+
+	while (m_pLineBuffer->getCurrentCharacter() != EOF){
+
+		// Search character has been found!
+		if (m_pLineBuffer->getCurrentCharacter() == searchCharacter){
+
+			// Move to the position behind the search character if desired
+			if (skipOverSearchCharacter){
+				m_pLineBuffer->moveToNextCharacter();
 			}
 
-			// Copy attributeValue to currentTokenString
-			m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
+			return true;
 
-			// Return token for attribute value
-			return attributeValue;
+		} // Search character has been found!
 
-		} // end of an attributeValue
-
-		// No valid token
+		// Move to next character and proceed
 		m_pLineBuffer->moveToNextCharacter();
-		return invalidToken;
 
-	} // getNextToken
+	} // while (!EOF)
 
-	//
-	// t e s t N e x t T o k e n
-	//
-	XmlToken XmlScanner::testNextToken(){
+	return false;
 
-		// Save pointer to the current position
-		LineBufferPosition originalPosition = m_pLineBuffer->getCurrentPosition();
+} // skipUntil
 
-		// Call getNextToken()
-		XmlToken returnToken = getNextToken();
+bool XmlScanner::skipUntilMatchingClosingBracket(){
 
-		// Set pointer back to the original position
-		m_pLineBuffer->setCurrentPosition(originalPosition);
+	// We assume that the opening bracket has already been read
+	int bracketParity = 1;
 
-		// Return token
-		return returnToken;
+	while ((m_pLineBuffer->getCurrentCharacter() != EOF) &&
+		(bracketParity != 0))
+	{
+		// Opening bracket has been found!
+		if (m_pLineBuffer->getCurrentCharacter() == '<'){
 
-	} // testNextToken
+			++bracketParity;
+		}
 
-	//
-	// t e s t N e x t N e x t T o k e n
-	//
-	XmlToken XmlScanner::testNextNextToken(){
+		// Closing bracket has been found!
+		if (m_pLineBuffer->getCurrentCharacter() == '>'){
 
-		// Save pointer to the current position
-		LineBufferPosition originalPosition = m_pLineBuffer->getCurrentPosition();
+			--bracketParity;
+		}
 
-		// Call getNextToken()
-		getNextToken();
+		// Move to next character and proceed
+		m_pLineBuffer->moveToNextCharacter();
 
-		// Again Call getNextToken()
-		XmlToken returnToken = getNextToken();
+	} // while
 
-		// Set pointer back to the original position
-		m_pLineBuffer->setCurrentPosition(originalPosition);
-
-		// Return token
-		return returnToken;
-
-	} // testNextNextToken
-
-	//
-	// s k i p U n t i l
-	//
-	bool XmlScanner::skipUntil(char searchCharacter, bool skipOverSearchCharacter){
-
-		while (m_pLineBuffer->getCurrentCharacter() != EOF){
-
-			// Search character has been found!
-			if (m_pLineBuffer->getCurrentCharacter() == searchCharacter){
-
-				// Move to the position behind the search character if desired
-				if (skipOverSearchCharacter){
-					m_pLineBuffer->moveToNextCharacter();
-				}
-
-				return true;
-
-			} // Search character has been found!
-
-			// Move to next character and proceed
-			m_pLineBuffer->moveToNextCharacter();
-
-		} // while (!EOF)
-
+	if (bracketParity != 0 )
 		return false;
+	else
+		return true;
 
-	} // skipUntil
+} // skipUntilMatchingClosingBracket
 
-	//
-	// s k i p U n t i l M a t c h i n g C l o s i n g B r a c k e t
-	//
-	bool XmlScanner::skipUntilMatchingClosingBracket(){
+bool XmlScanner::readStringUntil(char searchCharacter,
+                                 bool includeSearchCharacter) {
+	// Remember start position
+	LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
 
-		// We assume that the opening bracket has already been read
-		int bracketParity = 1;
+	// Use skipUntil()
+	if (skipUntil(searchCharacter, includeSearchCharacter)){
 
-		while ((m_pLineBuffer->getCurrentCharacter() != EOF) &&
-			(bracketParity != 0))
-		{
-			// Opening bracket has been found!
-			if (m_pLineBuffer->getCurrentCharacter() == '<'){
+		// Copy found string to m_currentToken
+		m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
 
-				++bracketParity;
-			}
+		return true;
 
-			// Closing bracket has been found!
-			if (m_pLineBuffer->getCurrentCharacter() == '>'){
+	}
+	// An error occurred
+	else{
+		return false;
+	}
 
-				--bracketParity;
-			}
+} // getStringUntil
 
-			// Move to next character and proceed
-			m_pLineBuffer->moveToNextCharacter();
+void XmlScanner::test(){
 
-		} // while
+	bool terminate = false;
+	XmlToken currentToken;
 
-		if (bracketParity != 0 )
-			return false;
-		else
-			return true;
+	while (!terminate){
 
-	} // skipUntilMatchingClosingBracket
+		cout << "Line " << getInputFileLineCounter() << ": ";
+		currentToken = getNextToken();
 
-	//
-	// r e a d S t r i n g U n t i l
-	//
-	bool XmlScanner::readStringUntil(char searchCharacter,
-										 bool includeSearchCharacter){
+		switch (currentToken){
+		case XmlToken::openingBracket:
+			cout << "<" << endl;
+			break;
+		case XmlToken::closingBracket:
+			cout << ">" << endl;
+			break;
+		case XmlToken::questionMark:
+			cout << "?" << endl;
+			break;
+		case XmlToken::exclamationMark:
+			cout << "!" << endl;
+			break;
+		case XmlToken::minus:
+			cout << "-" << endl;
+			break;
+		case XmlToken::slash:
+			cout << "/" << endl;
+			break;
+		case XmlToken::equalSign:
+			cout << "<" << endl;
+			break;
+		case XmlToken::identifier:
+			cout << "Identifier: " << m_currentToken << endl;
+			break;
+		case XmlToken::attributeValue:
+			cout << "Attribute value: " << m_currentToken << endl;
+			break;
+		case XmlToken::quotedValue:
+			cout << "Quoted value: \"" << m_currentToken << "\"" << endl;
+			break;
+		case XmlToken::endOfFile:
+			cout << "EOF" << endl;
+			terminate = true;
+			break;
+		default:
+			cout << "Invalid token!" << endl;
 
-		// Remember start position
-		LineBufferPosition startPosition = m_pLineBuffer->getCurrentPosition();
+		} // switch
 
-		// Use skipUntil()
-		if (skipUntil(searchCharacter, includeSearchCharacter)){
+	} // while
 
-			// Copy found string to m_currentToken
-			m_pLineBuffer->extractString(startPosition, m_pLineBuffer->getCurrentPosition(), m_currentToken);
-
-			return true;
-
-		}
-		// An error occurred
-		else{
-			return false;
-		}
-
-	} // getStringUntil
-
-	//
-	//  t e s t
-	//
-	void XmlScanner::test(){
-
-		bool terminate = false;
-		XmlToken currentToken;
-
-		while (!terminate){
-
-			cout << "Line " << getInputFileLineCounter() << ": ";
-			currentToken = getNextToken();
-
-			switch (currentToken){
-			case openingBracket:
-				cout << "<" << endl;
-				break;
-			case closingBracket:
-				cout << ">" << endl;
-				break;
-			case questionMark:
-				cout << "?" << endl;
-				break;
-			case exclamationMark:
-				cout << "!" << endl;
-				break;
-			case minus:
-				cout << "-" << endl;
-				break;
-			case slash:
-				cout << "/" << endl;
-				break;
-			case equalSign:
-				cout << "<" << endl;
-				break;
-			case identifier:
-				cout << "Identifier: " << m_currentToken << endl;
-				break;
-			case attributeValue:
-				cout << "Attribute value: " << m_currentToken << endl;
-				break;
-			case quotedValue:
-				cout << "Quoted value: \"" << m_currentToken << "\"" << endl;
-				break;
-			case endOfFile:
-				cout << "EOF" << endl;
-				terminate = true;
-				break;
-			default:
-				cout << "Invalid token!" << endl;
-
-			} // switch
-
-		} // while
-
-	} // testScanner
+} // testScanner
 
 } // namespace ogdf

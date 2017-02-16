@@ -43,32 +43,24 @@
 
 namespace ogdf {
 
-
-//===============================================
-//main function(s):
-//
-// insertcopyNode insert a node into a face
-//
-//===============================================
-
-
 class OGDF_EXPORT IncNodeInserter
 {
 public:
-	//creates inserter on PG
-	IncNodeInserter(PlanRepInc &PG) : m_planRep(&PG ) { }
+	//! Creates inserter on \p PG
+	explicit IncNodeInserter(PlanRepInc &PG) : m_planRep(&PG ) { }
 
-	//insert copy in m_planRep for original node v
+	//! Inserts copy in #m_planRep for original node \p v
 	virtual void insertCopyNode(node v, CombinatorialEmbedding &E,
 		Graph::NodeType vTyp) = 0;
 
 protected:
-	//returns a face to insert a copy of v and a list of
-	//adjacency entries corresponding to the insertion adjEntries
-	//for the adjacent edges
+	//! Returns a face to insert a copy of \p v and a list of
+	//! adjacency entries corresponding to the insertion adjEntries
+	//! for the adjacent edges
 	virtual face getInsertionFace(node v, CombinatorialEmbedding &E) = 0;
 
-	PlanRepInc* m_planRep; //the PlanRep that is changed
-}; //incnodeinserter
+	//! pointer to a PlanRepInc that is to be changed
+	PlanRepInc* m_planRep;
+};
 
-} //end namespace ogdf
+}

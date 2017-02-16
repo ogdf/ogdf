@@ -34,13 +34,13 @@
 
 #include <ogdf/basic/List.h>
 #include <ogdf/graphalg/Voronoi.h>
-#include <ogdf/internal/steinertree/SaveStatic.h>
-#include <ogdf/internal/steinertree/SaveEnum.h>
-#include <ogdf/internal/steinertree/SaveDynamic.h>
-#include <ogdf/internal/steinertree/Triple.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/SaveStatic.h>
+#include <ogdf/graphalg/steiner_tree/SaveEnum.h>
+#include <ogdf/graphalg/steiner_tree/SaveDynamic.h>
+#include <ogdf/graphalg/steiner_tree/Triple.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
-#include <ogdf/internal/steinertree/common_algorithms.h>
+#include <ogdf/graphalg/steiner_tree/common_algorithms.h>
 
 namespace ogdf {
 
@@ -64,30 +64,30 @@ namespace ogdf {
 template<typename T>
 class MinSteinerTreeZelikovsky: public MinSteinerTreeModule<T> {
 public:
-	template<typename TYPE> using Save = steinertree::Save<TYPE>;
-	template<typename TYPE> using Triple = steinertree::Triple<TYPE>;
+	template<typename TYPE> using Save = steiner_tree::Save<TYPE>;
+	template<typename TYPE> using Triple = steiner_tree::Triple<TYPE>;
 
 	//! Choice of objective function
-	enum WinCalculation {
+	enum class WinCalculation {
 		absolute, //!< win=gain-cost
 		relative  //!< win=gain/cost
 	};
 
 	//! Choice of triple generation
-	enum TripleGeneration {
+	enum class TripleGeneration {
 		exhaustive, //!< try all possibilities
 		voronoi, //!< use voronoi regions
 		ondemand  //!< generate triples "on the fly", only usable with WinCalculation::absolute
 	};
 
 	//! Switches immediate triple dropping
-	enum TripleReduction {
+	enum class TripleReduction {
 		on, //!< removes triples as soon as their gain is known to be non positive
 		off //!< keeps triples all the time
 	};
 
 	//! Different methods for obtaining save edges
-	enum SaveCalculation {
+	enum class SaveCalculation {
 		//! Stores explicitly the save edge for every pair of terminals.
 		//! Needs O(n^2) space but has fast query times
 		staticEnum,
@@ -104,7 +104,7 @@ public:
 	};
 
 	//! Enables a heuristic version (for TG exhaustive and voronoi only)
-	enum Pass {
+	enum class Pass {
 		//! heuristic: evaluate all triples, sort them descending by gain,
 		//! traverse sorted triples once, contract when possible
 		one,
@@ -112,7 +112,11 @@ public:
 		multi
 	};
 
-	MinSteinerTreeZelikovsky(WinCalculation wc = absolute, TripleGeneration tg = voronoi, SaveCalculation sc = hybrid, TripleReduction tr = on, Pass pass = multi)
+	MinSteinerTreeZelikovsky(WinCalculation wc = WinCalculation::absolute,
+	                         TripleGeneration tg = TripleGeneration::voronoi,
+	                         SaveCalculation sc = SaveCalculation::hybrid,
+	                         TripleReduction tr = TripleReduction::on,
+	                         Pass pass = Pass::multi)
 	 : m_winCalculation(wc)
 	 , m_tripleGeneration(tg)
 	 , m_saveCalculation(sc)
@@ -280,7 +284,7 @@ protected:
 		 && !(*m_isTerminal)[center]) { // cheapest center is not a terminal
 			const double gain = save.gain(u, v, w);
 			const double win = calcWin(gain, minCost);
-			if (tripleReduction() == off
+			if (tripleReduction() == TripleReduction::off
 			 || win > 0) {
 				++m_triplesGenerated;
 				OGDF_ASSERT(center);
@@ -308,10 +312,10 @@ protected:
 	 */
 	void generateTriples(const Save<T> &save)
 	{
-		if (tripleGeneration() == voronoi) {
+		if (tripleGeneration() == TripleGeneration::voronoi) {
 			generateVoronoiTriples(save);
 		} else
-		if (tripleGeneration() == exhaustive) {
+		if (tripleGeneration() == TripleGeneration::exhaustive) {
 			generateExhaustiveTriples(save);
 		}
 	}
@@ -356,9 +360,9 @@ protected:
 	double calcWin(double gain, T cost) const
 	{
 		switch (winCalculation()) {
-		case relative:
+		case WinCalculation::relative:
 			return gain / cost - 1.0;
-		case absolute:
+		case WinCalculation::absolute:
 		default:
 			return gain - cost;
 		}
@@ -400,19 +404,13 @@ private:
 
 };
 
-} // end namespace ogdf
-
-// ============= Implementation =================
-
-namespace ogdf {
-
 template<typename T>
 T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G, const List<node> &terminals, const NodeArray<bool> &isTerminal, EdgeWeightedGraphCopy<T> *&finalSteinerTree)
 {
-	OGDF_ASSERT(tripleGeneration() != ondemand // combinations that only work with ondemand:
-	 || (winCalculation() == absolute
-	  && saveCalculation() != hybrid
-	  && pass() != one));
+	OGDF_ASSERT(tripleGeneration() != TripleGeneration::ondemand // combinations that only work with ondemand:
+	 || (winCalculation() == WinCalculation::absolute
+	  && saveCalculation() != SaveCalculation::hybrid
+	  && pass() != Pass::one));
 
 	m_originalGraph = &G;
 	m_terminals = &terminals;
@@ -435,31 +433,31 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 
 		Save<T> *save = nullptr;
 		switch (saveCalculation()) {
-		case staticEnum:
-			save = new steinertree::SaveEnum<T>(steinerTree);
+		case SaveCalculation::staticEnum:
+			save = new steiner_tree::SaveEnum<T>(steinerTree);
 			break;
-		case staticLCATree:
-			save = new steinertree::SaveStatic<T>(steinerTree);
+		case SaveCalculation::staticLCATree:
+			save = new steiner_tree::SaveStatic<T>(steinerTree);
 			break;
-		case dynamicLCATree:
-		case hybrid:
-			save = new steinertree::SaveDynamic<T>(steinerTree);
+		case SaveCalculation::dynamicLCATree:
+		case SaveCalculation::hybrid:
+			save = new steiner_tree::SaveDynamic<T>(steinerTree);
 			break;
 		}
 		OGDF_ASSERT(save);
 
-		if (tripleGeneration() == ondemand) { // ondemand triple generation
+		if (tripleGeneration() == TripleGeneration::ondemand) { // ondemand triple generation
 			tripleOnDemand(*save, isNewTerminal);
 		} else { // exhaustive or voronoi
 			// triple generation phase
-			if (saveCalculation() == hybrid) {
-				steinertree::SaveEnum<T> saveTriple(steinerTree);
+			if (saveCalculation() == SaveCalculation::hybrid) {
+				steiner_tree::SaveEnum<T> saveTriple(steinerTree);
 				generateTriples(saveTriple);
 			} else {
 				generateTriples(*save);
 			}
 			// contraction phase
-			if (pass() == multi) {
+			if (pass() == Pass::multi) {
 				multiPass(*save, isNewTerminal);
 			} else { // pass() == one
 				onePass(*save, isNewTerminal);
@@ -472,7 +470,7 @@ T MinSteinerTreeZelikovsky<T>::computeSteinerTree(const EdgeWeightedGraph<T> &G,
 	}
 
 	// obtain final Steiner Tree using (MST-based) Steiner tree approximation algorithm
-	return steinertree::obtainFinalSteinerTree(G, isNewTerminal, isTerminal, finalSteinerTree);
+	return steiner_tree::obtainFinalSteinerTree(G, isNewTerminal, isTerminal, finalSteinerTree);
 }
 
 template<typename T>
@@ -674,7 +672,7 @@ void MinSteinerTreeZelikovsky<T>::multiPass(Save<T> &save, NodeArray<bool> &isNe
 				win = t.win();
 				maxTriple = it;
 			} else {
-				if (tripleReduction() == on
+				if (tripleReduction() == TripleReduction::on
 				 && t.win() <= 0) {
 					m_triples.del(it);
 				}

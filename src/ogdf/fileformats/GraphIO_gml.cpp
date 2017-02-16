@@ -157,46 +157,46 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 			GraphIO::indent(os,3) << "type \"";
 
 			switch (A.shape(v)) {
-			case shRect:
+			case Shape::Rect:
 				os << "rectangle";
 				break;
-			case shRoundedRect:
+			case Shape::RoundedRect:
 				os << "roundedRect";
 				break;
-			case shEllipse:
+			case Shape::Ellipse:
 				os << "oval";
 				break;
-			case shTriangle:
+			case Shape::Triangle:
 				os << "triangle";
 				break;
-			case shPentagon:
+			case Shape::Pentagon:
 				os << "pentagon";
 				break;
-			case shHexagon:
+			case Shape::Hexagon:
 				os << "hexagon";
 				break;
-			case shOctagon:
+			case Shape::Octagon:
 				os << "octagon";
 				break;
-			case shRhomb:
+			case Shape::Rhomb:
 				os << "rhomb";
 				break;
-			case shTrapeze:
+			case Shape::Trapeze:
 				os << "trapeze";
 				break;
-			case shParallelogram:
+			case Shape::Parallelogram:
 				os << "parallelogram";
 				break;
-			case shInvTriangle:
+			case Shape::InvTriangle:
 				os << "invTriangle";
 				break;
-			case shInvTrapeze:
+			case Shape::InvTrapeze:
 				os << "invTrapeze";
 				break;
-			case shInvParallelogram:
+			case Shape::InvParallelogram:
 				os << "invParallelogram";
 				break;
-			case shImage:
+			case Shape::Image:
 				os << "image";
 				break;
 			}
@@ -236,7 +236,7 @@ static void write_gml_graph(const GraphAttributes &A, ostream &os, NodeArray<int
 						GraphIO::indent(os,3) << "arrow \"" << arrow_str[ae] << "\"\n";
 				} else {
 					GraphIO::indent(os,3) << "arrow ";
-					if (A.type(e) == Graph::generalization)
+					if (A.type(e) == Graph::EdgeType::generalization)
 						os << "\"last\"\n";
 					else
 						os << "\"none\"\n";
@@ -364,7 +364,7 @@ static void write_gml_cluster(const ClusterGraphAttributes &A, cluster c, int d,
 		GraphIO::indent(os,d+2) << "color \""   << A.strokeColor(c)       << "\"\n";
 		GraphIO::indent(os,d+2) << "lineWidth " << A.strokeWidth(c)   << "\n";
 
-		if (A.strokeType(c) != stSolid)
+		if (A.strokeType(c) != StrokeType::Solid)
 			GraphIO::indent(os,d+2) << "stipple " << A.strokeType(c) << "\n";
 
 		GraphIO::indent(os,d+2) << "style \"rectangle\"\n";

@@ -102,7 +102,7 @@ void AbaPrioQueue<Type, Key>::realloc(int newSize)
 {
 	if (newSize < size()) {
 		Logger::ifout() << "AbaPrioQueue::realloc : priority queue cannot be decreased\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcBPrioQueue);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::BPrioQueue);
 	}
 
 	heap_.realloc(newSize);

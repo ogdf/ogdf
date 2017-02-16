@@ -44,7 +44,7 @@ template<class sorterType>
 class NodeComparer
 {
 public:
-	NodeComparer(NodeArray<sorterType> &valArray, bool ascending = true)
+	explicit NodeComparer(NodeArray<sorterType> &valArray, bool ascending = true)
 		: m_valArray(&valArray)
 	{
 		if (ascending)

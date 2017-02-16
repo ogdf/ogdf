@@ -36,7 +36,6 @@ namespace ogdf {
 PreprocessorLayout::PreprocessorLayout()
 : m_randomize(false)
 {
-
 }
 
 
@@ -55,7 +54,7 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 	m_deletedEdges.clear();
 	Graph * G = &(MLG.getGraph());
 
-	double sqrsize;
+	double sqrsize = 0;
 	if (m_randomize) sqrsize = 2.0*sqrt((double)G->numberOfNodes())*MLG.averageRadius();
 
 	for(node v : G->nodes) {
@@ -63,8 +62,8 @@ void PreprocessorLayout::call(MultilevelGraph &MLG)
 			MLG.radius(v, 1.0);
 		}
 		if (m_randomize) {
-			MLG.x(v, randomDouble( -sqrsize, sqrsize ));//-5.0, 5.0));
-			MLG.y(v, randomDouble( -sqrsize, sqrsize ));
+			MLG.x(v, randomDouble(-sqrsize, sqrsize));
+			MLG.y(v, randomDouble(-sqrsize, sqrsize));
 		}
 	}
 

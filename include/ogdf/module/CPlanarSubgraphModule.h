@@ -35,18 +35,10 @@
 #include <ogdf/basic/Timeouter.h>
 
 #include <ogdf/cluster/ClusterGraph.h>
-//#include <ogdf/internal/cluster/MaxCPlanar_Master.h>
 
 namespace ogdf {
 
-//--------------------------------------------------------------------------
-//CPlanarSubgraphModule
-//base class of algorithms for the computation of c-planar subgraphs
-//--------------------------------------------------------------------------
-/**
- *
- * \brief Interface of algorithms for the computation of c-planar subgraphs.
- */
+//! Interface of algorithms for the computation of c-planar subgraphs.
 class CPlanarSubgraphModule : public Module, public Timeouter
 {
 

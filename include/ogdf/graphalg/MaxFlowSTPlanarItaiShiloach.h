@@ -80,10 +80,10 @@ private:
 	/**
 	 * Each node has a certain type depending on its participation in any path.
 	 */
-	enum NodeType {
-		NT_NEW,
-		NT_PATH,
-		NT_DONE
+	enum class NodeType {
+		New,
+		Path,
+		Done
 	};
 
 	/**
@@ -91,11 +91,11 @@ private:
 	 * We do not store this information. It is only a temporary
 	 * variable in two routines.
 	 */
-	enum EdgePathType {
-		EPT_NO_PATH,
-		EPT_SOURCE_PATH,
-		EPT_TARGET_PATH,
-		EPT_UNKNOWN
+	enum class EdgePathType {
+		NoPath,
+		SourcePath,
+		TargetPath,
+		Unknown
 	};
 
 	adjEntry m_commonFaceAdj;
@@ -123,9 +123,7 @@ public:
 	 * Free allocated ressources.
 	 */
 	~MaxFlowSTPlanarItaiShiloach() {
-		if(m_prioritizedEdges != nullptr) {
-			delete m_prioritizedEdges;
-		}
+		delete m_prioritizedEdges;
 	}
 
 	/**
@@ -154,19 +152,18 @@ public:
 		// establish s-t-planarity
 		ConstCombinatorialEmbedding embedding(*this->m_G);
 		OGDF_ASSERT(embedding.consistencyCheck());
-		m_commonFaceAdj = findCommonFace(embedding, *this->m_s, *this->m_t);
+		adjEntry secondCommonAdj;
+		m_commonFaceAdj = embedding.findCommonFace(*this->m_s, *this->m_t, secondCommonAdj);
 		OGDF_ASSERT(m_commonFaceAdj != nullptr);
 
 		m_pred.init(*this->m_G, nullptr);
-		m_status.init(*this->m_G, NT_NEW);
+		m_status.init(*this->m_G, NodeType::New);
 		m_visited.init(*this->m_G, false);
 		m_edgeCounter.init(*this->m_G, 0);
-		m_status[*this->m_s] = NT_PATH;
-		m_status[*this->m_t] = NT_PATH;
+		m_status[*this->m_s] = NodeType::Path;
+		m_status[*this->m_t] = NodeType::Path;
 
-		if(m_prioritizedEdges != nullptr) {
-			delete m_prioritizedEdges;
-		}
+		delete m_prioritizedEdges;
 		m_prioritizedEdges = new PrioritizedMapQueue<edge, TCap>(*this->m_G);
 
 		// saturate all paths
@@ -181,8 +178,8 @@ public:
 			(*this->m_flow)[lastSaturated] = (*this->m_cap)[lastSaturated];
 
 			m_pred[lastSaturated->target()] = nullptr;
-			OGDF_ASSERT(m_status[lastSaturated->target()] == NT_PATH);
-			OGDF_ASSERT(m_status[lastSaturated->source()] == NT_PATH);
+			OGDF_ASSERT(m_status[lastSaturated->target()] == NodeType::Path);
+			OGDF_ASSERT(m_status[lastSaturated->source()] == NodeType::Path);
 		}
 
 		return m_partialFlow;
@@ -249,17 +246,17 @@ private:
 
 			if(!visited
 				&& e->target() != v
-				&& m_status[e->target()] != NT_DONE)
+				&& m_status[e->target()] != NodeType::Done)
 			{
 				EdgePathType pathType = getPathType(e);
-				OGDF_ASSERT(pathType != EPT_UNKNOWN);
+				OGDF_ASSERT(pathType != EdgePathType::Unknown);
 
-				if(pathType == EPT_NO_PATH) {
+				if(pathType == EdgePathType::NoPath) {
 					// extend the path
 					appendEdge(e);
 					adj = e->adjTarget();
 					v = e->target();
-				} else if(pathType == EPT_TARGET_PATH) {
+				} else if(pathType == EdgePathType::TargetPath) {
 					// merge path
 					node w = e->target();
 
@@ -271,13 +268,13 @@ private:
 						dropEdge(f);
 					}
 
-					m_status[w] = NT_DONE;
+					m_status[w] = NodeType::Done;
 					appendEdge(e);
 
 					return true;
 				} else {
 					// remove source path cycle
-					OGDF_ASSERT(pathType == EPT_SOURCE_PATH);
+					OGDF_ASSERT(pathType == EdgePathType::SourcePath);
 					node w = e->target();
 
 					node formerSource;
@@ -318,7 +315,7 @@ private:
 
 		// update path predecessor
 		m_pred[v] = e;
-		m_status[v] = NT_PATH;
+		m_status[v] = NodeType::Path;
 
 		// insert into priority queue while
 		// taking into account the partial flow
@@ -335,11 +332,11 @@ private:
 	void dropEdge(const edge e) {
 		node v = e->target();
 		OGDF_ASSERT(m_pred[v] == e);
-		OGDF_ASSERT(m_status[v] == NT_PATH);
+		OGDF_ASSERT(m_status[v] == NodeType::Path);
 
 		// update path predecessor
 		m_pred[v] = nullptr;
-		m_status[v] = v == *this->m_t ? NT_PATH : NT_DONE;
+		m_status[v] = v == *this->m_t ? NodeType::Path : NodeType::Done;
 
 		// remove edge from priority queue
 		TCap modCap = unshiftedPriority(e);
@@ -365,15 +362,15 @@ private:
 		node v = e->source();
 		node w = e->target();
 
-		EdgePathType result = m_status[w] == NT_PATH ? EPT_UNKNOWN : EPT_NO_PATH;
+		EdgePathType result = m_status[w] == NodeType::Path ? EdgePathType::Unknown : EdgePathType::NoPath;
 
-		while(result == EPT_UNKNOWN) {
+		while(result == EdgePathType::Unknown) {
 			if(v == e->target() || w == *this->m_s) {
-				result = EPT_SOURCE_PATH;
+				result = EdgePathType::SourcePath;
 			} else if(m_pred[v] == nullptr || m_pred[w] == nullptr) {
-				result = EPT_TARGET_PATH;
+				result = EdgePathType::TargetPath;
 			} else if(m_pred[w]->source() == *this->m_s) {
-				result = EPT_SOURCE_PATH;
+				result = EdgePathType::SourcePath;
 			} else {
 				OGDF_ASSERT(w != m_pred[w]->source());
 				OGDF_ASSERT(v != m_pred[v]->source());
@@ -384,31 +381,6 @@ private:
 		}
 
 		return result;
-	}
-
-	/**
-	 * Identifies a common face of two nodes and returns the respective adjacency entry.
-	 *
-	 * @param embedding The current combinatorial embedding
-	 * @param v The first node, an adjacency entry of this node will be returned
-	 * @param w The second node
-	 *
-	 * @return An adjacency entry to the right of a common face of v and w, incident to v.
-	 */
-	adjEntry findCommonFace(const ConstCombinatorialEmbedding &embedding, const node v, const node w)
-	{
-		OGDF_ASSERT(v != w);
-
-		for(adjEntry adjV = v->firstAdj(); adjV != nullptr; adjV = adjV->succ()) {
-			face f = embedding.leftFace(adjV);
-			for(adjEntry adjW = w->firstAdj(); adjW != nullptr; adjW = adjW->succ()) {
-				if(f == embedding.leftFace(adjW)) {
-					return adjV;
-				}
-			}
-		}
-
-		return nullptr;
 	}
 };
 

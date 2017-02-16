@@ -107,7 +107,7 @@ protected:
 public:
 	//! \brief Constructor.
 	//! @param set The list of elements we want to enumerate subsets for.
-	SubsetEnumerator(const List<T> &set)
+	explicit SubsetEnumerator(const List<T> &set)
 	  : m_set(set)
 	  , m_valid(false)
 	  , m_subset(set.size())

@@ -49,7 +49,7 @@ void DLParser::init()
 
 	m_embedded = false;
 	m_nodes = -1;
-	m_format = fullmatrix;
+	m_format = Format::FullMatrix;
 }
 
 
@@ -276,7 +276,7 @@ bool DLParser::readEmbeddedEdgeList(Graph &G, GraphAttributes *GA)
 }
 
 
-bool DLParser::readNodeList(Graph &G, GraphAttributes *GA)
+bool DLParser::readNodeList(Graph &G)
 {
 	std::string buffer;
 	for(size_t line = 1; std::getline(m_istream, buffer); line++) {
@@ -356,12 +356,12 @@ bool DLParser::readData(Graph &G, GraphAttributes *GA)
 
 	// Now, depending on the method choosen we actually read the graph.
 	switch(m_format) {
-	case fullmatrix:
+	case Format::FullMatrix:
 		return m_embedded ? readEmbeddedMatrix(G, GA) : readMatrix(G, GA);
-	case edgelist:
+	case Format::EdgeList:
 		return m_embedded ? readEmbeddedEdgeList(G, GA) : readEdgeList(G, GA);
-	case nodelist:
-		return m_embedded ? readEmbeddedNodeList(G, GA) : readNodeList(G, GA);
+	case Format::NodeList:
+		return m_embedded ? readEmbeddedNodeList(G, GA) : readNodeList(G);
 	}
 
 	return false;
@@ -454,11 +454,11 @@ bool DLParser::readAssignment(
 		}
 	} else if(lhs == "FORMAT") {
 		if(rhs == "FULLMATRIX") {
-			m_format = fullmatrix;
+			m_format = Format::FullMatrix;
 		} else if(rhs == "EDGELIST1") {
-			m_format = edgelist;
+			m_format = Format::EdgeList;
 		} else if(rhs == "NODELIST1") {
-			m_format = nodelist;
+			m_format = Format::NodeList;
 		} else {
 			GraphIO::logger.lout() << "Unknown data format \"" << rhs << "\"." << endl;
 			return false;
@@ -539,11 +539,8 @@ bool DLParser::readStatements(Graph &G, GraphAttributes *GA)
 	toUpper(lhs);
 	toUpper(rhs);
 
-	if(!readAssignment(G, lhs, rhs)) {
-		return false;
-	}
+	return readAssignment(G, lhs, rhs) && readStatements(G, GA);
 
-	return readStatements(G, GA);
 }
 
 

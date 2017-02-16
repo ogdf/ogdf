@@ -106,7 +106,7 @@ bool Constraint::violated(double slack) const
 		else                        return false;
 	default:
 		Logger::ifout() << "Constraint::violated(): unknown sense\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Constraint);
 	}
 }
 
@@ -124,7 +124,7 @@ InfeasCon::INFEAS Constraint::voidLhsViolated(double newRhs) const
 		return   newRhs > master_->eps() ? InfeasCon::TooSmall : InfeasCon::Feasible;
 	default:
 		Logger::ifout() << "Constraint::voidLhsViolated(): unknown sense\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Constraint);
 	}
 }
 
@@ -163,7 +163,7 @@ ConClass *Constraint::classification(Active<Variable, Constraint> *var) const
 	if (conClass_ == nullptr || var) {
 		if (var == nullptr) {
 			Logger::ifout() << "Constraint::classification(): Fatal error.\nNeither classification nor variable set specified.\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConstraint);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Constraint);
 		}
 		conClass_ = classify(var);
 	}

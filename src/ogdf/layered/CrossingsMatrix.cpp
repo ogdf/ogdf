@@ -34,9 +34,6 @@
 
 namespace ogdf
 {
-//-------------------------------------------------------------------
-//                        CrossingMatrix
-//-------------------------------------------------------------------
 
 CrossingsMatrix::CrossingsMatrix(const HierarchyLevels &levels)
 {
@@ -109,15 +106,15 @@ void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 		{
 			node v = L[i];
 			// H.direction == 1 if direction == upward
-			if (levels.direction()) {
+			if (levels.direction() == HierarchyLevelsBase::TraversingDir::upward) {
 				for(adjEntry adj : v->adjEntries) {
 					edge e = adj->theEdge();
 					if ((e->source() == v) && ((*edgeSubGraphs)[GC.original(e)] & (1 << k))) {
 						int pos_adj_e = levels.pos(e->target());
 						for (int j = i+1; j < L.size(); j++) {
 							node w = L[j];
-							for(adjEntry adj : w->adjEntries) {
-								edge f = adj->theEdge();
+							for(adjEntry adjW : w->adjEntries) {
+								edge f = adjW->theEdge();
 								if ((f->source() == w) && ((*edgeSubGraphs)[GC.original(f)] & (1 << k)))
 								{
 									int pos_adj_f = levels.pos(f->target());
@@ -136,8 +133,8 @@ void CrossingsMatrix::init(Level &L, const EdgeArray<uint32_t> *edgeSubGraphs)
 						int pos_adj_e = levels.pos(e->source());
 						for (int j = i+1; j < L.size(); j++) {
 							node w = L[j];
-							for(adjEntry adj : w->adjEntries) {
-								edge f = adj->theEdge();
+							for(adjEntry adjW : w->adjEntries) {
+								edge f = adjW->theEdge();
 								if ((f->target() == w) && ((*edgeSubGraphs)[GC.original(f)] & (1 << k)))
 								{
 									int pos_adj_f = levels.pos(f->source());

@@ -55,12 +55,12 @@ public:
 	//! Initializes an node array not associated with a graph.
 	NodeArrayBase() : m_pGraph(nullptr) { }
 
-	//! Initializes an node array associated with \a pG.
-	NodeArrayBase(const Graph *pG) : m_pGraph(pG) {
+	//! Initializes an node array associated with \p pG.
+	explicit NodeArrayBase(const Graph *pG) : m_pGraph(pG) {
 		if(pG) m_it = pG->registerArray(this);
 	}
 
-	//! Moves node array \a base to this node array.
+	//! Moves node array \p base to this node array.
 	NodeArrayBase(NodeArrayBase &base) : m_it(base.m_it), m_pGraph(base.m_pGraph) {
 		if(m_pGraph) m_pGraph->moveRegisterArray(m_it, this);
 		base.m_pGraph = nullptr;
@@ -86,7 +86,7 @@ public:
 		if ((m_pGraph = pG) != nullptr) m_it = pG->registerArray(this);
 	}
 
-	//! Moves array registration from \a base to this array.
+	//! Moves array registration from \p base to this array.
 	void moveRegister(NodeArrayBase &base) {
 		if (m_pGraph) m_pGraph->unregisterArray(m_it);
 		m_pGraph = base.m_pGraph;
@@ -113,20 +113,20 @@ template<class T> class NodeArray : private Array<T>, protected NodeArrayBase {
 	T m_x; //!< The default value for array elements.
 
 public:
-	typedef node key_type;    //!< The type for array keys.
-	typedef T    value_type;  //!< The type for array entries.
+	using key_type = node;    //!< The type for array keys.
+	using value_type =  T;  //!< The type for array entries.
 
-	typedef internal::GraphArrayIterator<NodeArray<T>> iterator;  //!< The type for node array iterators.
-	typedef internal::GraphArrayConstIterator<NodeArray<T>> const_iterator;  //!< The type for node array const iterators.
+	using iterator = internal::GraphArrayIterator<NodeArray<T>>;  //!< The type for node array iterators.
+	using const_iterator = internal::GraphArrayConstIterator<NodeArray<T>>;  //!< The type for node array const iterators.
 
 
 	//! Constructs an empty node array associated with no graph.
 	NodeArray() : Array<T>(), NodeArrayBase() { }
 
-	//! Constructs a node array associated with \a G.
+	//! Constructs a node array associated with \p G.
 	NodeArray(const Graph &G) : Array<T>(G.nodeArrayTableSize()), NodeArrayBase(&G) { }
 
-	//! Constructs a node array associated with \a G.
+	//! Constructs a node array associated with \p G.
 	/**
 	 * @param G is the associated graph.
 	 * @param x is the default value for all array elements.
@@ -134,15 +134,15 @@ public:
 	NodeArray(const Graph &G, const T &x) :
 		Array<T>(0,G.nodeArrayTableSize()-1,x), NodeArrayBase(&G), m_x(x) { }
 
-	//! Constructs a node array that is a copy of \a A.
+	//! Constructs a node array that is a copy of \p A.
 	/**
-	 * Associates the array with the same graph as \a A and copies all elements.
+	 * Associates the array with the same graph as \p A and copies all elements.
 	 */
 	NodeArray(const NodeArray<T> &A) : Array<T>(A), NodeArrayBase(A.m_pGraph), m_x(A.m_x) { }
 
-	//! Constructs a node array containing the elements of \a A (move semantics).
+	//! Constructs a node array containing the elements of \p A (move semantics).
 	/**
-	 * NodeArray \a A is empty afterwards and not associated with any graph.
+	 * NodeArray \p A is empty afterwards and not associated with any graph.
 	 */
 	NodeArray(NodeArray<T> &&A) : Array<T>(std::move(A)), NodeArrayBase(A), m_x(A.m_x) { }
 
@@ -161,42 +161,42 @@ public:
 		return m_pGraph;
 	}
 
-	//! Returns a reference to the element with index \a v.
+	//! Returns a reference to the element with index \p v.
 	const T &operator[](node v) const {
 		OGDF_ASSERT(v != nullptr);
 		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
-	//! Returns a reference to the element with index \a v.
+	//! Returns a reference to the element with index \p v.
 	T &operator[](node v) {
 		OGDF_ASSERT(v != nullptr);
 		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
-	//! Returns a reference to the element with index \a v.
+	//! Returns a reference to the element with index \p v.
 	const T &operator()(node v) const {
 		OGDF_ASSERT(v != nullptr);
 		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
-	//! Returns a reference to the element with index \a v.
+	//! Returns a reference to the element with index \p v.
 	T &operator()(node v) {
 		OGDF_ASSERT(v != nullptr);
 		OGDF_ASSERT(v->graphOf() == m_pGraph);
 		return Array<T>::operator [](v->index());
 	}
 
-	//! Returns a reference to the element with index \a index.
-	//! \attention Make sure that \a index is a valid index for a node in the associated graph!
+	//! Returns a reference to the element with index \p index.
+	//! \attention Make sure that \p index is a valid index for a node in the associated graph!
 	OGDF_DEPRECATED("NodeArrays should be indexed by a node, not an integer index.")
 	const T &operator[](int index) const
 		{ return Array<T>::operator [](index); }
 
-	//! Returns a reference to the element with index \a index.
-	//! \attention Make sure that \a index is a valid index for a node in the associated graph!
+	//! Returns a reference to the element with index \p index.
+	//! \attention Make sure that \p index is a valid index for a node in the associated graph!
 	OGDF_DEPRECATED("NodeArrays should be indexed by a node, not an integer index.")
 	T &operator[](int index)
 		{ return Array<T>::operator [](index); }
@@ -293,12 +293,12 @@ public:
 		Array<T>::init(); reregister(nullptr);
 	}
 
-	//! Reinitializes the array. Associates the array with \a G.
+	//! Reinitializes the array. Associates the array with \p G.
 	void init(const Graph &G) {
 		Array<T>::init(G.nodeArrayTableSize()); reregister(&G);
 	}
 
-	//! Reinitializes the array. Associates the array with \a G.
+	//! Reinitializes the array. Associates the array with \p G.
 	/**
 	 * @param G is the associated graph.
 	 * @param x is the default value.
@@ -307,7 +307,7 @@ public:
 		Array<T>::init(0,G.nodeArrayTableSize()-1, m_x = x); reregister(&G);
 	}
 
-	//! Sets all array elements to \a x.
+	//! Sets all array elements to \p x.
 	void fill(const T &x) {
 		int high = m_pGraph->maxNodeIndex();
 		if(high >= 0)
@@ -324,7 +324,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Nodearray \a a is empty afterwards and not associated with any graph.
+	 * Nodearray \p a is empty afterwards and not associated with any graph.
 	 */
 	NodeArray<T> &operator=(NodeArray<T> &&a) {
 		Array<T>::operator=(std::move(a));

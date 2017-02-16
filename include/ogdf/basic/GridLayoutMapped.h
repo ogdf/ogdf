@@ -38,10 +38,6 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// GridLayoutMapped
-// extends GridLayout by a grid mapping mechanism
-//---------------------------------------------------------
 /**
  * \brief Extends GridLayout by a grid mapping mechanism.
  *
@@ -49,8 +45,8 @@ namespace ogdf {
  */
 class OGDF_EXPORT GridLayoutMapped : public GridLayout
 {
-	//scaling to allow correct edge anchors
-	enum { cGridScale = 2 };
+	//! scaling to allow correct edge anchors
+	static const int cGridScale;
 
 public:
 
@@ -100,6 +96,5 @@ private:
 	const PlanRep *m_pPG;     // planarized representation of grid layout
 	double m_fMapping;           // mapping factor
 };
-
 
 } // end namespace ogdf

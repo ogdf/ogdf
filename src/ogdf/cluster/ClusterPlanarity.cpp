@@ -35,13 +35,9 @@
 #include <ogdf/cluster/CconnectClusterPlanar.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/extended_graph_alg.h>
-#include <sstream>
-#include <ogdf/internal/cluster/CPlanarity_Master.h>
-#include <ogdf/planarity/BoyerMyrvold.h>
 
 //#define writefeasiblegraphs
 #ifdef OGDF_DEBUG
-#include <ogdf/cluster/ClusterGraphAttributes.h>
 #include <ogdf/fileformats/GraphIO.h>
 #endif
 
@@ -49,17 +45,14 @@ using namespace abacus;
 
 namespace ogdf {
 
-struct connStruct {
-	bool connected;
-	node v1, v2;
-	edge e;
-};
+using namespace cluster_planarity;
 
 bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG) {
-		List<nodePair> addedEdges;
-		return isClusterPlanar(CG, addedEdges);
-	}
-bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &addedEdges) {
+	NodePairs addedEdges;
+	return isClusterPlanar(CG, addedEdges);
+}
+
+bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, NodePairs &addedEdges) {
 	m_optStatus = Master::Optimal;
 	// We first check if there is more to do then just checking planarity on the
 	// input graph.
@@ -75,7 +68,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 	// In case of the sm_new solution method, we partition the graph in
 	// independent parts and test them separately
 	// For all parts we test until non-c-planar or all tested.
-	if (m_solmeth==sm_new)
+	if (m_solmeth==solmeth::New)
 	{
 		// We use the ClusterAnalysis to search for independent bags
 		// Here is the idea: We detect all bags that are minimum wrt
@@ -98,7 +91,7 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 		Array<List<node> > nodesInBag(numIndyBags); //Stores vertices for the bag graphs.
 		const Graph & G = CG.constGraph();
 		for(node v : G.nodes){
-		   nodesInBag[ca.indyBagIndex(v)].pushBack(v);
+			nodesInBag[ca.indyBagIndex(v)].pushBack(v);
 		}
 
 		for (int i = 0; i < numIndyBags && m_optStatus == Master::Optimal; i++)
@@ -195,19 +188,19 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 				makeParallelFreeUndirected(*theGraphs[i]); //Could do this while creating copy
 				Logger::slout()<< "IndyBag of size n m c"<<theGraphs[i]->numberOfNodes()<< " "<<
 						theGraphs[i]->numberOfEdges()<< " "<< bagCG.numberOfClusters()<<"\n";
-				List<nodePair> ae;
+				NodePairs ae;
 				//Todo: Add an interface here that allows to transfer bag and
 				// activity information to the master, otherwise we have to
 				// compute this info twice.
 				bool imresult = doTest(bagCG, ae);
-	#ifdef OGDF_DEBUG
+#ifdef OGDF_DEBUG
 				Logger::slout() << "IndyBag number "<<i<<" is "<< (imresult ? "" : "non-") <<"c-planar\n";
 				Logger::slout() << "Number of edges added for IndyBag: "<<ae.size()<<"\n";
-	#endif
+#endif
 				result = result && imresult;
 				if (!result) return result;
-				for(const nodePair &np : ae) {
-					addedEdges.emplaceBack(theGraphs[i]->original(np.v1), theGraphs[i]->original(np.v2));
+				for(const auto &np : ae) {
+					addedEdges.emplaceBack(theGraphs[i]->original(np.source), theGraphs[i]->original(np.target));
 				}
 			}
 #ifdef OGDF_DEBUG
@@ -236,11 +229,11 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 
 		//Could use same list here for both graphs.
 		addedEdges.clear();
-		List<nodePair> ae;
+		NodePairs ae;
 		result = doTest(C,ae);
 		//nodepairs are for the copy, store original nodes here
-		for (const nodePair &np : ae) {
-			addedEdges.emplaceBack(nodeOrig[np.v1], nodeOrig[np.v2]);
+		for (const auto &np : ae) {
+			addedEdges.emplaceBack(nodeOrig[np.source], nodeOrig[np.target]);
 		}
 	}
 
@@ -249,12 +242,11 @@ bool ClusterPlanarity::isClusterPlanar(const ClusterGraph &CG, List<nodePair> &a
 
 bool ClusterPlanarity::doTest(const ClusterGraph &CG)
 {
-	List<nodePair> addEdges;
+	NodePairs addEdges;
 	return doTest(CG, addEdges);
 }
 
-bool ClusterPlanarity::doTest(const ClusterGraph &G,
-			List<nodePair> &addedEdges)
+bool ClusterPlanarity::doTest(const ClusterGraph &G, NodePairs &addedEdges)
 {
 #if 0
 	if (m_solmeth==sm_new) return doFastTest(G,addedEdges);
@@ -267,21 +259,19 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G,
 #endif
 	CP_MasterBase* cplanMaster;
 	cplanMaster = new CPlanarityMaster(G,
-									 m_heuristicLevel,
-									 m_heuristicRuns,
-									 m_heuristicOEdgeBound,
-									 m_heuristicNPermLists,
-									 m_kuratowskiIterations,
-									 m_subdivisions,
-									 m_kSupportGraphs,
-									 m_kuratowskiHigh,
-									 m_kuratowskiLow,
-									 m_perturbation);
-	if (m_solmeth == sm_new)
-		static_cast<CPlanarityMaster*>(cplanMaster)->setSearchSpaceShrinking(true);
-	else
-		static_cast<CPlanarityMaster*>(cplanMaster)->setSearchSpaceShrinking(false);
+	                                   m_heuristicLevel,
+	                                   m_heuristicRuns,
+	                                   m_heuristicOEdgeBound,
+	                                   m_heuristicNPermLists,
+	                                   m_kuratowskiIterations,
+	                                   m_subdivisions,
+	                                   m_kSupportGraphs,
+	                                   m_kuratowskiHigh,
+	                                   m_kuratowskiLow,
+	                                   m_perturbation);
+	static_cast<CPlanarityMaster*>(cplanMaster)->setSearchSpaceShrinking(m_solmeth == solmeth::New);
 #if 0
+		// only if m_solmeth != solmeth::New
 		new CPlanarMaster(G,m_heuristicLevel,m_heuristicRuns,m_heuristicOEdgeBound,m_heuristicNPermLists,m_kuratowskiIterations,
 		m_subdivisions,m_kSupportGraphs,m_kuratowskiHigh, m_kuratowskiLow,m_perturbation,m_branchingGap,m_time, m_pricing,
 		m_numAddVariables,m_strongConstraintViolation,m_strongVariableViolation,m_ol);
@@ -339,14 +329,14 @@ bool ClusterPlanarity::doTest(const ClusterGraph &G,
 		writeFeasible(getPortaFileName(), *cplanMaster, abastatus);
 	}
 
-	CP_MasterBase::solutionstate status = cplanMaster->m_solState;
+	CP_MasterBase::solutionState status = cplanMaster->m_solState;
 
 	delete cplanMaster;
 
 	switch (status) {
-	case CP_MasterBase::ss_cp: return true; break;
+	case CP_MasterBase::solutionState::CPlanar: return true; break;
 	//Todo: catch and publish errors here
-	case CP_MasterBase::ss_ncp: return false; break;
+	case CP_MasterBase::solutionState::NonCPlanar: return false; break;
 	default: cerr<<"** Undefined optimization result for c-planarity computation **\n"; break;
 	}//switch
 
@@ -383,7 +373,7 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	getBottomUpClusterList(CG.rootCluster(), clist);
 	//could use postordertraversal instead
 
-	List< nodePair > connPairs; //holds all connection node pairs
+	List<NodePair> connPairs; //holds all connection node pairs
 	//counts the number of potential connectivity edges
 	//int potCount = 0; //equal to number of true values in potConn
 
@@ -429,7 +419,7 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 					bool newConn = !((vg->index() < wg->index()) ? potConn[vg][wg] : potConn[wg][vg]);
 					if (newConn)
 					{
-						nodePair np; np.v1 = vg; np.v2 = wg;
+						NodePair np; np.source = vg; np.target = wg;
 						connPairs.pushBack(np);
 						if (vg->index() < wg->index())
 							potConn[vg][wg] = true;
@@ -446,20 +436,25 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 	//we run through our candidates and save them in an array
 	//that can be used for dynamic graph updates
 	int i = 0;
+
+	struct connStruct {
+		bool connected;
+		node v1, v2;
+		edge e;
+	};
 	connStruct *cons = new connStruct[connPairs.size()];
-	for(const nodePair &np : connPairs)
+	for(const NodePair &np : connPairs)
 	{
 		connStruct cs;
 		cs.connected = false;
-		cs.v1 = np.v1;
-		cs.v2 = np.v2;
+		cs.v1 = np.source;
+		cs.v2 = np.target;
 		cs.e  = nullptr;
 
 		cons[i] = cs;
 		i++;
 	}
 
-	//-------------------------------------------------------------------------
 	// WARNING: this is extremely slow for graphs with a large number of cluster
 	// chunks now we test all possible connection edge combinations for c-planarity
 	Graph G2;
@@ -501,7 +496,7 @@ void ClusterPlanarity::writeFeasible(const char *filename,
 		//we create the next test configuration by incrementing the edge selection array
 		//we create the corresponding graph dynamically on the fly
 		i = 0;
-		while ( (i < connPairs.size()) && (cons[i].connected == true) )
+		while ( i < connPairs.size() && cons[i].connected )
 		{
 			cons[i].connected = false;
 			OGDF_ASSERT(cons[i].e != nullptr);
@@ -740,13 +735,14 @@ void ClusterPlanarity::outputCons(ofstream &os,
 				case CSense::Less: os << " <= "; break;
 				case CSense::Greater: os << " >= "; break;
 				case CSense::Equal: os << " = "; break;
-				default: os << "Inequality sense doesn't make any sense \n";
-						 cerr << "Inequality sense unknown \n";
-						break;
+				default:
+					os << "Inequality sense doesn't make any sense \n";
+					cerr << "Inequality sense unknown \n";
+					break;
 			}//switch
 			os << mycon->rhs();
 			os << "\n";
 		}
 }
 
-} //end namespace ogdf
+}

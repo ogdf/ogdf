@@ -44,7 +44,7 @@ class OGDF_EXPORT OrthoShaper
 {
 public:
 
-	enum n_type { low, high, inner, outer }; //types of network nodes: nodes and faces
+	enum class NetworkNodeType { low, high, inner, outer }; //types of network nodes: nodes and faces
 
 	OrthoShaper() {
 		setDefaultSettings();

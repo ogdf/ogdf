@@ -52,7 +52,7 @@ public:
 	~EmbedderMaxFace() { }
 
 	/**
-	 * \brief Computes an embedding of \a G with maximum external face.
+	 * \brief Computes an embedding of \p G with maximum external face.
 	 * \param G is the original graph. Its adjacency list has to be  changed by the embedder.
 	 * \param adjExternal is assigned an adjacency entry on the external face and has to be set by the embedder.
 	 */

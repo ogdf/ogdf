@@ -52,10 +52,8 @@
 # define _chdir chdir
 #endif
 #ifdef OGDF_SYSTEM_UNIX
-# include <cstring>
 # include <unistd.h>
 # include <dirent.h>
-# include <sys/types.h>
 # include <sys/stat.h>
 # include <fnmatch.h>
 #endif
@@ -107,8 +105,8 @@ void getEntriesAppend(const char *dirName,
 			)
 				continue;
 
-			if (t == ftEntry || (t == ftFile && !isDir) ||
-				(t == ftDirectory && isDir))
+			if (t == FileType::Entry || (t == FileType::File && !isDir) ||
+				(t == FileType::Directory && isDir))
 			{
 				entries.pushBack(findData.cFileName);
 			}
@@ -124,19 +122,13 @@ void getEntriesAppend(const char *dirName,
 bool isDirectory(const char *fname)
 {
 	struct stat stat_buf;
-
-	if (stat(fname,&stat_buf) != 0)
-		return false;
-	return (stat_buf.st_mode & S_IFMT) == S_IFDIR;
+	return stat(fname, &stat_buf) == 0 && (stat_buf.st_mode & S_IFMT) == S_IFDIR;
 }
 
 bool isFile(const char *fname)
 {
 	struct stat stat_buf;
-
-	if (stat(fname,&stat_buf) != 0)
-		return false;
-	return (stat_buf.st_mode & S_IFMT) == S_IFREG;
+	return stat(fname, &stat_buf) == 0 && (stat_buf.st_mode & S_IFMT) == S_IFREG;
 }
 
 bool changeDir(const char *dirName)
@@ -168,8 +160,8 @@ void getEntriesAppend(const char *dirName,
 			)
 			continue;
 
-		if (t == ftEntry || (t == ftFile && !isDir) ||
-			(t == ftDirectory && isDir))
+		if (t == FileType::Entry || (t == FileType::File && !isDir) ||
+			(t == FileType::Directory && isDir))
 		{
 			entries.pushBack(fname);
 		}
@@ -192,42 +184,42 @@ void getFiles(const char *dirName,
 	List<string> &files,
 	const char *pattern)
 {
-	getEntries(dirName, ftFile, files, pattern);
+	getEntries(dirName, FileType::File, files, pattern);
 }
 
 void getSubdirs(const char *dirName,
 	List<string> &subdirs,
 	const char *pattern)
 {
-	getEntries(dirName, ftDirectory, subdirs, pattern);
+	getEntries(dirName, FileType::Directory, subdirs, pattern);
 }
 
 void getEntries(const char *dirName,
 	List<string> &entries,
 	const char *pattern)
 {
-	getEntries(dirName, ftEntry, entries, pattern);
+	getEntries(dirName, FileType::Entry, entries, pattern);
 }
 
 void getFilesAppend(const char *dirName,
 	List<string> &files,
 	const char *pattern)
 {
-	getEntriesAppend(dirName, ftFile, files, pattern);
+	getEntriesAppend(dirName, FileType::File, files, pattern);
 }
 
 void getSubdirsAppend(const char *dirName,
 	List<string> &subdirs,
 	const char *pattern)
 {
-	getEntriesAppend(dirName, ftDirectory, subdirs, pattern);
+	getEntriesAppend(dirName, FileType::Directory, subdirs, pattern);
 }
 
 void getEntriesAppend(const char *dirName,
 	List<string> &entries,
 	const char *pattern)
 {
-	getEntriesAppend(dirName, ftEntry, entries, pattern);
+	getEntriesAppend(dirName, FileType::Entry, entries, pattern);
 }
 
 

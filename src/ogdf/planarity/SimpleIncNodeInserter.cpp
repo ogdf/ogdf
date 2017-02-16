@@ -30,7 +30,6 @@
  */
 
 
-//-------------------------------------
 //zwei Moeglichkeiten in PlanRep Elemente inkrementell zu
 //bearbeiten: Elemente verstecken mit hide/activate
 //oder Elemente, die nicht aktiv sind, loeschen
@@ -53,8 +52,7 @@ SimpleIncNodeInserter::~SimpleIncNodeInserter()
 {
 	for(node v : m_planRep->nodes)
 	{
-		if (m_incidentEdges[v] != nullptr)
-			delete m_incidentEdges[v];
+		delete m_incidentEdges[v];
 	}
 }//destuctor
 
@@ -109,7 +107,6 @@ void SimpleIncNodeInserter::insertCopyNode(
 	m_primalAdj.init(m_dual);
 	m_primalIsGen.init(m_dual, false);
 
-	//---------------------------------------------
 	//first identify a face to insert the node into
 	face f = nullptr;
 	if (m_planRep->numberOfEdges() > 0)
@@ -125,7 +122,6 @@ void SimpleIncNodeInserter::insertCopyNode(
 
 	//TODO: insert nodetypes here
 
-	//-----------------------------------------------------
 	//after having selected a face for insertion, we insert
 	//the crossing free edges
 	adjEntry adExternal = nullptr;
@@ -155,7 +151,6 @@ void SimpleIncNodeInserter::insertCopyNode(
 		E.setExternalFace(E.rightFace(adExternal));
 	}//if external face
 
-	//-------------------------------------------------
 	//then we insert the edges leading to nodes outside
 	//face f
 #if 0
@@ -168,7 +163,6 @@ void SimpleIncNodeInserter::insertCopyNode(
 }//insertcopynode
 
 
-//-----------------
 //protected members
 
 //simple strategy: look for the face with the most nodes adjacent
@@ -222,6 +216,30 @@ face SimpleIncNodeInserter::getInsertionFace(node v, CombinatorialEmbedding &E)
 	return bestFace;
 }//getInsertionFace
 
+
+void SimpleIncNodeInserter::updateComponentNumber(node vCopy, node wCopy, CombinatorialEmbedding &E, adjEntry adExternal)
+{
+	if (m_planRep->componentNumber(vCopy) == -1) {
+		m_planRep->componentNumber(vCopy) = m_planRep->componentNumber(wCopy);
+	} else
+	if (m_planRep->componentNumber(vCopy) != m_planRep->componentNumber(wCopy)) {
+		// we have to check the external face
+		edge tEdge = m_planRep->treeEdge(m_planRep->componentNumber(vCopy),
+		                                 m_planRep->componentNumber(wCopy));
+		if (tEdge != nullptr
+		 && (tEdge->adjSource() == adExternal
+		  || tEdge->adjTarget() == adExternal)) {
+			//can never be the only edge at this node, cyclic is safe
+			if (tEdge->adjSource() == adExternal) {
+				adExternal = tEdge->adjSource()->twin()->cyclicPred();
+			} else {
+				adExternal = tEdge->adjTarget()->cyclicSucc()->twin();
+			}
+		}
+		m_planRep->deleteTreeConnection(m_planRep->componentNumber(vCopy),
+						m_planRep->componentNumber(wCopy), E);
+	}
+}
 
 //insert copy for edges incident to v into face f, making vCopy a node
 //in this face (which means we split this face on vCopy)
@@ -328,31 +346,7 @@ void SimpleIncNodeInserter::insertFaceEdges(node v, node vCopy, face f,
 				//checks direction of inserted edge
 				m_planRep->newCopy(vCopy, adFace, (*it), E);
 
-				//-----------------------
-				//component number update
-				//set new number or delete treeConnnection edge
-				if (m_planRep->componentNumber(vCopy) == -1)
-					m_planRep->componentNumber(vCopy) = m_planRep->componentNumber(u);
-				else if (m_planRep->componentNumber(vCopy) != m_planRep->componentNumber(u))
-					{//we have to check the external face
-						edge tEdge = m_planRep->treeEdge(m_planRep->componentNumber(vCopy),
-						m_planRep->componentNumber(u));
-						if (tEdge != nullptr)
-						{
-							if ((tEdge->adjSource() == adExternal) ||
-								(tEdge->adjTarget() == adExternal))
-							{//can never be the only edge at this node, cyclic is safe
-								if (tEdge->adjSource() == adExternal)
-									adExternal = tEdge->adjSource()->twin()->cyclicPred();
-								else adExternal = tEdge->adjTarget()->cyclicSucc()->twin();
-
-							}//if adexternal edge deleted
-						}//if connectivity edge
-						m_planRep->deleteTreeConnection(m_planRep->componentNumber(vCopy),
-						m_planRep->componentNumber(u), E);
-					}
-				//-----------------------
-
+				updateComponentNumber(vCopy, u, E, adExternal);
 				++it;
 			}//while edges incident to u
 
@@ -418,31 +412,7 @@ void SimpleIncNodeInserter::insertCrossingEdges(node v, node vCopy,
 		findShortestPath(E, vs, vt, m_planRep->typeOrig(e), crossedEdges);
 
 		insertEdge(E, e, crossedEdges, m_forbidCrossings);
-		//-----------------------
-		//component number update
-		//set new number or delete treeConnnection edge
-		if (m_planRep->componentNumber(vCopy) == -1)
-			m_planRep->componentNumber(vCopy) = m_planRep->componentNumber(wCopy);
-		else if (m_planRep->componentNumber(vCopy) != m_planRep->componentNumber(wCopy))
-					{//we have to check the external face
-						edge tEdge = m_planRep->treeEdge(m_planRep->componentNumber(vCopy),
-							m_planRep->componentNumber(wCopy));
-						if (tEdge != nullptr)
-						{
-							if ((tEdge->adjSource() == adExternal) ||
-								(tEdge->adjTarget() == adExternal))
-							{//can never be the only edge at this node, cyclic is safe
-								if (tEdge->adjSource() == adExternal)
-									adExternal = tEdge->adjSource()->twin()->cyclicPred();
-								else adExternal = tEdge->adjTarget()->cyclicSucc()->twin();
-
-							}//if adexternal edge deleted
-						}//if connectivity edge
-						m_planRep->deleteTreeConnection(m_planRep->componentNumber(vCopy),
-							m_planRep->componentNumber(wCopy), E);
-					}
-
-		//-----------------------
+		updateComponentNumber(vCopy, wCopy, E, adExternal);
 	}//foralladjedges
 
 }//insertCrossingEdges
@@ -471,9 +441,10 @@ void SimpleIncNodeInserter::constructDual(const Graph &G,
 			m_primalAdj[e] = adj;
 
 			// mark dual edges corresponding to generalizations
-			if (forbidCrossings)
-				if (m_planRep->typeOf(adj->theEdge()) == Graph::generalization)
-					m_primalIsGen[e] = true;
+			if (forbidCrossings
+			 && m_planRep->typeOf(adj->theEdge()) == Graph::EdgeType::generalization) {
+				m_primalIsGen[e] = true;
+			}
 		}
 	}
 
@@ -485,7 +456,6 @@ void SimpleIncNodeInserter::constructDual(const Graph &G,
 }//constructdual
 
 
-//---------------------------------------------------------
 // finds a shortest path in the dual graph augmented by s and t (represented
 // by m_vS and m_vT); returns list of crossed adjacency entries (corresponding
 // to used edges in the dual) in crossed.
@@ -556,7 +526,7 @@ void SimpleIncNodeInserter::findShortestPath(
 			for(adjEntry adj : v->adjEntries) {
 				edge e = adj->theEdge();
 				if (v == e->source() &&
-					(eType != Graph::generalization || m_primalIsGen[e] == false))
+					(eType != Graph::EdgeType::generalization || m_primalIsGen[e] == false))
 				{
 					queue.append(e);
 				}
@@ -576,10 +546,8 @@ void SimpleIncNodeInserter::findShortestPath(
 	m_dual.resetEdgeIdCount(oldIdCount);
 }//findshortestpath
 
-//---------------------------------------------------------
 // inserts edge e according to insertion path crossed.
 // updates embedding and dual graph
-//
 void SimpleIncNodeInserter::insertEdge(
 	CombinatorialEmbedding &E,
 	edge eOrig,
@@ -623,7 +591,7 @@ void SimpleIncNodeInserter::insertEdge(
 			m_primalAdj[eRL] = adj->twin();
 
 			if(forbidCrossingGens &&
-				m_planRep->typeOf(adj->theEdge()) == Graph::generalization)
+				m_planRep->typeOf(adj->theEdge()) == Graph::EdgeType::generalization)
 			{
 				m_primalIsGen[eLR] = m_primalIsGen[eRL] = true;
 			}
@@ -646,7 +614,7 @@ void SimpleIncNodeInserter::insertEdge(
 			m_primalAdj[eRL] = adj->twin();
 
 			if(forbidCrossingGens &&
-				m_planRep->typeOf(adj->theEdge()) == Graph::generalization)
+				m_planRep->typeOf(adj->theEdge()) == Graph::EdgeType::generalization)
 			{
 				m_primalIsGen[eLR] = m_primalIsGen[eRL] = true;
 			}

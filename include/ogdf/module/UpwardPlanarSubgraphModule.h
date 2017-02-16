@@ -49,27 +49,27 @@ public:
 	virtual ~UpwardPlanarSubgraphModule() { }
 
 	/**
-	 * \brief Computes set of edges \a delEdges which have to be deleted to obtain the upward planar subgraph.
+	 * \brief Computes set of edges \p delEdges which have to be deleted to obtain the upward planar subgraph.
 	 *
 	 * Must be implemented by derived classes.
 	 * @param G is the input graph.
-	 * @param delEdges is assigned the set of edges which have to be deleted in \a G
+	 * @param delEdges is assigned the set of edges which have to be deleted in \p G
 	 *        to obtain the upward planar subgraph.
 	 */
 	virtual void call(const Graph &G, List<edge> &delEdges) = 0;
 
 
-	//! Computes set of edges \a delEdges which have to be deleted to obtain the upward planar subgraph.
+	//! Computes set of edges \p delEdges which have to be deleted to obtain the upward planar subgraph.
 	void operator()(const Graph &G, List<edge> &delEdges) {
 		call(G,delEdges);
 	}
 
 
 	/**
-	 * \brief Makes \a GC upward planar by deleting edges.
+	 * \brief Makes \p GC upward planar by deleting edges.
 	 * @param GC is a copy of the input graph.
 	 * @param delOrigEdges is the set of original edges whose copies have been
-	 *        deleted in \a GC.
+	 *        deleted in \p GC.
 	 */
 	void callAndDelete(GraphCopy &GC, List<edge> &delOrigEdges);
 

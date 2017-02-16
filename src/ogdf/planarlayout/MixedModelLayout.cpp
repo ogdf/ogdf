@@ -34,10 +34,9 @@
 #include <ogdf/augmentation/PlanarAugmentation.h>
 #include <ogdf/augmentation/PlanarAugmentationFix.h>
 #include <ogdf/planarlayout/BiconnectedShellingOrder.h>
-#include <ogdf/module/MixedModelCrossingsBeautifierModule.h>
 #include <ogdf/planarity/SimpleEmbedder.h>
 
-#include <ogdf/internal/planarlayout/MixedModelBase.h>
+#include <ogdf/planarlayout/mixed_model_layout/MixedModelBase.h>
 
 
 namespace ogdf {
@@ -70,28 +69,6 @@ void MixedModelLayout::doCall(
 	IPoint &boundingBox,
 	bool fixEmbedding)
 {
-	// handle graphs with less than 3 nodes
-	node v1, v2;
-	switch (PG.numberOfNodes()) {
-	case 0:
-		boundingBox = IPoint(0,0);
-		return;
-
-	case 1:
-		v1 = PG.firstNode();
-		gridLayout.x(v1) = gridLayout.y(v1) = 0;
-		boundingBox = IPoint(0,0);
-		return;
-
-	case 2:
-		v1 = PG.firstNode();
-		v2 = v1->succ();
-		gridLayout.x(v1) = gridLayout.y(v1) = gridLayout.y(v2) = 0;
-		gridLayout.x(v2) = 1;
-		boundingBox = IPoint(1,0);
-		return;
-	}
-
 	MixedModelBase mm(PG,gridLayout);
 
 	if(fixEmbedding) {

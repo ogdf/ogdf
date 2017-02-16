@@ -50,31 +50,31 @@ static inline void writeNodeHeader(
 	const GraphAttributes *GA)
 {
 	os << "nodedef>";
-	os << toString(na_name);
+	os << toString(NodeAttribute::Name);
 
 	const long attrs = GA ? GA->attributes() : 0;
 	if(attrs & GraphAttributes::nodeLabel) {
-		os << "," << toString(na_label);
+		os << "," << toString(NodeAttribute::Label);
 	}
 	if(attrs & GraphAttributes::nodeGraphics) {
-		os << "," << toString(na_x);
-		os << "," << toString(na_y);
+		os << "," << toString(NodeAttribute::X);
+		os << "," << toString(NodeAttribute::Y);
 		if(attrs & GraphAttributes::threeD) {
-			os << "," << toString(na_z);
+			os << "," << toString(NodeAttribute::Z);
 		}
-		os << "," << toString(na_shape);
-		os << "," << toString(na_width);
-		os << "," << toString(na_height);
+		os << "," << toString(NodeAttribute::Shape);
+		os << "," << toString(NodeAttribute::Width);
+		os << "," << toString(NodeAttribute::Height);
 	}
 	if(attrs & GraphAttributes::nodeStyle) {
-		os << "," << toString(na_fillColor);
-		os << "," << toString(na_strokeColor);
+		os << "," << toString(NodeAttribute::FillColor);
+		os << "," << toString(NodeAttribute::StrokeColor);
 	}
 	if(attrs & GraphAttributes::nodeTemplate) {
-		os << "," << toString(na_template);
+		os << "," << toString(NodeAttribute::Template);
 	}
 	if(attrs & GraphAttributes::nodeWeight) {
-		os << "," << toString(na_weight);
+		os << "," << toString(NodeAttribute::Weight);
 	}
 
 	os << "\n";
@@ -127,26 +127,26 @@ static inline void writeEdgeHeader(
 	const GraphAttributes *GA)
 {
 	os << "edgedef>";
-	os << toString(ea_source);
-	os << "," << toString(ea_target);
+	os << toString(EdgeAttribute::Source);
+	os << "," << toString(EdgeAttribute::Target);
 	if(GA && GA->directed()) {
-		os << "," << toString(ea_directed);
+		os << "," << toString(EdgeAttribute::Directed);
 	}
 
 	const long attrs = GA ? GA->attributes() : 0;
 	if(attrs & GraphAttributes::edgeLabel) {
-		os << "," << toString(ea_label);
+		os << "," << toString(EdgeAttribute::Label);
 	}
 	if(attrs & (GraphAttributes::edgeIntWeight |
-		        GraphAttributes::edgeDoubleWeight))
+	            GraphAttributes::edgeDoubleWeight))
 	{
-		os << "," << toString(ea_weight);
+		os << "," << toString(EdgeAttribute::Weight);
 	}
 	if(attrs & GraphAttributes::edgeStyle) {
-		os << "," << toString(ea_color);
+		os << "," << toString(EdgeAttribute::Color);
 	}
 	if(attrs & GraphAttributes::edgeGraphics) {
-		os << "," << toString(ea_bends);
+		os << "," << toString(EdgeAttribute::Bends);
 	}
 
 	os << "\n";

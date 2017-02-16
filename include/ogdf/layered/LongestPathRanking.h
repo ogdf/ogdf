@@ -118,10 +118,10 @@ public:
 	 *  @{
 	 */
 
-	//! Computes a node ranking of \a G in \a rank.
+	//! Computes a node ranking of \p G in \p rank.
 	virtual void call(const Graph &G, NodeArray<int> &rank) override;
 
-	//! Computes a node ranking of \a G with given minimal edge length in \a rank.
+	//! Computes a node ranking of \p G with given minimal edge length in \p rank.
 	/**
 	 * @param G is the input graph.
 	 * @param length specifies the minimal length of each edge.
@@ -129,9 +129,9 @@ public:
 	 */
 	void call(const Graph &G, const EdgeArray<int> &length, NodeArray<int> &rank);
 
-	//! Computes a node ranking of \a G with given minimal edge length in \a rank.
+	//! Computes a node ranking of \p G with given minimal edge length in \p rank.
 	/**
-	 * Parameter \a cost is just ignored by the implementation.
+	 * Parameter \p cost is just ignored by the implementation.
 	 *
 	 * @param G is the input graph.
 	 * @param length specifies the minimal length of each edge.
@@ -162,7 +162,7 @@ public:
 	 */
 	bool separateDeg0Layer() const { return m_sepDeg0; }
 
-	//! Sets the option separateDeg0Layer to \a sdl.
+	//! Sets the option separateDeg0Layer to \p sdl.
 	void separateDeg0Layer (bool sdl) { m_sepDeg0 = sdl; }
 
 	//! Returns the current setting of option separateMultiEdges.
@@ -173,7 +173,7 @@ public:
 	 */
 	bool separateMultiEdges() const { return m_separateMultiEdges; }
 
-	//! Sets the option separateMultiEdges to \a b.
+	//! Sets the option separateMultiEdges to \p b.
 	void separateMultiEdges(bool b) { m_separateMultiEdges = b; }
 
 	//! Returns the current setting of option optimizeEdgeLength.
@@ -185,19 +185,19 @@ public:
 	 */
 	bool optimizeEdgeLength() const { return m_optimizeEdgeLength; }
 
-	//! Sets the option optimizeEdgeLength to \a b.
+	//! Sets the option optimizeEdgeLength to \p b.
 	void optimizeEdgeLength(bool b) { m_optimizeEdgeLength = b; }
 
 	//! Returns the current setting of alignment of base classes (callUML only).
 	bool alignBaseClasses() const { return m_alignBaseClasses; }
 
-	//! Sets the option for alignment of base classes to \a b.
+	//! Sets the option for alignment of base classes to \p b.
 	void alignBaseClasses(bool b) { m_alignBaseClasses = b; }
 
 	//! Returns the current setting of option for alignment of siblings.
 	bool alignSiblings() const { return m_alignSiblings; }
 
-	//! Sets the option for alignment of siblings to \a b.
+	//! Sets the option for alignment of siblings to \p b.
 	void alignSiblings(bool b) { m_alignSiblings = b; }
 
 

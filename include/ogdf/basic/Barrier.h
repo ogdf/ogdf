@@ -58,8 +58,8 @@ class Barrier {
 
 public:
 
-	//! Creates a barrier for a group of \a numThreads threads.
-	Barrier(uint32_t numThreads) : m_threadCount(numThreads) {
+	//! Creates a barrier for a group of \p numThreads threads.
+	explicit Barrier(uint32_t numThreads) : m_threadCount(numThreads) {
 		m_numThreadsReachedSync = 0;
 		m_syncNumber = 0;
 	}

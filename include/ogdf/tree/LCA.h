@@ -37,63 +37,73 @@
 
 namespace ogdf {
 
-/*!
- * \brief This class implements the <O(n log n), O(1)>-time "sparse table" LCA algorithm
- * by Bender and Farach-Colton.
+/**
+ * Implements the <O(\a n log \a n), O(1)>-time "sparse table" algorithm
+ * by Bender and Farach-Colton to compute lowest common ancestors (LCAs)
+ * in arborescences (*not* arbitrary directed acyclic graphs).
  *
  * This implementation is based on:
  *
- * (M. Bender, M. Farach-Colton, The LCA problem revisited, LATIN '00, volume 1776 of LNCS,
+ * (M. Bender, M. Farach-Colton, The %LCA problem revisited, LATIN '00, volume 1776 of LNCS,
  * pages 88-94, Springer, 2000)
  *
  * @ingroup ga-tree
  */
 class OGDF_EXPORT LCA {
 public:
-	/*!
-	 * \brief Builds the LCA data structure for an arborescence
-	 * @param G a tree
-	 * @param root root node of the tree
-	 * \pre Each node in G is reachable from the root via a unique directed path, that is, G is an arborescence.
+	/**
+	 * Builds the %LCA data structure for an arborescence
+	 *
+	 * If \p root is not provided, it is computed in additional O(\a n) time.
+	 *
+	 * @param G an arborescence
+	 * @param root optional root of the arborescence
+	 * @pre Each node in \p G is reachable from the root via a unique directed path, that is, \p G is an arborescence.
 	 */
-	LCA(const Graph &G, node root);
+	explicit LCA(const Graph &G, node root = nullptr);
 
-	/*!
-	 * \brief Returns the LCA of two nodes. If the two nodes are the same, the node itself is defined to be the LCA.
-	 * @param u First node
-	 * @param v Second node
-	 * @return The LCA of u and v
+	/**
+	 * Returns the %LCA of two nodes \p u and \p v.
+	 *
+	 * If \p u and \p v are the same node, \p u itself is defined
+	 * to be the %LCA, not its father.
 	 */
 	node call(node u, node v) const;
 
-	//! \brief Returns the level of a node. The level of the root is 0.
+	//! Returns the level of a node. The level of the root is 0.
 	int level(node v) const
 	{
-		return m_level[m_representative[v]];
+		return m_n == 1 ? 0 : m_level[m_representative[v]];
 	}
 
 private:
 	const node m_root; //!< the root of the tree
 	const int m_n; //!< number of nodes in graph
 	const int m_len; //!< length of the RMQ array (always 2 m_n - 1)
-	const int m_rangeJ; //!< always floor(log(m_len)) (size of a row in the table)
+	const int m_rangeJ; //!< always floor(log(#m_len)) (size of a row in the table)
 	Array<node> m_euler; //!< Euler[i] is i-th node visited in Euler Tour
 	NodeArray<int> m_representative; //!< Euler[Representative[v]] = v
 	Array<int> m_level; //!< L[i] is distance of node E[i] from root
 	Array<int> m_table; //!< preprocessed M[i,j] array
 
-	/*!
-	 * \brief Performs an Euler tour (actually a DFS with virtual back-edges) through the underlying tree
-	 *  and fill Euler tour and Level arrays.
+	/**
+	 * Performs an Euler tour (actually a DFS with virtual back-edges) through the underlying tree
+	 * and fills Euler tour and %Level arrays.
 	 */
 	void dfs(const Graph &G, node root);
 
-	/*!
-	 * \brief Fills the O(n log n)-space matrix with data on which basis the LCA values can be computed.
+	/**
+	 * Fills the O(\a n log \a n)-space matrix with auxiliary data
+	 * the %LCA values can be computed from.
 	 */
 	void buildTable();
 
-	//! \brief Access the sparse table at [i, j] for i = 0..m_len-1, j = 1..m_rangeJ
+	/**
+	 * Access the sparse table at [\p i, \p j]
+	 *
+	 * @pre 0 <= \p i < #m_len and 1 <= \p j <= #m_rangeJ
+	 */
+	//! @{
 	const int &sparseTable(int i, int j) const
 	{
 		return m_table[i * m_rangeJ + j - 1];
@@ -102,12 +112,11 @@ private:
 	{
 		return m_table[i * m_rangeJ + j - 1];
 	}
+	//! @}
 
-	/*!
-	 * \brief Returns the internal index pointing to the LCA between two nodes
-	 * @param u first node
-	 * @param v first node
-	 * @return Internal index pointing to LCA
+	/**
+	 * Returns the internal index pointing to the %LCA between two nodes \p u and \p v
+	 * @return Internal index pointing to %LCA
 	 */
 	int rmq(int u, int v) const;
 };

@@ -12,7 +12,7 @@ int main()
 	randomSimpleGraph(G, 100, 150);
 
 	SubgraphPlanarizer SP;
-	SP.setSubgraph(new PlanarSubgraphFast);
+	SP.setSubgraph(new PlanarSubgraphFast<int>);
 	SP.setInserter(new VariableEmbeddingInserter);
 
 	int crossNum;

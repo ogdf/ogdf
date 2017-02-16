@@ -65,7 +65,7 @@ public:
 	 *\brief Constructs instance of GraphObserver class
 	 * \param G is the graph to be watched
 	 */
-	GraphObserver(const Graph* G) : m_pGraph(G)
+	explicit GraphObserver(const Graph* G) : m_pGraph(G)
 	{
 		m_itGList = G->registerStructure(this);
 	}//constructor
@@ -76,7 +76,7 @@ public:
 		if (m_pGraph) m_pGraph->unregisterStructure(m_itGList);
 	}//destructor
 
-	//! Associates observer instance with graph \a G
+	//! Associates observer instance with graph \p G
 	void reregister(const Graph *pG) {
 		//small speedup: check if == m_pGraph
 		if (m_pGraph) m_pGraph->unregisterStructure(m_itGList);

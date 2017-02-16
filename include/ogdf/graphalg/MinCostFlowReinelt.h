@@ -55,9 +55,9 @@ public:
 	using MinCostFlowModule<TCost>::call;
 
 	/**
-	* \brief Computes a min-cost flow in the directed graph \a G using a network simplex method.
+	* \brief Computes a min-cost flow in the directed graph \p G using a network simplex method.
 	*
-	* \pre \a G must be connected, \a lowerBound[\a e] \f$\leq\f$ \a upperBound[\a e]
+	* \pre \p G must be connected, \p lowerBound[\a e] <= \p upperBound[\a e]
 	*      for all edges \a e, and the sum over all supplies must be zero.
 	*
 	* @param G is the directed input graph.
@@ -173,7 +173,7 @@ bool MinCostFlowReinelt<TCost>::call(
 	EdgeArray<int> &flow,
 	NodeArray<TCost> &dual)
 {
-	OGDF_ASSERT(this->checkProblem(G,lowerBound,upperBound,supply) == true);
+	OGDF_ASSERT(this->checkProblem(G, lowerBound, upperBound, supply));
 
 	const int n = G.numberOfNodes();
 	const int m = G.numberOfEdges();
@@ -269,9 +269,7 @@ bool MinCostFlowReinelt<TCost>::call(
 template<typename TCost>
 void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
 {
-	/*----------------------------------------------------------------------*/
-	/*     determine intial basis tree and initialize data structure        */
-	/*----------------------------------------------------------------------*/
+	// determine intial basis tree and initialize data structure
 
 	/* initialize artificial root node */
 	root->father = root;
@@ -321,11 +319,7 @@ void MinCostFlowReinelt<TCost>::start(Array<int> &supply)
 }  /*start*/
 
 
-
-/***************************************************************************/
-/*             circle variant for determine basis entering arc             */
-/***************************************************************************/
-
+// circle variant for determine basis entering arc
 template<typename TCost>
 void MinCostFlowReinelt<TCost>::beacircle(
 	arctype **eplus,
@@ -445,11 +439,7 @@ void MinCostFlowReinelt<TCost>::beacircle(
 }  /* beacircle */
 
 
-
-/***************************************************************************/
-/*       doublecircle variant for determine basis entering arc             */
-/***************************************************************************/
-
+// doublecircle variant for determine basis entering arc
 template<typename TCost>
 void MinCostFlowReinelt<TCost>::beadouble(
 	arctype **eplus,
@@ -616,12 +606,7 @@ void MinCostFlowReinelt<TCost>::beadouble(
 }  /* beadouble */
 
 
-
-/***************************************************************************/
-/*                  Min Cost Flow Function                                 */
-/***************************************************************************/
-
-
+// Min Cost Flow Function
 template<typename TCost>
 int MinCostFlowReinelt<TCost>::mcf(
 	int mcfNrNodes,
@@ -639,15 +624,11 @@ int MinCostFlowReinelt<TCost>::mcf(
 	int i;
 	int low,up;
 
-	/************************************************/
 	/* 1: Allocations (malloc's no longer required) */
-	/************************************************/
 
 	root = &rootStruct;
 
-	/**********************/
 	/* 2: Initializations */
-	/**********************/
 
 	/* Number of nodes/arcs */
 	nn = mcfNrNodes;
@@ -728,9 +709,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 	bool feasible = true;
 
 
-	/************************/
 	/* 3: Starting solution */
-	/************************/
 
 	start_n1 = nullptr;
 	start_n2 = nullptr;
@@ -740,13 +719,9 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 	int step = 1;   /* initialize iteration counter */
 
-	/*********************/
 	/* 4: Iteration loop */
-	/*********************/
 
-	/*************************************/
 	/* 4.1: Determine basis entering arc */
-	/*************************************/
 
 	// finished = true <=> iteration finished
 	bool finished = false;
@@ -772,9 +747,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 			nodetype *iplus = eplus->tail; // -> tail of basis entering arc
 			nodetype *jplus = eplus->head; // -> head of basis entering arc
 
-			/******************************************************/
 			/* 4.2: Determine leaving arc and maximal flow change */
-			/******************************************************/
 
 			int delta = eplus->upper_bound; // maximal flow change
 			nodetype *iminus = nullptr; // -> tail of basis leaving arc
@@ -864,9 +837,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 				}
 			}
 
-			/*********************************/
 			/* 4.3: Update of data structure */
-			/*********************************/
 
 			TCost sigma; // change of dual variables
 
@@ -874,8 +845,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 				if (from_ub) delta = -delta;
 
 				bool s_orientation;
-				if (eminus->tail == iplus) s_orientation = true;
-				else s_orientation = false;
+				s_orientation = eminus->tail == iplus;
 
 				np = iplus;
 				while (np != w) {
@@ -960,8 +930,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 					arctype *w_arc_id = nd->arc_id; // save area
 
 					bool w_orientation;
-					if (nd->arc_id->tail == nd) w_orientation = false;
-					else w_orientation = true;
+					w_orientation = nd->arc_id->tail != nd;
 
 					int w_flow;
 					if (w_orientation == eplus_ori) {
@@ -1030,9 +999,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 			}
 
-			/***********************************/
 			/* 4.4: Update lists B, N' and N'' */
-			/***********************************/
 
 			if (eminus == eplus) {
 				if (!from_ub) {
@@ -1089,9 +1056,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 			step++;
 
-			/***********************************************************/
 			/* 4.5: Eliminate artificial arcs and artificial root node */
-			/***********************************************************/
 
 			if (artificials == 1) {
 				artificials = 0;
@@ -1134,9 +1099,7 @@ int MinCostFlowReinelt<TCost>::mcf(
 
 	} while (!finished);
 
-	/*********************/
 	/* 5: Return results */
-	/*********************/
 
 	/* Feasible solution? */
 	if (artificials != 0

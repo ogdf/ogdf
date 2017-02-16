@@ -141,7 +141,7 @@ void ConstCombinatorialEmbedding::computeFaces()
 	m_faceArrayTableSize = Graph::nextPower2(MIN_FACE_TABLE_SIZE,m_faceIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -177,7 +177,7 @@ edge CombinatorialEmbedding::split(edge e)
 	m_rightFace[e->adjTarget()] = m_rightFace[e2->adjTarget()] = f2;
 	f2->m_size++;
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return e2;
 }
@@ -215,7 +215,7 @@ node CombinatorialEmbedding::splitNode(adjEntry adjStartLeft, adjEntry adjStartR
 	m_rightFace[adj->twin()] = fR;
 	++fR->m_size;
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return u;
 }
@@ -246,7 +246,7 @@ node CombinatorialEmbedding::contract(edge e)
 	--fSrc->m_size;
 	--fTgt->m_size;
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return v;
 }
@@ -273,7 +273,7 @@ edge CombinatorialEmbedding::splitFace(adjEntry adjSrc, adjEntry adjTgt)
 	f1->m_size += (2 - f2->m_size);
 	m_rightFace[e->adjSource()] = f1;
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return e;
 }
@@ -298,7 +298,7 @@ edge CombinatorialEmbedding::addEdgeToIsolatedNode(adjEntry adj, node v, bool ad
 	f->m_size += 2;
 	m_rightFace[e->adjTarget()] = f;
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return e;
 }
@@ -327,7 +327,7 @@ face CombinatorialEmbedding::joinFaces(edge e)
 	face f = joinFacesPure(e);
 	m_pGraph->delEdge(e);
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return f;
 }
@@ -373,7 +373,7 @@ void CombinatorialEmbedding::reverseEdge(edge e)
 	// reverse edge in graph
 	m_pGraph->reverseEdge(e);
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -401,11 +401,11 @@ void CombinatorialEmbedding::moveBridge(adjEntry adjBridge, adjEntry adjBefore)
 
 	edge e = adjBridge->theEdge();
 	if(e->source() == adjBridge->twinNode())
-		m_pGraph->moveSource(e, adjBefore, after);
+		m_pGraph->moveSource(e, adjBefore, Direction::after);
 	else
-		m_pGraph->moveTarget(e, adjBefore, after);
+		m_pGraph->moveTarget(e, adjBefore, Direction::after);
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -422,7 +422,7 @@ void CombinatorialEmbedding::removeDeg1(node v)
 
 	m_pGraph->delNode(v);
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -438,7 +438,7 @@ void CombinatorialEmbedding::clear()
 
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -510,10 +510,10 @@ void ConstCombinatorialEmbedding::reinitArrays()
 
 bool ConstCombinatorialEmbedding::consistencyCheck()
 {
-	if (m_cpGraph->consistencyCheck() == false)
+	if(!m_cpGraph->consistencyCheck())
 		return false;
 
-	if(m_cpGraph->representsCombEmbedding() == false)
+	if(!m_cpGraph->representsCombEmbedding())
 		return false;
 
 	AdjEntryArray<bool> visited(*m_cpGraph,false);
@@ -557,6 +557,20 @@ bool ConstCombinatorialEmbedding::consistencyCheck()
 	}
 
 	return true;
+}
+
+adjEntry ConstCombinatorialEmbedding::findCommonFace(const node v, const node w, adjEntry &adjW, bool left) const {
+	OGDF_ASSERT(v != w);
+
+	for(adjEntry adjV = v->firstAdj(); adjV != nullptr; adjV = adjV->succ()) {
+		face f = (left ? leftFace(adjV) : rightFace(adjV));
+		for(adjW = w->firstAdj(); adjW != nullptr; adjW = adjW->succ()) {
+			if(f == (left ? leftFace(adjW) : rightFace(adjW))) {
+				return adjV;
+			}
+		}
+	}
+	return nullptr;
 }
 
 } // end namespace ogdf

@@ -76,7 +76,7 @@ namespace ogdf {
  *     <td>Determines if the tree is laid out in a top-to-bottom,
  *     bottom-to-top, left-to-right, or right-to-left fashion.
  *   </tr><tr>
- *     <td><i>selectRoot</i><td> #RootSelectionType <td> #rootIsSource
+ *     <td><i>selectRoot</i><td> #RootSelectionType <td> RootSelectionType::Source
  *     <td>Determines how to select the root of the tree(s). Possible
  *     selection strategies are to take a (unique) source or sink in
  *     the graph, or to use the coordinates and to select the topmost
@@ -93,10 +93,10 @@ namespace ogdf {
 class OGDF_EXPORT TreeLayout : public LayoutModule {
 public:
 	//! Determines how to select the root of the tree.
-	enum RootSelectionType {
-		rootIsSource, //!< Select a source in the graph.
-		rootIsSink,   //!< Select a sink in the graph.
-		rootByCoord   //!< Use the coordinates, e.g., select the topmost node if orientation is topToBottom.
+	enum class RootSelectionType {
+		Source, //!< Select a source in the graph.
+		Sink,   //!< Select a sink in the graph.
+		ByCoord   //!< Use the coordinates, e.g., select the topmost node if orientation is topToBottom.
 	};
 
 private:
@@ -126,7 +126,7 @@ public:
 	 */
 
 	/**
-	 * \brief Calls tree layout for graph attributes \a GA.
+	 * \brief Calls tree layout for graph attributes \p GA.
 	 *
 	 * \pre The graph is a tree or a forest. If this is not the case, a PreconditionViolatedException will be thrown.
 	 *
@@ -138,14 +138,14 @@ public:
 	virtual void call(GraphAttributes &GA) override;
 
 	/**
-	 * \brief Calls tree layout for graph attributes \a GA.
+	 * \brief Calls tree layout for graph attributes \p GA.
 	 *
 	 * \pre The graph is a tree or a forest. If this is not the case, a PreconditionViolatedException will be thrown.
 	 *
 	 * Sorts the adjacency entries according to the positions of adjacent
-	 * vertices in \a GA.
+	 * vertices in \p GA.
 	 * @param GA is the input graph and will also be assigned the layout information.
-	 * @param G is the graph associated with \a GA.
+	 * @param G is the graph associated with \p GA.
 	 */
 	void callSortByPositions(GraphAttributes &GA, Graph &G);
 
@@ -158,43 +158,43 @@ public:
 	//! Returns the the minimal required horizontal distance between siblings.
 	double siblingDistance() const { return m_siblingDistance; }
 
-	//! Sets the the minimal required horizontal distance between siblings to \a x.
+	//! Sets the the minimal required horizontal distance between siblings to \p x.
 	void siblingDistance(double x) { m_siblingDistance = x; }
 
 	//! Returns the minimal required horizontal distance between subtrees.
 	double subtreeDistance() const { return m_subtreeDistance; }
 
-	//! Sets the minimal required horizontal distance between subtrees to \a x.
+	//! Sets the minimal required horizontal distance between subtrees to \p x.
 	void subtreeDistance(double x) { m_subtreeDistance = x; }
 
 	//! Returns the minimal required vertical distance between levels.
 	double levelDistance() const { return m_levelDistance; }
 
-	//! Sets the minimal required vertical distance between levels to \a x.
+	//! Sets the minimal required vertical distance between levels to \p x.
 	void levelDistance(double x) { m_levelDistance = x; }
 
 	//! Returns the minimal required horizontal distance between trees in the forest.
 	double treeDistance() const { return m_treeDistance; }
 
-	//! Sets the minimal required horizontal distance between trees in the forest to \a x.
+	//! Sets the minimal required horizontal distance between trees in the forest to \p x.
 	void treeDistance(double x) { m_treeDistance = x; }
 
 	//! Returns whether orthogonal edge routing style is used.
 	bool orthogonalLayout() const { return m_orthogonalLayout; }
 
-	//! Sets the option for orthogonal edge routing style to \a b.
+	//! Sets the option for orthogonal edge routing style to \p b.
 	void orthogonalLayout(bool b) { m_orthogonalLayout = b; }
 
 	//! Returns the option that determines the orientation of the layout.
 	Orientation orientation() const { return m_orientation; }
 
-	//! Sets the option that determines the orientation of the layout to \a orientation.
+	//! Sets the option that determines the orientation of the layout to \p orientation.
 	void orientation(Orientation orientation) { m_orientation = orientation; }
 
 	//! Returns the option that determines how the root is selected.
 	RootSelectionType rootSelection() const { return m_selectRoot; }
 
-	//! Sets the option that determines how the root is selected to \a rootSelection.
+	//! Sets the option that determines how the root is selected to \p rootSelection.
 	void rootSelection(RootSelectionType rootSelection) { m_selectRoot = rootSelection; }
 
 

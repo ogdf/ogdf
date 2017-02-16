@@ -35,7 +35,7 @@
 
 #include <limits>
 
-#include <ogdf/internal/steinertree/EdgeWeightedGraphCopy.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraphCopy.h>
 #include <ogdf/module/MinSteinerTreeModule.h>
 #include <ogdf/basic/DisjointSets.h>
 
@@ -152,8 +152,6 @@ public:
 	 */
 	double getLastLowerBound() const;
 };
-
-// ============= Implementation =================
 
 template<typename T>
 void MinSteinerTreePrimalDual<T>::init()

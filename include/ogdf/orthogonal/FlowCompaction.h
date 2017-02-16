@@ -35,7 +35,7 @@
 
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/planarity/PlanRep.h>
-#include <ogdf/internal/orthogonal/RoutingChannel.h>
+#include <ogdf/orthogonal/internal/RoutingChannel.h>
 #include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/basic/GridLayoutMapped.h>
 
@@ -48,7 +48,7 @@ class OGDF_EXPORT FlowCompaction
 {
 public:
 	//! construction
-	FlowCompaction(int maxImprovementSteps = 0,
+	explicit FlowCompaction(int maxImprovementSteps = 0,
 		int costGen = 1,
 		int costAssoc = 1);
 

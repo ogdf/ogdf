@@ -35,7 +35,6 @@
 
 
 #include <ogdf/basic/EdgeComparerSimple.h>
-#include <ogdf/basic/geometry.h>
 
 namespace ogdf {
 

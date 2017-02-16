@@ -35,7 +35,7 @@
 #include <ogdf/basic/exceptions.h>
 #include <ogdf/basic/GridLayout.h>
 #include <ogdf/cluster/ClusterGraphAttributes.h>
-#include <ogdf/internal/steinertree/EdgeWeightedGraph.h>
+#include <ogdf/graphalg/steiner_tree/EdgeWeightedGraph.h>
 #include <sstream>
 
 
@@ -52,16 +52,16 @@ public:
 	static Logger OGDF_EXPORT logger;
 
 	//! Type of simple graph reader functions working on streams
-	typedef bool (*ReaderFunc)(Graph&, istream&);
+	using ReaderFunc = bool (*)(Graph&, istream&);
 
 	//! Type of simple graph writer functions working on streams
-	typedef bool (*WriterFunc)(const Graph&, ostream&);
+	using WriterFunc = bool (*)(const Graph&, ostream&);
 
 	//! Type of simple graph attributes reader functions working on streams
-	typedef bool (*AttrReaderFunc)(GraphAttributes&, Graph&, istream&);
+	using AttrReaderFunc = bool (*)(GraphAttributes&, Graph&, istream&);
 
 	//! Type of simple graph attributes writer functions working on streams
-	typedef bool (*AttrWriterFunc)(const GraphAttributes&, ostream&);
+	using AttrWriterFunc = bool (*)(const GraphAttributes&, ostream&);
 
 	//! Condensed settings for drawing SVGs
 	class OGDF_EXPORT SVGSettings
@@ -102,7 +102,7 @@ public:
 		//! Returns the default height
 		const string &height() const { return m_height; }
 
-		//! Sets the size of the margin around the drawing to \a m.
+		//! Sets the size of the margin around the drawing to \p m.
 		void margin(double m) { m_margin = m; }
 
 		//! Sets the curviness of all edges (value ranges from 0 to 1).
@@ -116,13 +116,13 @@ public:
 		//! Enables or disables Bézier-interpolation.
 		void bezierInterpolation(bool enable) { m_bezierInterpolation = enable; }
 
-		//! Sets the default font size (font height in pixels) to \a fs.
+		//! Sets the default font size (font height in pixels) to \p fs.
 		void fontSize(int fs) { m_fontSize = fs; }
 
-		//! Sets the default font color to \a fc.
+		//! Sets the default font color to \p fc.
 		void fontColor(const string &fc) { m_fontColor = fc; }
 
-		//! Sets the default font family to \a fm.
+		//! Sets the default font family to \p fm.
 		void fontFamily(const string &fm) { m_fontFamily = fm; }
 
 		//! Sets the width.
@@ -168,7 +168,7 @@ public:
 		return os.good() && writer(G, os);
 	}
 
-	//! Reads graph \a G of arbitrary graph format form \a filename.
+	//! Reads graph \p G of arbitrary graph format from \p filename.
 	/**
 	 * The following file formats are currently supported:
 	 *  - DOT
@@ -181,6 +181,7 @@ public:
 	 *  - GraphML
 	 *  - GEXF
 	 *  - OGML
+	 *  - SteinLib
 	 *
 	 * @param G        is assigned the read graph.
 	 * @param is  is the input stream to be read.
@@ -196,7 +197,7 @@ public:
 	 * @param reader format to be used (e.g. #readGML).
 	 * @return true if successful, false otherwise.
 	 */
-	static bool read(GraphAttributes GA, Graph &G, const string &filename, AttrReaderFunc reader) {
+	static bool read(GraphAttributes &GA, Graph &G, const string &filename, AttrReaderFunc reader) {
 		ifstream is(filename);
 		return is.good() && reader(GA, G, is);
 	}
@@ -223,7 +224,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in GML format from file \a filename.
+	//! Reads graph \p G in GML format from file \p filename.
 	/**
 	 * \sa readGML(Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const Graph &G, const string &filename)
@@ -235,7 +236,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGML(Graph &G, const string &filename);
 
-	//! Reads graph \a G in GML format from input stream \a is.
+	//! Reads graph \p G in GML format from input stream \p is.
 	/**
 	 * The GML (<i>%Graph Modelling Language</i>) file format is an Ascii-based format that has been
 	 * developed by Michael Himsolt at the University of Passau. Its full specification can be found in
@@ -250,7 +251,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGML(Graph &G, istream &is);
 
-	//! Writes graph \a G in GML format to file \a filename.
+	//! Writes graph \p G in GML format to file \p filename.
 	/**
 	 * \sa writeGML(const Graph &G, ostream &os) for more details.<br>
 	 *     readGML(Graph &G, const string &filename)
@@ -262,7 +263,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGML(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in GML format to output stream \a os.
+	//! Writes graph \p G in GML format to output stream \p os.
 	/**
 	 * The GML (<i>%Graph Modelling Language</i>) file format is an Ascii-based format that has been
 	 * developed by Michael Himsolt at the University of Passau. Its full specification can be found in
@@ -277,9 +278,9 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGML(const Graph &G, ostream &os);
 
-	//! Reads clustered graph (\a C, \a G) in GML format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) in GML format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa readGML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const ClusterGraph &C, const string &filename)
 	 *
@@ -291,9 +292,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGML(ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) in GML format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) in GML format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa writeGML(const ClusterGraph &C, ostream &os)
 	 *
 	 * @param C   is assigned the read clustered graph (cluster structure).
@@ -303,7 +304,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGML(ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes clustered graph \a C in GML format to file \a filename.
+	//! Writes clustered graph \p C in GML format to file \p filename.
 	/**
 	 * \sa writeGML(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readGML(ClusterGraph &C, Graph &G, const string &filename)
@@ -315,7 +316,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGML(const ClusterGraph &C, const string &filename);
 
-	//! Writes clustered graph \a C in GML format to output stream \a os.
+	//! Writes clustered graph \p C in GML format to output stream \p os.
 	/**
 	 * \sa readGML(ClusterGraph &C, Graph &G, istream &is)
 	 *
@@ -325,9 +326,9 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGML(const ClusterGraph &C, ostream &os);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GML format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in GML format from file \p filename.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const ClusterGraphAttributes &A, const string &filename)
 	 *
@@ -340,9 +341,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GML format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in GML format from input stream \p is.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa writeGML(const ClusterGraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -353,7 +354,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes graph with attributes \a A in GML format to file \a filename.
+	//! Writes graph with attributes \p A in GML format to file \p filename.
 	/**
 	 * \sa writeGML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
@@ -365,7 +366,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGML(const ClusterGraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GML format to output stream \a os.
+	//! Writes graph with attributes \p A in GML format to output stream \p os.
 	/**
 	 * \sa readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 	 *
@@ -375,9 +376,9 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGML(const ClusterGraphAttributes &A, ostream &os);
 
-	//! Reads graph \a G with attributes \a A in GML format from file \a filename.
+	//! Reads graph \p G with attributes \p A in GML format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readGML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGML(const GraphAttributes &A, const string &filename)
 	 *
@@ -389,9 +390,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGML(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in GML format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in GML format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeGML(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -401,7 +402,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGML(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Writes graph with attributes \a A in GML format to file \a filename.
+	//! Writes graph with attributes \p A in GML format to file \p filename.
 	/**
 	 * \sa writeGML(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGML(GraphAttributes &A, Graph &G, const string &filename)
@@ -413,7 +414,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGML(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GML format to output stream \a os.
+	//! Writes graph with attributes \p A in GML format to output stream \p os.
 	/**
 	 * \sa readGML(GraphAttributes &A, Graph &G, istream &is)
 	 *
@@ -433,7 +434,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in OGML format from file \a filename.
+	//! Reads graph \p G in OGML format from file \p filename.
 	/**
 	 * \sa readOGML(Graph &G, istream &is) for more details.<br>
 	 *     writeOGML(const Graph &G, const string &filename)
@@ -445,7 +446,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readOGML(Graph &G, const string &filename);
 
-	//! Reads graph \a G in OGML format from input stream \a is.
+	//! Reads graph \p G in OGML format from input stream \p is.
 	/**
 	 * \sa writeOGML(const Graph &G, ostream &os)
 	 *
@@ -455,7 +456,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readOGML(Graph &G, istream &is);
 
-	//! Writes graph \a G in OGML format to file \a filename.
+	//! Writes graph \p G in OGML format to file \p filename.
 	/**
 	 * \sa writeOGML(const Graph &G, ostream &os) for more details.<br>
 	 *     readOGML(Graph &G, const string &filename)
@@ -467,7 +468,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeOGML(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in OGML format to output stream \a os.
+	//! Writes graph \p G in OGML format to output stream \p os.
 	/**
 	 * \sa bool readOGML(Graph &G, istream &is)
 	 *
@@ -477,9 +478,9 @@ public:
 	 */
 	static OGDF_EXPORT bool writeOGML(const Graph &G, ostream &os);
 
-	//! Reads clustered graph (\a C, \a G) in OGML format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) in OGML format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa readOGML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeOGML(const ClusterGraph &C, const string &filename)
 	 *
@@ -491,9 +492,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readOGML(ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) in OGML format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) in OGML format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa writeOGML(const ClusterGraph &C, ostream &os)
 	 *
 	 * @param C   is assigned the read clustered graph (cluster structure).
@@ -503,7 +504,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readOGML(ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes clustered graph \a C in OGML format to file \a filename.
+	//! Writes clustered graph \p C in OGML format to file \p filename.
 	/**
 	 * \sa writeOGML(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readOGML(ClusterGraph &C, Graph &G, const string &filename)
@@ -515,7 +516,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeOGML(const ClusterGraph &C, const string &filename);
 
-	//! Writes clustered graph \a C in OGML format to output stream \a os.
+	//! Writes clustered graph \p C in OGML format to output stream \p os.
 	/**
 	 * \sa readOGML(ClusterGraph &C, Graph &G, istream &is)
 	 *
@@ -525,9 +526,9 @@ public:
 	 */
 	static OGDF_EXPORT bool writeOGML(const ClusterGraph &C, ostream &os);
 
-	//! Reads graph \a G with attributes \a A in OGML format from file \a filename.
+	//! Reads graph \p G with attributes \p A in OGML format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readOGML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeOGML(const GraphAttributes &A, const string &filename)
 	 *
@@ -539,9 +540,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readOGML(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in OGML format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in OGML format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeOGML(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -551,7 +552,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readOGML(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Writes graph with attributes \a A in OGML format to file \a filename.
+	//! Writes graph with attributes \p A in OGML format to file \p filename.
 	/**
 	 * \sa writeOGML(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readOGML(GraphAttributes &A, Graph &G, const string &filename)
@@ -563,7 +564,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeOGML(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in OGML format to output stream \a os.
+	//! Writes graph with attributes \p A in OGML format to output stream \p os.
 	/**
 	 * \sa readOGML(GraphAttributes &A, Graph &G, istream &is)
 	 *
@@ -573,9 +574,9 @@ public:
 	 */
 	static OGDF_EXPORT bool writeOGML(const GraphAttributes &A, ostream &os);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in OGML format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in OGML format from file \p filename.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeOGML(const ClusterGraphAttributes &A, const string &filename)
 	 *
@@ -588,9 +589,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in OGML format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in OGML format from input stream \p is.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa writeOGML(const ClusterGraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -601,7 +602,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes graph with attributes \a A in OGML format to file \a filename.
+	//! Writes graph with attributes \p A in OGML format to file \p filename.
 	/**
 	 * \sa writeOGML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
 	 *     readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
@@ -613,7 +614,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeOGML(const ClusterGraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in OGML format to output stream \a os.
+	//! Writes graph with attributes \p A in OGML format to output stream \p os.
 	/**
 	 * \sa readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
 	 *
@@ -633,7 +634,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in Rome-Lib format from file \a filename.
+	//! Reads graph \p G in Rome-Lib format from file \p filename.
 	/**
 	 * \sa readRome(Graph &G, istream &is) for more details.<br>
 	 *     writeRome(const Graph &G, const string &filename)
@@ -645,7 +646,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readRome(Graph &G, const string &filename);
 
-	//! Reads graph \a G in Rome-Lib format from input stream \a is.
+	//! Reads graph \p G in Rome-Lib format from input stream \p is.
 	/**
 	 * The Rome-Lib format contains n "node-lines", 1 "separator-line", m "edge-lines" (in this order).
 	 * These lines are as follows (whereby all IDs are integer numbers):
@@ -661,7 +662,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readRome(Graph &G, istream &is);
 
-	//! Writes graph \a G in Rome-Lib format to file \a filename.
+	//! Writes graph \p G in Rome-Lib format to file \p filename.
 	/**
 	 * \sa writeRome(const Graph &G, ostream &os) for more details.<br>
 	 *     readRome(Graph &G, const string &filename)
@@ -673,7 +674,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeRome(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in Rome-Lib format to output stream \a os.
+	//! Writes graph \p G in Rome-Lib format to output stream \p os.
 	/**
 	 * \sa readRome(Graph &G, istream &is) for more details about the format.
 	 *
@@ -693,7 +694,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in LEDA graph format from file \a filename.
+	//! Reads graph \p G in LEDA graph format from file \p filename.
 	/**
 	 * \sa readLEDA(Graph &G, istream &is) for more details.<br>
 	 *     writeLEDA(const Graph &G, const string &filename)
@@ -705,7 +706,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readLEDA(Graph &G, const string &filename);
 
-	//! Reads graph \a G in LEDA graph format from input stream \a is.
+	//! Reads graph \p G in LEDA graph format from input stream \p is.
 	/**
 	 * The LEDA graph format is a simple, Ascii-based file format used by the
 	 * <a href="http://www.algorithmic-solutions.com/leda/">LEDA library</a>.
@@ -721,7 +722,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readLEDA(Graph &G, istream &is);
 
-	//! Writes graph \a G in LEDA graph format to file \a filename.
+	//! Writes graph \p G in LEDA graph format to file \p filename.
 	/**
 	 * \sa writeLEDA(const Graph &G, ostream &os) for more details.<br>
 	 *     readLEDA(Graph &G, const string &filename)
@@ -733,7 +734,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeLEDA(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in LEDA graph format to output stream \a os.
+	//! Writes graph \p G in LEDA graph format to output stream \p os.
 	/**
 	 * The LEDA graph format is a simple, Ascii-based file format used by the
 	 * <a href="http://www.algorithmic-solutions.com/leda/">LEDA library</a>.
@@ -759,7 +760,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in Chaco format from file \a filename.
+	//! Reads graph \p G in Chaco format from file \p filename.
 	/**
 	 * \sa readChaco(Graph &G, istream &is) for more details.<br>
 	 *     writeChaco(const Graph &G, const string &filename)
@@ -771,7 +772,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readChaco(Graph &G, const string &filename);
 
-	//! Reads graph \a G in Chaco format from input stream \a is.
+	//! Reads graph \p G in Chaco format from input stream \p is.
 	/**
 	 * This simple graph format is used by graph partitioning tools like
 	 * Chaco, Metis, or Jostle.
@@ -787,7 +788,7 @@ public:
 	 * */
 	static OGDF_EXPORT bool readChaco(Graph &G, istream &is);
 
-	//! Writes graph \a G in Chaco format to file \a filename.
+	//! Writes graph \p G in Chaco format to file \p filename.
 	/**
 	 * \sa writeChaco(const Graph &G, ostream &os) for more details.<br>
 	 *     readChaco(Graph &G, const string &filename)
@@ -799,7 +800,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeChaco(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in Chaco format to output stream \a os.
+	//! Writes graph \p G in Chaco format to output stream \p os.
 	/**
 	 * This simple graph format is used by graph partitioning tools like
 	 * Chaco, Metis, or Jostle.
@@ -825,7 +826,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in a simple format as used in Petra Mutzel's thesis from file \a filename.
+	//! Reads graph \p G in a simple format as used in Petra Mutzel's thesis from file \p filename.
 	/**
 	 * \sa readPMDissGraph(Graph &G, istream &is) for more details.<br>
 	 *     writePMDissGraph(const Graph &G, const string &filename)
@@ -837,7 +838,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readPMDissGraph(Graph &G, const string &filename);
 
-	//! Reads graph \a G in a simple format as used in Petra Mutzel's thesis from input stream \a is.
+	//! Reads graph \p G in a simple format as used in Petra Mutzel's thesis from input stream \p is.
 	/**
 	 * This simple graph format has a leading line stating the name of the graph
 	 * and a following line stating the size of the graph:
@@ -855,7 +856,7 @@ public:
 	 * */
 	static OGDF_EXPORT bool readPMDissGraph(Graph &G, istream &is);
 
-	//! Writes graph \a G in a simple format as used in Petra Mutzel's thesis to file \a filename.
+	//! Writes graph \p G in a simple format as used in Petra Mutzel's thesis to file \p filename.
 	/**
 	 * \sa writePMDissGraph(const Graph &G, ostream &os) for more details.<br>
 	 *     readPMDissGraph(Graph &G, const string &filename)
@@ -867,7 +868,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writePMDissGraph(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in a simple format as used in Petra Mutzel's thesis to output stream \a os.
+	//! Writes graph \p G in a simple format as used in Petra Mutzel's thesis to output stream \p os.
 	/**
 	 * This simple graph format has a leading line stating the name of the graph
 	 * and a following line stating the size of the graph:
@@ -895,7 +896,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in Y-graph format from file \a filename.
+	//! Reads graph \p G in Y-graph format from file \p filename.
 	/**
 	 * \sa readYGraph(Graph &G, istream &is) for more details.
 	 *
@@ -906,7 +907,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readYGraph(Graph &G, const string &filename);
 
-	//! Reads graph \a G in Y-graph format from input stream \a is.
+	//! Reads graph \p G in Y-graph format from input stream \p is.
 	/**
 	 * This format is e.g. produced by NAUTY (http://www.cs.sunysb.edu/~algorith/implement/nauty/implement.shtml).
 	 *
@@ -939,7 +940,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in Graph6 format from file \a filename.
+	//! Reads graph \p G in Graph6 format from file \p filename.
 	/**
 	 * \sa readGraph6(Graph &G, istream &is) for more details.<br>
 	 *     writeGraph6(const Graph &G, const string &filename)
@@ -951,7 +952,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGraph6(Graph &G, const string &filename);
 
-	//! Reads graph \a G in Graph6 format from input stream \a is.
+	//! Reads graph \p G in Graph6 format from input stream \p is.
 	/**
 	 * The Graph6 format represents an (preferable dense or small)
 	 * simple undirected graph as a string containing printable characters
@@ -966,7 +967,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGraph6(Graph &G, istream &is);
 
-	//! Writes graph \a G in Graph6 format to file \a filename.
+	//! Writes graph \p G in Graph6 format to file \p filename.
 	/**
 	 * \sa writeGraph6(const Graph &G, ostream &os) for more details.<br>
 	 *     readGraph6(Graph &G, const string &filename)
@@ -978,7 +979,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGraph6(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in Graph6 format to output stream \a os.
+	//! Writes graph \p G in Graph6 format to output stream \p os.
 	/**
 	 * The Graph6 format represents an (preferable dense or small)
 	 * simple undirected graph as a string containing printable characters
@@ -1003,7 +1004,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in Matrix Market exchange format from stream \a inStream.
+	//! Reads graph \p G in Matrix Market exchange format from stream \p inStream.
 	/**
 	 * @param G        is assigned the read graph.
 	 * @param inStream is the input stream to read from
@@ -1011,7 +1012,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readMatrixMarket(Graph& G, istream &inStream);
 
-	//! Reads graph \a G in Matrix Market exchange format from a file with the given filename
+	//! Reads graph \p G in Matrix Market exchange format from a file with the given \p filename
 	/**
 	 * @param G        is assigned the read graph.
 	 * @param filename is the path to the input file to read from
@@ -1028,9 +1029,9 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G with edge weights stored in \a A in Rudy format from file \a filename.
+	//! Reads graph \p G with edge weights stored in \p A in Rudy format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readRudy(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeRudy(const GraphAttributes &A, const string &filename)
 	 *
@@ -1042,9 +1043,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readRudy(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with edge weights stored in \a A in Rudy format from input stream \a is.
+	//! Reads graph \p G with edge weights stored in \p A in Rudy format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeRudy(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes (only edge weights (as doubles) are used).
@@ -1054,7 +1055,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readRudy(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Writes graph with edge weights stored in \a A in Rudy format to file \a filename.
+	//! Writes graph with edge weights stored in \p A in Rudy format to file \p filename.
 	/**
 	 * \sa writeRudy(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readRudy(GraphAttributes &A, Graph &G, const string &filename)
@@ -1067,7 +1068,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeRudy(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with edge weights stored in \a A in Rudy format to output stream \a os.
+	//! Writes graph with edge weights stored in \p A in Rudy format to output stream \p os.
 	/**
 	 * \sa readRudy(GraphAttributes &A, Graph &G, istream &is)
 	 *
@@ -1086,7 +1087,7 @@ public:
 	 */
 	//@{
 
-	//!  Reads a hypergraph (as point-based expansion) in BENCH format from file \a filename.
+	//!  Reads a hypergraph (as point-based expansion) in BENCH format from file \p filename.
 	/**
 	 * A hypergraph in OGDF is represented by its point-based expansion, i.e., for each
 	 * hyperedge <i>h</i> we have a corresponding hypernode <i>n</i>. All nodes originally
@@ -1107,7 +1108,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readBENCH(Graph &G, List<node>& hypernodes, List<edge> *shell, const string &filename);
 
-	//!  Reads a hypergraph (as point-based expansion) in BENCH format from input stream \a is.
+	//!  Reads a hypergraph (as point-based expansion) in BENCH format from input stream \p is.
 	/**
 	 * A hypergraph in OGDF is represented by its point-based expansion, i.e., for each
 	 * hyperedge <i>h</i> we have a corresponding hypernode <i>n</i>. All nodes originally
@@ -1135,7 +1136,7 @@ public:
 	 */
 	//@{
 
-	//! Reads a hypergraph (as point-based expansion) in PLA format from file \a filename.
+	//! Reads a hypergraph (as point-based expansion) in PLA format from file \p filename.
 	/**
 	 * @param G          is assigned the read graph (point-based expansion of the hypergraph).
 	 * @param hypernodes is assigned the list of nodes which have to be interpreted as hypernodes.
@@ -1151,7 +1152,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename);
 
-	//!  Reads a hypergraph (as point-based expansion) in PLA format from input stream \a is.
+	//!  Reads a hypergraph (as point-based expansion) in PLA format from input stream \p is.
 	/**
 	 * A hypergraph in OGDF is represented by its point-based expansion, i.e., for each
 	 * hyperedge <i>h</i> we have a corresponding hypernode <i>n</i>. All nodes originally
@@ -1182,9 +1183,9 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G with grid layout \a gl in GD-Challenge-format from input stream \a is.
+	//! Reads graph \p G with grid layout \p gl in GD-Challenge-format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with grid layout \a gl.
+	 * \pre \p G is the graph associated with grid layout \p gl.
 	 * \sa writeChallengeGraph(const Graph &G, const GridLayout &gl, const string &filename)
 	 *
 	 * @param G        is assigned the read graph.
@@ -1195,9 +1196,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readChallengeGraph(Graph &G, GridLayout &gl, const string &filename);
 
-	//! Reads graph \a G with grid layout \a gl in GD-Challenge-format from input stream \a is.
+	//! Reads graph \p G with grid layout \p gl in GD-Challenge-format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with grid layout \a gl.
+	 * \pre \p G is the graph associated with grid layout \p gl.
 	 * \sa writeChallengeGraph(const Graph &G, const GridLayout &gl, ostream &os)
 	 *
 	 * @param G  is assigned the read graph.
@@ -1207,26 +1208,26 @@ public:
 	 */
 	static OGDF_EXPORT bool readChallengeGraph(Graph &G, GridLayout &gl, istream &is);
 
-	//! Writes graph \a G with grid layout \a gl in GD-Challenge-format to output stream \a os.
+	//! Writes graph \p G with grid layout \p gl in GD-Challenge-format to file \p filename.
 	/**
-	 * \pre \a G is the graph associated with grid layout \a gl.
+	 * \pre \p G is the graph associated with grid layout \p gl.
 	 * \sa readChallengeGraph(Graph &G, GridLayout &gl, const string &filename)
 	 *
 	 * @param G        is the graph to be written.
-	 * @param gl       specifies the grid layout of \a G to be written.
+	 * @param gl       specifies the grid layout of \p G to be written.
 	 * @param filename is the name of the file to which the clustered graph will be written.
 	 * \return true if successful, false otherwise.
 	 */
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeChallengeGraph(const Graph &G, const GridLayout &gl, const string &filename);
 
-	//! Writes graph \a G with grid layout \a gl in GD-Challenge-format to output stream \a os.
+	//! Writes graph \p G with grid layout \p gl in GD-Challenge-format to output stream \p os.
 	/**
-	 * \pre \a G is the graph associated with grid layout \a gl.
+	 * \pre \p G is the graph associated with grid layout \p gl.
 	 * \sa readChallengeGraph(Graph &G, GridLayout &gl, istream &is)
 	 *
 	 * @param G  is the graph to be written.
-	 * @param gl specifies the grid layout of \a G to be written.
+	 * @param gl specifies the grid layout of \p G to be written.
 	 * @param os is the output stream to which the graph is written.
 	 * \return true if successful, false otherwise.
 	 */
@@ -1242,7 +1243,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in GraphML format from file \a filename.
+	//! Reads graph \p G in GraphML format from file \p filename.
 	/**
 	 * \sa readGraphML(Graph &G, istream &is) for more details.<br>
 	 *     writeGraphML(const Graph &G, const string &filename)
@@ -1254,7 +1255,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGraphML(Graph &G, const string &filename);
 
-	//! Reads graph \a G in GraphML format from input stream \a is.
+	//! Reads graph \p G in GraphML format from input stream \p is.
 	/**
 	 * \sa writeGraphML(const Graph &G, ostream &os)
 	 *
@@ -1264,9 +1265,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGraphML(Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) in GraphML format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) in GraphML format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa readGraphML(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGraphML(const ClusterGraph &C, const string &filename)
 	 *
@@ -1278,9 +1279,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGraphML(ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) in GraphML format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) in GraphML format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa writeGraphML(const ClusterGraph &C, ostream &os)
 	 *
 	 * @param C   is assigned the read clustered graph (cluster structure).
@@ -1290,9 +1291,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGraphML(ClusterGraph &C, Graph &G, istream &is);
 
-	//! Reads graph \a G with attributes \a A in GraphML format from file \a filename.
+	//! Reads graph \p G with attributes \p A in GraphML format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readGraphML(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGraphML(const GraphAttributes &A, const string &filename)
 	 *
@@ -1304,9 +1305,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGraphML(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in GraphML format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in GraphML format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeGraphML(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1316,9 +1317,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGraphML(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GraphML format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in GraphML format from file \p filename.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGraphML(const ClusterGraphAttributes &A, const string &filename)
 	 *
@@ -1331,9 +1332,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GraphML format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in GraphML format from input stream \p is.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa writeGraphML(const ClusterGraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1344,7 +1345,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes graph \a G in GraphML format to file \a filename.
+	//! Writes graph \p G in GraphML format to file \p filename.
 	/**
 	 * \sa writeGraphML(const Graph &G, ostream &os) for more details.<br>
 	 *     readGraphML(Graph &G, const string &filename)
@@ -1356,7 +1357,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGraphML(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in GraphML format to output stream \a os.
+	//! Writes graph \p G in GraphML format to output stream \p os.
 	/**
 	 *
 	 * @param G   is the graph to be written.
@@ -1365,7 +1366,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGraphML(const Graph &G, ostream &os);
 
-	//! Writes clustered graph \a C in GraphML format to file \a filename.
+	//! Writes clustered graph \p C in GraphML format to file \p filename.
 	/**
 	 * \sa writeGraphML(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readGraphML(ClusterGraph &C, Graph &G, const string &filename)
@@ -1377,7 +1378,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGraphML(const ClusterGraph &C, const string &filename);
 
-	//! Writes clustered graph \a C in GraphML format to output stream \a os.
+	//! Writes clustered graph \p C in GraphML format to output stream \p os.
 	/**
 	 *
 	 * @param C   is the clustered graph to be written.
@@ -1386,7 +1387,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGraphML(const ClusterGraph &C, ostream &os);
 
-	//! Writes graph with attributes \a A in GraphML format to file \a filename.
+	//! Writes graph with attributes \p A in GraphML format to file \p filename.
 	/**
 	 * \sa writeGraphML(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGraphML(GraphAttributes &A, Graph &G, const string &filename)
@@ -1398,7 +1399,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGraphML(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GraphML format to output stream \a os.
+	//! Writes graph with attributes \p A in GraphML format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the graph and its attributes to be written.
@@ -1407,7 +1408,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGraphML(const GraphAttributes &A, ostream &os);
 
-	//! Writes graph with attributes \a A in GraphML format to file \a filename.
+	//! Writes graph with attributes \p A in GraphML format to file \p filename.
 	/**
 	 * \sa writeGraphML(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
@@ -1419,7 +1420,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGraphML(const ClusterGraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GraphML format to output stream \a os.
+	//! Writes graph with attributes \p A in GraphML format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the clustered graph and its attributes to be written.
@@ -1438,7 +1439,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in DOT format from file \a filename.
+	//! Reads graph \p G in DOT format from file \p filename.
 	/**
 	 * \sa readDOT(Graph &G, istream &is) for more details.<br>
 	 *     writeDOT(const Graph &G, const string &filename)
@@ -1450,7 +1451,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readDOT(Graph &G, const string &filename);
 
-	//! Reads graph \a G in DOT format from input stream \a is.
+	//! Reads graph \p G in DOT format from input stream \p is.
 	/**
 	 * \sa writeDOT(const Graph &G, ostream &os)
 	 *
@@ -1460,9 +1461,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readDOT(Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) in DOT format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) in DOT format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa readDOT(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeDOT(const ClusterGraph &C, const string &filename)
 	 *
@@ -1474,9 +1475,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readDOT(ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) in DOT format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) in DOT format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa writeDOT(const ClusterGraph &C, ostream &os)
 	 *
 	 * @param C   is assigned the read clustered graph (cluster structure).
@@ -1486,9 +1487,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readDOT(ClusterGraph &C, Graph &G, istream &is);
 
-	//! Reads graph \a G with attributes \a A in DOT format from file \a filename.
+	//! Reads graph \p G with attributes \p A in DOT format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readDOT(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeDOT(const GraphAttributes &A, const string &filename)
 	 *
@@ -1500,9 +1501,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readDOT(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in DOT format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in DOT format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeDOT(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1512,9 +1513,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readDOT(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in DOT format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in DOT format from file \p filename.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeDOT(const ClusterGraphAttributes &A, const string &filename)
 	 *
@@ -1527,9 +1528,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in DOT format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in DOT format from input stream \p is.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa writeDOT(const ClusterGraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1540,7 +1541,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes graph \a G in DOT format to file \a filename.
+	//! Writes graph \p G in DOT format to file \p filename.
 	/**
 	 * \sa writeDOT(const Graph &G, ostream &os) for more details.<br>
 	 *     readDOT(Graph &G, const string &filename)
@@ -1552,7 +1553,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeDOT(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in DOT format to output stream \a os.
+	//! Writes graph \p G in DOT format to output stream \p os.
 	/**
 	 *
 	 * @param G   is the graph to be written.
@@ -1561,7 +1562,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeDOT(const Graph &G, ostream &os);
 
-	//! Writes clustered graph \a C in DOT format to file \a filename.
+	//! Writes clustered graph \p C in DOT format to file \p filename.
 	/**
 	 * \sa writeDOT(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readDOT(ClusterGraph &C, Graph &G, const string &filename)
@@ -1573,7 +1574,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeDOT(const ClusterGraph &C, const string &filename);
 
-	//! Writes clustered graph \a C in DOT format to output stream \a os.
+	//! Writes clustered graph \p C in DOT format to output stream \p os.
 	/**
 	 *
 	 * @param C   is the clustered graph to be written.
@@ -1582,7 +1583,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeDOT(const ClusterGraph &C, ostream &os);
 
-	//! Writes graph with attributes \a A in DOT format to file \a filename.
+	//! Writes graph with attributes \p A in DOT format to file \p filename.
 	/**
 	 * \sa writeDOT(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readDOT(GraphAttributes &A, Graph &G, const string &filename)
@@ -1594,7 +1595,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeDOT(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in DOT format to output stream \a os.
+	//! Writes graph with attributes \p A in DOT format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the graph and its attributes to be written.
@@ -1603,7 +1604,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeDOT(const GraphAttributes &A, ostream &os);
 
-	//! Writes graph with attributes \a A in DOT format to file \a filename.
+	//! Writes graph with attributes \p A in DOT format to file \p filename.
 	/**
 	 * \sa writeDOT(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
 	 *     readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
@@ -1615,7 +1616,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeDOT(const ClusterGraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in DOT format to output stream \a os.
+	//! Writes graph with attributes \p A in DOT format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the clustered graph and its attributes to be written.
@@ -1634,7 +1635,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in GEXF format from file \a filename.
+	//! Reads graph \p G in GEXF format from file \p filename.
 	/**
 	 * \sa readGEXF(Graph &G, istream &is) for more details.<br>
 	 *     writeGEXF(const Graph &G, const string &filename)
@@ -1646,7 +1647,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGEXF(Graph &G, const string &filename);
 
-	//! Reads graph \a G in GEXF format from input stream \a is.
+	//! Reads graph \p G in GEXF format from input stream \p is.
 	/**
 	 * \sa writeGEXF(const Graph &G, ostream &os)
 	 *
@@ -1656,9 +1657,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGEXF(Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) in GEXF format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) in GEXF format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa readGEXF(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGEXF(const ClusterGraph &C, const string &filename)
 	 *
@@ -1670,9 +1671,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGEXF(ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) in GEXF format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) in GEXF format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa writeGEXF(const ClusterGraph &C, ostream &os)
 	 *
 	 * @param C   is assigned the read clustered graph (cluster structure).
@@ -1682,9 +1683,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGEXF(ClusterGraph &C, Graph &G, istream &is);
 
-	//! Reads graph \a G with attributes \a A in GEXF format from file \a filename.
+	//! Reads graph \p G with attributes \p A in GEXF format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readGEXF(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGEXF(const GraphAttributes &A, const string &filename)
 	 *
@@ -1696,9 +1697,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGEXF(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in GEXF format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in GEXF format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeGEXF(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1708,9 +1709,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGEXF(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GEXF format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in GEXF format from file \p filename.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeGEXF(const ClusterGraphAttributes &A, const string &filename)
 	 *
@@ -1723,9 +1724,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in GEXF format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in GEXF format from input stream \p is.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa writeGEXF(const ClusterGraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1736,7 +1737,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes graph \a G in GEXF format to file \a filename.
+	//! Writes graph \p G in GEXF format to file \p filename.
 	/**
 	 * \sa writeGEXF(const Graph &G, ostream &os) for more details.<br>
 	 *     readGEXF(Graph &G, const string &filename)
@@ -1748,7 +1749,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGEXF(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in GEXF format to output stream \a os.
+	//! Writes graph \p G in GEXF format to output stream \p os.
 	/**
 	 *
 	 * @param G   is the graph to be written.
@@ -1757,7 +1758,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGEXF(const Graph &G, ostream &os);
 
-	//! Writes clustered graph \a C in GEXF format to file \a filename.
+	//! Writes clustered graph \p C in GEXF format to file \p filename.
 	/**
 	 * \sa writeGEXF(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readGEXF(ClusterGraph &C, Graph &G, const string &filename)
@@ -1769,7 +1770,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGEXF(const ClusterGraph &C, const string &filename);
 
-	//! Writes clustered graph \a C in GEXF format to output stream \a os.
+	//! Writes clustered graph \p C in GEXF format to output stream \p os.
 	/**
 	 *
 	 * @param C   is the clustered graph to be written.
@@ -1778,7 +1779,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGEXF(const ClusterGraph &C, ostream &os);
 
-	//! Writes graph with attributes \a A in GEXF format to file \a filename.
+	//! Writes graph with attributes \p A in GEXF format to file \p filename.
 	/**
 	 * \sa writeGEXF(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGEXF(GraphAttributes &A, Graph &G, const string &filename)
@@ -1790,7 +1791,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGEXF(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GEXF format to output stream \a os.
+	//! Writes graph with attributes \p A in GEXF format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the graph and its attributes to be written.
@@ -1799,7 +1800,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGEXF(const GraphAttributes &A, ostream &os);
 
-	//! Writes graph with attributes \a A in GEXF format to file \a filename.
+	//! Writes graph with attributes \p A in GEXF format to file \p filename.
 	/**
 	 * \sa writeGEXF(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
@@ -1811,7 +1812,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGEXF(const ClusterGraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GEXF format to output stream \a os.
+	//! Writes graph with attributes \p A in GEXF format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the clustered graph and its attributes to be written.
@@ -1830,7 +1831,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in GDF format from file \a filename.
+	//! Reads graph \p G in GDF format from file \p filename.
 	/**
 	 * \sa readGDF(Graph &G, istream &is) for more details.<br>
 	 *     writeGDF(const Graph &G, const string &filename)
@@ -1842,7 +1843,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGDF(Graph &G, const string &filename);
 
-	//! Reads graph \a G in GDF format from input stream \a is.
+	//! Reads graph \p G in GDF format from input stream \p is.
 	/**
 	 * \sa writeGDF(const Graph &G, ostream &os)
 	 *
@@ -1852,9 +1853,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readGDF(Graph &G, istream &is);
 
-	//! Reads graph \a G with attributes \a A in GDF format from file \a filename.
+	//! Reads graph \p G with attributes \p A in GDF format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readGDF(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeGDF(const GraphAttributes &A, const string &filename)
 	 *
@@ -1866,9 +1867,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readGDF(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in GDF format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in GDF format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeGDF(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -1878,7 +1879,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readGDF(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Writes graph \a G in GDF format to file \a filename.
+	//! Writes graph \p G in GDF format to file \p filename.
 	/**
 	 * \sa writeGDF(const Graph &G, ostream &os) for more details.<br>
 	 *     readGDF(Graph &G, const string &filename)
@@ -1890,7 +1891,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGDF(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in GDF format to output stream \a os.
+	//! Writes graph \p G in GDF format to output stream \p os.
 	/**
 	 *
 	 * @param G   is the graph to be written.
@@ -1899,7 +1900,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeGDF(const Graph &G, ostream &os);
 
-	//! Writes graph with attributes \a A in GDF format to file \a filename.
+	//! Writes graph with attributes \p A in GDF format to file \p filename.
 	/**
 	 * \sa writeGDF(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readGDF(GraphAttributes &A, Graph &G, const string &filename)
@@ -1911,7 +1912,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeGDF(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in GDF format to output stream \a os.
+	//! Writes graph with attributes \p A in GDF format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the graph and its attributes to be written.
@@ -1930,7 +1931,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in TLP format from file \a filename.
+	//! Reads graph \p G in TLP format from file \p filename.
 	/**
 	 * \sa readTLP(Graph &G, istream &is) for more details.<br>
 	 *     writeTLP(const Graph &G, const string &filename)
@@ -1942,7 +1943,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readTLP(Graph &G, const string &filename);
 
-	//! Reads graph \a G in TLP format from input stream \a is.
+	//! Reads graph \p G in TLP format from input stream \p is.
 	/**
 	 * \sa writeTLP(const Graph &G, ostream &os)
 	 *
@@ -1952,9 +1953,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readTLP(Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) in TLP format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) in TLP format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa readTLP(ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeTLP(const ClusterGraph &C, const string &filename)
 	 *
@@ -1966,9 +1967,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readTLP(ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) in TLP format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) in TLP format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with clustered graph \a C.
+	 * \pre \p G is the graph associated with clustered graph \p C.
 	 * \sa writeTLP(const ClusterGraph &C, ostream &os)
 	 *
 	 * @param C   is assigned the read clustered graph (cluster structure).
@@ -1978,9 +1979,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readTLP(ClusterGraph &C, Graph &G, istream &is);
 
-	//! Reads graph \a G with attributes \a A in TLP format from file \a filename.
+	//! Reads graph \p G with attributes \p A in TLP format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readTLP(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeTLP(const GraphAttributes &A, const string &filename)
 	 *
@@ -1992,9 +1993,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readTLP(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in TLP format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in TLP format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeTLP(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -2004,9 +2005,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readTLP(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in TLP format from file \a filename.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in TLP format from file \p filename.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is) for more details.<br>
 	 *     writeTLP(const ClusterGraphAttributes &A, const string &filename)
 	 *
@@ -2019,9 +2020,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename);
 
-	//! Reads clustered graph (\a C, \a G) with attributes \a A in TLP format from input stream \a is.
+	//! Reads clustered graph (\p C, \p G) with attributes \p A in TLP format from input stream \p is.
 	/**
-	 * \pre \a C is the clustered graph associated with attributes \a A, and \a G is the graph associated with \a C.
+	 * \pre \p C is the clustered graph associated with attributes \p A, and \p G is the graph associated with \p C.
 	 * \sa writeTLP(const ClusterGraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -2032,7 +2033,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is);
 
-	//! Writes graph \a G in TLP format to file \a filename.
+	//! Writes graph \p G in TLP format to file \p filename.
 	/**
 	 * \sa writeTLP(const Graph &G, ostream &os) for more details.<br>
 	 *     readTLP(Graph &G, const string &filename)
@@ -2044,7 +2045,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeTLP(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in TLP format to output stream \a os.
+	//! Writes graph \p G in TLP format to output stream \p os.
 	/**
 	 *
 	 * @param G   is the graph to be written.
@@ -2053,7 +2054,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeTLP(const Graph &G, ostream &os);
 
-	//! Writes clustered graph \a C in TLP format to file \a filename.
+	//! Writes clustered graph \p C in TLP format to file \p filename.
 	/**
 	 * \sa writeTLP(const ClusterGraph &C, ostream &os) for more details.<br>
 	 *     readTLP(ClusterGraph &C, Graph &G, const string &filename)
@@ -2065,7 +2066,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeTLP(const ClusterGraph &C, const string &filename);
 
-	//! Writes clustered graph \a C in TLP format to output stream \a os.
+	//! Writes clustered graph \p C in TLP format to output stream \p os.
 	/**
 	 *
 	 * @param C   is the clustered graph to be written.
@@ -2074,7 +2075,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeTLP(const ClusterGraph &C, ostream &os);
 
-	//! Writes graph with attributes \a A in TLP format to file \a filename.
+	//! Writes graph with attributes \p A in TLP format to file \p filename.
 	/**
 	 * \sa writeTLP(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readTLP(GraphAttributes &A, Graph &G, const string &filename)
@@ -2086,7 +2087,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeTLP(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in TLP format to output stream \a os.
+	//! Writes graph with attributes \p A in TLP format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the graph and its attributes to be written.
@@ -2095,7 +2096,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeTLP(const GraphAttributes &A, ostream &os);
 
-	//! Writes graph with attributes \a A in TLP format to file \a filename.
+	//! Writes graph with attributes \p A in TLP format to file \p filename.
 	/**
 	 * \sa writeTLP(const ClusterGraphAttributes &A, ostream &os) for more details.<br>
 	 *     readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
@@ -2107,7 +2108,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeTLP(const ClusterGraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in TLP format to output stream \a os.
+	//! Writes graph with attributes \p A in TLP format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the clustered graph and its attributes to be written.
@@ -2126,7 +2127,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G in DL format from file \a filename.
+	//! Reads graph \p G in DL format from file \p filename.
 	/**
 	 * \sa readDL(Graph &G, istream &is) for more details.<br>
 	 *     writeDL(const Graph &G, const string &filename)
@@ -2138,7 +2139,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readDL(Graph &G, const string &filename);
 
-	//! Reads graph \a G in DL format from input stream \a is.
+	//! Reads graph \p G in DL format from input stream \p is.
 	/**
 	 * \sa writeDL(const Graph &G, ostream &os)
 	 *
@@ -2148,9 +2149,9 @@ public:
 	 */
 	static OGDF_EXPORT bool readDL(Graph &G, istream &is);
 
-	//! Reads graph \a G with attributes \a A in DL format from file \a filename.
+	//! Reads graph \p G with attributes \p A in DL format from file \p filename.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa readDL(GraphAttributes &A, Graph &G, istream &is) for more details.<br>
 	 *     writeDL(const GraphAttributes &A, const string &filename)
 	 *
@@ -2162,9 +2163,9 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readDL(GraphAttributes &A, Graph &G, const string &filename);
 
-	//! Reads graph \a G with attributes \a A in DL format from input stream \a is.
+	//! Reads graph \p G with attributes \p A in DL format from input stream \p is.
 	/**
-	 * \pre \a G is the graph associated with attributes \a A.
+	 * \pre \p G is the graph associated with attributes \p A.
 	 * \sa writeDL(const GraphAttributes &A, ostream &os)
 	 *
 	 * @param A   is assigned the graph's attributes.
@@ -2174,7 +2175,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readDL(GraphAttributes &A, Graph &G, istream &is);
 
-	//! Writes graph \a G in DL format to file \a filename.
+	//! Writes graph \p G in DL format to file \p filename.
 	/**
 	 * \sa writeDL(const Graph &G, ostream &os) for more details.<br>
 	 *     readDL(Graph &G, const string &filename)
@@ -2186,7 +2187,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeDL(const Graph &G, const string &filename);
 
-	//! Writes graph \a G in DL format to output stream \a os.
+	//! Writes graph \p G in DL format to output stream \p os.
 	/**
 	 *
 	 * @param G   is the graph to be written.
@@ -2195,7 +2196,7 @@ public:
 	 */
 	static OGDF_EXPORT bool writeDL(const Graph &G, ostream &os);
 
-	//! Writes graph with attributes \a A in DL format to file \a filename.
+	//! Writes graph with attributes \p A in DL format to file \p filename.
 	/**
 	 * \sa writeDL(const GraphAttributes &A, ostream &os) for more details.<br>
 	 *     readDL(GraphAttributes &A, Graph &G, const string &filename)
@@ -2207,7 +2208,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeDL(const GraphAttributes &A, const string &filename);
 
-	//! Writes graph with attributes \a A in DL format to output stream \a os.
+	//! Writes graph with attributes \p A in DL format to output stream \p os.
 	/**
 	 *
 	 * @param A   specifies the graph and its attributes to be written.
@@ -2235,6 +2236,24 @@ public:
 	//@{
 
 	/**
+	 * Reads a graph in SteinLib format from istream \p is.
+	 * \warning The coordinate section, weights and terminals of the SteinLib instance is not read!
+	 *
+	 * @param G   is assigned the read graph.
+	 * @param is  is the input stream to be read.
+	 * @return true if successful, false otherwise.
+	 */
+	static OGDF_EXPORT bool readSTP(Graph &G, istream &is) {
+		// ignore everything except for the unweighted graph itself
+		EdgeWeightedGraph<int> wG;
+		List<node> terminals;
+		NodeArray<bool> isTerminal;
+		bool res = readSTP(wG, terminals, isTerminal, is);
+		G = Graph(wG);
+		return res;
+	}
+
+	/**
 	 * Reads a SteinLib instance from file \a filename and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
 	 * \warning The coordinate section of the SteinLib instance is not read!
 	 *
@@ -2258,7 +2277,7 @@ public:
 	}
 
 	/**
-	 * Reads a SteinLib instance from an inputstream \a is and converts it into a weighted graph \a wG and a set of terminal nodes \a terminals.
+	 * Reads a SteinLib instance from an inputstream \p is and converts it into a weighted graph \p wG and a set of terminal nodes \p terminals.
 	 * \warning The coordinate section of the SteinLib instance is not read!
 	 *
 	 * @param wG the edge weighteed graph
@@ -2283,13 +2302,13 @@ public:
 
 		string buffer;
 
-		enum {
-			SECTION_NONE,
-			SECTION_COMMENT,
-			SECTION_GRAPH,
-			SECTION_TERMINALS,
-			SECTION_IGNORE, // mostly: not implemented
-		} section = SECTION_NONE;
+		enum class Section {
+			None,
+			Comment,
+			Graph,
+			Terminals,
+			Ignore, // mostly: not implemented
+		} section = Section::None;
 
 		string key, value;
 
@@ -2324,67 +2343,71 @@ public:
 
 			std::istringstream iss(buffer);
 			iss >> key;
-			if (section != SECTION_NONE && equalIgnoreCase(key, "END")) {
-				section = SECTION_NONE;
+			if (section != Section::None && equalIgnoreCase(key, "END")) {
+				section = Section::None;
 				continue;
 			}
 			switch (section) {
-			case SECTION_NONE:
+			case Section::None:
 				if (equalIgnoreCase(key, "SECTION")) {
 					string what;
 					iss >> what;
 					if (equalIgnoreCase(what, "Comment")) {
-						section = SECTION_COMMENT;
+						section = Section::Comment;
 					}
 					else
 					if (equalIgnoreCase(what, "Graph")) {
 						if (wG.numberOfNodes() != 0) {
-							logger.lout(Logger::LL_MINOR) << "Encountered duplicate graph section.";
-							section = SECTION_IGNORE;
+							logger.lout(Logger::Level::Minor) << "Encountered duplicate graph section.";
+							section = Section::Ignore;
 						} else {
-							section = SECTION_GRAPH;
+							section = Section::Graph;
 						}
 					}
 					else
 					if (equalIgnoreCase(what, "Terminals")) {
 						if (!terminals.empty()) {
-							logger.lout(Logger::LL_MINOR) << "Encountered duplicate terminal section.";
-							section = SECTION_IGNORE;
+							logger.lout(Logger::Level::Minor) << "Encountered duplicate terminal section.";
+							section = Section::Ignore;
 						} else {
-							section = SECTION_TERMINALS;
+							section = Section::Terminals;
 						}
 					}
 					else {
-						section = SECTION_IGNORE;
+						section = Section::Ignore;
 					}
 
 					if (!iss.eof()) {
 						iss >> what;
 						if (equalIgnoreCase(what, "FROM")) {
 							// loading not implemented, just ignore and end section
-							section = SECTION_NONE;
+							section = Section::None;
 						}
 					}
 				}
 				else
 				if (equalIgnoreCase(buffer, "EOF")) {
 					if(expectedNumberOfTerminals != -1 && expectedNumberOfTerminals != terminals.size()) {
-						logger.lout(Logger::LL_MINOR) << "Invalid number of terminals. Was " << terminals.size() << " but expected " << expectedNumberOfTerminals << "." << endl;
+						logger.lout(Logger::Level::Minor)
+						  << "Invalid number of terminals. Was " << terminals.size()
+						  << " but expected " << expectedNumberOfTerminals << "." << endl;
 					}
 
 					if(expectedNumberOfEdges != -1 && expectedNumberOfEdges != wG.numberOfEdges()) {
-						logger.lout(Logger::LL_MINOR) <<  "Invalid number of edges. Was " << wG.numberOfEdges() << " but expected " << expectedNumberOfEdges << "." << endl;
+						logger.lout(Logger::Level::Minor)
+						  <<  "Invalid number of edges. Was " << wG.numberOfEdges()
+						  << " but expected " << expectedNumberOfEdges << "." << endl;
 					}
 					return true;
 				}
 				break;
 
-			case SECTION_IGNORE:
-			case SECTION_COMMENT:
+			case Section::Ignore:
+			case Section::Comment:
 				// allow anything
 				break;
 
-			case SECTION_GRAPH:
+			case Section::Graph:
 				if (equalIgnoreCase(key, "Nodes")) {
 					int n = -1;
 					iss >> n;
@@ -2413,11 +2436,11 @@ public:
 					}
 					wG.newEdge(indexToNode[source], indexToNode[target], weight);
 				} else {
-					logger.lout(Logger::LL_MINOR) << "Invalid edge key encountered: " << key << endl;
+					logger.lout(Logger::Level::Minor) << "Invalid edge key encountered: " << key << endl;
 				}
 				break;
 
-			case SECTION_TERMINALS:
+			case Section::Terminals:
 				if (equalIgnoreCase(key, "Terminals")) {
 					iss >> expectedNumberOfTerminals;
 				} else if (equalIgnoreCase(key, "T")) {
@@ -2430,7 +2453,7 @@ public:
 					terminals.pushBack(indexToNode[v]);
 					isTerminal[indexToNode[v]] = true;
 				} else if(!equalIgnoreCase(key, "Root")) {
-					logger.lout(Logger::LL_MINOR) << "Invalid terminal key encountered: " << key << endl;
+					logger.lout(Logger::Level::Minor) << "Invalid terminal key encountered: " << key << endl;
 				}
 				break;
 			}
@@ -2534,6 +2557,7 @@ public:
 	 * Reads a maximum flow instance in DIMACS format.
 	 *
 	 * @param graph will contain the parsed graph
+	 * @param weights will contain the weights of the edges
 	 * @param source will contain the flow source
 	 * @param sink will contain the flow sink
 	 * @param filename name of the file to be read
@@ -2542,18 +2566,20 @@ public:
 	template<typename T>
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static bool readDMF(
-			EdgeWeightedGraph<T> &graph,
+			Graph &graph,
+			EdgeArray<T> &weights,
 			node &source,
 			node &sink,
 			const string &filename) {
 		ifstream is(filename);
-		return readDMF(graph, source, sink, is);
+		return readDMF(graph, weights, source, sink, is);
 	}
 
 	/**
 	 * Reads a maximum flow instance in DIMACS format.
 	 *
 	 * @param graph will contain the parsed graph
+	 * @param weights will contain the weights of the edges
 	 * @param source will contain the flow source
 	 * @param sink will contain the flow sink
 	 * @param is input stream
@@ -2561,7 +2587,8 @@ public:
 	 */
 	template<typename T>
 	static bool readDMF(
-			EdgeWeightedGraph<T> &graph,
+			Graph &graph,
+			EdgeArray<T> &weights,
 			node &source,
 			node &sink,
 			istream &is)
@@ -2569,6 +2596,7 @@ public:
 		int expectedNumberOfEdges = -1;
 		List<node> nodes;
 		graph.clear();
+		weights.init(graph, 0);
 		source = nullptr;
 		sink = nullptr;
 
@@ -2615,8 +2643,8 @@ public:
 				} else if(buffer[0] == 'n') {
 					// target or source definition
 					int nodeIndex = -1;
-					string nodeType = "";
-					iss >> nodeIndex >> nodeType;
+					string nodeTypeString = "";
+					iss >> nodeIndex >> nodeTypeString;
 
 					if (nodeIndex < 1 || nodeIndex > nodes.size()) {
 						logger.lout() << "Invalid node index supplied: " << nodeIndex << endl;
@@ -2624,20 +2652,20 @@ public:
 					}
 
 					node w = *nodes.get(nodeIndex - 1);
-					if (!nodeType.compare("t")) {
+					if (!nodeTypeString.compare("t")) {
 						if(sink != nullptr) {
-							logger.lout() << "Duplicate sink encountered: " << nodeType << endl;
+							logger.lout() << "Duplicate sink encountered: " << nodeTypeString << endl;
 							return false;
 						}
 						sink = w;
-					} else if (!nodeType.compare("s")) {
+					} else if (!nodeTypeString.compare("s")) {
 						if(source != nullptr) {
-							logger.lout() << "Duplicate source encountered: " << nodeType << endl;
+							logger.lout() << "Duplicate source encountered: " << nodeTypeString << endl;
 							return false;
 						}
 						source = w;
 					} else {
-						logger.lout() << "Malformed node type encountered: " << nodeType << endl;
+						logger.lout() << "Malformed node type encountered: " << nodeTypeString << endl;
 						return false;
 					}
 
@@ -2653,20 +2681,21 @@ public:
 						logger.lout() << "Invalid node index supplied: " << sourceIndex << endl;
 						return false;
 					}
-					node source = *nodes.get(sourceIndex - 1);
+					node newSource = *nodes.get(sourceIndex - 1);
 
 					if (targetIndex < 1 || targetIndex > nodes.size()) {
 						logger.lout() << "Invalid node index supplied: " << targetIndex << endl;
 						return false;
 					}
-					node target = *nodes.get(targetIndex - 1);
+					node newTarget = *nodes.get(targetIndex - 1);
 
 					if(cap < 0) {
 						logger.lout() << "Negative capacity supplied: " << targetIndex << endl;
 						return false;
 					}
 
-					graph.newEdge(source, target, cap);
+					edge e = graph.newEdge(newSource, newTarget);
+					weights(e) = cap;
 				} else {
 					logger.lout() << "Encountered invalid line: " << buffer << endl;
 					return false;
@@ -2705,7 +2734,8 @@ public:
 	/**
 	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
 	 *
-	 * @param graph edge weighted graph to be written
+	 * @param graph graph to be written
+	 * @param weights will contain the weights of the edges
 	 * @param source source of the maximum flow
 	 * @param sink sink of the maximum flow
 	 * @param filename name of the file to be written to
@@ -2715,19 +2745,21 @@ public:
 	template<typename T>
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static bool writeDMF(
-			const EdgeWeightedGraph<T> &graph,
+			const Graph &graph,
+			const EdgeArray<T> &weights,
 			const node source,
 			const node sink,
 			const string &filename)
 	{
 		ofstream os(filename);
-		return writeDMF(graph, source, sink, os);
+		return writeDMF(graph, weights, source, sink, os);
 	}
 
 	/**
 	 * Writes a maximum flow problem instance to a DIMACS maximum flow file.
 	 *
-	 * @param graph edge weighted graph to be written
+	 * @param graph graph to be written
+	 * @param weights will contain the weights of the edges
 	 * @param source source of the maximum flow
 	 * @param sink sink of the maximum flow
 	 * @param os the output stream be written to
@@ -2736,7 +2768,8 @@ public:
 	 */
 	template<typename T>
 	static bool writeDMF(
-			const EdgeWeightedGraph<T> &graph,
+			const Graph &graph,
+			const EdgeArray<T> &weights,
 			const node source,
 			const node sink,
 			ostream &os)
@@ -2755,7 +2788,7 @@ public:
 		os << "n " << nodeIndices[sink] << " t" << endl;
 
 		for(edge e : graph.edges) {
-			os << "a " << nodeIndices[e->source()] << " " << nodeIndices[e->target()] << " " << graph.weight(e) << endl;
+			os << "a " << nodeIndices[e->source()] << " " << nodeIndices[e->target()] << " " << weights(e) << endl;
 		}
 
 		return true;
@@ -2769,7 +2802,7 @@ public:
 	 */
 	//@{
 
-	//! Reads graph \a G with subgraph defined by \a delEdges from file \a filename.
+	//! Reads graph \p G with subgraph defined by \p delEdges from file \p filename.
 	/**
 	 * \sa writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const string &filename)
 	 *
@@ -2781,7 +2814,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string &filename);
 
-	//! Reads graph \a G with subgraph defined by \a delEdges from stream \a is.
+	//! Reads graph \p G with subgraph defined by \p delEdges from stream \p is.
 	/**
 	 * \sa writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, ostream &os)
 	 *
@@ -2792,7 +2825,7 @@ public:
 	 */
 	static OGDF_EXPORT bool readEdgeListSubgraph(Graph &G, List<edge> &delEdges, istream &is);
 
-	//! Writes graph \a G with subgraph defined by \a delEdges to file \a filename.
+	//! Writes graph \p G with subgraph defined by \p delEdges to file \p filename.
 	/**
 	 * \sa readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string &filename)
 	 *
@@ -2804,7 +2837,7 @@ public:
 	OGDF_DEPRECATED("Streams should be used instead.")
 	static OGDF_EXPORT bool writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, const string &filename);
 
-	//! Writes graph \a G with subgraph defined by \a delEdges to stream \a os.
+	//! Writes graph \p G with subgraph defined by \p delEdges to stream \p os.
 	/**
 	 * \sa readEdgeListSubgraph(Graph &G, List<edge> &delEdges, istream &is)
 	 *
@@ -2850,25 +2883,25 @@ public:
 	//! Returns the currently used indentation width.
 	static int indentWidth() { return s_indentWidth; }
 
-	//! Sets the indentation character to \a c.
+	//! Sets the indentation character to \p c.
 	/**
-	 * \pre \a c must be a white-space character (e.g., a space or a tab).
+	 * \pre \p c must be a white-space character (e.g., a space or a tab).
 	 */
 	static void setIndentChar(char c) {
 		OGDF_ASSERT(isspace((int)c));
 		s_indentChar = c;
 	}
 
-	//! Sets the indentation width to \a w.
+	//! Sets the indentation width to \p w.
 	/**
-	 * \pre \a w must be non-negative.
+	 * \pre \p w must be non-negative.
 	 * Setting the indentation width to 0 suppresses indentation.
 	 */
 	static void setIndentWidth(int w) {
 		if(w >= 0) s_indentWidth = w;
 	}
 
-	//! Prints indentation for indentation \a depth to output stream \a os and returns \a os.
+	//! Prints indentation for indentation \p depth to output stream \p os and returns \p os.
 	static OGDF_EXPORT ostream &indent(ostream &os, int depth);
 
 	//! @}

@@ -38,11 +38,7 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// UpwardPlanarSubgraphSimple
-// implements a maximal planar subgraph algorithm using
-// planarity testing
-//---------------------------------------------------------
+//! A maximal planar subgraph algorithm using planarity testing
 class OGDF_EXPORT UpwardPlanarSubgraphSimple : public UpwardPlanarSubgraphModule
 {
 public:

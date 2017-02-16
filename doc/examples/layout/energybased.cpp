@@ -20,7 +20,7 @@ int main()
 	fmmm.useHighLevelOptions(true);
 	fmmm.unitEdgeLength(15.0);
 	fmmm.newInitialPlacement(true);
-	fmmm.qualityVersusSpeed(FMMMLayout::qvsGorgeousAndEfficient);
+	fmmm.qualityVersusSpeed(FMMMOptions::QualityVsSpeed::GorgeousAndEfficient);
 
 	fmmm.call(GA);
 	GraphIO::write(GA, "output-energybased-sierpinski-layout.gml", GraphIO::writeGML);

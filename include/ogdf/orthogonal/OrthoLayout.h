@@ -50,13 +50,13 @@ public:
 	// calls planar UML layout algorithm. Input is a planarized representation
 	// PG of a connected component of the graph, output is a layout of the
 	// (modified) planarized representation in drawing
-	//! Calls the layout algorithm for planarized representation \a PG.
+	//! Calls the layout algorithm for planarized representation \p PG.
 	/**
-	 * \pre \a PG is embedded and \a adjExternal is an adjecenty entry in \a PG.
+	 * \pre \p PG is embedded and \p adjExternal is an adjecenty entry in \p PG.
 	 *
 	 * @param PG          is the planarized representation for which a layout shall be computed.
-	 *                    \a PG may be modified during the call.
-	 * @param adjExternal is an adjaceny entry in \a PG that shall be on the external
+	 *                    \p PG may be modified during the call.
+	 * @param adjExternal is an adjaceny entry in \p PG that shall be on the external
 	 *                    face of the drawing.
 	 * @param drawing     is assigned the final layout.
 	 */
@@ -77,15 +77,15 @@ public:
 		m_separation = sep;
 	}
 
-	//! Returns the option \a cOverhang, which specifies the minimal distance of incident edges to the corner of a vertex.
+	//! Returns the option #m_cOverhang, which specifies the minimal distance of incident edges to the corner of a vertex.
 	/**
-	 * \a cOverhang * \a separation is the minimum distance between the glue point of an edge and a corner of the vertex boundary.
+	 * #m_cOverhang * #m_separation is the minimum distance between the glue point of an edge and a corner of the vertex boundary.
 	 */
 	double cOverhang() const {
 		return m_cOverhang;
 	}
 
-	//! Sets the option \a cOverhang, which specifies the minimal distance of incident edges to the corner of a vertex.
+	//! Sets the option #m_cOverhang, which specifies the minimal distance of incident edges to the corner of a vertex.
 	void cOverhang(double c) {
 		m_cOverhang = c;
 	}
@@ -103,7 +103,7 @@ public:
 		m_margin = m;
 	}
 
-	//! Returns whether the currently selected orthogonaliaztion model is \e progressive.
+	//! Returns whether the currently selected orthogonaliaztion model is \a progressive.
 	bool progressive() const { return m_progressive; }
 
 	//! Selects if the progressive (true) or traditional (false) orthogonalization model is used.

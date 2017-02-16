@@ -40,44 +40,44 @@
 
 namespace ogdf {
 
-//! Computes all-pairs shortest paths in \a G using breadth-first serach (BFS).
+//! Computes all-pairs shortest paths in \p G using breadth-first serach (BFS).
 /**
  * @ingroup ga-sp
  *
- * The cost of each edge are \a edgeCost and the result is stored in \a distance.
+ * The cost of each edge are \p edgeCost and the result is stored in \p distance.
  */
 OGDF_EXPORT
 void bfs_SPAP(const Graph& G, NodeArray<NodeArray<double> >& distance,
 		double edgeCosts);
 
 
-//! Computes single-source shortest paths from \a s in \a G using breadth-first serach (BFS).
+//! Computes single-source shortest paths from \p s in \p G using breadth-first search (BFS).
 /**
  * @ingroup ga-sp
  *
- * The cost of each edge are \a edgeCost and the result is stored in \a distance.
+ * The cost of each edge are \p edgeCost and the result is stored in \p distanceArray.
  */
 OGDF_EXPORT
 void bfs_SPSS(node s, const Graph& G, NodeArray<double> & distanceArray, double edgeCosts);
 
 
-//! Computes all-pairs shortest paths in \a GA using Disjkstra's algorithm.
+//! Computes all-pairs shortest paths in \p GA using Dijkstra's algorithm.
 /**
  * @ingroup ga-sp
  *
- * The cost of an edge \a e are given by GA.doubleWeight(e) and the result is stored in \a shortestPathMatrix.
+ * The cost of an edge \a e are given by GA.doubleWeight(\a e) and the result is stored in \p shortestPathMatrix.
  *
- * @return returns the average edge costs
+ * @return returns the average edge cost
  */
 OGDF_EXPORT
 double dijkstra_SPAP(const GraphAttributes& GA, NodeArray<NodeArray<double> >& shortestPathMatrix);
 
 
-//! Computes all-pairs shortest paths in graph \a G using Disjkstra's algorithm.
+//! Computes all-pairs shortest paths in graph \p G using Dijkstra's algorithm.
 /**
  * @ingroup ga-sp
  *
- * The cost of an edge are given by \a edgeCosts and the result is stored in \a shortestPathMatrix.
+ * The cost of an edge are given by \p edgeCosts and the result is stored in \p shortestPathMatrix.
  */
 OGDF_EXPORT
 void dijkstra_SPAP(
@@ -86,11 +86,11 @@ void dijkstra_SPAP(
 	const EdgeArray<double>& edgeCosts);
 
 
-//! Computes single-source shortest paths from node \a s in \a G using Disjkstra's algorithm.
+//! Computes single-source shortest paths from node \p s in \p G using Disjkstra's algorithm.
 /**
  * @ingroup ga-sp
  *
- * The cost of an edge are given by \a edgeCosts and the result is stored in \a shortestPathMatrix.
+ * The cost of an edge are given by \p edgeCosts and the result is stored in \p shortestPathMatrix.
  * Note this algorithm equals Dijkstra<T>::call, though it does not
  * compute the predecessors on the path and is not inlined.
  */
@@ -102,11 +102,11 @@ void dijkstra_SPSS(
 	const EdgeArray<double>& edgeCosts);
 
 
-//! Computes all-pairs shortest paths in graph \a G using Floyd-Warshall's algorithm.
+//! Computes all-pairs shortest paths in graph \p G using Floyd-Warshall's algorithm.
 /**
  * @ingroup ga-sp
  *
- * Note that the \a shortestPathMatrix has to be initialized and all entries must be positive.
+ * Note that the \p shortestPathMatrix has to be initialized and all entries must be positive.
  * The costs of non-adjacent nodes should be set to std::numeric_limits<double>::infinity().
  */
 OGDF_EXPORT

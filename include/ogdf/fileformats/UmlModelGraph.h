@@ -35,19 +35,12 @@
 #include <ogdf/basic/NodeArray.h>
 #include <ogdf/basic/EdgeArray.h>
 
-
 namespace ogdf {
 
-//---------------------------------------------------------
-// U m l M o d e l G r a p h
-//---------------------------------------------------------
-/** This class represents the complete UML Model in a graph-
- *  like data structure.
- */
+//! This class represents the complete UML Model in a graph-like data structure.
 class OGDF_EXPORT UmlModelGraph : public Graph {
 
 private:
-
 	/** The name of the model. */
 	string m_modelName;
 

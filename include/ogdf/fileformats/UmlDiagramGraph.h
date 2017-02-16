@@ -43,9 +43,6 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// U m l D i a g r a m G r a p h
-//---------------------------------------------------------
 /** Contains the class UmlDiagramGraph which represents one
  *  particular diagram of the complete UML Model. Each diagram refers
  *  to the node and edge information of UmlModelGraph. Essentially
@@ -54,27 +51,20 @@ namespace ogdf {
  */
 class OGDF_EXPORT UmlDiagramGraph {
 
-	friend ostream &operator<<(ostream&, const UmlDiagramGraph &);
+	friend OGDF_EXPORT ostream &operator<<(ostream&, const UmlDiagramGraph &);
 
 public:
-
-	//---------------------------------------------------------
-	// U m l D i a g r a m T y p e
-	//---------------------------------------------------------
-	/** This enum type represents the different diagram types of UML.
-	 */
-	enum UmlDiagramType{
+	//! This enum type represents the different diagram types of UML. */
+	enum class UmlDiagramType{
 		classDiagram,
 		moduleDiagram,
 		sequenceDiagram,
 		collaborationDiagram,
 		componentDiagram,
 		unknownDiagram
-
-	}; // enum UmlDiagramType
+	};
 
 private:
-
 	/** Reference to the model graph. */
 	const UmlModelGraph &m_modelGraph;
 
@@ -125,11 +115,10 @@ public:
 	~UmlDiagramGraph();
 
 	/** Adds a node with the given coordinates. */
-	void addNodeWithGeometry(NodeElement* node,
-							 double x, double y, double w, double h);
+	void addNodeWithGeometry(node umlNode, double x, double y, double w, double h);
 
 	/** Adds an edge. */
-	void addEdge(EdgeElement* edge);
+	void addEdge(edge umlEdge);
 
 	/** Returns the name of the diagram. */
 	const string &getDiagramName() const{
@@ -140,12 +129,12 @@ public:
 	const char *getDiagramTypeString() const;
 
 	/** Access to contained nodes. */
-	const SList<NodeElement*> &getNodes() const{
+	const SList<node> &getNodes() const{
 		return m_containedNodes;
 	}
 
 	/** Access to contained edges. */
-	const SList<EdgeElement*> &getEdges() const{
+	const SList<edge> &getEdges() const{
 		return m_containedEdges;
 	}
 
@@ -170,9 +159,5 @@ public:
 	}
 
 }; // class UmlDiagramGraph
-
-/** Output operator for UmlDiagramGraph. */
-ostream &operator<<(ostream &os, const UmlDiagramGraph &diagramGraph);
-
 
 } // end namespace ogdf

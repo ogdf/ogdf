@@ -40,8 +40,8 @@ namespace ogdf {
 class OGDF_EXPORT LPSolver
 {
 public:
-	enum OptimizationGoal { lpMinimize, lpMaximize };
-	enum Status { lpOptimal, lpInfeasible, lpUnbounded };
+	enum class OptimizationGoal { Minimize, Maximize };
+	enum class Status { Optimal, Infeasible, Unbounded };
 
 	// Constructor
 	LPSolver();
@@ -67,7 +67,7 @@ public:
 	// double x [numCols]
 	//
 	// The return value indicates the status of the solution. If an optimum solitions has
-	// been found, the result is lpOptimal
+	// been found, the result is Optimal
 
 	Status optimize(
 		OptimizationGoal goal,  // goal of optimization (minimize or maximize)
@@ -80,8 +80,8 @@ public:
 		Array<char>   &equationSense,  // 'E' ==   'G' >=   'L' <=
 		Array<double> &lowerBound,     // lower bound of x[i]
 		Array<double> &upperBound,     // upper bound of x[i]
-		double &optimum,               // optimum value of objective function (if result is lpOptimal)
-		Array<double> &x               // x-vector of optimal solution (if result is lpOptimal)
+		double &optimum,               // optimum value of objective function (if result is Optimal)
+		Array<double> &x               // x-vector of optimal solution (if result is Optimal)
 	);
 
 	bool checkFeasibility(
@@ -93,7 +93,7 @@ public:
 		const Array<char>   &equationSense, // 'E' ==   'G' >=   'L' <=
 		const Array<double> &lowerBound,    // lower bound of x[i]
 		const Array<double> &upperBound,    // upper bound of x[i]
-		const Array<double> &x              // x-vector of optimal solution (if result is lpOptimal)
+		const Array<double> &x              // x-vector of optimal solution (if result is Optimal)
 	);
 
 private:

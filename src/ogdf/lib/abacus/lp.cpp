@@ -97,7 +97,7 @@ LP::OPTSTAT LP::optimize(METHOD method)
 {
 	if(nCol()==0){
 		Logger::ifout() << "LP::optimize(): cannot optimize (number of columns is 0)\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLp);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Lp);
 	}
 
 	++nOpt_;
@@ -268,7 +268,7 @@ void LP::rowRangeCheck(int r)const
 	if(r < 0 || nRow() <= r) {
 		int _r = nRow()-1;
 		Logger::ifout() << "LP::rowRangeCheck(" << r << "): range of rows\n0 ... " << _r << " violated.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLp);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Lp);
 	}
 }
 
@@ -278,7 +278,7 @@ void LP::colRangeCheck(int i)const
 	if(i < 0 || nCol() <= i) {
 		int _c = nCol()-1;
 		Logger::ifout() << "LP::colRangeCheck(" << i << "): range of columns\n0 ... " << _c << " violated.\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLp);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Lp);
 	}
 }
 
@@ -366,7 +366,7 @@ ostream&operator<<(ostream&out, const LP&rhs)
 		break;
 	default:
 		Logger::ifout() << "operator<<(AbaOStream&, const LP&): Unknown LP::Status!\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpStatus);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpStatus);
 	}
 	out << endl;
 
@@ -415,7 +415,7 @@ int LP::writeBasisMatrix(const char*fileName)
 	if(nBasic != nRow()) {
 		int _nR = nRow();
 		Logger::ifout() << "number of basic variables " << nBasic << " != number of rows " << _nR << "\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLp);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Lp);
 	}
 
 	// write the basis row by row

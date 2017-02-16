@@ -50,7 +50,7 @@ public:
 	virtual ~UMLLayoutModule() { }
 
 	/**
-	 * \brief Computes a layout of UML graph \a umlGraph
+	 * \brief Computes a layout of UML graph \p umlGraph
 	 *
 	 * Must be implemented by derived classes.
 	 * @param umlGraph is the input UML graph and has to be assigned the UML layout.
@@ -58,7 +58,7 @@ public:
 	virtual void call(UMLGraph &umlGraph) = 0;
 
 	/**
-	 * \brief Computes a layout of UML graph \a umlGraph
+	 * \brief Computes a layout of UML graph \p umlGraph
 	 *
 	 * @param umlGraph is the input UML graph and has to be assigned the UML layout.
 	 */

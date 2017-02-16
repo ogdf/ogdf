@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/fileformats/TlpParser.h>
-#include <ogdf/fileformats/Tlp.h>
 #include <ogdf/fileformats/Utils.h>
 #include <ogdf/fileformats/GraphIO.h>
 
@@ -244,24 +243,24 @@ static inline bool setAttribute(
 	const long attrs = GA.attributes();
 
 	switch(attr) {
-	case a_label:
+	case Attribute::label:
 		if(attrs & GraphAttributes::nodeLabel) {
 			GA.label(v) = value;
 		}
 		break;
-	case a_color:
+	case Attribute::color:
 		if(attrs & GraphAttributes::nodeStyle) {
 			std::istringstream is(value);
 			int r, g, b, a;
-			is >> '(' >> r >> ',' >> g >> ',' >> b >> ',' >> a >> ')';
+			is >> TokenIgnorer('(') >> r >> TokenIgnorer(',') >> g >> TokenIgnorer(',') >> b >> TokenIgnorer(',') >> a >> TokenIgnorer(')');
 			GA.fillColor(v) = Color(r, g, b, a);
 		}
 		break;
-	case a_position:
+	case Attribute::position:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			std::istringstream is(value);
 			double x, y, z;
-			is >> '(' >> x >> ',' >> y >> ',' >> z >> ')';
+			is >> TokenIgnorer('(') >> x >> TokenIgnorer(',') >> y >> TokenIgnorer(',') >> z >> TokenIgnorer(')');
 			GA.x(v) = x;
 			GA.y(v) = y;
 			if(attrs & GraphAttributes::threeD) {
@@ -269,16 +268,16 @@ static inline bool setAttribute(
 			}
 		}
 		break;
-	case a_size:
+	case Attribute::size:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			std::istringstream is(value);
 			double width, height;
-			is >> '(' >> width >> ',' >> height >> ')';
+			is >> TokenIgnorer('(') >> width >> TokenIgnorer(',') >> height >> TokenIgnorer(')');
 			GA.width(v) = width;
 			GA.height(v) = height;
 		}
 		break;
-	case a_shape:
+	case Attribute::shape:
 		if(attrs & GraphAttributes::nodeStyle) {
 
 		}
@@ -298,16 +297,16 @@ static inline bool setAttribute(
 	const long attrs = GA.attributes();
 
 	switch(attr) {
-	case a_label:
+	case Attribute::label:
 		if(attrs & GraphAttributes::edgeLabel) {
 			GA.label(e) = value;
 		}
 		break;
-	case a_color:
+	case Attribute::color:
 		if(attrs & GraphAttributes::edgeStyle) {
 			std::istringstream is(value);
 			int r, g, b, a;
-			is >> '(' >> r >> ',' >> g >> ',' >> b >> ',' >> a >> ')';
+			is >> TokenIgnorer('(') >> r >> TokenIgnorer(',') >> g >> TokenIgnorer(',') >> b >> TokenIgnorer(',') >> a >> TokenIgnorer(')');
 			GA.strokeColor(e) = Color(r, g, b, a);
 		}
 		break;
@@ -369,7 +368,7 @@ bool Parser::readProperty(Graph &G, GraphAttributes *GA)
 	 * GraphAttributes is given, attribute is known and these defaults are
 	 * set. Otherwise our job is done here.
 	 */
-	if(!GA || attr == a_unknown) {
+	if(!GA || attr == Attribute::unknown) {
 		return true;
 	}
 
@@ -578,7 +577,7 @@ bool Parser::readStatement(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 		}
 		++m_begin;
 	} else {
-		GraphIO::logger.lout(Logger::LL_MINOR) << "Unknown statement \"" << head << "\", ignoring.\n" << endl;
+		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown statement \"" << head << "\", ignoring.\n" << endl;
 		// We got unknown statement, so we ignore until ending paren.
 		int opened = 1;
 		while(m_begin != m_end && opened != 0) {
@@ -612,6 +611,8 @@ bool Parser::readStatement(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 
 bool Parser::readGraph(Graph &G, GraphAttributes *GA, ClusterGraph *C)
 {
+	G.clear();
+
 	Lexer lexer(m_istream);
 
 	if(!lexer.tokenize()) {

@@ -59,7 +59,7 @@ public:
 	//! Initializes crossing minimization for hierarchy \a H.
 	virtual void init (const HierarchyLevels &levels) override { m_weight.init(levels.hierarchy()); }
 
-	//! Calls the median heuristic for level \a L.
+	//! Calls the median heuristic for level \p L.
 	virtual void call (Level &L) override;
 
 	//! Does some clean-up after calls.

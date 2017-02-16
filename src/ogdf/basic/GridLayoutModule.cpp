@@ -89,6 +89,29 @@ void GridLayoutModule::mapGridLayout(const Graph &G,
 	}
 }
 
+bool PlanarGridLayoutModule::handleTrivial(const Graph &G, GridLayout &gridLayout, IPoint &boundingBox)
+{
+	// handle special case of graphs with less than 3 nodes
+	node v1, v2;
+	switch (G.numberOfNodes()) {
+	case 0:
+		boundingBox = IPoint(0, 0);
+		return true;
+	case 1:
+		v1 = G.firstNode();
+		gridLayout.x(v1) = gridLayout.y(v1) = 0;
+		boundingBox = IPoint(0, 0);
+		return true;
+	case 2:
+		v1 = G.firstNode();
+		v2 = G.lastNode();
+		gridLayout.x(v1) = gridLayout.y(v1) = gridLayout.y(v2) = 0;
+		gridLayout.x(v2) = 1;
+		boundingBox = IPoint(1, 0);
+		return true;
+	}
+	return false;
+}
 
 void PlanarGridLayoutModule::callFixEmbed(GraphAttributes &AG, adjEntry adjExternal)
 {
@@ -96,7 +119,9 @@ void PlanarGridLayoutModule::callFixEmbed(GraphAttributes &AG, adjEntry adjExter
 
 	// compute grid layout
 	GridLayout gridLayout(G);
-	doCall(G,adjExternal,gridLayout,m_gridBoundingBox,true);
+	if (!handleTrivial(G, gridLayout, m_gridBoundingBox)) {
+		doCall(G, adjExternal, gridLayout, m_gridBoundingBox, true);
+	}
 
 	// transform grid layout to real layout
 	mapGridLayout(G,gridLayout,AG);
@@ -109,14 +134,18 @@ void PlanarGridLayoutModule::callGridFixEmbed(
 	adjEntry adjExternal)
 {
 	gridLayout.init(G);
-	doCall(G,adjExternal,gridLayout,m_gridBoundingBox,true);
+	if (!handleTrivial(G, gridLayout, m_gridBoundingBox)) {
+		doCall(G, adjExternal, gridLayout, m_gridBoundingBox, true);
+	}
 }
 
 
 void GridLayoutPlanRepModule::callGrid(PlanRep &PG, GridLayout &gridLayout)
 {
 	gridLayout.init(PG);
-	doCall(PG,nullptr,gridLayout,m_gridBoundingBox,false);
+	if (!handleTrivial(PG, gridLayout, m_gridBoundingBox)) {
+		doCall(PG, nullptr, gridLayout, m_gridBoundingBox, false);
+	}
 }
 
 void GridLayoutPlanRepModule::callGridFixEmbed(
@@ -125,7 +154,9 @@ void GridLayoutPlanRepModule::callGridFixEmbed(
 	adjEntry adjExternal)
 {
 	gridLayout.init(PG);
-	doCall(PG,adjExternal,gridLayout,m_gridBoundingBox,true);
+	if (!handleTrivial(PG, gridLayout, m_gridBoundingBox)) {
+		doCall(PG, adjExternal, gridLayout, m_gridBoundingBox, true);
+	}
 }
 
 void GridLayoutPlanRepModule::doCall(

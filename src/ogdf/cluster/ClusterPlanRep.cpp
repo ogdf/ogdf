@@ -32,15 +32,9 @@
 #include <ogdf/cluster/ClusterPlanRep.h>
 #include <ogdf/orthogonal/OrthoRep.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/basic/Layout.h>
-#include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/basic/tuples.h>
 
 #include <iomanip>
 
-
-enum edgeDir {undef, in, out};
 
 namespace ogdf {
 
@@ -144,13 +138,12 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 		//cross edge between boundary and crossing/end
 		//cross edge between crossings/ends
 		//there are three types of nodes: orig, boundary, crossing
-		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 		//should only be used with modeled boundaries
 		cluster c1, c2;
 		if (orV1 && orV2)
 		{
-			OGDF_ASSERT(m_pClusterGraph->clusterOf(orV1) ==
-						 m_pClusterGraph->clusterOf(orV2));
+			OGDF_ASSERT(m_pClusterGraph->clusterOf(orV1) == m_pClusterGraph->clusterOf(orV2));
 			OGDF_ASSERT(m_nodeClusterID[v1] != -1);
 			m_nodeClusterID[dummy] = m_nodeClusterID[v1];
 			continue;
@@ -169,7 +162,7 @@ void ClusterPlanRep::insertEdgePathEmbedded(
 
 			if (orC == dC) m_nodeClusterID[dummy] = orC->index();
 			else if (orC == dC->parent()) m_nodeClusterID[dummy] = orC->index();
-				 else OGDF_THROW (AlgorithmFailureException);
+			else OGDF_THROW (AlgorithmFailureException);
 			continue;
 		}//if one original
 		//no originals, only crossings/boundaries
@@ -215,10 +208,9 @@ void ClusterPlanRep::ModelBoundaries()
 
 //recursively insert cluster boundaries for all clusters in cluster tree
 void ClusterPlanRep::convertClusterGraph(cluster act,
-										 AdjEntryArray<edge>& currentEdge,
-										 AdjEntryArray<int>& outEdge)
+                                         AdjEntryArray<edge>& currentEdge,
+                                         AdjEntryArray<int>& outEdge)
 {
-
 	//are we at the first call (no real cluster)
 	bool isRoot = (act == m_pClusterGraph->rootCluster());
 
@@ -405,7 +397,6 @@ void ClusterPlanRep::expandLowDegreeVertices(OrthoRep &OR)
 }//expandlowdegree
 
 
-//*****************************************************************************
 //file output
 
 void ClusterPlanRep::writeGML(const char *fileName, const Layout &drawing)
@@ -452,18 +443,18 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 		os << "      h " << 10.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			os << "      type \"oval\"\n";
 
 		else
@@ -502,7 +493,7 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::generalization)
+		if (typeOf(e) == Graph::EdgeType::generalization)
 		{
 			os << "      arrow \"last\"\n";
 
@@ -512,10 +503,10 @@ void ClusterPlanRep::writeGML(ostream &os, const Layout &drawing)
 		else
 		{
 
-			if (typeOf(e->source()) == Graph::generalizationExpander ||
-				typeOf(e->source()) == Graph::generalizationMerger ||
-				typeOf(e->target()) == Graph::generalizationExpander ||
-				typeOf(e->target()) == Graph::generalizationMerger)
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+				typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+				typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 			{
 				os << "      arrow \"none\"\n";
 				if (isBrother(e))

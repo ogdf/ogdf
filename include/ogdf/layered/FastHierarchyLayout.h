@@ -78,7 +78,6 @@ namespace ogdf {
 class OGDF_EXPORT FastHierarchyLayout : public HierarchyLayoutModule
 {
 protected:
-
 	virtual void doCall(const HierarchyLevelsBase &levels, GraphCopyAttributes &AGC) override;
 
 public:
@@ -101,7 +100,7 @@ public:
 		return m_minNodeDist;
 	}
 
-	//! Sets the option node distance to \a dist.
+	//! Sets the option node distance to \p dist.
 	void nodeDistance(double dist) {
 		m_minNodeDist = dist;
 	}
@@ -111,7 +110,7 @@ public:
 		return m_minLayerDist;
 	}
 
-	//! Sets the option layer distance to \a dist.
+	//! Sets the option layer distance to \p dist.
 	void layerDistance(double dist) {
 		m_minLayerDist = dist;
 	}
@@ -121,7 +120,7 @@ public:
 		return m_fixedLayerDist;
 	}
 
-	//! Sets the option fixed layer distance to \a b.
+	//! Sets the option fixed layer distance to \p b.
 	void fixedLayerDistance(bool b) {
 		m_fixedLayerDist = b;
 	}
@@ -202,11 +201,127 @@ private:
 			actNode == first[layer[actNode] + 1] -1);
 	}
 
-	void sortLongEdges(int,int,double*,bool&,double&,int*,bool*);
-	bool placeSingleNode(int,int,int,double&,int);
-	void placeNodes(int,int,int,int,int);
-	void moveLongEdge(int,int,bool*);
-	void straightenEdge(int,bool*);
+	/**
+	 * Places the node actNode as far as possible to the left (if \p dir = 1) or to
+	 * the right (if \p dir = -1) within a block.
+	 *
+	 * A proper definition of blocks is given in Techreport zpr99-368, pp 5, where
+	 * blocks are named classes. If actNode is virtual (and thus belongs to a long
+	 * edge), the function sortLongEdges places the actNode as far as possible to
+	 * the left such that the corresponding long edge will be vertical.
+	 *
+	 * @param actNode the placed node
+	 * @param dir
+	 *   Stores the direction of placement: 1 for placing long edges to the left and
+	 *   -1 for placing them to the right.
+	 * @param pos
+	 *   Array for all nodes.
+	 *   Stores the computed position.
+	 * @param marked
+	 *   Array for all nodes.
+	 *   Stores for every node, whether sortLongEdges has already been applied to it.
+	 * @param block
+	 *   Array for all nodes.
+	 *   Stores for every node the block it belongs to.
+	 * @param exD
+	 *   is 1 if there exists a node w on the longEdge of actNode,
+	 *   that has a direct right sibling (if moving to the left (depending on
+	 *   the direction)) on the same layer which belongs to a different block.
+	 * @param dist
+	 *   If exD is 1, it gives the minimal distance between any w of long
+	 *   edge (see exD) and its direct right (left) sibling if the sibling
+	 *   belongs to ANOTHER block. if exD is 0, dist is not relevant.
+	 */
+	void sortLongEdges(int actNode, int dir, double *pos, bool &exD, double &dist, int *block, bool *marked);
+
+	/**
+	 * Places a sequence of nonvirtual nodes containing exactly one node.
+	 *
+	 * @param leftBnd
+	 *   contains the number of the next virtual sibling to the left of actNode, if it exists;
+	 *   -1 otherwise. Observe that between leftBnd and actNode there may be other nonvirtual nodes.
+	 * @param rightBnd
+	 *   contains the number of the next virtual sibling to the right of actNode, if it exists;
+	 *   -1 otherwise. Observe that between rightBnd and actNode there may be other nonvirtual nodes.
+	 * @param actNode an nonvirtual node that has to be placed.
+	 * @param best the position that is computed for actNode by placeSingleNode.
+	 * @param d is the direction of traversal. If 0 we traverse the graph top to bottom, 1 otherwise.
+	 *
+	 * The total length of all edges of actnode to the previous layer (if d = 0) or
+	 * next layer (if d = 1) is minimized observing the bounds given by leftBnd and
+	 * rightBnd. The optimal position is the median of its neighbours adapted to
+	 * leftBnd and rightBnd. The position of the neighbours is given by the global
+	 * variable x.
+	 *
+	 * The funcion returns 0 if actNode does not have neighbours on the previous
+	 * (next) layer, 1 otherwise.
+	 */
+	bool placeSingleNode(int leftBnd, int rightBnd, int actNode, double &best, int d);
+
+	/**
+	 * Places a sequence of nonvirtual nodes.
+	 *
+	 * The function partitions the sequence, applying a divide and conquer strategy
+	 * using recursive calls on the two subsequences.
+	 *
+	 * @param leftBnd
+	 *   contains the number of the next virtual sibling to the left of the sequence, if it exists;
+	 *   -1 otherwise. Observe that between leftBnd and actNode there may be other nonvirtual nodes.
+	 * @param rightBnd
+	 *   contains the number of the next virtual sibling to the right of the sequence, if it exists;
+	 *   -1 otherwise. Observe that between rightBnd and actNode there may be other nonvirtual nodes.
+	 * @param left the leftmost nonvirtual node of the sequence that has to be placed.
+	 * @param right the rightmost nonvirtual node of the sequence that has to be placed.
+	 * @param d the direction of traversal. If 0 we traverse the graph top to bottom. 1 otherwise.
+	 *
+	 * The total length of all edges of the sequence to the previous layer (if d = 0)
+	 * or next layer (if d = 1) is minimized observing the bounds given by leftBnd
+	 * and rightBnd.
+	 *
+	 * The position that is computed for every node of the sequence is stored in the
+	 * global variable x. The position of the neighbours is given by the global
+	 * variable x.
+	 */
+	void placeNodes(int leftBnd, int rightBnd, int left, int right, int d);
+
+	/**
+	 * Used for postprocessing the layout.
+	 *
+	 * If the two nonvirtual ndoes of the long edge are both to the left (right) of
+	 * the virtual nodes, the function moveLongEdge tries to reduce the length of the
+	 * two outermost segments by moving the virtual nodes simultaneously as far as
+	 * possible to the left (right). If both non virtual nodes are on different sides
+	 * of the virtual nodes, moveLongEdge tries to remove one of the edge bends by
+	 * moving the virtual nodes.
+	 *
+	 * If there exists a conflict with another long edge on the left (right) side of
+	 * the current long edge, the function moveLongEdge is first applied recursively
+	 * to this long edge.
+	 *
+	 * @param actNode a representative node of the long edge
+	 * @param dir
+	 *   is -1 if it is preferred to move the long edge to the left,
+	 *   1 if it is preferred to move the long edge to the right,
+	 *   0 if there is no preference
+	 * @param marked Array for all nodes. Stores for every node, whether moveLongEdge has already been applied to it.
+	*/
+	void moveLongEdge(int actNode, int dir, bool *marked);
+
+	/**
+	 * Tries to remove a bend at the position of the virtual node by straightening the edge.
+	 *
+	 * The method is applied to long edges with exactly one virtual node.
+	 *
+	 * @param actNode the virtual  representative node of the long edge
+	 * @param marked array for all nodes. Stores for every node, whether straightenEdge has already been applied to it.
+	 *
+	 * If there exists a conflict with a direct sibling to the left (right) side of
+	 * the current node, the function straightenEdge is first applied recursively to
+	 * this node.
+	 */
+	void straightenEdge(int actNode, bool *marked);
+
+	//! Computes the layout of an embedded layered graph.
 	void findPlacement();
 };
 

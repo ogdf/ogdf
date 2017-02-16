@@ -32,7 +32,6 @@
 
 #include <ogdf/planarity/MultiEdgeApproxInserter.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/SList.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/planarity/FixedEmbeddingInserter.h>
 #include <ogdf/planarity/VariableEmbeddingInserter.h>
@@ -43,30 +42,25 @@
 namespace ogdf {
 
 
-MultiEdgeApproxInserter::PathDir MultiEdgeApproxInserter::s_oppDir[3] = { pdRight, pdLeft, pdNone };
+MultiEdgeApproxInserter::PathDir MultiEdgeApproxInserter::s_oppDir[3] = { PathDir::Right, PathDir::Left, PathDir::None };
 
-
-//---------------------------------------------------------
-// class EmbeddingPreference
-// encodes an embedding preference
-//---------------------------------------------------------
 
 class MultiEdgeApproxInserter::EmbeddingPreference
 {
 public:
-	enum Type { epNone, epRNode, epPNode };
+	enum class Type { None, RNode, PNode };
 
 	// constructs an embedding preference of type none (= irrelevant)
-	EmbeddingPreference() : m_type(epNone) { }
+	EmbeddingPreference() : m_type(Type::None) { }
 
 	// constructs an embedding preference for an R-node
-	EmbeddingPreference(bool mirror) : m_type(epRNode), m_mirror(mirror) { }
+	explicit EmbeddingPreference(bool mirror) : m_type(Type::RNode), m_mirror(mirror) { }
 
-	EmbeddingPreference(adjEntry a1, adjEntry a2) : m_type(epPNode), m_adj1(a1), m_adj2(a2) { }
+	EmbeddingPreference(adjEntry a1, adjEntry a2) : m_type(Type::PNode), m_adj1(a1), m_adj2(a2) { }
 	// constructs an embedding preference for a P-node
 
 	Type type() const { return m_type; }
-	bool isNull() const { return m_type == epNone; }
+	bool isNull() const { return m_type == Type::None; }
 
 	bool mirror() const { return m_mirror; }
 	adjEntry adj1() const { return m_adj1; }
@@ -82,13 +76,13 @@ public:
 
 	ostream &print(ostream &os) const {
 		switch(type()) {
-		case MultiEdgeApproxInserter::EmbeddingPreference::epNone:
+		case MultiEdgeApproxInserter::EmbeddingPreference::Type::None:
 			os << "none";
 			break;
-		case MultiEdgeApproxInserter::EmbeddingPreference::epPNode:
+		case MultiEdgeApproxInserter::EmbeddingPreference::Type::PNode:
 			os << "PNode: " << adj1()->index() << "->" << adj2()->index();
 			break;
-		case MultiEdgeApproxInserter::EmbeddingPreference::epRNode:
+		case MultiEdgeApproxInserter::EmbeddingPreference::Type::RNode:
 			os << "RNode: " << mirror();
 			break;
 		}
@@ -105,12 +99,6 @@ private:
 
 const MultiEdgeApproxInserter::EmbeddingPreference MultiEdgeApproxInserter::EmbeddingPreference::s_none;
 
-
-
-//---------------------------------------------------------
-// class Block
-// maintains a block in the graph
-//---------------------------------------------------------
 
 class MultiEdgeApproxInserter::Block : public Graph
 {
@@ -235,7 +223,7 @@ void MultiEdgeApproxInserter::Block::pathToArray(int i, Array<PathElement> &path
 	node n = sp.m_start;
 
 	path[0].m_node = n;
-	if(m_spqr->typeOf(n) != SPQRTree::SNode)
+	if(m_spqr->typeOf(n) != SPQRTree::NodeType::SNode)
 		path[0].m_pref = &(*itP++);
 
 	int j;
@@ -244,7 +232,7 @@ void MultiEdgeApproxInserter::Block::pathToArray(int i, Array<PathElement> &path
 		n = (*itE++)->opposite(n);
 		path[j].m_node = n;
 
-		if(m_spqr->typeOf(n) != SPQRTree::SNode)
+		if(m_spqr->typeOf(n) != SPQRTree::NodeType::SNode)
 			path[j].m_pref = &(*itP++);
 	}
 
@@ -255,10 +243,10 @@ void MultiEdgeApproxInserter::Block::pathToArray(int i, Array<PathElement> &path
 bool MultiEdgeApproxInserter::Block::embPrefAgree(node n, const EmbeddingPreference &p_pick, const EmbeddingPreference &p_e)
 {
 	switch(m_spqr->typeOf(n)) {
-	case SPQRTree::RNode:
+	case SPQRTree::NodeType::RNode:
 		return p_pick.mirror() == p_e.mirror();  // check if mirroring is the same
 
-	case SPQRTree::PNode:
+	case SPQRTree::NodeType::PNode:
 		if(!p_e.isNull()) {
 			// check if adj entries in (embedded) P-Node are in the right order
 			return p_e.adj1()->cyclicSucc() == p_e.adj2();
@@ -287,10 +275,7 @@ bool MultiEdgeApproxInserter::Block::switchingPair(
 }
 
 
-//---------------------------------------------------------
 // create SPQR-tree and compute allocation nodes
-//---------------------------------------------------------
-
 void MultiEdgeApproxInserter::Block::initSPQR(int m)
 {
 	if(m_spqr == nullptr) {
@@ -324,10 +309,7 @@ void MultiEdgeApproxInserter::Block::initSPQR(int m)
 }
 
 
-//---------------------------------------------------------
 // construct dual graph of skeleton of n
-//---------------------------------------------------------
-
 void MultiEdgeApproxInserter::Block::constructDual(node n)
 {
 	const StaticSkeleton &S = *dynamic_cast<StaticSkeleton*>(&m_spqr->skeleton(n));
@@ -489,10 +471,7 @@ int MultiEdgeApproxInserter::Block::findBestFaces(
 }
 
 
-//---------------------------------------------------------
 // compute traversing costs in skelton
-//---------------------------------------------------------
-
 int MultiEdgeApproxInserter::Block::recTC(node n, edge eRef)
 {
 	const StaticSkeleton &S = *dynamic_cast<StaticSkeleton*>(&m_spqr->skeleton(n));
@@ -518,19 +497,19 @@ int MultiEdgeApproxInserter::Block::recTC(node n, edge eRef)
 	int c = 1;
 	switch(m_spqr->typeOf(n))
 	{
-	case SPQRTree::SNode:
+	case SPQRTree::NodeType::SNode:
 		c = numeric_limits<int>::max();
 		for(edge e : M.edges)
 			if(e != eRef) c = min(c, tcS[e]);
 		break;
 
-	case SPQRTree::PNode:
+	case SPQRTree::NodeType::PNode:
 		c = 0;
 		for(edge e : M.edges)
 			if(e != eRef) c += tcS[e];
 		break;
 
-	case SPQRTree::RNode:
+	case SPQRTree::NodeType::RNode:
 		if(m_info[n].m_dual == nullptr)
 			constructDual(n);
 
@@ -709,19 +688,19 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 
 				// in which direction to we start
 				if(e1 == nullptr)
-					dirFrom = pdNone;  // doesn't matter
+					dirFrom = PathDir::None;  // doesn't matter
 				else if(w == faceNode[emb.rightFace(e1->adjSource())])
-					dirFrom = pdRight; // right face of eIn
+					dirFrom = PathDir::Right; // right face of eIn
 				else
-					dirFrom = pdLeft;  // left face of eIn
+					dirFrom = PathDir::Left;  // left face of eIn
 
 				// from which direction to we enter
 				if(e2 == nullptr)
-					dirTo = pdNone;  // doesn't matter
+					dirTo = PathDir::None;  // doesn't matter
 				else if(v == faceNode[emb.rightFace(e2->adjSource())])
-					dirTo = pdLeft; // right face of eOut (leaving to the right)
+					dirTo = PathDir::Left; // right face of eOut (leaving to the right)
 				else
-					dirTo = pdRight; // left face of eOut (leaving to the left)
+					dirTo = PathDir::Right; // left face of eOut (leaving to the left)
 
 				return currentDist;
 			}
@@ -740,16 +719,12 @@ int MultiEdgeApproxInserter::Block::costsSubpath(node n, edge eIn, edge eOut, no
 }
 
 
-//---------------------------------------------------------
-// constructor
 // sets default values for options
-//---------------------------------------------------------
-
 MultiEdgeApproxInserter::MultiEdgeApproxInserter()
 {
 	// options
-	m_rrOptionFix = rrNone;
-	m_rrOptionVar = rrNone;
+	m_rrOptionFix = RemoveReinsertType::None;
+	m_rrOptionVar = RemoveReinsertType::None;
 	m_percentMostCrossedFix = 25;
 	m_percentMostCrossedVar = 25;
 	m_statistics = false;
@@ -800,11 +775,8 @@ MultiEdgeApproxInserter &MultiEdgeApproxInserter::operator=(const MultiEdgeAppro
 }
 
 
-//---------------------------------------------------------
 // construct graph of block i
 // store mapping of original nodes to copies in blocks
-//---------------------------------------------------------
-
 MultiEdgeApproxInserter::Block *MultiEdgeApproxInserter::constructBlock(int i)
 {
 	Block *b = new Block;
@@ -847,10 +819,7 @@ MultiEdgeApproxInserter::Block *MultiEdgeApproxInserter::constructBlock(int i)
 }
 
 
-//---------------------------------------------------------
 // returns copy of node vOrig in block b
-//---------------------------------------------------------
-
 node MultiEdgeApproxInserter::copy(node vOrig, int b)
 {
 	SListConstIterator<VertexBlock> it;
@@ -863,10 +832,7 @@ node MultiEdgeApproxInserter::copy(node vOrig, int b)
 }
 
 
-//---------------------------------------------------------
 // DFS-traversal for computing insertion path in SPQR-tree
-//---------------------------------------------------------
-
 bool MultiEdgeApproxInserter::dfsPathSPQR(node v, node v2, edge eParent, List<edge> &path)
 {
 	if(v == v2)
@@ -876,7 +842,7 @@ bool MultiEdgeApproxInserter::dfsPathSPQR(node v, node v2, edge eParent, List<ed
 		edge e = adj->theEdge();
 		if(e == eParent) continue;
 
-		if(dfsPathSPQR(e->opposite(v),v2,e,path) == true) {
+		if(dfsPathSPQR(e->opposite(v), v2, e, path)) {
 			path.pushFront(e);
 			return true;
 		}
@@ -886,11 +852,8 @@ bool MultiEdgeApproxInserter::dfsPathSPQR(node v, node v2, edge eParent, List<ed
 }
 
 
-//---------------------------------------------------------
 // compute insertion path of edge edge k in SPQR-tree of block b
 // from node vOrig to node wOrig
-//---------------------------------------------------------
-
 int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int k)
 {
 	Block &B = *m_block[b];
@@ -929,22 +892,22 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 	List<EmbeddingPreference> &prefs = B.m_pathSPQR[k].m_prefs;
 
 	PathDir dirFrom, dirTo;
-	PathDir curDir = pdRight;
+	PathDir curDir = PathDir::Right;
 	int c = 0;
 
 	switch(spqr.typeOf(v1)) {
-	case SPQRTree::RNode:
+	case SPQRTree::NodeType::RNode:
 		c += B.costsSubpath(v1, nullptr, (path.empty()) ? nullptr : path.front(), v, w, dirFrom, dirTo);
 		prefs.pushBack(EmbeddingPreference(false));
 		curDir = dirTo;
 		break;
 
-	case SPQRTree::PNode:
+	case SPQRTree::NodeType::PNode:
 		// in this case, the insertion path is a single P-node and we have no preference
 		prefs.pushBack(EmbeddingPreference());
 		break;
 
-	case SPQRTree::SNode:
+	case SPQRTree::NodeType::SNode:
 		break; // nothing to do
 	}
 
@@ -956,22 +919,15 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 		n = e->opposite(n);
 
 		switch(spqr.typeOf(n)) {
-		case SPQRTree::RNode:
-			c += B.costsSubpath(n, e,
-				(it.succ().valid() == false) ? nullptr : *(it.succ()), v, w,
-				dirFrom, dirTo);
+		case SPQRTree::NodeType::RNode:
+			c += B.costsSubpath(n, e, it.succ().valid() ? *it.succ() : nullptr, v, w, dirFrom, dirTo);
 
 			// do we need to mirror embedding of R-node?
-			if(dirFrom == curDir) {
-				curDir = dirTo;
-				prefs.pushBack(EmbeddingPreference(false));  // no
-			} else {
-				curDir = s_oppDir[dirTo];
-				prefs.pushBack(EmbeddingPreference(true));   // yes
-			}
+			prefs.pushBack(EmbeddingPreference(dirFrom != curDir));
+			curDir = dirFrom == curDir ? dirTo : s_oppDir[static_cast<int>(dirTo)];
 			break;
 
-		case SPQRTree::PNode:
+		case SPQRTree::NodeType::PNode:
 			{
 			edge eIn = e;
 			edge eOut = *(it.succ());
@@ -980,22 +936,22 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 			edge e2 = (n != eOut->source()) ? spqr.skeletonEdgeTgt(eOut) : spqr.skeletonEdgeSrc(eOut);
 
 			const Graph &M = spqr.skeleton(n).getGraph();
-			node v1 = M.firstNode();
+			node first = M.firstNode();
 
-			adjEntry a1 = (e1->source() == v1) ? e1->adjSource() : e1->adjTarget();
-			adjEntry a2 = (e2->source() == v1) ? e2->adjSource() : e2->adjTarget();
+			adjEntry a1 = (e1->source() == first) ? e1->adjSource() : e1->adjTarget();
+			adjEntry a2 = (e2->source() == first) ? e2->adjSource() : e2->adjTarget();
 
-			bool srcFits = (e1->source() == v1);
-			if( (curDir == pdLeft && srcFits) || (curDir == pdRight && !srcFits) )
+			bool srcFits = (e1->source() == first);
+			if( (curDir == PathDir::Left && srcFits) || (curDir == PathDir::Right && !srcFits) )
 				swap(a1,a2);
 			prefs.pushBack(EmbeddingPreference(a1,a2));
 
 			if(e1->source() != e2->source())
-				curDir = s_oppDir[curDir];
+				curDir = s_oppDir[static_cast<int>(curDir)];
 			}
 			break;
 
-		case SPQRTree::SNode:
+		case SPQRTree::NodeType::SNode:
 			if(it.succ().valid()) {
 				edge eIn = e;
 				edge eOut = *(it.succ());
@@ -1008,7 +964,7 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 					at = at->twin()->cyclicSucc();
 
 				if(at == e2->adjSource())
-					curDir = s_oppDir[curDir];
+					curDir = s_oppDir[static_cast<int>(curDir)];
 			}
 			break; // nothing to do
 		}
@@ -1018,11 +974,8 @@ int MultiEdgeApproxInserter::computePathSPQR(int b, node vOrig, node wOrig, int 
 }
 
 
-//---------------------------------------------------------
 // DFS-traversal for computing insertion path in BC-tree
 // (case vertex v)
-//---------------------------------------------------------
-
 bool MultiEdgeApproxInserter::dfsPathVertex(node v, int parent, int k, node t)
 {
 	if(v == t) return true;
@@ -1036,11 +989,8 @@ bool MultiEdgeApproxInserter::dfsPathVertex(node v, int parent, int k, node t)
 }
 
 
-//---------------------------------------------------------
 // DFS-traversal for computing insertion path in BC-tree
 // (case block b)
-//---------------------------------------------------------
-
 bool MultiEdgeApproxInserter::dfsPathBlock(int b, node parent, int k, node t)
 {
 	SListConstIterator<node> it;
@@ -1064,10 +1014,7 @@ bool MultiEdgeApproxInserter::dfsPathBlock(int b, node parent, int k, node t)
 }
 
 
-//---------------------------------------------------------
 // compute insertion path of edge edge k in BC-tree
-//---------------------------------------------------------
-
 void MultiEdgeApproxInserter::computePathBC(int k)
 {
 	node s = m_pPG->copy((*m_edge)[k]->source());
@@ -1078,11 +1025,8 @@ void MultiEdgeApproxInserter::computePathBC(int k)
 }
 
 
-//---------------------------------------------------------
 // Embeds block b according to combined embedding
 // preference s of the k insertion paths
-//---------------------------------------------------------
-
 void MultiEdgeApproxInserter::embedBlock(int b, int m)
 {
 	// Algorithm 3.7.
@@ -1092,13 +1036,13 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 		return;
 	StaticPlanarSPQRTree &spqr = B.spqr();
 
-	// A.  ---------------------------------------
+	// A.
 	NodeArray<EmbeddingPreference> pi_pick(spqr.tree());
 	NodeArray<bool> visited(spqr.tree(), false);  // mark nodes with embedding preferences
 	NodeArray<bool> markFlipped(spqr.tree(), false);  // mark nodes on current path to get flipped
 	Array<Block::PathElement> p;
 
-	// B.  ---------------------------------------
+	// B.
 	for(int i = 0; i < m; ++i)
 	{
 		// (a)
@@ -1110,13 +1054,13 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 		do {
 			node n = p[j].m_node;
 
-			// (b)  ---------------------------------------
+			// (b)
 			bool newlySet = false;
 			if(pi_pick[n].isNull()) {
 				newlySet = true;
 				pi_pick[n] = *p[j].m_pref;
 
-				if(spqr.typeOf(n) == SPQRTree::PNode) {
+				if(spqr.typeOf(n) == SPQRTree::NodeType::PNode) {
 					adjEntry a1 = pi_pick[n].adj1();
 					adjEntry a2 = pi_pick[n].adj2();
 					adjEntry adj = a1->cyclicSucc();
@@ -1128,13 +1072,13 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 				}
 			}
 
-			// (c)  ---------------------------------------
+			// (c)
 
 			// determine non-S-node predecessor of n
 			int j_mu = -1;
 			if(j > 0) {
 				node x = p[j-1].m_node;
-				if(spqr.typeOf(x) != SPQRTree::SNode)
+				if(spqr.typeOf(x) != SPQRTree::NodeType::SNode)
 					j_mu = j-1;
 				else if(j > 1)
 					j_mu = j-2;
@@ -1149,7 +1093,7 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 					markFlipped[mu] = true;  // flip embedding at mu
 			}
 
-			// (d)  ---------------------------------------
+			// (d)
 			if(!newlySet) {
 				// skip nodes in same embedding partition
 				while(j+1 < len && visited[p[j+1].m_node])
@@ -1161,16 +1105,16 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 				break; // end of insertion path
 
 			// skip S-node (can only be one)
-			if(spqr.typeOf(p[j].m_node) == SPQRTree::SNode)
+			if(spqr.typeOf(p[j].m_node) == SPQRTree::NodeType::SNode)
 				++j;
 
 		} while(j < len);
 
 		// flip embedding preferences
 		bool flipping = false;
-		for(int j = len-1; j >= 0; --j)
+		for(int iter = len-1; iter >= 0; --iter)
 		{
-			node n = p[j].m_node;
+			node n = p[iter].m_node;
 			if(markFlipped[n]) {
 				flipping = !flipping;
 				markFlipped[n] = false;
@@ -1178,12 +1122,12 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 
 			if(flipping) {
 				pi_pick[n].flip();
-				if(pi_pick[n].type() == EmbeddingPreference::epPNode)
+				if(pi_pick[n].type() == EmbeddingPreference::Type::PNode)
 					spqr.reverse(n);
 
 				if(visited[n]) {
-					node n_succ = (j+1 < len) ? p[j+1].m_node : nullptr;
-					node n_pred = (j-1 >=  0) ? p[j-1].m_node : nullptr;
+					node n_succ = (iter+1 < len) ? p[iter+1].m_node : nullptr;
+					node n_pred = (iter-1 >=  0) ? p[iter-1].m_node : nullptr;
 
 					for(adjEntry adj : n->adjEntries) {
 						node x = adj->twinNode();
@@ -1197,22 +1141,22 @@ void MultiEdgeApproxInserter::embedBlock(int b, int m)
 		}
 	}
 
-	// C.  ---------------------------------------
+	// C.
 	for(node n : spqr.tree().nodes)
 	{
-		const EmbeddingPreference &p = pi_pick[n];
-		if(p.isNull())
+		const EmbeddingPreference &ep = pi_pick[n];
+		if(ep.isNull())
 			continue;
 
 		switch(spqr.typeOf(n)) {
-		case SPQRTree::SNode:
+		case SPQRTree::NodeType::SNode:
 			break;  // nothing to do
 
-		case SPQRTree::PNode:
+		case SPQRTree::NodeType::PNode:
 			break;  // already embedded as desired
 
-		case SPQRTree::RNode:
-			if(p.mirror())
+		case SPQRTree::NodeType::RNode:
+			if(ep.mirror())
 				spqr.reverse(n);
 			break;
 		}
@@ -1232,7 +1176,7 @@ void MultiEdgeApproxInserter::recFlipPref(
 
 	EmbeddingPreference &pref = pi_pick[n];
 	pref.flip();
-	if(pref.type() == EmbeddingPreference::epPNode)
+	if(pref.type() == EmbeddingPreference::Type::PNode)
 		spqr.reverse(n);
 
 	for(adjEntry adj : n->adjEntries) {
@@ -1242,12 +1186,9 @@ void MultiEdgeApproxInserter::recFlipPref(
 }
 
 
-//---------------------------------------------------------
 // actual call method
 // currently not supported:
 //   frobidCrossingGens, forbiddenEdgeOrig, edgeSubGraphs
-//---------------------------------------------------------
-
 const char *strType[] = { "S", "P", "R" };
 //#define MEAI_OUTPUT
 
@@ -1285,11 +1226,11 @@ void insertAfterList(SListPure<adjEntry> &adjList, SListIterator<adjEntry> itBef
 }
 
 Module::ReturnType MultiEdgeApproxInserter::doCall(
-	PlanRepLight                  &PG,
-	const Array<edge>             &origEdges,
-	const EdgeArray<int>          *costOrig,
-	const EdgeArray<bool>         *forbiddenEdge,
-	const EdgeArray<uint32_t> *edgeSubGraphs)
+	PlanRepLight&                 PG,
+	const Array<edge>&            origEdges,
+	const EdgeArray<int>*         costOrig,
+	const EdgeArray<bool>*        /* unused parameter */,
+	const EdgeArray<uint32_t>*    /* unused parameter */)
 {
 	m_pPG = &PG;
 	m_costOrig = costOrig;
@@ -1492,28 +1433,28 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 
 					if(!blockSet[b1] && !blockSet[b2]) {
 						// none of the two blocks set yet
-						adjEntry adj1 = m_block[b1]->findBestFace(copy(v,b1),copy((*it).m_v1,b1), (*it).m_len1);
-						appendToList(adjList, adj1, m_block[b1]->m_BCtoG, pos);
+						adjEntry bestFace1 = m_block[b1]->findBestFace(copy(v,b1),copy((*it).m_v1,b1), (*it).m_len1);
+						appendToList(adjList, bestFace1, m_block[b1]->m_BCtoG, pos);
 
-						adjEntry adj2 = m_block[b2]->findBestFace(copy(v,b2),copy((*it).m_v2,b2), (*it).m_len2);
-						appendToList(adjList, adj2, m_block[b2]->m_BCtoG, pos);
+						adjEntry bestFace2 = m_block[b2]->findBestFace(copy(v,b2),copy((*it).m_v2,b2), (*it).m_len2);
+						appendToList(adjList, bestFace2, m_block[b2]->m_BCtoG, pos);
 
 						blockSet[b1] = blockSet[b2] = true;
 
 					} else if(!blockSet[b1]) {
 						// b2 is set, but b1 is not yet set
-						adjEntry adj1 = m_block[b1]->findBestFace(copy(v,b1),copy((*it).m_v1,b1), (*it).m_len1);
-						adjEntry adj2 = m_block[b2]->findBestFace(copy(v,b2),copy((*it).m_v2,b2), (*it).m_len2);
+						adjEntry bestFace1 = m_block[b1]->findBestFace(copy(v,b1),copy((*it).m_v1,b1), (*it).m_len1);
+						adjEntry bestFace2 = m_block[b2]->findBestFace(copy(v,b2),copy((*it).m_v2,b2), (*it).m_len2);
 
-						insertAfterList(adjList, pos[m_block[b2]->m_BCtoG[adj2]], adj1, m_block[b1]->m_BCtoG, pos);
+						insertAfterList(adjList, pos[m_block[b2]->m_BCtoG[bestFace2]], bestFace1, m_block[b1]->m_BCtoG, pos);
 						blockSet[b1] = true;
 
 					} else if(!blockSet[b2]) {
 						// b1 is set, but b2 is not yet set
-						adjEntry adj1 = m_block[b1]->findBestFace(copy(v,b1),copy((*it).m_v1,b1), (*it).m_len1);
-						adjEntry adj2 = m_block[b2]->findBestFace(copy(v,b2),copy((*it).m_v2,b2), (*it).m_len2);
+						adjEntry bestFace1 = m_block[b1]->findBestFace(copy(v,b1),copy((*it).m_v1,b1), (*it).m_len1);
+						adjEntry bestFace2 = m_block[b2]->findBestFace(copy(v,b2),copy((*it).m_v2,b2), (*it).m_len2);
 
-						insertAfterList(adjList, pos[m_block[b1]->m_BCtoG[adj1]], adj2, m_block[b2]->m_BCtoG, pos);
+						insertAfterList(adjList, pos[m_block[b1]->m_BCtoG[bestFace1]], bestFace2, m_block[b2]->m_BCtoG, pos);
 						blockSet[b2] = true;
 					}
 				}
@@ -1596,21 +1537,18 @@ Module::ReturnType MultiEdgeApproxInserter::doCall(
 
 	fei.call( PG, origEdges );
 
-	if(m_rrOptionVar != rrNone && m_rrOptionVar != rrIncremental) {
+	if(m_rrOptionVar != RemoveReinsertType::None && m_rrOptionVar != RemoveReinsertType::Incremental) {
 		VariableEmbeddingInserter vei;
 		vei.removeReinsert(m_rrOptionVar);
 		vei.percentMostCrossed(m_percentMostCrossedFix);
 		vei.callPostprocessing( PG, origEdges );
 	}
 
-	return retFeasible;
+	return ReturnType::Feasible;
 }
 
 
-//---------------------------------------------------------
 // cleanup: delete blocks, reset all auxiliary arrays
-//---------------------------------------------------------
-
 void MultiEdgeApproxInserter::cleanup()
 {
 	int c = m_block.size();
@@ -1635,10 +1573,7 @@ void MultiEdgeApproxInserter::cleanup()
 }
 
 
-//---------------------------------------------------------
 // just for testing and additional statistics
-//---------------------------------------------------------
-
 void MultiEdgeApproxInserter::constructDual(const PlanRepLight &PG)
 {
 	m_E.init(PG);

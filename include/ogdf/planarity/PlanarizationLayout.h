@@ -37,7 +37,7 @@
 #include <ogdf/module/LayoutPlanRepModule.h>
 #include <ogdf/module/CCLayoutPackModule.h>
 #include <memory>
-#include <ogdf/internal/planarity/CliqueReplacer.h>
+#include <ogdf/planarity/planarization_layout/CliqueReplacer.h>
 
 namespace ogdf {
 
@@ -54,16 +54,16 @@ public:
 	//! Destructor.
 	~PlanarizationLayout() { }
 
-	//! Calls planarization layout for GraphAttributes \a ga.
+	//! Calls planarization layout for GraphAttributes \p ga.
 	/**
 	 * \pre The graph has no self-loops.
 	 * @param ga is the input graph and will also be assigned the layout information.
 	 */
 	void call(GraphAttributes &ga) override;
 
-	//! Calls planarization layout with clique handling for GraphAttributes \a ga with associated graph \a g.
+	//! Calls planarization layout with clique handling for GraphAttributes \p ga with associated graph \p g.
 	/**
-	 * \pre \a g is the graph associated with graph attributes \a ga.
+	 * \pre \p g is the graph associated with graph attributes \p ga.
 	 *
 	 * This call perfoms a special handling for cliques, which are temporarily replaced by a star graph.
 	 * In the final drawing, the clique edges are drawn straight-line.
@@ -86,7 +86,7 @@ public:
 		return m_pageRatio;
 	}
 
-	//! Sets the option pageRatio to \a ratio.
+	//! Sets the option pageRatio to \p ratio.
 	void pageRatio(double ratio) {
 		m_pageRatio = ratio;
 	}
@@ -100,7 +100,7 @@ public:
 		return m_cliqueSize;
 	}
 
-	//! Set the option minCliqueSize to \a i.
+	//! Set the option minCliqueSize to \p i.
 	void minCliqueSize(int i) {
 		m_cliqueSize = max(i, 3);
 	}
@@ -162,6 +162,8 @@ public:
 	//! @}
 
 private:
+	using CliqueReplacer = planarization_layout::CliqueReplacer;
+
 	void arrangeCCs(PlanRep &PG, GraphAttributes &GA, Array<DPoint> &boundingBox) const;
 	void preprocessCliques(Graph &G, CliqueReplacer &cliqueReplacer);
 	void fillAdjNodes(List<node>& adjNodes,

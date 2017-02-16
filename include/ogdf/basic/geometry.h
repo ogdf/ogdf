@@ -1,7 +1,8 @@
 /** \file
- * \brief Declaration of classes DPoint, DPolyline, DLine, DRect, DScaler.
+ * \brief Declaration of classes DPoint, DPolyline, DLine, DRect,
+ * DIntersectableRect, DScaler.
  *
- * \author Joachim Kupke
+ * \author Joachim Kupke, Rene Weiskircher, Ivo Hedtke
  *
  * \par License:
  * This file is part of the Open Graph Drawing Framework (OGDF).
@@ -42,7 +43,7 @@ namespace ogdf {
 extern const EpsilonTest OGDF_GEOM_ET;
 
 //! Determines the orientation in hierarchical layouts.
-enum Orientation {
+enum class Orientation {
 	topToBottom, //!< Edges are oriented from top to bottom.
 	bottomToTop, //!< Edges are oriented from bottom to top.
 	leftToRight, //!< Edges are oriented from left to right.
@@ -71,7 +72,7 @@ class GenericPoint
 {
 public:
 	//! The type for coordinates of the point.
-	typedef NUMBER numberType;
+	using numberType = NUMBER;
 
 	NUMBER m_x; //!< The x-coordinate.
 	NUMBER m_y; //!< The y-coordinate.
@@ -83,7 +84,7 @@ public:
 	 */
 	GenericPoint() { }
 
-	//! Creates a generic point (\a x,\a y).
+	//! Creates a generic point (\p x,\p y).
 	GenericPoint(NUMBER x, NUMBER y) : m_x(x), m_y(y) { }
 
 	//! Copy constructor.
@@ -158,13 +159,13 @@ public:
 	//! Creates an integer point (0,0).
 	IPoint() : GenericPoint<int>(0,0) { }
 
-	//! Creates an integer point (\a x,\a y).
+	//! Creates an integer point (\p x,p y).
 	IPoint(int x, int y) : GenericPoint<int>(x,y) { }
 
 	//! Copy constructor.
 	IPoint(const IPoint &ip) : GenericPoint<int>(ip) { }
 
-	//! Returns the euclidean distance between \a p and this point.
+	//! Returns the euclidean distance between \p p and this point.
 	double distance(const IPoint &p) const;
 };//class IPoint
 
@@ -221,7 +222,7 @@ public:
 	//! Creates a real point (0,0).
 	DPoint() : GenericPoint<double>(0,0) { }
 
-	//! Creates a real point (\a x,\a y).
+	//! Creates a real point (\p x,\p y).
 	DPoint(double x, double y) : GenericPoint<double>(x,y) { }
 
 	//! Copy constructor.
@@ -271,7 +272,7 @@ public:
 		return DPoint(c*p.m_x, c*p.m_y);
 	}
 
-	//! Returns the euclidean distance between \a p and this point.
+	//! Returns the euclidean distance between \p p and this point.
 	double distance(const DPoint &p) const;
 };
 
@@ -288,7 +289,7 @@ public:
 	//! Creates a vector (0,0).
 	DVector() : DPoint() { }
 
-	//! Creates a vector (\a x,\a y).
+	//! Creates a vector (\p x,\p y).
 	DVector(double x, double y) : DPoint(x, y) { }
 
 	//! Copy constructor.
@@ -313,10 +314,10 @@ public:
 	//! Subtraction of vectors
 	DVector operator-(const DVector &dv) const;
 
-	//! Multiplies all coordinates with \a val.
+	//! Multiplies all coordinates with \p val.
 	DVector operator*(const double val) const;
 
-	//! Divides all coordinates by \a val.
+	//! Divides all coordinates by \p val.
 	DVector operator/(const double val) const;
 
 	//! Returns the length of the vector.
@@ -325,14 +326,14 @@ public:
 	//! Returns the determinante of the vector.
 	double operator^(const DVector &dv) const;
 
-	//! Returns the scalar product of this vecor and \a dv.
+	//! Returns the scalar product of this vecor and \p dv.
 	double operator*(const DVector &dv) const;
 
 	/**
 	* \brief Returns a vector that is orthogonal to this vector.
 	*
-	* Returns the vector \f$(y/x,1)\f$ if \f$x\neq 0\f$, or \f$(1,0)\f$
-	* otherwise, where \f$(x,y)\f$ is this vector.
+	* Returns the vector \a (y/x,1) if \a x != 0, or \a (1,0)
+	* otherwise, where \a (x,y) is this vector.
 	*/
 	DVector orthogonal() const;
 };
@@ -365,11 +366,11 @@ public:
 	double length() const;
 
 	/**
-	 * \brief Returns a point on the polyline which is \a fraction * \a len
+	 * \brief Returns a point on the polyline which is \p fraction * \p len
 	 *        away from the start point.
 	 *
-	 * @param fraction defines the fraction of \a lento be considered.
-	 * @param len is the given length, or the length of the polyline if \a len < 0.
+	 * @param fraction defines the fraction of \p len to be considered.
+	 * @param len is the given length, or the length of the polyline if \p len < 0.
 	 */
 	DPoint position(const double fraction, double len = -1.0) const;
 
@@ -383,7 +384,7 @@ public:
 	void normalize(DPoint src, //start point of the edge
 		DPoint tgt); //end point of the edge
 
-	//! Converts all coordinates rounded to \a s_prec decimal digits.
+	//! Converts all coordinates rounded to #s_prec decimal digits.
 	void convertToInt();
 
 #if 0
@@ -406,13 +407,13 @@ public:
 	//! Creates an empty line.
 	DLine() : m_start(), m_end() {}
 
-	//! Creates a line with start point \a p1 and end point \a p2.
+	//! Creates a line with start point \p p1 and end point \p p2.
 	DLine(const DPoint &p1, const DPoint &p2) : m_start(p1), m_end(p2) {}
 
 	//! Copy constructor.
 	DLine(const DLine &dl) : m_start(dl.m_start), m_end(dl.m_end) {}
 
-	//! Creates a line with start point (\a x1,\a y1) and end point (\a x2,\a y2).
+	//! Creates a line with start point (\p x1,\p y1) and end point (\p x2,\p y2).
 	DLine(double x1, double y1, double x2, double y2) {
 		m_start.m_x = x1; m_start.m_y = y1; m_end.m_x = x2; m_end.m_y = y2;
 	}
@@ -461,7 +462,7 @@ public:
 	bool isHorizontal() const { return OGDF_GEOM_ET.equal(dy(), 0.0); }
 
 	/**
-	 * \brief Returns true iff \a line and this line intersect.
+	 * \brief Returns true iff \p line and this line intersect.
 	 *
 	 * @param line is the second line.
 	 * @param inter is assigned  the intersection point if true is returned.
@@ -471,7 +472,7 @@ public:
 
 	bool intersectionOfLines(const DLine &line, DPoint &inter) const;
 
-	//! Returns true iff \a p lie on this line.
+	//! Returns true iff \p p lie on this line.
 	bool contains(const DPoint &p) const;
 
 	//! Returns the length (euclidean distance between start and edn point) of this line.
@@ -480,32 +481,32 @@ public:
 	}
 
 	/**
-	 * \brief Computes the intersection between this line and the horizontal line through y = \a horAxis.
+	 * \brief Computes the intersection between this line and the horizontal line through y = \p horAxis.
 	 *
 	 * @param horAxis defines the horizontal line.
 	 * @param crossing is assigned the x-coordinate of the intersection point.
 	 *
 	 * \return the number of intersection points (0 = none, 1 = one, 2 = this
-	 *         line lies on the horizontal line through y = \a horAxis).
+	 *         line lies on the horizontal line through y = \p horAxis).
 	 */
 	int horIntersection(const double horAxis, double &crossing) const;
 
 	// gives the intersection with the vertical axis 'verAxis', returns the number of intersections
 	// 0 = no, 1 = one, 2 = infinity or both end-points, e.g. parallel on this axis
 	/**
-	 * \brief Computes the intersection between this line and the vertical line through x = \a verAxis.
+	 * \brief Computes the intersection between this line and the vertical line through x = \p verAxis.
 	 *
 	 * @param verAxis defines the vertical line.
 	 * @param crossing is assigned the y-coordinate of the intersection point.
 	 *
 	 * \return the number of intersection points (0 = none, 1 = one, 2 = this
-	 *         line lies on the vertical line through x = \a verAxis).
+	 *         line lies on the vertical line through x = \p verAxis).
 	 */
 	int verIntersection(const double verAxis, double &crossing) const;
 };
 
 //! Output operator for lines.
-ostream &operator<<(ostream &os, const DLine &dl);
+OGDF_EXPORT ostream &operator<<(ostream &os, const DLine &dl);
 
 
 /**
@@ -513,33 +514,38 @@ ostream &operator<<(ostream &os, const DLine &dl);
  */
 class OGDF_EXPORT DRect {
 
-private:
+	friend OGDF_EXPORT ostream &operator<<(ostream &os, const DRect &dr);
+
+protected:
 	DPoint m_p1; //!< The lower left point of the rectangle.
 	DPoint m_p2; //!< The upper right point of the rectangle.
 
 public:
 	//! Creates a rectangle with lower left and upper right point (0,0).
-	DRect() : m_p1(), m_p2() {}
+	DRect() = default;
 
-	//! Creates a rectangle with lower left point \a p1 and upper right point \a p2.
-	DRect(const DPoint &p1, const DPoint &p2) : m_p1(p1), m_p2(p2)
+	//! Creates a rectangle with lower left point \p p1 and upper right point \p p2.
+	DRect(const DPoint &p1, const DPoint &p2)
+	: m_p1(p1)
+	, m_p2(p2)
 	{ normalize(); }
 
-	//! Creates a rectangle with lower left point (\a x1,\a y1) and upper right point (\a x1,\a y2).
-	DRect(double x1, double y1, double x2, double y2) {
-		m_p1.m_x = x1; m_p1.m_y = y1; m_p2.m_x = x2; m_p2.m_y = y2;
-		normalize();
-	}
+	//! Copy constructor
+	DRect(const DRect& dr)
+	: m_p1(dr.m_p1)
+	, m_p2(dr.m_p2) {}
 
-	//! Creates a rectangle defined by the end points of line \a dl.
-	DRect(const DLine &dl) : m_p1(dl.start()), m_p2(dl.end())
-	{ normalize(); }
+	//! Creates a rectangle with lower left point (\p x1,\p y1) and upper right point (\p x2,\p y2).
+	DRect(double x1, double y1, double x2, double y2)
+	: DRect(DPoint(x1,y1), DPoint(x2,y2)) {}
 
-	//! Copy constructor.
-	DRect(const DRect &dr) : m_p1(dr.m_p1), m_p2(dr.m_p2)
-	{ normalize(); }
+	//! Creates a rectangle defined by the end points of line \p dl.
+	explicit DRect(const DLine &dl)
+	: DRect(dl.start(), dl.end()) {}
 
-	//! Equality operator.
+	virtual ~DRect() = default;
+
+	//! Equality operator: both rectangles have the same coordinates
 	bool operator==(const DRect &dr) const {
 		return m_p1 == dr.m_p1 && m_p2 == dr.m_p2;
 	}
@@ -611,20 +617,111 @@ public:
 	//! Swaps the x-coordinates of the two points.
 	void xInvert() { swap(m_p1.m_x, m_p2.m_x); }
 
-	//! Returns true iff \a p lies within this rectangle.
+	//! Returns true iff \p p lies within this rectangle, modulo the comparison epsilon #OGDF_GEOM_ET.
 	bool contains(const DPoint &p) const {
-		if (OGDF_GEOM_ET.less(p.m_x, m_p1.m_x) ||
-			OGDF_GEOM_ET.greater(p.m_x, m_p2.m_x) ||
-			OGDF_GEOM_ET.less(p.m_y, m_p1.m_y) ||
-			OGDF_GEOM_ET.greater(p.m_y, m_p2.m_y))
-			return false;
-		return true;
+		return OGDF_GEOM_ET.geq(p.m_x, m_p1.m_x)
+			&& OGDF_GEOM_ET.leq(p.m_x, m_p2.m_x)
+			&& OGDF_GEOM_ET.geq(p.m_y, m_p1.m_y)
+			&& OGDF_GEOM_ET.leq(p.m_y, m_p2.m_y);
+	}
+
+protected:
+	//! Bottom bounding line.
+	DLine bottom() const { return DLine(m_p1.m_x,m_p1.m_y,m_p2.m_x,m_p1.m_y); }
+
+	//! Top bounding line.
+	DLine top() const { return DLine(m_p1.m_x, m_p2.m_y, m_p2.m_x,m_p2.m_y); }
+
+	//! Left bounding line.
+	DLine left() const { return DLine(m_p1.m_x, m_p1.m_y, m_p1.m_x, m_p2.m_y); }
+
+	//! Right bounding line.
+	DLine right() const { return DLine(m_p2.m_x, m_p1.m_y, m_p2.m_x, m_p2.m_y); }
+
+	//! Computes distance between parallel line segments.
+	double parallelDist(const DLine &d1, const DLine &d2) const;
+
+	//! Computes distance between two points.
+	double pointDist(const DPoint &p1, const DPoint &p2) const {
+		return sqrt((p1.m_y - p2.m_y) * (p1.m_y - p2.m_y) + (p1.m_x - p2.m_x) * (p1.m_x - p2.m_x));
 	}
 };
 
-//! Output operator for rectangles.
-OGDF_EXPORT ostream &operator<<(ostream &os, const DRect &dr);
 
+/**
+ * \brief Rectangles with real coordinates.
+ *
+ * Stores its #m_area and #m_center and provides methods to compute the
+ * intersection with other rectangles.
+ */
+class OGDF_EXPORT DIntersectableRect : public DRect {
+
+	friend OGDF_EXPORT ostream &operator<<(ostream &os, const DIntersectableRect &dr);
+
+	double m_area = 0.0;
+	DPoint m_center;
+
+	/**
+	 * @copydoc DRect::normalize()
+	 * Update #m_area and #m_center.
+	 */
+	void initAreaAndCenter();
+
+public:
+	//! Creates a rectangle with lower left and upper right point (0,0).
+	DIntersectableRect() = default;
+
+	//! Creates a rectangle with lower left point \p p1 and upper right point \p p2.
+	DIntersectableRect(const DPoint &p1, const DPoint &p2)
+	: DRect(p1, p2)
+	{ initAreaAndCenter(); }
+
+	//! Creates a rectangle with lower left point (\p x1,\p y1) and upper right point (\p x1,\p y2).
+	DIntersectableRect(double x1, double y1, double x2, double y2)
+	: DIntersectableRect(DPoint(x1,y1), DPoint(x2,y2)) {}
+
+	//! Copy constructor
+	DIntersectableRect(const DIntersectableRect& dr)
+	: DRect(static_cast<DRect>(dr))
+	, m_area(dr.m_area)
+	, m_center(dr.m_center) {}
+
+	//! Constructs a rectangle from the \p center point, \p width and \p height
+	DIntersectableRect(const DPoint &center, double width, double height)
+	: DIntersectableRect(DPoint(center.m_x-width/2,center.m_y-height/2),
+	                     DPoint(center.m_x+width/2,center.m_y+height/2)) {};
+
+	//! Assignment operator.
+	DIntersectableRect &operator= (const DIntersectableRect &dr) {
+		if (this != &dr) { // don't assign myself
+			m_p1 = dr.m_p1;
+			m_p2 = dr.m_p2;
+			m_center = dr.m_center;
+			m_area = dr.m_area;
+		}
+		return *this;
+	}
+
+	//! Center of the rectangle
+	DPoint center() const { return m_center; }
+
+	//! Area of the rectangle
+	double area() const { return m_area; }
+
+	//! Tests if this and the argument \p rectangle intersect
+	bool intersects(const DIntersectableRect &rectangle) const;
+
+	//! Returns the rectangle resulting from intersection of this and \p other.
+	//! Returns a rectangle with zero width and height and center (0,0) if intersection
+	//! is empty.
+	DIntersectableRect intersection(const DIntersectableRect &other) const;
+
+	//! Computes distance between two rectangles.
+	double distance(const DIntersectableRect &other) const;
+
+	//! Moves the rectangle such that its center is at the given \p point
+	void move(const DPoint &point);
+};
 
 //! Scaling between coordinate systems.
 class OGDF_EXPORT DScaler {
@@ -640,7 +737,7 @@ private:
 	double m_offsetY; //!< The offset for the y-coordinates.
 
 public:
-	//! Creates a scaler for scaling from area \a from to area \a to.
+	//! Creates a scaler for scaling from area \p from to area \p to.
 	DScaler(const DRect &from, const DRect &to) :
 		m_from(&from),
 		m_to(&to),
@@ -687,13 +784,13 @@ public:
 	//! Creates an empty line segment.
 	DSegment() : DLine() {}
 
-	//! Creates a line segment from \a p1 to \a p2.
+	//! Creates a line segment from \p p1 to \p p2.
 	DSegment(const DPoint &p1, const DPoint &p2) : DLine(p1, p2) {}
 
-	//! Creates a line segment defined by the start and end point of line \a dl.
-	DSegment(const DLine &dl) : DLine(dl) {}
+	//! Creates a line segment defined by the start and end point of line \p dl.
+	explicit DSegment(const DLine &dl) : DLine(dl) {}
 
-	//! Creates a line segment from (\a x1,\a y1) to (\a x2,\a y2).
+	//! Creates a line segment from (\p x1,\p y1) to (\p x2,\p y2).
 	DSegment(double x1, double y1, double x2, double y2) : DLine(x1, y1, x2, y2) {}
 
 	//! Copy constructor.
@@ -701,10 +798,10 @@ public:
 
 
 	/**
-	 * \brief Determines if \a segment is left or right of this segment.
+	 * \brief Determines if \p segment is left or right of this segment.
 	 *
-	 * \return a positve number if \a segment is left of this segment, and a
-	 *         a negative number if \a segment is right of this segment.
+	 * \return a positve number if \p segment is left of this segment, and a
+	 *         a negative number if \p segment is right of this segment.
 	 */
 	double det(const DSegment &segment) const {
 		return (dx() * segment.dy() - dy() * segment.dx());
@@ -731,12 +828,12 @@ public:
 	DPolygon(bool cc = true) : m_counterclock(cc) { }
 
 	//! Creates a polgon from a rectangle.
-	DPolygon(const DRect &rect, bool cc = true) : m_counterclock(cc) {
+	explicit DPolygon(const DRect &rect, bool cc = true) : m_counterclock(cc) {
 		operator=(rect);
 	}
 
 	//! Copy constructor.
-	DPolygon(const DPolygon  &dop) : DPolyline(dop), m_counterclock(dop.m_counterclock) { }
+	DPolygon(const DPolygon &dop) : DPolyline(dop), m_counterclock(dop.m_counterclock) { }
 
 	//! Returns true iff points are given in counter-clockwise order.
 	bool counterclock() { return m_counterclock; }
@@ -751,28 +848,28 @@ public:
 	//! Assignment operator (for assigning from a rectangle).
 	DPolygon &operator=(const DRect &rect);
 
-	//! Returns the line segment that starts at position \a it.
+	//! Returns the line segment that starts at position \p it.
 	DSegment segment(ListConstIterator<DPoint> it) const;
 
 
-	//! Inserts point \a p, that must lie on a polygon segment.
+	//! Inserts point \p p, that must lie on a polygon segment.
 	ListIterator<DPoint> insertPoint(const DPoint &p) {
 		return insertPoint(p, begin(), begin());
 	}
 
 	/**
-	 * \brief Inserts point \a p, but just searching from point \a p1 to \a p2.
+	 * \brief Inserts point \p p, but just searching from point \p p1 to \p p2.
 	 *
-	 * That is, from the segment starting at \a p1 to the segment ending at \a p2.
+	 * That is, from the segment starting at \p p1 to the segment ending at \p p2.
 	 */
 	ListIterator<DPoint> insertPoint(const DPoint &p,
 		ListIterator<DPoint> p1,
 		ListIterator<DPoint> p2);
 
-	//! Inserts point p on every segment (a,b) with \a p in the open range ]a, b[.
+	//! Inserts point p on every segment (a,b) with \p p in the open range ]a, b[.
 	void insertCrossPoint(const DPoint &p);
 
-	//! Returns the list of intersection points of this polygon with \a p.
+	//! Returns the list of intersection points of this polygon with \p p.
 	int getCrossPoints(const DPolygon &p, List<DPoint> &crossPoints) const;
 
 	//! Deletes all consecutive points that are equal.

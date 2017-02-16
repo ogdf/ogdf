@@ -62,7 +62,7 @@ public:
 	 *  @{
 	 */
 
-	//! Computes a node ranking of \a G in \a rank.
+	//! Computes a node ranking of \p G in \p rank.
 	virtual void call(const Graph &G, NodeArray<int> &rank) override;
 
 
@@ -95,7 +95,7 @@ private:
 		int *A, l, p;
 	public:
 		_int_set() : A(nullptr), l(0), p(0) { }
-		_int_set(int len) : A(nullptr), l(len), p(len) {
+		explicit _int_set(int len) : A(nullptr), l(len), p(len) {
 			if (len > 0)
 				A = new int[l];
 		}
@@ -133,8 +133,8 @@ private:
 	NodeArray<_int_set> m_s;
 
 	// dfs members
-	NodeArray<int> mark;
-	StackPure <node> *visited;
+	NodeArray<int> m_mark;
+	StackPure <node> *m_visited;
 
 	// CoffmanGraham funktions
 	void insert (node u, List<Tuple2<node,int> > &ready_nodes);

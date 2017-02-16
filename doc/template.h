@@ -39,6 +39,7 @@ namespace ogdf {
 
 //
 // TO DO: INSERT YOUR DECLARATIONS
+// Do not indent because of namespace block.
 //
 
-} // end namespace ogdf
+}

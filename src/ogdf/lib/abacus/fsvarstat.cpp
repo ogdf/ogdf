@@ -59,7 +59,7 @@ ostream &operator<<(ostream& out, const FSVarStat &rhs)
 		break;
 	default:
 		Logger::ifout() << "FSVarStat: unknonw status\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcFsVarStat);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::FsVarStat);
 	}
 	return out;
 }

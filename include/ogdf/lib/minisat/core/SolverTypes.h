@@ -38,7 +38,7 @@ namespace Internal {
 // NOTE! Variables are just integers. No abstraction here. They should be chosen from 0..N,
 // so that they can be used as array indices.
 
-typedef int Var;
+using Var = int;
 #define var_Undef (-1)
 
 
@@ -126,7 +126,7 @@ inline lbool toLbool(int   v) { return lbool((uint8_t)v);  }
 // Clause -- a simple class for representing a clause:
 
 class Clause;
-typedef RegionAllocator<uint32_t>::Ref CRef;
+using CRef = RegionAllocator<uint32_t>::Ref;
 
 #ifdef _MSC_VER
 #pragma warning ( push )
@@ -338,7 +338,7 @@ class CMap
 	struct CRefHash {
 		uint32_t operator()(CRef cr) const { return (uint32_t)cr; } };
 
-	typedef Map<CRef, T, CRefHash> HashTable;
+	using HashTable = Map<CRef, T, CRefHash>;
 	HashTable map;
 
  public:

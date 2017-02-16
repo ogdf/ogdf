@@ -131,7 +131,7 @@ public:
 	 */
 	bool sizeOptimization() const { return m_sizeOptimization; }
 
-	//! Sets the option sizeOptimization to \a opt.
+	//! Sets the option sizeOptimization to \p opt.
 	void sizeOptimization(bool opt) { m_sizeOptimization = opt; }
 
 	/**
@@ -139,11 +139,11 @@ public:
 	 *
 	 * This option specifies the maximal number of nodes placed on the base line.
 	 * The algorithm tries to place as many nodes as possible on the base
-	 * line, but takes at most max(2, \a baseRatio * size of external face) many.
+	 * line, but takes at most max(2, #m_baseRatio * size of external face) many.
 	 */
 	double baseRatio() const { return m_baseRatio; }
 
-	//! Sets the option baseRatio to \a ratio.
+	//! Sets the option baseRatio to \p ratio.
 	void baseRatio(double ratio) { m_baseRatio = ratio; }
 
 

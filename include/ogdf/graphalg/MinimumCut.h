@@ -58,10 +58,10 @@ public:
 	// minimumCutPhase() in each iteration. Returns the mincut value.
 	double minimumCut();
 
-	// returns the edges defining the computed mincut in list \a edges.
+	// returns the edges defining the computed mincut in list \p edges.
 	void cutEdges(List<edge> &edges, Graph &G);
 
-	// returns list of nodes belonging to one side of the bipartition in list \a nodes.
+	// returns list of nodes belonging to one side of the bipartition in list \p nodes.
 	void partition(List<node> &nodes);
 
 	double minCutValue() const {return m_minCut;}
@@ -88,15 +88,15 @@ private:
 	List<edge> m_cutEdges;
 
 	// each node has a list containing the nodes with which it has been contracted.
-	// Because the GraphCopy \a m_GC is destroyed during the algorithm, this is
+	// Because the GraphCopy #m_GC is destroyed during the algorithm, this is
 	// necessary to be able to determine the original nodes in the end.
 	NodeArray<List<node> > m_contractedNodes;
 
 	// computes and returns the value of the minimum cut of the current phase (itertion).
 	double minimumCutPhase();
 
-	// Contracts the nodes \a s and \a t, i.e \a s is collapsed to \a t.
-	// The edge (if existing) between \a s and \t s is deleted. Edges incident to \a s are redirected to \t.
+	// Contracts the nodes \p s and \p t, i.e \p s is collapsed to \p t.
+	// The edge (if existing) between \p s and \t s is deleted. Edges incident to \p s are redirected to \t.
 	// If parallel edges occur, one of them is deleted and its weight is added to the other one.
 	void contraction(node t, node s);
 

@@ -35,8 +35,6 @@
 #include <ogdf/orthogonal/LongestPathCompaction.h>
 #include <ogdf/orthogonal/FlowCompaction.h>
 #include <ogdf/orthogonal/EdgeRouter.h>
-#include <ogdf/internal/orthogonal/RoutingChannel.h>
-#include <ogdf/orthogonal/MinimumEdgeDistances.h>
 #include <ogdf/orthogonal/OrthoShaper.h>
 
 
@@ -50,8 +48,8 @@ OrthoLayoutUML::OrthoLayoutUML()
 	m_cOverhang  = 0.2;
 	m_margin     = 40.0;
 	//preferred hierarchy direction
-	// SHOULD ACTUALLY BE odNorth, but we use odSouth since gml's are flipped!
-	m_preferedDir = odSouth;
+	// SHOULD ACTUALLY BE North, but we use South since gml's are flipped!
+	m_preferedDir = OrthoDir::South;
 	m_optionProfile = 0;
 	//edge costs
 	m_costAssoc   = 1;//should be set by profile
@@ -101,7 +99,6 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 	}//if scaling
 
 
-	//***********************************
 	// PHASE 1: determine orthogonal shape
 
 	// expand high-degree vertices and generalization mergers
@@ -122,7 +119,7 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 
 	//set some options
 	OFG.align(m_align);    //align brother objects on hierarchy levels
-	OFG.traditional(m_orthoStyle > 0 ? false : true); //prefer 90/270 degree angles over 180/180
+	OFG.traditional(m_orthoStyle <= 0); //prefer 90/270 degree angles over 180/180
 
 	// New Call
 	OFG.setBendBound(m_bendBound);
@@ -140,7 +137,6 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 		}
 	}
 
-	//******************************************************************
 	// PHASE 2: construction of a feasible drawing of the expanded graph
 
 	// expand low degree vertices
@@ -212,11 +208,10 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 
 
 	string msg;
-	OGDF_ASSERT(OR.check(msg) == true);
+	OGDF_ASSERT(OR.check(msg));
 
-	OR.orientate(pInfoExp->m_corner[odNorth], odNorth);
+	OR.orientate(pInfoExp->m_corner[static_cast<int>(OrthoDir::North)], OrthoDir::North);
 
-	//*************************************************
 	// PHASE 4: apply improvement compaction heuristics
 
 	// call flow compaction on grid
@@ -238,9 +233,6 @@ void OrthoLayoutUML::call(PlanRepUML &PG,
 
 
 
-//-----------------------------------------------------------------------------
-//Helpers
-//-----------------------------------------------------------------------------
 void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 {
 	//classify brother-to-brother hierarchy edges to allow alignment
@@ -253,13 +245,13 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 	for(e = PG.firstEdge(); e; e = eSucc)
 	{
 		eSucc = e->succ();
-		if (PG.typeOf(e) != Graph::generalization)
+		if (PG.typeOf(e) != Graph::EdgeType::generalization)
 		{
 			adjEntry as = e->adjSource();
 			node v = e->source();
 			if ( (PG.alignUpward(as))
-				&& (PG.typeOf(e->target()) != Graph::dummy)//TODO: crossings ?
-				&& (PG.typeOf(v) != Graph::dummy)
+				&& (PG.typeOf(e->target()) != Graph::NodeType::dummy)//TODO: crossings ?
+				&& (PG.typeOf(v) != Graph::NodeType::dummy)
 				)
 			{
 				edge gen1, gen2;
@@ -267,7 +259,7 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 				adjEntry runAE = as->cyclicSucc();
 				edge run = runAE->theEdge();
 				while ( (stop < v->degree()) &&  //only once
-					((PG.typeOf(run) != Graph::generalization) || //search generalization
+					((PG.typeOf(run) != Graph::EdgeType::generalization) || //search generalization
 					(run->source() != v) //outgoing gen
 					)
 					)
@@ -288,7 +280,7 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 				runAE = asTwin->cyclicSucc();
 				run = runAE->theEdge();
 				while ( (stop < w->degree()) &&
-					((PG.typeOf(run) != Graph::generalization) ||
+					((PG.typeOf(run) != Graph::EdgeType::generalization) ||
 					(run->source() != w)
 					)
 					)
@@ -315,38 +307,38 @@ void OrthoLayoutUML::classifyEdges(PlanRepUML &PG, adjEntry &adjExternal)
 					if (ltr)
 					{
 						//there are edges between e and gen2 at target
-						if (!(e->adjTarget()->faceCyclePred() == gen2->adjTarget()))
+						if (e->adjTarget()->faceCyclePred() != gen2->adjTarget())
 						{
 							OGDF_ASSERT(v != e->target());
-							PG.moveAdj(e->adjTarget(), before, gen2->adjTarget()->twin());
+							PG.moveAdj(e->adjTarget(), Direction::before, gen2->adjTarget()->twin());
 						}
 						//there are edges between e and gen1 at source
-						if (!(e->adjTarget()->faceCycleSucc() == gen1->adjSource()))
+						if (e->adjTarget()->faceCycleSucc() != gen1->adjSource())
 						{
 							//test if we discard the outer face entry
 							if (adjExternal == e->adjSource())
 							{
 								adjExternal = e->adjSource()->faceCyclePred();
 							}
-							PG.moveAdj(e->adjSource(), after, gen1->adjSource());
+							PG.moveAdj(e->adjSource(), Direction::after, gen1->adjSource());
 						}
 					}//if gen 1 left of gen 2
 					if (rtl)
 					{
 						//there are edges between e and gen2 at target
-						if (!(e->adjSource()->faceCycleSucc() == gen2->adjSource()))
+						if (e->adjSource()->faceCycleSucc() != gen2->adjSource())
 						{
 							//test if we discard the outer face entry
 							if (adjExternal == e->adjTarget())
 							{
 								adjExternal = e->adjTarget()->faceCycleSucc();
 							}
-							PG.moveAdj(e->adjTarget(), after, gen2->adjSource());
+							PG.moveAdj(e->adjTarget(), Direction::after, gen2->adjSource());
 						}
 						//there are edges between e and gen1 at source
-						if (!(e->adjSource()->faceCyclePred() == gen1->adjTarget()))
+						if (e->adjSource()->faceCyclePred() != gen1->adjTarget())
 						{
-							PG.moveAdj(e->adjSource(), before, gen1->adjSource());
+							PG.moveAdj(e->adjSource(), Direction::before, gen1->adjSource());
 						}
 
 					}//if gen 2 left of gen 1

@@ -34,15 +34,10 @@
 #include <ogdf/basic/Array.h>
 #include <ogdf/basic/geometry.h>
 
-
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// NearestRectangleFinder
-// finds in a given set of rectangles for each point in a given
-// set of points the nearest rectangle
-//---------------------------------------------------------
+//! Finds in a given set of rectangles for each point in a given
+//! set of points the nearest rectangle
 class OGDF_EXPORT NearestRectangleFinder
 {
 public:
@@ -50,7 +45,7 @@ public:
 	struct PairRectDist;
 	struct PairCoordId;
 
-	NearestRectangleFinder(double mad = 20, double td = 5) {
+	explicit NearestRectangleFinder(double mad = 20, double td = 5) {
 		m_maxAllowedDistance = mad;
 		m_toleranceDistance = td;
 	}
@@ -94,11 +89,7 @@ private:
 	double m_toleranceDistance;
 };
 
-
-//---------------------------------------------------------
-// RectRegion
-// represents a rectangle given by center point, width and height
-//---------------------------------------------------------
+//! Represents a rectangle given by center point, width and height
 struct NearestRectangleFinder::RectRegion
 {
 	friend ostream &operator<<(ostream &os, const RectRegion &rect) {
@@ -111,11 +102,7 @@ struct NearestRectangleFinder::RectRegion
 };
 
 
-//---------------------------------------------------------
-// PairRectDist
-// represents a rectangle (given by its index) and a
-// distance value
-//---------------------------------------------------------
+//! Represents a rectangle (given by its index) and a distance value
 struct OGDF_EXPORT NearestRectangleFinder::PairRectDist
 {
 	PairRectDist() { }

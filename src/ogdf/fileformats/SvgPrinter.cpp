@@ -100,20 +100,20 @@ pugi::xml_node SvgPrinter::writeHeader(pugi::xml_document &doc)
 
 void SvgPrinter::writeDashArray(pugi::xml_node xmlNode, StrokeType lineStyle, double lineWidth)
 {
-	if(lineStyle != stNone && lineStyle != stSolid) {
+	if(lineStyle != StrokeType::None && lineStyle != StrokeType::Solid) {
 		std::stringstream is;
 
 		switch(lineStyle) {
-		case stDash:
+		case StrokeType::Dash:
 			is << 4*lineWidth << "," << 2*lineWidth;
 			break;
-		case stDot:
+		case StrokeType::Dot:
 			is << 1*lineWidth << "," << 2*lineWidth;
 			break;
-		case stDashdot:
+		case StrokeType::Dashdot:
 			is << 4*lineWidth << "," << 2*lineWidth << "," << 1*lineWidth << "," << 2*lineWidth;
 			break;
-		case stDashdotdot:
+		case StrokeType::Dashdotdot:
 			is << 4*lineWidth << "," << 2*lineWidth << "," << 1*lineWidth << "," << 2*lineWidth << "," << 1*lineWidth << "," << 2*lineWidth;
 			break;
 		default:
@@ -147,27 +147,27 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 
 	// values are precomputed to save expensive sin/cos calls
 	switch (m_attr.shape(v)) {
-	case shEllipse:
+	case Shape::Ellipse:
 		shape = xmlNode.append_child("ellipse");
 		shape.append_attribute("cx") = x;
 		shape.append_attribute("cy") = y;
 		shape.append_attribute("rx") = m_attr.width(v) / 2;
 		shape.append_attribute("ry") = m_attr.height(v) / 2;
 		break;
-	case shTriangle:
+	case Shape::Triangle:
 		shape = drawPolygon(xmlNode, {
 					x, y - m_attr.height(v)/2,
 					x - m_attr.width(v)/2, y + m_attr.height(v)/2,
 					x + m_attr.width(v)/2, y + m_attr.height(v)/2
 				});
 		break;
-	case shInvTriangle:
+	case Shape::InvTriangle:
 		shape = drawPolygon(xmlNode, {x, y + m_attr.height(v)/2,
 					x - m_attr.width(v)/2, y - m_attr.height(v)/2,
 					x + m_attr.width(v)/2,y - m_attr.height(v)/2
 				});
 		break;
-	case shPentagon:
+	case Shape::Pentagon:
 		shape = drawPolygon(xmlNode, {
 					x, y - m_attr.height(v)/2,
 					x + pentagonHalfWidth, y - pentagonSmallHeight,
@@ -176,7 +176,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x - pentagonHalfWidth, y - pentagonSmallHeight
 				});
 		break;
-	case shHexagon:
+	case Shape::Hexagon:
 		shape = drawPolygon(xmlNode, {
 					x + m_attr.width(v)/4, y + hexagonHalfHeight,
 					x - m_attr.width(v)/4, y + hexagonHalfHeight,
@@ -186,7 +186,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x + m_attr.width(v)/2, y
 				});
 		break;
-	case shOctagon:
+	case Shape::Octagon:
 		shape = drawPolygon(xmlNode, {
 					x + octagonHalfWidth, y + octagonSmallHeight,
 					x + octagonSmallWidth, y + octagonHalfHeight,
@@ -198,7 +198,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x + octagonHalfWidth, y - octagonSmallHeight
 				});
 		break;
-	case shRhomb:
+	case Shape::Rhomb:
 		shape = drawPolygon(xmlNode, {
 					x + m_attr.width(v)/2, y,
 					x, y + m_attr.height(v)/2,
@@ -206,7 +206,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x, y - m_attr.height(v)/2
 				});
 		break;
-	case shTrapeze:
+	case Shape::Trapeze:
 		shape = drawPolygon(xmlNode, {
 					x - m_attr.width(v)/2, y + m_attr.height(v)/2,
 					x + m_attr.width(v)/2, y + m_attr.height(v)/2,
@@ -214,7 +214,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x - m_attr.width(v)/4, y - m_attr.height(v)/2
 				});
 		break;
-	case shInvTrapeze:
+	case Shape::InvTrapeze:
 		shape = drawPolygon(xmlNode, {
 					x - m_attr.width(v)/2, y - m_attr.height(v)/2,
 					x + m_attr.width(v)/2, y - m_attr.height(v)/2,
@@ -222,7 +222,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x - m_attr.width(v)/4, y + m_attr.height(v)/2
 				});
 		break;
-	case shParallelogram:
+	case Shape::Parallelogram:
 		shape = drawPolygon(xmlNode, {
 					x - m_attr.width(v)/2, y + m_attr.height(v)/2,
 					x + m_attr.width(v)/4, y + m_attr.height(v)/2,
@@ -230,7 +230,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 					x - m_attr.width(v)/4, y - m_attr.height(v)/2
 				});
 		break;
-	case shInvParallelogram:
+	case Shape::InvParallelogram:
 		shape = drawPolygon(xmlNode, {
 					x - m_attr.width(v)/2, y - m_attr.height(v)/2,
 					x + m_attr.width(v)/4, y - m_attr.height(v)/2,
@@ -246,7 +246,7 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 		shape.append_attribute("width") = m_attr.width(v);
 		shape.append_attribute("height") = m_attr.height(v);
 
-		if (m_attr.shape(v) == shRoundedRect) {
+		if (m_attr.shape(v) == Shape::RoundedRect) {
 			shape.append_attribute("rx") = m_attr.width(v) / 10;
 			shape.append_attribute("ry") = m_attr.height(v) / 10;
 		}
@@ -256,9 +256,9 @@ void SvgPrinter::drawNode(pugi::xml_node xmlNode, node v)
 		shape.append_attribute("fill") = m_attr.fillColor(v).toString().c_str();
 		shape.append_attribute("stroke-width") = (to_string(m_attr.strokeWidth(v)) + "px").c_str();
 
-		StrokeType lineStyle = m_attr.has(GraphAttributes::nodeStyle) ? m_attr.strokeType(v) : stSolid;
+		StrokeType lineStyle = m_attr.has(GraphAttributes::nodeStyle) ? m_attr.strokeType(v) : StrokeType::Solid;
 
-		if(lineStyle == stNone) {
+		if(lineStyle == StrokeType::None) {
 			shape.append_attribute("stroke") = "none";
 		} else {
 			shape.append_attribute("stroke") = m_attr.strokeColor(v).toString().c_str();
@@ -293,14 +293,14 @@ void SvgPrinter::drawCluster(pugi::xml_node xmlNode, cluster c)
 	if (c == m_clsAttr->constClusterGraph().rootCluster()) {
 		cluster = xmlNode;
 	} else {
-		pugi::xml_node cluster = xmlNode.append_child("rect");
-		cluster.append_attribute("x") = m_clsAttr->x(c);
-		cluster.append_attribute("y") = m_clsAttr->y(c);
-		cluster.append_attribute("width") = m_clsAttr->width(c);
-		cluster.append_attribute("height") = m_clsAttr->height(c);
-		cluster.append_attribute("fill") = m_clsAttr->fillPattern(c) == fpNone ? "none" : m_clsAttr->fillColor(c).toString().c_str();
-		cluster.append_attribute("stroke") = m_clsAttr->strokeType(c) == stNone ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
-		cluster.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
+		pugi::xml_node clusterXmlNode = xmlNode.append_child("rect");
+		clusterXmlNode.append_attribute("x") = m_clsAttr->x(c);
+		clusterXmlNode.append_attribute("y") = m_clsAttr->y(c);
+		clusterXmlNode.append_attribute("width") = m_clsAttr->width(c);
+		clusterXmlNode.append_attribute("height") = m_clsAttr->height(c);
+		clusterXmlNode.append_attribute("fill") = m_clsAttr->fillPattern(c) == FillPattern::None ? "none" : m_clsAttr->fillColor(c).toString().c_str();
+		clusterXmlNode.append_attribute("stroke") = m_clsAttr->strokeType(c) == StrokeType::None ? "none" : m_clsAttr->strokeColor(c).toString().c_str();
+		clusterXmlNode.append_attribute("stroke-width") = (to_string(m_clsAttr->strokeWidth(c)) + "px").c_str();
 	}
 }
 
@@ -360,9 +360,9 @@ void SvgPrinter::drawEdges(pugi::xml_node xmlNode)
 
 void SvgPrinter::appendLineStyle(pugi::xml_node line, edge e) {
 
-	StrokeType lineStyle = m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeType(e) : stSolid;
+	StrokeType lineStyle = m_attr.has(GraphAttributes::edgeStyle) ? m_attr.strokeType(e) : StrokeType::Solid;
 
-	if(lineStyle != stNone) {
+	if(lineStyle != StrokeType::None) {
 		if (m_attr.has(GraphAttributes::edgeStyle)) {
 			line.append_attribute("stroke") = m_attr.strokeColor(e).toString().c_str();
 			line.append_attribute("stroke-width") = (to_string(m_attr.strokeWidth(e)) + "px").c_str();
@@ -411,15 +411,15 @@ void SvgPrinter::drawEdge(pugi::xml_node xmlNode, edge e) {
 
 	if (m_attr.has(GraphAttributes::edgeArrow)) {
 		switch (m_attr.arrowType(e)) {
-		case eaUndefined:
+		case EdgeArrow::Undefined:
 			drawTargetArrow = m_attr.directed();
 			break;
-		case eaLast:
+		case EdgeArrow::Last:
 			drawTargetArrow = true;
 			break;
-		case eaBoth:
+		case EdgeArrow::Both:
 			drawTargetArrow = true;
-		case eaFirst:
+		case EdgeArrow::First:
 			drawSourceArrow = true;
 			break;
 		default:
@@ -541,8 +541,8 @@ void SvgPrinter::drawRoundPath(std::stringstream &ss, List<DPoint> &points) {
 	drawLine(ss, p1, .5 * ((p1+p2) + (1-c) * (p2-p1)));
 
 	while(points.size() >= 3) {
-		DPoint p1 = points.popFrontRet();
-		DPoint p2 = points.front();
+		p1 = points.popFrontRet();
+		p2 = points.front();
 		DPoint p3 = *points.get(1);
 
 		DPoint v1 = (p1 - p2);

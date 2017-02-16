@@ -269,7 +269,7 @@ void UpwardPlanRep::augment()
 		else {
 			adjEntry adjTgt = getAdjEntry(m_Gamma, pair.x2()->theNode(), m_Gamma.rightFace(pair.x1()));
 			if(!m_Gamma.getGraph().searchEdge(pair.x1()->theNode(),adjTgt->theNode())) // post-hoi-ming bugfix: prohibit the same edge twice...
-					e_new = m_Gamma.splitFace(pair.x1(), adjTgt);
+				e_new = m_Gamma.splitFace(pair.x1(), adjTgt);
 		}
 		if(e_new!=nullptr)
 			m_isSinkArc[e_new] = true;
@@ -418,16 +418,16 @@ void UpwardPlanRep::insertEdgePathEmbedded(edge eOrig, SList<adjEntry> crossedEd
 void UpwardPlanRep::constructSinkArcs(face f, node t)
 {
 	List<adjEntry> srcList;
-	adjEntry adjTgt;
 
 	if (f != m_Gamma.externalFace()) {
 		for(adjEntry adj : f->entries) {
 			node v = adj->theNode();
-			if (v == adj->theEdge()->target() && adj->faceCyclePred()->theEdge()->target() == v) {
-				if (v != t)
-					srcList.pushBack(adj);
-				else
-					adjTgt = adj; // top-sink-switch of f
+			if (v == adj->theEdge()->target()
+			 && v == adj->faceCyclePred()->theEdge()->target()
+			 && v != t) {
+				srcList.pushBack(adj);
+				// XXX: where is adjTgt used later?
+				// do we have to set adjTgt = adj (top-sink-switch of f) if v != t?
 			}
 		}
 		// contruct the sink arcs
@@ -456,13 +456,13 @@ void UpwardPlanRep::constructSinkArcs(face f, node t)
 		// contruct the sink arcs
 		while(!srcList.empty()) {
 			adjEntry adjSrc = srcList.popFrontRet();
-			edge eNew;
+			adjEntry adjTgt;
 			if (adjSrc->theNode() == adjSrc->theEdge()->source()) // on the right face part of the ext. face
 				adjTgt = extFaceHandle;
 			else
 				adjTgt = extFaceHandle->cyclicPred(); // on the left face part
 
-			eNew = m_Gamma.splitFace(adjSrc, adjTgt);
+			auto eNew = m_Gamma.splitFace(adjSrc, adjTgt);
 			m_isSinkArc[eNew] = true;
 		}
 

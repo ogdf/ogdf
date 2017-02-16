@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/graphalg/ModifiedNibbleClusterer.h>
-#include <ogdf/basic/List.h>
 #include <ogdf/basic/HashArray.h>
 
 using namespace ogdf;
@@ -343,13 +342,13 @@ void ModifiedNibbleClusterer::postProcess() {
 }
 node ModifiedNibbleClusterer::selectStartNode() {
 	OGDF_ASSERT(m_pGC->numberOfNodes()>0);
-	if (m_sns == snsRandom) return m_pGC->chooseNode();
+	if (m_sns == StartNodeStrategy::Random) return m_pGC->chooseNode();
 	node start = m_pGC->firstNode();
 	for(node v : m_pGC->nodes) {
 		switch (m_sns) {
-			case snsMaxDeg: if (v->degree() > start->degree()) start = v; break;
-			case snsMinDeg: if (v->degree() < start->degree()) start = v; break;
-			default: cerr<< "Unknown strategy\n";
+			case StartNodeStrategy::MaxDeg: if (v->degree() > start->degree()) start = v; break;
+			case StartNodeStrategy::MinDeg: if (v->degree() < start->degree()) start = v; break;
+			case StartNodeStrategy::Random: cerr << "Unknown strategy\n";
 		}
 	}
 	return start;

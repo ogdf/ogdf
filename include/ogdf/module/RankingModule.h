@@ -50,7 +50,7 @@ public:
 	virtual ~RankingModule() { }
 
 	/**
-	 * \brief Computes a node ranking of the digraph \a G in \a rank.
+	 * \brief Computes a node ranking of the digraph \p G in \p rank.
 	 *
 	 * This method is the actual algorithm call and must be implemented by
 	 * derived classes.
@@ -66,7 +66,7 @@ public:
 	}
 
 	/**
-	 * \brief Computes a node ranking of the digraph \a G in \a rank.
+	 * \brief Computes a node ranking of the digraph \p G in \p rank.
 	 *
 	 * @param G is the input digraph.
 	 * @param rank is assigned the node ranking.

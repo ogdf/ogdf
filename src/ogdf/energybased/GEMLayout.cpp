@@ -33,9 +33,7 @@
 
 
 #include <ogdf/energybased/GEMLayout.h>
-#include <ogdf/basic/geometry.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/GraphCopyAttributes.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
 
 

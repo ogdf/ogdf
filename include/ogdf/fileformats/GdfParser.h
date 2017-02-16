@@ -74,7 +74,7 @@ private:
 	bool readGraph(Graph &G, GraphAttributes *GA);
 
 public:
-	Parser(std::istream &is);
+	explicit Parser(std::istream &is);
 
 	bool read(Graph &G) {
 		return readGraph(G, nullptr);

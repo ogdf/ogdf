@@ -105,7 +105,7 @@ public:
 		return m_nodeDistance;
 	}
 
-	//! Sets the minimal allowed x-distance between nodes on a layer to \a x.
+	//! Sets the minimal allowed x-distance between nodes on a layer to \p x.
 	void nodeDistance(double x) {
 		if(x >= 0)
 			m_nodeDistance = x;
@@ -116,7 +116,7 @@ public:
 		return m_layerDistance;
 	}
 
-	//! Sets the minimal allowed y-distance between layers to \a x.
+	//! Sets the minimal allowed y-distance between layers to \p x.
 	void layerDistance(double x) {
 		if(x >= 0)
 			m_layerDistance = x;
@@ -131,7 +131,7 @@ public:
 		return m_fixedLayerDistance;
 	}
 
-	//! Sets the option <i>fixedLayerDistance</i> to \a b.
+	//! Sets the option <i>fixedLayerDistance</i> to \p b.
 	void fixedLayerDistance(bool b) {
 		m_fixedLayerDistance = b;
 	}
@@ -141,7 +141,7 @@ public:
 		return m_weightSegments;
 	}
 
-	//! Sets the weight of edge segments connecting to vertical segments to \a w.
+	//! Sets the weight of edge segments connecting to vertical segments to \p w.
 	void weightSegments(double w) {
 		if(w > 0.0 && w <= 100.0)
 			m_weightSegments = w;
@@ -152,7 +152,7 @@ public:
 		return m_weightBalancing;
 	}
 
-	//! Sets the weight for balancing successors below a node to \a w; 0.0 means no balancing.
+	//! Sets the weight for balancing successors below a node to \p w; 0.0 means no balancing.
 	void weightBalancing(double w) {
 		if(w >= 0.0 && w <= 100.0)
 			m_weightBalancing = w;
@@ -163,7 +163,7 @@ public:
 		return m_weightClusters;
 	}
 
-	//! Sets the weight for cluster boundary variables to \a w.
+	//! Sets the weight for cluster boundary variables to \p w.
 	void weightClusters(double w) {
 		if(w > 0.0 && w <= 100.0)
 			m_weightClusters = w;

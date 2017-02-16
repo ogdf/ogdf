@@ -7,24 +7,45 @@ set_property(CACHE OGDF_MEMORY_MANAGER PROPERTY STRINGS POOL_TS POOL_NTS MALLOC_
 option(OGDF_DEBUG "Whether to include OGDF assertions in Debug mode (increased runtime)." ON)
 mark_as_advanced(OGDF_DEBUG)
 option(OGDF_USE_ASSERT_EXCEPTIONS "Whether to throw an exception on failed assertions." OFF)
-set(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE "OFF" CACHE STRING "Which library (libdw, libbdf, libunwind) to use in case a stack trace should be written to a failed assertion exceptions's what(). Library must be found by CMake to be able to use it.")
-set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE PROPERTY STRINGS "OFF")
+set(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE "OFF" CACHE
+    STRING "Which library (libdw, libbdf, libunwind) to use in case a stack trace should be written \
+    to a failed assertion exceptions's what(). Library must be found by CMake to be able to use it.")
+if(OGDF_USE_ASSERT_EXCEPTIONS)
+  set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE PROPERTY STRINGS "OFF")
+else()
+  unset(OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE CACHE)
+endif()
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND OGDF_MEMORY_MANAGER STREQUAL MALLOC_TS)
+  option(OGDF_LEAK_CHECK "Whether to use the address sanitizer for the MALLOC_TS memory manager." OFF)
+else()
+  unset(OGDF_LEAK_CHECK CACHE)
+endif()
 
 # find available packages for stack traces
-find_package(Libdw)
-if(LIBDW_FOUND)
-  set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBDW")
+if(OGDF_USE_ASSERT_EXCEPTIONS)
+  find_package(Libdw)
+  if(LIBDW_FOUND)
+    set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBDW")
+  endif()
+  find_package(Libbfd)
+  if(LIBBFD_FOUND)
+    set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBBFD")
+  endif()
+  find_package(Libunwind)
+  if(LIBUNWIND_FOUND)
+    set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBUNWIND")
+  endif()
 endif()
-find_package(Libbfd)
-if(LIBBFD_FOUND)
-  set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBBFD")
-endif()
-find_package(Libunwind)
-if(LIBUNWIND_FOUND)
-  set_property(CACHE OGDF_USE_ASSERT_EXCEPTIONS_WITH_STACK_TRACE APPEND PROPERTY STRINGS "ON_LIBUNWIND")
-endif()
-set(OGDF_EXTRA_CXX_FLAGS "${available_default_warning_flags}" CACHE STRING "Extra compiler flags for compiling OGDF and tests.")
+set(extra_flags_desc "Extra compiler flags for compiling OGDF, tests, and examples")
+set(OGDF_EXTRA_CXX_FLAGS "${available_default_warning_flags}" CACHE
+    STRING "${extra_flags_desc}.")
+set(OGDF_EXTRA_CXX_FLAGS_DEBUG "${available_default_warning_flags_debug}" CACHE
+    STRING "${extra_flags_desc} applied only when compiling in debug mode.")
+set(OGDF_EXTRA_CXX_FLAGS_RELEASE "${available_default_warning_flags_release}" CACHE
+    STRING "${extra_flags_desc} applied only when not compiling in debug mode.")
 mark_as_advanced(OGDF_EXTRA_CXX_FLAGS)
+mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_DEBUG)
+mark_as_advanced(OGDF_EXTRA_CXX_FLAGS_RELEASE)
 
 # compilation
 file(GLOB_RECURSE OGDF_SOURCES src/ogdf/*.cpp include/ogdf/*.h)
@@ -41,15 +62,27 @@ target_compile_features(OGDF PUBLIC cxx_range_for)
 if(COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES)
   target_include_directories(OGDF SYSTEM PUBLIC ${COIN_EXTERNAL_SOLVER_INCLUDE_DIRECTORIES})
 endif()
-set_property(TARGET OGDF APPEND_STRING PROPERTY COMPILE_FLAGS ${OGDF_EXTRA_CXX_FLAGS})
+
+function (addOgdfExtraFlags TARGET_NAME)
+  set(extra_flags ${OGDF_EXTRA_CXX_FLAGS})
+  if(CMAKE_BUILD_TYPE STREQUAL Debug)
+    set(extra_flags  "${extra_flags} ${OGDF_EXTRA_CXX_FLAGS_DEBUG}")
+  else()
+    set(extra_flags  "${extra_flags} ${OGDF_EXTRA_CXX_FLAGS_RELEASE}")
+  endif()
+  if(OGDF_LEAK_CHECK)
+    set(leak_flags "-fsanitize=address -fno-omit-frame-pointer")
+    set(extra_flags  "${extra_flags} ${leak_flags}")
+    set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY LINK_FLAGS " ${leak_flags} ")
+  endif()
+  set_property(TARGET ${TARGET_NAME} APPEND_STRING PROPERTY COMPILE_FLAGS " ${extra_flags} ")
+endfunction()
+
+addOgdfExtraFlags(OGDF)
 
 # set OGDF_INSTALL for shared libraries
 if(BUILD_SHARED_LIBS)
   target_compile_definitions(OGDF PRIVATE OGDF_INSTALL)
-endif()
-
-# special variable handling for stack trace feature
-if(OGDF_DEBUG AND OGDF_USE_ASSERT_EXCEPTIONS)
 endif()
 
 # autogen header variables for debug mode

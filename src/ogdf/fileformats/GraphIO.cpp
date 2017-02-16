@@ -43,8 +43,6 @@
 #include <ogdf/fileformats/TlpParser.h>
 #include <ogdf/fileformats/DLParser.h>
 #include <ogdf/fileformats/SvgPrinter.h>
-#include <sstream>
-#include <map>
 
 // we use these data structures from the stdlib
 using std::map;
@@ -57,7 +55,7 @@ int  GraphIO::s_indentWidth = 2;
 Logger GraphIO::logger;
 
 //! Supported formats for automated detection
-const int NUMBER_OF_READERS = 10;
+const int NUMBER_OF_READERS = 11;
 const GraphIO::ReaderFunc readers[NUMBER_OF_READERS] = {
 	GraphIO::readDOT,
 	GraphIO::readGML,
@@ -68,7 +66,8 @@ const GraphIO::ReaderFunc readers[NUMBER_OF_READERS] = {
 	GraphIO::readGDF,
 	GraphIO::readGraphML,
 	GraphIO::readGEXF,
-	GraphIO::readOGML
+	GraphIO::readOGML,
+	GraphIO::readSTP
 };
 
 ostream &GraphIO::indent(ostream &os, int depth)
@@ -79,10 +78,6 @@ ostream &GraphIO::indent(ostream &os, int depth)
 
 	return os;
 }
-
-//---------------------------------------------------------
-// Graph: Generic readers
-//---------------------------------------------------------
 
 bool GraphIO::read(Graph &G, istream &is)
 {
@@ -99,10 +94,6 @@ bool GraphIO::read(Graph &G, istream &is)
 	return false;
 }
 
-//---------------------------------------------------------
-// Graph: GML format
-//---------------------------------------------------------
-
 bool GraphIO::readGML(Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -113,8 +104,7 @@ bool GraphIO::readGML(Graph &G, istream &is)
 {
 	if(!is.good()) return false;
 	GmlParser parser(is);
-	if (parser.error()) return false;
-	return parser.read(G);
+	return !parser.error() && parser.read(G);
 }
 
 bool GraphIO::writeGML(const Graph &G, const string &filename)
@@ -122,10 +112,6 @@ bool GraphIO::writeGML(const Graph &G, const string &filename)
 	ofstream os(filename);
 	return writeGML(G, os);
 }
-
-//---------------------------------------------------------
-// Graph: OGML format
-//---------------------------------------------------------
 
 bool GraphIO::readOGML(Graph &G, const string &filename)
 {
@@ -145,10 +131,6 @@ bool GraphIO::writeOGML(const Graph &G, const string &filename)
 	ofstream os(filename);
 	return writeOGML(G, os);
 }
-
-//---------------------------------------------------------
-// Graph: Rome format
-//---------------------------------------------------------
 
 bool GraphIO::readRome(Graph &G, const string &filename)
 {
@@ -240,10 +222,6 @@ bool GraphIO::writeRome(const Graph &G, ostream &os)
 	return true;
 }
 
-//---------------------------------------------------------
-// Graph: LEDA format
-//---------------------------------------------------------
-
 bool GraphIO::readLEDA(Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -255,10 +233,6 @@ bool GraphIO::writeLEDA(const Graph &G, const string &filename)
 	ofstream os(filename);
 	return writeLEDA(G, os);
 }
-
-//---------------------------------------------------------
-// Graph: Chaco format
-//---------------------------------------------------------
 
 bool GraphIO::readChaco(Graph &G, const string &filename)
 {
@@ -350,10 +324,6 @@ bool GraphIO::writeChaco(const Graph &G, ostream &os)
 	return true;
 }
 
-//---------------------------------------------------------
-// Graph: Chaco format
-//---------------------------------------------------------
-
 bool GraphIO::readYGraph(Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -405,15 +375,11 @@ bool GraphIO::readYGraph(Graph &G, istream &is)
 
 	c = is.get();
 	if(!is.eof() && c != '\n') {
-		Logger::slout(Logger::LL_MINOR) << "GraphIO::readYGraph: Warning: line too long! ignoring...";
+		Logger::slout(Logger::Level::Minor) << "GraphIO::readYGraph: Warning: line too long! ignoring...";
 	}
 
 	return true;
 }
-
-//---------------------------------------------------------
-// Graph: Petra Mutzel Diss format
-//---------------------------------------------------------
 
 bool GraphIO::readPMDissGraph(Graph &G, const string &filename)
 {
@@ -528,16 +494,14 @@ bool GraphIO::writePMDissGraph(const Graph &G, ostream &os)
 	return true;
 }
 
-//---------------------------------------------------------
-// Graph: Graph6 format
-//---------------------------------------------------------
-
 bool
 GraphIO::readGraph6(Graph &G, istream &is)
 {
 	if (!is.good()) {
 		return false;
 	}
+
+	G.clear();
 
 	const int asciishift = 63;
 	Array<node> index;
@@ -554,24 +518,24 @@ GraphIO::readGraph6(Graph &G, istream &is)
 			++targetIdx;
 		}
 	};
-	enum {
-		STATE_START,
-		STATE_18BIT,
-		STATE_REMAINING_BITS,
-		STATE_TRIANGLE,
-	} state = STATE_START;
+	enum class State {
+		Start,
+		EighteenBit,
+		RemainingBits,
+		Triangle,
+	} state = State::Start;
 	auto addNodes = [&]() {
 		index.init(numberOfNodes);
 		for (int i = 0; i < numberOfNodes; ++i) {
 			index[i] = G.newNode();
 		}
-		state = STATE_TRIANGLE;
+		state = State::Triangle;
 	};
 	int remainingBits;
 	for (unsigned char readbyte; is >> readbyte;) {
 		int byte = readbyte;
 		switch (state) {
-		case STATE_TRIANGLE:
+		case State::Triangle:
 			if (byte >= '?' && byte <= '~') {
 				OGDF_ASSERT(numberOfNodes == G.numberOfNodes());
 				OGDF_ASSERT(sourceIdx < targetIdx);
@@ -587,18 +551,18 @@ GraphIO::readGraph6(Graph &G, istream &is)
 				addEdge(byte & 01);
 			}
 			break;
-		case STATE_18BIT:
+		case State::EighteenBit:
 			if (byte == '~') {
-				state = STATE_REMAINING_BITS;
+				state = State::RemainingBits;
 				remainingBits = 6;
 			} else
 			if (byte >= '?' && byte < '~') {
 				numberOfNodes |= ((byte - asciishift) << 12);
-				state = STATE_REMAINING_BITS;
+				state = State::RemainingBits;
 				remainingBits = 2;
 			}
 			break;
-		case STATE_REMAINING_BITS:
+		case State::RemainingBits:
 			if (byte >= '?' && byte <= '~') {
 				--remainingBits;
 				numberOfNodes |= ((byte - asciishift) << (6*remainingBits));
@@ -607,8 +571,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 				}
 			}
 			break;
-		case STATE_START:
-		default:
+		case State::Start:
 			if (byte == '>') {
 				string header;
 				header.resize(9);
@@ -618,7 +581,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 				}
 			} else
 			if (byte == '~') {
-				state = STATE_18BIT;
+				state = State::EighteenBit;
 			} else
 			if (byte >= '?' && byte < '~') {
 				numberOfNodes = byte - asciishift;
@@ -627,11 +590,7 @@ GraphIO::readGraph6(Graph &G, istream &is)
 			// ignore others
 		}
 	}
-	if (numberOfNodes != G.numberOfNodes()) { // stopped in STATE_*BIT*
-		return false;
-	}
-
-	return true;
+	return numberOfNodes == G.numberOfNodes();
 }
 
 bool GraphIO::readGraph6(Graph &G, const string &filename)
@@ -706,10 +665,6 @@ bool GraphIO::writeGraph6(const Graph &G, const string &filename)
 	return writeGraph6(G, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraph: GML format
-//---------------------------------------------------------
-
 bool GraphIO::readGML(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -724,10 +679,7 @@ bool GraphIO::readGML(ClusterGraph &C, Graph &G, istream &is)
 	if (gml.error())
 		return false;
 
-	if(!gml.read(G))
-		return false;
-
-	return gml.readCluster(G, C);
+	return gml.read(G) && gml.readCluster(G, C);
 }
 
 bool GraphIO::writeGML(const ClusterGraph &C, const string &filename)
@@ -735,10 +687,6 @@ bool GraphIO::writeGML(const ClusterGraph &C, const string &filename)
 	ofstream os(filename);
 	return writeGML(C, os);
 }
-
-//---------------------------------------------------------
-// ClusterGraph: OGML format
-//---------------------------------------------------------
 
 bool GraphIO::readOGML(ClusterGraph &C, Graph &G, const string &filename)
 {
@@ -757,10 +705,6 @@ bool GraphIO::writeOGML(const ClusterGraph &C, const string &filename)
 	ofstream os(filename);
 	return writeOGML(C, os);
 }
-
-//---------------------------------------------------------
-// GraphAttributes: GML format
-//---------------------------------------------------------
 
 bool GraphIO::readGML(GraphAttributes &A, Graph &G, const string &filename)
 {
@@ -782,10 +726,6 @@ bool GraphIO::writeGML(const GraphAttributes &A, const string &filename)
 	return writeGML(A, os);
 }
 
-//---------------------------------------------------------
-// GraphAttributes: OGML format
-//---------------------------------------------------------
-
 bool GraphIO::readOGML(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -804,10 +744,6 @@ bool GraphIO::writeOGML(const GraphAttributes &A, const string &filename)
 	ofstream os(filename);
 	return writeOGML(A, os);
 }
-
-//---------------------------------------------------------
-// GraphAttributes: Rudy format
-//---------------------------------------------------------
 
 bool GraphIO::readRudy(GraphAttributes &A, Graph &G, const string &filename)
 {
@@ -887,10 +823,6 @@ bool GraphIO::writeRudy(const GraphAttributes &A, ostream &os)
 	return true;
 }
 
-//---------------------------------------------------------
-// ClusterGraphAttributes: GML format
-//---------------------------------------------------------
-
 bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -908,7 +840,7 @@ bool GraphIO::readGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istr
 	if(!gml.read(G, A))
 		return false;
 
-	return gml.readAttributedCluster(G, C, A);
+	return gml.readCluster(G, C, &A);
 }
 
 bool GraphIO::writeGML(const ClusterGraphAttributes &A, const string &filename)
@@ -916,10 +848,6 @@ bool GraphIO::writeGML(const ClusterGraphAttributes &A, const string &filename)
 	ofstream os(filename);
 	return writeGML(A, os);
 }
-
-//---------------------------------------------------------
-// ClusterGraphAttributes: OGML format
-//---------------------------------------------------------
 
 bool GraphIO::readOGML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
@@ -1048,10 +976,6 @@ bool GraphIO::readMatrixMarket(Graph& G, const string& filename)
 	return readMatrixMarket(G, inStream);
 }
 
-//---------------------------------------------------------
-// Hypergraphs (point-based expansion): PLA format
-//---------------------------------------------------------
-
 bool GraphIO::readBENCH(Graph &G, List<node>& hypernodes, List<edge>* shell, const string &filename)
 {
 	ifstream is(filename);
@@ -1063,10 +987,6 @@ bool GraphIO::readPLA(Graph &G, List<node>& hypernodes, List<edge>* shell, const
 	ifstream is(filename);
 	return readPLA(G, hypernodes, shell, is);
 }
-
-//---------------------------------------------------------
-// Graph Drawing Challenge
-//---------------------------------------------------------
 
 bool GraphIO::readChallengeGraph(Graph &G, GridLayout &gl, const string &filename)
 {
@@ -1182,10 +1102,6 @@ bool GraphIO::writeChallengeGraph(const Graph &G, const GridLayout &gl, ostream 
 	return true;
 }
 
-//---------------------------------------------------------
-// Edge List Subgraph
-//---------------------------------------------------------
-
 bool GraphIO::readEdgeListSubgraph(Graph &G, List<edge> &delEdges, const string &filename)
 {
 	ifstream is(filename);
@@ -1272,10 +1188,6 @@ bool GraphIO::writeEdgeListSubgraph(const Graph &G, const List<edge> &delEdges, 
 	return true;
 }
 
-//---------------------------------------------------------
-// SVG graphics format
-//---------------------------------------------------------
-
 bool GraphIO::drawSVG(const GraphAttributes &A, const string &filename, const SVGSettings &settings)
 {
 	ofstream os(filename);
@@ -1300,10 +1212,6 @@ bool GraphIO::drawSVG(const ClusterGraphAttributes &attr, ostream &os, const SVG
 	return printer.draw(os);
 }
 
-//---------------------------------------------------------
-// Graph: GraphML format
-//---------------------------------------------------------
-
 bool GraphIO::readGraphML(Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1324,10 +1232,6 @@ bool GraphIO::writeGraphML(const Graph &G, const string &filename)
 	ofstream os(filename);
 	return writeGraphML(G, os);
 }
-
-//---------------------------------------------------------
-// ClusterGraph: GraphML format
-//---------------------------------------------------------
 
 bool GraphIO::readGraphML(ClusterGraph &C, Graph &G, const string &filename)
 {
@@ -1350,10 +1254,6 @@ bool GraphIO::writeGraphML(const ClusterGraph &C, const string &filename)
 	return writeGraphML(C, os);
 }
 
-//---------------------------------------------------------
-// GraphAttributes: GraphML format
-//---------------------------------------------------------
-
 bool GraphIO::readGraphML(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1375,17 +1275,10 @@ bool GraphIO::writeGraphML(const GraphAttributes &A, const string &filename)
 	return writeGraphML(A, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraphAttributes: GraphML format
-//---------------------------------------------------------
-
 bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
-	if(!is.is_open()) {
-		return false;
-	}
-	return readGraphML(A, C, G, is);
+	return is.is_open() && readGraphML(A, C, G, is);
 }
 
 bool GraphIO::readGraphML(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, istream &is)
@@ -1399,10 +1292,6 @@ bool GraphIO::writeGraphML(const ClusterGraphAttributes &A, const string &filena
 	ofstream os(filename);
 	return writeGraphML(A, os);
 }
-
-//---------------------------------------------------------
-// Graph: DOT format
-//---------------------------------------------------------
 
 bool GraphIO::readDOT(Graph &G, const string &filename)
 {
@@ -1425,10 +1314,6 @@ bool GraphIO::writeDOT(const Graph &G, const string &filename)
 	return writeDOT(G, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraph: DOT format
-//---------------------------------------------------------
-
 bool GraphIO::readDOT(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1449,10 +1334,6 @@ bool GraphIO::writeDOT(const ClusterGraph &C, const string &filename)
 	ofstream os(filename);
 	return writeDOT(C, os);
 }
-
-//---------------------------------------------------------
-// GraphAttributes: DOT format
-//---------------------------------------------------------
 
 bool GraphIO::readDOT(GraphAttributes &A, Graph &G, const string &filename)
 {
@@ -1475,10 +1356,6 @@ bool GraphIO::writeDOT(const GraphAttributes &A, const string &filename)
 	return writeDOT(A, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraphAttributes: DOT format
-//---------------------------------------------------------
-
 bool GraphIO::readDOT(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1499,10 +1376,6 @@ bool GraphIO::writeDOT(const ClusterGraphAttributes &A, const string &filename)
 	ofstream os(filename);
 	return writeDOT(A, os);
 }
-
-//---------------------------------------------------------
-// Graph: GEXF format
-//---------------------------------------------------------
 
 bool GraphIO::readGEXF(Graph &G, const string &filename)
 {
@@ -1525,10 +1398,6 @@ bool GraphIO::writeGEXF(const Graph &G, const string &filename)
 	return writeGEXF(G, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraph: GEXF format
-//---------------------------------------------------------
-
 bool GraphIO::readGEXF(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1549,10 +1418,6 @@ bool GraphIO::writeGEXF(const ClusterGraph &C, const string &filename)
 	ofstream os(filename);
 	return writeGEXF(C, os);
 }
-
-//---------------------------------------------------------
-// GraphAttributes: GEXF format
-//---------------------------------------------------------
 
 bool GraphIO::readGEXF(GraphAttributes &A, Graph &G, const string &filename)
 {
@@ -1575,10 +1440,6 @@ bool GraphIO::writeGEXF(const GraphAttributes &A, const string &filename)
 	return writeGEXF(A, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraphAttributes: GEXF format
-//---------------------------------------------------------
-
 bool GraphIO::readGEXF(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1599,10 +1460,6 @@ bool GraphIO::writeGEXF(const ClusterGraphAttributes &A, const string &filename)
 	ofstream os(filename);
 	return writeGEXF(A, os);
 }
-
-//---------------------------------------------------------
-// Graph: GDF format
-//---------------------------------------------------------
 
 bool GraphIO::readGDF(Graph &G, const string &filename)
 {
@@ -1625,10 +1482,6 @@ bool GraphIO::writeGDF(const Graph &G, const string &filename)
 	return writeGDF(G, os);
 }
 
-//---------------------------------------------------------
-// GraphAttributes: GDF format
-//---------------------------------------------------------
-
 bool GraphIO::readGDF(GraphAttributes &A, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1649,10 +1502,6 @@ bool GraphIO::writeGDF(const GraphAttributes &A, const string &filename)
 	ofstream os(filename);
 	return writeGDF(A, os);
 }
-
-//---------------------------------------------------------
-// Graph: TLP format
-//---------------------------------------------------------
 
 bool GraphIO::readTLP(Graph &G, const string &filename)
 {
@@ -1675,10 +1524,6 @@ bool GraphIO::writeTLP(const Graph &G, const string &filename)
 	return writeTLP(G, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraph: TLP format
-//---------------------------------------------------------
-
 bool GraphIO::readTLP(ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1697,13 +1542,8 @@ bool GraphIO::readTLP(ClusterGraph &C, Graph &G, istream &is)
 bool GraphIO::writeTLP(const ClusterGraph &C, const string &filename)
 {
 	ofstream os(filename);
-	if(!os.is_open()) return false;
-	return writeTLP(C, os);
+	return os.is_open() && writeTLP(C, os);
 }
-
-//---------------------------------------------------------
-// GraphAttributes: TLP format
-//---------------------------------------------------------
 
 bool GraphIO::readTLP(GraphAttributes &A, Graph &G, const string &filename)
 {
@@ -1726,10 +1566,6 @@ bool GraphIO::writeTLP(const GraphAttributes &A, const string &filename)
 	return writeTLP(A, os);
 }
 
-//---------------------------------------------------------
-// ClusterGraphAttributes: TLP format
-//---------------------------------------------------------
-
 bool GraphIO::readTLP(ClusterGraphAttributes &A, ClusterGraph &C, Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1751,10 +1587,6 @@ bool GraphIO::writeTLP(const ClusterGraphAttributes &A, const string &filename)
 	return writeTLP(A, os);
 }
 
-//---------------------------------------------------------
-// Graph: UCINET DL format
-//---------------------------------------------------------
-
 bool GraphIO::readDL(Graph &G, const string &filename)
 {
 	ifstream is(filename);
@@ -1775,10 +1607,6 @@ bool GraphIO::writeDL(const Graph &G, const string &filename)
 	ofstream os(filename);
 	return writeDL(G, os);
 }
-
-//---------------------------------------------------------
-// GraphAttributes: UCINET DL format
-//---------------------------------------------------------
 
 bool GraphIO::readDL(GraphAttributes &A, Graph &G, const string &filename)
 {

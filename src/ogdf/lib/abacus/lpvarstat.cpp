@@ -56,7 +56,7 @@ ostream &operator<<(ostream& out, const LPVARSTAT &rhs)
 		break;
 	default:
 		Logger::ifout() << "LPVARSTAT: unknonw status\n";
-		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcLpVarStat);
+		OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::LpVarStat);
 	}
 	return out;
 }

@@ -42,16 +42,16 @@ namespace tlp {
 std::ostream &operator <<(std::ostream &os, const Token &token)
 {
 	switch(token.type) {
-	case Token::tok_leftParen:
+	case Token::Type::leftParen:
 		os << "tok_(";
 		break;
-	case Token::tok_rightParen:
+	case Token::Type::rightParen:
 		os << "tok_)";
 		break;
-	case Token::tok_identifier:
+	case Token::Type::identifier:
 		os << "tok_id(" << *(token.value) << ")";
 		break;
-	case Token::tok_string:
+	case Token::Type::string:
 		os << "tok_str(\"" << *(token.value) << "\")";
 		break;
 	}
@@ -60,10 +60,10 @@ std::ostream &operator <<(std::ostream &os, const Token &token)
 }
 
 
-Token::Token(const Type &type, size_t line, size_t column)
-: type(type), line(line), column(column)
+Token::Token(const Type &tokenType, size_t tokenLine, size_t tokenColumn)
+: type(tokenType), line(tokenLine), column(tokenColumn)
 {
-	if(type == tok_identifier || type == tok_string) {
+	if(type == Type::identifier || type == Type::string) {
 		value = new std::string;
 	} else {
 		value = nullptr;
@@ -139,13 +139,13 @@ bool Lexer::tokenizeLine()
 	}
 
 	if(*m_begin == '(') {
-		m_tokens.push_back(Token(Token::tok_leftParen, line(), column()));
+		m_tokens.push_back(Token(Token::Type::leftParen, line(), column()));
 		++m_begin;
 		return tokenizeLine();
 	}
 
 	if(*m_begin == ')') {
-		m_tokens.push_back(Token(Token::tok_rightParen, line(), column()));
+		m_tokens.push_back(Token(Token::Type::rightParen, line(), column()));
 		++m_begin;
 		return tokenizeLine();
 	}
@@ -167,7 +167,7 @@ bool Lexer::tokenizeString()
 {
 	++m_begin;
 
-	Token token(Token::tok_string, line(), column());
+	Token token(Token::Type::string, line(), column());
 
 	for(;;) {
 		// Check whether we need to refill the buffer.
@@ -198,7 +198,7 @@ bool Lexer::tokenizeString()
 
 bool Lexer::tokenizeIdentifier()
 {
-	Token token(Token::tok_identifier, line(), column());
+	Token token(Token::Type::identifier, line(), column());
 
 	while(m_begin != m_end && isIdentifier(*m_begin)) {
 		*(token.value) += *m_begin;

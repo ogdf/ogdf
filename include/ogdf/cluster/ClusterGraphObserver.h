@@ -41,30 +41,22 @@
 
 namespace ogdf {
 
-
-//----------------------------------------------------------
-// GraphObserver
-// abstract base class
-// derived classes have to overload nodeDeleted, nodeAdded
-// edgeDeleted, edgeAdded
-// these functions should be called by Graph before (delete)
-// and after (add) its structure
-//----------------------------------------------------------
-//! Abstract base class for cluster graph observers.
-	/**
-	* @ingroup graphs
-	*
-	* If a class needs to keep track of changes in a clustered graph like addition or deletion
-	* of clusters, you can derive it from ClusterGraphObserver and override the
-	* notification methods clusterDeleted, clusterAdded.
-	*/
+/**
+ * Abstract base class for cluster graph observers.
+ *
+ * @ingroup graphs
+ *
+ * If a class needs to keep track of changes in a clustered graph like addition or deletion
+ * of clusters, you can derive it from ClusterGraphObserver and override the
+ * notification methods clusterDeleted, clusterAdded.
+ */
 class OGDF_EXPORT ClusterGraphObserver {
 	friend class ClusterGraph;
 
 public:
 	ClusterGraphObserver() : m_pClusterGraph(nullptr) {}
 
-	ClusterGraphObserver(const ClusterGraph* CG) : m_pClusterGraph(CG)
+	explicit ClusterGraphObserver(const ClusterGraph* CG) : m_pClusterGraph(CG)
 	{
 		m_itCGList = CG->registerObserver(this);
 	}//constructor

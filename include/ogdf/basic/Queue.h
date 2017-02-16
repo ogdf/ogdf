@@ -38,11 +38,11 @@
 namespace ogdf {
 
 
-//! The parameterized class \a QueuePure<E> implements list-based queues.
+//! Implementation of list-based queues.
 /**
  * @ingroup containers
  *
- * In contrast to Queue<E>, instances of \a QueuePure<E> do not store the
+ * In contrast to Queue<E>, instances of QueuePure<E> do not store the
  * number of elements contained in the queue.
  *
  * @tparam E is the element type.
@@ -50,28 +50,28 @@ namespace ogdf {
 template<class E> class QueuePure : private SListPure<E> {
 public:
 	//! Represents the data type stored in a queue element.
-	typedef E value_type;
+	using value_type = E;
 	//! Provides a reference to an element stored in a queue.
-	typedef E &reference;
+	using reference = E&;
 	//! Provides a reference to a const element stored in a queue for reading and performing const operations.
-	typedef const E &const_reference;
+	using const_reference = const E&;
 	//! Provides a forward iterator that can read a const element in a queue.
-	typedef SListConstIterator<E> const_iterator;
+	using const_iterator = SListConstIterator<E>;
 	//! Provides a forward iterator that can read or modify any element in a queue.
-	typedef SListIterator<E> iterator;
+	using iterator = SListIterator<E>;
 
 	//! Constructs an empty queue.
 	QueuePure() { }
 
-	//! Constructs a queue and appends the elements in \a initList to it.
+	//! Constructs a queue and appends the elements in \p initList to it.
 	QueuePure(std::initializer_list<E> initList) : SListPure<E>(initList) { }
 
-	//! Constructs a queue that is a copy of \a Q.
+	//! Constructs a queue that is a copy of \p Q.
 	QueuePure(const QueuePure<E> &Q) : SListPure<E>(Q) { }
 
-	//! Constructs a queue containing the elements of \a Q (move semantics).
+	//! Constructs a queue containing the elements of \p Q (move semantics).
 	/**
-	 * Queue \a Q is empty afterwards.
+	 * Queue \p Q is empty afterwards.
 	 */
 	QueuePure(QueuePure<E> &&Q) : SListPure<E>(std::move(Q)) { }
 
@@ -156,7 +156,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Queue \a Q is empty afterwards.
+	 * Queue \p Q is empty afterwards.
 	 */
 	QueuePure<E> &operator=(QueuePure<E> &&Q) {
 		SListPure<E>::operator=(std::move(Q));
@@ -173,14 +173,14 @@ public:
 	*/
 	//@{
 
-	//! Adds \a x at the end of queue.
+	//! Adds \p x at the end of queue.
 	iterator append(const E &x) {
 		return SListPure<E>::pushBack(x);
 	}
 
 	//! Adds a new element at the end of the queue.
 	/**
-	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
 	*/
 	template<class ... Args>
 	iterator emplace(Args && ... args) {
@@ -201,11 +201,11 @@ public:
 }; // class QueuePure
 
 
-//! The parameterized class \a Queue<E> implements list-based queues.
+//! The parameterized class Queue<E> implements list-based queues.
 /**
  * @ingroup containers
  *
- * In contrast to QueuePure<E>, instances of \a Queue<E> store the
+ * In contrast to QueuePure<E>, instances of Queue<E> store the
  * number of elements contained in the queue.
  *
  * @tparam E is the element type.
@@ -213,28 +213,28 @@ public:
 template<class E> class Queue : private SList<E> {
 public:
 	//! Represents the data type stored in a queue element.
-	typedef E value_type;
+	using value_type = E;
 	//! Provides a reference to an element stored in a queue.
-	typedef E &reference;
+	using reference = E&;
 	//! Provides a reference to a const element stored in a queue for reading and performing const operations.
-	typedef const E &const_reference;
+	using const_reference = const E &;
 	//! Provides a forward iterator that can read a const element in a queue.
-	typedef SListConstIterator<E> const_iterator;
+	using const_iterator = SListConstIterator<E>;
 	//! Provides a forward iterator that can read or modify any element in a queue.
-	typedef SListIterator<E> iterator;
+	using iterator = SListIterator<E>;
 
 	//! Constructs an empty queue.
 	Queue() { }
 
-	//! Constructs a queue and appends the elements in \a initList to it.
+	//! Constructs a queue and appends the elements in \p initList to it.
 	Queue(std::initializer_list<E> initList) : SList<E>(initList) { }
 
-	//! Constructs a queue that is a copy of \a Q.
+	//! Constructs a queue that is a copy of \p Q.
 	Queue(const Queue<E> &Q) : SList<E>(Q) { }
 
-	//! Constructs a queue containing the elements of \a Q (move semantics).
+	//! Constructs a queue containing the elements of \p Q (move semantics).
 	/**
-	 * Queue \a Q is empty afterwards.
+	 * Queue \p Q is empty afterwards.
 	 */
 	Queue(Queue<E> &&Q) : SList<E>(std::move(Q)) { }
 
@@ -322,7 +322,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Queue \a Q is empty afterwards.
+	 * Queue \p Q is empty afterwards.
 	 */
 	Queue<E> &operator=(Queue<E> &&Q) {
 		SList<E>::operator=(std::move(Q));
@@ -339,14 +339,14 @@ public:
 	*/
 	//@{
 
-	//! Adds \a x at the end of queue.
+	//! Adds \p x at the end of queue.
 	iterator append(const E &x) {
 		return SList<E>::pushBack(x);
 	}
 
 	//! Adds a new element at the end of the queue.
 	/**
-	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
 	*/
 	template<class ... Args>
 	iterator emplace(Args && ... args) {

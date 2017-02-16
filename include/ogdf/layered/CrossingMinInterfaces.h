@@ -47,10 +47,10 @@ public:
 	//  destruction
 	virtual ~LevelBase() { }
 
-	//! Returns the node at position \a i.
+	//! Returns the node at position \p i.
 	virtual const node &operator[](int i) const = 0;
 
-	//! Returns the node at position \a i.
+	//! Returns the node at position \p i.
 	virtual node &operator[](int i) = 0;
 
 	//! Returns the number of nodes on this level.
@@ -68,12 +68,12 @@ public:
 	// destruction
 	virtual ~HierarchyLevelsBase() { }
 
-	enum TraversingDir { downward, upward };
+	enum class TraversingDir { downward, upward };
 
 	//! Returns the <i>i</i>-th level.
 	virtual const LevelBase &operator[](int i) const = 0;
 
-	//! Returns the position of node \a v on its level.
+	//! Returns the position of node \p v on its level.
 	virtual int pos(node v) const = 0;
 
 	//! Returns the number of levels.
@@ -84,10 +84,10 @@ public:
 
 	virtual const Hierarchy &hierarchy() const = 0;
 
-	//! Returns the adjacent nodes of \a v.
+	//! Returns the adjacent nodes of \p v.
 	virtual const Array<node> &adjNodes(node v, TraversingDir dir) const = 0;
 
-	//! Computes the number of crossings between level \a i and \a i+1.
+	//! Computes the number of crossings between level \p i and \p i+1.
 	int calculateCrossings(int i) const;
 
 	//! Computes the total number of crossings.

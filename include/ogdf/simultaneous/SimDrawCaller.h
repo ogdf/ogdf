@@ -68,7 +68,7 @@ private:
 
 public:
 	//! constructor
-	SimDrawCaller(SimDraw &SD);
+	explicit SimDrawCaller(SimDraw &SD);
 
 	//! runs SugiyamaLayout with modified SplitHeuristic
 	/**
@@ -98,7 +98,7 @@ public:
 
 	//! runs SubgraphPlanarizer with modified inserter
 	/**
-	*  Runs SubgraphPlanarizer on connected component \a cc with simdraw
+	*  Runs SubgraphPlanarizer on connected component \p cc with simdraw
 	*  call. Integer edge costs of GraphAttributes are used
 	*  (1 for each edge if not available).
 	*

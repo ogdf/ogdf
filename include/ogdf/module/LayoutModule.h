@@ -33,7 +33,6 @@
 #pragma once
 
 #include <ogdf/basic/GraphAttributes.h>
-#include <ogdf/internal/energybased/MultilevelGraph.h>
 
 namespace ogdf {
 
@@ -50,7 +49,7 @@ public:
 	virtual ~LayoutModule() { }
 
 	/**
-	 * \brief Computes a layout of graph \a GA.
+	 * \brief Computes a layout of graph \p GA.
 	 *
 	 * This method is the actual algorithm call and must be implemented by
 	 * derived classes.
@@ -59,7 +58,7 @@ public:
 	virtual void call(GraphAttributes &GA) = 0;
 
 	/**
-	 * \brief Computes a layout of graph \a GA.
+	 * \brief Computes a layout of graph \p GA.
 	 *
 	 * @param GA is the input graph and will also be assigned the layout information.
 	 */

@@ -64,10 +64,10 @@ public:
 	VariableEmbeddingInserter &operator=(const VariableEmbeddingInserter &inserter);
 
 
-	//! Calls only the postprocessing; assumes that all edges in \a origEdges are already inserted into \a PG.
+	//! Calls only the postprocessing; assumes that all edges in \p origEdges are already inserted into \p pr.
 	/**
 	 * @param pr        is the input planarized representation and will also receive the result.
-	 * @param origEdges is the array of original edges (edges in the original graph of \a pr) that have to be inserted.
+	 * @param origEdges is the array of original edges (edges in the original graph of \p pr) that have to be inserted.
 	 * \return the status of the result.
 	 */
 	Module::ReturnType callPostprocessing(PlanRepLight &pr, const Array<edge> &origEdges) {

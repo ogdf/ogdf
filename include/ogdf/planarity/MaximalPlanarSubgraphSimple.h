@@ -47,7 +47,7 @@ class EdgeComparer {
 private:
 	const EdgeArray<TCost> &m_weight;
 public:
-	EdgeComparer(const EdgeArray<TCost> &weight) : m_weight(weight) { }
+	explicit EdgeComparer(const EdgeArray<TCost> &weight) : m_weight(weight) { }
 
 	bool less(const edge &x, const edge &y) const {
 		return m_weight[x] < m_weight[y];
@@ -82,7 +82,7 @@ public:
 	 * \brief Constructor with user given heuristic that is executed before extending the solution to maximality.
 	 * @param heuristic
 	 */
-	MaximalPlanarSubgraphSimple(PlanarSubgraphModule<TCost> &heuristic)
+	explicit MaximalPlanarSubgraphSimple(PlanarSubgraphModule<TCost> &heuristic)
 	: m_heuristic(heuristic)
 	, m_deleteHeuristic(false) { }
 
@@ -103,13 +103,13 @@ public:
 protected:
 
 	/**
-	 * \brief Computes the set of edges \a delEdges which have to be deleted to obtain the planar subgraph.
+	 * \brief Computes the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
 	 * @param graph is the input graph.
 	 * @param preferredEdges are edges that should be contained in the planar subgraph.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 * @param pCost is apointer to an edge array containing the edge costs; this pointer
 	 *        can be 0 if no costs are given (all edges have cost 1).
-	 * @param preferredImplyPlanar indicates that the edges \a preferredEdges induce a planar graph.
+	 * @param preferredImplyPlanar indicates that the edges \p preferredEdges induce a planar graph.
 	 */
 	virtual Module::ReturnType
 	doCall(
@@ -177,7 +177,7 @@ public:
 	 * @param randomness randomness of the process: use 0 to compute everything based on the costs, use 1 for completely randomness
 	 * @param runs number of runs when randomness > 0, the best solution is returned by call
 	 */
-	MaximalPlanarSubgraphSimple(PlanarSubgraphModule<TCost> &heuristic, double randomness = 0.0, unsigned int runs = 1)
+	explicit MaximalPlanarSubgraphSimple(PlanarSubgraphModule<TCost> &heuristic, double randomness = 0.0, unsigned int runs = 1)
 		: m_heuristic(heuristic)
 		, m_deleteHeuristic(false)
 		, m_randomness(randomness)
@@ -210,13 +210,13 @@ public:
 protected:
 
 	/**
-	 * \brief Computes the set of edges \a delEdges which have to be deleted to obtain the planar subgraph.
+	 * \brief Computes the set of edges \p delEdges which have to be deleted to obtain the planar subgraph.
 	 * @param graph is the input graph.
 	 * @param preferredEdges are edges that should be contained in the planar subgraph.
 	 * @param delEdges is the set of edges that need to be deleted to obtain the planar subgraph.
 	 * @param pCost is apointer to an edge array containing the edge costs; this pointer
 	 *        can be 0 if no costs are given (all edges have cost 1).
-	 * @param preferredImplyPlanar indicates that the edges \a preferredEdges induce a planar graph.
+	 * @param preferredImplyPlanar indicates that the edges \p preferredEdges induce a planar graph.
 	 */
 	virtual Module::ReturnType
 	doCall(
@@ -310,7 +310,7 @@ private:
 	/**
 	 * @param list list of edges to sum over
 	 * @param weights EdgeArray with weights
-	 * @return sum the values in \a weights over the given list \a list
+	 * @return sum the values in \p weights over the given list \p list
 	 */
 	TCost weightOfList(const List<edge>& list, const EdgeArray<TCost>& weights) {
 		TCost result = 0.0;

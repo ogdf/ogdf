@@ -31,7 +31,6 @@
  */
 
 #include <ogdf/graphalg/Clusterer.h>
-#include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/GraphCopy.h>
 #include <ogdf/basic/Stack.h>
 
@@ -333,7 +332,6 @@ void Clusterer::computeEdgeStrengths(const Graph &G, EdgeArray<double> &strength
 		int rMvWvw = 0;
 		int rMwWvw = 0;
 
-		//-----------------------------------------
 		//Compute neighbourhood
 		//Muss man selfloops gesondert beruecksichtigen
 		for(adjEntry adjE : v->adjEntries)

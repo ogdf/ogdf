@@ -45,25 +45,25 @@ namespace ogdf {
 class OGDF_EXPORT ShellingOrderModule
 {
 public:
-	//! Computes a shelling order of an embedded graph G such that \a adj lies on the external face.
+	//! Computes a shelling order of an embedded graph G such that \p adj lies on the external face.
 	/**
-	 * @param G is the input graph; \a G must represent a combinatorial embedding.
+	 * @param G is the input graph; \p G must represent a combinatorial embedding.
 	 * @param order is assigned the shelling order.
-	 * @param adj is an adjacency entry on the external face; if \a adj is 0, a suitable
+	 * @param adj is an adjacency entry on the external face; if \p adj is 0, a suitable
 	 *        external face is chosen.
 	 */
 	void call(const Graph &G, ShellingOrder &order, adjEntry adj = nullptr);
 
-	//! Computes a lefmost shelling order of an embedded graph G such that \a adj lies on the external face.
+	//! Computes a lefmost shelling order of an embedded graph G such that \p adj lies on the external face.
 	/**
-	 * @param G is the input graph; \a G must represent a combinatorial embedding.
+	 * @param G is the input graph; \p G must represent a combinatorial embedding.
 	 * @param order is assigned the shelling order.
-	 * @param adj is an adjacency entry on the external face; if \a adj is 0, a suitable
+	 * @param adj is an adjacency entry on the external face; if \p adj is 0, a suitable
 	 *        external face is chosen.
 	 */
 	void callLeftmost(const Graph &G, ShellingOrder &order, adjEntry adj = nullptr);
 
-	//! Sets the option <i>base ratio</i> to \a x.
+	//! Sets the option <i>base ratio</i> to \p x.
 	void baseRatio(double x) {m_baseRatio = x;}
 
 	//! Returns the current setting of the option <b>base ratio</b>.
@@ -76,7 +76,7 @@ protected:
 	/**
 	 * A derived class must implement this method. It is called with the embedded graph
 	 * and an adjacency entry describing the external face, and must return the
-	 * computed order in \a partition.
+	 * computed order in \p partition.
 	 * @param G is the embedded input graph.
 	 * @param adj is an adjacency entry on the external face.
 	 * @param partition returns the coputed shelling order.

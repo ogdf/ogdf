@@ -81,7 +81,7 @@ protected:
 
 #if 0
 	//! Typedef for the embedded stack
-	typedef EStack<EFreeList<E, next>, E, &EFreeList<E, next>::m_pTop, next> FreeStack;
+	using FreeStack = EStack<EFreeList<E, next>, E, &EFreeList<E, next>::m_pTop, next>;
 #endif
 };
 
@@ -90,7 +90,7 @@ template<typename E, E* E::*next>
 class EFreeListTypes
 {
 public:
-	typedef EStack<EFreeList<E, next>, E, &EFreeList<E, next>::m_pTop, next> FreeStack;
+	using FreeStack = EStack<EFreeList<E, next>, E, &EFreeList<E, next>::m_pTop, next>;
 };
 
 

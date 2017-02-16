@@ -54,8 +54,8 @@ public:
 	/**
 	 * \brief Computes a feasible upward planar subgraph of the input graph.
 	 *
-	 * @param UPR represents the feasible upward planar subgraph after the call. \a UPR has to be initialzed as a
-	 *		  UpwardPlanRep of the input graph \a G and is modified.
+	 * @param UPR represents the feasible upward planar subgraph after the call. \p UPR has to be initialzed as a
+	 *		  UpwardPlanRep of the input graph \p G and is modified.
 	 *		  The subgraph is represented as an upward planar representation.
 	 * @param delEdges is the list of deleted edges which are deleted from the input graph in order to obtain the subgraph.
 	 *		  The edges are edges of the original graph of UPR.
@@ -79,8 +79,8 @@ protected:
 	/**
 	 * \brief Computes a feasible upward planar subgraph of the input graph.
 	 *
-	 * @param UPR represents the feasible upward planar subgraph after the call. \a UPR has to be initialzed as a
-	 *        UpwardPlanRep of the input graph \a G and is modified.
+	 * @param UPR represents the feasible upward planar subgraph after the call. \p UPR has to be initialzed as a
+	 *        UpwardPlanRep of the input graph \p G and is modified.
 	 *		  The subgraph is represented as an upward planar representation.
 	 * @param delEdges is the list of deleted edges which are deleted from the input graph in order to obtain the subgraph.
 	 *		  The edges are edges of the original graph G.

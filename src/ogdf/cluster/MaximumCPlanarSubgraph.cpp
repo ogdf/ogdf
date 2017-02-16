@@ -34,24 +34,21 @@
 #include <ogdf/cluster/MaximumCPlanarSubgraph.h>
 #include <ogdf/cluster/CconnectClusterPlanar.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/fileformats/GraphIO.h>
-#include <sstream>
 
 //#define writefeasiblegraphs
+#ifdef writefeasiblegraphs
+#include <ogdf/fileformats/GraphIO.h>
+#endif
 using namespace abacus;
 
 namespace ogdf {
 
-struct connStruct {
-	bool connected;
-	node v1, v2;
-	edge e;
-};
+using namespace cluster_planarity;
 
 Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
-												  const EdgeArray<int> *pCost,
-												  List<edge> &delEdges,
-												  List<nodePair> &addedEdges)
+                                                  const EdgeArray<int> *pCost,
+                                                  List<edge> &delEdges,
+                                                  List<NodePair> &addedEdges)
 {
 #ifdef OGDF_DEBUG
 	cout << "Creating new Masterproblem for clustergraph with "<<G.constGraph().numberOfNodes()<<" nodes\n";
@@ -111,7 +108,7 @@ Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
 	Logger::slout()<<"ABACUS returned with status '"<< Master::STATUS_[status] <<"'\n"<<flush;
 #endif
 
-	List<nodePair> allEdges;
+	NodePairs allEdges;
 	cplanMaster->getDeletedEdges(delEdges);
 	cplanMaster->getConnectionOptimalSolutionEdges(addedEdges);
 	cplanMaster->getAllOptimalSolutionEdges(allEdges);
@@ -131,12 +128,12 @@ Module::ReturnType MaximumCPlanarSubgraph::doCall(const ClusterGraph &G,
 
 	delete cplanMaster;
 	switch (status) {
-	case Master::Optimal: return Module::retOptimal; break;
-	case Master::Error: return Module::retError; break;
+	case Master::Optimal: return Module::ReturnType::Optimal; break;
+	case Master::Error: return Module::ReturnType::Error; break;
 	default: break;
 	}//switch
 
-	return Module::retError;
+	return Module::ReturnType::Error;
 }//docall for clustergraph
 
 
@@ -169,7 +166,7 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	getBottomUpClusterList(CG.rootCluster(), clist);
 	//could use postordertraversal instead
 
-	List< nodePair > connPairs; //holds all connection node pairs
+	NodePairs connPairs; //holds all connection node pairs
 	//counts the number of potential connectivity edges
 	//int potCount = 0; //equal to number of true values in potConn
 
@@ -214,7 +211,9 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 					bool newConn = !((vg->index() < wg->index()) ? potConn[vg][wg] : potConn[wg][vg]);
 					if (newConn)
 					{
-						nodePair np; np.v1 = vg; np.v2 = wg;
+						NodePair np;
+						np.source = vg;
+						np.target = wg;
 						connPairs.pushBack(np);
 						if (vg->index() < wg->index())
 							potConn[vg][wg] = true;
@@ -231,20 +230,25 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 	//we run through our candidates and save them in an array
 	//that can be used for dynamic graph updates
 	int i = 0;
+
+	struct connStruct {
+		bool connected;
+		node v1, v2;
+		edge e;
+	};
 	connStruct *cons = new connStruct[connPairs.size()];
-	for(const nodePair &np : connPairs)
+	for(const NodePair &np : connPairs)
 	{
 		connStruct cs;
 		cs.connected = false;
-		cs.v1 = np.v1;
-		cs.v2 = np.v2;
+		cs.v1 = np.source;
+		cs.v2 = np.target;
 		cs.e  = nullptr;
 
 		cons[i] = cs;
 		i++;
 	}
 
-	//-------------------------------------------------------------------------
 	// WARNING: this is extremely slow for graphs with a large number of cluster
 	// chunks now we test all possible connection edge combinations for c-planarity
 	Graph G2;
@@ -286,7 +290,7 @@ void MaximumCPlanarSubgraph::writeFeasible(const char *filename,
 		//we create the next test configuration by incrementing the edge selection array
 		//we create the corresponding graph dynamically on the fly
 		i = 0;
-		while ( (i < connPairs.size()) && (cons[i].connected == true) )
+		while (i < connPairs.size() && cons[i].connected)
 		{
 			cons[i].connected = false;
 			OGDF_ASSERT(cons[i].e != nullptr);
@@ -523,9 +527,10 @@ void MaximumCPlanarSubgraph::outputCons(ofstream &os,
 				case CSense::Less: os << " <= "; break;
 				case CSense::Greater: os << " >= "; break;
 				case CSense::Equal: os << " = "; break;
-				default: os << "Inequality sense doesn't make any sense \n";
-						 cerr << "Inequality sense unknown \n";
-						break;
+				default:
+					os << "Inequality sense doesn't make any sense \n";
+					cerr << "Inequality sense unknown \n";
+					break;
 			}//switch
 			os << mycon->rhs();
 			os << "\n";

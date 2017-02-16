@@ -34,7 +34,7 @@
 
 #include <random>
 #include <ogdf/module/PlanarSubgraphModule.h>
-#include <ogdf/internal/planarity/BoyerMyrvoldPlanar.h>
+#include <ogdf/planarity/boyer_myrvold/BoyerMyrvoldPlanar.h>
 #include <ogdf/planarity/BoyerMyrvold.h>
 #include <ogdf/planarity/BoothLueker.h>
 
@@ -65,7 +65,7 @@ public:
 	 *                   Any value between 0 and 1 is allowed and will result in a specific random influence.
 	 *                   When performing multiple runs, a randomness greater zero should be chosen.
 	 */
-	PlanarSubgraphBoyerMyrvold(int runs = 1, double randomness = 0) :
+	explicit PlanarSubgraphBoyerMyrvold(int runs = 1, double randomness = 0) :
 	    m_runs(runs),
 	    m_randomness(randomness),
 	    m_rand(rand())

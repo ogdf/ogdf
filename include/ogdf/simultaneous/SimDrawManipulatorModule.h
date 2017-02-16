@@ -76,7 +76,7 @@ public:
 	SimDrawManipulatorModule();
 
 	//! constructor
-	SimDrawManipulatorModule(SimDraw &SD) { init(SD); }
+	explicit SimDrawManipulatorModule(SimDraw &SD) { init(SD); }
 
 	//! initializing base instance
 	void init(SimDraw &SD);

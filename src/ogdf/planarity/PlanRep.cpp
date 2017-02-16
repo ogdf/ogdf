@@ -45,12 +45,12 @@ PlanRep::PlanRep(const Graph& G) :
 	m_oriEdgeTypes(G, 0),
 	m_eAuxCopy(G)
 {
-	m_vType        .init(*this, Graph::dummy);
+	m_vType        .init(*this, Graph::NodeType::dummy);
 	m_nodeTypes    .init(*this, 0); //the new node type info
 	m_expandedNode .init(*this, nullptr);
 	m_expandAdj    .init(*this, nullptr);
 	m_expansionEdge.init(*this, 0);
-	m_eType        .init(*this, Graph::association); //should be dummy  or standard, but isnt checked correctly,
+	m_eType        .init(*this, Graph::EdgeType::association); //should be dummy  or standard, but isnt checked correctly,
 	m_edgeTypes    .init(*this, 0); //the new edge type info
 
 	// special way of initializing GraphCopy; we start with an empty copy
@@ -72,12 +72,12 @@ PlanRep::PlanRep(const GraphAttributes& AG) :
 	OGDF_ASSERT(m_pGraphAttributes->has(GraphAttributes::edgeType));
 	OGDF_ASSERT(m_pGraphAttributes->has(GraphAttributes::nodeGraphics));
 
-	m_vType        .init(*this,Graph::dummy);
+	m_vType        .init(*this,Graph::NodeType::dummy);
 	m_nodeTypes    .init(*this, 0); //the new node type info
 	m_expandedNode .init(*this,nullptr);
 	m_expandAdj    .init(*this,nullptr);
 	m_expansionEdge.init(*this, 0);
-	m_eType        .init(*this, Graph::association); //should be dummy  or standard, but isnt checked correctly,
+	m_eType        .init(*this, Graph::EdgeType::association); //should be dummy  or standard, but isnt checked correctly,
 	m_edgeTypes    .init(*this, 0); //the new edge type info
 
 	const Graph &G = AG.constGraph();
@@ -154,7 +154,6 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 
 	OGDF_ASSERT(original(center));
 
-	//---------------------------
 	//retrieve the outgoing edges
 	//we run over all nodes adjacent to center and add their
 	//adjacent edges
@@ -162,7 +161,6 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 
 	for(adjEntry adj : center->adjEntries)
 	{
-		//--------------------------------------------------------------
 		//check if external face was saved over adjEntry on center edges
 
 		//we want to stay in the same (external) face, next adjEntry
@@ -209,7 +207,6 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 	//connected to the rest of the graph
 	if (outAdj.empty()) return;
 
-	//---------------------------------------
 	//now split the edges and save adjEntries
 	//we maintain two lists of adjentries
 	List<adjEntry> targetEntries, sourceEntries;
@@ -222,7 +219,6 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 		//we need to find out if edge is outgoing
 		bool isOut = (splitAdj->theNode() == splitEdge->source());
 
-		//-------------------------------------------------------
 		//check if external face was saved over edges to be split
 		bool splitOuter = false;
 		bool splitInner = false;
@@ -280,7 +276,7 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 		//edge e = E.splitFace(sourceEntries.popFrontRet(), targetEntries.popFrontRet());
 		//simple version
 		e = newEdge(sourceEntries.popFrontRet(), targetEntries.popFrontRet());
-		this->typeOf(e) = Graph::association;
+		this->typeOf(e) = Graph::EdgeType::association;
 		setCliqueBoundary(e);
 	}
 
@@ -291,9 +287,6 @@ void PlanRep::insertBoundary(node centerOrig, adjEntry& adjExternal)//, Combinat
 
 }//insertBoundary
 
-
-//*****************************************************************************
-//embedding and crossings
 
 #if 0
 void PlanRep::removePseudoCrossings()
@@ -325,14 +318,13 @@ void PlanRep::insertEdgePathEmbedded(
 	const SList<adjEntry> &crossedEdges)
 {
 	GraphCopy::insertEdgePathEmbedded(eOrig,E,crossedEdges);
-	Graph::EdgeType edgeType = m_pGraphAttributes ?
-		m_pGraphAttributes->type(eOrig) : Graph::association;
+	Graph::EdgeType type = m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::EdgeType::association;
 
 	long et = m_oriEdgeTypes[eOrig];
 
 	for(edge e : chain(eOrig))
 	{
-		m_eType[e] = edgeType;
+		m_eType[e] = type;
 		m_edgeTypes[e] = et;
 		if (!original(e->target()))
 		{
@@ -349,15 +341,14 @@ void PlanRep::insertEdgePath(
 	GraphCopy::insertEdgePath(eOrig,crossedEdges);
 
 	//old types
-	Graph::EdgeType edgeType = m_pGraphAttributes ?
-		m_pGraphAttributes->type(eOrig) : Graph::association;
+	Graph::EdgeType type = m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::EdgeType::association;
 
 	//new types
 	long et = m_oriEdgeTypes[eOrig];
 
 	for(edge e : chain(eOrig))
 	{
-		m_eType[e] = edgeType;
+		m_eType[e] = type;
 		m_edgeTypes[e] = et;
 		if (!original(e->target()))
 		{
@@ -421,11 +412,11 @@ void PlanRep::expand(bool lowDegreeExpand)
 		// Replace vertices with high degree by cages and
 		// replace degree 4 vertices with two generalizations
 		// adjacent in the embedding list by a cage.
-		if ((v->degree() > 4)  && (typeOf(v) != Graph::dummy) && !lowDegreeExpand)
+		if ((v->degree() > 4)  && (typeOf(v) != Graph::NodeType::dummy) && !lowDegreeExpand)
 		{
 			//Set the type of the node v. It remains in the graph
 			// as one of the nodes of the expanded face.
-			typeOf(v) = Graph::highDegreeExpander;
+			typeOf(v) = Graph::NodeType::highDegreeExpander;
 
 			// Scan the list of edges of v to find the adjacent edges of v
 			// according to the planar embedding. All except one edge
@@ -447,7 +438,7 @@ void PlanRep::expand(bool lowDegreeExpand)
 			for (int i = 0; i < v->degree()-1; i++)
 			{
 				node u = newNode();
-				typeOf(u) = Graph::highDegreeExpander;
+				typeOf(u) = Graph::NodeType::highDegreeExpander;
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
@@ -491,7 +482,7 @@ void PlanRep::expand(bool lowDegreeExpand)
 				setExpansion(e);
 				setAssociation(e);
 
-				typeOf(e) = association; //???
+				typeOf(e) = EdgeType::association; //???
 
 				if (!expandAdj(v))
 					expandAdj(v) = e->adjSource();
@@ -500,19 +491,19 @@ void PlanRep::expand(bool lowDegreeExpand)
 
 			e = newEdge(adjPrev,v->lastAdj());
 
-			typeOf(e) = association; //???
+			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);//can be removed if edgetypes work properly
 			setAssociation(e);
 
 		}//highdegree
 
 		// Replace all vertices with degree > 2 by cages.
-		else if (v->degree() >= 2  && typeOf(v) != Graph::dummy &&
-				 lowDegreeExpand)
-		{
+		else if (v->degree() >= 2
+		      && typeOf(v) != Graph::NodeType::dummy
+		      && lowDegreeExpand) {
 			//Set the type of the node v. It remains in the graph
 			// as one of the nodes of the expanded face.
-			typeOf(v) = Graph::lowDegreeExpander; //high??
+			typeOf(v) = Graph::NodeType::lowDegreeExpander; //high??
 
 			// Scan the list of edges of v to find the adjacent edges of v
 			// according to the planar embedding. All except one edge
@@ -535,7 +526,7 @@ void PlanRep::expand(bool lowDegreeExpand)
 			for (int i = 0; i < v->degree()-1; i++)
 			{
 				node u = newNode();
-				typeOf(u) = Graph::highDegreeExpander;
+				typeOf(u) = Graph::NodeType::highDegreeExpander;
 				setExpandedNode(u, v);
 				expander.pushBack(u);
 			}
@@ -572,7 +563,7 @@ void PlanRep::expand(bool lowDegreeExpand)
 			{
 				e = newEdge(adjPrev,n->firstAdj());
 				if (!expandAdj(v)) expandAdj(v) = e->adjSource();
-				typeOf(e) = association; //???
+				typeOf(e) = EdgeType::association; //???
 				setExpansionEdge(e, 2);
 
 				//new types
@@ -582,7 +573,7 @@ void PlanRep::expand(bool lowDegreeExpand)
 				adjPrev = n->firstAdj();
 			}
 			e = newEdge(adjPrev,v->lastAdj());
-			typeOf(e) = association; //???
+			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);
 		}
 
@@ -613,7 +604,7 @@ void PlanRep::expandLowDegreeVertices(OrthoRep &OR)
 				u = newNode();
 
 			setExpandedNode(u, v);
-			typeOf(u) = Graph::lowDegreeExpander;
+			typeOf(u) = Graph::NodeType::lowDegreeExpander;
 			expander.pushBack(Tuple2<node,int>(u,OR.angle(adj)));
 			firstTime = false;
 		}
@@ -640,28 +631,28 @@ void PlanRep::expandLowDegreeVertices(OrthoRep &OR)
 		{
 			edge e = newEdge(adjPrev,(*itn).x1()->firstAdj());
 
-			OR.bend(e->adjSource()).set(convexBend,nBends);
-			OR.bend(e->adjTarget()).set(reflexBend,nBends);
+			OR.bend(e->adjSource()).set(OrthoBendType::convexBend,nBends);
+			OR.bend(e->adjTarget()).set(OrthoBendType::reflexBend,nBends);
 			OR.angle(adjPrev) = 1;
 			OR.angle(e->adjSource()) = 2;
 			OR.angle(e->adjTarget()) = 1;
 
 			nBends = (*itn).x2();
 
-			typeOf(e) = association; //???
+			typeOf(e) = EdgeType::association; //???
 			setExpansionEdge(e, 2);
 
 			adjPrev = (*itn).x1()->firstAdj();
 		}
 
 		edge e = newEdge(adjPrev,v->lastAdj());
-		typeOf(e) = association; //???
+		typeOf(e) = EdgeType::association; //???
 		setExpansionEdge(e, 2);
 
 		expandAdj(v) = e->adjSource();
 
-		OR.bend(e->adjSource()).set(convexBend,nBends);
-		OR.bend(e->adjTarget()).set(reflexBend,nBends);
+		OR.bend(e->adjSource()).set(OrthoBendType::convexBend,nBends);
+		OR.bend(e->adjTarget()).set(OrthoBendType::reflexBend,nBends);
 		OR.angle(adjPrev) = 1;
 		OR.angle(e->adjSource()) = 2;
 		OR.angle(e->adjTarget()) = 1;
@@ -675,8 +666,8 @@ void PlanRep::collapseVertices(const OrthoRep &OR, Layout &drawing)
 		const OrthoRep::VertexInfoUML *vi = OR.cageInfo(v);
 
 		if(vi == nullptr ||
-			(typeOf(v) != Graph::highDegreeExpander &&
-			typeOf(v) != Graph::lowDegreeExpander))
+			(typeOf(v) != Graph::NodeType::highDegreeExpander &&
+			typeOf(v) != Graph::NodeType::lowDegreeExpander))
 			continue;
 
 		node vOrig = original(v);
@@ -687,9 +678,9 @@ void PlanRep::collapseVertices(const OrthoRep &OR, Layout &drawing)
 		m_vCopy[vOrig] = vCenter;
 		m_vOrig[v] = nullptr;
 
-		node lowerLeft  = vi->m_corner[odNorth]->theNode();
-		node lowerRight = vi->m_corner[odWest ]->theNode();
-		node upperLeft  = vi->m_corner[odEast ]->theNode();
+		node lowerLeft  = vi->m_corner[static_cast<int>(OrthoDir::North)]->theNode();
+		node lowerRight = vi->m_corner[static_cast<int>(OrthoDir::West) ]->theNode();
+		node upperLeft  = vi->m_corner[static_cast<int>(OrthoDir::East) ]->theNode();
 		drawing.x(vCenter) = 0.5*(drawing.x(lowerLeft)+drawing.x(lowerRight));
 		drawing.y(vCenter) = 0.5*(drawing.y(lowerLeft)+drawing.y(upperLeft ));
 
@@ -717,8 +708,8 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 		const OrthoRep::VertexInfoUML *vi = OR.cageInfo(v);
 
 		if(vi == nullptr ||
-			(typeOf(v) != Graph::highDegreeExpander &&
-			typeOf(v) != Graph::lowDegreeExpander))
+			(typeOf(v) != Graph::NodeType::highDegreeExpander &&
+			typeOf(v) != Graph::NodeType::lowDegreeExpander))
 			continue;
 
 		node vOrig = original(v);
@@ -729,9 +720,9 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 		m_vCopy[vOrig] = vCenter;
 		m_vOrig[v] = nullptr;
 
-		node lowerLeft  = vi->m_corner[odNorth]->theNode();
-		node lowerRight = vi->m_corner[odWest ]->theNode();
-		node upperLeft  = vi->m_corner[odEast ]->theNode();
+		node lowerLeft  = vi->m_corner[static_cast<int>(OrthoDir::North)]->theNode();
+		node lowerRight = vi->m_corner[static_cast<int>(OrthoDir::West) ]->theNode();
+		node upperLeft  = vi->m_corner[static_cast<int>(OrthoDir::East) ]->theNode();
 		drawing.x(vCenter) = (drawing.x(lowerLeft)+drawing.x(lowerRight)) >> 1;
 		drawing.y(vCenter) = (drawing.y(lowerLeft)+drawing.y(upperLeft )) >> 1;
 
@@ -753,21 +744,19 @@ void PlanRep::collapseVertices(const OrthoRep &OR, GridLayout &drawing)
 	}
 }
 
-//-------------------------
 //object types
 //set type of eCopy according to type of eOrig
 void PlanRep::setCopyType(edge eCopy, edge eOrig)
 {
 	OGDF_ASSERT(original(eCopy) == eOrig);
-	m_eType[eCopy] = m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::association;
+	m_eType[eCopy] = m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::EdgeType::association;
 	if (eOrig)
 	{
-		switch (m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::association)
+		switch (m_pGraphAttributes ? m_pGraphAttributes->type(eOrig) : Graph::EdgeType::association)
 		{
-			case Graph::generalization: setGeneralization(eCopy); break;
-			case Graph::association: setAssociation(eCopy); break;
-			case Graph::dependency: setDependency(eCopy); break;
-			default: OGDF_ASSERT(false);
+			case Graph::EdgeType::generalization: setGeneralization(eCopy); break;
+			case Graph::EdgeType::association: setAssociation(eCopy); break;
+			case Graph::EdgeType::dependency: setDependency(eCopy); break;
 		}//switch
 	}//if original
 }//setCopyType
@@ -944,18 +933,18 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 		os << "      h " << 3.0 << "\n";
 		os << "      type \"rectangle\"\n";
 		os << "      width 1.0\n";
-		if (typeOf(v) == Graph::generalizationMerger) {
+		if (typeOf(v) == Graph::NodeType::generalizationMerger) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#0000A0\"\n";
 		}
-		else if (typeOf(v) == Graph::generalizationExpander) {
+		else if (typeOf(v) == Graph::NodeType::generalizationExpander) {
 			os << "      type \"oval\"\n";
 			os << "      fill \"#00FF00\"\n";
 		}
-		else if (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander)
+		else if (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander)
 			os << "      fill \"#FFFF00\"\n";
-		else if (typeOf(v) == Graph::dummy)
+		else if (typeOf(v) == Graph::NodeType::dummy)
 			os << "      type \"oval\"\n";
 
 		else if (v->degree() > 4)
@@ -972,13 +961,13 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 
 	for (node v : nodes)
 	{
-		if (expandAdj(v) != nullptr && (typeOf(v) == Graph::highDegreeExpander ||
-			typeOf(v) == Graph::lowDegreeExpander))
+		if (expandAdj(v) != nullptr && (typeOf(v) == Graph::NodeType::highDegreeExpander ||
+			typeOf(v) == Graph::NodeType::lowDegreeExpander))
 		{
 			node vOrig = original(v);
 			const OrthoRep::VertexInfoUML &vi = *OR.cageInfo(v);
-			node ll = vi.m_corner[odNorth]->theNode();
-			node ur = vi.m_corner[odSouth]->theNode();
+			node ll = vi.m_corner[static_cast<int>(OrthoDir::North)]->theNode();
+			node ur = vi.m_corner[static_cast<int>(OrthoDir::South)]->theNode();
 
 			os << "  node [\n";
 			os << "    id " << nextId++ << "\n";
@@ -1014,9 +1003,9 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 
 		os << "      type \"line\"\n";
 
-		if (typeOf(e) == Graph::generalization)
+		if (typeOf(e) == Graph::EdgeType::generalization)
 		{
-			if (typeOf(e->target()) == Graph::generalizationExpander)
+			if (typeOf(e->target()) == Graph::NodeType::generalizationExpander)
 				os << "      arrow \"none\"\n";
 			else
 				os << "      arrow \"last\"\n";
@@ -1026,10 +1015,10 @@ void PlanRep::writeGML(ostream &os, const OrthoRep &OR, const GridLayout &drawin
 		}
 		else
 		{
-			if (typeOf(e->source()) == Graph::generalizationExpander ||
-			    typeOf(e->source()) == Graph::generalizationMerger ||
-			    typeOf(e->target()) == Graph::generalizationExpander ||
-			    typeOf(e->target()) == Graph::generalizationMerger)
+			if (typeOf(e->source()) == Graph::NodeType::generalizationExpander ||
+			    typeOf(e->source()) == Graph::NodeType::generalizationMerger ||
+			    typeOf(e->target()) == Graph::NodeType::generalizationExpander ||
+			    typeOf(e->target()) == Graph::NodeType::generalizationMerger)
 			{
 				os << "      arrow \"none\"\n";
 				os << "      fill \"#FF0000\"\n";

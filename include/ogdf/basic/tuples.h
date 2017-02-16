@@ -52,7 +52,7 @@ public:
 	Tuple2() { }
 	//! Constructs a 2-tuple for given values.
 	Tuple2(const E1 &y1, const E2 &y2) : m_x1(y1), m_x2(y2) { }
-	//! Constructs a 2-tuple that is a copy of \a t2.
+	//! Constructs a 2-tuple that is a copy of \p t2.
 	Tuple2(const Tuple2<E1,E2> &t2) : m_x1(t2.m_x1), m_x2(t2.m_x2) { }
 
 	//! Returns a reference the first element.

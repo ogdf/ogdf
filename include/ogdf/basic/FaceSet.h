@@ -55,17 +55,17 @@ namespace ogdf {
  */
 class OGDF_EXPORT FaceSetSimple {
 public:
-	//! Creates an empty face set associated with combinatorial embedding \a E.
-	FaceSetSimple(const CombinatorialEmbedding &E) : m_isContained(E,false) { }
+	//! Creates an empty face set associated with combinatorial embedding \p E.
+	explicit FaceSetSimple(const CombinatorialEmbedding &E) : m_isContained(E,false) { }
 
 	// destructor
 	~FaceSetSimple() { }
 
-	//! Inserts face \a f into set \a S.
+	//! Inserts face \p f into set \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	void insert(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_isContained.embeddingOf());
@@ -91,11 +91,11 @@ public:
 	}
 
 
-	//! Returns true if face \a f is contained in \a S, false otherwise.
+	//! Returns true if face \p f is contained in \a S, false otherwise.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	bool isMember(face f) const {
 		OGDF_ASSERT(f->embeddingOf() == m_isContained.embeddingOf());
@@ -137,17 +137,17 @@ private:
  */
 class OGDF_EXPORT FaceSetPure {
 public:
-	//! Creates an empty node set associated with combinatorial embedding \a E.
-	FaceSetPure(const CombinatorialEmbedding &E) : m_it(E,ListIterator<face>()) { }
+	//! Creates an empty node set associated with combinatorial embedding \p E.
+	explicit FaceSetPure(const CombinatorialEmbedding &E) : m_it(E,ListIterator<face>()) { }
 
 	// destructor
 	~FaceSetPure() { }
 
-	//! Inserts face \a f into \a S.
+	//! Inserts face \p f into \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	void insert(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
@@ -156,11 +156,11 @@ public:
 			itF = m_faces.pushBack(f);
 	}
 
-	//! Removes face \a f from \a S.
+	//! Removes face \p f from \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	void remove(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
@@ -186,11 +186,11 @@ public:
 	}
 
 
-	//! Returns true if face \a f is contained in \a S, false otherwise.
+	//! Returns true if face \p f is contained in \a S, false otherwise.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	bool isMember(face f) const {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
@@ -233,17 +233,17 @@ private:
  */
 class OGDF_EXPORT FaceSet {
 public:
-	//! Creates an empty node set associated with combinatorial embedding \a E.
-	FaceSet(const CombinatorialEmbedding &E) : m_it(E,ListIterator<face>()) { }
+	//! Creates an empty node set associated with combinatorial embedding \p E.
+	explicit FaceSet(const CombinatorialEmbedding &E) : m_it(E,ListIterator<face>()) { }
 
 	// destructor
 	~FaceSet() { }
 
-	//! Inserts face \a f into \a S.
+	//! Inserts face \p f into \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	void insert(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
@@ -252,11 +252,11 @@ public:
 			itF = m_faces.pushBack(f);
 	}
 
-	//! Removes face \a f from \a S.
+	//! Removes face \p f from \a S.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	void remove(face f) {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());
@@ -282,11 +282,11 @@ public:
 	}
 
 
-	//! Returns true if face \a f is contained in \a S, false otherwise.
+	//! Returns true if face \p f is contained in \a S, false otherwise.
 	/**
 	 * This operation has constant runtime.
 	 *
-	 * \pre \a f is a face in the associated combinatorial embedding.
+	 * \pre \p f is a face in the associated combinatorial embedding.
 	 */
 	bool isMember(face f) const {
 		OGDF_ASSERT(f->embeddingOf() == m_it.embeddingOf());

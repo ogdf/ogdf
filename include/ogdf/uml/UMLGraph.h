@@ -46,16 +46,16 @@ public:
 	// Creates a UML graph for no associated graph (default constructor).
 	UMLGraph() : GraphAttributes(), m_pG(nullptr) { }
 
-	// Creates a UML graph associated with graph \a G.
+	// Creates a UML graph associated with graph \p G.
 	/**
 	 * By default, all edges are associations.
 	 */
-	UMLGraph(Graph &G, long initAttributes = 0);
+	explicit UMLGraph(Graph &G, long initAttributes = 0);
 
 	//! Destructor.
 	virtual ~UMLGraph();
 
-	// Initializes the UML graph for graph \a G.
+	// Initializes the UML graph for graph \p G.
 	/**
 	 * @param G        is the new associated graph.
 	 * @param initAttr specifies the set of attributes that can be accessed.
@@ -70,10 +70,7 @@ public:
 		m_hierarchyParent.init(constGraph(), nullptr);
 		m_upwardEdge.init(constGraph(), false);
 
-		if (m_hiddenEdges != nullptr) {
-			delete m_hiddenEdges;
-		}
-
+		delete m_hiddenEdges;
 		m_hiddenEdges = new Graph::HiddenEdgeSet(G);
 	}
 
@@ -81,29 +78,31 @@ public:
 		init(const_cast<Graph &>(G), initAttr);
 	}
 
-	//----------------------------------------------------------------------------
-	//structural changes
-	//merge generalizations at a common superclass
+	//! \name Structural changes
+	//! @{
+
+	//! Merges generalizations at a common superclass
 	void insertGenMergers();
-	//insert mergers per node with given edges
+	//! Inserts mergers per node with given edges
 	node doInsertMergers(node v, SList<edge> &inGens);
 	void undoGenMergers();
 
+	//! @}
+	//! \name Cliques
+	//! @{
 
-	//---------------------- cliques ----------------------
-
-	//replace (dense) subgraphs given in list clique by
-	//inserting a center node connected to each node (=>star)
-	//and deleting all edges between nodes in clique
-	//returns center node
+	//! Replaces (dense) subgraphs given in list clique by
+	//! inserting a center node connected to each node (=>star)
+	//! and deleting all edges between nodes in clique
+	//! returns center node
 	void replaceByStar(List< List<node> > &cliques);
 
-	//undo clique replacements
+	//! Undo clique replacements
 	void undoStars();
-	//boolean switches restore of all hidden edges in single clique call
+	//! Boolean switches restore of all hidden edges in single clique call
 	void undoStar(node center, bool restoreAllEdges);
 
-	//returns the size of a circular drawing for a clique around center v
+	//! Returns the size of a circular drawing for a clique around center v
 	DRect cliqueRect(node v)
 	{
 		return m_cliqueCircleSize[v];
@@ -123,28 +122,29 @@ public:
 	void computeCliquePosition(node center, double rectMin, const adjEntry &startAdj);
 #endif
 
-	//compute positions for the nodes in adjNodes on a circle
-	//tries to keep the relative placement of the nodes in the clique
-	//rectangle (left, right,...) to avoid clique crossings of outgoing edges
+	/**
+	 * Compute positions for the nodes in adjNodes on a circle
+	 *
+	 * Tries to keep the relative placement of the nodes in the clique
+	 * rectangle (left, right,...) to avoid clique crossings of outgoing edges
+	 */
 	void computeCliquePosition(List<node> &adjNodes, node center, double rectMin = -1.0);
 
 	const SListPure<node> &centerNodes() {return m_centerNodes;}
 
-	//default size of inserted clique replacement center nodes
+	//! Default size of inserted clique replacement center nodes
 	void setDefaultCliqueCenterSize(double i) {m_cliqueCenterSize = max(i, 1.0);}
 	double getDefaultCliqueCenterSize() {return m_cliqueCenterSize;}
 
-	//-------------------
-	//status retrieval
-	//returns true if edge was inserted during clique replacement
-	//TODO: check here how to guarantee that value is defined,
-	//edgearray is only valid if there are cliques replaced
+	//! Returns true if edge was inserted during clique replacement
 	bool isReplacement(edge e)
 	{
+		// TODO: check here how to guarantee that value is defined,
+		// edgearray is only valid if there are cliques replaced
 		return m_replacementEdge[e];
 	}
 
-	//------------------- end cliques ---------------------
+	//! @}
 
 #if 0
 	//! allow change, but should not be declared const
@@ -154,33 +154,32 @@ public:
 	void setAlign(edge e, bool b) {m_alignEdge[e] = b;}
 #endif
 
-	//set status of edges to be specially embedded (if alignment)
+	//! Sets status of edges to be specially embedded (if alignment)
 	void setUpwards(adjEntry a, bool b) {m_upwardEdge[a] = b;}
 	bool upwards(adjEntry a) const {return m_upwardEdge[a];}
 
-	// writes attributed graph in GML format to file fileName
+	//! Writes attributed graph in GML format to file fileName
 	void writeGML(const char *fileName);
 
-	// writes attributed graph in GML format to output stream os
+	//! Writes attributed graph in GML format to output stream os
 	void writeGML(ostream &os);
 
-	//adjust the parent field for all nodes after insertion of
-	//mergers. If insertion is done per node via doinsert, adjust
-	//has to be called afterwards. Otherwise, insertgenmergers calls it.
+	//! Adjusts the parent field for all nodes after insertion of
+	//! mergers. If insertion is done per node via doinsert, adjust
+	//! has to be called afterwards. Otherwise, insertgenmergers calls it.
 	void adjustHierarchyParents();
 
 #if 0
-	//use the node position and bend position information to
-	//derive an ordering of the edges around each node
-	//this does not need to result in a correct combinatorial embedding
+	//! Uses the node position and bend position information to
+	//! derive an ordering of the edges around each node
+	//! this does not need to result in a correct combinatorial embedding
 	void sortEdgesFromLayout();
 #endif
 
-	//-------------------------------------------------------------------------
-	//modelling of association classes
+	//! Modelling of association classes
 	class AssociationClass {
 	public:
-		AssociationClass(edge e, double width = 1.0, double height = 1.0,
+		explicit AssociationClass(edge e, double width = 1.0, double height = 1.0,
 			double x = 0.0, double y = 0.0)
 			: m_width(width), m_height(height), m_x(x), m_y(y), m_edge(e), m_node(nullptr)
 		{ }
@@ -196,7 +195,7 @@ public:
 
 	const AssociationClass*  assClass(edge e) const {return m_assClass[e];}
 
-	//adds association class to edge e
+	//! Adds association class to edge e
 	node createAssociationClass(edge e, double width = 1.0, double height = 1.0)
 	{
 		AssociationClass* ac = new AssociationClass(e, width, height);
@@ -213,14 +212,14 @@ public:
 		//guarantee correct angle at edge to edge connection
 		if (m_attributes & GraphAttributes::nodeType)
 		{
-			m_vType[v] = Graph::associationClass;
+			m_vType[v] = Graph::NodeType::associationClass;
 		}
 		return v;
 	}
 
 	//this modelling should only take place in the preprocessing steps
 	//of the drawing algorithms?
-	//insert representation for association class in underlying graph
+	//! Inserts representation for association class in underlying graph
 	void modelAssociationClasses()
 	{
 		SListIterator<UMLGraph::AssociationClass*> it = m_assClassList.begin();
@@ -252,13 +251,13 @@ public:
 		}//while
 	}
 
-	//remove the modeling of the association class without removing the information
+	//! Removes the modeling of the association class without removing the information
 	void undoAssociationClass(AssociationClass* ac)
 	{
 		node v = m_associationClassModel[ac->m_edge];
 		OGDF_ASSERT(v);
 		OGDF_ASSERT(v->degree() == 1);
-		if (v->degree() != 1) throw AlgorithmFailureException(afcLabel);
+		if (v->degree() != 1) throw AlgorithmFailureException(AlgorithmFailureCode::Label);
 		//save layout information
 		ac->m_x = x(v);
 		ac->m_y = y(v);
@@ -280,21 +279,21 @@ public:
 		m_pG->unsplit(dummy);
 	}//undoAssociationClass
 
-
-	//---------------------- cliques ----------------------
-
 protected:
+	//! \name Cliques
+	//! @{
 
 	node replaceByStar(List<node> &clique, NodeArray<int> &cliqueNum);
 	DRect circularBound(node center);
 
-	//------------------- end cliques ---------------------
+	//! @}
 
 private:
 
 	Graph *m_pG;
 
-	//---------------------- cliques ----------------------
+	//! \name Cliques
+	//! @{
 
 	//information about edges that are deleted in clique processing
 #if 0
@@ -306,36 +305,37 @@ private:
 	};
 #endif
 
-	double m_cliqueCenterSize; //default size of inserted clique replacement center nodes
-	SListPure<node> m_centerNodes; //center nodes introduced at clique replacement
-	EdgeArray<bool> m_replacementEdge;	//used to mark clique replacement edges
-										//may be we can join this with edge type
-	NodeArray<DRect> m_cliqueCircleSize;	//save the bounding box size of the
-											//circular drawing of the clique at center
-	NodeArray<DPoint> m_cliqueCirclePos;	//save the position of the node in the
-											//circular drawing of the clique
+	double m_cliqueCenterSize; //!< default size of inserted clique replacement center nodes
+	SListPure<node> m_centerNodes; //!< center nodes introduced at clique replacement
 
-	//------------------- end cliques ---------------------
+	//! used to mark clique replacement edges
+	EdgeArray<bool> m_replacementEdge; // XXX: maybe we can join this with edge type
+	//! save the bounding box size of the circular drawing of the clique at center
+	NodeArray<DRect> m_cliqueCircleSize;
+	//! save the position of the node in the circular drawing of the clique
+	NodeArray<DPoint> m_cliqueCirclePos;
 
+	//! @}
 
 	SListPure<edge> m_mergeEdges;
-	//---------------------------------------------------
 	//structures for association classes
 	//may be replaced later by generic structures for different types
-	SListPure<AssociationClass*> m_assClassList; //saves all accociation classes
-	EdgeArray<AssociationClass*> m_assClass;     //association class for list
-	EdgeArray<node> m_associationClassModel;     //modelled classes are stored
+	SListPure<AssociationClass*> m_assClassList; //!< saves all accociation classes
+	EdgeArray<AssociationClass*> m_assClass;     //!< association class for list
+	EdgeArray<node> m_associationClassModel;     //!< modelled classes are stored
 
+	//! \name Only set and updated in insertgenmergers
+	//! @{
 
-	//***************************************************
-	//the following arrays are only set and updated in insertgenmergers
-	//used to classify edges for embedding with alignment
+	//! used to classify edges for embedding with alignment
 	AdjEntryArray<bool> m_upwardEdge;
 
-	//used to derive edge types for alignment in PlanRepUML
-	//(same hierarchyparent => edge connects (half)brothers
-	//only set during insertgenmergers to avoid the extra computation
+	//! used to derive edge types for alignment in PlanRepUML
+	//! (same hierarchyparent => edge connects (half)brothers;
+	//! only set during insertgenmergers to avoid the extra computation)
 	NodeArray<node> m_hierarchyParent;
+
+	//! @}
 
 	Graph::HiddenEdgeSet *m_hiddenEdges;
 };

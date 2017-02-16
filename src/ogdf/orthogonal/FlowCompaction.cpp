@@ -35,8 +35,6 @@
 #include <ogdf/orthogonal/FlowCompaction.h>
 #include <ogdf/orthogonal/CompactionConstraintGraph.h>
 #include <ogdf/graphalg/MinCostFlowReinelt.h>
-#include <ogdf/basic/simple_graph_alg.h>
-//#include <ogdf/planarity/PlanRepUML.h>
 
 
 //#define foutputRC
@@ -95,7 +93,7 @@ void FlowCompaction::constructiveHeuristics(
 	OGDF_ASSERT(OR.isOrientated());
 
 	// x-coordinates of vertical segments
-	CompactionConstraintGraph<int> Dx(OR, PG, odEast, rc.separation(),
+	CompactionConstraintGraph<int> Dx(OR, PG, OrthoDir::East, rc.separation(),
 		m_costGen, m_costAssoc, m_align);
 	Dx.insertVertexSizeArcs(PG, drawing.width(), rc);
 
@@ -103,7 +101,7 @@ void FlowCompaction::constructiveHeuristics(
 	computeCoords(Dx, xDx);
 
 	// y-coordinates of horizontal segments
-	CompactionConstraintGraph<int> Dy(OR, PG, odNorth, rc.separation(),
+	CompactionConstraintGraph<int> Dy(OR, PG, OrthoDir::North, rc.separation(),
 		m_costGen, m_costAssoc, m_align);
 	Dy.insertVertexSizeArcs(PG, drawing.height(), rc);
 
@@ -138,8 +136,11 @@ void FlowCompaction::improvementHeuristics(
 		lastCosts = costs;
 		++steps;
 
+		// overflow detection and max number of steps
+		bool doComputeCoords = steps > 0 && steps < m_numGenSteps;
+
 		// x-coordinates of vertical segments
-		CompactionConstraintGraph<int> Dx(OR, PG, odEast, rc.separation(),
+		CompactionConstraintGraph<int> Dx(OR, PG, OrthoDir::East, rc.separation(),
 			m_costGen, m_costAssoc, m_align);
 
 		Dx.insertVertexSizeArcs(PG, drawing.width(), rc);
@@ -164,10 +165,7 @@ void FlowCompaction::improvementHeuristics(
 #endif
 
 		//first steps: only vertical generalizations
-		if ((steps > 0) && (steps<m_numGenSteps)) //first compact cages
-			computeCoords(Dx, xDx, true, false, true, true);
-		else
-			computeCoords(Dx, xDx, true, false, true, false);
+		computeCoords(Dx, xDx, true, false, true, doComputeCoords);
 
 		// final x-coordinates of vertices
 		for(node v : PG.nodes) {
@@ -182,7 +180,7 @@ void FlowCompaction::improvementHeuristics(
 #endif
 
 		// y-coordinates of horizontal segments
-		CompactionConstraintGraph<int> Dy(OR, PG, odNorth, rc.separation(),
+		CompactionConstraintGraph<int> Dy(OR, PG, OrthoDir::North, rc.separation(),
 			m_costGen, m_costAssoc, m_align);
 
 		Dy.insertVertexSizeArcs(PG, drawing.height(), rc);
@@ -206,10 +204,7 @@ void FlowCompaction::improvementHeuristics(
 		printCCGy(fileName.c_str(),Dy,drawing);
 #endif
 
-		if ((steps > 0) && (steps<m_numGenSteps)) //first compact cages
-			computeCoords(Dy, yDy, true, false, true, true);
-		else
-			computeCoords(Dy, yDy, true, false, true, false);
+		computeCoords(Dy, yDy, true, false, true, doComputeCoords);
 
 		// final y-coordinates of vertices
 		for(node v : PG.nodes) {
@@ -252,8 +247,11 @@ void FlowCompaction::improvementHeuristics(
 		lastCosts = costs;
 		++steps;
 
+		// overflow detection and max number of steps
+		bool doComputeCoords = steps > 0 && steps < m_numGenSteps;
+
 		// x-coordinates of vertical segments
-		CompactionConstraintGraph<int> Dx(OR, PG, odEast, originalSeparation,
+		CompactionConstraintGraph<int> Dx(OR, PG, OrthoDir::East, originalSeparation,
 			//minDist.separation(),
 			m_costGen, m_costAssoc, m_align);
 
@@ -276,10 +274,7 @@ void FlowCompaction::improvementHeuristics(
 			else xDx[w] = drawing.x(Dx.extraRep(w)) + Dx.extraOfs(w);
 		}
 
-		if ((steps > 0) && (steps<m_numGenSteps)) //first compact cages
-			computeCoords(Dx, xDx, true, true, true, true);
-		else
-			computeCoords(Dx, xDx, true, true, true, false);
+		computeCoords(Dx, xDx, true, true, true, doComputeCoords);
 
 		//computeCoords(Dx, xDx, true, true, true);
 
@@ -298,7 +293,7 @@ void FlowCompaction::improvementHeuristics(
 #endif
 
 		// y-coordinates of horizontal segments
-		CompactionConstraintGraph<int> Dy(OR, PG, odNorth, originalSeparation,
+		CompactionConstraintGraph<int> Dy(OR, PG, OrthoDir::North, originalSeparation,
 			//minDist.separation(),
 			m_costGen, m_costAssoc, m_align);
 
@@ -331,10 +326,7 @@ void FlowCompaction::improvementHeuristics(
 #endif
 
 		//computeCoords(Dy, yDy, true, true, true);
-		if ((steps > 0) && (steps < m_numGenSteps)) //first compact cages
-			computeCoords(Dy, yDy, true, true, true, true);
-		else
-			computeCoords(Dy, yDy, true, true, true, false);
+		computeCoords(Dy, yDy, true, true, true, doComputeCoords);
 
 		// final y-coordinates of vertices
 		for(node v : PG.nodes) {
@@ -423,7 +415,7 @@ void FlowCompaction::computeCoords(
 		// This has to be changed if we use special constructs for allowing
 		// left or right bends
 		int currentLength = pos[e->target()] - pos[e->source()];
-		if ((fixZeroLength && currentLength == 0) && (D.typeOf(e) == cetFixToZeroArc))
+		if ((fixZeroLength && currentLength == 0) && (D.typeOf(e) == ConstraintEdgeType::FixToZeroArc))
 			lowerBound[eDual] = upperBound[eDual] = 0;
 		else if (improvementHeuristics && currentLength < lowerBound[eDual])
 			lowerBound[eDual] = currentLength;
@@ -431,12 +423,12 @@ void FlowCompaction::computeCoords(
 		//fix length of alignment edges after some rounds
 		//(preliminary use onlyGen setting here)
 
-		if (m_align && improvementHeuristics)
-		{
-			if (D.alignmentArc(e) && !onlyGen) //use onlyGen instead of extra bool to test
-				upperBound[eDual] = currentLength;
-
-		}//if align
+		if (m_align
+		 && improvementHeuristics
+		 && D.alignmentArc(e)
+		 && !onlyGen) {
+			upperBound[eDual] = currentLength;
+		}
 
 
 		//fix cage boundary edge segments to values smaller than sep
@@ -452,9 +444,9 @@ void FlowCompaction::computeCoords(
 		//maybe they will be inserted later on for some special purpose,
 		//therefore we keep the code
 #if 1
-		OGDF_ASSERT(D.typeOf(e) != cetReducibleArc);
+		OGDF_ASSERT(D.typeOf(e) != ConstraintEdgeType::ReducibleArc);
 #else
-		if (D.typeOf(e) == cetReducibleArc) {
+		if (D.typeOf(e) == ConstraintEdgeType::ReducibleArc) {
 		{
 			lowerBound[eDual] = min(0, currentLength);
 			upperBound[eDual] = infinity;
@@ -462,22 +454,21 @@ void FlowCompaction::computeCoords(
 #endif
 		//should we reset median arcs here?
 
-		if (onlyGen)
-		{
-			//vertexsize sind aber nur innen, border muss noch geaendert werden
-			//also expansion!=generalization
-			if (!(D.verticalArc(e) || (D.typeOf(e) == cetVertexSizeArc)
-				|| D.onBorder(e)) ) {
-				lowerBound[eDual] = currentLength;
-				upperBound[eDual] = infinity;
-			}
+		if (onlyGen
+		 && !D.verticalArc(e)
+		 && D.typeOf(e) != ConstraintEdgeType::VertexSizeArc
+		 && !D.onBorder(e)) {
+			// vertexsize sind aber nur innen, border muss noch geaendert werden
+			// also expansion!=generalization
+			lowerBound[eDual] = currentLength;
+			upperBound[eDual] = infinity;
 		}
 
 	}//forall Gd edges
 
 	if (fixVertexSize) {
 		for(edge e : Gd.edges) {
-			if (D.typeOf(e) == cetVertexSizeArc) {
+			if (D.typeOf(e) == ConstraintEdgeType::VertexSizeArc) {
 				edge eDual = m_dualEdge[e];
 				upperBound[eDual] = lowerBound[eDual];
 			}
@@ -588,22 +579,22 @@ void writeCcgGML(const CompactionConstraintGraph<int> &D,
 
 		switch(D.typeOf(e))
 		{
-		case cetBasicArc: // red
+		case ConstraintEdgeType::BasicArc: // red
 			os << "      fill \"#FF0000\"\n";
 			break;
-		case cetVertexSizeArc: // blue
+		case ConstraintEdgeType::VertexSizeArc: // blue
 			os << "      fill \"#0000FF\"\n";
 			break;
-		case cetVisibilityArc: // green
+		case ConstraintEdgeType::VisibilityArc: // green
 			os << "      fill \"#00FF00\"\n";
 			break;
-		case cetReducibleArc: // pink
+		case ConstraintEdgeType::ReducibleArc: // pink
 			os << "      fill \"#FF00FF\"\n";
 			break;
-		case cetFixToZeroArc: // violet
+		case ConstraintEdgeType::FixToZeroArc: // violet
 			os << "      fill \"#AF00FF\"\n";
 			break;
-		case cetMedianArc: // black
+		case ConstraintEdgeType::MedianArc: // black
 			os << "      fill \"#0F000F\"\n";
 			break;
 		}

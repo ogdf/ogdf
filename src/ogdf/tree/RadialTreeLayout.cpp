@@ -36,15 +36,13 @@
 
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/Queue.h>
-#include <ogdf/basic/Stack.h>
-#include <ogdf/basic/Math.h>
 
 namespace ogdf {
 
 RadialTreeLayout::RadialTreeLayout()
 	:m_levelDistance(50),
 	 m_connectedComponentDistance(50),
-	 m_selectRoot(rootIsCenter)
+	 m_selectRoot(RootSelectionType::Center)
 { }
 
 RadialTreeLayout::RadialTreeLayout(const RadialTreeLayout &tl)
@@ -71,7 +69,7 @@ void RadialTreeLayout::call(GraphAttributes &AG)
 	if(tree.numberOfNodes() == 0) return;
 
 	if (!isArborescence(tree))
-		OGDF_THROW_PARAM(PreconditionViolatedException, pvcForest);
+		OGDF_THROW_PARAM(PreconditionViolatedException, PreconditionViolatedCode::Forest);
 
 	OGDF_ASSERT(m_levelDistance > 0);
 
@@ -94,19 +92,19 @@ void RadialTreeLayout::call(GraphAttributes &AG)
 void RadialTreeLayout::FindRoot(const Graph &G)
 {
 	switch(m_selectRoot) {
-		case rootIsSource:
+		case RootSelectionType::Source:
 			for(node v : G.nodes)
 				if(v->indeg() == 0)
 					m_root = v;
 			break;
 
-		case rootIsSink:
+		case RootSelectionType::Sink:
 			for(node v : G.nodes)
 				if(v->outdeg() == 0)
 					m_root = v;
 			break;
 
-		case rootIsCenter:
+		case RootSelectionType::Center:
 			{
 				NodeArray<int> degree(G);
 				Queue<node> leaves;
@@ -281,7 +279,6 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 					m_radius[i+1] = r;
 			}
 
-			// ********
 #if 0
 			deltaL = (m_radius[i+1] * 2*Math::pi) - D;
 
@@ -312,7 +309,6 @@ void RadialTreeLayout::ComputeAngles(const Graph &G)
 			}
 #endif
 
-			//*************************
 #if 0
 			SListConstIterator<node> it;
 			for(it = m_nodes[i].begin(); it.valid(); ++it)

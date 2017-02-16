@@ -60,9 +60,9 @@ private:
 	/**
 	 * @param UPR is the input upward planarized representation of a FUPS and will also receive the result.
 	 * @param origEdges is the list of original edges (edges in the original graph
-	 *        of \a UPR) that have to be inserted.
+	 *        of \p UPR) that have to be inserted.
 	 * @param costOrig points to an edge array containing the costs of original edges; edges in
-	 *        \a UPR without an original edge have zero costs.
+	 *        \p UPR without an original edge have zero costs.
 	 * @param forbiddenEdgeOrig points to an edge array indicating if an original edge is
 	 *        forbidden to be crossed.
 	 */

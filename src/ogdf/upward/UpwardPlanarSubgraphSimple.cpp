@@ -184,21 +184,19 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 			// add augmented edges as node-pair to tmpAugmented and remove
 			// all augmented edges from H again
 			SList<Tuple2<node,node> > tmpAugmented;
-			SListConstIterator<edge> it;
-			for(it = augmentedEdges.begin(); it.valid(); ++it) {
-				node v = mapToG[(*it)->source()];
-				node w = mapToG[(*it)->target()];
+			for(edge e : augmentedEdges) {
+				node v = mapToG[e->source()];
+				node w = mapToG[e->target()];
 
 				if (v && w)
 					tmpAugmented.pushBack(Tuple2<node,node>(v,w));
 
-				H.delEdge(*it);
+				H.delEdge(e);
 			}
 
 			if (mapToG[superSink] == nullptr)
 				H.delNode(superSink);
 
-			//****************************************************************
 			// The following is a simple workaround to assure the following
 			// property of the upward planar subgraph:
 			//   The st-augmented upward planar subgraph plus the edges not
@@ -210,7 +208,6 @@ void UpwardPlanarSubgraphSimple::call(GraphCopy &GC, List<edge> &delEdges)
 			// embedding would do.
 			// The better solution would be to incorporate the acyclicity
 			// property into the upward-planarity test, but this is compicated.
-			//****************************************************************
 
 			// test if original graph plus augmented edges is still acyclic
 			if(checkAcyclic(graphAcyclicTest,tmpAugmented) == true) {

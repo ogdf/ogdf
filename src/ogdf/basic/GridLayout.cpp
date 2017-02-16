@@ -31,18 +31,12 @@
 
 
 #include <ogdf/basic/GridLayoutMapped.h>
-#include <ogdf/planarity/PlanRep.h>
-#include <ogdf/orthogonal/OrthoRep.h>
-#include <ogdf/basic/Layout.h>
 #include <ogdf/basic/HashArray.h>
 
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// GridLayout
-//---------------------------------------------------------
+const int GridLayoutMapped::cGridScale = 2;
 
 IPolyline GridLayout::polyline(edge e) const
 {
@@ -62,8 +56,8 @@ IPolyline GridLayout::polyline(edge e) const
 struct OGDF_EXPORT GridPointInfo
 {
 	GridPointInfo() : m_v(nullptr), m_e(nullptr) { }
-	GridPointInfo(node v) : m_v(v), m_e(nullptr) { }
-	GridPointInfo(edge e) : m_v(nullptr), m_e(e) { }
+	explicit GridPointInfo(node v) : m_v(v), m_e(nullptr) { }
+	explicit GridPointInfo(edge e) : m_v(nullptr), m_e(e) { }
 
 	bool operator==(const GridPointInfo &i) const {
 		return (m_v == i.m_v && m_e == i.m_e);
@@ -336,10 +330,6 @@ int GridLayout::numberOfBends() const
 	return num;
 }
 
-
-//---------------------------------------------------------
-// GridLayoutMapped
-//---------------------------------------------------------
 
 GridLayoutMapped::GridLayoutMapped(
 	const PlanRep &PG,

@@ -66,13 +66,13 @@ class HashArray2D : private Hashing< Tuple2<I1,I2>, E, HashFuncTuple<I1,I2,H1,H2
 {
 public:
 	//! The type of const-iterators for 2D-hash arrays.
-	typedef HashConstIterator2D<I1,I2,E,H1,H2> const_iterator;
+	using const_iterator = HashConstIterator2D<I1,I2,E,H1,H2>;
 
 	//! Creates a 2D-hash array.
 	HashArray2D() { }
 
-	//! Creates a 2D-hash array and sets the default value to \a x.
-	HashArray2D(const E &defaultValue, const H1 &hashFunc1 = H1(), const H2 &hashFunc2 = H2()) :
+	//! Creates a 2D-hash array and sets the default value to \p defaultValue.
+	explicit HashArray2D(const E &defaultValue, const H1 &hashFunc1 = H1(), const H2 &hashFunc2 = H2()) :
 		Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >(
 			256,
 			HashFuncTuple<I1,I2,H1,H2>(hashFunc1,hashFunc2)),
@@ -93,14 +93,14 @@ public:
 
 	~HashArray2D() { }
 
-	//! Returns a const reference to entry (\a i,\a j).
+	//! Returns a const reference to entry (\p i,\p j).
 	const E &operator()(const I1 &i, const I2 &j) const {
 		HashElement<Tuple2<I1,I2>,E> *pElement =
 			Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::lookup(Tuple2<I1,I2>(i,j));
 		return (pElement) ? pElement->info() : m_defaultValue;
 	}
 
-	//! Returns a reference to entry (\a i,\a j).
+	//! Returns a reference to entry (\p i,\p j).
 	E &operator()(const I1 &i, const I2 &j) {
 		Tuple2<I1,I2> t(i,j);
 		HashElement<Tuple2<I1,I2>,E> *pElement =
@@ -110,12 +110,12 @@ public:
 		return pElement->info();
 	}
 
-	//! Returns true iff entry (\a i,\a j) is defined.
+	//! Returns true iff entry (\p i,\p j) is defined.
 	bool isDefined(const I1 &i, const I2 &j) const {
 		return Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::member(Tuple2<I1,I2>(i,j));
 	}
 
-	//! Undefines the entry at index (\a i,\a j).
+	//! Undefines the entry at index (\p i,\p j).
 	void undefine(const I1 &i, const I2 &j) {
 		return Hashing<Tuple2<I1,I2>,E,HashFuncTuple<I1,I2,H1,H2> >::del(Tuple2<I1,I2>(i,j));
 	}

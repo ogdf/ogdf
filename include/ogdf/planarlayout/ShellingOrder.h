@@ -50,7 +50,7 @@ public:
 		m_leftAdj    = m_rightAdj    = nullptr;
 	}
 
-	//! Creates a shelling order set for \a l nodes.
+	//! Creates a shelling order set for \p l nodes.
 	/**
 	 * @param l is the number of nodes in the set.
 	 * @param adjL points to the left-node of the set.
@@ -83,7 +83,7 @@ public:
 		return m_leftAdj;
 	}
 
-	//! Returns the adjacency entry pointing from \a <I>z<SUB>p</SUB></I> to the right node (or 0 if no such node).
+	//! Returns the adjacency entry pointing from <I>z<SUB>p</SUB></I> to the right node (or 0 if no such node).
 	adjEntry rightAdj() const {
 		return m_rightAdj;
 	}
@@ -98,22 +98,22 @@ public:
 		return m_rightAdj != nullptr;
 	}
 
-	//! Sets the left-node to \a cl.
+	//! Sets the left-node to \p cl.
 	void left(node cl) {
 		m_leftVertex = cl;
 	}
 
-	//! Sets the right-node to \a cr.
+	//! Sets the right-node to \p cr.
 	void right (node cr) {
 		m_rightVertex = cr;
 	}
 
-	//! Sets the adjacency entry pointing to the left-node to \a adjL.
+	//! Sets the adjacency entry pointing to the left-node to \p adjL.
 	void leftAdj(adjEntry adjL) {
 		m_leftAdj = adjL;
 	}
 
-	//! Sets the adjacency entry pointing to the right-node to \a adjR.
+	//! Sets the adjacency entry pointing to the right-node to \p adjR.
 	void rightAdj(adjEntry adjR) {
 		m_rightAdj = adjR;
 	}
@@ -213,14 +213,14 @@ public:
 
 
 	/**
-	 * \brief Initializes the shelling order for graph \a G with a given node partition.
+	 * \brief Initializes the shelling order for graph \p G with a given node partition.
 	 * @param G is the associated graph.
 	 * @param partition is the node partition.
 	 */
 	void init(const Graph &G, const List<ShellingOrderSet> &partition);
 
 	/**
-	 * \brief Initializes the shelling order for graph \a G with a given node partition and transforms it into a leftmost order.
+	 * \brief Initializes the shelling order for graph \p G with a given node partition and transforms it into a leftmost order.
 	 * @param G is the associated graph.
 	 * @param partition is the node partition.
 	 */

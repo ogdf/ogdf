@@ -42,14 +42,11 @@
 namespace ogdf {
 
 
-//---------------------------------------------------------
-// ExpansionGraph
-// represents expansion graph of each biconnected component
-// of a given digraph, i.e., each vertex v with in- and outdegree
-// greater than 1 is expanded into two vertices x and y connected
-// by an edge x->y such that all incoming edges are moved from
-// v to x and all outgoing edges from v to y
-//---------------------------------------------------------
+//! Represents expansion graph of each biconnected component
+//! of a given digraph, i.e., each vertex v with in- and outdegree
+//! greater than 1 is expanded into two vertices x and y connected
+//! by an edge x->y such that all incoming edges are moved from
+//! v to x and all outgoing edges from v to y
 class OGDF_EXPORT ExpansionGraph : public Graph
 {
 public:

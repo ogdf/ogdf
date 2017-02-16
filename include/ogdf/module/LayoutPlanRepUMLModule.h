@@ -52,18 +52,18 @@ public:
 
 	virtual ~LayoutPlanRepUMLModule() { }
 
-	/** \brief Computes a planar layout of \a PG in \a drawing.
+	/** \brief Computes a planar layout of \p PG in \p drawing.
 	 *
 	 * Must be overridden by derived classes.
 	 * @param PG is the input planarized representation which may be modified.
 	 * @param adjExternal is an adjacenty entry on the external face.
-	 * @param drawing is the computed layout of \a PG.
+	 * @param drawing is the computed layout of \p PG.
 	 */
 	virtual void call(PlanRepUML &PG,
 		adjEntry adjExternal,
 		Layout &drawing) = 0;
 
-	//! Computes a planar layout of \a PG in \a drawing.
+	//! Computes a planar layout of \p PG in \p drawing.
 	void operator()(PlanRepUML &PG, adjEntry adjExternal, Layout &drawing) {
 		call(PG,adjExternal,drawing);
 	}
@@ -82,7 +82,7 @@ public:
 	//! Returns the minimal allowed distance between edges and vertices.
 	virtual double separation() const = 0;
 
-	//! Sets the minimal allowed distance between edges and vertices to \a sep.
+	//! Sets the minimal allowed distance between edges and vertices to \p sep.
 	virtual void separation(double sep) = 0;
 
 protected:
@@ -93,7 +93,7 @@ protected:
 	DPoint m_boundingBox;
 
 	/**
-	 * \brief Computes and sets the bounding box variable \a m_boundingBox.
+	 * \brief Computes and sets the bounding box variable #m_boundingBox.
 	 * An algorithm can call setBoundingBox() for setting the
 	 * m_boundingBox variable if no faster implementation is available.
 	 */

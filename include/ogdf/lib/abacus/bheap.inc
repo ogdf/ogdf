@@ -179,7 +179,7 @@ void AbaBHeap<Type, Key>::check() const
 	for(int i = 0; i < n_/2; i++)
 		if (keys_[i] > keys_[leftSon(i)] || (rightSon(i) < n_ && heap_[i] > heap_[rightSon(i)])) {
 			Logger::ifout() << "AbaBHeap:check(): " << i << " violates heap\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcBHeap);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::BHeap);
 		}
 }
 

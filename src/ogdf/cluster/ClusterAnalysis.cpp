@@ -36,9 +36,6 @@
 #include <ogdf/cluster/ClusterArray.h>
 #include <ogdf/basic/Queue.h>
 #include <ogdf/basic/DisjointSets.h>
-#include <ogdf/basic/exceptions.h>
-
-#include <ogdf/basic/Logger.h>
 
 // Comment on use of ClusterArrays:
 // We would like to save some space by only reserving one slot
@@ -98,10 +95,10 @@ ClusterAnalysis::~ClusterAnalysis()
 
 void ClusterAnalysis::cleanUp()
 {
-	if (m_oanum != nullptr) delete m_oanum;
-	if (m_ianum != nullptr) delete m_ianum;
-	if (m_bags != nullptr) delete m_bags;
-	if (m_lcaEdges != nullptr) delete m_lcaEdges;
+	delete m_oanum;
+	delete m_ianum;
+	delete m_bags;
+	delete m_lcaEdges;
 	if (m_storeoalists) delete m_oalists;
 	for(node v : m_C->constGraph().nodes)
 	{
@@ -135,7 +132,7 @@ int ClusterAnalysis::bagIndex(node v, cluster c) {return (*m_bagindex[v])[c];}
 int ClusterAnalysis::indyBagIndex(node v) {
 	if (!m_indyBags)
 	{
-		OGDF_THROW_PARAM(AlgorithmFailureException,afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException,AlgorithmFailureCode::IllegalParameter);
 	}
 	return m_indyBagNumber[v];
 
@@ -144,7 +141,7 @@ int ClusterAnalysis::indyBagIndex(node v) {
 cluster ClusterAnalysis::indyBagRoot(int i) {
 	if (!m_indyBags)
 	{
-		OGDF_THROW_PARAM(AlgorithmFailureException,afcIllegalParameter);
+		OGDF_THROW_PARAM(AlgorithmFailureException,AlgorithmFailureCode::IllegalParameter);
 	}
 	return m_indyBagRoots[i];
 }
@@ -162,9 +159,9 @@ void ClusterAnalysis::init() {
 	m_ialevel.init(G, IsNotActiveBound);
 	m_oalevel.init(G, IsNotActiveBound);
 
-	if (m_oanum != nullptr) delete m_oanum;
-	if (m_ianum != nullptr) delete m_ianum;
-	if (m_bags != nullptr) delete m_bags;
+	delete m_oanum;
+	delete m_ianum;
+	delete m_bags;
 	m_oanum = new ClusterArray<int>(*m_C, 0);
 	m_ianum = new ClusterArray<int>(*m_C, 0);
 	m_bags = new ClusterArray<int>(*m_C, 0);
@@ -176,10 +173,9 @@ void ClusterAnalysis::init() {
 	//therefore we just compute the values here
 	//top-down run through the cluster tree, depth 0 for the root
 	ClusterArray<int> cdepth(*m_C);
-	cluster c = m_C->rootCluster();
-	cdepth[c] = 0;
+	cdepth[m_C->rootCluster()] = 0;
 	Queue<cluster> cq;
-	for (cluster ci : c->children) {
+	for (cluster ci : m_C->rootCluster()->children) {
 		cq.append(ci);
 	}
 
@@ -302,8 +298,8 @@ void ClusterAnalysis::init() {
 #endif
 }
 
-// Runs through a list of vertices (starting with \a the one nodeIT points to)
-// which is expected to be a full list of cluster vertices in \a c. Depending on
+// Runs through a list of vertices (starting with the one \p nodeIT points to)
+// which is expected to be a full list of cluster vertices in \p c. Depending on
 // outer activity and bag index number of the vertices, independent bags
 // are detected and a corresponding index is assigned accordingly for each vertex.
 void ClusterAnalysis::partitionCluster(ListConstIterator<node> & nodeIt, cluster c,
@@ -368,7 +364,7 @@ void ClusterAnalysis::partitionCluster(ListConstIterator<node> & nodeIt, cluster
 			m_numIndyBags++;
 		}
 
-		delete (*its);
+		delete *its;
 		++its;
 	}
 }//partitionCluster
@@ -385,7 +381,7 @@ void ClusterAnalysis::computeIndyBags() {
 	const Graph &G = m_C->constGraph();
 
 	// Store the root cluster of each indyBag
-	if (m_indyBagRoots) delete m_indyBagRoots;
+	delete m_indyBagRoots;
 	// Intermediate storage during computation, maximum of #vertices possible
 #ifdef OGDF_DEBUG
 	Array<cluster> bagRoots(0,G.numberOfNodes(),nullptr);
@@ -517,7 +513,7 @@ void ClusterAnalysis::computeIndyBags() {
 	while (its.valid())
 	{
 		storedBags++;
-		delete (*its);
+		delete *its;
 		++its;
 	}
 	Logger::slout() << m_numIndyBags<< " independent bags detected, "<<storedBags<<" stored\n";
@@ -589,8 +585,24 @@ void ClusterAnalysis::computeBags() {
 	OGDF_ASSERT(!ccleafs.empty());
 
 	while (!ccleafs.empty()){
-		cluster c = ccleafs.popFrontRet();
-		Skiplist<int* > cbags; //Stores bag indexes ocurring in c
+		const cluster c = ccleafs.popFrontRet();
+		Skiplist<int*> cbags; //Stores bag indexes ocurring in c
+
+		auto storeResult = [&] {
+			for (node v : clists[cind[c]]) {
+				int theid = uf.find(setid[v]);
+				(*m_bagindex[v])[c] = theid;
+				if (!cbags.isElement(&theid)) {
+					cbags.add(new int(theid));
+				}
+				// push into list of outer active vertices
+				if (m_storeoalists && isOuterActive(v, c)) {
+					(*m_oalists)[c].pushBack(v);
+				}
+			}
+			(*m_bags)[c] = cbags.size(); // store number of bags of c
+		};
+
 		if (m_storeoalists){
 			//no outeractive vertices detected so far
 			(*m_oalists)[c].clear();
@@ -613,22 +625,8 @@ void ClusterAnalysis::computeBags() {
 			}
 			// Now all chunks in the leaf cluster are computed
 			// update for parent is done in the else case
-			// We store the result:
-			for (node v : clists[cind[c]])
-			{
-				int theid = uf.find(setid[v]);
-				(*m_bagindex[v])[c] = theid;
-				if (!cbags.isElement(&theid))
-				{
-					cbags.add(new int(theid));
-				}
-				//push into list of outer active vertices
-				if (m_storeoalists){
-					if (isOuterActive(v, c)) ((*m_oalists)[c]).pushBack(v);
-				}
-			}
-			//getNumberOfSets would be all sets, we only need the ones in the cluster
-			(*m_bags)[c] = cbags.size();
+
+			storeResult();
 		}
 		else {
 			// ?We construct the vertex list by concatenating
@@ -664,21 +662,7 @@ void ClusterAnalysis::computeBags() {
 				}
 			}
 
-			// We store the result:
-			for (node v : clists[cind[c]])
-			{
-				int theid = uf.find(setid[v]);
-				(*m_bagindex[v])[c] = theid;
-				if (!cbags.isElement(&theid))
-				{
-					cbags.add(new int(theid));
-				}
-				//push into list of outer active vertices
-				if (m_storeoalists){
-					if (isOuterActive(v, c)) ((*m_oalists)[c]).pushBack(v);
-				}
-			}
-			(*m_bags)[c] = cbags.size(); //store number of bags of c
+			storeResult();
 		}
 		// Now we update the status of the parent cluster and,
 		// in case all its children are processed, add it to
@@ -692,7 +676,7 @@ void ClusterAnalysis::computeBags() {
 	}//while cluster
 
 	// clean up
-	delete [] clists;
+	delete[] clists;
 }
 
 

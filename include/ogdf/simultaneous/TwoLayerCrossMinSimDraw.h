@@ -48,7 +48,7 @@ public:
 	virtual TwoLayerCrossMinSimDraw *clone() const = 0;
 
 	/**
-	* \brief Performs crossing minimization for level \a L.
+	* \brief Performs crossing minimization for level \p L.
 	*
 	* @param L is the level in the hierarchy on which nodes are permuted; the
 	*        neighbor level (fixed level) is determined by the hierarchy.

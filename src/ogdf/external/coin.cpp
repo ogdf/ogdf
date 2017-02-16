@@ -33,11 +33,10 @@
 #include <ogdf/basic/basic.h>
 
 #include <ogdf/external/coin.h>
-#include <coin/CoinPackedVector.hpp>
-#include <coin/OsiCuts.hpp>
 #include <ogdf/basic/Logger.h>
 
 #ifdef COIN_OSI_CPX
+	#include <coin/OsiCuts.hpp>
 	#include <coin/OsiCpxSolverInterface.hpp> // CPLEX
 	#include <cplex.h>
 	#include <ogdf/basic/tuples.h>
@@ -72,7 +71,7 @@ namespace ogdf {
 		OsiCuts* cuts = new OsiCuts();
 		CoinCallbacks::CutReturn ret = ccc->cutCallback(objVal, solution, cuts);
 
-		if(ret == CoinCallbacks::CR_AddCuts) {
+		if(ret == CoinCallbacks::CutReturn::AddCuts) {
 			for(int i = cuts->sizeRowCuts(); i-- > 0;) {
 				const OsiRowCut& c = cuts->rowCut(i);
 				const CoinPackedVector& vec = c.row();
@@ -97,8 +96,8 @@ namespace ogdf {
 		}
 
 		*useraction_p =
-			( ret == CoinCallbacks::CR_Error) ? CPX_CALLBACK_FAIL :
-				( ret == CoinCallbacks::CR_AddCuts ) ? CPX_CALLBACK_SET : CPX_CALLBACK_DEFAULT;
+			( ret == CoinCallbacks::CutReturn::Error) ? CPX_CALLBACK_FAIL :
+				( ret == CoinCallbacks::CutReturn::AddCuts ) ? CPX_CALLBACK_SET : CPX_CALLBACK_DEFAULT;
 		delete cuts;
 		delete[] solution;
 //		cout << "Leaving CPX Callback\n" << flush;
@@ -111,13 +110,13 @@ namespace ogdf {
 		CoinCallbacks::HeuristicReturn ret = ccc->heuristicCallback(*objval_p, x);
 		*checkfeas_p = 0; // no check. callback has to ensure that new solution (if any) is integer feasible
 		switch(ret) {
-			case CoinCallbacks::HR_Error:
+			case CoinCallbacks::HeuristicReturn::Error:
 				*useraction_p = CPX_CALLBACK_FAIL;
 			break;
-			case CoinCallbacks::HR_Ignore:
+			case CoinCallbacks::HeuristicReturn::Ignore:
 				*useraction_p = CPX_CALLBACK_DEFAULT;
 			break;
-			case CoinCallbacks::HR_Update:
+			case CoinCallbacks::HeuristicReturn::Update:
 				*useraction_p = CPX_CALLBACK_SET;
 			break;
 			default:
@@ -131,14 +130,14 @@ namespace ogdf {
 		CoinCallbacks* ccc = static_cast<CoinCallbacks*>(cbhandle);
 		CoinCallbacks::IncumbentReturn ret = ccc->incumbentCallback(objval, x);
 		switch(ret) {
-			case CoinCallbacks::IR_Error:
+			case CoinCallbacks::IncumbentReturn::Error:
 				*useraction_p = CPX_CALLBACK_FAIL;
 			break;
-			case CoinCallbacks::IR_Update:
+			case CoinCallbacks::IncumbentReturn::Update:
 				*isfeas_p = 1;
 				*useraction_p = CPX_CALLBACK_SET;
 			break;
-			case CoinCallbacks::IR_Ignore:
+			case CoinCallbacks::IncumbentReturn::Ignore:
 				*isfeas_p = 0;
 				*useraction_p = CPX_CALLBACK_SET;
 			break;
@@ -186,7 +185,7 @@ namespace ogdf {
 		#else // COIN_OSI_CLP
 			OsiClpSolverInterface *ret = new OsiClpSolverInterface(); // Coin-OR LP
 		#endif
-		logging(ret, !Logger::globalStatisticMode() && Logger::globalLogLevel() <= Logger::LL_MINOR);
+		logging(ret, !Logger::globalStatisticMode() && Logger::globalLogLevel() <= Logger::Level::Minor);
 		return ret;
 	}
 
@@ -199,14 +198,14 @@ namespace ogdf {
 		OsiCpxSolverInterface* x = dynamic_cast<OsiCpxSolverInterface*>(posi);
 		CPXENVptr envptr = x->getEnvironmentPtr();
 		x->getLpPtr(); // free cached data
-		if(callbackTypes & CT_Cut)
+		if(callbackTypes & CallbackType::Cut)
 			CPXsetcutcallbackfunc(envptr, &CPX_CutCallback, this);
-		if(callbackTypes & CT_Heuristic)
+		if(callbackTypes & CallbackType::Heuristic)
 			CPXsetheuristiccallbackfunc(envptr, &CPX_HeuristicCallback, this);
-		if(callbackTypes & CT_Incumbent)
+		if(callbackTypes & CallbackType::Incumbent)
 			CPXsetincumbentcallbackfunc(envptr, &CPX_IncumbentCallback, this);
 #if 0
-		if(callbackTypes & CT_Branch)
+		if(callbackTypes & CallbackType::Branch)
 			CPXsetbranchcallbackfunc(envptr, &CPX_BranchCallback, this);
 #endif
 

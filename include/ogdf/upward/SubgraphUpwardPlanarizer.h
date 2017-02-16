@@ -96,21 +96,20 @@ private:
 
 	//! traversion the BTree and merge the component to a common graph
 	void dfsMerge(const GraphCopy &GC,
-			 BCTree &BC,
-			 NodeArray<GraphCopy> &biComps,
-			 NodeArray<UpwardPlanRep> &uprs,
-			 UpwardPlanRep &UPR_res,
-			 node parent_BC,
-			 node current_BC,
-			 NodeArray<bool> &nodesDone);
+	              BCTree &BC,
+	              NodeArray<GraphCopy> &biComps,
+	              NodeArray<UpwardPlanRep> &uprs,
+	              UpwardPlanRep &UPR_res,
+	              node parent_BC,
+	              node current_BC,
+	              NodeArray<bool> &nodesDone);
 
 
 	//! add UPR to UPR_res.
 	void merge(const GraphCopy &GC,
-		 UpwardPlanRep &UPR_res,
-		 const GraphCopy &block,
-		 UpwardPlanRep &UPR
-		 );
+	           UpwardPlanRep &UPR_res,
+	           const GraphCopy &block,
+	           UpwardPlanRep &UPR);
 };
 
 }

@@ -43,33 +43,33 @@ namespace ogdf {
 class SimpleCCPackerModule : public LayoutModule
 {
 public:
-    // !Constructor for the CCPacker
-    SimpleCCPackerModule(LayoutModule* pSubLayoutModule = nullptr) : m_pSubLayoutModule(pSubLayoutModule)
-    {
-        m_leftMargin = 10.0;
-        m_rightMargin = 10.0;
-        m_bottomMargin = 10.0;
-        m_topMargin = 10.0;
-    }
+	// !Constructor for the CCPacker
+	explicit SimpleCCPackerModule(LayoutModule* pSubLayoutModule = nullptr) : m_pSubLayoutModule(pSubLayoutModule)
+{
+	m_leftMargin = 10.0;
+	m_rightMargin = 10.0;
+	m_bottomMargin = 10.0;
+	m_topMargin = 10.0;
+}
 
-    void setMargins(double left, double top, double right, double bottom)
-    {
-        m_leftMargin = left;
-        m_rightMargin = right;
-        m_bottomMargin = bottom;
-        m_topMargin = top;
-    }
+	void setMargins(double left, double top, double right, double bottom)
+	{
+		m_leftMargin = left;
+		m_rightMargin = right;
+		m_bottomMargin = bottom;
+		m_topMargin = top;
+	}
 
-    virtual void call(GraphAttributes& GA) override;
+	virtual void call(GraphAttributes& GA) override;
 
 protected:
-    double m_leftMargin;
-    double m_rightMargin;
-    double m_bottomMargin;
-    double m_topMargin;
+	double m_leftMargin;
+	double m_rightMargin;
+	double m_bottomMargin;
+	double m_topMargin;
 
-    void computeBoundingBox(const GraphAttributes& graphAttributes, DPoint& min_coord, DPoint& max_coord );
-    LayoutModule* m_pSubLayoutModule;
+	void computeBoundingBox(const GraphAttributes& graphAttributes, DPoint& min_coord, DPoint& max_coord);
+	LayoutModule* m_pSubLayoutModule;
 };
 
 } // end of namespace ogdf

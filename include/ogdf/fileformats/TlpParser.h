@@ -51,7 +51,7 @@ namespace tlp {
 
 class Parser {
 private:
-	typedef std::vector<Token>::const_iterator Iterator;
+	using Iterator = std::vector<Token>::const_iterator;
 	std::map<int, node> m_idNode;
 	std::map<int, edge> m_idEdge;
 
@@ -81,7 +81,7 @@ private:
 	inline void tokenError(const std::string &str, bool got = true);
 
 public:
-	Parser(std::istream &is);
+	explicit Parser(std::istream &is);
 
 	bool read(Graph &G) {
 		return readGraph(G, nullptr, nullptr);

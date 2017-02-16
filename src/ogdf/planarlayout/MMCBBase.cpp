@@ -32,13 +32,7 @@
 #include <ogdf/planarlayout/MMCBDoubleGrid.h>
 #include <ogdf/planarlayout/MMCBLocalStretch.h>
 
-
 namespace ogdf {
-
-
-//------------------------------------------------------------------
-//                           MMCBBase
-//------------------------------------------------------------------
 
 void MMCBBase::insertBend(GridLayout &gl, edge e, node v, int x, int y)
 {
@@ -56,11 +50,9 @@ void MMCBBase::copyOn(int old_a[] , int new_a[])
 		new_a[i] = old_a[i];
 }
 
-enum {
-	CHANGE_NONE = 0,
-	CHANGE_X = 1,
-	CHANGE_Y = 2,
-};
+const static int CHANGE_NONE = 0;
+const static int CHANGE_X = 1;
+const static int CHANGE_Y = 2;
 
 int MMCBBase::workOn(GridLayout &gl, node v)
 {
@@ -358,10 +350,6 @@ static void doForEachCoordinate(const PlanRep &PG, GridLayout &gl, std::function
 	}
 }
 
-//------------------------------------------------------------------
-//                         MMCBDoubleGrid
-//------------------------------------------------------------------
-
 void MMCBDoubleGrid::doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L)
 {
 	doForEachCoordinate(PG, gl, [](int &x, int &y) {
@@ -380,10 +368,6 @@ static void fillSignum(Array<int> &array)
 		array[i] = Math::sgn(i);
 	}
 }
-
-//------------------------------------------------------------------
-//                        MMCBLocalStretch
-//------------------------------------------------------------------
 
 void MMCBLocalStretch::doCall(const PlanRep &PG, GridLayout &gl, const List<node> &L)
 {

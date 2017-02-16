@@ -40,7 +40,8 @@ namespace ogdf {
 
 class GF2Solver {
 
-	enum { chunkSize = 13, chunkSize2 = 9 };
+	static constexpr int chunkSize = 13;
+	static constexpr int chunkSize2 = 9;
 
 	struct Chunk {
 		int m_x[chunkSize];
@@ -319,7 +320,7 @@ public:
 	};
 
 
-	GF2Solver(GF2Solver::Matrix &Mx)
+	explicit GF2Solver(GF2Solver::Matrix &Mx)
 	  : m_freelist(nullptr)
 	  , m_freelist2(nullptr)
 	  , m_matrix(Mx)

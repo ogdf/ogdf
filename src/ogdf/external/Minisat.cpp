@@ -109,15 +109,15 @@ bool Formula::solve( Model &ReturnModel )
 
 bool Formula::solve( Model &ReturnModel, double& timeLimit )
 {
-    SolverStatus st;
-    bool solv = Solver::solve(timeLimit, st);
+	SolverStatus st;
+	bool solv = Solver::solve(timeLimit, st);
 
-    if ( solv )
-       ReturnModel.setModel ( *this );
+	if (solv)
+		ReturnModel.setModel (*this);
 
-    ReturnModel.solverStatus = st;
+	ReturnModel.solverStatus = st;
 
-    return solv;
+	return solv;
 }
 
 
@@ -155,8 +155,8 @@ void Formula::free()
 	for (auto i = 0; i < Solver::clauses.size(); ++i) {
 		Solver::removeClause(Solver::clauses[i]);
 	}
-	for (auto &clause : m_Clauses) {
-		delete clause;
+	for (auto &cl : m_Clauses) {
+		delete cl;
 	}
 	Solver::clauses.shrink(Solver::clauses.size());
 	m_Clauses.clear();
@@ -165,15 +165,13 @@ void Formula::free()
 bool Formula::readDimacs(const char *filename)
 {
 	std::ifstream is(filename);
-	if (!is.is_open()) return false;
-	return readDimacs(is);
+	return is.is_open() && readDimacs(is);
 }
 
 bool Formula::readDimacs(const string &filename)
 {
 	std::ifstream is(filename);
-	if (!is.is_open()) return false;
-	return readDimacs(is);
+	return is.is_open() && readDimacs(is);
 }
 
 bool Formula::readDimacs(std::istream &in)
@@ -218,11 +216,11 @@ bool Formula::readDimacs(std::istream &in)
 		}
 	}
 	if (!literals.empty()) {
-		ogdf::Logger::slout(ogdf::Logger::LL_MINOR) << "Last clause is not terminated by 0 marker, but we accept it nonetheless" << endl;
+		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Last clause is not terminated by 0 marker, but we accept it nonetheless" << endl;
 		addClause(literals);
 	}
 	if(clauseCount != numClauses) {
-		ogdf::Logger::slout(ogdf::Logger::LL_MINOR) << "Number of clauses differs from file header" << endl;
+		ogdf::Logger::slout(ogdf::Logger::Level::Minor) << "Number of clauses differs from file header" << endl;
 	}
 
 	return true;
@@ -231,33 +229,31 @@ bool Formula::readDimacs(std::istream &in)
 bool Formula::writeDimacs(const char *filename)
 {
 	std::ofstream os(filename);
-	if (!os.is_open()) return false;
-	return writeDimacs(os);
+	return os.is_open() && writeDimacs(os);
 }
 
 bool Formula::writeDimacs(const string &filename)
 {
 	std::ofstream os(filename);
-	if (!os.is_open()) return false;
-	return writeDimacs(os);
+	return os.is_open() && writeDimacs(os);
 }
 
 bool Formula::writeDimacs(std::ostream &f)
 {
 	f << "p cnf " << getVariableCount() << " " << getClauseCount() << std::endl;
-	for (auto &clause : m_Clauses) {
-		for (int j = 0; j < clause->m_ps.size(); ++j) {
+	for (auto &cl : m_Clauses) {
+		for (int j = 0; j < cl->m_ps.size(); ++j) {
 #if defined(OGDF_DEBUG)
 			std::cout
 			  << "Sign : "
-			  << Internal::sign(clause->m_ps[j])
+			  << Internal::sign(cl->m_ps[j])
 			  << "Var : "
-			  << Internal::var(clause->m_ps[j]) + 1
+			  << Internal::var(cl->m_ps[j]) + 1
 			  << std::endl;
 #endif
 			f << " "
-			  << Clause::convertLitSign(clause->m_ps[j])
-			  << Internal::var(clause->m_ps[j]) + 1;
+			  << Clause::convertLitSign(cl->m_ps[j])
+			  << Internal::var(cl->m_ps[j]) + 1;
 		}
 		f << " 0" << std::endl;
 	}

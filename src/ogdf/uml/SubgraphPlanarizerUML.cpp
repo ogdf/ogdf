@@ -32,11 +32,8 @@
 #include <ogdf/uml/SubgraphPlanarizerUML.h>
 #include <ogdf/uml/VariableEmbeddingInserterUML.h>
 #include <ogdf/planarity/MaximalPlanarSubgraphSimple.h>
-#include <ogdf/basic/extended_graph_alg.h>
-#include <ogdf/internal/planarity/CrossingStructure.h>
+#include <ogdf/planarity/embedder/CrossingStructure.h>
 
-#include <ogdf/basic/Thread.h>
-#include <mutex>
 #include <atomic>
 
 using std::atomic;
@@ -44,12 +41,11 @@ using std::mutex;
 using std::lock_guard;
 using std::minstd_rand;
 
+namespace ogdf {
 
-namespace ogdf
-{
+using embedder::CrossingStructure;
 
 class SubgraphPlanarizerUML::ThreadMaster {
-
 	CrossingStructure *m_pCS;
 	int                m_bestCR;
 
@@ -312,7 +308,7 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 	// gather generalization edges, which should all be in the planar subgraph
 	List<edge> preferedEdges;
 	for(edge e : pr.edges) {
-		if (pr.typeOf(e) == Graph::generalization)
+		if (pr.typeOf(e) == Graph::EdgeType::generalization)
 			preferedEdges.pushBack(e);
 	}
 
@@ -396,7 +392,7 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 
 			if(stopTime >= 0 && System::realTime() >= stopTime) {
 				if(foundSolution == false)
-					return retTimeoutInfeasible; // not able to find a solution...
+					return ReturnType::TimeoutInfeasible; // not able to find a solution...
 				break;
 			}
 		}
@@ -407,7 +403,7 @@ Module::ReturnType SubgraphPlanarizerUML::doCall(
 		OGDF_ASSERT(isPlanar(pr) == true);
 	}
 
-	return retFeasible;
+	return ReturnType::Feasible;
 }
 
 

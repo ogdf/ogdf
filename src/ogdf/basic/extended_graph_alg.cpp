@@ -34,21 +34,10 @@
 #include <ogdf/basic/extended_graph_alg.h>
 #include <ogdf/cluster/ClusterArray.h>
 
-#include <cfloat>
-
 
 namespace ogdf {
 
-//maybe shift this to basic.h, used in cplanaredgeinserter, toos
-class OrigNodePair
-{
-public:
-	node m_src, m_tgt;
-};
-
-//---------------------------------------------------------
 // Methods for clustered graphs. By S.Leipert and K. Klein
-//---------------------------------------------------------
 
 // Recursive call for testing C-connectivity.
 bool cConnectTest(ClusterGraph &C,cluster &act,NodeArray<bool> &mark,Graph &G)
@@ -173,7 +162,7 @@ void recursiveConnect(
 	ClusterArray<cluster>& oCcluster, //cluster in orig for CG cluster
 	NodeArray<node>& origNode,
 	Graph& G,
-	List<OrigNodePair>& newEdges)
+	List<NodePair>& newEdges)
 {
 	//for non-cc clusters, add edges to make them connected
 	//recursively search for connection nodes (simple version:
@@ -238,10 +227,10 @@ void recursiveConnect(
 		node v2 = vOrig[eNew->target()];
 
 		//save original information
-		OrigNodePair np;
+		NodePair np;
 		//already collapsed node?
-		np.m_src = (origCluster[v1] ? getRepresentationNode(origCluster[v1]) : origNode[v1]);
-		np.m_tgt = (origCluster[v2] ? getRepresentationNode(origCluster[v2]) : origNode[v2]);
+		np.source = (origCluster[v1] ? getRepresentationNode(origCluster[v1]) : origNode[v1]);
+		np.target = (origCluster[v2] ? getRepresentationNode(origCluster[v2]) : origNode[v2]);
 		newEdges.pushBack(np);
 
 	}//if cluster was not connected
@@ -283,7 +272,6 @@ static void dfsMakeCConnected(node v,
 				!badNode[fullGraphCopy[w]]);
 			bool kPlanar = false;
 
-			//***************************************
 			//irgendeine Reihenfolge, um nicht jede moegliche
 			//Verbindung auf Planaritaet zu testen??
 			if (source)
@@ -292,14 +280,13 @@ static void dfsMakeCConnected(node v,
 					fullGraphCopy[source],
 					fullGraphCopy[vMinDeg]);
 
-				if (isPlanar(fullGraph) == true)
+				if (isPlanar(fullGraph))
 					kPlanar =  true;
 
 				fullGraph.delEdge(eP); //only keep if finally chosen
 
 			}//if source
 
-			//****************************************
 			better = ((better || kPlanar) && !keepsPlanarity) || (kPlanar && better);
 
 			if (better)// && (w->degree() < vMinDeg->degree()))
@@ -361,7 +348,7 @@ void recursiveCConnect(
 						//holds corresponding nodes in fullCopy for v of G
 	NodeArray<node>& copyNode,
 	NodeArray<bool>& badNode, //should not we used for connecting
-	List<OrigNodePair>& newEdges)
+	List<NodePair>& newEdges)
 {
 	//for non-cc clusters, add edges to make them connected
 	//recursively search for connection nodes (simple version:
@@ -378,7 +365,6 @@ void recursiveCConnect(
 		it = succ;
 	}
 
-	//******************************************
 	//We construct a graph copy of the current cluster subgraph
 	OGDF_ASSERT(act->cCount() == 0);
 	Graph cG;
@@ -435,10 +421,10 @@ void recursiveCConnect(
 		node v2 = vOrig[eNew->target()];
 
 		//save original information
-		OrigNodePair np;
+		NodePair np;
 		//already collapsed node?
-		np.m_src = (origCluster[v1] ? getRepresentationNode(origCluster[v1]) : origNode[v1]);
-		np.m_tgt = (origCluster[v2] ? getRepresentationNode(origCluster[v2]) : origNode[v2]);
+		np.source = (origCluster[v1] ? getRepresentationNode(origCluster[v1]) : origNode[v1]);
+		np.target = (origCluster[v2] ? getRepresentationNode(origCluster[v2]) : origNode[v2]);
 		newEdges.pushBack(np);
 
 	}//if cluster was not connected
@@ -451,16 +437,6 @@ void recursiveCConnect(
 	origCluster[vNew] = cOrig;
 }//recursiveCConnect
 
-//*****************************************************************
-/*
-
-
-
-*/
-
-
-//*****************************************************************
-
 
 //second version for advanced connectivity
 void cconnect(
@@ -469,7 +445,7 @@ void cconnect(
 	ClusterArray<cluster>& oCcluster, //cluster in orig for CG cluster
 	NodeArray<node>& origNode,
 	Graph& G,
-	List<OrigNodePair>& newEdges)
+	List<NodePair>& newEdges)
 {
 	//We work with a copy of the graph that is checked for planarity
 	//for inserted cconnectivity edges
@@ -540,7 +516,7 @@ void makeCConnected(ClusterGraph& C, Graph& GG, List<edge>& addedEdges, bool sim
 	for(cluster c : C.clusters)
 		oCcluster[copyCluster[c]] = c;
 
-	List<OrigNodePair> newEdges; //edges to be inserted
+	List<NodePair> newEdges; //edges to be inserted
 	//recursively check clusters for connectivity and collapse
 	//save cluster info on collapsed nodes
 
@@ -548,11 +524,11 @@ void makeCConnected(ClusterGraph& C, Graph& GG, List<edge>& addedEdges, bool sim
 		cconnect(cCopy, origCluster, oCcluster, origNode, G, newEdges);
 	else
 		recursiveConnect(cCopy, cCopy.rootCluster(), origCluster, oCcluster,
-					 origNode, G, newEdges);
+		                 origNode, G, newEdges);
 
-	for (const OrigNodePair &np : newEdges)
+	for (const NodePair &np : newEdges)
 	{
-		edge nedge = GG.newEdge(np.m_src, np.m_tgt);
+		edge nedge = GG.newEdge(np.source, np.target);
 #if 0
 		cout << "Adding edge: " << np.m_src << "-" << np.m_tgt << "\n" << flush;
 #endif

@@ -41,17 +41,9 @@
 
 namespace ogdf {
 
-//---------------------------------------------------------
-// H a s h e d S t r i n g
-//---------------------------------------------------------
+using HashedString = HashElement<string,int>;
 
-typedef HashElement<string,int> HashedString;
-
-//---------------------------------------------------------
-// X m l A t t r i b u t e O b j e c t
-//---------------------------------------------------------
-/** This struct represents an attribute associated to a tag.
- */
+//! This struct represents an attribute associated to a tag.
 struct OGDF_EXPORT XmlAttributeObject {
 
 	/** Contains the name of the attribute, i.e.
@@ -108,11 +100,7 @@ struct OGDF_EXPORT XmlAttributeObject {
 
 }; // struct XmlAttributeObject
 
-//---------------------------------------------------------
-// X m l T a g O b j e c t
-//---------------------------------------------------------
-/** This struct represents a node in the XML parse tree.
- */
+//! This struct represents a node in the XML parse tree.
 struct OGDF_EXPORT XmlTagObject {
 
 	/** The identifier of the tag,
@@ -166,9 +154,9 @@ struct OGDF_EXPORT XmlTagObject {
 
 	/** integer value that stores the line number
 	 *  of the tag in the parsed xml document */
-	 int m_line;
+	int m_line;
 
-	public:
+public:
 
 	/**Checks if currentNode is leaf in the parse tree.
 	 * Returns true if list of sons is empty.
@@ -273,20 +261,16 @@ struct OGDF_EXPORT XmlTagObject {
 }; // struct XmlTagObject
 
 
-//---------------------------------------------------------
-// X m l P a r s e r
-//---------------------------------------------------------
 /** This class parses the XML input file and builds up a
  *  parse tree with linked elements XMLTagObject and
  *  XMLAttributeObject. The class XmlScanner is used to
  *  get the token for the parse process.
  */
- class OGDF_EXPORT XmlParser {
+class OGDF_EXPORT XmlParser {
 
-	 friend ostream &operator<<(ostream&, const XmlParser &);
+	friend OGDF_EXPORT ostream &operator<<(ostream&, const XmlParser &);
 
- private:
-
+private:
 	/** Pointer to the root element of the parse tree. */
 	XmlTagObject *m_pRootTag;
 
@@ -313,13 +297,11 @@ struct OGDF_EXPORT XmlTagObject {
 
 	bool m_parseError;
 
-
 public:
-
 	/** Constructor.
 	 *  Inside the constructor the scanner is generated.
 	 */
-	XmlParser(istream &is);
+	explicit XmlParser(istream &is);
 
 	/** Destructor; destroys the parse tree. */
 	~XmlParser();
@@ -398,7 +380,6 @@ public:
 	void printHashTable(ostream &os);
 
 private:
-
 	/** Destroys the parse tree appended to root. */
 	void destroyParseTree(XmlTagObject *root);
 
@@ -445,8 +426,5 @@ private:
 		int inputFileLine = -1);
 
 }; // class XmlParser
-
-/** Output operator for XmlParser. */
-ostream &operator<<(ostream &os, const XmlParser &parser);
 
 } // end namespace ogdf

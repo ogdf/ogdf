@@ -34,17 +34,9 @@
 #include <ogdf/decomposition/StaticSPQRTree.h>
 #include <ogdf/decomposition/PlanarSPQRTree.h>
 
-
 namespace ogdf {
 
-
 template<class A, class B> class Tuple2;
-
-
-//---------------------------------------------------------
-// StaticPlanarSPQRTree
-// extension of class StaticSPQRTree for support of embedded graphs
-//---------------------------------------------------------
 
 //! SPQR-trees of planar graphs.
 /**
@@ -60,34 +52,32 @@ template<class A, class B> class Tuple2;
  * around its poles, and swap(v,e_1,e_2), which exchanges the
  * positions of the edges e_1 and e_2 in the skeleton of a P-node v.
  */
-
 class OGDF_EXPORT StaticPlanarSPQRTree : public StaticSPQRTree, public PlanarSPQRTree
 {
 public:
-
 	// constructors
 
-	//! Creates an SPQR tree \a T for planar graph \a G rooted at the first edge of \a G.
+	//! Creates an SPQR tree \a T for planar graph \p G rooted at the first edge of \p G.
 	/**
-	 * If \a isEmbedded is set to true, \a G must represent a combinatorial
+	 * If \p isEmbedded is set to true, \p G must represent a combinatorial
 	 * embedding, i.e., the counter-clockwise order of the adjacency entries
 	 * around each vertex defines an embedding.
-	 * \pre \a G is planar and biconnected and contains at least 3 nodes,
-	 *      or \a G has exactly 2 nodes and at least 3  edges.
+	 * \pre \p G is planar and biconnected and contains at least 3 nodes,
+	 *      or \p G has exactly 2 nodes and at least 3  edges.
 	 */
-	StaticPlanarSPQRTree(const Graph &G, bool isEmbedded = false) :
+	explicit StaticPlanarSPQRTree(const Graph &G, bool isEmbedded = false) :
 		StaticSPQRTree(G)
 	{
 		PlanarSPQRTree::init(isEmbedded);
 	}
 
-	//! Creates an SPQR tree \a T for planar graph \a G rooted at edge \a e.
+	//! Creates an SPQR tree \a T for planar graph \p G rooted at edge \p e.
 	/**
-	 * If \a isEmbedded is set to true, \a G must represent a combinatorial
+	 * If \p isEmbedded is set to true, \p G must represent a combinatorial
 	 * embedding, i.e., the counter-clockwise order of the adjacency entries
 	 * around each vertex defines an embedding.
-	 * \pre \a e is an edge in \a G, and \a G is planar and biconnected and
-	 * contains at least 3 nodes, or \a G has exactly 2 nodes and at least 3
+	 * \pre \p e is an edge in \p G, and \p G is planar and biconnected and
+	 * contains at least 3 nodes, or \p G has exactly 2 nodes and at least 3
 	 * edges.
 	 */
 	StaticPlanarSPQRTree(const Graph &G, edge e, bool isEmbedded = false) :

@@ -30,7 +30,6 @@
  */
 
 #include <ogdf/layered/CoffmanGrahamRanking.h>
-#include <memory>
 #include <ogdf/layered/DfsAcyclicSubgraph.h>
 #include <ogdf/basic/GraphCopy.h>
 
@@ -181,71 +180,71 @@ void CoffmanGrahamRanking::insert (node v, List<node> &ready, const NodeArray<in
 
 void CoffmanGrahamRanking::dfs(node v)
 {
-	visited->push(v);
-	mark[v] |= 1;
+	ArrayBuffer<node> stack;
+	stack.push(v);
 
-	for(adjEntry adj : v->adjEntries) {
-		if ((adj->theEdge()->source()) == v) {
-			node w = adj->twinNode();
-			if (mark[w] & 2) {
-				mark[w] |= 4;
-			}
+	while (!stack.empty()) {
+		node w = stack.popRet();
+		m_visited->push(w);
+		m_mark[w] |= 1; // Mark w as visited.
 
-			if ((mark[w] & 1) == 0) {
-				dfs(w);
+		// Set 4-bit for every successor u of w with set 2-bit.
+		for (adjEntry adj : w->adjEntries) {
+			if (adj->isSource()) {
+				node u = adj->twinNode();
+				if (m_mark[u] & 2) {
+					m_mark[u] |= 4;
+				}
+
+				// If u is unvisited, push it to the stack.
+				if ((m_mark[u] & 1) == 0) {
+					stack.push(u);
+				}
 			}
 		}
 	}
 }
 
 
-void CoffmanGrahamRanking::removeTransitiveEdges (Graph& G)
+void CoffmanGrahamRanking::removeTransitiveEdges(Graph& G)
 {
 	List<edge> vout;
 
-	mark.init(G,0);
+	m_mark.init(G,0);
 	StackPure<node> visited;
 
-	for(node v : G.nodes) {
+	for (node v : G.nodes) {
 		v->outEdges<List<edge>>(vout);
-		/* alternative: iterate over all adjELements (only out Edges)
-		 *
-		 * for(adjEntry adj : v->adjEntries) {
-		 * if ((adj->theEdge()->source()) == v) ...
-		 *
-		 * In this solution a List is generated, because we iterate three times
-		 * over this subset of adjElements
-		 */
+
+		// Mark all successors of v with the 2-bit.
 		for (edge e : vout) {
-			node w = e-> target();
-			mark[w] = 2;
+			node w = e->target();
+			m_mark[w] = 2;
 		}
 
-		// forall out edges
+		// Call dfs for all unvisited successors of v.
 		for (edge e : vout) {
-			node w = e-> target();
-
-#if 0
-			if (w != 1) {
-#else
-			if ((mark[w] & 1) == 0) {
-#endif
+			node w = e->target();
+			if ((m_mark[w] & 1) == 0) {
 				dfs(w);
 			}
 		}
 
-		// forall out edges
+		// Delete all edges from v to nodes with set 4-bit.
 		for (edge e : vout) {
-			node u = e->target();
-			if (mark[u] & 4) {
+			node w = e->target();
+			if (m_mark[w] & 4) {
 				G.delEdge(e);
 			}
 		}
-		while (!visited.empty())
-			mark[visited.pop()] = 0;
+
+		// Reset mark-bits for all visited nodes.
+		while (!visited.empty()) {
+			m_mark[visited.pop()] = 0;
+		}
 	}
 
-	mark.init();
+	m_mark.init();
 }
 
 } //namespace ogdf

@@ -38,13 +38,13 @@
 #include <ogdf/basic/SList.h>
 #include <ogdf/basic/simple_graph_alg.h>
 #include <ogdf/basic/STNumbering.h>
-#include <ogdf/internal/planarity/PlanarPQTree.h>
-#include <ogdf/internal/planarity/PlanarLeafKey.h>
+#include <ogdf/planarity/booth_lueker/PlanarPQTree.h>
 #include <ogdf/planarity/BoothLueker.h>
-#include <ogdf/internal/planarity/EmbedPQTree.h>
-
+#include <ogdf/planarity/booth_lueker/EmbedPQTree.h>
 
 namespace ogdf{
+
+using namespace booth_lueker;
 
 bool BoothLueker::isPlanarDestructive(Graph &G)
 {
@@ -143,7 +143,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 			int n =
 #endif
 			computeSTNumbering(G, numbering);
-			OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(G, numbering, n));
+			OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(G, numbering, n));
 
 			EdgeArray<edge> backTableEdges(G,nullptr);
 			for(edge e : G.edges)
@@ -193,7 +193,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 				int n =
 #endif
 				computeSTNumbering(C, numbering);
-				OGDF_ASSERT_IF(dlConsistencyChecks, isSTNumbering(C, numbering, n));
+				OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, isSTNumbering(C, numbering, n));
 
 				if (embed)
 					planar = doEmbed(C,numbering,backTableEdges,tableEdges);
@@ -234,9 +234,7 @@ bool BoothLueker::preparation(Graph &G, bool embed)
 		G.newEdge(v,v);
 	}
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, planar == false
-	                                 || embed == false
-	                                 || G.representsCombEmbedding());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, !planar || !embed || G.representsCombEmbedding());
 
 	return planar;
 }
@@ -348,7 +346,7 @@ bool BoothLueker::doEmbed(
 		}
 	}
 
-	EmbedPQTree T;
+	booth_lueker::EmbedPQTree T;
 
 	T.Initialize(inLeaves[table[1]]);
 	int i;
@@ -519,8 +517,6 @@ void BoothLueker::entireEmbed(
 			entireEmbed(G,entireEmbedding,adjMarker,mark,w);
 	}
 }
-
-
 
 void BoothLueker::prepareParallelEdges(Graph &G)
 {

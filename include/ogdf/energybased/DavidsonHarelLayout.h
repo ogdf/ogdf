@@ -1,6 +1,6 @@
 /** \file
  * \brief Declares class DavidsonHarelLayout, which is a front-end
- * for the fDavidsonHarel class.
+ * for the DavidsonHarel class.
  *
  * \author Rene Weiskircher
  *
@@ -33,11 +33,8 @@
 #pragma once
 
 #include <ogdf/module/LayoutModule.h>
-#include <ogdf/energybased/DavidsonHarel.h>
-
 
 namespace ogdf {
-
 
 //! The Davidson-Harel layout algorithm.
 /**
@@ -53,17 +50,17 @@ class OGDF_EXPORT DavidsonHarelLayout : public LayoutModule
 {
 public:
 	//! Easy way to set fixed costs
-	enum SettingsParameter {spStandard, spRepulse, spPlanar}; //tuning of costs
+	enum class SettingsParameter {Standard, Repulse, Planar}; //tuning of costs
 
 	//! Easy way to set temperature and iterations
-	enum SpeedParameter {sppFast, sppMedium, sppHQ};
+	enum class SpeedParameter {Fast, Medium, HQ};
 
 	//! Creates an instance of Davidson-Harel layout.
 	DavidsonHarelLayout();
 
 	~DavidsonHarelLayout(){}
 
-	//! Calls the layout algorithm for graph attributes \a GA.
+	//! Calls the layout algorithm for graph attributes \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 	//! Fixes the cost values to special configurations.
@@ -83,7 +80,7 @@ public:
 	 */
 	void setPreferredEdgeLengthMultiplier(double multi) {m_multiplier = multi;}
 
-	//! Sets the preferred edge length to \a elen
+	//! Sets the preferred edge length to \p elen
 	void setPreferredEdgeLength(double elen) {m_prefEdgeLength = elen;}
 
 	//! Sets the weight for the energy function \a Repulsion.
@@ -110,13 +107,13 @@ public:
 	//! Returns the weight for the energy function \a Planarity.
 	double getPlanarityWeight() const {return m_planarityWeight;}
 
-	//! Sets the starting temperature to \a t.
+	//! Sets the starting temperature to \p t.
 	void setStartTemperature(int t);
 
 	//! Returns the starting temperature.
 	int getStartTemperature() const {return m_startTemperature;}
 
-	//! Sets the number of iterations per temperature step to \a steps.
+	//! Sets the number of iterations per temperature step to \p steps.
 	void setNumberOfIterations(int steps);
 
 	//! Returns the number of iterations per temperature step.

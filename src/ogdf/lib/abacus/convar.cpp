@@ -65,20 +65,20 @@ void ConVar::print(ostream &out) const
 unsigned ConVar::hashKey() const
 {
 	Logger::ifout() << "ConVar::hashKey() must be defined in derived class.\n";
-	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
+	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Convar);
 }
 
 
 const char *ConVar::name() const
 {
 	Logger::ifout() << "ConVar::name() must be defined in derived class.\n";
-	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
+	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Convar);
 }
 
 
 bool ConVar::equal(const ConVar * /* cv */) const
 {
 	Logger::ifout() << "ConVar::equal() must be defined in derived class.\n";
-	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcConvar);
+	OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Convar);
 }
 } //namespace abacus

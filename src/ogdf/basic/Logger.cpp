@@ -36,13 +36,13 @@ namespace ogdf {
 
 // initializers
 #ifdef OGDF_DEBUG
-Logger::Level Logger::m_globalloglevel = Logger::LL_DEFAULT;
-Logger::Level Logger::m_minimumloglevel = Logger::LL_MINOR;
-Logger::Level Logger::m_globallibraryloglevel = Logger::LL_DEFAULT;
+Logger::Level Logger::m_globalloglevel = Logger::Level::Default;
+Logger::Level Logger::m_minimumloglevel = Logger::Level::Minor;
+Logger::Level Logger::m_globallibraryloglevel = Logger::Level::Default;
 #else // RELEASE
-Logger::Level Logger::m_globalloglevel = Logger::LL_ALARM; // forbid anything except alarms and forced writes -> logging is off
-Logger::Level Logger::m_globallibraryloglevel = Logger::LL_ALARM;
-Logger::Level Logger::m_minimumloglevel = Logger::LL_MEDIUM;
+Logger::Level Logger::m_globalloglevel = Logger::Level::Alarm; // forbid anything except alarms and forced writes -> logging is off
+Logger::Level Logger::m_globallibraryloglevel = Logger::Level::Alarm;
+Logger::Level Logger::m_minimumloglevel = Logger::Level::Medium;
 #endif
 
 std::ostream* Logger::world = &std::cout;

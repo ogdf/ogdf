@@ -61,7 +61,7 @@ class OGDF_EXPORT CliqueFinder {
 
 public:
 	//constructor
-	CliqueFinder(const Graph &G);
+	explicit CliqueFinder(const Graph &G);
 	~CliqueFinder();
 
 	//Calls
@@ -84,7 +84,7 @@ public:
 
 	//! the minimum degree of the nodes within the clique/subgraph
 	void setMinSize(int i) { m_minDegree = max(2, i-1);}
-	enum postProcess {ppNone, ppSimple};
+	enum class postProcess {None, Simple};
 
 	//! Sets the abstract measure of density needed for subgraphs to be detected.
 	/**
@@ -105,7 +105,6 @@ protected:
 	 */
 	void doCall(int minDegree = 2);
 
-	//------------------------------------------------------
 	//sets the results of doCall depending on call signature
 
 	//clique nodes get numbers from >=0, all other nodes -1

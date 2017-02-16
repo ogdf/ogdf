@@ -9,7 +9,7 @@
 /CMakeCache.txt
 /CMakeFiles
 /CMakeScripts
-/include/ogdf/internal/config_autogen.h
+/include/ogdf/basic/internal/config_autogen.h
 /cmake_install.cmake
 /libCOIN.a
 /libOGDF.a

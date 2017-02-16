@@ -33,9 +33,6 @@
 #include <ogdf/basic/AdjEntryArray.h>
 #include <ogdf/fileformats/GmlParser.h>
 #include <ogdf/basic/simple_graph_alg.h>
-#include <ogdf/basic/GraphObserver.h>
-#include <ogdf/basic/Stack.h>
-#include <ogdf/internal/basic/list_templates.h>
 
 using std::mutex;
 
@@ -97,7 +94,7 @@ Graph &Graph::operator=(const Graph &G)
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 
 	return *this;
 }
@@ -174,7 +171,7 @@ void Graph::copy(const Graph &G)
 	EdgeArray<edge> mapEdge;
 	copy(G,mapNode,mapEdge);
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -249,7 +246,7 @@ void Graph::constructInitByCC(
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -310,8 +307,7 @@ void Graph::constructInitByNodes(
 	for(node vG : nodeList) {
 		node v = mapNode[vG];
 
-		internal::GraphList<AdjElement> &adjEdges = vG->adjEntries;
-		for (AdjElement *adjG = adjEdges.head(); adjG; adjG = adjG->succ()) {
+		for (adjEntry adjG: vG->adjEntries) {
 			edge e = adjG->m_edge;
 			edge eC = mapEdge[e];
 
@@ -337,11 +333,10 @@ void Graph::constructInitByNodes(
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
-//------------------
 //mainly a copy of the above code, remerge this again
 void Graph::constructInitByActiveNodes(
 	const List<node> &nodeList,
@@ -421,11 +416,8 @@ void Graph::constructInitByActiveNodes(
 	m_edgeArrayTableSize = nextPower2(MIN_EDGE_TABLE_SIZE,m_edgeIdCount);
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }//constructinitbyactivenodes
-
-//------------------
-
 
 
 node Graph::newNode()
@@ -612,7 +604,7 @@ edge Graph::newEdge(adjEntry adjStart, adjEntry adjEnd, Direction dir)
 	AdjElement *adjTgt = new AdjElement(w);
 	AdjElement *adjSrc = new AdjElement(v);
 
-	if(dir == ogdf::after) {
+	if(dir == Direction::after) {
 		w->adjEntries.insertAfter(adjTgt,adjEnd);
 		v->adjEntries.insertAfter(adjSrc,adjStart);
 	} else {
@@ -921,7 +913,7 @@ void Graph::clear()
 	m_nodeArrayTableSize = MIN_NODE_TABLE_SIZE;
 	reinitArrays();
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -943,7 +935,7 @@ void Graph::reverseAllEdges()
 	for (edge e = edges.head(); e; e = e->succ())
 		reverseEdge(e);
 
-	OGDF_ASSERT_IF(dlConsistencyChecks, consistencyCheck());
+	OGDF_ASSERT_IF(DebugLevel::ConsistencyChecks, consistencyCheck());
 }
 
 
@@ -1238,10 +1230,7 @@ bool Graph::consistencyCheck() const
 			return false;
 	}
 
-	if (m != edges.size())
-		return false;
-
-	return true;
+	return m == edges.size();
 }
 
 
@@ -1250,7 +1239,7 @@ void Graph::resetEdgeIdCount(int maxId)
 	m_edgeIdCount = maxId+1;
 
 #ifdef OGDF_DEBUG
-	if (ogdf::debugLevel >= int(ogdf::dlConsistencyChecks)) {
+	if (debugLevelIsAtLeast(DebugLevel::ConsistencyChecks)) {
 		for(edge e : edges)
 		{
 			// if there is an edge with higer index than maxId, we cannot
@@ -1279,7 +1268,7 @@ node Graph::splitNode(adjEntry adjStartLeft, adjEntry adjStartRight)
 		moveAdj(adj,w);
 	}
 
-	newEdge(adjStartLeft, adjStartRight, ogdf::before);
+	newEdge(adjStartLeft, adjStartRight, Direction::before);
 
 	return w;
 }
@@ -1301,9 +1290,9 @@ node Graph::contract(edge e)
 
 		edge eAdj = adj->theEdge();
 		if (w == eAdj->source()) {
-			moveSource(eAdj, adjSrc, before);
+			moveSource(eAdj, adjSrc, Direction::before);
 		} else {
-			moveTarget(eAdj, adjSrc, before);
+			moveTarget(eAdj, adjSrc, Direction::before);
 		}
 	}
 
@@ -1463,6 +1452,15 @@ void Graph::HiddenEdgeSet::restore()
 int Graph::HiddenEdgeSet::size()
 {
 	return m_edges.size();
+}
+
+ostream &operator<<(ostream &os, const Graph::EdgeType &et) {
+	switch (et) {
+		case Graph::EdgeType::association:    os << "association";    break;
+		case Graph::EdgeType::generalization: os << "generalization"; break;
+		case Graph::EdgeType::dependency:     os << "dependency";     break;
+	}
+	return os;
 }
 
 } // end namespace ogdf

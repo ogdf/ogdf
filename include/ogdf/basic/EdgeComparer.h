@@ -62,7 +62,7 @@ public:
 	EdgeComparer(const GraphAttributes& AG, const PlanRep& PR) : m_AG(&AG), m_PR(&PR) { }
 
 	//! compare the edges directly in AG
-	EdgeComparer(const GraphAttributes &AG) : m_AG(&AG), m_PR(nullptr) {}
+	explicit EdgeComparer(const GraphAttributes &AG) : m_AG(&AG), m_PR(nullptr) {}
 
 	int compare(const adjEntry &e1, const adjEntry &e2) const override;
 

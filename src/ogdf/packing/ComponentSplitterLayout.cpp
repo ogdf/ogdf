@@ -32,8 +32,6 @@
 
 #include <ogdf/packing/ComponentSplitterLayout.h>
 #include <ogdf/packing/TileToRowsCCPacker.h>
-#include <ogdf/basic/geometry.h>
-#include <ogdf/basic/Math.h>
 #include <ogdf/graphalg/ConvexHull.h>
 //used for splitting
 #include <ogdf/basic/simple_graph_alg.h>
@@ -119,7 +117,6 @@ void ComponentSplitterLayout::call(GraphAttributes &GA)
 }
 
 
-//-----------------
 // geometry helpers
 
 /* copied from multilevelgraph
@@ -226,11 +223,11 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 		double best_height = 0.0;
 
 		// find best rotation by using every face as rectangle border once.
-		for (DPolygon::iterator j = hull.begin(); j != hull.end(); ++j) {
-			DPolygon::iterator k = hull.cyclicSucc(j);
+		for (DPolygon::iterator iter = hull.begin(); iter != hull.end(); ++iter) {
+			DPolygon::iterator k = hull.cyclicSucc(iter);
 
 			double dist = 0.0;
-			DPoint norm = CH.calcNormal(*k, *j);
+			DPoint norm = CH.calcNormal(*k, *iter);
 			for (const DPoint &z : hull) {
 				double d = CH.leftOfLine(norm, z, *k);
 				if (d > dist) {
@@ -261,7 +258,7 @@ void ComponentSplitterLayout::reassembleDrawings(GraphAttributes& GA, const Arra
 				best_height = dist;
 				best_width = width;
 				best_area = area;
-				best_normal = CH.calcNormal(*k, *j);
+				best_normal = CH.calcNormal(*k, *iter);
 			}
 		}
 

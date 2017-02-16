@@ -120,7 +120,7 @@ public:
 	//! Creates an instance of subgraph planarizer with default settings.
 	SubgraphPlanarizerUML();
 
-	//! Creates an instance of subgraph planarizer with the same settings as \a planarizer.
+	//! Creates an instance of subgraph planarizer with the same settings as \p planarizer.
 	SubgraphPlanarizerUML(const SubgraphPlanarizerUML &planarizer);
 
 	//! Returns a new instance of subgraph planarizer with the same option settings.
@@ -143,19 +143,19 @@ public:
 	//! Returns the number of permutations.
 	int permutations() { return m_permutations; }
 
-	//! Sets the number of permutations to \a p.
+	//! Sets the number of permutations to \p p.
 	void permutations(int p) { m_permutations = p; }
 
 	//! Returns the current setting of options <i>setTimeout</i>.
 	bool setTimeout() { return m_setTimeout; }
 
-	//! Sets the option <i>setTimeout</i> to \a b.
+	//! Sets the option <i>setTimeout</i> to \p b.
 	void setTimeout(bool b) { m_setTimeout = b; }
 
 	//! Returns the maximal number of used threads.
 	unsigned int maxThreads() const { return m_maxThreads; }
 
-	//! Sets the maximal number of used threads to \a n.
+	//! Sets the maximal number of used threads to \p n.
 	void maxThreads(unsigned int n) {
 #ifndef OGDF_MEMORY_POOL_NTS
 		m_maxThreads = n;

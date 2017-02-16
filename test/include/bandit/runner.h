@@ -35,6 +35,11 @@ namespace bandit {
         return std::unique_ptr<detail::listener>(new dots_reporter(*formatter, colorizer));
       }
 
+      if(name == "crash")
+      {
+        return std::unique_ptr<detail::listener>(new crash_reporter(*formatter, colorizer));
+      }
+
       return std::unique_ptr<detail::listener>(new info_reporter(*formatter, colorizer));
     }
 

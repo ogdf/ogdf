@@ -43,7 +43,7 @@ namespace ogdf {
 /**
  * @ingroup containers
  *
- * In contrast to Stack<E>, instances of \a StackPure<E> do not store the
+ * In contrast to Stack<E>, instances of StackPure<E> do not store the
  * number of elements contained in the stack.
  *
  * @tparam E is the element type.
@@ -67,21 +67,21 @@ public:
 	//! Constructs an empty stack.
 	StackPure() { m_head = nullptr; }
 
-	//! Constructs a stack and pushes the elements in \a initList on it (last element will be on top).
+	//! Constructs a stack and pushes the elements in \p initList on it (last element will be on top).
 	StackPure(std::initializer_list<E> initList) : m_head(nullptr) {
 		for (const E &x : initList)
 			push(x);
 	}
 
-	//! Constructs a stack that is a copy of \a S.
+	//! Constructs a stack that is a copy of \p S.
 	StackPure(const StackPure<E> &S)  {
 		m_head = nullptr;
 		copy(S);
 	}
 
-	//! Constructs a stack containing the elements of \a S (move semantics).
+	//! Constructs a stack containing the elements of \p S (move semantics).
 	/**
-	 * Stack \a S is empty afterwards.
+	 * Stack \p S is empty afterwards.
 	 */
 	StackPure(StackPure<E> &&S) : m_head(S.m_head) {
 		S.m_head = nullptr;
@@ -114,7 +114,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Stack \a S is empty afterwards.
+	 * Stack \p S is empty afterwards.
 	 */
 	StackPure<E> &operator=(StackPure<E> &&S) {
 		clear();
@@ -123,14 +123,14 @@ public:
 		return *this;
 	}
 
-	//! Adds element \a x as top-most element to the stack.
+	//! Adds element \p x as top-most element to the stack.
 	void push(const E &x) {
 		m_head = new Element(m_head,x);
 	}
 
 	//! Adds a new element at as top-most element to the stack.
 	/**
-	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
 	*/
 	template<class ... Args>
 	void emplace(Args && ... args) {
@@ -180,11 +180,11 @@ private:
 }; // class StackPure
 
 
-//! The parameterized class \a Stack<E> implements list-based stacks
+//! The parameterized class Stack<E> implements list-based stacks
 /**
  * @ingroup containers
  *
- * In contrast to StackPure<E>, instances of \a Stack<E> store the
+ * In contrast to StackPure<E>, instances of Stack<E> store the
  * number of elements contained in the stack.
  *
  * @tparam E is the element type.
@@ -194,22 +194,22 @@ template<class E> class Stack : private StackPure<E>
 	size_t m_count; //! The number of elements in the list.
 
 public:
-	typedef size_t size_type;
+	using size_type = size_t;
 
 	//! Constructs an empty stack.
 	Stack() { m_count = 0; }
 
-	//! Constructs a stack and pushes the elements in \a initList on it (last element will be on top).
+	//! Constructs a stack and pushes the elements in \p initList on it (last element will be on top).
 	Stack(std::initializer_list<E> initList) : StackPure<E>(initList) {
 		m_count = initList.size();
 	}
 
-	//! Constructs a stack that is a copy of \a S.
+	//! Constructs a stack that is a copy of \p S.
 	Stack(const Stack<E> &S) : StackPure<E>(S) { m_count = S.m_count; }
 
-	//! Constructs a stack containing the elements of \a S (move semantics).
+	//! Constructs a stack containing the elements of \p S (move semantics).
 	/**
-	 * Stack \a S is empty afterwards.
+	 * Stack \p S is empty afterwards.
 	 */
 	Stack(Stack<E> &&S) : StackPure<E>(std::move(S)), m_count(S.m_count) {
 		S.m_count = 0;
@@ -243,7 +243,7 @@ public:
 
 	//! Assignment operator (move semantics).
 	/**
-	 * Stack \a S is empty afterwards.
+	 * Stack \p S is empty afterwards.
 	 */
 	Stack<E> &operator=(Stack<E> &&S) {
 		StackPure<E>::operator=(std::move(S));
@@ -252,7 +252,7 @@ public:
 		return *this;
 	}
 
-	//! Adds element \a x as top-most element to the stack.
+	//! Adds element \p x as top-most element to the stack.
 	void push(const E &x) {
 		++m_count;
 		StackPure<E>::push(x);
@@ -260,7 +260,7 @@ public:
 
 	//! Adds a new element at as top-most element to the stack.
 	/**
-	* The element is constructed in-place with exactly the same arguments \a args as supplied to the function.
+	* The element is constructed in-place with exactly the same arguments \p args as supplied to the function.
 	*/
 	template<class ... Args>
 	void emplace(Args && ... args) {

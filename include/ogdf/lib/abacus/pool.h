@@ -105,7 +105,7 @@ public:
 	void removeConVar(PoolSlot<BaseType, CoType> *slot) {
 		if (softDeleteConVar(slot)) {
 			Logger::ifout() << "removeConVar(): removing constraint from slot failed\n";
-			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::afcPool);
+			OGDF_THROW_PARAM(AlgorithmFailureException, ogdf::AlgorithmFailureCode::Pool);
 		}
 	}
 

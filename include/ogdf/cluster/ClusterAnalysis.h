@@ -61,7 +61,7 @@ public:
 	//! Constructor. Performs all analyses and in case indyBags is
 	//! set to true, also computes a partition into independently
 	//! solvable subproblems for cluster planarization (if applicable).
-	ClusterAnalysis(const ClusterGraph &C, bool indyBags = false);
+	explicit ClusterAnalysis(const ClusterGraph &C, bool indyBags = false);
 	//! Additionally allows to forbid storing lists of outer active vertices.
 	ClusterAnalysis(const ClusterGraph &C, bool oalists, bool indyBags);
 	~ClusterAnalysis();
@@ -92,7 +92,7 @@ public:
 	}
 
 	// Qualitative
-	//! Returns outer activity status for vertex \a v wrt cluster \a c.
+	//! Returns outer activity status for vertex \p v wrt cluster \p c.
 	/**
 	*  @param c is the cluster for which vertex v's activity status is stored.
 	*  @param v is the vertex for which the activity status is returned.
@@ -103,14 +103,14 @@ public:
 	//! Returns list of edges for cluster c with lca c.
 	List<edge>& lcaEdges(cluster c);
 
-	//! Returns list of outeractive vertices for cluster \a c. The result
+	//! Returns list of outeractive vertices for cluster \p c. The result
 	//! is only valid if lists are stored, i.e. m_storeoalists is true.
 	List<node>& oaNodes(cluster c);
 
-	//! Returns bag index number for a vertex \a v in cluster \a c.
+	//! Returns bag index number for a vertex \p v in cluster \p c.
 	int bagIndex(node v, cluster c);
 
-	//! Returns number of bags for cluster \a c.
+	//! Returns number of bags for cluster \p c.
 	int numberOfBags(cluster c);
 
 #if 0
@@ -118,7 +118,7 @@ public:
 	void reInit(const ClusterGraph &C);
 #endif
 
-	//! Returns independent bag index number for a vertex \a v.
+	//! Returns independent bag index number for a vertex \p v.
 	//! @pre indyBags parameter in constructor was set to true, i.e. indyBags were computed.
 	int indyBagIndex(node v);
 
@@ -141,8 +141,8 @@ protected:
 	void computeIndyBags();
 
 private:
-	//! Runs through a list of vertices (starting with \a the one nodeIT points to)
-	//! which is expected to be a full list of cluster vertices in \a c. Depending on
+	//! Runs through a list of vertices (starting with the one \p nodeIT points to)
+	//! which is expected to be a full list of cluster vertices in \p c. Depending on
 	//! outer activity and bag index number of the vertices, independent bags
 	//! are detected and a corresponding index is assigned accordingly for each vertex.
 	//! If omitChildBags is set to true, already processed vertices are skipped.

@@ -36,12 +36,19 @@
 #include <ogdf/basic/simple_graph_alg.h>
 #endif
 
-#include <cmath>
-
 namespace ogdf {
 
+static node findRoot(const Graph &G) {
+	for (node v : G.nodes) {
+		if (v->indeg() == 0) {
+			return v;
+		}
+	}
+	return nullptr;
+}
+
 LCA::LCA(const Graph &G, node root)
-	: m_root(root)
+	: m_root(root == nullptr ? findRoot(G) : root)
 	, m_n(G.numberOfNodes())
 	, m_len(2 * m_n - 1)
 	, m_rangeJ(std::ilogb(m_len))
@@ -50,9 +57,9 @@ LCA::LCA(const Graph &G, node root)
 	, m_level(m_len)
 	, m_table(m_len * m_rangeJ)
 {
-	OGDF_ASSERT(root->graphOf() == &G);
-
-	if(m_n > 1) {
+	if (m_n > 1) {
+		OGDF_ASSERT(m_root != nullptr);
+		OGDF_ASSERT(m_root->graphOf() == &G);
 		dfs(G, m_root);
 		buildTable();
 	}

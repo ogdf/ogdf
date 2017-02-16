@@ -55,7 +55,7 @@ public:
 	//! Creates an instance of multi-edge approx inserter with default option settings.
 	MultiEdgeApproxInserter();
 
-	//! Creates an instance of multi-edge approx inserter with the same settings as \a inserter.
+	//! Creates an instance of multi-edge approx inserter with the same settings as \p inserter.
 	MultiEdgeApproxInserter(const MultiEdgeApproxInserter &inserter);
 
 	//! Destructor.
@@ -87,10 +87,10 @@ public:
 		return m_rrOptionVar;
 	}
 
-	//! Sets the option <i>percentMostCrossed</i> to \a percent.
+	//! Sets the option <i>percentMostCrossed</i> to \p percent.
 	/**
 	 * This option determines the portion of most crossed edges used if the remove-reinsert
-	 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
+	 * method is set to RemoveReinsertType::MostCrossed. This portion is number of edges * percentMostCrossed() / 100.
 	 */
 	void percentMostCrossedFix(double percent) {
 		m_percentMostCrossedFix = percent;
@@ -101,10 +101,10 @@ public:
 		return m_percentMostCrossedFix;
 	}
 
-	//! Sets the option <i>percentMostCrossedVar</i> to \a percent.
+	//! Sets the option <i>percentMostCrossedVar</i> to \p percent.
 	/**
 	 * This option determines the portion of most crossed edges used if the remove-reinsert
-	 * method (variable embedding) is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
+	 * method (variable embedding) is set to RemoveReinsertType::MostCrossed. This portion is number of edges * percentMostCrossed() / 100.
 	 */
 	void percentMostCrossedVar(double percent) {
 		m_percentMostCrossedVar = percent;
@@ -127,10 +127,13 @@ public:
 	int sumFEInsertionCosts() const { return m_sumFEInsertionCosts; }
 
 private:
-	enum PathDir { pdLeft, pdRight, pdNone };
+	enum class PathDir { Left, Right, None };
 	static PathDir s_oppDir[3];
 
+	//! Maintains a block in the graph
 	class Block;
+
+	//! Encodes an embedding preference
 	class EmbeddingPreference;
 
 	struct VertexBlock {

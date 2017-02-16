@@ -39,12 +39,12 @@ namespace ogdf {
 
 MMSubgraphPlanarizer::MMSubgraphPlanarizer()
 {
-	PlanarSubgraphFast *s = new PlanarSubgraphFast();
+	auto *s = new PlanarSubgraphFast<int>();
 	s->runs(100);
 	m_subgraph.reset(s);
 
 	MMFixedEmbeddingInserter *pInserter = new MMFixedEmbeddingInserter();
-	pInserter->removeReinsert(MMEdgeInsertionModule::rrAll);
+	pInserter->removeReinsert(RemoveReinsertType::All);
 	m_inserter.reset(pInserter);
 
 	m_permutations = 1;
@@ -79,7 +79,7 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 		retValue = m_subgraph->call(PG, deletedEdges);
 	}
 
-	if(isSolution(retValue) == false)
+	if(!isSolution(retValue))
 		return retValue;
 
 	for(ListIterator<edge> it = deletedEdges.begin(); it.valid(); ++it)
@@ -112,7 +112,7 @@ Module::ReturnType MMSubgraphPlanarizer::doCall(PlanRepExpansion &PG,
 
 	crossingNumber = bestcr;
 
-	return retFeasible;
+	return ReturnType::Feasible;
 }
 
 

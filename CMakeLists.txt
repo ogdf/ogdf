@@ -29,7 +29,20 @@ include(examples)
 
 include(doc)
 
+add_custom_target(build-all DEPENDS OGDF tests examples)
+
 # create autogen header
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/ogdf/internal")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/ogdf/basic/internal")
 target_include_directories(OGDF BEFORE PUBLIC ${CMAKE_BINARY_DIR}/include)
-configure_file("${module_dir}/config_autogen.h.in" "${CMAKE_BINARY_DIR}/include/ogdf/internal/config_autogen.h")
+configure_file("${module_dir}/config_autogen.h.in" "${CMAKE_BINARY_DIR}/include/ogdf/basic/internal/config_autogen.h")
+
+# target documentation
+message(STATUS "The default target builds OGDF (and dependencies like COIN).")
+message(STATUS "")
+message(STATUS "Other important targets:")
+if(DOXYGEN_FOUND)
+  message(STATUS "         doc: build doxygen documentation (in-source)")
+endif()
+message(STATUS "       tests: build tests")
+message(STATUS "    examples: build examples")
+message(STATUS "   build-all: build OGDF, tests, examples")

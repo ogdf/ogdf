@@ -89,7 +89,7 @@ private:
 	//! attributes of the graph to be visualized
 	const GraphAttributes &m_attr;
 
-	//! attributes of the cluster graph (\a nullptr if no cluster graph)
+	//! attributes of the cluster graph (\c nullptr if no cluster graph)
 	const ClusterGraphAttributes *m_clsAttr;
 
 	//! SVG configuration

@@ -56,7 +56,7 @@ bool LPSolver::checkFeasibility(
 	const Array<char>   &equationSense, // 'E' ==   'G' >=   'L' <=
 	const Array<double> &lowerBound,    // lower bound of x[i]
 	const Array<double> &upperBound,    // upper bound of x[i]
-	const Array<double> &x              // x-vector of optimal solution (if result is lpOptimal)
+	const Array<double> &x              // x-vector of optimal solution (if result is Optimal)
 )
 {
 	const int numRows = rightHandSide.size();
@@ -123,8 +123,8 @@ LPSolver::Status LPSolver::optimize(
 	Array<char>   &equationSense, // 'E' ==   'G' >=   'L' <=
 	Array<double> &lowerBound,    // lower bound of x[i]
 	Array<double> &upperBound,    // upper bound of x[i]
-	double &optimum,              // optimum value of objective function (if result is lpOptimal)
-	Array<double> &x              // x-vector of optimal solution (if result is lpOptimal)
+	double &optimum,              // optimum value of objective function (if result is Optimal)
+	Array<double> &x              // x-vector of optimal solution (if result is Optimal)
 )
 {
 	if(osi->getNumCols()>0) { // get a fresh one if necessary
@@ -160,7 +160,7 @@ LPSolver::Status LPSolver::optimize(
 	OGDF_ASSERT(x            .low()  == 0);
 	OGDF_ASSERT(x            .size() == numCols);
 
-	osi->setObjSense(goal==lpMinimize ? 1 : -1);
+	osi->setObjSense(goal==OptimizationGoal::Minimize ? 1 : -1);
 
 	int i;
 
@@ -185,17 +185,17 @@ LPSolver::Status LPSolver::optimize(
 		const double* sol = osi->getColSolution();
 		for(i = numCols; i-- > 0;)
 			x[i]=sol[i];
-		status = lpOptimal;
-		OGDF_ASSERT_IF(dlExtendedChecking,
+		status = Status::Optimal;
+		OGDF_ASSERT_IF(DebugLevel::ExtendedChecking,
 			checkFeasibility(matrixBegin,matrixCount,matrixIndex,matrixValue,
 			rightHandSide,equationSense,lowerBound,upperBound,x));
 
 	} else if(osi->isProvenPrimalInfeasible())
-		status = lpInfeasible;
+		status = Status::Infeasible;
 	else if(osi->isProvenDualInfeasible())
-		status = lpUnbounded;
+		status = Status::Unbounded;
 	else
-		OGDF_THROW_PARAM(AlgorithmFailureException,afcNoSolutionFound);
+		OGDF_THROW_PARAM(AlgorithmFailureException, AlgorithmFailureCode::NoSolutionFound);
 
 	return status;
 }

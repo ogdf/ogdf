@@ -40,16 +40,19 @@ namespace ogdf {
 /**
  * @ingroup graph-drawing
  */
-enum StrokeType {
-	stNone,			//!< no line
-	stSolid,		//!< solid line
-	stDash,			//!< dashed line
-	stDot,			//!< dotted line
-	stDashdot,		//!< line style "dash dot dash dot ..."
-	stDashdotdot	//!< line style "dash dot dot dash dot dot ..."
+enum class StrokeType : unsigned char {
+	None,      //!< no line
+	Solid,     //!< solid line
+	Dash,      //!< dashed line
+	Dot,       //!< dotted line
+	Dashdot,   //!< line style "dash dot dash dot ..."
+	Dashdotdot //!< line style "dash dot dot dash dot dot ..."
 };
 
-//! Converts integer \a i to stroke type.
+//! Output operator
+OGDF_EXPORT ostream &operator<<(ostream &os, const StrokeType &st);
+
+//! Converts integer \p i to stroke type.
 /**
  * @ingroup graph-drawing
  */
@@ -60,10 +63,10 @@ StrokeType intToStrokeType(int i);
 /**
  * @ingroup graph-drawing
  */
-enum StrokeLineCap {
-	slcButt,
-	slcRound,
-	slcSquare
+enum class StrokeLineCap : unsigned char{
+	Butt,
+	Round,
+	Square
 };
 
 
@@ -71,10 +74,10 @@ enum StrokeLineCap {
 /**
  * @ingroup graph-drawing
  */
-enum StrokeLineJoin {
-	sljMiter,
-	sljRound,
-	sljBevel
+enum class StrokeLineJoin : unsigned char {
+	Miter,
+	Round,
+	Bevel
 };
 
 
@@ -82,25 +85,28 @@ enum StrokeLineJoin {
 /**
  * @ingroup graph-drawing
  */
-enum FillPattern {
-	fpNone,
-	fpSolid,
-	fpDense1,
-	fpDense2,
-	fpDense3,
-	fpDense4,
-	fpDense5,
-	fpDense6,
-	fpDense7,
-	fpHorizontal,
-	fpVertical,
-	fpCross,
-	fpBackwardDiagonal,
-	fpForwardDiagonal,
-	fpDiagonalCross
+enum class FillPattern {
+	None,
+	Solid,
+	Dense1,
+	Dense2,
+	Dense3,
+	Dense4,
+	Dense5,
+	Dense6,
+	Dense7,
+	Horizontal,
+	Vertical,
+	Cross,
+	BackwardDiagonal,
+	ForwardDiagonal,
+	DiagonalCross
 };
 
-//! Converts integer \a i to fill pattern.
+//! Output operator
+OGDF_EXPORT ostream &operator<<(ostream &os, const FillPattern &fp);
+
+//! Converts integer \p i to fill pattern.
 /**
  * @ingroup graph-drawing
  */
@@ -111,21 +117,21 @@ FillPattern intToFillPattern(int i);
 /**
  * @ingroup graph-drawing
  */
-enum Shape {
-	shRect,               //!< rectangle
-	shRoundedRect,        //!< rectangle with rounded corners
-	shEllipse,            //!< ellipse
-	shTriangle,           //!< isosceles triangle (base side down)
-	shPentagon,           //!< pentagon
-	shHexagon,            //!< hexagon
-	shOctagon,            //!< octagon
-	shRhomb,              //!< rhomb (=diamond)
-	shTrapeze,            //!< trapeze (upper side shorter)
-	shParallelogram,      //!< parallelogram (slanted to the right)
-	shInvTriangle,        //!< isosceles triangle (base side up)
-	shInvTrapeze,         //!< inverted trapeze  (upper side longer)
-	shInvParallelogram,   //!< inverted parallelogram (slanted to the left)
-	shImage
+enum class Shape {
+	Rect,               //!< rectangle
+	RoundedRect,        //!< rectangle with rounded corners
+	Ellipse,            //!< ellipse
+	Triangle,           //!< isosceles triangle (base side down)
+	Pentagon,           //!< pentagon
+	Hexagon,            //!< hexagon
+	Octagon,            //!< octagon
+	Rhomb,              //!< rhomb (=diamond)
+	Trapeze,            //!< trapeze (upper side shorter)
+	Parallelogram,      //!< parallelogram (slanted to the right)
+	InvTriangle,        //!< isosceles triangle (base side up)
+	InvTrapeze,         //!< inverted trapeze  (upper side longer)
+	InvParallelogram,   //!< inverted parallelogram (slanted to the left)
+	Image
 };
 
 
@@ -133,15 +139,16 @@ enum Shape {
 /**
  * @ingroup graph-drawing
  */
-enum EdgeArrow {
-	eaNone,		//!< no edge arrows
-	eaLast,		//!< edge arrow at target node of the edge
-	eaFirst,	//!< edge arrow at source node of the edge
-	eaBoth,		//!< edge arrow at target and source node of the edge
-	eaUndefined
+enum class EdgeArrow {
+	None,		//!< no edge arrows
+	Last,		//!< edge arrow at target node of the edge
+	First,	//!< edge arrow at source node of the edge
+	Both,		//!< edge arrow at target and source node of the edge
+	Undefined
 };
 
-
+//! Output operator
+OGDF_EXPORT ostream &operator<<(ostream &os, const EdgeArrow &ea);
 
 //! Colors represented as RGBA values.
 /**
@@ -156,7 +163,7 @@ class OGDF_EXPORT Color {
 
 public:
 	//! Named colors (same as SVG color keywords).
-	enum Name {
+	enum class Name {
 		Aliceblue,
 		Antiquewhite,
 		Aqua,
@@ -315,13 +322,13 @@ public:
 	//! Creates a color from given RGBA-values.
 	Color(int r, int g, int b, int a = 255) : m_red((uint8_t)r), m_green((uint8_t)g), m_blue((uint8_t)b), m_alpha((uint8_t)a) { }
 
-	//! Creates a color from given color name \a name.
+	//! Creates a color from given color name \p name.
 	Color(Color::Name name);
 
-	//! Crates a color from string \a str.
+	//! Crates a color from string \p str.
 	Color(const string &str) { fromString(str); }
 
-	//! Crates a color from string \a str.
+	//! Crates a color from string \p str.
 	Color(const char *str) { fromString(string(str)); }
 
 	//! Returns the red component.
@@ -336,16 +343,16 @@ public:
 	//! Returns the alpha channel.
 	uint8_t alpha() const { return m_alpha; }
 
-	//! Sets the red component to \a r.
+	//! Sets the red component to \p r.
 	void red(uint8_t r) { m_red = r; }
 
-	//! Sets the green component to \a g.
+	//! Sets the green component to \p g.
 	void green(uint8_t g) { m_green = g; }
 
-	//! Sets the blue component to \a b.
+	//! Sets the blue component to \p b.
 	void blue(uint8_t b) { m_blue = b; }
 
-	//! Sets the alpha channel to \a a.
+	//! Sets the alpha channel to \p a.
 	void alpha(uint8_t a) { m_alpha = a; }
 
 	//! Converts the color to a string and returns it.
@@ -356,20 +363,20 @@ public:
 	 */
 	string toString() const;
 
-	//! Sets the color the the color defined by \a str.
+	//! Sets the color the the color defined by \p str.
 	bool fromString(const string &str);
 
-	//! Returns true iff \a c and this color are equal in every component.
+	//! Returns true iff \p c and this color are equal in every component.
 	bool operator==(const Color &c) const {
 		return m_red == c.m_red && m_green == c.m_green && m_blue == c.m_blue && m_alpha == c.m_alpha;
 	}
 
-	//! Returns true iff \a c and this color differ in any component.
+	//! Returns true iff \p c and this color differ in any component.
 	bool operator!=(const Color &c) const {
 		return !operator==(c);
 	}
 
-	//! Writes the string representation of color \a c to output stream \a os.
+	//! Writes the string representation of color \p c to output stream \p os.
 	friend ostream &operator<<(ostream &os, const Color &c) {
 		return os << c.toString();
 	}
@@ -383,12 +390,12 @@ public:
 struct OGDF_EXPORT Stroke {
 	Color          m_color;    //!< stroke color
 	float          m_width;    //!< stroke width
-	StrokeType     m_type : 8; //!< stroke type (e.g. solid or dashed)
-	StrokeLineCap  m_cap  : 8; //!< line-cap of the stroke
-	StrokeLineJoin m_join : 8; //!< line-join of the stroke
+	StrokeType     m_type; //!< stroke type (e.g. solid or dashed)
+	StrokeLineCap  m_cap; //!< line-cap of the stroke
+	StrokeLineJoin m_join; //!< line-join of the stroke
 
-	Stroke() : m_color(Color::Black), m_width(1.0f), m_type(stSolid), m_cap(slcButt), m_join(sljMiter) { }
-	Stroke(Color c) : m_color(c), m_width(1.0f), m_type(stSolid), m_cap(slcButt), m_join(sljMiter) { }
+	Stroke() : m_color(Color::Name::Black), m_width(1.0f), m_type(StrokeType::Solid), m_cap(StrokeLineCap::Butt), m_join(StrokeLineJoin::Miter) { }
+	Stroke(Color c) : m_color(c), m_width(1.0f), m_type(StrokeType::Solid), m_cap(StrokeLineCap::Butt), m_join(StrokeLineJoin::Miter) { }
 };
 
 
@@ -401,9 +408,9 @@ struct OGDF_EXPORT Fill {
 	Color       m_bgColor; //!< background color of fill pattern
 	FillPattern m_pattern; //!< fill pattern
 
-	Fill() : m_color(Color::White), m_bgColor(Color::Black), m_pattern(fpSolid) { }
-	Fill(Color c) : m_color(c), m_bgColor(Color::Black), m_pattern(fpSolid) { }
-	Fill(Color c, FillPattern pattern) : m_color(c), m_bgColor(Color::Black), m_pattern(pattern) { }
+	Fill() : m_color(Color::Name::White), m_bgColor(Color::Name::Black), m_pattern(FillPattern::Solid) { }
+	Fill(Color c) : m_color(c), m_bgColor(Color::Name::Black), m_pattern(FillPattern::Solid) { }
+	Fill(Color c, FillPattern pattern) : m_color(c), m_bgColor(Color::Name::Black), m_pattern(pattern) { }
 	Fill(Color c, Color bgColor, FillPattern pattern) : m_color(c), m_bgColor(bgColor), m_pattern(pattern) { }
 };
 

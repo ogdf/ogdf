@@ -54,7 +54,7 @@ public:
 	}
 
 	/**
-	 * \brief Computes a layout of hypergraph given by \a HA.
+	 * \brief Computes a layout of hypergraph given by \p HA.
 	 *
 	 * This method is the actual algorithm call and must be implemented by
 	 * derived classes.
@@ -63,7 +63,7 @@ public:
 	virtual void call(HypergraphAttributes &HA) = 0;
 
 	/**
-	 * \brief Computes a layout of a hypergraph given by \a HA.
+	 * \brief Computes a layout of a hypergraph given by \p HA.
 	 *
 	 * @param HA is the input hypergraph attributes class.
 	 */

@@ -67,7 +67,7 @@ MultilevelLayout::MultilevelLayout()
 	//standard level layout FR. This scales the layout
 	//on each level (with a constant factor) and then applies the FR.
 	m_sc->setSecondaryLayout(new SpringEmbedderGridVariant);
-	m_sc->setScalingType(ScalingLayout::st_relativeToDrawing);
+	m_sc->setScalingType(ScalingLayout::ScalingType::RelativeToDrawing);
 	m_sc->setLayoutRepeats(1);
 
 	m_sc->setScaling(1.0, 1.5);

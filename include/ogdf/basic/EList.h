@@ -97,13 +97,13 @@ template<typename S, typename E, E* S::*first, E* E::*next>
 class EStack
 {
 public:
-	//! Initializes \a pStack as empty stack
+	//! Initializes \p pStack as empty stack
 	static inline void init(S* pStack)
 	{
 		pStack->*first = 0;
 	}
 
-	//! Removes the top element from \a pStack without returning it
+	//! Removes the top element from \p pStack without returning it
 	static inline void pop(S* pStack)
 	{
 		pStack->*first = pStack->*first->*next;
@@ -117,20 +117,20 @@ public:
 		return res;
 	}
 
-	//! Pushes the new element \a pElem onto \a pStack.
+	//! Pushes the new element \p pElem onto \p pStack.
 	static inline void push(S* pStack, E* pElem)
 	{
 		pElem->*next = pStack->*first;
 		pStack->*first = pElem;
 	}
 
-	//! Returns a pointer to the top element of \a pStack.
+	//! Returns a pointer to the top element of \p pStack.
 	static inline E* top(const S* pStack)
 	{
 		return pStack->*first;
 	}
 
-	//! Returns true if \a pStack is empty
+	//! Returns true if \p pStack is empty
 	static inline bool empty(const S* pStack)
 	{
 		return pStack->*first == 0;
@@ -138,19 +138,19 @@ public:
 };
 
 
-//! Implementation of an embedded list iterator used by \a EList
+//! Implementation of an embedded list iterator used by ogdf::EList
 template<typename E, E* E::*prev, E* E::*next>
 class EListIterator
 {
 public:
 	//! Constructs an iterator pointing at nullptr
-	inline EListIterator( ) : m_ptr(nullptr) {}
+	EListIterator( ) : m_ptr(nullptr) {}
 
 	//! Constructs an iterator pointing at ptr
-	inline EListIterator(E* ptr) : m_ptr(ptr) {}
+	explicit EListIterator(E* ptr) : m_ptr(ptr) {}
 
-	//! constructs an iterator pointing at the same element as \a other
-	inline EListIterator(const EListIterator<E, prev, next>& other) : m_ptr(other.m_ptr) {}
+	//! constructs an iterator pointing at the same element as \p other
+	EListIterator(const EListIterator<E, prev, next>& other) : m_ptr(other.m_ptr) {}
 
 	//! returns false if the iterator points at nullptr
 	inline bool valid() const {  return m_ptr != nullptr; }
@@ -232,9 +232,9 @@ class EList
 {
 public:
 	//! The iterator typdef for elements of type E and prev, next pointer
-	typedef EListIterator<E, prev, next> iterator;
+	using iterator = EListIterator<E, prev, next>;
 
-	//! Initializes \a pList as an empty embedded list.
+	//! Initializes \p pList as an empty embedded list.
 	static inline void init(L* pList)
 	{
 		pList->*first = 0;
@@ -254,7 +254,7 @@ public:
 	//! Returns a pointer to the last element.
 	static inline E* back(const L* pList)	{ return pList->*last; }
 
-	//! Appends the element \a elem to the end of \a pList.
+	//! Appends the element \p elem to the end of \p pList.
 	static inline iterator pushBack(L* pList, E* elem)
 	{
 		elem->*next = 0;
@@ -268,7 +268,7 @@ public:
 		return iterator(elem);
 	}
 
-	//! Adds element \a x at the begin of the list.
+	//! Adds element \p elem at the begin of the list.
 	static inline iterator pushFront(L* pList, E* elem)
 	{
 		elem->*next = pList->*first;
@@ -284,7 +284,7 @@ public:
 		return iterator(elem);
 	}
 
-	//! Inserts \a elem into \a pList before \a pNext
+	//! Inserts \p elem into \p pList before \p pNext
 	static inline iterator insertBefore(L* pList, E* elem, E* pNext)
 	{
 		E* pPrev;
@@ -310,13 +310,13 @@ public:
 		return iterator(elem);
 	}
 
-	//! Inserts \a elem into \a pList before position \a itNext
+	//! Inserts \p elem into \p pList before position \p itNext
 	static inline iterator insertBefore(L* pList, E* elem, const iterator& itNext)
 	{
 		return insertBefore(pList, elem, (E*)(*itNext));
 	}
 
-	//! Inserts \a elem into \a pList before \a pPrev
+	//! Inserts \p elem into \p pList before \p pPrev
 	static inline iterator insertAfter(L* pList, E* elem, E* pPrev)
 	{
 		E* pNext;
@@ -342,27 +342,27 @@ public:
 		return iterator(elem);
 	}
 
-	//! Inserts \a elem into \a pList after position \a itPrev
+	//! Inserts \p elem into \p pList after position \p itPrev
 	static inline iterator insertAfter(L* pList, E* elem, const iterator& itPrev)
 	{
 		return insertAfter(pList, elem, (E*)(*itPrev));
 	}
 
-	//! Removes the first element of \a pList.
+	//! Removes the first element of \p pList.
 	inline static void popFront(L* pList)
 	{
 		if (front(pList))
 			remove(pList, front(pList));
 	}
 
-	//! Removes the last element of \a pList.
+	//! Removes the last element of \p pList.
 	inline static void popBack(L* pList)
 	{
 		if (back(pList))
 			remove(pList, back(pList));
 	}
 
-	//! Removes \a elem from \a pList.
+	//! Removes \p elem from \p pList.
 	static inline iterator remove(L* pList, E* elem)
 	{
 		E* pPrev = elem->*prev;
@@ -380,7 +380,7 @@ public:
 		return iterator(pNext);
 	}
 
-	//! Removes the element \a it is pointing at from \a pList.
+	//! Removes the element \p it is pointing at from \p pList.
 	static inline iterator remove(L* pList, const iterator& it)
 	{
 		return remove(pList, (E*)(*it));
@@ -419,13 +419,13 @@ public:
 		pListOther->*other_last = 0;
 	}
 
-	//! Returns an iterator pointing at the first element of \a pList.
+	//! Returns an iterator pointing at the first element of \p pList.
 	static inline iterator begin(const L* pList) { return iterator(pList->*first); }
 
 	//! Returns an iterator pointing at nullptr.
 	static inline iterator end(const L* pList) { return iterator(); }
 
-	//! Returns a reverse iterator pointing at the last element of \a pList.
+	//! Returns a reverse iterator pointing at the last element of \p pList.
 	static inline iterator rbegin(const L* pList) { return iterator(pList->*last); }
 
 	//! Returns a reverse iterator pointing at nullptr.

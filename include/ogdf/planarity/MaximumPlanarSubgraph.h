@@ -58,7 +58,7 @@ public:
 
 protected:
 	// Implements the Planar Subgraph interface.
-	// For the given graph \a G, a clustered graph with only
+	// For the given graph \p G, a clustered graph with only
 	// a single root cluster is generated.
 	// Computes set of edges delEdges, which have to be deleted
 	// in order to get a planar subgraph; edges in preferredEdges

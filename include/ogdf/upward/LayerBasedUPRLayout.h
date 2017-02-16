@@ -48,41 +48,53 @@ class OrderComparer
 public:
 	OrderComparer(const UpwardPlanRep &_UPR, Hierarchy &_H);
 
-	// if vH1 and vH2 are placed on the same layer and node vH1 has to drawn on the lefthand side of vH2 (according to UPR) then return true;
-	bool less(node vH1, node vH2) const ;
+	/**
+	 * Returns true iff \p vH1 and \p vH2 are placed on the same layer and
+	 * node \p vH1 has to drawn on the left-hand side of \p vH2 (according
+	 * to #m_UPR)
+	 */
+	bool less(node vH1, node vH2) const;
 
 private:
-	const UpwardPlanRep &UPR;
+	const UpwardPlanRep &m_UPR;
 	Hierarchy &H;
-	NodeArray<int> dfsNum;
+	NodeArray<int> m_dfsNum;
 #if 0
 	EdgeArray<int> outEdgeOrder;
 #endif
 	mutable NodeArray<bool> crossed;
 
-	//traverse with dfs using edge order from left to right and compute the dfs number.
-	void dfs_LR( edge e,
-				 NodeArray<bool> &visited,
-				 NodeArray<int> &dfsNum,
-				 int &num);
+	//! Traverses with dfs using edge order from left to right and compute the dfs number.
+	void dfs_LR(edge e,
+	            NodeArray<bool> &visited,
+	            NodeArray<int> &dfsNum,
+	            int &num);
 
-	//return true if vUPR1 is on the lefthand side of vUPR2 according to UPR.
-	bool left(node vUPR1,
-			const List<edge> &chain1, //if vUPR1 is associated with a long edge dummy vH1, then chain1 contain vH1
-			node vUPR2 ,
-			const List<edge> &chain2 // if vUPR2 is associated with a long edge dummy vH2, then chain2 contain vH2
-			) const;
+	//! Returns true if \p vUPR1 is on the left-hand side of \p vUPR2 according to #m_UPR.
+	bool left(node vUPR1, //!< the node that is tested to be on the left-hand side
+	          const List<edge> &chain1, //!< if \p vUPR1 is associated with a long edge dummy vH1, then \p chain1 contain vH1
+	          node vUPR2, //!< the other node
+	          const List<edge> &chain2 //!< if \p vUPR2 is associated with a long edge dummy vH2, then \p chain2 contain vH2
+	          ) const;
 
-	//return true if vUPR1 is on the lefthand side of vUPR2 according to UPR.
-	// pred.: source or target of both edge muss identical
+	/**
+	 * Returns true iff \p vUPR1 is on the left-hand side of \p vUPR2
+	 * according to #m_UPR.
+	 *
+	 * @pre source or target of both edges must be identical
+	 */
 	bool left(edge e1UPR, edge e2UPR) const;
 
-	//return true if vUPR1 is on the lefthand side of vUPR2 according to UPR.
-	// use only by method less for the case when both node vH1 and vH2 are long-edge dummies.
-	// level: the current level of the long-edge dummies
+	/**
+	 * Returns true iff \p vUPR1 is on the left-hand side of \p vUPR2
+	 * according to #m_UPR.
+	 * Used only by method #less for the case when both node \a vH1 and
+	 * \a vH2 are long-edge dummies, where \p level is the current level
+	 * of the long-edge dummies
+	 */
 	bool left(List<edge> &chain1, List<edge> &chain2, int level) const;
 
-	//return true if there is a node above vUPR with rank level or lower
+	//! Returns true iff there is a node above \p vUPR with rank \p level or lower
 	bool checkUp(node vUPR, int level) const;
 };
 
@@ -198,7 +210,9 @@ private:
 
 
 
-	//------------------------ UPRLayoutSimple methods --------------------------------------------
+	//! \name UPRLayoutSimple methods
+	//! @{
+
 	void callSimple(GraphAttributes &AG, adjEntry adj //left most edge of the source
 					);
 
@@ -210,6 +224,8 @@ private:
 
 	// needed for UPRLayoutSimple
 	void longestPathRanking(const Graph &G, NodeArray<int> &rank);
+
+	//! @}
 };
 
 }

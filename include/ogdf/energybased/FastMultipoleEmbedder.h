@@ -33,10 +33,9 @@
 
 #include <ogdf/basic/Graph.h>
 #include <ogdf/module/LayoutModule.h>
-#include <ogdf/internal/energybased/MultilevelGraph.h>
-#include <ogdf/internal/energybased/FMEThread.h>
-#include <ogdf/internal/energybased/FMEFunc.h>
-#include <ogdf/internal/energybased/GalaxyMultilevel.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEThread.h>
+#include <ogdf/energybased/fast_multipole_embedder/FMEFunc.h>
+#include <ogdf/energybased/fast_multipole_embedder/GalaxyMultilevel.h>
 
 namespace ogdf {
 
@@ -46,6 +45,12 @@ namespace ogdf {
  */
 class OGDF_EXPORT FastMultipoleEmbedder : public LayoutModule
 {
+	using ArrayGraph = fast_multipole_embedder::ArrayGraph;
+	using FMEGlobalOptions = fast_multipole_embedder::FMEGlobalOptions;
+	using FMEGlobalContext = fast_multipole_embedder::FMEGlobalContext;
+	using FMESingleKernel = fast_multipole_embedder::FMESingleKernel;
+	using FMEThreadPool = fast_multipole_embedder::FMEThreadPool;
+
 public:
 	//! constructor
 	FastMultipoleEmbedder();
@@ -53,13 +58,7 @@ public:
 	//! destructor
 	~FastMultipoleEmbedder();
 
-#if 0
-	//! Calls the algorithm for graph \a MLG.
-	//Does not do anything smart, can be safely removed
-	void call(MultilevelGraph &MLG);
-#endif
-
-	//! Calls the algorithm for graph \a G with the given edgelength and returns the layout information in \a nodeXPosition, nodeYPosition.
+	//! Calls the algorithm for graph \p G with the given edgelength and returns the layout information in \p nodeXPosition, \p nodeYPosition.
 	void call(
 		const Graph& G,
 		NodeArray<float>& nodeXPosition,
@@ -67,10 +66,10 @@ public:
 		const EdgeArray<float>& edgeLength,
 		const NodeArray<float>& nodeSize);
 
-	//! Calls the algorithm for graph \a GA with the given edgelength and returns the layout information in \a GA.
+	//! Calls the algorithm for graph \p GA with the given \p edgeLength and returns the layout information in \p GA.
 	void call(GraphAttributes &GA, const EdgeArray<float>& edgeLength, const NodeArray<float>& nodeSize);
 
-	//! Calls the algorithm for graph \a GA and returns the layout information in \a GA.
+	//! Calls the algorithm for graph \p GA and returns the layout information in \p GA.
 	virtual void call(GraphAttributes &GA) override;
 
 	//! sets the maximum number of iterations
@@ -143,10 +142,13 @@ private:
  */
 class OGDF_EXPORT FastMultipoleMultilevelEmbedder : public LayoutModule
 {
+	using GalaxyMultilevel = fast_multipole_embedder::GalaxyMultilevel;
+	using GalaxyMultilevelBuilder = fast_multipole_embedder::GalaxyMultilevelBuilder;
+
 public:
 	//! Constructor, just sets number of maximum threads
 	FastMultipoleMultilevelEmbedder() : m_iMaxNumThreads(1) {}
-	//! Calls the algorithm for graph \a GA and returns the layout information in \a GA.
+	//! Calls the algorithm for graph \p GA and returns the layout information in \p GA.
 	void call(GraphAttributes &GA) override;
 
 	//! sets the bound for the number of nodes for multilevel step

@@ -38,7 +38,7 @@ namespace ogdf {
 /**
  * \brief The base class for graph augmentation algorithms.
  *
- * The class \a AugmentationModule is the base class for augmentation modules.
+ * The class AugmentationModule is the base class for augmentation modules.
  * An augmentation module transforms an input graph \a G into an output
  * graph \a G' by adding edges, such that \a G' has a certain
  * property, e.g., biconnected.
@@ -57,19 +57,19 @@ public:
 	// destruction
 	virtual ~AugmentationModule() { }
 
-	//! Calls the augmentation module for graph \a G.
+	//! Calls the augmentation module for graph \p G.
 	void call(Graph& G) {
 		List<edge> L;
 		call(G,L);
 	}
 
-	//! Calls the augmentation module for graph \a G.
+	//! Calls the augmentation module for graph \p G.
 	void operator()(Graph& G) { call(G); }
 
 	/**
-	 * \brief Calls the augmentation module for graph \a G.
+	 * \brief Calls the augmentation module for graph \p G.
 	 *
-	 * Returns the list of added edges in \a L.
+	 * Returns the list of added edges in \p L.
 	 */
 	void call(Graph& G, List<edge> &L) {
 		doCall(G,L);
@@ -77,9 +77,9 @@ public:
 	}
 
 	/**
-	 * \brief Calls the augmentation module for graph \a G.
+	 * \brief Calls the augmentation module for graph \p G.
 	 *
-	 * Returns the list of added edges in \a L.
+	 * Returns the list of added edges in \p L.
 	 */
 	void operator()(Graph& G, List<edge> &L) { call(G,L); }
 
@@ -90,9 +90,9 @@ public:
 
 protected:
 	/**
-	 * \brief Implements the augmentation algorithm for graph \a G.
+	 * \brief Implements the augmentation algorithm for graph \p G.
 	 *
-	 * Returns the list of added edges in \a L.
+	 * Returns the list of added edges in \p L.
 	 */
 	virtual void doCall(Graph& G, List<edge> &L) = 0;
 

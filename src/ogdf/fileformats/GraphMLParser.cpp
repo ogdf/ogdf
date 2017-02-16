@@ -103,32 +103,32 @@ bool GraphMLParser::readData(
 	pugi::xml_text text = nodeData.text();
 
 	switch (graphml::toAttribute(m_attrName[keyId.value()])) {
-	case graphml::a_nodeLabel:
+	case graphml::Attribute::NodeLabel:
 		if(attrs & GraphAttributes::nodeLabel) {
 			GA.label(v) = text.get();
 		}
 		break;
-	case graphml::a_x:
+	case graphml::Attribute::X:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			GA.x(v) = text.as_double();
 		}
 		break;
-	case graphml::a_y:
+	case graphml::Attribute::Y:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			GA.y(v) = text.as_double();;
 		}
 		break;
-	case graphml::a_width:
+	case graphml::Attribute::Width:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			GA.width(v) = text.as_double();
 		}
 		break;
-	case graphml::a_height:
+	case graphml::Attribute::Height:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			GA.height(v) = text.as_double();
 		}
 		break;
-	case graphml::a_size:
+	case graphml::Attribute::Size:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			double size = text.as_double();
 
@@ -138,61 +138,61 @@ bool GraphMLParser::readData(
 			}
 		}
 		break;
-	case graphml::a_shape:
+	case graphml::Attribute::Shape:
 		if(attrs & GraphAttributes::nodeGraphics) {
 			GA.shape(v) = graphml::toShape(text.get());
 		}
 		break;
-	case graphml::a_z:
+	case graphml::Attribute::Z:
 		if(attrs & GraphAttributes::threeD) {
 			GA.z(v) = text.as_double();
 		}
 		break;
-	case graphml::a_r:
+	case graphml::Attribute::R:
 		if (attrs & GraphAttributes::nodeStyle
 		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).red(val); })) {
 			return false;
 		}
 		break;
-	case graphml::a_g:
+	case graphml::Attribute::G:
 		if(attrs & GraphAttributes::nodeStyle
 		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).green(val); })) {
 			return false;
 		}
 		break;
-	case graphml::a_b:
+	case graphml::Attribute::B:
 		if(attrs & GraphAttributes::nodeStyle
 		 && !GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { GA.fillColor(v).blue(val); })) {
 			return false;
 		}
 		break;
-	case graphml::a_nodeFill:
+	case graphml::Attribute::NodeFill:
 		if(attrs & GraphAttributes::nodeStyle) {
 			GA.fillColor(v) = text.get();
 		}
 		break;
-	case graphml::a_nodeStroke:
+	case graphml::Attribute::NodeStroke:
 		if(attrs & GraphAttributes::nodeStyle) {
 			GA.strokeColor(v) = text.get();
 		}
 		break;
-	case graphml::a_nodeType:
+	case graphml::Attribute::NodeType:
 		if(attrs & GraphAttributes::nodeType) {
 			GA.type(v) = graphml::toNodeType(text.get());
 		}
 		break;
-	case graphml::a_template:
+	case graphml::Attribute::Template:
 		if(attrs & GraphAttributes::nodeTemplate) {
 			GA.templateNode(v) = text.get();
 		}
 		break;
-	case graphml::a_nodeWeight:
+	case graphml::Attribute::NodeWeight:
 		if(attrs & GraphAttributes::nodeWeight) {
 			GA.weight(v) = text.as_int();
 		}
 		break;
 	default:
-		GraphIO::logger.lout(Logger::LL_MINOR) << "Unknown node attribute: \"" << keyId.value() << "\"." << endl;
+		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown node attribute: \"" << keyId.value() << "\"." << endl;
 	}
 
 	return true;
@@ -214,35 +214,35 @@ bool GraphMLParser::readData(
 	pugi::xml_text text = edgeData.text();
 
 	switch(graphml::toAttribute(m_attrName[keyId.value()])) {
-	case graphml::a_edgeLabel:
+	case graphml::Attribute::EdgeLabel:
 		if(attrs & GraphAttributes::edgeLabel) {
 			GA.label(e) = text.get();
 		}
 		break;
-	case graphml::a_edgeWeight:
+	case graphml::Attribute::EdgeWeight:
 		if(attrs & GraphAttributes::edgeIntWeight) {
 			GA.intWeight(e) = text.as_int();
 		} else if(attrs & GraphAttributes::edgeDoubleWeight) {
 			GA.doubleWeight(e) = text.as_double();
 		}
 		break;
-	case graphml::a_edgeType:
+	case graphml::Attribute::EdgeType:
 		if(attrs & GraphAttributes::edgeType) {
 			GA.type(e) = graphml::toEdgeType(text.get());
 		}
 		break;
-	case graphml::a_edgeArrow:
+	case graphml::Attribute::EdgeArrow:
 		if(attrs & GraphAttributes::edgeArrow) {
 			GA.arrowType(e) = graphml::toArrow(text.get());
 		}
 		break;
-	case graphml::a_edgeStroke:
+	case graphml::Attribute::EdgeStroke:
 		if(attrs & GraphAttributes::edgeStyle) {
 			GA.strokeColor(e) = text.get();
 		}
 		break;
 	default:
-		GraphIO::logger.lout(Logger::LL_MINOR) << "Unknown edge attribute with \""
+		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown edge attribute with \""
 		             << keyId.value()
 		             << "\"." << endl;
 	}
@@ -266,46 +266,46 @@ bool GraphMLParser::readData(
 
 	using namespace graphml;
 	switch (toAttribute(m_attrName[keyId.value()])) {
-	case a_nodeLabel:
+	case Attribute::NodeLabel:
 		CA.label(c) = text.get();
 		break;
-	case a_x:
+	case Attribute::X:
 		CA.x(c) = text.as_double();
 		break;
-	case a_y:
+	case Attribute::Y:
 		CA.y(c) = text.as_double();
 		break;
-	case a_width:
+	case Attribute::Width:
 		CA.width(c) = text.as_double();
 		break;
-	case a_height:
+	case Attribute::Height:
 		CA.height(c) = text.as_double();
 		break;
-	case a_size:
+	case Attribute::Size:
 		// We want to set a new size only if width and height was not set.
 		if (CA.width(c) == CA.height(c)) {
 			CA.width(c) = CA.height(c) = text.as_double();
 		}
-	case a_r:
+	case Attribute::R:
 		if (!GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { CA.fillColor(c).red(val); })) {
 			return false;
 		}
 		break;
-	case a_g:
+	case Attribute::G:
 		if (!GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { CA.fillColor(c).green(val); })) {
 			return false;
 		}
 		break;
-	case a_b:
+	case Attribute::B:
 		if (!GraphIO::setColorValue(text.as_int(), [&](uint8_t val) { CA.fillColor(c).blue(val); })) {
 			return false;
 		}
 		break;
-	case a_clusterStroke:
+	case Attribute::ClusterStroke:
 		CA.strokeColor(c) = text.get();
 		break;
 	default:
-		GraphIO::logger.lout(Logger::LL_MINOR) << "Unknown cluster attribute with \""
+		GraphIO::logger.lout(Logger::Level::Minor) << "Unknown cluster attribute with \""
 		             << keyId.value()
 		             << "--enum: " << m_attrName[keyId.value()] << "--"
 		             << "\"." << endl;
@@ -337,7 +337,7 @@ bool GraphMLParser::readNodes(
 
 		pugi::xml_node clusterTag = nodeTag.child("graph");
 		if (clusterTag) {
-			GraphIO::logger.lout(Logger::LL_MINOR) << "Nested graphs are not fully supported." << endl;
+			GraphIO::logger.lout(Logger::Level::Minor) << "Nested graphs are not fully supported." << endl;
 			return readNodes(G, GA, clusterTag);
 		}
 	}

@@ -56,7 +56,7 @@ public:
 	//! Creates an instance of variable embedding edge inserter with default settings.
 	VariableEmbeddingInserterUML();
 
-	//! Creates an instance of variable embedding inserter with the same settings as \a inserter.
+	//! Creates an instance of variable embedding inserter with the same settings as \p inserter.
 	VariableEmbeddingInserterUML(const VariableEmbeddingInserterUML &inserter);
 
 	//! Destructor.
@@ -85,10 +85,10 @@ public:
 	}
 
 
-	//! Sets the option <i>percentMostCrossed</i> to \a percent.
+	//! Sets the option <i>percentMostCrossed</i> to \p percent.
 	/**
 	 * This option determines the portion of most crossed edges used if the remove-reinsert
-	 * method is set to #rrMostCrossed. This portion is number of edges * percentMostCrossed() / 100.
+	 * method is set to RemoveReinsertType::MostCrossed. This portion is number of edges * percentMostCrossed() / 100.
 	 */
 	void percentMostCrossed(double percent) {
 		m_percentMostCrossed = percent;

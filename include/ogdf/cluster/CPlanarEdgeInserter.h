@@ -40,12 +40,6 @@
 
 namespace ogdf {
 
-class NodePair
-{
-public:
-	node m_src, m_tgt;
-};
-
 //! Edge insertion algorithm for clustered graphs.
 /**
  * @ingroup ga-cplanarity
@@ -53,7 +47,7 @@ public:
 class OGDF_EXPORT CPlanarEdgeInserter
 {
 	//postprocessing options
-	enum PostProcessType {ppNone, ppRemoveReinsert};
+	enum class PostProcessType {None, RemoveReinsert};
 
 public:
 

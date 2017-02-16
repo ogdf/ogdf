@@ -105,6 +105,11 @@ int System::s_numberOfProcessors = 1;
 int64_t System::s_HPCounterFrequency;
 #endif
 
+unsigned int operator|=(unsigned int &i, CPUFeatureMask fm){
+	i |= static_cast<unsigned int>(fm);
+	return i;
+}
+
 void System::init()
 {
 	int CPUInfo[4] = {-1};
@@ -118,17 +123,17 @@ void System::init()
 		int featureInfoECX = CPUInfo[2];
 		int featureInfoEDX = CPUInfo[3];
 
-		if(featureInfoEDX & (1 << 23)) s_cpuFeatures |= cpufmMMX;
-		if(featureInfoEDX & (1 << 25)) s_cpuFeatures |= cpufmSSE;
-		if(featureInfoEDX & (1 << 26)) s_cpuFeatures |= cpufmSSE2;
-		if(featureInfoECX & (1 <<  0)) s_cpuFeatures |= cpufmSSE3;
-		if(featureInfoECX & (1 <<  9)) s_cpuFeatures |= cpufmSSSE3;
-		if(featureInfoECX & (1 << 19)) s_cpuFeatures |= cpufmSSE4_1;
-		if(featureInfoECX & (1 << 20)) s_cpuFeatures |= cpufmSSE4_2;
-		if(featureInfoECX & (1 <<  5)) s_cpuFeatures |= cpufmVMX;
-		if(featureInfoECX & (1 <<  6)) s_cpuFeatures |= cpufmSMX;
-		if(featureInfoECX & (1 <<  7)) s_cpuFeatures |= cpufmEST;
-		if(featureInfoECX & (1 <<  3)) s_cpuFeatures |= cpufmMONITOR;
+		if(featureInfoEDX & (1 << 23)) s_cpuFeatures |= CPUFeatureMask::MMX;
+		if(featureInfoEDX & (1 << 25)) s_cpuFeatures |= CPUFeatureMask::SSE;
+		if(featureInfoEDX & (1 << 26)) s_cpuFeatures |= CPUFeatureMask::SSE2;
+		if(featureInfoECX & (1 <<  0)) s_cpuFeatures |= CPUFeatureMask::SSE3;
+		if(featureInfoECX & (1 <<  9)) s_cpuFeatures |= CPUFeatureMask::SSSE3;
+		if(featureInfoECX & (1 << 19)) s_cpuFeatures |= CPUFeatureMask::SSE4_1;
+		if(featureInfoECX & (1 << 20)) s_cpuFeatures |= CPUFeatureMask::SSE4_2;
+		if(featureInfoECX & (1 <<  5)) s_cpuFeatures |= CPUFeatureMask::VMX;
+		if(featureInfoECX & (1 <<  6)) s_cpuFeatures |= CPUFeatureMask::SMX;
+		if(featureInfoECX & (1 <<  7)) s_cpuFeatures |= CPUFeatureMask::EST;
+		if(featureInfoECX & (1 <<  3)) s_cpuFeatures |= CPUFeatureMask::MONITOR;
 	}
 
 	cpuid(CPUInfo, 0x80000000);
@@ -358,12 +363,12 @@ size_t System::memoryInFreelistOfMalloc()
 
 size_t System::memoryAllocatedByMalloc()
 {
-	return mstats().chunks_used;
+	return mstats().bytes_used;
 }
 
 size_t System::memoryInFreelistOfMalloc()
 {
-	return mstats().chunks_free;
+	return mstats().bytes_free;
 }
 #else
 

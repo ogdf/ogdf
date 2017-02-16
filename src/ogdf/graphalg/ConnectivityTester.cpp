@@ -48,9 +48,7 @@ void ConnectivityTester::restrictNodes(Graph & graph)
 	List<node> nodes;
 	graph.allNodes(nodes);
 
-	if(m_source != nullptr) {
-		delete m_source;
-	}
+	delete m_source;
 
 	m_source = new NodeArray<node>(graph);
 

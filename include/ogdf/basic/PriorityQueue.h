@@ -38,8 +38,7 @@
 #include <ogdf/basic/EdgeArray.h>
 #include <ogdf/basic/HashArray.h>
 
-#include <ogdf/internal/heap/PairingHeap.h>
-
+#include <ogdf/basic/heap/PairingHeap.h>
 
 namespace ogdf {
 
@@ -164,7 +163,7 @@ public:
 		return m_impl->top();
 	}
 
-	//! Inserts a new element with given \a value into the queue.
+	//! Inserts a new element with given \p value into the queue.
 	/*
 	 * @param value A value to be inserted.
 	 * @return Handle to the inserted node.
@@ -203,7 +202,7 @@ public:
 		m_impl->pop();
 	}
 
-	//! Decreases value of the element specified by \a handle to \a value.
+	//! Decreases value of the element specified by \p handle to \p value.
 	/**
 	 * Behaviour of this function is undefined if handle does not belong to
 	 * a the queue or new value is greater than old one.
@@ -215,9 +214,9 @@ public:
 		m_impl->decrease(pos, value);
 	}
 
-	//! Merges in enqueued values of \a other queue.
+	//! Merges in enqueued values of \p other queue.
 	/**
-	 * After merge \a other queue becomes empty and is valid for further usage.
+	 * After merge \p other queue becomes empty and is valid for further usage.
 	 *
 	 * @param other A queue to be merged in.
 	 */

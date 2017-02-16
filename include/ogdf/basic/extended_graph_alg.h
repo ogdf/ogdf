@@ -39,10 +39,8 @@
 
 namespace ogdf {
 
-
-//---------------------------------------------------------
-// Methods for induced subgraphs
-//---------------------------------------------------------
+//! \name Methods for induced subgraphs
+//! @{
 
 //! Computes the subgraph induced by a list of nodes.
 /**
@@ -70,7 +68,7 @@ void inducedSubGraph(const Graph &G, LISTITERATOR start, Graph &subGraph)
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
  *                 an induced subgraph shall be computed.
  * @param subGraph is assigned the computed subgraph.
- * @param nodeTableOrig2New is assigned a mapping from the nodes in \a G to the nodes in \a subGraph.
+ * @param nodeTableOrig2New is assigned a mapping from the nodes in \p G to the nodes in \p subGraph.
  */
 template<class LISTITERATOR>
 void inducedSubGraph(
@@ -114,8 +112,8 @@ void inducedSubGraph(
  * @param start    is a list iterator pointing to the first element in a list of nodes, for which
  *                 an induced subgraph shall be computed.
  * @param subGraph is assigned the computed subgraph.
- * @param nodeTableOrig2New is assigned a mapping from the nodes in \a G to the nodes in \a subGraph.
- * @param edgeTableOrig2New is assigned a mapping from the edges in \a G to the egdes in \a subGraph.
+ * @param nodeTableOrig2New is assigned a mapping from the nodes in \p G to the nodes in \p subGraph.
+ * @param edgeTableOrig2New is assigned a mapping from the edges in \p G to the egdes in \p subGraph.
  */
 template<class LISTITERATOR>
 void inducedSubGraph(
@@ -190,12 +188,11 @@ void inducedSubgraph(Graph &G, NODELISTITERATOR &it, EDGELIST &E)
 }
 
 
-//---------------------------------------------------------
-// Methods for clustered graphs
-//---------------------------------------------------------
+//! @}
+//! \name Methods for clustered graphs
+//! @{
 
-
-//! Returns true iff cluster graph \a C is c-connected.
+//! Returns true iff cluster graph \p C is c-connected.
 /**
  * @ingroup ga-connectivity
  */
@@ -206,7 +203,7 @@ OGDF_EXPORT bool isCConnected(const ClusterGraph &C);
  * @ingroup ga-connectivity
  *
  * @param C is the input cluster graph.
- * @param G is the graph associated with the cluster graph \a C; the function adds new edges to this graph.
+ * @param G is the graph associated with the cluster graph \p C; the function adds new edges to this graph.
  * @param addedEdges is assigned the list of newly created edges.
  * @param simple selects the method used: If set to true, a simple variant that does not guarantee to preserve
  *        planarity is used.
@@ -218,9 +215,9 @@ OGDF_EXPORT void makeCConnected(
 	bool simple = true);
 
 
-//---------------------------------------------------------
-// Methods for minimum spanning tree computation
-//---------------------------------------------------------
+//! @}
+//! \name Methods for minimum spanning tree computation
+//! @{
 
 //! Computes a minimum spanning tree using Prim's algorithm
 /**
@@ -386,6 +383,8 @@ T makeMinimumSpanningTree(Graph &G, const EdgeArray<T> &weight)
 	return total;
 }
 
+//! @}
+
 //! Returns true, if G is planar, false otherwise.
 /**
  * @ingroup ga-planembed
@@ -393,7 +392,7 @@ T makeMinimumSpanningTree(Graph &G, const EdgeArray<T> &weight)
  * This is a shortcut for BoyerMyrvold::isPlanar().
  *
  * @param G is the input graph.
- * @return true if \a G is planar, false otherwise.
+ * @return true if \p G is planar, false otherwise.
  */
 inline bool isPlanar(const Graph &G) {
 	return BoyerMyrvold().isPlanar(G);
@@ -431,7 +430,7 @@ inline bool isSTPlanar(
  * This is a shortcut for BoyerMyrvold::planarEmbed
  *
  * @param G is the input graph.
- * @return true if \a G is planar, false otherwise.
+ * @return true if \p G is planar, false otherwise.
  */
 inline bool planarEmbed(Graph &G) {
 	return BoyerMyrvold().planarEmbed(G);
@@ -456,12 +455,12 @@ inline bool planarSTEmbed(Graph &graph, node s, node t)
 }
 
 
-//! Constructs a planar embedding of G. It assumes that \a G is planar!
+//! Constructs a planar embedding of G. It assumes that \p G is planar!
 /**
  * @ingroup ga-planembed
  *
- * This routine is slightly faster than planarEmbed(), but requires \a G to be planar.
- * If \a G is not planar, the graph will be destroyed while trying to embed it!
+ * This routine is slightly faster than planarEmbed(), but requires \p G to be planar.
+ * If \p G is not planar, the graph will be destroyed while trying to embed it!
  *
  * This is a shortcut for BoyerMyrvold::planarEmbedPlanarGraph().
  *

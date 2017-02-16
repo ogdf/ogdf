@@ -58,7 +58,7 @@ public:
 	BertaultLayout(double length, int number);	// length= desired edge length... number= number of iterations
 
 	//! Constructor, with user defined values for number of iterations.
-	BertaultLayout(int number);	// number= number of iterations
+	explicit BertaultLayout(int number);	// number= number of iterations
 
 
 	//! The main call to the algorithm. AG should have nodeGraphics and EdgeGraphics attributes enabled.
@@ -172,7 +172,9 @@ private:
 	//! Insert method for the data structure which stores the heirarchy of containment of Connected Components
 	int insert(CCElement *new1,CCElement *node,GraphAttributes &PAG,PlanRep &PG);
 
-	//! Checks if the first connected component is within the second one. Returns -1 if not contained. If contained, returns the index of the face of the second connected component which contains it
+	//! Checks if the first connected component is within the second one.
+	//! Returns -1 if not contained.
+	//! If contained, returns the index of the face of the second connected component which contains it
 	int contained(CCElement *ele1,CCElement *ele2,GraphAttributes &PAG,PlanRep &PG);
 
 	//! Computes the surrounding edges from the data calculated so far
@@ -183,7 +185,7 @@ private:
 	{
 		double x;
 		double y;
-	} i;
+	} proj;
 	NodeArray<BertaultSections> sect;				//! Sections associated with all nodes
 	NodeArray<double> F_x;					//! Force in x direction
 	NodeArray<double> F_y;      				//! Force in y direction
